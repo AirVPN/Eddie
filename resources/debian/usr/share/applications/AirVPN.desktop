@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=AirVPN
+Comment=AirVPN
+Exec=/usr/bin/AirVPN
+Icon=/usr/share/pixmaps/AirVPN.png
+Terminal=false
+Type=Application
+Categories=GNOME;Network
+
