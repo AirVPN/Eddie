@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <hosts>
+    <host address="airvpn.org" />
+    <host address="212.117.180.25" />
+    <host address="85.17.207.151" />
+    <host address="airvpn.info" />
+    <host address="airvpn.ch" />
+    <host address="airvpn.eu" />
+  </hosts>
+</manifest>

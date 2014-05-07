@@ -1,0 +1,249 @@
+﻿// <airvpn_source_header>
+// This file is part of AirVPN Client software.
+// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+//
+// AirVPN Client is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// AirVPN Client is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
+// </airvpn_source_header>
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+namespace AirVPN.Core
+{
+    public class Software
+    {		
+		public static bool IPV6 = false;
+
+		public static string OpenVpnDriver = "";
+		public static string OpenVpnPath = "";
+		public static string OpenVpnVersion = "";
+
+		public static string SshPath = "";
+		public static string SshVersion = "";
+		public static string SslPath = "";
+		public static string SslVersion = "";
+
+		public static void Checking()
+		{
+			// OpenVPN Driver
+			try
+			{
+				OpenVpnDriver = Platform.Instance.GetDriverAvailable();				
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, e);
+				OpenVpnDriver = "";
+			}
+
+			
+			// OpenVPN Binary
+			try
+			{
+				string executableName = "openvpn";
+				
+				OpenVpnPath = FindExecutable(executableName);
+
+				if (OpenVpnPath != "")
+				{
+					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version", "", true, false).Trim();
+					if (OpenVpnVersion != "")
+					{
+						int posS = OpenVpnVersion.IndexOf(" ", 8);
+						if (posS > 1)
+							OpenVpnVersion = OpenVpnVersion.Substring(0, posS);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, e);
+				OpenVpnPath = "";
+			}
+
+			
+			// SSH Tunnel Binary
+			try
+			{
+				string executableName = "ssh";
+								
+				SshPath = FindExecutable(executableName);
+
+				if (SshPath != "")
+				{
+					string arguments = "-V";
+					SshVersion = Platform.Instance.Shell(SshPath, arguments, "", true, false).Trim();
+					if (SshVersion != "")
+					{
+						if (Platform.Instance is Platforms.Windows)
+							SshVersion = SshVersion.Replace(": Release", "").Trim();
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, e);
+				SshPath = "";
+			}
+
+			
+			// SSL Tunnel Binary
+			try
+			{
+				string executableName = "ssl";
+								
+				SslPath = FindExecutable(executableName);
+
+				
+				if (SslPath != "")
+				{
+					string arguments = "-version";					
+					SslVersion = Platform.Instance.Shell(SslPath, arguments, "", true, false);
+					int posS = SslVersion.IndexOf(" ", 8);					
+					if (posS > 1)
+						SslVersion = SslVersion.Substring(0, posS);
+				}
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, e);
+				SshPath = "";
+			}
+
+			// IPV6
+			try
+			{
+				IPV6 = Platform.Instance.IpV6Enabled();				
+			}
+			catch (Exception)
+			{
+				IPV6 = false;
+			}			
+		}
+
+		public static void Log()
+		{
+			if(OpenVpnDriver != "")
+			{
+				Engine.Instance.Log(Engine.LogType.Info, "OpenVPN Driver - " + OpenVpnDriver);
+			}
+			else
+			{
+				Engine.Instance.Log(Engine.LogType.Error, "OpenVPN Driver - " + Messages.NotAvailable);
+			}
+
+			if(OpenVpnPath != "")
+			{
+				Engine.Instance.Log(Engine.LogType.Info, "OpenVPN - Version: " + OpenVpnVersion + " (" + OpenVpnPath + ")");
+			}
+			else
+			{
+				Engine.Instance.Log(Engine.LogType.Error, "OpenVPN - " + Messages.NotAvailable);
+			}
+
+			if(SshPath != "")
+			{
+				Engine.Instance.Log(Engine.LogType.Info, "SSH - Version: " + SshVersion + " (" + SshPath + ")");
+			}
+			else
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, "SSH - " + Messages.NotAvailable);
+			}
+
+			if(SslPath != "")
+			{
+				Engine.Instance.Log(Engine.LogType.Info, "SSL - Version: " + SslVersion + " (" + SslPath + ")");
+			}
+			else
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, "SSL - " + Messages.NotAvailable);
+			}
+
+			Engine.Instance.Log(Engine.LogType.Info, "IPV6: " + (IPV6 ? Messages.Available : Messages.NotAvailable));
+		}
+
+		public static string FindExecutable(string name)
+		{
+			string filename = name;
+
+			if (Platform.Instance is Platforms.Windows)
+			{
+				if (name == "openvpn")
+					filename = "openvpn.exe";
+				else if (name == "ssh")
+					filename = "plink.exe";
+				else if (name == "ssl")
+					filename = "stunnel.exe";
+			}
+			else
+			{
+				if (name == "ssl")
+					filename = "stunnel";
+			}
+
+			string path = FindResource(filename, name);
+			
+			return path;
+		}
+
+		public static string FindResource(string filename)
+		{
+			return FindResource(filename, "");
+		}
+
+		public static string FindResource(string filename, string name)
+		{	
+			// Same path
+			{
+				string path = Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/" + filename);
+				if (File.Exists(path))
+					return path;
+			}
+
+			// Custom location
+			if(name != "")
+			{
+				string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get("executables." + name));
+				if (File.Exists(path))
+					return path;
+			}
+
+			// GIT source tree
+			if (Engine.Instance.DevelopmentEnvironment)
+			{
+				string path = Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/../../../../deploy/" + Platform.Instance.GetSystemCode() + "/" + filename);				
+				if (File.Exists(path))
+					return path;
+			}
+
+			// Linux
+			if ((Platform.Instance is Platforms.Linux) || (Platform.Instance is Platforms.Osx))
+			{
+				if (filename == "stunnel") // ...
+					filename = "stunnel4";
+
+				string path = "/usr/bin/" + filename;
+				if (File.Exists(path))
+					return path;
+			}
+
+			return "";
+		}
+
+
+
+	}
+}
