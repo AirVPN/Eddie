@@ -92,11 +92,8 @@ namespace AirVPN.Core
 
 		public static XmlDocument Fetch(Dictionary<string, string> parameters)
 		{
-			if(Engine.Instance.IsLogged())
-			{
-				parameters["login"] = Engine.Instance.Storage.Get("login");
-				parameters["password"] = Engine.Instance.Storage.Get("password");
-			}
+			parameters["login"] = Engine.Instance.Storage.Get("login");
+			parameters["password"] = Engine.Instance.Storage.Get("password");
 			parameters["system"] = Platform.Instance.GetSystemCode();
 			parameters["version"] = Constants.VersionInt.ToString(CultureInfo.InvariantCulture);
 

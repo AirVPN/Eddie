@@ -87,19 +87,10 @@ namespace Deploy
 			if(Platform.Instance is AirVPN.Core.Platforms.Linux)
 				pathBaseTemp = "/tmp/airvpn_deploy";
 
+			int latestNetFramework = 0;
+
 			foreach (string platform in ListPlatforms)
 			{
-				if (platform == "windows8")
-				{
-					Log("Build the solution with .NET Framework 4.");
-					Pause();
-				}
-				else
-				{
-					Log("Build the solution with .NET Framework 2.");
-					Pause();
-				}
-
 				foreach (string arch in ListArch)
 				{
 					foreach (string package in ListPackage)
@@ -115,6 +106,17 @@ namespace Deploy
 						// Other Skip?
 						if ((Platform.Instance is AirVPN.Core.Platforms.Osx) && (arch == "x86")) // OSX 32 bit not supported.
 							continue;
+
+						int requiredNetFramework = 2;
+						if(platform == "windows8")
+							requiredNetFramework = 4;
+
+						if(latestNetFramework != requiredNetFramework)
+						{
+							Log("Ensure that solution is builded with .NET Framework " + requiredNetFramework.ToString());
+							Pause();
+							latestNetFramework = requiredNetFramework;
+						}
 
 						string archiveName = "airvpn_" + platform + "_" + arch + "_" + package;
 						string fileName = "airvpn_" + platform + "_" + arch;
