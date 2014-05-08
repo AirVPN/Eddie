@@ -44,7 +44,8 @@ namespace AirVPN.Gui.Forms
 			this.mnuHomePage = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuDevelopersMan = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopersUpdateManifest = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopersDefaultManifest = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuTools = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,6 +80,8 @@ namespace AirVPN.Gui.Forms
 			this.cmdCancel = new AirVPN.Gui.Skin.Button();
 			this.cmdConnect = new AirVPN.Gui.Skin.Button();
 			this.pnlWelcome = new AirVPN.Gui.Skin.Panel();
+			this.lblLoginIcon = new System.Windows.Forms.Label();
+			this.lblConnectSubtitle = new AirVPN.Gui.Skin.Label();
 			this.cmdLogin = new AirVPN.Gui.Skin.Button();
 			this.lblPassword = new AirVPN.Gui.Skin.Label();
 			this.lblLogin = new AirVPN.Gui.Skin.Label();
@@ -88,6 +91,20 @@ namespace AirVPN.Gui.Forms
 			this.txtLogin = new AirVPN.Gui.Skin.TextBox();
 			this.tabMain = new AirVPN.Gui.Skin.TabControl();
 			this.tabOverview = new AirVPN.Gui.Skin.TabPage();
+			this.pnlConnected = new AirVPN.Gui.Skin.Panel();
+			this.txtConnectedExitIp = new AirVPN.Gui.Skin.Label();
+			this.lblConnectedExitIp = new AirVPN.Gui.Skin.Label();
+			this.lblConnectedUpload = new AirVPN.Gui.Skin.Label();
+			this.txtConnectedUpload = new System.Windows.Forms.Label();
+			this.txtConnectedDownload = new System.Windows.Forms.Label();
+			this.lblConnectedDownload = new AirVPN.Gui.Skin.Label();
+			this.txtConnectedSince = new AirVPN.Gui.Skin.Label();
+			this.lblConnectedSince = new AirVPN.Gui.Skin.Label();
+			this.cmdDisconnect = new AirVPN.Gui.Skin.Button();
+			this.lblConnectedLocation = new AirVPN.Gui.Skin.Label();
+			this.lblConnectedTo = new AirVPN.Gui.Skin.Label();
+			this.lblConnectedServerName = new AirVPN.Gui.Skin.Label();
+			this.lblConnectedCountry = new AirVPN.Gui.Skin.Label();
 			this.pnlWaiting = new AirVPN.Gui.Skin.Panel();
 			this.lblWait2 = new AirVPN.Gui.Skin.Label();
 			this.lblWait1 = new AirVPN.Gui.Skin.Label();
@@ -132,6 +149,7 @@ namespace AirVPN.Gui.Forms
 			this.pnlWelcome.SuspendLayout();
 			this.tabMain.SuspendLayout();
 			this.tabOverview.SuspendLayout();
+			this.pnlConnected.SuspendLayout();
 			this.pnlWaiting.SuspendLayout();
 			this.tabSpeed.SuspendLayout();
 			this.tabServers.SuspendLayout();
@@ -245,19 +263,27 @@ namespace AirVPN.Gui.Forms
 			// mnuDevelopers
 			// 
 			this.mnuDevelopers.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuDevelopersMan,
+            this.mnuDevelopersManText,
+            this.mnuDevelopersManBBCode,
             this.mnuDevelopersUpdateManifest,
             this.mnuDevelopersDefaultManifest});
 			this.mnuDevelopers.Name = "mnuDevelopers";
 			this.mnuDevelopers.Size = new System.Drawing.Size(251, 22);
 			this.mnuDevelopers.Text = "&Developers";
 			// 
-			// mnuDevelopersMan
+			// mnuDevelopersManText
 			// 
-			this.mnuDevelopersMan.Name = "mnuDevelopersMan";
-			this.mnuDevelopersMan.Size = new System.Drawing.Size(380, 22);
-			this.mnuDevelopersMan.Text = "Man";
-			this.mnuDevelopersMan.Click += new System.EventHandler(this.mnuDevelopersDefaultOptions_Click);
+			this.mnuDevelopersManText.Name = "mnuDevelopersManText";
+			this.mnuDevelopersManText.Size = new System.Drawing.Size(380, 22);
+			this.mnuDevelopersManText.Text = "Man - Text Format";
+			this.mnuDevelopersManText.Click += new System.EventHandler(this.mnuDevelopersManText_Click);
+			// 
+			// mnuDevelopersManBBCode
+			// 
+			this.mnuDevelopersManBBCode.Name = "mnuDevelopersManBBCode";
+			this.mnuDevelopersManBBCode.Size = new System.Drawing.Size(380, 22);
+			this.mnuDevelopersManBBCode.Text = "Man - BBCode Format";
+			this.mnuDevelopersManBBCode.Click += new System.EventHandler(this.mnuDevelopersManBBCode_Click);
 			// 
 			// mnuDevelopersUpdateManifest
 			// 
@@ -900,10 +926,10 @@ namespace AirVPN.Gui.Forms
 			this.cmdConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdConnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.cmdConnect.ImageKey = "enter";
-			this.cmdConnect.Location = new System.Drawing.Point(78, 119);
+			this.cmdConnect.Location = new System.Drawing.Point(16, 87);
 			this.cmdConnect.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdConnect.Name = "cmdConnect";
-			this.cmdConnect.Size = new System.Drawing.Size(198, 30);
+			this.cmdConnect.Size = new System.Drawing.Size(406, 35);
 			this.cmdConnect.TabIndex = 60;
 			this.cmdConnect.Text = "Enter";
 			this.cmdConnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -913,6 +939,8 @@ namespace AirVPN.Gui.Forms
 			// pnlWelcome
 			// 
 			this.pnlWelcome.BackColor = System.Drawing.Color.Transparent;
+			this.pnlWelcome.Controls.Add(this.lblLoginIcon);
+			this.pnlWelcome.Controls.Add(this.lblConnectSubtitle);
 			this.pnlWelcome.Controls.Add(this.cmdLogin);
 			this.pnlWelcome.Controls.Add(this.lblPassword);
 			this.pnlWelcome.Controls.Add(this.lblLogin);
@@ -921,11 +949,29 @@ namespace AirVPN.Gui.Forms
 			this.pnlWelcome.Controls.Add(this.chkRemember);
 			this.pnlWelcome.Controls.Add(this.txtPassword);
 			this.pnlWelcome.Controls.Add(this.txtLogin);
-			this.pnlWelcome.Location = new System.Drawing.Point(74, 22);
+			this.pnlWelcome.Location = new System.Drawing.Point(11, 22);
 			this.pnlWelcome.Margin = new System.Windows.Forms.Padding(2);
 			this.pnlWelcome.Name = "pnlWelcome";
-			this.pnlWelcome.Size = new System.Drawing.Size(285, 176);
+			this.pnlWelcome.Size = new System.Drawing.Size(440, 190);
 			this.pnlWelcome.TabIndex = 53;
+			// 
+			// lblLoginIcon
+			// 
+			this.lblLoginIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.lblLoginIcon.Image = global::WinForms.Properties.Resources.login;
+			this.lblLoginIcon.Location = new System.Drawing.Point(14, 4);
+			this.lblLoginIcon.Name = "lblLoginIcon";
+			this.lblLoginIcon.Size = new System.Drawing.Size(65, 78);
+			this.lblLoginIcon.TabIndex = 70;
+			// 
+			// lblConnectSubtitle
+			// 
+			this.lblConnectSubtitle.Location = new System.Drawing.Point(16, 127);
+			this.lblConnectSubtitle.Name = "lblConnectSubtitle";
+			this.lblConnectSubtitle.Size = new System.Drawing.Size(406, 18);
+			this.lblConnectSubtitle.TabIndex = 63;
+			this.lblConnectSubtitle.Text = "label2";
+			this.lblConnectSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// cmdLogin
 			// 
@@ -936,10 +982,10 @@ namespace AirVPN.Gui.Forms
 			this.cmdLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogin.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.cmdLogin.ImageKey = "enter";
-			this.cmdLogin.Location = new System.Drawing.Point(78, 80);
+			this.cmdLogin.Location = new System.Drawing.Point(343, 2);
 			this.cmdLogin.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdLogin.Name = "cmdLogin";
-			this.cmdLogin.Size = new System.Drawing.Size(198, 30);
+			this.cmdLogin.Size = new System.Drawing.Size(79, 56);
 			this.cmdLogin.TabIndex = 61;
 			this.cmdLogin.Text = "Login";
 			this.cmdLogin.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -951,7 +997,7 @@ namespace AirVPN.Gui.Forms
 			this.lblPassword.BackColor = System.Drawing.Color.Transparent;
 			this.lblPassword.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblPassword.ForeColor = System.Drawing.Color.Black;
-			this.lblPassword.Location = new System.Drawing.Point(3, 31);
+			this.lblPassword.Location = new System.Drawing.Point(83, 34);
 			this.lblPassword.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lblPassword.Name = "lblPassword";
 			this.lblPassword.Size = new System.Drawing.Size(71, 22);
@@ -964,7 +1010,7 @@ namespace AirVPN.Gui.Forms
 			this.lblLogin.BackColor = System.Drawing.Color.Transparent;
 			this.lblLogin.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblLogin.ForeColor = System.Drawing.Color.Black;
-			this.lblLogin.Location = new System.Drawing.Point(3, 2);
+			this.lblLogin.Location = new System.Drawing.Point(83, 5);
 			this.lblLogin.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lblLogin.Name = "lblLogin";
 			this.lblLogin.Size = new System.Drawing.Size(71, 22);
@@ -977,7 +1023,7 @@ namespace AirVPN.Gui.Forms
 			this.chkLockedNetwork.AutoSize = true;
 			this.chkLockedNetwork.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.chkLockedNetwork.ForeColor = System.Drawing.Color.White;
-			this.chkLockedNetwork.Location = new System.Drawing.Point(6, 153);
+			this.chkLockedNetwork.Location = new System.Drawing.Point(17, 161);
 			this.chkLockedNetwork.Margin = new System.Windows.Forms.Padding(2);
 			this.chkLockedNetwork.Name = "chkLockedNetwork";
 			this.chkLockedNetwork.Size = new System.Drawing.Size(165, 18);
@@ -990,7 +1036,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkRemember.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.chkRemember.ForeColor = System.Drawing.Color.White;
-			this.chkRemember.Location = new System.Drawing.Point(175, 62);
+			this.chkRemember.Location = new System.Drawing.Point(236, 62);
 			this.chkRemember.Margin = new System.Windows.Forms.Padding(2);
 			this.chkRemember.Name = "chkRemember";
 			this.chkRemember.Size = new System.Drawing.Size(99, 17);
@@ -1003,21 +1049,21 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.txtPassword.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtPassword.Location = new System.Drawing.Point(78, 31);
+			this.txtPassword.Location = new System.Drawing.Point(158, 31);
 			this.txtPassword.Margin = new System.Windows.Forms.Padding(2);
 			this.txtPassword.Name = "txtPassword";
 			this.txtPassword.PasswordChar = '*';
-			this.txtPassword.Size = new System.Drawing.Size(198, 27);
+			this.txtPassword.Size = new System.Drawing.Size(178, 27);
 			this.txtPassword.TabIndex = 51;
 			this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
 			// 
 			// txtLogin
 			// 
 			this.txtLogin.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtLogin.Location = new System.Drawing.Point(78, 2);
+			this.txtLogin.Location = new System.Drawing.Point(158, 2);
 			this.txtLogin.Margin = new System.Windows.Forms.Padding(2);
 			this.txtLogin.Name = "txtLogin";
-			this.txtLogin.Size = new System.Drawing.Size(198, 27);
+			this.txtLogin.Size = new System.Drawing.Size(178, 27);
 			this.txtLogin.TabIndex = 50;
 			this.txtLogin.TextChanged += new System.EventHandler(this.txtLogin_TextChanged);
 			// 
@@ -1035,7 +1081,7 @@ namespace AirVPN.Gui.Forms
 			this.tabMain.Controls.Add(this.tabLogs);
 			this.tabMain.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
 			this.tabMain.ItemSize = new System.Drawing.Size(80, 20);
-			this.tabMain.Location = new System.Drawing.Point(106, 103);
+			this.tabMain.Location = new System.Drawing.Point(12, 12);
 			this.tabMain.Multiline = true;
 			this.tabMain.Name = "tabMain";
 			this.tabMain.SelectedIndex = 0;
@@ -1044,14 +1090,177 @@ namespace AirVPN.Gui.Forms
 			// 
 			// tabOverview
 			// 
-			this.tabOverview.Controls.Add(this.pnlWaiting);
 			this.tabOverview.Controls.Add(this.pnlWelcome);
+			this.tabOverview.Controls.Add(this.pnlConnected);
+			this.tabOverview.Controls.Add(this.pnlWaiting);
 			this.tabOverview.Location = new System.Drawing.Point(4, 24);
 			this.tabOverview.Name = "tabOverview";
 			this.tabOverview.Size = new System.Drawing.Size(660, 301);
 			this.tabOverview.TabIndex = 4;
 			this.tabOverview.Text = "Overview";
 			this.tabOverview.UseVisualStyleBackColor = true;
+			// 
+			// pnlConnected
+			// 
+			this.pnlConnected.BackColor = System.Drawing.Color.Transparent;
+			this.pnlConnected.Controls.Add(this.txtConnectedExitIp);
+			this.pnlConnected.Controls.Add(this.lblConnectedExitIp);
+			this.pnlConnected.Controls.Add(this.lblConnectedUpload);
+			this.pnlConnected.Controls.Add(this.txtConnectedUpload);
+			this.pnlConnected.Controls.Add(this.txtConnectedDownload);
+			this.pnlConnected.Controls.Add(this.lblConnectedDownload);
+			this.pnlConnected.Controls.Add(this.txtConnectedSince);
+			this.pnlConnected.Controls.Add(this.lblConnectedSince);
+			this.pnlConnected.Controls.Add(this.cmdDisconnect);
+			this.pnlConnected.Controls.Add(this.lblConnectedLocation);
+			this.pnlConnected.Controls.Add(this.lblConnectedTo);
+			this.pnlConnected.Controls.Add(this.lblConnectedServerName);
+			this.pnlConnected.Controls.Add(this.lblConnectedCountry);
+			this.pnlConnected.Location = new System.Drawing.Point(211, 47);
+			this.pnlConnected.Name = "pnlConnected";
+			this.pnlConnected.Size = new System.Drawing.Size(440, 190);
+			this.pnlConnected.TabIndex = 66;
+			// 
+			// txtConnectedExitIp
+			// 
+			this.txtConnectedExitIp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txtConnectedExitIp.Location = new System.Drawing.Point(151, 111);
+			this.txtConnectedExitIp.Name = "txtConnectedExitIp";
+			this.txtConnectedExitIp.Size = new System.Drawing.Size(270, 15);
+			this.txtConnectedExitIp.TabIndex = 69;
+			this.txtConnectedExitIp.Text = "1.2.3.4";
+			this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// lblConnectedExitIp
+			// 
+			this.lblConnectedExitIp.Location = new System.Drawing.Point(24, 111);
+			this.lblConnectedExitIp.Name = "lblConnectedExitIp";
+			this.lblConnectedExitIp.Size = new System.Drawing.Size(120, 15);
+			this.lblConnectedExitIp.TabIndex = 68;
+			this.lblConnectedExitIp.Text = "Public Exit IP:";
+			this.lblConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lblConnectedUpload
+			// 
+			this.lblConnectedUpload.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblConnectedUpload.Location = new System.Drawing.Point(225, 74);
+			this.lblConnectedUpload.Name = "lblConnectedUpload";
+			this.lblConnectedUpload.Size = new System.Drawing.Size(61, 15);
+			this.lblConnectedUpload.TabIndex = 65;
+			this.lblConnectedUpload.Text = "Upload:";
+			this.lblConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// txtConnectedUpload
+			// 
+			this.txtConnectedUpload.BackColor = System.Drawing.Color.White;
+			this.txtConnectedUpload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txtConnectedUpload.ForeColor = System.Drawing.Color.ForestGreen;
+			this.txtConnectedUpload.Location = new System.Drawing.Point(289, 68);
+			this.txtConnectedUpload.Name = "txtConnectedUpload";
+			this.txtConnectedUpload.Size = new System.Drawing.Size(135, 30);
+			this.txtConnectedUpload.TabIndex = 67;
+			this.txtConnectedUpload.Text = "14332 kb/s";
+			this.txtConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// txtConnectedDownload
+			// 
+			this.txtConnectedDownload.BackColor = System.Drawing.Color.White;
+			this.txtConnectedDownload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txtConnectedDownload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(91)))), ((int)(((byte)(157)))), ((int)(((byte)(255)))));
+			this.txtConnectedDownload.Location = new System.Drawing.Point(85, 68);
+			this.txtConnectedDownload.Name = "txtConnectedDownload";
+			this.txtConnectedDownload.Size = new System.Drawing.Size(135, 30);
+			this.txtConnectedDownload.TabIndex = 65;
+			this.txtConnectedDownload.Text = "14332 kb/s";
+			this.txtConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// lblConnectedDownload
+			// 
+			this.lblConnectedDownload.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblConnectedDownload.Location = new System.Drawing.Point(12, 76);
+			this.lblConnectedDownload.Name = "lblConnectedDownload";
+			this.lblConnectedDownload.Size = new System.Drawing.Size(70, 15);
+			this.lblConnectedDownload.TabIndex = 64;
+			this.lblConnectedDownload.Text = "Download:";
+			this.lblConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// txtConnectedSince
+			// 
+			this.txtConnectedSince.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txtConnectedSince.Location = new System.Drawing.Point(151, 127);
+			this.txtConnectedSince.Name = "txtConnectedSince";
+			this.txtConnectedSince.Size = new System.Drawing.Size(270, 15);
+			this.txtConnectedSince.TabIndex = 63;
+			this.txtConnectedSince.Text = "VPN Time";
+			this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// lblConnectedSince
+			// 
+			this.lblConnectedSince.Location = new System.Drawing.Point(24, 127);
+			this.lblConnectedSince.Name = "lblConnectedSince";
+			this.lblConnectedSince.Size = new System.Drawing.Size(120, 15);
+			this.lblConnectedSince.TabIndex = 62;
+			this.lblConnectedSince.Text = "Connected since:";
+			this.lblConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cmdDisconnect
+			// 
+			this.cmdDisconnect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdDisconnect.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdDisconnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdDisconnect.FlatAppearance.BorderSize = 0;
+			this.cmdDisconnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdDisconnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.cmdDisconnect.ImageKey = "enter";
+			this.cmdDisconnect.Location = new System.Drawing.Point(15, 155);
+			this.cmdDisconnect.Margin = new System.Windows.Forms.Padding(0);
+			this.cmdDisconnect.Name = "cmdDisconnect";
+			this.cmdDisconnect.Size = new System.Drawing.Size(410, 30);
+			this.cmdDisconnect.TabIndex = 61;
+			this.cmdDisconnect.Text = "Disconnect";
+			this.cmdDisconnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+			this.cmdDisconnect.UseVisualStyleBackColor = true;
+			this.cmdDisconnect.Click += new System.EventHandler(this.cmdDisconnect_Click);
+			// 
+			// lblConnectedLocation
+			// 
+			this.lblConnectedLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblConnectedLocation.Location = new System.Drawing.Point(156, 40);
+			this.lblConnectedLocation.Name = "lblConnectedLocation";
+			this.lblConnectedLocation.Size = new System.Drawing.Size(266, 14);
+			this.lblConnectedLocation.TabIndex = 3;
+			this.lblConnectedLocation.Text = "Location";
+			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// lblConnectedTo
+			// 
+			this.lblConnectedTo.Location = new System.Drawing.Point(9, 11);
+			this.lblConnectedTo.Name = "lblConnectedTo";
+			this.lblConnectedTo.Size = new System.Drawing.Size(100, 20);
+			this.lblConnectedTo.TabIndex = 2;
+			this.lblConnectedTo.Text = "Connected to:";
+			this.lblConnectedTo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lblConnectedServerName
+			// 
+			this.lblConnectedServerName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+			this.lblConnectedServerName.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblConnectedServerName.Location = new System.Drawing.Point(154, 10);
+			this.lblConnectedServerName.Name = "lblConnectedServerName";
+			this.lblConnectedServerName.Size = new System.Drawing.Size(271, 29);
+			this.lblConnectedServerName.TabIndex = 1;
+			this.lblConnectedServerName.Text = "Server Name";
+			this.lblConnectedServerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// lblConnectedCountry
+			// 
+			this.lblConnectedCountry.BackColor = System.Drawing.Color.Transparent;
+			this.lblConnectedCountry.Image = global::WinForms.Properties.Resources.blacklist_1;
+			this.lblConnectedCountry.Location = new System.Drawing.Point(127, 13);
+			this.lblConnectedCountry.Name = "lblConnectedCountry";
+			this.lblConnectedCountry.Size = new System.Drawing.Size(20, 20);
+			this.lblConnectedCountry.TabIndex = 0;
+			this.lblConnectedCountry.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// pnlWaiting
 			// 
@@ -1060,7 +1269,7 @@ namespace AirVPN.Gui.Forms
 			this.pnlWaiting.Controls.Add(this.lblWait2);
 			this.pnlWaiting.Controls.Add(this.lblWait1);
 			this.pnlWaiting.Controls.Add(this.cmdCancel);
-			this.pnlWaiting.Location = new System.Drawing.Point(391, 86);
+			this.pnlWaiting.Location = new System.Drawing.Point(69, 224);
 			this.pnlWaiting.Name = "pnlWaiting";
 			this.pnlWaiting.Size = new System.Drawing.Size(231, 74);
 			this.pnlWaiting.TabIndex = 65;
@@ -1405,6 +1614,7 @@ namespace AirVPN.Gui.Forms
 			this.pnlWelcome.PerformLayout();
 			this.tabMain.ResumeLayout(false);
 			this.tabOverview.ResumeLayout(false);
+			this.pnlConnected.ResumeLayout(false);
 			this.pnlWaiting.ResumeLayout(false);
 			this.tabSpeed.ResumeLayout(false);
 			this.tabServers.ResumeLayout(false);
@@ -1436,7 +1646,7 @@ namespace AirVPN.Gui.Forms
         public System.Windows.Forms.ImageList imgCountries;
         private System.Windows.Forms.ToolStripMenuItem mnuAbout;
 		private System.Windows.Forms.ToolStripMenuItem mnuDevelopers;
-        private System.Windows.Forms.ToolStripMenuItem mnuDevelopersMan;
+        private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManText;
         private System.Windows.Forms.ToolStripMenuItem mnuDevelopersUpdateManifest;
 		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersDefaultManifest;
 		private System.Windows.Forms.Timer tmrRefreshDetails;
@@ -1499,7 +1709,24 @@ namespace AirVPN.Gui.Forms
 		private Skin.Label lblWait1;
 		private Skin.Button cmdLogsSupport;
 		private Skin.Label lblSpeedResolution;
-		private Skin.Label lblScoreType;		
+		private Skin.Label lblScoreType;
+		private Skin.Panel pnlConnected;
+		private Skin.Label txtConnectedExitIp;
+		private Skin.Label lblConnectedExitIp;
+		private Skin.Label lblConnectedUpload;
+		private System.Windows.Forms.Label txtConnectedUpload;
+		private System.Windows.Forms.Label txtConnectedDownload;
+		private Skin.Label lblConnectedDownload;
+		private Skin.Label txtConnectedSince;
+		private Skin.Label lblConnectedSince;
+		private Skin.Button cmdDisconnect;
+		private Skin.Label lblConnectedLocation;
+		private Skin.Label lblConnectedTo;
+		private Skin.Label lblConnectedServerName;
+		private Skin.Label lblConnectedCountry;
+		private Skin.Label lblConnectSubtitle;
+		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManBBCode;
+		private System.Windows.Forms.Label lblLoginIcon;		
     }
 }
 

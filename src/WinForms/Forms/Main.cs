@@ -181,6 +181,9 @@ namespace AirVPN.Gui.Forms
 			}
 
 			// Tooltips
+			cmdConnect.Text = Messages.CommandConnect;
+			lblConnectSubtitle.Text = Messages.CommandConnectSubtitle;
+			cmdDisconnect.Text = Messages.CommandDisconnect;
 			this.tip.SetToolTip(this.cboScoreType, Messages.TooltipScoreType);
 			this.tip.SetToolTip(this.chkLockLast, Messages.TooltipLockLast);
 			this.tip.SetToolTip(this.cmdServersConnect, Messages.TooltipServersConnect);
@@ -423,10 +426,12 @@ namespace AirVPN.Gui.Forms
 
 		private void cmdConnect_Click(object sender, EventArgs e)
 		{
-			if (Engine.IsConnected())
-				Disconnect();
-			else
-				Connect();
+			Connect();
+		}
+
+		private void cmdDisconnect_Click(object sender, EventArgs e)
+		{
+			Disconnect();
 		}
 
 		private void cmdCancel_Click(object sender, EventArgs e)
@@ -473,14 +478,23 @@ namespace AirVPN.Gui.Forms
 			*/
 		}
 
-		private void mnuDevelopersDefaultOptions_Click(object sender, EventArgs e)
+
+		private void mnuDevelopersManText_Click(object sender, EventArgs e)
 		{
 			Forms.TextViewer Dlg = new TextViewer();
 			Dlg.Title = "Man";
-			Dlg.Body = Core.UI.Actions.GetMan();
+			Dlg.Body = Core.UI.Actions.GetMan("text");
 			Dlg.ShowDialog();
 		}
 
+		private void mnuDevelopersManBBCode_Click(object sender, EventArgs e)
+		{
+			Forms.TextViewer Dlg = new TextViewer();
+			Dlg.Title = "Man";
+			Dlg.Body = Core.UI.Actions.GetMan("bbc");
+			Dlg.ShowDialog();
+		}
+		
 		private void mnuDevelopersDefaultManifest_Click(object sender, EventArgs e)
 		{
 			XmlDocument xmlDoc = new XmlDocument();
@@ -748,6 +762,8 @@ namespace AirVPN.Gui.Forms
 				// Welcome items
 				pnlWelcome.Left = tabItemWidth / 2 - pnlWelcome.Width / 2;
 				pnlWelcome.Top = tabItemHeight / 2 - pnlWelcome.Height / 2;
+				pnlConnected.Left = tabItemWidth / 2 - pnlConnected.Width / 2;
+				pnlConnected.Top = tabItemHeight / 2 - pnlConnected.Height / 2;
 
 				// Waiting items
 				pnlWaiting.Left = 0;
@@ -908,15 +924,10 @@ namespace AirVPN.Gui.Forms
 
 			if (logged)
 			{
-				cmdConnect.Enabled = true;
-				if (connected == false)
-					cmdConnect.Text = Messages.CommandConnect;
-				else
-					cmdConnect.Text = Messages.CommandDisconnect;
+				cmdConnect.Enabled = true;					
 			}
 			else
 			{
-				cmdConnect.Text = Messages.CommandConnect;
 				cmdConnect.Enabled = false;
 			}
 
@@ -991,12 +1002,33 @@ namespace AirVPN.Gui.Forms
 						{
 							pnlWelcome.Visible = false;
 							pnlWaiting.Visible = true;
+							pnlConnected.Visible = false;
 							cmdCancel.Visible = Engine.IsWaitingCancel();
+						}
+						else if (Engine.IsConnected())
+						{
+							pnlWelcome.Visible = false;
+							pnlWaiting.Visible = false;
+							pnlConnected.Visible = true;
+
+							lblConnectedServerName.Text = Engine.CurrentServer.PublicName;
+							lblConnectedLocation.Text = Engine.CurrentServer.CountryName + ", " + Engine.CurrentServer.Location;
+							txtConnectedExitIp.Text = Engine.CurrentServer.IpExit;
+							string iconFlagCode = Engine.CurrentServer.CountryCode;
+							Image iconFlag = null;
+							if (imgCountries.Images.ContainsKey(iconFlagCode))
+							{
+								iconFlag = imgCountries.Images[iconFlagCode];
+								lblConnectedCountry.Image = iconFlag;
+							}
+							else
+								lblConnectedCountry.Image = null;
 						}
 						else
 						{
 							pnlWelcome.Visible = true;
 							pnlWaiting.Visible = false;
+							pnlConnected.Visible = false;
 						}
 						
 						// Icon                    
@@ -1071,7 +1103,7 @@ namespace AirVPN.Gui.Forms
 						bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
 						bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
 
-                        imgProgress.Visible = Engine.IsWaiting();
+                        //imgProgress.Visible = Engine.IsWaiting();
 						
                         mnuPorts.Enabled = connected;
                         mnuSpeedTest.Enabled = connected;
@@ -1145,12 +1177,16 @@ namespace AirVPN.Gui.Forms
 								TimeSpan TS = DT2 - DT1;
 								string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToLongDateString() + " " + DT1.ToLocalTime().ToLongTimeString());
 								RefreshStats("VpnConnectionStart", TSText);
+								txtConnectedSince.Text = TSText;
 							}
 							RefreshStats("VpnTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedLastRead, false, true));
 							RefreshStats("VpnTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedLastWrite, false, true));
 
 							RefreshStats("VpnSpeedDownload", Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, true));
 							RefreshStats("VpnSpeedUpload", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, true));
+							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
+							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
+
 						}
 						else
 						{
@@ -1322,6 +1358,8 @@ namespace AirVPN.Gui.Forms
 			Engine.Storage.SetBool("advanced.locked_security", NetworkLocking.Instance.GetEnabled());
         }
 
+
+		
 
         
     }

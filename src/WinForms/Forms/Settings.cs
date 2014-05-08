@@ -547,8 +547,14 @@ namespace AirVPN.Gui.Forms
 
         private void lnkModeMore_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-			Core.UI.Actions.OpenUrlFaqProtocols();
+			Core.UI.Actions.OpenUrlDocsProtocols();
         }
+
+
+		private void lnkAdvancedDocs_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Core.UI.Actions.OpenUrlDocsAdvanced();
+		}
 
         private void cmdRouteAdd_Click(object sender, EventArgs e)
         {
@@ -687,6 +693,7 @@ namespace AirVPN.Gui.Forms
 
 			MessageBox.Show(Messages.OsDriverUninstallDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
+
 
         
 

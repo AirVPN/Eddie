@@ -90,8 +90,8 @@ namespace AirVPN.Gui.Skin
             {
                 Skin.Label c2 = c as Skin.Label;
 
-                c2.BackColor = Color.Transparent;
-                c2.ForeColor = ForeColor;                                    
+                //c2.BackColor = Color.Transparent;
+                //c2.ForeColor = ForeColor;                                    
             }
 
             if (c is Skin.RadioButton)

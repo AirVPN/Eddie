@@ -205,8 +205,6 @@ namespace AirVPN.Core
 					}
 				}
 
-
-
                 if (Storage.GetBool("advanced.skip_privileges") == false)
                 {
 					if (Platform.Instance.IsAdmin() == false)
@@ -403,7 +401,7 @@ namespace AirVPN.Core
 
 			if (Storage.GetBool("help"))
 			{
-				Engine.Instance.Log(Engine.LogType.Info, Core.UI.Actions.GetMan());				
+				Engine.Instance.Log(Engine.LogType.Info, Core.UI.Actions.GetMan(Storage.Get("help_format")));				
 			}
 			else if ((login == "") || (password == ""))
 			{
@@ -1056,7 +1054,7 @@ namespace AirVPN.Core
 			// DNS
 			if (s.GetBool("advanced.dnsswitch"))
 			{
-				if (Platform.Instance is Platforms.Linux)
+				if (Platform.Instance.IsLinuxSystem())
 				{
 					string dnsScriptPath = Software.FindResource("update-resolv-conf");
 					if (dnsScriptPath != "")
@@ -1069,11 +1067,7 @@ namespace AirVPN.Core
 					{
 						Engine.Instance.Log(Engine.LogType.Error, "update-resolv-conf " + Messages.NotFound);
 					}
-				}
-				else if (Platform.Instance is Platforms.Windows)
-				{
-
-				}
+				}				
 			}
 
 
@@ -1279,7 +1273,7 @@ namespace AirVPN.Core
 				}
 			}
 
-			if (Platform.Instance is Platforms.Linux)
+			if (Platform.Instance.IsLinuxSystem())
 			{
 				if (Storage.GetBool("advanced.dnsswitch"))
 				{

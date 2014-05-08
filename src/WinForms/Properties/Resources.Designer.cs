@@ -233,16 +233,6 @@ namespace WinForms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap details_pin_l_c {
-            get {
-                object obj = ResourceManager.GetObject("details_pin_l_c", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap disconnect_16 {
             get {
                 object obj = ResourceManager.GetObject("disconnect_16", resourceCulture);
@@ -343,16 +333,6 @@ namespace WinForms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap keys {
-            get {
-                object obj = ResourceManager.GetObject("keys", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap log_error {
             get {
                 object obj = ResourceManager.GetObject("log_error", resourceCulture);
@@ -416,6 +396,16 @@ namespace WinForms.Properties {
         internal static System.Drawing.Bitmap log_warning {
             get {
                 object obj = ResourceManager.GetObject("log_warning", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap login {
+            get {
+                object obj = ResourceManager.GetObject("login", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -756,16 +746,6 @@ namespace WinForms.Properties {
         internal static System.Drawing.Bitmap topbar_red {
             get {
                 object obj = ResourceManager.GetObject("topbar_red", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap topbar_rose {
-            get {
-                object obj = ResourceManager.GetObject("topbar_rose", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

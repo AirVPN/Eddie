@@ -88,7 +88,7 @@ namespace AirVPN.Core
 					SshVersion = Platform.Instance.Shell(SshPath, arguments, "", true, false).Trim();
 					if (SshVersion != "")
 					{
-						if (Platform.Instance is Platforms.Windows)
+						if (Platform.Instance.IsWindowsSystem()) 
 							SshVersion = SshVersion.Replace(": Release", "").Trim();
 					}
 				}
@@ -179,7 +179,7 @@ namespace AirVPN.Core
 		{
 			string filename = name;
 
-			if (Platform.Instance is Platforms.Windows)
+			if (Platform.Instance.IsWindowsSystem())
 			{
 				if (name == "openvpn")
 					filename = "openvpn.exe";
@@ -230,7 +230,7 @@ namespace AirVPN.Core
 			}
 
 			// Linux
-			if ((Platform.Instance is Platforms.Linux) || (Platform.Instance is Platforms.Osx))
+			if(Platform.Instance.IsUnixSystem())
 			{
 				if (filename == "stunnel") // ...
 					filename = "stunnel4";

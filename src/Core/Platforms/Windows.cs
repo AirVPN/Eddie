@@ -335,11 +335,29 @@ namespace AirVPN.Core.Platforms
             {
                 if (adapter.Description.StartsWith("TAP-Win"))
                 {
-                    Engine.Instance.Log(Engine.LogType.Verbose, "AirVPN Windows Interface Hack executed (Interface: '" + adapter.Name + "').");
+                    Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.HackInterfaceUpDone, adapter.Name));
                     ShellCmd("netsh interface set interface \"" + adapter.Name + "\" ENABLED");
                 }
             }            
         }
+
+		/*
+		private void WaitUntilEnabled(ManagementObject objMOC)
+		{		
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				if (objMOC["SettingID"] as string == adapter.Id)
+				{
+					OperationalStatus status = adapter.OperationalStatus;
+					if (status == OperationalStatus.Up)
+					{
+						// TODO: It's always up...
+					}
+				}
+			}
+		}
+		*/
 
 		private bool SwitchToStaticDo()
 		{
@@ -366,8 +384,8 @@ namespace AirVPN.Core.Platforms
 					
 					entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
 
-					Engine.Instance.Log(Engine.LogType.Info, "Network Adapter '" + entry.Description + "' switched to STATIC.");
-
+					Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDhcpDone, entry.Description));
+					
 					ManagementBaseObject objEnableStatic = objMO.GetMethodParameters("EnableStatic");
 					//objNewIP["IPAddress"] = new string[] { ipAddress };
 					//objNewIP["SubnetMask"] = new string[] { subnetMask };
@@ -384,8 +402,9 @@ namespace AirVPN.Core.Platforms
 					ManagementBaseObject objSetGatewaysMethod = objMO.InvokeMethod("SetGateways", objSetGateways, null);
 					
 					ListOldDhcp.Add(entry);
-
+					
 					// TOOPTIMIZE: Need to wait until the interface return UP...
+					//WaitUntilEnabled(objMO); // Checking the OperationalStatus changes are not effective.
 					System.Threading.Thread.Sleep(3000);
 				}
 
@@ -422,7 +441,7 @@ namespace AirVPN.Core.Platforms
 							}
 							ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
-							Engine.Instance.Log(Engine.LogType.Info, "Network Adapter '" + entry.Description + "' restored to original settings.");
+							Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDhcpRestored, entry.Description));
 						}
 					}
 				}
@@ -458,8 +477,8 @@ namespace AirVPN.Core.Platforms
 					if (entry.Dns == null)
 						continue;
 
-					Engine.Instance.Log(Engine.LogType.Info, "Network Adapter DNS '" + entry.Description + "' cleared.");
-
+					Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description));
+					
 					ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
 					//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
 					objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { Constants.DnsVpn };
@@ -498,7 +517,7 @@ namespace AirVPN.Core.Platforms
 							}
 							ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
-							Engine.Instance.Log(Engine.LogType.Info, "Network Adapter DNS '" + entry.Description + "' restored to original settings.");
+							Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, entry.Description));
 						}
 					}
 				}

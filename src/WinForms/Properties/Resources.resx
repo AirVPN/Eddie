@@ -202,9 +202,6 @@
   <data name="settings" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\settings.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="keys" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\keys.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="main_d_bg" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\main_d_bg.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -255,9 +252,6 @@
   </data>
   <data name="stats_system" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\stats_pc.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="details_pin_l_c" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\details_pin_l_c.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="routes_out" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\routes_out.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -316,9 +310,6 @@
   <data name="topbar_red" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\topbar_red.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="topbar_rose" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\res\topbar_rose.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="topbar_yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\topbar_yellow.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -339,5 +330,8 @@
   </data>
   <data name="support" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\support.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="login" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\login.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

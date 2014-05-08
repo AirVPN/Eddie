@@ -101,6 +101,8 @@ namespace AirVPN.Core
                 {
 					Platform.Instance = new Platforms.Linux();
                 }
+
+				Platform.Instance.OnInit();
             }
             else if (IsWindows())
             {
@@ -189,10 +191,31 @@ namespace AirVPN.Core
             throw new Exception("Not Implemented.");
         }
 
+		public virtual void OnInit()
+		{
+		}
+
         public virtual bool IsAdmin()
         {
             return false;            
         }
+
+		public virtual bool IsUnixSystem()
+		{
+			return false;
+		}
+
+		public virtual bool IsLinuxSystem()
+		{
+			return IsUnixSystem();
+		}
+
+		public virtual bool IsWindowsSystem()
+		{
+			return (IsUnixSystem() == false);
+		}
+
+		
 
 		public virtual string VersionDescription()
         {

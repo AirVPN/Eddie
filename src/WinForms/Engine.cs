@@ -40,7 +40,7 @@ namespace AirVPN.Gui
 
         public override bool OnInit()
         {
-			//Engine.Log(Core.Engine.LogType.Verbose, "Old Data: " + Application.UserAppDataPath);
+			// Engine.Log(Core.Engine.LogType.Verbose, "Old Data: " + Application.UserAppDataPath);
             
             Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
 			Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -48,7 +48,7 @@ namespace AirVPN.Gui
 			// Add the event handler for handling non-UI thread exceptions to the event. 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			System.Threading.Thread.Sleep(5000);
+			// System.Threading.Thread.Sleep(1000);
 
             bool result = base.OnInit();
 
@@ -110,21 +110,39 @@ namespace AirVPN.Gui
 		{
 			if (FormMain != null) // GUI Only
 			{
-				if (Platform.Instance is Core.Platforms.Windows)
+				if (Platform.Instance.IsWindowsSystem())
 				{
 					// Never occur, root granted by Windows Manifest
 					return false;
 				}
-				else if (Platform.Instance is Core.Platforms.Linux)
+				else if (Platform.Instance.IsLinuxSystem())
 				{
 					Log(LogType.Verbose, Messages.AdminRequiredRestart);
-					string cmd;
+					/*
+					string cmd;					
 					if(File.Exists("/usr/bin/gksu"))
 						cmd = "gksu -D \"AirVPN Client\" -u root ";
 					else
 						cmd = "xdg-su -u root -c ";
-					cmd += " \"" + Platform.Instance.GetExecutablePath() + " " + CommandLine.Get() + "\"";					
+					cmd += " \"" + Platform.Instance.GetExecutablePath() + " " + CommandLine.Get() + "\"";
+					Console.WriteLine(cmd);
 					Platform.Instance.ShellCmd(cmd);					
+					*/
+					string command = "";
+					string arguments = "";
+					if (File.Exists("/usr/bin/gksu"))
+					{
+						command = "gksu";
+						arguments = " -D \"AirVPN Client\" -u root ";
+					}
+					else
+					{
+						command = "xdg-su";
+						arguments = " -u root -c ";
+					}
+					arguments += " \"" + Platform.Instance.GetExecutablePath() + " " + CommandLine.Get() + "\"";
+					Platform.Instance.Shell(command, arguments, false);
+
 					return true;
 				}
 			}

@@ -130,14 +130,14 @@ namespace AirVPN.Core
 
 				if (manDescription != "")
 				{
-					body += manKey + " = " + manDescription.Replace("\n", "\n\t");
+					body += "[*][b]" + manKey + "[/b] = " + manDescription.Replace("\n", "\n\t");
 					//if (manDefault != "")
 					{
 						if (manValue != manDefault)
-							body += " - Current: '" + manValue + "'";
-						body += " - Default: " + ( (manDefault == "") ? "-Empty-" : "'" + manDefault + "'");
+							body += " - Current: '[i]" + manValue + "[/i]'";
+						body += " - Default: " + ( (manDefault == "") ? "-Empty-" : "'[i]" + manDefault + "[/i]'");
 					}
-					body += "\n";
+					body += "[/*]\n";
 				}
             }
             return body;
@@ -258,6 +258,7 @@ namespace AirVPN.Core
 
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
 			SetDefaultBool("help", false, Messages.ManOptionHelp);
+			SetDefault("help_format", "text", NotInMan); // Maybe 'text' or 'bbc'.
 			SetDefault("login", "", Messages.ManOptionLogin);
             SetDefault("password", "", Messages.ManOptionPassword);
 			SetDefaultBool("remember", false, Messages.ManOptionRemember);

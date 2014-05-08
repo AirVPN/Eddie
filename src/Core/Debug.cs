@@ -35,8 +35,7 @@ namespace AirVPN.Core
 
             lock (SpinLock)
             {
-                if (Platform.Instance is Platforms.Windows)
-                    Console.WriteLine(msg);
+                Console.WriteLine(msg);
             }
         }
 

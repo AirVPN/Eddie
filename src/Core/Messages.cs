@@ -122,14 +122,14 @@ namespace AirVPN.Core
 		public static string LogsCopyClipboardDone = "Copy to clipboard done.";
 		public static string LogsSaveToFileDone = "Copy to clipboard done.";		
 		public static string TooltipScoreType = "Choose whether you prefer highest speed (ex. file-sharing) or low-latency speed (ex. gaming)";
-		public static string TooltipLockLast = "Never leave the current server. \r\nFor example if you don\'t want to change your IP for port forwarding reasons."; // TOTRANSLATE
+		public static string TooltipLockLast = "Never leave the current server. \r\nFor example if you don\'t want to change your IP for port forwarding reasons.";
 		public static string TooltipServersConnect = "Connect to the selected server now";
 		public static string TooltipServersUndefined = "Clear the selected servers from whitelist and blacklist";
-		public static string TooltipServersBlackList = "Add the selected servers to blacklist. \r\nThe system will never connect to blacklisted servers."; // TOTRANSLATE
-		public static string TooltipServersWhiteList = "Add the selected server to whitelist.\r\nThe system will only connect to whitelisted servers."; // TOTRANSLATE
+		public static string TooltipServersBlackList = "Add the selected servers to blacklist. \r\nThe system will never connect to blacklisted servers.";
+		public static string TooltipServersWhiteList = "Add the selected server to whitelist.\r\nThe system will only connect to whitelisted servers.";
 		public static string TooltipAreasUndefined = "Clear the selected areas from whitelist and blacklist";
-		public static string TooltipAreasBlackList = "Add the selected areas to blacklist. \r\nThe system will never connect to servers in blacklisted areas."; // TOTRANSLATE
-		public static string TooltipAreasWhiteList = "Add the selected area to whitelist.\r\nThe system will only connect to servers in whitelisted areas."; // TOTRANSLATE
+		public static string TooltipAreasBlackList = "Add the selected areas to blacklist. \r\nThe system will never connect to servers in blacklisted areas.";
+		public static string TooltipAreasWhiteList = "Add the selected area to whitelist.\r\nThe system will only connect to servers in whitelisted areas.";
 		public static string TooltipLogsOpenVpnManagement = "Run an OpenVPN Management command";
 		public static string TooltipLogsClean = "Clear logs";
 		public static string TooltipLogsCopy = "Copy to clipboard";
@@ -137,7 +137,8 @@ namespace AirVPN.Core
 		public static string TooltipLogsSupport = "Log system information and copy to clipboard. Useful for support requests";
 		public static string CommandLogin = "Login";
 		public static string CommandLogout = "Logout";
-		public static string CommandConnect = "Connect";
+		public static string CommandConnect = "Connect to a recommended server"; // TOTRANSLATE
+		public static string CommandConnectSubtitle = "or choose a specific server in 'servers' tab."; // TOTRANSLATE
 		public static string CommandDisconnect = "Disconnect";		
 
 		public static string FilterAllFiles = "All files (*.*)|*.*";
@@ -237,6 +238,13 @@ namespace AirVPN.Core
 		public static string ManOptionEventArguments = "Arguments";
 		public static string ManOptionEventWaitEnd = "'true' if the software needs to wait the end (synchronous) or 'false' to be asynchronous";
 
+		// Platform Windows		
+		public static string NetworkAdapterDhcpDone = "DHCP network adapter switched to static ({1})"; // TOTRANSLATE
+		public static string NetworkAdapterDhcpRestored = "DHCP of a network adapter restored to original settings ({1})"; // TOTRANSLATE
+		public static string NetworkAdapterDnsDone = "DNS of a network adapter forced ({1})"; // TOTRANSLATE
+		public static string NetworkAdapterDnsRestored = "DNS of a network adapter restored to original settings ({1})"; // TOTRANSLATE
+		public static string HackInterfaceUpDone = "AirVPN Windows Interface Hack executed ({1})"; // TOTRANSLATE
+		
 
 		public static string Format(string format, string param1)
 		{

@@ -25,7 +25,7 @@ using System.Text;
 
 namespace AirVPN.Core.UI
 {
-	// Inside UI, we generally try to call this methods, to simplify portability between different UI on different platforms.
+	// Inside UI, we generally try to call this methods, to simplify portability between different UI on different platforms .
 
 	public static class Actions
 	{
@@ -44,9 +44,14 @@ namespace AirVPN.Core.UI
 			OpenUrlAirVPN("software/");            
 		}
 
-		public static void OpenUrlFaqProtocols()
+		public static void OpenUrlDocsProtocols()
 		{
-			OpenUrlAirVPN("faq/protocols/"); 
+			OpenUrlAirVPN("faq/software_protocols/"); 
+		}
+
+		public static void OpenUrlDocsAdvanced()
+		{
+			OpenUrlAirVPN("faq/software_advanced/");
 		}
 
 		public static void OpenUrlPorts()
@@ -94,20 +99,33 @@ namespace AirVPN.Core.UI
 			return Properties.Resources.TOS;
 		}
 
-		public static string GetMan()
+		public static string GetMan(string format)
 		{
 			string o = "\n";
-			o += "NAME\n";
+			o += "[b]NAME[/b]\n";
 			o += "\t" + Messages.ManName.Replace("\n","\n\t");
-			o += "\n\nSYNOPSIS\n";
+			o += "\n\n[b]SYNOPSIS[/b]\n";
 			o += "\t" + Messages.ManSynopsis.Replace("\n", "\n\t");
-			o += "\n\nDESCRIPTION\n";
+			o += "\n\n[b]DESCRIPTION[/b]\n";
 			o += "\t" + Messages.ManDescription.Replace("\n", "\n\t");
-			o += "\n\nOPTIONS\n";
-			o += "\t" + Engine.Instance.Storage.GetMan().Replace("\n", "\n\t");
-			o += "\n\nCOPYRIGHT\n";
+			o += "\n\n[b]OPTIONS[/b]\n";
+			o += "\t[list]" + Engine.Instance.Storage.GetMan().Replace("\n", "\n\t") + "[/list]";
+			o += "\n\n[b]COPYRIGHT[/b]\n";
 			o += "\t" + Messages.ManCopyright.Replace("\n", "\n\t\t");
 			o += "\n";
+
+			if (format != "bbc")
+			{
+				o = o.Replace("[b]", "");
+				o = o.Replace("[/b]", "");
+				o = o.Replace("[i]", "");
+				o = o.Replace("[/i]", "");
+				o = o.Replace("[*]", "");
+				o = o.Replace("[/*]", "");
+				o = o.Replace("[list]", "");
+				o = o.Replace("[/list]", "");
+			}
+
 			return o;
 		}
 	}

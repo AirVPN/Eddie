@@ -108,9 +108,10 @@ namespace AirVPN.Core.Properties {
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;manifest&gt;
         ///  &lt;hosts&gt;
-        ///    &lt;host address=&quot;airvpn.org&quot; /&gt;
+        ///    &lt;host address=&quot;auth.airvpn.org&quot; /&gt;
         ///    &lt;host address=&quot;212.117.180.25&quot; /&gt;
-        ///    &lt;host address=&quot;85.17.207.151&quot; /&gt;
+        ///		&lt;host address=&quot;airvpn.org&quot; /&gt;
+        ///    &lt;host address=&quot;85.17.207.151&quot; /&gt;		
         ///    &lt;host address=&quot;airvpn.info&quot; /&gt;
         ///    &lt;host address=&quot;airvpn.ch&quot; /&gt;
         ///    &lt;host address=&quot;airvpn.eu&quot; /&gt;

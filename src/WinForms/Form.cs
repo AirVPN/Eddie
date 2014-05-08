@@ -255,12 +255,5 @@ namespace AirVPN.Gui
 			rt.Offset(ox, oy);
 			g.DrawString(t, f, b, rt, sf);
 		}
-
-        public void SetControlCommons_XXX(Control c)
-        {
-            c.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-        }
     }
 }

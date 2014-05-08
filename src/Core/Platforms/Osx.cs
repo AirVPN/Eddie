@@ -35,6 +35,11 @@ namespace AirVPN.Core.Platforms
             return (Environment.UserName == "root");
         }
 
+		public override bool IsUnixSystem()
+		{
+			return true;
+		}
+
 		public override string VersionDescription()
         {
 			string o = base.VersionDescription();

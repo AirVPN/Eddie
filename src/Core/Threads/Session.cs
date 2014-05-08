@@ -468,19 +468,16 @@ namespace AirVPN.Core.Threads
 		private void StartSshProcess()
 		{
 			string fileKeyExtension = "";
-			if (Platform.Instance is Platforms.Windows)
-				fileKeyExtension = "ppk";
-			else
+			if (Platform.Instance.IsUnixSystem())
 				fileKeyExtension = "key";
-
+			else
+				fileKeyExtension = "ppk";
+			
 
 			m_fileSshKey = new TemporaryFile(fileKeyExtension);
 			File.WriteAllText(m_fileSshKey.Path, Utils.XmlGetAttributeString(Engine.Storage.User, "ssh_" + fileKeyExtension, ""));
 			
-			if (Platform.Instance is Platforms.Windows)
-			{
-			}
-			else
+			if (Platform.Instance.IsUnixSystem())
 			{
 				Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
 			}
@@ -488,11 +485,12 @@ namespace AirVPN.Core.Threads
 			string arguments = "";
 
 			arguments += " -i \"" + m_fileSshKey.Path + "\" -L " + Conversions.ToString(m_proxyPort) + ":127.0.0.1:2018 sshtunnel@" + Engine.ConnectedEntryIP;
-			if (Platform.Instance is Platforms.Windows)
-				arguments += " -P " + Engine.ConnectedPort; // plink use -P
-			else
+			if (Platform.Instance.IsUnixSystem())
 				arguments += " -p " + Engine.ConnectedPort; // ssh use -p
-			if ((Platform.Instance is Platforms.Linux) || (Platform.Instance is Platforms.Osx))
+			else
+				arguments += " -P " + Engine.ConnectedPort; // plink use -P			
+				
+			if (Platform.Instance.IsUnixSystem())
 				arguments += " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"; // TOOPTIMIZE: To bypass key confirmation. Not the best approach.
 			arguments += " -N -T -v";
 
@@ -523,8 +521,8 @@ namespace AirVPN.Core.Threads
 		private void StartSslProcess()
 		{
 			string sslConfig = "";
-						
-			if( (Platform.Instance is Platforms.Linux) || (Platform.Instance is Platforms.Osx) )
+
+			if (Platform.Instance.IsUnixSystem())
 			{
 				sslConfig += "output = /dev/stdout\n";
 				sslConfig += "pid = /tmp/stunnel4.pid\n";
@@ -725,7 +723,7 @@ namespace AirVPN.Core.Threads
 					if (message.IndexOf("MANAGEMENT: CMD 'status'") != -1)
 						log = false;
 
-					if (Platform.Instance is Core.Platforms.Windows)
+					if (Platform.Instance.IsWindowsSystem())
 					{
 						if (message.IndexOf("Waiting for TUN/TAP interface to come up") != -1)
 						{
@@ -864,7 +862,8 @@ namespace AirVPN.Core.Threads
 						}
 					}
 
-					if (Platform.Instance is Platforms.Windows)
+					// Windows
+					if(Platform.Instance.IsUnixSystem() == false)
 					{
 						Match match = Regex.Match(message, "TAP-.*? device \\[(.*?)\\] opened: \\\\\\\\\\.\\\\Global\\\\(.*?).tap");
 						if (match.Success)
@@ -881,7 +880,8 @@ namespace AirVPN.Core.Threads
 						}
 					}
 
-					if (Platform.Instance is Platforms.Linux)
+					// Unix
+					if (Platform.Instance.IsUnixSystem())
 					{
 						Match match = Regex.Match(message, "TUN/TAP device (.*?) opened");
 						if (match.Success)

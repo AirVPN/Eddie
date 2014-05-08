@@ -35,6 +35,7 @@ namespace AirVPN.Gui.Forms
 			AirVPN.Gui.Skin.ColumnHeader columnHeader1;
 			AirVPN.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
+			this.lnkAdvancedDocs = new AirVPN.Gui.Skin.LinkLabel();
 			this.chkAdvancedPingerAlways = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAdvancedPingerEnabled = new AirVPN.Gui.Skin.CheckBox();
 			this.cmdAdvancedUninstallDriver = new AirVPN.Gui.Skin.Button();
@@ -155,6 +156,7 @@ namespace AirVPN.Gui.Forms
 			// tabPage1
 			// 
 			tabPage1.BackColor = System.Drawing.Color.White;
+			tabPage1.Controls.Add(this.lnkAdvancedDocs);
 			tabPage1.Controls.Add(this.chkAdvancedPingerAlways);
 			tabPage1.Controls.Add(this.chkAdvancedPingerEnabled);
 			tabPage1.Controls.Add(this.cmdAdvancedUninstallDriver);
@@ -172,9 +174,23 @@ namespace AirVPN.Gui.Forms
 			tabPage1.Location = new System.Drawing.Point(4, 24);
 			tabPage1.Name = "tabPage1";
 			tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			tabPage1.Size = new System.Drawing.Size(617, 263);
+			tabPage1.Size = new System.Drawing.Size(622, 263);
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "General";
+			// 
+			// lnkAdvancedDocs
+			// 
+			this.lnkAdvancedDocs.BackColor = System.Drawing.Color.Transparent;
+			this.lnkAdvancedDocs.ForeColor = System.Drawing.Color.Black;
+			this.lnkAdvancedDocs.Image = global::WinForms.Properties.Resources.tip;
+			this.lnkAdvancedDocs.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.lnkAdvancedDocs.Location = new System.Drawing.Point(471, 220);
+			this.lnkAdvancedDocs.Name = "lnkAdvancedDocs";
+			this.lnkAdvancedDocs.Size = new System.Drawing.Size(131, 27);
+			this.lnkAdvancedDocs.TabIndex = 68;
+			this.lnkAdvancedDocs.TabStop = true;
+			this.lnkAdvancedDocs.Text = "     Click here to read about advanced options.";
+			this.lnkAdvancedDocs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkAdvancedDocs_LinkClicked);
 			// 
 			// chkAdvancedPingerAlways
 			// 
@@ -306,9 +322,9 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedCheckDns.ForeColor = System.Drawing.Color.Black;
 			this.chkAdvancedCheckDns.Location = new System.Drawing.Point(16, 80);
 			this.chkAdvancedCheckDns.Name = "chkAdvancedCheckDns";
-			this.chkAdvancedCheckDns.Size = new System.Drawing.Size(232, 17);
+			this.chkAdvancedCheckDns.Size = new System.Drawing.Size(237, 17);
 			this.chkAdvancedCheckDns.TabIndex = 56;
-			this.chkAdvancedCheckDns.Text = "Ensure that tunnel use AirVPN DNS System";
+			this.chkAdvancedCheckDns.Text = "Ensure that tunnel uses AirVPN DNS System";
 			this.chkAdvancedCheckDns.UseVisualStyleBackColor = false;
 			// 
 			// chkAdvancedWindowsTapUp
@@ -346,7 +362,7 @@ namespace AirVPN.Gui.Forms
 			tabPage2.Location = new System.Drawing.Point(4, 24);
 			tabPage2.Name = "tabPage2";
 			tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			tabPage2.Size = new System.Drawing.Size(617, 263);
+			tabPage2.Size = new System.Drawing.Size(622, 263);
 			tabPage2.TabIndex = 1;
 			tabPage2.Text = "OVPN directives";
 			// 
@@ -377,11 +393,12 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(406, 225);
+			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(411, 225);
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Name = "chkAdvancedOpenVpnDirectivesDefaultSkip";
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Size = new System.Drawing.Size(208, 32);
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.TabIndex = 59;
-			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Text = "Skip this defaults. If unchecked, your custom directives are appended.";
+			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Text = "Skip the above default directives. If unchecked, your custom directives are appen" +
+    "ded.";
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.UseVisualStyleBackColor = false;
 			// 
 			// txtAdvancedOpenVpnDirectivesDefault
@@ -396,7 +413,7 @@ namespace AirVPN.Gui.Forms
 			this.txtAdvancedOpenVpnDirectivesDefault.Name = "txtAdvancedOpenVpnDirectivesDefault";
 			this.txtAdvancedOpenVpnDirectivesDefault.ReadOnly = true;
 			this.txtAdvancedOpenVpnDirectivesDefault.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtAdvancedOpenVpnDirectivesDefault.Size = new System.Drawing.Size(301, 196);
+			this.txtAdvancedOpenVpnDirectivesDefault.Size = new System.Drawing.Size(306, 196);
 			this.txtAdvancedOpenVpnDirectivesDefault.TabIndex = 58;
 			// 
 			// txtAdvancedOpenVpnDirectivesCustom
@@ -410,7 +427,7 @@ namespace AirVPN.Gui.Forms
 			this.txtAdvancedOpenVpnDirectivesCustom.Multiline = true;
 			this.txtAdvancedOpenVpnDirectivesCustom.Name = "txtAdvancedOpenVpnDirectivesCustom";
 			this.txtAdvancedOpenVpnDirectivesCustom.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtAdvancedOpenVpnDirectivesCustom.Size = new System.Drawing.Size(299, 196);
+			this.txtAdvancedOpenVpnDirectivesCustom.Size = new System.Drawing.Size(304, 196);
 			this.txtAdvancedOpenVpnDirectivesCustom.TabIndex = 57;
 			// 
 			// tabPage3
@@ -422,7 +439,7 @@ namespace AirVPN.Gui.Forms
 			tabPage3.Controls.Add(this.label1);
 			tabPage3.Location = new System.Drawing.Point(4, 24);
 			tabPage3.Name = "tabPage3";
-			tabPage3.Size = new System.Drawing.Size(617, 263);
+			tabPage3.Size = new System.Drawing.Size(622, 263);
 			tabPage3.TabIndex = 2;
 			tabPage3.Text = "Events";
 			// 
@@ -435,7 +452,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdAdvancedEventsEdit.FlatAppearance.BorderSize = 0;
 			this.cmdAdvancedEventsEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdAdvancedEventsEdit.Image = global::WinForms.Properties.Resources.edit_16;
-			this.cmdAdvancedEventsEdit.Location = new System.Drawing.Point(584, 57);
+			this.cmdAdvancedEventsEdit.Location = new System.Drawing.Point(589, 57);
 			this.cmdAdvancedEventsEdit.Name = "cmdAdvancedEventsEdit";
 			this.cmdAdvancedEventsEdit.Size = new System.Drawing.Size(30, 30);
 			this.cmdAdvancedEventsEdit.TabIndex = 59;
@@ -451,7 +468,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdAdvancedEventsClear.FlatAppearance.BorderSize = 0;
 			this.cmdAdvancedEventsClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdAdvancedEventsClear.Image = global::WinForms.Properties.Resources.delete_16;
-			this.cmdAdvancedEventsClear.Location = new System.Drawing.Point(584, 23);
+			this.cmdAdvancedEventsClear.Location = new System.Drawing.Point(589, 23);
 			this.cmdAdvancedEventsClear.Name = "cmdAdvancedEventsClear";
 			this.cmdAdvancedEventsClear.Size = new System.Drawing.Size(30, 30);
 			this.cmdAdvancedEventsClear.TabIndex = 58;
@@ -475,7 +492,7 @@ namespace AirVPN.Gui.Forms
 			this.lstAdvancedEvents.MultiSelect = false;
 			this.lstAdvancedEvents.Name = "lstAdvancedEvents";
 			this.lstAdvancedEvents.OwnerDraw = true;
-			this.lstAdvancedEvents.Size = new System.Drawing.Size(569, 228);
+			this.lstAdvancedEvents.Size = new System.Drawing.Size(574, 228);
 			this.lstAdvancedEvents.SmallImageList = this.imgRoutes;
 			this.lstAdvancedEvents.TabIndex = 57;
 			this.lstAdvancedEvents.UseCompatibleStateImageBehavior = false;
@@ -516,7 +533,7 @@ namespace AirVPN.Gui.Forms
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(324, 13);
 			this.label1.TabIndex = 56;
-			this.label1.Text = "External shell (double click for browse):";
+			this.label1.Text = "External shell (double click to browse):";
 			// 
 			// mnuRoutes
 			// 
@@ -686,8 +703,8 @@ namespace AirVPN.Gui.Forms
 			this.chkGeneralStartLast.Name = "chkGeneralStartLast";
 			this.chkGeneralStartLast.Size = new System.Drawing.Size(263, 40);
 			this.chkGeneralStartLast.TabIndex = 40;
-			this.chkGeneralStartLast.Text = "Force reconnect to the lastest server at startup (otherwise best at moment are ch" +
-    "oosed).";
+			this.chkGeneralStartLast.Text = "Force reconnection to last server at startup (otherwise current best server is pi" +
+    "cked)";
 			this.chkGeneralStartLast.UseVisualStyleBackColor = false;
 			// 
 			// chkMinimizeTray
@@ -769,7 +786,7 @@ namespace AirVPN.Gui.Forms
 			this.tabMode.Controls.Add(this.lnkModeMore);
 			this.tabMode.Location = new System.Drawing.Point(4, 24);
 			this.tabMode.Name = "tabMode";
-			this.tabMode.Size = new System.Drawing.Size(625, 291);
+			this.tabMode.Size = new System.Drawing.Size(630, 291);
 			this.tabMode.TabIndex = 3;
 			this.tabMode.Text = "Protocols";
 			// 
@@ -883,11 +900,11 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.label11.BackColor = System.Drawing.Color.Transparent;
 			this.label11.ForeColor = System.Drawing.Color.Black;
-			this.label11.Location = new System.Drawing.Point(6, 105);
+			this.label11.Location = new System.Drawing.Point(6, 95);
 			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(161, 29);
+			this.label11.Size = new System.Drawing.Size(161, 39);
 			this.label11.TabIndex = 23;
-			this.label11.Text = "Alternative ports, \r\nif you ISP apply CAP or blocks";
+			this.label11.Text = "Alternative ports, \r\nif your ISP applies caps or blocks";
 			// 
 			// optModeSSH53
 			// 
@@ -1047,19 +1064,21 @@ namespace AirVPN.Gui.Forms
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(221, 29);
 			this.label5.TabIndex = 8;
-			this.label5.Text = "Alternative Entry IP, \r\nif you ISP block the standard Entry IP";
+			this.label5.Text = "Alternative Entry IP, \r\nif your ISP blocks the standard Entry IP";
 			// 
 			// lnkModeMore
 			// 
 			this.lnkModeMore.AutoSize = true;
 			this.lnkModeMore.BackColor = System.Drawing.Color.Transparent;
 			this.lnkModeMore.ForeColor = System.Drawing.Color.Black;
+			this.lnkModeMore.Image = global::WinForms.Properties.Resources.tip;
+			this.lnkModeMore.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.lnkModeMore.Location = new System.Drawing.Point(355, 43);
 			this.lnkModeMore.Name = "lnkModeMore";
-			this.lnkModeMore.Size = new System.Drawing.Size(245, 13);
+			this.lnkModeMore.Size = new System.Drawing.Size(260, 13);
 			this.lnkModeMore.TabIndex = 7;
 			this.lnkModeMore.TabStop = true;
-			this.lnkModeMore.Text = "Click here to read more about choosing a protocol.";
+			this.lnkModeMore.Text = "     Click here to read more about choosing a protocol.";
 			this.lnkModeMore.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkModeMore_LinkClicked);
 			// 
 			// tabProxy
@@ -1081,7 +1100,7 @@ namespace AirVPN.Gui.Forms
 			this.tabProxy.Location = new System.Drawing.Point(4, 24);
 			this.tabProxy.Name = "tabProxy";
 			this.tabProxy.Padding = new System.Windows.Forms.Padding(3);
-			this.tabProxy.Size = new System.Drawing.Size(625, 291);
+			this.tabProxy.Size = new System.Drawing.Size(630, 291);
 			this.tabProxy.TabIndex = 1;
 			this.tabProxy.Text = "Proxy";
 			// 
@@ -1095,7 +1114,8 @@ namespace AirVPN.Gui.Forms
 			this.label12.Name = "label12";
 			this.label12.Size = new System.Drawing.Size(223, 43);
 			this.label12.TabIndex = 44;
-			this.label12.Text = "     Note: UDP, SSH and SSL connections will not available if you use a proxy.";
+			this.label12.Text = "     Note: UDP, SSH and SSL connections will not be available if you use a proxy." +
+    "";
 			// 
 			// lblProxyAuthentication
 			// 
@@ -1176,7 +1196,7 @@ namespace AirVPN.Gui.Forms
 			this.cboProxyMode.FormattingEnabled = true;
 			this.cboProxyMode.Items.AddRange(new object[] {
             "None",
-			"Detect",
+            "Detect",
             "Http",
             "Socks"});
 			this.cboProxyMode.Location = new System.Drawing.Point(60, 16);
@@ -1233,7 +1253,7 @@ namespace AirVPN.Gui.Forms
 			this.tabRoutes.Controls.Add(this.lstRoutes);
 			this.tabRoutes.Location = new System.Drawing.Point(4, 24);
 			this.tabRoutes.Name = "tabRoutes";
-			this.tabRoutes.Size = new System.Drawing.Size(625, 291);
+			this.tabRoutes.Size = new System.Drawing.Size(630, 291);
 			this.tabRoutes.TabIndex = 5;
 			this.tabRoutes.Text = "Routes";
 			// 
@@ -1308,14 +1328,14 @@ namespace AirVPN.Gui.Forms
 			// lblRoutesOtherwise
 			// 
 			this.lblRoutesOtherwise.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblRoutesOtherwise.AutoSize = true;
 			this.lblRoutesOtherwise.BackColor = System.Drawing.Color.Transparent;
 			this.lblRoutesOtherwise.ForeColor = System.Drawing.Color.Black;
-			this.lblRoutesOtherwise.Location = new System.Drawing.Point(369, 263);
+			this.lblRoutesOtherwise.Location = new System.Drawing.Point(264, 263);
 			this.lblRoutesOtherwise.Name = "lblRoutesOtherwise";
-			this.lblRoutesOtherwise.Size = new System.Drawing.Size(60, 13);
+			this.lblRoutesOtherwise.Size = new System.Drawing.Size(162, 15);
 			this.lblRoutesOtherwise.TabIndex = 1;
-			this.lblRoutesOtherwise.Text = "Otherwise :";
+			this.lblRoutesOtherwise.Text = "Not specified routes go: ";
+			this.lblRoutesOtherwise.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lstRoutes
 			// 
@@ -1363,7 +1383,7 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvanced.Controls.Add(this.tabAdvancedMain);
 			this.tabAdvanced.Location = new System.Drawing.Point(4, 24);
 			this.tabAdvanced.Name = "tabAdvanced";
-			this.tabAdvanced.Size = new System.Drawing.Size(625, 291);
+			this.tabAdvanced.Size = new System.Drawing.Size(630, 291);
 			this.tabAdvanced.TabIndex = 2;
 			this.tabAdvanced.Text = "Advanced";
 			// 
@@ -1379,7 +1399,7 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvancedMain.Location = new System.Drawing.Point(0, 0);
 			this.tabAdvancedMain.Name = "tabAdvancedMain";
 			this.tabAdvancedMain.SelectedIndex = 0;
-			this.tabAdvancedMain.Size = new System.Drawing.Size(625, 291);
+			this.tabAdvancedMain.Size = new System.Drawing.Size(630, 291);
 			this.tabAdvancedMain.TabIndex = 56;
 			// 
 			// Settings
@@ -1410,7 +1430,6 @@ namespace AirVPN.Gui.Forms
 			this.tabProxy.ResumeLayout(false);
 			this.tabProxy.PerformLayout();
 			this.tabRoutes.ResumeLayout(false);
-			this.tabRoutes.PerformLayout();
 			this.tabAdvanced.ResumeLayout(false);
 			this.tabAdvancedMain.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -1517,6 +1536,7 @@ namespace AirVPN.Gui.Forms
 		private Skin.CheckBox chkAdvancedPingerAlways;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
 		private Skin.Label label7;
+		private Skin.LinkLabel lnkAdvancedDocs;
 
     }
 }
