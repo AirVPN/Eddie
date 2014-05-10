@@ -1,15 +1,15 @@
 Package: airvpn
-Version: 2.0
+Version: {@version}
 Section: net
 Maintainer: airvpn.org <info@airvpn.org>
 Priority: optional
 Architecture: all
 Installed-Size: 8192
-Depends: resolvconf,mono-runtime,mono-utils,libmono-system-runtime2.0-cil,libmono-winforms2.0-cil,libmono-corlib2.0-cil
-License: GPL-3+
+Depends: resolvconf, mono-runtime, mono-utils, libmono-system-runtime2.0-cil, libmono-winforms2.0-cil, libmono-corlib2.0-cil, openvpn, stunnel4
 Bugs: https://airvpn.org/forum/3-airvpn-client/
 Homepage: https://airvpn.org/
-Description: A VPN service based on OpenVPN
- A VPN based on OpenVPN and operated by activists and hacktivists in defence of net neutrality, privacy and against censorship.
+Description: VPN service based on OpenVPN
+ VPN based on OpenVPN and operated by activists and hacktivists 
+ in defence of net neutrality, privacy and against censorship.
 
 

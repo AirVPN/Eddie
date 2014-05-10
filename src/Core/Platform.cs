@@ -31,10 +31,7 @@ namespace AirVPN.Core
     {
 		public static Platform Instance;
 
-		private static string m_uname;
-		private static string m_architecture;
-
-        // ----------------------------------------
+		// ----------------------------------------
         // Static - Also used before the derivated class is created
         // ----------------------------------------
 
@@ -86,78 +83,56 @@ namespace AirVPN.Core
 
         }
         
+		/*
         public static void Init()
         {   
-            if (IsUnix()) // Linux and OSX
+            if (IsUnix())
             {
-				m_uname = ShellPlatformIndipendent("sh", "-c 'uname'", "", true, false).Trim();
-                m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
-
-                if (IsOSX())
-                {
-					Platform.Instance = new Platforms.Osx();
-                }
-                else if(IsLinux())
-                {
-					Platform.Instance = new Platforms.Linux();
-                }
-
-				Platform.Instance.OnInit();
+				Platform.Instance = new Platforms.Linux();
             }
             else if (IsWindows())
             {
-				Platform.Instance = new Platforms.Windows();
-				m_uname = "Windows";
-                m_architecture = NormalizeArchitecture(System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"));
+				Platform.Instance = new Platforms.Windows();				             
             }
 
-
-			if (Platform.Instance == null)
-            {
-				Platform.Instance = new Platform();
-				m_uname = "Unknown";
-                m_architecture = "Unknown.";
-            }
-
+			Platform.Instance.OnInit();
         }
+		*/
 
         public static void DeInit()
         {
         }
 
-		private static bool IsUnix()
+		public static bool IsUnix()
         {
             return (Environment.OSVersion.Platform.ToString() == "Unix");
         }
 
-		private static bool IsWindows()
+		public static bool IsWindows()
         {
             return (Environment.OSVersion.VersionString.IndexOf("Windows") != -1);
         }
 
 		private static bool IsLinux()
         {
-			return m_uname == "Linux";
+			return Instance.GetCode() == "Linux";			
         }
 
+		/*
         private static bool IsOSX()
         {
 			return m_uname == "Darwin";
         }
+		*/
 
 		public string GetSystemCode()
         {
-			string t = GetCode() + "_" + m_architecture;
+			string t = GetCode() + "_" + GetArchitecture();
             t = t.Replace(" ", "_");
             t = t.ToLower();
             return t;
         }
-
-		public string GetArchitecture()
-		{
-			return m_architecture;
-		}
-
+				
 		public static string NormalizeArchitecture(string a)
 		{
 			if (a == "x86") return "x86";
@@ -186,14 +161,15 @@ namespace AirVPN.Core
 			return "Unknown";
 		}
 
+		public virtual string GetArchitecture()
+		{
+			return "Unknown";
+		}
+
         public virtual void NotImplemented()
         {
             throw new Exception("Not Implemented.");
         }
-
-		public virtual void OnInit()
-		{
-		}
 
         public virtual bool IsAdmin()
         {
@@ -357,6 +333,10 @@ namespace AirVPN.Core
 		}
 
 		public virtual void OnSessionStop()
+		{
+		}
+
+		public virtual void OnDaemonOutput(string source, string message)
 		{
 		}
 

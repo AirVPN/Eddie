@@ -138,16 +138,18 @@ namespace AirVPN.Core
 		{
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
-			Platform.Init();
-
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
 
-			Log(LogType.Info, "AirVPN client version: " + Storage.GetVersionDesc() + ", System: " + Platform.Instance.GetCode() + ", Architecture: " + Platform.Instance.GetArchitecture());
-			if (DevelopmentEnvironment)
-				Log(LogType.Info, "Development environment.");
+			bool manMode = (CommandLine.Params.ContainsKey("help"));
+			if (manMode == false)
+			{
+				Log(LogType.Info, "AirVPN client version: " + Storage.GetVersionDesc() + ", System: " + Platform.Instance.GetCode() + ", Architecture: " + Platform.Instance.GetArchitecture());
+				if (DevelopmentEnvironment)
+					Log(LogType.Info, "Development environment.");
+			}
 
 			m_storage = new Core.Storage();
-			m_storage.Load();
+			m_storage.Load(manMode);
 
 			m_stats = new Core.Stats();
 		}

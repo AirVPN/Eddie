@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=AirVPN
 Comment=AirVPN
-Exec=/usr/bin/AirVPN
+Exec=/usr/bin/airvpn
 Icon=/usr/share/pixmaps/AirVPN.png
 Terminal=false
 Type=Application
