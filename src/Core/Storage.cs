@@ -42,8 +42,8 @@ namespace AirVPN.Core
         {
             EnsureDefaults();
 						
-            XmlDocument DocManifestDefault = new XmlDocument();						
-            DocManifestDefault.LoadXml(Properties.Resources.Manifest);
+            XmlDocument DocManifestDefault = new XmlDocument();
+			DocManifestDefault.LoadXml(Lib.Core.Properties.Resources.Manifest);
             Manifest = DocManifestDefault.DocumentElement;
 
             // Compute profile
@@ -402,7 +402,7 @@ namespace AirVPN.Core
             }
         }
 
-        public void Load()
+        public void Load(bool manMode)
         {
             lock (this)
             {
@@ -412,11 +412,13 @@ namespace AirVPN.Core
 
 					string Path = GetPath(Get("profile") + ".xml");
 
-                    Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.OptionsRead, Path));
+					if(manMode == false)
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.OptionsRead, Path));
 
 					if (File.Exists(Path) == false)
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, Messages.OptionsNotFound);
+						if (manMode == false)
+							Engine.Instance.Log(Engine.LogType.Verbose, Messages.OptionsNotFound);
 						return;
 					}
 

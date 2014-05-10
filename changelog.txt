@@ -1,0 +1,15 @@
+airvpn (2.1) stable; urgency=low
+ * [change] Debian control fixes
+ * [change] Debian package with more depencendies and less binary
+ * [change] SIGTERM better control
+ * [new] Tray Tooltip with statistics
+ * [new] /usr/sbin lookup
+ * [change] Deploy project now indipendent from Core library
+ * [change] Projects platforms re-organization
+  
+airvpn (2.0) stable; urgency=low
+
+ * First public release
+
+-- AirVPN Team <info@airvpn.org> Tue, 11 Mar 2014 11:44:51 -0700
+ 

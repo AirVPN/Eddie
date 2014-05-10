@@ -18,37 +18,70 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
-using AirVPN.Core;
 
 namespace Deploy
 {
+	public class Package
+	{
+		public string Platform;
+		public string Architecture;
+		public string Format;
+
+		public Package(string platform, string architecture, string format)
+		{
+			Platform = platform;
+			Architecture = architecture;
+			Format = format;
+		}
+	}
+
 	class Program
 	{
+		private static string SO = "";
+
 		static void Main(string[] args)
 		{
-			Platform.Init();
+			Log("AirVPN deployment v1.0");
+			Log("PlatformOS: " + Environment.OSVersion.Platform.ToString());
+			Log("VersionString: " + Environment.OSVersion.VersionString.ToString());
 
-			Log("AirVPN deployment v1.0, System: " + Platform.Instance.GetCode() + ", Architecture: " + Platform.Instance.GetArchitecture());
+			/* -------------------------------
+			   Detect Platform
+			------------------------------- */
 
-
-			// Checking
-			if (Platform.Instance is AirVPN.Core.Platforms.Linux)
+			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
+				SO = "windows";
+			else if (Environment.OSVersion.Platform.ToString() == "Unix")
+				SO = "linux";
+			else
 			{
-				if (Platform.Instance.ShellCmd("mkbundle --help").IndexOf("Usage is: mkbundle") == -1)
+				Console.WriteLine("Unknown platform.");
+				return;
+			}
+			Log("Platform: " + SO);
+
+			/* -------------------------------
+			   Checking environment
+			------------------------------- */
+
+			if (SO == "linux")
+			{
+				if (Shell("mkbundle --help").IndexOf("Usage is: mkbundle") == -1)
 				{
 					Console.WriteLine("Package mono-complete required.");
 					return;
 				}
 
-				if (Platform.Instance.ShellCmd("dpkg --version").IndexOf("package management program") == -1)
+				if (Shell("dpkg --version").IndexOf("package management program") == -1)
 				{
 					Console.WriteLine("dpkg required.");
 					return;
 				}
 
-				if (Platform.Instance.ShellCmd("tar --version").IndexOf("GNU tar") == -1)
+				if (Shell("tar --version").IndexOf("GNU tar") == -1)
 				{
 					Console.WriteLine("tar required.");
 					return;
@@ -61,22 +94,36 @@ namespace Deploy
 				}
 			}
 
+			/* -------------------------------
+			   Build packages list
+			------------------------------- */
 
+			List<Package> ListPackages = new List<Package>();
 
-			List<string> ListPlatforms = new List<string>();
-			ListPlatforms.Add("windows");
-			ListPlatforms.Add("windows8");
-			ListPlatforms.Add("linux");
-			ListPlatforms.Add("osx");
+			if (SO == "windows")
+			{
+				ListPackages.Add(new Package("windows", "x86", "portable"));
+				ListPackages.Add(new Package("windows", "x64", "portable"));
+				ListPackages.Add(new Package("windows", "x86", "installer"));
+				ListPackages.Add(new Package("windows", "x64", "installer"));
 
-			List<string> ListArch = new List<string>();
-			ListArch.Add("x86");
-			ListArch.Add("x64");
+				ListPackages.Add(new Package("windows8", "x86", "portable"));
+				ListPackages.Add(new Package("windows8", "x86", "installer"));
+				ListPackages.Add(new Package("windows8", "x64", "portable"));
+				ListPackages.Add(new Package("windows8", "x64", "installer"));
+			}
 
-			List<string> ListPackage = new List<string>();
-			ListPackage.Add("portable");
-			ListPackage.Add("installer");
-
+			if (SO == "linux")
+			{
+				ListPackages.Add(new Package("linux", "x86", "portable"));
+				ListPackages.Add(new Package("linux", "x64", "portable"));
+				ListPackages.Add(new Package("linux", "x86", "deb"));
+				ListPackages.Add(new Package("linux", "x64", "deb"));
+				ListPackages.Add(new Package("linux", "x86", "rpm"));
+				ListPackages.Add(new Package("linux", "x64", "rpm"));
+			}
+						
+			string pathBaseHome = new DirectoryInfo("../../../..").FullName;
 			string pathBaseTemp = new DirectoryInfo("../../../../tmp").FullName;
 			string pathBaseDeploy = new DirectoryInfo("../../../../deploy").FullName;
 			string pathBaseRelease = new DirectoryInfo("../../../../src/bin").FullName;
@@ -84,186 +131,253 @@ namespace Deploy
 			string pathBaseResources = new DirectoryInfo("../../../../resources").FullName;
 			string pathBaseTools = new DirectoryInfo("../../../../tools").FullName;
 
-			if(Platform.Instance is AirVPN.Core.Platforms.Linux)
+			string versionString = File.ReadAllText(pathBaseHome + "/version.txt").Trim();
+
+			if(SO == "linux")
 				pathBaseTemp = "/tmp/airvpn_deploy";
 
 			int latestNetFramework = 0;
-
-			foreach (string platform in ListPlatforms)
-			{
-				foreach (string arch in ListArch)
-				{
-					foreach (string package in ListPackage)
-					{
-						// Skip in current OS environment?												
-						if ((Platform.Instance is AirVPN.Core.Platforms.Windows) && (platform.StartsWith("windows") == false))
-							continue;
-						if ((Platform.Instance is AirVPN.Core.Platforms.Linux) && (platform.StartsWith("linux") == false))
-							continue;
-						if ((Platform.Instance is AirVPN.Core.Platforms.Osx) && (platform.StartsWith("osx") == false))
-							continue;
-
-						// Other Skip?
-						if ((Platform.Instance is AirVPN.Core.Platforms.Osx) && (arch == "x86")) // OSX 32 bit not supported.
-							continue;
-
-						int requiredNetFramework = 2;
-						if(platform == "windows8")
-							requiredNetFramework = 4;
-
-						if(latestNetFramework != requiredNetFramework)
-						{
-							Log("Ensure that solution is builded with .NET Framework " + requiredNetFramework.ToString());
-							Pause();
-							latestNetFramework = requiredNetFramework;
-						}
-
-						string archiveName = "airvpn_" + platform + "_" + arch + "_" + package;
-						string fileName = "airvpn_" + platform + "_" + arch;
-						string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;
-						string pathTemp = pathBaseTemp + "/" + archiveName;
-						string pathRelease = pathBaseRelease + "/" + arch + "/Release/";
-
-						// Exceptions
-						if (platform == "windows8") // Windows8 use the same common files of Windows
-							pathDeploy = pathDeploy.Replace("windows8", "windows");
-
-						// Start
-						Log("Building '" + archiveName + "'");
-
-						CreateDirectory(pathTemp);
-
-						CopyAll(pathDeploy, pathTemp);
-
-						if (platform.StartsWith("windows"))
-						{							
-							CopyFile(pathRelease, "AirVPN.Core.dll", pathTemp);
-							CopyFile(pathRelease, "AirVPN.exe", pathTemp);
-							CopyFile(pathRelease, "AirVPN_CLI.exe", pathTemp);
-
-							if (package == "portable")
-							{
-								string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".zip");
-
-								// ZIP
-								string command = pathBaseTools + "/windows/7za.exe a -mx9 -tzip";
-								command += " \"" + pathFinal + "\" \"" + pathTemp;
-								Exec(command);
-							}
-							else if (package == "installer")
-							{
-								// NSIS
-								string nsis = File.ReadAllText(pathBaseResources + "/nsis/AirVPN.nsi");
-								
-								nsis = nsis.Replace("{@resources}", NormalizePath(pathBaseResources + "/nsis"));
-								nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
-								nsis = nsis.Replace("{@out}", NormalizePath(pathBaseRepository + "/" + fileName + ".exe"));
-
-								string filesAdd = "";
-								string filesDelete = "";
-								foreach (string filePath in Directory.GetFiles(pathTemp))
-								{
-									string name = new FileInfo(filePath).Name;
-
-									filesAdd += "File \"" + name + "\"\r\n";
-									filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
-								}
-
-								nsis = nsis.Replace("{@files_add}", filesAdd);
-								nsis = nsis.Replace("{@files_delete}", filesDelete);
-
-								if(arch == "x64")
-									nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
-
-								File.WriteAllText(pathTemp + "/AirVPN.nsi", nsis);
-
-								Exec("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");								
-							}
-						}
-						else if (platform == "linux")
-						{
-							if (package == "portable")
-							{
-								// mkbundle
-								string command = "mkbundle ";
-								command += " \"" + pathRelease + "/AirVPN.exe\"";
-								command += " \"" + pathRelease + "/AirVPN.Core.dll\"";
-								command += " \"" + pathRelease + "/Microsoft.Win32.TaskScheduler.dll\""; // TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
-								command += " --deps";
-								command += " --static";
-								command += " -z";
-								command += " -o \"" + pathTemp + "/airvpn\"";
-								Exec(command);
-
-								string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
-
-								Exec("chmod 755 \"" + pathTemp + "/airvpn\"");
-								Exec("chmod 755 \"" + pathTemp + "/openvpn\"");
-								Exec("chmod 755 \"" + pathTemp + "/stunnel\"");
-
-								CreateDirectory(pathTemp + "/" + fileName);
-								MoveAll(pathTemp, pathTemp + "/" + fileName);
-
-								// TAR.GZ
-								string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
-								Exec(command2);
-							}
-							else if (package == "installer")
-							{
-								CopyFile(pathRelease, "AirVPN.Core.dll", pathTemp);
-								CopyFile(pathRelease, "AirVPN.exe", pathTemp);
-
-								string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
-
-								CreateDirectory(pathTemp + "/usr/lib/AirVPN");
-								MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
-								CopyDirectory(pathBaseResources + "/debian", pathTemp);
-
-								Exec("chmod 755 \"" + pathTemp + "/DEBIAN/control\"");
-								Exec("chmod 755 \"" + pathTemp + "/usr/bin/AirVPN\"");
-								//Exec("chmod 755 \"" + pathTemp + "/usr/lib/AirVPN/airvpn\"");
-								Exec("chmod 755 \"" + pathTemp + "/usr/lib/AirVPN/openvpn\"");
-								Exec("chmod 755 \"" + pathTemp + "/usr/lib/AirVPN/stunnel\"");
-
-								string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
-								Log(command);
-								Exec(command);
-							}
-						}
-						else if (platform == "osx")
-						{
-							if (package == "portable")
-							{
-								CopyFile(pathRelease, "AirVPN.Core.dll", pathTemp);
-								CopyFile(pathRelease, "AirVPN_CLI.exe", pathTemp, "AirVPN.exe");
-
-								string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
-
-								Exec("chmod 755 \"" + pathTemp + "/airvpn\"");
-								Exec("chmod 755 \"" + pathTemp + "/openvpn\"");
-								Exec("chmod 755 \"" + pathTemp + "/stunnel\"");
-
-								CreateDirectory(pathTemp + "/" + fileName);
-								MoveAll(pathTemp, pathTemp + "/" + fileName);
-
-								// TAR.GZ
-								string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
-								Exec(command2);
-							}
-							else if (package == "installer")
-							{
-								// Not yet implemented.
-							}
-						}
 						
+			foreach(Package package in ListPackages)
+			{
+				string platform = package.Platform;
+				string arch = package.Architecture;
+				string format = package.Format;
+
+				int requiredNetFramework = 2;
+				if(platform == "windows8")
+					requiredNetFramework = 4;
+
+				if(latestNetFramework != requiredNetFramework)
+				{
+					Log("Ensure that solution is builded with .NET Framework " + requiredNetFramework.ToString());
+					Pause();
+					latestNetFramework = requiredNetFramework;
+				}
+
+				string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
+				string fileName = "airvpn_" + platform + "_" + arch;
+				string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;
+				string pathTemp = pathBaseTemp + "/" + archiveName;
+				string pathRelease = pathBaseRelease + "/" + arch + "/Release/";
+
+				// Exceptions
+				if (platform == "windows8") // Windows8 use the same common files of Windows
+					pathDeploy = pathDeploy.Replace("windows8", "windows");
+
+				// Start
+				Log("------------------------------");
+				Log("Building '" + archiveName + "'");
+				Log("------------------------------");
+
+				CreateDirectory(pathTemp);
+
+				CopyAll(pathDeploy, pathTemp);
+
+				if (platform.StartsWith("windows"))
+				{							
+					CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+					CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
+					CopyFile(pathRelease, "UI.Windows.exe", pathTemp, "AirVPN.exe");
+					CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe");
+
+					if (format == "portable")
+					{
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".zip");
+
+						// ZIP
+						string command = pathBaseTools + "/windows/7za.exe a -mx9 -tzip";
+						command += " \"" + pathFinal + "\" \"" + pathTemp;
+						Shell(command);
+					}
+					else if (format == "installer")
+					{
+						// NSIS
+						string nsis = File.ReadAllText(pathBaseResources + "/nsis/AirVPN.nsi");
+								
+						nsis = nsis.Replace("{@resources}", NormalizePath(pathBaseResources + "/nsis"));
+						nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
+						nsis = nsis.Replace("{@out}", NormalizePath(pathBaseRepository + "/" + fileName + ".exe"));
+
+						string filesAdd = "";
+						string filesDelete = "";
+						foreach (string filePath in Directory.GetFiles(pathTemp))
+						{
+							string name = new FileInfo(filePath).Name;
+
+							filesAdd += "File \"" + name + "\"\r\n";
+							filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
+						}
+
+						nsis = nsis.Replace("{@files_add}", filesAdd);
+						nsis = nsis.Replace("{@files_delete}", filesDelete);
+
+						if(arch == "x64")
+							nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
+
+						File.WriteAllText(pathTemp + "/AirVPN.nsi", nsis);
+
+						Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");								
 					}
 				}
+				else if (platform == "linux")
+				{
+					if (format == "portable")
+					{
+						// mkbundle
+						string command = "mkbundle ";
+						command += " \"" + pathRelease + "/UI.Linux.exe\"";
+						command += " \"" + pathRelease + "/Lib.Core.dll\"";
+						command += " \"" + pathRelease + "/Lib.Forms.dll\"";
+						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
+
+						// TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
+						// Otherwise, we need to have two different WinForms project (Windows AND Linux)
+						//command += " \"" + pathRelease + "/Windows.dll\"";
+						//command += " \"" + pathRelease + "/Microsoft.Win32.TaskScheduler.dll\""; 
+								
+						command += " --deps";
+						command += " --static";
+						command += " -z";
+						command += " -o \"" + pathTemp + "/airvpn\"";
+						Shell(command);
+
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+
+						Shell("chmod 755 \"" + pathTemp + "/airvpn\"");
+						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+
+						CreateDirectory(pathTemp + "/" + fileName);
+						MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+						// TAR.GZ
+						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+						Shell(command2);
+					}
+					else if (format == "deb")
+					{
+						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
+						CopyFile(pathRelease, "UI.Linux.exe", pathTemp, "AirVPN.exe");
+
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
+
+						CreateDirectory(pathTemp + "/usr/lib/AirVPN");
+						MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
+						CopyDirectory(pathBaseResources + "/debian", pathTemp);
+
+						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString);
+						string debianArchitecture = "unknown";
+						if(arch == "x86")
+							debianArchitecture = "any-i386";
+						else if (arch == "x64")
+							debianArchitecture = "any-amd64";
+						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
+
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel");
+
+						/*
+						CopyFile(pathBaseHome + "/changelog.txt", pathTemp + "/usr/share/doc/airvpn/changelog");
+						File.WriteAllText(pathTemp + "/usr/share/man/man1/airvpn.1", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help"));
+						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
+								
+						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man1/airvpn.1\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man1/airvpn.1.gz\"");
+						*/
+
+						Shell("chmod 755 -R \"" + pathTemp + "\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
+								
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/copyright\"");
+								
+						string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
+						Log(command);
+						Shell(command);
+
+						Log("Lintian report:");
+						Log(Shell("lintian \"" + pathFinal + "\""));
+					}
+					else if (format == "rpm")
+					{
+						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
+						CopyFile(pathRelease, "UI.Linux.exe", pathTemp, "AirVPN.exe");
+
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
+
+						CreateDirectory(pathTemp + "/usr/lib/AirVPN");
+						MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
+						CopyDirectory(pathBaseResources + "/rpm", pathTemp);
+
+						ReplaceInFile(pathTemp + "/airvpn.spec", "{@version}", versionString);
+						/*
+						string debianArchitecture = "unknown";
+						if (arch == "x86")
+							debianArchitecture = "any-i386";
+						else if (arch == "x64")
+							debianArchitecture = "any-amd64";
+						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
+						*/
+
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel");
+
+						Shell("chmod 755 -R \"" + pathTemp + "\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
+
+						string command = "rpmbuild -bb \"" + pathTemp + "airvpn.spec\"";
+						Log(command);
+						Shell(command);
+					}
+				}
+				else if (platform == "osx")
+				{
+					if (format == "portable")
+					{
+						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+						CopyFile(pathRelease, "Platforms.Osx.dll", pathTemp);
+						CopyFile(pathRelease, "CLI.Osx.exe", pathTemp, "CLI.exe");
+
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+
+						Shell("chmod 755 \"" + pathTemp + "/airvpn\"");
+						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+
+						CreateDirectory(pathTemp + "/" + fileName);
+						MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+						// TAR.GZ
+						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+						Shell(command2);
+					}
+					else if (format == "installer")
+					{
+						// Not yet implemented.
+					}
+				}
+					
 			}
 
 			Log("Done");
 
 
-			if (Platform.Instance is AirVPN.Core.Platforms.Linux)
+			if (SO == "linux")
 			{
 				Console.WriteLine("If running from a developing VM, maybe need:");
 				Console.WriteLine("cp ../../../../repository/airvpn_linux_* /media/sf_airvpn/repository/");
@@ -276,7 +390,7 @@ namespace Deploy
 
 		static string NormalizePath(string path)
 		{
-			if (Platform.Instance is AirVPN.Core.Platforms.Windows)
+			if (SO == "windows")
 			{
 				return path.Replace("/", "\\");
 			}
@@ -303,6 +417,11 @@ namespace Deploy
 				Directory.CreateDirectory(NormalizePath(path));
 		}
 
+		static void CreateSymlink(string path, string origin)
+		{
+			Shell("ln -s \"" + origin + "\" \"" + path + "\"");
+		}
+
 		static void Fatal(string message)
 		{
 			Log("Fatal error: " + message);
@@ -314,16 +433,68 @@ namespace Deploy
 			Log("Not yet implemented.");
 		}
 
-		static void Exec(string command)
+		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
 		{
-			Console.WriteLine("Shell: " + command);
-			Platform.Instance.ShellCmd(command);
+			try
+			{
+				Process p = new Process();
+
+				p.StartInfo.Arguments = Arguments;
+
+				if (WorkingDirectory != "")
+					p.StartInfo.WorkingDirectory = WorkingDirectory;
+
+				p.StartInfo.FileName = FileName;
+
+				if (ShowWindow == false)
+				{
+					//#do not show DOS window
+					p.StartInfo.CreateNoWindow = true;
+					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+				}
+
+				if (WaitEnd)
+				{
+					p.StartInfo.UseShellExecute = false;
+					p.StartInfo.RedirectStandardOutput = true;
+					p.StartInfo.RedirectStandardError = true;
+				}
+
+				p.Start();
+
+				if (WaitEnd)
+				{
+					string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
+					p.WaitForExit();
+					return Output.Trim();
+				}
+				else
+				{
+					return "";
+				}
+			}
+			catch (Exception E)
+			{
+				return E.Message;
+			}
+
+
 		}
 
-		static void Exec(string filename, string arguments)
+		static string Shell(string command)
+		{
+			Console.WriteLine("Shell: " + command);
+
+			if(SO == "windows")
+				return Shell("cmd.exe", String.Format("/c {0}", command));
+			else
+				return Shell("sh", String.Format("-c '{0}'", command));			
+		}
+
+		static string Shell(string filename, string arguments)
 		{
 			Console.WriteLine("Shell, " + filename + ", arguments: " + arguments);
-			Platform.Instance.Shell(filename, arguments, true);
+			return ShellPlatformIndipendent(filename, arguments, "", true, false);
 		}
 
 		static void CopyFile(string fromFilePath, string toFilePath)
@@ -339,6 +510,11 @@ namespace Deploy
 		static void CopyFile(string fromPath, string fromFile, string toPath, string toFile)
 		{
 			CopyFile(fromPath + "/" + fromFile, toPath + "/" + toFile);
+		}
+
+		static void RemoveFile(string path)
+		{
+			File.Delete(path);
 		}
 
 		static void CopyAll(string from, string to)
@@ -363,6 +539,11 @@ namespace Deploy
 
 				File.Move(fi.FullName, to + "/" + fi.Name);
 			}
+		}
+
+		static void ReplaceInFile(string path, string from, string to)
+		{
+			File.WriteAllText(path, File.ReadAllText(path).Replace(from, to));
 		}
 
 		static void CopyDirectory(string fromPath, string toPath)

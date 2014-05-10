@@ -46,7 +46,6 @@ namespace AirVPN.Core.Threads
 		private int m_proxyPort = 0;
 		private NetworkInterface m_interfaceTun;
 		private int m_timeLastStatus = 0;
-		private int m_hackWin8TunUp = 0;
 		private TemporaryFile m_fileSshKey;
 		private TemporaryFile m_fileSslConfig;
 		private TemporaryFile m_fileOvpn;
@@ -90,7 +89,6 @@ namespace AirVPN.Core.Threads
 					if (CancelRequested)
 						continue;
 
-					m_hackWin8TunUp = 0;
 					m_openVpnManagementCommands.Clear();
 
 					string protocol = Engine.Storage.Get("mode.protocol").ToUpperInvariant();
@@ -336,6 +334,8 @@ namespace AirVPN.Core.Threads
 						// Phase 5 - Waiting disconnection
 						// -----------------------------------
 
+						TimeDelta DeltaSigTerm = new TimeDelta();
+
 						for (; ; )
 						{
 							try
@@ -366,8 +366,11 @@ namespace AirVPN.Core.Threads
 								// Start a clean disconnection
 								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.HasExited == false) && (m_openVpnManagementSocket.Connected))
 								{
-									SendManagementCommand("signal SIGTERM");
-									ProcessOpenVpnManagement();
+									if (DeltaSigTerm.Elapsed(10000)) // Try a SIGTERM every 10 seconds // TOTEST
+									{
+										SendManagementCommand("signal SIGTERM");
+										ProcessOpenVpnManagement();
+									}
 								}
 							}
 							catch (Exception e)
@@ -717,24 +720,13 @@ namespace AirVPN.Core.Threads
 		{
 			try
 			{
+				Platform.Instance.OnDaemonOutput(source, message);
+
 				if (source == "OpenVPN")
 				{
 					bool log = true;
 					if (message.IndexOf("MANAGEMENT: CMD 'status'") != -1)
 						log = false;
-
-					if (Platform.Instance.IsWindowsSystem())
-					{
-						if (message.IndexOf("Waiting for TUN/TAP interface to come up") != -1)
-						{
-							if (Engine.Storage.GetBool("advanced.windows.tap_up"))
-							{
-								m_hackWin8TunUp++;
-								if (m_hackWin8TunUp == 2)
-									(Platform.Instance as Core.Platforms.Windows).HackWindowsInterfaceUp();
-							}
-						}
-					}
 
 					if (message.IndexOf("Connection reset, restarting") != -1)
 					{

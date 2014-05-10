@@ -235,9 +235,13 @@ namespace AirVPN.Core
 				if (filename == "stunnel") // ...
 					filename = "stunnel4";
 
-				string path = "/usr/bin/" + filename;
-				if (File.Exists(path))
-					return path;
+				string path1 = "/usr/bin/" + filename;
+				if (File.Exists(path1))
+					return path1;
+
+				string path2 = "/usr/sbin/" + filename;
+				if (File.Exists(path2))
+					return path2;
 			}
 
 			return "";

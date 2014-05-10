@@ -22,21 +22,15 @@ using System.Text;
 using System.Threading;
 using AirVPN.Core;
 
-namespace AirVPN.CLI
+namespace AirVPN.CLI.Windows
 {
 	class Program
 	{
 		//static bool Quit = false;
 
 		static void Main(string[] args)
-		{	
-			if (Environment.CommandLine.IndexOf("platformdebug") != -1)
-			{
-				Console.WriteLine("Dumping platform information");
-				Console.WriteLine("Platform:" + Environment.OSVersion.Platform.ToString());
-				Console.WriteLine("VersionString:" + Environment.OSVersion.VersionString.ToString());
-				return;
-			}
+		{
+			Platform.Instance = new AirVPN.Platforms.Windows();
 
 			CommandLine.Init(Environment.CommandLine);
 

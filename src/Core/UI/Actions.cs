@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Management;
 using System.Text;
 
 namespace AirVPN.Core.UI
@@ -86,17 +85,17 @@ namespace AirVPN.Core.UI
 
 		public static string GetAboutLicense()
 		{
-			return Properties.Resources.License;
+			return Lib.Core.Properties.Resources.License;
 		}
 
 		public static string GetAboutThirdParty()
 		{
-			return Properties.Resources.ThirdParty;
+			return Lib.Core.Properties.Resources.ThirdParty;
 		}
 
 		public static string GetTos()
 		{
-			return Properties.Resources.TOS;
+			return Lib.Core.Properties.Resources.TOS;
 		}
 
 		public static string GetMan(string format)
