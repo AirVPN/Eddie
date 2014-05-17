@@ -38,9 +38,10 @@ namespace AirVPN.CLI.Windows
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			engine.Initialization();
-
-			engine.ConsoleStart();
+			if (engine.Initialization())
+			{
+				engine.ConsoleStart();
+			}
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

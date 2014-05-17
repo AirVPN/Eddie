@@ -108,7 +108,7 @@ namespace AirVPN.Gui
 
 		public override bool OnNoRoot()
 		{
-			if (FormMain != null) // GUI Only
+			if (ConsoleMode == false) // GUI Only
 			{
 				if (Platform.Instance.IsWindowsSystem())
 				{
@@ -117,31 +117,89 @@ namespace AirVPN.Gui
 				}
 				else if (Platform.Instance.IsLinuxSystem())
 				{
-					Log(LogType.Verbose, Messages.AdminRequiredRestart);
-					/*
-					string cmd;					
-					if(File.Exists("/usr/bin/gksu"))
-						cmd = "gksu -D \"AirVPN Client\" -u root ";
-					else
-						cmd = "xdg-su -u root -c ";
-					cmd += " \"" + Platform.Instance.GetExecutablePath() + " " + CommandLine.Get() + "\"";
-					Console.WriteLine(cmd);
-					Platform.Instance.ShellCmd(cmd);					
-					*/
 					string command = "";
 					string arguments = "";
-					if (File.Exists("/usr/bin/gksu"))
+
+
+					string command2 = "";
+					string executablePath = Platform.Instance.GetExecutablePath();
+					string cmdline = CommandLine.Get();
+					if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
+						command2 += "mono ";						
+					command2 += Platform.Instance.GetExecutablePath();
+					command2 += " ";
+					command2 += cmdline;
+					
+					if (File.Exists("/usr/bin/kdesudo"))
+					{
+						command = "kdesudo";
+						arguments = "";
+						arguments += " -u root"; // Administrative privileges
+						arguments += " -d"; // Don't show commandline
+						arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+						arguments += " -c "; // The command
+						//arguments += " \"" + command2 + "\"";
+						arguments += " \"" + command2 + "\"";
+					}
+					else if (File.Exists("/usr/bin/kdesu"))
+					{
+						command = "kdesu";
+						arguments = "";
+						arguments += " -u root"; // Administrative privileges
+						arguments += " -d"; // Don't show commandline
+						//arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+						arguments += " -c "; // The command
+						//arguments += " \"" + command2 + "\"";
+						arguments += " \"" + command2 + "\"";
+					}
+					/*
+					 * Under Debian, gksudo don't work, gksu work...
+					if (File.Exists("/usr/bin/gksudo"))
+					{
+						command = "gksudo";
+						arguments = "";
+						arguments += " -u root"; // Administrative privileges
+						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+						arguments += " \"" + command2 + "\"";
+					}
+					else 
+					*/
+					else if (File.Exists("/usr/bin/gksu"))
 					{
 						command = "gksu";
-						arguments = " -D \"AirVPN Client\" -u root ";
+						arguments = "";
+						arguments += " -u root"; // Administrative privileges
+						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+						arguments += " \"" + command2 + "\"";
+					}
+					else if (File.Exists("/usr/bin/xdg-su")) // OpenSUSE
+					{
+						command = "xdg-su";
+						arguments = "";
+						arguments += " -u root"; // Administrative privileges
+						arguments += " -c "; // The command
+						arguments += " \"" + command2 + "\"";
+					}
+					/*
+					 * else if (File.Exists("/usr/bin/pkexec")) // Different behiavour on different platforms
+					{
+						command = "pkexec";
+						arguments = "";
+						arguments = " env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY";
+						arguments += " " + command2 + "";
+					}
+					*/
+					
+					if (command != "")
+					{
+						Log(LogType.Verbose, Messages.AdminRequiredRestart);
+
+						Platform.Instance.Shell(command, arguments, false);
 					}
 					else
 					{
-						command = "xdg-su";
-						arguments = " -u root -c ";
+						Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);						
 					}
-					arguments += " \"" + Platform.Instance.GetExecutablePath() + " " + CommandLine.Get() + "\"";
-					Platform.Instance.Shell(command, arguments, false);
 
 					return true;
 				}
@@ -168,6 +226,11 @@ namespace AirVPN.Gui
 					LogEntries.Add(l);
 					if (FormMain != null)
 						FormMain.RefreshUi(RefreshUiMode.Log);            
+				}
+
+				if (l.Type == LogType.Fatal) // TOTEST
+				{
+					MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
         }

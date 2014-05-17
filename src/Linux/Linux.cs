@@ -86,7 +86,7 @@ namespace AirVPN.Platforms
 			if (Syscall.readlink("/proc/self/exe", builder) >= 0)
 				output = builder.ToString();
 
-			if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant() == "mono"))
+			if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
 			{
 				// Exception: Assembly directly load by Mono
 				output = base.GetExecutablePath();

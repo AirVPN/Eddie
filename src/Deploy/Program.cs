@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace Deploy
@@ -108,19 +109,21 @@ namespace Deploy
 				ListPackages.Add(new Package("windows", "x64", "installer"));
 
 				ListPackages.Add(new Package("windows8", "x86", "portable"));
-				ListPackages.Add(new Package("windows8", "x86", "installer"));
 				ListPackages.Add(new Package("windows8", "x64", "portable"));
+				ListPackages.Add(new Package("windows8", "x86", "installer"));				
 				ListPackages.Add(new Package("windows8", "x64", "installer"));
 			}
 
 			if (SO == "linux")
 			{
+				ListPackages.Add(new Package("linux", "x86", "mono"));
+				ListPackages.Add(new Package("linux", "x64", "mono"));
 				ListPackages.Add(new Package("linux", "x86", "portable"));
 				ListPackages.Add(new Package("linux", "x64", "portable"));
-				ListPackages.Add(new Package("linux", "x86", "deb"));
-				ListPackages.Add(new Package("linux", "x64", "deb"));
-				ListPackages.Add(new Package("linux", "x86", "rpm"));
-				ListPackages.Add(new Package("linux", "x64", "rpm"));
+				ListPackages.Add(new Package("linux", "x86", "debian"));
+				ListPackages.Add(new Package("linux", "x64", "debian"));				
+				ListPackages.Add(new Package("linux", "x86", "rpm"));				
+				ListPackages.Add(new Package("linux", "x64", "rpm"));				
 			}
 						
 			string pathBaseHome = new DirectoryInfo("../../../..").FullName;
@@ -156,7 +159,7 @@ namespace Deploy
 				}
 
 				string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
-				string fileName = "airvpn_" + platform + "_" + arch;
+				string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
 				string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;
 				string pathTemp = pathBaseTemp + "/" + archiveName;
 				string pathRelease = pathBaseRelease + "/" + arch + "/Release/";
@@ -223,8 +226,31 @@ namespace Deploy
 				}
 				else if (platform == "linux")
 				{
-					if (format == "portable")
+					if (format == "mono")
 					{
+						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
+						CopyFile(pathRelease, "UI.Linux.exe", pathTemp, "AirVPN.exe");
+
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+
+						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+
+						RemoveFile(pathTemp + "/libgdiplus.so.0");
+						RemoveFile(pathTemp + "/libMonoPosixHelper.so");
+
+						CreateDirectory(pathTemp + "/" + fileName);
+						MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+						// TAR.GZ
+						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+						Shell(command2);
+					}
+					else if (format == "portable")
+					{
+						CopyFile(pathBaseResources + "/linux_portable/airvpn.config", pathTemp + "/airvpn.config");
 						// mkbundle
 						string command = "mkbundle ";
 						command += " \"" + pathRelease + "/UI.Linux.exe\"";
@@ -239,9 +265,13 @@ namespace Deploy
 								
 						command += " --deps";
 						command += " --static";
+						command += " --config \"" + pathTemp + "/airvpn.config\"";
+						command += " --machine-config /etc/mono/2.0/machine.config";
 						command += " -z";
-						command += " -o \"" + pathTemp + "/airvpn\"";
+						command += " -o \"" + pathTemp + "/airvpn\"";						
 						Shell(command);
+
+						RemoveFile(pathTemp + "/airvpn.config");
 
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
 
@@ -256,7 +286,7 @@ namespace Deploy
 						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
 						Shell(command2);
 					}
-					else if (format == "deb")
+					else if (format == "debian")
 					{
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
@@ -279,18 +309,21 @@ namespace Deploy
 
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel");
-
-						/*
-						CopyFile(pathBaseHome + "/changelog.txt", pathTemp + "/usr/share/doc/airvpn/changelog");
-						File.WriteAllText(pathTemp + "/usr/share/man/man1/airvpn.1", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help"));
-						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
-								
-						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man1/airvpn.1\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man1/airvpn.1.gz\"");
-						*/
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/libgdiplus.so.0");
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
+
+						//CopyFile(pathBaseHome + "/changelog.txt", pathTemp + "/usr/share/doc/airvpn/changelog");												
+						File.WriteAllText(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl("https://airvpn.org/services/changelog.php?software=client&format=debian"));
+						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
+
+						File.WriteAllText(pathTemp + "/usr/share/man/man1/airvpn.1", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help"));
+						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man1/airvpn.1\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man1/airvpn.1.gz\"");
+						
+						
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
@@ -308,18 +341,25 @@ namespace Deploy
 					}
 					else if (format == "rpm")
 					{
+						string libSubPath = "lib";
+						if (arch == "x64")
+							libSubPath = "lib64";
+
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Linux.exe", pathTemp, "AirVPN.exe");
 
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".rpm");
 
-						CreateDirectory(pathTemp + "/usr/lib/AirVPN");
-						MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
+						CreateDirectory(pathTemp + "/usr/" + libSubPath + "/AirVPN");
+						MoveAll(pathTemp, pathTemp + "/usr/" + libSubPath + "/AirVPN");
 						CopyDirectory(pathBaseResources + "/rpm", pathTemp);
 
 						ReplaceInFile(pathTemp + "/airvpn.spec", "{@version}", versionString);
+						ReplaceInFile(pathTemp + "/airvpn.spec", "{@lib}", libSubPath);
+
+						ReplaceInFile(pathTemp + "/usr/bin/airvpn", "{@lib}", libSubPath);						
 						/*
 						string debianArchitecture = "unknown";
 						if (arch == "x86")
@@ -329,19 +369,25 @@ namespace Deploy
 						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
 						*/
 
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel");
+						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/openvpn");
+						//RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel"); // OpenSUSE (RPM) don't have stunnel in stable repo
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/libgdiplus.so.0");
+						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 
-						string command = "rpmbuild -bb \"" + pathTemp + "airvpn.spec\"";
-						Log(command);
+						string command = "rpmbuild -sign -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";						
+						Log(command);						
 						Shell(command);
+
+						
+
+						Shell("mv ../*.rpm " + pathFinal);
 					}
 				}
 				else if (platform == "osx")
@@ -396,6 +442,13 @@ namespace Deploy
 			}
 			else
 				return path.Replace("\\", "/");
+		}
+
+		static string FetchUrl(string url)
+		{
+			WebClient w = new WebClient();
+			w.Proxy = null;
+			return w.DownloadString(url);			
 		}
 
 		static void CreateDirectory(string path)
@@ -486,15 +539,24 @@ namespace Deploy
 			Console.WriteLine("Shell: " + command);
 
 			if(SO == "windows")
-				return Shell("cmd.exe", String.Format("/c {0}", command));
+				return Shell("cmd.exe", String.Format("/c {0}", command), false);
 			else
-				return Shell("sh", String.Format("-c '{0}'", command));			
+				return Shell("sh", String.Format("-c '{0}'", command), false);			
 		}
 
 		static string Shell(string filename, string arguments)
 		{
-			Console.WriteLine("Shell, " + filename + ", arguments: " + arguments);
-			return ShellPlatformIndipendent(filename, arguments, "", true, false);
+			return Shell(filename, arguments, true);
+		}
+
+		static string Shell(string filename, string arguments, bool log)
+		{
+			if(log)
+				Console.WriteLine("Shell, filename: " + filename + ", arguments: " + arguments);
+			string output = ShellPlatformIndipendent(filename, arguments, "", true, false);
+			if(output.Trim() != "")
+				Console.WriteLine("Output: " + output);
+			return output;
 		}
 
 		static void CopyFile(string fromFilePath, string toFilePath)

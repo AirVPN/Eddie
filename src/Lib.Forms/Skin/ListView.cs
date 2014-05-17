@@ -170,14 +170,12 @@ namespace AirVPN.Gui.Skin
 		public virtual int OnSortItem(int col, SortOrder order, ListViewItem i1, ListViewItem i2)
 		{
 			int returnVal = -1;
-			returnVal = String.Compare(i1.SubItems[col].Text, i2.SubItems[col].Text);
+			returnVal = String.Compare(i1.SubItems[col].Text, i2.SubItems[col].Text);			
 			// Determine whether the sort order is descending.
 			if (order == SortOrder.Descending)
 				// Invert the value returned by String.Compare.
 				returnVal *= -1;
 			return returnVal;
 		}
-
-
     }
 }

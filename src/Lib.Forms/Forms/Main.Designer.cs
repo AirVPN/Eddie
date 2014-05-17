@@ -1074,9 +1074,9 @@ namespace AirVPN.Gui.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabMain.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tabMain.Controls.Add(this.tabOverview);
-			this.tabMain.Controls.Add(this.tabSpeed);
 			this.tabMain.Controls.Add(this.tabServers);
 			this.tabMain.Controls.Add(this.tabAreas);
+			this.tabMain.Controls.Add(this.tabSpeed);
 			this.tabMain.Controls.Add(this.tabStats);
 			this.tabMain.Controls.Add(this.tabLogs);
 			this.tabMain.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;

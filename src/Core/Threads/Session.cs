@@ -191,7 +191,7 @@ namespace AirVPN.Core.Threads
 
 						Engine.RunEventCommand("vpn.pre");
 
-						Engine.WaitMessageSet("Connecting to " + Engine.CurrentServer.PublicName);
+						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryCode));
 
 						if (protocol == "SSH")
 						{
@@ -280,6 +280,11 @@ namespace AirVPN.Core.Threads
 
 								}
 
+								// Checking
+								if (m_processOpenVpn.HasExited)
+									m_reset = "ERROR";
+								if( (m_processProxy != null) && (m_processProxy.HasExited) )
+									m_reset = "ERROR";
 								
 								// Need stop?
 								bool StopRequest = false;
@@ -322,7 +327,7 @@ namespace AirVPN.Core.Threads
 
 						Engine.SetConnected(false);
 
-						Engine.WaitMessageSet("Disconnecting");
+						Engine.WaitMessageSet(Messages.ConnectionDisconnecting);
 
 						if (Storage.Simulate)
 						{
@@ -334,7 +339,7 @@ namespace AirVPN.Core.Threads
 						// Phase 5 - Waiting disconnection
 						// -----------------------------------
 
-						TimeDelta DeltaSigTerm = new TimeDelta();
+						TimeDelta DeltaSigTerm = null;
 
 						for (; ; )
 						{
@@ -366,7 +371,16 @@ namespace AirVPN.Core.Threads
 								// Start a clean disconnection
 								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.HasExited == false) && (m_openVpnManagementSocket.Connected))
 								{
-									if (DeltaSigTerm.Elapsed(10000)) // Try a SIGTERM every 10 seconds // TOTEST
+									bool sendSignal = false;
+									if (DeltaSigTerm == null)
+									{
+										DeltaSigTerm = new TimeDelta();
+										sendSignal = true;
+									}
+									else if (DeltaSigTerm.Elapsed(10000)) // Try a SIGTERM every 10 seconds // TOTEST
+										sendSignal = true;
+
+									if(sendSignal)
 									{
 										SendManagementCommand("signal SIGTERM");
 										ProcessOpenVpnManagement();
@@ -779,11 +793,11 @@ namespace AirVPN.Core.Threads
 
 						Platform.Instance.FlushDNS();
 
-						Engine.WaitMessageSet("Checking");
+						
 
 						if (Engine.Storage.GetBool("advanced.check.route"))
 						{
-							Engine.Log(Core.Engine.LogType.Verbose, Messages.ConnectionCheckingRoute);
+							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute);
 
 							if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
 							{
@@ -824,8 +838,8 @@ namespace AirVPN.Core.Threads
 						// DNS test
 						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.dns")))
 						{
-							Engine.Log(Core.Engine.LogType.Verbose, Messages.ConnectionCheckingDNS);
-
+							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS);
+							
 							bool failed = true;
 							IPHostEntry entry = Dns.GetHostEntry(Engine.Storage.GetManifestKeyValue("dnscheck_host", ""));
 

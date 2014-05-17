@@ -229,19 +229,29 @@ namespace AirVPN.Core
 					return path;
 			}
 
-			// Linux
-			if(Platform.Instance.IsUnixSystem())
+			// System
+			List<string> names = new List<string>();			
+			if (filename == "stunnel")
+			{				
+				// For example, under Ubuntu is 'stunnel4', under Fedora is 'stunnel'.
+				names.Add("stunnel5");
+				names.Add("stunnel4");				
+			}
+			names.Add(filename);
+
+			foreach (string fileNameAlt in names)
 			{
-				if (filename == "stunnel") // ...
-					filename = "stunnel4";
+				// Linux
+				if (Platform.Instance.IsUnixSystem())
+				{
+					string pathBin = "/usr/bin/" + fileNameAlt;
+					if (File.Exists(pathBin))
+						return pathBin;
 
-				string path1 = "/usr/bin/" + filename;
-				if (File.Exists(path1))
-					return path1;
-
-				string path2 = "/usr/sbin/" + filename;
-				if (File.Exists(path2))
-					return path2;
+					string pathSBin = "/usr/sbin/" + fileNameAlt;
+					if (File.Exists(pathSBin))
+						return pathSBin;
+				}
 			}
 
 			return "";

@@ -12,6 +12,7 @@
     <AssemblyName>Lib.Forms</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -247,6 +248,13 @@
     <Content Include="res\login.png" />
     <Content Include="res\login_16.png" />
     <Content Include="res\logs.png" />
+    <None Include="res\log_icons\log_error.png" />
+    <None Include="res\log_icons\log_fatal.png" />
+    <None Include="res\log_icons\log_info.png" />
+    <None Include="res\log_icons\log_infoimportant.png" />
+    <None Include="res\log_icons\log_realtime.png" />
+    <None Include="res\log_icons\log_verbose.png" />
+    <None Include="res\log_icons\log_warning.png" />
     <Content Include="res\main_d_bg.png" />
     <Content Include="res\main_l_bg.png" />
     <Content Include="res\menu_hover.png" />
