@@ -192,12 +192,18 @@ namespace AirVPN.Core
 
 				bool autoStart = false;
 				if (ConsoleMode)
-					autoStart = true;
+				{
+					Auth();
+					if (IsLogged())
+						autoStart = true;
+					else
+						CancelRequested = true;
+				}
 				if ((IsLogged()) && (Engine.Storage.GetBool("connect")))
 					autoStart = true;
 				if (autoStart)
 					Connect();
-				else
+				else if(CancelRequested == false)
 					Log(LogType.InfoImportant, Messages.Ready);
                 
                 for (; ; )
@@ -1151,13 +1157,16 @@ namespace AirVPN.Core
 
 		private void DeAuth()
 		{
-			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogout); 
+			if (IsLogged())
+			{
+				Engine.Instance.WaitMessageSet(Messages.AuthorizeLogout);
 
-			Storage.User = null;
+				Storage.User = null;
 
-			Log(LogType.InfoImportant, Messages.AuthorizeLogoutDone);
+				Log(LogType.InfoImportant, Messages.AuthorizeLogoutDone);
 
-			Engine.Instance.WaitMessageClear();
+				Engine.Instance.WaitMessageClear();
+			}
 		}
         
         private void SessionStart()
@@ -1273,19 +1282,26 @@ namespace AirVPN.Core
 
 				foreach (Process theprocess in processlist)
 				{
-					if (theprocess.ProcessName.ToLower() == "openvpn")
-						throw new Exception(Messages.AlreadyRunningOpenVPN);
-
-					if ((protocol == "SSL") && (theprocess.ProcessName.ToLower() == "stunnel"))
+					try
 					{
-						throw new Exception(Messages.AlreadyRunningSTunnel);
+						if (theprocess.ProcessName.ToLower() == "openvpn")
+							throw new Exception(Messages.AlreadyRunningOpenVPN);
+
+						if ((protocol == "SSL") && (theprocess.ProcessName.ToLower() == "stunnel"))
+						{
+							throw new Exception(Messages.AlreadyRunningSTunnel);
+						}
+
+						if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "plink"))
+							throw new Exception(Messages.AlreadyRunningSshPLink);
+
+						if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "ssh"))
+							throw new Exception(Messages.AlreadyRunningSsh);
 					}
-
-					if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "plink"))
-						throw new Exception(Messages.AlreadyRunningSshPLink);
-
-					if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "ssh"))
-						throw new Exception(Messages.AlreadyRunningSsh);
+					catch (System.InvalidOperationException)
+					{
+						// occur on some OSX process, ignore it.
+					}
 				}
 			}
 

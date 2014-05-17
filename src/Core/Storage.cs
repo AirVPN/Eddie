@@ -413,7 +413,11 @@ namespace AirVPN.Core
                 {
                     XmlDocument xmlDoc = new XmlDocument();
 
-					string Path = GetPath(Get("profile") + ".xml");
+					string profile = Get("profile");
+					if (profile.ToLowerInvariant() == "none")
+						return;
+
+					string Path = GetPath(profile + ".xml");
 
 					if(manMode == false)
 						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.OptionsRead, Path));
