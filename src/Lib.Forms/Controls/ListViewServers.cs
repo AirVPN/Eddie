@@ -178,7 +178,7 @@ namespace AirVPN.Gui.Controls
                     {
                         int v1 = i1.Info.Score();
                         int v2 = i2.Info.Score();
-                        returnVal = v1.CompareTo(v2);
+                        returnVal = v1.CompareTo(v2);						
                     } break;
                 case 3: // Latency
                     {
@@ -209,13 +209,17 @@ namespace AirVPN.Gui.Controls
                     } break;
                 default:
                     {
-                        return base.OnSortItem(col, order, pi1, pi2);
-                    } 
+						returnVal = base.OnSortItem(col, SortOrder.Ascending, pi1, pi2);
+						//order = SortOrder.Ascending;
+                    } break;
             }
 
             if (order == SortOrder.Descending)
                 // Invert the value returned by String.Compare.
                 returnVal *= -1;
+
+			if (returnVal == 0) // Second order, Name
+				returnVal = i1.Info.Name.CompareTo(i2.Info.Name);
 
             return returnVal;            
         }
@@ -248,7 +252,7 @@ namespace AirVPN.Gui.Controls
                         listItemServer.Update();
                     }
                 }
-
+								
 				List<ListViewItemServer> itemsToRemove = new List<ListViewItemServer>();
 
                 foreach (ListViewItemServer viewItem in Items)
@@ -261,12 +265,9 @@ namespace AirVPN.Gui.Controls
 
 				foreach (ListViewItemServer viewItem in itemsToRemove)
 				{
-					viewItem.Focused = false; // Avoid Mono Crash
-					viewItem.Selected = false;
-
-					Items.Remove(viewItem);
+					Items.Remove(viewItem);					
 				}
-
+				
                 Sort();
 
                 //ResumeLayout();

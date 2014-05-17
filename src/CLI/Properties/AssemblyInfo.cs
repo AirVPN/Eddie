@@ -6,11 +6,11 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AirVPN - CLI")]
-[assembly: AssemblyDescription("AirVPN - Command Line Interface")]
+[assembly: AssemblyTitle("AirVPN - Windows CLI")]
+[assembly: AssemblyDescription("AirVPN - Windows Command Line Interface")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://airvpn.org")]
-[assembly: AssemblyProduct("AirVPN - CLI")]
+[assembly: AssemblyProduct("AirVPN - Windows CLI")]
 [assembly: AssemblyCopyright("Copyright ©  2011 - 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

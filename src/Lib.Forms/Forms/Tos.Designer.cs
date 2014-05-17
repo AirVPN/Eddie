@@ -30,7 +30,6 @@ namespace AirVPN.Gui.Forms
         {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Tos));
-			this.imgButtons = new System.Windows.Forms.ImageList(this.components);
 			this.txtTos = new AirVPN.Gui.Skin.TextBox();
 			this.panel1 = new AirVPN.Gui.Skin.Panel();
 			this.chkAccept2 = new AirVPN.Gui.Skin.CheckBox();
@@ -39,14 +38,6 @@ namespace AirVPN.Gui.Forms
 			this.cmdOk = new AirVPN.Gui.Skin.Button();
 			this.panel1.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// imgButtons
-			// 
-			this.imgButtons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgButtons.ImageStream")));
-			this.imgButtons.TransparentColor = System.Drawing.Color.Transparent;
-			this.imgButtons.Images.SetKeyName(0, "disconnect");
-			this.imgButtons.Images.SetKeyName(1, "enter");
-			this.imgButtons.Images.SetKeyName(2, "login");
 			// 
 			// txtTos
 			// 
@@ -115,7 +106,6 @@ namespace AirVPN.Gui.Forms
 			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.cmdCancel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.cmdCancel.ImageList = this.imgButtons;
 			this.cmdCancel.Location = new System.Drawing.Point(164, 64);
 			this.cmdCancel.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdCancel.Name = "cmdCancel";
@@ -135,7 +125,6 @@ namespace AirVPN.Gui.Forms
 			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdOk.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.cmdOk.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.cmdOk.ImageList = this.imgButtons;
 			this.cmdOk.Location = new System.Drawing.Point(3, 64);
 			this.cmdOk.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdOk.Name = "cmdOk";
@@ -165,7 +154,6 @@ namespace AirVPN.Gui.Forms
 
         #endregion
 
-        private System.Windows.Forms.ImageList imgButtons;
         private Skin.Panel panel1;
         private Skin.CheckBox chkAccept2;
         private Skin.CheckBox chkAccept1;

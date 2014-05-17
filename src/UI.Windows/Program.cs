@@ -44,9 +44,10 @@ namespace AirVPN.UI.Windows
 			{
 				Core.Engine engine = new Core.Engine();
 
-				engine.Initialization();
-
-				engine.ConsoleStart();
+				if (engine.Initialization())
+				{
+					engine.ConsoleStart();
+				}
 			}
 			else
 			{
@@ -54,13 +55,14 @@ namespace AirVPN.UI.Windows
 
 				Gui.Engine engine = new Gui.Engine();
 
-				engine.Initialization();
+				if (engine.Initialization())
+				{
+					engine.FormMain = new Gui.Forms.Main();
 
-				engine.FormMain = new Gui.Forms.Main();
+					engine.UiStart();
 
-				engine.Start();
-
-				Application.Run(engine.FormMain);
+					Application.Run(engine.FormMain);
+				}
 			}
 		}
 	}

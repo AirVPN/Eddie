@@ -307,7 +307,7 @@ namespace AirVPN.Core
 			SetDefaultBool("advanced.locked_security", false, NotInMan);
 			SetDefaultBool("advanced.check.dns", false, Messages.ManOptionAdvancedCheckDns);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
-			SetDefaultBool("advanced.dnsswitch", true, Messages.ManOptionAdvancedDnsSwitch);
+			SetDefaultBool("advanced.dnsswitch", false, Messages.ManOptionAdvancedDnsSwitch);
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
 			SetDefaultBool("advanced.pinger.always", false, Messages.ManOptionAdvancedPingerAlways);
@@ -344,6 +344,9 @@ namespace AirVPN.Core
 			SetDefaultBool("gui.tos", false, NotInMan);
 			SetDefaultInt("gui.log_limit", 1000, NotInMan);
 			SetDefault("forms.main", "", NotInMan);
+
+			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
+			SetDefault("paramtest", "", NotInMan); 			
         }
 
         public void EnsureDefaultsEvent(string name)

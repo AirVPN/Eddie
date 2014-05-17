@@ -82,6 +82,13 @@ namespace AirVPN.Gui.Forms
                     m_notifyIcon.Dispose();
                     m_notifyIcon = null;
                 }
+
+				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
+				mnuMain.Dispose();
+				mnuServers.Dispose();
+				mnuAreas.Dispose();
+				mnuLogsContext.Dispose();
+
 				m_Closing = true;
                 Close();
             }
@@ -217,10 +224,12 @@ namespace AirVPN.Gui.Forms
             chkLockedNetwork.Checked = Engine.Storage.GetBool("advanced.locked_security");
 			m_skipNetworkLockedConfirm = false;
 
+			/*
             if (cmdConnect.Enabled && (Engine.Storage.GetBool("connect")))
             {
                 Connect();
             }
+			*/
 
 			m_FormReady = true;
 
@@ -245,6 +254,19 @@ namespace AirVPN.Gui.Forms
 
 				Form.DrawImage(e.Graphics, Skin.MainBackImage, new Rectangle(0, 0, ClientSize.Width, m_topHeaderHeight));
 
+				Image iconFlag = null;
+				if (Engine.CurrentServer != null)
+				{
+					string iconFlagCode = Engine.CurrentServer.CountryCode;
+					if (imgCountries.Images.ContainsKey(iconFlagCode))
+						iconFlag = imgCountries.Images[iconFlagCode];
+
+					if (iconFlag != null)
+					{
+						rectHeaderText.Width -= iconFlag.Width + 5;
+					}
+				}
+
 				if (Engine.IsWaiting())
 				{					
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_yellow"), rectHeader);
@@ -252,21 +274,10 @@ namespace AirVPN.Gui.Forms
 				}
 				else if (Engine.IsConnected())
 				{	
-					string iconFlagCode = Engine.CurrentServer.CountryCode;
 					string serverName = Engine.CurrentServer.Name;
-
-					Image iconFlag = null;
-					if(imgCountries.Images.ContainsKey(iconFlagCode))
-						iconFlag = imgCountries.Images[iconFlagCode];
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
-					if (iconFlag != null)
-					{
-						Rectangle rectFlag = new Rectangle(rectHeaderText.Right - iconFlag.Width, 5, iconFlag.Width, iconFlag.Height);
-						DrawImage(e.Graphics, iconFlag, rectFlag);
-						rectHeaderText.Width -= iconFlag.Width+5;
-					}
 					Form.DrawStringOutline(e.Graphics, "Connected to " + serverName, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 				}
 				else
@@ -280,6 +291,12 @@ namespace AirVPN.Gui.Forms
 					{
 						Form.DrawStringOutline(e.Graphics, "Not connected. Network exposed.", m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
+				}
+
+				if (iconFlag != null)
+				{
+					Rectangle rectFlag = new Rectangle(rectHeader.Right - iconFlag.Width - 10, 5, iconFlag.Width, iconFlag.Height);
+					DrawImage(e.Graphics, iconFlag, rectFlag);					
 				}
 
 				DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_shadow"), rectHeader);
@@ -532,12 +549,26 @@ namespace AirVPN.Gui.Forms
 			mnuServersConnect_Click(sender, e);
 		}
 
+		private void DeselectServersListItem()
+		{
+			if (Platform.Instance.IsWindowsSystem() == false)
+			{
+				// To avoid a Mono ListView crash, reproducible by whitelisting servers
+				foreach (ListViewItemServer item in m_listViewServers.Items)
+				{
+					item.Focused = false;
+					item.Selected = false;
+				}
+			}
+		}
+
 		private void mnuServersWhitelist_Click(object sender, EventArgs e)
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
 				item.Info.UserList = ServerInfo.UserListType.WhiteList;
 			}
+			DeselectServersListItem();
 			m_listViewServers.UpdateList();
 		}
 
@@ -547,7 +578,8 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = ServerInfo.UserListType.BlackList;
 			}
-			m_listViewServers.UpdateList();
+			DeselectServersListItem();
+			m_listViewServers.UpdateList();			
 		}
 
 		private void mnuServersUndefined_Click(object sender, EventArgs e)
@@ -556,7 +588,8 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = ServerInfo.UserListType.None;
 			}
-			m_listViewServers.UpdateList();
+			DeselectServersListItem();
+			m_listViewServers.UpdateList();			
 		}
 
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
@@ -797,13 +830,17 @@ namespace AirVPN.Gui.Forms
 
         public void ShowMenu()
         {
+			Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
+			mnuMain.Show(p);
+			/*
             if (mnuMain.Visible)
                 mnuMain.Close();
             else
             {
                 Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
                 mnuMain.Show(p);
-            }            
+            } 
+			*/
         }
 
 		public void Login()
@@ -886,13 +923,20 @@ namespace AirVPN.Gui.Forms
                         if (ShortMsg.Length > 40)
                             ShortMsg = ShortMsg.Substring(0, 40) + "...";
 
-                        if (m_notifyIcon != null)
-                        {
-                            m_notifyIcon.Text = Constants.Name + " - " + ShortMsg;
-                            m_notifyIcon.BalloonTipText = Msg;
-                            if(l.Type >= Engine.LogType.InfoImportant)
-                                m_notifyIcon.ShowBalloonTip(l.BalloonTime);
-                        }
+						string notifyText = Constants.Name + " - " + ShortMsg;
+
+						if(Engine.IsConnected() == false)
+						{
+							Text = Constants.Name + " - " + Msg;
+
+							if (m_notifyIcon != null)
+							{
+								m_notifyIcon.Text = notifyText;
+								m_notifyIcon.BalloonTipText = Msg;
+								if(l.Type >= Engine.LogType.InfoImportant)
+									m_notifyIcon.ShowBalloonTip(l.BalloonTime);
+							}
+						}
                     }
 
                     if (l.Type == Engine.LogType.Fatal)
@@ -1187,12 +1231,16 @@ namespace AirVPN.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
+							string notifyText = Constants.Name + " - " + "Down: " + Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false) + " - Up: " + Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false) + " - " + Engine.CurrentServer.PublicName + " (" + Engine.CurrentServer.CountryCode + ")";
+							Text = notifyText;
 							if (m_notifyIcon != null)
 							{
-								// TOTEST
-								string notifyText = "Down: " + Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false) + " - Up: " + Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false) + " - " + Engine.CurrentServer.PublicName + " (" + Engine.CurrentServer.CountryName + ", " + Engine.CurrentServer.Location + ")";
+								if (notifyText.Length > 62)
+									notifyText = notifyText.Substring(0, 62);
 								m_notifyIcon.Text = notifyText;
 							}
+
+							
 						}
 						else
 						{

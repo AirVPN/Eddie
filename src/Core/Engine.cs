@@ -35,7 +35,8 @@ namespace AirVPN.Core
 
 		public bool DevelopmentEnvironment = false;
         
-		private static bool ConsoleMode = false;
+		public bool ConsoleMode = false;
+
         private Threads.Pinger m_threadPinger;
         private Threads.Penalities m_threadPenalities;
 		private Threads.Manifest m_threadManifest;
@@ -134,7 +135,7 @@ namespace AirVPN.Core
             }
         }
 
-		public void Initialization()
+		public bool Initialization()
 		{
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
@@ -151,7 +152,26 @@ namespace AirVPN.Core
 			m_storage = new Core.Storage();
 			m_storage.Load(manMode);
 
+			if (Storage.GetBool("cli"))
+				ConsoleMode = true;
+
+			if(Storage.Get("paramtest") != "") // Look comment in storage.cs
+				Log(LogType.Warning, "Param test:-" + Storage.Get("paramtest") + "-");			
+
 			m_stats = new Core.Stats();
+
+			if (Storage.GetBool("advanced.skip_privileges") == false)
+			{
+				if (Platform.Instance.IsAdmin() == false)
+				{
+					if (OnNoRoot() == false)
+						Log(LogType.Fatal, Messages.AdminRequiredStop);
+
+					return false;
+				}
+			}
+
+			return true;
 		}
 
         public override void OnRun()
@@ -169,6 +189,16 @@ namespace AirVPN.Core
                 RunEventCommand("app.start");
 
                 WaitMessageClear();
+
+				bool autoStart = false;
+				if (ConsoleMode)
+					autoStart = true;
+				if ((IsLogged()) && (Engine.Storage.GetBool("connect")))
+					autoStart = true;
+				if (autoStart)
+					Connect();
+				else
+					Log(LogType.InfoImportant, Messages.Ready);
                 
                 for (; ; )
                 {
@@ -202,21 +232,9 @@ namespace AirVPN.Core
 				{
 					if (Storage.Exists(commandLineParamKey) == false)
 					{
-						Log(LogType.Fatal, Messages.Format(Messages.CommandLineUnknownOption, commandLineParamKey));
-						return false;
+						Log(LogType.Error, Messages.Format(Messages.CommandLineUnknownOption, commandLineParamKey));						
 					}
 				}
-
-                if (Storage.GetBool("advanced.skip_privileges") == false)
-                {
-					if (Platform.Instance.IsAdmin() == false)
-                    {
-						if(OnNoRoot() == false)
-							Log(LogType.Fatal, Messages.AdminRequiredStop);
-
-                        return false;
-                    }
-                }
 
                 Engine.Instance.Log(Engine.LogType.Verbose, "Data Path: " + Storage.DataPath);
 				Engine.Instance.Log(Engine.LogType.Verbose, "App Path: " + Platform.Instance.GetProgramFolder());
@@ -247,7 +265,7 @@ namespace AirVPN.Core
         {
             SessionStop();
 
-            WaitMessageSet("Exiting");
+			WaitMessageSet(Messages.AppExiting);
 
             if (m_threadManifest != null)
 				m_threadManifest.RequestStopSync();				
@@ -335,7 +353,7 @@ namespace AirVPN.Core
 			if (TickDeltaUiRefreshQuick.Elapsed(1000))
 				OnRefreshUi(RefreshUiMode.Quick);
 
-			if (TickDeltaUiRefreshFull.Elapsed(30000))
+			if (TickDeltaUiRefreshFull.Elapsed(10000))
 				OnRefreshUi(RefreshUiMode.Full);
 
 			Sleep(100);
@@ -414,9 +432,12 @@ namespace AirVPN.Core
 				Engine.Instance.Log(Engine.LogType.Info, Messages.ConsoleKeyboardHelp);				
 				
 				Start();
-
-				Connect();
 			}
+		}
+
+		public void UiStart()
+		{
+			Start();
 		}
 
 		public void ConsoleExit()
@@ -672,22 +693,15 @@ namespace AirVPN.Core
 
                     if (all == false)
                     {
-                        AreaInfo country = null;
+						ServerInfo.UserListType serverUserList = server.UserList;
+						AreaInfo.UserListType countryUserList = AreaInfo.UserListType.None;
                         if (m_areas.ContainsKey(server.CountryCode))
-                            country = m_areas[server.CountryCode];
-
-						if (country == null)
-						{
-							if (server.ServerType == 2) // Exception: Routing server may exists in a country not listed.
-								skip = false;
-							else
-								skip = true;
-						}
-						else if (server.UserList == ServerInfo.UserListType.BlackList)
+							countryUserList = m_areas[server.CountryCode].UserList;
+						if (serverUserList == ServerInfo.UserListType.BlackList)
 							skip = true;
-						else if (country.UserList == AreaInfo.UserListType.BlackList)
+						else if (countryUserList == AreaInfo.UserListType.BlackList)
 							skip = true;
-						else if ((server.UserList == ServerInfo.UserListType.None) && (country.UserList == AreaInfo.UserListType.None) && (existsWhiteList))
+						else if ((serverUserList == ServerInfo.UserListType.None) && (countryUserList == AreaInfo.UserListType.None) && (existsWhiteList))
 							skip = true;
                     }
 
@@ -888,11 +902,11 @@ namespace AirVPN.Core
 
             if (filename.Trim() != "")
             {
-                WaitMessageSet("Running event " + name);
+                WaitMessageSet(Messages.Format(Messages.AppEvent, name));
 
-                Log(LogType.Verbose, "Start Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
+                //Log(LogType.Verbose, "Start Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
 				Platform.Instance.Shell(filename, arguments, waitEnd);
-                Log(LogType.Verbose, "End Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
+                //Log(LogType.Verbose, "End Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
             }
         }
 

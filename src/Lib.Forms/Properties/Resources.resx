@@ -328,11 +328,32 @@
   <data name="warning16" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\warning16.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="icon1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\icon.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="icon_gray1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\res\icon_gray.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="log_error" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\log_icons\log_error.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="log_fatal" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\log_icons\log_fatal.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="log_info" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\log_icons\log_info.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="log_infoimportant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\log_icons\log_infoimportant.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="log_realtime" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\log_icons\log_realtime.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="log_verbose" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\log_icons\log_verbose.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="log_warning" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\res\log_icons\log_warning.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
