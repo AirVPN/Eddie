@@ -40,6 +40,10 @@ namespace AirVPN.Gui.Forms
             CommonInit(Messages.WindowsTosTitle);
 
 			txtTos.Text = Core.UI.Actions.GetTos();
+			chkAccept1.Text = Messages.WindowsTosCheck1;
+			chkAccept2.Text = Messages.WindowsTosCheck2;
+			cmdOk.Text = Messages.WindowsTosAccept;
+			cmdCancel.Text = Messages.WindowsTosReject;
 
 			bool TosAccepted = Engine.Instance.Storage.GetBool("gui.tos");
             chkAccept1.Checked = TosAccepted;
@@ -65,6 +69,8 @@ namespace AirVPN.Gui.Forms
         {
             CheckEnabled();
         }
+
+	
 
         
     }

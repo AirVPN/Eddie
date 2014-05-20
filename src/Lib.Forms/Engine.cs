@@ -210,10 +210,18 @@ namespace AirVPN.Gui
         
         public override void OnRefreshUi(RefreshUiMode mode)
         {
+			base.OnRefreshUi(mode);
+
 			if(Engine.Storage.GetBool("cli") == false)
 				if (FormMain != null)
 					FormMain.RefreshUi(mode);            
         }
+
+		public override void OnStatsChange(StatsEntry entry)
+		{
+			if (FormMain != null)
+				FormMain.StatsChange(entry);
+		}
 		
         public override void OnLog(LogEntry l)
         {

@@ -372,7 +372,7 @@ namespace AirVPN.Core
 				Log(LogType.Info, Messages.ConsoleKeyCancel);
 				OnExit();
 			}
-			else if (key.KeyChar == 'n')
+			else if (key.KeyChar == 'b')
 			{
 				Log(LogType.Info, Messages.ConsoleKeySwitch);
 				SwitchServer = true;				
@@ -652,7 +652,99 @@ namespace AirVPN.Core
 
         public virtual void OnRefreshUi(RefreshUiMode mode)
         {
+			// TOCLEAN, TOOPTIMIZE
+
+			if ((mode == Core.Engine.RefreshUiMode.Quick) || (mode == Core.Engine.RefreshUiMode.Full))
+			{
+				Stats.UpdateValue("ManifestLastUpdate", Utils.FormatTime(Utils.XmlGetAttributeInt64(Engine.Storage.Manifest, "time", 0)));
+			}
+
+			if ((mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
+			{
+				if (Engine.IsConnected())
+				{
+					{
+						DateTime DT1 = Engine.Instance.ConnectedSince;
+						DateTime DT2 = DateTime.UtcNow;
+						TimeSpan TS = DT2 - DT1;
+						string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToLongDateString() + " " + DT1.ToLocalTime().ToLongTimeString());
+						Stats.UpdateValue("VpnConnectionStart", TSText);
+
+					}
+					Stats.UpdateValue("VpnTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedLastRead, false, true));
+					Stats.UpdateValue("VpnTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedLastWrite, false, true));
+
+					Stats.UpdateValue("VpnSpeedDownload", Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, true));
+					Stats.UpdateValue("VpnSpeedUpload", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, true));
+				}
+				else
+				{
+					Stats.UpdateValue("VpnConnectionStart", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnTotalDownload", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnTotalUpload", Messages.StatsNotConnected);
+
+					Stats.UpdateValue("VpnSpeedDownload", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnSpeedUpload", Messages.StatsNotConnected);
+				}
+			}
+
+			if (mode == Core.Engine.RefreshUiMode.Full)
+			{
+				Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
+
+				if (Engine.IsConnected())
+				{
+					Stats.UpdateValue("ServerName", Engine.CurrentServer.Name);
+					Stats.UpdateValue("ServerLatency", Engine.CurrentServer.Ping.ToString() + " ms");
+					Stats.UpdateValue("ServerLocation", Engine.CurrentServer.CountryName + " - " + Engine.CurrentServer.Location);
+					Stats.UpdateValue("ServerLoad", Engine.CurrentServer.Load().ToString());
+					Stats.UpdateValue("ServerUsers", Engine.CurrentServer.Users.ToString());
+
+					Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP);
+					Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpExit);
+					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
+					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
+					if (Engine.ConnectedRealIp != "")
+						Stats.UpdateValue("VpnRealIp", Engine.ConnectedRealIp);
+					else
+						Stats.UpdateValue("VpnRealIp", Messages.CheckingRequired);
+					Stats.UpdateValue("VpnIp", Engine.ConnectedVpnIp);
+					Stats.UpdateValue("VpnDns", Engine.ConnectedVpnDns);
+					Stats.UpdateValue("VpnInterface", Engine.ConnectedVpnInterfaceName);
+					Stats.UpdateValue("VpnGateway", Engine.ConnectedVpnGateway);
+					Stats.UpdateValue("VpnGeneratedOVPN", Messages.DoubleClickToView);
+
+					if (Engine.ConnectedServerTime != 0)
+						Stats.UpdateValue("SystemTimeServerDifference", (Engine.ConnectedServerTime - Engine.ConnectedClientTime).ToString() + " seconds");
+					else
+						Stats.UpdateValue("SystemTimeServerDifference", Messages.CheckingRequired);
+				}
+				else
+				{
+					Stats.UpdateValue("ServerName", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerLatency", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerLocation", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerLoad", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerUsers", Messages.StatsNotConnected);
+
+					Stats.UpdateValue("VpnIpEntry", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnIpExit", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnProtocol", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnPort", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnRealIp", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnIp", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnDns", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnInterface", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnGateway", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnGeneratedOVPN", Messages.StatsNotConnected);
+					Stats.UpdateValue("SystemTimeServerDifference", Messages.StatsNotConnected);
+				}
+			}
         }
+
+		public virtual void OnStatsChange(StatsEntry entry)
+		{
+		}
 
 		public virtual void OnUnhandledException(Exception e)
 		{
