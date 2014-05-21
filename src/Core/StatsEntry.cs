@@ -27,6 +27,8 @@ namespace AirVPN.Core
 		public string Key;
 		public string Caption;
 		public string Icon;
-		public bool Dump;
+		public string Value;
+		public bool Dump = false; // Not really used
+		public bool Listed = false; // Not really used
     }
 }

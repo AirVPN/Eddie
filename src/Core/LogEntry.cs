@@ -29,5 +29,16 @@ namespace AirVPN.Core
         public string Message;
         public int BalloonTime = 1000;
 		public Exception Exception;
+
+		public string GetMessageForList()
+		{
+			return Message.Replace("\r", "").Replace("\n", " | ");			
+		}
+
+		public string GetDateForList()
+		{
+			return Date.ToShortDateString() + " - " + Date.ToShortTimeString();
+		}
     }
+
 }

@@ -53,14 +53,14 @@
 			// lnkWebsite
 			// 
 			this.lnkWebsite.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.lnkWebsite.AutoSize = true;
 			this.lnkWebsite.BackColor = System.Drawing.Color.Transparent;
-			this.lnkWebsite.Location = new System.Drawing.Point(161, 172);
+			this.lnkWebsite.Location = new System.Drawing.Point(16, 172);
 			this.lnkWebsite.Name = "lnkWebsite";
-			this.lnkWebsite.Size = new System.Drawing.Size(217, 13);
+			this.lnkWebsite.Size = new System.Drawing.Size(501, 21);
 			this.lnkWebsite.TabIndex = 3;
 			this.lnkWebsite.TabStop = true;
-			this.lnkWebsite.Text = "Look https://airvpn.org for more informations";
+			this.lnkWebsite.Text = "More";
+			this.lnkWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.lnkWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkWebsite_LinkClicked);
 			// 
 			// lblMessage
@@ -88,7 +88,6 @@
 			this.Name = "FrontMessage";
 			this.Text = "FrontMessage";
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 

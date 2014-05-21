@@ -122,6 +122,12 @@ namespace AirVPN.Platforms
 			string cmd = "/sbin/route del -net " + Address + " netmask " + Mask;
 			ShellCmd(cmd);
 		}
+		
+		public override string RouteList()
+		{
+			string cmd = "route -v -n -e";
+			return ShellCmd(cmd);
+		}
 
 		public override string GenerateSystemReport()
 		{

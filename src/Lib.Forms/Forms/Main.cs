@@ -897,17 +897,11 @@ namespace AirVPN.Gui.Forms
                         m_logDotCount += 1;
                         m_logDotCount = m_logDotCount % 10;
 
-
-
-						String NewMessage = l.Message;
-						NewMessage = NewMessage.Replace("\r", "");
-						NewMessage = NewMessage.Replace("\n", " | ");
-
 						ListViewItem Item = new ListViewItem();
 						Item.ImageKey = l.Type.ToString().ToLowerInvariant();
 						Item.Text = "";
-						Item.SubItems.Add(l.Date.ToShortDateString() + " - " + l.Date.ToShortTimeString());
-						Item.SubItems.Add(NewMessage);
+						Item.SubItems.Add(l.GetDateForList());
+						Item.SubItems.Add(l.GetMessageForList());
 						Item.ToolTipText = l.Message;
 
 						lstLogs.Items.Add(Item);
@@ -1135,20 +1129,13 @@ namespace AirVPN.Gui.Forms
 						}
 					}
 
-					if ((mode == Core.Engine.RefreshUiMode.Quick) || (mode == Core.Engine.RefreshUiMode.Full))
-					{
-						RefreshStats("ManifestLastUpdate", Utils.FormatTime(Utils.XmlGetAttributeInt64(Engine.Storage.Manifest, "time", 0)));
-					}
+					
 
 					if (mode == Core.Engine.RefreshUiMode.Full)
                     {
-                        // TOCLEAN
-
-						bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
+                        bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
 						bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
 
-                        //imgProgress.Visible = Engine.IsWaiting();
-						
                         mnuPorts.Enabled = connected;
                         mnuSpeedTest.Enabled = connected;
 						                        
@@ -1156,78 +1143,15 @@ namespace AirVPN.Gui.Forms
 						m_listViewAreas.UpdateList();
 
 						cmdLogsOpenVpnManagement.Visible = ((Engine.IsConnected()) && (Engine.Storage.GetBool("advanced.expert")));
-
-						if (Engine.IsConnected())
-						{
-							RefreshStats("ServerName", Engine.CurrentServer.Name);
-							RefreshStats("ServerLatency", Engine.CurrentServer.Ping.ToString() + " ms");
-							RefreshStats("ServerLocation", Engine.CurrentServer.CountryName + " - " + Engine.CurrentServer.Location);
-							RefreshStats("ServerLoad", Engine.CurrentServer.Load().ToString());
-							RefreshStats("ServerUsers", Engine.CurrentServer.Users.ToString());
-
-							RefreshStats("VpnIpEntry", Engine.ConnectedEntryIP);
-							RefreshStats("VpnIpExit", Engine.CurrentServer.IpExit);
-							RefreshStats("VpnProtocol", Engine.ConnectedProtocol);
-							RefreshStats("VpnPort", Engine.ConnectedPort.ToString());
-							if (Engine.ConnectedRealIp != "")
-								RefreshStats("VpnRealIp", Engine.ConnectedRealIp);
-							else
-								RefreshStats("VpnRealIp", Messages.CheckingRequired);
-							RefreshStats("VpnIp", Engine.ConnectedVpnIp);
-							RefreshStats("VpnDns", Engine.ConnectedVpnDns);
-							RefreshStats("VpnInterface", Engine.ConnectedVpnInterfaceName);
-							RefreshStats("VpnGateway", Engine.ConnectedVpnGateway);
-							RefreshStats("VpnGeneratedOVPN", Messages.DoubleClickToView);							
-
-							if (Engine.ConnectedServerTime != 0)
-								RefreshStats("SystemTimeServerDifference", (Engine.ConnectedServerTime - Engine.ConnectedClientTime).ToString() + " seconds");
-							else
-								RefreshStats("SystemTimeServerDifference", Messages.CheckingRequired);
-						}
-						else
-						{
-							RefreshStats("ServerName", Messages.StatsNotConnected);
-							RefreshStats("ServerLatency", Messages.StatsNotConnected);
-							RefreshStats("ServerLocation", Messages.StatsNotConnected);
-							RefreshStats("ServerLoad", Messages.StatsNotConnected);
-							RefreshStats("ServerUsers", Messages.StatsNotConnected);
-
-							RefreshStats("VpnIpEntry", Messages.StatsNotConnected);
-							RefreshStats("VpnIpExit", Messages.StatsNotConnected);
-							RefreshStats("VpnProtocol", Messages.StatsNotConnected);
-							RefreshStats("VpnPort", Messages.StatsNotConnected);
-							RefreshStats("VpnRealIp", Messages.StatsNotConnected);
-							RefreshStats("VpnIp", Messages.StatsNotConnected);
-							RefreshStats("VpnDns", Messages.StatsNotConnected);
-							RefreshStats("VpnInterface", Messages.StatsNotConnected);
-							RefreshStats("VpnGateway", Messages.StatsNotConnected);
-							RefreshStats("VpnGeneratedOVPN", Messages.StatsNotConnected);
-							RefreshStats("SystemTimeServerDifference", Messages.StatsNotConnected);
-						}
-						
-						RefreshStats("SystemReport", Messages.DoubleClickToView);
                     }
 
                     if( (mode == Core.Engine.RefreshUiMode.Full) ||
                         (mode == Core.Engine.RefreshUiMode.Stats) )
                     {
-						// TOCLEAN
-
 						if (Engine.IsConnected())
 						{
-							{
-								DateTime DT1 = Engine.Instance.ConnectedSince;
-								DateTime DT2 = DateTime.UtcNow;
-								TimeSpan TS = DT2 - DT1;
-								string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToLongDateString() + " " + DT1.ToLocalTime().ToLongTimeString());
-								RefreshStats("VpnConnectionStart", TSText);
-								txtConnectedSince.Text = TSText;
-							}
-							RefreshStats("VpnTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedLastRead, false, true));
-							RefreshStats("VpnTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedLastWrite, false, true));
+							txtConnectedSince.Text = Engine.Stats.GetValue("VpnConnectionStart");
 
-							RefreshStats("VpnSpeedDownload", Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, true));
-							RefreshStats("VpnSpeedUpload", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, true));
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
@@ -1239,19 +1163,7 @@ namespace AirVPN.Gui.Forms
 									notifyText = notifyText.Substring(0, 62);
 								m_notifyIcon.Text = notifyText;
 							}
-
-							
-						}
-						else
-						{
-							RefreshStats("VpnConnectionStart", Messages.StatsNotConnected);
-							RefreshStats("VpnTotalDownload", Messages.StatsNotConnected);
-							RefreshStats("VpnTotalUpload", Messages.StatsNotConnected);
-
-							RefreshStats("VpnSpeedDownload", Messages.StatsNotConnected);
-							RefreshStats("VpnSpeedUpload", Messages.StatsNotConnected);
-						}
-                        
+						}						
                     }
                 }
 
@@ -1259,19 +1171,23 @@ namespace AirVPN.Gui.Forms
             }
         }
 
-		public void RefreshStats(string name, string value)
+		private delegate void StatsChangeDelegate(StatsEntry entry);        
+		public void StatsChange(StatsEntry entry)
 		{
-			if (m_statsItems.ContainsKey(name))
+			if(this.InvokeRequired)
 			{
-				ListViewItemStats item = m_statsItems[name];
-				if (item.SubItems.Count == 1)
-					item.SubItems.Add("");
-				if (item.SubItems[1].Text != value)
-					item.SubItems[1].Text = value;
+				StatsChangeDelegate inv = new StatsChangeDelegate(this.StatsChange);
+				this.BeginInvoke(inv, new object[] { entry });
 			}
 			else
-			{				
-				throw new Exception("Unknown stats.");				
+			{
+				if (m_statsItems.ContainsKey(entry.Key))
+				{
+					ListViewItemStats item = m_statsItems[entry.Key];
+					if (item.SubItems.Count == 1)
+						item.SubItems.Add("");
+					item.SubItems[1].Text = entry.Value;
+				}
 			}
 		}
 
