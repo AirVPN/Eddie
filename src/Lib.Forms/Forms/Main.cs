@@ -165,8 +165,6 @@ namespace AirVPN.Gui.Forms
 
 			lstLogs.ImageIconResourcePrefix = "log_";
 
-			cboSpeedResolution.SelectedIndex = 0;
-
 			chkShowAll.Checked = false;
 			chkLockLast.Checked = Engine.Storage.GetBool("servers.locklast");
 			cboScoreType.Text = Engine.Storage.Get("servers.scoretype");
@@ -186,6 +184,14 @@ namespace AirVPN.Gui.Forms
 				lstStats.Items.Add(statsEntryItem);
 				m_statsItems[statsEntry.Key] = statsEntryItem;
 			}
+
+			cboSpeedResolution.Items.Clear();
+			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution1);
+			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution2);
+			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution3);
+			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution4);
+			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution5);
+			cboSpeedResolution.SelectedIndex = 0;
 
 			// Tooltips
 			cmdConnect.Text = Messages.CommandConnect;

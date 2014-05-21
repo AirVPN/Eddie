@@ -108,16 +108,16 @@ namespace AirVPN.Gui.Forms
 			this.pnlWaiting = new AirVPN.Gui.Skin.Panel();
 			this.lblWait2 = new AirVPN.Gui.Skin.Label();
 			this.lblWait1 = new AirVPN.Gui.Skin.Label();
-			this.tabSpeed = new AirVPN.Gui.Skin.TabPage();
-			this.lblSpeedResolution = new AirVPN.Gui.Skin.Label();
-			this.holSpeedChart = new System.Windows.Forms.Label();
-			this.cboSpeedResolution = new AirVPN.Gui.Skin.ComboBox();
 			this.tabServers = new AirVPN.Gui.Skin.TabPage();
 			this.lblScoreType = new AirVPN.Gui.Skin.Label();
 			this.chkShowAll = new AirVPN.Gui.Skin.CheckBox();
 			this.pnlServers = new System.Windows.Forms.Panel();
 			this.tabAreas = new AirVPN.Gui.Skin.TabPage();
 			this.pnlAreas = new System.Windows.Forms.Panel();
+			this.tabSpeed = new AirVPN.Gui.Skin.TabPage();
+			this.lblSpeedResolution = new AirVPN.Gui.Skin.Label();
+			this.holSpeedChart = new System.Windows.Forms.Label();
+			this.cboSpeedResolution = new AirVPN.Gui.Skin.ComboBox();
 			this.tabStats = new AirVPN.Gui.Skin.TabPage();
 			this.lstStats = new AirVPN.Gui.Skin.ListView();
 			this.tabLogs = new AirVPN.Gui.Skin.TabPage();
@@ -151,9 +151,9 @@ namespace AirVPN.Gui.Forms
 			this.tabOverview.SuspendLayout();
 			this.pnlConnected.SuspendLayout();
 			this.pnlWaiting.SuspendLayout();
-			this.tabSpeed.SuspendLayout();
 			this.tabServers.SuspendLayout();
 			this.tabAreas.SuspendLayout();
+			this.tabSpeed.SuspendLayout();
 			this.tabStats.SuspendLayout();
 			this.tabLogs.SuspendLayout();
 			this.mnuLogsContext.SuspendLayout();
@@ -1293,60 +1293,6 @@ namespace AirVPN.Gui.Forms
 			this.lblWait1.Text = "label1";
 			this.lblWait1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
 			// 
-			// tabSpeed
-			// 
-			this.tabSpeed.Controls.Add(this.lblSpeedResolution);
-			this.tabSpeed.Controls.Add(this.holSpeedChart);
-			this.tabSpeed.Controls.Add(this.cboSpeedResolution);
-			this.tabSpeed.Location = new System.Drawing.Point(4, 24);
-			this.tabSpeed.Name = "tabSpeed";
-			this.tabSpeed.Size = new System.Drawing.Size(660, 301);
-			this.tabSpeed.TabIndex = 5;
-			this.tabSpeed.Text = "Speed";
-			this.tabSpeed.UseVisualStyleBackColor = true;
-			// 
-			// lblSpeedResolution
-			// 
-			this.lblSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.lblSpeedResolution.Location = new System.Drawing.Point(3, 280);
-			this.lblSpeedResolution.Name = "lblSpeedResolution";
-			this.lblSpeedResolution.Size = new System.Drawing.Size(92, 19);
-			this.lblSpeedResolution.TabIndex = 65;
-			this.lblSpeedResolution.Text = "Resolution:";
-			this.lblSpeedResolution.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// holSpeedChart
-			// 
-			this.holSpeedChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.holSpeedChart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-			this.holSpeedChart.Location = new System.Drawing.Point(0, 0);
-			this.holSpeedChart.Name = "holSpeedChart";
-			this.holSpeedChart.Size = new System.Drawing.Size(660, 277);
-			this.holSpeedChart.TabIndex = 51;
-			this.holSpeedChart.Text = "Speed Chart";
-			this.holSpeedChart.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// cboSpeedResolution
-			// 
-			this.cboSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.cboSpeedResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboSpeedResolution.FormattingEnabled = true;
-			this.cboSpeedResolution.Items.AddRange(new object[] {
-            "Range: 1 minute, Grid: 10 seconds, Step: 1 second",
-            "Range: 10 minutes, Grid: 1 minute, Step: 1 second",
-            "Range: 1 hour, Grid: 10 minutes, Step: 1 second",
-            "Range: 1 day, Grid: 1 hour, Step: 30 seconds",
-            "Range: 30 days, Grid: 1 day, Step: 10 minutes"});
-			this.cboSpeedResolution.Location = new System.Drawing.Point(101, 279);
-			this.cboSpeedResolution.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			this.cboSpeedResolution.Name = "cboSpeedResolution";
-			this.cboSpeedResolution.Size = new System.Drawing.Size(556, 21);
-			this.cboSpeedResolution.TabIndex = 50;
-			this.cboSpeedResolution.SelectedIndexChanged += new System.EventHandler(this.cboSpeedResolution_SelectedIndexChanged);
-			// 
 			// tabServers
 			// 
 			this.tabServers.BackColor = System.Drawing.Color.Transparent;
@@ -1426,6 +1372,54 @@ namespace AirVPN.Gui.Forms
 			this.pnlAreas.Name = "pnlAreas";
 			this.pnlAreas.Size = new System.Drawing.Size(626, 301);
 			this.pnlAreas.TabIndex = 49;
+			// 
+			// tabSpeed
+			// 
+			this.tabSpeed.Controls.Add(this.lblSpeedResolution);
+			this.tabSpeed.Controls.Add(this.holSpeedChart);
+			this.tabSpeed.Controls.Add(this.cboSpeedResolution);
+			this.tabSpeed.Location = new System.Drawing.Point(4, 24);
+			this.tabSpeed.Name = "tabSpeed";
+			this.tabSpeed.Size = new System.Drawing.Size(660, 301);
+			this.tabSpeed.TabIndex = 5;
+			this.tabSpeed.Text = "Speed";
+			this.tabSpeed.UseVisualStyleBackColor = true;
+			// 
+			// lblSpeedResolution
+			// 
+			this.lblSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.lblSpeedResolution.Location = new System.Drawing.Point(3, 280);
+			this.lblSpeedResolution.Name = "lblSpeedResolution";
+			this.lblSpeedResolution.Size = new System.Drawing.Size(92, 19);
+			this.lblSpeedResolution.TabIndex = 65;
+			this.lblSpeedResolution.Text = "Resolution:";
+			this.lblSpeedResolution.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// holSpeedChart
+			// 
+			this.holSpeedChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.holSpeedChart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+			this.holSpeedChart.Location = new System.Drawing.Point(0, 0);
+			this.holSpeedChart.Name = "holSpeedChart";
+			this.holSpeedChart.Size = new System.Drawing.Size(660, 277);
+			this.holSpeedChart.TabIndex = 51;
+			this.holSpeedChart.Text = "Speed Chart";
+			this.holSpeedChart.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// cboSpeedResolution
+			// 
+			this.cboSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.cboSpeedResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboSpeedResolution.FormattingEnabled = true;
+			this.cboSpeedResolution.Location = new System.Drawing.Point(101, 279);
+			this.cboSpeedResolution.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.cboSpeedResolution.Name = "cboSpeedResolution";
+			this.cboSpeedResolution.Size = new System.Drawing.Size(556, 21);
+			this.cboSpeedResolution.TabIndex = 50;
+			this.cboSpeedResolution.SelectedIndexChanged += new System.EventHandler(this.cboSpeedResolution_SelectedIndexChanged);
 			// 
 			// tabStats
 			// 
@@ -1616,10 +1610,10 @@ namespace AirVPN.Gui.Forms
 			this.tabOverview.ResumeLayout(false);
 			this.pnlConnected.ResumeLayout(false);
 			this.pnlWaiting.ResumeLayout(false);
-			this.tabSpeed.ResumeLayout(false);
 			this.tabServers.ResumeLayout(false);
 			this.tabServers.PerformLayout();
 			this.tabAreas.ResumeLayout(false);
+			this.tabSpeed.ResumeLayout(false);
 			this.tabStats.ResumeLayout(false);
 			this.tabLogs.ResumeLayout(false);
 			this.mnuLogsContext.ResumeLayout(false);

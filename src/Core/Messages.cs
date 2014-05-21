@@ -131,6 +131,11 @@ namespace AirVPN.Core
 		public static string WindowsSettingsEventTitle = "Settings - Event";
 		public static string WindowsOpenVpnManagementCommandTitle = "OpenVpn Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
+		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; // TOTRANSLATE
+		public static string WindowsMainSpeedResolution2 = "Range: 10 minutes, Grid: 1 minute, Step: 1 second"; // TOTRANSLATE
+		public static string WindowsMainSpeedResolution3 = "Range: 1 hour, Grid: 10 minutes, Step: 1 second"; // TOTRANSLATE
+		public static string WindowsMainSpeedResolution4 = "Range: 1 day, Grid: 1 hour, Step: 30 seconds"; // TOTRANSLATE
+		public static string WindowsMainSpeedResolution5 = "Range: 30 days, Grid: 1 day, Step: 10 minutes"; // TOTRANSLATE
 
 		public static string LogsCopyClipboardDone = "Copy to clipboard done.";
 		public static string LogsSaveToFileDone = "Copy to clipboard done.";		
