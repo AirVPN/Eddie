@@ -197,8 +197,9 @@ namespace AirVPN.Gui.Forms
 			cmdConnect.Text = Messages.CommandConnect;
 			lblConnectSubtitle.Text = Messages.CommandConnectSubtitle;
 			cmdDisconnect.Text = Messages.CommandDisconnect;
-			this.tip.SetToolTip(this.cboScoreType, Messages.TooltipScoreType);
-			this.tip.SetToolTip(this.chkLockLast, Messages.TooltipLockLast);
+			this.tip.SetToolTip(this.cboScoreType, Messages.TooltipServersScoreType);
+			this.tip.SetToolTip(this.chkLockLast, Messages.TooltipServersLockCurrent);
+			this.tip.SetToolTip(this.chkShowAll, Messages.TooltipServersShowAll);
 			this.tip.SetToolTip(this.cmdServersConnect, Messages.TooltipServersConnect);
 			this.tip.SetToolTip(this.cmdServersUndefined, Messages.TooltipServersUndefined);
 			this.tip.SetToolTip(this.cmdServersBlackList, Messages.TooltipServersBlackList);
@@ -694,14 +695,14 @@ namespace AirVPN.Gui.Forms
 					return;
 
 				Forms.TextViewer Dlg = new TextViewer();
-				Dlg.Title = "OVPN Viewer";
+				Dlg.Title = item.Entry.Caption;
 				Dlg.Body = Engine.ConnectedOVPN;
 				Dlg.ShowDialog();
 			}
 			else if (item.Entry.Key == "SystemReport")
 			{
 				Forms.TextViewer Dlg = new TextViewer();
-				Dlg.Title = "System Networking Report";
+				Dlg.Title = item.Entry.Caption;
 				Dlg.Body = Platform.Instance.GenerateSystemReport();
 				Dlg.ShowDialog();
 			}

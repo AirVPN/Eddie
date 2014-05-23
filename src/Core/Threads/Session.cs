@@ -191,7 +191,7 @@ namespace AirVPN.Core.Threads
 
 						Engine.RunEventCommand("vpn.pre");
 
-						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryCode));
+						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location));
 
 						if (protocol == "SSH")
 						{

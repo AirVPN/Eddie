@@ -94,7 +94,7 @@ namespace AirVPN.Core
 		public static string ConnectionCheckingDNSFailed = "DNS checking failed.";
 		public static string ConnectionFlushDNS = "Flushing DNS";
 		public static string ConnectionConnected = "Connected.";
-		public static string ConnectionConnecting = "Connecting to {1} ({2})";
+		public static string ConnectionConnecting = "Connecting to {1} ({2}, {3})";
 		public static string ConnectionDisconnecting = "Disconnecting";
 				
 		public static string ChartRange = "Range";
@@ -274,6 +274,15 @@ namespace AirVPN.Core
 			string o = format;
 			o = o.Replace("{1}", param1);
 			o = o.Replace("{2}", param2);
+			return o;
+		}
+
+		public static string Format(string format, string param1, string param2, string param3)
+		{
+			string o = format;
+			o = o.Replace("{1}", param1);
+			o = o.Replace("{2}", param2);
+			o = o.Replace("{3}", param3);
 			return o;
 		}
     }

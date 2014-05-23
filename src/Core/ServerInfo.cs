@@ -99,6 +99,24 @@ namespace AirVPN.Core
             }
         }
 
-        
+		public string GetLatencyForList()
+		{
+			String text = "";
+			if (Ping != -1)
+				text = Ping.ToString() + " ms";
+			for (int i = 0; i < PingFailedConsecutive; i++)
+				text += ".";
+			return text;
+		}
+
+		public string GetLocationForList()
+		{
+			return Location + " - " + CountryName;
+		}
+
+		public string GetUsersForList()
+		{
+			return Users.ToString();
+		}
     }
 }
