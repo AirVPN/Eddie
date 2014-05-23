@@ -139,9 +139,10 @@ namespace AirVPN.Core
 
 		public static string LogsCopyClipboardDone = "Copy to clipboard done.";
 		public static string LogsSaveToFileDone = "Copy to clipboard done.";		
-		public static string TooltipScoreType = "Choose whether you prefer highest speed (ex. file-sharing) or low-latency speed (ex. gaming)";
-		public static string TooltipLockLast = "Never leave the current server. \r\nFor example if you don\'t want to change your IP for port forwarding reasons.";
+		public static string TooltipServersScoreType = "Choose whether you prefer highest speed (ex. file-sharing) or low-latency speed (ex. gaming)";
+		public static string TooltipServersLockCurrent = "Never leave the current server. \r\nFor example if you don\'t want to change your IP for port forwarding reasons.";
 		public static string TooltipServersConnect = "Connect to the selected server now";
+		public static string TooltipServersShowAll = "Show all servers if checked, or show only selected servers based on whitelist & blacklist"; // TOTRANSLATE
 		public static string TooltipServersUndefined = "Clear the selected servers from whitelist and blacklist";
 		public static string TooltipServersBlackList = "Add the selected servers to blacklist. \r\nThe system will never connect to blacklisted servers.";
 		public static string TooltipServersWhiteList = "Add the selected server to whitelist.\r\nThe system will only connect to whitelisted servers.";
