@@ -1,15 +1,42 @@
+// WARNING
+//
+// This file has been generated automatically by Xamarin Studio to store outlets and
+// actions made in the Xcode designer. If it is removed, they will be lost.
+// Manual changes to this file may not be handled correctly.
+//
+using MonoMac.Foundation;
 
 namespace AirVPN.UI.Osx
 {
-	// Should subclass MonoMac.AppKit.NSWindow
-	[MonoMac.Foundation.Register("WindowTextViewer")]
-	public partial class WindowTextViewer
+	[Register ("WindowTextViewerController")]
+	partial class WindowTextViewerController
 	{
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdOk { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtBody { get; set; }
+		
+		void ReleaseDesignerOutlets ()
+		{
+			if (TxtBody != null) {
+				TxtBody.Dispose ();
+				TxtBody = null;
+			}
+
+			if (CmdOk != null) {
+				CmdOk.Dispose ();
+				CmdOk = null;
+			}
+		}
 	}
-	// Should subclass MonoMac.AppKit.NSWindowController
-	[MonoMac.Foundation.Register("WindowTextViewerController")]
-	public partial class WindowTextViewerController
+
+	[Register ("WindowTextViewer")]
+	partial class WindowTextViewer
 	{
+		
+		void ReleaseDesignerOutlets ()
+		{
+		}
 	}
 }
-

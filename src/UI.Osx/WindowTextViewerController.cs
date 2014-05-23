@@ -8,6 +8,9 @@ namespace AirVPN.UI.Osx
 {
 	public partial class WindowTextViewerController : MonoMac.AppKit.NSWindowController
 	{
+		public string Title;
+		public string Body;
+
 		#region Constructors
 		// Called when created from unmanaged code
 		public WindowTextViewerController (IntPtr handle) : base (handle)
@@ -36,6 +39,15 @@ namespace AirVPN.UI.Osx
 				return (WindowTextViewer)base.Window;
 			}
 		}
+
+		public override void AwakeFromNib()
+		{
+			base.AwakeFromNib ();
+
+			Window.Title = AirVPN.Core.Constants.Name + " - " + Title;
+			TxtBody.StringValue = Body;
+		}
+
 	}
 }
 
