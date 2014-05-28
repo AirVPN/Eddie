@@ -10,34 +10,55 @@ namespace AirVPN.UI.Osx
 	{
 		MainWindowController mainWindowController;
 
+		NSStatusItem m_statusItem;
+
+		WindowAboutController windowAbout;
+		WindowPreferencesController windowPreferences;
+
 		public AppDelegate ()
 		{
 		}
 
 		public override void FinishedLaunching (NSObject notification)
 		{
-			//CreateMenu (); // Old
+			//CreateMenu (); // TOCLEAN
 
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 
 			MenuEvents ();
+
+			MenuBarIcon ();
+		}
+
+		void MenuBarIcon ()
+		{
+			NSMenu notifyMenu = new NSMenu ();
+			NSMenuItem exitMenuItem = new NSMenuItem ("Quit", (a,b) => {
+				System.Environment.Exit (0); });
+			notifyMenu.AddItem (exitMenuItem);
+
+			m_statusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (30);
+			m_statusItem.Menu = notifyMenu;
+			m_statusItem.Image = NSImage.ImageNamed ("speed.png");
+			m_statusItem.HighlightMode = true;
 		}
 
 		void MenuEvents()
 		{
 			MnuMainAbout.Activated += (object sender, EventArgs e) =>
 			{
-				WindowAboutController about = new WindowAboutController();
-				about.ShowWindow(this);
-				Engine.Instance.LogDebug ("pazzo about");
+				if(windowAbout == null)
+					windowAbout = new WindowAboutController();
+				windowAbout.ShowWindow(this);
 				//NSApplication.SharedApplication.RunModalForWindow(about.Window);
 			};
 
 			MnuMainPreferences.Activated += (object sender, EventArgs e) =>
 			{
-				WindowPreferencesController preferences = new WindowPreferencesController();
-				preferences.ShowWindow(this);
+				if(windowPreferences == null)
+					windowPreferences = new WindowPreferencesController();
+				windowPreferences.ShowWindow(this);
 			};
 
 			MnuMainHome.Activated += (object sender, EventArgs e) =>
@@ -61,6 +82,7 @@ namespace AirVPN.UI.Osx
 			};
 		}
 
+		/* // TOCLEAN
 		void CreateMenu()
 		{
 			NSMenu menuMain = new NSMenu ();
@@ -115,6 +137,7 @@ namespace AirVPN.UI.Osx
 
 
 		}
+		*/
 	}
 }
 

@@ -16,6 +16,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdMore { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtMessage { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -27,6 +30,11 @@ namespace AirVPN.UI.Osx
 			if (CmdMore != null) {
 				CmdMore.Dispose ();
 				CmdMore = null;
+			}
+
+			if (TxtMessage != null) {
+				TxtMessage.Dispose ();
+				TxtMessage = null;
 			}
 		}
 	}

@@ -8,6 +8,7 @@
             <connections>
                 <outlet property="CmdClose" destination="sVK-oS-rv5" id="h7j-xW-U9d"/>
                 <outlet property="CmdMore" destination="a17-a3-e4n" id="t4O-wW-6uy"/>
+                <outlet property="TxtMessage" destination="egV-dP-1qV" id="Scw-Fx-xLF"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
         </customObject>
@@ -15,7 +16,6 @@
         <customObject id="-3" userLabel="Application"/>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="WindowFrontMessage">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="74" width="606" height="234"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="3">

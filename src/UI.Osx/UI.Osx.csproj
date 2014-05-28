@@ -12,6 +12,7 @@
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <ReleaseVersion>2.2</ReleaseVersion>
+    <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,7 +30,6 @@
     <CodeSigningKey>Mac Developer</CodeSigningKey>
     <EnableCodeSigning>false</EnableCodeSigning>
     <CreatePackage>true</CreatePackage>
-    <AssemblyName>AirVPN.UI.Osx</AssemblyName>
     <PackageSigningKey>Developer ID Installer</PackageSigningKey>
     <I18n />
   </PropertyGroup>
@@ -48,7 +48,6 @@
     <CodeSigningKey>Developer ID Application</CodeSigningKey>
     <EnableCodeSigning>true</EnableCodeSigning>
     <EnablePackageSigning>false</EnablePackageSigning>
-    <AssemblyName>AirVPN.Mac</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>full</DebugType>
@@ -66,7 +65,6 @@
     <CodeSigningKey>3rd Party Mac Developer Application</CodeSigningKey>
     <EnableCodeSigning>true</EnableCodeSigning>
     <EnablePackageSigning>true</EnablePackageSigning>
-    <AssemblyName>AirVPN.Mac</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -120,6 +118,13 @@
     <Compile Include="TableStatsController.cs" />
     <Compile Include="TableServersController.cs" />
     <Compile Include="TableAreasController.cs" />
+    <Compile Include="WindowOpenVpnManagementCommand.cs" />
+    <Compile Include="WindowOpenVpnManagementCommandController.cs" />
+    <Compile Include="WindowOpenVpnManagementCommand.designer.cs">
+      <DependentUpon>WindowOpenVpnManagementCommand.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableAreasDelegate.cs" />
+    <Compile Include="TableServersDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -129,6 +134,7 @@
     <InterfaceDefinition Include="WindowTos.xib" />
     <InterfaceDefinition Include="WindowFrontMessage.xib" />
     <InterfaceDefinition Include="WindowTextViewer.xib" />
+    <InterfaceDefinition Include="WindowOpenVpnManagementCommand.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />

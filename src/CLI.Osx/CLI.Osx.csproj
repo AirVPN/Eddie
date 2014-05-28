@@ -9,6 +9,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>CLI.Osx</RootNamespace>
     <AssemblyName>CLI.Osx</AssemblyName>
+    <ReleaseVersion>2.2</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +21,7 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
-    <Commandlineparameters>login=airtest01 password=airtest0101</Commandlineparameters>
+    <Commandlineparameters>login=airtest01 password=airtest0101 -help</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -44,7 +45,7 @@
       <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
       <Name>Lib.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Osx\Platforms.Osx.csproj">
+    <ProjectReference Include="..\Platforms.Osx\Platforms.Osx.csproj">
       <Project>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</Project>
       <Name>Platforms.Osx</Name>
     </ProjectReference>

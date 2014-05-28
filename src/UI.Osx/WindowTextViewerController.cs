@@ -46,8 +46,17 @@ namespace AirVPN.UI.Osx
 
 			Window.Title = AirVPN.Core.Constants.Name + " - " + Title;
 			TxtBody.StringValue = Body;
+
+			CmdOk.Activated += (object sender, EventArgs e) =>
+			{
+				Window.Close ();
+			};
 		}
 
+		public override void Close ()
+		{
+			base.Close ();
+		}
 	}
 }
 

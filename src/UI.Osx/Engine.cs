@@ -12,20 +12,34 @@ namespace AirVPN.UI.Osx
 		public MainWindowController MainWindow;
 		public List<LogEntry> LogsEntries = new List<LogEntry>();
 
+		public List<MonoMac.AppKit.NSWindowController> WindowsOpen = new List<MonoMac.AppKit.NSWindowController>();
+
 		public Engine ()
 		{
 		}
 
-		public override void OnLog (LogEntry l)
+		public override bool OnInit ()
 		{
-			base.OnLog (l);
+			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			LogsEntries.Add (l);
+			return base.OnInit ();
+		}
 
-			if (MainWindow != null)
-			if (MainWindow.TableLogsController != null) {
+		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+			Exception ex = (Exception)e.ExceptionObject;
+			Engine.OnUnhandledException(ex);
+		}
+
+
+
+		public override void OnRefreshUi (RefreshUiMode mode)
+		{
+			base.OnRefreshUi (mode);
+
+			if (MainWindow != null) {
 				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.TableLogsController.RefreshUI ();
+					MainWindow.RefreshUi (mode);
 				});
 			}
 		}
@@ -42,15 +56,33 @@ namespace AirVPN.UI.Osx
 			}
 		}
 
-		public override void OnRefreshUi (RefreshUiMode mode)
-		{
-			base.OnRefreshUi (mode);
 
-			if (MainWindow != null) {
+		
+		public override void OnLog (LogEntry l)
+		{
+			base.OnLog (l);
+
+			LogsEntries.Add (l);
+
+			if (MainWindow != null)
+				if (MainWindow.TableLogsController != null) {
 				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.RefreshUi (mode);
+					MainWindow.TableLogsController.RefreshUI ();
 				});
 			}
 		}
+
+
+		public override void OnFrontMessage (string message)
+		{
+			base.OnFrontMessage (message);
+
+			if (MainWindow != null) {
+				new NSObject ().InvokeOnMainThread (() => {
+					MainWindow.FrontMessage (message);
+				});
+			}
+		}
+
 	}
 }

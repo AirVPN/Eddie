@@ -36,24 +36,24 @@ namespace AirVPN.UI.Osx
 				MnuMainAbout = null;
 			}
 
-			if (MnuMainHome != null) {
-				MnuMainHome.Dispose ();
-				MnuMainHome = null;
-			}
-
-			if (MnuMainClientArea != null) {
-				MnuMainClientArea.Dispose ();
-				MnuMainClientArea = null;
-			}
-
 			if (MnuMainForwardingPorts != null) {
 				MnuMainForwardingPorts.Dispose ();
 				MnuMainForwardingPorts = null;
 			}
 
+			if (MnuMainHome != null) {
+				MnuMainHome.Dispose ();
+				MnuMainHome = null;
+			}
+
 			if (MnuMainPreferences != null) {
 				MnuMainPreferences.Dispose ();
 				MnuMainPreferences = null;
+			}
+
+			if (MnuMainClientArea != null) {
+				MnuMainClientArea.Dispose ();
+				MnuMainClientArea = null;
 			}
 
 			if (MnuMainSpeedTest != null) {

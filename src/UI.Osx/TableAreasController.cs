@@ -30,6 +30,11 @@ namespace AirVPN.UI.Osx
 			tableView.ReloadData ();
 		}
 
+		public AreaInfo GetRelatedItem(int i)
+		{
+			return Items [i];
+		}
+
 		public override int GetRowCount (NSTableView tableView)
 		{
 			return Items.Count;
@@ -42,7 +47,12 @@ namespace AirVPN.UI.Osx
 			AreaInfo a = Items[row];
 
 			if (tableColumn.Identifier == "List") {
-				return NSImage.ImageNamed("blacklist_2.png");
+				if(a.UserList == AreaInfo.UserListType.WhiteList)
+					return NSImage.ImageNamed("blacklist_0.png");
+				else if(a.UserList == AreaInfo.UserListType.BlackList)
+					return NSImage.ImageNamed("blacklist_1.png");
+				else
+					return NSImage.ImageNamed("blacklist_2.png");
 			} else if (tableColumn.Identifier == "Flag") {
 				return NSImage.ImageNamed("flag_" + a.Code.ToLowerInvariant() + ".png");
 			} else if (tableColumn.Identifier == "Name") {

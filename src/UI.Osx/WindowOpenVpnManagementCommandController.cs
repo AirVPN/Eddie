@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
-using AirVPN.Core;
 
 namespace AirVPN.UI.Osx
 {
-	public partial class WindowPreferencesController : MonoMac.AppKit.NSWindowController
+	public partial class WindowOpenVpnManagementCommandController : MonoMac.AppKit.NSWindowController
 	{
+		public string Command = "";
+
 		#region Constructors
 		// Called when created from unmanaged code
-		public WindowPreferencesController (IntPtr handle) : base (handle)
+		public WindowOpenVpnManagementCommandController (IntPtr handle) : base (handle)
 		{
 			Initialize ();
 		}
 		// Called when created directly from a XIB file
 		[Export ("initWithCoder:")]
-		public WindowPreferencesController (NSCoder coder) : base (coder)
+		public WindowOpenVpnManagementCommandController (NSCoder coder) : base (coder)
 		{
 			Initialize ();
 		}
 		// Call to load from the XIB/NIB file
-		public WindowPreferencesController () : base ("WindowPreferences")
+		public WindowOpenVpnManagementCommandController () : base ("WindowOpenVpnManagementCommand")
 		{
 			Initialize ();
 		}
@@ -32,17 +33,10 @@ namespace AirVPN.UI.Osx
 		}
 		#endregion
 		//strongly typed window accessor
-		public new WindowPreferences Window {
+		public new WindowOpenVpnManagementCommand Window {
 			get {
-				return (WindowPreferences)base.Window;
+				return (WindowOpenVpnManagementCommand)base.Window;
 			}
-		}
-
-		public override void AwakeFromNib()
-		{
-			base.AwakeFromNib ();
-
-			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
 		}
 	}
 }

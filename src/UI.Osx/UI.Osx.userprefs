@@ -1,0 +1,34 @@
+﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="05/28/2014 15:43:05">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../Core/Threads/Pinger.cs">
+    <Files>
+      <File FileName="MainWindowController.cs" Line="178" Column="6" />
+      <File FileName="AppDelegate.cs" Line="1" Column="1" />
+      <File FileName="TableServersController.cs" Line="33" Column="35" />
+      <File FileName="TableAreasController.cs" Line="33" Column="33" />
+      <File FileName="TableLogsController.cs" Line="1" Column="1" />
+      <File FileName="WindowOpenVpnManagementCommand.cs" Line="1" Column="1" />
+      <File FileName="WindowOpenVpnManagementCommandController.cs" Line="1" Column="1" />
+      <File FileName="MainWindow.cs" Line="1" Column="1" />
+      <File FileName="TableAreasDelegate.cs" Line="11" Column="4" />
+      <File FileName="TableServersDelegate.cs" Line="11" Column="4" />
+      <File FileName="../Core/Threads/Pinger.cs" Line="69" Column="5" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Lib.Core" expanded="True">
+            <Node name="Threads" expanded="True">
+              <Node name="Pinger.cs" selected="True" />
+            </Node>
+          </Node>
+          <Node name="Platforms.Osx" expanded="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

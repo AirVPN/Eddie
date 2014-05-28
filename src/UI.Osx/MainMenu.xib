@@ -19,9 +19,6 @@
                         <items>
                             <menuItem title="About AirVPN" image="about" id="58">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="OnMenuAbout:" target="533" id="cTA-17-MNk"/>
-                                </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="236">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
@@ -41,9 +38,6 @@
                             </menuItem>
                             <menuItem title="Speed Test (Web)" image="speed" id="DQk-oh-Ot8" userLabel="Menu Item - Speed Test">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="MnuSpeedTest:" target="533" id="A7n-GV-jv5"/>
-                                </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="143">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
@@ -54,7 +48,7 @@
                             <menuItem isSeparatorItem="YES" id="144">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Hide AirVPN.Mac" keyEquivalent="h" id="134">
+                            <menuItem title="Hide AirVPN" keyEquivalent="h" id="134">
                                 <connections>
                                     <action selector="hide:" target="-1" id="367"/>
                                 </connections>
@@ -73,7 +67,7 @@
                             <menuItem isSeparatorItem="YES" id="149">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Quit AirVPN" keyEquivalent="q" id="136">
+                            <menuItem title="Quit AirVPN" image="exit" keyEquivalent="q" id="136">
                                 <connections>
                                     <action selector="terminate:" target="-3" id="449"/>
                                 </connections>
@@ -109,7 +103,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="491">
                         <items>
-                            <menuItem title="AirVPN.Mac Help" keyEquivalent="?" id="492">
+                            <menuItem title="AirVPN Help" keyEquivalent="?" id="492">
                                 <connections>
                                     <action selector="showHelp:" target="-1" id="493"/>
                                 </connections>
@@ -123,16 +117,17 @@
         <customObject id="533" customClass="AppDelegate">
             <connections>
                 <outlet property="MnuMainAbout" destination="58" id="ZbR-1y-6Vd"/>
-                <outlet property="MnuMainClientArea" destination="cFT-nx-MzJ" id="1uq-d0-e9H"/>
+                <outlet property="MnuMainClientArea" destination="KZI-Bi-OUe" id="ezp-cr-VUP"/>
                 <outlet property="MnuMainForwardingPorts" destination="YT6-gP-yWE" id="4AV-Ed-xKe"/>
-                <outlet property="MnuMainHome" destination="cFT-nx-MzJ" id="FAe-JA-z1e"/>
+                <outlet property="MnuMainHome" destination="cFT-nx-MzJ" id="k32-Bx-AxL"/>
                 <outlet property="MnuMainPreferences" destination="129" id="g41-6b-wZh"/>
-                <outlet property="MnuMainSpeedTest" destination="cFT-nx-MzJ" id="I4z-Bq-EHb"/>
+                <outlet property="MnuMainSpeedTest" destination="DQk-oh-Ot8" id="FND-nA-VbF"/>
             </connections>
         </customObject>
     </objects>
     <resources>
         <image name="about" width="16" height="16"/>
+        <image name="exit" width="48" height="48"/>
         <image name="home" width="48" height="48"/>
         <image name="ports" width="48.676055908203125" height="48.676055908203125"/>
         <image name="settings" width="48" height="48"/>

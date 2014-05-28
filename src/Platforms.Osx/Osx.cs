@@ -94,7 +94,7 @@ namespace AirVPN.Platforms
 
 		public override bool CanUnInstallDriver()
 		{
-			return true;
+			return false;
 		}
 
 		public override void InstallDriver()
@@ -104,5 +104,24 @@ namespace AirVPN.Platforms
 		public override void UnInstallDriver()
 		{
 		}
+
+		public override void RouteAdd (string Address, string Mask, string Gateway)
+		{
+			base.RouteAdd (Address, Mask, Gateway);
+		}
+
+		public override void RouteRemove (string Address, string Mask, string Gateway)
+		{
+			base.RouteRemove (Address, Mask, Gateway);
+		}
+
+		public override string RouteList ()
+		{
+			string cmd = "netstat -nr";
+			string output = ShellCmd (cmd);
+			return output;
+		}
+
+
     }
 }

@@ -10,13 +10,9 @@ namespace AirVPN.UI.Osx
 	{
 		public NSTableView tableView;
 
-		private Engine m_engine;
-
 		public TableStatsController (NSTableView tableView)
 		{
 			this.tableView = tableView;
-
-			m_engine = AirVPN.Core.Engine.Instance as Engine;
 
 			this.tableView.DataSource = this;
 
@@ -35,6 +31,7 @@ namespace AirVPN.UI.Osx
 				if (e.Key == "VpnGeneratedOVPN") {
 				} else if (e.Key == "SystemReport") {
 					WindowTextViewerController textViewer = new WindowTextViewerController ();
+					(Engine.Instance as Engine).WindowsOpen.Add (textViewer);
 					textViewer.Title = e.Caption;
 					textViewer.Body = Platform.Instance.GenerateSystemReport ();
 					textViewer.ShowWindow (this);

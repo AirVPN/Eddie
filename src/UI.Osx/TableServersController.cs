@@ -10,13 +10,13 @@ namespace AirVPN.UI.Osx
 	{
 		public NSTableView tableView;
 
-		private Engine m_engine;
+		public List<ServerInfo> Items = new List<ServerInfo>();
+
+		public bool ShowAll = false;
 
 		public TableServersController (NSTableView tableView)
 		{
 			this.tableView = tableView;
-
-			m_engine = AirVPN.Core.Engine.Instance as Engine;
 
 			this.tableView.DataSource = this;
 
@@ -24,32 +24,44 @@ namespace AirVPN.UI.Osx
 
 		public void RefreshUI()
 		{
+			Items.Clear ();
+
+			Items = Engine.Instance.GetServers (ShowAll);
 			tableView.ReloadData ();
 		}
 
+		public ServerInfo GetRelatedItem(int i)
+		{
+			return Items [i];
+		}
 
 		public override int GetRowCount (NSTableView tableView)
 		{
-			return Engine.Instance.Stats.List.Count;
+			return Items.Count;
 		}
 
 		public override NSObject GetObjectValue (NSTableView tableView, 
 		                                         NSTableColumn tableColumn, 
 		                                         int row)
 		{
-			ServerInfo s = Engine.Instance.Servers ["Castor"];
+			ServerInfo s = Items [row];
 
 			if (tableColumn.Identifier == "List") {
-				return NSImage.ImageNamed("blacklist_2.png");
+				if(s.UserList == ServerInfo.UserListType.WhiteList)
+					return NSImage.ImageNamed("blacklist_0.png");
+				else if(s.UserList == ServerInfo.UserListType.BlackList)
+					return NSImage.ImageNamed("blacklist_1.png");
+				else
+					return NSImage.ImageNamed("blacklist_2.png");
 			} else if (tableColumn.Identifier == "Flag") {
 				return NSImage.ImageNamed("flag_" + s.CountryCode.ToLowerInvariant() + ".png");
 			} else if (tableColumn.Identifier == "Name") {
 				return new NSString (s.PublicName);
 			} else if (tableColumn.Identifier == "Score") {
-				return new NSString (s.Score().ToString());
+				return NSImage.ImageNamed ("stars_h.png");
 			} else if (tableColumn.Identifier == "Location") {
 				return new NSString (s.GetLocationForList());
-			} else if (tableColumn.Identifier == "Latenct") {
+			} else if (tableColumn.Identifier == "Latency") {
 				return new NSString (s.GetLatencyForList());
 			} else if (tableColumn.Identifier == "Load") {
 				return new NSString (s.Bandwidth.ToString ());

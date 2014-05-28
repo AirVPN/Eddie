@@ -42,6 +42,8 @@ namespace AirVPN.UI.Osx
 		{
 			base.AwakeFromNib ();
 
+			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
+
 			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Storage.GetVersionDesc ();
 			TxtLicense.Value = Core.UI.Actions.GetAboutLicense ();
 			TxtLibraries.Value = Core.UI.Actions.GetAboutThirdParty ();

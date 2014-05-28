@@ -19,14 +19,14 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (TxtBody != null) {
-				TxtBody.Dispose ();
-				TxtBody = null;
-			}
-
 			if (CmdOk != null) {
 				CmdOk.Dispose ();
 				CmdOk = null;
+			}
+
+			if (TxtBody != null) {
+				TxtBody.Dispose ();
+				TxtBody = null;
 			}
 		}
 	}

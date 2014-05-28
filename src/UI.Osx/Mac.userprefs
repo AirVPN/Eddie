@@ -1,0 +1,34 @@
+﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="05/21/2014 00:52:04">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="WindowTosController.cs">
+    <Files>
+      <File FileName="AppDelegate.cs" Line="1" Column="1" />
+      <File FileName="MainWindowController.cs" Line="1" Column="1" />
+      <File FileName="TableLogsController.cs" Line="1" Column="1" />
+      <File FileName="Engine.cs" Line="1" Column="1" />
+      <File FileName="MainWindow.cs" Line="1" Column="1" />
+      <File FileName="WindowAboutController.cs" Line="1" Column="1" />
+      <File FileName="WindowTos.cs" Line="1" Column="1" />
+      <File FileName="WindowTosController.cs" Line="48" Column="4" />
+      <File FileName="WindowFrontMessage.cs" Line="1" Column="1" />
+      <File FileName="WindowFrontMessageController.cs" Line="1" Column="1" />
+      <File FileName="WindowTextViewer.cs" Line="1" Column="1" />
+      <File FileName="WindowTextViewerController.cs" Line="1" Column="1" />
+      <File FileName="../Core/AirExchange.cs" Line="1" Column="1" />
+      <File FileName="../Core/Engine.cs" Line="1" Column="1" />
+      <File FileName="../Core/Thread.cs" Line="1" Column="1" />
+      <File FileName="Main.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True" selected="True">
+          <Node name="UI.Osx" expanded="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
