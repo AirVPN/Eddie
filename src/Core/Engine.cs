@@ -48,6 +48,9 @@ namespace AirVPN.Core
 		private List<string> FrontMessages = new List<string>();
 		private int m_breakRequests = 0;
 
+		private String m_lastLogMessage;
+		private int m_logDotCount = 0;
+
         public enum ActionService
         {
             None = 0,
@@ -613,8 +616,38 @@ namespace AirVPN.Core
             l.BalloonTime = BalloonTime;
 			l.Exception = e;
 
+			if (l.Type > Engine.LogType.Realtime)
+			{
+				m_lastLogMessage = l.Message;
+				m_logDotCount += 1;
+				m_logDotCount = m_logDotCount % 10;
+			}
+
             OnLog(l);
         }
+
+		public string GetLogDetailTitle()
+		{
+			string output = "";
+			if ((Storage != null) && (Storage.GetBool("advanced.expert")))
+			{
+				if (WaitMessage == m_lastLogMessage)
+					output = "";
+				else
+					output = m_lastLogMessage;
+			}
+			else
+			{
+				for (int i = 0; i < m_logDotCount; i++)
+					output += ".";
+			}
+			return output;
+		}
+
+		public string GetLogSuggestedFileName()
+		{
+			return "AirVPN_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
+		}
 
         public virtual void OnLog(LogEntry l)
         {
@@ -627,7 +660,7 @@ namespace AirVPN.Core
 
 			if (l.Type != LogType.Realtime)
 			{
-				Console.Write(l.GetStringLines());				
+				Console.WriteLine(l.GetStringLines().Trim());				
 			}
         }
 

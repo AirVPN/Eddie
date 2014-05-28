@@ -138,7 +138,7 @@ namespace AirVPN.Core
 		public static string WindowsMainSpeedResolution5 = "Range: 30 days, Grid: 1 day, Step: 10 minutes"; // TOTRANSLATE
 
 		public static string LogsCopyClipboardDone = "Copy to clipboard done.";
-		public static string LogsSaveToFileDone = "Copy to clipboard done.";		
+		public static string LogsSaveToFileDone = "Save to file done."; // TOTRANSLATE
 		public static string TooltipServersScoreType = "Choose whether you prefer highest speed (ex. file-sharing) or low-latency speed (ex. gaming)";
 		public static string TooltipServersLockCurrent = "Never leave the current server. \r\nFor example if you don\'t want to change your IP for port forwarding reasons.";
 		public static string TooltipServersConnect = "Connect to the selected server now";

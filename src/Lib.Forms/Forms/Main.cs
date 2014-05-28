@@ -54,9 +54,6 @@ namespace AirVPN.Gui.Forms
 		private bool m_lockCoordUpdate = false;		
         private int m_topHeaderHeight = 30;
 
-        private String m_lastLogMessage;
-        private int m_logDotCount = 0;
-
 		private bool m_skipNetworkLockedConfirm = false;
 		private bool m_FormReady = false;
 		private bool m_Closing = false;
@@ -907,11 +904,7 @@ namespace AirVPN.Gui.Forms
 
                     if (l.Type > Engine.LogType.Realtime)
                     {
-                        m_lastLogMessage = l.Message;
-                        m_logDotCount += 1;
-                        m_logDotCount = m_logDotCount % 10;
-
-						ListViewItemLog Item = new ListViewItemLog();
+                        ListViewItemLog Item = new ListViewItemLog();
 						Item.ImageKey = l.Type.ToString().ToLowerInvariant();
 						Item.Text = "";
 						Item.SubItems.Add(l.GetDateForList());
@@ -1127,42 +1120,12 @@ namespace AirVPN.Gui.Forms
 
 							if (Engine.IsWaiting())
 							{
-								String text2 = "";
-								if ((Engine.Storage != null) && (Engine.Storage.GetBool("advanced.expert")))
-								{
-									if (Engine.WaitMessage == m_lastLogMessage)
-										text2 = "";
-									else
-										text2 = m_lastLogMessage;
-								}
-								else
-								{
-									for (int i = 0; i < m_logDotCount; i++)
-										text2 += ".";
-								}
-								lblWait2.Text = text2;
+								lblWait2.Text = Engine.GetLogDetailTitle();
 							}
 						}
 					}
 
-					
-
-					if (mode == Core.Engine.RefreshUiMode.Full)
-                    {
-                        bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
-						bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
-
-                        mnuPorts.Enabled = connected;
-                        mnuSpeedTest.Enabled = connected;
-						                        
-						m_listViewServers.UpdateList();
-						m_listViewAreas.UpdateList();
-
-						cmdLogsOpenVpnManagement.Visible = ((Engine.IsConnected()) && (Engine.Storage.GetBool("advanced.expert")));
-                    }
-
-                    if( (mode == Core.Engine.RefreshUiMode.Full) ||
-                        (mode == Core.Engine.RefreshUiMode.Stats) )
+                    if( (mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
                     {
 						if (Engine.IsConnected())
 						{
@@ -1181,6 +1144,20 @@ namespace AirVPN.Gui.Forms
 							}
 						}						
                     }
+
+					if (mode == Core.Engine.RefreshUiMode.Full)
+					{
+						bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
+						bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
+
+						mnuPorts.Enabled = connected;
+						mnuSpeedTest.Enabled = connected;
+
+						m_listViewServers.UpdateList();
+						m_listViewAreas.UpdateList();
+
+						cmdLogsOpenVpnManagement.Visible = ((Engine.IsConnected()) && (Engine.Storage.GetBool("advanced.expert")));
+					}
                 }
 
                 
@@ -1273,30 +1250,36 @@ namespace AirVPN.Gui.Forms
 		private void LogsDoCopy(bool selectedOnly)
 		{
 			String t = LogsGetBody(selectedOnly);
-			if (t != "")
+			if (t.Trim() != "")
+			{
 				Clipboard.SetText(t);
 
-			MessageBox.Show(Messages.LogsCopyClipboardDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show(Messages.LogsCopyClipboardDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
 		}
 
 		private void LogsDoSave(bool selectedOnly)
 		{
-			SaveFileDialog sd = new SaveFileDialog();
-
-			sd.FileName = "AirVPN_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
-			sd.Filter = Messages.FilterTextFiles;
-
-			if (sd.ShowDialog() == DialogResult.OK)
+			String t = LogsGetBody(selectedOnly);
+			if (t.Trim() != "")
 			{
-				using (StreamWriter sw = new StreamWriter(sd.FileName))
+				SaveFileDialog sd = new SaveFileDialog();
+
+				sd.FileName = Engine.GetLogSuggestedFileName();
+				sd.Filter = Messages.FilterTextFiles;
+
+				if (sd.ShowDialog() == DialogResult.OK)
 				{
-					sw.Write(LogsGetBody(selectedOnly));
-					sw.Flush();
-					sw.Close();
+					using (StreamWriter sw = new StreamWriter(sd.FileName))
+					{
+						sw.Write(t);
+						sw.Flush();
+						sw.Close();
+					}
+
+					MessageBox.Show(Messages.LogsSaveToFileDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
 			}
-
-			MessageBox.Show(Messages.LogsSaveToFileDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}	
 
         public void CheckLockedNetwork()
