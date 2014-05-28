@@ -42,6 +42,7 @@ namespace AirVPN.CLI.Osx
 			{
 				engine.ConsoleStart();
 			}
+
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
