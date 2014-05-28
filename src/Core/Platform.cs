@@ -348,6 +348,10 @@ namespace AirVPN.Core
 		{
 		}
 
+		public virtual void OnBuildOvpn(ref string ovpn)
+		{
+		}
+
 		public virtual string GetDriverAvailable()
 		{
 			return Messages.NotImplemented;

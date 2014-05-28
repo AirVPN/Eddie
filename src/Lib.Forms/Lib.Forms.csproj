@@ -41,6 +41,7 @@
     <Compile Include="Controls\ChartSpeed.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\ListViewItemLog.cs" />
     <Compile Include="Controls\ListViewAreas.cs">
       <SubType>Component</SubType>
     </Compile>

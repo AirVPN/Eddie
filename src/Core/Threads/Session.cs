@@ -75,7 +75,7 @@ namespace AirVPN.Core.Threads
 					
 					if ((Engine.NextServer == null) && (Pinger.Instance.GetEnabled()) && (Engine.PingerValid() == false))
 					{
-						Engine.WaitMessageSet(Messages.WaitingLatencyTests);
+						Engine.WaitMessageSet(Messages.WaitingLatencyTests, true);
 						for (; ; )
 						{
 							if (Engine.PingerValid())
@@ -134,7 +134,7 @@ namespace AirVPN.Core.Threads
 					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
 					if (allowed)
 					{
-						Engine.WaitMessageSet(Messages.AuthorizeConnect);
+						Engine.WaitMessageSet(Messages.AuthorizeConnect, true);
 
 						Dictionary<string, string> parameters = new Dictionary<string, string>();
 						parameters["act"] = "connect";
@@ -191,7 +191,7 @@ namespace AirVPN.Core.Threads
 
 						Engine.RunEventCommand("vpn.pre");
 
-						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location));
+						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location), true);
 
 						if (protocol == "SSH")
 						{
@@ -327,7 +327,7 @@ namespace AirVPN.Core.Threads
 
 						Engine.SetConnected(false);
 
-						Engine.WaitMessageSet(Messages.ConnectionDisconnecting);
+						Engine.WaitMessageSet(Messages.ConnectionDisconnecting, false);
 
 						if (Storage.Simulate)
 						{
@@ -456,7 +456,7 @@ namespace AirVPN.Core.Threads
 				{
 					for (int i = 0; i < waitingSecs; i++)
 					{
-						Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), false);
+						Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), true, false);
 						if (CancelRequested)
 							break;
 
@@ -747,6 +747,12 @@ namespace AirVPN.Core.Threads
 						m_reset = "ERROR";
 					}
 
+					if (message.IndexOf("SIGTERM[soft,ping-exit]") != -1) // 2.2
+					{
+						m_reset = "ERROR";
+					}
+
+
 					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
 					{
 						Engine.Log(Engine.LogType.Verbose, Messages.AutoPortSwitch);
@@ -776,7 +782,7 @@ namespace AirVPN.Core.Threads
 					{
 						m_reset = "ERROR";
 					}
-
+					
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
 						Engine.Log(Core.Engine.LogType.Verbose, Messages.ConnectionStartManagement);
@@ -789,15 +795,13 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
 					{
-						Engine.WaitMessageSet(Messages.ConnectionFlushDNS);
+						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
 
-						Platform.Instance.FlushDNS();
-
-						
+						Platform.Instance.FlushDNS();						
 
 						if (Engine.Storage.GetBool("advanced.check.route"))
 						{
-							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute);
+							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
 
 							if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
 							{
@@ -838,7 +842,7 @@ namespace AirVPN.Core.Threads
 						// DNS test
 						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.dns")))
 						{
-							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS);
+							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
 							
 							bool failed = true;
 							IPHostEntry entry = Dns.GetHostEntry(Engine.Storage.GetManifestKeyValue("dnscheck_host", ""));

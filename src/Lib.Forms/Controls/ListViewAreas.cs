@@ -61,6 +61,7 @@ namespace AirVPN.Gui.Controls
             columnHeader2.TextAlign = HorizontalAlignment.Center;
 			columnHeader3.Text = Messages.AreasLoad;
             columnHeader3.Width = 200;
+			columnHeader3.TextAlign = HorizontalAlignment.Center;
 			columnHeader4.Text = Messages.AreasUsers;
             columnHeader4.Width = 60;
             columnHeader4.TextAlign = HorizontalAlignment.Center;

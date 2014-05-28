@@ -75,7 +75,6 @@ namespace AirVPN.Gui.Forms
 			this.cmdLogsCopy = new AirVPN.Gui.Skin.Button();
 			this.cmdLogsSave = new AirVPN.Gui.Skin.Button();
 			this.cmdLogsSupport = new AirVPN.Gui.Skin.Button();
-			this.tmrRefreshDetails = new System.Windows.Forms.Timer(this.components);
 			this.imgProgress = new System.Windows.Forms.PictureBox();
 			this.cmdCancel = new AirVPN.Gui.Skin.Button();
 			this.cmdConnect = new AirVPN.Gui.Skin.Button();
@@ -883,11 +882,6 @@ namespace AirVPN.Gui.Forms
 			this.cmdLogsSupport.UseVisualStyleBackColor = true;
 			this.cmdLogsSupport.Click += new System.EventHandler(this.cmdLogsSupport_Click);
 			// 
-			// tmrRefreshDetails
-			// 
-			this.tmrRefreshDetails.Enabled = true;
-			this.tmrRefreshDetails.Interval = 10000;
-			// 
 			// imgProgress
 			// 
 			this.imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
@@ -1276,6 +1270,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// lblWait2
 			// 
+			this.lblWait2.BackColor = System.Drawing.Color.Maroon;
 			this.lblWait2.Location = new System.Drawing.Point(14, 41);
 			this.lblWait2.Name = "lblWait2";
 			this.lblWait2.Size = new System.Drawing.Size(158, 21);
@@ -1643,7 +1638,6 @@ namespace AirVPN.Gui.Forms
         private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManText;
         private System.Windows.Forms.ToolStripMenuItem mnuDevelopersUpdateManifest;
 		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersDefaultManifest;
-		private System.Windows.Forms.Timer tmrRefreshDetails;
 		private Skin.Panel pnlWelcome;
 		private Skin.Label lblPassword;
 		private Skin.Label lblLogin;

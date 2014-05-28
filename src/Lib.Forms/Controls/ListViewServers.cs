@@ -65,6 +65,7 @@ namespace AirVPN.Gui.Controls
             columnHeader1.Width = 110;
 			columnHeader2.Text = Messages.ServersScore;
             columnHeader2.Width = 66;
+			columnHeader2.TextAlign = HorizontalAlignment.Center;
 			columnHeader3.Text = Messages.ServersLocation;
             columnHeader3.Width = 200;
 			columnHeader4.Text = Messages.ServersLatency;
@@ -72,6 +73,7 @@ namespace AirVPN.Gui.Controls
             columnHeader4.TextAlign = HorizontalAlignment.Center;
 			columnHeader5.Text = Messages.ServersLoad;
             columnHeader5.Width = 160;
+			columnHeader5.TextAlign = HorizontalAlignment.Center;
 			columnHeader6.Text = Messages.ServersUsers;
             columnHeader6.Width = 50;
             columnHeader6.TextAlign = HorizontalAlignment.Center;

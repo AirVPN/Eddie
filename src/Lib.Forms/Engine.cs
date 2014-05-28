@@ -236,9 +236,12 @@ namespace AirVPN.Gui
 						FormMain.RefreshUi(RefreshUiMode.Log);            
 				}
 
-				if (l.Type == LogType.Fatal) // TOTEST
+				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
 				{
-					MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					if (l.Type == LogType.Fatal)
+					{
+						MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
 				}
 			}
         }

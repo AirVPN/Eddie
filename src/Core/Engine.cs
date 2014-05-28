@@ -271,7 +271,7 @@ namespace AirVPN.Core
         {
             SessionStop();
 
-			WaitMessageSet(Messages.AppExiting);
+			WaitMessageSet(Messages.AppExiting, false);
 
             if (m_threadManifest != null)
 				m_threadManifest.RequestStopSync();				
@@ -505,26 +505,27 @@ namespace AirVPN.Core
         
         public void WaitMessageClear()
         {
-            WaitMessageSet("");
+            WaitMessageSet("", false, false);
         }
 
-		public void WaitMessageSet(string waitMessage)
+		public void WaitMessageSet(string message, bool allowCancel)
         {
-            WaitMessageSet(waitMessage, true);
+			WaitMessageSet(message, allowCancel, true);
         }
 
-		public void WaitMessageSet(string waitMessage, bool log)
+		public void WaitMessageSet(string message, bool allowCancel, bool log)
         {
-            if( (waitMessage != "") && (log) )
-                Log(Engine.LogType.InfoImportant, waitMessage);
+			if ((message != "") && (log))
+				Log(Engine.LogType.InfoImportant, message);
 
-            if(waitMessage != "")
+			if (message != "")
                 if(Connected)
                     throw new Exception("Unexpected status.");                
 
             lock (this)
             {
-                m_waitMessage = waitMessage;
+                m_waitMessage = message;
+				m_waitCancel = allowCancel;
                 
                 OnRefreshUi(RefreshUiMode.MainMessage);
             }
@@ -548,10 +549,21 @@ namespace AirVPN.Core
             }
         }
 
-        public bool IsWaitingCancel()
+        public bool IsWaitingCancelAllowed()
         {
             return (m_waitCancel);
         }
+
+		public bool IsWaitingCancelPending()
+		{
+			if(m_threadSession == null)
+				return false;
+
+			lock (m_threadSession)
+			{
+				return m_threadSession.CancelRequested;
+			}
+		}
 
         // ----------------------------------------------------
         // Logging
@@ -615,28 +627,7 @@ namespace AirVPN.Core
 
 			if (l.Type != LogType.Realtime)
 			{
-				string o = "";
-				
-				switch (l.Type)
-				{
-					case LogType.Realtime: o += "."; break;
-					case LogType.Verbose: o += "."; break;
-					case LogType.Info: o += "I"; break;
-					case LogType.InfoImportant: o += "!"; break;
-					case LogType.Warning: o += "W"; break;
-					case LogType.Error: o += "E"; break;
-					case LogType.Fatal: o += "F"; break;
-					default: o += "?"; break;
-				}
-				o += " ";
-				o += DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
-				o += " - ";
-
-				foreach (string line in l.Message.Split('\n'))
-				{
-					if(line.Trim() != "")
-						Console.WriteLine(o + line.Trim());
-				}
+				Console.Write(l.GetStringLines());				
 			}
         }
 
@@ -1000,7 +991,7 @@ namespace AirVPN.Core
 
             if (filename.Trim() != "")
             {
-                WaitMessageSet(Messages.Format(Messages.AppEvent, name));
+                WaitMessageSet(Messages.Format(Messages.AppEvent, name), false);
 
                 //Log(LogType.Verbose, "Start Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
 				Platform.Instance.Shell(filename, arguments, waitEnd);
@@ -1164,30 +1155,16 @@ namespace AirVPN.Core
 			}
 				
 			ovpn += "management localhost " + Engine.Instance.Storage.Get("openvpn.management_port") + "\n";
-			
-			// DNS
-			if (s.GetBool("advanced.dnsswitch"))
-			{
-				if (Platform.Instance.IsLinuxSystem())
-				{
-					string dnsScriptPath = Software.FindResource("update-resolv-conf");
-					if (dnsScriptPath != "")
-					{
-						ovpn += "script-security 2\n";
-						ovpn += "up " + dnsScriptPath + "\n";
-						ovpn += "down " + dnsScriptPath + "\n";
-					}
-					else
-					{
-						Engine.Instance.Log(Engine.LogType.Error, "update-resolv-conf " + Messages.NotFound);
-					}
-				}				
-			}
 
-
+			Platform.Instance.OnBuildOvpn(ref ovpn);			
+						
             ovpn += "\n";
             ovpn += s.Get("openvpn.custom").Replace("\t", "").Trim();
             ovpn += "\n";
+
+			// TOFIX, mettere da altra parte
+			ovpn += "ping 10\n";
+			ovpn += "ping-exit 32\n";
 
 			//XmlNode nodeUser = s.Manifest.SelectSingleNode("//user");
 			XmlNode nodeUser = s.User;
@@ -1197,6 +1174,8 @@ namespace AirVPN.Core
 			ovpn += "<key>\n" + nodeUserKey.Attributes["key"].Value + "</key>\n";
             ovpn += "key-direction 1\n";
 			ovpn += "<tls-auth>\n" + nodeUser.Attributes["ta"].Value + "</tls-auth>\n";
+
+			
 
 			// Custom replacement, useful to final adjustment of generated OVPN by server-side rules.
 			// Never used yet, available for urgent maintenance.
@@ -1227,7 +1206,7 @@ namespace AirVPN.Core
 
 		private void Auth()
 		{
-			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin); 
+			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin, false); 
 
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters["act"] = "user";
@@ -1251,7 +1230,7 @@ namespace AirVPN.Core
 		{
 			if (IsLogged())
 			{
-				Engine.Instance.WaitMessageSet(Messages.AuthorizeLogout);
+				Engine.Instance.WaitMessageSet(Messages.AuthorizeLogout, false);
 
 				Storage.User = null;
 
@@ -1267,14 +1246,14 @@ namespace AirVPN.Core
             {
 				Engine.Log(Engine.LogType.Info, Messages.SessionStart);
 
-                Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment);
+                Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment, true);
                 
                 CheckEnvironment();
 
 				// Check Driver				
 				if (Platform.Instance.GetDriverAvailable() == "")
 				{
-					Engine.Instance.WaitMessageSet(Messages.OsDriverInstall);
+					Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
 
 					Platform.Instance.InstallDriver();
 
@@ -1287,7 +1266,7 @@ namespace AirVPN.Core
 
                 if (Storage.UpdateManifestNeed(true))
                 {
-                    Engine.Instance.WaitMessageSet(Messages.RetrievingManifest);
+                    Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
 
 					string result = Engine.WaitManifestUpdate();
 
@@ -1394,19 +1373,6 @@ namespace AirVPN.Core
 					{
 						// occur on some OSX process, ignore it.
 					}
-				}
-			}
-
-			if (Platform.Instance.IsLinuxSystem())
-			{
-				if (Storage.GetBool("advanced.dnsswitch"))
-				{
-					string dnsScriptPath = Software.FindResource("update-resolv-conf");
-					if (dnsScriptPath == "")
-						throw new Exception("update-resolv-conf " + Messages.NotFound);
-
-					if(File.Exists("/sbin/resolvconf") == false)
-						throw new Exception("'resolvconf' package " + Messages.NotFound);
 				}
 			}
 

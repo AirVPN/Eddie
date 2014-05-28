@@ -122,8 +122,6 @@ namespace AirVPN.Gui.Forms
             }
 
 			// Controls initialization
-			tmrRefreshDetails.Interval = 1000;
-
 			chkLockedNetwork.Visible = Engine.Instance.DevelopmentEnvironment;
 			mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
 			mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
@@ -197,6 +195,7 @@ namespace AirVPN.Gui.Forms
 			cmdConnect.Text = Messages.CommandConnect;
 			lblConnectSubtitle.Text = Messages.CommandConnectSubtitle;
 			cmdDisconnect.Text = Messages.CommandDisconnect;
+			cmdCancel.Text = Messages.CommandCancel;
 			this.tip.SetToolTip(this.cboScoreType, Messages.TooltipServersScoreType);
 			this.tip.SetToolTip(this.chkLockLast, Messages.TooltipServersLockCurrent);
 			this.tip.SetToolTip(this.chkShowAll, Messages.TooltipServersShowAll);
@@ -356,7 +355,7 @@ namespace AirVPN.Gui.Forms
 
 			if (Engine.Storage != null)
 			{
-				if (Engine.Storage.GetBool("gui.tray"))
+				if (Engine.Storage.GetBool("gui.windows.tray"))
 				{
 					if (Platform.Instance.IsTraySupported())
 						if (FormWindowState.Minimized == WindowState)
@@ -439,12 +438,14 @@ namespace AirVPN.Gui.Forms
 		
 		private void txtLogin_TextChanged(object sender, EventArgs e)
         {
-			Engine.OnRefreshUi();
+			//Engine.OnRefreshUi();
+			EnabledUi();
         }
 
         private void txtPassword_TextChanged(object sender, EventArgs e)
         {
-            Engine.OnRefreshUi();
+            //Engine.OnRefreshUi();
+			EnabledUi();
         }
 
 
@@ -460,6 +461,7 @@ namespace AirVPN.Gui.Forms
 
 		private void cmdCancel_Click(object sender, EventArgs e)
 		{
+			cmdCancel.Enabled = false;
 			Disconnect();
 		}
 
@@ -535,20 +537,12 @@ namespace AirVPN.Gui.Forms
 		
 		void m_listViewServers_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			cmdServersConnect_Click(sender, e);
+			ConnectManual();
 		}
 
 		private void mnuServersConnect_Click(object sender, EventArgs e)
 		{
-			if (m_listViewServers.SelectedItems.Count == 1)
-			{	
-				AirVPN.Gui.Controls.ListViewItemServer listViewItem = m_listViewServers.SelectedItems[0] as AirVPN.Gui.Controls.ListViewItemServer;
-
-				Engine.NextServer = listViewItem.Info;
-				
-				if ( (Engine.IsLogged() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
-					Connect();
-			}
+			ConnectManual();
 		}
 
 		private void cmdServersConnect_Click(object sender, EventArgs e)
@@ -819,7 +813,7 @@ namespace AirVPN.Gui.Forms
 				lblWait2.Left = 0;
 				lblWait2.Top = imgProgress.Top + imgProgress.Height + 10;
 				lblWait2.Width = tabItemWidth;
-				lblWait2.Height = tabItemHeight - lblWait2.Top - 10;
+				lblWait2.Height = tabItemHeight - lblWait2.Top - 10 - 60;
 				cmdCancel.Width = tabItemHeight * 3 / 2;
 				cmdCancel.Height = 30;
 				cmdCancel.Left = tabItemWidth / 2 - cmdCancel.Width / 2;
@@ -869,9 +863,22 @@ namespace AirVPN.Gui.Forms
         public void Connect()
         {
 			tabMain.SelectedIndex = 0;
-			
-			Engine.Connect();            
+
+			if ((Engine.IsLogged() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
+				Engine.Connect();            
         }
+
+		public void ConnectManual()
+		{
+			if (m_listViewServers.SelectedItems.Count == 1)
+			{
+				AirVPN.Gui.Controls.ListViewItemServer listViewItem = m_listViewServers.SelectedItems[0] as AirVPN.Gui.Controls.ListViewItemServer;
+
+				Engine.NextServer = listViewItem.Info;
+
+				Connect();
+			}
+		}
 
         public void Disconnect()
         {
@@ -904,12 +911,13 @@ namespace AirVPN.Gui.Forms
                         m_logDotCount += 1;
                         m_logDotCount = m_logDotCount % 10;
 
-						ListViewItem Item = new ListViewItem();
+						ListViewItemLog Item = new ListViewItemLog();
 						Item.ImageKey = l.Type.ToString().ToLowerInvariant();
 						Item.Text = "";
 						Item.SubItems.Add(l.GetDateForList());
 						Item.SubItems.Add(l.GetMessageForList());
 						Item.ToolTipText = l.Message;
+						Item.Info = l;
 
 						lstLogs.Items.Add(Item);
 						Item.EnsureVisible();
@@ -1048,7 +1056,8 @@ namespace AirVPN.Gui.Forms
 							pnlWelcome.Visible = false;
 							pnlWaiting.Visible = true;
 							pnlConnected.Visible = false;
-							cmdCancel.Visible = Engine.IsWaitingCancel();
+							cmdCancel.Visible = Engine.IsWaitingCancelAllowed();
+							cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
 						}
 						else if (Engine.IsConnected())
 						{
@@ -1243,6 +1252,7 @@ namespace AirVPN.Gui.Forms
 
 					if (skip == false)
 					{
+						/*
 						String line = "";
 						for (int j = 0; j < lstLogs.Columns.Count; j++)
 						{
@@ -1251,6 +1261,8 @@ namespace AirVPN.Gui.Forms
 						}
 						buffer.Append(line.Trim());
 						buffer.Append("\n");
+						*/
+						buffer.Append((lstLogs.Items[i] as ListViewItemLog).Info.GetStringLines() + "\n");
 					}
 				}
 

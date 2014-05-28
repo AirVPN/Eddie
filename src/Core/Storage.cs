@@ -339,11 +339,16 @@ namespace AirVPN.Core
 
 			// GUI only
 			SetDefaultBool("gui.details", false, NotInMan);
-			SetDefault("gui.skin", "Light", NotInMan);			
-			SetDefaultBool("gui.tray", true, NotInMan);
+			SetDefault("gui.skin", "Light", NotInMan);						
 			SetDefaultBool("gui.tos", false, NotInMan);
 			SetDefaultInt("gui.log_limit", 1000, NotInMan);
 			SetDefault("forms.main", "", NotInMan);
+
+			// GUI - Windows only
+			SetDefaultBool("gui.windows.tray", true, NotInMan);
+
+			// GUI - OSX Only
+			SetDefaultBool("gui.osx.notifications", true, NotInMan);
 
 			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
 			SetDefault("paramtest", "", NotInMan); 			

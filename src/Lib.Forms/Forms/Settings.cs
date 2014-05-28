@@ -42,6 +42,9 @@ namespace AirVPN.Gui.Forms
 
             CommonInit("Settings");
 
+			pnlGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
+			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
+
 			lblGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
 			cboGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
 
@@ -97,7 +100,7 @@ namespace AirVPN.Gui.Forms
             // General
             cboGeneralTheme.Text = s.Get("gui.skin");
             chkAutoStart.Checked = s.GetBool("connect");
-            chkMinimizeTray.Checked = s.GetBool("gui.tray");
+            chkMinimizeTray.Checked = s.GetBool("gui.windows.tray");
             chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
 
             // Modes
@@ -266,7 +269,7 @@ namespace AirVPN.Gui.Forms
             // General
             s.Set("gui.skin", cboGeneralTheme.Text);
             s.SetBool("connect", chkAutoStart.Checked);
-            s.SetBool("gui.tray", chkMinimizeTray.Checked);
+            s.SetBool("gui.windows.tray", chkMinimizeTray.Checked);
             s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
 
             // Modes

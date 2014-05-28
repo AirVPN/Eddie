@@ -158,7 +158,8 @@ namespace AirVPN.Core
 		public static string CommandLogout = "Logout";
 		public static string CommandConnect = "Connect to a recommended server";
 		public static string CommandConnectSubtitle = "or choose a specific server in 'Servers' tab.";
-		public static string CommandDisconnect = "Disconnect";		
+		public static string CommandDisconnect = "Disconnect";
+		public static string CommandCancel = "Cancel"; // TOTRANSLATE
 
 		public static string FilterAllFiles = "All files (*.*)|*.*";
 		public static string FilterTextFiles = "Text files (*.txt)|*.txt|All files (*.*)|*.*";

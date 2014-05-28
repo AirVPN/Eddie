@@ -31,10 +31,15 @@ namespace AirVPN.Platforms
     {
 		private string m_architecture = "";
 
+		public string DnsSwitchMode = "rename";
+
         // Override
 		public Linux()
 		{
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+
+			if (File.Exists("/sbin/resolvconf"))
+				DnsSwitchMode = "resolvconf";
 		}
 
 		public override string GetCode()
@@ -125,7 +130,8 @@ namespace AirVPN.Platforms
 		
 		public override string RouteList()
 		{
-			string cmd = "route -v -n -e";
+			//string cmd = "route -v -n -e";
+			string cmd = "netstat -nr";
 			return ShellCmd(cmd);
 		}
 
@@ -137,6 +143,29 @@ namespace AirVPN.Platforms
 			return t;
 		}
 
+		public override void OnBuildOvpn(ref string ovpn)
+		{
+			base.OnBuildOvpn(ref ovpn);
+
+			if (Engine.Instance.Storage.GetBool("advanced.dnsswitch"))
+			{
+				if (DnsSwitchMode == "resolvconf")
+				{
+					string dnsScriptPath = Software.FindResource("update-resolv-conf");
+					if (dnsScriptPath == "")
+					{
+						Engine.Instance.Log(Engine.LogType.Error, "update-resolv-conf " + Messages.NotFound);
+						DnsSwitchMode = "rename";
+					}
+					else
+					{
+						ovpn += "script-security 2\n";
+						ovpn += "up " + dnsScriptPath + "\n";
+						ovpn += "down " + dnsScriptPath + "\n";
+					}
+				}
+			}
+		}
 
 		public override string GetDriverAvailable()
 		{
