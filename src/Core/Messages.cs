@@ -292,5 +292,26 @@ namespace AirVPN.Core
 			o = o.Replace("{3}", param3);
 			return o;
 		}
+
+		public static string Format(string format, string param1, string param2, string param3, string param4)
+		{
+			string o = format;
+			o = o.Replace("{1}", param1);
+			o = o.Replace("{2}", param2);
+			o = o.Replace("{3}", param3);
+			o = o.Replace("{4}", param4);
+			return o;
+		}
+
+		public static string Format(string format, string param1, string param2, string param3, string param4, string param5)
+		{
+			string o = format;
+			o = o.Replace("{1}", param1);
+			o = o.Replace("{2}", param2);
+			o = o.Replace("{3}", param3);
+			o = o.Replace("{4}", param4);
+			o = o.Replace("{5}", param5);
+			return o;
+		}
     }
 }

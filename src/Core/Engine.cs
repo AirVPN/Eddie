@@ -663,9 +663,12 @@ namespace AirVPN.Core
 				string lines = l.GetStringLines().Trim();
 				Console.WriteLine(lines);
 
-				string logPath = Storage.Get("log.path").Trim();
-				if (logPath != "")
-					File.AppendAllText(logPath, lines + "\n");
+				if (Storage != null)
+				{
+					string logPath = Storage.Get("log.path").Trim();
+					if (logPath != "")
+						File.AppendAllText(logPath, lines + "\n");
+				}
 			}
         }
 
