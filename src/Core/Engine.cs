@@ -660,7 +660,12 @@ namespace AirVPN.Core
 
 			if (l.Type != LogType.Realtime)
 			{
-				Console.WriteLine(l.GetStringLines().Trim());				
+				string lines = l.GetStringLines().Trim();
+				Console.WriteLine(lines);
+
+				string logPath = Storage.Get("log.path").Trim();
+				if (logPath != "")
+					File.AppendAllText(logPath, lines + "\n");
 			}
         }
 

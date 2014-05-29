@@ -278,6 +278,8 @@ namespace AirVPN.Core
 			SetDefault("areas.whitelist", "", Messages.ManOptionAreasWhiteList);
 			SetDefault("areas.blacklist", "", Messages.ManOptionAreasBlackList);
 
+			SetDefault("log.path", "", NotInMan);
+
 			SetDefault("mode.protocol", "UDP", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
 			SetDefaultInt("mode.alt", 0, Messages.ManOptionModeAlt);

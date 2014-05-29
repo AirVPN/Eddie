@@ -273,26 +273,26 @@ namespace AirVPN.Gui.Forms
 				if (Engine.IsWaiting())
 				{					
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_yellow"), rectHeader);
-					Form.DrawStringOutline(e.Graphics, lblWait1.Text, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);										
+					Form.DrawStringOutline(e.Graphics, Engine.WaitMessage, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);										
 				}
 				else if (Engine.IsConnected())
 				{	
-					string serverName = Engine.CurrentServer.Name;
+					string serverName = Engine.CurrentServer.PublicName;
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
-					Form.DrawStringOutline(e.Graphics, "Connected to " + serverName, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+					Form.DrawStringOutline(e.Graphics, Messages.Format(Messages.TopBarConnected, serverName), m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 				}
 				else
 				{
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
 					if (NetworkLocking.Instance.GetEnabled())
 					{
-						Form.DrawStringOutline(e.Graphics, "Not connected. Network locked.", m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 					else
 					{
-						Form.DrawStringOutline(e.Graphics, "Not connected. Network exposed.", m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedExposed, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 				}
 
@@ -993,6 +993,10 @@ namespace AirVPN.Gui.Forms
 			mnuAreasBlackList.Enabled = cmdAreasBlackList.Enabled;
 			cmdAreasUndefined.Enabled = cmdAreasWhiteList.Enabled;
 			mnuAreasUndefined.Enabled = cmdAreasUndefined.Enabled;
+
+			mnuSpeedTest.Enabled = connected;
+			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
+			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
 		}
 
 		private delegate void ShowFrontMessageDelegate(string message);
@@ -1134,7 +1138,7 @@ namespace AirVPN.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-							string notifyText = Constants.Name + " - " + "Down: " + Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false) + " - Up: " + Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false) + " - " + Engine.CurrentServer.PublicName + " (" + Engine.CurrentServer.CountryCode + ")";
+							string notifyText = Messages.Format(Messages.StatusTextConnected, Constants.Name, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryCode.ToUpperInvariant());
 							Text = notifyText;
 							if (m_notifyIcon != null)
 							{
@@ -1150,13 +1154,8 @@ namespace AirVPN.Gui.Forms
 						bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
 						bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
 
-						mnuPorts.Enabled = connected;
-						mnuSpeedTest.Enabled = connected;
-
 						m_listViewServers.UpdateList();
 						m_listViewAreas.UpdateList();
-
-						cmdLogsOpenVpnManagement.Visible = ((Engine.IsConnected()) && (Engine.Storage.GetBool("advanced.expert")));
 					}
                 }
 
