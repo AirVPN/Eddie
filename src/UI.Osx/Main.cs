@@ -15,17 +15,23 @@ namespace AirVPN.UI.Osx
 
 			CommandLine.Init(Environment.CommandLine);
 
-			Engine engine = new Engine();
+			if (CommandLine.Params.ContainsKey ("cli")) {
+				Core.Engine engine = new Core.Engine ();
 
-			//AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+				if (engine.Initialization ()) {
+					engine.ConsoleStart ();
+				}
+			} else {
+				Engine engine = new Engine ();
 
-			if (engine.Initialization () == false)
-				return;
+				if (engine.Initialization () == false)
+					return;
 
-			engine.UiStart ();
+				engine.UiStart ();
 
-			NSApplication.Init ();
-			NSApplication.Main (args);
+				NSApplication.Init ();
+				NSApplication.Main (args);
+			}
 		}
 	}
 }	
