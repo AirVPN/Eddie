@@ -216,10 +216,16 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-							if (m_reset != "")
-								break;
+
+							if (m_processOpenVpn.HasExited) // 2.2
+								m_reset = "ERROR";
+							if( (m_processProxy != null) && (m_processProxy.HasExited) ) // 2.2
+								m_reset = "ERROR";
 
 							if (Engine.IsConnected())
+								break;
+
+							if (m_reset != "")
 								break;
 
 							Sleep(waitingSleep);
@@ -743,6 +749,11 @@ namespace AirVPN.Core.Threads
 						log = false;
 
 					if (message.IndexOf("Connection reset, restarting") != -1)
+					{
+						m_reset = "ERROR";
+					}
+
+					if (message.IndexOf("Exiting due to fatal error") != -1)
 					{
 						m_reset = "ERROR";
 					}

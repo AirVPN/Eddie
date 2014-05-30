@@ -84,10 +84,19 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSImageView ImgTopFlag { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSImageView ImgTopPanel { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextField LblConnect { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblTopStatus { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblWaiting1 { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblWaiting2 { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSBox PanelConnected { get; set; }
@@ -124,16 +133,6 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (TabMain != null) {
-				TabMain.Dispose ();
-				TabMain = null;
-			}
-
-			if (TabOverview != null) {
-				TabOverview.Dispose ();
-				TabOverview = null;
-			}
-
 			if (CboServersScoringRule != null) {
 				CboServersScoringRule.Dispose ();
 				CboServersScoringRule = null;
@@ -259,9 +258,24 @@ namespace AirVPN.UI.Osx
 				LblConnect = null;
 			}
 
+			if (ImgTopPanel != null) {
+				ImgTopPanel.Dispose ();
+				ImgTopPanel = null;
+			}
+
 			if (LblTopStatus != null) {
 				LblTopStatus.Dispose ();
 				LblTopStatus = null;
+			}
+
+			if (LblWaiting1 != null) {
+				LblWaiting1.Dispose ();
+				LblWaiting1 = null;
+			}
+
+			if (LblWaiting2 != null) {
+				LblWaiting2.Dispose ();
+				LblWaiting2 = null;
 			}
 
 			if (PanelConnected != null) {
@@ -297,6 +311,16 @@ namespace AirVPN.UI.Osx
 			if (TableStats != null) {
 				TableStats.Dispose ();
 				TableStats = null;
+			}
+
+			if (TabMain != null) {
+				TabMain.Dispose ();
+				TabMain = null;
+			}
+
+			if (TabOverview != null) {
+				TabOverview.Dispose ();
+				TabOverview = null;
 			}
 
 			if (TxtLogin != null) {

@@ -30,8 +30,11 @@
                 <outlet property="CmdServersWhiteList" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
                 <outlet property="ImgProgress" destination="gMg-Qv-4ge" id="9qz-23-17r"/>
                 <outlet property="ImgTopFlag" destination="MjY-FX-9v1" id="2b7-C3-eKd"/>
+                <outlet property="ImgTopPanel" destination="TjK-Xa-lni" id="U66-Nx-xvG"/>
                 <outlet property="LblConnect" destination="8sl-XE-NjX" id="dKJ-cH-wmR"/>
                 <outlet property="LblTopStatus" destination="2cT-SR-rTr" id="8Kx-JK-ijp"/>
+                <outlet property="LblWaiting1" destination="TxA-1y-Zx4" id="MBl-E8-jXk"/>
+                <outlet property="LblWaiting2" destination="rGP-dy-qN2" id="Cu7-96-5BM"/>
                 <outlet property="LstLogs" destination="UwD-DD-x5g" id="dms-wM-XLl"/>
                 <outlet property="LstLogs2" destination="q0u-aS-DHq" id="Cn7-Dr-iPW"/>
                 <outlet property="TabMain" destination="mHk-Xp-9aS" id="UuD-Zz-34L"/>
@@ -51,37 +54,11 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="598" y="74" width="600" height="400"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1058"/>
-            <value key="minSize" type="size" width="500" height="400"/>
+            <value key="minSize" type="size" width="600" height="400"/>
             <view key="contentView" id="3">
                 <rect key="frame" x="0.0" y="0.0" width="600" height="400"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <box autoresizesSubviews="NO" title="Box" borderType="line" titlePosition="noTitle" id="ZXp-aL-NAS">
-                        <rect key="frame" x="0.0" y="370" width="600" height="30"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                        <view key="contentView">
-                            <rect key="frame" x="1" y="1" width="598" height="28"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="2cT-SR-rTr">
-                                    <rect key="frame" x="16" y="5" width="545" height="19"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="8JD-xd-tCN">
-                                        <font key="font" metaFont="system"/>
-                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                    </textFieldCell>
-                                </textField>
-                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="MjY-FX-9v1">
-                                    <rect key="frame" x="572" y="8" width="14" height="14"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="nVI-4P-va5"/>
-                                </imageView>
-                            </subviews>
-                        </view>
-                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                    </box>
                     <tabView initialItem="PLs-TY-ZFo" id="mHk-Xp-9aS">
                         <rect key="frame" x="-4" y="-5" width="608" height="377"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -208,20 +185,20 @@
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <progressIndicator maxValue="100" indeterminate="YES" style="bar" id="gMg-Qv-4ge">
-                                                                <rect key="frame" x="-23" y="202" width="287" height="20"/>
+                                                                <rect key="frame" x="131" y="137" width="287" height="20"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                             </progressIndicator>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="TxA-1y-Zx4">
-                                                                <rect key="frame" x="-51" y="225" width="362" height="31"/>
+                                                                <rect key="frame" x="15" y="198" width="518" height="31"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="bls-Ij-ZaN">
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" size="18" name=".LucidaGrandeUI"/>
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
                                                             </textField>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="rGP-dy-qN2">
-                                                                <rect key="frame" x="-120" y="167" width="316" height="25"/>
+                                                                <rect key="frame" x="15" y="61" width="518" height="69"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="QLe-jC-3UD">
                                                                     <font key="font" metaFont="system"/>
@@ -230,8 +207,8 @@
                                                                 </textFieldCell>
                                                             </textField>
                                                             <button verticalHuggingPriority="750" id="oP0-Xw-dSn">
-                                                                <rect key="frame" x="31" y="127" width="486" height="41"/>
-                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                <rect key="frame" x="31" y="14" width="486" height="41"/>
+                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" title="Textured Button" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ipz-hO-geK">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                     <font key="font" metaFont="system"/>
@@ -318,7 +295,7 @@
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
                                                                 <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="yo9-2p-Y8s">
-                                                                    <font key="font" metaFont="cellTitle"/>
+                                                                    <font key="font" metaFont="miniSystem"/>
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
@@ -808,9 +785,41 @@
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="TjK-Xa-lni">
+                        <rect key="frame" x="0.0" y="370" width="600" height="30"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" image="topbar_yellow" id="7te-34-la7"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="MjY-FX-9v1">
+                        <rect key="frame" x="541" y="366" width="14" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="nVI-4P-va5"/>
+                    </imageView>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="2cT-SR-rTr">
+                        <rect key="frame" x="18" y="376" width="544" height="19"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="8JD-xd-tCN">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
         </window>
+        <menu id="PCV-hz-Nwr">
+            <items>
+                <menuItem title="Item 1" id="fNR-2w-1MT">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Item 2" id="MmQ-pB-59L">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Item 3" id="Lsg-wR-Ixf">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+            </items>
+        </menu>
     </objects>
     <resources>
         <image name="add_16" width="16" height="16"/>
@@ -823,6 +832,7 @@
         <image name="login" width="69" height="81"/>
         <image name="save_16" width="16" height="16"/>
         <image name="support" width="16" height="16"/>
+        <image name="topbar_yellow" width="256" height="30"/>
         <image name="warning16" width="16" height="16"/>
     </resources>
 </document>

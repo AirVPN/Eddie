@@ -58,7 +58,7 @@ namespace AirVPN.UI.Osx
 
 			Engine.MainWindow = this;
 
-
+			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off; 
 			ChkServersShowAll.State = NSCellStateValue.Off;
 			ChkServersLockCurrent.State = Engine.Storage.GetBool ("servers.locklast") ? NSCellStateValue.On : NSCellStateValue.Off;
 			CboServersScoringRule.StringValue = Engine.Storage.Get ("servers.scoretype");
@@ -71,10 +71,10 @@ namespace AirVPN.UI.Osx
 			CboSpeedResolutions.AddItem (Messages.WindowsMainSpeedResolution5);
 			CboSpeedResolutions.SelectItem (0);
 
-			CmdConnect.ToolTip = Messages.CommandConnect;
+			CmdConnect.Title = Messages.CommandConnect;
 			LblConnect.StringValue = Messages.CommandConnectSubtitle;
-			CmdDisconnect.ToolTip = Messages.CommandDisconnect;
-			//CmdCancel.ToolTip = Messages.CommandCancel; // TOFIX
+			CmdDisconnect.Title = Messages.CommandDisconnect;
+			CmdCancel.Title = Messages.CommandCancel;
 			CboServersScoringRule.ToolTip = Messages.TooltipServersScoreType;
 			ChkServersLockCurrent.ToolTip = Messages.TooltipServersLockCurrent;
 			ChkServersShowAll.ToolTip = Messages.TooltipServersShowAll;
@@ -125,15 +125,6 @@ namespace AirVPN.UI.Osx
 
 			CmdConnect.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.LogDebug ("pazzo");
-
-				ImgProgress.StartAnimation(this);
-
-				Notification("Connected","to Castor!");
-
-				Engine.OnFrontMessage("Front test message");
-
-
 				Connect();
 			};
 
@@ -149,11 +140,7 @@ namespace AirVPN.UI.Osx
 			ChkLockedMode.Activated += (object sender, EventArgs e) => {
 				CheckLockedNetwork();
 			};
-		//K
 			TableServers.DoubleClick += (object sender, EventArgs e) => {
-				Notification("Dblclick server","to Castor!");
-
-				// TODO
 				ConnectManual();
 			};
 
@@ -269,15 +256,74 @@ namespace AirVPN.UI.Osx
 		public void RefreshUi (Engine.RefreshUiMode mode)
 		{
 			if ((mode == Engine.RefreshUiMode.MainMessage) || (mode == Engine.RefreshUiMode.Full)) {
+
+				if (Engine.CurrentServer != null) {
+					ImgTopFlag.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
+				}
+				else {
+					ImgTopFlag.Image = NSImage.ImageNamed ("stats.png"); // TODO img neutra
+				}
+
+				LblWaiting1.StringValue = Engine.WaitMessage;
+
+				if(Engine.IsWaiting())
+				{
+					ImgProgress.StartAnimation(this);
+					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_yellow.png");
+					LblTopStatus.StringValue = Engine.WaitMessage;
+
+					TabOverview.SelectAt(1);
+
+					CmdCancel.Hidden = (Engine.IsWaitingCancelAllowed() == false);
+					CmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+				}
+				else if (Engine.IsConnected())
+				{
+					ImgProgress.StopAnimation (this);
+					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_green.png");
+					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.PublicName);
+
+					TabOverview.SelectAt(2);
+
+					// TODO: varie UI
+				}
+				else
+				{
+					ImgProgress.StopAnimation (this);
+					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_red.png");
+					LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed; // TODO la locked
+
+					TabOverview.SelectAt(0);
+				}
+
+				// Icon update
+				if(Engine.StatusMenuItem != null)
+				{
+					if(Engine.IsConnected())
+					{
+						Engine.StatusMenuItem.Title = DateTime.Now.ToString ();
+						Engine.StatusItem.Image = NSImage.ImageNamed("statusbar_black.png");
+						//NSApplication.SharedApplication.DockTile. =  DateTime.Now.ToString ();
+						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
+					}
+					else
+					{
+						Engine.StatusMenuItem.Title = DateTime.Now.ToString ();
+						Engine.StatusItem.Image = NSImage.ImageNamed("statusbar_black_gray.png");
+						//NSApplication.SharedApplication.DockTile.Description =  DateTime.Now.ToString ();
+						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
+					}
+				}
+
+				EnabledUI();
 			}
 
 			if ((mode == Engine.RefreshUiMode.Log) || (mode == Engine.RefreshUiMode.Full)) {
-			}
-
-			if ((mode == Engine.RefreshUiMode.MainMessage) || (mode == Engine.RefreshUiMode.Full)) {
+				LblWaiting2.StringValue = Engine.GetLogDetailTitle();
 			}
 
 			if ((mode == Engine.RefreshUiMode.Stats) || (mode == Engine.RefreshUiMode.Full)) {
+				// TODO
 			}
 
 			if ((mode == Engine.RefreshUiMode.Full)) {
@@ -292,8 +338,61 @@ namespace AirVPN.UI.Osx
 
 		}
 
+		public void Log(LogEntry l)
+		{
+			string msg = l.Message;
+
+			if ((msg != "") && (l.Type != Core.Engine.LogType.Verbose)) {
+				if(Engine.IsConnected() == false)
+				{
+					Window.Title = Constants.Name + " - " + msg;
+					Engine.StatusMenuItem.Title = "> " + msg;
+				}
+			}
+
+			if (l.Type >= Engine.LogType.InfoImportant)
+				Notification (msg, "");
+
+			if (l.Type >= Engine.LogType.InfoImportant)
+				RequestAttention ();
+
+			if (l.Type == AirVPN.Core.Engine.LogType.Fatal)
+				MessageAlert (msg);
+		}
+
 		public void EnabledUI()
 		{
+			bool logged = Engine.IsLogged ();
+			bool connected = Engine.IsConnected ();
+			bool waiting = Engine.IsWaiting ();
+
+			if (logged == false)
+				CmdLogin.Title = Messages.CommandLogin;
+			else
+				CmdLogin.Title = Messages.CommandLogout;
+
+			CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim () != "") && (TxtPassword.StringValue.Trim () != ""));
+
+			TxtLogin.Enabled = (logged == false);
+			TxtPassword.Enabled = (logged == false);
+
+			if (logged) {
+				CmdConnect.Enabled = true;
+			} else {
+				CmdConnect.Enabled = false;
+			}
+
+			CmdServersConnect.Enabled = ((logged) && (TableServers.SelectedRowCount == 1));
+			CmdServersWhiteList.Enabled = (TableServers.SelectedRowCount > 0);
+			CmdServersBlackList.Enabled = CmdServersWhiteList.Enabled;
+			CmdServersUndefined.Enabled = CmdServersWhiteList.Enabled;
+
+			CmdAreasWhiteList.Enabled = (TableAreas.SelectedRowCount > 0);
+			CmdAreasBlackList.Enabled = CmdAreasWhiteList.Enabled;
+			CmdAreasUndefined.Enabled = CmdAreasWhiteList.Enabled;
+
+			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
+			CmdLogsOpenVpnManagement.Enabled = connected;
 		}
 
 		public void FrontMessage(string message)
@@ -372,13 +471,8 @@ namespace AirVPN.UI.Osx
 		{
 			if((Engine.IsLogged() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
 			{
-				// TOFIX TabMain.SelectedIndex = 0;
-
-				//Engine.Connect ();
-				if (Engine.NextServer == null)
-					MessageAlert ("ConnectTitle", "Connect to best");
-				else
-					MessageAlert ("ConnectTitle", "Connect to " + Engine.NextServer.PublicName);
+				TabMain.SelectAt (0);
+				Engine.Connect ();
 			}
 		}
 
@@ -421,7 +515,7 @@ namespace AirVPN.UI.Osx
 					return false;
 				}
 			} else {
-				return false;
+				return true;
 			}
 		}
 

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using AirVPN.Core;
 
@@ -45,8 +46,11 @@ namespace AirVPN.Platforms
 
         public override bool IsAdmin()
         {
-			return true; // pazzo
-            return (Environment.UserName == "root");
+			//return true; // Uncomment for debugging
+
+			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
+			string u = ShellCmd ("whoami").ToLowerInvariant().Trim();
+			return (u == "root");
         }
 
 		public override bool IsUnixSystem()
@@ -68,6 +72,17 @@ namespace AirVPN.Platforms
                 return "/";
             }
         }
+
+		public override string GetExecutablePath()
+		{
+			string currentPath = System.Reflection.Assembly.GetEntryAssembly().Location;
+			if(new FileInfo(currentPath).Directory.Name == "MonoBundle")
+			{
+				// OSX Bundle detected, use the launcher executable
+				currentPath = currentPath.Replace("/MonoBundle/","/MacOS/").Replace(".exe","");
+			}
+			return currentPath;
+		}
 
         public override string GetUserFolder()
         {
@@ -122,6 +137,9 @@ namespace AirVPN.Platforms
 			return output;
 		}
 
-
+		public override string GetGitDeployPath()
+		{
+			return GetProgramFolder () + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
+		}
     }
 }

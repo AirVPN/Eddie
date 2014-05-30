@@ -32,6 +32,7 @@
     <CreatePackage>true</CreatePackage>
     <PackageSigningKey>Developer ID Installer</PackageSigningKey>
     <I18n />
+    <Commandlineparameters>profile=/Users/Clodo/AirVPN.xml</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -125,6 +126,7 @@
     </Compile>
     <Compile Include="TableAreasDelegate.cs" />
     <Compile Include="TableServersDelegate.cs" />
+    <Compile Include="RootLauncher.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -448,6 +450,11 @@
     <BundleResource Include="Resources\flag_zm.png" />
     <BundleResource Include="Resources\flag_zw.png" />
     <BundleResource Include="Resources\stats_system.png" />
+    <BundleResource Include="Resources\icon_black.png" />
+    <BundleResource Include="Resources\icon_gray.png" />
+    <BundleResource Include="Resources\icon.png" />
+    <BundleResource Include="Resources\statusbar_black.png" />
+    <BundleResource Include="Resources\statusbar_black_gray.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

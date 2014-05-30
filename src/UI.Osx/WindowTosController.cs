@@ -48,13 +48,17 @@ namespace AirVPN.UI.Osx
 
 			Accepted = false;
 
-			Window.Title = Messages.WindowsTosTitle;
+			Window.Title = Constants.Name + " - " + Messages.WindowsTosTitle;
 
 			TxtTos.Value = Core.UI.Actions.GetTos ();
 			ChkTos1.Title = Messages.WindowsTosCheck1;
 			ChkTos2.Title = Messages.WindowsTosCheck2;
 			CmdAccept.Title = Messages.WindowsTosAccept;
 			CmdCancel.StringValue = Messages.WindowsTosReject;
+
+			bool tosAccepted = Engine.Instance.Storage.GetBool ("gui.tos");
+			ChkTos1.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);
+			ChkTos2.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);
 
 			CmdAccept.Activated += (object sender, EventArgs e) =>
 			{

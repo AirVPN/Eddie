@@ -377,5 +377,9 @@ namespace AirVPN.Core
 			return System.Net.Sockets.Socket.OSSupportsIPv6;
 		}
 
+		public virtual string GetGitDeployPath()
+		{
+			return GetProgramFolder () + "/../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
+		}
     }
 }
