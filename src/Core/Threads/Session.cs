@@ -216,12 +216,12 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-
+							/* pazzo
 							if (m_processOpenVpn.HasExited) // 2.2
 								m_reset = "ERROR";
 							if( (m_processProxy != null) && (m_processProxy.HasExited) ) // 2.2
 								m_reset = "ERROR";
-
+							*/
 							if (Engine.IsConnected())
 								break;
 

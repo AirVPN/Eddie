@@ -67,6 +67,58 @@ namespace AirVPN.Core
             return Score().CompareTo(other.Score());
         }
 
+		public int CompareToEx(ServerInfo other, string field, bool ascending)
+		{
+			int returnVal = 0;
+			if (field == "Name")
+				returnVal = PublicName.CompareTo(other.PublicName);
+			else if (field == "Score")
+			{
+				int v1 = this.Score();
+				int v2 = other.Score();
+				returnVal = v1.CompareTo(v2);						
+			}
+			else if (field == "Location")
+			{
+				returnVal = GetLocationForList().CompareTo(other.GetLocationForList());
+			}
+			else if (field == "Latency")
+			{
+				long v1 = this.Ping;
+				if (v1 == -1)
+					v1 = long.MaxValue;
+				long v2 = other.Ping;
+				if (v2 == -1)
+					v2 = long.MaxValue;
+				returnVal = v1.CompareTo(v2);
+			}
+			else if (field == "Load")
+			{
+				Int64 bwCur1 = 2 * (this.Bandwidth * 8) / (1000 * 1000);
+				Int64 bwMax1 = this.BandwidthMax;
+				int v1 = Convert.ToInt32((bwCur1 * 100) / bwMax1);
+
+				Int64 bwCur2 = 2 * (other.Bandwidth * 8) / (1000 * 1000);
+				Int64 bwMax2 = other.BandwidthMax;
+				int v2 = Convert.ToInt32((bwCur2 * 100) / bwMax2);
+
+				returnVal = v1.CompareTo(v2);
+			}
+			else if (field == "Users")
+			{
+				returnVal = this.Users.CompareTo(other.Users);
+			}
+
+			if (returnVal == 0) // Second order, Name
+				returnVal = this.Name.CompareTo(other.Name);
+
+			// Invert the value returned by String.Compare.
+			if(ascending == false)
+				returnVal *= -1;
+		
+			return returnVal;
+		}
+
         public int Load()
         {
             Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                

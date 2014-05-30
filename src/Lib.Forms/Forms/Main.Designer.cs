@@ -1270,7 +1270,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// lblWait2
 			// 
-			this.lblWait2.BackColor = System.Drawing.Color.Maroon;
+			this.lblWait2.BackColor = System.Drawing.Color.Transparent;
 			this.lblWait2.Location = new System.Drawing.Point(14, 41);
 			this.lblWait2.Name = "lblWait2";
 			this.lblWait2.Size = new System.Drawing.Size(158, 21);

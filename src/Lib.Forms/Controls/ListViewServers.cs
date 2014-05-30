@@ -173,6 +173,23 @@ namespace AirVPN.Gui.Controls
             ListViewItemServer i1 = pi1 as ListViewItemServer;
             ListViewItemServer i2 = pi2 as ListViewItemServer;
 
+			string colName = "";
+			if (col == 0)
+				colName = "Name";
+			else if (col == 1)
+				colName = "Score";
+			else if (col == 2)
+				colName = "Location";
+			else if (col == 3)
+				colName = "Latency";
+			else if (col == 4)
+				colName = "Load";
+			else if (col == 5)
+				colName = "Users";
+
+			return i1.Info.CompareToEx(i2.Info, colName, order == SortOrder.Ascending);
+
+			/*
             int returnVal = -1;
             switch (col)
             {
@@ -218,13 +235,10 @@ namespace AirVPN.Gui.Controls
 
             if (order == SortOrder.Descending)
                 // Invert the value returned by String.Compare.
-                returnVal *= -1;
-
-			if (returnVal == 0) // Second order, Name
-				returnVal = i1.Info.Name.CompareTo(i2.Info.Name);
-
-            return returnVal;            
-        }
+                returnVal *= -1;			
+            return returnVal;   
+			*/
+		}
 
         public void UpdateList()
         {

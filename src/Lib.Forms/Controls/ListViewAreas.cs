@@ -119,6 +119,19 @@ namespace AirVPN.Gui.Controls
             ListViewItemArea i1 = pi1 as ListViewItemArea;
             ListViewItemArea i2 = pi2 as ListViewItemArea;
 
+			string colName = "";
+			if (col == 0)
+				colName = "Name";
+			else if (col == 1)
+				colName = "Servers";
+			else if (col == 2)
+				colName = "Load";
+			else if (col == 3)
+				colName = "Users";
+
+			return i1.Info.CompareToEx(i2.Info, colName, order == SortOrder.Ascending);
+
+			/*
             int returnVal = -1;
             switch (col)
             {                
@@ -154,6 +167,7 @@ namespace AirVPN.Gui.Controls
                 returnVal *= -1;
 
             return returnVal;
+			*/
         }
 
         public void UpdateList()
