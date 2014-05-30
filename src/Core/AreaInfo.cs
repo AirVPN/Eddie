@@ -78,5 +78,24 @@ namespace AirVPN.Core
 
 			return returnVal;
 		}
+
+		public string GetScoreForList()
+		{
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwMax = BandwidthMax;
+
+			String label = bwCur.ToString() + " / " + bwMax.ToString() + " Mbit/s";
+			return label;
+		}
+
+		public float GetScorePercForList()
+		{
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwMax = BandwidthMax;
+
+			float p = (float)bwCur / (float)bwMax;
+
+			return p;
+		}
     }
 }

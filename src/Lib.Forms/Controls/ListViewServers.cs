@@ -150,15 +150,33 @@ namespace AirVPN.Gui.Controls
                 Rectangle R1 = e.Bounds;
                 R1.Inflate(-2, -2);
                 
+				/*
                 Int64 bwCur = 2*(listItemServer.Info.Bandwidth*8)/(1000*1000); // to Mbit/s                
                 Int64 bwMax = listItemServer.Info.BandwidthMax;
-                
-                String label = bwCur.ToString() + " / " + bwMax.ToString() + " Mbit/s";
 
-                int W = Convert.ToInt32((bwCur * R1.Width) / bwMax);
+				float p = (float)bwCur / (float)bwMax;
+				*/
+
+				String label = listItemServer.Info.GetScoreForList();
+				float p = listItemServer.Info.GetScorePercForList();
+
+				Brush b = Brushes.LightGreen;
+				if (p > 0.9)
+					b = Brushes.LightPink;
+				else if (p > 0.5)
+					b = Brushes.LightYellow;
+				else
+					b = Brushes.LightGreen;
+					
+
+
+                int W = Convert.ToInt32(p * R1.Width);
                 if (W > R1.Width)
                     W = R1.Width;
-				e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				//e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				e.Graphics.FillRectangle(b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+
+				
 
                 R1.Height -= 1;
                 //e.Graphics.DrawRectangle(m_loadPen, R1);
