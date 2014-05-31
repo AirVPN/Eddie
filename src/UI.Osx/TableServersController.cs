@@ -14,6 +14,9 @@ namespace AirVPN.UI.Osx
 
 		public bool ShowAll = false;
 
+		private bool m_orderAscending = false;
+		private string m_orderColumn = "";
+
 		public TableServersController (NSTableView tableView)
 		{
 			this.tableView = tableView;
@@ -22,11 +25,48 @@ namespace AirVPN.UI.Osx
 
 		}
 
+		public void SortByColumn(string col)
+		{
+			string oldOrderColumn = m_orderColumn;
+			m_orderColumn = col;
+			if(oldOrderColumn == m_orderColumn)
+			{
+				m_orderAscending = !m_orderAscending;
+			}
+
+			RefreshUI ();
+		}
+
 		public void RefreshUI()
 		{
+			List<ServerInfo> selected = new List<ServerInfo> ();
+			for (int r=0; r<Items.Count; r++) {
+				if (tableView.IsRowSelected (r))
+					selected.Add (Items [r]);
+			}
+
+			tableView.DeselectAll (this);
+
 			Items.Clear ();
 
 			Items = Engine.Instance.GetServers (ShowAll);
+
+			// Sorting
+			Items.Sort (
+				delegate(ServerInfo x, ServerInfo y) {
+
+				return x.CompareToEx (y, m_orderColumn, m_orderAscending);
+			});
+
+			int r2 = 0;
+			foreach (ServerInfo s in Items) {
+				if (selected.Contains (s))
+					tableView.SelectRow (r2, true);
+				r2++;
+			}
+
+
+
 			tableView.ReloadData ();
 		}
 
@@ -64,7 +104,7 @@ namespace AirVPN.UI.Osx
 			} else if (tableColumn.Identifier == "Latency") {
 				return new NSString (s.GetLatencyForList());
 			} else if (tableColumn.Identifier == "Load") {
-				return new NSString (s.Bandwidth.ToString ());
+				return new NSString (s.GetScoreForList());
 			} else if (tableColumn.Identifier == "Users") {
 				return new NSString (s.GetUsersForList());
 			} else 

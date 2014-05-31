@@ -140,6 +140,8 @@ namespace AirVPN.Core
 
 		public bool Initialization()
 		{
+
+
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
@@ -152,8 +154,14 @@ namespace AirVPN.Core
 					Log(LogType.Info, "Development environment.");
 			}
 
+
+
 			m_storage = new Core.Storage();
+
+
 			m_storage.Load(manMode);
+
+
 
 			if (Storage.GetBool("cli"))
 				ConsoleMode = true;
@@ -162,6 +170,8 @@ namespace AirVPN.Core
 				Log(LogType.Warning, "Param test:-" + Storage.Get("paramtest") + "-");			
 
 			m_stats = new Core.Stats();
+
+
 
 			if (Storage.GetBool("advanced.skip_privileges") == false)
 			{

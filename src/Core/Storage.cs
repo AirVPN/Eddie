@@ -40,17 +40,24 @@ namespace AirVPN.Core
 
         public Storage()
         {
+
             EnsureDefaults();
+
+
 						
             XmlDocument DocManifestDefault = new XmlDocument();
 			DocManifestDefault.LoadXml(Lib.Core.Properties.Resources.Manifest);
-            Manifest = DocManifestDefault.DocumentElement;
+			Manifest = DocManifestDefault.DocumentElement;
+
+
 
             // Compute profile
 			string profile = Get("profile");
 			string path = Get("path");
 
 			path = Platform.Instance.NormalizePath(path);
+
+
 
             if (profile.IndexOf(".") != -1)
             {

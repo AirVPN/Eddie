@@ -10,6 +10,7 @@ namespace AirVPN.UI.Osx
 	{
 		public NSTableView tableView;
 
+		private List<LogEntry> m_items = new List<LogEntry>();
 		private Engine m_engine;
 
 		public TableLogsController (NSTableView tableView)
@@ -22,6 +23,46 @@ namespace AirVPN.UI.Osx
 
 		}
 
+		public void AddLog(LogEntry l)
+		{
+			m_items.Add (l);
+			if (m_items.Count >= Engine.Instance.Storage.GetInt ("gui.log_limit"))
+				m_items.RemoveAt (0);
+			RefreshUI ();
+		}
+
+		public void Clear()
+		{
+			m_items.Clear ();
+			RefreshUI ();
+		}
+
+		public string GetBody(bool selectedOnly)
+		{
+			System.Text.StringBuilder buffer = new System.Text.StringBuilder ();
+
+			lock(m_items)
+			{
+				int i = 0;
+				foreach (LogEntry l in m_items) {
+					bool skip = false;
+
+					if (selectedOnly) {
+						if (tableView.IsRowSelected (i) == false)
+							skip = true;
+					}
+
+					if (skip == false) {
+						buffer.Append (l.GetStringLines () + "\n");
+					}
+
+					i++;
+				}
+			}
+
+			return Platform.Instance.NormalizeString(buffer.ToString());
+		}
+
 		public void RefreshUI()
 		{
 			tableView.ReloadData ();
@@ -29,14 +70,14 @@ namespace AirVPN.UI.Osx
 
 		public override int GetRowCount (NSTableView tableView)
 		{
-			return m_engine.LogsEntries.Count;
+			return m_items.Count;
 		}
 
 		public override NSObject GetObjectValue (NSTableView tableView, 
 		                                         NSTableColumn tableColumn, 
 		                                         int row)
 		{
-			LogEntry e = m_engine.LogsEntries [row];
+			LogEntry e = m_items [row];
 
 			if (tableColumn.Identifier == "Icon") {
 				return NSImage.ImageNamed("log_" + e.Type.ToString().ToLowerInvariant() + ".png");

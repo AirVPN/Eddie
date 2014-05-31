@@ -19,6 +19,11 @@ namespace AirVPN.UI.Osx
 		{
 		}
 
+		public override bool ApplicationShouldTerminateAfterLastWindowClosed (NSApplication sender)
+		{
+			return true;
+		}
+
 		public override void FinishedLaunching (NSObject notification)
 		{
 			//CreateMenu (); // TOCLEAN
@@ -28,7 +33,6 @@ namespace AirVPN.UI.Osx
 
 			MenuEvents ();
 
-			(Engine.Instance as Engine).CreateMenuBarIcon ();
 		}
 
 
@@ -67,6 +71,10 @@ namespace AirVPN.UI.Osx
 			MnuMainSpeedTest.Activated += (object sender, EventArgs e) =>
 			{
 				AirVPN.Core.UI.Actions.OpenUrlSpeedTest();
+			};
+
+			MnuMainQuit.Activated += (object sender, EventArgs e) => {
+				Engine.Instance.RequestStop();
 			};
 		}
 	}

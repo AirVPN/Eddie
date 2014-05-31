@@ -15,6 +15,9 @@ namespace AirVPN.UI.Osx
 		public TableLogsController TableLogsController;
 		public TableStatsController TableStatsController;
 
+		public NSStatusItem StatusItem;
+		public NSMenuItem StatusMenuItem;
+
 		#region Constructors
 		// Called when created from unmanaged code
 		public MainWindowController (IntPtr handle) : base (handle)
@@ -56,7 +59,9 @@ namespace AirVPN.UI.Osx
 		{
 			base.AwakeFromNib ();
 
-			Engine.MainWindow = this;
+			Window.Delegate = new MainWindowDelegate (this);
+
+			CreateMenuBarIcon ();
 
 			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off; 
 			ChkServersShowAll.State = NSCellStateValue.Off;
@@ -160,6 +165,22 @@ namespace AirVPN.UI.Osx
 				ServersUndefinedList ();
 			};
 
+			MnuServersConnect.Activated += (object sender, EventArgs e) => {
+				ConnectManual();
+			};
+
+			MnuServersWhitelist.Activated += (object sender, EventArgs e) => {
+				ServersWhiteList();
+			};
+
+			MnuServersBlacklist.Activated += (object sender, EventArgs e) => {
+				ServersBlackList();
+			};
+
+			MnuServersUndefined.Activated += (object sender, EventArgs e) => {
+				ServersUndefinedList ();
+			};
+
 			CmdAreasWhiteList.Activated += (object sender, EventArgs e) => {
 				AreasWhiteList();
 			};
@@ -169,6 +190,18 @@ namespace AirVPN.UI.Osx
 			};
 
 			CmdAreasUndefined.Activated += (object sender, EventArgs e) => {
+				AreasUndefinedList ();
+			};
+
+			MnuAreasWhitelist.Activated += (object sender, EventArgs e) => {
+				AreasWhiteList();
+			};
+
+			MnuAreasBlacklist.Activated += (object sender, EventArgs e) => {
+				AreasBlackList();
+			};
+
+			MnuAreasUndefined.Activated += (object sender, EventArgs e) => {
 				AreasUndefinedList ();
 			};
 
@@ -201,11 +234,7 @@ namespace AirVPN.UI.Osx
 			};
 
 			CmdLogsClean.Activated += (object sender, EventArgs e) => {
-				lock(Engine.LogsEntries)
-				{
-					Engine.LogsEntries.Clear();
-				}
-				TableLogsController.RefreshUI();
+				TableLogsController.Clear();
 			};
 
 			CmdLogsSave.Activated += (object sender, EventArgs e) => {
@@ -219,6 +248,24 @@ namespace AirVPN.UI.Osx
 			CmdLogsSupport.Activated += (object sender, EventArgs e) =>
 			{
 				LogsDoCopy(false);
+			};		
+
+			MnuLogsCopyAll.Activated += (object sender, EventArgs e) =>
+			{
+				LogsDoCopy(false);
+			};		
+
+			MnuLogsSaveAll.Activated += (object sender, EventArgs e) =>
+			{
+				LogsDoSave(false);
+			};			
+			MnuLogsCopySelected.Activated += (object sender, EventArgs e) =>
+			{
+				LogsDoCopy(true);
+			};			
+			MnuLogsSaveSelected.Activated += (object sender, EventArgs e) =>
+			{
+				LogsDoSave(true);
 			};			
 
 			CmdLogsOpenVpnManagement.Activated += (object sender, EventArgs e) => {
@@ -248,7 +295,7 @@ namespace AirVPN.UI.Osx
 				TableStatsController.DoubleClickItem();
 			};
 
-
+			Engine.MainWindow = this;
 
 			Engine.OnRefreshUi ();
 		}
@@ -261,7 +308,7 @@ namespace AirVPN.UI.Osx
 					ImgTopFlag.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
 				}
 				else {
-					ImgTopFlag.Image = NSImage.ImageNamed ("stats.png"); // TODO img neutra
+					ImgTopFlag.Image = NSImage.ImageNamed ("notconnected.png"); // TODO img neutra
 				}
 
 				LblWaiting1.StringValue = Engine.WaitMessage;
@@ -269,7 +316,7 @@ namespace AirVPN.UI.Osx
 				if(Engine.IsWaiting())
 				{
 					ImgProgress.StartAnimation(this);
-					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_yellow.png");
+					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_yellow.png");
 					LblTopStatus.StringValue = Engine.WaitMessage;
 
 					TabOverview.SelectAt(1);
@@ -280,7 +327,7 @@ namespace AirVPN.UI.Osx
 				else if (Engine.IsConnected())
 				{
 					ImgProgress.StopAnimation (this);
-					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_green.png");
+					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
 					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.PublicName);
 
 					TabOverview.SelectAt(2);
@@ -290,26 +337,24 @@ namespace AirVPN.UI.Osx
 				else
 				{
 					ImgProgress.StopAnimation (this);
-					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_red.png");
+					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
 					LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed; // TODO la locked
 
 					TabOverview.SelectAt(0);
 				}
 
 				// Icon update
-				if(Engine.StatusMenuItem != null)
+				if(StatusMenuItem != null)
 				{
 					if(Engine.IsConnected())
 					{
-						Engine.StatusMenuItem.Title = DateTime.Now.ToString ();
-						Engine.StatusItem.Image = NSImage.ImageNamed("statusbar_black.png");
+						StatusItem.Image = NSImage.ImageNamed("statusbar_black.png");
 						//NSApplication.SharedApplication.DockTile. =  DateTime.Now.ToString ();
 						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
 					}
 					else
 					{
-						Engine.StatusMenuItem.Title = DateTime.Now.ToString ();
-						Engine.StatusItem.Image = NSImage.ImageNamed("statusbar_black_gray.png");
+						StatusItem.Image = NSImage.ImageNamed("statusbar_black_gray.png");
 						//NSApplication.SharedApplication.DockTile.Description =  DateTime.Now.ToString ();
 						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
 					}
@@ -319,6 +364,15 @@ namespace AirVPN.UI.Osx
 			}
 
 			if ((mode == Engine.RefreshUiMode.Log) || (mode == Engine.RefreshUiMode.Full)) {
+
+				lock (Engine.LogsPending) {
+					while (Engine.LogsPending.Count > 0) {
+						LogEntry l = Engine.LogsPending [0];
+						Engine.LogsPending.RemoveAt (0);
+
+						Log (l);
+					}
+				}
 				LblWaiting2.StringValue = Engine.GetLogDetailTitle();
 			}
 
@@ -342,11 +396,16 @@ namespace AirVPN.UI.Osx
 		{
 			string msg = l.Message;
 
+			TableLogsController.AddLog (l);
+
+			StatusMenuItem.Title = msg;
+			StatusItem.ToolTip = msg;
+
 			if ((msg != "") && (l.Type != Core.Engine.LogType.Verbose)) {
 				if(Engine.IsConnected() == false)
 				{
 					Window.Title = Constants.Name + " - " + msg;
-					Engine.StatusMenuItem.Title = "> " + msg;
+					StatusMenuItem.Title = "> " + msg;
 				}
 			}
 
@@ -386,10 +445,17 @@ namespace AirVPN.UI.Osx
 			CmdServersWhiteList.Enabled = (TableServers.SelectedRowCount > 0);
 			CmdServersBlackList.Enabled = CmdServersWhiteList.Enabled;
 			CmdServersUndefined.Enabled = CmdServersWhiteList.Enabled;
+			MnuServersConnect.Enabled = CmdServersConnect.Enabled;
+			MnuServersWhitelist.Enabled = CmdServersWhiteList.Enabled;
+			MnuServersBlacklist.Enabled = CmdServersBlackList.Enabled;
+			MnuServersUndefined.Enabled = CmdServersUndefined.Enabled;
 
 			CmdAreasWhiteList.Enabled = (TableAreas.SelectedRowCount > 0);
 			CmdAreasBlackList.Enabled = CmdAreasWhiteList.Enabled;
 			CmdAreasUndefined.Enabled = CmdAreasWhiteList.Enabled;
+			MnuAreasWhitelist.Enabled = CmdAreasWhiteList.Enabled;
+			MnuAreasBlacklist.Enabled = CmdAreasBlackList.Enabled;
+			MnuAreasUndefined.Enabled = CmdAreasUndefined.Enabled;
 
 			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
 			CmdLogsOpenVpnManagement.Enabled = connected;
@@ -449,6 +515,23 @@ namespace AirVPN.UI.Osx
 			center.ShouldPresentNotification = (c, n) => { return true; };
 
 			center.ScheduleNotification(not);
+		}
+
+		public void CreateMenuBarIcon ()
+		{
+			NSMenu notifyMenu = new NSMenu ();
+			StatusMenuItem = new NSMenuItem ("");
+			notifyMenu.AddItem (StatusMenuItem);
+			NSMenuItem exitMenuItem = new NSMenuItem ("Quit", (a,b) => {
+				//System.Environment.Exit (0);
+				Engine.RequestStop();
+			});
+			notifyMenu.AddItem (exitMenuItem);
+
+			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (22);
+			StatusItem.Menu = notifyMenu;
+			StatusItem.Image = NSImage.ImageNamed ("statusbar_black_gray.png");
+			StatusItem.HighlightMode = true;
 		}
 
 		void Login()
@@ -574,35 +657,9 @@ namespace AirVPN.UI.Osx
 			TableAreasController.RefreshUI ();
 		}
 
-		string LogsGetBody(bool selectedOnly)
-		{
-			System.Text.StringBuilder buffer = new System.Text.StringBuilder ();
-
-			lock(Engine.LogsEntries)
-			{
-				int i = 0;
-				foreach (LogEntry l in Engine.LogsEntries) {
-					bool skip = false;
-
-					if (selectedOnly) {
-						if (TableLogs.IsRowSelected (i) == false)
-							skip = true;
-					}
-
-					if (skip == false) {
-						buffer.Append (l.GetStringLines () + "\n");
-					}
-
-					i++;
-				}
-			}
-
-			return Platform.Instance.NormalizeString(buffer.ToString());
-		}
-
 		void LogsDoCopy(bool selectedOnly)
 		{
-			string t = LogsGetBody (selectedOnly);
+			string t = TableLogsController.GetBody (selectedOnly);
 			if (t != "") {
 				string [] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes (pboardTypes, null);
@@ -613,7 +670,7 @@ namespace AirVPN.UI.Osx
 
 		void LogsDoSave(bool selectedOnly)
 		{
-			string t = LogsGetBody (selectedOnly);
+			string t = TableLogsController.GetBody (selectedOnly);
 			if (t.Trim () != "") {
 				string filename = "AirVPN_" + DateTime.Now.ToString ("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt"; // TOCLEAN
 				//string filename = Engine.GetLogSuggestedFileName();

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI.Osx", "..\CLI.Osx\CLI.O
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Osx", "..\Platforms.Osx\Platforms.Osx.csproj", "{CE0A865E-9650-4283-8EBB-2603C6C52F47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestOsx", "..\TestOsx\TestOsx.csproj", "{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -38,6 +40,16 @@ Global
 		{8A54C394-4DE9-4512-9A04-701049176953}.Release|x64.Build.0 = Debug|x86
 		{8A54C394-4DE9-4512-9A04-701049176953}.Release|x86.ActiveCfg = Release|x86
 		{8A54C394-4DE9-4512-9A04-701049176953}.Release|x86.Build.0 = Release|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.AppStore|x86.ActiveCfg = Release|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.AppStore|x86.Build.0 = Release|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Debug|x64.ActiveCfg = Debug|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Debug|x64.Build.0 = Debug|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Debug|x86.ActiveCfg = Debug|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Debug|x86.Build.0 = Debug|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Release|x64.ActiveCfg = Release|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Release|x64.Build.0 = Release|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Release|x86.ActiveCfg = Release|x86
+		{A4E3072B-0B6B-45DC-8DFC-813FEA2C7184}.Release|x86.Build.0 = Release|x86
 		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.AppStore|x86.ActiveCfg = Release|Any CPU
 		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.AppStore|x86.Build.0 = Release|Any CPU
 		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|x64.ActiveCfg = Debug|Any CPU

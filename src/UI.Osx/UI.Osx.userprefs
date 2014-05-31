@@ -1,33 +1,21 @@
-﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="05/29/2014 09:57:54">
+﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="05/30/2014 10:26:26">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../Platforms.Osx/Osx.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MainWindowController.cs">
     <Files>
-      <File FileName="WindowTosController.cs" Line="66" Column="21" />
-      <File FileName="MainWindowController.cs" Line="125" Column="4" />
-      <File FileName="../Core/Storage.cs" Line="370" Column="1" />
-      <File FileName="../Core/Engine.cs" Line="321" Column="1" />
-      <File FileName="../Core/Software.cs" Line="225" Column="20" />
-      <File FileName="../Core/Platform.cs" Line="253" Column="3" />
-      <File FileName="../Platforms.Osx/Osx.cs" Line="49" Column="45" />
-      <File FileName="Info.plist" />
-      <File FileName="../Core/Threads/Session.cs" Line="223" Column="27" />
-      <File FileName="Main.cs" Line="34" Column="5" />
-      <File FileName="RootLauncher.cs" Line="19" Column="1" />
-      <File FileName="MainWindow.cs" Line="1" Column="1" />
-      <File FileName="Engine.cs" Line="5" Column="18" />
+      <File FileName="MainWindow.designer.cs" Line="1" Column="1" />
+      <File FileName="MainWindowController.cs" Line="81" Column="4" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="CLI.Osx" expanded="True" />
           <Node name="Lib.Core" expanded="True">
             <Node name="Threads" expanded="True" />
           </Node>
-          <Node name="Platforms.Osx" expanded="True">
-            <Node name="Osx.cs" selected="True" />
-          </Node>
+          <Node name="Platforms.Osx" expanded="True" />
+          <Node name="TestOsx" expanded="True" />
           <Node name="UI.Osx" expanded="True">
-            <Node name="References" expanded="True" />
+            <Node name="MainWindow.cs" expanded="True" />
+            <Node name="MainWindow.xib" selected="True" />
           </Node>
         </State>
       </Pad>
@@ -35,9 +23,8 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/Core/Storage.cs" line="370" column="22" />
-      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/Core/Engine.cs" line="321" column="21" />
-      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/UI.Osx/Engine.cs" line="41" column="25" />
+      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/Core/Engine.cs" line="331" column="21" />
+      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/CLI.Osx/Program.cs" line="47" column="4" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

@@ -43,6 +43,57 @@ namespace AirVPN.UI.Osx
 			base.AwakeFromNib ();
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
+
+			ReadOptions ();
+
+			EnableIde ();
+
+
+
+			CmdSave.Activated += (object sender, EventArgs e) => {
+				SaveOptions ();
+				Close ();
+			};
+
+			CmdCancel.Activated += (object sender, EventArgs e) => {
+				Close ();
+			};
+
+			CmdGeneralTos.Activated += (object sender, EventArgs e) => {
+				WindowTosController tos = new WindowTosController ();
+				tos.Window.ReleasedWhenClosed = true;
+				NSApplication.SharedApplication.RunModalForWindow (tos.Window);
+				tos.Window.Close ();
+			};
+		}
+
+		bool GetCheck(NSButton button)
+		{
+			return (button.State == NSCellStateValue.On);
+		}
+
+		void SetCheck(NSButton button, bool val)
+		{
+			button.State = val ? NSCellStateValue.On : NSCellStateValue.Off;
+		}
+
+		void ReadOptions()
+		{
+			Storage s = Engine.Instance.Storage;
+
+			SetCheck (ChkAutoStart, s.GetBool ("connect")); 
+			SetCheck (ChkGeneralStartLast, s.GetBool("servers.startlast"));
+		}
+
+		void SaveOptions()
+		{
+			Storage s = Engine.Instance.Storage;
+
+			s.SetBool ("connect", GetCheck (ChkAutoStart));
+		}
+
+		void EnableIde()
+		{
 		}
 	}
 }

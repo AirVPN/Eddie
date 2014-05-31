@@ -121,17 +121,18 @@
                 <outlet property="MnuMainForwardingPorts" destination="YT6-gP-yWE" id="4AV-Ed-xKe"/>
                 <outlet property="MnuMainHome" destination="cFT-nx-MzJ" id="k32-Bx-AxL"/>
                 <outlet property="MnuMainPreferences" destination="129" id="g41-6b-wZh"/>
+                <outlet property="MnuMainQuit" destination="136" id="u7D-PZ-Mct"/>
                 <outlet property="MnuMainSpeedTest" destination="DQk-oh-Ot8" id="FND-nA-VbF"/>
             </connections>
         </customObject>
     </objects>
     <resources>
-        <image name="about" width="16" height="16"/>
-        <image name="exit" width="48" height="48"/>
-        <image name="home" width="48" height="48"/>
-        <image name="ports" width="48.676055908203125" height="48.676055908203125"/>
-        <image name="settings" width="48" height="48"/>
-        <image name="speed" width="48.676055908203125" height="48.676055908203125"/>
-        <image name="stats" width="48" height="48"/>
+        <image name="about" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="exit" width="16" height="16"/>
+        <image name="home" width="16" height="16"/>
+        <image name="ports" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="settings" width="16" height="16"/>
+        <image name="speed" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="stats" width="16" height="16"/>
     </resources>
 </document>

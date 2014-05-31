@@ -10,12 +10,12 @@ namespace AirVPN.UI.Osx
 	public class Engine : AirVPN.Core.Engine
 	{
 		public MainWindowController MainWindow;
-		public List<LogEntry> LogsEntries = new List<LogEntry>();
+		public List<LogEntry> LogsPending = new List<LogEntry>();
+		//public List<LogEntry> LogsEntries = new List<LogEntry>(); // TOCLEAN
 
 		public List<MonoMac.AppKit.NSWindowController> WindowsOpen = new List<MonoMac.AppKit.NSWindowController>();
 
-		public NSStatusItem StatusItem;
-		public NSMenuItem StatusMenuItem;
+
 
 		public Engine ()
 		{
@@ -32,7 +32,11 @@ namespace AirVPN.UI.Osx
 		{
 			base.OnDeInit2 ();
 
-			System.Environment.Exit (0);
+			if (MainWindow != null) {
+				new NSObject ().InvokeOnMainThread (() => {
+					MainWindow.Close ();
+				});
+			}
 		}
 
 		public override bool OnNoRoot ()
@@ -79,6 +83,13 @@ namespace AirVPN.UI.Osx
 		{
 			base.OnLog (l);
 
+			lock (LogsPending) {
+				LogsPending.Add (l);
+			}
+
+			OnRefreshUi (RefreshUiMode.Log);
+
+			/* TOCLEAN
 			lock (LogsEntries) {
 				LogsEntries.Add (l);
 				if(Engine.Storage != null)
@@ -93,6 +104,7 @@ namespace AirVPN.UI.Osx
 					MainWindow.TableLogsController.RefreshUI ();
 				});
 			}
+			*/
 		}
 
 
@@ -109,21 +121,6 @@ namespace AirVPN.UI.Osx
 
 
 
-		public void CreateMenuBarIcon ()
-		{
-			NSMenu notifyMenu = new NSMenu ();
-			StatusMenuItem = new NSMenuItem ("");
-			notifyMenu.AddItem (StatusMenuItem);
-			NSMenuItem exitMenuItem = new NSMenuItem ("Quit", (a,b) => {
-				//System.Environment.Exit (0);
-				Engine.RequestStop();
-			});
-			notifyMenu.AddItem (exitMenuItem);
 
-			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (22);
-			StatusItem.Menu = notifyMenu;
-			StatusItem.Image = NSImage.ImageNamed ("statusbar_black_gray.png");
-			StatusItem.HighlightMode = true;
-		}
 	}
 }

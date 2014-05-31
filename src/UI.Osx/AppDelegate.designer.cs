@@ -27,6 +27,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSMenuItem MnuMainPreferences { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSMenuItem MnuMainQuit { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSMenuItem MnuMainSpeedTest { get; set; }
 		
 		void ReleaseDesignerOutlets ()
@@ -34,6 +37,11 @@ namespace AirVPN.UI.Osx
 			if (MnuMainAbout != null) {
 				MnuMainAbout.Dispose ();
 				MnuMainAbout = null;
+			}
+
+			if (MnuMainClientArea != null) {
+				MnuMainClientArea.Dispose ();
+				MnuMainClientArea = null;
 			}
 
 			if (MnuMainForwardingPorts != null) {
@@ -51,14 +59,14 @@ namespace AirVPN.UI.Osx
 				MnuMainPreferences = null;
 			}
 
-			if (MnuMainClientArea != null) {
-				MnuMainClientArea.Dispose ();
-				MnuMainClientArea = null;
-			}
-
 			if (MnuMainSpeedTest != null) {
 				MnuMainSpeedTest.Dispose ();
 				MnuMainSpeedTest = null;
+			}
+
+			if (MnuMainQuit != null) {
+				MnuMainQuit.Dispose ();
+				MnuMainQuit = null;
 			}
 		}
 	}

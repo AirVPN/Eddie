@@ -127,6 +127,7 @@
     <Compile Include="TableAreasDelegate.cs" />
     <Compile Include="TableServersDelegate.cs" />
     <Compile Include="RootLauncher.cs" />
+    <Compile Include="MainWindowDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -183,12 +184,6 @@
     <BundleResource Include="Resources\success16.png" />
     <BundleResource Include="Resources\support.png" />
     <BundleResource Include="Resources\tip.png" />
-    <BundleResource Include="Resources\topbar_green.png" />
-    <BundleResource Include="Resources\topbar_logo.png" />
-    <BundleResource Include="Resources\topbar_logo_hi.png" />
-    <BundleResource Include="Resources\topbar_red.png" />
-    <BundleResource Include="Resources\topbar_shadow.png" />
-    <BundleResource Include="Resources\topbar_yellow.png" />
     <BundleResource Include="Resources\warning16.png" />
     <BundleResource Include="Resources\log_error.png" />
     <BundleResource Include="Resources\log_fatal.png" />
@@ -455,6 +450,12 @@
     <BundleResource Include="Resources\icon.png" />
     <BundleResource Include="Resources\statusbar_black.png" />
     <BundleResource Include="Resources\statusbar_black_gray.png" />
+    <BundleResource Include="Resources\notconnected.png" />
+    <BundleResource Include="Resources\topbar_osx_green.png" />
+    <BundleResource Include="Resources\topbar_osx_red.png" />
+    <BundleResource Include="Resources\topbar_osx_yellow.png" />
+    <BundleResource Include="Resources\topbar_osx_bg.png" />
+    <BundleResource Include="Resources\topbar_osx_logo.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

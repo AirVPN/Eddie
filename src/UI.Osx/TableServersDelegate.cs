@@ -16,6 +16,12 @@ namespace AirVPN.UI.Osx
 		{
 			m_main.EnabledUI ();
 		}
+
+		public override void MouseDownInHeaderOfTableColumn (NSTableView tableView, NSTableColumn tableColumn)
+		{
+			m_main.TableServersController.SortByColumn (tableColumn.Identifier);
+		}
+
 	}
 }
 
