@@ -1,25 +1,12 @@
-﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="05/30/2014 10:26:26">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="MainWindowController.cs">
+﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/1/2014 10:10:15 PM">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x64" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="WindowPreferencesController.cs">
     <Files>
       <File FileName="MainWindow.designer.cs" Line="1" Column="1" />
-      <File FileName="MainWindowController.cs" Line="81" Column="4" />
+      <File FileName="MainWindowController.cs" Line="1" Column="1" />
+      <File FileName="../Platforms.Osx/Osx.cs" Line="30" Column="3" />
+      <File FileName="WindowPreferencesController.cs" Line="92" Column="3" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True">
-          <Node name="Lib.Core" expanded="True">
-            <Node name="Threads" expanded="True" />
-          </Node>
-          <Node name="Platforms.Osx" expanded="True" />
-          <Node name="TestOsx" expanded="True" />
-          <Node name="UI.Osx" expanded="True">
-            <Node name="MainWindow.cs" expanded="True" />
-            <Node name="MainWindow.xib" selected="True" />
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>

@@ -65,8 +65,8 @@ namespace AirVPN.UI.Osx
 
 			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off; 
 			ChkServersShowAll.State = NSCellStateValue.Off;
-			ChkServersLockCurrent.State = Engine.Storage.GetBool ("servers.locklast") ? NSCellStateValue.On : NSCellStateValue.Off;
-			CboServersScoringRule.StringValue = Engine.Storage.Get ("servers.scoretype");
+			GuiUtils.SetCheck (ChkServersLockCurrent, Engine.Storage.GetBool ("servers.locklast"));
+			GuiUtils.SetSelected (CboServersScoringRule, Engine.Storage.Get ("servers.scoretype"));
 
 			CboSpeedResolutions.RemoveAllItems ();
 			CboSpeedResolutions.AddItem (Messages.WindowsMainSpeedResolution1);
@@ -228,7 +228,7 @@ namespace AirVPN.UI.Osx
 			};
 
 			CboServersScoringRule.Activated += (object sender, EventArgs e) => {
-				Engine.Storage.Set ("servers.scoretype", CboServersScoringRule.StringValue);
+				Engine.Storage.Set ("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
 
 				RefreshUi (AirVPN.Core.Engine.RefreshUiMode.Full);
 			};

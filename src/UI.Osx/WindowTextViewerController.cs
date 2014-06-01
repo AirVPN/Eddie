@@ -46,6 +46,7 @@ namespace AirVPN.UI.Osx
 
 			Window.Title = AirVPN.Core.Constants.Name + " - " + Title;
 			TxtBody.StringValue = Body;
+			TxtBody2.Value = Body;
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{

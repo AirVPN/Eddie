@@ -9,6 +9,10 @@ namespace AirVPN.UI.Osx
 {
 	public partial class WindowPreferencesController : MonoMac.AppKit.NSWindowController
 	{
+		private string m_mode_protocol;
+		private int m_mode_port;
+		private int m_mode_alternate;
+
 		#region Constructors
 		// Called when created from unmanaged code
 		public WindowPreferencesController (IntPtr handle) : base (handle)
@@ -65,31 +69,98 @@ namespace AirVPN.UI.Osx
 				NSApplication.SharedApplication.RunModalForWindow (tos.Window);
 				tos.Window.Close ();
 			};
+
+			// Modes
+			ChkModeUdp443.Activated += (object sender, EventArgs e) => {
+				m_mode_protocol = "UDP";
+				m_mode_port = 443;
+				m_mode_alternate = 0;
+				ChangeMode();
+			};
+			ChkModeTcp443.Activated += (object sender, EventArgs e) => {
+				m_mode_protocol = "TCP";
+				m_mode_port = 443;
+				m_mode_alternate = 0;
+				ChangeMode();
+			};
+			ChkModeSsh22.Activated += (object sender, EventArgs e) => {
+				m_mode_protocol = "SSH";
+				m_mode_port = 22;
+				m_mode_alternate = 0;
+				ChangeMode();
+			};
+			ChkModeSsl443.Activated += (object sender, EventArgs e) => {
+				m_mode_protocol = "SSL";
+				m_mode_port = 443;
+				m_mode_alternate = 0;
+				ChangeMode();
+			};
 		}
 
-		bool GetCheck(NSButton button)
+		void ChangeMode()
 		{
-			return (button.State == NSCellStateValue.On);
-		}
-
-		void SetCheck(NSButton button, bool val)
-		{
-			button.State = val ? NSCellStateValue.On : NSCellStateValue.Off;
+			GuiUtils.SetCheck (ChkModeUdp443, ((m_mode_protocol == "UDP") && (m_mode_port == 443) && (m_mode_alternate == 0)));
+			GuiUtils.SetCheck (ChkModeTcp443, ((m_mode_protocol == "TCP") && (m_mode_port == 443) && (m_mode_alternate == 0)));
+			GuiUtils.SetCheck (ChkModeSsh22, ((m_mode_protocol == "SSH") && (m_mode_port == 22) && (m_mode_alternate == 0)));
+			GuiUtils.SetCheck (ChkModeSsl443, ((m_mode_protocol == "SSL") && (m_mode_port == 443) && (m_mode_alternate == 0)));
 		}
 
 		void ReadOptions()
 		{
 			Storage s = Engine.Instance.Storage;
 
-			SetCheck (ChkAutoStart, s.GetBool ("connect")); 
-			SetCheck (ChkGeneralStartLast, s.GetBool("servers.startlast"));
+			// General
+
+			GuiUtils.SetCheck (ChkAutoStart, s.GetBool ("connect")); 
+			GuiUtils.SetCheck (ChkGeneralStartLast, s.GetBool("servers.startlast"));
+			GuiUtils.SetCheck (ChkGeneralOsxNotifications, s.GetBool ("gui.osx.notifications"));
+
+			// Mode
+			m_mode_protocol = s.Get ("mode.protocol").ToUpperInvariant ();
+			m_mode_port = s.GetInt ("mode.port");
+			m_mode_alternate = s.GetInt ("mode.alt");
+			ChangeMode ();
+
+			// Proxy
+
+			GuiUtils.SetSelected (CboProxyType, s.Get("proxy.mode"));
+			TxtProxyHost.StringValue = s.Get ("proxy.host");
+			TxtProxyPort.StringValue = s.Get ("proxy.port");
+			GuiUtils.SetSelected (CboProxyAuthentication, s.Get ("proxy.auth"));
+			TxtProxyLogin.StringValue = s.Get ("proxy.login");
+			TxtProxyPassword.StringValue = s.Get ("proxy.password");
+
+			// Advanced
 		}
 
 		void SaveOptions()
 		{
 			Storage s = Engine.Instance.Storage;
 
-			s.SetBool ("connect", GetCheck (ChkAutoStart));
+			// General
+
+			s.SetBool ("connect", GuiUtils.GetCheck (ChkAutoStart));
+			s.SetBool ("servers.startlast", GuiUtils.GetCheck (ChkGeneralStartLast));
+			s.SetBool ("gui.osx.notifications", GuiUtils.GetCheck (ChkGeneralOsxNotifications));
+
+			// Mode
+
+			s.Set ("mode.protocol", m_mode_protocol);
+			s.SetInt ("mode.port", m_mode_port);
+			s.SetInt ("mode.alt", m_mode_alternate);
+
+			// Proxy
+
+			s.Set ("proxy.mode", GuiUtils.GetSelected (CboProxyType));
+			s.Set ("proxy.host", TxtProxyHost.StringValue);
+			s.Set ("proxy.port", TxtProxyPort.StringValue);
+			s.Set ("proxy.auth", GuiUtils.GetSelected (CboProxyAuthentication));
+			s.Set ("proxy.login", TxtProxyLogin.StringValue);
+			s.Set ("proxy.password", TxtProxyPassword.StringValue);
+
+			// Routes
+
+			// Advanced
 		}
 
 		void EnableIde()

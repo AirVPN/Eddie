@@ -30,10 +30,11 @@ namespace AirVPN.CLI.Osx
 
 		static void Main(string[] args)
 		{
+
 			Platform.Instance = new AirVPN.Platforms.Osx();
 
 			CommandLine.Init(Environment.CommandLine);
-
+			/*
 			Core.Engine engine = new Core.Engine();
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
@@ -42,7 +43,9 @@ namespace AirVPN.CLI.Osx
 			{
 				engine.ConsoleStart();
 			}
+			*/
 
+			Console.WriteLine ("x");
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
