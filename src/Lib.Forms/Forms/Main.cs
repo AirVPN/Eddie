@@ -697,6 +697,10 @@ namespace AirVPN.Gui.Forms
 				Dlg.Body = Platform.Instance.GenerateSystemReport();
 				Dlg.ShowDialog();
 			}
+			else if (item.Entry.Key == "ManifestLastUpdate")
+			{
+				Core.Threads.Manifest.Instance.ForceUpdate = true;
+			}
 		}
 
 		private void tabMain_SelectedIndexChanged(object sender, EventArgs e)

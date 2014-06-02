@@ -171,7 +171,7 @@ namespace AirVPN.Core
 			return Users.ToString();
 		}
 
-		public string GetScoreForList()
+		public string GetLoadForList()
 		{
 			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
@@ -183,7 +183,7 @@ namespace AirVPN.Core
 			return label;
 		}
 
-		public float GetScorePercForList()
+		public float GetLoadPercForList()
 		{
 			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;

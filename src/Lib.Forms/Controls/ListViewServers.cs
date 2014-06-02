@@ -157,8 +157,8 @@ namespace AirVPN.Gui.Controls
 				float p = (float)bwCur / (float)bwMax;
 				*/
 
-				String label = listItemServer.Info.GetScoreForList();
-				float p = listItemServer.Info.GetScorePercForList();
+				String label = listItemServer.Info.GetLoadForList();
+				float p = listItemServer.Info.GetLoadPercForList();
 
 				Brush b = Brushes.LightGreen;
 				if (p > 0.9)

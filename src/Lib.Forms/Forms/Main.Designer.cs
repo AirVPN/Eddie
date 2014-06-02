@@ -1084,8 +1084,8 @@ namespace AirVPN.Gui.Forms
 			// 
 			// tabOverview
 			// 
-			this.tabOverview.Controls.Add(this.pnlWelcome);
 			this.tabOverview.Controls.Add(this.pnlConnected);
+			this.tabOverview.Controls.Add(this.pnlWelcome);
 			this.tabOverview.Controls.Add(this.pnlWaiting);
 			this.tabOverview.Location = new System.Drawing.Point(4, 24);
 			this.tabOverview.Name = "tabOverview";
