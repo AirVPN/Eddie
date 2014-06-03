@@ -220,7 +220,21 @@ namespace AirVPN.Gui.Forms
                         
             chkAdvancedCheckDns.Checked = s.GetBool("advanced.check.dns");
             chkAdvancedCheckRoute.Checked = s.GetBool("advanced.check.route");
-			chkDnsSwitch.Checked = s.GetBool("advanced.dnsswitch");
+			//chkDnsSwitch.Checked = s.GetBool("advanced.dnsswitch"); // TOCLEAN
+			cboDnsSwitchMode.Text = s.Get("advanced.dns.mode");
+
+			string dnsMode = s.Get("advanced.dns.mode");
+			if(dnsMode == "none")
+				cboDnsSwitchMode.Text = "Disabled";
+			else if(dnsMode == "auto")
+				cboDnsSwitchMode.Text = "Automatic";
+			else if(dnsMode == "resolvconf")
+				cboDnsSwitchMode.Text = "Resolvconf (Linux only)";
+			else if(dnsMode == "rename")
+				cboDnsSwitchMode.Text = "Renaming (Linux only)";			
+			else
+				cboDnsSwitchMode.Text = "Automatic";
+
 			chkAdvancedPingerEnabled.Checked = s.GetBool("advanced.pinger.enabled");
 			chkAdvancedPingerAlways.Checked = s.GetBool("advanced.pinger.always");
 
@@ -420,8 +434,22 @@ namespace AirVPN.Gui.Forms
             // Advanced
             s.SetBool("advanced.expert", chkExpert.Checked);            
             s.SetBool("advanced.check.dns", chkAdvancedCheckDns.Checked);
-            s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);            
-			s.SetBool("advanced.dnsswitch", chkDnsSwitch.Checked);
+            s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
+			//s.SetBool("advanced.dnsswitch", chkDnsSwitch.Checked); // TOCLEAN
+			s.Set("advanced.dns.mode", cboDnsSwitchMode.Text);
+
+			string dnsMode = cboDnsSwitchMode.Text;
+			if (dnsMode == "Disabled")
+				s.Set("advanced.dns.mode", "none");
+			else if (dnsMode == "Automatic")
+				s.Set("advanced.dns.mode", "auto");
+			else if (dnsMode == "Resolvconf (Linux only)")
+				s.Set("advanced.dns.mode", "resolvconf");
+			else if (dnsMode == "Renaming (Linux only)")
+				s.Set("advanced.dns.mode", "rename");
+			else
+				s.Set("advanced.dns.mode", "auto");
+
 			s.SetBool("advanced.pinger.enabled", chkAdvancedPingerEnabled.Checked);
 			s.SetBool("advanced.pinger.always", chkAdvancedPingerAlways.Checked);
 

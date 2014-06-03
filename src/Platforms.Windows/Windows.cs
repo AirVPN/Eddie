@@ -96,17 +96,18 @@ namespace AirVPN.Platforms
 
 					// Create a new task definition and assign properties
 					TaskDefinition td = ts.NewTask();
-					td.Principal.RunLevel = TaskRunLevel.Highest;
+					td.Principal.RunLevel = TaskRunLevel.Highest;					
+					td.Settings.RunOnlyIfLoggedOn = true;
 					td.Settings.DisallowStartIfOnBatteries = false;
 					td.Settings.StopIfGoingOnBatteries = false;
-					td.Settings.RunOnlyIfNetworkAvailable = true;
+					td.Settings.RunOnlyIfNetworkAvailable = false;
 					td.Settings.MultipleInstances = TaskInstancesPolicy.IgnoreNew;
 					td.Settings.DeleteExpiredTaskAfter = TimeSpan.Zero;
 					td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
 
-					td.RegistrationInfo.Description = "AirVPN Client";
+					td.RegistrationInfo.Description = "AirVPN Client";					
 					td.Triggers.Add(new BootTrigger());				
-					td.Actions.Add(new ExecAction("notepad.exe", "c:\\test.log", null));
+					td.Actions.Add(new ExecAction(GetExecutablePath(), "", null));
 
 					// Register the task in the root folder
 					ts.RootFolder.RegisterTaskDefinition(@"AirVPN", td);

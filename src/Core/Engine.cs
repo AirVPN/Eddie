@@ -201,6 +201,8 @@ namespace AirVPN.Core
 
                 RunEventCommand("app.start");
 
+				Platform.Instance.OnAppStart();
+
                 WaitMessageClear();
 
 				bool autoStart = false;

@@ -303,6 +303,11 @@ namespace AirVPN.Core
 			return "";
 		}
 
+		public virtual string GetTunStatsMode()
+		{
+			return "NetworkInterface";			
+		}
+
         public virtual void LogSystemInfo()
         {
 			Engine.Instance.Log(Engine.LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
@@ -317,8 +322,8 @@ namespace AirVPN.Core
 			foreach (NetworkInterface adapter in interfaces)
 			{
 				t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
-				t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
-				t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
+				//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
+				//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
 				t += "\n";
 			}
 
@@ -326,6 +331,10 @@ namespace AirVPN.Core
 			t += RouteList();
 
 			return t;
+		}
+
+		public virtual void OnAppStart()
+		{
 		}
 
 		public virtual void OnSessionStart()
@@ -349,6 +358,14 @@ namespace AirVPN.Core
 		}
 
 		public virtual void OnBuildOvpn(ref string ovpn)
+		{
+		}
+
+		public virtual void OnDnsSwitchDo(string dns)
+		{
+		}
+
+		public virtual void OnDnsSwitchRestore()
 		{
 		}
 

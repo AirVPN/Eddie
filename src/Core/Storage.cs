@@ -316,7 +316,8 @@ namespace AirVPN.Core
 			SetDefaultBool("advanced.locked_security", false, NotInMan);
 			SetDefaultBool("advanced.check.dns", false, Messages.ManOptionAdvancedCheckDns);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
-			SetDefaultBool("advanced.dnsswitch", false, Messages.ManOptionAdvancedDnsSwitch);
+			//SetDefaultBool("advanced.dnsswitch", false, Messages.ManOptionAdvancedDnsSwitch); // TOCLEAN
+			SetDefault("advanced.dns.mode", "auto", Messages.ManOptionAdvancedDnsSwitch);
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
 			SetDefaultBool("advanced.pinger.always", false, Messages.ManOptionAdvancedPingerAlways);

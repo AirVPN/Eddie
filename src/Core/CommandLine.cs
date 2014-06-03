@@ -29,8 +29,6 @@ namespace AirVPN.Core
 		public static void Init(string line)
 		{			
 			Params = ParseCommandLine(line, true);
-
-			string x = Lib.Core.Properties.Resources.Manifest; // pazzo
 		}
 
 		public static string Get()

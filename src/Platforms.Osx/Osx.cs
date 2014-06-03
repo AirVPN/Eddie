@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml;
 using AirVPN.Core;
 
 namespace AirVPN.Platforms
@@ -27,6 +28,8 @@ namespace AirVPN.Platforms
     public class Osx : Platform
     {
 		private string m_architecture = "";
+
+		private List<DnsSwitchInterface> ListDnsSwitchInterfaces = new List<DnsSwitchInterface>();
 
         // Override
 		public Osx()
@@ -137,11 +140,122 @@ namespace AirVPN.Platforms
 			return output;
 		}
 
+		public override void OnRecoveryLoad(XmlElement root)
+		{
+			XmlElement nodeDns = Utils.XmlGetFirstElementByTagName(root, "DnsSwitch");
+			if (nodeDns != null)
+			{
+				foreach (XmlElement nodeEntry in nodeDns.ChildNodes)
+				{
+					DnsSwitchInterface entry = new DnsSwitchInterface();
+					entry.ReadXML(nodeEntry);					
+					ListDnsSwitchInterfaces.Add(entry);
+				}
+			}
+
+			OnDnsSwitchRestore();			
+		}
+
+		public override void OnRecoverySave(XmlElement root)
+		{
+			XmlDocument doc = root.OwnerDocument;
+
+			if (ListDnsSwitchInterfaces.Count != 0)
+			{
+				XmlElement nodeDns = (XmlElement)root.AppendChild(doc.CreateElement("DnsSwitch"));
+				foreach (DnsSwitchInterface entry in ListDnsSwitchInterfaces)
+				{
+					XmlElement nodeEntry = nodeDns.AppendChild(doc.CreateElement("entry")) as XmlElement;
+					entry.WriteXML(nodeEntry);
+				}
+			}
+		}
+
+		public override void OnDnsSwitchDo(string dns)
+		{
+			base.OnDnsSwitchDo(dns);
+
+			string mode = Engine.Instance.Storage.Get("advanced.dns.mode").ToLowerInvariant();
+
+			if (mode == "auto")
+			{
+				string[] interfaces = ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split("\n");
+				foreach (string i in interfaces)
+				{
+					string i2 = i.Trim();
+					
+					string current = ShellCmd("networksetup -getdnsservers \"" + i2 + "\"");
+					if (current.StartsWith("There aren't any DNS Servers set on "))
+						current = "0.0.0.0";
+					if (Utils.IsIP(current))
+					{
+						if (current != dns)
+						{
+							// Switch
+							Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2));
+
+							DnsSwitchInterface e = new DnsSwitchInterface();
+							e.Name = i2;
+							e.Dns = current;
+							ListDnsSwitchInterfaces.Add(e);
+
+							ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns + "\"");
+							// pazzo qui lo segno, e pure nel recovery
+						}
+					}
+					else
+					{
+						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "'");
+					}
+				}
+			}
+		}
+
+		public override void  OnDnsSwitchRestore()
+		{
+ 			base.OnDnsSwitchRestore();
+
+			foreach(DnsSwitchInterface e in ListDnsSwitchInterfaces)
+			{
+				string v = e.Dns;
+				if(v == "0.0.0.0")
+					v = "empty";
+
+				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name));
+				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
+			}
+		}
+
+		public override string GetTunStatsMode()
+		{
+			// Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
+			return "OpenVpnManagement";
+		}
+
 		public override string GetGitDeployPath()
 		{
+			// Under OSX, binary is inside a bundle AirVPN.app/Contents/MacOS/
 			return GetProgramFolder () + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
 		}
     }
+
+	public class DnsSwitchInterface()
+	{
+		public string Name;
+		public string Dns;
+
+		public void ReadXML(XmlElement node)
+		{
+			Name = Utils.XmlGetAttributeString(node, "name", "");
+			Dns = Utils.XmlGetAttributeString(node, "dns", "");
+		}
+
+		public void WriteXML(XmlElement node)
+		{
+			Utils.XmlSetAttributeString(node, "name", Name);
+			Utils.XmlSetAttributeString(node, "dns", Dns);
+		}
+	}
 }
 
 

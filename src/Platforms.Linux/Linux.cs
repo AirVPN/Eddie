@@ -22,6 +22,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Xml;
 using AirVPN.Core;
 using Mono.Unix.Native;
 
@@ -31,15 +32,10 @@ namespace AirVPN.Platforms
     {
 		private string m_architecture = "";
 
-		public string DnsSwitchMode = "rename";
-
-        // Override
+		// Override
 		public Linux()
 		{
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
-
-			if (File.Exists("/sbin/resolvconf"))
-				DnsSwitchMode = "resolvconf";
 		}
 
 		public override string GetCode()
@@ -143,27 +139,66 @@ namespace AirVPN.Platforms
 			return t;
 		}
 
+		public override void OnAppStart()
+		{
+			base.OnAppStart();
+
+			string dnsScriptPath = Software.FindResource("update-resolv-conf");
+			if (dnsScriptPath == "")
+			{
+				Engine.Instance.Log(Engine.LogType.Error, "update-resolv-conf " + Messages.NotFound);
+			}
+		}
+
 		public override void OnBuildOvpn(ref string ovpn)
 		{
 			base.OnBuildOvpn(ref ovpn);
 
-			if (Engine.Instance.Storage.GetBool("advanced.dnsswitch"))
+			if (GetDnsSwitchMode() == "resolvconf")
 			{
-				if (DnsSwitchMode == "resolvconf")
+				string dnsScriptPath = Software.FindResource("update-resolv-conf");
+				if (dnsScriptPath != "")
 				{
-					string dnsScriptPath = Software.FindResource("update-resolv-conf");
-					if (dnsScriptPath == "")
-					{
-						Engine.Instance.Log(Engine.LogType.Error, "update-resolv-conf " + Messages.NotFound);
-						DnsSwitchMode = "rename";
-					}
-					else
-					{
-						ovpn += "script-security 2\n";
-						ovpn += "up " + dnsScriptPath + "\n";
-						ovpn += "down " + dnsScriptPath + "\n";
-					}
+					ovpn += "script-security 2\n";
+					ovpn += "up " + dnsScriptPath + "\n";
+					ovpn += "down " + dnsScriptPath + "\n";
 				}
+			}			
+		}
+
+		public override void OnRecoveryLoad(XmlElement root)
+		{
+			OnDnsSwitchRestore();
+		}
+
+		public override void OnDnsSwitchDo(string dns)
+		{
+			base.OnDnsSwitchDo(dns);
+
+			if (GetDnsSwitchMode() == "rename")
+			{
+				if (File.Exists("/etc/resolv.conf.airvpn") == false)
+				{
+					Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameBackup);
+					File.Copy("/etc/resolv.conf", "/etc/resolv.conf.airvpn");
+				}
+
+				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameDone);
+				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.ResolvConfHeader,Storage.GetVersionDesc()) + "\nnameserver " + dns + "\n");
+			}			
+		}
+
+		public override void OnDnsSwitchRestore()
+		{
+			base.OnDnsSwitchRestore();
+
+			// Cleaning rename method if pending
+			if (File.Exists("/etc/resolv.conf.airvpn") == true)
+			{
+				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameRestored);
+
+				File.Copy("/etc/resolv.conf.airvpn", "/etc/resolv.conf");
+				File.Delete("/etc/resolv.conf.airvpn");
 			}
 		}
 
@@ -187,6 +222,29 @@ namespace AirVPN.Platforms
 
 		public override void UnInstallDriver()
 		{
+		}
+
+
+
+
+
+		public string GetDnsSwitchMode()
+		{
+			string current = Engine.Instance.Storage.Get("advanced.dns.mode").ToLowerInvariant();
+
+			if (current == "automatic")
+			{
+				if (File.Exists("/sbin/resolvconf"))
+					current = "resolvconf";
+				else
+					current = "rename";
+			}
+			
+			// Fallback
+			if( (current == "resolvconv") && (Software.FindResource("update-resolv-conf") == "") )
+				current = "rename";
+			
+			return current;			
 		}
     }
 }

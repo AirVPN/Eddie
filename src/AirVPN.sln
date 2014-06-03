@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Linux", "Platform
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Windows", "Platforms.Windows\Platforms.Windows.csproj", "{9A04CC37-5629-4914-B49F-7AA435464843}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Osx", "Platforms.Osx\Platforms.Osx.csproj", "{CE0A865E-9650-4283-8EBB-2603C6C52F47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -156,6 +158,18 @@ Global
 		{9A04CC37-5629-4914-B49F-7AA435464843}.Release|x64.Build.0 = Release|Any CPU
 		{9A04CC37-5629-4914-B49F-7AA435464843}.Release|x86.ActiveCfg = Release|Any CPU
 		{9A04CC37-5629-4914-B49F-7AA435464843}.Release|x86.Build.0 = Release|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Release|x64.ActiveCfg = Release|Any CPU
+		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -216,12 +216,11 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-							/* pazzo
 							if (m_processOpenVpn.HasExited) // 2.2
 								m_reset = "ERROR";
 							if( (m_processProxy != null) && (m_processProxy.HasExited) ) // 2.2
 								m_reset = "ERROR";
-							*/
+							
 							if (Engine.IsConnected())
 								break;
 
@@ -239,6 +238,8 @@ namespace AirVPN.Core.Threads
 						{
 							oneConnectionReached = true;
 
+							Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
+
 							Engine.RunEventCommand("vpn.up");
 
 							for (; ; )
@@ -255,35 +256,41 @@ namespace AirVPN.Core.Threads
 									m_timeLastStatus = timeNow;
 																		
 									// Update traffic stats
-									if (m_interfaceTun != null)
-									{
-										Int64 read = m_interfaceTun.GetIPv4Statistics().BytesReceived;
-										Int64 write = m_interfaceTun.GetIPv4Statistics().BytesSent;
-
-										if (Engine.ConnectedLastRead != -1)
-										{
-											int delta = Engine.ConnectedLastStatsTick.Reset();
-											if (delta > 0)
-											{
-												Engine.ConnectedLastDownloadStep = (1000 * (read - Engine.ConnectedLastRead)) / delta;
-												Engine.ConnectedLastUploadStep = (1000 * (write - Engine.ConnectedLastWrite)) / delta;
-											}
-										}
-
-										Engine.ConnectedLastRead = read;
-										Engine.ConnectedLastWrite = write;
-
-										Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
-
-										Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
-									}
-									else if (Storage.Simulate)
+									if (Storage.Simulate)
 									{
 										Engine.Instance.Stats.Charts.Hit(15354, 2525);
 
 										Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
 									}
+									else if(Platform.Instance.GetTunStatsMode() == "NetworkInterface")
+									{
+										if (m_interfaceTun != null)
+										{
+											Int64 read = m_interfaceTun.GetIPv4Statistics().BytesReceived;
+											Int64 write = m_interfaceTun.GetIPv4Statistics().BytesSent;
 
+											if (Engine.ConnectedLastRead != -1)
+											{
+												int delta = Engine.ConnectedLastStatsTick.Reset();
+												if (delta > 0)
+												{
+													Engine.ConnectedLastDownloadStep = (1000 * (read - Engine.ConnectedLastRead)) / delta;
+													Engine.ConnectedLastUploadStep = (1000 * (write - Engine.ConnectedLastWrite)) / delta;
+												}
+											}
+
+											Engine.ConnectedLastRead = read;
+											Engine.ConnectedLastWrite = write;
+
+											Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
+
+											Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
+										}
+									}
+									else if (Platform.Instance.GetTunStatsMode() == "OpenVpnManagement")
+									{
+										SendManagementCommand("status");
+									}
 								}
 
 								// Checking
@@ -422,6 +429,8 @@ namespace AirVPN.Core.Threads
 						Engine.Log(Engine.LogType.Verbose, Messages.ConnectionStop);
 
 						Engine.RunEventCommand("vpn.down");
+
+						Platform.Instance.OnDnsSwitchRestore();
 
 						// Closing temporary files
 						if (m_fileSshKey != null)
@@ -1032,13 +1041,8 @@ namespace AirVPN.Core.Threads
 
 							Engine.ConnectedLastRead = read;
 							Engine.ConnectedLastWrite = write;
-						}
 
-						{
-							string countryName = Engine.CurrentServer.CountryName;
-							string tooltipText = Constants.Name + " - D: " + Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false) + ", U: " + Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false) + " - " + countryName;
-
-							Engine.Log(Engine.LogType.Realtime, tooltipText);
+							Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
 						}
 
 						Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
