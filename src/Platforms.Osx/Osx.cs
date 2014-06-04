@@ -179,12 +179,13 @@ namespace AirVPN.Platforms
 
 			if (mode == "auto")
 			{
-				string[] interfaces = ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split("\n");
+				string[] interfaces = ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split('\n');
 				foreach (string i in interfaces)
 				{
 					string i2 = i.Trim();
 					
 					string current = ShellCmd("networksetup -getdnsservers \"" + i2 + "\"");
+					current = current.Replace ("\n", ";");
 					if (current.StartsWith("There aren't any DNS Servers set on "))
 						current = "0.0.0.0";
 					if (Utils.IsIP(current))
@@ -208,6 +209,8 @@ namespace AirVPN.Platforms
 						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "'");
 					}
 				}
+
+				Recovery.Save ();
 			}
 		}
 
@@ -220,10 +223,15 @@ namespace AirVPN.Platforms
 				string v = e.Dns;
 				if(v == "0.0.0.0")
 					v = "empty";
+				v = v.Replace (";", "\" \"");
 
 				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
+
+			ListDnsSwitchInterfaces.Clear ();
+
+			Recovery.Save ();
 		}
 
 		public override string GetTunStatsMode()
@@ -239,7 +247,7 @@ namespace AirVPN.Platforms
 		}
     }
 
-	public class DnsSwitchInterface()
+	public class DnsSwitchInterface
 	{
 		public string Name;
 		public string Dns;

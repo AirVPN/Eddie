@@ -1,10 +1,11 @@
 // WARNING
 //
 // This file has been generated automatically by Xamarin Studio to store outlets and
-// actions made in the Xcode designer. If it is removed, they will be lost.
+// actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
 using MonoMac.Foundation;
+using System.CodeDom.Compiler;
 
 namespace AirVPN.UI.Osx
 {
@@ -76,6 +77,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdServersWhiteList { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSImageView ImgConnectedCountry { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSProgressIndicator ImgProgress { get; set; }
@@ -240,6 +244,11 @@ namespace AirVPN.UI.Osx
 			if (CmdConnect != null) {
 				CmdConnect.Dispose ();
 				CmdConnect = null;
+			}
+
+			if (CmdDisconnect != null) {
+				CmdDisconnect.Dispose ();
+				CmdDisconnect = null;
 			}
 
 			if (CmdLogin != null) {
@@ -432,11 +441,6 @@ namespace AirVPN.UI.Osx
 				TableStats = null;
 			}
 
-			if (CmdDisconnect != null) {
-				CmdDisconnect.Dispose ();
-				CmdDisconnect = null;
-			}
-
 			if (TabMain != null) {
 				TabMain.Dispose ();
 				TabMain = null;
@@ -475,6 +479,11 @@ namespace AirVPN.UI.Osx
 			if (TxtPassword != null) {
 				TxtPassword.Dispose ();
 				TxtPassword = null;
+			}
+
+			if (ImgConnectedCountry != null) {
+				ImgConnectedCountry.Dispose ();
+				ImgConnectedCountry = null;
 			}
 		}
 	}

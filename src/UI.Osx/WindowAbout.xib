@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
@@ -60,11 +60,11 @@
                         <tabViewItems>
                             <tabViewItem label="About" identifier="1" id="orf-qK-vzm">
                                 <view key="view" id="4xE-wb-4KZ">
-                                    <rect key="frame" x="0.0" y="0.0" width="566" height="217"/>
+                                    <rect key="frame" x="10" y="33" width="560" height="187"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="VzS-w7-VFe">
-                                            <rect key="frame" x="15" y="128" width="536" height="70"/>
+                                            <rect key="frame" x="15" y="128" width="530" height="40"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="AirVPN - The air to breathe the real internet" id="19y-ha-xQZ">
                                                 <font key="font" metaFont="system" size="22"/>
@@ -73,7 +73,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <box autoresizesSubviews="NO" borderType="line" id="UgW-nc-laE">
-                                            <rect key="frame" x="117" y="41" width="332" height="114"/>
+                                            <rect key="frame" x="114" y="11" width="332" height="114"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="330" height="98"/>
@@ -133,12 +133,20 @@
                                                 <rect key="frame" x="1" y="1" width="524" height="165"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textView editable="NO" importsGraphics="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="Rlw-Oi-W0X">
+                                                    <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="Rlw-Oi-W0X">
                                                         <rect key="frame" x="0.0" y="0.0" width="524" height="165"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="524" height="165"/>
                                                         <size key="maxSize" width="544" height="10000000"/>
+                                                        <attributedString key="textStorage">
+                                                            <fragment content="123">
+                                                                <attributes>
+                                                                    <font key="NSFont" size="12" name="Helvetica"/>
+                                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                                                </attributes>
+                                                            </fragment>
+                                                        </attributedString>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="524" height="165"/>
                                                         <size key="maxSize" width="544" height="10000000"/>
@@ -170,12 +178,20 @@
                                                 <rect key="frame" x="1" y="1" width="524" height="165"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textView editable="NO" importsGraphics="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="q6g-Ue-FJR">
+                                                    <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="q6g-Ue-FJR">
                                                         <rect key="frame" x="0.0" y="0.0" width="524" height="165"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="524" height="165"/>
                                                         <size key="maxSize" width="532" height="10000000"/>
+                                                        <attributedString key="textStorage">
+                                                            <fragment content="1 2 3">
+                                                                <attributes>
+                                                                    <font key="NSFont" metaFont="toolTip"/>
+                                                                    <paragraphStyle key="NSParagraphStyle" alignment="justified" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                                                </attributes>
+                                                            </fragment>
+                                                        </attributedString>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="524" height="165"/>
                                                         <size key="maxSize" width="532" height="10000000"/>

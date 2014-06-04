@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
@@ -28,6 +28,7 @@
                 <outlet property="CmdServersConnect" destination="lZp-Qp-Qf3" id="yVK-F8-GSZ"/>
                 <outlet property="CmdServersUndefined" destination="0dd-OC-eGN" id="vwc-ne-5QU"/>
                 <outlet property="CmdServersWhiteList" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
+                <outlet property="ImgConnectedCountry" destination="Ozh-Vi-DHT" id="tUG-DG-1lf"/>
                 <outlet property="ImgProgress" destination="gMg-Qv-4ge" id="9qz-23-17r"/>
                 <outlet property="ImgTopFlag" destination="MjY-FX-9v1" id="2b7-C3-eKd"/>
                 <outlet property="ImgTopPanel" destination="TjK-Xa-lni" id="U66-Nx-xvG"/>

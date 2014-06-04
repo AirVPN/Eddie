@@ -104,7 +104,7 @@ namespace AirVPN.UI.Osx
 			} else if (tableColumn.Identifier == "Latency") {
 				return new NSString (s.GetLatencyForList());
 			} else if (tableColumn.Identifier == "Load") {
-				return new NSString (s.GetScoreForList());
+				return new NSString (s.GetLoadForList());
 			} else if (tableColumn.Identifier == "Users") {
 				return new NSString (s.GetUsersForList());
 			} else 

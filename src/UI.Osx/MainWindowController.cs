@@ -308,7 +308,7 @@ namespace AirVPN.UI.Osx
 					ImgTopFlag.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
 				}
 				else {
-					ImgTopFlag.Image = NSImage.ImageNamed ("notconnected.png"); // TODO img neutra
+					ImgTopFlag.Image = NSImage.ImageNamed ("notconnected.png");
 				}
 
 				LblWaiting1.StringValue = Engine.WaitMessage;
@@ -332,7 +332,10 @@ namespace AirVPN.UI.Osx
 
 					TabOverview.SelectAt(2);
 
-					// TODO: varie UI
+					LblConnectedServerName.StringValue = Engine.CurrentServer.PublicName;
+					LblConnectedLocation.StringValue = Engine.CurrentServer.CountryName + ", " + Engine.CurrentServer.Location;
+					TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpExit;
+					ImgConnectedCountry.Image = NSImage.ImageNamed ("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant () + ".png");
 				}
 				else
 				{
@@ -377,7 +380,18 @@ namespace AirVPN.UI.Osx
 			}
 
 			if ((mode == Engine.RefreshUiMode.Stats) || (mode == Engine.RefreshUiMode.Full)) {
-				// TODO
+				if (Engine.IsConnected ()) {
+					TxtConnectedSince.StringValue = Engine.Stats.GetValue ("VpnConnectionStart");
+
+					TxtConnectedDownload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false);
+					TxtConnectedUpload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false);
+
+					string msg = Messages.Format (Messages.StatusTextConnected, Constants.Name, Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
+					string tmsg = Constants.Name + " - " + msg;
+					this.Window.Title = tmsg;
+					StatusMenuItem.Title = "> " + msg;
+					StatusItem.ToolTip = msg;
+				}
 			}
 
 			if ((mode == Engine.RefreshUiMode.Full)) {

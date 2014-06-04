@@ -29,13 +29,23 @@ namespace AirVPN.UI.Osx
 			if ((i >= 0) && (i < Engine.Instance.Stats.List.Count)) {
 				StatsEntry e = Engine.Instance.Stats.List [tableView.SelectedRow];
 				if (e.Key == "VpnGeneratedOVPN") {
+					if (Engine.Instance.IsConnected () == false)
+						return;
+					WindowTextViewerController textViewer = new WindowTextViewerController ();
+					(Engine.Instance as Engine).WindowsOpen.Add (textViewer);
+					textViewer.Title = e.Caption;
+					textViewer.Body = Engine.Instance.ConnectedOVPN;
+					textViewer.ShowWindow (this);
 				} else if (e.Key == "SystemReport") {
 					WindowTextViewerController textViewer = new WindowTextViewerController ();
 					(Engine.Instance as Engine).WindowsOpen.Add (textViewer);
 					textViewer.Title = e.Caption;
 					textViewer.Body = Platform.Instance.GenerateSystemReport ();
 					textViewer.ShowWindow (this);
+				} else if (e.Key == "ManifestLastUpdate") {
+					Core.Threads.Manifest.Instance.ForceUpdate = true;
 				}
+
 			}
 		}
 

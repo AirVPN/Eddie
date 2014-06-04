@@ -1,25 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="WindowPreferencesController">
             <connections>
+                <outlet property="CboAdvancedDnsSwitchMode" destination="hxb-i3-foN" id="6o8-81-kLq"/>
                 <outlet property="CboProxyAuthentication" destination="Hai-gc-xnu" id="dgb-Pq-InJ"/>
                 <outlet property="CboProxyType" destination="aVZ-Zz-7LT" id="Mqe-f8-uqX"/>
+                <outlet property="CboRoutesOtherwise" destination="JqH-io-99F" id="nvU-ON-jAu"/>
+                <outlet property="ChkAdvancedCheckDns" destination="VqV-KG-Dpk" id="u3e-5w-qRd"/>
+                <outlet property="ChkAdvancedCheckRoute" destination="ouA-M6-NDw" id="1tH-Ri-pah"/>
+                <outlet property="ChkAdvancedExpertMode" destination="xVq-43-prb" id="Rfu-uO-RXn"/>
+                <outlet property="ChkAdvancedOpenVpnDirectivesDefaultSkip" destination="4RQ-eQ-9Qm" id="DVw-KQ-YC6"/>
+                <outlet property="ChkAdvancedPingerAlways" destination="Esb-h8-Hv5" id="Ldp-bv-hbU"/>
+                <outlet property="ChkAdvancedPingerEnabled" destination="PlL-FU-bP0" id="YWu-FP-gGb"/>
                 <outlet property="ChkAutoStart" destination="xhO-Kv-elj" id="dHo-zH-ucX"/>
                 <outlet property="ChkGeneralOsxNotifications" destination="EG2-CQ-O27" id="b6b-1T-A4y"/>
                 <outlet property="ChkGeneralStartLast" destination="2Nm-Y7-BeU" id="XdO-Hi-CWR"/>
                 <outlet property="ChkModeSsh22" destination="MmP-uv-2Gd" id="fhi-gY-L3b"/>
+                <outlet property="ChkModeSsh22Alt" destination="QiV-Ij-WbU" id="ebs-SO-qCS"/>
+                <outlet property="ChkModeSsh53" destination="v58-DO-eU9" id="giT-4m-boa"/>
+                <outlet property="ChkModeSsh80" destination="YCe-dz-k9n" id="nRb-H2-FqM"/>
                 <outlet property="ChkModeSsl443" destination="e4p-hl-3Hc" id="4yd-iR-vfe"/>
+                <outlet property="ChkModeTcp2018" destination="FGG-dV-y4J" id="v9d-Fk-fop"/>
+                <outlet property="ChkModeTcp2018Alt" destination="S7k-Hu-dSz" id="1Yy-28-rvT"/>
                 <outlet property="ChkModeTcp443" destination="ksa-An-SQo" id="E1I-gf-ZJR"/>
+                <outlet property="ChkModeTcp53" destination="FPS-yp-hQQ" id="Fy7-sw-Ubk"/>
+                <outlet property="ChkModeTcp80" destination="A5a-En-W0Y" id="1wu-fa-auO"/>
+                <outlet property="ChkModeUdp2018" destination="2Qb-ek-tJe" id="T0q-LI-90t"/>
+                <outlet property="ChkModeUdp2018Alt" destination="hNz-8c-EP0" id="F2v-Wz-yYw"/>
                 <outlet property="ChkModeUdp443" destination="CYV-lN-MbD" id="Xn7-qo-9yB"/>
+                <outlet property="ChkModeUdp443Alt" destination="MJU-MJ-M74" id="lKg-nv-D0M"/>
+                <outlet property="ChkModeUdp53" destination="zAv-yJ-2VG" id="pdj-hW-c9L"/>
+                <outlet property="ChkModeUdp53Alt" destination="s91-ta-N3a" id="8HE-AO-6RQ"/>
+                <outlet property="ChkModeUdp80" destination="KhG-Ud-Qaa" id="uBA-mi-NLm"/>
+                <outlet property="ChkModeUdp80Alt" destination="3gr-91-wdI" id="pHM-ea-gEw"/>
                 <outlet property="CmdAdvancedDocs" destination="42Z-DG-mw5" id="Zvf-le-ECl"/>
+                <outlet property="CmdAdvancedHelp" destination="42Z-DG-mw5" id="kok-4t-7OH"/>
+                <outlet property="CmdAdvancedOpenVpnPath" destination="gIE-n8-VNO" id="MW9-Y9-naD"/>
                 <outlet property="CmdCancel" destination="MM2-33-pRD" id="toJ-xU-yTP"/>
                 <outlet property="CmdGeneralTos" destination="umI-pg-cJh" id="yEJ-FP-2qU"/>
                 <outlet property="CmdModeHelp" destination="M7S-Xd-x1D" id="fcm-OB-OEF"/>
                 <outlet property="CmdSave" destination="PFc-X4-gP7" id="WmB-WK-5eF"/>
+                <outlet property="TxtAdvancedOpenVpnDirectivesCustom" destination="IPZ-8a-lFv" id="em6-kS-36y"/>
+                <outlet property="TxtAdvancedOpenVpnDirectivesDefault" destination="NjY-dC-GsQ" id="ZpL-gt-MiU"/>
+                <outlet property="TxtAdvancedOpenVpnPath" destination="lV7-E2-bG9" id="E6t-Sr-yoU"/>
                 <outlet property="TxtProxyHost" destination="H8o-LB-562" id="E0U-ah-uI9"/>
                 <outlet property="TxtProxyLogin" destination="XX0-r6-vrR" id="Rs8-8r-Xby"/>
                 <outlet property="TxtProxyPassword" destination="kbr-od-lkG" id="TMh-an-VAu"/>
@@ -231,7 +258,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <button id="v58-DO-eU9">
-                                            <rect key="frame" x="389" y="53" width="123" height="18"/>
+                                            <rect key="frame" x="389" y="53" width="131" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="UGn-mu-A8F">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -432,6 +459,50 @@
                                 <view key="view" id="4lM-iz-exG">
                                     <rect key="frame" x="10" y="33" width="560" height="243"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="bYR-hd-ta7">
+                                            <rect key="frame" x="15" y="19" width="364" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Not specified routes go:" id="3X8-ch-jlR">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <popUpButton verticalHuggingPriority="750" id="JqH-io-99F">
+                                            <rect key="frame" x="383" y="14" width="163" height="26"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="hKd-9Z-shB" id="oDF-Bf-cP9">
+                                                <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                                <menu key="menu" title="OtherViews" id="DMw-rY-R5S">
+                                                    <items>
+                                                        <menuItem title="Item 1" state="on" id="hKd-9Z-shB"/>
+                                                        <menuItem title="Item 2" id="s0a-Se-fvy"/>
+                                                        <menuItem title="Item 3" id="rjK-e3-ter"/>
+                                                    </items>
+                                                </menu>
+                                            </popUpButtonCell>
+                                        </popUpButton>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Ye0-YB-wHd">
+                                            <rect key="frame" x="15" y="223" width="530" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Network routing rules about what destination must be in the VPN tunnel or not." id="zLH-ib-Tt5">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="faq-ee-JqD">
+                                            <rect key="frame" x="15" y="129" width="530" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Under construction" id="Rbd-KB-k0X">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" red="1" green="0.99991798548626654" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Advanced" identifier="5" id="kWR-3s-6F3">
@@ -462,23 +533,15 @@
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Expert Mode" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="yFt-qz-pQg">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="system"/>
-                                                                </buttonCell>
-                                                            </button>
-                                                            <button id="YMa-ZP-JlL">
-                                                                <rect key="frame" x="15" y="139" width="490" height="18"/>
-                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <buttonCell key="cell" type="check" title="DNS Switch" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="u4e-r9-cdI">
-                                                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
                                                             </button>
                                                             <button id="VqV-KG-Dpk">
                                                                 <rect key="frame" x="15" y="119" width="490" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <buttonCell key="cell" type="check" title="Ensure that tunnel uses AirVPN DNS System" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mzq-0z-eGo">
+                                                                <buttonCell key="cell" type="check" title="Checking is the tunnel use AirVPN DNS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mzq-0z-eGo">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
                                                             </button>
                                                             <button id="ouA-M6-NDw">
@@ -486,7 +549,7 @@
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Checking if the tunnel effectively works" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Be-AX-N2P">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
                                                             </button>
                                                             <button id="PlL-FU-bP0">
@@ -494,7 +557,7 @@
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Enable Pinger / Latency Tests" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Ii-hC-oPu">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
                                                             </button>
                                                             <button id="Esb-h8-Hv5">
@@ -502,14 +565,23 @@
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Enable Pinger outside tunnel during connection" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="bjB-JD-3tP">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
                                                             </button>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="oyz-HM-837">
                                                                 <rect key="frame" x="15" y="26" width="173" height="17"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="OpenVPN Custom Path:" id="npx-CL-HkG">
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
+                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                </textFieldCell>
+                                                            </textField>
+                                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Qjw-UY-LWz">
+                                                                <rect key="frame" x="15" y="143" width="173" height="17"/>
+                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="DNS Switch mode:" id="Ctd-de-xD8">
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
@@ -531,6 +603,20 @@
                                                                     <font key="font" metaFont="system"/>
                                                                 </buttonCell>
                                                             </button>
+                                                            <popUpButton verticalHuggingPriority="750" id="hxb-i3-foN">
+                                                                <rect key="frame" x="122" y="138" width="75" height="26"/>
+                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="RhV-Ut-07J">
+                                                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
+                                                                    <menu key="menu" title="OtherViews" id="aiU-FT-yZE">
+                                                                        <items>
+                                                                            <menuItem title="Disabled" id="ZF2-Qw-HOe"/>
+                                                                            <menuItem title="Automatic" id="6Vg-bH-JGM"/>
+                                                                        </items>
+                                                                    </menu>
+                                                                </popUpButtonCell>
+                                                            </popUpButton>
                                                         </subviews>
                                                     </view>
                                                 </tabViewItem>
@@ -591,12 +677,12 @@
                                                         <rect key="frame" x="10" y="33" width="520" height="194"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
-                                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Khg-js-BLo">
-                                                                <rect key="frame" x="208" y="139" width="158" height="17"/>
+                                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="UWq-wM-T1N">
+                                                                <rect key="frame" x="-5" y="95" width="530" height="17"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Under construction." id="xud-h6-54v">
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Under construction" id="ItT-Sa-efO">
                                                                     <font key="font" metaFont="system"/>
-                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="textColor" red="1" green="0.9999179855" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
                                                             </textField>

@@ -71,6 +71,13 @@ namespace AirVPN.UI.Osx
 			};
 
 			// Modes
+			string sshStatus = (Software.SshVersion != "" ? "" : "Not available");
+			// TODO: disable ssh & ssl
+
+			CmdModeHelp.Activated += (object sender, EventArgs e) => {
+				Core.UI.Actions.OpenUrlDocsProtocols();
+			};
+
 			ChkModeUdp443.Activated += (object sender, EventArgs e) => {
 				m_mode_protocol = "UDP";
 				m_mode_port = 443;
@@ -208,7 +215,50 @@ namespace AirVPN.UI.Osx
 				m_mode_alternate = 1;
 				ChangeMode();
 			};
+
+			// Proxy
+			CboProxyType.Activated += (object sender, EventArgs e) => {
+				EnableIde();
+			};
+			CboProxyAuthentication.Activated += (object sender, EventArgs e) => {
+				EnableIde();
+			};
+
+			// Routes
+			CboRoutesOtherwise.RemoveAllItems();
+			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("in"));
+			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("out"));
+
+			// Advanced
+			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
+				Core.UI.Actions.OpenUrlDocsAdvanced();
+			};
+
+			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) => {
+				TxtAdvancedOpenVpnPath.StringValue = "todo";
+			};
 		}
+
+		string RouteDirectionToDescription(string v)
+		{
+			if (v == "in")
+				return "Inside the VPN tunnel";
+			else if (v == "out")
+				return "Outside the VPN tunnel";
+			else
+				return "";
+		}
+
+		string RouteDescriptionToDirection(string v)
+		{
+			if (v == RouteDirectionToDescription ("in"))
+				return "in";
+			else if (v == RouteDirectionToDescription ("out"))
+				return "out";
+			else
+				return "";
+		}
+
 
 		void ChangeMode()
 		{
@@ -259,7 +309,29 @@ namespace AirVPN.UI.Osx
 			TxtProxyLogin.StringValue = s.Get ("proxy.login");
 			TxtProxyPassword.StringValue = s.Get ("proxy.password");
 
+			// Routes
+			GuiUtils.SetSelected(CboRoutesOtherwise, RouteDirectionToDescription(s.Get("routes.default")));
+
 			// Advanced
+			GuiUtils.SetCheck (ChkAdvancedExpertMode, s.GetBool ("advanced.expert"));
+			GuiUtils.SetCheck (ChkAdvancedCheckDns, s.GetBool ("advanced.check.dns"));
+			GuiUtils.SetCheck (ChkAdvancedCheckRoute, s.GetBool ("advanced.check.route"));
+
+			string dnsMode = s.Get ("advanced.dns.mode");
+			if (dnsMode == "none")
+				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Disabled");
+			else
+				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Automatic");
+
+			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("advanced.pinger.enabled"));
+			GuiUtils.SetCheck (ChkAdvancedPingerAlways, s.GetBool ("advanced.pinger.always"));
+
+			GuiUtils.SetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip, s.GetBool ("openvpn.skip_defaults"));
+
+			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
+			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
+			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ();
+
 		}
 
 		void SaveOptions()
@@ -288,8 +360,26 @@ namespace AirVPN.UI.Osx
 			s.Set ("proxy.password", TxtProxyPassword.StringValue);
 
 			// Routes
+			s.Set ("routes.default", RouteDescriptionToDirection (GuiUtils.GetSelected (CboRoutesOtherwise)));
 
 			// Advanced
+			s.SetBool ("advanced.expert", GuiUtils.GetCheck (ChkAdvancedExpertMode));
+			s.SetBool ("advanced.check.dns", GuiUtils.GetCheck (ChkAdvancedCheckDns));
+			s.SetBool ("advanced.check.route", GuiUtils.GetCheck (ChkAdvancedCheckRoute));
+
+			string dnsMode = GuiUtils.GetSelected (CboAdvancedDnsSwitchMode);
+			if (dnsMode == "Disabled")
+				s.Set ("advanced.dns.mode", "none");
+			else
+				s.Set ("advanced.dns.mode", "auto");
+
+			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
+			s.SetBool ("advanced.pinger.always", GuiUtils.GetCheck (ChkAdvancedPingerAlways));
+
+			s.SetBool ("openvpn.skip_defaults", GuiUtils.GetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip));
+
+			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
+			s.Set ("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
 		}
 
 		void EnableIde()

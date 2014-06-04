@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
@@ -7,7 +7,6 @@
         <customObject id="-2" userLabel="File's Owner" customClass="WindowTextViewerController">
             <connections>
                 <outlet property="CmdOk" destination="iSr-5a-ZPx" id="1uA-f7-9Ok"/>
-                <outlet property="TxtBody" destination="4zp-wG-2qx" id="ggK-yV-leD"/>
                 <outlet property="TxtBody2" destination="k0Q-tb-Owt" id="dXL-3y-XJH"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
@@ -30,31 +29,30 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="4zp-wG-2qx">
-                        <rect key="frame" x="20" y="217" width="566" height="117"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="fMv-6X-H1b">
-                            <font key="font" size="11" name="Monaco"/>
-                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="OoD-IU-fZp">
-                        <rect key="frame" x="156" y="74" width="240" height="135"/>
+                        <rect key="frame" x="20" y="61" width="566" height="273"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <clipView key="contentView" id="t4c-qN-Nka">
-                            <rect key="frame" x="1" y="1" width="238" height="133"/>
+                            <rect key="frame" x="1" y="1" width="564" height="271"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <textView editable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="k0Q-tb-Owt">
-                                    <rect key="frame" x="0.0" y="0.0" width="238" height="133"/>
+                                <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="k0Q-tb-Owt">
+                                    <rect key="frame" x="0.0" y="0.0" width="564" height="271"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="238" height="133"/>
-                                    <size key="maxSize" width="463" height="10000000"/>
+                                    <size key="minSize" width="564" height="271"/>
+                                    <size key="maxSize" width="659" height="10000000"/>
+                                    <attributedString key="textStorage">
+                                        <fragment content="123">
+                                            <attributes>
+                                                <font key="NSFont" size="11" name="Monaco"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
                                     <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="238" height="133"/>
-                                    <size key="maxSize" width="463" height="10000000"/>
+                                    <size key="minSize" width="564" height="271"/>
+                                    <size key="maxSize" width="659" height="10000000"/>
                                 </textView>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -64,7 +62,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="wX8-7x-mKb">
-                            <rect key="frame" x="223" y="1" width="16" height="133"/>
+                            <rect key="frame" x="549" y="1" width="16" height="271"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
