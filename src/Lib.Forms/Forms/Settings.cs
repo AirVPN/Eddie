@@ -246,9 +246,8 @@ namespace AirVPN.Gui.Forms
             chkAdvancedOpenVpnDirectivesDefaultSkip.Checked = s.GetBool("openvpn.skip_defaults");
 			txtExePath.Text = s.Get("executables.openvpn");
             txtAdvancedOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
-            String openVpnDirectivesDefault = "# Common:\n" + s.GetManifestKeyValue("openvpn_directives_common","") + "\n# UDP only:\n" + s.GetManifestKeyValue("openvpn_directives_udp","") + "\n# TCP Only:\n" + s.GetManifestKeyValue("openvpn_directives_tcp","");
-			openVpnDirectivesDefault = Platform.Instance.NormalizeString(openVpnDirectivesDefault);
-            openVpnDirectivesDefault = openVpnDirectivesDefault.Replace("\t", "");
+			String openVpnDirectivesDefault = s.GetDefaultDirectives();				
+			openVpnDirectivesDefault = openVpnDirectivesDefault.Replace("\t", "");
             txtAdvancedOpenVpnDirectivesDefault.Text = openVpnDirectivesDefault;
 
             ReadOptionsEvent("app.start", 0);

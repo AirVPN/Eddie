@@ -237,9 +237,7 @@ namespace AirVPN.Core.Threads
 						if (m_reset == "")
 						{
 							oneConnectionReached = true;
-
-							Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
-
+							
 							Engine.RunEventCommand("vpn.up");
 
 							for (; ; )
@@ -815,6 +813,8 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
 					{
+						Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
+
 						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
 
 						Platform.Instance.FlushDNS();						

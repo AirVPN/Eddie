@@ -522,7 +522,14 @@ namespace AirVPN.Core
 			if (Manifest.Attributes[key] == null)
 				return def;
 			return Manifest.Attributes[key].Value;
-		}        		
+		}
+
+		public string GetDefaultDirectives()
+		{
+			string result = "# Common:\n" + GetManifestKeyValue("openvpn_directives_common", "") + "\n# UDP only:\n" + GetManifestKeyValue("openvpn_directives_udp", "") + "\n# TCP Only:\n" + GetManifestKeyValue("openvpn_directives_tcp", "");
+			result = Platform.Instance.NormalizeString(result);
+			return result;
+		}
 
 		#endregion
 
