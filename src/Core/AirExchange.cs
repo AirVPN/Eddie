@@ -70,7 +70,6 @@ namespace AirVPN.Core
 
 			// HTTP Fetch
 			string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
-			System.Net.WebClient wc = new System.Net.WebClient();
 			byte[] fetchResponse = Engine.Instance.FetchUrl(url);
 
 			// Decrypt answer

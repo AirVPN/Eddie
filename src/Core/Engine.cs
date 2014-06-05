@@ -1061,8 +1061,8 @@ namespace AirVPN.Core
 		public byte[] FetchUrl(string url)
 		{
 			// Note: by default WebClient try to determine the proxy used by IE/Windows
-			System.Net.WebClient wc = new System.Net.WebClient();
-
+			WebClientEx wc = new WebClientEx();
+			
 			if (IsConnected())
 			{
 				// Don't use a proxy if connected to the VPN

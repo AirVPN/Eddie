@@ -104,11 +104,11 @@ namespace AirVPN.Gui.Controls
 
 				String label = listItemServer.Info.GetLoadForList();
 				float p = listItemServer.Info.GetLoadPercForList();
-
+				string color = listItemServer.Info.GetLoadColorForList();
 				Brush b = Brushes.LightGreen;
-				if (p > 0.9)
+				if (color == "red")
 					b = Brushes.LightPink;
-				else if (p > 0.5)
+				else if (color == "yellow")
 					b = Brushes.LightYellow;
 				else
 					b = Brushes.LightGreen;

@@ -79,6 +79,9 @@
     <Compile Include="TimeDelta.cs" />
     <Compile Include="TrustCertificatePolicy.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="WebClientEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -99,5 +99,20 @@ namespace AirVPN.Core
 
 			return p;
 		}
+
+		public string GetLoadColorForList()
+		{
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwMax = BandwidthMax;
+
+			float p = (float)bwCur / (float)bwMax;
+
+			if (p > 0.9)
+				return "red";
+			else if (p > 0.5)
+				return "yellow";
+			else
+				return "green";
+		}
     }
 }

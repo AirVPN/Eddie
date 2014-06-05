@@ -151,6 +151,18 @@ namespace AirVPN.Core
             }
         }
 
+		public string GetNameForList()
+		{
+			string t = PublicName;
+
+			if (WarningClosed != "")
+				t += " (Closed: " + WarningClosed + ")";
+			if (WarningOpen != "")
+				t += " (Warning: " + WarningOpen + ")";
+
+			return t;
+		}
+
 		public string GetLatencyForList()
 		{
 			String text = "";
@@ -191,6 +203,21 @@ namespace AirVPN.Core
 			float p = (float)bwCur / (float)bwMax;
 			
 			return p;
-		}		
+		}
+
+		public string GetLoadColorForList()
+		{
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwMax = BandwidthMax;
+
+			float p = (float)bwCur / (float)bwMax;
+
+			if (p > 0.9)
+				return "red";
+			else if (p > 0.5)
+				return "yellow";
+			else
+				return "green";
+		}
     }
 }

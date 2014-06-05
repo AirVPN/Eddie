@@ -39,14 +39,7 @@ namespace AirVPN.Gui.Controls
 
         public void Update()
         {
-			string t = Info.PublicName;
-
-			if (Info.WarningClosed != "")
-				t += " (Closed: " + Info.WarningClosed + ")";
-			if (Info.WarningOpen != "")
-				t += " (Warning: " + Info.WarningOpen + ")";
-
-            Text = t;
+			Text = Info.GetNameForList();
             ImageKey = Info.CountryCode;
             
             if (SubItems.Count == 1)
