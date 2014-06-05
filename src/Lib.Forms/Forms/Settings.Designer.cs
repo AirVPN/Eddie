@@ -184,7 +184,7 @@ namespace AirVPN.Gui.Forms
 			this.label7.ForeColor = System.Drawing.Color.Black;
 			this.label7.Location = new System.Drawing.Point(15, 56);
 			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(126, 13);
+			this.label7.Size = new System.Drawing.Size(112, 13);
 			this.label7.TabIndex = 72;
 			this.label7.Text = "DNS Switch mode:";
 			// 
@@ -198,7 +198,7 @@ namespace AirVPN.Gui.Forms
             "Automatic",
             "Resolvconf (Linux only)",
             "Renaming (Linux only)"});
-			this.cboDnsSwitchMode.Location = new System.Drawing.Point(118, 53);
+			this.cboDnsSwitchMode.Location = new System.Drawing.Point(131, 53);
 			this.cboDnsSwitchMode.Name = "cboDnsSwitchMode";
 			this.cboDnsSwitchMode.Size = new System.Drawing.Size(125, 21);
 			this.cboDnsSwitchMode.TabIndex = 71;

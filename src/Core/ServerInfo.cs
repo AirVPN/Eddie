@@ -129,14 +129,14 @@ namespace AirVPN.Core
 
         public int Score()
         {
-            if (Ping == -1)
-                return 99999;
-            else if (ServerType == 2)
-                return 99999;
-            else if (WarningClosed != "")
-                return 99999;
-            else if (WarningOpen != "")
-                return 99999;            
+			if (WarningClosed != "")
+				return 99998;
+			else if (WarningOpen != "")
+				return 99997;
+			else if (ServerType == 2)
+				return 99996;            
+            else if (Ping == -1)
+                return 99995;            
             else
             {
 				string scoreType = Engine.Instance.Storage.Get("servers.scoretype");
@@ -178,7 +178,7 @@ namespace AirVPN.Core
 
 			float p = (float)bwCur / (float)bwMax;
 
-			String label = Convert.ToInt16(p * 100).ToString() + "% full, " + bwCur.ToString() + " / " + bwMax.ToString() + " Mbit/s";
+			String label = Convert.ToInt16(p * 100).ToString() + "%, " + bwCur.ToString() + " / " + bwMax.ToString() + " Mbit/s";
 
 			return label;
 		}

@@ -216,7 +216,7 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-							if (m_processOpenVpn.HasExited) // 2.2
+							if( (m_processOpenVpn != null) && (m_processOpenVpn.HasExited) ) // 2.2
 								m_reset = "ERROR";
 							if( (m_processProxy != null) && (m_processProxy.HasExited) ) // 2.2
 								m_reset = "ERROR";
@@ -524,8 +524,6 @@ namespace AirVPN.Core.Threads
 				arguments += " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"; // TOOPTIMIZE: To bypass key confirmation. Not the best approach.
 			arguments += " -N -T -v";
 
-			Engine.Log(Engine.LogType.Warning, arguments);
-			
 			m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SshPath;
 			m_processProxy.StartInfo.Arguments = arguments;
@@ -573,7 +571,7 @@ namespace AirVPN.Core.Threads
 
 			m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SslPath;
-			m_processProxy.StartInfo.Arguments = sslConfigPath;
+			m_processProxy.StartInfo.Arguments = "\"" + sslConfigPath + "\"";
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
 
 			m_processProxy.StartInfo.Verb = "run";

@@ -159,6 +159,7 @@ namespace AirVPN.Platforms
 				string dnsScriptPath = Software.FindResource("update-resolv-conf");
 				if (dnsScriptPath != "")
 				{
+					Engine.Instance.Log(Engine.LogType.Info, Messages.DnsResolvConfScript);
 					ovpn += "script-security 2\n";
 					ovpn += "up " + dnsScriptPath + "\n";
 					ovpn += "down " + dnsScriptPath + "\n";
@@ -166,9 +167,16 @@ namespace AirVPN.Platforms
 			}			
 		}
 
+		public override void OnRecovery()
+		{
+			base.OnRecovery();
+
+			OnDnsSwitchRestore();
+		}
+
 		public override void OnRecoveryLoad(XmlElement root)
 		{
-			OnDnsSwitchRestore();
+			base.OnRecoveryLoad(root);
 		}
 
 		public override void OnDnsSwitchDo(string dns)
@@ -184,7 +192,7 @@ namespace AirVPN.Platforms
 				}
 
 				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameDone);
-				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.ResolvConfHeader,Storage.GetVersionDesc()) + "\nnameserver " + dns + "\n");
+				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.ResolvConfHeader,Storage.GetVersionDesc()) + "\n\nnameserver " + dns + "\n");
 			}			
 		}
 
@@ -197,7 +205,7 @@ namespace AirVPN.Platforms
 			{
 				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameRestored);
 
-				File.Copy("/etc/resolv.conf.airvpn", "/etc/resolv.conf");
+				File.Copy("/etc/resolv.conf.airvpn", "/etc/resolv.conf", true);
 				File.Delete("/etc/resolv.conf.airvpn");
 			}
 		}
@@ -232,7 +240,7 @@ namespace AirVPN.Platforms
 		{
 			string current = Engine.Instance.Storage.Get("advanced.dns.mode").ToLowerInvariant();
 
-			if (current == "automatic")
+			if (current == "auto")
 			{
 				if (File.Exists("/sbin/resolvconf"))
 					current = "resolvconf";
@@ -243,7 +251,11 @@ namespace AirVPN.Platforms
 			// Fallback
 			if( (current == "resolvconv") && (Software.FindResource("update-resolv-conf") == "") )
 				current = "rename";
-			
+
+			if ((current == "resolvconv") && (File.Exists("/sbin/resolvconf") == false))
+				current = "rename";
+
+
 			return current;			
 		}
     }

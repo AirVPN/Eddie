@@ -349,6 +349,11 @@ namespace AirVPN.Core
 		{
 		}
 
+		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
+		public virtual void OnRecovery()
+		{
+		}
+
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
 		}

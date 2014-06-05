@@ -358,7 +358,7 @@ namespace AirVPN.Core
 			SetDefaultBool("gui.windows.tray", true, NotInMan);
 
 			// GUI - OSX Only
-			SetDefaultBool("gui.osx.notifications", true, NotInMan);
+			SetDefaultBool("gui.osx.notifications", false, NotInMan);
 
 			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
 			SetDefault("paramtest", "", NotInMan); 			
