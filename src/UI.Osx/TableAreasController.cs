@@ -115,6 +115,8 @@ namespace AirVPN.UI.Osx
 				return new NSString (a.PublicName);
 			} else if (tableColumn.Identifier == "Servers") {
 				return new NSString (a.Servers.ToString());
+			} else if (tableColumn.Identifier == "LoadIcon") {
+				return NSImage.ImageNamed("status_" + a.GetLoadColorForList().ToLowerInvariant() + ".png");				
 			} else if (tableColumn.Identifier == "Load") {
 				return new NSString (a.GetLoadForList());
 			} else if (tableColumn.Identifier == "Users") {
