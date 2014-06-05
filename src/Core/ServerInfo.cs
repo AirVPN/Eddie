@@ -151,6 +151,20 @@ namespace AirVPN.Core
             }
         }
 
+		public float ScorePerc()
+		{
+			float scoreF = (Score() - 50);
+			scoreF /= 50;
+
+			float part = 1;
+			if (scoreF > 5)
+				part = 0;
+			else if (scoreF > 1)
+				part /= scoreF;
+
+			return part;
+		}
+
 		public string GetNameForList()
 		{
 			string t = PublicName;

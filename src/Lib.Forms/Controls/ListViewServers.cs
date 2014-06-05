@@ -102,16 +102,11 @@ namespace AirVPN.Gui.Controls
             {
 				e.DrawDefault = false;
 				DrawSubItemBackground(sender, e);
-				                
-                int score = Convert.ToInt32(e.SubItem.Text);
-                float scoreF = (score - 50);
-                scoreF /= 50;
 
-                float part = 1;
-                if (scoreF > 5)
-                    part = 0;
-                else if (scoreF > 1)
-                    part /= scoreF;
+				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
+				                
+                //int score = Convert.ToInt32(e.SubItem.Text);
+				float part = listItemServer.Info.ScorePerc();
 
 
 				Image imageN = GuiUtils.GetResourceImage("stars_n");
