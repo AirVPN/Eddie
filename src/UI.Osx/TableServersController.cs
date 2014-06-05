@@ -1,3 +1,21 @@
+// <airvpn_source_header>
+// This file is part of AirVPN Client software.
+// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+//
+// AirVPN Client is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// AirVPN Client is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
+// </airvpn_source_header>
+
 using System;
 using System.Collections.Generic;
 using MonoMac.Foundation;
@@ -14,8 +32,8 @@ namespace AirVPN.UI.Osx
 
 		public bool ShowAll = false;
 
-		private bool m_orderAscending = false;
-		private string m_orderColumn = "";
+		private bool m_orderAscending = true;
+		private string m_orderColumn = "Score";
 
 		public TableServersController (NSTableView tableView)
 		{
@@ -96,7 +114,7 @@ namespace AirVPN.UI.Osx
 			} else if (tableColumn.Identifier == "Flag") {
 				return NSImage.ImageNamed("flag_" + s.CountryCode.ToLowerInvariant() + ".png");
 			} else if (tableColumn.Identifier == "Name") {
-				return new NSString (s.PublicName);
+				return new NSString (s.PublicName + ", " + s.WarningClosed); // TOFIX: s.GetNameForList()
 			} else if (tableColumn.Identifier == "Score") {
 				return NSImage.ImageNamed ("stars_h.png");
 			} else if (tableColumn.Identifier == "Location") {

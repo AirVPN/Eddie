@@ -1,24 +1,8 @@
-﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/4/2014 10:00:31 AM">
+﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/5/2014 7:37:18 PM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="WindowTextViewerController.cs">
-    <Files>
-      <File FileName="MainWindow.designer.cs" Line="1" Column="1" />
-      <File FileName="MainWindowController.cs" Line="338" Column="25" />
-      <File FileName="../Platforms.Osx/Osx.cs" Line="221" Column="14" />
-      <File FileName="WindowPreferencesController.cs" Line="1" Column="1" />
-      <File FileName="GuiUtils.cs" Line="1" Column="1" />
-      <File FileName="WindowTextViewerController.cs" Line="48" Column="4" />
-      <File FileName="MainWindowDelegate.cs" Line="1" Column="1" />
-      <File FileName="TableStatsController.cs" Line="1" Column="1" />
-      <File FileName="TableServersController.cs" Line="1" Column="1" />
-      <File FileName="TableAreasController.cs" Line="1" Column="1" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/Core/Engine.cs" line="331" column="21" />
-      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/CLI.Osx/Program.cs" line="47" column="4" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

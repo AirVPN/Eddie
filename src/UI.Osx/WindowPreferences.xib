@@ -461,7 +461,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="bYR-hd-ta7">
-                                            <rect key="frame" x="15" y="19" width="364" height="17"/>
+                                            <rect key="frame" x="15" y="19" width="250" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Not specified routes go:" id="3X8-ch-jlR">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -470,11 +470,11 @@
                                             </textFieldCell>
                                         </textField>
                                         <popUpButton verticalHuggingPriority="750" id="JqH-io-99F">
-                                            <rect key="frame" x="383" y="14" width="163" height="26"/>
+                                            <rect key="frame" x="281" y="14" width="265" height="26"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="hKd-9Z-shB" id="oDF-Bf-cP9">
                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="menu"/>
                                                 <menu key="menu" title="OtherViews" id="DMw-rY-R5S">
                                                     <items>
                                                         <menuItem title="Item 1" state="on" id="hKd-9Z-shB"/>
@@ -529,7 +529,7 @@
                                                                 </buttonCell>
                                                             </button>
                                                             <button id="xVq-43-prb">
-                                                                <rect key="frame" x="15" y="175" width="490" height="18"/>
+                                                                <rect key="frame" x="15" y="175" width="267" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Expert Mode" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="yFt-qz-pQg">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -604,7 +604,7 @@
                                                                 </buttonCell>
                                                             </button>
                                                             <popUpButton verticalHuggingPriority="750" id="hxb-i3-foN">
-                                                                <rect key="frame" x="122" y="138" width="75" height="26"/>
+                                                                <rect key="frame" x="122" y="138" width="198" height="26"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="RhV-Ut-07J">
                                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -655,7 +655,7 @@
                                                                 <rect key="frame" x="17" y="45" width="240" height="130"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="9jf-bB-n83">
-                                                                    <font key="font" metaFont="system"/>
+                                                                    <font key="font" size="10" name="Monaco"/>
                                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
@@ -663,8 +663,8 @@
                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="NjY-dC-GsQ">
                                                                 <rect key="frame" x="263" y="45" width="240" height="130"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="vOf-am-cHb">
-                                                                    <font key="font" metaFont="system"/>
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="vOf-am-cHb">
+                                                                    <font key="font" size="10" name="Monaco"/>
                                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="windowBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>

@@ -1,3 +1,21 @@
+// <airvpn_source_header>
+// This file is part of AirVPN Client software.
+// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+//
+// AirVPN Client is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// AirVPN Client is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
+// </airvpn_source_header>
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +30,9 @@ namespace AirVPN.UI.Osx
 		private string m_mode_protocol;
 		private int m_mode_port;
 		private int m_mode_alternate;
+
+		private bool m_modeSshEnabled = true;
+		private bool m_modeSslEnabled = true;
 
 		#region Constructors
 		// Called when created from unmanaged code
@@ -48,9 +69,6 @@ namespace AirVPN.UI.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
 
-			ReadOptions ();
-
-			EnableIde ();
 
 
 
@@ -72,7 +90,14 @@ namespace AirVPN.UI.Osx
 
 			// Modes
 			string sshStatus = (Software.SshVersion != "" ? "" : "Not available");
+			if (sshStatus != "") {
+				m_modeSshEnabled = false;
+			}
 			// TODO: disable ssh & ssl
+			string sslStatus = (Software.SslVersion != "" ? "" : "Not available");
+			if (sslStatus != "") {
+				m_modeSslEnabled = false;
+			}
 
 			CmdModeHelp.Activated += (object sender, EventArgs e) => {
 				Core.UI.Actions.OpenUrlDocsProtocols();
@@ -237,6 +262,14 @@ namespace AirVPN.UI.Osx
 			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) => {
 				TxtAdvancedOpenVpnPath.StringValue = "todo";
 			};
+
+
+
+
+			ReadOptions ();
+
+			EnableIde ();
+
 		}
 
 		string RouteDirectionToDescription(string v)
@@ -330,7 +363,7 @@ namespace AirVPN.UI.Osx
 
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
-			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ();
+			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ().Replace("\t","");
 
 		}
 
@@ -384,6 +417,27 @@ namespace AirVPN.UI.Osx
 
 		void EnableIde()
 		{
+			bool proxy = (GuiUtils.GetSelected (CboProxyType) != "None");
+			TxtProxyHost.Enabled = proxy;
+			TxtProxyPort.Enabled = proxy;
+			CboProxyAuthentication.Enabled = proxy;
+			TxtProxyLogin.Enabled = ((proxy) && (GuiUtils.GetSelected (CboProxyAuthentication) != "None"));
+			TxtProxyPassword.Enabled = TxtProxyLogin.Enabled;
+
+			ChkModeSsh22.Enabled = ((proxy == false) && (m_modeSshEnabled));
+			ChkModeSsh22Alt.Enabled = ((proxy == false) && (m_modeSshEnabled));
+			ChkModeSsh53.Enabled = ((proxy == false) && (m_modeSshEnabled));
+			ChkModeSsh80.Enabled = ((proxy == false) && (m_modeSshEnabled));
+			ChkModeSsl443.Enabled = ((proxy == false) && (m_modeSslEnabled));
+		
+			ChkModeUdp2018.Enabled = (proxy == false);
+			ChkModeUdp2018Alt.Enabled = (proxy == false);
+			ChkModeUdp443.Enabled = (proxy == false);
+			ChkModeUdp443Alt.Enabled = (proxy == false);
+			ChkModeUdp53.Enabled = (proxy == false);
+			ChkModeUdp53Alt.Enabled = (proxy == false);
+			ChkModeUdp80.Enabled = (proxy == false);
+			ChkModeUdp80Alt.Enabled = (proxy == false);
 		}
 	}
 }
