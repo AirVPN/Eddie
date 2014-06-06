@@ -201,7 +201,6 @@ namespace AirVPN.Platforms
 							ListDnsSwitchInterfaces.Add(e);
 
 							ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns + "\"");
-							// pazzo qui lo segno, e pure nel recovery
 						}
 					}
 					else

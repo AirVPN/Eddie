@@ -116,14 +116,14 @@ namespace AirVPN.UI.Osx
 			} else if (tableColumn.Identifier == "Name") {
 				return new NSString (s.PublicName + ", " + s.WarningClosed); // TOFIX: s.GetNameForList()
 			} else if (tableColumn.Identifier == "Score") {
-				int p = Convert.ToInt32(a.ScorePerc() * 5);
+				int p = Convert.ToInt32(5 * s.ScorePerc());
 				return NSImage.ImageNamed ("stars_" + p.ToString() + ".png");
 			} else if (tableColumn.Identifier == "Location") {
 				return new NSString (s.GetLocationForList());
 			} else if (tableColumn.Identifier == "Latency") {
 				return new NSString (s.GetLatencyForList());
 			} else if (tableColumn.Identifier == "LoadIcon") {
-				return NSImage.ImageNamed("status_" + a.GetLoadColorForList().ToLowerInvariant() + ".png");				
+				return NSImage.ImageNamed("status_" + s.GetLoadColorForList().ToLowerInvariant() + ".png");				
 			} else if (tableColumn.Identifier == "Load") {
 				return new NSString (s.GetLoadForList());
 			} else if (tableColumn.Identifier == "Users") {

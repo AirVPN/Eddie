@@ -1,8 +1,26 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/5/2014 7:37:18 PM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../Core/ServerInfo.cs">
+    <Files>
+      <File FileName="TableServersController.cs" Line="119" Column="40" />
+      <File FileName="TableServersDelegate.cs" Line="50" Column="5" />
+      <File FileName="../Core/ServerInfo.cs" Line="154" Column="22" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Lib.Core" expanded="True" />
+          <Node name="UI.Osx" expanded="True">
+            <Node name="WindowPreferences.xib" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/UI.Osx/TableServersController.cs" line="120" column="16" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

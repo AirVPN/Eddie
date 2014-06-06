@@ -464,6 +464,16 @@
     <BundleResource Include="Resources\topbar_osx_yellow.png" />
     <BundleResource Include="Resources\topbar_osx_bg.png" />
     <BundleResource Include="Resources\topbar_osx_logo.png" />
+    <BundleResource Include="Resources\stars_0.png" />
+    <BundleResource Include="Resources\stars_1.png" />
+    <BundleResource Include="Resources\stars_2.png" />
+    <BundleResource Include="Resources\stars_3.png" />
+    <BundleResource Include="Resources\stars_4.png" />
+    <BundleResource Include="Resources\stars_5.png" />
+    <BundleResource Include="Resources\status_green.png" />
+    <BundleResource Include="Resources\status_red.png" />
+    <BundleResource Include="Resources\status_unknown.png" />
+    <BundleResource Include="Resources\status_yellow.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">
