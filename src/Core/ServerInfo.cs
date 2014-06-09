@@ -204,7 +204,7 @@ namespace AirVPN.Core
 
 			float p = (float)bwCur / (float)bwMax;
 
-			String label = Convert.ToInt16(p * 100).ToString() + "%, " + bwCur.ToString() + " / " + bwMax.ToString() + " Mbit/s";
+			String label = Convert.ToInt16(p * 100).ToString() + "%, " + bwCur.ToString() + "/" + bwMax.ToString() + " Mbit/s";
 
 			return label;
 		}

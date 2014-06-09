@@ -118,13 +118,6 @@ namespace AirVPN.Core
 			return Instance.GetCode() == "Linux";			
         }
 
-		/*
-        private static bool IsOSX()
-        {
-			return m_uname == "Darwin";
-        }
-		*/
-
 		public string GetSystemCode()
         {
 			string t = GetCode() + "_" + GetArchitecture();

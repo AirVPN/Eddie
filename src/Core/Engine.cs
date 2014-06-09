@@ -1402,9 +1402,9 @@ namespace AirVPN.Core
 
 			if (Storage.GetBool("advanced.skip_alreadyrun") == false)
 			{
-				Process[] processlist = Process.GetProcesses();
+				System.Diagnostics.Process[] processlist = Process.GetProcesses();
 
-				foreach (Process theprocess in processlist)
+				foreach (System.Diagnostics.Process theprocess in processlist)
 				{
 					try
 					{

@@ -43,6 +43,9 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="Process.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
     <Compile Include="UI\Chart.cs" />
