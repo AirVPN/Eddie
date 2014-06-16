@@ -20,5 +20,7 @@
 	<string>2.2</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.airvpn.client</string>
+	<key>CFBundleDisplayName</key>
+	<string>AirVPN</string>
 </dict>
 </plist>

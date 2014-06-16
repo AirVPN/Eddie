@@ -29,7 +29,7 @@ namespace AirVPN.UI.Osx
 	{
 		static void Main (string[] args)
 		{
-			Platform.Instance = new AirVPN.Platforms.Osx();
+			Core.Platform.Instance = new AirVPN.Platforms.Osx();
 
 			CommandLine.Init(Environment.CommandLine);
 

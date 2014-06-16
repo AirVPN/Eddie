@@ -359,12 +359,13 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("advanced.pinger.enabled"));
 			GuiUtils.SetCheck (ChkAdvancedPingerAlways, s.GetBool ("advanced.pinger.always"));
 
+			GuiUtils.SetCheck (ChkAdvancedNetworkLocking, s.GetBool ("advanced.netlock.enabled"));
+
 			GuiUtils.SetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip, s.GetBool ("openvpn.skip_defaults"));
 
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ().Replace("\t","");
-
 		}
 
 		void SaveOptions()
@@ -408,6 +409,8 @@ namespace AirVPN.UI.Osx
 
 			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
 			s.SetBool ("advanced.pinger.always", GuiUtils.GetCheck (ChkAdvancedPingerAlways));
+
+			s.SetBool ("advanced.netlock.enabled", GuiUtils.GetCheck (ChkAdvancedNetworkLocking));
 
 			s.SetBool ("openvpn.skip_defaults", GuiUtils.GetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip));
 

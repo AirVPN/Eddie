@@ -114,7 +114,7 @@ namespace AirVPN.UI.Osx
 			} else if (tableColumn.Identifier == "Flag") {
 				return NSImage.ImageNamed("flag_" + s.CountryCode.ToLowerInvariant() + ".png");
 			} else if (tableColumn.Identifier == "Name") {
-				return new NSString (s.PublicName + ", " + s.WarningClosed); // TOFIX: s.GetNameForList()
+				return new NSString (s.GetNameForList ());
 			} else if (tableColumn.Identifier == "Score") {
 				int p = Convert.ToInt32(5 * s.ScorePerc());
 				return NSImage.ImageNamed ("stars_" + p.ToString() + ".png");

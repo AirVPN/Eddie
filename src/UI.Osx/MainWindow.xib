@@ -51,6 +51,7 @@
                 <outlet property="MnuServersConnect" destination="fNR-2w-1MT" id="urv-Ni-pGF"/>
                 <outlet property="MnuServersUndefined" destination="Lsg-wR-Ixf" id="A8y-Qs-5tB"/>
                 <outlet property="MnuServersWhitelist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
+                <outlet property="PnlChart" destination="c6A-XF-Xk5" id="qln-Bu-YhO"/>
                 <outlet property="ServersContextMenu" destination="PCV-hz-Nwr" id="gNd-gA-7lp"/>
                 <outlet property="TabMain" destination="mHk-Xp-9aS" id="UuD-Zz-34L"/>
                 <outlet property="TabOverview" destination="byP-41-Bbc" id="7LS-0F-MiG"/>
@@ -104,7 +105,7 @@
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <box autoresizesSubviews="NO" boxType="custom" borderType="bezel" titlePosition="noTitle" id="CcO-sU-ril">
-                                                                <rect key="frame" x="27" y="48" width="514" height="243"/>
+                                                                <rect key="frame" x="20" y="34" width="514" height="243"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                 <view key="contentView">
                                                                     <rect key="frame" x="1" y="1" width="512" height="241"/>
@@ -209,7 +210,7 @@
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <progressIndicator maxValue="100" indeterminate="YES" style="bar" id="gMg-Qv-4ge">
-                                                                <rect key="frame" x="131" y="154" width="293" height="20"/>
+                                                                <rect key="frame" x="130" y="154" width="293" height="20"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                             </progressIndicator>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="TxA-1y-Zx4">
@@ -247,7 +248,7 @@
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <button verticalHuggingPriority="750" id="k3b-dA-5fh">
-                                                                <rect key="frame" x="38" y="53" width="492" height="41"/>
+                                                                <rect key="frame" x="31" y="53" width="492" height="41"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" title="Textured Button" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eZ7-om-aky">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -255,7 +256,7 @@
                                                                 </buttonCell>
                                                             </button>
                                                             <box autoresizesSubviews="NO" boxType="custom" borderType="bezel" titlePosition="noTitle" id="mwr-RB-xWx">
-                                                                <rect key="frame" x="27" y="108" width="514" height="176"/>
+                                                                <rect key="frame" x="20" y="108" width="514" height="176"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                 <view key="contentView">
                                                                     <rect key="frame" x="1" y="1" width="512" height="174"/>
@@ -390,7 +391,7 @@
                                                 <rect key="frame" x="1" y="17" width="512" height="266"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" rowHeight="15" headerView="rKQ-rO-RJl" id="Y9F-5S-1r4">
+                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="rKQ-rO-RJl" id="Y9F-5S-1r4">
                                                         <rect key="frame" x="0.0" y="0.0" width="532" height="266"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
@@ -606,7 +607,7 @@
                                                 <rect key="frame" x="1" y="17" width="512" height="293"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" columnSelection="YES" autosaveColumns="NO" headerView="Iry-n4-YEX" id="w3Z-Uc-XBk">
+                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" headerView="Iry-n4-YEX" id="w3Z-Uc-XBk">
                                                         <rect key="frame" x="0.0" y="0.0" width="512" height="293"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
@@ -746,9 +747,9 @@
                                     <rect key="frame" x="10" y="33" width="588" height="331"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <customView id="c6A-XF-Xk5">
+                                        <customView id="c6A-XF-Xk5" customClass="ChartView">
                                             <rect key="frame" x="17" y="42" width="554" height="286"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         </customView>
                                         <popUpButton verticalHuggingPriority="750" id="jfy-d1-j04">
                                             <rect key="frame" x="92" y="10" width="482" height="26"/>

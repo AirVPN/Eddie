@@ -34,6 +34,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton ChkAdvancedExpertMode { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkAdvancedNetworkLocking { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton ChkAdvancedOpenVpnDirectivesDefaultSkip { get; set; }
 
 		[Outlet]
@@ -106,6 +109,12 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton ChkModeUdp80Alt { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdAdvancedEventsClear { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdAdvancedEventsEdit { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdAdvancedHelp { get; set; }
 
 		[Outlet]
@@ -121,7 +130,22 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton CmdModeHelp { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdRouteAdd { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdRouteEdit { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdRouteRemove { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdSave { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTableView TableAdvancedEvents { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTableView TableRoutes { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField TxtAdvancedOpenVpnDirectivesCustom { get; set; }
@@ -161,6 +185,11 @@ namespace AirVPN.UI.Osx
 				CboProxyType = null;
 			}
 
+			if (CboRoutesOtherwise != null) {
+				CboRoutesOtherwise.Dispose ();
+				CboRoutesOtherwise = null;
+			}
+
 			if (ChkAdvancedCheckDns != null) {
 				ChkAdvancedCheckDns.Dispose ();
 				ChkAdvancedCheckDns = null;
@@ -174,6 +203,11 @@ namespace AirVPN.UI.Osx
 			if (ChkAdvancedExpertMode != null) {
 				ChkAdvancedExpertMode.Dispose ();
 				ChkAdvancedExpertMode = null;
+			}
+
+			if (ChkAdvancedNetworkLocking != null) {
+				ChkAdvancedNetworkLocking.Dispose ();
+				ChkAdvancedNetworkLocking = null;
 			}
 
 			if (ChkAdvancedOpenVpnDirectivesDefaultSkip != null) {
@@ -296,9 +330,14 @@ namespace AirVPN.UI.Osx
 				ChkModeUdp80Alt = null;
 			}
 
-			if (CboRoutesOtherwise != null) {
-				CboRoutesOtherwise.Dispose ();
-				CboRoutesOtherwise = null;
+			if (CmdAdvancedEventsClear != null) {
+				CmdAdvancedEventsClear.Dispose ();
+				CmdAdvancedEventsClear = null;
+			}
+
+			if (CmdAdvancedEventsEdit != null) {
+				CmdAdvancedEventsEdit.Dispose ();
+				CmdAdvancedEventsEdit = null;
 			}
 
 			if (CmdAdvancedHelp != null) {
@@ -326,9 +365,34 @@ namespace AirVPN.UI.Osx
 				CmdModeHelp = null;
 			}
 
+			if (CmdRouteAdd != null) {
+				CmdRouteAdd.Dispose ();
+				CmdRouteAdd = null;
+			}
+
+			if (CmdRouteEdit != null) {
+				CmdRouteEdit.Dispose ();
+				CmdRouteEdit = null;
+			}
+
+			if (CmdRouteRemove != null) {
+				CmdRouteRemove.Dispose ();
+				CmdRouteRemove = null;
+			}
+
 			if (CmdSave != null) {
 				CmdSave.Dispose ();
 				CmdSave = null;
+			}
+
+			if (TableAdvancedEvents != null) {
+				TableAdvancedEvents.Dispose ();
+				TableAdvancedEvents = null;
+			}
+
+			if (TableRoutes != null) {
+				TableRoutes.Dispose ();
+				TableRoutes = null;
 			}
 
 			if (TxtAdvancedOpenVpnDirectivesCustom != null) {

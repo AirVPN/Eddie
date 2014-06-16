@@ -151,6 +151,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSBox PanelWelcome { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSView PnlChart { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSMenu ServersContextMenu { get; set; }
 
 		[Outlet]
@@ -301,6 +304,11 @@ namespace AirVPN.UI.Osx
 				CmdServersWhiteList = null;
 			}
 
+			if (ImgConnectedCountry != null) {
+				ImgConnectedCountry.Dispose ();
+				ImgConnectedCountry = null;
+			}
+
 			if (ImgProgress != null) {
 				ImgProgress.Dispose ();
 				ImgProgress = null;
@@ -431,6 +439,11 @@ namespace AirVPN.UI.Osx
 				TableLogs = null;
 			}
 
+			if (PnlChart != null) {
+				PnlChart.Dispose ();
+				PnlChart = null;
+			}
+
 			if (TableServers != null) {
 				TableServers.Dispose ();
 				TableServers = null;
@@ -479,11 +492,6 @@ namespace AirVPN.UI.Osx
 			if (TxtPassword != null) {
 				TxtPassword.Dispose ();
 				TxtPassword = null;
-			}
-
-			if (ImgConnectedCountry != null) {
-				ImgConnectedCountry.Dispose ();
-				ImgConnectedCountry = null;
 			}
 		}
 	}

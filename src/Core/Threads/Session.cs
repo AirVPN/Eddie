@@ -801,6 +801,21 @@ namespace AirVPN.Core.Threads
 						m_reset = "ERROR";
 					}
 
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						m_reset = "ERROR";
+					}
+
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						m_reset = "ERROR";
+					}
+
+					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received");
+					if (matchSigReceived.Success)
+					{
+						m_reset = "ERROR";
+					}
 
 					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
 					{

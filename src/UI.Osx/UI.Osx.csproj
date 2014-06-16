@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{8A54C394-4DE9-4512-9A04-701049176953}</ProjectGuid>
-    <ProjectTypeGuids>{948B3504-5B70-4649-8FE4-BDE1FB46EC69};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
@@ -26,15 +26,20 @@
     <ConsolePause>false</ConsolePause>
     <UseSGen>true</UseSGen>
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <CodeSigningKey>Mac Developer</CodeSigningKey>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>false</CreatePackage>
-    <PackageSigningKey>Developer ID Installer</PackageSigningKey>
+    <EnablePackageSigning>true</EnablePackageSigning>
+    <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
+    <EnableCodeSigning>true</EnableCodeSigning>
+    <CreatePackage>true</CreatePackage>
+    <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <I18n>
     </I18n>
     <Commandlineparameters>profile=/Users/Clodo/AirVPN.xml</Commandlineparameters>
     <LinkMode>Full</LinkMode>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" workingdir="" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -45,13 +50,13 @@
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
     <LinkMode>Full</LinkMode>
-    <UseSGen>true</UseSGen>
+    <UseSGen>false</UseSGen>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
     <CreatePackage>true</CreatePackage>
-    <CodeSigningKey>Developer ID Application</CodeSigningKey>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <PackageSigningKey>Developer ID Installer</PackageSigningKey>
+    <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
+    <EnableCodeSigning>true</EnableCodeSigning>
+    <EnablePackageSigning>true</EnablePackageSigning>
+    <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <I18n>
     </I18n>
   </PropertyGroup>
@@ -80,7 +85,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
-    <Reference Include="MonoMac" />
+    <Reference Include="XamMac" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -136,6 +141,17 @@
     <Compile Include="RootLauncher.cs" />
     <Compile Include="MainWindowDelegate.cs" />
     <Compile Include="GuiUtils.cs" />
+    <Compile Include="ChartView.cs" />
+    <Compile Include="WindowPreferencesRoute.cs" />
+    <Compile Include="WindowPreferencesRouteController.cs" />
+    <Compile Include="WindowPreferencesRoute.designer.cs">
+      <DependentUpon>WindowPreferencesRoute.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowPreferencesEvent.cs" />
+    <Compile Include="WindowPreferencesEventController.cs" />
+    <Compile Include="WindowPreferencesEvent.designer.cs">
+      <DependentUpon>WindowPreferencesEvent.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -146,6 +162,8 @@
     <InterfaceDefinition Include="WindowFrontMessage.xib" />
     <InterfaceDefinition Include="WindowTextViewer.xib" />
     <InterfaceDefinition Include="WindowOpenVpnManagementCommand.xib" />
+    <InterfaceDefinition Include="WindowPreferencesRoute.xib" />
+    <InterfaceDefinition Include="WindowPreferencesEvent.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
