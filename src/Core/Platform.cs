@@ -296,6 +296,27 @@ namespace AirVPN.Core
 			return "";
 		}
 
+		public virtual Dictionary<int, string> GetProcessesList()
+		{
+			Dictionary<int, string> result = new Dictionary<int, string>();
+
+			System.Diagnostics.Process[] processlist = Process.GetProcesses();
+
+			foreach (System.Diagnostics.Process p in processlist)
+			{
+				try
+				{
+					result[p.Id] = p.ProcessName.ToLowerInvariant();					
+				}
+				catch (System.InvalidOperationException)
+				{
+					// occur on some OSX process, ignore it.
+				}
+			}
+
+			return result;
+		}
+
 		public virtual string GetTunStatsMode()
 		{
 			return "NetworkInterface";			

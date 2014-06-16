@@ -312,8 +312,7 @@ namespace AirVPN.Core
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort); 
 
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
-			SetDefaultBool("advanced.locked_security", false, NotInMan);
+			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);						
 			SetDefaultBool("advanced.check.dns", false, Messages.ManOptionAdvancedCheckDns);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
 			//SetDefaultBool("advanced.dnsswitch", false, Messages.ManOptionAdvancedDnsSwitch); // TOCLEAN
@@ -324,6 +323,8 @@ namespace AirVPN.Core
 			SetDefaultInt("advanced.pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 300, Messages.ManOptionAdvancedPingerValid);
+			SetDefaultBool("advanced.netlock.enabled", false, NotInMan);
+			SetDefaultBool("advanced.netlock.active", false, NotInMan);
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
 			SetDefaultBool("advanced.windows.dns_force", false, Messages.ManOptionAdvancedWindowsDnsForce);

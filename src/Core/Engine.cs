@@ -297,7 +297,7 @@ namespace AirVPN.Core
 			if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
 
-			NetworkLocking.Instance.Disable();
+			NetworkLocking.Instance.Deactivate();
 
 			TemporaryFiles.Clean();
 
@@ -1203,7 +1203,7 @@ namespace AirVPN.Core
 					ovpn += "route 128.0.0.1 128.0.0.1 vpn_gateway\n";
 				}
 				*/
-				if(NetworkLocking.Instance.GetEnabled() == false) // If Network Locking is enabled, it's already set.
+				if (NetworkLocking.Instance.GetActive() == false) // If Network Locking is enabled, it's already set.
 					ovpn += "route " + ip + " 255.255.255.255 net_gateway\n";
 			}
 				

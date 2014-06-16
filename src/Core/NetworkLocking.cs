@@ -106,7 +106,7 @@ namespace AirVPN.Core
 
 		public void Start(string address, bool force)
 		{
-			if( (force == false) && (NetworkLocking.Instance.GetEnabled() == false) )
+			if( (force == false) && (NetworkLocking.Instance.GetActive() == false) )
 				return;
 
 			if (Utils.IsIP(address) == false)
@@ -120,7 +120,7 @@ namespace AirVPN.Core
         {
             if (m_address != "") // Only one time
             {
-				if (NetworkLocking.Instance.GetEnabled() == false)
+				if (NetworkLocking.Instance.GetActive() == false)
                     return;
 
 				NetworkLocking.Instance.RouteRemove(m_address, "255.255.255.255");
@@ -157,16 +157,16 @@ namespace AirVPN.Core
 			Instance = this;
 		}
 
-        public bool GetEnabled()
+        public bool GetActive()
         {
             return (DefaultGateway != "");
         }
 
-        public bool Enable()
+        public bool Activate()
         {
             lock(this)
             {
-                if (GetEnabled() == true)
+				if (GetActive() == true)
                     return true;
 
                 bool Failed = false;
@@ -222,11 +222,11 @@ namespace AirVPN.Core
             }
         }
 
-        public void Disable()
+        public void Deactivate()
         {
             lock (this)
             {
-                if (GetEnabled() == false)
+				if (GetActive() == false)
                     return;
 
                 foreach (RouteEntry Entry in EntryAdded.Values)
@@ -266,7 +266,7 @@ namespace AirVPN.Core
 						EntryRemoved[entry.Key] = entry;
 					}
 
-					Disable();
+					Deactivate();
 				}
 			}
 			catch (Exception e)
@@ -277,7 +277,7 @@ namespace AirVPN.Core
 
 		public void OnRecoverySave(XmlElement root)
 		{
-			if (GetEnabled() == false)
+			if (GetActive() == false)
 				return;
 
 			try
@@ -345,8 +345,8 @@ namespace AirVPN.Core
 		public void RouteAdd(string address, string mask)
         {
 			lock (this)
-            {				
-                if (GetEnabled() == false)
+            {
+				if (GetActive() == false)
                     return;
 
 				string key = Key(address, mask);
@@ -375,7 +375,7 @@ namespace AirVPN.Core
 			Engine.Instance.LogDebug("RouteRemove in");
             lock (this)
             {
-                if (GetEnabled() == false)
+				if (GetActive() == false)
                     return;
 
 				string key = Key(address, mask);

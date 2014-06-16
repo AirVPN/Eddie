@@ -110,7 +110,7 @@ namespace AirVPN.Core
 
 			foreach (string host in hosts)
 			{
-				if (NetworkLocking.Instance.GetEnabled())
+				if (NetworkLocking.Instance.GetActive())
 				{
 					// If locked network are enabled, skip the hostname and try only by IP.
 					// To avoid DNS issue (generally, to avoid losing time).

@@ -135,6 +135,7 @@ namespace AirVPN.Gui.Forms
 			this.colRoutesAction = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
 			this.tabAdvanced = new AirVPN.Gui.Skin.TabPage();
 			this.tabAdvancedMain = new AirVPN.Gui.Skin.TabControl();
+			this.chkAdvancedNetworkLocking = new AirVPN.Gui.Skin.CheckBox();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -159,6 +160,7 @@ namespace AirVPN.Gui.Forms
 			// tabPage1
 			// 
 			tabPage1.BackColor = System.Drawing.Color.White;
+			tabPage1.Controls.Add(this.chkAdvancedNetworkLocking);
 			tabPage1.Controls.Add(this.label7);
 			tabPage1.Controls.Add(this.cboDnsSwitchMode);
 			tabPage1.Controls.Add(this.pnlAdvancedGeneralWindowsOnly);
@@ -1139,7 +1141,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyAuthentication.Name = "lblProxyAuthentication";
 			this.lblProxyAuthentication.Size = new System.Drawing.Size(100, 20);
 			this.lblProxyAuthentication.TabIndex = 43;
-			this.lblProxyAuthentication.Text = "Authentication :";
+			this.lblProxyAuthentication.Text = "Authentication:";
 			this.lblProxyAuthentication.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// cboProxyAuthentication
@@ -1171,7 +1173,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyPassword.Name = "lblProxyPassword";
 			this.lblProxyPassword.Size = new System.Drawing.Size(100, 20);
 			this.lblProxyPassword.TabIndex = 40;
-			this.lblProxyPassword.Text = "Password :";
+			this.lblProxyPassword.Text = "Password:";
 			this.lblProxyPassword.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// txtProxyLogin
@@ -1189,7 +1191,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyLogin.Name = "lblProxyLogin";
 			this.lblProxyLogin.Size = new System.Drawing.Size(100, 20);
 			this.lblProxyLogin.TabIndex = 38;
-			this.lblProxyLogin.Text = "Login :";
+			this.lblProxyLogin.Text = "Login:";
 			this.lblProxyLogin.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// lblProxyType
@@ -1200,7 +1202,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyType.Name = "lblProxyType";
 			this.lblProxyType.Size = new System.Drawing.Size(45, 20);
 			this.lblProxyType.TabIndex = 37;
-			this.lblProxyType.Text = "Type :";
+			this.lblProxyType.Text = "Type:";
 			this.lblProxyType.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// cboProxyMode
@@ -1234,7 +1236,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyPort.Name = "lblProxyPort";
 			this.lblProxyPort.Size = new System.Drawing.Size(45, 20);
 			this.lblProxyPort.TabIndex = 34;
-			this.lblProxyPort.Text = "Port :";
+			this.lblProxyPort.Text = "Port:";
 			this.lblProxyPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// txtProxyHost
@@ -1252,7 +1254,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyHost.Name = "lblProxyHost";
 			this.lblProxyHost.Size = new System.Drawing.Size(45, 20);
 			this.lblProxyHost.TabIndex = 32;
-			this.lblProxyHost.Text = "Host :";
+			this.lblProxyHost.Text = "Host:";
 			this.lblProxyHost.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// tabRoutes
@@ -1416,6 +1418,17 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvancedMain.Size = new System.Drawing.Size(630, 291);
 			this.tabAdvancedMain.TabIndex = 56;
 			// 
+			// chkAdvancedNetworkLocking
+			// 
+			this.chkAdvancedNetworkLocking.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedNetworkLocking.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedNetworkLocking.Location = new System.Drawing.Point(450, 179);
+			this.chkAdvancedNetworkLocking.Name = "chkAdvancedNetworkLocking";
+			this.chkAdvancedNetworkLocking.Size = new System.Drawing.Size(152, 26);
+			this.chkAdvancedNetworkLocking.TabIndex = 68;
+			this.chkAdvancedNetworkLocking.Text = "Enable Network Locking";
+			this.chkAdvancedNetworkLocking.UseVisualStyleBackColor = false;
+			// 
 			// Settings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1556,6 +1569,7 @@ namespace AirVPN.Gui.Forms
 		private System.Windows.Forms.GroupBox pnlAdvancedGeneralWindowsOnly;
 		private Skin.ComboBox cboDnsSwitchMode;
 		private Skin.Label label7;
+		private Skin.CheckBox chkAdvancedNetworkLocking;
 
     }
 }

@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsEvent));
 			this.cmdOk = new AirVPN.Gui.Skin.Button();
 			this.txtArguments = new AirVPN.Gui.Skin.TextBox();
 			this.lblArguments = new AirVPN.Gui.Skin.Label();
@@ -41,7 +40,6 @@
 			// 
 			// cmdOk
 			// 
-			this.cmdOk.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cmdOk.BackgroundImage")));
 			this.cmdOk.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdOk.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
@@ -71,12 +69,11 @@
 			this.lblArguments.Name = "lblArguments";
 			this.lblArguments.Size = new System.Drawing.Size(69, 20);
 			this.lblArguments.TabIndex = 42;
-			this.lblArguments.Text = "Arguments :";
+			this.lblArguments.Text = "Arguments:";
 			this.lblArguments.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// cmdCancel
 			// 
-			this.cmdCancel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cmdCancel.BackgroundImage")));
 			this.cmdCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdCancel.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -105,7 +102,7 @@
 			this.lblFileName.Name = "lblFileName";
 			this.lblFileName.Size = new System.Drawing.Size(72, 20);
 			this.lblFileName.TabIndex = 40;
-			this.lblFileName.Text = "File name :";
+			this.lblFileName.Text = "File name:";
 			this.lblFileName.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// chkWaitEnd
@@ -122,7 +119,6 @@
 			// 
 			// cmdExeBrowse
 			// 
-			this.cmdExeBrowse.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cmdExeBrowse.BackgroundImage")));
 			this.cmdExeBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdExeBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdExeBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
@@ -155,7 +151,7 @@
 			this.Name = "SettingsEvent";
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Form1";			
+			this.Text = "Form1";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

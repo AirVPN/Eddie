@@ -140,6 +140,30 @@ namespace AirVPN.Platforms
 			return output;
 		}
 
+		public Dictionary<int, string> GetProcessesList()
+		{
+			// We experience some crash under OSX with the base method.
+			
+			Dictionary<int, string> result = new Dictionary<int,string>();
+
+			String resultS = ShellCmd("top -b -n 1 | awk '{print $1,$12}'");
+
+			string[] resultA = resultS.Split('\n');
+			foreach (string pS in resultA)
+			{
+				int posS = pS.IndexOf(' ');
+				if (posS != -1)
+				{
+					int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
+					string name = pS.Substring(posS).Trim().ToLowerInvariant();
+
+					result[pid] = name;
+				}
+			}
+
+			return result;
+		}
+
 		public override void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeDns = Utils.XmlGetFirstElementByTagName(root, "DnsSwitch");

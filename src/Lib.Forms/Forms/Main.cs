@@ -119,7 +119,6 @@ namespace AirVPN.Gui.Forms
             }
 
 			// Controls initialization
-			chkLockedNetwork.Visible = Engine.Instance.DevelopmentEnvironment;
 			mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
 			mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
 
@@ -223,9 +222,12 @@ namespace AirVPN.Gui.Forms
 			Resizing();
             Show();
 
-			m_skipNetworkLockedConfirm = true;
-            chkLockedNetwork.Checked = Engine.Storage.GetBool("advanced.locked_security");
-			m_skipNetworkLockedConfirm = false;
+			if (Engine.Storage.GetBool("advanced.netlock.enabled"))
+			{
+				m_skipNetworkLockedConfirm = true;
+				chkLockedNetwork.Checked = Engine.Storage.GetBool("advanced.netlock.active");
+				m_skipNetworkLockedConfirm = false;
+			}
 
 			/*
             if (cmdConnect.Enabled && (Engine.Storage.GetBool("connect")))
@@ -286,7 +288,7 @@ namespace AirVPN.Gui.Forms
 				else
 				{
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
-					if (NetworkLocking.Instance.GetEnabled())
+					if (NetworkLocking.Instance.GetActive())
 					{
 						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
@@ -1001,6 +1003,8 @@ namespace AirVPN.Gui.Forms
 			mnuSpeedTest.Enabled = connected;
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
+
+			chkLockedNetwork.Visible = Engine.Storage.GetBool("advanced.netlock.enabled");
 		}
 
 		private delegate void ShowFrontMessageDelegate(string message);
@@ -1317,20 +1321,20 @@ namespace AirVPN.Gui.Forms
 
 				if(confirmed)
                 {
-                    if (NetworkLocking.Instance.Enable() == false)
+                    if (NetworkLocking.Instance.Activate() == false)
                     {
 						MessageBox.Show(this, Messages.NetworkLockFailed, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Stop);
                     }
                 }
 
-				chkLockedNetwork.Checked = NetworkLocking.Instance.GetEnabled();
+				chkLockedNetwork.Checked = NetworkLocking.Instance.GetActive();
             }
             else
             {
-				NetworkLocking.Instance.Disable();
+				NetworkLocking.Instance.Deactivate();
             }
 
-			Engine.Storage.SetBool("advanced.locked_security", NetworkLocking.Instance.GetEnabled());
+			Engine.Storage.SetBool("advanced.netlock.active", NetworkLocking.Instance.GetActive());
         }
 
 

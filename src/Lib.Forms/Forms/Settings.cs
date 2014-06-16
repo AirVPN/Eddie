@@ -237,6 +237,7 @@ namespace AirVPN.Gui.Forms
 
 			chkAdvancedPingerEnabled.Checked = s.GetBool("advanced.pinger.enabled");
 			chkAdvancedPingerAlways.Checked = s.GetBool("advanced.pinger.always");
+			chkAdvancedNetworkLocking.Checked = s.GetBool("advanced.netlock.enabled");
 
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
 			chkAdvancedWindowsForceDns.Checked = s.GetBool("advanced.windows.dns_force");
@@ -452,6 +453,8 @@ namespace AirVPN.Gui.Forms
 			s.SetBool("advanced.pinger.enabled", chkAdvancedPingerEnabled.Checked);
 			s.SetBool("advanced.pinger.always", chkAdvancedPingerAlways.Checked);
 
+			s.SetBool("advanced.netlock.enabled", chkAdvancedNetworkLocking.Checked);
+			
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
 			s.SetBool("advanced.windows.dns_force", chkAdvancedWindowsForceDns.Checked);
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
