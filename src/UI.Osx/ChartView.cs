@@ -27,6 +27,27 @@ namespace AirVPN.UI.Osx
 	[Register("ChartView")]
 	public class ChartView : NSView
 	{
+		private NSColor m_colorGrid;
+		private NSColor m_colorMouse;
+		private NSColor m_colorDownloadGraph;
+		private NSColor m_colorDownloadLine;
+		private NSColor m_colorUploadGraph;
+		private NSColor m_colorUploadLine;
+		private NSColor m_colorLegendText;
+		private NSColor m_colorDownloadText;
+		private NSColor m_colorUploadText;
+
+		private int m_chartIndex = 0;
+		private Chart m_chart;
+
+		private int m_legendDY = 0; // 15
+		private int m_marginTopY = 15;
+
+		private float m_chartDX;
+		private float m_chartDY;
+		private float m_chartStartX;
+		private float m_chartStartY;
+
 		public ChartView ()
 		{
 			this.AcceptsTouchEvents = true;
@@ -40,13 +61,68 @@ namespace AirVPN.UI.Osx
 		private void Initialize ()
 		{
 			NeedsDisplay = true;
+
+
+
+			m_colorGrid = GuiUtils.ConvertColor(Colors.LightChartGrid);
+			m_colorMouse = GuiUtils.ConvertColor(Colors.LightChartMouse);
+			m_colorDownloadGraph = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
+			m_colorDownloadLine = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
+			m_colorUploadGraph = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
+			m_colorUploadLine = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
+			m_colorLegendText = GuiUtils.ConvertColor(Colors.LightChartLegend);
+			m_colorDownloadText = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
+			m_colorUploadText = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
+
+
+			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
+
+			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);
+			Reset();
+		}
+
+		void Charts_UpdateEvent()
+		{
+			Invalidate();
+		}
+
+		public string ValToDesc(Int64 v)
+		{
+			return Utils.FormatBytesEx2(v * 8, true) + "/s (" + Utils.FormatBytesEx2(v, false) + "/s)";
+		}
+
+		public void Switch(int chartIndex)
+		{
+			m_chartIndex = chartIndex;
+			if ((m_chartIndex < 0) || (m_chartIndex >= Engine.Instance.Stats.Charts.ChartsList.Count))
+				m_chartIndex = 0;
+
+			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
+
+			Invalidate();
+		}
+
+		private Rectangle ChartRectangle(float x, float y, float w, float h)
+		{
+			return new Rectangle(Conversions.ToInt32(x), Conversions.ToInt32(y), Conversions.ToInt32(w), Conversions.ToInt32(h));
+		}
+
+		private Point ChartPoint(float x, float y)
+		{
+			return new Point(Conversions.ToInt32(x), Conversions.ToInt32(y));
+		}
+
+		private DrawLine(NSColor color, float x1, float y1, float x2, float y2)
+		{
+			color.Set();
+			NSBezierPath.StrokeLine (new PointF(x1,y1), new PointF(x2,y2));
 		}
 
 		public override void DrawRect (System.Drawing.RectangleF dirtyRect)
 		{
 			var context = NSGraphicsContext.CurrentContext.GraphicsPort;
-			context.SetFillColor(new CGColor(1,1,1)); //White
-			context.FillRect (dirtyRect);
+			//context.SetFillColor(new CGColor(1,1,1)); //White
+			//context.FillRect (dirtyRect);
 
 			int GridSize = 10;
 
@@ -82,6 +158,173 @@ namespace AirVPN.UI.Osx
 				var pointTo = new PointF ((i * GridSize - 0.5f),this.Bounds.Size.Height);
 
 				NSBezierPath.StrokeLine (pointFrom, pointTo);
+			}
+
+
+
+
+			int DX = this.ClientRectangle.Width;
+			int DY = this.ClientRectangle.Height;
+
+			//e.Graphics.FillRectangle(BrushBackground, this.ClientRectangle);				
+			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
+
+			m_chartDX = this.ClientRectangle.Width;
+			m_chartDY = this.ClientRectangle.Height - m_legendDY;
+			m_chartStartX = 0;
+			m_chartStartY = m_chartDY;
+
+
+			float maxY = m_chart.GetMax();
+			if (maxY <= 0)
+				maxY = 4096;
+			else if (maxY > 1000000000000)
+				maxY = 1000000000000;
+
+			Point lastPointDown = new Point(-1, -1);
+			Point lastPointUp = new Point(-1, -1);
+
+			float stepX = (m_chartDX - 0) / m_chart.Resolution;
+
+			// Grid lines				
+			for (int g = 0; g < m_chart.Grid; g++)
+			{
+				float x = ((m_chartDX - 0) / m_chart.Grid) * g;
+				DrawLine(PenGrid, m_chartStartX + x, 0, m_chartStartX + x, m_chartStartY);
+			}
+
+			// Axis line
+			DrawLine(Pens.Gray, 0, m_chartStartY, m_chartDX, m_chartStartY);
+
+			// Legend
+			/*
+			{
+				string legend = "";
+				legend += Messages.ChartRange + ": " + Utils.FormatSeconds(m_chart.Resolution * m_chart.TimeStep);
+				legend += "   ";
+				legend += Messages.ChartGrid + ": " + Utils.FormatSeconds(m_chart.Resolution / m_chart.Grid * m_chart.TimeStep);
+				legend += "   ";
+				legend += Messages.ChartStep + ": " + Utils.FormatSeconds(m_chart.TimeStep);
+
+				Point mp = Cursor.Position;
+				mp = PointToClient(mp);
+				if ((mp.X > 0) && (mp.Y < chartDX) && (mp.Y > chartDY) && (mp.Y < DY))
+					legend += " - " + Messages.ChartClickToChangeResolution;
+
+				e.Graphics.DrawString(legend, FontLabel, BrushLegendText, ChartRectangle(0, chartStartY, chartDX, m_legendDY), formatTopCenter);
+			}
+			*/
+
+			// Graph
+			for (int i = 0; i < m_chart.Resolution; i++)
+			{
+				int p = i + m_chart.Pos + 1;
+				if (p >= m_chart.Resolution)
+					p -= m_chart.Resolution;
+
+				float downY = ((m_chart.Download[p]) * (m_chartDY - m_marginTopY)) / maxY;
+				float upY = ((m_chart.Upload[p]) * (m_chartDY - m_marginTopY)) / maxY;
+
+				Point pointDown = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - downY);
+				Point pointUp = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - upY);
+
+				//e.Graphics.DrawLine(Pens.Green, new Point(0,0), point);
+
+				if (lastPointDown.X != -1)
+				{
+					DrawLine(PenDownloadGraph, lastPointDown, pointDown);
+					DrawLine(PenUploadGraph, lastPointUp, pointUp);
+				}
+
+				lastPointDown = pointDown;
+				lastPointUp = pointUp;
+			}
+
+			// Download line
+			float downCurY = 0;
+			{
+				long v = m_chart.GetLastDownload();
+				downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
+				DrawLine(PenDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
+				Form.DrawStringOutline(e.Graphics, Messages.ChartDownload + ": " + ValToDesc(v), FontLabel, BrushDownloadText, ChartRectangle(0, 0, chartDX, chartStartY - downCurY), formatBottomRight);
+			}
+
+			// Upload line
+			{
+				long v = m_chart.GetLastUpload();
+				float y = ((v) * (m_chartDY - m_marginTopY)) / maxY;
+				float dly = 0;
+				if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
+				DrawLine(PenUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
+				Form.DrawStringOutline(e.Graphics, Messages.ChartUpload + ": " + ValToDesc(v), FontLabel, BrushUploadText, ChartRectangle(0, 0, chartDX, chartStartY - y - dly), formatBottomRight);
+			}
+
+			// Mouse lines
+			{
+				Point mp = Cursor.Position;
+				mp = PointToClient(mp);
+
+				if ((mp.X > 0) && (mp.Y < m_chartDX) && (mp.Y > 0) && (mp.Y < m_chartDY))
+				{
+					e.Graphics.DrawLine(PenMouse, 0, mp.Y, m_chartDX, mp.Y);
+					e.Graphics.DrawLine(PenMouse, mp.X, 0, mp.X, m_chartDY);
+
+					float i = (m_chartDX - (mp.X - m_chartStartX)) / stepX;
+
+					int t = Conversions.ToInt32(i * m_chart.TimeStep);
+
+					//float y = mp.Y * maxY / (chartDY - m_marginTopY);
+					float y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
+
+					String label = ValToDesc(Conversions.ToInt64(y)) + ", " + Utils.FormatSeconds(t) + " ago";
+
+					StringFormat formatAlign = formatBottomLeft;
+					Rectangle rect = new Rectangle();
+					//if(DX - mp.X > DX / 2)
+					if (mp.X < DX - 150)
+					{
+						//if (DY - mp.Y > DY / 2)
+						if (mp.Y < 20)
+						{
+							formatAlign = formatTopLeft;
+							rect.X = mp.X + 20;
+							rect.Y = mp.Y + 5;
+							rect.Width = DX;
+							rect.Height = DX;
+						}
+						else
+						{
+							formatAlign = formatBottomLeft;
+							rect.X = mp.X + 20;
+							rect.Y = 0;
+							rect.Width = DX;
+							rect.Height = mp.Y - 5;
+						}
+					}
+					else
+					{
+						//if (DY - mp.Y > DY / 2)
+						if (mp.Y < 20)
+						{
+							formatAlign = formatTopRight;
+							rect.X = 0;
+							rect.Y = mp.Y;
+							rect.Width = mp.X - 20;
+							rect.Height = DY;
+						}
+						else
+						{
+							formatAlign = formatBottomRight;
+							rect.X = 0;
+							rect.Y = 0;
+							rect.Width = mp.X - 20;
+							rect.Height = mp.Y - 5;
+
+						}
+					}
+
+					Form.DrawStringOutline(e.Graphics, label, FontLabel, BrushMouse, rect, formatAlign);
+				}
 			}
 		}
 	}

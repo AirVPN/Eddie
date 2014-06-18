@@ -29,6 +29,10 @@ namespace AirVPN.UI.Osx
 {
 	public static class GuiUtils
 	{
+		public static NSColor ConvertColor(System.Drawing.Color c)
+		{
+			return NSColor.FromSrgb(100 / 255.0f, 149 / 255.0f, 237 / 255.0f, 0.3f);
+		}
 		public static void SetSelected(NSPopUpButton control, string value)
 		{
 			control.SelectItem (value);

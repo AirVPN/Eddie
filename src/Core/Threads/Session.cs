@@ -510,7 +510,11 @@ namespace AirVPN.Core.Threads
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
-				//pazzo Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
+				// Exception: under OSX with chmod 700 fail, need investigation.
+				if (Platform.Instance.GetCode() != "OSX") 
+				{
+					Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
+				}
 			}
 			
 			string arguments = "";

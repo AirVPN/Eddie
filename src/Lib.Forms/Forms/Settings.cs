@@ -220,7 +220,6 @@ namespace AirVPN.Gui.Forms
                         
             chkAdvancedCheckDns.Checked = s.GetBool("advanced.check.dns");
             chkAdvancedCheckRoute.Checked = s.GetBool("advanced.check.route");
-			//chkDnsSwitch.Checked = s.GetBool("advanced.dnsswitch"); // TOCLEAN
 			cboDnsSwitchMode.Text = s.Get("advanced.dns.mode");
 
 			string dnsMode = s.Get("advanced.dns.mode");
@@ -435,7 +434,6 @@ namespace AirVPN.Gui.Forms
             s.SetBool("advanced.expert", chkExpert.Checked);            
             s.SetBool("advanced.check.dns", chkAdvancedCheckDns.Checked);
             s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
-			//s.SetBool("advanced.dnsswitch", chkDnsSwitch.Checked); // TOCLEAN
 			s.Set("advanced.dns.mode", cboDnsSwitchMode.Text);
 
 			string dnsMode = cboDnsSwitchMode.Text;

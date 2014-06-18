@@ -1402,30 +1402,23 @@ namespace AirVPN.Core
 
 			if (Storage.GetBool("advanced.skip_alreadyrun") == false)
 			{
-				System.Diagnostics.Process[] processlist = Process.GetProcesses();
-
-				foreach (System.Diagnostics.Process theprocess in processlist)
+				Dictionary<int, string> processes = Platform.Instance.GetProcessesList();
+				
+				foreach (string name in processes.Values)
 				{
-					try
+					if (name == "openvpn")
+						throw new Exception(Messages.AlreadyRunningOpenVPN);
+
+					if ((protocol == "SSL") && (name == "stunnel"))
 					{
-						if (theprocess.ProcessName.ToLower() == "openvpn")
-							throw new Exception(Messages.AlreadyRunningOpenVPN);
-
-						if ((protocol == "SSL") && (theprocess.ProcessName.ToLower() == "stunnel"))
-						{
-							throw new Exception(Messages.AlreadyRunningSTunnel);
-						}
-
-						if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "plink"))
-							throw new Exception(Messages.AlreadyRunningSshPLink);
-
-						if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "ssh"))
-							throw new Exception(Messages.AlreadyRunningSsh);
+						throw new Exception(Messages.AlreadyRunningSTunnel);
 					}
-					catch (System.InvalidOperationException)
-					{
-						// occur on some OSX process, ignore it.
-					}
+
+					if ((protocol == "SSH") && (name == "plink"))
+						throw new Exception(Messages.AlreadyRunningSshPLink);
+
+					if ((protocol == "SSH") && (name == "ssh"))
+						throw new Exception(Messages.AlreadyRunningSsh);					
 				}
 			}
 

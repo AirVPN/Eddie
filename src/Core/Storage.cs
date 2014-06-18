@@ -257,9 +257,8 @@ namespace AirVPN.Core
 
 		public string GetTempPath(string extension)
 		{
-			//pazzo;
-			//return DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
-			return "/tmp/" + RandomGenerator.GetHash() + ".tmp." + extension;
+			return DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
+			//return "/tmp/" + RandomGenerator.GetHash() + ".tmp." + extension;
 		}
 
         public void EnsureDefaults()
@@ -318,7 +317,6 @@ namespace AirVPN.Core
 			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);						
 			SetDefaultBool("advanced.check.dns", false, Messages.ManOptionAdvancedCheckDns);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
-			//SetDefaultBool("advanced.dnsswitch", false, Messages.ManOptionAdvancedDnsSwitch); // TOCLEAN
 			SetDefault("advanced.dns.mode", "auto", Messages.ManOptionAdvancedDnsSwitch);
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
