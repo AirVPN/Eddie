@@ -152,6 +152,8 @@
     <Compile Include="WindowPreferencesEvent.designer.cs">
       <DependentUpon>WindowPreferencesEvent.cs</DependentUpon>
     </Compile>
+    <Compile Include="TableAdvancedEventsController.cs" />
+    <Compile Include="TableRoutingController.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

@@ -157,17 +157,18 @@ namespace AirVPN.Core
                 
         public string Get(string name)
         {
-            lock (this)
-            {
-                if (CommandLine.Params.ContainsKey(name))
-					return CommandLine.Params[name];
-                else if (m_Options.ContainsKey(name))
-                    return m_Options[name];
-                else if (m_OptionsDefaults.ContainsKey(name))
-                    return m_OptionsDefaults[name];
-                else
-                    throw new Exception("Unknown option '" + name + "'");
-            }
+			lock (this) {
+				if (CommandLine.Params.ContainsKey (name))
+					return CommandLine.Params [name];
+				else if (m_Options.ContainsKey (name))
+					return m_Options [name];
+				else if (m_OptionsDefaults.ContainsKey (name))
+					return m_OptionsDefaults [name];
+				else {
+					Engine.Instance.Log (Engine.LogType.Error, "Unknown option '" + name + "'");
+					return "";
+				}
+			}
         }
 
 		public string GetLower(string name)
@@ -256,7 +257,9 @@ namespace AirVPN.Core
 
 		public string GetTempPath(string extension)
 		{
-			return DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
+			//pazzo;
+			//return DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
+			return "/tmp/" + RandomGenerator.GetHash() + ".tmp." + extension;
 		}
 
         public void EnsureDefaults()

@@ -1,35 +1,38 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/8/2014 12:15:57 AM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="ChartView.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../Core/Threads/Session.cs">
     <Files>
       <File FileName="TableServersController.cs" Line="1" Column="1" />
       <File FileName="TableServersDelegate.cs" Line="1" Column="1" />
       <File FileName="../Core/ServerInfo.cs" Line="1" Column="1" />
-      <File FileName="../Platforms.Osx/Osx.cs" Line="51" Column="10" />
+      <File FileName="../Platforms.Osx/Osx.cs" Line="143" Column="19" />
       <File FileName="../Deploy/Program.cs" Line="1" Column="1" />
-      <File FileName="../Core/Threads/Session.cs" Line="814" Column="73" />
-      <File FileName="../Core/Engine.cs" Line="1431" Column="7" />
+      <File FileName="../Core/Threads/Session.cs" Line="513" Column="13" />
+      <File FileName="../Core/Engine.cs" Line="1" Column="1" />
       <File FileName="../Core/Threads/Pinger.cs" Line="1" Column="1" />
       <File FileName="Main.cs" Line="1" Column="1" />
-      <File FileName="../Core/Process.cs" Line="15" Column="26" />
-      <File FileName="ChartView.cs" Line="66" Column="13" />
-      <File FileName="MainWindow.cs" Line="22" Column="1" />
-      <File FileName="MainWindowController.cs" Line="126" Column="4" />
+      <File FileName="../Core/Process.cs" Line="1" Column="1" />
+      <File FileName="ChartView.cs" Line="1" Column="1" />
+      <File FileName="MainWindow.cs" Line="1" Column="1" />
+      <File FileName="MainWindowController.cs" Line="122" Column="5" />
+      <File FileName="WindowPreferencesController.cs" Line="364" Column="8" />
+      <File FileName="WindowPreferencesRoute.cs" Line="1" Column="1" />
+      <File FileName="WindowPreferencesRouteController.cs" Line="1" Column="1" />
+      <File FileName="WindowPreferencesEvent.cs" Line="1" Column="1" />
+      <File FileName="WindowPreferencesEventController.cs" Line="1" Column="1" />
+      <File FileName="WindowFrontMessage.cs" Line="1" Column="1" />
+      <File FileName="WindowPreferences.designer.cs" Line="1" Column="1" />
+      <File FileName="WindowPreferences.cs" Line="1" Column="1" />
+      <File FileName="../Core/Storage.cs" Line="262" Column="69" />
+      <File FileName="TableRoutingController.cs" Line="56" Column="4" />
+      <File FileName="TableAdvancedEventsController.cs" Line="46" Column="39" />
+      <File FileName="MainWindowDelegate.cs" Line="24" Column="52" />
+      <File FileName="../Core/TemporaryFiles.cs" Line="37" Column="16" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True">
-          <Node name="Platforms.Osx" expanded="True" />
-          <Node name="UI.Osx" expanded="True">
-            <Node name="WindowPreferences.xib" selected="True" />
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/Core/Engine.cs" line="1434" column="1" />
+      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/Core/Engine.cs" line="1432" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

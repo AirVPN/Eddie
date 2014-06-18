@@ -121,8 +121,6 @@ namespace AirVPN.UI.Osx
 
 			}
 
-			ChkLockedMode.State = (Engine.Storage.GetBool ("advanced.locked_security") ? NSCellStateValue.On : NSCellStateValue.Off);
-
 
 
 			ChkRemember.Activated += (object sender, EventArgs e) =>
@@ -491,6 +489,8 @@ namespace AirVPN.UI.Osx
 
 			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
 			CmdLogsOpenVpnManagement.Enabled = connected;
+
+			ChkLockedMode.Hidden = (Engine.Storage.GetBool ("advanced.netlock.enabled") == false);
 		}
 
 		public void FrontMessage(string message)

@@ -218,12 +218,10 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-							/*
 							if( (m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited) ) // 2.2
 								m_reset = "ERROR";
 							if( (m_processProxy != null) && (m_processProxy.ReallyExited) ) // 2.2
 								m_reset = "ERROR";
-							*/
 
 							if (Engine.IsConnected())
 								break;
@@ -512,7 +510,7 @@ namespace AirVPN.Core.Threads
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
-				Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
+				//pazzo Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
 			}
 			
 			string arguments = "";

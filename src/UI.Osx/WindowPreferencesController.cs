@@ -34,6 +34,10 @@ namespace AirVPN.UI.Osx
 		private bool m_modeSshEnabled = true;
 		private bool m_modeSslEnabled = true;
 
+
+		private TableRoutingController TableRoutingController;
+		private TableAdvancedEventsController TableAdvancedEventsController;
+
 		#region Constructors
 		// Called when created from unmanaged code
 		public WindowPreferencesController (IntPtr handle) : base (handle)
@@ -67,10 +71,12 @@ namespace AirVPN.UI.Osx
 		{
 			base.AwakeFromNib ();
 
+
+
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
 
-
-
+			TableRoutingController = new TableRoutingController (this.TableRoutes);
+			TableAdvancedEventsController = new TableAdvancedEventsController (this.TableAdvancedEvents);
 
 			CmdSave.Activated += (object sender, EventArgs e) => {
 				SaveOptions ();
@@ -345,6 +351,8 @@ namespace AirVPN.UI.Osx
 			// Routes
 			GuiUtils.SetSelected(CboRoutesOtherwise, RouteDirectionToDescription(s.Get("routes.default")));
 
+			TableRoutingController.RefreshUI();
+
 			// Advanced
 			GuiUtils.SetCheck (ChkAdvancedExpertMode, s.GetBool ("advanced.expert"));
 			GuiUtils.SetCheck (ChkAdvancedCheckDns, s.GetBool ("advanced.check.dns"));
@@ -366,6 +374,9 @@ namespace AirVPN.UI.Osx
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ().Replace("\t","");
+
+
+			TableAdvancedEventsController.RefreshUI ();
 		}
 
 		void SaveOptions()

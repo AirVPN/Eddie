@@ -49,7 +49,7 @@ namespace AirVPN.Platforms
 
         public override bool IsAdmin()
         {
-			return true; // Uncomment for debugging
+			//return true; // Uncomment for debugging
 
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
 			string u = ShellCmd ("whoami").ToLowerInvariant().Trim();
@@ -140,7 +140,7 @@ namespace AirVPN.Platforms
 			return output;
 		}
 
-		public Dictionary<int, string> GetProcessesList()
+		public override Dictionary<int, string> GetProcessesList()
 		{
 			// We experience some crash under OSX with the base method.
 			
