@@ -237,6 +237,11 @@ namespace AirVPN.Core
 
                 DefaultGateway = "";
 
+				EntryAdded.Clear();
+				EntryRemoved.Clear();
+
+				Recovery.Save();
+
 				Engine.Instance.Log(Engine.LogType.Verbose, "Locked network de-activated.");
             }
         }
@@ -259,7 +264,7 @@ namespace AirVPN.Core
 					}
 
 					XmlElement nodeRemoved = node.GetElementsByTagName("removed")[0] as XmlElement;
-					foreach (XmlElement nodeEntry in nodeAdded.ChildNodes)
+					foreach (XmlElement nodeEntry in nodeRemoved.ChildNodes)
 					{
 						RouteEntry entry = new RouteEntry();
 						entry.ReadXML(nodeEntry);

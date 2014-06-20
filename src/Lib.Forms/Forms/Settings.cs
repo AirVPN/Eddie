@@ -76,7 +76,9 @@ namespace AirVPN.Gui.Forms
             }
 
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
-			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");            
+			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
+
+			chkAdvancedNetworkLocking.Visible = Engine.DevelopmentEnvironment;
 
             ReadOptions();
 

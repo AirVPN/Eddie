@@ -203,6 +203,8 @@ namespace AirVPN.Core
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
+			if (p > 1)
+				p = 1;
 
 			String label = Convert.ToInt16(p * 100).ToString() + "%, " + bwCur.ToString() + "/" + bwMax.ToString() + " Mbit/s";
 
