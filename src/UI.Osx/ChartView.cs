@@ -21,6 +21,8 @@ using System.Drawing;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using MonoMac.CoreGraphics;
+using AirVPN.Core;
+using AirVPN.Core.UI;
 
 namespace AirVPN.UI.Osx
 {
@@ -28,12 +30,13 @@ namespace AirVPN.UI.Osx
 	public class ChartView : NSView
 	{
 		private NSColor m_colorGrid;
+		private NSColor m_colorAxis;
 		private NSColor m_colorMouse;
 		private NSColor m_colorDownloadGraph;
 		private NSColor m_colorDownloadLine;
 		private NSColor m_colorUploadGraph;
 		private NSColor m_colorUploadLine;
-		private NSColor m_colorLegendText;
+		//private NSColor m_colorLegendText;
 		private NSColor m_colorDownloadText;
 		private NSColor m_colorUploadText;
 
@@ -61,16 +64,33 @@ namespace AirVPN.UI.Osx
 		private void Initialize ()
 		{
 			NeedsDisplay = true;
+		}
 
+		public override bool AcceptsFirstResponder ()
+		{
+			//return base.AcceptsFirstResponder ();
+			return true;
+		}
+			
+		public override void MouseMoved (NSEvent theEvent)
+		{
+			base.MouseMoved (theEvent);
 
+			NeedsDisplay = true;
+		}
+
+		public override void AwakeFromNib ()
+		{
+			base.AwakeFromNib ();
 
 			m_colorGrid = GuiUtils.ConvertColor(Colors.LightChartGrid);
+			m_colorAxis = GuiUtils.ConvertColor (Colors.LightChartAxis);
 			m_colorMouse = GuiUtils.ConvertColor(Colors.LightChartMouse);
 			m_colorDownloadGraph = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
 			m_colorDownloadLine = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
 			m_colorUploadGraph = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
 			m_colorUploadLine = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
-			m_colorLegendText = GuiUtils.ConvertColor(Colors.LightChartLegend);
+			//m_colorLegendText = GuiUtils.ConvertColor(Colors.LightChartLegend);
 			m_colorDownloadText = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
 			m_colorUploadText = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
 
@@ -78,12 +98,14 @@ namespace AirVPN.UI.Osx
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
 			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);
-			Reset();
+
+
 		}
+
 
 		void Charts_UpdateEvent()
 		{
-			Invalidate();
+			NeedsDisplay = true;
 		}
 
 		public string ValToDesc(Int64 v)
@@ -99,7 +121,8 @@ namespace AirVPN.UI.Osx
 
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
-			Invalidate();
+			NeedsDisplay = true;
+
 		}
 
 		private Rectangle ChartRectangle(float x, float y, float w, float h)
@@ -112,15 +135,72 @@ namespace AirVPN.UI.Osx
 			return new Point(Conversions.ToInt32(x), Conversions.ToInt32(y));
 		}
 
-		private DrawLine(NSColor color, float x1, float y1, float x2, float y2)
+		private PointF Invert(PointF p)
 		{
-			color.Set();
-			NSBezierPath.StrokeLine (new PointF(x1,y1), new PointF(x2,y2));
+			p.Y = Bounds.Height - p.Y;
+			return p;
 		}
 
+		private RectangleF Invert(RectangleF r)
+		{
+			r.Y = Bounds.Height - r.Y;
+			return r;
+		}
+
+		private void DrawLine(NSColor color, float x1, float y1, float x2, float y2)
+		{
+			DrawLine(color, new PointF(x1,y1), new PointF(x2,y2));
+		}
+
+		private void DrawLine(NSColor color, PointF p1, PointF p2)
+		{
+			color.Set();
+			NSBezierPath.StrokeLine (Invert(p1), Invert(p2));
+		}
+
+		private void DrawStringOutline(string text, NSColor color, RectangleF rect, int align)
+		{
+
+			NSDictionary attributes = new NSDictionary ();
+			NSString nsString = new NSString (text);
+
+			int halign = align % 3;
+			int valign = align / 3;
+
+
+			//nsString = new NSString ("h:" + Conversions.ToString (halign) + ",v:" + Conversions.ToString (valign));
+
+
+			SizeF size = nsString.StringSize (attributes);
+
+			//NSGraphicsContext.CurrentContext.GraphicsPort.SelectFont ("Arial", 50, CGTextEncoding.MacRoman);
+
+			if (halign == 0) {
+			} else if (halign == 1) {
+				rect.X = (rect.Left + rect.Right) / 2 - size.Width / 2;
+			} else if (halign == 2) {
+				rect.X = rect.Right - size.Width;
+			}
+			rect.Width = size.Width;
+
+			if (valign == 0) {
+			} else if (valign == 1) {
+				rect.Y = (rect.Top + rect.Bottom) / 2 - size.Height / 2;
+			} else if (valign == 2) {
+				rect.Y = rect.Bottom - size.Height;
+			}
+			rect.Height = size.Height;
+			
+			//this.DrawRect (rect);
+
+			nsString.DrawString(Invert(rect), attributes);
+		}
+			
 		public override void DrawRect (System.Drawing.RectangleF dirtyRect)
 		{
 			var context = NSGraphicsContext.CurrentContext.GraphicsPort;
+
+			/*
 			//context.SetFillColor(new CGColor(1,1,1)); //White
 			//context.FillRect (dirtyRect);
 
@@ -159,18 +239,19 @@ namespace AirVPN.UI.Osx
 
 				NSBezierPath.StrokeLine (pointFrom, pointTo);
 			}
+			*/
 
 
 
 
-			int DX = this.ClientRectangle.Width;
-			int DY = this.ClientRectangle.Height;
+			float DX = this.Bounds.Size.Width;
+			float DY = this.Bounds.Size.Height;
 
 			//e.Graphics.FillRectangle(BrushBackground, this.ClientRectangle);				
-			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
+			//Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
 
-			m_chartDX = this.ClientRectangle.Width;
-			m_chartDY = this.ClientRectangle.Height - m_legendDY;
+			m_chartDX = DX;
+			m_chartDY = DY - m_legendDY;
 			m_chartStartX = 0;
 			m_chartStartY = m_chartDY;
 
@@ -190,11 +271,11 @@ namespace AirVPN.UI.Osx
 			for (int g = 0; g < m_chart.Grid; g++)
 			{
 				float x = ((m_chartDX - 0) / m_chart.Grid) * g;
-				DrawLine(PenGrid, m_chartStartX + x, 0, m_chartStartX + x, m_chartStartY);
+				DrawLine(m_colorGrid, m_chartStartX + x, 0, m_chartStartX + x, m_chartStartY);
 			}
 
 			// Axis line
-			DrawLine(Pens.Gray, 0, m_chartStartY, m_chartDX, m_chartStartY);
+			DrawLine(m_colorAxis, 0, m_chartStartY, m_chartDX, m_chartStartY);
 
 			// Legend
 			/*
@@ -232,8 +313,8 @@ namespace AirVPN.UI.Osx
 
 				if (lastPointDown.X != -1)
 				{
-					DrawLine(PenDownloadGraph, lastPointDown, pointDown);
-					DrawLine(PenUploadGraph, lastPointUp, pointUp);
+					DrawLine(m_colorDownloadGraph, lastPointDown, pointDown);
+					DrawLine(m_colorUploadGraph, lastPointUp, pointUp);
 				}
 
 				lastPointDown = pointDown;
@@ -245,8 +326,8 @@ namespace AirVPN.UI.Osx
 			{
 				long v = m_chart.GetLastDownload();
 				downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
-				DrawLine(PenDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
-				Form.DrawStringOutline(e.Graphics, Messages.ChartDownload + ": " + ValToDesc(v), FontLabel, BrushDownloadText, ChartRectangle(0, 0, chartDX, chartStartY - downCurY), formatBottomRight);
+				DrawLine(m_colorDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
+				DrawStringOutline(Messages.ChartDownload + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - downCurY), 8);
 			}
 
 			// Upload line
@@ -255,19 +336,26 @@ namespace AirVPN.UI.Osx
 				float y = ((v) * (m_chartDY - m_marginTopY)) / maxY;
 				float dly = 0;
 				if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
-				DrawLine(PenUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
-				Form.DrawStringOutline(e.Graphics, Messages.ChartUpload + ": " + ValToDesc(v), FontLabel, BrushUploadText, ChartRectangle(0, 0, chartDX, chartStartY - y - dly), formatBottomRight);
+				DrawLine(m_colorUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
+				DrawStringOutline(Messages.ChartUpload + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - y - dly), 8);
+
 			}
 
 			// Mouse lines
 			{
-				Point mp = Cursor.Position;
-				mp = PointToClient(mp);
+				PointF mp = Window.MouseLocationOutsideOfEventStream;
+				mp.X -= this.Frame.Left;
+				mp.Y -= this.Frame.Top;
+				//mp = ParentWindow.ConvertPointToView (mp, this);
+
+				mp = Invert (mp);
+
+				//mp = Window.ConvertScreenToBase (mp);
 
 				if ((mp.X > 0) && (mp.Y < m_chartDX) && (mp.Y > 0) && (mp.Y < m_chartDY))
 				{
-					e.Graphics.DrawLine(PenMouse, 0, mp.Y, m_chartDX, mp.Y);
-					e.Graphics.DrawLine(PenMouse, mp.X, 0, mp.X, m_chartDY);
+					DrawLine(m_colorMouse, 0, mp.Y, m_chartDX, mp.Y);
+					DrawLine(m_colorMouse, mp.X, 0, mp.X, m_chartDY);
 
 					float i = (m_chartDX - (mp.X - m_chartStartX)) / stepX;
 
@@ -278,15 +366,15 @@ namespace AirVPN.UI.Osx
 
 					String label = ValToDesc(Conversions.ToInt64(y)) + ", " + Utils.FormatSeconds(t) + " ago";
 
-					StringFormat formatAlign = formatBottomLeft;
-					Rectangle rect = new Rectangle();
+					int formatAlign = 6;
+					RectangleF rect = new RectangleF();
 					//if(DX - mp.X > DX / 2)
 					if (mp.X < DX - 150)
 					{
 						//if (DY - mp.Y > DY / 2)
 						if (mp.Y < 20)
 						{
-							formatAlign = formatTopLeft;
+							formatAlign = 0;
 							rect.X = mp.X + 20;
 							rect.Y = mp.Y + 5;
 							rect.Width = DX;
@@ -294,7 +382,7 @@ namespace AirVPN.UI.Osx
 						}
 						else
 						{
-							formatAlign = formatBottomLeft;
+							formatAlign = 6;
 							rect.X = mp.X + 20;
 							rect.Y = 0;
 							rect.Width = DX;
@@ -306,7 +394,7 @@ namespace AirVPN.UI.Osx
 						//if (DY - mp.Y > DY / 2)
 						if (mp.Y < 20)
 						{
-							formatAlign = formatTopRight;
+							formatAlign = 2;
 							rect.X = 0;
 							rect.Y = mp.Y;
 							rect.Width = mp.X - 20;
@@ -314,7 +402,7 @@ namespace AirVPN.UI.Osx
 						}
 						else
 						{
-							formatAlign = formatBottomRight;
+							formatAlign = 8;
 							rect.X = 0;
 							rect.Y = 0;
 							rect.Width = mp.X - 20;
@@ -323,9 +411,10 @@ namespace AirVPN.UI.Osx
 						}
 					}
 
-					Form.DrawStringOutline(e.Graphics, label, FontLabel, BrushMouse, rect, formatAlign);
+					DrawStringOutline(label, m_colorMouse, rect, formatAlign);
 				}
 			}
+
 		}
 	}
 }

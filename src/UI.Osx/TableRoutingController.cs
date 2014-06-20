@@ -28,14 +28,15 @@ namespace AirVPN.UI.Osx
 	{
 		public string Ip;
 		public string NetMask;
-		public int Action;
+		public string Action;
+		public string Icon;
 	}
 
 	public class TableRoutingController : NSTableViewDataSource
 	{
 		public NSTableView tableView;
 
-		private List<TableRoutingControllerItem> m_items = new List<TableRoutingControllerItem>();
+		public List<TableRoutingControllerItem> Items = new List<TableRoutingControllerItem>();
 
 		public TableRoutingController (NSTableView tableView)
 		{
@@ -52,17 +53,17 @@ namespace AirVPN.UI.Osx
 
 		public override int GetRowCount (NSTableView tableView)
 		{
-			return m_items.Count;
+			return Items.Count;
 		}
 
 		public override NSObject GetObjectValue (NSTableView tableView, 
 		                                         NSTableColumn tableColumn, 
 		                                         int row)
 		{
-			TableRoutingControllerItem i = m_items [row];
+			TableRoutingControllerItem i = Items [row];
 
 			if (tableColumn.Identifier == "Icon") {
-				if (i.Action == 0)
+				if (i.Icon == "in")
 					return NSImage.ImageNamed ("routes_in.png");
 				else
 					return NSImage.ImageNamed ("routes_out.png");
@@ -74,7 +75,7 @@ namespace AirVPN.UI.Osx
 				return new NSString (i.NetMask);
 			}
 			else if (tableColumn.Identifier == "Action") {
-				return new NSString (i.NetMask);
+				return new NSString (i.Action);
 			}
 			else 
 				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));

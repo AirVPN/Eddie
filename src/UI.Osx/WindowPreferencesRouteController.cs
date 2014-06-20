@@ -26,6 +26,9 @@ namespace AirVPN.UI.Osx
 {
 	public partial class WindowPreferencesRouteController : MonoMac.AppKit.NSWindowController
 	{
+		public TableRoutingControllerItem Item;
+
+
 		#region Constructors
 
 		// Called when created from unmanaged code

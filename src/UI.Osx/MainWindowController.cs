@@ -79,6 +79,8 @@ namespace AirVPN.UI.Osx
 
 			Window.Delegate = new MainWindowDelegate (this);
 
+			Window.AcceptsMouseMovedEvents = true;
+
 			CreateMenuBarIcon ();
 
 			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off; 
@@ -247,6 +249,10 @@ namespace AirVPN.UI.Osx
 				Engine.Storage.Set ("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
 
 				RefreshUi (AirVPN.Core.Engine.RefreshUiMode.Full);
+			};
+
+			CboSpeedResolutions.Activated += (object sender, EventArgs e) => {
+				(PnlChart as ChartView).Switch(CboSpeedResolutions.IndexOfItem(CboSpeedResolutions.SelectedItem));
 			};
 
 			CmdLogsClean.Activated += (object sender, EventArgs e) => {

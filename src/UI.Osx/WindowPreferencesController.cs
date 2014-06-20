@@ -260,6 +260,34 @@ namespace AirVPN.UI.Osx
 			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("in"));
 			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("out"));
 
+			CmdRouteAdd.Activated += (object sender, EventArgs e) => {
+				TableRoutingControllerItem item = new TableRoutingControllerItem();
+				item.Ip = "";
+				item.NetMask = "255.255.255.255";
+				item.Icon = "out";
+				item.Action = RouteDirectionToDescription("out");
+
+				WindowPreferencesRouteController dlg = new WindowPreferencesRouteController ();
+				dlg.Window.ReleasedWhenClosed = true;
+				dlg.Item = item;
+				NSApplication.SharedApplication.RunModalForWindow (dlg.Window);
+				dlg.Window.Close ();
+
+				if (dlg.Item != null) {
+					TableRoutingController.Items.Add(dlg.Item);
+				}
+
+				this.EnableIde();
+			};
+
+			CmdRouteRemove.Activated += (object sender, EventArgs e) => {
+				// pazzo
+			};
+
+			CmdRouteEdit.Activated += (object sender, EventArgs e) => {
+				// pazzo
+			};
+
 			// Advanced
 			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
 				Core.UI.Actions.OpenUrlDocsAdvanced();
@@ -271,6 +299,8 @@ namespace AirVPN.UI.Osx
 
 
 
+
+			ChkAdvancedNetworkLocking.Hidden = (Engine.Instance.DevelopmentEnvironment == false);
 
 			ReadOptions ();
 
@@ -351,6 +381,21 @@ namespace AirVPN.UI.Osx
 			// Routes
 			GuiUtils.SetSelected(CboRoutesOtherwise, RouteDirectionToDescription(s.Get("routes.default")));
 
+			string routes = s.Get ("routes.custom");
+			string[] routes2 = routes.Split (';');
+			foreach (string route in routes2) {
+				string[] routeEntries = route.Split (',');
+				if (routeEntries.Length != 3)
+					continue;
+
+				TableRoutingControllerItem item = new TableRoutingControllerItem ();
+				item.Ip = routeEntries [0];
+				item.NetMask = routeEntries [1];
+				item.Action = RouteDirectionToDescription (routeEntries [2]);
+				item.Icon = routeEntries [2];
+				TableRoutingController.Items.Add (item);
+			}
+
 			TableRoutingController.RefreshUI();
 
 			// Advanced
@@ -406,6 +451,14 @@ namespace AirVPN.UI.Osx
 
 			// Routes
 			s.Set ("routes.default", RouteDescriptionToDirection (GuiUtils.GetSelected (CboRoutesOtherwise)));
+
+			string routes = "";
+			foreach (TableRoutingControllerItem item in TableRoutingController.Items) {
+				if (routes != "")
+					routes += ";";
+				routes += item.Ip + "," + item.NetMask + "," + item.Icon;
+			}
+			s.Set("routes.custom", routes);
 
 			// Advanced
 			s.SetBool ("advanced.expert", GuiUtils.GetCheck (ChkAdvancedExpertMode));
