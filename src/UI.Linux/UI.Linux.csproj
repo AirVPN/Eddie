@@ -113,7 +113,7 @@
       <Project>{C0357E13-B013-40C5-B511-865A27BC2A47}</Project>
       <Name>Lib.Forms</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Linux\Platforms.Linux.csproj">
+    <ProjectReference Include="..\Platforms.Linux\Platforms.Linux.csproj">
       <Project>{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}</Project>
       <Name>Platforms.Linux</Name>
     </ProjectReference>

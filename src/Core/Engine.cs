@@ -48,6 +48,9 @@ namespace AirVPN.Core
 		private List<string> FrontMessages = new List<string>();
 		private int m_breakRequests = 0;
 
+		private String m_lastLogMessage;
+		private int m_logDotCount = 0;
+
         public enum ActionService
         {
             None = 0,
@@ -137,6 +140,8 @@ namespace AirVPN.Core
 
 		public bool Initialization()
 		{
+
+
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
@@ -149,8 +154,14 @@ namespace AirVPN.Core
 					Log(LogType.Info, "Development environment.");
 			}
 
+
+
 			m_storage = new Core.Storage();
+
+
 			m_storage.Load(manMode);
+
+
 
 			if (Storage.GetBool("cli"))
 				ConsoleMode = true;
@@ -159,6 +170,8 @@ namespace AirVPN.Core
 				Log(LogType.Warning, "Param test:-" + Storage.Get("paramtest") + "-");			
 
 			m_stats = new Core.Stats();
+
+
 
 			if (Storage.GetBool("advanced.skip_privileges") == false)
 			{
@@ -188,16 +201,24 @@ namespace AirVPN.Core
 
                 RunEventCommand("app.start");
 
+				Platform.Instance.OnAppStart();
+
                 WaitMessageClear();
 
 				bool autoStart = false;
 				if (ConsoleMode)
-					autoStart = true;
+				{
+					Auth();
+					if (IsLogged())
+						autoStart = true;
+					else
+						CancelRequested = true;
+				}
 				if ((IsLogged()) && (Engine.Storage.GetBool("connect")))
 					autoStart = true;
 				if (autoStart)
 					Connect();
-				else
+				else if(CancelRequested == false)
 					Log(LogType.InfoImportant, Messages.Ready);
                 
                 for (; ; )
@@ -265,7 +286,7 @@ namespace AirVPN.Core
         {
             SessionStop();
 
-			WaitMessageSet(Messages.AppExiting);
+			WaitMessageSet(Messages.AppExiting, false);
 
             if (m_threadManifest != null)
 				m_threadManifest.RequestStopSync();				
@@ -276,7 +297,7 @@ namespace AirVPN.Core
 			if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
 
-			NetworkLocking.Instance.Disable();
+			NetworkLocking.Instance.Deactivate();
 
 			TemporaryFiles.Clean();
 
@@ -366,7 +387,7 @@ namespace AirVPN.Core
 				Log(LogType.Info, Messages.ConsoleKeyCancel);
 				OnExit();
 			}
-			else if (key.KeyChar == 'n')
+			else if (key.KeyChar == 'b')
 			{
 				Log(LogType.Info, Messages.ConsoleKeySwitch);
 				SwitchServer = true;				
@@ -499,26 +520,27 @@ namespace AirVPN.Core
         
         public void WaitMessageClear()
         {
-            WaitMessageSet("");
+            WaitMessageSet("", false, false);
         }
 
-		public void WaitMessageSet(string waitMessage)
+		public void WaitMessageSet(string message, bool allowCancel)
         {
-            WaitMessageSet(waitMessage, true);
+			WaitMessageSet(message, allowCancel, true);
         }
 
-		public void WaitMessageSet(string waitMessage, bool log)
+		public void WaitMessageSet(string message, bool allowCancel, bool log)
         {
-            if( (waitMessage != "") && (log) )
-                Log(Engine.LogType.InfoImportant, waitMessage);
+			if ((message != "") && (log))
+				Log(Engine.LogType.InfoImportant, message);
 
-            if(waitMessage != "")
+			if (message != "")
                 if(Connected)
                     throw new Exception("Unexpected status.");                
 
             lock (this)
             {
-                m_waitMessage = waitMessage;
+                m_waitMessage = message;
+				m_waitCancel = allowCancel;
                 
                 OnRefreshUi(RefreshUiMode.MainMessage);
             }
@@ -542,10 +564,21 @@ namespace AirVPN.Core
             }
         }
 
-        public bool IsWaitingCancel()
+        public bool IsWaitingCancelAllowed()
         {
             return (m_waitCancel);
         }
+
+		public bool IsWaitingCancelPending()
+		{
+			if(m_threadSession == null)
+				return false;
+
+			lock (m_threadSession)
+			{
+				return m_threadSession.CancelRequested;
+			}
+		}
 
         // ----------------------------------------------------
         // Logging
@@ -595,8 +628,38 @@ namespace AirVPN.Core
             l.BalloonTime = BalloonTime;
 			l.Exception = e;
 
+			if (l.Type > Engine.LogType.Realtime)
+			{
+				m_lastLogMessage = l.Message;
+				m_logDotCount += 1;
+				m_logDotCount = m_logDotCount % 10;
+			}
+
             OnLog(l);
         }
+
+		public string GetLogDetailTitle()
+		{
+			string output = "";
+			if ((Storage != null) && (Storage.GetBool("advanced.expert")))
+			{
+				if (WaitMessage == m_lastLogMessage)
+					output = "";
+				else
+					output = m_lastLogMessage;
+			}
+			else
+			{
+				for (int i = 0; i < m_logDotCount; i++)
+					output += ".";
+			}
+			return output;
+		}
+
+		public string GetLogSuggestedFileName()
+		{
+			return "AirVPN_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
+		}
 
         public virtual void OnLog(LogEntry l)
         {
@@ -609,27 +672,14 @@ namespace AirVPN.Core
 
 			if (l.Type != LogType.Realtime)
 			{
-				string o = "";
-				
-				switch (l.Type)
-				{
-					case LogType.Realtime: o += "."; break;
-					case LogType.Verbose: o += "."; break;
-					case LogType.Info: o += "I"; break;
-					case LogType.InfoImportant: o += "!"; break;
-					case LogType.Warning: o += "W"; break;
-					case LogType.Error: o += "E"; break;
-					case LogType.Fatal: o += "F"; break;
-					default: o += "?"; break;
-				}
-				o += " ";
-				o += DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
-				o += " - ";
+				string lines = l.GetStringLines().Trim();
+				Console.WriteLine(lines);
 
-				foreach (string line in l.Message.Split('\n'))
+				if (Storage != null)
 				{
-					if(line.Trim() != "")
-						Console.WriteLine(o + line.Trim());
+					string logPath = Storage.Get("log.path").Trim();
+					if (logPath != "")
+						File.AppendAllText(logPath, lines + "\n");
 				}
 			}
         }
@@ -646,7 +696,99 @@ namespace AirVPN.Core
 
         public virtual void OnRefreshUi(RefreshUiMode mode)
         {
+			// TOCLEAN, TOOPTIMIZE
+
+			if ((mode == Core.Engine.RefreshUiMode.Quick) || (mode == Core.Engine.RefreshUiMode.Full))
+			{
+				Stats.UpdateValue("ManifestLastUpdate", Utils.FormatTime(Utils.XmlGetAttributeInt64(Engine.Storage.Manifest, "time", 0)));
+			}
+
+			if ((mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
+			{
+				if (Engine.IsConnected())
+				{
+					{
+						DateTime DT1 = Engine.Instance.ConnectedSince;
+						DateTime DT2 = DateTime.UtcNow;
+						TimeSpan TS = DT2 - DT1;
+						string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToLongDateString() + " " + DT1.ToLocalTime().ToLongTimeString());
+						Stats.UpdateValue("VpnConnectionStart", TSText);
+
+					}
+					Stats.UpdateValue("VpnTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedLastRead, false, true));
+					Stats.UpdateValue("VpnTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedLastWrite, false, true));
+
+					Stats.UpdateValue("VpnSpeedDownload", Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, true));
+					Stats.UpdateValue("VpnSpeedUpload", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, true));
+				}
+				else
+				{
+					Stats.UpdateValue("VpnConnectionStart", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnTotalDownload", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnTotalUpload", Messages.StatsNotConnected);
+
+					Stats.UpdateValue("VpnSpeedDownload", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnSpeedUpload", Messages.StatsNotConnected);
+				}
+			}
+
+			if (mode == Core.Engine.RefreshUiMode.Full)
+			{
+				Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
+
+				if (Engine.IsConnected())
+				{
+					Stats.UpdateValue("ServerName", Engine.CurrentServer.Name);
+					Stats.UpdateValue("ServerLatency", Engine.CurrentServer.Ping.ToString() + " ms");
+					Stats.UpdateValue("ServerLocation", Engine.CurrentServer.CountryName + " - " + Engine.CurrentServer.Location);
+					Stats.UpdateValue("ServerLoad", Engine.CurrentServer.Load().ToString());
+					Stats.UpdateValue("ServerUsers", Engine.CurrentServer.Users.ToString());
+
+					Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP);
+					Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpExit);
+					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
+					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
+					if (Engine.ConnectedRealIp != "")
+						Stats.UpdateValue("VpnRealIp", Engine.ConnectedRealIp);
+					else
+						Stats.UpdateValue("VpnRealIp", Messages.CheckingRequired);
+					Stats.UpdateValue("VpnIp", Engine.ConnectedVpnIp);
+					Stats.UpdateValue("VpnDns", Engine.ConnectedVpnDns);
+					Stats.UpdateValue("VpnInterface", Engine.ConnectedVpnInterfaceName);
+					Stats.UpdateValue("VpnGateway", Engine.ConnectedVpnGateway);
+					Stats.UpdateValue("VpnGeneratedOVPN", Messages.DoubleClickToView);
+
+					if (Engine.ConnectedServerTime != 0)
+						Stats.UpdateValue("SystemTimeServerDifference", (Engine.ConnectedServerTime - Engine.ConnectedClientTime).ToString() + " seconds");
+					else
+						Stats.UpdateValue("SystemTimeServerDifference", Messages.CheckingRequired);
+				}
+				else
+				{
+					Stats.UpdateValue("ServerName", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerLatency", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerLocation", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerLoad", Messages.StatsNotConnected);
+					Stats.UpdateValue("ServerUsers", Messages.StatsNotConnected);
+
+					Stats.UpdateValue("VpnIpEntry", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnIpExit", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnProtocol", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnPort", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnRealIp", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnIp", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnDns", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnInterface", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnGateway", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnGeneratedOVPN", Messages.StatsNotConnected);
+					Stats.UpdateValue("SystemTimeServerDifference", Messages.StatsNotConnected);
+				}
+			}
         }
+
+		public virtual void OnStatsChange(StatsEntry entry)
+		{
+		}
 
 		public virtual void OnUnhandledException(Exception e)
 		{
@@ -902,7 +1044,7 @@ namespace AirVPN.Core
 
             if (filename.Trim() != "")
             {
-                WaitMessageSet(Messages.Format(Messages.AppEvent, name));
+                WaitMessageSet(Messages.Format(Messages.AppEvent, name), false);
 
                 //Log(LogType.Verbose, "Start Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
 				Platform.Instance.Shell(filename, arguments, waitEnd);
@@ -919,8 +1061,8 @@ namespace AirVPN.Core
 		public byte[] FetchUrl(string url)
 		{
 			// Note: by default WebClient try to determine the proxy used by IE/Windows
-			System.Net.WebClient wc = new System.Net.WebClient();
-
+			WebClientEx wc = new WebClientEx();
+			
 			if (IsConnected())
 			{
 				// Don't use a proxy if connected to the VPN
@@ -1061,35 +1203,21 @@ namespace AirVPN.Core
 					ovpn += "route 128.0.0.1 128.0.0.1 vpn_gateway\n";
 				}
 				*/
-				if(NetworkLocking.Instance.GetEnabled() == false) // If Network Locking is enabled, it's already set.
+				if (NetworkLocking.Instance.GetActive() == false) // If Network Locking is enabled, it's already set.
 					ovpn += "route " + ip + " 255.255.255.255 net_gateway\n";
 			}
 				
 			ovpn += "management localhost " + Engine.Instance.Storage.Get("openvpn.management_port") + "\n";
-			
-			// DNS
-			if (s.GetBool("advanced.dnsswitch"))
-			{
-				if (Platform.Instance.IsLinuxSystem())
-				{
-					string dnsScriptPath = Software.FindResource("update-resolv-conf");
-					if (dnsScriptPath != "")
-					{
-						ovpn += "script-security 2\n";
-						ovpn += "up " + dnsScriptPath + "\n";
-						ovpn += "down " + dnsScriptPath + "\n";
-					}
-					else
-					{
-						Engine.Instance.Log(Engine.LogType.Error, "update-resolv-conf " + Messages.NotFound);
-					}
-				}				
-			}
 
-
+			Platform.Instance.OnBuildOvpn(ref ovpn);			
+						
             ovpn += "\n";
             ovpn += s.Get("openvpn.custom").Replace("\t", "").Trim();
             ovpn += "\n";
+
+			// TOFIX, mettere da altra parte
+			ovpn += "ping 10\n";
+			ovpn += "ping-exit 32\n";
 
 			//XmlNode nodeUser = s.Manifest.SelectSingleNode("//user");
 			XmlNode nodeUser = s.User;
@@ -1099,6 +1227,8 @@ namespace AirVPN.Core
 			ovpn += "<key>\n" + nodeUserKey.Attributes["key"].Value + "</key>\n";
             ovpn += "key-direction 1\n";
 			ovpn += "<tls-auth>\n" + nodeUser.Attributes["ta"].Value + "</tls-auth>\n";
+
+			
 
 			// Custom replacement, useful to final adjustment of generated OVPN by server-side rules.
 			// Never used yet, available for urgent maintenance.
@@ -1129,7 +1259,7 @@ namespace AirVPN.Core
 
 		private void Auth()
 		{
-			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin); 
+			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin, false); 
 
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters["act"] = "user";
@@ -1151,13 +1281,16 @@ namespace AirVPN.Core
 
 		private void DeAuth()
 		{
-			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogout); 
+			if (IsLogged())
+			{
+				Engine.Instance.WaitMessageSet(Messages.AuthorizeLogout, false);
 
-			Storage.User = null;
+				Storage.User = null;
 
-			Log(LogType.InfoImportant, Messages.AuthorizeLogoutDone);
+				Log(LogType.InfoImportant, Messages.AuthorizeLogoutDone);
 
-			Engine.Instance.WaitMessageClear();
+				Engine.Instance.WaitMessageClear();
+			}
 		}
         
         private void SessionStart()
@@ -1166,14 +1299,14 @@ namespace AirVPN.Core
             {
 				Engine.Log(Engine.LogType.Info, Messages.SessionStart);
 
-                Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment);
+                Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment, true);
                 
                 CheckEnvironment();
 
 				// Check Driver				
 				if (Platform.Instance.GetDriverAvailable() == "")
 				{
-					Engine.Instance.WaitMessageSet(Messages.OsDriverInstall);
+					Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
 
 					Platform.Instance.InstallDriver();
 
@@ -1186,7 +1319,7 @@ namespace AirVPN.Core
 
                 if (Storage.UpdateManifestNeed(true))
                 {
-                    Engine.Instance.WaitMessageSet(Messages.RetrievingManifest);
+                    Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
 
 					string result = Engine.WaitManifestUpdate();
 
@@ -1269,36 +1402,23 @@ namespace AirVPN.Core
 
 			if (Storage.GetBool("advanced.skip_alreadyrun") == false)
 			{
-				Process[] processlist = Process.GetProcesses();
-
-				foreach (Process theprocess in processlist)
+				Dictionary<int, string> processes = Platform.Instance.GetProcessesList();
+				
+				foreach (string name in processes.Values)
 				{
-					if (theprocess.ProcessName.ToLower() == "openvpn")
+					if (name == "openvpn")
 						throw new Exception(Messages.AlreadyRunningOpenVPN);
 
-					if ((protocol == "SSL") && (theprocess.ProcessName.ToLower() == "stunnel"))
+					if ((protocol == "SSL") && (name == "stunnel"))
 					{
 						throw new Exception(Messages.AlreadyRunningSTunnel);
 					}
 
-					if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "plink"))
+					if ((protocol == "SSH") && (name == "plink"))
 						throw new Exception(Messages.AlreadyRunningSshPLink);
 
-					if ((protocol == "SSH") && (theprocess.ProcessName.ToLower() == "ssh"))
-						throw new Exception(Messages.AlreadyRunningSsh);
-				}
-			}
-
-			if (Platform.Instance.IsLinuxSystem())
-			{
-				if (Storage.GetBool("advanced.dnsswitch"))
-				{
-					string dnsScriptPath = Software.FindResource("update-resolv-conf");
-					if (dnsScriptPath == "")
-						throw new Exception("update-resolv-conf " + Messages.NotFound);
-
-					if(File.Exists("/sbin/resolvconf") == false)
-						throw new Exception("'resolvconf' package " + Messages.NotFound);
+					if ((protocol == "SSH") && (name == "ssh"))
+						throw new Exception(Messages.AlreadyRunningSsh);					
 				}
 			}
 

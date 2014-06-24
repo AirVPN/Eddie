@@ -224,7 +224,7 @@ namespace AirVPN.Core
 			// GIT source tree
 			if (Engine.Instance.DevelopmentEnvironment)
 			{
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/../../../../deploy/" + Platform.Instance.GetSystemCode() + "/" + filename);				
+				string path = Platform.Instance.NormalizePath(Platform.Instance.GetGitDeployPath() + filename);	
 				if (File.Exists(path))
 					return path;
 			}

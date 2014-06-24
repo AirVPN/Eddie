@@ -40,17 +40,24 @@ namespace AirVPN.Core
 
         public Storage()
         {
+
             EnsureDefaults();
+
+
 						
             XmlDocument DocManifestDefault = new XmlDocument();
 			DocManifestDefault.LoadXml(Lib.Core.Properties.Resources.Manifest);
-            Manifest = DocManifestDefault.DocumentElement;
+			Manifest = DocManifestDefault.DocumentElement;
+
+
 
             // Compute profile
 			string profile = Get("profile");
 			string path = Get("path");
 
 			path = Platform.Instance.NormalizePath(path);
+
+
 
             if (profile.IndexOf(".") != -1)
             {
@@ -150,17 +157,18 @@ namespace AirVPN.Core
                 
         public string Get(string name)
         {
-            lock (this)
-            {
-                if (CommandLine.Params.ContainsKey(name))
-					return CommandLine.Params[name];
-                else if (m_Options.ContainsKey(name))
-                    return m_Options[name];
-                else if (m_OptionsDefaults.ContainsKey(name))
-                    return m_OptionsDefaults[name];
-                else
-                    throw new Exception("Unknown option '" + name + "'");
-            }
+			lock (this) {
+				if (CommandLine.Params.ContainsKey (name))
+					return CommandLine.Params [name];
+				else if (m_Options.ContainsKey (name))
+					return m_Options [name];
+				else if (m_OptionsDefaults.ContainsKey (name))
+					return m_OptionsDefaults [name];
+				else {
+					Engine.Instance.Log (Engine.LogType.Error, "Unknown option '" + name + "'");
+					return "";
+				}
+			}
         }
 
 		public string GetLower(string name)
@@ -250,6 +258,7 @@ namespace AirVPN.Core
 		public string GetTempPath(string extension)
 		{
 			return DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
+			//return "/tmp/" + RandomGenerator.GetHash() + ".tmp." + extension;
 		}
 
         public void EnsureDefaults()
@@ -278,6 +287,8 @@ namespace AirVPN.Core
 			SetDefault("areas.whitelist", "", Messages.ManOptionAreasWhiteList);
 			SetDefault("areas.blacklist", "", Messages.ManOptionAreasBlackList);
 
+			SetDefault("log.path", "", NotInMan);
+
 			SetDefault("mode.protocol", "UDP", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
 			SetDefaultInt("mode.alt", 0, Messages.ManOptionModeAlt);
@@ -303,17 +314,18 @@ namespace AirVPN.Core
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort); 
 
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
-			SetDefaultBool("advanced.locked_security", false, NotInMan);
+			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);						
 			SetDefaultBool("advanced.check.dns", false, Messages.ManOptionAdvancedCheckDns);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
-			SetDefaultBool("advanced.dnsswitch", false, Messages.ManOptionAdvancedDnsSwitch);
+			SetDefault("advanced.dns.mode", "auto", Messages.ManOptionAdvancedDnsSwitch);
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
 			SetDefaultBool("advanced.pinger.always", false, Messages.ManOptionAdvancedPingerAlways);
 			SetDefaultInt("advanced.pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 300, Messages.ManOptionAdvancedPingerValid);
+			SetDefaultBool("advanced.netlock.enabled", false, NotInMan);
+			SetDefaultBool("advanced.netlock.active", false, NotInMan);
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
 			SetDefaultBool("advanced.windows.dns_force", false, Messages.ManOptionAdvancedWindowsDnsForce);
@@ -339,11 +351,16 @@ namespace AirVPN.Core
 
 			// GUI only
 			SetDefaultBool("gui.details", false, NotInMan);
-			SetDefault("gui.skin", "Light", NotInMan);			
-			SetDefaultBool("gui.tray", true, NotInMan);
+			SetDefault("gui.skin", "Light", NotInMan);						
 			SetDefaultBool("gui.tos", false, NotInMan);
 			SetDefaultInt("gui.log_limit", 1000, NotInMan);
 			SetDefault("forms.main", "", NotInMan);
+
+			// GUI - Windows only
+			SetDefaultBool("gui.windows.tray", true, NotInMan);
+
+			// GUI - OSX Only
+			SetDefaultBool("gui.osx.notifications", false, NotInMan);
 
 			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
 			SetDefault("paramtest", "", NotInMan); 			
@@ -413,7 +430,11 @@ namespace AirVPN.Core
                 {
                     XmlDocument xmlDoc = new XmlDocument();
 
-					string Path = GetPath(Get("profile") + ".xml");
+					string profile = Get("profile");
+					if (profile.ToLowerInvariant() == "none")
+						return;
+
+					string Path = GetPath(profile + ".xml");
 
 					if(manMode == false)
 						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.OptionsRead, Path));
@@ -503,7 +524,14 @@ namespace AirVPN.Core
 			if (Manifest.Attributes[key] == null)
 				return def;
 			return Manifest.Attributes[key].Value;
-		}        		
+		}
+
+		public string GetDefaultDirectives()
+		{
+			string result = "# Common:\n" + GetManifestKeyValue("openvpn_directives_common", "") + "\n# UDP only:\n" + GetManifestKeyValue("openvpn_directives_udp", "") + "\n# TCP Only:\n" + GetManifestKeyValue("openvpn_directives_tcp", "");
+			result = Platform.Instance.NormalizeString(result);
+			return result;
+		}
 
 		#endregion
 

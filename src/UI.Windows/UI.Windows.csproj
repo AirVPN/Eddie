@@ -108,7 +108,7 @@
       <Project>{C0357E13-B013-40C5-B511-865A27BC2A47}</Project>
       <Name>Lib.Forms</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Windows\Platforms.Windows.csproj">
+    <ProjectReference Include="..\Platforms.Windows\Platforms.Windows.csproj">
       <Project>{9A04CC37-5629-4914-B49F-7AA435464843}</Project>
       <Name>Platforms.Windows</Name>
     </ProjectReference>

@@ -28,8 +28,6 @@ namespace AirVPN.Gui.Forms
         /// </summary>
         private void InitializeComponent()
         {
-			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Tos));
 			this.txtTos = new AirVPN.Gui.Skin.TextBox();
 			this.panel1 = new AirVPN.Gui.Skin.Panel();
 			this.chkAccept2 = new AirVPN.Gui.Skin.CheckBox();
@@ -76,9 +74,9 @@ namespace AirVPN.Gui.Forms
 			this.chkAccept2.ForeColor = System.Drawing.Color.Black;
 			this.chkAccept2.Location = new System.Drawing.Point(26, 36);
 			this.chkAccept2.Name = "chkAccept2";
-			this.chkAccept2.Size = new System.Drawing.Size(272, 17);
+			this.chkAccept2.Size = new System.Drawing.Size(91, 17);
 			this.chkAccept2.TabIndex = 2;
-			this.chkAccept2.Text = "I HEREBY EXPLICITLY ACCEPT POINTS 8, 10, 11";
+			this.chkAccept2.Text = "TOS Check 2";
 			this.chkAccept2.UseVisualStyleBackColor = false;
 			this.chkAccept2.CheckedChanged += new System.EventHandler(this.chkAccept2_CheckedChanged);
 			// 
@@ -89,15 +87,14 @@ namespace AirVPN.Gui.Forms
 			this.chkAccept1.ForeColor = System.Drawing.Color.Black;
 			this.chkAccept1.Location = new System.Drawing.Point(27, 15);
 			this.chkAccept1.Name = "chkAccept1";
-			this.chkAccept1.Size = new System.Drawing.Size(247, 17);
+			this.chkAccept1.Size = new System.Drawing.Size(91, 17);
 			this.chkAccept1.TabIndex = 1;
-			this.chkAccept1.Text = "I have read and I accept the Terms of Service ";
+			this.chkAccept1.Text = "TOS Check 1";
 			this.chkAccept1.UseVisualStyleBackColor = false;
 			this.chkAccept1.CheckedChanged += new System.EventHandler(this.chkAccept1_CheckedChanged);
 			// 
 			// cmdCancel
 			// 
-			this.cmdCancel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cmdCancel.BackgroundImage")));
 			this.cmdCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdCancel.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -116,7 +113,6 @@ namespace AirVPN.Gui.Forms
 			// 
 			// cmdOk
 			// 
-			this.cmdOk.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cmdOk.BackgroundImage")));
 			this.cmdOk.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdOk.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
@@ -131,7 +127,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdOk.Size = new System.Drawing.Size(150, 30);
 			this.cmdOk.TabIndex = 3;
 			this.cmdOk.Text = "Ok";
-			this.cmdOk.UseVisualStyleBackColor = true;
+			this.cmdOk.UseVisualStyleBackColor = true;			
 			// 
 			// Tos
 			// 

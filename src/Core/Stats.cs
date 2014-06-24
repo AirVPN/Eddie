@@ -73,5 +73,29 @@ namespace AirVPN.Core
 			Dict[key] = entry;
 			List.Add(entry);
 		}
+
+		public StatsEntry Get(string key)
+		{
+			StatsEntry entry = Dict[key];
+			if (entry == null)
+				throw new Exception("Unknown stats.");
+			return entry;
+		}
+
+		public void UpdateValue(string key, string newValue)
+		{
+			StatsEntry entry = Get(key);
+
+			if (entry.Value != newValue)
+			{
+				entry.Value = newValue;
+				Engine.Instance.OnStatsChange(entry);
+			}
+		}
+
+		public string GetValue(string key)
+		{
+			return Get(key).Value;
+		}
     }
 }

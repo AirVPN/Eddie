@@ -33,18 +33,16 @@ namespace AirVPN.Gui.Controls
 		private int m_chartIndex = 0;
 		private Chart m_chart;
 
-		public float unitMultiplier = 1;
-
-		private Pen PenGrid;
-		private Pen PenMouse;
-		private Brush BrushMouse;
-		private Pen PenDownloadGraph;
-		private Pen PenDownloadLine;
-		private Pen PenUploadGraph;
-		private Pen PenUploadLine;
-		private Brush BrushLegendText;
-		private Brush BrushDownloadText;
-		private Brush BrushUploadText;
+		private Pen m_penGrid;
+		private Pen m_penMouse;
+		private Brush m_brushMouse;
+		private Pen m_penDownloadGraph;
+		private Pen m_penDownloadLine;
+		private Pen m_penUploadGraph;
+		private Pen m_penUploadLine;
+		private Brush m_brushLegendText;
+		private Brush m_brushDownloadText;
+		private Brush m_brushUploadText;
 		
 		private Font FontLabel;
         private StringFormat formatTopCenter;		
@@ -54,26 +52,26 @@ namespace AirVPN.Gui.Controls
 		private StringFormat formatTopLeft;
 		private StringFormat formatTopRight;
 
-		int m_legendDY = 0; // 15
-		int m_marginTopY = 15;
+		private int m_legendDY = 0; // 15
+		private int m_marginTopY = 15;
 
-		private float chartDX;
-		private float chartDY;
-		private float chartStartX;
-		private float chartStartY;
+		private float m_chartDX;
+		private float m_chartDY;
+		private float m_chartStartX;
+		private float m_chartStartY;
 		        
         public ChartSpeed()
         {
-			PenGrid = new Pen(Colors.LightChartGrid, 1);
-			PenMouse = new Pen(Colors.LightChartMouse, 1);
-			BrushMouse = new SolidBrush(Colors.LightChartMouse);
-			PenDownloadGraph = new Pen(Colors.LightChartLineDownload, 1);
-			PenDownloadLine = new Pen(Colors.LightChartLineDownload, 1);
-			PenUploadGraph = new Pen(Colors.LightChartLineUpload, 1);
-			PenUploadLine = new Pen(Colors.LightChartLineUpload, 1);
-			BrushLegendText = new SolidBrush(Colors.LightChartLegend);
-			BrushDownloadText = new SolidBrush(Colors.LightChartLineDownload);
-			BrushUploadText = new SolidBrush(Colors.LightChartLineUpload);
+			m_penGrid = new Pen(Colors.LightChartGrid, 1);
+			m_penMouse = new Pen(Colors.LightChartMouse, 1);
+			m_brushMouse = new SolidBrush(Colors.LightChartMouse);
+			m_penDownloadGraph = new Pen(Colors.LightChartLineDownload, 1);
+			m_penDownloadLine = new Pen(Colors.LightChartLineDownload, 1);
+			m_penUploadGraph = new Pen(Colors.LightChartLineUpload, 1);
+			m_penUploadLine = new Pen(Colors.LightChartLineUpload, 1);
+			m_brushLegendText = new SolidBrush(Colors.LightChartLegend);
+			m_brushDownloadText = new SolidBrush(Colors.LightChartLineDownload);
+			m_brushUploadText = new SolidBrush(Colors.LightChartLineUpload);
 						
             FontLabel = new Font("Small Fonts", 7);
 						
@@ -100,18 +98,12 @@ namespace AirVPN.Gui.Controls
 
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
-			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);
-			Reset();
+			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);			
         }
 		
 		void Charts_UpdateEvent()
 		{
 			Invalidate();
-		}
-
-		public void Reset()
-		{
-			
 		}
 
 		public string ValToDesc(Int64 v)
@@ -128,6 +120,16 @@ namespace AirVPN.Gui.Controls
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
 			Invalidate();
+		}
+
+		private Rectangle ChartRectangle(float x, float y, float w, float h)
+		{
+			return new Rectangle(Conversions.ToInt32(x), Conversions.ToInt32(y), Conversions.ToInt32(w), Conversions.ToInt32(h));
+		}
+
+		private Point ChartPoint(float x, float y)
+		{
+			return new Point(Conversions.ToInt32(x), Conversions.ToInt32(y));
 		}
 		
 		protected override void OnMouseMove(MouseEventArgs e)
@@ -156,10 +158,10 @@ namespace AirVPN.Gui.Controls
 				//e.Graphics.FillRectangle(BrushBackground, this.ClientRectangle);				
 				Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
 
-				chartDX = this.ClientRectangle.Width;
-				chartDY = this.ClientRectangle.Height - m_legendDY;
-				chartStartX = 0;
-				chartStartY = chartDY;
+				m_chartDX = this.ClientRectangle.Width;
+				m_chartDY = this.ClientRectangle.Height - m_legendDY;
+				m_chartStartX = 0;
+				m_chartStartY = m_chartDY;
 
 
 				float maxY = m_chart.GetMax();
@@ -171,17 +173,17 @@ namespace AirVPN.Gui.Controls
 				Point lastPointDown = new Point(-1, -1);
 				Point lastPointUp = new Point(-1, -1);
 
-				float stepX = (chartDX - 0) / m_chart.Resolution;
+				float stepX = (m_chartDX - 0) / m_chart.Resolution;
 
 				// Grid lines				
 				for (int g = 0; g < m_chart.Grid; g++)
 				{
-					float x = ((chartDX - 0) / m_chart.Grid) * g;
-					e.Graphics.DrawLine(PenGrid, chartStartX + x, 0, chartStartX + x, chartStartY);
+					float x = ((m_chartDX - 0) / m_chart.Grid) * g;
+					e.Graphics.DrawLine(m_penGrid, m_chartStartX + x, 0, m_chartStartX + x, m_chartStartY);
 				}
 
 				// Axis line
-				e.Graphics.DrawLine(Pens.Gray, 0, chartStartY, chartDX, chartStartY);
+				e.Graphics.DrawLine(Pens.Gray, 0, m_chartStartY, m_chartDX, m_chartStartY);
 
 				// Legend
 				/*
@@ -209,18 +211,18 @@ namespace AirVPN.Gui.Controls
 					if (p >= m_chart.Resolution)
 						p -= m_chart.Resolution;
 
-					float downY = ((m_chart.Download[p]) * (chartDY - m_marginTopY)) / maxY;
-					float upY = ((m_chart.Upload[p]) * (chartDY - m_marginTopY)) / maxY;
+					float downY = ((m_chart.Download[p]) * (m_chartDY - m_marginTopY)) / maxY;
+					float upY = ((m_chart.Upload[p]) * (m_chartDY - m_marginTopY)) / maxY;
 
-					Point pointDown = ChartPoint(chartStartX + stepX * i, chartStartY - downY);
-					Point pointUp = ChartPoint(chartStartX + stepX * i, chartStartY - upY);
+					Point pointDown = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - downY);
+					Point pointUp = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - upY);
 
 					//e.Graphics.DrawLine(Pens.Green, new Point(0,0), point);
 
 					if (lastPointDown.X != -1)
 					{
-						e.Graphics.DrawLine(PenDownloadGraph, lastPointDown, pointDown);
-						e.Graphics.DrawLine(PenUploadGraph, lastPointUp, pointUp);
+						e.Graphics.DrawLine(m_penDownloadGraph, lastPointDown, pointDown);
+						e.Graphics.DrawLine(m_penUploadGraph, lastPointUp, pointUp);
 					}
 
 					lastPointDown = pointDown;
@@ -231,19 +233,19 @@ namespace AirVPN.Gui.Controls
 				float downCurY = 0;
 				{
 					long v = m_chart.GetLastDownload();
-					downCurY = ((v) * (chartDY - m_marginTopY)) / maxY;
-					e.Graphics.DrawLine(PenDownloadLine, 0, chartStartY - downCurY, chartDX, chartStartY - downCurY);
-					Form.DrawStringOutline(e.Graphics, Messages.ChartDownload + ": " + ValToDesc(v), FontLabel, BrushDownloadText, ChartRectangle(0, 0, chartDX, chartStartY - downCurY), formatBottomRight);
+					downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
+					e.Graphics.DrawLine(m_penDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
+					Form.DrawStringOutline(e.Graphics, Messages.ChartDownload + ": " + ValToDesc(v), FontLabel, m_brushDownloadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - downCurY), formatBottomRight);
 				}
 
 				// Upload line
 				{
 					long v = m_chart.GetLastUpload();
-					float y = ((v) * (chartDY - m_marginTopY)) / maxY;
+					float y = ((v) * (m_chartDY - m_marginTopY)) / maxY;
 					float dly = 0;
 					if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
-					e.Graphics.DrawLine(PenUploadLine, 0, chartStartY - y, chartDX, chartStartY - y);
-					Form.DrawStringOutline(e.Graphics, Messages.ChartUpload + ": " + ValToDesc(v), FontLabel, BrushUploadText, ChartRectangle(0, 0, chartDX, chartStartY - y - dly), formatBottomRight);
+					e.Graphics.DrawLine(m_penUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
+					Form.DrawStringOutline(e.Graphics, Messages.ChartUpload + ": " + ValToDesc(v), FontLabel, m_brushUploadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - y - dly), formatBottomRight);
 				}
 
 				// Mouse lines
@@ -251,17 +253,17 @@ namespace AirVPN.Gui.Controls
 					Point mp = Cursor.Position;
 					mp = PointToClient(mp);
 
-					if ((mp.X > 0) && (mp.Y < chartDX) && (mp.Y > 0) && (mp.Y < chartDY))
+					if ((mp.X > 0) && (mp.Y < m_chartDX) && (mp.Y > 0) && (mp.Y < m_chartDY))
 					{
-						e.Graphics.DrawLine(PenMouse, 0, mp.Y, chartDX, mp.Y);
-						e.Graphics.DrawLine(PenMouse, mp.X, 0, mp.X, chartDY);
+						e.Graphics.DrawLine(m_penMouse, 0, mp.Y, m_chartDX, mp.Y);
+						e.Graphics.DrawLine(m_penMouse, mp.X, 0, mp.X, m_chartDY);
 
-						float i = (chartDX - (mp.X - chartStartX)) / stepX;
+						float i = (m_chartDX - (mp.X - m_chartStartX)) / stepX;
 
 						int t = Conversions.ToInt32(i * m_chart.TimeStep);
 
 						//float y = mp.Y * maxY / (chartDY - m_marginTopY);
-						float y = (chartStartY - (mp.Y - m_marginTopY)) * maxY / chartDY;
+						float y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
 
 						String label = ValToDesc(Conversions.ToInt64(y)) + ", " + Utils.FormatSeconds(t) + " ago";
 
@@ -310,7 +312,7 @@ namespace AirVPN.Gui.Controls
 							}
 						}
 
-						Form.DrawStringOutline(e.Graphics, label, FontLabel, BrushMouse, rect, formatAlign);
+						Form.DrawStringOutline(e.Graphics, label, FontLabel, m_brushMouse, rect, formatAlign);
 					}
 				}
 
@@ -320,16 +322,6 @@ namespace AirVPN.Gui.Controls
                 Debug.Trace(ex);
             }
         }
-
-		private Rectangle ChartRectangle(float x, float y, float w, float h)
-		{
-			return new Rectangle(Conversions.ToInt32(x), Conversions.ToInt32(y), Conversions.ToInt32(w), Conversions.ToInt32(h));
-		}
-
-		private Point ChartPoint(float x, float y)
-		{
-			return new Point(Conversions.ToInt32(x), Conversions.ToInt32(y));
-		}
 
         private void InitializeComponent()
         {

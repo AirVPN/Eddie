@@ -39,7 +39,7 @@ namespace AirVPN.Gui.Controls
 
         public void Update()
         {
-            Text = Info.PublicName;
+			Text = Info.GetNameForList();
             ImageKey = Info.CountryCode;
             
             if (SubItems.Count == 1)
@@ -55,20 +55,14 @@ namespace AirVPN.Gui.Controls
             
             SubItems[1].Text = score.ToString();
 
-            String PingText = "";
-            if(Info.Ping != -1)
-                PingText = Info.Ping.ToString() + " ms";
-            for (int i = 0; i < Info.PingFailedConsecutive; i++)
-                PingText += ".";
+            
 
-            String Location = Info.Location + " - " + Info.CountryName;
-            SubItems[2].Text = Location;
+            SubItems[2].Text = Info.GetLocationForList();
 
             //+" - " + Info.PingTests.ToString();
-            SubItems[3].Text = PingText;
+			SubItems[3].Text = Info.GetLatencyForList();
 
-            String Users = Info.Users.ToString();
-            SubItems[5].Text = Users;
+			SubItems[5].Text = Info.GetUsersForList();
 
             
                         

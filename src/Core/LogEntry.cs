@@ -29,5 +29,46 @@ namespace AirVPN.Core
         public string Message;
         public int BalloonTime = 1000;
 		public Exception Exception;
+
+		public string GetMessageForList()
+		{
+			return Message.Replace("\r", "").Replace("\n", " | ");			
+		}
+
+		public string GetDateForList()
+		{
+			return Date.ToShortDateString() + " - " + Date.ToShortTimeString();
+		}
+
+		public string GetStringLines()
+		{
+			string result = "";
+
+			string o = "";
+
+			switch (Type)
+			{
+				case Engine.LogType.Realtime: o += "."; break;
+				case Engine.LogType.Verbose: o += "."; break;
+				case Engine.LogType.Info: o += "I"; break;
+				case Engine.LogType.InfoImportant: o += "!"; break;
+				case Engine.LogType.Warning: o += "W"; break;
+				case Engine.LogType.Error: o += "E"; break;
+				case Engine.LogType.Fatal: o += "F"; break;
+				default: o += "?"; break;
+			}
+			o += " ";
+			o += Date.ToString("yyyy.MM.dd HH:mm:ss");
+			o += " - ";
+
+			foreach (string line in Message.Split('\n'))
+			{
+				if (line.Trim() != "")
+					result += o + line.Trim() + "\n";
+			}
+
+			return result.Trim();
+		}
     }
+
 }

@@ -53,11 +53,15 @@ namespace Deploy
 			   Detect Platform
 			------------------------------- */
 
-			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
+			if (Environment.OSVersion.VersionString.IndexOf ("Windows") != -1)
 				SO = "windows";
-			else if (Environment.OSVersion.Platform.ToString() == "Unix")
+			else if ((Environment.OSVersion.Platform.ToString () == "Unix") && (Shell("uname") == "Darwin") ) {
+				SO = "Osx";
+			}
+			else if (Environment.OSVersion.Platform.ToString () == "Unix") {
 				SO = "linux";
-			else
+			}
+			else 
 			{
 				Console.WriteLine("Unknown platform.");
 				return;
@@ -125,6 +129,11 @@ namespace Deploy
 				ListPackages.Add(new Package("linux", "x86", "rpm"));				
 				ListPackages.Add(new Package("linux", "x64", "rpm"));				
 			}
+
+			if (SO == "Osx") {
+				ListPackages.Add (new Package ("osx", "x64", "portable"));
+				ListPackages.Add (new Package ("osx", "x64", "installer"));
+			}
 						
 			string pathBaseHome = new DirectoryInfo("../../../..").FullName;
 			string pathBaseTemp = new DirectoryInfo("../../../../tmp").FullName;
@@ -174,6 +183,8 @@ namespace Deploy
 				Log("------------------------------");
 
 				CreateDirectory(pathTemp);
+
+				CreateDirectory (pathBaseRepository, false);
 
 				CopyAll(pathDeploy, pathTemp);
 
@@ -392,8 +403,17 @@ namespace Deploy
 				}
 				else if (platform == "osx")
 				{
+					// Some issue in release compilation, about resouces maybe.
+					pathRelease = pathRelease.Replace ("/x64/Release/", "/Debug/");
+
+					// Osx bin have a specific subdirectory
+					pathRelease = pathRelease.Replace ("/src/bin/", "/src/UI.Osx/bin/");
+
 					if (format == "portable")
 					{
+
+
+						/*
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Osx.dll", pathTemp);
@@ -407,14 +427,20 @@ namespace Deploy
 
 						CreateDirectory(pathTemp + "/" + fileName);
 						MoveAll(pathTemp, pathTemp + "/" + fileName);
+						*/
 
 						// TAR.GZ
-						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+
+						string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " AirVPN.app";
 						Shell(command2);
+
 					}
 					else if (format == "installer")
 					{
-						// Not yet implemented.
+						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".pkg");
+
+						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
 					}
 				}
 					

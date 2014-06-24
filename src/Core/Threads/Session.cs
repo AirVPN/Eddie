@@ -65,6 +65,8 @@ namespace AirVPN.Core.Threads
 				bool allowed = true;
 				string waitingMessage = "";
 				int waitingSecs = 0;
+				m_processOpenVpn = null;
+				m_processProxy = null;
 
 				try
 				{
@@ -75,7 +77,7 @@ namespace AirVPN.Core.Threads
 					
 					if ((Engine.NextServer == null) && (Pinger.Instance.GetEnabled()) && (Engine.PingerValid() == false))
 					{
-						Engine.WaitMessageSet(Messages.WaitingLatencyTests);
+						Engine.WaitMessageSet(Messages.WaitingLatencyTests, true);
 						for (; ; )
 						{
 							if (Engine.PingerValid())
@@ -134,7 +136,7 @@ namespace AirVPN.Core.Threads
 					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
 					if (allowed)
 					{
-						Engine.WaitMessageSet(Messages.AuthorizeConnect);
+						Engine.WaitMessageSet(Messages.AuthorizeConnect, true);
 
 						Dictionary<string, string> parameters = new Dictionary<string, string>();
 						parameters["act"] = "connect";
@@ -191,7 +193,7 @@ namespace AirVPN.Core.Threads
 
 						Engine.RunEventCommand("vpn.pre");
 
-						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryCode));
+						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location), true);
 
 						if (protocol == "SSH")
 						{
@@ -216,10 +218,15 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-							if (m_reset != "")
-								break;
+							if( (m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited) ) // 2.2
+								m_reset = "ERROR";
+							if( (m_processProxy != null) && (m_processProxy.ReallyExited) ) // 2.2
+								m_reset = "ERROR";
 
 							if (Engine.IsConnected())
+								break;
+
+							if (m_reset != "")
 								break;
 
 							Sleep(waitingSleep);
@@ -232,7 +239,7 @@ namespace AirVPN.Core.Threads
 						if (m_reset == "")
 						{
 							oneConnectionReached = true;
-
+							
 							Engine.RunEventCommand("vpn.up");
 
 							for (; ; )
@@ -249,43 +256,43 @@ namespace AirVPN.Core.Threads
 									m_timeLastStatus = timeNow;
 																		
 									// Update traffic stats
-									if (m_interfaceTun != null)
-									{
-										Int64 read = m_interfaceTun.GetIPv4Statistics().BytesReceived;
-										Int64 write = m_interfaceTun.GetIPv4Statistics().BytesSent;
-
-										if (Engine.ConnectedLastRead != -1)
-										{
-											int delta = Engine.ConnectedLastStatsTick.Reset();
-											if (delta > 0)
-											{
-												Engine.ConnectedLastDownloadStep = (1000 * (read - Engine.ConnectedLastRead)) / delta;
-												Engine.ConnectedLastUploadStep = (1000 * (write - Engine.ConnectedLastWrite)) / delta;
-											}
-										}
-
-										Engine.ConnectedLastRead = read;
-										Engine.ConnectedLastWrite = write;
-
-										Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
-
-										Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
-									}
-									else if (Storage.Simulate)
+									if (Storage.Simulate)
 									{
 										Engine.Instance.Stats.Charts.Hit(15354, 2525);
 
 										Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
 									}
+									else if(Platform.Instance.GetTunStatsMode() == "NetworkInterface")
+									{
+										if (m_interfaceTun != null)
+										{
+											Int64 read = m_interfaceTun.GetIPv4Statistics().BytesReceived;
+											Int64 write = m_interfaceTun.GetIPv4Statistics().BytesSent;
 
+											if (Engine.ConnectedLastRead != -1)
+											{
+												int delta = Engine.ConnectedLastStatsTick.Reset();
+												if (delta > 0)
+												{
+													Engine.ConnectedLastDownloadStep = (1000 * (read - Engine.ConnectedLastRead)) / delta;
+													Engine.ConnectedLastUploadStep = (1000 * (write - Engine.ConnectedLastWrite)) / delta;
+												}
+											}
+
+											Engine.ConnectedLastRead = read;
+											Engine.ConnectedLastWrite = write;
+
+											Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
+
+											Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
+										}
+									}
+									else if (Platform.Instance.GetTunStatsMode() == "OpenVpnManagement")
+									{
+										SendManagementCommand("status");
+									}
 								}
-
-								// Checking
-								if (m_processOpenVpn.HasExited)
-									m_reset = "ERROR";
-								if( (m_processProxy != null) && (m_processProxy.HasExited) )
-									m_reset = "ERROR";
-								
+																
 								// Need stop?
 								bool StopRequest = false;
 
@@ -327,11 +334,11 @@ namespace AirVPN.Core.Threads
 
 						Engine.SetConnected(false);
 
-						Engine.WaitMessageSet(Messages.ConnectionDisconnecting);
+						Engine.WaitMessageSet(Messages.ConnectionDisconnecting, false);
 
 						if (Storage.Simulate)
 						{
-							if (m_processOpenVpn.HasExited == false)
+							if (m_processOpenVpn.ReallyExited == false)
 								m_processOpenVpn.Kill();
 						}
 
@@ -350,26 +357,28 @@ namespace AirVPN.Core.Threads
 								// TODO: Maybe optimized under Linux.
 
 								// Simulation process
-								if ((Storage.Simulate) && (m_processOpenVpn != null) && (m_processOpenVpn.HasExited == false))
+								if ((Storage.Simulate) && (m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited == false))
 									m_processOpenVpn.Kill();
 
 								// OpenVPN process completed, but management socket still opened. Strange, but happen. Closing socket.
-								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.HasExited == true) && (m_openVpnManagementSocket.Connected))
+								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.ReallyExited == true) && (m_openVpnManagementSocket.Connected))
 									m_openVpnManagementSocket.Close();
 
 								// OpenVPN process still exists, but management socket is not connected. We can't tell to OpenVPN to do a plain disconnection, force killing.
-								if ((m_processOpenVpn != null) && (m_processOpenVpn.HasExited == false))
+								if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited == false))
 								{
 									if ((m_openVpnManagementSocket == null) || (m_openVpnManagementSocket.Connected == false))
 										m_processOpenVpn.Kill();
 								}
 
 								// Proxy (SSH/SSL) process								
-								if ((m_processProxy != null) && (m_processOpenVpn != null) && (m_processProxy.HasExited == false) && (m_processOpenVpn.HasExited == true))
+								if ((m_processProxy != null) && (m_processOpenVpn != null) && (m_processProxy.ReallyExited == false) && (m_processOpenVpn.ReallyExited == true))
+								{
 									m_processProxy.Kill();
+								}
 
 								// Start a clean disconnection
-								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.HasExited == false) && (m_openVpnManagementSocket.Connected))
+								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.ReallyExited == false) && (m_openVpnManagementSocket.Connected))
 								{
 									bool sendSignal = false;
 									if (DeltaSigTerm == null)
@@ -397,10 +406,10 @@ namespace AirVPN.Core.Threads
 							if ((m_openVpnManagementSocket != null) && (m_openVpnManagementSocket.Connected))
 								exit = false;
 
-							if ((m_processProxy != null) && (m_processProxy.HasExited == false))
+							if ((m_processProxy != null) && (m_processProxy.ReallyExited == false))
 								exit = false;
 
-							if ((m_processOpenVpn != null) && (m_processOpenVpn.HasExited == false))
+							if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited == false))
 								exit = false;
 
 							if (exit)
@@ -416,6 +425,8 @@ namespace AirVPN.Core.Threads
 						Engine.Log(Engine.LogType.Verbose, Messages.ConnectionStop);
 
 						Engine.RunEventCommand("vpn.down");
+
+						Platform.Instance.OnDnsSwitchRestore();
 
 						// Closing temporary files
 						if (m_fileSshKey != null)
@@ -456,7 +467,7 @@ namespace AirVPN.Core.Threads
 				{
 					for (int i = 0; i < waitingSecs; i++)
 					{
-						Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), false);
+						Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), true, false);
 						if (CancelRequested)
 							break;
 
@@ -484,6 +495,9 @@ namespace AirVPN.Core.Threads
 
 		private void StartSshProcess()
 		{
+			if (m_processProxy != null) // Unexpected
+				return;
+
 			string fileKeyExtension = "";
 			if (Platform.Instance.IsUnixSystem())
 				fileKeyExtension = "key";
@@ -496,7 +510,11 @@ namespace AirVPN.Core.Threads
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
-				Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
+				// Exception: under OSX with chmod 700 fail, need investigation.
+				if (Platform.Instance.GetCode() != "OSX") 
+				{
+					Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
+				}
 			}
 			
 			string arguments = "";
@@ -511,8 +529,6 @@ namespace AirVPN.Core.Threads
 				arguments += " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"; // TOOPTIMIZE: To bypass key confirmation. Not the best approach.
 			arguments += " -N -T -v";
 
-			Engine.Log(Engine.LogType.Warning, arguments);
-			
 			m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SshPath;
 			m_processProxy.StartInfo.Arguments = arguments;
@@ -528,6 +544,7 @@ namespace AirVPN.Core.Threads
 
 			m_processProxy.ErrorDataReceived += new DataReceivedEventHandler(ProcessSshOutputDataReceived);
 			m_processProxy.OutputDataReceived += new DataReceivedEventHandler(ProcessSshOutputDataReceived);
+			m_processProxy.Exited += new EventHandler(ProcessSshExited);
 
 			m_processProxy.Start();
 			
@@ -535,14 +552,27 @@ namespace AirVPN.Core.Threads
 			m_processProxy.BeginErrorReadLine();
 		}
 
+		void ProcessSshExited(object sender, EventArgs e)
+		{
+			if (m_reset == "")
+				m_reset = "ERROR";
+		}
+
 		private void StartSslProcess()
 		{
+			if (m_processProxy != null) // Unexpected
+				return;
+
+			m_fileSslConfig = new TemporaryFile("ssl");
+
 			string sslConfig = "";
 
 			if (Platform.Instance.IsUnixSystem())
 			{
-				sslConfig += "output = /dev/stdout\n";
-				sslConfig += "pid = /tmp/stunnel4.pid\n";
+				//sslConfig += "output = /dev/stdout\n"; // With this, with new stunnel 5.01, we have duplicated output dump.
+				//sslConfig += "pid = /tmp/stunnel4.pid\n";
+				sslConfig += "foreground = yes\n"; // Without this, the process fork and it's exit can't be detected.
+				sslConfig += "pid = /tmp/" + RandomGenerator.GetHash() + ".pid\n"; // 2.2
 			}
 			sslConfig += "options = NO_SSLv2\n";
 			sslConfig += "client = yes\n";
@@ -554,13 +584,13 @@ namespace AirVPN.Core.Threads
 			sslConfig += "TIMEOUTclose = 0\n";			
 			sslConfig += "\n";
 			
-			m_fileSslConfig = new TemporaryFile("ssl");
+			
 			string sslConfigPath = m_fileSslConfig.Path;
 			Utils.SaveFile(sslConfigPath, sslConfig);
 
 			m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SslPath;
-			m_processProxy.StartInfo.Arguments = sslConfigPath;
+			m_processProxy.StartInfo.Arguments = "\"" + sslConfigPath + "\"";
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
 
 			m_processProxy.StartInfo.Verb = "run";
@@ -573,16 +603,25 @@ namespace AirVPN.Core.Threads
 						
 			m_processProxy.ErrorDataReceived += new DataReceivedEventHandler(ProcessSslOutputDataReceived);
 			m_processProxy.OutputDataReceived += new DataReceivedEventHandler(ProcessSslOutputDataReceived);
+			m_processProxy.Exited += new EventHandler(ProcessSslExited);
 
 			m_processProxy.Start();
 			
 			m_processProxy.BeginOutputReadLine();
-			m_processProxy.BeginErrorReadLine();			
+			m_processProxy.BeginErrorReadLine();
+		}
 
+		void ProcessSslExited(object sender, EventArgs e)
+		{
+			if (m_reset == "")
+				m_reset = "ERROR";
 		}
 
 		private void StartOpenVpnProcess()
 		{
+			if (m_processOpenVpn != null) // Unexpected
+				return;
+
 			m_fileOvpn = new TemporaryFile("ovpn");
 			string ovpnPath = m_fileOvpn.Path;
 			Utils.SaveFile(ovpnPath, Engine.ConnectedOVPN);
@@ -611,11 +650,18 @@ namespace AirVPN.Core.Threads
 
 			m_processOpenVpn.OutputDataReceived += new DataReceivedEventHandler(ProcessOpenVpnOutputDataReceived);
 			m_processOpenVpn.ErrorDataReceived += new DataReceivedEventHandler(ProcessOpenVpnOutputDataReceived);
+			m_processOpenVpn.Exited += new EventHandler(ProcessOpenVpnExited);
 
 			m_processOpenVpn.Start();
 
 			m_processOpenVpn.BeginOutputReadLine();
 			m_processOpenVpn.BeginErrorReadLine();
+		}
+
+		void ProcessOpenVpnExited(object sender, EventArgs e)
+		{
+			if(m_reset == "")
+				m_reset = "ERROR";
 		}
 
 		public void SendManagementCommand(string Cmd)
@@ -747,6 +793,32 @@ namespace AirVPN.Core.Threads
 						m_reset = "ERROR";
 					}
 
+					if (message.IndexOf("Exiting due to fatal error") != -1)
+					{
+						m_reset = "ERROR";
+					}
+
+					if (message.IndexOf("SIGTERM[soft,ping-exit]") != -1) // 2.2
+					{
+						m_reset = "ERROR";
+					}
+
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						m_reset = "ERROR";
+					}
+
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						m_reset = "ERROR";
+					}
+
+					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received");
+					if (matchSigReceived.Success)
+					{
+						m_reset = "ERROR";
+					}
+
 					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
 					{
 						Engine.Log(Engine.LogType.Verbose, Messages.AutoPortSwitch);
@@ -776,7 +848,7 @@ namespace AirVPN.Core.Threads
 					{
 						m_reset = "ERROR";
 					}
-
+					
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
 						Engine.Log(Core.Engine.LogType.Verbose, Messages.ConnectionStartManagement);
@@ -789,15 +861,15 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
 					{
-						Engine.WaitMessageSet(Messages.ConnectionFlushDNS);
+						Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
 
-						Platform.Instance.FlushDNS();
+						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
 
-						
+						Platform.Instance.FlushDNS();						
 
 						if (Engine.Storage.GetBool("advanced.check.route"))
 						{
-							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute);
+							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
 
 							if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
 							{
@@ -815,7 +887,7 @@ namespace AirVPN.Core.Threads
 
 								if (VpnIp != Engine.ConnectedVpnIp)
 								{
-									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);
+									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);									
 									m_reset = "ERROR";
 								}
 							}
@@ -838,7 +910,7 @@ namespace AirVPN.Core.Threads
 						// DNS test
 						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.dns")))
 						{
-							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS);
+							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
 							
 							bool failed = true;
 							IPHostEntry entry = Dns.GetHostEntry(Engine.Storage.GetManifestKeyValue("dnscheck_host", ""));
@@ -856,7 +928,7 @@ namespace AirVPN.Core.Threads
 
 							if (failed)
 							{
-								Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);
+								Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);								
 								m_reset = "ERROR";
 							}
 						}
@@ -1017,13 +1089,8 @@ namespace AirVPN.Core.Threads
 
 							Engine.ConnectedLastRead = read;
 							Engine.ConnectedLastWrite = write;
-						}
 
-						{
-							string countryName = Engine.CurrentServer.CountryName;
-							string tooltipText = Constants.Name + " - D: " + Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false) + ", U: " + Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false) + " - " + countryName;
-
-							Engine.Log(Engine.LogType.Realtime, tooltipText);
+							Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
 						}
 
 						Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);

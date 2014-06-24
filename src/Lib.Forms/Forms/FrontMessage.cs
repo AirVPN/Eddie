@@ -40,6 +40,8 @@ namespace AirVPN.Gui.Forms
 			base.OnLoad(e);
 
 			lblMessage.Text = Message;
+			cmdClose.Text = Messages.WindowsFrontMessageAccept;
+			lnkWebsite.Text = Messages.WindowsFrontMessageMore;
 
 			CommonInit(Messages.WindowsFrontMessageTitle);
 		}

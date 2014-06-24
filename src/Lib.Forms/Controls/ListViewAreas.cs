@@ -61,6 +61,7 @@ namespace AirVPN.Gui.Controls
             columnHeader2.TextAlign = HorizontalAlignment.Center;
 			columnHeader3.Text = Messages.AreasLoad;
             columnHeader3.Width = 200;
+			columnHeader3.TextAlign = HorizontalAlignment.Center;
 			columnHeader4.Text = Messages.AreasUsers;
             columnHeader4.Width = 60;
             columnHeader4.TextAlign = HorizontalAlignment.Center;
@@ -94,16 +95,28 @@ namespace AirVPN.Gui.Controls
 				R1.Inflate(-2, -2);
 				//e.Graphics.FillRectangle(m_loadBrushBg, R1);
 
-
+				/*
 				Int64 bwCur = 2 * (listItemServer.Info.Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 				Int64 bwMax = listItemServer.Info.BandwidthMax;
 
-				String label = bwCur.ToString() + " / " + bwMax.ToString() + " Mbit/s";
+				float p = (float)bwCur / (float)bwMax;
+				*/
 
-				int W = Conversions.ToInt32((bwCur * R1.Width) / bwMax);
+				String label = listItemServer.Info.GetLoadForList();
+				float p = listItemServer.Info.GetLoadPercForList();
+				string color = listItemServer.Info.GetLoadColorForList();
+				Brush b = Brushes.LightGreen;
+				if (color == "red")
+					b = Brushes.LightPink;
+				else if (color == "yellow")
+					b = Brushes.LightYellow;
+				else
+					b = Brushes.LightGreen;
+
+				int W = Conversions.ToInt32(p * R1.Width);
 				if (W > R1.Width)
 					W = R1.Width;
-				e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				e.Graphics.FillRectangle(b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
 
 				R1.Height -= 1;
 				//e.Graphics.DrawRectangle(m_loadPen, R1);
@@ -118,6 +131,19 @@ namespace AirVPN.Gui.Controls
             ListViewItemArea i1 = pi1 as ListViewItemArea;
             ListViewItemArea i2 = pi2 as ListViewItemArea;
 
+			string colName = "";
+			if (col == 0)
+				colName = "Name";
+			else if (col == 1)
+				colName = "Servers";
+			else if (col == 2)
+				colName = "Load";
+			else if (col == 3)
+				colName = "Users";
+
+			return i1.Info.CompareToEx(i2.Info, colName, order == SortOrder.Ascending);
+
+			/*
             int returnVal = -1;
             switch (col)
             {                
@@ -153,6 +179,7 @@ namespace AirVPN.Gui.Controls
                 returnVal *= -1;
 
             return returnVal;
+			*/
         }
 
         public void UpdateList()

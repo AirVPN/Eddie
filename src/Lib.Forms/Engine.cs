@@ -210,10 +210,18 @@ namespace AirVPN.Gui
         
         public override void OnRefreshUi(RefreshUiMode mode)
         {
+			base.OnRefreshUi(mode);
+
 			if(Engine.Storage.GetBool("cli") == false)
 				if (FormMain != null)
 					FormMain.RefreshUi(mode);            
         }
+
+		public override void OnStatsChange(StatsEntry entry)
+		{
+			if (FormMain != null)
+				FormMain.StatsChange(entry);
+		}
 		
         public override void OnLog(LogEntry l)
         {
@@ -228,9 +236,12 @@ namespace AirVPN.Gui
 						FormMain.RefreshUi(RefreshUiMode.Log);            
 				}
 
-				if (l.Type == LogType.Fatal) // TOTEST
+				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
 				{
-					MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					if (l.Type == LogType.Fatal)
+					{
+						MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
 				}
 			}
         }

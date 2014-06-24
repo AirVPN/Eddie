@@ -57,6 +57,8 @@ namespace AirVPN.Core
 		{
 			string path = RecoveryPath();
 
+			Platform.Instance.OnRecovery();
+
 			if (File.Exists(path))
 			{
 				try

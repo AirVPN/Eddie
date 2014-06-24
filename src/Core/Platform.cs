@@ -118,13 +118,6 @@ namespace AirVPN.Core
 			return Instance.GetCode() == "Linux";			
         }
 
-		/*
-        private static bool IsOSX()
-        {
-			return m_uname == "Darwin";
-        }
-		*/
-
 		public string GetSystemCode()
         {
 			string t = GetCode() + "_" + GetArchitecture();
@@ -303,6 +296,32 @@ namespace AirVPN.Core
 			return "";
 		}
 
+		public virtual Dictionary<int, string> GetProcessesList()
+		{
+			Dictionary<int, string> result = new Dictionary<int, string>();
+
+			System.Diagnostics.Process[] processlist = Process.GetProcesses();
+
+			foreach (System.Diagnostics.Process p in processlist)
+			{
+				try
+				{
+					result[p.Id] = p.ProcessName.ToLowerInvariant();					
+				}
+				catch (System.InvalidOperationException)
+				{
+					// occur on some OSX process, ignore it.
+				}
+			}
+
+			return result;
+		}
+
+		public virtual string GetTunStatsMode()
+		{
+			return "NetworkInterface";			
+		}
+
         public virtual void LogSystemInfo()
         {
 			Engine.Instance.Log(Engine.LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
@@ -317,8 +336,8 @@ namespace AirVPN.Core
 			foreach (NetworkInterface adapter in interfaces)
 			{
 				t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
-				t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
-				t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
+				//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
+				//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
 				t += "\n";
 			}
 
@@ -326,6 +345,10 @@ namespace AirVPN.Core
 			t += RouteList();
 
 			return t;
+		}
+
+		public virtual void OnAppStart()
+		{
 		}
 
 		public virtual void OnSessionStart()
@@ -340,11 +363,28 @@ namespace AirVPN.Core
 		{
 		}
 
+		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
+		public virtual void OnRecovery()
+		{
+		}
+
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
 		}
 
 		public virtual void OnRecoverySave(XmlElement root)
+		{
+		}
+
+		public virtual void OnBuildOvpn(ref string ovpn)
+		{
+		}
+
+		public virtual void OnDnsSwitchDo(string dns)
+		{
+		}
+
+		public virtual void OnDnsSwitchRestore()
 		{
 		}
 
@@ -373,5 +413,9 @@ namespace AirVPN.Core
 			return System.Net.Sockets.Socket.OSSupportsIPv6;
 		}
 
+		public virtual string GetGitDeployPath()
+		{
+			return GetProgramFolder () + "/../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
+		}
     }
 }

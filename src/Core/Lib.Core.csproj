@@ -13,6 +13,7 @@
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <ReleaseVersion>2.2</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,6 +43,9 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="Process.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
     <Compile Include="UI\Chart.cs" />
@@ -78,6 +82,9 @@
     <Compile Include="TimeDelta.cs" />
     <Compile Include="TrustCertificatePolicy.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="WebClientEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

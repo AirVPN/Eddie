@@ -139,7 +139,7 @@ namespace AirVPN.Core.Threads
 					//bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
 					int delay = Engine.Instance.Storage.GetInt("advanced.pinger.delay");
 					if (delay == 0)
-						delay = Conversions.ToInt32(Engine.Instance.Storage.GetManifestKeyValue("pinger_delay", "10"));
+						delay = Conversions.ToInt32(Engine.Instance.Storage.GetManifestKeyValue("pinger_delay", "600"));
 					int timeNow = Utils.UnixTimeStamp();
 					int jobsLimit = Engine.Instance.Storage.GetInt("advanced.pinger.jobs");
 

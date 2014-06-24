@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>res\icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -41,6 +44,7 @@
     <Compile Include="Controls\ChartSpeed.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\ListViewItemLog.cs" />
     <Compile Include="Controls\ListViewAreas.cs">
       <SubType>Component</SubType>
     </Compile>

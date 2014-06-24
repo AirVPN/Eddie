@@ -35,20 +35,21 @@ namespace AirVPN.Gui.Forms
 			AirVPN.Gui.Skin.ColumnHeader columnHeader1;
 			AirVPN.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
+			this.label7 = new AirVPN.Gui.Skin.Label();
+			this.cboDnsSwitchMode = new AirVPN.Gui.Skin.ComboBox();
+			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+			this.chkAdvancedWindowsTapUp = new AirVPN.Gui.Skin.CheckBox();
+			this.chkAdvancedWindowsForceDns = new AirVPN.Gui.Skin.CheckBox();
+			this.chkAdvancedWindowsDhcpSwitch = new AirVPN.Gui.Skin.CheckBox();
+			this.cmdAdvancedUninstallDriver = new AirVPN.Gui.Skin.Button();
 			this.lnkAdvancedDocs = new AirVPN.Gui.Skin.LinkLabel();
 			this.chkAdvancedPingerAlways = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAdvancedPingerEnabled = new AirVPN.Gui.Skin.CheckBox();
-			this.cmdAdvancedUninstallDriver = new AirVPN.Gui.Skin.Button();
-			this.chkAdvancedWindowsDhcpSwitch = new AirVPN.Gui.Skin.CheckBox();
-			this.lblMicrosoftWindowsOnly = new AirVPN.Gui.Skin.Label();
-			this.chkDnsSwitch = new AirVPN.Gui.Skin.CheckBox();
-			this.chkAdvancedWindowsForceDns = new AirVPN.Gui.Skin.CheckBox();
 			this.cmdExeBrowse = new AirVPN.Gui.Skin.Button();
 			this.txtExePath = new AirVPN.Gui.Skin.TextBox();
 			this.label4 = new AirVPN.Gui.Skin.Label();
 			this.chkAdvancedCheckRoute = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAdvancedCheckDns = new AirVPN.Gui.Skin.CheckBox();
-			this.chkAdvancedWindowsTapUp = new AirVPN.Gui.Skin.CheckBox();
 			this.chkExpert = new AirVPN.Gui.Skin.CheckBox();
 			this.label3 = new AirVPN.Gui.Skin.Label();
 			this.label2 = new AirVPN.Gui.Skin.Label();
@@ -75,13 +76,13 @@ namespace AirVPN.Gui.Forms
 			this.cmdOk = new AirVPN.Gui.Skin.Button();
 			this.tabSettings = new AirVPN.Gui.Skin.TabControl();
 			this.tabGeneral = new AirVPN.Gui.Skin.TabPage();
-			this.label7 = new AirVPN.Gui.Skin.Label();
+			this.pnlGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+			this.chkSystemStart = new AirVPN.Gui.Skin.CheckBox();
+			this.chkMinimizeTray = new AirVPN.Gui.Skin.CheckBox();
 			this.lblGeneralTheme = new AirVPN.Gui.Skin.Label();
 			this.cboGeneralTheme = new AirVPN.Gui.Skin.ComboBox();
 			this.chkGeneralStartLast = new AirVPN.Gui.Skin.CheckBox();
-			this.chkMinimizeTray = new AirVPN.Gui.Skin.CheckBox();
 			this.cmdTos = new AirVPN.Gui.Skin.Button();
-			this.chkSystemStart = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAutoStart = new AirVPN.Gui.Skin.CheckBox();
 			this.tabMode = new AirVPN.Gui.Skin.TabPage();
 			this.optModeTCP443 = new AirVPN.Gui.Skin.RadioButton();
@@ -134,18 +135,21 @@ namespace AirVPN.Gui.Forms
 			this.colRoutesAction = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
 			this.tabAdvanced = new AirVPN.Gui.Skin.TabPage();
 			this.tabAdvancedMain = new AirVPN.Gui.Skin.TabControl();
+			this.chkAdvancedNetworkLocking = new AirVPN.Gui.Skin.CheckBox();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
 			columnHeader1 = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
 			columnHeader2 = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
 			tabPage1.SuspendLayout();
+			this.pnlAdvancedGeneralWindowsOnly.SuspendLayout();
 			tabPage2.SuspendLayout();
 			tabPage3.SuspendLayout();
 			this.mnuRoutes.SuspendLayout();
 			this.pnlCommands.SuspendLayout();
 			this.tabSettings.SuspendLayout();
 			this.tabGeneral.SuspendLayout();
+			this.pnlGeneralWindowsOnly.SuspendLayout();
 			this.tabMode.SuspendLayout();
 			this.tabProxy.SuspendLayout();
 			this.tabRoutes.SuspendLayout();
@@ -156,20 +160,18 @@ namespace AirVPN.Gui.Forms
 			// tabPage1
 			// 
 			tabPage1.BackColor = System.Drawing.Color.White;
+			tabPage1.Controls.Add(this.chkAdvancedNetworkLocking);
+			tabPage1.Controls.Add(this.label7);
+			tabPage1.Controls.Add(this.cboDnsSwitchMode);
+			tabPage1.Controls.Add(this.pnlAdvancedGeneralWindowsOnly);
 			tabPage1.Controls.Add(this.lnkAdvancedDocs);
 			tabPage1.Controls.Add(this.chkAdvancedPingerAlways);
 			tabPage1.Controls.Add(this.chkAdvancedPingerEnabled);
-			tabPage1.Controls.Add(this.cmdAdvancedUninstallDriver);
-			tabPage1.Controls.Add(this.chkAdvancedWindowsDhcpSwitch);
-			tabPage1.Controls.Add(this.lblMicrosoftWindowsOnly);
-			tabPage1.Controls.Add(this.chkDnsSwitch);
-			tabPage1.Controls.Add(this.chkAdvancedWindowsForceDns);
 			tabPage1.Controls.Add(this.cmdExeBrowse);
 			tabPage1.Controls.Add(this.txtExePath);
 			tabPage1.Controls.Add(this.label4);
 			tabPage1.Controls.Add(this.chkAdvancedCheckRoute);
 			tabPage1.Controls.Add(this.chkAdvancedCheckDns);
-			tabPage1.Controls.Add(this.chkAdvancedWindowsTapUp);
 			tabPage1.Controls.Add(this.chkExpert);
 			tabPage1.Location = new System.Drawing.Point(4, 24);
 			tabPage1.Name = "tabPage1";
@@ -177,6 +179,93 @@ namespace AirVPN.Gui.Forms
 			tabPage1.Size = new System.Drawing.Size(622, 263);
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "General";
+			// 
+			// label7
+			// 
+			this.label7.BackColor = System.Drawing.Color.Transparent;
+			this.label7.ForeColor = System.Drawing.Color.Black;
+			this.label7.Location = new System.Drawing.Point(15, 56);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(112, 13);
+			this.label7.TabIndex = 72;
+			this.label7.Text = "DNS Switch mode:";
+			// 
+			// cboDnsSwitchMode
+			// 
+			this.cboDnsSwitchMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cboDnsSwitchMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboDnsSwitchMode.FormattingEnabled = true;
+			this.cboDnsSwitchMode.Items.AddRange(new object[] {
+            "Disabled",
+            "Automatic",
+            "Resolvconf (Linux only)",
+            "Renaming (Linux only)"});
+			this.cboDnsSwitchMode.Location = new System.Drawing.Point(131, 53);
+			this.cboDnsSwitchMode.Name = "cboDnsSwitchMode";
+			this.cboDnsSwitchMode.Size = new System.Drawing.Size(125, 21);
+			this.cboDnsSwitchMode.TabIndex = 71;
+			// 
+			// pnlAdvancedGeneralWindowsOnly
+			// 
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkAdvancedWindowsTapUp);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkAdvancedWindowsForceDns);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkAdvancedWindowsDhcpSwitch);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriver);
+			this.pnlAdvancedGeneralWindowsOnly.Location = new System.Drawing.Point(338, 18);
+			this.pnlAdvancedGeneralWindowsOnly.Name = "pnlAdvancedGeneralWindowsOnly";
+			this.pnlAdvancedGeneralWindowsOnly.Size = new System.Drawing.Size(264, 141);
+			this.pnlAdvancedGeneralWindowsOnly.TabIndex = 69;
+			this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
+			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
+			// 
+			// chkAdvancedWindowsTapUp
+			// 
+			this.chkAdvancedWindowsTapUp.AutoSize = true;
+			this.chkAdvancedWindowsTapUp.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedWindowsTapUp.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedWindowsTapUp.Location = new System.Drawing.Point(23, 23);
+			this.chkAdvancedWindowsTapUp.Name = "chkAdvancedWindowsTapUp";
+			this.chkAdvancedWindowsTapUp.Size = new System.Drawing.Size(139, 17);
+			this.chkAdvancedWindowsTapUp.TabIndex = 55;
+			this.chkAdvancedWindowsTapUp.Text = "Force TAP interface UP";
+			this.chkAdvancedWindowsTapUp.UseVisualStyleBackColor = false;
+			// 
+			// chkAdvancedWindowsForceDns
+			// 
+			this.chkAdvancedWindowsForceDns.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedWindowsForceDns.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedWindowsForceDns.Location = new System.Drawing.Point(23, 46);
+			this.chkAdvancedWindowsForceDns.Name = "chkAdvancedWindowsForceDns";
+			this.chkAdvancedWindowsForceDns.Size = new System.Drawing.Size(300, 17);
+			this.chkAdvancedWindowsForceDns.TabIndex = 61;
+			this.chkAdvancedWindowsForceDns.Text = "Force DNS";
+			this.chkAdvancedWindowsForceDns.UseVisualStyleBackColor = false;
+			// 
+			// chkAdvancedWindowsDhcpSwitch
+			// 
+			this.chkAdvancedWindowsDhcpSwitch.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedWindowsDhcpSwitch.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedWindowsDhcpSwitch.Location = new System.Drawing.Point(23, 69);
+			this.chkAdvancedWindowsDhcpSwitch.Name = "chkAdvancedWindowsDhcpSwitch";
+			this.chkAdvancedWindowsDhcpSwitch.Size = new System.Drawing.Size(300, 17);
+			this.chkAdvancedWindowsDhcpSwitch.TabIndex = 64;
+			this.chkAdvancedWindowsDhcpSwitch.Text = "Switch DHCP to Static";
+			this.chkAdvancedWindowsDhcpSwitch.UseVisualStyleBackColor = false;
+			// 
+			// cmdAdvancedUninstallDriver
+			// 
+			this.cmdAdvancedUninstallDriver.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedUninstallDriver.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedUninstallDriver.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedUninstallDriver.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedUninstallDriver.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedUninstallDriver.Location = new System.Drawing.Point(6, 99);
+			this.cmdAdvancedUninstallDriver.Name = "cmdAdvancedUninstallDriver";
+			this.cmdAdvancedUninstallDriver.Size = new System.Drawing.Size(252, 30);
+			this.cmdAdvancedUninstallDriver.TabIndex = 65;
+			this.cmdAdvancedUninstallDriver.Text = "Uninstall Driver";
+			this.cmdAdvancedUninstallDriver.UseVisualStyleBackColor = true;
+			this.cmdAdvancedUninstallDriver.Click += new System.EventHandler(this.cmdAdvancedUninstallDriver_Click);
 			// 
 			// lnkAdvancedDocs
 			// 
@@ -213,64 +302,6 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedPingerEnabled.TabIndex = 66;
 			this.chkAdvancedPingerEnabled.Text = "Enable Pinger / Latency Tests";
 			this.chkAdvancedPingerEnabled.UseVisualStyleBackColor = false;
-			// 
-			// cmdAdvancedUninstallDriver
-			// 
-			this.cmdAdvancedUninstallDriver.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedUninstallDriver.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedUninstallDriver.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedUninstallDriver.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedUninstallDriver.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedUninstallDriver.Location = new System.Drawing.Point(340, 108);
-			this.cmdAdvancedUninstallDriver.Name = "cmdAdvancedUninstallDriver";
-			this.cmdAdvancedUninstallDriver.Size = new System.Drawing.Size(262, 30);
-			this.cmdAdvancedUninstallDriver.TabIndex = 65;
-			this.cmdAdvancedUninstallDriver.Text = "Uninstall Driver";
-			this.cmdAdvancedUninstallDriver.UseVisualStyleBackColor = true;
-			this.cmdAdvancedUninstallDriver.Click += new System.EventHandler(this.cmdAdvancedUninstallDriver_Click);
-			// 
-			// chkAdvancedWindowsDhcpSwitch
-			// 
-			this.chkAdvancedWindowsDhcpSwitch.BackColor = System.Drawing.Color.Transparent;
-			this.chkAdvancedWindowsDhcpSwitch.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedWindowsDhcpSwitch.Location = new System.Drawing.Point(340, 85);
-			this.chkAdvancedWindowsDhcpSwitch.Name = "chkAdvancedWindowsDhcpSwitch";
-			this.chkAdvancedWindowsDhcpSwitch.Size = new System.Drawing.Size(300, 17);
-			this.chkAdvancedWindowsDhcpSwitch.TabIndex = 64;
-			this.chkAdvancedWindowsDhcpSwitch.Text = "Switch DHCP to Static";
-			this.chkAdvancedWindowsDhcpSwitch.UseVisualStyleBackColor = false;
-			// 
-			// lblMicrosoftWindowsOnly
-			// 
-			this.lblMicrosoftWindowsOnly.BackColor = System.Drawing.Color.Transparent;
-			this.lblMicrosoftWindowsOnly.ForeColor = System.Drawing.Color.Black;
-			this.lblMicrosoftWindowsOnly.Location = new System.Drawing.Point(337, 21);
-			this.lblMicrosoftWindowsOnly.Name = "lblMicrosoftWindowsOnly";
-			this.lblMicrosoftWindowsOnly.Size = new System.Drawing.Size(148, 15);
-			this.lblMicrosoftWindowsOnly.TabIndex = 63;
-			this.lblMicrosoftWindowsOnly.Text = "Microsoft Windows Only:";
-			// 
-			// chkDnsSwitch
-			// 
-			this.chkDnsSwitch.BackColor = System.Drawing.Color.Transparent;
-			this.chkDnsSwitch.ForeColor = System.Drawing.Color.Black;
-			this.chkDnsSwitch.Location = new System.Drawing.Point(16, 57);
-			this.chkDnsSwitch.Name = "chkDnsSwitch";
-			this.chkDnsSwitch.Size = new System.Drawing.Size(300, 17);
-			this.chkDnsSwitch.TabIndex = 62;
-			this.chkDnsSwitch.Text = "DNS Switch";
-			this.chkDnsSwitch.UseVisualStyleBackColor = false;
-			// 
-			// chkAdvancedWindowsForceDns
-			// 
-			this.chkAdvancedWindowsForceDns.BackColor = System.Drawing.Color.Transparent;
-			this.chkAdvancedWindowsForceDns.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedWindowsForceDns.Location = new System.Drawing.Point(340, 62);
-			this.chkAdvancedWindowsForceDns.Name = "chkAdvancedWindowsForceDns";
-			this.chkAdvancedWindowsForceDns.Size = new System.Drawing.Size(300, 17);
-			this.chkAdvancedWindowsForceDns.TabIndex = 61;
-			this.chkAdvancedWindowsForceDns.Text = "Force DNS";
-			this.chkAdvancedWindowsForceDns.UseVisualStyleBackColor = false;
 			// 
 			// cmdExeBrowse
 			// 
@@ -322,22 +353,10 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedCheckDns.ForeColor = System.Drawing.Color.Black;
 			this.chkAdvancedCheckDns.Location = new System.Drawing.Point(16, 80);
 			this.chkAdvancedCheckDns.Name = "chkAdvancedCheckDns";
-			this.chkAdvancedCheckDns.Size = new System.Drawing.Size(237, 17);
+			this.chkAdvancedCheckDns.Size = new System.Drawing.Size(212, 17);
 			this.chkAdvancedCheckDns.TabIndex = 56;
-			this.chkAdvancedCheckDns.Text = "Ensure that tunnel uses AirVPN DNS System";
+			this.chkAdvancedCheckDns.Text = "Checking if the tunnel use AirVPN DNS";
 			this.chkAdvancedCheckDns.UseVisualStyleBackColor = false;
-			// 
-			// chkAdvancedWindowsTapUp
-			// 
-			this.chkAdvancedWindowsTapUp.AutoSize = true;
-			this.chkAdvancedWindowsTapUp.BackColor = System.Drawing.Color.Transparent;
-			this.chkAdvancedWindowsTapUp.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedWindowsTapUp.Location = new System.Drawing.Point(340, 39);
-			this.chkAdvancedWindowsTapUp.Name = "chkAdvancedWindowsTapUp";
-			this.chkAdvancedWindowsTapUp.Size = new System.Drawing.Size(139, 17);
-			this.chkAdvancedWindowsTapUp.TabIndex = 55;
-			this.chkAdvancedWindowsTapUp.Text = "Force TAP interface UP";
-			this.chkAdvancedWindowsTapUp.UseVisualStyleBackColor = false;
 			// 
 			// chkExpert
 			// 
@@ -368,23 +387,21 @@ namespace AirVPN.Gui.Forms
 			// 
 			// label3
 			// 
-			this.label3.AutoSize = true;
 			this.label3.BackColor = System.Drawing.Color.Transparent;
 			this.label3.ForeColor = System.Drawing.Color.Black;
 			this.label3.Location = new System.Drawing.Point(310, 7);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(44, 13);
+			this.label3.Size = new System.Drawing.Size(144, 13);
 			this.label3.TabIndex = 61;
 			this.label3.Text = "Default:";
 			// 
 			// label2
 			// 
-			this.label2.AutoSize = true;
 			this.label2.BackColor = System.Drawing.Color.Transparent;
 			this.label2.ForeColor = System.Drawing.Color.Black;
 			this.label2.Location = new System.Drawing.Point(6, 7);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(45, 13);
+			this.label2.Size = new System.Drawing.Size(145, 13);
 			this.label2.TabIndex = 60;
 			this.label2.Text = "Custom:";
 			// 
@@ -393,9 +410,9 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(411, 225);
+			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(313, 225);
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Name = "chkAdvancedOpenVpnDirectivesDefaultSkip";
-			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Size = new System.Drawing.Size(208, 32);
+			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Size = new System.Drawing.Size(306, 32);
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.TabIndex = 59;
 			this.chkAdvancedOpenVpnDirectivesDefaultSkip.Text = "Skip the above default directives. If unchecked, your custom directives are appen" +
     "ded.";
@@ -647,13 +664,11 @@ namespace AirVPN.Gui.Forms
 			// tabGeneral
 			// 
 			this.tabGeneral.BackColor = System.Drawing.Color.White;
-			this.tabGeneral.Controls.Add(this.label7);
+			this.tabGeneral.Controls.Add(this.pnlGeneralWindowsOnly);
 			this.tabGeneral.Controls.Add(this.lblGeneralTheme);
 			this.tabGeneral.Controls.Add(this.cboGeneralTheme);
 			this.tabGeneral.Controls.Add(this.chkGeneralStartLast);
-			this.tabGeneral.Controls.Add(this.chkMinimizeTray);
 			this.tabGeneral.Controls.Add(this.cmdTos);
-			this.tabGeneral.Controls.Add(this.chkSystemStart);
 			this.tabGeneral.Controls.Add(this.chkAutoStart);
 			this.tabGeneral.Location = new System.Drawing.Point(4, 24);
 			this.tabGeneral.Name = "tabGeneral";
@@ -661,15 +676,40 @@ namespace AirVPN.Gui.Forms
 			this.tabGeneral.TabIndex = 0;
 			this.tabGeneral.Text = "General";
 			// 
-			// label7
+			// pnlGeneralWindowsOnly
 			// 
-			this.label7.BackColor = System.Drawing.Color.Transparent;
-			this.label7.ForeColor = System.Drawing.Color.Black;
-			this.label7.Location = new System.Drawing.Point(393, 15);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(148, 15);
-			this.label7.TabIndex = 64;
-			this.label7.Text = "Microsoft Windows Only:";
+			this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemStart);
+			this.pnlGeneralWindowsOnly.Controls.Add(this.chkMinimizeTray);
+			this.pnlGeneralWindowsOnly.Location = new System.Drawing.Point(409, 15);
+			this.pnlGeneralWindowsOnly.Name = "pnlGeneralWindowsOnly";
+			this.pnlGeneralWindowsOnly.Size = new System.Drawing.Size(200, 100);
+			this.pnlGeneralWindowsOnly.TabIndex = 65;
+			this.pnlGeneralWindowsOnly.TabStop = false;
+			this.pnlGeneralWindowsOnly.Text = "Microsoft Windows Only";
+			// 
+			// chkSystemStart
+			// 
+			this.chkSystemStart.AutoSize = true;
+			this.chkSystemStart.BackColor = System.Drawing.Color.Transparent;
+			this.chkSystemStart.ForeColor = System.Drawing.Color.Black;
+			this.chkSystemStart.Location = new System.Drawing.Point(20, 23);
+			this.chkSystemStart.Name = "chkSystemStart";
+			this.chkSystemStart.Size = new System.Drawing.Size(117, 17);
+			this.chkSystemStart.TabIndex = 31;
+			this.chkSystemStart.Text = "Start with Windows";
+			this.chkSystemStart.UseVisualStyleBackColor = false;
+			// 
+			// chkMinimizeTray
+			// 
+			this.chkMinimizeTray.AutoSize = true;
+			this.chkMinimizeTray.BackColor = System.Drawing.Color.Transparent;
+			this.chkMinimizeTray.ForeColor = System.Drawing.Color.Black;
+			this.chkMinimizeTray.Location = new System.Drawing.Point(20, 46);
+			this.chkMinimizeTray.Name = "chkMinimizeTray";
+			this.chkMinimizeTray.Size = new System.Drawing.Size(120, 17);
+			this.chkMinimizeTray.TabIndex = 39;
+			this.chkMinimizeTray.Text = "Minimize in tray icon";
+			this.chkMinimizeTray.UseVisualStyleBackColor = false;
 			// 
 			// lblGeneralTheme
 			// 
@@ -707,18 +747,6 @@ namespace AirVPN.Gui.Forms
     "cked)";
 			this.chkGeneralStartLast.UseVisualStyleBackColor = false;
 			// 
-			// chkMinimizeTray
-			// 
-			this.chkMinimizeTray.AutoSize = true;
-			this.chkMinimizeTray.BackColor = System.Drawing.Color.Transparent;
-			this.chkMinimizeTray.ForeColor = System.Drawing.Color.Black;
-			this.chkMinimizeTray.Location = new System.Drawing.Point(396, 56);
-			this.chkMinimizeTray.Name = "chkMinimizeTray";
-			this.chkMinimizeTray.Size = new System.Drawing.Size(120, 17);
-			this.chkMinimizeTray.TabIndex = 39;
-			this.chkMinimizeTray.Text = "Minimize in tray icon";
-			this.chkMinimizeTray.UseVisualStyleBackColor = false;
-			// 
 			// cmdTos
 			// 
 			this.cmdTos.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
@@ -733,18 +761,6 @@ namespace AirVPN.Gui.Forms
 			this.cmdTos.Text = "Terms of Service";
 			this.cmdTos.UseVisualStyleBackColor = true;
 			this.cmdTos.Click += new System.EventHandler(this.cmdTos_Click);
-			// 
-			// chkSystemStart
-			// 
-			this.chkSystemStart.AutoSize = true;
-			this.chkSystemStart.BackColor = System.Drawing.Color.Transparent;
-			this.chkSystemStart.ForeColor = System.Drawing.Color.Black;
-			this.chkSystemStart.Location = new System.Drawing.Point(396, 33);
-			this.chkSystemStart.Name = "chkSystemStart";
-			this.chkSystemStart.Size = new System.Drawing.Size(117, 17);
-			this.chkSystemStart.TabIndex = 31;
-			this.chkSystemStart.Text = "Start with Windows";
-			this.chkSystemStart.UseVisualStyleBackColor = false;
 			// 
 			// chkAutoStart
 			// 
@@ -1125,7 +1141,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyAuthentication.Name = "lblProxyAuthentication";
 			this.lblProxyAuthentication.Size = new System.Drawing.Size(100, 20);
 			this.lblProxyAuthentication.TabIndex = 43;
-			this.lblProxyAuthentication.Text = "Authentication :";
+			this.lblProxyAuthentication.Text = "Authentication:";
 			this.lblProxyAuthentication.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// cboProxyAuthentication
@@ -1157,7 +1173,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyPassword.Name = "lblProxyPassword";
 			this.lblProxyPassword.Size = new System.Drawing.Size(100, 20);
 			this.lblProxyPassword.TabIndex = 40;
-			this.lblProxyPassword.Text = "Password :";
+			this.lblProxyPassword.Text = "Password:";
 			this.lblProxyPassword.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// txtProxyLogin
@@ -1175,7 +1191,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyLogin.Name = "lblProxyLogin";
 			this.lblProxyLogin.Size = new System.Drawing.Size(100, 20);
 			this.lblProxyLogin.TabIndex = 38;
-			this.lblProxyLogin.Text = "Login :";
+			this.lblProxyLogin.Text = "Login:";
 			this.lblProxyLogin.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// lblProxyType
@@ -1186,7 +1202,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyType.Name = "lblProxyType";
 			this.lblProxyType.Size = new System.Drawing.Size(45, 20);
 			this.lblProxyType.TabIndex = 37;
-			this.lblProxyType.Text = "Type :";
+			this.lblProxyType.Text = "Type:";
 			this.lblProxyType.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// cboProxyMode
@@ -1220,7 +1236,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyPort.Name = "lblProxyPort";
 			this.lblProxyPort.Size = new System.Drawing.Size(45, 20);
 			this.lblProxyPort.TabIndex = 34;
-			this.lblProxyPort.Text = "Port :";
+			this.lblProxyPort.Text = "Port:";
 			this.lblProxyPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// txtProxyHost
@@ -1238,7 +1254,7 @@ namespace AirVPN.Gui.Forms
 			this.lblProxyHost.Name = "lblProxyHost";
 			this.lblProxyHost.Size = new System.Drawing.Size(45, 20);
 			this.lblProxyHost.TabIndex = 32;
-			this.lblProxyHost.Text = "Host :";
+			this.lblProxyHost.Text = "Host:";
 			this.lblProxyHost.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// tabRoutes
@@ -1402,6 +1418,17 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvancedMain.Size = new System.Drawing.Size(630, 291);
 			this.tabAdvancedMain.TabIndex = 56;
 			// 
+			// chkAdvancedNetworkLocking
+			// 
+			this.chkAdvancedNetworkLocking.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedNetworkLocking.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedNetworkLocking.Location = new System.Drawing.Point(450, 179);
+			this.chkAdvancedNetworkLocking.Name = "chkAdvancedNetworkLocking";
+			this.chkAdvancedNetworkLocking.Size = new System.Drawing.Size(152, 26);
+			this.chkAdvancedNetworkLocking.TabIndex = 68;
+			this.chkAdvancedNetworkLocking.Text = "Enable Network Locking";
+			this.chkAdvancedNetworkLocking.UseVisualStyleBackColor = false;
+			// 
 			// Settings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1417,6 +1444,8 @@ namespace AirVPN.Gui.Forms
 			this.Text = "Settings";
 			tabPage1.ResumeLayout(false);
 			tabPage1.PerformLayout();
+			this.pnlAdvancedGeneralWindowsOnly.ResumeLayout(false);
+			this.pnlAdvancedGeneralWindowsOnly.PerformLayout();
 			tabPage2.ResumeLayout(false);
 			tabPage2.PerformLayout();
 			tabPage3.ResumeLayout(false);
@@ -1425,6 +1454,8 @@ namespace AirVPN.Gui.Forms
 			this.tabSettings.ResumeLayout(false);
 			this.tabGeneral.ResumeLayout(false);
 			this.tabGeneral.PerformLayout();
+			this.pnlGeneralWindowsOnly.ResumeLayout(false);
+			this.pnlGeneralWindowsOnly.PerformLayout();
 			this.tabMode.ResumeLayout(false);
 			this.tabMode.PerformLayout();
 			this.tabProxy.ResumeLayout(false);
@@ -1528,15 +1559,17 @@ namespace AirVPN.Gui.Forms
         private Skin.ColumnHeader columnHeader3;
         private Skin.ColumnHeader columnHeader4;
         private Skin.Label lblGeneralTheme;
-        private Skin.ComboBox cboGeneralTheme;
-		private Skin.CheckBox chkDnsSwitch;
+		private Skin.ComboBox cboGeneralTheme;
 		private Skin.CheckBox chkAdvancedWindowsDhcpSwitch;
-		private Skin.Label lblMicrosoftWindowsOnly;
 		private Skin.Button cmdAdvancedUninstallDriver;
 		private Skin.CheckBox chkAdvancedPingerAlways;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
-		private Skin.Label label7;
 		private Skin.LinkLabel lnkAdvancedDocs;
+		private System.Windows.Forms.GroupBox pnlGeneralWindowsOnly;
+		private System.Windows.Forms.GroupBox pnlAdvancedGeneralWindowsOnly;
+		private Skin.ComboBox cboDnsSwitchMode;
+		private Skin.Label label7;
+		private Skin.CheckBox chkAdvancedNetworkLocking;
 
     }
 }

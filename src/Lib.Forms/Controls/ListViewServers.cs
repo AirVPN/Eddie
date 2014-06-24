@@ -65,6 +65,7 @@ namespace AirVPN.Gui.Controls
             columnHeader1.Width = 110;
 			columnHeader2.Text = Messages.ServersScore;
             columnHeader2.Width = 66;
+			columnHeader2.TextAlign = HorizontalAlignment.Center;
 			columnHeader3.Text = Messages.ServersLocation;
             columnHeader3.Width = 200;
 			columnHeader4.Text = Messages.ServersLatency;
@@ -72,6 +73,7 @@ namespace AirVPN.Gui.Controls
             columnHeader4.TextAlign = HorizontalAlignment.Center;
 			columnHeader5.Text = Messages.ServersLoad;
             columnHeader5.Width = 160;
+			columnHeader5.TextAlign = HorizontalAlignment.Center;
 			columnHeader6.Text = Messages.ServersUsers;
             columnHeader6.Width = 50;
             columnHeader6.TextAlign = HorizontalAlignment.Center;
@@ -100,16 +102,11 @@ namespace AirVPN.Gui.Controls
             {
 				e.DrawDefault = false;
 				DrawSubItemBackground(sender, e);
-				                
-                int score = Convert.ToInt32(e.SubItem.Text);
-                float scoreF = (score - 50);
-                scoreF /= 50;
 
-                float part = 1;
-                if (scoreF > 5)
-                    part = 0;
-                else if (scoreF > 1)
-                    part /= scoreF;
+				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
+				                
+                //int score = Convert.ToInt32(e.SubItem.Text);
+				float part = listItemServer.Info.ScorePerc();
 
 
 				Image imageN = GuiUtils.GetResourceImage("stars_n");
@@ -148,15 +145,34 @@ namespace AirVPN.Gui.Controls
                 Rectangle R1 = e.Bounds;
                 R1.Inflate(-2, -2);
                 
+				/*
                 Int64 bwCur = 2*(listItemServer.Info.Bandwidth*8)/(1000*1000); // to Mbit/s                
                 Int64 bwMax = listItemServer.Info.BandwidthMax;
-                
-                String label = bwCur.ToString() + " / " + bwMax.ToString() + " Mbit/s";
 
-                int W = Convert.ToInt32((bwCur * R1.Width) / bwMax);
+				float p = (float)bwCur / (float)bwMax;
+				*/
+
+				String label = listItemServer.Info.GetLoadForList();
+				float p = listItemServer.Info.GetLoadPercForList();
+
+				string color = listItemServer.Info.GetLoadColorForList();				
+				Brush b = Brushes.LightGreen;
+				if(color == "red")
+					b = Brushes.LightPink;
+				else if (color == "yellow")
+					b = Brushes.LightYellow;
+				else
+					b = Brushes.LightGreen;
+					
+
+
+                int W = Convert.ToInt32(p * R1.Width);
                 if (W > R1.Width)
                     W = R1.Width;
-				e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				//e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				e.Graphics.FillRectangle(b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+
+				
 
                 R1.Height -= 1;
                 //e.Graphics.DrawRectangle(m_loadPen, R1);
@@ -171,6 +187,23 @@ namespace AirVPN.Gui.Controls
             ListViewItemServer i1 = pi1 as ListViewItemServer;
             ListViewItemServer i2 = pi2 as ListViewItemServer;
 
+			string colName = "";
+			if (col == 0)
+				colName = "Name";
+			else if (col == 1)
+				colName = "Score";
+			else if (col == 2)
+				colName = "Location";
+			else if (col == 3)
+				colName = "Latency";
+			else if (col == 4)
+				colName = "Load";
+			else if (col == 5)
+				colName = "Users";
+
+			return i1.Info.CompareToEx(i2.Info, colName, order == SortOrder.Ascending);
+
+			/*
             int returnVal = -1;
             switch (col)
             {
@@ -216,13 +249,10 @@ namespace AirVPN.Gui.Controls
 
             if (order == SortOrder.Descending)
                 // Invert the value returned by String.Compare.
-                returnVal *= -1;
-
-			if (returnVal == 0) // Second order, Name
-				returnVal = i1.Info.Name.CompareTo(i2.Info.Name);
-
-            return returnVal;            
-        }
+                returnVal *= -1;			
+            return returnVal;   
+			*/
+		}
 
         public void UpdateList()
         {
