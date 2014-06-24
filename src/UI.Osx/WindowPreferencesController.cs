@@ -261,31 +261,15 @@ namespace AirVPN.UI.Osx
 			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("out"));
 
 			CmdRouteAdd.Activated += (object sender, EventArgs e) => {
-				TableRoutingControllerItem item = new TableRoutingControllerItem();
-				item.Ip = "";
-				item.NetMask = "255.255.255.255";
-				item.Icon = "out";
-				item.Action = RouteDirectionToDescription("out");
-
-				WindowPreferencesRouteController dlg = new WindowPreferencesRouteController ();
-				dlg.Window.ReleasedWhenClosed = true;
-				dlg.Item = item;
-				NSApplication.SharedApplication.RunModalForWindow (dlg.Window);
-				dlg.Window.Close ();
-
-				if (dlg.Item != null) {
-					TableRoutingController.Items.Add(dlg.Item);
-				}
-
-				this.EnableIde();
+				RouteAdd();
 			};
 
 			CmdRouteRemove.Activated += (object sender, EventArgs e) => {
-				// pazzo
+				RouteRemove();
 			};
 
 			CmdRouteEdit.Activated += (object sender, EventArgs e) => {
-				// pazzo
+				RouteEdit();
 			};
 
 			// Advanced
@@ -297,7 +281,18 @@ namespace AirVPN.UI.Osx
 				TxtAdvancedOpenVpnPath.StringValue = "todo";
 			};
 
+			TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) => {
+				AdvancedEventEdit();
+			};
 
+			CmdAdvancedEventsEdit.Activated += (object sender, EventArgs e) => {
+				AdvancedEventEdit();
+			};
+
+			CmdAdvancedEventsClear.Activated += (object sender, EventArgs e) => {
+				AdvancedEventClear();
+
+			};
 
 
 			ChkAdvancedNetworkLocking.Hidden = (Engine.Instance.DevelopmentEnvironment == false);
@@ -328,6 +323,74 @@ namespace AirVPN.UI.Osx
 				return "";
 		}
 
+		void RouteAdd()
+		{
+			TableRoutingControllerItem item = new TableRoutingControllerItem();
+			item.Ip = "";
+			item.NetMask = "255.255.255.255";
+			item.Icon = "out";
+			item.Action = RouteDirectionToDescription("out");
+
+			WindowPreferencesRouteController dlg = new WindowPreferencesRouteController ();
+			dlg.Window.ReleasedWhenClosed = true;
+			dlg.Item = item;
+			NSApplication.SharedApplication.RunModalForWindow (dlg.Window);
+			dlg.Window.Close ();
+
+			if (dlg.Item != null) {
+				TableRoutingController.Items.Add(dlg.Item);
+			}
+
+			this.EnableIde();
+		}
+
+		void RouteEdit()
+		{
+		}
+
+		void RouteRemove()
+		{
+			int i = TableRoutes.SelectedRow;
+			if(i != -1)
+			{
+				TableRoutingController.Items.RemoveAt (i);
+				TableRoutingController.RefreshUI ();
+				this.EnableIde ();
+			}
+		}
+
+
+		void AdvancedEventEdit()
+		{
+			int index = TableAdvancedEvents.SelectedRow;
+
+			WindowPreferencesEventController dlg = new WindowPreferencesEventController ();
+			dlg.Window.ReleasedWhenClosed = true;
+			dlg.Filename = TableAdvancedEventsController.Items [index].Filename;
+			dlg.Arguments = TableAdvancedEventsController.Items [index].Arguments;
+			dlg.WaitEnd = TableAdvancedEventsController.Items [index].WaitEnd;
+
+			NSApplication.SharedApplication.RunModalForWindow (dlg.Window);
+			dlg.Window.Close ();
+
+			if (dlg.Accepted) {
+				TableAdvancedEventsController.Items [index].Filename = dlg.Filename;
+				TableAdvancedEventsController.Items [index].Arguments = dlg.Arguments;
+				TableAdvancedEventsController.Items [index].WaitEnd = dlg.WaitEnd;
+			}
+		}
+
+		void AdvancedEventClear()
+		{
+			int index = TableAdvancedEvents.SelectedRow;
+			if(index != -1)
+			{
+				TableAdvancedEventsController.Items[index].Filename = "";
+				TableAdvancedEventsController.Items[index].Arguments = "";
+				TableAdvancedEventsController.Items[index].WaitEnd = true;
+				TableAdvancedEventsController.RefreshUI();
+			}
+		}
 
 		void ChangeMode()
 		{
@@ -351,6 +414,29 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetCheck (ChkModeSsh80, ((m_mode_protocol == "SSH") && (m_mode_port == 80) && (m_mode_alternate == 1)));
 			GuiUtils.SetCheck (ChkModeSsh53, ((m_mode_protocol == "SSH") && (m_mode_port == 53) && (m_mode_alternate == 1)));
 			GuiUtils.SetCheck (ChkModeSsl443, ((m_mode_protocol == "SSL") && (m_mode_port == 443) && (m_mode_alternate == 1)));
+		}
+
+		void ReadOptionsEvent(string name, int index)
+		{
+			Storage s = Engine.Instance.Storage;
+
+			string filename = s.Get("event." + name + ".filename");
+			if (filename != "") {
+				TableAdvancedEventsController.Items [index].Filename = filename;
+				TableAdvancedEventsController.Items [index].Arguments = s.Get("event." + name + ".arguments");
+				TableAdvancedEventsController.Items [index].WaitEnd = s.GetBool("event." + name + ".waitend");
+				TableAdvancedEventsController.RefreshUI ();
+			}
+		}
+
+		void SaveOptionsEvent(string name, int index)
+		{
+			Storage s = Engine.Instance.Storage;
+
+			TableAdvancedEventsControllerItem i = TableAdvancedEventsController.Items [index];
+			s.Set ("event." + name + ".filename", i.Filename);
+			s.Set ("event." + name + ".arguments", i.Arguments);
+			s.SetBool ("event." + name + ".waitend", i.WaitEnd);
 		}
 
 		void ReadOptions()
@@ -420,6 +506,13 @@ namespace AirVPN.UI.Osx
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ().Replace("\t","");
 
+			ReadOptionsEvent ("app.start", 0);
+			ReadOptionsEvent ("app.stop", 1);
+			ReadOptionsEvent ("session.start", 2);
+			ReadOptionsEvent ("session.stop", 3);
+			ReadOptionsEvent ("vpn.pre", 4);
+			ReadOptionsEvent ("vpn.up", 5);
+			ReadOptionsEvent ("vpn.down", 6);
 
 			TableAdvancedEventsController.RefreshUI ();
 		}
@@ -480,6 +573,14 @@ namespace AirVPN.UI.Osx
 
 			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
 			s.Set ("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
+
+			SaveOptionsEvent ("app.start", 0);
+			SaveOptionsEvent ("app.stop", 1);
+			SaveOptionsEvent ("session.start", 2);
+			SaveOptionsEvent ("session.stop", 3);
+			SaveOptionsEvent ("vpn.pre", 4);
+			SaveOptionsEvent ("vpn.up", 5);
+			SaveOptionsEvent ("vpn.down", 6);
 		}
 
 		void EnableIde()
@@ -505,6 +606,9 @@ namespace AirVPN.UI.Osx
 			ChkModeUdp53Alt.Enabled = (proxy == false);
 			ChkModeUdp80.Enabled = (proxy == false);
 			ChkModeUdp80Alt.Enabled = (proxy == false);
+
+			CmdAdvancedEventsClear.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);
+			CmdAdvancedEventsEdit.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);
 		}
 	}
 }

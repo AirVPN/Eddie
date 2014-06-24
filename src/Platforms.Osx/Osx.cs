@@ -123,9 +123,9 @@ namespace AirVPN.Platforms
 		{
 		}
 
-		public override void RouteAdd (string Address, string Mask, string Gateway)
+		public override void RouteAdd (string Address, string Mask, string Gateway, string Interface, string Metrics)
 		{
-			base.RouteAdd (Address, Mask, Gateway);
+			base.RouteAdd (Address, Mask, Gateway, Interface, Metrics);
 		}
 
 		public override void RouteRemove (string Address, string Mask, string Gateway)

@@ -6,6 +6,12 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="WindowPreferencesEventController">
             <connections>
+                <outlet property="ChkWaitEnd" destination="arw-Zv-IzT" id="PLb-tD-XbQ"/>
+                <outlet property="CmdBrowse" destination="fuN-Cf-ueK" id="2Vx-NI-fh9"/>
+                <outlet property="CmdCancel" destination="3ib-kq-Dzd" id="IXe-Lw-kxC"/>
+                <outlet property="CmdSave" destination="Vlo-Ai-j4W" id="d7M-9q-3ej"/>
+                <outlet property="TxtArguments" destination="3Aw-wd-Ipx" id="u89-Ln-3Is"/>
+                <outlet property="TxtFilename" destination="8KH-AT-8H7" id="sr6-fx-PPM"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
         </customObject>

@@ -505,4 +505,11 @@
       <Name>Platforms.Osx</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\manifest.xml" />
+    <EmbeddedResource Include="Resources\auth.xml" />
+    <EmbeddedResource Include="Resources\ThirdParty.txt" />
+    <EmbeddedResource Include="Resources\TOS.txt" />
+    <EmbeddedResource Include="Resources\License.txt" />
+  </ItemGroup>
 </Project>

@@ -1,0 +1,53 @@
+------------------------------------------------------------
+OpenVPN -- A Secure tunneling daemon
+
+
+
+Copyright (C) 2002-2010 OpenVPN Technologies, Inc. 
+This program is free software;
+
+you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+
+
+
+For the latest version of OpenVPN, 
+go to:
+
+	http://openvpn.net/
+
+License: GNU General Public License (GPL v2+)
+------------------------------------------------------------
+stunnel
+
+The stunnel program is designed to work as an SSL encryption
+     
+wrapper between remote client and local (inetd-startable) or
+     
+remote servers. The goal is to facilitate SSL encryption and
+     
+authentication for non-SSL-aware programs.
+
+     
+stunnel can be used to add  SSL  functionality  to  commonly
+     
+used  inetd  daemons  like  POP-2,  POP-3  and  IMAP servers
+     
+without any changes in the programs' code.
+
+https://www.stunnel.org/
+
+License: GNU General Public License (GPL v2+)
+------------------------------------------------------------
+LZO -- a real-time data compression library
+
+http://www.oberhumer.com/opensource/lzo/ 
+
+License: GNU General Public License (GPL v2+)
+------------------------------------------------------------
+TUNTAP -- Virtual network interfaces for Mac OS X
+
+http://tuntaposx.sourceforge.net/
+
+License: BSD License

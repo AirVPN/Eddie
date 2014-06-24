@@ -105,7 +105,9 @@ namespace AirVPN.UI.Osx
 
 		void Charts_UpdateEvent()
 		{
-			NeedsDisplay = true;
+			new NSObject ().InvokeOnMainThread (() => {
+				NeedsDisplay = true;
+			});
 		}
 
 		public string ValToDesc(Int64 v)

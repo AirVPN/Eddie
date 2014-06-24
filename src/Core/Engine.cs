@@ -604,12 +604,15 @@ namespace AirVPN.Core
 
 		public void Log(Exception e)
 		{
-			Log(LogType.Error, e.Message, 1000, e);
+			Log(LogType.Error, e);
 		}
 
         public void Log(LogType Type, Exception e)
         {
-            Log(Type, e.Message, 1000, e);
+			string msg = e.Message;
+			if (DevelopmentEnvironment)
+				msg += " - Stack: " + e.StackTrace.ToString ();
+			Log(Type, msg, 1000, e);
         }
 
         public void LogDebug(string Message)

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using AirVPN.Core;

@@ -48,7 +48,7 @@ namespace AirVPN.Core
 			m_resources[name] = value;
 		}
 
-		public static void LoadString(Assembly assembly, string name)
+		public static void LoadString(Assembly assembly, string name, string resource)
 		{
 			if (Exists(name))
 				return;
@@ -56,10 +56,15 @@ namespace AirVPN.Core
 			string[] names = assembly.GetManifestResourceNames();
 			foreach (string currentName in names)
 			{
-				Stream s = assembly.GetManifestResourceStream(currentName);
-				StreamReader sr = new StreamReader(s);
-				SetString(name, sr.ReadToEnd());
+				if (currentName.EndsWith (resource)) {
+					Stream s = assembly.GetManifestResourceStream (currentName);
+					StreamReader sr = new StreamReader (s);
+					SetString (name, sr.ReadToEnd ());
+					return;
+				}
 			}
+
+			throw new Exception ("Resource '" + resource + "' not found.");
 		}
     }
 }

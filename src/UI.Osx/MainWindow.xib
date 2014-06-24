@@ -122,6 +122,9 @@
                                                                                     <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                                                                 </allowedInputSourceLocales>
                                                                             </secureTextFieldCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="JjC-fn-XbM" id="qtL-7K-ubt"/>
+                                                                            </connections>
                                                                         </secureTextField>
                                                                         <textField verticalHuggingPriority="750" id="grN-wD-djz">
                                                                             <rect key="frame" x="197" y="200" width="179" height="22"/>
@@ -131,6 +134,9 @@
                                                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="oCu-XC-l8c" id="VLS-as-fGw"/>
+                                                                            </connections>
                                                                         </textField>
                                                                         <button id="JjC-fn-XbM">
                                                                             <rect key="frame" x="282" y="146" width="96" height="18"/>
@@ -139,6 +145,9 @@
                                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
                                                                             </buttonCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="OQn-zC-qfi" id="v0H-4K-hBO"/>
+                                                                            </connections>
                                                                         </button>
                                                                         <button id="Ka5-3i-Y0r">
                                                                             <rect key="frame" x="11" y="34" width="168" height="18"/>
@@ -169,6 +178,9 @@
                                                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                                 <font key="font" metaFont="system" size="16"/>
                                                                             </buttonCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="QGJ-5B-Agr" id="4TX-eC-GHN"/>
+                                                                            </connections>
                                                                         </button>
                                                                         <button verticalHuggingPriority="750" id="QGJ-5B-Agr">
                                                                             <rect key="frame" x="16" y="91" width="486" height="41"/>
@@ -177,6 +189,9 @@
                                                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                                 <font key="font" metaFont="system" size="16"/>
                                                                             </buttonCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="Ka5-3i-Y0r" id="43p-NA-E5B"/>
+                                                                            </connections>
                                                                         </button>
                                                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="xU8-la-8r9">
                                                                             <rect key="frame" x="106" y="203" width="85" height="17"/>

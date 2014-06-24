@@ -299,11 +299,7 @@ namespace AirVPN.UI.Osx
 						Core.UI.Actions.SendOpenVpnManagementCommand(w.Command);
 				}
 			};
-
-			CboSpeedResolutions.Activated += (object sender, EventArgs e) => {
-				// TODO
-			};
-
+				
 			TableServersController = new TableServersController (this.TableServers);
 			this.TableServers.Delegate = new TableServersDelegate (this);
 
