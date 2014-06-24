@@ -403,8 +403,7 @@ namespace Deploy
 				}
 				else if (platform == "osx")
 				{
-					// Some issue in release compilation, about resouces maybe.
-					pathRelease = pathRelease.Replace ("/x64/Release/", "/Debug/");
+					pathRelease = pathRelease.Replace ("/x64/Release/", "/Release/");
 
 					// Osx bin have a specific subdirectory
 					pathRelease = pathRelease.Replace ("/src/bin/", "/src/UI.Osx/bin/");
