@@ -46,7 +46,7 @@ namespace AirVPN.Core
 
 						
             XmlDocument DocManifestDefault = new XmlDocument();
-			DocManifestDefault.LoadXml(Lib.Core.Properties.Resources.Manifest);
+			DocManifestDefault.LoadXml(Engine.Instance.ResourceGet("manifest.xml"));
 			Manifest = DocManifestDefault.DocumentElement;
 
 

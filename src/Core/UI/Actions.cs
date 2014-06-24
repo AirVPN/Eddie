@@ -85,17 +85,17 @@ namespace AirVPN.Core.UI
 
 		public static string GetAboutLicense()
 		{
-			return Lib.Core.Properties.Resources.License;
+			return Engine.Instance.ResourceGet("license.txt");			
 		}
 
 		public static string GetAboutThirdParty()
 		{
-			return Lib.Core.Properties.Resources.ThirdParty;
+			return Engine.Instance.ResourceGet("thirdparty.txt");			
 		}
 
 		public static string GetTos()
 		{
-			return Lib.Core.Properties.Resources.TOS;
+			return Engine.Instance.ResourceGet("tos.txt");			
 		}
 
 		public static string GetMan(string format)

@@ -49,7 +49,7 @@ namespace AirVPN.Core
 
         public void Add()
         {
-            Platform.Instance.RouteAdd(Address, Mask, Gateway);
+            Platform.Instance.RouteAdd(Address, Mask, Gateway, Interface, Metrics);
         }
 
         public void Remove()

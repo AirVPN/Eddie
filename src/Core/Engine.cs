@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Web;
 using System.Text;
@@ -50,6 +51,8 @@ namespace AirVPN.Core
 
 		private String m_lastLogMessage;
 		private int m_logDotCount = 0;
+
+		private Dictionary<string, string> m_resources = new Dictionary<string, string>();
 
         public enum ActionService
         {
@@ -139,9 +142,16 @@ namespace AirVPN.Core
         }
 
 		public bool Initialization()
-		{
-
-
+		{	
+			if (ResourceCount() == 0)
+			{
+				ResourceSet("auth.xml", Lib.Core.Properties.Resources.Auth);
+				ResourceSet("manifest.xml", Lib.Core.Properties.Resources.Manifest);
+				ResourceSet("license.txt", Lib.Core.Properties.Resources.License);
+				ResourceSet("thirdparty.txt", Lib.Core.Properties.Resources.ThirdParty);
+				ResourceSet("tos.txt", Lib.Core.Properties.Resources.TOS);
+			}
+			
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
@@ -577,6 +587,44 @@ namespace AirVPN.Core
 			lock (m_threadSession)
 			{
 				return m_threadSession.CancelRequested;
+			}
+		}
+
+		// ----------------------------------------------------
+		// Resources
+		// ----------------------------------------------------
+
+		public int ResourceCount()
+		{
+			return m_resources.Count;
+		}
+
+		public bool ResourceExists(string name)
+		{
+			return m_resources.ContainsKey(name);
+		}
+
+		public string ResourceGet(string name)
+		{			
+			return m_resources[name];
+		}
+
+		public void ResourceSet(string name, string value)
+		{
+			m_resources[name] = value;
+		}
+
+		public void ResourceLoad(Assembly assembly, string name)
+		{
+			if (ResourceExists(name))
+				return;
+
+			string[] names = assembly.GetManifestResourceNames();
+			foreach (string currentName in names)
+			{
+				Stream s = assembly.GetManifestResourceStream(currentName);
+				StreamReader sr = new StreamReader(s);
+				ResourceSet(name, sr.ReadToEnd());
 			}
 		}
 

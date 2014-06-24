@@ -280,7 +280,7 @@ namespace AirVPN.Core
             NotImplemented();
         }
 
-		public virtual void RouteAdd(string Address, string Mask, string Gateway)
+		public virtual void RouteAdd(string Address, string Mask, string Gateway, string Interface, string Metrics)
 		{
 			NotImplemented();
 		}

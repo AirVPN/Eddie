@@ -112,7 +112,7 @@ namespace AirVPN.Platforms
         }
 
 
-		public override void RouteAdd(string Address, string Mask, string Gateway)
+		public override void RouteAdd(string Address, string Mask, string Gateway, string Interface, string Metrics)
 		{
 			string cmd = "/sbin/route add -net " + Address + " netmask " + Mask + " gw " + Gateway;
 			ShellCmd(cmd);

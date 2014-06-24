@@ -149,15 +149,15 @@ namespace AirVPN.Platforms
             ShellCmd("ipconfig /flushdns");
         }
 
-		public override void RouteAdd(string Address, string Mask, string Gateway)
+		public override void RouteAdd(string Address, string Mask, string Gateway, string Interface, string Metrics)
 		{
-			string cmd = "route ADD " + Address + " MASK " + Mask + " " + Gateway;
+			string cmd = "route add " + Address + " mask " + Mask + " " + Gateway + " metric " + Metrics + " if " + Interface;
 			ShellCmd(cmd);
 		}
 
 		public override void RouteRemove(string Address, string Mask, string Gateway)
 		{
-			string cmd = "route DELETE " + Address + " MASK " + Mask + " " + Gateway;
+			string cmd = "route delete " + Address + " mask " + Mask + " " + Gateway;
 			ShellCmd(cmd);
 		}
 

@@ -44,7 +44,7 @@ namespace AirVPN.Core
 
 			// Generate S
 
-			string airAuthPublicKey = Lib.Core.Properties.Resources.Auth;
+			string airAuthPublicKey = Engine.Instance.ResourceGet("auth.xml");
 			StringReader sr = new System.IO.StringReader(airAuthPublicKey);
 			System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
 			RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
