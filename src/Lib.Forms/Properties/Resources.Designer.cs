@@ -203,6 +203,16 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap connect {
+            get {
+                object obj = ResourceManager.GetObject("connect", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap connect_16 {
             get {
                 object obj = ResourceManager.GetObject("connect_16", resourceCulture);
@@ -676,6 +686,36 @@ namespace AirVPN.Lib.Forms.Properties {
         internal static System.Drawing.Bitmap stats_vpn {
             get {
                 object obj = ResourceManager.GetObject("stats_vpn", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap status_green_16 {
+            get {
+                object obj = ResourceManager.GetObject("status_green_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap status_red_16 {
+            get {
+                object obj = ResourceManager.GetObject("status_red_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap status_yellow_16 {
+            get {
+                object obj = ResourceManager.GetObject("status_yellow_16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

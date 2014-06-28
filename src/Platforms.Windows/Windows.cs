@@ -171,6 +171,15 @@ namespace AirVPN.Platforms
 		{
 			string t = base.GenerateSystemReport();
 
+			try
+			{
+				throw new Exception("pazzo");
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(e);
+			}
+
 			t += "\n\n-- Windows-Only informations\n";
 
 			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");

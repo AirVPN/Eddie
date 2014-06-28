@@ -82,6 +82,8 @@ namespace AirVPN.Gui.Forms
 
             ReadOptions();
 
+			RefreshLogPreview();
+
             EnableIde();
         }
 
@@ -215,7 +217,7 @@ namespace AirVPN.Gui.Forms
                 lstRoutes.Items.Add(item);
             }
 
-            // Advanced
+            // Advanced - General
             chkExpert.Checked = s.GetBool("advanced.expert");
 
             
@@ -243,15 +245,21 @@ namespace AirVPN.Gui.Forms
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
 			chkAdvancedWindowsForceDns.Checked = s.GetBool("advanced.windows.dns_force");
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
-			
 
-            chkAdvancedOpenVpnDirectivesDefaultSkip.Checked = s.GetBool("openvpn.skip_defaults");
 			txtExePath.Text = s.Get("executables.openvpn");
+
+			// Advanced - Logging
+			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
+			TxtLoggingPath.Text = s.Get("log.file.path");
+
+			// Advanced - OVPN Directives
+            chkAdvancedOpenVpnDirectivesDefaultSkip.Checked = s.GetBool("openvpn.skip_defaults");			
             txtAdvancedOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
 			String openVpnDirectivesDefault = s.GetDefaultDirectives();				
 			openVpnDirectivesDefault = openVpnDirectivesDefault.Replace("\t", "");
             txtAdvancedOpenVpnDirectivesDefault.Text = openVpnDirectivesDefault;
 
+			// Advanced - Events
             ReadOptionsEvent("app.start", 0);
             ReadOptionsEvent("app.stop", 1);
 			ReadOptionsEvent("session.start", 2);
@@ -432,7 +440,7 @@ namespace AirVPN.Gui.Forms
             }
             s.Set("routes.custom", routes);
 
-            // Advanced
+            // Advanced - General
             s.SetBool("advanced.expert", chkExpert.Checked);            
             s.SetBool("advanced.check.dns", chkAdvancedCheckDns.Checked);
             s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
@@ -459,8 +467,13 @@ namespace AirVPN.Gui.Forms
 			s.SetBool("advanced.windows.dns_force", chkAdvancedWindowsForceDns.Checked);
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
 
-
 			s.Set("executables.openvpn", txtExePath.Text);
+
+			// Advanced - Logging
+			s.SetBool("log.file.enabled", chkLoggingEnabled.Checked);
+			s.Set("log.file.path", TxtLoggingPath.Text);
+
+			// Advanced - OVPN Directives
             s.Set("openvpn.custom", txtAdvancedOpenVpnDirectivesCustom.Text);
             s.SetBool("openvpn.skip_defaults", chkAdvancedOpenVpnDirectivesDefaultSkip.Checked);
 
@@ -492,6 +505,11 @@ namespace AirVPN.Gui.Forms
 				s.SetBool("event." + name + ".waitend", (lstAdvancedEvents.Items[index].SubItems[3].Text != "No"));
             }
         }
+
+		public void RefreshLogPreview()
+		{			
+			TxtLoggingPathComputed.Text = Engine.GetParseLogFilePaths(TxtLoggingPath.Text);
+		}
 
         public void EnableIde()
         {
@@ -726,6 +744,12 @@ namespace AirVPN.Gui.Forms
 
 			MessageBox.Show(Messages.OsDriverUninstallDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
+
+		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
+		{
+			RefreshLogPreview();
+		}
+
 
 
         

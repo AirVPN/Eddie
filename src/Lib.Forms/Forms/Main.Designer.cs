@@ -41,7 +41,15 @@ namespace AirVPN.Gui.Forms
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
 			this.imgButtons = new System.Windows.Forms.ImageList(this.components);
 			this.mnuMain = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mnuSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this.mnuStatus = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuConnect = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuHomePage = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuUser = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuPorts = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuSpeedTest = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,12 +60,9 @@ namespace AirVPN.Gui.Forms
 			this.mnuToolsPortForwarding = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuToolsNetworkMonitor = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAbout = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			this.mnuUser = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuPorts = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuSpeedTest = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuRestore = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
 			this.imgCountries = new System.Windows.Forms.ImageList(this.components);
 			this.tip = new System.Windows.Forms.ToolTip(this.components);
@@ -228,20 +233,53 @@ namespace AirVPN.Gui.Forms
 			// mnuMain
 			// 
 			this.mnuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuHomePage,
-            this.mnuSettings,
-            this.mnuDevelopers,
-            this.mnuTools,
-            this.mnuAbout,
             this.mnuSeparator2,
+            this.mnuStatus,
+            this.mnuConnect,
+            this.mnuSeparator3,
+            this.mnuHomePage,
             this.mnuUser,
             this.mnuPorts,
             this.mnuSpeedTest,
             this.mnuSeparator1,
+            this.mnuSettings,
+            this.mnuDevelopers,
+            this.mnuTools,
+            this.mnuAbout,
+            this.toolStripSeparator2,
             this.mnuRestore,
+            this.mnuSeparator4,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(252, 236);
+			this.mnuMain.Size = new System.Drawing.Size(252, 298);
+			// 
+			// mnuSeparator2
+			// 
+			this.mnuSeparator2.Name = "mnuSeparator2";
+			this.mnuSeparator2.Size = new System.Drawing.Size(248, 6);
+			// 
+			// mnuStatus
+			// 
+			this.mnuStatus.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.mnuStatus.ForeColor = System.Drawing.SystemColors.GradientActiveCaption;
+			this.mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_yellow_16;
+			this.mnuStatus.Name = "mnuStatus";
+			this.mnuStatus.Size = new System.Drawing.Size(251, 22);
+			this.mnuStatus.Text = "TODO - Status readonly text";
+			this.mnuStatus.Click += new System.EventHandler(this.mnuStatus_Click);
+			// 
+			// mnuConnect
+			// 
+			this.mnuConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect;
+			this.mnuConnect.Name = "mnuConnect";
+			this.mnuConnect.Size = new System.Drawing.Size(251, 22);
+			this.mnuConnect.Text = "TODO - Connect to o Disconnect";
+			this.mnuConnect.Click += new System.EventHandler(this.mnuConnect_Click);
+			// 
+			// mnuSeparator3
+			// 
+			this.mnuSeparator3.Name = "mnuSeparator3";
+			this.mnuSeparator3.Size = new System.Drawing.Size(248, 6);
 			// 
 			// mnuHomePage
 			// 
@@ -250,6 +288,35 @@ namespace AirVPN.Gui.Forms
 			this.mnuHomePage.Size = new System.Drawing.Size(251, 22);
 			this.mnuHomePage.Text = "AirVPN Web Site";
 			this.mnuHomePage.Click += new System.EventHandler(this.mnuHomePage_Click);
+			// 
+			// mnuUser
+			// 
+			this.mnuUser.Image = global::AirVPN.Lib.Forms.Properties.Resources.stats;
+			this.mnuUser.Name = "mnuUser";
+			this.mnuUser.Size = new System.Drawing.Size(251, 22);
+			this.mnuUser.Text = "Your &details and statistics (Web)";
+			this.mnuUser.Click += new System.EventHandler(this.mnuUser_Click);
+			// 
+			// mnuPorts
+			// 
+			this.mnuPorts.Image = global::AirVPN.Lib.Forms.Properties.Resources.ports;
+			this.mnuPorts.Name = "mnuPorts";
+			this.mnuPorts.Size = new System.Drawing.Size(251, 22);
+			this.mnuPorts.Text = "Forwarding &Ports (Web)";
+			this.mnuPorts.Click += new System.EventHandler(this.mnuPorts_Click);
+			// 
+			// mnuSpeedTest
+			// 
+			this.mnuSpeedTest.Image = global::AirVPN.Lib.Forms.Properties.Resources.speed;
+			this.mnuSpeedTest.Name = "mnuSpeedTest";
+			this.mnuSpeedTest.Size = new System.Drawing.Size(251, 22);
+			this.mnuSpeedTest.Text = "Speed Test (Web)";
+			this.mnuSpeedTest.Click += new System.EventHandler(this.mnuSpeedTest_Click);
+			// 
+			// mnuSeparator1
+			// 
+			this.mnuSeparator1.Name = "mnuSeparator1";
+			this.mnuSeparator1.Size = new System.Drawing.Size(248, 6);
 			// 
 			// mnuSettings
 			// 
@@ -329,39 +396,10 @@ namespace AirVPN.Gui.Forms
 			this.mnuAbout.Text = "&About";
 			this.mnuAbout.Click += new System.EventHandler(this.mnuAbout_Click);
 			// 
-			// mnuSeparator2
+			// toolStripSeparator2
 			// 
-			this.mnuSeparator2.Name = "mnuSeparator2";
-			this.mnuSeparator2.Size = new System.Drawing.Size(248, 6);
-			// 
-			// mnuUser
-			// 
-			this.mnuUser.Image = global::AirVPN.Lib.Forms.Properties.Resources.stats;
-			this.mnuUser.Name = "mnuUser";
-			this.mnuUser.Size = new System.Drawing.Size(251, 22);
-			this.mnuUser.Text = "Your &details and statistics (Web)";
-			this.mnuUser.Click += new System.EventHandler(this.mnuUser_Click);
-			// 
-			// mnuPorts
-			// 
-			this.mnuPorts.Image = global::AirVPN.Lib.Forms.Properties.Resources.ports;
-			this.mnuPorts.Name = "mnuPorts";
-			this.mnuPorts.Size = new System.Drawing.Size(251, 22);
-			this.mnuPorts.Text = "Forwarding &Ports (Web)";
-			this.mnuPorts.Click += new System.EventHandler(this.mnuPorts_Click);
-			// 
-			// mnuSpeedTest
-			// 
-			this.mnuSpeedTest.Image = global::AirVPN.Lib.Forms.Properties.Resources.speed;
-			this.mnuSpeedTest.Name = "mnuSpeedTest";
-			this.mnuSpeedTest.Size = new System.Drawing.Size(251, 22);
-			this.mnuSpeedTest.Text = "Speed Test (Web)";
-			this.mnuSpeedTest.Click += new System.EventHandler(this.mnuSpeedTest_Click);
-			// 
-			// mnuSeparator1
-			// 
-			this.mnuSeparator1.Name = "mnuSeparator1";
-			this.mnuSeparator1.Size = new System.Drawing.Size(248, 6);
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(248, 6);
 			// 
 			// mnuRestore
 			// 
@@ -370,6 +408,11 @@ namespace AirVPN.Gui.Forms
 			this.mnuRestore.Size = new System.Drawing.Size(251, 22);
 			this.mnuRestore.Text = "&Restore";
 			this.mnuRestore.Click += new System.EventHandler(this.mnuRestore_Click);
+			// 
+			// mnuSeparator4
+			// 
+			this.mnuSeparator4.Name = "mnuSeparator4";
+			this.mnuSeparator4.Size = new System.Drawing.Size(248, 6);
 			// 
 			// mnuExit
 			// 
@@ -794,7 +837,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// cmdLogsOpenVpnManagement
 			// 
-			this.cmdLogsOpenVpnManagement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdLogsOpenVpnManagement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cmdLogsOpenVpnManagement.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdLogsOpenVpnManagement.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
@@ -1118,18 +1161,18 @@ namespace AirVPN.Gui.Forms
 			// txtConnectedExitIp
 			// 
 			this.txtConnectedExitIp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtConnectedExitIp.Location = new System.Drawing.Point(151, 111);
+			this.txtConnectedExitIp.Location = new System.Drawing.Point(118, 112);
 			this.txtConnectedExitIp.Name = "txtConnectedExitIp";
-			this.txtConnectedExitIp.Size = new System.Drawing.Size(270, 15);
+			this.txtConnectedExitIp.Size = new System.Drawing.Size(319, 15);
 			this.txtConnectedExitIp.TabIndex = 69;
 			this.txtConnectedExitIp.Text = "1.2.3.4";
 			this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// lblConnectedExitIp
 			// 
-			this.lblConnectedExitIp.Location = new System.Drawing.Point(24, 111);
+			this.lblConnectedExitIp.Location = new System.Drawing.Point(12, 112);
 			this.lblConnectedExitIp.Name = "lblConnectedExitIp";
-			this.lblConnectedExitIp.Size = new System.Drawing.Size(120, 15);
+			this.lblConnectedExitIp.Size = new System.Drawing.Size(100, 15);
 			this.lblConnectedExitIp.TabIndex = 68;
 			this.lblConnectedExitIp.Text = "Public Exit IP:";
 			this.lblConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1181,20 +1224,20 @@ namespace AirVPN.Gui.Forms
 			// txtConnectedSince
 			// 
 			this.txtConnectedSince.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtConnectedSince.Location = new System.Drawing.Point(151, 127);
+			this.txtConnectedSince.Location = new System.Drawing.Point(118, 127);
 			this.txtConnectedSince.Name = "txtConnectedSince";
-			this.txtConnectedSince.Size = new System.Drawing.Size(270, 15);
+			this.txtConnectedSince.Size = new System.Drawing.Size(319, 15);
 			this.txtConnectedSince.TabIndex = 63;
 			this.txtConnectedSince.Text = "VPN Time";
 			this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// lblConnectedSince
 			// 
-			this.lblConnectedSince.Location = new System.Drawing.Point(24, 127);
+			this.lblConnectedSince.Location = new System.Drawing.Point(12, 127);
 			this.lblConnectedSince.Name = "lblConnectedSince";
-			this.lblConnectedSince.Size = new System.Drawing.Size(120, 15);
+			this.lblConnectedSince.Size = new System.Drawing.Size(100, 15);
 			this.lblConnectedSince.TabIndex = 62;
-			this.lblConnectedSince.Text = "Connected since:";
+			this.lblConnectedSince.Text = "Connection time:";
 			this.lblConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// cmdDisconnect
@@ -1714,7 +1757,12 @@ namespace AirVPN.Gui.Forms
 		private Skin.Label lblConnectedCountry;
 		private Skin.Label lblConnectSubtitle;
 		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManBBCode;
-		private System.Windows.Forms.Label lblLoginIcon;		
+		private System.Windows.Forms.Label lblLoginIcon;
+		private System.Windows.Forms.ToolStripMenuItem mnuStatus;
+		private System.Windows.Forms.ToolStripMenuItem mnuConnect;
+		private System.Windows.Forms.ToolStripSeparator mnuSeparator4;
+		private System.Windows.Forms.ToolStripSeparator mnuSeparator3;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;		
     }
 }
 

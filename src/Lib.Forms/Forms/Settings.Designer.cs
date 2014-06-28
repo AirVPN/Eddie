@@ -35,6 +35,7 @@ namespace AirVPN.Gui.Forms
 			AirVPN.Gui.Skin.ColumnHeader columnHeader1;
 			AirVPN.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
+			this.chkAdvancedNetworkLocking = new AirVPN.Gui.Skin.CheckBox();
 			this.label7 = new AirVPN.Gui.Skin.Label();
 			this.cboDnsSwitchMode = new AirVPN.Gui.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
@@ -135,7 +136,12 @@ namespace AirVPN.Gui.Forms
 			this.colRoutesAction = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
 			this.tabAdvanced = new AirVPN.Gui.Skin.TabPage();
 			this.tabAdvancedMain = new AirVPN.Gui.Skin.TabControl();
-			this.chkAdvancedNetworkLocking = new AirVPN.Gui.Skin.CheckBox();
+			this.tabPage4 = new AirVPN.Gui.Skin.TabPage();
+			this.TxtLoggingPathComputed = new AirVPN.Gui.Skin.Label();
+			this.label9 = new AirVPN.Gui.Skin.Label();
+			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
+			this.label8 = new AirVPN.Gui.Skin.Label();
+			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -155,6 +161,7 @@ namespace AirVPN.Gui.Forms
 			this.tabRoutes.SuspendLayout();
 			this.tabAdvanced.SuspendLayout();
 			this.tabAdvancedMain.SuspendLayout();
+			this.tabPage4.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabPage1
@@ -179,6 +186,17 @@ namespace AirVPN.Gui.Forms
 			tabPage1.Size = new System.Drawing.Size(622, 263);
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "General";
+			// 
+			// chkAdvancedNetworkLocking
+			// 
+			this.chkAdvancedNetworkLocking.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedNetworkLocking.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedNetworkLocking.Location = new System.Drawing.Point(450, 179);
+			this.chkAdvancedNetworkLocking.Name = "chkAdvancedNetworkLocking";
+			this.chkAdvancedNetworkLocking.Size = new System.Drawing.Size(152, 26);
+			this.chkAdvancedNetworkLocking.TabIndex = 68;
+			this.chkAdvancedNetworkLocking.Text = "Enable Network Locking";
+			this.chkAdvancedNetworkLocking.UseVisualStyleBackColor = false;
 			// 
 			// label7
 			// 
@@ -530,6 +548,7 @@ namespace AirVPN.Gui.Forms
 			// columnHeader3
 			// 
 			this.columnHeader3.Text = "Arguments";
+			this.columnHeader3.Width = 180;
 			// 
 			// columnHeader4
 			// 
@@ -1407,6 +1426,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.tabAdvancedMain.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tabAdvancedMain.Controls.Add(tabPage1);
+			this.tabAdvancedMain.Controls.Add(this.tabPage4);
 			this.tabAdvancedMain.Controls.Add(tabPage2);
 			this.tabAdvancedMain.Controls.Add(tabPage3);
 			this.tabAdvancedMain.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1418,16 +1438,72 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvancedMain.Size = new System.Drawing.Size(630, 291);
 			this.tabAdvancedMain.TabIndex = 56;
 			// 
-			// chkAdvancedNetworkLocking
+			// tabPage4
 			// 
-			this.chkAdvancedNetworkLocking.BackColor = System.Drawing.Color.Transparent;
-			this.chkAdvancedNetworkLocking.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedNetworkLocking.Location = new System.Drawing.Point(450, 179);
-			this.chkAdvancedNetworkLocking.Name = "chkAdvancedNetworkLocking";
-			this.chkAdvancedNetworkLocking.Size = new System.Drawing.Size(152, 26);
-			this.chkAdvancedNetworkLocking.TabIndex = 68;
-			this.chkAdvancedNetworkLocking.Text = "Enable Network Locking";
-			this.chkAdvancedNetworkLocking.UseVisualStyleBackColor = false;
+			this.tabPage4.Controls.Add(this.TxtLoggingPathComputed);
+			this.tabPage4.Controls.Add(this.label9);
+			this.tabPage4.Controls.Add(this.TxtLoggingPath);
+			this.tabPage4.Controls.Add(this.label8);
+			this.tabPage4.Controls.Add(this.chkLoggingEnabled);
+			this.tabPage4.Location = new System.Drawing.Point(4, 24);
+			this.tabPage4.Name = "tabPage4";
+			this.tabPage4.Size = new System.Drawing.Size(622, 263);
+			this.tabPage4.TabIndex = 3;
+			this.tabPage4.Text = "Logging";
+			this.tabPage4.UseVisualStyleBackColor = true;
+			// 
+			// TxtLoggingPathComputed
+			// 
+			this.TxtLoggingPathComputed.BackColor = System.Drawing.Color.Transparent;
+			this.TxtLoggingPathComputed.ForeColor = System.Drawing.Color.Black;
+			this.TxtLoggingPathComputed.Location = new System.Drawing.Point(70, 83);
+			this.TxtLoggingPathComputed.Name = "TxtLoggingPathComputed";
+			this.TxtLoggingPathComputed.Size = new System.Drawing.Size(548, 180);
+			this.TxtLoggingPathComputed.TabIndex = 62;
+			this.TxtLoggingPathComputed.Text = "Current Computed Path";
+			this.TxtLoggingPathComputed.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+			// 
+			// label9
+			// 
+			this.label9.BackColor = System.Drawing.Color.Transparent;
+			this.label9.ForeColor = System.Drawing.Color.Black;
+			this.label9.Location = new System.Drawing.Point(425, 13);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(193, 67);
+			this.label9.TabIndex = 61;
+			this.label9.Text = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation" +
+    ". Relative to data path.";
+			this.label9.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+			// 
+			// TxtLoggingPath
+			// 
+			this.TxtLoggingPath.Location = new System.Drawing.Point(70, 60);
+			this.TxtLoggingPath.Name = "TxtLoggingPath";
+			this.TxtLoggingPath.Size = new System.Drawing.Size(337, 20);
+			this.TxtLoggingPath.TabIndex = 61;
+			this.TxtLoggingPath.TextChanged += new System.EventHandler(this.TxtLoggingPath_TextChanged);
+			// 
+			// label8
+			// 
+			this.label8.BackColor = System.Drawing.Color.Transparent;
+			this.label8.ForeColor = System.Drawing.Color.Black;
+			this.label8.Location = new System.Drawing.Point(13, 63);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(51, 18);
+			this.label8.TabIndex = 60;
+			this.label8.Text = "Path:";
+			// 
+			// chkLoggingEnabled
+			// 
+			this.chkLoggingEnabled.AutoSize = true;
+			this.chkLoggingEnabled.BackColor = System.Drawing.Color.Transparent;
+			this.chkLoggingEnabled.ForeColor = System.Drawing.Color.Black;
+			this.chkLoggingEnabled.Location = new System.Drawing.Point(16, 20);
+			this.chkLoggingEnabled.Name = "chkLoggingEnabled";
+			this.chkLoggingEnabled.Size = new System.Drawing.Size(136, 17);
+			this.chkLoggingEnabled.TabIndex = 55;
+			this.chkLoggingEnabled.Text = "Logging on file enabled";
+			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
 			// 
 			// Settings
 			// 
@@ -1463,6 +1539,8 @@ namespace AirVPN.Gui.Forms
 			this.tabRoutes.ResumeLayout(false);
 			this.tabAdvanced.ResumeLayout(false);
 			this.tabAdvancedMain.ResumeLayout(false);
+			this.tabPage4.ResumeLayout(false);
+			this.tabPage4.PerformLayout();
 			this.ResumeLayout(false);
 
         }
@@ -1570,6 +1648,12 @@ namespace AirVPN.Gui.Forms
 		private Skin.ComboBox cboDnsSwitchMode;
 		private Skin.Label label7;
 		private Skin.CheckBox chkAdvancedNetworkLocking;
+		private Skin.TabPage tabPage4;
+		private Skin.Label TxtLoggingPathComputed;
+		private Skin.Label label9;
+		private Skin.TextBox TxtLoggingPath;
+		private Skin.Label label8;
+		private Skin.CheckBox chkLoggingEnabled;
 
     }
 }

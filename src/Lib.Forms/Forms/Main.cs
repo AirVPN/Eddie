@@ -115,7 +115,8 @@ namespace AirVPN.Gui.Forms
                 m_notifyIcon.BalloonTipTitle = Constants.Name;
 
                 m_notifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
-                m_notifyIcon.Click += new EventHandler(notifyIcon_Click);
+                //m_notifyIcon.Click += new EventHandler(notifyIcon_Click);				
+				m_notifyIcon.ContextMenuStrip = mnuMain;
             }
 
 			// Controls initialization
@@ -357,12 +358,14 @@ namespace AirVPN.Gui.Forms
 				if (Engine.Storage.GetBool("gui.windows.tray"))
 				{
 					if (Platform.Instance.IsTraySupported())
+					{
 						if (FormWindowState.Minimized == WindowState)
+						{
 							Hide();
+							EnabledUi();
+						}
+					}
 				}
-
-				mnuRestore.Visible = (this.Visible == false);
-
 
 				Resizing();
 			}            
@@ -388,7 +391,10 @@ namespace AirVPN.Gui.Forms
 
         private void mnuRestore_Click(object sender, EventArgs e)
         {
-            Restore();
+			if (this.Visible == false)
+				Restore();
+			else
+				this.WindowState = FormWindowState.Minimized;
         }
 
         private void mnuExit_Click(object sender, EventArgs e)
@@ -419,8 +425,20 @@ namespace AirVPN.Gui.Forms
         private void mnuSettings_Click(object sender, EventArgs e)
         {
             Forms.Settings Dlg = new Forms.Settings();
-            Dlg.ShowDialog();            
+            Dlg.ShowDialog();
+
+			EnabledUi();
         }
+
+		private void mnuStatus_Click(object sender, EventArgs e)
+		{
+			Restore();
+		}
+
+		private void mnuConnect_Click(object sender, EventArgs e)
+		{
+			// pazzo
+		}
 		
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
@@ -817,7 +835,7 @@ namespace AirVPN.Gui.Forms
 				lblWait2.Top = imgProgress.Top + imgProgress.Height + 10;
 				lblWait2.Width = tabItemWidth;
 				lblWait2.Height = tabItemHeight - lblWait2.Top - 10 - 60;
-				cmdCancel.Width = tabItemHeight * 3 / 2;
+				cmdCancel.Width = tabItemWidth * 3 / 2;
 				cmdCancel.Height = 30;
 				cmdCancel.Left = tabItemWidth / 2 - cmdCancel.Width / 2;
 				cmdCancel.Top = tabItemHeight - 50;				
@@ -829,7 +847,8 @@ namespace AirVPN.Gui.Forms
         {
             Show();
             WindowState = FormWindowState.Normal;
-            Activate();            
+            Activate();
+			EnabledUi();
         }
 
         public void ShowMenu()
@@ -958,7 +977,21 @@ namespace AirVPN.Gui.Forms
         }
 
         public void EnabledUi()
-		{			
+		{
+			if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
+			{
+				mnuRestore.Visible = true;
+
+				if (this.Visible)
+					mnuRestore.Text = "Hide Main Window";
+				else
+					mnuRestore.Text = "Show Main Window";
+			}
+			else
+			{
+				mnuRestore.Visible = false;
+			}
+
 			// Welcome
 			bool logged = Engine.IsLogged();
 			bool connected = Engine.IsConnected();
@@ -1336,6 +1369,8 @@ namespace AirVPN.Gui.Forms
 
 			Engine.Storage.SetBool("advanced.netlock.active", NetworkLocking.Instance.GetActive());
         }
+
+		
 
 
 		

@@ -671,6 +671,47 @@ namespace AirVPN.Core
 			return "AirVPN_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
 		}
 
+		public List<string> ParseLogFilePath(string paths)
+		{	
+			string logPaths = paths;				
+			DateTime now = DateTime.Now;
+			logPaths = logPaths.Replace("%d", now.ToString("dd"));
+			logPaths = logPaths.Replace("%m", now.ToString("MM"));
+			logPaths = logPaths.Replace("%y", now.ToString("yyyy"));
+			logPaths = logPaths.Replace("%w", now.ToString("dddd"));
+			logPaths = logPaths.Replace("%H", now.ToString("HH"));
+			logPaths = logPaths.Replace("%M", now.ToString("mm"));
+			logPaths = logPaths.Replace("%S", now.ToString("ss"));
+
+			List<string> results = new List<string>();
+
+			string[] logPathsArray = logPaths.Split(';');
+			foreach (string path in logPathsArray)
+			{
+				string logPath = path;
+				if (System.IO.Path.IsPathRooted(path) == false)
+				{
+					logPath = Storage.DataPath + "/" + logPath;
+				}
+				logPath = Platform.Instance.NormalizePath(logPath).Trim();
+				if (logPath != "")
+					results.Add(logPath);
+			}
+			
+			return results;			
+		}
+
+		public string GetParseLogFilePaths(string paths)
+		{
+			string output = "";
+			List<string> results = ParseLogFilePath(paths);
+			foreach (string path in results)
+			{
+				output += path + "\r\n";
+			}
+			return output.Trim();
+		}
+
         public virtual void OnLog(LogEntry l)
         {
 			// An exception, to have a clean, standard 'man' output without logging header.
@@ -685,11 +726,20 @@ namespace AirVPN.Core
 				string lines = l.GetStringLines().Trim();
 				Console.WriteLine(lines);
 
+				// File logging
 				if (Storage != null)
 				{
-					string logPath = Storage.Get("log.path").Trim();
-					if (logPath != "")
-						File.AppendAllText(logPath, lines + "\n");
+					if (Storage.GetBool("log.file.enabled"))
+					{
+						string logPath = Storage.Get("log.file.path").Trim();
+
+						List<string> paths = ParseLogFilePath(logPath);
+						foreach (string path in paths)
+						{
+							Directory.CreateDirectory(Path.GetDirectoryName(path));
+							File.AppendAllText(path, lines + "\n");
+						}						
+					}
 				}
 			}
         }

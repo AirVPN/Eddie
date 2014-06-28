@@ -287,7 +287,8 @@ namespace AirVPN.Core
 			SetDefault("areas.whitelist", "", Messages.ManOptionAreasWhiteList);
 			SetDefault("areas.blacklist", "", Messages.ManOptionAreasBlackList);
 
-			SetDefault("log.path", "", NotInMan);
+			SetDefaultBool("log.file.enabled", false, NotInMan);
+			SetDefault("log.file.path", "logs/airvpn_%y-%m-%d.log", NotInMan);
 
 			SetDefault("mode.protocol", "UDP", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
