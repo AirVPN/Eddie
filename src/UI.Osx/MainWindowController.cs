@@ -34,7 +34,9 @@ namespace AirVPN.UI.Osx
 		public TableStatsController TableStatsController;
 
 		public NSStatusItem StatusItem;
-		public NSMenuItem StatusMenuItem;
+
+		private WindowAboutController windowAbout;
+		private WindowPreferencesController windowPreferences;
 
 		#region Constructors
 		// Called when created from unmanaged code
@@ -335,6 +337,7 @@ namespace AirVPN.UI.Osx
 				{
 					ImgProgress.StartAnimation(this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_yellow.png");
+					MnuTrayStatus.Image = NSImage.ImageNamed ("status_yellow_16.png");
 					LblTopStatus.StringValue = Engine.WaitMessage;
 
 					TabOverview.SelectAt(1);
@@ -346,6 +349,7 @@ namespace AirVPN.UI.Osx
 				{
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
+					MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
 					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.PublicName);
 
 					TabOverview.SelectAt(2);
@@ -359,13 +363,14 @@ namespace AirVPN.UI.Osx
 				{
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
+					MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
 					LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed; // TODO la locked
 
 					TabOverview.SelectAt(0);
 				}
 
 				// Icon update
-				if(StatusMenuItem != null)
+				if(StatusItem != null)
 				{
 					if(Engine.IsConnected())
 					{
@@ -407,7 +412,7 @@ namespace AirVPN.UI.Osx
 					string msg = Messages.Format (Messages.StatusTextConnected, Constants.Name, Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
 					string tmsg = Constants.Name + " - " + msg;
 					this.Window.Title = tmsg;
-					StatusMenuItem.Title = "> " + msg;
+					MnuTrayStatus.Title = "> " + msg;
 					StatusItem.ToolTip = msg;
 				}
 			}
@@ -430,14 +435,13 @@ namespace AirVPN.UI.Osx
 
 			TableLogsController.AddLog (l);
 
-			StatusMenuItem.Title = msg;
 			StatusItem.ToolTip = msg;
 
 			if ((msg != "") && (l.Type != Core.Engine.LogType.Verbose)) {
 				if(Engine.IsConnected() == false)
 				{
 					Window.Title = Constants.Name + " - " + msg;
-					StatusMenuItem.Title = "> " + msg;
+					MnuTrayStatus.Title = "> " + msg;
 				}
 			}
 
@@ -556,7 +560,9 @@ namespace AirVPN.UI.Osx
 
 		public void CreateMenuBarIcon ()
 		{
-			NSMenu notifyMenu = new NSMenu ();
+			// TOCLEAN
+			/*
+			NSMenu notifyMenu = new NSMenu (); 
 			StatusMenuItem = new NSMenuItem ("");
 			notifyMenu.AddItem (StatusMenuItem);
 			NSMenuItem exitMenuItem = new NSMenuItem ("Quit", (a,b) => {
@@ -564,9 +570,10 @@ namespace AirVPN.UI.Osx
 				Engine.RequestStop();
 			});
 			notifyMenu.AddItem (exitMenuItem);
-
+			*/
 			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (22);
-			StatusItem.Menu = notifyMenu;
+			//StatusItem.Menu = notifyMenu;
+			StatusItem.Menu = MnuTray;
 			StatusItem.Image = NSImage.ImageNamed ("statusbar_black_gray.png");
 			StatusItem.HighlightMode = true;
 		}
@@ -721,6 +728,40 @@ namespace AirVPN.UI.Osx
 					MessageAlert (Messages.LogsSaveToFileDone);
 				}
 			}
+		}
+
+		public void ShowAbout()
+		{
+			if(windowAbout == null)
+				windowAbout = new WindowAboutController();
+			windowAbout.ShowWindow(this);
+		}
+
+		public void ShowPreferences()
+		{
+			if(windowPreferences == null)
+				windowPreferences = new WindowPreferencesController();
+			windowPreferences.ShowWindow(this);
+		}
+
+		public void ShowHome()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlWebsite();
+		}
+
+		public void ShowClientArea()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlClient();
+		}
+
+		public void ShowForwardingPorts()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlPorts();
+		}
+
+		public void ShowSpeedTest()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlSpeedTest();
 		}
 	}
 }

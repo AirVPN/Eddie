@@ -142,6 +142,15 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSMenuItem MnuServersWhitelist { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSMenu MnuTray { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSMenuItem MnuTrayConnect { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSMenuItem MnuTrayStatus { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSBox PanelConnected { get; set; }
 
 		[Outlet]
@@ -194,9 +203,24 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (MnuTray != null) {
+				MnuTray.Dispose ();
+				MnuTray = null;
+			}
+
+			if (MnuTrayStatus != null) {
+				MnuTrayStatus.Dispose ();
+				MnuTrayStatus = null;
+			}
+
 			if (CboServersScoringRule != null) {
 				CboServersScoringRule.Dispose ();
 				CboServersScoringRule = null;
+			}
+
+			if (MnuTrayConnect != null) {
+				MnuTrayConnect.Dispose ();
+				MnuTrayConnect = null;
 			}
 
 			if (CboSpeedResolutions != null) {
@@ -424,6 +448,11 @@ namespace AirVPN.UI.Osx
 				PanelWelcome = null;
 			}
 
+			if (PnlChart != null) {
+				PnlChart.Dispose ();
+				PnlChart = null;
+			}
+
 			if (ServersContextMenu != null) {
 				ServersContextMenu.Dispose ();
 				ServersContextMenu = null;
@@ -437,11 +466,6 @@ namespace AirVPN.UI.Osx
 			if (TableLogs != null) {
 				TableLogs.Dispose ();
 				TableLogs = null;
-			}
-
-			if (PnlChart != null) {
-				PnlChart.Dispose ();
-				PnlChart = null;
 			}
 
 			if (TableServers != null) {

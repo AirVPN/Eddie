@@ -29,10 +29,6 @@ namespace AirVPN.UI.Osx
 		MainWindowController mainWindowController;
 
 
-
-		WindowAboutController windowAbout;
-		WindowPreferencesController windowPreferences;
-
 		public AppDelegate ()
 		{
 		}
@@ -59,36 +55,32 @@ namespace AirVPN.UI.Osx
 		{
 			MnuMainAbout.Activated += (object sender, EventArgs e) =>
 			{
-				if(windowAbout == null)
-					windowAbout = new WindowAboutController();
-				windowAbout.ShowWindow(this);
+				mainWindowController.ShowAbout();
 			};
 
 			MnuMainPreferences.Activated += (object sender, EventArgs e) =>
 			{
-				if(windowPreferences == null)
-					windowPreferences = new WindowPreferencesController();
-				windowPreferences.ShowWindow(this);
+				mainWindowController.ShowPreferences();
 			};
 
 			MnuMainHome.Activated += (object sender, EventArgs e) =>
 			{
-				AirVPN.Core.UI.Actions.OpenUrlWebsite();
+				mainWindowController.ShowHome();
 			};
 
 			MnuMainClientArea.Activated += (object sender, EventArgs e) =>
 			{
-				AirVPN.Core.UI.Actions.OpenUrlClient();
+				mainWindowController.ShowClientArea();
 			};
 
 			MnuMainForwardingPorts.Activated += (object sender, EventArgs e) =>
 			{
-				AirVPN.Core.UI.Actions.OpenUrlPorts();
+				mainWindowController.ShowForwardingPorts();
 			};
 
 			MnuMainSpeedTest.Activated += (object sender, EventArgs e) =>
 			{
-				AirVPN.Core.UI.Actions.OpenUrlSpeedTest();
+				mainWindowController.ShowSpeedTest();
 			};
 
 			MnuMainQuit.Activated += (object sender, EventArgs e) => {

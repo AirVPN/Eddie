@@ -37,7 +37,7 @@
     <LinkMode>Full</LinkMode>
     <CustomCommands>
       <CustomCommands>
-        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" workingdir="" externalConsole="True" />
+        <Command type="AfterClean" command="${ProjectDir}/prebuild.sh" workingdir="" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -59,6 +59,11 @@
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <I18n>
     </I18n>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="AfterClean" command="${ProjectDir}/prebuild.sh" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>full</DebugType>
@@ -494,6 +499,10 @@
     <BundleResource Include="Resources\status_red.png" />
     <BundleResource Include="Resources\status_unknown.png" />
     <BundleResource Include="Resources\status_yellow.png" />
+    <BundleResource Include="Resources\connect.png" />
+    <BundleResource Include="Resources\status_green_16.png" />
+    <BundleResource Include="Resources\status_red_16.png" />
+    <BundleResource Include="Resources\status_yellow_16.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

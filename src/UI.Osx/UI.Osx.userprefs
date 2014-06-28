@@ -1,12 +1,12 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/8/2014 12:15:57 AM">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x64" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../Deploy/Program.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x64" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="MainWindowController.cs">
     <Files>
-      <File FileName="../Core/Engine.cs" Line="613" Column="4" />
-      <File FileName="ChartView.cs" Line="84" Column="25" />
+      <File FileName="../Core/Engine.cs" Line="1" Column="1" />
+      <File FileName="ChartView.cs" Line="1" Column="1" />
       <File FileName="../Core/Storage.cs" Line="1" Column="1" />
-      <File FileName="MainWindowController.cs" Line="166" Column="22" />
-      <File FileName="../Platforms.Osx/Osx.cs" Line="52" Column="6" />
+      <File FileName="MainWindowController.cs" Line="336" Column="27" />
+      <File FileName="../Platforms.Osx/Osx.cs" Line="52" Column="4" />
       <File FileName="WindowPreferencesEventController.cs" Line="1" Column="1" />
       <File FileName="WindowPreferencesController.cs" Line="1" Column="1" />
       <File FileName="../Osx/Osx.cs" Line="1" Column="1" />
@@ -15,22 +15,22 @@
       <File FileName="WindowTosController.cs" Line="1" Column="1" />
       <File FileName="WindowTextViewerController.cs" Line="1" Column="1" />
       <File FileName="TableLogsController.cs" Line="1" Column="1" />
-      <File FileName="Engine.cs" Line="56" Column="8" />
-      <File FileName="../Core/Properties/Resources.Designer.cs" Line="131" Column="12" />
-      <File FileName="Main.cs" Line="40" Column="87" />
-      <File FileName="../Core/ResourcesFiles.cs" Line="44" Column="4" />
-      <File FileName="RootLauncher.cs" Line="37" Column="16" />
-      <File FileName="TableStatsController.cs" Line="42" Column="4" />
-      <File FileName="../Deploy/Program.cs" Line="138" Column="16" />
+      <File FileName="Engine.cs" Line="1" Column="1" />
+      <File FileName="../Core/Properties/Resources.Designer.cs" Line="1" Column="1" />
+      <File FileName="Main.cs" Line="1" Column="1" />
+      <File FileName="../Core/ResourcesFiles.cs" Line="1" Column="1" />
+      <File FileName="RootLauncher.cs" Line="1" Column="1" />
+      <File FileName="TableStatsController.cs" Line="1" Column="1" />
+      <File FileName="../Deploy/Program.cs" Line="1" Column="1" />
+      <File FileName="AppDelegate.cs" Line="71" Column="66" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="Deploy" expanded="True" selected="True" />
-          <Node name="Lib.Core" expanded="True" />
           <Node name="Platforms.Osx" expanded="True" />
           <Node name="UI.Osx" expanded="True">
-            <Node name="Resources" expanded="True" />
+            <Node name="AppDelegate.cs" expanded="True" />
+            <Node name="MainWindowController.cs" selected="True" />
           </Node>
         </State>
       </Pad>

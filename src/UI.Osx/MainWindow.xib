@@ -51,6 +51,9 @@
                 <outlet property="MnuServersConnect" destination="fNR-2w-1MT" id="urv-Ni-pGF"/>
                 <outlet property="MnuServersUndefined" destination="Lsg-wR-Ixf" id="A8y-Qs-5tB"/>
                 <outlet property="MnuServersWhitelist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
+                <outlet property="MnuTray" destination="2Bv-yX-Px1" id="Y9R-1z-B3f"/>
+                <outlet property="MnuTrayConnect" destination="l66-1q-j5m" id="skz-T8-zJ0"/>
+                <outlet property="MnuTrayStatus" destination="9x6-QD-kVV" id="vGL-bx-XVj"/>
                 <outlet property="PnlChart" destination="c6A-XF-Xk5" id="qln-Bu-YhO"/>
                 <outlet property="ServersContextMenu" destination="PCV-hz-Nwr" id="gNd-gA-7lp"/>
                 <outlet property="TabMain" destination="mHk-Xp-9aS" id="UuD-Zz-34L"/>
@@ -1054,17 +1057,63 @@
                 </menuItem>
             </items>
         </menu>
+        <menu title="Tray" autoenablesItems="NO" id="2Bv-yX-Px1">
+            <items>
+                <menuItem title="Status" image="status_red" id="9x6-QD-kVV">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Connect or Disconnect" image="connect" id="l66-1q-j5m">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="Ge1-DE-eaj"/>
+                <menuItem title="AirVPN Website (Web)" image="copy_16" id="c1E-U3-fsx">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Your details and statistics (Web)" image="copy_16" id="ajm-ap-TIo">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Forwarding Ports (Web)" image="ports" id="BBr-9U-kW8">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Speed Test (Web)" image="speed" id="BX6-bg-wv3">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="uzk-V8-qmR"/>
+                <menuItem title="Preferences" image="settings" id="8tg-nT-XJV">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="About" image="about" id="83q-TJ-BhH">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="NA7-O2-7aK"/>
+                <menuItem title="Show Window / Restore" image="restore" id="ACK-P9-tRH">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="gvA-fU-Aip"/>
+                <menuItem title="Quit" image="exit" id="cQb-RC-8hT">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+            </items>
+        </menu>
     </objects>
     <resources>
+        <image name="about" width="104.72727203369141" height="104.72727203369141"/>
         <image name="add_16" width="16" height="16"/>
         <image name="blacklist_0" width="16" height="16"/>
         <image name="blacklist_1" width="16" height="16"/>
         <image name="blacklist_2" width="16" height="16"/>
+        <image name="connect" width="16" height="16"/>
         <image name="connect_16" width="16" height="16"/>
         <image name="copy_16" width="16" height="16"/>
         <image name="execute_16" width="16" height="16"/>
+        <image name="exit" width="16" height="16"/>
         <image name="login" width="69" height="81"/>
+        <image name="ports" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="restore" width="16" height="16"/>
         <image name="save_16" width="16" height="16"/>
+        <image name="settings" width="16" height="16"/>
+        <image name="speed" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="status_red" width="64" height="64"/>
         <image name="support" width="16" height="16"/>
         <image name="topbar_osx_bg" width="133" height="30"/>
         <image name="topbar_osx_logo" width="356" height="80"/>
