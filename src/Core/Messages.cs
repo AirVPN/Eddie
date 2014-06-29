@@ -142,6 +142,8 @@ namespace AirVPN.Core
 		public static string WindowsMainSpeedResolution3 = "Range: 1 hour, Grid: 10 minutes, Step: 1 second"; // TOTRANSLATE
 		public static string WindowsMainSpeedResolution4 = "Range: 1 day, Grid: 1 hour, Step: 30 seconds"; // TOTRANSLATE
 		public static string WindowsMainSpeedResolution5 = "Range: 30 days, Grid: 1 day, Step: 10 minutes"; // TOTRANSLATE
+		public static string WindowsMainHide = "Hide Main Window"; // TOTRANSLATE
+		public static string WindowsMainShow = "Show Main Window"; // TOTRANSLATE
 
 		public static string LogsCopyClipboardDone = "Copy to clipboard done.";
 		public static string LogsSaveToFileDone = "Save to file done."; // TOTRANSLATE

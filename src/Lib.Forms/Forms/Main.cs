@@ -1002,9 +1002,9 @@ namespace AirVPN.Gui.Forms
 				mnuRestore.Visible = true;
 
 				if (this.Visible)
-					mnuRestore.Text = "Hide Main Window";
+					mnuRestore.Text = Messages.WindowsMainHide;
 				else
-					mnuRestore.Text = "Show Main Window";
+					mnuRestore.Text = Messages.WindowsMainShow;
 			}
 			else
 			{
