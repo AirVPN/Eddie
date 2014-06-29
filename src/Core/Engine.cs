@@ -727,18 +727,22 @@ namespace AirVPN.Core
 				Console.WriteLine(lines);
 
 				// File logging
+
 				if (Storage != null)
 				{
-					if (Storage.GetBool("log.file.enabled"))
+					lock (Storage)
 					{
-						string logPath = Storage.Get("log.file.path").Trim();
-
-						List<string> paths = ParseLogFilePath(logPath);
-						foreach (string path in paths)
+						if (Storage.GetBool("log.file.enabled"))
 						{
-							Directory.CreateDirectory(Path.GetDirectoryName(path));
-							File.AppendAllText(path, lines + "\n");
-						}						
+							string logPath = Storage.Get("log.file.path").Trim();
+
+							List<string> paths = ParseLogFilePath(logPath);
+							foreach (string path in paths)
+							{
+								Directory.CreateDirectory(Path.GetDirectoryName(path));
+								File.AppendAllText(path, lines + "\n");
+							}
+						}
 					}
 				}
 			}
@@ -1366,11 +1370,16 @@ namespace AirVPN.Core
 				// Check Driver				
 				if (Platform.Instance.GetDriverAvailable() == "")
 				{
-					Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
+					if (Platform.Instance.CanInstallDriver())
+					{
+						Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
 
-					Platform.Instance.InstallDriver();
+						Platform.Instance.InstallDriver();
 
-					if (Platform.Instance.GetDriverAvailable() == "")
+						if (Platform.Instance.GetDriverAvailable() == "")
+							throw new Exception(Messages.OsDriverFailed);
+					}
+					else
 						throw new Exception(Messages.OsDriverFailed);
 				}
 

@@ -290,10 +290,10 @@ namespace AirVPN.Core
 			NotImplemented();
 		}
 
-		public virtual string RouteList()
+		public virtual List<RouteEntry> RouteList()
 		{
 			NotImplemented();
-			return "";
+			return null;
 		}
 
 		public virtual Dictionary<int, string> GetProcessesList()
@@ -391,6 +391,11 @@ namespace AirVPN.Core
 		public virtual string GetDriverAvailable()
 		{
 			return Messages.NotImplemented;
+		}
+
+		public virtual bool CanInstallDriver()
+		{
+			return false;
 		}
 
 		public virtual bool CanUnInstallDriver()

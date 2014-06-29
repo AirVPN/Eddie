@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="RouteScope.cs" />
+    <Compile Include="RouteEntry.cs" />
     <Compile Include="Debug.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -124,11 +124,15 @@ namespace AirVPN.Platforms
 			ShellCmd(cmd);
 		}
 		
-		public override string RouteList()
+		public override List<RouteEntry> RouteList()
 		{
+			List<RouteEntry> results = new List<RouteEntry>();
+
 			//string cmd = "route -v -n -e";
 			string cmd = "netstat -nr";
-			return ShellCmd(cmd);
+			string netstat = ShellCmd(cmd);
+
+			return results;
 		}
 
 		public override string GenerateSystemReport()
@@ -212,11 +216,22 @@ namespace AirVPN.Platforms
 
 		public override string GetDriverAvailable()
 		{
+			if (File.Exists("/dev/net/tun"))
+				return "Found";
+			else
+				return "";
+			/*
 			string result = ShellCmd("cat /dev/net/tun");
 			if (result.IndexOf("descriptor in bad state") != -1)
 				return "Found";
 
 			return "";
+			*/
+		}
+
+		public override bool CanInstallDriver()
+		{
+			return false;
 		}
 
 		public override bool CanUnInstallDriver()

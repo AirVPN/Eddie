@@ -157,8 +157,7 @@ namespace AirVPN.UI.Osx
 				Disconnect();
 			};
 
-			CmdCancel.Activated += (object sender, EventArgs e) => {
-				CmdCancel.Enabled = false;
+			CmdCancel.Activated += (object sender, EventArgs e) => {				
 				Disconnect ();
 			};
 
@@ -315,6 +314,73 @@ namespace AirVPN.UI.Osx
 				TableStatsController.DoubleClickItem();
 			};
 
+			// Topbar Menu
+
+			MnuTrayStatus.Activated += (object sender, EventArgs e) =>
+			{
+				Restore();
+			};
+
+			MnuConnect.Activated += (object sender, EventArgs e) =>
+			{
+				if (Engine.IsWaiting())
+				{
+					Disconnect();
+				}
+				else if (Engine.IsConnected())
+				{
+					Disconnect();
+				}
+				else if (Engine.IsLogged())
+				{
+					Connect();
+				}
+				else
+				{
+					Restore();
+				}
+			};
+
+			MnuTrayAbout.Activated += (object sender, EventArgs e) =>
+			{
+				mainWindowController.ShowAbout();
+			};
+
+			MnuTrayPreferences.Activated += (object sender, EventArgs e) =>
+			{
+				mainWindowController.ShowPreferences();
+			};
+
+			MnuTrayHome.Activated += (object sender, EventArgs e) =>
+			{
+				mainWindowController.ShowHome();
+			};
+
+			MnuTrayClientArea.Activated += (object sender, EventArgs e) =>
+			{
+				mainWindowController.ShowClientArea();
+			};
+
+			MnuTrayForwardingPorts.Activated += (object sender, EventArgs e) =>
+			{
+				mainWindowController.ShowForwardingPorts();
+			};
+
+			MnuTraySpeedTest.Activated += (object sender, EventArgs e) =>
+			{
+				mainWindowController.ShowSpeedTest();
+			};
+
+			MnuTrayQuit.Activated += (object sender, EventArgs e) =>
+			{
+				Engine.Instance.RequestStop();
+			};
+
+			
+
+
+
+
 			Engine.MainWindow = this;
 
 			Engine.OnRefreshUi ();
@@ -344,6 +410,7 @@ namespace AirVPN.UI.Osx
 
 					CmdCancel.Hidden = (Engine.IsWaitingCancelAllowed() == false);
 					CmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+					MnuCancel.Enabled = CmdCancel.Enabled;
 				}
 				else if (Engine.IsConnected())
 				{
@@ -465,6 +532,26 @@ namespace AirVPN.UI.Osx
 				CmdLogin.Title = Messages.CommandLogin;
 			else
 				CmdLogin.Title = Messages.CommandLogout;
+
+			if (waiting)
+			{
+				MnuConnect.Text = Messages.CommandCancel;
+			}
+			else if (connected)
+			{
+				MnuConnect.Enabled = true;
+				MnuConnect.Text = Messages.CommandDisconnect;
+			}
+			else if (logged)
+			{
+				MnuConnect.Enabled = true;
+				MnuConnect.Text = Messages.CommandConnect;
+			}
+			else
+			{
+				MnuConnect.Enabled = true;
+				MnuConnect.Text = Messages.CommandLogin;
+			}
 
 			CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim () != "") && (TxtPassword.StringValue.Trim () != ""));
 
@@ -614,6 +701,9 @@ namespace AirVPN.UI.Osx
 
 		void Disconnect()
 		{
+			CmdCancel.Enabled = false;
+			MnuTrayConnect.Enabled = false;
+
 			Engine.Disconnect ();
 		}
 
@@ -765,4 +855,5 @@ namespace AirVPN.UI.Osx
 		}
 	}
 }
+
 

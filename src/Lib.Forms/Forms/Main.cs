@@ -437,7 +437,22 @@ namespace AirVPN.Gui.Forms
 
 		private void mnuConnect_Click(object sender, EventArgs e)
 		{
-			// pazzo
+			if (Engine.IsWaiting())
+			{
+				Disconnect();
+			}
+			else if (Engine.IsConnected())
+			{
+				Disconnect();
+			}
+			else if (Engine.IsLogged())
+			{
+				Connect();
+			}
+			else
+			{
+				Restore();
+			}
 		}
 		
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
@@ -477,8 +492,7 @@ namespace AirVPN.Gui.Forms
 		}
 
 		private void cmdCancel_Click(object sender, EventArgs e)
-		{
-			cmdCancel.Enabled = false;
+		{			
 			Disconnect();
 		}
 
@@ -904,6 +918,9 @@ namespace AirVPN.Gui.Forms
 
         public void Disconnect()
         {
+			cmdCancel.Enabled = false;
+			mnuConnect.Enabled = false;
+
 			Engine.Disconnect();            
         }
         
@@ -956,6 +973,8 @@ namespace AirVPN.Gui.Forms
 						{
 							Text = Constants.Name + " - " + Msg;
 
+							mnuStatus.Text = "> " + Msg;
+
 							if (m_notifyIcon != null)
 							{
 								m_notifyIcon.Text = notifyText;
@@ -998,9 +1017,34 @@ namespace AirVPN.Gui.Forms
 			bool waiting = Engine.IsWaiting();
 
 			if (logged == false)
-				cmdLogin.Text = Messages.CommandLogin;
+			{
+				cmdLogin.Text = Messages.CommandLogin;				
+			}
 			else
+			{
 				cmdLogin.Text = Messages.CommandLogout;
+			}
+
+			if (waiting)
+			{
+				mnuConnect.Text = Messages.CommandCancel;
+			}
+			else if (connected)
+			{
+				mnuConnect.Enabled = true;
+				mnuConnect.Text = Messages.CommandDisconnect;
+			}
+			else if (logged)
+			{
+				mnuConnect.Enabled = true;
+				mnuConnect.Text = Messages.CommandConnect;
+			}
+			else
+			{
+				mnuConnect.Enabled = true;
+				mnuConnect.Text = Messages.CommandLogin;
+			}
+
 
 			cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != "") );
 
@@ -1096,6 +1140,10 @@ namespace AirVPN.Gui.Forms
 							pnlConnected.Visible = false;
 							cmdCancel.Visible = Engine.IsWaitingCancelAllowed();
 							cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+							mnuConnect.Enabled = cmdCancel.Enabled;
+
+							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_yellow_16;
+
 						}
 						else if (Engine.IsConnected())
 						{
@@ -1115,12 +1163,16 @@ namespace AirVPN.Gui.Forms
 							}
 							else
 								lblConnectedCountry.Image = null;
+
+							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_green_16;
 						}
 						else
 						{
 							pnlWelcome.Visible = true;
 							pnlWaiting.Visible = false;
 							pnlConnected.Visible = false;
+
+							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_red_16;
 						}
 						
 						// Icon                    
@@ -1179,13 +1231,15 @@ namespace AirVPN.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-							string notifyText = Constants.Name + " - " + Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
-							Text = notifyText;
+							string notifyText = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
+							string notifyText2 = Constants.Name + " - " + notifyText;
+							Text = notifyText2;
+							mnuStatus.Text = "> " + notifyText;
 							if (m_notifyIcon != null)
 							{
-								if (notifyText.Length > 62)
-									notifyText = notifyText.Substring(0, 62);
-								m_notifyIcon.Text = notifyText;
+								if (notifyText2.Length > 62)
+									notifyText2 = notifyText2.Substring(0, 62);
+								m_notifyIcon.Text = notifyText2;
 							}
 						}						
                     }

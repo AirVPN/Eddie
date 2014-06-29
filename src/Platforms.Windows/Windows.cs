@@ -161,25 +161,69 @@ namespace AirVPN.Platforms
 			ShellCmd(cmd);
 		}
 
-		public override string RouteList()
+		public override List<RouteEntry> RouteList()
 		{
+			List<RouteEntry> EntryList = new List<RouteEntry>();
+
+			// 'route print' show IP in Interface fields, but 'route add' need the interface ID. We use a map.
+			Dictionary<string, string> InterfacesIp2Id = new Dictionary<string, string>();
+
+			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+            ManagementObjectCollection objMOC = objMC.GetInstances();
+
+			foreach (ManagementObject objMO in objMOC)
+			{				
+				if (!((bool)objMO["IPEnabled"]))
+					continue;
+
+				string ip = Conversions.ToString(objMO["IPAddress"]);
+				string id = Conversions.ToString(objMO["InterfaceIndex"]);
+
+				InterfacesIp2Id[ip] = id;
+			}
+
 			string cmd = "route PRINT";
-			return ShellCmd(cmd);
+			string result = ShellCmd(cmd);
+
+			string[] lines = result.Split('\n');
+			foreach (string line in lines)
+			{
+				string[] fields = Utils.StringCleanSpace(line).Split(' ');
+
+				if ((fields.Length == 5) &&
+					(NetworkLocking.IsIP(fields[0])) && // TOCLEAN: maybe better
+					(NetworkLocking.IsIP(fields[1])) &&
+					(NetworkLocking.IsIP(fields[2])) &&
+					(NetworkLocking.IsIP(fields[3])))
+				{
+					// Route line.
+					RouteEntry e = new RouteEntry();
+					e.Address = fields[0];
+					e.Mask = fields[1];
+					e.Gateway = fields[2];
+					e.Interface = fields[3];
+					e.Metrics = fields[4];
+
+					if (InterfacesIp2Id.ContainsKey(e.Interface))
+					{
+						e.Interface = InterfacesIp2Id[e.Interface];
+						if (e.Gateway != "On-link")
+							EntryList.Add(e);
+					}
+					else
+					{
+						Engine.Instance.LogDebug("Unexpected.");
+					}
+				}
+			}
+
+			return EntryList;
 		}
 		
 		public override string GenerateSystemReport()
 		{
 			string t = base.GenerateSystemReport();
-
-			try
-			{
-				throw new Exception("pazzo");
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Log(e);
-			}
-
+			
 			t += "\n\n-- Windows-Only informations\n";
 
 			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
@@ -319,6 +363,11 @@ namespace AirVPN.Platforms
 					return adapter.Description;
 			}
 			return "";
+		}
+
+		public override bool CanInstallDriver()
+		{
+			return true;
 		}
 
 		public override bool CanUnInstallDriver()

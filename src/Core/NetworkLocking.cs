@@ -26,108 +26,7 @@ using AirVPN.Core;
 
 namespace AirVPN.Core
 {
-    class RouteEntry
-    {
-        public enum ActionMode
-        {
-            Nothing = 0, // Do nothing, list only, never added/removed/changed
-            Suspended = 1, // If AirLock is active, remove it
-            Temporary = 2, // Added by AirLock
-        }
-        public string Address;
-        public string Mask;
-        public string Gateway;
-        public string Interface;
-        public string Metrics;
-        public int RefCount = 0;
-        //public ActionMode Action;
-
-        public RouteEntry()
-        {
-            //Action = ActionMode.Nothing;
-        }
-
-        public void Add()
-        {
-            Platform.Instance.RouteAdd(Address, Mask, Gateway, Interface, Metrics);
-        }
-
-        public void Remove()
-        {
-            Platform.Instance.RouteRemove(Address, Mask, Gateway);
-        }
-
-		public void ReadXML(XmlElement node)
-		{
-			Address = node.GetAttribute("address");
-			Mask = node.GetAttribute("mask");
-			Gateway = node.GetAttribute("gateway");
-			Interface = node.GetAttribute("interface");
-			Metrics = node.GetAttribute("metrics");
-			RefCount = 1;			
-		}
-
-		public void WriteXML(XmlElement node)
-		{			
-			node.SetAttribute("address", Address);
-			node.SetAttribute("mask", Mask);
-			node.SetAttribute("gateway", Gateway);
-			node.SetAttribute("interface", Interface);
-			node.SetAttribute("metrics", Metrics);			
-		}
-
-        public string Key
-        {
-            get
-            {
-				return NetworkLocking.Key(Address, Mask);
-            }
-        }
-    }
-
-    public class RouteScope
-    {
-        private string m_address = "";
-
-        public RouteScope(string address)
-        {
-			Start(address, false);
-        }
-
-		public RouteScope(string address, bool force)
-		{
-			Start(address, force);
-		}
-
-        ~RouteScope()
-        {
-            End();
-        }
-
-		public void Start(string address, bool force)
-		{
-			if( (force == false) && (NetworkLocking.Instance.GetActive() == false) )
-				return;
-
-			if (Utils.IsIP(address) == false)
-				return;
-
-			m_address = address;
-			NetworkLocking.Instance.RouteAdd(m_address, "255.255.255.255");
-		}
-
-        public void End()
-        {
-            if (m_address != "") // Only one time
-            {
-				if (NetworkLocking.Instance.GetActive() == false)
-                    return;
-
-				NetworkLocking.Instance.RouteRemove(m_address, "255.255.255.255");
-                m_address = "";
-            }
-        }
-    }
+    
       
     public class NetworkLocking
     {
@@ -138,14 +37,14 @@ namespace AirVPN.Core
         private Dictionary<string ,RouteEntry> EntryRemoved = new Dictionary<string,RouteEntry>();
         private Dictionary<string ,RouteEntry> EntryAdded = new Dictionary<string,RouteEntry>();
 
-		public static bool IsIP(string v)
-        {
-            if (v == "On-link")
-                return true;
-            if (Utils.IsIP(v))
-                return true;
-            return false;
-        }
+		public static bool IsIP(string v) // TOCLEAN: where it's used and why
+		{
+			if (v == "On-link")
+				return true;
+			if (Utils.IsIP(v))
+				return true;
+			return false;
+		}		
 
         public static string Key(string address, string mask)
         {
@@ -171,7 +70,7 @@ namespace AirVPN.Core
 
                 bool Failed = false;
 
-                List<RouteEntry> EntryList = GetRouteList();
+                List<RouteEntry> EntryList = Platform.Instance.RouteList();
 
                 DefaultGateway = "";
                 EntryRemoved.Clear();
@@ -315,38 +214,6 @@ namespace AirVPN.Core
 		}
 
                 
-        private List<RouteEntry> GetRouteList()
-        {
-            List<RouteEntry> EntryList = new List<RouteEntry>();
-
-			string Result = Platform.Instance.RouteList();
-			string[] Lines = Result.Split('\n');
-			foreach (string Line in Lines)
-            {
-				string[] Fields = Utils.StringCleanSpace(Line).Split(' ');
-
-                if ((Fields.Length == 5) &&
-                    (IsIP(Fields[0])) &&
-                    (IsIP(Fields[1])) &&
-                    (IsIP(Fields[2])) &&
-                    (IsIP(Fields[3])))
-                {
-                    // Route line.
-                    RouteEntry E = new RouteEntry();
-                    E.Address = Fields[0];
-                    E.Mask = Fields[1];
-                    E.Gateway = Fields[2];
-                    E.Interface = Fields[3];
-                    E.Metrics = Fields[4];
-
-                    if(E.Gateway != "On-link")
-                        EntryList.Add(E);
-                }
-            }
-
-            return EntryList;
-        }
-
 		public void RouteAdd(string address, string mask)
         {
 			lock (this)

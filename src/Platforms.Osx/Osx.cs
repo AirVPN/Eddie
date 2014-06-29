@@ -107,7 +107,12 @@ namespace AirVPN.Platforms
 
 		public override string GetDriverAvailable()
 		{
-			return "Unknown";
+			return "Expected";
+		}
+
+		public override bool CanInstallDriver()
+		{
+			return false;
 		}
 
 		public override bool CanUnInstallDriver()

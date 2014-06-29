@@ -251,7 +251,7 @@ namespace AirVPN.Gui.Forms
             this.mnuSeparator4,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(252, 298);
+			this.mnuMain.Size = new System.Drawing.Size(252, 320);
 			// 
 			// mnuSeparator2
 			// 
@@ -260,7 +260,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// mnuStatus
 			// 
-			this.mnuStatus.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.mnuStatus.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.mnuStatus.ForeColor = System.Drawing.SystemColors.GradientActiveCaption;
 			this.mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_yellow_16;
 			this.mnuStatus.Name = "mnuStatus";
