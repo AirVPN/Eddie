@@ -37,8 +37,11 @@ namespace AirVPN.Core
 
 		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
         {
+			bool debugTime = true;
             try
             {
+				int startTime = Environment.TickCount;
+
                 Process p = new Process();
 
                 p.StartInfo.Arguments = Arguments;
@@ -68,6 +71,14 @@ namespace AirVPN.Core
                 {
                     string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
                     p.WaitForExit();
+
+					if (debugTime)
+					{
+						int endTime = Environment.TickCount;
+						int deltaTime = endTime - startTime;
+						Engine.Instance.Log(Engine.LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms");
+					}
+
                     return Output.Trim();
                 }
                 else
@@ -280,12 +291,12 @@ namespace AirVPN.Core
             NotImplemented();
         }
 
-		public virtual void RouteAdd(string Address, string Mask, string Gateway, string Interface, string Metrics)
+		public virtual void RouteAdd(RouteEntry r)
 		{
 			NotImplemented();
 		}
 
-		public virtual void RouteRemove(string Address, string Mask, string Gateway)
+		public virtual void RouteRemove(RouteEntry r)
 		{
 			NotImplemented();
 		}

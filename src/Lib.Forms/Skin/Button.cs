@@ -122,10 +122,14 @@ namespace AirVPN.Gui.Skin
 				pevent.Graphics.DrawImage(Image, rImage, 0,0,Image.Width, Image.Height, GraphicsUnit.Pixel, imageAttributes);				
 			}
 			else
-			{
-				// Both
+			{	
+				/*
+				 * Not yet used
 				SizeF sText = pevent.Graphics.MeasureString(Text, Font);
-				// TODO, not yet used
+
+				int width = Image.Width + 10 + sText.Width;
+				int height = Math.Max(Image.Height, sText.Height);
+				*/
 			}
 
 			r.Width--;

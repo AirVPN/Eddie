@@ -25,33 +25,33 @@ namespace AirVPN.Core
 {
 	public class RouteEntry
 	{
-		public enum ActionMode
-		{
-			Nothing = 0, // Do nothing, list only, never added/removed/changed
-			Suspended = 1, // If AirLock is active, remove it
-			Temporary = 2, // Added by AirLock
-		}
-		public string Address;
-		public string Mask;
-		public string Gateway;
+		public IpAddress Address;
+		public IpAddress Mask;
+		public IpAddress Gateway;
 		public string Interface;
 		public string Metrics;
+		
+		// Unix only:
+		public string Flags;
+		public string Mss;
+		public string Window;
+		public string Irtt;
+
 		public int RefCount = 0;
-		//public ActionMode Action;
 
 		public RouteEntry()
 		{
-			//Action = ActionMode.Nothing;
+			
 		}
 
 		public void Add()
 		{
-			Platform.Instance.RouteAdd(Address, Mask, Gateway, Interface, Metrics);
+			Platform.Instance.RouteAdd(this);
 		}
 
 		public void Remove()
 		{
-			Platform.Instance.RouteRemove(Address, Mask, Gateway);
+			Platform.Instance.RouteRemove(this);
 		}
 
 		public void ReadXML(XmlElement node)
@@ -66,9 +66,9 @@ namespace AirVPN.Core
 
 		public void WriteXML(XmlElement node)
 		{
-			node.SetAttribute("address", Address);
-			node.SetAttribute("mask", Mask);
-			node.SetAttribute("gateway", Gateway);
+			node.SetAttribute("address", Address.Value);
+			node.SetAttribute("mask", Mask.Value);
+			node.SetAttribute("gateway", Gateway.Value);
 			node.SetAttribute("interface", Interface);
 			node.SetAttribute("metrics", Metrics);
 		}
@@ -79,6 +79,11 @@ namespace AirVPN.Core
 			{
 				return NetworkLocking.Key(Address, Mask);
 			}
+		}
+
+		public override string ToString()
+		{
+			return "Address: " + Address.Value + ", Mask: " + Mask.Value + ", Gateway: " + Gateway.Value;
 		}
 	}
 }

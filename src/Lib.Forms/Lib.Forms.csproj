@@ -264,6 +264,8 @@
     <Content Include="res\main_l_bg.png" />
     <Content Include="res\menu_hover.png" />
     <Content Include="res\menu_normal.png" />
+    <None Include="res\netlock_off.png" />
+    <None Include="res\netlock_on.png" />
     <Content Include="res\ports.png" />
     <Content Include="res\progress.gif" />
     <Content Include="res\reload.png" />

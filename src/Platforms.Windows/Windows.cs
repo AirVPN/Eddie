@@ -149,21 +149,26 @@ namespace AirVPN.Platforms
             ShellCmd("ipconfig /flushdns");
         }
 
-		public override void RouteAdd(string Address, string Mask, string Gateway, string Interface, string Metrics)
+		public override void RouteAdd(RouteEntry r)
 		{
-			string cmd = "route add " + Address + " mask " + Mask + " " + Gateway + " metric " + Metrics + " if " + Interface;
+			string cmd = "";
+			cmd += "route add " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
+			if(r.Metrics != "")
+				cmd += " metric " + r.Metrics;
+			if (r.Interface != "")
+				cmd += " if " + r.Interface;
 			ShellCmd(cmd);
 		}
 
-		public override void RouteRemove(string Address, string Mask, string Gateway)
+		public override void RouteRemove(RouteEntry r)
 		{
-			string cmd = "route delete " + Address + " mask " + Mask + " " + Gateway;
+			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
 			ShellCmd(cmd);
 		}
 
 		public override List<RouteEntry> RouteList()
-		{
-			List<RouteEntry> EntryList = new List<RouteEntry>();
+		{			
+			List<RouteEntry> entryList = new List<RouteEntry>();
 
 			// 'route print' show IP in Interface fields, but 'route add' need the interface ID. We use a map.
 			Dictionary<string, string> InterfacesIp2Id = new Dictionary<string, string>();
@@ -176,10 +181,13 @@ namespace AirVPN.Platforms
 				if (!((bool)objMO["IPEnabled"]))
 					continue;
 
-				string ip = Conversions.ToString(objMO["IPAddress"]);
-				string id = Conversions.ToString(objMO["InterfaceIndex"]);
+				string[] ips = Conversions.ToString(objMO["IPAddress"]).Trim().Split(',');
+				string id = Conversions.ToString(objMO["InterfaceIndex"]).Trim();
 
-				InterfacesIp2Id[ip] = id;
+				foreach (string ip in ips)
+				{
+					InterfacesIp2Id[ip.Trim()] = id;
+				}
 			}
 
 			string cmd = "route PRINT";
@@ -190,11 +198,7 @@ namespace AirVPN.Platforms
 			{
 				string[] fields = Utils.StringCleanSpace(line).Split(' ');
 
-				if ((fields.Length == 5) &&
-					(NetworkLocking.IsIP(fields[0])) && // TOCLEAN: maybe better
-					(NetworkLocking.IsIP(fields[1])) &&
-					(NetworkLocking.IsIP(fields[2])) &&
-					(NetworkLocking.IsIP(fields[3])))
+				if(fields.Length == 5)
 				{
 					// Route line.
 					RouteEntry e = new RouteEntry();
@@ -203,12 +207,19 @@ namespace AirVPN.Platforms
 					e.Gateway = fields[2];
 					e.Interface = fields[3];
 					e.Metrics = fields[4];
-
+			 
+					if(e.Address.Valid == false)
+						continue;
+					if(e.Mask.Valid == false)
+						continue;
+					if(e.Gateway.Valid == false)
+						continue;
+					
 					if (InterfacesIp2Id.ContainsKey(e.Interface))
 					{
 						e.Interface = InterfacesIp2Id[e.Interface];
-						if (e.Gateway != "On-link")
-							EntryList.Add(e);
+						if (e.Gateway.Value != "On-link")
+							entryList.Add(e);
 					}
 					else
 					{
@@ -216,8 +227,8 @@ namespace AirVPN.Platforms
 					}
 				}
 			}
-
-			return EntryList;
+			
+			return entryList;
 		}
 		
 		public override string GenerateSystemReport()

@@ -54,9 +54,8 @@ namespace AirVPN.Gui.Forms
 		private bool m_lockCoordUpdate = false;		
         private int m_topHeaderHeight = 30;
 
-		private bool m_skipNetworkLockedConfirm = false;
-		private bool m_FormReady = false;
-		private bool m_Closing = false;
+		private bool m_formReady = false;
+		private bool m_closing = false;
 
         public Main()
         {
@@ -86,7 +85,7 @@ namespace AirVPN.Gui.Forms
 				mnuAreas.Dispose();
 				mnuLogsContext.Dispose();
 
-				m_Closing = true;
+				m_closing = true;
                 Close();
             }
         }
@@ -98,7 +97,7 @@ namespace AirVPN.Gui.Forms
 			SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 			MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
 
-			m_FormReady = false;
+			m_formReady = false;
 
 			Visible = false;
 
@@ -223,13 +222,6 @@ namespace AirVPN.Gui.Forms
 			Resizing();
             Show();
 
-			if (Engine.Storage.GetBool("advanced.netlock.enabled"))
-			{
-				m_skipNetworkLockedConfirm = true;
-				chkLockedNetwork.Checked = Engine.Storage.GetBool("advanced.netlock.active");
-				m_skipNetworkLockedConfirm = false;
-			}
-
 			/*
             if (cmdConnect.Enabled && (Engine.Storage.GetBool("connect")))
             {
@@ -237,10 +229,15 @@ namespace AirVPN.Gui.Forms
             }
 			*/
 
-			m_FormReady = true;
+			if (Engine.Storage.GetBool("advanced.netlock.enabled"))
+			{
+				if(Engine.Storage.GetBool("advanced.netlock.active"))
+					Engine.Instance.NetLockIn();				
+			}
 
-            Engine.OnRefreshUi();
+			m_formReady = true;
 
+			Engine.OnRefreshUi();
 
         }
                 
@@ -326,7 +323,7 @@ namespace AirVPN.Gui.Forms
 
         protected override void OnClosing(CancelEventArgs e)
         {
-			if (m_Closing)
+			if (m_closing)
 				return;
 			
 			e.Cancel = true;
@@ -486,6 +483,15 @@ namespace AirVPN.Gui.Forms
 			Connect();
 		}
 
+
+		private void cmdLockedNetwork_Click(object sender, EventArgs e)
+		{
+			if (NetworkLocking.Instance.GetActive())
+				NetworkLockDeactivation();
+			else
+				NetworkLockActivation();
+		}
+
 		private void cmdDisconnect_Click(object sender, EventArgs e)
 		{
 			Disconnect();
@@ -501,12 +507,7 @@ namespace AirVPN.Gui.Forms
             ShowMenu();
         }
 
-        private void chkLockedSecurity_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckLockedNetwork();
-        }
-
-		private void mnuToolsPortForwarding_Click(object sender, EventArgs e)
+        private void mnuToolsPortForwarding_Click(object sender, EventArgs e)
 		{
 			/*
 			Forms.PortForwarding Dlg = new PortForwarding();
@@ -849,7 +850,7 @@ namespace AirVPN.Gui.Forms
 				lblWait2.Top = imgProgress.Top + imgProgress.Height + 10;
 				lblWait2.Width = tabItemWidth;
 				lblWait2.Height = tabItemHeight - lblWait2.Top - 10 - 60;
-				cmdCancel.Width = tabItemWidth * 3 / 2;
+				cmdCancel.Width = tabItemWidth * 2 / 3;
 				cmdCancel.Height = 30;
 				cmdCancel.Left = tabItemWidth / 2 - cmdCancel.Width / 2;
 				cmdCancel.Top = tabItemHeight - 50;				
@@ -1081,7 +1082,17 @@ namespace AirVPN.Gui.Forms
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
 
-			chkLockedNetwork.Visible = Engine.Storage.GetBool("advanced.netlock.enabled");
+			cmdLockedNetwork.Visible = Engine.Storage.GetBool("advanced.netlock.enabled");
+			if (NetworkLocking.Instance.GetActive())
+			{
+				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
+				imgLockedNetwork.BackgroundImage = Lib.Forms.Properties.Resources.netlock_on;
+			}
+			else
+			{
+				cmdLockedNetwork.Text = Messages.NetworkLockButtonDeactive;
+				imgLockedNetwork.BackgroundImage = Lib.Forms.Properties.Resources.netlock_off;
+			}
 		}
 
 		private delegate void ShowFrontMessageDelegate(string message);
@@ -1122,7 +1133,7 @@ namespace AirVPN.Gui.Forms
             }
             else
             {
-				if (m_FormReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
+				if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
 					return;
 
 				lock (Engine)
@@ -1376,53 +1387,25 @@ namespace AirVPN.Gui.Forms
 			}
 		}	
 
-        public void CheckLockedNetwork()
-        {
-            if (chkLockedNetwork.Checked)
-            {
-				bool confirmed = false;
+		public void NetworkLockActivation()
+		{
+			String Msg = Messages.NetworkLockWarning;
+			
+			if (MessageBox.Show(this, Msg, this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+			{
+				Engine.Instance.Storage.SetBool("advanced.netlock.active", true);
 
-				if (m_skipNetworkLockedConfirm)
-				{
-					confirmed = true;
-					m_skipNetworkLockedConfirm = false;
-				}
-				else
-				{
-					String Msg = "";
-					Msg += "Network Locked Mode\n";
-					Msg += "\n";
-					Msg += "In this state, any network connections outside AirVPN service & tunnel are unavailable.\n";
-					Msg += "Indipendently if you are connected to the VPN or not.\n";
-					Msg += "This computer will also unavailable for your local network.\n";
-					Msg += "\n";
-					Msg += "Warning: Any active connections will be dropped.\n";
-					Msg += "\n";
-					Msg += "Are you sure do you want to activate this mode?";
+				Engine.Instance.NetLockIn();
+			}
+		}
 
-					if (MessageBox.Show(this, Msg, this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-					{
-						confirmed = true;
-					}
-				}
+		public void NetworkLockDeactivation()
+		{
+			Engine.NetLockOut();
 
-				if(confirmed)
-                {
-                    if (NetworkLocking.Instance.Activate() == false)
-                    {
-						MessageBox.Show(this, Messages.NetworkLockFailed, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    }
-                }
+			Engine.Instance.Storage.SetBool("advanced.netlock.active", false);
+		}
 
-				chkLockedNetwork.Checked = NetworkLocking.Instance.GetActive();
-            }
-            else
-            {
-				NetworkLocking.Instance.Deactivate();
-            }
-
-			Engine.Storage.SetBool("advanced.netlock.active", NetworkLocking.Instance.GetActive());
-        }
 
 		
 

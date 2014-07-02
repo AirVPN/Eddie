@@ -30,12 +30,10 @@ namespace AirVPN.Core
 		public static string NotAvailable = "Not available";
 		public static string NotFound = "Not found";
 		public static string Ready = "Ready";
-		public static string NetworkLockFailed = "Network Locked Mode\n\nUnable to lock this system. Sorry.\n";
 		public static string StatsNotConnected = "Not connected.";
 		public static string DoubleClickToView = "(Double-Click to View)";
 		public static string CheckingRequired = "Unavailable (Check required)";
 		public static string WaitingLatencyTests = "Waiting for latency tests";
-		public static string NetworkLockingRecovery = "Recovery. Unexpected crash?";
 		public static string AuthorizeLogin = "Checking login ...";
 		public static string AuthorizeLoginDone = "Logged in.";
 		public static string AuthorizeLogout = "Logout ...";
@@ -97,6 +95,18 @@ namespace AirVPN.Core
 		public static string ConnectionConnected = "Connected.";
 		public static string ConnectionConnecting = "Connecting to {1} ({2}, {3})";
 		public static string ConnectionDisconnecting = "Disconnecting";
+
+		public static string NetworkLockActivation = "Activation of Network Locked mode"; // TOTRANSLATE
+		public static string NetworkLockDeactivation = "Deactivation of Network Locked mode"; // TOTRANSLATE
+		public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; // TOTRANSLATE
+		public static string NetworkLockButtonDeactive = "Network Lock Unactive. Click to activate"; // TOTRANSLATE
+		public static string NetworkLockFailed = "Unable to lock the network of this system. Please contact our staff for support."; // TOTRANSLATE
+		public static string NetworkLockSuccess = "Locked network activated. Default gateway: {1}"; // TOTRANSLATE
+		public static string NetworkLockRouteRemoved = "Route removed: {1}"; // TOTRANSLATE
+		public static string NetworkLockRouteRestored = "Route restored: {1}"; // TOTRANSLATE
+		public static string NetworkLockWarning = "Network Locked Mode\n\nIn this state, any network connections outside AirVPN service & tunnel are unavailable.\nIndipendently if you are connected to the VPN or not.\nThis computer will also unavailable for your local network.\n\nWarning: Any active connections will be dropped.\n\nAre you sure do you want to activate this mode?"; // TOTRANSLATE
+		public static string NetworkLockRecovery = "Recovery. Unexpected crash?"; // TOTRANSLATE
+		
 		
 		public static string TopBarConnected = "Connected to {1}";
 		public static string TopBarNotConnectedLocked = "Not connected. Network locked.";

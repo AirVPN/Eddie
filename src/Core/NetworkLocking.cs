@@ -32,7 +32,7 @@ namespace AirVPN.Core
     {
         public static NetworkLocking Instance = new NetworkLocking();
 
-		private string DefaultGateway = "";
+		private IpAddress DefaultGateway = new IpAddress();
 
         private Dictionary<string ,RouteEntry> EntryRemoved = new Dictionary<string,RouteEntry>();
         private Dictionary<string ,RouteEntry> EntryAdded = new Dictionary<string,RouteEntry>();
@@ -44,11 +44,16 @@ namespace AirVPN.Core
 			if (Utils.IsIP(v))
 				return true;
 			return false;
-		}		
+		}
 
-        public static string Key(string address, string mask)
+		public static bool IsIP(IpAddress v)
+		{
+			return IsIP(v.Value);
+		}
+
+		public static string Key(IpAddress address, IpAddress mask)
         {
-            return address + "-" + mask;
+            return address.Value + "-" + mask.Value;
         }
 
 		public NetworkLocking()
@@ -58,7 +63,7 @@ namespace AirVPN.Core
 
         public bool GetActive()
         {
-            return (DefaultGateway != "");
+            return (DefaultGateway.Empty == false);
         }
 
         public bool Activate()
@@ -78,32 +83,39 @@ namespace AirVPN.Core
 
                 foreach (RouteEntry Entry in EntryList)
                 {
-                    if ((DefaultGateway != "") && (IsIP(Entry.Gateway)) && (DefaultGateway != Entry.Gateway))
-                    {
-                        Failed = true;
-                        break;
-                    }
-
-                    if ((DefaultGateway == "") && (IsIP(Entry.Gateway)))
-                        DefaultGateway = Entry.Gateway;
+					if (IsIP(Entry.Gateway))
+					{
+						if (DefaultGateway.Empty)
+						{
+							DefaultGateway = Entry.Gateway;
+						}
+						else if (DefaultGateway != Entry.Gateway)
+						{
+							Failed = true;
+							break;
+						}
+					}
                 }
 
-                if (DefaultGateway == "")
+                if (DefaultGateway.Empty)
                     Failed = true;
 
-                if (Failed)
+				if (Failed)
                 {
 					DefaultGateway = "";
-                    Engine.Instance.Log(Engine.LogType.Warning, "Unable to activate locked network. Logging routes.");
+                    Engine.Instance.Log(Engine.LogType.Fatal, Messages.NetworkLockFailed);
                     foreach (RouteEntry Entry in EntryList)
                     {
-                        Engine.Instance.Log(Engine.LogType.Verbose, String.Format("Address: {0}, Mask: {1}, Gateway: {2}, Interface: {3}, Metrics: {4}", Entry.Address, Entry.Mask, Entry.Gateway, Entry.Interface, Entry.Metrics));
+						Engine.Instance.Log(Engine.LogType.Verbose, Entry.ToString());
                     }
+
+					Engine.Instance.Storage.SetBool("advanced.netlock.active", false);
+
                     return false;
                 }
                 else
                 {
-					Engine.Instance.Log(Engine.LogType.Verbose, "Locked network activated. Default gateway: " + DefaultGateway);
+					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.NetworkLockSuccess, DefaultGateway.Value));
                 }
 
                 foreach (RouteEntry Entry in EntryList)
@@ -111,6 +123,7 @@ namespace AirVPN.Core
                     if (IsIP(Entry.Gateway))
                     {
                         EntryRemoved[Entry.Key] = Entry;
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.NetworkLockRouteRemoved, Entry.ToString()));
                         Entry.Remove();
                     }
                 }
@@ -131,8 +144,11 @@ namespace AirVPN.Core
                 foreach (RouteEntry Entry in EntryAdded.Values)
                     Entry.Remove();
 
-                foreach (RouteEntry Entry in EntryRemoved.Values)
-                    Entry.Add();
+				foreach (RouteEntry Entry in EntryRemoved.Values)
+				{
+					Entry.Add();
+					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.NetworkLockRouteRestored, Entry.ToString()));
+				}
 
                 DefaultGateway = "";
 
@@ -140,8 +156,6 @@ namespace AirVPN.Core
 				EntryRemoved.Clear();
 
 				Recovery.Save();
-
-				Engine.Instance.Log(Engine.LogType.Verbose, "Locked network de-activated.");
             }
         }
 
@@ -190,7 +204,7 @@ namespace AirVPN.Core
 				{
 					XmlDocument doc = root.OwnerDocument;
 					XmlElement el = (XmlElement)root.AppendChild(doc.CreateElement("NetworkLocking"));
-					el.SetAttribute("gateway", DefaultGateway);
+					el.SetAttribute("gateway", DefaultGateway.Value);
 
 					XmlElement nodeAdded = el.AppendChild(doc.CreateElement("added")) as XmlElement;
 					foreach (RouteEntry entry in EntryAdded.Values)
@@ -238,14 +252,12 @@ namespace AirVPN.Core
                 }
 
 				Recovery.Save();
-            }
-			Engine.Instance.LogDebug("RouteAdd out");
+            }			
         }
 
 		public void RouteRemove(string address, string mask)
         {
-			Engine.Instance.LogDebug("RouteRemove in");
-            lock (this)
+			lock (this)
             {
 				if (GetActive() == false)
                     return;
@@ -266,8 +278,7 @@ namespace AirVPN.Core
                 }
 
 				Recovery.Save();
-            }
-			Engine.Instance.LogDebug("RouteRemove out");
+            }			
         }
 
     }

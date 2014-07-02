@@ -128,18 +128,19 @@ namespace AirVPN.Platforms
 		{
 		}
 
-		public override void RouteAdd (string Address, string Mask, string Gateway, string Interface, string Metrics)
+		public override void RouteAdd(RouteEntry r)
 		{
-			base.RouteAdd (Address, Mask, Gateway, Interface, Metrics);
+			base.RouteAdd (r);
 		}
 
-		public override void RouteRemove (string Address, string Mask, string Gateway)
+		public override void RouteRemove(RouteEntry r)
 		{
-			base.RouteRemove (Address, Mask, Gateway);
+			base.RouteRemove (r);
 		}
 
 		public override string RouteList ()
 		{
+			// https://developer.apple.com/library/mac/documentation/Darwin/Reference/Manpages/man8/route.8.html
 			string cmd = "netstat -nr";
 			string output = ShellCmd (cmd);
 			return output;

@@ -57,7 +57,9 @@ namespace AirVPN.Core
             Connect = 1,
             Disconnect = 2,
 			Login = 3,
-			Logout = 4
+			Logout = 4,
+			NetLockIn = 5,
+			NetLockOut = 6
         }
 
         public enum RefreshUiMode
@@ -70,7 +72,7 @@ namespace AirVPN.Core
 			Quick = 5
         }
 
-        public ActionService Action = ActionService.None;
+		private List<ActionService> ActionsList = new List<ActionService>();        
 		public string m_waitMessage = "Starting";
         public bool m_waitCancel = false;
 
@@ -354,30 +356,55 @@ namespace AirVPN.Core
 
 		public virtual void OnWork()
 		{
-			ActionService ReqAction = Action;
-			Action = ActionService.None;
+			ActionService currentAction = ActionService.None;
 
-			if (ReqAction == ActionService.Login)
+			lock (ActionsList)
+			{
+				if (ActionsList.Count > 0)
+				{
+					currentAction = ActionsList[0];
+					ActionsList.RemoveAt(0);
+				}
+			}
+
+			if (currentAction == ActionService.None)
+			{
+				/*
+				if (m_waitMessage != "")
+					WaitMessageSet("", false);
+				*/
+			}
+			else if (currentAction == ActionService.Login)
 			{
 				Auth();
 			}
-
-			if (ReqAction == ActionService.Logout)
+			else if (currentAction == ActionService.Logout)
 			{
 				DeAuth();
 			}
-
-			if (ReqAction == ActionService.Connect)
+			else if (currentAction == ActionService.NetLockIn)
+			{
+				WaitMessageSet(Messages.NetworkLockActivation, false);
+				NetworkLocking.Instance.Activate();
+				WaitMessageClear();
+			}
+			else if (currentAction == ActionService.NetLockOut)
+			{
+				WaitMessageSet(Messages.NetworkLockDeactivation, false);
+				NetworkLocking.Instance.Deactivate();
+				WaitMessageClear();
+			}
+			else if (currentAction == ActionService.Connect)
 			{
 				if (m_threadSession == null)
 					SessionStart();
 			}
-			if (ReqAction == ActionService.Disconnect)
+			else if (currentAction == ActionService.Disconnect)
 			{
 				if (m_threadSession != null)
 					SessionStop();
 			}
-
+				
 			if (TickDeltaUiRefreshQuick.Elapsed(1000))
 				OnRefreshUi(RefreshUiMode.Quick);
 
@@ -478,22 +505,50 @@ namespace AirVPN.Core
 
 		public void Connect()
 		{
-			Action = Engine.ActionService.Connect;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Connect);
+			}
 		}
 
 		public void Login()
 		{
-			Action = Engine.ActionService.Login;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Login);
+			}
 		}
 
 		public void Logout()
 		{
-			Action = Engine.ActionService.Logout;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Logout);
+			}
+		}
+
+		public void NetLockIn()
+		{
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.NetLockIn);
+			}
+		}
+
+		public void NetLockOut()
+		{
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.NetLockOut);
+			}
 		}
 
 		public void Disconnect()
 		{
-			Action = Engine.ActionService.Disconnect;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Disconnect);
+			}
 		}
 
 		public void SetConnected(bool connected)

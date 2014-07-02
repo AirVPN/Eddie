@@ -513,6 +513,26 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap netlock_off {
+            get {
+                object obj = ResourceManager.GetObject("netlock_off", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap netlock_on {
+            get {
+                object obj = ResourceManager.GetObject("netlock_on", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ports {
             get {
                 object obj = ResourceManager.GetObject("ports", resourceCulture);

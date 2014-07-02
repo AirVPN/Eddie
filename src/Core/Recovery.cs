@@ -63,7 +63,7 @@ namespace AirVPN.Core
 			{
 				try
 				{
-					Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockingRecovery);
+					Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockRecovery);
 
 					XmlDocument doc = new XmlDocument();
 
