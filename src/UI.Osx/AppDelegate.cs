@@ -40,8 +40,6 @@ namespace AirVPN.UI.Osx
 
 		public override void FinishedLaunching (NSObject notification)
 		{
-			//CreateMenu (); // TOCLEAN
-
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 

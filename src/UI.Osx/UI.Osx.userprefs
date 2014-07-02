@@ -1,36 +1,21 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/8/2014 12:15:57 AM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x64" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="MainWindowController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="WindowPreferencesController.cs">
     <Files>
-      <File FileName="../Core/Engine.cs" Line="1" Column="1" />
-      <File FileName="ChartView.cs" Line="1" Column="1" />
-      <File FileName="../Core/Storage.cs" Line="1" Column="1" />
-      <File FileName="MainWindowController.cs" Line="336" Column="27" />
       <File FileName="../Platforms.Osx/Osx.cs" Line="52" Column="4" />
-      <File FileName="WindowPreferencesEventController.cs" Line="1" Column="1" />
-      <File FileName="WindowPreferencesController.cs" Line="1" Column="1" />
-      <File FileName="../Osx/Osx.cs" Line="1" Column="1" />
-      <File FileName="../CLI.Osx/Program.cs" Line="1" Column="1" />
-      <File FileName="TableAdvancedEventsController.cs" Line="1" Column="1" />
-      <File FileName="WindowTosController.cs" Line="1" Column="1" />
-      <File FileName="WindowTextViewerController.cs" Line="1" Column="1" />
-      <File FileName="TableLogsController.cs" Line="1" Column="1" />
-      <File FileName="Engine.cs" Line="1" Column="1" />
-      <File FileName="../Core/Properties/Resources.Designer.cs" Line="1" Column="1" />
-      <File FileName="Main.cs" Line="1" Column="1" />
-      <File FileName="../Core/ResourcesFiles.cs" Line="1" Column="1" />
-      <File FileName="RootLauncher.cs" Line="1" Column="1" />
-      <File FileName="TableStatsController.cs" Line="1" Column="1" />
-      <File FileName="../Deploy/Program.cs" Line="1" Column="1" />
-      <File FileName="AppDelegate.cs" Line="71" Column="66" />
+      <File FileName="../Core/Messages.cs" Line="130" Column="53" />
+      <File FileName="../Platforms.Linux/Linux.cs" Line="199" Column="4" />
+      <File FileName="WindowPreferencesController.cs" Line="298" Column="6" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
+          <Node name="Lib.Core" expanded="True" />
           <Node name="Platforms.Osx" expanded="True" />
           <Node name="UI.Osx" expanded="True">
+            <Node name="Resources" expanded="True" />
             <Node name="AppDelegate.cs" expanded="True" />
-            <Node name="MainWindowController.cs" selected="True" />
+            <Node name="WindowPreferencesController.cs" selected="True" />
           </Node>
         </State>
       </Pad>

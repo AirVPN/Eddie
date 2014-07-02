@@ -503,6 +503,8 @@
     <BundleResource Include="Resources\status_green_16.png" />
     <BundleResource Include="Resources\status_red_16.png" />
     <BundleResource Include="Resources\status_yellow_16.png" />
+    <BundleResource Include="Resources\netlock_off.png" />
+    <BundleResource Include="Resources\netlock_on.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

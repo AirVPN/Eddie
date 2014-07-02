@@ -295,7 +295,7 @@ namespace AirVPN.UI.Osx
 			};
 
 
-			ChkAdvancedNetworkLocking.Hidden = (Engine.Instance.DevelopmentEnvironment == false);
+			//ChkAdvancedNetworkLocking.Hidden = (Engine.Instance.DevelopmentEnvironment == false);
 
 			ReadOptions ();
 

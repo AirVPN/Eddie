@@ -49,7 +49,7 @@ namespace AirVPN.Platforms
 
         public override bool IsAdmin()
         {
-			//return true; // Uncomment for debugging
+			return true; // Uncomment for debugging
 
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
 			string u = ShellCmd ("whoami").ToLowerInvariant().Trim();
@@ -138,12 +138,44 @@ namespace AirVPN.Platforms
 			base.RouteRemove (r);
 		}
 
-		public override string RouteList ()
-		{
-			// https://developer.apple.com/library/mac/documentation/Darwin/Reference/Manpages/man8/route.8.html
-			string cmd = "netstat -nr";
-			string output = ShellCmd (cmd);
-			return output;
+		public override List<RouteEntry> RouteList()
+		{	
+			List<RouteEntry> entryList = new List<RouteEntry>();
+
+			string result = ShellCmd("route -n -ee");
+
+			string[] lines = result.Split('\n');
+			foreach (string line in lines)
+			{
+				string[] fields = Utils.StringCleanSpace(line).Split(' ');
+
+				if (fields.Length == 11)
+				{
+					RouteEntry e = new RouteEntry();
+					e.Address = fields[0];
+					e.Gateway = fields[1];
+					e.Mask = fields[2];
+					e.Flags = fields[3].ToUpperInvariant();
+					e.Metrics = fields[4];
+					// ref
+					// use
+					e.Interface = fields[7];
+					e.Mss = fields[8];
+					e.Window = fields[9];
+					e.Irtt = fields[10];
+
+					if (e.Address.Valid == false)
+						continue;
+					if (e.Gateway.Valid == false)
+						continue;
+					if (e.Mask.Valid == false)
+						continue;
+
+					entryList.Add(e);
+				}
+			}
+
+			return entryList;
 		}
 
 		public override Dictionary<int, string> GetProcessesList()

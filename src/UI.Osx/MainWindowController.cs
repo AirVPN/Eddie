@@ -161,9 +161,17 @@ namespace AirVPN.UI.Osx
 				Disconnect ();
 			};
 
-			ChkLockedMode.Activated += (object sender, EventArgs e) => {
-				CheckLockedNetwork();
+			CmdNetworkLock.Activated += (object sender, EventArgs e) => {
+				if(NetworkLocking.Instance.GetActive())
+				{
+					NetworkLockDeactivation();
+				}
+				else
+				{
+					NetworkLockActivation();
+				}
 			};
+
 			TableServers.DoubleClick += (object sender, EventArgs e) => {
 				ConnectManual();
 			};
@@ -321,7 +329,7 @@ namespace AirVPN.UI.Osx
 				Restore();
 			};
 
-			MnuConnect.Activated += (object sender, EventArgs e) =>
+			MnuTrayConnect.Activated += (object sender, EventArgs e) =>
 			{
 				if (Engine.IsWaiting())
 				{
@@ -343,32 +351,39 @@ namespace AirVPN.UI.Osx
 
 			MnuTrayAbout.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowAbout();
+				ShowAbout();
 			};
 
 			MnuTrayPreferences.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowPreferences();
+				ShowPreferences();
 			};
 
 			MnuTrayHome.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowHome();
+				ShowHome();
 			};
 
 			MnuTrayClientArea.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowClientArea();
+				ShowClientArea();
 			};
 
 			MnuTrayForwardingPorts.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowForwardingPorts();
+				ShowForwardingPorts();
 			};
 
 			MnuTraySpeedTest.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowSpeedTest();
+				ShowSpeedTest();
+			};
+
+			MnuTrayRestore.Activated += (object sender, EventArgs e) => {
+				if(Window.IsVisible)
+					Minimize();
+				else
+					Restore();
 			};
 
 			MnuTrayQuit.Activated += (object sender, EventArgs e) =>
@@ -410,7 +425,7 @@ namespace AirVPN.UI.Osx
 
 					CmdCancel.Hidden = (Engine.IsWaitingCancelAllowed() == false);
 					CmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
-					MnuCancel.Enabled = CmdCancel.Enabled;
+					MnuTrayConnect.Enabled = CmdCancel.Enabled;
 				}
 				else if (Engine.IsConnected())
 				{
@@ -431,7 +446,10 @@ namespace AirVPN.UI.Osx
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
 					MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
-					LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed; // TODO la locked
+					if(NetworkLocking.Instance.GetActive())
+						LblTopStatus.StringValue = Messages.TopBarNotConnectedLocked;
+					else
+						LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed;
 
 					TabOverview.SelectAt(0);
 				}
@@ -528,6 +546,12 @@ namespace AirVPN.UI.Osx
 			bool connected = Engine.IsConnected ();
 			bool waiting = Engine.IsWaiting ();
 
+			MnuTrayRestore.Hidden = false;
+			if (this.Window.IsVisible)
+				MnuTrayRestore.Title = Messages.WindowsMainHide;
+			else
+				MnuTrayRestore.Title = Messages.WindowsMainShow;
+
 			if (logged == false)
 				CmdLogin.Title = Messages.CommandLogin;
 			else
@@ -535,22 +559,22 @@ namespace AirVPN.UI.Osx
 
 			if (waiting)
 			{
-				MnuConnect.Text = Messages.CommandCancel;
+				MnuTrayConnect.Title = Messages.CommandCancel;
 			}
 			else if (connected)
 			{
-				MnuConnect.Enabled = true;
-				MnuConnect.Text = Messages.CommandDisconnect;
+				MnuTrayConnect.Enabled = true;
+				MnuTrayConnect.Title = Messages.CommandDisconnect;
 			}
 			else if (logged)
 			{
-				MnuConnect.Enabled = true;
-				MnuConnect.Text = Messages.CommandConnect;
+				MnuTrayConnect.Enabled = true;
+				MnuTrayConnect.Title = Messages.CommandConnect;
 			}
 			else
 			{
-				MnuConnect.Enabled = true;
-				MnuConnect.Text = Messages.CommandLogin;
+				MnuTrayConnect.Enabled = true;
+				MnuTrayConnect.Title = Messages.CommandLogin;
 			}
 
 			CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim () != "") && (TxtPassword.StringValue.Trim () != ""));
@@ -583,7 +607,15 @@ namespace AirVPN.UI.Osx
 			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
 			CmdLogsOpenVpnManagement.Enabled = connected;
 
-			ChkLockedMode.Hidden = (Engine.Storage.GetBool ("advanced.netlock.enabled") == false);
+			CmdNetworkLock.Hidden = (Engine.Storage.GetBool ("advanced.netlock.enabled") == false);
+			ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
+			if (NetworkLocking.Instance.GetActive ()) {
+				CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
+				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
+			} else {
+				CmdNetworkLock.Title = Messages.NetworkLockButtonDeactive;
+				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_off.png");
+			}
 		}
 
 		public void FrontMessage(string message)
@@ -707,9 +739,24 @@ namespace AirVPN.UI.Osx
 			Engine.Disconnect ();
 		}
 
-		void CheckLockedNetwork()
+		void NetworkLockActivation()
 		{
-			// TODO
+			string msg = Messages.NetworkLockWarning;
+
+			// todo confirm pazzo
+			{
+				Engine.Instance.Storage.SetBool ("advanced.netlock.active", true);
+
+				Engine.Instance.NetLockIn ();
+			}
+
+		}
+
+		void NetworkLockDeactivation()
+		{
+			Engine.NetLockOut ();
+
+			Engine.Instance.Storage.SetBool ("advanced.netlock.active", false);
 		}
 
 		bool TermsOfServiceCheck(bool force)
@@ -852,6 +899,18 @@ namespace AirVPN.UI.Osx
 		public void ShowSpeedTest()
 		{
 			AirVPN.Core.UI.Actions.OpenUrlSpeedTest();
+		}
+
+		public void Minimize()
+		{
+			Window.Miniaturize (this);
+			EnabledUI ();
+		}
+
+		public void Restore()
+		{
+			Window.Deminiaturize (this);
+			EnabledUI ();
 		}
 	}
 }

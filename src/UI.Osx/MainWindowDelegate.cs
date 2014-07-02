@@ -23,17 +23,22 @@ namespace AirVPN.UI.Osx
 {
 	public class MainWindowDelegate : NSWindowDelegate
 	{
-		//MainWindowController m_main;
+		MainWindowController m_main;
 
 		public MainWindowDelegate (MainWindowController main)
 		{
-			//m_main = main;
+			m_main = main;
 		}
 
 		public override bool WindowShouldClose (MonoMac.Foundation.NSObject sender)
 		{
 			Engine.Instance.RequestStop ();
 			return false;
+		}
+
+		public override void DidMiniaturize (MonoMac.Foundation.NSNotification notification)
+		{
+			m_main.EnabledUI ();
 		}
 	}
 }
