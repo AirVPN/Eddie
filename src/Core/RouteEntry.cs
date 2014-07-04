@@ -28,14 +28,14 @@ namespace AirVPN.Core
 		public IpAddress Address;
 		public IpAddress Mask;
 		public IpAddress Gateway;
-		public string Interface;
-		public string Metrics;
+		public string Interface = "";
+		public string Metrics = "";
 		
 		// Unix only:
-		public string Flags;
-		public string Mss;
-		public string Window;
-		public string Irtt;
+		public string Flags = "";
+		public string Mss = "";
+		public string Window = "";
+		public string Irtt = "";
 
 		public int RefCount = 0;
 
@@ -77,7 +77,7 @@ namespace AirVPN.Core
 		{
 			get
 			{
-				return NetworkLocking.Key(Address, Mask);
+				return RoutesManager.Key(Address, Mask);
 			}
 		}
 

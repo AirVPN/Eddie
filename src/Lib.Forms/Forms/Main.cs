@@ -286,7 +286,7 @@ namespace AirVPN.Gui.Forms
 				else
 				{
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
-					if (NetworkLocking.Instance.GetActive())
+					if (RoutesManager.Instance.GetLockActive())
 					{
 						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
@@ -486,7 +486,7 @@ namespace AirVPN.Gui.Forms
 
 		private void cmdLockedNetwork_Click(object sender, EventArgs e)
 		{
-			if (NetworkLocking.Instance.GetActive())
+			if (RoutesManager.Instance.GetLockActive())
 				NetworkLockDeactivation();
 			else
 				NetworkLockActivation();
@@ -1083,7 +1083,8 @@ namespace AirVPN.Gui.Forms
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
 
 			cmdLockedNetwork.Visible = Engine.Storage.GetBool("advanced.netlock.enabled");
-			if (NetworkLocking.Instance.GetActive())
+			imgLockedNetwork.Visible = cmdLockedNetwork.Visible;
+			if (RoutesManager.Instance.GetLockActive())
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
 				imgLockedNetwork.BackgroundImage = Lib.Forms.Properties.Resources.netlock_on;
@@ -1359,7 +1360,7 @@ namespace AirVPN.Gui.Forms
 			{
 				Clipboard.SetText(t);
 
-				MessageBox.Show(Messages.LogsCopyClipboardDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show(Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 		}
 
@@ -1382,16 +1383,16 @@ namespace AirVPN.Gui.Forms
 						sw.Close();
 					}
 
-					MessageBox.Show(Messages.LogsSaveToFileDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+					MessageBox.Show(Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
 			}
 		}	
 
 		public void NetworkLockActivation()
 		{
-			String Msg = Messages.NetworkLockWarning;
-			
-			if (MessageBox.Show(this, Msg, this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+			string Msg = Messages.NetworkLockWarning;
+
+			if (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 			{
 				Engine.Instance.Storage.SetBool("advanced.netlock.active", true);
 

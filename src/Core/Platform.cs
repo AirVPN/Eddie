@@ -37,7 +37,9 @@ namespace AirVPN.Core
 
 		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
         {
-			bool debugTime = true;
+			bool debug = false;
+			if ((Engine.Instance != null) && (Engine.Instance.DevelopmentEnvironment))
+				debug = true;
             try
             {
 				int startTime = Environment.TickCount;
@@ -72,7 +74,7 @@ namespace AirVPN.Core
                     string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
                     p.WaitForExit();
 
-					if (debugTime)
+					if (debug)
 					{
 						int endTime = Environment.TickCount;
 						int deltaTime = endTime - startTime;

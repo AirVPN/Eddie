@@ -138,7 +138,7 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvancedMain = new AirVPN.Gui.Skin.TabControl();
 			this.tabPage4 = new AirVPN.Gui.Skin.TabPage();
 			this.TxtLoggingPathComputed = new AirVPN.Gui.Skin.Label();
-			this.label9 = new AirVPN.Gui.Skin.Label();
+			this.lblLoggingHelp = new AirVPN.Gui.Skin.Label();
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
@@ -1441,7 +1441,7 @@ namespace AirVPN.Gui.Forms
 			// tabPage4
 			// 
 			this.tabPage4.Controls.Add(this.TxtLoggingPathComputed);
-			this.tabPage4.Controls.Add(this.label9);
+			this.tabPage4.Controls.Add(this.lblLoggingHelp);
 			this.tabPage4.Controls.Add(this.TxtLoggingPath);
 			this.tabPage4.Controls.Add(this.label8);
 			this.tabPage4.Controls.Add(this.chkLoggingEnabled);
@@ -1458,28 +1458,27 @@ namespace AirVPN.Gui.Forms
 			this.TxtLoggingPathComputed.ForeColor = System.Drawing.Color.Black;
 			this.TxtLoggingPathComputed.Location = new System.Drawing.Point(70, 83);
 			this.TxtLoggingPathComputed.Name = "TxtLoggingPathComputed";
-			this.TxtLoggingPathComputed.Size = new System.Drawing.Size(548, 180);
+			this.TxtLoggingPathComputed.Size = new System.Drawing.Size(548, 98);
 			this.TxtLoggingPathComputed.TabIndex = 62;
 			this.TxtLoggingPathComputed.Text = "Current Computed Path";
 			this.TxtLoggingPathComputed.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
-			// label9
+			// lblLoggingHelp
 			// 
-			this.label9.BackColor = System.Drawing.Color.Transparent;
-			this.label9.ForeColor = System.Drawing.Color.Black;
-			this.label9.Location = new System.Drawing.Point(425, 13);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(193, 67);
-			this.label9.TabIndex = 61;
-			this.label9.Text = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation" +
-    ". Relative to data path.";
-			this.label9.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+			this.lblLoggingHelp.BackColor = System.Drawing.Color.Transparent;
+			this.lblLoggingHelp.ForeColor = System.Drawing.Color.Black;
+			this.lblLoggingHelp.Location = new System.Drawing.Point(13, 181);
+			this.lblLoggingHelp.Name = "lblLoggingHelp";
+			this.lblLoggingHelp.Size = new System.Drawing.Size(596, 67);
+			this.lblLoggingHelp.TabIndex = 61;
+			this.lblLoggingHelp.Text = resources.GetString("lblLoggingHelp.Text");
+			this.lblLoggingHelp.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
 			// 
 			// TxtLoggingPath
 			// 
 			this.TxtLoggingPath.Location = new System.Drawing.Point(70, 60);
 			this.TxtLoggingPath.Name = "TxtLoggingPath";
-			this.TxtLoggingPath.Size = new System.Drawing.Size(337, 20);
+			this.TxtLoggingPath.Size = new System.Drawing.Size(539, 20);
 			this.TxtLoggingPath.TabIndex = 61;
 			this.TxtLoggingPath.TextChanged += new System.EventHandler(this.TxtLoggingPath_TextChanged);
 			// 
@@ -1650,7 +1649,7 @@ namespace AirVPN.Gui.Forms
 		private Skin.CheckBox chkAdvancedNetworkLocking;
 		private Skin.TabPage tabPage4;
 		private Skin.Label TxtLoggingPathComputed;
-		private Skin.Label label9;
+		private Skin.Label lblLoggingHelp;
 		private Skin.TextBox TxtLoggingPath;
 		private Skin.Label label8;
 		private Skin.CheckBox chkLoggingEnabled;

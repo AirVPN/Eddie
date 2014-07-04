@@ -306,7 +306,7 @@ namespace AirVPN.Core
 			if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
 
-			NetworkLocking.Instance.Deactivate();
+			RoutesManager.Instance.LockDeactivate();
 
 			TemporaryFiles.Clean();
 
@@ -385,13 +385,13 @@ namespace AirVPN.Core
 			else if (currentAction == ActionService.NetLockIn)
 			{
 				WaitMessageSet(Messages.NetworkLockActivation, false);
-				NetworkLocking.Instance.Activate();
+				RoutesManager.Instance.LockActivate();
 				WaitMessageClear();
 			}
 			else if (currentAction == ActionService.NetLockOut)
 			{
 				WaitMessageSet(Messages.NetworkLockDeactivation, false);
-				NetworkLocking.Instance.Deactivate();
+				RoutesManager.Instance.LockDeactivate();
 				WaitMessageClear();
 			}
 			else if (currentAction == ActionService.Connect)
@@ -1285,7 +1285,27 @@ namespace AirVPN.Core
             string routesDefault = s.Get("routes.default");
             if (routesDefault == "out")
             {
+				// before 2.3
                 ovpn += "route-nopull\n";
+
+				// "route-nopull" above ignore DNS push, we manually add it:
+				// Don't work...
+				//ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n";
+				//ovpn += "dhcp-option DNS 10.5.0.1\n";
+
+				// Don't work well, because skip also the other 'route' in OVPN config.
+				//ovpn += "route-noexec\n";
+
+				/* // TOCLEAN
+				// changed in 2.3
+				// AirVPN servers push "redirect-gateway def1".
+				// Here we need to ignore it: https://community.openvpn.net/openvpn/wiki/IgnoreRedirectGateway
+				// We can't use "route-nopull" because we want other push, like DNS.
+				ovpn += "route 0.0.0.0 192.0.0.0 net_gateway\n";
+				ovpn += "route 64.0.0.0 192.0.0.0 net_gateway\n";
+				ovpn += "route 128.0.0.0 192.0.0.0 net_gateway\n";
+				ovpn += "route 192.0.0.0 192.0.0.0 net_gateway\n";
+				*/
             }
             string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
@@ -1306,7 +1326,10 @@ namespace AirVPN.Core
             }
 
 			if (routesDefault == "out")
-                ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway\n"; // For Checking
+			{
+				//ovpn += "route " + Constants.DnsVpn + " 255.255.255.255 vpn_gateway\n"; // For DNS
+				ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway\n"; // For Checking
+			}
 
 			if ((protocol == "SSH") || (protocol == "SSL"))
 			{
@@ -1322,7 +1345,7 @@ namespace AirVPN.Core
 					ovpn += "route 128.0.0.1 128.0.0.1 vpn_gateway\n";
 				}
 				*/
-				if (NetworkLocking.Instance.GetActive() == false) // If Network Locking is enabled, it's already set.
+				if (RoutesManager.Instance.GetLockActive() == false) // If Network Locking is enabled, it's already set.
 					ovpn += "route " + ip + " 255.255.255.255 net_gateway\n";
 			}
 				
@@ -1333,10 +1356,6 @@ namespace AirVPN.Core
             ovpn += "\n";
             ovpn += s.Get("openvpn.custom").Replace("\t", "").Trim();
             ovpn += "\n";
-
-			// TOFIX, mettere da altra parte
-			ovpn += "ping 10\n";
-			ovpn += "ping-exit 32\n";
 
 			//XmlNode nodeUser = s.Manifest.SelectSingleNode("//user");
 			XmlNode nodeUser = s.User;

@@ -66,6 +66,11 @@ namespace AirVPN.Core
 			}
 		}
 
+		public void Clear()
+		{
+			Value = "";
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (obj == null)

@@ -25,14 +25,14 @@ namespace AirVPN.Core
 {
 	public class RouteScope
 	{
-		private string m_address = "";
+		private IpAddress m_address;
 
-		public RouteScope(string address)
+		public RouteScope(IpAddress address)
 		{
 			Start(address, false);
 		}
 
-		public RouteScope(string address, bool force)
+		public RouteScope(IpAddress address, bool force)
 		{
 			Start(address, force);
 		}
@@ -42,27 +42,27 @@ namespace AirVPN.Core
 			End();
 		}
 
-		public void Start(string address, bool force)
+		public void Start(IpAddress address, bool force)
 		{
-			if ((force == false) && (NetworkLocking.Instance.GetActive() == false))
+			if ((force == false) && (RoutesManager.Instance.GetLockActive() == false))
 				return;
 
-			if (Utils.IsIP(address) == false)
-				return;
-
-			m_address = address;
-			NetworkLocking.Instance.RouteAdd(m_address, "255.255.255.255");
+			if (address.Valid)
+			{
+				m_address = address;
+				RoutesManager.Instance.RouteAdd(m_address, "255.255.255.255");
+			}
 		}
 
 		public void End()
 		{
-			if (m_address != "") // Only one time
+			if( (m_address != null) && (m_address.Valid) ) // Only one time			
 			{
-				if (NetworkLocking.Instance.GetActive() == false)
+				if (RoutesManager.Instance.GetLockActive() == false)
 					return;
 
-				NetworkLocking.Instance.RouteRemove(m_address, "255.255.255.255");
-				m_address = "";
+				RoutesManager.Instance.RouteRemove(m_address, "255.255.255.255");
+				m_address.Clear();
 			}
 		}
 	}

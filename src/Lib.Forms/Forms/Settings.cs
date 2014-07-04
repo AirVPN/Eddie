@@ -42,6 +42,8 @@ namespace AirVPN.Gui.Forms
 
             CommonInit("Settings");
 
+			lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
+
 			pnlGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
 
@@ -240,13 +242,14 @@ namespace AirVPN.Gui.Forms
 
 			chkAdvancedPingerEnabled.Checked = s.GetBool("advanced.pinger.enabled");
 			chkAdvancedPingerAlways.Checked = s.GetBool("advanced.pinger.always");
-			chkAdvancedNetworkLocking.Checked = s.GetBool("advanced.netlock.enabled");
-
+			
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
 			chkAdvancedWindowsForceDns.Checked = s.GetBool("advanced.windows.dns_force");
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
 
 			txtExePath.Text = s.Get("executables.openvpn");
+
+			chkAdvancedNetworkLocking.Checked = s.GetBool("advanced.netlock.enabled");
 
 			// Advanced - Logging
 			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
@@ -477,6 +480,7 @@ namespace AirVPN.Gui.Forms
             s.Set("openvpn.custom", txtAdvancedOpenVpnDirectivesCustom.Text);
             s.SetBool("openvpn.skip_defaults", chkAdvancedOpenVpnDirectivesDefaultSkip.Checked);
 
+			// Advanced - Events
             SaveOptionsEvent("app.start", 0);
             SaveOptionsEvent("app.stop", 1);
 			SaveOptionsEvent("session.start", 2);

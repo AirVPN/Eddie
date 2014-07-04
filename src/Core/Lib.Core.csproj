@@ -53,6 +53,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ResourcesFiles.cs" />
+    <Compile Include="RoutesManager.cs" />
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
     <Compile Include="UI\Chart.cs" />
@@ -68,7 +69,6 @@
     <Compile Include="Messages.cs" />
     <Compile Include="Recovery.cs" />
     <Compile Include="Engine.cs" />
-    <Compile Include="NetworkLocking.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

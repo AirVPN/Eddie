@@ -28,11 +28,12 @@ namespace AirVPN.Core
 {
     
       
-    public class NetworkLocking
+    public class RoutesManager
     {
-        public static NetworkLocking Instance = new NetworkLocking();
+        public static RoutesManager Instance = new RoutesManager();
 
 		private IpAddress DefaultGateway = new IpAddress();
+		private string DefaultInterface = "";
 
         private Dictionary<string ,RouteEntry> EntryRemoved = new Dictionary<string,RouteEntry>();
         private Dictionary<string ,RouteEntry> EntryAdded = new Dictionary<string,RouteEntry>();
@@ -56,21 +57,21 @@ namespace AirVPN.Core
             return address.Value + "-" + mask.Value;
         }
 
-		public NetworkLocking()
+		public RoutesManager()
 		{
 			Instance = this;
 		}
 
-        public bool GetActive()
+        public bool GetLockActive()
         {
             return (DefaultGateway.Empty == false);
         }
 
-        public bool Activate()
+        public bool LockActivate()
         {
             lock(this)
             {
-				if (GetActive() == true)
+				if (GetLockActive() == true)
                     return true;
 
                 bool Failed = false;
@@ -78,6 +79,7 @@ namespace AirVPN.Core
                 List<RouteEntry> EntryList = Platform.Instance.RouteList();
 
                 DefaultGateway = "";
+				DefaultInterface = "";
                 EntryRemoved.Clear();
                 EntryAdded.Clear();
 
@@ -88,6 +90,7 @@ namespace AirVPN.Core
 						if (DefaultGateway.Empty)
 						{
 							DefaultGateway = Entry.Gateway;
+							DefaultInterface = Entry.Interface;
 						}
 						else if (DefaultGateway != Entry.Gateway)
 						{
@@ -103,7 +106,8 @@ namespace AirVPN.Core
 				if (Failed)
                 {
 					DefaultGateway = "";
-                    Engine.Instance.Log(Engine.LogType.Fatal, Messages.NetworkLockFailed);
+					DefaultInterface = "";
+                    Engine.Instance.Log(Engine.LogType.Fatal, Messages.NetworkLockActivationFailed);
                     foreach (RouteEntry Entry in EntryList)
                     {
 						Engine.Instance.Log(Engine.LogType.Verbose, Entry.ToString());
@@ -115,9 +119,11 @@ namespace AirVPN.Core
                 }
                 else
                 {
-					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.NetworkLockSuccess, DefaultGateway.Value));
+					Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkLockActivationSuccess, DefaultGateway.Value));
                 }
 
+				// pazzo
+				/*
                 foreach (RouteEntry Entry in EntryList)
                 {
                     if (IsIP(Entry.Gateway))
@@ -127,18 +133,30 @@ namespace AirVPN.Core
                         Entry.Remove();
                     }
                 }
+				*/
 
+				IpAddress destinationHole = DefaultGateway;
+				string interfaceHole = "1";
+				int routesHoleN = 4;
+				for (int i = 0; i < routesHoleN; i++)
+				{
+					string maskHole = "192.0.0.0";
+					string ipHole = Conversions.ToString((256 / routesHoleN * i)) + ".0.0.0";
+
+					RouteAdd(ipHole, maskHole, destinationHole, interfaceHole);
+				}
+				
 				Recovery.Save();
 
                 return true;
             }
         }
 
-        public void Deactivate()
+        public void LockDeactivate()
         {
             lock (this)
             {
-				if (GetActive() == false)
+				if (GetLockActive() == false)
                     return;
 
                 foreach (RouteEntry Entry in EntryAdded.Values)
@@ -151,11 +169,14 @@ namespace AirVPN.Core
 				}
 
                 DefaultGateway = "";
+				DefaultInterface = "";
 
 				EntryAdded.Clear();
 				EntryRemoved.Clear();
 
 				Recovery.Save();
+
+				Engine.Instance.Log(Engine.LogType.Info, Messages.NetworkLockDeactivationSuccess);
             }
         }
 
@@ -167,6 +188,7 @@ namespace AirVPN.Core
 				if (node != null)
 				{
 					DefaultGateway = node.GetAttribute("gateway");
+					DefaultInterface = node.GetAttribute("interface");
 
 					XmlElement nodeAdded = node.GetElementsByTagName("added")[0] as XmlElement;
 					foreach (XmlElement nodeEntry in nodeAdded.ChildNodes)
@@ -184,7 +206,7 @@ namespace AirVPN.Core
 						EntryRemoved[entry.Key] = entry;
 					}
 
-					Deactivate();
+					LockDeactivate();
 				}
 			}
 			catch (Exception e)
@@ -195,7 +217,7 @@ namespace AirVPN.Core
 
 		public void OnRecoverySave(XmlElement root)
 		{
-			if (GetActive() == false)
+			if (GetLockActive() == false)
 				return;
 
 			try
@@ -205,6 +227,7 @@ namespace AirVPN.Core
 					XmlDocument doc = root.OwnerDocument;
 					XmlElement el = (XmlElement)root.AppendChild(doc.CreateElement("NetworkLocking"));
 					el.SetAttribute("gateway", DefaultGateway.Value);
+					el.SetAttribute("interface", DefaultInterface);
 
 					XmlElement nodeAdded = el.AppendChild(doc.CreateElement("added")) as XmlElement;
 					foreach (RouteEntry entry in EntryAdded.Values)
@@ -227,12 +250,17 @@ namespace AirVPN.Core
 			}
 		}
 
-                
-		public void RouteAdd(string address, string mask)
+
+		public void RouteAdd(IpAddress address, IpAddress mask)
+		{
+			RouteAdd(address, mask, DefaultGateway, DefaultInterface);
+		}
+
+		public void RouteAdd(IpAddress address, IpAddress mask, IpAddress gateway, string iface)
         {
 			lock (this)
             {
-				if (GetActive() == false)
+				if (GetLockActive() == false)
                     return;
 
 				string key = Key(address, mask);
@@ -246,7 +274,8 @@ namespace AirVPN.Core
                     RouteEntry entry = new RouteEntry();
                     entry.Address = address;
                     entry.Mask = mask;
-                    entry.Gateway = DefaultGateway;
+                    entry.Gateway = gateway;
+					entry.Interface = iface;
                     EntryAdded[key] = entry;
                     entry.Add();
                 }
@@ -255,11 +284,11 @@ namespace AirVPN.Core
             }			
         }
 
-		public void RouteRemove(string address, string mask)
+		public void RouteRemove(IpAddress address, IpAddress mask)
         {
 			lock (this)
             {
-				if (GetActive() == false)
+				if (GetLockActive() == false)
                     return;
 
 				string key = Key(address, mask);
