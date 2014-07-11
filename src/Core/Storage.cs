@@ -57,6 +57,8 @@ namespace AirVPN.Core
 
 			path = Platform.Instance.NormalizePath(path);
 
+			if (path == "")
+				path = Platform.Instance.GetDefaultDataPath();
 
 
             if (profile.IndexOf(".") != -1)
@@ -506,6 +508,9 @@ namespace AirVPN.Core
 						Manifest = (new XmlDocument()).DocumentElement;
 					Manifest = Manifest.OwnerDocument.ImportNode(xmlDoc.DocumentElement, true);					
 					//Manifest = xmlDoc.DocumentElement;
+
+					// Update with the local time
+					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
 				}
 
 				Engine.Instance.PostManifestUpdate();

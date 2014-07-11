@@ -106,6 +106,11 @@ namespace AirVPN.Core
 				}
 			}
 
+			// Debugging - TOCLEAN
+			//hosts.Clear();
+			//hosts.Add("invalidhostname.airvpn.org");
+			//hosts.Add("54.246.124.152");
+
 			string firstError = "";
 
 			foreach (string host in hosts)
@@ -133,6 +138,8 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
+					Engine.Instance.Log(Engine.LogType.Verbose, e.Message);
+
 					if (firstError == "")
 						firstError = e.Message;
 				}

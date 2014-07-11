@@ -47,6 +47,12 @@ namespace AirVPN.Platforms
 			return m_architecture;
 		}
 
+		public override string GetDefaultDataPath()
+		{
+			// Only in OSX, always save in 'home' path also with portable edition.
+			return "home";
+		}
+
         public override bool IsAdmin()
         {
 			return true; // Uncomment for debugging

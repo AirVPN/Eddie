@@ -1402,16 +1402,24 @@ namespace AirVPN.Core
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters["act"] = "user";
 
-			XmlDocument xmlDoc = AirExchange.Fetch(parameters);
-			string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
-			if (userMessage != "")
+			try
 			{
-				Log(LogType.Fatal, userMessage);
+				XmlDocument xmlDoc = AirExchange.Fetch(parameters);
+				string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+
+				if (userMessage != "")
+				{
+					Log(LogType.Fatal, userMessage);
+				}
+				else
+				{
+					Log(LogType.InfoImportant, Messages.AuthorizeLoginDone);
+					Storage.User = xmlDoc.DocumentElement;
+				}
 			}
-			else
+			catch (Exception e)
 			{
-				Log(LogType.InfoImportant, Messages.AuthorizeLoginDone);
-				Storage.User = xmlDoc.DocumentElement;
+				Log(LogType.Fatal, e.Message);				
 			}
 
 			Engine.Instance.WaitMessageClear();

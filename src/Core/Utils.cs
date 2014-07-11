@@ -156,10 +156,12 @@ namespace AirVPN.Core
 
 			string o = "";
 			Int64 now = UnixTimeStamp();
-			if (unix < now)
-				o = FormatSeconds(now - unix) + " ago";
+			if (unix == now)
+				o = Messages.TimeJustNow;
+			else if (unix < now)
+				o = FormatSeconds(now - unix) + " " + Messages.TimeAgo;
 			else
-				o = FormatSeconds(unix - now) + " remain";
+				o = FormatSeconds(unix - now) + " " + Messages.TimeRemain;
 			return o;
 		}
 

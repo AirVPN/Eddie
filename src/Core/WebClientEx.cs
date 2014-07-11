@@ -28,7 +28,7 @@ namespace AirVPN.Core
 		protected override WebRequest GetWebRequest(Uri address)
 		{
 			WebRequest w = base.GetWebRequest(address);
-			//w.Timeout = 30;
+			w.Timeout = 10000;
 			return w;
 		}
 	}

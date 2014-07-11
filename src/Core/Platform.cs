@@ -177,6 +177,11 @@ namespace AirVPN.Core
             throw new Exception("Not Implemented.");
         }
 
+		public virtual string GetDefaultDataPath()
+		{
+			return "";
+		}
+
         public virtual bool IsAdmin()
         {
             return false;            
@@ -355,7 +360,11 @@ namespace AirVPN.Core
 			}
 
 			t += "\nRouting:\n";
-			t += RouteList();
+			List<RouteEntry> routeEntries = RouteList();
+			foreach (RouteEntry routeEntry in routeEntries)
+			{
+				t += routeEntry.ToString() + "\n";
+			}
 
 			return t;
 		}

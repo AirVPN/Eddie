@@ -188,6 +188,10 @@ namespace AirVPN.Core
 
 		public static string ConsoleHelp = "Run the program with login & password of your AirVPN account. For example:\nairvpn -cli -login=mynick -password=mypassword\n\nSee https://airvpn.org/software/ for more information, or run with -help for inline manual.";
 
+		public static string TimeJustNow = "Just now";
+		public static string TimeAgo = "ago";
+		public static string TimeRemain = "remain";
+
 		public static string StatsServerName = "Server Name";
 		public static string StatsServerLatency = "Server Latency";
 		public static string StatsServerLocation = "Server Location";

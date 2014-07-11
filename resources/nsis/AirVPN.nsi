@@ -245,7 +245,7 @@
 		
 		;Create shortcuts
 		CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\AirVPN.lnk" "$INSTDIR\AirVPN.exe"
+		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\AirVPN.lnk" "$INSTDIR\AirVPN.exe -path=home"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://airvpn.org"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 		
