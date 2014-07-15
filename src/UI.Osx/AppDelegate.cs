@@ -42,6 +42,7 @@ namespace AirVPN.UI.Osx
 		{
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
+			NSApplication.SharedApplication.ActivateIgnoringOtherApps (true);
 
 			MenuEvents ();
 

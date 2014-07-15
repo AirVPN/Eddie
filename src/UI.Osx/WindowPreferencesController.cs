@@ -75,6 +75,8 @@ namespace AirVPN.UI.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
 
+			LblLoggingHelp.StringValue = Messages.WindowsSettingsLoggingHelp;
+
 			TableRoutingController = new TableRoutingController (this.TableRoutes);
 			TableAdvancedEventsController = new TableAdvancedEventsController (this.TableAdvancedEvents);
 
@@ -281,6 +283,10 @@ namespace AirVPN.UI.Osx
 				TxtAdvancedOpenVpnPath.StringValue = "todo";
 			};
 
+			TxtLoggingPath.Changed += (object sender, EventArgs e) => {
+				RefreshLogPreview();
+			};
+
 			TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) => {
 				AdvancedEventEdit();
 			};
@@ -295,11 +301,13 @@ namespace AirVPN.UI.Osx
 			};
 
 
-			//ChkAdvancedNetworkLocking.Hidden = (Engine.Instance.DevelopmentEnvironment == false);
+			ChkAdvancedNetworkLocking.Hidden = (Engine.Instance.DevelopmentEnvironment == false);
 
 			ReadOptions ();
 
 			EnableIde ();
+
+			RefreshLogPreview ();
 
 		}
 
@@ -416,6 +424,11 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetCheck (ChkModeSsl443, ((m_mode_protocol == "SSL") && (m_mode_port == 443) && (m_mode_alternate == 1)));
 		}
 
+		void RefreshLogPreview()
+		{
+			TxtLoggingComputedPath.StringValue = Engine.Instance.GetParseLogFilePaths (TxtLoggingPath.StringValue);
+		}
+
 		void ReadOptionsEvent(string name, int index)
 		{
 			Storage s = Engine.Instance.Storage;
@@ -498,14 +511,21 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("advanced.pinger.enabled"));
 			GuiUtils.SetCheck (ChkAdvancedPingerAlways, s.GetBool ("advanced.pinger.always"));
 
+			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
+
 			GuiUtils.SetCheck (ChkAdvancedNetworkLocking, s.GetBool ("advanced.netlock.enabled"));
 
+			// Advanced - Loggin
+			GuiUtils.SetCheck (ChkLoggingEnabled, s.GetBool ("log.file.enabled"));
+			TxtLoggingPath.StringValue = s.Get ("log.file.path");
+
+			// Advanced - OVPN Directives
 			GuiUtils.SetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip, s.GetBool ("openvpn.skip_defaults"));
 
-			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ().Replace("\t","");
 
+			// Advanced - Events
 			ReadOptionsEvent ("app.start", 0);
 			ReadOptionsEvent ("app.stop", 1);
 			ReadOptionsEvent ("session.start", 2);
@@ -567,13 +587,20 @@ namespace AirVPN.UI.Osx
 			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
 			s.SetBool ("advanced.pinger.always", GuiUtils.GetCheck (ChkAdvancedPingerAlways));
 
+			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
+
 			s.SetBool ("advanced.netlock.enabled", GuiUtils.GetCheck (ChkAdvancedNetworkLocking));
 
+			// Advanced - Logging
+			s.SetBool ("log.file.enabled", GuiUtils.GetCheck (ChkLoggingEnabled));
+			s.Set ("log.file.path", TxtLoggingPath.StringValue);
+
+			// Advanced - OVPN Directives
 			s.SetBool ("openvpn.skip_defaults", GuiUtils.GetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip));
 
-			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
 			s.Set ("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
 
+			// Advanced - Events
 			SaveOptionsEvent ("app.start", 0);
 			SaveOptionsEvent ("app.stop", 1);
 			SaveOptionsEvent ("session.start", 2);

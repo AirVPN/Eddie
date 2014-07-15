@@ -162,7 +162,7 @@ namespace AirVPN.UI.Osx
 			};
 
 			CmdNetworkLock.Activated += (object sender, EventArgs e) => {
-				if(NetworkLocking.Instance.GetActive())
+				if(RoutesManager.Instance.GetLockActive())
 				{
 					NetworkLockDeactivation();
 				}
@@ -399,6 +399,8 @@ namespace AirVPN.UI.Osx
 			Engine.MainWindow = this;
 
 			Engine.OnRefreshUi ();
+
+			RequestAttention ();
 		}
 
 		public void RefreshUi (Engine.RefreshUiMode mode)
@@ -446,7 +448,7 @@ namespace AirVPN.UI.Osx
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
 					MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
-					if(NetworkLocking.Instance.GetActive())
+					if(RoutesManager.Instance.GetLockActive())
 						LblTopStatus.StringValue = Messages.TopBarNotConnectedLocked;
 					else
 						LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed;
@@ -609,7 +611,7 @@ namespace AirVPN.UI.Osx
 
 			CmdNetworkLock.Hidden = (Engine.Storage.GetBool ("advanced.netlock.enabled") == false);
 			ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
-			if (NetworkLocking.Instance.GetActive ()) {
+			if (RoutesManager.Instance.GetLockActive ()) {
 				CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
 				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
 			} else {

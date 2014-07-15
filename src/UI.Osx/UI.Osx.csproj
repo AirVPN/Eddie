@@ -11,7 +11,7 @@
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.2</ReleaseVersion>
+    <ReleaseVersion>2.4</ReleaseVersion>
     <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -37,7 +37,7 @@
     <LinkMode>Full</LinkMode>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterClean" command="${ProjectDir}/prebuild.sh" workingdir="" externalConsole="True" />
+        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" workingdir="" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -61,7 +61,7 @@
     </I18n>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterClean" command="${ProjectDir}/prebuild.sh" externalConsole="True" />
+        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>

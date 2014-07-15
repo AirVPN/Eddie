@@ -39,6 +39,7 @@ namespace AirVPN.UI.Osx
 		//private NSColor m_colorLegendText;
 		private NSColor m_colorDownloadText;
 		private NSColor m_colorUploadText;
+		private NSFont m_font;
 
 		private int m_chartIndex = 0;
 		private Chart m_chart;
@@ -94,6 +95,7 @@ namespace AirVPN.UI.Osx
 			m_colorDownloadText = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
 			m_colorUploadText = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
 
+			m_font = NSFont.FromFontName ("Menlo", 10);
 
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
@@ -145,7 +147,7 @@ namespace AirVPN.UI.Osx
 
 		private RectangleF Invert(RectangleF r)
 		{
-			r.Y = Bounds.Height - r.Y;
+			r.Y = Bounds.Height - r.Y - r.Height;
 			return r;
 		}
 
@@ -162,20 +164,22 @@ namespace AirVPN.UI.Osx
 
 		private void DrawStringOutline(string text, NSColor color, RectangleF rect, int align)
 		{
-
-			NSDictionary attributes = new NSDictionary ();
 			NSString nsString = new NSString (text);
 
 			int halign = align % 3;
 			int valign = align / 3;
 
 
-			//nsString = new NSString ("h:" + Conversions.ToString (halign) + ",v:" + Conversions.ToString (valign));
+			var objectsText = new object[] { m_font, color };
+			var keysText = new object[] { NSAttributedString.FontAttributeName, NSAttributedString.ForegroundColorAttributeName };
+			var attributesText = NSDictionary.FromObjectsAndKeys(objectsText, keysText);
+
+			var objectsOutline = new object[] { m_font, NSColor.White };
+			var keysOutline = new object[] { NSAttributedString.FontAttributeName, NSAttributedString.ForegroundColorAttributeName };
+			var attributesOutline = NSDictionary.FromObjectsAndKeys(objectsOutline, keysOutline);
 
 
-			SizeF size = nsString.StringSize (attributes);
-
-			//NSGraphicsContext.CurrentContext.GraphicsPort.SelectFont ("Arial", 50, CGTextEncoding.MacRoman);
+			SizeF size = nsString.StringSize (attributesText);
 
 			if (halign == 0) {
 			} else if (halign == 1) {
@@ -192,65 +196,30 @@ namespace AirVPN.UI.Osx
 				rect.Y = rect.Bottom - size.Height;
 			}
 			rect.Height = size.Height;
-			
-			//this.DrawRect (rect);
 
-			nsString.DrawString(Invert(rect), attributes);
+			NSColor.Black.Set ();
+			for (int ox = -1; ox <= 1; ox++) {
+				for (int oy = -1; oy <= 1; oy++) {
+					RectangleF rectString = rect;
+					rectString.Offset (new PointF (ox, oy));
+					nsString.DrawString (Invert (rectString), attributesOutline);
+				}
+			}
+			nsString.DrawString(Invert(rect), attributesText);
 		}
 			
 		public override void DrawRect (System.Drawing.RectangleF dirtyRect)
 		{
 			var context = NSGraphicsContext.CurrentContext.GraphicsPort;
 
-			/*
-			//context.SetFillColor(new CGColor(1,1,1)); //White
-			//context.FillRect (dirtyRect);
+			// Engine.Instance.Stats.Charts.Hit (RandomGenerator.GetInt (1024, 1024 * 1024), RandomGenerator.GetInt (1024, 1024 * 1024)); // Debugging
 
-			int GridSize = 10;
-
-			for (int i = 1; i < this.Bounds.Size.Height / 10; i++) {
-				if (i % 10 == 0) {
-					NSColor colorWithSRGBRed = NSColor.FromSrgb (100 / 255.0f, 149 / 255.0f, 237 / 255.0f, 0.3f);
-					colorWithSRGBRed.Set ();
-				} else if (i % 10 == 0) {
-					NSColor colorWithSRGBRed = NSColor.FromSrgb (100 / 255.0f, 149 / 255.0f, 237 / 255.0f, 0.2f);
-					colorWithSRGBRed.Set ();
-				} else {
-					NSColor colorWithSRGBRed = NSColor.FromSrgb (100 / 255.0f, 149 / 255.0f, 237 / 255.0f, 0.1f);
-					colorWithSRGBRed.Set ();
-				}
-				var pointFrom = new PointF (0, (i * GridSize - 0.5f));
-				var pointTo = new PointF (this.Bounds.Size.Width, (i * GridSize - 0.5f));
-
-				NSBezierPath.StrokeLine (pointFrom, pointTo);
-			}
-
-			for (int i = 1; i < this.Bounds.Size.Width / 10; i++) {
-				if (i % 10 == 0) {
-					NSColor colorWithSRGBRed = NSColor.FromSrgb (100 / 255.0f, 149 / 255.0f, 237 / 255.0f, 0.3f);
-					colorWithSRGBRed.Set ();
-				} else if (i % 10 == 0) {
-					NSColor colorWithSRGBRed = NSColor.FromSrgb (100 / 255.0f, 149 / 255.0f, 237 / 255.0f, 0.2f);
-					colorWithSRGBRed.Set ();
-				} else {
-					NSColor colorWithSRGBRed = NSColor.FromSrgb (100 / 255.0f, 149 / 255.0f, 237 / 255.0f, 0.1f);
-					colorWithSRGBRed.Set ();
-				}
-				var pointFrom = new PointF ((i * GridSize - 0.5f),0);
-				var pointTo = new PointF ((i * GridSize - 0.5f),this.Bounds.Size.Height);
-
-				NSBezierPath.StrokeLine (pointFrom, pointTo);
-			}
-			*/
-
-
-
+			NSColor.Gray.Set ();
+			NSBezierPath.StrokeRect (Bounds);
 
 			float DX = this.Bounds.Size.Width;
 			float DY = this.Bounds.Size.Height;
 
-			//e.Graphics.FillRectangle(BrushBackground, this.ClientRectangle);				
-			//Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
 
 			m_chartDX = DX;
 			m_chartDY = DY - m_legendDY;
@@ -297,6 +266,7 @@ namespace AirVPN.UI.Osx
 				e.Graphics.DrawString(legend, FontLabel, BrushLegendText, ChartRectangle(0, chartStartY, chartDX, m_legendDY), formatTopCenter);
 			}
 			*/
+
 
 			// Graph
 			for (int i = 0; i < m_chart.Resolution; i++)
@@ -370,14 +340,14 @@ namespace AirVPN.UI.Osx
 
 					int formatAlign = 6;
 					RectangleF rect = new RectangleF();
-					//if(DX - mp.X > DX / 2)
-					if (mp.X < DX - 150)
+					if(DX - mp.X > DX / 2)
+						//if (mp.X < DX - 200)
 					{
-						//if (DY - mp.Y > DY / 2)
-						if (mp.Y < 20)
+						if (DY - mp.Y > DY / 2)
+							//if (mp.Y < 20)
 						{
 							formatAlign = 0;
-							rect.X = mp.X + 20;
+							rect.X = mp.X + 5;
 							rect.Y = mp.Y + 5;
 							rect.Width = DX;
 							rect.Height = DX;
@@ -385,7 +355,7 @@ namespace AirVPN.UI.Osx
 						else
 						{
 							formatAlign = 6;
-							rect.X = mp.X + 20;
+							rect.X = mp.X + 5;
 							rect.Y = 0;
 							rect.Width = DX;
 							rect.Height = mp.Y - 5;
@@ -393,13 +363,13 @@ namespace AirVPN.UI.Osx
 					}
 					else
 					{
-						//if (DY - mp.Y > DY / 2)
-						if (mp.Y < 20)
+						if (DY - mp.Y > DY / 2)
+							//if (mp.Y < 40)
 						{
 							formatAlign = 2;
 							rect.X = 0;
 							rect.Y = mp.Y;
-							rect.Width = mp.X - 20;
+							rect.Width = mp.X - 5;
 							rect.Height = DY;
 						}
 						else
@@ -407,7 +377,7 @@ namespace AirVPN.UI.Osx
 							formatAlign = 8;
 							rect.X = 0;
 							rect.Y = 0;
-							rect.Width = mp.X - 20;
+							rect.Width = mp.X - 5;
 							rect.Height = mp.Y - 5;
 
 						}
