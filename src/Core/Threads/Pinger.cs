@@ -26,6 +26,20 @@ using AirVPN.Core;
 
 namespace AirVPN.Core.Threads
 {
+	public class PingerStats
+	{
+		public int Invalid = 0;
+		public long OlderCheckDate = 0;
+		public long LatestCheckDate = 0;
+		public bool Valid = false;
+
+		public override string ToString()
+		{
+			string msg = "Invalid: {1}, Older check: {2}, Latest check: {3}";
+			return Messages.Format(msg, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
+		}
+	}
+
 	public class PingerJob
 	{
 		//public System.Threading.Thread T;
@@ -260,29 +274,41 @@ namespace AirVPN.Core.Threads
 			PingResult(infoServer, e.Reply);
 		}
 
-		public bool GetValid()
+		public PingerStats GetStats()
 		{
+			PingerStats stats = new PingerStats();
+
 			int deltaValid = Engine.Instance.Storage.GetInt("advanced.pinger.valid");
 			int timeNow = Utils.UnixTimeStamp();
 
 			int iTotal = 0;
-			int iInvalid = 0;
-
+			
 			lock (Engine.Servers)
 			{
 				foreach (ServerInfo infoServer in Engine.Servers.Values)
 				{
+					if( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoServer.LastPingResult) )
+						stats.OlderCheckDate = infoServer.LastPingResult;
+
+					if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoServer.LastPingResult))
+						stats.LatestCheckDate = infoServer.LastPingResult;
+
 					iTotal++;
 					if (timeNow - infoServer.LastPingResult > deltaValid)
-						iInvalid++;
+						stats.Invalid++;						
 				}
 			}
 
 			//Console.WriteLine("Ping Total:" + iTotal.ToString() + ", Invalid:" + iInvalid.ToString());
 
-			bool valid = (iInvalid == 0);
+			stats.Valid = (stats.Invalid == 0);
 
-			return valid;
+			return stats;
+		}
+
+		public bool GetValid()
+		{
+			return GetStats().Valid;
 		}
     }
 }

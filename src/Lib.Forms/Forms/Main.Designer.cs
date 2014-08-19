@@ -56,6 +56,7 @@ namespace AirVPN.Gui.Forms
 			this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopersUpdateManifest = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopersDefaultManifest = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuDevelopersReset = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuTools = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuToolsPortForwarding = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuToolsNetworkMonitor = new System.Windows.Forms.ToolStripMenuItem();
@@ -84,6 +85,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdCancel = new AirVPN.Gui.Skin.Button();
 			this.cmdConnect = new AirVPN.Gui.Skin.Button();
 			this.pnlWelcome = new AirVPN.Gui.Skin.Panel();
+			this.imgLockedNetwork = new System.Windows.Forms.PictureBox();
 			this.cmdLockedNetwork = new AirVPN.Gui.Skin.Button();
 			this.lblLoginIcon = new System.Windows.Forms.Label();
 			this.lblConnectSubtitle = new AirVPN.Gui.Skin.Label();
@@ -139,7 +141,6 @@ namespace AirVPN.Gui.Forms
 			this.mnuAreasWhiteList = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreasBlackList = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreasUndefined = new System.Windows.Forms.ToolStripMenuItem();
-			this.imgLockedNetwork = new System.Windows.Forms.PictureBox();
 			colStatsKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			colStatsValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			colIcon = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -152,6 +153,7 @@ namespace AirVPN.Gui.Forms
 			this.mnuMain.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.imgProgress)).BeginInit();
 			this.pnlWelcome.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.imgLockedNetwork)).BeginInit();
 			this.tabMain.SuspendLayout();
 			this.tabOverview.SuspendLayout();
 			this.pnlConnected.SuspendLayout();
@@ -164,7 +166,6 @@ namespace AirVPN.Gui.Forms
 			this.mnuLogsContext.SuspendLayout();
 			this.mnuServers.SuspendLayout();
 			this.mnuAreas.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.imgLockedNetwork)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// colStatsKey
@@ -334,7 +335,8 @@ namespace AirVPN.Gui.Forms
             this.mnuDevelopersManText,
             this.mnuDevelopersManBBCode,
             this.mnuDevelopersUpdateManifest,
-            this.mnuDevelopersDefaultManifest});
+            this.mnuDevelopersDefaultManifest,
+            this.mnuDevelopersReset});
 			this.mnuDevelopers.Name = "mnuDevelopers";
 			this.mnuDevelopers.Size = new System.Drawing.Size(251, 22);
 			this.mnuDevelopers.Text = "&Developers";
@@ -366,6 +368,13 @@ namespace AirVPN.Gui.Forms
 			this.mnuDevelopersDefaultManifest.Size = new System.Drawing.Size(380, 22);
 			this.mnuDevelopersDefaultManifest.Text = "Default Manifest - For executable embedding, as default";
 			this.mnuDevelopersDefaultManifest.Click += new System.EventHandler(this.mnuDevelopersDefaultManifest_Click);
+			// 
+			// mnuDevelopersReset
+			// 
+			this.mnuDevelopersReset.Name = "mnuDevelopersReset";
+			this.mnuDevelopersReset.Size = new System.Drawing.Size(380, 22);
+			this.mnuDevelopersReset.Text = "Reset (pinger for now)";
+			this.mnuDevelopersReset.Click += new System.EventHandler(this.mnuDevelopersReset_Click);
 			// 
 			// mnuTools
 			// 
@@ -994,6 +1003,16 @@ namespace AirVPN.Gui.Forms
 			this.pnlWelcome.Name = "pnlWelcome";
 			this.pnlWelcome.Size = new System.Drawing.Size(440, 190);
 			this.pnlWelcome.TabIndex = 53;
+			// 
+			// imgLockedNetwork
+			// 
+			this.imgLockedNetwork.BackgroundImage = global::AirVPN.Lib.Forms.Properties.Resources.routes_in;
+			this.imgLockedNetwork.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.imgLockedNetwork.Location = new System.Drawing.Point(16, 148);
+			this.imgLockedNetwork.Name = "imgLockedNetwork";
+			this.imgLockedNetwork.Size = new System.Drawing.Size(38, 38);
+			this.imgLockedNetwork.TabIndex = 72;
+			this.imgLockedNetwork.TabStop = false;
 			// 
 			// cmdLockedNetwork
 			// 
@@ -1636,16 +1655,6 @@ namespace AirVPN.Gui.Forms
 			this.mnuAreasUndefined.Text = "Undefined";
 			this.mnuAreasUndefined.Click += new System.EventHandler(this.mnuAreasUndefined_Click);
 			// 
-			// imgLockedNetwork
-			// 
-			this.imgLockedNetwork.BackgroundImage = global::AirVPN.Lib.Forms.Properties.Resources.routes_in;
-			this.imgLockedNetwork.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.imgLockedNetwork.Location = new System.Drawing.Point(16, 148);
-			this.imgLockedNetwork.Name = "imgLockedNetwork";
-			this.imgLockedNetwork.Size = new System.Drawing.Size(38, 38);
-			this.imgLockedNetwork.TabIndex = 72;
-			this.imgLockedNetwork.TabStop = false;
-			// 
 			// Main
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1656,13 +1665,13 @@ namespace AirVPN.Gui.Forms
 			this.Controls.Add(this.tabMain);
 			this.DoubleBuffered = true;
 			this.Margin = new System.Windows.Forms.Padding(2);
-			this.MaximizeBox = false;
 			this.Name = "Main";
 			this.Text = "AirVPN";
 			this.mnuMain.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.imgProgress)).EndInit();
 			this.pnlWelcome.ResumeLayout(false);
 			this.pnlWelcome.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.imgLockedNetwork)).EndInit();
 			this.tabMain.ResumeLayout(false);
 			this.tabOverview.ResumeLayout(false);
 			this.pnlConnected.ResumeLayout(false);
@@ -1676,7 +1685,6 @@ namespace AirVPN.Gui.Forms
 			this.mnuLogsContext.ResumeLayout(false);
 			this.mnuServers.ResumeLayout(false);
 			this.mnuAreas.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.imgLockedNetwork)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -1783,7 +1791,8 @@ namespace AirVPN.Gui.Forms
 		private System.Windows.Forms.ToolStripSeparator mnuSeparator3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private Skin.Button cmdLockedNetwork;
-		private System.Windows.Forms.PictureBox imgLockedNetwork;		
+		private System.Windows.Forms.PictureBox imgLockedNetwork;
+		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersReset;		
     }
 }
 

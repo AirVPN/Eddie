@@ -97,7 +97,7 @@ namespace AirVPN.Platforms
 					// Create a new task definition and assign properties
 					TaskDefinition td = ts.NewTask();
 					td.Principal.RunLevel = TaskRunLevel.Highest;					
-					td.Settings.RunOnlyIfLoggedOn = true;
+					//td.Settings.RunOnlyIfLoggedOn = true;
 					td.Settings.DisallowStartIfOnBatteries = false;
 					td.Settings.StopIfGoingOnBatteries = false;
 					td.Settings.RunOnlyIfNetworkAvailable = false;

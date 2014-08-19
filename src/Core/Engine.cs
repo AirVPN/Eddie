@@ -854,6 +854,8 @@ namespace AirVPN.Core
 			if (mode == Core.Engine.RefreshUiMode.Full)
 			{
 				Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
+				if(m_threadPinger != null)
+					Stats.UpdateValue("Pinger", PingerStats().ToString());
 
 				if (Engine.IsConnected())
 				{
@@ -1220,6 +1222,11 @@ namespace AirVPN.Core
         {
 			return m_threadPinger.GetValid();            
         }
+
+		public Threads.PingerStats PingerStats()
+		{
+			return m_threadPinger.GetStats();
+		}
 
         public void BuildOVPN(string protocol, int port, int alt, int proxyPort)
         {

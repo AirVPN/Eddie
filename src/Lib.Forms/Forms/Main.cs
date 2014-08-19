@@ -325,9 +325,12 @@ namespace AirVPN.Gui.Forms
         {
 			if (m_closing)
 				return;
-			
+
 			e.Cancel = true;
 
+			if (MessageBox.Show(this, Messages.ExitConfirm, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+				return;
+			
 			Gui.Engine engine = Engine.Instance as Gui.Engine;
 
             if (engine.FormMain != null)
@@ -551,6 +554,24 @@ namespace AirVPN.Gui.Forms
 			Dlg.Title = "Man";
 			Dlg.Body = Core.UI.Actions.GetMan("bbc");
 			Dlg.ShowDialog();
+		}
+
+		private void mnuDevelopersReset_Click(object sender, EventArgs e)
+		{
+			Dictionary<string, ServerInfo> servers;
+			lock (Engine.Servers)
+				servers = new Dictionary<string, ServerInfo>(Engine.Servers);
+			foreach (ServerInfo infoServer in servers.Values)
+			{
+				infoServer.PingTests = 0;
+				infoServer.PingFailedConsecutive = 0;
+				infoServer.Ping = -1;
+				infoServer.LastPingTest = 0;
+				infoServer.LastPingResult = 0;
+				infoServer.LastPingSuccess = 0;
+			}
+
+			Engine.OnRefreshUi();
 		}
 		
 		private void mnuDevelopersDefaultManifest_Click(object sender, EventArgs e)
@@ -1406,6 +1427,7 @@ namespace AirVPN.Gui.Forms
 
 			Engine.Instance.Storage.SetBool("advanced.netlock.active", false);
 		}
+
 
 
 		

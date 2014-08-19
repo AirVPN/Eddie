@@ -28,7 +28,15 @@ namespace AirVPN.Core
 		{
 			get
 			{
-				bool check1 = HasExited;
+				bool check1 = false;
+				try
+				{
+					check1 = HasExited;
+				}
+				catch (Exception e)
+				{
+					Engine.Instance.Log(e);
+				}
 
 				/*
 				bool check2 = true;

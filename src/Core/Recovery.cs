@@ -30,6 +30,8 @@ namespace AirVPN.Core
 
 	public static class Recovery
 	{
+		public static object Lock = new object();
+
 		public static string RecoveryPath()
 		{
 			return Engine.Instance.Storage.GetPath("Recovery.xml");
@@ -37,50 +39,56 @@ namespace AirVPN.Core
 
 		public static void Save()
 		{
-			XmlDocument doc = new XmlDocument();
-			XmlElement root = (XmlElement)doc.AppendChild(doc.CreateElement("Recovery"));
-
-			Platform.Instance.OnRecoverySave(root);
-			Core.RoutesManager.Instance.OnRecoverySave(root);
-
-			string path = RecoveryPath();
-			if (root.ChildNodes.Count == 0)
+			lock (Lock)
 			{
-				if (File.Exists(path))
-					File.Delete(path);
+				XmlDocument doc = new XmlDocument();
+				XmlElement root = (XmlElement)doc.AppendChild(doc.CreateElement("Recovery"));
+
+				Platform.Instance.OnRecoverySave(root);
+				Core.RoutesManager.Instance.OnRecoverySave(root);
+
+				string path = RecoveryPath();
+				if (root.ChildNodes.Count == 0)
+				{
+					if (File.Exists(path))
+						File.Delete(path);
+				}
+				else
+					doc.Save(RecoveryPath());
 			}
-			else
-				doc.Save(RecoveryPath());
 		}
 
 		public static void Load()
 		{
-			string path = RecoveryPath();
-
-			Platform.Instance.OnRecovery();
-
-			if (File.Exists(path))
+			lock (Lock)
 			{
-				try
+				string path = RecoveryPath();
+
+				Platform.Instance.OnRecovery();
+
+				if (File.Exists(path))
 				{
-					Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockRecovery);
+					try
+					{
+						Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockRecovery);
 
-					XmlDocument doc = new XmlDocument();
+						XmlDocument doc = new XmlDocument();
 
-					doc.Load(path);
+						doc.Load(path);
 
-					XmlElement root = doc.ChildNodes[0] as XmlElement;
+						XmlElement root = doc.ChildNodes[0] as XmlElement;
 
-					Platform.Instance.OnRecoveryLoad(root);
+						Platform.Instance.OnRecoveryLoad(root);
 
-					Core.RoutesManager.Instance.OnRecoveryLoad(root);
+						Core.RoutesManager.Instance.OnRecoveryLoad(root);
+					}
+					catch (Exception e)
+					{
+						Engine.Instance.Log(e);
+					}
+
+					File.Delete(path);
 				}
-				catch (Exception e)
-				{
-					Engine.Instance.Log(e);
-				}
-
-				File.Delete(path);
 			}
 		}
 	}

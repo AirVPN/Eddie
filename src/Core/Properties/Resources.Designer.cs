@@ -109,9 +109,10 @@ namespace AirVPN.Lib.Core.Properties {
         ///&lt;manifest&gt;
         ///  &lt;hosts&gt;
         ///    &lt;host address=&quot;auth.airvpn.org&quot; /&gt;
-        ///    &lt;host address=&quot;212.117.180.25&quot; /&gt;
+        ///		&lt;host address=&quot;54.246.124.152&quot; /&gt;		
         ///		&lt;host address=&quot;airvpn.org&quot; /&gt;
-        ///    &lt;host address=&quot;85.17.207.151&quot; /&gt;		
+        ///    &lt;host address=&quot;85.17.207.151&quot; /&gt;
+        ///		&lt;host address=&quot;212.117.180.25&quot; /&gt;
         ///    &lt;host address=&quot;airvpn.info&quot; /&gt;
         ///    &lt;host address=&quot;airvpn.ch&quot; /&gt;
         ///    &lt;host address=&quot;airvpn.eu&quot; /&gt;

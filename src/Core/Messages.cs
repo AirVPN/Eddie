@@ -32,6 +32,7 @@ namespace AirVPN.Core
 		public static string Ready = "Ready";
 		public static string StatsNotConnected = "Not connected.";
 		public static string DoubleClickToView = "(Double-Click to View)";
+		public static string ExitConfirm = "Do you really want to exit?";
 		public static string CheckingRequired = "Unavailable (Check required)";
 		public static string WaitingLatencyTests = "Waiting for latency tests";
 		public static string AuthorizeLogin = "Checking login ...";
@@ -213,6 +214,7 @@ namespace AirVPN.Core
 		public static string StatsVpnGateway = "VPN Gateway";
 		public static string StatsVpnGeneratedOVPN = "Generated OVPN";
 		public static string StatsManifestLastUpdate = "Latest Manifest Update";
+		public static string StatsPinger = "Pinger stats";
 		public static string StatsSystemTimeServerDifference = "Server Time Difference";
 		public static string StatsSystemReport = "System Report";
 

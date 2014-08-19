@@ -45,9 +45,9 @@ namespace AirVPN.Core
         public Int64 PingTests = 0;
         public Int64 PingFailedConsecutive = 0;
         public Int64 Ping = -1;
-        public Int64 LastPingTest;
-		public Int64 LastPingResult;
-		public Int64 LastPingSuccess;
+        public Int64 LastPingTest = 0;
+		public Int64 LastPingResult = 0;
+		public Int64 LastPingSuccess = 0;
 
         public int Penality = 0;
 
