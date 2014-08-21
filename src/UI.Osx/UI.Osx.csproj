@@ -11,7 +11,7 @@
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.2</ReleaseVersion>
+    <ReleaseVersion>2.4</ReleaseVersion>
     <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -59,6 +59,11 @@
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <I18n>
     </I18n>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>full</DebugType>
@@ -494,6 +499,12 @@
     <BundleResource Include="Resources\status_red.png" />
     <BundleResource Include="Resources\status_unknown.png" />
     <BundleResource Include="Resources\status_yellow.png" />
+    <BundleResource Include="Resources\connect.png" />
+    <BundleResource Include="Resources\status_green_16.png" />
+    <BundleResource Include="Resources\status_red_16.png" />
+    <BundleResource Include="Resources\status_yellow_16.png" />
+    <BundleResource Include="Resources\netlock_off.png" />
+    <BundleResource Include="Resources\netlock_on.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">
@@ -504,5 +515,12 @@
       <Project>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</Project>
       <Name>Platforms.Osx</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\manifest.xml" />
+    <EmbeddedResource Include="Resources\auth.xml" />
+    <EmbeddedResource Include="Resources\ThirdParty.txt" />
+    <EmbeddedResource Include="Resources\TOS.txt" />
+    <EmbeddedResource Include="Resources\License.txt" />
   </ItemGroup>
 </Project>

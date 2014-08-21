@@ -97,7 +97,7 @@ namespace AirVPN.Platforms
 					// Create a new task definition and assign properties
 					TaskDefinition td = ts.NewTask();
 					td.Principal.RunLevel = TaskRunLevel.Highest;					
-					td.Settings.RunOnlyIfLoggedOn = true;
+					//td.Settings.RunOnlyIfLoggedOn = true;
 					td.Settings.DisallowStartIfOnBatteries = false;
 					td.Settings.StopIfGoingOnBatteries = false;
 					td.Settings.RunOnlyIfNetworkAvailable = false;
@@ -149,28 +149,92 @@ namespace AirVPN.Platforms
             ShellCmd("ipconfig /flushdns");
         }
 
-		public override void RouteAdd(string Address, string Mask, string Gateway)
+		public override void RouteAdd(RouteEntry r)
 		{
-			string cmd = "route ADD " + Address + " MASK " + Mask + " " + Gateway;
+			string cmd = "";
+			cmd += "route add " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
+			if(r.Metrics != "")
+				cmd += " metric " + r.Metrics;
+			if (r.Interface != "")
+				cmd += " if " + r.Interface;
 			ShellCmd(cmd);
 		}
 
-		public override void RouteRemove(string Address, string Mask, string Gateway)
+		public override void RouteRemove(RouteEntry r)
 		{
-			string cmd = "route DELETE " + Address + " MASK " + Mask + " " + Gateway;
+			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
 			ShellCmd(cmd);
 		}
 
-		public override string RouteList()
-		{
+		public override List<RouteEntry> RouteList()
+		{			
+			List<RouteEntry> entryList = new List<RouteEntry>();
+
+			// 'route print' show IP in Interface fields, but 'route add' need the interface ID. We use a map.
+			Dictionary<string, string> InterfacesIp2Id = new Dictionary<string, string>();
+
+			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+            ManagementObjectCollection objMOC = objMC.GetInstances();
+
+			foreach (ManagementObject objMO in objMOC)
+			{				
+				if (!((bool)objMO["IPEnabled"]))
+					continue;
+
+				string[] ips = Conversions.ToString(objMO["IPAddress"]).Trim().Split(',');
+				string id = Conversions.ToString(objMO["InterfaceIndex"]).Trim();
+
+				foreach (string ip in ips)
+				{
+					InterfacesIp2Id[ip.Trim()] = id;
+				}
+			}
+
 			string cmd = "route PRINT";
-			return ShellCmd(cmd);
+			string result = ShellCmd(cmd);
+
+			string[] lines = result.Split('\n');
+			foreach (string line in lines)
+			{
+				string[] fields = Utils.StringCleanSpace(line).Split(' ');
+
+				if(fields.Length == 5)
+				{
+					// Route line.
+					RouteEntry e = new RouteEntry();
+					e.Address = fields[0];
+					e.Mask = fields[1];
+					e.Gateway = fields[2];
+					e.Interface = fields[3];
+					e.Metrics = fields[4];
+			 
+					if(e.Address.Valid == false)
+						continue;
+					if(e.Mask.Valid == false)
+						continue;
+					if(e.Gateway.Valid == false)
+						continue;
+					
+					if (InterfacesIp2Id.ContainsKey(e.Interface))
+					{
+						e.Interface = InterfacesIp2Id[e.Interface];
+						if (e.Gateway.Value != "On-link")
+							entryList.Add(e);
+					}
+					else
+					{
+						Engine.Instance.LogDebug("Unexpected.");
+					}
+				}
+			}
+			
+			return entryList;
 		}
 		
 		public override string GenerateSystemReport()
 		{
 			string t = base.GenerateSystemReport();
-
+			
 			t += "\n\n-- Windows-Only informations\n";
 
 			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
@@ -310,6 +374,11 @@ namespace AirVPN.Platforms
 					return adapter.Description;
 			}
 			return "";
+		}
+
+		public override bool CanInstallDriver()
+		{
+			return true;
 		}
 
 		public override bool CanUnInstallDriver()

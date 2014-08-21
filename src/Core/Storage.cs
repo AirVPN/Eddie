@@ -46,7 +46,7 @@ namespace AirVPN.Core
 
 						
             XmlDocument DocManifestDefault = new XmlDocument();
-			DocManifestDefault.LoadXml(Lib.Core.Properties.Resources.Manifest);
+			DocManifestDefault.LoadXml(ResourcesFiles.GetString("manifest.xml"));
 			Manifest = DocManifestDefault.DocumentElement;
 
 
@@ -57,6 +57,8 @@ namespace AirVPN.Core
 
 			path = Platform.Instance.NormalizePath(path);
 
+			if (path == "")
+				path = Platform.Instance.GetDefaultDataPath();
 
 
             if (profile.IndexOf(".") != -1)
@@ -287,7 +289,8 @@ namespace AirVPN.Core
 			SetDefault("areas.whitelist", "", Messages.ManOptionAreasWhiteList);
 			SetDefault("areas.blacklist", "", Messages.ManOptionAreasBlackList);
 
-			SetDefault("log.path", "", NotInMan);
+			SetDefaultBool("log.file.enabled", false, NotInMan);
+			SetDefault("log.file.path", "logs/airvpn_%y-%m-%d.log", NotInMan);
 
 			SetDefault("mode.protocol", "UDP", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
@@ -505,6 +508,9 @@ namespace AirVPN.Core
 						Manifest = (new XmlDocument()).DocumentElement;
 					Manifest = Manifest.OwnerDocument.ImportNode(xmlDoc.DocumentElement, true);					
 					//Manifest = xmlDoc.DocumentElement;
+
+					// Update with the local time
+					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
 				}
 
 				Engine.Instance.PostManifestUpdate();

@@ -21,11 +21,18 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using AirVPN.Core;
 
 namespace AirVPN.UI.Osx
 {
 	public partial class WindowPreferencesEventController : MonoMac.AppKit.NSWindowController
 	{
+		public bool Accepted;
+
+		public string Filename;
+		public string Arguments;
+		public bool WaitEnd;
+
 		#region Constructors
 
 		// Called when created from unmanaged code
@@ -59,6 +66,39 @@ namespace AirVPN.UI.Osx
 			get {
 				return (WindowPreferencesEvent)base.Window;
 			}
+		}
+
+		public override void AwakeFromNib ()
+		{
+			base.AwakeFromNib ();
+		
+			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsEventTitle;
+
+			TxtFilename.StringValue = Filename;
+			TxtArguments.StringValue = Arguments;
+			GuiUtils.SetCheck (ChkWaitEnd, WaitEnd);
+
+			CmdSave.Activated += (object sender, EventArgs e) => {
+			
+				Accepted = true;
+				Filename = TxtFilename.StringValue;
+				Arguments = TxtArguments.StringValue;
+				WaitEnd = GuiUtils.GetCheck(ChkWaitEnd);
+
+				Window.Close ();
+				NSApplication.SharedApplication.StopModal();
+			};
+
+			CmdCancel.Activated += (object sender, EventArgs e) => {
+
+				Accepted = false;
+
+				Window.Close ();
+				NSApplication.SharedApplication.StopModal();
+			};
+
+			CmdBrowse.Activated += (object sender, EventArgs e) => {
+			};
 		}
 	}
 }

@@ -878,9 +878,9 @@ namespace AirVPN.Core.Threads
 							else
 							{
 								string destIp = Engine.CurrentServer.IpExit;
-								RouteScope routeScope = new RouteScope(destIp);
+								//RouteScope routeScope = new RouteScope(destIp);
 								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php");
-								routeScope.End();
+								//routeScope.End();
 								string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
 								Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
 								Engine.ConnectedClientTime = Utils.UnixTimeStamp();

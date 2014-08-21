@@ -20,6 +20,7 @@
                 <outlet property="ChkAutoStart" destination="xhO-Kv-elj" id="dHo-zH-ucX"/>
                 <outlet property="ChkGeneralOsxNotifications" destination="EG2-CQ-O27" id="b6b-1T-A4y"/>
                 <outlet property="ChkGeneralStartLast" destination="2Nm-Y7-BeU" id="XdO-Hi-CWR"/>
+                <outlet property="ChkLoggingEnabled" destination="IxZ-rQ-MFk" id="wmR-Qd-v4G"/>
                 <outlet property="ChkModeSsh22" destination="MmP-uv-2Gd" id="fhi-gY-L3b"/>
                 <outlet property="ChkModeSsh22Alt" destination="QiV-Ij-WbU" id="ebs-SO-qCS"/>
                 <outlet property="ChkModeSsh53" destination="v58-DO-eU9" id="giT-4m-boa"/>
@@ -50,11 +51,14 @@
                 <outlet property="CmdRouteEdit" destination="OjN-Zs-Oif" id="CAh-Ju-Db4"/>
                 <outlet property="CmdRouteRemove" destination="DQi-F5-OlE" id="nsA-g1-heD"/>
                 <outlet property="CmdSave" destination="PFc-X4-gP7" id="WmB-WK-5eF"/>
+                <outlet property="LblLoggingHelp" destination="STr-CF-heX" id="jBF-M5-Ikp"/>
                 <outlet property="TableAdvancedEvents" destination="ro0-7l-TmO" id="KYZ-V8-TQF"/>
                 <outlet property="TableRoutes" destination="UUg-4W-rPw" id="IBr-iZ-ODK"/>
                 <outlet property="TxtAdvancedOpenVpnDirectivesCustom" destination="IPZ-8a-lFv" id="em6-kS-36y"/>
                 <outlet property="TxtAdvancedOpenVpnDirectivesDefault" destination="NjY-dC-GsQ" id="ZpL-gt-MiU"/>
                 <outlet property="TxtAdvancedOpenVpnPath" destination="lV7-E2-bG9" id="E6t-Sr-yoU"/>
+                <outlet property="TxtLoggingComputedPath" destination="c9X-34-ftI" id="5cS-z6-JLg"/>
+                <outlet property="TxtLoggingPath" destination="XTE-TQ-fIh" id="pfa-S3-l3h"/>
                 <outlet property="TxtProxyHost" destination="H8o-LB-562" id="E0U-ah-uI9"/>
                 <outlet property="TxtProxyLogin" destination="XX0-r6-vrR" id="Rs8-8r-Xby"/>
                 <outlet property="TxtProxyPassword" destination="kbr-od-lkG" id="TMh-an-VAu"/>
@@ -733,7 +737,59 @@
                                                         </subviews>
                                                     </view>
                                                 </tabViewItem>
-                                                <tabViewItem label="OVPN directives" identifier="2" id="mjM-bY-0NO">
+                                                <tabViewItem label="Logging" identifier="2" id="nh8-N9-geM">
+                                                    <view key="view" id="t2p-hq-rHj">
+                                                        <rect key="frame" x="10" y="33" width="520" height="194"/>
+                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <subviews>
+                                                            <button id="IxZ-rQ-MFk">
+                                                                <rect key="frame" x="15" y="174.99999994543882" width="490" height="18"/>
+                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                <buttonCell key="cell" type="check" title="Logging on file enabled" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="iHq-HO-R53">
+                                                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                                    <font key="font" metaFont="system"/>
+                                                                </buttonCell>
+                                                            </button>
+                                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="XKE-Dh-ZKT">
+                                                                <rect key="frame" x="15" y="152" width="46" height="17"/>
+                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Path:" id="XsH-OH-Tf5">
+                                                                    <font key="font" metaFont="system"/>
+                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                </textFieldCell>
+                                                            </textField>
+                                                            <textField verticalHuggingPriority="750" id="XTE-TQ-fIh">
+                                                                <rect key="frame" x="67" y="149" width="436" height="22"/>
+                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="0cm-Vg-YOe">
+                                                                    <font key="font" metaFont="system"/>
+                                                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                </textFieldCell>
+                                                            </textField>
+                                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="STr-CF-heX">
+                                                                <rect key="frame" x="17" y="17" width="486" height="65"/>
+                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="Label" id="RsR-RN-gs6">
+                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                </textFieldCell>
+                                                            </textField>
+                                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="c9X-34-ftI">
+                                                                <rect key="frame" x="67" y="89.999998535732288" width="436" height="56"/>
+                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
+                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="Label" id="rxv-bo-Jmj">
+                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                </textFieldCell>
+                                                            </textField>
+                                                        </subviews>
+                                                    </view>
+                                                </tabViewItem>
+                                                <tabViewItem label="OVPN directives" identifier="3" id="mjM-bY-0NO">
                                                     <view key="view" id="fEJ-Q7-T0q">
                                                         <rect key="frame" x="10" y="33" width="520" height="194"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -768,10 +824,10 @@
                                                                 <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                             </box>
                                                             <box autoresizesSubviews="NO" title="Default:" borderType="line" id="PMQ-Ef-3Fn">
-                                                                <rect key="frame" x="260" y="41" width="252" height="153"/>
+                                                                <rect key="frame" x="260.0000001612475" y="41" width="252" height="153"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" heightSizable="YES"/>
                                                                 <view key="contentView">
-                                                                    <rect key="frame" x="1" y="1" width="250" height="137"/>
+                                                                    <rect key="frame" x="0.99999983875250109" y="1" width="250" height="137"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="NjY-dC-GsQ">
@@ -791,7 +847,7 @@
                                                         </subviews>
                                                     </view>
                                                 </tabViewItem>
-                                                <tabViewItem label="Events" identifier="3" id="eFr-iF-Yau">
+                                                <tabViewItem label="Events" identifier="4" id="eFr-iF-Yau">
                                                     <view key="view" id="AVa-nA-HF1">
                                                         <rect key="frame" x="10" y="33" width="520" height="194"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

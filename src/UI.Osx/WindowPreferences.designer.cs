@@ -55,6 +55,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton ChkGeneralStartLast { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkLoggingEnabled { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton ChkModeSsh22 { get; set; }
 
 		[Outlet]
@@ -142,6 +145,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton CmdSave { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField LblLoggingHelp { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTableView TableAdvancedEvents { get; set; }
 
 		[Outlet]
@@ -155,6 +161,12 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField TxtAdvancedOpenVpnPath { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtLoggingComputedPath { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtLoggingPath { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField TxtProxyHost { get; set; }
@@ -375,9 +387,29 @@ namespace AirVPN.UI.Osx
 				CmdRouteEdit = null;
 			}
 
+			if (TxtLoggingPath != null) {
+				TxtLoggingPath.Dispose ();
+				TxtLoggingPath = null;
+			}
+
 			if (CmdRouteRemove != null) {
 				CmdRouteRemove.Dispose ();
 				CmdRouteRemove = null;
+			}
+
+			if (ChkLoggingEnabled != null) {
+				ChkLoggingEnabled.Dispose ();
+				ChkLoggingEnabled = null;
+			}
+
+			if (TxtLoggingComputedPath != null) {
+				TxtLoggingComputedPath.Dispose ();
+				TxtLoggingComputedPath = null;
+			}
+
+			if (LblLoggingHelp != null) {
+				LblLoggingHelp.Dispose ();
+				LblLoggingHelp = null;
 			}
 
 			if (CmdSave != null) {

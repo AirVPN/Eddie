@@ -37,8 +37,13 @@ namespace AirVPN.Core
 
 		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
         {
+			bool debug = false;
+			if ((Engine.Instance != null) && (Engine.Instance.DevelopmentEnvironment))
+				debug = true;
             try
             {
+				int startTime = Environment.TickCount;
+
                 Process p = new Process();
 
                 p.StartInfo.Arguments = Arguments;
@@ -68,6 +73,14 @@ namespace AirVPN.Core
                 {
                     string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
                     p.WaitForExit();
+
+					if (debug)
+					{
+						int endTime = Environment.TickCount;
+						int deltaTime = endTime - startTime;
+						Engine.Instance.Log(Engine.LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms");
+					}
+
                     return Output.Trim();
                 }
                 else
@@ -163,6 +176,11 @@ namespace AirVPN.Core
         {
             throw new Exception("Not Implemented.");
         }
+
+		public virtual string GetDefaultDataPath()
+		{
+			return "";
+		}
 
         public virtual bool IsAdmin()
         {
@@ -280,20 +298,20 @@ namespace AirVPN.Core
             NotImplemented();
         }
 
-		public virtual void RouteAdd(string Address, string Mask, string Gateway)
+		public virtual void RouteAdd(RouteEntry r)
 		{
 			NotImplemented();
 		}
 
-		public virtual void RouteRemove(string Address, string Mask, string Gateway)
+		public virtual void RouteRemove(RouteEntry r)
 		{
 			NotImplemented();
 		}
 
-		public virtual string RouteList()
+		public virtual List<RouteEntry> RouteList()
 		{
 			NotImplemented();
-			return "";
+			return null;
 		}
 
 		public virtual Dictionary<int, string> GetProcessesList()
@@ -342,7 +360,11 @@ namespace AirVPN.Core
 			}
 
 			t += "\nRouting:\n";
-			t += RouteList();
+			List<RouteEntry> routeEntries = RouteList();
+			foreach (RouteEntry routeEntry in routeEntries)
+			{
+				t += routeEntry.ToString() + "\n";
+			}
 
 			return t;
 		}
@@ -391,6 +413,11 @@ namespace AirVPN.Core
 		public virtual string GetDriverAvailable()
 		{
 			return Messages.NotImplemented;
+		}
+
+		public virtual bool CanInstallDriver()
+		{
+			return false;
 		}
 
 		public virtual bool CanUnInstallDriver()

@@ -41,19 +41,19 @@ namespace AirVPN.UI.Osx
 	{
 		public NSTableView tableView;
 
-		private List<TableAdvancedEventsControllerItem> m_items = new List<TableAdvancedEventsControllerItem>();
+		public List<TableAdvancedEventsControllerItem> Items = new List<TableAdvancedEventsControllerItem>();
 
 		public TableAdvancedEventsController (NSTableView tableView)
 		{
 			this.tableView = tableView;
 
-			m_items.Add(new TableAdvancedEventsControllerItem("App Start"));
-			m_items.Add(new TableAdvancedEventsControllerItem("App End"));
-			m_items.Add(new TableAdvancedEventsControllerItem("Session Start"));
-			m_items.Add(new TableAdvancedEventsControllerItem("Session End"));
-			m_items.Add(new TableAdvancedEventsControllerItem("VPN Pre"));
-			m_items.Add(new TableAdvancedEventsControllerItem("VPN Up"));
-			m_items.Add(new TableAdvancedEventsControllerItem("VPN Down"));
+			Items.Add(new TableAdvancedEventsControllerItem("App Start"));
+			Items.Add(new TableAdvancedEventsControllerItem("App End"));
+			Items.Add(new TableAdvancedEventsControllerItem("Session Start"));
+			Items.Add(new TableAdvancedEventsControllerItem("Session End"));
+			Items.Add(new TableAdvancedEventsControllerItem("VPN Pre"));
+			Items.Add(new TableAdvancedEventsControllerItem("VPN Up"));
+			Items.Add(new TableAdvancedEventsControllerItem("VPN Down"));
 
 			this.tableView.DataSource = this;
 
@@ -66,14 +66,14 @@ namespace AirVPN.UI.Osx
 
 		public override int GetRowCount (NSTableView tableView)
 		{
-			return m_items.Count;
+			return Items.Count;
 		}
 
 		public override NSObject GetObjectValue (NSTableView tableView, 
 		                                         NSTableColumn tableColumn, 
 		                                         int row)
 		{
-			TableAdvancedEventsControllerItem i = m_items [row];
+			TableAdvancedEventsControllerItem i = Items [row];
 
 			if (tableColumn.Identifier == "Event") {
 				return new NSString (i.Title);

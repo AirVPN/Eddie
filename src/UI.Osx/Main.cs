@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Reflection;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using MonoMac.ObjCRuntime;
@@ -32,6 +33,16 @@ namespace AirVPN.UI.Osx
 			Core.Platform.Instance = new AirVPN.Platforms.Osx();
 
 			CommandLine.Init(Environment.CommandLine);
+
+			// Due to a bug in Xamarin, that don't recognize resources inside Core library if Mono is bundled, we embed some resources in entry assembly.
+
+			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "manifest.xml", "manifest.xml");
+			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "auth.xml", "auth.xml");
+			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "license.txt", "License.txt");
+			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "thirdparty.txt", "ThirdParty.txt");
+			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "tos.txt", "TOS.txt");
+
+			Core.ResourcesFiles.Count ();
 
 			if (CommandLine.Params.ContainsKey ("cli")) {
 				Core.Engine engine = new Core.Engine ();

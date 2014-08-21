@@ -44,14 +44,14 @@
 			this.txtData.Name = "txtData";
 			this.txtData.ReadOnly = true;
 			this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtData.Size = new System.Drawing.Size(581, 295);
+			this.txtData.Size = new System.Drawing.Size(912, 440);
 			this.txtData.TabIndex = 0;
 			// 
 			// TextViewer
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(607, 321);
+			this.ClientSize = new System.Drawing.Size(938, 466);
 			this.Controls.Add(this.txtData);
 			this.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.Margin = new System.Windows.Forms.Padding(4);

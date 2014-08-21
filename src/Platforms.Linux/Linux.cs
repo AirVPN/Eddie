@@ -112,23 +112,90 @@ namespace AirVPN.Platforms
         }
 
 
-		public override void RouteAdd(string Address, string Mask, string Gateway)
+		public override void RouteAdd(RouteEntry r)
 		{
-			string cmd = "/sbin/route add -net " + Address + " netmask " + Mask + " gw " + Gateway;
+			string cmd = "/sbin/route add";
+
+			cmd += " -host " + r.Address.Value;
+			cmd += " netmask " + r.Mask.Value;
+			cmd += " gw " + r.Gateway.Value;
+			if(r.Metrics != "")
+				cmd += " metric " + r.Metrics;
+			if (r.Mss != "")
+				cmd += " mss " + r.Mss;
+			if (r.Window != "")
+				cmd += " window " + r.Window;
+			if (r.Irtt != "")
+				cmd += " irtt " + r.Irtt;
+
+			if (r.Flags.Contains("!"))
+				cmd += " reject";
+			if (r.Flags.Contains("M"))
+				cmd += " mod";
+			if (r.Flags.Contains("D"))
+				cmd += " dyn";
+			if (r.Flags.Contains("R"))
+				cmd += " reinstate";
+
+			if(r.Interface != "")
+				cmd += " dev " + r.Interface;
+
 			ShellCmd(cmd);
 		}
 
-		public override void RouteRemove(string Address, string Mask, string Gateway)
+		public override void RouteRemove(RouteEntry r)
 		{
-			string cmd = "/sbin/route del -net " + Address + " netmask " + Mask;
+			string cmd = "/sbin/route del";
+
+			cmd += " -host " + r.Address.Value;
+			cmd += " gw " + r.Gateway.Value;
+			cmd += " netmask " + r.Mask.Value;			
+			if(r.Metrics != "")
+				cmd += " metric " + r.Metrics;			
+			if(r.Interface != "")
+				cmd += " dev " + r.Interface;
+			
 			ShellCmd(cmd);
 		}
 		
-		public override string RouteList()
-		{
-			//string cmd = "route -v -n -e";
-			string cmd = "netstat -nr";
-			return ShellCmd(cmd);
+		public override List<RouteEntry> RouteList()
+		{	
+			List<RouteEntry> entryList = new List<RouteEntry>();
+
+			string result = ShellCmd("route -n -ee");
+
+			string[] lines = result.Split('\n');
+			foreach (string line in lines)
+			{
+				string[] fields = Utils.StringCleanSpace(line).Split(' ');
+
+				if (fields.Length == 11)
+				{
+					RouteEntry e = new RouteEntry();
+					e.Address = fields[0];
+					e.Gateway = fields[1];
+					e.Mask = fields[2];
+					e.Flags = fields[3].ToUpperInvariant();
+					e.Metrics = fields[4];
+					// ref
+					// use
+					e.Interface = fields[7];
+					e.Mss = fields[8];
+					e.Window = fields[9];
+					e.Irtt = fields[10];
+
+					if (e.Address.Valid == false)
+						continue;
+					if (e.Gateway.Valid == false)
+						continue;
+					if (e.Mask.Valid == false)
+						continue;
+
+					entryList.Add(e);
+				}
+			}
+
+			return entryList;
 		}
 
 		public override string GenerateSystemReport()
@@ -212,11 +279,22 @@ namespace AirVPN.Platforms
 
 		public override string GetDriverAvailable()
 		{
+			if (File.Exists("/dev/net/tun"))
+				return "Found";
+			else
+				return "";
+			/*
 			string result = ShellCmd("cat /dev/net/tun");
 			if (result.IndexOf("descriptor in bad state") != -1)
 				return "Found";
 
 			return "";
+			*/
+		}
+
+		public override bool CanInstallDriver()
+		{
+			return false;
 		}
 
 		public override bool CanUnInstallDriver()

@@ -57,7 +57,9 @@ namespace AirVPN.Core
             Connect = 1,
             Disconnect = 2,
 			Login = 3,
-			Logout = 4
+			Logout = 4,
+			NetLockIn = 5,
+			NetLockOut = 6
         }
 
         public enum RefreshUiMode
@@ -70,7 +72,7 @@ namespace AirVPN.Core
 			Quick = 5
         }
 
-        public ActionService Action = ActionService.None;
+		private List<ActionService> ActionsList = new List<ActionService>();        
 		public string m_waitMessage = "Starting";
         public bool m_waitCancel = false;
 
@@ -139,9 +141,16 @@ namespace AirVPN.Core
         }
 
 		public bool Initialization()
-		{
-
-
+		{	
+			if(ResourcesFiles.Count() == 0)			
+			{
+				ResourcesFiles.SetString("auth.xml", Lib.Core.Properties.Resources.Auth);
+				ResourcesFiles.SetString("manifest.xml", Lib.Core.Properties.Resources.Manifest);
+				ResourcesFiles.SetString("license.txt", Lib.Core.Properties.Resources.License);
+				ResourcesFiles.SetString("thirdparty.txt", Lib.Core.Properties.Resources.ThirdParty);
+				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS);
+			}
+			
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
@@ -297,7 +306,7 @@ namespace AirVPN.Core
 			if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
 
-			NetworkLocking.Instance.Deactivate();
+			RoutesManager.Instance.LockDeactivate();
 
 			TemporaryFiles.Clean();
 
@@ -347,30 +356,55 @@ namespace AirVPN.Core
 
 		public virtual void OnWork()
 		{
-			ActionService ReqAction = Action;
-			Action = ActionService.None;
+			ActionService currentAction = ActionService.None;
 
-			if (ReqAction == ActionService.Login)
+			lock (ActionsList)
+			{
+				if (ActionsList.Count > 0)
+				{
+					currentAction = ActionsList[0];
+					ActionsList.RemoveAt(0);
+				}
+			}
+
+			if (currentAction == ActionService.None)
+			{
+				/*
+				if (m_waitMessage != "")
+					WaitMessageSet("", false);
+				*/
+			}
+			else if (currentAction == ActionService.Login)
 			{
 				Auth();
 			}
-
-			if (ReqAction == ActionService.Logout)
+			else if (currentAction == ActionService.Logout)
 			{
 				DeAuth();
 			}
-
-			if (ReqAction == ActionService.Connect)
+			else if (currentAction == ActionService.NetLockIn)
+			{
+				WaitMessageSet(Messages.NetworkLockActivation, false);
+				RoutesManager.Instance.LockActivate();
+				WaitMessageClear();
+			}
+			else if (currentAction == ActionService.NetLockOut)
+			{
+				WaitMessageSet(Messages.NetworkLockDeactivation, false);
+				RoutesManager.Instance.LockDeactivate();
+				WaitMessageClear();
+			}
+			else if (currentAction == ActionService.Connect)
 			{
 				if (m_threadSession == null)
 					SessionStart();
 			}
-			if (ReqAction == ActionService.Disconnect)
+			else if (currentAction == ActionService.Disconnect)
 			{
 				if (m_threadSession != null)
 					SessionStop();
 			}
-
+				
 			if (TickDeltaUiRefreshQuick.Elapsed(1000))
 				OnRefreshUi(RefreshUiMode.Quick);
 
@@ -471,22 +505,50 @@ namespace AirVPN.Core
 
 		public void Connect()
 		{
-			Action = Engine.ActionService.Connect;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Connect);
+			}
 		}
 
 		public void Login()
 		{
-			Action = Engine.ActionService.Login;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Login);
+			}
 		}
 
 		public void Logout()
 		{
-			Action = Engine.ActionService.Logout;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Logout);
+			}
+		}
+
+		public void NetLockIn()
+		{
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.NetLockIn);
+			}
+		}
+
+		public void NetLockOut()
+		{
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.NetLockOut);
+			}
 		}
 
 		public void Disconnect()
 		{
-			Action = Engine.ActionService.Disconnect;
+			lock (ActionsList)
+			{
+				ActionsList.Add(Engine.ActionService.Disconnect);
+			}
 		}
 
 		public void SetConnected(bool connected)
@@ -579,7 +641,7 @@ namespace AirVPN.Core
 				return m_threadSession.CancelRequested;
 			}
 		}
-
+		
         // ----------------------------------------------------
         // Logging
         // ----------------------------------------------------
@@ -597,12 +659,15 @@ namespace AirVPN.Core
 
 		public void Log(Exception e)
 		{
-			Log(LogType.Error, e.Message, 1000, e);
+			Log(LogType.Error, e);
 		}
 
         public void Log(LogType Type, Exception e)
         {
-            Log(Type, e.Message, 1000, e);
+			string msg = e.Message;
+			if (DevelopmentEnvironment)
+				msg += " - Stack: " + e.StackTrace.ToString ();
+			Log(Type, msg, 1000, e);
         }
 
         public void LogDebug(string Message)
@@ -661,6 +726,47 @@ namespace AirVPN.Core
 			return "AirVPN_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
 		}
 
+		public List<string> ParseLogFilePath(string paths)
+		{	
+			string logPaths = paths;				
+			DateTime now = DateTime.Now;
+			logPaths = logPaths.Replace("%d", now.ToString("dd"));
+			logPaths = logPaths.Replace("%m", now.ToString("MM"));
+			logPaths = logPaths.Replace("%y", now.ToString("yyyy"));
+			logPaths = logPaths.Replace("%w", now.ToString("dddd"));
+			logPaths = logPaths.Replace("%H", now.ToString("HH"));
+			logPaths = logPaths.Replace("%M", now.ToString("mm"));
+			logPaths = logPaths.Replace("%S", now.ToString("ss"));
+
+			List<string> results = new List<string>();
+
+			string[] logPathsArray = logPaths.Split(';');
+			foreach (string path in logPathsArray)
+			{
+				string logPath = path;
+				if (System.IO.Path.IsPathRooted(path) == false)
+				{
+					logPath = Storage.DataPath + "/" + logPath;
+				}
+				logPath = Platform.Instance.NormalizePath(logPath).Trim();
+				if (logPath != "")
+					results.Add(logPath);
+			}
+			
+			return results;			
+		}
+
+		public string GetParseLogFilePaths(string paths)
+		{
+			string output = "";
+			List<string> results = ParseLogFilePath(paths);
+			foreach (string path in results)
+			{
+				output += path + "\r\n";
+			}
+			return output.Trim();
+		}
+
         public virtual void OnLog(LogEntry l)
         {
 			// An exception, to have a clean, standard 'man' output without logging header.
@@ -675,11 +781,24 @@ namespace AirVPN.Core
 				string lines = l.GetStringLines().Trim();
 				Console.WriteLine(lines);
 
+				// File logging
+
 				if (Storage != null)
 				{
-					string logPath = Storage.Get("log.path").Trim();
-					if (logPath != "")
-						File.AppendAllText(logPath, lines + "\n");
+					lock (Storage)
+					{
+						if (Storage.GetBool("log.file.enabled"))
+						{
+							string logPath = Storage.Get("log.file.path").Trim();
+
+							List<string> paths = ParseLogFilePath(logPath);
+							foreach (string path in paths)
+							{
+								Directory.CreateDirectory(Path.GetDirectoryName(path));
+								File.AppendAllText(path, lines + "\n");
+							}
+						}
+					}
 				}
 			}
         }
@@ -735,6 +854,8 @@ namespace AirVPN.Core
 			if (mode == Core.Engine.RefreshUiMode.Full)
 			{
 				Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
+				if(m_threadPinger != null)
+					Stats.UpdateValue("Pinger", PingerStats().ToString());
 
 				if (Engine.IsConnected())
 				{
@@ -1102,6 +1223,11 @@ namespace AirVPN.Core
 			return m_threadPinger.GetValid();            
         }
 
+		public Threads.PingerStats PingerStats()
+		{
+			return m_threadPinger.GetStats();
+		}
+
         public void BuildOVPN(string protocol, int port, int alt, int proxyPort)
         {
             DateTime now = DateTime.UtcNow;
@@ -1166,7 +1292,27 @@ namespace AirVPN.Core
             string routesDefault = s.Get("routes.default");
             if (routesDefault == "out")
             {
+				// before 2.3
                 ovpn += "route-nopull\n";
+
+				// "route-nopull" above ignore DNS push, we manually add it:
+				// Don't work...
+				//ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n";
+				//ovpn += "dhcp-option DNS 10.5.0.1\n";
+
+				// Don't work well, because skip also the other 'route' in OVPN config.
+				//ovpn += "route-noexec\n";
+
+				/* // TOCLEAN
+				// changed in 2.3
+				// AirVPN servers push "redirect-gateway def1".
+				// Here we need to ignore it: https://community.openvpn.net/openvpn/wiki/IgnoreRedirectGateway
+				// We can't use "route-nopull" because we want other push, like DNS.
+				ovpn += "route 0.0.0.0 192.0.0.0 net_gateway\n";
+				ovpn += "route 64.0.0.0 192.0.0.0 net_gateway\n";
+				ovpn += "route 128.0.0.0 192.0.0.0 net_gateway\n";
+				ovpn += "route 192.0.0.0 192.0.0.0 net_gateway\n";
+				*/
             }
             string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
@@ -1187,7 +1333,10 @@ namespace AirVPN.Core
             }
 
 			if (routesDefault == "out")
-                ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway\n"; // For Checking
+			{
+				//ovpn += "route " + Constants.DnsVpn + " 255.255.255.255 vpn_gateway\n"; // For DNS
+				ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway\n"; // For Checking
+			}
 
 			if ((protocol == "SSH") || (protocol == "SSL"))
 			{
@@ -1203,7 +1352,7 @@ namespace AirVPN.Core
 					ovpn += "route 128.0.0.1 128.0.0.1 vpn_gateway\n";
 				}
 				*/
-				if (NetworkLocking.Instance.GetActive() == false) // If Network Locking is enabled, it's already set.
+				if (RoutesManager.Instance.GetLockActive() == false) // If Network Locking is enabled, it's already set.
 					ovpn += "route " + ip + " 255.255.255.255 net_gateway\n";
 			}
 				
@@ -1214,10 +1363,6 @@ namespace AirVPN.Core
             ovpn += "\n";
             ovpn += s.Get("openvpn.custom").Replace("\t", "").Trim();
             ovpn += "\n";
-
-			// TOFIX, mettere da altra parte
-			ovpn += "ping 10\n";
-			ovpn += "ping-exit 32\n";
 
 			//XmlNode nodeUser = s.Manifest.SelectSingleNode("//user");
 			XmlNode nodeUser = s.User;
@@ -1264,16 +1409,24 @@ namespace AirVPN.Core
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters["act"] = "user";
 
-			XmlDocument xmlDoc = AirExchange.Fetch(parameters);
-			string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
-			if (userMessage != "")
+			try
 			{
-				Log(LogType.Fatal, userMessage);
+				XmlDocument xmlDoc = AirExchange.Fetch(parameters);
+				string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+
+				if (userMessage != "")
+				{
+					Log(LogType.Fatal, userMessage);
+				}
+				else
+				{
+					Log(LogType.InfoImportant, Messages.AuthorizeLoginDone);
+					Storage.User = xmlDoc.DocumentElement;
+				}
 			}
-			else
+			catch (Exception e)
 			{
-				Log(LogType.InfoImportant, Messages.AuthorizeLoginDone);
-				Storage.User = xmlDoc.DocumentElement;
+				Log(LogType.Fatal, e.Message);				
 			}
 
 			Engine.Instance.WaitMessageClear();
@@ -1306,11 +1459,16 @@ namespace AirVPN.Core
 				// Check Driver				
 				if (Platform.Instance.GetDriverAvailable() == "")
 				{
-					Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
+					if (Platform.Instance.CanInstallDriver())
+					{
+						Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
 
-					Platform.Instance.InstallDriver();
+						Platform.Instance.InstallDriver();
 
-					if (Platform.Instance.GetDriverAvailable() == "")
+						if (Platform.Instance.GetDriverAvailable() == "")
+							throw new Exception(Messages.OsDriverFailed);
+					}
+					else
 						throw new Exception(Messages.OsDriverFailed);
 				}
 

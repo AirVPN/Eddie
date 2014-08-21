@@ -47,6 +47,12 @@ namespace AirVPN.Platforms
 			return m_architecture;
 		}
 
+		public override string GetDefaultDataPath()
+		{
+			// Only in OSX, always save in 'home' path also with portable edition.
+			return "home";
+		}
+
         public override bool IsAdmin()
         {
 			//return true; // Uncomment for debugging
@@ -107,7 +113,12 @@ namespace AirVPN.Platforms
 
 		public override string GetDriverAvailable()
 		{
-			return "Unknown";
+			return "Expected";
+		}
+
+		public override bool CanInstallDriver()
+		{
+			return false;
 		}
 
 		public override bool CanUnInstallDriver()
@@ -123,21 +134,54 @@ namespace AirVPN.Platforms
 		{
 		}
 
-		public override void RouteAdd (string Address, string Mask, string Gateway)
+		public override void RouteAdd(RouteEntry r)
 		{
-			base.RouteAdd (Address, Mask, Gateway);
+			base.RouteAdd (r);
 		}
 
-		public override void RouteRemove (string Address, string Mask, string Gateway)
+		public override void RouteRemove(RouteEntry r)
 		{
-			base.RouteRemove (Address, Mask, Gateway);
+			base.RouteRemove (r);
 		}
 
-		public override string RouteList ()
-		{
-			string cmd = "netstat -nr";
-			string output = ShellCmd (cmd);
-			return output;
+		public override List<RouteEntry> RouteList()
+		{	
+			List<RouteEntry> entryList = new List<RouteEntry>();
+
+			string result = ShellCmd("route -n -ee");
+
+			string[] lines = result.Split('\n');
+			foreach (string line in lines)
+			{
+				string[] fields = Utils.StringCleanSpace(line).Split(' ');
+
+				if (fields.Length == 11)
+				{
+					RouteEntry e = new RouteEntry();
+					e.Address = fields[0];
+					e.Gateway = fields[1];
+					e.Mask = fields[2];
+					e.Flags = fields[3].ToUpperInvariant();
+					e.Metrics = fields[4];
+					// ref
+					// use
+					e.Interface = fields[7];
+					e.Mss = fields[8];
+					e.Window = fields[9];
+					e.Irtt = fields[10];
+
+					if (e.Address.Valid == false)
+						continue;
+					if (e.Gateway.Valid == false)
+						continue;
+					if (e.Mask.Valid == false)
+						continue;
+
+					entryList.Add(e);
+				}
+			}
+
+			return entryList;
 		}
 
 		public override Dictionary<int, string> GetProcessesList()
@@ -289,41 +333,3 @@ namespace AirVPN.Platforms
 	}
 }
 
-
-
-
-/*
- * 
- * 
- *
-Last login: Mon Jun  2 00:05:12 on ttys000
-clodo@fabrizios-imac.station:~$ sudo -s
-Password:
-root@fabrizios-imac.station:~$ 
-root@fabrizios-imac.station:~$ 
-root@fabrizios-imac.station:~$ networksetup -listallnetworkservices | grep -v denotes
-Bluetooth DUN
-Ethernet
-FireWire
-Wi-Fi
-Bluetooth PAN
-Thunderbolt Bridge
-root@fabrizios-imac.station:~$ networksetup -getdnsservers Ethernet
-There aren't any DNS Servers set on Ethernet.
-root@fabrizios-imac.station:~$ networksetup -getdnsservers Bluetooth DUN
-Bluetooth is not a recognized network service.
-** Error: The parameters were not valid.
-root@fabrizios-imac.station:~$ networksetup -getdnsservers "Bluetooth DUN"
-There aren't any DNS Servers set on Bluetooth DUN.
-root@fabrizios-imac.station:~$ networksetup -getdnsservers "Wi-Fi"
-There aren't any DNS Servers set on Wi-Fi.
-root@fabrizios-imac.station:~$ networksetup -getdnsservers "FireWire"
-There aren't any DNS Servers set on FireWire.
-root@fabrizios-imac.station:~$ networksetup -getdnsservers "Ethernet"
-There aren't any DNS Servers set on Ethernet.
-root@fabrizios-imac.station:~$ networksetup -setdnsservers "Ethernet" "10.4.0.1"
-root@fabrizios-imac.station:~$ networksetup -getdnsservers "Ethernet"
-10.4.0.1
-root@fabrizios-imac.station:~$ networksetup -setdnsservers "Ethernet" empty
-root@fabrizios-imac.station:~$ 
-*/

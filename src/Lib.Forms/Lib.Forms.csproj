@@ -235,6 +235,7 @@
     <Content Include="res\btn_l_d.png" />
     <Content Include="res\btn_l_h.png" />
     <Content Include="res\btn_l_n.png" />
+    <None Include="res\connect.png" />
     <Content Include="res\connect_16.png" />
     <Content Include="res\copy_16.png" />
     <Content Include="res\delete_16.png" />
@@ -263,6 +264,8 @@
     <Content Include="res\main_l_bg.png" />
     <Content Include="res\menu_hover.png" />
     <Content Include="res\menu_normal.png" />
+    <None Include="res\netlock_off.png" />
+    <None Include="res\netlock_on.png" />
     <Content Include="res\ports.png" />
     <Content Include="res\progress.gif" />
     <Content Include="res\reload.png" />
@@ -281,6 +284,9 @@
     <Content Include="res\stats_server.png" />
     <Content Include="res\stats_session.png" />
     <Content Include="res\stats_vpn.png" />
+    <None Include="res\status_green_16.png" />
+    <None Include="res\status_red_16.png" />
+    <None Include="res\status_yellow_16.png" />
     <Content Include="res\success16.png" />
     <Content Include="res\support.png" />
     <Content Include="res\tabs_l_bg.png" />

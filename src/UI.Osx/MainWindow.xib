@@ -8,7 +8,6 @@
             <connections>
                 <outlet property="CboServersScoringRule" destination="cws-s1-1nn" id="A9Y-sR-UrM"/>
                 <outlet property="CboSpeedResolutions" destination="jfy-d1-j04" id="3dE-Po-xVB"/>
-                <outlet property="ChkLockedMode" destination="Ka5-3i-Y0r" id="7UT-Bh-OpV"/>
                 <outlet property="ChkRemember" destination="JjC-fn-XbM" id="mNC-2n-VpW"/>
                 <outlet property="ChkServersLockCurrent" destination="BT7-WG-1wD" id="sjS-gb-yfg"/>
                 <outlet property="ChkServersShowAll" destination="rgn-cW-L4n" id="ff9-xl-Ieh"/>
@@ -24,11 +23,13 @@
                 <outlet property="CmdLogsOpenVpnManagement" destination="YEk-zK-iTP" id="0wV-tp-MRb"/>
                 <outlet property="CmdLogsSave" destination="Y2L-Vc-UUO" id="Q5E-EY-Ojz"/>
                 <outlet property="CmdLogsSupport" destination="vFz-yb-Kia" id="8uE-k3-hYR"/>
+                <outlet property="CmdNetworkLock" destination="VWe-Nd-OmZ" id="o5F-BP-aYg"/>
                 <outlet property="CmdServersBlackList" destination="22y-2n-gzu" id="dLF-U3-1uJ"/>
                 <outlet property="CmdServersConnect" destination="lZp-Qp-Qf3" id="yVK-F8-GSZ"/>
                 <outlet property="CmdServersUndefined" destination="0dd-OC-eGN" id="vwc-ne-5QU"/>
                 <outlet property="CmdServersWhiteList" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
                 <outlet property="ImgConnectedCountry" destination="Ozh-Vi-DHT" id="tUG-DG-1lf"/>
+                <outlet property="ImgNetworkLock" destination="ons-kJ-mAk" id="c1g-C0-TMb"/>
                 <outlet property="ImgProgress" destination="gMg-Qv-4ge" id="9qz-23-17r"/>
                 <outlet property="ImgTopFlag" destination="MjY-FX-9v1" id="2b7-C3-eKd"/>
                 <outlet property="ImgTopPanel" destination="TjK-Xa-lni" id="U66-Nx-xvG"/>
@@ -51,6 +52,17 @@
                 <outlet property="MnuServersConnect" destination="fNR-2w-1MT" id="urv-Ni-pGF"/>
                 <outlet property="MnuServersUndefined" destination="Lsg-wR-Ixf" id="A8y-Qs-5tB"/>
                 <outlet property="MnuServersWhitelist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
+                <outlet property="MnuTray" destination="2Bv-yX-Px1" id="Y9R-1z-B3f"/>
+                <outlet property="MnuTrayAbout" destination="83q-TJ-BhH" id="fCh-Tc-a98"/>
+                <outlet property="MnuTrayClientArea" destination="ajm-ap-TIo" id="8Fa-pj-sGp"/>
+                <outlet property="MnuTrayConnect" destination="l66-1q-j5m" id="skz-T8-zJ0"/>
+                <outlet property="MnuTrayForwardingPorts" destination="BBr-9U-kW8" id="s0Y-iX-p3G"/>
+                <outlet property="MnuTrayHome" destination="c1E-U3-fsx" id="NlT-c0-wiP"/>
+                <outlet property="MnuTrayPreferences" destination="8tg-nT-XJV" id="iO6-yh-hYd"/>
+                <outlet property="MnuTrayQuit" destination="cQb-RC-8hT" id="HW2-mc-nwm"/>
+                <outlet property="MnuTrayRestore" destination="ACK-P9-tRH" id="5l6-vI-qol"/>
+                <outlet property="MnuTraySpeedTest" destination="BX6-bg-wv3" id="tKS-bH-gbO"/>
+                <outlet property="MnuTrayStatus" destination="9x6-QD-kVV" id="vGL-bx-XVj"/>
                 <outlet property="PnlChart" destination="c6A-XF-Xk5" id="qln-Bu-YhO"/>
                 <outlet property="ServersContextMenu" destination="PCV-hz-Nwr" id="gNd-gA-7lp"/>
                 <outlet property="TabMain" destination="mHk-Xp-9aS" id="UuD-Zz-34L"/>
@@ -122,6 +134,9 @@
                                                                                     <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                                                                 </allowedInputSourceLocales>
                                                                             </secureTextFieldCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="JjC-fn-XbM" id="qtL-7K-ubt"/>
+                                                                            </connections>
                                                                         </secureTextField>
                                                                         <textField verticalHuggingPriority="750" id="grN-wD-djz">
                                                                             <rect key="frame" x="197" y="200" width="179" height="22"/>
@@ -131,6 +146,9 @@
                                                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="oCu-XC-l8c" id="VLS-as-fGw"/>
+                                                                            </connections>
                                                                         </textField>
                                                                         <button id="JjC-fn-XbM">
                                                                             <rect key="frame" x="282" y="146" width="96" height="18"/>
@@ -139,19 +157,19 @@
                                                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                                 <font key="font" metaFont="system"/>
                                                                             </buttonCell>
-                                                                        </button>
-                                                                        <button id="Ka5-3i-Y0r">
-                                                                            <rect key="frame" x="11" y="34" width="168" height="18"/>
-                                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                            <buttonCell key="cell" type="check" title="Network Locked Mode" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="qQM-Px-NR7">
-                                                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                                                <font key="font" metaFont="system"/>
-                                                                            </buttonCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="OQn-zC-qfi" id="v0H-4K-hBO"/>
+                                                                            </connections>
                                                                         </button>
                                                                         <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="oCW-Zc-5TC">
                                                                             <rect key="frame" x="18" y="138" width="98" height="91"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="login" id="bFP-lF-pTF"/>
+                                                                        </imageView>
+                                                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="ons-kJ-mAk">
+                                                                            <rect key="frame" x="18" y="9" width="48" height="48"/>
+                                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" image="netlock_on" id="jCS-hu-as5"/>
                                                                         </imageView>
                                                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="8sl-XE-NjX">
                                                                             <rect key="frame" x="16" y="73" width="486" height="17"/>
@@ -169,11 +187,22 @@
                                                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                                 <font key="font" metaFont="system" size="16"/>
                                                                             </buttonCell>
+                                                                            <connections>
+                                                                                <outlet property="nextKeyView" destination="QGJ-5B-Agr" id="4TX-eC-GHN"/>
+                                                                            </connections>
                                                                         </button>
                                                                         <button verticalHuggingPriority="750" id="QGJ-5B-Agr">
                                                                             <rect key="frame" x="16" y="91" width="486" height="41"/>
                                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                             <buttonCell key="cell" type="bevel" title="Button" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6xS-Gp-Oxy">
+                                                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                                <font key="font" metaFont="system" size="16"/>
+                                                                            </buttonCell>
+                                                                        </button>
+                                                                        <button verticalHuggingPriority="750" id="VWe-Nd-OmZ">
+                                                                            <rect key="frame" x="72" y="12" width="427" height="41"/>
+                                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                            <buttonCell key="cell" type="bevel" title="Button" bezelStyle="regularSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9dm-PQ-4P2">
                                                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                                 <font key="font" metaFont="system" size="16"/>
                                                                             </buttonCell>
@@ -503,6 +532,7 @@
                                                         </tableColumns>
                                                         <connections>
                                                             <outlet property="menu" destination="PCV-hz-Nwr" id="WyX-tL-ueC"/>
+                                                            <outlet property="nextKeyView" destination="rgn-cW-L4n" id="VZV-gJ-N0L"/>
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
@@ -536,6 +566,9 @@
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <outlet property="nextKeyView" destination="0dd-OC-eGN" id="Yap-Eg-fne"/>
+                                            </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" id="6GG-GT-Cy4">
                                             <rect key="frame" x="537" y="248" width="36" height="34"/>
@@ -544,6 +577,9 @@
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <outlet property="nextKeyView" destination="22y-2n-gzu" id="fQS-Kw-QGQ"/>
+                                            </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" id="lZp-Qp-Qf3">
                                             <rect key="frame" x="537" y="296" width="36" height="34"/>
@@ -552,6 +588,9 @@
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <outlet property="nextKeyView" destination="6GG-GT-Cy4" id="6GS-ns-54G"/>
+                                            </connections>
                                         </button>
                                         <button id="rgn-cW-L4n">
                                             <rect key="frame" x="15" y="14" width="127" height="18"/>
@@ -560,6 +599,9 @@
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="label"/>
                                             </buttonCell>
+                                            <connections>
+                                                <outlet property="nextKeyView" destination="cws-s1-1nn" id="ngK-rI-2sd"/>
+                                            </connections>
                                         </button>
                                         <popUpButton verticalHuggingPriority="750" id="cws-s1-1nn">
                                             <rect key="frame" x="318" y="10" width="82" height="26"/>
@@ -574,6 +616,9 @@
                                                     </items>
                                                 </menu>
                                             </popUpButtonCell>
+                                            <connections>
+                                                <outlet property="nextKeyView" destination="BT7-WG-1wD" id="t07-3y-Xef"/>
+                                            </connections>
                                         </popUpButton>
                                         <button id="BT7-WG-1wD">
                                             <rect key="frame" x="434" y="15" width="99" height="18"/>
@@ -1039,17 +1084,66 @@
                 </menuItem>
             </items>
         </menu>
+        <menu title="Tray" autoenablesItems="NO" id="2Bv-yX-Px1">
+            <items>
+                <menuItem title="Status" image="status_red_16" id="9x6-QD-kVV">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Connect or Disconnect" image="connect" id="l66-1q-j5m">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="Ge1-DE-eaj"/>
+                <menuItem title="AirVPN Website (Web)" image="home" id="c1E-U3-fsx">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Your details and statistics (Web)" image="stats" id="ajm-ap-TIo">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Forwarding Ports (Web)" image="ports" id="BBr-9U-kW8">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Speed Test (Web)" image="speed" id="BX6-bg-wv3">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="uzk-V8-qmR"/>
+                <menuItem title="Preferences" image="settings" id="8tg-nT-XJV">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="About" image="about" id="83q-TJ-BhH">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="NA7-O2-7aK"/>
+                <menuItem title="Show Window / Restore" image="restore" id="ACK-P9-tRH">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="gvA-fU-Aip"/>
+                <menuItem title="Quit" image="exit" id="cQb-RC-8hT">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+            </items>
+        </menu>
     </objects>
     <resources>
+        <image name="about" width="16" height="16"/>
         <image name="add_16" width="16" height="16"/>
         <image name="blacklist_0" width="16" height="16"/>
         <image name="blacklist_1" width="16" height="16"/>
         <image name="blacklist_2" width="16" height="16"/>
+        <image name="connect" width="16" height="16"/>
         <image name="connect_16" width="16" height="16"/>
         <image name="copy_16" width="16" height="16"/>
         <image name="execute_16" width="16" height="16"/>
+        <image name="exit" width="16" height="16"/>
+        <image name="home" width="16" height="16"/>
         <image name="login" width="69" height="81"/>
+        <image name="netlock_on" width="64" height="64"/>
+        <image name="ports" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="restore" width="16" height="16"/>
         <image name="save_16" width="16" height="16"/>
+        <image name="settings" width="16" height="16"/>
+        <image name="speed" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="stats" width="16" height="16"/>
+        <image name="status_red_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="support" width="16" height="16"/>
         <image name="topbar_osx_bg" width="133" height="30"/>
         <image name="topbar_osx_logo" width="356" height="80"/>

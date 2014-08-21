@@ -53,7 +53,8 @@ namespace AirVPN.Core
 			Add("VpnInterface", Messages.StatsVpnInterface, "vpn");
 			Add("VpnGateway", Messages.StatsVpnGateway, "vpn");
 			Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", false);
-			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system"); 
+			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system");
+			Add("Pinger", Messages.StatsPinger, "system"); 
 			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");			
 			Add("SystemReport", Messages.StatsSystemReport, "system");
 		}

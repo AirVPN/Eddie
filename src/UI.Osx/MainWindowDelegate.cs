@@ -18,22 +18,29 @@
 
 using System;
 using MonoMac.AppKit;
+using AirVPN.Core;
 
 namespace AirVPN.UI.Osx
 {
 	public class MainWindowDelegate : NSWindowDelegate
 	{
-		//MainWindowController m_main;
+		MainWindowController m_main;
 
 		public MainWindowDelegate (MainWindowController main)
 		{
-			//m_main = main;
+			m_main = main;
 		}
 
 		public override bool WindowShouldClose (MonoMac.Foundation.NSObject sender)
 		{
-			Engine.Instance.RequestStop ();
+			if(m_main.MessageYesNo(Messages.ExitConfirm))
+				Engine.Instance.RequestStop ();
 			return false;
+		}
+
+		public override void DidMiniaturize (MonoMac.Foundation.NSNotification notification)
+		{
+			m_main.EnabledUI ();
 		}
 	}
 }

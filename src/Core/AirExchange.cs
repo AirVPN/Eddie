@@ -44,7 +44,7 @@ namespace AirVPN.Core
 
 			// Generate S
 
-			string airAuthPublicKey = Lib.Core.Properties.Resources.Auth;
+			string airAuthPublicKey = ResourcesFiles.GetString("auth.xml");
 			StringReader sr = new System.IO.StringReader(airAuthPublicKey);
 			System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
 			RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
@@ -106,11 +106,16 @@ namespace AirVPN.Core
 				}
 			}
 
+			// Debugging - TOCLEAN
+			//hosts.Clear();
+			//hosts.Add("invalidhostname.airvpn.org");
+			//hosts.Add("54.246.124.152");
+
 			string firstError = "";
 
 			foreach (string host in hosts)
 			{
-				if (NetworkLocking.Instance.GetActive())
+				if (RoutesManager.Instance.GetLockActive())
 				{
 					// If locked network are enabled, skip the hostname and try only by IP.
 					// To avoid DNS issue (generally, to avoid losing time).
@@ -133,6 +138,8 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
+					Engine.Instance.Log(Engine.LogType.Verbose, e.Message);
+
 					if (firstError == "")
 						firstError = e.Message;
 				}

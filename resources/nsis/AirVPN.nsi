@@ -81,10 +81,10 @@
 	!insertmacro MUI_PAGE_INSTFILES
 	
 	!define MUI_FINISHPAGE_NOAUTOCLOSE
-	!define MUI_FINISHPAGE_RUN
-	!define MUI_FINISHPAGE_RUN_CHECKED
-	!define MUI_FINISHPAGE_RUN_TEXT "Esegui ora"
-	!define MUI_FINISHPAGE_RUN_FUNCTION "LaunchLink"
+	;!define MUI_FINISHPAGE_RUN
+	;!define MUI_FINISHPAGE_RUN_CHECKED
+	;!define MUI_FINISHPAGE_RUN_TEXT "Esegui ora"
+	;!define MUI_FINISHPAGE_RUN_FUNCTION "LaunchLink"
 	
 	!insertmacro MUI_PAGE_FINISH
 	
@@ -245,7 +245,7 @@
 		
 		;Create shortcuts
 		CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\AirVPN.lnk" "$INSTDIR\AirVPN.exe"
+		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\AirVPN.lnk" "$INSTDIR\AirVPN.exe" -path=home
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://airvpn.org"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 		
@@ -321,9 +321,9 @@ SectionEnd
 ;--------------------------------
 ;Installer Functions
 
-Function LaunchLink  
-	ExecShell "open" "$INSTDIR\AirVPN.exe"
-FunctionEnd
+;Function LaunchLink  
+;	ExecShell "open" "$INSTDIR\AirVPN.exe"
+;FunctionEnd
 
 
 Function .onInit

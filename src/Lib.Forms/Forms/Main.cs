@@ -54,9 +54,8 @@ namespace AirVPN.Gui.Forms
 		private bool m_lockCoordUpdate = false;		
         private int m_topHeaderHeight = 30;
 
-		private bool m_skipNetworkLockedConfirm = false;
-		private bool m_FormReady = false;
-		private bool m_Closing = false;
+		private bool m_formReady = false;
+		private bool m_closing = false;
 
         public Main()
         {
@@ -86,7 +85,7 @@ namespace AirVPN.Gui.Forms
 				mnuAreas.Dispose();
 				mnuLogsContext.Dispose();
 
-				m_Closing = true;
+				m_closing = true;
                 Close();
             }
         }
@@ -98,7 +97,7 @@ namespace AirVPN.Gui.Forms
 			SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 			MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
 
-			m_FormReady = false;
+			m_formReady = false;
 
 			Visible = false;
 
@@ -115,7 +114,8 @@ namespace AirVPN.Gui.Forms
                 m_notifyIcon.BalloonTipTitle = Constants.Name;
 
                 m_notifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
-                m_notifyIcon.Click += new EventHandler(notifyIcon_Click);
+                //m_notifyIcon.Click += new EventHandler(notifyIcon_Click);				
+				m_notifyIcon.ContextMenuStrip = mnuMain;
             }
 
 			// Controls initialization
@@ -222,13 +222,6 @@ namespace AirVPN.Gui.Forms
 			Resizing();
             Show();
 
-			if (Engine.Storage.GetBool("advanced.netlock.enabled"))
-			{
-				m_skipNetworkLockedConfirm = true;
-				chkLockedNetwork.Checked = Engine.Storage.GetBool("advanced.netlock.active");
-				m_skipNetworkLockedConfirm = false;
-			}
-
 			/*
             if (cmdConnect.Enabled && (Engine.Storage.GetBool("connect")))
             {
@@ -236,10 +229,15 @@ namespace AirVPN.Gui.Forms
             }
 			*/
 
-			m_FormReady = true;
+			if (Engine.Storage.GetBool("advanced.netlock.enabled"))
+			{
+				if(Engine.Storage.GetBool("advanced.netlock.active"))
+					Engine.Instance.NetLockIn();				
+			}
 
-            Engine.OnRefreshUi();
+			m_formReady = true;
 
+			Engine.OnRefreshUi();
 
         }
                 
@@ -288,7 +286,7 @@ namespace AirVPN.Gui.Forms
 				else
 				{
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
-					if (NetworkLocking.Instance.GetActive())
+					if (RoutesManager.Instance.GetLockActive())
 					{
 						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, m_topBarFont, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
@@ -325,11 +323,14 @@ namespace AirVPN.Gui.Forms
 
         protected override void OnClosing(CancelEventArgs e)
         {
-			if (m_Closing)
+			if (m_closing)
 				return;
-			
+
 			e.Cancel = true;
 
+			if (MessageBox.Show(this, Messages.ExitConfirm, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+				return;
+			
 			Gui.Engine engine = Engine.Instance as Gui.Engine;
 
             if (engine.FormMain != null)
@@ -357,12 +358,14 @@ namespace AirVPN.Gui.Forms
 				if (Engine.Storage.GetBool("gui.windows.tray"))
 				{
 					if (Platform.Instance.IsTraySupported())
+					{
 						if (FormWindowState.Minimized == WindowState)
+						{
 							Hide();
+							EnabledUi();
+						}
+					}
 				}
-
-				mnuRestore.Visible = (this.Visible == false);
-
 
 				Resizing();
 			}            
@@ -388,7 +391,10 @@ namespace AirVPN.Gui.Forms
 
         private void mnuRestore_Click(object sender, EventArgs e)
         {
-            Restore();
+			if (this.Visible == false)
+				Restore();
+			else
+				this.WindowState = FormWindowState.Minimized;
         }
 
         private void mnuExit_Click(object sender, EventArgs e)
@@ -419,8 +425,35 @@ namespace AirVPN.Gui.Forms
         private void mnuSettings_Click(object sender, EventArgs e)
         {
             Forms.Settings Dlg = new Forms.Settings();
-            Dlg.ShowDialog();            
+            Dlg.ShowDialog();
+
+			EnabledUi();
         }
+
+		private void mnuStatus_Click(object sender, EventArgs e)
+		{
+			Restore();
+		}
+
+		private void mnuConnect_Click(object sender, EventArgs e)
+		{
+			if (Engine.IsWaiting())
+			{
+				Disconnect();
+			}
+			else if (Engine.IsConnected())
+			{
+				Disconnect();
+			}
+			else if (Engine.IsLogged())
+			{
+				Connect();
+			}
+			else
+			{
+				Restore();
+			}
+		}
 		
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
@@ -453,14 +486,22 @@ namespace AirVPN.Gui.Forms
 			Connect();
 		}
 
+
+		private void cmdLockedNetwork_Click(object sender, EventArgs e)
+		{
+			if (RoutesManager.Instance.GetLockActive())
+				NetworkLockDeactivation();
+			else
+				NetworkLockActivation();
+		}
+
 		private void cmdDisconnect_Click(object sender, EventArgs e)
 		{
 			Disconnect();
 		}
 
 		private void cmdCancel_Click(object sender, EventArgs e)
-		{
-			cmdCancel.Enabled = false;
+		{			
 			Disconnect();
 		}
 
@@ -469,12 +510,7 @@ namespace AirVPN.Gui.Forms
             ShowMenu();
         }
 
-        private void chkLockedSecurity_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckLockedNetwork();
-        }
-
-		private void mnuToolsPortForwarding_Click(object sender, EventArgs e)
+        private void mnuToolsPortForwarding_Click(object sender, EventArgs e)
 		{
 			/*
 			Forms.PortForwarding Dlg = new PortForwarding();
@@ -518,6 +554,24 @@ namespace AirVPN.Gui.Forms
 			Dlg.Title = "Man";
 			Dlg.Body = Core.UI.Actions.GetMan("bbc");
 			Dlg.ShowDialog();
+		}
+
+		private void mnuDevelopersReset_Click(object sender, EventArgs e)
+		{
+			Dictionary<string, ServerInfo> servers;
+			lock (Engine.Servers)
+				servers = new Dictionary<string, ServerInfo>(Engine.Servers);
+			foreach (ServerInfo infoServer in servers.Values)
+			{
+				infoServer.PingTests = 0;
+				infoServer.PingFailedConsecutive = 0;
+				infoServer.Ping = -1;
+				infoServer.LastPingTest = 0;
+				infoServer.LastPingResult = 0;
+				infoServer.LastPingSuccess = 0;
+			}
+
+			Engine.OnRefreshUi();
 		}
 		
 		private void mnuDevelopersDefaultManifest_Click(object sender, EventArgs e)
@@ -817,7 +871,7 @@ namespace AirVPN.Gui.Forms
 				lblWait2.Top = imgProgress.Top + imgProgress.Height + 10;
 				lblWait2.Width = tabItemWidth;
 				lblWait2.Height = tabItemHeight - lblWait2.Top - 10 - 60;
-				cmdCancel.Width = tabItemHeight * 3 / 2;
+				cmdCancel.Width = tabItemWidth * 2 / 3;
 				cmdCancel.Height = 30;
 				cmdCancel.Left = tabItemWidth / 2 - cmdCancel.Width / 2;
 				cmdCancel.Top = tabItemHeight - 50;				
@@ -829,7 +883,8 @@ namespace AirVPN.Gui.Forms
         {
             Show();
             WindowState = FormWindowState.Normal;
-            Activate();            
+            Activate();
+			EnabledUi();
         }
 
         public void ShowMenu()
@@ -885,6 +940,9 @@ namespace AirVPN.Gui.Forms
 
         public void Disconnect()
         {
+			cmdCancel.Enabled = false;
+			mnuConnect.Enabled = false;
+
 			Engine.Disconnect();            
         }
         
@@ -937,6 +995,8 @@ namespace AirVPN.Gui.Forms
 						{
 							Text = Constants.Name + " - " + Msg;
 
+							mnuStatus.Text = "> " + Msg;
+
 							if (m_notifyIcon != null)
 							{
 								m_notifyIcon.Text = notifyText;
@@ -958,16 +1018,55 @@ namespace AirVPN.Gui.Forms
         }
 
         public void EnabledUi()
-		{			
+		{
+			if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
+			{
+				mnuRestore.Visible = true;
+
+				if (this.Visible)
+					mnuRestore.Text = Messages.WindowsMainHide;
+				else
+					mnuRestore.Text = Messages.WindowsMainShow;
+			}
+			else
+			{
+				mnuRestore.Visible = false;
+			}
+
 			// Welcome
 			bool logged = Engine.IsLogged();
 			bool connected = Engine.IsConnected();
 			bool waiting = Engine.IsWaiting();
 
 			if (logged == false)
-				cmdLogin.Text = Messages.CommandLogin;
+			{
+				cmdLogin.Text = Messages.CommandLogin;				
+			}
 			else
+			{
 				cmdLogin.Text = Messages.CommandLogout;
+			}
+
+			if (waiting)
+			{
+				mnuConnect.Text = Messages.CommandCancel;
+			}
+			else if (connected)
+			{
+				mnuConnect.Enabled = true;
+				mnuConnect.Text = Messages.CommandDisconnect;
+			}
+			else if (logged)
+			{
+				mnuConnect.Enabled = true;
+				mnuConnect.Text = Messages.CommandConnect;
+			}
+			else
+			{
+				mnuConnect.Enabled = true;
+				mnuConnect.Text = Messages.CommandLogin;
+			}
+
 
 			cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != "") );
 
@@ -1004,7 +1103,18 @@ namespace AirVPN.Gui.Forms
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
 
-			chkLockedNetwork.Visible = Engine.Storage.GetBool("advanced.netlock.enabled");
+			cmdLockedNetwork.Visible = Engine.Storage.GetBool("advanced.netlock.enabled");
+			imgLockedNetwork.Visible = cmdLockedNetwork.Visible;
+			if (RoutesManager.Instance.GetLockActive())
+			{
+				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
+				imgLockedNetwork.BackgroundImage = Lib.Forms.Properties.Resources.netlock_on;
+			}
+			else
+			{
+				cmdLockedNetwork.Text = Messages.NetworkLockButtonDeactive;
+				imgLockedNetwork.BackgroundImage = Lib.Forms.Properties.Resources.netlock_off;
+			}
 		}
 
 		private delegate void ShowFrontMessageDelegate(string message);
@@ -1045,7 +1155,7 @@ namespace AirVPN.Gui.Forms
             }
             else
             {
-				if (m_FormReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
+				if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
 					return;
 
 				lock (Engine)
@@ -1063,6 +1173,10 @@ namespace AirVPN.Gui.Forms
 							pnlConnected.Visible = false;
 							cmdCancel.Visible = Engine.IsWaitingCancelAllowed();
 							cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+							mnuConnect.Enabled = cmdCancel.Enabled;
+
+							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_yellow_16;
+
 						}
 						else if (Engine.IsConnected())
 						{
@@ -1082,12 +1196,16 @@ namespace AirVPN.Gui.Forms
 							}
 							else
 								lblConnectedCountry.Image = null;
+
+							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_green_16;
 						}
 						else
 						{
 							pnlWelcome.Visible = true;
 							pnlWaiting.Visible = false;
 							pnlConnected.Visible = false;
+
+							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_red_16;
 						}
 						
 						// Icon                    
@@ -1146,13 +1264,15 @@ namespace AirVPN.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-							string notifyText = Constants.Name + " - " + Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
-							Text = notifyText;
+							string notifyText = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
+							string notifyText2 = Constants.Name + " - " + notifyText;
+							Text = notifyText2;
+							mnuStatus.Text = "> " + notifyText;
 							if (m_notifyIcon != null)
 							{
-								if (notifyText.Length > 62)
-									notifyText = notifyText.Substring(0, 62);
-								m_notifyIcon.Text = notifyText;
+								if (notifyText2.Length > 62)
+									notifyText2 = notifyText2.Substring(0, 62);
+								m_notifyIcon.Text = notifyText2;
 							}
 						}						
                     }
@@ -1261,7 +1381,7 @@ namespace AirVPN.Gui.Forms
 			{
 				Clipboard.SetText(t);
 
-				MessageBox.Show(Messages.LogsCopyClipboardDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show(Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 		}
 
@@ -1284,58 +1404,33 @@ namespace AirVPN.Gui.Forms
 						sw.Close();
 					}
 
-					MessageBox.Show(Messages.LogsSaveToFileDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+					MessageBox.Show(Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
 			}
 		}	
 
-        public void CheckLockedNetwork()
-        {
-            if (chkLockedNetwork.Checked)
-            {
-				bool confirmed = false;
+		public void NetworkLockActivation()
+		{
+			string Msg = Messages.NetworkLockWarning;
 
-				if (m_skipNetworkLockedConfirm)
-				{
-					confirmed = true;
-					m_skipNetworkLockedConfirm = false;
-				}
-				else
-				{
-					String Msg = "";
-					Msg += "Network Locked Mode\n";
-					Msg += "\n";
-					Msg += "In this state, any network connections outside AirVPN service & tunnel are unavailable.\n";
-					Msg += "Indipendently if you are connected to the VPN or not.\n";
-					Msg += "This computer will also unavailable for your local network.\n";
-					Msg += "\n";
-					Msg += "Warning: Any active connections will be dropped.\n";
-					Msg += "\n";
-					Msg += "Are you sure do you want to activate this mode?";
+			if (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+			{
+				Engine.Instance.Storage.SetBool("advanced.netlock.active", true);
 
-					if (MessageBox.Show(this, Msg, this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-					{
-						confirmed = true;
-					}
-				}
+				Engine.Instance.NetLockIn();
+			}
+		}
 
-				if(confirmed)
-                {
-                    if (NetworkLocking.Instance.Activate() == false)
-                    {
-						MessageBox.Show(this, Messages.NetworkLockFailed, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    }
-                }
+		public void NetworkLockDeactivation()
+		{
+			Engine.NetLockOut();
 
-				chkLockedNetwork.Checked = NetworkLocking.Instance.GetActive();
-            }
-            else
-            {
-				NetworkLocking.Instance.Deactivate();
-            }
+			Engine.Instance.Storage.SetBool("advanced.netlock.active", false);
+		}
 
-			Engine.Storage.SetBool("advanced.netlock.active", NetworkLocking.Instance.GetActive());
-        }
+
+
+		
 
 
 		

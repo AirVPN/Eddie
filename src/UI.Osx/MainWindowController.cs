@@ -34,7 +34,9 @@ namespace AirVPN.UI.Osx
 		public TableStatsController TableStatsController;
 
 		public NSStatusItem StatusItem;
-		public NSMenuItem StatusMenuItem;
+
+		private WindowAboutController windowAbout;
+		private WindowPreferencesController windowPreferences;
 
 		#region Constructors
 		// Called when created from unmanaged code
@@ -155,14 +157,21 @@ namespace AirVPN.UI.Osx
 				Disconnect();
 			};
 
-			CmdCancel.Activated += (object sender, EventArgs e) => {
-				CmdCancel.Enabled = false;
+			CmdCancel.Activated += (object sender, EventArgs e) => {				
 				Disconnect ();
 			};
 
-			ChkLockedMode.Activated += (object sender, EventArgs e) => {
-				CheckLockedNetwork();
+			CmdNetworkLock.Activated += (object sender, EventArgs e) => {
+				if(RoutesManager.Instance.GetLockActive())
+				{
+					NetworkLockDeactivation();
+				}
+				else
+				{
+					NetworkLockActivation();
+				}
 			};
+
 			TableServers.DoubleClick += (object sender, EventArgs e) => {
 				ConnectManual();
 			};
@@ -299,11 +308,7 @@ namespace AirVPN.UI.Osx
 						Core.UI.Actions.SendOpenVpnManagementCommand(w.Command);
 				}
 			};
-
-			CboSpeedResolutions.Activated += (object sender, EventArgs e) => {
-				// TODO
-			};
-
+				
 			TableServersController = new TableServersController (this.TableServers);
 			this.TableServers.Delegate = new TableServersDelegate (this);
 
@@ -317,9 +322,85 @@ namespace AirVPN.UI.Osx
 				TableStatsController.DoubleClickItem();
 			};
 
+			// Topbar Menu
+
+			MnuTrayStatus.Activated += (object sender, EventArgs e) =>
+			{
+				Restore();
+			};
+
+			MnuTrayConnect.Activated += (object sender, EventArgs e) =>
+			{
+				if (Engine.IsWaiting())
+				{
+					Disconnect();
+				}
+				else if (Engine.IsConnected())
+				{
+					Disconnect();
+				}
+				else if (Engine.IsLogged())
+				{
+					Connect();
+				}
+				else
+				{
+					Restore();
+				}
+			};
+
+			MnuTrayAbout.Activated += (object sender, EventArgs e) =>
+			{
+				ShowAbout();
+			};
+
+			MnuTrayPreferences.Activated += (object sender, EventArgs e) =>
+			{
+				ShowPreferences();
+			};
+
+			MnuTrayHome.Activated += (object sender, EventArgs e) =>
+			{
+				ShowHome();
+			};
+
+			MnuTrayClientArea.Activated += (object sender, EventArgs e) =>
+			{
+				ShowClientArea();
+			};
+
+			MnuTrayForwardingPorts.Activated += (object sender, EventArgs e) =>
+			{
+				ShowForwardingPorts();
+			};
+
+			MnuTraySpeedTest.Activated += (object sender, EventArgs e) =>
+			{
+				ShowSpeedTest();
+			};
+
+			MnuTrayRestore.Activated += (object sender, EventArgs e) => {
+				if(Window.IsVisible)
+					Minimize();
+				else
+					Restore();
+			};
+
+			MnuTrayQuit.Activated += (object sender, EventArgs e) =>
+			{
+				Engine.Instance.RequestStop();
+			};
+
+			
+
+
+
+
 			Engine.MainWindow = this;
 
 			Engine.OnRefreshUi ();
+
+			RequestAttention ();
 		}
 
 		public void RefreshUi (Engine.RefreshUiMode mode)
@@ -339,17 +420,20 @@ namespace AirVPN.UI.Osx
 				{
 					ImgProgress.StartAnimation(this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_yellow.png");
+					MnuTrayStatus.Image = NSImage.ImageNamed ("status_yellow_16.png");
 					LblTopStatus.StringValue = Engine.WaitMessage;
 
 					TabOverview.SelectAt(1);
 
 					CmdCancel.Hidden = (Engine.IsWaitingCancelAllowed() == false);
 					CmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+					MnuTrayConnect.Enabled = CmdCancel.Enabled;
 				}
 				else if (Engine.IsConnected())
 				{
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
+					MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
 					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.PublicName);
 
 					TabOverview.SelectAt(2);
@@ -363,13 +447,17 @@ namespace AirVPN.UI.Osx
 				{
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
-					LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed; // TODO la locked
+					MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
+					if(RoutesManager.Instance.GetLockActive())
+						LblTopStatus.StringValue = Messages.TopBarNotConnectedLocked;
+					else
+						LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed;
 
 					TabOverview.SelectAt(0);
 				}
 
 				// Icon update
-				if(StatusMenuItem != null)
+				if(StatusItem != null)
 				{
 					if(Engine.IsConnected())
 					{
@@ -411,7 +499,7 @@ namespace AirVPN.UI.Osx
 					string msg = Messages.Format (Messages.StatusTextConnected, Constants.Name, Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
 					string tmsg = Constants.Name + " - " + msg;
 					this.Window.Title = tmsg;
-					StatusMenuItem.Title = "> " + msg;
+					MnuTrayStatus.Title = "> " + msg;
 					StatusItem.ToolTip = msg;
 				}
 			}
@@ -434,14 +522,13 @@ namespace AirVPN.UI.Osx
 
 			TableLogsController.AddLog (l);
 
-			StatusMenuItem.Title = msg;
 			StatusItem.ToolTip = msg;
 
 			if ((msg != "") && (l.Type != Core.Engine.LogType.Verbose)) {
 				if(Engine.IsConnected() == false)
 				{
 					Window.Title = Constants.Name + " - " + msg;
-					StatusMenuItem.Title = "> " + msg;
+					MnuTrayStatus.Title = "> " + msg;
 				}
 			}
 
@@ -461,10 +548,36 @@ namespace AirVPN.UI.Osx
 			bool connected = Engine.IsConnected ();
 			bool waiting = Engine.IsWaiting ();
 
+			MnuTrayRestore.Hidden = false;
+			if (this.Window.IsVisible)
+				MnuTrayRestore.Title = Messages.WindowsMainHide;
+			else
+				MnuTrayRestore.Title = Messages.WindowsMainShow;
+
 			if (logged == false)
 				CmdLogin.Title = Messages.CommandLogin;
 			else
 				CmdLogin.Title = Messages.CommandLogout;
+
+			if (waiting)
+			{
+				MnuTrayConnect.Title = Messages.CommandCancel;
+			}
+			else if (connected)
+			{
+				MnuTrayConnect.Enabled = true;
+				MnuTrayConnect.Title = Messages.CommandDisconnect;
+			}
+			else if (logged)
+			{
+				MnuTrayConnect.Enabled = true;
+				MnuTrayConnect.Title = Messages.CommandConnect;
+			}
+			else
+			{
+				MnuTrayConnect.Enabled = true;
+				MnuTrayConnect.Title = Messages.CommandLogin;
+			}
 
 			CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim () != "") && (TxtPassword.StringValue.Trim () != ""));
 
@@ -496,7 +609,15 @@ namespace AirVPN.UI.Osx
 			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
 			CmdLogsOpenVpnManagement.Enabled = connected;
 
-			ChkLockedMode.Hidden = (Engine.Storage.GetBool ("advanced.netlock.enabled") == false);
+			CmdNetworkLock.Hidden = (Engine.Storage.GetBool ("advanced.netlock.enabled") == false);
+			ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
+			if (RoutesManager.Instance.GetLockActive ()) {
+				CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
+				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
+			} else {
+				CmdNetworkLock.Title = Messages.NetworkLockButtonDeactive;
+				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_off.png");
+			}
 		}
 
 		public void FrontMessage(string message)
@@ -525,6 +646,26 @@ namespace AirVPN.UI.Osx
 			alert.MessageText = title;
 			alert.InformativeText = message;
 			alert.RunModal();
+		}
+
+		public bool MessageYesNo(string message)
+		{
+			return MessageYesNo (message, "");
+		}
+
+		public bool MessageYesNo(string message, string title)
+		{
+			NSAlert alert = new NSAlert();
+			alert.MessageText = title;
+			alert.InformativeText = message;
+			alert.AddButton ("Yes");
+			alert.AddButton ("No");
+			int r = alert.RunModal();
+
+			if (r == 1000)
+				return true;
+
+			return false;
 		}
 
 		public void Notification(string title, string notes)
@@ -560,7 +701,9 @@ namespace AirVPN.UI.Osx
 
 		public void CreateMenuBarIcon ()
 		{
-			NSMenu notifyMenu = new NSMenu ();
+			// TOCLEAN
+			/*
+			NSMenu notifyMenu = new NSMenu (); 
 			StatusMenuItem = new NSMenuItem ("");
 			notifyMenu.AddItem (StatusMenuItem);
 			NSMenuItem exitMenuItem = new NSMenuItem ("Quit", (a,b) => {
@@ -568,9 +711,10 @@ namespace AirVPN.UI.Osx
 				Engine.RequestStop();
 			});
 			notifyMenu.AddItem (exitMenuItem);
-
+			*/
 			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (22);
-			StatusItem.Menu = notifyMenu;
+			//StatusItem.Menu = notifyMenu;
+			StatusItem.Menu = MnuTray;
 			StatusItem.Image = NSImage.ImageNamed ("statusbar_black_gray.png");
 			StatusItem.HighlightMode = true;
 		}
@@ -611,12 +755,30 @@ namespace AirVPN.UI.Osx
 
 		void Disconnect()
 		{
+			CmdCancel.Enabled = false;
+			MnuTrayConnect.Enabled = false;
+
 			Engine.Disconnect ();
 		}
 
-		void CheckLockedNetwork()
+		void NetworkLockActivation()
 		{
-			// TODO
+			string msg = Messages.NetworkLockWarning;
+
+			// todo confirm pazzo
+			{
+				Engine.Instance.Storage.SetBool ("advanced.netlock.active", true);
+
+				Engine.Instance.NetLockIn ();
+			}
+
+		}
+
+		void NetworkLockDeactivation()
+		{
+			Engine.NetLockOut ();
+
+			Engine.Instance.Storage.SetBool ("advanced.netlock.active", false);
 		}
 
 		bool TermsOfServiceCheck(bool force)
@@ -726,6 +888,53 @@ namespace AirVPN.UI.Osx
 				}
 			}
 		}
+
+		public void ShowAbout()
+		{
+			if(windowAbout == null)
+				windowAbout = new WindowAboutController();
+			windowAbout.ShowWindow(this);
+		}
+
+		public void ShowPreferences()
+		{
+			if(windowPreferences == null)
+				windowPreferences = new WindowPreferencesController();
+			windowPreferences.ShowWindow(this);
+		}
+
+		public void ShowHome()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlWebsite();
+		}
+
+		public void ShowClientArea()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlClient();
+		}
+
+		public void ShowForwardingPorts()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlPorts();
+		}
+
+		public void ShowSpeedTest()
+		{
+			AirVPN.Core.UI.Actions.OpenUrlSpeedTest();
+		}
+
+		public void Minimize()
+		{
+			Window.Miniaturize (this);
+			EnabledUI ();
+		}
+
+		public void Restore()
+		{
+			Window.Deminiaturize (this);
+			EnabledUI ();
+		}
 	}
 }
+
 
