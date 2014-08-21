@@ -648,6 +648,26 @@ namespace AirVPN.UI.Osx
 			alert.RunModal();
 		}
 
+		public bool MessageYesNo(string message)
+		{
+			return MessageYesNo (message, "");
+		}
+
+		public bool MessageYesNo(string message, string title)
+		{
+			NSAlert alert = new NSAlert();
+			alert.MessageText = title;
+			alert.InformativeText = message;
+			alert.AddButton ("Yes");
+			alert.AddButton ("No");
+			int r = alert.RunModal();
+
+			if (r == 1000)
+				return true;
+
+			return false;
+		}
+
 		public void Notification(string title, string notes)
 		{
 			RequestAttention ();

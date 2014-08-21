@@ -18,6 +18,7 @@
 
 using System;
 using MonoMac.AppKit;
+using AirVPN.Core;
 
 namespace AirVPN.UI.Osx
 {
@@ -32,7 +33,8 @@ namespace AirVPN.UI.Osx
 
 		public override bool WindowShouldClose (MonoMac.Foundation.NSObject sender)
 		{
-			Engine.Instance.RequestStop ();
+			if(m_main.MessageYesNo(Messages.ExitConfirm))
+				Engine.Instance.RequestStop ();
 			return false;
 		}
 
