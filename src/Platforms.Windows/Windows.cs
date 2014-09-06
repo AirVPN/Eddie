@@ -141,7 +141,7 @@ namespace AirVPN.Platforms
 
         public override string ShellCmd(string Command)
         {
-            return Shell("cmd.exe", String.Format("/c {0}", Command), true);
+            return Shell("cmd.exe", String.Format("/c {0}", Command));
         }
 
         public override void FlushDNS()
@@ -164,6 +164,39 @@ namespace AirVPN.Platforms
 		{
 			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
 			ShellCmd(cmd);
+		}
+
+		public override bool WaitTunReady()
+		{
+			int tickStart = Environment.TickCount;
+			string lastStatus = "";
+
+			for (; ; )
+			{
+				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+				foreach (NetworkInterface adapter in interfaces)
+				{
+					if (adapter.Description.StartsWith("TAP-Win"))
+					{
+						if (adapter.OperationalStatus == OperationalStatus.Up)
+							return true;
+						else
+						{
+							lastStatus = adapter.OperationalStatus.ToString();							
+						}
+					}
+				}
+
+				if (Environment.TickCount - tickStart > 10000)
+				{
+					Engine.Instance.Log(Engine.LogType.Warning, "Tunnel not ready in 10 seconds, contact our support. Last interface status: " + lastStatus);
+					return false;
+				}
+
+				Engine.Instance.Log(Engine.LogType.Warning, "Waiting TUN interface");
+
+				System.Threading.Thread.Sleep(2000);
+			}
 		}
 
 		public override List<RouteEntry> RouteList()
@@ -257,6 +290,13 @@ namespace AirVPN.Platforms
 			}			
 
 			return t;
+		}
+
+		public override void OnNetworkLockManagerInit()
+		{
+			base.OnNetworkLockManagerInit();
+
+			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
 		}
 
 		public override void OnSessionStart()
@@ -395,7 +435,7 @@ namespace AirVPN.Platforms
 			if (driverPath == "")
 				throw new Exception(Messages.OsDriverNotAvailable);
 
-			Shell(driverPath, "/S", true);
+			Shell(driverPath, "/S");
 
 			System.Threading.Thread.Sleep(3000);
 		}
@@ -406,7 +446,7 @@ namespace AirVPN.Platforms
 			if (uninstallPath == "")
 				return;
 
-			Shell(uninstallPath, "/S", true);
+			Shell(uninstallPath, "/S");
 
 			System.Threading.Thread.Sleep(3000);
 		}

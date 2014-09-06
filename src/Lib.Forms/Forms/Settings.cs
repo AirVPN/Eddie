@@ -53,6 +53,12 @@ namespace AirVPN.Gui.Forms
             cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("in"));
             cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("out"));
 
+			cboLockMode.Items.Clear();
+			cboLockMode.Items.Add("None");
+			cboLockMode.Items.Add("Automatic");
+			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
+				cboLockMode.Items.Add(lockPlugin.GetName());
+
             lstAdvancedEvents.Items.Add(new ListViewItem("App Start"));
             lstAdvancedEvents.Items.Add(new ListViewItem("App End"));
 			lstAdvancedEvents.Items.Add(new ListViewItem("Session Start"));
@@ -79,10 +85,8 @@ namespace AirVPN.Gui.Forms
 
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");            
-
-			chkAdvancedNetworkLocking.Visible = Engine.DevelopmentEnvironment;
-
-            ReadOptions();
+						
+			ReadOptions();
 
 			RefreshLogPreview();
 
@@ -108,6 +112,7 @@ namespace AirVPN.Gui.Forms
             chkAutoStart.Checked = s.GetBool("connect");
             chkMinimizeTray.Checked = s.GetBool("gui.windows.tray");
             chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
+			chkExitConfirm.Checked = s.GetBool("gui.exit_confirm");
 
             // Modes
             String protocol = s.Get("mode.protocol").ToUpperInvariant();
@@ -249,7 +254,20 @@ namespace AirVPN.Gui.Forms
 
 			txtExePath.Text = s.Get("executables.openvpn");
 
-			chkAdvancedNetworkLocking.Checked = s.GetBool("advanced.netlock.enabled");
+			// Advanced - Lock
+			string lockMode = s.Get("netlock.mode");
+			cboLockMode.Text = "None";
+			if (lockMode == "auto")
+				cboLockMode.Text = "Automatic";
+			else
+			{
+				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
+				{
+					if (lockPlugin.GetCode() == lockMode)
+						cboLockMode.Text = lockPlugin.GetName();
+				}
+			}
+			txtLockAllowedIPS.Text = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
 			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
@@ -297,6 +315,7 @@ namespace AirVPN.Gui.Forms
             s.SetBool("connect", chkAutoStart.Checked);
             s.SetBool("gui.windows.tray", chkMinimizeTray.Checked);
             s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
+			s.SetBool("gui.exit_confirm", chkExitConfirm.Checked);
 
             // Modes
             String protocol;
@@ -463,14 +482,27 @@ namespace AirVPN.Gui.Forms
 
 			s.SetBool("advanced.pinger.enabled", chkAdvancedPingerEnabled.Checked);
 			s.SetBool("advanced.pinger.always", chkAdvancedPingerAlways.Checked);
-
-			s.SetBool("advanced.netlock.enabled", chkAdvancedNetworkLocking.Checked);
-			
+						
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
 			s.SetBool("advanced.windows.dns_force", chkAdvancedWindowsForceDns.Checked);
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
 
 			s.Set("executables.openvpn", txtExePath.Text);
+
+			// Advanced - Lock
+			string lockMode = cboLockMode.Text;
+			s.Set("netlock.mode", "none");
+			if (lockMode == "Automatic")
+				s.Set("netlock.mode", "auto");
+			else
+			{
+				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
+				{
+					if (lockPlugin.GetName() == lockMode)
+						s.Set("netlock.mode", lockPlugin.GetCode());
+				}
+			}
+			s.Set("netlock.allowed_ips", txtLockAllowedIPS.Text);
 
 			// Advanced - Logging
 			s.SetBool("log.file.enabled", chkLoggingEnabled.Checked);
@@ -605,10 +637,14 @@ namespace AirVPN.Gui.Forms
 			Core.UI.Actions.OpenUrlDocsProtocols();
         }
 
-
 		private void lnkAdvancedDocs_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
 			Core.UI.Actions.OpenUrlDocsAdvanced();
+		}
+
+		private void lnkLockDocs_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Core.UI.Actions.OpenUrlDocsLock();
 		}
 
         private void cmdRouteAdd_Click(object sender, EventArgs e)
@@ -754,7 +790,7 @@ namespace AirVPN.Gui.Forms
 			RefreshLogPreview();
 		}
 
-
+		
 
         
 

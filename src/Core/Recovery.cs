@@ -45,7 +45,7 @@ namespace AirVPN.Core
 				XmlElement root = (XmlElement)doc.AppendChild(doc.CreateElement("Recovery"));
 
 				Platform.Instance.OnRecoverySave(root);
-				Core.RoutesManager.Instance.OnRecoverySave(root);
+				Engine.Instance.NetworkLockManager.OnRecoverySave(root);
 
 				string path = RecoveryPath();
 				if (root.ChildNodes.Count == 0)
@@ -80,7 +80,7 @@ namespace AirVPN.Core
 
 						Platform.Instance.OnRecoveryLoad(root);
 
-						Core.RoutesManager.Instance.OnRecoveryLoad(root);
+						Engine.Instance.NetworkLockManager.OnRecoveryLoad(root);
 					}
 					catch (Exception e)
 					{

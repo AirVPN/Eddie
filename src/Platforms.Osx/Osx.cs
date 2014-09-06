@@ -208,6 +208,13 @@ namespace AirVPN.Platforms
 			return result;
 		}
 
+		public override void OnNetworkLockManagerInit()
+		{
+			base.OnNetworkLockManagerInit();
+
+			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockOsxPf());
+		}
+
 		public override void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeDns = Utils.XmlGetFirstElementByTagName(root, "DnsSwitch");

@@ -37,6 +37,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkLockOsxPf.cs" />
     <Compile Include="Osx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

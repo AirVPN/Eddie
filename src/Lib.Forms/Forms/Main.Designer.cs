@@ -176,7 +176,7 @@ namespace AirVPN.Gui.Forms
 			// colStatsValue
 			// 
 			colStatsValue.Text = "Value";
-			colStatsValue.Width = 400;
+			colStatsValue.Width = 4000;
 			// 
 			// colIcon
 			// 
@@ -1291,10 +1291,10 @@ namespace AirVPN.Gui.Forms
 			this.lblConnectedLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblConnectedLocation.Location = new System.Drawing.Point(156, 40);
 			this.lblConnectedLocation.Name = "lblConnectedLocation";
-			this.lblConnectedLocation.Size = new System.Drawing.Size(266, 14);
+			this.lblConnectedLocation.Size = new System.Drawing.Size(266, 24);
 			this.lblConnectedLocation.TabIndex = 3;
 			this.lblConnectedLocation.Text = "Location";
-			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// lblConnectedTo
 			// 
@@ -1512,6 +1512,7 @@ namespace AirVPN.Gui.Forms
 			this.lstStats.MultiSelect = false;
 			this.lstStats.Name = "lstStats";
 			this.lstStats.OwnerDraw = true;
+			this.lstStats.ShowItemToolTips = true;
 			this.lstStats.Size = new System.Drawing.Size(660, 301);
 			this.lstStats.TabIndex = 1;
 			this.lstStats.UseCompatibleStateImageBehavior = false;

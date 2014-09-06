@@ -36,7 +36,20 @@ namespace AirVPN.Core
         // ----------------------------------------
 
 		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
-        {
+		{
+			if (WaitEnd)
+			{
+				lock (Instance)
+				{
+					return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+				}
+			}
+			else
+				return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+		}
+
+		public static string ShellPlatformIndipendentEx(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+        {			
 			bool debug = false;
 			if ((Engine.Instance != null) && (Engine.Instance.DevelopmentEnvironment))
 				debug = true;
@@ -283,6 +296,11 @@ namespace AirVPN.Core
             return "";
         }
 
+		public virtual string Shell(string FileName, string Arguments)
+		{
+			return Shell(FileName, Arguments, "", true, false);
+		}
+
 		public virtual string Shell(string FileName, string Arguments, bool WaitEnd)
         {
             return Shell(FileName, Arguments, "", WaitEnd, false);
@@ -306,6 +324,11 @@ namespace AirVPN.Core
 		public virtual void RouteRemove(RouteEntry r)
 		{
 			NotImplemented();
+		}
+
+		public virtual bool WaitTunReady()
+		{
+			return true;
 		}
 
 		public virtual List<RouteEntry> RouteList()
@@ -370,6 +393,10 @@ namespace AirVPN.Core
 		}
 
 		public virtual void OnAppStart()
+		{
+		}
+
+		public virtual void OnNetworkLockManagerInit()
 		{
 		}
 

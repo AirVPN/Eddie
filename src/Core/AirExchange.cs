@@ -115,12 +115,12 @@ namespace AirVPN.Core
 
 			foreach (string host in hosts)
 			{
-				if (RoutesManager.Instance.GetLockActive())
+				if (Utils.IsIP(host) == false)
 				{
 					// If locked network are enabled, skip the hostname and try only by IP.
 					// To avoid DNS issue (generally, to avoid losing time).
-					if (Utils.IsIP(host) == false)
-						continue;
+					if (Engine.Instance.NetworkLockManager.IsDnsResolutionAvailable(host) == false)
+						continue;					
 				}
 
 				try

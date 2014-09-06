@@ -36,7 +36,7 @@ namespace AirVPN.Core
 		{
 			Start(address, force);
 		}
-
+		
 		~RouteScope()
 		{
 			End();
@@ -44,13 +44,17 @@ namespace AirVPN.Core
 
 		public void Start(IpAddress address, bool force)
 		{
+			/*
+			 * // pazzo: force non lo uso più? pensare al giro coi NetworkLockPlugin
 			if ((force == false) && (RoutesManager.Instance.GetLockActive() == false))
 				return;
+			*/
 
 			if (address.Valid)
 			{
 				m_address = address;
-				RoutesManager.Instance.RouteAdd(m_address, "255.255.255.255");
+				if (Engine.Instance.NetworkLockManager != null)
+					Engine.Instance.NetworkLockManager.AllowIP(m_address);				
 			}
 		}
 
@@ -58,10 +62,8 @@ namespace AirVPN.Core
 		{
 			if( (m_address != null) && (m_address.Valid) ) // Only one time			
 			{
-				if (RoutesManager.Instance.GetLockActive() == false)
-					return;
-
-				RoutesManager.Instance.RouteRemove(m_address, "255.255.255.255");
+				if (Engine.Instance.NetworkLockManager != null)
+					Engine.Instance.NetworkLockManager.DeallowIP(m_address);				
 				m_address.Clear();
 			}
 		}

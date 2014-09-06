@@ -43,7 +43,10 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="NetworkLockManager.cs" />
+    <Compile Include="NetworkLockPlugin.cs" />
     <Compile Include="IpAddress.cs" />
+    <Compile Include="NetworkLocks\RoutingTable.cs" />
     <Compile Include="RouteScope.cs" />
     <Compile Include="RouteEntry.cs" />
     <Compile Include="Debug.cs">

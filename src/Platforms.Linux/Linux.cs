@@ -103,7 +103,7 @@ namespace AirVPN.Platforms
 
         public override string ShellCmd(string Command)
         {
-            return Shell("sh", String.Format("-c '{0}'", Command), true);
+            return Shell("sh", String.Format("-c '{0}'", Command));
         }
 
         public override void FlushDNS()
@@ -234,6 +234,13 @@ namespace AirVPN.Platforms
 			}			
 		}
 
+		public override void OnNetworkLockManagerInit()
+		{
+			base.OnNetworkLockManagerInit();
+
+			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockIptables());
+		}
+
 		public override void OnRecovery()
 		{
 			base.OnRecovery();
@@ -259,7 +266,7 @@ namespace AirVPN.Platforms
 				}
 
 				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameDone);
-				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.ResolvConfHeader,Storage.GetVersionDesc()) + "\n\nnameserver " + dns + "\n");
+				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.GeneratedFileHeader,Storage.GetVersionDesc()) + "\n\nnameserver " + dns + "\n");
 			}			
 		}
 

@@ -59,7 +59,7 @@ namespace AirVPN.Core
 
 				if (OpenVpnPath != "")
 				{
-					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version", "", true, false).Trim();
+					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
 					if (OpenVpnVersion != "")
 					{
 						int posS = OpenVpnVersion.IndexOf(" ", 8);
@@ -85,7 +85,7 @@ namespace AirVPN.Core
 				if (SshPath != "")
 				{
 					string arguments = "-V";
-					SshVersion = Platform.Instance.Shell(SshPath, arguments, "", true, false).Trim();
+					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
 					if (SshVersion != "")
 					{
 						if (Platform.Instance.IsWindowsSystem()) 
@@ -111,7 +111,7 @@ namespace AirVPN.Core
 				if (SslPath != "")
 				{
 					string arguments = "-version";					
-					SslVersion = Platform.Instance.Shell(SslPath, arguments, "", true, false);
+					SslVersion = Platform.Instance.Shell(SslPath, arguments);
 					int posS = SslVersion.IndexOf(" ", 8);					
 					if (posS > 1)
 						SslVersion = SslVersion.Substring(0, posS);
@@ -131,7 +131,11 @@ namespace AirVPN.Core
 			catch (Exception)
 			{
 				IPV6 = false;
-			}			
+			}		
+	
+			// Local Time in the past
+			if (DateTime.UtcNow < Constants.dateForPastChecking)
+				Engine.Instance.Log(Engine.LogType.Fatal, Messages.WarningLocalTimeInPast);
 		}
 
 		public static void Log()

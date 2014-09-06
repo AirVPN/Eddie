@@ -26,8 +26,6 @@ using AirVPN.Core;
 
 namespace AirVPN.Core
 {
-    
-      
     public class RoutesManager
     {
         public static RoutesManager Instance = new RoutesManager();
@@ -38,7 +36,7 @@ namespace AirVPN.Core
         private Dictionary<string ,RouteEntry> EntryRemoved = new Dictionary<string,RouteEntry>();
         private Dictionary<string ,RouteEntry> EntryAdded = new Dictionary<string,RouteEntry>();
 
-		public static bool IsIP(string v) // TOCLEAN: where it's used and why
+		public static bool IsIP(string v) 
 		{
 			if (v == "On-link")
 				return true;
@@ -113,7 +111,7 @@ namespace AirVPN.Core
 						Engine.Instance.Log(Engine.LogType.Verbose, Entry.ToString());
                     }
 
-					Engine.Instance.Storage.SetBool("advanced.netlock.active", false);
+					Engine.Instance.Storage.SetBool("netlock.active", false);
 
                     return false;
                 }
@@ -122,7 +120,7 @@ namespace AirVPN.Core
 					Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkLockActivationSuccess, DefaultGateway.Value));
                 }
 
-				// pazzo
+				
 				/*
                 foreach (RouteEntry Entry in EntryList)
                 {
@@ -251,9 +249,9 @@ namespace AirVPN.Core
 		}
 
 
-		public void RouteAdd(IpAddress address, IpAddress mask)
+		public void RouteAdd(IpAddress address)
 		{
-			RouteAdd(address, mask, DefaultGateway, DefaultInterface);
+			RouteAdd(address, new IpAddress("255.255.255.255"), DefaultGateway, DefaultInterface);
 		}
 
 		public void RouteAdd(IpAddress address, IpAddress mask, IpAddress gateway, string iface)
@@ -283,6 +281,11 @@ namespace AirVPN.Core
 				Recovery.Save();
             }			
         }
+
+		public void RouteRemove(IpAddress address)
+		{
+			RouteRemove(address, new IpAddress("255.255.255.255"));
+		}
 
 		public void RouteRemove(IpAddress address, IpAddress mask)
         {
