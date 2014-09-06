@@ -61,6 +61,16 @@ namespace AirVPN.Core
 			// Called when Ip used by AirVPN (hosts auth or vpn servers) maybe changed.
 		}
 
+
+		public virtual void OnRecoveryLoad(XmlElement root)
+		{
+		}
+
+		public virtual void OnRecoverySave(XmlElement root)
+		{
+		}
+
+
 		public List<IpAddress> GetAllIps()
 		{
 			List<IpAddress> result = new List<IpAddress>();

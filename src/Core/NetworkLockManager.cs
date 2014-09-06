@@ -139,10 +139,56 @@ namespace AirVPN.Core
 
 		public void OnRecoveryLoad(XmlElement root)
 		{
+			try
+			{
+				if (m_current != null)
+					throw new Exception(Messages.NetworkLockRecoveryWhenActive);
+
+				XmlElement node = Utils.XmlGetFirstElementByTagName(root, "netlock");
+				if (node != null)
+				{
+					string code = node.GetAttribute("mode");
+
+					foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
+					{
+						if (lockPlugin.GetCode() == "code")
+						{
+							m_current = lockPlugin;
+							break;
+						}
+					}
+
+					if (m_current != null)
+						m_current.OnRecoveryLoad(node);
+					else
+						Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockRecoveryUnknownMode);
+
+					Deactivation(false);
+				}
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(e);
+			}
 		}
 
 		public void OnRecoverySave(XmlElement root)
 		{
+			try
+			{
+				if (m_current != null)
+				{
+					XmlElement node = (XmlElement) root.AppendChild(root.OwnerDocument.CreateElement("netlock"));
+
+					node.SetAttribute("mode", m_current.GetCode());
+
+					m_current.OnRecoverySave(node);
+				}				
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(e);
+			}
 		}
 
 		public void AllowIP(IpAddress ip)

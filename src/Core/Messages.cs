@@ -105,17 +105,20 @@ namespace AirVPN.Core
 		public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate";
 		public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
 
-		public static string NetworkLockNoMode = "There isn't any Network Lock modes available or enabled, sorry.";
-		public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated";
-		public static string NetworkLockAllowedIpInvalid = "Allowed IP '{1}' in custom lock invalid";
-		
+		public static string NetworkLockNoMode = "There isn't any Network Lock modes available or enabled, sorry."; // TOTRANSLATE
+		public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated"; // TOTRANSLATE
+		public static string NetworkLockAllowedIpInvalid = "Allowed IP '{1}' in custom lock invalid"; // TOTRANSLATE
+		public static string NetworkLockRecoveryWhenActive = "Unexpected: Recovery Load with Network Lock active"; // TOTRANSLATE
+		public static string NetworkLockRecoveryUnknownMode = "Unknown mode in Network Lock Recovery"; // TOTRANSLATE
+				
 		public static string NetworkLockRouteRemoved = "Route removed: {1}";
 		public static string NetworkLockRouteRestored = "Route restored: {1}";
-		public static string NetworkLockWarning = "Network Lock Mode\n\nIn this state, all network connections outside AirVPN service & tunnel are unavailable,\nwhether this system is connected to the VPN or not.\nThis computer will also be unavailable to your local network.\n\nWarning: Any active connection will be dropped.\n\nAre you sure you want to activate this mode?"; 
-		public static string NetworkLockRecovery = "Recovery. Unexpected crash?";
-
+		public static string NetworkLockWarning = "Network Lock Mode\n\nIn this state, all network connections outside AirVPN service & tunnel are unavailable,\nwhether this system is connected to the VPN or not.\n\nWarning: Any active connection will be dropped.\n\nAre you sure you want to activate this mode?";
+		
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
 		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
+
+		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
 		public static string TopBarConnected = "Connected to {1}";
 		public static string TopBarNotConnectedLocked = "Not connected. Network locked.";

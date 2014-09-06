@@ -28,6 +28,8 @@ namespace AirVPN.Platforms
 	{
 		private TemporaryFile m_filePfConf;
 
+		private bool m_prevActive = false;
+
 		public override string GetCode()
 		{
 			return "osx_pf";
@@ -42,22 +44,48 @@ namespace AirVPN.Platforms
 		{
 			base.Activation();
 
-			m_filePfConf = new TemporaryFile(".pf.conf");
+			m_prevActive = false;
+			string report = Platform.Instance.ShellCmd("pfctl -si");
+			if (report.IndexOf("Status: Enabled") != -1)
+				m_prevActive = true;
+			else if (report.IndexOf("Status: Disabled") != -1)
+				m_prevActive = false;
+			else
+				throw new Exception("Unexpected PF Firewall status");
+
+			string reportActivation = Platform.Instance.ShellCmd("pfctl -e");
+			if(reportActivation.IndexOf("pf enabled") == -1)
+				throw new Exception("Unexpected PF Firewall activation failure");
+
+			m_filePfConf = new TemporaryFile("pf.conf");
 
 			OnUpdateIps();
 
-			//Platform.Instance.ShellCmd("pfctl -vvv -f " + m_filePfConf.Path);
-			//Platform.Instance.ShellCmd("pfctl -e");
+			if (m_prevActive == false)
+			{
+				Platform.Instance.ShellCmd("pfctl -e");
+			}
 		}
 
 		public override void Deactivation()
 		{
 			base.Deactivation();
 
+			// Restore system rules
+			Platform.Instance.ShellCmd("sudo pfctl -v -f \"/etc/pf.conf\"");
+
 			if (m_filePfConf != null)
 			{
 				m_filePfConf.Close();
 				m_filePfConf = null;
+			}
+
+			if (m_prevActive)
+			{
+			}
+			else
+			{
+				Platform.Instance.ShellCmd("pfctl -d");
 			}
 		}
 
@@ -76,12 +104,12 @@ namespace AirVPN.Platforms
 			base.OnUpdateIps();
 
 			string pf = "";
-			pf += Messages.GeneratedFileHeader + "\n";
+			pf += Messages.Format(Messages.GeneratedFileHeader, Storage.GetVersionDesc()) + "\n";
 			pf += "# Drop everything that doesn't match a rule\n";
 			pf += "block drop out inet from 192.168.0.0/16 to any\n";
 
 			List<IpAddress> ips = GetAllIps();
-			pf += "# Airvpn IP (Auth and VPN)\n";
+			pf += "# AirVPN IP (Auth and VPN)\n";
 			foreach (IpAddress ip in ips)
 			{
 				pf += "pass out quick inet from 192.168.0.0/16 to " + ip.ToString() + " flags S/SA keep state\n";
@@ -89,15 +117,37 @@ namespace AirVPN.Platforms
 			pf += "# Local network\n";
 			pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16 flags S/SA keep state\n";
 			pf += "# Allow all on lo0\n";
-			pf += "pass out quick inet from 127.0.0.1 to any flags S/SA keep state\n";
+			pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
 			pf += "# Everything tunneled\n";
 			pf += "pass out quick inet from 10.0.0.0/8 to any flags S/SA keep state\n";
 
 			if (Utils.SaveFile(m_filePfConf.Path, pf))
 			{
 				Engine.Instance.Log(Engine.LogType.Verbose, "PF rules updated, reloading");
-				// TODO
+
+				Platform.Instance.ShellCmd("sudo pfctl -v -f \"" + m_filePfConf.Path + "\"");
 			}
+		}
+
+		public override void OnRecoveryLoad(XmlElement root)
+		{
+			base.OnRecoveryLoad(root);
+
+			XmlElement node = Utils.XmlGetFirstElementByTagName(root, "osx_pf");
+			if (node != null)
+			{
+				m_prevActive = (node.GetAttribute("prev_active") == "1");
+			}
+		}
+
+		public override void OnRecoverySave(XmlElement root)
+		{
+			base.OnRecoverySave(root);
+
+			XmlDocument doc = root.OwnerDocument;
+			XmlElement el = (XmlElement)root.AppendChild(doc.CreateElement("osx_pf"));
+
+			el.SetAttribute("prev_active", m_prevActive ? "1" : "0");
 		}
 	}
 }
