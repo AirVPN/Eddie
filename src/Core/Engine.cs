@@ -218,6 +218,12 @@ namespace AirVPN.Core
 
 				Platform.Instance.OnAppStart();
 
+				if (Engine.Storage.Get("netlock.mode") != "none")
+				{
+					if (Engine.Storage.GetBool("netlock.active"))
+						m_networkLockManager.Activation();
+				}
+
                 WaitMessageClear();
 
 				bool autoStart = false;
@@ -438,6 +444,14 @@ namespace AirVPN.Core
 			Log(LogType.Info, Messages.ConsoleKeyBreak);
 
 			OnExit();	
+		}
+
+		public virtual void OnSettingsChanged()
+		{
+			OnRefreshUi(RefreshUiMode.Full);
+
+			if (m_networkLockManager != null)
+				m_networkLockManager.OnUpdateIps();
 		}
 
 		public virtual void OnSessionStart()
@@ -1328,14 +1342,20 @@ namespace AirVPN.Core
                 if (routeEntries.Length != 3)
                     continue;
 
-				string host = routeEntries[0];
-				string netMask = routeEntries[1];
-				string action = routeEntries[2];
+				IpAddressRange ipCustomRoute = new IpAddressRange(routeEntries[0]);
 
-                if ((routesDefault == "out") && (action == "in"))
-                    ovpn += "route " + host + " " + netMask + " vpn_gateway\n";
-				if ((routesDefault == "in") && (action == "out"))
-					ovpn += "route " + host + " " + netMask + " net_gateway\n";									
+				if (ipCustomRoute.Valid == false)
+					Log(LogType.Warning, Messages.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));
+				else
+				{
+					string action = routeEntries[1];
+					string notes = routeEntries[2];
+
+					if ((routesDefault == "out") && (action == "in"))
+						ovpn += "route " + ipCustomRoute.ToOpenVPN() + " vpn_gateway\n";
+					if ((routesDefault == "in") && (action == "out"))
+						ovpn += "route " + ipCustomRoute.ToOpenVPN() + " net_gateway\n";
+				}
             }
 
 			if (routesDefault == "out")
@@ -1346,6 +1366,7 @@ namespace AirVPN.Core
 
 			if ((protocol == "SSH") || (protocol == "SSL"))
 			{
+				// TOCLEAN
 				/*
 				// With SSH or SSL, OpenVPN create wrong route to 127.0.0.1. We avoid that.
 
@@ -1358,8 +1379,8 @@ namespace AirVPN.Core
 					ovpn += "route 128.0.0.1 128.0.0.1 vpn_gateway\n";
 				}
 				*/
-				if (RoutesManager.Instance.GetLockActive() == false) // If Network Locking is enabled, it's already set.
-					ovpn += "route " + ip + " 255.255.255.255 net_gateway\n";
+				// if (RoutesManager.Instance.GetLockActive() == false) // If Network Locking is enabled, it's already set.
+				ovpn += "route " + ip + " 255.255.255.255 net_gateway\n";
 			}
 				
 			ovpn += "management localhost " + Engine.Instance.Storage.Get("openvpn.management_port") + "\n";

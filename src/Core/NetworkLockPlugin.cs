@@ -35,9 +35,18 @@ namespace AirVPN.Core
 			return "Interface class";
 		}
 
+		public virtual bool GetSupport()
+		{
+			return true;
+		}
+
 		public virtual bool IsDnsResolutionAvailable(string host)
 		{
 			return false;
+		}
+
+		public virtual void Init()
+		{
 		}
 
 		public virtual void Activation()
@@ -70,17 +79,40 @@ namespace AirVPN.Core
 		{
 		}
 
-
-		public List<IpAddress> GetAllIps()
+		public string Exec(string cmd)
 		{
-			List<IpAddress> result = new List<IpAddress>();
+			return Platform.Instance.ShellCmd(cmd);
+		}
+
+		public void AddToIpsList(List<IpAddressRange> result, IpAddressRange ip, bool warning)
+		{
+			if (ip.Valid == false)
+			{
+				if(warning == true)
+					Engine.Instance.Log(Engine.LogType.Error, Messages.Format(Messages.NetworkLockAllowedIpInvalid, ip.ToString()));
+				return;
+			}
+
+			if (result.Contains(ip))
+			{
+				if (warning == true)
+					Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.NetworkLockAllowedIpDuplicated, ip.ToString()));
+				return;
+			}
+
+			result.Add(ip);
+		}
+
+		public List<IpAddressRange> GetAllIps()
+		{
+			List<IpAddressRange> result = new List<IpAddressRange>();
 
 			// Custom
 			{
 				string list = Engine.Instance.Storage.Get("netlock.allowed_ips");
 				string[] ips = list.Split('\n');
 				foreach (string ip in ips)
-				{			
+				{
 					string ip2 = ip.Trim();
 
 					int posComment = ip2.IndexOf("#");
@@ -89,21 +121,28 @@ namespace AirVPN.Core
 
 					if (ip2 == "")
 						continue;
+
+					AddToIpsList(result, new IpAddressRange(ip2), true);					
+				}
+			}
+
+			// Routes Out
+			{
+				string routes = Engine.Instance.Storage.Get("routes.custom");
+				string[] routes2 = routes.Split(';');
+				foreach (string route in routes2)
+				{
+					string[] routeEntries = route.Split(',');
+					if (routeEntries.Length < 2)
+						continue;
+
+					string ip = routeEntries[0];					
+					string action = routeEntries[1];
 					
-					IpAddress ip3 = new IpAddress(ip2);
-					if (ip3.Valid == false)
+					if (action == "out")
 					{
-						Engine.Instance.Log(Engine.LogType.Error, Messages.Format(Messages.NetworkLockAllowedIpInvalid, ip2));
-						continue;
-					}
-
-					if (result.Contains(ip3))
-					{
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.NetworkLockAllowedIpDuplicated, ip2));
-						continue;
-					}
-
-					result.Add(ip3);
+						AddToIpsList(result, new IpAddressRange(ip), true);					
+					}					
 				}
 			}
 
@@ -113,9 +152,8 @@ namespace AirVPN.Core
 				XmlNodeList nodesHosts = Engine.Instance.Storage.Manifest.SelectNodes("//hosts/host");
 				foreach (XmlNode nodeHost in nodesHosts)
 				{
-					IpAddress ip = new IpAddress(nodeHost.Attributes["address"].Value);
-					if ((ip.Valid) && (result.Contains(ip) == false))
-						result.Add(ip);
+					IpAddressRange ip = new IpAddressRange(nodeHost.Attributes["address"].Value);
+					AddToIpsList(result, ip, false);										
 				}
 			}
 
@@ -126,11 +164,9 @@ namespace AirVPN.Core
 
 				foreach (ServerInfo infoServer in servers.Values)
 				{
-					if (result.Contains(infoServer.IpEntry) == false)
-						result.Add(infoServer.IpEntry);
+					AddToIpsList(result, infoServer.IpEntry, false);										
 					if (infoServer.IpEntry2.Trim() != "")
-						if (result.Contains(infoServer.IpEntry2) == false)
-							result.Add(infoServer.IpEntry2);
+						AddToIpsList(result, infoServer.IpEntry2, false);																
 				}
 			}
 

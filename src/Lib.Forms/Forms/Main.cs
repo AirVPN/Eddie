@@ -229,11 +229,13 @@ namespace AirVPN.Gui.Forms
             }
 			*/
 
-			if (Engine.Storage.Get("netlock.mode") != "none")
+			/*
+			if(Engine.Instance.NetworkLockManager.CanEnabled())
 			{
 				if(Engine.Storage.GetBool("netlock.active"))
 					Engine.Instance.NetLockIn();				
 			}
+			*/
 
 			m_formReady = true;
 
@@ -1104,7 +1106,7 @@ namespace AirVPN.Gui.Forms
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
 
-			cmdLockedNetwork.Visible = (Engine.Storage.Get("netlock.mode") != "none");
+			cmdLockedNetwork.Visible = Engine.Instance.NetworkLockManager.CanEnabled();
 			imgLockedNetwork.Visible = cmdLockedNetwork.Visible;
 			if (Engine.Instance.NetworkLockManager.IsActive())
 			{

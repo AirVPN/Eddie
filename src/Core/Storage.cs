@@ -456,6 +456,8 @@ namespace AirVPN.Core
 						string name = e.Attributes["name"].Value;
 						string value = e.Attributes["value"].Value;
 
+						FixCompatibility(name, ref value);
+
                         Set(name, value);
                     }
 
@@ -470,6 +472,38 @@ namespace AirVPN.Core
                 }
             }
         }
+
+		public void FixCompatibility(string name, ref string value)
+		{
+			// AirVPN <=2.4 client use  'host,netmask,action' syntax.
+			// If detected, convert to new 'iprange,action,notes' syntax.
+			if (name == "routes.custom")
+			{
+				string newValue = "";
+
+				string[] routes2 = value.Split(';');
+				foreach (string route in routes2)
+				{
+					string[] routeEntries = route.Split(',');
+					if (routeEntries.Length != 3)
+						return;
+
+					string newRoute = "";					
+					if (new IpAddress(routeEntries[1]).Valid)
+					{
+						newRoute = routeEntries[0] + "/" + routeEntries[1] + "," + routeEntries[2];
+					}
+					else
+						newRoute = route;
+
+					if (newValue != "")
+						newValue += ";";
+					newValue += newRoute;
+				}
+
+				value = newValue;
+			}
+		}
 
 		#region Manifest Management
 

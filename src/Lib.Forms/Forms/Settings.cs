@@ -58,6 +58,8 @@ namespace AirVPN.Gui.Forms
 			cboLockMode.Items.Add("Automatic");
 			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				cboLockMode.Items.Add(lockPlugin.GetName());
+			lblRoutesNetworkLockWarning.Text = Messages.WindowsSettingsRouteLockHelp;
+			lblLockRoutingOutWarning.Text = Messages.NetworkLockNotAvailableWithRouteOut;
 
             lstAdvancedEvents.Items.Add(new ListViewItem("App Start"));
             lstAdvancedEvents.Items.Add(new ListViewItem("App End"));
@@ -213,14 +215,20 @@ namespace AirVPN.Gui.Forms
             foreach(String route in routes2)
             {
                 String[] routeEntries = route.Split(',');
-                if (routeEntries.Length != 3)
+                if (routeEntries.Length < 2)
                     continue;
 
+				string ip = routeEntries[0];
+				string action = routeEntries[1];
+				string notes = "";
+				if (routeEntries.Length == 3)
+					notes = routeEntries[2];
+
                 ListViewItem item = new ListViewItem();
-                item.Text = routeEntries[0];
-                item.SubItems.Add(routeEntries[1]);
-                item.SubItems.Add(RouteDirectionToDescription(routeEntries[2]));
-                item.ImageKey = routeEntries[2];
+                item.Text = ip;                
+                item.SubItems.Add(RouteDirectionToDescription(action));
+				item.SubItems.Add(notes);
+                item.ImageKey = action;
                 lstRoutes.Items.Add(item);
             }
 
@@ -458,7 +466,7 @@ namespace AirVPN.Gui.Forms
             {
                 if (routes != "")
                     routes += ";";
-                routes += item.Text + "," + item.SubItems[1].Text + "," + RouteDescriptionToDirection(item.SubItems[2].Text);
+				routes += item.Text + "," + RouteDescriptionToDirection(item.SubItems[1].Text) + "," + item.SubItems[2].Text;
             }
             s.Set("routes.custom", routes);
 
@@ -521,7 +529,9 @@ namespace AirVPN.Gui.Forms
             SaveOptionsEvent("vpn.up", 3);
             SaveOptionsEvent("vpn.down", 4);
 
-			Platform.Instance.SetAutoStart(chkSystemStart.Checked);			
+			Platform.Instance.SetAutoStart(chkSystemStart.Checked);
+
+			Engine.OnSettingsChanged();
         }
 
         public void SaveOptionsEvent(string name, int index)
@@ -579,6 +589,9 @@ namespace AirVPN.Gui.Forms
             mnuRoutesRemove.Enabled = cmdRouteRemove.Enabled;
             cmdRouteEdit.Enabled = (lstRoutes.SelectedItems.Count == 1);
             mnuRoutesEdit.Enabled = cmdRouteEdit.Enabled;
+
+			// Lock
+			lblLockRoutingOutWarning.Visible = (cboRoutesOtherwise.Text == Settings.RouteDirectionToDescription("out"));
 
             cmdAdvancedEventsClear.Enabled = (lstAdvancedEvents.SelectedItems.Count == 1);
             cmdAdvancedEventsEdit.Enabled = (lstAdvancedEvents.SelectedItems.Count == 1);
@@ -649,15 +662,15 @@ namespace AirVPN.Gui.Forms
 
         private void cmdRouteAdd_Click(object sender, EventArgs e)
         {
-            SettingsRoute Dlg = new SettingsRoute();
-            Dlg.NetMask = "255.255.255.255";
+            SettingsRoute Dlg = new SettingsRoute();            
             Dlg.Action = "out";
+			Dlg.Notes = "";
             if (Dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 ListViewItem item = new ListViewItem();
-                item.Text = Dlg.Host;
-                item.SubItems.Add(Dlg.NetMask);
+                item.Text = Dlg.Ip;                
                 item.SubItems.Add(RouteDirectionToDescription(Dlg.Action));
+				item.SubItems.Add(Dlg.Notes);
                 item.ImageKey = Dlg.Action;
 
                 lstRoutes.Items.Add(item);
@@ -685,15 +698,15 @@ namespace AirVPN.Gui.Forms
 
             SettingsRoute Dlg = new SettingsRoute();
 
-            Dlg.Host = item.Text;
-            Dlg.NetMask = item.SubItems[1].Text;
-            Dlg.Action = RouteDescriptionToDirection(item.SubItems[2].Text);
+            Dlg.Ip = item.Text;            
+            Dlg.Action = RouteDescriptionToDirection(item.SubItems[1].Text);
+			Dlg.Notes = item.SubItems[2].Text;
 
             if (Dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                item.Text = Dlg.Host;
-                item.SubItems[1].Text = Dlg.NetMask;
-                item.SubItems[2].Text = RouteDirectionToDescription(Dlg.Action);
+                item.Text = Dlg.Ip;                
+                item.SubItems[1].Text = RouteDirectionToDescription(Dlg.Action);
+				item.SubItems[2].Text = Dlg.Notes;
                 item.ImageKey = Dlg.Action;
             }
         }
@@ -788,6 +801,11 @@ namespace AirVPN.Gui.Forms
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
 		{
 			RefreshLogPreview();
+		}
+
+		private void cboRoutesOtherwise_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			EnableIde();
 		}
 
 		

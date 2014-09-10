@@ -42,12 +42,24 @@ namespace AirVPN.Core
 		public void AddPlugin(NetworkLockPlugin plugin)
 		{
 			//Engine.Instance.Storage.SetDefaultBool("advanced.netlock." + plugin.GetCode() + ".enabled", true, "");
+			plugin.Init();
 			Modes.Add(plugin);
 		}
 
 		public bool IsActive()
 		{
 			return m_current != null;
+		}
+
+		public bool CanEnabled()
+		{
+			if (Engine.Instance.Storage.Get("netlock.mode") == "none")
+				return false;
+
+			if (Engine.Instance.Storage.Get("routes.default") == "out")
+				return false;
+
+			return true;
 		}
 
 		public void Activation()
@@ -90,6 +102,8 @@ namespace AirVPN.Core
 			{
 				Engine.Instance.Log(e);
 			}
+
+			Recovery.Save();
 		}
 
 		public void Deactivation(bool onExit)
@@ -112,6 +126,8 @@ namespace AirVPN.Core
 
 				m_current = null;
 			}
+
+			Recovery.Save();
 		}
 
 		public bool IsDnsResolutionAvailable(string host)
@@ -129,6 +145,7 @@ namespace AirVPN.Core
 				try
 				{
 					m_current.OnUpdateIps();
+					Recovery.Save();
 				}
 				catch (Exception e)
 				{
@@ -151,7 +168,7 @@ namespace AirVPN.Core
 
 					foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 					{
-						if (lockPlugin.GetCode() == "code")
+						if (lockPlugin.GetCode() == code)
 						{
 							m_current = lockPlugin;
 							break;

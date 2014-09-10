@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml;
 using AirVPN.Core;
@@ -40,12 +41,20 @@ namespace AirVPN.Platforms
 			return "OSX PF";
 		}
 
+		public override bool GetSupport()
+		{
+			if (File.Exists("/etc/pf.conf") == false)
+				return false;
+
+			return true;
+		}
+
 		public override void Activation()
 		{
 			base.Activation();
 
 			m_prevActive = false;
-			string report = Platform.Instance.ShellCmd("pfctl -si");
+			string report = Exec("pfctl -si");
 			if (report.IndexOf("Status: Enabled") != -1)
 				m_prevActive = true;
 			else if (report.IndexOf("Status: Disabled") != -1)
@@ -53,7 +62,7 @@ namespace AirVPN.Platforms
 			else
 				throw new Exception("Unexpected PF Firewall status");
 
-			string reportActivation = Platform.Instance.ShellCmd("pfctl -e");
+			string reportActivation = Exec("pfctl -e");
 			if(reportActivation.IndexOf("pf enabled") == -1)
 				throw new Exception("Unexpected PF Firewall activation failure");
 
@@ -63,7 +72,7 @@ namespace AirVPN.Platforms
 
 			if (m_prevActive == false)
 			{
-				Platform.Instance.ShellCmd("pfctl -e");
+				Exec("pfctl -e");
 			}
 		}
 
@@ -72,7 +81,7 @@ namespace AirVPN.Platforms
 			base.Deactivation();
 
 			// Restore system rules
-			Platform.Instance.ShellCmd("sudo pfctl -v -f \"/etc/pf.conf\"");
+			Exec("sudo pfctl -v -f \"/etc/pf.conf\"");
 
 			if (m_filePfConf != null)
 			{
@@ -85,7 +94,7 @@ namespace AirVPN.Platforms
 			}
 			else
 			{
-				Platform.Instance.ShellCmd("pfctl -d");
+				Exec("pfctl -d");
 			}
 		}
 
@@ -106,26 +115,32 @@ namespace AirVPN.Platforms
 			string pf = "";
 			pf += Messages.Format(Messages.GeneratedFileHeader, Storage.GetVersionDesc()) + "\n";
 			pf += "# Drop everything that doesn't match a rule\n";
-			pf += "block drop out inet from 192.168.0.0/16 to any\n";
+			//pf += "block drop out inet from 192.168.0.0/16 to any\n";
+			pf += "block drop out inet from any to any\n";
 
-			List<IpAddress> ips = GetAllIps();
+			List<IpAddressRange> ips = GetAllIps();
 			pf += "# AirVPN IP (Auth and VPN)\n";
-			foreach (IpAddress ip in ips)
+			foreach (IpAddressRange ip in ips)
 			{
-				pf += "pass out quick inet from 192.168.0.0/16 to " + ip.ToString() + " flags S/SA keep state\n";
+				//pf += "pass out quick inet from 192.168.0.0/16 to " + ip.ToString() + " flags S/SA keep state\n";
+				pf += "pass out quick inet from any to " + ip.ToCIDR() + " flags S/SA keep state\n";
 			}
-			pf += "# Local network\n";
+			pf += "# Private networks\n";
 			pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16 flags S/SA keep state\n";
-			pf += "# Allow all on lo0\n";
-			pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
+			pf += "pass out quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
+			pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
+			pf += "# Allow all on lo0\n";			
+			//pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
+			pf += "pass quick on lo0 all\n";
 			pf += "# Everything tunneled\n";
-			pf += "pass out quick inet from 10.0.0.0/8 to any flags S/SA keep state\n";
+			//pf += "pass out quick inet from 10.0.0.0/8 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.0.0.0/8 to any flags S/SA keep state\n";
 
 			if (Utils.SaveFile(m_filePfConf.Path, pf))
 			{
 				Engine.Instance.Log(Engine.LogType.Verbose, "PF rules updated, reloading");
 
-				Platform.Instance.ShellCmd("sudo pfctl -v -f \"" + m_filePfConf.Path + "\"");
+				Exec("sudo pfctl -v -f \"" + m_filePfConf.Path + "\"");
 			}
 		}
 

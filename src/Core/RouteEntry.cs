@@ -77,8 +77,13 @@ namespace AirVPN.Core
 		{
 			get
 			{
-				return RoutesManager.Key(Address, Mask);
+				return ToKey(Address, Mask);
 			}
+		}
+
+		public static string ToKey(IpAddress address, IpAddress mask)
+		{
+			return address.Value + "-" + mask.Value;
 		}
 
 		public override string ToString()

@@ -124,6 +124,7 @@ namespace AirVPN.Gui.Forms
 			this.txtProxyHost = new AirVPN.Gui.Skin.TextBox();
 			this.lblProxyHost = new AirVPN.Gui.Skin.Label();
 			this.tabRoutes = new AirVPN.Gui.Skin.TabPage();
+			this.lblRoutesNetworkLockWarning = new AirVPN.Gui.Skin.Label();
 			this.cmdRouteEdit = new AirVPN.Gui.Skin.Button();
 			this.cmdRouteRemove = new AirVPN.Gui.Skin.Button();
 			this.cmdRouteAdd = new AirVPN.Gui.Skin.Button();
@@ -132,11 +133,12 @@ namespace AirVPN.Gui.Forms
 			this.lblRoutesOtherwise = new AirVPN.Gui.Skin.Label();
 			this.lstRoutes = new AirVPN.Gui.Skin.ListView();
 			this.colRoutesIp = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
-			this.colRoutesMask = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
 			this.colRoutesAction = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
+			this.colRoutesNotes = ((AirVPN.Gui.Skin.ColumnHeader)(new AirVPN.Gui.Skin.ColumnHeader()));
 			this.tabAdvanced = new AirVPN.Gui.Skin.TabPage();
 			this.tabAdvancedMain = new AirVPN.Gui.Skin.TabControl();
 			this.tabPage5 = new AirVPN.Gui.Skin.TabPage();
+			this.lblLockRoutingOutWarning = new AirVPN.Gui.Skin.Label();
 			this.lnkLockDocs = new AirVPN.Gui.Skin.LinkLabel();
 			this.lblLockAllowedIPS = new AirVPN.Gui.Skin.Label();
 			this.txtLockAllowedIPS = new AirVPN.Gui.Skin.TextBox();
@@ -1286,6 +1288,7 @@ namespace AirVPN.Gui.Forms
 			// tabRoutes
 			// 
 			this.tabRoutes.BackColor = System.Drawing.Color.White;
+			this.tabRoutes.Controls.Add(this.lblRoutesNetworkLockWarning);
 			this.tabRoutes.Controls.Add(this.cmdRouteEdit);
 			this.tabRoutes.Controls.Add(this.cmdRouteRemove);
 			this.tabRoutes.Controls.Add(this.cmdRouteAdd);
@@ -1298,6 +1301,17 @@ namespace AirVPN.Gui.Forms
 			this.tabRoutes.Size = new System.Drawing.Size(630, 291);
 			this.tabRoutes.TabIndex = 5;
 			this.tabRoutes.Text = "Routes";
+			// 
+			// lblRoutesNetworkLockWarning
+			// 
+			this.lblRoutesNetworkLockWarning.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.lblRoutesNetworkLockWarning.BackColor = System.Drawing.Color.Transparent;
+			this.lblRoutesNetworkLockWarning.ForeColor = System.Drawing.Color.Black;
+			this.lblRoutesNetworkLockWarning.Location = new System.Drawing.Point(8, 260);
+			this.lblRoutesNetworkLockWarning.Name = "lblRoutesNetworkLockWarning";
+			this.lblRoutesNetworkLockWarning.Size = new System.Drawing.Size(264, 29);
+			this.lblRoutesNetworkLockWarning.TabIndex = 43;
+			this.lblRoutesNetworkLockWarning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// cmdRouteEdit
 			// 
@@ -1366,6 +1380,7 @@ namespace AirVPN.Gui.Forms
 			this.cboRoutesOtherwise.Name = "cboRoutesOtherwise";
 			this.cboRoutesOtherwise.Size = new System.Drawing.Size(154, 21);
 			this.cboRoutesOtherwise.TabIndex = 2;
+			this.cboRoutesOtherwise.SelectedIndexChanged += new System.EventHandler(this.cboRoutesOtherwise_SelectedIndexChanged);
 			// 
 			// lblRoutesOtherwise
 			// 
@@ -1386,8 +1401,8 @@ namespace AirVPN.Gui.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lstRoutes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colRoutesIp,
-            this.colRoutesMask,
-            this.colRoutesAction});
+            this.colRoutesAction,
+            this.colRoutesNotes});
 			this.lstRoutes.ContextMenuStrip = this.mnuRoutes;
 			this.lstRoutes.FullRowSelect = true;
 			this.lstRoutes.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -1407,17 +1422,17 @@ namespace AirVPN.Gui.Forms
 			// colRoutesIp
 			// 
 			this.colRoutesIp.Text = "IP / Host";
-			this.colRoutesIp.Width = 100;
-			// 
-			// colRoutesMask
-			// 
-			this.colRoutesMask.Text = "Net Mask";
-			this.colRoutesMask.Width = 100;
+			this.colRoutesIp.Width = 200;
 			// 
 			// colRoutesAction
 			// 
 			this.colRoutesAction.Text = "Action";
-			this.colRoutesAction.Width = 200;
+			this.colRoutesAction.Width = 160;
+			// 
+			// colRoutesNotes
+			// 
+			this.colRoutesNotes.Text = "Notes";
+			this.colRoutesNotes.Width = 1000;
 			// 
 			// tabAdvanced
 			// 
@@ -1448,6 +1463,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// tabPage5
 			// 
+			this.tabPage5.Controls.Add(this.lblLockRoutingOutWarning);
 			this.tabPage5.Controls.Add(this.lnkLockDocs);
 			this.tabPage5.Controls.Add(this.lblLockAllowedIPS);
 			this.tabPage5.Controls.Add(this.txtLockAllowedIPS);
@@ -1459,6 +1475,15 @@ namespace AirVPN.Gui.Forms
 			this.tabPage5.TabIndex = 4;
 			this.tabPage5.Text = "Network lock";
 			this.tabPage5.UseVisualStyleBackColor = true;
+			// 
+			// lblLockRoutingOutWarning
+			// 
+			this.lblLockRoutingOutWarning.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockRoutingOutWarning.ForeColor = System.Drawing.Color.Black;
+			this.lblLockRoutingOutWarning.Location = new System.Drawing.Point(13, 200);
+			this.lblLockRoutingOutWarning.Name = "lblLockRoutingOutWarning";
+			this.lblLockRoutingOutWarning.Size = new System.Drawing.Size(400, 29);
+			this.lblLockRoutingOutWarning.TabIndex = 78;
 			// 
 			// lnkLockDocs
 			// 
@@ -1652,7 +1677,7 @@ namespace AirVPN.Gui.Forms
         private Skin.Label lblRoutesOtherwise;
         private Skin.ListView lstRoutes;
         private Skin.ColumnHeader colRoutesIp;
-        private Skin.ColumnHeader colRoutesMask;
+        private Skin.ColumnHeader colRoutesNotes;
         private Skin.ColumnHeader colRoutesAction;
         private System.Windows.Forms.ImageList imgRoutes;
         private Skin.CheckBox chkMinimizeTray;
@@ -1741,6 +1766,8 @@ namespace AirVPN.Gui.Forms
 		private Skin.TextBox txtLockAllowedIPS;
 		private Skin.Label lblLockMode;
 		private Skin.ComboBox cboLockMode;
+		private Skin.Label lblLockRoutingOutWarning;
+		private Skin.Label lblRoutesNetworkLockWarning;
 
     }
 }

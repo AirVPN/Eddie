@@ -45,7 +45,7 @@ namespace AirVPN.Core
 		public void Start(IpAddress address, bool force)
 		{
 			/*
-			 * // pazzo: force non lo uso più? pensare al giro coi NetworkLockPlugin
+			 * // TOCLEAN: force no more used?
 			if ((force == false) && (RoutesManager.Instance.GetLockActive() == false))
 				return;
 			*/
