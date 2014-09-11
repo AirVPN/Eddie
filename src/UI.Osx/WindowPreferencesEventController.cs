@@ -29,9 +29,7 @@ namespace AirVPN.UI.Osx
 	{
 		public bool Accepted;
 
-		public string Filename;
-		public string Arguments;
-		public bool WaitEnd;
+		public static TableAdvancedEventsControllerItem Item;
 
 		#region Constructors
 
@@ -74,16 +72,17 @@ namespace AirVPN.UI.Osx
 		
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsEventTitle;
 
-			TxtFilename.StringValue = Filename;
-			TxtArguments.StringValue = Arguments;
-			GuiUtils.SetCheck (ChkWaitEnd, WaitEnd);
+			TxtFilename.StringValue = Item.Filename;
+			TxtArguments.StringValue = Item.Arguments;
+			GuiUtils.SetCheck (ChkWaitEnd, Item.WaitEnd);
 
 			CmdSave.Activated += (object sender, EventArgs e) => {
 			
 				Accepted = true;
-				Filename = TxtFilename.StringValue;
-				Arguments = TxtArguments.StringValue;
-				WaitEnd = GuiUtils.GetCheck(ChkWaitEnd);
+
+				Item.Filename = TxtFilename.StringValue;
+				Item.Arguments = TxtArguments.StringValue;
+				Item.WaitEnd = GuiUtils.GetCheck(ChkWaitEnd);
 
 				Window.Close ();
 				NSApplication.SharedApplication.StopModal();
@@ -98,6 +97,7 @@ namespace AirVPN.UI.Osx
 			};
 
 			CmdBrowse.Activated += (object sender, EventArgs e) => {
+				GuiUtils.SelectFile(this.Window, TxtFilename);
 			};
 		}
 	}

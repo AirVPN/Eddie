@@ -21,12 +21,15 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using AirVPN.Core;
 
 namespace AirVPN.UI.Osx
 {
 	public partial class WindowPreferencesRouteController : MonoMac.AppKit.NSWindowController
 	{
-		public TableRoutingControllerItem Item;
+		public bool Accepted = false;
+		public static TableRoutingControllerItem Item;
+
 
 
 		#region Constructors
@@ -62,6 +65,60 @@ namespace AirVPN.UI.Osx
 			get {
 				return (WindowPreferencesRoute)base.Window;
 			}
+		}
+
+		public override void AwakeFromNib ()
+		{
+			base.AwakeFromNib ();
+
+			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsRouteTitle;
+		
+			LblHelp.StringValue = Messages.WindowsSettingsRouteTitle;
+
+			CboAction.RemoveAllItems ();
+			CboAction.AddItem (WindowPreferencesController.RouteDirectionToDescription ("in"));
+			CboAction.AddItem (WindowPreferencesController.RouteDirectionToDescription ("out"));
+
+			TxtIP.Changed += (object sender, EventArgs e) => {
+				EnableIde();
+			};
+			CmdOk.Activated += (object sender, EventArgs e) => {
+
+				Accepted = true;
+				Item.Ip = TxtIP.StringValue;
+				Item.Action = WindowPreferencesController.RouteDescriptionToDirection(GuiUtils.GetSelected(CboAction));
+				Item.Icon = Item.Action;
+				Item.Notes = TxtNotes.StringValue;
+
+				Window.Close ();
+				NSApplication.SharedApplication.StopModal ();
+			};
+
+			CmdCancel.Activated += (object sender, EventArgs e) => {
+
+				Accepted = false;
+
+				Window.Close ();
+				NSApplication.SharedApplication.StopModal ();
+			};
+
+			TxtIP.StringValue = Item.Ip;
+			GuiUtils.SetSelected (CboAction, WindowPreferencesController.RouteDirectionToDescription (Item.Action));
+			TxtNotes.StringValue = Item.Notes;
+
+			EnableIde ();
+		}
+
+		public void EnableIde()
+		{
+			if (new IpAddressRange (TxtIP.StringValue).Valid == false) {
+				LblHelp.StringValue = Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp;
+				CmdOk.Enabled = false;
+			} else {
+				LblHelp.StringValue = Messages.WindowsSettingsRouteEditIp;
+				CmdOk.Enabled = true;
+			}
+
 		}
 	}
 }

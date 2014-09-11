@@ -159,6 +159,8 @@
     </Compile>
     <Compile Include="TableAdvancedEventsController.cs" />
     <Compile Include="TableRoutingController.cs" />
+    <Compile Include="TableRoutingDelegate.cs" />
+    <Compile Include="TableAdvancedEventsDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
