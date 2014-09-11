@@ -133,8 +133,17 @@ namespace AirVPN.Platforms
 			//pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
 			pf += "pass quick on lo0 all\n";
 			pf += "# Everything tunneled\n";
-			//pf += "pass out quick inet from 10.0.0.0/8 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.0.0.0/8 to any flags S/SA keep state\n";
+			pf += "pass out quick inet from 10.0.0.0/8 to any flags S/SA keep state\n";
+			/*
+			pf += "pass out quick inet on tun+ from 10.4.0.0/16 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.5.0.0/16 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.6.0.0/16 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.7.0.0/16 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.8.0.0/16 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.9.0.0/16 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.30.0.0/16 to any flags S/SA keep state\n";
+			pf += "pass out quick inet on tun+ from 10.35.0.0/16 to any flags S/SA keep state\n";
+			*/
 
 			if (Utils.SaveFile(m_filePfConf.Path, pf))
 			{
@@ -148,21 +157,14 @@ namespace AirVPN.Platforms
 		{
 			base.OnRecoveryLoad(root);
 
-			XmlElement node = Utils.XmlGetFirstElementByTagName(root, "osx_pf");
-			if (node != null)
-			{
-				m_prevActive = (node.GetAttribute("prev_active") == "1");
-			}
+			m_prevActive = (root.GetAttribute("prev_active") == "1");			
 		}
 
 		public override void OnRecoverySave(XmlElement root)
 		{
 			base.OnRecoverySave(root);
 
-			XmlDocument doc = root.OwnerDocument;
-			XmlElement el = (XmlElement)root.AppendChild(doc.CreateElement("osx_pf"));
-
-			el.SetAttribute("prev_active", m_prevActive ? "1" : "0");
+			root.SetAttribute("prev_active", m_prevActive ? "1" : "0");
 		}
 	}
 }

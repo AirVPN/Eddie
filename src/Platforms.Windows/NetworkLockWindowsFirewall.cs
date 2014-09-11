@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.ServiceProcess;
 using System.Text;
 using System.Xml;
 using AirVPN.Core;
@@ -136,6 +137,7 @@ namespace AirVPN.Platforms
 	public class NetworkLockWindowsFirewall : NetworkLockPlugin
 	{
 		private List<NetworkLockWindowsFirewallProfile> Profiles = new List<NetworkLockWindowsFirewallProfile>();
+		private bool m_serviceStatus;
 		private bool m_activated;
 		private string m_lastestIpList;
 
@@ -162,6 +164,16 @@ namespace AirVPN.Platforms
 		public override void Activation()
 		{
 			base.Activation();
+
+			// Service
+			ServiceController service = new ServiceController("MpsSvc");
+			m_serviceStatus = (service.Status == ServiceControllerStatus.Running);
+			if (m_serviceStatus == false)
+			{
+				TimeSpan timeout = TimeSpan.FromMilliseconds(10000);
+				service.Start();
+				service.WaitForStatus(ServiceControllerStatus.Running, timeout);
+			}
 
 			// If 'backup.wfw' doesn't exists, create it. It's a general backup of the first time.
 			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrulesorig.wfw";
@@ -192,9 +204,11 @@ namespace AirVPN.Platforms
 			}
 
 			Exec("netsh advfirewall firewall delete rule name=all");
-			
+
+			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
 			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0-10.9.255.255");
+			//Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0-10.9.255.255");
+			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.0.0.0/8");
 
 			Exec("netsh advfirewall set allprofiles firewallpolicy BlockInbound,BlockOutbound");
 
@@ -210,6 +224,7 @@ namespace AirVPN.Platforms
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 				profile.RestorePolicy();
 
+			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - In - AllowLocal\"");
 			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowLocal\"");
 			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowVPN\"");
 			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
@@ -229,6 +244,15 @@ namespace AirVPN.Platforms
 				if (profile.Notifications == true)
 					profile.NotifyOn();
 				*/
+			}
+
+			// Service
+			if (m_serviceStatus == false)
+			{
+				ServiceController service = new ServiceController("MpsSvc");
+				TimeSpan timeout = TimeSpan.FromMilliseconds(30000);
+				service.Stop();
+				service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
 			}
 
 			m_lastestIpList = "";
@@ -262,6 +286,8 @@ namespace AirVPN.Platforms
 		{
 			base.OnRecoveryLoad(root);
 
+			m_serviceStatus = (root.GetAttribute("service") != "0");
+
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 			{
 				XmlElement node = Utils.XmlGetFirstElementByTagName(root, profile.id);
@@ -275,6 +301,8 @@ namespace AirVPN.Platforms
 		public override void OnRecoverySave(XmlElement root)
 		{
 			base.OnRecoverySave(root);
+
+			root.SetAttribute("service", m_serviceStatus ? "1" : "0");
 
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 			{

@@ -42,7 +42,6 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedWindowsForceDns = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAdvancedWindowsDhcpSwitch = new AirVPN.Gui.Skin.CheckBox();
 			this.cmdAdvancedUninstallDriver = new AirVPN.Gui.Skin.Button();
-			this.lnkAdvancedDocs = new AirVPN.Gui.Skin.LinkLabel();
 			this.chkAdvancedPingerAlways = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAdvancedPingerEnabled = new AirVPN.Gui.Skin.CheckBox();
 			this.cmdExeBrowse = new AirVPN.Gui.Skin.Button();
@@ -86,6 +85,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdTos = new AirVPN.Gui.Skin.Button();
 			this.chkAutoStart = new AirVPN.Gui.Skin.CheckBox();
 			this.tabMode = new AirVPN.Gui.Skin.TabPage();
+			this.cmdModeDocs = new AirVPN.Gui.Skin.Button();
 			this.optModeTCP443 = new AirVPN.Gui.Skin.RadioButton();
 			this.optModeUDP443 = new AirVPN.Gui.Skin.RadioButton();
 			this.optModeTCP2018 = new AirVPN.Gui.Skin.RadioButton();
@@ -108,7 +108,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP80Alt = new AirVPN.Gui.Skin.RadioButton();
 			this.optModeUDP443Alt = new AirVPN.Gui.Skin.RadioButton();
 			this.label5 = new AirVPN.Gui.Skin.Label();
-			this.lnkModeMore = new AirVPN.Gui.Skin.LinkLabel();
 			this.tabProxy = new AirVPN.Gui.Skin.TabPage();
 			this.label12 = new AirVPN.Gui.Skin.Label();
 			this.lblProxyAuthentication = new AirVPN.Gui.Skin.Label();
@@ -139,7 +138,6 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvancedMain = new AirVPN.Gui.Skin.TabControl();
 			this.tabPage5 = new AirVPN.Gui.Skin.TabPage();
 			this.lblLockRoutingOutWarning = new AirVPN.Gui.Skin.Label();
-			this.lnkLockDocs = new AirVPN.Gui.Skin.LinkLabel();
 			this.lblLockAllowedIPS = new AirVPN.Gui.Skin.Label();
 			this.txtLockAllowedIPS = new AirVPN.Gui.Skin.TextBox();
 			this.lblLockMode = new AirVPN.Gui.Skin.Label();
@@ -150,6 +148,8 @@ namespace AirVPN.Gui.Forms
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
+			this.cmdAdvancedGeneralDocs = new AirVPN.Gui.Skin.Button();
+			this.cmdLockHelp = new AirVPN.Gui.Skin.Button();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -176,10 +176,10 @@ namespace AirVPN.Gui.Forms
 			// tabPage1
 			// 
 			tabPage1.BackColor = System.Drawing.Color.White;
+			tabPage1.Controls.Add(this.cmdAdvancedGeneralDocs);
 			tabPage1.Controls.Add(this.label7);
 			tabPage1.Controls.Add(this.cboDnsSwitchMode);
 			tabPage1.Controls.Add(this.pnlAdvancedGeneralWindowsOnly);
-			tabPage1.Controls.Add(this.lnkAdvancedDocs);
 			tabPage1.Controls.Add(this.chkAdvancedPingerAlways);
 			tabPage1.Controls.Add(this.chkAdvancedPingerEnabled);
 			tabPage1.Controls.Add(this.cmdExeBrowse);
@@ -281,20 +281,6 @@ namespace AirVPN.Gui.Forms
 			this.cmdAdvancedUninstallDriver.Text = "Uninstall Driver";
 			this.cmdAdvancedUninstallDriver.UseVisualStyleBackColor = true;
 			this.cmdAdvancedUninstallDriver.Click += new System.EventHandler(this.cmdAdvancedUninstallDriver_Click);
-			// 
-			// lnkAdvancedDocs
-			// 
-			this.lnkAdvancedDocs.BackColor = System.Drawing.Color.Transparent;
-			this.lnkAdvancedDocs.ForeColor = System.Drawing.Color.Black;
-			this.lnkAdvancedDocs.Image = global::AirVPN.Lib.Forms.Properties.Resources.tip;
-			this.lnkAdvancedDocs.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.lnkAdvancedDocs.Location = new System.Drawing.Point(471, 220);
-			this.lnkAdvancedDocs.Name = "lnkAdvancedDocs";
-			this.lnkAdvancedDocs.Size = new System.Drawing.Size(131, 27);
-			this.lnkAdvancedDocs.TabIndex = 68;
-			this.lnkAdvancedDocs.TabStop = true;
-			this.lnkAdvancedDocs.Text = "     Click here to read about advanced options.";
-			this.lnkAdvancedDocs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkAdvancedDocs_LinkClicked);
 			// 
 			// chkAdvancedPingerAlways
 			// 
@@ -805,6 +791,7 @@ namespace AirVPN.Gui.Forms
 			// tabMode
 			// 
 			this.tabMode.BackColor = System.Drawing.Color.White;
+			this.tabMode.Controls.Add(this.cmdModeDocs);
 			this.tabMode.Controls.Add(this.optModeTCP443);
 			this.tabMode.Controls.Add(this.optModeUDP443);
 			this.tabMode.Controls.Add(this.optModeTCP2018);
@@ -827,12 +814,26 @@ namespace AirVPN.Gui.Forms
 			this.tabMode.Controls.Add(this.optModeUDP80Alt);
 			this.tabMode.Controls.Add(this.optModeUDP443Alt);
 			this.tabMode.Controls.Add(this.label5);
-			this.tabMode.Controls.Add(this.lnkModeMore);
 			this.tabMode.Location = new System.Drawing.Point(4, 24);
 			this.tabMode.Name = "tabMode";
 			this.tabMode.Size = new System.Drawing.Size(630, 291);
 			this.tabMode.TabIndex = 3;
 			this.tabMode.Text = "Protocols";
+			// 
+			// cmdModeDocs
+			// 
+			this.cmdModeDocs.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdModeDocs.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdModeDocs.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdModeDocs.FlatAppearance.BorderSize = 0;
+			this.cmdModeDocs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdModeDocs.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
+			this.cmdModeDocs.Location = new System.Drawing.Point(512, 18);
+			this.cmdModeDocs.Name = "cmdModeDocs";
+			this.cmdModeDocs.Size = new System.Drawing.Size(100, 30);
+			this.cmdModeDocs.TabIndex = 39;
+			this.cmdModeDocs.UseVisualStyleBackColor = true;
+			this.cmdModeDocs.Click += new System.EventHandler(this.cmdModeDocs_Click);
 			// 
 			// optModeTCP443
 			// 
@@ -844,7 +845,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP443.Name = "optModeTCP443";
 			this.optModeTCP443.Size = new System.Drawing.Size(183, 20);
 			this.optModeTCP443.TabIndex = 31;
-			this.optModeTCP443.TabStop = true;
 			this.optModeTCP443.Text = "Protocol TCP, port 443";
 			this.optModeTCP443.UseVisualStyleBackColor = false;
 			// 
@@ -858,7 +858,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP443.Name = "optModeUDP443";
 			this.optModeUDP443.Size = new System.Drawing.Size(185, 20);
 			this.optModeUDP443.TabIndex = 30;
-			this.optModeUDP443.TabStop = true;
 			this.optModeUDP443.Text = "Protocol UDP, port 443";
 			this.optModeUDP443.UseVisualStyleBackColor = false;
 			// 
@@ -871,7 +870,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP2018.Name = "optModeTCP2018";
 			this.optModeTCP2018.Size = new System.Drawing.Size(141, 17);
 			this.optModeTCP2018.TabIndex = 29;
-			this.optModeTCP2018.TabStop = true;
 			this.optModeTCP2018.Text = "Protocol TCP, port 2018";
 			this.optModeTCP2018.UseVisualStyleBackColor = false;
 			// 
@@ -884,7 +882,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP2018.Name = "optModeUDP2018";
 			this.optModeUDP2018.Size = new System.Drawing.Size(143, 17);
 			this.optModeUDP2018.TabIndex = 28;
-			this.optModeUDP2018.TabStop = true;
 			this.optModeUDP2018.Text = "Protocol UDP, port 2018";
 			this.optModeUDP2018.UseVisualStyleBackColor = false;
 			// 
@@ -897,7 +894,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP53.Name = "optModeTCP53";
 			this.optModeTCP53.Size = new System.Drawing.Size(129, 17);
 			this.optModeTCP53.TabIndex = 27;
-			this.optModeTCP53.TabStop = true;
 			this.optModeTCP53.Text = "Protocol TCP, port 53";
 			this.optModeTCP53.UseVisualStyleBackColor = false;
 			// 
@@ -910,7 +906,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP53.Name = "optModeUDP53";
 			this.optModeUDP53.Size = new System.Drawing.Size(131, 17);
 			this.optModeUDP53.TabIndex = 26;
-			this.optModeUDP53.TabStop = true;
 			this.optModeUDP53.Text = "Protocol UDP, port 53";
 			this.optModeUDP53.UseVisualStyleBackColor = false;
 			// 
@@ -923,7 +918,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP80.Name = "optModeTCP80";
 			this.optModeTCP80.Size = new System.Drawing.Size(129, 17);
 			this.optModeTCP80.TabIndex = 25;
-			this.optModeTCP80.TabStop = true;
 			this.optModeTCP80.Text = "Protocol TCP, port 80";
 			this.optModeTCP80.UseVisualStyleBackColor = false;
 			// 
@@ -936,7 +930,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP80.Name = "optModeUDP80";
 			this.optModeUDP80.Size = new System.Drawing.Size(131, 17);
 			this.optModeUDP80.TabIndex = 24;
-			this.optModeUDP80.TabStop = true;
 			this.optModeUDP80.Text = "Protocol UDP, port 80";
 			this.optModeUDP80.UseVisualStyleBackColor = false;
 			// 
@@ -959,7 +952,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeSSH53.Name = "optModeSSH53";
 			this.optModeSSH53.Size = new System.Drawing.Size(61, 17);
 			this.optModeSSH53.TabIndex = 22;
-			this.optModeSSH53.TabStop = true;
 			this.optModeSSH53.Text = "Port 53";
 			this.optModeSSH53.UseVisualStyleBackColor = false;
 			// 
@@ -972,7 +964,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeSSH80.Name = "optModeSSH80";
 			this.optModeSSH80.Size = new System.Drawing.Size(61, 17);
 			this.optModeSSH80.TabIndex = 21;
-			this.optModeSSH80.TabStop = true;
 			this.optModeSSH80.Text = "Port 80";
 			this.optModeSSH80.UseVisualStyleBackColor = false;
 			// 
@@ -985,7 +976,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeSSH22Alt.Name = "optModeSSH22Alt";
 			this.optModeSSH22Alt.Size = new System.Drawing.Size(160, 17);
 			this.optModeSSH22Alt.TabIndex = 20;
-			this.optModeSSH22Alt.TabStop = true;
 			this.optModeSSH22Alt.Text = "Port 22 (Alternative Entry-IP)";
 			this.optModeSSH22Alt.UseVisualStyleBackColor = false;
 			// 
@@ -998,7 +988,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeSSH22.Name = "optModeSSH22";
 			this.optModeSSH22.Size = new System.Drawing.Size(61, 17);
 			this.optModeSSH22.TabIndex = 19;
-			this.optModeSSH22.TabStop = true;
 			this.optModeSSH22.Text = "Port 22";
 			this.optModeSSH22.UseVisualStyleBackColor = false;
 			// 
@@ -1011,7 +1000,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeSSL443.Name = "optModeSSL443";
 			this.optModeSSL443.Size = new System.Drawing.Size(67, 17);
 			this.optModeSSL443.TabIndex = 18;
-			this.optModeSSL443.TabStop = true;
 			this.optModeSSL443.Text = "Port 443";
 			this.optModeSSL443.UseVisualStyleBackColor = false;
 			// 
@@ -1044,7 +1032,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP2018Alt.Name = "optModeTCP2018Alt";
 			this.optModeTCP2018Alt.Size = new System.Drawing.Size(141, 17);
 			this.optModeTCP2018Alt.TabIndex = 15;
-			this.optModeTCP2018Alt.TabStop = true;
 			this.optModeTCP2018Alt.Text = "Protocol TCP, port 2018";
 			this.optModeTCP2018Alt.UseVisualStyleBackColor = false;
 			// 
@@ -1057,7 +1044,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP2018Alt.Name = "optModeUDP2018Alt";
 			this.optModeUDP2018Alt.Size = new System.Drawing.Size(143, 17);
 			this.optModeUDP2018Alt.TabIndex = 14;
-			this.optModeUDP2018Alt.TabStop = true;
 			this.optModeUDP2018Alt.Text = "Protocol UDP, port 2018";
 			this.optModeUDP2018Alt.UseVisualStyleBackColor = false;
 			// 
@@ -1070,7 +1056,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP53Alt.Name = "optModeUDP53Alt";
 			this.optModeUDP53Alt.Size = new System.Drawing.Size(131, 17);
 			this.optModeUDP53Alt.TabIndex = 13;
-			this.optModeUDP53Alt.TabStop = true;
 			this.optModeUDP53Alt.Text = "Protocol UDP, port 53";
 			this.optModeUDP53Alt.UseVisualStyleBackColor = false;
 			// 
@@ -1083,7 +1068,6 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP80Alt.Name = "optModeUDP80Alt";
 			this.optModeUDP80Alt.Size = new System.Drawing.Size(131, 17);
 			this.optModeUDP80Alt.TabIndex = 12;
-			this.optModeUDP80Alt.TabStop = true;
 			this.optModeUDP80Alt.Text = "Protocol UDP, port 80";
 			this.optModeUDP80Alt.UseVisualStyleBackColor = false;
 			// 
@@ -1091,6 +1075,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.optModeUDP443Alt.AutoSize = true;
 			this.optModeUDP443Alt.BackColor = System.Drawing.Color.Transparent;
+			this.optModeUDP443Alt.Checked = true;
 			this.optModeUDP443Alt.ForeColor = System.Drawing.Color.Black;
 			this.optModeUDP443Alt.Location = new System.Drawing.Point(207, 142);
 			this.optModeUDP443Alt.Name = "optModeUDP443Alt";
@@ -1109,21 +1094,6 @@ namespace AirVPN.Gui.Forms
 			this.label5.Size = new System.Drawing.Size(221, 29);
 			this.label5.TabIndex = 8;
 			this.label5.Text = "Alternative Entry IP, \r\nif your ISP blocks the standard Entry IP";
-			// 
-			// lnkModeMore
-			// 
-			this.lnkModeMore.AutoSize = true;
-			this.lnkModeMore.BackColor = System.Drawing.Color.Transparent;
-			this.lnkModeMore.ForeColor = System.Drawing.Color.Black;
-			this.lnkModeMore.Image = global::AirVPN.Lib.Forms.Properties.Resources.tip;
-			this.lnkModeMore.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.lnkModeMore.Location = new System.Drawing.Point(355, 43);
-			this.lnkModeMore.Name = "lnkModeMore";
-			this.lnkModeMore.Size = new System.Drawing.Size(260, 13);
-			this.lnkModeMore.TabIndex = 7;
-			this.lnkModeMore.TabStop = true;
-			this.lnkModeMore.Text = "     Click here to read more about choosing a protocol.";
-			this.lnkModeMore.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkModeMore_LinkClicked);
 			// 
 			// tabProxy
 			// 
@@ -1463,8 +1433,8 @@ namespace AirVPN.Gui.Forms
 			// 
 			// tabPage5
 			// 
+			this.tabPage5.Controls.Add(this.cmdLockHelp);
 			this.tabPage5.Controls.Add(this.lblLockRoutingOutWarning);
-			this.tabPage5.Controls.Add(this.lnkLockDocs);
 			this.tabPage5.Controls.Add(this.lblLockAllowedIPS);
 			this.tabPage5.Controls.Add(this.txtLockAllowedIPS);
 			this.tabPage5.Controls.Add(this.lblLockMode);
@@ -1479,31 +1449,18 @@ namespace AirVPN.Gui.Forms
 			// lblLockRoutingOutWarning
 			// 
 			this.lblLockRoutingOutWarning.BackColor = System.Drawing.Color.Transparent;
-			this.lblLockRoutingOutWarning.ForeColor = System.Drawing.Color.Black;
-			this.lblLockRoutingOutWarning.Location = new System.Drawing.Point(13, 200);
+			this.lblLockRoutingOutWarning.ForeColor = System.Drawing.Color.DarkRed;
+			this.lblLockRoutingOutWarning.Location = new System.Drawing.Point(13, 49);
 			this.lblLockRoutingOutWarning.Name = "lblLockRoutingOutWarning";
-			this.lblLockRoutingOutWarning.Size = new System.Drawing.Size(400, 29);
+			this.lblLockRoutingOutWarning.Size = new System.Drawing.Size(593, 29);
 			this.lblLockRoutingOutWarning.TabIndex = 78;
-			// 
-			// lnkLockDocs
-			// 
-			this.lnkLockDocs.BackColor = System.Drawing.Color.Transparent;
-			this.lnkLockDocs.ForeColor = System.Drawing.Color.Black;
-			this.lnkLockDocs.Image = global::AirVPN.Lib.Forms.Properties.Resources.tip;
-			this.lnkLockDocs.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.lnkLockDocs.Location = new System.Drawing.Point(13, 236);
-			this.lnkLockDocs.Name = "lnkLockDocs";
-			this.lnkLockDocs.Size = new System.Drawing.Size(131, 14);
-			this.lnkLockDocs.TabIndex = 77;
-			this.lnkLockDocs.TabStop = true;
-			this.lnkLockDocs.Text = "     Click here for help";
-			this.lnkLockDocs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkLockDocs_LinkClicked);
+			this.lblLockRoutingOutWarning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// lblLockAllowedIPS
 			// 
 			this.lblLockAllowedIPS.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowedIPS.ForeColor = System.Drawing.Color.Black;
-			this.lblLockAllowedIPS.Location = new System.Drawing.Point(438, 12);
+			this.lblLockAllowedIPS.Location = new System.Drawing.Point(13, 87);
 			this.lblLockAllowedIPS.Name = "lblLockAllowedIPS";
 			this.lblLockAllowedIPS.Size = new System.Drawing.Size(145, 13);
 			this.lblLockAllowedIPS.TabIndex = 76;
@@ -1516,11 +1473,11 @@ namespace AirVPN.Gui.Forms
 			this.txtLockAllowedIPS.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtLockAllowedIPS.Location = new System.Drawing.Point(441, 28);
+			this.txtLockAllowedIPS.Location = new System.Drawing.Point(16, 103);
 			this.txtLockAllowedIPS.Multiline = true;
 			this.txtLockAllowedIPS.Name = "txtLockAllowedIPS";
 			this.txtLockAllowedIPS.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtLockAllowedIPS.Size = new System.Drawing.Size(168, 196);
+			this.txtLockAllowedIPS.Size = new System.Drawing.Size(590, 138);
 			this.txtLockAllowedIPS.TabIndex = 75;
 			// 
 			// lblLockMode
@@ -1609,6 +1566,36 @@ namespace AirVPN.Gui.Forms
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
 			// 
+			// cmdAdvancedGeneralDocs
+			// 
+			this.cmdAdvancedGeneralDocs.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedGeneralDocs.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedGeneralDocs.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedGeneralDocs.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedGeneralDocs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedGeneralDocs.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
+			this.cmdAdvancedGeneralDocs.Location = new System.Drawing.Point(502, 217);
+			this.cmdAdvancedGeneralDocs.Name = "cmdAdvancedGeneralDocs";
+			this.cmdAdvancedGeneralDocs.Size = new System.Drawing.Size(100, 30);
+			this.cmdAdvancedGeneralDocs.TabIndex = 73;
+			this.cmdAdvancedGeneralDocs.UseVisualStyleBackColor = true;
+			this.cmdAdvancedGeneralDocs.Click += new System.EventHandler(this.cmdAdvancedGeneralDocs_Click);
+			// 
+			// cmdLockHelp
+			// 
+			this.cmdLockHelp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLockHelp.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLockHelp.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLockHelp.FlatAppearance.BorderSize = 0;
+			this.cmdLockHelp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLockHelp.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
+			this.cmdLockHelp.Location = new System.Drawing.Point(506, 9);
+			this.cmdLockHelp.Name = "cmdLockHelp";
+			this.cmdLockHelp.Size = new System.Drawing.Size(100, 30);
+			this.cmdLockHelp.TabIndex = 79;
+			this.cmdLockHelp.UseVisualStyleBackColor = true;
+			this.cmdLockHelp.Click += new System.EventHandler(this.cmdLockHelp_Click);
+			// 
 			// Settings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1680,8 +1667,7 @@ namespace AirVPN.Gui.Forms
         private Skin.ColumnHeader colRoutesNotes;
         private Skin.ColumnHeader colRoutesAction;
         private System.Windows.Forms.ImageList imgRoutes;
-        private Skin.CheckBox chkMinimizeTray;
-        private Skin.LinkLabel lnkModeMore;
+		private Skin.CheckBox chkMinimizeTray;
         private Skin.RadioButton optModeSSH53;
         private Skin.RadioButton optModeSSH80;
         private Skin.RadioButton optModeSSH22Alt;
@@ -1748,7 +1734,6 @@ namespace AirVPN.Gui.Forms
 		private Skin.Button cmdAdvancedUninstallDriver;
 		private Skin.CheckBox chkAdvancedPingerAlways;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
-		private Skin.LinkLabel lnkAdvancedDocs;
 		private System.Windows.Forms.GroupBox pnlGeneralWindowsOnly;
 		private System.Windows.Forms.GroupBox pnlAdvancedGeneralWindowsOnly;
 		private Skin.ComboBox cboDnsSwitchMode;
@@ -1761,13 +1746,15 @@ namespace AirVPN.Gui.Forms
 		private Skin.CheckBox chkLoggingEnabled;
 		private Skin.CheckBox chkExitConfirm;
 		private Skin.TabPage tabPage5;
-		private Skin.LinkLabel lnkLockDocs;
 		private Skin.Label lblLockAllowedIPS;
 		private Skin.TextBox txtLockAllowedIPS;
 		private Skin.Label lblLockMode;
 		private Skin.ComboBox cboLockMode;
 		private Skin.Label lblLockRoutingOutWarning;
 		private Skin.Label lblRoutesNetworkLockWarning;
+		private Skin.Button cmdModeDocs;
+		private Skin.Button cmdAdvancedGeneralDocs;
+		private Skin.Button cmdLockHelp;
 
     }
 }

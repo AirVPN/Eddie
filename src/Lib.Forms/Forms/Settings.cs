@@ -645,17 +645,18 @@ namespace AirVPN.Gui.Forms
             EnableIde();
         }
 
-        private void lnkModeMore_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
+        private void cmdModeDocs_Click(object sender, EventArgs e)
+		{
 			Core.UI.Actions.OpenUrlDocsProtocols();
         }
 
-		private void lnkAdvancedDocs_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		
+		private void cmdAdvancedGeneralDocs_Click(object sender, EventArgs e)
 		{
 			Core.UI.Actions.OpenUrlDocsAdvanced();
 		}
 
-		private void lnkLockDocs_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		private void cmdLockHelp_Click(object sender, EventArgs e)
 		{
 			Core.UI.Actions.OpenUrlDocsLock();
 		}
@@ -807,6 +808,9 @@ namespace AirVPN.Gui.Forms
 		{
 			EnableIde();
 		}
+
+		
+		
 
 		
 

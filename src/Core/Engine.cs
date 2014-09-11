@@ -1333,6 +1333,20 @@ namespace AirVPN.Core
 				ovpn += "route 128.0.0.0 192.0.0.0 net_gateway\n";
 				ovpn += "route 192.0.0.0 192.0.0.0 net_gateway\n";
 				*/
+
+				// For Checking
+				ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway\n";
+
+				// For DNS
+				ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
+				ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway\n";
+				ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway\n";
+				ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway\n";
+				ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway\n";
+				ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway\n";
+				ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway\n";
+				ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway\n";
+				ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway\n"; 
             }
             string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
@@ -1358,12 +1372,7 @@ namespace AirVPN.Core
 				}
             }
 
-			if (routesDefault == "out")
-			{
-				//ovpn += "route " + Constants.DnsVpn + " 255.255.255.255 vpn_gateway\n"; // For DNS
-				ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway\n"; // For Checking
-			}
-
+			
 			if ((protocol == "SSH") || (protocol == "SSL"))
 			{
 				// TOCLEAN

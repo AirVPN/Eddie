@@ -1105,9 +1105,7 @@ namespace AirVPN.Gui.Forms
 			mnuSpeedTest.Enabled = connected;
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
-
-			cmdLockedNetwork.Visible = Engine.Instance.NetworkLockManager.CanEnabled();
-			imgLockedNetwork.Visible = cmdLockedNetwork.Visible;
+						
 			if (Engine.Instance.NetworkLockManager.IsActive())
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
@@ -1118,6 +1116,8 @@ namespace AirVPN.Gui.Forms
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonDeactive;
 				imgLockedNetwork.BackgroundImage = Lib.Forms.Properties.Resources.netlock_off;
 			}
+			cmdLockedNetwork.Visible = Engine.Instance.NetworkLockManager.CanEnabled();
+			imgLockedNetwork.Visible = cmdLockedNetwork.Visible;
 		}
 
 		private delegate void ShowFrontMessageDelegate(string message);
