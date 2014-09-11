@@ -1363,7 +1363,7 @@ namespace AirVPN.Core
 				else
 				{
 					string action = routeEntries[1];
-					string notes = routeEntries[2];
+					// string notes = routeEntries[2]; // Not used
 
 					if ((routesDefault == "out") && (action == "in"))
 						ovpn += "route " + ipCustomRoute.ToOpenVPN() + " vpn_gateway\n";
