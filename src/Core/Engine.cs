@@ -1400,6 +1400,11 @@ namespace AirVPN.Core
             ovpn += s.Get("openvpn.custom").Replace("\t", "").Trim();
             ovpn += "\n";
 
+			// Experimental - Allow identification as Public Network in Windows. Advanced Option?
+			// ovpn += "route-metric 512\n";
+			// ovpn += "route 0.0.0.0 0.0.0.0\n";
+
+
 			//XmlNode nodeUser = s.Manifest.SelectSingleNode("//user");
 			XmlNode nodeUser = s.User;
 			ovpn += "<ca>\n" + nodeUser.Attributes["ca"].Value + "</ca>\n";

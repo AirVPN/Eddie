@@ -86,8 +86,8 @@ namespace AirVPN.Core.Threads
 							int i = Engine.PingerInvalid();
 							if (i == 0)
 								break;
-							
-							string nextWaitingMessage = Messages.Format(Messages.WaitingLatencyTests, i.ToString());
+
+							string nextWaitingMessage = Messages.WaitingLatencyTestsTitle + " " + Messages.Format(Messages.WaitingLatencyTestsStep, i.ToString());
 							if (lastWaitingMessage != nextWaitingMessage)
 							{
 								lastWaitingMessage = nextWaitingMessage;
@@ -790,8 +790,6 @@ namespace AirVPN.Core.Threads
 		{
 			try
 			{
-				Platform.Instance.OnDaemonOutput(source, message);
-
 				if (source == "OpenVPN")
 				{
 					bool log = true;
@@ -1009,6 +1007,8 @@ namespace AirVPN.Core.Threads
 
 					if (log)
 						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+
+					Platform.Instance.OnDaemonOutput(source, message);
 				}
 				else if (source == "SSH")
 				{

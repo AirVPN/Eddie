@@ -206,9 +206,14 @@ namespace AirVPN.Platforms
 			Exec("netsh advfirewall firewall delete rule name=all");
 
 			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
+			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
 			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
 			//Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0-10.9.255.255");
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.0.0.0/8");
+			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+			//Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.0.0.0/8");
+
+			// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
+			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
 
 			Exec("netsh advfirewall set allprofiles firewallpolicy BlockInbound,BlockOutbound");
 
@@ -224,10 +229,14 @@ namespace AirVPN.Platforms
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 				profile.RestorePolicy();
 
+			/*
+			 * /* Not need, already restored in after import
 			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - In - AllowLocal\"");
 			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowLocal\"");
 			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowVPN\"");
 			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
+			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - DHCP\"");
+			*/
 
 			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
 			if (File.Exists(rulesBackupSession))

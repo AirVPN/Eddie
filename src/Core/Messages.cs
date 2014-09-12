@@ -35,7 +35,8 @@ namespace AirVPN.Core
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";
 		public static string CheckingRequired = "Unavailable (Check required)";
-		public static string WaitingLatencyTests = "Waiting for latency tests ({1} to go)";
+		public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
+		public static string WaitingLatencyTestsStep = "({1} to go)";
 		public static string AuthorizeLogin = "Checking login ...";
 		public static string AuthorizeLoginDone = "Logged in.";
 		public static string AuthorizeLogout = "Logout ...";
