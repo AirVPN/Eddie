@@ -263,6 +263,7 @@ namespace AirVPN.UI.Osx
 			CboSpeedResolutions.Activated += (object sender, EventArgs e) => {
 				(PnlChart as ChartView).Switch(CboSpeedResolutions.IndexOfItem(CboSpeedResolutions.SelectedItem));
 			};
+		
 
 			CmdLogsClean.Activated += (object sender, EventArgs e) => {
 				TableLogsController.Clear();

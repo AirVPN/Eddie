@@ -1,14 +1,42 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/8/2014 12:15:57 AM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x64" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="MainWindow.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../Platforms.Osx/NetworkLockOsxPf.cs">
     <Files>
-      <File FileName="../Platforms.Osx/Osx.cs" Line="1" Column="1" />
-      <File FileName="MainWindowController.cs" Line="1" Column="1" />
-      <File FileName="MainWindowDelegate.cs" Line="1" Column="1" />
-      <File FileName="WindowPreferencesController.cs" Line="1" Column="1" />
-      <File FileName="MainWindow.cs" Line="1" Column="1" />
+      <File FileName="MainWindowController.cs" Line="3" Column="3" />
+      <File FileName="MainWindowDelegate.cs" Line="19" Column="19" />
+      <File FileName="WindowPreferencesController.cs" Line="5" Column="5" />
+      <File FileName="MainWindow.cs" Line="31" Column="31" />
       <File FileName="Main.cs" Line="1" Column="1" />
+      <File FileName="../Core/Engine.cs" Line="1" Column="1" />
+      <File FileName="WindowPreferences.cs" Line="23" Column="23" />
+      <File FileName="../Core/NetworkLockManager.cs" Line="1" Column="1" />
+      <File FileName="TableRoutingController.cs" Line="16" Column="16" />
+      <File FileName="WindowPreferencesRouteController.cs" Line="6" Column="6" />
+      <File FileName="WindowPreferencesEventController.cs" Line="51" Column="51" />
+      <File FileName="GuiUtils.cs" Line="21" Column="21" />
+      <File FileName="TableRoutingDelegate.cs" Line="17" Column="17" />
+      <File FileName="TableAdvancedEventsDelegate.cs" Line="51" Column="51" />
+      <File FileName="TableAdvancedEventsController.cs" Line="65" Column="65" />
+      <File FileName="../Platforms.Osx/Osx.cs" Line="10" Column="10" />
+      <File FileName="ChartView.cs" Line="24" Column="24" />
+      <File FileName="../Core/Messages.cs" Line="31" Column="31" />
+      <File FileName="../Core/Constants.cs" Line="1" Column="1" />
+      <File FileName="../Platforms.Osx/NetworkLockOsxPf.cs" Line="54" Column="54" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Deploy" selected="True" />
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State>
+          <Value>value</Value>
+          <Value>Item.Action</Value>
+          <Value>tableColumn.Identifier</Value>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
