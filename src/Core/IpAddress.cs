@@ -34,7 +34,7 @@ namespace AirVPN.Core
 
 		public IpAddress(string value)
 		{
-			Value = value;
+			Value = value.Trim();
 		}
 
 		public static implicit operator IpAddress(string value)

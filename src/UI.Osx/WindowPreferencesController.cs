@@ -75,6 +75,9 @@ namespace AirVPN.UI.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
 
+			TableRoutes.Delegate = new TableRoutingDelegate (this);
+			TableAdvancedEvents.Delegate = new TableAdvancedEventsDelegate (this);
+
 			LblLoggingHelp.StringValue = Messages.WindowsSettingsLoggingHelp;
 
 			TableRoutingController = new TableRoutingController (this.TableRoutes);
@@ -261,6 +264,13 @@ namespace AirVPN.UI.Osx
 			CboRoutesOtherwise.RemoveAllItems();
 			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("in"));
 			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("out"));
+			CboRoutesOtherwise.Activated += (object sender, EventArgs e) => {
+				EnableIde ();
+			};
+
+			TableRoutes.DoubleClick += (object sender, EventArgs e) => {
+				RouteEdit();
+			};
 
 			CmdRouteAdd.Activated += (object sender, EventArgs e) => {
 				RouteAdd();
@@ -275,12 +285,26 @@ namespace AirVPN.UI.Osx
 			};
 
 			// Advanced
+
+			CmdLockHelp.Activated += (object sender, EventArgs e) => {
+				Core.UI.Actions.OpenUrlDocsLock();
+			};
+			CboLockMode.RemoveAllItems ();
+			CboLockMode.AddItem ("None");
+			CboLockMode.AddItem ("Automatic");
+			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes) {
+				CboLockMode.AddItem (lockPlugin.GetName ());
+			}
+
+			LblRoutesNetworkLockWarning.StringValue = Messages.WindowsSettingsRouteLockHelp;
+			LblLockRoutingOutWarning.StringValue = Messages.NetworkLockNotAvailableWithRouteOut;
+
 			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
 				Core.UI.Actions.OpenUrlDocsAdvanced();
 			};
 
 			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) => {
-				TxtAdvancedOpenVpnPath.StringValue = "todo";
+				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
 			};
 
 			TxtLoggingPath.Changed += (object sender, EventArgs e) => {
@@ -301,8 +325,6 @@ namespace AirVPN.UI.Osx
 			};
 
 
-			ChkAdvancedNetworkLocking.Hidden = (Engine.Instance.DevelopmentEnvironment == false);
-
 			ReadOptions ();
 
 			EnableIde ();
@@ -311,7 +333,7 @@ namespace AirVPN.UI.Osx
 
 		}
 
-		string RouteDirectionToDescription(string v)
+		public static string RouteDirectionToDescription(string v)
 		{
 			if (v == "in")
 				return "Inside the VPN tunnel";
@@ -321,7 +343,7 @@ namespace AirVPN.UI.Osx
 				return "";
 		}
 
-		string RouteDescriptionToDirection(string v)
+		public static string RouteDescriptionToDirection(string v)
 		{
 			if (v == RouteDirectionToDescription ("in"))
 				return "in";
@@ -335,18 +357,19 @@ namespace AirVPN.UI.Osx
 		{
 			TableRoutingControllerItem item = new TableRoutingControllerItem();
 			item.Ip = "";
-			item.NetMask = "255.255.255.255";
 			item.Icon = "out";
-			item.Action = RouteDirectionToDescription("out");
+			item.Action = "out";
+			item.Notes = "";
 
+			WindowPreferencesRouteController.Item = item;
 			WindowPreferencesRouteController dlg = new WindowPreferencesRouteController ();
 			dlg.Window.ReleasedWhenClosed = true;
-			dlg.Item = item;
 			NSApplication.SharedApplication.RunModalForWindow (dlg.Window);
 			dlg.Window.Close ();
 
-			if (dlg.Item != null) {
-				TableRoutingController.Items.Add(dlg.Item);
+			if(dlg.Accepted) {
+				TableRoutingController.Items.Add(item);
+				TableRoutingController.RefreshUI ();
 			}
 
 			this.EnableIde();
@@ -354,6 +377,19 @@ namespace AirVPN.UI.Osx
 
 		void RouteEdit()
 		{
+			int i = TableRoutes.SelectedRow;
+			if (i != -1) {
+				TableRoutingControllerItem item = TableRoutingController.Items [i];
+			
+				WindowPreferencesRouteController.Item = item;
+				WindowPreferencesRouteController dlg = new WindowPreferencesRouteController ();
+				dlg.Window.ReleasedWhenClosed = true;
+				NSApplication.SharedApplication.RunModalForWindow (dlg.Window);
+				dlg.Window.Close ();
+
+				TableRoutingController.RefreshUI ();
+				this.EnableIde ();
+			}
 		}
 
 		void RouteRemove()
@@ -372,20 +408,15 @@ namespace AirVPN.UI.Osx
 		{
 			int index = TableAdvancedEvents.SelectedRow;
 
+			WindowPreferencesEventController.Item = TableAdvancedEventsController.Items [index];
 			WindowPreferencesEventController dlg = new WindowPreferencesEventController ();
 			dlg.Window.ReleasedWhenClosed = true;
-			dlg.Filename = TableAdvancedEventsController.Items [index].Filename;
-			dlg.Arguments = TableAdvancedEventsController.Items [index].Arguments;
-			dlg.WaitEnd = TableAdvancedEventsController.Items [index].WaitEnd;
 
 			NSApplication.SharedApplication.RunModalForWindow (dlg.Window);
 			dlg.Window.Close ();
 
-			if (dlg.Accepted) {
-				TableAdvancedEventsController.Items [index].Filename = dlg.Filename;
-				TableAdvancedEventsController.Items [index].Arguments = dlg.Arguments;
-				TableAdvancedEventsController.Items [index].WaitEnd = dlg.WaitEnd;
-			}
+			TableAdvancedEventsController.RefreshUI ();
+			this.EnableIde ();
 		}
 
 		void AdvancedEventClear()
@@ -398,6 +429,8 @@ namespace AirVPN.UI.Osx
 				TableAdvancedEventsController.Items[index].WaitEnd = true;
 				TableAdvancedEventsController.RefreshUI();
 			}
+			TableAdvancedEventsController.RefreshUI ();
+			this.EnableIde ();
 		}
 
 		void ChangeMode()
@@ -461,7 +494,7 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetCheck (ChkAutoStart, s.GetBool ("connect")); 
 			GuiUtils.SetCheck (ChkGeneralStartLast, s.GetBool("servers.startlast"));
 			GuiUtils.SetCheck (ChkGeneralOsxNotifications, s.GetBool ("gui.osx.notifications"));
-
+			GuiUtils.SetCheck (ChkExitConfirm, s.GetBool("gui.exit_confirm"));
 			// Mode
 			m_mode_protocol = s.Get ("mode.protocol").ToUpperInvariant ();
 			m_mode_port = s.GetInt ("mode.port");
@@ -484,14 +517,15 @@ namespace AirVPN.UI.Osx
 			string[] routes2 = routes.Split (';');
 			foreach (string route in routes2) {
 				string[] routeEntries = route.Split (',');
-				if (routeEntries.Length != 3)
+				if (routeEntries.Length < 2)
 					continue;
 
 				TableRoutingControllerItem item = new TableRoutingControllerItem ();
 				item.Ip = routeEntries [0];
-				item.NetMask = routeEntries [1];
-				item.Action = RouteDirectionToDescription (routeEntries [2]);
-				item.Icon = routeEntries [2];
+				item.Action = routeEntries [1];
+				item.Icon = routeEntries [1];
+				if(routeEntries.Length == 3)
+					item.Notes = routeEntries [2];
 				TableRoutingController.Items.Add (item);
 			}
 
@@ -513,9 +547,21 @@ namespace AirVPN.UI.Osx
 
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 
-			GuiUtils.SetCheck (ChkAdvancedNetworkLocking, s.GetBool ("advanced.netlock.enabled"));
+			// Advanced - Lock
+			string lockMode = s.Get ("netlock.mode");
+			GuiUtils.SetSelected (CboLockMode, "None");
+			if (lockMode == "auto")
+				GuiUtils.SetSelected (CboLockMode, "Automatic");
+			else {
+				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes) {
+					if (lockPlugin.GetCode () == lockMode) {
+						GuiUtils.SetSelected(CboLockMode, lockPlugin.GetName());
+					}
+				}
+			}
+			TxtLockAllowedIPS.StringValue = s.Get("netlock.allowed_ips");
 
-			// Advanced - Loggin
+			// Advanced - Logging
 			GuiUtils.SetCheck (ChkLoggingEnabled, s.GetBool ("log.file.enabled"));
 			TxtLoggingPath.StringValue = s.Get ("log.file.path");
 
@@ -546,6 +592,7 @@ namespace AirVPN.UI.Osx
 			s.SetBool ("connect", GuiUtils.GetCheck (ChkAutoStart));
 			s.SetBool ("servers.startlast", GuiUtils.GetCheck (ChkGeneralStartLast));
 			s.SetBool ("gui.osx.notifications", GuiUtils.GetCheck (ChkGeneralOsxNotifications));
+			s.SetBool ("gui.exit_confirm", GuiUtils.GetCheck (ChkExitConfirm));
 
 			// Mode
 
@@ -569,7 +616,7 @@ namespace AirVPN.UI.Osx
 			foreach (TableRoutingControllerItem item in TableRoutingController.Items) {
 				if (routes != "")
 					routes += ";";
-				routes += item.Ip + "," + item.NetMask + "," + item.Icon;
+				routes += item.Ip + "," + item.Action + "," + item.Notes;
 			}
 			s.Set("routes.custom", routes);
 
@@ -589,7 +636,20 @@ namespace AirVPN.UI.Osx
 
 			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
 
-			s.SetBool ("advanced.netlock.enabled", GuiUtils.GetCheck (ChkAdvancedNetworkLocking));
+
+			// Advanced - Lock
+			string lockMode = GuiUtils.GetSelected (CboLockMode);
+			s.Set ("netlock.mode", "none");
+			if (lockMode == "Automatic") {
+				s.Set ("netlock.mode", "auto");
+			} else {
+				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes) {
+					if (lockPlugin.GetName () == lockMode) {
+						s.Set ("netlock.mode", lockPlugin.GetCode ());
+										}
+									}
+			}
+			s.Set ("netlock.allowed_ips", TxtLockAllowedIPS.StringValue);
 
 			// Advanced - Logging
 			s.SetBool ("log.file.enabled", GuiUtils.GetCheck (ChkLoggingEnabled));
@@ -608,9 +668,11 @@ namespace AirVPN.UI.Osx
 			SaveOptionsEvent ("vpn.pre", 4);
 			SaveOptionsEvent ("vpn.up", 5);
 			SaveOptionsEvent ("vpn.down", 6);
+
+			Engine.Instance.OnSettingsChanged ();
 		}
 
-		void EnableIde()
+		public void EnableIde()
 		{
 			bool proxy = (GuiUtils.GetSelected (CboProxyType) != "None");
 			TxtProxyHost.Enabled = proxy;
@@ -633,6 +695,14 @@ namespace AirVPN.UI.Osx
 			ChkModeUdp53Alt.Enabled = (proxy == false);
 			ChkModeUdp80.Enabled = (proxy == false);
 			ChkModeUdp80Alt.Enabled = (proxy == false);
+
+			// Routing
+			CmdRouteAdd.Enabled = true;
+			CmdRouteRemove.Enabled = (TableRoutes.SelectedRowCount > 0);
+			CmdRouteEdit.Enabled = (TableRoutes.SelectedRowCount == 1);
+
+			// Lock
+			LblLockRoutingOutWarning.Hidden = (GuiUtils.GetSelected (CboRoutesOtherwise) == RouteDirectionToDescription ("in"));
 
 			CmdAdvancedEventsClear.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);
 			CmdAdvancedEventsEdit.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);

@@ -16,6 +16,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSPopUpButton CboAdvancedDnsSwitchMode { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboLockMode { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboProxyAuthentication { get; set; }
 
 		[Outlet]
@@ -47,6 +50,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkAutoStart { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkExitConfirm { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkGeneralOsxNotifications { get; set; }
@@ -130,6 +136,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton CmdGeneralTos { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdLockHelp { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdModeHelp { get; set; }
 
 		[Outlet]
@@ -145,7 +154,13 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton CmdSave { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField LblLockRoutingOutWarning { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextField LblLoggingHelp { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblRoutesNetworkLockWarning { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTableView TableAdvancedEvents { get; set; }
@@ -161,6 +176,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField TxtAdvancedOpenVpnPath { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtLockAllowedIPS { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField TxtLoggingComputedPath { get; set; }
@@ -185,6 +203,11 @@ namespace AirVPN.UI.Osx
 			if (CboAdvancedDnsSwitchMode != null) {
 				CboAdvancedDnsSwitchMode.Dispose ();
 				CboAdvancedDnsSwitchMode = null;
+			}
+
+			if (CboLockMode != null) {
+				CboLockMode.Dispose ();
+				CboLockMode = null;
 			}
 
 			if (CboProxyAuthentication != null) {
@@ -242,6 +265,11 @@ namespace AirVPN.UI.Osx
 				ChkAutoStart = null;
 			}
 
+			if (ChkExitConfirm != null) {
+				ChkExitConfirm.Dispose ();
+				ChkExitConfirm = null;
+			}
+
 			if (ChkGeneralOsxNotifications != null) {
 				ChkGeneralOsxNotifications.Dispose ();
 				ChkGeneralOsxNotifications = null;
@@ -250,6 +278,11 @@ namespace AirVPN.UI.Osx
 			if (ChkGeneralStartLast != null) {
 				ChkGeneralStartLast.Dispose ();
 				ChkGeneralStartLast = null;
+			}
+
+			if (ChkLoggingEnabled != null) {
+				ChkLoggingEnabled.Dispose ();
+				ChkLoggingEnabled = null;
 			}
 
 			if (ChkModeSsh22 != null) {
@@ -372,6 +405,11 @@ namespace AirVPN.UI.Osx
 				CmdGeneralTos = null;
 			}
 
+			if (CmdLockHelp != null) {
+				CmdLockHelp.Dispose ();
+				CmdLockHelp = null;
+			}
+
 			if (CmdModeHelp != null) {
 				CmdModeHelp.Dispose ();
 				CmdModeHelp = null;
@@ -387,24 +425,19 @@ namespace AirVPN.UI.Osx
 				CmdRouteEdit = null;
 			}
 
-			if (TxtLoggingPath != null) {
-				TxtLoggingPath.Dispose ();
-				TxtLoggingPath = null;
-			}
-
 			if (CmdRouteRemove != null) {
 				CmdRouteRemove.Dispose ();
 				CmdRouteRemove = null;
 			}
 
-			if (ChkLoggingEnabled != null) {
-				ChkLoggingEnabled.Dispose ();
-				ChkLoggingEnabled = null;
+			if (CmdSave != null) {
+				CmdSave.Dispose ();
+				CmdSave = null;
 			}
 
-			if (TxtLoggingComputedPath != null) {
-				TxtLoggingComputedPath.Dispose ();
-				TxtLoggingComputedPath = null;
+			if (LblLockRoutingOutWarning != null) {
+				LblLockRoutingOutWarning.Dispose ();
+				LblLockRoutingOutWarning = null;
 			}
 
 			if (LblLoggingHelp != null) {
@@ -412,9 +445,9 @@ namespace AirVPN.UI.Osx
 				LblLoggingHelp = null;
 			}
 
-			if (CmdSave != null) {
-				CmdSave.Dispose ();
-				CmdSave = null;
+			if (LblRoutesNetworkLockWarning != null) {
+				LblRoutesNetworkLockWarning.Dispose ();
+				LblRoutesNetworkLockWarning = null;
 			}
 
 			if (TableAdvancedEvents != null) {
@@ -440,6 +473,21 @@ namespace AirVPN.UI.Osx
 			if (TxtAdvancedOpenVpnPath != null) {
 				TxtAdvancedOpenVpnPath.Dispose ();
 				TxtAdvancedOpenVpnPath = null;
+			}
+
+			if (TxtLockAllowedIPS != null) {
+				TxtLockAllowedIPS.Dispose ();
+				TxtLockAllowedIPS = null;
+			}
+
+			if (TxtLoggingComputedPath != null) {
+				TxtLoggingComputedPath.Dispose ();
+				TxtLoggingComputedPath = null;
+			}
+
+			if (TxtLoggingPath != null) {
+				TxtLoggingPath.Dispose ();
+				TxtLoggingPath = null;
 			}
 
 			if (TxtProxyHost != null) {

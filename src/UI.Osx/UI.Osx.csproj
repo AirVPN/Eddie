@@ -11,7 +11,7 @@
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.4</ReleaseVersion>
+    <ReleaseVersion>2.5</ReleaseVersion>
     <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -159,6 +159,8 @@
     </Compile>
     <Compile Include="TableAdvancedEventsController.cs" />
     <Compile Include="TableRoutingController.cs" />
+    <Compile Include="TableRoutingDelegate.cs" />
+    <Compile Include="TableAdvancedEventsDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

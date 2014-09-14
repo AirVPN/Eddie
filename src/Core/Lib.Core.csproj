@@ -43,7 +43,11 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="IpAddressRange.cs" />
+    <Compile Include="NetworkLockManager.cs" />
+    <Compile Include="NetworkLockPlugin.cs" />
     <Compile Include="IpAddress.cs" />
+    <Compile Include="NetworkLocks\RoutingTable.cs" />
     <Compile Include="RouteScope.cs" />
     <Compile Include="RouteEntry.cs" />
     <Compile Include="Debug.cs">
@@ -53,7 +57,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ResourcesFiles.cs" />
-    <Compile Include="RoutesManager.cs" />
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
     <Compile Include="UI\Chart.cs" />

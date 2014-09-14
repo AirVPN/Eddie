@@ -162,7 +162,7 @@ namespace AirVPN.UI.Osx
 			};
 
 			CmdNetworkLock.Activated += (object sender, EventArgs e) => {
-				if(RoutesManager.Instance.GetLockActive())
+				if(Engine.Instance.NetworkLockManager.IsActive())
 				{
 					NetworkLockDeactivation();
 				}
@@ -263,6 +263,7 @@ namespace AirVPN.UI.Osx
 			CboSpeedResolutions.Activated += (object sender, EventArgs e) => {
 				(PnlChart as ChartView).Switch(CboSpeedResolutions.IndexOfItem(CboSpeedResolutions.SelectedItem));
 			};
+		
 
 			CmdLogsClean.Activated += (object sender, EventArgs e) => {
 				TableLogsController.Clear();
@@ -448,7 +449,7 @@ namespace AirVPN.UI.Osx
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
 					MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
-					if(RoutesManager.Instance.GetLockActive())
+					if(Engine.Instance.NetworkLockManager.IsActive())
 						LblTopStatus.StringValue = Messages.TopBarNotConnectedLocked;
 					else
 						LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed;
@@ -609,9 +610,9 @@ namespace AirVPN.UI.Osx
 			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
 			CmdLogsOpenVpnManagement.Enabled = connected;
 
-			CmdNetworkLock.Hidden = (Engine.Storage.GetBool ("advanced.netlock.enabled") == false);
+			CmdNetworkLock.Hidden = (Engine.Instance.NetworkLockManager.CanEnabled() == false);
 			ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
-			if (RoutesManager.Instance.GetLockActive ()) {
+			if (Engine.Instance.NetworkLockManager.IsActive()) {
 				CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
 				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
 			} else {
@@ -765,9 +766,9 @@ namespace AirVPN.UI.Osx
 		{
 			string msg = Messages.NetworkLockWarning;
 
-			// todo confirm pazzo
+			if(MessageYesNo(msg))
 			{
-				Engine.Instance.Storage.SetBool ("advanced.netlock.active", true);
+				Engine.Instance.Storage.SetBool ("netlock.active", true);
 
 				Engine.Instance.NetLockIn ();
 			}
@@ -778,7 +779,7 @@ namespace AirVPN.UI.Osx
 		{
 			Engine.NetLockOut ();
 
-			Engine.Instance.Storage.SetBool ("advanced.netlock.active", false);
+			Engine.Instance.Storage.SetBool ("netlock.active", false);
 		}
 
 		bool TermsOfServiceCheck(bool force)

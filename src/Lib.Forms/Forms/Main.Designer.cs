@@ -29,16 +29,16 @@ namespace AirVPN.Gui.Forms
         private void InitializeComponent()
         {
 			this.components = new System.ComponentModel.Container();
-			System.Windows.Forms.ColumnHeader colStatsKey;
-			System.Windows.Forms.ColumnHeader colStatsValue;
-			System.Windows.Forms.ColumnHeader colIcon;
-			System.Windows.Forms.ColumnHeader colDate;
-			System.Windows.Forms.ColumnHeader colMessage;
 			System.Windows.Forms.ToolStripMenuItem mnuContextCopyAll;
 			System.Windows.Forms.ToolStripMenuItem mnuContextSaveAll;
 			System.Windows.Forms.ToolStripMenuItem mnuContextCopySelected;
 			System.Windows.Forms.ToolStripMenuItem mnuContextSaveSelected;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
+			System.Windows.Forms.ColumnHeader colStatsKey;
+			System.Windows.Forms.ColumnHeader colStatsValue;
+			System.Windows.Forms.ColumnHeader colIcon;
+			System.Windows.Forms.ColumnHeader colDate;
+			System.Windows.Forms.ColumnHeader colMessage;
 			this.imgButtons = new System.Windows.Forms.ImageList(this.components);
 			this.mnuMain = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.mnuSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -67,36 +67,33 @@ namespace AirVPN.Gui.Forms
 			this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
 			this.imgCountries = new System.Windows.Forms.ImageList(this.components);
 			this.tip = new System.Windows.Forms.ToolTip(this.components);
-			this.cboScoreType = new AirVPN.Gui.Skin.ComboBox();
-			this.chkLockLast = new AirVPN.Gui.Skin.CheckBox();
-			this.cmdServersUndefined = new AirVPN.Gui.Skin.Button();
-			this.cmdServersBlackList = new AirVPN.Gui.Skin.Button();
-			this.cmdServersWhiteList = new AirVPN.Gui.Skin.Button();
-			this.cmdServersConnect = new AirVPN.Gui.Skin.Button();
-			this.cmdAreasUndefined = new AirVPN.Gui.Skin.Button();
-			this.cmdAreasBlackList = new AirVPN.Gui.Skin.Button();
-			this.cmdAreasWhiteList = new AirVPN.Gui.Skin.Button();
-			this.cmdLogsOpenVpnManagement = new AirVPN.Gui.Skin.Button();
-			this.cmdLogsClean = new AirVPN.Gui.Skin.Button();
-			this.cmdLogsCopy = new AirVPN.Gui.Skin.Button();
-			this.cmdLogsSave = new AirVPN.Gui.Skin.Button();
-			this.cmdLogsSupport = new AirVPN.Gui.Skin.Button();
-			this.imgProgress = new System.Windows.Forms.PictureBox();
-			this.cmdCancel = new AirVPN.Gui.Skin.Button();
-			this.cmdConnect = new AirVPN.Gui.Skin.Button();
+			this.mnuLogsContext = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.mnuServers = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mnuServersConnect = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuServersSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.mnuServersWhiteList = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuServersBlackList = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuServersUndefined = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuAreas = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.mnuAreasWhiteList = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuAreasBlackList = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuAreasUndefined = new System.Windows.Forms.ToolStripMenuItem();
+			this.tabMain = new AirVPN.Gui.Skin.TabControl();
+			this.tabOverview = new AirVPN.Gui.Skin.TabPage();
 			this.pnlWelcome = new AirVPN.Gui.Skin.Panel();
-			this.imgLockedNetwork = new System.Windows.Forms.PictureBox();
+			this.lblConnectSubtitle = new AirVPN.Gui.Skin.Label();
 			this.cmdLockedNetwork = new AirVPN.Gui.Skin.Button();
 			this.lblLoginIcon = new System.Windows.Forms.Label();
-			this.lblConnectSubtitle = new AirVPN.Gui.Skin.Label();
+			this.imgLockedNetwork = new AirVPN.Gui.Skin.Label();
 			this.cmdLogin = new AirVPN.Gui.Skin.Button();
 			this.lblPassword = new AirVPN.Gui.Skin.Label();
 			this.lblLogin = new AirVPN.Gui.Skin.Label();
+			this.cmdConnect = new AirVPN.Gui.Skin.Button();
 			this.chkRemember = new AirVPN.Gui.Skin.CheckBox();
 			this.txtPassword = new AirVPN.Gui.Skin.TextBox();
 			this.txtLogin = new AirVPN.Gui.Skin.TextBox();
-			this.tabMain = new AirVPN.Gui.Skin.TabControl();
-			this.tabOverview = new AirVPN.Gui.Skin.TabPage();
 			this.pnlConnected = new AirVPN.Gui.Skin.Panel();
 			this.txtConnectedExitIp = new AirVPN.Gui.Skin.Label();
 			this.lblConnectedExitIp = new AirVPN.Gui.Skin.Label();
@@ -112,14 +109,25 @@ namespace AirVPN.Gui.Forms
 			this.lblConnectedServerName = new AirVPN.Gui.Skin.Label();
 			this.lblConnectedCountry = new AirVPN.Gui.Skin.Label();
 			this.pnlWaiting = new AirVPN.Gui.Skin.Panel();
+			this.imgProgress = new System.Windows.Forms.PictureBox();
 			this.lblWait2 = new AirVPN.Gui.Skin.Label();
 			this.lblWait1 = new AirVPN.Gui.Skin.Label();
+			this.cmdCancel = new AirVPN.Gui.Skin.Button();
 			this.tabServers = new AirVPN.Gui.Skin.TabPage();
 			this.lblScoreType = new AirVPN.Gui.Skin.Label();
+			this.cboScoreType = new AirVPN.Gui.Skin.ComboBox();
 			this.chkShowAll = new AirVPN.Gui.Skin.CheckBox();
+			this.chkLockLast = new AirVPN.Gui.Skin.CheckBox();
 			this.pnlServers = new System.Windows.Forms.Panel();
+			this.cmdServersUndefined = new AirVPN.Gui.Skin.Button();
+			this.cmdServersBlackList = new AirVPN.Gui.Skin.Button();
+			this.cmdServersWhiteList = new AirVPN.Gui.Skin.Button();
+			this.cmdServersConnect = new AirVPN.Gui.Skin.Button();
 			this.tabAreas = new AirVPN.Gui.Skin.TabPage();
 			this.pnlAreas = new System.Windows.Forms.Panel();
+			this.cmdAreasUndefined = new AirVPN.Gui.Skin.Button();
+			this.cmdAreasBlackList = new AirVPN.Gui.Skin.Button();
+			this.cmdAreasWhiteList = new AirVPN.Gui.Skin.Button();
 			this.tabSpeed = new AirVPN.Gui.Skin.TabPage();
 			this.lblSpeedResolution = new AirVPN.Gui.Skin.Label();
 			this.holSpeedChart = new System.Windows.Forms.Label();
@@ -127,71 +135,37 @@ namespace AirVPN.Gui.Forms
 			this.tabStats = new AirVPN.Gui.Skin.TabPage();
 			this.lstStats = new AirVPN.Gui.Skin.ListView();
 			this.tabLogs = new AirVPN.Gui.Skin.TabPage();
+			this.cmdLogsSupport = new AirVPN.Gui.Skin.Button();
+			this.cmdLogsOpenVpnManagement = new AirVPN.Gui.Skin.Button();
 			this.lstLogs = new AirVPN.Gui.Skin.ListView();
-			this.mnuLogsContext = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-			this.mnuServers = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.mnuServersConnect = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuServersSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.mnuServersWhiteList = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuServersBlackList = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuServersUndefined = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuAreas = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.mnuAreasWhiteList = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuAreasBlackList = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuAreasUndefined = new System.Windows.Forms.ToolStripMenuItem();
+			this.cmdLogsClean = new AirVPN.Gui.Skin.Button();
+			this.cmdLogsCopy = new AirVPN.Gui.Skin.Button();
+			this.cmdLogsSave = new AirVPN.Gui.Skin.Button();
+			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
+			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
+			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
+			mnuContextSaveSelected = new System.Windows.Forms.ToolStripMenuItem();
 			colStatsKey = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			colStatsValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			colIcon = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			colDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			colMessage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
-			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
-			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
-			mnuContextSaveSelected = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuMain.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.imgProgress)).BeginInit();
-			this.pnlWelcome.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.imgLockedNetwork)).BeginInit();
+			this.mnuLogsContext.SuspendLayout();
+			this.mnuServers.SuspendLayout();
+			this.mnuAreas.SuspendLayout();
 			this.tabMain.SuspendLayout();
 			this.tabOverview.SuspendLayout();
+			this.pnlWelcome.SuspendLayout();
 			this.pnlConnected.SuspendLayout();
 			this.pnlWaiting.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.imgProgress)).BeginInit();
 			this.tabServers.SuspendLayout();
 			this.tabAreas.SuspendLayout();
 			this.tabSpeed.SuspendLayout();
 			this.tabStats.SuspendLayout();
 			this.tabLogs.SuspendLayout();
-			this.mnuLogsContext.SuspendLayout();
-			this.mnuServers.SuspendLayout();
-			this.mnuAreas.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// colStatsKey
-			// 
-			colStatsKey.Text = "Name";
-			colStatsKey.Width = 180;
-			// 
-			// colStatsValue
-			// 
-			colStatsValue.Text = "Value";
-			colStatsValue.Width = 400;
-			// 
-			// colIcon
-			// 
-			colIcon.Text = "";
-			colIcon.Width = 22;
-			// 
-			// colDate
-			// 
-			colDate.Text = "Date";
-			colDate.Width = 150;
-			// 
-			// colMessage
-			// 
-			colMessage.Text = "Message";
-			colMessage.Width = 6000;
 			// 
 			// mnuContextCopyAll
 			// 
@@ -685,312 +659,143 @@ namespace AirVPN.Gui.Forms
 			this.imgCountries.Images.SetKeyName(245, "zm");
 			this.imgCountries.Images.SetKeyName(246, "zw");
 			// 
-			// cboScoreType
+			// mnuLogsContext
 			// 
-			this.cboScoreType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cboScoreType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboScoreType.FormattingEnabled = true;
-			this.cboScoreType.Items.AddRange(new object[] {
-            "Speed",
-            "Latency"});
-			this.cboScoreType.Location = new System.Drawing.Point(457, 278);
-			this.cboScoreType.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			this.cboScoreType.Name = "cboScoreType";
-			this.cboScoreType.Size = new System.Drawing.Size(63, 21);
-			this.cboScoreType.TabIndex = 49;
-			this.tip.SetToolTip(this.cboScoreType, "xxx");
-			this.cboScoreType.SelectedIndexChanged += new System.EventHandler(this.cboScoreType_SelectedIndexChanged);
+			this.mnuLogsContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            mnuContextCopyAll,
+            mnuContextSaveAll,
+            this.toolStripSeparator1,
+            mnuContextCopySelected,
+            mnuContextSaveSelected});
+			this.mnuLogsContext.Name = "mnuContext";
+			this.mnuLogsContext.Size = new System.Drawing.Size(251, 98);
 			// 
-			// chkLockLast
+			// toolStripSeparator1
 			// 
-			this.chkLockLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.chkLockLast.AutoSize = true;
-			this.chkLockLast.Location = new System.Drawing.Point(543, 280);
-			this.chkLockLast.Margin = new System.Windows.Forms.Padding(2);
-			this.chkLockLast.Name = "chkLockLast";
-			this.chkLockLast.Size = new System.Drawing.Size(87, 17);
-			this.chkLockLast.TabIndex = 46;
-			this.chkLockLast.Text = "Lock Current";
-			this.tip.SetToolTip(this.chkLockLast, "Never leave the current server. \r\nFor example if you don\'t want to change your IP" +
-        " for port forwarding reasons.");
-			this.chkLockLast.UseVisualStyleBackColor = true;
-			this.chkLockLast.CheckedChanged += new System.EventHandler(this.chkLockCurrent_CheckedChanged);
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(247, 6);
 			// 
-			// cmdServersUndefined
+			// mnuServers
 			// 
-			this.cmdServersUndefined.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersUndefined.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersUndefined.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersUndefined.FlatAppearance.BorderSize = 0;
-			this.cmdServersUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
-			this.cmdServersUndefined.Location = new System.Drawing.Point(630, 110);
-			this.cmdServersUndefined.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdServersUndefined.Name = "cmdServersUndefined";
-			this.cmdServersUndefined.Size = new System.Drawing.Size(26, 28);
-			this.cmdServersUndefined.TabIndex = 45;
-			this.tip.SetToolTip(this.cmdServersUndefined, "Clean the selected servers from whitelist and blacklist");
-			this.cmdServersUndefined.UseVisualStyleBackColor = true;
-			this.cmdServersUndefined.Click += new System.EventHandler(this.cmdServersUndefined_Click);
+			this.mnuServers.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuServersConnect,
+            this.mnuServersSeparator1,
+            this.mnuServersWhiteList,
+            this.mnuServersBlackList,
+            this.mnuServersUndefined});
+			this.mnuServers.Name = "mnuServers";
+			this.mnuServers.Size = new System.Drawing.Size(145, 98);
 			// 
-			// cmdServersBlackList
+			// mnuServersConnect
 			// 
-			this.cmdServersBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersBlackList.FlatAppearance.BorderSize = 0;
-			this.cmdServersBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
-			this.cmdServersBlackList.Location = new System.Drawing.Point(630, 77);
-			this.cmdServersBlackList.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdServersBlackList.Name = "cmdServersBlackList";
-			this.cmdServersBlackList.Size = new System.Drawing.Size(26, 28);
-			this.cmdServersBlackList.TabIndex = 44;
-			this.tip.SetToolTip(this.cmdServersBlackList, "Add the selected servers to blacklist. \r\nThe system will never connect to blackli" +
-        "sted servers.");
-			this.cmdServersBlackList.UseVisualStyleBackColor = true;
-			this.cmdServersBlackList.Click += new System.EventHandler(this.cmdServersBlackList_Click);
+			this.mnuServersConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect_16;
+			this.mnuServersConnect.Name = "mnuServersConnect";
+			this.mnuServersConnect.Size = new System.Drawing.Size(144, 22);
+			this.mnuServersConnect.Text = "Connect now";
+			this.mnuServersConnect.Click += new System.EventHandler(this.mnuServersConnect_Click);
 			// 
-			// cmdServersWhiteList
+			// mnuServersSeparator1
 			// 
-			this.cmdServersWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersWhiteList.FlatAppearance.BorderSize = 0;
-			this.cmdServersWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
-			this.cmdServersWhiteList.Location = new System.Drawing.Point(630, 45);
-			this.cmdServersWhiteList.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdServersWhiteList.Name = "cmdServersWhiteList";
-			this.cmdServersWhiteList.Size = new System.Drawing.Size(26, 28);
-			this.cmdServersWhiteList.TabIndex = 43;
-			this.tip.SetToolTip(this.cmdServersWhiteList, "Add the selected server to whitelist.\r\nThe system will only connect to whiteliste" +
-        "d servers.");
-			this.cmdServersWhiteList.UseVisualStyleBackColor = true;
-			this.cmdServersWhiteList.Click += new System.EventHandler(this.cmdServersWhiteList_Click);
+			this.mnuServersSeparator1.Name = "mnuServersSeparator1";
+			this.mnuServersSeparator1.Size = new System.Drawing.Size(141, 6);
 			// 
-			// cmdServersConnect
+			// mnuServersWhiteList
 			// 
-			this.cmdServersConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersConnect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersConnect.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersConnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersConnect.FlatAppearance.BorderSize = 0;
-			this.cmdServersConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect_16;
-			this.cmdServersConnect.Location = new System.Drawing.Point(630, 4);
-			this.cmdServersConnect.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdServersConnect.Name = "cmdServersConnect";
-			this.cmdServersConnect.Size = new System.Drawing.Size(26, 28);
-			this.cmdServersConnect.TabIndex = 42;
-			this.tip.SetToolTip(this.cmdServersConnect, "Connect to the selected server now");
-			this.cmdServersConnect.UseVisualStyleBackColor = true;
-			this.cmdServersConnect.Click += new System.EventHandler(this.cmdServersConnect_Click);
+			this.mnuServersWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
+			this.mnuServersWhiteList.Name = "mnuServersWhiteList";
+			this.mnuServersWhiteList.Size = new System.Drawing.Size(144, 22);
+			this.mnuServersWhiteList.Text = "Whitelist";
+			this.mnuServersWhiteList.Click += new System.EventHandler(this.mnuServersWhitelist_Click);
 			// 
-			// cmdAreasUndefined
+			// mnuServersBlackList
 			// 
-			this.cmdAreasUndefined.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdAreasUndefined.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAreasUndefined.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAreasUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAreasUndefined.FlatAppearance.BorderSize = 0;
-			this.cmdAreasUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
-			this.cmdAreasUndefined.Location = new System.Drawing.Point(630, 68);
-			this.cmdAreasUndefined.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdAreasUndefined.Name = "cmdAreasUndefined";
-			this.cmdAreasUndefined.Size = new System.Drawing.Size(26, 28);
-			this.cmdAreasUndefined.TabIndex = 48;
-			this.tip.SetToolTip(this.cmdAreasUndefined, "Clean the selected areas from whitelist and blacklist");
-			this.cmdAreasUndefined.UseVisualStyleBackColor = true;
-			this.cmdAreasUndefined.Click += new System.EventHandler(this.cmdAreasUndefined_Click);
+			this.mnuServersBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
+			this.mnuServersBlackList.Name = "mnuServersBlackList";
+			this.mnuServersBlackList.Size = new System.Drawing.Size(144, 22);
+			this.mnuServersBlackList.Text = "Blacklist";
+			this.mnuServersBlackList.Click += new System.EventHandler(this.mnuServersBlacklist_Click);
 			// 
-			// cmdAreasBlackList
+			// mnuServersUndefined
 			// 
-			this.cmdAreasBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdAreasBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAreasBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAreasBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAreasBlackList.FlatAppearance.BorderSize = 0;
-			this.cmdAreasBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
-			this.cmdAreasBlackList.Location = new System.Drawing.Point(630, 36);
-			this.cmdAreasBlackList.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdAreasBlackList.Name = "cmdAreasBlackList";
-			this.cmdAreasBlackList.Size = new System.Drawing.Size(26, 28);
-			this.cmdAreasBlackList.TabIndex = 47;
-			this.tip.SetToolTip(this.cmdAreasBlackList, "Add the selected areas to blacklist. \r\nThe system will never connect to servers i" +
-        "n blacklisted areas.\r\n");
-			this.cmdAreasBlackList.UseVisualStyleBackColor = true;
-			this.cmdAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
+			this.mnuServersUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+			this.mnuServersUndefined.Name = "mnuServersUndefined";
+			this.mnuServersUndefined.Size = new System.Drawing.Size(144, 22);
+			this.mnuServersUndefined.Text = "Undefined";
+			this.mnuServersUndefined.Click += new System.EventHandler(this.mnuServersUndefined_Click);
 			// 
-			// cmdAreasWhiteList
+			// mnuAreas
 			// 
-			this.cmdAreasWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdAreasWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAreasWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAreasWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAreasWhiteList.FlatAppearance.BorderSize = 0;
-			this.cmdAreasWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
-			this.cmdAreasWhiteList.Location = new System.Drawing.Point(630, 4);
-			this.cmdAreasWhiteList.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdAreasWhiteList.Name = "cmdAreasWhiteList";
-			this.cmdAreasWhiteList.Size = new System.Drawing.Size(26, 28);
-			this.cmdAreasWhiteList.TabIndex = 46;
-			this.tip.SetToolTip(this.cmdAreasWhiteList, "Add the selected area to whitelist.\r\nThe system will only connect to servers in w" +
-        "hitelisted areas.\r\n");
-			this.cmdAreasWhiteList.UseVisualStyleBackColor = true;
-			this.cmdAreasWhiteList.Click += new System.EventHandler(this.cmdAreasWhiteList_Click);
+			this.mnuAreas.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuAreasWhiteList,
+            this.mnuAreasBlackList,
+            this.mnuAreasUndefined});
+			this.mnuAreas.Name = "mnuServers";
+			this.mnuAreas.Size = new System.Drawing.Size(130, 70);
 			// 
-			// cmdLogsOpenVpnManagement
+			// mnuAreasWhiteList
 			// 
-			this.cmdLogsOpenVpnManagement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdLogsOpenVpnManagement.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdLogsOpenVpnManagement.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderSize = 0;
-			this.cmdLogsOpenVpnManagement.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsOpenVpnManagement.Image = global::AirVPN.Lib.Forms.Properties.Resources.execute_16;
-			this.cmdLogsOpenVpnManagement.Location = new System.Drawing.Point(630, 273);
-			this.cmdLogsOpenVpnManagement.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdLogsOpenVpnManagement.Name = "cmdLogsOpenVpnManagement";
-			this.cmdLogsOpenVpnManagement.Size = new System.Drawing.Size(26, 28);
-			this.cmdLogsOpenVpnManagement.TabIndex = 50;
-			this.tip.SetToolTip(this.cmdLogsOpenVpnManagement, "Run a OpenVPN Management command");
-			this.cmdLogsOpenVpnManagement.UseVisualStyleBackColor = true;
-			this.cmdLogsOpenVpnManagement.Click += new System.EventHandler(this.cmdLogsOpenVpnManagement_Click);
+			this.mnuAreasWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
+			this.mnuAreasWhiteList.Name = "mnuAreasWhiteList";
+			this.mnuAreasWhiteList.Size = new System.Drawing.Size(129, 22);
+			this.mnuAreasWhiteList.Text = "Whitelist";
+			this.mnuAreasWhiteList.Click += new System.EventHandler(this.mnuAreasWhiteList_Click);
 			// 
-			// cmdLogsClean
+			// mnuAreasBlackList
 			// 
-			this.cmdLogsClean.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdLogsClean.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdLogsClean.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdLogsClean.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdLogsClean.FlatAppearance.BorderSize = 0;
-			this.cmdLogsClean.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsClean.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
-			this.cmdLogsClean.Location = new System.Drawing.Point(630, 0);
-			this.cmdLogsClean.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdLogsClean.Name = "cmdLogsClean";
-			this.cmdLogsClean.Size = new System.Drawing.Size(26, 28);
-			this.cmdLogsClean.TabIndex = 48;
-			this.tip.SetToolTip(this.cmdLogsClean, "Clean logs");
-			this.cmdLogsClean.UseVisualStyleBackColor = true;
-			this.cmdLogsClean.Click += new System.EventHandler(this.cmdLogsClean_Click);
+			this.mnuAreasBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
+			this.mnuAreasBlackList.Name = "mnuAreasBlackList";
+			this.mnuAreasBlackList.Size = new System.Drawing.Size(129, 22);
+			this.mnuAreasBlackList.Text = "Blacklist";
+			this.mnuAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
 			// 
-			// cmdLogsCopy
+			// mnuAreasUndefined
 			// 
-			this.cmdLogsCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdLogsCopy.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdLogsCopy.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdLogsCopy.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdLogsCopy.FlatAppearance.BorderSize = 0;
-			this.cmdLogsCopy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsCopy.Image = global::AirVPN.Lib.Forms.Properties.Resources.copy_16;
-			this.cmdLogsCopy.Location = new System.Drawing.Point(630, 32);
-			this.cmdLogsCopy.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdLogsCopy.Name = "cmdLogsCopy";
-			this.cmdLogsCopy.Size = new System.Drawing.Size(26, 28);
-			this.cmdLogsCopy.TabIndex = 47;
-			this.tip.SetToolTip(this.cmdLogsCopy, "Copy to clipboard");
-			this.cmdLogsCopy.UseVisualStyleBackColor = true;
-			this.cmdLogsCopy.Click += new System.EventHandler(this.cmdLogsCopy_Click);
+			this.mnuAreasUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+			this.mnuAreasUndefined.Name = "mnuAreasUndefined";
+			this.mnuAreasUndefined.Size = new System.Drawing.Size(129, 22);
+			this.mnuAreasUndefined.Text = "Undefined";
+			this.mnuAreasUndefined.Click += new System.EventHandler(this.mnuAreasUndefined_Click);
 			// 
-			// cmdLogsSave
+			// tabMain
 			// 
-			this.cmdLogsSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdLogsSave.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdLogsSave.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdLogsSave.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdLogsSave.FlatAppearance.BorderSize = 0;
-			this.cmdLogsSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsSave.Image = global::AirVPN.Lib.Forms.Properties.Resources.save_16;
-			this.cmdLogsSave.Location = new System.Drawing.Point(630, 64);
-			this.cmdLogsSave.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdLogsSave.Name = "cmdLogsSave";
-			this.cmdLogsSave.Size = new System.Drawing.Size(26, 28);
-			this.cmdLogsSave.TabIndex = 46;
-			this.tip.SetToolTip(this.cmdLogsSave, "Save to file");
-			this.cmdLogsSave.UseVisualStyleBackColor = true;
-			this.cmdLogsSave.Click += new System.EventHandler(this.cmdLogsSave_Click);
+			this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tabMain.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+			this.tabMain.Controls.Add(this.tabOverview);
+			this.tabMain.Controls.Add(this.tabServers);
+			this.tabMain.Controls.Add(this.tabAreas);
+			this.tabMain.Controls.Add(this.tabSpeed);
+			this.tabMain.Controls.Add(this.tabStats);
+			this.tabMain.Controls.Add(this.tabLogs);
+			this.tabMain.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
+			this.tabMain.ItemSize = new System.Drawing.Size(80, 20);
+			this.tabMain.Location = new System.Drawing.Point(12, 12);
+			this.tabMain.Multiline = true;
+			this.tabMain.Name = "tabMain";
+			this.tabMain.SelectedIndex = 0;
+			this.tabMain.Size = new System.Drawing.Size(668, 329);
+			this.tabMain.TabIndex = 21;
 			// 
-			// cmdLogsSupport
+			// tabOverview
 			// 
-			this.cmdLogsSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdLogsSupport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdLogsSupport.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdLogsSupport.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdLogsSupport.FlatAppearance.BorderSize = 0;
-			this.cmdLogsSupport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsSupport.Image = global::AirVPN.Lib.Forms.Properties.Resources.support;
-			this.cmdLogsSupport.Location = new System.Drawing.Point(630, 117);
-			this.cmdLogsSupport.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdLogsSupport.Name = "cmdLogsSupport";
-			this.cmdLogsSupport.Size = new System.Drawing.Size(26, 28);
-			this.cmdLogsSupport.TabIndex = 51;
-			this.tip.SetToolTip(this.cmdLogsSupport, "Save to file");
-			this.cmdLogsSupport.UseVisualStyleBackColor = true;
-			this.cmdLogsSupport.Click += new System.EventHandler(this.cmdLogsSupport_Click);
-			// 
-			// imgProgress
-			// 
-			this.imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
-			this.imgProgress.Location = new System.Drawing.Point(6, 27);
-			this.imgProgress.Margin = new System.Windows.Forms.Padding(2);
-			this.imgProgress.Name = "imgProgress";
-			this.imgProgress.Size = new System.Drawing.Size(208, 13);
-			this.imgProgress.TabIndex = 62;
-			this.imgProgress.TabStop = false;
-			// 
-			// cmdCancel
-			// 
-			this.cmdCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdCancel.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdCancel.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdCancel.FlatAppearance.BorderSize = 0;
-			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.cmdCancel.ImageKey = "enter";
-			this.cmdCancel.Location = new System.Drawing.Point(75, 54);
-			this.cmdCancel.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdCancel.Name = "cmdCancel";
-			this.cmdCancel.Size = new System.Drawing.Size(69, 20);
-			this.cmdCancel.TabIndex = 61;
-			this.cmdCancel.Text = "Cancel";
-			this.cmdCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-			this.cmdCancel.UseVisualStyleBackColor = true;
-			this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
-			// 
-			// cmdConnect
-			// 
-			this.cmdConnect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdConnect.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdConnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdConnect.FlatAppearance.BorderSize = 0;
-			this.cmdConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdConnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.cmdConnect.ImageKey = "enter";
-			this.cmdConnect.Location = new System.Drawing.Point(16, 87);
-			this.cmdConnect.Margin = new System.Windows.Forms.Padding(0);
-			this.cmdConnect.Name = "cmdConnect";
-			this.cmdConnect.Size = new System.Drawing.Size(406, 35);
-			this.cmdConnect.TabIndex = 60;
-			this.cmdConnect.Text = "Enter";
-			this.cmdConnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-			this.cmdConnect.UseVisualStyleBackColor = true;
-			this.cmdConnect.Click += new System.EventHandler(this.cmdConnect_Click);
+			this.tabOverview.Controls.Add(this.pnlWelcome);
+			this.tabOverview.Controls.Add(this.pnlConnected);
+			this.tabOverview.Controls.Add(this.pnlWaiting);
+			this.tabOverview.Location = new System.Drawing.Point(4, 24);
+			this.tabOverview.Name = "tabOverview";
+			this.tabOverview.Size = new System.Drawing.Size(660, 301);
+			this.tabOverview.TabIndex = 4;
+			this.tabOverview.Text = "Overview";
+			this.tabOverview.UseVisualStyleBackColor = true;
 			// 
 			// pnlWelcome
 			// 
 			this.pnlWelcome.BackColor = System.Drawing.Color.Transparent;
-			this.pnlWelcome.Controls.Add(this.imgLockedNetwork);
+			this.pnlWelcome.Controls.Add(this.lblConnectSubtitle);
 			this.pnlWelcome.Controls.Add(this.cmdLockedNetwork);
 			this.pnlWelcome.Controls.Add(this.lblLoginIcon);
-			this.pnlWelcome.Controls.Add(this.lblConnectSubtitle);
+			this.pnlWelcome.Controls.Add(this.imgLockedNetwork);
 			this.pnlWelcome.Controls.Add(this.cmdLogin);
 			this.pnlWelcome.Controls.Add(this.lblPassword);
 			this.pnlWelcome.Controls.Add(this.lblLogin);
@@ -1004,15 +809,14 @@ namespace AirVPN.Gui.Forms
 			this.pnlWelcome.Size = new System.Drawing.Size(440, 190);
 			this.pnlWelcome.TabIndex = 53;
 			// 
-			// imgLockedNetwork
+			// lblConnectSubtitle
 			// 
-			this.imgLockedNetwork.BackgroundImage = global::AirVPN.Lib.Forms.Properties.Resources.routes_in;
-			this.imgLockedNetwork.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.imgLockedNetwork.Location = new System.Drawing.Point(16, 148);
-			this.imgLockedNetwork.Name = "imgLockedNetwork";
-			this.imgLockedNetwork.Size = new System.Drawing.Size(38, 38);
-			this.imgLockedNetwork.TabIndex = 72;
-			this.imgLockedNetwork.TabStop = false;
+			this.lblConnectSubtitle.Location = new System.Drawing.Point(16, 125);
+			this.lblConnectSubtitle.Name = "lblConnectSubtitle";
+			this.lblConnectSubtitle.Size = new System.Drawing.Size(406, 18);
+			this.lblConnectSubtitle.TabIndex = 73;
+			this.lblConnectSubtitle.Text = "label2";
+			this.lblConnectSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// cmdLockedNetwork
 			// 
@@ -1042,14 +846,14 @@ namespace AirVPN.Gui.Forms
 			this.lblLoginIcon.Size = new System.Drawing.Size(65, 78);
 			this.lblLoginIcon.TabIndex = 70;
 			// 
-			// lblConnectSubtitle
+			// imgLockedNetwork
 			// 
-			this.lblConnectSubtitle.Location = new System.Drawing.Point(16, 127);
-			this.lblConnectSubtitle.Name = "lblConnectSubtitle";
-			this.lblConnectSubtitle.Size = new System.Drawing.Size(406, 18);
-			this.lblConnectSubtitle.TabIndex = 63;
-			this.lblConnectSubtitle.Text = "label2";
-			this.lblConnectSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.imgLockedNetwork.Location = new System.Drawing.Point(16, 148);
+			this.imgLockedNetwork.Name = "imgLockedNetwork";
+			this.imgLockedNetwork.Size = new System.Drawing.Size(38, 38);
+			this.imgLockedNetwork.TabIndex = 63;
+			this.imgLockedNetwork.Text = "abc";
+			this.imgLockedNetwork.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// cmdLogin
 			// 
@@ -1096,6 +900,25 @@ namespace AirVPN.Gui.Forms
 			this.lblLogin.Text = "Login:";
 			this.lblLogin.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
+			// cmdConnect
+			// 
+			this.cmdConnect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdConnect.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdConnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdConnect.FlatAppearance.BorderSize = 0;
+			this.cmdConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdConnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.cmdConnect.ImageKey = "enter";
+			this.cmdConnect.Location = new System.Drawing.Point(16, 87);
+			this.cmdConnect.Margin = new System.Windows.Forms.Padding(0);
+			this.cmdConnect.Name = "cmdConnect";
+			this.cmdConnect.Size = new System.Drawing.Size(406, 35);
+			this.cmdConnect.TabIndex = 60;
+			this.cmdConnect.Text = "Enter";
+			this.cmdConnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+			this.cmdConnect.UseVisualStyleBackColor = true;
+			this.cmdConnect.Click += new System.EventHandler(this.cmdConnect_Click);
+			// 
 			// chkRemember
 			// 
 			this.chkRemember.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1130,39 +953,6 @@ namespace AirVPN.Gui.Forms
 			this.txtLogin.Size = new System.Drawing.Size(178, 27);
 			this.txtLogin.TabIndex = 50;
 			this.txtLogin.TextChanged += new System.EventHandler(this.txtLogin_TextChanged);
-			// 
-			// tabMain
-			// 
-			this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.tabMain.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
-			this.tabMain.Controls.Add(this.tabOverview);
-			this.tabMain.Controls.Add(this.tabServers);
-			this.tabMain.Controls.Add(this.tabAreas);
-			this.tabMain.Controls.Add(this.tabSpeed);
-			this.tabMain.Controls.Add(this.tabStats);
-			this.tabMain.Controls.Add(this.tabLogs);
-			this.tabMain.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-			this.tabMain.ItemSize = new System.Drawing.Size(80, 20);
-			this.tabMain.Location = new System.Drawing.Point(12, 12);
-			this.tabMain.Multiline = true;
-			this.tabMain.Name = "tabMain";
-			this.tabMain.SelectedIndex = 0;
-			this.tabMain.Size = new System.Drawing.Size(668, 329);
-			this.tabMain.TabIndex = 21;
-			// 
-			// tabOverview
-			// 
-			this.tabOverview.Controls.Add(this.pnlWelcome);
-			this.tabOverview.Controls.Add(this.pnlConnected);
-			this.tabOverview.Controls.Add(this.pnlWaiting);
-			this.tabOverview.Location = new System.Drawing.Point(4, 24);
-			this.tabOverview.Name = "tabOverview";
-			this.tabOverview.Size = new System.Drawing.Size(660, 301);
-			this.tabOverview.TabIndex = 4;
-			this.tabOverview.Text = "Overview";
-			this.tabOverview.UseVisualStyleBackColor = true;
 			// 
 			// pnlConnected
 			// 
@@ -1291,10 +1081,10 @@ namespace AirVPN.Gui.Forms
 			this.lblConnectedLocation.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblConnectedLocation.Location = new System.Drawing.Point(156, 40);
 			this.lblConnectedLocation.Name = "lblConnectedLocation";
-			this.lblConnectedLocation.Size = new System.Drawing.Size(266, 14);
+			this.lblConnectedLocation.Size = new System.Drawing.Size(266, 24);
 			this.lblConnectedLocation.TabIndex = 3;
 			this.lblConnectedLocation.Text = "Location";
-			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// lblConnectedTo
 			// 
@@ -1338,6 +1128,16 @@ namespace AirVPN.Gui.Forms
 			this.pnlWaiting.Size = new System.Drawing.Size(231, 74);
 			this.pnlWaiting.TabIndex = 65;
 			// 
+			// imgProgress
+			// 
+			this.imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
+			this.imgProgress.Location = new System.Drawing.Point(6, 27);
+			this.imgProgress.Margin = new System.Windows.Forms.Padding(2);
+			this.imgProgress.Name = "imgProgress";
+			this.imgProgress.Size = new System.Drawing.Size(208, 13);
+			this.imgProgress.TabIndex = 62;
+			this.imgProgress.TabStop = false;
+			// 
 			// lblWait2
 			// 
 			this.lblWait2.BackColor = System.Drawing.Color.Transparent;
@@ -1358,6 +1158,25 @@ namespace AirVPN.Gui.Forms
 			this.lblWait1.TabIndex = 63;
 			this.lblWait1.Text = "label1";
 			this.lblWait1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+			// 
+			// cmdCancel
+			// 
+			this.cmdCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdCancel.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdCancel.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdCancel.FlatAppearance.BorderSize = 0;
+			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.cmdCancel.ImageKey = "enter";
+			this.cmdCancel.Location = new System.Drawing.Point(75, 54);
+			this.cmdCancel.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdCancel.Name = "cmdCancel";
+			this.cmdCancel.Size = new System.Drawing.Size(69, 20);
+			this.cmdCancel.TabIndex = 61;
+			this.cmdCancel.Text = "Cancel";
+			this.cmdCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+			this.cmdCancel.UseVisualStyleBackColor = true;
+			this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
 			// 
 			// tabServers
 			// 
@@ -1389,6 +1208,22 @@ namespace AirVPN.Gui.Forms
 			this.lblScoreType.Text = "Scoring Rule:";
 			this.lblScoreType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
+			// cboScoreType
+			// 
+			this.cboScoreType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cboScoreType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboScoreType.FormattingEnabled = true;
+			this.cboScoreType.Items.AddRange(new object[] {
+            "Speed",
+            "Latency"});
+			this.cboScoreType.Location = new System.Drawing.Point(457, 278);
+			this.cboScoreType.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.cboScoreType.Name = "cboScoreType";
+			this.cboScoreType.Size = new System.Drawing.Size(63, 21);
+			this.cboScoreType.TabIndex = 49;
+			this.tip.SetToolTip(this.cboScoreType, "xxx");
+			this.cboScoreType.SelectedIndexChanged += new System.EventHandler(this.cboScoreType_SelectedIndexChanged);
+			// 
 			// chkShowAll
 			// 
 			this.chkShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1402,6 +1237,21 @@ namespace AirVPN.Gui.Forms
 			this.chkShowAll.UseVisualStyleBackColor = true;
 			this.chkShowAll.CheckedChanged += new System.EventHandler(this.chkShowAll_CheckedChanged);
 			// 
+			// chkLockLast
+			// 
+			this.chkLockLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.chkLockLast.AutoSize = true;
+			this.chkLockLast.Location = new System.Drawing.Point(543, 280);
+			this.chkLockLast.Margin = new System.Windows.Forms.Padding(2);
+			this.chkLockLast.Name = "chkLockLast";
+			this.chkLockLast.Size = new System.Drawing.Size(87, 17);
+			this.chkLockLast.TabIndex = 46;
+			this.chkLockLast.Text = "Lock Current";
+			this.tip.SetToolTip(this.chkLockLast, "Never leave the current server. \r\nFor example if you don\'t want to change your IP" +
+        " for port forwarding reasons.");
+			this.chkLockLast.UseVisualStyleBackColor = true;
+			this.chkLockLast.CheckedChanged += new System.EventHandler(this.chkLockCurrent_CheckedChanged);
+			// 
 			// pnlServers
 			// 
 			this.pnlServers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -1412,6 +1262,80 @@ namespace AirVPN.Gui.Forms
 			this.pnlServers.Name = "pnlServers";
 			this.pnlServers.Size = new System.Drawing.Size(626, 275);
 			this.pnlServers.TabIndex = 47;
+			// 
+			// cmdServersUndefined
+			// 
+			this.cmdServersUndefined.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersUndefined.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersUndefined.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersUndefined.FlatAppearance.BorderSize = 0;
+			this.cmdServersUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+			this.cmdServersUndefined.Location = new System.Drawing.Point(630, 110);
+			this.cmdServersUndefined.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersUndefined.Name = "cmdServersUndefined";
+			this.cmdServersUndefined.Size = new System.Drawing.Size(26, 28);
+			this.cmdServersUndefined.TabIndex = 45;
+			this.tip.SetToolTip(this.cmdServersUndefined, "Clean the selected servers from whitelist and blacklist");
+			this.cmdServersUndefined.UseVisualStyleBackColor = true;
+			this.cmdServersUndefined.Click += new System.EventHandler(this.cmdServersUndefined_Click);
+			// 
+			// cmdServersBlackList
+			// 
+			this.cmdServersBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersBlackList.FlatAppearance.BorderSize = 0;
+			this.cmdServersBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
+			this.cmdServersBlackList.Location = new System.Drawing.Point(630, 77);
+			this.cmdServersBlackList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersBlackList.Name = "cmdServersBlackList";
+			this.cmdServersBlackList.Size = new System.Drawing.Size(26, 28);
+			this.cmdServersBlackList.TabIndex = 44;
+			this.tip.SetToolTip(this.cmdServersBlackList, "Add the selected servers to blacklist. \r\nThe system will never connect to blackli" +
+        "sted servers.");
+			this.cmdServersBlackList.UseVisualStyleBackColor = true;
+			this.cmdServersBlackList.Click += new System.EventHandler(this.cmdServersBlackList_Click);
+			// 
+			// cmdServersWhiteList
+			// 
+			this.cmdServersWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersWhiteList.FlatAppearance.BorderSize = 0;
+			this.cmdServersWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
+			this.cmdServersWhiteList.Location = new System.Drawing.Point(630, 45);
+			this.cmdServersWhiteList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersWhiteList.Name = "cmdServersWhiteList";
+			this.cmdServersWhiteList.Size = new System.Drawing.Size(26, 28);
+			this.cmdServersWhiteList.TabIndex = 43;
+			this.tip.SetToolTip(this.cmdServersWhiteList, "Add the selected server to whitelist.\r\nThe system will only connect to whiteliste" +
+        "d servers.");
+			this.cmdServersWhiteList.UseVisualStyleBackColor = true;
+			this.cmdServersWhiteList.Click += new System.EventHandler(this.cmdServersWhiteList_Click);
+			// 
+			// cmdServersConnect
+			// 
+			this.cmdServersConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersConnect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersConnect.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersConnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersConnect.FlatAppearance.BorderSize = 0;
+			this.cmdServersConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect_16;
+			this.cmdServersConnect.Location = new System.Drawing.Point(630, 4);
+			this.cmdServersConnect.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersConnect.Name = "cmdServersConnect";
+			this.cmdServersConnect.Size = new System.Drawing.Size(26, 28);
+			this.cmdServersConnect.TabIndex = 42;
+			this.tip.SetToolTip(this.cmdServersConnect, "Connect to the selected server now");
+			this.cmdServersConnect.UseVisualStyleBackColor = true;
+			this.cmdServersConnect.Click += new System.EventHandler(this.cmdServersConnect_Click);
 			// 
 			// tabAreas
 			// 
@@ -1438,6 +1362,62 @@ namespace AirVPN.Gui.Forms
 			this.pnlAreas.Name = "pnlAreas";
 			this.pnlAreas.Size = new System.Drawing.Size(626, 301);
 			this.pnlAreas.TabIndex = 49;
+			// 
+			// cmdAreasUndefined
+			// 
+			this.cmdAreasUndefined.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdAreasUndefined.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAreasUndefined.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAreasUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAreasUndefined.FlatAppearance.BorderSize = 0;
+			this.cmdAreasUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAreasUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+			this.cmdAreasUndefined.Location = new System.Drawing.Point(630, 68);
+			this.cmdAreasUndefined.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdAreasUndefined.Name = "cmdAreasUndefined";
+			this.cmdAreasUndefined.Size = new System.Drawing.Size(26, 28);
+			this.cmdAreasUndefined.TabIndex = 48;
+			this.tip.SetToolTip(this.cmdAreasUndefined, "Clean the selected areas from whitelist and blacklist");
+			this.cmdAreasUndefined.UseVisualStyleBackColor = true;
+			this.cmdAreasUndefined.Click += new System.EventHandler(this.cmdAreasUndefined_Click);
+			// 
+			// cmdAreasBlackList
+			// 
+			this.cmdAreasBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdAreasBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAreasBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAreasBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAreasBlackList.FlatAppearance.BorderSize = 0;
+			this.cmdAreasBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAreasBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
+			this.cmdAreasBlackList.Location = new System.Drawing.Point(630, 36);
+			this.cmdAreasBlackList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdAreasBlackList.Name = "cmdAreasBlackList";
+			this.cmdAreasBlackList.Size = new System.Drawing.Size(26, 28);
+			this.cmdAreasBlackList.TabIndex = 47;
+			this.tip.SetToolTip(this.cmdAreasBlackList, "Add the selected areas to blacklist. \r\nThe system will never connect to servers i" +
+        "n blacklisted areas.\r\n");
+			this.cmdAreasBlackList.UseVisualStyleBackColor = true;
+			this.cmdAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
+			// 
+			// cmdAreasWhiteList
+			// 
+			this.cmdAreasWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdAreasWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAreasWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAreasWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAreasWhiteList.FlatAppearance.BorderSize = 0;
+			this.cmdAreasWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAreasWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
+			this.cmdAreasWhiteList.Location = new System.Drawing.Point(630, 4);
+			this.cmdAreasWhiteList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdAreasWhiteList.Name = "cmdAreasWhiteList";
+			this.cmdAreasWhiteList.Size = new System.Drawing.Size(26, 28);
+			this.cmdAreasWhiteList.TabIndex = 46;
+			this.tip.SetToolTip(this.cmdAreasWhiteList, "Add the selected area to whitelist.\r\nThe system will only connect to servers in w" +
+        "hitelisted areas.\r\n");
+			this.cmdAreasWhiteList.UseVisualStyleBackColor = true;
+			this.cmdAreasWhiteList.Click += new System.EventHandler(this.cmdAreasWhiteList_Click);
 			// 
 			// tabSpeed
 			// 
@@ -1512,11 +1492,22 @@ namespace AirVPN.Gui.Forms
 			this.lstStats.MultiSelect = false;
 			this.lstStats.Name = "lstStats";
 			this.lstStats.OwnerDraw = true;
+			this.lstStats.ShowItemToolTips = true;
 			this.lstStats.Size = new System.Drawing.Size(660, 301);
 			this.lstStats.TabIndex = 1;
 			this.lstStats.UseCompatibleStateImageBehavior = false;
 			this.lstStats.View = System.Windows.Forms.View.Details;
 			this.lstStats.DoubleClick += new System.EventHandler(this.lstStats_DoubleClick);
+			// 
+			// colStatsKey
+			// 
+			colStatsKey.Text = "Name";
+			colStatsKey.Width = 180;
+			// 
+			// colStatsValue
+			// 
+			colStatsValue.Text = "Value";
+			colStatsValue.Width = 4000;
 			// 
 			// tabLogs
 			// 
@@ -1533,6 +1524,42 @@ namespace AirVPN.Gui.Forms
 			this.tabLogs.Size = new System.Drawing.Size(660, 301);
 			this.tabLogs.TabIndex = 3;
 			this.tabLogs.Text = "Logs";
+			// 
+			// cmdLogsSupport
+			// 
+			this.cmdLogsSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdLogsSupport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLogsSupport.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLogsSupport.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLogsSupport.FlatAppearance.BorderSize = 0;
+			this.cmdLogsSupport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLogsSupport.Image = global::AirVPN.Lib.Forms.Properties.Resources.support;
+			this.cmdLogsSupport.Location = new System.Drawing.Point(630, 117);
+			this.cmdLogsSupport.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsSupport.Name = "cmdLogsSupport";
+			this.cmdLogsSupport.Size = new System.Drawing.Size(26, 28);
+			this.cmdLogsSupport.TabIndex = 51;
+			this.tip.SetToolTip(this.cmdLogsSupport, "Save to file");
+			this.cmdLogsSupport.UseVisualStyleBackColor = true;
+			this.cmdLogsSupport.Click += new System.EventHandler(this.cmdLogsSupport_Click);
+			// 
+			// cmdLogsOpenVpnManagement
+			// 
+			this.cmdLogsOpenVpnManagement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdLogsOpenVpnManagement.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLogsOpenVpnManagement.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderSize = 0;
+			this.cmdLogsOpenVpnManagement.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLogsOpenVpnManagement.Image = global::AirVPN.Lib.Forms.Properties.Resources.execute_16;
+			this.cmdLogsOpenVpnManagement.Location = new System.Drawing.Point(630, 273);
+			this.cmdLogsOpenVpnManagement.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsOpenVpnManagement.Name = "cmdLogsOpenVpnManagement";
+			this.cmdLogsOpenVpnManagement.Size = new System.Drawing.Size(26, 28);
+			this.cmdLogsOpenVpnManagement.TabIndex = 50;
+			this.tip.SetToolTip(this.cmdLogsOpenVpnManagement, "Run a OpenVPN Management command");
+			this.cmdLogsOpenVpnManagement.UseVisualStyleBackColor = true;
+			this.cmdLogsOpenVpnManagement.Click += new System.EventHandler(this.cmdLogsOpenVpnManagement_Click);
 			// 
 			// lstLogs
 			// 
@@ -1558,102 +1585,74 @@ namespace AirVPN.Gui.Forms
 			this.lstLogs.UseCompatibleStateImageBehavior = false;
 			this.lstLogs.View = System.Windows.Forms.View.Details;
 			// 
-			// mnuLogsContext
+			// colIcon
 			// 
-			this.mnuLogsContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            mnuContextCopyAll,
-            mnuContextSaveAll,
-            this.toolStripSeparator1,
-            mnuContextCopySelected,
-            mnuContextSaveSelected});
-			this.mnuLogsContext.Name = "mnuContext";
-			this.mnuLogsContext.Size = new System.Drawing.Size(251, 98);
+			colIcon.Text = "";
+			colIcon.Width = 22;
 			// 
-			// toolStripSeparator1
+			// colDate
 			// 
-			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(247, 6);
+			colDate.Text = "Date";
+			colDate.Width = 150;
 			// 
-			// mnuServers
+			// colMessage
 			// 
-			this.mnuServers.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuServersConnect,
-            this.mnuServersSeparator1,
-            this.mnuServersWhiteList,
-            this.mnuServersBlackList,
-            this.mnuServersUndefined});
-			this.mnuServers.Name = "mnuServers";
-			this.mnuServers.Size = new System.Drawing.Size(145, 98);
+			colMessage.Text = "Message";
+			colMessage.Width = 6000;
 			// 
-			// mnuServersConnect
+			// cmdLogsClean
 			// 
-			this.mnuServersConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect_16;
-			this.mnuServersConnect.Name = "mnuServersConnect";
-			this.mnuServersConnect.Size = new System.Drawing.Size(144, 22);
-			this.mnuServersConnect.Text = "Connect now";
-			this.mnuServersConnect.Click += new System.EventHandler(this.mnuServersConnect_Click);
+			this.cmdLogsClean.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdLogsClean.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLogsClean.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLogsClean.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLogsClean.FlatAppearance.BorderSize = 0;
+			this.cmdLogsClean.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLogsClean.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+			this.cmdLogsClean.Location = new System.Drawing.Point(630, 0);
+			this.cmdLogsClean.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsClean.Name = "cmdLogsClean";
+			this.cmdLogsClean.Size = new System.Drawing.Size(26, 28);
+			this.cmdLogsClean.TabIndex = 48;
+			this.tip.SetToolTip(this.cmdLogsClean, "Clean logs");
+			this.cmdLogsClean.UseVisualStyleBackColor = true;
+			this.cmdLogsClean.Click += new System.EventHandler(this.cmdLogsClean_Click);
 			// 
-			// mnuServersSeparator1
+			// cmdLogsCopy
 			// 
-			this.mnuServersSeparator1.Name = "mnuServersSeparator1";
-			this.mnuServersSeparator1.Size = new System.Drawing.Size(141, 6);
+			this.cmdLogsCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdLogsCopy.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLogsCopy.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLogsCopy.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLogsCopy.FlatAppearance.BorderSize = 0;
+			this.cmdLogsCopy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLogsCopy.Image = global::AirVPN.Lib.Forms.Properties.Resources.copy_16;
+			this.cmdLogsCopy.Location = new System.Drawing.Point(630, 32);
+			this.cmdLogsCopy.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsCopy.Name = "cmdLogsCopy";
+			this.cmdLogsCopy.Size = new System.Drawing.Size(26, 28);
+			this.cmdLogsCopy.TabIndex = 47;
+			this.tip.SetToolTip(this.cmdLogsCopy, "Copy to clipboard");
+			this.cmdLogsCopy.UseVisualStyleBackColor = true;
+			this.cmdLogsCopy.Click += new System.EventHandler(this.cmdLogsCopy_Click);
 			// 
-			// mnuServersWhiteList
+			// cmdLogsSave
 			// 
-			this.mnuServersWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
-			this.mnuServersWhiteList.Name = "mnuServersWhiteList";
-			this.mnuServersWhiteList.Size = new System.Drawing.Size(144, 22);
-			this.mnuServersWhiteList.Text = "Whitelist";
-			this.mnuServersWhiteList.Click += new System.EventHandler(this.mnuServersWhitelist_Click);
-			// 
-			// mnuServersBlackList
-			// 
-			this.mnuServersBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
-			this.mnuServersBlackList.Name = "mnuServersBlackList";
-			this.mnuServersBlackList.Size = new System.Drawing.Size(144, 22);
-			this.mnuServersBlackList.Text = "Blacklist";
-			this.mnuServersBlackList.Click += new System.EventHandler(this.mnuServersBlacklist_Click);
-			// 
-			// mnuServersUndefined
-			// 
-			this.mnuServersUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
-			this.mnuServersUndefined.Name = "mnuServersUndefined";
-			this.mnuServersUndefined.Size = new System.Drawing.Size(144, 22);
-			this.mnuServersUndefined.Text = "Undefined";
-			this.mnuServersUndefined.Click += new System.EventHandler(this.mnuServersUndefined_Click);
-			// 
-			// mnuAreas
-			// 
-			this.mnuAreas.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuAreasWhiteList,
-            this.mnuAreasBlackList,
-            this.mnuAreasUndefined});
-			this.mnuAreas.Name = "mnuServers";
-			this.mnuAreas.Size = new System.Drawing.Size(130, 70);
-			// 
-			// mnuAreasWhiteList
-			// 
-			this.mnuAreasWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
-			this.mnuAreasWhiteList.Name = "mnuAreasWhiteList";
-			this.mnuAreasWhiteList.Size = new System.Drawing.Size(129, 22);
-			this.mnuAreasWhiteList.Text = "Whitelist";
-			this.mnuAreasWhiteList.Click += new System.EventHandler(this.mnuAreasWhiteList_Click);
-			// 
-			// mnuAreasBlackList
-			// 
-			this.mnuAreasBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
-			this.mnuAreasBlackList.Name = "mnuAreasBlackList";
-			this.mnuAreasBlackList.Size = new System.Drawing.Size(129, 22);
-			this.mnuAreasBlackList.Text = "Blacklist";
-			this.mnuAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
-			// 
-			// mnuAreasUndefined
-			// 
-			this.mnuAreasUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
-			this.mnuAreasUndefined.Name = "mnuAreasUndefined";
-			this.mnuAreasUndefined.Size = new System.Drawing.Size(129, 22);
-			this.mnuAreasUndefined.Text = "Undefined";
-			this.mnuAreasUndefined.Click += new System.EventHandler(this.mnuAreasUndefined_Click);
+			this.cmdLogsSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdLogsSave.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLogsSave.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLogsSave.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLogsSave.FlatAppearance.BorderSize = 0;
+			this.cmdLogsSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLogsSave.Image = global::AirVPN.Lib.Forms.Properties.Resources.save_16;
+			this.cmdLogsSave.Location = new System.Drawing.Point(630, 64);
+			this.cmdLogsSave.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsSave.Name = "cmdLogsSave";
+			this.cmdLogsSave.Size = new System.Drawing.Size(26, 28);
+			this.cmdLogsSave.TabIndex = 46;
+			this.tip.SetToolTip(this.cmdLogsSave, "Save to file");
+			this.cmdLogsSave.UseVisualStyleBackColor = true;
+			this.cmdLogsSave.Click += new System.EventHandler(this.cmdLogsSave_Click);
 			// 
 			// Main
 			// 
@@ -1668,23 +1667,22 @@ namespace AirVPN.Gui.Forms
 			this.Name = "Main";
 			this.Text = "AirVPN";
 			this.mnuMain.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.imgProgress)).EndInit();
-			this.pnlWelcome.ResumeLayout(false);
-			this.pnlWelcome.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.imgLockedNetwork)).EndInit();
+			this.mnuLogsContext.ResumeLayout(false);
+			this.mnuServers.ResumeLayout(false);
+			this.mnuAreas.ResumeLayout(false);
 			this.tabMain.ResumeLayout(false);
 			this.tabOverview.ResumeLayout(false);
+			this.pnlWelcome.ResumeLayout(false);
+			this.pnlWelcome.PerformLayout();
 			this.pnlConnected.ResumeLayout(false);
 			this.pnlWaiting.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.imgProgress)).EndInit();
 			this.tabServers.ResumeLayout(false);
 			this.tabServers.PerformLayout();
 			this.tabAreas.ResumeLayout(false);
 			this.tabSpeed.ResumeLayout(false);
 			this.tabStats.ResumeLayout(false);
 			this.tabLogs.ResumeLayout(false);
-			this.mnuLogsContext.ResumeLayout(false);
-			this.mnuServers.ResumeLayout(false);
-			this.mnuAreas.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -1782,7 +1780,7 @@ namespace AirVPN.Gui.Forms
 		private Skin.Label lblConnectedTo;
 		private Skin.Label lblConnectedServerName;
 		private Skin.Label lblConnectedCountry;
-		private Skin.Label lblConnectSubtitle;
+		private Skin.Label imgLockedNetwork;
 		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManBBCode;
 		private System.Windows.Forms.Label lblLoginIcon;
 		private System.Windows.Forms.ToolStripMenuItem mnuStatus;
@@ -1791,8 +1789,8 @@ namespace AirVPN.Gui.Forms
 		private System.Windows.Forms.ToolStripSeparator mnuSeparator3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private Skin.Button cmdLockedNetwork;
-		private System.Windows.Forms.PictureBox imgLockedNetwork;
-		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersReset;		
+		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersReset;
+		private Skin.Label lblConnectSubtitle;		
     }
 }
 

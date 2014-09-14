@@ -32,7 +32,8 @@ namespace AirVPN.Core
 
 		public static string Add(string extension)
 		{
-			string path = Engine.Instance.Storage.GetTempPath(extension);
+			string path = Storage.DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
+
 			m_files.Add(path);
 			return path;
 		}
@@ -63,6 +64,16 @@ namespace AirVPN.Core
 			foreach (string path in m_files)
 			{
 				Destroy(path);
+			}
+
+			// Cleaning old zombie temporary files
+			string[] files = Directory.GetFiles(Storage.DataPath);
+			foreach (string file in files)
+			{
+				if (file.IndexOf(".tmp.") != -1)
+				{
+					Destroy(file);
+				}
 			}
 		}
 	}

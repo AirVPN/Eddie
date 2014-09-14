@@ -27,8 +27,8 @@ namespace AirVPN.UI.Osx
 	public class TableRoutingControllerItem
 	{
 		public string Ip;
-		public string NetMask;
 		public string Action;
+		public string Notes;
 		public string Icon;
 	}
 
@@ -71,11 +71,11 @@ namespace AirVPN.UI.Osx
 			else if (tableColumn.Identifier == "Ip") {
 				return new NSString (i.Ip);
 			}
-			else if (tableColumn.Identifier == "NetMask") {
-				return new NSString (i.NetMask);
-			}
 			else if (tableColumn.Identifier == "Action") {
-				return new NSString (i.Action);
+				return new NSString (WindowPreferencesController.RouteDirectionToDescription(i.Action));
+			}
+			else if (tableColumn.Identifier == "Notes") {
+				return new NSString (i.Notes);
 			}
 			else 
 				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));

@@ -28,32 +28,56 @@ namespace AirVPN.Gui.Forms
 {
     public partial class SettingsRoute : AirVPN.Gui.Form
     {
-        public String Host;
-        public String NetMask;
+        public String Ip;        
         public String Action;
+		public String Notes;
 
         public SettingsRoute()
         {
             InitializeComponent();
         }
 
-        private void SettingsRoute_Load(object sender, EventArgs e)
-        {
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
 			CommonInit(Messages.WindowsSettingsRouteTitle);
 
-            cboAction.Items.Add(Settings.RouteDirectionToDescription("in"));
-            cboAction.Items.Add(Settings.RouteDirectionToDescription("out"));
+			lblHostHelp.Text = Messages.WindowsSettingsRouteEditIp;
 
-            txtHost.Text = Host;
-            txtNetMask.Text = NetMask;
-            cboAction.Text = Settings.RouteDirectionToDescription(Action);
-        }
+			cboAction.Items.Add(Settings.RouteDirectionToDescription("in"));
+			cboAction.Items.Add(Settings.RouteDirectionToDescription("out"));
+
+			txtHost.Text = Ip;
+			cboAction.Text = Settings.RouteDirectionToDescription(Action);
+			txtNotes.Text = Notes;
+
+			EnableIde();
+		}
+        
+		private void EnableIde()
+		{
+			if (new IpAddressRange(txtHost.Text).Valid == false)
+			{
+				lblHostHelp.Text = Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp;
+				cmdOk.Enabled = false;
+			}
+			else
+			{
+				lblHostHelp.Text = Messages.WindowsSettingsRouteEditIp;
+				cmdOk.Enabled = true;
+			}
+		}
 
         private void cmdOk_Click(object sender, EventArgs e)
-        {
-            Host = txtHost.Text;
-            NetMask = txtNetMask.Text;
-            Action = Settings.RouteDescriptionToDirection(cboAction.Text);
+        {			
+			Ip = txtHost.Text;
+			Action = Settings.RouteDescriptionToDirection(cboAction.Text);
+			Notes = txtNotes.Text;			
         }
+
+		private void txtHost_TextChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
     }
 }

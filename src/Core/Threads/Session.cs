@@ -75,15 +75,25 @@ namespace AirVPN.Core.Threads
 					// -----------------------------------
 
 					
-					if ((Engine.NextServer == null) && (Pinger.Instance.GetEnabled()) && (Engine.PingerValid() == false))
+					if ((Engine.NextServer == null) && (Pinger.Instance.GetEnabled()) && (Engine.PingerInvalid() != 0))
 					{
-						Engine.WaitMessageSet(Messages.WaitingLatencyTests, true);
+						string lastWaitingMessage = "";
 						for (; ; )
 						{
-							if (Engine.PingerValid())
-								break;
 							if (CancelRequested)
 								break;
+
+							int i = Engine.PingerInvalid();
+							if (i == 0)
+								break;
+
+							string nextWaitingMessage = Messages.WaitingLatencyTestsTitle + " " + Messages.Format(Messages.WaitingLatencyTestsStep, i.ToString());
+							if (lastWaitingMessage != nextWaitingMessage)
+							{
+								lastWaitingMessage = nextWaitingMessage;
+								Engine.WaitMessageSet(nextWaitingMessage, true);
+							}
+							
 							Sleep(100);
 						}
 					}
@@ -780,8 +790,6 @@ namespace AirVPN.Core.Threads
 		{
 			try
 			{
-				Platform.Instance.OnDaemonOutput(source, message);
-
 				if (source == "OpenVPN")
 				{
 					bool log = true;
@@ -865,9 +873,13 @@ namespace AirVPN.Core.Threads
 
 						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
 
-						Platform.Instance.FlushDNS();						
+						Platform.Instance.FlushDNS();
 
-						if (Engine.Storage.GetBool("advanced.check.route"))
+						// 2.4: Sometime (only under Windows) Interface is not really ready...
+						if(Platform.Instance.WaitTunReady() == false)
+							m_reset = "ERROR";
+
+						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.route")))
 						{
 							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
 
@@ -995,6 +1007,8 @@ namespace AirVPN.Core.Threads
 
 					if (log)
 						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+
+					Platform.Instance.OnDaemonOutput(source, message);
 				}
 				else if (source == "SSH")
 				{

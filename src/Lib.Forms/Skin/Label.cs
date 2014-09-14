@@ -47,12 +47,15 @@ namespace AirVPN.Gui.Skin
 
             Brush FB = Form.Skin.ForeBrush;
             			
-            Form.DrawString(e.Graphics, Text, Font, FB, ClientRectangle, sf);
-
             if (Image != null)
             {
-                e.Graphics.DrawImageUnscaled(Image, new Point(2, 2));
+				if (ImageAlign == ContentAlignment.TopLeft)
+					e.Graphics.DrawImageUnscaled(Image, new Point(2, 2));
+				else
+					e.Graphics.DrawImage(Image, R);				
             }
+
+			Form.DrawString(e.Graphics, Text, Font, FB, ClientRectangle, sf);
         }
     }
 }

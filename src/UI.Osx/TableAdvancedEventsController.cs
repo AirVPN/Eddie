@@ -85,10 +85,13 @@ namespace AirVPN.UI.Osx
 				return new NSString (i.Arguments);
 			}
 			else if (tableColumn.Identifier == "WaitEnd") {
-				if (i.WaitEnd)
-					return NSImage.ImageNamed ("bool_true.png");
-				else
-					return NSImage.ImageNamed ("bool_false.png");
+				if ((i.Filename.Trim () != "") || (i.Arguments.Trim () != "")) {
+					if (i.WaitEnd)
+						return NSImage.ImageNamed ("status_green_16.png");
+					else
+						return NSImage.ImageNamed ("status_red_16.png");
+				} else
+					return NSImage.ImageNamed ("status_unknown.png");
 			}
 
 			else 

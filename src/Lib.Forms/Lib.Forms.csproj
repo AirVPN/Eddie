@@ -246,6 +246,7 @@
     <Content Include="res\exit.png" />
     <Content Include="res\form_d_bg.png" />
     <Content Include="res\form_l_bg.png" />
+    <None Include="res\help.png" />
     <Content Include="res\home.png" />
     <Content Include="res\icon.ico" />
     <Content Include="res\icon.png" />

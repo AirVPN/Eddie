@@ -257,12 +257,6 @@ namespace AirVPN.Core
 			return DataPath + Platform.Instance.DirSep + filename;            
         }
 
-		public string GetTempPath(string extension)
-		{
-			return DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
-			//return "/tmp/" + RandomGenerator.GetHash() + ".tmp." + extension;
-		}
-
         public void EnsureDefaults()
         {
 			string NotInMan = ""; // Option not listed in 'man' documentation.
@@ -327,8 +321,10 @@ namespace AirVPN.Core
 			SetDefaultInt("advanced.pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 300, Messages.ManOptionAdvancedPingerValid);
-			SetDefaultBool("advanced.netlock.enabled", false, NotInMan);
-			SetDefaultBool("advanced.netlock.active", false, NotInMan);
+						
+			SetDefault("netlock.mode", "none", NotInMan); // Maybe 'auto' in future			
+			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked
+			SetDefaultBool("netlock.active", false, NotInMan);
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
 			SetDefaultBool("advanced.windows.dns_force", false, Messages.ManOptionAdvancedWindowsDnsForce);
@@ -353,7 +349,7 @@ namespace AirVPN.Core
 
 
 			// GUI only
-			SetDefaultBool("gui.details", false, NotInMan);
+			SetDefaultBool("gui.exit_confirm", true, NotInMan);
 			SetDefault("gui.skin", "Light", NotInMan);						
 			SetDefaultBool("gui.tos", false, NotInMan);
 			SetDefaultInt("gui.log_limit", 1000, NotInMan);
@@ -460,6 +456,8 @@ namespace AirVPN.Core
 						string name = e.Attributes["name"].Value;
 						string value = e.Attributes["value"].Value;
 
+						FixCompatibility(name, ref value);
+
                         Set(name, value);
                     }
 
@@ -474,6 +472,38 @@ namespace AirVPN.Core
                 }
             }
         }
+
+		public void FixCompatibility(string name, ref string value)
+		{
+			// AirVPN <=2.4 client use  'host,netmask,action' syntax.
+			// If detected, convert to new 'iprange,action,notes' syntax.
+			if (name == "routes.custom")
+			{
+				string newValue = "";
+
+				string[] routes2 = value.Split(';');
+				foreach (string route in routes2)
+				{
+					string[] routeEntries = route.Split(',');
+					if (routeEntries.Length != 3)
+						return;
+
+					string newRoute = "";					
+					if (new IpAddress(routeEntries[1]).Valid)
+					{
+						newRoute = routeEntries[0] + "/" + routeEntries[1] + "," + routeEntries[2];
+					}
+					else
+						newRoute = route;
+
+					if (newValue != "")
+						newValue += ";";
+					newValue += newRoute;
+				}
+
+				value = newValue;
+			}
+		}
 
 		#region Manifest Management
 

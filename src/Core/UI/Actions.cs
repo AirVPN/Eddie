@@ -53,6 +53,11 @@ namespace AirVPN.Core.UI
 			OpenUrlAirVPN("faq/software_advanced/");
 		}
 
+		public static void OpenUrlDocsLock()
+		{
+			OpenUrlAirVPN("faq/software_lock/");
+		}
+
 		public static void OpenUrlPorts()
 		{
 			OpenUrlAirVPN("ports/"); 

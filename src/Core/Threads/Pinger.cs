@@ -130,7 +130,7 @@ namespace AirVPN.Core.Threads
 				if (alwaysRun == false)
 					canRun = false;
 			}
-			else if (Engine.IsWaiting() && (Engine.WaitMessage != Messages.WaitingLatencyTests))
+			else if (Engine.IsWaiting() && (Engine.WaitMessage.StartsWith(Messages.WaitingLatencyTestsTitle) == false) )
 				canRun = false;
 
 			return canRun;

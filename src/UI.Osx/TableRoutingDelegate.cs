@@ -18,33 +18,21 @@
 
 using System;
 using MonoMac.AppKit;
-using AirVPN.Core;
 
 namespace AirVPN.UI.Osx
 {
-	public class MainWindowDelegate : NSWindowDelegate
+	public class TableRoutingDelegate : NSTableViewDelegate
 	{
-		MainWindowController m_main;
+		WindowPreferencesController m_main;
 
-		public MainWindowDelegate (MainWindowController main)
+		public TableRoutingDelegate (WindowPreferencesController main)
 		{
 			m_main = main;
 		}
 
-		public override bool WindowShouldClose (MonoMac.Foundation.NSObject sender)
+		public override void SelectionDidChange (MonoMac.Foundation.NSNotification notification)
 		{
-			if (Engine.Instance.Storage.GetBool ("gui.exit_confirm") == true) {
-				if (m_main.MessageYesNo (Messages.ExitConfirm) == false) {
-					return false;
-				}
-			}
-			Engine.Instance.RequestStop ();
-			return false;
-		}
-
-		public override void DidMiniaturize (MonoMac.Foundation.NSNotification notification)
-		{
-			m_main.EnabledUI ();
+			m_main.EnableIde ();
 		}
 	}
 }

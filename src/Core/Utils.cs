@@ -340,11 +340,19 @@ namespace AirVPN.Core
         }
 
         
-        public static void SaveFile(string path, string content)
+        public static bool SaveFile(string path, string content)
         {
+			if (File.Exists(path))
+			{
+				if (File.ReadAllText(path) == content)
+					return false;
+			}
+
             TextWriter tw = new StreamWriter(path);
             tw.Write(content);
             tw.Close();
+
+			return true;
         }
 
     }
