@@ -35,6 +35,7 @@ namespace AirVPN.Gui.Forms
 			AirVPN.Gui.Skin.ColumnHeader columnHeader1;
 			AirVPN.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
+			this.cmdAdvancedGeneralDocs = new AirVPN.Gui.Skin.Button();
 			this.label7 = new AirVPN.Gui.Skin.Label();
 			this.cboDnsSwitchMode = new AirVPN.Gui.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
@@ -137,6 +138,7 @@ namespace AirVPN.Gui.Forms
 			this.tabAdvanced = new AirVPN.Gui.Skin.TabPage();
 			this.tabAdvancedMain = new AirVPN.Gui.Skin.TabControl();
 			this.tabPage5 = new AirVPN.Gui.Skin.TabPage();
+			this.cmdLockHelp = new AirVPN.Gui.Skin.Button();
 			this.lblLockRoutingOutWarning = new AirVPN.Gui.Skin.Label();
 			this.lblLockAllowedIPS = new AirVPN.Gui.Skin.Label();
 			this.txtLockAllowedIPS = new AirVPN.Gui.Skin.TextBox();
@@ -148,8 +150,6 @@ namespace AirVPN.Gui.Forms
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
-			this.cmdAdvancedGeneralDocs = new AirVPN.Gui.Skin.Button();
-			this.cmdLockHelp = new AirVPN.Gui.Skin.Button();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -194,6 +194,21 @@ namespace AirVPN.Gui.Forms
 			tabPage1.Size = new System.Drawing.Size(622, 263);
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "General";
+			// 
+			// cmdAdvancedGeneralDocs
+			// 
+			this.cmdAdvancedGeneralDocs.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedGeneralDocs.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedGeneralDocs.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedGeneralDocs.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedGeneralDocs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedGeneralDocs.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
+			this.cmdAdvancedGeneralDocs.Location = new System.Drawing.Point(502, 217);
+			this.cmdAdvancedGeneralDocs.Name = "cmdAdvancedGeneralDocs";
+			this.cmdAdvancedGeneralDocs.Size = new System.Drawing.Size(100, 30);
+			this.cmdAdvancedGeneralDocs.TabIndex = 73;
+			this.cmdAdvancedGeneralDocs.UseVisualStyleBackColor = true;
+			this.cmdAdvancedGeneralDocs.Click += new System.EventHandler(this.cmdAdvancedGeneralDocs_Click);
 			// 
 			// label7
 			// 
@@ -783,9 +798,9 @@ namespace AirVPN.Gui.Forms
 			this.chkAutoStart.ForeColor = System.Drawing.Color.Black;
 			this.chkAutoStart.Location = new System.Drawing.Point(16, 15);
 			this.chkAutoStart.Name = "chkAutoStart";
-			this.chkAutoStart.Size = new System.Drawing.Size(113, 17);
+			this.chkAutoStart.Size = new System.Drawing.Size(142, 17);
 			this.chkAutoStart.TabIndex = 30;
-			this.chkAutoStart.Text = "Connect at startup";
+			this.chkAutoStart.Text = "Connect when launched";
 			this.chkAutoStart.UseVisualStyleBackColor = false;
 			// 
 			// tabMode
@@ -1446,6 +1461,21 @@ namespace AirVPN.Gui.Forms
 			this.tabPage5.Text = "Network lock";
 			this.tabPage5.UseVisualStyleBackColor = true;
 			// 
+			// cmdLockHelp
+			// 
+			this.cmdLockHelp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLockHelp.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLockHelp.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLockHelp.FlatAppearance.BorderSize = 0;
+			this.cmdLockHelp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLockHelp.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
+			this.cmdLockHelp.Location = new System.Drawing.Point(506, 9);
+			this.cmdLockHelp.Name = "cmdLockHelp";
+			this.cmdLockHelp.Size = new System.Drawing.Size(100, 30);
+			this.cmdLockHelp.TabIndex = 79;
+			this.cmdLockHelp.UseVisualStyleBackColor = true;
+			this.cmdLockHelp.Click += new System.EventHandler(this.cmdLockHelp_Click);
+			// 
 			// lblLockRoutingOutWarning
 			// 
 			this.lblLockRoutingOutWarning.BackColor = System.Drawing.Color.Transparent;
@@ -1565,36 +1595,6 @@ namespace AirVPN.Gui.Forms
 			this.chkLoggingEnabled.TabIndex = 55;
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
-			// 
-			// cmdAdvancedGeneralDocs
-			// 
-			this.cmdAdvancedGeneralDocs.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedGeneralDocs.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedGeneralDocs.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedGeneralDocs.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedGeneralDocs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedGeneralDocs.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
-			this.cmdAdvancedGeneralDocs.Location = new System.Drawing.Point(502, 217);
-			this.cmdAdvancedGeneralDocs.Name = "cmdAdvancedGeneralDocs";
-			this.cmdAdvancedGeneralDocs.Size = new System.Drawing.Size(100, 30);
-			this.cmdAdvancedGeneralDocs.TabIndex = 73;
-			this.cmdAdvancedGeneralDocs.UseVisualStyleBackColor = true;
-			this.cmdAdvancedGeneralDocs.Click += new System.EventHandler(this.cmdAdvancedGeneralDocs_Click);
-			// 
-			// cmdLockHelp
-			// 
-			this.cmdLockHelp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdLockHelp.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdLockHelp.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdLockHelp.FlatAppearance.BorderSize = 0;
-			this.cmdLockHelp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLockHelp.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
-			this.cmdLockHelp.Location = new System.Drawing.Point(506, 9);
-			this.cmdLockHelp.Name = "cmdLockHelp";
-			this.cmdLockHelp.Size = new System.Drawing.Size(100, 30);
-			this.cmdLockHelp.TabIndex = 79;
-			this.cmdLockHelp.UseVisualStyleBackColor = true;
-			this.cmdLockHelp.Click += new System.EventHandler(this.cmdLockHelp_Click);
 			// 
 			// Settings
 			// 

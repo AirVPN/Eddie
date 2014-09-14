@@ -106,7 +106,7 @@ namespace AirVPN.Platforms
 					td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
 
 					td.RegistrationInfo.Description = "AirVPN Client";					
-					td.Triggers.Add(new BootTrigger());				
+					td.Triggers.Add(new LogonTrigger());				
 					td.Actions.Add(new ExecAction(GetExecutablePath(), "", null));
 
 					// Register the task in the root folder
