@@ -37,6 +37,9 @@ namespace AirVPN.Core
         
 		public bool ConsoleMode = false;
 
+		public delegate void TerminateHandler ();
+		public event TerminateHandler TerminateEvent;
+
         private Threads.Pinger m_threadPinger;
         private Threads.Penalities m_threadPenalities;
 		private Threads.Manifest m_threadManifest;
@@ -263,7 +266,10 @@ namespace AirVPN.Core
             }
 
 			OnDeInit();
-			OnDeInit2();            
+			OnDeInit2();
+
+			if (TerminateEvent != null)
+				TerminateEvent ();
         }
 
 		public virtual bool OnInit()

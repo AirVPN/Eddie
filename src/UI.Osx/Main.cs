@@ -58,6 +58,8 @@ namespace AirVPN.UI.Osx
 
 				engine.UiStart ();
 
+
+
 				NSApplication.Init ();
 				NSApplication.Main (args);
 			}

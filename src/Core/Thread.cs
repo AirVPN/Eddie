@@ -72,6 +72,11 @@ namespace AirVPN.Core
             OnRun();
         }
 
+		public bool IsAlive()
+		{
+			return m_Thread.IsAlive;
+		}
+
         public virtual ThreadPriority GetPriority()
         {
             return ThreadPriority.Normal;

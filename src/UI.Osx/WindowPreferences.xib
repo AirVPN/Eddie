@@ -671,7 +671,7 @@
                                                             <button id="VqV-KG-Dpk">
                                                                 <rect key="frame" x="15" y="119" width="490" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <buttonCell key="cell" type="check" title="Checking if the tunnel use AirVPN DNS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mzq-0z-eGo">
+                                                                <buttonCell key="cell" type="check" title="Check if the tunnel use AirVPN DNS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mzq-0z-eGo">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
@@ -679,7 +679,7 @@
                                                             <button id="ouA-M6-NDw">
                                                                 <rect key="frame" x="15" y="99" width="510" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <buttonCell key="cell" type="check" title="Checking if the tunnel effectively works" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Be-AX-N2P">
+                                                                <buttonCell key="cell" type="check" title="Check if the tunnel effectively works" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Be-AX-N2P">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>

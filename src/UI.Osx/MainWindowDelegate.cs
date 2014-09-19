@@ -33,12 +33,7 @@ namespace AirVPN.UI.Osx
 
 		public override bool WindowShouldClose (MonoMac.Foundation.NSObject sender)
 		{
-			if (Engine.Instance.Storage.GetBool ("gui.exit_confirm") == true) {
-				if (m_main.MessageYesNo (Messages.ExitConfirm) == false) {
-					return false;
-				}
-			}
-			Engine.Instance.RequestStop ();
+			m_main.Shutdown ();
 			return false;
 		}
 

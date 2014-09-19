@@ -389,7 +389,7 @@ namespace AirVPN.UI.Osx
 
 			MnuTrayQuit.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.RequestStop();
+				Shutdown();
 			};
 
 			
@@ -402,6 +402,17 @@ namespace AirVPN.UI.Osx
 			Engine.OnRefreshUi ();
 
 			RequestAttention ();
+		}
+
+		public bool Shutdown()
+		{
+			if (Engine.Instance.Storage.GetBool ("gui.exit_confirm") == true) {
+				if (MessageYesNo (Messages.ExitConfirm) == false) {
+					return false;
+				}
+			}
+			Engine.Instance.RequestStop ();
+			return true;
 		}
 
 		public void RefreshUi (Engine.RefreshUiMode mode)

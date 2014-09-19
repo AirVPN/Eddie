@@ -325,6 +325,8 @@ namespace AirVPN.UI.Osx
 			};
 
 
+			ChkAdvancedPingerAlways.Hidden = true; // TOCLEAN
+
 			ReadOptions ();
 
 			EnableIde ();

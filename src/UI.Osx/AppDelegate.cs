@@ -40,11 +40,31 @@ namespace AirVPN.UI.Osx
 
 		public override void FinishedLaunching (NSObject notification)
 		{
+			Engine.Instance.TerminateEvent += delegate() {
+				new NSObject ().InvokeOnMainThread (() => {
+					NSApplication.SharedApplication.ReplyToApplicationShouldTerminate (true);
+				});
+			};
+
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 			NSApplication.SharedApplication.ActivateIgnoringOtherApps (true);
 
 			MenuEvents ();
+
+		}
+
+		public override NSApplicationTerminateReply ApplicationShouldTerminate (NSApplication sender)
+		{
+			if (Engine.Instance.IsAlive ()) {
+			
+				if(mainWindowController.Shutdown() == false)
+					return NSApplicationTerminateReply.Cancel;
+				else
+					return NSApplicationTerminateReply.Later;
+			} else {
+				return NSApplicationTerminateReply.Now;
+			}
 
 		}
 
@@ -83,7 +103,7 @@ namespace AirVPN.UI.Osx
 			};
 
 			MnuMainQuit.Activated += (object sender, EventArgs e) => {
-				Engine.Instance.RequestStop();
+				mainWindowController.Shutdown();
 			};
 		}
 	}

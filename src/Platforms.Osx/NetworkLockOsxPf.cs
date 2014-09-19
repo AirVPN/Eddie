@@ -38,7 +38,7 @@ namespace AirVPN.Platforms
 
 		public override string GetName()
 		{
-			return "OSX PF";
+			return "OS X - PF";
 		}
 
 		public override bool GetSupport()
@@ -55,17 +55,18 @@ namespace AirVPN.Platforms
 
 			m_prevActive = false;
 			string report = Exec("pfctl -si");
-			if (report.IndexOf("Status: Enabled") != -1)
+			if (report.IndexOf ("Status: Enabled") != -1)
 				m_prevActive = true;
 			else if (report.IndexOf("Status: Disabled") != -1)
 				m_prevActive = false;
 			else
 				throw new Exception("Unexpected PF Firewall status");
 
-			string reportActivation = Exec("pfctl -e");
-			if(reportActivation.IndexOf("pf enabled") == -1)
-				throw new Exception("Unexpected PF Firewall activation failure");
-
+			if (m_prevActive == false) {
+				string reportActivation = Exec ("pfctl -e");
+				if (reportActivation.IndexOf ("pf enabled") == -1)
+					throw new Exception ("Unexpected PF Firewall activation failure");
+			}
 			m_filePfConf = new TemporaryFile("pf.conf");
 
 			OnUpdateIps();
@@ -81,7 +82,7 @@ namespace AirVPN.Platforms
 			base.Deactivation();
 
 			// Restore system rules
-			Exec("sudo pfctl -v -f \"/etc/pf.conf\"");
+			Exec("pfctl -v -f \"/etc/pf.conf\"");
 
 			if (m_filePfConf != null)
 			{
@@ -148,9 +149,9 @@ namespace AirVPN.Platforms
 
 			if (Utils.SaveFile(m_filePfConf.Path, pf))
 			{
-				Engine.Instance.Log(Engine.LogType.Verbose, "PF rules updated, reloading");
+				Engine.Instance.Log(Engine.LogType.Verbose, "OS X - PF rules updated, reloading");
 
-				Exec("sudo pfctl -v -f \"" + m_filePfConf.Path + "\"");
+				Exec("pfctl -v -f \"" + m_filePfConf.Path + "\"");
 			}
 		}
 
