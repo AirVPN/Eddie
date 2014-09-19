@@ -37,7 +37,7 @@ namespace AirVPN.Core
         
 		public bool ConsoleMode = false;
 
-		public delegate void TerminateHandler ();
+		public delegate void TerminateHandler();
 		public event TerminateHandler TerminateEvent;
 
         private Threads.Pinger m_threadPinger;
@@ -269,7 +269,7 @@ namespace AirVPN.Core
 			OnDeInit2();
 
 			if (TerminateEvent != null)
-				TerminateEvent ();
+				TerminateEvent();
         }
 
 		public virtual bool OnInit()
@@ -1305,9 +1305,10 @@ namespace AirVPN.Core
                 if (s.Get("proxy.auth") != "None")
                 {
 					string fileNameAuth = s.GetPath("AirVPN.ppw");
+					string fileNameAuthOvpn = fileNameAuth.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
 					string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
                     Utils.SaveFile(fileNameAuth, fileNameData);
-                    ovpn += " \"" + fileNameAuth + "\" " + s.Get("proxy.auth") + "\n";
+                    ovpn += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant() + "\n"; // 2.6 Auth Fix
                 }
                 else
                 {
@@ -1458,7 +1459,7 @@ namespace AirVPN.Core
 
 			try
 			{
-				XmlDocument xmlDoc = AirExchange.Fetch(parameters);
+				XmlDocument xmlDoc = AirExchange.Fetch(Messages.AuthorizeLogin, parameters);
 				string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
 
 				if (userMessage != "")
@@ -1473,7 +1474,7 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Log(LogType.Fatal, e.Message);				
+				Log(LogType.Fatal, Messages.Format(Messages.AuthorizeLoginFailed, e.Message));				
 			}
 
 			Engine.Instance.WaitMessageClear();

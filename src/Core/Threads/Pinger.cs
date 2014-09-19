@@ -60,6 +60,7 @@ namespace AirVPN.Core.Threads
 			try
 			{
 				bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
+				alwaysRun = false; // 2.6
 								
 				routeScope = new RouteScope(Server.IpEntry, alwaysRun);
 
@@ -123,6 +124,7 @@ namespace AirVPN.Core.Threads
 		{			
 			bool canRun = true;
 			bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
+			alwaysRun = false; // 2.6
 
 			// Logic: Can't ping when the connection is unstable. Can't ping when connected to server.
 			if (Engine.IsConnected())

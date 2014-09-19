@@ -155,8 +155,18 @@ namespace AirVPN.Core.Threads
 						parameters["port"] = port.ToString();
 						parameters["alt"] = alt.ToString();
 
-						XmlDocument xmlDoc = AirExchange.Fetch(parameters);
-						if (xmlDoc != null) // Note: If failed, continue.
+						XmlDocument xmlDoc = null;
+						try
+						{
+							xmlDoc = AirExchange.Fetch(Messages.AuthorizeConnect, parameters);
+						}
+						catch (Exception e)
+						{
+							// Note: If failed, continue anyway.
+							Engine.Log(Engine.LogType.Warning, Messages.Format(Messages.AuthorizeConnectFailed, e.Message));
+						}
+
+						if (xmlDoc != null) 
 						{
 							string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
 							if (userMessage != "")

@@ -528,10 +528,11 @@ namespace AirVPN.Core
 		{
 			try
 			{
+				Engine.Instance.Log(Engine.LogType.Verbose, Messages.ManifestUpdate);
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters["act"] = "manifest";
 
-				XmlDocument xmlDoc = AirExchange.Fetch(parameters);
+				XmlDocument xmlDoc = AirExchange.Fetch(Messages.ManifestUpdate, parameters);
 				lock (Manifest)
 				{
 					if(Manifest == null)
@@ -544,6 +545,8 @@ namespace AirVPN.Core
 				}
 
 				Engine.Instance.PostManifestUpdate();
+
+				Engine.Instance.Log(Engine.LogType.Verbose, Messages.ManifestDone);
 
 				return "";
 			}

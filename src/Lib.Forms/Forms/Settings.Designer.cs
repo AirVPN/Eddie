@@ -359,7 +359,7 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedCheckRoute.Name = "chkAdvancedCheckRoute";
 			this.chkAdvancedCheckRoute.Size = new System.Drawing.Size(300, 17);
 			this.chkAdvancedCheckRoute.TabIndex = 57;
-			this.chkAdvancedCheckRoute.Text = "Checking if the tunnel effectively works";
+			this.chkAdvancedCheckRoute.Text = "Check if the tunnel effectively works";
 			this.chkAdvancedCheckRoute.UseVisualStyleBackColor = false;
 			// 
 			// chkAdvancedCheckDns
@@ -369,9 +369,9 @@ namespace AirVPN.Gui.Forms
 			this.chkAdvancedCheckDns.ForeColor = System.Drawing.Color.Black;
 			this.chkAdvancedCheckDns.Location = new System.Drawing.Point(16, 80);
 			this.chkAdvancedCheckDns.Name = "chkAdvancedCheckDns";
-			this.chkAdvancedCheckDns.Size = new System.Drawing.Size(212, 17);
+			this.chkAdvancedCheckDns.Size = new System.Drawing.Size(198, 17);
 			this.chkAdvancedCheckDns.TabIndex = 56;
-			this.chkAdvancedCheckDns.Text = "Checking if the tunnel use AirVPN DNS";
+			this.chkAdvancedCheckDns.Text = "Check if the tunnel use AirVPN DNS";
 			this.chkAdvancedCheckDns.UseVisualStyleBackColor = false;
 			// 
 			// chkExpert
