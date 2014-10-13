@@ -36,6 +36,9 @@ namespace AirVPN.Core
 		public static string SslPath = "";
 		public static string SslVersion = "";
 
+		public static string CurlVersion = "";
+		public static string CurlPath = "";
+
 		public static void Checking()
 		{
 			// OpenVPN Driver
@@ -99,7 +102,6 @@ namespace AirVPN.Core
 				SshPath = "";
 			}
 
-			
 			// SSL Tunnel Binary
 			try
 			{
@@ -115,6 +117,28 @@ namespace AirVPN.Core
 					int posS = SslVersion.IndexOf(" ", 8);					
 					if (posS > 1)
 						SslVersion = SslVersion.Substring(0, posS);
+				}
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, e);
+				SshPath = "";
+			}
+
+			// CUrl			
+			try
+			{
+				string executableName = "curl";
+
+				CurlPath = FindExecutable(executableName);
+
+				if (CurlPath != "")
+				{
+					string arguments = "--version";
+					CurlVersion = Platform.Instance.Shell(CurlPath, arguments);
+					int posS = CurlVersion.IndexOf("\n");
+					if (posS > 1)
+						CurlVersion = CurlVersion.Substring(0, posS);
 				}
 			}
 			catch (Exception e)
@@ -191,6 +215,8 @@ namespace AirVPN.Core
 					filename = "plink.exe";
 				else if (name == "ssl")
 					filename = "stunnel.exe";
+				else
+					filename = name + ".exe";
 			}
 			else
 			{

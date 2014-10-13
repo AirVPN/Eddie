@@ -70,7 +70,7 @@ namespace AirVPN.Core
 
 			// HTTP Fetch
 			string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
-			byte[] fetchResponse = Engine.Instance.FetchUrl(url);
+			byte[] fetchResponse = Engine.Instance.FetchUrl(url, "", 1, Engine.Instance.IsConnected());
 
 			// Decrypt answer
 
@@ -141,7 +141,12 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
-					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), e.Message));
+					string info = e.Message;
+					string proxyMode = Engine.Instance.Storage.Get("proxy.mode");
+					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth");
+					if (Engine.Instance.Storage.Get("proxy.mode") != "none")
+						info += ", with '" + proxyMode.ToLowerInvariant() + "' proxy and '" + proxyAuth.ToLowerInvariant() + "' auth";
+					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")
 						firstError = e.Message;

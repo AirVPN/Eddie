@@ -730,7 +730,7 @@ namespace AirVPN.Core.Threads
 				string message = e.Data.ToString();
 
 				// Remove STunnel timestamp
-				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\d{4}\\.\\d{2}\\.\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\sLOG\\d{1}\\[\\d{0,6}:\\d{0,60}\\]:\\s", "");
+				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\d{4}\\.\\d{2}\\.\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+LOG\\d{1}\\[\\d{0,6}:\\d{0,60}\\]:\\s+", "");
 
 				ProcessOutput("SSL", message);
 			}
@@ -744,7 +744,7 @@ namespace AirVPN.Core.Threads
 				string message = e.Data.ToString();
 
 				// Remove OpenVPN timestamp
-				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\w{3}\\s\\w{3}\\s\\d{1,2}\\s\\d{1,2}:\\d{1,2}:\\d{1,2}\\s\\d{2,4}\\s", "");
+				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
 				
 				ProcessOutput("OpenVPN", message);
 			}
@@ -901,7 +901,7 @@ namespace AirVPN.Core.Threads
 							{
 								string destIp = Engine.CurrentServer.IpExit;
 								//RouteScope routeScope = new RouteScope(destIp);
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php");
+								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php", Messages.ConnectionCheckingRoute, true);
 								//routeScope.End();
 								string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
 								Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
@@ -917,7 +917,7 @@ namespace AirVPN.Core.Threads
 							if (m_reset == "")
 							{
 								string destIp = Engine.ConnectedEntryIP;
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php");
+								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php", Messages.ConnectionCheckingRoute2, true);
 								Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
 								Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
 								Engine.ConnectedClientTime = Utils.UnixTimeStamp();

@@ -211,8 +211,7 @@ namespace AirVPN.Core
 
 			if(initResult == true)            
             {
-				Platform.Instance.LogSystemInfo();
-				Software.Checking();
+				Platform.Instance.LogSystemInfo();				
 				Software.Log();
 
 				Recovery.Load();
@@ -298,6 +297,8 @@ namespace AirVPN.Core
 
 		public virtual bool OnInit2()
         {
+			Software.Checking();
+
             TrustCertificatePolicy.Activate();
 
             PostManifestUpdate();
@@ -1205,42 +1206,103 @@ namespace AirVPN.Core
 				m_threadSession.SendManagementCommand(command);
 		}
 		
-		public byte[] FetchUrl(string url)
+		public byte[] FetchUrl(string url, string title, int ntry, bool bypassProxy)
 		{
-			// Note: by default WebClient try to determine the proxy used by IE/Windows
-			WebClientEx wc = new WebClientEx();
-			
-			if (IsConnected())
+			string lastException = "";
+			for (int t = 0; t < ntry; t++)
 			{
-				// Don't use a proxy if connected to the VPN
-				wc.Proxy = null;
-			}
-			else
-			{
-				string mode = Storage.Get("proxy.mode").ToLowerInvariant();
-				if (mode == "http")
+				try
 				{
-					System.Net.WebProxy proxy = new System.Net.WebProxy(Storage.Get("proxy.host"), Storage.GetInt("proxy.port"));
-					wc.Proxy = proxy;
-					wc.UseDefaultCredentials = true;
+					if( (ntry == 5) && (t != 4) )
+						throw new Exception("test error");
+
+
+					// Note: by default WebClient try to determine the proxy used by IE/Windows
+					WebClientEx wc = new WebClientEx();
+
+					if (bypassProxy)
+					{
+						// Don't use a proxy if connected to the VPN
+						wc.Proxy = null;
+					}
+					else
+					{
+						string mode = Storage.Get("proxy.mode").ToLowerInvariant();
+						if (mode == "http")
+						{
+							System.Net.WebProxy proxy = new System.Net.WebProxy(Storage.Get("proxy.host"), Storage.GetInt("proxy.port"));
+							//string proxyUrl = "http://" + Storage.Get("proxy.host") + ":" + Storage.GetInt("proxy.port").ToString() + "/";
+							//System.Net.WebProxy proxy = new System.Net.WebProxy(proxyUrl, true);					
+
+							if (Storage.Get("proxy.auth").ToLowerInvariant() != "none")
+							{
+								//wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), Storage.Get("proxy.host"));
+								wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), "");
+								proxy.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), "");
+								wc.UseDefaultCredentials = false;
+							}
+
+							wc.Proxy = proxy;
+						}
+						else if (mode == "socks")
+						{
+							// Socks Proxy supported with a curl shell
+							if (Software.CurlPath == "")
+							{
+								throw new Exception(Messages.CUrlRequiredForProxySocks);
+							}
+							else
+							{
+								TemporaryFile fileOutput = new TemporaryFile("bin");
+								string args = " \"" + url + "\" --socks4a " + Storage.Get("proxy.host") + ":" + Storage.Get("proxy.port");
+								if (Storage.Get("proxy.auth").ToLowerInvariant() != "none")
+								{
+									args += " -U " + Storage.Get("proxy.login") + ":" + Storage.Get("proxy.password");
+								}
+								args += " -o \"" + fileOutput.Path + "\"";
+								args += " --progress-bar";
+								string str = Platform.Instance.Shell(Software.CurlPath, args);
+								byte[] bytes;
+								if (File.Exists(fileOutput.Path))
+								{
+									bytes = File.ReadAllBytes(fileOutput.Path);
+									fileOutput.Close();
+									return bytes;
+								}
+								else
+								{
+									throw new Exception(str);
+								}
+							}
+						}
+						else if (mode != "detect")
+						{
+							wc.Proxy = null;
+						}
+					}
+
+					return wc.DownloadData(url);
 				}
-				else if (mode == "socks")
+				catch (Exception e)
 				{
-					// Unsupported
-				}
-				else if (mode != "detect")
-				{
-					wc.Proxy = null;
+					if(ntry == 1) // AirAuth have it's catch errors retry logic.
+						throw e;
+					else
+					{
+						lastException = e.Message;
+						
+						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ExchangeTryFailed, title, (t+1).ToString(), lastException));
+					}
 				}
 			}
 
-			return wc.DownloadData(url);
+			throw new Exception(lastException);
 		}
 
-		public XmlDocument XmlFromUrl(string url)
+		public XmlDocument XmlFromUrl(string url, string title, bool bypassProxy)
         {
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(System.Text.Encoding.ASCII.GetString(FetchUrl(url)));
+            doc.LoadXml(System.Text.Encoding.ASCII.GetString(FetchUrl(url, title, 5, bypassProxy)));
             return doc;
         }
 

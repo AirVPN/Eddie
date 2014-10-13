@@ -77,6 +77,11 @@ namespace AirVPN.Core
 		public static string AlreadyRunningSTunnel = "STunnel is already running.";
 		public static string AlreadyRunningSshPLink = "SSH tunnel (plink) is already running.";
 		public static string AlreadyRunningSsh = "SSH tunnel is already running.";
+
+		public static string CUrlRequiredForProxySocks = "CUrl is not installed in this system, and it's required for SOCKS proxy."; // TOTRANSLATE
+		public static string SocksProxyError = "Socks proxy connection error.";
+
+		public static string FetchTryFailed = "{1}, {2}° try failed ({3})";
 		
 		public static string CheckingEnvironment = "Checking environment";
 		public static string CheckingProtocolUnknown = "Unknown protocol.";
@@ -94,6 +99,7 @@ namespace AirVPN.Core
 		
 		public static string ConnectionStartManagement = "Starting Management Interface";
 		public static string ConnectionCheckingRoute = "Checking route";
+		public static string ConnectionCheckingRoute2 = "Checking info";
 		public static string ConnectionCheckingRouteNotAvailable = "Checking route not available on this server.";
 		public static string ConnectionCheckingRouteFailed = "Routing checking failed.";
 		public static string ConnectionCheckingDNS = "Checking DNS";
