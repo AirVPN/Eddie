@@ -70,6 +70,13 @@ namespace AirVPN.Core
 			// Called when Ip used by AirVPN (hosts auth or vpn servers) maybe changed.
 		}
 
+		public virtual void OnVpnEstablished()
+		{
+		}
+
+		public virtual void OnVpnDisconnected()
+		{
+		}
 
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{

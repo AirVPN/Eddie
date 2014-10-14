@@ -31,6 +31,8 @@ namespace AirVPN.Platforms
 
 		private bool m_prevActive = false;
 
+		private bool m_connected = false;
+
 		public override string GetCode()
 		{
 			return "osx_pf";
@@ -133,10 +135,13 @@ namespace AirVPN.Platforms
 			pf += "# Allow all on lo0\n";			
 			//pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
 			pf += "pass quick on lo0 all\n";
-			pf += "# Everything tunneled\n";
-			//pazzo
-			pf += "pass out quick on utun0 inet from 10.0.0.0/8 to any flags S/SA keep state\n";
-			pf += "pass quick on utun0 inet from any to 10.0.0.0/8 flags S/SA keep state\n";
+			pf += "# Everything tunneled\n";			
+			if (m_connected)
+			{
+				string ifn = Engine.Instance.ConnectedVpnInterfaceId;
+				pf += "pass out quick on " + ifn + " inet from 10.0.0.0/8 to any flags S/SA keep state\n";
+				pf += "pass quick on " + ifn + " inet from any to 10.0.0.0/8 flags S/SA keep state\n";
+			}
 			/*
 			pf += "pass out quick inet on tun+ from 10.4.0.0/16 to any flags S/SA keep state\n";
 			pf += "pass out quick inet on tun+ from 10.5.0.0/16 to any flags S/SA keep state\n";
@@ -154,6 +159,22 @@ namespace AirVPN.Platforms
 
 				Exec("pfctl -v -f \"" + m_filePfConf.Path + "\"");
 			}
+		}
+
+		public override void OnVpnEstablished()
+		{
+			base.OnVpnEstablished();
+
+			m_connected = true;
+			OnUpdateIps();
+		}
+
+		public override void OnVpnDisconnected()
+		{
+			base.OnVpnDisconnected();
+
+			m_connected = false;
+			OnUpdateIps();
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)

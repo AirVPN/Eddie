@@ -598,7 +598,9 @@ namespace AirVPN.Core
                     Connected = false;
                     ConnectedSince = DateTime.MinValue;
 					ConnectedLastDownloadStep = 0;
-					ConnectedLastUploadStep = 0;                    
+					ConnectedLastUploadStep = 0;
+
+					Engine.NetworkLockManager.OnVpnDisconnected();
 
                     OnRefreshUi(RefreshUiMode.Full);
                 }
@@ -1213,10 +1215,6 @@ namespace AirVPN.Core
 			{
 				try
 				{
-					if( (ntry == 5) && (t != 4) )
-						throw new Exception("test error");
-
-
 					// Note: by default WebClient try to determine the proxy used by IE/Windows
 					WebClientEx wc = new WebClientEx();
 

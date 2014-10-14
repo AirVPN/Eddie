@@ -28,34 +28,17 @@ namespace AirVPN.Core
 		{
 			get
 			{
-				bool check1 = false;
+				bool check = false;
 				try
 				{
-					check1 = HasExited;
+					check = HasExited;
 				}
 				catch (Exception e)
 				{
-					Engine.Instance.Log(e);
-				}
-
-				/*
-				bool check2 = true;
-				
-				Dictionary<int, string> processes = Platform.Instance.GetProcessesList();
-				System.Diagnostics.Process[] processlist = Process.GetProcesses();
-				foreach (int id in processes.Keys)
-				{
-					if (id == this.Id)
-						check2 = false;					
-				}
-
-				if ((check1 == true) && (check2 == false))
-				{
-					Console.WriteLine("Unexpected: process marked as exited but still running.");
-				}
-				*/
-				
-				return check1;
+					// TOCHECK, maybe check1 = true?
+					//Engine.Instance.Log(e);
+				}				
+				return check;
 			}
 		}
 	}

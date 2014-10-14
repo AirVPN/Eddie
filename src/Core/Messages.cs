@@ -285,6 +285,7 @@ namespace AirVPN.Core
 		public static string ManOptionExecutablesOpenVpn = "Path to a custom OpenVPN executable";
 		public static string ManOptionExecutablesSsh = "Path to a custom SSH tunnel executable";
 		public static string ManOptionExecutablesSsl = "Path to a custom SSL tunnel executable";
+		public static string ManOptionExecutablesCurl = "Path to a custom curl executable, used only with socks proxy";
 
 		public static string ManOptionOpenVpnCustom = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with AirVPN Client.";
 		public static string ManOptionOpenVpnSkipDefaults = "If 'false' the custom directives are appended to the default directive.";

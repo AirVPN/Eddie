@@ -866,7 +866,7 @@ namespace AirVPN.Core.Threads
 					{
 						m_reset = "ERROR";
 					}
-					
+
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
 						Engine.Log(Core.Engine.LogType.Verbose, Messages.ConnectionStartManagement);
@@ -886,8 +886,10 @@ namespace AirVPN.Core.Threads
 						Platform.Instance.FlushDNS();
 
 						// 2.4: Sometime (only under Windows) Interface is not really ready...
-						if(Platform.Instance.WaitTunReady() == false)
+						if (Platform.Instance.WaitTunReady() == false)
 							m_reset = "ERROR";
+
+						Engine.Instance.NetworkLockManager.OnVpnEstablished();
 
 						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.route")))
 						{
@@ -895,7 +897,7 @@ namespace AirVPN.Core.Threads
 
 							if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
 							{
-								Engine.Log(Core.Engine.LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable); 
+								Engine.Log(Core.Engine.LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
 							}
 							else
 							{
@@ -909,7 +911,7 @@ namespace AirVPN.Core.Threads
 
 								if (VpnIp != Engine.ConnectedVpnIp)
 								{
-									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);									
+									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);
 									m_reset = "ERROR";
 								}
 							}
@@ -933,7 +935,7 @@ namespace AirVPN.Core.Threads
 						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.dns")))
 						{
 							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
-							
+
 							bool failed = true;
 							IPHostEntry entry = Dns.GetHostEntry(Engine.Storage.GetManifestKeyValue("dnscheck_host", ""));
 
@@ -950,7 +952,7 @@ namespace AirVPN.Core.Threads
 
 							if (failed)
 							{
-								Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);								
+								Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);
 								m_reset = "ERROR";
 							}
 						}
@@ -963,7 +965,7 @@ namespace AirVPN.Core.Threads
 					}
 
 					// Windows
-					if(Platform.Instance.IsUnixSystem() == false)
+					if (Platform.Instance.IsUnixSystem() == false)
 					{
 						Match match = Regex.Match(message, "TAP-.*? device \\[(.*?)\\] opened: \\\\\\\\\\.\\\\Global\\\\(.*?).tap");
 						if (match.Success)
@@ -995,6 +997,20 @@ namespace AirVPN.Core.Threads
 								if (adapter.Id == Engine.ConnectedVpnInterfaceId)
 									m_interfaceTun = adapter;
 							}
+						}
+					}
+
+					// OSX
+					{
+						Match match = Regex.Match(message, "Opened utun device (.*?)");
+						if (match.Success)
+						{
+							Engine.ConnectedVpnInterfaceName = match.Groups[1].Value;
+							Engine.ConnectedVpnInterfaceId = match.Groups[1].Value;
+
+							m_interfaceTun = null; // Not used under OSX, see Platforms.Osx.GetTunStatsMode comment
+
+							// pazzo, qui devo notificare a NetLockManager che la connessione è stabilita, passandogli Engine.ConnectedVpnInterfaceId
 						}
 					}
 

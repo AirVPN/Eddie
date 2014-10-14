@@ -303,6 +303,7 @@ namespace AirVPN.Core
 			SetDefault("executables.openvpn", "", Messages.ManOptionExecutablesOpenVpn);
 			SetDefault("executables.ssh", "", Messages.ManOptionExecutablesSsh);
 			SetDefault("executables.ssl", "", Messages.ManOptionExecutablesSsl);
+			SetDefault("executables.curl", "", Messages.ManOptionExecutablesCurl);
 			SetDefault("openvpn.custom", "", Messages.ManOptionOpenVpnCustom);
 			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
 			
