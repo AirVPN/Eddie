@@ -135,12 +135,14 @@ namespace AirVPN.Platforms
 			pf += "# Allow all on lo0\n";			
 			//pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
 			pf += "pass quick on lo0 all\n";
-			pf += "# Everything tunneled\n";			
-			if (m_connected)
-			{
+					
+			if (m_connected) {
+				pf += "# Everything tunneled\n";	
 				string ifn = Engine.Instance.ConnectedVpnInterfaceId;
 				pf += "pass out quick on " + ifn + " inet from 10.0.0.0/8 to any flags S/SA keep state\n";
 				pf += "pass quick on " + ifn + " inet from any to 10.0.0.0/8 flags S/SA keep state\n";
+			} else {
+				pf += "# Not yet connected to VPN\n";	
 			}
 			/*
 			pf += "pass out quick inet on tun+ from 10.4.0.0/16 to any flags S/SA keep state\n";

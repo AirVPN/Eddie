@@ -1002,15 +1002,13 @@ namespace AirVPN.Core.Threads
 
 					// OSX
 					{
-						Match match = Regex.Match(message, "Opened utun device (.*?)");
+						Match match = Regex.Match(message, "Opened utun device (.*?)$");
 						if (match.Success)
 						{
 							Engine.ConnectedVpnInterfaceName = match.Groups[1].Value;
 							Engine.ConnectedVpnInterfaceId = match.Groups[1].Value;
 
 							m_interfaceTun = null; // Not used under OSX, see Platforms.Osx.GetTunStatsMode comment
-
-							// pazzo, qui devo notificare a NetLockManager che la connessione è stabilita, passandogli Engine.ConnectedVpnInterfaceId
 						}
 					}
 
