@@ -411,6 +411,11 @@ namespace AirVPN.UI.Osx
 					return false;
 				}
 			}
+			if (windowAbout != null)
+				windowAbout.Close ();
+			if (windowPreferences != null)
+				windowPreferences.Close ();
+
 			Engine.Instance.RequestStop ();
 			return true;
 		}

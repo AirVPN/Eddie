@@ -1,11 +1,12 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/8/2014 12:15:57 AM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x64" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../Platforms.Osx/NetworkLockOsxPf.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="MainWindowController.cs">
     <Files>
       <File FileName="MainWindowDelegate.cs" Line="1" Column="1" />
-      <File FileName="AppDelegate.cs" Line="4" Column="4" />
-      <File FileName="MainWindowController.cs" Line="1" Column="1" />
-      <File FileName="../Platforms.Osx/NetworkLockOsxPf.cs" Line="88" Column="88" />
+      <File FileName="AppDelegate.cs" Line="35" Column="35" />
+      <File FileName="MainWindowController.cs" Line="6" Column="6" />
+      <File FileName="../Platforms.Osx/NetworkLockOsxPf.cs" Line="46" Column="46" />
+      <File FileName="../Core/Threads/Session.cs" Line="7" Column="7" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
