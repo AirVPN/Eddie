@@ -123,7 +123,11 @@ namespace AirVPN.Gui.Forms
             int port = s.GetInt("mode.port");
             int alternate = s.GetInt("mode.alt");
 
-            if( (protocol == "UDP") && (port == 443) && (alternate == 0) )
+			if(protocol == "AUTO")
+			{
+				optModeAutomatic.Checked = true;
+			}
+            else if( (protocol == "UDP") && (port == 443) && (alternate == 0) )
 			{
 				optModeUDP443.Checked = true;
             }
@@ -195,9 +199,13 @@ namespace AirVPN.Gui.Forms
             {
             	optModeSSL443.Checked = true;
             }
-            else
+            else if(protocol == "TOR")
+			{
+				optModeTOR.Checked = true;
+			}
+			else
             {
-                optModeUDP443.Checked = true;
+                optModeAutomatic.Checked = true;
             }
 
             // Proxy
@@ -332,7 +340,13 @@ namespace AirVPN.Gui.Forms
             int port = 0;
             int alternate = 0;
 
-            if (optModeUDP443.Checked)
+			if (optModeAutomatic.Checked)
+			{
+				protocol = "AUTO";
+				port = 443;
+				alternate = 0;
+			}
+            else if (optModeUDP443.Checked)
             {
                 protocol = "UDP";
                 port = 443;
@@ -440,13 +454,19 @@ namespace AirVPN.Gui.Forms
                 port = 443;
                 alternate = 1;
             }
-            else
-            {
-                // Unexpected...
-                protocol = "UDP";
-                port = 443;
-                alternate = 0;
-            }
+			else if (optModeTOR.Checked)
+			{
+				protocol = "TOR";
+				port = 2018;
+				alternate = 0;
+			}
+			else
+			{
+				// Unexpected...
+				protocol = "AUTO";
+				port = 443;
+				alternate = 0;
+			}
 
             s.Set("mode.protocol", protocol.ToUpperInvariant());
             s.SetInt("mode.port", port);
@@ -621,10 +641,9 @@ namespace AirVPN.Gui.Forms
 
         private void cmdExeBrowse_Click(object sender, EventArgs e)
         {
-            if (openExeDialog.ShowDialog() == DialogResult.OK)
-            {
-                txtExePath.Text = openExeDialog.FileName;
-            }
+			string result = GuiUtils.FilePicker();
+			if (result != "")
+				txtExePath.Text = result;
         }
 
         private void cmdOk_Click(object sender, EventArgs e)

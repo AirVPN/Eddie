@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="TorControl.cs" />
     <Compile Include="IpAddressRange.cs" />
     <Compile Include="NetworkLockManager.cs" />
     <Compile Include="NetworkLockPlugin.cs" />

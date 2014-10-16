@@ -62,7 +62,10 @@ namespace AirVPN.Platforms
 			string rulesBackupSession = GetBackupPath();
 
 			if (File.Exists(rulesBackupSession))
-				throw new Exception(Messages.NetworkLockUnexpectedAlreadyActive);
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
+				Deactivation();
+			}
 
 			// Backup
 			Exec("iptables-save >\"" + rulesBackupSession + "\"");

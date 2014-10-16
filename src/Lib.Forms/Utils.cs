@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Text;
+using AirVPN.Core;
 
 namespace AirVPN.Gui
 {
@@ -94,7 +95,23 @@ namespace AirVPN.Gui
             }
         }
 
-        
+		public static string FilePicker()
+		{
+			return FilePicker(Messages.FilterAllFiles);			
+		}
 
+		public static string FilePicker(string filter)
+		{
+			OpenFileDialog sd = new OpenFileDialog();
+			sd.Filter = filter;
+			if (sd.ShowDialog() == DialogResult.OK)
+			{
+				return sd.FileName;
+			}
+			else
+			{
+				return "";
+			}
+		}
     }
 }

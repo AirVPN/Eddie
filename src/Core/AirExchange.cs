@@ -142,10 +142,10 @@ namespace AirVPN.Core
 				catch (Exception e)
 				{
 					string info = e.Message;
-					string proxyMode = Engine.Instance.Storage.Get("proxy.mode");
-					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth");
-					if (Engine.Instance.Storage.Get("proxy.mode") != "none")
-						info += ", with '" + proxyMode.ToLowerInvariant() + "' proxy and '" + proxyAuth.ToLowerInvariant() + "' auth";
+					string proxyMode = Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant();
+					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
+					if (proxyMode != "none")
+						info += ", with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
 					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")

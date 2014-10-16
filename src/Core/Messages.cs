@@ -129,7 +129,13 @@ namespace AirVPN.Core
 		public static string NetworkLockNotAvailableWithRouteOut = "You set the default routing outside the tunnel,\nincompatible with Network Lock feature"; 
 
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
-		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";		
+		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
+
+		public static string TorControlAuth = "TOR Control authentication method: {1}"; // TOTRANSLATE
+		public static string TorControlGuardIp = "TOR Control Guard IP detected: {1} ({2})"; // TOTRANSLATE
+		public static string TorControlNoPath = "Unable to find your TOR path."; // TOTRANSLATE
+		public static string TorControlNoIps = "Unable to find TOR first IP node of an estabilished circuit."; // TOTRANSLATE
+		public static string TorControlException = "Unable to communicate with TOR ({1}). Is TOR up and running?"; // TOTRANSLATE
 
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
@@ -271,7 +277,12 @@ namespace AirVPN.Core
 		public static string ManOptionModeProtocol = "Protocol for connection. 'UDP', 'TCP' for direct openvpn connection. 'SSH', 'SSL' for additional tunneling";
 		public static string ManOptionModePort = "Port for connection. Currently available: 443, 80, 53, 2018";
 		public static string ManOptionModeAlt = "0 to use the default entry IP, 1 or more for additional entry IP";
-
+		public static string ManOptionModeTorHost = "TOR host"; // TOTRANSLATE
+		public static string ManOptionModeTorPort = "TOR port"; // TOTRANSLATE
+		public static string ManOptionModeTorControlPort = "TOR Control port"; // TOTRANSLATE
+		public static string ManOptionModeTorControlAuth = "TOR Control need authentication. Normally the TOR Browser Bundle require authentication and accept a file cookie password"; // TOTRANSLATE
+		public static string ManOptionModeTorControlPassword = "TOR Control password. If empty, the software try to detect the file cookie password"; // TOTRANSLATE
+		
 		public static string ManOptionProxyMode = "Proxy mode: 'none', 'http' or 'socks'. 'protocol' option must be 'TCP'.";
 		public static string ManOptionProxyHost = "Proxy host";
 		public static string ManOptionProxyPort = "Proxy port";

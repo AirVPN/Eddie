@@ -339,6 +339,12 @@ namespace AirVPN.Core
             }
         }
 
+		public static string SafeString(string value)
+		{
+			Regex rgx = new Regex("[^a-zA-Z0-9 -_]");
+			value = rgx.Replace(value, "");
+			return value;
+		}
         
         public static bool SaveFile(string path, string content)
         {

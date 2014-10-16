@@ -107,6 +107,14 @@ namespace AirVPN.Core.Threads
 					int port = Engine.Storage.GetInt("mode.port");
 					int alt = Engine.Storage.GetInt("mode.alt");
 
+					if (protocol == "AUTO")
+					{
+						// PAZZO, TODO
+						protocol = Engine.Storage.GetManifestKeyValue("mode_protocol", "UDP");
+						port = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_port", "443"));
+						alt = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_alt", "0"));
+					}
+
 					if (protocol == "SSH")
 					{
 						m_proxyPort = Engine.Storage.GetInt("ssh.port");
@@ -207,13 +215,15 @@ namespace AirVPN.Core.Threads
 							alt = 0;
 						}
 
-						Engine.BuildOVPN(protocol, port, alt, m_proxyPort);
-
 						routeScope = new RouteScope(Engine.ConnectedEntryIP);
 
 						Engine.RunEventCommand("vpn.pre");
 
 						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location), true);
+
+						Engine.BuildOVPN(protocol, port, alt, m_proxyPort);
+
+						Engine.Instance.LogDebug(Engine.ConnectedOVPN); // pazzo
 
 						if (protocol == "SSH")
 						{
@@ -223,7 +233,7 @@ namespace AirVPN.Core.Threads
 						{
 							StartSslProcess();
 						}
-						else if ((protocol == "TCP") || (protocol == "UDP"))
+						else if ((protocol == "TCP") || (protocol == "UDP") || (protocol == "TOR"))
 						{
 							StartOpenVpnProcess();
 						}
@@ -917,12 +927,23 @@ namespace AirVPN.Core.Threads
 							}
 
 							if (m_reset == "")
-							{
+							{	
 								string destIp = Engine.ConnectedEntryIP;
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php", Messages.ConnectionCheckingRoute2, true);
-								Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php", Messages.ConnectionCheckingRoute2, true);								
 								Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
 								Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+								// Real IP are detected with a request over the server entry IP.
+								// Normally this is routed by openvpn outside the tunnel.
+								// But if a proxy is active, don't work.
+								if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
+								{
+									Engine.ConnectedRealIp = Messages.NotAvailable;
+								}
+								else
+								{
+									Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+								}
 							}
 						}
 						else
