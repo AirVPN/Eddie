@@ -1448,19 +1448,6 @@ namespace AirVPN.Core
 			{
 				if ((protocol == "SSH") || (protocol == "SSL"))
 				{
-					// TOCLEAN
-					/*
-					// With SSH or SSL, OpenVPN create wrong route to 127.0.0.1. We avoid that.
-
-					if (routesDefault == "in") // if 'out', route-nopull already exists
-					{
-						ovpn += "route-nopull\n";
-
-						// Catch-all routes
-						ovpn += "route 0.0.0.0 128.0.0.1 vpn_gateway\n";
-						ovpn += "route 128.0.0.1 128.0.0.1 vpn_gateway\n";
-					}
-					*/
 					ovpn += "route " + ip + " 255.255.255.255 net_gateway # VPN Entry IP\n";
 				}
 

@@ -59,10 +59,8 @@ namespace AirVPN.Core.Threads
 			RouteScope routeScope = null;
 			try
 			{
-				bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
-				alwaysRun = false; // 2.6
-								
-				routeScope = new RouteScope(Server.IpEntry, alwaysRun);
+				//bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always"); // 2.6
+				routeScope = new RouteScope(Server.IpEntry);
 
 				// Ping
 				Ping pingSender = new Ping();

@@ -29,27 +29,16 @@ namespace AirVPN.Core
 
 		public RouteScope(IpAddress address)
 		{
-			Start(address, false);
+			Start(address);
 		}
-
-		public RouteScope(IpAddress address, bool force)
-		{
-			Start(address, force);
-		}
-		
+				
 		~RouteScope()
 		{
 			End();
 		}
 
-		public void Start(IpAddress address, bool force)
+		public void Start(IpAddress address)
 		{
-			/*
-			 * // TOCLEAN: force no more used?
-			if ((force == false) && (RoutesManager.Instance.GetLockActive() == false))
-				return;
-			*/
-
 			if (address.Valid)
 			{
 				m_address = address;

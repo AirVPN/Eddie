@@ -78,7 +78,7 @@ namespace AirVPN.Core
 		public static string AlreadyRunningSshPLink = "SSH tunnel (plink) is already running.";
 		public static string AlreadyRunningSsh = "SSH tunnel is already running.";
 
-		public static string CUrlRequiredForProxySocks = "CUrl is not installed in this system, and it's required for SOCKS proxy."; // TOTRANSLATE
+		public static string CUrlRequiredForProxySocks = "CUrl is not installed on this system, and it's required for SOCKS proxy.";
 		public static string SocksProxyError = "Socks proxy connection error.";
 
 		public static string FetchTryFailed = "{1}, {2}° try failed ({3})";
@@ -110,10 +110,7 @@ namespace AirVPN.Core
 		public static string ConnectionDisconnecting = "Disconnecting";
 
 		public static string NetworkLockActivation = "Activation of Network Lock";
-		// TOCLEAN public static string NetworkLockActivationSuccess = "Network Lock activated. Default gateway: {1}"; 
-		// TOCLEAN public static string NetworkLockActivationFailed = "Unable to lock the network of this system. Please contact our staff for support."; 
 		public static string NetworkLockDeactivation = "Deactivation of Network Lock"; 
-		// TOCLEAN public static string NetworkLockDeactivationSuccess = "Network Lock deactivated"; 
 		public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; 
 		public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
 
@@ -131,14 +128,13 @@ namespace AirVPN.Core
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
 		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
-		public static string TorControlAuth = "TOR Control authentication method: {1}"; // TOTRANSLATE
-		public static string TorControlGuardIp = "TOR Control Guard IP detected: {1} ({2})"; // TOTRANSLATE
-		public static string TorControlNoPath = "Unable to find your TOR path."; // TOTRANSLATE
-		public static string TorControlNoIps = "Unable to find TOR first IP node of an estabilished circuit."; // TOTRANSLATE
-		public static string TorControlException = "Unable to communicate with TOR ({1}). Is TOR up and running?"; // TOTRANSLATE
-		public static string TorControlTest = "Test successfully. TOR Version: "; // TOTRANSLATE
-		//public static string TorControlCookieCreate = "A TOR Control cookie was created for you in path {1}"; // TOTRANSLATE TOCLEAN
-
+		public static string TorControlAuth = "TOR Control authentication method: {1}"; 
+		public static string TorControlGuardIp = "TOR Control Guard IP detected: {1} ({2})"; 
+		public static string TorControlNoPath = "Unable to find your TOR path."; 
+		public static string TorControlNoIps = "Unable to find IP address of TOR first node of an established circuit.";
+		public static string TorControlException = "Unable to communicate with TOR ({1}). Is TOR up and running?";
+		public static string TorControlTest = "Successful test. TOR Version: ";
+		
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
 		public static string TopBarConnected = "Connected to {1}";
@@ -279,11 +275,11 @@ namespace AirVPN.Core
 		public static string ManOptionModeProtocol = "Protocol for connection. 'UDP', 'TCP' for direct openvpn connection. 'SSH', 'SSL' for additional tunneling";
 		public static string ManOptionModePort = "Port for connection. Currently available: 443, 80, 53, 2018";
 		public static string ManOptionModeAlt = "0 to use the default entry IP, 1 or more for additional entry IP";
-		public static string ManOptionModeTorHost = "TOR host"; // TOTRANSLATE
-		public static string ManOptionModeTorPort = "TOR port"; // TOTRANSLATE
-		public static string ManOptionModeTorControlPort = "TOR Control port"; // TOTRANSLATE
-		public static string ManOptionModeTorControlAuth = "TOR Control need authentication. Normally the TOR Browser Bundle require authentication and accept a file cookie password"; // TOTRANSLATE
-		public static string ManOptionModeTorControlPassword = "TOR Control password. If empty, the software try to detect the file cookie password"; // TOTRANSLATE
+		public static string ManOptionModeTorHost = "TOR host";
+		public static string ManOptionModeTorPort = "TOR port";
+		public static string ManOptionModeTorControlPort = "TOR Control port";
+		public static string ManOptionModeTorControlAuth = "TOR Control needs authentication. Normally the TOR Browser Bundle requires authentication and accepts a file cookie password";
+		public static string ManOptionModeTorControlPassword = "TOR Control password. If empty, the software tries to detect the file cookie password";
 		
 		public static string ManOptionProxyMode = "Proxy mode: 'none', 'http' or 'socks'. 'protocol' option must be 'TCP'.";
 		public static string ManOptionProxyHost = "Proxy host";
