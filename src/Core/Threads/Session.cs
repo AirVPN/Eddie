@@ -108,8 +108,7 @@ namespace AirVPN.Core.Threads
 					int alt = Engine.Storage.GetInt("mode.alt");
 
 					if (protocol == "AUTO")
-					{
-						// PAZZO, TODO
+					{						
 						protocol = Engine.Storage.GetManifestKeyValue("mode_protocol", "UDP");
 						port = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_port", "443"));
 						alt = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_alt", "0"));
@@ -222,8 +221,6 @@ namespace AirVPN.Core.Threads
 						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location), true);
 
 						Engine.BuildOVPN(protocol, port, alt, m_proxyPort);
-
-						Engine.Instance.LogDebug(Engine.ConnectedOVPN); // pazzo
 
 						if (protocol == "SSH")
 						{

@@ -46,7 +46,7 @@ namespace AirVPN.Gui.Skin
 
 			OwnerDraw = true;
 			this.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(OnListViewDrawColumnHeader);
-			this.DrawSubItem += new DrawListViewSubItemEventHandler(OnListViewDrawSubItem);												
+			this.DrawSubItem += new DrawListViewSubItemEventHandler(OnListViewDrawSubItem);
 		}
 				
 		public void DrawSubItemBackground(object sender, DrawListViewSubItemEventArgs e)

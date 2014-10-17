@@ -29,15 +29,110 @@ namespace AirVPN.Core
     {
 		public static string GetControlAuthCookiePath()
 		{
-			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");
+			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");			
 			if (processes.Length > 0)
+			{	
+				// TOR Browser Bundle, Unix and Windows at 10/16/2014				
+				string path1 = Platform.Instance.NormalizePath(new FileInfo(processes[0].MainModule.FileName).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");				
+				if (File.Exists(path1))
+					return path1;
+			}
+
 			{
-				string path = Platform.Instance.NormalizePath(new FileInfo(processes[0].MainModule.FileName).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");
+				// Unix
+				string path = "/var/run/tor/control.authcookie";
 				if (File.Exists(path))
 					return path;
 			}
+
+			{
+				// Unix
+				string path = "/var/lib/tor/control_auth_cookie";				
+				if (File.Exists(path))
+					return path;
+			}
+
+			// Not found
 			return "";
 		}
+
+		public static TcpClient Connect()
+		{
+			string controlHost = Engine.Instance.Storage.Get("mode.tor.host").ToLowerInvariant().Trim();
+			int controlPort = Engine.Instance.Storage.GetInt("mode.tor.control.port");
+			string controlPassword = Engine.Instance.Storage.Get("mode.tor.control.password");
+
+			return Connect(controlHost, controlPort, controlPassword);
+		}
+
+		public static TcpClient Connect(string host, int controlPort, string controlPassword)
+		{	
+			bool controlAuthenticate = Engine.Instance.Storage.GetBool("mode.tor.control.auth");
+
+			byte[] password = System.Text.Encoding.ASCII.GetBytes(controlPassword);
+
+			if (controlAuthenticate)
+			{
+				if (controlPassword == "")
+				{
+					string path = GetControlAuthCookiePath();
+
+					if (path == "")
+						throw new Exception(Messages.TorControlNoPath);
+
+					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.TorControlAuth, "Cookie, from " + path));
+
+					password = File.ReadAllBytes(path);
+				}
+				else
+				{
+					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.TorControlAuth, "Password"));
+				}
+			}
+			
+			TcpClient s = new TcpClient();
+			s.Connect(host, controlPort);
+
+			if (controlAuthenticate)
+			{
+				Write(s, "AUTHENTICATE \"");
+				Write(s, password);
+				Write(s, "\"\n");
+			}
+			Flush(s);
+
+			return s;			
+		}
+
+		public static string Test(string host, int controlPort, string controlPassword)
+		{
+			string result = "";
+			try
+			{
+				TcpClient s = Connect(host, controlPort, controlPassword);
+
+				Write(s, "getinfo version\n");
+
+				result = Read(s);
+
+				if ((result.IndexOf("250 OK") != -1) && (result.IndexOf("version=") != -1))
+				{
+					result = result.Replace("250-", "").Trim();
+					result = result.Replace("250 OK", "");
+					result = result.Replace("version=", "");
+					result = Messages.TorControlTest + result.Trim();
+				}
+				
+			}
+			catch (Exception e)
+			{
+				result = Messages.Format(Messages.TorControlException, e.Message);
+			}
+
+			Engine.Instance.Log(Engine.LogType.Verbose, "TOR Test: " + result);
+			return result;
+		}
+
 		public static List<string> GetGuardIps()
 		{
 			try
@@ -50,35 +145,10 @@ namespace AirVPN.Core
 					return new List<string>();
 				}
 
-				int controlPort = Engine.Instance.Storage.GetInt("mode.tor.control.port");
-				string controlPassword = Engine.Instance.Storage.Get("mode.tor.control.password");
-				bool controlAuthenticate = Engine.Instance.Storage.GetBool("mode.tor.control.auth");
-
-				byte[] password = System.Text.Encoding.ASCII.GetBytes(controlPassword);
-
-				if ((controlAuthenticate) && (controlPassword == ""))
-				{
-					string path = GetControlAuthCookiePath();
-
-					if (path == "")
-						throw new Exception(Messages.TorControlNoPath);
-
-					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.TorControlAuth, "Cookie, from " + path));							
-
-					password = File.ReadAllBytes(path);
-				}
-
 				List<string> ips = new List<string>();
 
-				TcpClient s = new TcpClient();
-				s.Connect(controlHost, controlPort);
-
-				if (controlAuthenticate)
-				{					
-					Write(s, "AUTHENTICATE \"");
-					Write(s, password);
-					Write(s, "\"\n");
-				}
+				TcpClient s = Connect();
+				
 				Write(s, "getinfo circuit-status\n");
 				Flush(s);
 				string circuits = Read(s);

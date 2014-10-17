@@ -1229,24 +1229,39 @@ namespace AirVPN.Core
 					}
 					else
 					{
-						string mode = Storage.Get("proxy.mode").ToLowerInvariant();
-						if (mode == "http")
+						string proxyMode = Storage.Get("proxy.mode").ToLowerInvariant();
+						string proxyHost = Storage.Get("proxy.host");
+						int proxyPort = Storage.GetInt("proxy.port");
+						string proxyAuth = Storage.Get("proxy.auth").ToLowerInvariant();
+						string proxyLogin = Storage.Get("proxy.login");
+						string proxyPassword = Storage.Get("proxy.password");
+
+						if (Storage.Get("mode.protocol").ToUpperInvariant() == "TOR")
 						{
-							System.Net.WebProxy proxy = new System.Net.WebProxy(Storage.Get("proxy.host"), Storage.GetInt("proxy.port"));
+							proxyMode = "socks";
+							proxyHost = Storage.Get("mode.tor.host");
+							proxyPort = Storage.GetInt("mode.tor.port");
+							proxyLogin = "";
+							proxyPassword = "";
+						}
+
+						if (proxyMode == "http")
+						{
+							System.Net.WebProxy proxy = new System.Net.WebProxy(proxyHost, proxyPort);
 							//string proxyUrl = "http://" + Storage.Get("proxy.host") + ":" + Storage.GetInt("proxy.port").ToString() + "/";
 							//System.Net.WebProxy proxy = new System.Net.WebProxy(proxyUrl, true);					
 
-							if (Storage.Get("proxy.auth").ToLowerInvariant() != "none")
+							if (proxyAuth != "none")
 							{
 								//wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), Storage.Get("proxy.host"));
-								wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), "");
-								proxy.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), "");
+								wc.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
+								proxy.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
 								wc.UseDefaultCredentials = false;
 							}
 
 							wc.Proxy = proxy;
 						}
-						else if (mode == "socks")
+						else if (proxyMode == "socks")
 						{
 							// Socks Proxy supported with a curl shell
 							if (Software.CurlPath == "")
@@ -1256,10 +1271,10 @@ namespace AirVPN.Core
 							else
 							{
 								TemporaryFile fileOutput = new TemporaryFile("bin");
-								string args = " \"" + url + "\" --socks4a " + Storage.Get("proxy.host") + ":" + Storage.Get("proxy.port");
-								if (Storage.Get("proxy.auth").ToLowerInvariant() != "none")
+								string args = " \"" + url + "\" --socks4a " + proxyHost + ":" + proxyPort;
+								if (proxyAuth != "none")
 								{
-									args += " -U " + Storage.Get("proxy.login") + ":" + Storage.Get("proxy.password");
+									args += " -U " + proxyLogin + ":" + proxyPassword;
 								}
 								args += " -o \"" + fileOutput.Path + "\"";
 								args += " --progress-bar";
@@ -1277,7 +1292,7 @@ namespace AirVPN.Core
 								}
 							}
 						}
-						else if (mode != "detect")
+						else if (proxyMode != "detect")
 						{
 							wc.Proxy = null;
 						}

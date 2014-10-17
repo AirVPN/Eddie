@@ -136,6 +136,8 @@ namespace AirVPN.Core
 		public static string TorControlNoPath = "Unable to find your TOR path."; // TOTRANSLATE
 		public static string TorControlNoIps = "Unable to find TOR first IP node of an estabilished circuit."; // TOTRANSLATE
 		public static string TorControlException = "Unable to communicate with TOR ({1}). Is TOR up and running?"; // TOTRANSLATE
+		public static string TorControlTest = "Test successfully. TOR Version: "; // TOTRANSLATE
+		//public static string TorControlCookieCreate = "A TOR Control cookie was created for you in path {1}"; // TOTRANSLATE TOCLEAN
 
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
@@ -172,10 +174,10 @@ namespace AirVPN.Core
 		public static string WindowsTosReject = "Reject";
 		public static string WindowsFrontMessageTitle = "Important Message";
 		public static string WindowsFrontMessageAccept = "Ok";
-		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations"; 
-		public static string WindowsSettingsTitle = "Settings";
-		public static string WindowsSettingsRouteTitle = "Settings - Route";
-		public static string WindowsSettingsEventTitle = "Settings - Event";
+		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations";
+		public static string WindowsSettingsTitle = "Preferences";
+		public static string WindowsSettingsRouteTitle = "Preferences - Route";
+		public static string WindowsSettingsEventTitle = "Preferences - Event";
 		public static string WindowsSettingsLoggingHelp = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation.\nRelative to data path. For multiple logs with different paths, separe it with a semicolon ;\n\nAdvanced example:\nlogs/single.log;logs/months/airvpn_%d.log;logs/week/airvpn_%w.log";
 		public static string WindowsSettingsRouteLockHelp = "IP in 'Outside Tunnel' are also unlocked when Network Lock feature is active."; 
 		public static string WindowsSettingsRouteEditIp = "Specify single IP address (ex. 1.2.3.4) or\nCIDR range (ex. 1.2.3.4/24) or\nsubnet range (ex. 1.2.3.4/255.255.255.128)";

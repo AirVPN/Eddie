@@ -46,6 +46,20 @@ namespace AirVPN.Core
             return path;            
         }
 
+		public static string GetRandomToken()
+		{
+			Random random = new Random((int)DateTime.Now.Ticks);
+			StringBuilder builder = new StringBuilder();
+			char ch;
+			for (int i = 0; i < 32; i++)
+			{
+				ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
+				builder.Append(ch);
+			}
+
+			return builder.ToString();
+		}
+
 		public static string GetNameFromPath(string path)
         {
             return new FileInfo(path).Name;

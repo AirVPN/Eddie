@@ -85,6 +85,17 @@ namespace AirVPN.Gui.Forms
 			this.cmdTos = new AirVPN.Gui.Skin.Button();
 			this.chkAutoStart = new AirVPN.Gui.Skin.CheckBox();
 			this.tabMode = new AirVPN.Gui.Skin.TabPage();
+			this.txtModeTorControlPassword = new AirVPN.Gui.Skin.TextBox();
+			this.label16 = new AirVPN.Gui.Skin.Label();
+			this.cmdModeTorTest = new AirVPN.Gui.Skin.Button();
+			this.txtModeTorHost = new AirVPN.Gui.Skin.TextBox();
+			this.lblModeTorHost = new AirVPN.Gui.Skin.Label();
+			this.txtModeTorControlPort = new AirVPN.Gui.Skin.TextBox();
+			this.lblModeTorControlPort = new AirVPN.Gui.Skin.Label();
+			this.txtModeTorPort = new AirVPN.Gui.Skin.TextBox();
+			this.lblModeTorPort = new AirVPN.Gui.Skin.Label();
+			this.optModeAutomatic = new AirVPN.Gui.Skin.RadioButton();
+			this.optModeTOR = new AirVPN.Gui.Skin.RadioButton();
 			this.cmdModeDocs = new AirVPN.Gui.Skin.Button();
 			this.optModeTCP443 = new AirVPN.Gui.Skin.RadioButton();
 			this.optModeUDP443 = new AirVPN.Gui.Skin.RadioButton();
@@ -108,6 +119,11 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP80Alt = new AirVPN.Gui.Skin.RadioButton();
 			this.optModeUDP443Alt = new AirVPN.Gui.Skin.RadioButton();
 			this.label5 = new AirVPN.Gui.Skin.Label();
+			this.label9 = new AirVPN.Gui.Skin.Label();
+			this.label10 = new AirVPN.Gui.Skin.Label();
+			this.label13 = new AirVPN.Gui.Skin.Label();
+			this.label14 = new AirVPN.Gui.Skin.Label();
+			this.label15 = new AirVPN.Gui.Skin.Label();
 			this.tabProxy = new AirVPN.Gui.Skin.TabPage();
 			this.label12 = new AirVPN.Gui.Skin.Label();
 			this.lblProxyAuthentication = new AirVPN.Gui.Skin.Label();
@@ -149,8 +165,7 @@ namespace AirVPN.Gui.Forms
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
-			this.optModeTOR = new AirVPN.Gui.Skin.RadioButton();
-			this.optModeAutomatic = new AirVPN.Gui.Skin.RadioButton();
+			this.label17 = new AirVPN.Gui.Skin.Label();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -800,6 +815,15 @@ namespace AirVPN.Gui.Forms
 			// tabMode
 			// 
 			this.tabMode.BackColor = System.Drawing.Color.White;
+			this.tabMode.Controls.Add(this.txtModeTorControlPassword);
+			this.tabMode.Controls.Add(this.label16);
+			this.tabMode.Controls.Add(this.cmdModeTorTest);
+			this.tabMode.Controls.Add(this.txtModeTorHost);
+			this.tabMode.Controls.Add(this.lblModeTorHost);
+			this.tabMode.Controls.Add(this.txtModeTorControlPort);
+			this.tabMode.Controls.Add(this.lblModeTorControlPort);
+			this.tabMode.Controls.Add(this.txtModeTorPort);
+			this.tabMode.Controls.Add(this.lblModeTorPort);
 			this.tabMode.Controls.Add(this.optModeAutomatic);
 			this.tabMode.Controls.Add(this.optModeTOR);
 			this.tabMode.Controls.Add(this.cmdModeDocs);
@@ -825,11 +849,130 @@ namespace AirVPN.Gui.Forms
 			this.tabMode.Controls.Add(this.optModeUDP80Alt);
 			this.tabMode.Controls.Add(this.optModeUDP443Alt);
 			this.tabMode.Controls.Add(this.label5);
+			this.tabMode.Controls.Add(this.label9);
+			this.tabMode.Controls.Add(this.label10);
+			this.tabMode.Controls.Add(this.label13);
+			this.tabMode.Controls.Add(this.label14);
+			this.tabMode.Controls.Add(this.label15);
 			this.tabMode.Location = new System.Drawing.Point(4, 24);
 			this.tabMode.Name = "tabMode";
 			this.tabMode.Size = new System.Drawing.Size(630, 291);
 			this.tabMode.TabIndex = 3;
 			this.tabMode.Text = "Protocols";
+			// 
+			// txtModeTorControlPassword
+			// 
+			this.txtModeTorControlPassword.Location = new System.Drawing.Point(499, 254);
+			this.txtModeTorControlPassword.Name = "txtModeTorControlPassword";
+			this.txtModeTorControlPassword.Size = new System.Drawing.Size(57, 20);
+			this.txtModeTorControlPassword.TabIndex = 68;
+			// 
+			// label16
+			// 
+			this.label16.BackColor = System.Drawing.Color.Transparent;
+			this.label16.ForeColor = System.Drawing.Color.Black;
+			this.label16.Location = new System.Drawing.Point(433, 257);
+			this.label16.Name = "label16";
+			this.label16.Size = new System.Drawing.Size(64, 20);
+			this.label16.TabIndex = 67;
+			this.label16.Text = "Password:";
+			this.label16.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// cmdModeTorTest
+			// 
+			this.cmdModeTorTest.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdModeTorTest.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdModeTorTest.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdModeTorTest.FlatAppearance.BorderSize = 0;
+			this.cmdModeTorTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdModeTorTest.Location = new System.Drawing.Point(565, 254);
+			this.cmdModeTorTest.Name = "cmdModeTorTest";
+			this.cmdModeTorTest.Size = new System.Drawing.Size(49, 20);
+			this.cmdModeTorTest.TabIndex = 66;
+			this.cmdModeTorTest.Text = "Test";
+			this.cmdModeTorTest.UseVisualStyleBackColor = true;
+			this.cmdModeTorTest.Click += new System.EventHandler(this.cmdModeTorTest_Click);
+			// 
+			// txtModeTorHost
+			// 
+			this.txtModeTorHost.Location = new System.Drawing.Point(119, 254);
+			this.txtModeTorHost.Name = "txtModeTorHost";
+			this.txtModeTorHost.Size = new System.Drawing.Size(85, 20);
+			this.txtModeTorHost.TabIndex = 45;
+			// 
+			// lblModeTorHost
+			// 
+			this.lblModeTorHost.BackColor = System.Drawing.Color.Transparent;
+			this.lblModeTorHost.ForeColor = System.Drawing.Color.Black;
+			this.lblModeTorHost.Location = new System.Drawing.Point(72, 257);
+			this.lblModeTorHost.Name = "lblModeTorHost";
+			this.lblModeTorHost.Size = new System.Drawing.Size(45, 20);
+			this.lblModeTorHost.TabIndex = 44;
+			this.lblModeTorHost.Text = "Host:";
+			this.lblModeTorHost.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// txtModeTorControlPort
+			// 
+			this.txtModeTorControlPort.Location = new System.Drawing.Point(384, 254);
+			this.txtModeTorControlPort.Name = "txtModeTorControlPort";
+			this.txtModeTorControlPort.Size = new System.Drawing.Size(38, 20);
+			this.txtModeTorControlPort.TabIndex = 45;
+			// 
+			// lblModeTorControlPort
+			// 
+			this.lblModeTorControlPort.BackColor = System.Drawing.Color.Transparent;
+			this.lblModeTorControlPort.ForeColor = System.Drawing.Color.Black;
+			this.lblModeTorControlPort.Location = new System.Drawing.Point(296, 257);
+			this.lblModeTorControlPort.Name = "lblModeTorControlPort";
+			this.lblModeTorControlPort.Size = new System.Drawing.Size(84, 20);
+			this.lblModeTorControlPort.TabIndex = 44;
+			this.lblModeTorControlPort.Text = "Control Port:";
+			this.lblModeTorControlPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// txtModeTorPort
+			// 
+			this.txtModeTorPort.Location = new System.Drawing.Point(249, 254);
+			this.txtModeTorPort.Name = "txtModeTorPort";
+			this.txtModeTorPort.Size = new System.Drawing.Size(38, 20);
+			this.txtModeTorPort.TabIndex = 43;
+			// 
+			// lblModeTorPort
+			// 
+			this.lblModeTorPort.BackColor = System.Drawing.Color.Transparent;
+			this.lblModeTorPort.ForeColor = System.Drawing.Color.Black;
+			this.lblModeTorPort.Location = new System.Drawing.Point(202, 257);
+			this.lblModeTorPort.Name = "lblModeTorPort";
+			this.lblModeTorPort.Size = new System.Drawing.Size(45, 20);
+			this.lblModeTorPort.TabIndex = 42;
+			this.lblModeTorPort.Text = "Port:";
+			this.lblModeTorPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// optModeAutomatic
+			// 
+			this.optModeAutomatic.AutoSize = true;
+			this.optModeAutomatic.BackColor = System.Drawing.Color.Transparent;
+			this.optModeAutomatic.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.optModeAutomatic.ForeColor = System.Drawing.Color.Black;
+			this.optModeAutomatic.Location = new System.Drawing.Point(8, 11);
+			this.optModeAutomatic.Name = "optModeAutomatic";
+			this.optModeAutomatic.Size = new System.Drawing.Size(96, 20);
+			this.optModeAutomatic.TabIndex = 41;
+			this.optModeAutomatic.Text = "Automatic";
+			this.optModeAutomatic.UseVisualStyleBackColor = false;
+			this.optModeAutomatic.CheckedChanged += new System.EventHandler(this.optModeAutomatic_CheckedChanged);
+			// 
+			// optModeTOR
+			// 
+			this.optModeTOR.AutoSize = true;
+			this.optModeTOR.BackColor = System.Drawing.Color.Transparent;
+			this.optModeTOR.ForeColor = System.Drawing.Color.Black;
+			this.optModeTOR.Location = new System.Drawing.Point(18, 255);
+			this.optModeTOR.Name = "optModeTOR";
+			this.optModeTOR.Size = new System.Drawing.Size(50, 17);
+			this.optModeTOR.TabIndex = 40;
+			this.optModeTOR.Text = "TOR";
+			this.optModeTOR.UseVisualStyleBackColor = false;
+			this.optModeTOR.CheckedChanged += new System.EventHandler(this.optModeTOR_CheckedChanged);
 			// 
 			// cmdModeDocs
 			// 
@@ -839,7 +982,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdModeDocs.FlatAppearance.BorderSize = 0;
 			this.cmdModeDocs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdModeDocs.Image = global::AirVPN.Lib.Forms.Properties.Resources.help;
-			this.cmdModeDocs.Location = new System.Drawing.Point(512, 18);
+			this.cmdModeDocs.Location = new System.Drawing.Point(523, 7);
 			this.cmdModeDocs.Name = "cmdModeDocs";
 			this.cmdModeDocs.Size = new System.Drawing.Size(100, 30);
 			this.cmdModeDocs.TabIndex = 39;
@@ -852,7 +995,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP443.BackColor = System.Drawing.Color.Transparent;
 			this.optModeTCP443.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.optModeTCP443.ForeColor = System.Drawing.Color.Black;
-			this.optModeTCP443.Location = new System.Drawing.Point(317, 15);
+			this.optModeTCP443.Location = new System.Drawing.Point(317, 11);
 			this.optModeTCP443.Name = "optModeTCP443";
 			this.optModeTCP443.Size = new System.Drawing.Size(149, 19);
 			this.optModeTCP443.TabIndex = 31;
@@ -865,7 +1008,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP443.BackColor = System.Drawing.Color.Transparent;
 			this.optModeUDP443.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.optModeUDP443.ForeColor = System.Drawing.Color.Black;
-			this.optModeUDP443.Location = new System.Drawing.Point(137, 15);
+			this.optModeUDP443.Location = new System.Drawing.Point(137, 11);
 			this.optModeUDP443.Name = "optModeUDP443";
 			this.optModeUDP443.Size = new System.Drawing.Size(152, 19);
 			this.optModeUDP443.TabIndex = 30;
@@ -883,6 +1026,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP2018.TabIndex = 29;
 			this.optModeTCP2018.Text = "Protocol TCP, port 2018";
 			this.optModeTCP2018.UseVisualStyleBackColor = false;
+			this.optModeTCP2018.CheckedChanged += new System.EventHandler(this.optModeTCP2018_CheckedChanged);
 			// 
 			// optModeUDP2018
 			// 
@@ -895,6 +1039,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP2018.TabIndex = 28;
 			this.optModeUDP2018.Text = "Protocol UDP, port 2018";
 			this.optModeUDP2018.UseVisualStyleBackColor = false;
+			this.optModeUDP2018.CheckedChanged += new System.EventHandler(this.optModeUDP2018_CheckedChanged);
 			// 
 			// optModeTCP53
 			// 
@@ -907,6 +1052,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP53.TabIndex = 27;
 			this.optModeTCP53.Text = "Protocol TCP, port 53";
 			this.optModeTCP53.UseVisualStyleBackColor = false;
+			this.optModeTCP53.CheckedChanged += new System.EventHandler(this.optModeTCP53_CheckedChanged);
 			// 
 			// optModeUDP53
 			// 
@@ -919,6 +1065,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP53.TabIndex = 26;
 			this.optModeUDP53.Text = "Protocol UDP, port 53";
 			this.optModeUDP53.UseVisualStyleBackColor = false;
+			this.optModeUDP53.CheckedChanged += new System.EventHandler(this.optModeUDP53_CheckedChanged);
 			// 
 			// optModeTCP80
 			// 
@@ -931,6 +1078,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP80.TabIndex = 25;
 			this.optModeTCP80.Text = "Protocol TCP, port 80";
 			this.optModeTCP80.UseVisualStyleBackColor = false;
+			this.optModeTCP80.CheckedChanged += new System.EventHandler(this.optModeTCP80_CheckedChanged);
 			// 
 			// optModeUDP80
 			// 
@@ -943,6 +1091,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP80.TabIndex = 24;
 			this.optModeUDP80.Text = "Protocol UDP, port 80";
 			this.optModeUDP80.UseVisualStyleBackColor = false;
+			this.optModeUDP80.CheckedChanged += new System.EventHandler(this.optModeUDP80_CheckedChanged);
 			// 
 			// label11
 			// 
@@ -959,66 +1108,71 @@ namespace AirVPN.Gui.Forms
 			this.optModeSSH53.AutoSize = true;
 			this.optModeSSH53.BackColor = System.Drawing.Color.Transparent;
 			this.optModeSSH53.ForeColor = System.Drawing.Color.Black;
-			this.optModeSSH53.Location = new System.Drawing.Point(447, 159);
+			this.optModeSSH53.Location = new System.Drawing.Point(450, 147);
 			this.optModeSSH53.Name = "optModeSSH53";
 			this.optModeSSH53.Size = new System.Drawing.Size(61, 17);
 			this.optModeSSH53.TabIndex = 22;
 			this.optModeSSH53.Text = "Port 53";
 			this.optModeSSH53.UseVisualStyleBackColor = false;
+			this.optModeSSH53.CheckedChanged += new System.EventHandler(this.optModeSSH53_CheckedChanged);
 			// 
 			// optModeSSH80
 			// 
 			this.optModeSSH80.AutoSize = true;
 			this.optModeSSH80.BackColor = System.Drawing.Color.Transparent;
 			this.optModeSSH80.ForeColor = System.Drawing.Color.Black;
-			this.optModeSSH80.Location = new System.Drawing.Point(447, 136);
+			this.optModeSSH80.Location = new System.Drawing.Point(450, 124);
 			this.optModeSSH80.Name = "optModeSSH80";
 			this.optModeSSH80.Size = new System.Drawing.Size(61, 17);
 			this.optModeSSH80.TabIndex = 21;
 			this.optModeSSH80.Text = "Port 80";
 			this.optModeSSH80.UseVisualStyleBackColor = false;
+			this.optModeSSH80.CheckedChanged += new System.EventHandler(this.optModeSSH80_CheckedChanged);
 			// 
 			// optModeSSH22Alt
 			// 
 			this.optModeSSH22Alt.AutoSize = true;
 			this.optModeSSH22Alt.BackColor = System.Drawing.Color.Transparent;
 			this.optModeSSH22Alt.ForeColor = System.Drawing.Color.Black;
-			this.optModeSSH22Alt.Location = new System.Drawing.Point(447, 113);
+			this.optModeSSH22Alt.Location = new System.Drawing.Point(450, 101);
 			this.optModeSSH22Alt.Name = "optModeSSH22Alt";
 			this.optModeSSH22Alt.Size = new System.Drawing.Size(160, 17);
 			this.optModeSSH22Alt.TabIndex = 20;
 			this.optModeSSH22Alt.Text = "Port 22 (Alternative Entry-IP)";
 			this.optModeSSH22Alt.UseVisualStyleBackColor = false;
+			this.optModeSSH22Alt.CheckedChanged += new System.EventHandler(this.optModeSSH22Alt_CheckedChanged);
 			// 
 			// optModeSSH22
 			// 
 			this.optModeSSH22.AutoSize = true;
 			this.optModeSSH22.BackColor = System.Drawing.Color.Transparent;
 			this.optModeSSH22.ForeColor = System.Drawing.Color.Black;
-			this.optModeSSH22.Location = new System.Drawing.Point(447, 90);
+			this.optModeSSH22.Location = new System.Drawing.Point(450, 78);
 			this.optModeSSH22.Name = "optModeSSH22";
 			this.optModeSSH22.Size = new System.Drawing.Size(61, 17);
 			this.optModeSSH22.TabIndex = 19;
 			this.optModeSSH22.Text = "Port 22";
 			this.optModeSSH22.UseVisualStyleBackColor = false;
+			this.optModeSSH22.CheckedChanged += new System.EventHandler(this.optModeSSH22_CheckedChanged);
 			// 
 			// optModeSSL443
 			// 
 			this.optModeSSL443.AutoSize = true;
 			this.optModeSSL443.BackColor = System.Drawing.Color.Transparent;
 			this.optModeSSL443.ForeColor = System.Drawing.Color.Black;
-			this.optModeSSL443.Location = new System.Drawing.Point(447, 210);
+			this.optModeSSL443.Location = new System.Drawing.Point(450, 210);
 			this.optModeSSL443.Name = "optModeSSL443";
 			this.optModeSSL443.Size = new System.Drawing.Size(67, 17);
 			this.optModeSSL443.TabIndex = 18;
 			this.optModeSSL443.Text = "Port 443";
 			this.optModeSSL443.UseVisualStyleBackColor = false;
+			this.optModeSSL443.CheckedChanged += new System.EventHandler(this.optModeSSL443_CheckedChanged);
 			// 
 			// lblModeSSH
 			// 
 			this.lblModeSSH.BackColor = System.Drawing.Color.Transparent;
 			this.lblModeSSH.ForeColor = System.Drawing.Color.Black;
-			this.lblModeSSH.Location = new System.Drawing.Point(433, 69);
+			this.lblModeSSH.Location = new System.Drawing.Point(436, 57);
 			this.lblModeSSH.Name = "lblModeSSH";
 			this.lblModeSSH.Size = new System.Drawing.Size(221, 18);
 			this.lblModeSSH.TabIndex = 17;
@@ -1028,7 +1182,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblModeSSL.BackColor = System.Drawing.Color.Transparent;
 			this.lblModeSSL.ForeColor = System.Drawing.Color.Black;
-			this.lblModeSSL.Location = new System.Drawing.Point(433, 187);
+			this.lblModeSSL.Location = new System.Drawing.Point(436, 192);
 			this.lblModeSSL.Name = "lblModeSSL";
 			this.lblModeSSL.Size = new System.Drawing.Size(221, 15);
 			this.lblModeSSL.TabIndex = 16;
@@ -1045,6 +1199,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeTCP2018Alt.TabIndex = 15;
 			this.optModeTCP2018Alt.Text = "Protocol TCP, port 2018";
 			this.optModeTCP2018Alt.UseVisualStyleBackColor = false;
+			this.optModeTCP2018Alt.CheckedChanged += new System.EventHandler(this.optModeTCP2018Alt_CheckedChanged);
 			// 
 			// optModeUDP2018Alt
 			// 
@@ -1057,6 +1212,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP2018Alt.TabIndex = 14;
 			this.optModeUDP2018Alt.Text = "Protocol UDP, port 2018";
 			this.optModeUDP2018Alt.UseVisualStyleBackColor = false;
+			this.optModeUDP2018Alt.CheckedChanged += new System.EventHandler(this.optModeUDP2018Alt_CheckedChanged);
 			// 
 			// optModeUDP53Alt
 			// 
@@ -1069,6 +1225,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP53Alt.TabIndex = 13;
 			this.optModeUDP53Alt.Text = "Protocol UDP, port 53";
 			this.optModeUDP53Alt.UseVisualStyleBackColor = false;
+			this.optModeUDP53Alt.CheckedChanged += new System.EventHandler(this.optModeUDP53Alt_CheckedChanged);
 			// 
 			// optModeUDP80Alt
 			// 
@@ -1081,6 +1238,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP80Alt.TabIndex = 12;
 			this.optModeUDP80Alt.Text = "Protocol UDP, port 80";
 			this.optModeUDP80Alt.UseVisualStyleBackColor = false;
+			this.optModeUDP80Alt.CheckedChanged += new System.EventHandler(this.optModeUDP80Alt_CheckedChanged);
 			// 
 			// optModeUDP443Alt
 			// 
@@ -1095,6 +1253,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeUDP443Alt.TabStop = true;
 			this.optModeUDP443Alt.Text = "Protocol UDP, port 443";
 			this.optModeUDP443Alt.UseVisualStyleBackColor = false;
+			this.optModeUDP443Alt.CheckedChanged += new System.EventHandler(this.optModeUDP443Alt_CheckedChanged);
 			// 
 			// label5
 			// 
@@ -1106,9 +1265,65 @@ namespace AirVPN.Gui.Forms
 			this.label5.TabIndex = 8;
 			this.label5.Text = "Alternative Entry IP, \r\nif your ISP blocks the standard Entry IP";
 			// 
+			// label9
+			// 
+			this.label9.BackColor = System.Drawing.Color.Transparent;
+			this.label9.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.label9.ForeColor = System.Drawing.Color.Black;
+			this.label9.Location = new System.Drawing.Point(8, 246);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(614, 35);
+			this.label9.TabIndex = 46;
+			this.label9.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// label10
+			// 
+			this.label10.BackColor = System.Drawing.Color.Transparent;
+			this.label10.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.label10.ForeColor = System.Drawing.Color.Black;
+			this.label10.Location = new System.Drawing.Point(8, 41);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(171, 195);
+			this.label10.TabIndex = 47;
+			this.label10.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// label13
+			// 
+			this.label13.BackColor = System.Drawing.Color.Transparent;
+			this.label13.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.label13.ForeColor = System.Drawing.Color.Black;
+			this.label13.Location = new System.Drawing.Point(201, 41);
+			this.label13.Name = "label13";
+			this.label13.Size = new System.Drawing.Size(216, 195);
+			this.label13.TabIndex = 48;
+			this.label13.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// label14
+			// 
+			this.label14.BackColor = System.Drawing.Color.Transparent;
+			this.label14.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.label14.ForeColor = System.Drawing.Color.Black;
+			this.label14.Location = new System.Drawing.Point(429, 41);
+			this.label14.Name = "label14";
+			this.label14.Size = new System.Drawing.Size(191, 135);
+			this.label14.TabIndex = 49;
+			this.label14.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// label15
+			// 
+			this.label15.BackColor = System.Drawing.Color.Transparent;
+			this.label15.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.label15.ForeColor = System.Drawing.Color.Black;
+			this.label15.Location = new System.Drawing.Point(429, 186);
+			this.label15.Name = "label15";
+			this.label15.Size = new System.Drawing.Size(191, 48);
+			this.label15.TabIndex = 50;
+			this.label15.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
 			// tabProxy
 			// 
 			this.tabProxy.BackColor = System.Drawing.Color.White;
+			this.tabProxy.Controls.Add(this.label17);
 			this.tabProxy.Controls.Add(this.label12);
 			this.tabProxy.Controls.Add(this.lblProxyAuthentication);
 			this.tabProxy.Controls.Add(this.cboProxyAuthentication);
@@ -1139,8 +1354,7 @@ namespace AirVPN.Gui.Forms
 			this.label12.Name = "label12";
 			this.label12.Size = new System.Drawing.Size(223, 43);
 			this.label12.TabIndex = 44;
-			this.label12.Text = "     Note: UDP, SSH and SSL connections will not be available if you use a proxy." +
-    "";
+			this.label12.Text = "       UDP, SSH and SSL connections will not be available if you use a proxy.";
 			// 
 			// lblProxyAuthentication
 			// 
@@ -1592,30 +1806,17 @@ namespace AirVPN.Gui.Forms
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
 			// 
-			// optModeTOR
+			// label17
 			// 
-			this.optModeTOR.AutoSize = true;
-			this.optModeTOR.BackColor = System.Drawing.Color.Transparent;
-			this.optModeTOR.ForeColor = System.Drawing.Color.Black;
-			this.optModeTOR.Location = new System.Drawing.Point(214, 238);
-			this.optModeTOR.Name = "optModeTOR";
-			this.optModeTOR.Size = new System.Drawing.Size(50, 17);
-			this.optModeTOR.TabIndex = 40;
-			this.optModeTOR.Text = "TOR";
-			this.optModeTOR.UseVisualStyleBackColor = false;
-			// 
-			// optModeAutomatic
-			// 
-			this.optModeAutomatic.AutoSize = true;
-			this.optModeAutomatic.BackColor = System.Drawing.Color.Transparent;
-			this.optModeAutomatic.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.optModeAutomatic.ForeColor = System.Drawing.Color.Black;
-			this.optModeAutomatic.Location = new System.Drawing.Point(8, 15);
-			this.optModeAutomatic.Name = "optModeAutomatic";
-			this.optModeAutomatic.Size = new System.Drawing.Size(96, 20);
-			this.optModeAutomatic.TabIndex = 41;
-			this.optModeAutomatic.Text = "Automatic";
-			this.optModeAutomatic.UseVisualStyleBackColor = false;
+			this.label17.BackColor = System.Drawing.Color.Transparent;
+			this.label17.ForeColor = System.Drawing.Color.Black;
+			this.label17.Image = ((System.Drawing.Image)(resources.GetObject("label17.Image")));
+			this.label17.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.label17.Location = new System.Drawing.Point(387, 72);
+			this.label17.Name = "label17";
+			this.label17.Size = new System.Drawing.Size(223, 43);
+			this.label17.TabIndex = 45;
+			this.label17.Text = "       If you use TOR, you need to set up your proxy inside TOR configuration";
 			// 
 			// Settings
 			// 
@@ -1777,6 +1978,21 @@ namespace AirVPN.Gui.Forms
 		private Skin.Button cmdLockHelp;
 		private Skin.RadioButton optModeAutomatic;
 		private Skin.RadioButton optModeTOR;
+		private Skin.Label label9;
+		private Skin.TextBox txtModeTorControlPort;
+		private Skin.Label lblModeTorControlPort;
+		private Skin.TextBox txtModeTorPort;
+		private Skin.Label lblModeTorPort;
+		private Skin.TextBox txtModeTorHost;
+		private Skin.Label lblModeTorHost;
+		private Skin.Label label10;
+		private Skin.Label label13;
+		private Skin.Label label14;
+		private Skin.Label label15;
+		private Skin.Button cmdModeTorTest;
+		private Skin.TextBox txtModeTorControlPassword;
+		private Skin.Label label16;
+		private Skin.Label label17;
 
     }
 }
