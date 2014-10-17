@@ -52,6 +52,13 @@ namespace AirVPN.Core
 					return path;
 			}
 
+			{
+				// OSX, TorBrowser 4.0 and above
+				string path = "/Applications/TorBrowser.app/TorBrowser/Data/Tor/control_auth_cookie";				
+				if (File.Exists(path))
+					return path;
+			}
+
 			// Not found
 			return "";
 		}

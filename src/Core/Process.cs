@@ -33,7 +33,7 @@ namespace AirVPN.Core
 				{
 					check = HasExited;
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
 					// TOCHECK, maybe check1 = true?
 					//Engine.Instance.Log(e);

@@ -64,6 +64,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton ChkLoggingEnabled { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkModeAutomatic { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton ChkModeSsh22 { get; set; }
 
 		[Outlet]
@@ -92,6 +95,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkModeTcp80 { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkModeTor { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkModeUdp2018 { get; set; }
@@ -142,6 +148,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton CmdModeHelp { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdModeTorTest { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdRouteAdd { get; set; }
 
 		[Outlet]
@@ -187,6 +196,18 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSTextField TxtLoggingPath { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField TxtModeTorControlPassword { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtModeTorControlPort { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtModeTorHost { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtModeTorPort { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextField TxtProxyHost { get; set; }
 
 		[Outlet]
@@ -200,6 +221,16 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (ChkModeAutomatic != null) {
+				ChkModeAutomatic.Dispose ();
+				ChkModeAutomatic = null;
+			}
+
+			if (ChkModeTor != null) {
+				ChkModeTor.Dispose ();
+				ChkModeTor = null;
+			}
+
 			if (CboAdvancedDnsSwitchMode != null) {
 				CboAdvancedDnsSwitchMode.Dispose ();
 				CboAdvancedDnsSwitchMode = null;
@@ -415,6 +446,11 @@ namespace AirVPN.UI.Osx
 				CmdModeHelp = null;
 			}
 
+			if (CmdModeTorTest != null) {
+				CmdModeTorTest.Dispose ();
+				CmdModeTorTest = null;
+			}
+
 			if (CmdRouteAdd != null) {
 				CmdRouteAdd.Dispose ();
 				CmdRouteAdd = null;
@@ -488,6 +524,26 @@ namespace AirVPN.UI.Osx
 			if (TxtLoggingPath != null) {
 				TxtLoggingPath.Dispose ();
 				TxtLoggingPath = null;
+			}
+
+			if (TxtModeTorControlPassword != null) {
+				TxtModeTorControlPassword.Dispose ();
+				TxtModeTorControlPassword = null;
+			}
+
+			if (TxtModeTorControlPort != null) {
+				TxtModeTorControlPort.Dispose ();
+				TxtModeTorControlPort = null;
+			}
+
+			if (TxtModeTorHost != null) {
+				TxtModeTorHost.Dispose ();
+				TxtModeTorHost = null;
+			}
+
+			if (TxtModeTorPort != null) {
+				TxtModeTorPort.Dispose ();
+				TxtModeTorPort = null;
 			}
 
 			if (TxtProxyHost != null) {
