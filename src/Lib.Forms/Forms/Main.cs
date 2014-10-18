@@ -177,6 +177,8 @@ namespace AirVPN.Gui.Forms
 
 				lstStats.Items.Add(statsEntryItem);
 				m_statsItems[statsEntry.Key] = statsEntryItem;
+
+				StatsChange(statsEntry); // Without this, glitch in listview under Linux
 			}
 
 			cboSpeedResolution.Items.Clear();

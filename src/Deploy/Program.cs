@@ -120,14 +120,16 @@ namespace Deploy
 
 			if (SO == "linux")
 			{
-				ListPackages.Add(new Package("linux", "x86", "mono"));
-				ListPackages.Add(new Package("linux", "x64", "mono"));
-				ListPackages.Add(new Package("linux", "x86", "portable"));
-				ListPackages.Add(new Package("linux", "x64", "portable"));
-				ListPackages.Add(new Package("linux", "x86", "debian"));
-				ListPackages.Add(new Package("linux", "x64", "debian"));				
-				ListPackages.Add(new Package("linux", "x86", "rpm"));				
-				ListPackages.Add(new Package("linux", "x64", "rpm"));				
+				string arch = Shell("uname -m");
+
+				if (arch == "x86_64")
+					arch = "x64";
+				else
+					arch = "x86";
+				ListPackages.Add(new Package("linux", arch, "mono"));
+				ListPackages.Add(new Package("linux", arch, "portable"));
+				ListPackages.Add(new Package("linux", arch, "debian"));
+				ListPackages.Add(new Package("linux", arch, "rpm"));				
 			}
 
 			if (SO == "Osx") {
@@ -451,7 +453,7 @@ namespace Deploy
 			if (SO == "linux")
 			{
 				Console.WriteLine("If running from a developing VM, maybe need:");
-				Console.WriteLine("cp ../../../../repository/airvpn_linux_* /media/sf_airvpn/repository/");
+				Console.WriteLine("cp ../../../../repository/airvpn_linux_* /media/sf_airvpn-client/repository/");
 			}
 
 			Pause();

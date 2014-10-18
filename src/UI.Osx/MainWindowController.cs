@@ -389,7 +389,7 @@ namespace AirVPN.UI.Osx
 
 			MnuTrayQuit.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.RequestStop();
+				Shutdown();
 			};
 
 			
@@ -402,6 +402,22 @@ namespace AirVPN.UI.Osx
 			Engine.OnRefreshUi ();
 
 			RequestAttention ();
+		}
+
+		public bool Shutdown()
+		{
+			if (Engine.Instance.Storage.GetBool ("gui.exit_confirm") == true) {
+				if (GuiUtils.MessageYesNo (Messages.ExitConfirm) == false) {
+					return false;
+				}
+			}
+			if (windowAbout != null)
+				windowAbout.Close ();
+			if (windowPreferences != null)
+				windowPreferences.Close ();
+
+			Engine.Instance.RequestStop ();
+			return true;
 		}
 
 		public void RefreshUi (Engine.RefreshUiMode mode)
@@ -540,7 +556,7 @@ namespace AirVPN.UI.Osx
 				RequestAttention ();
 
 			if (l.Type == AirVPN.Core.Engine.LogType.Fatal)
-				MessageAlert (msg);
+				GuiUtils.MessageBox (msg);
 		}
 
 		public void EnabledUI()
@@ -636,38 +652,7 @@ namespace AirVPN.UI.Osx
 
 		}
 
-		public void MessageAlert(string message)
-		{
-			MessageAlert (message, "");
-		}
 
-		public void MessageAlert(string message, string title)
-		{
-			NSAlert alert = new NSAlert();
-			alert.MessageText = title;
-			alert.InformativeText = message;
-			alert.RunModal();
-		}
-
-		public bool MessageYesNo(string message)
-		{
-			return MessageYesNo (message, "");
-		}
-
-		public bool MessageYesNo(string message, string title)
-		{
-			NSAlert alert = new NSAlert();
-			alert.MessageText = title;
-			alert.InformativeText = message;
-			alert.AddButton ("Yes");
-			alert.AddButton ("No");
-			int r = alert.RunModal();
-
-			if (r == 1000)
-				return true;
-
-			return false;
-		}
 
 		public void Notification(string title, string notes)
 		{
@@ -766,7 +751,7 @@ namespace AirVPN.UI.Osx
 		{
 			string msg = Messages.NetworkLockWarning;
 
-			if(MessageYesNo(msg))
+			if(GuiUtils.MessageYesNo(msg))
 			{
 				Engine.Instance.Storage.SetBool ("netlock.active", true);
 
@@ -867,7 +852,7 @@ namespace AirVPN.UI.Osx
 				string [] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes (pboardTypes, null);
 				NSPasteboard.GeneralPasteboard.SetStringForType (t, pboardTypes [0]);
-				MessageAlert (Messages.LogsCopyClipboardDone);
+				GuiUtils.MessageBox (Messages.LogsCopyClipboardDone);
 			}
 		}
 
@@ -885,7 +870,7 @@ namespace AirVPN.UI.Osx
 				if (result == 1) {
 					System.IO.File.WriteAllText (panel.Url.Path, t);
 			
-					MessageAlert (Messages.LogsSaveToFileDone);
+					GuiUtils.MessageBox (Messages.LogsSaveToFileDone);
 				}
 			}
 		}

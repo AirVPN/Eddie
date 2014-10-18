@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
@@ -23,6 +23,7 @@
                 <outlet property="ChkGeneralOsxNotifications" destination="EG2-CQ-O27" id="b6b-1T-A4y"/>
                 <outlet property="ChkGeneralStartLast" destination="2Nm-Y7-BeU" id="XdO-Hi-CWR"/>
                 <outlet property="ChkLoggingEnabled" destination="IxZ-rQ-MFk" id="wmR-Qd-v4G"/>
+                <outlet property="ChkModeAutomatic" destination="h8Y-x2-Tii" id="zHq-lg-9a2"/>
                 <outlet property="ChkModeSsh22" destination="MmP-uv-2Gd" id="fhi-gY-L3b"/>
                 <outlet property="ChkModeSsh22Alt" destination="QiV-Ij-WbU" id="ebs-SO-qCS"/>
                 <outlet property="ChkModeSsh53" destination="v58-DO-eU9" id="giT-4m-boa"/>
@@ -33,6 +34,7 @@
                 <outlet property="ChkModeTcp443" destination="ksa-An-SQo" id="E1I-gf-ZJR"/>
                 <outlet property="ChkModeTcp53" destination="FPS-yp-hQQ" id="Fy7-sw-Ubk"/>
                 <outlet property="ChkModeTcp80" destination="A5a-En-W0Y" id="1wu-fa-auO"/>
+                <outlet property="ChkModeTor" destination="6X3-HB-3cA" id="svD-9A-YTN"/>
                 <outlet property="ChkModeUdp2018" destination="2Qb-ek-tJe" id="T0q-LI-90t"/>
                 <outlet property="ChkModeUdp2018Alt" destination="hNz-8c-EP0" id="F2v-Wz-yYw"/>
                 <outlet property="ChkModeUdp443" destination="CYV-lN-MbD" id="Xn7-qo-9yB"/>
@@ -50,6 +52,7 @@
                 <outlet property="CmdGeneralTos" destination="umI-pg-cJh" id="yEJ-FP-2qU"/>
                 <outlet property="CmdLockHelp" destination="5AI-c0-dFt" id="gSo-Do-D4r"/>
                 <outlet property="CmdModeHelp" destination="M7S-Xd-x1D" id="fcm-OB-OEF"/>
+                <outlet property="CmdModeTorTest" destination="ue3-uL-DPM" id="q1u-PF-wf4"/>
                 <outlet property="CmdRouteAdd" destination="dgh-7v-6Hk" id="Zld-79-69a"/>
                 <outlet property="CmdRouteEdit" destination="OjN-Zs-Oif" id="CAh-Ju-Db4"/>
                 <outlet property="CmdRouteRemove" destination="DQi-F5-OlE" id="nsA-g1-heD"/>
@@ -65,6 +68,10 @@
                 <outlet property="TxtLockAllowedIPS" destination="DHA-pR-pKS" id="hzN-4x-l01"/>
                 <outlet property="TxtLoggingComputedPath" destination="c9X-34-ftI" id="5cS-z6-JLg"/>
                 <outlet property="TxtLoggingPath" destination="XTE-TQ-fIh" id="pfa-S3-l3h"/>
+                <outlet property="TxtModeTorControlPassword" destination="ZEo-W2-iVY" id="CGM-wB-Law"/>
+                <outlet property="TxtModeTorControlPort" destination="0uQ-m9-n7Y" id="OAf-Mz-aJU"/>
+                <outlet property="TxtModeTorHost" destination="f4X-SJ-dIn" id="Gre-0l-pif"/>
+                <outlet property="TxtModeTorPort" destination="HhY-CN-B32" id="Mib-Ma-lJ8"/>
                 <outlet property="TxtProxyHost" destination="H8o-LB-562" id="E0U-ah-uI9"/>
                 <outlet property="TxtProxyLogin" destination="XX0-r6-vrR" id="Rs8-8r-Xby"/>
                 <outlet property="TxtProxyPassword" destination="kbr-od-lkG" id="TMh-an-VAu"/>
@@ -163,7 +170,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button verticalHuggingPriority="750" id="M7S-Xd-x1D">
-                                            <rect key="frame" x="474" y="209" width="69" height="19"/>
+                                            <rect key="frame" x="474" y="219" width="69" height="19"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="roundRect" title="Help" bezelStyle="roundedRect" image="tip" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eoa-VK-F2y">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -171,185 +178,323 @@
                                             </buttonCell>
                                         </button>
                                         <button id="CYV-lN-MbD">
-                                            <rect key="frame" x="37" y="210" width="239" height="18"/>
+                                            <rect key="frame" x="141" y="219" width="158" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Protocol UDP; port 443" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Dvo-49-TSD">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system" size="16"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="FGG-dV-y4J">
-                                            <rect key="frame" x="15" y="13" width="157" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol TCP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="E9I-4A-w55">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
                                         </button>
-                                        <button id="2Qb-ek-tJe">
-                                            <rect key="frame" x="15" y="33" width="157" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol UDP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="rZx-2S-vkZ">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="FPS-yp-hQQ">
-                                            <rect key="frame" x="15" y="53" width="157" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol TCP, port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="nDt-8L-O4H">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="zAv-yJ-2VG">
-                                            <rect key="frame" x="15" y="73" width="157" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol UDP, port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="JoA-4V-cCD">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="A5a-En-W0Y">
-                                            <rect key="frame" x="15" y="93" width="157" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol TCP, port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="PEm-n6-ENP">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="KhG-Ud-Qaa">
-                                            <rect key="frame" x="15" y="113" width="157" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol UDP, port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mbc-XN-59A">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="YNt-Cd-MD5">
-                                            <rect key="frame" x="15" y="132" width="137" height="26"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Alternative ports, if your ISP applies caps or blocks" id="CwX-28-Mm5">
-                                                <font key="font" metaFont="miniSystem"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <button id="S7k-Hu-dSz">
-                                            <rect key="frame" x="192" y="33" width="166" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol TCP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="QrJ-MW-Lcm">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="hNz-8c-EP0">
-                                            <rect key="frame" x="192" y="53" width="166" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol UDP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ua8-F6-TfX">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="s91-ta-N3a">
-                                            <rect key="frame" x="192" y="73" width="166" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol UDP, port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="srU-6d-ggd">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="3gr-91-wdI">
-                                            <rect key="frame" x="192" y="93" width="166" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol UDP, port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ElH-pN-zv5">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="MJU-MJ-M74">
-                                            <rect key="frame" x="192" y="113" width="166" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Protocol UDP, Port 443" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="QgA-5e-WyJ">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="SCi-hU-WQd">
-                                            <rect key="frame" x="192" y="132" width="137" height="26"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Alternative Entry IP, if your ISP blocks the standard Entry IP" id="2qf-1b-HY3">
-                                                <font key="font" metaFont="miniSystem"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <button id="v58-DO-eU9">
-                                            <rect key="frame" x="389" y="53" width="131" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="UGn-mu-A8F">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="YCe-dz-k9n">
-                                            <rect key="frame" x="389" y="73" width="123" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="jNY-1J-ceK">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="QiV-Ij-WbU">
-                                            <rect key="frame" x="389" y="93" width="156" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Port 22 (Alt. Entry-IP)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="LnE-9e-DgF">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <button id="MmP-uv-2Gd">
-                                            <rect key="frame" x="389" y="113" width="123" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Port 22" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="wF6-2y-jO8">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="KaG-eF-z8e">
-                                            <rect key="frame" x="389" y="137" width="137" height="11"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="SSH Tunnel" id="FsL-Y6-0Sp">
-                                                <font key="font" metaFont="miniSystem"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <button id="e4p-hl-3Hc">
-                                            <rect key="frame" x="389" y="10" width="123" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" title="Port 443" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="b7Y-kO-A2P">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="zRK-fu-quv">
-                                            <rect key="frame" x="389" y="32" width="137" height="11"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="SSL Tunnel" id="LnI-8X-DjU">
-                                                <font key="font" metaFont="miniSystem"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
                                         <button id="ksa-An-SQo">
-                                            <rect key="frame" x="37" y="184" width="239" height="18"/>
+                                            <rect key="frame" x="299" y="220" width="169" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Protocol TCP, port 443" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ntc-Rz-JCc">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="smallSystem"/>
+                                            </buttonCell>
+                                        </button>
+                                        <button id="h8Y-x2-Tii">
+                                            <rect key="frame" x="15" y="220" width="239" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" title="Automatic" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="RxE-ur-gzM">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system" size="16"/>
                                             </buttonCell>
                                         </button>
+                                        <box autoresizesSubviews="NO" title="Alternative ports" borderType="line" id="wAb-a5-Zjm">
+                                            <rect key="frame" x="14" y="48" width="177" height="165"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="175" height="149"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="YNt-Cd-MD5">
+                                                        <rect key="frame" x="4" y="128" width="168" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="if your ISP applies caps or blocks" id="CwX-28-Mm5">
+                                                            <font key="font" metaFont="miniSystem"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <button id="FGG-dV-y4J">
+                                                        <rect key="frame" x="9" y="12" width="157" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol TCP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="E9I-4A-w55">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="2Qb-ek-tJe">
+                                                        <rect key="frame" x="9" y="32" width="157" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol UDP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="rZx-2S-vkZ">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="FPS-yp-hQQ">
+                                                        <rect key="frame" x="9" y="52" width="157" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol TCP, port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="nDt-8L-O4H">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="zAv-yJ-2VG">
+                                                        <rect key="frame" x="9" y="72" width="157" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol UDP, port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="JoA-4V-cCD">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="A5a-En-W0Y">
+                                                        <rect key="frame" x="9" y="92" width="157" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol TCP, port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="PEm-n6-ENP">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="KhG-Ud-Qaa">
+                                                        <rect key="frame" x="9" y="112" width="157" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol UDP, port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mbc-XN-59A">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" title="Alternative Entry IP" borderType="line" id="qhF-zf-tdS">
+                                            <rect key="frame" x="193" y="48" width="177" height="165"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="175" height="149"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="wGt-V2-FY1">
+                                                        <rect key="frame" x="4" y="128" width="168" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="if your ISP blocks the first Entry IP" id="cRI-nw-Lls">
+                                                            <font key="font" metaFont="miniSystem"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <button id="S7k-Hu-dSz">
+                                                        <rect key="frame" x="9" y="31" width="166" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol TCP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="QrJ-MW-Lcm">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="hNz-8c-EP0">
+                                                        <rect key="frame" x="9" y="51" width="166" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol UDP, port 2018" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ua8-F6-TfX">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="s91-ta-N3a">
+                                                        <rect key="frame" x="9" y="71" width="166" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol UDP, port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="srU-6d-ggd">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="3gr-91-wdI">
+                                                        <rect key="frame" x="9" y="91" width="166" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol UDP, port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ElH-pN-zv5">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="MJU-MJ-M74">
+                                                        <rect key="frame" x="9" y="111" width="166" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Protocol UDP, Port 443" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="QgA-5e-WyJ">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" title="TOR" borderType="line" id="wSR-Mq-4JE">
+                                            <rect key="frame" x="14" y="0.0" width="532" height="50"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="530" height="34"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <button id="6X3-HB-3cA">
+                                                        <rect key="frame" x="7" y="10" width="22" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="i25-Yb-P4n">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="0uX-KH-vaj">
+                                                        <rect key="frame" x="31" y="9" width="33" height="17"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Host:" id="dG1-tv-slz">
+                                                            <font key="font" metaFont="label"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField verticalHuggingPriority="750" id="f4X-SJ-dIn">
+                                                        <rect key="frame" x="67" y="8" width="75" height="22"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="NnS-5A-ydI">
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="VgV-vd-FNC">
+                                                        <rect key="frame" x="347" y="9" width="60" height="17"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Password:" id="TKX-O2-NQX">
+                                                            <font key="font" metaFont="label"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField verticalHuggingPriority="750" id="ZEo-W2-iVY">
+                                                        <rect key="frame" x="408" y="8" width="60" height="22"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="ZZT-Te-wtg">
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="6d8-Hj-jlt">
+                                                        <rect key="frame" x="228" y="9" width="66" height="17"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Control Port:" id="Jmq-l8-vk2">
+                                                            <font key="font" metaFont="label"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField verticalHuggingPriority="750" id="0uQ-m9-n7Y">
+                                                        <rect key="frame" x="297" y="8" width="50" height="22"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="tVT-0R-wbf">
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="68g-uq-HpN">
+                                                        <rect key="frame" x="140" y="9" width="33" height="17"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Port:" id="NWp-QW-0Y4">
+                                                            <font key="font" metaFont="label"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField verticalHuggingPriority="750" id="HhY-CN-B32">
+                                                        <rect key="frame" x="176" y="8" width="50" height="22"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Iim-VG-5FJ">
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <button verticalHuggingPriority="750" id="ue3-uL-DPM">
+                                                        <rect key="frame" x="473" y="9" width="49" height="19"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="roundRect" title="Test" bezelStyle="roundedRect" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Mg3-4F-mSs">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="cellTitle"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" title="SSL Tunnel" borderType="line" id="M7V-iz-FhZ">
+                                            <rect key="frame" x="372" y="48" width="177" height="55"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="175" height="39"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <button id="e4p-hl-3Hc">
+                                                        <rect key="frame" x="11" y="13" width="123" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Port 443" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="b7Y-kO-A2P">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" title="SSH Tunnel" borderType="line" id="PFn-mS-c8K">
+                                            <rect key="frame" x="372" y="99" width="177" height="114"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="175" height="98"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <button id="v58-DO-eU9">
+                                                        <rect key="frame" x="9" y="12" width="131" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Port 53" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="UGn-mu-A8F">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="YCe-dz-k9n">
+                                                        <rect key="frame" x="9" y="32" width="123" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Port 80" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="jNY-1J-ceK">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="QiV-Ij-WbU">
+                                                        <rect key="frame" x="9" y="52" width="156" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Port 22 (Alt. Entry-IP)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="LnE-9e-DgF">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button id="MmP-uv-2Gd">
+                                                        <rect key="frame" x="9" y="72" width="123" height="18"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="check" title="Port 22" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="wF6-2y-jO8">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="smallSystem"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </box>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -479,6 +624,24 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="3wY-ZT-26F">
+                                            <rect key="frame" x="15" y="113" width="530" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="UDP, SSH and SSL connections will not be available if you use a proxy." id="WhY-3x-mKq">
+                                                <font key="font" metaFont="label"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Gyv-dK-0X7">
+                                            <rect key="frame" x="16" y="88" width="530" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="If you use TOR, you need to set up your proxy inside TOR configuration" id="oMd-nr-rQJ">
+                                                <font key="font" metaFont="label"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -548,11 +711,11 @@
                                             <rect key="frame" x="17" y="78" width="486" height="137"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="qsX-9I-HV2">
-                                                <rect key="frame" x="1" y="17" width="484" height="119"/>
+                                                <rect key="frame" x="1" y="17" width="484" height="104"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="O9e-J7-wSv" id="UUg-4W-rPw">
-                                                        <rect key="frame" x="0.0" y="0.0" width="492" height="119"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="492" height="104"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -613,7 +776,7 @@
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
                                             <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="yev-KU-ycF">
-                                                <rect key="frame" x="1" y="120" width="484" height="16"/>
+                                                <rect key="frame" x="1" y="121" width="484" height="15"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="lLq-b6-hTq">
@@ -671,7 +834,7 @@
                                                             <button id="VqV-KG-Dpk">
                                                                 <rect key="frame" x="15" y="119" width="490" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <buttonCell key="cell" type="check" title="Checking if the tunnel use AirVPN DNS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mzq-0z-eGo">
+                                                                <buttonCell key="cell" type="check" title="Check if the tunnel use AirVPN DNS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mzq-0z-eGo">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
@@ -679,7 +842,7 @@
                                                             <button id="ouA-M6-NDw">
                                                                 <rect key="frame" x="15" y="99" width="510" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <buttonCell key="cell" type="check" title="Checking if the tunnel effectively works" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Be-AX-N2P">
+                                                                <buttonCell key="cell" type="check" title="Check if the tunnel effectively works" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Be-AX-N2P">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                 </buttonCell>
@@ -908,10 +1071,10 @@
                                                                 <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                             </box>
                                                             <box autoresizesSubviews="NO" title="Default:" borderType="line" id="PMQ-Ef-3Fn">
-                                                                <rect key="frame" x="260" y="41" width="252" height="153"/>
+                                                                <rect key="frame" x="260.0000001612475" y="41" width="252" height="153"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" heightSizable="YES"/>
                                                                 <view key="contentView">
-                                                                    <rect key="frame" x="1" y="1" width="250" height="137"/>
+                                                                    <rect key="frame" x="0.99999983875250109" y="1" width="250" height="137"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="NjY-dC-GsQ">

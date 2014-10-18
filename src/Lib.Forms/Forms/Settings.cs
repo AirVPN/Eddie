@@ -86,7 +86,9 @@ namespace AirVPN.Gui.Forms
             }
 
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
-			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");            
+			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
+
+			chkAdvancedPingerAlways.Visible = false;
 						
 			ReadOptions();
 
@@ -121,7 +123,11 @@ namespace AirVPN.Gui.Forms
             int port = s.GetInt("mode.port");
             int alternate = s.GetInt("mode.alt");
 
-            if( (protocol == "UDP") && (port == 443) && (alternate == 0) )
+			if(protocol == "AUTO")
+			{
+				optModeAutomatic.Checked = true;
+			}
+            else if( (protocol == "UDP") && (port == 443) && (alternate == 0) )
 			{
 				optModeUDP443.Checked = true;
             }
@@ -193,10 +199,19 @@ namespace AirVPN.Gui.Forms
             {
             	optModeSSL443.Checked = true;
             }
-            else
+            else if(protocol == "TOR")
+			{
+				optModeTOR.Checked = true;
+			}
+			else
             {
-                optModeUDP443.Checked = true;
+                optModeAutomatic.Checked = true;
             }
+
+			txtModeTorHost.Text = s.Get("mode.tor.host");
+			txtModeTorPort.Text = s.Get("mode.tor.port");
+			txtModeTorControlPort.Text = s.Get("mode.tor.control.port");
+			txtModeTorControlPassword.Text = s.Get("mode.tor.control.password");
 
             // Proxy
             cboProxyMode.Text = s.Get("proxy.mode");
@@ -330,7 +345,13 @@ namespace AirVPN.Gui.Forms
             int port = 0;
             int alternate = 0;
 
-            if (optModeUDP443.Checked)
+			if (optModeAutomatic.Checked)
+			{
+				protocol = "AUTO";
+				port = 443;
+				alternate = 0;
+			}
+            else if (optModeUDP443.Checked)
             {
                 protocol = "UDP";
                 port = 443;
@@ -438,17 +459,28 @@ namespace AirVPN.Gui.Forms
                 port = 443;
                 alternate = 1;
             }
-            else
-            {
-                // Unexpected...
-                protocol = "UDP";
-                port = 443;
-                alternate = 0;
-            }
+			else if (optModeTOR.Checked)
+			{
+				protocol = "TOR";
+				port = 2018;
+				alternate = 0;
+			}
+			else
+			{
+				// Unexpected...
+				protocol = "AUTO";
+				port = 443;
+				alternate = 0;
+			}
 
             s.Set("mode.protocol", protocol.ToUpperInvariant());
             s.SetInt("mode.port", port);
             s.SetInt("mode.alt", alternate);
+
+			s.Set("mode.tor.host", txtModeTorHost.Text);
+			s.SetInt("mode.tor.port", Conversions.ToInt32(txtModeTorPort.Text));
+			s.SetInt("mode.tor.control.port", Conversions.ToInt32(txtModeTorControlPort.Text));
+			s.Set("mode.tor.control.password", txtModeTorControlPassword.Text);
 
             // Proxy
             s.Set("proxy.mode", cboProxyMode.Text);
@@ -560,7 +592,7 @@ namespace AirVPN.Gui.Forms
         public void EnableIde()
         {
             bool proxy = (cboProxyMode.Text != "None");
-            txtProxyHost.Enabled = proxy;
+			txtProxyHost.Enabled = proxy;
             txtProxyPort.Enabled = proxy;
             cboProxyAuthentication.Enabled = proxy;
             txtProxyLogin.Enabled = ((proxy) && (cboProxyAuthentication.Text != "None"));
@@ -573,6 +605,7 @@ namespace AirVPN.Gui.Forms
             optModeSSH53.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
             optModeSSH80.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
             optModeSSL443.Enabled = ( (proxy == false) && (m_modeSslEnabled) );
+			optModeTOR.Enabled = (proxy == false);
 
             optModeUDP2018.Enabled = (proxy == false);
             optModeUDP2018Alt.Enabled = (proxy == false);
@@ -582,6 +615,12 @@ namespace AirVPN.Gui.Forms
             optModeUDP53Alt.Enabled = (proxy == false);
             optModeUDP80.Enabled = (proxy == false);
             optModeUDP80Alt.Enabled = (proxy == false);
+
+			txtModeTorHost.Enabled = optModeTOR.Checked;
+			txtModeTorPort.Enabled = optModeTOR.Checked;
+			txtModeTorControlPort.Enabled = optModeTOR.Checked;
+			txtModeTorControlPassword.Enabled = optModeTOR.Checked;
+			cmdModeTorTest.Enabled = optModeTOR.Checked;
 
             cmdRouteAdd.Enabled = true;
             mnuRoutesAdd.Enabled = cmdRouteAdd.Enabled;
@@ -619,10 +658,9 @@ namespace AirVPN.Gui.Forms
 
         private void cmdExeBrowse_Click(object sender, EventArgs e)
         {
-            if (openExeDialog.ShowDialog() == DialogResult.OK)
-            {
-                txtExePath.Text = openExeDialog.FileName;
-            }
+			string result = GuiUtils.FilePicker();
+			if (result != "")
+				txtExePath.Text = result;
         }
 
         private void cmdOk_Click(object sender, EventArgs e)
@@ -805,6 +843,101 @@ namespace AirVPN.Gui.Forms
 		}
 
 		private void cboRoutesOtherwise_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void cmdModeTorTest_Click(object sender, EventArgs e)
+		{
+			MessageBox.Show(TorControl.Test(txtModeTorHost.Text, Conversions.ToInt32(txtModeTorControlPort.Text), txtModeTorControlPassword.Text));
+		}
+
+		private void optModeAutomatic_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeUDP80_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeTCP80_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeUDP53_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeTCP53_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeUDP2018_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeTCP2018_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeUDP443Alt_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeUDP80Alt_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeUDP53Alt_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeUDP2018Alt_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeTCP2018Alt_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeSSH22_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeSSH22Alt_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeSSH80_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeSSH53_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeSSL443_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void optModeTOR_CheckedChanged(object sender, EventArgs e)
 		{
 			EnableIde();
 		}

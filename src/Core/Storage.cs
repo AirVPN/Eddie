@@ -286,9 +286,14 @@ namespace AirVPN.Core
 			SetDefaultBool("log.file.enabled", false, NotInMan);
 			SetDefault("log.file.path", "logs/airvpn_%y-%m-%d.log", NotInMan);
 
-			SetDefault("mode.protocol", "UDP", Messages.ManOptionModeProtocol);
+			SetDefault("mode.protocol", "AUTO", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
 			SetDefaultInt("mode.alt", 0, Messages.ManOptionModeAlt);
+			SetDefault("mode.tor.host", "127.0.0.1", Messages.ManOptionModeTorHost);
+			SetDefaultInt("mode.tor.port", 9150, Messages.ManOptionModeTorPort);
+			SetDefaultInt("mode.tor.control.port", 9151, Messages.ManOptionModeTorControlPort);
+			SetDefaultBool("mode.tor.control.auth", true, Messages.ManOptionModeTorControlAuth);
+			SetDefault("mode.tor.control.password", "", Messages.ManOptionModeTorControlPassword);
 
 			SetDefault("proxy.mode", "None", Messages.ManOptionProxyMode);
 			SetDefault("proxy.host", "127.0.0.1", Messages.ManOptionProxyHost);
@@ -303,6 +308,7 @@ namespace AirVPN.Core
 			SetDefault("executables.openvpn", "", Messages.ManOptionExecutablesOpenVpn);
 			SetDefault("executables.ssh", "", Messages.ManOptionExecutablesSsh);
 			SetDefault("executables.ssl", "", Messages.ManOptionExecutablesSsl);
+			SetDefault("executables.curl", "", Messages.ManOptionExecutablesCurl);
 			SetDefault("openvpn.custom", "", Messages.ManOptionOpenVpnCustom);
 			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
 			
@@ -528,10 +534,11 @@ namespace AirVPN.Core
 		{
 			try
 			{
+				Engine.Instance.Log(Engine.LogType.Verbose, Messages.ManifestUpdate);
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters["act"] = "manifest";
 
-				XmlDocument xmlDoc = AirExchange.Fetch(parameters);
+				XmlDocument xmlDoc = AirExchange.Fetch(Messages.ManifestUpdate, parameters);
 				lock (Manifest)
 				{
 					if(Manifest == null)
@@ -544,6 +551,8 @@ namespace AirVPN.Core
 				}
 
 				Engine.Instance.PostManifestUpdate();
+
+				Engine.Instance.Log(Engine.LogType.Verbose, Messages.ManifestDone);
 
 				return "";
 			}

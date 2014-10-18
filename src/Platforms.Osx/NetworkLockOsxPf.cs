@@ -31,6 +31,8 @@ namespace AirVPN.Platforms
 
 		private bool m_prevActive = false;
 
+		private bool m_connected = false;
+
 		public override string GetCode()
 		{
 			return "osx_pf";
@@ -38,7 +40,7 @@ namespace AirVPN.Platforms
 
 		public override string GetName()
 		{
-			return "OSX PF";
+			return "OS X - PF";
 		}
 
 		public override bool GetSupport()
@@ -55,17 +57,18 @@ namespace AirVPN.Platforms
 
 			m_prevActive = false;
 			string report = Exec("pfctl -si");
-			if (report.IndexOf("Status: Enabled") != -1)
+			if (report.IndexOf ("Status: Enabled") != -1)
 				m_prevActive = true;
 			else if (report.IndexOf("Status: Disabled") != -1)
 				m_prevActive = false;
 			else
 				throw new Exception("Unexpected PF Firewall status");
 
-			string reportActivation = Exec("pfctl -e");
-			if(reportActivation.IndexOf("pf enabled") == -1)
-				throw new Exception("Unexpected PF Firewall activation failure");
-
+			if (m_prevActive == false) {
+				string reportActivation = Exec ("pfctl -e");
+				if (reportActivation.IndexOf ("pf enabled") == -1)
+					throw new Exception ("Unexpected PF Firewall activation failure");
+			}
 			m_filePfConf = new TemporaryFile("pf.conf");
 
 			OnUpdateIps();
@@ -81,7 +84,7 @@ namespace AirVPN.Platforms
 			base.Deactivation();
 
 			// Restore system rules
-			Exec("sudo pfctl -v -f \"/etc/pf.conf\"");
+			Exec("pfctl -v -f \"/etc/pf.conf\"");
 
 			if (m_filePfConf != null)
 			{
@@ -132,9 +135,15 @@ namespace AirVPN.Platforms
 			pf += "# Allow all on lo0\n";			
 			//pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
 			pf += "pass quick on lo0 all\n";
-			pf += "# Everything tunneled\n";
-			pf += "pass out quick inet from 10.0.0.0/8 to any flags S/SA keep state\n";
-			pf += "pass quick inet from any to 10.0.0.0/8 flags S/SA keep state\n";
+					
+			if (m_connected) {
+				pf += "# Everything tunneled\n";	
+				string ifn = Engine.Instance.ConnectedVpnInterfaceId;
+				pf += "pass out quick on " + ifn + " inet from 10.0.0.0/8 to any flags S/SA keep state\n";
+				pf += "pass quick on " + ifn + " inet from any to 10.0.0.0/8 flags S/SA keep state\n";
+			} else {
+				pf += "# Not yet connected to VPN\n";	
+			}
 			/*
 			pf += "pass out quick inet on tun+ from 10.4.0.0/16 to any flags S/SA keep state\n";
 			pf += "pass out quick inet on tun+ from 10.5.0.0/16 to any flags S/SA keep state\n";
@@ -148,10 +157,26 @@ namespace AirVPN.Platforms
 
 			if (Utils.SaveFile(m_filePfConf.Path, pf))
 			{
-				Engine.Instance.Log(Engine.LogType.Verbose, "PF rules updated, reloading");
+				Engine.Instance.Log(Engine.LogType.Verbose, "OS X - PF rules updated, reloading");
 
-				Exec("sudo pfctl -v -f \"" + m_filePfConf.Path + "\"");
+				Exec("pfctl -v -f \"" + m_filePfConf.Path + "\"");
 			}
+		}
+
+		public override void OnVpnEstablished()
+		{
+			base.OnVpnEstablished();
+
+			m_connected = true;
+			OnUpdateIps();
+		}
+
+		public override void OnVpnDisconnected()
+		{
+			base.OnVpnDisconnected();
+
+			m_connected = false;
+			OnUpdateIps();
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)

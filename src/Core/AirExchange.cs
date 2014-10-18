@@ -34,7 +34,7 @@ namespace AirVPN.Core
 		// 'S' is the AES 256 bit one-time session key, crypted with a RSA 4096 public-key.
 		// 'D' is the data from the client to our server, crypted with the AES.
 		// The server answer is XML decrypted with the same AES session.
-		public static XmlDocument Fetch(string host, Dictionary<string, string> parameters)
+		public static XmlDocument FetchHost(string host, Dictionary<string, string> parameters)
 		{
 			// AES				
 			RijndaelManaged rijAlg = new RijndaelManaged();
@@ -70,7 +70,7 @@ namespace AirVPN.Core
 
 			// HTTP Fetch
 			string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
-			byte[] fetchResponse = Engine.Instance.FetchUrl(url);
+			byte[] fetchResponse = Engine.Instance.FetchUrl(url, "", 1, Engine.Instance.IsConnected());
 
 			// Decrypt answer
 
@@ -88,7 +88,7 @@ namespace AirVPN.Core
 			return doc;			
 		}
 
-		public static XmlDocument Fetch(Dictionary<string, string> parameters)
+		public static XmlDocument Fetch(string title, Dictionary<string, string> parameters)
 		{
 			parameters["login"] = Engine.Instance.Storage.Get("login");
 			parameters["password"] = Engine.Instance.Storage.Get("password");
@@ -106,15 +106,18 @@ namespace AirVPN.Core
 				}
 			}
 
-			// Debugging - TOCLEAN
-			//hosts.Clear();
-			//hosts.Add("invalidhostname.airvpn.org");
-			//hosts.Add("54.246.124.152");
-
+			// Debugging
+			/*
+			hosts.Clear();
+			hosts.Add("invalidhostname.airvpn.org");
+			hosts.Add("54.246.124.152");
+			*/
+			
 			string firstError = "";
-
+			int hostN = 0;
 			foreach (string host in hosts)
 			{
+				hostN++;
 				if (Utils.IsIP(host) == false)
 				{
 					// If locked network are enabled, skip the hostname and try only by IP.
@@ -126,7 +129,7 @@ namespace AirVPN.Core
 				try
 				{
 					RouteScope routeScope = new RouteScope(host);
-					XmlDocument xmlDoc = AirExchange.Fetch(host, parameters);
+					XmlDocument xmlDoc = AirExchange.FetchHost(host, parameters);
 					routeScope.End();
 					if (xmlDoc == null)
 						throw new Exception("No answer.");
@@ -138,7 +141,12 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
-					Engine.Instance.Log(Engine.LogType.Verbose, e.Message);
+					string info = e.Message;
+					string proxyMode = Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant();
+					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
+					if (proxyMode != "none")
+						info += ", with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
+					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")
 						firstError = e.Message;

@@ -37,11 +37,14 @@ namespace AirVPN.Core
 		public static string CheckingRequired = "Unavailable (Check required)";
 		public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
 		public static string WaitingLatencyTestsStep = "({1} to go)";
+		public static string ExchangeTryFailed = "{1}, {2}° try failed ({3})";
 		public static string AuthorizeLogin = "Checking login ...";
+		public static string AuthorizeLoginFailed = "Cannot login. ({1})";
 		public static string AuthorizeLoginDone = "Logged in.";
 		public static string AuthorizeLogout = "Logout ...";
 		public static string AuthorizeLogoutDone = "Logged out.";
-		public static string AuthorizeConnect = "Checking authorization";
+		public static string AuthorizeConnect = "Checking authorization ...";
+		public static string AuthorizeConnectFailed = "Authorization check failed, continue anyway ({1])";
 		public static string AppExiting = "Exiting";
 		public static string AppEvent = "Running event {1}";		
 		public static string AutoPortSwitch = "Auto retry with another port.";
@@ -54,9 +57,10 @@ namespace AirVPN.Core
 		public static string OsDriverNotAvailable = "Driver installer not available.";
 		public static string OsDriverFailed = "Driver installation failed.";
 		public static string OsDriverUninstallDone = "Tunnel driver uninstalled.";
-		public static string ManifestUpdate = "Updating manifest failed ({1})";
-		public static string ManifestFailed = "Cannot retrieve data. Please retry later or contact us for help. ({1})";
-		public static string ManifestFailedContinue = "Unable to retrieve user & servers data. Continue anyway with the old data.";
+		public static string ManifestUpdate = "Updating systems & servers data ...";
+		public static string ManifestDone = "Systems & servers data update completed";
+		public static string ManifestFailed = "Cannot retrieve systems & servers data. Please retry later or contact us for help. ({1})";
+		public static string ManifestFailedContinue = "Unable to retrieve systems & servers data. Continue anyway with the old data.";
 		public static string CommandLineUnknownOption = "Unknown option in command-line: {1}";
 		public static string OptionsRead = "Reading options from {1}";
 		public static string OptionsNotFound = "Profile options not found, using defaults.";
@@ -73,6 +77,11 @@ namespace AirVPN.Core
 		public static string AlreadyRunningSTunnel = "STunnel is already running.";
 		public static string AlreadyRunningSshPLink = "SSH tunnel (plink) is already running.";
 		public static string AlreadyRunningSsh = "SSH tunnel is already running.";
+
+		public static string CUrlRequiredForProxySocks = "CUrl is not installed on this system, and it's required for SOCKS proxy.";
+		public static string SocksProxyError = "Socks proxy connection error.";
+
+		public static string FetchTryFailed = "{1}, {2}° try failed ({3})";
 		
 		public static string CheckingEnvironment = "Checking environment";
 		public static string CheckingProtocolUnknown = "Unknown protocol.";
@@ -90,6 +99,7 @@ namespace AirVPN.Core
 		
 		public static string ConnectionStartManagement = "Starting Management Interface";
 		public static string ConnectionCheckingRoute = "Checking route";
+		public static string ConnectionCheckingRoute2 = "Checking info";
 		public static string ConnectionCheckingRouteNotAvailable = "Checking route not available on this server.";
 		public static string ConnectionCheckingRouteFailed = "Routing checking failed.";
 		public static string ConnectionCheckingDNS = "Checking DNS";
@@ -100,10 +110,7 @@ namespace AirVPN.Core
 		public static string ConnectionDisconnecting = "Disconnecting";
 
 		public static string NetworkLockActivation = "Activation of Network Lock";
-		// TOCLEAN public static string NetworkLockActivationSuccess = "Network Lock activated. Default gateway: {1}"; 
-		// TOCLEAN public static string NetworkLockActivationFailed = "Unable to lock the network of this system. Please contact our staff for support."; 
 		public static string NetworkLockDeactivation = "Deactivation of Network Lock"; 
-		// TOCLEAN public static string NetworkLockDeactivationSuccess = "Network Lock deactivated"; 
 		public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; 
 		public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
 
@@ -119,8 +126,15 @@ namespace AirVPN.Core
 		public static string NetworkLockNotAvailableWithRouteOut = "You set the default routing outside the tunnel,\nincompatible with Network Lock feature"; 
 
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
-		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";		
+		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
+		public static string TorControlAuth = "TOR Control authentication method: {1}"; 
+		public static string TorControlGuardIp = "TOR Control Guard IP detected: {1} ({2})"; 
+		public static string TorControlNoPath = "Unable to find your TOR path."; 
+		public static string TorControlNoIps = "Unable to find IP address of TOR first node of an established circuit.";
+		public static string TorControlException = "Unable to communicate with TOR ({1}). Is TOR up and running?";
+		public static string TorControlTest = "Successful test. TOR Version: ";
+		
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
 		public static string TopBarConnected = "Connected to {1}";
@@ -156,10 +170,10 @@ namespace AirVPN.Core
 		public static string WindowsTosReject = "Reject";
 		public static string WindowsFrontMessageTitle = "Important Message";
 		public static string WindowsFrontMessageAccept = "Ok";
-		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations"; 
-		public static string WindowsSettingsTitle = "Settings";
-		public static string WindowsSettingsRouteTitle = "Settings - Route";
-		public static string WindowsSettingsEventTitle = "Settings - Event";
+		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations";
+		public static string WindowsSettingsTitle = "Preferences";
+		public static string WindowsSettingsRouteTitle = "Preferences - Route";
+		public static string WindowsSettingsEventTitle = "Preferences - Event";
 		public static string WindowsSettingsLoggingHelp = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation.\nRelative to data path. For multiple logs with different paths, separe it with a semicolon ;\n\nAdvanced example:\nlogs/single.log;logs/months/airvpn_%d.log;logs/week/airvpn_%w.log";
 		public static string WindowsSettingsRouteLockHelp = "IP in 'Outside Tunnel' are also unlocked when Network Lock feature is active."; 
 		public static string WindowsSettingsRouteEditIp = "Specify single IP address (ex. 1.2.3.4) or\nCIDR range (ex. 1.2.3.4/24) or\nsubnet range (ex. 1.2.3.4/255.255.255.128)";
@@ -261,7 +275,12 @@ namespace AirVPN.Core
 		public static string ManOptionModeProtocol = "Protocol for connection. 'UDP', 'TCP' for direct openvpn connection. 'SSH', 'SSL' for additional tunneling";
 		public static string ManOptionModePort = "Port for connection. Currently available: 443, 80, 53, 2018";
 		public static string ManOptionModeAlt = "0 to use the default entry IP, 1 or more for additional entry IP";
-
+		public static string ManOptionModeTorHost = "TOR host";
+		public static string ManOptionModeTorPort = "TOR port";
+		public static string ManOptionModeTorControlPort = "TOR Control port";
+		public static string ManOptionModeTorControlAuth = "TOR Control needs authentication. Normally the TOR Browser Bundle requires authentication and accepts a file cookie password";
+		public static string ManOptionModeTorControlPassword = "TOR Control password. If empty, the software tries to detect the file cookie password";
+		
 		public static string ManOptionProxyMode = "Proxy mode: 'none', 'http' or 'socks'. 'protocol' option must be 'TCP'.";
 		public static string ManOptionProxyHost = "Proxy host";
 		public static string ManOptionProxyPort = "Proxy port";
@@ -275,6 +294,7 @@ namespace AirVPN.Core
 		public static string ManOptionExecutablesOpenVpn = "Path to a custom OpenVPN executable";
 		public static string ManOptionExecutablesSsh = "Path to a custom SSH tunnel executable";
 		public static string ManOptionExecutablesSsl = "Path to a custom SSL tunnel executable";
+		public static string ManOptionExecutablesCurl = "Path to a custom curl executable, used only with socks proxy";
 
 		public static string ManOptionOpenVpnCustom = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with AirVPN Client.";
 		public static string ManOptionOpenVpnSkipDefaults = "If 'false' the custom directives are appended to the default directive.";

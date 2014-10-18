@@ -73,6 +73,39 @@ namespace AirVPN.UI.Osx
 			});
 
 		}
+
+		public static void MessageBox(string message)
+		{
+			MessageBox (message, "");
+		}
+
+		public static void MessageBox(string message, string title)
+		{
+			NSAlert alert = new NSAlert();
+			alert.MessageText = title;
+			alert.InformativeText = message;
+			alert.RunModal();
+		}
+
+		public static bool MessageYesNo(string message)
+		{
+			return MessageYesNo (message, "");
+		}
+
+		public static bool MessageYesNo(string message, string title)
+		{
+			NSAlert alert = new NSAlert();
+			alert.MessageText = title;
+			alert.InformativeText = message;
+			alert.AddButton ("Yes");
+			alert.AddButton ("No");
+			int r = alert.RunModal();
+
+			if (r == 1000)
+				return true;
+
+			return false;
+		}
 	}
 }
 

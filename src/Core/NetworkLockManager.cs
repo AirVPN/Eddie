@@ -157,6 +157,38 @@ namespace AirVPN.Core
 			}
 		}
 
+		public virtual void OnVpnEstablished()
+		{
+			if (m_current != null)
+			{
+				try
+				{
+					m_current.OnVpnEstablished();
+					Recovery.Save();
+				}
+				catch (Exception e)
+				{
+					Engine.Instance.Log(e);
+				}
+			}
+		}
+
+		public virtual void OnVpnDisconnected()
+		{
+			if (m_current != null)
+			{
+				try
+				{
+					m_current.OnVpnDisconnected();
+					Recovery.Save();
+				}
+				catch (Exception e)
+				{
+					Engine.Instance.Log(e);
+				}
+			}
+		}
+
 		public void OnRecoveryLoad(XmlElement root)
 		{
 			try

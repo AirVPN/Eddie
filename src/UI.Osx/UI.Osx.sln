@@ -84,7 +84,7 @@ Global
 		{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = ..\Deploy\Deploy.csproj
-		version = 2.5
+		StartupItem = UI.Osx.csproj
+		version = 2.7
 	EndGlobalSection
 EndGlobal

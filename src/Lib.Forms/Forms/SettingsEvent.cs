@@ -57,12 +57,9 @@ namespace AirVPN.Gui.Forms
 
         private void cmdExeBrowse_Click(object sender, EventArgs e)
         {
-            OpenFileDialog sd = new OpenFileDialog();
-
-			sd.Filter = Messages.FilterAllFiles;
-
-            if (sd.ShowDialog() == DialogResult.OK)
-				txtFileName.Text = sd.FileName;
+			string result = GuiUtils.FilePicker();
+			if (result != "")
+				txtFileName.Text = result;            
         }
     }
 }

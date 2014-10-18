@@ -37,6 +37,9 @@ namespace AirVPN.Core
         
 		public bool ConsoleMode = false;
 
+		public delegate void TerminateHandler();
+		public event TerminateHandler TerminateEvent;
+
         private Threads.Pinger m_threadPinger;
         private Threads.Penalities m_threadPenalities;
 		private Threads.Manifest m_threadManifest;
@@ -208,8 +211,7 @@ namespace AirVPN.Core
 
 			if(initResult == true)            
             {
-				Platform.Instance.LogSystemInfo();
-				Software.Checking();
+				Platform.Instance.LogSystemInfo();				
 				Software.Log();
 
 				Recovery.Load();
@@ -263,7 +265,10 @@ namespace AirVPN.Core
             }
 
 			OnDeInit();
-			OnDeInit2();            
+			OnDeInit2();
+
+			if (TerminateEvent != null)
+				TerminateEvent();
         }
 
 		public virtual bool OnInit()
@@ -292,6 +297,8 @@ namespace AirVPN.Core
 
 		public virtual bool OnInit2()
         {
+			Software.Checking();
+
             TrustCertificatePolicy.Activate();
 
             PostManifestUpdate();
@@ -579,6 +586,8 @@ namespace AirVPN.Core
                     // OnConnected
                     Connected = true;
                     ConnectedSince = DateTime.UtcNow;
+					ConnectedLastRead = -1;
+					ConnectedLastWrite = -1;
                     
                     WaitMessageClear();
 
@@ -591,7 +600,9 @@ namespace AirVPN.Core
                     Connected = false;
                     ConnectedSince = DateTime.MinValue;
 					ConnectedLastDownloadStep = 0;
-					ConnectedLastUploadStep = 0;                    
+					ConnectedLastUploadStep = 0;
+
+					Engine.NetworkLockManager.OnVpnDisconnected();
 
                     OnRefreshUi(RefreshUiMode.Full);
                 }
@@ -871,8 +882,10 @@ namespace AirVPN.Core
 			if (mode == Core.Engine.RefreshUiMode.Full)
 			{
 				Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
-				if(m_threadPinger != null)
-					Stats.UpdateValue("Pinger", PingerStats().ToString());
+				if (m_threadPinger != null)
+				{
+					Stats.UpdateValue("Pinger", PingerStats().ToString());					
+				}
 
 				if (Engine.IsConnected())
 				{
@@ -1199,42 +1212,114 @@ namespace AirVPN.Core
 				m_threadSession.SendManagementCommand(command);
 		}
 		
-		public byte[] FetchUrl(string url)
+		public byte[] FetchUrl(string url, string title, int ntry, bool bypassProxy)
 		{
-			// Note: by default WebClient try to determine the proxy used by IE/Windows
-			WebClientEx wc = new WebClientEx();
-			
-			if (IsConnected())
+			string lastException = "";
+			for (int t = 0; t < ntry; t++)
 			{
-				// Don't use a proxy if connected to the VPN
-				wc.Proxy = null;
-			}
-			else
-			{
-				string mode = Storage.Get("proxy.mode").ToLowerInvariant();
-				if (mode == "http")
+				try
 				{
-					System.Net.WebProxy proxy = new System.Net.WebProxy(Storage.Get("proxy.host"), Storage.GetInt("proxy.port"));
-					wc.Proxy = proxy;
-					wc.UseDefaultCredentials = true;
+					// Note: by default WebClient try to determine the proxy used by IE/Windows
+					WebClientEx wc = new WebClientEx();
+
+					if (bypassProxy)
+					{
+						// Don't use a proxy if connected to the VPN
+						wc.Proxy = null;
+					}
+					else
+					{
+						string proxyMode = Storage.Get("proxy.mode").ToLowerInvariant();
+						string proxyHost = Storage.Get("proxy.host");
+						int proxyPort = Storage.GetInt("proxy.port");
+						string proxyAuth = Storage.Get("proxy.auth").ToLowerInvariant();
+						string proxyLogin = Storage.Get("proxy.login");
+						string proxyPassword = Storage.Get("proxy.password");
+
+						if (Storage.Get("mode.protocol").ToUpperInvariant() == "TOR")
+						{
+							proxyMode = "socks";
+							proxyHost = Storage.Get("mode.tor.host");
+							proxyPort = Storage.GetInt("mode.tor.port");
+							proxyLogin = "";
+							proxyPassword = "";
+						}
+
+						if (proxyMode == "http")
+						{
+							System.Net.WebProxy proxy = new System.Net.WebProxy(proxyHost, proxyPort);
+							//string proxyUrl = "http://" + Storage.Get("proxy.host") + ":" + Storage.GetInt("proxy.port").ToString() + "/";
+							//System.Net.WebProxy proxy = new System.Net.WebProxy(proxyUrl, true);					
+
+							if (proxyAuth != "none")
+							{
+								//wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), Storage.Get("proxy.host"));
+								wc.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
+								proxy.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
+								wc.UseDefaultCredentials = false;
+							}
+
+							wc.Proxy = proxy;
+						}
+						else if (proxyMode == "socks")
+						{
+							// Socks Proxy supported with a curl shell
+							if (Software.CurlPath == "")
+							{
+								throw new Exception(Messages.CUrlRequiredForProxySocks);
+							}
+							else
+							{
+								TemporaryFile fileOutput = new TemporaryFile("bin");
+								string args = " \"" + url + "\" --socks4a " + proxyHost + ":" + proxyPort;
+								if (proxyAuth != "none")
+								{
+									args += " -U " + proxyLogin + ":" + proxyPassword;
+								}
+								args += " -o \"" + fileOutput.Path + "\"";
+								args += " --progress-bar";
+								string str = Platform.Instance.Shell(Software.CurlPath, args);
+								byte[] bytes;
+								if (File.Exists(fileOutput.Path))
+								{
+									bytes = File.ReadAllBytes(fileOutput.Path);
+									fileOutput.Close();
+									return bytes;
+								}
+								else
+								{
+									throw new Exception(str);
+								}
+							}
+						}
+						else if (proxyMode != "detect")
+						{
+							wc.Proxy = null;
+						}
+					}
+
+					return wc.DownloadData(url);
 				}
-				else if (mode == "socks")
+				catch (Exception e)
 				{
-					// Unsupported
-				}
-				else if (mode != "detect")
-				{
-					wc.Proxy = null;
+					if(ntry == 1) // AirAuth have it's catch errors retry logic.
+						throw e;
+					else
+					{
+						lastException = e.Message;
+						
+						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ExchangeTryFailed, title, (t+1).ToString(), lastException));
+					}
 				}
 			}
 
-			return wc.DownloadData(url);
+			throw new Exception(lastException);
 		}
 
-		public XmlDocument XmlFromUrl(string url)
+		public XmlDocument XmlFromUrl(string url, string title, bool bypassProxy)
         {
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(System.Text.Encoding.ASCII.GetString(FetchUrl(url)));
+            doc.LoadXml(System.Text.Encoding.ASCII.GetString(FetchUrl(url, title, 5, bypassProxy)));
             return doc;
         }
 
@@ -1269,7 +1354,7 @@ namespace AirVPN.Core
                 if (s.GetBool("openvpn.skip_defaults") == false)
                     ovpn += s.Manifest.Attributes["openvpn_directives_udp"].Value.Replace("\t", "").Trim() + "\n";
             }
-            else // TCP, SSH, SSL
+            else // TCP, SSH, SSL, TOR
             {
                 ovpn += "proto tcp\n";
                 if (s.GetBool("openvpn.skip_defaults") == false)
@@ -1283,70 +1368,57 @@ namespace AirVPN.Core
             else
                 ovpn += "remote " + ip + " " + port.ToString() + "\n";
 
+			if (protocol == "TOR")
+			{
+				ovpn += "socks-proxy " + s.Get("mode.tor.host") + " " + s.Get("mode.tor.port") + "\n";
+			}
+			else
+			{
+				string proxyMode = s.GetLower("proxy.mode");
+				if (proxyMode == "http")
+				{
+					ovpn += "http-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
+				}
+				else if (proxyMode == "socks")
+				{
+					ovpn += "socks-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
+				}
 
-			string proxyMode = s.GetLower("proxy.mode");
-			if (proxyMode == "http")
-            {
-                ovpn += "http-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
-            }
-			else if (proxyMode == "socks")
-            {
-                ovpn += "socks-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
-            }
-
-            if (s.GetLower("proxy.mode") != "none")
-            {
-                if (s.Get("proxy.auth") != "None")
-                {
-					string fileNameAuth = s.GetPath("AirVPN.ppw");
-					string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
-                    Utils.SaveFile(fileNameAuth, fileNameData);
-                    ovpn += " \"" + fileNameAuth + "\" " + s.Get("proxy.auth") + "\n";
-                }
-                else
-                {
-                    ovpn += "\n";
-                }
-            }
+				if (s.GetLower("proxy.mode") != "none")
+				{
+					if (s.Get("proxy.auth") != "None")
+					{
+						string fileNameAuth = s.GetPath("AirVPN.ppw");
+						string fileNameAuthOvpn = fileNameAuth.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
+						string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
+						Utils.SaveFile(fileNameAuth, fileNameData);
+						ovpn += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant() + "\n"; // 2.6 Auth Fix
+					}
+					else
+					{
+						ovpn += "\n";
+					}
+				}
+			}
 
             string routesDefault = s.Get("routes.default");
             if (routesDefault == "out")
             {
-				// before 2.3
-                ovpn += "route-nopull\n";
-
-				// "route-nopull" above ignore DNS push, we manually add it:
-				// Don't work...
-				//ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n";
-				//ovpn += "dhcp-option DNS 10.5.0.1\n";
-
-				// Don't work well, because skip also the other 'route' in OVPN config.
-				//ovpn += "route-noexec\n";
-
-				/* // TOCLEAN
-				// changed in 2.3
-				// AirVPN servers push "redirect-gateway def1".
-				// Here we need to ignore it: https://community.openvpn.net/openvpn/wiki/IgnoreRedirectGateway
-				// We can't use "route-nopull" because we want other push, like DNS.
-				ovpn += "route 0.0.0.0 192.0.0.0 net_gateway\n";
-				ovpn += "route 64.0.0.0 192.0.0.0 net_gateway\n";
-				ovpn += "route 128.0.0.0 192.0.0.0 net_gateway\n";
-				ovpn += "route 192.0.0.0 192.0.0.0 net_gateway\n";
-				*/
+				ovpn += "route-nopull\n";
 
 				// For Checking
-				ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway\n";
+				ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway # For Checking Route\n";
 
 				// For DNS
 				ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
-				ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway\n";
-				ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway\n";
-				ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway\n";
-				ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway\n";
-				ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway\n";
-				ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway\n";
-				ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway\n";
-				ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway\n"; 
+				ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway # AirDNS\n"; 
             }
             string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
@@ -1363,34 +1435,32 @@ namespace AirVPN.Core
 				else
 				{
 					string action = routeEntries[1];
-					// string notes = routeEntries[2]; // Not used
+					string notes = routeEntries[2];
 
 					if ((routesDefault == "out") && (action == "in"))
-						ovpn += "route " + ipCustomRoute.ToOpenVPN() + " vpn_gateway\n";
+						ovpn += "route " + ipCustomRoute.ToOpenVPN() + " vpn_gateway # " + Utils.SafeString(notes) + "\n";
 					if ((routesDefault == "in") && (action == "out"))
-						ovpn += "route " + ipCustomRoute.ToOpenVPN() + " net_gateway\n";
+						ovpn += "route " + ipCustomRoute.ToOpenVPN() + " net_gateway # " + Utils.SafeString(notes) + "\n";
 				}
             }
 
-			
-			if ((protocol == "SSH") || (protocol == "SSL"))
+			if (routesDefault == "in")
 			{
-				// TOCLEAN
-				/*
-				// With SSH or SSL, OpenVPN create wrong route to 127.0.0.1. We avoid that.
-
-				if (routesDefault == "in") // if 'out', route-nopull already exists
+				if ((protocol == "SSH") || (protocol == "SSL"))
 				{
-					ovpn += "route-nopull\n";
-
-					// Catch-all routes
-					ovpn += "route 0.0.0.0 128.0.0.1 vpn_gateway\n";
-					ovpn += "route 128.0.0.1 128.0.0.1 vpn_gateway\n";
+					ovpn += "route " + ip + " 255.255.255.255 net_gateway # VPN Entry IP\n";
 				}
-				*/
-				// if (RoutesManager.Instance.GetLockActive() == false) // If Network Locking is enabled, it's already set.
-				ovpn += "route " + ip + " 255.255.255.255 net_gateway\n";
+
+				if (protocol == "TOR")
+				{
+					List<string> torNodeIps = TorControl.GetGuardIps();
+					foreach (string torNodeIp in torNodeIps)
+					{
+						ovpn += "route " + torNodeIp + " 255.255.255.255 net_gateway # Tor Circuit\n";
+					}
+				}
 			}
+			
 				
 			ovpn += "management localhost " + Engine.Instance.Storage.Get("openvpn.management_port") + "\n";
 
@@ -1452,7 +1522,7 @@ namespace AirVPN.Core
 
 			try
 			{
-				XmlDocument xmlDoc = AirExchange.Fetch(parameters);
+				XmlDocument xmlDoc = AirExchange.Fetch(Messages.AuthorizeLogin, parameters);
 				string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
 
 				if (userMessage != "")
@@ -1467,7 +1537,7 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Log(LogType.Fatal, e.Message);				
+				Log(LogType.Fatal, Messages.Format(Messages.AuthorizeLoginFailed, e.Message));				
 			}
 
 			Engine.Instance.WaitMessageClear();
@@ -1575,7 +1645,7 @@ namespace AirVPN.Core
 				
                 WaitMessageClear();
 
-                Engine.Log(Engine.LogType.Info, Messages.SessionStop);
+                Engine.Log(Engine.LogType.InfoImportant, Messages.SessionStop);
 
 				ConsoleExit();			
             }
@@ -1590,7 +1660,7 @@ namespace AirVPN.Core
 
 			string protocol = Storage.Get("mode.protocol").ToUpperInvariant();
 
-			if( (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL") )
+			if ((protocol != "AUTO") && (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL") && (protocol != "TOR"))
 				throw new Exception(Messages.CheckingProtocolUnknown);
 
 			if( (protocol == "SSH") && (Software.SshVersion == "") )
