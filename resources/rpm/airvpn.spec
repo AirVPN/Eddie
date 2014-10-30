@@ -1,6 +1,6 @@
 Name: airvpn
 Version: {@version}
-Release: 2
+Release: 0
 
 License: see /usr/share/doc/airvpn/copyright
 Summary: VPN service based on OpenVPN

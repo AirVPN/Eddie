@@ -200,6 +200,9 @@ namespace AirVPN.Core.Threads
 						}
 					}
 
+					if (CancelRequested)
+						continue;
+
 					if (allowed)
 					{
 						sessionLastServer = Engine.CurrentServer.Name;
