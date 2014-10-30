@@ -106,8 +106,12 @@ namespace AirVPN.Platforms
 					td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
 
 					td.RegistrationInfo.Description = "AirVPN Client";					
-					td.Triggers.Add(new LogonTrigger());				
-					td.Actions.Add(new ExecAction(GetExecutablePath(), "", null));
+					td.Triggers.Add(new LogonTrigger());
+					string command = "\"" + GetExecutablePath() + "\"";
+					string arguments = "";
+					if (Engine.Instance.Storage.Get("path") != "")
+						arguments = "-path=" + Engine.Instance.Storage.Get("path");
+					td.Actions.Add(new ExecAction(command, (arguments == "") ? null:arguments, null));
 
 					// Register the task in the root folder
 					ts.RootFolder.RegisterTaskDefinition(@"AirVPN", td);
