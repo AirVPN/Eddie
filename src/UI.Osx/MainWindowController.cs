@@ -753,7 +753,7 @@ namespace AirVPN.UI.Osx
 
 			if(GuiUtils.MessageYesNo(msg))
 			{
-				Engine.Instance.Storage.SetBool ("netlock.active", true);
+				//Engine.Instance.Storage.SetBool ("netlock.active", true);
 
 				Engine.Instance.NetLockIn ();
 			}
@@ -764,7 +764,7 @@ namespace AirVPN.UI.Osx
 		{
 			Engine.NetLockOut ();
 
-			Engine.Instance.Storage.SetBool ("netlock.active", false);
+			//Engine.Instance.Storage.SetBool ("netlock.active", false);
 		}
 
 		bool TermsOfServiceCheck(bool force)

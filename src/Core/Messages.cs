@@ -126,6 +126,7 @@ namespace AirVPN.Core
 		public static string NetworkLockNotAvailableWithRouteOut = "You set the default routing outside the tunnel,\nincompatible with Network Lock feature"; 
 
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
+		public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'."; // TOTRANSLATE
 		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
 		public static string TorControlAuth = "TOR Control authentication method: {1}"; 

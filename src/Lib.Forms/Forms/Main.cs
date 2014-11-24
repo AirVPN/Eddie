@@ -1423,8 +1423,6 @@ namespace AirVPN.Gui.Forms
 
 			if (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 			{
-				Engine.Instance.Storage.SetBool("netlock.active", true);
-
 				Engine.Instance.NetLockIn();
 			}
 		}
@@ -1432,8 +1430,6 @@ namespace AirVPN.Gui.Forms
 		public void NetworkLockDeactivation()
 		{
 			Engine.NetLockOut();
-
-			Engine.Instance.Storage.SetBool("netlock.active", false);
 		}
 
 
