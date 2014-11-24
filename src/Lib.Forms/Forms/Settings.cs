@@ -557,9 +557,9 @@ namespace AirVPN.Gui.Forms
             SaveOptionsEvent("app.stop", 1);
 			SaveOptionsEvent("session.start", 2);
 			SaveOptionsEvent("session.stop", 3);
-            SaveOptionsEvent("vpn.pre", 2);
-            SaveOptionsEvent("vpn.up", 3);
-            SaveOptionsEvent("vpn.down", 4);
+            SaveOptionsEvent("vpn.pre", 4);
+            SaveOptionsEvent("vpn.up", 5);
+            SaveOptionsEvent("vpn.down", 6);
 
 			Platform.Instance.SetAutoStart(chkSystemStart.Checked);
 
