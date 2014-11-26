@@ -111,6 +111,14 @@ namespace AirVPN.Platforms
             ShellCmd("/etc/rc.d/init.d/nscd restart");
         }
 
+		public override void EnsureExecutablePermissions(string path)
+		{
+			if ((path == "") || (File.Exists(path) == false))
+				return;
+
+			ShellCmd("chmod +x \"" + path + "\"");			
+		}
+
 
 		public override void RouteAdd(RouteEntry r)
 		{
@@ -226,6 +234,7 @@ namespace AirVPN.Platforms
 				string dnsScriptPath = Software.FindResource("update-resolv-conf");
 				if (dnsScriptPath != "")
 				{
+					EnsureExecutablePermissions(dnsScriptPath);
 					Engine.Instance.Log(Engine.LogType.Info, Messages.DnsResolvConfScript);
 					ovpn += "script-security 2\n";
 					ovpn += "up " + dnsScriptPath + "\n";

@@ -229,14 +229,9 @@ namespace AirVPN.Core
 
 			string path = FindResource(filename, name);
 
+
 			if (path != "") // 2.8
-			{
-				if (Platform.Instance.IsUnixSystem())
-				{
-					// Ensure that x flags is set under Unix.
-					Platform.Instance.ShellCmd("chmod +x \"" + path + "\"");
-				}
-			}
+				Platform.Instance.EnsureExecutablePermissions(path);
 			
 			return path;
 		}
