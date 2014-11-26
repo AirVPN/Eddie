@@ -520,10 +520,11 @@ namespace AirVPN.Core
 			{
 				Int64 timestampNext = 0;
 				int refreshManifest = GetInt("advanced.manifest.refresh");
-				if( (refreshManifest<0) && (Manifest.Attributes["next"] != null) )
-					refreshManifest = 10;
-
-				if (refreshManifest < 0)
+				if (Manifest == null)
+					return true;
+				else if (Manifest.Attributes["next"] == null)
+					return true;
+				else if (refreshManifest < 0)
 				{
 					// Server reccomended
 					timestampNext = Conversions.ToInt64(Manifest.Attributes["next"].Value);
