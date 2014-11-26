@@ -254,5 +254,13 @@ namespace AirVPN.Gui
 				FormMain.ShowFrontMessage(message);
 		}
 
+		public override void OnPostManifestUpdate()
+		{
+			base.OnPostManifestUpdate();
+
+			if (FormMain != null)
+				FormMain.PostManifestUpdate();
+		}
+
     }
 }

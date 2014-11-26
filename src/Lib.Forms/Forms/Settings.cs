@@ -277,6 +277,18 @@ namespace AirVPN.Gui.Forms
 
 			txtExePath.Text = s.Get("executables.openvpn");
 
+			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
+			if (manifestRefresh == 60)
+				cboAdvancedManifestRefresh.SelectedIndex = 4;
+			else if (manifestRefresh == 10)
+					cboAdvancedManifestRefresh.SelectedIndex = 3;
+			else if (manifestRefresh == 1)
+				cboAdvancedManifestRefresh.SelectedIndex = 2;
+			else if (manifestRefresh == 0)
+				cboAdvancedManifestRefresh.SelectedIndex = 1;
+			else
+				cboAdvancedManifestRefresh.SelectedIndex = 0;
+
 			// Advanced - Lock
 			string lockMode = s.Get("netlock.mode");
 			cboLockMode.Text = "None";
@@ -528,6 +540,18 @@ namespace AirVPN.Gui.Forms
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
 
 			s.Set("executables.openvpn", txtExePath.Text);
+
+			int manifestRefreshIndex = cboAdvancedManifestRefresh.SelectedIndex;
+			if (manifestRefreshIndex == 0) // Auto
+				s.SetInt("advanced.manifest.refresh", -1);
+			else if (manifestRefreshIndex == 1) // Never
+				s.SetInt("advanced.manifest.refresh", 0);
+			else if (manifestRefreshIndex == 1) // One minute
+				s.SetInt("advanced.manifest.refresh", 1);
+			else if (manifestRefreshIndex == 0) // Ten minute
+				s.SetInt("advanced.manifest.refresh", 10);
+			else if (manifestRefreshIndex == 0) // One hour
+				s.SetInt("advanced.manifest.refresh", 60);
 
 			// Advanced - Lock
 			string lockMode = cboLockMode.Text;

@@ -125,6 +125,7 @@ namespace AirVPN.Gui.Forms
 			this.label14 = new AirVPN.Gui.Skin.Label();
 			this.label15 = new AirVPN.Gui.Skin.Label();
 			this.tabProxy = new AirVPN.Gui.Skin.TabPage();
+			this.label17 = new AirVPN.Gui.Skin.Label();
 			this.label12 = new AirVPN.Gui.Skin.Label();
 			this.lblProxyAuthentication = new AirVPN.Gui.Skin.Label();
 			this.cboProxyAuthentication = new AirVPN.Gui.Skin.ComboBox();
@@ -165,7 +166,8 @@ namespace AirVPN.Gui.Forms
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
-			this.label17 = new AirVPN.Gui.Skin.Label();
+			this.lblAdvancedManifestRefresh = new AirVPN.Gui.Skin.Label();
+			this.cboAdvancedManifestRefresh = new AirVPN.Gui.Skin.ComboBox();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -192,6 +194,8 @@ namespace AirVPN.Gui.Forms
 			// tabPage1
 			// 
 			tabPage1.BackColor = System.Drawing.Color.White;
+			tabPage1.Controls.Add(this.lblAdvancedManifestRefresh);
+			tabPage1.Controls.Add(this.cboAdvancedManifestRefresh);
 			tabPage1.Controls.Add(this.cmdAdvancedGeneralDocs);
 			tabPage1.Controls.Add(this.label7);
 			tabPage1.Controls.Add(this.cboDnsSwitchMode);
@@ -1344,6 +1348,18 @@ namespace AirVPN.Gui.Forms
 			this.tabProxy.TabIndex = 1;
 			this.tabProxy.Text = "Proxy";
 			// 
+			// label17
+			// 
+			this.label17.BackColor = System.Drawing.Color.Transparent;
+			this.label17.ForeColor = System.Drawing.Color.Black;
+			this.label17.Image = ((System.Drawing.Image)(resources.GetObject("label17.Image")));
+			this.label17.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+			this.label17.Location = new System.Drawing.Point(387, 72);
+			this.label17.Name = "label17";
+			this.label17.Size = new System.Drawing.Size(223, 43);
+			this.label17.TabIndex = 45;
+			this.label17.Text = "       If you use TOR, you need to set up your proxy inside TOR configuration";
+			// 
 			// label12
 			// 
 			this.label12.BackColor = System.Drawing.Color.Transparent;
@@ -1806,17 +1822,31 @@ namespace AirVPN.Gui.Forms
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
 			// 
-			// label17
+			// lblAdvancedManifestRefresh
 			// 
-			this.label17.BackColor = System.Drawing.Color.Transparent;
-			this.label17.ForeColor = System.Drawing.Color.Black;
-			this.label17.Image = ((System.Drawing.Image)(resources.GetObject("label17.Image")));
-			this.label17.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-			this.label17.Location = new System.Drawing.Point(387, 72);
-			this.label17.Name = "label17";
-			this.label17.Size = new System.Drawing.Size(223, 43);
-			this.label17.TabIndex = 45;
-			this.label17.Text = "       If you use TOR, you need to set up your proxy inside TOR configuration";
+			this.lblAdvancedManifestRefresh.BackColor = System.Drawing.Color.Transparent;
+			this.lblAdvancedManifestRefresh.ForeColor = System.Drawing.Color.Black;
+			this.lblAdvancedManifestRefresh.Location = new System.Drawing.Point(334, 181);
+			this.lblAdvancedManifestRefresh.Name = "lblAdvancedManifestRefresh";
+			this.lblAdvancedManifestRefresh.Size = new System.Drawing.Size(136, 13);
+			this.lblAdvancedManifestRefresh.TabIndex = 74;
+			this.lblAdvancedManifestRefresh.Text = "Servers list update every :";
+			// 
+			// cboAdvancedManifestRefresh
+			// 
+			this.cboAdvancedManifestRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cboAdvancedManifestRefresh.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboAdvancedManifestRefresh.FormattingEnabled = true;
+			this.cboAdvancedManifestRefresh.Items.AddRange(new object[] {
+            "Automatic",
+            "Never",
+            "Every minute",
+            "Every ten minute",
+            "Every one hour"});
+			this.cboAdvancedManifestRefresh.Location = new System.Drawing.Point(474, 178);
+			this.cboAdvancedManifestRefresh.Name = "cboAdvancedManifestRefresh";
+			this.cboAdvancedManifestRefresh.Size = new System.Drawing.Size(125, 21);
+			this.cboAdvancedManifestRefresh.TabIndex = 73;
 			// 
 			// Settings
 			// 
@@ -1993,6 +2023,8 @@ namespace AirVPN.Gui.Forms
 		private Skin.TextBox txtModeTorControlPassword;
 		private Skin.Label label16;
 		private Skin.Label label17;
+		private Skin.Label lblAdvancedManifestRefresh;
+		private Skin.ComboBox cboAdvancedManifestRefresh;
 
     }
 }
