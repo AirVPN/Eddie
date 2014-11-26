@@ -38,7 +38,8 @@ namespace AirVPN.Gui.Forms
     {
 		private Controls.ChartSpeed m_pnlCharts;
 		private Controls.MenuButton m_cmdMainMenu;
-        private System.Windows.Forms.NotifyIcon m_notifyIcon;        
+        private System.Windows.Forms.NotifyIcon m_notifyIcon;
+		private PictureBox m_imgProgress;
         
 		private ListViewServers m_listViewServers;
 		private ListViewAreas m_listViewAreas;
@@ -117,6 +118,13 @@ namespace AirVPN.Gui.Forms
                 //m_notifyIcon.Click += new EventHandler(notifyIcon_Click);				
 				m_notifyIcon.ContextMenuStrip = mnuMain;
             }
+
+			if (Platform.Instance.IsWindowsSystem())
+			{
+				m_imgProgress = new PictureBox();
+				m_imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
+				this.pnlWaiting.Controls.Add(m_imgProgress);
+			}
 
 			// Controls initialization
 			mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
@@ -651,6 +659,14 @@ namespace AirVPN.Gui.Forms
 			m_listViewServers.UpdateList();			
 		}
 
+		private void mnuServersRefresh_Click(object sender, EventArgs e)
+		{
+			mnuServersRefresh.Enabled = false;
+			cmdServersRefresh.Enabled = false;				
+
+			Core.Threads.Manifest.Instance.ForceUpdate = true;
+		}
+
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
 		{
 			mnuServersWhitelist_Click(sender, e);
@@ -665,6 +681,12 @@ namespace AirVPN.Gui.Forms
 		{
 			mnuServersUndefined_Click(sender, e);
 		}
+
+		private void cmdServersRefresh_Click(object sender, EventArgs e)
+		{
+			mnuServersRefresh_Click(sender, e);
+		}
+
 
 
 		private void mnuAreasWhiteList_Click(object sender, EventArgs e)
@@ -866,14 +888,20 @@ namespace AirVPN.Gui.Forms
 				pnlWaiting.Top = 0;
 				pnlWaiting.Width = tabItemWidth;
 				pnlWaiting.Height = tabItemHeight;
-				imgProgress.Left = (tabItemWidth / 2) - (208 / 2);
-				imgProgress.Top = (tabItemHeight / 2) - (13 / 2);
+				int imgProgressTop = (tabItemHeight / 2) - (13 / 2);
+				Size imgProgressSize = new Size(208, 13);
+				if (m_imgProgress != null)
+				{
+					m_imgProgress.Size = imgProgressSize;
+					m_imgProgress.Left = (tabItemWidth / 2) - (208 / 2);
+					m_imgProgress.Top = (tabItemHeight / 2) - (13 / 2);
+				}
 				lblWait1.Left = 0;
 				lblWait1.Top = 0;
 				lblWait1.Width = tabItemWidth;
-				lblWait1.Height = imgProgress.Top - 10;
+				lblWait1.Height = imgProgressTop - 10;
 				lblWait2.Left = 0;
-				lblWait2.Top = imgProgress.Top + imgProgress.Height + 10;
+				lblWait2.Top = imgProgressTop + imgProgressSize.Height + 10;
 				lblWait2.Width = tabItemWidth;
 				lblWait2.Height = tabItemHeight - lblWait2.Top - 10 - 60;
 				cmdCancel.Width = tabItemWidth * 2 / 3;
@@ -1141,6 +1169,23 @@ namespace AirVPN.Gui.Forms
 				dlg.Message = message;
 				dlg.Show();
 				dlg.Activate();
+			}
+		}
+
+
+		private delegate void PostManifestUpdateDelegate();
+		public void PostManifestUpdate()
+		{
+			if (this.InvokeRequired)
+			{
+				PostManifestUpdateDelegate inv = new PostManifestUpdateDelegate(this.PostManifestUpdate);
+
+				this.BeginInvoke(inv, new object[] {  });
+			}
+			else
+			{
+				mnuServersRefresh.Enabled = true;
+				cmdServersRefresh.Enabled = true;				
 			}
 		}
 
@@ -1423,8 +1468,6 @@ namespace AirVPN.Gui.Forms
 
 			if (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 			{
-				Engine.Instance.Storage.SetBool("netlock.active", true);
-
 				Engine.Instance.NetLockIn();
 			}
 		}
@@ -1432,10 +1475,11 @@ namespace AirVPN.Gui.Forms
 		public void NetworkLockDeactivation()
 		{
 			Engine.NetLockOut();
-
-			Engine.Instance.Storage.SetBool("netlock.active", false);
 		}
 
+
+		
+		
 
 
 		

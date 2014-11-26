@@ -103,7 +103,7 @@ namespace AirVPN.Core
             }
             catch (Exception E)
             {
-                return E.Message;
+                return "Error:" + E.Message; // 2.8
             }
 
 
@@ -310,6 +310,10 @@ namespace AirVPN.Core
         {
             return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
         }
+
+		public virtual void EnsureExecutablePermissions(string path)
+		{
+		}
         
         public virtual void FlushDNS()
         {

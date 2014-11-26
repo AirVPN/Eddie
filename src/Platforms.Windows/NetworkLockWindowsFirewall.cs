@@ -166,13 +166,23 @@ namespace AirVPN.Platforms
 			base.Activation();
 
 			// Service
-			ServiceController service = new ServiceController("MpsSvc");
-			m_serviceStatus = (service.Status == ServiceControllerStatus.Running);
-			if (m_serviceStatus == false)
+			try
 			{
-				TimeSpan timeout = TimeSpan.FromMilliseconds(10000);
-				service.Start();
-				service.WaitForStatus(ServiceControllerStatus.Running, timeout);
+				ServiceController service = new ServiceController("MpsSvc");
+				m_serviceStatus = (service.Status == ServiceControllerStatus.Running);
+				if (m_serviceStatus == false)
+				{
+					TimeSpan timeout = TimeSpan.FromMilliseconds(10000);
+					service.Start();
+					service.WaitForStatus(ServiceControllerStatus.Running, timeout);
+				}
+			}
+			catch (Exception e)
+			{
+				if (e.Message.Contains("MpsSvc"))
+					throw new Exception(Messages.NetworkLockUnableToStartService);
+				else
+					throw e;
 			}
 
 			// If 'backup.wfw' doesn't exists, create it. It's a general backup of the first time.

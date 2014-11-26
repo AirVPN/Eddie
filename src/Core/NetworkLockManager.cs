@@ -100,10 +100,14 @@ namespace AirVPN.Core
 
 					m_current = nextCurrent;
 				}
+
+				Engine.Instance.Storage.SetBool("netlock.active", true);
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(e);
+				Engine.Instance.Log(Engine.LogType.Fatal, e);
+
+				Engine.Instance.Storage.SetBool("netlock.active", false);
 			}
 
 			Recovery.Save();
@@ -129,6 +133,8 @@ namespace AirVPN.Core
 
 				m_current = null;
 			}
+
+			Engine.Instance.Storage.SetBool("netlock.active", false);
 
 			Recovery.Save();
 		}

@@ -838,6 +838,10 @@ namespace AirVPN.Core
 			Log(LogType.Warning, message);
 		}
 
+		public virtual void OnPostManifestUpdate()
+		{
+		}
+
         public virtual void OnRefreshUi()
         {
             OnRefreshUi(RefreshUiMode.Full);
@@ -1188,6 +1192,8 @@ namespace AirVPN.Core
 				m_networkLockManager.OnUpdateIps();
 
             OnRefreshUi(Core.Engine.RefreshUiMode.Full);
+
+			OnPostManifestUpdate();
         }
 
 		public void RunEventCommand(string name)

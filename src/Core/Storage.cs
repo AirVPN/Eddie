@@ -327,6 +327,7 @@ namespace AirVPN.Core
 			SetDefaultInt("advanced.pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 300, Messages.ManOptionAdvancedPingerValid);
+			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 						
 			SetDefault("netlock.mode", "none", NotInMan); // Maybe 'auto' in future			
 			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked
@@ -517,11 +518,27 @@ namespace AirVPN.Core
 		{
 			lock (Manifest)
 			{
+				// 2.8
 				Int64 timestampNext = 0;
-				if (Manifest.Attributes["next"] != null)
-					timestampNext = Conversions.ToInt64(Manifest.Attributes["next"].Value);
-				else
+				int refreshManifest = GetInt("advanced.manifest.refresh");
+				if (Manifest == null)
 					return true;
+				else if (Manifest.Attributes["next"] == null)
+					return true;
+				else if (refreshManifest < 0)
+				{
+					// Server reccomended
+					timestampNext = Conversions.ToInt64(Manifest.Attributes["next"].Value);
+				}
+				else if (refreshManifest == 0)
+				{
+					// Never
+					return false;
+				}
+				else
+				{
+					timestampNext = Conversions.ToInt64(Manifest.Attributes["time"].Value) + refreshManifest * 60;
+				}
 
 				if ((Conversions.ToDateTime(timestampNext) < DateTime.UtcNow) && (reccomended))
 					return true;
