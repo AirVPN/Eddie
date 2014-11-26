@@ -518,6 +518,7 @@ namespace AirVPN.Core
 		{
 			lock (Manifest)
 			{
+				// 2.8
 				Int64 timestampNext = 0;
 				int refreshManifest = GetInt("advanced.manifest.refresh");
 				if (Manifest == null)

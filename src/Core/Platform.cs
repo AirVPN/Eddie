@@ -103,7 +103,7 @@ namespace AirVPN.Core
             }
             catch (Exception E)
             {
-                return E.Message;
+                return "Error:" + E.Message;
             }
 
 

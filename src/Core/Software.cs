@@ -63,6 +63,7 @@ namespace AirVPN.Core
 				if (OpenVpnPath != "")
 				{
 					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
+					if (OpenVpnVersion.StartsWith("Error:")) throw new Exception(OpenVpnVersion);
 					if (OpenVpnVersion != "")
 					{
 						int posS = OpenVpnVersion.IndexOf(" ", 8);
@@ -89,6 +90,7 @@ namespace AirVPN.Core
 				{
 					string arguments = "-V";
 					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
+					if (SshVersion.StartsWith("Error:")) throw new Exception(SshVersion);
 					if (SshVersion != "")
 					{
 						if (Platform.Instance.IsWindowsSystem()) 
@@ -114,6 +116,7 @@ namespace AirVPN.Core
 				{
 					string arguments = "-version";					
 					SslVersion = Platform.Instance.Shell(SslPath, arguments);
+					if (SslVersion.StartsWith("Error:")) throw new Exception(SslVersion);
 					int posS = SslVersion.IndexOf(" ", 8);					
 					if (posS > 1)
 						SslVersion = SslVersion.Substring(0, posS);
@@ -225,6 +228,15 @@ namespace AirVPN.Core
 			}
 
 			string path = FindResource(filename, name);
+
+			if (path != "") // 2.8
+			{
+				if (Platform.Instance.IsUnixSystem())
+				{
+					// Ensure that x flags is set under Unix.
+					Platform.Instance.ShellCmd("chmod +x \"" + path + "\"");
+				}
+			}
 			
 			return path;
 		}
