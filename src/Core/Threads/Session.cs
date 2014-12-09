@@ -416,7 +416,7 @@ namespace AirVPN.Core.Threads
 										DeltaSigTerm = new TimeDelta();
 										sendSignal = true;
 									}
-									else if (DeltaSigTerm.Elapsed(10000)) // Try a SIGTERM every 10 seconds // TOTEST
+									else if (DeltaSigTerm.Elapsed(10000)) // Try a SIGTERM every 10 seconds
 										sendSignal = true;
 
 									if(sendSignal)

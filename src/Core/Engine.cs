@@ -211,7 +211,10 @@ namespace AirVPN.Core
 
 			if(initResult == true)            
             {
-				Platform.Instance.LogSystemInfo();				
+				Platform.Instance.LogSystemInfo();
+
+				Software.Checking(); // TOTEST messa qui, cosa comporta?
+
 				Software.Log();
 
 				Recovery.Load();
@@ -297,7 +300,7 @@ namespace AirVPN.Core
 
 		public virtual bool OnInit2()
         {
-			Software.Checking();
+			// Software.Checking(); // TOTEST spostata, cosa comporta?
 
             TrustCertificatePolicy.Activate();
 

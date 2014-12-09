@@ -44,6 +44,9 @@
     <Compile Include="Controls\ChartSpeed.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\ProgressInfinite.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\ListViewItemLog.cs" />
     <Compile Include="Controls\ListViewAreas.cs">
       <SubType>Component</SubType>
@@ -258,6 +261,16 @@
     <None Include="res\netlock_on.png" />
     <Content Include="res\ports.png" />
     <Content Include="res\progress.gif" />
+    <None Include="res\progress01.png" />
+    <None Include="res\progress02.png" />
+    <None Include="res\progress03.png" />
+    <None Include="res\progress04.png" />
+    <None Include="res\progress05.png" />
+    <None Include="res\progress06.png" />
+    <None Include="res\progress07.png" />
+    <None Include="res\progress08.png" />
+    <None Include="res\progress09.png" />
+    <None Include="res\progress10.png" />
     <Content Include="res\reload.png" />
     <Content Include="res\restore.png" />
     <Content Include="res\routes_in.png" />

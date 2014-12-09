@@ -38,8 +38,9 @@ namespace AirVPN.Gui.Forms
     {
 		private Controls.ChartSpeed m_pnlCharts;
 		private Controls.MenuButton m_cmdMainMenu;
+		private Controls.ProgressInfinite m_imgProgressInfinite;
         private System.Windows.Forms.NotifyIcon m_notifyIcon;
-		private PictureBox m_imgProgress;
+		//private PictureBox m_imgProgress; // TOCLEAN
         
 		private ListViewServers m_listViewServers;
 		private ListViewAreas m_listViewAreas;
@@ -121,9 +122,12 @@ namespace AirVPN.Gui.Forms
 
 			if (Platform.Instance.IsWindowsSystem())
 			{
-				m_imgProgress = new PictureBox();
-				m_imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
-				this.pnlWaiting.Controls.Add(m_imgProgress);
+				//m_imgProgress = new PictureBox();  // TOCLEAN
+				//m_imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
+				//this.pnlWaiting.Controls.Add(m_imgProgress);
+
+				m_imgProgressInfinite = new ProgressInfinite();
+				this.pnlWelcome.Controls.Add(m_imgProgressInfinite);
 			}
 
 			// Controls initialization
@@ -890,11 +894,15 @@ namespace AirVPN.Gui.Forms
 				pnlWaiting.Height = tabItemHeight;
 				int imgProgressTop = (tabItemHeight / 2) - (13 / 2);
 				Size imgProgressSize = new Size(208, 13);
-				if (m_imgProgress != null)
+				if (m_imgProgressInfinite != null)
 				{
-					m_imgProgress.Size = imgProgressSize;
-					m_imgProgress.Left = (tabItemWidth / 2) - (208 / 2);
-					m_imgProgress.Top = (tabItemHeight / 2) - (13 / 2);
+					//m_imgProgress.Size = imgProgressSize;  // TOCLEAN
+					//m_imgProgress.Left = (tabItemWidth / 2) - (208 / 2);
+					//m_imgProgress.Top = (tabItemHeight / 2) - (13 / 2);
+					m_imgProgressInfinite.Size = imgProgressSize;
+					m_imgProgressInfinite.Left = (tabItemWidth / 2) - (208 / 2);					
+					m_imgProgressInfinite.Top = (tabItemHeight / 2) - (13 / 2);
+					//tabMain.TabPages[0].Controls.Add(m_imgProgressInfinite);  // TOCLEAN
 				}
 				lblWait1.Left = 0;
 				lblWait1.Top = 0;
@@ -1024,7 +1032,7 @@ namespace AirVPN.Gui.Forms
 
 						string notifyText = Constants.Name + " - " + ShortMsg;
 
-						if(Engine.IsConnected() == false)
+						//if(Engine.IsConnected() == false)
 						{
 							Text = Constants.Name + " - " + Msg;
 
@@ -1366,8 +1374,8 @@ namespace AirVPN.Gui.Forms
 
         public void ShowAbout()
         {
-            Forms.About dlg = new Forms.About();
-            dlg.ShowDialog();
+			Forms.About dlg = new Forms.About();
+            dlg.ShowDialog();			
         }
 
         public bool TermsOfServiceCheck(bool force)

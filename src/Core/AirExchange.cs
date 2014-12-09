@@ -110,7 +110,7 @@ namespace AirVPN.Core
 			/*
 			hosts.Clear();
 			hosts.Add("invalidhostname.airvpn.org");
-			hosts.Add("54.246.124.152");
+			hosts.Add("54.93.175.114");
 			*/
 			
 			string firstError = "";
