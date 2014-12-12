@@ -40,8 +40,7 @@ namespace AirVPN.Gui.Forms
 		private Controls.MenuButton m_cmdMainMenu;
 		private Controls.ProgressInfinite m_imgProgressInfinite;
         private System.Windows.Forms.NotifyIcon m_notifyIcon;
-		//private PictureBox m_imgProgress; // TOCLEAN
-        
+		
 		private ListViewServers m_listViewServers;
 		private ListViewAreas m_listViewAreas;
 
@@ -120,16 +119,9 @@ namespace AirVPN.Gui.Forms
 				m_notifyIcon.ContextMenuStrip = mnuMain;
             }
 
-			if (Platform.Instance.IsWindowsSystem())
-			{
-				//m_imgProgress = new PictureBox();  // TOCLEAN
-				//m_imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
-				//this.pnlWaiting.Controls.Add(m_imgProgress);
-
-				m_imgProgressInfinite = new ProgressInfinite();
-				this.pnlWelcome.Controls.Add(m_imgProgressInfinite);
-			}
-
+			m_imgProgressInfinite = new ProgressInfinite();
+			this.pnlWaiting.Controls.Add(m_imgProgressInfinite);
+			
 			// Controls initialization
 			mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
 			mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
@@ -896,13 +888,9 @@ namespace AirVPN.Gui.Forms
 				Size imgProgressSize = new Size(208, 13);
 				if (m_imgProgressInfinite != null)
 				{
-					//m_imgProgress.Size = imgProgressSize;  // TOCLEAN
-					//m_imgProgress.Left = (tabItemWidth / 2) - (208 / 2);
-					//m_imgProgress.Top = (tabItemHeight / 2) - (13 / 2);
 					m_imgProgressInfinite.Size = imgProgressSize;
 					m_imgProgressInfinite.Left = (tabItemWidth / 2) - (208 / 2);					
-					m_imgProgressInfinite.Top = (tabItemHeight / 2) - (13 / 2);
-					//tabMain.TabPages[0].Controls.Add(m_imgProgressInfinite);  // TOCLEAN
+					m_imgProgressInfinite.Top = (tabItemHeight / 2) - (13 / 2);					
 				}
 				lblWait1.Left = 0;
 				lblWait1.Top = 0;
