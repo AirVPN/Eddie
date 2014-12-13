@@ -50,6 +50,9 @@ namespace AirVPN.UI.Osx
 				if (engine.Initialization ()) {
 					engine.ConsoleStart ();
 				}
+
+				engine.Join ();
+
 			} else {
 				Engine engine = new Engine ();
 

@@ -25,6 +25,7 @@ namespace AirVPN.Core.UI
 {
     public static class Colors
     {
+		public static Color LightChartBackground = Color.FromArgb(248,248,248);
 		public static Color LightChartGrid = Color.FromArgb(211,211,211);
 		public static Color LightChartAxis = Color.FromArgb (128, 128, 128);
 		public static Color LightChartMouse = Color.FromArgb(32,92,166);
