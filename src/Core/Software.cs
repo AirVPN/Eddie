@@ -52,8 +52,6 @@ namespace AirVPN.Core
 				OpenVpnDriver = "";
 			}
 
-			System.Threading.Thread.Sleep(20000);
-			
 			// OpenVPN Binary
 			try
 			{

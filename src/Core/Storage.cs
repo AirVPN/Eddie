@@ -315,10 +315,14 @@ namespace AirVPN.Core
 			// Not in Settings
 			SetDefaultInt("openvpn.management_port", 3100, Messages.ManOptionOpenVpnManagementPort);
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
-			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort); 
+			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
 
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);						
-			SetDefaultBool("advanced.check.dns", false, Messages.ManOptionAdvancedCheckDns);
+
+			bool defaultDnsForceAndCheck = true;
+			//defaultDnsForceAndCheck = false; // <2.8
+
+			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);
+			SetDefaultBool("advanced.check.dns", defaultDnsForceAndCheck, Messages.ManOptionAdvancedCheckDns);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
 			SetDefault("advanced.dns.mode", "auto", Messages.ManOptionAdvancedDnsSwitch);
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
@@ -328,13 +332,13 @@ namespace AirVPN.Core
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 300, Messages.ManOptionAdvancedPingerValid);
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
-						
-			SetDefault("netlock.mode", "none", NotInMan); // Maybe 'auto' in future			
+
+			SetDefault("netlock.mode", "auto", NotInMan); // Maybe 'auto' in future			
 			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked
 			SetDefaultBool("netlock.active", false, NotInMan);
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
-			SetDefaultBool("advanced.windows.dns_force", false, Messages.ManOptionAdvancedWindowsDnsForce);
+			SetDefaultBool("advanced.windows.dns_force", defaultDnsForceAndCheck, Messages.ManOptionAdvancedWindowsDnsForce);
 			SetDefaultBool("advanced.windows.dhcp_disable", false, Messages.ManOptionAdvancedWindowsDhcpDisable);
 
 			// Not in Settings
