@@ -318,8 +318,9 @@ namespace AirVPN.Core
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
 
 
-			bool defaultDnsForceAndCheck = true;
-			//defaultDnsForceAndCheck = false; // <2.8
+			bool defaultDnsForceAndCheck = false; // 2.8
+			if(Platform.IsUnix())
+				defaultDnsForceAndCheck = true;
 
 			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);
 			SetDefaultBool("advanced.check.dns", defaultDnsForceAndCheck, Messages.ManOptionAdvancedCheckDns);
