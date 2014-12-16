@@ -50,6 +50,7 @@ namespace AirVPN.Core
 		public static string AutoPortSwitch = "Auto retry with another port.";
 		public static string AuthFailed = "Authorization failed. Look at the client area to discover the reason.";
 		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'B' to reconnect to the best available server.";
+		public static string ConsoleKeyboardHelpNoConnect = "Use -connect to start connection when application start"; // TOTRANSLATE
 		public static string ConsoleKeyBreak = "Break signal received. Shutdown. Hit again to force break.";
 		public static string ConsoleKeyCancel = "Cancel requested from keyboard.";
 		public static string ConsoleKeySwitch = "Server switch requested from keyboard.";
@@ -206,12 +207,13 @@ namespace AirVPN.Core
 		public static string TooltipLogsCopy = "Copy to clipboard";
 		public static string TooltipLogsSave = "Save to file";
 		public static string TooltipLogsSupport = "Log system information and copy to clipboard. Useful for support requests";
-		public static string CommandLogin = "Login";
+		public static string CommandLogin = "Login action required."; // TOTRANSLATE: It's a menu item, showed when a 'Connect' shortcut can't be available because the user is not logged. At click simply show the main interface.
 		public static string CommandLogout = "Logout";
 		public static string CommandConnect = "Connect to a recommended server";
 		public static string CommandConnectSubtitle = "or choose a specific server in 'Servers' tab.";
 		public static string CommandDisconnect = "Disconnect";
-		public static string CommandCancel = "Cancel"; 
+		public static string CommandCancel = "Cancel";
+		public static string CommandUnknown = "Unknown command"; // TOTRANSLATE
 
 		public static string FilterAllFiles = "All files (*.*)|*.*";
 		public static string FilterTextFiles = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -310,8 +312,9 @@ namespace AirVPN.Core
 		public static string ManOptionAdvancedPingerEnabled = "If 'true' the software pings AirVPN server to determine latency score. Pings are not performed during VPN connection.";
 		public static string ManOptionAdvancedPingerAlways = "If 'true' pings are performed also during VPN connection. Pings are always performed outside the tunnel.";
 		public static string ManOptionAdvancedPingerDelay = "Do a ping on every server every X seconds. If 0, the recommended values are used.";
+		public static string ManOptionAdvancedPingerRetry = "Do a ping on every server that don't have ping results every X seconds. If 0, the recommended values are used."; // TOTRANSLATE
 		public static string ManOptionAdvancedPingerJobs = "Maximum parallel jobs/thread for pinging purpose.";
-		public static string ManOptionAdvancedPingerValid = "Global pinger results valid if all ping reply are maximum X seconds ago.";
+		public static string ManOptionAdvancedPingerValid = "Global pinger results valid if all ping reply are maximum X seconds ago. If 0, the recommended values are used.";
 
 		public static string ManOptionAdvancedWindowsTapUp = "Force the TAP interface to come UP.";
 		public static string ManOptionAdvancedWindowsDnsForce = "In Windows, every network adapter may have DNS settings.\nIf this option is active, when the connection starts the client empties any DNS settings for every network adapter.\nThe TUN/TAP adapter will be updated when the connection is estabilished.\nWhen the connection is closed, the client resets every DNS settings to the original state.\nDNS settings are changed during connection, not during the disconnection/connection to another server.\n\nThis option is equivalent to one feature of the https://www.dnsleaktest.com/ scripts.";

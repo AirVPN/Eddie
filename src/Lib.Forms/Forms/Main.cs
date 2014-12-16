@@ -588,13 +588,29 @@ namespace AirVPN.Gui.Forms
 			XmlDocument xmlDoc = new XmlDocument();
 			XmlNode node = xmlDoc.ImportNode(Engine.Storage.Manifest, true);			
 			xmlDoc.AppendChild(node);
+			xmlDoc.FirstChild.Attributes.RemoveAll();
+			xmlDoc.FirstChild.RemoveChild(xmlDoc.SelectSingleNode("//manifest/servers"));
+			xmlDoc.FirstChild.RemoveChild(xmlDoc.SelectSingleNode("//manifest/areas"));
 			
-			String Body = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" + xmlDoc.OuterXml;
+			using (var sw = new StringWriter())
+			{
+				using (var xw = new XmlTextWriter(sw))
+				{
+					xw.Formatting = Formatting.Indented;					
+					xw.Indentation = 2; //default is 1. I used 2 to make the indents larger.
 
-			Forms.TextViewer Dlg = new TextViewer();
-			Dlg.Title = "Default manifest";
-			Dlg.Body = Body;
-			Dlg.ShowDialog();
+					xmlDoc.WriteTo(xw);
+				}
+
+				String body = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" + sw.ToString();
+
+				Forms.TextViewer dlg = new TextViewer();
+				dlg.Title = "Default manifest";
+				dlg.Body = body;
+				dlg.ShowDialog();
+			}
+
+			
 		}
 		
 		void m_listViewServers_MouseDoubleClick(object sender, MouseEventArgs e)

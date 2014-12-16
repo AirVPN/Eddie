@@ -167,7 +167,7 @@ namespace AirVPN.Core
 
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
 
-			bool manMode = (CommandLine.Params.ContainsKey("help"));
+			bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
 			if (manMode == false)
 			{
 				Log(LogType.Info, "AirVPN client version: " + Storage.GetVersionDesc() + ", System: " + Platform.Instance.GetCode() + ", Architecture: " + Platform.Instance.GetArchitecture());
@@ -225,8 +225,8 @@ namespace AirVPN.Core
 
 				if (Engine.Storage.Get("netlock.mode") != "none")
 				{
-					if (Engine.Storage.GetBool("netlock.active"))
-						m_networkLockManager.Activation();
+					if (Engine.Storage.GetBool("netlock")) // 2.8
+						m_networkLockManager.Activation();					
 				}
 
                 WaitMessageClear();
@@ -235,10 +235,12 @@ namespace AirVPN.Core
 				if (ConsoleMode)
 				{
 					Auth();
+					/* // 2.8
 					if (IsLogged())
 						autoStart = true;
 					else
 						CancelRequested = true;
+					*/
 				}
 				if ((IsLogged()) && (Engine.Storage.GetBool("connect")))
 					autoStart = true;
@@ -278,7 +280,7 @@ namespace AirVPN.Core
         {
             lock (this)
             {
-				foreach (string commandLineParamKey in CommandLine.Params.Keys)
+				foreach (string commandLineParamKey in CommandLine.SystemEnvironment.Params.Keys)
 				{
 					if (Storage.Exists(commandLineParamKey) == false)
 					{
@@ -289,7 +291,7 @@ namespace AirVPN.Core
                 Engine.Instance.Log(Engine.LogType.Verbose, "Data Path: " + Storage.DataPath);
 				Engine.Instance.Log(Engine.LogType.Verbose, "App Path: " + Platform.Instance.GetProgramFolder());
 				Engine.Instance.Log(Engine.LogType.Verbose, "Executable Path: " + Platform.Instance.GetExecutablePath());
-				Engine.Instance.Log(Engine.LogType.Verbose, "Command line arguments: " + CommandLine.Get());
+				Engine.Instance.Log(Engine.LogType.Verbose, "Command line arguments: " + CommandLine.SystemEnvironment.GetFull());
 
                 if (Storage.Get("profile") != "AirVPN")
                     Engine.Instance.Log(Engine.LogType.Verbose, "Profile: " + Storage.Get("profile"));
@@ -456,6 +458,23 @@ namespace AirVPN.Core
 			OnExit();	
 		}
 
+		public virtual void OnCommand(CommandLine command)
+		{
+			string action = command.Get("action","").ToLowerInvariant();
+			if (action == "exit")
+			{
+				OnExit();
+			}
+			else if (action == "openvpn")
+			{
+				SendManagementCommand(command.Get("command",""));
+			}
+			else
+			{
+				throw new Exception(Messages.CommandUnknown);
+			}
+		}
+
 		public virtual void OnSettingsChanged()
 		{
 			OnRefreshUi(RefreshUiMode.Full);
@@ -514,6 +533,9 @@ namespace AirVPN.Core
 			else
 			{
 				Engine.Instance.Log(Engine.LogType.Info, Messages.ConsoleKeyboardHelp);				
+
+				if(Storage.GetBool("connect") == false)
+					Engine.Instance.Log(Engine.LogType.Info, Messages.ConsoleKeyboardHelpNoConnect);									
 				
 				Start();
 			}
@@ -803,7 +825,7 @@ namespace AirVPN.Core
         public virtual void OnLog(LogEntry l)
         {
 			// An exception, to have a clean, standard 'man' output without logging header.
-			if (CommandLine.Params.ContainsKey("help"))
+			if (CommandLine.SystemEnvironment.Exists("help"))
 			{
 				Console.WriteLine(l.Message);
 				return;
@@ -1520,6 +1542,21 @@ namespace AirVPN.Core
 		public bool IsLogged()
 		{
 			return ( (Storage.User != null) && (Storage.User.Attributes["login"] != null) );			
+		}
+
+		public void Command(string cmd)
+		{
+			CommandLine command = new CommandLine(cmd, false, true);
+			
+			try
+			{
+				OnCommand(command);
+				Log(LogType.Info, "Command '" + command.GetFull() + "' executed");
+			}
+			catch (Exception e)
+			{
+				Log(LogType.Error, e);
+			}
 		}
 
 		private void Auth()
