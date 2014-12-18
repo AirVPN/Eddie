@@ -57,7 +57,9 @@ namespace AirVPN.Platforms
 
 			m_prevActive = false;
 			string report = Exec("pfctl -si");
-			if (report.IndexOf ("Status: Enabled") != -1)
+			if (report.IndexOf ("denied") != -1)
+				throw new Exception("Permission denied.");
+			else if (report.IndexOf ("Status: Enabled") != -1)
 				m_prevActive = true;
 			else if (report.IndexOf("Status: Disabled") != -1)
 				m_prevActive = false;

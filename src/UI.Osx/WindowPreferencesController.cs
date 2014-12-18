@@ -323,6 +323,13 @@ namespace AirVPN.UI.Osx
 			LblRoutesNetworkLockWarning.StringValue = Messages.WindowsSettingsRouteLockHelp;
 			LblLockRoutingOutWarning.StringValue = Messages.NetworkLockNotAvailableWithRouteOut;
 
+			CboAdvancedManifestRefresh.RemoveAllItems ();
+			CboAdvancedManifestRefresh.AddItem ("Automatic");
+			CboAdvancedManifestRefresh.AddItem ("Never");
+			CboAdvancedManifestRefresh.AddItem ("Every minute");
+			CboAdvancedManifestRefresh.AddItem ("Every ten minute");
+			CboAdvancedManifestRefresh.AddItem ("Every one hour");
+
 			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
 				Core.UI.Actions.OpenUrlDocsAdvanced();
 			};
@@ -525,6 +532,8 @@ namespace AirVPN.UI.Osx
 
 			GuiUtils.SetCheck (ChkAutoStart, s.GetBool ("connect")); 
 			GuiUtils.SetCheck (ChkGeneralStartLast, s.GetBool("servers.startlast"));
+			GuiUtils.SetCheck (ChkGeneralOsxVisible, s.GetBool ("gui.osx.visible"));
+			GuiUtils.SetCheck (ChkGeneralOsxDock, s.GetBool ("gui.osx.dock"));
 			GuiUtils.SetCheck (ChkGeneralOsxNotifications, s.GetBool ("gui.osx.notifications"));
 			GuiUtils.SetCheck (ChkExitConfirm, s.GetBool("gui.exit_confirm"));
 
@@ -628,6 +637,8 @@ namespace AirVPN.UI.Osx
 
 			s.SetBool ("connect", GuiUtils.GetCheck (ChkAutoStart));
 			s.SetBool ("servers.startlast", GuiUtils.GetCheck (ChkGeneralStartLast));
+			s.SetBool ("gui.osx.visible", GuiUtils.GetCheck (ChkGeneralOsxVisible));
+			s.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock));
 			s.SetBool ("gui.osx.notifications", GuiUtils.GetCheck (ChkGeneralOsxNotifications));
 			s.SetBool ("gui.exit_confirm", GuiUtils.GetCheck (ChkExitConfirm));
 

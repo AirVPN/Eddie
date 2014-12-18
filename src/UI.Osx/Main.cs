@@ -32,7 +32,7 @@ namespace AirVPN.UI.Osx
 		{
 			Core.Platform.Instance = new AirVPN.Platforms.Osx();
 
-			CommandLine.Init(Environment.CommandLine);
+			CommandLine.InitSystem(Environment.CommandLine);
 
 			// Due to a bug in Xamarin, that don't recognize resources inside Core library if Mono is bundled, we embed some resources in entry assembly.
 
@@ -44,7 +44,7 @@ namespace AirVPN.UI.Osx
 
 			Core.ResourcesFiles.Count ();
 
-			if (CommandLine.Params.ContainsKey ("cli")) {
+			if (CommandLine.SystemEnvironment.Exists ("cli")) {
 				Core.Engine engine = new Core.Engine ();
 
 				if (engine.Initialization ()) {
@@ -60,6 +60,9 @@ namespace AirVPN.UI.Osx
 					return;
 
 				engine.UiStart ();
+
+
+
 
 
 

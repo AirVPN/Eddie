@@ -35,11 +35,12 @@ namespace AirVPN.UI.Osx
 
 		public override bool ApplicationShouldTerminateAfterLastWindowClosed (NSApplication sender)
 		{
-			return true;
+			return false; // 2.8
 		}
 
 		public override void FinishedLaunching (NSObject notification)
 		{
+
 			Engine.Instance.TerminateEvent += delegate() {
 				new NSObject ().InvokeOnMainThread (() => {
 					NSApplication.SharedApplication.ReplyToApplicationShouldTerminate (true);
@@ -47,18 +48,26 @@ namespace AirVPN.UI.Osx
 			};
 
 			mainWindowController = new MainWindowController ();
-			mainWindowController.Window.MakeKeyAndOrderFront (this);
+
+			bool startVisible = Engine.Instance.Storage.GetBool("gui.osx.visible");
+			if (startVisible) {
+				mainWindowController.Window.MakeKeyAndOrderFront (this);
+			} else {
+				mainWindowController.Window.IsVisible = false;
+			}
 			NSApplication.SharedApplication.ActivateIgnoringOtherApps (true);
 
 			MenuEvents ();
 
 		}
 
+
 		public override NSApplicationTerminateReply ApplicationShouldTerminate (NSApplication sender)
 		{
 			if (Engine.Instance.IsAlive ()) {
-			
-				if(mainWindowController.Shutdown() == false)
+				if (mainWindowController.ShutdownConfirmed)
+					return NSApplicationTerminateReply.Now;
+				else if(mainWindowController.Shutdown() == false)
 					return NSApplicationTerminateReply.Cancel;
 				else
 					return NSApplicationTerminateReply.Later;
@@ -67,8 +76,6 @@ namespace AirVPN.UI.Osx
 			}
 
 		}
-
-
 
 		void MenuEvents()
 		{
