@@ -593,6 +593,18 @@ namespace AirVPN.UI.Osx
 
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 
+			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
+			if (manifestRefresh == 60)
+				GuiUtils.SetSelected(cboAdvancedManifestRefresh, "Every one hour");
+			else if (manifestRefresh == 10)
+				GuiUtils.SetSelected(cboAdvancedManifestRefresh, "Every ten minute");
+			else if (manifestRefresh == 1)
+				GuiUtils.SetSelected(cboAdvancedManifestRefresh, "Every minute");
+			else if (manifestRefresh == 0)
+				GuiUtils.SetSelected(cboAdvancedManifestRefresh, "Never");
+			else
+				GuiUtils.SetSelected(cboAdvancedManifestRefresh, "Automatic");
+
 			// Advanced - Lock
 			string lockMode = s.Get ("netlock.mode");
 			GuiUtils.SetSelected (CboLockMode, "None");
@@ -687,6 +699,18 @@ namespace AirVPN.UI.Osx
 			s.SetBool ("advanced.pinger.always", GuiUtils.GetCheck (ChkAdvancedPingerAlways));
 
 			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
+
+			string manifestRefresh = GuiUtils.GetSelected(cboAdvancedManifestRefresh);
+			if (manifestRefresh == "Automatic") // Auto
+				s.SetInt("advanced.manifest.refresh", -1);
+			else if (manifestRefresh == "Never") // Never
+				s.SetInt("advanced.manifest.refresh", 0);
+			else if (manifestRefresh == "Every minute") // One minute
+				s.SetInt("advanced.manifest.refresh", 1);
+			else if (manifestRefresh == "Every ten minute") // Ten minute
+				s.SetInt("advanced.manifest.refresh", 10);
+			else if (manifestRefresh == "Every one hour") // One hour
+				s.SetInt("advanced.manifest.refresh", 60);
 
 
 			// Advanced - Lock

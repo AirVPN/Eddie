@@ -228,21 +228,6 @@ namespace AirVPN.Gui.Forms
 			Resizing();
             Show();
 
-			/*
-            if (cmdConnect.Enabled && (Engine.Storage.GetBool("connect")))
-            {
-                Connect();
-            }
-			*/
-
-			/*
-			if(Engine.Instance.NetworkLockManager.CanEnabled())
-			{
-				if(Engine.Storage.GetBool("netlock.active"))
-					Engine.Instance.NetLockIn();				
-			}
-			*/
-
 			m_formReady = true;
 
 			Engine.OnRefreshUi();
