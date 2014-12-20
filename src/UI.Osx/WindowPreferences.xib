@@ -220,11 +220,11 @@ Gw
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button verticalHuggingPriority="750" id="M7S-Xd-x1D">
-                                            <rect key="frame" x="474" y="219" width="69" height="19"/>
+                                            <rect key="frame" x="472" y="217" width="70" height="25"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="roundRect" title="Help" bezelStyle="roundedRect" image="tip" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eoa-VK-F2y">
+                                            <buttonCell key="cell" type="bevel" title="Help" bezelStyle="regularSquare" image="tip" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eoa-VK-F2y">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="cellTitle"/>
+                                                <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
                                         <button id="CYV-lN-MbD">
@@ -960,12 +960,12 @@ Gw
                                                             <popUpButton verticalHuggingPriority="750" id="ll2-5F-oSu">
                                                                 <rect key="frame" x="160" y="23" width="191" height="26"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                <popUpButtonCell key="cell" type="push" title="Disabled" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="uME-h8-4DX">
+                                                                <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="uME-h8-4DX">
                                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <menu key="menu" title="OtherViews" id="jwf-82-QAt">
                                                                         <items>
-                                                                            <menuItem title="Disabled" state="on" id="enz-xM-oAG"/>
+                                                                            <menuItem title="Disabled" id="enz-xM-oAG"/>
                                                                             <menuItem title="Automatic" id="w2v-FZ-VgW"/>
                                                                         </items>
                                                                     </menu>
