@@ -38,9 +38,9 @@ namespace AirVPN.UI.Windows
 
 			Platform.Instance = new AirVPN.Platforms.Windows();
 			
-			CommandLine.Init(Environment.CommandLine);
+			CommandLine.InitSystem(Environment.CommandLine);
 
-			if (CommandLine.Params.ContainsKey("cli"))
+			if (CommandLine.SystemEnvironment.Exists("cli"))
 			{
 				Core.Engine engine = new Core.Engine();
 

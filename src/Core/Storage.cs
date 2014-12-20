@@ -65,7 +65,7 @@ namespace AirVPN.Core
             {
                 // Profile must not have an extension.
                 profile = profile.Substring(0, profile.IndexOf("."));
-				CommandLine.Params["profile"] = profile;
+				CommandLine.SystemEnvironment.Set("profile",profile);
             }
 
 			if (Platform.Instance.IsPath(profile))            
@@ -74,7 +74,7 @@ namespace AirVPN.Core
 				FileInfo fi = new FileInfo(Platform.Instance.NormalizePath(profile));
                 DataPath = fi.DirectoryName;
                 profile = fi.Name;
-				CommandLine.Params["profile"] = profile;
+				CommandLine.SystemEnvironment.Set("profile",profile);
 
                 if (TestDataPath(DataPath, true) == false)
                     DataPath = "";                
@@ -117,10 +117,12 @@ namespace AirVPN.Core
             return true;
         }
 
+		/*
 		public static string GetVersionDesc()
         {
             return String.Format(CultureInfo.InvariantCulture, "{0:0.0####}", Constants.Version);
         }
+		*/
 
 		public string GetMan()
         {
@@ -160,8 +162,8 @@ namespace AirVPN.Core
         public string Get(string name)
         {
 			lock (this) {
-				if (CommandLine.Params.ContainsKey (name))
-					return CommandLine.Params [name];
+				if (CommandLine.SystemEnvironment.Exists (name))
+					return CommandLine.SystemEnvironment.Get(name,"");
 				else if (m_Options.ContainsKey (name))
 					return m_Options [name];
 				else if (m_OptionsDefaults.ContainsKey (name))
@@ -269,6 +271,7 @@ namespace AirVPN.Core
 			SetDefaultBool("remember", false, Messages.ManOptionRemember);
 			SetDefault("server", "", Messages.ManOptionServer);
 			SetDefaultBool("connect", false, Messages.ManOptionConnect);
+			SetDefaultBool("netlock", false, NotInMan);
 
 			SetDefault("profile", "AirVPN", Messages.ManOptionProfile); // Not in Settings
 			SetDefault("path", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
@@ -315,26 +318,31 @@ namespace AirVPN.Core
 			// Not in Settings
 			SetDefaultInt("openvpn.management_port", 3100, Messages.ManOptionOpenVpnManagementPort);
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
-			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort); 
+			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
 
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);						
-			SetDefaultBool("advanced.check.dns", false, Messages.ManOptionAdvancedCheckDns);
+
+			bool defaultDnsForceAndCheck = false; // 2.8
+			if(Platform.IsUnix())
+				defaultDnsForceAndCheck = true;
+
+			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);
+			SetDefaultBool("advanced.check.dns", defaultDnsForceAndCheck, Messages.ManOptionAdvancedCheckDns);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
 			SetDefault("advanced.dns.mode", "auto", Messages.ManOptionAdvancedDnsSwitch);
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
 			SetDefaultBool("advanced.pinger.always", false, Messages.ManOptionAdvancedPingerAlways);
 			SetDefaultInt("advanced.pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
+			SetDefaultInt("advanced.pinger.retry", 0, Messages.ManOptionAdvancedPingerRetry);
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
-			SetDefaultInt("advanced.pinger.valid", 300, Messages.ManOptionAdvancedPingerValid);
+			SetDefaultInt("advanced.pinger.valid", 0, Messages.ManOptionAdvancedPingerValid);
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
-						
-			SetDefault("netlock.mode", "none", NotInMan); // Maybe 'auto' in future			
-			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked
-			SetDefaultBool("netlock.active", false, NotInMan);
+
+			SetDefault("netlock.mode", "auto", NotInMan); // Maybe 'auto' in future			
+			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked			
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
-			SetDefaultBool("advanced.windows.dns_force", false, Messages.ManOptionAdvancedWindowsDnsForce);
+			SetDefaultBool("advanced.windows.dns_force", defaultDnsForceAndCheck, Messages.ManOptionAdvancedWindowsDnsForce);
 			SetDefaultBool("advanced.windows.dhcp_disable", false, Messages.ManOptionAdvancedWindowsDhcpDisable);
 
 			// Not in Settings
@@ -367,6 +375,8 @@ namespace AirVPN.Core
 
 			// GUI - OSX Only
 			SetDefaultBool("gui.osx.notifications", false, NotInMan);
+			SetDefaultBool("gui.osx.dock", false, NotInMan);
+			SetDefaultBool("gui.osx.visible", false, NotInMan);
 
 			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
 			SetDefault("paramtest", "", NotInMan); 			
@@ -463,7 +473,7 @@ namespace AirVPN.Core
 						string name = e.Attributes["name"].Value;
 						string value = e.Attributes["value"].Value;
 
-						FixCompatibility(name, ref value);
+						FixCompatibility(ref name, ref value);
 
                         Set(name, value);
                     }
@@ -480,7 +490,7 @@ namespace AirVPN.Core
             }
         }
 
-		public void FixCompatibility(string name, ref string value)
+		public void FixCompatibility(ref string name, ref string value)
 		{
 			// AirVPN <=2.4 client use  'host,netmask,action' syntax.
 			// If detected, convert to new 'iprange,action,notes' syntax.
@@ -509,6 +519,10 @@ namespace AirVPN.Core
 				}
 
 				value = newValue;
+			}
+			else if (name == "netlock.active") // 2.8
+			{
+				name = "netlock";
 			}
 		}
 

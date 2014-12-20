@@ -29,6 +29,7 @@ namespace AirVPN.UI.Osx
 	[Register("ChartView")]
 	public class ChartView : NSView
 	{
+		private NSColor m_colorBackground;
 		private NSColor m_colorGrid;
 		private NSColor m_colorAxis;
 		private NSColor m_colorMouse;
@@ -84,6 +85,7 @@ namespace AirVPN.UI.Osx
 		{
 			base.AwakeFromNib ();
 
+			m_colorBackground = GuiUtils.ConvertColor(Colors.LightChartBackground);
 			m_colorGrid = GuiUtils.ConvertColor(Colors.LightChartGrid);
 			m_colorAxis = GuiUtils.ConvertColor (Colors.LightChartAxis);
 			m_colorMouse = GuiUtils.ConvertColor(Colors.LightChartMouse);
@@ -100,7 +102,6 @@ namespace AirVPN.UI.Osx
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
 			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);
-
 
 		}
 
@@ -214,8 +215,12 @@ namespace AirVPN.UI.Osx
 
 			// Engine.Instance.Stats.Charts.Hit (RandomGenerator.GetInt (1024, 1024 * 1024), RandomGenerator.GetInt (1024, 1024 * 1024)); // Debugging
 
+			context.SetFillColor (m_colorBackground.CGColor);
+			context.FillRect (dirtyRect);
+
 			NSColor.Gray.Set ();
 			NSBezierPath.StrokeRect (Bounds);
+
 
 			float DX = this.Bounds.Size.Width;
 			float DY = this.Bounds.Size.Height;
@@ -299,7 +304,7 @@ namespace AirVPN.UI.Osx
 				long v = m_chart.GetLastDownload();
 				downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
 				DrawLine(m_colorDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
-				DrawStringOutline(Messages.ChartDownload + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - downCurY), 8);
+				DrawStringOutline(Messages.ChartDownload + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX-10, m_chartStartY - downCurY), 8);
 			}
 
 			// Upload line
@@ -309,7 +314,7 @@ namespace AirVPN.UI.Osx
 				float dly = 0;
 				if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
 				DrawLine(m_colorUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
-				DrawStringOutline(Messages.ChartUpload + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - y - dly), 8);
+				DrawStringOutline(Messages.ChartUpload + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX-10, m_chartStartY - y - dly), 8);
 
 			}
 

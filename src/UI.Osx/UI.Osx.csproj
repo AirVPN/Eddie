@@ -11,7 +11,7 @@
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.7</ReleaseVersion>
+    <ReleaseVersion>2.8</ReleaseVersion>
     <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -42,28 +42,27 @@
     </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <ConsolePause>false</ConsolePause>
     <LinkMode>Full</LinkMode>
     <UseSGen>false</UseSGen>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
     <CreatePackage>true</CreatePackage>
     <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
-    <EnableCodeSigning>true</EnableCodeSigning>
+    <EnableCodeSigning>false</EnableCodeSigning>
     <EnablePackageSigning>true</EnablePackageSigning>
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
-    <I18n>
-    </I18n>
     <CustomCommands>
       <CustomCommands>
-        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" externalConsole="True" />
+        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" workingdir="${ProjectDir}/" externalConsole="True" />
+        <Command type="AfterBuild" command="${ProjectDir}/postbuild.sh" workingdir="${ProjectDir}/" externalConsole="True" />
       </CustomCommands>
     </CustomCommands>
+    <Externalconsole>true</Externalconsole>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>full</DebugType>
@@ -483,8 +482,6 @@
     <BundleResource Include="Resources\icon_black.png" />
     <BundleResource Include="Resources\icon_gray.png" />
     <BundleResource Include="Resources\icon.png" />
-    <BundleResource Include="Resources\statusbar_black.png" />
-    <BundleResource Include="Resources\statusbar_black_gray.png" />
     <BundleResource Include="Resources\notconnected.png" />
     <BundleResource Include="Resources\topbar_osx_green.png" />
     <BundleResource Include="Resources\topbar_osx_red.png" />
@@ -507,6 +504,9 @@
     <BundleResource Include="Resources\status_yellow_16.png" />
     <BundleResource Include="Resources\netlock_off.png" />
     <BundleResource Include="Resources\netlock_on.png" />
+    <BundleResource Include="Resources\menubar_green.png" />
+    <BundleResource Include="Resources\menubar_red.png" />
+    <BundleResource Include="Resources\menubar_yellow.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

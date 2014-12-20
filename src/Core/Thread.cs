@@ -50,6 +50,11 @@ namespace AirVPN.Core
         {
             m_Thread.Start();
         }
+
+		public virtual void Join()
+		{
+			m_Thread.Join ();
+		}
                 
         public virtual void RequestStop()
         {

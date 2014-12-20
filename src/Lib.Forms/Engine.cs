@@ -123,7 +123,7 @@ namespace AirVPN.Gui
 
 					string command2 = "";
 					string executablePath = Platform.Instance.GetExecutablePath();
-					string cmdline = CommandLine.Get();
+					string cmdline = CommandLine.SystemEnvironment.GetFull();
 					if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
 						command2 += "mono ";						
 					command2 += Platform.Instance.GetExecutablePath();

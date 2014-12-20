@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6250"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MainWindowController">
@@ -39,8 +39,6 @@
                 <outlet property="LblTopStatus" destination="2cT-SR-rTr" id="8Kx-JK-ijp"/>
                 <outlet property="LblWaiting1" destination="TxA-1y-Zx4" id="MBl-E8-jXk"/>
                 <outlet property="LblWaiting2" destination="rGP-dy-qN2" id="Cu7-96-5BM"/>
-                <outlet property="LstLogs" destination="UwD-DD-x5g" id="dms-wM-XLl"/>
-                <outlet property="LstLogs2" destination="q0u-aS-DHq" id="Cn7-Dr-iPW"/>
                 <outlet property="MnuAreasBlacklist" destination="uId-gT-4uA" id="QRp-IV-7dt"/>
                 <outlet property="MnuAreasUndefined" destination="0dA-Gd-pTt" id="ZAP-Yd-IlZ"/>
                 <outlet property="MnuAreasWhitelist" destination="pym-DI-K1T" id="ZJg-Ug-llK"/>
@@ -81,7 +79,7 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="MainWindow">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="598" y="74" width="600" height="400"/>
@@ -246,7 +244,7 @@
                                                                 <rect key="frame" x="15" y="198" width="524" height="61"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="bls-Ij-ZaN">
-                                                                    <font key="font" size="18" name=".LucidaGrandeUI"/>
+                                                                    <font key="font" metaFont="system" size="18"/>
                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
@@ -421,7 +419,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="rKQ-rO-RJl" id="Y9F-5S-1r4">
-                                                        <rect key="frame" x="0.0" y="0.0" width="532" height="266"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="532" height="17"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -542,7 +540,7 @@
                                                 <rect key="frame" x="1" y="267" width="512" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
-                                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="MNe-ZG-RLJ">
+                                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="MNe-ZG-RLJ">
                                                 <rect key="frame" x="224" y="17" width="15" height="102"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
@@ -653,7 +651,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" headerView="Iry-n4-YEX" id="w3Z-Uc-XBk">
-                                                        <rect key="frame" x="0.0" y="0.0" width="512" height="293"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="501" height="19"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -751,7 +749,7 @@
                                                 <rect key="frame" x="1" y="294" width="512" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
-                                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="e5h-jF-tuC">
+                                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="e5h-jF-tuC">
                                                 <rect key="frame" x="224" y="17" width="15" height="102"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
@@ -830,7 +828,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="14" id="mTK-AK-d0A">
-                                                        <rect key="frame" x="0.0" y="0.0" width="1179" height="309"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="1179" height="16"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -902,7 +900,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnSelection="YES" autosaveColumns="NO" rowHeight="14" headerView="TIO-PH-Oac" id="q0u-aS-DHq">
-                                                        <rect key="frame" x="0.0" y="0.0" width="1179" height="293"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="1179" height="16"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -1024,7 +1022,7 @@
                         <rect key="frame" x="18" y="376" width="547" height="19"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="8JD-xd-tCN">
-                            <font key="font" size="14" name=".LucidaGrandeUI"/>
+                            <font key="font" metaFont="system" size="14"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -1086,6 +1084,10 @@
         </menu>
         <menu title="Tray" autoenablesItems="NO" id="2Bv-yX-Px1">
             <items>
+                <menuItem title="Show Window / Restore" image="restore" id="ACK-P9-tRH">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="NA7-O2-7aK"/>
                 <menuItem title="Status" image="status_red_16" id="9x6-QD-kVV">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
@@ -1110,10 +1112,6 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem title="About" image="about" id="83q-TJ-BhH">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                </menuItem>
-                <menuItem isSeparatorItem="YES" id="NA7-O2-7aK"/>
-                <menuItem title="Show Window / Restore" image="restore" id="ACK-P9-tRH">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="gvA-fU-Aip"/>

@@ -16,6 +16,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSPopUpButton CboAdvancedDnsSwitchMode { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboLockMode { get; set; }
 
 		[Outlet]
@@ -55,7 +58,13 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton ChkExitConfirm { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkGeneralOsxDock { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton ChkGeneralOsxNotifications { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkGeneralOsxVisible { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkGeneralStartLast { get; set; }
@@ -221,14 +230,9 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (ChkModeAutomatic != null) {
-				ChkModeAutomatic.Dispose ();
-				ChkModeAutomatic = null;
-			}
-
-			if (ChkModeTor != null) {
-				ChkModeTor.Dispose ();
-				ChkModeTor = null;
+			if (CboAdvancedManifestRefresh != null) {
+				CboAdvancedManifestRefresh.Dispose ();
+				CboAdvancedManifestRefresh = null;
 			}
 
 			if (CboAdvancedDnsSwitchMode != null) {
@@ -306,6 +310,16 @@ namespace AirVPN.UI.Osx
 				ChkGeneralOsxNotifications = null;
 			}
 
+			if (ChkGeneralOsxDock != null) {
+				ChkGeneralOsxDock.Dispose ();
+				ChkGeneralOsxDock = null;
+			}
+
+			if (ChkGeneralOsxVisible != null) {
+				ChkGeneralOsxVisible.Dispose ();
+				ChkGeneralOsxVisible = null;
+			}
+
 			if (ChkGeneralStartLast != null) {
 				ChkGeneralStartLast.Dispose ();
 				ChkGeneralStartLast = null;
@@ -314,6 +328,11 @@ namespace AirVPN.UI.Osx
 			if (ChkLoggingEnabled != null) {
 				ChkLoggingEnabled.Dispose ();
 				ChkLoggingEnabled = null;
+			}
+
+			if (ChkModeAutomatic != null) {
+				ChkModeAutomatic.Dispose ();
+				ChkModeAutomatic = null;
 			}
 
 			if (ChkModeSsh22 != null) {
@@ -364,6 +383,11 @@ namespace AirVPN.UI.Osx
 			if (ChkModeTcp80 != null) {
 				ChkModeTcp80.Dispose ();
 				ChkModeTcp80 = null;
+			}
+
+			if (ChkModeTor != null) {
+				ChkModeTor.Dispose ();
+				ChkModeTor = null;
 			}
 
 			if (ChkModeUdp2018 != null) {

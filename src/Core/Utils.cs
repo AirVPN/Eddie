@@ -88,6 +88,8 @@ namespace AirVPN.Core
 			XmlNode nodeAttr = node.Attributes[name];
 			if (nodeAttr == null)
 				return new string[0];
+			else if(nodeAttr.Value == "") // New in 2.8
+				return new string[0];
 			else
 				return nodeAttr.Value.Split(',');
 		}
@@ -117,7 +119,10 @@ namespace AirVPN.Core
 
 		public static void XmlSetAttributeStringArray(XmlElement node, string name, string[] val)
 		{
-			node.SetAttribute(name, String.Join(",", val)); // TODO: Escaping
+			if ((val == null) || (val.Length == 0)) // Added in 2.8
+				node.SetAttribute(name, "");
+			else
+				node.SetAttribute(name, String.Join(",", val)); // TODO: Escaping
 		}
 
 		public static void XmlSetAttributeBool(XmlElement node, string name, bool val)

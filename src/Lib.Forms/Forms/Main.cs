@@ -38,9 +38,9 @@ namespace AirVPN.Gui.Forms
     {
 		private Controls.ChartSpeed m_pnlCharts;
 		private Controls.MenuButton m_cmdMainMenu;
+		private Controls.ProgressInfinite m_imgProgressInfinite;
         private System.Windows.Forms.NotifyIcon m_notifyIcon;
-		private PictureBox m_imgProgress;
-        
+		
 		private ListViewServers m_listViewServers;
 		private ListViewAreas m_listViewAreas;
 
@@ -119,13 +119,9 @@ namespace AirVPN.Gui.Forms
 				m_notifyIcon.ContextMenuStrip = mnuMain;
             }
 
-			if (Platform.Instance.IsWindowsSystem())
-			{
-				m_imgProgress = new PictureBox();
-				m_imgProgress.Image = global::AirVPN.Lib.Forms.Properties.Resources.progress;
-				this.pnlWaiting.Controls.Add(m_imgProgress);
-			}
-
+			m_imgProgressInfinite = new ProgressInfinite();
+			this.pnlWaiting.Controls.Add(m_imgProgressInfinite);
+			
 			// Controls initialization
 			mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
 			mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
@@ -231,21 +227,6 @@ namespace AirVPN.Gui.Forms
 
 			Resizing();
             Show();
-
-			/*
-            if (cmdConnect.Enabled && (Engine.Storage.GetBool("connect")))
-            {
-                Connect();
-            }
-			*/
-
-			/*
-			if(Engine.Instance.NetworkLockManager.CanEnabled())
-			{
-				if(Engine.Storage.GetBool("netlock.active"))
-					Engine.Instance.NetLockIn();				
-			}
-			*/
 
 			m_formReady = true;
 
@@ -592,13 +573,29 @@ namespace AirVPN.Gui.Forms
 			XmlDocument xmlDoc = new XmlDocument();
 			XmlNode node = xmlDoc.ImportNode(Engine.Storage.Manifest, true);			
 			xmlDoc.AppendChild(node);
+			xmlDoc.FirstChild.Attributes.RemoveAll();
+			xmlDoc.FirstChild.RemoveChild(xmlDoc.SelectSingleNode("//manifest/servers"));
+			xmlDoc.FirstChild.RemoveChild(xmlDoc.SelectSingleNode("//manifest/areas"));
 			
-			String Body = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" + xmlDoc.OuterXml;
+			using (var sw = new StringWriter())
+			{
+				using (var xw = new XmlTextWriter(sw))
+				{
+					xw.Formatting = Formatting.Indented;					
+					xw.Indentation = 2; //default is 1. I used 2 to make the indents larger.
 
-			Forms.TextViewer Dlg = new TextViewer();
-			Dlg.Title = "Default manifest";
-			Dlg.Body = Body;
-			Dlg.ShowDialog();
+					xmlDoc.WriteTo(xw);
+				}
+
+				String body = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" + sw.ToString();
+
+				Forms.TextViewer dlg = new TextViewer();
+				dlg.Title = "Default manifest";
+				dlg.Body = body;
+				dlg.ShowDialog();
+			}
+
+			
 		}
 		
 		void m_listViewServers_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -890,11 +887,11 @@ namespace AirVPN.Gui.Forms
 				pnlWaiting.Height = tabItemHeight;
 				int imgProgressTop = (tabItemHeight / 2) - (13 / 2);
 				Size imgProgressSize = new Size(208, 13);
-				if (m_imgProgress != null)
+				if (m_imgProgressInfinite != null)
 				{
-					m_imgProgress.Size = imgProgressSize;
-					m_imgProgress.Left = (tabItemWidth / 2) - (208 / 2);
-					m_imgProgress.Top = (tabItemHeight / 2) - (13 / 2);
+					m_imgProgressInfinite.Size = imgProgressSize;
+					m_imgProgressInfinite.Left = (tabItemWidth / 2) - (208 / 2);					
+					m_imgProgressInfinite.Top = (tabItemHeight / 2) - (13 / 2);					
 				}
 				lblWait1.Left = 0;
 				lblWait1.Top = 0;
@@ -1024,7 +1021,7 @@ namespace AirVPN.Gui.Forms
 
 						string notifyText = Constants.Name + " - " + ShortMsg;
 
-						if(Engine.IsConnected() == false)
+						//if(Engine.IsConnected() == false)
 						{
 							Text = Constants.Name + " - " + Msg;
 
@@ -1073,7 +1070,7 @@ namespace AirVPN.Gui.Forms
 
 			if (logged == false)
 			{
-				cmdLogin.Text = Messages.CommandLogin;				
+				cmdLogin.Text = Messages.CommandLoginButton;				
 			}
 			else
 			{
@@ -1097,7 +1094,7 @@ namespace AirVPN.Gui.Forms
 			else
 			{
 				mnuConnect.Enabled = true;
-				mnuConnect.Text = Messages.CommandLogin;
+				mnuConnect.Text = Messages.CommandLoginMenu;
 			}
 
 
@@ -1366,8 +1363,8 @@ namespace AirVPN.Gui.Forms
 
         public void ShowAbout()
         {
-            Forms.About dlg = new Forms.About();
-            dlg.ShowDialog();
+			Forms.About dlg = new Forms.About();
+            dlg.ShowDialog();			
         }
 
         public bool TermsOfServiceCheck(bool force)

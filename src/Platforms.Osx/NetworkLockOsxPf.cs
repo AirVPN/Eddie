@@ -57,7 +57,9 @@ namespace AirVPN.Platforms
 
 			m_prevActive = false;
 			string report = Exec("pfctl -si");
-			if (report.IndexOf ("Status: Enabled") != -1)
+			if (report.IndexOf ("denied") != -1)
+				throw new Exception("Permission denied.");
+			else if (report.IndexOf ("Status: Enabled") != -1)
 				m_prevActive = true;
 			else if (report.IndexOf("Status: Disabled") != -1)
 				m_prevActive = false;
@@ -116,7 +118,7 @@ namespace AirVPN.Platforms
 			base.OnUpdateIps();
 
 			string pf = "";
-			pf += Messages.Format(Messages.GeneratedFileHeader, Storage.GetVersionDesc()) + "\n";
+			pf += Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc) + "\n";
 			pf += "# Drop everything that doesn't match a rule\n";
 			//pf += "block drop out inet from 192.168.0.0/16 to any\n";
 			pf += "block drop out inet from any to any\n";

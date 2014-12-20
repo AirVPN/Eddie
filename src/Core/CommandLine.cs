@@ -22,16 +22,23 @@ using System.Text;
 
 namespace AirVPN.Core
 {
-	public static class CommandLine
+	public class CommandLine
 	{
-		public static Dictionary<string, string> Params = new Dictionary<string, string>();
+		public static CommandLine SystemEnvironment;
 
-		public static void Init(string line)
-		{			
-			Params = ParseCommandLine(line, true);
+		public static void InitSystem(string line)
+		{
+			SystemEnvironment = new CommandLine(line, true, false);
+		}
+		
+		public Dictionary<string, string> Params = new Dictionary<string, string>();
+
+		public CommandLine(string line, bool ignoreFirst, bool firstIsAction)
+		{
+			Params = ParseCommandLine(line, ignoreFirst, firstIsAction);
 		}
 
-		public static string Get()
+		public string GetFull()
 		{
 			string o = "";
 			foreach (KeyValuePair<string, string> item in Params)
@@ -39,7 +46,25 @@ namespace AirVPN.Core
 			return o.Trim();
 		}
 
-		private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst)
+		public bool Exists(string name)
+		{
+			return Params.ContainsKey(name);
+		}
+
+		public void Set(string name, string value)
+		{
+			Params[name] = value;
+		}
+
+		public string Get(string name, string def)
+		{
+			if (Exists(name))
+				return Params[name];
+			else
+				return def;
+		}
+
+		private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst, bool firstIsAction)
 		{
 			Dictionary<string, string> result = new Dictionary<string, string>();
 
@@ -74,6 +99,12 @@ namespace AirVPN.Core
 				string trimCharsV = " -.\"'\n\r\t";
 				k = k.Trim(trimCharsK.ToCharArray());
 				v = v.Trim(trimCharsV.ToCharArray());
+
+				if ((i == 1) && (firstIsAction) && (v == ""))
+				{
+					v = k;
+					k = "action";
+				}
 
 				if (v == "") // For example, "... -help ..." is equivalent of "... -help=True ..."
 					v = "True";

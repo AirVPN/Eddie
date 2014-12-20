@@ -55,6 +55,12 @@ namespace AirVPN.UI.Osx
 					MainWindow.Close ();
 				});
 			}
+
+			//Environment.Exit (0); // 2.8, because App don't close it automatically, we disabled ApplicationShouldTerminateAfterLastWindowClosed
+
+			new NSObject ().InvokeOnMainThread (() => {
+				NSApplication.SharedApplication.Terminate(new NSObject ());
+			});
 		}
 
 		public override bool OnNoRoot ()
@@ -95,7 +101,16 @@ namespace AirVPN.UI.Osx
 			}
 		}
 
+		public override void OnSettingsChanged ()
+		{
+			if (MainWindow != null) {
+				new NSObject ().InvokeOnMainThread (() => {
+					MainWindow.SettingsChanged ();
+				});
+			}
 
+			base.OnSettingsChanged ();
+		}
 		
 		public override void OnLog (LogEntry l)
 		{

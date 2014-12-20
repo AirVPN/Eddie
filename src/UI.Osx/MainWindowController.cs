@@ -33,6 +33,8 @@ namespace AirVPN.UI.Osx
 		public TableLogsController TableLogsController;
 		public TableStatsController TableStatsController;
 
+		public bool ShutdownConfirmed = false;
+
 		public NSStatusItem StatusItem;
 
 		private WindowAboutController windowAbout;
@@ -74,7 +76,7 @@ namespace AirVPN.UI.Osx
 				return Core.Engine.Instance as UI.Osx.Engine;
 			}
 		}
-
+			
 		public override void AwakeFromNib()
 		{
 			base.AwakeFromNib ();
@@ -327,7 +329,7 @@ namespace AirVPN.UI.Osx
 
 			MnuTrayStatus.Activated += (object sender, EventArgs e) =>
 			{
-				Restore();
+				Restore(sender);
 			};
 
 			MnuTrayConnect.Activated += (object sender, EventArgs e) =>
@@ -346,7 +348,7 @@ namespace AirVPN.UI.Osx
 				}
 				else
 				{
-					Restore();
+					Restore(sender);
 				}
 			};
 
@@ -381,10 +383,12 @@ namespace AirVPN.UI.Osx
 			};
 
 			MnuTrayRestore.Activated += (object sender, EventArgs e) => {
+				/* // 2.8
 				if(Window.IsVisible)
 					Minimize();
 				else
-					Restore();
+					*/
+					Restore(sender);
 			};
 
 			MnuTrayQuit.Activated += (object sender, EventArgs e) =>
@@ -401,6 +405,8 @@ namespace AirVPN.UI.Osx
 
 			Engine.OnRefreshUi ();
 
+			SettingsChanged ();
+
 			RequestAttention ();
 		}
 
@@ -411,6 +417,7 @@ namespace AirVPN.UI.Osx
 					return false;
 				}
 			}
+			ShutdownConfirmed = true;
 			if (windowAbout != null)
 				windowAbout.Close ();
 			if (windowPreferences != null)
@@ -478,13 +485,13 @@ namespace AirVPN.UI.Osx
 				{
 					if(Engine.IsConnected())
 					{
-						StatusItem.Image = NSImage.ImageNamed("statusbar_black.png");
+						StatusItem.Image = NSImage.ImageNamed("menubar_green.png");
 						//NSApplication.SharedApplication.DockTile. =  DateTime.Now.ToString ();
 						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
 					}
 					else
 					{
-						StatusItem.Image = NSImage.ImageNamed("statusbar_black_gray.png");
+						StatusItem.Image = NSImage.ImageNamed("menubar_red.png");
 						//NSApplication.SharedApplication.DockTile.Description =  DateTime.Now.ToString ();
 						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
 					}
@@ -566,13 +573,15 @@ namespace AirVPN.UI.Osx
 			bool waiting = Engine.IsWaiting ();
 
 			MnuTrayRestore.Hidden = false;
+			/* // 2.8
 			if (this.Window.IsVisible)
 				MnuTrayRestore.Title = Messages.WindowsMainHide;
 			else
-				MnuTrayRestore.Title = Messages.WindowsMainShow;
+				*/
+			MnuTrayRestore.Title = Messages.WindowsMainShow;
 
 			if (logged == false)
-				CmdLogin.Title = Messages.CommandLogin;
+				CmdLogin.Title = Messages.CommandLoginButton;
 			else
 				CmdLogin.Title = Messages.CommandLogout;
 
@@ -593,7 +602,7 @@ namespace AirVPN.UI.Osx
 			else
 			{
 				MnuTrayConnect.Enabled = true;
-				MnuTrayConnect.Title = Messages.CommandLogin;
+				MnuTrayConnect.Title = Messages.CommandLoginMenu;
 			}
 
 			CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim () != "") && (TxtPassword.StringValue.Trim () != ""));
@@ -626,15 +635,28 @@ namespace AirVPN.UI.Osx
 			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
 			CmdLogsOpenVpnManagement.Enabled = connected;
 
-			CmdNetworkLock.Hidden = (Engine.Instance.NetworkLockManager.CanEnabled() == false);
-			ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
-			if (Engine.Instance.NetworkLockManager.IsActive()) {
-				CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
-				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
-			} else {
-				CmdNetworkLock.Title = Messages.NetworkLockButtonDeactive;
-				ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_off.png");
+			if (Engine.Instance.NetworkLockManager != null) {
+				CmdNetworkLock.Hidden = (Engine.Instance.NetworkLockManager.CanEnabled () == false);
+				ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
+				if (Engine.Instance.NetworkLockManager.IsActive ()) {
+					CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
+					ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
+				} else {
+					CmdNetworkLock.Title = Messages.NetworkLockButtonDeactive;
+					ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_off.png");
+				}
 			}
+
+
+		}
+
+		public void SettingsChanged()
+		{
+			bool showInDock = Engine.Storage.GetBool ("gui.osx.dock");
+			if(showInDock)
+				NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
+			else
+				NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
 		}
 
 		public void FrontMessage(string message)
@@ -701,7 +723,7 @@ namespace AirVPN.UI.Osx
 			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (22);
 			//StatusItem.Menu = notifyMenu;
 			StatusItem.Menu = MnuTray;
-			StatusItem.Image = NSImage.ImageNamed ("statusbar_black_gray.png");
+			StatusItem.Image = NSImage.ImageNamed ("menubar_red.png");
 			StatusItem.HighlightMode = true;
 		}
 
@@ -753,8 +775,6 @@ namespace AirVPN.UI.Osx
 
 			if(GuiUtils.MessageYesNo(msg))
 			{
-				//Engine.Instance.Storage.SetBool ("netlock.active", true);
-
 				Engine.Instance.NetLockIn ();
 			}
 
@@ -763,8 +783,6 @@ namespace AirVPN.UI.Osx
 		void NetworkLockDeactivation()
 		{
 			Engine.NetLockOut ();
-
-			//Engine.Instance.Storage.SetBool ("netlock.active", false);
 		}
 
 		bool TermsOfServiceCheck(bool force)
@@ -877,14 +895,14 @@ namespace AirVPN.UI.Osx
 
 		public void ShowAbout()
 		{
-			if(windowAbout == null)
+			if ( (windowAbout == null) || (windowAbout.Window.IsVisible == false) )
 				windowAbout = new WindowAboutController();
 			windowAbout.ShowWindow(this);
 		}
 
 		public void ShowPreferences()
 		{
-			if(windowPreferences == null)
+			if ( (windowPreferences == null) || (windowPreferences.Window.IsVisible == false) )
 				windowPreferences = new WindowPreferencesController();
 			windowPreferences.ShowWindow(this);
 		}
@@ -915,10 +933,17 @@ namespace AirVPN.UI.Osx
 			EnabledUI ();
 		}
 
-		public void Restore()
+		public void Restore(object sender)
 		{
+
+			NSApplication.SharedApplication.ActivateIgnoringOtherApps (true);
+
+			ShowWindow (this);
+			Window.MakeMainWindow ();
 			Window.Deminiaturize (this);
 			EnabledUI ();
+			Window.MakeKeyAndOrderFront (this);
+
 		}
 	}
 }

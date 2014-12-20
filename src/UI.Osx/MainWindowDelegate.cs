@@ -33,8 +33,11 @@ namespace AirVPN.UI.Osx
 
 		public override bool WindowShouldClose (MonoMac.Foundation.NSObject sender)
 		{
+			return true; // 2.8, in previous versions closing the main window will close the App
+			/*
 			m_main.Shutdown ();
 			return false;
+			*/
 		}
 
 		public override void DidMiniaturize (MonoMac.Foundation.NSNotification notification)
