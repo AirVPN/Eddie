@@ -11,7 +11,7 @@
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.7</ReleaseVersion>
+    <ReleaseVersion>2.8</ReleaseVersion>
     <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">

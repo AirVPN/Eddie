@@ -62,7 +62,7 @@ namespace AirVPN.UI.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
 
-			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Storage.GetVersionDesc ();
+			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
 			TxtLicense.Value = Core.UI.Actions.GetAboutLicense ();
 			TxtLibraries.Value = Core.UI.Actions.GetAboutThirdParty ();
 

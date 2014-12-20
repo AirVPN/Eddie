@@ -581,7 +581,7 @@ namespace AirVPN.UI.Osx
 			MnuTrayRestore.Title = Messages.WindowsMainShow;
 
 			if (logged == false)
-				CmdLogin.Title = Messages.CommandLogin;
+				CmdLogin.Title = Messages.CommandLoginButton;
 			else
 				CmdLogin.Title = Messages.CommandLogout;
 
@@ -602,7 +602,7 @@ namespace AirVPN.UI.Osx
 			else
 			{
 				MnuTrayConnect.Enabled = true;
-				MnuTrayConnect.Title = Messages.CommandLogin;
+				MnuTrayConnect.Title = Messages.CommandLoginMenu;
 			}
 
 			CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim () != "") && (TxtPassword.StringValue.Trim () != ""));

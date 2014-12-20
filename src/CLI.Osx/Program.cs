@@ -33,7 +33,7 @@ namespace AirVPN.CLI.Osx
 
 			Platform.Instance = new AirVPN.Platforms.Osx();
 
-			CommandLine.Init(Environment.CommandLine);
+			CommandLine.InitSystem(Environment.CommandLine);
 			/*
 			Core.Engine engine = new Core.Engine();
 

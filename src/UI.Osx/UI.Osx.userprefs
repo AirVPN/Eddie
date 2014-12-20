@@ -1,34 +1,33 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/8/2014 12:15:57 AM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x64" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="MainWindowController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../CLI.Osx/Program.cs">
     <Files>
-      <File FileName="MainWindowController.cs" Line="19" Column="19" />
-      <File FileName="../Platforms.Osx/Osx.cs" Line="4" Column="4" />
-      <File FileName="Main.cs" Line="5" Column="5" />
-      <File FileName="MainWindow.cs" Line="19" Column="19" />
-      <File FileName="WindowPreferencesController.cs" Line="58" Column="58" />
-      <File FileName="AppDelegate.cs" Line="36" Column="36" />
-      <File FileName="../Platforms.Osx/NetworkLockOsxPf.cs" Line="3" Column="3" />
-      <File FileName="MainWindowDelegate.cs" Line="88" Column="88" />
-      <File FileName="../Core/Engine.cs" Line="3" Column="3" />
-      <File FileName="Engine.cs" Line="135" Column="135" />
+      <File FileName="MainWindowController.cs" Line="4" Column="4" />
+      <File FileName="../Platforms.Osx/Osx.cs" Line="35" Column="35" />
+      <File FileName="Main.cs" Line="1" Column="1" />
+      <File FileName="MainWindow.cs" Line="10" Column="10" />
+      <File FileName="WindowPreferencesController.cs" Line="30" Column="30" />
+      <File FileName="AppDelegate.cs" Line="3" Column="3" />
+      <File FileName="../Platforms.Osx/NetworkLockOsxPf.cs" Line="1" Column="1" />
+      <File FileName="MainWindowDelegate.cs" Line="1" Column="1" />
+      <File FileName="../Core/Engine.cs" Line="30" Column="30" />
+      <File FileName="Engine.cs" Line="41" Column="41" />
+      <File FileName="../Core/Storage.cs" Line="20" Column="20" />
+      <File FileName="../CLI.Osx/Program.cs" Line="6" Column="6" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="Lib.Core" expanded="True" />
-          <Node name="Platforms.Osx" expanded="True">
-            <Node name="Osx.cs" selected="True" />
-          </Node>
-          <Node name="UI.Osx" expanded="True" />
+          <Node name="Deploy" selected="True" />
         </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/clodo/Documents/airvpn-client/src/UI.Osx/AppDelegate.cs" line="45" column="14" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <DisabledProjects>

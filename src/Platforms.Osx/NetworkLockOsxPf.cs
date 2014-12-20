@@ -118,7 +118,7 @@ namespace AirVPN.Platforms
 			base.OnUpdateIps();
 
 			string pf = "";
-			pf += Messages.Format(Messages.GeneratedFileHeader, Storage.GetVersionDesc()) + "\n";
+			pf += Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc) + "\n";
 			pf += "# Drop everything that doesn't match a rule\n";
 			//pf += "block drop out inet from 192.168.0.0/16 to any\n";
 			pf += "block drop out inet from any to any\n";
