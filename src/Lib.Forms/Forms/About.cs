@@ -42,7 +42,7 @@ namespace AirVPN.Gui.Forms
 
             CommonInit(Messages.WindowsAboutTitle);
 
-            lblVersion.Text = Messages.WindowsAboutVersion + " " + Storage.GetVersionDesc();
+			lblVersion.Text = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
 
 			txtLicense.Text = Core.UI.Actions.GetAboutLicense();
 			txtThirdParty.Text = Core.UI.Actions.GetAboutThirdParty();

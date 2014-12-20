@@ -275,7 +275,7 @@ namespace AirVPN.Platforms
 				}
 
 				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameDone);
-				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.GeneratedFileHeader,Storage.GetVersionDesc()) + "\n\nnameserver " + dns + "\n");
+				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc) + "\n\nnameserver " + dns + "\n");
 			}			
 		}
 

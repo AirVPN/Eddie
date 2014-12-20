@@ -117,10 +117,12 @@ namespace AirVPN.Core
             return true;
         }
 
+		/*
 		public static string GetVersionDesc()
         {
             return String.Format(CultureInfo.InvariantCulture, "{0:0.0####}", Constants.Version);
         }
+		*/
 
 		public string GetMan()
         {

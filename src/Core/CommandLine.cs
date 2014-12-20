@@ -59,7 +59,7 @@ namespace AirVPN.Core
 		public string Get(string name, string def)
 		{
 			if (Exists(name))
-				return Params["name"];
+				return Params[name];
 			else
 				return def;
 		}

@@ -1070,7 +1070,7 @@ namespace AirVPN.Gui.Forms
 
 			if (logged == false)
 			{
-				cmdLogin.Text = Messages.CommandLogin;				
+				cmdLogin.Text = Messages.CommandLoginButton;				
 			}
 			else
 			{
@@ -1094,7 +1094,7 @@ namespace AirVPN.Gui.Forms
 			else
 			{
 				mnuConnect.Enabled = true;
-				mnuConnect.Text = Messages.CommandLogin;
+				mnuConnect.Text = Messages.CommandLoginMenu;
 			}
 
 

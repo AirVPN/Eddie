@@ -170,7 +170,7 @@ namespace AirVPN.Core
 			bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
 			if (manMode == false)
 			{
-				Log(LogType.Info, "AirVPN client version: " + Storage.GetVersionDesc() + ", System: " + Platform.Instance.GetCode() + ", Architecture: " + Platform.Instance.GetArchitecture());
+				Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + ", System: " + Platform.Instance.GetCode() + ", Architecture: " + Platform.Instance.GetArchitecture());
 				if (DevelopmentEnvironment)
 					Log(LogType.Info, "Development environment.");
 			}
@@ -1374,7 +1374,7 @@ namespace AirVPN.Core
                 ip = CurrentServer.IpEntry2;
 
 			string ovpn = "";
-			ovpn += "# " + Messages.Format(Messages.GeneratedFileHeader, Storage.GetVersionDesc()) + "\n";
+			ovpn += "# " + Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc) + "\n";
             ovpn += "# " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC\n";
             if (s.GetBool("openvpn.skip_defaults") == false)
                 ovpn += s.Manifest.Attributes["openvpn_directives_common"].Value.Replace("\t", "").Trim() + "\n";

@@ -207,7 +207,8 @@ namespace AirVPN.Core
 		public static string TooltipLogsCopy = "Copy to clipboard";
 		public static string TooltipLogsSave = "Save to file";
 		public static string TooltipLogsSupport = "Log system information and copy to clipboard. Useful for support requests";
-		public static string CommandLogin = "Login action required."; // TOTRANSLATE: It's a menu item, showed when a 'Connect' shortcut can't be available because the user is not logged. At click simply show the main interface.
+		public static string CommandLoginButton = "Login"; // TOTRANSLATE: It's a menu item, showed when a 'Connect' shortcut can't be available because the user is not logged. At click simply show the main interface.
+		public static string CommandLoginMenu = "Login action required."; // TOTRANSLATE: It's a menu item, showed when a 'Connect' shortcut can't be available because the user is not logged. At click simply show the main interface.
 		public static string CommandLogout = "Logout";
 		public static string CommandConnect = "Connect to a recommended server";
 		public static string CommandConnectSubtitle = "or choose a specific server in 'Servers' tab.";
