@@ -50,7 +50,7 @@ namespace AirVPN.Core
 		public static string AutoPortSwitch = "Auto retry with another port.";
 		public static string AuthFailed = "Authorization failed. Look at the client area to discover the reason.";
 		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'B' to reconnect to the best available server.";
-		public static string ConsoleKeyboardHelpNoConnect = "Use -connect to start connection when application start"; // TOTRANSLATE
+		public static string ConsoleKeyboardHelpNoConnect = "Use -connect to start connection when application starts";
 		public static string ConsoleKeyBreak = "Break signal received. Shutdown. Hit again to force break.";
 		public static string ConsoleKeyCancel = "Cancel requested from keyboard.";
 		public static string ConsoleKeySwitch = "Server switch requested from keyboard.";
@@ -127,7 +127,7 @@ namespace AirVPN.Core
 		public static string NetworkLockNotAvailableWithRouteOut = "You set the default routing outside the tunnel,\nincompatible with Network Lock feature"; 
 
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
-		public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'."; // TOTRANSLATE
+		public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
 		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
 		public static string TorControlAuth = "TOR Control authentication method: {1}"; 
@@ -207,14 +207,14 @@ namespace AirVPN.Core
 		public static string TooltipLogsCopy = "Copy to clipboard";
 		public static string TooltipLogsSave = "Save to file";
 		public static string TooltipLogsSupport = "Log system information and copy to clipboard. Useful for support requests";
-		public static string CommandLoginButton = "Login"; // TOTRANSLATE: It's a menu item, showed when a 'Connect' shortcut can't be available because the user is not logged. At click simply show the main interface.
-		public static string CommandLoginMenu = "Login action required."; // TOTRANSLATE: It's a menu item, showed when a 'Connect' shortcut can't be available because the user is not logged. At click simply show the main interface.
+		public static string CommandLoginButton = "Login";
+		public static string CommandLoginMenu = "Login action required.";
 		public static string CommandLogout = "Logout";
 		public static string CommandConnect = "Connect to a recommended server";
 		public static string CommandConnectSubtitle = "or choose a specific server in 'Servers' tab.";
 		public static string CommandDisconnect = "Disconnect";
 		public static string CommandCancel = "Cancel";
-		public static string CommandUnknown = "Unknown command"; // TOTRANSLATE
+		public static string CommandUnknown = "Unknown command";
 
 		public static string FilterAllFiles = "All files (*.*)|*.*";
 		public static string FilterTextFiles = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -312,8 +312,8 @@ namespace AirVPN.Core
 		public static string ManOptionAdvancedDnsSwitch = "True/False. Under Linux, run 'update-resolv-conf' script to allow openresolv to update system DNS settings according to pushed DNS settings from server.\nUnder Windows, this currently doesn't have any effect: DNS settings pushed from server are always applied. ";
 		public static string ManOptionAdvancedPingerEnabled = "If 'true' the software pings AirVPN server to determine latency score. Pings are not performed during VPN connection.";
 		public static string ManOptionAdvancedPingerAlways = "If 'true' pings are performed also during VPN connection. Pings are always performed outside the tunnel.";
-		public static string ManOptionAdvancedPingerDelay = "Do a ping on every server every X seconds. If 0, the recommended values are used.";
-		public static string ManOptionAdvancedPingerRetry = "Do a ping on every server that don't have ping results every X seconds. If 0, the recommended values are used."; // TOTRANSLATE
+		public static string ManOptionAdvancedPingerDelay = "Ping each server every X seconds. If 0, the recommended values are used.";
+		public static string ManOptionAdvancedPingerRetry = "Ping every server that doesn't have ping results every X seconds. If 0, the recommended values are used.";
 		public static string ManOptionAdvancedPingerJobs = "Maximum parallel jobs/thread for pinging purpose.";
 		public static string ManOptionAdvancedPingerValid = "Global pinger results valid if all ping reply are maximum X seconds ago. If 0, the recommended values are used.";
 
