@@ -293,9 +293,27 @@ namespace AirVPN.Gui.Controls
 					}					
                 }
 
-				foreach (ListViewItemServer viewItem in itemsToRemove)
+				if (Platform.IsWindows())
 				{
-					Items.Remove(viewItem);					
+					foreach (ListViewItemServer viewItem in itemsToRemove)
+					{
+						Items.Remove(viewItem);
+					}
+				}
+				else
+				{
+					// Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
+					List<ListViewItemServer> items = new List<ListViewItemServer>();
+					foreach (ListViewItemServer itemCurrent in Items)
+					{
+						if(itemsToRemove.Contains(itemCurrent) == false)
+							items.Add(itemCurrent);
+					}
+					Items.Clear();
+					foreach (ListViewItem itemCurrent in items)
+					{
+						Items.Add(itemCurrent);
+					}
 				}
 				
                 Sort();

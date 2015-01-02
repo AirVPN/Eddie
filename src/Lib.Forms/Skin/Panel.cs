@@ -27,7 +27,16 @@ namespace AirVPN.Gui.Skin
     {
         public Panel()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
+			
         }
+
+		protected override void OnResize(EventArgs eventargs)
+		{
+			base.OnResize(eventargs);
+
+			if (Core.Platform.IsUnix()) // Mono Bug
+				Refresh(); // pazzo
+		}
     }
 }

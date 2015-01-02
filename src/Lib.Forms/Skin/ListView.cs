@@ -37,7 +37,7 @@ namespace AirVPN.Gui.Skin
         public ListView()
         {
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
-
+			
 			FullRowSelect = true;
 			GridLines = false;
 			HideSelection = false;

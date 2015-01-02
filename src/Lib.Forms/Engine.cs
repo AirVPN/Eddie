@@ -232,10 +232,10 @@ namespace AirVPN.Gui
 				lock (LogEntries)
 				{
 					LogEntries.Add(l);
-					if (FormMain != null)
-						FormMain.RefreshUi(RefreshUiMode.Log);            
 				}
-
+				if (FormMain != null)
+					FormMain.RefreshUi(RefreshUiMode.Log);            
+				
 				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
 				{
 					if (l.Type == LogType.Fatal)

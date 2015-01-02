@@ -89,6 +89,15 @@ namespace AirVPN.Gui.Forms
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
 			chkAdvancedPingerAlways.Visible = false;
+
+			if (Platform.IsUnix())
+			{
+				lblModeGroup1.Visible = false;
+				lblModeGroup2.Visible = false;
+				lblModeGroup3.Visible = false;
+				lblModeGroup4.Visible = false;
+				lblModeGroup5.Visible = false;
+			}
 						
 			ReadOptions();
 
@@ -339,6 +348,17 @@ namespace AirVPN.Gui.Forms
 				lstAdvancedEvents.Items[index].SubItems.Add(s.GetBool("event." + name + ".waitend") ? "Yes" : "No");
             }
         }
+
+		public bool Check()
+		{
+			if( (RouteDescriptionToDirection(cboRoutesOtherwise.Text) == "out") && (lstRoutes.Items.Count == 0) )			
+			{
+				if (MessageBox.Show(this, Messages.WindowsSettingsRouteOutEmptyList, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+					return false;  
+			}
+
+			return true;
+		}
 
         public void SaveOptions()
         {
@@ -689,7 +709,12 @@ namespace AirVPN.Gui.Forms
 
         private void cmdOk_Click(object sender, EventArgs e)
         {
-            SaveOptions();
+			if (Check())
+			{
+				SaveOptions();
+				DialogResult = System.Windows.Forms.DialogResult.OK;
+				Close();
+			}			
         }
 
         private void cmdTos_Click(object sender, EventArgs e)

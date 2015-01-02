@@ -27,14 +27,11 @@ namespace AirVPN.Gui.Skin
     public class Label : System.Windows.Forms.Label
     {
         public Label()
-        {            
-        }
-
-        protected override void OnCreateControl()
         {
-            base.OnCreateControl();
+			// pazzo
+			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
         }
-
+		
         protected override void OnPaint(PaintEventArgs e)
         {
             StringFormat sf = new StringFormat();

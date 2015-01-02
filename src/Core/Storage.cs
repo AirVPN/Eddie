@@ -391,6 +391,8 @@ namespace AirVPN.Core
 
         public void Save()
         {
+			string path = GetPath(Get("profile") + ".xml");
+			
             lock (this)
             {
                 XmlDocument xmlDoc = new XmlDocument();
@@ -433,9 +435,10 @@ namespace AirVPN.Core
 					XmlNode userNode = xmlDoc.ImportNode(User, true);
 					rootNode.AppendChild(userNode);
 				}
-
-                xmlDoc.Save(GetPath(Get("profile") + ".xml"));
+				
+                xmlDoc.Save(path);
             }
+			
         }
 
         public void Load(bool manMode)

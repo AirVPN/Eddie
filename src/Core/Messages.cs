@@ -49,7 +49,7 @@ namespace AirVPN.Core
 		public static string AppEvent = "Running event {1}";		
 		public static string AutoPortSwitch = "Auto retry with another port.";
 		public static string AuthFailed = "Authorization failed. Look at the client area to discover the reason.";
-		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'B' to reconnect to the best available server.";
+		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'N' to connect/reconnect to the best available server.";
 		public static string ConsoleKeyboardHelpNoConnect = "Use -connect to start connection when application starts";
 		public static string ConsoleKeyBreak = "Break signal received. Shutdown. Hit again to force break.";
 		public static string ConsoleKeyCancel = "Cancel requested from keyboard.";
@@ -179,7 +179,8 @@ namespace AirVPN.Core
 		public static string WindowsSettingsLoggingHelp = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation.\nRelative to data path. For multiple logs with different paths, separe it with a semicolon ;\n\nAdvanced example:\nlogs/single.log;logs/months/airvpn_%d.log;logs/week/airvpn_%w.log";
 		public static string WindowsSettingsRouteLockHelp = "IP in 'Outside Tunnel' are also unlocked when Network Lock feature is active."; 
 		public static string WindowsSettingsRouteEditIp = "Specify single IP address (ex. 1.2.3.4) or\nCIDR range (ex. 1.2.3.4/24) or\nsubnet range (ex. 1.2.3.4/255.255.255.128)";
-		public static string WindowsSettingsRouteInvalid = "Invalid IP address or range."; 
+		public static string WindowsSettingsRouteInvalid = "Invalid IP address or range.";
+		public static string WindowsSettingsRouteOutEmptyList = "WARNING: not specified routes go outside the tunnel, but you did not specify any route. Continue?";
 		public static string WindowsOpenVpnManagementCommandTitle = "OpenVpn Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 
@@ -215,6 +216,7 @@ namespace AirVPN.Core
 		public static string CommandDisconnect = "Disconnect";
 		public static string CommandCancel = "Cancel";
 		public static string CommandUnknown = "Unknown command";
+		public static string ManifestUpdateForce = "Updating now...";
 
 		public static string FilterAllFiles = "All files (*.*)|*.*";
 		public static string FilterTextFiles = "Text files (*.txt)|*.txt|All files (*.*)|*.*";

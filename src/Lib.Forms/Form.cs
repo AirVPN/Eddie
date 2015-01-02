@@ -72,6 +72,7 @@ namespace AirVPN.Gui
 			Icon = global::AirVPN.Lib.Forms.Properties.Resources.icon1;
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
+			
         }
 
         protected override void OnLoad(EventArgs e)

@@ -34,8 +34,8 @@ namespace AirVPN.Gui.Controls
 
 		public ListViewAreas()
         {
-            // Activate double buffering
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            // Activate double buffering			
+			this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 
             columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -184,7 +184,7 @@ namespace AirVPN.Gui.Controls
 
         public void UpdateList()
         {
-            SuspendLayout();
+            //SuspendLayout();
 
             List<AreaInfo> areas = new List<AreaInfo>();
             lock (Engine.Instance.Areas)
@@ -212,11 +212,13 @@ namespace AirVPN.Gui.Controls
 
             foreach (ListViewItemArea viewItem in Items)
             {
-                if (areas.Contains(viewItem.Info) == false)
-                    Items.Remove(viewItem);
+				if (areas.Contains(viewItem.Info) == false)
+				{
+					Items.Remove(viewItem);					
+				}
             }
 
-            ResumeLayout();
+            //ResumeLayout();
         }
     }
 }

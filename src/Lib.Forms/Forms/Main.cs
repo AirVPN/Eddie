@@ -80,16 +80,95 @@ namespace AirVPN.Gui.Forms
                     m_notifyIcon = null;
                 }
 
-				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
-				mnuMain.Dispose();
-				mnuServers.Dispose();
-				mnuAreas.Dispose();
-				mnuLogsContext.Dispose();
-
+				//DoDispose();
+				
 				m_closing = true;
                 Close();
             }
         }
+
+		/*
+		private void DoDispose()
+		{
+			// Workaround experiment for Mono bug.
+			// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
+			// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
+
+			DoDispose(lstLogs.ContextMenuStrip);
+			lstLogs.ContextMenuStrip = null;
+
+			DoDispose(m_listViewServers.ContextMenuStrip);
+			m_listViewServers.ContextMenuStrip = null;
+
+			DoDispose(m_listViewAreas.ContextMenuStrip);
+			m_listViewAreas.ContextMenuStrip = null;
+
+			DoDispose(this.ContextMenuStrip);
+			this.ContextMenuStrip = null;
+
+			DoDispose(this.mnuStatus);
+			DoDispose(this.mnuConnect);
+			DoDispose(this.mnuHomePage);
+			DoDispose(this.mnuUser);
+			DoDispose(this.mnuPorts);
+			DoDispose(this.mnuSpeedTest);
+			DoDispose(this.mnuSettings);
+			DoDispose(this.mnuDevelopers);
+			DoDispose(this.mnuDevelopersManText);
+			DoDispose(this.mnuDevelopersManBBCode);
+			DoDispose(this.mnuDevelopersUpdateManifest);
+			DoDispose(this.mnuDevelopersDefaultManifest);
+			DoDispose(this.mnuDevelopersReset);
+			DoDispose(this.mnuTools);
+			DoDispose(this.mnuToolsPortForwarding);
+			DoDispose(this.mnuToolsNetworkMonitor);
+			DoDispose(this.mnuAbout);
+			DoDispose(this.mnuRestore);
+			DoDispose(this.mnuExit);
+			DoDispose(this.mnuStatus);
+			DoDispose(this.mnuConnect);
+			DoDispose(this.mnuHomePage);
+			DoDispose(this.mnuUser);
+			DoDispose(this.mnuPorts);
+			DoDispose(this.mnuSpeedTest);
+			DoDispose(this.mnuSettings);
+			DoDispose(this.mnuDevelopers);
+			DoDispose(this.mnuDevelopersManText);
+			DoDispose(this.mnuDevelopersManBBCode);
+			DoDispose(this.mnuDevelopersUpdateManifest);
+			DoDispose(this.mnuDevelopersDefaultManifest);
+			DoDispose(this.mnuDevelopersReset);
+			DoDispose(this.mnuTools);
+			DoDispose(this.mnuToolsPortForwarding);
+			DoDispose(this.mnuToolsNetworkMonitor);
+			DoDispose(this.mnuAbout);
+			DoDispose(this.mnuRestore);
+			DoDispose(this.mnuExit);
+			DoDispose(this.mnuServersConnect);
+			DoDispose(this.mnuServersWhiteList);
+			DoDispose(this.mnuServersBlackList);
+			DoDispose(this.mnuServersUndefined);
+			DoDispose(this.mnuAreasWhiteList);
+			DoDispose(this.mnuAreasBlackList);
+			DoDispose(this.mnuAreasUndefined);
+			DoDispose(this.mnuServersRefresh);
+		}
+		*/
+
+		private void DoDispose(IDisposable o)
+		{
+			if (o != null)
+			{
+				o.Dispose();
+				o = null;
+			}
+		}
+
+		private void DoDispose(System.Windows.Forms.ToolStripMenuItem o)
+		{			
+			o.Dispose();
+			o = null;
+		}
 
         protected override void OnLoad(EventArgs e)
         {
@@ -905,8 +984,7 @@ namespace AirVPN.Gui.Forms
 				cmdCancel.Height = 30;
 				cmdCancel.Left = tabItemWidth / 2 - cmdCancel.Width / 2;
 				cmdCancel.Top = tabItemHeight - 50;				
-			}
-
+			}			
 		}
         
         public void Restore()

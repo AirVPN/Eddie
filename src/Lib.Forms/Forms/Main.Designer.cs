@@ -1008,7 +1008,7 @@ namespace AirVPN.Gui.Forms
             this.mnuAreasWhiteList,
             this.mnuAreasBlackList,
             this.mnuAreasUndefined});
-			this.mnuAreas.Name = "mnuServers";
+			this.mnuAreas.Name = "mnuAreas";
 			this.mnuAreas.Size = new System.Drawing.Size(130, 70);
 			// 
 			// mnuAreasWhiteList
