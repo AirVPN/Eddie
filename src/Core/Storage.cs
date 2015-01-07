@@ -392,6 +392,8 @@ namespace AirVPN.Core
         public void Save()
         {
 			string path = GetPath(Get("profile") + ".xml");
+
+			bool remember = GetBool("remember");
 			
             lock (this)
             {
@@ -408,20 +410,30 @@ namespace AirVPN.Core
 
                 foreach (KeyValuePair<string, string> item in m_Options)
                 {
-                    if (m_OptionsDefaults.ContainsKey(item.Key))
-                    {
-                        if (item.Value != m_OptionsDefaults[item.Key])
-                        {
-                            XmlElement itemNode = xmlDoc.CreateElement("option");
-                            itemNode.SetAttribute("name", item.Key);
-                            itemNode.SetAttribute("value", item.Value);
-                            optionsNode.AppendChild(itemNode);
-                        }
-                    }
-                    else
-                    {
-                        Debug.Fatal(Messages.Format(Messages.OptionsUnknown, item.Key));
-                    }
+					bool skip = false;
+
+					if ((remember == false) && (item.Key == "login"))
+						skip = true;
+					if ((remember == false) && (item.Key == "password"))
+						skip = true;
+
+					if (skip == false)
+					{
+						if (m_OptionsDefaults.ContainsKey(item.Key))
+						{
+							if (item.Value != m_OptionsDefaults[item.Key])
+							{
+								XmlElement itemNode = xmlDoc.CreateElement("option");
+								itemNode.SetAttribute("name", item.Key);
+								itemNode.SetAttribute("value", item.Value);
+								optionsNode.AppendChild(itemNode);
+							}
+						}
+						else
+						{
+							Debug.Fatal(Messages.Format(Messages.OptionsUnknown, item.Key));
+						}
+					}
                 }
 
                 if (Manifest != null)
@@ -430,7 +442,7 @@ namespace AirVPN.Core
                     rootNode.AppendChild(manifestNode);					
                 }
 
-				if (User != null)
+				if ( (remember) && (User != null) )
 				{
 					XmlNode userNode = xmlDoc.ImportNode(User, true);
 					rootNode.AppendChild(userNode);

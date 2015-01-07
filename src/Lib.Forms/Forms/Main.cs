@@ -58,6 +58,8 @@ namespace AirVPN.Gui.Forms
 		private bool m_formReady = false;
 		private bool m_closing = false;
 
+		private System.Timers.Timer timerMonoDelayedRedraw = null;
+
         public Main()
         {
             InitializeComponent();
@@ -311,8 +313,23 @@ namespace AirVPN.Gui.Forms
 
 			Engine.OnRefreshUi();
 
+			if (Platform.IsUnix())
+			{
+				// Mono Bug, issue on start drawing in some systems like Mint
+				timerMonoDelayedRedraw = new System.Timers.Timer();
+				timerMonoDelayedRedraw.Elapsed += new System.Timers.ElapsedEventHandler(OnMonoDelayedRedraw);
+				timerMonoDelayedRedraw.Interval = 1000;
+				timerMonoDelayedRedraw.Enabled = true;
+			}
         }
-                
+
+		void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
+		{
+			timerMonoDelayedRedraw.Enabled = false;
+
+			Refresh();
+		}
+        
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             //base.OnPaintBackground(e);
@@ -1210,9 +1227,8 @@ namespace AirVPN.Gui.Forms
 			mnuSpeedTest.Enabled = connected;
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
-
-						
-			if (Engine.Instance.NetworkLockManager.IsActive())
+			
+			if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) )
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_on;
@@ -1223,7 +1239,7 @@ namespace AirVPN.Gui.Forms
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_off;
 			}
 
-			bool networkCanEnabled = Engine.Instance.NetworkLockManager.CanEnabled();
+			bool networkCanEnabled = ( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.CanEnabled()) );
 			cmdLockedNetwork.Visible = networkCanEnabled;
 			imgLockedNetwork.Visible = networkCanEnabled;
 		}

@@ -28,7 +28,6 @@ namespace AirVPN.Gui.Skin
     {
         public Label()
         {
-			// pazzo
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
         }
 		

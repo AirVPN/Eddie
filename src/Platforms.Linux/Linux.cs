@@ -43,6 +43,14 @@ namespace AirVPN.Platforms
 			return "Linux";
 		}
 
+		public override string GetName()
+		{
+			if (File.Exists("/etc/issue"))
+				return File.ReadAllText("/etc/issue").Replace("\n","").Replace("\r"," - ").Trim();
+			else
+				return base.GetName();
+		}
+
 		public override string GetArchitecture()
 		{
 			return m_architecture;
@@ -240,7 +248,9 @@ namespace AirVPN.Platforms
 					ovpn += "up " + dnsScriptPath + "\n";
 					ovpn += "down " + dnsScriptPath + "\n";
 				}
-			}			
+			}
+
+			ovpn += "route-delay 5\n"; // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
 		public override void OnNetworkLockManagerInit()

@@ -170,7 +170,7 @@ namespace AirVPN.Core
 			bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
 			if (manMode == false)
 			{
-				Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + ", System: " + Platform.Instance.GetCode() + ", Architecture: " + Platform.Instance.GetArchitecture());
+				Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Architecture: " + Platform.Instance.GetArchitecture());
 				if (DevelopmentEnvironment)
 					Log(LogType.Info, "Development environment.");
 			}
@@ -1528,8 +1528,7 @@ namespace AirVPN.Core
 					}
 				}
 			}
-			
-				
+	
 			ovpn += "management localhost " + Engine.Instance.Storage.Get("openvpn.management_port") + "\n";
 
 			Platform.Instance.OnBuildOvpn(ref ovpn);			
@@ -1763,11 +1762,14 @@ namespace AirVPN.Core
 				Storage.SetList("areas.whitelist", areasWhiteList);
 				Storage.SetList("areas.blacklist", areasBlackList);
 
+				// TOCLEAN
+				/*
 				if (Storage.GetBool("remember") == false)
 				{
 					Storage.Remove("login");
 					Storage.Remove("password");					
 				}
+				*/
 
 				Storage.Save();
 			}

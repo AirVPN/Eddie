@@ -3,7 +3,7 @@ Version: {@version}
 Release: 0
 
 License: see /usr/share/doc/airvpn/copyright
-Summary: VPN service based on OpenVPN
+Summary: AirVPN - VPN service based on OpenVPN
 Packager: AirVPN Team <info@airvpn.org>
 URL: https://airvpn.org
 Group: net

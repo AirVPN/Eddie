@@ -153,20 +153,6 @@ namespace AirVPN.Gui.Skin
                 Core.Debug.Trace(ex);
             }
         }
-
-		protected override void OnSelected(TabControlEventArgs e)
-		{
-			base.OnSelected(e);
-
-			/*
-			if (Core.Platform.IsUnix()) // Mono Bug
-			{
-				Refresh();
-				SelectedTab.Refresh();
-				Console.WriteLine("pazzo2");
-			}
-			*/
-		}
     }
 
 }
