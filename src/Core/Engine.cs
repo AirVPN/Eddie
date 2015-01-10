@@ -1711,7 +1711,7 @@ namespace AirVPN.Core
 
                 WaitMessageClear();
 
-				ConsoleExit();			
+				//ConsoleExit();			
             }
         }
 
@@ -1735,7 +1735,7 @@ namespace AirVPN.Core
 
                 Engine.Log(Engine.LogType.InfoImportant, Messages.SessionStop);
 
-				ConsoleExit();			
+				//ConsoleExit();			
             }
 			
         }
