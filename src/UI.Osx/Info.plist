@@ -17,12 +17,12 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.2</string>
+	<string>2.8</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.airvpn.client</string>
-	<key>LSUIElement</key>
-	<true/>
 	<key>CFBundleDisplayName</key>
 	<string>AirVPN</string>
+	<key>NSSupportsSuddenTermination</key>
+	<string>NO</string>
 </dict>
 </plist>

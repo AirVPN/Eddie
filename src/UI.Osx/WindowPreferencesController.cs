@@ -84,8 +84,11 @@ namespace AirVPN.UI.Osx
 			TableAdvancedEventsController = new TableAdvancedEventsController (this.TableAdvancedEvents);
 
 			CmdSave.Activated += (object sender, EventArgs e) => {
-				SaveOptions ();
-				Close ();
+				if(Check())
+				{
+					SaveOptions ();
+					Close ();
+				}
 			};
 
 			CmdCancel.Activated += (object sender, EventArgs e) => {
@@ -98,6 +101,10 @@ namespace AirVPN.UI.Osx
 				NSApplication.SharedApplication.RunModalForWindow (tos.Window);
 				tos.Window.Close ();
 			};
+
+			CboGeneralOsxInterfaceStyle.RemoveAllItems ();
+			CboGeneralOsxInterfaceStyle.AddItem ("Default");
+			CboGeneralOsxInterfaceStyle.AddItem ("Dark");
 
 			// Modes
 			string sshStatus = (Software.SshVersion != "" ? "" : "Not available");
@@ -533,9 +540,15 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetCheck (ChkAutoStart, s.GetBool ("connect")); 
 			GuiUtils.SetCheck (ChkGeneralStartLast, s.GetBool("servers.startlast"));
 			GuiUtils.SetCheck (ChkGeneralOsxVisible, s.GetBool ("gui.osx.visible"));
-			GuiUtils.SetCheck (ChkGeneralOsxDock, s.GetBool ("gui.osx.dock"));
+			// GuiUtils.SetCheck (ChkGeneralOsxDock, s.GetBool ("gui.osx.dock")); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			GuiUtils.SetCheck (ChkGeneralOsxNotifications, s.GetBool ("gui.osx.notifications"));
 			GuiUtils.SetCheck (ChkExitConfirm, s.GetBool("gui.exit_confirm"));
+
+			string interfaceMode = GuiUtils.InterfaceColorMode ();
+			if (interfaceMode == "Dark")
+				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Dark");
+			else
+				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Default");
 
 			// Mode
 			m_mode_protocol = s.Get ("mode.protocol").ToUpperInvariant ();
@@ -641,6 +654,16 @@ namespace AirVPN.UI.Osx
 			TableAdvancedEventsController.RefreshUI ();
 		}
 
+		bool Check()
+		{
+			if ((RouteDescriptionToDirection (GuiUtils.GetSelected (CboRoutesOtherwise)) == "out") && (TableRoutingController.Items.Count == 0)) {
+				if (GuiUtils.MessageYesNo (Messages.WindowsSettingsRouteOutEmptyList) == false)
+					return false;
+			}
+
+			return true;
+		}
+
 		void SaveOptions()
 		{
 			Storage s = Engine.Instance.Storage;
@@ -650,9 +673,16 @@ namespace AirVPN.UI.Osx
 			s.SetBool ("connect", GuiUtils.GetCheck (ChkAutoStart));
 			s.SetBool ("servers.startlast", GuiUtils.GetCheck (ChkGeneralStartLast));
 			s.SetBool ("gui.osx.visible", GuiUtils.GetCheck (ChkGeneralOsxVisible));
-			s.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock));
+			// s.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock)); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			s.SetBool ("gui.osx.notifications", GuiUtils.GetCheck (ChkGeneralOsxNotifications));
 			s.SetBool ("gui.exit_confirm", GuiUtils.GetCheck (ChkExitConfirm));
+
+			string interfaceStyle = GuiUtils.GetSelected (CboGeneralOsxInterfaceStyle);
+			//string currentInterfaceStyle = GuiUtils.InterfaceColorMode ();
+			if(interfaceStyle == "Dark")
+				Platform.Instance.ShellCmd ("defaults write -g AppleInterfaceStyle Dark");
+			else 
+				Platform.Instance.ShellCmd ("defaults remove -g AppleInterfaceStyle");
 
 			// Mode
 

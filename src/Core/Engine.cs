@@ -37,6 +37,7 @@ namespace AirVPN.Core
         
 		public bool ConsoleMode = false;
 
+		public bool Terminated = false;
 		public delegate void TerminateHandler();
 		public event TerminateHandler TerminateEvent;
 
@@ -272,6 +273,7 @@ namespace AirVPN.Core
 			OnDeInit();
 			OnDeInit2();
 
+			Terminated = true;
 			if (TerminateEvent != null)
 				TerminateEvent();
         }
@@ -1762,14 +1764,6 @@ namespace AirVPN.Core
 				Storage.SetList("areas.whitelist", areasWhiteList);
 				Storage.SetList("areas.blacklist", areasBlackList);
 
-				// TOCLEAN
-				/*
-				if (Storage.GetBool("remember") == false)
-				{
-					Storage.Remove("login");
-					Storage.Remove("password");					
-				}
-				*/
 
 				Storage.Save();
 			}

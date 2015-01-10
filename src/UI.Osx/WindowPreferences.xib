@@ -8,6 +8,7 @@
             <connections>
                 <outlet property="CboAdvancedDnsSwitchMode" destination="hxb-i3-foN" id="6o8-81-kLq"/>
                 <outlet property="CboAdvancedManifestRefresh" destination="ll2-5F-oSu" id="itO-mT-9gS"/>
+                <outlet property="CboGeneralOsxInterfaceStyle" destination="OGs-Ki-Apa" id="b1i-ZR-xTY"/>
                 <outlet property="CboLockMode" destination="Lrp-im-2GN" id="a01-gG-6NS"/>
                 <outlet property="CboProxyAuthentication" destination="Hai-gc-xnu" id="dgb-Pq-InJ"/>
                 <outlet property="CboProxyType" destination="aVZ-Zz-7LT" id="Mqe-f8-uqX"/>
@@ -21,7 +22,6 @@
                 <outlet property="ChkAutoStart" destination="xhO-Kv-elj" id="dHo-zH-ucX"/>
                 <outlet property="ChkAutoStart2" destination="xhO-Kv-elj" id="b20-qy-9L6"/>
                 <outlet property="ChkExitConfirm" destination="ZMV-bb-YYL" id="8OZ-IU-R4K"/>
-                <outlet property="ChkGeneralOsxDock" destination="E46-WI-XmK" id="oO2-0w-Io1"/>
                 <outlet property="ChkGeneralOsxNotifications" destination="EG2-CQ-O27" id="b6b-1T-A4y"/>
                 <outlet property="ChkGeneralOsxVisible" destination="8Ah-Jx-6k0" id="kwv-SE-sLd"/>
                 <outlet property="ChkGeneralStartLast" destination="2Nm-Y7-BeU" id="XdO-Hi-CWR"/>
@@ -143,14 +143,14 @@ Gw
                                             </buttonCell>
                                         </button>
                                         <box autoresizesSubviews="NO" title="Apple OS X Only" borderType="line" id="XKI-HL-Mgn">
-                                            <rect key="frame" x="343" y="130" width="211" height="109"/>
+                                            <rect key="frame" x="343" y="59" width="211" height="180"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="209" height="93"/>
+                                                <rect key="frame" x="1" y="1" width="209" height="164"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <button id="EG2-CQ-O27">
-                                                        <rect key="frame" x="16" y="27" width="177" height="18"/>
+                                                        <rect key="frame" x="16" y="116" width="177" height="18"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <buttonCell key="cell" type="check" title="System Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="txX-ag-YR4">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -158,21 +158,46 @@ Gw
                                                         </buttonCell>
                                                     </button>
                                                     <button id="8Ah-Jx-6k0">
-                                                        <rect key="frame" x="16" y="67" width="177" height="18"/>
+                                                        <rect key="frame" x="16" y="138" width="177" height="18"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <buttonCell key="cell" type="check" title="Start visible" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="tYb-yf-9Yl">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
                                                     </button>
-                                                    <button id="E46-WI-XmK">
-                                                        <rect key="frame" x="16" y="47" width="177" height="18"/>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="6bl-As-Lhc">
+                                                        <rect key="frame" x="16" y="63" width="88" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                        <buttonCell key="cell" type="check" title="Show icon in dock" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="29M-hY-lUm">
-                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                        </buttonCell>
-                                                    </button>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Interface style:" id="9z5-P0-zCJ">
+                                                            <font key="font" metaFont="label"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="5oE-DF-R2e">
+                                                        <rect key="frame" x="34" y="8" width="159" height="47"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="This will affect all apps running with elevated privileges. Restart this app to take effect." id="C8F-cI-M8A">
+                                                            <font key="font" metaFont="label"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <popUpButton verticalHuggingPriority="750" id="OGs-Ki-Apa">
+                                                        <rect key="frame" x="108" y="61" width="86" height="26"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="NUm-bU-wWm">
+                                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="menu"/>
+                                                            <menu key="menu" title="OtherViews" id="fXP-6c-acm">
+                                                                <items>
+                                                                    <menuItem title="None" id="CC0-8A-Ucx"/>
+                                                                    <menuItem title="Basic" id="zMc-aA-Ndq"/>
+                                                                    <menuItem title="NTLM" id="Tee-gf-Adt"/>
+                                                                </items>
+                                                            </menu>
+                                                        </popUpButtonCell>
+                                                    </popUpButton>
                                                 </subviews>
                                             </view>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
@@ -1047,7 +1072,7 @@ Gw
                                                                 <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                             </box>
                                                             <button verticalHuggingPriority="750" id="5AI-c0-dFt">
-                                                                <rect key="frame" x="435" y="166" width="70" height="25"/>
+                                                                <rect key="frame" x="435.00000021474841" y="166" width="70" height="25"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" title="Help" bezelStyle="regularSquare" image="tip" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="jDN-U0-odX">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>

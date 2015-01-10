@@ -106,6 +106,24 @@ namespace AirVPN.UI.Osx
 
 			return false;
 		}
+
+		public static string InterfaceColorMode()
+		{
+			//string colorMode = NSUserDefaults.StandardUserDefaults.StringForKey ("AppleInterfaceStyle");
+			string colorMode = Platform.Instance.ShellCmd ("defaults read -g AppleInterfaceStyle");
+			if (colorMode == "Dark")
+				return "Dark";
+			else
+				return "Light";
+		}
+
+		public static void ShowWindowWithFocus(MonoMac.AppKit.NSWindowController w, MonoMac.AppKit.NSWindowController parent)
+		{
+			w.ShowWindow (parent);
+			w.Window.Deminiaturize (parent);
+			w.Window.MakeKeyAndOrderFront (parent);
+			w.Window.MakeMainWindow ();
+		}
 	}
 }
 
