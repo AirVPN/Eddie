@@ -180,6 +180,11 @@ namespace AirVPN.Core
 			return "Unknown";
 		}
 
+		public virtual string GetName()
+		{
+			return "Unknown";
+		}
+
 		public virtual string GetArchitecture()
 		{
 			return "Unknown";

@@ -21,7 +21,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Text;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Deploy
 {
@@ -45,10 +47,10 @@ namespace Deploy
 
 		static void Main(string[] args)
 		{
-			Log("AirVPN deployment v1.0");
+			Log("AirVPN deployment v1.1");
 			Log("PlatformOS: " + Environment.OSVersion.Platform.ToString());
 			Log("VersionString: " + Environment.OSVersion.VersionString.ToString());
-
+						
 			/* -------------------------------
 			   Detect Platform
 			------------------------------- */
@@ -473,9 +475,13 @@ namespace Deploy
 
 		static string FetchUrl(string url)
 		{
-			WebClient w = new WebClient();
-			w.Proxy = null;
-			return w.DownloadString(url);			
+			// Note: Actually used only under Linux
+			return Shell("curl \"" + url + "\"").Trim();
+			
+			// This version works under Windows, but not under Linux/Mono due RC4 cipher deprecated on airvpn.org
+			//WebClient w = new WebClient();
+			//w.Proxy = null;
+			//return w.DownloadString(url);			
 		}
 
 		static void CreateDirectory(string path)

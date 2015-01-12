@@ -58,6 +58,8 @@ namespace AirVPN.Gui.Forms
 		private bool m_formReady = false;
 		private bool m_closing = false;
 
+		private System.Timers.Timer timerMonoDelayedRedraw = null;
+
         public Main()
         {
             InitializeComponent();
@@ -80,16 +82,95 @@ namespace AirVPN.Gui.Forms
                     m_notifyIcon = null;
                 }
 
-				// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
-				mnuMain.Dispose();
-				mnuServers.Dispose();
-				mnuAreas.Dispose();
-				mnuLogsContext.Dispose();
-
+				//DoDispose();
+				
 				m_closing = true;
                 Close();
             }
         }
+
+		/*
+		private void DoDispose()
+		{
+			// Workaround experiment for Mono bug.
+			// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
+			// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
+
+			DoDispose(lstLogs.ContextMenuStrip);
+			lstLogs.ContextMenuStrip = null;
+
+			DoDispose(m_listViewServers.ContextMenuStrip);
+			m_listViewServers.ContextMenuStrip = null;
+
+			DoDispose(m_listViewAreas.ContextMenuStrip);
+			m_listViewAreas.ContextMenuStrip = null;
+
+			DoDispose(this.ContextMenuStrip);
+			this.ContextMenuStrip = null;
+
+			DoDispose(this.mnuStatus);
+			DoDispose(this.mnuConnect);
+			DoDispose(this.mnuHomePage);
+			DoDispose(this.mnuUser);
+			DoDispose(this.mnuPorts);
+			DoDispose(this.mnuSpeedTest);
+			DoDispose(this.mnuSettings);
+			DoDispose(this.mnuDevelopers);
+			DoDispose(this.mnuDevelopersManText);
+			DoDispose(this.mnuDevelopersManBBCode);
+			DoDispose(this.mnuDevelopersUpdateManifest);
+			DoDispose(this.mnuDevelopersDefaultManifest);
+			DoDispose(this.mnuDevelopersReset);
+			DoDispose(this.mnuTools);
+			DoDispose(this.mnuToolsPortForwarding);
+			DoDispose(this.mnuToolsNetworkMonitor);
+			DoDispose(this.mnuAbout);
+			DoDispose(this.mnuRestore);
+			DoDispose(this.mnuExit);
+			DoDispose(this.mnuStatus);
+			DoDispose(this.mnuConnect);
+			DoDispose(this.mnuHomePage);
+			DoDispose(this.mnuUser);
+			DoDispose(this.mnuPorts);
+			DoDispose(this.mnuSpeedTest);
+			DoDispose(this.mnuSettings);
+			DoDispose(this.mnuDevelopers);
+			DoDispose(this.mnuDevelopersManText);
+			DoDispose(this.mnuDevelopersManBBCode);
+			DoDispose(this.mnuDevelopersUpdateManifest);
+			DoDispose(this.mnuDevelopersDefaultManifest);
+			DoDispose(this.mnuDevelopersReset);
+			DoDispose(this.mnuTools);
+			DoDispose(this.mnuToolsPortForwarding);
+			DoDispose(this.mnuToolsNetworkMonitor);
+			DoDispose(this.mnuAbout);
+			DoDispose(this.mnuRestore);
+			DoDispose(this.mnuExit);
+			DoDispose(this.mnuServersConnect);
+			DoDispose(this.mnuServersWhiteList);
+			DoDispose(this.mnuServersBlackList);
+			DoDispose(this.mnuServersUndefined);
+			DoDispose(this.mnuAreasWhiteList);
+			DoDispose(this.mnuAreasBlackList);
+			DoDispose(this.mnuAreasUndefined);
+			DoDispose(this.mnuServersRefresh);
+		}
+		*/
+
+		private void DoDispose(IDisposable o)
+		{
+			if (o != null)
+			{
+				o.Dispose();
+				o = null;
+			}
+		}
+
+		private void DoDispose(System.Windows.Forms.ToolStripMenuItem o)
+		{			
+			o.Dispose();
+			o = null;
+		}
 
         protected override void OnLoad(EventArgs e)
         {
@@ -232,8 +313,23 @@ namespace AirVPN.Gui.Forms
 
 			Engine.OnRefreshUi();
 
+			if (Platform.IsUnix())
+			{
+				// Mono Bug, issue on start drawing in some systems like Mint
+				timerMonoDelayedRedraw = new System.Timers.Timer();
+				timerMonoDelayedRedraw.Elapsed += new System.Timers.ElapsedEventHandler(OnMonoDelayedRedraw);
+				timerMonoDelayedRedraw.Interval = 1000;
+				timerMonoDelayedRedraw.Enabled = true;
+			}
         }
-                
+
+		void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
+		{
+			timerMonoDelayedRedraw.Enabled = false;
+
+			Refresh();
+		}
+        
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             //base.OnPaintBackground(e);
@@ -905,8 +1001,7 @@ namespace AirVPN.Gui.Forms
 				cmdCancel.Height = 30;
 				cmdCancel.Left = tabItemWidth / 2 - cmdCancel.Width / 2;
 				cmdCancel.Top = tabItemHeight - 50;				
-			}
-
+			}			
 		}
         
         public void Restore()
@@ -1132,9 +1227,8 @@ namespace AirVPN.Gui.Forms
 			mnuSpeedTest.Enabled = connected;
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
-
-						
-			if (Engine.Instance.NetworkLockManager.IsActive())
+			
+			if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) )
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_on;
@@ -1145,7 +1239,7 @@ namespace AirVPN.Gui.Forms
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_off;
 			}
 
-			bool networkCanEnabled = Engine.Instance.NetworkLockManager.CanEnabled();
+			bool networkCanEnabled = ( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.CanEnabled()) );
 			cmdLockedNetwork.Visible = networkCanEnabled;
 			imgLockedNetwork.Visible = networkCanEnabled;
 		}

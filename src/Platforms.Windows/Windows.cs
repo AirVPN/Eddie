@@ -47,6 +47,11 @@ namespace AirVPN.Platforms
 			return "Windows";
 		}
 
+		public override string GetName()
+		{
+			return System.Environment.OSVersion.VersionString;			
+		}
+
 		public override string GetArchitecture()
 		{
 			return m_architecture;

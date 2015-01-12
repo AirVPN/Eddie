@@ -129,6 +129,7 @@ namespace AirVPN.Gui
 					command2 += Platform.Instance.GetExecutablePath();
 					command2 += " ";
 					command2 += cmdline;
+					bool waitEnd = false;
 					
 					if (File.Exists("/usr/bin/kdesudo"))
 					{
@@ -180,21 +181,34 @@ namespace AirVPN.Gui
 						arguments += " -c "; // The command
 						arguments += " \"" + command2 + "\"";
 					}
-					/*
-					 * else if (File.Exists("/usr/bin/pkexec")) // Different behiavour on different platforms
+					else if (File.Exists("/usr/bin/beesu")) // Fedora
 					{
+						command = "beesu";
+						arguments = "";
+						arguments += " " + command2 + "";
+					}
+					/*
+					else if (File.Exists("/usr/bin/pkexec"))
+					{
+						// Different behiavour on different platforms
 						command = "pkexec";
 						arguments = "";
 						arguments = " env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY";
 						arguments += " " + command2 + "";
+
+						// For this bug: https://lists.ubuntu.com/archives/foundations-bugs/2012-July/100103.html
+						// We need to keep alive the current process, otherwise 'Refusing to render service to dead parents.'.
+						waitEnd = true;
+
+						// Still don't work.
 					}
 					*/
-					
+
 					if (command != "")
 					{
 						Log(LogType.Verbose, Messages.AdminRequiredRestart);
 
-						Platform.Instance.Shell(command, arguments, false);
+						Platform.Instance.Shell(command, arguments, waitEnd);
 					}
 					else
 					{
@@ -232,10 +246,10 @@ namespace AirVPN.Gui
 				lock (LogEntries)
 				{
 					LogEntries.Add(l);
-					if (FormMain != null)
-						FormMain.RefreshUi(RefreshUiMode.Log);            
 				}
-
+				if (FormMain != null)
+					FormMain.RefreshUi(RefreshUiMode.Log);            
+				
 				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
 				{
 					if (l.Type == LogType.Fatal)

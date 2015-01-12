@@ -29,10 +29,8 @@ namespace AirVPN.UI.Osx
 	{
 		public MainWindowController MainWindow;
 		public List<LogEntry> LogsPending = new List<LogEntry>();
-		//public List<LogEntry> LogsEntries = new List<LogEntry>(); // TOCLEAN
 
 		public List<MonoMac.AppKit.NSWindowController> WindowsOpen = new List<MonoMac.AppKit.NSWindowController>();
-
 
 
 		public Engine ()
@@ -56,11 +54,14 @@ namespace AirVPN.UI.Osx
 				});
 			}
 
+			// TOCLEAN
 			//Environment.Exit (0); // 2.8, because App don't close it automatically, we disabled ApplicationShouldTerminateAfterLastWindowClosed
 
+			/*
 			new NSObject ().InvokeOnMainThread (() => {
 				NSApplication.SharedApplication.Terminate(new NSObject ());
 			});
+			*/
 		}
 
 		public override bool OnNoRoot ()
@@ -122,22 +123,7 @@ namespace AirVPN.UI.Osx
 
 			OnRefreshUi (RefreshUiMode.Log);
 
-			/* TOCLEAN
-			lock (LogsEntries) {
-				LogsEntries.Add (l);
-				if(Engine.Storage != null)
-					if (LogsEntries.Count >= Engine.Storage.GetInt ("gui.log_limit"))
-						LogsEntries.RemoveAt (0);
-			}
 
-			if (MainWindow != null)
-				if (MainWindow.TableLogsController != null) {
-				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.Log(l);
-					MainWindow.TableLogsController.RefreshUI ();
-				});
-			}
-			*/
 		}
 
 

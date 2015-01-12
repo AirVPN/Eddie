@@ -133,14 +133,13 @@ namespace AirVPN.Core.Threads
 
 					Engine.CurrentServer = Engine.NextServer;
 					Engine.NextServer = null;
+					
 					if (Engine.CurrentServer == null)
-					{
 						if (Engine.Storage.GetBool("servers.locklast"))
 							Engine.CurrentServer = Engine.PickServer(sessionLastServer);
-						else
-							Engine.CurrentServer = Engine.PickServer(null);
-					}
 
+					if (Engine.CurrentServer == null)
+						Engine.CurrentServer = Engine.PickServer(null);
 
 					if (Engine.CurrentServer == null)
 					{
@@ -175,14 +174,15 @@ namespace AirVPN.Core.Threads
 
 						if (xmlDoc != null) 
 						{
-							string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+							string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");							
 							if (userMessage != "")
 							{
 								allowed = false;
-								string userMessageAction = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message_action", "");
+								string userMessageAction = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message_action", "");								
 								if (userMessageAction == "stop")
 								{
 									Engine.Log(Core.Engine.LogType.Fatal, userMessage);
+									Engine.Disconnect(); // 2.8
 									RequestStop();
 								}
 								else if (userMessageAction == "next")

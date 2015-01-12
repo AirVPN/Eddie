@@ -375,7 +375,7 @@ namespace AirVPN.Core
 
 			// GUI - OSX Only
 			SetDefaultBool("gui.osx.notifications", false, NotInMan);
-			SetDefaultBool("gui.osx.dock", false, NotInMan);
+			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			SetDefaultBool("gui.osx.visible", false, NotInMan);
 
 			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
@@ -391,6 +391,10 @@ namespace AirVPN.Core
 
         public void Save()
         {
+			string path = GetPath(Get("profile") + ".xml");
+
+			bool remember = GetBool("remember");
+			
             lock (this)
             {
                 XmlDocument xmlDoc = new XmlDocument();
@@ -406,20 +410,30 @@ namespace AirVPN.Core
 
                 foreach (KeyValuePair<string, string> item in m_Options)
                 {
-                    if (m_OptionsDefaults.ContainsKey(item.Key))
-                    {
-                        if (item.Value != m_OptionsDefaults[item.Key])
-                        {
-                            XmlElement itemNode = xmlDoc.CreateElement("option");
-                            itemNode.SetAttribute("name", item.Key);
-                            itemNode.SetAttribute("value", item.Value);
-                            optionsNode.AppendChild(itemNode);
-                        }
-                    }
-                    else
-                    {
-                        Debug.Fatal(Messages.Format(Messages.OptionsUnknown, item.Key));
-                    }
+					bool skip = false;
+
+					if ((remember == false) && (item.Key == "login"))
+						skip = true;
+					if ((remember == false) && (item.Key == "password"))
+						skip = true;
+
+					if (skip == false)
+					{
+						if (m_OptionsDefaults.ContainsKey(item.Key))
+						{
+							if (item.Value != m_OptionsDefaults[item.Key])
+							{
+								XmlElement itemNode = xmlDoc.CreateElement("option");
+								itemNode.SetAttribute("name", item.Key);
+								itemNode.SetAttribute("value", item.Value);
+								optionsNode.AppendChild(itemNode);
+							}
+						}
+						else
+						{
+							Debug.Fatal(Messages.Format(Messages.OptionsUnknown, item.Key));
+						}
+					}
                 }
 
                 if (Manifest != null)
@@ -428,14 +442,15 @@ namespace AirVPN.Core
                     rootNode.AppendChild(manifestNode);					
                 }
 
-				if (User != null)
+				if ( (remember) && (User != null) )
 				{
 					XmlNode userNode = xmlDoc.ImportNode(User, true);
 					rootNode.AppendChild(userNode);
 				}
-
-                xmlDoc.Save(GetPath(Get("profile") + ".xml"));
+				
+                xmlDoc.Save(path);
             }
+			
         }
 
         public void Load(bool manMode)

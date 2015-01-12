@@ -95,7 +95,7 @@ namespace AirVPN.Gui.Controls
 			formatTopCenter.LineAlignment = StringAlignment.Near;
 			
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
-
+			
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
 			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);			

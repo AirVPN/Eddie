@@ -412,8 +412,10 @@ namespace AirVPN.UI.Osx
 
 		public bool Shutdown()
 		{
-			if (Engine.Instance.Storage.GetBool ("gui.exit_confirm") == true) {
-				if (GuiUtils.MessageYesNo (Messages.ExitConfirm) == false) {
+			if (Engine.Instance.Storage.GetBool ("gui.exit_confirm") == true)
+			{
+				bool result = GuiUtils.MessageYesNo (Messages.ExitConfirm);
+				if (result == false) {
 					return false;
 				}
 			}
@@ -483,15 +485,17 @@ namespace AirVPN.UI.Osx
 				// Icon update
 				if(StatusItem != null)
 				{
+					string colorMode = GuiUtils.InterfaceColorMode ();
+				
 					if(Engine.IsConnected())
 					{
-						StatusItem.Image = NSImage.ImageNamed("menubar_green.png");
+						StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_green.png");
 						//NSApplication.SharedApplication.DockTile. =  DateTime.Now.ToString ();
 						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
 					}
 					else
 					{
-						StatusItem.Image = NSImage.ImageNamed("menubar_red.png");
+						StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_red.png");
 						//NSApplication.SharedApplication.DockTile.Description =  DateTime.Now.ToString ();
 						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
 					}
@@ -652,19 +656,34 @@ namespace AirVPN.UI.Osx
 
 		public void SettingsChanged()
 		{
+			// Commented in 2.8, see this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
+			/*
 			bool showInDock = Engine.Storage.GetBool ("gui.osx.dock");
-			if(showInDock)
-				NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
+			if (showInDock)
+				SwitchToRegular ();
 			else
-				NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
+				SwitchToAccessory ();
+			*/
 		}
+
+		/*
+		public void SwitchToRegular()
+		{
+			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
+		}
+
+		public void SwitchToAccessory()
+		{
+			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
+		}
+		*/
 
 		public void FrontMessage(string message)
 		{
 			WindowFrontMessageController w = new WindowFrontMessageController ();
 			(Engine.Instance as Engine).WindowsOpen.Add (w);
 			w.Message = message;
-			w.ShowWindow (this);
+			GuiUtils.ShowWindowWithFocus (w, this);
 		}
 
 		public void RequestAttention()
@@ -709,21 +728,10 @@ namespace AirVPN.UI.Osx
 
 		public void CreateMenuBarIcon ()
 		{
-			// TOCLEAN
-			/*
-			NSMenu notifyMenu = new NSMenu (); 
-			StatusMenuItem = new NSMenuItem ("");
-			notifyMenu.AddItem (StatusMenuItem);
-			NSMenuItem exitMenuItem = new NSMenuItem ("Quit", (a,b) => {
-				//System.Environment.Exit (0);
-				Engine.RequestStop();
-			});
-			notifyMenu.AddItem (exitMenuItem);
-			*/
 			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (22);
 			//StatusItem.Menu = notifyMenu;
 			StatusItem.Menu = MnuTray;
-			StatusItem.Image = NSImage.ImageNamed ("menubar_red.png");
+			StatusItem.Image = NSImage.ImageNamed ("menubar_light_red.png");
 			StatusItem.HighlightMode = true;
 		}
 
@@ -878,8 +886,8 @@ namespace AirVPN.UI.Osx
 		{
 			string t = TableLogsController.GetBody (selectedOnly);
 			if (t.Trim () != "") {
-				string filename = "AirVPN_" + DateTime.Now.ToString ("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt"; // TOCLEAN
-				//string filename = Engine.GetLogSuggestedFileName();
+				//string filename = "AirVPN_" + DateTime.Now.ToString ("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt"; // TOCLEAN
+				string filename = Engine.GetLogSuggestedFileName();
 
 				NSSavePanel panel = new NSSavePanel ();
 				panel.NameFieldStringValue = filename;
@@ -897,14 +905,14 @@ namespace AirVPN.UI.Osx
 		{
 			if ( (windowAbout == null) || (windowAbout.Window.IsVisible == false) )
 				windowAbout = new WindowAboutController();
-			windowAbout.ShowWindow(this);
+			GuiUtils.ShowWindowWithFocus (windowAbout, this);
 		}
 
 		public void ShowPreferences()
 		{
 			if ( (windowPreferences == null) || (windowPreferences.Window.IsVisible == false) )
 				windowPreferences = new WindowPreferencesController();
-			windowPreferences.ShowWindow(this);
+			GuiUtils.ShowWindowWithFocus (windowPreferences,this);
 		}
 
 		public void ShowHome()
@@ -938,11 +946,16 @@ namespace AirVPN.UI.Osx
 
 			NSApplication.SharedApplication.ActivateIgnoringOtherApps (true);
 
+			GuiUtils.ShowWindowWithFocus (this, this);
+			Window.MakeMainWindow ();
+			EnabledUI ();
+			/*
 			ShowWindow (this);
 			Window.MakeMainWindow ();
 			Window.Deminiaturize (this);
 			EnabledUI ();
 			Window.MakeKeyAndOrderFront (this);
+			*/
 
 		}
 	}

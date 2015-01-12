@@ -229,25 +229,23 @@ namespace AirVPN.Platforms
 
 			m_activated = true; // To avoid OnUpdateIps before this moment
 
-			OnUpdateIps();
+			OnUpdateIps();			
 		}
 
 		public override void Deactivation()
 		{
 			base.Deactivation();
-
+						
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 				profile.RestorePolicy();
 
-			/*
-			 * /* Not need, already restored in after import
-			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - In - AllowLocal\"");
-			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowLocal\"");
-			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowVPN\"");
-			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
-			Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - DHCP\"");
-			*/
-
+			// Not need, already restored in after import
+			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - In - AllowLocal\"");
+			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowLocal\"");
+			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowVPN\"");
+			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
+			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - DHCP\"");
+			
 			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
 			if (File.Exists(rulesBackupSession))
 			{
@@ -259,10 +257,9 @@ namespace AirVPN.Platforms
 			{
 				if (profile.State == false)
 					profile.StateOff();
-				/* Not need, already restored in below import
-				if (profile.Notifications == true)
-					profile.NotifyOn();
-				*/
+				// Not need, already restored in below import
+				// if (profile.Notifications == true)
+				//	profile.NotifyOn();				
 			}
 
 			// Service
@@ -273,7 +270,7 @@ namespace AirVPN.Platforms
 				service.Stop();
 				service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
 			}
-
+			
 			m_lastestIpList = "";
 		}
 

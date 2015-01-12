@@ -42,6 +42,11 @@ namespace AirVPN.Platforms
 			return "OSX";
 		}
 
+		public override string GetName()
+		{
+			return ShellCmd("sw_vers -productVersion");
+		}
+
 		public override string GetArchitecture()
 		{
 			return m_architecture;

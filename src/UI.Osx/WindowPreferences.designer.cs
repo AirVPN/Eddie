@@ -19,6 +19,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboGeneralOsxInterfaceStyle { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboLockMode { get; set; }
 
 		[Outlet]
@@ -56,9 +59,6 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkExitConfirm { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkGeneralOsxDock { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkGeneralOsxNotifications { get; set; }
@@ -230,14 +230,19 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (CboAdvancedDnsSwitchMode != null) {
+				CboAdvancedDnsSwitchMode.Dispose ();
+				CboAdvancedDnsSwitchMode = null;
+			}
+
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
 			}
 
-			if (CboAdvancedDnsSwitchMode != null) {
-				CboAdvancedDnsSwitchMode.Dispose ();
-				CboAdvancedDnsSwitchMode = null;
+			if (CboGeneralOsxInterfaceStyle != null) {
+				CboGeneralOsxInterfaceStyle.Dispose ();
+				CboGeneralOsxInterfaceStyle = null;
 			}
 
 			if (CboLockMode != null) {
@@ -308,11 +313,6 @@ namespace AirVPN.UI.Osx
 			if (ChkGeneralOsxNotifications != null) {
 				ChkGeneralOsxNotifications.Dispose ();
 				ChkGeneralOsxNotifications = null;
-			}
-
-			if (ChkGeneralOsxDock != null) {
-				ChkGeneralOsxDock.Dispose ();
-				ChkGeneralOsxDock = null;
 			}
 
 			if (ChkGeneralOsxVisible != null) {

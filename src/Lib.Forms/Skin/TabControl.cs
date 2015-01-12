@@ -40,7 +40,8 @@ namespace AirVPN.Gui.Skin
             // This call is required by the Windows.Forms Form Designer.
             //InitializeComponent();
 
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);            
+			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);            
+			
         }
 		
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -152,9 +153,6 @@ namespace AirVPN.Gui.Skin
                 Core.Debug.Trace(ex);
             }
         }
-
-        
-
     }
 
 }

@@ -134,7 +134,8 @@ namespace AirVPN.Core
 				m_current = null;
 			}
 
-			Engine.Instance.Storage.SetBool("netlock", false);
+			if(onExit == false)
+				Engine.Instance.Storage.SetBool("netlock", false);
 
 			Recovery.Save();
 		}

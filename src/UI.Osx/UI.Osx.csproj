@@ -504,9 +504,12 @@
     <BundleResource Include="Resources\status_yellow_16.png" />
     <BundleResource Include="Resources\netlock_off.png" />
     <BundleResource Include="Resources\netlock_on.png" />
-    <BundleResource Include="Resources\menubar_green.png" />
-    <BundleResource Include="Resources\menubar_red.png" />
-    <BundleResource Include="Resources\menubar_yellow.png" />
+    <BundleResource Include="Resources\menubar_dark_green.png" />
+    <BundleResource Include="Resources\menubar_dark_red.png" />
+    <BundleResource Include="Resources\menubar_dark_yellow.png" />
+    <BundleResource Include="Resources\menubar_light_green.png" />
+    <BundleResource Include="Resources\menubar_light_red.png" />
+    <BundleResource Include="Resources\menubar_light_yellow.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">
