@@ -110,7 +110,7 @@ namespace AirVPN.UI.Osx
 		public static string InterfaceColorMode()
 		{
 			//string colorMode = NSUserDefaults.StandardUserDefaults.StringForKey ("AppleInterfaceStyle");
-			string colorMode = Platform.Instance.ShellCmd ("defaults read -g AppleInterfaceStyle");
+			string colorMode = Platform.Instance.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null");
 			if (colorMode == "Dark")
 				return "Dark";
 			else
