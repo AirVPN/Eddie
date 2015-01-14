@@ -27,7 +27,7 @@ namespace AirVPN.Core
 		public static string Name = "AirVPN";
 		public static double Version = 2.8;
 		public static int VersionInt = 28;
-		public static string VersionDesc = "2.8.7";
+		public static string VersionDesc = "2.8.8";
         public static string WebSite = "https://airvpn.org";
         public static string ServerHost = "airvpn.org";
 		public static string DnsVpn = "10.4.0.1";

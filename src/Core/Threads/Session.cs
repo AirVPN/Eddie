@@ -153,6 +153,7 @@ namespace AirVPN.Core.Threads
 					if (allowed)
 					{
 						Engine.WaitMessageSet(Messages.AuthorizeConnect, true);
+						Engine.Log(Engine.LogType.Info, Messages.AuthorizeConnect);
 
 						Dictionary<string, string> parameters = new Dictionary<string, string>();
 						parameters["act"] = "connect";
@@ -221,7 +222,9 @@ namespace AirVPN.Core.Threads
 
 						Engine.RunEventCommand("vpn.pre");
 
-						Engine.WaitMessageSet(Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location), true);
+						string connectingMessage = Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location);
+						Engine.WaitMessageSet(connectingMessage, true);
+						Engine.Log(Engine.LogType.InfoImportant, connectingMessage);
 
 						Engine.BuildOVPN(protocol, port, alt, m_proxyPort);
 
@@ -365,6 +368,7 @@ namespace AirVPN.Core.Threads
 						Engine.SetConnected(false);
 
 						Engine.WaitMessageSet(Messages.ConnectionDisconnecting, false);
+						Engine.Log(Engine.LogType.InfoImportant, Messages.ConnectionDisconnecting);
 
 						if (Storage.Simulate)
 						{
@@ -497,7 +501,8 @@ namespace AirVPN.Core.Threads
 				{
 					for (int i = 0; i < waitingSecs; i++)
 					{
-						Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), true, false);
+						Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), true);
+						//Engine.Log(Engine.LogType.Verbose, waitingMessage);
 						if (CancelRequested)
 							break;
 
@@ -892,6 +897,7 @@ namespace AirVPN.Core.Threads
 						Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
 
 						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
+						Engine.Log(Engine.LogType.Info, Messages.ConnectionFlushDNS);
 
 						Platform.Instance.FlushDNS();
 
@@ -904,6 +910,7 @@ namespace AirVPN.Core.Threads
 						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.route")))
 						{
 							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
+							Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingRoute);
 
 							if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
 							{
@@ -956,6 +963,7 @@ namespace AirVPN.Core.Threads
 						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.dns")))
 						{
 							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
+							Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingDNS);
 
 							bool failed = true;
 							IPHostEntry entry = Dns.GetHostEntry(Engine.Storage.GetManifestKeyValue("dnscheck_host", ""));

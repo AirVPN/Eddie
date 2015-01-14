@@ -94,7 +94,9 @@ namespace AirVPN.Core
 				}
 				else
 				{
-					Engine.Instance.WaitMessageSet(Messages.NetworkLockActivation + " - " + nextCurrent.GetName(), false);
+					string message = Messages.NetworkLockActivation + " - " + nextCurrent.GetName();
+					Engine.Instance.WaitMessageSet(message, false);
+					Engine.Instance.Log(Engine.LogType.InfoImportant, message);
 
 					nextCurrent.Activation();
 
@@ -118,7 +120,10 @@ namespace AirVPN.Core
 			if (m_current != null)
 			{
 				if (onExit == false)
+				{
 					Engine.Instance.WaitMessageSet(Messages.NetworkLockDeactivation, false);
+					Engine.Instance.Log(Engine.LogType.InfoImportant, Messages.NetworkLockDeactivation);
+				}
 				else
 					Engine.Instance.Log(Engine.LogType.Verbose, Messages.NetworkLockDeactivation);
 
