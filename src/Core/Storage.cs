@@ -377,6 +377,7 @@ namespace AirVPN.Core
 			SetDefaultBool("gui.osx.notifications", false, NotInMan);
 			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			SetDefaultBool("gui.osx.visible", false, NotInMan);
+			SetDefault ("gui.osx.style", "light", NotInMan);
 
 			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
 			SetDefault("paramtest", "", NotInMan); 			

@@ -25,7 +25,7 @@ namespace AirVPN.UI.Osx
 	{
 		const string SecurityFramework = "/System/Library/Frameworks/Security.framework/Versions/Current/Security";
 
-		public static bool LaunchExternalTool (string toolPath)
+		public static bool LaunchExternalTool (string toolPath, string[] args)
 		{
 			IntPtr authReference = IntPtr.Zero;
 			int result = AuthorizationCreate (IntPtr.Zero, IntPtr.Zero, 0, out authReference);
@@ -33,7 +33,7 @@ namespace AirVPN.UI.Osx
 				Console.WriteLine ("Error while creating Auth Reference: {0}", result);
 				return false;
 			}
-			AuthorizationExecuteWithPrivileges (authReference, toolPath, 0, new string[] { null }, IntPtr.Zero);
+			AuthorizationExecuteWithPrivileges (authReference, toolPath, 0, args, IntPtr.Zero);
 			return true;
 		}
 

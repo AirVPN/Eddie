@@ -485,8 +485,9 @@ namespace AirVPN.UI.Osx
 				// Icon update
 				if(StatusItem != null)
 				{
-					string colorMode = GuiUtils.InterfaceColorMode ();
-				
+					//string colorMode = GuiUtils.InterfaceColorMode ();
+					string colorMode = Engine.Storage.Get ("gui.osx.style");
+			
 					if(Engine.IsConnected())
 					{
 						StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_green.png");
@@ -734,6 +735,8 @@ namespace AirVPN.UI.Osx
 			StatusItem.Image = NSImage.ImageNamed ("menubar_light_red.png");
 			StatusItem.HighlightMode = true;
 		}
+
+
 
 		void Login()
 		{

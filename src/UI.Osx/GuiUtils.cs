@@ -107,6 +107,7 @@ namespace AirVPN.UI.Osx
 			return false;
 		}
 
+		/*
 		public static string InterfaceColorMode()
 		{
 			//string colorMode = NSUserDefaults.StandardUserDefaults.StringForKey ("AppleInterfaceStyle");
@@ -116,6 +117,7 @@ namespace AirVPN.UI.Osx
 			else
 				return "Light";
 		}
+		*/
 
 		public static void ShowWindowWithFocus(MonoMac.AppKit.NSWindowController w, MonoMac.AppKit.NSWindowController parent)
 		{

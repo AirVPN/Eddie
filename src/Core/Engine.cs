@@ -293,7 +293,7 @@ namespace AirVPN.Core
                 Engine.Instance.Log(Engine.LogType.Verbose, "Data Path: " + Storage.DataPath);
 				Engine.Instance.Log(Engine.LogType.Verbose, "App Path: " + Platform.Instance.GetProgramFolder());
 				Engine.Instance.Log(Engine.LogType.Verbose, "Executable Path: " + Platform.Instance.GetExecutablePath());
-				Engine.Instance.Log(Engine.LogType.Verbose, "Command line arguments: " + CommandLine.SystemEnvironment.GetFull());
+				Engine.Instance.Log(Engine.LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 
                 if (Storage.Get("profile") != "AirVPN")
                     Engine.Instance.Log(Engine.LogType.Verbose, "Profile: " + Storage.Get("profile"));
