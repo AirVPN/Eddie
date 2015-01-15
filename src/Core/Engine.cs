@@ -293,7 +293,7 @@ namespace AirVPN.Core
                 Engine.Instance.Log(Engine.LogType.Verbose, "Data Path: " + Storage.DataPath);
 				Engine.Instance.Log(Engine.LogType.Verbose, "App Path: " + Platform.Instance.GetProgramFolder());
 				Engine.Instance.Log(Engine.LogType.Verbose, "Executable Path: " + Platform.Instance.GetExecutablePath());
-				Engine.Instance.Log(Engine.LogType.Verbose, "Command line arguments: " + CommandLine.SystemEnvironment.GetFull());
+				Engine.Instance.Log(Engine.LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 
                 if (Storage.Get("profile") != "AirVPN")
                     Engine.Instance.Log(Engine.LogType.Verbose, "Profile: " + Storage.Get("profile"));
@@ -322,6 +322,7 @@ namespace AirVPN.Core
             SessionStop();
 
 			WaitMessageSet(Messages.AppExiting, false);
+			//Engine.Log(Engine.LogType.InfoImportant, Messages.AppExiting);
 
             if (m_threadManifest != null)
 				m_threadManifest.RequestStopSync();				
@@ -621,22 +622,16 @@ namespace AirVPN.Core
         
         public void WaitMessageClear()
         {
-            WaitMessageSet("", false, false);
+			WaitMessageSet("", false);
         }
-
+		
 		public void WaitMessageSet(string message, bool allowCancel)
-        {
-			WaitMessageSet(message, allowCancel, true);
-        }
-
-		public void WaitMessageSet(string message, bool allowCancel, bool log)
-        {
-			if ((message != "") && (log))
-				Log(Engine.LogType.InfoImportant, message);
-
+        {			
 			if (message != "")
-                if(Connected)
-                    throw new Exception("Unexpected status.");                
+			{
+				if (Connected)
+					throw new Exception("Unexpected status.");
+			}
 
             lock (this)
             {
@@ -1268,7 +1263,9 @@ namespace AirVPN.Core
 
             if (filename.Trim() != "")
             {
-                WaitMessageSet(Messages.Format(Messages.AppEvent, name), false);
+				string message = Messages.Format(Messages.AppEvent, name);
+				WaitMessageSet(message, false);
+				Engine.Log(Engine.LogType.Info, message);
 
                 //Log(LogType.Verbose, "Start Running event '" + name + "', Command: '" + filename + "', Arguments: '" + arguments + "'");
 				Platform.Instance.Shell(filename, arguments, waitEnd);
@@ -1599,7 +1596,8 @@ namespace AirVPN.Core
 
 		private void Auth()
 		{
-			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin, false); 
+			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin, false);
+			Engine.Log(Engine.LogType.Info, Messages.AuthorizeLogin);
 
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters["act"] = "user";
@@ -1651,7 +1649,8 @@ namespace AirVPN.Core
             {
 				Engine.Log(Engine.LogType.Info, Messages.SessionStart);
 
-                Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment, true);
+				Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment, true);
+				Engine.Log(Engine.LogType.Info, Messages.OsDriverInstall);
                 
                 CheckEnvironment();
 
@@ -1661,6 +1660,7 @@ namespace AirVPN.Core
 					if (Platform.Instance.CanInstallDriver())
 					{
 						Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
+						Engine.Log(Engine.LogType.InfoImportant, Messages.OsDriverInstall);
 
 						Platform.Instance.InstallDriver();
 
@@ -1676,7 +1676,8 @@ namespace AirVPN.Core
 
                 if (Storage.UpdateManifestNeed(true))
                 {
-                    Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
+					Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
+					Engine.Log(Engine.LogType.Info, Messages.RetrievingManifest);
 
 					string result = Engine.WaitManifestUpdate();
 

@@ -102,9 +102,11 @@ namespace AirVPN.UI.Osx
 				tos.Window.Close ();
 			};
 
+			/*
 			CboGeneralOsxInterfaceStyle.RemoveAllItems ();
 			CboGeneralOsxInterfaceStyle.AddItem ("Default");
 			CboGeneralOsxInterfaceStyle.AddItem ("Dark");
+			*/
 
 			// Modes
 			string sshStatus = (Software.SshVersion != "" ? "" : "Not available");
@@ -544,11 +546,13 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetCheck (ChkGeneralOsxNotifications, s.GetBool ("gui.osx.notifications"));
 			GuiUtils.SetCheck (ChkExitConfirm, s.GetBool("gui.exit_confirm"));
 
+			/*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
 			if (interfaceMode == "Dark")
 				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Dark");
 			else
 				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Default");
+			*/
 
 			// Mode
 			m_mode_protocol = s.Get ("mode.protocol").ToUpperInvariant ();
@@ -677,12 +681,14 @@ namespace AirVPN.UI.Osx
 			s.SetBool ("gui.osx.notifications", GuiUtils.GetCheck (ChkGeneralOsxNotifications));
 			s.SetBool ("gui.exit_confirm", GuiUtils.GetCheck (ChkExitConfirm));
 
+			/*
 			string interfaceStyle = GuiUtils.GetSelected (CboGeneralOsxInterfaceStyle);
 			//string currentInterfaceStyle = GuiUtils.InterfaceColorMode ();
 			if(interfaceStyle == "Dark")
 				Platform.Instance.ShellCmd ("defaults write -g AppleInterfaceStyle Dark");
 			else 
 				Platform.Instance.ShellCmd ("defaults remove -g AppleInterfaceStyle");
+			*/
 
 			// Mode
 

@@ -67,7 +67,11 @@ namespace AirVPN.UI.Osx
 		public override bool OnNoRoot ()
 		{
 			string path = Platform.Instance.GetExecutablePath();
-			RootLauncher.LaunchExternalTool(path);
+			List<string> args = CommandLine.SystemEnvironment.GetFullArray ();
+			string colorMode = Platform.Instance.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null");
+			if(colorMode == "Dark")
+				args.Add("gui.osx.style=\"dark\"");
+			RootLauncher.LaunchExternalTool(path, args.ToArray());
 			return true;
 		}
 

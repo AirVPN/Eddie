@@ -46,6 +46,14 @@ namespace AirVPN.Core
 			return o.Trim();
 		}
 
+		public List<string> GetFullArray()
+		{
+			List<string> result = new List<string> ();
+			foreach (KeyValuePair<string, string> item in Params)
+				result.Add(item.Key + "=\"" + item.Value + "\"");
+			return result;
+		}
+
 		public bool Exists(string name)
 		{
 			return Params.ContainsKey(name);
