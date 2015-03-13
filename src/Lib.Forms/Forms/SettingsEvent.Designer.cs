@@ -40,6 +40,7 @@
 			// 
 			// cmdOk
 			// 
+			this.cmdOk.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
 			this.cmdOk.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdOk.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
@@ -55,6 +56,8 @@
 			// 
 			// txtArguments
 			// 
+			this.txtArguments.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtArguments.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtArguments.Location = new System.Drawing.Point(89, 44);
 			this.txtArguments.Name = "txtArguments";
@@ -74,6 +77,7 @@
 			// 
 			// cmdCancel
 			// 
+			this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
 			this.cmdCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdCancel.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -88,6 +92,8 @@
 			// 
 			// txtFileName
 			// 
+			this.txtFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtFileName.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtFileName.Location = new System.Drawing.Point(89, 18);
 			this.txtFileName.Name = "txtFileName";
@@ -107,6 +113,7 @@
 			// 
 			// chkWaitEnd
 			// 
+			this.chkWaitEnd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkWaitEnd.AutoSize = true;
 			this.chkWaitEnd.BackColor = System.Drawing.Color.Transparent;
 			this.chkWaitEnd.ForeColor = System.Drawing.Color.Black;
@@ -119,6 +126,7 @@
 			// 
 			// cmdExeBrowse
 			// 
+			this.cmdExeBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.cmdExeBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdExeBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdExeBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
@@ -145,7 +153,6 @@
 			this.Controls.Add(this.cmdCancel);
 			this.Controls.Add(this.txtFileName);
 			this.Controls.Add(this.lblFileName);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsEvent";

@@ -18,25 +18,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AirVPN.Core
-{
-	public class WebClientEx : System.Net.WebClient
-	{
-		protected override WebRequest GetWebRequest(Uri address)
+{	
+    public class Commands
+    {
+		public static void Do(CommandLine command)
 		{
-			WebRequest w = base.GetWebRequest(address);
-			HttpWebRequest wHttp = w as HttpWebRequest;
-			if (wHttp != null)
-			{
-				wHttp.KeepAlive = false;				
-			}
-			wHttp.AllowAutoRedirect = false; // 2.9
-			w.Timeout = 10000;		
 			
-			return w;
 		}
-	}
+    }
 }

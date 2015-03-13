@@ -41,6 +41,8 @@
 			// 
 			// lblHostHelp
 			// 
+			this.lblHostHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblHostHelp.BackColor = System.Drawing.Color.Transparent;
 			this.lblHostHelp.ForeColor = System.Drawing.Color.Black;
 			this.lblHostHelp.Location = new System.Drawing.Point(89, 41);
@@ -63,7 +65,7 @@
 			// 
 			// cmdOk
 			// 
-			this.cmdOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.cmdOk.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
 			this.cmdOk.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdOk.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
@@ -90,10 +92,12 @@
 			// 
 			// txtNotes
 			// 
-			this.txtNotes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.txtNotes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtNotes.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtNotes.Location = new System.Drawing.Point(89, 169);
+			this.txtNotes.Multiline = true;
 			this.txtNotes.Name = "txtNotes";
 			this.txtNotes.Size = new System.Drawing.Size(288, 20);
 			this.txtNotes.TabIndex = 2;
@@ -111,7 +115,7 @@
 			// 
 			// cmdCancel
 			// 
-			this.cmdCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
 			this.cmdCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdCancel.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -160,7 +164,6 @@
 			this.Controls.Add(this.cmdCancel);
 			this.Controls.Add(this.txtHost);
 			this.Controls.Add(this.lblProxyHost);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsRoute";

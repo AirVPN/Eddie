@@ -728,6 +728,7 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = ServerInfo.UserListType.WhiteList;
 			}
+			Engine.UpdateSettings();
 			DeselectServersListItem();
 			m_listViewServers.UpdateList();
 		}
@@ -738,6 +739,7 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = ServerInfo.UserListType.BlackList;
 			}
+			Engine.UpdateSettings();
 			DeselectServersListItem();
 			m_listViewServers.UpdateList();			
 		}
@@ -748,6 +750,7 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = ServerInfo.UserListType.None;
 			}
+			Engine.UpdateSettings();
 			DeselectServersListItem();
 			m_listViewServers.UpdateList();			
 		}
@@ -759,6 +762,13 @@ namespace AirVPN.Gui.Forms
 
 			Core.Threads.Manifest.Instance.ForceUpdate = true;
 		}
+
+		private void mnuServersEdit_Click(object sender, EventArgs e)
+		{
+			Profiles Dlg = new Profiles();
+			Dlg.ShowDialog(this);
+		}
+
 
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
 		{
@@ -780,7 +790,10 @@ namespace AirVPN.Gui.Forms
 			mnuServersRefresh_Click(sender, e);
 		}
 
-
+		private void cmdServersEdit_Click(object sender, EventArgs e)
+		{
+			mnuServersEdit_Click(sender, e);
+		}
 
 		private void mnuAreasWhiteList_Click(object sender, EventArgs e)
 		{
@@ -788,6 +801,7 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = AreaInfo.UserListType.WhiteList;
 			}
+			Engine.UpdateSettings();
 			m_listViewAreas.UpdateList();
 			m_listViewServers.UpdateList();
 		}
@@ -798,6 +812,7 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = AreaInfo.UserListType.BlackList;
 			}
+			Engine.UpdateSettings();
 			m_listViewAreas.UpdateList();
 			m_listViewServers.UpdateList();
 		}
@@ -808,6 +823,7 @@ namespace AirVPN.Gui.Forms
 			{
 				item.Info.UserList = AreaInfo.UserListType.None;
 			}
+			Engine.UpdateSettings();
 			m_listViewAreas.UpdateList();
 			m_listViewServers.UpdateList();
 		}
@@ -1302,7 +1318,7 @@ namespace AirVPN.Gui.Forms
 				if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
 					return;
 
-				lock (Engine)
+				// lock (Engine) // TOCLEAN 2.9
                 {
 					if( (mode == Core.Engine.RefreshUiMode.MainMessage) || (mode == Core.Engine.RefreshUiMode.Full) )
 					{
@@ -1568,6 +1584,19 @@ namespace AirVPN.Gui.Forms
 			Engine.NetLockOut();
 		}
 
+		private void txtCommand_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.KeyValue == 13)
+			{
+				string command = txtCommand.Text;
+				txtCommand.Text = "";
+				
+				Engine.Instance.Command(command);
+			}			
+		}
+
+		
+		
 
 		
 		

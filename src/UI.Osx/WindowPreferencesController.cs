@@ -596,10 +596,10 @@ namespace AirVPN.UI.Osx
 
 			// Advanced
 			GuiUtils.SetCheck (ChkAdvancedExpertMode, s.GetBool ("advanced.expert"));
-			GuiUtils.SetCheck (ChkAdvancedCheckDns, s.GetBool ("advanced.check.dns"));
+			GuiUtils.SetCheck (ChkAdvancedCheckDns, s.GetBool ("dns.check"));
 			GuiUtils.SetCheck (ChkAdvancedCheckRoute, s.GetBool ("advanced.check.route"));
 
-			string dnsMode = s.Get ("advanced.dns.mode");
+			string dnsMode = s.Get ("dns.mode");
 			if (dnsMode == "none")
 				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Disabled");
 			else
@@ -722,14 +722,14 @@ namespace AirVPN.UI.Osx
 
 			// Advanced
 			s.SetBool ("advanced.expert", GuiUtils.GetCheck (ChkAdvancedExpertMode));
-			s.SetBool ("advanced.check.dns", GuiUtils.GetCheck (ChkAdvancedCheckDns));
+			s.SetBool ("dns.check", GuiUtils.GetCheck (ChkAdvancedCheckDns));
 			s.SetBool ("advanced.check.route", GuiUtils.GetCheck (ChkAdvancedCheckRoute));
 
 			string dnsMode = GuiUtils.GetSelected (CboAdvancedDnsSwitchMode);
 			if (dnsMode == "Disabled")
-				s.Set ("advanced.dns.mode", "none");
+				s.Set ("dns.mode", "none");
 			else
-				s.Set ("advanced.dns.mode", "auto");
+				s.Set ("dns.mode", "auto");
 
 			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
 			s.SetBool ("advanced.pinger.always", GuiUtils.GetCheck (ChkAdvancedPingerAlways));

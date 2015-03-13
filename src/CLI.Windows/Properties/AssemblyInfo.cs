@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://airvpn.org")]
 [assembly: AssemblyProduct("AirVPN - Windows CLI")]
-[assembly: AssemblyCopyright("Copyright ©  2011 - 2014")]
+[assembly: AssemblyCopyright("Copyright ©  2011 - 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.8.0.0")]
-[assembly: AssemblyFileVersion("2.8.0.0")]
+[assembly: AssemblyVersion("2.9.0.0")]
+[assembly: AssemblyFileVersion("2.9.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("")]

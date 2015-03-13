@@ -382,20 +382,34 @@ namespace AirVPN.Core
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
 
-			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
+			try
 			{
-				t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
-				//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
-				//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
-				t += "\n";
+				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+				foreach (NetworkInterface adapter in interfaces)
+				{
+					t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
+					//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
+					//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
+					t += "\n";
+				}
+			}
+			catch (Exception)
+			{
+				t += "Unable to fetch network interfaces.\n";
 			}
 
 			t += "\nRouting:\n";
-			List<RouteEntry> routeEntries = RouteList();
-			foreach (RouteEntry routeEntry in routeEntries)
+			try
 			{
-				t += routeEntry.ToString() + "\n";
+				List<RouteEntry> routeEntries = RouteList();
+				foreach (RouteEntry routeEntry in routeEntries)
+				{
+					t += routeEntry.ToString() + "\n";
+				}
+			}
+			catch (Exception)
+			{
+				t += "Unable to fetch routes.\n";
 			}
 
 			return t;
@@ -421,13 +435,17 @@ namespace AirVPN.Core
 		{
 		}
 
+		/*
 		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
 		public virtual void OnRecovery()
 		{
 		}
+		*/
 
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
+			OnDnsSwitchRestore();
+			OnIpV6Restore();
 		}
 
 		public virtual void OnRecoverySave(XmlElement root)
@@ -438,12 +456,24 @@ namespace AirVPN.Core
 		{
 		}
 
-		public virtual void OnDnsSwitchDo(string dns)
+		public virtual bool OnDnsSwitchDo(string dns)
 		{
+			return true;
 		}
 
-		public virtual void OnDnsSwitchRestore()
+		public virtual bool OnDnsSwitchRestore()
 		{
+			return true;
+		}
+
+		public virtual bool OnIpV6Do()
+		{
+			return true;
+		}
+
+		public virtual bool OnIpV6Restore()
+		{
+			return true;
 		}
 
 		public virtual string GetDriverAvailable()
@@ -469,11 +499,6 @@ namespace AirVPN.Core
 		public virtual void UnInstallDriver()
 		{
 			NotImplemented();
-		}
-
-		public virtual bool IpV6Enabled()
-		{
-			return System.Net.Sockets.Socket.OSSupportsIPv6;
 		}
 
 		public virtual string GetGitDeployPath()

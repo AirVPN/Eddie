@@ -43,6 +43,9 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="Commands.cs" />
+    <Compile Include="CountriesManager.cs" />
+    <Compile Include="OvpnManager.cs" />
     <Compile Include="RemoteAccess.cs" />
     <Compile Include="TorControl.cs" />
     <Compile Include="IpAddressRange.cs" />

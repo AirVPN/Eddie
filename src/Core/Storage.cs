@@ -33,6 +33,7 @@ namespace AirVPN.Core
 
         public XmlNode Manifest;
 		public XmlNode User;
+		public XmlNode Profiles; // Custom OVPN profiles
 
         private Dictionary<string, string> m_OptionsDefaults = new Dictionary<string, string>();
 		private Dictionary<string, string> m_OptionsMan = new Dictionary<string, string>();
@@ -263,6 +264,13 @@ namespace AirVPN.Core
         {
 			string NotInMan = ""; // Option not listed in 'man' documentation.
 
+			/*
+			bool defaultDnsForceAndCheck = false; // 2.8
+			if(Platform.IsUnix())
+				defaultDnsForceAndCheck = true;
+			*/
+			bool defaultDnsForceAndCheck = true; // 2.9
+
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
 			SetDefaultBool("help", false, Messages.ManOptionHelp);
 			SetDefault("help_format", "text", NotInMan); // Maybe 'text' or 'bbc'.
@@ -308,27 +316,36 @@ namespace AirVPN.Core
 			SetDefault("routes.default", "in", Messages.ManOptionRoutesDefault);
 			SetDefault("routes.custom", "", Messages.ManOptionRoutesCustom);
 
+			SetDefault("dns.mode", "auto", Messages.ManOptionDnsMode);
+			SetDefault("dns.servers", "", Messages.ManOptionDnsServers);
+			SetDefaultBool("dns.check", defaultDnsForceAndCheck, Messages.ManOptionDnsCheck);
+
+			SetDefault("netlock.mode", "auto", NotInMan); // Maybe 'auto' in future			
+			SetDefaultBool("netlock.allow_private", true, NotInMan); // Allow private subnet by default
+			SetDefaultBool("netlock.allow_ping", true, NotInMan); // Allow ICMP/Ping by default
+			SetDefaultBool("netlock.allow_ipv6", false, NotInMan); // TOCLEAN: Really need?
+
+			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked			
+
+			SetDefault("ipv6.mode", "none", NotInMan);
+
 			SetDefault("executables.openvpn", "", Messages.ManOptionExecutablesOpenVpn);
 			SetDefault("executables.ssh", "", Messages.ManOptionExecutablesSsh);
 			SetDefault("executables.ssl", "", Messages.ManOptionExecutablesSsl);
 			SetDefault("executables.curl", "", Messages.ManOptionExecutablesCurl);
 			SetDefault("openvpn.custom", "", Messages.ManOptionOpenVpnCustom);
 			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
+
+			SetDefault("profiles.path", "", NotInMan);
 			
 			// Not in Settings
 			SetDefaultInt("openvpn.management_port", 3100, Messages.ManOptionOpenVpnManagementPort);
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
 
-
-			bool defaultDnsForceAndCheck = false; // 2.8
-			if(Platform.IsUnix())
-				defaultDnsForceAndCheck = true;
-
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);
-			SetDefaultBool("advanced.check.dns", defaultDnsForceAndCheck, Messages.ManOptionAdvancedCheckDns);
+			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
-			SetDefault("advanced.dns.mode", "auto", Messages.ManOptionAdvancedDnsSwitch);
+			
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
 			SetDefaultBool("advanced.pinger.always", false, Messages.ManOptionAdvancedPingerAlways);
@@ -338,11 +355,10 @@ namespace AirVPN.Core
 			SetDefaultInt("advanced.pinger.valid", 0, Messages.ManOptionAdvancedPingerValid);
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 
-			SetDefault("netlock.mode", "auto", NotInMan); // Maybe 'auto' in future			
-			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked			
+			
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
-			SetDefaultBool("advanced.windows.dns_force", defaultDnsForceAndCheck, Messages.ManOptionAdvancedWindowsDnsForce);
+			//SetDefaultBool("advanced.windows.dns_force", defaultDnsForceAndCheck, Messages.ManOptionAdvancedWindowsDnsForce);  // TOCLEAN
 			SetDefaultBool("advanced.windows.dhcp_disable", false, Messages.ManOptionAdvancedWindowsDhcpDisable);
 
 			// Not in Settings
@@ -437,11 +453,17 @@ namespace AirVPN.Core
 					}
                 }
 
-                if (Manifest != null)
-                {
+				if (Manifest != null)
+				{
 					XmlNode manifestNode = xmlDoc.ImportNode(Manifest, true);
-                    rootNode.AppendChild(manifestNode);					
-                }
+					rootNode.AppendChild(manifestNode);
+				}
+
+				if (Profiles != null)
+				{
+					XmlNode profilesNode = xmlDoc.ImportNode(Profiles, true);
+					rootNode.AppendChild(profilesNode);
+				}
 
 				if ( (remember) && (User != null) )
 				{
@@ -495,7 +517,11 @@ namespace AirVPN.Core
                     }
 
 					Manifest = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
-					User = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");					
+					User = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
+					Profiles = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "profiles");
+
+					if (Profiles == null)
+						Profiles = xmlDoc.CreateElement("profiles");
                 }
                 catch (Exception ex)
                 {
@@ -539,6 +565,14 @@ namespace AirVPN.Core
 			else if (name == "netlock.active") // 2.8
 			{
 				name = "netlock";
+			}
+			else if (name == "advanced.dns.mode") // <2.8
+			{
+				name = "dns.mode";
+			}
+			else if (name == "advanced.check.dns") // <2.8
+			{
+				name = "dns.check";
 			}
 		}
 
@@ -596,6 +630,8 @@ namespace AirVPN.Core
 					// Update with the local time
 					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
 				}
+
+				// OvpnManager.Refresh(true); // TOFIX
 
 				Engine.Instance.PostManifestUpdate();
 

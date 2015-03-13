@@ -44,6 +44,7 @@
     <Compile Include="Controls\ChartSpeed.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\ListViewItemProfile.cs" />
     <Compile Include="Controls\ProgressInfinite.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -69,6 +70,18 @@
     </Compile>
     <Compile Include="Forms\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Profile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Profile.Designer.cs">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Profiles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Profiles.Designer.cs">
+      <DependentUpon>Profiles.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrontMessage.cs">
       <SubType>Form</SubType>
@@ -175,6 +188,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\About.resx">
       <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Profile.resx">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Profiles.resx">
+      <DependentUpon>Profiles.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrontMessage.resx">
       <DependentUpon>FrontMessage.cs</DependentUpon>

@@ -48,7 +48,7 @@ namespace AirVPN.Core
 				Engine.Instance.NetworkLockManager.OnRecoverySave(root);
 
 				string path = RecoveryPath();
-				if (root.ChildNodes.Count == 0)
+				if( (root.ChildNodes.Count == 0) && (root.Attributes.Count == 0) )
 				{
 					if (File.Exists(path))
 						File.Delete(path);
@@ -64,7 +64,7 @@ namespace AirVPN.Core
 			{
 				string path = RecoveryPath();
 
-				Platform.Instance.OnRecovery();
+				// Platform.Instance.OnRecovery();
 
 				if (File.Exists(path))
 				{

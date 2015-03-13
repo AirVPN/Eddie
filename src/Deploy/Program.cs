@@ -114,6 +114,11 @@ namespace Deploy
 				ListPackages.Add(new Package("windows", "x86", "installer"));
 				ListPackages.Add(new Package("windows", "x64", "installer"));
 
+				ListPackages.Add(new Package("windows_xp", "x86", "portable"));
+				ListPackages.Add(new Package("windows_xp", "x64", "portable"));
+				ListPackages.Add(new Package("windows_xp", "x86", "installer"));
+				ListPackages.Add(new Package("windows_xp", "x64", "installer"));
+				
 				ListPackages.Add(new Package("windows8", "x86", "portable"));
 				ListPackages.Add(new Package("windows8", "x64", "portable"));
 				ListPackages.Add(new Package("windows8", "x86", "installer"));				

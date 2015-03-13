@@ -89,6 +89,7 @@ namespace AirVPN.Gui.Forms
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
 			chkAdvancedPingerAlways.Visible = false;
+			chkAdvancedWindowsForceDns.Visible = false;
 
 			if (Platform.IsUnix())
 			{
@@ -258,30 +259,22 @@ namespace AirVPN.Gui.Forms
 
             // Advanced - General
             chkExpert.Checked = s.GetBool("advanced.expert");
+			chkAdvancedCheckRoute.Checked = s.GetBool("advanced.check.route");
 
-            
-                        
-            chkAdvancedCheckDns.Checked = s.GetBool("advanced.check.dns");
-            chkAdvancedCheckRoute.Checked = s.GetBool("advanced.check.route");
-			cboDnsSwitchMode.Text = s.Get("advanced.dns.mode");
-
-			string dnsMode = s.Get("advanced.dns.mode");
-			if(dnsMode == "none")
-				cboDnsSwitchMode.Text = "Disabled";
-			else if(dnsMode == "auto")
-				cboDnsSwitchMode.Text = "Automatic";
-			else if(dnsMode == "resolvconf")
-				cboDnsSwitchMode.Text = "Resolvconf (Linux only)";
-			else if(dnsMode == "rename")
-				cboDnsSwitchMode.Text = "Renaming (Linux only)";			
+			string ipV6 = s.Get("ipv6.mode");
+			if (ipV6 == "none")
+				cboIpV6.Text = "None";
+			else if (ipV6 == "disable")
+				cboIpV6.Text = "Disable";
 			else
-				cboDnsSwitchMode.Text = "Automatic";
+				cboIpV6.Text = "None";
 
+			
 			chkAdvancedPingerEnabled.Checked = s.GetBool("advanced.pinger.enabled");
 			chkAdvancedPingerAlways.Checked = s.GetBool("advanced.pinger.always");
 			
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
-			chkAdvancedWindowsForceDns.Checked = s.GetBool("advanced.windows.dns_force");
+			//chkAdvancedWindowsForceDns.Checked = s.GetBool("advanced.windows.dns_force"); // TOCLEAN
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
 
 			txtExePath.Text = s.Get("executables.openvpn");
@@ -298,6 +291,22 @@ namespace AirVPN.Gui.Forms
 			else
 				cboAdvancedManifestRefresh.SelectedIndex = 0;
 
+			// Advanced - DNS
+			cboDnsSwitchMode.Text = s.Get("dns.mode");
+			string dnsMode = s.Get("dns.mode");
+			if (dnsMode == "none")
+				cboDnsSwitchMode.Text = "Disabled";
+			else if (dnsMode == "auto")
+				cboDnsSwitchMode.Text = "Automatic";
+			else if (dnsMode == "resolvconf")
+				cboDnsSwitchMode.Text = "Resolvconf (Linux only)";
+			else if (dnsMode == "rename")
+				cboDnsSwitchMode.Text = "Renaming (Linux only)";
+			else
+				cboDnsSwitchMode.Text = "Automatic";
+
+			chkDnsCheck.Checked = s.GetBool("dns.check");
+
 			// Advanced - Lock
 			string lockMode = s.Get("netlock.mode");
 			cboLockMode.Text = "None";
@@ -311,6 +320,9 @@ namespace AirVPN.Gui.Forms
 						cboLockMode.Text = lockPlugin.GetName();
 				}
 			}
+			chkLockAllowPrivate.Checked = s.GetBool("netlock.allow_private");
+			chkLockAllowPing.Checked = s.GetBool("netlock.allow_ping");
+			chkLockAllowIpV6.Checked = s.GetBool("netlock.allow_ipv6");
 			txtLockAllowedIPS.Text = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
@@ -535,28 +547,22 @@ namespace AirVPN.Gui.Forms
             s.Set("routes.custom", routes);
 
             // Advanced - General
-            s.SetBool("advanced.expert", chkExpert.Checked);            
-            s.SetBool("advanced.check.dns", chkAdvancedCheckDns.Checked);
+            s.SetBool("advanced.expert", chkExpert.Checked);                        
             s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
-			s.Set("advanced.dns.mode", cboDnsSwitchMode.Text);
 
-			string dnsMode = cboDnsSwitchMode.Text;
-			if (dnsMode == "Disabled")
-				s.Set("advanced.dns.mode", "none");
-			else if (dnsMode == "Automatic")
-				s.Set("advanced.dns.mode", "auto");
-			else if (dnsMode == "Resolvconf (Linux only)")
-				s.Set("advanced.dns.mode", "resolvconf");
-			else if (dnsMode == "Renaming (Linux only)")
-				s.Set("advanced.dns.mode", "rename");
+			string ipV6 = cboIpV6.Text;
+			if (ipV6 == "None")
+				s.Set("ipv6.mode", "none");
+			else if(ipV6 == "Disable")
+				s.Set("ipv6.mode", "disable");
 			else
-				s.Set("advanced.dns.mode", "auto");
-
+				s.Set("ipv6.mode", "none");
+			
 			s.SetBool("advanced.pinger.enabled", chkAdvancedPingerEnabled.Checked);
 			s.SetBool("advanced.pinger.always", chkAdvancedPingerAlways.Checked);
 						
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
-			s.SetBool("advanced.windows.dns_force", chkAdvancedWindowsForceDns.Checked);
+			//s.SetBool("advanced.windows.dns_force", chkAdvancedWindowsForceDns.Checked);  // TOCLEAN
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
 
 			s.Set("executables.openvpn", txtExePath.Text);
@@ -573,6 +579,24 @@ namespace AirVPN.Gui.Forms
 			else if (manifestRefreshIndex == 0) // One hour
 				s.SetInt("advanced.manifest.refresh", 60);
 
+			// Advanced - DNS
+
+			s.Set("dns.mode", cboDnsSwitchMode.Text);
+
+			string dnsMode = cboDnsSwitchMode.Text;
+			if (dnsMode == "Disabled")
+				s.Set("dns.mode", "none");
+			else if (dnsMode == "Automatic")
+				s.Set("dns.mode", "auto");
+			else if (dnsMode == "Resolvconf (Linux only)")
+				s.Set("dns.mode", "resolvconf");
+			else if (dnsMode == "Renaming (Linux only)")
+				s.Set("dns.mode", "rename");
+			else
+				s.Set("dns.mode", "auto");
+
+			s.SetBool("dns.check", chkDnsCheck.Checked);
+
 			// Advanced - Lock
 			string lockMode = cboLockMode.Text;
 			s.Set("netlock.mode", "none");
@@ -586,6 +610,9 @@ namespace AirVPN.Gui.Forms
 						s.Set("netlock.mode", lockPlugin.GetCode());
 				}
 			}
+			s.SetBool("netlock.allow_private", chkLockAllowPrivate.Checked);
+			s.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
+			s.SetBool("netlock.allow_ipv6", chkLockAllowIpV6.Checked);
 			s.Set("netlock.allowed_ips", txtLockAllowedIPS.Text);
 
 			// Advanced - Logging

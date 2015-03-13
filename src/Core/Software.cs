@@ -25,8 +25,6 @@ namespace AirVPN.Core
 {
     public class Software
     {		
-		public static bool IPV6 = false;
-
 		public static string OpenVpnDriver = "";
 		public static string OpenVpnPath = "";
 		public static string OpenVpnVersion = "";
@@ -149,16 +147,6 @@ namespace AirVPN.Core
 				SshPath = "";
 			}
 
-			// IPV6
-			try
-			{
-				IPV6 = Platform.Instance.IpV6Enabled();				
-			}
-			catch (Exception)
-			{
-				IPV6 = false;
-			}		
-	
 			// Local Time in the past
 			if (DateTime.UtcNow < Constants.dateForPastChecking)
 				Engine.Instance.Log(Engine.LogType.Fatal, Messages.WarningLocalTimeInPast);
@@ -201,8 +189,6 @@ namespace AirVPN.Core
 			{
 				Engine.Instance.Log(Engine.LogType.Warning, "SSL - " + Messages.NotAvailable);
 			}
-
-			Engine.Instance.Log(Engine.LogType.Info, "IPV6: " + (IPV6 ? Messages.Available : Messages.NotAvailable));
 		}
 
 		public static string FindExecutable(string name)

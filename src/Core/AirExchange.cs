@@ -69,11 +69,20 @@ namespace AirVPN.Core
 			byte[] bytesParamD = aesCryptStream.ToArray();
 
 			// HTTP Fetch
-			string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
-			byte[] fetchResponse = Engine.Instance.FetchUrl(url, "", 1, Engine.Instance.IsConnected());
+			System.Collections.Specialized.NameValueCollection fetchParameters = new System.Collections.Specialized.NameValueCollection();
+			fetchParameters["s"] = Base64Encode(bytesParamS);
+			fetchParameters["d"] = Base64Encode(bytesParamD);
 
+			// 'GET' Edition - <2.9			
+			// string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
+			// byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
+			
+			// 'POST' Edition - 2.9			
+			string url = "http://" + host;
+			// Debug with an url direct to backend service client debugging page
+			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", 1, Engine.Instance.IsConnected());
+			
 			// Decrypt answer
-
 			MemoryStream aesDecryptStream = new MemoryStream();
 			ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor();
 			CryptoStream aesDecryptStream2 = new CryptoStream(aesDecryptStream, aesDecryptor, CryptoStreamMode.Write);
@@ -107,11 +116,9 @@ namespace AirVPN.Core
 			}
 
 			// Debugging
-			/*
-			hosts.Clear();
-			hosts.Add("invalidhostname.airvpn.org");
-			hosts.Add("54.93.175.114");
-			*/
+			// hosts.Clear();
+			// hosts.Add("invalidhostname.airvpn.org");
+			// hosts.Add("54.246.124.152");
 			
 			string firstError = "";
 			int hostN = 0;

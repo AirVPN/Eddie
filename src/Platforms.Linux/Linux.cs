@@ -260,22 +260,17 @@ namespace AirVPN.Platforms
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockIptables());
 		}
 
+		/* // TOCLEAN
 		public override void OnRecovery()
 		{
 			base.OnRecovery();
 
 			OnDnsSwitchRestore();
 		}
+		*/
 
-		public override void OnRecoveryLoad(XmlElement root)
+		public override bool OnDnsSwitchDo(string dns)
 		{
-			base.OnRecoveryLoad(root);
-		}
-
-		public override void OnDnsSwitchDo(string dns)
-		{
-			base.OnDnsSwitchDo(dns);
-
 			if (GetDnsSwitchMode() == "rename")
 			{
 				if (File.Exists("/etc/resolv.conf.airvpn") == false)
@@ -285,14 +280,24 @@ namespace AirVPN.Platforms
 				}
 
 				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameDone);
-				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc) + "\n\nnameserver " + dns + "\n");
-			}			
+
+				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
+
+				string[] dnsArray = dns.Split(',');
+
+				foreach(string dnsSingle in dnsArray)
+					text += "nameserver " + dnsSingle + "\n";
+
+				File.WriteAllText("/etc/resolv.conf", text);
+			}
+
+			base.OnDnsSwitchDo(dns);
+
+			return true;
 		}
 
-		public override void OnDnsSwitchRestore()
+		public override bool OnDnsSwitchRestore()
 		{
-			base.OnDnsSwitchRestore();
-
 			// Cleaning rename method if pending
 			if (File.Exists("/etc/resolv.conf.airvpn") == true)
 			{
@@ -301,6 +306,10 @@ namespace AirVPN.Platforms
 				File.Copy("/etc/resolv.conf.airvpn", "/etc/resolv.conf", true);
 				File.Delete("/etc/resolv.conf.airvpn");
 			}
+
+			base.OnDnsSwitchRestore();
+
+			return true;
 		}
 
 		public override string GetDriverAvailable()
@@ -342,7 +351,7 @@ namespace AirVPN.Platforms
 
 		public string GetDnsSwitchMode()
 		{
-			string current = Engine.Instance.Storage.Get("advanced.dns.mode").ToLowerInvariant();
+			string current = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
 
 			if (current == "auto")
 			{

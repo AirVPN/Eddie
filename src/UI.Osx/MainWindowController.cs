@@ -826,6 +826,7 @@ namespace AirVPN.UI.Osx
 			{
 				TableServersController.GetRelatedItem(i).UserList = ServerInfo.UserListType.WhiteList;
 			}
+			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
 		}
 
@@ -835,6 +836,7 @@ namespace AirVPN.UI.Osx
 			{
 				TableServersController.GetRelatedItem(i).UserList = ServerInfo.UserListType.BlackList;
 			}
+			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
 		}
 
@@ -844,6 +846,7 @@ namespace AirVPN.UI.Osx
 			{
 				TableServersController.GetRelatedItem(i).UserList = ServerInfo.UserListType.None;
 			}
+			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
 		}
 
@@ -853,6 +856,7 @@ namespace AirVPN.UI.Osx
 			{
 				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.WhiteList;
 			}
+			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
 		}
 
@@ -862,6 +866,7 @@ namespace AirVPN.UI.Osx
 			{
 				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.BlackList;
 			}
+			Engine.UpdateSettings();
 			TableAreasController.RefreshUI ();
 		}
 
@@ -871,6 +876,7 @@ namespace AirVPN.UI.Osx
 			{
 				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.None;
 			}
+			Engine.UpdateSettings();
 			TableAreasController.RefreshUI ();
 		}
 

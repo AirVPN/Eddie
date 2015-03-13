@@ -163,6 +163,8 @@ namespace AirVPN.Core
 				ResourcesFiles.SetString("thirdparty.txt", Lib.Core.Properties.Resources.ThirdParty);
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS);
 			}
+
+			CountriesManager.Init();
 			
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
@@ -200,6 +202,16 @@ namespace AirVPN.Core
 						Log(LogType.Fatal, Messages.AdminRequiredStop);
 
 					return false;
+				}
+			}
+
+			// Compatibility 2.9
+			if (IsLogged())
+			{
+				if (Utils.XmlGetAttributeString(Engine.Storage.User, "ssl_crt", "") == "")
+				{
+					DeAuth();
+					Auth();
 				}
 			}
 
@@ -266,11 +278,12 @@ namespace AirVPN.Core
                     if (CancelRequested)
                         break;
                 }
-
-                RunEventCommand("app.stop");                
             }
 
 			OnDeInit();
+
+			RunEventCommand("app.stop");                
+
 			OnDeInit2();
 
 			Terminated = true;
@@ -452,6 +465,22 @@ namespace AirVPN.Core
 			{
 				SendManagementCommand(command.Get("command",""));
 			}
+			else if (action == "ipv6_do") // TOCLEAN
+			{
+				Platform.Instance.OnIpV6Do();
+			}
+			else if (action == "ipv6_restore") // TOCLEAN
+			{
+				Platform.Instance.OnIpV6Restore();
+			}
+			else if (action == "dns_test_do") // TOCLEAN
+			{
+				Platform.Instance.OnDnsSwitchDo("8.8.4.4;8.8.8.8");
+			}
+			else if (action == "dns_test_restore") // TOCLEAN
+			{
+				Platform.Instance.OnDnsSwitchRestore();
+			}
 			else
 			{
 				throw new Exception(Messages.CommandUnknown);
@@ -473,10 +502,14 @@ namespace AirVPN.Core
 			RunEventCommand("session.start");
 
 			Platform.Instance.OnSessionStart();
+
+			Platform.Instance.OnIpV6Do();				
 		}
 
 		public virtual void OnSessionStop()
 		{
+			Platform.Instance.OnIpV6Restore();
+
 			Platform.Instance.OnSessionStop();
 
 			RunEventCommand("session.stop");
@@ -1154,15 +1187,13 @@ namespace AirVPN.Core
                                 infoServer.WarningClosed = Utils.XmlGetAttributeString(nodeServer, "warning_closed", "");
 								infoServer.ServerType = Utils.XmlGetAttributeInt64(nodeServer, "server_type", -1);
 								infoServer.Public = Utils.XmlGetAttributeBool(nodeServer, "public", false);								
-
-                                if (whiteList.Contains(name))
-                                    infoServer.UserList = ServerInfo.UserListType.WhiteList;
-                                else if (blackList.Contains(name))
-                                    infoServer.UserList = ServerInfo.UserListType.BlackList;
                             }
                         }
                     }
                 }
+
+				// TOCLEAN
+				// Scorro i Storage.Servers XmlNodes e aggiungo i server custom
 
                 for (; ; )
                 {
@@ -1180,6 +1211,19 @@ namespace AirVPN.Core
                     if (restart == false)
                         break;
                 }
+
+				// White/black list
+				foreach (ServerInfo infoServer in m_servers.Values)
+				{
+					string name = infoServer.Name;
+
+					if (whiteList.Contains(name))
+						infoServer.UserList = ServerInfo.UserListType.WhiteList;
+					else if (blackList.Contains(name))
+						infoServer.UserList = ServerInfo.UserListType.BlackList;
+					else
+						infoServer.UserList = ServerInfo.UserListType.None;
+				}
             }
 
             lock (m_areas)
@@ -1220,15 +1264,13 @@ namespace AirVPN.Core
 								infoArea.BandwidthMax = Utils.XmlGetAttributeInt64(nodeServer, "bw_max", 1);
 								infoArea.Users = Utils.XmlGetAttributeInt64(nodeServer, "users", 0);
 								infoArea.Servers = Utils.XmlGetAttributeInt64(nodeServer, "servers", 0);                                
-
-                                if(whiteList.Contains(code))
-                                    infoArea.UserList = AreaInfo.UserListType.WhiteList;
-                                else if(blackList.Contains(code))
-                                    infoArea.UserList = AreaInfo.UserListType.BlackList;
                             }
                         }
                     }
                 }
+
+				// TOCLEAN
+				// Scorro i Storage.Servers XmlNodes e aggiungo i countries custom
 
                 for (; ; )
                 {
@@ -1245,6 +1287,18 @@ namespace AirVPN.Core
                     if (restart == false)
                         break;
                 }
+
+				// White/black list
+				foreach (AreaInfo infoArea in m_areas.Values)
+				{
+					string code = infoArea.Code;
+					if (whiteList.Contains(code))
+						infoArea.UserList = AreaInfo.UserListType.WhiteList;
+					else if (blackList.Contains(code))
+						infoArea.UserList = AreaInfo.UserListType.BlackList;
+					else
+						infoArea.UserList = AreaInfo.UserListType.None;
+				}
             }
 
 			if (m_networkLockManager != null)
@@ -1278,8 +1332,8 @@ namespace AirVPN.Core
 			if (m_threadSession != null)
 				m_threadSession.SendManagementCommand(command);
 		}
-		
-		public byte[] FetchUrl(string url, string title, int ntry, bool bypassProxy)
+
+		public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, int ntry, bool bypassProxy)
 		{
 			string lastException = "";
 			for (int t = 0; t < ntry; t++)
@@ -1337,6 +1391,17 @@ namespace AirVPN.Core
 							}
 							else
 							{
+								string dataParameters = "";
+								if (parameters != null)
+								{
+									foreach (string k in parameters.Keys)
+									{
+										if (dataParameters != "")
+											dataParameters += "&";
+										dataParameters += k + "=" + Uri.EscapeUriString(parameters[k]);
+									}
+								}
+
 								TemporaryFile fileOutput = new TemporaryFile("bin");
 								string args = " \"" + url + "\" --socks4a " + proxyHost + ":" + proxyPort;
 								if (proxyAuth != "none")
@@ -1345,6 +1410,8 @@ namespace AirVPN.Core
 								}
 								args += " -o \"" + fileOutput.Path + "\"";
 								args += " --progress-bar";
+								if (dataParameters != "")
+									args += " --data \"" + dataParameters + "\"";
 								string str = Platform.Instance.Shell(Software.CurlPath, args);
 								byte[] bytes;
 								if (File.Exists(fileOutput.Path))
@@ -1365,28 +1432,31 @@ namespace AirVPN.Core
 						}
 					}
 
-					return wc.DownloadData(url);
+					if (parameters == null)
+						return wc.DownloadData(url);
+					else
+						return wc.UploadValues(url, "POST", parameters);
 				}
 				catch (Exception e)
 				{
-					if(ntry == 1) // AirAuth have it's catch errors retry logic.
+					if (ntry == 1) // AirAuth have it's catch errors retry logic.
 						throw e;
 					else
 					{
 						lastException = e.Message;
-						
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ExchangeTryFailed, title, (t+1).ToString(), lastException));
+
+						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ExchangeTryFailed, title, (t + 1).ToString(), lastException));
 					}
 				}
 			}
 
-			throw new Exception(lastException);
+			throw new Exception(lastException);			
 		}
-
-		public XmlDocument XmlFromUrl(string url, string title, bool bypassProxy)
+		
+		public XmlDocument XmlFromUrl(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
         {
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(System.Text.Encoding.ASCII.GetString(FetchUrl(url, title, 5, bypassProxy)));
+            doc.LoadXml(System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, title, 5, bypassProxy)));
             return doc;
         }
 
@@ -1400,6 +1470,11 @@ namespace AirVPN.Core
 			return m_threadPinger.GetStats();
 		}
 
+		public string GenerateFileHeader()
+		{
+			return Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc);
+		}
+
         public void BuildOVPN(string protocol, int port, int alt, int proxyPort)
         {
             DateTime now = DateTime.UtcNow;
@@ -1410,7 +1485,7 @@ namespace AirVPN.Core
                 ip = CurrentServer.IpEntry2;
 
 			string ovpn = "";
-			ovpn += "# " + Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc) + "\n";
+			ovpn += "# " + GenerateFileHeader() + "\n";
             ovpn += "# " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC\n";
             if (s.GetBool("openvpn.skip_defaults") == false)
                 ovpn += s.Manifest.Attributes["openvpn_directives_common"].Value.Replace("\t", "").Trim() + "\n";
@@ -1582,11 +1657,12 @@ namespace AirVPN.Core
 		public void Command(string cmd)
 		{
 			CommandLine command = new CommandLine(cmd, false, true);
-			
+
 			try
 			{
 				OnCommand(command);
-				Log(LogType.Info, "Command '" + command.GetFull() + "' executed");
+
+				Log(LogType.Verbose, "Command '" + command.GetFull() + "' executed");
 			}
 			catch (Exception e)
 			{
@@ -1741,30 +1817,34 @@ namespace AirVPN.Core
 			
         }
 
+		public void UpdateSettings()
+		{
+			List<string> serversWhiteList = new List<string>();
+			List<string> serversBlackList = new List<string>();
+			foreach (ServerInfo info in m_servers.Values)
+				if (info.UserList == ServerInfo.UserListType.WhiteList)
+					serversWhiteList.Add(info.Name);
+				else if (info.UserList == ServerInfo.UserListType.BlackList)
+					serversBlackList.Add(info.Name);
+			Storage.SetList("servers.whitelist", serversWhiteList);
+			Storage.SetList("servers.blacklist", serversBlackList);
+
+			List<string> areasWhiteList = new List<string>();
+			List<string> areasBlackList = new List<string>();
+			foreach (AreaInfo info in m_areas.Values)
+				if (info.UserList == AreaInfo.UserListType.WhiteList)
+					areasWhiteList.Add(info.Code);
+				else if (info.UserList == AreaInfo.UserListType.BlackList)
+					areasBlackList.Add(info.Code);
+			Storage.SetList("areas.whitelist", areasWhiteList);
+			Storage.SetList("areas.blacklist", areasBlackList);
+		}
+
 		public void SaveSettings()
 		{
 			if (m_storage != null)
 			{
-				List<string> serversWhiteList = new List<string>();
-				List<string> serversBlackList = new List<string>();
-				foreach (ServerInfo info in m_servers.Values)
-					if (info.UserList == ServerInfo.UserListType.WhiteList)
-						serversWhiteList.Add(info.Name);
-					else if (info.UserList == ServerInfo.UserListType.BlackList)
-						serversBlackList.Add(info.Name);
-				Storage.SetList("servers.whitelist", serversWhiteList);
-				Storage.SetList("servers.blacklist", serversBlackList);
-
-				List<string> areasWhiteList = new List<string>();
-				List<string> areasBlackList = new List<string>();
-				foreach (AreaInfo info in m_areas.Values)
-					if (info.UserList == AreaInfo.UserListType.WhiteList)
-						areasWhiteList.Add(info.Code);
-					else if (info.UserList == AreaInfo.UserListType.BlackList)
-						areasBlackList.Add(info.Code);
-				Storage.SetList("areas.whitelist", areasWhiteList);
-				Storage.SetList("areas.blacklist", areasBlackList);
-
+				UpdateSettings();
 
 				Storage.Save();
 			}

@@ -43,6 +43,12 @@ namespace AirVPN.Core.UI
 			OpenUrlAirVPN("software/");            
 		}
 
+		public static void OpenUrlSources()
+		{
+			string url = "https://github.com/AirVPN/airvpn-client";
+			Platform.Instance.OpenUrl(url);
+		}
+
 		public static void OpenUrlDocsProtocols()
 		{
 			OpenUrlAirVPN("faq/software_protocols/"); 

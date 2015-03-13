@@ -213,7 +213,23 @@ namespace AirVPN.Platforms
 				}
 			}
 
+			// TOFIX, missing netlock.allow_ping
+
+			// TOFIX, missing netlock.allow_private
+
 			Exec("netsh advfirewall firewall delete rule name=all");
+
+			if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
+			{
+				Exec("netsh advfirewall firewall add rule name=\"AirVPN - ICMP V4\" dir=in action=allow protocol=icmpv4");
+			}
+
+			if (Engine.Instance.Storage.GetBool("netlock.allow_ipv6") == true)
+			{
+				// TOFIX, think about that...
+				Exec("netsh advfirewall firewall add rule name=\"AirVPN - IpV6 Block - Low\" dir=out remoteip=0000::/1 action=allow");
+				Exec("netsh advfirewall firewall add rule name=\"AirVPN - IpV6 Block - High\" dir=out remoteip=8000::/1 action=allow");
+			}
 
 			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
 			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
