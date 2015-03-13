@@ -144,8 +144,8 @@ namespace AirVPN.Gui.Forms
 			this.tabStats = new AirVPN.Gui.Skin.TabPage();
 			this.lstStats = new AirVPN.Gui.Skin.ListView();
 			this.tabLogs = new AirVPN.Gui.Skin.TabPage();
-			this.lstLogs = new AirVPN.Gui.Skin.ListView();
 			this.txtCommand = new System.Windows.Forms.TextBox();
+			this.lstLogs = new AirVPN.Gui.Skin.ListView();
 			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
@@ -1454,7 +1454,6 @@ namespace AirVPN.Gui.Forms
 			this.lblWait2.Name = "lblWait2";
 			this.lblWait2.Size = new System.Drawing.Size(158, 21);
 			this.lblWait2.TabIndex = 64;
-			this.lblWait2.Text = "label1";
 			this.lblWait2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// lblWait1
@@ -1682,6 +1681,16 @@ namespace AirVPN.Gui.Forms
 			this.tabLogs.TabIndex = 3;
 			this.tabLogs.Text = "Logs";
 			// 
+			// txtCommand
+			// 
+			this.txtCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtCommand.Location = new System.Drawing.Point(1, 280);
+			this.txtCommand.Name = "txtCommand";
+			this.txtCommand.Size = new System.Drawing.Size(625, 20);
+			this.txtCommand.TabIndex = 52;
+			this.txtCommand.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtCommand_KeyUp);
+			// 
 			// lstLogs
 			// 
 			this.lstLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -1705,16 +1714,6 @@ namespace AirVPN.Gui.Forms
 			this.lstLogs.TabIndex = 49;
 			this.lstLogs.UseCompatibleStateImageBehavior = false;
 			this.lstLogs.View = System.Windows.Forms.View.Details;
-			// 
-			// txtCommand
-			// 
-			this.txtCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtCommand.Location = new System.Drawing.Point(1, 280);
-			this.txtCommand.Name = "txtCommand";
-			this.txtCommand.Size = new System.Drawing.Size(625, 20);
-			this.txtCommand.TabIndex = 52;
-			this.txtCommand.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtCommand_KeyUp);
 			// 
 			// Main
 			// 
