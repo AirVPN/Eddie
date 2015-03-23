@@ -165,7 +165,7 @@ namespace AirVPN.Core
 			}
 
 			CountriesManager.Init();
-			
+
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
@@ -205,16 +205,8 @@ namespace AirVPN.Core
 				}
 			}
 
-			// Compatibility 2.9
-			if (IsLogged())
-			{
-				if (Utils.XmlGetAttributeString(Engine.Storage.User, "ssl_crt", "") == "")
-				{
-					DeAuth();
-					Auth();
-				}
-			}
-
+			CompatibilityManager.Init();
+			
 			return true;
 		}
 
@@ -810,14 +802,17 @@ namespace AirVPN.Core
 			string[] logPathsArray = logPaths.Split(';');
 			foreach (string path in logPathsArray)
 			{
-				string logPath = path;
-				if (System.IO.Path.IsPathRooted(path) == false)
-				{
-					logPath = Storage.DataPath + "/" + logPath;
-				}
-				logPath = Platform.Instance.NormalizePath(logPath).Trim();
+				string logPath = path.Trim();
 				if (logPath != "")
-					results.Add(logPath);
+				{					
+					if (System.IO.Path.IsPathRooted(path) == false)
+					{
+						logPath = Storage.DataPath + "/" + logPath;
+					}
+					logPath = Platform.Instance.NormalizePath(logPath).Trim();
+					if (logPath != "")
+						results.Add(logPath);
+				}
 			}
 			
 			return results;			
@@ -873,6 +868,11 @@ namespace AirVPN.Core
 		public virtual void OnFrontMessage(string message)
 		{
 			Log(LogType.Warning, message);
+		}
+
+		public virtual bool OnAskYesNo(string message)
+		{
+			return false;
 		}
 
 		public virtual void OnPostManifestUpdate()
@@ -1718,6 +1718,15 @@ namespace AirVPN.Core
 
 			SaveSettings(); // 2.8
 		}
+
+		public void ReAuth()
+		{
+			if (Engine.Instance.IsLogged())
+			{
+				DeAuth();
+				Auth();
+			}
+		}
         
         private void SessionStart()
         {
@@ -1726,61 +1735,65 @@ namespace AirVPN.Core
 				Engine.Log(Engine.LogType.Info, Messages.SessionStart);
 
 				Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment, true);
-				Engine.Log(Engine.LogType.Info, Messages.OsDriverInstall);
-                
-                CheckEnvironment();
-
-				// Check Driver				
-				if (Platform.Instance.GetDriverAvailable() == "")
+				
+				if (CheckEnvironment() == false)
 				{
-					if (Platform.Instance.CanInstallDriver())
+					WaitMessageClear();
+				}
+				else
+				{
+					// Check Driver				
+					if (Platform.Instance.GetDriverAvailable() == "")
 					{
-						Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
-						Engine.Log(Engine.LogType.InfoImportant, Messages.OsDriverInstall);
+						if (Platform.Instance.CanInstallDriver())
+						{
+							Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
+							Engine.Log(Engine.LogType.InfoImportant, Messages.OsDriverInstall);
 
-						Platform.Instance.InstallDriver();
+							Platform.Instance.InstallDriver();
 
-						if (Platform.Instance.GetDriverAvailable() == "")
+							if (Platform.Instance.GetDriverAvailable() == "")
+								throw new Exception(Messages.OsDriverFailed);
+						}
+						else
 							throw new Exception(Messages.OsDriverFailed);
 					}
-					else
-						throw new Exception(Messages.OsDriverFailed);
+
+					if (m_threadSession != null)
+						throw new Exception("Daemon already running.");
+
+					if (Storage.UpdateManifestNeed(true))
+					{
+						Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
+						Engine.Log(Engine.LogType.Info, Messages.RetrievingManifest);
+
+						string result = Engine.WaitManifestUpdate();
+
+						if (result != "")
+						{
+							if (Storage.UpdateManifestNeed(false))
+							{
+								throw new Exception(result);
+							}
+							else
+							{
+								Log(LogType.Warning, Messages.ManifestFailedContinue);
+							}
+						}
+					}
+
+					OnSessionStart();
+
+					if (NextServer == null)
+					{
+						if (Engine.Storage.Get("server") != "")
+							NextServer = Engine.PickServer(Engine.Storage.Get("server"));
+						else if (Engine.Storage.GetBool("servers.startlast"))
+							NextServer = Engine.PickServer(Engine.Storage.Get("servers.last"));
+					}
+
+					m_threadSession = new Threads.Session();
 				}
-
-				if (m_threadSession != null)
-                    throw new Exception("Daemon already running.");
-
-                if (Storage.UpdateManifestNeed(true))
-                {
-					Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
-					Engine.Log(Engine.LogType.Info, Messages.RetrievingManifest);
-
-					string result = Engine.WaitManifestUpdate();
-
-					if (result != "")
-                    {
-						if (Storage.UpdateManifestNeed(false))
-                        {
-                            throw new Exception(result);
-                        }
-                        else
-                        {
-                            Log(LogType.Warning, Messages.ManifestFailedContinue);
-                        }
-                    }
-                }
-
-				OnSessionStart();
-
-				if (NextServer == null)
-				{
-					if (Engine.Storage.Get("server") != "")
-						NextServer = Engine.PickServer(Engine.Storage.Get("server"));
-					else if (Engine.Storage.GetBool("servers.startlast"))
-						NextServer = Engine.PickServer(Engine.Storage.Get("servers.last"));
-				}
-
-				m_threadSession = new Threads.Session();                
             }
             catch (Exception e)
             {
@@ -1850,7 +1863,7 @@ namespace AirVPN.Core
 			}
 		}
 
-		public void CheckEnvironment()
+		public bool CheckEnvironment()
 		{			
 			bool installed = (Software.OpenVpnVersion != "");
 			if (installed == false)
@@ -1901,6 +1914,8 @@ namespace AirVPN.Core
 				if (protocol != "TCP")
 					throw new Exception(Messages.CheckingProxyNoTcp);
 			}
+
+			return Platform.Instance.OnCheckEnvironment();
 		}
     }
 }

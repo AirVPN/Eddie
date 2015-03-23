@@ -142,7 +142,18 @@ namespace AirVPN.UI.Osx
 			}
 		}
 
-
+		public override bool OnAskYesNo(string message)
+		{
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+				{
+					return MainWindow.AskYesNo(message);
+				});
+			}
+			
+			return false;
+		}
 
 
 	}

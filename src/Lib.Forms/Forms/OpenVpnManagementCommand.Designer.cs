@@ -86,7 +86,6 @@
 			// 
 			this.txtCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtCommand.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtCommand.Location = new System.Drawing.Point(89, 18);
 			this.txtCommand.Name = "txtCommand";
 			this.txtCommand.Size = new System.Drawing.Size(269, 20);

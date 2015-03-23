@@ -185,12 +185,13 @@ namespace AirVPN.Platforms
 					throw e;
 			}
 
-			// If 'backup.wfw' doesn't exists, create it. It's a general backup of the first time.
-			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrulesorig.wfw";
+			// If 'winfirewall_rules_original.airvpn' doesn't exists, create it. It's a general backup of the first time.
+			// We create this kind of file in Windows System directory, because it's system critical data, and to allow it to survive between re-installation of the software.
+			string rulesBackupFirstTime = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
 			if (File.Exists(rulesBackupFirstTime) == false)
 				Exec("netsh advfirewall export \"" + rulesBackupFirstTime + "\"");
 
-			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
+			string rulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_backup.airvpn";
 			if (File.Exists(rulesBackupSession))
 				File.Delete(rulesBackupSession);
 			Exec("netsh advfirewall export \"" + rulesBackupSession + "\"");

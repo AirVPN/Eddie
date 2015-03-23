@@ -46,6 +46,7 @@
 			this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
 			this.txtData.Size = new System.Drawing.Size(912, 440);
 			this.txtData.TabIndex = 0;
+			this.txtData.WordWrap = false;
 			// 
 			// TextViewer
 			// 

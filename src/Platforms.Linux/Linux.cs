@@ -253,6 +253,14 @@ namespace AirVPN.Platforms
 			ovpn += "route-delay 5\n"; // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
+		public override bool OnCheckEnvironment()
+		{
+			if (Engine.Instance.OnAskYesNo("test") == false)
+				return false;
+
+			return true;
+		}
+
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();

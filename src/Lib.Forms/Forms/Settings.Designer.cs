@@ -242,7 +242,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblIpV6.BackColor = System.Drawing.Color.Transparent;
 			this.lblIpV6.ForeColor = System.Drawing.Color.Black;
-			this.lblIpV6.Location = new System.Drawing.Point(13, 114);
+			this.lblIpV6.Location = new System.Drawing.Point(13, 86);
 			this.lblIpV6.Name = "lblIpV6";
 			this.lblIpV6.Size = new System.Drawing.Size(206, 22);
 			this.lblIpV6.TabIndex = 76;
@@ -257,7 +257,7 @@ namespace AirVPN.Gui.Forms
 			this.cboIpV6.Items.AddRange(new object[] {
             "None",
             "Disable"});
-			this.cboIpV6.Location = new System.Drawing.Point(231, 115);
+			this.cboIpV6.Location = new System.Drawing.Point(231, 87);
 			this.cboIpV6.Name = "cboIpV6";
 			this.cboIpV6.Size = new System.Drawing.Size(125, 21);
 			this.cboIpV6.TabIndex = 75;
@@ -266,7 +266,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblAdvancedManifestRefresh.BackColor = System.Drawing.Color.Transparent;
 			this.lblAdvancedManifestRefresh.ForeColor = System.Drawing.Color.Black;
-			this.lblAdvancedManifestRefresh.Location = new System.Drawing.Point(13, 87);
+			this.lblAdvancedManifestRefresh.Location = new System.Drawing.Point(13, 113);
 			this.lblAdvancedManifestRefresh.Name = "lblAdvancedManifestRefresh";
 			this.lblAdvancedManifestRefresh.Size = new System.Drawing.Size(206, 22);
 			this.lblAdvancedManifestRefresh.TabIndex = 74;
@@ -284,7 +284,7 @@ namespace AirVPN.Gui.Forms
             "Every minute",
             "Every ten minute",
             "Every one hour"});
-			this.cboAdvancedManifestRefresh.Location = new System.Drawing.Point(231, 88);
+			this.cboAdvancedManifestRefresh.Location = new System.Drawing.Point(231, 114);
 			this.cboAdvancedManifestRefresh.Name = "cboAdvancedManifestRefresh";
 			this.cboAdvancedManifestRefresh.Size = new System.Drawing.Size(125, 21);
 			this.cboAdvancedManifestRefresh.TabIndex = 73;
@@ -369,7 +369,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkAdvancedPingerAlways.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedPingerAlways.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedPingerAlways.Location = new System.Drawing.Point(16, 165);
+			this.chkAdvancedPingerAlways.Location = new System.Drawing.Point(18, 171);
 			this.chkAdvancedPingerAlways.Name = "chkAdvancedPingerAlways";
 			this.chkAdvancedPingerAlways.Size = new System.Drawing.Size(300, 17);
 			this.chkAdvancedPingerAlways.TabIndex = 67;
@@ -380,7 +380,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkAdvancedPingerEnabled.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedPingerEnabled.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedPingerEnabled.Location = new System.Drawing.Point(231, 140);
+			this.chkAdvancedPingerEnabled.Location = new System.Drawing.Point(231, 139);
 			this.chkAdvancedPingerEnabled.Name = "chkAdvancedPingerEnabled";
 			this.chkAdvancedPingerEnabled.Size = new System.Drawing.Size(125, 25);
 			this.chkAdvancedPingerEnabled.TabIndex = 66;
@@ -1779,9 +1779,9 @@ namespace AirVPN.Gui.Forms
 			this.chkLockAllowIpV6.ForeColor = System.Drawing.Color.Black;
 			this.chkLockAllowIpV6.Location = new System.Drawing.Point(16, 159);
 			this.chkLockAllowIpV6.Name = "chkLockAllowIpV6";
-			this.chkLockAllowIpV6.Size = new System.Drawing.Size(76, 17);
+			this.chkLockAllowIpV6.Size = new System.Drawing.Size(77, 17);
 			this.chkLockAllowIpV6.TabIndex = 82;
-			this.chkLockAllowIpV6.Text = "Allow IpV6";
+			this.chkLockAllowIpV6.Text = "Allow IPV6";
 			this.chkLockAllowIpV6.UseVisualStyleBackColor = false;
 			// 
 			// chkLockAllowPing
@@ -1947,7 +1947,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.label10.BackColor = System.Drawing.Color.Transparent;
 			this.label10.ForeColor = System.Drawing.Color.Black;
-			this.label10.Location = new System.Drawing.Point(13, 140);
+			this.label10.Location = new System.Drawing.Point(13, 139);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(206, 22);
 			this.label10.TabIndex = 78;

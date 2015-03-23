@@ -327,7 +327,7 @@ namespace AirVPN.Core
 
 			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked			
 
-			SetDefault("ipv6.mode", "none", NotInMan);
+			SetDefault("ipv6.mode", "disable", NotInMan);
 
 			SetDefault("executables.openvpn", "", Messages.ManOptionExecutablesOpenVpn);
 			SetDefault("executables.ssh", "", Messages.ManOptionExecutablesSsh);
@@ -511,7 +511,7 @@ namespace AirVPN.Core
 						string name = e.Attributes["name"].Value;
 						string value = e.Attributes["value"].Value;
 
-						FixCompatibility(ref name, ref value);
+						CompatibilityManager.FixOption(ref name, ref value);
 
                         Set(name, value);
                     }
@@ -532,54 +532,11 @@ namespace AirVPN.Core
             }
         }
 
-		public void FixCompatibility(ref string name, ref string value)
-		{
-			// AirVPN <=2.4 client use  'host,netmask,action' syntax.
-			// If detected, convert to new 'iprange,action,notes' syntax.
-			if (name == "routes.custom")
-			{
-				string newValue = "";
-
-				string[] routes2 = value.Split(';');
-				foreach (string route in routes2)
-				{
-					string[] routeEntries = route.Split(',');
-					if (routeEntries.Length != 3)
-						return;
-
-					string newRoute = "";					
-					if (new IpAddress(routeEntries[1]).Valid)
-					{
-						newRoute = routeEntries[0] + "/" + routeEntries[1] + "," + routeEntries[2];
-					}
-					else
-						newRoute = route;
-
-					if (newValue != "")
-						newValue += ";";
-					newValue += newRoute;
-				}
-
-				value = newValue;
-			}
-			else if (name == "netlock.active") // 2.8
-			{
-				name = "netlock";
-			}
-			else if (name == "advanced.dns.mode") // <2.8
-			{
-				name = "dns.mode";
-			}
-			else if (name == "advanced.check.dns") // <2.8
-			{
-				name = "dns.check";
-			}
-		}
-
 		#region Manifest Management
 
 		public bool UpdateManifestNeed(bool reccomended)
 		{
+			// pazzo, qua se fallisce ci prova ogni minuto
 			lock (Manifest)
 			{
 				// 2.8

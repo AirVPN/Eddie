@@ -58,7 +58,6 @@
 			// 
 			this.txtArguments.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtArguments.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtArguments.Location = new System.Drawing.Point(89, 44);
 			this.txtArguments.Name = "txtArguments";
 			this.txtArguments.Size = new System.Drawing.Size(269, 20);
@@ -94,7 +93,6 @@
 			// 
 			this.txtFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtFileName.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtFileName.Location = new System.Drawing.Point(89, 18);
 			this.txtFileName.Name = "txtFileName";
 			this.txtFileName.Size = new System.Drawing.Size(269, 20);

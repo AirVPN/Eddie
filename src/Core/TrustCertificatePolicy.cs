@@ -35,7 +35,7 @@ namespace AirVPN.Core
 
         public static void Activate()
         {
-            System.Net.ServicePointManager.ServerCertificateValidationCallback = ValidateCertificate;
+            //System.Net.ServicePointManager.ServerCertificateValidationCallback = ValidateCertificate; // pazzo
         }
     }
 }

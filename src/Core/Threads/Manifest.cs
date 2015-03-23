@@ -67,7 +67,7 @@ namespace AirVPN.Core.Threads
 					if (m_LastResult != "")
 					{
 						//Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ManifestUpdate, m_LastResult));
-						Engine.Instance.Log(Engine.LogType.Warning, m_LastResult);
+						Engine.Instance.Log(Engine.LogType.Warning, m_LastResult); // pazzo no warning? verbose?
 					}
 					ForceUpdate = false;
 					Updated.Set();

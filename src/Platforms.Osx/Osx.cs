@@ -214,6 +214,14 @@ namespace AirVPN.Platforms
 			return result;
 		}
 
+		public override bool OnCheckEnvironment()
+		{
+			if (Engine.Instance.OnAskYesNo("test") == false)
+				return false;
+
+			return true;
+		}
+
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -336,8 +344,12 @@ namespace AirVPN.Platforms
 					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
 				}
 
-				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Restored, e.Interface));
+				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
+
+			m_listIpV6Mode.Clear();
+			
+			Recovery.Save();
 
 			base.OnIpV6Restore();
 

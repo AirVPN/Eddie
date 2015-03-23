@@ -57,7 +57,7 @@ namespace AirVPN.Core
 				builder.Append(ch);
 			}
 
-			return builder.ToString();
+			return builder.ToString().ToLowerInvariant();
 		}
 
 		public static string GetNameFromPath(string path)

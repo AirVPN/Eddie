@@ -419,6 +419,11 @@ namespace AirVPN.Core
 		{
 		}
 
+		public virtual bool OnCheckEnvironment()
+		{
+			return true;
+		}
+
 		public virtual void OnNetworkLockManagerInit()
 		{
 		}
