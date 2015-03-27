@@ -268,15 +268,6 @@ namespace AirVPN.Platforms
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockIptables());
 		}
 
-		/* // TOCLEAN
-		public override void OnRecovery()
-		{
-			base.OnRecovery();
-
-			OnDnsSwitchRestore();
-		}
-		*/
-
 		public override bool OnDnsSwitchDo(string dns)
 		{
 			if (GetDnsSwitchMode() == "rename")

@@ -88,9 +88,6 @@ namespace AirVPN.Gui.Forms
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
-			chkAdvancedPingerAlways.Visible = false;
-			chkAdvancedWindowsForceDns.Visible = false;
-
 			if (Platform.IsUnix())
 			{
 				lblModeGroup1.Visible = false;
@@ -99,6 +96,13 @@ namespace AirVPN.Gui.Forms
 				lblModeGroup4.Visible = false;
 				lblModeGroup5.Visible = false;
 			}
+
+			// DNS
+
+			chkDnsCheck.Text = Messages.WindowsSettingsDnsCheck;
+			lblDnsServers.Text = Messages.WindowsSettingsDnsServers;
+			
+			// 
 						
 			ReadOptions();
 
@@ -271,10 +275,8 @@ namespace AirVPN.Gui.Forms
 
 			
 			chkAdvancedPingerEnabled.Checked = s.GetBool("advanced.pinger.enabled");
-			chkAdvancedPingerAlways.Checked = s.GetBool("advanced.pinger.always");
 			
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
-			//chkAdvancedWindowsForceDns.Checked = s.GetBool("advanced.windows.dns_force"); // TOCLEAN
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
 
 			txtExePath.Text = s.Get("executables.openvpn");
@@ -307,6 +309,14 @@ namespace AirVPN.Gui.Forms
 
 			chkDnsCheck.Checked = s.GetBool("dns.check");
 
+			lstDnsServers.Items.Clear();
+			string[] dnsServers = s.Get("dns.servers").Split(',');
+			foreach (string dnsServer in dnsServers)
+			{
+				if(Utils.IsIP(dnsServer))
+					lstDnsServers.Items.Add(new ListViewItem(dnsServer));
+			}
+
 			// Advanced - Lock
 			string lockMode = s.Get("netlock.mode");
 			cboLockMode.Text = "None";
@@ -322,7 +332,6 @@ namespace AirVPN.Gui.Forms
 			}
 			chkLockAllowPrivate.Checked = s.GetBool("netlock.allow_private");
 			chkLockAllowPing.Checked = s.GetBool("netlock.allow_ping");
-			chkLockAllowIpV6.Checked = s.GetBool("netlock.allow_ipv6");
 			txtLockAllowedIPS.Text = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
@@ -559,10 +568,8 @@ namespace AirVPN.Gui.Forms
 				s.Set("ipv6.mode", "none");
 			
 			s.SetBool("advanced.pinger.enabled", chkAdvancedPingerEnabled.Checked);
-			s.SetBool("advanced.pinger.always", chkAdvancedPingerAlways.Checked);
 						
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
-			//s.SetBool("advanced.windows.dns_force", chkAdvancedWindowsForceDns.Checked);  // TOCLEAN
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
 
 			s.Set("executables.openvpn", txtExePath.Text);
@@ -572,11 +579,11 @@ namespace AirVPN.Gui.Forms
 				s.SetInt("advanced.manifest.refresh", -1);
 			else if (manifestRefreshIndex == 1) // Never
 				s.SetInt("advanced.manifest.refresh", 0);
-			else if (manifestRefreshIndex == 1) // One minute
+			else if (manifestRefreshIndex == 2) // One minute
 				s.SetInt("advanced.manifest.refresh", 1);
-			else if (manifestRefreshIndex == 0) // Ten minute
+			else if (manifestRefreshIndex == 3) // Ten minute
 				s.SetInt("advanced.manifest.refresh", 10);
-			else if (manifestRefreshIndex == 0) // One hour
+			else if (manifestRefreshIndex == 4) // One hour
 				s.SetInt("advanced.manifest.refresh", 60);
 
 			// Advanced - DNS
@@ -597,6 +604,15 @@ namespace AirVPN.Gui.Forms
 
 			s.SetBool("dns.check", chkDnsCheck.Checked);
 
+			string dnsServers = "";
+			foreach (ListViewItem dnsServerItem in lstDnsServers.Items)
+			{
+				if (dnsServers != "")
+					dnsServers += ",";
+				dnsServers += dnsServerItem.Text;
+			}
+			s.Set("dns.servers", dnsServers);
+
 			// Advanced - Lock
 			string lockMode = cboLockMode.Text;
 			s.Set("netlock.mode", "none");
@@ -612,7 +628,6 @@ namespace AirVPN.Gui.Forms
 			}
 			s.SetBool("netlock.allow_private", chkLockAllowPrivate.Checked);
 			s.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
-			s.SetBool("netlock.allow_ipv6", chkLockAllowIpV6.Checked);
 			s.Set("netlock.allowed_ips", txtLockAllowedIPS.Text);
 
 			// Advanced - Logging
@@ -699,6 +714,11 @@ namespace AirVPN.Gui.Forms
             mnuRoutesRemove.Enabled = cmdRouteRemove.Enabled;
             cmdRouteEdit.Enabled = (lstRoutes.SelectedItems.Count == 1);
             mnuRoutesEdit.Enabled = cmdRouteEdit.Enabled;
+
+			// Dns
+			cmdDnsAdd.Enabled = true;
+			cmdDnsRemove.Enabled = (lstDnsServers.SelectedItems.Count > 0);
+			cmdDnsEdit.Enabled = (lstDnsServers.SelectedItems.Count == 1);
 
 			// Lock
 			lblLockRoutingOutWarning.Visible = (cboRoutesOtherwise.Text == Settings.RouteDirectionToDescription("out"));
@@ -823,6 +843,8 @@ namespace AirVPN.Gui.Forms
                 item.SubItems[1].Text = RouteDirectionToDescription(Dlg.Action);
 				item.SubItems[2].Text = Dlg.Notes;
                 item.ImageKey = Dlg.Action;
+
+				EnableIde();
             }
         }
 
@@ -1016,6 +1038,60 @@ namespace AirVPN.Gui.Forms
 		private void optModeTOR_CheckedChanged(object sender, EventArgs e)
 		{
 			EnableIde();
+		}
+
+		private void cmdDnsAdd_Click(object sender, EventArgs e)
+		{
+			SettingsIp Dlg = new SettingsIp();
+			if (Dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			{
+				ListViewItem item = new ListViewItem();
+				item.Text = Dlg.Ip;
+				
+				lstDnsServers.Items.Add(item);
+				lstDnsServers.SelectedItems.Clear();
+				item.Selected = true;
+				item.EnsureVisible();
+
+				EnableIde();
+			}
+		}
+
+		private void cmdDnsRemove_Click(object sender, EventArgs e)
+		{
+			if (lstDnsServers.SelectedItems.Count > 0)
+				lstDnsServers.Items.Remove(lstDnsServers.SelectedItems[0]);
+
+			EnableIde();			
+		}
+
+		private void cmdDnsEdit_Click(object sender, EventArgs e)
+		{
+			if (lstDnsServers.SelectedItems.Count == 1)
+			{
+				ListViewItem item = lstDnsServers.SelectedItems[0];
+
+				SettingsIp Dlg = new SettingsIp();
+
+				Dlg.Ip = item.Text;
+				
+				if (Dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				{
+					item.Text = Dlg.Ip;
+
+					EnableIde();
+				}
+			}
+		}
+
+		private void lstDnsServers_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void lstDnsServers_DoubleClick(object sender, EventArgs e)
+		{
+			cmdDnsEdit_Click(sender, e);
 		}
 
 		

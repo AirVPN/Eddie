@@ -39,6 +39,8 @@ namespace AirVPN.Core
 		private Dictionary<string, string> m_OptionsMan = new Dictionary<string, string>();
         private Dictionary<string, string> m_Options = new Dictionary<string, string>();
 
+		private Int64 m_lastManifestTimeTry = 0;
+
         public Storage()
         {
 
@@ -323,8 +325,7 @@ namespace AirVPN.Core
 			SetDefault("netlock.mode", "auto", NotInMan); // Maybe 'auto' in future			
 			SetDefaultBool("netlock.allow_private", true, NotInMan); // Allow private subnet by default
 			SetDefaultBool("netlock.allow_ping", true, NotInMan); // Allow ICMP/Ping by default
-			SetDefaultBool("netlock.allow_ipv6", false, NotInMan); // TOCLEAN: Really need?
-
+			
 			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked			
 
 			SetDefault("ipv6.mode", "disable", NotInMan);
@@ -348,17 +349,13 @@ namespace AirVPN.Core
 			
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
-			SetDefaultBool("advanced.pinger.always", false, Messages.ManOptionAdvancedPingerAlways);
 			SetDefaultInt("advanced.pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
 			SetDefaultInt("advanced.pinger.retry", 0, Messages.ManOptionAdvancedPingerRetry);
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 0, Messages.ManOptionAdvancedPingerValid);
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 
-			
-
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
-			//SetDefaultBool("advanced.windows.dns_force", defaultDnsForceAndCheck, Messages.ManOptionAdvancedWindowsDnsForce);  // TOCLEAN
 			SetDefaultBool("advanced.windows.dhcp_disable", false, Messages.ManOptionAdvancedWindowsDhcpDisable);
 
 			// Not in Settings
@@ -366,6 +363,9 @@ namespace AirVPN.Core
 
 			// Not in Settings
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan);
+
+			// Not in Settings
+			SetDefaultBool("advanced.skip_warning_closed", false, NotInMan);
 
 			
 
@@ -536,32 +536,27 @@ namespace AirVPN.Core
 
 		public bool UpdateManifestNeed(bool reccomended)
 		{
-			// pazzo, qua se fallisce ci prova ogni minuto
 			lock (Manifest)
-			{
-				// 2.8
-				Int64 timestampNext = 0;
+			{	
+				Int64 refreshInterval = 10; // Minutes
+
 				int refreshManifest = GetInt("advanced.manifest.refresh");
-				if (Manifest == null)
-					return true;
-				else if (Manifest.Attributes["next"] == null)
-					return true;
-				else if (refreshManifest < 0)
+				if (refreshManifest < 0)
 				{
-					// Server reccomended
-					timestampNext = Conversions.ToInt64(Manifest.Attributes["next"].Value);
-				}
-				else if (refreshManifest == 0)
-				{
-					// Never
-					return false;
+					if ( (Manifest != null) && (Manifest.Attributes["next_update"] != null) )
+					{
+						refreshInterval = Conversions.ToInt64(Manifest.Attributes["next_update"].Value);
+					}
 				}
 				else
 				{
-					timestampNext = Conversions.ToInt64(Manifest.Attributes["time"].Value) + refreshManifest * 60;
+					refreshInterval = refreshManifest;
 				}
 
-				if ((Conversions.ToDateTime(timestampNext) < DateTime.UtcNow) && (reccomended))
+				if (refreshInterval == 0)
+					return false;
+				
+				if (m_lastManifestTimeTry + 60 * refreshInterval < Utils.UnixTimeStamp())
 					return true;
 			}
 
@@ -572,6 +567,8 @@ namespace AirVPN.Core
 		{
 			try
 			{
+				m_lastManifestTimeTry = Utils.UnixTimeStamp();
+
 				Engine.Instance.Log(Engine.LogType.Verbose, Messages.ManifestUpdate);
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters["act"] = "manifest";
@@ -588,7 +585,7 @@ namespace AirVPN.Core
 					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
 				}
 
-				// OvpnManager.Refresh(true); // TOFIX
+				// OvpnManager.Refresh(true); // TOOPEN
 
 				Engine.Instance.PostManifestUpdate();
 

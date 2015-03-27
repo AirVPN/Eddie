@@ -181,6 +181,9 @@ namespace AirVPN.Core
 		public static string WindowsSettingsRouteEditIp = "Specify single IP address (ex. 1.2.3.4) or\nCIDR range (ex. 1.2.3.4/24) or\nsubnet range (ex. 1.2.3.4/255.255.255.128)";
 		public static string WindowsSettingsRouteInvalid = "Invalid IP address or range.";
 		public static string WindowsSettingsRouteOutEmptyList = "WARNING: not specified routes go outside the tunnel, but you did not specify any route. Continue?";
+		public static string WindowsSettingsDnsCheck = "Check if the tunnel use AirVPN DNS";
+		public static string WindowsSettingsDnsServers = "DNS server list. Leave empty to use DNS servers recommended by the VPN"; // TOTRANSLATE
+		public static string WindowsSettingsIpTitle = "Preferences - IP Address";
 		public static string WindowsOpenVpnManagementCommandTitle = "OpenVpn Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 
@@ -317,14 +320,12 @@ namespace AirVPN.Core
 		public static string ManOptionAdvancedExpert = "Activate some expert information and features.\n- Allows sending commands to OpenVPN Management Interface via Logs window.\n- Show verbose logs message in main windows";		
 		public static string ManOptionAdvancedCheckRoute = "True/False. Send a request to the server, that check it come from within the tunnel, and reply with an acknowledgement.";		
 		public static string ManOptionAdvancedPingerEnabled = "If 'true' the software pings AirVPN server to determine latency score. Pings are not performed during VPN connection.";
-		public static string ManOptionAdvancedPingerAlways = "If 'true' pings are performed also during VPN connection. Pings are always performed outside the tunnel.";
 		public static string ManOptionAdvancedPingerDelay = "Ping each server every X seconds. If 0, the recommended values are used.";
 		public static string ManOptionAdvancedPingerRetry = "Ping every server that doesn't have ping results every X seconds. If 0, the recommended values are used.";
 		public static string ManOptionAdvancedPingerJobs = "Maximum parallel jobs/thread for pinging purpose.";
 		public static string ManOptionAdvancedPingerValid = "Global pinger results valid if all ping reply are maximum X seconds ago. If 0, the recommended values are used.";
 
 		public static string ManOptionAdvancedWindowsTapUp = "Force the TAP interface to come UP.";
-		public static string ManOptionAdvancedWindowsDnsForce = "In Windows, every network adapter may have DNS settings.\nIf this option is active, when the connection starts the client empties any DNS settings for every network adapter.\nThe TUN/TAP adapter will be updated when the connection is estabilished.\nWhen the connection is closed, the client resets every DNS settings to the original state.\nDNS settings are changed during connection, not during the disconnection/connection to another server.\n\nThis option is equivalent to one feature of the https://www.dnsleaktest.com/ scripts.";  // TOCLEAN
 		public static string ManOptionAdvancedWindowsDhcpDisable = "If a DHCP adapter is renewed during connection, Windows may reset the original DNS settings.\nIf this option is active, when the connection starts the client changes any DHCP adapter to Static.\nWhen the connection is closed, the client resets every adapter to the original state.\nNo action is performed if there isn't any adapter in DHCP.\n\nThis option is equivalent to one feature of the https://www.dnsleaktest.com/ scripts.";
 
 		public static string ManOptionEventFileName = "Filename of the script/executable to launch on event";

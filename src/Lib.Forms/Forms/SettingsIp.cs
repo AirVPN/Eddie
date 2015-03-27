@@ -18,25 +18,53 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Security;
+using System.ComponentModel;
+using System.Drawing;
 using System.Text;
-using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
+using AirVPN.Core;
 
-namespace AirVPN.Core
+namespace AirVPN.Gui.Forms
 {
-	// TOCLEAN, >= 2.9 don't use it.
-    public static class TrustCertificatePolicy
+    public partial class SettingsIp : AirVPN.Gui.Form
     {
-        private static bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        public String Ip;
+
+		public SettingsIp()
         {
-			// Data exchange security are NOT based on SSL. Look "AirExchange.cs".
-            return true;
+            InitializeComponent();
         }
 
-        public static void Activate()
-        {
-            System.Net.ServicePointManager.ServerCertificateValidationCallback = ValidateCertificate;
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
+			CommonInit(Messages.WindowsSettingsIpTitle);
+
+			txtIP.Text = Ip;
+			
+			EnableIde();
+		}
+        
+		private void EnableIde()
+		{
+			if (new IpAddress(txtIP.Text).Valid == false)
+			{
+				cmdOk.Enabled = false;
+			}
+			else
+			{
+				cmdOk.Enabled = true;
+			}
+		}
+
+        private void cmdOk_Click(object sender, EventArgs e)
+        {			
+			Ip = txtIP.Text;			
         }
+
+		private void txtIp_TextChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
     }
 }

@@ -78,8 +78,8 @@ namespace AirVPN.Core
 			// byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
 
 			// 'POST' Edition - >= 2.9			
-			string url = "http://" + host;
-			// Debug with an url direct to backend service client debugging page
+			// Debug with an url direct to backend service client debugging page			
+			string url = "http://" + host;			
 			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", 1, Engine.Instance.IsConnected());
 			
 			// Decrypt answer
@@ -153,10 +153,12 @@ namespace AirVPN.Core
 					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
 					if (proxyMode != "none")
 						info += ", with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
-					Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
+
+					if (Engine.Instance.Storage.GetBool("advanced.expert"))
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")
-						firstError = e.Message;
+						firstError = info;
 				}
 			}
 

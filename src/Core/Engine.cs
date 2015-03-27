@@ -218,7 +218,7 @@ namespace AirVPN.Core
             {
 				Platform.Instance.LogSystemInfo();
 
-				Software.Checking(); // TOTEST messa qui, cosa comporta?
+				Software.Checking();
 
 				Software.Log();
 
@@ -309,11 +309,7 @@ namespace AirVPN.Core
 
 		public virtual bool OnInit2()
         {
-			// Software.Checking(); // TOTEST spostata, cosa comporta?
-
-            TrustCertificatePolicy.Activate();
-
-            PostManifestUpdate();
+			PostManifestUpdate();
 
 			m_threadPinger = new Threads.Pinger();
 			m_threadPenalities = new Threads.Penalities();
@@ -456,23 +452,7 @@ namespace AirVPN.Core
 			else if (action == "openvpn")
 			{
 				SendManagementCommand(command.Get("command",""));
-			}
-			else if (action == "ipv6_do") // TOCLEAN
-			{
-				Platform.Instance.OnIpV6Do();
-			}
-			else if (action == "ipv6_restore") // TOCLEAN
-			{
-				Platform.Instance.OnIpV6Restore();
-			}
-			else if (action == "dns_test_do") // TOCLEAN
-			{
-				Platform.Instance.OnDnsSwitchDo("8.8.4.4;8.8.8.8");
-			}
-			else if (action == "dns_test_restore") // TOCLEAN
-			{
-				Platform.Instance.OnDnsSwitchRestore();
-			}
+			}			
 			else
 			{
 				throw new Exception(Messages.CommandUnknown);
@@ -1192,9 +1172,8 @@ namespace AirVPN.Core
                     }
                 }
 
-				// TOCLEAN
-				// Scorro i Storage.Servers XmlNodes e aggiungo i server custom
-
+				// TOOPEN - Add custom profiles
+				
                 for (; ; )
                 {
                     bool restart = false;
@@ -1269,8 +1248,7 @@ namespace AirVPN.Core
                     }
                 }
 
-				// TOCLEAN
-				// Scorro i Storage.Servers XmlNodes e aggiungo i countries custom
+				// TOOPEN - Add countries of custom profiles
 
                 for (; ; )
                 {
@@ -1445,7 +1423,8 @@ namespace AirVPN.Core
 					{
 						lastException = e.Message;
 
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ExchangeTryFailed, title, (t + 1).ToString(), lastException));
+						if(Engine.Storage.GetBool("advanced.expert"))
+							Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.FetchTryFailed, title, (t + 1).ToString(), lastException));
 					}
 				}
 			}

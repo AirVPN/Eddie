@@ -303,7 +303,7 @@ namespace AirVPN.Platforms
 
 			return t;
 		}
-
+		
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -316,12 +316,6 @@ namespace AirVPN.Platforms
 			// https://airvpn.org/topic/11162-airvpn-client-advanced-features/ -> Switch DHCP to Static			
 			if (Engine.Instance.Storage.GetBool("advanced.windows.dhcp_disable"))
 				SwitchToStaticDo();
-
-			/* // TOCLEAN
-			// https://airvpn.org/topic/11162-airvpn-client-advanced-features/ -> Force DNS	
-			if (Engine.Instance.Storage.GetBool("advanced.windows.dns_force"))
-				DnsForceDo();
-			*/
 
 			FlushDNS();
 

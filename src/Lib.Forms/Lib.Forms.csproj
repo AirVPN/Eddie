@@ -71,6 +71,12 @@
     <Compile Include="Forms\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\SettingsIp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SettingsIp.Designer.cs">
+      <DependentUpon>SettingsIp.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Profile.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -188,6 +194,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\About.resx">
       <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SettingsIp.resx">
+      <DependentUpon>SettingsIp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Profile.resx">
       <DependentUpon>Profile.cs</DependentUpon>

@@ -121,15 +121,12 @@ namespace AirVPN.Platforms
 			pf += "# " + Engine.Instance.GenerateFileHeader() + "\n";
 			
 			pf += "# Drop everything that doesn't match a rule\n";			
-			pf += "block drop out all\n"; // 2.9
-			//pf += "block drop out inet from any to any\n"; // 2.8
+			pf += "block drop out all\n"; 
 
-			if (Engine.Instance.Storage.GetBool("netlock.allow_ipv6") == false)
-			{
-				pf += "# Drop ipv6\n";
-				pf += "block quick inet6\n"; // 2.9
-			}
-
+			// TOCHECK: block drop above is also for ipv6?
+			// pf += "# Drop ipv6\n";
+			// pf += "block quick inet6\n";
+			
 			pf += "# Scrub\n";
 			pf += "scrub in all\n"; // 2.9
 
@@ -139,11 +136,7 @@ namespace AirVPN.Platforms
 			pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
 			if (m_connected)
 			{
-				pf += "set skip on { lo0 " + Engine.Instance.ConnectedVpnInterfaceId + " }\n";
-				//pf += "# Everything tunneled\n";
-				//string ifn = Engine.Instance.ConnectedVpnInterfaceId;
-				//pf += "pass out quick on " + ifn + " inet from 10.0.0.0/8 to any flags S/SA keep state\n";
-				//pf += "pass quick on " + ifn + " inet from any to 10.0.0.0/8 flags S/SA keep state\n";
+				pf += "set skip on { lo0 " + Engine.Instance.ConnectedVpnInterfaceId + " }\n";				
 			}
 			else
 			{
@@ -159,11 +152,6 @@ namespace AirVPN.Platforms
 				pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
 				pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
 				pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
-
-				if (Engine.Instance.Storage.GetBool("netlock.allow_ipv6"))
-				{
-					// TODO: Write private network ranges for IpV6 (if not disabled)
-				}
 			}
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
@@ -180,34 +168,6 @@ namespace AirVPN.Platforms
 				pf += "pass out quick inet from any to " + ip.ToCIDR() + " flags S/SA keep state\n";
 			}
 			
-			//pf += "# Allow all on lo0\n"; // 2.8	
-			//pf += "pass out quick inet from 127.0.0.1/8 to any flags S/SA keep state\n";
-			//pf += "pass quick on lo0 all\n"; 
-
-			// TOCLEAN
-			
-			/* 2.8
-			if (m_connected) {
-				pf += "# Everything tunneled\n";	
-				string ifn = Engine.Instance.ConnectedVpnInterfaceId;
-				pf += "pass out quick on " + ifn + " inet from 10.0.0.0/8 to any flags S/SA keep state\n";
-				pf += "pass quick on " + ifn + " inet from any to 10.0.0.0/8 flags S/SA keep state\n";
-			} else {
-				pf += "# Not yet connected to VPN\n";	
-			}
-			*/
-
-			/*
-			pf += "pass out quick inet on tun+ from 10.4.0.0/16 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.5.0.0/16 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.6.0.0/16 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.7.0.0/16 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.8.0.0/16 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.9.0.0/16 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.30.0.0/16 to any flags S/SA keep state\n";
-			pf += "pass out quick inet on tun+ from 10.35.0.0/16 to any flags S/SA keep state\n";
-			*/
-
 			if (Utils.SaveFile(m_filePfConf.Path, pf))
 			{
 				Engine.Instance.Log(Engine.LogType.Verbose, "OS X - PF rules updated, reloading");
