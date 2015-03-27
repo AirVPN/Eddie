@@ -317,7 +317,28 @@ namespace AirVPN.UI.Osx
 				RouteEdit();
 			};
 
-			// Advanced
+			// Advanced - General
+
+			CboIpV6.RemoveAllItems ();
+			CboIpV6.AddItem ("None");
+			CboIpV6.AddItem ("Disable");
+
+			CboAdvancedManifestRefresh.RemoveAllItems ();
+			CboAdvancedManifestRefresh.AddItem ("Automatic");
+			CboAdvancedManifestRefresh.AddItem ("Never");
+			CboAdvancedManifestRefresh.AddItem ("Every minute");
+			CboAdvancedManifestRefresh.AddItem ("Every ten minute");
+			CboAdvancedManifestRefresh.AddItem ("Every one hour");
+
+			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) => {
+				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
+			};
+
+			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
+				Core.UI.Actions.OpenUrlDocsAdvanced();
+			};
+
+			// Advanced - Net Lock
 
 			CmdLockHelp.Activated += (object sender, EventArgs e) => {
 				Core.UI.Actions.OpenUrlDocsLock();
@@ -332,24 +353,13 @@ namespace AirVPN.UI.Osx
 			LblRoutesNetworkLockWarning.StringValue = Messages.WindowsSettingsRouteLockHelp;
 			LblLockRoutingOutWarning.StringValue = Messages.NetworkLockNotAvailableWithRouteOut;
 
-			CboAdvancedManifestRefresh.RemoveAllItems ();
-			CboAdvancedManifestRefresh.AddItem ("Automatic");
-			CboAdvancedManifestRefresh.AddItem ("Never");
-			CboAdvancedManifestRefresh.AddItem ("Every minute");
-			CboAdvancedManifestRefresh.AddItem ("Every ten minute");
-			CboAdvancedManifestRefresh.AddItem ("Every one hour");
-
-			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
-				Core.UI.Actions.OpenUrlDocsAdvanced();
-			};
-
-			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) => {
-				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
-			};
+			// Advanced - Logging
 
 			TxtLoggingPath.Changed += (object sender, EventArgs e) => {
 				RefreshLogPreview();
 			};
+
+			// Advanced - Events
 
 			TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) => {
 				AdvancedEventEdit();
@@ -594,16 +604,17 @@ namespace AirVPN.UI.Osx
 
 			TableRoutingController.RefreshUI();
 
-			// Advanced
-			GuiUtils.SetCheck (ChkAdvancedExpertMode, s.GetBool ("advanced.expert"));
-			GuiUtils.SetCheck (ChkAdvancedCheckDns, s.GetBool ("dns.check"));
-			GuiUtils.SetCheck (ChkAdvancedCheckRoute, s.GetBool ("advanced.check.route"));
+			// Advanced - General
 
-			string dnsMode = s.Get ("dns.mode");
-			if (dnsMode == "none")
-				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Disabled");
+			GuiUtils.SetCheck (ChkAdvancedExpertMode, s.GetBool ("advanced.expert"));
+			GuiUtils.SetCheck (ChkAdvancedCheckRoute, s.GetBool ("advanced.check.route"));
+			string ipV6Mode = s.Get ("ipv6.mode");
+			if (ipV6Mode == "none")
+				GuiUtils.SetSelected (CboIpV6, "None");
+			else if (ipV6Mode == "disable")
+				GuiUtils.SetSelected (CboIpV6, "Disable");
 			else
-				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Automatic");
+				GuiUtils.SetSelected (CboIpV6, "None");
 
 			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("advanced.pinger.enabled"));
 			GuiUtils.SetCheck (ChkAdvancedPingerAlways, s.GetBool ("advanced.pinger.always"));
@@ -622,6 +633,16 @@ namespace AirVPN.UI.Osx
 			else
 				GuiUtils.SetSelected(CboAdvancedManifestRefresh, "Automatic");
 
+			// Advanced - DNS
+
+			string dnsMode = s.Get ("dns.mode");
+			if (dnsMode == "none")
+				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Disabled");
+			else
+				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Automatic");
+
+			GuiUtils.SetCheck (ChkAdvancedCheckDns, s.GetBool ("dns.check"));
+
 			// Advanced - Lock
 			string lockMode = s.Get ("netlock.mode");
 			GuiUtils.SetSelected (CboLockMode, "None");
@@ -634,6 +655,9 @@ namespace AirVPN.UI.Osx
 					}
 				}
 			}
+			GuiUtils.SetCheck(ChkLockAllowPrivate, s.GetBool("netlock.allow_private"));
+			GuiUtils.SetCheck(ChkLockAllowPing, s.GetBool("netlock.allow_ping"));
+			GuiUtils.SetCheck(ChkLockAllowIpV6, s.GetBool("netlock.allow_ipv6"));
 			TxtLockAllowedIPS.StringValue = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
@@ -720,17 +744,17 @@ namespace AirVPN.UI.Osx
 			}
 			s.Set("routes.custom", routes);
 
-			// Advanced
+			// Advanced - General
 			s.SetBool ("advanced.expert", GuiUtils.GetCheck (ChkAdvancedExpertMode));
-			s.SetBool ("dns.check", GuiUtils.GetCheck (ChkAdvancedCheckDns));
+
 			s.SetBool ("advanced.check.route", GuiUtils.GetCheck (ChkAdvancedCheckRoute));
-
-			string dnsMode = GuiUtils.GetSelected (CboAdvancedDnsSwitchMode);
-			if (dnsMode == "Disabled")
-				s.Set ("dns.mode", "none");
+			string ipV6Mode = GuiUtils.GetSelected (CboIpV6);
+			if (ipV6Mode == "None")
+				s.Set ("ipv6.mode", "none");
+			else if (ipV6Mode == "Disable")
+				s.Set ("ipv6.mode", "disable");
 			else
-				s.Set ("dns.mode", "auto");
-
+				s.Set ("ipv6.mode", "disable");
 			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
 			s.SetBool ("advanced.pinger.always", GuiUtils.GetCheck (ChkAdvancedPingerAlways));
 
@@ -748,6 +772,13 @@ namespace AirVPN.UI.Osx
 			else if (manifestRefresh == "Every one hour") // One hour
 				s.SetInt("advanced.manifest.refresh", 60);
 
+			// Advanced - DNS
+			string dnsMode = GuiUtils.GetSelected (CboAdvancedDnsSwitchMode);
+			if (dnsMode == "Disabled")
+				s.Set ("dns.mode", "none");
+			else
+				s.Set ("dns.mode", "auto");
+			s.SetBool ("dns.check", GuiUtils.GetCheck (ChkAdvancedCheckDns));
 
 			// Advanced - Lock
 			string lockMode = GuiUtils.GetSelected (CboLockMode);
@@ -758,9 +789,12 @@ namespace AirVPN.UI.Osx
 				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes) {
 					if (lockPlugin.GetName () == lockMode) {
 						s.Set ("netlock.mode", lockPlugin.GetCode ());
-										}
-									}
+					}
+				}
 			}
+			s.SetBool ("netlock.allow_private", GuiUtils.GetCheck (ChkLockAllowPrivate));
+			s.SetBool ("netlock.allow_ping", GuiUtils.GetCheck (ChkLockAllowPing));
+			s.SetBool ("netlock.allow_ipv6", GuiUtils.GetCheck (ChkLockAllowIpV6));
 			s.Set ("netlock.allowed_ips", TxtLockAllowedIPS.StringValue);
 
 			// Advanced - Logging

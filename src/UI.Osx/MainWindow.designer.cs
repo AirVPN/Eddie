@@ -214,6 +214,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSTabView TabOverview { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField TxtCommand { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextField TxtConnectedDownload { get; set; }
 
 		[Outlet]
@@ -233,6 +236,11 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (TxtCommand != null) {
+				TxtCommand.Dispose ();
+				TxtCommand = null;
+			}
+
 			if (CboServersScoringRule != null) {
 				CboServersScoringRule.Dispose ();
 				CboServersScoringRule = null;
@@ -293,19 +301,9 @@ namespace AirVPN.UI.Osx
 				CmdDisconnect = null;
 			}
 
-			if (CmdNetworkLock != null) {
-				CmdNetworkLock.Dispose ();
-				CmdNetworkLock = null;
-			}
-
 			if (CmdLogin != null) {
 				CmdLogin.Dispose ();
 				CmdLogin = null;
-			}
-
-			if (ImgNetworkLock != null) {
-				ImgNetworkLock.Dispose ();
-				ImgNetworkLock = null;
 			}
 
 			if (CmdLogsClean != null) {
@@ -333,6 +331,11 @@ namespace AirVPN.UI.Osx
 				CmdLogsSupport = null;
 			}
 
+			if (CmdNetworkLock != null) {
+				CmdNetworkLock.Dispose ();
+				CmdNetworkLock = null;
+			}
+
 			if (CmdServersBlackList != null) {
 				CmdServersBlackList.Dispose ();
 				CmdServersBlackList = null;
@@ -356,6 +359,11 @@ namespace AirVPN.UI.Osx
 			if (ImgConnectedCountry != null) {
 				ImgConnectedCountry.Dispose ();
 				ImgConnectedCountry = null;
+			}
+
+			if (ImgNetworkLock != null) {
+				ImgNetworkLock.Dispose ();
+				ImgNetworkLock = null;
 			}
 
 			if (ImgProgress != null) {

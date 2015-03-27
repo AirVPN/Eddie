@@ -1,4 +1,4 @@
-// <airvpn_source_header>
+﻿// <airvpn_source_header>
 // This file is part of AirVPN Client software.
 // Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -25,69 +25,88 @@ using AirVPN.Core;
 
 namespace AirVPN.UI.Osx
 {
-	public partial class WindowAboutController : MonoMac.AppKit.NSWindowController
+	public partial class WindowPreferencesIpController : MonoMac.AppKit.NSWindowController
 	{
+		public bool Accepted = false;
+		public static string Ip;
+
+
+
 		#region Constructors
+
 		// Called when created from unmanaged code
-		public WindowAboutController (IntPtr handle) : base (handle)
+		public WindowPreferencesIpController (IntPtr handle) : base (handle)
 		{
 			Initialize ();
 		}
+		
 		// Called when created directly from a XIB file
 		[Export ("initWithCoder:")]
-		public WindowAboutController (NSCoder coder) : base (coder)
+		public WindowPreferencesIpController (NSCoder coder) : base (coder)
 		{
 			Initialize ();
 		}
+		
 		// Call to load from the XIB/NIB file
-		public WindowAboutController () : base ("WindowAbout")
+		public WindowPreferencesIpController () : base ("WindowPreferencesIp")
 		{
 			Initialize ();
 		}
+		
 		// Shared initialization code
 		void Initialize ()
 		{
 		}
+
 		#endregion
+
 		//strongly typed window accessor
-		public new WindowAbout Window {
+		public new WindowPreferencesIp Window {
 			get {
-				return (WindowAbout)base.Window;
+				return (WindowPreferencesIp)base.Window;
 			}
 		}
 
-		public override void AwakeFromNib()
+		public override void AwakeFromNib ()
 		{
 			base.AwakeFromNib ();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
+			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsIpTitle;
+		
 
-			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
-			TxtLicense.Value = Core.UI.Actions.GetAboutLicense ();
-			TxtLibraries.Value = Core.UI.Actions.GetAboutThirdParty ();
+			TxtIP.Changed += (object sender, EventArgs e) => {
+				EnableIde();
+			};
+			CmdOk.Activated += (object sender, EventArgs e) => {
 
-			CmdHomePage.Activated += (object sender, EventArgs e) =>
-			{
-				//AirVPN.Core.UI.Actions.OpenUrlWebsite();
-				Platform.Instance.OnIpV6Do(); // pazzo
+				Accepted = true;
+				Ip = TxtIP.StringValue;
+
+				Window.Close ();
+				NSApplication.SharedApplication.StopModal ();
 			};
 
-			CmdSoftware.Activated += (object sender, EventArgs e) =>
-			{
-				//AirVPN.Core.UI.Actions.OpenUrlDocs();
-				Platform.Instance.OnIpV6Restore(); // pazzo
+			CmdCancel.Activated += (object sender, EventArgs e) => {
+
+				Accepted = false;
+
+				Window.Close ();
+				NSApplication.SharedApplication.StopModal ();
 			};
 
-			CmdSources.Activated += (object sender, EventArgs e) =>
-			{
-				AirVPN.Core.UI.Actions.OpenUrlSources();
-			};
+			TxtIP.StringValue = Ip;
 
-			CmdOk.Activated += (object sender, EventArgs e) =>
-			{
-				this.Close();
-				NSApplication.SharedApplication.StopModal();
-			};
+			EnableIde ();
+		}
+
+		public void EnableIde()
+		{
+			if (new IpAddress (TxtIP.StringValue).Valid == false) {
+				CmdOk.Enabled = false;
+			} else {
+				CmdOk.Enabled = true;
+			}
+
 		}
 	}
 }

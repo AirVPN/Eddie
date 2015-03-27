@@ -160,6 +160,10 @@
     <Compile Include="TableRoutingController.cs" />
     <Compile Include="TableRoutingDelegate.cs" />
     <Compile Include="TableAdvancedEventsDelegate.cs" />
+    <Compile Include="WindowPreferencesIp.cs" />
+    <Compile Include="WindowPreferencesIp.designer.cs" />
+    <Compile Include="WindowPreferencesIpController.cs" />
+    <Compile Include="TableDnsServersController.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -172,6 +176,7 @@
     <InterfaceDefinition Include="WindowOpenVpnManagementCommand.xib" />
     <InterfaceDefinition Include="WindowPreferencesRoute.xib" />
     <InterfaceDefinition Include="WindowPreferencesEvent.xib" />
+    <InterfaceDefinition Include="WindowPreferencesIp.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />

@@ -1,23 +1,17 @@
 ﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="6/8/2014 12:15:57 AM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x64" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="AppDelegate.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="WindowPreferencesController.cs">
     <Files>
-      <File FileName="MainWindowController.cs" Line="1" Column="1" />
-      <File FileName="../Platforms.Osx/Osx.cs" Line="1" Column="1" />
-      <File FileName="Main.cs" Line="1" Column="1" />
-      <File FileName="MainWindow.cs" Line="1" Column="1" />
-      <File FileName="WindowPreferencesController.cs" Line="1" Column="1" />
-      <File FileName="AppDelegate.cs" Line="3" Column="3" />
-      <File FileName="../Platforms.Osx/NetworkLockOsxPf.cs" Line="1" Column="1" />
-      <File FileName="MainWindowDelegate.cs" Line="1" Column="1" />
-      <File FileName="../Core/Engine.cs" Line="1" Column="1" />
-      <File FileName="Engine.cs" Line="1" Column="1" />
-      <File FileName="../Core/Storage.cs" Line="1" Column="1" />
-      <File FileName="../CLI.Osx/Program.cs" Line="1" Column="1" />
-      <File FileName="../Core/CommandLine.cs" Line="1" Column="1" />
-      <File FileName="WindowAboutController.cs" Line="1" Column="1" />
+      <File FileName="RootLauncher.cs" Line="1" Column="1" />
       <File FileName="GuiUtils.cs" Line="1" Column="1" />
-      <File FileName="WindowPreferences.designer.cs" Line="1" Column="1" />
+      <File FileName="Engine.cs" Line="1" Column="1" />
+      <File FileName="../Core/CommandLine.cs" Line="1" Column="1" />
+      <File FileName="MainWindowController.cs" Line="1" Column="1" />
+      <File FileName="WindowPreferencesController.cs" Line="47" Column="47" />
+      <File FileName="../Core/Storage.cs" Line="1" Column="1" />
+      <File FileName="AppDelegate.cs" Line="24" Column="24" />
+      <File FileName="../Platforms.Osx/Osx.cs" Line="6" Column="6" />
+      <File FileName="WindowAboutController.cs" Line="6" Column="6" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
