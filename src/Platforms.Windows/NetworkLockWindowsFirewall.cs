@@ -165,8 +165,6 @@ namespace AirVPN.Platforms
 		{
 			base.Activation();
 
-			throw new Exception("pazzo");
-
 			// Service
 			try
 			{
