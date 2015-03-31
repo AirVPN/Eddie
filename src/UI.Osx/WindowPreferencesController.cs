@@ -395,8 +395,6 @@ namespace AirVPN.UI.Osx
 			};
 
 
-			ChkAdvancedPingerAlways.Hidden = true; // TOCLEAN
-
 			ReadOptions ();
 
 			EnableIde ();
@@ -689,8 +687,7 @@ namespace AirVPN.UI.Osx
 				GuiUtils.SetSelected (CboIpV6, "None");
 
 			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("advanced.pinger.enabled"));
-			GuiUtils.SetCheck (ChkAdvancedPingerAlways, s.GetBool ("advanced.pinger.always"));
-
+			
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 
 			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
@@ -709,11 +706,11 @@ namespace AirVPN.UI.Osx
 
 			string dnsMode = s.Get ("dns.mode");
 			if (dnsMode == "none")
-				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Disabled");
+				GuiUtils.SetSelected (CboDnsSwitchMode, "Disabled");
 			else
-				GuiUtils.SetSelected (CboAdvancedDnsSwitchMode, "Automatic");
+				GuiUtils.SetSelected (CboDnsSwitchMode, "Automatic");
 
-			GuiUtils.SetCheck (ChkAdvancedCheckDns, s.GetBool ("dns.check"));
+			GuiUtils.SetCheck (ChkDnsCheck, s.GetBool ("dns.check"));
 
 			// Advanced - Lock
 			string lockMode = s.Get ("netlock.mode");
@@ -728,8 +725,7 @@ namespace AirVPN.UI.Osx
 				}
 			}
 			GuiUtils.SetCheck(ChkLockAllowPrivate, s.GetBool("netlock.allow_private"));
-			GuiUtils.SetCheck(ChkLockAllowPing, s.GetBool("netlock.allow_ping"));
-			GuiUtils.SetCheck(ChkLockAllowIpV6, s.GetBool("netlock.allow_ipv6"));
+			GuiUtils.SetCheck(ChkLockAllowPing, s.GetBool("netlock.allow_ping"));			
 			TxtLockAllowedIPS.StringValue = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
@@ -831,8 +827,7 @@ namespace AirVPN.UI.Osx
 			else
 				s.Set ("ipv6.mode", "disable");
 			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
-			s.SetBool ("advanced.pinger.always", GuiUtils.GetCheck (ChkAdvancedPingerAlways));
-
+			
 			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
 
 			string manifestRefresh = GuiUtils.GetSelected(CboAdvancedManifestRefresh);
@@ -848,12 +843,12 @@ namespace AirVPN.UI.Osx
 				s.SetInt("advanced.manifest.refresh", 60);
 
 			// Advanced - DNS
-			string dnsMode = GuiUtils.GetSelected (CboAdvancedDnsSwitchMode);
+			string dnsMode = GuiUtils.GetSelected (CboDnsSwitchMode);
 			if (dnsMode == "Disabled")
 				s.Set ("dns.mode", "none");
 			else
 				s.Set ("dns.mode", "auto");
-			s.SetBool ("dns.check", GuiUtils.GetCheck (ChkAdvancedCheckDns));
+			s.SetBool ("dns.check", GuiUtils.GetCheck (ChkDnsCheck));
 
 			// Advanced - Lock
 			string lockMode = GuiUtils.GetSelected (CboLockMode);
@@ -868,8 +863,7 @@ namespace AirVPN.UI.Osx
 				}
 			}
 			s.SetBool ("netlock.allow_private", GuiUtils.GetCheck (ChkLockAllowPrivate));
-			s.SetBool ("netlock.allow_ping", GuiUtils.GetCheck (ChkLockAllowPing));
-			s.SetBool ("netlock.allow_ipv6", GuiUtils.GetCheck (ChkLockAllowIpV6));
+			s.SetBool ("netlock.allow_ping", GuiUtils.GetCheck (ChkLockAllowPing));			
 			s.Set ("netlock.allowed_ips", TxtLockAllowedIPS.StringValue);
 
 			// Advanced - Logging
