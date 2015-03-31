@@ -112,8 +112,12 @@ namespace AirVPN.Core
 
 		public static string NetworkLockActivation = "Activation of Network Lock";
 		public static string NetworkLockDeactivation = "Deactivation of Network Lock"; 
-		public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; 
-		public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
+		//public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; 
+		//public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
+		public static string NetworkLockButtonActive = "Deactivate Network Lock"; // TOTRANSLATE
+		public static string NetworkLockButtonDeactive = "Activate Network Lock"; // TOTRANSLATE
+		public static string NetworkLockStatusActive = "Network Lock enabled"; // TOTRANSLATE
+		public static string NetworkLockStatusDeactive = "Network Lock disabled"; // TOTRANSLATE
 
 		public static string NetworkLockNoMode = "There is no available or enabled Network Lock mode, sorry.";
 		public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated"; 
@@ -123,7 +127,7 @@ namespace AirVPN.Core
 				
 		public static string NetworkLockRouteRemoved = "Route removed: {1}";
 		public static string NetworkLockRouteRestored = "Route restored: {1}";
-		public static string NetworkLockWarning = "Network Lock Mode\n\nIn this state, all network connections outside AirVPN service & tunnel are unavailable,\nwhether this system is connected to the VPN or not.\n\nWarning: Any active connection will be dropped.\n\nAre you sure you want to activate this mode?";
+		public static string NetworkLockWarning = "Network Lock Mode\n\nIn this state, all network connections outside AirVPN service & tunnel are unavailable, whether this system is connected to the VPN or not.\n\nWarning: Any active connection will be dropped.\n\nAre you sure you want to activate this mode?";
 		public static string NetworkLockNotAvailableWithRouteOut = "You set the default routing outside the tunnel,\nincompatible with Network Lock feature"; 
 
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
@@ -174,6 +178,8 @@ namespace AirVPN.Core
 		public static string WindowsFrontMessageAccept = "Ok";
 		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations";
 		public static string WindowsSettingsTitle = "Preferences";
+		public static string WindowsSettingsConnect = "Connect at startup";
+		public static string WindowsSettingsNetLock = "Activate Network Lock at startup";
 		public static string WindowsSettingsRouteTitle = "Preferences - Route";
 		public static string WindowsSettingsEventTitle = "Preferences - Event";
 		public static string WindowsSettingsLoggingHelp = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation.\nRelative to data path. For multiple logs with different paths, separe it with a semicolon ;\n\nAdvanced example:\nlogs/single.log;logs/months/airvpn_%d.log;logs/week/airvpn_%w.log";
@@ -181,10 +187,10 @@ namespace AirVPN.Core
 		public static string WindowsSettingsRouteEditIp = "Specify single IP address (ex. 1.2.3.4) or\nCIDR range (ex. 1.2.3.4/24) or\nsubnet range (ex. 1.2.3.4/255.255.255.128)";
 		public static string WindowsSettingsRouteInvalid = "Invalid IP address or range.";
 		public static string WindowsSettingsRouteOutEmptyList = "WARNING: not specified routes go outside the tunnel, but you did not specify any route. Continue?";
-		public static string WindowsSettingsDnsCheck = "Check if the tunnel use AirVPN DNS";
-		public static string WindowsSettingsDnsServers = "DNS server list. Leave empty to use DNS servers recommended by the VPN"; // TOTRANSLATE
+		public static string WindowsSettingsDnsCheck = "Check if the tunnel uses AirVPN DNS";
+		public static string WindowsSettingsDnsServers = "DNS server list. Leave empty to use DNS servers recommended by the VPN";
 		public static string WindowsSettingsIpTitle = "Preferences - IP Address";
-		public static string WindowsOpenVpnManagementCommandTitle = "OpenVpn Management Command";
+		public static string WindowsOpenVpnManagementCommandTitle = "OpenVPN Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 
 		public static string WindowsMainSpeedResolution2 = "Range: 10 minutes, Grid: 1 minute, Step: 1 second"; 
@@ -302,9 +308,9 @@ namespace AirVPN.Core
 		public static string ManOptionRoutesCustom = "Custom routes. Format: '{ip or range},{in/out},{note (optional)};...'. Separate multiple routes with ;. Example: '1.2.3.4,in;2.3.4.5/23,out,'test'";
 		public static string ManOptionRoutesDefault = "Specify whether routes that don't match the custom route must be inside ('in') or outside ('out') the tunnel.";
 
-		public static string ManOptionDnsMode = "'None' to disable DNS switch. 'Auto' to leave the software choose the best method. Otherwise choose a method. Refer to https://airvpn.org/faq/software_advanced/ for more information about each method on each platform."; // TOTRANSLATE
-		public static string ManOptionDnsServers = "List of DNS servers. If not empty, override the DNS suggested by VPN server. Separe multiple values with comma."; // TOTRANSLATE
-		public static string ManOptionDnsCheck = "True/False. When the connection is established, try to resolve domains that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks of your provider."; // TOTRANSLATE
+		public static string ManOptionDnsMode = "'None' to disable DNS switch. 'Auto' to let the software choose the best method. Otherwise choose a method. Refer to https://airvpn.org/faq/software_advanced/ for more information about each method on each platform.";
+		public static string ManOptionDnsServers = "List of DNS servers. If not empty, override the DNS suggested by VPN server. Separate multiple values with comma.";
+		public static string ManOptionDnsCheck = "True/False. When the connection is established, try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";
 
 		public static string ManOptionExecutablesOpenVpn = "Path to a custom OpenVPN executable";
 		public static string ManOptionExecutablesSsh = "Path to a custom SSH tunnel executable";
@@ -335,8 +341,8 @@ namespace AirVPN.Core
 		// Platform Windows		
 		public static string NetworkAdapterDhcpDone = "Network adapter DHCP switched to static ({1})";
 		public static string NetworkAdapterDhcpRestored = "DHCP of a network adapter restored to original settings ({1})";
-		public static string IpV6Disabled = "IpV6 disabled."; // TOTRANSLATE
-		public static string IpV6Restored = "IpV6 restored."; // TOTRANSLATE
+		public static string IpV6Disabled = "IPv6 disabled."; 
+		public static string IpV6Restored = "IPv6 restored.";
 		public static string HackInterfaceUpDone = "AirVPN Windows Interface Hack executed ({1})";
 
 		// Platform Windows & OS X
@@ -344,16 +350,15 @@ namespace AirVPN.Core
 		public static string NetworkAdapterDnsRestored = "DNS of a network adapter restored to original settings ({1})";
 
 		// OS X
-		public static string NetworkAdapterIpV6Disabled = "IpV6 disabled on network adapter ({1})"; // TOTRANSLATE
-		public static string NetworkAdapterIpV6Restored = "IpV6 restored on network adapter ({1})"; // TOTRANSLATE
+		public static string NetworkAdapterIpV6Disabled = "IPv6 disabled on network adapter ({1})";
+		public static string NetworkAdapterIpV6Restored = "IPv6 restored on network adapter ({1})";
 
 		// Platform Linux
 		public static string DnsResolvConfScript = "DNS of the system will be updated to VPN DNS (ResolvConf method)"; 
 		public static string DnsRenameBackup = "/etc/resolv.conf renamed to /etc/resolv.conf.airvpn as backup";
 		public static string DnsRenameDone = "DNS of the system updated to VPN DNS (Rename method: /etc/resolv.conf generated)";
 		public static string DnsRenameRestored = "DNS of the system restored to original settings (Rename method)";
-
-		
+		public static string IpV6Warning = "IPV6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPV6.\n\nContinue?";	
 
 		public static string Format(string format, string param1)
 		{

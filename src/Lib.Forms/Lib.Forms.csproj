@@ -287,6 +287,8 @@
     <Content Include="res\menu_normal.png" />
     <None Include="res\netlock_off.png" />
     <None Include="res\netlock_on.png" />
+    <None Include="res\netlock_status_off.png" />
+    <None Include="res\netlock_status_on.png" />
     <Content Include="res\ports.png" />
     <Content Include="res\progress.gif" />
     <None Include="res\progress01.png" />

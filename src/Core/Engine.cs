@@ -55,6 +55,7 @@ namespace AirVPN.Core
 
 		private String m_lastLogMessage;
 		private int m_logDotCount = 0;
+		private string m_logLast = "";
 
         public enum ActionService
         {
@@ -251,7 +252,7 @@ namespace AirVPN.Core
 					autoStart = true;
 				if (autoStart)
 					Connect();
-				else if(CancelRequested == false)
+				else
 					Log(LogType.InfoImportant, Messages.Ready);
                 
                 for (; ; )
@@ -726,6 +727,11 @@ namespace AirVPN.Core
 
         public void Log(LogType Type, string Message, int BalloonTime, Exception e)
         {
+			// Avoid repetition
+			if (Message == m_logLast)
+				return;
+			m_logLast = Message;
+
             LogEntry l = new LogEntry();
             l.Type = Type;
             l.Message = Message;
@@ -852,7 +858,7 @@ namespace AirVPN.Core
 
 		public virtual bool OnAskYesNo(string message)
 		{
-			return false;
+			return true;
 		}
 
 		public virtual void OnPostManifestUpdate()

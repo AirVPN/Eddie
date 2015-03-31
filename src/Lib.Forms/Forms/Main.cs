@@ -342,7 +342,7 @@ namespace AirVPN.Gui.Forms
                 Skin.GraphicsCommon(e.Graphics);
 
 				Rectangle rectHeader = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width, m_topHeaderHeight);
-				Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - 10, m_topHeaderHeight);
+				Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - 10 - 30, m_topHeaderHeight);
 
 				Form.DrawImage(e.Graphics, Skin.MainBackImage, new Rectangle(0, 0, ClientSize.Width, m_topHeaderHeight));
 
@@ -387,7 +387,7 @@ namespace AirVPN.Gui.Forms
 
 				if (iconFlag != null)
 				{
-					Rectangle rectFlag = new Rectangle(rectHeader.Right - iconFlag.Width - 10, 5, iconFlag.Width, iconFlag.Height);
+					Rectangle rectFlag = new Rectangle(rectHeader.Right - 30 - iconFlag.Width - 10, 5, iconFlag.Width, iconFlag.Height);
 					DrawImage(e.Graphics, iconFlag, rectFlag);					
 				}
 
@@ -1248,11 +1248,17 @@ namespace AirVPN.Gui.Forms
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_on;
+
+				lblNetLockStatus.Image = Lib.Forms.Properties.Resources.netlock_status_on;
+				this.tip.SetToolTip(this.lblNetLockStatus, Messages.NetworkLockStatusActive);
 			}
 			else
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonDeactive;
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_off;
+
+				lblNetLockStatus.Image = Lib.Forms.Properties.Resources.netlock_status_off;
+				this.tip.SetToolTip(this.lblNetLockStatus, Messages.NetworkLockStatusDeactive);
 			}
 
 			bool networkCanEnabled = ( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.CanEnabled()) );
@@ -1567,13 +1573,17 @@ namespace AirVPN.Gui.Forms
 					MessageBox.Show(Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
 			}
-		}	
+		}
+
+		public bool NetworkLockKnowledge()
+		{
+			string Msg = Messages.NetworkLockWarning;
+			return (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+		}
 
 		public void NetworkLockActivation()
 		{
-			string Msg = Messages.NetworkLockWarning;
-
-			if (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+			if(NetworkLockKnowledge())
 			{
 				Engine.Instance.NetLockIn();
 			}

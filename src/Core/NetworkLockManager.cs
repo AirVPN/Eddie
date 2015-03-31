@@ -103,13 +103,15 @@ namespace AirVPN.Core
 					m_current = nextCurrent;
 				}
 
-				Engine.Instance.Storage.SetBool("netlock", true);
+				// pazzo, netlock comment
+				// Engine.Instance.Storage.SetBool("netlock", true);
 			}
 			catch (Exception e)
 			{
 				Engine.Instance.Log(Engine.LogType.Fatal, e);
 
-				Engine.Instance.Storage.SetBool("netlock", false);
+				// pazzo, netlock comment
+				//Engine.Instance.Storage.SetBool("netlock", false);
 			}
 
 			Recovery.Save();
@@ -139,8 +141,11 @@ namespace AirVPN.Core
 				m_current = null;
 			}
 
+			// pazzo, netlock comment
+			/*
 			if(onExit == false)
 				Engine.Instance.Storage.SetBool("netlock", false);
+			*/
 
 			Recovery.Save();
 		}

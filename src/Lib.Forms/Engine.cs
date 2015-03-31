@@ -270,7 +270,10 @@ namespace AirVPN.Gui
 
 		public override bool OnAskYesNo(string message)
 		{
-			return MessageBox.Show(message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;			
+			if (FormMain != null)
+				return MessageBox.Show(message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+			else
+				return true;
 		}
 
 		public override void OnPostManifestUpdate()

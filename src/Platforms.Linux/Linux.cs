@@ -36,6 +36,8 @@ namespace AirVPN.Platforms
 		public Linux()
 		{
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+
+			TrustCertificatePolicy.Activate();
 		}
 
 		public override string GetCode()
@@ -255,8 +257,19 @@ namespace AirVPN.Platforms
 
 		public override bool OnCheckEnvironment()
 		{
-			if (Engine.Instance.OnAskYesNo("test") == false)
-				return false;
+			string ipV6 = File.ReadAllText("/proc/sys/net/ipv6/conf/all/disable_ipv6").Trim();
+			
+			if ((ipV6 == "0") && (Engine.Instance.Storage.Get("ipv6.mode") == "disable"))
+			{
+				if (Engine.Instance.OnAskYesNo(Messages.IpV6Warning))
+				{
+					Engine.Instance.Storage.Set("ipv6.mode", "none");
+				}
+				else
+				{
+					return false;
+				}
+			}
 
 			return true;
 		}

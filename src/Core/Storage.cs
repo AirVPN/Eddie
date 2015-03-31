@@ -367,6 +367,8 @@ namespace AirVPN.Core
 			// Not in Settings
 			SetDefaultBool("advanced.skip_warning_closed", false, NotInMan);
 
+			// Not in Settings
+			SetDefaultBool("advanced.testmode", false, NotInMan);
 			
 
             EnsureDefaultsEvent("app.start");

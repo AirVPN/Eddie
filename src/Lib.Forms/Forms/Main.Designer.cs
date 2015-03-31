@@ -82,6 +82,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdLogsCopy = new AirVPN.Gui.Skin.Button();
 			this.cmdLogsSave = new AirVPN.Gui.Skin.Button();
 			this.cmdServersRefresh = new AirVPN.Gui.Skin.Button();
+			this.lblNetLockStatus = new System.Windows.Forms.Label();
 			this.mnuLogsContext = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -957,6 +958,18 @@ namespace AirVPN.Gui.Forms
 			this.cmdServersRefresh.UseVisualStyleBackColor = true;
 			this.cmdServersRefresh.Click += new System.EventHandler(this.cmdServersRefresh_Click);
 			// 
+			// lblNetLockStatus
+			// 
+			this.lblNetLockStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.lblNetLockStatus.BackColor = System.Drawing.Color.Transparent;
+			this.lblNetLockStatus.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.lblNetLockStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.netlock_status_off;
+			this.lblNetLockStatus.Location = new System.Drawing.Point(799, 0);
+			this.lblNetLockStatus.Name = "lblNetLockStatus";
+			this.lblNetLockStatus.Size = new System.Drawing.Size(30, 30);
+			this.lblNetLockStatus.TabIndex = 74;
+			this.tip.SetToolTip(this.lblNetLockStatus, "gatto");
+			// 
 			// mnuLogsContext
 			// 
 			this.mnuLogsContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1042,6 +1055,7 @@ namespace AirVPN.Gui.Forms
 			this.mnuServersEdit.Name = "mnuServersEdit";
 			this.mnuServersEdit.Size = new System.Drawing.Size(145, 22);
 			this.mnuServersEdit.Text = "Edit list";
+			this.mnuServersEdit.Visible = false;
 			this.mnuServersEdit.Click += new System.EventHandler(this.mnuServersEdit_Click);
 			// 
 			// mnuAreas
@@ -1522,6 +1536,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdServersEdit.Size = new System.Drawing.Size(26, 28);
 			this.cmdServersEdit.TabIndex = 67;
 			this.cmdServersEdit.UseVisualStyleBackColor = true;
+			this.cmdServersEdit.Visible = false;
 			this.cmdServersEdit.Click += new System.EventHandler(this.cmdServersEdit_Click);
 			// 
 			// lblScoreType
@@ -1722,6 +1737,7 @@ namespace AirVPN.Gui.Forms
 			this.BackColor = System.Drawing.Color.Fuchsia;
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
 			this.ClientSize = new System.Drawing.Size(833, 468);
+			this.Controls.Add(this.lblNetLockStatus);
 			this.Controls.Add(this.tabMain);
 			this.DoubleBuffered = true;
 			this.Margin = new System.Windows.Forms.Padding(2);
@@ -1856,7 +1872,8 @@ namespace AirVPN.Gui.Forms
 		private System.Windows.Forms.ToolStripMenuItem mnuServersRefresh;
 		private Skin.Button cmdServersEdit;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersEdit;
-		private System.Windows.Forms.TextBox txtCommand;		
+		private System.Windows.Forms.TextBox txtCommand;
+		private System.Windows.Forms.Label lblNetLockStatus;		
     }
 }
 

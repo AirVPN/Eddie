@@ -78,6 +78,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdOk = new AirVPN.Gui.Skin.Button();
 			this.tabSettings = new AirVPN.Gui.Skin.TabControl();
 			this.tabGeneral = new AirVPN.Gui.Skin.TabPage();
+			this.chkNetLock = new AirVPN.Gui.Skin.CheckBox();
 			this.chkExitConfirm = new AirVPN.Gui.Skin.CheckBox();
 			this.pnlGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
 			this.chkSystemStart = new AirVPN.Gui.Skin.CheckBox();
@@ -86,7 +87,7 @@ namespace AirVPN.Gui.Forms
 			this.cboGeneralTheme = new AirVPN.Gui.Skin.ComboBox();
 			this.chkGeneralStartLast = new AirVPN.Gui.Skin.CheckBox();
 			this.cmdTos = new AirVPN.Gui.Skin.Button();
-			this.chkAutoStart = new AirVPN.Gui.Skin.CheckBox();
+			this.chkConnect = new AirVPN.Gui.Skin.CheckBox();
 			this.tabMode = new AirVPN.Gui.Skin.TabPage();
 			this.txtModeTorControlPassword = new AirVPN.Gui.Skin.TextBox();
 			this.label16 = new AirVPN.Gui.Skin.Label();
@@ -245,7 +246,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.label10.BackColor = System.Drawing.Color.Transparent;
 			this.label10.ForeColor = System.Drawing.Color.Black;
-			this.label10.Location = new System.Drawing.Point(13, 139);
+			this.label10.Location = new System.Drawing.Point(13, 141);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(206, 22);
 			this.label10.TabIndex = 78;
@@ -256,7 +257,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.label9.BackColor = System.Drawing.Color.Transparent;
 			this.label9.ForeColor = System.Drawing.Color.Black;
-			this.label9.Location = new System.Drawing.Point(13, 62);
+			this.label9.Location = new System.Drawing.Point(13, 60);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(209, 22);
 			this.label9.TabIndex = 77;
@@ -267,9 +268,9 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblIpV6.BackColor = System.Drawing.Color.Transparent;
 			this.lblIpV6.ForeColor = System.Drawing.Color.Black;
-			this.lblIpV6.Location = new System.Drawing.Point(13, 86);
+			this.lblIpV6.Location = new System.Drawing.Point(16, 87);
 			this.lblIpV6.Name = "lblIpV6";
-			this.lblIpV6.Size = new System.Drawing.Size(206, 22);
+			this.lblIpV6.Size = new System.Drawing.Size(206, 21);
 			this.lblIpV6.TabIndex = 76;
 			this.lblIpV6.Text = "IPV6:";
 			this.lblIpV6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -290,9 +291,9 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblAdvancedManifestRefresh.BackColor = System.Drawing.Color.Transparent;
 			this.lblAdvancedManifestRefresh.ForeColor = System.Drawing.Color.Black;
-			this.lblAdvancedManifestRefresh.Location = new System.Drawing.Point(13, 113);
+			this.lblAdvancedManifestRefresh.Location = new System.Drawing.Point(13, 114);
 			this.lblAdvancedManifestRefresh.Name = "lblAdvancedManifestRefresh";
-			this.lblAdvancedManifestRefresh.Size = new System.Drawing.Size(206, 22);
+			this.lblAdvancedManifestRefresh.Size = new System.Drawing.Size(206, 21);
 			this.lblAdvancedManifestRefresh.TabIndex = 74;
 			this.lblAdvancedManifestRefresh.Text = "Servers list update every:";
 			this.lblAdvancedManifestRefresh.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -380,7 +381,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkAdvancedPingerEnabled.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedPingerEnabled.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedPingerEnabled.Location = new System.Drawing.Point(231, 139);
+			this.chkAdvancedPingerEnabled.Location = new System.Drawing.Point(231, 141);
 			this.chkAdvancedPingerEnabled.Name = "chkAdvancedPingerEnabled";
 			this.chkAdvancedPingerEnabled.Size = new System.Drawing.Size(125, 25);
 			this.chkAdvancedPingerEnabled.TabIndex = 66;
@@ -422,7 +423,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkAdvancedCheckRoute.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedCheckRoute.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedCheckRoute.Location = new System.Drawing.Point(231, 62);
+			this.chkAdvancedCheckRoute.Location = new System.Drawing.Point(231, 60);
 			this.chkAdvancedCheckRoute.Name = "chkAdvancedCheckRoute";
 			this.chkAdvancedCheckRoute.Size = new System.Drawing.Size(125, 25);
 			this.chkAdvancedCheckRoute.TabIndex = 57;
@@ -730,24 +731,38 @@ namespace AirVPN.Gui.Forms
 			// tabGeneral
 			// 
 			this.tabGeneral.BackColor = System.Drawing.Color.White;
+			this.tabGeneral.Controls.Add(this.chkNetLock);
 			this.tabGeneral.Controls.Add(this.chkExitConfirm);
 			this.tabGeneral.Controls.Add(this.pnlGeneralWindowsOnly);
 			this.tabGeneral.Controls.Add(this.lblGeneralTheme);
 			this.tabGeneral.Controls.Add(this.cboGeneralTheme);
 			this.tabGeneral.Controls.Add(this.chkGeneralStartLast);
 			this.tabGeneral.Controls.Add(this.cmdTos);
-			this.tabGeneral.Controls.Add(this.chkAutoStart);
+			this.tabGeneral.Controls.Add(this.chkConnect);
 			this.tabGeneral.Location = new System.Drawing.Point(4, 24);
 			this.tabGeneral.Name = "tabGeneral";
 			this.tabGeneral.Size = new System.Drawing.Size(630, 291);
 			this.tabGeneral.TabIndex = 0;
 			this.tabGeneral.Text = "General";
 			// 
+			// chkNetLock
+			// 
+			this.chkNetLock.AutoSize = true;
+			this.chkNetLock.BackColor = System.Drawing.Color.Transparent;
+			this.chkNetLock.ForeColor = System.Drawing.Color.Black;
+			this.chkNetLock.Location = new System.Drawing.Point(16, 40);
+			this.chkNetLock.Name = "chkNetLock";
+			this.chkNetLock.Size = new System.Drawing.Size(130, 17);
+			this.chkNetLock.TabIndex = 67;
+			this.chkNetLock.Text = "*Lock network at start";
+			this.chkNetLock.UseVisualStyleBackColor = false;
+			this.chkNetLock.CheckedChanged += new System.EventHandler(this.chkNetLock_CheckedChanged);
+			// 
 			// chkExitConfirm
 			// 
 			this.chkExitConfirm.BackColor = System.Drawing.Color.Transparent;
 			this.chkExitConfirm.ForeColor = System.Drawing.Color.Black;
-			this.chkExitConfirm.Location = new System.Drawing.Point(16, 84);
+			this.chkExitConfirm.Location = new System.Drawing.Point(16, 127);
 			this.chkExitConfirm.Name = "chkExitConfirm";
 			this.chkExitConfirm.Size = new System.Drawing.Size(263, 17);
 			this.chkExitConfirm.TabIndex = 66;
@@ -817,7 +832,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkGeneralStartLast.BackColor = System.Drawing.Color.Transparent;
 			this.chkGeneralStartLast.ForeColor = System.Drawing.Color.Black;
-			this.chkGeneralStartLast.Location = new System.Drawing.Point(16, 38);
+			this.chkGeneralStartLast.Location = new System.Drawing.Point(16, 81);
 			this.chkGeneralStartLast.Name = "chkGeneralStartLast";
 			this.chkGeneralStartLast.Size = new System.Drawing.Size(263, 40);
 			this.chkGeneralStartLast.TabIndex = 40;
@@ -841,17 +856,17 @@ namespace AirVPN.Gui.Forms
 			this.cmdTos.UseVisualStyleBackColor = true;
 			this.cmdTos.Click += new System.EventHandler(this.cmdTos_Click);
 			// 
-			// chkAutoStart
+			// chkConnect
 			// 
-			this.chkAutoStart.AutoSize = true;
-			this.chkAutoStart.BackColor = System.Drawing.Color.Transparent;
-			this.chkAutoStart.ForeColor = System.Drawing.Color.Black;
-			this.chkAutoStart.Location = new System.Drawing.Point(16, 15);
-			this.chkAutoStart.Name = "chkAutoStart";
-			this.chkAutoStart.Size = new System.Drawing.Size(142, 17);
-			this.chkAutoStart.TabIndex = 30;
-			this.chkAutoStart.Text = "Connect when launched";
-			this.chkAutoStart.UseVisualStyleBackColor = false;
+			this.chkConnect.AutoSize = true;
+			this.chkConnect.BackColor = System.Drawing.Color.Transparent;
+			this.chkConnect.ForeColor = System.Drawing.Color.Black;
+			this.chkConnect.Location = new System.Drawing.Point(16, 15);
+			this.chkConnect.Name = "chkConnect";
+			this.chkConnect.Size = new System.Drawing.Size(146, 17);
+			this.chkConnect.TabIndex = 30;
+			this.chkConnect.Text = "*Connect when launched";
+			this.chkConnect.UseVisualStyleBackColor = false;
 			// 
 			// tabMode
 			// 
@@ -2084,7 +2099,7 @@ namespace AirVPN.Gui.Forms
         private Skin.ColumnHeader colLogMessage;
 		private Skin.ToolTip myToolTip;
         private Skin.CheckBox chkSystemStart;
-        private Skin.CheckBox chkAutoStart;
+        private Skin.CheckBox chkConnect;
         private Skin.Label lblProxyType;
         private Skin.ComboBox cboProxyMode;
         private Skin.TextBox txtProxyPort;
@@ -2224,6 +2239,7 @@ namespace AirVPN.Gui.Forms
 		private Skin.Button cmdDnsRemove;
 		private Skin.Button cmdDnsAdd;
 		private Skin.ListView lstDnsServers;
+		private Skin.CheckBox chkNetLock;
 
     }
 }

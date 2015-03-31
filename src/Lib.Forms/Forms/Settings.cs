@@ -28,6 +28,7 @@ namespace AirVPN.Gui.Forms
 {
     public partial class Settings : AirVPN.Gui.Form
     {
+		public bool m_onLoadCompleted = false;
         public bool m_modeSshEnabled = true;
         public bool m_modeSslEnabled = true;
 
@@ -41,6 +42,9 @@ namespace AirVPN.Gui.Forms
             base.OnLoad(e);
 
             CommonInit("Settings");
+
+			chkConnect.Text = Messages.WindowsSettingsConnect;
+			chkNetLock.Text = Messages.WindowsSettingsNetLock;
 
 			lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
 
@@ -109,6 +113,8 @@ namespace AirVPN.Gui.Forms
 			RefreshLogPreview();
 
             EnableIde();
+
+			m_onLoadCompleted = true;
         }
 
         protected override void OnClosed(EventArgs e)
@@ -127,7 +133,8 @@ namespace AirVPN.Gui.Forms
 			
             // General
             cboGeneralTheme.Text = s.Get("gui.skin");
-            chkAutoStart.Checked = s.GetBool("connect");
+            chkConnect.Checked = s.GetBool("connect");
+			chkNetLock.Checked = s.GetBool("netlock");
             chkMinimizeTray.Checked = s.GetBool("gui.windows.tray");
             chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
 			chkExitConfirm.Checked = s.GetBool("gui.exit_confirm");
@@ -388,7 +395,8 @@ namespace AirVPN.Gui.Forms
 
             // General
             s.Set("gui.skin", cboGeneralTheme.Text);
-            s.SetBool("connect", chkAutoStart.Checked);
+            s.SetBool("connect", chkConnect.Checked);
+			s.SetBool("netlock", chkNetLock.Checked);
             s.SetBool("gui.windows.tray", chkMinimizeTray.Checked);
             s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
 			s.SetBool("gui.exit_confirm", chkExitConfirm.Checked);
@@ -1092,6 +1100,18 @@ namespace AirVPN.Gui.Forms
 		private void lstDnsServers_DoubleClick(object sender, EventArgs e)
 		{
 			cmdDnsEdit_Click(sender, e);
+		}
+
+		private void chkNetLock_CheckedChanged(object sender, EventArgs e)
+		{
+			if (m_onLoadCompleted)
+			{
+				if (chkNetLock.Checked)
+				{
+					if (Engine.FormMain.NetworkLockKnowledge() == false)
+						chkNetLock.Checked = false;
+				}
+			}
 		}
 
 		

@@ -36,6 +36,7 @@ namespace AirVPN.UI.Osx
 
 
 		private TableRoutingController TableRoutingController;
+		private TableDnsServersController TableDnsServersController;
 		private TableAdvancedEventsController TableAdvancedEventsController;
 
 		#region Constructors
@@ -75,12 +76,16 @@ namespace AirVPN.UI.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
 
+			LblConnect.StringValue = Messages.WindowsSettingsConnect;
+			LblNetLock.StringValue = Messages.WindowsSettingsNetLock;
+
 			TableRoutes.Delegate = new TableRoutingDelegate (this);
 			TableAdvancedEvents.Delegate = new TableAdvancedEventsDelegate (this);
 
 			LblLoggingHelp.StringValue = Messages.WindowsSettingsLoggingHelp;
 
 			TableRoutingController = new TableRoutingController (this.TableRoutes);
+			TableDnsServersController = new TableDnsServersController (this.TableDnsServers);
 			TableAdvancedEventsController = new TableAdvancedEventsController (this.TableAdvancedEvents);
 
 			CmdSave.Activated += (object sender, EventArgs e) => {
@@ -101,12 +106,6 @@ namespace AirVPN.UI.Osx
 				NSApplication.SharedApplication.RunModalForWindow (tos.Window);
 				tos.Window.Close ();
 			};
-
-			/*
-			CboGeneralOsxInterfaceStyle.RemoveAllItems ();
-			CboGeneralOsxInterfaceStyle.AddItem ("Default");
-			CboGeneralOsxInterfaceStyle.AddItem ("Dark");
-			*/
 
 			// Modes
 			string sshStatus = (Software.SshVersion != "" ? "" : "Not available");
@@ -338,6 +337,27 @@ namespace AirVPN.UI.Osx
 				Core.UI.Actions.OpenUrlDocsAdvanced();
 			};
 
+			// Advanced - DNS
+			TableDnsServers.DoubleClick += (object sender, EventArgs e) =>
+			{
+				DnsServersEdit();
+			};
+
+			CmdDnsAdd.Activated += (object sender, EventArgs e) =>
+			{
+				DnsServersAdd();
+			};
+
+			CmdDnsRemove.Activated += (object sender, EventArgs e) =>
+			{
+				DnsServersRemove();
+			};
+
+			CmdDnsEdit.Activated += (object sender, EventArgs e) =>
+			{
+				DnsServersEdit();
+			};
+
 			// Advanced - Net Lock
 
 			CmdLockHelp.Activated += (object sender, EventArgs e) => {
@@ -455,6 +475,56 @@ namespace AirVPN.UI.Osx
 			}
 		}
 
+		void DnsServersAdd()
+		{
+			WindowPreferencesIpController.Dns = "";
+			WindowPreferencesIpController dlg = new WindowPreferencesIpController();
+			dlg.Window.ReleasedWhenClosed = true;
+			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+			dlg.Window.Close();
+
+			if (dlg.Accepted)
+			{
+				TableDnsServersController.Items.Add(WindowPreferencesIpController.Dns);
+				TableDnsServersController.RefreshUI();
+			}
+
+			this.EnableIde();
+		}
+
+		void DnsServersRemove()
+		{
+			int i = TableDnsServers.SelectedRow;
+			if (i != -1)
+			{
+				TableDnsServersController.Items.RemoveAt(i);
+				TableDnsServersController.RefreshUI();
+				this.EnableIde();
+			}
+		}
+
+		void DnsServersEdit()
+		{
+			int i = TableDnsServers.SelectedRow;
+			if (i != -1)
+			{
+				string dns = TableDnsServersController.Items[i];
+
+				WindowPreferencesIpController.Dns = dns;
+				WindowPreferencesIpController dlg = new WindowPreferencesIpController();
+				dlg.Window.ReleasedWhenClosed = true;
+				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+				dlg.Window.Close();
+
+				if (dlg.Accepted)
+				{
+					TableDnsServersController.Items[i] = dns;
+					TableDnsServersController.RefreshUI();
+				}
+
+				this.EnableIde();
+			}
+		}
 
 		void AdvancedEventEdit()
 		{
@@ -549,7 +619,9 @@ namespace AirVPN.UI.Osx
 
 			// General
 
-			GuiUtils.SetCheck (ChkAutoStart, s.GetBool ("connect")); 
+			GuiUtils.SetCheck (ChkConnect, s.GetBool ("connect"));
+			GuiUtils.SetCheck (ChkNetLock, s.GetBool ("netlock")); 
+
 			GuiUtils.SetCheck (ChkGeneralStartLast, s.GetBool("servers.startlast"));
 			GuiUtils.SetCheck (ChkGeneralOsxVisible, s.GetBool ("gui.osx.visible"));
 			// GuiUtils.SetCheck (ChkGeneralOsxDock, s.GetBool ("gui.osx.dock")); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
@@ -698,7 +770,10 @@ namespace AirVPN.UI.Osx
 
 			// General
 
-			s.SetBool ("connect", GuiUtils.GetCheck (ChkAutoStart));
+			s.SetBool ("connect", GuiUtils.GetCheck (ChkConnect));
+			s.SetBool("netlock", GuiUtils.GetCheck(ChkNetLock));
+
+
 			s.SetBool ("servers.startlast", GuiUtils.GetCheck (ChkGeneralStartLast));
 			s.SetBool ("gui.osx.visible", GuiUtils.GetCheck (ChkGeneralOsxVisible));
 			// s.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock)); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
