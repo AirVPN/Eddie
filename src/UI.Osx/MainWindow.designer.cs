@@ -76,6 +76,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton CmdServersConnect { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdServersRefresh { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdServersUndefined { get; set; }
 
 		[Outlet]
@@ -104,6 +107,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblConnectedServerName { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSImageView LblNetLockStatus { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblTopStatus { get; set; }
@@ -140,6 +146,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSMenuItem MnuServersConnect { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSMenuItem MnuServersRefresh { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSMenuItem MnuServersUndefined { get; set; }
@@ -236,11 +245,6 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (TxtCommand != null) {
-				TxtCommand.Dispose ();
-				TxtCommand = null;
-			}
-
 			if (CboServersScoringRule != null) {
 				CboServersScoringRule.Dispose ();
 				CboServersScoringRule = null;
@@ -346,6 +350,11 @@ namespace AirVPN.UI.Osx
 				CmdServersConnect = null;
 			}
 
+			if (CmdServersRefresh != null) {
+				CmdServersRefresh.Dispose ();
+				CmdServersRefresh = null;
+			}
+
 			if (CmdServersUndefined != null) {
 				CmdServersUndefined.Dispose ();
 				CmdServersUndefined = null;
@@ -394,6 +403,11 @@ namespace AirVPN.UI.Osx
 			if (LblConnectedServerName != null) {
 				LblConnectedServerName.Dispose ();
 				LblConnectedServerName = null;
+			}
+
+			if (LblNetLockStatus != null) {
+				LblNetLockStatus.Dispose ();
+				LblNetLockStatus = null;
 			}
 
 			if (LblTopStatus != null) {
@@ -464,6 +478,11 @@ namespace AirVPN.UI.Osx
 			if (MnuServersWhitelist != null) {
 				MnuServersWhitelist.Dispose ();
 				MnuServersWhitelist = null;
+			}
+
+			if (MnuServersRefresh != null) {
+				MnuServersRefresh.Dispose ();
+				MnuServersRefresh = null;
 			}
 
 			if (MnuTray != null) {
@@ -574,6 +593,11 @@ namespace AirVPN.UI.Osx
 			if (TabOverview != null) {
 				TabOverview.Dispose ();
 				TabOverview = null;
+			}
+
+			if (TxtCommand != null) {
+				TxtCommand.Dispose ();
+				TxtCommand = null;
 			}
 
 			if (TxtConnectedDownload != null) {

@@ -164,6 +164,7 @@
     <Compile Include="WindowPreferencesIp.designer.cs" />
     <Compile Include="WindowPreferencesIpController.cs" />
     <Compile Include="TableDnsServersController.cs" />
+    <Compile Include="TableDnsServersDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -515,6 +516,8 @@
     <BundleResource Include="Resources\menubar_light_green.png" />
     <BundleResource Include="Resources\menubar_light_red.png" />
     <BundleResource Include="Resources\menubar_light_yellow.png" />
+    <BundleResource Include="Resources\netlock_status_off.png" />
+    <BundleResource Include="Resources\netlock_status_on.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

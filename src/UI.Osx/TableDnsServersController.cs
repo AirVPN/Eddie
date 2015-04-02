@@ -47,6 +47,26 @@ namespace AirVPN.UI.Osx
 			RefreshUI ();
 		}
 
+		public void RemoveAt(int i)
+		{
+			m_items.RemoveAt (i);
+		}
+
+		public string Get(int i)
+		{
+			return m_items [i];
+		}
+
+		public void Set(int i, string ip)
+		{
+			m_items [i] = ip;
+		}
+
+		public int GetCount()
+		{
+			return m_items.Count;
+		}
+
 		public void Clear()
 		{
 			m_items.Clear ();
@@ -57,7 +77,7 @@ namespace AirVPN.UI.Osx
 		{
 			tableView.ReloadData ();
 		}
-
+			
 		public override int GetRowCount (NSTableView tableView)
 		{
 			return m_items.Count;
@@ -69,7 +89,7 @@ namespace AirVPN.UI.Osx
 		{
 			string e = m_items [row];
 
-			if (tableColumn.Identifier == "Ip") {
+			if (tableColumn.Identifier == "IP") {
 				return new NSString (e);
 			}
 			else 

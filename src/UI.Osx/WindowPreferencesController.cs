@@ -72,14 +72,23 @@ namespace AirVPN.UI.Osx
 		{
 			base.AwakeFromNib ();
 
-
-
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
 
-			LblConnect.StringValue = Messages.WindowsSettingsConnect;
-			LblNetLock.StringValue = Messages.WindowsSettingsNetLock;
+			ChkConnect.Title = Messages.WindowsSettingsConnect;
+			ChkNetLock.Title = Messages.WindowsSettingsNetLock;
+
+			ChkNetLock.Activated += (object sender, EventArgs e) => {
+				if (GuiUtils.GetCheck (ChkNetLock)) {
+					if ((Engine.Instance as UI.Osx.Engine).MainWindow.NetworkLockKnowledge () == false)
+						GuiUtils.SetCheck (ChkNetLock, false);
+				}
+			};
 
 			TableRoutes.Delegate = new TableRoutingDelegate (this);
+
+			LblDnsServers.StringValue = Messages.WindowsSettingsDnsServers;
+			TableDnsServers.Delegate = new TableDnsServersDelegate (this);
+
 			TableAdvancedEvents.Delegate = new TableAdvancedEventsDelegate (this);
 
 			LblLoggingHelp.StringValue = Messages.WindowsSettingsLoggingHelp;
@@ -475,7 +484,7 @@ namespace AirVPN.UI.Osx
 
 		void DnsServersAdd()
 		{
-			WindowPreferencesIpController.Dns = "";
+			WindowPreferencesIpController.Ip = "";
 			WindowPreferencesIpController dlg = new WindowPreferencesIpController();
 			dlg.Window.ReleasedWhenClosed = true;
 			NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
@@ -483,7 +492,7 @@ namespace AirVPN.UI.Osx
 
 			if (dlg.Accepted)
 			{
-				TableDnsServersController.Items.Add(WindowPreferencesIpController.Dns);
+				TableDnsServersController.Add(WindowPreferencesIpController.Ip);
 				TableDnsServersController.RefreshUI();
 			}
 
@@ -495,7 +504,7 @@ namespace AirVPN.UI.Osx
 			int i = TableDnsServers.SelectedRow;
 			if (i != -1)
 			{
-				TableDnsServersController.Items.RemoveAt(i);
+				TableDnsServersController.RemoveAt(i);
 				TableDnsServersController.RefreshUI();
 				this.EnableIde();
 			}
@@ -506,9 +515,9 @@ namespace AirVPN.UI.Osx
 			int i = TableDnsServers.SelectedRow;
 			if (i != -1)
 			{
-				string dns = TableDnsServersController.Items[i];
+				string dns = TableDnsServersController.Get(i);
 
-				WindowPreferencesIpController.Dns = dns;
+				WindowPreferencesIpController.Ip = dns;
 				WindowPreferencesIpController dlg = new WindowPreferencesIpController();
 				dlg.Window.ReleasedWhenClosed = true;
 				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
@@ -516,7 +525,7 @@ namespace AirVPN.UI.Osx
 
 				if (dlg.Accepted)
 				{
-					TableDnsServersController.Items[i] = dns;
+					TableDnsServersController.Set (i, WindowPreferencesIpController.Ip);
 					TableDnsServersController.RefreshUI();
 				}
 
@@ -712,6 +721,13 @@ namespace AirVPN.UI.Osx
 
 			GuiUtils.SetCheck (ChkDnsCheck, s.GetBool ("dns.check"));
 
+			TableDnsServersController.Clear ();
+			string[] dnsServers = s.Get ("dns.servers").Split (',');
+			foreach (string dnsServer in dnsServers) {
+				if (Utils.IsIP (dnsServer))
+					TableDnsServersController.Add (dnsServer);
+			}
+
 			// Advanced - Lock
 			string lockMode = s.Get ("netlock.mode");
 			GuiUtils.SetSelected (CboLockMode, "None");
@@ -850,6 +866,14 @@ namespace AirVPN.UI.Osx
 				s.Set ("dns.mode", "auto");
 			s.SetBool ("dns.check", GuiUtils.GetCheck (ChkDnsCheck));
 
+			string dnsServers = "";
+			for (int i = 0; i < TableDnsServersController.GetCount (); i++) {
+				if (dnsServers != "")
+					dnsServers += ",";
+				dnsServers += TableDnsServersController.Get (i);
+			}
+			s.Set ("dns.servers", dnsServers);
+
 			// Advanced - Lock
 			string lockMode = GuiUtils.GetSelected (CboLockMode);
 			s.Set ("netlock.mode", "none");
@@ -923,9 +947,15 @@ namespace AirVPN.UI.Osx
 			CmdRouteRemove.Enabled = (TableRoutes.SelectedRowCount > 0);
 			CmdRouteEdit.Enabled = (TableRoutes.SelectedRowCount == 1);
 
+			// DNS
+			CmdDnsAdd.Enabled = true;
+			CmdDnsRemove.Enabled = (TableDnsServers.SelectedRowCount > 0);
+			CmdDnsEdit.Enabled = (TableDnsServers.SelectedRowCount == 1);
+
 			// Lock
 			LblLockRoutingOutWarning.Hidden = (GuiUtils.GetSelected (CboRoutesOtherwise) == RouteDirectionToDescription ("in"));
 
+			// Events
 			CmdAdvancedEventsClear.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);
 			CmdAdvancedEventsEdit.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);
 		}

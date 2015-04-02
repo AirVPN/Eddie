@@ -117,18 +117,10 @@ namespace AirVPN.Platforms
 		{
 			base.OnUpdateIps();
 
+			// Remember: Rules must be in order: options, normalization, queueing, translation, filtering
+
 			string pf = "";
 			pf += "# " + Engine.Instance.GenerateFileHeader() + "\n";
-			
-			pf += "# Drop everything that doesn't match a rule\n";			
-			pf += "block drop out all\n"; 
-
-			// TOCHECK: block drop above is also for ipv6?
-			// pf += "# Drop ipv6\n";
-			// pf += "block quick inet6\n";
-			
-			pf += "# Scrub\n";
-			pf += "scrub in all\n"; // 2.9
 
 			pf += "# Block policy, RST for quickly notice\n";
 			pf += "set block-policy return\n"; // 2.9
@@ -142,6 +134,16 @@ namespace AirVPN.Platforms
 			{
 				pf += "set skip on { lo0 }\n";				
 			}
+
+			pf += "# Scrub\n";
+			pf += "scrub in all\n"; // 2.9
+
+			pf += "# Drop everything that doesn't match a rule\n";			
+			pf += "block drop out all\n"; 
+
+			// TOCHECK: block drop above is also for ipv6?
+			// pf += "# Drop ipv6\n";
+			// pf += "block quick inet6\n";
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
 			{

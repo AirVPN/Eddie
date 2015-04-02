@@ -194,6 +194,10 @@ namespace AirVPN.UI.Osx
 				ServersUndefinedList ();
 			};
 
+			CmdServersRefresh.Activated += (object sender, EventArgs e) => {
+				ServersRefresh ();
+			};
+
 			MnuServersConnect.Activated += (object sender, EventArgs e) => {
 				ConnectManual();
 			};
@@ -208,6 +212,10 @@ namespace AirVPN.UI.Osx
 
 			MnuServersUndefined.Activated += (object sender, EventArgs e) => {
 				ServersUndefinedList ();
+			};
+
+			MnuServersRefresh.Activated += (object sender, EventArgs e) => {
+				ServersRefresh ();
 			};
 
 			CmdAreasWhiteList.Activated += (object sender, EventArgs e) => {
@@ -646,9 +654,16 @@ namespace AirVPN.UI.Osx
 				if (Engine.Instance.NetworkLockManager.IsActive ()) {
 					CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
 					ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
+
+					LblNetLockStatus.Image = NSImage.ImageNamed ("netlock_status_on.png");
+					LblNetLockStatus.ToolTip = Messages.NetworkLockStatusActive;
+
 				} else {
 					CmdNetworkLock.Title = Messages.NetworkLockButtonDeactive;
 					ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_off.png");
+				
+					LblNetLockStatus.Image = NSImage.ImageNamed ("netlock_status_off.png");
+					LblNetLockStatus.ToolTip = Messages.NetworkLockStatusDeactive;
 				}
 			}
 
@@ -687,6 +702,12 @@ namespace AirVPN.UI.Osx
 			GuiUtils.ShowWindowWithFocus (w, this);
 		}
 
+		public void PostManifestUpdate()
+		{
+			MnuServersRefresh.Enabled = true;
+			CmdServersRefresh.Enabled = true;
+		}
+
 		public void RequestAttention()
 		{
 			NSApplication.SharedApplication.RequestUserAttention (NSRequestUserAttentionType.InformationalRequest);
@@ -695,6 +716,12 @@ namespace AirVPN.UI.Osx
 		}
 
 
+		public bool NetworkLockKnowledge()
+		{
+			string msg = Messages.NetworkLockWarning;
+
+			return (GuiUtils.MessageYesNo (msg));
+		}
 
 		public void Notification(string title, string notes)
 		{
@@ -782,9 +809,7 @@ namespace AirVPN.UI.Osx
 
 		void NetworkLockActivation()
 		{
-			string msg = Messages.NetworkLockWarning;
-
-			if(GuiUtils.MessageYesNo(msg))
+			if(NetworkLockKnowledge())
 			{
 				Engine.Instance.NetLockIn ();
 			}
@@ -848,6 +873,14 @@ namespace AirVPN.UI.Osx
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
+		}
+
+		void ServersRefresh()
+		{
+			MnuServersRefresh.Enabled = false;
+			CmdServersRefresh.Enabled = false;
+
+			Core.Threads.Manifest.Instance.ForceUpdate = true;
 		}
 
 		void AreasWhiteList()

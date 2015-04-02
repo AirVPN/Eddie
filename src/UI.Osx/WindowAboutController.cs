@@ -68,14 +68,12 @@ namespace AirVPN.UI.Osx
 
 			CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
-				//AirVPN.Core.UI.Actions.OpenUrlWebsite();
-				Platform.Instance.OnIpV6Do(); // pazzo
+				AirVPN.Core.UI.Actions.OpenUrlWebsite();
 			};
 
 			CmdSoftware.Activated += (object sender, EventArgs e) =>
 			{
-				//AirVPN.Core.UI.Actions.OpenUrlDocs();
-				Platform.Instance.OnIpV6Restore(); // pazzo
+				AirVPN.Core.UI.Actions.OpenUrlDocs();
 			};
 
 			CmdSources.Activated += (object sender, EventArgs e) =>
