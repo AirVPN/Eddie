@@ -35,7 +35,7 @@ namespace AirVPN.Core
 
 			// Mono doesn't include by default root certificates: http://www.mono-project.com/docs/faq/security/
 
-			// This is valid only for Linux, not used under Windows or OS X.
+			// This is used only from Linux, not used under Windows or OS X.
 
 			// TOFIX
 			

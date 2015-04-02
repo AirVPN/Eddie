@@ -457,6 +457,27 @@ namespace AirVPN.Core
 			return true;
         }
 
+		public static List<string> GetNetworkGateways()
+		{
+			List<string> list = new List<string>();
+
+			foreach (NetworkInterface f in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				if (f.OperationalStatus == OperationalStatus.Up)
+				{
+					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
+					{
+						string ip = d.Address.ToString();
+						if( (IsIP(ip)) && (ip != "0.0.0.0") && (list.Contains(ip) == false) )
+						{
+							list.Add(ip);
+						}
+					}
+				}
+			}
+
+			return list;
+		}
     }
 }
 

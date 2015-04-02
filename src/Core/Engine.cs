@@ -1537,6 +1537,8 @@ namespace AirVPN.Core
 				ovpn += "route " + CurrentServer.IpExit + " 255.255.255.255 vpn_gateway # For Checking Route\n";
 
 				// For DNS
+				// < 2.9. route directive useless, and DNS are forced manually in every supported platform. // TOCLEAN
+				/*
 				ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
 				ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
 				ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
@@ -1546,6 +1548,10 @@ namespace AirVPN.Core
 				ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
 				ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
 				ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway # AirDNS\n"; 
+				*/
+
+				// 2.9, Can be removed when resolv-conf method it's not binded anymore in up/down ovpn directive // TOFIX
+ 				ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; 
             }
             string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');

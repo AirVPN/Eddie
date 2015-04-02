@@ -412,6 +412,26 @@ namespace AirVPN.Core
 				t += "Unable to fetch routes.\n";
 			}
 
+
+			t += "\nDefault gateways:\n";
+			List<string> gatewaysList = new List<string>();
+			foreach (NetworkInterface f in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				if (f.OperationalStatus == OperationalStatus.Up)
+				{
+					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
+					{
+						string ip = d.Address.ToString();
+						if ((Utils.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
+						{
+							//gatewaysList.Add(ip);
+
+							t += ip + ", " + f.Description + "\n";
+						}
+					}
+				}
+			}
+
 			return t;
 		}
 
