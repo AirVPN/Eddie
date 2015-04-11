@@ -187,11 +187,11 @@ namespace AirVPN.Platforms
 
 			// If 'winfirewall_rules_original.airvpn' doesn't exists, create it. It's a general backup of the first time.
 			// We create this kind of file in Windows System directory, because it's system critical data, and to allow it to survive between re-installation of the software.
-			string rulesBackupFirstTime = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
+			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_original.wfw";
 			if (File.Exists(rulesBackupFirstTime) == false)
 				Exec("netsh advfirewall export \"" + rulesBackupFirstTime + "\"");
 
-			string rulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_backup.airvpn";
+			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
 			if (File.Exists(rulesBackupSession))
 				File.Delete(rulesBackupSession);
 			Exec("netsh advfirewall export \"" + rulesBackupSession + "\"");
@@ -246,7 +246,7 @@ namespace AirVPN.Platforms
 		public override void Deactivation()
 		{
 			base.Deactivation();
-						
+
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 				profile.RestorePolicy();
 
@@ -256,12 +256,35 @@ namespace AirVPN.Platforms
 			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowVPN\"");
 			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
 			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - DHCP\"");
-			
-			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
-			if (File.Exists(rulesBackupSession))
+
+			// >2.9.1 edition
 			{
-				Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
-				File.Delete(rulesBackupSession);
+				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
+				if (File.Exists(rulesBackupSession))
+				{
+					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
+					File.Delete(rulesBackupSession);
+				}
+			}
+
+			// Old <2.8 edition
+			{
+				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
+				if (File.Exists(rulesBackupSession))
+				{
+					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
+					File.Delete(rulesBackupSession);
+				}
+			}
+
+			// Old 2.9.0 edition, recover
+			{
+				string rulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
+				if (File.Exists(rulesBackupSession))
+				{
+					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
+					File.Delete(rulesBackupSession);
+				}
 			}
 
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
@@ -281,7 +304,7 @@ namespace AirVPN.Platforms
 				service.Stop();
 				service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
 			}
-			
+
 			m_lastestIpList = "";
 		}
 

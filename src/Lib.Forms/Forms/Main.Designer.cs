@@ -964,7 +964,7 @@ namespace AirVPN.Gui.Forms
 			this.lblNetLockStatus.BackColor = System.Drawing.Color.Transparent;
 			this.lblNetLockStatus.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.lblNetLockStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.netlock_status_off;
-			this.lblNetLockStatus.Location = new System.Drawing.Point(799, 0);
+			this.lblNetLockStatus.Location = new System.Drawing.Point(802, 0);
 			this.lblNetLockStatus.Name = "lblNetLockStatus";
 			this.lblNetLockStatus.Size = new System.Drawing.Size(30, 30);
 			this.lblNetLockStatus.TabIndex = 74;

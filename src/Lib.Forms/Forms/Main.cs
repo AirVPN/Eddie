@@ -342,7 +342,7 @@ namespace AirVPN.Gui.Forms
                 Skin.GraphicsCommon(e.Graphics);
 
 				Rectangle rectHeader = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width, m_topHeaderHeight);
-				Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - 10 - 30, m_topHeaderHeight);
+				Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - 10 - 30 - 10, m_topHeaderHeight);
 
 				Form.DrawImage(e.Graphics, Skin.MainBackImage, new Rectangle(0, 0, ClientSize.Width, m_topHeaderHeight));
 

@@ -27,10 +27,12 @@ namespace AirVPN.Core
 		public static string Name = "AirVPN";
 		public static double Version = 2.9;
 		public static int VersionInt = 29;
-		public static string VersionDesc = "2.9.0";
+		public static string VersionDesc = "2.9.1";
         public static string WebSite = "https://airvpn.org";
         public static string ServerHost = "airvpn.org";
 		public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
+		public static string WindowsDriverVersion = "9.21.1";
+		public static string WindowsXpDriverVersion = "9.9.2";
 		public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
     }
 }

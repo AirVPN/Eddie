@@ -335,6 +335,7 @@ namespace AirVPN.Core
 			SetDefault("executables.ssl", "", Messages.ManOptionExecutablesSsl);
 			SetDefault("executables.curl", "", Messages.ManOptionExecutablesCurl);
 			SetDefault("openvpn.custom", "", Messages.ManOptionOpenVpnCustom);
+			SetDefault("openvpn.dev_node", "", NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
 
 			SetDefault("profiles.path", "", NotInMan);
@@ -380,6 +381,9 @@ namespace AirVPN.Core
             EnsureDefaultsEvent("vpn.down");
 
 
+			// Windows only
+			SetDefault("windows.adapter_name", "TAP-Windows Adapter V9", NotInMan);
+			SetDefault("windows.adapter_service", "tap0901", NotInMan);
 
 			// GUI only
 			SetDefaultBool("gui.exit_confirm", true, NotInMan);
@@ -389,7 +393,7 @@ namespace AirVPN.Core
 			SetDefault("forms.main", "", NotInMan);
 
 			// GUI - Windows only
-			SetDefaultBool("gui.windows.tray", true, NotInMan);
+			SetDefaultBool("gui.windows.tray", true, NotInMan);			
 
 			// GUI - OSX Only
 			SetDefaultBool("gui.osx.notifications", false, NotInMan);

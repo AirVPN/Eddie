@@ -327,16 +327,11 @@ namespace AirVPN.Platforms
 		public override string GetDriverAvailable()
 		{
 			if (File.Exists("/dev/net/tun"))
-				return "Found";
-			else
-				return "";
-			/*
-			string result = ShellCmd("cat /dev/net/tun");
-			if (result.IndexOf("descriptor in bad state") != -1)
-				return "Found";
+				return "Found, /dev/net/tun";
+			else if (File.Exists("/dev/tun"))
+				return "Found, /dev/tun";
 
 			return "";
-			*/
 		}
 
 		public override bool CanInstallDriver()

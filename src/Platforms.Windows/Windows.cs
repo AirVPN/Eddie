@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -36,6 +37,12 @@ namespace AirVPN.Platforms
 		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private object m_oldIpV6 = null;
+
+		static bool IsVistaOrHigher()
+		{
+			OperatingSystem OS = Environment.OSVersion;
+			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
+		}
 		
         // Override
 		public Windows()
@@ -529,20 +536,103 @@ namespace AirVPN.Platforms
 			return "";
 		}
 
+		private string GetDriverVersion()
+		{
+			try
+			{
+				string regPath = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\" + Engine.Instance.Storage.Get("windows.adapter_service");
+				
+				object objSysPath = Registry.GetValue(regPath, "ImagePath", "");
+				if (objSysPath != null)
+				{
+					string sysPath = objSysPath as string;
+
+					sysPath = Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath;
+
+					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
+					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
+
+					string result = versionInfo.ProductVersion;
+					if(result.IndexOf(" ") != -1)
+						result = result.Substring(0,result.IndexOf(" "));
+					
+					return result;
+				}
+
+				/* // Not a realtime solution
+				ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Storage.Get("windows.adapter_name") + "'");
+
+				ManagementObjectCollection objCollection = objSearcher.Get();
+
+				foreach (ManagementObject obj in objCollection)
+				{
+					object objVersion = obj["DriverVersion"];
+					if(objVersion != null)
+					{
+						string version = objVersion as string;
+						return version;
+					}				
+				}
+				*/
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(e);				
+			}
+
+			return "";
+		}
+
 		public override string GetDriverAvailable()
 		{
+			string result = "";
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
-				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
-					return adapter.Description;
+				if (adapter.Description == Engine.Instance.Storage.Get("windows.adapter_name"))
+				{
+					result = adapter.Description;
+					break;
+				}
+
+				// For XP compatibility
+				if (adapter.Description.ToLowerInvariant().StartsWith(Engine.Instance.Storage.Get("windows.adapter_name").ToLowerInvariant()))
+				{
+					result = adapter.Description;
+					break;
+				}
 			}
-			return "";
+
+			if (result == "")
+				return "";
+
+			string version = GetDriverVersion();
+
+			if(version == "")
+				return "";
+
+			string bundleVersion = Constants.WindowsDriverVersion;
+			if (IsVistaOrHigher() == false) // XP
+				bundleVersion = Constants.WindowsXpDriverVersion;
+
+			bool needReinstall = (Utils.CompareVersions(version, bundleVersion) == -1);
+
+			if (needReinstall)
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.OsDriverNeedUpgrade, version, bundleVersion));
+				return "";
+			}
+
+			result += ", version " + version;
+
+			return result;
 		}
 
 		public override bool CanInstallDriver()
 		{
-			return true;
+			string driverPath = GetDriverInstallerPath();
+			
+			return File.Exists(driverPath);
 		}
 
 		public override bool CanUnInstallDriver()
@@ -553,9 +643,18 @@ namespace AirVPN.Platforms
 			return false;
 		}
 
+		public string GetDriverInstallerPath()
+		{
+			if(IsVistaOrHigher())
+				return Software.FindResource("tap-windows.exe");
+			else
+				return Software.FindResource("tap-windows-xp.exe");
+		}
+
 		public override void InstallDriver()
 		{
-			string driverPath = Software.FindResource("tap-windows.exe");
+			string driverPath = GetDriverInstallerPath();
+
 			if (driverPath == "")
 				throw new Exception(Messages.OsDriverNotAvailable);
 

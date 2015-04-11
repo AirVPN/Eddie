@@ -209,6 +209,9 @@ namespace Deploy
 					{
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".zip");
 
+						if (File.Exists(pathFinal))
+							File.Delete(pathFinal);
+
 						// ZIP
 						string command = pathBaseTools + "/windows/7za.exe a -mx9 -tzip";
 						command += " \"" + pathFinal + "\" \"" + pathTemp;
@@ -255,6 +258,9 @@ namespace Deploy
 
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
 
+						if (File.Exists(pathFinal))
+							File.Delete(pathFinal);
+
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
@@ -294,6 +300,9 @@ namespace Deploy
 						RemoveFile(pathTemp + "/airvpn.config");
 
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+
+						if (File.Exists(pathFinal))
+							File.Delete(pathFinal);
 
 						Shell("chmod 755 \"" + pathTemp + "/airvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
@@ -439,6 +448,9 @@ namespace Deploy
 
 						// TAR.GZ
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+
+						if (File.Exists(pathFinal))
+							File.Delete(pathFinal);
 
 						string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " AirVPN.app";
 						Shell(command2);

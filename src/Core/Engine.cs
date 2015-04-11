@@ -1475,6 +1475,9 @@ namespace AirVPN.Core
             if (s.GetBool("openvpn.skip_defaults") == false)
                 ovpn += s.Manifest.Attributes["openvpn_directives_common"].Value.Replace("\t", "").Trim() + "\n";
 
+			if (s.Get("openvpn.dev_node") != "")
+				ovpn += "dev-node " + s.Get("openvpn.dev_node");
+
             if (protocol == "UDP")
             {
                 ovpn += "proto udp\n";
