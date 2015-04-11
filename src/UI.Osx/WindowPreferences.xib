@@ -249,7 +249,7 @@ Gw
                                             </buttonCell>
                                         </button>
                                         <button id="h8Y-x2-Tii">
-                                            <rect key="frame" x="15" y="220" width="239" height="18"/>
+                                            <rect key="frame" x="15" y="220" width="122" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Automatic" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="RxE-ur-gzM">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1297,7 +1297,7 @@ Gw
                                                                 <rect key="frame" x="260.0000001612475" y="41" width="252" height="153"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" heightSizable="YES"/>
                                                                 <view key="contentView">
-                                                                    <rect key="frame" x="1" y="1" width="250" height="137"/>
+                                                                    <rect key="frame" x="0.99999983875250109" y="1" width="250" height="137"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="NjY-dC-GsQ">
