@@ -170,8 +170,11 @@ namespace AirVPN.Platforms
 		{
 			string cmd = "";
 			cmd += "route add " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
+			/*
+			 * Metric param are ignored or misinterpreted. http://serverfault.com/questions/238695/how-can-i-set-the-metric-of-a-manually-added-route-on-windows
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;
+			*/
 			if (r.Interface != "")
 				cmd += " if " + r.Interface;
 			ShellCmd(cmd);
@@ -262,14 +265,17 @@ namespace AirVPN.Platforms
 						continue;
 					if(e.Mask.Valid == false)
 						continue;
-					if(e.Gateway.Valid == false)
-						continue;
+
+					if (e.Gateway.Value != "On-link")
+					{
+						if (e.Gateway.Valid == false)
+							continue;
+					}
 					
 					if (InterfacesIp2Id.ContainsKey(e.Interface))
 					{
 						e.Interface = InterfacesIp2Id[e.Interface];
-						if (e.Gateway.Value != "On-link")
-							entryList.Add(e);
+						entryList.Add(e);
 					}
 					else
 					{
@@ -493,6 +499,8 @@ namespace AirVPN.Platforms
 
 		public override void OnRecoverySave(XmlElement root)
 		{
+			base.OnRecoverySave(root);
+
 			XmlDocument doc = root.OwnerDocument;
 
 			if (m_listOldDhcp.Count != 0)
@@ -547,7 +555,14 @@ namespace AirVPN.Platforms
 				{
 					string sysPath = objSysPath as string;
 
-					sysPath = Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath;
+					if(sysPath.StartsWith("\\SystemRoot\\")) // Win 8 and above
+					{
+						sysPath = Platform.Instance.NormalizePath(sysPath.Replace("\\SystemRoot\\", Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep));						
+					}
+					else // Relative path, Win 7 and below
+					{						
+						sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);						
+					}
 
 					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
 					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);

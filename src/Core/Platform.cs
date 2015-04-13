@@ -31,6 +31,8 @@ namespace AirVPN.Core
     {
 		public static Platform Instance;
 
+		public RouteEntry m_routeDefaultRemove;
+
 		// ----------------------------------------
         // Static - Also used before the derivated class is created
         // ----------------------------------------
@@ -469,12 +471,28 @@ namespace AirVPN.Core
 
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
+			XmlElement nodeRouteDefaultRemoved = Utils.XmlGetFirstElementByTagName(root, "RouteDefaultRemoved");
+			if (nodeRouteDefaultRemoved != null)
+			{
+				m_routeDefaultRemove = new RouteEntry();
+				m_routeDefaultRemove.ReadXML(nodeRouteDefaultRemoved);				
+			}
+
+			OnRouteDefaultRemoveRestore();
 			OnDnsSwitchRestore();
 			OnIpV6Restore();
 		}
 
 		public virtual void OnRecoverySave(XmlElement root)
 		{
+			if (m_routeDefaultRemove != null)
+			{
+				XmlDocument doc = root.OwnerDocument;
+
+				XmlElement nodeRouteDefaultRemoved = (XmlElement)root.AppendChild(doc.CreateElement("RouteDefaultRemoved"));
+
+				m_routeDefaultRemove.WriteXML(nodeRouteDefaultRemoved);
+			}
 		}
 
 		public virtual void OnBuildOvpn(ref string ovpn)
@@ -488,6 +506,37 @@ namespace AirVPN.Core
 
 		public virtual bool OnDnsSwitchRestore()
 		{
+			return true;
+		}
+
+		public virtual bool OnRouteDefaultRemoveDo()
+		{
+			List<RouteEntry> routeEntries = RouteList();
+			foreach (RouteEntry routeEntry in routeEntries)
+			{
+				if (routeEntry.Mask.ToString() == "0.0.0.0")
+				{
+					m_routeDefaultRemove = routeEntry;
+
+					routeEntry.Remove();
+
+					Recovery.Save();
+				}
+			}
+
+			return true;
+		}
+
+		public virtual bool OnRouteDefaultRemoveRestore()
+		{
+			if (m_routeDefaultRemove != null)
+			{
+				m_routeDefaultRemove.Add();
+				m_routeDefaultRemove = null;
+
+				Recovery.Save();
+			}
+
 			return true;
 		}
 

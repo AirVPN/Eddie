@@ -466,6 +466,8 @@ namespace AirVPN.Core.Threads
 
 						Engine.RunEventCommand("vpn.down");
 
+						Platform.Instance.OnRouteDefaultRemoveRestore();
+
 						Platform.Instance.OnDnsSwitchRestore();
 
 						// Closing temporary files
@@ -916,6 +918,9 @@ namespace AirVPN.Core.Threads
 							Platform.Instance.OnDnsSwitchDo(Engine.Instance.Storage.Get("dns.servers"));
 						else if(Engine.ConnectedVpnDns != "")
 							Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
+
+						if (Engine.Instance.Storage.GetBool("routes.remove_default"))
+							Platform.Instance.OnRouteDefaultRemoveDo();
 
 						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
 						Engine.Log(Engine.LogType.Info, Messages.ConnectionFlushDNS);

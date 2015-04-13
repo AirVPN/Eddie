@@ -282,6 +282,7 @@ namespace AirVPN.Gui.Forms
 
 			
 			chkAdvancedPingerEnabled.Checked = s.GetBool("advanced.pinger.enabled");
+			chkRouteRemoveDefault.Checked = s.GetBool("routes.remove_default");
 			
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
@@ -576,6 +577,7 @@ namespace AirVPN.Gui.Forms
 				s.Set("ipv6.mode", "none");
 			
 			s.SetBool("advanced.pinger.enabled", chkAdvancedPingerEnabled.Checked);
+			s.SetBool("routes.remove_default", chkRouteRemoveDefault.Checked);
 						
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);

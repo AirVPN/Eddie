@@ -317,6 +317,7 @@ namespace AirVPN.Core
 
 			SetDefault("routes.default", "in", Messages.ManOptionRoutesDefault);
 			SetDefault("routes.custom", "", Messages.ManOptionRoutesCustom);
+			SetDefaultBool("routes.remove_default", false, NotInMan);
 
 			SetDefault("dns.mode", "auto", Messages.ManOptionDnsMode);
 			SetDefault("dns.servers", "", Messages.ManOptionDnsServers);
@@ -355,6 +356,7 @@ namespace AirVPN.Core
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 0, Messages.ManOptionAdvancedPingerValid);
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
+			
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
 			SetDefaultBool("advanced.windows.dhcp_disable", false, Messages.ManOptionAdvancedWindowsDhcpDisable);
@@ -366,7 +368,7 @@ namespace AirVPN.Core
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan);
 
 			// Not in Settings
-			SetDefaultBool("advanced.skip_warning_closed", false, NotInMan);
+			
 
 			// Not in Settings
 			SetDefaultBool("advanced.testmode", false, NotInMan);

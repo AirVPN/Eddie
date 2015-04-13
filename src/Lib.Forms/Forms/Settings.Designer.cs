@@ -36,9 +36,11 @@ namespace AirVPN.Gui.Forms
 			AirVPN.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
 			AirVPN.Gui.Skin.ColumnHeader columnHeader5;
-			this.label13 = new AirVPN.Gui.Skin.Label();
-			this.label10 = new AirVPN.Gui.Skin.Label();
 			this.label9 = new AirVPN.Gui.Skin.Label();
+			this.chkRouteRemoveDefault = new AirVPN.Gui.Skin.CheckBox();
+			this.lblExpert = new AirVPN.Gui.Skin.Label();
+			this.lblAdvancedPingerEnabled = new AirVPN.Gui.Skin.Label();
+			this.lblAdvancedCheckRoute = new AirVPN.Gui.Skin.Label();
 			this.lblIpV6 = new AirVPN.Gui.Skin.Label();
 			this.cboIpV6 = new AirVPN.Gui.Skin.ComboBox();
 			this.lblAdvancedManifestRefresh = new AirVPN.Gui.Skin.Label();
@@ -209,9 +211,11 @@ namespace AirVPN.Gui.Forms
 			// tabPage1
 			// 
 			tabPage1.BackColor = System.Drawing.Color.White;
-			tabPage1.Controls.Add(this.label13);
-			tabPage1.Controls.Add(this.label10);
 			tabPage1.Controls.Add(this.label9);
+			tabPage1.Controls.Add(this.chkRouteRemoveDefault);
+			tabPage1.Controls.Add(this.lblExpert);
+			tabPage1.Controls.Add(this.lblAdvancedPingerEnabled);
+			tabPage1.Controls.Add(this.lblAdvancedCheckRoute);
 			tabPage1.Controls.Add(this.lblIpV6);
 			tabPage1.Controls.Add(this.cboIpV6);
 			tabPage1.Controls.Add(this.lblAdvancedManifestRefresh);
@@ -231,38 +235,59 @@ namespace AirVPN.Gui.Forms
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "General";
 			// 
-			// label13
-			// 
-			this.label13.BackColor = System.Drawing.Color.Transparent;
-			this.label13.ForeColor = System.Drawing.Color.Black;
-			this.label13.Location = new System.Drawing.Point(10, 18);
-			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(209, 22);
-			this.label13.TabIndex = 79;
-			this.label13.Text = "Expert Mode:";
-			this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// label10
-			// 
-			this.label10.BackColor = System.Drawing.Color.Transparent;
-			this.label10.ForeColor = System.Drawing.Color.Black;
-			this.label10.Location = new System.Drawing.Point(13, 141);
-			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(206, 22);
-			this.label10.TabIndex = 78;
-			this.label10.Text = "Enable Pinger / Latency Tests:";
-			this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
 			// label9
 			// 
 			this.label9.BackColor = System.Drawing.Color.Transparent;
 			this.label9.ForeColor = System.Drawing.Color.Black;
-			this.label9.Location = new System.Drawing.Point(13, 60);
+			this.label9.Location = new System.Drawing.Point(13, 166);
 			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(209, 22);
-			this.label9.TabIndex = 77;
-			this.label9.Text = "Check if the tunnel effectively works:";
+			this.label9.Size = new System.Drawing.Size(206, 22);
+			this.label9.TabIndex = 81;
+			this.label9.Text = "Remove the default gateway route";
 			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkRouteRemoveDefault
+			// 
+			this.chkRouteRemoveDefault.BackColor = System.Drawing.Color.Transparent;
+			this.chkRouteRemoveDefault.ForeColor = System.Drawing.Color.Black;
+			this.chkRouteRemoveDefault.Location = new System.Drawing.Point(231, 166);
+			this.chkRouteRemoveDefault.Name = "chkRouteRemoveDefault";
+			this.chkRouteRemoveDefault.Size = new System.Drawing.Size(125, 25);
+			this.chkRouteRemoveDefault.TabIndex = 80;
+			this.chkRouteRemoveDefault.UseVisualStyleBackColor = false;
+			// 
+			// lblExpert
+			// 
+			this.lblExpert.BackColor = System.Drawing.Color.Transparent;
+			this.lblExpert.ForeColor = System.Drawing.Color.Black;
+			this.lblExpert.Location = new System.Drawing.Point(10, 18);
+			this.lblExpert.Name = "lblExpert";
+			this.lblExpert.Size = new System.Drawing.Size(209, 22);
+			this.lblExpert.TabIndex = 79;
+			this.lblExpert.Text = "Expert Mode:";
+			this.lblExpert.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lblAdvancedPingerEnabled
+			// 
+			this.lblAdvancedPingerEnabled.BackColor = System.Drawing.Color.Transparent;
+			this.lblAdvancedPingerEnabled.ForeColor = System.Drawing.Color.Black;
+			this.lblAdvancedPingerEnabled.Location = new System.Drawing.Point(13, 141);
+			this.lblAdvancedPingerEnabled.Name = "lblAdvancedPingerEnabled";
+			this.lblAdvancedPingerEnabled.Size = new System.Drawing.Size(206, 22);
+			this.lblAdvancedPingerEnabled.TabIndex = 78;
+			this.lblAdvancedPingerEnabled.Text = "Enable Pinger / Latency Tests:";
+			this.lblAdvancedPingerEnabled.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lblAdvancedCheckRoute
+			// 
+			this.lblAdvancedCheckRoute.BackColor = System.Drawing.Color.Transparent;
+			this.lblAdvancedCheckRoute.ForeColor = System.Drawing.Color.Black;
+			this.lblAdvancedCheckRoute.Location = new System.Drawing.Point(13, 60);
+			this.lblAdvancedCheckRoute.Name = "lblAdvancedCheckRoute";
+			this.lblAdvancedCheckRoute.Size = new System.Drawing.Size(209, 22);
+			this.lblAdvancedCheckRoute.TabIndex = 77;
+			this.lblAdvancedCheckRoute.Text = "Check if the tunnel effectively works:";
+			this.lblAdvancedCheckRoute.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblIpV6
 			// 
@@ -2231,15 +2256,17 @@ namespace AirVPN.Gui.Forms
 		private Skin.CheckBox chkDnsCheck;
 		private Skin.CheckBox chkLockAllowPing;
 		private Skin.CheckBox chkLockAllowPrivate;
-		private Skin.Label label9;
-		private Skin.Label label13;
-		private Skin.Label label10;
+		private Skin.Label lblAdvancedCheckRoute;
+		private Skin.Label lblExpert;
+		private Skin.Label lblAdvancedPingerEnabled;
 		private Skin.Label lblDnsServers;
 		private Skin.Button cmdDnsEdit;
 		private Skin.Button cmdDnsRemove;
 		private Skin.Button cmdDnsAdd;
 		private Skin.ListView lstDnsServers;
 		private Skin.CheckBox chkNetLock;
+		private Skin.Label label9;
+		private Skin.CheckBox chkRouteRemoveDefault;
 
     }
 }

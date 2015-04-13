@@ -132,16 +132,16 @@ namespace AirVPN.Platforms
 
 		public override void RouteAdd(RouteEntry r)
 		{
-			string cmd = "/sbin/route add";
+			string cmd = "route add";
 
-			cmd += " -host " + r.Address.Value;
+			cmd += " -net " + r.Address.Value;
 			cmd += " netmask " + r.Mask.Value;
 			cmd += " gw " + r.Gateway.Value;
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;
-			if (r.Mss != "")
+			if( (r.Mss != "") && (r.Mss != "0") )
 				cmd += " mss " + r.Mss;
-			if (r.Window != "")
+			if( (r.Window != "") && (r.Window != "0") ) 
 				cmd += " window " + r.Window;
 			if (r.Irtt != "")
 				cmd += " irtt " + r.Irtt;
@@ -163,13 +163,15 @@ namespace AirVPN.Platforms
 
 		public override void RouteRemove(RouteEntry r)
 		{
-			string cmd = "/sbin/route del";
+			string cmd = "route del";
 
-			cmd += " -host " + r.Address.Value;
+			cmd += " -net " + r.Address.Value;
 			cmd += " gw " + r.Gateway.Value;
 			cmd += " netmask " + r.Mask.Value;			
+			/*
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;			
+			*/
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
 			
@@ -195,13 +197,12 @@ namespace AirVPN.Platforms
 					e.Mask = fields[2];
 					e.Flags = fields[3].ToUpperInvariant();
 					e.Metrics = fields[4];
-					// ref
-					// use
+					// Ref, Use ignored
 					e.Interface = fields[7];
 					e.Mss = fields[8];
 					e.Window = fields[9];
 					e.Irtt = fields[10];
-
+					
 					if (e.Address.Valid == false)
 						continue;
 					if (e.Gateway.Valid == false)
