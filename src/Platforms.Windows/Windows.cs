@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -33,8 +34,15 @@ namespace AirVPN.Platforms
     public class Windows : Platform
     {
 		private string m_architecture;
-		private List<NetworkManagerDhcpEntry> ListOldDhcp = new List<NetworkManagerDhcpEntry>();
-		private List<NetworkManagerDnsEntry> ListOldDns = new List<NetworkManagerDnsEntry>();
+		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
+		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
+		private object m_oldIpV6 = null;
+
+		static bool IsVistaOrHigher()
+		{
+			OperatingSystem OS = Environment.OSVersion;
+			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
+		}
 		
         // Override
 		public Windows()
@@ -162,8 +170,11 @@ namespace AirVPN.Platforms
 		{
 			string cmd = "";
 			cmd += "route add " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
+			/*
+			 * Metric param are ignored or misinterpreted. http://serverfault.com/questions/238695/how-can-i-set-the-metric-of-a-manually-added-route-on-windows
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;
+			*/
 			if (r.Interface != "")
 				cmd += " if " + r.Interface;
 			ShellCmd(cmd);
@@ -185,7 +196,7 @@ namespace AirVPN.Platforms
 				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 				foreach (NetworkInterface adapter in interfaces)
 				{
-					if (adapter.Description.StartsWith("TAP-Win"))
+					if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
 					{
 						if (adapter.OperationalStatus == OperationalStatus.Up)
 							return true;
@@ -254,14 +265,17 @@ namespace AirVPN.Platforms
 						continue;
 					if(e.Mask.Valid == false)
 						continue;
-					if(e.Gateway.Valid == false)
-						continue;
+
+					if (e.Gateway.Value != "On-link")
+					{
+						if (e.Gateway.Valid == false)
+							continue;
+					}
 					
 					if (InterfacesIp2Id.ContainsKey(e.Interface))
 					{
 						e.Interface = InterfacesIp2Id[e.Interface];
-						if (e.Gateway.Value != "On-link")
-							entryList.Add(e);
+						entryList.Add(e);
 					}
 					else
 					{
@@ -276,16 +290,18 @@ namespace AirVPN.Platforms
 		public override string GenerateSystemReport()
 		{
 			string t = base.GenerateSystemReport();
-			
+
 			t += "\n\n-- Windows-Only informations\n";
 
 			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
             ManagementObjectCollection objMOC = objMC.GetInstances();
 
 			foreach (ManagementObject objMO in objMOC)
-			{				
-				 if (!((bool)objMO["IPEnabled"]))
+			{	
+				/*
+				if (!((bool)objMO["IPEnabled"]))
 					continue;
+				*/
 
 				t += "\n";
 				t += "Network Adapter: " + Conversions.ToString(objMO.Properties["Caption"].Value) + "\n";
@@ -300,7 +316,7 @@ namespace AirVPN.Platforms
 
 			return t;
 		}
-
+		
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -314,23 +330,126 @@ namespace AirVPN.Platforms
 			if (Engine.Instance.Storage.GetBool("advanced.windows.dhcp_disable"))
 				SwitchToStaticDo();
 
-			// https://airvpn.org/topic/11162-airvpn-client-advanced-features/ -> Force DNS	
-			if (Engine.Instance.Storage.GetBool("advanced.windows.dns_force"))
-				DnsForceDo();
-
 			FlushDNS();
 
 			Recovery.Save();
 		}
 
 		public override void OnSessionStop()
-		{
-			DnsForceRestore();
+		{			
 			SwitchToStaticRestore();
 
 			FlushDNS();
 
 			Recovery.Save();
+		}
+
+		public override bool OnIpV6Do()
+		{
+			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
+			{
+				// http://support.microsoft.com/kb/929852
+
+				m_oldIpV6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
+				if (Conversions.ToUInt32(m_oldIpV6, 0) == 0) // 0 is the Windows default if the key doesn't exist.
+					m_oldIpV6 = 0;
+
+				if (Conversions.ToUInt32(m_oldIpV6, 0) == 17) // Nothing to do
+				{
+					m_oldIpV6 = null;
+				}
+				else
+				{
+					UInt32 newValue = 17;
+					Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", newValue, RegistryValueKind.DWord);
+
+					Engine.Instance.Log(Engine.LogType.Info, Messages.IpV6Disabled);
+
+					Recovery.Save();
+				}
+
+				base.OnIpV6Do();
+			}
+
+			return true;
+		}
+
+		public override bool OnIpV6Restore()
+		{
+			if (m_oldIpV6 != null)
+			{
+				Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", m_oldIpV6, RegistryValueKind.DWord);
+				m_oldIpV6 = null;
+
+				Engine.Instance.Log(Engine.LogType.Info, Messages.IpV6Restored);
+			}
+
+			base.OnIpV6Restore();
+
+			return true;
+		}
+
+		public override bool OnDnsSwitchDo(string dns)
+		{
+			string[] dnsArray = dns.Split(',');
+
+			string mode = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
+
+			if (mode == "auto")
+			{
+				try
+				{
+					ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+					ManagementObjectCollection objMOC = objMC.GetInstances();
+
+					foreach (ManagementObject objMO in objMOC)
+					{
+						/*
+						if (!((bool)objMO["IPEnabled"]))
+							continue;
+						*/
+						NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
+
+						entry.Guid = objMO["SettingID"] as string;
+						entry.Description = objMO["Description"] as string;
+						entry.Dns = objMO["DNSServerSearchOrder"] as string[];
+
+						entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
+
+						if (entry.Dns == null)
+							continue;
+
+						Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description));
+
+						ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+						//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
+						//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { Constants.DnsVpn };
+						objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
+						ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+
+						m_listOldDns.Add(entry);
+					}
+				}
+				catch (Exception e)
+				{
+					Engine.Instance.Log(e);
+				}
+
+				Recovery.Save();				
+			}
+
+			base.OnDnsSwitchDo(dns);
+
+			return true;
+		}
+
+		public override bool OnDnsSwitchRestore()
+		{
+			DnsForceRestore();
+
+			base.OnDnsSwitchRestore();
+
+			return true;
 		}
 
 		public override void OnDaemonOutput(string source, string message)
@@ -353,7 +472,7 @@ namespace AirVPN.Platforms
 				{
 					NetworkManagerDhcpEntry entry = new NetworkManagerDhcpEntry();
 					entry.ReadXML(nodeEntry);
-					ListOldDhcp.Add(entry);
+					m_listOldDhcp.Add(entry);
 				}
 			}
 
@@ -364,37 +483,48 @@ namespace AirVPN.Platforms
 				{
 					NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
 					entry.ReadXML(nodeEntry);
-					ListOldDns.Add(entry);
+					m_listOldDns.Add(entry);
 				}
 			}
 
+			if (Utils.XmlExistsAttribute(root, "IpV6"))
+			{
+				m_oldIpV6 = Conversions.ToUInt32(Utils.XmlGetAttributeInt64(root, "IpV6", 0), 0);
+			}
+
 			SwitchToStaticRestore();
-			DnsForceRestore();
+
+			base.OnRecoveryLoad(root);			
 		}
 
 		public override void OnRecoverySave(XmlElement root)
 		{
+			base.OnRecoverySave(root);
+
 			XmlDocument doc = root.OwnerDocument;
 
-			if (ListOldDhcp.Count != 0)
+			if (m_listOldDhcp.Count != 0)
 			{
 				XmlElement nodeDhcp = (XmlElement)root.AppendChild(doc.CreateElement("DhcpSwitch"));
-				foreach (NetworkManagerDhcpEntry entry in ListOldDhcp)
+				foreach (NetworkManagerDhcpEntry entry in m_listOldDhcp)
 				{
 					XmlElement nodeEntry = nodeDhcp.AppendChild(doc.CreateElement("entry")) as XmlElement;
 					entry.WriteXML(nodeEntry);
 				}
 			}
 
-			if (ListOldDns.Count != 0)
+			if (m_listOldDns.Count != 0)
 			{
 				XmlElement nodeDns = (XmlElement)root.AppendChild(doc.CreateElement("DnsSwitch"));
-				foreach (NetworkManagerDnsEntry entry in ListOldDns)
+				foreach (NetworkManagerDnsEntry entry in m_listOldDns)
 				{
 					XmlElement nodeEntry = nodeDns.AppendChild(doc.CreateElement("entry")) as XmlElement;
 					entry.WriteXML(nodeEntry);
 				}
 			}
+
+			if (m_oldIpV6 != null)
+				Utils.XmlSetAttributeInt64(root, "IpV6", Conversions.ToInt64(m_oldIpV6));
 		}
 
 		private string GetDriverUninstallPath()
@@ -414,20 +544,110 @@ namespace AirVPN.Platforms
 			return "";
 		}
 
+		private string GetDriverVersion()
+		{
+			try
+			{
+				string regPath = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\" + Engine.Instance.Storage.Get("windows.adapter_service");
+				
+				object objSysPath = Registry.GetValue(regPath, "ImagePath", "");
+				if (objSysPath != null)
+				{
+					string sysPath = objSysPath as string;
+
+					if(sysPath.StartsWith("\\SystemRoot\\")) // Win 8 and above
+					{
+						sysPath = Platform.Instance.NormalizePath(sysPath.Replace("\\SystemRoot\\", Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep));						
+					}
+					else // Relative path, Win 7 and below
+					{						
+						sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);						
+					}
+
+					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
+					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
+
+					string result = versionInfo.ProductVersion;
+					if(result.IndexOf(" ") != -1)
+						result = result.Substring(0,result.IndexOf(" "));
+					
+					return result;
+				}
+
+				/* // Not a realtime solution
+				ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Storage.Get("windows.adapter_name") + "'");
+
+				ManagementObjectCollection objCollection = objSearcher.Get();
+
+				foreach (ManagementObject obj in objCollection)
+				{
+					object objVersion = obj["DriverVersion"];
+					if(objVersion != null)
+					{
+						string version = objVersion as string;
+						return version;
+					}				
+				}
+				*/
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Log(e);				
+			}
+
+			return "";
+		}
+
 		public override string GetDriverAvailable()
 		{
+			string result = "";
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
-				if(adapter.Description.StartsWith("TAP-Windows Adapter"))
-					return adapter.Description;
+				if (adapter.Description == Engine.Instance.Storage.Get("windows.adapter_name"))
+				{
+					result = adapter.Description;
+					break;
+				}
+
+				// For XP compatibility
+				if (adapter.Description.ToLowerInvariant().StartsWith(Engine.Instance.Storage.Get("windows.adapter_name").ToLowerInvariant()))
+				{
+					result = adapter.Description;
+					break;
+				}
 			}
-			return "";
+
+			if (result == "")
+				return "";
+
+			string version = GetDriverVersion();
+
+			if(version == "")
+				return "";
+
+			string bundleVersion = Constants.WindowsDriverVersion;
+			if (IsVistaOrHigher() == false) // XP
+				bundleVersion = Constants.WindowsXpDriverVersion;
+
+			bool needReinstall = (Utils.CompareVersions(version, bundleVersion) == -1);
+
+			if (needReinstall)
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.OsDriverNeedUpgrade, version, bundleVersion));
+				return "";
+			}
+
+			result += ", version " + version;
+
+			return result;
 		}
 
 		public override bool CanInstallDriver()
 		{
-			return true;
+			string driverPath = GetDriverInstallerPath();
+			
+			return File.Exists(driverPath);
 		}
 
 		public override bool CanUnInstallDriver()
@@ -438,9 +658,18 @@ namespace AirVPN.Platforms
 			return false;
 		}
 
+		public string GetDriverInstallerPath()
+		{
+			if(IsVistaOrHigher())
+				return Software.FindResource("tap-windows.exe");
+			else
+				return Software.FindResource("tap-windows-xp.exe");
+		}
+
 		public override void InstallDriver()
 		{
-			string driverPath = Software.FindResource("tap-windows.exe");
+			string driverPath = GetDriverInstallerPath();
+
 			if (driverPath == "")
 				throw new Exception(Messages.OsDriverNotAvailable);
 
@@ -475,7 +704,7 @@ namespace AirVPN.Platforms
             NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface adapter in interfaces)
             {
-                if (adapter.Description.StartsWith("TAP-Win"))
+				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
                 {
                     Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.HackInterfaceUpDone, adapter.Name));
                     ShellCmd("netsh interface set interface \"" + adapter.Name + "\" ENABLED");
@@ -542,8 +771,8 @@ namespace AirVPN.Platforms
 					ManagementBaseObject objSetGateways = objMO.GetMethodParameters("SetGateways");
 					objSetGateways["DefaultIPGateway"] = new string[] { entry.Gateway[0] };
 					ManagementBaseObject objSetGatewaysMethod = objMO.InvokeMethod("SetGateways", objSetGateways, null);
-					
-					ListOldDhcp.Add(entry);
+
+					m_listOldDhcp.Add(entry);
 					
 					// TOOPTIMIZE: Need to wait until the interface return UP...
 					//WaitUntilEnabled(objMO); // Checking the OperationalStatus changes are not effective.
@@ -569,7 +798,7 @@ namespace AirVPN.Platforms
 				foreach (ManagementObject objMO in objMOC)
 				{
 					string guid = objMO["SettingID"] as string;
-					foreach (NetworkManagerDhcpEntry entry in ListOldDhcp)
+					foreach (NetworkManagerDhcpEntry entry in m_listOldDhcp)
 					{
 						if (entry.Guid == guid)
 						{
@@ -593,49 +822,7 @@ namespace AirVPN.Platforms
 				Engine.Instance.Log(e);
 			}
 
-			ListOldDhcp.Clear();
-		}
-
-		private bool DnsForceDo()
-		{
-			try
-			{
-				ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-				ManagementObjectCollection objMOC = objMC.GetInstances();
-
-				foreach (ManagementObject objMO in objMOC)
-				{
-					if (!((bool)objMO["IPEnabled"]))
-						continue;
-
-					NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
-
-					entry.Guid = objMO["SettingID"] as string;
-					entry.Description = objMO["Description"] as string;
-					entry.Dns = objMO["DNSServerSearchOrder"] as string[];
-										
-					entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
-
-					if (entry.Dns == null)
-						continue;
-
-					Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description));
-					
-					ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-					//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
-					objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { Constants.DnsVpn };
-					ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
-										
-					ListOldDns.Add(entry);
-				}
-
-				return true;
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Log(e);
-				return false;
-			}
+			m_listOldDhcp.Clear();
 		}
 
 		private void DnsForceRestore()
@@ -648,7 +835,7 @@ namespace AirVPN.Platforms
 				foreach (ManagementObject objMO in objMOC)
 				{
 					string guid = objMO["SettingID"] as string;
-					foreach (NetworkManagerDnsEntry entry in ListOldDns)
+					foreach (NetworkManagerDnsEntry entry in m_listOldDns)
 					{
 						if (entry.Guid == guid)
 						{
@@ -669,7 +856,7 @@ namespace AirVPN.Platforms
 				Engine.Instance.Log(e);
 			}
 
-			ListOldDns.Clear();
+			m_listOldDns.Clear();
 		}
     }
 

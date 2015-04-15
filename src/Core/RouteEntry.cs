@@ -61,6 +61,12 @@ namespace AirVPN.Core
 			Gateway = node.GetAttribute("gateway");
 			Interface = node.GetAttribute("interface");
 			Metrics = node.GetAttribute("metrics");
+
+			Flags = node.GetAttribute("flags");
+			Mss = node.GetAttribute("mss");
+			Window = node.GetAttribute("window");
+			Irtt = node.GetAttribute("irtt");
+
 			RefCount = 1;
 		}
 
@@ -71,6 +77,11 @@ namespace AirVPN.Core
 			node.SetAttribute("gateway", Gateway.Value);
 			node.SetAttribute("interface", Interface);
 			node.SetAttribute("metrics", Metrics);
+
+			node.SetAttribute("flags", Flags);
+			node.SetAttribute("mss", Mss);
+			node.SetAttribute("window", Window);
+			node.SetAttribute("irtt", Irtt);
 		}
 
 		public string Key
@@ -88,7 +99,7 @@ namespace AirVPN.Core
 
 		public override string ToString()
 		{
-			return "Address: " + Address.Value + ", Mask: " + Mask.Value + ", Gateway: " + Gateway.Value;
+			return "Address: " + Address.Value + ", Mask: " + Mask.Value + ", Gateway: " + Gateway.Value + ", Interface: " + Interface + ", Metrics: " + Metrics + ", Flags: " + Flags + ", Mss: " + Mss + ", Window: " + Window + ", Irtt: " + Irtt;
 		}
 	}
 }

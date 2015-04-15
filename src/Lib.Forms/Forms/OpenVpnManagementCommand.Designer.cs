@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OpenVpnManagementCommand));
 			this.lnkHelp = new AirVPN.Gui.Skin.LinkLabel();
 			this.cmdOk = new AirVPN.Gui.Skin.Button();
 			this.cmdCancel = new AirVPN.Gui.Skin.Button();
@@ -38,6 +37,8 @@
 			// 
 			// lnkHelp
 			// 
+			this.lnkHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkHelp.AutoSize = true;
 			this.lnkHelp.BackColor = System.Drawing.Color.Transparent;
 			this.lnkHelp.ForeColor = System.Drawing.Color.Black;
@@ -47,11 +48,12 @@
 			this.lnkHelp.TabIndex = 41;
 			this.lnkHelp.TabStop = true;
 			this.lnkHelp.Text = "Click here for more informations about OpenVPN Management Interface";
+			this.lnkHelp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.lnkHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHelp_LinkClicked);
 			// 
 			// cmdOk
 			// 
-			this.cmdOk.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cmdOk.BackgroundImage")));
+			this.cmdOk.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.cmdOk.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdOk.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
@@ -67,7 +69,7 @@
 			// 
 			// cmdCancel
 			// 
-			this.cmdCancel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("cmdCancel.BackgroundImage")));
+			this.cmdCancel.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.cmdCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdCancel.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -82,7 +84,8 @@
 			// 
 			// txtCommand
 			// 
-			this.txtCommand.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.txtCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtCommand.Location = new System.Drawing.Point(89, 18);
 			this.txtCommand.Name = "txtCommand";
 			this.txtCommand.Size = new System.Drawing.Size(269, 20);
@@ -112,7 +115,6 @@
 			this.Controls.Add(this.cmdCancel);
 			this.Controls.Add(this.txtCommand);
 			this.Controls.Add(this.lblCommand);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "OpenVpnManagementCommand";

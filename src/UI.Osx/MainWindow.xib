@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1514" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6250"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MainWindowController">
@@ -26,6 +26,7 @@
                 <outlet property="CmdNetworkLock" destination="VWe-Nd-OmZ" id="o5F-BP-aYg"/>
                 <outlet property="CmdServersBlackList" destination="22y-2n-gzu" id="dLF-U3-1uJ"/>
                 <outlet property="CmdServersConnect" destination="lZp-Qp-Qf3" id="yVK-F8-GSZ"/>
+                <outlet property="CmdServersRefresh" destination="I4b-oW-5pb" id="Mbu-WJ-CxG"/>
                 <outlet property="CmdServersUndefined" destination="0dd-OC-eGN" id="vwc-ne-5QU"/>
                 <outlet property="CmdServersWhiteList" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
                 <outlet property="ImgConnectedCountry" destination="Ozh-Vi-DHT" id="tUG-DG-1lf"/>
@@ -36,6 +37,7 @@
                 <outlet property="LblConnect" destination="8sl-XE-NjX" id="dKJ-cH-wmR"/>
                 <outlet property="LblConnectedLocation" destination="1af-qK-ccZ" id="fgQ-aZ-kR0"/>
                 <outlet property="LblConnectedServerName" destination="T8o-9L-CMg" id="Fu9-Ap-jJx"/>
+                <outlet property="LblNetLockStatus" destination="Xs6-Xa-gux" id="34a-fk-9kg"/>
                 <outlet property="LblTopStatus" destination="2cT-SR-rTr" id="8Kx-JK-ijp"/>
                 <outlet property="LblWaiting1" destination="TxA-1y-Zx4" id="MBl-E8-jXk"/>
                 <outlet property="LblWaiting2" destination="rGP-dy-qN2" id="Cu7-96-5BM"/>
@@ -48,6 +50,7 @@
                 <outlet property="MnuLogsSaveSelected" destination="1mX-5K-etL" id="vME-bK-734"/>
                 <outlet property="MnuServersBlacklist" destination="MmQ-pB-59L" id="kbw-hG-iTY"/>
                 <outlet property="MnuServersConnect" destination="fNR-2w-1MT" id="urv-Ni-pGF"/>
+                <outlet property="MnuServersRefresh" destination="hW5-pl-1cB" id="x9O-Fz-RTY"/>
                 <outlet property="MnuServersUndefined" destination="Lsg-wR-Ixf" id="A8y-Qs-5tB"/>
                 <outlet property="MnuServersWhitelist" destination="NU4-s6-XgY" id="Imd-Sw-GAs"/>
                 <outlet property="MnuTray" destination="2Bv-yX-Px1" id="Y9R-1z-B3f"/>
@@ -69,6 +72,7 @@
                 <outlet property="TableLogs" destination="q0u-aS-DHq" id="1br-4E-Km2"/>
                 <outlet property="TableServers" destination="Y9F-5S-1r4" id="bvs-cM-Udj"/>
                 <outlet property="TableStats" destination="mTK-AK-d0A" id="TI2-zt-I4G"/>
+                <outlet property="TxtCommand" destination="arq-lL-ff9" id="RbU-8j-nvi"/>
                 <outlet property="TxtConnectedDownload" destination="CKr-uQ-DZL" id="iqo-Pr-7on"/>
                 <outlet property="TxtConnectedExitIp" destination="8g0-4E-PKY" id="QE5-Wn-onO"/>
                 <outlet property="TxtConnectedSince" destination="QXH-2a-IWh" id="xrj-qW-fKx"/>
@@ -128,6 +132,9 @@
                                                                                 <font key="font" metaFont="system"/>
                                                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                                <allowedInputSourceLocales>
+                                                                                    <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                                                </allowedInputSourceLocales>
                                                                             </secureTextFieldCell>
                                                                             <connections>
                                                                                 <outlet property="nextKeyView" destination="JjC-fn-XbM" id="qtL-7K-ubt"/>
@@ -546,7 +553,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" id="0dd-OC-eGN">
+                                        <button toolTip="Clean the selected server from whitelist and blacklist" verticalHuggingPriority="750" id="0dd-OC-eGN">
                                             <rect key="frame" x="537" y="174" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_2" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3Fb-WR-GGO">
@@ -554,7 +561,7 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button verticalHuggingPriority="750" id="22y-2n-gzu">
+                                        <button toolTip="Add the selected server to blacklist" verticalHuggingPriority="750" id="22y-2n-gzu">
                                             <rect key="frame" x="537" y="211" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_1" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sca-5i-omL">
@@ -565,7 +572,7 @@
                                                 <outlet property="nextKeyView" destination="0dd-OC-eGN" id="Yap-Eg-fne"/>
                                             </connections>
                                         </button>
-                                        <button verticalHuggingPriority="750" id="6GG-GT-Cy4">
+                                        <button toolTip="Add the selected server to whitelist" verticalHuggingPriority="750" id="6GG-GT-Cy4">
                                             <rect key="frame" x="537" y="248" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_0" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FXN-Hm-daB">
@@ -576,7 +583,7 @@
                                                 <outlet property="nextKeyView" destination="22y-2n-gzu" id="fQS-Kw-QGQ"/>
                                             </connections>
                                         </button>
-                                        <button verticalHuggingPriority="750" id="lZp-Qp-Qf3">
+                                        <button toolTip="Connect to the selected server now" verticalHuggingPriority="750" id="lZp-Qp-Qf3">
                                             <rect key="frame" x="537" y="296" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="connect_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tM1-dT-S0R">
@@ -632,6 +639,14 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <button toolTip="Refresh the servers list" verticalHuggingPriority="750" id="I4b-oW-5pb">
+                                            <rect key="frame" x="537" y="41" width="36" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="reload" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sZU-Cf-o8o">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -890,7 +905,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="16" horizontalPageScroll="10" verticalLineScroll="16" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="UwD-DD-x5g">
-                                            <rect key="frame" x="17" y="17" width="514" height="311"/>
+                                            <rect key="frame" x="17" y="47" width="514" height="281"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="kHg-Cn-N3x">
                                                 <rect key="frame" x="1" y="17" width="512" height="293"/>
@@ -1000,6 +1015,15 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
+                                        <textField verticalHuggingPriority="750" id="arq-lL-ff9">
+                                            <rect key="frame" x="17" y="17" width="514" height="22"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="AWG-7C-VlZ">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -1011,12 +1035,12 @@
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" image="topbar_osx_red" id="7te-34-la7"/>
                     </imageView>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="MjY-FX-9v1">
-                        <rect key="frame" x="576" y="378" width="14" height="14"/>
+                        <rect key="frame" x="553" y="378" width="14" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="nVI-4P-va5"/>
                     </imageView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="2cT-SR-rTr">
-                        <rect key="frame" x="18" y="376" width="547" height="19"/>
+                        <rect key="frame" x="-5" y="376" width="547" height="19"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="8JD-xd-tCN">
                             <font key="font" metaFont="system" size="14"/>
@@ -1028,6 +1052,11 @@
                         <rect key="frame" x="0.0" y="370" width="120" height="30"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="topbar_osx_logo" id="Cmt-26-NLP"/>
+                    </imageView>
+                    <imageView identifier="Topbar_Gradient" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="Xs6-Xa-gux">
+                        <rect key="frame" x="570" y="370" width="30" height="30"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="netlock_status_off" id="nmR-uc-JRI"/>
                     </imageView>
                 </subviews>
             </view>
@@ -1045,6 +1074,10 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem title="Undefined" image="blacklist_2" id="Lsg-wR-Ixf">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="8Ej-nA-22Y"/>
+                <menuItem title="Refresh list" image="reload" id="hW5-pl-1cB">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
             </items>
@@ -1132,7 +1165,9 @@
         <image name="home" width="16" height="16"/>
         <image name="login" width="69" height="81"/>
         <image name="netlock_on" width="64" height="64"/>
+        <image name="netlock_status_off" width="16" height="16"/>
         <image name="ports" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="reload" width="16" height="16"/>
         <image name="restore" width="16" height="16"/>
         <image name="save_16" width="16" height="16"/>
         <image name="settings" width="16" height="16"/>

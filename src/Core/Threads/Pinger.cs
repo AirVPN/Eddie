@@ -121,8 +121,8 @@ namespace AirVPN.Core.Threads
 		public bool GetCanRun()
 		{			
 			bool canRun = true;
-			bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
-			alwaysRun = false; // 2.6
+			// bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
+			bool alwaysRun = false; // 2.6
 
 			// Logic: Can't ping when the connection is unstable. Can't ping when connected to server.
 			if (Engine.IsConnected())
@@ -173,9 +173,7 @@ namespace AirVPN.Core.Threads
                 else
                 {
 					// Note: If Pinger is not enabled, works like all ping results is 0.						
-					bool enabled = GetEnabled();
-					//bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
-					//int delay = getPingerDelay();				
+					bool enabled = GetEnabled();					
 					int delaySuccess = getPingerDelaySuccess();
 					int delayRetry = getPingerDelayRetry();
 

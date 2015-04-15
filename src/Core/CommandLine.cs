@@ -32,10 +32,16 @@ namespace AirVPN.Core
 		}
 		
 		public Dictionary<string, string> Params = new Dictionary<string, string>();
-
+		
 		public CommandLine(string line, bool ignoreFirst, bool firstIsAction)
 		{
 			Params = ParseCommandLine(line, ignoreFirst, firstIsAction);
+		}
+
+		public CommandLine(CommandLine commandLine)
+		{
+			foreach (KeyValuePair<string, string> item in Params)
+				Params[item.Key] = item.Value;
 		}
 
 		public string GetFull()
@@ -70,6 +76,21 @@ namespace AirVPN.Core
 				return Params[name];
 			else
 				return def;
+		}
+
+		public void SetPos(int pos, string name)
+		{
+			int p = 0;
+			foreach (KeyValuePair<string, string> item in Params)
+			{
+				if (p == pos)
+				{
+					Params.Remove(item.Key);
+					Params[name] = item.Key;
+					break;
+				}
+				p++;
+			}
 		}
 
 		private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst, bool firstIsAction)

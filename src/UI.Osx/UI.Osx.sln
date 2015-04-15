@@ -85,6 +85,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = ..\Deploy\Deploy.csproj
-		version = 2.8
+		version = 2.9
 	EndGlobalSection
 EndGlobal

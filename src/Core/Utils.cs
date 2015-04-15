@@ -57,7 +57,7 @@ namespace AirVPN.Core
 				builder.Append(ch);
 			}
 
-			return builder.ToString();
+			return builder.ToString().ToLowerInvariant();
 		}
 
 		public static string GetNameFromPath(string path)
@@ -72,6 +72,15 @@ namespace AirVPN.Core
 				return null;
 			else
 				return list[0] as XmlElement;
+		}
+
+		public static bool XmlExistsAttribute(XmlNode node, string name)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return false;
+			else
+				return true;
 		}
 
         public static string XmlGetAttributeString(XmlNode node, string name, string def)
@@ -134,7 +143,7 @@ namespace AirVPN.Core
 		{
 			node.SetAttribute(name, Conversions.ToString(val));
 		}
-		
+
 		public static string UrlEncode(string url)
 		{
 			//return HttpUtility.UrlEncode(url); // Require System.Web
@@ -167,7 +176,7 @@ namespace AirVPN.Core
 
             return v;
         }
-
+				
 		public static string FormatTime(Int64 unix)
 		{
 			if (unix == 0)
@@ -364,8 +373,76 @@ namespace AirVPN.Core
 			value = rgx.Replace(value, "");
 			return value;
 		}
-        
-        public static bool SaveFile(string path, string content)
+
+		public static string RegExMatchOne(string input, string pattern)
+		{
+			Match match = Regex.Match(input, pattern, RegexOptions.Multiline);
+			if (match.Success)
+			{
+				return match.Groups[1].Value;
+			}
+			else
+				return "";
+		}
+
+		public static List<string> RegExMatchSingle(string input, string pattern)
+		{
+			Match match = Regex.Match(input, pattern, RegexOptions.Multiline);
+			if (match.Success)
+			{
+				List<string> result = new List<string>();
+				for (int i = 1; i < match.Groups.Count; i++)
+					result.Add(match.Groups[i].Value);
+				return result;
+			}
+			else
+				return null;
+		}
+
+		public static List<List<string>> RegExMatchMulti(string input, string pattern)
+		{
+			List<List<string>> result = new List<List<string>>();
+
+			Regex regex = new Regex(pattern, RegexOptions.Multiline);
+			foreach (Match match in regex.Matches(input))
+			{
+				List<string> result2 = new List<string>();
+				result.Add(result2);
+
+				for (int i = 1; i < match.Groups.Count; i++)
+					result2.Add(match.Groups[i].Value);
+			}
+			return result;			
+		}
+
+		public static string ListStringToCommaString(List<string> list)
+		{
+			string result = "";
+			foreach (string str in list)
+			{
+				if (result != "")
+					result += ",";
+				result += str;
+			}
+			return result;
+		}
+
+		public static string ListStringToCommaString(List<List<string>> list)
+		{
+			string result = "";
+			foreach (List<string> list2 in list)
+			{
+				foreach (string str in list2)
+				{
+					if (result != "")
+						result += ",";
+					result += str;
+				}
+			}
+			return result;
+		}
+
+		public static bool SaveFile(string path, string content)
         {
 			if (File.Exists(path))
 			{
@@ -380,6 +457,27 @@ namespace AirVPN.Core
 			return true;
         }
 
+		public static List<string> GetNetworkGateways()
+		{
+			List<string> list = new List<string>();
+
+			foreach (NetworkInterface f in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				if (f.OperationalStatus == OperationalStatus.Up)
+				{
+					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
+					{
+						string ip = d.Address.ToString();
+						if( (IsIP(ip)) && (ip != "0.0.0.0") && (list.Contains(ip) == false) )
+						{
+							list.Add(ip);
+						}
+					}
+				}
+			}
+
+			return list;
+		}
     }
 }
 

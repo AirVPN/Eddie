@@ -107,16 +107,15 @@ namespace AirVPN.Lib.Core.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;manifest&gt;        ///
-        ///  &lt;hosts&gt;        ///
-        ///    &lt;host address=&quot;auth.airvpn.org&quot; /&gt;        ///
-        ///    &lt;host address=&quot;54.93.175.114&quot; /&gt;        ///
-        ///    &lt;host address=&quot;airvpn.org&quot; /&gt;        ///
-        ///    &lt;host address=&quot;85.17.207.151&quot; /&gt;        ///
-        ///    &lt;host address=&quot;212.117.180.25&quot; /&gt;        ///
-        ///    &lt;host address=&quot;airvpn.info&quot; /&gt;        ///
-        ///    &lt;host address=&quot;airvpn.ch&quot; /&gt;        ///
-        ///    &lt;host address=&quot;airvpn.eu&quot; /&gt;        ///
-        ///  &lt;/hosts&gt;        ///
+        ///  &lt;hosts&gt;
+        ///
+        ///		&lt;host address=&quot;54.93.175.114&quot; /&gt;
+        ///		&lt;host address=&quot;54.246.124.152&quot; /&gt;
+        ///		&lt;host address=&quot;54.225.156.17&quot; /&gt;
+        ///		&lt;host address=&quot;95.211.138.143&quot; /&gt;
+        ///
+        ///
+        ///	&lt;/hosts&gt;        ///
         ///&lt;/manifest&gt;.
         /// </summary>
         internal static string Manifest {

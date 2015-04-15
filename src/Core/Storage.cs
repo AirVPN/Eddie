@@ -33,10 +33,13 @@ namespace AirVPN.Core
 
         public XmlNode Manifest;
 		public XmlNode User;
+		public XmlNode Profiles; // Custom OVPN profiles
 
         private Dictionary<string, string> m_OptionsDefaults = new Dictionary<string, string>();
 		private Dictionary<string, string> m_OptionsMan = new Dictionary<string, string>();
         private Dictionary<string, string> m_Options = new Dictionary<string, string>();
+
+		private Int64 m_lastManifestTimeTry = 0;
 
         public Storage()
         {
@@ -263,6 +266,13 @@ namespace AirVPN.Core
         {
 			string NotInMan = ""; // Option not listed in 'man' documentation.
 
+			/*
+			bool defaultDnsForceAndCheck = false; // 2.8
+			if(Platform.IsUnix())
+				defaultDnsForceAndCheck = true;
+			*/
+			bool defaultDnsForceAndCheck = true; // 2.9
+
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
 			SetDefaultBool("help", false, Messages.ManOptionHelp);
 			SetDefault("help_format", "text", NotInMan); // Maybe 'text' or 'bbc'.
@@ -307,42 +317,48 @@ namespace AirVPN.Core
 
 			SetDefault("routes.default", "in", Messages.ManOptionRoutesDefault);
 			SetDefault("routes.custom", "", Messages.ManOptionRoutesCustom);
+			SetDefaultBool("routes.remove_default", false, NotInMan);
+
+			SetDefault("dns.mode", "auto", Messages.ManOptionDnsMode);
+			SetDefault("dns.servers", "", Messages.ManOptionDnsServers);
+			SetDefaultBool("dns.check", defaultDnsForceAndCheck, Messages.ManOptionDnsCheck);
+
+			SetDefault("netlock.mode", "auto", NotInMan); // Maybe 'auto' in future			
+			SetDefaultBool("netlock.allow_private", true, NotInMan); // Allow private subnet by default
+			SetDefaultBool("netlock.allow_ping", true, NotInMan); // Allow ICMP/Ping by default
+			
+			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked			
+
+			SetDefault("ipv6.mode", "disable", NotInMan);
 
 			SetDefault("executables.openvpn", "", Messages.ManOptionExecutablesOpenVpn);
 			SetDefault("executables.ssh", "", Messages.ManOptionExecutablesSsh);
 			SetDefault("executables.ssl", "", Messages.ManOptionExecutablesSsl);
 			SetDefault("executables.curl", "", Messages.ManOptionExecutablesCurl);
 			SetDefault("openvpn.custom", "", Messages.ManOptionOpenVpnCustom);
+			SetDefault("openvpn.dev_node", "", NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
+
+			SetDefault("profiles.path", "", NotInMan);
 			
 			// Not in Settings
 			SetDefaultInt("openvpn.management_port", 3100, Messages.ManOptionOpenVpnManagementPort);
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
 
-
-			bool defaultDnsForceAndCheck = false; // 2.8
-			if(Platform.IsUnix())
-				defaultDnsForceAndCheck = true;
-
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);
-			SetDefaultBool("advanced.check.dns", defaultDnsForceAndCheck, Messages.ManOptionAdvancedCheckDns);
+			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
-			SetDefault("advanced.dns.mode", "auto", Messages.ManOptionAdvancedDnsSwitch);
+			
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 			SetDefaultBool("advanced.pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
-			SetDefaultBool("advanced.pinger.always", false, Messages.ManOptionAdvancedPingerAlways);
 			SetDefaultInt("advanced.pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
 			SetDefaultInt("advanced.pinger.retry", 0, Messages.ManOptionAdvancedPingerRetry);
 			SetDefaultInt("advanced.pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
 			SetDefaultInt("advanced.pinger.valid", 0, Messages.ManOptionAdvancedPingerValid);
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
-
-			SetDefault("netlock.mode", "auto", NotInMan); // Maybe 'auto' in future			
-			SetDefault("netlock.allowed_ips", "", NotInMan); // List of IP not blocked			
+			
 
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
-			SetDefaultBool("advanced.windows.dns_force", defaultDnsForceAndCheck, Messages.ManOptionAdvancedWindowsDnsForce);
 			SetDefaultBool("advanced.windows.dhcp_disable", false, Messages.ManOptionAdvancedWindowsDhcpDisable);
 
 			// Not in Settings
@@ -351,6 +367,11 @@ namespace AirVPN.Core
 			// Not in Settings
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan);
 
+			// Not in Settings
+			
+
+			// Not in Settings
+			SetDefaultBool("advanced.testmode", false, NotInMan);
 			
 
             EnsureDefaultsEvent("app.start");
@@ -362,6 +383,9 @@ namespace AirVPN.Core
             EnsureDefaultsEvent("vpn.down");
 
 
+			// Windows only
+			SetDefault("windows.adapter_name", "TAP-Windows Adapter V9", NotInMan);
+			SetDefault("windows.adapter_service", "tap0901", NotInMan);
 
 			// GUI only
 			SetDefaultBool("gui.exit_confirm", true, NotInMan);
@@ -371,7 +395,7 @@ namespace AirVPN.Core
 			SetDefault("forms.main", "", NotInMan);
 
 			// GUI - Windows only
-			SetDefaultBool("gui.windows.tray", true, NotInMan);
+			SetDefaultBool("gui.windows.tray", true, NotInMan);			
 
 			// GUI - OSX Only
 			SetDefaultBool("gui.osx.notifications", false, NotInMan);
@@ -437,11 +461,17 @@ namespace AirVPN.Core
 					}
                 }
 
-                if (Manifest != null)
-                {
+				if (Manifest != null)
+				{
 					XmlNode manifestNode = xmlDoc.ImportNode(Manifest, true);
-                    rootNode.AppendChild(manifestNode);					
-                }
+					rootNode.AppendChild(manifestNode);
+				}
+
+				if (Profiles != null)
+				{
+					XmlNode profilesNode = xmlDoc.ImportNode(Profiles, true);
+					rootNode.AppendChild(profilesNode);
+				}
 
 				if ( (remember) && (User != null) )
 				{
@@ -489,13 +519,17 @@ namespace AirVPN.Core
 						string name = e.Attributes["name"].Value;
 						string value = e.Attributes["value"].Value;
 
-						FixCompatibility(ref name, ref value);
+						CompatibilityManager.FixOption(ref name, ref value);
 
                         Set(name, value);
                     }
 
 					Manifest = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
-					User = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");					
+					User = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
+					Profiles = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "profiles");
+
+					if (Profiles == null)
+						Profiles = xmlDoc.CreateElement("profiles");
                 }
                 catch (Exception ex)
                 {
@@ -506,71 +540,31 @@ namespace AirVPN.Core
             }
         }
 
-		public void FixCompatibility(ref string name, ref string value)
-		{
-			// AirVPN <=2.4 client use  'host,netmask,action' syntax.
-			// If detected, convert to new 'iprange,action,notes' syntax.
-			if (name == "routes.custom")
-			{
-				string newValue = "";
-
-				string[] routes2 = value.Split(';');
-				foreach (string route in routes2)
-				{
-					string[] routeEntries = route.Split(',');
-					if (routeEntries.Length != 3)
-						return;
-
-					string newRoute = "";					
-					if (new IpAddress(routeEntries[1]).Valid)
-					{
-						newRoute = routeEntries[0] + "/" + routeEntries[1] + "," + routeEntries[2];
-					}
-					else
-						newRoute = route;
-
-					if (newValue != "")
-						newValue += ";";
-					newValue += newRoute;
-				}
-
-				value = newValue;
-			}
-			else if (name == "netlock.active") // 2.8
-			{
-				name = "netlock";
-			}
-		}
-
 		#region Manifest Management
 
 		public bool UpdateManifestNeed(bool reccomended)
 		{
 			lock (Manifest)
-			{
-				// 2.8
-				Int64 timestampNext = 0;
+			{	
+				Int64 refreshInterval = 10; // Minutes
+
 				int refreshManifest = GetInt("advanced.manifest.refresh");
-				if (Manifest == null)
-					return true;
-				else if (Manifest.Attributes["next"] == null)
-					return true;
-				else if (refreshManifest < 0)
+				if (refreshManifest < 0)
 				{
-					// Server reccomended
-					timestampNext = Conversions.ToInt64(Manifest.Attributes["next"].Value);
-				}
-				else if (refreshManifest == 0)
-				{
-					// Never
-					return false;
+					if ( (Manifest != null) && (Manifest.Attributes["next_update"] != null) )
+					{
+						refreshInterval = Conversions.ToInt64(Manifest.Attributes["next_update"].Value);
+					}
 				}
 				else
 				{
-					timestampNext = Conversions.ToInt64(Manifest.Attributes["time"].Value) + refreshManifest * 60;
+					refreshInterval = refreshManifest;
 				}
 
-				if ((Conversions.ToDateTime(timestampNext) < DateTime.UtcNow) && (reccomended))
+				if (refreshInterval == 0)
+					return false;
+				
+				if (m_lastManifestTimeTry + 60 * refreshInterval < Utils.UnixTimeStamp())
 					return true;
 			}
 
@@ -581,6 +575,8 @@ namespace AirVPN.Core
 		{
 			try
 			{
+				m_lastManifestTimeTry = Utils.UnixTimeStamp();
+
 				Engine.Instance.Log(Engine.LogType.Verbose, Messages.ManifestUpdate);
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters["act"] = "manifest";
@@ -596,6 +592,8 @@ namespace AirVPN.Core
 					// Update with the local time
 					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
 				}
+
+				// OvpnManager.Refresh(true); // TOOPEN
 
 				Engine.Instance.PostManifestUpdate();
 

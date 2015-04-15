@@ -31,6 +31,8 @@ namespace AirVPN.Core
     {
 		public static Platform Instance;
 
+		public RouteEntry m_routeDefaultRemove;
+
 		// ----------------------------------------
         // Static - Also used before the derivated class is created
         // ----------------------------------------
@@ -382,20 +384,54 @@ namespace AirVPN.Core
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
 
-			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
+			try
 			{
-				t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
-				//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
-				//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
-				t += "\n";
+				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+				foreach (NetworkInterface adapter in interfaces)
+				{
+					t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
+					//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
+					//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
+					t += "\n";
+				}
+			}
+			catch (Exception)
+			{
+				t += "Unable to fetch network interfaces.\n";
 			}
 
 			t += "\nRouting:\n";
-			List<RouteEntry> routeEntries = RouteList();
-			foreach (RouteEntry routeEntry in routeEntries)
+			try
 			{
-				t += routeEntry.ToString() + "\n";
+				List<RouteEntry> routeEntries = RouteList();
+				foreach (RouteEntry routeEntry in routeEntries)
+				{
+					t += routeEntry.ToString() + "\n";
+				}
+			}
+			catch (Exception)
+			{
+				t += "Unable to fetch routes.\n";
+			}
+
+
+			t += "\nDefault gateways:\n";
+			List<string> gatewaysList = new List<string>();
+			foreach (NetworkInterface f in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				if (f.OperationalStatus == OperationalStatus.Up)
+				{
+					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
+					{
+						string ip = d.Address.ToString();
+						if ((Utils.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
+						{
+							//gatewaysList.Add(ip);
+
+							t += ip + ", " + f.Description + "\n";
+						}
+					}
+				}
 			}
 
 			return t;
@@ -403,6 +439,11 @@ namespace AirVPN.Core
 
 		public virtual void OnAppStart()
 		{
+		}
+
+		public virtual bool OnCheckEnvironment()
+		{
+			return true;
 		}
 
 		public virtual void OnNetworkLockManagerInit()
@@ -421,29 +462,92 @@ namespace AirVPN.Core
 		{
 		}
 
+		/*
 		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
 		public virtual void OnRecovery()
 		{
 		}
+		*/
 
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
+			XmlElement nodeRouteDefaultRemoved = Utils.XmlGetFirstElementByTagName(root, "RouteDefaultRemoved");
+			if (nodeRouteDefaultRemoved != null)
+			{
+				m_routeDefaultRemove = new RouteEntry();
+				m_routeDefaultRemove.ReadXML(nodeRouteDefaultRemoved);				
+			}
+
+			OnRouteDefaultRemoveRestore();
+			OnDnsSwitchRestore();
+			OnIpV6Restore();
 		}
 
 		public virtual void OnRecoverySave(XmlElement root)
 		{
+			if (m_routeDefaultRemove != null)
+			{
+				XmlDocument doc = root.OwnerDocument;
+
+				XmlElement nodeRouteDefaultRemoved = (XmlElement)root.AppendChild(doc.CreateElement("RouteDefaultRemoved"));
+
+				m_routeDefaultRemove.WriteXML(nodeRouteDefaultRemoved);
+			}
 		}
 
 		public virtual void OnBuildOvpn(ref string ovpn)
 		{
 		}
 
-		public virtual void OnDnsSwitchDo(string dns)
+		public virtual bool OnDnsSwitchDo(string dns)
 		{
+			return true;
 		}
 
-		public virtual void OnDnsSwitchRestore()
+		public virtual bool OnDnsSwitchRestore()
 		{
+			return true;
+		}
+
+		public virtual bool OnRouteDefaultRemoveDo()
+		{
+			List<RouteEntry> routeEntries = RouteList();
+			foreach (RouteEntry routeEntry in routeEntries)
+			{
+				if (routeEntry.Mask.ToString() == "0.0.0.0")
+				{
+					m_routeDefaultRemove = routeEntry;
+
+					routeEntry.Remove();
+
+					Recovery.Save();
+				}
+			}
+
+			return true;
+		}
+
+		public virtual bool OnRouteDefaultRemoveRestore()
+		{
+			if (m_routeDefaultRemove != null)
+			{
+				m_routeDefaultRemove.Add();
+				m_routeDefaultRemove = null;
+
+				Recovery.Save();
+			}
+
+			return true;
+		}
+
+		public virtual bool OnIpV6Do()
+		{
+			return true;
+		}
+
+		public virtual bool OnIpV6Restore()
+		{
+			return true;
 		}
 
 		public virtual string GetDriverAvailable()
@@ -469,11 +573,6 @@ namespace AirVPN.Core
 		public virtual void UnInstallDriver()
 		{
 			NotImplemented();
-		}
-
-		public virtual bool IpV6Enabled()
-		{
-			return System.Net.Sockets.Socket.OSSupportsIPv6;
 		}
 
 		public virtual string GetGitDeployPath()

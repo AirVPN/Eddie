@@ -50,49 +50,77 @@ namespace AirVPN.Platforms
 			return true;
 		}
 
-		public string GetBackupPath()
+		public string GetBackupPath(string ipVersion)
 		{
-			return Storage.DataPath + Platform.Instance.DirSep + "iptables.dat";
+			if (ipVersion == "4") // For compatibility with Eddie<2.9
+				ipVersion = "";
+			return Storage.DataPath + Platform.Instance.DirSep + "ip" + ipVersion + "tables.dat";
 		}
 
 		public override void Activation()
 		{
 			base.Activation();
 
-			string rulesBackupSession = GetBackupPath();
+			string rulesBackupSessionV4 = GetBackupPath("4");
 
-			if (File.Exists(rulesBackupSession))
+			if (File.Exists(rulesBackupSessionV4))
 			{
 				Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
 				Deactivation();
 			}
 
-			// Backup
-			Exec("iptables-save >\"" + rulesBackupSession + "\"");
+			string rulesBackupSessionV6 = GetBackupPath("6");
 
-			// Flush
+			if (File.Exists(rulesBackupSessionV6))
+			{
+				Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
+				Deactivation();
+			}
+
+			// Backup V4
+			Exec("iptables-save >\"" + rulesBackupSessionV4 + "\"");
+
+			// Backup V6
+			Exec("ip6tables-save >\"" + rulesBackupSessionV6 + "\"");
+
+			// Flush V4
 			Exec("iptables -F");
 			Exec("iptables -t nat -F");
 			Exec("iptables -t mangle -F");
 
-			// Local
+			// Flush V6
+			Exec("ip6tables -F");
+			Exec("ip6tables -t nat -F");
+			Exec("ip6tables -t mangle -F");
+
+			// Local V4
 			Exec("iptables -A INPUT -i lo -j ACCEPT");
 			Exec("iptables -A OUTPUT -o lo -j ACCEPT");
+
+			// Local V6
+			Exec("ip6tables -A INPUT -i lo -j ACCEPT");
+			Exec("ip6tables -A OUTPUT -o lo -j ACCEPT");
 
 			// Make sure you can communicate with any DHCP server
 			Exec("iptables -A OUTPUT -d 255.255.255.255 -j ACCEPT");
 			Exec("iptables -A INPUT -s 255.255.255.255 -j ACCEPT");
 
-			// Make sure that you can communicate within your own private networks
-			Exec("iptables -A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
-			Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
-			Exec("iptables -A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
-			Exec("iptables -A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
-			Exec("iptables -A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
-			Exec("iptables -A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
+			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
+			{
+				// Make sure that you can communicate within your own private networks
+				Exec("iptables -A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
+				Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
+				Exec("iptables -A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
+				Exec("iptables -A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
+				Exec("iptables -A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
+				Exec("iptables -A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
+			}
 
-			// Allow incoming pings (can be disabled)
-			Exec("iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
+			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
+			{
+				// Allow incoming pings (can be disabled)
+				Exec("iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
+			}
 
 			// Allow established sessions to receive traffic: 
 			Exec("iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
@@ -102,14 +130,17 @@ namespace AirVPN.Platforms
 			Exec("iptables -A FORWARD -i tun+ -j ACCEPT");
 			Exec("iptables -A OUTPUT -o tun+ -j ACCEPT");
 
-			// Block All
+			// Block All V4
 			Exec("iptables -A OUTPUT -j DROP");
 			Exec("iptables -A INPUT -j DROP");
 			Exec("iptables -A FORWARD -j DROP");
 
+			// Block All V6
+			Exec("ip6tables -A OUTPUT -j DROP");
+			Exec("ip6tables -A INPUT -j DROP");
+			Exec("ip6tables -A FORWARD -j DROP");
 
 			OnUpdateIps();
-
 			
 		}
 
@@ -117,9 +148,10 @@ namespace AirVPN.Platforms
 		{
 			base.Deactivation();
 
-			string rulesBackupSession = GetBackupPath();
+			// IPV4
+			string rulesBackupSessionV4 = GetBackupPath("4");
 
-			if (File.Exists(rulesBackupSession))
+			if (File.Exists(rulesBackupSessionV4))
 			{
 				// Flush
 				Exec("iptables -F");
@@ -127,12 +159,29 @@ namespace AirVPN.Platforms
 				Exec("iptables -t mangle -F");
 
 				// Backup
-				Exec("iptables-restore <\"" + rulesBackupSession + "\"");
+				Exec("iptables-restore <\"" + rulesBackupSessionV4 + "\"");
 
-				File.Delete(rulesBackupSession);
-
-				m_currentList.Clear();
+				File.Delete(rulesBackupSessionV4);
 			}
+
+			// IPV6
+			string rulesBackupSessionV6 = GetBackupPath("6");
+
+			if (File.Exists(rulesBackupSessionV6))
+			{
+				// Flush
+				Exec("ip6tables -F");
+				Exec("ip6tables -t nat -F");
+				Exec("ip6tables -t mangle -F");
+
+				// Backup
+				Exec("ip6tables-restore <\"" + rulesBackupSessionV6 + "\"");
+
+				File.Delete(rulesBackupSessionV6);
+			}
+
+			// IPS
+			m_currentList.Clear();
 		}
 
 		public override void OnUpdateIps()

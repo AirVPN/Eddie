@@ -73,6 +73,11 @@ namespace AirVPN.Gui.Forms
 			Core.UI.Actions.OpenUrlDocs();
 		}
 
+		private void lnkSources_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Core.UI.Actions.OpenUrlSources();
+		}
+
 		private void cmdClose_Click(object sender, EventArgs e)
 		{
 			Close();

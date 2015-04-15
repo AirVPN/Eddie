@@ -33,7 +33,8 @@ namespace AirVPN.Core
 			{
 				wHttp.KeepAlive = false;				
 			}
-			w.Timeout = 10000;
+			wHttp.AllowAutoRedirect = false; // 2.9
+			w.Timeout = 10000;		
 			
 			return w;
 		}

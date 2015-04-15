@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AirVPN.Lib.Core</RootNamespace>
     <AssemblyName>Lib.Core</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <ReleaseVersion>2.8</ReleaseVersion>
@@ -43,6 +43,10 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="Commands.cs" />
+    <Compile Include="CompatibilityManager.cs" />
+    <Compile Include="CountriesManager.cs" />
+    <Compile Include="OvpnManager.cs" />
     <Compile Include="RemoteAccess.cs" />
     <Compile Include="TorControl.cs" />
     <Compile Include="IpAddressRange.cs" />

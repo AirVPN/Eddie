@@ -185,12 +185,13 @@ namespace AirVPN.Platforms
 					throw e;
 			}
 
-			// If 'backup.wfw' doesn't exists, create it. It's a general backup of the first time.
-			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrulesorig.wfw";
+			// If 'winfirewall_rules_original.airvpn' doesn't exists, create it. It's a general backup of the first time.
+			// We create this kind of file in Windows System directory, because it's system critical data, and to allow it to survive between re-installation of the software.
+			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_original.wfw";
 			if (File.Exists(rulesBackupFirstTime) == false)
 				Exec("netsh advfirewall export \"" + rulesBackupFirstTime + "\"");
 
-			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
+			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
 			if (File.Exists(rulesBackupSession))
 				File.Delete(rulesBackupSession);
 			Exec("netsh advfirewall export \"" + rulesBackupSession + "\"");
@@ -215,13 +216,23 @@ namespace AirVPN.Platforms
 
 			Exec("netsh advfirewall firewall delete rule name=all");
 
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
-			//Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0-10.9.255.255");
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
-			//Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.0.0.0/8");
+			if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
+			{
+				Exec("netsh advfirewall firewall add rule name=\"AirVPN - ICMP V4\" dir=in action=allow protocol=icmpv4");
+			}
 
+			// Exec("netsh advfirewall firewall add rule name=\"AirVPN - IpV6 Block - Low\" dir=out remoteip=0000::/1 action=allow");
+			// Exec("netsh advfirewall firewall add rule name=\"AirVPN - IpV6 Block - High\" dir=out remoteip=8000::/1 action=allow");
+
+			if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
+			{
+				Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
+				Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
+			}
+
+			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+			
 			// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
 			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
 
@@ -235,7 +246,7 @@ namespace AirVPN.Platforms
 		public override void Deactivation()
 		{
 			base.Deactivation();
-						
+
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 				profile.RestorePolicy();
 
@@ -245,12 +256,35 @@ namespace AirVPN.Platforms
 			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowVPN\"");
 			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
 			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - DHCP\"");
-			
-			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
-			if (File.Exists(rulesBackupSession))
+
+			// >2.9.1 edition
 			{
-				Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
-				File.Delete(rulesBackupSession);
+				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
+				if (File.Exists(rulesBackupSession))
+				{
+					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
+					File.Delete(rulesBackupSession);
+				}
+			}
+
+			// Old <2.8 edition
+			{
+				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
+				if (File.Exists(rulesBackupSession))
+				{
+					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
+					File.Delete(rulesBackupSession);
+				}
+			}
+
+			// Old 2.9.0 edition, recover
+			{
+				string rulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
+				if (File.Exists(rulesBackupSession))
+				{
+					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
+					File.Delete(rulesBackupSession);
+				}
 			}
 
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
@@ -270,7 +304,7 @@ namespace AirVPN.Platforms
 				service.Stop();
 				service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
 			}
-			
+
 			m_lastestIpList = "";
 		}
 

@@ -29,7 +29,8 @@ namespace AirVPN.Platforms
     {
 		private string m_architecture = "";
 
-		private List<DnsSwitchInterface> ListDnsSwitchInterfaces = new List<DnsSwitchInterface>();
+		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
+		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
         // Override
 		public Osx()
@@ -60,7 +61,7 @@ namespace AirVPN.Platforms
 
         public override bool IsAdmin()
         {
-			//return true; // Uncomment for debugging
+			// return true; // Uncomment for debugging
 
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
 			string u = ShellCmd ("whoami").ToLowerInvariant().Trim();
@@ -213,6 +214,11 @@ namespace AirVPN.Platforms
 			return result;
 		}
 
+		public override bool OnCheckEnvironment()
+		{
+			return true;
+		}
+
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -227,23 +233,44 @@ namespace AirVPN.Platforms
 			{
 				foreach (XmlElement nodeEntry in nodeDns.ChildNodes)
 				{
-					DnsSwitchInterface entry = new DnsSwitchInterface();
-					entry.ReadXML(nodeEntry);					
-					ListDnsSwitchInterfaces.Add(entry);
+					DnsSwitchEntry entry = new DnsSwitchEntry();
+					entry.ReadXML(nodeEntry);
+					m_listDnsSwitch.Add(entry);
 				}
 			}
 
-			OnDnsSwitchRestore();			
+			XmlElement nodeIpV6 = Utils.XmlGetFirstElementByTagName(root, "IpV6");
+			if (nodeIpV6 != null)
+			{
+				foreach (XmlElement nodeEntry in nodeIpV6.ChildNodes)
+				{
+					IpV6ModeEntry entry = new IpV6ModeEntry();
+					entry.ReadXML(nodeEntry);
+					m_listIpV6Mode.Add(entry);
+				}
+			}
+
+			base.OnRecoveryLoad(root);
 		}
 
 		public override void OnRecoverySave(XmlElement root)
 		{
 			XmlDocument doc = root.OwnerDocument;
 
-			if (ListDnsSwitchInterfaces.Count != 0)
+			if (m_listDnsSwitch.Count != 0)
 			{
 				XmlElement nodeDns = (XmlElement)root.AppendChild(doc.CreateElement("DnsSwitch"));
-				foreach (DnsSwitchInterface entry in ListDnsSwitchInterfaces)
+				foreach (DnsSwitchEntry entry in m_listDnsSwitch)
+				{
+					XmlElement nodeEntry = nodeDns.AppendChild(doc.CreateElement("entry")) as XmlElement;
+					entry.WriteXML(nodeEntry);
+				}
+			}
+
+			if (m_listIpV6Mode.Count != 0)
+			{
+				XmlElement nodeDns = (XmlElement)root.AppendChild(doc.CreateElement("IpV6"));
+				foreach (IpV6ModeEntry entry in m_listIpV6Mode)
 				{
 					XmlElement nodeEntry = nodeDns.AppendChild(doc.CreateElement("entry")) as XmlElement;
 					entry.WriteXML(nodeEntry);
@@ -251,15 +278,88 @@ namespace AirVPN.Platforms
 			}
 		}
 
-		public override void OnDnsSwitchDo(string dns)
+		public override bool OnIpV6Do()
 		{
-			base.OnDnsSwitchDo(dns);
+			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
+			{
+				string[] interfaces = GetInterfaces();
+				foreach (string i in interfaces)
+				{
+					string getInfo = ShellCmd("networksetup -getinfo \"" + i + "\"");
 
-			string mode = Engine.Instance.Storage.Get("advanced.dns.mode").ToLowerInvariant();
+					string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
+					string address = Utils.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
+					
+					if( (mode == "") && (address != "") )
+						mode = "LinkLocal";
+
+					if (mode != "Off")
+					{
+						Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
+
+						IpV6ModeEntry entry = new IpV6ModeEntry();
+						entry.Interface = i;
+						entry.Mode = mode;
+						entry.Address = address;
+						if (mode == "Manual")
+						{
+							entry.Router = Utils.RegExMatchOne(getInfo, "^IPv6 IP Router: (.*?)$");
+							entry.PrefixLength = Utils.RegExMatchOne(getInfo, "^IPv6 Prefix Length: (.*?)$");
+						}
+						m_listIpV6Mode.Add(entry);
+
+						ShellCmd("networksetup -setv6off \"" + i + "\"");
+					}					
+				}
+
+				Recovery.Save();				
+			}
+
+			base.OnIpV6Do();
+
+			return true;
+		}
+
+		public override bool OnIpV6Restore()
+		{
+			foreach (IpV6ModeEntry entry in m_listIpV6Mode)
+			{
+				if (entry.Mode == "Off")
+				{
+					ShellCmd("networksetup -setv6off \"" + entry.Interface + "\"");
+				}
+				else if (entry.Mode == "Automatic")
+				{
+					ShellCmd("networksetup -setv6automatic \"" + entry.Interface + "\"");
+				}
+				else if (entry.Mode == "LinkLocal")
+				{
+					ShellCmd("networksetup -setv6LinkLocal \"" + entry.Interface + "\"");
+				}
+				else if (entry.Mode == "Manual")
+				{
+					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
+				}
+
+				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
+			}
+
+			m_listIpV6Mode.Clear();
+			
+			Recovery.Save();
+
+			base.OnIpV6Restore();
+
+			return true;
+		}
+
+		public override bool OnDnsSwitchDo(string dns)
+		{
+			string mode = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
 
 			if (mode == "auto")
 			{
-				string[] interfaces = ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split('\n');
+				string[] interfaces = GetInterfaces();
 				foreach (string i in interfaces)
 				{
 					string i2 = i.Trim();
@@ -275,12 +375,13 @@ namespace AirVPN.Platforms
 							// Switch
 							Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2));
 
-							DnsSwitchInterface e = new DnsSwitchInterface();
+							DnsSwitchEntry e = new DnsSwitchEntry();
 							e.Name = i2;
 							e.Dns = current;
-							ListDnsSwitchInterfaces.Add(e);
+							m_listDnsSwitch.Add(e);
 
-							ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns + "\"");
+							string dns2 = dns.Replace(",", "\" \"");							
+							ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns2 + "\"");
 						}
 					}
 					else
@@ -291,13 +392,15 @@ namespace AirVPN.Platforms
 
 				Recovery.Save ();
 			}
+
+			base.OnDnsSwitchDo(dns);
+
+			return true;
 		}
 
-		public override void  OnDnsSwitchRestore()
+		public override bool OnDnsSwitchRestore()
 		{
- 			base.OnDnsSwitchRestore();
-
-			foreach(DnsSwitchInterface e in ListDnsSwitchInterfaces)
+			foreach (DnsSwitchEntry e in m_listDnsSwitch)
 			{
 				string v = e.Dns;
 				if(v == "0.0.0.0")
@@ -308,9 +411,13 @@ namespace AirVPN.Platforms
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
 
-			ListDnsSwitchInterfaces.Clear ();
+			m_listDnsSwitch.Clear();
 
 			Recovery.Save ();
+
+			base.OnDnsSwitchRestore();
+
+			return true;
 		}
 
 		public override string GetTunStatsMode()
@@ -324,9 +431,15 @@ namespace AirVPN.Platforms
 			// Under OSX, binary is inside a bundle AirVPN.app/Contents/MacOS/
 			return GetProgramFolder () + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
 		}
+
+		public string[] GetInterfaces()
+		{
+			string[] interfaces = ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split('\n');
+			return interfaces;
+		}
     }
 
-	public class DnsSwitchInterface
+	public class DnsSwitchEntry
 	{
 		public string Name;
 		public string Dns;
@@ -341,6 +454,33 @@ namespace AirVPN.Platforms
 		{
 			Utils.XmlSetAttributeString(node, "name", Name);
 			Utils.XmlSetAttributeString(node, "dns", Dns);
+		}
+	}
+
+	public class IpV6ModeEntry
+	{
+		public string Interface;
+		public string Mode;
+		public string Address;
+		public string Router;
+		public string PrefixLength;
+
+		public void ReadXML(XmlElement node)
+		{
+			Interface = Utils.XmlGetAttributeString(node, "interface", "");
+			Mode = Utils.XmlGetAttributeString(node, "mode", "");
+			Address = Utils.XmlGetAttributeString(node, "address", "");
+			Router = Utils.XmlGetAttributeString(node, "router", "");
+			PrefixLength = Utils.XmlGetAttributeString(node, "prefix_length", "");
+		}
+
+		public void WriteXML(XmlElement node)
+		{
+			Utils.XmlSetAttributeString(node, "interface", Interface);
+			Utils.XmlSetAttributeString(node, "mode", Mode);
+			Utils.XmlSetAttributeString(node, "address", Address);
+			Utils.XmlSetAttributeString(node, "router", Router);
+			Utils.XmlSetAttributeString(node, "prefix_length", PrefixLength);
 		}
 	}
 }

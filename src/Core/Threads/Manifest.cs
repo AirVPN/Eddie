@@ -66,8 +66,8 @@ namespace AirVPN.Core.Threads
 					m_LastResult = Engine.Storage.UpdateManifest();
 					if (m_LastResult != "")
 					{
-						//Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ManifestUpdate, m_LastResult));
-						Engine.Instance.Log(Engine.LogType.Warning, m_LastResult);
+						//Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ManifestUpdate, m_LastResult)); // < 2.9, Warning
+						Engine.Instance.Log(Engine.LogType.Verbose, m_LastResult); // >= 2.9, Verbose
 					}
 					ForceUpdate = false;
 					Updated.Set();

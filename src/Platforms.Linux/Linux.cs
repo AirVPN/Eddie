@@ -36,6 +36,8 @@ namespace AirVPN.Platforms
 		public Linux()
 		{
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+
+			TrustCertificatePolicy.Activate();
 		}
 
 		public override string GetCode()
@@ -130,16 +132,16 @@ namespace AirVPN.Platforms
 
 		public override void RouteAdd(RouteEntry r)
 		{
-			string cmd = "/sbin/route add";
+			string cmd = "route add";
 
-			cmd += " -host " + r.Address.Value;
+			cmd += " -net " + r.Address.Value;
 			cmd += " netmask " + r.Mask.Value;
 			cmd += " gw " + r.Gateway.Value;
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;
-			if (r.Mss != "")
+			if( (r.Mss != "") && (r.Mss != "0") )
 				cmd += " mss " + r.Mss;
-			if (r.Window != "")
+			if( (r.Window != "") && (r.Window != "0") ) 
 				cmd += " window " + r.Window;
 			if (r.Irtt != "")
 				cmd += " irtt " + r.Irtt;
@@ -161,13 +163,15 @@ namespace AirVPN.Platforms
 
 		public override void RouteRemove(RouteEntry r)
 		{
-			string cmd = "/sbin/route del";
+			string cmd = "route del";
 
-			cmd += " -host " + r.Address.Value;
+			cmd += " -net " + r.Address.Value;
 			cmd += " gw " + r.Gateway.Value;
 			cmd += " netmask " + r.Mask.Value;			
+			/*
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;			
+			*/
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
 			
@@ -193,13 +197,12 @@ namespace AirVPN.Platforms
 					e.Mask = fields[2];
 					e.Flags = fields[3].ToUpperInvariant();
 					e.Metrics = fields[4];
-					// ref
-					// use
+					// Ref, Use ignored
 					e.Interface = fields[7];
 					e.Mss = fields[8];
 					e.Window = fields[9];
 					e.Irtt = fields[10];
-
+					
 					if (e.Address.Valid == false)
 						continue;
 					if (e.Gateway.Valid == false)
@@ -253,6 +256,25 @@ namespace AirVPN.Platforms
 			ovpn += "route-delay 5\n"; // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
+		public override bool OnCheckEnvironment()
+		{
+			string ipV6 = File.ReadAllText("/proc/sys/net/ipv6/conf/all/disable_ipv6").Trim();
+			
+			if ((ipV6 == "0") && (Engine.Instance.Storage.Get("ipv6.mode") == "disable"))
+			{
+				if (Engine.Instance.OnAskYesNo(Messages.IpV6Warning))
+				{
+					Engine.Instance.Storage.Set("ipv6.mode", "none");
+				}
+				else
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -260,22 +282,8 @@ namespace AirVPN.Platforms
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockIptables());
 		}
 
-		public override void OnRecovery()
+		public override bool OnDnsSwitchDo(string dns)
 		{
-			base.OnRecovery();
-
-			OnDnsSwitchRestore();
-		}
-
-		public override void OnRecoveryLoad(XmlElement root)
-		{
-			base.OnRecoveryLoad(root);
-		}
-
-		public override void OnDnsSwitchDo(string dns)
-		{
-			base.OnDnsSwitchDo(dns);
-
 			if (GetDnsSwitchMode() == "rename")
 			{
 				if (File.Exists("/etc/resolv.conf.airvpn") == false)
@@ -285,14 +293,24 @@ namespace AirVPN.Platforms
 				}
 
 				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameDone);
-				File.WriteAllText("/etc/resolv.conf", Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc) + "\n\nnameserver " + dns + "\n");
-			}			
+
+				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
+
+				string[] dnsArray = dns.Split(',');
+
+				foreach(string dnsSingle in dnsArray)
+					text += "nameserver " + dnsSingle + "\n";
+
+				File.WriteAllText("/etc/resolv.conf", text);
+			}
+
+			base.OnDnsSwitchDo(dns);
+
+			return true;
 		}
 
-		public override void OnDnsSwitchRestore()
+		public override bool OnDnsSwitchRestore()
 		{
-			base.OnDnsSwitchRestore();
-
 			// Cleaning rename method if pending
 			if (File.Exists("/etc/resolv.conf.airvpn") == true)
 			{
@@ -301,21 +319,20 @@ namespace AirVPN.Platforms
 				File.Copy("/etc/resolv.conf.airvpn", "/etc/resolv.conf", true);
 				File.Delete("/etc/resolv.conf.airvpn");
 			}
+
+			base.OnDnsSwitchRestore();
+
+			return true;
 		}
 
 		public override string GetDriverAvailable()
 		{
 			if (File.Exists("/dev/net/tun"))
-				return "Found";
-			else
-				return "";
-			/*
-			string result = ShellCmd("cat /dev/net/tun");
-			if (result.IndexOf("descriptor in bad state") != -1)
-				return "Found";
+				return "Found, /dev/net/tun";
+			else if (File.Exists("/dev/tun"))
+				return "Found, /dev/tun";
 
 			return "";
-			*/
 		}
 
 		public override bool CanInstallDriver()
@@ -342,7 +359,7 @@ namespace AirVPN.Platforms
 
 		public string GetDnsSwitchMode()
 		{
-			string current = Engine.Instance.Storage.Get("advanced.dns.mode").ToLowerInvariant();
+			string current = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
 
 			if (current == "auto")
 			{

@@ -65,5 +65,6 @@ namespace AirVPN.UI.Windows
 				}
 			}
 		}
+
 	}
 }

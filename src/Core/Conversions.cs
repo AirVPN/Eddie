@@ -67,6 +67,21 @@ namespace AirVPN.Core
 				return 0;
 		}
 
+		public static Int64 ToInt64(object v)
+		{
+			try
+			{
+				if ((v is String) && (v.ToString() == ""))
+					return 0;
+				return Convert.ToInt64(v);
+			}
+			catch (Exception ex)
+			{
+				Debug.Trace(ex);
+				return 0;
+			}
+		}
+
 		public static Int64 ToInt64(float v)
 		{
 			return Convert.ToInt64(v);
@@ -75,6 +90,21 @@ namespace AirVPN.Core
 		public static Int64 ToInt64(double v)
 		{
 			return Convert.ToInt64(v);
+		}
+
+		public static UInt32 ToUInt32(object v, UInt32 def)
+		{
+			try
+			{
+				if ((v is String) && (v.ToString() == ""))
+					return def;
+				return Convert.ToUInt32(v);
+			}
+			catch (Exception ex)
+			{
+				Debug.Trace(ex);
+				return def;
+			}
 		}
 
 		public static bool ToBool(string v)

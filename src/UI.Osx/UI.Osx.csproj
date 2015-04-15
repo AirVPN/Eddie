@@ -11,7 +11,7 @@
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.8</ReleaseVersion>
+    <ReleaseVersion>2.9</ReleaseVersion>
     <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -160,6 +160,11 @@
     <Compile Include="TableRoutingController.cs" />
     <Compile Include="TableRoutingDelegate.cs" />
     <Compile Include="TableAdvancedEventsDelegate.cs" />
+    <Compile Include="WindowPreferencesIp.cs" />
+    <Compile Include="WindowPreferencesIp.designer.cs" />
+    <Compile Include="WindowPreferencesIpController.cs" />
+    <Compile Include="TableDnsServersController.cs" />
+    <Compile Include="TableDnsServersDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -172,6 +177,7 @@
     <InterfaceDefinition Include="WindowOpenVpnManagementCommand.xib" />
     <InterfaceDefinition Include="WindowPreferencesRoute.xib" />
     <InterfaceDefinition Include="WindowPreferencesEvent.xib" />
+    <InterfaceDefinition Include="WindowPreferencesIp.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -510,6 +516,8 @@
     <BundleResource Include="Resources\menubar_light_green.png" />
     <BundleResource Include="Resources\menubar_light_red.png" />
     <BundleResource Include="Resources\menubar_light_yellow.png" />
+    <BundleResource Include="Resources\netlock_status_off.png" />
+    <BundleResource Include="Resources\netlock_status_on.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

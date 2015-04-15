@@ -268,6 +268,14 @@ namespace AirVPN.Gui
 				FormMain.ShowFrontMessage(message);
 		}
 
+		public override bool OnAskYesNo(string message)
+		{
+			if (FormMain != null)
+				return MessageBox.Show(message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+			else
+				return true;
+		}
+
 		public override void OnPostManifestUpdate()
 		{
 			base.OnPostManifestUpdate();

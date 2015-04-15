@@ -25,11 +25,20 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace AirVPN.Core
 {
-    public static class TrustCertificatePolicy
+	public static class TrustCertificatePolicy
     {
         private static bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
 			// Data exchange security are NOT based on SSL. Look "AirExchange.cs".
+
+			// The only SSL sessions are for checking tunnel and DNS, with a request to the VPN server itself.
+
+			// Mono doesn't include by default root certificates: http://www.mono-project.com/docs/faq/security/
+
+			// This is used only from Linux, not used under Windows or OS X.
+
+			// TOFIX
+			
             return true;
         }
 

@@ -47,6 +47,7 @@ namespace AirVPN.Core.Threads
 		private NetworkInterface m_interfaceTun;
 		private int m_timeLastStatus = 0;
 		private TemporaryFile m_fileSshKey;
+		private TemporaryFile m_fileSslCrt;
 		private TemporaryFile m_fileSslConfig;
 		private TemporaryFile m_fileOvpn;
 
@@ -265,16 +266,21 @@ namespace AirVPN.Core.Threads
 							Sleep(waitingSleep);
 						}
 
+
+						if(m_reset == "")
+							oneConnectionReached = true;
+
+						if( (m_reset == "") && (Engine.Instance.Storage.GetBool("advanced.testmode")) )
+						{
+							m_reset = "STOP";
+						}
+
 						// -----------------------------------
 						// Phase 3 - Running
 						// -----------------------------------
 
 						if (m_reset == "")
 						{
-							oneConnectionReached = true;
-							
-							Engine.RunEventCommand("vpn.up");
-
 							for (; ; )
 							{
 								int timeNow = Utils.UnixTimeStamp();
@@ -460,11 +466,15 @@ namespace AirVPN.Core.Threads
 
 						Engine.RunEventCommand("vpn.down");
 
+						Platform.Instance.OnRouteDefaultRemoveRestore();
+
 						Platform.Instance.OnDnsSwitchRestore();
 
 						// Closing temporary files
 						if (m_fileSshKey != null)
 							m_fileSshKey.Close();
+						if (m_fileSslCrt != null)
+							m_fileSslCrt.Close();
 						if (m_fileSslConfig != null)
 							m_fileSslConfig.Close();
 						if (m_fileOvpn != null)
@@ -485,7 +495,6 @@ namespace AirVPN.Core.Threads
 				if (routeScope != null)
 					routeScope.End();
 
-
 				if (m_reset == "AUTH_FAILED")
 				{
 					waitingMessage = "Auth failed, retry in {1} sec.";
@@ -495,6 +504,12 @@ namespace AirVPN.Core.Threads
 				{
 					waitingMessage = "Restart in {1} sec.";
 					waitingSecs = 3;
+				}
+				
+				if (Engine.Instance.Storage.GetBool("advanced.testmode"))
+				{
+					Engine.Instance.RequestStop();
+					break;
 				}
 
 				if (waitingSecs > 0)
@@ -598,6 +613,9 @@ namespace AirVPN.Core.Threads
 			if (m_processProxy != null) // Unexpected
 				return;
 
+			m_fileSslCrt = new TemporaryFile("crt");
+			File.WriteAllText(m_fileSslCrt.Path, Utils.XmlGetAttributeString(Engine.Storage.User, "ssl_crt", ""));
+
 			m_fileSslConfig = new TemporaryFile("ssl");
 
 			string sslConfig = "";
@@ -617,9 +635,11 @@ namespace AirVPN.Core.Threads
 			sslConfig += "accept = 127.0.0.1:" + Conversions.ToString(m_proxyPort) + "\n";
 			sslConfig += "connect = " + Engine.ConnectedEntryIP + ":" + Engine.ConnectedPort + "\n";
 			sslConfig += "TIMEOUTclose = 0\n";			
+			sslConfig += "verify = 3\n";
+			//sslConfig += "CAfile = \"" + m_fileSslCrt.Path + "\"\n";
+			sslConfig += "CAfile = " + m_fileSslCrt.Path + "\n";
 			sslConfig += "\n";
-			
-			
+
 			string sslConfigPath = m_fileSslConfig.Path;
 			Utils.SaveFile(sslConfigPath, sslConfig);
 
@@ -894,7 +914,13 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
 					{
-						Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
+						if (Engine.Instance.Storage.Get("dns.servers") != "")
+							Platform.Instance.OnDnsSwitchDo(Engine.Instance.Storage.Get("dns.servers"));
+						else if(Engine.ConnectedVpnDns != "")
+							Platform.Instance.OnDnsSwitchDo(Engine.ConnectedVpnDns);
+
+						if (Engine.Instance.Storage.GetBool("routes.remove_default"))
+							Platform.Instance.OnRouteDefaultRemoveDo();
 
 						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
 						Engine.Log(Engine.LogType.Info, Messages.ConnectionFlushDNS);
@@ -907,87 +933,94 @@ namespace AirVPN.Core.Threads
 
 						Engine.Instance.NetworkLockManager.OnVpnEstablished();
 
-						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.route")))
+						// Checking Tunnel and Checking DNS are available only on AirVPN servers
+						if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
 						{
-							Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
-							Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingRoute);
-
-							if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
-							{
-								Engine.Log(Core.Engine.LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
-							}
-							else
-							{
-								string destIp = Engine.CurrentServer.IpExit;
-								//RouteScope routeScope = new RouteScope(destIp);
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php", Messages.ConnectionCheckingRoute, true);
-								//routeScope.End();
-								string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-								Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-								Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-
-								if (VpnIp != Engine.ConnectedVpnIp)
-								{
-									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);
-									m_reset = "ERROR";
-								}
-							}
-
-							if (m_reset == "")
-							{	
-								string destIp = Engine.ConnectedEntryIP;
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + destIp + ":88/check.php", Messages.ConnectionCheckingRoute2, true);								
-								Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-								Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-
-								// Real IP are detected with a request over the server entry IP.
-								// Normally this is routed by openvpn outside the tunnel.
-								// But if a proxy is active, don't work.
-								if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
-								{
-									Engine.ConnectedRealIp = Messages.NotAvailable;
-								}
-								else
-								{
-									Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-								}
-							}
+							Engine.Log(Core.Engine.LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
 						}
 						else
 						{
-							Engine.ConnectedRealIp = "";
-							Engine.ConnectedServerTime = 0;
-						}
-
-						// DNS test
-						if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.dns")))
-						{
-							Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
-							Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingDNS);
-
-							bool failed = true;
-							IPHostEntry entry = Dns.GetHostEntry(Engine.Storage.GetManifestKeyValue("dnscheck_host", ""));
-
-							if (entry != null)
+							if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.route")))
 							{
-								if (entry.AddressList.Length == 1)
+								Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
+								Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingRoute);
+
+								if (m_reset == "")
 								{
-									string Ip1 = entry.AddressList[0].ToString();
-									string Ip2 = Engine.Storage.GetManifestKeyValue("dnscheck_res2", "");
-									if (Ip1 == Ip2)
-										failed = false;
+									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit.airvpn.org" + ":88/check_tun/", null, Messages.ConnectionCheckingRoute, true);
+
+									string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+									if (VpnIp != Engine.ConnectedVpnIp)
+									{
+										Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);
+										m_reset = "ERROR";
+									}
+								}
+								
+								if (m_reset == "")
+								{
+									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + ".airvpn.org" + ":88/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
+									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+									// Real IP are detected with a request over the server entry IP.
+									// Normally this is routed by openvpn outside the tunnel.
+									// But if a proxy is active, don't work.
+									if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
+									{
+										Engine.ConnectedRealIp = Messages.NotAvailable;
+									}
+									else
+									{
+										Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+									}
 								}
 							}
-
-							if (failed)
+							else
 							{
-								Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);
-								m_reset = "ERROR";
+								Engine.ConnectedRealIp = "";
+								Engine.ConnectedServerTime = 0;
+							}
+
+							// DNS test
+							if ((m_reset == "") && (Engine.Storage.GetBool("dns.check")) && (Engine.Storage.Get("dns.servers") == "") )
+							{
+								Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
+								Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingDNS);
+
+								string hash = Utils.GetRandomToken();
+
+								try
+								{
+									// Query a inexistent domain with the hash
+									IPHostEntry entry = Dns.GetHostEntry(hash + ".airvpn.check_dns");
+								}
+								catch (SocketException)
+								{
+								}
+
+								// Check if the server has received the above DNS query
+								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit.airvpn.org" + ":88/check_dns/", null, Messages.ConnectionCheckingDNS, true);
+
+								string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
+
+								bool failed = (hash != hash2);
+
+								if (failed)
+								{
+									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);
+									m_reset = "ERROR";
+								}
 							}
 						}
 
 						if (m_reset == "")
 						{
+							Engine.RunEventCommand("vpn.up");
+
 							Engine.Log(Engine.LogType.InfoImportant, Messages.ConnectionConnected);
 							Engine.SetConnected(true);
 						}
@@ -996,11 +1029,11 @@ namespace AirVPN.Core.Threads
 					// Windows
 					if (Platform.Instance.IsUnixSystem() == false)
 					{
-						Match match = Regex.Match(message, "TAP-.*? device \\[(.*?)\\] opened: \\\\\\\\\\.\\\\Global\\\\(.*?).tap");
-						if (match.Success)
+						List<string> match = Utils.RegExMatchSingle(message, "TAP-.*? device \\[(.*?)\\] opened: \\\\\\\\\\.\\\\Global\\\\(.*?).tap");
+						if(match != null)
 						{
-							Engine.ConnectedVpnInterfaceName = match.Groups[1].Value;
-							Engine.ConnectedVpnInterfaceId = match.Groups[2].Value;
+							Engine.ConnectedVpnInterfaceName = match[0];
+							Engine.ConnectedVpnInterfaceId = match[1];
 
 							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 							foreach (NetworkInterface adapter in interfaces)
@@ -1042,11 +1075,11 @@ namespace AirVPN.Core.Threads
 					}
 
 					{
-						Match match = Regex.Match(message, "dhcp-option DNS ([0-9\\.]*?),");
-						if (match.Success)
+						List<List<string>> matches = Utils.RegExMatchMulti(message, "dhcp-option DNS ([0-9\\.]+?),");
+						if (matches.Count > 0)
 						{
-							Engine.ConnectedVpnDns = match.Groups[1].Value;
-						}
+							Engine.ConnectedVpnDns = Utils.ListStringToCommaString(matches);							
+						}						
 					}
 
 					{

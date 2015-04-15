@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6250" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6250"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="WindowAboutController">
@@ -9,6 +9,7 @@
                 <outlet property="CmdHomePage" destination="DbI-8f-pTL" id="kFd-c2-YTO"/>
                 <outlet property="CmdOk" destination="ykC-ir-QW4" id="Wqo-45-Bh5"/>
                 <outlet property="CmdSoftware" destination="AFq-yd-Y90" id="PdD-jD-f3t"/>
+                <outlet property="CmdSources" destination="lg0-9u-fye" id="9dq-3Z-6io"/>
                 <outlet property="TxtLibraries" destination="q6g-Ue-FJR" id="S4i-I2-zFM"/>
                 <outlet property="TxtLicense" destination="Rlw-Oi-W0X" id="BYI-gJ-EPU"/>
                 <outlet property="TxtVersion" destination="xZR-wb-bX7" id="mn0-wr-hBi"/>
@@ -16,7 +17,7 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="AirVPN - About" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="WindowAbout">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="131" y="74" width="606" height="354"/>
@@ -73,14 +74,14 @@
                                             </textFieldCell>
                                         </textField>
                                         <box autoresizesSubviews="NO" borderType="line" id="UgW-nc-laE">
-                                            <rect key="frame" x="114" y="11" width="332" height="114"/>
+                                            <rect key="frame" x="61" y="11" width="439" height="114"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="330" height="98"/>
+                                                <rect key="frame" x="1" y="1" width="437" height="98"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="c3g-PO-wD9">
-                                                        <rect key="frame" x="-28" y="55" width="105" height="17"/>
+                                                        <rect key="frame" x="16" y="69" width="105" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Website:" id="syz-dh-bEN">
                                                             <font key="font" metaFont="system"/>
@@ -89,7 +90,7 @@
                                                         </textFieldCell>
                                                     </textField>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="p79-7c-AiQ">
-                                                        <rect key="frame" x="-28" y="29" width="105" height="17"/>
+                                                        <rect key="frame" x="16" y="43" width="105" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Manual:" id="gY2-u7-QiR">
                                                             <font key="font" metaFont="system"/>
@@ -98,7 +99,7 @@
                                                         </textFieldCell>
                                                     </textField>
                                                     <button verticalHuggingPriority="750" id="DbI-8f-pTL">
-                                                        <rect key="frame" x="83" y="54" width="229" height="19"/>
+                                                        <rect key="frame" x="127" y="66" width="292" height="19"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <buttonCell key="cell" type="recessed" title="https://airvpn.org" bezelStyle="recessed" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="64C-Dh-Ta8">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
@@ -106,9 +107,26 @@
                                                         </buttonCell>
                                                     </button>
                                                     <button verticalHuggingPriority="750" id="AFq-yd-Y90">
-                                                        <rect key="frame" x="83" y="28" width="229" height="19"/>
+                                                        <rect key="frame" x="127" y="40" width="292" height="19"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <buttonCell key="cell" type="recessed" title="https://airvpn.org/software" bezelStyle="recessed" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EeL-bz-G5w">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                                            <font key="font" metaFont="systemBold" size="12"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="gxD-ln-seg">
+                                                        <rect key="frame" x="16" y="18" width="105" height="17"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Sources:" id="CPb-gY-Oxh">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <button verticalHuggingPriority="750" id="lg0-9u-fye">
+                                                        <rect key="frame" x="127" y="15" width="292" height="19"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <buttonCell key="cell" type="recessed" title="https://github.com/AirVPN/airvpn-client" bezelStyle="recessed" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="vwM-EU-mwa">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                                             <font key="font" metaFont="systemBold" size="12"/>
                                                         </buttonCell>
@@ -137,7 +155,7 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="524" height="165"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="524" height="165"/>
+                                                        <size key="minSize" width="509" height="165"/>
                                                         <size key="maxSize" width="544" height="10000000"/>
                                                         <attributedString key="textStorage">
                                                             <fragment content="123">
@@ -148,7 +166,7 @@
                                                             </fragment>
                                                         </attributedString>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="524" height="165"/>
+                                                        <size key="minSize" width="509" height="165"/>
                                                         <size key="maxSize" width="544" height="10000000"/>
                                                     </textView>
                                                 </subviews>
@@ -182,7 +200,7 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="524" height="165"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="524" height="165"/>
+                                                        <size key="minSize" width="509" height="165"/>
                                                         <size key="maxSize" width="532" height="10000000"/>
                                                         <attributedString key="textStorage">
                                                             <fragment content="1 2 3">
@@ -193,7 +211,7 @@
                                                             </fragment>
                                                         </attributedString>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="524" height="165"/>
+                                                        <size key="minSize" width="509" height="165"/>
                                                         <size key="maxSize" width="532" height="10000000"/>
                                                     </textView>
                                                 </subviews>

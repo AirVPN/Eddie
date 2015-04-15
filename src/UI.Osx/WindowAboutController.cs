@@ -76,6 +76,11 @@ namespace AirVPN.UI.Osx
 				AirVPN.Core.UI.Actions.OpenUrlDocs();
 			};
 
+			CmdSources.Activated += (object sender, EventArgs e) =>
+			{
+				AirVPN.Core.UI.Actions.OpenUrlSources();
+			};
+
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{
 				this.Close();

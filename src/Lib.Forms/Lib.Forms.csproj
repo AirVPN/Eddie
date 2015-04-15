@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AirVPN.Lib.Forms</RootNamespace>
     <AssemblyName>Lib.Forms</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -44,6 +44,7 @@
     <Compile Include="Controls\ChartSpeed.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\ListViewItemProfile.cs" />
     <Compile Include="Controls\ProgressInfinite.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -69,6 +70,24 @@
     </Compile>
     <Compile Include="Forms\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SettingsIp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SettingsIp.Designer.cs">
+      <DependentUpon>SettingsIp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Profile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Profile.Designer.cs">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Profiles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Profiles.Designer.cs">
+      <DependentUpon>Profiles.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrontMessage.cs">
       <SubType>Form</SubType>
@@ -176,6 +195,15 @@
     <EmbeddedResource Include="Forms\About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SettingsIp.resx">
+      <DependentUpon>SettingsIp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Profile.resx">
+      <DependentUpon>Profile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Profiles.resx">
+      <DependentUpon>Profiles.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrontMessage.resx">
       <DependentUpon>FrontMessage.cs</DependentUpon>
     </EmbeddedResource>
@@ -259,6 +287,8 @@
     <Content Include="res\menu_normal.png" />
     <None Include="res\netlock_off.png" />
     <None Include="res\netlock_on.png" />
+    <None Include="res\netlock_status_off.png" />
+    <None Include="res\netlock_status_on.png" />
     <Content Include="res\ports.png" />
     <Content Include="res\progress.gif" />
     <None Include="res\progress01.png" />
