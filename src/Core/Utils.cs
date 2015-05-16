@@ -442,6 +442,26 @@ namespace AirVPN.Core
 			return result;
 		}
 
+		public static List<string> CommaStringToListString(string lines)
+		{
+			List<string> result = new List<string> ();
+
+			// Normalization
+			lines = lines.Replace ("\n", ",");
+			lines = lines.Replace ("\r", ",");
+			lines = lines.Replace (";", ",");
+			lines = lines.Replace (" ", ",");
+			lines = lines.Replace ("\u2028", ","); // OS X
+
+			string[] items = lines.Split (',');
+			foreach (string item in items) {
+				if (item.Trim () != "")
+					result.Add (item);
+			}
+
+			return result;
+		}
+
 		public static bool SaveFile(string path, string content)
         {
 			if (File.Exists(path))
