@@ -152,7 +152,7 @@ namespace AirVPN.Core
 			if (obj == null)
 				return false;
 
-			IpAddress two = obj as IpAddress;
+			IpAddressRange two = obj as IpAddressRange;
 			if (two == null)
 				return false;
 

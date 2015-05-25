@@ -286,6 +286,7 @@ namespace AirVPN.Gui.Forms
 			
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
+			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
 
 			txtExePath.Text = s.Get("executables.openvpn");
 
@@ -345,6 +346,7 @@ namespace AirVPN.Gui.Forms
 			// Advanced - Logging
 			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
 			TxtLoggingPath.Text = s.Get("log.file.path");
+			chkLogLevelDebug.Checked = s.GetBool("log.level.debug");
 
 			// Advanced - OVPN Directives
             chkAdvancedOpenVpnDirectivesDefaultSkip.Checked = s.GetBool("openvpn.skip_defaults");			
@@ -581,6 +583,7 @@ namespace AirVPN.Gui.Forms
 						
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
+			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
 
 			s.Set("executables.openvpn", txtExePath.Text);
 
@@ -643,6 +646,7 @@ namespace AirVPN.Gui.Forms
 			// Advanced - Logging
 			s.SetBool("log.file.enabled", chkLoggingEnabled.Checked);
 			s.Set("log.file.path", TxtLoggingPath.Text);
+			s.SetBool("log.level.debug", chkLogLevelDebug.Checked);
 
 			// Advanced - OVPN Directives
             s.Set("openvpn.custom", txtAdvancedOpenVpnDirectivesCustom.Text);

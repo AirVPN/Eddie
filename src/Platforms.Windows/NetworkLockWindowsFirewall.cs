@@ -137,9 +137,9 @@ namespace AirVPN.Platforms
 	public class NetworkLockWindowsFirewall : NetworkLockPlugin
 	{
 		private List<NetworkLockWindowsFirewallProfile> Profiles = new List<NetworkLockWindowsFirewallProfile>();
-		private bool m_serviceStatus;
-		private bool m_activated;
-		private string m_lastestIpList;
+		private bool m_serviceStatus = false;
+		private bool m_activated = false;
+		private string m_lastestIpList = "";
 
 		public override string GetCode()
 		{
@@ -324,11 +324,12 @@ namespace AirVPN.Platforms
 
 			if (ipList != m_lastestIpList)
 			{
-				m_lastestIpList = ipList;
+				if (m_lastestIpList != "")
+					Exec("netsh advfirewall firewall set rule name=\"AirVPN - Out - AllowAirIPS\" dir=out new action=allow remoteip=\"" + ipList + "\"");
+				else
+					Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowAirIPS\" dir=out action=allow remoteip=\"" + ipList + "\"");
 
-				if(m_lastestIpList != "")
-					Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
-				Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowAirIPS\" dir=out action=allow remoteip=" + ipList);
+				m_lastestIpList = ipList;
 			}
 		}
 

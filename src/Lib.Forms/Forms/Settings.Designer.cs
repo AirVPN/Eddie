@@ -178,11 +178,13 @@ namespace AirVPN.Gui.Forms
 			this.lblLockMode = new AirVPN.Gui.Skin.Label();
 			this.cboLockMode = new AirVPN.Gui.Skin.ComboBox();
 			this.tabPage4 = new AirVPN.Gui.Skin.TabPage();
+			this.chkLogLevelDebug = new AirVPN.Gui.Skin.CheckBox();
 			this.TxtLoggingPathComputed = new AirVPN.Gui.Skin.Label();
 			this.lblLoggingHelp = new AirVPN.Gui.Skin.Label();
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
+			this.chkWindowsDisableDriverUpgrade = new AirVPN.Gui.Skin.CheckBox();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -355,6 +357,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// pnlAdvancedGeneralWindowsOnly
 			// 
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkAdvancedWindowsTapUp);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkAdvancedWindowsDhcpSwitch);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriver);
@@ -369,9 +372,9 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkAdvancedWindowsTapUp.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedWindowsTapUp.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedWindowsTapUp.Location = new System.Drawing.Point(15, 23);
+			this.chkAdvancedWindowsTapUp.Location = new System.Drawing.Point(15, 21);
 			this.chkAdvancedWindowsTapUp.Name = "chkAdvancedWindowsTapUp";
-			this.chkAdvancedWindowsTapUp.Size = new System.Drawing.Size(194, 26);
+			this.chkAdvancedWindowsTapUp.Size = new System.Drawing.Size(194, 22);
 			this.chkAdvancedWindowsTapUp.TabIndex = 55;
 			this.chkAdvancedWindowsTapUp.Text = "Force TAP interface UP";
 			this.chkAdvancedWindowsTapUp.UseVisualStyleBackColor = false;
@@ -380,9 +383,9 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkAdvancedWindowsDhcpSwitch.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedWindowsDhcpSwitch.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedWindowsDhcpSwitch.Location = new System.Drawing.Point(15, 46);
+			this.chkAdvancedWindowsDhcpSwitch.Location = new System.Drawing.Point(15, 45);
 			this.chkAdvancedWindowsDhcpSwitch.Name = "chkAdvancedWindowsDhcpSwitch";
-			this.chkAdvancedWindowsDhcpSwitch.Size = new System.Drawing.Size(194, 26);
+			this.chkAdvancedWindowsDhcpSwitch.Size = new System.Drawing.Size(194, 22);
 			this.chkAdvancedWindowsDhcpSwitch.TabIndex = 64;
 			this.chkAdvancedWindowsDhcpSwitch.Text = "Switch DHCP to Static";
 			this.chkAdvancedWindowsDhcpSwitch.UseVisualStyleBackColor = false;
@@ -2005,6 +2008,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// tabPage4
 			// 
+			this.tabPage4.Controls.Add(this.chkLogLevelDebug);
 			this.tabPage4.Controls.Add(this.TxtLoggingPathComputed);
 			this.tabPage4.Controls.Add(this.lblLoggingHelp);
 			this.tabPage4.Controls.Add(this.TxtLoggingPath);
@@ -2016,6 +2020,18 @@ namespace AirVPN.Gui.Forms
 			this.tabPage4.TabIndex = 3;
 			this.tabPage4.Text = "Logging";
 			this.tabPage4.UseVisualStyleBackColor = true;
+			// 
+			// chkLogLevelDebug
+			// 
+			this.chkLogLevelDebug.AutoSize = true;
+			this.chkLogLevelDebug.BackColor = System.Drawing.Color.Transparent;
+			this.chkLogLevelDebug.ForeColor = System.Drawing.Color.Black;
+			this.chkLogLevelDebug.Location = new System.Drawing.Point(436, 20);
+			this.chkLogLevelDebug.Name = "chkLogLevelDebug";
+			this.chkLogLevelDebug.Size = new System.Drawing.Size(173, 17);
+			this.chkLogLevelDebug.TabIndex = 63;
+			this.chkLogLevelDebug.Text = "Log debug (for troubleshooting)";
+			this.chkLogLevelDebug.UseVisualStyleBackColor = false;
 			// 
 			// TxtLoggingPathComputed
 			// 
@@ -2074,6 +2090,17 @@ namespace AirVPN.Gui.Forms
 			this.chkLoggingEnabled.TabIndex = 55;
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
+			// 
+			// chkWindowsDisableDriverUpgrade
+			// 
+			this.chkWindowsDisableDriverUpgrade.BackColor = System.Drawing.Color.Transparent;
+			this.chkWindowsDisableDriverUpgrade.ForeColor = System.Drawing.Color.Black;
+			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(15, 69);
+			this.chkWindowsDisableDriverUpgrade.Name = "chkWindowsDisableDriverUpgrade";
+			this.chkWindowsDisableDriverUpgrade.Size = new System.Drawing.Size(194, 22);
+			this.chkWindowsDisableDriverUpgrade.TabIndex = 66;
+			this.chkWindowsDisableDriverUpgrade.Text = "Disable driver upgrade";
+			this.chkWindowsDisableDriverUpgrade.UseVisualStyleBackColor = false;
 			// 
 			// Settings
 			// 
@@ -2267,6 +2294,8 @@ namespace AirVPN.Gui.Forms
 		private Skin.CheckBox chkNetLock;
 		private Skin.Label label9;
 		private Skin.CheckBox chkRouteRemoveDefault;
+		private Skin.CheckBox chkLogLevelDebug;
+		private Skin.CheckBox chkWindowsDisableDriverUpgrade;
 
     }
 }

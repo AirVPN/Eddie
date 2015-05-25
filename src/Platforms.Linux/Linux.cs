@@ -258,17 +258,29 @@ namespace AirVPN.Platforms
 
 		public override bool OnCheckEnvironment()
 		{
-			string ipV6 = File.ReadAllText("/proc/sys/net/ipv6/conf/all/disable_ipv6").Trim();
-			
-			if ((ipV6 == "0") && (Engine.Instance.Storage.Get("ipv6.mode") == "disable"))
+			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
 			{
-				if (Engine.Instance.OnAskYesNo(Messages.IpV6Warning))
+				string sysctlName = "sysctl net.ipv6.conf.all.disable_ipv6";
+				string ipV6 = File.ReadAllText(sysctlName).Replace(sysctlName, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' });
+
+				if (ipV6 == "0")
 				{
-					Engine.Instance.Storage.Set("ipv6.mode", "none");
+					if (Engine.Instance.OnAskYesNo(Messages.IpV6Warning))
+					{
+						Engine.Instance.Storage.Set("ipv6.mode", "none");
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else if (ipV6 == "1")
+				{
+					// Already disabled
 				}
 				else
 				{
-					return false;
+					Engine.Instance.Log(Engine.LogType.Warning, Messages.IpV6WarningUnableToDetect);
 				}
 			}
 

@@ -35,6 +35,7 @@ namespace AirVPN.Core
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";
 		public static string CheckingRequired = "Unavailable (Check required)";
+		public static string ProfileNotFound = "Requested profile '{1}' not found.";
 		public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
 		public static string WaitingLatencyTestsStep = "({1} to go)";
 		public static string ExchangeTryFailed = "{1}, {2}° try failed ({3})";
@@ -359,7 +360,8 @@ namespace AirVPN.Core
 		public static string DnsRenameBackup = "/etc/resolv.conf renamed to /etc/resolv.conf.airvpn as backup";
 		public static string DnsRenameDone = "DNS of the system updated to VPN DNS (Rename method: /etc/resolv.conf generated)";
 		public static string DnsRenameRestored = "DNS of the system restored to original settings (Rename method)";
-		public static string IpV6Warning = "IPV6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPV6.\n\nContinue?";	
+		public static string IpV6Warning = "IPV6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPV6.\n\nContinue?";
+		public static string IpV6WarningUnableToDetect = "Unable to understand if IPV6 is active.";	// TOTRANSLATE
 
 		public static string Format(string format, string param1)
 		{

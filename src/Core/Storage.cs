@@ -298,6 +298,7 @@ namespace AirVPN.Core
 
 			SetDefaultBool("log.file.enabled", false, NotInMan);
 			SetDefault("log.file.path", "logs/airvpn_%y-%m-%d.log", NotInMan);
+			SetDefaultBool("log.level.debug", false, NotInMan);
 
 			SetDefault("mode.protocol", "AUTO", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
@@ -386,6 +387,7 @@ namespace AirVPN.Core
 			// Windows only
 			SetDefault("windows.adapter_name", "TAP-Windows Adapter V9", NotInMan);
 			SetDefault("windows.adapter_service", "tap0901", NotInMan);
+			SetDefaultBool("windows.disable_driver_upgrade", false, NotInMan);
 
 			// GUI only
 			SetDefaultBool("gui.exit_confirm", true, NotInMan);
@@ -480,6 +482,9 @@ namespace AirVPN.Core
 				}
 				
                 xmlDoc.Save(path);
+
+				if (Platform.Instance.IsUnixSystem())
+					Platform.Instance.ShellCmd("chmod 600 \"" + path + "\"");
             }
 			
         }

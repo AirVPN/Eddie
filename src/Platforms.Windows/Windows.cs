@@ -243,6 +243,9 @@ namespace AirVPN.Platforms
 				}
 			}
 
+			// Loopback interface it's not in the enumeration below.
+			InterfacesIp2Id["127.0.0.1"] = "1";
+
 			string cmd = "route PRINT";
 			string result = ShellCmd(cmd);
 
@@ -630,7 +633,10 @@ namespace AirVPN.Platforms
 			if (IsVistaOrHigher() == false) // XP
 				bundleVersion = Constants.WindowsXpDriverVersion;
 
-			bool needReinstall = (Utils.CompareVersions(version, bundleVersion) == -1);
+			bool needReinstall = false;
+
+			if(Engine.Instance.Storage.GetBool("windows.disable_driver_upgrade") == false)
+				needReinstall = (Utils.CompareVersions(version, bundleVersion) == -1);
 
 			if (needReinstall)
 			{
