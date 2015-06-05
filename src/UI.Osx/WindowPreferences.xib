@@ -10,8 +10,8 @@
                 <outlet property="CboDnsSwitchMode" destination="hxb-i3-foN" id="6o8-81-kLq"/>
                 <outlet property="CboIpV6" destination="ygm-BR-rTG" id="w0w-aA-YPg"/>
                 <outlet property="CboLockMode" destination="Lrp-im-2GN" id="a01-gG-6NS"/>
-                <outlet property="CboOpenVpnRcvBuf" destination="4gd-sC-mOi" id="LQ8-28-MU8"/>
-                <outlet property="CboOpenVpnRcvBuf2" destination="lVo-gz-mEd" id="TYQ-Sd-mtb"/>
+                <outlet property="CboOpenVpnSndBuf" destination="4gd-sC-mOi" id="LQ8-28-MU8"/>
+                <outlet property="CboOpenVpnRcvBuf" destination="lVo-gz-mEd" id="TYQ-Sd-mtb"/>
                 <outlet property="CboProxyAuthentication" destination="Hai-gc-xnu" id="dgb-Pq-InJ"/>
                 <outlet property="CboProxyType" destination="aVZ-Zz-7LT" id="Mqe-f8-uqX"/>
                 <outlet property="CboRoutesOtherwise" destination="JqH-io-99F" id="Nzg-Tp-iJd"/>
@@ -69,8 +69,8 @@
                 <outlet property="LblDnsServers" destination="0g5-hp-4gz" id="kYZ-a6-qOf"/>
                 <outlet property="LblLockRoutingOutWarning" destination="xsz-F9-GYM" id="pcZ-0q-kwl"/>
                 <outlet property="LblLoggingHelp" destination="STr-CF-heX" id="jBF-M5-Ikp"/>
-                <outlet property="LblOpenVpnRcvBuf" destination="a1S-WE-IVy" id="Jxg-9F-Jrd"/>
-                <outlet property="LblOpenVpnRcvBuf2" destination="hVX-ua-k8h" id="quX-mX-UAZ"/>
+                <outlet property="LblOpenVpnSndBuf" destination="a1S-WE-IVy" id="Jxg-9F-Jrd"/>
+                <outlet property="LblOpenVpnRcvBuf" destination="hVX-ua-k8h" id="quX-mX-UAZ"/>
                 <outlet property="LblRoutesNetworkLockWarning" destination="KPm-dc-mbz" id="XsZ-UC-CEd"/>
                 <outlet property="TableAdvancedEvents" destination="ro0-7l-TmO" id="KYZ-V8-TQF"/>
                 <outlet property="TableDnsServers" destination="urA-cy-BnR" id="caD-P0-UnG"/>
