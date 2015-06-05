@@ -28,6 +28,12 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSPopUpButton CboLockMode { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboOpenVpnRcvBuf { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboOpenVpnRcvBuf2 { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboProxyAuthentication { get; set; }
 
 		[Outlet]
@@ -142,6 +148,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton ChkNetLock { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdAdvancedEventsClear { get; set; }
 
 		[Outlet]
@@ -197,6 +206,12 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblLoggingHelp { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblOpenVpnRcvBuf { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblOpenVpnRcvBuf2 { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblRoutesNetworkLockWarning { get; set; }
@@ -324,11 +339,6 @@ namespace AirVPN.UI.Osx
 				ChkConnect = null;
 			}
 
-			if (ChkNetLock != null) {
-				ChkNetLock.Dispose ();
-				ChkNetLock = null;
-			}
-
 			if (ChkDnsCheck != null) {
 				ChkDnsCheck.Dispose ();
 				ChkDnsCheck = null;
@@ -364,9 +374,34 @@ namespace AirVPN.UI.Osx
 				ChkLockAllowPrivate = null;
 			}
 
+			if (ChkRouteRemoveDefaultGateway != null) {
+				ChkRouteRemoveDefaultGateway.Dispose ();
+				ChkRouteRemoveDefaultGateway = null;
+			}
+
 			if (ChkLoggingEnabled != null) {
 				ChkLoggingEnabled.Dispose ();
 				ChkLoggingEnabled = null;
+			}
+
+			if (CboOpenVpnRcvBuf != null) {
+				CboOpenVpnRcvBuf.Dispose ();
+				CboOpenVpnRcvBuf = null;
+			}
+
+			if (LblOpenVpnRcvBuf != null) {
+				LblOpenVpnRcvBuf.Dispose ();
+				LblOpenVpnRcvBuf = null;
+			}
+
+			if (LblOpenVpnRcvBuf2 != null) {
+				LblOpenVpnRcvBuf2.Dispose ();
+				LblOpenVpnRcvBuf2 = null;
+			}
+
+			if (CboOpenVpnRcvBuf2 != null) {
+				CboOpenVpnRcvBuf2.Dispose ();
+				CboOpenVpnRcvBuf2 = null;
 			}
 
 			if (ChkModeAutomatic != null) {
@@ -467,6 +502,11 @@ namespace AirVPN.UI.Osx
 			if (ChkModeUdp80Alt != null) {
 				ChkModeUdp80Alt.Dispose ();
 				ChkModeUdp80Alt = null;
+			}
+
+			if (ChkNetLock != null) {
+				ChkNetLock.Dispose ();
+				ChkNetLock = null;
 			}
 
 			if (CmdAdvancedEventsClear != null) {
