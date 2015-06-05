@@ -35,8 +35,14 @@ namespace AirVPN.Core.Threads
 
 		public override string ToString()
 		{
-			string msg = "Invalid: {1}, Older check: {2}, Latest check: {3}";
-			return Messages.Format(msg, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
+			if (Engine.Instance.IsConnected())
+			{
+				return Messages.Format(Messages.PingerStatsPending, Utils.FormatTime(LatestCheckDate));
+			}
+			else
+			{
+				return Messages.Format(Messages.PingerStatsNormal, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
+			}			
 		}
 	}
 

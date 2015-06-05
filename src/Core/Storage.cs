@@ -338,6 +338,8 @@ namespace AirVPN.Core
 			SetDefault("executables.curl", "", Messages.ManOptionExecutablesCurl);
 			SetDefault("openvpn.custom", "", Messages.ManOptionOpenVpnCustom);
 			SetDefault("openvpn.dev_node", "", NotInMan);
+			SetDefaultInt("openvpn.rcvbuf", 524288, NotInMan); // 2.10.1
+			SetDefaultInt("openvpn.sndbuf", 524288, NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
 
 			SetDefault("profiles.path", "", NotInMan);

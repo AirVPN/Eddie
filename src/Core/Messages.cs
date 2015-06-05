@@ -85,6 +85,9 @@ namespace AirVPN.Core
 		public static string SocksProxyError = "Socks proxy connection error.";
 
 		public static string FetchTryFailed = "{1}, {2}° try failed ({3})";
+
+		public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; // TOTRANSLATE
+		public static string PingerStatsPending = "Disabled during VPN connection. Latest check: {1}"; // TOTRANSLATE
 		
 		public static string CheckingEnvironment = "Checking environment";
 		public static string CheckingProtocolUnknown = "Unknown protocol.";
@@ -116,10 +119,10 @@ namespace AirVPN.Core
 		public static string NetworkLockDeactivation = "Deactivation of Network Lock"; 
 		//public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; 
 		//public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
-		public static string NetworkLockButtonActive = "Deactivate Network Lock"; // TOTRANSLATE
-		public static string NetworkLockButtonDeactive = "Activate Network Lock"; // TOTRANSLATE
-		public static string NetworkLockStatusActive = "Network Lock enabled"; // TOTRANSLATE
-		public static string NetworkLockStatusDeactive = "Network Lock disabled"; // TOTRANSLATE
+		public static string NetworkLockButtonActive = "Deactivate Network Lock"; 
+		public static string NetworkLockButtonDeactive = "Activate Network Lock"; 
+		public static string NetworkLockStatusActive = "Network Lock enabled"; 
+		public static string NetworkLockStatusDeactive = "Network Lock disabled"; 
 
 		public static string NetworkLockNoMode = "There is no available or enabled Network Lock mode, sorry.";
 		public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated"; 
@@ -192,6 +195,9 @@ namespace AirVPN.Core
 		public static string WindowsSettingsDnsCheck = "Check if the tunnel uses AirVPN DNS";
 		public static string WindowsSettingsDnsServers = "DNS server list. Leave empty to use DNS servers recommended by the VPN";
 		public static string WindowsSettingsIpTitle = "Preferences - IP Address";
+		public static string WindowsSettingsOpenVpnRcvBuf = "TCP/UDP socket receive buffer size";
+		public static string WindowsSettingsOpenVpnSndBuf = "TCP/UDP socket send buffer size";
+		public static string WindowsSettingsOpenVpnDefault = "OpenVPN Default";
 		public static string WindowsOpenVpnManagementCommandTitle = "OpenVPN Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 

@@ -47,6 +47,7 @@ namespace AirVPN.Gui.Forms
 			this.cboAdvancedManifestRefresh = new AirVPN.Gui.Skin.ComboBox();
 			this.cmdAdvancedGeneralDocs = new AirVPN.Gui.Skin.Button();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+			this.chkWindowsDisableDriverUpgrade = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAdvancedWindowsTapUp = new AirVPN.Gui.Skin.CheckBox();
 			this.chkAdvancedWindowsDhcpSwitch = new AirVPN.Gui.Skin.CheckBox();
 			this.cmdAdvancedUninstallDriver = new AirVPN.Gui.Skin.Button();
@@ -184,7 +185,10 @@ namespace AirVPN.Gui.Forms
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
-			this.chkWindowsDisableDriverUpgrade = new AirVPN.Gui.Skin.CheckBox();
+			this.lblOpenVpnSndbuf = new AirVPN.Gui.Skin.Label();
+			this.cboOpenVpnSndbuf = new AirVPN.Gui.Skin.ComboBox();
+			this.cboOpenVpnRcvbuf = new AirVPN.Gui.Skin.ComboBox();
+			this.lblOpenVpnRcvbuf = new AirVPN.Gui.Skin.Label();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -213,6 +217,10 @@ namespace AirVPN.Gui.Forms
 			// tabPage1
 			// 
 			tabPage1.BackColor = System.Drawing.Color.White;
+			tabPage1.Controls.Add(this.lblOpenVpnRcvbuf);
+			tabPage1.Controls.Add(this.cboOpenVpnRcvbuf);
+			tabPage1.Controls.Add(this.lblOpenVpnSndbuf);
+			tabPage1.Controls.Add(this.cboOpenVpnSndbuf);
 			tabPage1.Controls.Add(this.label9);
 			tabPage1.Controls.Add(this.chkRouteRemoveDefault);
 			tabPage1.Controls.Add(this.lblExpert);
@@ -241,18 +249,18 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.label9.BackColor = System.Drawing.Color.Transparent;
 			this.label9.ForeColor = System.Drawing.Color.Black;
-			this.label9.Location = new System.Drawing.Point(13, 166);
+			this.label9.Location = new System.Drawing.Point(13, 152);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(206, 22);
 			this.label9.TabIndex = 81;
-			this.label9.Text = "Remove the default gateway route";
+			this.label9.Text = "Remove the default gateway route:";
 			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// chkRouteRemoveDefault
 			// 
 			this.chkRouteRemoveDefault.BackColor = System.Drawing.Color.Transparent;
 			this.chkRouteRemoveDefault.ForeColor = System.Drawing.Color.Black;
-			this.chkRouteRemoveDefault.Location = new System.Drawing.Point(231, 166);
+			this.chkRouteRemoveDefault.Location = new System.Drawing.Point(231, 152);
 			this.chkRouteRemoveDefault.Name = "chkRouteRemoveDefault";
 			this.chkRouteRemoveDefault.Size = new System.Drawing.Size(125, 25);
 			this.chkRouteRemoveDefault.TabIndex = 80;
@@ -273,7 +281,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblAdvancedPingerEnabled.BackColor = System.Drawing.Color.Transparent;
 			this.lblAdvancedPingerEnabled.ForeColor = System.Drawing.Color.Black;
-			this.lblAdvancedPingerEnabled.Location = new System.Drawing.Point(13, 141);
+			this.lblAdvancedPingerEnabled.Location = new System.Drawing.Point(13, 127);
 			this.lblAdvancedPingerEnabled.Name = "lblAdvancedPingerEnabled";
 			this.lblAdvancedPingerEnabled.Size = new System.Drawing.Size(206, 22);
 			this.lblAdvancedPingerEnabled.TabIndex = 78;
@@ -284,7 +292,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblAdvancedCheckRoute.BackColor = System.Drawing.Color.Transparent;
 			this.lblAdvancedCheckRoute.ForeColor = System.Drawing.Color.Black;
-			this.lblAdvancedCheckRoute.Location = new System.Drawing.Point(13, 60);
+			this.lblAdvancedCheckRoute.Location = new System.Drawing.Point(13, 46);
 			this.lblAdvancedCheckRoute.Name = "lblAdvancedCheckRoute";
 			this.lblAdvancedCheckRoute.Size = new System.Drawing.Size(209, 22);
 			this.lblAdvancedCheckRoute.TabIndex = 77;
@@ -295,7 +303,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblIpV6.BackColor = System.Drawing.Color.Transparent;
 			this.lblIpV6.ForeColor = System.Drawing.Color.Black;
-			this.lblIpV6.Location = new System.Drawing.Point(16, 87);
+			this.lblIpV6.Location = new System.Drawing.Point(16, 73);
 			this.lblIpV6.Name = "lblIpV6";
 			this.lblIpV6.Size = new System.Drawing.Size(206, 21);
 			this.lblIpV6.TabIndex = 76;
@@ -309,7 +317,7 @@ namespace AirVPN.Gui.Forms
 			this.cboIpV6.Items.AddRange(new object[] {
             "None",
             "Disable"});
-			this.cboIpV6.Location = new System.Drawing.Point(231, 87);
+			this.cboIpV6.Location = new System.Drawing.Point(231, 73);
 			this.cboIpV6.Name = "cboIpV6";
 			this.cboIpV6.Size = new System.Drawing.Size(125, 21);
 			this.cboIpV6.TabIndex = 75;
@@ -318,7 +326,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.lblAdvancedManifestRefresh.BackColor = System.Drawing.Color.Transparent;
 			this.lblAdvancedManifestRefresh.ForeColor = System.Drawing.Color.Black;
-			this.lblAdvancedManifestRefresh.Location = new System.Drawing.Point(13, 114);
+			this.lblAdvancedManifestRefresh.Location = new System.Drawing.Point(13, 100);
 			this.lblAdvancedManifestRefresh.Name = "lblAdvancedManifestRefresh";
 			this.lblAdvancedManifestRefresh.Size = new System.Drawing.Size(206, 21);
 			this.lblAdvancedManifestRefresh.TabIndex = 74;
@@ -335,7 +343,7 @@ namespace AirVPN.Gui.Forms
             "Every minute",
             "Every ten minute",
             "Every one hour"});
-			this.cboAdvancedManifestRefresh.Location = new System.Drawing.Point(231, 114);
+			this.cboAdvancedManifestRefresh.Location = new System.Drawing.Point(231, 100);
 			this.cboAdvancedManifestRefresh.Name = "cboAdvancedManifestRefresh";
 			this.cboAdvancedManifestRefresh.Size = new System.Drawing.Size(125, 21);
 			this.cboAdvancedManifestRefresh.TabIndex = 73;
@@ -367,6 +375,17 @@ namespace AirVPN.Gui.Forms
 			this.pnlAdvancedGeneralWindowsOnly.TabIndex = 69;
 			this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
 			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
+			// 
+			// chkWindowsDisableDriverUpgrade
+			// 
+			this.chkWindowsDisableDriverUpgrade.BackColor = System.Drawing.Color.Transparent;
+			this.chkWindowsDisableDriverUpgrade.ForeColor = System.Drawing.Color.Black;
+			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(15, 69);
+			this.chkWindowsDisableDriverUpgrade.Name = "chkWindowsDisableDriverUpgrade";
+			this.chkWindowsDisableDriverUpgrade.Size = new System.Drawing.Size(194, 22);
+			this.chkWindowsDisableDriverUpgrade.TabIndex = 66;
+			this.chkWindowsDisableDriverUpgrade.Text = "Disable driver upgrade";
+			this.chkWindowsDisableDriverUpgrade.UseVisualStyleBackColor = false;
 			// 
 			// chkAdvancedWindowsTapUp
 			// 
@@ -409,7 +428,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			this.chkAdvancedPingerEnabled.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedPingerEnabled.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedPingerEnabled.Location = new System.Drawing.Point(231, 141);
+			this.chkAdvancedPingerEnabled.Location = new System.Drawing.Point(231, 127);
 			this.chkAdvancedPingerEnabled.Name = "chkAdvancedPingerEnabled";
 			this.chkAdvancedPingerEnabled.Size = new System.Drawing.Size(125, 25);
 			this.chkAdvancedPingerEnabled.TabIndex = 66;
@@ -423,7 +442,7 @@ namespace AirVPN.Gui.Forms
 			this.cmdExeBrowse.FlatAppearance.BorderSize = 0;
 			this.cmdExeBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdExeBrowse.Image = global::AirVPN.Lib.Forms.Properties.Resources.browse;
-			this.cmdExeBrowse.Location = new System.Drawing.Point(308, 224);
+			this.cmdExeBrowse.Location = new System.Drawing.Point(400, 232);
 			this.cmdExeBrowse.Name = "cmdExeBrowse";
 			this.cmdExeBrowse.Size = new System.Drawing.Size(31, 25);
 			this.cmdExeBrowse.TabIndex = 60;
@@ -432,26 +451,27 @@ namespace AirVPN.Gui.Forms
 			// 
 			// txtExePath
 			// 
-			this.txtExePath.Location = new System.Drawing.Point(16, 227);
+			this.txtExePath.Location = new System.Drawing.Point(231, 235);
 			this.txtExePath.Name = "txtExePath";
-			this.txtExePath.Size = new System.Drawing.Size(286, 20);
+			this.txtExePath.Size = new System.Drawing.Size(163, 20);
 			this.txtExePath.TabIndex = 59;
 			// 
 			// label4
 			// 
 			this.label4.BackColor = System.Drawing.Color.Transparent;
 			this.label4.ForeColor = System.Drawing.Color.Black;
-			this.label4.Location = new System.Drawing.Point(15, 211);
+			this.label4.Location = new System.Drawing.Point(13, 238);
 			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(126, 13);
+			this.label4.Size = new System.Drawing.Size(206, 13);
 			this.label4.TabIndex = 58;
 			this.label4.Text = "OpenVPN Custom Path:";
+			this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// chkAdvancedCheckRoute
 			// 
 			this.chkAdvancedCheckRoute.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedCheckRoute.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedCheckRoute.Location = new System.Drawing.Point(231, 60);
+			this.chkAdvancedCheckRoute.Location = new System.Drawing.Point(231, 46);
 			this.chkAdvancedCheckRoute.Name = "chkAdvancedCheckRoute";
 			this.chkAdvancedCheckRoute.Size = new System.Drawing.Size(125, 25);
 			this.chkAdvancedCheckRoute.TabIndex = 57;
@@ -2091,16 +2111,57 @@ namespace AirVPN.Gui.Forms
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
 			// 
-			// chkWindowsDisableDriverUpgrade
+			// lblOpenVpnSndbuf
 			// 
-			this.chkWindowsDisableDriverUpgrade.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsDisableDriverUpgrade.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(15, 69);
-			this.chkWindowsDisableDriverUpgrade.Name = "chkWindowsDisableDriverUpgrade";
-			this.chkWindowsDisableDriverUpgrade.Size = new System.Drawing.Size(194, 22);
-			this.chkWindowsDisableDriverUpgrade.TabIndex = 66;
-			this.chkWindowsDisableDriverUpgrade.Text = "Disable driver upgrade";
-			this.chkWindowsDisableDriverUpgrade.UseVisualStyleBackColor = false;
+			this.lblOpenVpnSndbuf.BackColor = System.Drawing.Color.Transparent;
+			this.lblOpenVpnSndbuf.ForeColor = System.Drawing.Color.Black;
+			this.lblOpenVpnSndbuf.Location = new System.Drawing.Point(13, 178);
+			this.lblOpenVpnSndbuf.Name = "lblOpenVpnSndbuf";
+			this.lblOpenVpnSndbuf.Size = new System.Drawing.Size(206, 21);
+			this.lblOpenVpnSndbuf.TabIndex = 83;
+			this.lblOpenVpnSndbuf.Text = "TCP/UDP socket send buffer size:";
+			this.lblOpenVpnSndbuf.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboOpenVpnSndbuf
+			// 
+			this.cboOpenVpnSndbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboOpenVpnSndbuf.FormattingEnabled = true;
+			this.cboOpenVpnSndbuf.Items.AddRange(new object[] {
+            "Automatic",
+            "Never",
+            "Every minute",
+            "Every ten minute",
+            "Every one hour"});
+			this.cboOpenVpnSndbuf.Location = new System.Drawing.Point(231, 178);
+			this.cboOpenVpnSndbuf.Name = "cboOpenVpnSndbuf";
+			this.cboOpenVpnSndbuf.Size = new System.Drawing.Size(125, 21);
+			this.cboOpenVpnSndbuf.TabIndex = 82;
+			// 
+			// cboOpenVpnRcvbuf
+			// 
+			this.cboOpenVpnRcvbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboOpenVpnRcvbuf.FormattingEnabled = true;
+			this.cboOpenVpnRcvbuf.Items.AddRange(new object[] {
+            "Automatic",
+            "Never",
+            "Every minute",
+            "Every ten minute",
+            "Every one hour"});
+			this.cboOpenVpnRcvbuf.Location = new System.Drawing.Point(231, 205);
+			this.cboOpenVpnRcvbuf.Name = "cboOpenVpnRcvbuf";
+			this.cboOpenVpnRcvbuf.Size = new System.Drawing.Size(125, 21);
+			this.cboOpenVpnRcvbuf.TabIndex = 84;
+			// 
+			// lblOpenVpnRcvbuf
+			// 
+			this.lblOpenVpnRcvbuf.BackColor = System.Drawing.Color.Transparent;
+			this.lblOpenVpnRcvbuf.ForeColor = System.Drawing.Color.Black;
+			this.lblOpenVpnRcvbuf.Location = new System.Drawing.Point(13, 205);
+			this.lblOpenVpnRcvbuf.Name = "lblOpenVpnRcvbuf";
+			this.lblOpenVpnRcvbuf.Size = new System.Drawing.Size(206, 21);
+			this.lblOpenVpnRcvbuf.TabIndex = 85;
+			this.lblOpenVpnRcvbuf.Text = "TCP/UDP socket receive buffer size:";
+			this.lblOpenVpnRcvbuf.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// Settings
 			// 
@@ -2296,6 +2357,10 @@ namespace AirVPN.Gui.Forms
 		private Skin.CheckBox chkRouteRemoveDefault;
 		private Skin.CheckBox chkLogLevelDebug;
 		private Skin.CheckBox chkWindowsDisableDriverUpgrade;
+		private Skin.Label lblOpenVpnSndbuf;
+		private Skin.ComboBox cboOpenVpnSndbuf;
+		private Skin.Label lblOpenVpnRcvbuf;
+		private Skin.ComboBox cboOpenVpnRcvbuf;
 
     }
 }

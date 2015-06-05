@@ -60,6 +60,11 @@ namespace AirVPN.Core
 			return builder.ToString().ToLowerInvariant();
 		}
 
+		public static string BytesToHex(byte[] bytes) // 2.10.1
+		{
+			return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+		}
+
 		public static string GetNameFromPath(string path)
         {
             return new FileInfo(path).Name;

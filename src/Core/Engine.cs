@@ -291,6 +291,11 @@ namespace AirVPN.Core
             {
 				foreach (string commandLineParamKey in CommandLine.SystemEnvironment.Params.Keys)
 				{
+					// 2.10.1
+					// OS X sometime pass as command-line arguments a 'psn_0_16920610' or similar. Ignore it.
+					if (commandLineParamKey.StartsWith("psn_"))
+						continue;
+
 					if (Storage.Exists(commandLineParamKey) == false)
 					{
 						Log(LogType.Error, Messages.Format(Messages.CommandLineUnknownOption, commandLineParamKey));						
@@ -1491,7 +1496,13 @@ namespace AirVPN.Core
                 ovpn += s.Manifest.Attributes["openvpn_directives_common"].Value.Replace("\t", "").Trim() + "\n";
 
 			if (s.Get("openvpn.dev_node") != "")
-				ovpn += "dev-node " + s.Get("openvpn.dev_node");
+				ovpn += "dev-node " + s.Get("openvpn.dev_node") + "\n";
+
+			// 2.10.1
+			if (s.GetInt("openvpn.rcvbuf") != -1)
+				ovpn += "rcvbuf " + s.GetInt("openvpn.rcvbuf").ToString() + "\n";
+			if (s.GetInt("openvpn.sndbuf") != -1)
+				ovpn += "sndbuf " + s.GetInt("openvpn.sndbuf").ToString() + "\n";
 
             if (protocol == "UDP")
             {

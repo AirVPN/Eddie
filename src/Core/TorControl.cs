@@ -102,10 +102,17 @@ namespace AirVPN.Core
 
 			if (controlAuthenticate)
 			{
-				Write(s, "AUTHENTICATE \"");
-				Write(s, password);
-				Write(s, "\"\n");
+				Write(s, "AUTHENTICATE ");
+				Write(s, Utils.BytesToHex(password));
+				Write(s, "\n");
+				
+				string result = Read(s);
+
+				if (result != "250 OK")
+					throw new Exception(result);				
+				
 			}
+
 			Flush(s);
 
 			return s;			
@@ -213,6 +220,7 @@ namespace AirVPN.Core
 			byte[] inStream = new byte[bufSize + 1];
 			s.GetStream().Read(inStream, 0, bufSize);
 			string result = System.Text.Encoding.ASCII.GetString(inStream);
+			result = result.Trim('\0').Trim(); // 2.10.1
 			return result;
 		}
 

@@ -261,7 +261,7 @@ namespace AirVPN.Platforms
 			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
 			{
 				string sysctlName = "sysctl net.ipv6.conf.all.disable_ipv6";
-				string ipV6 = File.ReadAllText(sysctlName).Replace(sysctlName, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' });
+				string ipV6 = ShellCmd(sysctlName).Replace(sysctlName, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
 
 				if (ipV6 == "0")
 				{
@@ -375,10 +375,14 @@ namespace AirVPN.Platforms
 
 			if (current == "auto")
 			{
+				// 2.10.1
+				current = "rename";
+				/*
 				if (File.Exists("/sbin/resolvconf"))
 					current = "resolvconf";
 				else
 					current = "rename";
+				*/
 			}
 			
 			// Fallback

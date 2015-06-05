@@ -263,8 +263,6 @@ namespace AirVPN.Gui.Controls
 			{
 				//SuspendLayout();
 
-				Columns[3].Width = 0;
-
 				List<ServerInfo> servers;
 				lock (Engine.Instance.Servers)
 				{

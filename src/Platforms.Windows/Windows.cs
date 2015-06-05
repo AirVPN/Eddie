@@ -23,6 +23,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Management;
+using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using AirVPN.Core;
@@ -67,7 +68,15 @@ namespace AirVPN.Platforms
 
         public override bool IsAdmin()
         {
-            return true; // Manifest ensure that
+            //return true; // Manifest ensure that
+
+			// 2.10.1
+			bool isElevated;
+			WindowsIdentity identity = WindowsIdentity.GetCurrent();
+			WindowsPrincipal principal = new WindowsPrincipal(identity);
+			isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
+			return isElevated;
         }
 
         public override bool IsTraySupported()
