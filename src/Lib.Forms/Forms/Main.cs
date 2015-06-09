@@ -179,6 +179,8 @@ namespace AirVPN.Gui.Forms
 			SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 			MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
 
+			KeyPreview = true;  // 2.10.1
+
 			m_formReady = false;
 
 			Visible = false;
@@ -328,6 +330,26 @@ namespace AirVPN.Gui.Forms
 			timerMonoDelayedRedraw.Enabled = false;
 
 			Refresh();
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e) // 2.10.1
+		{
+			base.OnKeyDown(e);
+
+			if (e.Control && e.KeyCode == Keys.M)
+			{
+				ShowMenu();
+			}
+
+			if (e.Control && e.KeyCode == Keys.A)
+			{
+				ShowAbout();
+			}
+
+			if (e.Control && e.KeyCode == Keys.P)
+			{
+				ShowPreferences();
+			}
 		}
         
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -514,10 +536,7 @@ namespace AirVPN.Gui.Forms
 
         private void mnuSettings_Click(object sender, EventArgs e)
         {
-            Forms.Settings Dlg = new Forms.Settings();
-            Dlg.ShowDialog();
-
-			EnabledUi();
+			ShowPreferences(); // 2.10.1
         }
 
 		private void mnuStatus_Click(object sender, EventArgs e)
@@ -1482,6 +1501,14 @@ namespace AirVPN.Gui.Forms
 			Forms.About dlg = new Forms.About();
             dlg.ShowDialog();			
         }
+
+		public void ShowPreferences()
+		{
+			Forms.Settings Dlg = new Forms.Settings();
+			Dlg.ShowDialog();
+
+			EnabledUi();
+		}
 
         public bool TermsOfServiceCheck(bool force)
         {

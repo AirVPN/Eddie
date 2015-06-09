@@ -803,16 +803,6 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap stats_pc {
-            get {
-                object obj = ResourceManager.GetObject("stats_pc", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap stats_server {
             get {
                 object obj = ResourceManager.GetObject("stats_server", resourceCulture);
@@ -826,6 +816,16 @@ namespace AirVPN.Lib.Forms.Properties {
         internal static System.Drawing.Bitmap stats_session {
             get {
                 object obj = ResourceManager.GetObject("stats_session", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap stats_system {
+            get {
+                object obj = ResourceManager.GetObject("stats_system", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

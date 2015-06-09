@@ -840,6 +840,9 @@ namespace AirVPN.Core.Threads
 
 		void ProcessOutput(string source, string message)
 		{
+			if (message.Trim() == "") // 2.10.1
+				return;
+
 			try
 			{
 				if (source == "OpenVPN")
