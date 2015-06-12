@@ -333,7 +333,8 @@ namespace AirVPN.Platforms
 		{
 			base.OnNetworkLockManagerInit();
 
-			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
+			if(IsVistaOrHigher()) // 2.10.1
+				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());			
 		}
 
 		public override void OnSessionStart()

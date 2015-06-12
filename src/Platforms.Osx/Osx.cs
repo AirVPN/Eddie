@@ -386,7 +386,7 @@ namespace AirVPN.Platforms
 					}
 					else
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "'");
+						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface ' + i + "");
 					}
 				}
 

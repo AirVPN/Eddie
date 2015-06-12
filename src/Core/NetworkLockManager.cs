@@ -53,8 +53,11 @@ namespace AirVPN.Core
 
 		public bool CanEnabled()
 		{
-			if (IsActive()) // This because if is active, the button need aynway to be showed to deactivated it.
+			if (IsActive()) // This because if is active, the button need anyway to be showed to deactivated it.
 				return true;
+ 
+			if (Modes.Count == 0) // 2.10.1
+				return false;
 
 			if (Engine.Instance.Storage.Get("netlock.mode") == "none")
 				return false;
