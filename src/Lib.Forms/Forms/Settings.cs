@@ -243,7 +243,7 @@ namespace AirVPN.Gui.Forms
             }
             else if(protocol == "TOR")
 			{
-				optModeTOR.Checked = true;
+				optModeTor.Checked = true;
 			}
 			else
             {
@@ -580,7 +580,7 @@ namespace AirVPN.Gui.Forms
                 port = 443;
                 alternate = 1;
             }
-			else if (optModeTOR.Checked)
+			else if (optModeTor.Checked)
 			{
 				protocol = "TOR";
 				port = 2018;
@@ -798,7 +798,7 @@ namespace AirVPN.Gui.Forms
             optModeSSH53.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
             optModeSSH80.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
             optModeSSL443.Enabled = ( (proxy == false) && (m_modeSslEnabled) );
-			optModeTOR.Enabled = (proxy == false);
+			optModeTor.Enabled = (proxy == false);
 
             optModeUDP2018.Enabled = (proxy == false);
             optModeUDP2018Alt.Enabled = (proxy == false);
@@ -809,11 +809,11 @@ namespace AirVPN.Gui.Forms
             optModeUDP80.Enabled = (proxy == false);
             optModeUDP80Alt.Enabled = (proxy == false);
 
-			txtModeTorHost.Enabled = optModeTOR.Checked;
-			txtModeTorPort.Enabled = optModeTOR.Checked;
-			txtModeTorControlPort.Enabled = optModeTOR.Checked;
-			txtModeTorControlPassword.Enabled = optModeTOR.Checked;
-			cmdModeTorTest.Enabled = optModeTOR.Checked;
+			txtModeTorHost.Enabled = optModeTor.Checked;
+			txtModeTorPort.Enabled = optModeTor.Checked;
+			txtModeTorControlPort.Enabled = optModeTor.Checked;
+			txtModeTorControlPassword.Enabled = optModeTor.Checked;
+			cmdModeTorTest.Enabled = optModeTor.Checked;
 
             cmdRouteAdd.Enabled = true;
             mnuRoutesAdd.Enabled = cmdRouteAdd.Enabled;
@@ -1142,7 +1142,7 @@ namespace AirVPN.Gui.Forms
 			EnableIde();
 		}
 
-		private void optModeTOR_CheckedChanged(object sender, EventArgs e)
+		private void optModeTor_CheckedChanged(object sender, EventArgs e)
 		{
 			EnableIde();
 		}

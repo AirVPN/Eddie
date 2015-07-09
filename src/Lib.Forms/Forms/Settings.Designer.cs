@@ -102,7 +102,7 @@ namespace AirVPN.Gui.Forms
 			this.txtModeTorPort = new AirVPN.Gui.Skin.TextBox();
 			this.lblModeTorPort = new AirVPN.Gui.Skin.Label();
 			this.optModeAutomatic = new AirVPN.Gui.Skin.RadioButton();
-			this.optModeTOR = new AirVPN.Gui.Skin.RadioButton();
+			this.optModeTor = new AirVPN.Gui.Skin.RadioButton();
 			this.cmdModeDocs = new AirVPN.Gui.Skin.Button();
 			this.optModeTCP443 = new AirVPN.Gui.Skin.RadioButton();
 			this.optModeUDP443 = new AirVPN.Gui.Skin.RadioButton();
@@ -929,7 +929,7 @@ namespace AirVPN.Gui.Forms
 			this.tabMode.Controls.Add(this.txtModeTorPort);
 			this.tabMode.Controls.Add(this.lblModeTorPort);
 			this.tabMode.Controls.Add(this.optModeAutomatic);
-			this.tabMode.Controls.Add(this.optModeTOR);
+			this.tabMode.Controls.Add(this.optModeTor);
 			this.tabMode.Controls.Add(this.cmdModeDocs);
 			this.tabMode.Controls.Add(this.optModeTCP443);
 			this.tabMode.Controls.Add(this.optModeUDP443);
@@ -1065,18 +1065,18 @@ namespace AirVPN.Gui.Forms
 			this.optModeAutomatic.UseVisualStyleBackColor = false;
 			this.optModeAutomatic.CheckedChanged += new System.EventHandler(this.optModeAutomatic_CheckedChanged);
 			// 
-			// optModeTOR
+			// optModeTor
 			// 
-			this.optModeTOR.AutoSize = true;
-			this.optModeTOR.BackColor = System.Drawing.Color.Transparent;
-			this.optModeTOR.ForeColor = System.Drawing.Color.Black;
-			this.optModeTOR.Location = new System.Drawing.Point(18, 255);
-			this.optModeTOR.Name = "optModeTOR";
-			this.optModeTOR.Size = new System.Drawing.Size(48, 17);
-			this.optModeTOR.TabIndex = 40;
-			this.optModeTOR.Text = "TOR";
-			this.optModeTOR.UseVisualStyleBackColor = false;
-			this.optModeTOR.CheckedChanged += new System.EventHandler(this.optModeTOR_CheckedChanged);
+			this.optModeTor.AutoSize = true;
+			this.optModeTor.BackColor = System.Drawing.Color.Transparent;
+			this.optModeTor.ForeColor = System.Drawing.Color.Black;
+			this.optModeTor.Location = new System.Drawing.Point(18, 255);
+			this.optModeTor.Name = "optModeTor";
+			this.optModeTor.Size = new System.Drawing.Size(48, 17);
+			this.optModeTor.TabIndex = 40;
+			this.optModeTor.Text = "Tor";
+			this.optModeTor.UseVisualStyleBackColor = false;
+			this.optModeTor.CheckedChanged += new System.EventHandler(this.optModeTor_CheckedChanged);
 			// 
 			// cmdModeDocs
 			// 
@@ -1461,7 +1461,7 @@ namespace AirVPN.Gui.Forms
 			this.label17.Name = "label17";
 			this.label17.Size = new System.Drawing.Size(223, 56);
 			this.label17.TabIndex = 45;
-			this.label17.Text = "       If you use TOR, you need to set up your proxy inside TOR configuration";
+			this.label17.Text = "       If you use Tor, you need to set up your proxy inside Tor configuration";
 			// 
 			// label12
 			// 
@@ -2318,7 +2318,7 @@ namespace AirVPN.Gui.Forms
 		private Skin.Button cmdAdvancedGeneralDocs;
 		private Skin.Button cmdLockHelp;
 		private Skin.RadioButton optModeAutomatic;
-		private Skin.RadioButton optModeTOR;
+		private Skin.RadioButton optModeTor;
 		private Skin.Label lblModeGroup5;
 		private Skin.TextBox txtModeTorControlPort;
 		private Skin.Label lblModeTorControlPort;

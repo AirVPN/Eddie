@@ -139,12 +139,12 @@ namespace AirVPN.Core
 		public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
 		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
-		public static string TorControlAuth = "TOR Control authentication method: {1}"; 
-		public static string TorControlGuardIp = "TOR Control Guard IP detected: {1} ({2})"; 
-		public static string TorControlNoPath = "Unable to find your TOR path."; 
-		public static string TorControlNoIps = "Unable to find IP address of TOR first node of an established circuit.";
-		public static string TorControlException = "Unable to communicate with TOR ({1}). Is TOR up and running?";
-		public static string TorControlTest = "Successful test. TOR Version: ";
+		public static string TorControlAuth = "Tor Control authentication method: {1}";
+		public static string TorControlGuardIp = "Tor Control Guard IP detected: {1} ({2})";
+		public static string TorControlNoPath = "Unable to find your Tor path.";
+		public static string TorControlNoIps = "Unable to find IP address of Tor first node of an established circuit.";
+		public static string TorControlException = "Unable to communicate with Tor ({1}). Is Tor up and running?";
+		public static string TorControlTest = "Successful test. Tor Version: ";
 		
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
@@ -300,11 +300,11 @@ namespace AirVPN.Core
 		public static string ManOptionModeProtocol = "Protocol for connection. 'UDP', 'TCP' for direct openvpn connection. 'SSH', 'SSL' for additional tunneling";
 		public static string ManOptionModePort = "Port for connection. Currently available: 443, 80, 53, 2018";
 		public static string ManOptionModeAlt = "0 to use the default entry IP, 1 or more for additional entry IP";
-		public static string ManOptionModeTorHost = "TOR host";
-		public static string ManOptionModeTorPort = "TOR port";
-		public static string ManOptionModeTorControlPort = "TOR Control port";
-		public static string ManOptionModeTorControlAuth = "TOR Control needs authentication. Normally the TOR Browser Bundle requires authentication and accepts a file cookie password";
-		public static string ManOptionModeTorControlPassword = "TOR Control password. If empty, the software tries to detect the file cookie password";
+		public static string ManOptionModeTorHost = "Tor host";
+		public static string ManOptionModeTorPort = "Tor port";
+		public static string ManOptionModeTorControlPort = "Tor Control port";
+		public static string ManOptionModeTorControlAuth = "Tor Control needs authentication. Normally the Tor Browser Bundle requires authentication and accepts a file cookie password";
+		public static string ManOptionModeTorControlPassword = "Tor Control password. If empty, the software tries to detect the file cookie password";
 		
 		public static string ManOptionProxyMode = "Proxy mode: 'none', 'http' or 'socks'. 'protocol' option must be 'TCP'.";
 		public static string ManOptionProxyHost = "Proxy host";

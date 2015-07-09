@@ -31,8 +31,8 @@ namespace AirVPN.Core
 		{
 			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");			
 			if (processes.Length > 0)
-			{	
-				// TOR Browser Bundle, Unix and Windows at 10/16/2014				
+			{
+				// Tor Browser Bundle, Unix and Windows at 10/16/2014				
 				string path1 = Platform.Instance.NormalizePath(new FileInfo(processes[0].MainModule.FileName).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");				
 				if (File.Exists(path1))
 					return path1;
@@ -143,7 +143,7 @@ namespace AirVPN.Core
 				result = Messages.Format(Messages.TorControlException, e.Message);
 			}
 
-			Engine.Instance.Log(Engine.LogType.Verbose, "TOR Test: " + result);
+			Engine.Instance.Log(Engine.LogType.Verbose, "Tor Test: " + result);
 			return result;
 		}
 
@@ -155,7 +155,7 @@ namespace AirVPN.Core
 
 				if ((controlHost != "127.0.0.1") && (controlHost.ToLowerInvariant() != "localhost"))
 				{
-					// Guard IPS are used to avoid routing loop, that occur only if the TOR host is the same machine when OpenVPN run.
+					// Guard IPS are used to avoid routing loop, that occur only if the Tor host is the same machine when OpenVPN run.
 					return new List<string>();
 				}
 

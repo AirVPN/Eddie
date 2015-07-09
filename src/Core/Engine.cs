@@ -1510,7 +1510,7 @@ namespace AirVPN.Core
                 if (s.GetBool("openvpn.skip_defaults") == false)
                     ovpn += s.Manifest.Attributes["openvpn_directives_udp"].Value.Replace("\t", "").Trim() + "\n";
             }
-            else // TCP, SSH, SSL, TOR
+            else // TCP, SSH, SSL, Tor
             {
                 ovpn += "proto tcp\n";
                 if (s.GetBool("openvpn.skip_defaults") == false)
