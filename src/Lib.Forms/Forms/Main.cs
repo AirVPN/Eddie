@@ -781,14 +781,7 @@ namespace AirVPN.Gui.Forms
 
 			Core.Threads.Manifest.Instance.ForceUpdate = true;
 		}
-
-		private void mnuServersEdit_Click(object sender, EventArgs e)
-		{
-			Profiles Dlg = new Profiles();
-			Dlg.ShowDialog(this);
-		}
-
-
+				
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
 		{
 			mnuServersWhitelist_Click(sender, e);
@@ -807,11 +800,6 @@ namespace AirVPN.Gui.Forms
 		private void cmdServersRefresh_Click(object sender, EventArgs e)
 		{
 			mnuServersRefresh_Click(sender, e);
-		}
-
-		private void cmdServersEdit_Click(object sender, EventArgs e)
-		{
-			mnuServersEdit_Click(sender, e);
 		}
 
 		private void mnuAreasWhiteList_Click(object sender, EventArgs e)

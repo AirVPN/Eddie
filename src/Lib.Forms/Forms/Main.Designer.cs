@@ -94,7 +94,6 @@ namespace AirVPN.Gui.Forms
 			this.mnuServersUndefined = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuServersRefresh = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuServersEdit = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreas = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.mnuAreasWhiteList = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreasBlackList = new System.Windows.Forms.ToolStripMenuItem();
@@ -132,7 +131,6 @@ namespace AirVPN.Gui.Forms
 			this.lblWait1 = new AirVPN.Gui.Skin.Label();
 			this.cmdCancel = new AirVPN.Gui.Skin.Button();
 			this.tabServers = new AirVPN.Gui.Skin.TabPage();
-			this.cmdServersEdit = new AirVPN.Gui.Skin.Button();
 			this.lblScoreType = new AirVPN.Gui.Skin.Label();
 			this.chkShowAll = new AirVPN.Gui.Skin.CheckBox();
 			this.pnlServers = new System.Windows.Forms.Panel();
@@ -995,10 +993,9 @@ namespace AirVPN.Gui.Forms
             this.mnuServersBlackList,
             this.mnuServersUndefined,
             this.toolStripSeparator3,
-            this.mnuServersRefresh,
-            this.mnuServersEdit});
+            this.mnuServersRefresh});
 			this.mnuServers.Name = "mnuServers";
-			this.mnuServers.Size = new System.Drawing.Size(146, 148);
+			this.mnuServers.Size = new System.Drawing.Size(146, 126);
 			// 
 			// mnuServersConnect
 			// 
@@ -1049,14 +1046,6 @@ namespace AirVPN.Gui.Forms
 			this.mnuServersRefresh.Size = new System.Drawing.Size(145, 22);
 			this.mnuServersRefresh.Text = "Refresh list";
 			this.mnuServersRefresh.Click += new System.EventHandler(this.mnuServersRefresh_Click);
-			// 
-			// mnuServersEdit
-			// 
-			this.mnuServersEdit.Name = "mnuServersEdit";
-			this.mnuServersEdit.Size = new System.Drawing.Size(145, 22);
-			this.mnuServersEdit.Text = "Edit list";
-			this.mnuServersEdit.Visible = false;
-			this.mnuServersEdit.Click += new System.EventHandler(this.mnuServersEdit_Click);
 			// 
 			// mnuAreas
 			// 
@@ -1502,7 +1491,6 @@ namespace AirVPN.Gui.Forms
 			// tabServers
 			// 
 			this.tabServers.BackColor = System.Drawing.Color.Transparent;
-			this.tabServers.Controls.Add(this.cmdServersEdit);
 			this.tabServers.Controls.Add(this.cmdServersRefresh);
 			this.tabServers.Controls.Add(this.lblScoreType);
 			this.tabServers.Controls.Add(this.cboScoreType);
@@ -1520,24 +1508,6 @@ namespace AirVPN.Gui.Forms
 			this.tabServers.Size = new System.Drawing.Size(660, 301);
 			this.tabServers.TabIndex = 0;
 			this.tabServers.Text = "Servers";
-			// 
-			// cmdServersEdit
-			// 
-			this.cmdServersEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersEdit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersEdit.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersEdit.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersEdit.FlatAppearance.BorderSize = 0;
-			this.cmdServersEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersEdit.Image = global::AirVPN.Lib.Forms.Properties.Resources.reload;
-			this.cmdServersEdit.Location = new System.Drawing.Point(630, 216);
-			this.cmdServersEdit.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdServersEdit.Name = "cmdServersEdit";
-			this.cmdServersEdit.Size = new System.Drawing.Size(26, 28);
-			this.cmdServersEdit.TabIndex = 67;
-			this.cmdServersEdit.UseVisualStyleBackColor = true;
-			this.cmdServersEdit.Visible = false;
-			this.cmdServersEdit.Click += new System.EventHandler(this.cmdServersEdit_Click);
 			// 
 			// lblScoreType
 			// 
@@ -1870,8 +1840,6 @@ namespace AirVPN.Gui.Forms
 		private Skin.Button cmdServersRefresh;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersRefresh;
-		private Skin.Button cmdServersEdit;
-		private System.Windows.Forms.ToolStripMenuItem mnuServersEdit;
 		private System.Windows.Forms.TextBox txtCommand;
 		private System.Windows.Forms.Label lblNetLockStatus;		
     }
