@@ -27,63 +27,66 @@ namespace AirVPN.Gui.Controls
 {
     public class ListViewAreas : Skin.ListView
     {
-        private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.ColumnHeader columnHeader4;
+		private System.Windows.Forms.ColumnHeader columnHeader1;
+		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader columnHeader3;
+		private System.Windows.Forms.ColumnHeader columnHeader4;
+
+		// We use a separate dictionary, because ListView have poor performance internal dictionary.
+		Dictionary<string, Controls.ListViewItemArea> ItemsAreas = new Dictionary<string, ListViewItemArea>();
 
 		public ListViewAreas()
-        {
-            // Activate double buffering			
+		{
+			// Activate double buffering			
 			this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 
-            columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            
-            MultiSelect = true;
-            Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+			columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+
+			MultiSelect = true;
+			Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             columnHeader1,
             columnHeader2,
             columnHeader3,
             columnHeader4});
-            
-            Name = "lstAreas";
-            UseCompatibleStateImageBehavior = false;
-            View = System.Windows.Forms.View.Details;
-            //this.lstServers.SelectedIndexChanged += new System.EventHandler(this.lstServers_SelectedIndexChanged);
-            
-            columnHeader1.Text = Messages.AreasName;
-            columnHeader1.Width = 150;
+
+			Name = "lstAreas";
+			UseCompatibleStateImageBehavior = false;
+			View = System.Windows.Forms.View.Details;
+			//this.lstServers.SelectedIndexChanged += new System.EventHandler(this.lstServers_SelectedIndexChanged);
+
+			columnHeader1.Text = Messages.AreasName;
+			columnHeader1.Width = 150;
 			columnHeader2.Text = Messages.AreasServers;
-            columnHeader2.Width = 60;
-            columnHeader2.TextAlign = HorizontalAlignment.Center;
+			columnHeader2.Width = 60;
+			columnHeader2.TextAlign = HorizontalAlignment.Center;
 			columnHeader3.Text = Messages.AreasLoad;
-            columnHeader3.Width = 200;
+			columnHeader3.Width = 200;
 			columnHeader3.TextAlign = HorizontalAlignment.Center;
 			columnHeader4.Text = Messages.AreasUsers;
-            columnHeader4.Width = 60;
-            columnHeader4.TextAlign = HorizontalAlignment.Center;
+			columnHeader4.Width = 60;
+			columnHeader4.TextAlign = HorizontalAlignment.Center;
 
 			SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 			LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 
-            Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            HeaderStyle = ColumnHeaderStyle.Clickable;
+			Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			HeaderStyle = ColumnHeaderStyle.Clickable;
 
-            SetSort(0, SortOrder.Ascending);
+			SetSort(0, SortOrder.Ascending);
 
 			ImageIconResourcePrefix = "flags_";
 			ImageStateResourcePrefix = "blacklist_";
 
-            UpdateList();
-        }
+			UpdateList();
+		}
 
 		public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
-        {			
+		{
 			if (e.ColumnIndex == 2)
 			{
 				e.DrawDefault = false;
@@ -124,12 +127,12 @@ namespace AirVPN.Gui.Controls
 			}
 			else
 				base.OnListViewDrawSubItem(sender, e);
-        }
+		}
 
-        public override int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
-        {
-            ListViewItemArea i1 = pi1 as ListViewItemArea;
-            ListViewItemArea i2 = pi2 as ListViewItemArea;
+		public override int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
+		{
+			ListViewItemArea i1 = pi1 as ListViewItemArea;
+			ListViewItemArea i2 = pi2 as ListViewItemArea;
 
 			string colName = "";
 			if (col == 0)
@@ -180,45 +183,47 @@ namespace AirVPN.Gui.Controls
 
             return returnVal;
 			*/
-        }
+		}
 
-        public void UpdateList()
-        {
-            //SuspendLayout();
+		public void UpdateList()
+		{
+			//SuspendLayout();
 
-            List<AreaInfo> areas = new List<AreaInfo>();
-            lock (Engine.Instance.Areas)
-            {
-                foreach (AreaInfo infoArea in Engine.Instance.Areas.Values)
-                    areas.Add(infoArea);
-            }
+			List<AreaInfo> areas = new List<AreaInfo>();
+			lock (Engine.Instance.Areas)
+			{
+				foreach (AreaInfo infoArea in Engine.Instance.Areas.Values)
+					areas.Add(infoArea);
+			}
 
-            foreach (AreaInfo infoArea in areas)
-            {
-                if (Items.ContainsKey(infoArea.Code) == false)
-                {
-                    Controls.ListViewItemArea listItemArea = new Controls.ListViewItemArea();
-                    listItemArea.Name = infoArea.Code;
-                    listItemArea.Info = infoArea;
-                    listItemArea.Update();
-                    Items.Add(listItemArea);
-                }
-                else
-                {
-                    Controls.ListViewItemArea listItemArea = Items[infoArea.Code] as ListViewItemArea;
-                    listItemArea.Update();
-                }
-            }
+			foreach (AreaInfo infoArea in areas)
+			{
+				if (ItemsAreas.ContainsKey(infoArea.Code) == false)
+				{
+					Controls.ListViewItemArea listItemArea = new Controls.ListViewItemArea();
+					listItemArea.Name = infoArea.Code;
+					listItemArea.Info = infoArea;
+					listItemArea.Update();
+					ItemsAreas.Add(infoArea.Code, listItemArea);
+					Items.Add(listItemArea);
+				}
+				else
+				{
+					Controls.ListViewItemArea listItemArea = ItemsAreas[infoArea.Code] as ListViewItemArea;
+					listItemArea.Update();
+				}
+			}
 
-            foreach (ListViewItemArea viewItem in Items)
-            {
+			foreach (ListViewItemArea viewItem in Items)
+			{
 				if (areas.Contains(viewItem.Info) == false)
 				{
-					Items.Remove(viewItem);					
+					Items.Remove(viewItem);
+					ItemsAreas.Remove(viewItem.Info.Code);
 				}
-            }
+			}
 
-            //ResumeLayout();
-        }
+			//ResumeLayout();
+		}
     }
 }

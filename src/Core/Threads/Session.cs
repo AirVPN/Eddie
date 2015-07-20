@@ -134,21 +134,28 @@ namespace AirVPN.Core.Threads
 
 					Engine.CurrentServer = Engine.NextServer;
 					Engine.NextServer = null;
-					
-					if (Engine.CurrentServer == null)
-						if (Engine.Storage.GetBool("servers.locklast"))
-							Engine.CurrentServer = Engine.PickServer(sessionLastServer);
 
-					if (Engine.CurrentServer == null)
-						Engine.CurrentServer = Engine.PickServer(null);
+					if (Engine.Storage.Get("server") != "")
+					{
+						Engine.CurrentServer = Engine.PickServer(Engine.Storage.Get("server"), true);
+					}
+					else
+					{
+						if (Engine.CurrentServer == null)
+							if (Engine.Storage.GetBool("servers.locklast"))
+								Engine.CurrentServer = Engine.PickServer(sessionLastServer, false);
+
+						if (Engine.CurrentServer == null)
+							Engine.CurrentServer = Engine.PickServer();
+					}
 
 					if (Engine.CurrentServer == null)
 					{
 						allowed = false;
 						Engine.Log(Core.Engine.LogType.Fatal, "No server available.");
-						RequestStop();						
+						RequestStop();
 					}
-
+					
 					// Checking auth user status.
 					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
 					if (allowed)
@@ -560,7 +567,7 @@ namespace AirVPN.Core.Threads
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
-				// Exception: under OSX with chmod 700 fail, need investigation.
+				// TOCHECK: under OSX with chmod 700 fail, need investigation.
 				if (Platform.Instance.GetCode() != "OSX") 
 				{
 					Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
@@ -833,13 +840,27 @@ namespace AirVPN.Core.Threads
 
 		void ProcessOutput(string source, string message)
 		{
+			if (message.Trim() == "") // 2.10.1
+				return;
+
 			try
 			{
 				if (source == "OpenVPN")
 				{
 					bool log = true;
+
 					if (message.IndexOf("MANAGEMENT: CMD 'status'") != -1)
 						log = false;
+
+					if (Engine.Instance.Storage.Get("routes.default") == "out")
+					{
+						// Don't warning users for correct behiavour.
+						if ( 
+							(message.IndexOf("Options error: option 'redirect-gateway' cannot be used in this context ([PUSH-OPTIONS])") != -1) ||
+							(message.IndexOf("Options error: option 'dhcp-option' cannot be used in this context ([PUSH-OPTIONS])") != -1)
+						   )
+							log = false;						
+					}
 
 					if (message.IndexOf("Connection reset, restarting") != -1)
 					{

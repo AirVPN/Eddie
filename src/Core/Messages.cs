@@ -35,6 +35,7 @@ namespace AirVPN.Core
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";
 		public static string CheckingRequired = "Unavailable (Check required)";
+		public static string ProfileNotFound = "Requested profile '{1}' not found.";
 		public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
 		public static string WaitingLatencyTestsStep = "({1} to go)";
 		public static string ExchangeTryFailed = "{1}, {2}° try failed ({3})";
@@ -84,6 +85,9 @@ namespace AirVPN.Core
 		public static string SocksProxyError = "Socks proxy connection error.";
 
 		public static string FetchTryFailed = "{1}, {2}° try failed ({3})";
+
+		public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; // TOTRANSLATE
+		public static string PingerStatsPending = "Disabled during VPN connection. Latest check: {1}"; // TOTRANSLATE
 		
 		public static string CheckingEnvironment = "Checking environment";
 		public static string CheckingProtocolUnknown = "Unknown protocol.";
@@ -115,10 +119,10 @@ namespace AirVPN.Core
 		public static string NetworkLockDeactivation = "Deactivation of Network Lock"; 
 		//public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; 
 		//public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
-		public static string NetworkLockButtonActive = "Deactivate Network Lock"; // TOTRANSLATE
-		public static string NetworkLockButtonDeactive = "Activate Network Lock"; // TOTRANSLATE
-		public static string NetworkLockStatusActive = "Network Lock enabled"; // TOTRANSLATE
-		public static string NetworkLockStatusDeactive = "Network Lock disabled"; // TOTRANSLATE
+		public static string NetworkLockButtonActive = "Deactivate Network Lock"; 
+		public static string NetworkLockButtonDeactive = "Activate Network Lock"; 
+		public static string NetworkLockStatusActive = "Network Lock enabled"; 
+		public static string NetworkLockStatusDeactive = "Network Lock disabled"; 
 
 		public static string NetworkLockNoMode = "There is no available or enabled Network Lock mode, sorry.";
 		public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated"; 
@@ -135,12 +139,12 @@ namespace AirVPN.Core
 		public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
 		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
-		public static string TorControlAuth = "TOR Control authentication method: {1}"; 
-		public static string TorControlGuardIp = "TOR Control Guard IP detected: {1} ({2})"; 
-		public static string TorControlNoPath = "Unable to find your TOR path."; 
-		public static string TorControlNoIps = "Unable to find IP address of TOR first node of an established circuit.";
-		public static string TorControlException = "Unable to communicate with TOR ({1}). Is TOR up and running?";
-		public static string TorControlTest = "Successful test. TOR Version: ";
+		public static string TorControlAuth = "Tor Control authentication method: {1}";
+		public static string TorControlGuardIp = "Tor Control Guard IP detected: {1} ({2})";
+		public static string TorControlNoPath = "Unable to find your Tor path.";
+		public static string TorControlNoIps = "Unable to find IP address of Tor first node of an established circuit.";
+		public static string TorControlException = "Unable to communicate with Tor ({1}). Is Tor up and running?";
+		public static string TorControlTest = "Successful test. Tor Version: ";
 		
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
@@ -191,6 +195,9 @@ namespace AirVPN.Core
 		public static string WindowsSettingsDnsCheck = "Check if the tunnel uses AirVPN DNS";
 		public static string WindowsSettingsDnsServers = "DNS server list. Leave empty to use DNS servers recommended by the VPN";
 		public static string WindowsSettingsIpTitle = "Preferences - IP Address";
+		public static string WindowsSettingsOpenVpnRcvBuf = "TCP/UDP socket receive buffer size";
+		public static string WindowsSettingsOpenVpnSndBuf = "TCP/UDP socket send buffer size";
+		public static string WindowsSettingsOpenVpnDefault = "OpenVPN Default";
 		public static string WindowsOpenVpnManagementCommandTitle = "OpenVPN Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 
@@ -293,11 +300,11 @@ namespace AirVPN.Core
 		public static string ManOptionModeProtocol = "Protocol for connection. 'UDP', 'TCP' for direct openvpn connection. 'SSH', 'SSL' for additional tunneling";
 		public static string ManOptionModePort = "Port for connection. Currently available: 443, 80, 53, 2018";
 		public static string ManOptionModeAlt = "0 to use the default entry IP, 1 or more for additional entry IP";
-		public static string ManOptionModeTorHost = "TOR host";
-		public static string ManOptionModeTorPort = "TOR port";
-		public static string ManOptionModeTorControlPort = "TOR Control port";
-		public static string ManOptionModeTorControlAuth = "TOR Control needs authentication. Normally the TOR Browser Bundle requires authentication and accepts a file cookie password";
-		public static string ManOptionModeTorControlPassword = "TOR Control password. If empty, the software tries to detect the file cookie password";
+		public static string ManOptionModeTorHost = "Tor host";
+		public static string ManOptionModeTorPort = "Tor port";
+		public static string ManOptionModeTorControlPort = "Tor Control port";
+		public static string ManOptionModeTorControlAuth = "Tor Control needs authentication. Normally the Tor Browser Bundle requires authentication and accepts a file cookie password";
+		public static string ManOptionModeTorControlPassword = "Tor Control password. If empty, the software tries to detect the file cookie password";
 		
 		public static string ManOptionProxyMode = "Proxy mode: 'none', 'http' or 'socks'. 'protocol' option must be 'TCP'.";
 		public static string ManOptionProxyHost = "Proxy host";
@@ -359,7 +366,8 @@ namespace AirVPN.Core
 		public static string DnsRenameBackup = "/etc/resolv.conf renamed to /etc/resolv.conf.airvpn as backup";
 		public static string DnsRenameDone = "DNS of the system updated to VPN DNS (Rename method: /etc/resolv.conf generated)";
 		public static string DnsRenameRestored = "DNS of the system restored to original settings (Rename method)";
-		public static string IpV6Warning = "IPV6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPV6.\n\nContinue?";	
+		public static string IpV6Warning = "IPV6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPV6.\n\nContinue?";
+		public static string IpV6WarningUnableToDetect = "Unable to understand if IPV6 is active.";	// TOTRANSLATE
 
 		public static string Format(string format, string param1)
 		{

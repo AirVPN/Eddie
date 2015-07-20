@@ -117,7 +117,7 @@ namespace AirVPN.Core
 			// Custom
 			{
 				string list = Engine.Instance.Storage.Get("netlock.allowed_ips");
-				string[] ips = list.Split('\n');
+				List<string> ips = Utils.CommaStringToListString(list);
 				foreach (string ip in ips)
 				{
 					string ip2 = ip.Trim();

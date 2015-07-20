@@ -27,127 +27,130 @@ namespace AirVPN.Gui.Controls
 {
     public class ListViewServers : Skin.ListView
     {
-        private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.ColumnHeader columnHeader4;
-        private System.Windows.Forms.ColumnHeader columnHeader5;
-        private System.Windows.Forms.ColumnHeader columnHeader6;
+		private System.Windows.Forms.ColumnHeader columnHeader1;
+		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader columnHeader3;
+		private System.Windows.Forms.ColumnHeader columnHeader4;
+		private System.Windows.Forms.ColumnHeader columnHeader5;
+		private System.Windows.Forms.ColumnHeader columnHeader6;
 
 		public bool ShowAll;
-        
-        public ListViewServers()
-        {
-			this.DoubleBuffered = true;
-			
-            columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 
-            MultiSelect = true;
-            Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+		// We use a separate dictionary, because ListView have poor performance internal dictionary.
+		Dictionary<string, Controls.ListViewItemServer> ItemsServers = new Dictionary<string, ListViewItemServer>();
+
+		public ListViewServers()
+		{
+			this.DoubleBuffered = true;
+
+			columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+
+			MultiSelect = true;
+			Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             columnHeader1,
             columnHeader2,
             columnHeader3,
             columnHeader4,
             columnHeader5,
             columnHeader6});
-            
-            Name = "lstServers";
-            UseCompatibleStateImageBehavior = false;
-            View = System.Windows.Forms.View.Details;
+
+			Name = "lstServers";
+			UseCompatibleStateImageBehavior = false;
+			View = System.Windows.Forms.View.Details;
 
 
 			columnHeader1.Text = Messages.ServersName;
-            columnHeader1.Width = 110;
+			columnHeader1.Width = 110;
 			columnHeader2.Text = Messages.ServersScore;
-            columnHeader2.Width = 66;
+			columnHeader2.Width = 66;
 			columnHeader2.TextAlign = HorizontalAlignment.Center;
 			columnHeader3.Text = Messages.ServersLocation;
-            columnHeader3.Width = 200;
+			columnHeader3.Width = 200;
 			columnHeader4.Text = Messages.ServersLatency;
-            columnHeader4.Width = 60;
-            columnHeader4.TextAlign = HorizontalAlignment.Center;
+			columnHeader4.Width = 60;
+			columnHeader4.TextAlign = HorizontalAlignment.Center;
 			columnHeader5.Text = Messages.ServersLoad;
-            columnHeader5.Width = 160;
+			columnHeader5.Width = 160;
 			columnHeader5.TextAlign = HorizontalAlignment.Center;
 			columnHeader6.Text = Messages.ServersUsers;
-            columnHeader6.Width = 50;
-            columnHeader6.TextAlign = HorizontalAlignment.Center;
+			columnHeader6.Width = 50;
+			columnHeader6.TextAlign = HorizontalAlignment.Center;
 
 
 			SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 			LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
-			
-            //Dock = DockStyle.Fill;
-            Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            HeaderStyle = ColumnHeaderStyle.Clickable;
 
-            SetSort(1, SortOrder.Ascending);
+			//Dock = DockStyle.Fill;
+			Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			HeaderStyle = ColumnHeaderStyle.Clickable;
+
+			SetSort(1, SortOrder.Ascending);
 
 			ImageIconResourcePrefix = "flags_";
 			ImageStateResourcePrefix = "blacklist_";
 
-            UpdateList();
-        }
-						
+			UpdateList();
+		}
+
 		public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
-        {
+		{
 			if (e.ColumnIndex == 1)
-            {
+			{
 				e.DrawDefault = false;
 				DrawSubItemBackground(sender, e);
 
 				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
-				                
-                //int score = Convert.ToInt32(e.SubItem.Text);
+
+				//int score = Convert.ToInt32(e.SubItem.Text);
 				float part = listItemServer.Info.ScorePerc();
 
 
 				Image imageN = GuiUtils.GetResourceImage("stars_n");
 				Image imageH = GuiUtils.GetResourceImage("stars_h");
 
-                Rectangle sourceN = new Rectangle(0,0,imageN.Width,imageN.Height);
-                Rectangle sourceH = new Rectangle(0,0,Convert.ToInt32(Convert.ToDouble(imageH.Width)*part),imageH.Height);
+				Rectangle sourceN = new Rectangle(0, 0, imageN.Width, imageN.Height);
+				Rectangle sourceH = new Rectangle(0, 0, Convert.ToInt32(Convert.ToDouble(imageH.Width) * part), imageH.Height);
 
-                int ODX = imageN.Width;
-                if(e.Bounds.Width<ODX)
-                    ODX = e.Bounds.Width;
-                int ODY = imageN.Height;
+				int ODX = imageN.Width;
+				if (e.Bounds.Width < ODX)
+					ODX = e.Bounds.Width;
+				int ODY = imageN.Height;
 
-                int HDX = Convert.ToInt32(Convert.ToDouble(ODX)*part);
+				int HDX = Convert.ToInt32(Convert.ToDouble(ODX) * part);
 
-                Rectangle destN = new Rectangle(0,0,ODX,ODY);
-                destN.Offset(e.Bounds.Width/2,e.Bounds.Height/2);
-                destN.Offset(e.Bounds.Left,e.Bounds.Top);
-                destN.Offset(-ODX / 2, -ODY / 2);
+				Rectangle destN = new Rectangle(0, 0, ODX, ODY);
+				destN.Offset(e.Bounds.Width / 2, e.Bounds.Height / 2);
+				destN.Offset(e.Bounds.Left, e.Bounds.Top);
+				destN.Offset(-ODX / 2, -ODY / 2);
 
-                Rectangle destH = new Rectangle(0,0,HDX,ODY);
-                destH.Offset(e.Bounds.Width/2,e.Bounds.Height/2);
-                destH.Offset(e.Bounds.Left,e.Bounds.Top);
-                destH.Offset(-ODX / 2, -ODY / 2);
+				Rectangle destH = new Rectangle(0, 0, HDX, ODY);
+				destH.Offset(e.Bounds.Width / 2, e.Bounds.Height / 2);
+				destH.Offset(e.Bounds.Left, e.Bounds.Top);
+				destH.Offset(-ODX / 2, -ODY / 2);
 
-                e.Graphics.DrawImage(imageN, destN);
-                e.Graphics.DrawImage(imageH, destH, sourceH, GraphicsUnit.Pixel );				
-            }
-            else if (e.ColumnIndex == 4)
-            {
+				e.Graphics.DrawImage(imageN, destN);
+				e.Graphics.DrawImage(imageH, destH, sourceH, GraphicsUnit.Pixel);
+			}
+			else if (e.ColumnIndex == 4)
+			{
 				e.DrawDefault = false;
 				DrawSubItemBackground(sender, e);
-				                
-                Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
 
-                Rectangle R1 = e.Bounds;
-                R1.Inflate(-2, -2);
-                
+				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
+
+				Rectangle R1 = e.Bounds;
+				R1.Inflate(-2, -2);
+
 				/*
-                Int64 bwCur = 2*(listItemServer.Info.Bandwidth*8)/(1000*1000); // to Mbit/s                
-                Int64 bwMax = listItemServer.Info.BandwidthMax;
+				Int64 bwCur = 2*(listItemServer.Info.Bandwidth*8)/(1000*1000); // to Mbit/s                
+				Int64 bwMax = listItemServer.Info.BandwidthMax;
 
 				float p = (float)bwCur / (float)bwMax;
 				*/
@@ -155,37 +158,37 @@ namespace AirVPN.Gui.Controls
 				String label = listItemServer.Info.GetLoadForList();
 				float p = listItemServer.Info.GetLoadPercForList();
 
-				string color = listItemServer.Info.GetLoadColorForList();				
+				string color = listItemServer.Info.GetLoadColorForList();
 				Brush b = Brushes.LightGreen;
-				if(color == "red")
+				if (color == "red")
 					b = Brushes.LightPink;
 				else if (color == "yellow")
 					b = Brushes.LightYellow;
 				else
 					b = Brushes.LightGreen;
-					
 
 
-                int W = Convert.ToInt32(p * R1.Width);
-                if (W > R1.Width)
-                    W = R1.Width;
+
+				int W = Convert.ToInt32(p * R1.Width);
+				if (W > R1.Width)
+					W = R1.Width;
 				//e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
 				e.Graphics.FillRectangle(b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
 
-				
 
-                R1.Height -= 1;
-                //e.Graphics.DrawRectangle(m_loadPen, R1);
-				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);                
-            }
+
+				R1.Height -= 1;
+				//e.Graphics.DrawRectangle(m_loadPen, R1);
+				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
+			}
 			else
 				base.OnListViewDrawSubItem(sender, e);
-        }
+		}
 
-        public override int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
-        {			
-            ListViewItemServer i1 = pi1 as ListViewItemServer;
-            ListViewItemServer i2 = pi2 as ListViewItemServer;
+		public override int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
+		{
+			ListViewItemServer i1 = pi1 as ListViewItemServer;
+			ListViewItemServer i2 = pi2 as ListViewItemServer;
 
 			string colName = "";
 			if (col == 0)
@@ -254,50 +257,52 @@ namespace AirVPN.Gui.Controls
 			*/
 		}
 
-        public void UpdateList()
-        {
-            lock (this)
-            {
-                //SuspendLayout();
+		public void UpdateList()
+		{
+			lock (this)
+			{
+				//SuspendLayout();
 
-                List<ServerInfo> servers;
-                lock (Engine.Instance.Servers)
-                {
-                    servers = Engine.Instance.GetServers(ShowAll);
-                }
+				List<ServerInfo> servers;
+				lock (Engine.Instance.Servers)
+				{
+					servers = Engine.Instance.GetServers(ShowAll);
+				}
 
-                foreach (ServerInfo infoServer in servers)
-                {
-                    if (Items.ContainsKey(infoServer.Name) == false)
-                    {
-                        Controls.ListViewItemServer listItemServer = new Controls.ListViewItemServer();
-                        listItemServer.Name = infoServer.Name;
-                        listItemServer.Info = infoServer;
-                        listItemServer.Update();
-                        Items.Add(listItemServer);
-                    }
-                    else
-                    {
-                        Controls.ListViewItemServer listItemServer = Items[infoServer.Name] as ListViewItemServer;
-                        listItemServer.Update();
-                    }
-                }
-								
+				foreach (ServerInfo infoServer in servers)
+				{
+					if (ItemsServers.ContainsKey(infoServer.Name) == false)
+					{
+						Controls.ListViewItemServer listItemServer = new Controls.ListViewItemServer();
+						listItemServer.Name = infoServer.Name;
+						listItemServer.Info = infoServer;
+						listItemServer.Update();
+						ItemsServers.Add(infoServer.Name, listItemServer);
+						Items.Add(listItemServer);
+					}
+					else
+					{
+						Controls.ListViewItemServer listItemServer = ItemsServers[infoServer.Name] as ListViewItemServer;
+						listItemServer.Update();
+					}
+				}
+
 				List<ListViewItemServer> itemsToRemove = new List<ListViewItemServer>();
 
-                foreach (ListViewItemServer viewItem in Items)
-                {
+				foreach (ListViewItemServer viewItem in ItemsServers.Values)
+				{
 					if (servers.Contains(viewItem.Info) == false)
 					{
-						itemsToRemove.Add(viewItem);						
-					}					
-                }
+						itemsToRemove.Add(viewItem);
+					}
+				}
 
 				if (Platform.IsWindows())
 				{
 					foreach (ListViewItemServer viewItem in itemsToRemove)
 					{
 						Items.Remove(viewItem);
+						ItemsServers.Remove(viewItem.Info.Name);
 					}
 				}
 				else
@@ -306,20 +311,22 @@ namespace AirVPN.Gui.Controls
 					List<ListViewItemServer> items = new List<ListViewItemServer>();
 					foreach (ListViewItemServer itemCurrent in Items)
 					{
-						if(itemsToRemove.Contains(itemCurrent) == false)
+						if (itemsToRemove.Contains(itemCurrent) == false)
 							items.Add(itemCurrent);
 					}
 					Items.Clear();
-					foreach (ListViewItem itemCurrent in items)
+					ItemsServers.Clear();
+					foreach (ListViewItemServer itemCurrent in items)
 					{
+						ItemsServers.Add(itemCurrent.Info.Name, itemCurrent);
 						Items.Add(itemCurrent);
 					}
 				}
-				
-                Sort();
 
-                //ResumeLayout();
-            }
-        }
+				Sort();
+
+				//ResumeLayout();
+			}
+		}
     }
 }

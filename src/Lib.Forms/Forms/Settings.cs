@@ -89,6 +89,27 @@ namespace AirVPN.Gui.Forms
                 m_modeSslEnabled = false;                
             }
 
+			lblOpenVpnRcvbuf.Text = Messages.WindowsSettingsOpenVpnRcvBuf + ":";
+			lblOpenVpnSndbuf.Text = Messages.WindowsSettingsOpenVpnSndBuf + ":";
+			cboOpenVpnRcvbuf.Items.Clear();
+			cboOpenVpnRcvbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
+			cboOpenVpnRcvbuf.Items.Add("8k");
+			cboOpenVpnRcvbuf.Items.Add("16k");
+			cboOpenVpnRcvbuf.Items.Add("32k");
+			cboOpenVpnRcvbuf.Items.Add("64k");
+			cboOpenVpnRcvbuf.Items.Add("128k");
+			cboOpenVpnRcvbuf.Items.Add("256k");
+			cboOpenVpnRcvbuf.Items.Add("512k");
+			cboOpenVpnSndbuf.Items.Clear();
+			cboOpenVpnSndbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
+			cboOpenVpnSndbuf.Items.Add("8k");
+			cboOpenVpnSndbuf.Items.Add("16k");
+			cboOpenVpnSndbuf.Items.Add("32k");
+			cboOpenVpnSndbuf.Items.Add("64k");
+			cboOpenVpnSndbuf.Items.Add("128k");
+			cboOpenVpnSndbuf.Items.Add("256k");
+			cboOpenVpnSndbuf.Items.Add("512k");
+
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
@@ -222,7 +243,7 @@ namespace AirVPN.Gui.Forms
             }
             else if(protocol == "TOR")
 			{
-				optModeTOR.Checked = true;
+				optModeTor.Checked = true;
 			}
 			else
             {
@@ -286,6 +307,7 @@ namespace AirVPN.Gui.Forms
 			
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
+			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
 
 			txtExePath.Text = s.Get("executables.openvpn");
 
@@ -300,6 +322,42 @@ namespace AirVPN.Gui.Forms
 				cboAdvancedManifestRefresh.SelectedIndex = 1;
 			else
 				cboAdvancedManifestRefresh.SelectedIndex = 0;
+
+			int openVpnSndBuf = s.GetInt("openvpn.sndbuf");
+			if (openVpnSndBuf == -1)
+				cboOpenVpnSndbuf.SelectedIndex = 0;
+			else if (openVpnSndBuf == 1024 * 8)
+				cboOpenVpnSndbuf.SelectedIndex = 1;
+			else if (openVpnSndBuf == 1024 * 16)
+				cboOpenVpnSndbuf.SelectedIndex = 2;
+			else if (openVpnSndBuf == 1024 * 32)
+				cboOpenVpnSndbuf.SelectedIndex = 3;
+			else if (openVpnSndBuf == 1024 * 64)
+				cboOpenVpnSndbuf.SelectedIndex = 4;
+			else if (openVpnSndBuf == 1024 * 128)
+				cboOpenVpnSndbuf.SelectedIndex = 5;
+			else if (openVpnSndBuf == 1024 * 256)
+				cboOpenVpnSndbuf.SelectedIndex = 6;
+			else if (openVpnSndBuf == 1024 * 512)
+				cboOpenVpnSndbuf.SelectedIndex = 7;
+
+			int openVpnRcvBuf = s.GetInt("openvpn.rcvbuf");
+			if (openVpnRcvBuf == -1)
+				cboOpenVpnRcvbuf.SelectedIndex = 0;
+			else if (openVpnRcvBuf == 1024*8)
+				cboOpenVpnRcvbuf.SelectedIndex = 1;
+			else if (openVpnRcvBuf == 1024 * 16)
+				cboOpenVpnRcvbuf.SelectedIndex = 2;
+			else if (openVpnRcvBuf == 1024 * 32)
+				cboOpenVpnRcvbuf.SelectedIndex = 3;
+			else if (openVpnRcvBuf == 1024 * 64)
+				cboOpenVpnRcvbuf.SelectedIndex = 4;
+			else if (openVpnRcvBuf == 1024 * 128)
+				cboOpenVpnRcvbuf.SelectedIndex = 5;
+			else if (openVpnRcvBuf == 1024 * 256)
+				cboOpenVpnRcvbuf.SelectedIndex = 6;
+			else if (openVpnRcvBuf == 1024 * 512)
+				cboOpenVpnRcvbuf.SelectedIndex = 7;
 
 			// Advanced - DNS
 			cboDnsSwitchMode.Text = s.Get("dns.mode");
@@ -345,6 +403,7 @@ namespace AirVPN.Gui.Forms
 			// Advanced - Logging
 			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
 			TxtLoggingPath.Text = s.Get("log.file.path");
+			chkLogLevelDebug.Checked = s.GetBool("log.level.debug");
 
 			// Advanced - OVPN Directives
             chkAdvancedOpenVpnDirectivesDefaultSkip.Checked = s.GetBool("openvpn.skip_defaults");			
@@ -521,7 +580,7 @@ namespace AirVPN.Gui.Forms
                 port = 443;
                 alternate = 1;
             }
-			else if (optModeTOR.Checked)
+			else if (optModeTor.Checked)
 			{
 				protocol = "TOR";
 				port = 2018;
@@ -581,6 +640,7 @@ namespace AirVPN.Gui.Forms
 						
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
+			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
 
 			s.Set("executables.openvpn", txtExePath.Text);
 
@@ -595,6 +655,42 @@ namespace AirVPN.Gui.Forms
 				s.SetInt("advanced.manifest.refresh", 10);
 			else if (manifestRefreshIndex == 4) // One hour
 				s.SetInt("advanced.manifest.refresh", 60);
+
+			int openVpnSndBufIndex = cboOpenVpnSndbuf.SelectedIndex;
+			if (openVpnSndBufIndex == 0)
+				s.SetInt("openvpn.sndbuf", -1);
+			else if (openVpnSndBufIndex == 1)
+				s.SetInt("openvpn.sndbuf", 1024 * 8);
+			else if (openVpnSndBufIndex == 2)
+				s.SetInt("openvpn.sndbuf", 1024 * 16);
+			else if (openVpnSndBufIndex == 3)
+				s.SetInt("openvpn.sndbuf", 1024 * 32);
+			else if (openVpnSndBufIndex == 4)
+				s.SetInt("openvpn.sndbuf", 1024 * 64);
+			else if (openVpnSndBufIndex == 5)
+				s.SetInt("openvpn.sndbuf", 1024 * 128);
+			else if (openVpnSndBufIndex == 6)
+				s.SetInt("openvpn.sndbuf", 1024 * 256);
+			else if (openVpnSndBufIndex == 7)
+				s.SetInt("openvpn.sndbuf", 1024 * 512);
+			
+			int openVpnRcvBufIndex = cboOpenVpnRcvbuf.SelectedIndex;
+			if(openVpnRcvBufIndex == 0)
+				s.SetInt("openvpn.rcvbuf",-1);
+			else if (openVpnRcvBufIndex == 1)
+				s.SetInt("openvpn.rcvbuf", 1024*8);
+			else if (openVpnRcvBufIndex == 2)
+				s.SetInt("openvpn.rcvbuf", 1024 * 16);
+			else if (openVpnRcvBufIndex == 3)
+				s.SetInt("openvpn.rcvbuf", 1024 * 32);
+			else if (openVpnRcvBufIndex == 4)
+				s.SetInt("openvpn.rcvbuf", 1024 * 64);
+			else if (openVpnRcvBufIndex == 5)
+				s.SetInt("openvpn.rcvbuf", 1024 * 128);
+			else if (openVpnRcvBufIndex == 6)
+				s.SetInt("openvpn.rcvbuf", 1024 * 256);
+			else if (openVpnRcvBufIndex == 7)
+				s.SetInt("openvpn.rcvbuf", 1024 * 512);
 
 			// Advanced - DNS
 
@@ -643,6 +739,7 @@ namespace AirVPN.Gui.Forms
 			// Advanced - Logging
 			s.SetBool("log.file.enabled", chkLoggingEnabled.Checked);
 			s.Set("log.file.path", TxtLoggingPath.Text);
+			s.SetBool("log.level.debug", chkLogLevelDebug.Checked);
 
 			// Advanced - OVPN Directives
             s.Set("openvpn.custom", txtAdvancedOpenVpnDirectivesCustom.Text);
@@ -701,7 +798,7 @@ namespace AirVPN.Gui.Forms
             optModeSSH53.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
             optModeSSH80.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
             optModeSSL443.Enabled = ( (proxy == false) && (m_modeSslEnabled) );
-			optModeTOR.Enabled = (proxy == false);
+			optModeTor.Enabled = (proxy == false);
 
             optModeUDP2018.Enabled = (proxy == false);
             optModeUDP2018Alt.Enabled = (proxy == false);
@@ -712,11 +809,11 @@ namespace AirVPN.Gui.Forms
             optModeUDP80.Enabled = (proxy == false);
             optModeUDP80Alt.Enabled = (proxy == false);
 
-			txtModeTorHost.Enabled = optModeTOR.Checked;
-			txtModeTorPort.Enabled = optModeTOR.Checked;
-			txtModeTorControlPort.Enabled = optModeTOR.Checked;
-			txtModeTorControlPassword.Enabled = optModeTOR.Checked;
-			cmdModeTorTest.Enabled = optModeTOR.Checked;
+			txtModeTorHost.Enabled = optModeTor.Checked;
+			txtModeTorPort.Enabled = optModeTor.Checked;
+			txtModeTorControlPort.Enabled = optModeTor.Checked;
+			txtModeTorControlPassword.Enabled = optModeTor.Checked;
+			cmdModeTorTest.Enabled = optModeTor.Checked;
 
             cmdRouteAdd.Enabled = true;
             mnuRoutesAdd.Enabled = cmdRouteAdd.Enabled;
@@ -1045,7 +1142,7 @@ namespace AirVPN.Gui.Forms
 			EnableIde();
 		}
 
-		private void optModeTOR_CheckedChanged(object sender, EventArgs e)
+		private void optModeTor_CheckedChanged(object sender, EventArgs e)
 		{
 			EnableIde();
 		}

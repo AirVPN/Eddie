@@ -60,6 +60,11 @@ namespace AirVPN.Core
 			return builder.ToString().ToLowerInvariant();
 		}
 
+		public static string BytesToHex(byte[] bytes) // 2.10.1
+		{
+			return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+		}
+
 		public static string GetNameFromPath(string path)
         {
             return new FileInfo(path).Name;
@@ -439,6 +444,26 @@ namespace AirVPN.Core
 					result += str;
 				}
 			}
+			return result;
+		}
+
+		public static List<string> CommaStringToListString(string lines)
+		{
+			List<string> result = new List<string> ();
+
+			// Normalization
+			lines = lines.Replace ("\n", ",");
+			lines = lines.Replace ("\r", ",");
+			lines = lines.Replace (";", ",");
+			lines = lines.Replace (" ", ",");
+			lines = lines.Replace ("\u2028", ","); // OS X
+
+			string[] items = lines.Split (',');
+			foreach (string item in items) {
+				if (item.Trim () != "")
+					result.Add (item);
+			}
+
 			return result;
 		}
 

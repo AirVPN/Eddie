@@ -23,6 +23,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Management;
+using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using AirVPN.Core;
@@ -67,7 +68,15 @@ namespace AirVPN.Platforms
 
         public override bool IsAdmin()
         {
-            return true; // Manifest ensure that
+            //return true; // Manifest ensure that
+
+			// 2.10.1
+			bool isElevated;
+			WindowsIdentity identity = WindowsIdentity.GetCurrent();
+			WindowsPrincipal principal = new WindowsPrincipal(identity);
+			isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
+			return isElevated;
         }
 
         public override bool IsTraySupported()
@@ -243,6 +252,9 @@ namespace AirVPN.Platforms
 				}
 			}
 
+			// Loopback interface it's not in the enumeration below.
+			InterfacesIp2Id["127.0.0.1"] = "1";
+
 			string cmd = "route PRINT";
 			string result = ShellCmd(cmd);
 
@@ -321,7 +333,8 @@ namespace AirVPN.Platforms
 		{
 			base.OnNetworkLockManagerInit();
 
-			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
+			if(IsVistaOrHigher()) // 2.10.1
+				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());			
 		}
 
 		public override void OnSessionStart()
@@ -630,7 +643,10 @@ namespace AirVPN.Platforms
 			if (IsVistaOrHigher() == false) // XP
 				bundleVersion = Constants.WindowsXpDriverVersion;
 
-			bool needReinstall = (Utils.CompareVersions(version, bundleVersion) == -1);
+			bool needReinstall = false;
+
+			if(Engine.Instance.Storage.GetBool("windows.disable_driver_upgrade") == false)
+				needReinstall = (Utils.CompareVersions(version, bundleVersion) == -1);
 
 			if (needReinstall)
 			{

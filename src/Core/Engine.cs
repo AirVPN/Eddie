@@ -182,6 +182,18 @@ namespace AirVPN.Core
 
 			m_storage = new Core.Storage();
 
+			// This is before the Storage.Load, because non-root can't read option (chmod)
+			if (Storage.GetBool("advanced.skip_privileges") == false)
+			{
+				if (Platform.Instance.IsAdmin() == false)
+				{
+					if (OnNoRoot() == false)
+						Log(LogType.Fatal, Messages.AdminRequiredStop);
+
+					return false;
+				}
+			}
+
 			m_storage.Load(manMode);
 
 			if (Storage.GetBool("cli"))
@@ -193,18 +205,7 @@ namespace AirVPN.Core
 			m_stats = new Core.Stats();
 
 			m_networkLockManager = new NetworkLockManager();
-			m_networkLockManager.Init();
-
-			if (Storage.GetBool("advanced.skip_privileges") == false)
-			{
-				if (Platform.Instance.IsAdmin() == false)
-				{
-					if (OnNoRoot() == false)
-						Log(LogType.Fatal, Messages.AdminRequiredStop);
-
-					return false;
-				}
-			}
+			m_networkLockManager.Init();			
 
 			CompatibilityManager.Init();
 			
@@ -290,6 +291,11 @@ namespace AirVPN.Core
             {
 				foreach (string commandLineParamKey in CommandLine.SystemEnvironment.Params.Keys)
 				{
+					// 2.10.1
+					// OS X sometime pass as command-line arguments a 'psn_0_16920610' or similar. Ignore it.
+					if (commandLineParamKey.StartsWith("psn_"))
+						continue;
+
 					if (Storage.Exists(commandLineParamKey) == false)
 					{
 						Log(LogType.Error, Messages.Format(Messages.CommandLineUnknownOption, commandLineParamKey));						
@@ -1089,18 +1095,32 @@ namespace AirVPN.Core
             return list;            
         }
 
-		public ServerInfo PickServer(string preferred)
+		public ServerInfo PickServer()
+		{
+			return PickServer("", false);
+		}
+
+		public ServerInfo PickServer(string preferred, bool required)
         {
             lock (m_servers)
             {
-                if ((preferred != null) && (m_servers.ContainsKey(preferred)))
-                    return m_servers[preferred];
-                else
-                {
-                    List<ServerInfo> list = GetServers(false);
-                    if (list.Count > 0)
-                        return list[0];
-                }
+				if (preferred != "") 
+				{
+					if(m_servers.ContainsKey(preferred))
+						return m_servers[preferred];
+					else
+					{
+						if (required)
+						{
+							Engine.Instance.Log(Engine.LogType.Fatal, Messages.Format(Messages.ProfileNotFound, preferred));
+							return null;
+						}
+					}
+				}
+
+				List<ServerInfo> list = GetServers(false);
+                if (list.Count > 0)
+                    return list[0];                
             }            
 
             return null;
@@ -1476,7 +1496,13 @@ namespace AirVPN.Core
                 ovpn += s.Manifest.Attributes["openvpn_directives_common"].Value.Replace("\t", "").Trim() + "\n";
 
 			if (s.Get("openvpn.dev_node") != "")
-				ovpn += "dev-node " + s.Get("openvpn.dev_node");
+				ovpn += "dev-node " + s.Get("openvpn.dev_node") + "\n";
+
+			// 2.10.1
+			if (s.GetInt("openvpn.rcvbuf") != -1)
+				ovpn += "rcvbuf " + s.GetInt("openvpn.rcvbuf").ToString() + "\n";
+			if (s.GetInt("openvpn.sndbuf") != -1)
+				ovpn += "sndbuf " + s.GetInt("openvpn.sndbuf").ToString() + "\n";
 
             if (protocol == "UDP")
             {
@@ -1484,7 +1510,7 @@ namespace AirVPN.Core
                 if (s.GetBool("openvpn.skip_defaults") == false)
                     ovpn += s.Manifest.Attributes["openvpn_directives_udp"].Value.Replace("\t", "").Trim() + "\n";
             }
-            else // TCP, SSH, SSL, TOR
+            else // TCP, SSH, SSL, Tor
             {
                 ovpn += "proto tcp\n";
                 if (s.GetBool("openvpn.skip_defaults") == false)
@@ -1780,10 +1806,8 @@ namespace AirVPN.Core
 
 					if (NextServer == null)
 					{
-						if (Engine.Storage.Get("server") != "")
-							NextServer = Engine.PickServer(Engine.Storage.Get("server"));
-						else if (Engine.Storage.GetBool("servers.startlast"))
-							NextServer = Engine.PickServer(Engine.Storage.Get("servers.last"));
+						if (Engine.Storage.GetBool("servers.startlast"))
+							NextServer = Engine.PickServer(Engine.Storage.Get("servers.last"), false);
 					}
 
 					m_threadSession = new Threads.Session();

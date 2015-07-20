@@ -179,6 +179,8 @@ namespace AirVPN.Gui.Forms
 			SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 			MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
 
+			KeyPreview = true;  // 2.10.1
+
 			m_formReady = false;
 
 			Visible = false;
@@ -328,6 +330,26 @@ namespace AirVPN.Gui.Forms
 			timerMonoDelayedRedraw.Enabled = false;
 
 			Refresh();
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e) // 2.10.1
+		{
+			base.OnKeyDown(e);
+
+			if (e.Control && e.KeyCode == Keys.M)
+			{
+				ShowMenu();
+			}
+
+			if (e.Control && e.KeyCode == Keys.A)
+			{
+				ShowAbout();
+			}
+
+			if (e.Control && e.KeyCode == Keys.P)
+			{
+				ShowPreferences();
+			}
 		}
         
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -514,10 +536,7 @@ namespace AirVPN.Gui.Forms
 
         private void mnuSettings_Click(object sender, EventArgs e)
         {
-            Forms.Settings Dlg = new Forms.Settings();
-            Dlg.ShowDialog();
-
-			EnabledUi();
+			ShowPreferences(); // 2.10.1
         }
 
 		private void mnuStatus_Click(object sender, EventArgs e)
@@ -762,14 +781,7 @@ namespace AirVPN.Gui.Forms
 
 			Core.Threads.Manifest.Instance.ForceUpdate = true;
 		}
-
-		private void mnuServersEdit_Click(object sender, EventArgs e)
-		{
-			Profiles Dlg = new Profiles();
-			Dlg.ShowDialog(this);
-		}
-
-
+				
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
 		{
 			mnuServersWhitelist_Click(sender, e);
@@ -788,11 +800,6 @@ namespace AirVPN.Gui.Forms
 		private void cmdServersRefresh_Click(object sender, EventArgs e)
 		{
 			mnuServersRefresh_Click(sender, e);
-		}
-
-		private void cmdServersEdit_Click(object sender, EventArgs e)
-		{
-			mnuServersEdit_Click(sender, e);
 		}
 
 		private void mnuAreasWhiteList_Click(object sender, EventArgs e)
@@ -1482,6 +1489,14 @@ namespace AirVPN.Gui.Forms
 			Forms.About dlg = new Forms.About();
             dlg.ShowDialog();			
         }
+
+		public void ShowPreferences()
+		{
+			Forms.Settings Dlg = new Forms.Settings();
+			Dlg.ShowDialog();
+
+			EnabledUi();
+		}
 
         public bool TermsOfServiceCheck(bool force)
         {
