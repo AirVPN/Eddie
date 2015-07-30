@@ -174,7 +174,8 @@ namespace AirVPN.Core
 			bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
 			if (manMode == false)
 			{
-				Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Architecture: " + Platform.Instance.GetArchitecture());
+				Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
+
 				if (DevelopmentEnvironment)
 					Log(LogType.Info, "Development environment.");
 			}
@@ -1784,7 +1785,7 @@ namespace AirVPN.Core
 								throw new Exception(Messages.OsDriverFailed);
 						}
 						else
-							throw new Exception(Messages.OsDriverFailed);
+							throw new Exception(Messages.OsDriverCannotInstall);
 					}
 
 					if (m_threadSession != null)

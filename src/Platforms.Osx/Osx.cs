@@ -48,7 +48,7 @@ namespace AirVPN.Platforms
 			return ShellCmd("sw_vers -productVersion");
 		}
 
-		public override string GetArchitecture()
+		public override string GetOsArchitecture()
 		{
 			return m_architecture;
 		}
@@ -386,7 +386,7 @@ namespace AirVPN.Platforms
 					}
 					else
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface ' + i + "");
+						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface '" + i + "'");
 					}
 				}
 

@@ -58,6 +58,9 @@ namespace AirVPN.Core
 		public static string OsDriverInstall = "Installing tunnel driver"; 
 		public static string OsDriverNotAvailable = "Driver installer not available.";
 		public static string OsDriverFailed = "Driver installation failed.";
+		public static string OsDriverNoAdapterFound = "Cannot find tunnel adapter."; // TOTRANSLATE
+		public static string OsDriverNoVersionFound = "Cannot determine tunnel version."; // TOTRANSLATE
+		public static string OsDriverCannotInstall = "Driver can't be installed."; // TOTRANSLATE
 		public static string OsDriverUninstallDone = "Tunnel driver uninstalled.";
 		public static string OsDriverNeedUpgrade = "Tunnel driver will be upgraded, from {1} to {2}.";
 		public static string ManifestUpdate = "Updating systems & servers data ...";

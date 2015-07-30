@@ -144,7 +144,7 @@ namespace AirVPN.Core
         }
 
 		public string GetSystemCode()
-        {
+        {			
 			string t = GetCode() + "_" + GetArchitecture();
             t = t.Replace(" ", "_");
             t = t.ToLower();
@@ -185,6 +185,20 @@ namespace AirVPN.Core
 		}
 
 		public virtual string GetArchitecture()
+		{
+			if (IntPtr.Size == 8)
+			{
+				return "x64";
+			}
+			else if (IntPtr.Size == 4)
+			{
+				return "x86";
+			}
+			else
+				return "?";
+		}
+
+		public virtual string GetOsArchitecture()
 		{
 			return "Unknown";
 		}

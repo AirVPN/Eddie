@@ -53,7 +53,7 @@ namespace AirVPN.Platforms
 				return base.GetName();
 		}
 
-		public override string GetArchitecture()
+		public override string GetOsArchitecture()
 		{
 			return m_architecture;
 		}
