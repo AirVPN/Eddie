@@ -843,13 +843,21 @@ namespace AirVPN.Core
 					{
 						if (Storage.GetBool("log.file.enabled"))
 						{
-							string logPath = Storage.Get("log.file.path").Trim();
-
-							List<string> paths = ParseLogFilePath(logPath);
-							foreach (string path in paths)
+							try
 							{
-								Directory.CreateDirectory(Path.GetDirectoryName(path));
-								File.AppendAllText(path, lines + "\n");
+								string logPath = Storage.Get("log.file.path").Trim();
+
+								List<string> paths = ParseLogFilePath(logPath);
+								foreach (string path in paths)
+								{
+									Directory.CreateDirectory(Path.GetDirectoryName(path));
+									File.AppendAllText(path, lines + "\n");
+								}
+							}
+							catch(Exception e) 
+							{
+								Log (LogType.Warning, Messages.Format("Log to file disabled due to error, {1}", e.Message));
+								Storage.SetBool ("log.file.enabled", false);
 							}
 						}
 					}

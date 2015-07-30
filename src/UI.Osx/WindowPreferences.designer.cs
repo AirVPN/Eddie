@@ -28,10 +28,10 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSPopUpButton CboLockMode { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboOpenVpnSndBuf { get; set; }
+		MonoMac.AppKit.NSPopUpButton CboOpenVpnRcvBuf { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboOpenVpnRcvBuf { get; set; }
+		MonoMac.AppKit.NSPopUpButton CboOpenVpnSndBuf { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboProxyAuthentication { get; set; }
@@ -83,6 +83,9 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkLoggingEnabled { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkLogLevelDebug { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkModeAutomatic { get; set; }
@@ -208,10 +211,10 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSTextField LblLoggingHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblOpenVpnSndBuf { get; set; }
+		MonoMac.AppKit.NSTextField LblOpenVpnRcvBuf { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblOpenVpnRcvBuf { get; set; }
+		MonoMac.AppKit.NSTextField LblOpenVpnSndBuf { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblRoutesNetworkLockWarning { get; set; }
@@ -294,6 +297,16 @@ namespace AirVPN.UI.Osx
 				CboLockMode = null;
 			}
 
+			if (CboOpenVpnSndBuf != null) {
+				CboOpenVpnSndBuf.Dispose ();
+				CboOpenVpnSndBuf = null;
+			}
+
+			if (CboOpenVpnRcvBuf != null) {
+				CboOpenVpnRcvBuf.Dispose ();
+				CboOpenVpnRcvBuf = null;
+			}
+
 			if (CboProxyAuthentication != null) {
 				CboProxyAuthentication.Dispose ();
 				CboProxyAuthentication = null;
@@ -374,34 +387,14 @@ namespace AirVPN.UI.Osx
 				ChkLockAllowPrivate = null;
 			}
 
-			if (ChkRouteRemoveDefaultGateway != null) {
-				ChkRouteRemoveDefaultGateway.Dispose ();
-				ChkRouteRemoveDefaultGateway = null;
-			}
-
 			if (ChkLoggingEnabled != null) {
 				ChkLoggingEnabled.Dispose ();
 				ChkLoggingEnabled = null;
 			}
 
-			if (CboOpenVpnSndBuf != null) {
-				CboOpenVpnSndBuf.Dispose ();
-				CboOpenVpnSndBuf = null;
-			}
-
-			if (LblOpenVpnSndBuf != null) {
-				LblOpenVpnSndBuf.Dispose ();
-				LblOpenVpnSndBuf = null;
-			}
-
-			if (LblOpenVpnRcvBuf != null) {
-				LblOpenVpnRcvBuf.Dispose ();
-				LblOpenVpnRcvBuf = null;
-			}
-
-			if (CboOpenVpnRcvBuf != null) {
-				CboOpenVpnRcvBuf.Dispose ();
-				CboOpenVpnRcvBuf = null;
+			if (ChkLogLevelDebug != null) {
+				ChkLogLevelDebug.Dispose ();
+				ChkLogLevelDebug = null;
 			}
 
 			if (ChkModeAutomatic != null) {
@@ -509,6 +502,11 @@ namespace AirVPN.UI.Osx
 				ChkNetLock = null;
 			}
 
+			if (ChkRouteRemoveDefaultGateway != null) {
+				ChkRouteRemoveDefaultGateway.Dispose ();
+				ChkRouteRemoveDefaultGateway = null;
+			}
+
 			if (CmdAdvancedEventsClear != null) {
 				CmdAdvancedEventsClear.Dispose ();
 				CmdAdvancedEventsClear = null;
@@ -602,6 +600,16 @@ namespace AirVPN.UI.Osx
 			if (LblLoggingHelp != null) {
 				LblLoggingHelp.Dispose ();
 				LblLoggingHelp = null;
+			}
+
+			if (LblOpenVpnSndBuf != null) {
+				LblOpenVpnSndBuf.Dispose ();
+				LblOpenVpnSndBuf = null;
+			}
+
+			if (LblOpenVpnRcvBuf != null) {
+				LblOpenVpnRcvBuf.Dispose ();
+				LblOpenVpnRcvBuf = null;
 			}
 
 			if (LblRoutesNetworkLockWarning != null) {

@@ -338,26 +338,26 @@ namespace AirVPN.UI.Osx
 			CboAdvancedManifestRefresh.AddItem ("Every ten minute");
 			CboAdvancedManifestRefresh.AddItem ("Every one hour");
 
-			lblOpenVpnRcvbuf.StringValue = Messages.WindowsSettingsOpenVpnRcvBuf + ":";
-			lblOpenVpnSndbuf.StringValue = Messages.WindowsSettingsOpenVpnSndBuf + ":";
-			cboOpenVpnRcvbuf.Items.RemoveAllItems();
-			cboOpenVpnRcvbuf.Items.AddItem(Messages.WindowsSettingsOpenVpnDefault);
-			cboOpenVpnRcvbuf.Items.AddItem("8k");
-			cboOpenVpnRcvbuf.Items.AddItem("16k");
-			cboOpenVpnRcvbuf.Items.AddItem("32k");
-			cboOpenVpnRcvbuf.Items.AddItem("64k");
-			cboOpenVpnRcvbuf.Items.AddItem("128k");
-			cboOpenVpnRcvbuf.Items.AddItem("256k");
-			cboOpenVpnRcvbuf.Items.AddItem("512k");
-			cboOpenVpnSndbuf.Items.RemoveAllItems();
-			cboOpenVpnSndbuf.Items.AddItem(Messages.WindowsSettingsOpenVpnDefault);
-			cboOpenVpnSndbuf.Items.AddItem("8k");
-			cboOpenVpnSndbuf.Items.AddItem("16k");
-			cboOpenVpnSndbuf.Items.AddItem("32k");
-			cboOpenVpnSndbuf.Items.AddItem("64k");
-			cboOpenVpnSndbuf.Items.AddItem("128k");
-			cboOpenVpnSndbuf.Items.AddItem("256k");
-			cboOpenVpnSndbuf.Items.AddItem("512k");
+			LblOpenVpnRcvBuf.StringValue = Messages.WindowsSettingsOpenVpnRcvBuf + ":";
+			LblOpenVpnSndBuf.StringValue = Messages.WindowsSettingsOpenVpnSndBuf + ":";
+			CboOpenVpnRcvBuf.RemoveAllItems();
+			CboOpenVpnRcvBuf.AddItem(Messages.WindowsSettingsOpenVpnDefault);
+			CboOpenVpnRcvBuf.AddItem("8 KB");
+			CboOpenVpnRcvBuf.AddItem("16 KB");
+			CboOpenVpnRcvBuf.AddItem("32 KB");
+			CboOpenVpnRcvBuf.AddItem("64 KB");
+			CboOpenVpnRcvBuf.AddItem("128 KB");
+			CboOpenVpnRcvBuf.AddItem("256 KB");
+			CboOpenVpnRcvBuf.AddItem("512 KB");
+			CboOpenVpnSndBuf.RemoveAllItems();
+			CboOpenVpnSndBuf.AddItem(Messages.WindowsSettingsOpenVpnDefault);
+			CboOpenVpnSndBuf.AddItem("8 KB");
+			CboOpenVpnSndBuf.AddItem("16 KB");
+			CboOpenVpnSndBuf.AddItem("32 KB");
+			CboOpenVpnSndBuf.AddItem("64 KB");
+			CboOpenVpnSndBuf.AddItem("128 KB");
+			CboOpenVpnSndBuf.AddItem("256 KB");
+			CboOpenVpnSndBuf.AddItem("512 KB");
 
 			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) => {
 				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
@@ -717,7 +717,7 @@ namespace AirVPN.UI.Osx
 				GuiUtils.SetSelected (CboIpV6, "None");
 
 			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("advanced.pinger.enabled"));
-			GuiUtils.SetCheck (ChkRouteRemoveDefault, s.GetBool("routes.remove_default"));
+			GuiUtils.SetCheck (ChkRouteRemoveDefaultGateway, s.GetBool("routes.remove_default"));
 			
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
 
@@ -735,39 +735,39 @@ namespace AirVPN.UI.Osx
 
 			int openVpnSndBuf = s.GetInt("openvpn.sndbuf");
 			if (openVpnSndBuf == -1)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, Messages.WindowsSettingsOpenVpnDefault);
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, Messages.WindowsSettingsOpenVpnDefault);
 			else if (openVpnSndBuf == 1024 * 8)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, "8k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "8k");
 			else if (openVpnSndBuf == 1024 * 16)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, "16k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "16k");
 			else if (openVpnSndBuf == 1024 * 32)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, "32k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "32k");
 			else if (openVpnSndBuf == 1024 * 64)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, "64k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "64k");
 			else if (openVpnSndBuf == 1024 * 128)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, "128k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "128k");
 			else if (openVpnSndBuf == 1024 * 256)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, "256k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "256k");
 			else if (openVpnSndBuf == 1024 * 512)
-				GuiUtils.SetSelected(cboOpenVpnSndbuf, "512k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "512k");
 
 			int openVpnRcvBuf = s.GetInt("openvpn.rcvbuf");
 			if (openVpnRcvBuf == -1)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, Messages.WindowsSettingsOpenVpnDefault);
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, Messages.WindowsSettingsOpenVpnDefault);
 			else if (openVpnRcvBuf == 1024 * 8)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, "8k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "8k");
 			else if (openVpnRcvBuf == 1024 * 16)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, "16k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "16k");
 			else if (openVpnRcvBuf == 1024 * 32)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, "32k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "32k");
 			else if (openVpnRcvBuf == 1024 * 64)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, "64k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "64k");
 			else if (openVpnRcvBuf == 1024 * 128)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, "128k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "128k");
 			else if (openVpnRcvBuf == 1024 * 256)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, "256k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "256k");
 			else if (openVpnRcvBuf == 1024 * 512)
-				GuiUtils.SetSelected(cboOpenVpnRcvbuf, "512k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "512k");
 
 			// Advanced - DNS
 
@@ -804,6 +804,7 @@ namespace AirVPN.UI.Osx
 
 			// Advanced - Logging
 			GuiUtils.SetCheck (ChkLoggingEnabled, s.GetBool ("log.file.enabled"));
+			GuiUtils.SetCheck (ChkLogLevelDebug, s.GetBool ("log.level.debug"));
 			TxtLoggingPath.StringValue = s.Get ("log.file.path");
 
 			// Advanced - OVPN Directives
@@ -901,7 +902,7 @@ namespace AirVPN.UI.Osx
 			else
 				s.Set ("ipv6.mode", "disable");
 			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
-			s.SetBool ("routes.remove_default", GuiUtils.GetCheck(ChkRouteRemoveDefault));
+			s.SetBool ("routes.remove_default", GuiUtils.GetCheck(ChkRouteRemoveDefaultGateway));
 			
 			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
 
@@ -917,7 +918,7 @@ namespace AirVPN.UI.Osx
 			else if (manifestRefresh == "Every one hour") // One hour
 				s.SetInt("advanced.manifest.refresh", 60);
 
-			string openVpnSndBuf = GuiUtils.GetSelected(cboOpenVpnSndbuf);
+			string openVpnSndBuf = GuiUtils.GetSelected(CboOpenVpnSndBuf);
 			if (openVpnSndBuf == Messages.WindowsSettingsOpenVpnDefault)
 				s.SetInt("openvpn.sndbuf", -1);
 			else if (openVpnSndBuf == "8k")
@@ -935,7 +936,7 @@ namespace AirVPN.UI.Osx
 			else if (openVpnSndBuf == "512k")
 				s.SetInt("openvpn.sndbuf", 1024 * 512);
 
-			string openVpnRcvBuf = GuiUtils.GetSelected(cboOpenVpnRcvbuf);
+			string openVpnRcvBuf = GuiUtils.GetSelected(CboOpenVpnRcvBuf);
 			if (openVpnRcvBuf == Messages.WindowsSettingsOpenVpnDefault)
 				s.SetInt("openvpn.rcvbuf", -1);
 			else if (openVpnRcvBuf == "8k")
@@ -987,6 +988,7 @@ namespace AirVPN.UI.Osx
 
 			// Advanced - Logging
 			s.SetBool ("log.file.enabled", GuiUtils.GetCheck (ChkLoggingEnabled));
+			s.SetBool ("log.level.debug", GuiUtils.GetCheck (ChkLogLevelDebug));
 			s.Set ("log.file.path", TxtLoggingPath.StringValue);
 
 			// Advanced - OVPN Directives

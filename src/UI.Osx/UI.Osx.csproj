@@ -11,7 +11,7 @@
     <RootNamespace>AirVPN.UI.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.9</ReleaseVersion>
+    <ReleaseVersion>2.10</ReleaseVersion>
     <AssemblyName>AirVPN</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -31,8 +31,6 @@
     <EnableCodeSigning>true</EnableCodeSigning>
     <CreatePackage>true</CreatePackage>
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
-    <I18n>
-    </I18n>
     <Commandlineparameters>profile=/Users/Clodo/AirVPN.xml</Commandlineparameters>
     <LinkMode>Full</LinkMode>
     <CustomCommands>
