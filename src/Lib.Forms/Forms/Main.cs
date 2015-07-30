@@ -1452,8 +1452,9 @@ namespace AirVPN.Gui.Forms
 
 					if (mode == Core.Engine.RefreshUiMode.Full)
 					{
-						bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
-						bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
+						// TOCLEAN
+						//bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
+						//bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
 
 						m_listViewServers.UpdateList();
 						m_listViewAreas.UpdateList();

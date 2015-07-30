@@ -115,7 +115,7 @@ namespace AirVPN.Gui.Controls
 				Image imageN = GuiUtils.GetResourceImage("stars_n");
 				Image imageH = GuiUtils.GetResourceImage("stars_h");
 
-				Rectangle sourceN = new Rectangle(0, 0, imageN.Width, imageN.Height);
+				//Rectangle sourceN = new Rectangle(0, 0, imageN.Width, imageN.Height); // TOCLEAN
 				Rectangle sourceH = new Rectangle(0, 0, Convert.ToInt32(Convert.ToDouble(imageH.Width) * part), imageH.Height);
 
 				int ODX = imageN.Width;

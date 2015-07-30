@@ -88,7 +88,9 @@ namespace AirVPN.Gui.Skin
 
             if (c is Skin.Label)
             {
-                Skin.Label c2 = c as Skin.Label;
+				// TOCLEAN
+
+                // Skin.Label c2 = c as Skin.Label;
 
                 //c2.BackColor = Color.Transparent;
                 //c2.ForeColor = ForeColor;                                    

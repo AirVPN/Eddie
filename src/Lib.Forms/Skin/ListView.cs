@@ -84,7 +84,7 @@ namespace AirVPN.Gui.Skin
 			
 			if (e.ColumnIndex == 0)
 			{
-				int middleY = (e.Bounds.Top + e.Bounds.Bottom) / 2;
+				// int middleY = (e.Bounds.Top + e.Bounds.Bottom) / 2; // TOCLEAN
 
 				Rectangle r = e.Bounds;
 
