@@ -10,8 +10,8 @@
                 <outlet property="CboDnsSwitchMode" destination="hxb-i3-foN" id="6o8-81-kLq"/>
                 <outlet property="CboIpV6" destination="ygm-BR-rTG" id="w0w-aA-YPg"/>
                 <outlet property="CboLockMode" destination="Lrp-im-2GN" id="a01-gG-6NS"/>
-                <outlet property="CboOpenVpnSndBuf" destination="4gd-sC-mOi" id="LQ8-28-MU8"/>
                 <outlet property="CboOpenVpnRcvBuf" destination="lVo-gz-mEd" id="TYQ-Sd-mtb"/>
+                <outlet property="CboOpenVpnSndBuf" destination="4gd-sC-mOi" id="LQ8-28-MU8"/>
                 <outlet property="CboProxyAuthentication" destination="Hai-gc-xnu" id="dgb-Pq-InJ"/>
                 <outlet property="CboProxyType" destination="aVZ-Zz-7LT" id="Mqe-f8-uqX"/>
                 <outlet property="CboRoutesOtherwise" destination="JqH-io-99F" id="Nzg-Tp-iJd"/>
@@ -27,7 +27,8 @@
                 <outlet property="ChkGeneralStartLast" destination="2Nm-Y7-BeU" id="XdO-Hi-CWR"/>
                 <outlet property="ChkLockAllowPing" destination="VOk-Ch-IHJ" id="bOd-ou-0lG"/>
                 <outlet property="ChkLockAllowPrivate" destination="xCu-Ni-GP8" id="kfh-B7-rbA"/>
-                <outlet property="ChkLoggingEnabled" destination="IxZ-rQ-MFk" id="wmR-Qd-v4G"/>
+                <outlet property="ChkLogLevelDebug" destination="IYo-X6-SMs" id="6uy-Fd-QTP"/>
+                <outlet property="ChkLoggingEnabled" destination="IYo-X6-SMs" id="XR8-qC-q9r"/>
                 <outlet property="ChkModeAutomatic" destination="h8Y-x2-Tii" id="zHq-lg-9a2"/>
                 <outlet property="ChkModeSsh22" destination="MmP-uv-2Gd" id="fhi-gY-L3b"/>
                 <outlet property="ChkModeSsh22Alt" destination="QiV-Ij-WbU" id="ebs-SO-qCS"/>
@@ -69,8 +70,8 @@
                 <outlet property="LblDnsServers" destination="0g5-hp-4gz" id="kYZ-a6-qOf"/>
                 <outlet property="LblLockRoutingOutWarning" destination="xsz-F9-GYM" id="pcZ-0q-kwl"/>
                 <outlet property="LblLoggingHelp" destination="STr-CF-heX" id="jBF-M5-Ikp"/>
-                <outlet property="LblOpenVpnSndBuf" destination="a1S-WE-IVy" id="Jxg-9F-Jrd"/>
                 <outlet property="LblOpenVpnRcvBuf" destination="hVX-ua-k8h" id="quX-mX-UAZ"/>
+                <outlet property="LblOpenVpnSndBuf" destination="a1S-WE-IVy" id="Jxg-9F-Jrd"/>
                 <outlet property="LblRoutesNetworkLockWarning" destination="KPm-dc-mbz" id="XsZ-UC-CEd"/>
                 <outlet property="TableAdvancedEvents" destination="ro0-7l-TmO" id="KYZ-V8-TQF"/>
                 <outlet property="TableDnsServers" destination="urA-cy-BnR" id="caD-P0-UnG"/>
@@ -391,7 +392,7 @@ Gw
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
-                                        <box autoresizesSubviews="NO" title="TOR" borderType="line" id="wSR-Mq-4JE">
+                                        <box autoresizesSubviews="NO" title="Tor" borderType="line" id="wSR-Mq-4JE">
                                             <rect key="frame" x="14" y="0.0" width="532" height="50"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <view key="contentView">
@@ -696,7 +697,7 @@ Gw
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Gyv-dK-0X7">
                                             <rect key="frame" x="16" y="88" width="530" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="If you use TOR, you need to set up your proxy inside TOR configuration" id="oMd-nr-rQJ">
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="If you use Tor, you need to set up your proxy inside Tor configuration" id="oMd-nr-rQJ">
                                                 <font key="font" metaFont="label"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1074,11 +1075,11 @@ Gw
                                                 </tabViewItem>
                                                 <tabViewItem label="DNS" identifier="" id="7Pz-yD-WmC">
                                                     <view key="view" id="O0e-VG-S9V">
-                                                        <rect key="frame" x="10" y="33" width="520" height="194"/>
+                                                        <rect key="frame" x="10" y="33" width="520" height="240"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Qjw-UY-LWz">
-                                                                <rect key="frame" x="2" y="163" width="113" height="17"/>
+                                                                <rect key="frame" x="2" y="209" width="113" height="17"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="DNS Switch mode:" id="Ctd-de-xD8">
                                                                     <font key="font" metaFont="smallSystem"/>
@@ -1087,7 +1088,7 @@ Gw
                                                                 </textFieldCell>
                                                             </textField>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="0g5-hp-4gz">
-                                                                <rect key="frame" x="273" y="147" width="232" height="33"/>
+                                                                <rect key="frame" x="273" y="193" width="232" height="33"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="*DNS Servers:" id="aLw-DM-Zkw">
                                                                     <font key="font" metaFont="smallSystem"/>
@@ -1096,7 +1097,7 @@ Gw
                                                                 </textFieldCell>
                                                             </textField>
                                                             <popUpButton verticalHuggingPriority="750" id="hxb-i3-foN">
-                                                                <rect key="frame" x="119" y="158" width="138" height="26"/>
+                                                                <rect key="frame" x="119" y="204" width="138" height="26"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="RhV-Ut-07J">
                                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -1110,10 +1111,10 @@ Gw
                                                                 </popUpButtonCell>
                                                             </popUpButton>
                                                             <scrollView autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="yAe-mR-j3Y">
-                                                                <rect key="frame" x="274" y="4" width="188" height="142"/>
+                                                                <rect key="frame" x="274" y="4" width="188" height="188"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <clipView key="contentView" id="D43-Ek-OIu">
-                                                                    <rect key="frame" x="1" y="17" width="484" height="104"/>
+                                                                    <rect key="frame" x="1" y="17" width="186" height="170"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="A0q-nW-NN1" id="urA-cy-BnR">
@@ -1156,7 +1157,7 @@ Gw
                                                                 </tableHeaderView>
                                                             </scrollView>
                                                             <button id="VqV-KG-Dpk">
-                                                                <rect key="frame" x="14" y="109" width="254" height="45"/>
+                                                                <rect key="frame" x="14" y="155" width="254" height="45"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Check if the tunnel use AirVPN DNS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Mzq-0z-eGo">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1164,7 +1165,7 @@ Gw
                                                                 </buttonCell>
                                                             </button>
                                                             <button toolTip="Test tooltip" verticalHuggingPriority="750" id="MZA-G0-FP9">
-                                                                <rect key="frame" x="469" y="114" width="36" height="34"/>
+                                                                <rect key="frame" x="469" y="160" width="36" height="34"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="add_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="P0P-kA-FTK">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1172,7 +1173,7 @@ Gw
                                                                 </buttonCell>
                                                             </button>
                                                             <button toolTip="Test tooltip" verticalHuggingPriority="750" id="ugR-wL-aSk">
-                                                                <rect key="frame" x="469" y="81" width="36" height="34"/>
+                                                                <rect key="frame" x="469" y="127" width="36" height="34"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="delete_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="23U-qh-sOZ">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1180,7 +1181,7 @@ Gw
                                                                 </buttonCell>
                                                             </button>
                                                             <button toolTip="Test tooltip" verticalHuggingPriority="750" id="fUw-z7-ejP">
-                                                                <rect key="frame" x="469" y="44" width="36" height="34"/>
+                                                                <rect key="frame" x="469" y="90" width="36" height="34"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="edit_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ipC-Tv-sKi">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1192,11 +1193,11 @@ Gw
                                                 </tabViewItem>
                                                 <tabViewItem label="Network Lock" identifier="2" id="yKp-yA-leg">
                                                     <view key="view" id="KZF-Xi-P2j">
-                                                        <rect key="frame" x="10" y="33" width="520" height="194"/>
+                                                        <rect key="frame" x="10" y="33" width="520" height="240"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="TSW-ZE-WhI">
-                                                                <rect key="frame" x="15" y="172" width="49" height="17"/>
+                                                                <rect key="frame" x="15" y="218" width="49" height="17"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Mode:" id="JwE-4Z-dU5">
                                                                     <font key="font" metaFont="smallSystem"/>
@@ -1205,7 +1206,7 @@ Gw
                                                                 </textFieldCell>
                                                             </textField>
                                                             <popUpButton verticalHuggingPriority="750" id="Lrp-im-2GN">
-                                                                <rect key="frame" x="63" y="167" width="257" height="26"/>
+                                                                <rect key="frame" x="63" y="213" width="257" height="26"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="c6G-6Z-TT0">
                                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -1219,16 +1220,18 @@ Gw
                                                                 </popUpButtonCell>
                                                             </popUpButton>
                                                             <box autoresizesSubviews="NO" title="Addresses allowed:" borderType="line" id="Hah-Ev-tkZ">
-                                                                <rect key="frame" x="269" y="5" width="237" height="159"/>
+                                                                <rect key="frame" x="269" y="5" width="237" height="205"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                                                                 <view key="contentView">
-                                                                    <rect key="frame" x="1" y="1" width="235" height="143"/>
+                                                                    <rect key="frame" x="1" y="1" width="235" height="189"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="DHA-pR-pKS">
-                                                                            <rect key="frame" x="18" y="14" width="199" height="119"/>
+                                                                            <rect key="frame" x="18" y="14" width="199" height="165"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                            <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="bWQ-e8-Ck0">
+                                                                            <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1
+2
+3" drawsBackground="YES" id="bWQ-e8-Ck0">
                                                                                 <font key="font" size="10" name="Monaco"/>
                                                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1240,7 +1243,7 @@ Gw
                                                                 <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                             </box>
                                                             <button verticalHuggingPriority="750" id="5AI-c0-dFt">
-                                                                <rect key="frame" x="435" y="166" width="70" height="25"/>
+                                                                <rect key="frame" x="435" y="212" width="70" height="25"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="bevel" title="Help" bezelStyle="regularSquare" image="tip" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="jDN-U0-odX">
                                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1248,7 +1251,7 @@ Gw
                                                                 </buttonCell>
                                                             </button>
                                                             <button id="xCu-Ni-GP8">
-                                                                <rect key="frame" x="15" y="142" width="251" height="24"/>
+                                                                <rect key="frame" x="15" y="188" width="251" height="24"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Allow lan/private" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="c97-GD-zCr">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1256,7 +1259,7 @@ Gw
                                                                 </buttonCell>
                                                             </button>
                                                             <button id="VOk-Ch-IHJ">
-                                                                <rect key="frame" x="15" y="119" width="251" height="24"/>
+                                                                <rect key="frame" x="15" y="165" width="251" height="24"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Allow ping" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="rPj-l3-XzV">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1264,7 +1267,7 @@ Gw
                                                                 </buttonCell>
                                                             </button>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="xsz-F9-GYM">
-                                                                <rect key="frame" x="17" y="17" width="247" height="96"/>
+                                                                <rect key="frame" x="17" y="63" width="247" height="96"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Warning" drawsBackground="YES" id="aMX-EM-TaP">
                                                                     <font key="font" metaFont="smallSystem"/>
@@ -1277,11 +1280,11 @@ Gw
                                                 </tabViewItem>
                                                 <tabViewItem label="Logging" identifier="2" id="nh8-N9-geM">
                                                     <view key="view" id="t2p-hq-rHj">
-                                                        <rect key="frame" x="10" y="33" width="520" height="194"/>
+                                                        <rect key="frame" x="10" y="33" width="520" height="240"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <button id="IxZ-rQ-MFk">
-                                                                <rect key="frame" x="15" y="174.99999994543884" width="490" height="18"/>
+                                                                <rect key="frame" x="15" y="216" width="242" height="18"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <buttonCell key="cell" type="check" title="Logging on file enabled" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="iHq-HO-R53">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1289,7 +1292,7 @@ Gw
                                                                 </buttonCell>
                                                             </button>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="XKE-Dh-ZKT">
-                                                                <rect key="frame" x="15" y="152" width="46" height="17"/>
+                                                                <rect key="frame" x="15" y="188" width="46" height="17"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Path:" id="XsH-OH-Tf5">
                                                                     <font key="font" metaFont="system"/>
@@ -1298,7 +1301,7 @@ Gw
                                                                 </textFieldCell>
                                                             </textField>
                                                             <textField verticalHuggingPriority="750" id="XTE-TQ-fIh">
-                                                                <rect key="frame" x="67" y="149" width="436" height="22"/>
+                                                                <rect key="frame" x="67" y="185" width="436" height="22"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="0cm-Vg-YOe">
                                                                     <font key="font" metaFont="system"/>
@@ -1307,7 +1310,7 @@ Gw
                                                                 </textFieldCell>
                                                             </textField>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="STr-CF-heX">
-                                                                <rect key="frame" x="17" y="17" width="486" height="65"/>
+                                                                <rect key="frame" x="17" y="17" width="486" height="81"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES" flexibleMaxY="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="Label" id="RsR-RN-gs6">
                                                                     <font key="font" metaFont="miniSystem"/>
@@ -1316,7 +1319,7 @@ Gw
                                                                 </textFieldCell>
                                                             </textField>
                                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="c9X-34-ftI">
-                                                                <rect key="frame" x="67" y="89.999999167167971" width="436" height="56"/>
+                                                                <rect key="frame" x="67" y="108.00000079419162" width="436" height="74"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="Label" id="rxv-bo-Jmj">
                                                                     <font key="font" metaFont="miniSystem"/>
@@ -1324,33 +1327,44 @@ Gw
                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                 </textFieldCell>
                                                             </textField>
+                                                            <button id="IYo-X6-SMs">
+                                                                <rect key="frame" x="289" y="218" width="490" height="18"/>
+                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                <buttonCell key="cell" type="check" title="Log debug (for troubleshooting)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="fmb-Jw-vua">
+                                                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                                    <font key="font" metaFont="system"/>
+                                                                </buttonCell>
+                                                            </button>
                                                         </subviews>
                                                     </view>
                                                 </tabViewItem>
                                                 <tabViewItem label="OVPN directives" identifier="3" id="mjM-bY-0NO">
                                                     <view key="view" id="fEJ-Q7-T0q">
-                                                        <rect key="frame" x="10" y="33" width="520" height="194"/>
+                                                        <rect key="frame" x="10" y="33" width="520" height="240"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <subviews>
                                                             <button id="4RQ-eQ-9Qm">
                                                                 <rect key="frame" x="281" y="7" width="244" height="42"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                                                <buttonCell key="cell" type="check" title="Skip the above default directives. If unchecked,  your custom directives are appended." bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="bP7-YV-LeL">
+                                                                <buttonCell key="cell" type="check" title="Skip the above default directives. If unchecked, 
+your custom directives are appended." bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="bP7-YV-LeL">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="miniSystem"/>
                                                                 </buttonCell>
                                                             </button>
                                                             <box autoresizesSubviews="NO" title="Custom:" borderType="line" id="cOs-sY-oCX">
-                                                                <rect key="frame" x="6" y="41" width="252" height="153"/>
+                                                                <rect key="frame" x="6" y="41" width="252" height="199"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                                                                 <view key="contentView">
-                                                                    <rect key="frame" x="1" y="1" width="250" height="137"/>
+                                                                    <rect key="frame" x="1" y="1" width="250" height="183"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="IPZ-8a-lFv">
-                                                                            <rect key="frame" x="5" y="5" width="240" height="130"/>
+                                                                            <rect key="frame" x="5" y="5" width="240" height="176"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                            <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="9jf-bB-n83">
+                                                                            <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1
+2
+3" drawsBackground="YES" id="9jf-bB-n83">
                                                                                 <font key="font" size="10" name="Monaco"/>
                                                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1362,16 +1376,18 @@ Gw
                                                                 <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                             </box>
                                                             <box autoresizesSubviews="NO" title="Default:" borderType="line" id="PMQ-Ef-3Fn">
-                                                                <rect key="frame" x="260.0000001612475" y="41" width="252" height="153"/>
+                                                                <rect key="frame" x="260.0000001612475" y="41" width="252" height="199"/>
                                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" heightSizable="YES"/>
                                                                 <view key="contentView">
-                                                                    <rect key="frame" x="0.99999983875250109" y="1" width="250" height="137"/>
+                                                                    <rect key="frame" x="1" y="1" width="250" height="183"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="NjY-dC-GsQ">
-                                                                            <rect key="frame" x="5" y="5" width="240" height="130"/>
+                                                                            <rect key="frame" x="5" y="5" width="240" height="176"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="vOf-am-cHb">
+                                                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1
+2
+3" drawsBackground="YES" id="vOf-am-cHb">
                                                                                 <font key="font" size="10" name="Monaco"/>
                                                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                 <color key="backgroundColor" name="windowBackgroundColor" catalog="System" colorSpace="catalog"/>

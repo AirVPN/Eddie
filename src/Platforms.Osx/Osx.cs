@@ -48,7 +48,7 @@ namespace AirVPN.Platforms
 			return ShellCmd("sw_vers -productVersion");
 		}
 
-		public override string GetArchitecture()
+		public override string GetOsArchitecture()
 		{
 			return m_architecture;
 		}
@@ -88,6 +88,11 @@ namespace AirVPN.Platforms
             }
         }
 
+		public override string GetExecutableReport(string path)
+		{
+			return ShellCmd("otool -L \"" + path + "\"");
+		}
+
 		public override string GetExecutablePath()
 		{
 			string currentPath = System.Reflection.Assembly.GetEntryAssembly().Location;
@@ -111,11 +116,21 @@ namespace AirVPN.Platforms
 
         public override void FlushDNS()
         {
-            // Leopard
-            ShellCmd("lookupd -flushcache");
-            // Other
-            ShellCmd("dscacheutil -flushcache");
+			// 10.9
+			ShellCmd("dscacheutil -flushcache");
+			ShellCmd("killall -HUP mDNSResponder");
+
+			// 10.10
+			ShellCmd("discoveryutil udnsflushcaches");
         }
+
+		public override void EnsureExecutablePermissions(string path)
+		{
+			if ((path == "") || (File.Exists(path) == false))
+				return;
+
+			ShellCmd("chmod +x \"" + path + "\"");
+		}
 
 		public override string GetDriverAvailable()
 		{
@@ -386,7 +401,7 @@ namespace AirVPN.Platforms
 					}
 					else
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface ' + i + "");
+						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface '" + i + "'");
 					}
 				}
 

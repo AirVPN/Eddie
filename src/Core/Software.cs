@@ -60,8 +60,15 @@ namespace AirVPN.Core
 				if (OpenVpnPath != "")
 				{
 					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
-					if (OpenVpnVersion.StartsWith("Error:")) throw new Exception(OpenVpnVersion);
-					if (OpenVpnVersion != "")
+					if( (OpenVpnVersion.StartsWith("Error:")) || (OpenVpnVersion == "") )
+					{
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + OpenVpnVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(OpenVpnPath));
+						OpenVpnPath = "";
+						OpenVpnVersion = "";
+					}
+					else if (OpenVpnVersion != "")
 					{
 						int posS = OpenVpnVersion.IndexOf(" ", 8);
 						if (posS > 1)
@@ -71,8 +78,9 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);
+				Engine.Instance.Log(Engine.LogType.Warning, e);				
 				OpenVpnPath = "";
+				OpenVpnVersion = "";
 			}
 
 			
@@ -87,8 +95,15 @@ namespace AirVPN.Core
 				{
 					string arguments = "-V";
 					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
-					if (SshVersion.StartsWith("Error:")) throw new Exception(SshVersion);
-					if (SshVersion != "")
+					if( (SshVersion.StartsWith("Error:")) || (SshVersion == ""))
+					{
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SshPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + SshVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(SshPath));						
+						SshPath = "";
+						SshVersion = "";
+					}
+					else if (SshVersion != "")
 					{
 						if (Platform.Instance.IsWindowsSystem()) 
 							SshVersion = SshVersion.Replace(": Release", "").Trim();
@@ -97,8 +112,9 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);
+				Engine.Instance.Log(Engine.LogType.Warning, e);				
 				SshPath = "";
+				SshVersion = "";
 			}
 
 			// SSL Tunnel Binary
@@ -112,17 +128,28 @@ namespace AirVPN.Core
 				if (SslPath != "")
 				{
 					string arguments = "-version";					
-					SslVersion = Platform.Instance.Shell(SslPath, arguments);
-					if (SslVersion.StartsWith("Error:")) throw new Exception(SslVersion);
-					int posS = SslVersion.IndexOf(" ", 8);					
-					if (posS > 1)
-						SslVersion = SslVersion.Substring(0, posS);
+					SslVersion = Platform.Instance.Shell(SslPath, arguments).Trim();
+					if ((SslVersion.StartsWith("Error:")) || (SslVersion == ""))
+					{
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SslPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + SslVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(SslPath));
+						SslPath = "";
+						SslVersion = "";
+					}
+					else
+					{
+						int posS = SslVersion.IndexOf(" ", 8);
+						if (posS > 1)
+							SslVersion = SslVersion.Substring(0, posS);
+					}
 				}
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);
-				SshPath = "";
+				Engine.Instance.Log(Engine.LogType.Warning, e);				
+				SslPath = "";
+				SslVersion = "";
 			}
 
 			// CUrl			
@@ -135,16 +162,28 @@ namespace AirVPN.Core
 				if (CurlPath != "")
 				{
 					string arguments = "--version";
-					CurlVersion = Platform.Instance.Shell(CurlPath, arguments);
-					int posS = CurlVersion.IndexOf("\n");
-					if (posS > 1)
-						CurlVersion = CurlVersion.Substring(0, posS);
+					CurlVersion = Platform.Instance.Shell(CurlPath, arguments).Trim();
+					if ((CurlVersion.StartsWith("Error:")) || (CurlVersion == ""))
+					{
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, CurlPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + CurlVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(CurlPath));
+						CurlPath = "";
+						CurlVersion = "";
+					}
+					else
+					{
+						int posS = CurlVersion.IndexOf("\n");
+						if (posS > 1)
+							CurlVersion = CurlVersion.Substring(0, posS);
+					}
 				}
 			}
 			catch (Exception e)
 			{
 				Engine.Instance.Log(Engine.LogType.Warning, e);
-				SshPath = "";
+				CurlPath = "";
+				CurlVersion = "";
 			}
 
 			// Local Time in the past

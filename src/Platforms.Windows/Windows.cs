@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Management;
@@ -34,7 +35,6 @@ namespace AirVPN.Platforms
 {
     public class Windows : Platform
     {
-		private string m_architecture;
 		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private object m_oldIpV6 = null;
@@ -44,11 +44,45 @@ namespace AirVPN.Platforms
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
 		}
+
+		[DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		private static extern bool IsWow64Process(
+			[In] IntPtr hProcess,
+			[Out] out bool wow64Process
+		);
+
+		public static bool InternalCheckIsWow64()
+		{
+			if ((Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor >= 1) ||
+				Environment.OSVersion.Version.Major >= 6)
+			{
+				using (System.Diagnostics.Process p = System.Diagnostics.Process.GetCurrentProcess())
+				{
+					bool retVal;
+					try
+					{
+						if (!IsWow64Process(p.Handle, out retVal))
+						{
+							return false;
+						}
+					}
+					catch (Exception)
+					{
+						return false;
+					}
+					return retVal;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
 		
         // Override
 		public Windows()
 		{
-			m_architecture = NormalizeArchitecture(System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"));
 		}
 
 		public override string GetCode()
@@ -61,9 +95,13 @@ namespace AirVPN.Platforms
 			return System.Environment.OSVersion.VersionString;			
 		}
 
-		public override string GetArchitecture()
+		public override string GetOsArchitecture()
 		{
-			return m_architecture;
+			if (GetArchitecture() == "x64")
+				return "x64";
+			if (InternalCheckIsWow64())
+				return "x64";
+			return "x86";
 		}
 
         public override bool IsAdmin()
@@ -568,23 +606,43 @@ namespace AirVPN.Platforms
 				{
 					string sysPath = objSysPath as string;
 
-					if(sysPath.StartsWith("\\SystemRoot\\")) // Win 8 and above
+					if (sysPath.StartsWith("\\SystemRoot\\")) // Win 8 and above
 					{
-						sysPath = Platform.Instance.NormalizePath(sysPath.Replace("\\SystemRoot\\", Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep));						
+						sysPath = Platform.Instance.NormalizePath(sysPath.Replace("\\SystemRoot\\", Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep));
 					}
 					else // Relative path, Win 7 and below
-					{						
-						sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);						
+					{
+						sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);
+					}
+
+					if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrHigher()))
+					{
+						// If Eddie is compiled for 32 bit, and architecture is 64 bit, 
+						// tunnel driver path above is real, but Redirector
+						// https://msdn.microsoft.com/en-us/library/aa384187(v=vs.85).aspx
+						// cause issue.
+						// The Sysnative alias was added starting with Windows Vista.
+						sysPath = sysPath.ToLowerInvariant();
+						sysPath = sysPath.Replace("\\system32\\", "\\sysnative\\");
+					}
+
+					if (File.Exists(sysPath) == false)
+					{
+						throw new Exception(Messages.Format(Messages.OsDriverNoPath, sysPath));
 					}
 
 					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
 					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
 
 					string result = versionInfo.ProductVersion;
-					if(result.IndexOf(" ") != -1)
-						result = result.Substring(0,result.IndexOf(" "));
-					
+					if (result.IndexOf(" ") != -1)
+						result = result.Substring(0, result.IndexOf(" "));
+
 					return result;
+				}
+				else
+				{
+					throw new Exception(Messages.OsDriverNoRegPath);					
 				}
 
 				/* // Not a realtime solution
@@ -632,12 +690,18 @@ namespace AirVPN.Platforms
 			}
 
 			if (result == "")
+			{
+				Engine.Instance.Log(Engine.LogType.Verbose, Messages.OsDriverNoAdapterFound);
 				return "";
+			}
 
 			string version = GetDriverVersion();
 
-			if(version == "")
+			if (version == "")
+			{
+				Engine.Instance.Log(Engine.LogType.Verbose, Messages.OsDriverNoVersionFound);
 				return "";
+			}
 
 			string bundleVersion = Constants.WindowsDriverVersion;
 			if (IsVistaOrHigher() == false) // XP

@@ -968,7 +968,7 @@ namespace AirVPN.Core.Threads
 
 								if (m_reset == "")
 								{
-									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit.airvpn.org" + ":88/check_tun/", null, Messages.ConnectionCheckingRoute, true);
+									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
 
 									string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
 									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
@@ -983,7 +983,7 @@ namespace AirVPN.Core.Threads
 								
 								if (m_reset == "")
 								{
-									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + ".airvpn.org" + ":88/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
+									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
 									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
 									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
 
@@ -1024,7 +1024,7 @@ namespace AirVPN.Core.Threads
 								}
 
 								// Check if the server has received the above DNS query
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit.airvpn.org" + ":88/check_dns/", null, Messages.ConnectionCheckingDNS, true);
+								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_dns/", null, Messages.ConnectionCheckingDNS, true);
 
 								string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
 

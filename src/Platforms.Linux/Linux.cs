@@ -53,7 +53,7 @@ namespace AirVPN.Platforms
 				return base.GetName();
 		}
 
-		public override string GetArchitecture()
+		public override string GetOsArchitecture()
 		{
 			return m_architecture;
 		}
@@ -87,6 +87,11 @@ namespace AirVPN.Platforms
                 return "/";
             }
         }
+
+		public override string GetExecutableReport(string path)
+		{
+			return ShellCmd("ldd \"" + path + "\"");
+		}
 
 		public override string GetExecutablePath()
 		{

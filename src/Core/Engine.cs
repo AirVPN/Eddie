@@ -174,7 +174,8 @@ namespace AirVPN.Core
 			bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
 			if (manMode == false)
 			{
-				Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Architecture: " + Platform.Instance.GetArchitecture());
+				Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
+
 				if (DevelopmentEnvironment)
 					Log(LogType.Info, "Development environment.");
 			}
@@ -843,13 +844,21 @@ namespace AirVPN.Core
 					{
 						if (Storage.GetBool("log.file.enabled"))
 						{
-							string logPath = Storage.Get("log.file.path").Trim();
-
-							List<string> paths = ParseLogFilePath(logPath);
-							foreach (string path in paths)
+							try
 							{
-								Directory.CreateDirectory(Path.GetDirectoryName(path));
-								File.AppendAllText(path, lines + "\n");
+								string logPath = Storage.Get("log.file.path").Trim();
+
+								List<string> paths = ParseLogFilePath(logPath);
+								foreach (string path in paths)
+								{
+									Directory.CreateDirectory(Path.GetDirectoryName(path));
+									File.AppendAllText(path, lines + "\n");
+								}
+							}
+							catch(Exception e) 
+							{
+								Log (LogType.Warning, Messages.Format("Log to file disabled due to error, {1}", e.Message));
+								Storage.SetBool ("log.file.enabled", false);
 							}
 						}
 					}
@@ -1776,7 +1785,7 @@ namespace AirVPN.Core
 								throw new Exception(Messages.OsDriverFailed);
 						}
 						else
-							throw new Exception(Messages.OsDriverFailed);
+							throw new Exception(Messages.OsDriverCannotInstall);
 					}
 
 					if (m_threadSession != null)
