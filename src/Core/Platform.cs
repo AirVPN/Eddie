@@ -278,6 +278,11 @@ namespace AirVPN.Core
             
             return p;
         }
+
+		public virtual string GetExecutableReport(string path)
+		{
+			return "";
+		}
                 
         public virtual bool IsPath(string v)
         {

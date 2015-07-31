@@ -47,8 +47,7 @@ namespace AirVPN.Core
 		public static string AuthorizeConnect = "Checking authorization ...";
 		public static string AuthorizeConnectFailed = "Authorization check failed, continue anyway ({1])";
 		public static string AppExiting = "Exiting";
-		public static string AppEvent = "Running event {1}";		
-		public static string BundleExecutableError = "Unable to execute bundle executable {1} ({2})"; // TOTRANSLATE
+		public static string AppEvent = "Running event {1}";				
 		public static string AutoPortSwitch = "Auto retry with another port.";
 		public static string AuthFailed = "Authorization failed. Look at the client area to discover the reason.";
 		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'N' to connect/reconnect to the best available server.";
@@ -64,6 +63,9 @@ namespace AirVPN.Core
 		public static string OsDriverCannotInstall = "Driver can't be installed."; // TOTRANSLATE
 		public static string OsDriverUninstallDone = "Tunnel driver uninstalled.";
 		public static string OsDriverNeedUpgrade = "Tunnel driver will be upgraded, from {1} to {2}.";
+		public static string OsDriverNoPath = "Unable to find driver path '{1}'"; // TOTRANSLATE
+		public static string OsDriverNoRegPath = "Unable to find driver registry path"; // TOTRANSLATE
+		public static string BundleExecutableError = "Unexpected bundle executable error {1} ({2}). Dumping report."; // TOTRANSLATE
 		public static string ManifestUpdate = "Updating systems & servers data ...";
 		public static string ManifestDone = "Systems & servers data update completed";
 		public static string ManifestFailed = "Cannot retrieve systems & servers data. Please retry later or contact us for help. ({1})";

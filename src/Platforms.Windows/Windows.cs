@@ -35,7 +35,6 @@ namespace AirVPN.Platforms
 {
     public class Windows : Platform
     {
-		private string m_architecture;
 		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private object m_oldIpV6 = null;
@@ -617,7 +616,7 @@ namespace AirVPN.Platforms
 						sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);
 					}
 
-					if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrHigher())) // cazzo aggiunto
+					if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrHigher()))
 					{
 						// If Eddie is compiled for 32 bit, and architecture is 64 bit, 
 						// tunnel driver path above is real, but Redirector
@@ -630,7 +629,7 @@ namespace AirVPN.Platforms
 
 					if (File.Exists(sysPath) == false)
 					{
-						throw new Exception("Unable to find driver path '" + sysPath + "'");
+						throw new Exception(Messages.Format(Messages.OsDriverNoPath, sysPath));
 					}
 
 					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
@@ -644,7 +643,7 @@ namespace AirVPN.Platforms
 				}
 				else
 				{
-					throw new Exception("Unable to find driver registry path");
+					throw new Exception(Messages.OsDriverNoRegPath);					
 				}
 
 				/* // Not a realtime solution

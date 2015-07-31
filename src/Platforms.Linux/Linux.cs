@@ -88,6 +88,11 @@ namespace AirVPN.Platforms
             }
         }
 
+		public override string GetExecutableReport(string path)
+		{
+			return ShellCmd("ldd \"" + path + "\"");
+		}
+
 		public override string GetExecutablePath()
 		{
 			// We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
