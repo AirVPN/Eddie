@@ -83,7 +83,6 @@ namespace AirVPN.Platforms
         // Override
 		public Windows()
 		{
-			//m_architecture = NormalizeArchitecture(System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"));			
 		}
 
 		public override string GetCode()
