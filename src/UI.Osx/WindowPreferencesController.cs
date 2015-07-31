@@ -737,37 +737,37 @@ namespace AirVPN.UI.Osx
 			if (openVpnSndBuf == -1)
 				GuiUtils.SetSelected(CboOpenVpnSndBuf, Messages.WindowsSettingsOpenVpnDefault);
 			else if (openVpnSndBuf == 1024 * 8)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, "8k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "8 KB");
 			else if (openVpnSndBuf == 1024 * 16)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, "16k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "16 KB");
 			else if (openVpnSndBuf == 1024 * 32)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, "32k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "32 KB");
 			else if (openVpnSndBuf == 1024 * 64)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, "64k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "64 KB");
 			else if (openVpnSndBuf == 1024 * 128)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, "128k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "128 KB");
 			else if (openVpnSndBuf == 1024 * 256)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, "256k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "256 KB");
 			else if (openVpnSndBuf == 1024 * 512)
-				GuiUtils.SetSelected(CboOpenVpnSndBuf, "512k");
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, "512 KB");
 
 			int openVpnRcvBuf = s.GetInt("openvpn.rcvbuf");
 			if (openVpnRcvBuf == -1)
 				GuiUtils.SetSelected(CboOpenVpnRcvBuf, Messages.WindowsSettingsOpenVpnDefault);
 			else if (openVpnRcvBuf == 1024 * 8)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "8k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "8 KB");
 			else if (openVpnRcvBuf == 1024 * 16)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "16k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "16 KB");
 			else if (openVpnRcvBuf == 1024 * 32)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "32k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "32 KB");
 			else if (openVpnRcvBuf == 1024 * 64)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "64k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "64 KB");
 			else if (openVpnRcvBuf == 1024 * 128)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "128k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "128 KB");
 			else if (openVpnRcvBuf == 1024 * 256)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "256k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "256 KB");
 			else if (openVpnRcvBuf == 1024 * 512)
-				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "512k");
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "512 KB");
 
 			// Advanced - DNS
 
@@ -921,37 +921,37 @@ namespace AirVPN.UI.Osx
 			string openVpnSndBuf = GuiUtils.GetSelected(CboOpenVpnSndBuf);
 			if (openVpnSndBuf == Messages.WindowsSettingsOpenVpnDefault)
 				s.SetInt("openvpn.sndbuf", -1);
-			else if (openVpnSndBuf == "8k")
+			else if (openVpnSndBuf == "8 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 8);
-			else if (openVpnSndBuf == "16k")
+			else if (openVpnSndBuf == "16 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 16);
-			else if (openVpnSndBuf == "32k")
+			else if (openVpnSndBuf == "32 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 32);
-			else if (openVpnSndBuf == "64k")
+			else if (openVpnSndBuf == "64 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 64);
-			else if (openVpnSndBuf == "128k")
+			else if (openVpnSndBuf == "128 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 128);
-			else if (openVpnSndBuf == "256k")
+			else if (openVpnSndBuf == "256 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 256);
-			else if (openVpnSndBuf == "512k")
+			else if (openVpnSndBuf == "512 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 512);
 
 			string openVpnRcvBuf = GuiUtils.GetSelected(CboOpenVpnRcvBuf);
 			if (openVpnRcvBuf == Messages.WindowsSettingsOpenVpnDefault)
 				s.SetInt("openvpn.rcvbuf", -1);
-			else if (openVpnRcvBuf == "8k")
+			else if (openVpnRcvBuf == "8 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 8);
-			else if (openVpnRcvBuf == "16k")
+			else if (openVpnRcvBuf == "16 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 16);
-			else if (openVpnRcvBuf == "32k")
+			else if (openVpnRcvBuf == "32 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 32);
-			else if (openVpnRcvBuf == "64k")
+			else if (openVpnRcvBuf == "64 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 64);
-			else if (openVpnRcvBuf == "128k")
+			else if (openVpnRcvBuf == "128 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 128);
-			else if (openVpnRcvBuf == "256k")
+			else if (openVpnRcvBuf == "256 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 256);
-			else if (openVpnRcvBuf == "512k")
+			else if (openVpnRcvBuf == "512 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 512);
 
 			// Advanced - DNS

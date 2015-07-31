@@ -60,7 +60,14 @@ namespace AirVPN.Core
 				if (OpenVpnPath != "")
 				{
 					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
-					if (OpenVpnVersion.StartsWith("Error:")) throw new Exception(OpenVpnVersion);
+					if( (OpenVpnVersion.StartsWith("Error:")) || (OpenVpnVersion == "") )
+					{
+						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
+						Engine.Instance.Log(Engine.LogType.Warning, "Output: " + OpenVpnVersion);
+
+						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.ShellCmd("otool -L \"" + OpenVpnPath + "\""));
+					}
+
 					if (OpenVpnVersion != "")
 					{
 						int posS = OpenVpnVersion.IndexOf(" ", 8);

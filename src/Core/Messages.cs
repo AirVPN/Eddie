@@ -48,6 +48,7 @@ namespace AirVPN.Core
 		public static string AuthorizeConnectFailed = "Authorization check failed, continue anyway ({1])";
 		public static string AppExiting = "Exiting";
 		public static string AppEvent = "Running event {1}";		
+		public static string BundleExecutableError = "Unable to execute bundle executable {1} ({2})"; // TOTRANSLATE
 		public static string AutoPortSwitch = "Auto retry with another port.";
 		public static string AuthFailed = "Authorization failed. Look at the client area to discover the reason.";
 		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'N' to connect/reconnect to the best available server.";
