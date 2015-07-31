@@ -484,10 +484,10 @@ namespace AirVPN.Core
 				}
 				
                 xmlDoc.Save(path);
-
-				if (Platform.Instance.IsUnixSystem())
-					Platform.Instance.ShellCmd("chmod 600 \"" + path + "\"");
             }
+
+			if (Platform.Instance.IsUnixSystem())
+				Platform.Instance.ShellCmd("chmod 600 \"" + path + "\"");
 			
         }
 

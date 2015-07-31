@@ -62,8 +62,8 @@ namespace AirVPN.Core
 					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
 					if( (OpenVpnVersion.StartsWith("Error:")) || (OpenVpnVersion == "") )
 					{
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
-						Engine.Instance.Log(Engine.LogType.Warning, "Output: " + OpenVpnVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + OpenVpnVersion);
 						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(OpenVpnPath));
 						OpenVpnPath = "";
 						OpenVpnVersion = "";
@@ -97,8 +97,8 @@ namespace AirVPN.Core
 					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
 					if( (SshVersion.StartsWith("Error:")) || (SshVersion == ""))
 					{
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.BundleExecutableError, executableName, SshPath));
-						Engine.Instance.Log(Engine.LogType.Warning, "Output: " + SshVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SshPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + SshVersion);
 						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(SshPath));						
 						SshPath = "";
 						SshVersion = "";
@@ -131,8 +131,8 @@ namespace AirVPN.Core
 					SslVersion = Platform.Instance.Shell(SslPath, arguments).Trim();
 					if ((SslVersion.StartsWith("Error:")) || (SslVersion == ""))
 					{
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.BundleExecutableError, executableName, SslPath));
-						Engine.Instance.Log(Engine.LogType.Warning, "Output: " + SslVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SslPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + SslVersion);
 						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(SslPath));
 						SslPath = "";
 						SslVersion = "";
@@ -165,8 +165,8 @@ namespace AirVPN.Core
 					CurlVersion = Platform.Instance.Shell(CurlPath, arguments).Trim();
 					if ((CurlVersion.StartsWith("Error:")) || (CurlVersion == ""))
 					{
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.BundleExecutableError, executableName, CurlPath));
-						Engine.Instance.Log(Engine.LogType.Warning, "Output: " + CurlVersion);
+						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, CurlPath));
+						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + CurlVersion);
 						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(CurlPath));
 						CurlPath = "";
 						CurlVersion = "";
