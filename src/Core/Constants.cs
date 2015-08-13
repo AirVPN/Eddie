@@ -25,8 +25,8 @@ namespace AirVPN.Core
     public static class Constants
     {
 		public static string Name = "AirVPN";
-		public static int VersionInt = 212;
-		public static string VersionDesc = "2.10.2";
+		public static int VersionInt = 213;
+		public static string VersionDesc = "2.10.3";
         public static string WebSite = "https://airvpn.org";
         public static string ServerHost = "airvpn.org";
 		public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN

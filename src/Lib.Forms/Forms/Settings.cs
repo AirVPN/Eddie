@@ -157,6 +157,7 @@ namespace AirVPN.Gui.Forms
             chkConnect.Checked = s.GetBool("connect");
 			chkNetLock.Checked = s.GetBool("netlock");
             chkMinimizeTray.Checked = s.GetBool("gui.windows.tray");
+			chkSystemNotifications.Checked = s.GetBool("gui.windows.notifications");
             chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
 			chkExitConfirm.Checked = s.GetBool("gui.exit_confirm");
 
@@ -458,6 +459,7 @@ namespace AirVPN.Gui.Forms
             s.SetBool("connect", chkConnect.Checked);
 			s.SetBool("netlock", chkNetLock.Checked);
             s.SetBool("gui.windows.tray", chkMinimizeTray.Checked);
+			s.SetBool("gui.windows.notifications", chkSystemNotifications.Checked);			 
             s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
 			s.SetBool("gui.exit_confirm", chkExitConfirm.Checked);
 

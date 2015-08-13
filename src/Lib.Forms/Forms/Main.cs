@@ -195,7 +195,7 @@ namespace AirVPN.Gui.Forms
                 m_notifyIcon.Icon = this.Icon;
                 m_notifyIcon.Text = "AirVPN";
                 m_notifyIcon.Visible = true;
-                m_notifyIcon.BalloonTipTitle = Constants.Name;
+                m_notifyIcon.BalloonTipTitle = Constants.Name;				
 
                 m_notifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
                 //m_notifyIcon.Click += new EventHandler(notifyIcon_Click);				
@@ -1149,8 +1149,21 @@ namespace AirVPN.Gui.Forms
 							{
 								m_notifyIcon.Text = notifyText;
 								m_notifyIcon.BalloonTipText = Msg;
-								if(l.Type >= Engine.LogType.InfoImportant)
-									m_notifyIcon.ShowBalloonTip(l.BalloonTime);
+								if (Engine.Storage.GetBool("gui.windows.notifications"))
+								{
+									if (l.Type >= Engine.LogType.InfoImportant)
+									{
+										if (l.Type == Core.Engine.LogType.Warning)
+											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+										else if (l.Type == Core.Engine.LogType.Error)
+											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+										else if (l.Type == Core.Engine.LogType.Fatal)
+											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+										else
+											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+										m_notifyIcon.ShowBalloonTip(l.BalloonTime);
+									}
+								}
 							}
 						}
                     }

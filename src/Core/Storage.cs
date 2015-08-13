@@ -399,7 +399,8 @@ namespace AirVPN.Core
 			SetDefault("forms.main", "", NotInMan);
 
 			// GUI - Windows only
-			SetDefaultBool("gui.windows.tray", true, NotInMan);			
+			SetDefaultBool("gui.windows.tray", true, NotInMan);
+			SetDefaultBool("gui.windows.notifications", true, NotInMan);
 
 			// GUI - OSX Only
 			SetDefaultBool("gui.osx.notifications", false, NotInMan);

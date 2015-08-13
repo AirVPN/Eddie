@@ -36,6 +36,10 @@ namespace AirVPN.Gui.Forms
 			AirVPN.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
 			AirVPN.Gui.Skin.ColumnHeader columnHeader5;
+			this.lblOpenVpnRcvbuf = new AirVPN.Gui.Skin.Label();
+			this.cboOpenVpnRcvbuf = new AirVPN.Gui.Skin.ComboBox();
+			this.lblOpenVpnSndbuf = new AirVPN.Gui.Skin.Label();
+			this.cboOpenVpnSndbuf = new AirVPN.Gui.Skin.ComboBox();
 			this.label9 = new AirVPN.Gui.Skin.Label();
 			this.chkRouteRemoveDefault = new AirVPN.Gui.Skin.CheckBox();
 			this.lblExpert = new AirVPN.Gui.Skin.Label();
@@ -185,10 +189,7 @@ namespace AirVPN.Gui.Forms
 			this.TxtLoggingPath = new AirVPN.Gui.Skin.TextBox();
 			this.label8 = new AirVPN.Gui.Skin.Label();
 			this.chkLoggingEnabled = new AirVPN.Gui.Skin.CheckBox();
-			this.lblOpenVpnSndbuf = new AirVPN.Gui.Skin.Label();
-			this.cboOpenVpnSndbuf = new AirVPN.Gui.Skin.ComboBox();
-			this.cboOpenVpnRcvbuf = new AirVPN.Gui.Skin.ComboBox();
-			this.lblOpenVpnRcvbuf = new AirVPN.Gui.Skin.Label();
+			this.chkSystemNotifications = new AirVPN.Gui.Skin.CheckBox();
 			tabPage1 = new AirVPN.Gui.Skin.TabPage();
 			tabPage2 = new AirVPN.Gui.Skin.TabPage();
 			tabPage3 = new AirVPN.Gui.Skin.TabPage();
@@ -244,6 +245,58 @@ namespace AirVPN.Gui.Forms
 			tabPage1.Size = new System.Drawing.Size(622, 263);
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "General";
+			// 
+			// lblOpenVpnRcvbuf
+			// 
+			this.lblOpenVpnRcvbuf.BackColor = System.Drawing.Color.Transparent;
+			this.lblOpenVpnRcvbuf.ForeColor = System.Drawing.Color.Black;
+			this.lblOpenVpnRcvbuf.Location = new System.Drawing.Point(13, 205);
+			this.lblOpenVpnRcvbuf.Name = "lblOpenVpnRcvbuf";
+			this.lblOpenVpnRcvbuf.Size = new System.Drawing.Size(206, 21);
+			this.lblOpenVpnRcvbuf.TabIndex = 85;
+			this.lblOpenVpnRcvbuf.Text = "TCP/UDP socket receive buffer size:";
+			this.lblOpenVpnRcvbuf.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboOpenVpnRcvbuf
+			// 
+			this.cboOpenVpnRcvbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboOpenVpnRcvbuf.FormattingEnabled = true;
+			this.cboOpenVpnRcvbuf.Items.AddRange(new object[] {
+            "Automatic",
+            "Never",
+            "Every minute",
+            "Every ten minute",
+            "Every one hour"});
+			this.cboOpenVpnRcvbuf.Location = new System.Drawing.Point(231, 205);
+			this.cboOpenVpnRcvbuf.Name = "cboOpenVpnRcvbuf";
+			this.cboOpenVpnRcvbuf.Size = new System.Drawing.Size(125, 21);
+			this.cboOpenVpnRcvbuf.TabIndex = 84;
+			// 
+			// lblOpenVpnSndbuf
+			// 
+			this.lblOpenVpnSndbuf.BackColor = System.Drawing.Color.Transparent;
+			this.lblOpenVpnSndbuf.ForeColor = System.Drawing.Color.Black;
+			this.lblOpenVpnSndbuf.Location = new System.Drawing.Point(13, 178);
+			this.lblOpenVpnSndbuf.Name = "lblOpenVpnSndbuf";
+			this.lblOpenVpnSndbuf.Size = new System.Drawing.Size(206, 21);
+			this.lblOpenVpnSndbuf.TabIndex = 83;
+			this.lblOpenVpnSndbuf.Text = "TCP/UDP socket send buffer size:";
+			this.lblOpenVpnSndbuf.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboOpenVpnSndbuf
+			// 
+			this.cboOpenVpnSndbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboOpenVpnSndbuf.FormattingEnabled = true;
+			this.cboOpenVpnSndbuf.Items.AddRange(new object[] {
+            "Automatic",
+            "Never",
+            "Every minute",
+            "Every ten minute",
+            "Every one hour"});
+			this.cboOpenVpnSndbuf.Location = new System.Drawing.Point(231, 178);
+			this.cboOpenVpnSndbuf.Name = "cboOpenVpnSndbuf";
+			this.cboOpenVpnSndbuf.Size = new System.Drawing.Size(125, 21);
+			this.cboOpenVpnSndbuf.TabIndex = 82;
 			// 
 			// label9
 			// 
@@ -819,6 +872,7 @@ namespace AirVPN.Gui.Forms
 			// 
 			// pnlGeneralWindowsOnly
 			// 
+			this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemNotifications);
 			this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemStart);
 			this.pnlGeneralWindowsOnly.Controls.Add(this.chkMinimizeTray);
 			this.pnlGeneralWindowsOnly.Location = new System.Drawing.Point(409, 15);
@@ -1072,7 +1126,7 @@ namespace AirVPN.Gui.Forms
 			this.optModeTor.ForeColor = System.Drawing.Color.Black;
 			this.optModeTor.Location = new System.Drawing.Point(18, 255);
 			this.optModeTor.Name = "optModeTor";
-			this.optModeTor.Size = new System.Drawing.Size(48, 17);
+			this.optModeTor.Size = new System.Drawing.Size(41, 17);
 			this.optModeTor.TabIndex = 40;
 			this.optModeTor.Text = "Tor";
 			this.optModeTor.UseVisualStyleBackColor = false;
@@ -2111,57 +2165,17 @@ namespace AirVPN.Gui.Forms
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
 			// 
-			// lblOpenVpnSndbuf
+			// chkSystemNotifications
 			// 
-			this.lblOpenVpnSndbuf.BackColor = System.Drawing.Color.Transparent;
-			this.lblOpenVpnSndbuf.ForeColor = System.Drawing.Color.Black;
-			this.lblOpenVpnSndbuf.Location = new System.Drawing.Point(13, 178);
-			this.lblOpenVpnSndbuf.Name = "lblOpenVpnSndbuf";
-			this.lblOpenVpnSndbuf.Size = new System.Drawing.Size(206, 21);
-			this.lblOpenVpnSndbuf.TabIndex = 83;
-			this.lblOpenVpnSndbuf.Text = "TCP/UDP socket send buffer size:";
-			this.lblOpenVpnSndbuf.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// cboOpenVpnSndbuf
-			// 
-			this.cboOpenVpnSndbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboOpenVpnSndbuf.FormattingEnabled = true;
-			this.cboOpenVpnSndbuf.Items.AddRange(new object[] {
-            "Automatic",
-            "Never",
-            "Every minute",
-            "Every ten minute",
-            "Every one hour"});
-			this.cboOpenVpnSndbuf.Location = new System.Drawing.Point(231, 178);
-			this.cboOpenVpnSndbuf.Name = "cboOpenVpnSndbuf";
-			this.cboOpenVpnSndbuf.Size = new System.Drawing.Size(125, 21);
-			this.cboOpenVpnSndbuf.TabIndex = 82;
-			// 
-			// cboOpenVpnRcvbuf
-			// 
-			this.cboOpenVpnRcvbuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboOpenVpnRcvbuf.FormattingEnabled = true;
-			this.cboOpenVpnRcvbuf.Items.AddRange(new object[] {
-            "Automatic",
-            "Never",
-            "Every minute",
-            "Every ten minute",
-            "Every one hour"});
-			this.cboOpenVpnRcvbuf.Location = new System.Drawing.Point(231, 205);
-			this.cboOpenVpnRcvbuf.Name = "cboOpenVpnRcvbuf";
-			this.cboOpenVpnRcvbuf.Size = new System.Drawing.Size(125, 21);
-			this.cboOpenVpnRcvbuf.TabIndex = 84;
-			// 
-			// lblOpenVpnRcvbuf
-			// 
-			this.lblOpenVpnRcvbuf.BackColor = System.Drawing.Color.Transparent;
-			this.lblOpenVpnRcvbuf.ForeColor = System.Drawing.Color.Black;
-			this.lblOpenVpnRcvbuf.Location = new System.Drawing.Point(13, 205);
-			this.lblOpenVpnRcvbuf.Name = "lblOpenVpnRcvbuf";
-			this.lblOpenVpnRcvbuf.Size = new System.Drawing.Size(206, 21);
-			this.lblOpenVpnRcvbuf.TabIndex = 85;
-			this.lblOpenVpnRcvbuf.Text = "TCP/UDP socket receive buffer size:";
-			this.lblOpenVpnRcvbuf.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.chkSystemNotifications.AutoSize = true;
+			this.chkSystemNotifications.BackColor = System.Drawing.Color.Transparent;
+			this.chkSystemNotifications.ForeColor = System.Drawing.Color.Black;
+			this.chkSystemNotifications.Location = new System.Drawing.Point(20, 69);
+			this.chkSystemNotifications.Name = "chkSystemNotifications";
+			this.chkSystemNotifications.Size = new System.Drawing.Size(121, 17);
+			this.chkSystemNotifications.TabIndex = 40;
+			this.chkSystemNotifications.Text = "System Notifications";
+			this.chkSystemNotifications.UseVisualStyleBackColor = false;
 			// 
 			// Settings
 			// 
@@ -2361,6 +2375,7 @@ namespace AirVPN.Gui.Forms
 		private Skin.ComboBox cboOpenVpnSndbuf;
 		private Skin.Label lblOpenVpnRcvbuf;
 		private Skin.ComboBox cboOpenVpnRcvbuf;
+		private Skin.CheckBox chkSystemNotifications;
 
     }
 }
