@@ -154,6 +154,10 @@ namespace AirVPN.Platforms
 				pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
 				pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
 				pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
+				// let MDNS pass, otherwise Bonjour protocol cannot work
+				pf += "pass out quick inet from 192.168.0.0/16 to 224.0.0.251\n";
+				pf += "pass out quick inet from 172.16.0.0/12 to 224.0.0.251\n";
+				pf += "pass out quick inet from 10.0.0.0/8 to 224.0.0.251\n";
 			}
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
