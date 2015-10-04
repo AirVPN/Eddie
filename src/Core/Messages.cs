@@ -326,12 +326,12 @@ namespace AirVPN.Core
 		public static string ManOptionDnsServers = "List of DNS servers. If not empty, override the DNS suggested by VPN server. Separate multiple values with comma.";
 		public static string ManOptionDnsCheck = "True/False. When the connection is established, try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";
 
-		public static string ManOptionExecutablesOpenVpn = "Path to a custom OpenVPN executable";
-		public static string ManOptionExecutablesSsh = "Path to a custom SSH tunnel executable";
+        public static string ManOptionExecutablesOpenVpn = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with AirVPN Client.";
+        public static string ManOptionExecutablesSsh = "Path to a custom SSH tunnel executable";
 		public static string ManOptionExecutablesSsl = "Path to a custom SSL tunnel executable";
 		public static string ManOptionExecutablesCurl = "Path to a custom curl executable, used only with socks proxy";
 
-		public static string ManOptionOpenVpnCustom = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with AirVPN Client.";
+		public static string ManOptionOpenVpnCustom = "Allows you to specify custom OpenVPN directives.";
 		public static string ManOptionOpenVpnSkipDefaults = "If 'false' the custom directives are appended to the default directive.";
 		public static string ManOptionOpenVpnManagementPort = "Default port of OpenVPN Management Interface.";
 		public static string ManOptionSshPort = "Default port of SSH Tunnel. If 0, a random port is used.";

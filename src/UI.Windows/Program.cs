@@ -33,8 +33,8 @@ namespace AirVPN.UI.Windows
 		[STAThread]
 		static void Main()
 		{
-			//Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
+            //Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
 			Platform.Instance = new AirVPN.Platforms.Windows();
 			

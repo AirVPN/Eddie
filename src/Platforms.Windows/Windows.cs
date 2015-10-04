@@ -341,9 +341,13 @@ namespace AirVPN.Platforms
 		{
 			string t = base.GenerateSystemReport();
 
-			t += "\n\n-- Windows-Only informations\n";
+			t += "\n\n-- Windows-Only specific\n";
 
-			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+            t += "\n-- ipconfig /all\n";
+            t += ShellCmd("ipconfig /all");
+            t += "\n-- NetworkAdapterConfiguration\n";
+
+            ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
             ManagementObjectCollection objMOC = objMC.GetInstances();
 
 			foreach (ManagementObject objMO in objMOC)
@@ -362,7 +366,9 @@ namespace AirVPN.Platforms
 				{
 					t += "\t" + prop.Name + ": " + Conversions.ToString(prop.Value) + "\n";					
 				}				
-			}			
+			}
+
+            
 
 			return t;
 		}
@@ -399,9 +405,9 @@ namespace AirVPN.Platforms
 		{
 			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
 			{
-				// http://support.microsoft.com/kb/929852
-
-				m_oldIpV6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
+                // http://support.microsoft.com/kb/929852
+                
+                m_oldIpV6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
 				if (Conversions.ToUInt32(m_oldIpV6, 0) == 0) // 0 is the Windows default if the key doesn't exist.
 					m_oldIpV6 = 0;
 
@@ -455,11 +461,12 @@ namespace AirVPN.Platforms
 
 					foreach (ManagementObject objMO in objMOC)
 					{
-						/*
+                        /*
 						if (!((bool)objMO["IPEnabled"]))
 							continue;
 						*/
-						NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
+
+                        NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
 
 						entry.Guid = objMO["SettingID"] as string;
 						entry.Description = objMO["Description"] as string;
@@ -473,8 +480,6 @@ namespace AirVPN.Platforms
 						Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description));
 
 						ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-						//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
-						//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { Constants.DnsVpn };
 						objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
 						ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
@@ -675,26 +680,26 @@ namespace AirVPN.Platforms
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
-				if (adapter.Description == Engine.Instance.Storage.Get("windows.adapter_name"))
-				{
-					result = adapter.Description;
-					break;
-				}
+                // Changed in 2.10.4
 
-				// For XP compatibility
-				if (adapter.Description.ToLowerInvariant().StartsWith(Engine.Instance.Storage.Get("windows.adapter_name").ToLowerInvariant()))
-				{
-					result = adapter.Description;
-					break;
-				}
+                // TAP-Win32 Adapter V9
+                // or
+                // TAP-Windows Adapter V9
+                // or something that start with TAP-Win under XP
+                if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
+                {
+                    result = adapter.Description;
+                    break;
+                }                
 			}
 
+            // Remember: uninstalling OpenVPN doesn't remove tap0901.sys, so finding an adapter is mandatory.
 			if (result == "")
 			{
 				Engine.Instance.Log(Engine.LogType.Verbose, Messages.OsDriverNoAdapterFound);
 				return "";
 			}
-
+            
 			string version = GetDriverVersion();
 
 			if (version == "")
@@ -718,7 +723,9 @@ namespace AirVPN.Platforms
 				return "";
 			}
 
-			result += ", version " + version;
+            if (result != "")
+                result += ", version ";
+			result += version;
 
 			return result;
 		}

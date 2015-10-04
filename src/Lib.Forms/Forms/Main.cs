@@ -930,7 +930,7 @@ namespace AirVPN.Gui.Forms
 
 		private void mnuContextCopySelected_Click(object sender, EventArgs e)
 		{
-			LogsDoCopy(true);
+            LogsDoCopy(true);
 		}
 
 		private void mnuContextSaveSelected_Click(object sender, EventArgs e)
@@ -955,8 +955,7 @@ namespace AirVPN.Gui.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-			// Ready for additional logging
-			LogsDoCopy(false);
+			LogsSupport();
 		}
 
 		private void cmdLogsOpenVpnManagement_Click(object sender, EventArgs e)
@@ -1568,6 +1567,15 @@ namespace AirVPN.Gui.Forms
 				return Platform.Instance.NormalizeString(buffer.ToString());
 			}
 		}
+
+        private void LogsSupport()
+        {
+            string report = Engine.Instance.GetSupportReport(LogsGetBody(false));
+
+            Clipboard.SetText(report);
+
+            MessageBox.Show(Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
 		private void LogsDoCopy(bool selectedOnly)
 		{

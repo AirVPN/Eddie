@@ -380,7 +380,36 @@ namespace AirVPN.Platforms
 					string i2 = i.Trim();
 					
 					string current = ShellCmd("networksetup -getdnsservers \"" + i2 + "\"");
-					current = current.Replace ("\n", ";");
+
+                    // v2
+                    List<string> ips = new List<string>();
+                    foreach(string line in current.Split('\n'))
+                    {
+                        string ip = line.Trim();
+                        if (Utils.IsIP(ip))
+                            ips.Add(ip);
+                    }
+
+                    if (ips.Count != 0)
+                        current = String.Join(",", ips.ToArray());
+                    else
+                        current = "";
+                    if (current != dns)
+                    {
+                        // Switch
+                        Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2));
+
+                        DnsSwitchEntry e = new DnsSwitchEntry();
+                        e.Name = i2;
+                        e.Dns = current;
+                        m_listDnsSwitch.Add(e);
+
+                        string dns2 = dns.Replace(",", "\" \"");
+                        ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns2 + "\"");
+                    }
+
+                    /* < 2.11
+                    current = current.Replace ("\n", ";");
 					if (current.StartsWith("There aren't any DNS Servers set on "))
 						current = "0.0.0.0";
 					if (Utils.IsIP(current))
@@ -403,6 +432,7 @@ namespace AirVPN.Platforms
 					{
 						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface '" + i + "'");
 					}
+                    */
 				}
 
 				Recovery.Save ();
@@ -418,9 +448,13 @@ namespace AirVPN.Platforms
 			foreach (DnsSwitchEntry e in m_listDnsSwitch)
 			{
 				string v = e.Dns;
-				if(v == "0.0.0.0")
+                if (v == "")
+                    v = "empty";
+				/* < 2.11
+                if(v == "0.0.0.0")
 					v = "empty";
-				v = v.Replace (";", "\" \"");
+                    */
+				v = v.Replace (",", "\" \"");
 
 				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");

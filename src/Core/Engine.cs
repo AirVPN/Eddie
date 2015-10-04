@@ -1944,5 +1944,20 @@ namespace AirVPN.Core
 
 			return Platform.Instance.OnCheckEnvironment();
 		}
+
+        public string GetSupportReport(string logs)
+        {
+            string report = "";
+
+            report += "AirVPN Support Report - Generated " + DateTime.UtcNow.ToShortDateString() + " " + DateTime.UtcNow.ToShortTimeString() + " " + "UTC\n";
+
+            report += "\n\n-- Logs --\n" + logs;
+
+            report += "\n\n-- System --\n" + Platform.Instance.GenerateSystemReport();
+
+            report += "\n\n-- Options --\n" + Storage.GetReport();
+
+            return report;
+        }
     }
 }
