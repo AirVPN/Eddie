@@ -122,6 +122,7 @@ namespace AirVPN.Platforms
 
 			// 10.10
 			ShellCmd("discoveryutil udnsflushcaches");
+            ShellCmd("discoveryutil mdnsflushcache"); // 2.11
         }
 
 		public override void EnsureExecutablePermissions(string path)

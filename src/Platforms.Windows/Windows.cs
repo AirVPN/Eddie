@@ -82,8 +82,8 @@ namespace AirVPN.Platforms
 		
         // Override
 		public Windows()
-		{
-		}
+		{            
+        }
 
 		public override string GetCode()
 		{

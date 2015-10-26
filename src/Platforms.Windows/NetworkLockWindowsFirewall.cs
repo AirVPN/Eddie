@@ -42,6 +42,9 @@ namespace AirVPN.Platforms
 
 		public void Fetch()
 		{
+            string regkey = GetNotificationRegPath();
+
+            /* < 2.11
 			string report = Platform.Instance.ShellCmd("netsh advfirewall show " + id);
 
 			State = report.IndexOf("ON") != -1;
@@ -58,10 +61,31 @@ namespace AirVPN.Platforms
 			else if (report.IndexOf("BlockOutbound") != -1)
 				Outbound = "BlockOutbound";
 
-			string regkey = GetNotificationRegPath();
-			object objNotifications = Registry.GetValue(regkey, "DisableNotifications", 0);
-			Notifications = (objNotifications.ToString() == "0");
-		}
+            Notifications = (Registry.GetValue(regkey, "DisableNotifications", 0).ToString() == "0");
+            */
+            
+            int enableFirewall = Convert.ToInt32(Registry.GetValue(regkey, "EnableFirewall", 0));
+            int disableNotifications = Convert.ToInt32(Registry.GetValue(regkey, "DisableNotifications", 0));
+            int defaultInboundAction = Convert.ToInt32(Registry.GetValue(regkey, "DefaultInboundAction", 1));
+            int defaultOutboundAction = Convert.ToInt32(Registry.GetValue(regkey, "DefaultOutboundAction", 0));
+            int doNotAllowExceptions = Convert.ToInt32(Registry.GetValue(regkey, "DoNotAllowExceptions", 0));
+            
+            State = (enableFirewall == 1);
+            Notifications = (disableNotifications == 0);
+
+            if (defaultInboundAction == 0)
+                Inbound = "AllowInbound";
+            else if (defaultInboundAction == 1)
+                Inbound = "BlockInbound";
+
+            if (doNotAllowExceptions == 1)
+                Inbound = "BlockInboundAlways";
+
+            if (defaultOutboundAction == 0)
+                Outbound = "AllowOutbound";
+            else if (defaultOutboundAction == 1)
+                Outbound = "BlockOutbound";
+        }
 
 		public string GetNotificationRegPath()
 		{
@@ -201,7 +225,7 @@ namespace AirVPN.Platforms
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 				profile.Fetch();
 
-			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
+            foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 			{
 				if (profile.State == false)
 				{
