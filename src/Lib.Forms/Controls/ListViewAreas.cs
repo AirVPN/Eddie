@@ -69,8 +69,10 @@ namespace AirVPN.Gui.Controls
 			columnHeader4.Width = 60;
 			columnHeader4.TextAlign = HorizontalAlignment.Center;
 
-			SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
-			LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            ImageListIcon = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            ImageListState = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            //SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+			//LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 
 			Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)

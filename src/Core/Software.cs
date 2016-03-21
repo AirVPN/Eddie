@@ -230,6 +230,13 @@ namespace AirVPN.Core
 			}
 		}
 
+        public static bool FileExists(string path)
+        {
+            if (path == "")
+                return false;
+            return File.Exists(path);
+        }
+
 		public static string FindExecutable(string name)
 		{
 			string filename = name;
@@ -266,27 +273,27 @@ namespace AirVPN.Core
 		}
 
 		public static string FindResource(string filename, string name)
-		{	
-			// Same path
-			{
+		{
+            // Custom location (2.11, below 'Same path' in 2.10)
+            if (name != "")
+            {
+                string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get("executables." + name));
+                if (FileExists(path))
+                    return path;
+            }
+
+            // Same path
+            {
 				string path = Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/" + filename);
-				if (File.Exists(path))
+				if (FileExists(path))
 					return path;
 			}
-
-			// Custom location
-			if(name != "")
-			{
-				string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get("executables." + name));
-				if (File.Exists(path))
-					return path;
-			}
-
+            
 			// GIT source tree
 			if (Engine.Instance.DevelopmentEnvironment)
 			{
 				string path = Platform.Instance.NormalizePath(Platform.Instance.GetGitDeployPath() + filename);	
-				if (File.Exists(path))
+				if (FileExists(path))
 					return path;
 			}
 
@@ -306,11 +313,11 @@ namespace AirVPN.Core
 				if (Platform.Instance.IsUnixSystem())
 				{
 					string pathBin = "/usr/bin/" + fileNameAlt;
-					if (File.Exists(pathBin))
+					if (FileExists(pathBin))
 						return pathBin;
 
 					string pathSBin = "/usr/sbin/" + fileNameAlt;
-					if (File.Exists(pathSBin))
+					if (FileExists(pathSBin))
 						return pathSBin;
 				}
 			}

@@ -114,7 +114,22 @@ namespace AirVPN.Platforms
 				Exec("iptables -A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
 				Exec("iptables -A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
 				Exec("iptables -A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
-			}
+
+                // Multicast
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+
+                // 239.255.255.250  Simple Service Discovery Protocol address
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+
+                // 239.255.255.253  Service Location Protocol version 2 address
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+            }
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 			{

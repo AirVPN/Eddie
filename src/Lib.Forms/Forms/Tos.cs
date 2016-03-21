@@ -30,7 +30,9 @@ namespace AirVPN.Gui.Forms
     {
         public Tos()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
         }
 
         protected override void OnLoad(EventArgs e)

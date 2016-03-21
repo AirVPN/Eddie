@@ -38,49 +38,39 @@ namespace AirVPN.Gui
 		public static StringFormat StringFormatLeftBottom;
 		public static StringFormat StringFormatCenterBottom;
 		public static StringFormat StringFormatRightBottom;
-		
-
-		public static void Init()
+        
+        public static void Init()
 		{
-			StringFormatLeftTop = new StringFormat();
-			StringFormatLeftTop.Alignment = StringAlignment.Near;
-			StringFormatLeftTop.LineAlignment = StringAlignment.Near;
-
-			StringFormatCenterTop = new StringFormat();
-			StringFormatCenterTop.Alignment = StringAlignment.Center;
-			StringFormatCenterTop.LineAlignment = StringAlignment.Near;
-
-			StringFormatRightTop = new StringFormat();
-			StringFormatRightTop.Alignment = StringAlignment.Far;
-			StringFormatRightTop.LineAlignment = StringAlignment.Near;
-
-			StringFormatLeftMiddle = new StringFormat();
-			StringFormatLeftMiddle.Alignment = StringAlignment.Near;
-			StringFormatLeftMiddle.LineAlignment = StringAlignment.Center;
-			StringFormatLeftMiddle.FormatFlags = StringFormatFlags.NoWrap;
-
-			StringFormatCenterMiddle = new StringFormat();
-			StringFormatCenterMiddle.Alignment = StringAlignment.Center;
-			StringFormatCenterMiddle.LineAlignment = StringAlignment.Center;
-			StringFormatCenterMiddle.FormatFlags = StringFormatFlags.NoWrap;
-
-			StringFormatRightMiddle = new StringFormat();
-			StringFormatRightMiddle.Alignment = StringAlignment.Far;
-			StringFormatRightMiddle.LineAlignment = StringAlignment.Center;
-			StringFormatRightMiddle.FormatFlags = StringFormatFlags.NoWrap;
-
-			StringFormatLeftBottom = new StringFormat();
-			StringFormatLeftBottom.Alignment = StringAlignment.Near;
-			StringFormatLeftBottom.LineAlignment = StringAlignment.Far;
-
-			StringFormatCenterBottom = new StringFormat();
-			StringFormatCenterBottom.Alignment = StringAlignment.Center;
-			StringFormatCenterBottom.LineAlignment = StringAlignment.Far;
-
-			StringFormatRightBottom = new StringFormat();
-			StringFormatRightBottom.Alignment = StringAlignment.Far;
-			StringFormatRightBottom.LineAlignment = StringAlignment.Far;
+            StringFormatLeftTop = BuildStringFormat(StringAlignment.Near, StringAlignment.Near);
+            StringFormatCenterTop = BuildStringFormat(StringAlignment.Center, StringAlignment.Near);
+            StringFormatRightTop = BuildStringFormat(StringAlignment.Far, StringAlignment.Near);
+            StringFormatLeftMiddle = BuildStringFormat(StringAlignment.Near, StringAlignment.Center);
+            StringFormatCenterMiddle = BuildStringFormat(StringAlignment.Center, StringAlignment.Center);
+            StringFormatRightMiddle = BuildStringFormat(StringAlignment.Far, StringAlignment.Center);
+            StringFormatLeftBottom = BuildStringFormat(StringAlignment.Near, StringAlignment.Far);
+            StringFormatCenterBottom = BuildStringFormat(StringAlignment.Center, StringAlignment.Far);
+            StringFormatRightBottom = BuildStringFormat(StringAlignment.Far, StringAlignment.Far);
 		}
+
+        public static StringFormat BuildStringFormat(StringAlignment h, StringAlignment v)
+        {
+            StringFormat sf = new StringFormat();
+            sf.Alignment = h;
+            sf.LineAlignment = v;
+            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf.Trimming = StringTrimming.None;
+            return sf;
+        }
+        
+        public static Size GetFontSize(Graphics g, Font f, string text)
+        {
+            return g.MeasureString(text, f).ToSize();
+        }
+
+        public static int GetFontHeight(Graphics g, Font f)
+        {
+            return GetFontSize(g, f, "SampleStringForFontMeasure123").Height;
+        }
 		
         public static Image GetResourceImage(string name)
         {

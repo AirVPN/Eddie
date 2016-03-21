@@ -34,10 +34,19 @@ namespace AirVPN.Gui.Forms
 
         public SettingsRoute()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
         }
 
-		protected override void OnLoad(EventArgs e)
+        public override void OnInitializeComponent()
+        {
+            base.OnInitializeComponent();
+
+            txtHost.Font = Skin.FontMono;
+        }
+
+        protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(Messages.WindowsSettingsRouteTitle);

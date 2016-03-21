@@ -109,7 +109,7 @@ namespace AirVPN.Gui.Skin
 
 			Brush brushText = Form.Skin.ForeBrush;
 			if (Enabled == false)
-				brushText = Form.Skin.DisabledBrush;
+				brushText = Form.Skin.ForeDisabledBrush;
 
 			if (Image == null)
 			{
@@ -117,10 +117,8 @@ namespace AirVPN.Gui.Skin
 			}
 			else if (Text == "")
 			{
-				Rectangle rImage = new Rectangle((r.Left + r.Right) / 2 - Image.Width / 2, (r.Top + r.Bottom) / 2 - Image.Height / 2, Image.Width, Image.Height);
-				//pevent.Graphics.DrawImage(Image, r);				
-				pevent.Graphics.DrawImage(Image, rImage, 0,0,Image.Width, Image.Height, GraphicsUnit.Pixel, imageAttributes);				
-			}
+                Form.DrawImageContain(pevent.Graphics, Image, r, 30);                
+            }
 			else
 			{	
 				/*

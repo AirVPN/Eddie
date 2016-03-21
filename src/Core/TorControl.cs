@@ -65,16 +65,16 @@ namespace AirVPN.Core
 
 		public static TcpClient Connect()
 		{
-			string controlHost = Engine.Instance.Storage.Get("mode.tor.host").ToLowerInvariant().Trim();
-			int controlPort = Engine.Instance.Storage.GetInt("mode.tor.control.port");
-			string controlPassword = Engine.Instance.Storage.Get("mode.tor.control.password");
+			string controlHost = Engine.Instance.Storage.Get("proxy.host").ToLowerInvariant().Trim();
+            int controlPort = Engine.Instance.Storage.GetInt("proxy.tor.control.port");
+			string controlPassword = Engine.Instance.Storage.Get("proxy.tor.control.password");
 
-			return Connect(controlHost, controlPort, controlPassword);
+            return Connect(controlHost, controlPort, controlPassword);
 		}
 
 		public static TcpClient Connect(string host, int controlPort, string controlPassword)
 		{	
-			bool controlAuthenticate = Engine.Instance.Storage.GetBool("mode.tor.control.auth");
+			bool controlAuthenticate = Engine.Instance.Storage.GetBool("proxy.tor.control.auth");
 
 			byte[] password = System.Text.Encoding.ASCII.GetBytes(controlPassword);
 
@@ -151,7 +151,7 @@ namespace AirVPN.Core
 		{
 			try
 			{
-				string controlHost = Engine.Instance.Storage.Get("mode.tor.host").ToLowerInvariant().Trim();
+				string controlHost = Engine.Instance.Storage.Get("proxy.host").ToLowerInvariant().Trim();
 
 				if ((controlHost != "127.0.0.1") && (controlHost.ToLowerInvariant() != "localhost"))
 				{

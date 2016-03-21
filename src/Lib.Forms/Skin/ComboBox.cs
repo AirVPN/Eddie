@@ -27,7 +27,8 @@ namespace AirVPN.Gui.Skin
     public class ComboBox : System.Windows.Forms.ComboBox
     {
         public ComboBox()
-        {         
-        }
+        {             
+            
+        }        
     }
 }

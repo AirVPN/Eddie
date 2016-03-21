@@ -22,19 +22,31 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 using AirVPN.Core;
 
 namespace AirVPN.Gui.Forms
 {
     public partial class Settings : AirVPN.Gui.Form
     {
-		public bool m_onLoadCompleted = false;
+        private Controls.TabNavigator m_tabMain;
+
+        public bool m_onLoadCompleted = false;
         public bool m_modeSshEnabled = true;
         public bool m_modeSslEnabled = true;
 
         public Settings()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
+        }
+
+        public override void OnInitializeComponent()
+        {
+            base.OnInitializeComponent();
+
+            mnuRoutes.Font = Skin.FontNormal;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -43,6 +55,8 @@ namespace AirVPN.Gui.Forms
 
             CommonInit("Settings");
 
+            BuildTreeTabs();
+
 			chkConnect.Text = Messages.WindowsSettingsConnect;
 			chkNetLock.Text = Messages.WindowsSettingsNetLock;
 
@@ -50,10 +64,41 @@ namespace AirVPN.Gui.Forms
 
 			pnlGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
+            chkWindowsWfp.Visible = Platform.Instance.IsWindowsSystem();
 
-			lblGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
+            lblGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
 			cboGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
 
+            if (Engine.Instance.Storage.Manifest != null)
+            {
+                XmlNodeList xmlModes = Engine.Instance.Storage.Manifest.SelectNodes("//modes/mode");
+                foreach (XmlElement xmlMode in xmlModes)
+                {
+                    Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
+                    itemMode.Protocol = xmlMode.GetAttribute("protocol").ToUpper();
+                    itemMode.Port = Conversions.ToInt32(xmlMode.GetAttribute("port"), 443);
+                    itemMode.Entry = Conversions.ToInt32(xmlMode.GetAttribute("entry_index"),0);
+                    while (itemMode.SubItems.Count < 5)
+                        itemMode.SubItems.Add("");
+
+                    itemMode.SubItems[0].Text = itemMode.Protocol;
+                    itemMode.SubItems[1].Text = itemMode.Port.ToString();
+                    if (itemMode.Entry == 0)
+                        itemMode.SubItems[2].Text = "Primary";
+                    else if (itemMode.Entry == 1)
+                        itemMode.SubItems[2].Text = "Alternative";
+                    else
+                        itemMode.SubItems[2].Text = "Alternative " + xmlMode.GetAttribute("entry_index");
+                    itemMode.SubItems[3].Text = xmlMode.GetAttribute("cipher");
+                    itemMode.SubItems[4].Text = xmlMode.GetAttribute("title");
+                    lstProtocols.Items.Add(itemMode);
+                }
+                lstProtocols.ResizeColumnsAuto();
+            }
+
+            lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
+            lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
+            lstRoutes.ResizeColumnMax(2);
             cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("in"));
             cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("out"));
 
@@ -72,27 +117,13 @@ namespace AirVPN.Gui.Forms
             lstAdvancedEvents.Items.Add(new ListViewItem("VPN Pre"));
             lstAdvancedEvents.Items.Add(new ListViewItem("VPN Up"));
             lstAdvancedEvents.Items.Add(new ListViewItem("VPN Down"));
-
-            String sshStatus = (Software.SshVersion != "" ? "" : "Not available");
-            lblModeSSH.Text = "SSH Tunnel";
-            if(sshStatus != "")
-            {
-                lblModeSSH.Text += " - " + sshStatus;
-                m_modeSshEnabled = false;
-            }
-
-			String sslStatus = (Software.SslVersion != "" ? "" : "Not available");
-            lblModeSSL.Text = "SSL Tunnel";
-            if (sslStatus != "")
-            {
-                lblModeSSL.Text += " - " + sslStatus;
-                m_modeSslEnabled = false;                
-            }
-
+            lstAdvancedEvents.ResizeColumnsAuto();
+            
 			lblOpenVpnRcvbuf.Text = Messages.WindowsSettingsOpenVpnRcvBuf + ":";
 			lblOpenVpnSndbuf.Text = Messages.WindowsSettingsOpenVpnSndBuf + ":";
 			cboOpenVpnRcvbuf.Items.Clear();
-			cboOpenVpnRcvbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
+            cboOpenVpnRcvbuf.Items.Add(Messages.Automatic);
+            cboOpenVpnRcvbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
 			cboOpenVpnRcvbuf.Items.Add("8 KB");
 			cboOpenVpnRcvbuf.Items.Add("16 KB");
 			cboOpenVpnRcvbuf.Items.Add("32 KB");
@@ -101,7 +132,8 @@ namespace AirVPN.Gui.Forms
 			cboOpenVpnRcvbuf.Items.Add("256 KB");
 			cboOpenVpnRcvbuf.Items.Add("512 KB");
 			cboOpenVpnSndbuf.Items.Clear();
-			cboOpenVpnSndbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
+            cboOpenVpnSndbuf.Items.Add(Messages.Automatic);
+            cboOpenVpnSndbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
 			cboOpenVpnSndbuf.Items.Add("8 KB");
 			cboOpenVpnSndbuf.Items.Add("16 KB");
 			cboOpenVpnSndbuf.Items.Add("32 KB");
@@ -112,15 +144,6 @@ namespace AirVPN.Gui.Forms
 
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
-
-			if (Platform.IsUnix())
-			{
-				lblModeGroup1.Visible = false;
-				lblModeGroup2.Visible = false;
-				lblModeGroup3.Visible = false;
-				lblModeGroup4.Visible = false;
-				lblModeGroup5.Visible = false;
-			}
 
 			// DNS
 
@@ -142,11 +165,27 @@ namespace AirVPN.Gui.Forms
         {
             base.OnClosed(e);
 
-            // Restore previous skin.
-            if(Form.ChangeSkin(Engine.Storage.Get("gui.skin")))
-                Engine.FormMain.ApplySkin();            
+            Engine.FormMain.ResetSkinCache();
+            Engine.FormMain.ApplySkin();
         }
 
+        public void BuildTreeTabs()
+        {            
+            m_tabMain = new Gui.Controls.TabNavigator();
+            m_tabMain.Font = Skin.FontNormal;
+            m_tabMain.Top = 0;
+            m_tabMain.Left = 0;
+            m_tabMain.Height = tabSettings.Height;
+            m_tabMain.Width = ClientSize.Width;
+            m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            m_tabMain.ImportTabControl(tabSettings);
+            Controls.Add(m_tabMain);
+            
+            tabSettings.Left = m_tabMain.Width;
+            tabSettings.Top = 0;
+            tabSettings.Width = ClientSize.Width - m_tabMain.Width;
+            tabSettings.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+        }
         
         public void ReadOptions()
         {
@@ -161,100 +200,49 @@ namespace AirVPN.Gui.Forms
             chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
 			chkExitConfirm.Checked = s.GetBool("gui.exit_confirm");
 
-            // Modes
+            // Ui
+
+            if (s.Get("gui.font_name") != "")
+            {
+                chkUiFontGeneral.Checked = true;
+                lblUiFontGeneral.Text = s.Get("gui.font_name") + ", " + s.GetFloat("gui.font_size").ToString();
+            }
+            else
+            {
+                chkUiFontGeneral.Checked = false;
+            }                
+            UpdateUiFontGeneral();
+            
+            // Protocol
             String protocol = s.Get("mode.protocol").ToUpperInvariant();
             int port = s.GetInt("mode.port");
-            int alternate = s.GetInt("mode.alt");
+            int alternate = s.GetInt("mode.alt");			
+			if (protocol == "AUTO")
+            {
+                chkProtocolsAutomatic.Checked = true;
+            }
+            else
+            {
+                bool found = false;
 
-			if(protocol == "AUTO")
-			{
-				optModeAutomatic.Checked = true;
-			}
-            else if( (protocol == "UDP") && (port == 443) && (alternate == 0) )
-			{
-				optModeUDP443.Checked = true;
-            }
-            else if( (protocol == "TCP") && (port == 443) && (alternate == 0) )
-            {
-            	optModeTCP443.Checked = true;
-            }
-            else if( (protocol == "UDP") && (port == 80) && (alternate == 0) )
-            {
-            	optModeUDP80.Checked = true;
-            }
-            else if( (protocol == "TCP") && (port == 80) && (alternate == 0) )
-            {
-            	optModeTCP80.Checked = true;
-            }
-            else if( (protocol == "UDP") && (port == 53) && (alternate == 0) )
-            {
-            	optModeUDP53.Checked = true;
-            }
-            else if( (protocol == "TCP") && (port == 53) && (alternate == 0) )
-            {
-            	optModeTCP53.Checked = true;
-            }
-            else if( (protocol == "UDP") && (port == 2018) && (alternate == 0) )
-            {
-            	optModeUDP2018.Checked = true;
-            }
-            else if( (protocol == "TCP") && (port == 2018) && (alternate == 0) )
-            {
-            	optModeTCP2018.Checked = true;
-            }
-            else if( (protocol == "UDP") && (port == 443) && (alternate == 1) )
-            {
-            	optModeUDP443Alt.Checked = true;
-            }
-            else if( (protocol == "UDP") && (port == 80) && (alternate == 1) )
-            {
-            	optModeUDP80Alt.Checked = true;
-            }
-            else if( (protocol == "UDP") && (port == 53) && (alternate == 1) )
-            {
-            	optModeUDP53Alt.Checked = true;
-            }
-            else if( (protocol == "UDP") && (port == 2018) && (alternate == 1) )
-            {
-            	optModeUDP2018Alt.Checked = true;
-            }
-            else if( (protocol == "TCP") && (port == 2018) && (alternate == 1) )
-            {
-            	optModeTCP2018Alt.Checked = true;
-            }
-            else if( (protocol == "SSH") && (port == 22) && (alternate == 0) )
-            {
-            	optModeSSH22.Checked = true;
-            }
-            else if( (protocol == "SSH") && (port == 22) && (alternate == 1) )
-            {
-            	optModeSSH22Alt.Checked = true;
-            }
-            else if( (protocol == "SSH") && (port == 80) && (alternate == 1) )
-            {
-            	optModeSSH80.Checked = true;
-            }
-            else if( (protocol == "SSH") && (port == 53) && (alternate == 1) )
-            {
-            	optModeSSH53.Checked = true;
-            }
-            else if( (protocol == "SSL") && (port == 443) && (alternate == 1) )
-            {
-            	optModeSSL443.Checked = true;
-            }
-            else if(protocol == "TOR")
-			{
-				optModeTor.Checked = true;
-			}
-			else
-            {
-                optModeAutomatic.Checked = true;
-            }
+                foreach(Controls.ListViewItemProtocol itemProtocol in lstProtocols.Items)
+                {
+                    if( (itemProtocol.Protocol == protocol) &&
+                        (itemProtocol.Port == port) &&
+                        (itemProtocol.Entry == alternate) )
+                    {
+                        found = true;
+                        itemProtocol.Selected = true;
+                        lstProtocols.EnsureVisible(itemProtocol.Index);
+                        break;
+                    }
+                }
 
-			txtModeTorHost.Text = s.Get("mode.tor.host");
-			txtModeTorPort.Text = s.Get("mode.tor.port");
-			txtModeTorControlPort.Text = s.Get("mode.tor.control.port");
-			txtModeTorControlPassword.Text = s.Get("mode.tor.control.password");
+                if(found == false)
+                    chkProtocolsAutomatic.Checked = true;
+                else
+                    chkProtocolsAutomatic.Checked = false;
+            }
 
             // Proxy
             cboProxyMode.Text = s.Get("proxy.mode");
@@ -263,8 +251,10 @@ namespace AirVPN.Gui.Forms
             cboProxyAuthentication.Text = s.Get("proxy.auth");
             txtProxyLogin.Text = s.Get("proxy.login");
             txtProxyPassword.Text = s.Get("proxy.password");
-            
-                        
+            txtProxyTorControlPort.Text = s.Get("proxy.tor.control.port");
+            txtProxyTorControlPassword.Text = s.Get("proxy.tor.control.password");
+
+
             // Routes
             cboRoutesOtherwise.Text = RouteDirectionToDescription(s.Get("routes.default"));
 
@@ -309,8 +299,9 @@ namespace AirVPN.Gui.Forms
 			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
 			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
 			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
+            chkWindowsWfp.Checked = s.GetBool("advanced.windows.wfp");
 
-			txtExePath.Text = s.Get("executables.openvpn");
+            txtExePath.Text = s.Get("executables.openvpn");
 
 			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
@@ -325,40 +316,44 @@ namespace AirVPN.Gui.Forms
 				cboAdvancedManifestRefresh.SelectedIndex = 0;
 
 			int openVpnSndBuf = s.GetInt("openvpn.sndbuf");
-			if (openVpnSndBuf == -1)
-				cboOpenVpnSndbuf.SelectedIndex = 0;
-			else if (openVpnSndBuf == 1024 * 8)
+            if (openVpnSndBuf == -2)
+                cboOpenVpnSndbuf.SelectedIndex = 0;
+            else if (openVpnSndBuf == -1)
 				cboOpenVpnSndbuf.SelectedIndex = 1;
-			else if (openVpnSndBuf == 1024 * 16)
+			else if (openVpnSndBuf == 1024 * 8)
 				cboOpenVpnSndbuf.SelectedIndex = 2;
-			else if (openVpnSndBuf == 1024 * 32)
+			else if (openVpnSndBuf == 1024 * 16)
 				cboOpenVpnSndbuf.SelectedIndex = 3;
-			else if (openVpnSndBuf == 1024 * 64)
+			else if (openVpnSndBuf == 1024 * 32)
 				cboOpenVpnSndbuf.SelectedIndex = 4;
-			else if (openVpnSndBuf == 1024 * 128)
+			else if (openVpnSndBuf == 1024 * 64)
 				cboOpenVpnSndbuf.SelectedIndex = 5;
-			else if (openVpnSndBuf == 1024 * 256)
+			else if (openVpnSndBuf == 1024 * 128)
 				cboOpenVpnSndbuf.SelectedIndex = 6;
-			else if (openVpnSndBuf == 1024 * 512)
+			else if (openVpnSndBuf == 1024 * 256)
 				cboOpenVpnSndbuf.SelectedIndex = 7;
+			else if (openVpnSndBuf == 1024 * 512)
+				cboOpenVpnSndbuf.SelectedIndex = 8;
 
 			int openVpnRcvBuf = s.GetInt("openvpn.rcvbuf");
-			if (openVpnRcvBuf == -1)
-				cboOpenVpnRcvbuf.SelectedIndex = 0;
-			else if (openVpnRcvBuf == 1024*8)
+            if (openVpnRcvBuf == -2)
+                cboOpenVpnRcvbuf.SelectedIndex = 0;
+            else if (openVpnRcvBuf == -1)
 				cboOpenVpnRcvbuf.SelectedIndex = 1;
-			else if (openVpnRcvBuf == 1024 * 16)
+			else if (openVpnRcvBuf == 1024*8)
 				cboOpenVpnRcvbuf.SelectedIndex = 2;
-			else if (openVpnRcvBuf == 1024 * 32)
+			else if (openVpnRcvBuf == 1024 * 16)
 				cboOpenVpnRcvbuf.SelectedIndex = 3;
-			else if (openVpnRcvBuf == 1024 * 64)
+			else if (openVpnRcvBuf == 1024 * 32)
 				cboOpenVpnRcvbuf.SelectedIndex = 4;
-			else if (openVpnRcvBuf == 1024 * 128)
+			else if (openVpnRcvBuf == 1024 * 64)
 				cboOpenVpnRcvbuf.SelectedIndex = 5;
-			else if (openVpnRcvBuf == 1024 * 256)
+			else if (openVpnRcvBuf == 1024 * 128)
 				cboOpenVpnRcvbuf.SelectedIndex = 6;
-			else if (openVpnRcvBuf == 1024 * 512)
+			else if (openVpnRcvBuf == 1024 * 256)
 				cboOpenVpnRcvbuf.SelectedIndex = 7;
+			else if (openVpnRcvBuf == 1024 * 512)
+				cboOpenVpnRcvbuf.SelectedIndex = 8;
 
 			// Advanced - DNS
 			cboDnsSwitchMode.Text = s.Get("dns.mode");
@@ -463,156 +458,51 @@ namespace AirVPN.Gui.Forms
             s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
 			s.SetBool("gui.exit_confirm", chkExitConfirm.Checked);
 
-            // Modes
-            String protocol;
-            int port = 0;
-            int alternate = 0;
+            // Ui
+            if(chkUiFontGeneral.Checked)
+            {
+                int posComma = lblUiFontGeneral.Text.IndexOf(",");
+                s.Set("gui.font_name", lblUiFontGeneral.Text.Substring(0, posComma));
+                s.Set("gui.font_size", lblUiFontGeneral.Text.Substring(posComma+1));
+            }
+            else
+            {
+                s.Set("gui.font_name", "");
+                s.SetFloat("gui.font_size", 0);
+            }
 
-			if (optModeAutomatic.Checked)
-			{
-				protocol = "AUTO";
-				port = 443;
-				alternate = 0;
-			}
-            else if (optModeUDP443.Checked)
+            // Protocols
+            if(chkProtocolsAutomatic.Checked)
             {
-                protocol = "UDP";
-                port = 443;
-                alternate = 0;
+                s.Set("mode.protocol", "AUTO");
+                s.SetInt("mode.port", 443);
+                s.SetInt("mode.alt", 0);
             }
-            else if (optModeTCP443.Checked)
+            else if(lstProtocols.SelectedItems.Count == 1)
             {
-                protocol = "TCP";
-                port = 443;
-                alternate = 0;
-            }
-            else if (optModeUDP80.Checked)
-            {
-                protocol = "UDP";
-                port = 80;
-                alternate = 0;
-            }
-            else if (optModeTCP80.Checked)
-            {
-                protocol = "TCP";
-                port = 80;
-                alternate = 0;
-            }
-            else if (optModeUDP53.Checked)
-            {
-                protocol = "UDP";
-                port = 53;
-                alternate = 0;
-            }
-            else if (optModeTCP53.Checked)
-            {
-                protocol = "TCP";
-                port = 53;
-                alternate = 0;
-            }
-            else if (optModeUDP2018.Checked)
-            {
-                protocol = "UDP";
-                port = 2018;
-                alternate = 0;
-            }
-            else if (optModeTCP2018.Checked)
-            {
-                protocol = "TCP";
-                port = 2018;
-                alternate = 0;
-            }
-            else if (optModeUDP443Alt.Checked)
-            {
-                protocol = "UDP";
-                port = 443;
-                alternate = 1;
-            }
-            else if (optModeUDP80Alt.Checked)
-            {
-                protocol = "UDP";
-                port = 80;
-                alternate = 1;
-            }
-            else if (optModeUDP53Alt.Checked)
-            {
-                protocol = "UDP";
-                port = 53;
-                alternate = 1;
-            }
-            else if (optModeUDP2018Alt.Checked)
-            {
-                protocol = "UDP";
-                port = 2018;
-                alternate = 1;
-            }
-            else if (optModeTCP2018Alt.Checked)
-            {
-                protocol = "TCP";
-                port = 2018;
-                alternate = 1;
-            }
-            else if (optModeSSH22.Checked)
-            {
-                protocol = "SSH";
-                port = 22;
-                alternate = 0;
-            }
-            else if (optModeSSH22Alt.Checked)
-            {
-                protocol = "SSH";
-                port = 22;
-                alternate = 1;
-            }
-            else if (optModeSSH80.Checked)
-            {
-                protocol = "SSH";
-                port = 80;
-                alternate = 1;
-            }
-            else if (optModeSSH53.Checked)
-            {
-                protocol = "SSH";
-                port = 53;
-                alternate = 1;
-            }
-            else if (optModeSSL443.Checked)
-            {
-                protocol = "SSL";
-                port = 443;
-                alternate = 1;
-            }
-			else if (optModeTor.Checked)
-			{
-				protocol = "TOR";
-				port = 2018;
-				alternate = 0;
-			}
-			else
-			{
-				// Unexpected...
-				protocol = "AUTO";
-				port = 443;
-				alternate = 0;
-			}
+                Controls.ListViewItemProtocol item = lstProtocols.SelectedItems[0] as Controls.ListViewItemProtocol;
 
-            s.Set("mode.protocol", protocol.ToUpperInvariant());
-            s.SetInt("mode.port", port);
-            s.SetInt("mode.alt", alternate);
-
-			s.Set("mode.tor.host", txtModeTorHost.Text);
-			s.SetInt("mode.tor.port", Conversions.ToInt32(txtModeTorPort.Text));
-			s.SetInt("mode.tor.control.port", Conversions.ToInt32(txtModeTorControlPort.Text));
-			s.Set("mode.tor.control.password", txtModeTorControlPassword.Text);
-
-            // Proxy
+                s.Set("mode.protocol", item.Protocol);
+                s.SetInt("mode.port", item.Port);
+                s.SetInt("mode.alt", item.Entry);
+            }
+            else
+            {
+                s.Set("mode.protocol", "AUTO");
+                s.SetInt("mode.port", 443);
+                s.SetInt("mode.alt", 0);
+            }
+            
+			// Proxy
             s.Set("proxy.mode", cboProxyMode.Text);
             s.Set("proxy.host", txtProxyHost.Text);
             s.Set("proxy.port", txtProxyPort.Text);
             s.Set("proxy.auth", cboProxyAuthentication.Text);
             s.Set("proxy.login", txtProxyLogin.Text);
             s.Set("proxy.password", txtProxyPassword.Text);
-                        
+            s.SetInt("proxy.tor.control.port", Conversions.ToInt32(txtProxyTorControlPort.Text));
+            s.Set("proxy.tor.control.password", txtProxyTorControlPassword.Text);
+
             // Routes
             s.Set("routes.default", RouteDescriptionToDirection(cboRoutesOtherwise.Text));
 
@@ -643,8 +533,9 @@ namespace AirVPN.Gui.Forms
 			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
 			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
 			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
+            s.SetBool("advanced.windows.wfp", chkWindowsWfp.Checked);
 
-			s.Set("executables.openvpn", txtExePath.Text);
+            s.Set("executables.openvpn", txtExePath.Text);
 
 			int manifestRefreshIndex = cboAdvancedManifestRefresh.SelectedIndex;
 			if (manifestRefreshIndex == 0) // Auto
@@ -660,38 +551,42 @@ namespace AirVPN.Gui.Forms
 
 			int openVpnSndBufIndex = cboOpenVpnSndbuf.SelectedIndex;
 			if (openVpnSndBufIndex == 0)
-				s.SetInt("openvpn.sndbuf", -1);
-			else if (openVpnSndBufIndex == 1)
+				s.SetInt("openvpn.sndbuf", -2);
+            else if (openVpnSndBufIndex == 1)
+                s.SetInt("openvpn.sndbuf", -1);
+            else if (openVpnSndBufIndex == 2)
 				s.SetInt("openvpn.sndbuf", 1024 * 8);
-			else if (openVpnSndBufIndex == 2)
-				s.SetInt("openvpn.sndbuf", 1024 * 16);
 			else if (openVpnSndBufIndex == 3)
-				s.SetInt("openvpn.sndbuf", 1024 * 32);
+				s.SetInt("openvpn.sndbuf", 1024 * 16);
 			else if (openVpnSndBufIndex == 4)
-				s.SetInt("openvpn.sndbuf", 1024 * 64);
+				s.SetInt("openvpn.sndbuf", 1024 * 32);
 			else if (openVpnSndBufIndex == 5)
-				s.SetInt("openvpn.sndbuf", 1024 * 128);
+				s.SetInt("openvpn.sndbuf", 1024 * 64);
 			else if (openVpnSndBufIndex == 6)
-				s.SetInt("openvpn.sndbuf", 1024 * 256);
+				s.SetInt("openvpn.sndbuf", 1024 * 128);
 			else if (openVpnSndBufIndex == 7)
+				s.SetInt("openvpn.sndbuf", 1024 * 256);
+			else if (openVpnSndBufIndex == 8)
 				s.SetInt("openvpn.sndbuf", 1024 * 512);
 			
 			int openVpnRcvBufIndex = cboOpenVpnRcvbuf.SelectedIndex;
 			if(openVpnRcvBufIndex == 0)
-				s.SetInt("openvpn.rcvbuf",-1);
-			else if (openVpnRcvBufIndex == 1)
+				s.SetInt("openvpn.rcvbuf",-2);
+            else if (openVpnRcvBufIndex == 1)
+                s.SetInt("openvpn.rcvbuf", -1);
+            else if (openVpnRcvBufIndex == 2)
 				s.SetInt("openvpn.rcvbuf", 1024*8);
-			else if (openVpnRcvBufIndex == 2)
-				s.SetInt("openvpn.rcvbuf", 1024 * 16);
 			else if (openVpnRcvBufIndex == 3)
-				s.SetInt("openvpn.rcvbuf", 1024 * 32);
+				s.SetInt("openvpn.rcvbuf", 1024 * 16);
 			else if (openVpnRcvBufIndex == 4)
-				s.SetInt("openvpn.rcvbuf", 1024 * 64);
+				s.SetInt("openvpn.rcvbuf", 1024 * 32);
 			else if (openVpnRcvBufIndex == 5)
-				s.SetInt("openvpn.rcvbuf", 1024 * 128);
+				s.SetInt("openvpn.rcvbuf", 1024 * 64);
 			else if (openVpnRcvBufIndex == 6)
-				s.SetInt("openvpn.rcvbuf", 1024 * 256);
+				s.SetInt("openvpn.rcvbuf", 1024 * 128);
 			else if (openVpnRcvBufIndex == 7)
+				s.SetInt("openvpn.rcvbuf", 1024 * 256);
+			else if (openVpnRcvBufIndex == 8)
 				s.SetInt("openvpn.rcvbuf", 1024 * 512);
 
 			// Advanced - DNS
@@ -786,15 +681,13 @@ namespace AirVPN.Gui.Forms
 
         public void EnableIde()
         {
-            bool proxy = (cboProxyMode.Text != "None");
-			txtProxyHost.Enabled = proxy;
-            txtProxyPort.Enabled = proxy;
-            cboProxyAuthentication.Enabled = proxy;
-            txtProxyLogin.Enabled = ((proxy) && (cboProxyAuthentication.Text != "None"));
-            txtProxyPassword.Enabled = txtProxyLogin.Enabled;
+            // Ui
+            cmdUiFontGeneral.Enabled = chkUiFontGeneral.Checked;
+            
+            // Protocols
+            lstProtocols.Enabled = (chkProtocolsAutomatic.Checked == false);
 
-
-            // Modes
+            /* // TOCLEAN
             optModeSSH22.Enabled = ((proxy == false) && (m_modeSshEnabled));
             optModeSSH22Alt.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
             optModeSSH53.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
@@ -816,6 +709,7 @@ namespace AirVPN.Gui.Forms
 			txtModeTorControlPort.Enabled = optModeTor.Checked;
 			txtModeTorControlPassword.Enabled = optModeTor.Checked;
 			cmdModeTorTest.Enabled = optModeTor.Checked;
+            */
 
             cmdRouteAdd.Enabled = true;
             mnuRoutesAdd.Enabled = cmdRouteAdd.Enabled;
@@ -824,8 +718,20 @@ namespace AirVPN.Gui.Forms
             cmdRouteEdit.Enabled = (lstRoutes.SelectedItems.Count == 1);
             mnuRoutesEdit.Enabled = cmdRouteEdit.Enabled;
 
-			// Dns
-			cmdDnsAdd.Enabled = true;
+            // Proxy
+            bool proxy = (cboProxyMode.Text != "None");
+            bool tor = (cboProxyMode.Text == "Tor");
+            txtProxyHost.Enabled = proxy;
+            txtProxyPort.Enabled = proxy;
+            cboProxyAuthentication.Enabled = (proxy && !tor);
+            txtProxyLogin.Enabled = ((proxy) && (!tor) && (cboProxyAuthentication.Text != "None"));
+            txtProxyPassword.Enabled = txtProxyLogin.Enabled;
+            txtProxyTorControlPort.Enabled = tor;
+            txtProxyTorControlPassword.Enabled = tor;
+            cmdProxyTorTest.Enabled = tor;
+
+            // Dns
+            cmdDnsAdd.Enabled = true;
 			cmdDnsRemove.Enabled = (lstDnsServers.SelectedItems.Count > 0);
 			cmdDnsEdit.Enabled = (lstDnsServers.SelectedItems.Count == 1);
 
@@ -880,6 +786,10 @@ namespace AirVPN.Gui.Forms
 
         private void cboProxyMode_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (cboProxyMode.Text == "Tor")
+                txtProxyPort.Text = "9150";
+            else
+                txtProxyPort.Text = "8080";
             EnableIde();
         }
 
@@ -888,22 +798,31 @@ namespace AirVPN.Gui.Forms
             EnableIde();
         }
 
-        private void cmdModeDocs_Click(object sender, EventArgs e)
-		{
-			Core.UI.Actions.OpenUrlDocsProtocols();
+        private void lnkProtocolsHelp1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Engine.Instance.Command("ui.show.docs.protocols");
         }
 
-		
-		private void cmdAdvancedGeneralDocs_Click(object sender, EventArgs e)
-		{
-			Core.UI.Actions.OpenUrlDocsAdvanced();
-		}
+        private void lnkProtocolsHelp2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Engine.Instance.Command("ui.show.docs.udp_vs_tcp");
+        }
 
-		private void cmdLockHelp_Click(object sender, EventArgs e)
-		{
-			Core.UI.Actions.OpenUrlDocsLock();
-		}
+        private void lnkProxyTorHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Engine.Instance.Command("ui.show.docs.tor");
+        }
 
+        private void lnkLockHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Engine.Instance.Command("ui.show.docs.lock");
+        }
+
+        private void lnkAdvancedHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Engine.Instance.Command("ui.show.docs.advanced");
+        }
+                
         private void cmdRouteAdd_Click(object sender, EventArgs e)
         {
             SettingsRoute Dlg = new SettingsRoute();            
@@ -1014,6 +933,7 @@ namespace AirVPN.Gui.Forms
                 lstAdvancedEvents.SelectedItems[0].SubItems.Add(dlg.FileName);
                 lstAdvancedEvents.SelectedItems[0].SubItems.Add(dlg.Arguments);
                 lstAdvancedEvents.SelectedItems[0].SubItems.Add(dlg.WaitEnd ? "Yes" : "No");
+                lstAdvancedEvents.ResizeColumnsAuto();
             }
         }
 
@@ -1029,10 +949,11 @@ namespace AirVPN.Gui.Forms
 
         private void cboGeneralTheme_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Form.ChangeSkin(cboGeneralTheme.Text);
-
-            ApplySkin();
-            Engine.FormMain.ApplySkin();            
+            if (Form.ChangeSkin(cboGeneralTheme.Text))
+            {
+                ApplySkin();
+                Engine.FormMain.ApplySkin();
+            }
         }
 
 		private void cmdAdvancedUninstallDriver_Click(object sender, EventArgs e)
@@ -1054,9 +975,9 @@ namespace AirVPN.Gui.Forms
 			EnableIde();
 		}
 
-		private void cmdModeTorTest_Click(object sender, EventArgs e)
+		private void cmdProxyTorTest_Click(object sender, EventArgs e)
 		{
-			MessageBox.Show(TorControl.Test(txtModeTorHost.Text, Conversions.ToInt32(txtModeTorControlPort.Text), txtModeTorControlPassword.Text));
+			MessageBox.Show(TorControl.Test(txtProxyHost.Text, Conversions.ToInt32(txtProxyTorControlPort.Text), txtProxyTorControlPassword.Text));
 		}
 
 		private void optModeAutomatic_CheckedChanged(object sender, EventArgs e)
@@ -1215,15 +1136,32 @@ namespace AirVPN.Gui.Forms
 			}
 		}
 
-		
-		
+        private void UpdateUiFontGeneral()
+        {
+            if (chkUiFontGeneral.Checked == false)
+                lblUiFontGeneral.Text = Platform.Instance.GetSystemFont();                    
+        }
 
-		
+        private void chkUiFontGeneral_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateUiFontGeneral();
+            EnableIde();
+        }
 
-        
+        private void cmdUiFontGeneral_Click(object sender, EventArgs e)
+        {
+            FontDialog dlg = new FontDialog();
+            if(dlg.ShowDialog() == DialogResult.OK)
+            {
+                lblUiFontGeneral.Text = dlg.Font.Name + ", " + dlg.Font.SizeInPoints.ToString();
+            }
+        }
 
-        
-        
+        private void chkProtocolsAutomatic_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableIde();
+        }
+
         
     }
 }

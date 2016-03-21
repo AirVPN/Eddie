@@ -154,9 +154,24 @@ namespace AirVPN.Platforms
 				pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
 				pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
 				pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
-			}
 
-			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
+                // Multicast
+                pf += "pass out quick inet from 192.168.0.0/16 to 224.0.0.0/24\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 224.0.0.0/24\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 224.0.0.0/24\n";
+
+                // 239.255.255.250  Simple Service Discovery Protocol address
+                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.250/32\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.250/32\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.250/32\n";
+
+                // 239.255.255.253  Service Location Protocol version 2 address
+                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.253/32\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";                
+            }
+
+            if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 			{
 				pf += "# Allow ICMP\n";
 				pf += "pass quick proto icmp\n"; // 2.9

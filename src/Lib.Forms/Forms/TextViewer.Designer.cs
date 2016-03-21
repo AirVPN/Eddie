@@ -28,40 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.txtData = new AirVPN.Gui.Skin.TextBox();
-			this.SuspendLayout();
-			// 
-			// txtData
-			// 
-			this.txtData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.txtData = new AirVPN.Gui.Skin.TextBox();
+            this.SuspendLayout();
+            // 
+            // txtData
+            // 
+            this.txtData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtData.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.txtData.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtData.Location = new System.Drawing.Point(13, 13);
-			this.txtData.Margin = new System.Windows.Forms.Padding(4);
-			this.txtData.Multiline = true;
-			this.txtData.Name = "txtData";
-			this.txtData.ReadOnly = true;
-			this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtData.Size = new System.Drawing.Size(912, 440);
-			this.txtData.TabIndex = 0;
-			this.txtData.WordWrap = false;
-			// 
-			// TextViewer
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(938, 466);
-			this.Controls.Add(this.txtData);
-			this.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.Margin = new System.Windows.Forms.Padding(4);
-			this.Name = "TextViewer";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Form1";
-			this.Load += new System.EventHandler(this.Form1_Load);
-			this.ResumeLayout(false);
-			this.PerformLayout();
+            this.txtData.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.txtData.Location = new System.Drawing.Point(13, 14);
+            this.txtData.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtData.Multiline = true;
+            this.txtData.Name = "txtData";
+            this.txtData.ReadOnly = true;
+            this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtData.Size = new System.Drawing.Size(912, 440);
+            this.txtData.TabIndex = 0;
+            this.txtData.WordWrap = false;
+            // 
+            // TextViewer
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(939, 466);
+            this.Controls.Add(this.txtData);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Name = "TextViewer";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

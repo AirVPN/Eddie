@@ -28,80 +28,9 @@ namespace AirVPN.Core.UI
 
 	public static class Actions
 	{
-		public static void OpenUrlAirVPN(string subPath)
-		{
-			Platform.Instance.OpenUrl(Constants.WebSite + "/" + subPath);
-		}
-
-		public static void OpenUrlWebsite()
-		{
-			OpenUrlAirVPN("");
-		}
-
-		public static void OpenUrlDocs()
-		{
-			OpenUrlAirVPN("software/");            
-		}
-
-		public static void OpenUrlSources()
-		{
-			string url = "https://github.com/AirVPN/airvpn-client";
-			Platform.Instance.OpenUrl(url);
-		}
-
-		public static void OpenUrlDocsProtocols()
-		{
-			OpenUrlAirVPN("faq/software_protocols/"); 
-		}
-
-		public static void OpenUrlDocsAdvanced()
-		{
-			OpenUrlAirVPN("faq/software_advanced/");
-		}
-
-		public static void OpenUrlDocsLock()
-		{
-			OpenUrlAirVPN("faq/software_lock/");
-		}
-
-		public static void OpenUrlPorts()
-		{
-			OpenUrlAirVPN("ports/"); 
-		}
-
-		public static void OpenUrlClient()
-		{
-			OpenUrlAirVPN("client/"); 
-		}
-
-		public static void OpenUrlSpeedTest()
-		{
-			OpenUrlAirVPN("speedtest/"); 
-		}
-
-		public static void OpenUrlGpl()
-		{
-			Platform.Instance.OpenUrl("http://www.gnu.org/licenses/gpl.html");            
-		}
-
-		public static void OpenUrlOpenVpnManagement()
-		{
-			Platform.Instance.OpenUrl("http://openvpn.net/index.php/open-source/documentation/miscellaneous/79-management-interface.html");            
-		}
-		
 		public static void SendOpenVpnManagementCommand(string command)
 		{
 			Engine.Instance.SendManagementCommand(command);
-		}
-
-		public static string GetAboutLicense()
-		{
-			return ResourcesFiles.GetString("license.txt");			
-		}
-
-		public static string GetAboutThirdParty()
-		{
-			return ResourcesFiles.GetString("thirdparty.txt");			
 		}
 
 		public static string GetTos()

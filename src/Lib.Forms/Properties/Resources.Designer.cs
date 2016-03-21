@@ -93,9 +93,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap add_16 {
+        internal static System.Drawing.Bitmap add {
             get {
-                object obj = ResourceManager.GetObject("add_16", resourceCulture);
+                object obj = ResourceManager.GetObject("add", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -213,9 +213,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap connect_16 {
+        internal static System.Drawing.Bitmap copy {
             get {
-                object obj = ResourceManager.GetObject("connect_16", resourceCulture);
+                object obj = ResourceManager.GetObject("copy", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -223,9 +223,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap copy_16 {
+        internal static System.Drawing.Bitmap delete {
             get {
-                object obj = ResourceManager.GetObject("copy_16", resourceCulture);
+                object obj = ResourceManager.GetObject("delete", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -233,9 +233,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap delete_16 {
+        internal static System.Drawing.Bitmap disconnect {
             get {
-                object obj = ResourceManager.GetObject("delete_16", resourceCulture);
+                object obj = ResourceManager.GetObject("disconnect", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -243,9 +243,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap disconnect_16 {
+        internal static System.Drawing.Bitmap edit {
             get {
-                object obj = ResourceManager.GetObject("disconnect_16", resourceCulture);
+                object obj = ResourceManager.GetObject("edit", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -253,9 +253,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap edit_16 {
+        internal static System.Drawing.Bitmap enter {
             get {
-                object obj = ResourceManager.GetObject("edit_16", resourceCulture);
+                object obj = ResourceManager.GetObject("enter", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -263,19 +263,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap enter_16 {
+        internal static System.Drawing.Bitmap execute {
             get {
-                object obj = ResourceManager.GetObject("enter_16", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap execute_16 {
-            get {
-                object obj = ResourceManager.GetObject("execute_16", resourceCulture);
+                object obj = ResourceManager.GetObject("execute", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -286,6 +276,16 @@ namespace AirVPN.Lib.Forms.Properties {
         internal static System.Drawing.Bitmap exit {
             get {
                 object obj = ResourceManager.GetObject("exit", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap form {
+            get {
+                object obj = ResourceManager.GetObject("form", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -456,16 +456,6 @@ namespace AirVPN.Lib.Forms.Properties {
         internal static System.Drawing.Bitmap login {
             get {
                 object obj = ResourceManager.GetObject("login", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap login_16 {
-            get {
-                object obj = ResourceManager.GetObject("login_16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -723,9 +713,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap save_16 {
+        internal static System.Drawing.Bitmap save {
             get {
-                object obj = ResourceManager.GetObject("save_16", resourceCulture);
+                object obj = ResourceManager.GetObject("save", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -747,6 +737,15 @@ namespace AirVPN.Lib.Forms.Properties {
             get {
                 object obj = ResourceManager.GetObject("shadow", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;        ///&lt;skins&gt;        ///  &lt;Light&gt;        ///    &lt;!--&lt;font.normal&gt;MS Sans Serif, 8.25pt&lt;/font.normal&gt;--&gt;        ///    &lt;font.normal&gt;System, normal&lt;/font.normal&gt;        ///    &lt;font.big&gt;System, big&lt;/font.big&gt;        ///    &lt;font.monospace&gt;SystemMonospace, normal&lt;/font.monospace&gt;        ///    &lt;!--        ///    &lt;font.normal&gt;Verdana, 16pt&lt;/font.normal&gt;        ///    &lt;font.big&gt;Verdana, 22pt&lt;/font.big&gt;        ///    &lt;font.monospace&gt;Consolas, 16pt&lt;/font.monospace&gt;        ///    --&gt;        ///    &lt;color.form.background&gt;#ffffff&lt;/color.form.background&gt;        ///    &lt;color.foreground&gt;#000000&lt;/color.f [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string skins {
+            get {
+                return ResourceManager.GetString("skins", resourceCulture);
             }
         }
         
@@ -843,9 +842,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap status_green_16 {
+        internal static System.Drawing.Bitmap status_green {
             get {
-                object obj = ResourceManager.GetObject("status_green_16", resourceCulture);
+                object obj = ResourceManager.GetObject("status_green", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -853,9 +852,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap status_red_16 {
+        internal static System.Drawing.Bitmap status_red {
             get {
-                object obj = ResourceManager.GetObject("status_red_16", resourceCulture);
+                object obj = ResourceManager.GetObject("status_red", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -863,9 +862,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap status_yellow_16 {
+        internal static System.Drawing.Bitmap status_yellow {
             get {
-                object obj = ResourceManager.GetObject("status_yellow_16", resourceCulture);
+                object obj = ResourceManager.GetObject("status_yellow", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -873,9 +872,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap success16 {
+        internal static System.Drawing.Bitmap success {
             get {
-                object obj = ResourceManager.GetObject("success16", resourceCulture);
+                object obj = ResourceManager.GetObject("success", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -1033,9 +1032,9 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap warning16 {
+        internal static System.Drawing.Bitmap warning {
             get {
-                object obj = ResourceManager.GetObject("warning16", resourceCulture);
+                object obj = ResourceManager.GetObject("warning", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

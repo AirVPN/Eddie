@@ -30,11 +30,20 @@ namespace AirVPN.Gui.Forms
     {
         public TextViewer()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
         }
 
         public string Title;
         public string Body;
+
+        public override void OnInitializeComponent()
+        {
+            base.OnInitializeComponent();
+
+            txtData.Font = Skin.FontMono;
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {

@@ -22,6 +22,7 @@ using System.IO;
 using System.Threading;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 using AirVPN.Core;
 
 //using ExceptionReporting;
@@ -37,7 +38,7 @@ namespace AirVPN.Gui
         
         //public AutoResetEvent FormsReady = new AutoResetEvent(false);
         public AutoResetEvent InitDone = new AutoResetEvent(false);
-
+        
         public override bool OnInit()
         {
 			// Engine.Log(Core.Engine.LogType.Verbose, "Old Data: " + Application.UserAppDataPath);
@@ -51,8 +52,8 @@ namespace AirVPN.Gui
 			// System.Threading.Thread.Sleep(1000);
 
             bool result = base.OnInit();
-
-			return result;
+            
+            return result;
         }
 
 		public override void OnUnhandledException(Exception e)
@@ -106,7 +107,31 @@ namespace AirVPN.Gui
                 FormMain.DeInit();
         }
 
-		public override bool OnNoRoot()
+        public override void OnCommand(CommandLine command)
+        {
+            string action = command.Get("action", "").ToLowerInvariant();
+
+            if(action == "ui.show.preferences")
+            {
+                Forms.Settings Dlg = new Forms.Settings();
+                Dlg.ShowDialog();
+
+                FormMain.EnabledUi();
+            }
+            else if (action == "ui.show.about")
+            {
+                Forms.About dlg = new Forms.About();
+                dlg.ShowDialog();
+            }
+            else if (action == "ui.show.menu")
+            {
+                FormMain.ShowMenu();
+            }
+            else
+                base.OnCommand(command);
+        }
+
+        public override bool OnNoRoot()
 		{
 			if (ConsoleMode == false) // GUI Only
 			{
@@ -268,7 +293,15 @@ namespace AirVPN.Gui
 				FormMain.ShowFrontMessage(message);
 		}
 
-		public override bool OnAskYesNo(string message)
+        public override void OnShowText(string title, string data)
+        {
+            Forms.TextViewer Dlg = new Forms.TextViewer();
+            Dlg.Title = title;
+            Dlg.Body = data;
+            Dlg.ShowDialog();
+        }
+
+        public override bool OnAskYesNo(string message)
 		{
 			if (FormMain != null)
 				return MessageBox.Show(message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
@@ -276,7 +309,15 @@ namespace AirVPN.Gui
 				return true;
 		}
 
-		public override void OnPostManifestUpdate()
+        public override void OnLoggedUpdate(XmlElement xmlKeys)
+        {
+            base.OnLoggedUpdate(xmlKeys);
+
+            if (FormMain != null)
+                FormMain.LoggedUpdate(xmlKeys);
+        }
+
+        public override void OnPostManifestUpdate()
 		{
 			base.OnPostManifestUpdate();
 

@@ -123,7 +123,7 @@ namespace AirVPN.Gui.Skin.Skins
 		{
 			get
 			{
-				return Gray1Brush;
+				return Gray50Brush;
 			}
 		}
 

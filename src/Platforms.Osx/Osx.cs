@@ -206,7 +206,19 @@ namespace AirVPN.Platforms
 			return entryList;
 		}
 
-		public override Dictionary<int, string> GetProcessesList()
+        public override string GenerateSystemReport()
+        {
+            string t = base.GenerateSystemReport();
+
+            t += "\n\n-- OS X specific\n";
+
+            t += "\n-- ifconfig\n";
+            t += ShellCmd("ifconfig");
+
+            return t;
+        }
+
+        public override Dictionary<int, string> GetProcessesList()
 		{
 			// We experience some crash under OSX with the base method.
 			
@@ -242,7 +254,12 @@ namespace AirVPN.Platforms
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockOsxPf());
 		}
 
-		public override void OnRecoveryLoad(XmlElement root)
+        public override string OnNetworkLockRecommendedMode()
+        {
+            return "osx_pf";
+        }
+
+        public override void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeDns = Utils.XmlGetFirstElementByTagName(root, "DnsSwitch");
 			if (nodeDns != null)
@@ -398,7 +415,7 @@ namespace AirVPN.Platforms
                     if (current != dns)
                     {
                         // Switch
-                        Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2));
+                        Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
 
                         DnsSwitchEntry e = new DnsSwitchEntry();
                         e.Name = i2;
@@ -407,33 +424,7 @@ namespace AirVPN.Platforms
 
                         string dns2 = dns.Replace(",", "\" \"");
                         ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns2 + "\"");
-                    }
-
-                    /* < 2.11
-                    current = current.Replace ("\n", ";");
-					if (current.StartsWith("There aren't any DNS Servers set on "))
-						current = "0.0.0.0";
-					if (Utils.IsIP(current))
-					{
-						if (current != dns)
-						{
-							// Switch
-							Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2));
-
-							DnsSwitchEntry e = new DnsSwitchEntry();
-							e.Name = i2;
-							e.Dns = current;
-							m_listDnsSwitch.Add(e);
-
-							string dns2 = dns.Replace(",", "\" \"");							
-							ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns2 + "\"");
-						}
-					}
-					else
-					{
-						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface '" + i + "'");
-					}
-                    */
+                    }                    
 				}
 
 				Recovery.Save ();
@@ -451,13 +442,9 @@ namespace AirVPN.Platforms
 				string v = e.Dns;
                 if (v == "")
                     v = "empty";
-				/* < 2.11
-                if(v == "0.0.0.0")
-					v = "empty";
-                    */
 				v = v.Replace (",", "\" \"");
 
-				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name));
+				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
 

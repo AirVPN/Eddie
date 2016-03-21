@@ -41,8 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkLockWfp.cs" />
     <Compile Include="NetworkLockWindowsFirewall.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WfpItem.cs" />
+    <Compile Include="Wfp.cs" />
     <Compile Include="Windows.cs" />
   </ItemGroup>
   <ItemGroup>

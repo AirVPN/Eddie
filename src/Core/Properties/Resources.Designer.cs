@@ -106,16 +106,13 @@ namespace AirVPN.Lib.Core.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-        ///&lt;manifest&gt;        ///
+        ///&lt;manifest&gt;
         ///  &lt;hosts&gt;
-        ///
         ///		&lt;host address=&quot;54.93.175.114&quot; /&gt;
         ///		&lt;host address=&quot;54.246.124.152&quot; /&gt;
         ///		&lt;host address=&quot;54.225.156.17&quot; /&gt;
         ///		&lt;host address=&quot;95.211.138.143&quot; /&gt;
-        ///
-        ///
-        ///	&lt;/hosts&gt;        ///
+        ///	&lt;/hosts&gt;        ///  &lt;skins&gt;        ///    &lt;skin name=&quot;Default&quot;&gt;        ///              ///    &lt;/skin&gt;        ///  &lt;/skins&gt;        ///
         ///&lt;/manifest&gt;.
         /// </summary>
         internal static string Manifest {

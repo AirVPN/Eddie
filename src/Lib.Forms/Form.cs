@@ -26,10 +26,11 @@ using AirVPN.Core;
 namespace AirVPN.Gui
 {
     public class Form : System.Windows.Forms.Form
-    {        
-        public static Skin.Skins.Light SkinLight = new Skin.Skins.Light();
-        public static Skin.Skins.Dark SkinDark = new Skin.Skins.Dark();
-        public static Skin.SkinBase Skin = SkinLight;
+    {
+        //public static Skin.Skins.Light SkinLight = new Skin.Skins.Light(); // TOCLEAN
+        //public static Skin.Skins.Dark SkinDark = new Skin.Skins.Dark();  // TOCLEAN
+        //public static Skin.SkinBase Skin = SkinLight; // TOCLEAN
+        public static Skin.SkinReference Skin = new Gui.Skin.SkinReference();
 
         public static Gui.Engine Engine
         {
@@ -41,20 +42,9 @@ namespace AirVPN.Gui
 
         public static bool ChangeSkin(string name)
         {
-            Skin.SkinBase newSkin = null;
-
-			if (Engine.Instance == null)
-                newSkin = SkinLight;
-            else if (name == "Light")
-                newSkin = SkinLight;
-            else if (name == "Dark")
-                newSkin = SkinDark;
-            else
-                newSkin = SkinLight;
-
-            if (Skin != newSkin)
+            if (Skin.Name != name)
             {
-                Skin = newSkin;
+                Gui.Skin.SkinReference.Load(name);
                 return true;
             }
             else
@@ -75,6 +65,17 @@ namespace AirVPN.Gui
 			
         }
 
+        public virtual void OnPreInitializeComponent()
+        {            
+            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(6F, 13F);
+        }
+
+        public virtual void OnInitializeComponent()
+        {            
+            
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -84,16 +85,25 @@ namespace AirVPN.Gui
 
 		protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Form.DrawImage(e.Graphics, Skin.FormBackgroundImage, this.ClientRectangle);
+            e.Graphics.FillRectangle(Skin.GetBrush("color.form.background"), ClientRectangle);
+            Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
+
             //base.OnPaintBackground(e);
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {			
+        public void ResetSkinCache()
+        {
+            Skin.ClearFontCache();
         }
 
-        public virtual void ApplySkin()
+        public void ApplySkin()
         {
+            if (DesignMode == false)
+                OnApplySkin();
+        }
+
+        public virtual void OnApplySkin()
+        {            
             Skin.Apply(this);
         }
 
@@ -231,6 +241,42 @@ namespace AirVPN.Gui
 		{
 			g.DrawImage(i, r);
 		}
+
+        public static void DrawImageOpt(Graphics g, Image i, Rectangle r)
+        {
+            g.DrawImage(i, r);
+        }
+
+        private static Size ExpandToBound(Size image, Size boundingBox)
+        {
+            double widthScale = 0, heightScale = 0;
+            if (image.Width != 0)
+                widthScale = (double)boundingBox.Width / (double)image.Width;
+            if (image.Height != 0)
+                heightScale = (double)boundingBox.Height / (double)image.Height;
+
+            double scale = Math.Min(widthScale, heightScale);
+
+            Size result = new Size((int)(image.Width * scale),
+                                (int)(image.Height * scale));
+            return result;
+        }
+
+        public static void DrawImageContain(Graphics g, Image i, Rectangle r, int inflatePerc)
+        {
+            int idx = r.Width * inflatePerc / 100;
+            int idy = r.Height * inflatePerc / 100;
+            Rectangle rdi = new Rectangle(r.Left + idx / 2, r.Top + idy / 2, r.Width - idx, r.Height - idy);
+
+            Size sizeImageBound = ExpandToBound(i.Size, rdi.Size);
+            Rectangle rd = new Rectangle(
+                (r.Left + r.Right) / 2 - sizeImageBound.Width / 2,
+                (r.Top + r.Bottom) / 2 - sizeImageBound.Height / 2,
+                sizeImageBound.Width,
+                sizeImageBound.Height);
+
+            g.DrawImage(i, rd);
+        }
 		
 		public static void DrawStringOutline(Graphics g, String t, Font f, Brush b, Rectangle r, StringFormat sf)
 		{

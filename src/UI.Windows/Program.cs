@@ -33,6 +33,9 @@ namespace AirVPN.UI.Windows
 		[STAThread]
 		static void Main()
 		{
+            if (Environment.OSVersion.Version.Major >= 6)
+                SetProcessDPIAware();       
+            
             //Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -57,7 +60,7 @@ namespace AirVPN.UI.Windows
 
 				if (engine.Initialization())
 				{
-					engine.FormMain = new Gui.Forms.Main();
+                    engine.FormMain = new Gui.Forms.Main();
 
 					engine.UiStart();
 
@@ -66,5 +69,8 @@ namespace AirVPN.UI.Windows
 			}
 		}
 
-	}
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
+
+    }
 }

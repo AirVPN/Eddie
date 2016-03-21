@@ -50,8 +50,9 @@ namespace AirVPN.Core.Threads
 		private TemporaryFile m_fileSslCrt;
 		private TemporaryFile m_fileSslConfig;
 		private TemporaryFile m_fileOvpn;
+        private ProgramScope m_programScope = null;
 
-		public override void OnRun()
+        public override void OnRun()
 		{
 			CancelRequested = false;
 
@@ -104,7 +105,8 @@ namespace AirVPN.Core.Threads
 
 					m_openVpnManagementCommands.Clear();
 
-					string protocol = Engine.Storage.Get("mode.protocol").ToUpperInvariant();
+                    string key = Engine.Storage.Get("key");
+                    string protocol = Engine.Storage.Get("mode.protocol").ToUpperInvariant();
 					int port = Engine.Storage.GetInt("mode.port");
 					int alt = Engine.Storage.GetInt("mode.alt");
 
@@ -234,7 +236,7 @@ namespace AirVPN.Core.Threads
 						Engine.WaitMessageSet(connectingMessage, true);
 						Engine.Log(Engine.LogType.InfoImportant, connectingMessage);
 
-						Engine.BuildOVPN(protocol, port, alt, m_proxyPort);
+						Engine.BuildOVPN(key, protocol, port, alt, m_proxyPort);
 
 						if (protocol == "SSH")
 						{
@@ -244,14 +246,14 @@ namespace AirVPN.Core.Threads
 						{
 							StartSslProcess();
 						}
-						else if ((protocol == "TCP") || (protocol == "UDP") || (protocol == "TOR"))
+						else if ((protocol == "TCP") || (protocol == "UDP"))
 						{
 							StartOpenVpnProcess();
 						}
 
 						int waitingSleep = 100; // To avoid CPU stress
 
-						m_reset = "";
+						SetReset("");
 
 						// -----------------------------------
 						// Phase 2: Waiting connection
@@ -259,12 +261,12 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-							if( (m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited) ) // 2.2
-								m_reset = "ERROR";
+                            if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited)) // 2.2
+                                SetReset("ERROR");
 							if( (m_processProxy != null) && (m_processProxy.ReallyExited) ) // 2.2
-								m_reset = "ERROR";
+                                SetReset("ERROR");
 
-							if (Engine.IsConnected())
+                            if (Engine.IsConnected())
 								break;
 
 							if (m_reset != "")
@@ -279,8 +281,8 @@ namespace AirVPN.Core.Threads
 
 						if( (m_reset == "") && (Engine.Instance.Storage.GetBool("advanced.testmode")) )
 						{
-							m_reset = "STOP";
-						}
+                            SetReset("FATAL");
+                        }
 
 						// -----------------------------------
 						// Phase 3 - Running
@@ -346,12 +348,17 @@ namespace AirVPN.Core.Threads
 								{
 									StopRequest = true;
 								}
-
-								if (m_reset == "ERROR")
+                                else if (m_reset == "ERROR") 
 								{
 									Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
 									StopRequest = true;
 								}
+                                else if (m_reset == "FATAL") 
+                                {
+                                    StopRequest = true;
+                                }
+
+                                
 
 								if (Engine.NextServer != null)
 								{
@@ -502,7 +509,15 @@ namespace AirVPN.Core.Threads
 				if (routeScope != null)
 					routeScope.End();
 
-				if (m_reset == "AUTH_FAILED")
+                if (m_programScope != null)
+                    m_programScope.End();
+
+                if (Engine.Instance.Storage.GetBool("advanced.testmode"))
+                {
+                    Engine.Instance.RequestStop();
+                }
+
+                if (m_reset == "AUTH_FAILED")
 				{
 					waitingMessage = "Auth failed, retry in {1} sec.";
 					waitingSecs = 10;
@@ -512,13 +527,11 @@ namespace AirVPN.Core.Threads
 					waitingMessage = "Restart in {1} sec.";
 					waitingSecs = 3;
 				}
-				
-				if (Engine.Instance.Storage.GetBool("advanced.testmode"))
-				{
-					Engine.Instance.RequestStop();
-					break;
-				}
-
+                else if (m_reset == "FATAL") 
+                {
+                    break;
+                }
+								
 				if (waitingSecs > 0)
 				{
 					for (int i = 0; i < waitingSecs; i++)
@@ -586,7 +599,9 @@ namespace AirVPN.Core.Threads
 				arguments += " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"; // TOOPTIMIZE: To bypass key confirmation. Not the best approach.
 			arguments += " -N -T -v";
 
-			m_processProxy = new Process();
+            m_programScope = new ProgramScope(Software.SshPath, "SSH Tunnel");
+
+            m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SshPath;
 			m_processProxy.StartInfo.Arguments = arguments;
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
@@ -612,8 +627,8 @@ namespace AirVPN.Core.Threads
 		void ProcessSshExited(object sender, EventArgs e)
 		{
 			if (m_reset == "")
-				m_reset = "ERROR";
-		}
+                SetReset("ERROR");
+        }
 
 		private void StartSslProcess()
 		{
@@ -650,7 +665,9 @@ namespace AirVPN.Core.Threads
 			string sslConfigPath = m_fileSslConfig.Path;
 			Utils.SaveFile(sslConfigPath, sslConfig);
 
-			m_processProxy = new Process();
+            m_programScope = new ProgramScope(Software.SslPath, "SSL Tunnel");
+
+            m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SslPath;
 			m_processProxy.StartInfo.Arguments = "\"" + sslConfigPath + "\"";
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
@@ -676,8 +693,8 @@ namespace AirVPN.Core.Threads
 		void ProcessSslExited(object sender, EventArgs e)
 		{
 			if (m_reset == "")
-				m_reset = "ERROR";
-		}
+                SetReset("ERROR");
+        }
 
 		private void StartOpenVpnProcess()
 		{
@@ -688,7 +705,10 @@ namespace AirVPN.Core.Threads
 			string ovpnPath = m_fileOvpn.Path;
 			Utils.SaveFile(ovpnPath, Engine.ConnectedOVPN);
 
-			m_processOpenVpn = new Process();
+            if(m_processProxy == null)
+                m_programScope = new ProgramScope(Software.OpenVpnPath, "OpenVPN Tunnel");
+
+            m_processOpenVpn = new Process();
 			m_processOpenVpn.StartInfo.FileName = Software.OpenVpnPath;
 			m_processOpenVpn.StartInfo.Arguments = "";
 			m_processOpenVpn.StartInfo.WorkingDirectory = Utils.GetTempPath();
@@ -723,8 +743,13 @@ namespace AirVPN.Core.Threads
 		void ProcessOpenVpnExited(object sender, EventArgs e)
 		{
 			if(m_reset == "")
-				m_reset = "ERROR";
-		}
+                SetReset("ERROR");
+        }
+
+        public void SetReset(string level)
+        {
+            m_reset = level;
+        }
 
 		public void SendManagementCommand(string Cmd)
 		{
@@ -834,8 +859,8 @@ namespace AirVPN.Core.Threads
 			{
 				Engine.Log(Engine.LogType.Warning, ex);
 
-				m_reset = "ERROR";
-			}
+                SetReset("ERROR");
+            }
 		}
 
 		void ProcessOutput(string source, string message)
@@ -848,6 +873,7 @@ namespace AirVPN.Core.Threads
 				if (source == "OpenVPN")
 				{
 					bool log = true;
+                    Engine.LogType logType = Engine.LogType.Verbose;
 
 					if (message.IndexOf("MANAGEMENT: CMD 'status'") != -1)
 						log = false;
@@ -859,39 +885,47 @@ namespace AirVPN.Core.Threads
 							(message.IndexOf("Options error: option 'redirect-gateway' cannot be used in this context ([PUSH-OPTIONS])") != -1) ||
 							(message.IndexOf("Options error: option 'dhcp-option' cannot be used in this context ([PUSH-OPTIONS])") != -1)
 						   )
-							log = false;						
-					}
+							log = false;
+                    }
 
-					if (message.IndexOf("Connection reset, restarting") != -1)
+                    if(message.StartsWith("Options error:"))
+                    {
+                        string unrecognizedOption = Utils.RegExMatchOne(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in .*\\:(.*?)\\(.*\\)");
+                        Engine.Log(Engine.LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
+                        Engine.LogOpenvpnConfig();                        
+                        SetReset("FATAL");
+                    }                    
+
+                    if (message.IndexOf("Connection reset, restarting") != -1)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("Exiting due to fatal error") != -1)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("SIGTERM[soft,ping-exit]") != -1) // 2.2
 					{
-						m_reset = "ERROR";
+                        SetReset("ERROR");
+                    }
+
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						SetReset("ERROR");
 					}
 
 					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
 					{
-						m_reset = "ERROR";
-					}
-
-					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
-					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received");
 					if (matchSigReceived.Success)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
 					{
@@ -899,14 +933,14 @@ namespace AirVPN.Core.Threads
 
 						Engine.Storage.SetInt("openvpn.management_port", Engine.Storage.GetInt("openvpn.management_port") + 1);
 
-						m_reset = "RETRY";
-					}
+                        SetReset("RETRY");
+                    }
 
 					if (message.IndexOf("AUTH_FAILED") != -1)
 					{
 						Engine.Log(Engine.LogType.Warning, Messages.AuthFailed);
 
-						m_reset = "AUTH_FAILED";
+						SetReset("AUTH_FAILED");
 					}
 
 					if (message.IndexOf("MANAGEMENT: TCP Socket listening on") != -1)
@@ -920,8 +954,8 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("Initialization Sequence Completed With Errors") != -1)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
@@ -950,9 +984,9 @@ namespace AirVPN.Core.Threads
 
 						// 2.4: Sometime (only under Windows) Interface is not really ready...
 						if (Platform.Instance.WaitTunReady() == false)
-							m_reset = "ERROR";
+                            SetReset("ERROR");
 
-						Engine.Instance.NetworkLockManager.OnVpnEstablished();
+                        Engine.Instance.NetworkLockManager.OnVpnEstablished();
 
 						// Checking Tunnel and Checking DNS are available only on AirVPN servers
 						if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
@@ -977,8 +1011,8 @@ namespace AirVPN.Core.Threads
 									if (VpnIp != Engine.ConnectedVpnIp)
 									{
 										Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);
-										m_reset = "ERROR";
-									}
+                                        SetReset("ERROR");
+                                    }
 								}
 								
 								if (m_reset == "")
@@ -1033,8 +1067,8 @@ namespace AirVPN.Core.Threads
 								if (failed)
 								{
 									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);
-									m_reset = "ERROR";
-								}
+                                    SetReset("ERROR");
+                                }
 							}
 						}
 
@@ -1112,8 +1146,11 @@ namespace AirVPN.Core.Threads
 						}
 					}
 
-					if (log)
-						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+                    if (message.StartsWith("Warning:") && logType < Engine.LogType.Warning)
+                        logType = Engine.LogType.Warning;
+
+                    if (log)
+						Engine.Log(logType, source + " > " + message);
 
 					Platform.Instance.OnDaemonOutput(source, message);
 				}
@@ -1162,8 +1199,8 @@ namespace AirVPN.Core.Threads
 			{
 				Engine.Log(Engine.LogType.Warning, ex);
 
-				m_reset = "ERROR";
-			}
+                SetReset("ERROR");
+            }
 		}
 
 		public void ProcessOutputManagement(string source, string message)

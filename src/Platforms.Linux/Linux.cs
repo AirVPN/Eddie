@@ -121,6 +121,36 @@ namespace AirVPN.Platforms
             return Shell("sh", String.Format("-c '{0}'", Command));
         }
 
+        public override string GetSystemFont()
+        {
+            if(File.Exists("/usr/bin/gsettings")) // gnome
+            {
+                string detected = Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface font-name").Trim('\'');
+                int posSize = detected.LastIndexOf(" ");
+                if (posSize != -1)
+                    detected = detected.Substring(0, posSize) + "," + detected.Substring(posSize + 1);
+                // if (IsFontInstalled(detected)) // Don't work under Debian7
+                    return detected;                
+            }
+                
+            return base.GetSystemFont();
+        }
+
+        public override string GetSystemFontMonospace()
+        {
+            if (File.Exists("/usr/bin/gsettings")) // gnome
+            {
+                string detected = Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+                int posSize = detected.LastIndexOf(" ");
+                if (posSize != -1)
+                    detected = detected.Substring(0, posSize) + "," + detected.Substring(posSize + 1);
+                // if (IsFontInstalled(detected)) // Don't work under Debian7
+                return detected;
+            }
+
+            return base.GetSystemFontMonospace();
+        }
+
         public override void FlushDNS()
         {
             ShellCmd("/etc/rc.d/init.d/nscd restart");
@@ -299,7 +329,12 @@ namespace AirVPN.Platforms
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockIptables());
 		}
 
-		public override bool OnDnsSwitchDo(string dns)
+        public override string OnNetworkLockRecommendedMode()
+        {
+            return "linux_iptables";
+        }
+
+        public override bool OnDnsSwitchDo(string dns)
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{

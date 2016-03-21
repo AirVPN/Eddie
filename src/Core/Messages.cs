@@ -29,7 +29,8 @@ namespace AirVPN.Core
 		public static string Available = "Available";
 		public static string NotAvailable = "Not available";
 		public static string NotFound = "Not found";
-		public static string Ready = "Ready";
+        public static string Automatic = "Automatic";
+        public static string Ready = "Ready";
 		public static string StatsNotConnected = "Not connected.";
 		public static string DoubleClickToView = "(Double-Click to View)";
 		public static string ExitConfirm = "Do you really want to exit?";
@@ -55,7 +56,8 @@ namespace AirVPN.Core
 		public static string ConsoleKeyBreak = "Break signal received. Shutdown. Hit again to force break.";
 		public static string ConsoleKeyCancel = "Cancel requested from keyboard.";
 		public static string ConsoleKeySwitch = "Server switch requested from keyboard.";
-		public static string OsDriverInstall = "Installing tunnel driver"; 
+        public static string OsInstanceAlreadyRunning = "An instance of AirVPN Client is already running."; // TOTRANSLATE
+        public static string OsDriverInstall = "Installing tunnel driver"; 
 		public static string OsDriverNotAvailable = "Driver installer not available.";
 		public static string OsDriverFailed = "Driver installation failed.";
 		public static string OsDriverNoAdapterFound = "Cannot find tunnel adapter."; 
@@ -108,8 +110,9 @@ namespace AirVPN.Core
 		public static string SessionFailed = "Failed to start.";
 		public static string ConnectionStop = "Connection terminated.";
 		public static string RenewingTls = "Renewing TLS key";
-		
-		public static string ConnectionStartManagement = "Starting Management Interface";
+        public static string DirectiveError = "Unrecognized directive or missing parameter: {1}";
+
+        public static string ConnectionStartManagement = "Starting Management Interface";
 		public static string ConnectionCheckingRoute = "Checking route";
 		public static string ConnectionCheckingRoute2 = "Checking info";
 		public static string ConnectionCheckingRouteNotAvailable = "Checking route not available on this server.";
@@ -126,11 +129,11 @@ namespace AirVPN.Core
 		//public static string NetworkLockButtonActive = "Network Lock Active. Click to deactivate"; 
 		//public static string NetworkLockButtonDeactive = "Network Lock Inactive. Click to activate";
 		public static string NetworkLockButtonActive = "Deactivate Network Lock"; 
-		public static string NetworkLockButtonDeactive = "Activate Network Lock"; 
-		public static string NetworkLockStatusActive = "Network Lock enabled"; 
-		public static string NetworkLockStatusDeactive = "Network Lock disabled"; 
+		public static string NetworkLockButtonDeactive = "Activate Network Lock";
+        public static string NetworkLockStatusActive = "Network Lock enabled"; // OS X only
+        public static string NetworkLockStatusDeactive = "Network Lock disabled"; // OS X only
 
-		public static string NetworkLockNoMode = "There is no available or enabled Network Lock mode, sorry.";
+        public static string NetworkLockNoMode = "There is no available or enabled Network Lock mode, sorry.";
 		public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated"; 
 		public static string NetworkLockAllowedIpInvalid = "Allowed IP '{1}' in custom lock invalid"; 
 		public static string NetworkLockRecoveryWhenActive = "Unexpected: Recovery Load with Network Lock active";
@@ -291,7 +294,8 @@ namespace AirVPN.Core
 		public static string ManOptionLogin = "Login of your AirVPN account";
 		public static string ManOptionPassword = "Password of your AirVPN account";
 		public static string ManOptionRemember = "'True' if login data persist after exit.";
-		public static string ManOptionServer = "Server to connect to. Leave empty to pick recommended server";
+        public static string ManOptionKey = "Key name";
+        public static string ManOptionServer = "Server to connect to. Leave empty to pick recommended server";
 		public static string ManOptionConnect = "Connect automatically at startup. Only for GUI, command-line always starts directly.";
 		public static string ManOptionProfile = "Profile name. Use it to store different set of options";
 		public static string ManOptionPath = "Data path. May be a full path or special value 'program' or 'home'";
@@ -306,11 +310,6 @@ namespace AirVPN.Core
 		public static string ManOptionModeProtocol = "Protocol for connection. 'UDP', 'TCP' for direct openvpn connection. 'SSH', 'SSL' for additional tunneling";
 		public static string ManOptionModePort = "Port for connection. Currently available: 443, 80, 53, 2018";
 		public static string ManOptionModeAlt = "0 to use the default entry IP, 1 or more for additional entry IP";
-		public static string ManOptionModeTorHost = "Tor host";
-		public static string ManOptionModeTorPort = "Tor port";
-		public static string ManOptionModeTorControlPort = "Tor Control port";
-		public static string ManOptionModeTorControlAuth = "Tor Control needs authentication. Normally the Tor Browser Bundle requires authentication and accepts a file cookie password";
-		public static string ManOptionModeTorControlPassword = "Tor Control password. If empty, the software tries to detect the file cookie password";
 		
 		public static string ManOptionProxyMode = "Proxy mode: 'none', 'http' or 'socks'. 'protocol' option must be 'TCP'.";
 		public static string ManOptionProxyHost = "Proxy host";
@@ -318,8 +317,11 @@ namespace AirVPN.Core
 		public static string ManOptionProxyAuth = "Proxy authentication method: 'None', 'Basic' or 'NTLM'";
 		public static string ManOptionProxyLogin = "Proxy login, for authentication";
 		public static string ManOptionProxyPassword = "Proxy password, for authentication";
+        public static string ManOptionProxyTorControlPort = "Tor Control port";
+        public static string ManOptionProxyTorControlAuth = "Tor Control needs authentication. Normally the Tor Browser Bundle requires authentication and accepts a file cookie password";
+        public static string ManOptionProxyTorControlPassword = "Tor Control password. If empty, the software tries to detect the file cookie password";
 
-		public static string ManOptionRoutesCustom = "Custom routes. Format: '{ip or range},{in/out},{note (optional)};...'. Separate multiple routes with ;. Example: '1.2.3.4,in;2.3.4.5/23,out,'test'";
+        public static string ManOptionRoutesCustom = "Custom routes. Format: '{ip or range},{in/out},{note (optional)};...'. Separate multiple routes with ;. Example: '1.2.3.4,in;2.3.4.5/23,out,'test'";
 		public static string ManOptionRoutesDefault = "Specify whether routes that don't match the custom route must be inside ('in') or outside ('out') the tunnel.";
 
 		public static string ManOptionDnsMode = "'None' to disable DNS switch. 'Auto' to let the software choose the best method. Otherwise choose a method. Refer to https://airvpn.org/faq/software_advanced/ for more information about each method on each platform.";
@@ -360,15 +362,15 @@ namespace AirVPN.Core
 		public static string HackInterfaceUpDone = "AirVPN Windows Interface Hack executed ({1})";
 
 		// Platform Windows & OS X
-		public static string NetworkAdapterDnsDone = "DNS of a network adapter forced ({1})";
-		public static string NetworkAdapterDnsRestored = "DNS of a network adapter restored to original settings ({1})";
+		public static string NetworkAdapterDnsDone = "DNS of a network adapter forced ({1}, from {2} to {3})";
+        public static string NetworkAdapterDnsRestored = "DNS of a network adapter restored to original settings ({1}, to {2})";
 
-		// OS X
-		public static string NetworkAdapterIpV6Disabled = "IPv6 disabled on network adapter ({1})";
-		public static string NetworkAdapterIpV6Restored = "IPv6 restored on network adapter ({1})";
-
-		// Platform Linux
-		public static string DnsResolvConfScript = "DNS of the system will be updated to VPN DNS (ResolvConf method)"; 
+        // OS X
+        public static string NetworkAdapterIpV6Disabled = "IPv6 disabled on network adapter ({1})";
+        public static string NetworkAdapterIpV6Restored = "IPv6 restored on network adapter ({1})";
+        
+        // Platform Linux
+        public static string DnsResolvConfScript = "DNS of the system will be updated to VPN DNS (ResolvConf method)"; 
 		public static string DnsRenameBackup = "/etc/resolv.conf renamed to /etc/resolv.conf.airvpn as backup";
 		public static string DnsRenameDone = "DNS of the system updated to VPN DNS (Rename method: /etc/resolv.conf generated)";
 		public static string DnsRenameRestored = "DNS of the system restored to original settings (Rename method)";

@@ -135,9 +135,10 @@ namespace Deploy
 					arch = "x86";
 				ListPackages.Add(new Package("linux", arch, "mono"));
 				ListPackages.Add(new Package("linux", arch, "portable"));
-				ListPackages.Add(new Package("linux", arch, "debian"));
-				ListPackages.Add(new Package("linux", arch, "rpm"));				
-			}
+				ListPackages.Add(new Package("linux", arch, "debian2"));
+                ListPackages.Add(new Package("linux", arch, "debian4"));
+                ListPackages.Add(new Package("linux", arch, "rpm"));                
+            }
 
 			if (SO == "Osx") {
 				ListPackages.Add (new Package ("osx", "x64", "portable"));
@@ -315,8 +316,8 @@ namespace Deploy
 						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
 						Shell(command2);
 					}
-					else if (format == "debian")
-					{
+					else if ( (format == "debian2") || (format == "debian4") )
+                    {
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
@@ -326,7 +327,7 @@ namespace Deploy
 
 						CreateDirectory(pathTemp + "/usr/lib/AirVPN");
 						MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
-						CopyDirectory(pathBaseResources + "/debian", pathTemp);
+						CopyDirectory(pathBaseResources + "/" + format, pathTemp);
 
 						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString);
 						string debianArchitecture = "unknown";
@@ -334,7 +335,9 @@ namespace Deploy
 							debianArchitecture = "any-i386";
 						else if (arch == "x64")
 							debianArchitecture = "any-amd64";
-						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
+                        else if (arch == "armhf")
+                            debianArchitecture = "any-armhf";
+                        ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
 
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel");

@@ -42,7 +42,7 @@ namespace AirVPN.Platforms
 
 		public void Fetch()
 		{
-            string regkey = GetNotificationRegPath();
+            string regkey = GetRegPath();
 
             /* < 2.11
 			string report = Platform.Instance.ShellCmd("netsh advfirewall show " + id);
@@ -86,8 +86,8 @@ namespace AirVPN.Platforms
             else if (defaultOutboundAction == 1)
                 Outbound = "BlockOutbound";
         }
-
-		public string GetNotificationRegPath()
+                
+		public string GetRegPath()
 		{
 			string notificationsProfileName = "";
 			if(id == "domain")
@@ -103,7 +103,8 @@ namespace AirVPN.Platforms
 
 			return "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\services\\SharedAccess\\Parameters\\FirewallPolicy\\" + notificationsProfileName;
 		}
-
+        
+        /*
 		public string GetOldFirewallProfileName()
 		{
 			if (id == "domain")
@@ -115,6 +116,7 @@ namespace AirVPN.Platforms
 			else
 				return "ALL";
 		}
+        */
 
 		public void StateOn()
 		{
@@ -127,16 +129,19 @@ namespace AirVPN.Platforms
 		}
 
 		public void NotifyOn()
-		{			
-			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
-			Platform.Instance.ShellCmd("netsh firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
-		}
+		{
+            //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
+            //Platform.Instance.ShellCmd("netsh firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
+            Platform.Instance.ShellCmd("netsh advfirewall set " + id + "settings inboundusernotification enable");
+            
+        }
 
 		public void NotifyOff()
 		{
-			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
-			Platform.Instance.ShellCmd("netsh firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
-		}
+            //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
+            //Platform.Instance.ShellCmd("netsh firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
+            Platform.Instance.ShellCmd("netsh advfirewall set " + id + "settings inboundusernotification disable");
+        }
 
 		public void RestorePolicy()
 		{
@@ -232,13 +237,18 @@ namespace AirVPN.Platforms
 					profile.StateOn();					
 				}
 
+                /*
 				if (profile.Notifications == true)
 				{
 					profile.NotifyOff();
 				}
+                */
 			}
 
-			Exec("netsh advfirewall firewall delete rule name=all");
+            // Disable all notifications
+            Exec("netsh advfirewall set allprofiles settings inboundusernotification disable");
+
+            Exec("netsh advfirewall firewall delete rule name=all");
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
 			{
@@ -252,13 +262,19 @@ namespace AirVPN.Platforms
 			{
 				Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
 				Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
-			}
 
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
-			
-			// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
-			Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
+                Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowMulticast\" dir=out action=allow remoteip=224.0.0.0/24");
+                Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowSimpleServiceDiscoveryProtocol\" dir=out action=allow remoteip=239.255.255.250/32");
+                Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - ServiceLocationProtocol\" dir=out action=allow remoteip=239.255.255.253/32");
+            }
+
+            Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+            Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+
+            // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
+            Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
+
+            AllowProgram(Platform.Instance.GetExecutablePath(), "Eddie");
 
 			Exec("netsh advfirewall set allprofiles firewallpolicy BlockInbound,BlockOutbound");
 
@@ -315,9 +331,10 @@ namespace AirVPN.Platforms
 			{
 				if (profile.State == false)
 					profile.StateOff();
-				// Not need, already restored in below import
-				// if (profile.Notifications == true)
-				//	profile.NotifyOn();				
+				// <2.11 Not need, already restored in below import
+                // >=2.11 Restored, otherwise are not correctly restored in nt-domain environment.
+				if (profile.Notifications == true)
+					profile.NotifyOn();				
 			}
 
 			// Service
@@ -331,13 +348,13 @@ namespace AirVPN.Platforms
 
 			m_lastestIpList = "";
 		}
-
-		public override void OnUpdateIps()
+        
+        public override void OnUpdateIps()
 		{
 			if (m_activated == false)
 				return;
 
-			List<IpAddressRange> ipsFirewalled = GetAllIps();
+            List<IpAddressRange> ipsFirewalled = GetAllIps();
 			string ipList = "";
 			foreach (IpAddressRange ip in ipsFirewalled)
 			{
@@ -346,7 +363,7 @@ namespace AirVPN.Platforms
 				ipList += ip.ToCIDR();
 			}
 
-			if (ipList != m_lastestIpList)
+            if (ipList != m_lastestIpList)
 			{
 				if (m_lastestIpList != "")
 					Exec("netsh advfirewall firewall set rule name=\"AirVPN - Out - AllowAirIPS\" dir=out new action=allow remoteip=\"" + ipList + "\"");
@@ -354,7 +371,7 @@ namespace AirVPN.Platforms
 					Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowAirIPS\" dir=out action=allow remoteip=\"" + ipList + "\"");
 
 				m_lastestIpList = ipList;
-			}
+			}            
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)

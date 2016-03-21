@@ -28,270 +28,254 @@
         /// </summary>
         private void InitializeComponent()
         {
-			AirVPN.Gui.Skin.TabPage tabPage1;
-			AirVPN.Gui.Skin.TabPage tabPage2;
-			AirVPN.Gui.Skin.TabPage tabPage3;
-			this.lblManual = new AirVPN.Gui.Skin.Label();
-			this.lblWebsite = new AirVPN.Gui.Skin.Label();
-			this.lnkManual = new System.Windows.Forms.LinkLabel();
-			this.lnkWebsite = new System.Windows.Forms.LinkLabel();
-			this.label1 = new System.Windows.Forms.Label();
-			this.lnkGPL = new AirVPN.Gui.Skin.LinkLabel();
-			this.txtLicense = new System.Windows.Forms.TextBox();
-			this.txtThirdParty = new System.Windows.Forms.TextBox();
-			this.lblVersion = new AirVPN.Gui.Skin.Label();
-			this.tabMain = new AirVPN.Gui.Skin.TabControl();
-			this.cmdClose = new AirVPN.Gui.Skin.Button();
-			this.lnkSources = new System.Windows.Forms.LinkLabel();
-			this.lblSources = new AirVPN.Gui.Skin.Label();
-			tabPage1 = new AirVPN.Gui.Skin.TabPage();
-			tabPage2 = new AirVPN.Gui.Skin.TabPage();
-			tabPage3 = new AirVPN.Gui.Skin.TabPage();
-			tabPage1.SuspendLayout();
-			tabPage2.SuspendLayout();
-			tabPage3.SuspendLayout();
-			this.tabMain.SuspendLayout();
-			this.SuspendLayout();
-			// 
-			// tabPage1
-			// 
-			tabPage1.BackColor = System.Drawing.Color.White;
-			tabPage1.Controls.Add(this.lblSources);
-			tabPage1.Controls.Add(this.lnkSources);
-			tabPage1.Controls.Add(this.lblManual);
-			tabPage1.Controls.Add(this.lblWebsite);
-			tabPage1.Controls.Add(this.lnkManual);
-			tabPage1.Controls.Add(this.lnkWebsite);
-			tabPage1.Controls.Add(this.label1);
-			tabPage1.Location = new System.Drawing.Point(4, 24);
-			tabPage1.Name = "tabPage1";
-			tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			tabPage1.Size = new System.Drawing.Size(583, 308);
-			tabPage1.TabIndex = 0;
-			tabPage1.Text = "About";
-			// 
-			// lblManual
-			// 
-			this.lblManual.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblManual.Location = new System.Drawing.Point(156, 130);
-			this.lblManual.Name = "lblManual";
-			this.lblManual.Size = new System.Drawing.Size(100, 23);
-			this.lblManual.TabIndex = 5;
-			this.lblManual.Text = "Manual:";
-			this.lblManual.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// lblWebsite
-			// 
-			this.lblWebsite.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblWebsite.Location = new System.Drawing.Point(156, 99);
-			this.lblWebsite.Name = "lblWebsite";
-			this.lblWebsite.Size = new System.Drawing.Size(100, 23);
-			this.lblWebsite.TabIndex = 4;
-			this.lblWebsite.Text = "Website: ";
-			this.lblWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// lnkManual
-			// 
-			this.lnkManual.AutoSize = true;
-			this.lnkManual.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lnkManual.Location = new System.Drawing.Point(262, 131);
-			this.lnkManual.Name = "lnkManual";
-			this.lnkManual.Size = new System.Drawing.Size(191, 20);
-			this.lnkManual.TabIndex = 3;
-			this.lnkManual.TabStop = true;
-			this.lnkManual.Text = "https://airvpn.org/software";
-			this.lnkManual.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkManual_LinkClicked);
-			// 
-			// lnkWebsite
-			// 
-			this.lnkWebsite.AutoSize = true;
-			this.lnkWebsite.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lnkWebsite.Location = new System.Drawing.Point(262, 100);
-			this.lnkWebsite.Name = "lnkWebsite";
-			this.lnkWebsite.Size = new System.Drawing.Size(126, 20);
-			this.lnkWebsite.TabIndex = 2;
-			this.lnkWebsite.TabStop = true;
-			this.lnkWebsite.Text = "https://airvpn.org";
-			this.lnkWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkWebsite_LinkClicked);
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label1.Location = new System.Drawing.Point(72, 37);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(432, 25);
-			this.label1.TabIndex = 0;
-			this.label1.Text = "AirVPN - The air to breathe the real Internet.";
-			// 
-			// tabPage2
-			// 
-			tabPage2.BackColor = System.Drawing.Color.White;
-			tabPage2.Controls.Add(this.lnkGPL);
-			tabPage2.Controls.Add(this.txtLicense);
-			tabPage2.Location = new System.Drawing.Point(4, 24);
-			tabPage2.Name = "tabPage2";
-			tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			tabPage2.Size = new System.Drawing.Size(583, 308);
-			tabPage2.TabIndex = 1;
-			tabPage2.Text = "License";
-			// 
-			// lnkGPL
-			// 
-			this.lnkGPL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.lnkGPL.AutoSize = true;
-			this.lnkGPL.BackColor = System.Drawing.Color.Transparent;
-			this.lnkGPL.ForeColor = System.Drawing.Color.Black;
-			this.lnkGPL.Location = new System.Drawing.Point(338, 292);
-			this.lnkGPL.Name = "lnkGPL";
-			this.lnkGPL.Size = new System.Drawing.Size(228, 13);
-			this.lnkGPL.TabIndex = 8;
-			this.lnkGPL.TabStop = true;
-			this.lnkGPL.Text = "On web: http://www.gnu.org/licenses/gpl.html";
-			this.lnkGPL.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkGPL_LinkClicked);
-			// 
-			// txtLicense
-			// 
-			this.txtLicense.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblVersion = new AirVPN.Gui.Skin.Label();
+            this.cmdClose = new AirVPN.Gui.Skin.Button();
+            this.lblLibraries = new AirVPN.Gui.Skin.Label();
+            this.lnkLibraries = new System.Windows.Forms.LinkLabel();
+            this.lblLicense = new AirVPN.Gui.Skin.Label();
+            this.lnkLicense = new System.Windows.Forms.LinkLabel();
+            this.lblSources = new AirVPN.Gui.Skin.Label();
+            this.lnkSources = new System.Windows.Forms.LinkLabel();
+            this.lblManual = new AirVPN.Gui.Skin.Label();
+            this.lblWebsite = new AirVPN.Gui.Skin.Label();
+            this.lnkManual = new System.Windows.Forms.LinkLabel();
+            this.lnkWebsite = new System.Windows.Forms.LinkLabel();
+            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblDeveloped = new System.Windows.Forms.Label();
+            this.SuspendLayout();
+            // 
+            // lblVersion
+            // 
+            this.lblVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblVersion.BackColor = System.Drawing.Color.Transparent;
+            this.lblVersion.ForeColor = System.Drawing.Color.White;
+            this.lblVersion.Location = new System.Drawing.Point(507, 73);
+            this.lblVersion.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblVersion.Name = "lblVersion";
+            this.lblVersion.Size = new System.Drawing.Size(264, 26);
+            this.lblVersion.TabIndex = 58;
+            this.lblVersion.Text = "v2.0";
+            this.lblVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cmdClose
+            // 
+            this.cmdClose.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdClose.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdClose.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.cmdClose.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdClose.FlatAppearance.BorderSize = 0;
+            this.cmdClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdClose.Location = new System.Drawing.Point(293, 415);
+            this.cmdClose.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cmdClose.Name = "cmdClose";
+            this.cmdClose.Size = new System.Drawing.Size(200, 37);
+            this.cmdClose.TabIndex = 0;
+            this.cmdClose.Text = "Ok";
+            this.cmdClose.UseVisualStyleBackColor = true;
+            this.cmdClose.Click += new System.EventHandler(this.cmdClose_Click);
+            // 
+            // lblLibraries
+            // 
+            this.lblLibraries.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lblLibraries.BackColor = System.Drawing.Color.Transparent;
+            this.lblLibraries.Location = new System.Drawing.Point(65, 346);
+            this.lblLibraries.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblLibraries.Name = "lblLibraries";
+            this.lblLibraries.Size = new System.Drawing.Size(281, 28);
+            this.lblLibraries.TabIndex = 69;
+            this.lblLibraries.Text = "Libraries and tools:";
+            this.lblLibraries.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lnkLibraries
+            // 
+            this.lnkLibraries.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lnkLibraries.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkLibraries.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkLibraries.Location = new System.Drawing.Point(355, 346);
+            this.lnkLibraries.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lnkLibraries.Name = "lnkLibraries";
+            this.lnkLibraries.Size = new System.Drawing.Size(371, 28);
+            this.lnkLibraries.TabIndex = 68;
+            this.lnkLibraries.TabStop = true;
+            this.lnkLibraries.Text = "OpenVPN, Stunnel, TunTapOSX, LZO";
+            this.lnkLibraries.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lnkLibraries.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkLibraries_LinkClicked);
+            // 
+            // lblLicense
+            // 
+            this.lblLicense.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lblLicense.BackColor = System.Drawing.Color.Transparent;
+            this.lblLicense.Location = new System.Drawing.Point(65, 309);
+            this.lblLicense.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblLicense.Name = "lblLicense";
+            this.lblLicense.Size = new System.Drawing.Size(281, 28);
+            this.lblLicense.TabIndex = 67;
+            this.lblLicense.Text = "License:";
+            this.lblLicense.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lnkLicense
+            // 
+            this.lnkLicense.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lnkLicense.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkLicense.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkLicense.Location = new System.Drawing.Point(355, 309);
+            this.lnkLicense.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lnkLicense.Name = "lnkLicense";
+            this.lnkLicense.Size = new System.Drawing.Size(371, 28);
+            this.lnkLicense.TabIndex = 66;
+            this.lnkLicense.TabStop = true;
+            this.lnkLicense.Text = "GNU General Public License v3";
+            this.lnkLicense.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lnkLicense.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkLicense_LinkClicked);
+            // 
+            // lblSources
+            // 
+            this.lblSources.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lblSources.BackColor = System.Drawing.Color.Transparent;
+            this.lblSources.Location = new System.Drawing.Point(65, 272);
+            this.lblSources.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblSources.Name = "lblSources";
+            this.lblSources.Size = new System.Drawing.Size(281, 28);
+            this.lblSources.TabIndex = 65;
+            this.lblSources.Text = "Sources:";
+            this.lblSources.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lnkSources
+            // 
+            this.lnkSources.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lnkSources.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkSources.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkSources.Location = new System.Drawing.Point(355, 272);
+            this.lnkSources.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lnkSources.Name = "lnkSources";
+            this.lnkSources.Size = new System.Drawing.Size(371, 28);
+            this.lnkSources.TabIndex = 64;
+            this.lnkSources.TabStop = true;
+            this.lnkSources.Text = "https://github.com/AirVPN/airvpn-client";
+            this.lnkSources.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblManual
+            // 
+            this.lblManual.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lblManual.BackColor = System.Drawing.Color.Transparent;
+            this.lblManual.Location = new System.Drawing.Point(65, 235);
+            this.lblManual.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblManual.Name = "lblManual";
+            this.lblManual.Size = new System.Drawing.Size(281, 28);
+            this.lblManual.TabIndex = 63;
+            this.lblManual.Text = "Manual:";
+            this.lblManual.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblWebsite
+            // 
+            this.lblWebsite.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lblWebsite.BackColor = System.Drawing.Color.Transparent;
+            this.lblWebsite.Location = new System.Drawing.Point(65, 198);
+            this.lblWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblWebsite.Name = "lblWebsite";
+            this.lblWebsite.Size = new System.Drawing.Size(281, 28);
+            this.lblWebsite.TabIndex = 62;
+            this.lblWebsite.Text = "Website: ";
+            this.lblWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lnkManual
+            // 
+            this.lnkManual.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lnkManual.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkManual.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkManual.Location = new System.Drawing.Point(355, 235);
+            this.lnkManual.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lnkManual.Name = "lnkManual";
+            this.lnkManual.Size = new System.Drawing.Size(371, 28);
+            this.lnkManual.TabIndex = 61;
+            this.lnkManual.TabStop = true;
+            this.lnkManual.Text = "https://airvpn.org/software";
+            this.lnkManual.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lnkWebsite
+            // 
+            this.lnkWebsite.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lnkWebsite.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkWebsite.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkWebsite.Location = new System.Drawing.Point(355, 198);
+            this.lnkWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lnkWebsite.Name = "lnkWebsite";
+            this.lnkWebsite.Size = new System.Drawing.Size(371, 28);
+            this.lnkWebsite.TabIndex = 60;
+            this.lnkWebsite.TabStop = true;
+            this.lnkWebsite.Text = "https://airvpn.org";
+            this.lnkWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblTitle
+            // 
+            this.lblTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtLicense.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtLicense.Location = new System.Drawing.Point(2, 2);
-			this.txtLicense.Multiline = true;
-			this.txtLicense.Name = "txtLicense";
-			this.txtLicense.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.txtLicense.Size = new System.Drawing.Size(566, 289);
-			this.txtLicense.TabIndex = 0;
-			// 
-			// tabPage3
-			// 
-			tabPage3.BackColor = System.Drawing.Color.White;
-			tabPage3.Controls.Add(this.txtThirdParty);
-			tabPage3.Location = new System.Drawing.Point(4, 24);
-			tabPage3.Name = "tabPage3";
-			tabPage3.Size = new System.Drawing.Size(583, 308);
-			tabPage3.TabIndex = 2;
-			tabPage3.Text = "Libraries and tools";
-			// 
-			// txtThirdParty
-			// 
-			this.txtThirdParty.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblTitle.BackColor = System.Drawing.Color.White;
+            this.lblTitle.Location = new System.Drawing.Point(16, 139);
+            this.lblTitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(755, 31);
+            this.lblTitle.TabIndex = 59;
+            this.lblTitle.Text = "AirVPN - The air to breathe the real Internet.";
+            this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblDeveloped
+            // 
+            this.lblDeveloped.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtThirdParty.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtThirdParty.Location = new System.Drawing.Point(3, 10);
-			this.txtThirdParty.Multiline = true;
-			this.txtThirdParty.Name = "txtThirdParty";
-			this.txtThirdParty.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.txtThirdParty.Size = new System.Drawing.Size(566, 289);
-			this.txtThirdParty.TabIndex = 1;
-			// 
-			// lblVersion
-			// 
-			this.lblVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblVersion.BackColor = System.Drawing.Color.Transparent;
-			this.lblVersion.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblVersion.ForeColor = System.Drawing.Color.White;
-			this.lblVersion.Location = new System.Drawing.Point(380, 59);
-			this.lblVersion.Name = "lblVersion";
-			this.lblVersion.Size = new System.Drawing.Size(198, 21);
-			this.lblVersion.TabIndex = 58;
-			this.lblVersion.Text = "v2.0";
-			this.lblVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// tabMain
-			// 
-			this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.tabMain.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
-			this.tabMain.Controls.Add(tabPage1);
-			this.tabMain.Controls.Add(tabPage2);
-			this.tabMain.Controls.Add(tabPage3);
-			this.tabMain.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-			this.tabMain.ItemSize = new System.Drawing.Size(150, 20);
-			this.tabMain.Location = new System.Drawing.Point(0, 88);
-			this.tabMain.Name = "tabMain";
-			this.tabMain.SelectedIndex = 0;
-			this.tabMain.Size = new System.Drawing.Size(591, 336);
-			this.tabMain.TabIndex = 57;
-			// 
-			// cmdClose
-			// 
-			this.cmdClose.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.cmdClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdClose.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdClose.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.cmdClose.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdClose.FlatAppearance.BorderSize = 0;
-			this.cmdClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdClose.Location = new System.Drawing.Point(220, 430);
-			this.cmdClose.Name = "cmdClose";
-			this.cmdClose.Size = new System.Drawing.Size(150, 30);
-			this.cmdClose.TabIndex = 0;
-			this.cmdClose.Text = "Ok";
-			this.cmdClose.UseVisualStyleBackColor = true;
-			this.cmdClose.Click += new System.EventHandler(this.cmdClose_Click);
-			// 
-			// lnkSources
-			// 
-			this.lnkSources.AutoSize = true;
-			this.lnkSources.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lnkSources.Location = new System.Drawing.Point(262, 164);
-			this.lnkSources.Name = "lnkSources";
-			this.lnkSources.Size = new System.Drawing.Size(278, 20);
-			this.lnkSources.TabIndex = 6;
-			this.lnkSources.TabStop = true;
-			this.lnkSources.Text = "https://github.com/AirVPN/airvpn-client";
-			this.lnkSources.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkSources_LinkClicked);
-			// 
-			// lblSources
-			// 
-			this.lblSources.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblSources.Location = new System.Drawing.Point(156, 163);
-			this.lblSources.Name = "lblSources";
-			this.lblSources.Size = new System.Drawing.Size(100, 23);
-			this.lblSources.TabIndex = 7;
-			this.lblSources.Text = "Sources:";
-			this.lblSources.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// About
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(590, 468);
-			this.Controls.Add(this.lblVersion);
-			this.Controls.Add(this.tabMain);
-			this.Controls.Add(this.cmdClose);
-			this.MinimizeBox = false;
-			this.Name = "About";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Form1";
-			tabPage1.ResumeLayout(false);
-			tabPage1.PerformLayout();
-			tabPage2.ResumeLayout(false);
-			tabPage2.PerformLayout();
-			tabPage3.ResumeLayout(false);
-			tabPage3.PerformLayout();
-			this.tabMain.ResumeLayout(false);
-			this.ResumeLayout(false);
+            this.lblDeveloped.BackColor = System.Drawing.Color.Transparent;
+            this.lblDeveloped.Location = new System.Drawing.Point(16, 98);
+            this.lblDeveloped.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblDeveloped.Name = "lblDeveloped";
+            this.lblDeveloped.Size = new System.Drawing.Size(755, 31);
+            this.lblDeveloped.TabIndex = 72;
+            this.lblDeveloped.Text = "Developed by:";
+            this.lblDeveloped.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // About
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(787, 468);
+            this.Controls.Add(this.lblDeveloped);
+            this.Controls.Add(this.lblLibraries);
+            this.Controls.Add(this.lnkLibraries);
+            this.Controls.Add(this.lblLicense);
+            this.Controls.Add(this.lnkLicense);
+            this.Controls.Add(this.lblSources);
+            this.Controls.Add(this.lnkSources);
+            this.Controls.Add(this.lblManual);
+            this.Controls.Add(this.lblWebsite);
+            this.Controls.Add(this.lnkManual);
+            this.Controls.Add(this.lnkWebsite);
+            this.Controls.Add(this.lblTitle);
+            this.Controls.Add(this.lblVersion);
+            this.Controls.Add(this.cmdClose);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MinimizeBox = false;
+            this.Name = "About";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Form1";
+            this.ResumeLayout(false);
 
         }
 
         #endregion
 
         private Skin.Button cmdClose;
-        private Skin.TabControl tabMain;
         private Skin.Label lblVersion;
-        private System.Windows.Forms.TextBox txtLicense;
-        private Skin.LinkLabel lnkGPL;
-		private System.Windows.Forms.LinkLabel lnkWebsite;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.TextBox txtThirdParty;
-		private Skin.Label lblManual;
-		private Skin.Label lblWebsite;
-		private System.Windows.Forms.LinkLabel lnkManual;
-		private Skin.Label lblSources;
-		private System.Windows.Forms.LinkLabel lnkSources;
+        private Skin.Label lblLibraries;
+        private System.Windows.Forms.LinkLabel lnkLibraries;
+        private Skin.Label lblLicense;
+        private System.Windows.Forms.LinkLabel lnkLicense;
+        private Skin.Label lblSources;
+        private System.Windows.Forms.LinkLabel lnkSources;
+        private Skin.Label lblManual;
+        private Skin.Label lblWebsite;
+        private System.Windows.Forms.LinkLabel lnkManual;
+        private System.Windows.Forms.LinkLabel lnkWebsite;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblDeveloped;
     }
 }

@@ -46,8 +46,10 @@
     <Compile Include="Commands.cs" />
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="CountriesManager.cs" />
+    <Compile Include="XmlItem.cs" />
     <Compile Include="OvpnManager.cs" />
     <Compile Include="RemoteAccess.cs" />
+    <Compile Include="ProgramScope.cs" />
     <Compile Include="TorControl.cs" />
     <Compile Include="IpAddressRange.cs" />
     <Compile Include="NetworkLockManager.cs" />

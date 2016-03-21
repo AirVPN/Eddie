@@ -31,7 +31,17 @@ namespace AirVPN.Gui.Forms
     {
         public About()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
+        }
+
+        public override void OnInitializeComponent()
+        {
+            base.OnInitializeComponent();
+
+            lblTitle.Font = Skin.FontBig;            
+            lblVersion.Font = Skin.FontBig;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -44,8 +54,8 @@ namespace AirVPN.Gui.Forms
 
 			lblVersion.Text = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
 
-			txtLicense.Text = Core.UI.Actions.GetAboutLicense();
-			txtThirdParty.Text = Core.UI.Actions.GetAboutThirdParty();
+			//txtLicense.Text = Core.UI.Actions.GetAboutLicense();
+			//txtThirdParty.Text = Core.UI.Actions.GetAboutThirdParty();
         }
                 
         protected override void OnPaint(PaintEventArgs e)
@@ -54,33 +64,44 @@ namespace AirVPN.Gui.Forms
 
             Skin.GraphicsCommon(e.Graphics);
 
-			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88 + 2)); // +50 and +2 to avoid GDI+ problem
-			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 304, 80));
+            //Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88 + 2)); // +50 and +2 to avoid GDI+ problem
+            Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 80)); // +50 and +2 to avoid GDI+ problem
+            Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 304, 80));
         }
 
         private void lnkGPL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-			Core.UI.Actions.OpenUrlGpl();
+            Engine.Instance.Command("ui.show.gpl");
         }
 
 		private void lnkWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Core.UI.Actions.OpenUrlWebsite();
-		}
+            Engine.Instance.Command("ui.show.website");
+        }
 
 		private void lnkManual_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Core.UI.Actions.OpenUrlDocs();
-		}
+            Engine.Instance.Command("ui.show.docs.general");
+        }
 
 		private void lnkSources_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Core.UI.Actions.OpenUrlSources();
-		}
+            Engine.Instance.Command("ui.show.sources");
+        }
 
 		private void cmdClose_Click(object sender, EventArgs e)
 		{
 			Close();
 		}
+
+        private void lnkLicense_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Engine.Command("ui.show.license");
+        }
+
+        private void lnkLibraries_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Engine.Command("ui.show.libraries");
+        }
     }
 }

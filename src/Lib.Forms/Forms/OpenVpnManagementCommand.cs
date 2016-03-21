@@ -32,7 +32,9 @@ namespace AirVPN.Gui.Forms
         
 		public OpenVpnManagementCommand()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
         }
 
         private void SettingsRoute_Load(object sender, EventArgs e)
@@ -53,7 +55,7 @@ namespace AirVPN.Gui.Forms
 
         private void lnkHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Core.UI.Actions.OpenUrlOpenVpnManagement();
-		}
+			Engine.Instance.Command("ui.show.openvpn.management");
+        }
     }
 }

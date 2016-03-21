@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 /*
  * Official data from ISO 3166-1
@@ -66,6 +67,28 @@ namespace AirVPN.Core
 			}
 		}
 
+        public static void FixOptions(Dictionary<string, string> options)
+        {
+            if(options.ContainsKey("mode.protocol"))
+            {
+                if(options["mode.protocol"] == "TOR")
+                {
+                    options["mode.protocol"] = "TCP";
+                    options["proxy.mode"] = "Tor";
+                    if(options.ContainsKey("mode.tor.host"))
+                    {
+                        options["proxy.host"] = options["mode.tor.host"];
+                        options.Remove("mode.tor.host");
+                    }
+                    if (options.ContainsKey("mode.tor.port"))
+                    {
+                        options["proxy.port"] = options["mode.tor.port"];
+                        options.Remove("mode.tor.port");
+                    }                    
+                }
+            }
+        }
+
 		public static void FixOption(ref string name, ref string value)
 		{
 			// AirVPN <= 2.4 client use  'host,netmask,action' syntax.
@@ -107,7 +130,19 @@ namespace AirVPN.Core
 			else if (name == "advanced.check.dns") // < 2.9
 			{
 				name = "dns.check";
-			}
-		}
+			}       
+            else if (name == "mode.tor.control.port") // < 2.11
+            {
+                name = "proxy.tor.control.port";
+            }
+            else if (name == "mode.tor.control.password") // < 2.11
+            {
+                name = "proxy.tor.control.password";
+            }
+            else if (name == "mode.tor.control.auth") // < 2.11
+            {
+                name = "proxy.tor.control.auth";
+            }
+        }
     }
 }

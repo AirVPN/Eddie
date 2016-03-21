@@ -160,7 +160,7 @@ namespace AirVPN.Core
 			{
 				ResourcesFiles.SetString("auth.xml", Lib.Core.Properties.Resources.Auth);
 				ResourcesFiles.SetString("manifest.xml", Lib.Core.Properties.Resources.Manifest);
-				ResourcesFiles.SetString("license.txt", Lib.Core.Properties.Resources.License);
+                ResourcesFiles.SetString("license.txt", Lib.Core.Properties.Resources.License);
 				ResourcesFiles.SetString("thirdparty.txt", Lib.Core.Properties.Resources.ThirdParty);
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS);
 			}
@@ -203,7 +203,16 @@ namespace AirVPN.Core
 			if(Storage.Get("paramtest") != "") // Look comment in storage.cs
 				Log(LogType.Warning, "Param test:-" + Storage.Get("paramtest") + "-");			
 
-			m_stats = new Core.Stats();
+            if(Storage.GetBool("os.single_instance") == true)
+            {
+                if(Platform.Instance.OnCheckSingleInstance() == false)
+                {
+                    Log(LogType.Fatal, Messages.OsInstanceAlreadyRunning);
+                    return false;
+                }
+            }
+
+            m_stats = new Core.Stats();
 
 			m_networkLockManager = new NetworkLockManager();
 			m_networkLockManager.Init();			
@@ -319,7 +328,9 @@ namespace AirVPN.Core
         {
 			PostManifestUpdate();
 
-			m_threadPinger = new Threads.Pinger();
+            LoggedUpdate();
+
+            m_threadPinger = new Threads.Pinger();
 			m_threadPenalities = new Threads.Penalities();
 			m_threadManifest = new Threads.Manifest();
 
@@ -453,18 +464,79 @@ namespace AirVPN.Core
 		public virtual void OnCommand(CommandLine command)
 		{
 			string action = command.Get("action","").ToLowerInvariant();
-			if (action == "exit")
-			{
-				OnExit();
-			}
-			else if (action == "openvpn")
-			{
-				SendManagementCommand(command.Get("command",""));
-			}			
-			else
-			{
-				throw new Exception(Messages.CommandUnknown);
-			}
+            if (action == "exit")
+            {
+                OnExit();
+            }
+            else if (action == "openvpn")
+            {
+                SendManagementCommand(command.Get("command", ""));
+            }
+            else if (action == "ui.show.license")
+            {
+                OnShowText("License", ResourcesFiles.GetString("license.txt"));
+            }
+            else if (action == "ui.show.libraries")
+            {
+                OnShowText("Libraries and Tools", ResourcesFiles.GetString("thirdparty.txt"));
+            }
+            else if (action == "ui.show.website")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "");
+            }
+            else if (action == "ui.show.ports")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "ports/");
+            }
+            else if (action == "ui.show.speedtest")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "speedtest/");
+            }
+            else if (action == "ui.show.clientarea")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "client/");
+            }
+            else if (action == "ui.show.docs.general")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "software/");
+            }
+            else if (action == "ui.show.docs.protocols")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_protocols/");
+            }
+            else if (action == "ui.show.docs.udp_vs_tcp")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/udp_vs_tcp/");
+            }
+            else if (action == "ui.show.docs.tor")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "tor/");
+            }
+            else if (action == "ui.show.docs.advanced")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_advanced/");
+            }
+            else if (action == "ui.show.docs.lock")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_lock/");
+            }
+            else if (action == "ui.show.sources")
+            {
+                string url = "https://github.com/AirVPN/airvpn-client";
+                Platform.Instance.OpenUrl(url);
+            }
+            else if (action == "ui.show.gpl")
+            {
+                Platform.Instance.OpenUrl("http://www.gnu.org/licenses/gpl.html");
+            }
+            else if (action == "ui.show.openvpn.management")
+            {
+                Platform.Instance.OpenUrl("http://openvpn.net/index.php/open-source/documentation/miscellaneous/79-management-interface.html");
+            }
+            else
+            {
+                throw new Exception(Messages.CommandUnknown);
+            }
 		}
 
 		public virtual void OnSettingsChanged()
@@ -632,7 +704,6 @@ namespace AirVPN.Core
             }
         }
 
-        
         public void WaitMessageClear()
         {
 			WaitMessageSet("", false);
@@ -754,7 +825,7 @@ namespace AirVPN.Core
 
             OnLog(l);
         }
-
+        
 		public string GetLogDetailTitle()
 		{
 			string output = "";
@@ -871,10 +942,27 @@ namespace AirVPN.Core
 			Log(LogType.Warning, message);
 		}
 
-		public virtual bool OnAskYesNo(string message)
+        public virtual void OnMessageInfo(string message)
+        {
+        }
+
+        public virtual void OnMessageError(string message)
+        {
+        }
+
+        public virtual void OnShowText(string title, string data)
+        {
+        }
+
+        public virtual bool OnAskYesNo(string message)
 		{
 			return true;
 		}
+
+        public virtual void OnLoggedUpdate(XmlElement xmlKeys)
+        {
+
+        }
 
 		public virtual void OnPostManifestUpdate()
 		{
@@ -1322,7 +1410,27 @@ namespace AirVPN.Core
 			OnPostManifestUpdate();
         }
 
-		public void RunEventCommand(string name)
+        public void LoggedUpdate()
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement xmlKeys = xmlDoc.CreateElement("keys");
+
+            if (Storage.User != null)
+            {                
+                xmlDoc.AppendChild(xmlKeys);
+
+                foreach (XmlElement xmlKey in Storage.User.SelectNodes("keys/key"))
+                {
+                    XmlElement xmlKey2 = xmlDoc.CreateElement("key");
+                    xmlKey2.SetAttribute("name", xmlKey.GetAttribute("name"));                    
+                    xmlKeys.AppendChild(xmlKey2);
+                }
+            }
+
+            OnLoggedUpdate(xmlKeys);
+        }
+
+        public void RunEventCommand(string name)
         {
 			string filename = Storage.Get("event." + name + ".filename");
 			string arguments = Storage.Get("event." + name + ".arguments");
@@ -1370,16 +1478,15 @@ namespace AirVPN.Core
 						string proxyLogin = Storage.Get("proxy.login");
 						string proxyPassword = Storage.Get("proxy.password");
 
-						if (Storage.Get("mode.protocol").ToUpperInvariant() == "TOR")
+						if(proxyMode == "Tor")
 						{
 							proxyMode = "socks";
-							proxyHost = Storage.Get("mode.tor.host");
-							proxyPort = Storage.GetInt("mode.tor.port");
+                            proxyAuth = "none"; 
 							proxyLogin = "";
 							proxyPassword = "";
 						}
 
-						if (proxyMode == "http")
+                        if (proxyMode == "http")
 						{
 							System.Net.WebProxy proxy = new System.Net.WebProxy(proxyHost, proxyPort);
 							//string proxyUrl = "http://" + Storage.Get("proxy.host") + ":" + Storage.GetInt("proxy.port").ToString() + "/";
@@ -1489,7 +1596,7 @@ namespace AirVPN.Core
 			return Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc);
 		}
 
-        public void BuildOVPN(string protocol, int port, int alt, int proxyPort)
+        public void BuildOVPN(string key, string protocol, int port, int alt, int proxyPort)
         {
             DateTime now = DateTime.UtcNow;
             Storage s = Engine.Instance.Storage;
@@ -1507,11 +1614,17 @@ namespace AirVPN.Core
 			if (s.Get("openvpn.dev_node") != "")
 				ovpn += "dev-node " + s.Get("openvpn.dev_node") + "\n";
 
-			// 2.10.1
-			if (s.GetInt("openvpn.rcvbuf") != -1)
-				ovpn += "rcvbuf " + s.GetInt("openvpn.rcvbuf").ToString() + "\n";
-			if (s.GetInt("openvpn.sndbuf") != -1)
-				ovpn += "sndbuf " + s.GetInt("openvpn.sndbuf").ToString() + "\n";
+            int rcvbuf = s.GetInt("openvpn.rcvbuf");
+            if ((rcvbuf == -2) && (Platform.IsWindows())) rcvbuf = (256 * 1024);
+            if (rcvbuf == -2) rcvbuf = -1;
+            if (rcvbuf != -1)
+                ovpn += "rcvbuf " + rcvbuf.ToString() + "\n";
+
+            int sndbuf = s.GetInt("openvpn.sndbuf");
+            if ((sndbuf == -2) && (Platform.IsWindows())) rcvbuf = (256 * 1024);
+            if (sndbuf == -2) rcvbuf = -1;
+            if (sndbuf != -1)
+				ovpn += "sndbuf " + sndbuf.ToString() + "\n";
 
             if (protocol == "UDP")
             {
@@ -1533,39 +1646,36 @@ namespace AirVPN.Core
             else
                 ovpn += "remote " + ip + " " + port.ToString() + "\n";
 
-			if (protocol == "TOR")
+			string proxyMode = s.GetLower("proxy.mode");
+            if (proxyMode == "tor")
+            {
+                ovpn += "socks-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port") + "\n";
+            }
+			else if (proxyMode == "http")
 			{
-				ovpn += "socks-proxy " + s.Get("mode.tor.host") + " " + s.Get("mode.tor.port") + "\n";
+				ovpn += "http-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
 			}
-			else
+			else if (proxyMode == "socks")
 			{
-				string proxyMode = s.GetLower("proxy.mode");
-				if (proxyMode == "http")
-				{
-					ovpn += "http-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
-				}
-				else if (proxyMode == "socks")
-				{
-					ovpn += "socks-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
-				}
-
-				if (s.GetLower("proxy.mode") != "none")
-				{
-					if (s.Get("proxy.auth") != "None")
-					{
-						string fileNameAuth = s.GetPath("AirVPN.ppw");
-						string fileNameAuthOvpn = fileNameAuth.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
-						string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
-						Utils.SaveFile(fileNameAuth, fileNameData);
-						ovpn += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant() + "\n"; // 2.6 Auth Fix
-					}
-					else
-					{
-						ovpn += "\n";
-					}
-				}
+				ovpn += "socks-proxy " + s.Get("proxy.host") + " " + s.Get("proxy.port");
 			}
 
+			if( (s.GetLower("proxy.mode") != "none") && (s.GetLower("proxy.mode") != "tor") )
+            {
+				if (s.Get("proxy.auth") != "None")
+				{
+					string fileNameAuth = s.GetPath("AirVPN.ppw");
+					string fileNameAuthOvpn = fileNameAuth.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
+					string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
+					Utils.SaveFile(fileNameAuth, fileNameData);
+					ovpn += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant() + "\n"; // 2.6 Auth Fix
+				}
+				else
+				{
+					ovpn += "\n";
+				}
+			}
+			
             string routesDefault = s.Get("routes.default");
             if (routesDefault == "out")
             {
@@ -1622,7 +1732,7 @@ namespace AirVPN.Core
 					ovpn += "route " + ip + " 255.255.255.255 net_gateway # VPN Entry IP\n";
 				}
 
-				if (protocol == "TOR")
+				if (proxyMode == "tor")
 				{
 					List<string> torNodeIps = TorControl.GetGuardIps();
 					foreach (string torNodeIp in torNodeIps)
@@ -1640,19 +1750,20 @@ namespace AirVPN.Core
             ovpn += s.Get("openvpn.custom").Replace("\t", "").Trim();
             ovpn += "\n";
 
-			// Experimental - Allow identification as Public Network in Windows. Advanced Option?
-			// ovpn += "route-metric 512\n";
-			// ovpn += "route 0.0.0.0 0.0.0.0\n";
+            // Experimental - Allow identification as Public Network in Windows. Advanced Option?
+            // ovpn += "route-metric 512\n";
+            // ovpn += "route 0.0.0.0 0.0.0.0\n";
+            
 
-
-			//XmlNode nodeUser = s.Manifest.SelectSingleNode("//user");
 			XmlNode nodeUser = s.User;
-			ovpn += "<ca>\n" + nodeUser.Attributes["ca"].Value + "</ca>\n";
-            XmlNode nodeUserKey = s.User.SelectSingleNode("keys/key[@id='default']"); // TODO
-			ovpn += "<cert>\n" + nodeUserKey.Attributes["crt"].Value + "</cert>\n";
-			ovpn += "<key>\n" + nodeUserKey.Attributes["key"].Value + "</key>\n";
+			ovpn += "<ca>\n" + nodeUser.Attributes["ca"].Value.Trim() + "\n</ca>\n";
+            XmlElement xmlKey = s.User.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
+            if (xmlKey == null)
+                throw new Exception("Key not found.");
+            ovpn += "<cert>\n" + xmlKey.Attributes["crt"].Value.Trim() + "\n</cert>\n";
+            ovpn += "<key>\n" + xmlKey.Attributes["key"].Value.Trim() + "\n</key>\n";
             ovpn += "key-direction 1\n";
-			ovpn += "<tls-auth>\n" + nodeUser.Attributes["ta"].Value + "</tls-auth>\n";
+			ovpn += "<tls-auth>\n" + nodeUser.Attributes["ta"].Value.Trim() + "\n</tls-auth>\n";
 
 			
 
@@ -1720,7 +1831,9 @@ namespace AirVPN.Core
 				{
 					Log(LogType.InfoImportant, Messages.AuthorizeLoginDone);
 					Storage.User = xmlDoc.DocumentElement;
-				}
+
+                    LoggedUpdate();
+                }
 			}
 			catch (Exception e)
 			{
@@ -1828,7 +1941,10 @@ namespace AirVPN.Core
 
                 WaitMessageClear();
 
-				//ConsoleExit();			
+                if (Engine.Instance.Storage.GetBool("advanced.testmode"))
+                {
+                    Engine.Instance.RequestStop();                    
+                }
             }
         }
 
@@ -1898,7 +2014,7 @@ namespace AirVPN.Core
 
 			string protocol = Storage.Get("mode.protocol").ToUpperInvariant();
 
-			if ((protocol != "AUTO") && (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL") && (protocol != "TOR"))
+			if ((protocol != "AUTO") && (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL") )
 				throw new Exception(Messages.CheckingProtocolUnknown);
 
 			if( (protocol == "SSH") && (Software.SshVersion == "") )
@@ -1958,6 +2074,16 @@ namespace AirVPN.Core
             report += "\n\n-- Options --\n" + Storage.GetReport();
 
             return report;
+        }
+
+        public void LogOpenvpnConfig()
+        {
+            string t = "-- Start OpenVPN config dump\n" + Engine.Instance.ConnectedOVPN + "\n-- End OpenVPN config dump";
+            t = Regex.Replace(t, "<ca>(.*?)</ca>", "<ca>omissis</ca>", RegexOptions.Singleline);
+            t = Regex.Replace(t, "<key>(.*?)</key>", "<key>omissis</key>", RegexOptions.Singleline);
+            t = Regex.Replace(t, "<cert>(.*?)</cert>", "<cert>omissis</cert>", RegexOptions.Singleline);
+            t = Regex.Replace(t, "<tls-auth>(.*?)</tls-auth>", "<tls-auth>omissis</tls-auth>", RegexOptions.Singleline);
+            Engine.Log(Engine.LogType.Verbose, t);
         }
     }
 }

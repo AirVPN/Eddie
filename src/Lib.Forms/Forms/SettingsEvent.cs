@@ -34,9 +34,11 @@ namespace AirVPN.Gui.Forms
 
         public SettingsEvent()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
 
-			Load += new EventHandler(SettingsEvent_Load);
+            Load += new EventHandler(SettingsEvent_Load);
         }
 
 		void SettingsEvent_Load(object sender, EventArgs e)

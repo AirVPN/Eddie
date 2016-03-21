@@ -32,10 +32,19 @@ namespace AirVPN.Gui.Forms
 
 		public FrontMessage()
 		{
-			InitializeComponent();
-		}
+            OnPreInitializeComponent();
+            InitializeComponent();
+            OnInitializeComponent();
+        }
 
-		protected override void OnLoad(EventArgs e)
+        public override void OnInitializeComponent()
+        {
+            base.OnInitializeComponent();
+
+            lblMessage.Font = Skin.FontBig;
+        }
+
+        protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 
@@ -48,8 +57,8 @@ namespace AirVPN.Gui.Forms
 
 		private void lnkWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Core.UI.Actions.OpenUrlWebsite();
-		}
+			Engine.Instance.Command("ui.show.website");
+        }
 
 		private void cmdClose_Click(object sender, EventArgs e)
 		{

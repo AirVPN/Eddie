@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 using AirVPN.Core.UI;
 
 namespace AirVPN.Gui.Skin
@@ -46,10 +47,12 @@ namespace AirVPN.Gui.Skin
 
 		public static Color BlackColor = Color.FromArgb(0, 0, 0);
 		public static Brush BlackBrush = new SolidBrush(BlackColor);
-		public static Color Gray1Color = Color.FromArgb(50, 50, 50);
-		public static Brush Gray1Brush = new SolidBrush(Gray1Color);
-		public static Color Gray2Color = Color.FromArgb(248, 248, 248);
-		public static Brush Gray2Brush = new SolidBrush(Gray2Color);
+		public static Color Gray50Color = Color.FromArgb(50, 50, 50);
+		public static Brush Gray50Brush = new SolidBrush(Gray50Color);
+        public static Color Gray220Color = Color.FromArgb(220, 220, 220);
+        public static Brush Gray220Brush = new SolidBrush(Gray220Color);
+        public static Color Gray248Color = Color.FromArgb(248, 248, 248);
+		public static Brush Gray248Brush = new SolidBrush(Gray248Color);
 		public static Color WhiteColor = Color.FromArgb(255, 255, 255);
 		public static Brush WhiteBrush = new SolidBrush(WhiteColor);
 
@@ -57,8 +60,8 @@ namespace AirVPN.Gui.Skin
         public static Brush BlackLightBrush = new SolidBrush(BlackLightColor);
         public static Color WhiteLightColor = Color.FromArgb(230, 230, 230);
         public static Brush WhiteLightBrush = new SolidBrush(WhiteLightColor);
-
-		public virtual void Apply(Control c)
+        
+        public virtual void Apply(Control c)
         {
             if (c is Skin.CheckBox)
             {
@@ -240,7 +243,7 @@ namespace AirVPN.Gui.Skin
         {
             get
             {
-                return BlueLightBrush;
+                return Gray50Brush;
             }
         }
 
@@ -249,6 +252,14 @@ namespace AirVPN.Gui.Skin
             get
             {
                 return WhiteBrush;
+            }
+        }
+
+        public virtual Brush TabButtonHoverBackBrush
+        {
+            get
+            {
+                return Gray220Brush;
             }
         }
 
@@ -268,7 +279,15 @@ namespace AirVPN.Gui.Skin
             }
         }
 
-		public virtual Brush ListViewNormalBackBrush
+        public virtual Brush TabButtonHoverForeBrush
+        {
+            get
+            {
+                return Brushes.Black;
+            }
+        }
+
+        public virtual Brush ListViewNormalBackBrush
 		{
 			get
 			{
@@ -280,7 +299,7 @@ namespace AirVPN.Gui.Skin
 		{
 			get
 			{
-				return Gray2Brush;
+				return Gray248Brush;
 			}
 		}
 
@@ -355,7 +374,40 @@ namespace AirVPN.Gui.Skin
 				return BlueMid4Brush;
 			}
 		}
-				
+
+        /*
+        public virtual Font FontNormal
+        {
+            get
+            {
+                //string name = "Segoe UI, 15pt";
+                string name = "Automatic, normal";
+                return GuiUtils.GetFont(name);
+                
+            }
+        }
+
+        public virtual Font FontBig
+        {
+            get
+            {
+                //string name = "Segoe UI, 20pt";
+                string name = "Automatic, big";
+                return GuiUtils.GetFont(name);
+            }
+        }
+
+        public virtual Font FontMono
+        {
+            get
+            {
+                //string name = "Consolas, 5pt";
+                string name = "Automatic, monospace";
+                return GuiUtils.GetFont(name);
+            }
+        }
+        */
+
         public virtual void GraphicsCommon(Graphics g)
         {
 			if(g.PixelOffsetMode != System.Drawing.Drawing2D.PixelOffsetMode.Half)

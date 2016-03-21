@@ -31,8 +31,10 @@ namespace AirVPN.Gui.Skin
 
 		public String ImageIconResourcePrefix = "";
 		public String ImageStateResourcePrefix = "";
+        public ImageList ImageListIcon = null;
+        public ImageList ImageListState = null;
 
-		private int m_sortColumn = -1;
+        private int m_sortColumn = -1;
 				
         public ListView()
         {
@@ -44,27 +46,95 @@ namespace AirVPN.Gui.Skin
 
 			ColumnClick += new ColumnClickEventHandler(OnListViewColumnClick);
 
-			OwnerDraw = true;
+            OwnerDraw = true;
 			this.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(OnListViewDrawColumnHeader);
 			this.DrawSubItem += new DrawListViewSubItemEventHandler(OnListViewDrawSubItem);
 		}
-				
+        
+        public void ResizeColumnsAuto()
+        {
+            for(int c=0;c<Columns.Count;c++)
+            {
+                ResizeColumnAuto(c);
+            }
+        }
+
+        public void ResizeColumnAuto(int column)
+        {
+            // It ignore Image if present, .Net bug.
+            //AutoResizeColumn(column, ColumnHeaderAutoResizeStyle.ColumnContent);
+
+            Graphics g = this.CreateGraphics();
+
+            int minWidth = GuiUtils.GetFontSize(g, Font, Columns[column].Text).Width;
+
+            foreach (ListViewItem item in Items)
+            {
+                if (column >= item.SubItems.Count)
+                    continue;
+
+                string t = "";
+                if (column == 0)
+                    t = item.Text;
+                else
+                    t = item.SubItems[column].Text;
+                Size s = GuiUtils.GetFontSize(g, Font, t);
+                if (minWidth == -1)
+                    minWidth = s.Width;
+                else if (minWidth < s.Width)
+                    minWidth = s.Width;                    
+            }
+            g.Dispose();
+
+            if ((ImageIconResourcePrefix != "") && (Items.Count > 0))
+                minWidth += GetItemRect(0).Height*2;
+            
+            minWidth += Convert.ToInt32(minWidth * 0.2); // 20% margin
+
+            Columns[column].Width = minWidth;
+        }
+
+        public void ResizeColumnMax(int column)
+        {
+            Columns[column].Width = 3000;
+        }
+
+        public void ResizeColumnString(int column, int charsLen)
+        {
+            ResizeColumnString(column, new string('W', charsLen));
+        }
+
+        public void ResizeColumnString(int column, string text)
+        {
+            Graphics g = this.CreateGraphics();
+            Size s = GuiUtils.GetFontSize(g, Font, text);
+            g.Dispose();
+
+            s.Width += Convert.ToInt32(s.Width * 0.1);
+            
+            Columns[column].Width = s.Width;
+        }
+        				
 		public void DrawSubItemBackground(object sender, DrawListViewSubItemEventArgs e)
 		{
 			Rectangle r = e.Bounds;
 
-			Brush b = Form.Skin.ListViewNormalBackBrush;
+            Brush b = null;
+            if (this.Enabled == false)
+                b = Form.Skin.BackDisabledBrush;
+            else
+            {
+                if (e.Item.Focused)
+                    b = Form.Skin.ListViewFocusedBackBrush;
+                else if (e.Item.Selected)
+                    b = Form.Skin.ListViewSelectedBackBrush;
+                else if (e.ItemIndex % 2 == 0)
+                    b = Form.Skin.ListViewNormalBackBrush;
+                else
+                    b = Form.Skin.ListViewNormal2BackBrush;
+            }
 
-			if(e.ItemIndex % 2 == 1)
-				b = Form.Skin.ListViewNormal2BackBrush;
-
-			if(e.Item.Selected)
-				b = Form.Skin.ListViewSelectedBackBrush;
-
-			if(e.Item.Focused)
-				b = Form.Skin.ListViewFocusedBackBrush;
-			
-			e.Graphics.FillRectangle(b, r);
+            e.Graphics.FillRectangle(b, r);
 
 			e.Graphics.DrawRectangle(Form.Skin.ListViewGridPen, r);
 		}
@@ -78,13 +148,13 @@ namespace AirVPN.Gui.Skin
 		{
 			e.DrawDefault = false;
 
-			//Form.Skin.GraphicsCommon(e.Graphics);
+			Form.Skin.GraphicsCommon(e.Graphics);
 			
 			DrawSubItemBackground(sender, e);
 			
 			if (e.ColumnIndex == 0)
 			{
-				// int middleY = (e.Bounds.Top + e.Bounds.Bottom) / 2; // TOCLEAN
+                // int middleY = (e.Bounds.Top + e.Bounds.Bottom) / 2; // TOCLEAN
 
 				Rectangle r = e.Bounds;
 
@@ -104,23 +174,27 @@ namespace AirVPN.Gui.Skin
 				}
 				
 				Image imageIcon = GuiUtils.GetResourceImage(ImageIconResourcePrefix + e.Item.ImageKey);
-				if ((imageIcon == null) && (e.Item.ListView.LargeImageList != null) && (e.Item.ListView.LargeImageList.Images.ContainsKey(e.Item.ImageKey)))
+                if((imageIcon == null) && (ImageListIcon != null) && (ImageListIcon.Images.ContainsKey(e.Item.ImageKey)))
+                    imageIcon = ImageListIcon.Images[e.Item.ImageKey];
+                else if ((imageIcon == null) && (e.Item.ListView.LargeImageList != null) && (e.Item.ListView.LargeImageList.Images.ContainsKey(e.Item.ImageKey)))
 					imageIcon = e.Item.ListView.LargeImageList.Images[e.Item.ImageKey];
-				if( (imageIcon == null) && (e.Item.ListView.SmallImageList != null) && (e.Item.ListView.SmallImageList.Images.ContainsKey(e.Item.ImageKey)) )
+                else if ( (imageIcon == null) && (e.Item.ListView.SmallImageList != null) && (e.Item.ListView.SmallImageList.Images.ContainsKey(e.Item.ImageKey)) )
 					imageIcon = e.Item.ListView.SmallImageList.Images[e.Item.ImageKey];
 				if (imageIcon != null)
 				{
-					int imageWidth = r.Height;
+                    //int imageWidth = r.Height;
+                    int imageHeight = r.Height;
+                    int imageWidth = (imageHeight * imageIcon.Width) / imageIcon.Height;
 
-					Rectangle rImage = r;
+                    Rectangle rImage = r;
 					rImage.X += ImageSpace;
 					rImage.Width = imageWidth;
 
 					e.Graphics.DrawImage(imageIcon, rImage);
 
 					r.X += (imageWidth + ImageSpace);
-					r.Width -= (imageWidth + ImageSpace);
-				}
+					r.Width -= (imageWidth + ImageSpace);                    
+                }
 
 				r.X += TextSpace;
 				r.Width -= TextSpace;
@@ -142,8 +216,8 @@ namespace AirVPN.Gui.Skin
 				
 			}
 		}
-
-		public virtual void OnListViewColumnClick(object sender, ColumnClickEventArgs e)
+        
+        public virtual void OnListViewColumnClick(object sender, ColumnClickEventArgs e)
 		{
 			if (e.Column == m_sortColumn)
 			{

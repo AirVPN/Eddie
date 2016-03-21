@@ -107,6 +107,15 @@ namespace AirVPN.Core
 			}
 		}
 
+        public static float ToFloat(string v)
+        {
+            float vo;
+            if (float.TryParse(v, out vo))
+                return vo;
+            else
+                return 0;
+        }
+
 		public static bool ToBool(string v)
 		{
 			if (v == "1")

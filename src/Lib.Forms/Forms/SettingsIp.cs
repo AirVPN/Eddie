@@ -32,10 +32,19 @@ namespace AirVPN.Gui.Forms
 
 		public SettingsIp()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
         }
 
-		protected override void OnLoad(EventArgs e)
+        public override void OnInitializeComponent()
+        {
+            base.OnInitializeComponent();
+
+            txtIP.Font = Skin.FontMono;
+        }
+
+        protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(Messages.WindowsSettingsIpTitle);

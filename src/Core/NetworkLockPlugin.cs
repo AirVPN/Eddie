@@ -65,7 +65,15 @@ namespace AirVPN.Core
 		{
 		}
 
-		public virtual void OnUpdateIps()
+        public virtual void AllowProgram(string path, string name)
+        {            
+        }
+
+        public virtual void DeallowProgram(string path, string name)
+        {            
+        }
+
+        public virtual void OnUpdateIps()
 		{
 			// Called when Ip used by AirVPN (hosts auth or vpn servers) maybe changed.
 		}

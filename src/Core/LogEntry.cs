@@ -40,6 +40,12 @@ namespace AirVPN.Core
 			return Date.ToShortDateString() + " - " + Date.ToShortTimeString();
 		}
 
+        public static string GetDateForListSample()
+        {
+            // Used to compute an estimation of Grid cell size
+            return DateTime.UtcNow.ToShortDateString() + " - " + DateTime.UtcNow.ToShortTimeString();
+        }
+
 		public string GetStringLines()
 		{
 			string result = "";

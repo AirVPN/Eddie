@@ -76,15 +76,17 @@ namespace AirVPN.Core
 					throw new Exception(Messages.NetworkLockUnexpectedAlreadyActive);
 
 				NetworkLockPlugin nextCurrent = null;
-
-				string requestedMode = Engine.Instance.Storage.Get("netlock.mode");
+                
+                string requestedMode = Engine.Instance.Storage.Get("netlock.mode");
+                if (requestedMode == "auto")
+                    requestedMode = Platform.Instance.OnNetworkLockRecommendedMode();
 
 				if (requestedMode != "none")
-				{
+				{   
 					foreach (NetworkLockPlugin plugin in Modes)
 					{
-						if( (requestedMode == "auto") || (requestedMode == plugin.GetCode()) )
-						{
+                        if (requestedMode == plugin.GetCode())
+                        {
 							nextCurrent = plugin;
 							break;
 						}
@@ -272,5 +274,17 @@ namespace AirVPN.Core
 			if (m_current != null)
 				m_current.DeallowIP(ip);
 		}
-	}
+
+        public virtual void AllowProgram(string path, string name)
+        {
+            if (m_current != null)
+                m_current.AllowProgram(path, name);
+        }
+
+        public virtual void DeallowProgram(string path, string name)
+        {
+            if (m_current != null)
+                m_current.DeallowProgram(path, name);
+        }
+    }
 }

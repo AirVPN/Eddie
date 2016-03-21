@@ -203,6 +203,11 @@ namespace AirVPN.Core
 			return Conversions.ToInt32(Get(name));
 		}
 
+        public float GetFloat(string name)
+        {
+            return Conversions.ToFloat(Get(name));
+        }
+
         public Int64 GetInt64(string name)
         {
 			return Conversions.ToInt64(Get(name));			
@@ -231,6 +236,11 @@ namespace AirVPN.Core
         public void SetInt(string name, int val)
         {
             Set(name,val.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public void SetFloat(string name, float val)
+        {
+            Set(name, val.ToString(CultureInfo.InvariantCulture));
         }
 
         public void SetBool(string name, bool val)
@@ -289,8 +299,9 @@ namespace AirVPN.Core
 			SetDefault("login", "", Messages.ManOptionLogin);
             SetDefault("password", "", Messages.ManOptionPassword);
 			SetDefaultBool("remember", false, Messages.ManOptionRemember);
-			SetDefault("server", "", Messages.ManOptionServer);
-			SetDefaultBool("connect", false, Messages.ManOptionConnect);
+            SetDefault("key", "", Messages.ManOptionKey);
+            SetDefault("server", "", Messages.ManOptionServer);            
+            SetDefaultBool("connect", false, Messages.ManOptionConnect);
 			SetDefaultBool("netlock", false, NotInMan);
 
 			SetDefault("profile", "AirVPN", Messages.ManOptionProfile); // Not in Settings
@@ -313,20 +324,18 @@ namespace AirVPN.Core
 			SetDefault("mode.protocol", "AUTO", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
 			SetDefaultInt("mode.alt", 0, Messages.ManOptionModeAlt);
-			SetDefault("mode.tor.host", "127.0.0.1", Messages.ManOptionModeTorHost);
-			SetDefaultInt("mode.tor.port", 9150, Messages.ManOptionModeTorPort);
-			SetDefaultInt("mode.tor.control.port", 9151, Messages.ManOptionModeTorControlPort);
-			SetDefaultBool("mode.tor.control.auth", true, Messages.ManOptionModeTorControlAuth);
-			SetDefault("mode.tor.control.password", "", Messages.ManOptionModeTorControlPassword);
-
+            
 			SetDefault("proxy.mode", "None", Messages.ManOptionProxyMode);
 			SetDefault("proxy.host", "127.0.0.1", Messages.ManOptionProxyHost);
 			SetDefaultInt("proxy.port", 8080, Messages.ManOptionProxyPort);
 			SetDefault("proxy.auth", "None", Messages.ManOptionProxyAuth);
 			SetDefault("proxy.login", "", Messages.ManOptionProxyLogin);
 			SetDefault("proxy.password", "", Messages.ManOptionProxyPassword);
+            SetDefaultInt("proxy.tor.control.port", 9151, Messages.ManOptionProxyTorControlPort); 
+            SetDefaultBool("proxy.tor.control.auth", true, Messages.ManOptionProxyTorControlAuth); 
+            SetDefault("proxy.tor.control.password", "", Messages.ManOptionProxyTorControlPassword); 
 
-			SetDefault("routes.default", "in", Messages.ManOptionRoutesDefault);
+            SetDefault("routes.default", "in", Messages.ManOptionRoutesDefault);
 			SetDefault("routes.custom", "", Messages.ManOptionRoutesCustom);
 			SetDefaultBool("routes.remove_default", false, NotInMan);
 
@@ -348,9 +357,9 @@ namespace AirVPN.Core
 			SetDefault("executables.curl", "", Messages.ManOptionExecutablesCurl);
 			SetDefault("openvpn.custom", "", Messages.ManOptionOpenVpnCustom);
 			SetDefault("openvpn.dev_node", "", NotInMan);
-			SetDefaultInt("openvpn.rcvbuf", (128 * 1024), NotInMan); // 2.10.1
-			SetDefaultInt("openvpn.sndbuf", (128 * 1024), NotInMan);
-			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
+            SetDefaultInt("openvpn.rcvbuf", -2, NotInMan); // 2.11
+            SetDefaultInt("openvpn.sndbuf", -2, NotInMan); // 2.11
+            SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
 
 			SetDefault("profiles.path", "", NotInMan);
 			
@@ -359,7 +368,9 @@ namespace AirVPN.Core
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
 
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
+            SetDefaultBool("os.single_instance", true, NotInMan);
+
+            SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
 			
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
@@ -374,8 +385,10 @@ namespace AirVPN.Core
 			SetDefaultBool("advanced.windows.tap_up", true, Messages.ManOptionAdvancedWindowsTapUp);
 			SetDefaultBool("advanced.windows.dhcp_disable", false, Messages.ManOptionAdvancedWindowsDhcpDisable);
 
-			// Not in Settings
-			SetDefaultBool("advanced.skip_privileges", false, NotInMan);
+            SetDefaultBool("advanced.windows.wfp", false, NotInMan);
+
+            // Not in Settings
+            SetDefaultBool("advanced.skip_privileges", false, NotInMan);
 
 			// Not in Settings
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan);
@@ -401,10 +414,12 @@ namespace AirVPN.Core
 			SetDefault("windows.adapter_service", "tap0901", NotInMan);
 			SetDefaultBool("windows.disable_driver_upgrade", false, NotInMan);
 
-			// GUI only
-			SetDefaultBool("gui.exit_confirm", true, NotInMan);
-			SetDefault("gui.skin", "Light", NotInMan);						
+            // GUI only            
+            SetDefaultBool("gui.exit_confirm", true, NotInMan);
+			SetDefault("gui.skin", "Light", NotInMan);
 			SetDefaultBool("gui.tos", false, NotInMan);
+            SetDefault("gui.font_name", "", NotInMan);
+            SetDefaultInt("gui.font_size", 0, NotInMan);
 			SetDefaultInt("gui.log_limit", 1000, NotInMan);
 			SetDefault("forms.main", "", NotInMan);
 
@@ -491,7 +506,8 @@ namespace AirVPN.Core
 				if ( (remember) && (User != null) )
 				{
 					XmlNode userNode = xmlDoc.ImportNode(User, true);
-					rootNode.AppendChild(userNode);
+                    
+                    rootNode.AppendChild(userNode);
 				}
 				
                 xmlDoc.Save(path);
@@ -531,22 +547,35 @@ namespace AirVPN.Core
                     m_Options.Clear();
 
                     XmlNode nodeOptions = xmlDoc.DocumentElement.GetElementsByTagName("options")[0];
-
+                    Dictionary<string, string> options = new Dictionary<string, string>();
                     foreach (XmlElement e in nodeOptions)
                     {
-						string name = e.Attributes["name"].Value;
-						string value = e.Attributes["value"].Value;
+                        string name = e.Attributes["name"].Value;
+                        string value = e.Attributes["value"].Value;
 
-						CompatibilityManager.FixOption(ref name, ref value);
+                        CompatibilityManager.FixOption(ref name, ref value);
 
-                        Set(name, value);
+                        options[name] = value;
                     }
+
+                    CompatibilityManager.FixOptions(options);
+                    foreach (KeyValuePair<string, string> item in options)
+                        Set(item.Key, item.Value);                        
 
 					Manifest = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
 					User = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
 					Profiles = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "profiles");
 
-					if (Profiles == null)
+                    if (User != null) // Compatibility with old manifest < 2.11
+                    {
+                        XmlElement oldKeyFormat = User.SelectSingleNode("keys/key[@id='default']") as XmlElement; 
+                        if (oldKeyFormat != null)
+                        {
+                            oldKeyFormat.SetAttribute("name", "Default");
+                        }
+                    }
+
+                    if (Profiles == null)
 						Profiles = xmlDoc.CreateElement("profiles");
                 }
                 catch (Exception ex)

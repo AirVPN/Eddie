@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -337,7 +338,39 @@ namespace AirVPN.Core
 		public virtual void EnsureExecutablePermissions(string path)
 		{
 		}
-        
+
+        public virtual string GetSystemFont()
+        {
+            return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
+        }
+
+        public virtual string GetSystemFontMonospace()
+        {
+            string fontName = "";
+            if (IsFontInstalled("Consolas"))
+                fontName = "Consolas";
+            else if (IsFontInstalled("Monospace"))
+                fontName = "Monospace";
+            else if (IsFontInstalled("DejaVu Sans Mono"))
+                fontName = "DejaVu Sans Mono";
+            else if (IsFontInstalled("Courier New"))
+                fontName = "Courier New";
+            else
+                fontName = SystemFonts.MenuFont.Name;
+            return fontName + "," + SystemFonts.MenuFont.Size;
+        }
+
+        public virtual bool IsFontInstalled(string fontName)
+        {
+            using (var testFont = new Font(fontName, 8))
+            {
+                return 0 == string.Compare(
+                  fontName,
+                  testFont.Name,
+                  StringComparison.InvariantCultureIgnoreCase);
+            }
+        }
+
         public virtual void FlushDNS()
         {
             NotImplemented();
@@ -399,8 +432,10 @@ namespace AirVPN.Core
 		{
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
+            t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
+            t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
 
-			try
+            try
 			{
 				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 				foreach (NetworkInterface adapter in interfaces)
@@ -453,7 +488,12 @@ namespace AirVPN.Core
 			return t;
 		}
 
-		public virtual void OnAppStart()
+        public virtual bool OnCheckSingleInstance()
+        {
+            return true;
+        }
+
+        public virtual void OnAppStart()
 		{
 		}
 
@@ -465,6 +505,11 @@ namespace AirVPN.Core
 		public virtual void OnNetworkLockManagerInit()
 		{
 		}
+
+        public virtual string OnNetworkLockRecommendedMode()
+        {
+            return "";
+        }
 
 		public virtual void OnSessionStart()
 		{

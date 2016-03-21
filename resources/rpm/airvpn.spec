@@ -7,7 +7,7 @@ Summary: AirVPN - VPN service based on OpenVPN
 Packager: AirVPN Team <info@airvpn.org>
 URL: https://airvpn.org
 Group: net
-Requires: mono-core mono-winforms openvpn
+Requires: mono-core mono-winforms openvpn libgdiplus-devel
 AutoReqProv: no
 
 %define _rpmdir ../

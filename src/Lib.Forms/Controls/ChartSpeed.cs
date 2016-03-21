@@ -146,8 +146,7 @@ namespace AirVPN.Gui.Controls
 				
         protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
         {
-			//base.OnPaint(e);
-
+			//base.OnPaint(e);            
 			Form.Skin.GraphicsCommon(e.Graphics);
 
             try

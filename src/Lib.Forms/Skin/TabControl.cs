@@ -35,15 +35,34 @@ namespace AirVPN.Gui.Skin
         /// </summary>
         //private System.ComponentModel.Container components = null;
 
+        /* 
         public TabControl()
         {
             // This call is required by the Windows.Forms Form Designer.
             //InitializeComponent();
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);            
-			
         }
-		
+
+        public void AutoSizeTabs()
+        {
+            //this.SizeMode = TabSizeMode.Fixed;
+            //this.ItemSize = new Size((ClientRectangle.Width-50) / TabPages.Count, Convert.ToInt32(this.CreateGraphics().MeasureString("averyveryveryverylongtext", Form.Skin.FontNormal).Height));
+
+            Graphics g = this.CreateGraphics();
+            Size s = new Size(0,0);
+            foreach(TabPage page in TabPages)
+            {
+                Size ts = g.MeasureString(page.Text, Form.Skin.FontNormal).ToSize();
+                ts.Width = ts.Width * 12 / 10;
+                ts.Height = ts.Height * 12 / 10;
+                if (s.Width < ts.Width) s.Width = ts.Width;
+                if (s.Height < ts.Height) s.Height = ts.Height;
+            }
+            this.ItemSize = s;
+            g.Dispose();
+        }
+
         protected override void OnPaintBackground(PaintEventArgs e)
         {            
             try
@@ -153,6 +172,8 @@ namespace AirVPN.Gui.Skin
                 Core.Debug.Trace(ex);
             }
         }
+        */
+        
     }
 
 }

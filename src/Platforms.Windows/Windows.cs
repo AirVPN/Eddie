@@ -27,6 +27,7 @@ using System.Management;
 using System.Security.Principal;
 using System.Xml;
 using System.Text;
+using System.Threading;
 using AirVPN.Core;
 using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
@@ -38,8 +39,12 @@ namespace AirVPN.Platforms
 		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private object m_oldIpV6 = null;
+        private WfpItem m_wfpLockIPv6 = new WfpItem();
+        private WfpItem m_wfpLockDns = new WfpItem();
+        private WfpItem m_wfpLockNet = new WfpItem();
+        private Mutex m_mutexSingleInstance = null;
 
-		static bool IsVistaOrHigher()
+        static bool IsVistaOrHigher()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
@@ -372,16 +377,36 @@ namespace AirVPN.Platforms
 
 			return t;
 		}
-		
-		public override void OnNetworkLockManagerInit()
-		{
-			base.OnNetworkLockManagerInit();
 
-			if(IsVistaOrHigher()) // 2.10.1
-				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());			
-		}
+        public override bool OnCheckSingleInstance()
+        {
+            m_mutexSingleInstance = new Mutex(false, "Global\\" + "b57887e0-65d0-4d18-b57f-106de6e0f1b6");            
+            if (m_mutexSingleInstance.WaitOne(0, false) == false)
+                return false;
+            else
+                return true;
+        }
 
-		public override void OnSessionStart()
+        public override void OnNetworkLockManagerInit()
+        {
+            base.OnNetworkLockManagerInit();
+
+            if (IsVistaOrHigher()) // 2.10.1
+            {
+                Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
+                Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWfp());
+            }
+        }
+
+        public override string OnNetworkLockRecommendedMode()
+        {
+            if (Engine.Instance.Storage.GetBool("advanced.windows.wfp"))
+                return "windows_wfp";
+            else
+                return "windows_firewall";
+        }
+
+        public override void OnSessionStart()
 		{
 			// https://airvpn.org/topic/11162-airvpn-client-advanced-features/ -> Switch DHCP to Static			
 			if (Engine.Instance.Storage.GetBool("advanced.windows.dhcp_disable"))
@@ -403,27 +428,39 @@ namespace AirVPN.Platforms
 
 		public override bool OnIpV6Do()
 		{
-			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
+            if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
 			{
-                // http://support.microsoft.com/kb/929852
-                
-                m_oldIpV6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
-				if (Conversions.ToUInt32(m_oldIpV6, 0) == 0) // 0 is the Windows default if the key doesn't exist.
-					m_oldIpV6 = 0;
+                if (Engine.Instance.Storage.GetBool("advanced.windows.wfp"))
+                {
+                    Wfp.RemoveItem(m_wfpLockIPv6);
 
-				if (Conversions.ToUInt32(m_oldIpV6, 0) == 17) // Nothing to do
-				{
-					m_oldIpV6 = null;
-				}
-				else
-				{
-					UInt32 newValue = 17;
-					Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", newValue, RegistryValueKind.DWord);
+                    XmlDocument xmlRule = new XmlDocument();
+                    // Clodo todo
 
-					Engine.Instance.Log(Engine.LogType.Info, Messages.IpV6Disabled);
+                    m_wfpLockIPv6 = Wfp.AddItem(xmlRule.DocumentElement);
+                }
+                else
+                {
+                    // http://support.microsoft.com/kb/929852
 
-					Recovery.Save();
-				}
+                    m_oldIpV6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
+                    if (Conversions.ToUInt32(m_oldIpV6, 0) == 0) // 0 is the Windows default if the key doesn't exist.
+                        m_oldIpV6 = 0;
+
+                    if (Conversions.ToUInt32(m_oldIpV6, 0) == 17) // Nothing to do
+                    {
+                        m_oldIpV6 = null;
+                    }
+                    else
+                    {
+                        UInt32 newValue = 17;
+                        Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", newValue, RegistryValueKind.DWord);
+
+                        Engine.Instance.Log(Engine.LogType.Info, Messages.IpV6Disabled);
+
+                        Recovery.Save();
+                    }
+                }
 
 				base.OnIpV6Do();
 			}
@@ -433,7 +470,7 @@ namespace AirVPN.Platforms
 
 		public override bool OnIpV6Restore()
 		{
-			if (m_oldIpV6 != null)
+            if (m_oldIpV6 != null)
 			{
 				Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", m_oldIpV6, RegistryValueKind.DWord);
 				m_oldIpV6 = null;
@@ -441,7 +478,9 @@ namespace AirVPN.Platforms
 				Engine.Instance.Log(Engine.LogType.Info, Messages.IpV6Restored);
 			}
 
-			base.OnIpV6Restore();
+            Wfp.RemoveItem(m_wfpLockIPv6);
+
+            base.OnIpV6Restore();
 
 			return true;
 		}
@@ -454,44 +493,61 @@ namespace AirVPN.Platforms
 
 			if (mode == "auto")
 			{
-				try
-				{
-					ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-					ManagementObjectCollection objMOC = objMC.GetInstances();
+                if (Engine.Instance.Storage.GetBool("advanced.windows.wfp"))
+                {
+                    Wfp.RemoveItem(m_wfpLockDns);
 
-					foreach (ManagementObject objMO in objMOC)
-					{
-                        /*
-						if (!((bool)objMO["IPEnabled"]))
-							continue;
-						*/
+                    XmlDocument xmlRule = new XmlDocument();
+                    // Clodo todo
+                    m_wfpLockDns = Wfp.AddItem(xmlRule.DocumentElement);
+                }
+                else
+                {
+                    try
+                    {
+                        ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+                        ManagementObjectCollection objMOC = objMC.GetInstances();
 
-                        NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
+                        foreach (ManagementObject objMO in objMOC)
+                        {
+                            /*
+						    if (!((bool)objMO["IPEnabled"]))
+							    continue;
+						    */
 
-						entry.Guid = objMO["SettingID"] as string;
-						entry.Description = objMO["Description"] as string;
-						entry.Dns = objMO["DNSServerSearchOrder"] as string[];
+                            bool ipEnabled = (bool)objMO["IPEnabled"];
 
-						entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
+                            NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
 
-						if (entry.Dns == null)
-							continue;
+                            entry.Guid = objMO["SettingID"] as string;
+                            entry.Description = objMO["Description"] as string;
+                            entry.Dns = objMO["DNSServerSearchOrder"] as string[];
 
-						Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description));
+                            entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
 
-						ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-						objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
-						ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+                            if (entry.Dns == null)
+                                continue;
 
-						m_listOldDns.Add(entry);
-					}
-				}
-				catch (Exception e)
-				{
-					Engine.Instance.Log(e);
-				}
+                            if (String.Join(",", entry.Dns) == dns)
+                                continue;
 
-				Recovery.Save();				
+                            string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", entry.Dns));
+                            Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns));
+
+                            ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+                            objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
+                            ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+
+                            m_listOldDns.Add(entry);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Engine.Instance.Log(e);
+                    }
+
+                    Recovery.Save();
+                }
 			}
 
 			base.OnDnsSwitchDo(dns);
@@ -503,7 +559,9 @@ namespace AirVPN.Platforms
 		{
 			DnsForceRestore();
 
-			base.OnDnsSwitchRestore();
+            Wfp.RemoveItem(m_wfpLockDns);
+
+            base.OnDnsSwitchRestore();
 
 			return true;
 		}
@@ -933,7 +991,8 @@ namespace AirVPN.Platforms
 							}
 							ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
-							Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, entry.Description));
+                            string descTo = (entry.AutoDns ? "Empty" : String.Join(",", entry.Dns));
+                            Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
 						}
 					}
 				}
