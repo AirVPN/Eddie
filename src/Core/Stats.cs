@@ -33,11 +33,14 @@ namespace AirVPN.Core
 		{
 			Charts = new UI.Charts();
 
+
 			Add("ServerName", Messages.StatsServerName, "server");
 			Add("ServerLatency", Messages.StatsServerLatency, "server");
 			Add("ServerLocation", Messages.StatsServerLocation, "server");
 			Add("ServerLoad", Messages.StatsServerLoad, "server");
 			Add("ServerUsers", Messages.StatsServerUsers, "server");
+			Add ("AccountLogin", Messages.StatsLogin, "session");
+			Add ("AccountKey", Messages.StatsKey, "session");
 			Add("VpnSpeedDownload", Messages.StatsVpnSpeedDownload, "session");
 			Add("VpnSpeedUpload", Messages.StatsVpnSpeedUpload, "session");
 			Add("VpnConnectionStart", Messages.StatsVpnConnectionStart, "session");

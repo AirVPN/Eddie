@@ -262,6 +262,8 @@ namespace AirVPN.Core
 		public static string StatsServerLocation = "Server Location";
 		public static string StatsServerLoad = "Server Load";
 		public static string StatsServerUsers = "Server Users";
+		public static string StatsLogin = "Login";
+		public static string StatsKey = "Device";
 		public static string StatsVpnSpeedDownload = "VPN Speed Download";
 		public static string StatsVpnSpeedUpload = "VPN Speed Upload";
 		public static string StatsVpnConnectionStart = "VPN Start";

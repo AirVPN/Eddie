@@ -85,6 +85,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = UI.Osx.csproj
-		version = 2.10
+		version = 2.11
 	EndGlobalSection
 EndGlobal

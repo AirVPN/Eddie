@@ -27,14 +27,7 @@ namespace AirVPN.UI.Osx
 {
 	public partial class WindowPreferencesController : MonoMac.AppKit.NSWindowController
 	{
-		private string m_mode_protocol;
-		private int m_mode_port;
-		private int m_mode_alternate;
-
-		private bool m_modeSshEnabled = true;
-		private bool m_modeSslEnabled = true;
-
-
+		private TableProtocolsController TableProtocolsController;
 		private TableRoutingController TableRoutingController;
 		private TableDnsServersController TableDnsServersController;
 		private TableAdvancedEventsController TableAdvancedEventsController;
@@ -109,6 +102,8 @@ namespace AirVPN.UI.Osx
 				Close ();
 			};
 
+			// General
+
 			CmdGeneralTos.Activated += (object sender, EventArgs e) => {
 				WindowTosController tos = new WindowTosController ();
 				tos.Window.ReleasedWhenClosed = true;
@@ -116,189 +111,48 @@ namespace AirVPN.UI.Osx
 				tos.Window.Close ();
 			};
 
-			// Modes
-			string sshStatus = (Software.SshVersion != "" ? "" : "Not available");
-			if (sshStatus != "") {
-				m_modeSshEnabled = false;
-			}
-			// TODO: disable ssh & ssl
-			string sslStatus = (Software.SslVersion != "" ? "" : "Not available");
-			if (sslStatus != "") {
-				m_modeSslEnabled = false;
-			}
+			// Protocols
 
-			CmdModeHelp.Activated += (object sender, EventArgs e) => {
-				Core.UI.Actions.OpenUrlDocsProtocols();
+			CmdProtocolsHelp1.Activated += (object sender, EventArgs e) => {
+				Engine.Instance.Command ("ui.show.docs.protocols");
 			};
 
-			ChkModeAutomatic.Activated += (object sender, EventArgs e) => {
-				m_mode_protocol = "AUTO";
-				m_mode_port = 443;
-				m_mode_alternate = 0;
-				ChangeMode();
+			CmdProtocolsHelp2.Activated += (object sender, EventArgs e) => {
+				Engine.Instance.Command ("ui.show.docs.udp_vs_tcp");
 			};
 
-			ChkModeUdp443.Activated += (object sender, EventArgs e) => {
-				m_mode_protocol = "UDP";
-				m_mode_port = 443;
-				m_mode_alternate = 0;
-				ChangeMode();
+			ChkProtocolsAutomatic.Activated += (object sender, EventArgs e) => {
+				EnableIde();
 			};
 
-			ChkModeTcp443.Activated += (object sender, EventArgs e) => {
-				m_mode_protocol = "TCP";
-				m_mode_port = 443;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			ChkModeUdp80.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "UDP";
-				m_mode_port = 80;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			ChkModeTcp80.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "TCP";
-				m_mode_port = 80;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			ChkModeUdp53.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "UDP";
-				m_mode_port = 53;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			ChkModeTcp53.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "TCP";
-				m_mode_port = 53;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			ChkModeUdp2018.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "UDP";
-				m_mode_port = 2018;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			ChkModeTcp2018.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "TCP";
-				m_mode_port = 2018;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-
-
-			ChkModeUdp443Alt.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "UDP";
-				m_mode_port = 443;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeUdp80Alt.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "UDP";
-				m_mode_port = 80;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeUdp53Alt.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "UDP";
-				m_mode_port = 53;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeUdp2018Alt.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "UDP";
-				m_mode_port = 2018;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeTcp2018Alt.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "TCP";
-				m_mode_port = 2018;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-
-			ChkModeSsh22.Activated += (object sender, EventArgs e) => {
-				m_mode_protocol = "SSH";
-				m_mode_port = 22;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			ChkModeSsh22Alt.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "SSH";
-				m_mode_port = 22;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeSsh80.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "SSH";
-				m_mode_port = 80;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeSsh53.Activated += (object sender, EventArgs e) =>
-			{
-				m_mode_protocol = "SSH";
-				m_mode_port = 53;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeSsl443.Activated += (object sender, EventArgs e) => {
-				m_mode_protocol = "SSL";
-				m_mode_port = 443;
-				m_mode_alternate = 1;
-				ChangeMode();
-			};
-
-			ChkModeTor.Activated += (object sender, EventArgs e) => {
-				m_mode_protocol = "TOR";
-				m_mode_port = 2018;
-				m_mode_alternate = 0;
-				ChangeMode();
-			};
-
-			CmdModeTorTest.Activated += (object sender, EventArgs e) => {
-				string result = TorControl.Test(TxtModeTorHost.StringValue, Conversions.ToInt32(TxtModeTorControlPort.StringValue), TxtModeTorControlPassword.StringValue);
-				GuiUtils.MessageBox(result);
-			};
+			TableProtocols.Delegate = new TableProtocolsDelegate (this);
+			TableProtocolsController = new TableProtocolsController (this.TableProtocols);
 
 			// Proxy
+			CboProxyType.RemoveAllItems ();
+			CboProxyType.AddItem ("None");
+			CboProxyType.AddItem ("Detect");
+			CboProxyType.AddItem ("Http");
+			CboProxyType.AddItem ("Socks");
+			CboProxyType.AddItem ("Tor");
+
+			CmdProxyTorHelp.Activated += (object sender, EventArgs e) => {
+				Engine.Instance.Command ("ui.show.docs.tor");
+			};
 			CboProxyType.Activated += (object sender, EventArgs e) => {
 				EnableIde();
+
+				if(GuiUtils.GetSelected(CboProxyType) == "Tor")
+					TxtProxyPort.StringValue = "9150";
+				else
+					TxtProxyPort.StringValue = "8080";
 			};
 			CboProxyAuthentication.Activated += (object sender, EventArgs e) => {
 				EnableIde();
+			};
+			CmdProxyTorTest.Activated += (object sender, EventArgs e) => {
+				string result = TorControl.Test(TxtProxyHost.StringValue, Conversions.ToInt32(TxtProxyTorControlPort.StringValue), TxtProxyTorControlPassword.StringValue);
+				GuiUtils.MessageBox(result);
 			};
 
 			// Routes
@@ -327,6 +181,10 @@ namespace AirVPN.UI.Osx
 
 			// Advanced - General
 
+			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
+				Engine.Instance.Command ("ui.show.docs.advanced");
+			};
+
 			CboIpV6.RemoveAllItems ();
 			CboIpV6.AddItem ("None");
 			CboIpV6.AddItem ("Disable");
@@ -341,6 +199,7 @@ namespace AirVPN.UI.Osx
 			LblOpenVpnRcvBuf.StringValue = Messages.WindowsSettingsOpenVpnRcvBuf + ":";
 			LblOpenVpnSndBuf.StringValue = Messages.WindowsSettingsOpenVpnSndBuf + ":";
 			CboOpenVpnRcvBuf.RemoveAllItems();
+			CboOpenVpnRcvBuf.AddItem(Messages.Automatic);
 			CboOpenVpnRcvBuf.AddItem(Messages.WindowsSettingsOpenVpnDefault);
 			CboOpenVpnRcvBuf.AddItem("8 KB");
 			CboOpenVpnRcvBuf.AddItem("16 KB");
@@ -350,6 +209,7 @@ namespace AirVPN.UI.Osx
 			CboOpenVpnRcvBuf.AddItem("256 KB");
 			CboOpenVpnRcvBuf.AddItem("512 KB");
 			CboOpenVpnSndBuf.RemoveAllItems();
+			CboOpenVpnSndBuf.AddItem(Messages.Automatic);
 			CboOpenVpnSndBuf.AddItem(Messages.WindowsSettingsOpenVpnDefault);
 			CboOpenVpnSndBuf.AddItem("8 KB");
 			CboOpenVpnSndBuf.AddItem("16 KB");
@@ -363,9 +223,7 @@ namespace AirVPN.UI.Osx
 				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
 			};
 
-			CmdAdvancedHelp.Activated += (object sender, EventArgs e) => {
-				Core.UI.Actions.OpenUrlDocsAdvanced();
-			};
+
 
 			// Advanced - DNS
 			TableDnsServers.DoubleClick += (object sender, EventArgs e) =>
@@ -389,9 +247,8 @@ namespace AirVPN.UI.Osx
 			};
 
 			// Advanced - Net Lock
-
 			CmdLockHelp.Activated += (object sender, EventArgs e) => {
-				Core.UI.Actions.OpenUrlDocsLock();
+				Engine.Instance.Command ("ui.show.docs.lock");
 			};
 			CboLockMode.RemoveAllItems ();
 			CboLockMode.AddItem ("None");
@@ -583,36 +440,6 @@ namespace AirVPN.UI.Osx
 			this.EnableIde ();
 		}
 
-		void ChangeMode()
-		{
-			GuiUtils.SetCheck (ChkModeAutomatic, ((m_mode_protocol == "AUTO") && (m_mode_port == 443) && (m_mode_alternate == 0)));
-
-			GuiUtils.SetCheck (ChkModeUdp443, ((m_mode_protocol == "UDP") && (m_mode_port == 443) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeTcp443, ((m_mode_protocol == "TCP") && (m_mode_port == 443) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeUdp80, ((m_mode_protocol == "UDP") && (m_mode_port == 80) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeTcp80, ((m_mode_protocol == "TCP") && (m_mode_port == 80) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeUdp53, ((m_mode_protocol == "UDP") && (m_mode_port == 53) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeTcp53, ((m_mode_protocol == "TCP") && (m_mode_port == 53) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeUdp2018, ((m_mode_protocol == "UDP") && (m_mode_port == 2018) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeTcp2018, ((m_mode_protocol == "TCP") && (m_mode_port == 2018) && (m_mode_alternate == 0)));
-
-			GuiUtils.SetCheck(ChkModeUdp443Alt, ((m_mode_protocol == "UDP") && (m_mode_port == 443) && (m_mode_alternate == 1)));
-			GuiUtils.SetCheck(ChkModeUdp80Alt, ((m_mode_protocol == "UDP") && (m_mode_port == 80) && (m_mode_alternate == 1)));
-			GuiUtils.SetCheck(ChkModeUdp53Alt, ((m_mode_protocol == "UDP") && (m_mode_port == 53) && (m_mode_alternate == 1)));
-			GuiUtils.SetCheck(ChkModeUdp2018Alt, ((m_mode_protocol == "UDP") && (m_mode_port == 2018) && (m_mode_alternate == 1)));
-			GuiUtils.SetCheck(ChkModeTcp2018Alt, ((m_mode_protocol == "TCP") && (m_mode_port == 2018) && (m_mode_alternate == 1)));
-			
-			GuiUtils.SetCheck (ChkModeSsh22, ((m_mode_protocol == "SSH") && (m_mode_port == 22) && (m_mode_alternate == 0)));
-			GuiUtils.SetCheck (ChkModeSsh22Alt, ((m_mode_protocol == "SSH") && (m_mode_port == 22) && (m_mode_alternate == 1)));
-			GuiUtils.SetCheck (ChkModeSsh80, ((m_mode_protocol == "SSH") && (m_mode_port == 80) && (m_mode_alternate == 1)));
-			GuiUtils.SetCheck (ChkModeSsh53, ((m_mode_protocol == "SSH") && (m_mode_port == 53) && (m_mode_alternate == 1)));
-			GuiUtils.SetCheck (ChkModeSsl443, ((m_mode_protocol == "SSL") && (m_mode_port == 443) && (m_mode_alternate == 1)));
-
-			GuiUtils.SetCheck (ChkModeTor, ((m_mode_protocol == "TOR") && (m_mode_port == 2018) && (m_mode_alternate == 0)));
-
-			EnableIde ();
-		}
-
 		void RefreshLogPreview()
 		{
 			TxtLoggingComputedPath.StringValue = Engine.Instance.GetParseLogFilePaths (TxtLoggingPath.StringValue);
@@ -664,15 +491,33 @@ namespace AirVPN.UI.Osx
 				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Default");
 			*/
 
-			// Mode
-			m_mode_protocol = s.Get ("mode.protocol").ToUpperInvariant ();
-			m_mode_port = s.GetInt ("mode.port");
-			m_mode_alternate = s.GetInt ("mode.alt");
-			ChangeMode ();
-			TxtModeTorHost.StringValue = s.Get ("mode.tor.host");
-			TxtModeTorPort.StringValue = s.Get ("mode.tor.port");
-			TxtModeTorControlPort.StringValue = s.Get ("mode.tor.control.port");
-			TxtModeTorControlPassword.StringValue = s.Get ("mode.tor.control.password");
+			// Protocols
+			String protocol = s.Get ("mode.protocol").ToUpperInvariant ();
+			int port = s.GetInt ("mode.port");
+			int alternate = s.GetInt ("mode.alt");
+			if (protocol == "AUTO") {
+				GuiUtils.SetCheck (ChkProtocolsAutomatic, true);
+			} else {
+				bool found = false;
+
+				int iRow = 0;
+				foreach (TableProtocolsControllerItem itemProtocol in TableProtocolsController.Items) {
+					if ((itemProtocol.Protocol == protocol) &&
+					   (itemProtocol.Port == port) &&
+					   (itemProtocol.Entry == alternate)) {
+						found = true;
+						TableProtocols.SelectRow (iRow, false);
+						TableProtocols.ScrollRowToVisible (iRow);
+						break;
+					}
+					iRow++;
+				}
+
+				if(found == false)
+					GuiUtils.SetCheck (ChkProtocolsAutomatic, true);
+				else
+					GuiUtils.SetCheck (ChkProtocolsAutomatic, false);
+			}
 
 			// Proxy
 
@@ -682,6 +527,8 @@ namespace AirVPN.UI.Osx
 			GuiUtils.SetSelected (CboProxyAuthentication, s.Get ("proxy.auth"));
 			TxtProxyLogin.StringValue = s.Get ("proxy.login");
 			TxtProxyPassword.StringValue = s.Get ("proxy.password");
+			TxtProxyTorControlPort.StringValue = s.Get ("proxy.tor.control.port");
+			TxtProxyTorControlPassword.StringValue = s.Get ("proxy.tor.control.password");
 
 			// Routes
 			GuiUtils.SetSelected(CboRoutesOtherwise, RouteDirectionToDescription(s.Get("routes.default")));
@@ -734,7 +581,9 @@ namespace AirVPN.UI.Osx
 				GuiUtils.SetSelected(CboAdvancedManifestRefresh, "Automatic");
 
 			int openVpnSndBuf = s.GetInt("openvpn.sndbuf");
-			if (openVpnSndBuf == -1)
+			if (openVpnSndBuf == -2)
+				GuiUtils.SetSelected(CboOpenVpnSndBuf, Messages.Automatic);
+			else if (openVpnSndBuf == -1)
 				GuiUtils.SetSelected(CboOpenVpnSndBuf, Messages.WindowsSettingsOpenVpnDefault);
 			else if (openVpnSndBuf == 1024 * 8)
 				GuiUtils.SetSelected(CboOpenVpnSndBuf, "8 KB");
@@ -752,7 +601,9 @@ namespace AirVPN.UI.Osx
 				GuiUtils.SetSelected(CboOpenVpnSndBuf, "512 KB");
 
 			int openVpnRcvBuf = s.GetInt("openvpn.rcvbuf");
-			if (openVpnRcvBuf == -1)
+			if (openVpnRcvBuf == -2)
+				GuiUtils.SetSelected(CboOpenVpnRcvBuf, Messages.Automatic);
+			else if (openVpnRcvBuf == -1)
 				GuiUtils.SetSelected(CboOpenVpnRcvBuf, Messages.WindowsSettingsOpenVpnDefault);
 			else if (openVpnRcvBuf == 1024 * 8)
 				GuiUtils.SetSelected(CboOpenVpnRcvBuf, "8 KB");
@@ -860,15 +711,22 @@ namespace AirVPN.UI.Osx
 				Platform.Instance.ShellCmd ("defaults remove -g AppleInterfaceStyle");
 			*/
 
-			// Mode
+			// Protocols
+			if (GuiUtils.GetCheck (ChkProtocolsAutomatic)) {
+				s.Set ("mode.protocol", "AUTO");
+				s.SetInt ("mode.port", 443);
+				s.SetInt ("mode.alt", 0);
+			} else if (TableProtocols.SelectedRowCount == 1) {
+				TableProtocolsControllerItem itemProtocol = TableProtocolsController.Items [TableProtocols.SelectedRow];
+				s.Set("mode.protocol", itemProtocol.Protocol);
+				s.SetInt ("mode.port", itemProtocol.Port);
+				s.SetInt ("mode.alt", itemProtocol.Entry);
+			} else {
+				s.Set ("mode.protocol", "AUTO");
+				s.SetInt ("mode.port", 443);
+				s.SetInt ("mode.alt", 0);
+			}
 
-			s.Set ("mode.protocol", m_mode_protocol);
-			s.SetInt ("mode.port", m_mode_port);
-			s.SetInt ("mode.alt", m_mode_alternate);
-			s.Set ("mode.tor.host", TxtModeTorHost.StringValue);
-			s.SetInt ("mode.tor.port", Conversions.ToInt32(TxtModeTorPort.StringValue));
-			s.SetInt ("mode.tor.control.port", Conversions.ToInt32(TxtModeTorControlPort.StringValue));
-			s.Set ("mode.tor.control.password", TxtModeTorControlPassword.StringValue);
 
 			// Proxy
 
@@ -878,6 +736,8 @@ namespace AirVPN.UI.Osx
 			s.Set ("proxy.auth", GuiUtils.GetSelected (CboProxyAuthentication));
 			s.Set ("proxy.login", TxtProxyLogin.StringValue);
 			s.Set ("proxy.password", TxtProxyPassword.StringValue);
+			s.SetInt ("proxy.tor.control.port", Conversions.ToInt32 (TxtProxyTorControlPort.StringValue));
+			s.Set ("proxy.tor.control.password", TxtProxyTorControlPassword.StringValue);
 
 			// Routes
 			s.Set ("routes.default", RouteDescriptionToDirection (GuiUtils.GetSelected (CboRoutesOtherwise)));
@@ -919,7 +779,9 @@ namespace AirVPN.UI.Osx
 				s.SetInt("advanced.manifest.refresh", 60);
 
 			string openVpnSndBuf = GuiUtils.GetSelected(CboOpenVpnSndBuf);
-			if (openVpnSndBuf == Messages.WindowsSettingsOpenVpnDefault)
+			if (openVpnSndBuf == Messages.Automatic)
+				s.SetInt("openvpn.sndbuf", -2);
+			else if (openVpnSndBuf == Messages.WindowsSettingsOpenVpnDefault)
 				s.SetInt("openvpn.sndbuf", -1);
 			else if (openVpnSndBuf == "8 KB")
 				s.SetInt("openvpn.sndbuf", 1024 * 8);
@@ -937,7 +799,9 @@ namespace AirVPN.UI.Osx
 				s.SetInt("openvpn.sndbuf", 1024 * 512);
 
 			string openVpnRcvBuf = GuiUtils.GetSelected(CboOpenVpnRcvBuf);
-			if (openVpnRcvBuf == Messages.WindowsSettingsOpenVpnDefault)
+			if (openVpnRcvBuf == Messages.Automatic)
+				s.SetInt("openvpn.rcvbuf", -2);
+			else if (openVpnRcvBuf == Messages.WindowsSettingsOpenVpnDefault)
 				s.SetInt("openvpn.rcvbuf", -1);
 			else if (openVpnRcvBuf == "8 KB")
 				s.SetInt("openvpn.rcvbuf", 1024 * 8);
@@ -1010,35 +874,22 @@ namespace AirVPN.UI.Osx
 
 		public void EnableIde()
 		{
+			// Protocols
+			TableProtocols.Enabled = (GuiUtils.GetCheck (ChkProtocolsAutomatic) == false);
+
+			// Proxy
 			bool proxy = (GuiUtils.GetSelected (CboProxyType) != "None");
+			bool tor = (GuiUtils.GetSelected (CboProxyType) == "Tor");
+
 			TxtProxyHost.Enabled = proxy;
 			TxtProxyPort.Enabled = proxy;
-			CboProxyAuthentication.Enabled = proxy;
-			TxtProxyLogin.Enabled = ((proxy) && (GuiUtils.GetSelected (CboProxyAuthentication) != "None"));
+			CboProxyAuthentication.Enabled = (proxy && !tor);
+			TxtProxyLogin.Enabled = ((proxy) && (!tor) && (GuiUtils.GetSelected (CboProxyAuthentication) != "None"));
 			TxtProxyPassword.Enabled = TxtProxyLogin.Enabled;
-
-			ChkModeSsh22.Enabled = ((proxy == false) && (m_modeSshEnabled));
-			ChkModeSsh22Alt.Enabled = ((proxy == false) && (m_modeSshEnabled));
-			ChkModeSsh53.Enabled = ((proxy == false) && (m_modeSshEnabled));
-			ChkModeSsh80.Enabled = ((proxy == false) && (m_modeSshEnabled));
-			ChkModeSsl443.Enabled = ((proxy == false) && (m_modeSslEnabled));
-			ChkModeTor.Enabled = (proxy == false);
-
-			ChkModeUdp2018.Enabled = (proxy == false);
-			ChkModeUdp2018Alt.Enabled = (proxy == false);
-			ChkModeUdp443.Enabled = (proxy == false);
-			ChkModeUdp443Alt.Enabled = (proxy == false);
-			ChkModeUdp53.Enabled = (proxy == false);
-			ChkModeUdp53Alt.Enabled = (proxy == false);
-			ChkModeUdp80.Enabled = (proxy == false);
-			ChkModeUdp80Alt.Enabled = (proxy == false);
-
-			TxtModeTorHost.Enabled = GuiUtils.GetCheck (ChkModeTor);
-			TxtModeTorPort.Enabled = GuiUtils.GetCheck (ChkModeTor);
-			TxtModeTorControlPort.Enabled = GuiUtils.GetCheck (ChkModeTor);
-			TxtModeTorControlPassword.Enabled = GuiUtils.GetCheck (ChkModeTor);
-			CmdModeTorTest.Enabled = GuiUtils.GetCheck (ChkModeTor);
-
+			TxtProxyTorControlPort.Enabled = tor;
+			TxtProxyTorControlPassword.Enabled = tor;
+			CmdProxyTorTest.Enabled = tor;
+		
 			// Routing
 			CmdRouteAdd.Enabled = true;
 			CmdRouteRemove.Enabled = (TableRoutes.SelectedRowCount > 0);

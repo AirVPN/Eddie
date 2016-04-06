@@ -74,7 +74,7 @@ namespace AirVPN.UI.Osx
 
 			CmdMore.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.Actions.OpenUrlWebsite();
+				Engine.Instance.Command ("ui.show.website");
 			};
 		}
 	}

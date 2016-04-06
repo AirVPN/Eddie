@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Xml;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using AirVPN.Core;
@@ -158,6 +159,19 @@ namespace AirVPN.UI.Osx
 				new NSObject().InvokeOnMainThread(() =>
 					{
 						MainWindow.PostManifestUpdate();
+					});
+			}
+		}
+
+		public override void OnLoggedUpdate (XmlElement xmlKeys)
+		{
+			base.OnLoggedUpdate (xmlKeys);
+
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+					{
+						MainWindow.LoggedUpdate(xmlKeys);
 					});
 			}
 		}

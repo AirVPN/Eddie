@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Xml;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using AirVPN.Core;
@@ -148,6 +149,11 @@ namespace AirVPN.UI.Osx
 
 			TxtPassword.Activated += (object sender, EventArgs e) => {
 				EnabledUI();
+			};
+
+			CboKey.Activated += (object sender, EventArgs e) => {
+				Engine.Instance.Storage.Set("key", CboKey.SelectedItem.Title);
+				GuiUtils.MessageBox(Engine.Instance.Storage.Get("key") + "-" + CboKey.SelectedItem.Title);
 			};
 
 			CmdConnect.Activated += (object sender, EventArgs e) =>
@@ -289,7 +295,7 @@ namespace AirVPN.UI.Osx
 
 			CmdLogsSupport.Activated += (object sender, EventArgs e) =>
 			{
-				LogsDoCopy(false);
+				SupportReport();
 			};		
 
 			MnuLogsCopyAll.Activated += (object sender, EventArgs e) =>
@@ -622,6 +628,8 @@ namespace AirVPN.UI.Osx
 
 			TxtLogin.Enabled = (logged == false);
 			TxtPassword.Enabled = (logged == false);
+			LblKey.Hidden = ( (logged == false) || (CboKey.ItemCount < 2) );
+			CboKey.Hidden = LblKey.Hidden;
 
 			if (logged) {
 				CmdConnect.Enabled = true;
@@ -706,6 +714,29 @@ namespace AirVPN.UI.Osx
 		{
 			MnuServersRefresh.Enabled = true;
 			CmdServersRefresh.Enabled = true;
+		}
+
+		public void LoggedUpdate(XmlElement xmlKeys)
+		{
+			GuiUtils.MessageBox ("LoggedUpdate, keys:" + xmlKeys.ChildNodes.Count.ToString ());
+			CboKey.RemoveAllItems ();
+			foreach (XmlElement xmlKey in xmlKeys.ChildNodes) {
+				string keyName = xmlKey.GetAttribute ("name");
+				CboKey.AddItem(keyName);
+			}
+			string currentKey = Engine.Instance.Storage.Get ("key");
+			int currentIndex = CboKey.IndexOfItem (currentKey);
+			if (currentIndex != -1) {
+				CboKey.SelectItem (currentIndex);
+			} else {
+				if (CboKey.ItemCount > 0) {
+					CboKey.SelectItem (0);
+					Engine.Instance.Storage.Set ("key", CboKey.ItemAtIndex(0).Title);
+				} else {
+					Engine.Instance.Storage.Set ("key", "");
+				}
+			}
+			
 		}
 
 		public void RequestAttention()
@@ -913,6 +944,17 @@ namespace AirVPN.UI.Osx
 			TableAreasController.RefreshUI ();
 		}
 
+		void SupportReport()
+		{
+			//string report = Engine.Instance.GetSupportReport (TableLogsController.GetBody (false));
+			string report = "Pazzo";
+
+			string [] pboardTypes = new string[] { "NSStringPboardType" };
+			NSPasteboard.GeneralPasteboard.DeclareTypes (pboardTypes, null);
+			NSPasteboard.GeneralPasteboard.SetStringForType (report, pboardTypes [0]);
+			GuiUtils.MessageBox (Messages.LogsCopyClipboardDone);
+		}
+
 		void LogsDoCopy(bool selectedOnly)
 		{
 			string t = TableLogsController.GetBody (selectedOnly);
@@ -959,22 +1001,22 @@ namespace AirVPN.UI.Osx
 
 		public void ShowHome()
 		{
-			AirVPN.Core.UI.Actions.OpenUrlWebsite();
+			Engine.Instance.Command ("ui.show.website");
 		}
 
 		public void ShowClientArea()
 		{
-			AirVPN.Core.UI.Actions.OpenUrlClient();
+			Engine.Instance.Command ("ui.show.clientarea");
 		}
 
 		public void ShowForwardingPorts()
 		{
-			AirVPN.Core.UI.Actions.OpenUrlPorts();
+			Engine.Instance.Command ("ui.show.ports");
 		}
 
 		public void ShowSpeedTest()
 		{
-			AirVPN.Core.UI.Actions.OpenUrlSpeedTest();
+			Engine.Instance.Command ("ui.show.speedtest");
 		}
 
 		public void Minimize()

@@ -13,6 +13,9 @@ namespace AirVPN.UI.Osx
 	partial class MainWindowController
 	{
 		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboKey { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboServersScoringRule { get; set; }
 
 		[Outlet]
@@ -107,6 +110,12 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblConnectedServerName { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblDevice { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblKey { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSImageView LblNetLockStatus { get; set; }
@@ -245,6 +254,11 @@ namespace AirVPN.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (CboKey != null) {
+				CboKey.Dispose ();
+				CboKey = null;
+			}
+
 			if (CboServersScoringRule != null) {
 				CboServersScoringRule.Dispose ();
 				CboServersScoringRule = null;
@@ -405,6 +419,16 @@ namespace AirVPN.UI.Osx
 				LblConnectedServerName = null;
 			}
 
+			if (LblDevice != null) {
+				LblDevice.Dispose ();
+				LblDevice = null;
+			}
+
+			if (LblKey != null) {
+				LblKey.Dispose ();
+				LblKey = null;
+			}
+
 			if (LblNetLockStatus != null) {
 				LblNetLockStatus.Dispose ();
 				LblNetLockStatus = null;
@@ -470,6 +494,11 @@ namespace AirVPN.UI.Osx
 				MnuServersConnect = null;
 			}
 
+			if (MnuServersRefresh != null) {
+				MnuServersRefresh.Dispose ();
+				MnuServersRefresh = null;
+			}
+
 			if (MnuServersUndefined != null) {
 				MnuServersUndefined.Dispose ();
 				MnuServersUndefined = null;
@@ -478,11 +507,6 @@ namespace AirVPN.UI.Osx
 			if (MnuServersWhitelist != null) {
 				MnuServersWhitelist.Dispose ();
 				MnuServersWhitelist = null;
-			}
-
-			if (MnuServersRefresh != null) {
-				MnuServersRefresh.Dispose ();
-				MnuServersRefresh = null;
 			}
 
 			if (MnuTray != null) {

@@ -88,67 +88,10 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton ChkLogLevelDebug { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeAutomatic { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeSsh22 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeSsh22Alt { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeSsh53 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeSsh80 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeSsl443 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeTcp2018 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeTcp2018Alt { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeTcp443 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeTcp53 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeTcp80 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeTor { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp2018 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp2018Alt { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp443 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp443Alt { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp53 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp53Alt { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp80 { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkModeUdp80Alt { get; set; }
-
-		[Outlet]
 		MonoMac.AppKit.NSButton ChkNetLock { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkProtocolsAutomatic { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
@@ -184,10 +127,16 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSButton CmdLockHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdModeHelp { get; set; }
+		MonoMac.AppKit.NSButton CmdProtocolsHelp1 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdModeTorTest { get; set; }
+		MonoMac.AppKit.NSButton CmdProtocolsHelp2 { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdProxyTorHelp { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdProxyTorTest { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdRouteAdd { get; set; }
@@ -226,6 +175,9 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSTableView TableDnsServers { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTableView TableProtocols { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTableView TableRoutes { get; set; }
 
 		[Outlet]
@@ -247,18 +199,6 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSTextField TxtLoggingPath { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtModeTorControlPassword { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSTextField TxtModeTorControlPort { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSTextField TxtModeTorHost { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSTextField TxtModeTorPort { get; set; }
-
-		[Outlet]
 		MonoMac.AppKit.NSTextField TxtProxyHost { get; set; }
 
 		[Outlet]
@@ -269,6 +209,12 @@ namespace AirVPN.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField TxtProxyPort { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtProxyTorControlPassword { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtProxyTorControlPort { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -297,14 +243,14 @@ namespace AirVPN.UI.Osx
 				CboLockMode = null;
 			}
 
-			if (CboOpenVpnSndBuf != null) {
-				CboOpenVpnSndBuf.Dispose ();
-				CboOpenVpnSndBuf = null;
-			}
-
 			if (CboOpenVpnRcvBuf != null) {
 				CboOpenVpnRcvBuf.Dispose ();
 				CboOpenVpnRcvBuf = null;
+			}
+
+			if (CboOpenVpnSndBuf != null) {
+				CboOpenVpnSndBuf.Dispose ();
+				CboOpenVpnSndBuf = null;
 			}
 
 			if (CboProxyAuthentication != null) {
@@ -335,6 +281,11 @@ namespace AirVPN.UI.Osx
 			if (ChkAdvancedNetworkLocking != null) {
 				ChkAdvancedNetworkLocking.Dispose ();
 				ChkAdvancedNetworkLocking = null;
+			}
+
+			if (ChkProtocolsAutomatic != null) {
+				ChkProtocolsAutomatic.Dispose ();
+				ChkProtocolsAutomatic = null;
 			}
 
 			if (ChkAdvancedOpenVpnDirectivesDefaultSkip != null) {
@@ -397,106 +348,6 @@ namespace AirVPN.UI.Osx
 				ChkLogLevelDebug = null;
 			}
 
-			if (ChkModeAutomatic != null) {
-				ChkModeAutomatic.Dispose ();
-				ChkModeAutomatic = null;
-			}
-
-			if (ChkModeSsh22 != null) {
-				ChkModeSsh22.Dispose ();
-				ChkModeSsh22 = null;
-			}
-
-			if (ChkModeSsh22Alt != null) {
-				ChkModeSsh22Alt.Dispose ();
-				ChkModeSsh22Alt = null;
-			}
-
-			if (ChkModeSsh53 != null) {
-				ChkModeSsh53.Dispose ();
-				ChkModeSsh53 = null;
-			}
-
-			if (ChkModeSsh80 != null) {
-				ChkModeSsh80.Dispose ();
-				ChkModeSsh80 = null;
-			}
-
-			if (ChkModeSsl443 != null) {
-				ChkModeSsl443.Dispose ();
-				ChkModeSsl443 = null;
-			}
-
-			if (ChkModeTcp2018 != null) {
-				ChkModeTcp2018.Dispose ();
-				ChkModeTcp2018 = null;
-			}
-
-			if (ChkModeTcp2018Alt != null) {
-				ChkModeTcp2018Alt.Dispose ();
-				ChkModeTcp2018Alt = null;
-			}
-
-			if (ChkModeTcp443 != null) {
-				ChkModeTcp443.Dispose ();
-				ChkModeTcp443 = null;
-			}
-
-			if (ChkModeTcp53 != null) {
-				ChkModeTcp53.Dispose ();
-				ChkModeTcp53 = null;
-			}
-
-			if (ChkModeTcp80 != null) {
-				ChkModeTcp80.Dispose ();
-				ChkModeTcp80 = null;
-			}
-
-			if (ChkModeTor != null) {
-				ChkModeTor.Dispose ();
-				ChkModeTor = null;
-			}
-
-			if (ChkModeUdp2018 != null) {
-				ChkModeUdp2018.Dispose ();
-				ChkModeUdp2018 = null;
-			}
-
-			if (ChkModeUdp2018Alt != null) {
-				ChkModeUdp2018Alt.Dispose ();
-				ChkModeUdp2018Alt = null;
-			}
-
-			if (ChkModeUdp443 != null) {
-				ChkModeUdp443.Dispose ();
-				ChkModeUdp443 = null;
-			}
-
-			if (ChkModeUdp443Alt != null) {
-				ChkModeUdp443Alt.Dispose ();
-				ChkModeUdp443Alt = null;
-			}
-
-			if (ChkModeUdp53 != null) {
-				ChkModeUdp53.Dispose ();
-				ChkModeUdp53 = null;
-			}
-
-			if (ChkModeUdp53Alt != null) {
-				ChkModeUdp53Alt.Dispose ();
-				ChkModeUdp53Alt = null;
-			}
-
-			if (ChkModeUdp80 != null) {
-				ChkModeUdp80.Dispose ();
-				ChkModeUdp80 = null;
-			}
-
-			if (ChkModeUdp80Alt != null) {
-				ChkModeUdp80Alt.Dispose ();
-				ChkModeUdp80Alt = null;
-			}
-
 			if (ChkNetLock != null) {
 				ChkNetLock.Dispose ();
 				ChkNetLock = null;
@@ -557,14 +408,24 @@ namespace AirVPN.UI.Osx
 				CmdLockHelp = null;
 			}
 
-			if (CmdModeHelp != null) {
-				CmdModeHelp.Dispose ();
-				CmdModeHelp = null;
+			if (CmdProtocolsHelp1 != null) {
+				CmdProtocolsHelp1.Dispose ();
+				CmdProtocolsHelp1 = null;
 			}
 
-			if (CmdModeTorTest != null) {
-				CmdModeTorTest.Dispose ();
-				CmdModeTorTest = null;
+			if (CmdProtocolsHelp2 != null) {
+				CmdProtocolsHelp2.Dispose ();
+				CmdProtocolsHelp2 = null;
+			}
+
+			if (CmdProxyTorHelp != null) {
+				CmdProxyTorHelp.Dispose ();
+				CmdProxyTorHelp = null;
+			}
+
+			if (CmdProxyTorTest != null) {
+				CmdProxyTorTest.Dispose ();
+				CmdProxyTorTest = null;
 			}
 
 			if (CmdRouteAdd != null) {
@@ -602,14 +463,14 @@ namespace AirVPN.UI.Osx
 				LblLoggingHelp = null;
 			}
 
-			if (LblOpenVpnSndBuf != null) {
-				LblOpenVpnSndBuf.Dispose ();
-				LblOpenVpnSndBuf = null;
-			}
-
 			if (LblOpenVpnRcvBuf != null) {
 				LblOpenVpnRcvBuf.Dispose ();
 				LblOpenVpnRcvBuf = null;
+			}
+
+			if (LblOpenVpnSndBuf != null) {
+				LblOpenVpnSndBuf.Dispose ();
+				LblOpenVpnSndBuf = null;
 			}
 
 			if (LblRoutesNetworkLockWarning != null) {
@@ -625,6 +486,11 @@ namespace AirVPN.UI.Osx
 			if (TableDnsServers != null) {
 				TableDnsServers.Dispose ();
 				TableDnsServers = null;
+			}
+
+			if (TableProtocols != null) {
+				TableProtocols.Dispose ();
+				TableProtocols = null;
 			}
 
 			if (TableRoutes != null) {
@@ -662,26 +528,6 @@ namespace AirVPN.UI.Osx
 				TxtLoggingPath = null;
 			}
 
-			if (TxtModeTorControlPassword != null) {
-				TxtModeTorControlPassword.Dispose ();
-				TxtModeTorControlPassword = null;
-			}
-
-			if (TxtModeTorControlPort != null) {
-				TxtModeTorControlPort.Dispose ();
-				TxtModeTorControlPort = null;
-			}
-
-			if (TxtModeTorHost != null) {
-				TxtModeTorHost.Dispose ();
-				TxtModeTorHost = null;
-			}
-
-			if (TxtModeTorPort != null) {
-				TxtModeTorPort.Dispose ();
-				TxtModeTorPort = null;
-			}
-
 			if (TxtProxyHost != null) {
 				TxtProxyHost.Dispose ();
 				TxtProxyHost = null;
@@ -700,6 +546,16 @@ namespace AirVPN.UI.Osx
 			if (TxtProxyPort != null) {
 				TxtProxyPort.Dispose ();
 				TxtProxyPort = null;
+			}
+
+			if (TxtProxyTorControlPassword != null) {
+				TxtProxyTorControlPassword.Dispose ();
+				TxtProxyTorControlPassword = null;
+			}
+
+			if (TxtProxyTorControlPort != null) {
+				TxtProxyTorControlPort.Dispose ();
+				TxtProxyTorControlPort = null;
 			}
 		}
 	}

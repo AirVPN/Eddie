@@ -63,22 +63,25 @@ namespace AirVPN.UI.Osx
 			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
 
 			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
-			TxtLicense.Value = Core.UI.Actions.GetAboutLicense ();
-			TxtLibraries.Value = Core.UI.Actions.GetAboutThirdParty ();
+			//TxtLicense.Value = Core.UI.Actions.GetAboutLicense ();
+			//TxtLibraries.Value = Core.UI.Actions.GetAboutThirdParty ();
 
 			CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
-				AirVPN.Core.UI.Actions.OpenUrlWebsite();
+				Engine.Instance.Command ("ui.show.website");
+				Engine.Instance.Command ("ui.show.gpl");
+				Engine.Instance.Command ("ui.show.license");
+				Engine.Instance.Command ("ui.show.libraries");
 			};
 
 			CmdSoftware.Activated += (object sender, EventArgs e) =>
 			{
-				AirVPN.Core.UI.Actions.OpenUrlDocs();
+				Engine.Instance.Command ("ui.show.docs.general");
 			};
 
 			CmdSources.Activated += (object sender, EventArgs e) =>
 			{
-				AirVPN.Core.UI.Actions.OpenUrlSources();
+				Engine.Instance.Command ("ui.show.sources");
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
