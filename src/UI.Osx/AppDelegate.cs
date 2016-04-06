@@ -41,7 +41,6 @@ namespace AirVPN.UI.Osx
 
 		public override void FinishedLaunching (NSObject notification)
 		{
-
 			Engine.Instance.TerminateEvent += delegate() {
 				new NSObject ().InvokeOnMainThread (() => {
 					//NSApplication.SharedApplication.ReplyToApplicationShouldTerminate (true);

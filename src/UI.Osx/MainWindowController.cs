@@ -153,7 +153,6 @@ namespace AirVPN.UI.Osx
 
 			CboKey.Activated += (object sender, EventArgs e) => {
 				Engine.Instance.Storage.Set("key", CboKey.SelectedItem.Title);
-				GuiUtils.MessageBox(Engine.Instance.Storage.Get("key") + "-" + CboKey.SelectedItem.Title);
 			};
 
 			CmdConnect.Activated += (object sender, EventArgs e) =>
@@ -410,12 +409,8 @@ namespace AirVPN.UI.Osx
 				Shutdown();
 			};
 
-			
-
-
-
-
 			Engine.MainWindow = this;
+			Engine.UiStart ();
 
 			Engine.OnRefreshUi ();
 
@@ -718,7 +713,6 @@ namespace AirVPN.UI.Osx
 
 		public void LoggedUpdate(XmlElement xmlKeys)
 		{
-			GuiUtils.MessageBox ("LoggedUpdate, keys:" + xmlKeys.ChildNodes.Count.ToString ());
 			CboKey.RemoveAllItems ();
 			foreach (XmlElement xmlKey in xmlKeys.ChildNodes) {
 				string keyName = xmlKey.GetAttribute ("name");
