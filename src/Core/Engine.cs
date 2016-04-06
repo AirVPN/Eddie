@@ -320,20 +320,23 @@ namespace AirVPN.Core
                 if (Storage.Get("profile") != "AirVPN")
                     Engine.Instance.Log(Engine.LogType.Verbose, "Profile: " + Storage.Get("profile"));
 
-				return OnInit2();
+                //return OnInit2(); // 2.11, now called on ConsoleStart and UiStart
+                return true;
             }
         }
 
 		public virtual bool OnInit2()
         {
-			PostManifestUpdate();
+            Start();
+
+            PostManifestUpdate();
 
             LoggedUpdate();
 
             m_threadPinger = new Threads.Pinger();
 			m_threadPenalities = new Threads.Penalities();
 			m_threadManifest = new Threads.Manifest();
-
+            
             return true;
         }
 
@@ -585,7 +588,7 @@ namespace AirVPN.Core
 			
 		}
 
-		public void ConsoleStart()
+		public bool ConsoleStart()
 		{
 			ConsoleMode = true;
 
@@ -605,15 +608,17 @@ namespace AirVPN.Core
 				Engine.Instance.Log(Engine.LogType.Info, Messages.ConsoleKeyboardHelp);				
 
 				if(Storage.GetBool("connect") == false)
-					Engine.Instance.Log(Engine.LogType.Info, Messages.ConsoleKeyboardHelpNoConnect);									
-				
-				Start();
+					Engine.Instance.Log(Engine.LogType.Info, Messages.ConsoleKeyboardHelpNoConnect);
+
+                return OnInit2();				
 			}
+
+            return false;
 		}
 
-		public void UiStart()
+		public bool UiStart()
 		{
-			Start();
+            return OnInit2();
 		}
 
 		public void ConsoleExit()
@@ -1029,7 +1034,10 @@ namespace AirVPN.Core
 					Stats.UpdateValue("ServerLoad", Engine.CurrentServer.Load().ToString());
 					Stats.UpdateValue("ServerUsers", Engine.CurrentServer.Users.ToString());
 
-					Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP);
+                    Stats.UpdateValue("AccountLogin", Engine.Storage.Get("login"));
+                    Stats.UpdateValue("AccountKey", Engine.Storage.Get("key"));
+
+                    Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP);
 					Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpExit);
 					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
 					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
@@ -1056,7 +1064,10 @@ namespace AirVPN.Core
 					Stats.UpdateValue("ServerLoad", Messages.StatsNotConnected);
 					Stats.UpdateValue("ServerUsers", Messages.StatsNotConnected);
 
-					Stats.UpdateValue("VpnIpEntry", Messages.StatsNotConnected);
+                    Stats.UpdateValue("AccountLogin", Messages.StatsNotConnected);
+                    Stats.UpdateValue("AccountKey", Messages.StatsNotConnected);
+
+                    Stats.UpdateValue("VpnIpEntry", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnIpExit", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnProtocol", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnPort", Messages.StatsNotConnected);

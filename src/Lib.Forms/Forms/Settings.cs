@@ -75,7 +75,7 @@ namespace AirVPN.Gui.Forms
                 foreach (XmlElement xmlMode in xmlModes)
                 {
                     Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
-                    itemMode.Protocol = xmlMode.GetAttribute("protocol").ToUpper();
+                    itemMode.Protocol = xmlMode.GetAttribute("protocol").ToUpperInvariant();
                     itemMode.Port = Conversions.ToInt32(xmlMode.GetAttribute("port"), 443);
                     itemMode.Entry = Conversions.ToInt32(xmlMode.GetAttribute("entry_index"),0);
                     while (itemMode.SubItems.Count < 5)
@@ -95,6 +95,16 @@ namespace AirVPN.Gui.Forms
                 }
                 lstProtocols.ResizeColumnsAuto();
             }
+
+            // Proxy
+            cboProxyMode.Items.Clear();
+            cboProxyMode.Items.Add("None");
+            cboProxyMode.Items.Add("Detect");
+            cboProxyMode.Items.Add("Http");
+            cboProxyMode.Items.Add("Socks");
+            cboProxyMode.Items.Add("Tor");
+
+            // Routes
 
             lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
             lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
@@ -686,31 +696,7 @@ namespace AirVPN.Gui.Forms
             
             // Protocols
             lstProtocols.Enabled = (chkProtocolsAutomatic.Checked == false);
-
-            /* // TOCLEAN
-            optModeSSH22.Enabled = ((proxy == false) && (m_modeSshEnabled));
-            optModeSSH22Alt.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
-            optModeSSH53.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
-            optModeSSH80.Enabled = ( (proxy == false) && (m_modeSshEnabled) );
-            optModeSSL443.Enabled = ( (proxy == false) && (m_modeSslEnabled) );
-			optModeTor.Enabled = (proxy == false);
-
-            optModeUDP2018.Enabled = (proxy == false);
-            optModeUDP2018Alt.Enabled = (proxy == false);
-            optModeUDP443.Enabled = (proxy == false);
-            optModeUDP443Alt.Enabled = (proxy == false);
-            optModeUDP53.Enabled = (proxy == false);
-            optModeUDP53Alt.Enabled = (proxy == false);
-            optModeUDP80.Enabled = (proxy == false);
-            optModeUDP80Alt.Enabled = (proxy == false);
-
-			txtModeTorHost.Enabled = optModeTor.Checked;
-			txtModeTorPort.Enabled = optModeTor.Checked;
-			txtModeTorControlPort.Enabled = optModeTor.Checked;
-			txtModeTorControlPassword.Enabled = optModeTor.Checked;
-			cmdModeTorTest.Enabled = optModeTor.Checked;
-            */
-
+            
             cmdRouteAdd.Enabled = true;
             mnuRoutesAdd.Enabled = cmdRouteAdd.Enabled;
             cmdRouteRemove.Enabled = (lstRoutes.SelectedItems.Count > 0);
@@ -822,7 +808,7 @@ namespace AirVPN.Gui.Forms
         {
             Engine.Instance.Command("ui.show.docs.advanced");
         }
-                
+
         private void cmdRouteAdd_Click(object sender, EventArgs e)
         {
             SettingsRoute Dlg = new SettingsRoute();            

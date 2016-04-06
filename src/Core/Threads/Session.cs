@@ -279,11 +279,6 @@ namespace AirVPN.Core.Threads
 						if(m_reset == "")
 							oneConnectionReached = true;
 
-						if( (m_reset == "") && (Engine.Instance.Storage.GetBool("advanced.testmode")) )
-						{
-                            SetReset("FATAL");
-                        }
-
 						// -----------------------------------
 						// Phase 3 - Running
 						// -----------------------------------
@@ -512,11 +507,6 @@ namespace AirVPN.Core.Threads
                 if (m_programScope != null)
                     m_programScope.End();
 
-                if (Engine.Instance.Storage.GetBool("advanced.testmode"))
-                {
-                    Engine.Instance.RequestStop();
-                }
-
                 if (m_reset == "AUTH_FAILED")
 				{
 					waitingMessage = "Auth failed, retry in {1} sec.";
@@ -529,6 +519,14 @@ namespace AirVPN.Core.Threads
 				}
                 else if (m_reset == "FATAL") 
                 {
+                    if (Engine.Instance.Storage.GetBool("advanced.testmode"))
+                    {
+                        Engine.Instance.RequestStop();
+                    }
+                    else
+                    {
+                        Engine.Instance.Disconnect();
+                    }
                     break;
                 }
 								

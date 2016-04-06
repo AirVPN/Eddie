@@ -1103,7 +1103,7 @@ namespace AirVPN.Gui.Forms
             // 
             // colProtocolsEntry
             // 
-            this.colProtocolsEntry.Text = "Entry Index";
+            this.colProtocolsEntry.Text = "Entry";
             // 
             // colProtocolsCipher
             // 
