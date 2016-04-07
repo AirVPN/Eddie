@@ -154,6 +154,8 @@
     <Compile Include="WindowPreferencesEvent.designer.cs">
       <DependentUpon>WindowPreferencesEvent.cs</DependentUpon>
     </Compile>
+    <Compile Include="TableTabsController.cs" />
+    <Compile Include="TableTabsDelegate.cs" />
     <Compile Include="TableProtocolsController.cs" />
     <Compile Include="TableProtocolsDelegate.cs" />
     <Compile Include="TableAdvancedEventsController.cs" />

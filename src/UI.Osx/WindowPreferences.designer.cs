@@ -181,6 +181,12 @@ namespace AirVPN.UI.Osx
 		MonoMac.AppKit.NSTableView TableRoutes { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTableView TableTabs { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTabView TabMain { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextField TxtAdvancedOpenVpnDirectivesCustom { get; set; }
 
 		[Outlet]
@@ -283,9 +289,9 @@ namespace AirVPN.UI.Osx
 				ChkAdvancedNetworkLocking = null;
 			}
 
-			if (ChkProtocolsAutomatic != null) {
-				ChkProtocolsAutomatic.Dispose ();
-				ChkProtocolsAutomatic = null;
+			if (TableTabs != null) {
+				TableTabs.Dispose ();
+				TableTabs = null;
 			}
 
 			if (ChkAdvancedOpenVpnDirectivesDefaultSkip != null) {
@@ -351,6 +357,11 @@ namespace AirVPN.UI.Osx
 			if (ChkNetLock != null) {
 				ChkNetLock.Dispose ();
 				ChkNetLock = null;
+			}
+
+			if (ChkProtocolsAutomatic != null) {
+				ChkProtocolsAutomatic.Dispose ();
+				ChkProtocolsAutomatic = null;
 			}
 
 			if (ChkRouteRemoveDefaultGateway != null) {
@@ -496,6 +507,16 @@ namespace AirVPN.UI.Osx
 			if (TableRoutes != null) {
 				TableRoutes.Dispose ();
 				TableRoutes = null;
+			}
+
+			if (TableTabs != null) {
+				TableTabs.Dispose ();
+				TableTabs = null;
+			}
+
+			if (TabMain != null) {
+				TabMain.Dispose ();
+				TabMain = null;
 			}
 
 			if (TxtAdvancedOpenVpnDirectivesCustom != null) {

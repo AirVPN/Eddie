@@ -27,6 +27,7 @@ namespace AirVPN.UI.Osx
 {
 	public partial class WindowPreferencesController : MonoMac.AppKit.NSWindowController
 	{
+		private TableTabsController TableTabsController;
 		private TableProtocolsController TableProtocolsController;
 		private TableRoutingController TableRoutingController;
 		private TableDnsServersController TableDnsServersController;
@@ -66,6 +67,8 @@ namespace AirVPN.UI.Osx
 			base.AwakeFromNib ();
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsTitle;
+
+			TableTabsController = new TableTabsController (TableTabs, TabMain);
 
 			ChkConnect.Title = Messages.WindowsSettingsConnect;
 			ChkNetLock.Title = Messages.WindowsSettingsNetLock;
