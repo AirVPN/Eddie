@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7531" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7531" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7531"/>
     </dependencies>
@@ -495,7 +495,7 @@
                                                         <tableColumns>
                                                             <tableColumn identifier="List" width="20" minWidth="20" maxWidth="20" id="09z-op-ebr">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
@@ -504,7 +504,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Flag" width="20" minWidth="20" maxWidth="20" id="UfC-AM-bgS">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
@@ -513,7 +513,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Name" width="80" minWidth="10" maxWidth="1000" id="I8R-cI-tVr">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Name">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -526,7 +526,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Score" width="50" minWidth="50" maxWidth="50" id="NO0-pY-CvN">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Score">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -535,7 +535,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Location" width="80" minWidth="10" maxWidth="1000" id="JR8-RK-IYR">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Location">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -548,7 +548,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Latency" width="50" minWidth="50" maxWidth="50" id="fL5-dU-hBZ">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Latency">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -561,7 +561,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="LoadIcon" width="20" minWidth="20" maxWidth="20" id="VSP-bZ-fG3">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -570,7 +570,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Load" width="150" minWidth="150" maxWidth="150" id="m3g-Qz-fK0">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Load">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -583,7 +583,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Users" width="35" minWidth="10" maxWidth="1000" id="fsf-F5-uMf">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Users">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -658,7 +658,7 @@
                                             <rect key="frame" x="537" y="296" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="connect_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tM1-dT-S0R">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="connect" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tM1-dT-S0R">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -751,7 +751,7 @@
                                                         <tableColumns>
                                                             <tableColumn identifier="List" width="20" minWidth="20" maxWidth="20" id="adv-jI-ccX">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
@@ -795,7 +795,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="LoadIcon" width="20" minWidth="20" maxWidth="20" id="dTq-fp-9LN">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                                 </tableHeaderCell>
@@ -1029,7 +1029,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Date" editable="NO" width="150" minWidth="40" maxWidth="1000" id="DBS-s0-mYu">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Date">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
@@ -1042,7 +1042,7 @@
                                                             </tableColumn>
                                                             <tableColumn identifier="Message" editable="NO" width="1000" minWidth="40" maxWidth="1000" id="5FO-n0-ivA">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Message">
-                                                                    <font key="font" metaFont="miniSystem"/>
+                                                                    <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                                                 </tableHeaderCell>
@@ -1083,7 +1083,7 @@
                                             <rect key="frame" x="537" y="222" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="save_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="k39-29-Glh">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="save" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="k39-29-Glh">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -1101,7 +1101,7 @@
                                             <rect key="frame" x="537" y="14" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="execute_16" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KNS-nB-eNg">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="execute" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KNS-nB-eNg">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -1110,7 +1110,7 @@
                                             <rect key="frame" x="537" y="259" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="copy_16" imagePosition="only" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xQq-bS-i3k">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="copy" imagePosition="only" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xQq-bS-i3k">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -1119,7 +1119,7 @@
                                             <rect key="frame" x="537" y="296" width="36" height="34"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="blacklist_2" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="lPW-4m-EKB">
+                                            <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="clear" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="lPW-4m-EKB">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -1184,30 +1184,30 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="wq4-1T-ab8"/>
-                <menuItem title="Whitelist" image="blacklist_0" id="NU4-s6-XgY">
+                <menuItem title="Whitelist" image="blacklist_0_16" id="NU4-s6-XgY">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Blacklist" image="blacklist_1" id="MmQ-pB-59L">
+                <menuItem title="Blacklist" image="blacklist_1_16" id="MmQ-pB-59L">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Undefined" image="blacklist_2" id="Lsg-wR-Ixf">
+                <menuItem title="Undefined" image="blacklist_2_16" id="Lsg-wR-Ixf">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="8Ej-nA-22Y"/>
-                <menuItem title="Refresh list" image="reload" id="hW5-pl-1cB">
+                <menuItem title="Refresh list" image="reload_16" id="hW5-pl-1cB">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
             </items>
         </menu>
         <menu title="Areas" autoenablesItems="NO" id="xCn-Ef-Z9b">
             <items>
-                <menuItem title="Whitelist" image="blacklist_0" id="pym-DI-K1T">
+                <menuItem title="Whitelist" image="blacklist_0_16" id="pym-DI-K1T">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Blacklist" image="blacklist_1" id="uId-gT-4uA">
+                <menuItem title="Blacklist" image="blacklist_1_16" id="uId-gT-4uA">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Undefined" image="blacklist_2" id="0dA-Gd-pTt">
+                <menuItem title="Undefined" image="blacklist_2_16" id="0dA-Gd-pTt">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
             </items>
@@ -1231,67 +1231,74 @@
         </menu>
         <menu title="Tray" autoenablesItems="NO" id="2Bv-yX-Px1">
             <items>
-                <menuItem title="Show Window / Restore" image="restore" id="ACK-P9-tRH">
+                <menuItem title="Show Window / Restore" image="restore_16" id="ACK-P9-tRH">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="NA7-O2-7aK"/>
                 <menuItem title="Status" image="status_red_16" id="9x6-QD-kVV">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Connect or Disconnect" image="connect" id="l66-1q-j5m">
+                <menuItem title="Connect or Disconnect" image="connect_16" id="l66-1q-j5m">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="Ge1-DE-eaj"/>
-                <menuItem title="AirVPN Website (Web)" image="home" id="c1E-U3-fsx">
+                <menuItem title="AirVPN Website (Web)" image="home_16" id="c1E-U3-fsx">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Your details and statistics (Web)" image="stats" id="ajm-ap-TIo">
+                <menuItem title="Your details and statistics (Web)" image="stats_16" id="ajm-ap-TIo">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Forwarding Ports (Web)" image="ports" id="BBr-9U-kW8">
+                <menuItem title="Forwarding Ports (Web)" image="ports_16" id="BBr-9U-kW8">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="Speed Test (Web)" image="speed" id="BX6-bg-wv3">
+                <menuItem title="Speed Test (Web)" image="speed_16" id="BX6-bg-wv3">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="uzk-V8-qmR"/>
-                <menuItem title="Preferences" image="settings" id="8tg-nT-XJV">
+                <menuItem title="Preferences" image="settings_16" id="8tg-nT-XJV">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
-                <menuItem title="About" image="about" id="83q-TJ-BhH">
+                <menuItem title="About" image="about_16" id="83q-TJ-BhH">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="gvA-fU-Aip"/>
-                <menuItem title="Quit" image="exit" id="cQb-RC-8hT">
+                <menuItem title="Quit" image="exit_16" id="cQb-RC-8hT">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
             </items>
         </menu>
     </objects>
     <resources>
-        <image name="about" width="16" height="16"/>
-        <image name="add_16" width="16" height="16"/>
-        <image name="blacklist_0" width="16" height="16"/>
-        <image name="blacklist_1" width="16" height="16"/>
-        <image name="blacklist_2" width="16" height="16"/>
-        <image name="connect" width="16" height="16"/>
-        <image name="connect_16" width="16" height="16"/>
-        <image name="copy_16" width="16" height="16"/>
-        <image name="execute_16" width="16" height="16"/>
-        <image name="exit" width="16" height="16"/>
-        <image name="home" width="16" height="16"/>
+        <image name="about_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="add_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="blacklist_0" width="128" height="128"/>
+        <image name="blacklist_0_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="blacklist_1" width="128" height="128"/>
+        <image name="blacklist_1_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="blacklist_2" width="128" height="128"/>
+        <image name="blacklist_2_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="clear" width="129.80281066894531" height="129.80281066894531"/>
+        <image name="connect" width="128" height="128"/>
+        <image name="connect_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="copy" width="128" height="128"/>
+        <image name="copy_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="execute" width="128" height="128"/>
+        <image name="exit_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="home_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="login" width="69" height="81"/>
         <image name="netlock_on" width="64" height="64"/>
         <image name="netlock_status_off" width="30" height="30"/>
-        <image name="ports" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="reload" width="16" height="16"/>
-        <image name="restore" width="16" height="16"/>
-        <image name="save_16" width="16" height="16"/>
-        <image name="settings" width="16" height="16"/>
-        <image name="speed" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="stats" width="16" height="16"/>
+        <image name="ports_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="reload" width="129.80281066894531" height="129.80281066894531"/>
+        <image name="reload_16" width="16.457143783569336" height="16.457143783569336"/>
+        <image name="restore_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="save" width="128" height="128"/>
+        <image name="save_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="settings_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="speed_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="stats_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="status_red_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="support" width="16" height="16"/>
+        <image name="support" width="128" height="128"/>
         <image name="topbar_osx_bg" width="133" height="30"/>
         <image name="topbar_osx_logo" width="356" height="80"/>
         <image name="topbar_osx_red" width="259.60562133789062" height="30.422534942626953"/>

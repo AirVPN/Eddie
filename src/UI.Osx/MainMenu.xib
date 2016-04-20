@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7531" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1090" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7531"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -11,32 +10,32 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <menu title="AMainMenu" systemMenu="main" id="29">
             <items>
                 <menuItem title="AirVPN" id="56">
                     <menu key="submenu" title="AirVPN" systemMenu="apple" id="57">
                         <items>
-                            <menuItem title="About AirVPN" image="about" id="58">
+                            <menuItem title="About AirVPN" image="about_16" id="58">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="236">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Preferences…" image="settings" keyEquivalent="," id="129"/>
+                            <menuItem title="Preferences…" image="settings_16" keyEquivalent="," id="129"/>
                             <menuItem isSeparatorItem="YES" id="d6z-Ua-jbI">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="AirVPN Website (Web)" image="home" id="cFT-nx-MzJ" userLabel="Menu Item - Website">
+                            <menuItem title="AirVPN Website (Web)" image="home_16" id="cFT-nx-MzJ" userLabel="Menu Item - Website">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Your details and statistics (Web)" image="stats" id="KZI-Bi-OUe" userLabel="Menu Item - Client Area">
+                            <menuItem title="Your details and statistics (Web)" image="stats_16" id="KZI-Bi-OUe" userLabel="Menu Item - Client Area">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Forwarding Ports (Web)" image="ports" id="YT6-gP-yWE" userLabel="Menu Item - Forwarding Ports">
+                            <menuItem title="Forwarding Ports (Web)" image="ports_16" id="YT6-gP-yWE" userLabel="Menu Item - Forwarding Ports">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
-                            <menuItem title="Speed Test (Web)" image="speed" id="DQk-oh-Ot8" userLabel="Menu Item - Speed Test">
+                            <menuItem title="Speed Test (Web)" image="speed_16" id="DQk-oh-Ot8" userLabel="Menu Item - Speed Test">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="143">
@@ -67,7 +66,7 @@
                             <menuItem isSeparatorItem="YES" id="149">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Quit AirVPN" image="exit" keyEquivalent="q" id="136">
+                            <menuItem title="Quit AirVPN" image="exit_16" keyEquivalent="q" id="136">
                                 <connections>
                                     <action selector="terminate:" target="-3" id="449"/>
                                 </connections>
@@ -115,12 +114,12 @@
         </customObject>
     </objects>
     <resources>
-        <image name="about" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="exit" width="16" height="16"/>
-        <image name="home" width="16" height="16"/>
-        <image name="ports" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="settings" width="16" height="16"/>
-        <image name="speed" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="stats" width="16" height="16"/>
+        <image name="about_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="exit_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="home_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="ports_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="settings_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="speed_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="stats_16" width="16.225351333618164" height="16.225351333618164"/>
     </resources>
 </document>

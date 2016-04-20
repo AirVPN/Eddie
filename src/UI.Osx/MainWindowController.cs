@@ -105,6 +105,7 @@ namespace AirVPN.UI.Osx
 			LblConnect.StringValue = Messages.CommandConnectSubtitle;
 			CmdDisconnect.Title = Messages.CommandDisconnect;
 			CmdCancel.Title = Messages.CommandCancel;
+
 			CboServersScoringRule.ToolTip = Messages.TooltipServersScoreType;
 			ChkServersLockCurrent.ToolTip = Messages.TooltipServersLockCurrent;
 			ChkServersShowAll.ToolTip = Messages.TooltipServersShowAll;
@@ -408,6 +409,9 @@ namespace AirVPN.UI.Osx
 			{
 				Shutdown();
 			};
+
+			CboServersScoringRule.ToolTip = Messages.TooltipServersScoreType;
+			CmdAreasBlackList.ToolTip = Messages.TooltipAreasBlackList;
 
 			Engine.MainWindow = this;
 			Engine.UiStart ();
