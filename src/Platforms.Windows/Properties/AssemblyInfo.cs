@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AirVPN - Windows Library")]
-[assembly: AssemblyDescription("Windows library used by AirVPN Client")]
+[assembly: AssemblyTitle("Eddie - Windows Library")]
+[assembly: AssemblyDescription("Windows library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://airvpn.org")]
-[assembly: AssemblyProduct("AirVPN - Windows Library")]
-[assembly: AssemblyCopyright("Copyright ©  2011 - 2015")]
+[assembly: AssemblyProduct("Eddie - Windows Library")]
+[assembly: AssemblyCopyright("Copyright ©  2011 - 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
