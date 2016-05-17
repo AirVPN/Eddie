@@ -6,7 +6,7 @@
 //
 using MonoMac.Foundation;
 
-namespace AirVPN.UI.Osx
+namespace Eddie.UI.Osx
 {
 	[Register ("AppDelegate")]
 	partial class AppDelegate

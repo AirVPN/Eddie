@@ -1,20 +1,20 @@
-// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -29,13 +29,14 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using System.Xml;
-using AirVPN.Core;
-using AirVPN.Gui.Controls;
+using Eddie.Core;
+using Eddie.Gui.Controls;
 
-namespace AirVPN.Gui.Forms
+namespace Eddie.Gui.Forms
 {
-    public partial class Main : AirVPN.Gui.Form
+    public partial class Main : Eddie.Gui.Form
     {
+        private Controls.ToolTip m_toolTip;
         private Controls.TabNavigator m_tabMain;
 		private Controls.ChartSpeed m_pnlCharts;
 		private Controls.MenuButton m_cmdMainMenu;
@@ -199,21 +200,37 @@ namespace AirVPN.Gui.Forms
             mnuAreas.Font = Skin.FontNormal;
             mnuLogsContext.Font = Skin.FontNormal;
 
+            if (m_tabMain != null)
+            {
+                m_tabMain.TabsFont = Skin.FontBig;
+                m_tabMain.ComputeSizes();
+            }
+
             lblWait1.Font = Skin.FontBig;
             lblWait2.Font = Skin.FontNormal;
             lblConnectedServerName.Font = Skin.FontBig;
-            txtConnectedDownload.Font = Skin.FontMono;
-            txtConnectedUpload.Font = Skin.FontMono;
+            txtConnectedDownload.Font = Skin.FontMonoBig;
+            txtConnectedUpload.Font = Skin.FontMonoBig;
 
             mnuMain.ImageScalingSize = Skin.MenuImageSize;
             mnuServers.ImageScalingSize = Skin.MenuImageSize;
             mnuAreas.ImageScalingSize = Skin.MenuImageSize;
             mnuLogsContext.ImageScalingSize = Skin.MenuImageSize;
+
+            GuiUtils.FixHeightVs(this.txtLogin, lblLogin);
+            GuiUtils.FixHeightVs(this.txtPassword, lblPassword);
+            GuiUtils.FixHeightVs(this.cboKey, lblKey);
+
+            GuiUtils.FixHeightVs(this.cboScoreType, this.chkShowAll);
+            GuiUtils.FixHeightVs(this.cboScoreType, this.lblScoreType);
+            GuiUtils.FixHeightVs(this.cboScoreType, this.chkLockLast);
+
+            GuiUtils.FixHeightVs(this.cboSpeedResolution, this.lblSpeedResolution);
         }
 
         protected override void OnLoad(EventArgs e)
         {
-			m_lockCoordUpdate = true;
+            m_lockCoordUpdate = true;
 
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 			MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
@@ -241,7 +258,19 @@ namespace AirVPN.Gui.Forms
 				m_notifyIcon.ContextMenuStrip = mnuMain;
             }
 
-			m_imgProgressInfinite = new ProgressInfinite();
+            m_tabMain = new TabNavigator();
+            m_tabMain.ImportTabControl(tabMain);
+            m_tabMain.Pages[0].Icon = "maintab_overview";
+            m_tabMain.Pages[1].Icon = "maintab_servers";
+            m_tabMain.Pages[2].Icon = "maintab_countries";
+            m_tabMain.Pages[3].Icon = "maintab_speed";
+            m_tabMain.Pages[4].Icon = "maintab_stats";
+            m_tabMain.Pages[5].Icon = "maintab_logs";
+            m_tabMain.TabsFont = Skin.FontBig;
+            m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            this.Controls.Add(m_tabMain);
+            
+            m_imgProgressInfinite = new ProgressInfinite();
 			this.pnlWaiting.Controls.Add(m_imgProgressInfinite);
 			
 			// Controls initialization
@@ -250,6 +279,14 @@ namespace AirVPN.Gui.Forms
 
 			chkRemember.BackColor = Color.Transparent;
             
+            // Clodo Linux Issue
+            if(Platform.IsWindows())
+            {
+                // Clodo TOFIX: Under Mono crash...
+                m_toolTip = new Controls.ToolTip();
+                Controls.Add(m_toolTip);
+            }
+                        
             m_pnlCharts = new ChartSpeed();
 			m_pnlCharts.Left = holSpeedChart.Left;
 			m_pnlCharts.Top = holSpeedChart.Top;
@@ -257,7 +294,7 @@ namespace AirVPN.Gui.Forms
 			m_pnlCharts.Height = holSpeedChart.Height;
 			m_pnlCharts.Anchor = holSpeedChart.Anchor;
 			holSpeedChart.Visible = false;
-			tabSpeed.Controls.Add(m_pnlCharts);
+			m_tabMain.Pages[3].Controls.Add(m_pnlCharts);
 
 			m_cmdMainMenu = new MenuButton();
 			m_cmdMainMenu.Left = 0;
@@ -284,7 +321,7 @@ namespace AirVPN.Gui.Forms
             m_listViewAreas.ResizeColumnString(2, 20);
             m_listViewAreas.ResizeColumnString(3, 6);
             pnlAreas.Controls.Add(m_listViewAreas);
-
+            
             m_listViewServers.MouseDoubleClick += new MouseEventHandler(m_listViewServers_MouseDoubleClick);
 			m_listViewServers.SelectedIndexChanged += new EventHandler(m_listViewServers_SelectedIndexChanged);
 			m_listViewAreas.SelectedIndexChanged += new EventHandler(m_listViewAreas_SelectedIndexChanged);
@@ -292,27 +329,15 @@ namespace AirVPN.Gui.Forms
 			lstStats.ImageIconResourcePrefix = "stats_";
             lstStats.ResizeColumnMax(1);
 
-			lstLogs.ImageIconResourcePrefix = "log_";
+            lstLogs.ImageIconResourcePrefix = "log_";
             lstLogs.ResizeColumnString(0, 2);
             lstLogs.ResizeColumnString(1, LogEntry.GetDateForListSample());
             lstLogs.ResizeColumnMax(2);
-
-			chkShowAll.Checked = false;
+            
+            chkShowAll.Checked = false;
 			chkLockLast.Checked = Engine.Storage.GetBool("servers.locklast");
 			cboScoreType.Text = Engine.Storage.Get("servers.scoretype");
-
-            tabMain.ImageList = imgMainTab; // Set here otherwise VS2015 break layout
-            m_tabMain = new TabNavigator();
-            m_tabMain.ImportTabControl(tabMain);
-            m_tabMain.Pages[0].Icon = imgMainTab.Images["maintab_overview.png"];
-            m_tabMain.Pages[1].Icon = imgMainTab.Images["maintab_servers.png"];
-            m_tabMain.Pages[2].Icon = imgMainTab.Images["maintab_countries.png"];
-            m_tabMain.Pages[3].Icon = imgMainTab.Images["maintab_speed.png"];
-            m_tabMain.Pages[4].Icon = imgMainTab.Images["maintab_stats.png"];
-            m_tabMain.Pages[5].Icon = imgMainTab.Images["maintab_logs.png"];
-            m_tabMain.TabsFont = Skin.FontBig;
-            m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-            this.Controls.Add(m_tabMain);
+            
 
             //ApplySkin();
 
@@ -346,25 +371,33 @@ namespace AirVPN.Gui.Forms
 			lblConnectSubtitle.Text = Messages.CommandConnectSubtitle;
 			cmdDisconnect.Text = Messages.CommandDisconnect;
 			cmdCancel.Text = Messages.CommandCancel;
-			this.tip.SetToolTip(this.cboScoreType, Messages.TooltipServersScoreType);
-			this.tip.SetToolTip(this.chkLockLast, Messages.TooltipServersLockCurrent);
-			this.tip.SetToolTip(this.chkShowAll, Messages.TooltipServersShowAll);
-			this.tip.SetToolTip(this.cmdServersConnect, Messages.TooltipServersConnect);
-			this.tip.SetToolTip(this.cmdServersUndefined, Messages.TooltipServersUndefined);
-			this.tip.SetToolTip(this.cmdServersBlackList, Messages.TooltipServersBlackList);
-			this.tip.SetToolTip(this.cmdServersWhiteList, Messages.TooltipServersWhiteList);
-			this.tip.SetToolTip(this.cmdAreasUndefined, Messages.TooltipAreasUndefined);
-			this.tip.SetToolTip(this.cmdAreasBlackList, Messages.TooltipAreasBlackList);
-			this.tip.SetToolTip(this.cmdAreasWhiteList, Messages.TooltipAreasWhiteList);
-			this.tip.SetToolTip(this.cmdLogsOpenVpnManagement, Messages.TooltipLogsOpenVpnManagement);
-			this.tip.SetToolTip(this.cmdLogsClean, Messages.TooltipLogsClean);
-			this.tip.SetToolTip(this.cmdLogsCopy, Messages.TooltipLogsCopy);
-			this.tip.SetToolTip(this.cmdLogsSave, Messages.TooltipLogsSave);
-			this.tip.SetToolTip(this.cmdLogsSupport, Messages.TooltipLogsSupport);
 
+            if (m_toolTip != null)
+            {
+                m_toolTip.Connect(this.cboScoreType, Messages.TooltipServersScoreType);
+                m_toolTip.Connect(this.chkLockLast, Messages.TooltipServersLockCurrent);
+                m_toolTip.Connect(this.chkShowAll, Messages.TooltipServersShowAll);
+                m_toolTip.Connect(this.cboScoreType, Messages.TooltipServersScoreType);
+                m_toolTip.Connect(this.chkLockLast, Messages.TooltipServersLockCurrent);
+                m_toolTip.Connect(this.chkShowAll, Messages.TooltipServersShowAll);
+                m_toolTip.Connect(this.cmdServersConnect, Messages.TooltipServersConnect);
+                m_toolTip.Connect(this.cmdServersUndefined, Messages.TooltipServersUndefined);
+                m_toolTip.Connect(this.cmdServersBlackList, Messages.TooltipServersBlackList);
+                m_toolTip.Connect(this.cmdServersWhiteList, Messages.TooltipServersWhiteList);
+                m_toolTip.Connect(this.cmdAreasUndefined, Messages.TooltipAreasUndefined);
+                m_toolTip.Connect(this.cmdAreasBlackList, Messages.TooltipAreasBlackList);
+                m_toolTip.Connect(this.cmdAreasWhiteList, Messages.TooltipAreasWhiteList);
+                m_toolTip.Connect(this.cmdLogsOpenVpnManagement, Messages.TooltipLogsOpenVpnManagement);
+                m_toolTip.Connect(this.cmdLogsClean, Messages.TooltipLogsClean);
+                m_toolTip.Connect(this.cmdLogsCopy, Messages.TooltipLogsCopy);
+                m_toolTip.Connect(this.cmdLogsSave, Messages.TooltipLogsSave);
+                m_toolTip.Connect(this.cmdLogsSupport, Messages.TooltipLogsSupport);
 
-			// Start
-			if (Engine.Storage.GetBool("remember"))
+                Controls.SetChildIndex(m_toolTip, 0);
+            }
+            
+            // Start
+            if (Engine.Storage.GetBool("remember"))
 			{
 				chkRemember.Checked = true;
 				txtLogin.Text = Engine.Storage.Get("login");
@@ -390,7 +423,7 @@ namespace AirVPN.Gui.Forms
 				timerMonoDelayedRedraw.Elapsed += new System.Timers.ElapsedEventHandler(OnMonoDelayedRedraw);
 				timerMonoDelayedRedraw.Interval = 1000;
 				timerMonoDelayedRedraw.Enabled = true;
-			}
+			}            
         }
 
 		void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
@@ -432,14 +465,14 @@ namespace AirVPN.Gui.Forms
                 Skin.GraphicsCommon(e.Graphics);
 
                 int iconHeight = m_topHeaderHeight;
-                int iconDistance = 10;
+                int iconDistance = 3;
                 
                 Rectangle rectHeader = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width, m_topHeaderHeight);
-				Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - iconDistance - iconHeight - iconDistance, m_topHeaderHeight);
-
-				Form.DrawImage(e.Graphics, Skin.MainBackImage, new Rectangle(0, 0, ClientSize.Width, m_topHeaderHeight));
-
-				Image iconFlag = null;
+				Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - iconDistance - iconHeight, m_topHeaderHeight);
+                
+                Form.DrawImage(e.Graphics, Skin.MainBackImage, new Rectangle(0, 0, ClientSize.Width, m_topHeaderHeight));
+                
+                Image iconFlag = null;
 				if (Engine.CurrentServer != null)
 				{
 					string iconFlagCode = Engine.CurrentServer.CountryCode;
@@ -448,18 +481,19 @@ namespace AirVPN.Gui.Forms
 
 					if (iconFlag != null)
 					{
-						rectHeaderText.Width -= iconHeight - iconDistance;
-					}
+                        rectHeaderText.Width -= iconHeight;
+                        rectHeaderText.Width -= iconDistance;
+                    }
 				}
-
-				if (Engine.IsWaiting())
-				{					
-					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_yellow"), rectHeader);
-					Form.DrawStringOutline(e.Graphics, Engine.WaitMessage, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);										
+                
+                if (Engine.IsWaiting())
+				{
+                    DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_yellow"), rectHeader);
+                    Form.DrawStringOutline(e.Graphics, Engine.WaitMessage, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);										
 				}
 				else if (Engine.IsConnected())
 				{	
-					string serverName = Engine.CurrentServer.PublicName;
+					string serverName = Engine.CurrentServer.Name;
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
@@ -467,8 +501,8 @@ namespace AirVPN.Gui.Forms
 				}
 				else
 				{
-					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
-					if (Engine.Instance.NetworkLockManager.IsActive())
+                    DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
+                    if (Engine.Instance.NetworkLockManager.IsActive())
 					{
 						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
@@ -478,13 +512,7 @@ namespace AirVPN.Gui.Forms
 					}
 				}
 
-				if (iconFlag != null)
-				{
-					Rectangle rectFlag = new Rectangle(rectHeader.Right - iconHeight - iconDistance - iconHeight - iconDistance, 0, iconHeight, iconHeight);
-					DrawImage(e.Graphics, iconFlag, rectFlag);					
-				}
-
-                Rectangle rectNetLock = new Rectangle(rectHeader.Right - iconHeight, 0, iconHeight, m_topHeaderHeight);
+                Rectangle rectNetLock = new Rectangle(rectHeader.Right - iconHeight, 0, iconHeight, iconHeight);
                 Image iconNetLock = null;
                 if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
                 {
@@ -496,18 +524,13 @@ namespace AirVPN.Gui.Forms
                 }
                 DrawImageContain(e.Graphics, iconNetLock, rectNetLock, 20);
 
-                DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_shadow"), rectHeader);
-                
-				/*
-				{
-					String msg = "Developer mode";
-					msg += " - " + Core.RandomGenerator.GetInt(0, 999999).ToString();
-					//msg += " - " + ClientSize.ToString();
-					//msg += " - " + m_windowPanel1Height.ToString() + ">" + m_windowPanel2Height.ToString();
-					Rectangle r = new Rectangle(160, 0, ClientSize.Width, ClientSize.Height);					
-					DrawString(e.Graphics, msg, Font, Brushes.Black, r, GuiUtils.StringFormatLeftTop);
-				}
-				*/				
+                if (iconFlag != null)
+                {
+                    Rectangle rectFlag = new Rectangle(rectHeader.Right - iconHeight - iconDistance - iconHeight, 0, iconHeight, iconHeight);
+                    DrawImageContain(e.Graphics, iconFlag, rectFlag, 20);
+                }
+
+                DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_shadow"), rectHeader);                		
             }
             catch (Exception ex)
             {
@@ -764,36 +787,6 @@ namespace AirVPN.Gui.Forms
 			}
 
 			Engine.OnRefreshUi();
-		}
-		
-		private void mnuDevelopersDefaultManifest_Click(object sender, EventArgs e)
-		{
-			XmlDocument xmlDoc = new XmlDocument();
-			XmlNode node = xmlDoc.ImportNode(Engine.Storage.Manifest, true);			
-			xmlDoc.AppendChild(node);
-			xmlDoc.FirstChild.Attributes.RemoveAll();
-			xmlDoc.FirstChild.RemoveChild(xmlDoc.SelectSingleNode("//manifest/servers"));
-			xmlDoc.FirstChild.RemoveChild(xmlDoc.SelectSingleNode("//manifest/areas"));
-			
-			using (var sw = new StringWriter())
-			{
-				using (var xw = new XmlTextWriter(sw))
-				{
-					xw.Formatting = Formatting.Indented;					
-					xw.Indentation = 2; //default is 1. I used 2 to make the indents larger.
-
-					xmlDoc.WriteTo(xw);
-				}
-
-				String body = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" + sw.ToString();
-
-				Forms.TextViewer dlg = new TextViewer();
-				dlg.Title = "Default manifest";
-				dlg.Body = body;
-				dlg.ShowDialog();
-			}
-
-			
 		}
 		
 		void m_listViewServers_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -1078,7 +1071,7 @@ namespace AirVPN.Gui.Forms
             m_tabMain.Top = m_topHeaderHeight;
             m_tabMain.Width = this.ClientSize.Width;
             m_tabMain.Height = this.ClientSize.Height - m_topHeaderHeight;
-
+            
             m_cmdMainMenu.Width = m_topHeaderHeight*150/30;
             m_cmdMainMenu.Height = m_topHeaderHeight;
             
@@ -1114,9 +1107,8 @@ namespace AirVPN.Gui.Forms
 			cmdCancel.Width = tabPageRectangle.Width * 2 / 3;
 			cmdCancel.Height = 30;
 			cmdCancel.Left = tabPageRectangle.Width / 2 - cmdCancel.Width / 2;
-			cmdCancel.Top = tabPageRectangle.Height - 50;				
-				
-		}
+			cmdCancel.Top = tabPageRectangle.Height - 50;            
+        }
         
         public void Restore()
         {
@@ -1125,10 +1117,10 @@ namespace AirVPN.Gui.Forms
             Activate();
 			EnabledUi();
         }
-
+        
         public void ShowMenu()
         {
-			Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
+            Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
 			mnuMain.Show(p);
 			/*
             if (mnuMain.Visible)
@@ -1169,7 +1161,7 @@ namespace AirVPN.Gui.Forms
 		{
 			if (m_listViewServers.SelectedItems.Count == 1)
 			{
-				AirVPN.Gui.Controls.ListViewItemServer listViewItem = m_listViewServers.SelectedItems[0] as AirVPN.Gui.Controls.ListViewItemServer;
+                Eddie.Gui.Controls.ListViewItemServer listViewItem = m_listViewServers.SelectedItems[0] as Eddie.Gui.Controls.ListViewItemServer;
 
 				Engine.NextServer = listViewItem.Info;
 
@@ -1205,7 +1197,7 @@ namespace AirVPN.Gui.Forms
                 {
                     string Msg = l.Message;
 
-                    if (l.Type > Engine.LogType.Realtime)
+                    if (l.Type > LogType.Realtime)
                     {
                         ListViewItemLog Item = new ListViewItemLog();
 						Item.ImageKey = l.Type.ToString().ToLowerInvariant();
@@ -1222,7 +1214,7 @@ namespace AirVPN.Gui.Forms
 							lstLogs.Items.RemoveAt(0);
                     }
 
-                    if ((Msg != "") && (l.Type != Engine.LogType.Verbose))
+                    if ((Msg != "") && (l.Type != LogType.Verbose))
                     {
                         String ShortMsg = Msg;
                         if (ShortMsg.Length > 40)
@@ -1242,13 +1234,13 @@ namespace AirVPN.Gui.Forms
 								m_notifyIcon.BalloonTipText = Msg;
 								if (Engine.Storage.GetBool("gui.windows.notifications"))
 								{
-									if (l.Type >= Engine.LogType.InfoImportant)
+									if (l.Type >= LogType.InfoImportant)
 									{
-										if (l.Type == Core.Engine.LogType.Warning)
+										if (l.Type == LogType.Warning)
 											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
-										else if (l.Type == Core.Engine.LogType.Error)
+										else if (l.Type == LogType.Error)
 											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-										else if (l.Type == Core.Engine.LogType.Fatal)
+										else if (l.Type == LogType.Fatal)
 											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
 										else
 											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
@@ -1259,7 +1251,7 @@ namespace AirVPN.Gui.Forms
 						}
                     }
 
-                    if (l.Type == Engine.LogType.Fatal)
+                    if (l.Type == LogType.Fatal)
                     {
                         MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
@@ -1327,9 +1319,9 @@ namespace AirVPN.Gui.Forms
 			txtLogin.Enabled = (logged == false);
 			txtPassword.Enabled = (logged == false);
             lblKey.Visible = ((logged == true) && (cboKey.Items.Count > 1));
-            cboKey.Visible = lblKey.Visible;
+            cboKey.Visible = ((logged == true) && (cboKey.Items.Count > 1));
 
-			if (logged)
+            if (logged)
 			{
 				cmdConnect.Enabled = true;					
 			}
@@ -1348,13 +1340,13 @@ namespace AirVPN.Gui.Forms
 			cmdServersUndefined.Enabled = cmdServersWhiteList.Enabled;
 			mnuServersUndefined.Enabled = cmdServersUndefined.Enabled;
 
-			cmdAreasWhiteList.Enabled = (m_listViewAreas.SelectedItems.Count > 0);
+            cmdAreasWhiteList.Enabled = (m_listViewAreas.SelectedItems.Count > 0);
 			mnuAreasWhiteList.Enabled = cmdAreasWhiteList.Enabled;
 			cmdAreasBlackList.Enabled = cmdAreasWhiteList.Enabled;
 			mnuAreasBlackList.Enabled = cmdAreasBlackList.Enabled;
 			cmdAreasUndefined.Enabled = cmdAreasWhiteList.Enabled;
 			mnuAreasUndefined.Enabled = cmdAreasUndefined.Enabled;
-
+            
 			mnuSpeedTest.Enabled = connected;
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
@@ -1487,7 +1479,7 @@ namespace AirVPN.Gui.Forms
 							cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
 							mnuConnect.Enabled = cmdCancel.Enabled;
 
-							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_yellow;
+							mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_yellow;
 
 						}
 						else if (Engine.IsConnected())
@@ -1496,8 +1488,8 @@ namespace AirVPN.Gui.Forms
 							pnlWaiting.Visible = false;
 							pnlConnected.Visible = true;
 
-							lblConnectedServerName.Text = Engine.CurrentServer.PublicName;
-							lblConnectedLocation.Text = Engine.CurrentServer.CountryName + ", " + Engine.CurrentServer.Location;
+							lblConnectedServerName.Text = Engine.CurrentServer.Name;
+							lblConnectedLocation.Text = CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode) + ", " + Engine.CurrentServer.Location;
 							txtConnectedExitIp.Text = Engine.CurrentServer.IpExit;
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
@@ -1509,7 +1501,7 @@ namespace AirVPN.Gui.Forms
 							else
 								lblConnectedCountry.Image = null;
 
-							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_green;
+							mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_green;
 						}
 						else
 						{
@@ -1517,7 +1509,7 @@ namespace AirVPN.Gui.Forms
 							pnlWaiting.Visible = false;
 							pnlConnected.Visible = false;
 
-							mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_red;
+							mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_red;
 						}
 						
 						// Icon                    
@@ -1527,11 +1519,11 @@ namespace AirVPN.Gui.Forms
 							//if(pageView == PageView.Stats)
 							if (Engine.IsConnected())
 							{
-								icon = global::AirVPN.Lib.Forms.Properties.Resources.icon1;
+								icon = global::Eddie.Lib.Forms.Properties.Resources.icon1;
 							}
 							else
 							{
-								icon = global::AirVPN.Lib.Forms.Properties.Resources.icon_gray1;
+								icon = global::Eddie.Lib.Forms.Properties.Resources.icon_gray1;
 							}
 
 							if (this.Icon != icon)
@@ -1562,7 +1554,7 @@ namespace AirVPN.Gui.Forms
 
 							if (Engine.IsWaiting())
 							{
-								lblWait2.Text = Engine.GetLogDetailTitle();
+								lblWait2.Text = Engine.Logs.GetLogDetailTitle();
 							}
 						}
 					}
@@ -1576,7 +1568,7 @@ namespace AirVPN.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-							string notifyText = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
+							string notifyText = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.Name, CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode));
 							string notifyText2 = Constants.Name + " - " + notifyText;
 							Text = notifyText2;
 							mnuStatus.Text = "> " + notifyText;
@@ -1708,7 +1700,7 @@ namespace AirVPN.Gui.Forms
 			{
 				SaveFileDialog sd = new SaveFileDialog();
 
-				sd.FileName = Engine.GetLogSuggestedFileName();
+				sd.FileName = Engine.Logs.GetLogSuggestedFileName();
 				sd.Filter = Messages.FilterTextFiles;
 
 				if (sd.ShowDialog() == DialogResult.OK)

@@ -1,4 +1,4 @@
-﻿namespace AirVPN.Gui.Forms
+﻿namespace Eddie.Gui.Forms
 {
     partial class TextViewer
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.txtData = new AirVPN.Gui.Skin.TextBox();
+            this.txtData = new Eddie.Gui.Skin.TextBox();
             this.SuspendLayout();
             // 
             // txtData
@@ -38,22 +38,22 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtData.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.txtData.Location = new System.Drawing.Point(13, 14);
-            this.txtData.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtData.Margin = new System.Windows.Forms.Padding(4);
             this.txtData.Multiline = true;
             this.txtData.Name = "txtData";
             this.txtData.ReadOnly = true;
             this.txtData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtData.Size = new System.Drawing.Size(912, 440);
             this.txtData.TabIndex = 0;
-            this.txtData.WordWrap = false;
+            this.txtData.WordWrap = false;            
             // 
             // TextViewer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(939, 466);
             this.Controls.Add(this.txtData);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "TextViewer";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";

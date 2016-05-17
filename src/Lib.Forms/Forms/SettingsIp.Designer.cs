@@ -1,4 +1,4 @@
-﻿namespace AirVPN.Gui.Forms
+﻿namespace Eddie.Gui.Forms
 {
 	partial class SettingsIp
     {
@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.cmdOk = new AirVPN.Gui.Skin.Button();
-            this.cmdCancel = new AirVPN.Gui.Skin.Button();
-            this.txtIP = new AirVPN.Gui.Skin.TextBox();
-            this.lblIP = new AirVPN.Gui.Skin.Label();
+            this.cmdOk = new Eddie.Gui.Skin.Button();
+            this.cmdCancel = new Eddie.Gui.Skin.Button();
+            this.txtIP = new Eddie.Gui.Skin.TextBox();
+            this.lblIP = new Eddie.Gui.Skin.Label();
             this.SuspendLayout();
             // 
             // cmdOk

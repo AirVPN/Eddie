@@ -8,9 +8,9 @@
     <ProjectGuid>{C21E315F-C565-4AF0-9E15-9DDF2DD8FBD4}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirVPN.UI.Linux</RootNamespace>
-    <AssemblyName>UI.Linux</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <RootNamespace>Eddie.UI.Forms.Linux</RootNamespace>
+    <AssemblyName>UI.Forms.Linux</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>

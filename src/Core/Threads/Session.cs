@@ -1,20 +1,20 @@
-// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -28,12 +28,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using System.Xml;
-using AirVPN.Core;
+using Eddie.Core;
 
 
-namespace AirVPN.Core.Threads
+namespace Eddie.Core.Threads
 {
-	public class Session : AirVPN.Core.Thread
+	public class Session : Eddie.Core.Thread
 	{
 		private Process m_processOpenVpn;
 		private Process m_processProxy;
@@ -104,17 +104,16 @@ namespace AirVPN.Core.Threads
 						continue;
 
 					m_openVpnManagementCommands.Clear();
-
-                    string key = Engine.Storage.Get("key");
+                                        
                     string protocol = Engine.Storage.Get("mode.protocol").ToUpperInvariant();
 					int port = Engine.Storage.GetInt("mode.port");
 					int alt = Engine.Storage.GetInt("mode.alt");
 
 					if (protocol == "AUTO")
 					{						
-						protocol = Engine.Storage.GetManifestKeyValue("mode_protocol", "UDP");
-						port = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_port", "443"));
-						alt = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_alt", "0"));
+						protocol = Engine.Instance.AirVPN.GetManifestKeyValue("mode_protocol", "UDP");
+						port = Conversions.ToInt32(Engine.Instance.AirVPN.GetManifestKeyValue("mode_port", "443"));
+						alt = Conversions.ToInt32(Engine.Instance.AirVPN.GetManifestKeyValue("mode_alt", "0"));
 					}
 
 					if (protocol == "SSH")
@@ -154,62 +153,70 @@ namespace AirVPN.Core.Threads
 					if (Engine.CurrentServer == null)
 					{
 						allowed = false;
-						Engine.Log(Core.Engine.LogType.Fatal, "No server available.");
+						Engine.Logs.Log(LogType.Fatal, "No server available.");
 						RequestStop();
 					}
-					
-					// Checking auth user status.
-					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
-					if (allowed)
-					{
-						Engine.WaitMessageSet(Messages.AuthorizeConnect, true);
-						Engine.Log(Engine.LogType.Info, Messages.AuthorizeConnect);
 
-						Dictionary<string, string> parameters = new Dictionary<string, string>();
-						parameters["act"] = "connect";
-						parameters["server"] = Engine.CurrentServer.Name;
-						parameters["protocol"] = protocol;
-						parameters["port"] = port.ToString();
-						parameters["alt"] = alt.ToString();
+                    // Checking auth user status.
+                    // Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.                    
+                    if (allowed)
+                    {
+                        if (Engine.CurrentServer.Provider is Providers.Service)
+                        {
+                            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
+                            if (service.SupportConnect)
+                            {
+                                Engine.WaitMessageSet(Messages.AuthorizeConnect, true);
+                                Engine.Logs.Log(LogType.Info, Messages.AuthorizeConnect);
 
-						XmlDocument xmlDoc = null;
-						try
-						{
-							xmlDoc = AirExchange.Fetch(Messages.AuthorizeConnect, parameters);
-						}
-						catch (Exception e)
-						{
-							// Note: If failed, continue anyway.
-							Engine.Log(Engine.LogType.Warning, Messages.Format(Messages.AuthorizeConnectFailed, e.Message));
-						}
+                                Dictionary<string, string> parameters = new Dictionary<string, string>();
+                                parameters["act"] = "connect";
+                                parameters["server"] = Engine.CurrentServer.Name;
+                                parameters["protocol"] = protocol;
+                                parameters["port"] = port.ToString();
+                                parameters["alt"] = alt.ToString();
 
-						if (xmlDoc != null) 
-						{
-							string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");							
-							if (userMessage != "")
-							{
-								allowed = false;
-								string userMessageAction = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message_action", "");								
-								if (userMessageAction == "stop")
-								{
-									Engine.Log(Core.Engine.LogType.Fatal, userMessage);
-									Engine.Disconnect(); // 2.8
-									RequestStop();
-								}
-								else if (userMessageAction == "next")
-								{
-									Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
-									waitingMessage = userMessage + ", next in {1} sec.";
-									waitingSecs = 5;
-								}
-								else 
-								{
-									waitingMessage = userMessage + ", retry in {1} sec.";
-									waitingSecs = 10;
-								}
-							}
-						}
-					}
+                                XmlDocument xmlDoc = null;
+                                try
+                                {
+                                    xmlDoc = service.Fetch(Messages.AuthorizeConnect, parameters);
+                                }
+                                catch (Exception e)
+                                {
+                                    // Note: If failed, continue anyway.
+                                    Engine.Logs.Log(LogType.Warning, Messages.Format(Messages.AuthorizeConnectFailed, e.Message));
+                                }
+
+                                if (xmlDoc != null)
+                                {
+                                    string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+                                    if (userMessage != "")
+                                    {
+                                        allowed = false;
+                                        string userMessageAction = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message_action", "");
+                                        if (userMessageAction == "stop")
+                                        {
+                                            Engine.Logs.Log(LogType.Fatal, userMessage);
+                                            Engine.Disconnect(); // 2.8
+                                            RequestStop();
+                                        }
+                                        else if (userMessageAction == "next")
+                                        {
+                                            Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
+                                            waitingMessage = userMessage + ", next in {1} sec.";
+                                            waitingSecs = 5;
+                                        }
+                                        else
+                                        {
+                                            waitingMessage = userMessage + ", retry in {1} sec.";
+                                            waitingSecs = 10;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                        
 
 					if (CancelRequested)
 						continue;
@@ -218,25 +225,16 @@ namespace AirVPN.Core.Threads
 					{
 						sessionLastServer = Engine.CurrentServer.Name;
 						Engine.Storage.Set("servers.last", Engine.CurrentServer.Name);
-
-
-						if (Engine.CurrentServer.ServerType == 2)
-						{
-							// Routing servers have only 443-UDP-1ip
-							protocol = "UDP";
-							port = 443;
-							alt = 0;
-						}
-
+                        
 						routeScope = new RouteScope(Engine.ConnectedEntryIP);
 
 						Engine.RunEventCommand("vpn.pre");
 
-						string connectingMessage = Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location);
+						string connectingMessage = Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.Name, CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode), Engine.CurrentServer.Location);
 						Engine.WaitMessageSet(connectingMessage, true);
-						Engine.Log(Engine.LogType.InfoImportant, connectingMessage);
+						Engine.Logs.Log(LogType.InfoImportant, connectingMessage);
 
-						Engine.BuildOVPN(key, protocol, port, alt, m_proxyPort);
+						Engine.BuildOVPN(protocol, port, alt, m_proxyPort);
 
 						if (protocol == "SSH")
 						{
@@ -383,7 +381,7 @@ namespace AirVPN.Core.Threads
 						Engine.SetConnected(false);
 
 						Engine.WaitMessageSet(Messages.ConnectionDisconnecting, false);
-						Engine.Log(Engine.LogType.InfoImportant, Messages.ConnectionDisconnecting);
+						Engine.Logs.Log(LogType.InfoImportant, Messages.ConnectionDisconnecting);
 
 						if (Storage.Simulate)
 						{
@@ -447,7 +445,7 @@ namespace AirVPN.Core.Threads
 							}
 							catch (Exception e)
 							{
-								Engine.Log(Core.Engine.LogType.Warning, e);
+								Engine.Logs.Log(LogType.Warning, e);
 							}
 
 							bool exit = true;
@@ -471,7 +469,7 @@ namespace AirVPN.Core.Threads
 						// Phase 6: Cleaning, waiting before retry.
 						// -----------------------------------
 
-						Engine.Log(Engine.LogType.Verbose, Messages.ConnectionStop);
+						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStop);
 
 						Engine.RunEventCommand("vpn.down");
 
@@ -498,7 +496,7 @@ namespace AirVPN.Core.Threads
 					// Warning: Avoid to reach this catch: unpredicable status of running processes.
 					Engine.SetConnected(false);
 
-					Engine.Log(Core.Engine.LogType.Warning, e);					
+					Engine.Logs.Log(LogType.Warning, e);					
 				}
 
 				if (routeScope != null)
@@ -548,11 +546,11 @@ namespace AirVPN.Core.Threads
 			{
 				if (CancelRequested)
 				{
-					Engine.Log(Engine.LogType.Info, Messages.SessionCancel);
+					Engine.Logs.Log(LogType.Info, Messages.SessionCancel);
 				}
 				else
 				{
-					Engine.Log(Engine.LogType.Error, Messages.SessionFailed);
+					Engine.Logs.Log(LogType.Error, Messages.SessionFailed);
 				}
 			}
 			
@@ -563,7 +561,11 @@ namespace AirVPN.Core.Threads
 
 		private void StartSshProcess()
 		{
-			if (m_processProxy != null) // Unexpected
+            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
+            if (service == null) // Unexpected
+                return;
+
+            if (m_processProxy != null) // Unexpected
 				return;
 
 			string fileKeyExtension = "";
@@ -574,7 +576,7 @@ namespace AirVPN.Core.Threads
 			
 
 			m_fileSshKey = new TemporaryFile(fileKeyExtension);
-			File.WriteAllText(m_fileSshKey.Path, Utils.XmlGetAttributeString(Engine.Storage.User, "ssh_" + fileKeyExtension, ""));
+			File.WriteAllText(m_fileSshKey.Path, Utils.XmlGetAttributeString(service.User, "ssh_" + fileKeyExtension, ""));
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
@@ -630,11 +632,15 @@ namespace AirVPN.Core.Threads
 
 		private void StartSslProcess()
 		{
-			if (m_processProxy != null) // Unexpected
+            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
+            if (service == null) // Unexpected
+                return;
+
+            if (m_processProxy != null) // Unexpected
 				return;
 
 			m_fileSslCrt = new TemporaryFile("crt");
-			File.WriteAllText(m_fileSslCrt.Path, Utils.XmlGetAttributeString(Engine.Storage.User, "ssl_crt", ""));
+			File.WriteAllText(m_fileSslCrt.Path, Utils.XmlGetAttributeString(service.User, "ssl_crt", ""));
 
 			m_fileSslConfig = new TemporaryFile("ssl");
 
@@ -830,7 +836,7 @@ namespace AirVPN.Core.Threads
 						foreach (string command in m_openVpnManagementCommands)
 						{
 							if (command != "status")
-								Engine.Log(Engine.LogType.Verbose, "Management - Send '" + command + "'");
+								Engine.Logs.Log(LogType.Verbose, "Management - Send '" + command + "'");
 
 							string MyCmd = command + "\n";
 							Byte[] bufS = new byte[1024 * 16];
@@ -855,7 +861,7 @@ namespace AirVPN.Core.Threads
 			}
 			catch (Exception ex)
 			{
-				Engine.Log(Engine.LogType.Warning, ex);
+				Engine.Logs.Log(LogType.Warning, ex);
 
                 SetReset("ERROR");
             }
@@ -871,7 +877,7 @@ namespace AirVPN.Core.Threads
 				if (source == "OpenVPN")
 				{
 					bool log = true;
-                    Engine.LogType logType = Engine.LogType.Verbose;
+                    LogType logType = LogType.Verbose;
 
 					if (message.IndexOf("MANAGEMENT: CMD 'status'") != -1)
 						log = false;
@@ -889,7 +895,7 @@ namespace AirVPN.Core.Threads
                     if(message.StartsWith("Options error:"))
                     {
                         string unrecognizedOption = Utils.RegExMatchOne(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in .*\\:(.*?)\\(.*\\)");
-                        Engine.Log(Engine.LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
+                        Engine.Logs.Log(LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
                         Engine.LogOpenvpnConfig();                        
                         SetReset("FATAL");
                     }                    
@@ -927,7 +933,7 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
 					{
-						Engine.Log(Engine.LogType.Verbose, Messages.AutoPortSwitch);
+						Engine.Logs.Log(LogType.Verbose, Messages.AutoPortSwitch);
 
 						Engine.Storage.SetInt("openvpn.management_port", Engine.Storage.GetInt("openvpn.management_port") + 1);
 
@@ -936,7 +942,7 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("AUTH_FAILED") != -1)
 					{
-						Engine.Log(Engine.LogType.Warning, Messages.AuthFailed);
+						Engine.Logs.Log(LogType.Warning, Messages.AuthFailed);
 
 						SetReset("AUTH_FAILED");
 					}
@@ -947,7 +953,7 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("TLS: tls_process: killed expiring key") != -1)
 					{
-						Engine.Log(Engine.LogType.Info, Messages.RenewingTls);
+						Engine.Logs.Log(LogType.Info, Messages.RenewingTls);
 					}
 
 					if (message.IndexOf("Initialization Sequence Completed With Errors") != -1)
@@ -957,7 +963,7 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
-						Engine.Log(Core.Engine.LogType.Verbose, Messages.ConnectionStartManagement);
+						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
 
 						m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 						m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
@@ -976,7 +982,7 @@ namespace AirVPN.Core.Threads
 							Platform.Instance.OnRouteDefaultRemoveDo();
 
 						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
-						Engine.Log(Engine.LogType.Info, Messages.ConnectionFlushDNS);
+						Engine.Logs.Log(LogType.Info, Messages.ConnectionFlushDNS);
 
 						Platform.Instance.FlushDNS();
 
@@ -986,95 +992,102 @@ namespace AirVPN.Core.Threads
 
                         Engine.Instance.NetworkLockManager.OnVpnEstablished();
 
-						// Checking Tunnel and Checking DNS are available only on AirVPN servers
-						if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
-						{
-							Engine.Log(Core.Engine.LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
-						}
-						else
-						{
-							if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.route")))
-							{
-								Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
-								Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingRoute);
+                        if (Engine.CurrentServer.Provider is Providers.Service)
+                        {
+                            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
 
-								if (m_reset == "")
-								{
-									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
+                            // Checking Tunnel and Checking DNS are available only on AirVPN servers
+                            if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
+                            {
+                                Engine.Logs.Log(LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
+                            }
+                            else
+                            {
+                                if ((m_reset == "") && (service.CheckTunnel))
+                                {
+                                    Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
+                                    Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingRoute);
 
-									string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+                                    if (m_reset == "")
+                                    {
+                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.Name.ToLowerInvariant() + "_exit." + service.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
 
-									if (VpnIp != Engine.ConnectedVpnIp)
-									{
-										Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);
+                                        string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                        Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+                                        Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+                                        if (VpnIp != Engine.ConnectedVpnIp)
+                                        {
+                                            Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingRouteFailed);
+                                            SetReset("ERROR");
+                                        }
+                                    }
+
+                                    if (m_reset == "")
+                                    {
+                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.Name.ToLowerInvariant() + "." + service.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
+                                        Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+                                        Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+                                        // Real IP are detected with a request over the server entry IP.
+                                        // Normally this is routed by openvpn outside the tunnel.
+                                        // But if a proxy is active, don't work.
+                                        if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
+                                        {
+                                            Engine.ConnectedRealIp = Messages.NotAvailable;
+                                        }
+                                        else
+                                        {
+                                            Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Engine.ConnectedRealIp = "";
+                                    Engine.ConnectedServerTime = 0;
+                                }
+
+                                // DNS test
+                                if ((m_reset == "") && (service.CheckDns) && (Engine.Storage.Get("dns.servers") == ""))
+                                {
+                                    Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
+                                    Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingDNS);
+
+                                    string hash = Utils.GetRandomToken();
+
+                                    try
+                                    {
+                                        // Query a inexistent domain with the hash
+                                        IPHostEntry entry = Dns.GetHostEntry(hash + ".airvpn.check_dns");
+                                    }
+                                    catch (SocketException)
+                                    {
+                                    }
+
+                                    // Check if the server has received the above DNS query
+                                    XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.Name.ToLowerInvariant() + "_exit." + service.Manifest.Attributes["check_domain"].Value + "/check_dns/", null, Messages.ConnectionCheckingDNS, true);
+
+                                    string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
+
+                                    bool failed = (hash != hash2);
+
+                                    if (failed)
+                                    {
+                                        Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingDNSFailed);
                                         SetReset("ERROR");
                                     }
-								}
-								
-								if (m_reset == "")
-								{
-									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
-									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-
-									// Real IP are detected with a request over the server entry IP.
-									// Normally this is routed by openvpn outside the tunnel.
-									// But if a proxy is active, don't work.
-									if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
-									{
-										Engine.ConnectedRealIp = Messages.NotAvailable;
-									}
-									else
-									{
-										Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-									}
-								}
-							}
-							else
-							{
-								Engine.ConnectedRealIp = "";
-								Engine.ConnectedServerTime = 0;
-							}
-
-							// DNS test
-							if ((m_reset == "") && (Engine.Storage.GetBool("dns.check")) && (Engine.Storage.Get("dns.servers") == "") )
-							{
-								Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
-								Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingDNS);
-
-								string hash = Utils.GetRandomToken();
-
-								try
-								{
-									// Query a inexistent domain with the hash
-									IPHostEntry entry = Dns.GetHostEntry(hash + ".airvpn.check_dns");
-								}
-								catch (SocketException)
-								{
-								}
-
-								// Check if the server has received the above DNS query
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_dns/", null, Messages.ConnectionCheckingDNS, true);
-
-								string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
-
-								bool failed = (hash != hash2);
-
-								if (failed)
-								{
-									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);
-                                    SetReset("ERROR");
                                 }
-							}
-						}
+                            }
+                        }
+
+                        
 
 						if (m_reset == "")
 						{
 							Engine.RunEventCommand("vpn.up");
 
-							Engine.Log(Engine.LogType.InfoImportant, Messages.ConnectionConnected);
+							Engine.Logs.Log(LogType.InfoImportant, Messages.ConnectionConnected);
 							Engine.SetConnected(true);
 						}
 					}
@@ -1144,11 +1157,11 @@ namespace AirVPN.Core.Threads
 						}
 					}
 
-                    if (message.StartsWith("Warning:") && logType < Engine.LogType.Warning)
-                        logType = Engine.LogType.Warning;
+                    if (message.StartsWith("Warning:") && logType < LogType.Warning)
+                        logType = LogType.Warning;
 
                     if (log)
-						Engine.Log(logType, source + " > " + message);
+						Engine.Logs.Log(logType, source + " > " + message);
 
 					Platform.Instance.OnDaemonOutput(source, message);
 				}
@@ -1174,7 +1187,7 @@ namespace AirVPN.Core.Threads
 					}
 
 					if (log)
-						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+						Engine.Logs.Log(LogType.Verbose, source + " > " + message);
 				}
 				else if (source == "SSL")
 				{
@@ -1186,7 +1199,7 @@ namespace AirVPN.Core.Threads
 					}
 
 					if (log)
-						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+						Engine.Logs.Log(LogType.Verbose, source + " > " + message);
 				}
 				else if (source == "Management")
 				{
@@ -1195,7 +1208,7 @@ namespace AirVPN.Core.Threads
 			}
 			catch (Exception ex)
 			{
-				Engine.Log(Engine.LogType.Warning, ex);
+				Engine.Logs.Log(LogType.Warning, ex);
 
                 SetReset("ERROR");
             }
@@ -1260,7 +1273,7 @@ namespace AirVPN.Core.Threads
 				}
 				else
 				{
-					Engine.Log(Engine.LogType.Verbose, "OpenVpn Management > " + line);
+					Engine.Logs.Log(LogType.Verbose, "OpenVpn Management > " + line);
 				}
 			}
 		}

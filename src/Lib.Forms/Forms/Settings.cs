@@ -1,20 +1,20 @@
-// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -23,11 +23,11 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Gui.Forms
+namespace Eddie.Gui.Forms
 {
-    public partial class Settings : AirVPN.Gui.Form
+    public partial class Settings : Eddie.Gui.Form
     {
         private Controls.TabNavigator m_tabMain;
 
@@ -45,8 +45,43 @@ namespace AirVPN.Gui.Forms
         public override void OnInitializeComponent()
         {
             base.OnInitializeComponent();
+        }
+
+        public override void OnApplySkin()
+        {
+            base.OnApplySkin();
 
             mnuRoutes.Font = Skin.FontNormal;
+
+            GuiUtils.FixHeightVs(cboProxyMode, lblProxyType);
+            GuiUtils.FixHeightVs(txtProxyHost, lblProxyHost);
+            GuiUtils.FixHeightVs(txtProxyPort, lblProxyPort);
+            GuiUtils.FixHeightVs(cboProxyAuthentication, lblProxyAuthentication);
+            GuiUtils.FixHeightVs(txtProxyLogin, lblProxyLogin);
+            GuiUtils.FixHeightVs(txtProxyPassword, lblProxyPassword);
+            GuiUtils.FixHeightVs(txtProxyTorControlPort, lblProxyTorControlPort);
+            GuiUtils.FixHeightVs(txtProxyTorControlPassword, lblProxyTorControlPassword);
+            GuiUtils.FixHeightVs(cboRoutesOtherwise, lblRoutesOtherwise);
+            GuiUtils.FixHeightVs(cboGeneralTheme, lblGeneralTheme);
+            GuiUtils.FixHeightVs(cboDnsSwitchMode, lblDnsSwitchMode);
+            GuiUtils.FixHeightVs(chkDnsCheck, lblDnsCheck);
+
+            GuiUtils.FixHeightVs(cboLockMode, lblLockMode);
+            GuiUtils.FixHeightVs(chkLockAllowPrivate, lblLockAllowPrivate);
+            GuiUtils.FixHeightVs(chkLockAllowPing, lblLockAllowPing);
+
+            GuiUtils.FixHeightVs(chkExpert, lblExpert);
+            GuiUtils.FixHeightVs(chkAdvancedCheckRoute, lblAdvancedCheckRoute);
+            GuiUtils.FixHeightVs(cboIpV6, lblIpV6);
+            GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
+            GuiUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);
+            GuiUtils.FixHeightVs(chkRouteRemoveDefault, lblRouteRemoveDefault);
+            GuiUtils.FixHeightVs(cboOpenVpnRcvbuf, lblOpenVpnRcvbuf);
+            GuiUtils.FixHeightVs(cboOpenVpnSndbuf, lblOpenVpnSndbuf);
+            GuiUtils.FixHeightVs(txtExePath, lblExePath);
+            GuiUtils.FixHeightVs(txtExePath, cmdExeBrowse);
+
+            GuiUtils.FixHeightVs(txtLogPath, lblLogPath);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -54,10 +89,10 @@ namespace AirVPN.Gui.Forms
             base.OnLoad(e);
 
             CommonInit("Settings");
-
+            
             BuildTreeTabs();
 
-			chkConnect.Text = Messages.WindowsSettingsConnect;
+            chkConnect.Text = Messages.WindowsSettingsConnect;
 			chkNetLock.Text = Messages.WindowsSettingsNetLock;
 
 			lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
@@ -69,9 +104,9 @@ namespace AirVPN.Gui.Forms
             lblGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
 			cboGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
 
-            if (Engine.Instance.Storage.Manifest != null)
+            if (Engine.Instance.AirVPN.Manifest != null)
             {
-                XmlNodeList xmlModes = Engine.Instance.Storage.Manifest.SelectNodes("//modes/mode");
+                XmlNodeList xmlModes = Engine.Instance.AirVPN.Manifest.SelectNodes("//modes/mode");
                 foreach (XmlElement xmlMode in xmlModes)
                 {
                     Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
@@ -155,14 +190,13 @@ namespace AirVPN.Gui.Forms
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
-			// DNS
+            // OVPN directives
 
-			chkDnsCheck.Text = Messages.WindowsSettingsDnsCheck;
-			lblDnsServers.Text = Messages.WindowsSettingsDnsServers;
-			
-			// 
-						
-			ReadOptions();
+            cboOpenVpnDirectivesDefaultSkip.Items.Clear();
+            cboOpenVpnDirectivesDefaultSkip.Items.Add(Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip1);
+            cboOpenVpnDirectivesDefaultSkip.Items.Add(Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2);
+            
+            ReadOptions();
 
 			RefreshLogPreview();
 
@@ -180,7 +214,7 @@ namespace AirVPN.Gui.Forms
         }
 
         public void BuildTreeTabs()
-        {            
+        {     
             m_tabMain = new Gui.Controls.TabNavigator();
             m_tabMain.Font = Skin.FontNormal;
             m_tabMain.Top = 0;
@@ -189,12 +223,7 @@ namespace AirVPN.Gui.Forms
             m_tabMain.Width = ClientSize.Width;
             m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
             m_tabMain.ImportTabControl(tabSettings);
-            Controls.Add(m_tabMain);
-            
-            tabSettings.Left = m_tabMain.Width;
-            tabSettings.Top = 0;
-            tabSettings.Width = ClientSize.Width - m_tabMain.Width;
-            tabSettings.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            Controls.Add(m_tabMain);            
         }
         
         public void ReadOptions()
@@ -212,10 +241,10 @@ namespace AirVPN.Gui.Forms
 
             // Ui
 
-            if (s.Get("gui.font_name") != "")
+            if (s.Get("gui.font.normal.name") != "")
             {
                 chkUiFontGeneral.Checked = true;
-                lblUiFontGeneral.Text = s.Get("gui.font_name") + ", " + s.GetFloat("gui.font_size").ToString();
+                lblUiFontGeneral.Text = s.Get("gui.font.normal.name") + ", " + s.GetFloat("gui.font.normal.size").ToString();
             }
             else
             {
@@ -303,13 +332,15 @@ namespace AirVPN.Gui.Forms
 				cboIpV6.Text = "None";
 
 			
-			chkAdvancedPingerEnabled.Checked = s.GetBool("advanced.pinger.enabled");
+			chkAdvancedPingerEnabled.Checked = s.GetBool("pinger.enabled");
 			chkRouteRemoveDefault.Checked = s.GetBool("routes.remove_default");
 			
-			chkAdvancedWindowsTapUp.Checked = s.GetBool("advanced.windows.tap_up");
-			chkAdvancedWindowsDhcpSwitch.Checked = s.GetBool("advanced.windows.dhcp_disable");
+			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
+			chkWindowsDhcpSwitch.Checked = s.GetBool("windows.dhcp_disable");
 			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
-            chkWindowsWfp.Checked = s.GetBool("advanced.windows.wfp");
+            chkWindowsIPv6DisableAtOs.Checked = s.GetBool("windows.ipv6.os_disable");
+            chkWindowsDnsForceAllInterfaces.Checked = s.GetBool("windows.dns.force_all_interfaces");
+            chkWindowsWfp.Checked = s.GetBool("windows.wfp");
 
             txtExePath.Text = s.Get("executables.openvpn");
 
@@ -408,11 +439,11 @@ namespace AirVPN.Gui.Forms
 
 			// Advanced - Logging
 			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
-			TxtLoggingPath.Text = s.Get("log.file.path");
+			txtLogPath.Text = s.Get("log.file.path");
 			chkLogLevelDebug.Checked = s.GetBool("log.level.debug");
 
-			// Advanced - OVPN Directives
-            chkAdvancedOpenVpnDirectivesDefaultSkip.Checked = s.GetBool("openvpn.skip_defaults");			
+            // Advanced - OVPN Directives
+            cboOpenVpnDirectivesDefaultSkip.SelectedIndex = (s.GetBool("openvpn.skip_defaults") ? 1:0);
             txtAdvancedOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
 			String openVpnDirectivesDefault = s.GetDefaultDirectives();				
 			openVpnDirectivesDefault = openVpnDirectivesDefault.Replace("\t", "");
@@ -472,13 +503,13 @@ namespace AirVPN.Gui.Forms
             if(chkUiFontGeneral.Checked)
             {
                 int posComma = lblUiFontGeneral.Text.IndexOf(",");
-                s.Set("gui.font_name", lblUiFontGeneral.Text.Substring(0, posComma));
-                s.Set("gui.font_size", lblUiFontGeneral.Text.Substring(posComma+1));
+                s.Set("gui.font.normal.name", lblUiFontGeneral.Text.Substring(0, posComma));
+                s.Set("gui.font.normal.size", lblUiFontGeneral.Text.Substring(posComma+1));
             }
             else
             {
-                s.Set("gui.font_name", "");
-                s.SetFloat("gui.font_size", 0);
+                s.Set("gui.font.normal.name", "");
+                s.SetFloat("gui.font.normal.size", 0);
             }
 
             // Protocols
@@ -537,13 +568,15 @@ namespace AirVPN.Gui.Forms
 			else
 				s.Set("ipv6.mode", "none");
 			
-			s.SetBool("advanced.pinger.enabled", chkAdvancedPingerEnabled.Checked);
+			s.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
 			s.SetBool("routes.remove_default", chkRouteRemoveDefault.Checked);
 						
-			s.SetBool("advanced.windows.tap_up", chkAdvancedWindowsTapUp.Checked);
-			s.SetBool("advanced.windows.dhcp_disable", chkAdvancedWindowsDhcpSwitch.Checked);
+			s.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
+			s.SetBool("windows.dhcp_disable", chkWindowsDhcpSwitch.Checked);
 			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
-            s.SetBool("advanced.windows.wfp", chkWindowsWfp.Checked);
+            s.SetBool("windows.ipv6.os_disable", chkWindowsIPv6DisableAtOs.Checked);
+            s.SetBool("windows.dns.force_all_interfaces", chkWindowsDnsForceAllInterfaces.Checked);            
+            s.SetBool("windows.wfp", chkWindowsWfp.Checked);
 
             s.Set("executables.openvpn", txtExePath.Text);
 
@@ -645,14 +678,14 @@ namespace AirVPN.Gui.Forms
 
 			// Advanced - Logging
 			s.SetBool("log.file.enabled", chkLoggingEnabled.Checked);
-			s.Set("log.file.path", TxtLoggingPath.Text);
+			s.Set("log.file.path", txtLogPath.Text);
 			s.SetBool("log.level.debug", chkLogLevelDebug.Checked);
 
 			// Advanced - OVPN Directives
             s.Set("openvpn.custom", txtAdvancedOpenVpnDirectivesCustom.Text);
-            s.SetBool("openvpn.skip_defaults", chkAdvancedOpenVpnDirectivesDefaultSkip.Checked);
+            s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
 
-			// Advanced - Events
+            // Advanced - Events
             SaveOptionsEvent("app.start", 0);
             SaveOptionsEvent("app.stop", 1);
 			SaveOptionsEvent("session.start", 2);
@@ -686,7 +719,7 @@ namespace AirVPN.Gui.Forms
 
 		public void RefreshLogPreview()
 		{			
-			TxtLoggingPathComputed.Text = Engine.GetParseLogFilePaths(TxtLoggingPath.Text);
+			TxtLoggingPathComputed.Text = Engine.Logs.GetParseLogFilePaths(txtLogPath.Text);
 		}
 
         public void EnableIde()
@@ -784,27 +817,27 @@ namespace AirVPN.Gui.Forms
             EnableIde();
         }
 
-        private void lnkProtocolsHelp1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void lnkProtocolsHelp1_LinkClicked(object sender, EventArgs e)
         {
             Engine.Instance.Command("ui.show.docs.protocols");
         }
 
-        private void lnkProtocolsHelp2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void lnkProtocolsHelp2_LinkClicked(object sender, EventArgs e)
         {
             Engine.Instance.Command("ui.show.docs.udp_vs_tcp");
         }
 
-        private void lnkProxyTorHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void lnkProxyTorHelp_LinkClicked(object sender, EventArgs e)
         {
             Engine.Instance.Command("ui.show.docs.tor");
         }
 
-        private void lnkLockHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void lnkLockHelp_LinkClicked(object sender, EventArgs e)
         {
             Engine.Instance.Command("ui.show.docs.lock");
         }
 
-        private void lnkAdvancedHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void lnkAdvancedHelp_LinkClicked(object sender, EventArgs e)
         {
             Engine.Instance.Command("ui.show.docs.advanced");
         }
@@ -1137,6 +1170,7 @@ namespace AirVPN.Gui.Forms
         private void cmdUiFontGeneral_Click(object sender, EventArgs e)
         {
             FontDialog dlg = new FontDialog();
+            dlg.Font = Form.Skin.FontNormal;
             if(dlg.ShowDialog() == DialogResult.OK)
             {
                 lblUiFontGeneral.Text = dlg.Font.Name + ", " + dlg.Font.SizeInPoints.ToString();

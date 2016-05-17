@@ -1,32 +1,33 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 /*
  * Official data from ISO 3166-1
  * */
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {	
     public class CountriesManager
     {
@@ -61,7 +62,7 @@ namespace AirVPN.Core
 			Add("BJ","Benin");
 			Add("BM","Bermuda");
 			Add("BT","Bhutan");
-			Add("BO","Bolivia (Plurinational State of)");
+			Add("BO","Bolivia");
 			Add("BQ","Bonaire, Sint Eustatius and Saba");
 			Add("BA","Bosnia and Herzegovina");
 			Add("BW","Botswana");
@@ -106,7 +107,7 @@ namespace AirVPN.Core
 			Add("ER","Eritrea");
 			Add("EE","Estonia");
 			Add("ET","Ethiopia");
-			Add("FK","Falkland Islands (Malvinas)");
+			Add("FK","Falkland Islands");
 			Add("FO","Faroe Islands");
 			Add("FJ","Fiji");
 			Add("FI","Finland");
@@ -139,7 +140,7 @@ namespace AirVPN.Core
 			Add("IS","Iceland");
 			Add("IN","India");
 			Add("ID","Indonesia");
-			Add("IR","Iran (Islamic Republic of)");
+			Add("IR","Iran");
 			Add("IQ","Iraq");
 			Add("IE","Ireland");
 			Add("IM","Isle of Man");
@@ -153,7 +154,7 @@ namespace AirVPN.Core
 			Add("KE","Kenya");
 			Add("KI","Kiribati");
 			Add("KP","Korea (Democratic People's Republic of)");
-			Add("KR","Korea (Republic of)");
+			Add("KR","Korea");
 			Add("KW","Kuwait");
 			Add("KG","Kyrgyzstan");
 			Add("LA","Lao People's Democratic Republic");
@@ -166,7 +167,7 @@ namespace AirVPN.Core
 			Add("LT","Lithuania");
 			Add("LU","Luxembourg");
 			Add("MO","Macao");
-			Add("MK","Macedonia (the former Yugoslav Republic of)");
+			Add("MK","Macedonia");
 			Add("MG","Madagascar");
 			Add("MW","Malawi");
 			Add("MY","Malaysia");
@@ -179,8 +180,8 @@ namespace AirVPN.Core
 			Add("MU","Mauritius");
 			Add("YT","Mayotte");
 			Add("MX","Mexico");
-			Add("FM","Micronesia (Federated States of)");
-			Add("MD","Moldova (Republic of)");
+			Add("FM","Micronesia");
+			Add("MD","Moldova");
 			Add("MC","Monaco");
 			Add("MN","Mongolia");
 			Add("ME","Montenegro");
@@ -269,13 +270,13 @@ namespace AirVPN.Core
 			Add("UG","Uganda");
 			Add("UA","Ukraine");
 			Add("AE","United Arab Emirates");
-			Add("GB","United Kingdom of Great Britain and Northern Ireland");
+			Add("GB","United Kingdom");
 			Add("UM","United States Minor Outlying Islands");
 			Add("US","United States of America");
 			Add("UY","Uruguay");
 			Add("UZ","Uzbekistan");
 			Add("VU","Vanuatu");
-			Add("VE","Venezuela (Bolivarian Republic of)");
+			Add("VE","Venezuela");
 			Add("VN","Viet Nam");
 			Add("VG","Virgin Islands (British)");
 			Add("VI","Virgin Islands (U.S.)");
@@ -286,10 +287,25 @@ namespace AirVPN.Core
 			Add("ZW","Zimbabwe");
 		}
 
+		public static bool IsCountryCode(string code)
+		{
+			return Code2Name.ContainsKey(code);
+		}
+
+		public static string GetNameFromCode(string code)
+		{
+			if (Code2Name.ContainsKey(code))
+				return Code2Name[code];
+			else
+				return "";
+		}
+
 		public static void Add(string code, string name)
 		{
 			Code2Name[code.ToLowerInvariant()] = name;
 			Name2Code[name] = code.ToLowerInvariant();
 		}
+
+		
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace AirVPN.Gui.Forms
+﻿namespace Eddie.Gui.Forms
 {
     partial class About
     {
@@ -28,20 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblVersion = new AirVPN.Gui.Skin.Label();
-            this.cmdClose = new AirVPN.Gui.Skin.Button();
-            this.lblLibraries = new AirVPN.Gui.Skin.Label();
-            this.lnkLibraries = new System.Windows.Forms.LinkLabel();
-            this.lblLicense = new AirVPN.Gui.Skin.Label();
-            this.lnkLicense = new System.Windows.Forms.LinkLabel();
-            this.lblSources = new AirVPN.Gui.Skin.Label();
-            this.lnkSources = new System.Windows.Forms.LinkLabel();
-            this.lblManual = new AirVPN.Gui.Skin.Label();
-            this.lblWebsite = new AirVPN.Gui.Skin.Label();
-            this.lnkManual = new System.Windows.Forms.LinkLabel();
-            this.lnkWebsite = new System.Windows.Forms.LinkLabel();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.lblDeveloped = new System.Windows.Forms.Label();
+            this.lblVersion = new Eddie.Gui.Skin.Label();
+            this.cmdClose = new Eddie.Gui.Skin.Button();
+            this.lblLibraries = new Eddie.Gui.Skin.Label();
+            this.lnkLibraries = new Eddie.Gui.Skin.LinkLabel();
+            this.lblLicense = new Eddie.Gui.Skin.Label();
+            this.lnkLicense = new Eddie.Gui.Skin.LinkLabel();
+            this.lblSources = new Eddie.Gui.Skin.Label();
+            this.lnkSources = new Eddie.Gui.Skin.LinkLabel();
+            this.lblManual = new Eddie.Gui.Skin.Label();
+            this.lblWebsite = new Eddie.Gui.Skin.Label();
+            this.lnkManual = new Eddie.Gui.Skin.LinkLabel();
+            this.lnkWebsite = new Eddie.Gui.Skin.LinkLabel();
+            this.lblTitle = new Eddie.Gui.Skin.Label();
+            this.lblDeveloped = new Eddie.Gui.Skin.Label();
             this.SuspendLayout();
             // 
             // lblVersion
@@ -49,7 +49,7 @@
             this.lblVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblVersion.BackColor = System.Drawing.Color.Transparent;
             this.lblVersion.ForeColor = System.Drawing.Color.White;
-            this.lblVersion.Location = new System.Drawing.Point(507, 73);
+            this.lblVersion.Location = new System.Drawing.Point(507, 52);
             this.lblVersion.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblVersion.Name = "lblVersion";
             this.lblVersion.Size = new System.Drawing.Size(264, 26);
@@ -67,7 +67,7 @@
             this.cmdClose.FlatAppearance.BorderSize = 0;
             this.cmdClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmdClose.Location = new System.Drawing.Point(293, 415);
-            this.cmdClose.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cmdClose.Margin = new System.Windows.Forms.Padding(4);
             this.cmdClose.Name = "cmdClose";
             this.cmdClose.Size = new System.Drawing.Size(200, 37);
             this.cmdClose.TabIndex = 0;
@@ -91,16 +91,17 @@
             // 
             this.lnkLibraries.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lnkLibraries.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
-            this.lnkLibraries.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkLibraries.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lnkLibraries.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
             this.lnkLibraries.Location = new System.Drawing.Point(355, 346);
             this.lnkLibraries.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lnkLibraries.Name = "lnkLibraries";
             this.lnkLibraries.Size = new System.Drawing.Size(371, 28);
             this.lnkLibraries.TabIndex = 68;
             this.lnkLibraries.TabStop = true;
-            this.lnkLibraries.Text = "OpenVPN, Stunnel, TunTapOSX, LZO";
+            this.lnkLibraries.Text = "OpenVPN, Stunnel, TunTap OS X, LZO";
             this.lnkLibraries.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lnkLibraries.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkLibraries_LinkClicked);
+            this.lnkLibraries.Click += new System.EventHandler(this.lnkLibraries_LinkClicked);
             // 
             // lblLicense
             // 
@@ -118,7 +119,8 @@
             // 
             this.lnkLicense.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lnkLicense.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
-            this.lnkLicense.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkLicense.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lnkLicense.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
             this.lnkLicense.Location = new System.Drawing.Point(355, 309);
             this.lnkLicense.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lnkLicense.Name = "lnkLicense";
@@ -127,7 +129,7 @@
             this.lnkLicense.TabStop = true;
             this.lnkLicense.Text = "GNU General Public License v3";
             this.lnkLicense.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lnkLicense.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkLicense_LinkClicked);
+            this.lnkLicense.Click += new System.EventHandler(this.lnkLicense_LinkClicked);
             // 
             // lblSources
             // 
@@ -145,7 +147,8 @@
             // 
             this.lnkSources.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lnkSources.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
-            this.lnkSources.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkSources.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lnkSources.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
             this.lnkSources.Location = new System.Drawing.Point(355, 272);
             this.lnkSources.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lnkSources.Name = "lnkSources";
@@ -154,6 +157,7 @@
             this.lnkSources.TabStop = true;
             this.lnkSources.Text = "https://github.com/AirVPN/airvpn-client";
             this.lnkSources.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lnkSources.Click += new System.EventHandler(this.lnkSources_LinkClicked);
             // 
             // lblManual
             // 
@@ -183,7 +187,8 @@
             // 
             this.lnkManual.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lnkManual.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
-            this.lnkManual.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkManual.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lnkManual.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
             this.lnkManual.Location = new System.Drawing.Point(355, 235);
             this.lnkManual.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lnkManual.Name = "lnkManual";
@@ -192,12 +197,14 @@
             this.lnkManual.TabStop = true;
             this.lnkManual.Text = "https://airvpn.org/software";
             this.lnkManual.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lnkManual.Click += new System.EventHandler(this.lnkManual_LinkClicked);
             // 
             // lnkWebsite
             // 
             this.lnkWebsite.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lnkWebsite.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
-            this.lnkWebsite.DisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
+            this.lnkWebsite.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lnkWebsite.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
             this.lnkWebsite.Location = new System.Drawing.Point(355, 198);
             this.lnkWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lnkWebsite.Name = "lnkWebsite";
@@ -206,6 +213,7 @@
             this.lnkWebsite.TabStop = true;
             this.lnkWebsite.Text = "https://airvpn.org";
             this.lnkWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lnkWebsite.Click += new System.EventHandler(this.lnkWebsite_LinkClicked);
             // 
             // lblTitle
             // 
@@ -235,7 +243,7 @@
             // 
             // About
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(787, 468);
             this.Controls.Add(this.lblDeveloped);
@@ -252,7 +260,7 @@
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.lblVersion);
             this.Controls.Add(this.cmdClose);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimizeBox = false;
             this.Name = "About";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -266,16 +274,16 @@
         private Skin.Button cmdClose;
         private Skin.Label lblVersion;
         private Skin.Label lblLibraries;
-        private System.Windows.Forms.LinkLabel lnkLibraries;
+        private Skin.LinkLabel lnkLibraries;
         private Skin.Label lblLicense;
-        private System.Windows.Forms.LinkLabel lnkLicense;
+        private Skin.LinkLabel lnkLicense;
         private Skin.Label lblSources;
-        private System.Windows.Forms.LinkLabel lnkSources;
+        private Skin.LinkLabel lnkSources;
         private Skin.Label lblManual;
         private Skin.Label lblWebsite;
-        private System.Windows.Forms.LinkLabel lnkManual;
-        private System.Windows.Forms.LinkLabel lnkWebsite;
-        private System.Windows.Forms.Label lblTitle;
-        private System.Windows.Forms.Label lblDeveloped;
+        private Skin.LinkLabel lnkManual;
+        private Skin.LinkLabel lnkWebsite;
+        private Skin.Label lblTitle;
+        private Skin.Label lblDeveloped;
     }
 }

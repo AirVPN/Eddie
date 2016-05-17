@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -24,28 +24,27 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
 	public class AirExchange
 	{
-		// This is the only method about exchange data between this software and AirVPN infrastructure.
-		// We don't use SSL. Useless layer in our case, and we need to fetch hostname and direct IP that don't permit common-name match.
-		
-		// 'S' is the AES 256 bit one-time session key, crypted with a RSA 4096 public-key.
-		// 'D' is the data from the client to our server, crypted with the AES.
-		// The server answer is XML decrypted with the same AES session.
-		public static XmlDocument FetchHost(string host, Dictionary<string, string> parameters)
-		{
-			// AES				
-			RijndaelManaged rijAlg = new RijndaelManaged();
+        // This is the only method about exchange data between this software and AirVPN infrastructure.
+        // We don't use SSL. Useless layer in our case, and we need to fetch hostname and direct IP that don't permit common-name match.
+
+        // 'S' is the AES 256 bit one-time session key, crypted with a RSA 4096 public-key.
+        // 'D' is the data from the client to our server, crypted with the AES.
+        // The server answer is XML decrypted with the same AES session.
+        public static XmlDocument FetchUrl(string authPublicKey, string url, Dictionary<string, string> parameters)
+        {
+            // AES				
+            RijndaelManaged rijAlg = new RijndaelManaged();
 			rijAlg.KeySize = 256;
 			rijAlg.GenerateKey();
 			rijAlg.GenerateIV();
 
 			// Generate S
 
-			string airAuthPublicKey = ResourcesFiles.GetString("auth.xml");
-			StringReader sr = new System.IO.StringReader(airAuthPublicKey);
+			StringReader sr = new System.IO.StringReader(authPublicKey);
 			System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
 			RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
 
@@ -73,14 +72,13 @@ namespace AirVPN.Core
 			fetchParameters["s"] = Base64Encode(bytesParamS);
 			fetchParameters["d"] = Base64Encode(bytesParamD);
 
-			// 'GET' Edition - < 2.9			
-			// string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
-			// byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
+            // 'GET' Edition - < 2.9			
+            // string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
+            // byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
 
-			// 'POST' Edition - >= 2.9			
-			// Debug with an url direct to backend service client debugging page			
-			string url = "http://" + host;
-            byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", 1, Engine.Instance.IsConnected());
+            // 'POST' Edition - >= 2.9			
+            // Debug with an url direct to backend service client debugging page			            
+			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", 1, Engine.Instance.IsConnected());
 			
 			// Decrypt answer
 			MemoryStream aesDecryptStream = new MemoryStream();
@@ -96,35 +94,21 @@ namespace AirVPN.Core
 			doc.LoadXml(finalData);
 			return doc;			
 		}
-
-		public static XmlDocument Fetch(string title, Dictionary<string, string> parameters)
-		{
+        
+        public static XmlDocument FetchUrls(string title, string authPublicKey, List<string> urls, Dictionary<string, string> parameters)
+        {
 			parameters["login"] = Engine.Instance.Storage.Get("login");
 			parameters["password"] = Engine.Instance.Storage.Get("password");
 			parameters["system"] = Platform.Instance.GetSystemCode();
 			parameters["version"] = Constants.VersionInt.ToString(CultureInfo.InvariantCulture);
-
-			List<string> hosts = new List<string>();
-			
-			if (Engine.Instance.Storage.Manifest != null)
-			{
-				XmlNodeList nodesHosts = Engine.Instance.Storage.Manifest.SelectNodes("//hosts/host");
-				foreach (XmlNode nodeHost in nodesHosts)
-				{
-					hosts.Add(nodeHost.Attributes["address"].Value);
-				}
-			}
-
-			// Debugging
-			// hosts.Clear();
-			// hosts.Add("invalidhostname.airvpn.org");
-			// hosts.Add("54.246.124.152");
-			
+            
 			string firstError = "";
 			int hostN = 0;
-			foreach (string host in hosts)
-			{
-				hostN++;
+            foreach (string url in urls)
+            {
+                string host = Utils.HostFromUrl(url);
+
+                hostN++;
 				if (Utils.IsIP(host) == false)
 				{
 					// If locked network are enabled, skip the hostname and try only by IP.
@@ -136,8 +120,8 @@ namespace AirVPN.Core
 				try
 				{
 					RouteScope routeScope = new RouteScope(host);
-					XmlDocument xmlDoc = AirExchange.FetchHost(host, parameters);
-					routeScope.End();
+                    XmlDocument xmlDoc = AirExchange.FetchUrl(authPublicKey, url, parameters);
+                    routeScope.End();
 					if (xmlDoc == null)
 						throw new Exception("No answer.");
 
@@ -155,7 +139,7 @@ namespace AirVPN.Core
 						info += ", with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
 
 					if (Engine.Instance.Storage.GetBool("advanced.expert"))
-						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")
 						firstError = info;
@@ -164,12 +148,12 @@ namespace AirVPN.Core
 
 			throw new Exception(firstError);			
 		}
-
-		/* --------------------------------------
+        
+        /* --------------------------------------
 		Utils
 		-------------------------------------- */
 
-		private static string Base64Encode(byte[] data)
+        private static string Base64Encode(byte[] data)
 		{
 			return System.Convert.ToBase64String(data);
 		}

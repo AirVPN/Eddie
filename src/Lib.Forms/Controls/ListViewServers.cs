@@ -1,29 +1,29 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Gui.Controls
+namespace Eddie.Gui.Controls
 {
     public class ListViewServers : Skin.ListView
     {
@@ -100,13 +100,25 @@ namespace AirVPN.Gui.Controls
 			UpdateList();
 		}
 
-		public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
-		{
-			if (e.ColumnIndex == 1)
-			{
-				e.DrawDefault = false;
-				DrawSubItemBackground(sender, e);
+        public override bool GetDrawSubItemFull(int columnIndex)
+        {
+            if (columnIndex == 1)
+                return false;
+            else if (columnIndex == 4)
+                return false;
+            else 
+                return true;
+        }
 
+        public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+		{
+            base.OnListViewDrawSubItem(sender, e);
+
+            if (Visible == false)
+                return;
+
+            if (e.ColumnIndex == 1)
+			{
 				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
 
 				//int score = Convert.ToInt32(e.SubItem.Text);
@@ -118,7 +130,9 @@ namespace AirVPN.Gui.Controls
 
 				//Rectangle sourceN = new Rectangle(0, 0, imageN.Width, imageN.Height); // TOCLEAN
 				Rectangle sourceH = new Rectangle(0, 0, Convert.ToInt32(Convert.ToDouble(imageH.Width) * part), imageH.Height);
+                
 
+                /*
 				int ODX = imageN.Width;
 				if (e.Bounds.Width < ODX)
 					ODX = e.Bounds.Width;
@@ -138,12 +152,13 @@ namespace AirVPN.Gui.Controls
 
 				e.Graphics.DrawImage(imageN, destN);
 				e.Graphics.DrawImage(imageH, destH, sourceH, GraphicsUnit.Pixel);
-			}
+                */
+
+                Form.DrawImageContain(e.Graphics, imageN, e.Bounds, 0);                
+                Form.DrawImageContain(e.Graphics, imageH, e.Bounds, 0, sourceH);
+            }
 			else if (e.ColumnIndex == 4)
 			{
-				e.DrawDefault = false;
-				DrawSubItemBackground(sender, e);
-
 				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
 
 				Rectangle R1 = e.Bounds;
@@ -174,16 +189,12 @@ namespace AirVPN.Gui.Controls
 				if (W > R1.Width)
 					W = R1.Width;
 				//e.Graphics.FillRectangle(Form.Skin.BarBrush, new Rectangle(R1.Left, R1.Top, W, R1.Height));
-				e.Graphics.FillRectangle(b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
-
-
-
+				Form.FillRectangle(e.Graphics, b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+                
 				R1.Height -= 1;
 				//e.Graphics.DrawRectangle(m_loadPen, R1);
 				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
-			}
-			else
-				base.OnListViewDrawSubItem(sender, e);
+			}			
 		}
 
 		public override int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)

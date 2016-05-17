@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AirVPN.Lib.Forms.Properties {
+namespace Eddie.Lib.Forms.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace AirVPN.Lib.Forms.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AirVPN.Lib.Forms.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Eddie.Lib.Forms.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -196,6 +196,16 @@ namespace AirVPN.Lib.Forms.Properties {
         internal static System.Drawing.Bitmap btn_l_n {
             get {
                 object obj = ResourceManager.GetObject("btn_l_n", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap clear {
+            get {
+                object obj = ResourceManager.GetObject("clear", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -493,6 +503,66 @@ namespace AirVPN.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap maintab_countries {
+            get {
+                object obj = ResourceManager.GetObject("maintab_countries", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap maintab_logs {
+            get {
+                object obj = ResourceManager.GetObject("maintab_logs", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap maintab_overview {
+            get {
+                object obj = ResourceManager.GetObject("maintab_overview", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap maintab_servers {
+            get {
+                object obj = ResourceManager.GetObject("maintab_servers", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap maintab_speed {
+            get {
+                object obj = ResourceManager.GetObject("maintab_speed", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap maintab_stats {
+            get {
+                object obj = ResourceManager.GetObject("maintab_stats", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap menu_hover {
             get {
                 object obj = ResourceManager.GetObject("menu_hover", resourceCulture);
@@ -741,7 +811,7 @@ namespace AirVPN.Lib.Forms.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;        ///&lt;skins&gt;        ///  &lt;Light&gt;        ///    &lt;!--&lt;font.normal&gt;MS Sans Serif, 8.25pt&lt;/font.normal&gt;--&gt;        ///    &lt;font.normal&gt;System, normal&lt;/font.normal&gt;        ///    &lt;font.big&gt;System, big&lt;/font.big&gt;        ///    &lt;font.monospace&gt;SystemMonospace, normal&lt;/font.monospace&gt;        ///    &lt;!--        ///    &lt;font.normal&gt;Verdana, 16pt&lt;/font.normal&gt;        ///    &lt;font.big&gt;Verdana, 22pt&lt;/font.big&gt;        ///    &lt;font.monospace&gt;Consolas, 16pt&lt;/font.monospace&gt;        ///    --&gt;        ///    &lt;color.form.background&gt;#ffffff&lt;/color.form.background&gt;        ///    &lt;color.foreground&gt;#000000&lt;/color.f [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;        ///&lt;skins&gt;        ///  &lt;Light&gt;        ///    &lt;!--&lt;font.normal&gt;MS Sans Serif, 8.25pt&lt;/font.normal&gt;--&gt;        ///    &lt;font.normal&gt;System, normal&lt;/font.normal&gt;        ///    &lt;font.big&gt;System, big&lt;/font.big&gt;        ///    &lt;font.monospace.normal&gt;SystemMonospace, normal&lt;/font.monospace.normal&gt;        ///    &lt;font.monospace.big&gt;SystemMonospace, big&lt;/font.monospace.big&gt;        ///    &lt;!--        ///    &lt;font.normal&gt;Verdana, 16pt&lt;/font.normal&gt;        ///    &lt;font.big&gt;Verdana, 22pt&lt;/font.big&gt;        ///    &lt;font.monospace&gt;Consolas, 16pt&lt;/font.monospace&gt;            ///    --&gt;        ///    &lt;color.fo [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string skins {
             get {

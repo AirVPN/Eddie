@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -23,10 +23,10 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
-using AirVPN.Core;
+using Eddie.Core;
 using Mono.Unix.Native;
 
-namespace AirVPN.Platforms
+namespace Eddie.Platforms
 {
     public class Linux : Platform
     {
@@ -267,28 +267,28 @@ namespace AirVPN.Platforms
 			string dnsScriptPath = Software.FindResource("update-resolv-conf");
 			if (dnsScriptPath == "")
 			{
-				Engine.Instance.Log(Engine.LogType.Error, "update-resolv-conf " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "update-resolv-conf " + Messages.NotFound);
 			}
 		}
 
-		public override void OnBuildOvpn(ref string ovpn)
+		public override void OnBuildOvpn(OvpnBuilder ovpn)
 		{
-			base.OnBuildOvpn(ref ovpn);
+			base.OnBuildOvpn(ovpn);
+            
+            if (GetDnsSwitchMode() == "resolvconf")
+            {
+                string dnsScriptPath = Software.FindResource("update-resolv-conf");
+                if (dnsScriptPath != "")
+                {
+                    EnsureExecutablePermissions(dnsScriptPath);
+                    Engine.Instance.Logs.Log(LogType.Info, Messages.DnsResolvConfScript);
+                    ovpn.AppendDirective("script-security", "2");
+                    ovpn.AppendDirective("up", dnsScriptPath);
+                    ovpn.AppendDirective("down", dnsScriptPath);
+                }
+            }
 
-			if (GetDnsSwitchMode() == "resolvconf")
-			{
-				string dnsScriptPath = Software.FindResource("update-resolv-conf");
-				if (dnsScriptPath != "")
-				{
-					EnsureExecutablePermissions(dnsScriptPath);
-					Engine.Instance.Log(Engine.LogType.Info, Messages.DnsResolvConfScript);
-					ovpn += "script-security 2\n";
-					ovpn += "up " + dnsScriptPath + "\n";
-					ovpn += "down " + dnsScriptPath + "\n";
-				}
-			}
-
-			ovpn += "route-delay 5\n"; // 2.8, to resolve some issue on some distro, ex. Fedora 21
+            ovpn.AppendDirective("route-delay", "5"); // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
 		public override bool OnCheckEnvironment()
@@ -315,7 +315,7 @@ namespace AirVPN.Platforms
 				}
 				else
 				{
-					Engine.Instance.Log(Engine.LogType.Warning, Messages.IpV6WarningUnableToDetect);
+					Engine.Instance.Logs.Log(LogType.Warning, Messages.IpV6WarningUnableToDetect);
 				}
 			}
 
@@ -340,11 +340,11 @@ namespace AirVPN.Platforms
 			{
 				if (File.Exists("/etc/resolv.conf.airvpn") == false)
 				{
-					Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameBackup);
+					Engine.Instance.Logs.Log(LogType.Info, Messages.DnsRenameBackup);
 					File.Copy("/etc/resolv.conf", "/etc/resolv.conf.airvpn");
 				}
 
-				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameDone);
+				Engine.Instance.Logs.Log(LogType.Info, Messages.DnsRenameDone);
 
 				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
 
@@ -366,7 +366,7 @@ namespace AirVPN.Platforms
 			// Cleaning rename method if pending
 			if (File.Exists("/etc/resolv.conf.airvpn") == true)
 			{
-				Engine.Instance.Log(Engine.LogType.Info, Messages.DnsRenameRestored);
+				Engine.Instance.Logs.Log(LogType.Info, Messages.DnsRenameRestored);
 
 				File.Copy("/etc/resolv.conf.airvpn", "/etc/resolv.conf", true);
 				File.Delete("/etc/resolv.conf.airvpn");

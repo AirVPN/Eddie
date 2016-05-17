@@ -1,31 +1,34 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
     public static class Messages
     {
-		public static string NotImplemented = "Not yet implemented. Contact our support staff.";
-		public static string UnhandledException = "Unexpected error. Please contact our support staff.";
+        public static string AppStarting = "Starting";
+        public static string AppShutdownStart = "Shutdown start"; // TOTRANSLATE
+        public static string AppShutdownComplete = "Shutdown complete"; // TOTRANSLATE
+        public static string NotImplemented = "Not yet implemented. Contact our support staff.";
+        public static string UnhandledException = "Unexpected error. Please contact our support staff.";
 		public static string Available = "Available";
 		public static string NotAvailable = "Not available";
 		public static string NotFound = "Not found";
@@ -181,7 +184,9 @@ namespace AirVPN.Core
 		public static string ServersLoad = "Load";
 		public static string ServersUsers = "Users";
 
-		public static string WindowsAboutTitle = "About";
+        public static string ProvidersInvalid = "Invalid provider";
+
+        public static string WindowsAboutTitle = "About";
 		public static string WindowsAboutVersion = "Version";
 		public static string WindowsTosTitle = "Terms of Service";
 		public static string WindowsTosCheck1 = "I have read and I accept the Terms of Service ";
@@ -202,12 +207,14 @@ namespace AirVPN.Core
 		public static string WindowsSettingsRouteInvalid = "Invalid IP address or range.";
 		public static string WindowsSettingsRouteOutEmptyList = "WARNING: not specified routes go outside the tunnel, but you did not specify any route. Continue?";
 		public static string WindowsSettingsDnsCheck = "Check if the tunnel uses AirVPN DNS";
-		public static string WindowsSettingsDnsServers = "DNS server list. Leave empty to use DNS servers recommended by the VPN";
+		public static string WindowsSettingsDnsServers = "Leave empty to use DNS servers recommended by the VPN";
 		public static string WindowsSettingsIpTitle = "Preferences - IP Address";
-		public static string WindowsSettingsOpenVpnRcvBuf = "TCP/UDP socket receive buffer size";
-		public static string WindowsSettingsOpenVpnSndBuf = "TCP/UDP socket send buffer size";
+		public static string WindowsSettingsOpenVpnRcvBuf = "TCP/UDP receive buffer size";
+		public static string WindowsSettingsOpenVpnSndBuf = "TCP/UDP send buffer size";
 		public static string WindowsSettingsOpenVpnDefault = "OpenVPN Default";
-		public static string WindowsOpenVpnManagementCommandTitle = "OpenVPN Management Command";
+        public static string WindowsSettingsOpenVpnDirectivesDefaultSkip1 = "Append Custom directives to Default directives";
+        public static string WindowsSettingsOpenVpnDirectivesDefaultSkip2 = "Use only Custom directives, ignore Default directives";
+        public static string WindowsOpenVpnManagementCommandTitle = "OpenVPN Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 
 		public static string WindowsMainSpeedResolution2 = "Range: 10 minutes, Grid: 1 minute, Step: 1 second"; 
@@ -256,8 +263,8 @@ namespace AirVPN.Core
 		public static string TimeJustNow = "Just now";
 		public static string TimeAgo = "ago";
 		public static string TimeRemain = "remain";
-
-		public static string StatsServerName = "Server Name";
+        
+        public static string StatsServerName = "Server Name";
 		public static string StatsServerLatency = "Server Latency";
 		public static string StatsServerLocation = "Server Location";
 		public static string StatsServerLoad = "Server Load";
@@ -327,7 +334,8 @@ namespace AirVPN.Core
 		public static string ManOptionRoutesDefault = "Specify whether routes that don't match the custom route must be inside ('in') or outside ('out') the tunnel.";
 
 		public static string ManOptionDnsMode = "'None' to disable DNS switch. 'Auto' to let the software choose the best method. Otherwise choose a method. Refer to https://airvpn.org/faq/software_advanced/ for more information about each method on each platform.";
-		public static string ManOptionDnsServers = "List of DNS servers. If not empty, override the DNS suggested by VPN server. Separate multiple values with comma.";
+        public static string ManOptionDnsLock = "DNS leak protection.";
+        public static string ManOptionDnsServers = "List of DNS servers. If not empty, override the DNS suggested by VPN server. Separate multiple values with comma.";
 		public static string ManOptionDnsCheck = "True/False. When the connection is established, try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";
 
         public static string ManOptionExecutablesOpenVpn = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with AirVPN Client.";
@@ -336,7 +344,10 @@ namespace AirVPN.Core
 		public static string ManOptionExecutablesCurl = "Path to a custom curl executable, used only with socks proxy";
 
 		public static string ManOptionOpenVpnCustom = "Allows you to specify custom OpenVPN directives.";
-		public static string ManOptionOpenVpnSkipDefaults = "If 'false' the custom directives are appended to the default directive.";
+        public static string ManOptionOpenVpnDevNode = "OpenVPN dev-node directive."; // TOTRANSLATE
+        public static string ManOptionOpenVpnSndBuf = "TCP/UDP send buffer size."; // TOTRANSLATE
+        public static string ManOptionOpenVpnRcvBuf = "TCP/UDP receive buffer size."; // TOTRANSLATE
+        public static string ManOptionOpenVpnSkipDefaults = "If 'false' the custom directives are appended to the default directive.";
 		public static string ManOptionOpenVpnManagementPort = "Default port of OpenVPN Management Interface.";
 		public static string ManOptionSshPort = "Default port of SSH Tunnel. If 0, a random port is used.";
 		public static string ManOptionSslPort = "Default port of SSL Tunnel. If 0, a random port is used.";
@@ -348,26 +359,45 @@ namespace AirVPN.Core
 		public static string ManOptionAdvancedPingerRetry = "Ping every server that doesn't have ping results every X seconds. If 0, the recommended values are used.";
 		public static string ManOptionAdvancedPingerJobs = "Maximum parallel jobs/thread for pinging purpose.";
 		public static string ManOptionAdvancedPingerValid = "Global pinger results valid if all ping reply are maximum X seconds ago. If 0, the recommended values are used.";
-
-		public static string ManOptionAdvancedWindowsTapUp = "Force the TAP interface to come UP.";
-		public static string ManOptionAdvancedWindowsDhcpDisable = "If a DHCP adapter is renewed during connection, Windows may reset the original DNS settings.\nIf this option is active, when the connection starts the client changes any DHCP adapter to Static.\nWhen the connection is closed, the client resets every adapter to the original state.\nNo action is performed if there isn't any adapter in DHCP.\n\nThis option is equivalent to one feature of the https://www.dnsleaktest.com/ scripts.";
-
+        
 		public static string ManOptionEventFileName = "Filename of the script/executable to launch on event";
 		public static string ManOptionEventArguments = "Arguments";
 		public static string ManOptionEventWaitEnd = "'true' if the software needs to wait the end (synchronous) or 'false' to be asynchronous";
 
-		// Platform Windows		
-		public static string NetworkAdapterDhcpDone = "Network adapter DHCP switched to static ({1})";
-		public static string NetworkAdapterDhcpRestored = "DHCP of a network adapter restored to original settings ({1})";
-		public static string IpV6Disabled = "IPv6 disabled."; 
-		public static string IpV6Restored = "IPv6 restored.";
-		public static string HackInterfaceUpDone = "AirVPN Windows Interface Hack executed ({1})";
+        public static string ManOptionWindowsAdapterService = "OpenVPN TUN/TAP adapter identifier."; // TOTRANSLATE
+        public static string ManOptionWindowsDisableDriverUpgrade = "Don't try to upgrade the TUN/TAP driver."; // TOTRANSLATE
+        public static string ManOptionWindowsTapUp = "Force the TAP interface to come UP.";
+        public static string ManOptionWindowsDhcpDisable = "If a DHCP adapter is renewed during connection, Windows may reset the original DNS settings.\nIf this option is active, when the connection starts the client changes any DHCP adapter to Static.\nWhen the connection is closed, the client resets every adapter to the original state.\nNo action is performed if there isn't any adapter in DHCP.\n\nThis option is equivalent to one feature of the https://www.dnsleaktest.com/ scripts.";
+        public static string ManOptionWindowsIPv6DisableAtOs = "If the IPv6 need to be disabled, try to disable it also at OS level (registry)."; // TOTRANSLATE
+        public static string ManOptionWindowsDnsForceAllInterfaces = "If DNS leak protection is active, change DNS settings of all network interfaces."; // TOTRANSLATE
 
-		// Platform Windows & OS X
-		public static string NetworkAdapterDnsDone = "DNS of a network adapter forced ({1}, from {2} to {3})";
+        // Providers - Eddie v3        
+        public static string ManOptionServicesOpenVpnAutoSync = "True/False. If true, profiles are automatically in-sync with the path. If false, profiles are imported and can be edited."; // TOTRANSLATE
+        public static string ManOptionServicesOpenVpnPath = "Path where OpenVPN configuration files are fetched";  // TOTRANSLATE
+        public static string ManOptionServicesDnsCheck = "True/False. When the connection is established, try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";  // TOTRANSLATE
+        public static string ManOptionServicesTunnelCheck = "True/False. Send a request to the server, that check it come from within the tunnel, and reply with an acknowledgement."; // TOTRANSLATE        
+
+        // Platform Windows		
+        public static string NetworkAdapterDhcpDone = "Network adapter DHCP switched to static ({1})";
+		public static string NetworkAdapterDhcpRestored = "DHCP of a network adapter restored to original settings ({1})";
+		public static string IpV6DisabledOs = "IPv6 disabled with registry changes."; // TOTRANSLATE
+        public static string IpV6RestoredOs = "IPv6 restored with registry changes."; // TOTRANSLATE
+        public static string IpV6DisabledWpf = "IPv6 disabled with packet filtering."; // TOTRANSLATE
+        public static string IpV6RestoredWpf = "IPv6 restored with packet filtering."; // TOTRANSLATE
+        public static string DnsLockActivatedWpf = "DNS leak protection with packet filtering enabled."; // TOTRANSLATE
+        public static string DnsLockDeactivatedWpf = "DNS leak protection with packet filtering disabled."; // TOTRANSLATE
+        public static string HackInterfaceUpDone = "AirVPN Windows Interface Hack executed ({1})";
+        public static string WfpStart = "Starting Windows WFP Firewall"; // TOTRANSLATE
+        public static string WfpStartFail = "Windows WFP, Start failed: {1}"; // TOTRANSLATE
+        public static string WfpStop = "Stopping Windows WFP Firewall";  // TOTRANSLATE       
+        public static string WfpRuleAddFail = "Windows WFP, Add rule failed: {1}";  // TOTRANSLATE       
+        public static string WfpRuleRemoveFail = "Windows WFP, Add rule failed: {1}";  // TOTRANSLATE       
+
+        // Platform Windows & OS X
+        public static string NetworkAdapterDnsDone = "DNS of a network adapter forced ({1}, from {2} to {3})";
         public static string NetworkAdapterDnsRestored = "DNS of a network adapter restored to original settings ({1}, to {2})";
 
-        // OS X
+        // Platform OS X
         public static string NetworkAdapterIpV6Disabled = "IPv6 disabled on network adapter ({1})";
         public static string NetworkAdapterIpV6Restored = "IPv6 restored on network adapter ({1})";
         

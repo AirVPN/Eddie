@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AirVPN.UI.Windows.Properties {
+namespace Eddie.UI.Forms.Linux.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

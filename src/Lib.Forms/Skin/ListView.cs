@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace AirVPN.Gui.Skin
+namespace Eddie.Gui.Skin
 {
     public class ListView : System.Windows.Forms.ListView
     {
@@ -35,9 +35,11 @@ namespace AirVPN.Gui.Skin
         public ImageList ImageListState = null;
 
         private int m_sortColumn = -1;
+
+        private bool m_supportResizeColumn = true;
 				
         public ListView()
-        {
+        {            
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
 			
 			FullRowSelect = true;
@@ -48,12 +50,12 @@ namespace AirVPN.Gui.Skin
 
             OwnerDraw = true;
 			this.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(OnListViewDrawColumnHeader);
-			this.DrawSubItem += new DrawListViewSubItemEventHandler(OnListViewDrawSubItem);
+			this.DrawSubItem += new DrawListViewSubItemEventHandler(OnListViewDrawSubItem);         
 		}
         
         public void ResizeColumnsAuto()
         {
-            for(int c=0;c<Columns.Count;c++)
+            for (int c=0;c<Columns.Count;c++)
             {
                 ResizeColumnAuto(c);
             }
@@ -61,6 +63,9 @@ namespace AirVPN.Gui.Skin
 
         public void ResizeColumnAuto(int column)
         {
+            if (m_supportResizeColumn == false)
+                return;
+            
             // It ignore Image if present, .Net bug.
             //AutoResizeColumn(column, ColumnHeaderAutoResizeStyle.ColumnContent);
 
@@ -96,16 +101,25 @@ namespace AirVPN.Gui.Skin
 
         public void ResizeColumnMax(int column)
         {
+            if (m_supportResizeColumn == false)
+                return;
+
             Columns[column].Width = 3000;
         }
 
         public void ResizeColumnString(int column, int charsLen)
         {
+            if (m_supportResizeColumn == false)
+                return;
+
             ResizeColumnString(column, new string('W', charsLen));
         }
 
         public void ResizeColumnString(int column, string text)
         {
+            if (m_supportResizeColumn == false)
+                return;
+
             Graphics g = this.CreateGraphics();
             Size s = GuiUtils.GetFontSize(g, Font, text);
             g.Dispose();
@@ -117,6 +131,9 @@ namespace AirVPN.Gui.Skin
         				
 		public void DrawSubItemBackground(object sender, DrawListViewSubItemEventArgs e)
 		{
+            if (this.Visible == false)
+                return;
+
 			Rectangle r = e.Bounds;
 
             Brush b = null;
@@ -133,30 +150,57 @@ namespace AirVPN.Gui.Skin
                 else
                     b = Form.Skin.ListViewNormal2BackBrush;
             }
-
-            e.Graphics.FillRectangle(b, r);
-
-			e.Graphics.DrawRectangle(Form.Skin.ListViewGridPen, r);
+            
+            Form.FillRectangle(e.Graphics, b, r);
+            Form.DrawRectangle(e.Graphics, Form.Skin.ListViewGridPen, r);            
 		}
+
+        public virtual bool GetDrawSubItemFull(int columnIndex)
+        {
+            return true;
+        }
 		
 		public virtual void OnListViewDrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
 		{
-			e.DrawDefault = true;
-		}
+            e.DrawDefault = true;
+            return;
+
+			e.DrawDefault = false;
+
+            Form.FillRectangle(e.Graphics, Brushes.Red, e.Bounds);
+            // Clodo Linux Graphics Issue
+
+            Rectangle r = e.Bounds;
+            r.Height--;
+
+            r.X += TextSpace;
+            r.Width -= TextSpace;
+            
+            StringFormat stringFormat = GuiUtils.StringFormatLeftMiddle;
+            if (Columns[e.ColumnIndex].TextAlign == HorizontalAlignment.Center)
+                stringFormat = GuiUtils.StringFormatCenterMiddle;
+            else if (Columns[e.ColumnIndex].TextAlign == HorizontalAlignment.Right)
+                stringFormat = GuiUtils.StringFormatRightMiddle;
+            e.Graphics.DrawString(Columns[e.ColumnIndex].Text, Font, Form.Skin.ForeBrush, r, stringFormat);
+            
+        }
 
 		public virtual void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
 		{
-			e.DrawDefault = false;
+            e.DrawDefault = false;
 
 			Form.Skin.GraphicsCommon(e.Graphics);
 			
 			DrawSubItemBackground(sender, e);
-			
+
+            if(GetDrawSubItemFull(e.ColumnIndex) == false)
+                return;
+                        
 			if (e.ColumnIndex == 0)
 			{
                 // int middleY = (e.Bounds.Top + e.Bounds.Bottom) / 2; // TOCLEAN
-
-				Rectangle r = e.Bounds;
+                Rectangle r = e.Bounds;
+                r.Height--;
 
 				Image imageState = GuiUtils.GetResourceImage(ImageStateResourcePrefix + e.Item.StateImageIndex.ToString());
 				if (imageState != null)
@@ -167,7 +211,8 @@ namespace AirVPN.Gui.Skin
 					rImage.X += ImageSpace;
 					rImage.Width = imageWidth;
 
-					e.Graphics.DrawImage(imageState, rImage);
+                    Form.DrawImageContain(e.Graphics, imageState, rImage, 20);
+                    //e.Graphics.DrawImage(imageState, rImage);
 
 					r.X += (imageWidth + ImageSpace);
 					r.Width -= (imageWidth + ImageSpace);
@@ -190,9 +235,10 @@ namespace AirVPN.Gui.Skin
 					rImage.X += ImageSpace;
 					rImage.Width = imageWidth;
 
-					e.Graphics.DrawImage(imageIcon, rImage);
+					//e.Graphics.DrawImage(imageIcon, rImage);
+                    Form.DrawImageContain(e.Graphics, imageIcon, rImage, 20);
 
-					r.X += (imageWidth + ImageSpace);
+                    r.X += (imageWidth + ImageSpace);
 					r.Width -= (imageWidth + ImageSpace);                    
                 }
 
@@ -204,7 +250,9 @@ namespace AirVPN.Gui.Skin
 			else				
 			{
 				Rectangle r = e.Bounds;
-				r.X += TextSpace;
+                r.Height--;
+
+                r.X += TextSpace;
 				r.Width -= TextSpace;
 				
 				StringFormat stringFormat = GuiUtils.StringFormatLeftMiddle;				

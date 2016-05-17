@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AirVPN.Lib.Core.Properties {
+namespace Eddie.Lib.Core.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace AirVPN.Lib.Core.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AirVPN.Lib.Core.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Eddie.Lib.Core.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,28 @@ namespace AirVPN.Lib.Core.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;provider title=&quot;AirVPN&quot; website=&quot;https://airvpn.org&quot; class=&quot;service&quot; fetch_mode=&quot;rsa4096+aes256&quot;&gt;
+        ///  &lt;manifest&gt;
+        ///    &lt;urls&gt;
+        ///      &lt;url address=&quot;http://54.93.175.114&quot; /&gt;
+        ///	  &lt;url address=&quot;http://54.246.124.152&quot; /&gt;
+        ///	  &lt;url address=&quot;http://54.225.156.17&quot; /&gt;
+        ///		&lt;url address=&quot;http://95.211.138.143&quot; /&gt;
+        ///
+        ///    &lt;/urls&gt;
+        ///    &lt;rsa&gt;
+        ///      &lt;RSAParameters&gt;
+        ///        &lt;Exponent&gt;AQAB&lt;/Exponent&gt;
+        ///        &lt;Modulus&gt;wuQXz7eZeEBwaaRsVK8iEHpueXoKyQzW8sr8qMUkZIcKtKv5iseXMrTbcGYGpRXdiqXp7 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string AirVPN {
+            get {
+                return ResourceManager.GetString("AirVPN", resourceCulture);
             }
         }
         

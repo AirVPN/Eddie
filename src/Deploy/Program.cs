@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -135,8 +135,9 @@ namespace Deploy
 					arch = "x86";
 				ListPackages.Add(new Package("linux", arch, "mono"));
 				ListPackages.Add(new Package("linux", arch, "portable"));
-				ListPackages.Add(new Package("linux", arch, "debian2"));
-                ListPackages.Add(new Package("linux", arch, "debian4"));
+                ListPackages.Add(new Package("linux", arch, "debian"));
+                //ListPackages.Add(new Package("linux", arch, "debian2"));
+                //ListPackages.Add(new Package("linux", arch, "debian4"));
                 ListPackages.Add(new Package("linux", arch, "rpm"));                
             }
 
@@ -206,6 +207,8 @@ namespace Deploy
 					CopyFile(pathRelease, "UI.Windows.exe", pathTemp, "AirVPN.exe");
 					CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe");
 
+                    WindowsSignPath(pathTemp);                    
+                    
 					if (format == "portable")
 					{
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".zip");
@@ -222,10 +225,12 @@ namespace Deploy
 					{
 						// NSIS
 						string nsis = File.ReadAllText(pathBaseResources + "/nsis/AirVPN.nsi");
-								
-						nsis = nsis.Replace("{@resources}", NormalizePath(pathBaseResources + "/nsis"));
+
+                        string pathExe = NormalizePath(pathBaseRepository + "/" + fileName + ".exe");
+
+                        nsis = nsis.Replace("{@resources}", NormalizePath(pathBaseResources + "/nsis"));
 						nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
-						nsis = nsis.Replace("{@out}", NormalizePath(pathBaseRepository + "/" + fileName + ".exe"));
+						nsis = nsis.Replace("{@out}", pathExe);
 
 						string filesAdd = "";
 						string filesDelete = "";
@@ -245,8 +250,10 @@ namespace Deploy
 
 						File.WriteAllText(pathTemp + "/AirVPN.nsi", nsis);
 
-						Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");								
-					}
+						Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");
+
+                        WindowsSignFile(pathExe);
+                    }
 				}
 				else if (platform == "linux")
 				{
@@ -316,7 +323,8 @@ namespace Deploy
 						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
 						Shell(command2);
 					}
-					else if ( (format == "debian2") || (format == "debian4") )
+                    //else if ( (format == "debian2") || (format == "debian4") )
+                    else if (format == "debian")
                     {
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
@@ -345,9 +353,8 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
-
-						//CopyFile(pathBaseHome + "/changelog.txt", pathTemp + "/usr/share/doc/airvpn/changelog");												
-						File.WriteAllText(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl("https://airvpn.org/services/changelog.php?software=client&format=debian"));
+                        						
+						File.WriteAllText(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl(Constants.ChangeLogUrl));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
 
@@ -392,15 +399,7 @@ namespace Deploy
 						ReplaceInFile(pathTemp + "/airvpn.spec", "{@lib}", libSubPath);
 
 						ReplaceInFile(pathTemp + "/usr/bin/airvpn", "{@lib}", libSubPath);						
-						/*
-						string debianArchitecture = "unknown";
-						if (arch == "x86")
-							debianArchitecture = "any-i386";
-						else if (arch == "x64")
-							debianArchitecture = "any-amd64";
-						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
-						*/
-
+						
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/openvpn");
 						//RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel"); // OpenSUSE (RPM) don't have stunnel in stable repo
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/libgdiplus.so.0");
@@ -431,24 +430,6 @@ namespace Deploy
 
 					if (format == "portable")
 					{
-
-
-						/*
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-						CopyFile(pathRelease, "Platforms.Osx.dll", pathTemp);
-						CopyFile(pathRelease, "CLI.Osx.exe", pathTemp, "CLI.exe");
-
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
-
-						Shell("chmod 755 \"" + pathTemp + "/airvpn\"");
-						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
-						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-
-						CreateDirectory(pathTemp + "/" + fileName);
-						MoveAll(pathTemp, pathTemp + "/" + fileName);
-						*/
-
 						// TAR.GZ
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
 
@@ -612,7 +593,51 @@ namespace Deploy
 			return output;
 		}
 
-		static void CopyFile(string fromFilePath, string toFilePath)
+        static void WindowsSignPath(string path)
+        {
+            string[] files = Directory.GetFiles(path);
+            foreach (string file in files)
+            {
+                bool skip = false;
+
+                if (file.EndsWith("tap-windows.exe")) // Already signed by OpenVPN Technologies
+                    skip = true;
+
+                if(skip == false)
+                    WindowsSignFile(file);
+            }            
+        }
+
+        static void WindowsSignFile(string path)
+        {
+            string pathBaseSigning = new DirectoryInfo("../../../../signing").FullName;
+            string pathBaseTools = new DirectoryInfo("../../../../tools").FullName;
+
+            string pathPfx = NormalizePath(pathBaseSigning + "/eddie.pfx");
+            string pathPfxPwd = NormalizePath(pathBaseSigning + "/eddie.pfx.pwd");
+
+            string title = "Eddie - AirVPN Client";
+
+            if( (File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)) )
+            {
+                string cmd = "";
+                cmd += pathBaseTools + "/windows/signtool.exe";
+                cmd += " sign";
+                cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
+                cmd += " /f " + pathPfx; // Pfx
+                cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
+                cmd += " /d \"" + title + "\""; // Title
+                cmd += " \"" + path + "\""; // File
+                string result = Shell(cmd);                
+            }
+            else
+            {
+                Log("Missing PFX or password for Windows Signatures.");
+            }
+        }
+
+
+        static void CopyFile(string fromFilePath, string toFilePath)
 		{
 			File.Copy(NormalizePath(fromFilePath), NormalizePath(toFilePath), false);
 		}

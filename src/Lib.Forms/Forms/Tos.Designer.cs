@@ -1,4 +1,4 @@
-namespace AirVPN.Gui.Forms
+namespace Eddie.Gui.Forms
 {
     partial class Tos
     {
@@ -28,12 +28,12 @@ namespace AirVPN.Gui.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.txtTos = new AirVPN.Gui.Skin.TextBox();
-            this.panel1 = new AirVPN.Gui.Skin.Panel();
-            this.chkAccept2 = new AirVPN.Gui.Skin.CheckBox();
-            this.chkAccept1 = new AirVPN.Gui.Skin.CheckBox();
-            this.cmdCancel = new AirVPN.Gui.Skin.Button();
-            this.cmdOk = new AirVPN.Gui.Skin.Button();
+            this.txtTos = new Eddie.Gui.Skin.TextBox();
+            this.panel1 = new Eddie.Gui.Skin.Panel();
+            this.chkAccept2 = new Eddie.Gui.Skin.CheckBox();
+            this.chkAccept1 = new Eddie.Gui.Skin.CheckBox();
+            this.cmdCancel = new Eddie.Gui.Skin.Button();
+            this.cmdOk = new Eddie.Gui.Skin.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 

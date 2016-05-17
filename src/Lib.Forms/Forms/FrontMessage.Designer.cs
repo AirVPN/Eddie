@@ -1,4 +1,4 @@
-﻿namespace AirVPN.Gui.Forms
+﻿namespace Eddie.Gui.Forms
 {
 	partial class FrontMessage
 	{
@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.cmdClose = new AirVPN.Gui.Skin.Button();
+            this.cmdClose = new Eddie.Gui.Skin.Button();
             this.lnkWebsite = new System.Windows.Forms.LinkLabel();
             this.lblMessage = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -81,7 +81,7 @@
             // 
             // FrontMessage
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(705, 294);
             this.Controls.Add(this.lblMessage);

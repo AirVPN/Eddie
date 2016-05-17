@@ -8,9 +8,9 @@
     <ProjectGuid>{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirVPN.Platforms.Linux</RootNamespace>
+    <RootNamespace>Eddie.Platforms.Linux</RootNamespace>
     <AssemblyName>Platforms.Linux</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>

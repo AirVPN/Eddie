@@ -7,7 +7,7 @@
 using MonoMac.Foundation;
 using System.CodeDom.Compiler;
 
-namespace AirVPN.UI.Osx
+namespace Eddie.UI.Osx
 {
 	[Register ("WindowTextViewerController")]
 	partial class WindowTextViewerController

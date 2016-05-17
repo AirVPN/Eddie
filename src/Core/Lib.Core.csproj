@@ -8,9 +8,9 @@
     <ProjectGuid>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirVPN.Lib.Core</RootNamespace>
+    <RootNamespace>Eddie.Lib.Core</RootNamespace>
     <AssemblyName>Lib.Core</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <ReleaseVersion>2.11</ReleaseVersion>
@@ -46,7 +46,14 @@
     <Compile Include="Commands.cs" />
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="CountriesManager.cs" />
-    <Compile Include="OvpnManager.cs" />
+    <Compile Include="LogsManager.cs" />
+    <Compile Include="LogType.cs" />
+    <Compile Include="Option.cs" />
+    <Compile Include="OvpnBuilder.cs" />
+    <Compile Include="Provider.cs" />
+    <Compile Include="ProvidersManager.cs" />
+    <Compile Include="Providers\Manifest.cs" />
+    <Compile Include="Providers\OpenVPN.cs" />
     <Compile Include="RemoteAccess.cs" />
     <Compile Include="ProgramScope.cs" />
     <Compile Include="TorControl.cs" />
@@ -101,6 +108,8 @@
     <Compile Include="WebClientEx.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WebServer.cs" />
+    <Compile Include="WebSocketService.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -127,6 +136,7 @@
   <ItemGroup>
     <None Include="Resources\auth.xml" />
     <None Include="Resources\manifest.xml" />
+    <None Include="Resources\AirVPN.xml" />
     <Content Include="_Readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

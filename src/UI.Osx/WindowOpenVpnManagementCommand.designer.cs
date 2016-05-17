@@ -1,5 +1,5 @@
 
-namespace AirVPN.UI.Osx
+namespace Eddie.UI.Osx
 {
 	// Should subclass MonoMac.AppKit.NSWindow
 	[MonoMac.Foundation.Register("WindowOpenVpnManagementCommand")]

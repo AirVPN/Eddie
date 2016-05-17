@@ -8,7 +8,7 @@
     <ProjectGuid>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirVPN.Platforms.Osx</RootNamespace>
+    <RootNamespace>Eddie.Platforms.Osx</RootNamespace>
     <AssemblyName>Platforms.Osx</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

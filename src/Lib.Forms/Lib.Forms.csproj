@@ -8,9 +8,9 @@
     <ProjectGuid>{C0357E13-B013-40C5-B511-865A27BC2A47}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirVPN.Lib.Forms</RootNamespace>
+    <RootNamespace>Eddie.Lib.Forms</RootNamespace>
     <AssemblyName>Lib.Forms</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -42,13 +42,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\ListViewItemProtocol.cs" />
+    <Compile Include="Controls\Tooltip.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\TabNavigator.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\ChartSpeed.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\TreeNodeTab.cs" />
     <Compile Include="Controls\ProgressInfinite.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -241,6 +243,7 @@
     <Content Include="res\btn_l_d.png" />
     <Content Include="res\btn_l_h.png" />
     <Content Include="res\btn_l_n.png" />
+    <None Include="res\clear.png" />
     <Content Include="res\connect.png" />
     <Content Include="res\copy.png" />
     <Content Include="res\delete.png" />
@@ -266,6 +269,12 @@
     <None Include="res\log_icons\log_realtime.png" />
     <None Include="res\log_icons\log_verbose.png" />
     <None Include="res\log_icons\log_warning.png" />
+    <None Include="res\maintab_countries.png" />
+    <None Include="res\maintab_logs.png" />
+    <None Include="res\maintab_overview.png" />
+    <None Include="res\maintab_servers.png" />
+    <None Include="res\maintab_speed.png" />
+    <None Include="res\maintab_stats.png" />
     <Content Include="res\main_d_bg.png" />
     <Content Include="res\main_l_bg.png" />
     <Content Include="res\menu_hover.png" />

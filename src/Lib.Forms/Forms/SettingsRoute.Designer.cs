@@ -1,4 +1,4 @@
-﻿namespace AirVPN.Gui.Forms
+﻿namespace Eddie.Gui.Forms
 {
     partial class SettingsRoute
     {
@@ -28,15 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblHostHelp = new AirVPN.Gui.Skin.Label();
-            this.cboAction = new AirVPN.Gui.Skin.ComboBox();
-            this.cmdOk = new AirVPN.Gui.Skin.Button();
-            this.lblProxyType = new AirVPN.Gui.Skin.Label();
-            this.txtNotes = new AirVPN.Gui.Skin.TextBox();
-            this.lblNotes = new AirVPN.Gui.Skin.Label();
-            this.cmdCancel = new AirVPN.Gui.Skin.Button();
-            this.txtHost = new AirVPN.Gui.Skin.TextBox();
-            this.lblProxyHost = new AirVPN.Gui.Skin.Label();
+            this.lblHostHelp = new Eddie.Gui.Skin.Label();
+            this.cboAction = new Eddie.Gui.Skin.ComboBox();
+            this.cmdOk = new Eddie.Gui.Skin.Button();
+            this.lblAction = new Eddie.Gui.Skin.Label();
+            this.txtNotes = new Eddie.Gui.Skin.TextBox();
+            this.lblNotes = new Eddie.Gui.Skin.Label();
+            this.cmdCancel = new Eddie.Gui.Skin.Button();
+            this.txtHost = new Eddie.Gui.Skin.TextBox();
+            this.lblHost = new Eddie.Gui.Skin.Label();
             this.SuspendLayout();
             // 
             // lblHostHelp
@@ -45,7 +45,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblHostHelp.BackColor = System.Drawing.Color.Transparent;
             this.lblHostHelp.ForeColor = System.Drawing.Color.Black;
-            this.lblHostHelp.Location = new System.Drawing.Point(95, 41);
+            this.lblHostHelp.Location = new System.Drawing.Point(95, 49);
             this.lblHostHelp.Name = "lblHostHelp";
             this.lblHostHelp.Size = new System.Drawing.Size(307, 74);
             this.lblHostHelp.TabIndex = 46;
@@ -79,23 +79,23 @@
             this.cmdOk.UseVisualStyleBackColor = true;
             this.cmdOk.Click += new System.EventHandler(this.cmdOk_Click);
             // 
-            // lblProxyType
+            // lblAction
             // 
-            this.lblProxyType.BackColor = System.Drawing.Color.Transparent;
-            this.lblProxyType.ForeColor = System.Drawing.Color.Black;
-            this.lblProxyType.Location = new System.Drawing.Point(12, 134);
-            this.lblProxyType.Name = "lblProxyType";
-            this.lblProxyType.Size = new System.Drawing.Size(78, 21);
-            this.lblProxyType.TabIndex = 45;
-            this.lblProxyType.Text = "Action:";
-            this.lblProxyType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblAction.BackColor = System.Drawing.Color.Transparent;
+            this.lblAction.ForeColor = System.Drawing.Color.Black;
+            this.lblAction.Location = new System.Drawing.Point(12, 134);
+            this.lblAction.Name = "lblAction";
+            this.lblAction.Size = new System.Drawing.Size(78, 21);
+            this.lblAction.TabIndex = 45;
+            this.lblAction.Text = "Action:";
+            this.lblAction.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // txtNotes
             // 
             this.txtNotes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtNotes.Location = new System.Drawing.Point(95, 166);
+            this.txtNotes.Location = new System.Drawing.Point(95, 164);
             this.txtNotes.Multiline = true;
             this.txtNotes.Name = "txtNotes";
             this.txtNotes.Size = new System.Drawing.Size(307, 20);
@@ -105,7 +105,7 @@
             // 
             this.lblNotes.BackColor = System.Drawing.Color.Transparent;
             this.lblNotes.ForeColor = System.Drawing.Color.Black;
-            this.lblNotes.Location = new System.Drawing.Point(12, 166);
+            this.lblNotes.Location = new System.Drawing.Point(12, 164);
             this.lblNotes.Name = "lblNotes";
             this.lblNotes.Size = new System.Drawing.Size(78, 20);
             this.lblNotes.TabIndex = 42;
@@ -137,16 +137,16 @@
             this.txtHost.TabIndex = 1;
             this.txtHost.TextChanged += new System.EventHandler(this.txtHost_TextChanged);
             // 
-            // lblProxyHost
+            // lblHost
             // 
-            this.lblProxyHost.BackColor = System.Drawing.Color.Transparent;
-            this.lblProxyHost.ForeColor = System.Drawing.Color.Black;
-            this.lblProxyHost.Location = new System.Drawing.Point(15, 18);
-            this.lblProxyHost.Name = "lblProxyHost";
-            this.lblProxyHost.Size = new System.Drawing.Size(75, 20);
-            this.lblProxyHost.TabIndex = 40;
-            this.lblProxyHost.Text = "IP / Host:";
-            this.lblProxyHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblHost.BackColor = System.Drawing.Color.Transparent;
+            this.lblHost.ForeColor = System.Drawing.Color.Black;
+            this.lblHost.Location = new System.Drawing.Point(15, 18);
+            this.lblHost.Name = "lblHost";
+            this.lblHost.Size = new System.Drawing.Size(75, 20);
+            this.lblHost.TabIndex = 40;
+            this.lblHost.Text = "IP / Host:";
+            this.lblHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // SettingsRoute
             // 
@@ -156,12 +156,12 @@
             this.Controls.Add(this.lblHostHelp);
             this.Controls.Add(this.cboAction);
             this.Controls.Add(this.cmdOk);
-            this.Controls.Add(this.lblProxyType);
+            this.Controls.Add(this.lblAction);
             this.Controls.Add(this.txtNotes);
             this.Controls.Add(this.lblNotes);
             this.Controls.Add(this.cmdCancel);
             this.Controls.Add(this.txtHost);
-            this.Controls.Add(this.lblProxyHost);
+            this.Controls.Add(this.lblHost);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SettingsRoute";
@@ -176,12 +176,12 @@
         #endregion
 
         private Skin.Button cmdOk;
-        private Skin.Label lblProxyType;
+        private Skin.Label lblAction;
         private Skin.TextBox txtNotes;
         private Skin.Label lblNotes;
         private Skin.Button cmdCancel;
         private Skin.TextBox txtHost;
-        private Skin.Label lblProxyHost;
+        private Skin.Label lblHost;
         private Skin.ComboBox cboAction;
 		private Skin.Label lblHostHelp;
     }

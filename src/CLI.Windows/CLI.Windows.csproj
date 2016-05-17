@@ -8,9 +8,9 @@
     <ProjectGuid>{B46C9D88-4E10-4D81-BFF1-FDB43AF9FF30}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirVPN.CLI.Windows</RootNamespace>
+    <RootNamespace>Eddie.CLI.Windows</RootNamespace>
     <AssemblyName>CLI.Windows</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>

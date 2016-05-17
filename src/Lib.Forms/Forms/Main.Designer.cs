@@ -1,4 +1,4 @@
-namespace AirVPN.Gui.Forms
+namespace Eddie.Gui.Forms
 {
     partial class Main
     {
@@ -52,8 +52,7 @@ namespace AirVPN.Gui.Forms
             this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuDevelopersUpdateManifest = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuDevelopersDefaultManifest = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuDevelopersUpdateManifest = new System.Windows.Forms.ToolStripMenuItem();            
             this.mnuDevelopersReset = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuTools = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuToolsPortForwarding = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,25 +63,23 @@ namespace AirVPN.Gui.Forms
             this.mnuRestoreSep = new System.Windows.Forms.ToolStripSeparator();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.imgCountries = new System.Windows.Forms.ImageList(this.components);
-            this.tip = new System.Windows.Forms.ToolTip(this.components);
-            this.cmdServersRefresh = new AirVPN.Gui.Skin.Button();
-            this.cboScoreType = new AirVPN.Gui.Skin.ComboBox();
-            this.chkLockLast = new AirVPN.Gui.Skin.CheckBox();
-            this.cmdServersUndefined = new AirVPN.Gui.Skin.Button();
-            this.cmdServersBlackList = new AirVPN.Gui.Skin.Button();
-            this.cmdServersWhiteList = new AirVPN.Gui.Skin.Button();
-            this.cmdServersConnect = new AirVPN.Gui.Skin.Button();
-            this.cmdAreasUndefined = new AirVPN.Gui.Skin.Button();
-            this.cmdAreasBlackList = new AirVPN.Gui.Skin.Button();
-            this.cmdAreasWhiteList = new AirVPN.Gui.Skin.Button();
-            this.cmdLogsSupport = new AirVPN.Gui.Skin.Button();
-            this.cmdLogsOpenVpnManagement = new AirVPN.Gui.Skin.Button();
-            this.cmdLogsClean = new AirVPN.Gui.Skin.Button();
-            this.cmdLogsCopy = new AirVPN.Gui.Skin.Button();
-            this.cmdLogsSave = new AirVPN.Gui.Skin.Button();
+            this.cmdServersRefresh = new Eddie.Gui.Skin.Button();
+            this.cboScoreType = new Eddie.Gui.Skin.ComboBox();
+            this.chkLockLast = new Eddie.Gui.Skin.CheckBox();
+            this.cmdServersUndefined = new Eddie.Gui.Skin.Button();
+            this.cmdServersBlackList = new Eddie.Gui.Skin.Button();
+            this.cmdServersWhiteList = new Eddie.Gui.Skin.Button();
+            this.cmdServersConnect = new Eddie.Gui.Skin.Button();
+            this.cmdLogsSupport = new Eddie.Gui.Skin.Button();
+            this.cmdLogsOpenVpnManagement = new Eddie.Gui.Skin.Button();
+            this.cmdLogsClean = new Eddie.Gui.Skin.Button();
+            this.cmdLogsCopy = new Eddie.Gui.Skin.Button();
+            this.cmdLogsSave = new Eddie.Gui.Skin.Button();
+            this.cmdAreasUndefined = new Eddie.Gui.Skin.Button();
+            this.cmdAreasBlackList = new Eddie.Gui.Skin.Button();
+            this.cmdAreasWhiteList = new Eddie.Gui.Skin.Button();
             this.mnuLogsContext = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.mnuServers = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuServersConnect = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuServersSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -95,56 +92,55 @@ namespace AirVPN.Gui.Forms
             this.mnuAreasWhiteList = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAreasBlackList = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAreasUndefined = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabMain = new AirVPN.Gui.Skin.TabControl();
-            this.tabOverview = new AirVPN.Gui.Skin.TabPage();
-            this.pnlWelcome = new AirVPN.Gui.Skin.Panel();
-            this.cboKey = new System.Windows.Forms.ComboBox();
-            this.lblKey = new AirVPN.Gui.Skin.Label();
-            this.lblConnectSubtitle = new AirVPN.Gui.Skin.Label();
-            this.cmdLockedNetwork = new AirVPN.Gui.Skin.Button();
-            this.lblLoginIcon = new System.Windows.Forms.Label();
-            this.imgLockedNetwork = new AirVPN.Gui.Skin.Label();
-            this.cmdLogin = new AirVPN.Gui.Skin.Button();
-            this.lblPassword = new AirVPN.Gui.Skin.Label();
-            this.lblLogin = new AirVPN.Gui.Skin.Label();
-            this.cmdConnect = new AirVPN.Gui.Skin.Button();
-            this.chkRemember = new AirVPN.Gui.Skin.CheckBox();
-            this.txtPassword = new AirVPN.Gui.Skin.TextBox();
-            this.txtLogin = new AirVPN.Gui.Skin.TextBox();
-            this.pnlConnected = new AirVPN.Gui.Skin.Panel();
-            this.txtConnectedExitIp = new AirVPN.Gui.Skin.Label();
-            this.lblConnectedExitIp = new AirVPN.Gui.Skin.Label();
-            this.lblConnectedUpload = new AirVPN.Gui.Skin.Label();
+            this.tabMain = new Eddie.Gui.Skin.TabControl();
+            this.tabOverview = new Eddie.Gui.Skin.TabPage();
+            this.pnlConnected = new Eddie.Gui.Skin.Panel();
+            this.txtConnectedExitIp = new Eddie.Gui.Skin.Label();
+            this.lblConnectedExitIp = new Eddie.Gui.Skin.Label();
+            this.lblConnectedUpload = new Eddie.Gui.Skin.Label();
             this.txtConnectedUpload = new System.Windows.Forms.Label();
             this.txtConnectedDownload = new System.Windows.Forms.Label();
-            this.lblConnectedDownload = new AirVPN.Gui.Skin.Label();
-            this.txtConnectedSince = new AirVPN.Gui.Skin.Label();
-            this.lblConnectedSince = new AirVPN.Gui.Skin.Label();
-            this.cmdDisconnect = new AirVPN.Gui.Skin.Button();
-            this.lblConnectedLocation = new AirVPN.Gui.Skin.Label();
-            this.lblConnectedTo = new AirVPN.Gui.Skin.Label();
-            this.lblConnectedServerName = new AirVPN.Gui.Skin.Label();
-            this.lblConnectedCountry = new AirVPN.Gui.Skin.Label();
-            this.pnlWaiting = new AirVPN.Gui.Skin.Panel();
-            this.lblWait2 = new AirVPN.Gui.Skin.Label();
-            this.lblWait1 = new AirVPN.Gui.Skin.Label();
-            this.cmdCancel = new AirVPN.Gui.Skin.Button();
-            this.tabServers = new AirVPN.Gui.Skin.TabPage();
-            this.chkShowAll = new AirVPN.Gui.Skin.CheckBox();
-            this.lblScoreType = new AirVPN.Gui.Skin.Label();
-            this.pnlServers = new System.Windows.Forms.Panel();
-            this.tabAreas = new AirVPN.Gui.Skin.TabPage();
-            this.pnlAreas = new System.Windows.Forms.Panel();
-            this.tabSpeed = new AirVPN.Gui.Skin.TabPage();
-            this.lblSpeedResolution = new AirVPN.Gui.Skin.Label();
+            this.lblConnectedDownload = new Eddie.Gui.Skin.Label();
+            this.txtConnectedSince = new Eddie.Gui.Skin.Label();
+            this.lblConnectedSince = new Eddie.Gui.Skin.Label();
+            this.cmdDisconnect = new Eddie.Gui.Skin.Button();
+            this.lblConnectedLocation = new Eddie.Gui.Skin.Label();
+            this.lblConnectedTo = new Eddie.Gui.Skin.Label();
+            this.lblConnectedServerName = new Eddie.Gui.Skin.Label();
+            this.lblConnectedCountry = new Eddie.Gui.Skin.Label();
+            this.pnlWelcome = new Eddie.Gui.Skin.Panel();
+            this.cboKey = new System.Windows.Forms.ComboBox();
+            this.lblKey = new Eddie.Gui.Skin.Label();
+            this.lblConnectSubtitle = new Eddie.Gui.Skin.Label();
+            this.cmdLockedNetwork = new Eddie.Gui.Skin.Button();
+            this.lblLoginIcon = new System.Windows.Forms.Label();
+            this.imgLockedNetwork = new Eddie.Gui.Skin.Label();
+            this.cmdLogin = new Eddie.Gui.Skin.Button();
+            this.lblPassword = new Eddie.Gui.Skin.Label();
+            this.lblLogin = new Eddie.Gui.Skin.Label();
+            this.cmdConnect = new Eddie.Gui.Skin.Button();
+            this.chkRemember = new Eddie.Gui.Skin.CheckBox();
+            this.txtPassword = new Eddie.Gui.Skin.TextBox();
+            this.txtLogin = new Eddie.Gui.Skin.TextBox();
+            this.pnlWaiting = new Eddie.Gui.Skin.Panel();
+            this.lblWait2 = new Eddie.Gui.Skin.Label();
+            this.lblWait1 = new Eddie.Gui.Skin.Label();
+            this.cmdCancel = new Eddie.Gui.Skin.Button();
+            this.tabServers = new Eddie.Gui.Skin.TabPage();
+            this.chkShowAll = new Eddie.Gui.Skin.CheckBox();
+            this.lblScoreType = new Eddie.Gui.Skin.Label();
+            this.pnlServers = new Eddie.Gui.Skin.Panel();
+            this.tabCountries = new Eddie.Gui.Skin.TabPage();
+            this.pnlAreas = new Eddie.Gui.Skin.Panel();
+            this.tabSpeed = new Eddie.Gui.Skin.TabPage();
+            this.lblSpeedResolution = new Eddie.Gui.Skin.Label();
             this.holSpeedChart = new System.Windows.Forms.Label();
-            this.cboSpeedResolution = new AirVPN.Gui.Skin.ComboBox();
-            this.tabStats = new AirVPN.Gui.Skin.TabPage();
-            this.lstStats = new AirVPN.Gui.Skin.ListView();
-            this.tabLogs = new AirVPN.Gui.Skin.TabPage();
+            this.cboSpeedResolution = new Eddie.Gui.Skin.ComboBox();
+            this.tabStats = new Eddie.Gui.Skin.TabPage();
+            this.lstStats = new Eddie.Gui.Skin.ListView();
+            this.tabLogs = new Eddie.Gui.Skin.TabPage();
             this.txtCommand = new System.Windows.Forms.TextBox();
-            this.lstLogs = new AirVPN.Gui.Skin.ListView();
-            this.imgMainTab = new System.Windows.Forms.ImageList(this.components);
+            this.lstLogs = new Eddie.Gui.Skin.ListView();
             mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
             mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
             mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
@@ -160,11 +156,11 @@ namespace AirVPN.Gui.Forms
             this.mnuAreas.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.tabOverview.SuspendLayout();
-            this.pnlWelcome.SuspendLayout();
             this.pnlConnected.SuspendLayout();
+            this.pnlWelcome.SuspendLayout();
             this.pnlWaiting.SuspendLayout();
             this.tabServers.SuspendLayout();
-            this.tabAreas.SuspendLayout();
+            this.tabCountries.SuspendLayout();
             this.tabSpeed.SuspendLayout();
             this.tabStats.SuspendLayout();
             this.tabLogs.SuspendLayout();
@@ -172,7 +168,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuContextCopyAll
             // 
-            mnuContextCopyAll.Image = global::AirVPN.Lib.Forms.Properties.Resources.copy;
+            mnuContextCopyAll.Image = global::Eddie.Lib.Forms.Properties.Resources.copy;
             mnuContextCopyAll.Name = "mnuContextCopyAll";
             mnuContextCopyAll.Size = new System.Drawing.Size(246, 26);
             mnuContextCopyAll.Text = "Copy all lines to clipboard";
@@ -180,7 +176,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuContextSaveAll
             // 
-            mnuContextSaveAll.Image = global::AirVPN.Lib.Forms.Properties.Resources.save;
+            mnuContextSaveAll.Image = global::Eddie.Lib.Forms.Properties.Resources.save;
             mnuContextSaveAll.Name = "mnuContextSaveAll";
             mnuContextSaveAll.Size = new System.Drawing.Size(246, 26);
             mnuContextSaveAll.Text = "Save all lines to file";
@@ -188,7 +184,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuContextCopySelected
             // 
-            mnuContextCopySelected.Image = global::AirVPN.Lib.Forms.Properties.Resources.copy;
+            mnuContextCopySelected.Image = global::Eddie.Lib.Forms.Properties.Resources.copy;
             mnuContextCopySelected.Name = "mnuContextCopySelected";
             mnuContextCopySelected.Size = new System.Drawing.Size(246, 26);
             mnuContextCopySelected.Text = "Copy selected lines to clipboard";
@@ -196,7 +192,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuContextSaveSelected
             // 
-            mnuContextSaveSelected.Image = global::AirVPN.Lib.Forms.Properties.Resources.save;
+            mnuContextSaveSelected.Image = global::Eddie.Lib.Forms.Properties.Resources.save;
             mnuContextSaveSelected.Name = "mnuContextSaveSelected";
             mnuContextSaveSelected.Size = new System.Drawing.Size(246, 26);
             mnuContextSaveSelected.Text = "Save selected lines to file";
@@ -248,12 +244,12 @@ namespace AirVPN.Gui.Forms
             this.mnuRestoreSep,
             this.mnuExit});
             this.mnuMain.Name = "trayMenu";
-            this.mnuMain.Size = new System.Drawing.Size(253, 362);
+            this.mnuMain.Size = new System.Drawing.Size(253, 340);
             // 
             // mnuStatus
             // 
             this.mnuStatus.ForeColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.mnuStatus.Image = global::AirVPN.Lib.Forms.Properties.Resources.status_yellow;
+            this.mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_yellow;
             this.mnuStatus.Name = "mnuStatus";
             this.mnuStatus.Size = new System.Drawing.Size(252, 26);
             this.mnuStatus.Text = "TODO - Status readonly text";
@@ -261,7 +257,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuConnect
             // 
-            this.mnuConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect;
+            this.mnuConnect.Image = global::Eddie.Lib.Forms.Properties.Resources.connect;
             this.mnuConnect.Name = "mnuConnect";
             this.mnuConnect.Size = new System.Drawing.Size(252, 26);
             this.mnuConnect.Text = "TODO - Connect to o Disconnect";
@@ -274,7 +270,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuHomePage
             // 
-            this.mnuHomePage.Image = global::AirVPN.Lib.Forms.Properties.Resources.home;
+            this.mnuHomePage.Image = global::Eddie.Lib.Forms.Properties.Resources.home;
             this.mnuHomePage.Name = "mnuHomePage";
             this.mnuHomePage.Size = new System.Drawing.Size(252, 26);
             this.mnuHomePage.Text = "AirVPN Web Site";
@@ -282,7 +278,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuUser
             // 
-            this.mnuUser.Image = global::AirVPN.Lib.Forms.Properties.Resources.stats;
+            this.mnuUser.Image = global::Eddie.Lib.Forms.Properties.Resources.stats;
             this.mnuUser.Name = "mnuUser";
             this.mnuUser.Size = new System.Drawing.Size(252, 26);
             this.mnuUser.Text = "Your &details and statistics (Web)";
@@ -290,7 +286,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuPorts
             // 
-            this.mnuPorts.Image = global::AirVPN.Lib.Forms.Properties.Resources.ports;
+            this.mnuPorts.Image = global::Eddie.Lib.Forms.Properties.Resources.ports;
             this.mnuPorts.Name = "mnuPorts";
             this.mnuPorts.Size = new System.Drawing.Size(252, 26);
             this.mnuPorts.Text = "Forwarding &Ports (Web)";
@@ -298,7 +294,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuSpeedTest
             // 
-            this.mnuSpeedTest.Image = global::AirVPN.Lib.Forms.Properties.Resources.speed;
+            this.mnuSpeedTest.Image = global::Eddie.Lib.Forms.Properties.Resources.speed;
             this.mnuSpeedTest.Name = "mnuSpeedTest";
             this.mnuSpeedTest.Size = new System.Drawing.Size(252, 26);
             this.mnuSpeedTest.Text = "Speed Test (Web)";
@@ -311,7 +307,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuSettings
             // 
-            this.mnuSettings.Image = global::AirVPN.Lib.Forms.Properties.Resources.settings;
+            this.mnuSettings.Image = global::Eddie.Lib.Forms.Properties.Resources.settings;
             this.mnuSettings.Name = "mnuSettings";
             this.mnuSettings.Size = new System.Drawing.Size(252, 26);
             this.mnuSettings.Text = "&Preferences";
@@ -322,8 +318,7 @@ namespace AirVPN.Gui.Forms
             this.mnuDevelopers.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuDevelopersManText,
             this.mnuDevelopersManBBCode,
-            this.mnuDevelopersUpdateManifest,
-            this.mnuDevelopersDefaultManifest,
+            this.mnuDevelopersUpdateManifest,            
             this.mnuDevelopersReset});
             this.mnuDevelopers.Name = "mnuDevelopers";
             this.mnuDevelopers.Size = new System.Drawing.Size(252, 26);
@@ -348,14 +343,7 @@ namespace AirVPN.Gui.Forms
             this.mnuDevelopersUpdateManifest.Name = "mnuDevelopersUpdateManifest";
             this.mnuDevelopersUpdateManifest.Size = new System.Drawing.Size(369, 22);
             this.mnuDevelopersUpdateManifest.Text = "Update Manifest Now";
-            this.mnuDevelopersUpdateManifest.Click += new System.EventHandler(this.mnuDevelopersUpdateManifest_Click);
-            // 
-            // mnuDevelopersDefaultManifest
-            // 
-            this.mnuDevelopersDefaultManifest.Name = "mnuDevelopersDefaultManifest";
-            this.mnuDevelopersDefaultManifest.Size = new System.Drawing.Size(369, 22);
-            this.mnuDevelopersDefaultManifest.Text = "Default Manifest - For executable embedding, as default";
-            this.mnuDevelopersDefaultManifest.Click += new System.EventHandler(this.mnuDevelopersDefaultManifest_Click);
+            this.mnuDevelopersUpdateManifest.Click += new System.EventHandler(this.mnuDevelopersUpdateManifest_Click);            
             // 
             // mnuDevelopersReset
             // 
@@ -389,7 +377,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuAbout
             // 
-            this.mnuAbout.Image = global::AirVPN.Lib.Forms.Properties.Resources.about;
+            this.mnuAbout.Image = global::Eddie.Lib.Forms.Properties.Resources.about;
             this.mnuAbout.Name = "mnuAbout";
             this.mnuAbout.Size = new System.Drawing.Size(252, 26);
             this.mnuAbout.Text = "&About";
@@ -402,7 +390,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuRestore
             // 
-            this.mnuRestore.Image = global::AirVPN.Lib.Forms.Properties.Resources.restore;
+            this.mnuRestore.Image = global::Eddie.Lib.Forms.Properties.Resources.restore;
             this.mnuRestore.Name = "mnuRestore";
             this.mnuRestore.Size = new System.Drawing.Size(252, 26);
             this.mnuRestore.Text = "&Restore";
@@ -415,7 +403,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuExit
             // 
-            this.mnuExit.Image = global::AirVPN.Lib.Forms.Properties.Resources.exit;
+            this.mnuExit.Image = global::Eddie.Lib.Forms.Properties.Resources.exit;
             this.mnuExit.Name = "mnuExit";
             this.mnuExit.Size = new System.Drawing.Size(252, 26);
             this.mnuExit.Text = "E&xit";
@@ -424,7 +412,7 @@ namespace AirVPN.Gui.Forms
             // imgCountries
             // 
             this.imgCountries.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgCountries.ImageStream")));
-            this.imgCountries.TransparentColor = System.Drawing.Color.Transparent;
+            this.imgCountries.TransparentColor = System.Drawing.Color.Magenta;
             this.imgCountries.Images.SetKeyName(0, "ad");
             this.imgCountries.Images.SetKeyName(1, "ae");
             this.imgCountries.Images.SetKeyName(2, "af");
@@ -476,189 +464,198 @@ namespace AirVPN.Gui.Forms
             this.imgCountries.Images.SetKeyName(48, "cr");
             this.imgCountries.Images.SetKeyName(49, "cu");
             this.imgCountries.Images.SetKeyName(50, "cv");
-            this.imgCountries.Images.SetKeyName(51, "cx");
-            this.imgCountries.Images.SetKeyName(52, "cy");
-            this.imgCountries.Images.SetKeyName(53, "cz");
-            this.imgCountries.Images.SetKeyName(54, "de");
-            this.imgCountries.Images.SetKeyName(55, "dj");
-            this.imgCountries.Images.SetKeyName(56, "dk");
-            this.imgCountries.Images.SetKeyName(57, "dm");
-            this.imgCountries.Images.SetKeyName(58, "do");
-            this.imgCountries.Images.SetKeyName(59, "dz");
-            this.imgCountries.Images.SetKeyName(60, "ec");
-            this.imgCountries.Images.SetKeyName(61, "ee");
-            this.imgCountries.Images.SetKeyName(62, "eg");
-            this.imgCountries.Images.SetKeyName(63, "eh");
-            this.imgCountries.Images.SetKeyName(64, "er");
-            this.imgCountries.Images.SetKeyName(65, "es");
-            this.imgCountries.Images.SetKeyName(66, "et");
-            this.imgCountries.Images.SetKeyName(67, "eu");
-            this.imgCountries.Images.SetKeyName(68, "fi");
-            this.imgCountries.Images.SetKeyName(69, "fj");
-            this.imgCountries.Images.SetKeyName(70, "fk");
-            this.imgCountries.Images.SetKeyName(71, "fm");
-            this.imgCountries.Images.SetKeyName(72, "fo");
-            this.imgCountries.Images.SetKeyName(73, "fr");
-            this.imgCountries.Images.SetKeyName(74, "ga");
-            this.imgCountries.Images.SetKeyName(75, "gb");
-            this.imgCountries.Images.SetKeyName(76, "gd");
-            this.imgCountries.Images.SetKeyName(77, "ge");
-            this.imgCountries.Images.SetKeyName(78, "gg");
-            this.imgCountries.Images.SetKeyName(79, "gh");
-            this.imgCountries.Images.SetKeyName(80, "gi");
-            this.imgCountries.Images.SetKeyName(81, "gl");
-            this.imgCountries.Images.SetKeyName(82, "gm");
-            this.imgCountries.Images.SetKeyName(83, "gn");
-            this.imgCountries.Images.SetKeyName(84, "gq");
-            this.imgCountries.Images.SetKeyName(85, "gr");
-            this.imgCountries.Images.SetKeyName(86, "gs");
-            this.imgCountries.Images.SetKeyName(87, "gt");
-            this.imgCountries.Images.SetKeyName(88, "gu");
-            this.imgCountries.Images.SetKeyName(89, "gw");
-            this.imgCountries.Images.SetKeyName(90, "gy");
-            this.imgCountries.Images.SetKeyName(91, "hk");
-            this.imgCountries.Images.SetKeyName(92, "hn");
-            this.imgCountries.Images.SetKeyName(93, "hr");
-            this.imgCountries.Images.SetKeyName(94, "ht");
-            this.imgCountries.Images.SetKeyName(95, "hu");
-            this.imgCountries.Images.SetKeyName(96, "id");
-            this.imgCountries.Images.SetKeyName(97, "ie");
-            this.imgCountries.Images.SetKeyName(98, "il");
-            this.imgCountries.Images.SetKeyName(99, "im");
-            this.imgCountries.Images.SetKeyName(100, "in");
-            this.imgCountries.Images.SetKeyName(101, "iq");
-            this.imgCountries.Images.SetKeyName(102, "ir");
-            this.imgCountries.Images.SetKeyName(103, "is");
-            this.imgCountries.Images.SetKeyName(104, "it");
-            this.imgCountries.Images.SetKeyName(105, "je");
-            this.imgCountries.Images.SetKeyName(106, "jm");
-            this.imgCountries.Images.SetKeyName(107, "jo");
-            this.imgCountries.Images.SetKeyName(108, "jp");
-            this.imgCountries.Images.SetKeyName(109, "ke");
-            this.imgCountries.Images.SetKeyName(110, "kg");
-            this.imgCountries.Images.SetKeyName(111, "kh");
-            this.imgCountries.Images.SetKeyName(112, "ki");
-            this.imgCountries.Images.SetKeyName(113, "km");
-            this.imgCountries.Images.SetKeyName(114, "kn");
-            this.imgCountries.Images.SetKeyName(115, "kp");
-            this.imgCountries.Images.SetKeyName(116, "kr");
-            this.imgCountries.Images.SetKeyName(117, "kv");
-            this.imgCountries.Images.SetKeyName(118, "kw");
-            this.imgCountries.Images.SetKeyName(119, "ky");
-            this.imgCountries.Images.SetKeyName(120, "kz");
-            this.imgCountries.Images.SetKeyName(121, "la");
-            this.imgCountries.Images.SetKeyName(122, "lb");
-            this.imgCountries.Images.SetKeyName(123, "lc");
-            this.imgCountries.Images.SetKeyName(124, "li");
-            this.imgCountries.Images.SetKeyName(125, "lk");
-            this.imgCountries.Images.SetKeyName(126, "lr");
-            this.imgCountries.Images.SetKeyName(127, "ls");
-            this.imgCountries.Images.SetKeyName(128, "lt");
-            this.imgCountries.Images.SetKeyName(129, "lu");
-            this.imgCountries.Images.SetKeyName(130, "lv");
-            this.imgCountries.Images.SetKeyName(131, "ly");
-            this.imgCountries.Images.SetKeyName(132, "ma");
-            this.imgCountries.Images.SetKeyName(133, "mc");
-            this.imgCountries.Images.SetKeyName(134, "md");
-            this.imgCountries.Images.SetKeyName(135, "me");
-            this.imgCountries.Images.SetKeyName(136, "mg");
-            this.imgCountries.Images.SetKeyName(137, "mh");
-            this.imgCountries.Images.SetKeyName(138, "mk");
-            this.imgCountries.Images.SetKeyName(139, "ml");
-            this.imgCountries.Images.SetKeyName(140, "mm");
-            this.imgCountries.Images.SetKeyName(141, "mn");
-            this.imgCountries.Images.SetKeyName(142, "mo");
-            this.imgCountries.Images.SetKeyName(143, "mp");
-            this.imgCountries.Images.SetKeyName(144, "mr");
-            this.imgCountries.Images.SetKeyName(145, "ms");
-            this.imgCountries.Images.SetKeyName(146, "mt");
-            this.imgCountries.Images.SetKeyName(147, "mu");
-            this.imgCountries.Images.SetKeyName(148, "mv");
-            this.imgCountries.Images.SetKeyName(149, "mw");
-            this.imgCountries.Images.SetKeyName(150, "mx");
-            this.imgCountries.Images.SetKeyName(151, "my");
-            this.imgCountries.Images.SetKeyName(152, "mz");
-            this.imgCountries.Images.SetKeyName(153, "na");
-            this.imgCountries.Images.SetKeyName(154, "nc");
-            this.imgCountries.Images.SetKeyName(155, "ne");
-            this.imgCountries.Images.SetKeyName(156, "nf");
-            this.imgCountries.Images.SetKeyName(157, "ng");
-            this.imgCountries.Images.SetKeyName(158, "ni");
-            this.imgCountries.Images.SetKeyName(159, "nl");
-            this.imgCountries.Images.SetKeyName(160, "no");
-            this.imgCountries.Images.SetKeyName(161, "np");
-            this.imgCountries.Images.SetKeyName(162, "nr");
-            this.imgCountries.Images.SetKeyName(163, "nu");
-            this.imgCountries.Images.SetKeyName(164, "nz");
-            this.imgCountries.Images.SetKeyName(165, "om");
-            this.imgCountries.Images.SetKeyName(166, "pa");
-            this.imgCountries.Images.SetKeyName(167, "pe");
-            this.imgCountries.Images.SetKeyName(168, "pg");
-            this.imgCountries.Images.SetKeyName(169, "ph");
-            this.imgCountries.Images.SetKeyName(170, "pk");
-            this.imgCountries.Images.SetKeyName(171, "pl");
-            this.imgCountries.Images.SetKeyName(172, "pn");
-            this.imgCountries.Images.SetKeyName(173, "pr");
-            this.imgCountries.Images.SetKeyName(174, "ps");
-            this.imgCountries.Images.SetKeyName(175, "pt");
-            this.imgCountries.Images.SetKeyName(176, "pw");
-            this.imgCountries.Images.SetKeyName(177, "py");
-            this.imgCountries.Images.SetKeyName(178, "qa");
-            this.imgCountries.Images.SetKeyName(179, "ro");
-            this.imgCountries.Images.SetKeyName(180, "rs");
-            this.imgCountries.Images.SetKeyName(181, "ru");
-            this.imgCountries.Images.SetKeyName(182, "rw");
-            this.imgCountries.Images.SetKeyName(183, "sa");
-            this.imgCountries.Images.SetKeyName(184, "sb");
-            this.imgCountries.Images.SetKeyName(185, "sc");
-            this.imgCountries.Images.SetKeyName(186, "sd");
-            this.imgCountries.Images.SetKeyName(187, "se");
-            this.imgCountries.Images.SetKeyName(188, "sg");
-            this.imgCountries.Images.SetKeyName(189, "sh");
-            this.imgCountries.Images.SetKeyName(190, "si");
-            this.imgCountries.Images.SetKeyName(191, "sk");
-            this.imgCountries.Images.SetKeyName(192, "sl");
-            this.imgCountries.Images.SetKeyName(193, "sm");
-            this.imgCountries.Images.SetKeyName(194, "sn");
-            this.imgCountries.Images.SetKeyName(195, "so");
-            this.imgCountries.Images.SetKeyName(196, "sr");
-            this.imgCountries.Images.SetKeyName(197, "ss");
-            this.imgCountries.Images.SetKeyName(198, "st");
-            this.imgCountries.Images.SetKeyName(199, "sv");
-            this.imgCountries.Images.SetKeyName(200, "sy");
-            this.imgCountries.Images.SetKeyName(201, "sz");
-            this.imgCountries.Images.SetKeyName(202, "tc");
-            this.imgCountries.Images.SetKeyName(203, "td");
-            this.imgCountries.Images.SetKeyName(204, "tg");
-            this.imgCountries.Images.SetKeyName(205, "th");
-            this.imgCountries.Images.SetKeyName(206, "tj");
-            this.imgCountries.Images.SetKeyName(207, "tm");
-            this.imgCountries.Images.SetKeyName(208, "tn");
-            this.imgCountries.Images.SetKeyName(209, "to");
-            this.imgCountries.Images.SetKeyName(210, "tp");
-            this.imgCountries.Images.SetKeyName(211, "tr");
-            this.imgCountries.Images.SetKeyName(212, "tt");
-            this.imgCountries.Images.SetKeyName(213, "tv");
-            this.imgCountries.Images.SetKeyName(214, "tw");
-            this.imgCountries.Images.SetKeyName(215, "tz");
-            this.imgCountries.Images.SetKeyName(216, "ua");
-            this.imgCountries.Images.SetKeyName(217, "ug");
-            this.imgCountries.Images.SetKeyName(218, "us");
-            this.imgCountries.Images.SetKeyName(219, "uy");
-            this.imgCountries.Images.SetKeyName(220, "uz");
-            this.imgCountries.Images.SetKeyName(221, "va");
-            this.imgCountries.Images.SetKeyName(222, "vc");
-            this.imgCountries.Images.SetKeyName(223, "ve");
-            this.imgCountries.Images.SetKeyName(224, "vg");
-            this.imgCountries.Images.SetKeyName(225, "vi");
-            this.imgCountries.Images.SetKeyName(226, "vn");
-            this.imgCountries.Images.SetKeyName(227, "vu");
-            this.imgCountries.Images.SetKeyName(228, "ws");
-            this.imgCountries.Images.SetKeyName(229, "ye");
-            this.imgCountries.Images.SetKeyName(230, "yt");
-            this.imgCountries.Images.SetKeyName(231, "za");
-            this.imgCountries.Images.SetKeyName(232, "zm");
-            this.imgCountries.Images.SetKeyName(233, "zw");
+            this.imgCountries.Images.SetKeyName(51, "cw");
+            this.imgCountries.Images.SetKeyName(52, "cx");
+            this.imgCountries.Images.SetKeyName(53, "cy");
+            this.imgCountries.Images.SetKeyName(54, "cz");
+            this.imgCountries.Images.SetKeyName(55, "de");
+            this.imgCountries.Images.SetKeyName(56, "dj");
+            this.imgCountries.Images.SetKeyName(57, "dk");
+            this.imgCountries.Images.SetKeyName(58, "dm");
+            this.imgCountries.Images.SetKeyName(59, "do");
+            this.imgCountries.Images.SetKeyName(60, "dz");
+            this.imgCountries.Images.SetKeyName(61, "ec");
+            this.imgCountries.Images.SetKeyName(62, "ee");
+            this.imgCountries.Images.SetKeyName(63, "eg");
+            this.imgCountries.Images.SetKeyName(64, "eh");
+            this.imgCountries.Images.SetKeyName(65, "er");
+            this.imgCountries.Images.SetKeyName(66, "es");
+            this.imgCountries.Images.SetKeyName(67, "et");
+            this.imgCountries.Images.SetKeyName(68, "eu");
+            this.imgCountries.Images.SetKeyName(69, "fi");
+            this.imgCountries.Images.SetKeyName(70, "fj");
+            this.imgCountries.Images.SetKeyName(71, "fk");
+            this.imgCountries.Images.SetKeyName(72, "fm");
+            this.imgCountries.Images.SetKeyName(73, "fo");
+            this.imgCountries.Images.SetKeyName(74, "fr");
+            this.imgCountries.Images.SetKeyName(75, "ga");
+            this.imgCountries.Images.SetKeyName(76, "gb");
+            this.imgCountries.Images.SetKeyName(77, "gd");
+            this.imgCountries.Images.SetKeyName(78, "ge");
+            this.imgCountries.Images.SetKeyName(79, "gg");
+            this.imgCountries.Images.SetKeyName(80, "gh");
+            this.imgCountries.Images.SetKeyName(81, "gi");
+            this.imgCountries.Images.SetKeyName(82, "gl");
+            this.imgCountries.Images.SetKeyName(83, "gm");
+            this.imgCountries.Images.SetKeyName(84, "gn");
+            this.imgCountries.Images.SetKeyName(85, "gq");
+            this.imgCountries.Images.SetKeyName(86, "gr");
+            this.imgCountries.Images.SetKeyName(87, "gs");
+            this.imgCountries.Images.SetKeyName(88, "gt");
+            this.imgCountries.Images.SetKeyName(89, "gu");
+            this.imgCountries.Images.SetKeyName(90, "gw");
+            this.imgCountries.Images.SetKeyName(91, "gy");
+            this.imgCountries.Images.SetKeyName(92, "hk");
+            this.imgCountries.Images.SetKeyName(93, "hn");
+            this.imgCountries.Images.SetKeyName(94, "hr");
+            this.imgCountries.Images.SetKeyName(95, "ht");
+            this.imgCountries.Images.SetKeyName(96, "hu");
+            this.imgCountries.Images.SetKeyName(97, "ic");
+            this.imgCountries.Images.SetKeyName(98, "id");
+            this.imgCountries.Images.SetKeyName(99, "ie");
+            this.imgCountries.Images.SetKeyName(100, "il");
+            this.imgCountries.Images.SetKeyName(101, "im");
+            this.imgCountries.Images.SetKeyName(102, "in");
+            this.imgCountries.Images.SetKeyName(103, "iq");
+            this.imgCountries.Images.SetKeyName(104, "ir");
+            this.imgCountries.Images.SetKeyName(105, "is");
+            this.imgCountries.Images.SetKeyName(106, "it");
+            this.imgCountries.Images.SetKeyName(107, "je");
+            this.imgCountries.Images.SetKeyName(108, "jm");
+            this.imgCountries.Images.SetKeyName(109, "jo");
+            this.imgCountries.Images.SetKeyName(110, "jp");
+            this.imgCountries.Images.SetKeyName(111, "ke");
+            this.imgCountries.Images.SetKeyName(112, "kg");
+            this.imgCountries.Images.SetKeyName(113, "kh");
+            this.imgCountries.Images.SetKeyName(114, "ki");
+            this.imgCountries.Images.SetKeyName(115, "km");
+            this.imgCountries.Images.SetKeyName(116, "kn");
+            this.imgCountries.Images.SetKeyName(117, "kp");
+            this.imgCountries.Images.SetKeyName(118, "kr");
+            this.imgCountries.Images.SetKeyName(119, "kv");
+            this.imgCountries.Images.SetKeyName(120, "kw");
+            this.imgCountries.Images.SetKeyName(121, "ky");
+            this.imgCountries.Images.SetKeyName(122, "kz");
+            this.imgCountries.Images.SetKeyName(123, "la");
+            this.imgCountries.Images.SetKeyName(124, "lb");
+            this.imgCountries.Images.SetKeyName(125, "lc");
+            this.imgCountries.Images.SetKeyName(126, "li");
+            this.imgCountries.Images.SetKeyName(127, "lk");
+            this.imgCountries.Images.SetKeyName(128, "lr");
+            this.imgCountries.Images.SetKeyName(129, "ls");
+            this.imgCountries.Images.SetKeyName(130, "lt");
+            this.imgCountries.Images.SetKeyName(131, "lu");
+            this.imgCountries.Images.SetKeyName(132, "lv");
+            this.imgCountries.Images.SetKeyName(133, "ly");
+            this.imgCountries.Images.SetKeyName(134, "ma");
+            this.imgCountries.Images.SetKeyName(135, "mc");
+            this.imgCountries.Images.SetKeyName(136, "md");
+            this.imgCountries.Images.SetKeyName(137, "me");
+            this.imgCountries.Images.SetKeyName(138, "mf");
+            this.imgCountries.Images.SetKeyName(139, "mg");
+            this.imgCountries.Images.SetKeyName(140, "mh");
+            this.imgCountries.Images.SetKeyName(141, "mk");
+            this.imgCountries.Images.SetKeyName(142, "ml");
+            this.imgCountries.Images.SetKeyName(143, "mm");
+            this.imgCountries.Images.SetKeyName(144, "mn");
+            this.imgCountries.Images.SetKeyName(145, "mo");
+            this.imgCountries.Images.SetKeyName(146, "mp");
+            this.imgCountries.Images.SetKeyName(147, "mq");
+            this.imgCountries.Images.SetKeyName(148, "mr");
+            this.imgCountries.Images.SetKeyName(149, "ms");
+            this.imgCountries.Images.SetKeyName(150, "mt");
+            this.imgCountries.Images.SetKeyName(151, "mu");
+            this.imgCountries.Images.SetKeyName(152, "mv");
+            this.imgCountries.Images.SetKeyName(153, "mw");
+            this.imgCountries.Images.SetKeyName(154, "mx");
+            this.imgCountries.Images.SetKeyName(155, "my");
+            this.imgCountries.Images.SetKeyName(156, "mz");
+            this.imgCountries.Images.SetKeyName(157, "na");
+            this.imgCountries.Images.SetKeyName(158, "nc");
+            this.imgCountries.Images.SetKeyName(159, "ne");
+            this.imgCountries.Images.SetKeyName(160, "nf");
+            this.imgCountries.Images.SetKeyName(161, "ng");
+            this.imgCountries.Images.SetKeyName(162, "ni");
+            this.imgCountries.Images.SetKeyName(163, "nl");
+            this.imgCountries.Images.SetKeyName(164, "no");
+            this.imgCountries.Images.SetKeyName(165, "np");
+            this.imgCountries.Images.SetKeyName(166, "nr");
+            this.imgCountries.Images.SetKeyName(167, "nu");
+            this.imgCountries.Images.SetKeyName(168, "nz");
+            this.imgCountries.Images.SetKeyName(169, "om");
+            this.imgCountries.Images.SetKeyName(170, "pa");
+            this.imgCountries.Images.SetKeyName(171, "pe");
+            this.imgCountries.Images.SetKeyName(172, "pf");
+            this.imgCountries.Images.SetKeyName(173, "pg");
+            this.imgCountries.Images.SetKeyName(174, "ph");
+            this.imgCountries.Images.SetKeyName(175, "pk");
+            this.imgCountries.Images.SetKeyName(176, "pl");
+            this.imgCountries.Images.SetKeyName(177, "pn");
+            this.imgCountries.Images.SetKeyName(178, "pr");
+            this.imgCountries.Images.SetKeyName(179, "ps");
+            this.imgCountries.Images.SetKeyName(180, "pt");
+            this.imgCountries.Images.SetKeyName(181, "pw");
+            this.imgCountries.Images.SetKeyName(182, "py");
+            this.imgCountries.Images.SetKeyName(183, "qa");
+            this.imgCountries.Images.SetKeyName(184, "ro");
+            this.imgCountries.Images.SetKeyName(185, "rs");
+            this.imgCountries.Images.SetKeyName(186, "ru");
+            this.imgCountries.Images.SetKeyName(187, "rw");
+            this.imgCountries.Images.SetKeyName(188, "sa");
+            this.imgCountries.Images.SetKeyName(189, "sb");
+            this.imgCountries.Images.SetKeyName(190, "sc");
+            this.imgCountries.Images.SetKeyName(191, "sd");
+            this.imgCountries.Images.SetKeyName(192, "se");
+            this.imgCountries.Images.SetKeyName(193, "sg");
+            this.imgCountries.Images.SetKeyName(194, "sh");
+            this.imgCountries.Images.SetKeyName(195, "si");
+            this.imgCountries.Images.SetKeyName(196, "sk");
+            this.imgCountries.Images.SetKeyName(197, "sl");
+            this.imgCountries.Images.SetKeyName(198, "sm");
+            this.imgCountries.Images.SetKeyName(199, "sn");
+            this.imgCountries.Images.SetKeyName(200, "so");
+            this.imgCountries.Images.SetKeyName(201, "sr");
+            this.imgCountries.Images.SetKeyName(202, "ss");
+            this.imgCountries.Images.SetKeyName(203, "st");
+            this.imgCountries.Images.SetKeyName(204, "sv");
+            this.imgCountries.Images.SetKeyName(205, "sy");
+            this.imgCountries.Images.SetKeyName(206, "sz");
+            this.imgCountries.Images.SetKeyName(207, "tc");
+            this.imgCountries.Images.SetKeyName(208, "td");
+            this.imgCountries.Images.SetKeyName(209, "tf");
+            this.imgCountries.Images.SetKeyName(210, "tg");
+            this.imgCountries.Images.SetKeyName(211, "th");
+            this.imgCountries.Images.SetKeyName(212, "tj");
+            this.imgCountries.Images.SetKeyName(213, "tk");
+            this.imgCountries.Images.SetKeyName(214, "tl");
+            this.imgCountries.Images.SetKeyName(215, "tm");
+            this.imgCountries.Images.SetKeyName(216, "tn");
+            this.imgCountries.Images.SetKeyName(217, "to");
+            this.imgCountries.Images.SetKeyName(218, "tp");
+            this.imgCountries.Images.SetKeyName(219, "tr");
+            this.imgCountries.Images.SetKeyName(220, "tt");
+            this.imgCountries.Images.SetKeyName(221, "tv");
+            this.imgCountries.Images.SetKeyName(222, "tw");
+            this.imgCountries.Images.SetKeyName(223, "tz");
+            this.imgCountries.Images.SetKeyName(224, "ua");
+            this.imgCountries.Images.SetKeyName(225, "ug");
+            this.imgCountries.Images.SetKeyName(226, "us");
+            this.imgCountries.Images.SetKeyName(227, "uy");
+            this.imgCountries.Images.SetKeyName(228, "uz");
+            this.imgCountries.Images.SetKeyName(229, "va");
+            this.imgCountries.Images.SetKeyName(230, "vc");
+            this.imgCountries.Images.SetKeyName(231, "ve");
+            this.imgCountries.Images.SetKeyName(232, "vg");
+            this.imgCountries.Images.SetKeyName(233, "vi");
+            this.imgCountries.Images.SetKeyName(234, "vn");
+            this.imgCountries.Images.SetKeyName(235, "vu");
+            this.imgCountries.Images.SetKeyName(236, "wf");
+            this.imgCountries.Images.SetKeyName(237, "ws");
+            this.imgCountries.Images.SetKeyName(238, "ye");
+            this.imgCountries.Images.SetKeyName(239, "yt");
+            this.imgCountries.Images.SetKeyName(240, "za");
+            this.imgCountries.Images.SetKeyName(241, "zm");
+            this.imgCountries.Images.SetKeyName(242, "zw");
             // 
             // cmdServersRefresh
             // 
@@ -668,13 +665,12 @@ namespace AirVPN.Gui.Forms
             this.cmdServersRefresh.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdServersRefresh.FlatAppearance.BorderSize = 0;
             this.cmdServersRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdServersRefresh.Image = global::AirVPN.Lib.Forms.Properties.Resources.reload;
-            this.cmdServersRefresh.Location = new System.Drawing.Point(695, 302);
+            this.cmdServersRefresh.Image = global::Eddie.Lib.Forms.Properties.Resources.reload;
+            this.cmdServersRefresh.Location = new System.Drawing.Point(695, 295);
             this.cmdServersRefresh.Margin = new System.Windows.Forms.Padding(2);
             this.cmdServersRefresh.Name = "cmdServersRefresh";
-            this.cmdServersRefresh.Size = new System.Drawing.Size(28, 27);
+            this.cmdServersRefresh.Size = new System.Drawing.Size(28, 28);
             this.cmdServersRefresh.TabIndex = 66;
-            this.tip.SetToolTip(this.cmdServersRefresh, "Refresh the servers list");
             this.cmdServersRefresh.UseVisualStyleBackColor = true;
             this.cmdServersRefresh.Click += new System.EventHandler(this.cmdServersRefresh_Click);
             // 
@@ -686,25 +682,22 @@ namespace AirVPN.Gui.Forms
             this.cboScoreType.Items.AddRange(new object[] {
             "Speed",
             "Latency"});
-            this.cboScoreType.Location = new System.Drawing.Point(501, 308);
+            this.cboScoreType.Location = new System.Drawing.Point(427, 303);
             this.cboScoreType.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cboScoreType.Name = "cboScoreType";
-            this.cboScoreType.Size = new System.Drawing.Size(67, 21);
+            this.cboScoreType.Size = new System.Drawing.Size(100, 21);
             this.cboScoreType.TabIndex = 49;
-            this.tip.SetToolTip(this.cboScoreType, "xxx");
             this.cboScoreType.SelectedIndexChanged += new System.EventHandler(this.cboScoreType_SelectedIndexChanged);
             // 
             // chkLockLast
             // 
             this.chkLockLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkLockLast.Location = new System.Drawing.Point(590, 309);
+            this.chkLockLast.Location = new System.Drawing.Point(544, 303);
             this.chkLockLast.Margin = new System.Windows.Forms.Padding(2);
             this.chkLockLast.Name = "chkLockLast";
-            this.chkLockLast.Size = new System.Drawing.Size(93, 21);
+            this.chkLockLast.Size = new System.Drawing.Size(139, 21);
             this.chkLockLast.TabIndex = 46;
             this.chkLockLast.Text = "Lock Current";
-            this.tip.SetToolTip(this.chkLockLast, "Never leave the current server. \r\nFor example if you don\'t want to change your IP" +
-        " for port forwarding reasons.");
             this.chkLockLast.UseVisualStyleBackColor = true;
             this.chkLockLast.CheckedChanged += new System.EventHandler(this.chkLockCurrent_CheckedChanged);
             // 
@@ -716,13 +709,12 @@ namespace AirVPN.Gui.Forms
             this.cmdServersUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdServersUndefined.FlatAppearance.BorderSize = 0;
             this.cmdServersUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdServersUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+            this.cmdServersUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
             this.cmdServersUndefined.Location = new System.Drawing.Point(695, 110);
             this.cmdServersUndefined.Margin = new System.Windows.Forms.Padding(2);
             this.cmdServersUndefined.Name = "cmdServersUndefined";
-            this.cmdServersUndefined.Size = new System.Drawing.Size(28, 27);
+            this.cmdServersUndefined.Size = new System.Drawing.Size(28, 28);
             this.cmdServersUndefined.TabIndex = 45;
-            this.tip.SetToolTip(this.cmdServersUndefined, "Clean the selected servers from whitelist and blacklist");
             this.cmdServersUndefined.UseVisualStyleBackColor = true;
             this.cmdServersUndefined.Click += new System.EventHandler(this.cmdServersUndefined_Click);
             // 
@@ -734,14 +726,12 @@ namespace AirVPN.Gui.Forms
             this.cmdServersBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdServersBlackList.FlatAppearance.BorderSize = 0;
             this.cmdServersBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdServersBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
+            this.cmdServersBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
             this.cmdServersBlackList.Location = new System.Drawing.Point(695, 78);
             this.cmdServersBlackList.Margin = new System.Windows.Forms.Padding(2);
             this.cmdServersBlackList.Name = "cmdServersBlackList";
-            this.cmdServersBlackList.Size = new System.Drawing.Size(28, 27);
+            this.cmdServersBlackList.Size = new System.Drawing.Size(28, 28);
             this.cmdServersBlackList.TabIndex = 44;
-            this.tip.SetToolTip(this.cmdServersBlackList, "Add the selected servers to blacklist. \r\nThe system will never connect to blackli" +
-        "sted servers.");
             this.cmdServersBlackList.UseVisualStyleBackColor = true;
             this.cmdServersBlackList.Click += new System.EventHandler(this.cmdServersBlackList_Click);
             // 
@@ -753,14 +743,12 @@ namespace AirVPN.Gui.Forms
             this.cmdServersWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdServersWhiteList.FlatAppearance.BorderSize = 0;
             this.cmdServersWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdServersWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
+            this.cmdServersWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
             this.cmdServersWhiteList.Location = new System.Drawing.Point(695, 46);
             this.cmdServersWhiteList.Margin = new System.Windows.Forms.Padding(2);
             this.cmdServersWhiteList.Name = "cmdServersWhiteList";
-            this.cmdServersWhiteList.Size = new System.Drawing.Size(28, 27);
+            this.cmdServersWhiteList.Size = new System.Drawing.Size(28, 28);
             this.cmdServersWhiteList.TabIndex = 43;
-            this.tip.SetToolTip(this.cmdServersWhiteList, "Add the selected server to whitelist.\r\nThe system will only connect to whiteliste" +
-        "d servers.");
             this.cmdServersWhiteList.UseVisualStyleBackColor = true;
             this.cmdServersWhiteList.Click += new System.EventHandler(this.cmdServersWhiteList_Click);
             // 
@@ -772,71 +760,14 @@ namespace AirVPN.Gui.Forms
             this.cmdServersConnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdServersConnect.FlatAppearance.BorderSize = 0;
             this.cmdServersConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdServersConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect;
+            this.cmdServersConnect.Image = global::Eddie.Lib.Forms.Properties.Resources.connect;
             this.cmdServersConnect.Location = new System.Drawing.Point(695, 4);
             this.cmdServersConnect.Margin = new System.Windows.Forms.Padding(2);
             this.cmdServersConnect.Name = "cmdServersConnect";
-            this.cmdServersConnect.Size = new System.Drawing.Size(28, 27);
+            this.cmdServersConnect.Size = new System.Drawing.Size(28, 28);
             this.cmdServersConnect.TabIndex = 42;
-            this.tip.SetToolTip(this.cmdServersConnect, "Connect to the selected server now");
             this.cmdServersConnect.UseVisualStyleBackColor = true;
             this.cmdServersConnect.Click += new System.EventHandler(this.cmdServersConnect_Click);
-            // 
-            // cmdAreasUndefined
-            // 
-            this.cmdAreasUndefined.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdAreasUndefined.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdAreasUndefined.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.cmdAreasUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.cmdAreasUndefined.FlatAppearance.BorderSize = 0;
-            this.cmdAreasUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdAreasUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
-            this.cmdAreasUndefined.Location = new System.Drawing.Point(695, 67);
-            this.cmdAreasUndefined.Margin = new System.Windows.Forms.Padding(2);
-            this.cmdAreasUndefined.Name = "cmdAreasUndefined";
-            this.cmdAreasUndefined.Size = new System.Drawing.Size(28, 27);
-            this.cmdAreasUndefined.TabIndex = 48;
-            this.tip.SetToolTip(this.cmdAreasUndefined, "Clean the selected areas from whitelist and blacklist");
-            this.cmdAreasUndefined.UseVisualStyleBackColor = true;
-            this.cmdAreasUndefined.Click += new System.EventHandler(this.cmdAreasUndefined_Click);
-            // 
-            // cmdAreasBlackList
-            // 
-            this.cmdAreasBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdAreasBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdAreasBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.cmdAreasBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.cmdAreasBlackList.FlatAppearance.BorderSize = 0;
-            this.cmdAreasBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdAreasBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
-            this.cmdAreasBlackList.Location = new System.Drawing.Point(695, 36);
-            this.cmdAreasBlackList.Margin = new System.Windows.Forms.Padding(2);
-            this.cmdAreasBlackList.Name = "cmdAreasBlackList";
-            this.cmdAreasBlackList.Size = new System.Drawing.Size(28, 27);
-            this.cmdAreasBlackList.TabIndex = 47;
-            this.tip.SetToolTip(this.cmdAreasBlackList, "Add the selected areas to blacklist. \r\nThe system will never connect to servers i" +
-        "n blacklisted areas.\r\n");
-            this.cmdAreasBlackList.UseVisualStyleBackColor = true;
-            this.cmdAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
-            // 
-            // cmdAreasWhiteList
-            // 
-            this.cmdAreasWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdAreasWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdAreasWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.cmdAreasWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.cmdAreasWhiteList.FlatAppearance.BorderSize = 0;
-            this.cmdAreasWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdAreasWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
-            this.cmdAreasWhiteList.Location = new System.Drawing.Point(695, 4);
-            this.cmdAreasWhiteList.Margin = new System.Windows.Forms.Padding(2);
-            this.cmdAreasWhiteList.Name = "cmdAreasWhiteList";
-            this.cmdAreasWhiteList.Size = new System.Drawing.Size(28, 27);
-            this.cmdAreasWhiteList.TabIndex = 46;
-            this.tip.SetToolTip(this.cmdAreasWhiteList, "Add the selected area to whitelist.\r\nThe system will only connect to servers in w" +
-        "hitelisted areas.\r\n");
-            this.cmdAreasWhiteList.UseVisualStyleBackColor = true;
-            this.cmdAreasWhiteList.Click += new System.EventHandler(this.cmdAreasWhiteList_Click);
             // 
             // cmdLogsSupport
             // 
@@ -846,13 +777,12 @@ namespace AirVPN.Gui.Forms
             this.cmdLogsSupport.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdLogsSupport.FlatAppearance.BorderSize = 0;
             this.cmdLogsSupport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdLogsSupport.Image = global::AirVPN.Lib.Forms.Properties.Resources.support;
+            this.cmdLogsSupport.Image = global::Eddie.Lib.Forms.Properties.Resources.support;
             this.cmdLogsSupport.Location = new System.Drawing.Point(695, 119);
             this.cmdLogsSupport.Margin = new System.Windows.Forms.Padding(2);
             this.cmdLogsSupport.Name = "cmdLogsSupport";
-            this.cmdLogsSupport.Size = new System.Drawing.Size(28, 27);
+            this.cmdLogsSupport.Size = new System.Drawing.Size(28, 28);
             this.cmdLogsSupport.TabIndex = 51;
-            this.tip.SetToolTip(this.cmdLogsSupport, "Save to file");
             this.cmdLogsSupport.UseVisualStyleBackColor = true;
             this.cmdLogsSupport.Click += new System.EventHandler(this.cmdLogsSupport_Click);
             // 
@@ -864,13 +794,12 @@ namespace AirVPN.Gui.Forms
             this.cmdLogsOpenVpnManagement.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdLogsOpenVpnManagement.FlatAppearance.BorderSize = 0;
             this.cmdLogsOpenVpnManagement.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdLogsOpenVpnManagement.Image = global::AirVPN.Lib.Forms.Properties.Resources.execute;
-            this.cmdLogsOpenVpnManagement.Location = new System.Drawing.Point(694, 303);
+            this.cmdLogsOpenVpnManagement.Image = global::Eddie.Lib.Forms.Properties.Resources.execute;
+            this.cmdLogsOpenVpnManagement.Location = new System.Drawing.Point(694, 298);
             this.cmdLogsOpenVpnManagement.Margin = new System.Windows.Forms.Padding(2);
             this.cmdLogsOpenVpnManagement.Name = "cmdLogsOpenVpnManagement";
-            this.cmdLogsOpenVpnManagement.Size = new System.Drawing.Size(28, 27);
+            this.cmdLogsOpenVpnManagement.Size = new System.Drawing.Size(28, 28);
             this.cmdLogsOpenVpnManagement.TabIndex = 50;
-            this.tip.SetToolTip(this.cmdLogsOpenVpnManagement, "Run a OpenVPN Management command");
             this.cmdLogsOpenVpnManagement.UseVisualStyleBackColor = true;
             this.cmdLogsOpenVpnManagement.Click += new System.EventHandler(this.cmdLogsOpenVpnManagement_Click);
             // 
@@ -882,13 +811,12 @@ namespace AirVPN.Gui.Forms
             this.cmdLogsClean.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdLogsClean.FlatAppearance.BorderSize = 0;
             this.cmdLogsClean.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdLogsClean.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+            this.cmdLogsClean.Image = global::Eddie.Lib.Forms.Properties.Resources.clear;
             this.cmdLogsClean.Location = new System.Drawing.Point(695, 4);
             this.cmdLogsClean.Margin = new System.Windows.Forms.Padding(2);
             this.cmdLogsClean.Name = "cmdLogsClean";
-            this.cmdLogsClean.Size = new System.Drawing.Size(28, 27);
+            this.cmdLogsClean.Size = new System.Drawing.Size(28, 28);
             this.cmdLogsClean.TabIndex = 48;
-            this.tip.SetToolTip(this.cmdLogsClean, "Clean logs");
             this.cmdLogsClean.UseVisualStyleBackColor = true;
             this.cmdLogsClean.Click += new System.EventHandler(this.cmdLogsClean_Click);
             // 
@@ -900,13 +828,12 @@ namespace AirVPN.Gui.Forms
             this.cmdLogsCopy.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdLogsCopy.FlatAppearance.BorderSize = 0;
             this.cmdLogsCopy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdLogsCopy.Image = global::AirVPN.Lib.Forms.Properties.Resources.copy;
+            this.cmdLogsCopy.Image = global::Eddie.Lib.Forms.Properties.Resources.copy;
             this.cmdLogsCopy.Location = new System.Drawing.Point(695, 36);
             this.cmdLogsCopy.Margin = new System.Windows.Forms.Padding(2);
             this.cmdLogsCopy.Name = "cmdLogsCopy";
-            this.cmdLogsCopy.Size = new System.Drawing.Size(28, 27);
+            this.cmdLogsCopy.Size = new System.Drawing.Size(28, 28);
             this.cmdLogsCopy.TabIndex = 47;
-            this.tip.SetToolTip(this.cmdLogsCopy, "Copy to clipboard");
             this.cmdLogsCopy.UseVisualStyleBackColor = true;
             this.cmdLogsCopy.Click += new System.EventHandler(this.cmdLogsCopy_Click);
             // 
@@ -918,15 +845,65 @@ namespace AirVPN.Gui.Forms
             this.cmdLogsSave.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdLogsSave.FlatAppearance.BorderSize = 0;
             this.cmdLogsSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdLogsSave.Image = global::AirVPN.Lib.Forms.Properties.Resources.save;
-            this.cmdLogsSave.Location = new System.Drawing.Point(695, 67);
+            this.cmdLogsSave.Image = global::Eddie.Lib.Forms.Properties.Resources.save;
+            this.cmdLogsSave.Location = new System.Drawing.Point(695, 68);
             this.cmdLogsSave.Margin = new System.Windows.Forms.Padding(2);
             this.cmdLogsSave.Name = "cmdLogsSave";
-            this.cmdLogsSave.Size = new System.Drawing.Size(28, 27);
+            this.cmdLogsSave.Size = new System.Drawing.Size(28, 28);
             this.cmdLogsSave.TabIndex = 46;
-            this.tip.SetToolTip(this.cmdLogsSave, "Save to file");
             this.cmdLogsSave.UseVisualStyleBackColor = true;
             this.cmdLogsSave.Click += new System.EventHandler(this.cmdLogsSave_Click);
+            // 
+            // cmdAreasUndefined
+            // 
+            this.cmdAreasUndefined.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdAreasUndefined.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdAreasUndefined.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdAreasUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdAreasUndefined.FlatAppearance.BorderSize = 0;
+            this.cmdAreasUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdAreasUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
+            this.cmdAreasUndefined.Location = new System.Drawing.Point(695, 68);
+            this.cmdAreasUndefined.Margin = new System.Windows.Forms.Padding(2);
+            this.cmdAreasUndefined.Name = "cmdAreasUndefined";
+            this.cmdAreasUndefined.Size = new System.Drawing.Size(28, 28);
+            this.cmdAreasUndefined.TabIndex = 52;
+            this.cmdAreasUndefined.UseVisualStyleBackColor = true;
+            this.cmdAreasUndefined.Click += new System.EventHandler(this.cmdAreasUndefined_Click);
+            // 
+            // cmdAreasBlackList
+            // 
+            this.cmdAreasBlackList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdAreasBlackList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdAreasBlackList.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdAreasBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdAreasBlackList.FlatAppearance.BorderSize = 0;
+            this.cmdAreasBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdAreasBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
+            this.cmdAreasBlackList.Location = new System.Drawing.Point(695, 36);
+            this.cmdAreasBlackList.Margin = new System.Windows.Forms.Padding(2);
+            this.cmdAreasBlackList.Name = "cmdAreasBlackList";
+            this.cmdAreasBlackList.Size = new System.Drawing.Size(28, 28);
+            this.cmdAreasBlackList.TabIndex = 51;
+            this.cmdAreasBlackList.UseVisualStyleBackColor = true;
+            this.cmdAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
+            // 
+            // cmdAreasWhiteList
+            // 
+            this.cmdAreasWhiteList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdAreasWhiteList.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdAreasWhiteList.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdAreasWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdAreasWhiteList.FlatAppearance.BorderSize = 0;
+            this.cmdAreasWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdAreasWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
+            this.cmdAreasWhiteList.Location = new System.Drawing.Point(695, 4);
+            this.cmdAreasWhiteList.Margin = new System.Windows.Forms.Padding(2);
+            this.cmdAreasWhiteList.Name = "cmdAreasWhiteList";
+            this.cmdAreasWhiteList.Size = new System.Drawing.Size(28, 28);
+            this.cmdAreasWhiteList.TabIndex = 61;
+            this.cmdAreasWhiteList.UseVisualStyleBackColor = true;
+            this.cmdAreasWhiteList.Click += new System.EventHandler(this.cmdAreasWhiteList_Click);
             // 
             // mnuLogsContext
             // 
@@ -961,7 +938,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuServersConnect
             // 
-            this.mnuServersConnect.Image = global::AirVPN.Lib.Forms.Properties.Resources.connect;
+            this.mnuServersConnect.Image = global::Eddie.Lib.Forms.Properties.Resources.connect;
             this.mnuServersConnect.Name = "mnuServersConnect";
             this.mnuServersConnect.Size = new System.Drawing.Size(149, 26);
             this.mnuServersConnect.Text = "Connect now";
@@ -974,7 +951,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuServersWhiteList
             // 
-            this.mnuServersWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
+            this.mnuServersWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
             this.mnuServersWhiteList.Name = "mnuServersWhiteList";
             this.mnuServersWhiteList.Size = new System.Drawing.Size(149, 26);
             this.mnuServersWhiteList.Text = "Whitelist";
@@ -982,7 +959,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuServersBlackList
             // 
-            this.mnuServersBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
+            this.mnuServersBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
             this.mnuServersBlackList.Name = "mnuServersBlackList";
             this.mnuServersBlackList.Size = new System.Drawing.Size(149, 26);
             this.mnuServersBlackList.Text = "Blacklist";
@@ -990,7 +967,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuServersUndefined
             // 
-            this.mnuServersUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+            this.mnuServersUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
             this.mnuServersUndefined.Name = "mnuServersUndefined";
             this.mnuServersUndefined.Size = new System.Drawing.Size(149, 26);
             this.mnuServersUndefined.Text = "Undefined";
@@ -1003,7 +980,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuServersRefresh
             // 
-            this.mnuServersRefresh.Image = global::AirVPN.Lib.Forms.Properties.Resources.reload;
+            this.mnuServersRefresh.Image = global::Eddie.Lib.Forms.Properties.Resources.reload;
             this.mnuServersRefresh.Name = "mnuServersRefresh";
             this.mnuServersRefresh.Size = new System.Drawing.Size(149, 26);
             this.mnuServersRefresh.Text = "Refresh list";
@@ -1021,7 +998,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuAreasWhiteList
             // 
-            this.mnuAreasWhiteList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_0;
+            this.mnuAreasWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
             this.mnuAreasWhiteList.Name = "mnuAreasWhiteList";
             this.mnuAreasWhiteList.Size = new System.Drawing.Size(133, 26);
             this.mnuAreasWhiteList.Text = "Whitelist";
@@ -1029,7 +1006,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuAreasBlackList
             // 
-            this.mnuAreasBlackList.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
+            this.mnuAreasBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
             this.mnuAreasBlackList.Name = "mnuAreasBlackList";
             this.mnuAreasBlackList.Size = new System.Drawing.Size(133, 26);
             this.mnuAreasBlackList.Text = "Blacklist";
@@ -1037,7 +1014,7 @@ namespace AirVPN.Gui.Forms
             // 
             // mnuAreasUndefined
             // 
-            this.mnuAreasUndefined.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_2;
+            this.mnuAreasUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
             this.mnuAreasUndefined.Name = "mnuAreasUndefined";
             this.mnuAreasUndefined.Size = new System.Drawing.Size(133, 26);
             this.mnuAreasUndefined.Text = "Undefined";
@@ -1050,7 +1027,7 @@ namespace AirVPN.Gui.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabMain.Controls.Add(this.tabOverview);
             this.tabMain.Controls.Add(this.tabServers);
-            this.tabMain.Controls.Add(this.tabAreas);
+            this.tabMain.Controls.Add(this.tabCountries);
             this.tabMain.Controls.Add(this.tabSpeed);
             this.tabMain.Controls.Add(this.tabStats);
             this.tabMain.Controls.Add(this.tabLogs);
@@ -1063,8 +1040,8 @@ namespace AirVPN.Gui.Forms
             // 
             // tabOverview
             // 
-            this.tabOverview.Controls.Add(this.pnlWelcome);
             this.tabOverview.Controls.Add(this.pnlConnected);
+            this.tabOverview.Controls.Add(this.pnlWelcome);
             this.tabOverview.Controls.Add(this.pnlWaiting);
             this.tabOverview.Location = new System.Drawing.Point(4, 22);
             this.tabOverview.Name = "tabOverview";
@@ -1072,6 +1049,162 @@ namespace AirVPN.Gui.Forms
             this.tabOverview.TabIndex = 4;
             this.tabOverview.Text = "Overview";
             this.tabOverview.UseVisualStyleBackColor = true;
+            // 
+            // pnlConnected
+            // 
+            this.pnlConnected.BackColor = System.Drawing.Color.Transparent;
+            this.pnlConnected.Controls.Add(this.txtConnectedExitIp);
+            this.pnlConnected.Controls.Add(this.lblConnectedExitIp);
+            this.pnlConnected.Controls.Add(this.lblConnectedUpload);
+            this.pnlConnected.Controls.Add(this.txtConnectedUpload);
+            this.pnlConnected.Controls.Add(this.txtConnectedDownload);
+            this.pnlConnected.Controls.Add(this.lblConnectedDownload);
+            this.pnlConnected.Controls.Add(this.txtConnectedSince);
+            this.pnlConnected.Controls.Add(this.lblConnectedSince);
+            this.pnlConnected.Controls.Add(this.cmdDisconnect);
+            this.pnlConnected.Controls.Add(this.lblConnectedLocation);
+            this.pnlConnected.Controls.Add(this.lblConnectedTo);
+            this.pnlConnected.Controls.Add(this.lblConnectedServerName);
+            this.pnlConnected.Controls.Add(this.lblConnectedCountry);
+            this.pnlConnected.Location = new System.Drawing.Point(507, 76);
+            this.pnlConnected.Name = "pnlConnected";
+            this.pnlConnected.Size = new System.Drawing.Size(470, 218);
+            this.pnlConnected.TabIndex = 66;
+            // 
+            // txtConnectedExitIp
+            // 
+            this.txtConnectedExitIp.Location = new System.Drawing.Point(166, 128);
+            this.txtConnectedExitIp.Name = "txtConnectedExitIp";
+            this.txtConnectedExitIp.Size = new System.Drawing.Size(154, 20);
+            this.txtConnectedExitIp.TabIndex = 69;
+            this.txtConnectedExitIp.Text = "1.2.3.4";
+            this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblConnectedExitIp
+            // 
+            this.lblConnectedExitIp.Location = new System.Drawing.Point(19, 128);
+            this.lblConnectedExitIp.Name = "lblConnectedExitIp";
+            this.lblConnectedExitIp.Size = new System.Drawing.Size(138, 20);
+            this.lblConnectedExitIp.TabIndex = 68;
+            this.lblConnectedExitIp.Text = "Public Exit IP:";
+            this.lblConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblConnectedUpload
+            // 
+            this.lblConnectedUpload.Location = new System.Drawing.Point(240, 73);
+            this.lblConnectedUpload.Name = "lblConnectedUpload";
+            this.lblConnectedUpload.Size = new System.Drawing.Size(65, 20);
+            this.lblConnectedUpload.TabIndex = 65;
+            this.lblConnectedUpload.Text = "Upload:";
+            this.lblConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // txtConnectedUpload
+            // 
+            this.txtConnectedUpload.BackColor = System.Drawing.Color.White;
+            this.txtConnectedUpload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtConnectedUpload.ForeColor = System.Drawing.Color.ForestGreen;
+            this.txtConnectedUpload.Location = new System.Drawing.Point(308, 67);
+            this.txtConnectedUpload.Name = "txtConnectedUpload";
+            this.txtConnectedUpload.Size = new System.Drawing.Size(144, 40);
+            this.txtConnectedUpload.TabIndex = 67;
+            this.txtConnectedUpload.Text = "14332 kb/s";
+            this.txtConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtConnectedDownload
+            // 
+            this.txtConnectedDownload.BackColor = System.Drawing.Color.White;
+            this.txtConnectedDownload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtConnectedDownload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(91)))), ((int)(((byte)(157)))), ((int)(((byte)(255)))));
+            this.txtConnectedDownload.Location = new System.Drawing.Point(90, 67);
+            this.txtConnectedDownload.Name = "txtConnectedDownload";
+            this.txtConnectedDownload.Size = new System.Drawing.Size(144, 40);
+            this.txtConnectedDownload.TabIndex = 65;
+            this.txtConnectedDownload.Text = "14332 kb/s";
+            this.txtConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblConnectedDownload
+            // 
+            this.lblConnectedDownload.Location = new System.Drawing.Point(13, 75);
+            this.lblConnectedDownload.Name = "lblConnectedDownload";
+            this.lblConnectedDownload.Size = new System.Drawing.Size(74, 20);
+            this.lblConnectedDownload.TabIndex = 64;
+            this.lblConnectedDownload.Text = "Download:";
+            this.lblConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // txtConnectedSince
+            // 
+            this.txtConnectedSince.Location = new System.Drawing.Point(166, 148);
+            this.txtConnectedSince.Name = "txtConnectedSince";
+            this.txtConnectedSince.Size = new System.Drawing.Size(154, 20);
+            this.txtConnectedSince.TabIndex = 63;
+            this.txtConnectedSince.Text = "VPN Time";
+            this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // lblConnectedSince
+            // 
+            this.lblConnectedSince.Location = new System.Drawing.Point(16, 148);
+            this.lblConnectedSince.Name = "lblConnectedSince";
+            this.lblConnectedSince.Size = new System.Drawing.Size(141, 20);
+            this.lblConnectedSince.TabIndex = 62;
+            this.lblConnectedSince.Text = "Connection time:";
+            this.lblConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cmdDisconnect
+            // 
+            this.cmdDisconnect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdDisconnect.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdDisconnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdDisconnect.FlatAppearance.BorderSize = 0;
+            this.cmdDisconnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdDisconnect.ImageKey = "enter";
+            this.cmdDisconnect.Location = new System.Drawing.Point(16, 179);
+            this.cmdDisconnect.Margin = new System.Windows.Forms.Padding(0);
+            this.cmdDisconnect.Name = "cmdDisconnect";
+            this.cmdDisconnect.Size = new System.Drawing.Size(438, 34);
+            this.cmdDisconnect.TabIndex = 61;
+            this.cmdDisconnect.Text = "Disconnect";
+            this.cmdDisconnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.cmdDisconnect.UseVisualStyleBackColor = true;
+            this.cmdDisconnect.Click += new System.EventHandler(this.cmdDisconnect_Click);
+            // 
+            // lblConnectedLocation
+            // 
+            this.lblConnectedLocation.Location = new System.Drawing.Point(166, 42);
+            this.lblConnectedLocation.Name = "lblConnectedLocation";
+            this.lblConnectedLocation.Size = new System.Drawing.Size(284, 24);
+            this.lblConnectedLocation.TabIndex = 3;
+            this.lblConnectedLocation.Text = "Location";
+            this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // lblConnectedTo
+            // 
+            this.lblConnectedTo.Location = new System.Drawing.Point(10, 9);
+            this.lblConnectedTo.Name = "lblConnectedTo";
+            this.lblConnectedTo.Size = new System.Drawing.Size(106, 30);
+            this.lblConnectedTo.TabIndex = 2;
+            this.lblConnectedTo.Text = "Connected to:";
+            this.lblConnectedTo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblConnectedServerName
+            // 
+            this.lblConnectedServerName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.lblConnectedServerName.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblConnectedServerName.Location = new System.Drawing.Point(164, 9);
+            this.lblConnectedServerName.Name = "lblConnectedServerName";
+            this.lblConnectedServerName.Size = new System.Drawing.Size(289, 30);
+            this.lblConnectedServerName.TabIndex = 1;
+            this.lblConnectedServerName.Text = "Server Name";
+            this.lblConnectedServerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblConnectedCountry
+            // 
+            this.lblConnectedCountry.BackColor = System.Drawing.Color.Transparent;
+            this.lblConnectedCountry.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
+            this.lblConnectedCountry.Location = new System.Drawing.Point(135, 13);
+            this.lblConnectedCountry.Name = "lblConnectedCountry";
+            this.lblConnectedCountry.Size = new System.Drawing.Size(22, 20);
+            this.lblConnectedCountry.TabIndex = 0;
+            this.lblConnectedCountry.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // pnlWelcome
             // 
@@ -1098,7 +1231,6 @@ namespace AirVPN.Gui.Forms
             // cboKey
             // 
             this.cboKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboKey.FormattingEnabled = true;
             this.cboKey.Location = new System.Drawing.Point(169, 80);
             this.cboKey.Name = "cboKey";
             this.cboKey.Size = new System.Drawing.Size(190, 21);
@@ -1146,7 +1278,7 @@ namespace AirVPN.Gui.Forms
             // lblLoginIcon
             // 
             this.lblLoginIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.lblLoginIcon.Image = global::AirVPN.Lib.Forms.Properties.Resources.login;
+            this.lblLoginIcon.Image = global::Eddie.Lib.Forms.Properties.Resources.login;
             this.lblLoginIcon.Location = new System.Drawing.Point(15, 4);
             this.lblLoginIcon.Name = "lblLoginIcon";
             this.lblLoginIcon.Size = new System.Drawing.Size(70, 77);
@@ -1253,162 +1385,6 @@ namespace AirVPN.Gui.Forms
             this.txtLogin.TabIndex = 50;
             this.txtLogin.TextChanged += new System.EventHandler(this.txtLogin_TextChanged);
             // 
-            // pnlConnected
-            // 
-            this.pnlConnected.BackColor = System.Drawing.Color.Transparent;
-            this.pnlConnected.Controls.Add(this.txtConnectedExitIp);
-            this.pnlConnected.Controls.Add(this.lblConnectedExitIp);
-            this.pnlConnected.Controls.Add(this.lblConnectedUpload);
-            this.pnlConnected.Controls.Add(this.txtConnectedUpload);
-            this.pnlConnected.Controls.Add(this.txtConnectedDownload);
-            this.pnlConnected.Controls.Add(this.lblConnectedDownload);
-            this.pnlConnected.Controls.Add(this.txtConnectedSince);
-            this.pnlConnected.Controls.Add(this.lblConnectedSince);
-            this.pnlConnected.Controls.Add(this.cmdDisconnect);
-            this.pnlConnected.Controls.Add(this.lblConnectedLocation);
-            this.pnlConnected.Controls.Add(this.lblConnectedTo);
-            this.pnlConnected.Controls.Add(this.lblConnectedServerName);
-            this.pnlConnected.Controls.Add(this.lblConnectedCountry);
-            this.pnlConnected.Location = new System.Drawing.Point(356, 214);
-            this.pnlConnected.Name = "pnlConnected";
-            this.pnlConnected.Size = new System.Drawing.Size(470, 187);
-            this.pnlConnected.TabIndex = 66;
-            // 
-            // txtConnectedExitIp
-            // 
-            this.txtConnectedExitIp.Location = new System.Drawing.Point(126, 110);
-            this.txtConnectedExitIp.Name = "txtConnectedExitIp";
-            this.txtConnectedExitIp.Size = new System.Drawing.Size(340, 14);
-            this.txtConnectedExitIp.TabIndex = 69;
-            this.txtConnectedExitIp.Text = "1.2.3.4";
-            this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lblConnectedExitIp
-            // 
-            this.lblConnectedExitIp.Location = new System.Drawing.Point(13, 110);
-            this.lblConnectedExitIp.Name = "lblConnectedExitIp";
-            this.lblConnectedExitIp.Size = new System.Drawing.Size(106, 14);
-            this.lblConnectedExitIp.TabIndex = 68;
-            this.lblConnectedExitIp.Text = "Public Exit IP:";
-            this.lblConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // lblConnectedUpload
-            // 
-            this.lblConnectedUpload.Location = new System.Drawing.Point(240, 73);
-            this.lblConnectedUpload.Name = "lblConnectedUpload";
-            this.lblConnectedUpload.Size = new System.Drawing.Size(65, 14);
-            this.lblConnectedUpload.TabIndex = 65;
-            this.lblConnectedUpload.Text = "Upload:";
-            this.lblConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // txtConnectedUpload
-            // 
-            this.txtConnectedUpload.BackColor = System.Drawing.Color.White;
-            this.txtConnectedUpload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtConnectedUpload.ForeColor = System.Drawing.Color.ForestGreen;
-            this.txtConnectedUpload.Location = new System.Drawing.Point(308, 67);
-            this.txtConnectedUpload.Name = "txtConnectedUpload";
-            this.txtConnectedUpload.Size = new System.Drawing.Size(144, 30);
-            this.txtConnectedUpload.TabIndex = 67;
-            this.txtConnectedUpload.Text = "14332 kb/s";
-            this.txtConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // txtConnectedDownload
-            // 
-            this.txtConnectedDownload.BackColor = System.Drawing.Color.White;
-            this.txtConnectedDownload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtConnectedDownload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(91)))), ((int)(((byte)(157)))), ((int)(((byte)(255)))));
-            this.txtConnectedDownload.Location = new System.Drawing.Point(90, 67);
-            this.txtConnectedDownload.Name = "txtConnectedDownload";
-            this.txtConnectedDownload.Size = new System.Drawing.Size(144, 30);
-            this.txtConnectedDownload.TabIndex = 65;
-            this.txtConnectedDownload.Text = "14332 kb/s";
-            this.txtConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblConnectedDownload
-            // 
-            this.lblConnectedDownload.Location = new System.Drawing.Point(13, 75);
-            this.lblConnectedDownload.Name = "lblConnectedDownload";
-            this.lblConnectedDownload.Size = new System.Drawing.Size(74, 14);
-            this.lblConnectedDownload.TabIndex = 64;
-            this.lblConnectedDownload.Text = "Download:";
-            this.lblConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // txtConnectedSince
-            // 
-            this.txtConnectedSince.Location = new System.Drawing.Point(126, 125);
-            this.txtConnectedSince.Name = "txtConnectedSince";
-            this.txtConnectedSince.Size = new System.Drawing.Size(340, 14);
-            this.txtConnectedSince.TabIndex = 63;
-            this.txtConnectedSince.Text = "VPN Time";
-            this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // lblConnectedSince
-            // 
-            this.lblConnectedSince.Location = new System.Drawing.Point(13, 125);
-            this.lblConnectedSince.Name = "lblConnectedSince";
-            this.lblConnectedSince.Size = new System.Drawing.Size(106, 14);
-            this.lblConnectedSince.TabIndex = 62;
-            this.lblConnectedSince.Text = "Connection time:";
-            this.lblConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cmdDisconnect
-            // 
-            this.cmdDisconnect.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdDisconnect.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.cmdDisconnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.cmdDisconnect.FlatAppearance.BorderSize = 0;
-            this.cmdDisconnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdDisconnect.ImageKey = "enter";
-            this.cmdDisconnect.Location = new System.Drawing.Point(16, 153);
-            this.cmdDisconnect.Margin = new System.Windows.Forms.Padding(0);
-            this.cmdDisconnect.Name = "cmdDisconnect";
-            this.cmdDisconnect.Size = new System.Drawing.Size(438, 30);
-            this.cmdDisconnect.TabIndex = 61;
-            this.cmdDisconnect.Text = "Disconnect";
-            this.cmdDisconnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-            this.cmdDisconnect.UseVisualStyleBackColor = true;
-            this.cmdDisconnect.Click += new System.EventHandler(this.cmdDisconnect_Click);
-            // 
-            // lblConnectedLocation
-            // 
-            this.lblConnectedLocation.Location = new System.Drawing.Point(166, 42);
-            this.lblConnectedLocation.Name = "lblConnectedLocation";
-            this.lblConnectedLocation.Size = new System.Drawing.Size(284, 24);
-            this.lblConnectedLocation.TabIndex = 3;
-            this.lblConnectedLocation.Text = "Location";
-            this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // lblConnectedTo
-            // 
-            this.lblConnectedTo.Location = new System.Drawing.Point(10, 11);
-            this.lblConnectedTo.Name = "lblConnectedTo";
-            this.lblConnectedTo.Size = new System.Drawing.Size(106, 20);
-            this.lblConnectedTo.TabIndex = 2;
-            this.lblConnectedTo.Text = "Connected to:";
-            this.lblConnectedTo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // lblConnectedServerName
-            // 
-            this.lblConnectedServerName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.lblConnectedServerName.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblConnectedServerName.Location = new System.Drawing.Point(164, 10);
-            this.lblConnectedServerName.Name = "lblConnectedServerName";
-            this.lblConnectedServerName.Size = new System.Drawing.Size(289, 29);
-            this.lblConnectedServerName.TabIndex = 1;
-            this.lblConnectedServerName.Text = "Server Name";
-            this.lblConnectedServerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblConnectedCountry
-            // 
-            this.lblConnectedCountry.BackColor = System.Drawing.Color.Transparent;
-            this.lblConnectedCountry.Image = global::AirVPN.Lib.Forms.Properties.Resources.blacklist_1;
-            this.lblConnectedCountry.Location = new System.Drawing.Point(135, 13);
-            this.lblConnectedCountry.Name = "lblConnectedCountry";
-            this.lblConnectedCountry.Size = new System.Drawing.Size(22, 20);
-            this.lblConnectedCountry.TabIndex = 0;
-            this.lblConnectedCountry.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // pnlWaiting
             // 
             this.pnlWaiting.BackColor = System.Drawing.Color.Transparent;
@@ -1481,10 +1457,10 @@ namespace AirVPN.Gui.Forms
             // chkShowAll
             // 
             this.chkShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkShowAll.Location = new System.Drawing.Point(4, 309);
+            this.chkShowAll.Location = new System.Drawing.Point(4, 304);
             this.chkShowAll.Margin = new System.Windows.Forms.Padding(2);
             this.chkShowAll.Name = "chkShowAll";
-            this.chkShowAll.Size = new System.Drawing.Size(71, 21);
+            this.chkShowAll.Size = new System.Drawing.Size(181, 25);
             this.chkShowAll.TabIndex = 7;
             this.chkShowAll.Text = "Show All";
             this.chkShowAll.UseVisualStyleBackColor = true;
@@ -1493,9 +1469,9 @@ namespace AirVPN.Gui.Forms
             // lblScoreType
             // 
             this.lblScoreType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblScoreType.Location = new System.Drawing.Point(383, 309);
+            this.lblScoreType.Location = new System.Drawing.Point(252, 304);
             this.lblScoreType.Name = "lblScoreType";
-            this.lblScoreType.Size = new System.Drawing.Size(112, 21);
+            this.lblScoreType.Size = new System.Drawing.Size(169, 21);
             this.lblScoreType.TabIndex = 65;
             this.lblScoreType.Text = "Scoring Rule:";
             this.lblScoreType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1509,34 +1485,33 @@ namespace AirVPN.Gui.Forms
             this.pnlServers.Location = new System.Drawing.Point(4, 4);
             this.pnlServers.Margin = new System.Windows.Forms.Padding(0);
             this.pnlServers.Name = "pnlServers";
-            this.pnlServers.Size = new System.Drawing.Size(686, 301);
+            this.pnlServers.Size = new System.Drawing.Size(686, 293);
             this.pnlServers.TabIndex = 47;
             // 
-            // tabAreas
+            // tabCountries
             // 
-            this.tabAreas.BackColor = System.Drawing.Color.Transparent;
-            this.tabAreas.Controls.Add(this.pnlAreas);
-            this.tabAreas.Controls.Add(this.cmdAreasUndefined);
-            this.tabAreas.Controls.Add(this.cmdAreasBlackList);
-            this.tabAreas.Controls.Add(this.cmdAreasWhiteList);
-            this.tabAreas.Location = new System.Drawing.Point(4, 22);
-            this.tabAreas.Margin = new System.Windows.Forms.Padding(2);
-            this.tabAreas.Name = "tabAreas";
-            this.tabAreas.Padding = new System.Windows.Forms.Padding(2);
-            this.tabAreas.Size = new System.Drawing.Size(730, 333);
-            this.tabAreas.TabIndex = 1;
-            this.tabAreas.Text = "Countries";
+            this.tabCountries.Controls.Add(this.cmdAreasWhiteList);
+            this.tabCountries.Controls.Add(this.pnlAreas);
+            this.tabCountries.Controls.Add(this.cmdAreasUndefined);
+            this.tabCountries.Controls.Add(this.cmdAreasBlackList);
+            this.tabCountries.Location = new System.Drawing.Point(4, 22);
+            this.tabCountries.Name = "tabCountries";
+            this.tabCountries.Size = new System.Drawing.Size(730, 333);
+            this.tabCountries.TabIndex = 6;
+            this.tabCountries.Text = "Countries";
+            this.tabCountries.UseVisualStyleBackColor = true;
             // 
             // pnlAreas
             // 
             this.pnlAreas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlAreas.BackColor = System.Drawing.Color.Maroon;
             this.pnlAreas.Location = new System.Drawing.Point(4, 4);
             this.pnlAreas.Margin = new System.Windows.Forms.Padding(0);
             this.pnlAreas.Name = "pnlAreas";
-            this.pnlAreas.Size = new System.Drawing.Size(686, 326);
-            this.pnlAreas.TabIndex = 49;
+            this.pnlAreas.Size = new System.Drawing.Size(686, 325);
+            this.pnlAreas.TabIndex = 60;
             // 
             // tabSpeed
             // 
@@ -1553,9 +1528,9 @@ namespace AirVPN.Gui.Forms
             // lblSpeedResolution
             // 
             this.lblSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblSpeedResolution.Location = new System.Drawing.Point(3, 311);
+            this.lblSpeedResolution.Location = new System.Drawing.Point(3, 304);
             this.lblSpeedResolution.Name = "lblSpeedResolution";
-            this.lblSpeedResolution.Size = new System.Drawing.Size(98, 21);
+            this.lblSpeedResolution.Size = new System.Drawing.Size(150, 21);
             this.lblSpeedResolution.TabIndex = 65;
             this.lblSpeedResolution.Text = "Resolution:";
             this.lblSpeedResolution.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1569,7 +1544,7 @@ namespace AirVPN.Gui.Forms
             this.holSpeedChart.Location = new System.Drawing.Point(2, 2);
             this.holSpeedChart.Margin = new System.Windows.Forms.Padding(0);
             this.holSpeedChart.Name = "holSpeedChart";
-            this.holSpeedChart.Size = new System.Drawing.Size(724, 307);
+            this.holSpeedChart.Size = new System.Drawing.Size(724, 298);
             this.holSpeedChart.TabIndex = 51;
             this.holSpeedChart.Text = "Speed Chart";
             this.holSpeedChart.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1580,10 +1555,10 @@ namespace AirVPN.Gui.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cboSpeedResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboSpeedResolution.FormattingEnabled = true;
-            this.cboSpeedResolution.Location = new System.Drawing.Point(108, 311);
+            this.cboSpeedResolution.Location = new System.Drawing.Point(159, 304);
             this.cboSpeedResolution.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cboSpeedResolution.Name = "cboSpeedResolution";
-            this.cboSpeedResolution.Size = new System.Drawing.Size(618, 21);
+            this.cboSpeedResolution.Size = new System.Drawing.Size(567, 21);
             this.cboSpeedResolution.TabIndex = 50;
             this.cboSpeedResolution.SelectedIndexChanged += new System.EventHandler(this.cboSpeedResolution_SelectedIndexChanged);
             // 
@@ -1642,7 +1617,7 @@ namespace AirVPN.Gui.Forms
             // 
             this.txtCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtCommand.Location = new System.Drawing.Point(4, 310);
+            this.txtCommand.Location = new System.Drawing.Point(4, 305);
             this.txtCommand.Name = "txtCommand";
             this.txtCommand.Size = new System.Drawing.Size(687, 20);
             this.txtCommand.TabIndex = 52;
@@ -1667,21 +1642,10 @@ namespace AirVPN.Gui.Forms
             this.lstLogs.Name = "lstLogs";
             this.lstLogs.OwnerDraw = true;
             this.lstLogs.ShowItemToolTips = true;
-            this.lstLogs.Size = new System.Drawing.Size(687, 303);
+            this.lstLogs.Size = new System.Drawing.Size(687, 298);
             this.lstLogs.TabIndex = 49;
             this.lstLogs.UseCompatibleStateImageBehavior = false;
             this.lstLogs.View = System.Windows.Forms.View.Details;
-            // 
-            // imgMainTab
-            // 
-            this.imgMainTab.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgMainTab.ImageStream")));
-            this.imgMainTab.TransparentColor = System.Drawing.Color.Transparent;
-            this.imgMainTab.Images.SetKeyName(0, "maintab_countries.png");
-            this.imgMainTab.Images.SetKeyName(1, "maintab_logs.png");
-            this.imgMainTab.Images.SetKeyName(2, "maintab_overview.png");
-            this.imgMainTab.Images.SetKeyName(3, "maintab_servers.png");
-            this.imgMainTab.Images.SetKeyName(4, "maintab_speed.png");
-            this.imgMainTab.Images.SetKeyName(5, "maintab_stats.png");
             // 
             // Main
             // 
@@ -1701,12 +1665,12 @@ namespace AirVPN.Gui.Forms
             this.mnuAreas.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
             this.tabOverview.ResumeLayout(false);
+            this.pnlConnected.ResumeLayout(false);
             this.pnlWelcome.ResumeLayout(false);
             this.pnlWelcome.PerformLayout();
-            this.pnlConnected.ResumeLayout(false);
             this.pnlWaiting.ResumeLayout(false);
             this.tabServers.ResumeLayout(false);
-            this.tabAreas.ResumeLayout(false);
+            this.tabCountries.ResumeLayout(false);
             this.tabSpeed.ResumeLayout(false);
             this.tabStats.ResumeLayout(false);
             this.tabLogs.ResumeLayout(false);
@@ -1720,7 +1684,6 @@ namespace AirVPN.Gui.Forms
         private System.Windows.Forms.ContextMenuStrip mnuMain;
         private System.Windows.Forms.ToolStripMenuItem mnuRestore;
         private System.Windows.Forms.ToolStripMenuItem mnuExit;
-        private System.Windows.Forms.ToolTip tip;
 		private System.Windows.Forms.ToolStripMenuItem mnuSettings;
         private System.Windows.Forms.ToolStripMenuItem mnuHomePage;
         private System.Windows.Forms.ToolStripSeparator mnuSeparator1;
@@ -1731,8 +1694,7 @@ namespace AirVPN.Gui.Forms
         private System.Windows.Forms.ToolStripMenuItem mnuAbout;
 		private System.Windows.Forms.ToolStripMenuItem mnuDevelopers;
         private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManText;
-        private System.Windows.Forms.ToolStripMenuItem mnuDevelopersUpdateManifest;
-		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersDefaultManifest;
+        private System.Windows.Forms.ToolStripMenuItem mnuDevelopersUpdateManifest;		
 		private Skin.Panel pnlWelcome;
 		private Skin.Label lblPassword;
 		private Skin.Label lblLogin;
@@ -1749,16 +1711,10 @@ namespace AirVPN.Gui.Forms
 		private Skin.ComboBox cboScoreType;
 		private Skin.CheckBox chkShowAll;
 		private Skin.CheckBox chkLockLast;
-		private System.Windows.Forms.Panel pnlServers;
 		private Skin.Button cmdServersUndefined;
 		private Skin.Button cmdServersBlackList;
 		private Skin.Button cmdServersWhiteList;
 		private Skin.Button cmdServersConnect;
-		private Skin.TabPage tabAreas;
-		private System.Windows.Forms.Panel pnlAreas;
-		private Skin.Button cmdAreasUndefined;
-		private Skin.Button cmdAreasBlackList;
-		private Skin.Button cmdAreasWhiteList;
 		private Skin.TabPage tabStats;
 		private Skin.ListView lstStats;
 		private Skin.TabPage tabLogs;
@@ -1769,7 +1725,6 @@ namespace AirVPN.Gui.Forms
 		private Skin.Button cmdLogsSave;
 		private System.Windows.Forms.ContextMenuStrip mnuLogsContext;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolTip toolTip1;
 		private System.Windows.Forms.ContextMenuStrip mnuServers;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersConnect;
 		private System.Windows.Forms.ToolStripSeparator mnuServersSeparator1;
@@ -1820,9 +1775,14 @@ namespace AirVPN.Gui.Forms
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersRefresh;
 		private System.Windows.Forms.TextBox txtCommand;
-        private System.Windows.Forms.ImageList imgMainTab;
         private System.Windows.Forms.ComboBox cboKey;
         private Skin.Label lblKey;
+        private Skin.TabPage tabCountries;
+        private Skin.Button cmdAreasUndefined;
+        private Skin.Button cmdAreasBlackList;
+        private Skin.Panel pnlAreas;
+        private Skin.Panel pnlServers;
+        private Skin.Button cmdAreasWhiteList;
     }
 }
 
