@@ -44,7 +44,7 @@ namespace Eddie.Core
             else
                 path = Platform.Instance.GetProgramFolder();
 
-            path += "//providers//";
+            path += "//Providers//";
 
             if(Directory.Exists(path) == false) // TOCLEAN, Compatibility <3.0
             {
