@@ -25,7 +25,8 @@ namespace Eddie.Core
 {
 	public class RouteScope
 	{
-		private IpAddress m_address;
+        private string m_guid;
+        private IpAddress m_address;
 
 		public RouteScope(IpAddress address)
 		{
@@ -37,7 +38,17 @@ namespace Eddie.Core
 			End();
 		}
 
-		public void Start(IpAddress address)
+        public string Guid
+        {
+            get
+            {
+                if (m_guid == "")
+                    m_guid = Utils.GetRandomToken();
+                return m_guid;
+            }
+        }
+
+        public void Start(IpAddress address)
 		{
 			if (address.Valid)
 			{

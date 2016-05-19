@@ -29,6 +29,8 @@ namespace Eddie.Platforms
 {
 	public class NetworkLockWfp : NetworkLockPlugin
 	{
+        private Dictionary<string, WfpItem> m_rules = new Dictionary<string, WfpItem>();
+
 		public override string GetCode()
 		{
 			return "windows_wfp";
@@ -50,19 +52,125 @@ namespace Eddie.Platforms
 		{
 			base.Activation();
 
-			
+            // Allow Eddie / OpenVPN / Stunnel / Plink
+            AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Private - Allow Eddie", Platform.Instance.GetExecutablePath()));
+
+            // Allow loopback
+            {
+                XmlDocument xmlDocRule = new XmlDocument();
+                XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                xmlRule.SetAttribute("name", "NetLock - Allow loopback");
+                xmlRule.SetAttribute("layer", "all");                
+                xmlRule.SetAttribute("action", "permit");
+                XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                xmlRule.AppendChild(XmlIf1);
+                XmlIf1.SetAttribute("field", "ip_local_interface");
+                XmlIf1.SetAttribute("match", "equal");
+                XmlIf1.SetAttribute("interface", "loopback");
+                AddRule("netlock_allow_loopback", xmlRule);
+            }
+
+            if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
+            {
+                // Allow ICMP
+                {
+                    XmlDocument xmlDocRule = new XmlDocument();
+                    XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                    xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
+                    xmlRule.SetAttribute("layer", "all");
+                    xmlRule.SetAttribute("action", "permit");
+                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                    xmlRule.AppendChild(XmlIf1);
+                    XmlIf1.SetAttribute("field", "ip_protocol");
+                    XmlIf1.SetAttribute("match", "equal");
+                    XmlIf1.SetAttribute("protocol", "icmp");
+                    AddRule("netlock_allow_icmp", xmlRule);                    
+                }
+            }
+
+            if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
+            {
+                AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", "192.168.0.0", "255.255.0.0"));
+                AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", "172.16.0.0", "255.240.0.0"));
+                AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", "10.0.0.0", "255.0.0.0"));
+                AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", "224.0.0.0", "255.255.255.0"));
+                AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", "239.255.255.250", "255.255.255.255"));
+                AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", "239.255.255.253", "255.255.255.255"));
+            }
+
+            // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
+            {
+                XmlDocument xmlDocRule = new XmlDocument();
+                XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
+                xmlRule.SetAttribute("layer", "all");
+                xmlRule.SetAttribute("action", "permit");
+
+                XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                xmlRule.AppendChild(XmlIf1);
+                XmlIf1.SetAttribute("field", "ip_protocol");
+                XmlIf1.SetAttribute("match", "equal");
+                XmlIf1.SetAttribute("protocol", "udp");
+
+                XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
+                xmlRule.AppendChild(XmlIf2);
+                XmlIf2.SetAttribute("field", "ip_local_port");
+                XmlIf2.SetAttribute("match", "equal");
+                XmlIf2.SetAttribute("port", "68");
+
+                XmlElement XmlIf3 = xmlDocRule.CreateElement("if");
+                xmlRule.AppendChild(XmlIf3);
+                XmlIf3.SetAttribute("field", "ip_remote_port");
+                XmlIf3.SetAttribute("match", "equal");
+                XmlIf3.SetAttribute("port", "67");
+
+                // If4: program=\"%SystemRoot%\\system32\\svchost.exe\"
+
+                AddRule("netlock_allow_dhcp", xmlRule);
+            }            
+
+            // Block All
+            {
+                XmlDocument xmlDocRule = new XmlDocument();
+                XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                xmlRule.SetAttribute("name", "NetLock - Block All");
+                xmlRule.SetAttribute("layer", "all");
+                xmlRule.SetAttribute("action", "block");
+                /*
+                XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                xmlRule.AppendChild(XmlIf1);
+                XmlIf1.SetAttribute("field", "ip_local_interface");
+                XmlIf1.SetAttribute("match", "not_equal");
+                XmlIf1.SetAttribute("interface", "loopback");
+                */
+                AddRule("netlock_block_all", xmlRule);
+            }
 		}
 
 		public override void Deactivation()
 		{
 			base.Deactivation();
 
-			
-		}
-        
+            RemoveAllRules();
+        }
+
+        public override void AllowProgram(string path, string name, string guid)
+        {
+            base.AllowProgram(path, name, guid);
+
+            AddRule("netlock_allow_program_" + guid, Wfp.CreateItemAllowProgram("NetLock - Program - Allow " + name, path));
+        }
+
+        public override void DeallowProgram(string path, string name, string guid)
+        {
+            base.DeallowProgram(path, name, guid);
+
+            RemoveRule("netlock_allow_program_" + guid);
+        }
+
         public override void OnUpdateIps()
 		{
-			  
+            base.OnUpdateIps();
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)
@@ -74,8 +182,42 @@ namespace Eddie.Platforms
 		public override void OnRecoverySave(XmlElement root)
 		{
 			base.OnRecoverySave(root);
-
 			
 		}
+        
+        public void AddRule(string code, XmlElement xmlRule)
+        {
+            lock (m_rules)
+            {
+                if (m_rules.ContainsKey(code))
+                    throw new Exception("Unexpected: NetLock WFP rule already exists");
+                WfpItem item = Wfp.AddItem(code, xmlRule);
+                m_rules[code] = item;
+            }
+        }
+
+        public void RemoveRule(string code)
+        {
+            lock (m_rules)
+            {
+                if (m_rules.ContainsKey(code) == false)
+                    throw new Exception("Unexpected: NetLock WFP rule doesn't exists");
+                WfpItem item = m_rules[code];
+                m_rules.Remove(code);
+                Wfp.RemoveItem(item);
+            }
+        }
+
+        public void RemoveAllRules()
+        {
+            lock(m_rules)
+            {
+                foreach (WfpItem item in m_rules.Values)
+                {
+                    Wfp.RemoveItem(item);
+                }
+                m_rules.Clear();
+            }
+        }
 	}
 }

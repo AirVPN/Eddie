@@ -29,7 +29,7 @@ namespace Eddie.Core
 	public class Storage
     {
 		public static string DataPath = "";
-		public static bool Simulate = true; // If true, connections not really maded. Useful only during development of UI.
+		public static bool Simulate = false; // If true, connections not really maded. Useful only during development of UI.
 
         public XmlElement Providers;
 
@@ -356,7 +356,7 @@ namespace Eddie.Core
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);            
             SetDefaultInt("openvpn.sndbuf", -2, Messages.ManOptionOpenVpnSndBuf); // 2.11
             SetDefaultInt("openvpn.rcvbuf", -2, Messages.ManOptionOpenVpnRcvBuf); // 2.11
-            SetDefault("openvpn.directives", "text", "client\ndev tun\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\nverb 3\nconnect-retry-max 1\nping 10\nping-exit 32\nexplicit-exit-notify 5", NotInMan);
+            SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", NotInMan);
             SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
             
 			// Not in Settings

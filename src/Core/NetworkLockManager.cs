@@ -265,16 +265,16 @@ namespace Eddie.Core
 				m_current.DeallowIP(ip);
 		}
 
-        public virtual void AllowProgram(string path, string name)
+        public virtual void AllowProgram(string path, string name, string guid)
         {
             if (m_current != null)
-                m_current.AllowProgram(path, name);
+                m_current.AllowProgram(path, name, guid);
         }
 
-        public virtual void DeallowProgram(string path, string name)
+        public virtual void DeallowProgram(string path, string name, string guid)
         {
             if (m_current != null)
-                m_current.DeallowProgram(path, name);
+                m_current.DeallowProgram(path, name, guid);
         }
     }
 }

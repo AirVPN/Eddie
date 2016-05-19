@@ -25,6 +25,7 @@ namespace Eddie.Core
 {
 	public class ProgramScope
 	{
+        private string m_guid;
 		private string m_path;
         private string m_name;
 
@@ -38,12 +39,22 @@ namespace Eddie.Core
 			End();
 		}
 
+        public string Guid
+        {
+            get
+            {
+                if (m_guid == "")
+                    m_guid = Utils.GetRandomToken();
+                return m_guid;
+            }
+        }
+
 		public void Start(string path, string name)
 		{
 			m_path = path;
             m_name = name;
 			if (Engine.Instance.NetworkLockManager != null)
-				Engine.Instance.NetworkLockManager.AllowProgram(m_path, m_name);							
+				Engine.Instance.NetworkLockManager.AllowProgram(m_path, m_name, Guid);							
 		}
 
 		public void End()
@@ -51,7 +62,7 @@ namespace Eddie.Core
             if(m_path != "")
             { 
 			    if (Engine.Instance.NetworkLockManager != null)
-				    Engine.Instance.NetworkLockManager.DeallowProgram(m_path, m_name);
+				    Engine.Instance.NetworkLockManager.DeallowProgram(m_path, m_name, Guid);
                 m_path = "";
             }
         }

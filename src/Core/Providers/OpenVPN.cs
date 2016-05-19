@@ -242,7 +242,7 @@ namespace Eddie.Core.Providers
                 
 
                 OvpnBuilder ovpnBuilder = new OvpnBuilder();
-                ovpnBuilder.AppendDirectives(ovpnOriginal);
+                ovpnBuilder.AppendDirectives(ovpnOriginal, "Original");
                 string ovpnNormalized = ovpnBuilder.Get();
 
                 dictInfo["ovpn"] = ovpnNormalized;

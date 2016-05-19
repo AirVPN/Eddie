@@ -273,9 +273,7 @@ namespace Eddie.Platforms
 
             // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
             Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
-
-            AllowProgram(Platform.Instance.GetExecutablePath(), "Eddie");
-
+                        
 			Exec("netsh advfirewall set allprofiles firewallpolicy BlockInbound,BlockOutbound");
 
 			m_activated = true; // To avoid OnUpdateIps before this moment

@@ -50,9 +50,9 @@ namespace Eddie.Gui.Forms
 
 		//private Font m_topBarFont = new Font("Verdana", 10);
 		
-		private int m_windowMinimumWidth = 500;
+		private int m_windowMinimumWidth = 700;
 		private int m_windowMinimumHeight = 300;
-		private int m_windowDefaultWidth = 600;
+		private int m_windowDefaultWidth = 800;
 		private int m_windowDefaultHeight = 400;
 		private bool m_lockCoordUpdate = false;		
         private int m_topHeaderHeight = 30;
@@ -972,6 +972,11 @@ namespace Eddie.Gui.Forms
 				Dlg.Body = Platform.Instance.GenerateSystemReport();
 				Dlg.ShowDialog();
 			}
+            else if (item.Entry.Key == "Pinger")
+            {
+                Core.Threads.Pinger.Instance.InvalidateAll();
+                RefreshUi(Core.Engine.RefreshUiMode.Full);
+            }
 			else if (item.Entry.Key == "ManifestLastUpdate")
 			{
 				Core.Threads.Manifest.Instance.ForceUpdate = true;

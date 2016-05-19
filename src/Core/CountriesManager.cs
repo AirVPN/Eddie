@@ -272,7 +272,7 @@ namespace Eddie.Core
 			Add("AE","United Arab Emirates");
 			Add("GB","United Kingdom");
 			Add("UM","United States Minor Outlying Islands");
-			Add("US","United States of America");
+			Add("US","United States");
 			Add("UY","Uruguay");
 			Add("UZ","Uzbekistan");
 			Add("VU","Vanuatu");

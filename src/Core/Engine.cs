@@ -564,6 +564,10 @@ namespace Eddie.Core
             {
                 Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_advanced/");
             }
+            else if (action == "ui.show.docs.directives")
+            {
+                Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_directives/");
+            }
             else if (action == "ui.show.docs.lock")
             {
                 Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_lock/");
@@ -1508,12 +1512,14 @@ namespace Eddie.Core
                 ip = CurrentServer.IpEntry2;
 
             OvpnBuilder ovpn = new OvpnBuilder();
-            
-            if (s.GetBool("openvpn.skip_defaults") == false)
-                ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.directives"));
-            CurrentServer.Provider.OnBuildOvpnDefaults(ovpn, protocol);
 
-            ovpn.AppendDirectives(CurrentServer.OvpnDirectives);
+            if (s.GetBool("openvpn.skip_defaults") == false)
+            {
+                ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.directives"), "Client level");
+                CurrentServer.Provider.OnBuildOvpnDefaults(ovpn, protocol);
+
+                ovpn.AppendDirectives(CurrentServer.OvpnDirectives, "Server level");
+            }
 
             if (s.Get("openvpn.dev_node") != "")
                 ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"));
@@ -1586,10 +1592,10 @@ namespace Eddie.Core
             string routesDefault = s.Get("routes.default");
             if (routesDefault == "out")
             {
-                ovpn.AppendDirective("route-nopull");
+                ovpn.AppendDirective("route-nopull", "For Routes Out");
 
                 // For Checking
-                ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway # For Checking Route");
+                ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
 
 
                 // For DNS
@@ -1627,9 +1633,9 @@ namespace Eddie.Core
 					string notes = routeEntries[2];
 
 					if ((routesDefault == "out") && (action == "in"))
-                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " vpn_gateway # " + Utils.SafeString(notes));
+                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " vpn_gateway", Utils.SafeString(notes));
                     if ((routesDefault == "in") && (action == "out"))
-                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " net_gateway # " + Utils.SafeString(notes));
+                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " net_gateway", Utils.SafeString(notes));
                 }
             }
 
@@ -1637,7 +1643,7 @@ namespace Eddie.Core
 			{
 				if ((protocol == "SSH") || (protocol == "SSL"))
 				{
-                    ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway # VPN Entry IP");
+                    ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway", "VPN Entry IP");
                 }
 
                 if (proxyMode == "tor")
@@ -1645,14 +1651,14 @@ namespace Eddie.Core
 					List<string> torNodeIps = TorControl.GetGuardIps();
 					foreach (string torNodeIp in torNodeIps)
 					{
-                        ovpn.AppendDirective("route", torNodeIp + " 255.255.255.255 net_gateway # Tor Circuit");
+                        ovpn.AppendDirective("route", torNodeIp + " 255.255.255.255 net_gateway", "Tor Circuit");
                     }
                 }
 			}
 
             ovpn.AppendDirective("management", "localhost " + Engine.Instance.Storage.Get("openvpn.management_port"));
 
-            ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"));
+            ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
 
             if (ovpn.GetDirective("proto").StartsWith("udp") == false)
                 ovpn.RemoveDirective("explicit-exit-notify");

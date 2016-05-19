@@ -436,7 +436,6 @@ namespace Eddie.Platforms
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                     xmlRule.SetAttribute("name", "IPv6 - Block");
                     xmlRule.SetAttribute("layer", "ipv6");
-                    xmlRule.SetAttribute("weight", "auto");
                     xmlRule.SetAttribute("action", "block");
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
@@ -507,7 +506,6 @@ namespace Eddie.Platforms
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                     xmlRule.SetAttribute("name", "Dns - Allow port 53 of OpenVPN");
                     xmlRule.SetAttribute("layer", "all");
-                    xmlRule.SetAttribute("weight", "auto");
                     xmlRule.SetAttribute("action", "permit");
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
@@ -527,7 +525,6 @@ namespace Eddie.Platforms
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                     xmlRule.SetAttribute("name", "Dns - Allow port 53 on TAP");
                     xmlRule.SetAttribute("layer", "all");
-                    xmlRule.SetAttribute("weight", "auto");
                     xmlRule.SetAttribute("action", "permit");
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
@@ -546,7 +543,6 @@ namespace Eddie.Platforms
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                     xmlRule.SetAttribute("name", "Dns - Block port 53");
                     xmlRule.SetAttribute("layer", "all");
-                    xmlRule.SetAttribute("weight", "auto");
                     xmlRule.SetAttribute("action", "block");
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);

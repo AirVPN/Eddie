@@ -65,11 +65,11 @@ namespace Eddie.Core
 		{
 		}
 
-        public virtual void AllowProgram(string path, string name)
+        public virtual void AllowProgram(string path, string name, string guid)
         {            
         }
 
-        public virtual void DeallowProgram(string path, string name)
+        public virtual void DeallowProgram(string path, string name, string guid)
         {            
         }
 
@@ -160,20 +160,7 @@ namespace Eddie.Core
 					}					
 				}
 			}
-
-            /* // TOCLEAN
-			// Hosts
-			if (Engine.Instance.Storage.Manifest != null)
-			{
-				XmlNodeList nodesHosts = Engine.Instance.Storage.Manifest.SelectNodes("//hosts/host");
-				foreach (XmlNode nodeHost in nodesHosts)
-				{
-					IpAddressRange ip = new IpAddressRange(nodeHost.Attributes["address"].Value);
-					AddToIpsList(result, ip, false);										
-				}
-			}
-            */
-
+            
             // Providers
             foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
             {

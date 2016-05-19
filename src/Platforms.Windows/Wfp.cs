@@ -62,7 +62,7 @@ namespace Eddie.Platforms
             string s = Marshal.PtrToStringAnsi(result);
             return s;
         }
-        
+
         public static bool RemoveItem(string code)
         {
             if (Items.ContainsKey(code) == false)
@@ -70,21 +70,32 @@ namespace Eddie.Platforms
 
             WfpItem item = Items[code];
 
-            foreach (UInt64 id in item.FirewallIds)
+            return RemoveItem(item);
+        }
+
+        public static bool RemoveItem(WfpItem item)
+        {
+            lock(Items)
             {
-                Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP remove rule ID: " + id.ToString());
+                if (Items.ContainsValue(item) == false)
+                    throw new Exception("Windows WFP, unexpected: Rule '" + item.Code + "' not exists");
 
-                bool result = LibPocketFirewallRemoveRule(id);
-                if(result == false)
-                    throw new Exception(Messages.Format(Messages.WfpRuleRemoveFail, LibPocketFirewallGetLastError2()));
-            }
+                foreach (UInt64 id in item.FirewallIds)
+                {
+                    Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP remove rule ID: " + id.ToString());
 
-            Items.Remove(code);
+                    bool result = LibPocketFirewallRemoveRule(id);
+                    if (result == false)
+                        throw new Exception(Messages.Format(Messages.WfpRuleRemoveFail, LibPocketFirewallGetLastError2()));
+                }
 
-            if(Items.Count == 0)
-            {
-                Engine.Instance.Logs.Log(LogType.Verbose, Messages.WfpStop);
-                LibPocketFirewallStop();
+                Items.Remove(item.Code);
+
+                if (Items.Count == 0)
+                {
+                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.WfpStop);
+                    LibPocketFirewallStop();
+                }
             }
 
             return true;
@@ -92,76 +103,119 @@ namespace Eddie.Platforms
 
         public static WfpItem AddItem(string code, XmlElement xml)
         {
-            if (Items.ContainsKey(code))
-                throw new Exception("Windows WFP, unexpected: Rule '" + code + "' already exists");
-
-            WfpItem item = new WfpItem();
-
-            if(Items.Count == 0)
+            lock(Items)
             {
-                Engine.Instance.Logs.Log(LogType.Verbose, Messages.WfpStart);
+                if (Items.ContainsKey(code))
+                    throw new Exception("Windows WFP, unexpected: Rule '" + code + "' already exists");
 
-                // Start firewall
-                LibPocketFirewallInit(Constants.Name);
+                WfpItem item = new WfpItem();
+                item.Code = code;
 
-                XmlDocument xmlStart = new XmlDocument();
-                XmlElement xmlInfo = xmlStart.CreateElement("firewall");
-                xmlInfo.SetAttribute("description", Constants.Name);
-                xmlInfo.SetAttribute("weight", "max");
-
-                if (LibPocketFirewallStart(xmlInfo.OuterXml) == false)
-                    throw new Exception(Messages.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
-            }
-
-            List<string> layers = new List<string>();
-
-            if (xml.GetAttribute("layer") == "all")
-            {
-                layers.Add("ale_auth_recv_accept_v4");
-                layers.Add("ale_auth_recv_accept_v6");
-                layers.Add("ale_auth_connect_v4");
-                layers.Add("ale_auth_connect_v6");
-                layers.Add("ale_flow_established_v4");
-                layers.Add("ale_flow_established_v6");
-            }
-            else if (xml.GetAttribute("layer") == "ipv4")
-            {
-                layers.Add("ale_auth_recv_accept_v4");
-                layers.Add("ale_auth_connect_v4");
-                layers.Add("ale_flow_established_v4");
-            }
-            else if (xml.GetAttribute("layer") == "ipv6")
-            {
-                layers.Add("ale_auth_recv_accept_v6");
-                layers.Add("ale_auth_connect_v6");
-                layers.Add("ale_flow_established_v6");
-            }
-            else
-                layers.Add(xml.GetAttribute("layer"));
-
-            foreach (string layer in layers)
-            {
-                XmlElement xmlClone = xml.CloneNode(true) as XmlElement;
-                xmlClone.SetAttribute("layer", layer);
-                string xmlStr = xmlClone.OuterXml;
-
-                Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP Add rule " + xmlStr);
-
-                UInt64 id1 = LibPocketFirewallAddRule(xmlStr);
-
-                if (id1 == 0)
+                if (Items.Count == 0)
                 {
-                    throw new Exception(Messages.Format(Messages.WfpRuleAddFail, LibPocketFirewallGetLastError2()));                    
+                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.WfpStart);
+
+                    // Start firewall
+                    LibPocketFirewallInit(Constants.Name);
+
+                    XmlDocument xmlStart = new XmlDocument();
+                    XmlElement xmlInfo = xmlStart.CreateElement("firewall");
+                    xmlInfo.SetAttribute("description", Constants.Name);
+                    xmlInfo.SetAttribute("weight", "max");
+
+                    if (LibPocketFirewallStart(xmlInfo.OuterXml) == false)
+                        throw new Exception(Messages.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
+                }
+
+                List<string> layers = new List<string>();
+
+                if (xml.GetAttribute("layer") == "all")
+                {
+                    layers.Add("ale_auth_recv_accept_v4");
+                    layers.Add("ale_auth_recv_accept_v6");
+                    layers.Add("ale_auth_connect_v4");
+                    layers.Add("ale_auth_connect_v6");
+                    layers.Add("ale_flow_established_v4");
+                    layers.Add("ale_flow_established_v6");
+                }
+                else if (xml.GetAttribute("layer") == "ipv4")
+                {
+                    layers.Add("ale_auth_recv_accept_v4");
+                    layers.Add("ale_auth_connect_v4");
+                    layers.Add("ale_flow_established_v4");
+                }
+                else if (xml.GetAttribute("layer") == "ipv6")
+                {
+                    layers.Add("ale_auth_recv_accept_v6");
+                    layers.Add("ale_auth_connect_v6");
+                    layers.Add("ale_flow_established_v6");
                 }
                 else
-                {
-                    Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP Add rule ok, ID: " + id1.ToString() + ", " + xmlStr);
-                    item.FirewallIds.Add(id1);
-                }
-            }
+                    layers.Add(xml.GetAttribute("layer"));
 
-            Items[code] = item;
-            return item;
+                if (xml.HasAttribute("weight") == false)
+                    xml.SetAttribute("weight", "auto");
+
+                foreach (string layer in layers)
+                {
+                    XmlElement xmlClone = xml.CloneNode(true) as XmlElement;
+                    xmlClone.SetAttribute("layer", layer);
+                    string xmlStr = xmlClone.OuterXml;
+
+                    Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP Add rule " + xmlStr);
+
+                    UInt64 id1 = LibPocketFirewallAddRule(xmlStr);
+
+                    if (id1 == 0)
+                    {
+                        throw new Exception(Messages.Format(Messages.WfpRuleAddFail, LibPocketFirewallGetLastError2()));
+                    }
+                    else
+                    {
+                        Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP Add rule ok, ID: " + id1.ToString() + ", " + xmlStr);
+                        item.FirewallIds.Add(id1);
+                    }
+                }
+
+                Items[item.Code] = item;
+
+                return item;
+            }            
         }
+
+        // Shortcuts
+
+        public static XmlElement CreateItemAllowAddress(string title, string address, string mask)
+        {            
+            XmlDocument xmlDocRule = new XmlDocument();
+            XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+            xmlRule.SetAttribute("name", title);
+            xmlRule.SetAttribute("layer", "ipv4");
+            xmlRule.SetAttribute("action", "permit");
+            XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+            xmlRule.AppendChild(XmlIf1);
+            XmlIf1.SetAttribute("field", "ip_remote_address");
+            XmlIf1.SetAttribute("match", "equal");
+            XmlIf1.SetAttribute("address", address);
+            XmlIf1.SetAttribute("mask", mask);
+
+            return xmlRule;
+        }
+
+        public static XmlElement CreateItemAllowProgram(string title, string path)
+        {
+            XmlDocument xmlDocRule = new XmlDocument();
+            XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+            xmlRule.SetAttribute("name", title);
+            xmlRule.SetAttribute("layer", "all");
+            xmlRule.SetAttribute("action", "permit");
+            XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+            xmlRule.AppendChild(XmlIf1);
+            XmlIf1.SetAttribute("field", "ale_app_id");
+            XmlIf1.SetAttribute("match", "equal");
+            XmlIf1.SetAttribute("path", path);
+
+            return xmlRule;
+        }        
     }
 }

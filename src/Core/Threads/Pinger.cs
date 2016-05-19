@@ -166,6 +166,25 @@ namespace Eddie.Core.Threads
 			return delay;
 		}
 
+        public void InvalidateAll()
+        {
+            Dictionary<string, ServerInfo> servers;
+            lock (Engine.Servers)
+            {
+                servers = new Dictionary<string, ServerInfo>(Engine.Servers);
+            }
+            
+            foreach (ServerInfo infoServer in servers.Values)
+            {
+                infoServer.LastPingTest = 0;
+                infoServer.PingTests = 0;
+                infoServer.PingFailedConsecutive = 0;
+                infoServer.Ping = -1;
+                infoServer.LastPingResult = 0;
+                infoServer.LastPingSuccess = 0;
+            }
+        }
+
         public override void OnRun()
         {            
             Dictionary<string, ServerInfo> servers;

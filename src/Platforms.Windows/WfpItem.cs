@@ -35,6 +35,8 @@ namespace Eddie.Platforms
 {
     public class WfpItem
     {
+        public string Code;
+
         public List<UInt64> FirewallIds = new List<UInt64>();        
     }
 }

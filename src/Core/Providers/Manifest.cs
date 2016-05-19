@@ -66,7 +66,7 @@ namespace Eddie.Core.Providers
 		{
 			base.OnBuildOvpnDefaults(ovpn, protocol);
 
-			ovpn.AppendDirectives(Manifest.Attributes["openvpn_directives"].Value.Replace("\t", "").Trim());
+			ovpn.AppendDirectives(Manifest.Attributes["openvpn_directives"].Value.Replace("\t", "").Trim(), "Provider level");
 		}
 
 		public override void OnBuildOvpnAuth(OvpnBuilder ovpn)

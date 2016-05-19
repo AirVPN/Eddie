@@ -52,7 +52,7 @@ namespace Eddie.Gui.Forms
             this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuDevelopersUpdateManifest = new System.Windows.Forms.ToolStripMenuItem();            
+            this.mnuDevelopersUpdateManifest = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersReset = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuTools = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuToolsPortForwarding = new System.Windows.Forms.ToolStripMenuItem();
@@ -318,7 +318,7 @@ namespace Eddie.Gui.Forms
             this.mnuDevelopers.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuDevelopersManText,
             this.mnuDevelopersManBBCode,
-            this.mnuDevelopersUpdateManifest,            
+            this.mnuDevelopersUpdateManifest,
             this.mnuDevelopersReset});
             this.mnuDevelopers.Name = "mnuDevelopers";
             this.mnuDevelopers.Size = new System.Drawing.Size(252, 26);
@@ -327,28 +327,28 @@ namespace Eddie.Gui.Forms
             // mnuDevelopersManText
             // 
             this.mnuDevelopersManText.Name = "mnuDevelopersManText";
-            this.mnuDevelopersManText.Size = new System.Drawing.Size(369, 22);
+            this.mnuDevelopersManText.Size = new System.Drawing.Size(192, 22);
             this.mnuDevelopersManText.Text = "Man - Text Format";
             this.mnuDevelopersManText.Click += new System.EventHandler(this.mnuDevelopersManText_Click);
             // 
             // mnuDevelopersManBBCode
             // 
             this.mnuDevelopersManBBCode.Name = "mnuDevelopersManBBCode";
-            this.mnuDevelopersManBBCode.Size = new System.Drawing.Size(369, 22);
+            this.mnuDevelopersManBBCode.Size = new System.Drawing.Size(192, 22);
             this.mnuDevelopersManBBCode.Text = "Man - BBCode Format";
             this.mnuDevelopersManBBCode.Click += new System.EventHandler(this.mnuDevelopersManBBCode_Click);
             // 
             // mnuDevelopersUpdateManifest
             // 
             this.mnuDevelopersUpdateManifest.Name = "mnuDevelopersUpdateManifest";
-            this.mnuDevelopersUpdateManifest.Size = new System.Drawing.Size(369, 22);
+            this.mnuDevelopersUpdateManifest.Size = new System.Drawing.Size(192, 22);
             this.mnuDevelopersUpdateManifest.Text = "Update Manifest Now";
-            this.mnuDevelopersUpdateManifest.Click += new System.EventHandler(this.mnuDevelopersUpdateManifest_Click);            
+            this.mnuDevelopersUpdateManifest.Click += new System.EventHandler(this.mnuDevelopersUpdateManifest_Click);
             // 
             // mnuDevelopersReset
             // 
             this.mnuDevelopersReset.Name = "mnuDevelopersReset";
-            this.mnuDevelopersReset.Size = new System.Drawing.Size(369, 22);
+            this.mnuDevelopersReset.Size = new System.Drawing.Size(192, 22);
             this.mnuDevelopersReset.Text = "Reset (pinger for now)";
             this.mnuDevelopersReset.Click += new System.EventHandler(this.mnuDevelopersReset_Click);
             // 
@@ -1066,7 +1066,7 @@ namespace Eddie.Gui.Forms
             this.pnlConnected.Controls.Add(this.lblConnectedTo);
             this.pnlConnected.Controls.Add(this.lblConnectedServerName);
             this.pnlConnected.Controls.Add(this.lblConnectedCountry);
-            this.pnlConnected.Location = new System.Drawing.Point(507, 76);
+            this.pnlConnected.Location = new System.Drawing.Point(162, 12);
             this.pnlConnected.Name = "pnlConnected";
             this.pnlConnected.Size = new System.Drawing.Size(470, 218);
             this.pnlConnected.TabIndex = 66;
@@ -1075,7 +1075,7 @@ namespace Eddie.Gui.Forms
             // 
             this.txtConnectedExitIp.Location = new System.Drawing.Point(166, 128);
             this.txtConnectedExitIp.Name = "txtConnectedExitIp";
-            this.txtConnectedExitIp.Size = new System.Drawing.Size(154, 20);
+            this.txtConnectedExitIp.Size = new System.Drawing.Size(288, 20);
             this.txtConnectedExitIp.TabIndex = 69;
             this.txtConnectedExitIp.Text = "1.2.3.4";
             this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1135,7 +1135,7 @@ namespace Eddie.Gui.Forms
             // 
             this.txtConnectedSince.Location = new System.Drawing.Point(166, 148);
             this.txtConnectedSince.Name = "txtConnectedSince";
-            this.txtConnectedSince.Size = new System.Drawing.Size(154, 20);
+            this.txtConnectedSince.Size = new System.Drawing.Size(288, 20);
             this.txtConnectedSince.TabIndex = 63;
             this.txtConnectedSince.Text = "VPN Time";
             this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1460,7 +1460,7 @@ namespace Eddie.Gui.Forms
             this.chkShowAll.Location = new System.Drawing.Point(4, 304);
             this.chkShowAll.Margin = new System.Windows.Forms.Padding(2);
             this.chkShowAll.Name = "chkShowAll";
-            this.chkShowAll.Size = new System.Drawing.Size(181, 25);
+            this.chkShowAll.Size = new System.Drawing.Size(132, 25);
             this.chkShowAll.TabIndex = 7;
             this.chkShowAll.Text = "Show All";
             this.chkShowAll.UseVisualStyleBackColor = true;

@@ -36,9 +36,9 @@ namespace Eddie.Gui.Forms
             Eddie.Gui.Skin.ColumnHeader columnHeader2;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
             Eddie.Gui.Skin.ColumnHeader columnHeader5;
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem("uno");
-            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem("due");
-            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem("tre");
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("uno");
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("due");
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("tre");
             this.lnkAdvancedHelp = new Eddie.Gui.Skin.LinkLabel();
             this.lblOpenVpnRcvbuf = new Eddie.Gui.Skin.Label();
             this.cboOpenVpnRcvbuf = new Eddie.Gui.Skin.ComboBox();
@@ -67,11 +67,12 @@ namespace Eddie.Gui.Forms
             this.lblExePath = new Eddie.Gui.Skin.Label();
             this.chkAdvancedCheckRoute = new Eddie.Gui.Skin.CheckBox();
             this.chkExpert = new Eddie.Gui.Skin.CheckBox();
+            this.lnkOpenVpnDirectivesHelp = new Eddie.Gui.Skin.LinkLabel();
             this.cboOpenVpnDirectivesDefaultSkip = new Eddie.Gui.Skin.ComboBox();
             this.label3 = new Eddie.Gui.Skin.Label();
             this.label2 = new Eddie.Gui.Skin.Label();
-            this.txtAdvancedOpenVpnDirectivesDefault = new Eddie.Gui.Skin.TextBox();
-            this.txtAdvancedOpenVpnDirectivesCustom = new Eddie.Gui.Skin.TextBox();
+            this.txtOpenVpnDirectivesBase = new Eddie.Gui.Skin.TextBox();
+            this.txtOpenVpnDirectivesCustom = new Eddie.Gui.Skin.TextBox();
             this.cmdAdvancedEventsEdit = new Eddie.Gui.Skin.Button();
             this.cmdAdvancedEventsClear = new Eddie.Gui.Skin.Button();
             this.lstAdvancedEvents = new Eddie.Gui.Skin.ListView();
@@ -569,17 +570,34 @@ namespace Eddie.Gui.Forms
             // tabDirectives
             // 
             tabDirectives.BackColor = System.Drawing.Color.White;
+            tabDirectives.Controls.Add(this.lnkOpenVpnDirectivesHelp);
             tabDirectives.Controls.Add(this.cboOpenVpnDirectivesDefaultSkip);
             tabDirectives.Controls.Add(this.label3);
             tabDirectives.Controls.Add(this.label2);
-            tabDirectives.Controls.Add(this.txtAdvancedOpenVpnDirectivesDefault);
-            tabDirectives.Controls.Add(this.txtAdvancedOpenVpnDirectivesCustom);
+            tabDirectives.Controls.Add(this.txtOpenVpnDirectivesBase);
+            tabDirectives.Controls.Add(this.txtOpenVpnDirectivesCustom);
             tabDirectives.Location = new System.Drawing.Point(4, 24);
             tabDirectives.Name = "tabDirectives";
             tabDirectives.Padding = new System.Windows.Forms.Padding(3);
             tabDirectives.Size = new System.Drawing.Size(673, 337);
             tabDirectives.TabIndex = 1;
             tabDirectives.Text = "OVPN directives";
+            // 
+            // lnkOpenVpnDirectivesHelp
+            // 
+            this.lnkOpenVpnDirectivesHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lnkOpenVpnDirectivesHelp.BackColor = System.Drawing.Color.Maroon;
+            this.lnkOpenVpnDirectivesHelp.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lnkOpenVpnDirectivesHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
+            this.lnkOpenVpnDirectivesHelp.Location = new System.Drawing.Point(13, 304);
+            this.lnkOpenVpnDirectivesHelp.Name = "lnkOpenVpnDirectivesHelp";
+            this.lnkOpenVpnDirectivesHelp.Size = new System.Drawing.Size(650, 22);
+            this.lnkOpenVpnDirectivesHelp.TabIndex = 88;
+            this.lnkOpenVpnDirectivesHelp.TabStop = true;
+            this.lnkOpenVpnDirectivesHelp.Text = "More about OpenVPN directives";
+            this.lnkOpenVpnDirectivesHelp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lnkOpenVpnDirectivesHelp.Click += new System.EventHandler(this.lnkOpenVpnDirectivesHelp_Click);
             // 
             // cboOpenVpnDirectivesDefaultSkip
             // 
@@ -591,60 +609,59 @@ namespace Eddie.Gui.Forms
             "Automatic",
             "Resolvconf (Linux only)",
             "Renaming (Linux only)"});
-            this.cboOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(334, 300);
+            this.cboOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(334, 279);
             this.cboOpenVpnDirectivesDefaultSkip.Name = "cboOpenVpnDirectivesDefaultSkip";
-            this.cboOpenVpnDirectivesDefaultSkip.Size = new System.Drawing.Size(331, 21);
+            this.cboOpenVpnDirectivesDefaultSkip.Size = new System.Drawing.Size(329, 21);
             this.cboOpenVpnDirectivesDefaultSkip.TabIndex = 75;
             // 
             // label3
             // 
-            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.ForeColor = System.Drawing.Color.Black;
             this.label3.Location = new System.Drawing.Point(334, 7);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(331, 20);
             this.label3.TabIndex = 61;
-            this.label3.Text = "Default:";
+            this.label3.Text = "Base directives:";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // label2
             // 
             this.label2.BackColor = System.Drawing.Color.Transparent;
             this.label2.ForeColor = System.Drawing.Color.Black;
-            this.label2.Location = new System.Drawing.Point(10, 7);
+            this.label2.Location = new System.Drawing.Point(13, 7);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(318, 20);
+            this.label2.Size = new System.Drawing.Size(315, 20);
             this.label2.TabIndex = 60;
-            this.label2.Text = "Custom:";
+            this.label2.Text = "Custom directives:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // txtAdvancedOpenVpnDirectivesDefault
+            // txtOpenVpnDirectivesBase
             // 
-            this.txtAdvancedOpenVpnDirectivesDefault.AcceptsReturn = true;
-            this.txtAdvancedOpenVpnDirectivesDefault.AcceptsTab = true;
-            this.txtAdvancedOpenVpnDirectivesDefault.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.txtOpenVpnDirectivesBase.AcceptsReturn = true;
+            this.txtOpenVpnDirectivesBase.AcceptsTab = true;
+            this.txtOpenVpnDirectivesBase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtAdvancedOpenVpnDirectivesDefault.Location = new System.Drawing.Point(334, 30);
-            this.txtAdvancedOpenVpnDirectivesDefault.Multiline = true;
-            this.txtAdvancedOpenVpnDirectivesDefault.Name = "txtAdvancedOpenVpnDirectivesDefault";
-            this.txtAdvancedOpenVpnDirectivesDefault.ReadOnly = true;
-            this.txtAdvancedOpenVpnDirectivesDefault.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtAdvancedOpenVpnDirectivesDefault.Size = new System.Drawing.Size(331, 264);
-            this.txtAdvancedOpenVpnDirectivesDefault.TabIndex = 58;
+            this.txtOpenVpnDirectivesBase.Location = new System.Drawing.Point(334, 30);
+            this.txtOpenVpnDirectivesBase.Multiline = true;
+            this.txtOpenVpnDirectivesBase.Name = "txtOpenVpnDirectivesBase";
+            this.txtOpenVpnDirectivesBase.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtOpenVpnDirectivesBase.Size = new System.Drawing.Size(329, 243);
+            this.txtOpenVpnDirectivesBase.TabIndex = 58;
             // 
-            // txtAdvancedOpenVpnDirectivesCustom
+            // txtOpenVpnDirectivesCustom
             // 
-            this.txtAdvancedOpenVpnDirectivesCustom.AcceptsReturn = true;
-            this.txtAdvancedOpenVpnDirectivesCustom.AcceptsTab = true;
-            this.txtAdvancedOpenVpnDirectivesCustom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.txtOpenVpnDirectivesCustom.AcceptsReturn = true;
+            this.txtOpenVpnDirectivesCustom.AcceptsTab = true;
+            this.txtOpenVpnDirectivesCustom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtAdvancedOpenVpnDirectivesCustom.Location = new System.Drawing.Point(10, 30);
-            this.txtAdvancedOpenVpnDirectivesCustom.Multiline = true;
-            this.txtAdvancedOpenVpnDirectivesCustom.Name = "txtAdvancedOpenVpnDirectivesCustom";
-            this.txtAdvancedOpenVpnDirectivesCustom.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtAdvancedOpenVpnDirectivesCustom.Size = new System.Drawing.Size(318, 264);
-            this.txtAdvancedOpenVpnDirectivesCustom.TabIndex = 57;
+            this.txtOpenVpnDirectivesCustom.Location = new System.Drawing.Point(13, 30);
+            this.txtOpenVpnDirectivesCustom.Multiline = true;
+            this.txtOpenVpnDirectivesCustom.Name = "txtOpenVpnDirectivesCustom";
+            this.txtOpenVpnDirectivesCustom.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtOpenVpnDirectivesCustom.Size = new System.Drawing.Size(315, 243);
+            this.txtOpenVpnDirectivesCustom.TabIndex = 57;
             // 
             // tabEventsw
             // 
@@ -1745,9 +1762,9 @@ namespace Eddie.Gui.Forms
             this.listView1.GridLines = true;
             this.listView1.HideSelection = false;
             this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem4,
-            listViewItem5,
-            listViewItem6});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3});
             this.listView1.Location = new System.Drawing.Point(17, 123);
             this.listView1.Name = "listView1";
             this.listView1.OwnerDraw = true;
@@ -2046,8 +2063,8 @@ namespace Eddie.Gui.Forms
 		private Skin.CheckBox chkAdvancedCheckRoute;
         private Skin.CheckBox chkWindowsTapUp;
         private Skin.CheckBox chkExpert;
-        private Skin.TextBox txtAdvancedOpenVpnDirectivesDefault;
-        private Skin.TextBox txtAdvancedOpenVpnDirectivesCustom;
+        private Skin.TextBox txtOpenVpnDirectivesBase;
+        private Skin.TextBox txtOpenVpnDirectivesCustom;
         private Skin.Button cmdAdvancedEventsEdit;
         private Skin.Button cmdAdvancedEventsClear;
         private Skin.ListView lstAdvancedEvents;
@@ -2138,5 +2155,6 @@ namespace Eddie.Gui.Forms
         private System.Windows.Forms.ColumnHeader columnHeader8;
         private Skin.CheckBox chkWindowsIPv6DisableAtOs;
         private Skin.CheckBox chkWindowsDnsForceAllInterfaces;
+        private Skin.LinkLabel lnkOpenVpnDirectivesHelp;
     }
 }

@@ -68,12 +68,12 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public void AppendDirective(string name)
+		public void AppendDirective(string name, string comment)
 		{
-			AppendDirective(name, "");
+			AppendDirective(name, "", comment);
 		}
 
-		public void AppendDirective(string name, string body)
+		public void AppendDirective(string name, string body, string comment)
 		{
 			if (IsMultipleDirective(name))
 			{
@@ -85,7 +85,10 @@ namespace Eddie.Core
 				Directives[name] = new List<string>();
 			}
 
-			Directives[name].Add(body.Trim());			
+            string t = body.Trim();
+            if (comment != "")
+                t += " # " + comment.Trim();
+			Directives[name].Add(t);			
 		}
 
 		public void RemoveDirective(string name)
@@ -104,7 +107,7 @@ namespace Eddie.Core
 			return Directives[name][0];			
 		}
 
-		public void AppendDirectives(string directives)
+		public void AppendDirectives(string directives, string comment)
 		{
 			string text = directives;
 
@@ -194,7 +197,7 @@ namespace Eddie.Core
 					}
 				}
 
-				AppendDirective(directiveName.Trim(), directiveBody.Trim());
+				AppendDirective(directiveName.Trim(), directiveBody.Trim(), comment);
 			}
 
 

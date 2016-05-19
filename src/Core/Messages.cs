@@ -212,8 +212,8 @@ namespace Eddie.Core
 		public static string WindowsSettingsOpenVpnRcvBuf = "TCP/UDP receive buffer size";
 		public static string WindowsSettingsOpenVpnSndBuf = "TCP/UDP send buffer size";
 		public static string WindowsSettingsOpenVpnDefault = "OpenVPN Default";
-        public static string WindowsSettingsOpenVpnDirectivesDefaultSkip1 = "Append Custom directives to Default directives";
-        public static string WindowsSettingsOpenVpnDirectivesDefaultSkip2 = "Use only Custom directives, ignore Default directives";
+        public static string WindowsSettingsOpenVpnDirectivesDefaultSkip1 = "Append Custom directives";
+        public static string WindowsSettingsOpenVpnDirectivesDefaultSkip2 = "Use only Custom directives, ignore Base, Provider and Server directives";
         public static string WindowsOpenVpnManagementCommandTitle = "OpenVPN Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 

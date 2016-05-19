@@ -444,12 +444,10 @@ namespace Eddie.Gui.Forms
 
             // Advanced - OVPN Directives
             cboOpenVpnDirectivesDefaultSkip.SelectedIndex = (s.GetBool("openvpn.skip_defaults") ? 1:0);
-            txtAdvancedOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
-			String openVpnDirectivesDefault = s.GetDefaultDirectives();				
-			openVpnDirectivesDefault = openVpnDirectivesDefault.Replace("\t", "");
-            txtAdvancedOpenVpnDirectivesDefault.Text = openVpnDirectivesDefault;
-
-			// Advanced - Events
+            txtOpenVpnDirectivesBase.Text = s.Get("openvpn.directives");
+            txtOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
+			
+            // Advanced - Events
             ReadOptionsEvent("app.start", 0);
             ReadOptionsEvent("app.stop", 1);
 			ReadOptionsEvent("session.start", 2);
@@ -681,8 +679,9 @@ namespace Eddie.Gui.Forms
 			s.Set("log.file.path", txtLogPath.Text);
 			s.SetBool("log.level.debug", chkLogLevelDebug.Checked);
 
-			// Advanced - OVPN Directives
-            s.Set("openvpn.custom", txtAdvancedOpenVpnDirectivesCustom.Text);
+            // Advanced - OVPN Directives
+            s.Set("openvpn.directives", txtOpenVpnDirectivesBase.Text);
+            s.Set("openvpn.custom", txtOpenVpnDirectivesCustom.Text);
             s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
 
             // Advanced - Events
@@ -840,6 +839,11 @@ namespace Eddie.Gui.Forms
         private void lnkAdvancedHelp_LinkClicked(object sender, EventArgs e)
         {
             Engine.Instance.Command("ui.show.docs.advanced");
+        }
+
+        private void lnkOpenVpnDirectivesHelp_Click(object sender, EventArgs e)
+        {
+            Engine.Instance.Command("ui.show.docs.directives");
         }
 
         private void cmdRouteAdd_Click(object sender, EventArgs e)
