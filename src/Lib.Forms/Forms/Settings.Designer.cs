@@ -97,6 +97,7 @@ namespace Eddie.Gui.Forms
             this.chkNetLock = new Eddie.Gui.Skin.CheckBox();
             this.chkExitConfirm = new Eddie.Gui.Skin.CheckBox();
             this.pnlGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+            this.chkOsSingleInstance = new Eddie.Gui.Skin.CheckBox();
             this.chkSystemNotifications = new Eddie.Gui.Skin.CheckBox();
             this.chkSystemStart = new Eddie.Gui.Skin.CheckBox();
             this.chkMinimizeTray = new Eddie.Gui.Skin.CheckBox();
@@ -965,15 +966,28 @@ namespace Eddie.Gui.Forms
             // 
             // pnlGeneralWindowsOnly
             // 
+            this.pnlGeneralWindowsOnly.Controls.Add(this.chkOsSingleInstance);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemNotifications);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemStart);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkMinimizeTray);
             this.pnlGeneralWindowsOnly.Location = new System.Drawing.Point(436, 14);
             this.pnlGeneralWindowsOnly.Name = "pnlGeneralWindowsOnly";
-            this.pnlGeneralWindowsOnly.Size = new System.Drawing.Size(214, 98);
+            this.pnlGeneralWindowsOnly.Size = new System.Drawing.Size(214, 122);
             this.pnlGeneralWindowsOnly.TabIndex = 65;
             this.pnlGeneralWindowsOnly.TabStop = false;
             this.pnlGeneralWindowsOnly.Text = "Microsoft Windows Only";
+            // 
+            // chkOsSingleInstance
+            // 
+            this.chkOsSingleInstance.AutoSize = true;
+            this.chkOsSingleInstance.BackColor = System.Drawing.Color.Transparent;
+            this.chkOsSingleInstance.ForeColor = System.Drawing.Color.Black;
+            this.chkOsSingleInstance.Location = new System.Drawing.Point(22, 91);
+            this.chkOsSingleInstance.Name = "chkOsSingleInstance";
+            this.chkOsSingleInstance.Size = new System.Drawing.Size(98, 17);
+            this.chkOsSingleInstance.TabIndex = 41;
+            this.chkOsSingleInstance.Text = "Single instance";
+            this.chkOsSingleInstance.UseVisualStyleBackColor = false;
             // 
             // chkSystemNotifications
             // 
@@ -2156,5 +2170,6 @@ namespace Eddie.Gui.Forms
         private Skin.CheckBox chkWindowsIPv6DisableAtOs;
         private Skin.CheckBox chkWindowsDnsForceAllInterfaces;
         private Skin.LinkLabel lnkOpenVpnDirectivesHelp;
+        private Skin.CheckBox chkOsSingleInstance;
     }
 }

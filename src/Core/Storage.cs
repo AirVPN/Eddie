@@ -364,11 +364,12 @@ namespace Eddie.Core
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
 
-            SetDefaultBool("os.single_instance", true, NotInMan);
+            SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
+
 #if (EDDIE3)
-            SetDefaultBool("webui.enabled", true, NotInMan);
-            SetDefaultString("webui.ip", "localhost", NotInMan);
-            SetDefaultInt("webui.port", 4649, NotInMan);
+            SetDefaultBool("webui.enabled", true, Messages.ManOptionWebUiEnabled);
+            SetDefaultString("webui.ip", "localhost", Messages.ManOptionWebUiAddress);
+            SetDefaultInt("webui.port", 4649, Messages.ManOptionWebUiPort);
 #endif
             SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);

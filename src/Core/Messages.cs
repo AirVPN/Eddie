@@ -308,7 +308,8 @@ namespace Eddie.Core
 		public static string ManOptionConnect = "Connect automatically at startup. Only for GUI, command-line always starts directly.";
 		public static string ManOptionProfile = "Profile name. Use it to store different set of options";
 		public static string ManOptionPath = "Data path. May be a full path or special value 'program' or 'home'";
-		public static string ManOptionServersWhiteList = "List of servers available for connection. Leave empty for all servers. Separate values with comma. Example: 'Canopus,Syrma,Taygeta'";
+                
+        public static string ManOptionServersWhiteList = "List of servers available for connection. Leave empty for all servers. Separate values with comma. Example: 'Canopus,Syrma,Taygeta'";
 		public static string ManOptionServersBlackList = "List of servers to avoid in connection. Same syntax of whitelist.";
 		public static string ManOptionServersStartLast = "'True' if you want to connect to the last used server. 'False' to choose it automatically.";
 		public static string ManOptionServersLockLast = "'True' if you never leave the selected server, not even in case of disconnection.";
@@ -352,7 +353,12 @@ namespace Eddie.Core
 		public static string ManOptionSshPort = "Default port of SSH Tunnel. If 0, a random port is used.";
 		public static string ManOptionSslPort = "Default port of SSL Tunnel. If 0, a random port is used.";
 
-		public static string ManOptionAdvancedExpert = "Activate some expert information and features.\n- Allows sending commands to OpenVPN Management Interface via Logs window.\n- Show verbose logs message in main windows";		
+        public static string ManOptionOsSingleInstance = "If unchecked, multiple instance of the software can be opened."; // TOTRANSLATE
+        public static string ManOptionWebUiEnabled = "Web-interface enabled or not"; // TOTRANSLATE
+        public static string ManOptionWebUiAddress = "Web-interface bind address. Leave empty for all interfaces, localhost or specify an IP address."; // TOTRANSLATE
+        public static string ManOptionWebUiPort = "Web-interface port."; // TOTRANSLATE
+
+        public static string ManOptionAdvancedExpert = "Activate some expert information and features.\n- Allows sending commands to OpenVPN Management Interface via Logs window.\n- Show verbose logs message in main windows";		
 		public static string ManOptionAdvancedCheckRoute = "True/False. Send a request to the server, that check it come from within the tunnel, and reply with an acknowledgement.";		
 		public static string ManOptionAdvancedPingerEnabled = "If 'true' the software pings AirVPN server to determine latency score. Pings are not performed during VPN connection.";
 		public static string ManOptionAdvancedPingerDelay = "Ping each server every X seconds. If 0, the recommended values are used.";

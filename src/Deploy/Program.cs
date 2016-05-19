@@ -204,7 +204,7 @@ namespace Deploy
 					CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 					CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
-					CopyFile(pathRelease, "UI.Windows.exe", pathTemp, "AirVPN.exe");
+					CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe");
 					CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe");
 
                     WindowsSignPath(pathTemp);                    
@@ -262,7 +262,7 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
-						CopyFile(pathRelease, "UI.Linux.exe", pathTemp, "AirVPN.exe");
+						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
 
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
 
@@ -287,7 +287,7 @@ namespace Deploy
 						CopyFile(pathBaseResources + "/linux_portable/airvpn.config", pathTemp + "/airvpn.config");
 						// mkbundle
 						string command = "mkbundle ";
-						command += " \"" + pathRelease + "/UI.Linux.exe\"";
+						command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
 						command += " \"" + pathRelease + "/Lib.Core.dll\"";
 						command += " \"" + pathRelease + "/Lib.Forms.dll\"";
 						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
@@ -329,7 +329,7 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
-						CopyFile(pathRelease, "UI.Linux.exe", pathTemp, "AirVPN.exe");
+						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
 
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
 
@@ -387,7 +387,7 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
-						CopyFile(pathRelease, "UI.Linux.exe", pathTemp, "AirVPN.exe");
+						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
 
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".rpm");
 

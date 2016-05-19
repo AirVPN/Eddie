@@ -83,8 +83,7 @@ namespace Eddie.Core
             string providerClass = Utils.XmlGetAttributeString(xmlProviderDefinition, "class", "");
 
             Provider provider = null;
-
-            // TOCLEAN
+                        
             if (providerClass == "service")
             {
                 provider = new Providers.Service();

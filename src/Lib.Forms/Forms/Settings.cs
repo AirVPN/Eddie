@@ -238,6 +238,7 @@ namespace Eddie.Gui.Forms
 			chkSystemNotifications.Checked = s.GetBool("gui.windows.notifications");
             chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
 			chkExitConfirm.Checked = s.GetBool("gui.exit_confirm");
+            chkOsSingleInstance.Checked = s.GetBool("os.single_instance");
 
             // Ui
 
@@ -496,6 +497,7 @@ namespace Eddie.Gui.Forms
 			s.SetBool("gui.windows.notifications", chkSystemNotifications.Checked);			 
             s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
 			s.SetBool("gui.exit_confirm", chkExitConfirm.Checked);
+            s.SetBool("os.single_instance", chkOsSingleInstance.Checked);
 
             // Ui
             if(chkUiFontGeneral.Checked)
