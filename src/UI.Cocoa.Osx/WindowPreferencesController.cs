@@ -269,6 +269,14 @@ namespace Eddie.UI.Osx
 				RefreshLogPreview();
 			};
 
+			// Directives
+			CboOpenVpnDirectivesSkipDefault.RemoveAllItems ();
+			CboOpenVpnDirectivesSkipDefault.AddItem (Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip1);
+			CboOpenVpnDirectivesSkipDefault.AddItem (Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2);
+			CmdOpenVpnDirectivesHelp.Activated += (object sender, EventArgs e) => {
+				Engine.Instance.Command ("ui.show.docs.directives");
+			};
+
 			// Advanced - Events
 
 			TableAdvancedEvents.DoubleClick += (object sender, EventArgs e) => {
@@ -445,7 +453,7 @@ namespace Eddie.UI.Osx
 
 		void RefreshLogPreview()
 		{
-			TxtLoggingComputedPath.StringValue = Engine.Instance.GetParseLogFilePaths (TxtLoggingPath.StringValue);
+			TxtLoggingComputedPath.StringValue = Engine.Instance.Logs.GetParseLogFilePaths (TxtLoggingPath.StringValue);
 		}
 
 		void ReadOptionsEvent(string name, int index)
@@ -662,10 +670,9 @@ namespace Eddie.UI.Osx
 			TxtLoggingPath.StringValue = s.Get ("log.file.path");
 
 			// Advanced - OVPN Directives
-			GuiUtils.SetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip, s.GetBool ("openvpn.skip_defaults"));
-
+			GuiUtils.SetSelected(CboOpenVpnDirectivesSkipDefault, (s.GetBool("openvpn.skip_defaults") ? Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2 : Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip1));
+			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.Get ("openvpn.directives");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
-			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.GetDefaultDirectives ().Replace("\t","");
 
 			// Advanced - Events
 			ReadOptionsEvent ("app.start", 0);
@@ -859,8 +866,8 @@ namespace Eddie.UI.Osx
 			s.Set ("log.file.path", TxtLoggingPath.StringValue);
 
 			// Advanced - OVPN Directives
-			s.SetBool ("openvpn.skip_defaults", GuiUtils.GetCheck (ChkAdvancedOpenVpnDirectivesDefaultSkip));
-
+			s.SetBool ("openvpn.skip_defaults", GuiUtils.GetSelected (CboOpenVpnDirectivesSkipDefault) == Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2);
+			s.Set ("openvpn.directives", TxtAdvancedOpenVpnDirectivesDefault.StringValue);
 			s.Set ("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
 
 			// Advanced - Events

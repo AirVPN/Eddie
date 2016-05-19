@@ -49,7 +49,7 @@ namespace Eddie.UI.Osx
 		{
 			this.tableView = tableView;
 
-			XmlNodeList xmlModes = Engine.Instance.Storage.Manifest.SelectNodes ("//modes/mode");
+			XmlNodeList xmlModes = Engine.Instance.AirVPN.Manifest.SelectNodes ("//modes/mode");
 			foreach (XmlElement xmlMode in xmlModes) {
 				TableProtocolsControllerItem item = new TableProtocolsControllerItem ();
 				item.Protocol = xmlMode.GetAttribute ("protocol").ToUpper ();

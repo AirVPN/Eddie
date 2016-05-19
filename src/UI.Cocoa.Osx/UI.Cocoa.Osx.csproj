@@ -520,6 +520,67 @@
     <BundleResource Include="Resources\menubar_light_yellow.png" />
     <BundleResource Include="Resources\netlock_status_off.png" />
     <BundleResource Include="Resources\netlock_status_on.png" />
+    <BundleResource Include="Resources\about_16.png" />
+    <BundleResource Include="Resources\add.png" />
+    <BundleResource Include="Resources\blacklist_0_16.png" />
+    <BundleResource Include="Resources\blacklist_1_16.png" />
+    <BundleResource Include="Resources\blacklist_2_16.png" />
+    <BundleResource Include="Resources\bool_false.png" />
+    <BundleResource Include="Resources\bool_true.png" />
+    <BundleResource Include="Resources\btn_d_d.png" />
+    <BundleResource Include="Resources\btn_d_h.png" />
+    <BundleResource Include="Resources\btn_d_n.png" />
+    <BundleResource Include="Resources\btn_l_d.png" />
+    <BundleResource Include="Resources\btn_l_h.png" />
+    <BundleResource Include="Resources\btn_l_n.png" />
+    <BundleResource Include="Resources\clear.png" />
+    <BundleResource Include="Resources\copy.png" />
+    <BundleResource Include="Resources\delete.png" />
+    <BundleResource Include="Resources\disconnect.png" />
+    <BundleResource Include="Resources\edit.png" />
+    <BundleResource Include="Resources\enter.png" />
+    <BundleResource Include="Resources\execute.png" />
+    <BundleResource Include="Resources\exit_16.png" />
+    <BundleResource Include="Resources\form_d_bg.png" />
+    <BundleResource Include="Resources\form_l_bg.png" />
+    <BundleResource Include="Resources\help.png" />
+    <BundleResource Include="Resources\home_16.png" />
+    <BundleResource Include="Resources\main_d_bg.png" />
+    <BundleResource Include="Resources\main_l_bg.png" />
+    <BundleResource Include="Resources\menu_hover.png" />
+    <BundleResource Include="Resources\menu_normal.png" />
+    <BundleResource Include="Resources\ports_16.png" />
+    <BundleResource Include="Resources\progress.gif" />
+    <BundleResource Include="Resources\reload_16.png" />
+    <BundleResource Include="Resources\restore_16.png" />
+    <BundleResource Include="Resources\save.png" />
+    <BundleResource Include="Resources\settings_16.png" />
+    <BundleResource Include="Resources\shadow.png" />
+    <BundleResource Include="Resources\speed_16.png" />
+    <BundleResource Include="Resources\splitter.png" />
+    <BundleResource Include="Resources\stats_16.png" />
+    <BundleResource Include="Resources\stats_pc.png" />
+    <BundleResource Include="Resources\tab_l_bg.png" />
+    <BundleResource Include="Resources\tab_l_n.png" />
+    <BundleResource Include="Resources\tab_l_s.png" />
+    <BundleResource Include="Resources\tab_n.png" />
+    <BundleResource Include="Resources\tab_s.png" />
+    <BundleResource Include="Resources\tab_shadow.png" />
+    <BundleResource Include="Resources\tabs_l_bg.png" />
+    <BundleResource Include="Resources\topbar_green.png" />
+    <BundleResource Include="Resources\topbar_logo.png" />
+    <BundleResource Include="Resources\topbar_logo_hi.png" />
+    <BundleResource Include="Resources\topbar_red.png" />
+    <BundleResource Include="Resources\topbar_shadow.png" />
+    <BundleResource Include="Resources\topbar_yellow.png" />
+    <BundleResource Include="Resources\warning.png" />
+    <BundleResource Include="Resources\log_icons\log_error.png" />
+    <BundleResource Include="Resources\log_icons\log_fatal.png" />
+    <BundleResource Include="Resources\log_icons\log_info.png" />
+    <BundleResource Include="Resources\log_icons\log_infoimportant.png" />
+    <BundleResource Include="Resources\log_icons\log_realtime.png" />
+    <BundleResource Include="Resources\log_icons\log_verbose.png" />
+    <BundleResource Include="Resources\log_icons\log_warning.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">
@@ -532,8 +593,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\manifest.xml" />
-    <EmbeddedResource Include="Resources\auth.xml" />
     <EmbeddedResource Include="Resources\ThirdParty.txt" />
     <EmbeddedResource Include="Resources\TOS.txt" />
     <EmbeddedResource Include="Resources\License.txt" />

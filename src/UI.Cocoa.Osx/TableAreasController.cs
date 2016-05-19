@@ -112,7 +112,7 @@ namespace Eddie.UI.Osx
 			} else if (tableColumn.Identifier == "Flag") {
 				return NSImage.ImageNamed("flag_" + a.Code.ToLowerInvariant() + ".png");
 			} else if (tableColumn.Identifier == "Name") {
-				return new NSString (a.PublicName);
+				return new NSString (a.Name);
 			} else if (tableColumn.Identifier == "Servers") {
 				return new NSString (a.Servers.ToString());
 			} else if (tableColumn.Identifier == "LoadIcon") {

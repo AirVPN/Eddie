@@ -28,6 +28,12 @@ namespace Eddie.UI.Osx
 		MonoMac.AppKit.NSPopUpButton CboLockMode { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CboOpenVpnDirectivesHelp { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboOpenVpnDirectivesSkipDefault { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboOpenVpnRcvBuf { get; set; }
 
 		[Outlet]
@@ -50,9 +56,6 @@ namespace Eddie.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkAdvancedNetworkLocking { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSButton ChkAdvancedOpenVpnDirectivesDefaultSkip { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkAdvancedPingerEnabled { get; set; }
@@ -125,6 +128,9 @@ namespace Eddie.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdLockHelp { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdOpenVpnDirectivesHelp { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdProtocolsHelp1 { get; set; }
@@ -287,16 +293,6 @@ namespace Eddie.UI.Osx
 			if (ChkAdvancedNetworkLocking != null) {
 				ChkAdvancedNetworkLocking.Dispose ();
 				ChkAdvancedNetworkLocking = null;
-			}
-
-			if (TableTabs != null) {
-				TableTabs.Dispose ();
-				TableTabs = null;
-			}
-
-			if (ChkAdvancedOpenVpnDirectivesDefaultSkip != null) {
-				ChkAdvancedOpenVpnDirectivesDefaultSkip.Dispose ();
-				ChkAdvancedOpenVpnDirectivesDefaultSkip = null;
 			}
 
 			if (ChkAdvancedPingerEnabled != null) {
@@ -562,6 +558,21 @@ namespace Eddie.UI.Osx
 			if (TxtProxyPassword != null) {
 				TxtProxyPassword.Dispose ();
 				TxtProxyPassword = null;
+			}
+
+			if (CboOpenVpnDirectivesHelp != null) {
+				CboOpenVpnDirectivesHelp.Dispose ();
+				CboOpenVpnDirectivesHelp = null;
+			}
+
+			if (CboOpenVpnDirectivesSkipDefault != null) {
+				CboOpenVpnDirectivesSkipDefault.Dispose ();
+				CboOpenVpnDirectivesSkipDefault = null;
+			}
+
+			if (CmdOpenVpnDirectivesHelp != null) {
+				CmdOpenVpnDirectivesHelp.Dispose ();
+				CmdOpenVpnDirectivesHelp = null;
 			}
 
 			if (TxtProxyPort != null) {

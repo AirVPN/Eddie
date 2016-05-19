@@ -273,7 +273,7 @@ namespace Eddie.UI.Osx
 			CboServersScoringRule.Activated += (object sender, EventArgs e) => {
 				Engine.Storage.Set ("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
 
-				RefreshUi (AirVPN.Core.Engine.RefreshUiMode.Full);
+				RefreshUi (Engine.RefreshUiMode.Full);
 			};
 
 			CboSpeedResolutions.Activated += (object sender, EventArgs e) => {
@@ -473,12 +473,12 @@ namespace Eddie.UI.Osx
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
 					MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
-					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.PublicName);
+					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.Name);
 
 					TabOverview.SelectAt(2);
 
-					LblConnectedServerName.StringValue = Engine.CurrentServer.PublicName;
-					LblConnectedLocation.StringValue = Engine.CurrentServer.CountryName + ", " + Engine.CurrentServer.Location;
+					LblConnectedServerName.StringValue = Engine.CurrentServer.Name;
+					LblConnectedLocation.StringValue = CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode) + ", " + Engine.CurrentServer.Location;
 					TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpExit;
 					ImgConnectedCountry.Image = NSImage.ImageNamed ("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant () + ".png");
 				}
@@ -528,7 +528,7 @@ namespace Eddie.UI.Osx
 						Log (l);
 					}
 				}
-				LblWaiting2.StringValue = Engine.GetLogDetailTitle();
+				LblWaiting2.StringValue = Engine.Logs.GetLogDetailTitle();
 			}
 
 			if ((mode == Engine.RefreshUiMode.Stats) || (mode == Engine.RefreshUiMode.Full)) {
@@ -538,7 +538,7 @@ namespace Eddie.UI.Osx
 					TxtConnectedDownload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false);
 					TxtConnectedUpload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false);
 
-					string msg = Messages.Format (Messages.StatusTextConnected, Constants.Name, Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName);
+					string msg = Messages.Format (Messages.StatusTextConnected, Constants.Name, Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.Name, CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode));
 					string tmsg = Constants.Name + " - " + msg;
 					this.Window.Title = tmsg;
 					MnuTrayStatus.Title = "> " + msg;
@@ -566,7 +566,7 @@ namespace Eddie.UI.Osx
 
 			StatusItem.ToolTip = msg;
 
-			if ((msg != "") && (l.Type != Core.Engine.LogType.Verbose)) {
+			if ((msg != "") && (l.Type != LogType.Verbose)) {
 				if(Engine.IsConnected() == false)
 				{
 					Window.Title = Constants.Name + " - " + msg;
@@ -969,7 +969,7 @@ namespace Eddie.UI.Osx
 			string t = TableLogsController.GetBody (selectedOnly);
 			if (t.Trim () != "") {
 				//string filename = "AirVPN_" + DateTime.Now.ToString ("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt"; // TOCLEAN
-				string filename = Engine.GetLogSuggestedFileName();
+				string filename = Engine.Logs.GetLogSuggestedFileName();
 
 				NSSavePanel panel = new NSSavePanel ();
 				panel.NameFieldStringValue = filename;
