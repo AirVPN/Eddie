@@ -48,7 +48,10 @@ namespace Eddie.Core.Providers
 		{
 			base.OnLoad();
 
+            CompatibilityManager.FixProviderStorage(Storage);
+
 			Manifest = Storage.DocumentElement.SelectSingleNode("manifest");
+            
 			if (Manifest == null)
 			{
 				XmlNode nodeDefinitionDefaultManifest = Definition.SelectSingleNode("manifest");

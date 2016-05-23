@@ -45,7 +45,7 @@ namespace Eddie.Core.Providers
 			base.OnInit();
 
             Engine.Instance.Storage.SetDefaultBool("providers.OpenVPN.autosync", true, Messages.ManOptionServicesOpenVpnAutoSync);
-            //Engine.Instance.Storage.SetDefault("providers.OpenVPN.path", "text", "d:\\Projects\\AirVPN\\airvpn-client-3\\x\\", Messages.ManOptionServicesOpenVpnPath); 
+            Engine.Instance.Storage.SetDefault("providers.OpenVPN.path", "text", "d:\\Projects\\AirVPN\\airvpn-client-3\\x\\", Messages.ManOptionServicesOpenVpnPath); 
         }
 
 		public override void OnLoad()

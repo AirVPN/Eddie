@@ -167,5 +167,22 @@ namespace Eddie.Core
             }
 #endif
         }
+
+        public static void FixProviderStorage(XmlDocument e)
+        {
+            if (e == null)
+                return;
+
+            // If not contain urls/url element, it's the manifest <2.11. Need update.
+            XmlElement manifest = e.DocumentElement.SelectSingleNode("manifest") as XmlElement;
+            if (manifest != null)
+            {
+                if (manifest.SelectNodes("//urls/url").Count == 0) // Compatibility
+                {
+                    e.DocumentElement.RemoveChild(manifest);
+                }
+            }
+                
+        }
     }
 }
