@@ -68,11 +68,6 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public void AppendDirective(string name, string comment)
-		{
-			AppendDirective(name, "", comment);
-		}
-
 		public void AppendDirective(string name, string body, string comment)
 		{
 			if (IsMultipleDirective(name))

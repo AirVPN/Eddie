@@ -79,14 +79,14 @@ namespace Eddie.Core.Providers
             string key = Engine.Instance.Storage.Get("key");
 
             XmlNode nodeUser = User;            
-			ovpn.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value);
+			ovpn.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
 			XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
             if (xmlKey == null)
                 throw new Exception("Key not found.");
-            ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value);
-            ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value);            
-			ovpn.AppendDirective("key-direction","1");
-			ovpn.AppendDirective("<tls-auth>", nodeUser.Attributes["ta"].Value);
+            ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
+            ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");            
+			ovpn.AppendDirective("key-direction","1", "");
+			ovpn.AppendDirective("<tls-auth>", nodeUser.Attributes["ta"].Value, "");
 		}
 
 		public override void OnBuildOvpnPost(ref string ovpn)

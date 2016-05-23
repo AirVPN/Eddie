@@ -282,13 +282,13 @@ namespace Eddie.Platforms
                 {
                     EnsureExecutablePermissions(dnsScriptPath);
                     Engine.Instance.Logs.Log(LogType.Info, Messages.DnsResolvConfScript);
-                    ovpn.AppendDirective("script-security", "2");
-                    ovpn.AppendDirective("up", dnsScriptPath);
-                    ovpn.AppendDirective("down", dnsScriptPath);
+                    ovpn.AppendDirective("script-security", "2", "");
+                    ovpn.AppendDirective("up", dnsScriptPath, "");
+                    ovpn.AppendDirective("down", dnsScriptPath, "");
                 }
             }
 
-            ovpn.AppendDirective("route-delay", "5"); // 2.8, to resolve some issue on some distro, ex. Fedora 21
+            ovpn.AppendDirective("route-delay", "5", ""); // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
 		public override bool OnCheckEnvironment()

@@ -1522,35 +1522,35 @@ namespace Eddie.Core
             }
 
             if (s.Get("openvpn.dev_node") != "")
-                ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"));
+                ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"), "");
 
             int rcvbuf = s.GetInt("openvpn.rcvbuf");
             if ((rcvbuf == -2) && (Platform.IsWindows())) rcvbuf = (256 * 1024);
             if (rcvbuf == -2) rcvbuf = -1;
             if (rcvbuf != -1)
-                ovpn.AppendDirective("rcvbuf", rcvbuf.ToString());
+                ovpn.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
 
             int sndbuf = s.GetInt("openvpn.sndbuf");
             if ((sndbuf == -2) && (Platform.IsWindows())) sndbuf = (256 * 1024);
             if (sndbuf == -2) sndbuf = -1;
             if (sndbuf != -1)
-                ovpn.AppendDirective("sndbuf", sndbuf.ToString());
+                ovpn.AppendDirective("sndbuf", sndbuf.ToString(), "");
 
             if (protocol == "UDP")
             {
-                ovpn.AppendDirective("proto", "udp");
+                ovpn.AppendDirective("proto", "udp", "");
             }
             else // TCP, SSH, SSL, Tor
             {
-                ovpn.AppendDirective("proto", "tcp");
+                ovpn.AppendDirective("proto", "tcp", "");
             }
 
             if (protocol == "SSH")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort));
+                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
             else if (protocol == "SSL")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort));
+                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
             else
-                ovpn.AppendDirective("remote", ip + " " + port.ToString());
+                ovpn.AppendDirective("remote", ip + " " + port.ToString(), "");
 
             string proxyDirectiveName = "";
             string proxyDirectiveArgs = "";
@@ -1586,13 +1586,13 @@ namespace Eddie.Core
                     }
                 }
 
-                ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs);
+                ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
             }
 
             string routesDefault = s.Get("routes.default");
             if (routesDefault == "out")
             {
-                ovpn.AppendDirective("route-nopull", "For Routes Out");
+                ovpn.AppendDirective("route-nopull", "For Routes Out", "");
 
                 // For Checking
                 ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
@@ -1613,7 +1613,7 @@ namespace Eddie.Core
 				*/
 
                 // 2.9, Can be removed when resolv-conf method it's not binded anymore in up/down ovpn directive // TOFIX
-                ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn);
+                ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
             }
             string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
@@ -1656,7 +1656,7 @@ namespace Eddie.Core
                 }
 			}
 
-            ovpn.AppendDirective("management", "localhost " + Engine.Instance.Storage.Get("openvpn.management_port"));
+            ovpn.AppendDirective("management", "localhost " + Engine.Instance.Storage.Get("openvpn.management_port"), "");
 
             ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
 
