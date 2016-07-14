@@ -366,14 +366,16 @@ namespace Eddie.Core
 
             SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
 
+#if (EDDIE3)
             if (WebServer.GetPath() != "")
             {
-                //#if (EDDIE3)
+                
                 SetDefaultBool("webui.enabled", true, Messages.ManOptionWebUiEnabled);
                 SetDefault("webui.ip", "text", "localhost", Messages.ManOptionWebUiAddress);
                 SetDefaultInt("webui.port", 4649, Messages.ManOptionWebUiPort);
-                //#endif
             }
+#endif
+
             SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
 			

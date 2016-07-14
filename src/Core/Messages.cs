@@ -200,9 +200,7 @@ namespace Eddie.Core
 		public static string WindowsSettingsTitle = "Preferences";
         public static string WindowsSettingsUiUnit0 = "Bits for speed, bytes for volume";
         public static string WindowsSettingsUiUnit1 = "Always bytes";
-        public static string WindowsSettingsUiUnit2 = "Always bits";
-        public static string WindowsSettingsConnect = "Connect at startup";
-		public static string WindowsSettingsNetLock = "Activate Network Lock at startup";
+        public static string WindowsSettingsUiUnit2 = "Always bits";        
 		public static string WindowsSettingsRouteTitle = "Preferences - Route";
 		public static string WindowsSettingsEventTitle = "Preferences - Event";
 		public static string WindowsSettingsLoggingHelp = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation.\nRelative to data path. For multiple logs with different paths, separe it with a semicolon ;\n\nAdvanced example:\nlogs/single.log;logs/months/eddie_%d.log;logs/week/eddie_%w.log";

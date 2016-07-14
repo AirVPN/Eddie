@@ -69,6 +69,10 @@ namespace Eddie.Core
         
         public bool Deleted = false;
 
+        public ServerInfo()
+        {
+        }
+
         public int CompareTo(ServerInfo other) // Used by Engine.GetServers to order based on Score
         {            
             return Score().CompareTo(other.Score());

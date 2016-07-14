@@ -206,7 +206,7 @@ namespace Deploy
 
 				if (platform.StartsWith("windows"))
 				{
-                    CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                    //CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
                     CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 					CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
@@ -266,7 +266,7 @@ namespace Deploy
 				{
 					if (format == "mono")
 					{
-                        CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                        //CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
                         CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
@@ -296,7 +296,7 @@ namespace Deploy
 						// mkbundle
 						string command = "mkbundle ";
 						command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
-                        command += " \"" + pathRelease + "/websocket-sharp.dll\"";
+                        //command += " \"" + pathRelease + "/websocket-sharp.dll\"";
                         command += " \"" + pathRelease + "/Lib.Core.dll\"";
 						command += " \"" + pathRelease + "/Lib.Forms.dll\"";
 						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
@@ -335,7 +335,7 @@ namespace Deploy
                     //else if ( (format == "debian2") || (format == "debian4") )
                     else if (format == "debian")
                     {
-                        CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                        //CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
                         CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
@@ -372,7 +372,7 @@ namespace Deploy
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man1/airvpn.1\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man1/airvpn.1.gz\"");
 
-                        Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/websocket-sharp.dll\"");
+                        //Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/websocket-sharp.dll\"");
                         Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
@@ -394,7 +394,7 @@ namespace Deploy
 						if (arch == "x64")
 							libSubPath = "lib64";
 
-                        CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                        //CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
                         CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
@@ -417,7 +417,7 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
-                        Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/websocket-sharp.dll\"");
+                        //Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/websocket-sharp.dll\"");
                         Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");

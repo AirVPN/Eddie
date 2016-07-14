@@ -226,6 +226,8 @@ namespace Eddie.Core.Threads
                             bool canPingServer = enabled;
                             if (infoServer.IpEntry == "")
                                 canPingServer = false;
+                            if (infoServer.WarningClosed != "")
+                                canPingServer = false;
 
 							if (canPingServer)
 							{

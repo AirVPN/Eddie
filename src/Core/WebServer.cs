@@ -16,7 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-//#if (EDDIE3)
+#if (EDDIE3)
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -269,4 +269,4 @@ namespace Eddie.Core
     }
 }
 
-//#endif
+#endif

@@ -1073,18 +1073,18 @@ namespace Eddie.Gui.Forms
             // 
             // txtConnectedExitIp
             // 
-            this.txtConnectedExitIp.Location = new System.Drawing.Point(166, 128);
+            this.txtConnectedExitIp.Location = new System.Drawing.Point(166, 120);
             this.txtConnectedExitIp.Name = "txtConnectedExitIp";
-            this.txtConnectedExitIp.Size = new System.Drawing.Size(288, 20);
+            this.txtConnectedExitIp.Size = new System.Drawing.Size(288, 24);
             this.txtConnectedExitIp.TabIndex = 69;
             this.txtConnectedExitIp.Text = "1.2.3.4";
             this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblConnectedExitIp
             // 
-            this.lblConnectedExitIp.Location = new System.Drawing.Point(19, 128);
+            this.lblConnectedExitIp.Location = new System.Drawing.Point(19, 120);
             this.lblConnectedExitIp.Name = "lblConnectedExitIp";
-            this.lblConnectedExitIp.Size = new System.Drawing.Size(138, 20);
+            this.lblConnectedExitIp.Size = new System.Drawing.Size(138, 24);
             this.lblConnectedExitIp.TabIndex = 68;
             this.lblConnectedExitIp.Text = "Public Exit IP:";
             this.lblConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1135,7 +1135,7 @@ namespace Eddie.Gui.Forms
             // 
             this.txtConnectedSince.Location = new System.Drawing.Point(166, 148);
             this.txtConnectedSince.Name = "txtConnectedSince";
-            this.txtConnectedSince.Size = new System.Drawing.Size(288, 20);
+            this.txtConnectedSince.Size = new System.Drawing.Size(288, 24);
             this.txtConnectedSince.TabIndex = 63;
             this.txtConnectedSince.Text = "VPN Time";
             this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1144,7 +1144,7 @@ namespace Eddie.Gui.Forms
             // 
             this.lblConnectedSince.Location = new System.Drawing.Point(16, 148);
             this.lblConnectedSince.Name = "lblConnectedSince";
-            this.lblConnectedSince.Size = new System.Drawing.Size(141, 20);
+            this.lblConnectedSince.Size = new System.Drawing.Size(141, 24);
             this.lblConnectedSince.TabIndex = 62;
             this.lblConnectedSince.Text = "Connection time:";
             this.lblConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1171,7 +1171,7 @@ namespace Eddie.Gui.Forms
             // 
             this.lblConnectedLocation.Location = new System.Drawing.Point(166, 42);
             this.lblConnectedLocation.Name = "lblConnectedLocation";
-            this.lblConnectedLocation.Size = new System.Drawing.Size(284, 24);
+            this.lblConnectedLocation.Size = new System.Drawing.Size(284, 26);
             this.lblConnectedLocation.TabIndex = 3;
             this.lblConnectedLocation.Text = "Location";
             this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;

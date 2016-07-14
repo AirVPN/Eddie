@@ -843,8 +843,9 @@ namespace Eddie.Gui.Forms
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
-			m_listViewServers.UpdateList();
-		}
+			//cazzom_listViewServers.UpdateList();
+            Engine.OnRefreshUi();
+        }
 
 		private void mnuServersBlacklist_Click(object sender, EventArgs e)
 		{
@@ -854,8 +855,9 @@ namespace Eddie.Gui.Forms
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
-			m_listViewServers.UpdateList();			
-		}
+			//cazzom_listViewServers.UpdateList();
+            Engine.OnRefreshUi();
+        }
 
 		private void mnuServersUndefined_Click(object sender, EventArgs e)
 		{
@@ -865,8 +867,9 @@ namespace Eddie.Gui.Forms
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
-			m_listViewServers.UpdateList();			
-		}
+            //cazzom_listViewServers.UpdateList();			
+            Engine.OnRefreshUi();
+        }
 
 		private void mnuServersRefresh_Click(object sender, EventArgs e)
 		{
@@ -903,9 +906,10 @@ namespace Eddie.Gui.Forms
 				item.Info.UserList = AreaInfo.UserListType.WhiteList;
 			}
 			Engine.UpdateSettings();
-			m_listViewAreas.UpdateList();
-			m_listViewServers.UpdateList();
-		}
+            //cazzom_listViewAreas.UpdateList();
+            //cazzom_listViewServers.UpdateList();
+            Engine.OnRefreshUi();
+        }
 
 		private void mnuAreasBlackList_Click(object sender, EventArgs e)
 		{
@@ -914,9 +918,10 @@ namespace Eddie.Gui.Forms
 				item.Info.UserList = AreaInfo.UserListType.BlackList;
 			}
 			Engine.UpdateSettings();
-			m_listViewAreas.UpdateList();
-			m_listViewServers.UpdateList();
-		}
+            //cazzom_listViewAreas.UpdateList();
+            //cazzom_listViewServers.UpdateList();
+            Engine.OnRefreshUi();
+        }
 
 		private void mnuAreasUndefined_Click(object sender, EventArgs e)
 		{
@@ -925,9 +930,10 @@ namespace Eddie.Gui.Forms
 				item.Info.UserList = AreaInfo.UserListType.None;
 			}
 			Engine.UpdateSettings();
-			m_listViewAreas.UpdateList();
-			m_listViewServers.UpdateList();
-		}
+            //cazzom_listViewAreas.UpdateList();
+            //cazzom_listViewServers.UpdateList();
+            Engine.OnRefreshUi();
+        }
 
 
 		private void cmdAreasWhiteList_Click(object sender, EventArgs e)
@@ -948,8 +954,9 @@ namespace Eddie.Gui.Forms
 		private void chkShowAll_CheckedChanged(object sender, EventArgs e)
 		{
 			m_listViewServers.ShowAll = chkShowAll.Checked;
-			m_listViewServers.UpdateList();
-		}
+            //cazzom_listViewServers.UpdateList();
+            Engine.OnRefreshUi();
+        }
 
 		void m_listViewServers_SelectedIndexChanged(object sender, EventArgs e)
 		{

@@ -43,6 +43,10 @@ namespace Eddie.Core
 
         public bool Deleted = false;
 
+        public AreaInfo()
+        {
+        }
+
         public int CompareTo(AreaInfo other)
         {
             return Code.CompareTo(other.Code);

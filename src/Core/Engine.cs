@@ -240,9 +240,9 @@ namespace Eddie.Core
 
             m_stats = new Core.Stats();
 
-//#if (EDDIE3)
+#if (EDDIE3)
             WebServer.Start();
-//#endif
+#endif
 
             m_networkLockManager = new NetworkLockManager();
 			m_networkLockManager.Init();			
@@ -397,9 +397,9 @@ namespace Eddie.Core
             if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
 
-//#if (EDDIE3)
+#if (EDDIE3)
 			WebServer.Stop();
-//#endif
+#endif
 
 			m_networkLockManager.Deactivation(true);
 			m_networkLockManager = null;
@@ -520,9 +520,9 @@ namespace Eddie.Core
 
 		public virtual void OnCommand(CommandLine command)
 		{
-//#if (EDDIE3)
+#if (EDDIE3)
             WebServer.OnCommand(command);
-//#endif
+#endif
 
 			string action = command.Get("action","").ToLowerInvariant();
             if (action == "exit")
@@ -902,10 +902,12 @@ namespace Eddie.Core
 
         public virtual void OnShowText(string title, string data)
         {
+#if (EDDIE3)
             XmlElement webMessage = WebServer.CreateMessage("ui.show.text");
             webMessage.SetAttributeNode("title", title);
             webMessage.SetAttributeNode("data", data);
             WebServer.Send(webMessage);
+#endif
         }
 
         public virtual bool OnAskYesNo(string message)
@@ -983,8 +985,11 @@ namespace Eddie.Core
                 // Compute areas
                 lock (m_areas)
                 {
-                    m_areas.Clear();
-
+                    foreach (AreaInfo infoArea in m_areas.Values)
+                    {
+                        infoArea.Deleted = true;
+                    }
+                    
                     List<string> areasWhiteList = Storage.GetList("areas.whitelist");
                     List<string> areasBlackList = Storage.GetList("areas.blacklist");
 
@@ -994,16 +999,21 @@ namespace Eddie.Core
 
                         AreaInfo infoArea = null;
                         if (m_areas.ContainsKey(countryCode))
+                        {
                             infoArea = m_areas[countryCode];
+                            infoArea.Deleted = false;
+                        }
+
                         if (infoArea == null)
                         {
                             // Create
                             infoArea = new AreaInfo();
                             infoArea.Code = countryCode;
+                            infoArea.Name = CountriesManager.GetNameFromCode(countryCode);
+                            infoArea.Deleted = false;
                             m_areas[countryCode] = infoArea;
                         }
-
-                        infoArea.Name = CountriesManager.GetNameFromCode(countryCode);
+                        
                         infoArea.Bandwidth += server.Bandwidth;
                         infoArea.BandwidthMax += server.BandwidthMax;
                         
@@ -1015,6 +1025,23 @@ namespace Eddie.Core
                         }
                         
                         infoArea.Servers++;
+                    }
+
+                    for (;;)
+                    {
+                        bool restart = false;
+                        foreach (AreaInfo infoArea in m_areas.Values)
+                        {
+                            if (infoArea.Deleted)
+                            {
+                                m_areas.Remove(infoArea.Code);
+                                restart = true;
+                                break;
+                            }
+                        }
+
+                        if (restart == false)
+                            break;
                     }
 
                     // White/black list
@@ -1047,7 +1074,7 @@ namespace Eddie.Core
 						DateTime DT1 = Engine.Instance.ConnectedSince;
 						DateTime DT2 = DateTime.UtcNow;
 						TimeSpan TS = DT2 - DT1;
-						string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToLongDateString() + " " + DT1.ToLocalTime().ToLongTimeString());
+						string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToShortDateString() + " " + DT1.ToLocalTime().ToShortTimeString());
 						Stats.UpdateValue("VpnConnectionStart", TSText);
 
 					}

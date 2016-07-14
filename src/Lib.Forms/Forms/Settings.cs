@@ -91,10 +91,7 @@ namespace Eddie.Gui.Forms
             
             BuildTreeTabs();
 
-            lblConnect.Text = Messages.WindowsSettingsConnect;
-			lblNetLock.Text = Messages.WindowsSettingsNetLock;
-            
-			lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
+            lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
 
 			pnlGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
