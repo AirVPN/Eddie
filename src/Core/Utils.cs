@@ -302,43 +302,38 @@ namespace Eddie.Core
 
         public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes)
         {
-            return FormatBytesOldX(bytes, speedSec, showBytes);
-        }
-
-        public static string FormatBytesOldX(Int64 bytes, bool speedSec, bool showBytes)
-        {
             Int64 v = bytes;
 
             string userUnit = Engine.Instance.Storage.Get("ui.unit");
-            if(userUnit == "")
+            if (userUnit == "")
             {
                 if (speedSec)
                     userUnit = "bits";
             }
 
-            if(userUnit == "bits")
+            if (userUnit == "bits")
             {
                 v *= 8;
             }
 
             Int64 number = 0;
-			string unit = "";
-            if(userUnit == "bits")
+            string unit = "";
+            if (userUnit == "bits")
                 FormatBytesEx(v, new string[] { "bit", "kbit", "Mbit", "Gbit", "Tbit", "Pbit" }, ref number, ref unit);
             else
                 FormatBytesEx(v, new string[] { "B", "KB", "MB", "GB", "TB", "PB" }, ref number, ref unit);
-            
+
             string output = number.ToString() + " " + unit;
-            if(speedSec)
+            if (speedSec)
                 output += "/s";
-            if( (showBytes) && (bytes>=0) )
+            if ((showBytes) && (bytes >= 0))
             {
                 output += " (" + bytes.ToString() + " bytes";
-                if(speedSec)
+                if (speedSec)
                     output += "/s";
                 output += ")";
             }
-            return output;            
+            return output;
         }
 
 		public static void FormatBytesEx(Int64 val, string[] suf, ref Int64 number, ref string unit)

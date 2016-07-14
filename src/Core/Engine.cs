@@ -1805,5 +1805,17 @@ namespace Eddie.Core
             t = Regex.Replace(t, "<tls-auth>(.*?)</tls-auth>", "<tls-auth>omissis</tls-auth>", RegexOptions.Singleline);
             Engine.Logs.Log(LogType.Verbose, t);
         }
+
+        public string GetConnectedTrayText()
+        {
+            if (CurrentServer == null)
+                return "";
+
+            string t = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(ConnectedLastUploadStep, true, false), CurrentServer.DisplayName);
+            string country = CountriesManager.GetNameFromCode(CurrentServer.CountryCode);
+            if (country != "")
+                t += " (" + country + ")";
+            return t;
+        }
     }
 }

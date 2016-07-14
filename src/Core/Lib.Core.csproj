@@ -36,8 +36,9 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp">
-      <HintPath>..\..\libraries\websocket-sharp-master\websocket-sharp\bin\Release\websocket-sharp.dll</HintPath>
+    <Reference Include="websocket-sharp, Version=1.0.2.2218, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\libraries\websocket-sharp-master\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -122,7 +123,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
     <None Include="Resources\icon.icns" />
   </ItemGroup>
   <ItemGroup>

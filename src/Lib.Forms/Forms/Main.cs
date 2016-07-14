@@ -1518,7 +1518,7 @@ namespace Eddie.Gui.Forms
 							pnlConnected.Visible = true;
 
 							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
-							lblConnectedLocation.Text = CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode) + ", " + Engine.CurrentServer.Location;
+							lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
 							txtConnectedExitIp.Text = Engine.CurrentServer.IpExit;
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
@@ -1597,8 +1597,8 @@ namespace Eddie.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-							string notifyText = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.DisplayName, CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode));
-							string notifyText2 = Constants.Name + " - " + notifyText;
+                            string notifyText = Engine.Instance.GetConnectedTrayText();
+                            string notifyText2 = Constants.Name + " - " + notifyText;
 							Text = notifyText2;
 							mnuStatus.Text = "> " + notifyText;
 							if (m_notifyIcon != null)

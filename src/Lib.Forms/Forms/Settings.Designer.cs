@@ -932,7 +932,7 @@ namespace Eddie.Gui.Forms
             // 
             this.lblNetLock.BackColor = System.Drawing.Color.Transparent;
             this.lblNetLock.ForeColor = System.Drawing.Color.Black;
-            this.lblNetLock.Location = new System.Drawing.Point(6, 73);
+            this.lblNetLock.Location = new System.Drawing.Point(6, 72);
             this.lblNetLock.Name = "lblNetLock";
             this.lblNetLock.Size = new System.Drawing.Size(241, 23);
             this.lblNetLock.TabIndex = 85;
