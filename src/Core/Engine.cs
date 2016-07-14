@@ -183,6 +183,8 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
             }
 
+            Platform.Instance.OnInit();
+
 			CountriesManager.Init();
 
             m_logsManager = new LogsManager();
@@ -263,6 +265,8 @@ namespace Eddie.Core
 				Software.Checking();
 
 				Software.Log();
+
+                Platform.Instance.OnRecovery();
 
 				Recovery.Load();
 
@@ -406,7 +410,7 @@ namespace Eddie.Core
 			
 			TemporaryFiles.Clean();
 
-            Platform.DeInit();
+            Platform.Instance.OnDeInit();
         }
 
         public virtual void OnDeInit2()

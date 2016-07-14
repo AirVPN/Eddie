@@ -25,7 +25,9 @@ namespace Eddie.Core
     public static class Constants
     {
 		public static string Name = "AirVPN";
-		public static int VersionInt = 217;
+        public static string Name2 = "Eddie";
+        public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
+        public static int VersionInt = 217;
 		public static string VersionDesc = "2.11";
         public static string WebSite = "https://airvpn.org";
         public static string ServerHostX = "airvpn.org";

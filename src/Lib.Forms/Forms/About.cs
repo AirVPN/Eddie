@@ -73,12 +73,7 @@ namespace Eddie.Gui.Forms
             Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 80)); // +50 and +2 to avoid GDI+ problem
             Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 304, 80));
         }
-
-        private void lnkGPL_LinkClicked(object sender, EventArgs e)
-        {
-            Engine.Instance.Command("ui.show.gpl");
-        }
-
+        
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)
 		{
             Engine.Instance.Command("ui.show.website");

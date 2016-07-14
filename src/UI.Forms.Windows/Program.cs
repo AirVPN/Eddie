@@ -33,40 +33,47 @@ namespace Eddie.UI.Windows
 		[STAThread]
 		static void Main()
 		{
-            if (Environment.OSVersion.Version.Major >= 6)
-                SetProcessDPIAware();       
-            
-            //Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            try
+            {
+                if (Environment.OSVersion.Version.Major >= 6)
+                    SetProcessDPIAware();
 
-			Platform.Instance = new Eddie.Platforms.Windows();
-			
-			CommandLine.InitSystem(Environment.CommandLine);
+                //Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
 
-			if (CommandLine.SystemEnvironment.Exists("cli"))
-			{
-				Core.Engine engine = new Core.Engine();
+                Platform.Instance = new Eddie.Platforms.Windows();
 
-				if (engine.Initialization())
-				{
-					engine.ConsoleStart();
-				}
-			}
-			else
-			{
-				GuiUtils.Init();
+                CommandLine.InitSystem(Environment.CommandLine);
 
-				Gui.Engine engine = new Gui.Engine();
+                if (CommandLine.SystemEnvironment.Exists("cli"))
+                {
+                    Core.Engine engine = new Core.Engine();
 
-				if (engine.Initialization())
-				{
-                    engine.FormMain = new Gui.Forms.Main();
+                    if (engine.Initialization())
+                    {
+                        engine.ConsoleStart();
+                    }
+                }
+                else
+                {
+                    GuiUtils.Init();
 
-					engine.UiStart();
+                    Gui.Engine engine = new Gui.Engine();
 
-					Application.Run(engine.FormMain);
-				}
-			}
+                    if (engine.Initialization())
+                    {
+                        engine.FormMain = new Gui.Forms.Main();
+
+                        engine.UiStart();
+
+                        Application.Run(engine.FormMain);
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.Message, Constants.Name2, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 		}
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]

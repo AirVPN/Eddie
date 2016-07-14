@@ -99,7 +99,7 @@
             this.lnkLibraries.Size = new System.Drawing.Size(371, 28);
             this.lnkLibraries.TabIndex = 68;
             this.lnkLibraries.TabStop = true;
-            this.lnkLibraries.Text = "OpenVPN, Stunnel, TunTap OS X, LZO";
+            this.lnkLibraries.Text = "OpenVPN, stunnel, TunTap OS X, LZO";
             this.lnkLibraries.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lnkLibraries.Click += new System.EventHandler(this.lnkLibraries_LinkClicked);
             // 

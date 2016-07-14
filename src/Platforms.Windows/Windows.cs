@@ -100,7 +100,21 @@ namespace Eddie.Platforms
 			return System.Environment.OSVersion.VersionString;			
 		}
 
-		public override string GetOsArchitecture()
+        public override void OnInit()
+        {
+            base.OnInit();
+
+            Wfp.Start();
+        }
+
+        public override void OnDeInit()
+        {
+            base.OnDeInit();
+
+            Wfp.Stop();
+        }
+
+        public override string GetOsArchitecture()
 		{
 			if (GetArchitecture() == "x64")
 				return "x64";
@@ -665,7 +679,15 @@ namespace Eddie.Platforms
 			}
 		}
 
-		public override void OnRecoveryLoad(XmlElement root)
+        public override void OnRecovery()
+        {
+            base.OnRecovery();
+
+            if (Wfp.ClearPendingRules())
+                Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
+        }
+
+        public override void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeDhcp = Utils.XmlGetFirstElementByTagName(root, "DhcpSwitch");
 			if (nodeDhcp != null)

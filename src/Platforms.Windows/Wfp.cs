@@ -39,7 +39,7 @@ namespace Eddie.Platforms
         private static Dictionary<string, WfpItem> Items = new Dictionary<string, WfpItem>();
 
         [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void LibPocketFirewallInit(string name, bool persistent);
+        private static extern void LibPocketFirewallInit(string name);
 
         [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern bool LibPocketFirewallStart(string xml);
@@ -54,6 +54,9 @@ namespace Eddie.Platforms
         private static extern bool LibPocketFirewallRemoveRule(UInt64 id);
 
         [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool LibPocketFirewallRemoveRuleDirect(UInt64 id);
+
+        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr LibPocketFirewallGetLastError();
 
         public static string LibPocketFirewallGetLastError2()
@@ -61,6 +64,29 @@ namespace Eddie.Platforms
             IntPtr result = LibPocketFirewallGetLastError();
             string s = Marshal.PtrToStringAnsi(result);
             return s;
+        }
+
+        public static string GetName()
+        {
+            return Constants.Name2 + "-" + Constants.AppID;
+        }
+
+        public static void Start()
+        {
+            LibPocketFirewallInit(GetName());
+
+            XmlDocument xmlStart = new XmlDocument();
+            XmlElement xmlInfo = xmlStart.CreateElement("firewall");
+            xmlInfo.SetAttribute("description", Constants.Name2);
+            xmlInfo.SetAttribute("weight", "max");
+
+            if (LibPocketFirewallStart(xmlInfo.OuterXml) == false)
+                throw new Exception(Messages.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
+        }
+
+        public static void Stop()
+        {
+            LibPocketFirewallStop();
         }
 
         public static bool RemoveItem(string code)
@@ -91,8 +117,7 @@ namespace Eddie.Platforms
 
                 if (Items.Count == 0)
                 {
-                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.WfpStop);
-                    LibPocketFirewallStop();
+                    
                 }
             }
 
@@ -113,22 +138,6 @@ namespace Eddie.Platforms
 
                 WfpItem item = new WfpItem();
                 item.Code = code;
-
-                if (Items.Count == 0)
-                {
-                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.WfpStart);
-
-                    // Start firewall
-                    LibPocketFirewallInit(Constants.Name, true);
-
-                    XmlDocument xmlStart = new XmlDocument();
-                    XmlElement xmlInfo = xmlStart.CreateElement("firewall");
-                    xmlInfo.SetAttribute("description", Constants.Name);
-                    xmlInfo.SetAttribute("weight", "max");
-
-                    if (LibPocketFirewallStart(xmlInfo.OuterXml) == false)
-                        throw new Exception(Messages.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
-                }
 
                 List<string> layers = new List<string>();
 
@@ -162,7 +171,7 @@ namespace Eddie.Platforms
                 foreach (string layer in layers)
                 {
                     XmlElement xmlClone = xml.CloneNode(true) as XmlElement;
-                    xmlClone.SetAttribute("layer", layer);
+                    xmlClone.SetAttribute("layer", layer);                    
                     string xmlStr = xmlClone.OuterXml;
 
                     UInt64 id1 = LibPocketFirewallAddRule(xmlStr);
@@ -185,13 +194,15 @@ namespace Eddie.Platforms
 
         // Shortcuts
 
-        public static XmlElement CreateItemAllowAddress(string title, string address, string mask)
+        public static XmlElement CreateItemAllowAddress(string title, bool persistent, string address, string mask)
         {            
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
             xmlRule.SetAttribute("layer", "ipv4");
             xmlRule.SetAttribute("action", "permit");
+            if (persistent)
+                xmlRule.SetAttribute("persistent", "true");
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);
             XmlIf1.SetAttribute("field", "ip_remote_address");
@@ -202,13 +213,15 @@ namespace Eddie.Platforms
             return xmlRule;
         }
 
-        public static XmlElement CreateItemAllowProgram(string title, string path)
+        public static XmlElement CreateItemAllowProgram(string title, bool persistent, string path)
         {
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
             xmlRule.SetAttribute("layer", "all");
             xmlRule.SetAttribute("action", "permit");
+            if(persistent)
+                xmlRule.SetAttribute("persistent", "true");
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);
             XmlIf1.SetAttribute("field", "ale_app_id");
@@ -218,13 +231,15 @@ namespace Eddie.Platforms
             return xmlRule;
         }
 
-        public static XmlElement CreateItemAllowInterface(string title, string id)
+        public static XmlElement CreateItemAllowInterface(string title, bool persistent, string id)
         {
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
             xmlRule.SetAttribute("layer", "all");
             xmlRule.SetAttribute("action", "permit");
+            if (persistent)
+                xmlRule.SetAttribute("persistent", "true");
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);
             XmlIf1.SetAttribute("field", "ip_local_interface");
@@ -232,6 +247,53 @@ namespace Eddie.Platforms
             XmlIf1.SetAttribute("interface", id);
 
             return xmlRule;
+        }
+
+        public static bool ClearPendingRules()
+        {
+            bool found = false;
+            string wfpName = GetName();
+            string path = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".xml";
+
+            System.Diagnostics.Process p = new System.Diagnostics.Process();
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.FileName = "NetSh.exe";
+            p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
+            p.StartInfo.WorkingDirectory = Path.GetTempPath();
+            p.Start();
+            string output = p.StandardOutput.ReadToEnd();
+            p.WaitForExit();
+
+            System.Xml.XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(path);
+            foreach (XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
+            {
+                foreach (XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
+                {
+                    foreach (XmlElement xmlName in xmlItem.SelectNodes("displayData/name"))
+                    {
+                        string name = xmlName.InnerText;
+                        if (name == wfpName)
+                        {
+                            foreach (XmlNode xmlFilterId in xmlItem.GetElementsByTagName("filterId"))
+                            {
+                                ulong id;
+                                if (ulong.TryParse(xmlFilterId.InnerText, out id))
+                                {
+                                    LibPocketFirewallRemoveRuleDirect(id);
+                                    found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            File.Delete(path);
+
+            return found;
         }
     }
 }

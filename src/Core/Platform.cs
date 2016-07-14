@@ -125,11 +125,7 @@ namespace Eddie.Core
         }
 		*/
 
-        public static void DeInit()
-        {
-        }
-
-		public static bool IsUnix()
+        public static bool IsUnix()
         {
             return (Environment.OSVersion.Platform.ToString() == "Unix");
         }
@@ -198,6 +194,16 @@ namespace Eddie.Core
 			else
 				return "?";
 		}
+
+        public virtual void OnInit()
+        {
+
+        }
+
+        public virtual void OnDeInit()
+        {
+
+        }
 
 		public virtual string GetOsArchitecture()
 		{
@@ -536,14 +542,12 @@ namespace Eddie.Core
 		public virtual void OnDaemonOutput(string source, string message)
 		{
 		}
-
-		/*
+        
 		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
 		public virtual void OnRecovery()
 		{
 		}
-		*/
-
+		
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeRouteDefaultRemoved = Utils.XmlGetFirstElementByTagName(root, "RouteDefaultRemoved");

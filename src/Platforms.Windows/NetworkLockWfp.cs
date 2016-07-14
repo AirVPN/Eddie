@@ -32,6 +32,11 @@ namespace Eddie.Platforms
         private Dictionary<string, WfpItem> m_rules = new Dictionary<string, WfpItem>();
         private string m_lastestIpList = "";
 
+        public bool GetPersistentMode()
+        {
+            return Engine.Instance.Storage.GetBool("windows.wfp.persistent");
+        }
+
         public override string GetCode()
 		{
 			return "windows_wfp";
@@ -45,8 +50,6 @@ namespace Eddie.Platforms
 		public override void Init()
 		{
 			base.Init();
-
-			
 		}
 			
 		public override void Activation()
@@ -54,7 +57,7 @@ namespace Eddie.Platforms
 			base.Activation();
 
             // Allow Eddie / OpenVPN / Stunnel / Plink
-            AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Private - Allow Eddie", Platform.Instance.GetExecutablePath()));
+            AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Private - Allow Eddie", GetPersistentMode(), Platform.Instance.GetExecutablePath()));
 
             // Allow loopback
             {
@@ -63,6 +66,8 @@ namespace Eddie.Platforms
                 xmlRule.SetAttribute("name", "NetLock - Allow loopback");
                 xmlRule.SetAttribute("layer", "all");                
                 xmlRule.SetAttribute("action", "permit");
+                if(GetPersistentMode())
+                    xmlRule.SetAttribute("persistent", "true");
                 XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                 xmlRule.AppendChild(XmlIf1);
                 XmlIf1.SetAttribute("field", "ip_local_interface");
@@ -80,6 +85,8 @@ namespace Eddie.Platforms
                     xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
                     xmlRule.SetAttribute("layer", "all");
                     xmlRule.SetAttribute("action", "permit");
+                    if (GetPersistentMode())
+                        xmlRule.SetAttribute("persistent", "true");
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
                     XmlIf1.SetAttribute("field", "ip_protocol");
@@ -91,12 +98,12 @@ namespace Eddie.Platforms
 
             if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
             {
-                AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", "192.168.0.0", "255.255.0.0"));
-                AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", "172.16.0.0", "255.240.0.0"));
-                AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", "10.0.0.0", "255.0.0.0"));
-                AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", "224.0.0.0", "255.255.255.0"));
-                AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", "239.255.255.250", "255.255.255.255"));
-                AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", "239.255.255.253", "255.255.255.255"));
+                AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", GetPersistentMode(), "192.168.0.0", "255.255.0.0"));
+                AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", GetPersistentMode(), "172.16.0.0", "255.240.0.0"));
+                AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", GetPersistentMode(), "10.0.0.0", "255.0.0.0"));
+                AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", GetPersistentMode(), "224.0.0.0", "255.255.255.0"));
+                AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", GetPersistentMode(), "239.255.255.250", "255.255.255.255"));
+                AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", GetPersistentMode(), "239.255.255.253", "255.255.255.255"));
             }
 
             // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
@@ -106,6 +113,8 @@ namespace Eddie.Platforms
                 xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
                 xmlRule.SetAttribute("layer", "all");
                 xmlRule.SetAttribute("action", "permit");
+                if (GetPersistentMode())
+                    xmlRule.SetAttribute("persistent", "true");
 
                 XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                 xmlRule.AppendChild(XmlIf1);
@@ -134,7 +143,9 @@ namespace Eddie.Platforms
                 XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                 xmlRule.SetAttribute("name", "NetLock - Block All");
                 xmlRule.SetAttribute("layer", "all");
-                xmlRule.SetAttribute("action", "block");                
+                xmlRule.SetAttribute("action", "block");
+                if (GetPersistentMode())
+                    xmlRule.SetAttribute("persistent", "true");
                 AddRule("netlock_block_all", xmlRule);
             }
 
@@ -154,7 +165,7 @@ namespace Eddie.Platforms
         {
             base.AllowProgram(path, name, guid);
 
-            AddRule("netlock_allow_program_" + guid, Wfp.CreateItemAllowProgram("NetLock - Program - Allow " + name, path));
+            AddRule("netlock_allow_program_" + guid, Wfp.CreateItemAllowProgram("NetLock - Program - Allow " + name, GetPersistentMode(), path));
         }
 
         public override void DeallowProgram(string path, string name, string guid)
@@ -168,7 +179,7 @@ namespace Eddie.Platforms
         {
             base.AllowInterface(id);
 
-            AddRule("netlock_allow_interface_" + id, Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id, id));
+            AddRule("netlock_allow_interface_" + id, Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id, GetPersistentMode(), id));
         }
 
         public override void DeallowInterface(string id)
@@ -203,6 +214,8 @@ namespace Eddie.Platforms
                 xmlRule.SetAttribute("name", "NetLock - Allow IP");
                 xmlRule.SetAttribute("layer", "ipv4");
                 xmlRule.SetAttribute("action", "permit");
+                if (GetPersistentMode())
+                    xmlRule.SetAttribute("persistent", "true");
 
                 foreach (IpAddressRange ip in ipsFirewalled)
                 {
@@ -218,6 +231,7 @@ namespace Eddie.Platforms
             }
         }
 
+        /*
 		public override void OnRecoveryLoad(XmlElement root)
 		{
 			base.OnRecoveryLoad(root);
@@ -250,6 +264,7 @@ namespace Eddie.Platforms
                 root.SetAttributeNode("ids", list);
             }
         }
+        */
         
         public void AddRule(string code, XmlElement xmlRule)
         {

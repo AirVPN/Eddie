@@ -843,7 +843,7 @@ namespace Eddie.Gui.Forms
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
-			//cazzom_listViewServers.UpdateList();
+			//m_listViewServers.UpdateList();
             Engine.OnRefreshUi();
         }
 
@@ -855,7 +855,7 @@ namespace Eddie.Gui.Forms
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
-			//cazzom_listViewServers.UpdateList();
+			//m_listViewServers.UpdateList();
             Engine.OnRefreshUi();
         }
 
@@ -867,7 +867,7 @@ namespace Eddie.Gui.Forms
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
-            //cazzom_listViewServers.UpdateList();			
+            //m_listViewServers.UpdateList();			
             Engine.OnRefreshUi();
         }
 
@@ -906,8 +906,8 @@ namespace Eddie.Gui.Forms
 				item.Info.UserList = AreaInfo.UserListType.WhiteList;
 			}
 			Engine.UpdateSettings();
-            //cazzom_listViewAreas.UpdateList();
-            //cazzom_listViewServers.UpdateList();
+            //m_listViewAreas.UpdateList();
+            //m_listViewServers.UpdateList();
             Engine.OnRefreshUi();
         }
 
@@ -918,8 +918,8 @@ namespace Eddie.Gui.Forms
 				item.Info.UserList = AreaInfo.UserListType.BlackList;
 			}
 			Engine.UpdateSettings();
-            //cazzom_listViewAreas.UpdateList();
-            //cazzom_listViewServers.UpdateList();
+            //m_listViewAreas.UpdateList();
+            //m_listViewServers.UpdateList();
             Engine.OnRefreshUi();
         }
 
@@ -930,8 +930,8 @@ namespace Eddie.Gui.Forms
 				item.Info.UserList = AreaInfo.UserListType.None;
 			}
 			Engine.UpdateSettings();
-            //cazzom_listViewAreas.UpdateList();
-            //cazzom_listViewServers.UpdateList();
+            //m_listViewAreas.UpdateList();
+            //m_listViewServers.UpdateList();
             Engine.OnRefreshUi();
         }
 
@@ -954,7 +954,7 @@ namespace Eddie.Gui.Forms
 		private void chkShowAll_CheckedChanged(object sender, EventArgs e)
 		{
 			m_listViewServers.ShowAll = chkShowAll.Checked;
-            //cazzom_listViewServers.UpdateList();
+            //m_listViewServers.UpdateList();
             Engine.OnRefreshUi();
         }
 

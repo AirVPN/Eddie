@@ -395,11 +395,10 @@ namespace Eddie.Core
         public static string DnsLockActivatedWpf = "DNS leak protection with packet filtering enabled."; 
         public static string DnsLockDeactivatedWpf = "DNS leak protection with packet filtering disabled."; 
         public static string HackInterfaceUpDone = "Eddie Windows Interface Hack executed ({1})";
-        public static string WfpStart = "Starting Windows Filtering Platform"; 
         public static string WfpStartFail = "Windows WFP, Start failed: {1}";
-        public static string WfpStop = "Stopping Windows Filtering Platform";        
         public static string WfpRuleAddFail = "Windows WFP, Add rule failed: {1}";       
-        public static string WfpRuleRemoveFail = "Windows WFP, Add rule failed: {1}";       
+        public static string WfpRuleRemoveFail = "Windows WFP, Add rule failed: {1}";
+        public static string WfpRecovery = "Windows WFP, recovery of pending rules.";
 
         // Platform Windows & OS X
         public static string NetworkAdapterDnsDone = "DNS of a network adapter forced ({1}, from {2} to {3})";
