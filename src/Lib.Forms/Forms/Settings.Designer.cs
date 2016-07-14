@@ -925,7 +925,7 @@ namespace Eddie.Gui.Forms
             this.lblConnect.Name = "lblConnect";
             this.lblConnect.Size = new System.Drawing.Size(241, 23);
             this.lblConnect.TabIndex = 85;
-            this.lblConnect.Text = "Connect when launched:";
+            this.lblConnect.Text = "Connect at startup:";
             this.lblConnect.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // lblNetLock
@@ -936,7 +936,7 @@ namespace Eddie.Gui.Forms
             this.lblNetLock.Name = "lblNetLock";
             this.lblNetLock.Size = new System.Drawing.Size(241, 23);
             this.lblNetLock.TabIndex = 85;
-            this.lblNetLock.Text = "Lock network at start:";
+            this.lblNetLock.Text = "Activate Network Lock at startup:";
             this.lblNetLock.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // chkConnect
