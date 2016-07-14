@@ -203,7 +203,7 @@ namespace Eddie.Platforms
 		{
 			base.OnUpdateIps();
 
-			List<IpAddressRange> ipsFirewalled = GetAllIps();
+			List<IpAddressRange> ipsFirewalled = GetAllIps(true);
 
 			// Remove IP not present in the new list
 			foreach (IpAddressRange ip in m_currentList)

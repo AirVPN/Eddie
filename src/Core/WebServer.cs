@@ -16,8 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#if (EDDIE3)
-
+//#if (EDDIE3)
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -27,16 +26,31 @@ using WebSocketSharp;
 using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 
-// Clodo, TOCLEAN
-
 namespace Eddie.Core
 {
     public class WebServer
     {
 		private static HttpServer m_server;
 
+        public static string GetPath()
+        {
+            string pathRoot = "";
+            if (Engine.Instance.DevelopmentEnvironment)
+                pathRoot = Platform.Instance.GetProjectPath();
+            else
+                pathRoot = Platform.Instance.GetProgramFolder();
+            pathRoot += "//webui//";
+            if (System.IO.Directory.Exists(pathRoot))
+                return pathRoot;
+            else
+                return "";
+        }
+
 		public static void Start()
 		{
+            if (GetPath() == "")
+                return;
+
 			/* Create a new instance of the HttpServer class.
        *
        * If you would like to provide the secure connection, you should create the instance
@@ -75,15 +89,8 @@ namespace Eddie.Core
 					 : null; // If the user credentials aren't found.
 			};
 			 */
-
-            // To set the document root path.
-            string pathRoot = "";
-            if (Engine.Instance.DevelopmentEnvironment)
-                pathRoot = Platform.Instance.GetProjectPath();
-            else
-                pathRoot = Platform.Instance.GetProgramFolder();
-
-            m_server.RootPath = pathRoot + "//webui//";
+             
+            m_server.RootPath = GetPath(); 
 
 			// To set the HTTP GET method event.
 			m_server.OnGet += new EventHandler<HttpRequestEventArgs>(OnGet);
@@ -209,7 +216,8 @@ namespace Eddie.Core
 
 		public static void Send(XmlElement nodeMessage)
 		{
-			Sessions.Broadcast(nodeMessage.OwnerDocument.OuterXml);
+            if (m_server != null)
+                Sessions.Broadcast(nodeMessage.OwnerDocument.OuterXml);
 		}
 
 		public static XmlElement CreateMessage(string type)
@@ -237,6 +245,9 @@ namespace Eddie.Core
 
         public static void OnCommand(CommandLine cmd)
         {
+            if (m_server == null)
+                return;
+
             XmlElement xmlCommand = CreateMessage(cmd.Get("action","Unknown"));
             cmd.WriteXml(xmlCommand);
             Send(xmlCommand);
@@ -258,4 +269,4 @@ namespace Eddie.Core
     }
 }
 
-#endif
+//#endif

@@ -1423,10 +1423,10 @@ namespace Eddie.Gui.Forms
             this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmdCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cmdCancel.ImageKey = "enter";
-            this.cmdCancel.Location = new System.Drawing.Point(80, 53);
+            this.cmdCancel.Location = new System.Drawing.Point(88, 28);
             this.cmdCancel.Margin = new System.Windows.Forms.Padding(2);
             this.cmdCancel.Name = "cmdCancel";
-            this.cmdCancel.Size = new System.Drawing.Size(74, 20);
+            this.cmdCancel.Size = new System.Drawing.Size(74, 34);
             this.cmdCancel.TabIndex = 61;
             this.cmdCancel.Text = "Cancel";
             this.cmdCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1634,7 +1634,7 @@ namespace Eddie.Gui.Forms
             colMessage});
             this.lstLogs.ContextMenuStrip = this.mnuLogsContext;
             this.lstLogs.FullRowSelect = true;
-            this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.lstLogs.HideSelection = false;
             this.lstLogs.LabelWrap = false;
             this.lstLogs.Location = new System.Drawing.Point(4, 4);

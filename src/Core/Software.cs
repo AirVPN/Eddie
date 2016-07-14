@@ -234,7 +234,10 @@ namespace Eddie.Core
         {
             if (path == "")
                 return false;
-            return File.Exists(path);
+            if (File.Exists(path) == false)
+                return false;
+
+            return true;
         }
 
 		public static string FindExecutable(string name)
@@ -259,8 +262,7 @@ namespace Eddie.Core
 			}
 
 			string path = FindResource(filename, name);
-
-
+            
 			if (path != "") // 2.8
 				Platform.Instance.EnsureExecutablePermissions(path);
 			

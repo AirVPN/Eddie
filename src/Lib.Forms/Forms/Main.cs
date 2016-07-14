@@ -46,10 +46,8 @@ namespace Eddie.Gui.Forms
 		private ListViewServers m_listViewServers;
 		private ListViewAreas m_listViewAreas;
 
-		private Dictionary<string, ListViewItemStats> m_statsItems = new Dictionary<string, ListViewItemStats>();
+        private Dictionary<string, ListViewItemStats> m_statsItems = new Dictionary<string, ListViewItemStats>();
 
-		//private Font m_topBarFont = new Font("Verdana", 10);
-		
 		private int m_windowMinimumWidth = 700;
 		private int m_windowMinimumHeight = 300;
 		private int m_windowDefaultWidth = 800;
@@ -60,7 +58,7 @@ namespace Eddie.Gui.Forms
 		private bool m_formReady = false;
 		private bool m_closing = false;
 
-		private System.Timers.Timer timerMonoDelayedRedraw = null;
+		// private System.Timers.Timer timerMonoDelayedRedraw = null; // TOCLEAN
 
         public Main()
         {
@@ -260,15 +258,19 @@ namespace Eddie.Gui.Forms
 
             m_tabMain = new TabNavigator();
             m_tabMain.ImportTabControl(tabMain);
-            m_tabMain.Pages[0].Icon = "maintab_overview";
-            m_tabMain.Pages[1].Icon = "maintab_servers";
-            m_tabMain.Pages[2].Icon = "maintab_countries";
-            m_tabMain.Pages[3].Icon = "maintab_speed";
-            m_tabMain.Pages[4].Icon = "maintab_stats";
-            m_tabMain.Pages[5].Icon = "maintab_logs";
-            m_tabMain.TabsFont = Skin.FontBig;
-            m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-            this.Controls.Add(m_tabMain);
+            if (m_tabMain.Pages.Count != 0)
+            {
+                m_tabMain.Pages[0].Icon = "maintab_overview";
+                m_tabMain.Pages[1].Icon = "maintab_servers";
+                m_tabMain.Pages[2].Icon = "maintab_countries";
+                m_tabMain.Pages[3].Icon = "maintab_speed";
+                m_tabMain.Pages[4].Icon = "maintab_stats";
+                m_tabMain.Pages[5].Icon = "maintab_logs";
+                m_tabMain.TabsFont = Skin.FontBig;
+                m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+                m_tabMain.TabSwitch += tabMain_TabSwitch;
+                this.Controls.Add(m_tabMain);
+            }
             
             m_imgProgressInfinite = new ProgressInfinite();
 			this.pnlWaiting.Controls.Add(m_imgProgressInfinite);
@@ -278,11 +280,10 @@ namespace Eddie.Gui.Forms
 			mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
 
 			chkRemember.BackColor = Color.Transparent;
-            
-            // Clodo Linux Issue
+                        
             if(Platform.IsWindows())
             {
-                // Clodo TOFIX: Under Mono crash...
+                // TOFIX: Under Mono crash...
                 m_toolTip = new Controls.ToolTip();
                 Controls.Add(m_toolTip);
             }
@@ -294,7 +295,8 @@ namespace Eddie.Gui.Forms
 			m_pnlCharts.Height = holSpeedChart.Height;
 			m_pnlCharts.Anchor = holSpeedChart.Anchor;
 			holSpeedChart.Visible = false;
-			m_tabMain.Pages[3].Controls.Add(m_pnlCharts);
+            if(m_tabMain.Pages.Count != 0)
+			    m_tabMain.Pages[3].Controls.Add(m_pnlCharts);
 
 			m_cmdMainMenu = new MenuButton();
 			m_cmdMainMenu.Left = 0;
@@ -328,7 +330,7 @@ namespace Eddie.Gui.Forms
 
 			lstStats.ImageIconResourcePrefix = "stats_";
             lstStats.ResizeColumnMax(1);
-
+            
             lstLogs.ImageIconResourcePrefix = "log_";
             lstLogs.ResizeColumnString(0, 2);
             lstLogs.ResizeColumnString(1, LogEntry.GetDateForListSample());
@@ -405,10 +407,11 @@ namespace Eddie.Gui.Forms
 			}
             
             m_lockCoordUpdate = false;
-            
+
             Resizing();
 
             base.OnLoad(e);
+
 
             Show();
 
@@ -416,6 +419,7 @@ namespace Eddie.Gui.Forms
             
             Engine.OnRefreshUi();
 
+            /* TOCLEAN
 			if (Platform.IsUnix())
 			{
 				// Mono Bug, issue on start drawing in some systems like Mint
@@ -424,14 +428,18 @@ namespace Eddie.Gui.Forms
 				timerMonoDelayedRedraw.Interval = 1000;
 				timerMonoDelayedRedraw.Enabled = true;
 			}            
+            */
         }
-
-		void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
+        
+        /* // TOCLEAN
+        void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
 		{
 			timerMonoDelayedRedraw.Enabled = false;
 
-			Refresh();
+            Resizing();
+            Refresh();
 		}
+        */
 
 		protected override void OnKeyDown(KeyEventArgs e) // 2.10.1
 		{
@@ -461,7 +469,17 @@ namespace Eddie.Gui.Forms
         protected override void OnPaint(PaintEventArgs e)
         {
             try
-            {   
+            {
+                // Another Mono Workaround. On some system, randomly ignore resized controls.
+                if (Platform.IsUnix())
+                {
+                    if (m_tabMain.Width != ClientSize.Width)
+                    {
+                        // Console.WriteLine("Detected Mono issue");
+                        Resizing();
+                    }
+                }
+
                 Skin.GraphicsCommon(e.Graphics);
 
                 int iconHeight = m_topHeaderHeight;
@@ -493,7 +511,7 @@ namespace Eddie.Gui.Forms
 				}
 				else if (Engine.IsConnected())
 				{	
-					string serverName = Engine.CurrentServer.Name;
+					string serverName = Engine.CurrentServer.DisplayName;
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
@@ -924,7 +942,7 @@ namespace Eddie.Gui.Forms
 
 		private void cmdAreasUndefined_Click(object sender, EventArgs e)
 		{
-			mnuAreasUndefined_Click(sender, e);
+            mnuAreasUndefined_Click(sender, e);
 		}
 
 		private void chkShowAll_CheckedChanged(object sender, EventArgs e)
@@ -983,16 +1001,16 @@ namespace Eddie.Gui.Forms
 			}
 		}
 
-		private void tabMain_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			// Under Linux, to close context menù.
-			if (mnuAreas.Visible)
-				mnuAreas.Close();
-			if (mnuServers.Visible)
-				mnuServers.Close();
-		}
+        private void tabMain_TabSwitch()
+        {
+            // Under Linux, to close context menù.
+            if (mnuAreas.Visible)
+                mnuAreas.Close();
+            if (mnuServers.Visible)
+                mnuServers.Close();
+        }
 
-		private void cboScoreType_SelectedIndexChanged(object sender, EventArgs e)
+        private void cboScoreType_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			Engine.Storage.Set("servers.scoretype", cboScoreType.Text);
 
@@ -1036,6 +1054,8 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
+            Skin.Apply(lstLogs);
+
             LogsSupport();            
         }
 
@@ -1060,7 +1080,7 @@ namespace Eddie.Gui.Forms
 
 		public void Resizing()
 		{
-			if (m_lockCoordUpdate)
+            if (m_lockCoordUpdate)
 				return;
 
             if (m_pnlCharts == null)
@@ -1101,18 +1121,19 @@ namespace Eddie.Gui.Forms
 				m_imgProgressInfinite.Left = (tabPageRectangle.Width / 2) - (208 / 2);					
 				m_imgProgressInfinite.Top = (tabPageRectangle.Height / 2) - (13 / 2);					
 			}
-			lblWait1.Left = 0;
+            cmdCancel.Width = tabPageRectangle.Width * 2 / 3;
+            cmdCancel.Left = tabPageRectangle.Width / 2 - cmdCancel.Width / 2;
+            cmdCancel.Top = tabPageRectangle.Height - cmdCancel.Height - 20;
+            lblWait1.Left = 0;
 			lblWait1.Top = 0;
 			lblWait1.Width = tabPageRectangle.Width;
 			lblWait1.Height = imgProgressTop - 10;
 			lblWait2.Left = 0;
 			lblWait2.Top = imgProgressTop + imgProgressSize.Height + 10;
 			lblWait2.Width = tabPageRectangle.Width;
-			lblWait2.Height = tabPageRectangle.Height - lblWait2.Top - 10 - 60;
-			cmdCancel.Width = tabPageRectangle.Width * 2 / 3;
-			cmdCancel.Height = 30;
-			cmdCancel.Left = tabPageRectangle.Width / 2 - cmdCancel.Width / 2;
-			cmdCancel.Top = tabPageRectangle.Height - 50;            
+			lblWait2.Height = tabPageRectangle.Height - lblWait2.Top - 10 - cmdCancel.Height - 20;
+
+            Invalidate();
         }
         
         public void Restore()
@@ -1156,7 +1177,7 @@ namespace Eddie.Gui.Forms
 
         public void Connect()
         {
-			tabMain.SelectedIndex = 0;
+            m_tabMain.SelectTab(0);
 
 			if ((Engine.IsLogged() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
 				Engine.Connect();            
@@ -1168,9 +1189,12 @@ namespace Eddie.Gui.Forms
 			{
                 Eddie.Gui.Controls.ListViewItemServer listViewItem = m_listViewServers.SelectedItems[0] as Eddie.Gui.Controls.ListViewItemServer;
 
-				Engine.NextServer = listViewItem.Info;
+                if (listViewItem.Info.CanConnect())
+                {
+                    Engine.NextServer = listViewItem.Info;
 
-				Connect();
+                    Connect();
+                }
 			}
 		}
 
@@ -1334,8 +1358,8 @@ namespace Eddie.Gui.Forms
 			{
 				cmdConnect.Enabled = false;
 			}
-
-			cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1));
+                        
+            cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1));
 			mnuServersConnect.Enabled = cmdServersConnect.Enabled;
 
 			cmdServersWhiteList.Enabled = (m_listViewServers.SelectedItems.Count > 0);
@@ -1493,7 +1517,7 @@ namespace Eddie.Gui.Forms
 							pnlWaiting.Visible = false;
 							pnlConnected.Visible = true;
 
-							lblConnectedServerName.Text = Engine.CurrentServer.Name;
+							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
 							lblConnectedLocation.Text = CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode) + ", " + Engine.CurrentServer.Location;
 							txtConnectedExitIp.Text = Engine.CurrentServer.IpExit;
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
@@ -1573,7 +1597,7 @@ namespace Eddie.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-							string notifyText = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.Name, CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode));
+							string notifyText = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.DisplayName, CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode));
 							string notifyText2 = Constants.Name + " - " + notifyText;
 							Text = notifyText2;
 							mnuStatus.Text = "> " + notifyText;
@@ -1585,16 +1609,12 @@ namespace Eddie.Gui.Forms
 							}
 						}						
                     }
-
+                                        
 					if (mode == Core.Engine.RefreshUiMode.Full)
-					{
-						// TOCLEAN
-						//bool welcome = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == false));
-						//bool connected = ((Engine.IsWaiting() == false) && (Engine.IsConnected() == true));
-
-						m_listViewServers.UpdateList();
-						m_listViewAreas.UpdateList();
-					}
+					{                        
+                        m_listViewServers.UpdateList();
+                        m_listViewAreas.UpdateList();                        
+                    }                    
                 }
 
                 

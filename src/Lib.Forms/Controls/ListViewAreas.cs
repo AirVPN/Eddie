@@ -189,17 +189,17 @@ namespace Eddie.Gui.Controls
 
 		public void UpdateList()
 		{
-			//SuspendLayout();
+            //SuspendLayout();
 
-			List<AreaInfo> areas = new List<AreaInfo>();
+            Dictionary<string, AreaInfo> areas = new Dictionary<string, AreaInfo>();
 			lock (Engine.Instance.Areas)
 			{
 				foreach (AreaInfo infoArea in Engine.Instance.Areas.Values)
-					areas.Add(infoArea);
+					areas[infoArea.Code] = infoArea;
 			}
 
-			foreach (AreaInfo infoArea in areas)
-			{
+			foreach (AreaInfo infoArea in areas.Values)
+            {                
 				if (ItemsAreas.ContainsKey(infoArea.Code) == false)
 				{
 					Controls.ListViewItemArea listItemArea = new Controls.ListViewItemArea();
@@ -215,17 +215,49 @@ namespace Eddie.Gui.Controls
 					listItemArea.Update();
 				}
 			}
+            
+            List<ListViewItemArea> itemsToRemove = new List<ListViewItemArea>();
 
-			foreach (ListViewItemArea viewItem in Items)
-			{
-				if (areas.Contains(viewItem.Info) == false)
-				{
-					Items.Remove(viewItem);
-					ItemsAreas.Remove(viewItem.Info.Code);
-				}
-			}
+            foreach (ListViewItemArea viewItem in ItemsAreas.Values)
+            {
+                if (areas.ContainsKey(viewItem.Info.Code) == false)
+                {
+                    itemsToRemove.Add(viewItem);
+                }
+            }
 
-			//ResumeLayout();
-		}
+            if (itemsToRemove.Count > 0)
+            {
+                if (Platform.IsWindows())
+                {
+                    foreach (ListViewItemArea viewItem in itemsToRemove)
+                    {
+                        Items.Remove(viewItem);
+                        ItemsAreas.Remove(viewItem.Info.Name);
+                    }
+                }
+                else
+                {
+                    
+                    // Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
+                    // Reproduce the crash by whitelist some server and switch "Show all" continuosly.
+                    List<ListViewItemArea> items = new List<ListViewItemArea>();
+                    foreach (ListViewItemArea itemCurrent in Items)
+                    {
+                        if (itemsToRemove.Contains(itemCurrent) == false)
+                            items.Add(itemCurrent);
+                    }
+                    Items.Clear();
+                    ItemsAreas.Clear();
+                    foreach (ListViewItemArea itemCurrent in items)
+                    {
+                        ItemsAreas.Add(itemCurrent.Info.Name, itemCurrent);
+                        Items.Add(itemCurrent);
+                    }
+                }
+            }
+
+            //ResumeLayout();
+        }        
     }
 }

@@ -35,8 +35,6 @@ namespace Eddie.Core
 
         private Dictionary<string, Option> m_Options = new Dictionary<string, Option>();
         
-		private Int64 m_lastManifestTimeTry = 0;
-
         public Storage()
         {
 
@@ -300,7 +298,9 @@ namespace Eddie.Core
 			SetDefault("profile", "text","AirVPN", Messages.ManOptionProfile); // Not in Settings
 			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
 
-			SetDefault("servers.last", "text", "", NotInMan);
+            SetDefault("ui.unit", "text", "", NotInMan);
+
+            SetDefault("servers.last", "text", "", NotInMan);
 			SetDefault("servers.whitelist", "text", "", Messages.ManOptionServersWhiteList);
 			SetDefault("servers.blacklist", "text", "", Messages.ManOptionServersBlackList);
 			SetDefaultBool("servers.startlast", false, Messages.ManOptionServersStartLast);
@@ -310,10 +310,11 @@ namespace Eddie.Core
 			SetDefault("areas.whitelist", "text", "", Messages.ManOptionAreasWhiteList);
 			SetDefault("areas.blacklist", "text", "", Messages.ManOptionAreasBlackList);
 
-            SetDefault("providers.openvpn.ip_webservice", "text", "geoip-bin;https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
+            SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
+            SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
 
             SetDefaultBool("log.file.enabled", false, NotInMan);
-			SetDefault("log.file.path", "text", "logs/airvpn_%y-%m-%d.log", NotInMan);
+			SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
 			SetDefaultBool("log.level.debug", false, NotInMan);
 
 			SetDefault("mode.protocol", "text", "AUTO", Messages.ManOptionModeProtocol);
@@ -334,8 +335,7 @@ namespace Eddie.Core
 			SetDefault("routes.custom", "text", "", Messages.ManOptionRoutesCustom);
 			SetDefaultBool("routes.remove_default", false, NotInMan);
 
-			SetDefault("dns.mode", "text", "auto", Messages.ManOptionDnsMode);
-            SetDefaultBool("dns.lock", true, Messages.ManOptionDnsLock);
+			SetDefault("dns.mode", "text", "auto", Messages.ManOptionDnsMode);            
 			SetDefault("dns.servers", "text", "", Messages.ManOptionDnsServers);
 			SetDefaultBool("dns.check", true, Messages.ManOptionDnsCheck);
 
@@ -366,11 +366,14 @@ namespace Eddie.Core
 
             SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
 
-#if (EDDIE3)
-            SetDefaultBool("webui.enabled", true, Messages.ManOptionWebUiEnabled);
-            SetDefaultString("webui.ip", "localhost", Messages.ManOptionWebUiAddress);
-            SetDefaultInt("webui.port", 4649, Messages.ManOptionWebUiPort);
-#endif
+            if (WebServer.GetPath() != "")
+            {
+                //#if (EDDIE3)
+                SetDefaultBool("webui.enabled", true, Messages.ManOptionWebUiEnabled);
+                SetDefault("webui.ip", "text", "localhost", Messages.ManOptionWebUiAddress);
+                SetDefaultInt("webui.port", 4649, Messages.ManOptionWebUiPort);
+                //#endif
+            }
             SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
 			
@@ -402,9 +405,10 @@ namespace Eddie.Core
 			SetDefaultBool("windows.disable_driver_upgrade", false, Messages.ManOptionWindowsDisableDriverUpgrade);
             SetDefaultBool("windows.tap_up", true, Messages.ManOptionWindowsTapUp);
             SetDefaultBool("windows.dhcp_disable", false, Messages.ManOptionWindowsDhcpDisable);
-            SetDefaultBool("windows.wfp", false, NotInMan);
-            SetDefaultBool("windows.ipv6.os_disable", true, Messages.ManOptionWindowsIPv6DisableAtOs); 
-            SetDefaultBool("windows.dns.force_all_interfaces", true, Messages.ManOptionWindowsDnsForceAllInterfaces);
+            SetDefaultBool("windows.wfp", false, NotInMan); // Must be default TRUE if WFP works well
+            SetDefaultBool("windows.ipv6.os_disable", true, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
+            SetDefaultBool("windows.dns.force_all_interfaces", true, Messages.ManOptionWindowsDnsForceAllInterfaces); // Must be default FALSE if WFP works well
+            SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
 
             // GUI only            
             SetDefaultBool("gui.exit_confirm", true, NotInMan);
@@ -466,7 +470,7 @@ namespace Eddie.Core
                 XmlDocument xmlDoc = new XmlDocument();
                 XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
 
-                XmlElement rootNode = xmlDoc.CreateElement("airvpn");
+                XmlElement rootNode = xmlDoc.CreateElement("eddie");
                 xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
 
                 XmlElement optionsNode = xmlDoc.CreateElement("options");
@@ -498,20 +502,26 @@ namespace Eddie.Core
                     }
                 }
 
-#if (EDDIE3)
+
                 XmlElement providersNode = xmlDoc.CreateElement("providers");
                 rootNode.AppendChild(providersNode);
-                foreach (Provider provider in Engine.Instance.Providers)
+                foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
                 {
                     XmlNode providerNode = xmlDoc.ImportNode(provider.Storage.DocumentElement, true);
                     providersNode.AppendChild(providerNode);
-                }                
-#else
-                foreach(XmlElement xmlChild in Engine.Instance.AirVPN.Storage.DocumentElement)
+                }
+
+#if (!EDDIE3)
+                // Move providers->AirVPN to root.
+                XmlElement xmlAirVPN = Utils.XmlGetFirstElementByTagName(providersNode, "AirVPN");
+                if(xmlAirVPN != null)                
                 {
-                    XmlNode xmlClone = xmlDoc.ImportNode(xmlChild, true);
-                    rootNode.AppendChild(xmlClone);
+                    foreach(XmlElement xmlChild in xmlAirVPN.ChildNodes)
+                        Utils.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
+                    providersNode.RemoveChild(xmlAirVPN);
                 }                
+                if (providersNode.ChildNodes.Count == 0)
+                    providersNode.ParentNode.RemoveChild(providersNode);
 #endif
 
                 xmlDoc.Save(path);
@@ -530,7 +540,9 @@ namespace Eddie.Core
                 {
                     XmlDocument xmlDoc = new XmlDocument();
 
-					string profile = Get("profile");
+                    Providers = xmlDoc.CreateElement("providers");
+
+                    string profile = Get("profile");
 					if (profile.ToLowerInvariant() == "none")
 						return;
 
@@ -551,7 +563,7 @@ namespace Eddie.Core
                     ResetAll();
 
                     Providers = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "providers");
-                    if (Providers == null)
+                    if(Providers == null)
                         Providers = xmlDoc.CreateElement("providers");
 
                     XmlNode nodeOptions = xmlDoc.DocumentElement.GetElementsByTagName("options")[0];
@@ -577,7 +589,7 @@ namespace Eddie.Core
                         XmlElement providerAirVpn = xmlDoc.CreateElement("AirVPN");
                         Providers.AppendChild(providerAirVpn);
 
-                        Utils.XmlMoveElement(xmlManifest, providerAirVpn);
+                        Utils.XmlCopyElement(xmlManifest, providerAirVpn);
 
                         XmlElement xmlUser = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
                         if (xmlUser != null) // Compatibility with old manifest < 2.11
@@ -589,10 +601,7 @@ namespace Eddie.Core
                             }
                         }
                         if (xmlUser != null)
-                            Utils.XmlMoveElement(xmlUser, providerAirVpn);
-
-                        Engine.Instance.AirVPN.Manifest = xmlManifest;
-                        Engine.Instance.AirVPN.User = xmlUser;
+                            Utils.XmlCopyElement(xmlUser, providerAirVpn);                        
                     }                       
                 }
                 catch (Exception ex)
@@ -603,46 +612,7 @@ namespace Eddie.Core
                 }
             }
         }
-
-#region Manifest Management
-
-		public bool UpdateManifestNeed(bool recommended) // Clodo URGENT adapt into ProvidersManager
-		{
-			lock (Engine.Instance.AirVPN.Manifest)
-			{	
-				Int64 refreshInterval = 10; // Minutes
-
-				int refreshManifest = GetInt("advanced.manifest.refresh");
-				if (refreshManifest < 0)
-				{
-					if ( (Engine.Instance.AirVPN.Manifest != null) && (Engine.Instance.AirVPN.Manifest.Attributes["next_update"] != null) )
-					{
-						refreshInterval = Conversions.ToInt64(Engine.Instance.AirVPN.Manifest.Attributes["next_update"].Value);
-					}
-				}
-				else
-				{
-					refreshInterval = refreshManifest;
-				}
-
-				if (refreshInterval == 0)
-					return false;
-				
-				if (m_lastManifestTimeTry + 60 * refreshInterval < Utils.UnixTimeStamp())
-					return true;
-			}
-
-			return false;
-		}
         
-        public string GetDefaultDirectives() // Clodo URGENT TOFIX
-		{
-			string result = "# Common:\n" + Engine.Instance.AirVPN.GetManifestKeyValue("openvpn_directives_common", "") + "\n# UDP only:\n" + Engine.Instance.AirVPN.GetManifestKeyValue("openvpn_directives_udp", "") + "\n# TCP Only:\n" + Engine.Instance.AirVPN.GetManifestKeyValue("openvpn_directives_tcp", "");
-			result = Platform.Instance.NormalizeString(result);
-			return result;
-		}
-
-#endregion
 
 	}
 }

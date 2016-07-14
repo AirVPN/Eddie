@@ -66,15 +66,14 @@ namespace Eddie.Lib.Core.Properties {
         ///  &lt;manifest&gt;
         ///    &lt;urls&gt;
         ///      &lt;url address=&quot;http://54.93.175.114&quot; /&gt;
-        ///	  &lt;url address=&quot;http://54.246.124.152&quot; /&gt;
-        ///	  &lt;url address=&quot;http://54.225.156.17&quot; /&gt;
-        ///		&lt;url address=&quot;http://95.211.138.143&quot; /&gt;
-        ///
+        ///      &lt;url address=&quot;http://54.246.124.152&quot; /&gt;
+        ///      &lt;url address=&quot;http://54.225.156.17&quot; /&gt;
+        ///      &lt;url address=&quot;http://95.211.138.143&quot; /&gt;
         ///    &lt;/urls&gt;
         ///    &lt;rsa&gt;
         ///      &lt;RSAParameters&gt;
         ///        &lt;Exponent&gt;AQAB&lt;/Exponent&gt;
-        ///        &lt;Modulus&gt;wuQXz7eZeEBwaaRsVK8iEHpueXoKyQzW8sr8qMUkZIcKtKv5iseXMrTbcGYGpRXdiqXp7 [rest of string was truncated]&quot;;.
+        ///        &lt;Modulus&gt;wuQXz7eZeEBwaaRsVK8iEHpueXoKyQzW8sr8qMUkZIcKtKv5iseXMrTbcGYGp [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AirVPN {
             get {

@@ -300,7 +300,7 @@ namespace Eddie.Core
 
 		public virtual string GetExecutablePath()
 		{
-			return System.Reflection.Assembly.GetEntryAssembly().Location;
+            return System.Reflection.Assembly.GetEntryAssembly().Location;
 		}
 
         public virtual string GetUserFolder()
@@ -334,6 +334,20 @@ namespace Eddie.Core
         {
             return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
         }
+
+        /*
+        public virtual int Ping(string host, int timeout)
+        {
+            string result = ShellCmd("ping " + host + " -n 1");
+
+            string sMS = Utils.ExtractBetween(result, "Maximum = ", "ms,");
+            int iMS;
+            if (int.TryParse(sMS, out iMS))
+                return iMS;
+            else
+                return -1;
+        }
+        */
 
 		public virtual void EnsureExecutablePermissions(string path)
 		{

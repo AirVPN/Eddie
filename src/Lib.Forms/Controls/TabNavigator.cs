@@ -54,6 +54,9 @@ namespace Eddie.Gui.Controls
 
         public List<TabNavigatorPage> Pages = new List<TabNavigatorPage>();
 
+        public delegate void TabSwitchHandler();
+        public event TabSwitchHandler TabSwitch;
+
         public TabNavigator()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);            
@@ -73,10 +76,10 @@ namespace Eddie.Gui.Controls
         }
 
         public void ImportTabControl(TabControl tabControl)
-        {
+        {            
             this.SuspendLayout();
             tabControl.SuspendLayout();
-
+            
             Pages.Clear();
             foreach(TabPage tabPage in tabControl.TabPages)
             {
@@ -103,9 +106,9 @@ namespace Eddie.Gui.Controls
 
                 foreach (Control c in ctls)
                     page.Controls.Add(c);
-                */              
-                
-                for (;tabPage.Controls.Count > 0;)
+                */
+
+            for (;tabPage.Controls.Count > 0;)
                 {
                     Control ctlChild = tabPage.Controls[0];
                     
@@ -123,7 +126,7 @@ namespace Eddie.Gui.Controls
             SelectTab(0);
 
             this.ResumeLayout();
-            tabControl.ResumeLayout();
+            tabControl.ResumeLayout();            
         }
 
         protected override void OnResize(EventArgs e)
@@ -153,7 +156,7 @@ namespace Eddie.Gui.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            
+                        
             Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab.tabs.background"), ClientRectangle);
             Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab.page.background"), GetPageRect());
             Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
@@ -292,14 +295,23 @@ namespace Eddie.Gui.Controls
             if (m_selectedItem != -1)
                 Pages[m_selectedItem].Visible = false;
 
-            m_selectedItem = index;
-            Invalidate(GetTabsRect());
+            m_selectedItem = index;            
 
             Control tabPageControl = Pages[m_selectedItem];
             Rectangle tabPageRectangle = GetPageRect();
             CheckSizes();
 
             tabPageControl.Visible = true;            
+
+            if (TabSwitch != null)
+                TabSwitch();
+
+            Invalidate(GetTabsRect());
+
+            if (Platform.IsUnix())
+            {
+                Skin.ListView.WorkaroundMonoListViewHeadersBug(tabPageControl);                
+            }
         }
 
         public Rectangle GetTabsRect()

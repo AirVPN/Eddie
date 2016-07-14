@@ -44,9 +44,9 @@ namespace Eddie.Core.Providers
 #endif
         }
 
-        public override void OnLoad()
+        public override void OnLoad(XmlElement xmlStorage)
 		{
-			base.OnLoad();
+			base.OnLoad(xmlStorage);
 
             CompatibilityManager.FixProviderStorage(Storage);
 
@@ -206,12 +206,14 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlNode nodeServer in Manifest.SelectNodes("//servers/server"))
 				{
-					string name = nodeServer.Attributes["name"].Value;
+                    string code = Utils.SHA256(nodeServer.Attributes["name"].Value);
+                    
+					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 
-					ServerInfo infoServer = Engine.Instance.GetServerInfo(name, this);
-					
-					// Update info
-					infoServer.IpEntry = Utils.XmlGetAttributeString(nodeServer, "ip_entry", ""); ;
+                    // Update info
+                    infoServer.DisplayName = TitleForDisplay + nodeServer.Attributes["name"].Value;
+                    infoServer.ProviderNameX = nodeServer.Attributes["name"].Value;
+                    infoServer.IpEntry = Utils.XmlGetAttributeString(nodeServer, "ip_entry", ""); ;
 					infoServer.IpEntry2 = Utils.XmlGetAttributeString(nodeServer, "ip_entry2", "");
 					infoServer.IpExit = Utils.XmlGetAttributeString(nodeServer, "ip_exit", "");
 					infoServer.CountryCode = Utils.XmlGetAttributeString(nodeServer, "country_code", "");
@@ -222,6 +224,7 @@ namespace Eddie.Core.Providers
 					infoServer.Users = Utils.XmlGetAttributeInt64(nodeServer, "users", 0);
 					infoServer.WarningOpen = Utils.XmlGetAttributeString(nodeServer, "warning_open", "");
 					infoServer.WarningClosed = Utils.XmlGetAttributeString(nodeServer, "warning_closed", "");
+                    infoServer.SupportCheck = Utils.XmlGetAttributeBool(nodeServer, "support_check", false);
                     infoServer.OvpnDirectives = Utils.XmlGetAttributeString(nodeServer, "openvpn_directives", "");                    
                 }
 			}
@@ -290,15 +293,6 @@ namespace Eddie.Core.Providers
 			string authPublicKey = Manifest.SelectSingleNode("rsa").InnerXml;
 
             return AirExchange.FetchUrls(title, authPublicKey, urls, parameters);            
-		}
-
-        public string GetManifestKeyValue(string key, string def)
-        {
-            if (Manifest == null)
-                return def;
-            if (Manifest.Attributes[key] == null)
-                return def;
-            return Manifest.Attributes[key].Value;
-        }
+		}        
     }
 }

@@ -65,18 +65,51 @@ namespace Eddie.Core
 			return BitConverter.ToString(bytes).Replace("-", "").ToLower();
 		}
 
-		public static string GetNameFromPath(string path)
+        public static string SHA256(string password)
+        {
+            System.Security.Cryptography.SHA256Managed crypt = new System.Security.Cryptography.SHA256Managed();
+            System.Text.StringBuilder hash = new System.Text.StringBuilder();
+            byte[] crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password), 0, Encoding.UTF8.GetByteCount(password));
+            foreach (byte theByte in crypto)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+            return hash.ToString();
+        }
+
+        public static string GetNameFromPath(string path)
         {
             return new FileInfo(path).Name;
         }
 
+        public static string ExtractBetween(string str, string from, string to)
+        {
+            int iPos1 = str.IndexOf(from);
+            if(iPos1 != -1)
+            {
+                int iPos2 = str.IndexOf(to, iPos1 + from.Length);
+                if(iPos2 != -1)
+                {
+                    return str.Substring(iPos1 + from.Length, iPos2 - iPos1 - from.Length);
+                }
+            }
+
+            return "";
+        }
+
 		public static XmlElement XmlGetFirstElementByTagName(XmlElement node, string name)
 		{
+            foreach (XmlElement xmlChild in node.ChildNodes)
+                if (xmlChild.Name == name)
+                    return xmlChild;
+            return null;
+            /*
 			XmlNodeList list = node.GetElementsByTagName(name);
 			if (list.Count == 0)
 				return null;
 			else
 				return list[0] as XmlElement;
+            */
 		}
 
 		public static bool XmlExistsAttribute(XmlNode node, string name)
@@ -149,13 +182,34 @@ namespace Eddie.Core
 			node.SetAttribute(name, Conversions.ToString(val));
 		}
 
-        public static void XmlMoveElement(XmlElement source, XmlElement parentDestination)
+        public static void XmlRenameTagName(XmlElement parent, string oldName, string newName)
+        {
+            foreach(XmlElement e in parent.GetElementsByTagName(oldName))
+            {
+                // TODO
+            }
+        }
+
+        public static string XmlGetBody(XmlElement node)
+        {
+            if (node == null)
+                return "";
+            return node.InnerText;
+        }
+
+        public static void XmlCopyElement(XmlElement source, XmlElement parentDestination)
         {
             XmlNode xmlClone = parentDestination.OwnerDocument.ImportNode(source, true);
             parentDestination.AppendChild(xmlClone);
         }
 
-		public static string UrlEncode(string url)
+        public static XmlElement XmlCreateElement(string name)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            return xmlDoc.CreateElement(name);
+        }
+
+        public static string UrlEncode(string url)
 		{
 			//return HttpUtility.UrlEncode(url); // Require System.Web
 			return Uri.EscapeUriString(url);
@@ -248,11 +302,33 @@ namespace Eddie.Core
 
         public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes)
         {
+            return FormatBytesOldX(bytes, speedSec, showBytes);
+        }
+
+        public static string FormatBytesOldX(Int64 bytes, bool speedSec, bool showBytes)
+        {
+            Int64 v = bytes;
+
+            string userUnit = Engine.Instance.Storage.Get("ui.unit");
+            if(userUnit == "")
+            {
+                if (speedSec)
+                    userUnit = "bits";
+            }
+
+            if(userUnit == "bits")
+            {
+                v *= 8;
+            }
+
             Int64 number = 0;
 			string unit = "";
-            FormatBytesEx(bytes, ref number, ref unit);
-
-			string output = number.ToString() + " " + unit;
+            if(userUnit == "bits")
+                FormatBytesEx(v, new string[] { "bit", "kbit", "Mbit", "Gbit", "Tbit", "Pbit" }, ref number, ref unit);
+            else
+                FormatBytesEx(v, new string[] { "B", "KB", "MB", "GB", "TB", "PB" }, ref number, ref unit);
+            
+            string output = number.ToString() + " " + unit;
             if(speedSec)
                 output += "/s";
             if( (showBytes) && (bytes>=0) )
@@ -265,72 +341,23 @@ namespace Eddie.Core
             return output;            
         }
 
-		public static void FormatBytesEx(Int64 bytes, ref Int64 number, ref string unit)
+		public static void FormatBytesEx(Int64 val, string[] suf, ref Int64 number, ref string unit)
         {
-            if (bytes <= 0)
+            if (val <= 0)
             {
                 number = 0;
-                unit = "B";
+                unit = suf[0];
             }
             else
             {
-                string[] suf = { "B", "KB", "MB", "GB", "TB", "PB" };
-				int place = Conversions.ToInt32(Math.Floor(Math.Log(bytes, 1000)));
-                double num = Math.Round(bytes / Math.Pow(1000, place), 1);
+                //string[] suf = { "B", "KB", "MB", "GB", "TB", "PB" };                
+                int place = Conversions.ToInt32(Math.Floor(Math.Log(val, 1000)));
+                double num = Math.Round(val / Math.Pow(1000, place), 1);
 				number = Conversions.ToInt64(num);
                 unit = suf[place];
             }
         }
-
-		public static string FormatBytesEx2(long v, bool bit)
-		{
-			float v2 = v;
-			string unit = "";
-
-			if (bit)
-				unit = "bit";
-			else
-				unit = "bytes";
-
-			if (v2 >= 1000)
-			{
-				v2 /= 1000;
-				if (bit)
-					unit = "kbit";
-				else
-					unit = "kBytes";
-			}
-
-			if (v2 >= 1000)
-			{
-				v2 /= 1000;
-				if (bit)
-					unit = "Mbit";
-				else
-					unit = "MBytes";
-			}
-
-			if (v2 >= 1000)
-			{
-				v2 /= 1000;
-				if (bit)
-					unit = "Gbit";
-				else
-					unit = "GBytes";
-			}
-
-			if (v2 >= 1000)
-			{
-				v2 /= 1000;
-				if (bit)
-					unit = "Tbit";
-				else
-					unit = "TBytes";
-			}
-
-			return Math.Round(v2, 2).ToString() + " " + unit;
-		}
-
+        		        
         public static int CompareVersions(string v1, string v2)
         {
             char[] splitTokens = new char[] { '.', ',' };

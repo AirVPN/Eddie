@@ -28,20 +28,17 @@ namespace Eddie.Core
 {
 	public static class TemporaryFiles
 	{
-		private static List<string> m_files = new List<string>();
+		private static List<TemporaryFile> m_files = new List<TemporaryFile>();
 
-		public static string Add(string extension)
+		public static void Add(TemporaryFile file)
 		{
-			string path = Storage.DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
-
-			m_files.Add(path);
-			return path;
+            m_files.Add(file);
 		}
 
-		public static void Remove(string path)
+		public static void Remove(TemporaryFile file)
 		{
-			if(Destroy(path))
-				m_files.Remove(path);
+			if(Destroy(file.Path))
+				m_files.Remove(file);
 		}
 
 		private static bool Destroy(string path)
@@ -59,22 +56,32 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public static void Clean()
-		{
-			foreach (string path in m_files)
-			{
-				Destroy(path);
-			}
+        public static void Clean()
+        {
+            Clean("");
+        }
 
-			// Cleaning old zombie temporary files
-			string[] files = Directory.GetFiles(Storage.DataPath);
-			foreach (string file in files)
+        public static void Clean(string group)
+		{
+			foreach (TemporaryFile file in m_files)
 			{
-				if (file.IndexOf(".tmp.") != -1)
-				{
-					Destroy(file);
-				}
-			}
+                if(file.Group == group)
+                    Remove(file);
+                else if(group == "")
+                    Remove(file); ;
+            }
+            if (group == "")
+            {
+                // Cleaning old zombie temporary files
+                string[] files = Directory.GetFiles(Storage.DataPath);
+                foreach (string file in files)
+                {
+                    if (file.IndexOf(".tmp.") != -1)
+                    {
+                        Destroy(file);
+                    }
+                }
+            }
 		}
 	}
 }

@@ -26,7 +26,7 @@ namespace Eddie.Gui.Skin
 {
     public class ListView : System.Windows.Forms.ListView
     {
-		public int ImageSpace = 2;
+        public int ImageSpace = 2;
 		public int TextSpace = 2;
 
 		public String ImageIconResourcePrefix = "";
@@ -37,22 +37,43 @@ namespace Eddie.Gui.Skin
         private int m_sortColumn = -1;
 
         private bool m_supportResizeColumn = true;
-				
+
         public ListView()
-        {            
-			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
-			
-			FullRowSelect = true;
+        {
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+            
+            UpdateStyles();
+
+            FullRowSelect = true;
 			GridLines = false;
-			HideSelection = false;
+			HideSelection = false;            
 
 			ColumnClick += new ColumnClickEventHandler(OnListViewColumnClick);
-
+            
             OwnerDraw = true;
-			this.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(OnListViewDrawColumnHeader);
-			this.DrawSubItem += new DrawListViewSubItemEventHandler(OnListViewDrawSubItem);         
-		}
-        
+            this.DrawColumnHeader += new DrawListViewColumnHeaderEventHandler(OnListViewDrawColumnHeader);
+            this.DrawSubItem += new DrawListViewSubItemEventHandler(OnListViewDrawSubItem);                                 
+        }
+
+        public static void WorkaroundMonoListViewHeadersBug(System.Windows.Forms.Control c)
+        {
+            if (c is ListView)
+            {
+                // Unresolved mono bug: https://bugzilla.novell.com/show_bug.cgi?id=620618
+                // Workaround.
+                ListView l = (c as ListView);
+                l.Columns.Insert(l.Columns.Count, "");
+                l.Columns.RemoveAt(l.Columns.Count-1);
+                //MessageBox.Show("Fix " + c.Name);
+            }
+            else
+            {
+                foreach (Control c2 in c.Controls)
+                    WorkaroundMonoListViewHeadersBug(c2);
+            }
+
+        }
+
         public void ResizeColumnsAuto()
         {
             for (int c=0;c<Columns.Count;c++)
@@ -129,14 +150,15 @@ namespace Eddie.Gui.Skin
             Columns[column].Width = s.Width;
         }
         				
-		public void DrawSubItemBackground(object sender, DrawListViewSubItemEventArgs e)
+		public void DrawSubItemBackground(DrawListViewSubItemEventArgs e)
 		{
             if (this.Visible == false)
                 return;
-
+            
 			Rectangle r = e.Bounds;
 
-            Brush b = null;
+            Brush b;
+
             if (this.Enabled == false)
                 b = Form.Skin.BackDisabledBrush;
             else
@@ -145,64 +167,58 @@ namespace Eddie.Gui.Skin
                     b = Form.Skin.ListViewFocusedBackBrush;
                 else if (e.Item.Selected)
                     b = Form.Skin.ListViewSelectedBackBrush;
-                else if (e.ItemIndex % 2 == 0)
-                    b = Form.Skin.ListViewNormalBackBrush;
                 else
-                    b = Form.Skin.ListViewNormal2BackBrush;
-            }
+                {
+                    b = OnSubItemBrush(e);
+
+                    if (b == null)
+                    {
+                        if (e.ItemIndex % 2 == 0)
+                            b = Form.Skin.ListViewNormalBackBrush;
+                        else
+                            b = Form.Skin.ListViewNormal2BackBrush;
+                    }
+                }
+            }            
             
             Form.FillRectangle(e.Graphics, b, r);
-            Form.DrawRectangle(e.Graphics, Form.Skin.ListViewGridPen, r);            
+            Form.DrawRectangle(e.Graphics, Form.Skin.ListViewGridPen, r);           
+            
 		}
 
         public virtual bool GetDrawSubItemFull(int columnIndex)
         {
             return true;
         }
-		
-		public virtual void OnListViewDrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
-		{
-            e.DrawDefault = true;
-            return;
 
-			e.DrawDefault = false;
-
-            Form.FillRectangle(e.Graphics, Brushes.Red, e.Bounds);
-            // Clodo Linux Graphics Issue
-
-            Rectangle r = e.Bounds;
-            r.Height--;
-
-            r.X += TextSpace;
-            r.Width -= TextSpace;
-            
-            StringFormat stringFormat = GuiUtils.StringFormatLeftMiddle;
-            if (Columns[e.ColumnIndex].TextAlign == HorizontalAlignment.Center)
-                stringFormat = GuiUtils.StringFormatCenterMiddle;
-            else if (Columns[e.ColumnIndex].TextAlign == HorizontalAlignment.Right)
-                stringFormat = GuiUtils.StringFormatRightMiddle;
-            e.Graphics.DrawString(Columns[e.ColumnIndex].Text, Font, Form.Skin.ForeBrush, r, stringFormat);
-            
+        public virtual Brush OnSubItemBrush(DrawListViewSubItemEventArgs e)
+        {
+            return null;
         }
 
-		public virtual void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        public virtual void OnListViewDrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
 		{
+            e.DrawDefault = true;            
+        }        
+
+		public virtual void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+		{            
             e.DrawDefault = false;
-
+                        
 			Form.Skin.GraphicsCommon(e.Graphics);
-			
-			DrawSubItemBackground(sender, e);
+            
+            DrawSubItemBackground(e);
 
-            if(GetDrawSubItemFull(e.ColumnIndex) == false)
+            if (GetDrawSubItemFull(e.ColumnIndex) == false)
                 return;
                         
 			if (e.ColumnIndex == 0)
-			{
-                // int middleY = (e.Bounds.Top + e.Bounds.Bottom) / 2; // TOCLEAN
+			{                
                 Rectangle r = e.Bounds;
                 r.Height--;
 
-				Image imageState = GuiUtils.GetResourceImage(ImageStateResourcePrefix + e.Item.StateImageIndex.ToString());
+                
+                Image imageState = GuiUtils.GetResourceImage(ImageStateResourcePrefix + e.Item.StateImageIndex.ToString());
 				if (imageState != null)
 				{
 					int imageWidth = r.Height;
@@ -242,13 +258,15 @@ namespace Eddie.Gui.Skin
 					r.Width -= (imageWidth + ImageSpace);                    
                 }
 
+                
 				r.X += TextSpace;
 				r.Width -= TextSpace;
-
-				e.Graphics.DrawString(e.Item.Text, e.Item.Font, Form.Skin.ForeBrush, r, GuiUtils.StringFormatLeftMiddle);
+                
+				Form.DrawString(e.Graphics, e.Item.Text, e.Item.Font, Form.Skin.ForeBrush, r, GuiUtils.StringFormatLeftMiddle);
+                
 			}
-			else				
-			{
+			else	                                              		
+			{                
 				Rectangle r = e.Bounds;
                 r.Height--;
 
@@ -260,9 +278,8 @@ namespace Eddie.Gui.Skin
 					stringFormat = GuiUtils.StringFormatCenterMiddle;
 				else if(e.Item.ListView.Columns[e.ColumnIndex].TextAlign == HorizontalAlignment.Right)
 					stringFormat = GuiUtils.StringFormatRightMiddle;				
-				e.Graphics.DrawString(e.Item.SubItems[e.ColumnIndex].Text, e.Item.Font, Form.Skin.ForeBrush, r, stringFormat);
-				
-			}
+				Form.DrawString(e.Graphics, e.Item.SubItems[e.ColumnIndex].Text, e.Item.Font, Form.Skin.ForeBrush, r, stringFormat);			
+			}                                    
 		}
         
         public virtual void OnListViewColumnClick(object sender, ColumnClickEventArgs e)

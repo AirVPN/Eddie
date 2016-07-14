@@ -39,7 +39,7 @@ namespace Eddie.Platforms
         private static Dictionary<string, WfpItem> Items = new Dictionary<string, WfpItem>();
 
         [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void LibPocketFirewallInit(string name);
+        private static extern void LibPocketFirewallInit(string name, bool persistent);
 
         [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern bool LibPocketFirewallStart(string xml);
@@ -82,9 +82,7 @@ namespace Eddie.Platforms
 
                 foreach (UInt64 id in item.FirewallIds)
                 {
-                    Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP remove rule ID: " + id.ToString());
-
-                    bool result = LibPocketFirewallRemoveRule(id);
+                    bool result = RemoveItemId(id);
                     if (result == false)
                         throw new Exception(Messages.Format(Messages.WfpRuleRemoveFail, LibPocketFirewallGetLastError2()));
                 }
@@ -99,6 +97,11 @@ namespace Eddie.Platforms
             }
 
             return true;
+        }
+
+        public static bool RemoveItemId(ulong id)
+        {
+            return LibPocketFirewallRemoveRule(id);
         }
 
         public static WfpItem AddItem(string code, XmlElement xml)
@@ -116,7 +119,7 @@ namespace Eddie.Platforms
                     Engine.Instance.Logs.Log(LogType.Verbose, Messages.WfpStart);
 
                     // Start firewall
-                    LibPocketFirewallInit(Constants.Name);
+                    LibPocketFirewallInit(Constants.Name, true);
 
                     XmlDocument xmlStart = new XmlDocument();
                     XmlElement xmlInfo = xmlStart.CreateElement("firewall");
@@ -162,8 +165,6 @@ namespace Eddie.Platforms
                     xmlClone.SetAttribute("layer", layer);
                     string xmlStr = xmlClone.OuterXml;
 
-                    Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP Add rule " + xmlStr);
-
                     UInt64 id1 = LibPocketFirewallAddRule(xmlStr);
 
                     if (id1 == 0)
@@ -172,7 +173,6 @@ namespace Eddie.Platforms
                     }
                     else
                     {
-                        Engine.Instance.Logs.Log(LogType.Verbose, "Clodo: WFP Add rule ok, ID: " + id1.ToString() + ", " + xmlStr);
                         item.FirewallIds.Add(id1);
                     }
                 }
@@ -216,6 +216,22 @@ namespace Eddie.Platforms
             XmlIf1.SetAttribute("path", path);
 
             return xmlRule;
-        }        
+        }
+
+        public static XmlElement CreateItemAllowInterface(string title, string id)
+        {
+            XmlDocument xmlDocRule = new XmlDocument();
+            XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+            xmlRule.SetAttribute("name", title);
+            xmlRule.SetAttribute("layer", "all");
+            xmlRule.SetAttribute("action", "permit");
+            XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+            xmlRule.AppendChild(XmlIf1);
+            XmlIf1.SetAttribute("field", "ip_local_interface");
+            XmlIf1.SetAttribute("match", "equal");
+            XmlIf1.SetAttribute("interface", id);
+
+            return xmlRule;
+        }
     }
 }

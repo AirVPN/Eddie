@@ -3,10 +3,9 @@
   <manifest>
     <urls>
       <url address="http://54.93.175.114" />
-	  <url address="http://54.246.124.152" />
-	  <url address="http://54.225.156.17" />
-		<url address="http://95.211.138.143" />
-
+      <url address="http://54.246.124.152" />
+      <url address="http://54.225.156.17" />
+      <url address="http://95.211.138.143" />
     </urls>
     <rsa>
       <RSAParameters>

@@ -25,8 +25,13 @@ namespace Eddie.Core
 {
     public class ServerInfo : IComparable<ServerInfo>
     {
-        public Provider Provider;
-        public string Name;        
+        public Provider Provider;        
+        //public string Name; // Unique name, display name
+        //public string ProviderName;
+
+        public string Code; // Unique name across providers
+        public string DisplayName; // Display name
+        public string ProviderNameX; // Provider name;
         public string IpEntry;
         public string IpEntry2;
         public string IpExit;
@@ -38,6 +43,7 @@ namespace Eddie.Core
         public Int64 Users;
 		public string WarningOpen;
 		public string WarningClosed;
+        public bool SupportCheck;
         public string OvpnDirectives;
 
         public Int64 PingTests = 0;
@@ -46,6 +52,9 @@ namespace Eddie.Core
         public Int64 LastPingTest = 0;
 		public Int64 LastPingResult = 0;
 		public Int64 LastPingSuccess = 0;
+
+        public bool NeedDiscover = false; // If true, are updated regulary by Discover thread.
+        public Int64 LastDiscover = 0;
 
         public int Penality = 0;
 
@@ -60,16 +69,16 @@ namespace Eddie.Core
         
         public bool Deleted = false;
 
-        public int CompareTo(ServerInfo other)
+        public int CompareTo(ServerInfo other) // Used by Engine.GetServers to order based on Score
         {            
             return Score().CompareTo(other.Score());
         }
-
-		public int CompareToEx(ServerInfo other, string field, bool ascending)
+        
+        public int CompareToEx(ServerInfo other, string field, bool ascending)
 		{
 			int returnVal = 0;
 			if (field == "Name")
-				returnVal = Name.CompareTo(other.Name);
+				returnVal = DisplayName.CompareTo(other.DisplayName);
 			else if (field == "Score")
 			{
 				int v1 = this.Score();
@@ -116,14 +125,22 @@ namespace Eddie.Core
 			}
 
 			if (returnVal == 0) // Second order, Name
-				returnVal = this.Name.CompareTo(other.Name);
+				returnVal = this.DisplayName.CompareTo(other.DisplayName);
 
 			// Invert the value returned by String.Compare.
 			if(ascending == false)
 				returnVal *= -1;
 		
 			return returnVal;
-		}
+		}        
+
+        public bool CanConnect()
+        {
+            if (WarningClosed != "")
+                return false;
+
+            return true;
+        }
 
         public int Load()
         {
@@ -148,12 +165,13 @@ namespace Eddie.Core
             {
 				string scoreType = Engine.Instance.Storage.Get("servers.scoretype");
                 double ScoreB = ScoreBase;
-                if(scoreType == "Speed")
-					ScoreB = ScoreB / Convert.ToDouble(Engine.Instance.AirVPN.GetManifestKeyValue("speed_factor", "1"));
-                else if(scoreType == "Latency")
-                    ScoreB = ScoreB / Convert.ToDouble(Engine.Instance.AirVPN.GetManifestKeyValue("latency_factor","50"));
 
-                double PenalityB = Penality * Convert.ToDouble(Engine.Instance.AirVPN.GetManifestKeyValue("penality_factor","1000"));
+                if (scoreType == "Speed")
+					ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
+                else if(scoreType == "Latency")
+                    ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor","500"));
+
+                double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor","1000"));
 				return Conversions.ToInt32(Ping + Load() + ScoreB + PenalityB);
             }
         }
@@ -174,7 +192,7 @@ namespace Eddie.Core
 
 		public string GetNameForList()
 		{
-			string t = Name;
+			string t = DisplayName;
 
 			if (WarningClosed != "")
 				t += " (Closed: " + WarningClosed + ")";
@@ -184,7 +202,27 @@ namespace Eddie.Core
 			return t;
 		}
 
-		public string GetLatencyForList()
+        public string GetNameWithLocation()
+        {
+            string country = CountriesManager.GetNameFromCode(CountryCode);
+            string result = DisplayName;
+            if ((country != "") || (Location != ""))
+            {
+                result += " (";
+                if (country != "")
+                    result += country;
+                if (Location != "")
+                {
+                    if (country != "")
+                        result += ", ";
+                    result += Location;
+                }
+                result += ")";
+            }
+            return result;
+        }
+
+        public string GetLatencyForList()
 		{
 			String text = "";
 			if (Ping != -1)
@@ -205,7 +243,10 @@ namespace Eddie.Core
 
 		public string GetUsersForList()
 		{
-			return Users.ToString();
+            if (Users == -1)
+                return "-";
+            else 
+			    return Users.ToString();
 		}
 
 		public string GetLoadForList()

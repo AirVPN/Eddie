@@ -112,7 +112,7 @@ namespace Eddie.Core
 
 		public string GetLogSuggestedFileName()
 		{
-			return "AirVPN_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
+			return "Eddie_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
 		}
 
 		public List<string> ParseLogFilePath(string paths)

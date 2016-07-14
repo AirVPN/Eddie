@@ -61,8 +61,7 @@ namespace Eddie.Gui.Forms
             GuiUtils.FixHeightVs(txtProxyPassword, lblProxyPassword);
             GuiUtils.FixHeightVs(txtProxyTorControlPort, lblProxyTorControlPort);
             GuiUtils.FixHeightVs(txtProxyTorControlPassword, lblProxyTorControlPassword);
-            GuiUtils.FixHeightVs(cboRoutesOtherwise, lblRoutesOtherwise);
-            GuiUtils.FixHeightVs(cboGeneralTheme, lblGeneralTheme);
+            GuiUtils.FixHeightVs(cboRoutesOtherwise, lblRoutesOtherwise);            
             GuiUtils.FixHeightVs(cboDnsSwitchMode, lblDnsSwitchMode);
             GuiUtils.FixHeightVs(chkDnsCheck, lblDnsCheck);
 
@@ -92,17 +91,14 @@ namespace Eddie.Gui.Forms
             
             BuildTreeTabs();
 
-            chkConnect.Text = Messages.WindowsSettingsConnect;
-			chkNetLock.Text = Messages.WindowsSettingsNetLock;
-
+            lblConnect.Text = Messages.WindowsSettingsConnect;
+			lblNetLock.Text = Messages.WindowsSettingsNetLock;
+            
 			lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
 
 			pnlGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
             chkWindowsWfp.Visible = Platform.Instance.IsWindowsSystem();
-
-            lblGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
-			cboGeneralTheme.Visible = Engine.Instance.DevelopmentEnvironment;
 
             if (Engine.Instance.AirVPN.Manifest != null)
             {
@@ -124,12 +120,17 @@ namespace Eddie.Gui.Forms
                         itemMode.SubItems[2].Text = "Alternative";
                     else
                         itemMode.SubItems[2].Text = "Alternative " + xmlMode.GetAttribute("entry_index");
-                    itemMode.SubItems[3].Text = xmlMode.GetAttribute("cipher");
-                    itemMode.SubItems[4].Text = xmlMode.GetAttribute("title");
+                    itemMode.SubItems[3].Text = xmlMode.GetAttribute("title");
                     lstProtocols.Items.Add(itemMode);
                 }
                 lstProtocols.ResizeColumnsAuto();
             }
+
+            // UI
+            cboUiUnit.Items.Clear();
+            cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit0);
+            cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit1);
+            cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit2);
 
             // Proxy
             cboProxyMode.Items.Clear();
@@ -230,8 +231,7 @@ namespace Eddie.Gui.Forms
         {
             Storage s = Engine.Instance.Storage;
 			
-            // General
-            cboGeneralTheme.Text = s.Get("gui.skin");
+            // General            
             chkConnect.Checked = s.GetBool("connect");
 			chkNetLock.Checked = s.GetBool("netlock");
             chkMinimizeTray.Checked = s.GetBool("gui.windows.tray");
@@ -241,6 +241,13 @@ namespace Eddie.Gui.Forms
             chkOsSingleInstance.Checked = s.GetBool("os.single_instance");
 
             // Ui
+            string uiUnit = s.Get("ui.unit");
+            if(uiUnit == "bytes")
+                cboUiUnit.SelectedIndex = 1;
+            else if (uiUnit == "bits")
+                cboUiUnit.SelectedIndex = 2;
+            else 
+                cboUiUnit.SelectedIndex = 0;
 
             if (s.Get("gui.font.normal.name") != "")
             {
@@ -341,6 +348,7 @@ namespace Eddie.Gui.Forms
 			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
             chkWindowsIPv6DisableAtOs.Checked = s.GetBool("windows.ipv6.os_disable");
             chkWindowsDnsForceAllInterfaces.Checked = s.GetBool("windows.dns.force_all_interfaces");
+            chkWindowsDnsLock.Checked = s.GetBool("windows.dns.lock");            
             chkWindowsWfp.Checked = s.GetBool("windows.wfp");
 
             txtExePath.Text = s.Get("executables.openvpn");
@@ -489,8 +497,7 @@ namespace Eddie.Gui.Forms
             Storage s = Engine.Instance.Storage;
 
 
-            // General
-            s.Set("gui.skin", cboGeneralTheme.Text);
+            // General            
             s.SetBool("connect", chkConnect.Checked);
 			s.SetBool("netlock", chkNetLock.Checked);
             s.SetBool("gui.windows.tray", chkMinimizeTray.Checked);
@@ -500,7 +507,14 @@ namespace Eddie.Gui.Forms
             s.SetBool("os.single_instance", chkOsSingleInstance.Checked);
 
             // Ui
-            if(chkUiFontGeneral.Checked)
+            string uiUnit = "";
+            if (cboUiUnit.SelectedIndex == 1)
+                uiUnit = "bytes";
+            else if (cboUiUnit.SelectedIndex == 2)
+                uiUnit = "bits";
+            s.Set("ui.unit", uiUnit);
+
+            if (chkUiFontGeneral.Checked)
             {
                 int posComma = lblUiFontGeneral.Text.IndexOf(",");
                 s.Set("gui.font.normal.name", lblUiFontGeneral.Text.Substring(0, posComma));
@@ -575,7 +589,8 @@ namespace Eddie.Gui.Forms
 			s.SetBool("windows.dhcp_disable", chkWindowsDhcpSwitch.Checked);
 			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
             s.SetBool("windows.ipv6.os_disable", chkWindowsIPv6DisableAtOs.Checked);
-            s.SetBool("windows.dns.force_all_interfaces", chkWindowsDnsForceAllInterfaces.Checked);            
+            s.SetBool("windows.dns.force_all_interfaces", chkWindowsDnsForceAllInterfaces.Checked);
+            s.SetBool("windows.dns.lock", chkWindowsDnsLock.Checked);
             s.SetBool("windows.wfp", chkWindowsWfp.Checked);
 
             s.Set("executables.openvpn", txtExePath.Text);
@@ -740,14 +755,21 @@ namespace Eddie.Gui.Forms
 
             // Proxy
             bool proxy = (cboProxyMode.Text != "None");
-            bool tor = (cboProxyMode.Text == "Tor");
+            bool tor = (cboProxyMode.Text == "Tor");            
             txtProxyHost.Enabled = proxy;
+            lblProxyHost.Enabled = txtProxyHost.Enabled;            
             txtProxyPort.Enabled = proxy;
+            lblProxyPort.Enabled = txtProxyPort.Enabled;
             cboProxyAuthentication.Enabled = (proxy && !tor);
+            lblProxyAuthentication.Enabled = cboProxyAuthentication.Enabled;
             txtProxyLogin.Enabled = ((proxy) && (!tor) && (cboProxyAuthentication.Text != "None"));
+            lblProxyLogin.Enabled = txtProxyLogin.Enabled;
             txtProxyPassword.Enabled = txtProxyLogin.Enabled;
+            lblProxyPassword.Enabled = txtProxyPassword.Enabled;
             txtProxyTorControlPort.Enabled = tor;
+            lblProxyTorControlPort.Enabled = txtProxyTorControlPort.Enabled;
             txtProxyTorControlPassword.Enabled = tor;
+            lblProxyTorControlPassword.Enabled = txtProxyTorControlPassword.Enabled;
             cmdProxyTorTest.Enabled = tor;
 
             // Dns
@@ -970,15 +992,6 @@ namespace Eddie.Gui.Forms
         private void lstAdvancedEvents_DoubleClick(object sender, EventArgs e)
         {
             cmdAdvancedEventsEdit_Click(sender, e);
-        }
-
-        private void cboGeneralTheme_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (Form.ChangeSkin(cboGeneralTheme.Text))
-            {
-                ApplySkin();
-                Engine.FormMain.ApplySkin();
-            }
         }
 
 		private void cmdAdvancedUninstallDriver_Click(object sender, EventArgs e)

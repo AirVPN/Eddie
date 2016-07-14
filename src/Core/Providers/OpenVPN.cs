@@ -27,7 +27,7 @@ namespace Eddie.Core.Providers
 {
     public class OpenVPN : Core.Provider
     {
-		public static OpenVPN Singleton; // TOCLEAN temp
+		//public static OpenVPN Singleton; // TOCLEAN temp
 		public XmlElement Profiles;
         
 		public override string GetCode()
@@ -40,17 +40,19 @@ namespace Eddie.Core.Providers
 			return true;
 		}
 
-		public override void OnInit()
-		{
-			base.OnInit();
-
-            Engine.Instance.Storage.SetDefaultBool("providers.OpenVPN.autosync", true, Messages.ManOptionServicesOpenVpnAutoSync);
-            Engine.Instance.Storage.SetDefault("providers.OpenVPN.path", "text", "d:\\Projects\\AirVPN\\airvpn-client-3\\x\\", Messages.ManOptionServicesOpenVpnPath); 
+        public override bool GetEnabledByDefault()
+        {
+            return true;
         }
 
-		public override void OnLoad()
+        public override void OnInit()
 		{
-			base.OnLoad();
+			base.OnInit();
+        }
+
+		public override void OnLoad(XmlElement xmlStorage)
+		{
+            base.OnLoad(xmlStorage);
 
 			Profiles = Storage.DocumentElement.SelectSingleNode("profiles") as XmlElement;
 			if (Profiles == null)
@@ -73,16 +75,18 @@ namespace Eddie.Core.Providers
 		{
 			base.OnBuildServersList();
 
-			lock (Profiles)
+            lock (Profiles)
 			{
 				foreach (XmlElement nodeProfile in Profiles.ChildNodes)
 				{
-					string name = Utils.XmlGetAttributeString(nodeProfile, "name", "");
+                    string code = SHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
+                    
+					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 
-					ServerInfo infoServer = Engine.Instance.GetServerInfo(name, this);
-
-					infoServer.IpEntry = "";
-					infoServer.IpEntry2 = "";
+                    infoServer.DisplayName = Utils.XmlGetAttributeString(nodeProfile, "name", "");
+                    infoServer.ProviderNameX = code;
+                    infoServer.IpEntry = Utils.XmlGetAttributeString(nodeProfile, "remote", "");
+                    infoServer.IpEntry2 = "";
 					infoServer.IpExit = infoServer.IpEntry;
 					infoServer.CountryCode = Utils.XmlGetAttributeString(nodeProfile, "country", "");
 					infoServer.Location = "";
@@ -92,7 +96,10 @@ namespace Eddie.Core.Providers
 					infoServer.Users = -1;
 					infoServer.WarningOpen = "";
 					infoServer.WarningClosed = "";
+                    infoServer.SupportCheck = false;
                     infoServer.OvpnDirectives = Utils.XmlGetAttributeString(nodeProfile, "ovpn", "");
+
+                    infoServer.NeedDiscover = true;
 				}
 			}
 		}
@@ -102,10 +109,15 @@ namespace Eddie.Core.Providers
 		public bool OptionRecursive = true; // Maybe an option
 		public bool OptionRemoveIfFileMissing = true; // Maybe an option
 
+        public string GetPathScan()
+        {
+            return Utils.XmlGetAttributeString(Storage.DocumentElement, "path", "");
+        }
+
 		public void Refresh(bool interactive)
 		{
-			string optionPath = Engine.Instance.Storage.Get("providers.OpenVPN.path");
-
+            string pathScan = GetPathScan();
+            
             int timeStart = Utils.UnixTimeStamp();
 
 			List<ServerInfo> servers = new List<ServerInfo>();
@@ -121,9 +133,9 @@ namespace Eddie.Core.Providers
 			}
 
 			// Scan directory
-			if (optionPath.Trim() != "")
+			if (pathScan.Trim() != "")
 			{
-				ScanDir(optionPath.Trim(), OptionRecursive, servers, interactive);
+				ScanDir(pathScan.Trim(), OptionRecursive, servers, interactive);
 			}
 
 			// Remove profiles
@@ -224,7 +236,8 @@ namespace Eddie.Core.Providers
 		public void UpdateProfileFromFile(XmlElement nodeProfile, Dictionary<string, string> data)
 		{
 			Utils.XmlSetAttributeString(nodeProfile, "name", data["name"]);
-			Utils.XmlSetAttributeString(nodeProfile, "path", data["path"]);
+            Utils.XmlSetAttributeString(nodeProfile, "remote", data["remote"]);
+            Utils.XmlSetAttributeString(nodeProfile, "path", data["path"]);
 			Utils.XmlSetAttributeString(nodeProfile, "country", data["country"]);
 			Utils.XmlSetAttributeString(nodeProfile, "ovpn", data["ovpn"]);
 
@@ -245,18 +258,30 @@ namespace Eddie.Core.Providers
                 ovpnBuilder.AppendDirectives(ovpnOriginal, "Original");
                 string ovpnNormalized = ovpnBuilder.Get();
 
+                OvpnBuilder.Directive directiveRemote = ovpnBuilder.GetOneDirective("remote");
+                if(directiveRemote != null)
+                {
+                    string host = directiveRemote.Text;
+                    int posPort = host.IndexOf(" ");
+                    if (posPort != -1)
+                        host = host.Substring(0, posPort).Trim();
+                    dictInfo["remote"] = host;
+                }
+                else
+                    dictInfo["remote"] = "";
+
                 dictInfo["ovpn"] = ovpnNormalized;
 				dictInfo["path"] = file.FullName;
 				dictInfo["country"] = "";
 
 				// Compute user-friendly name
 				{
-					string name = file.FullName;
+					string name = TitleForDisplay + file.FullName;
 
-					name = name.Replace(Engine.Instance.Storage.Get("providers.OpenVPN.path"), "").Trim();
+					name = name.Replace(GetPathScan(), "").Trim();
 
-					name = Regex.Replace(name, "udp", "", RegexOptions.IgnoreCase);
-					name = Regex.Replace(name, "tcp", "", RegexOptions.IgnoreCase);
+					//name = Regex.Replace(name, "udp", "", RegexOptions.IgnoreCase);
+					//name = Regex.Replace(name, "tcp", "", RegexOptions.IgnoreCase);
 					name = Regex.Replace(name, "tblk", "", RegexOptions.IgnoreCase); // TunnelBlick
 					name = Regex.Replace(name, "ovpn", "", RegexOptions.IgnoreCase); // OpenVPN
 
@@ -308,85 +333,6 @@ namespace Eddie.Core.Providers
 				return null;
 			}
 		}
-
-		public static string GetCountryCodeFromIp(string ip, bool interactive)
-		{
-			string[] methods = Engine.Instance.Storage.Get("provides.openvpn.ip_webservice").Split(';');
-
-			string resultMethod = "";
-			string resultValue = "";
-
-			foreach (string method in methods)
-			{
-				resultMethod = method;
-
-				try
-				{
-					if (method == "geoip-bin")
-					{
-						// Linux only, only if installed
-					}
-					else if ((method.StartsWith("http://")) || (method.StartsWith("https://")))
-					{
-						// Fetch a webservice
-
-						string url = method;
-						url = url.Replace("{@ip}", ip);
-
-						resultMethod = url;
-
-						XmlDocument xmlDoc = Engine.Instance.XmlFromUrl(url, null, "iptitle", false); // Clodo: Bypass proxy?
-
-						if (xmlDoc.DocumentElement.HasChildNodes)
-						{
-							XmlNode node = xmlDoc.DocumentElement.SelectSingleNode("CountryCode");
-							if (node != null)
-							{
-								string value = node.InnerText.ToLowerInvariant().Trim();
-								if (CountriesManager.IsCountryCode(value))
-								{
-									resultValue = value;
-									break;
-								}
-							}
-
-							node = xmlDoc.DocumentElement.SelectSingleNode("countryCode");
-							if (node != null)
-							{
-								string value = node.InnerText.ToLowerInvariant().Trim();
-								if (CountriesManager.IsCountryCode(value))
-								{
-									resultValue = value;
-									break;
-								}
-							}
-						}
-
-						if (xmlDoc.DocumentElement.Attributes["CountryCode"] != null)
-						{
-							string value = xmlDoc.DocumentElement.Attributes["CountryCode"].Value.ToLowerInvariant().Trim();
-							if (CountriesManager.IsCountryCode(value))
-							{
-								resultValue = value;
-								break;
-							}
-						}
-					}
-				}
-				catch (Exception)
-				{
-				}
-			}
-
-			if (interactive)
-			{
-				if (resultValue != "")
-					Engine.Instance.Logs.Log(LogType.Fatal, "OK: '" + resultMethod + "' return accepted " + CountriesManager.GetNameFromCode(resultValue) + " (" + resultValue + ")");
-				else
-					Engine.Instance.Logs.Log(LogType.Fatal, "NO, any method doesn't return a valid response.");
-			}
-
-			return resultValue;
-		}
+        
     }
 }

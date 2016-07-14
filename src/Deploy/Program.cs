@@ -70,11 +70,15 @@ namespace Deploy
 			}
 			Log("Platform: " + SO);
 
-			/* -------------------------------
+            string pathBaseHome = new DirectoryInfo("../../../..").FullName;
+
+            Log("Path base: " + pathBaseHome);
+            
+            /* -------------------------------
 			   Checking environment
 			------------------------------- */
 
-			if (SO == "linux")
+            if (SO == "linux")
 			{
 				if (Shell("mkbundle --help").IndexOf("Usage is: mkbundle") == -1)
 				{
@@ -145,8 +149,7 @@ namespace Deploy
 				ListPackages.Add (new Package ("osx", "x64", "portable"));
 				ListPackages.Add (new Package ("osx", "x64", "installer"));
 			}
-						
-			string pathBaseHome = new DirectoryInfo("../../../..").FullName;
+			
 			string pathBaseTemp = new DirectoryInfo("../../../../tmp").FullName;
 			string pathBaseDeploy = new DirectoryInfo("../../../../deploy").FullName;
 			string pathBaseRelease = new DirectoryInfo("../../../../src/bin").FullName;
@@ -167,11 +170,13 @@ namespace Deploy
 				string arch = package.Architecture;
 				string format = package.Format;
 
-				int requiredNetFramework = 2;
-				if(platform == "windows8")
-					requiredNetFramework = 4;
+				int requiredNetFramework = 4;
+				if(platform == "windows")
+					requiredNetFramework = 2;
+                if (platform == "windows_xp")
+                    requiredNetFramework = 2;
 
-				if(latestNetFramework != requiredNetFramework)
+                if (latestNetFramework != requiredNetFramework)
 				{
 					Log("Ensure that solution is builded with .NET Framework " + requiredNetFramework.ToString());
 					Pause();
@@ -200,8 +205,9 @@ namespace Deploy
 				CopyAll(pathDeploy, pathTemp);
 
 				if (platform.StartsWith("windows"))
-				{							
-					CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+				{
+                    CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                    CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 					CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
 					CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe");
@@ -250,7 +256,8 @@ namespace Deploy
 
 						File.WriteAllText(pathTemp + "/AirVPN.nsi", nsis);
 
-						Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");
+                        //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");
+                        Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");
 
                         WindowsSignFile(pathExe);
                     }
@@ -259,7 +266,8 @@ namespace Deploy
 				{
 					if (format == "mono")
 					{
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+                        CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
@@ -288,7 +296,8 @@ namespace Deploy
 						// mkbundle
 						string command = "mkbundle ";
 						command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
-						command += " \"" + pathRelease + "/Lib.Core.dll\"";
+                        command += " \"" + pathRelease + "/websocket-sharp.dll\"";
+                        command += " \"" + pathRelease + "/Lib.Core.dll\"";
 						command += " \"" + pathRelease + "/Lib.Forms.dll\"";
 						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
 
@@ -326,7 +335,8 @@ namespace Deploy
                     //else if ( (format == "debian2") || (format == "debian4") )
                     else if (format == "debian")
                     {
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+                        CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
@@ -361,9 +371,9 @@ namespace Deploy
 						File.WriteAllText(pathTemp + "/usr/share/man/man1/airvpn.1", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help"));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man1/airvpn.1\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man1/airvpn.1.gz\"");
-						
-						
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
+
+                        Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/websocket-sharp.dll\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
@@ -384,7 +394,8 @@ namespace Deploy
 						if (arch == "x64")
 							libSubPath = "lib64";
 
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+                        CopyFile(pathRelease, "websocket-sharp.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
@@ -406,7 +417,8 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/websocket-sharp.dll\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");

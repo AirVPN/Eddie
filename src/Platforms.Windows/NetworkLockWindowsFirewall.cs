@@ -252,27 +252,27 @@ namespace Eddie.Platforms
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
 			{
-				Exec("netsh advfirewall firewall add rule name=\"AirVPN - ICMP V4\" dir=in action=allow protocol=icmpv4");
+				Exec("netsh advfirewall firewall add rule name=\"Eddie - ICMP V4\" dir=in action=allow protocol=icmpv4");
 			}
 
-			// Exec("netsh advfirewall firewall add rule name=\"AirVPN - IpV6 Block - Low\" dir=out remoteip=0000::/1 action=allow");
-			// Exec("netsh advfirewall firewall add rule name=\"AirVPN - IpV6 Block - High\" dir=out remoteip=8000::/1 action=allow");
+            // Exec("netsh advfirewall firewall add rule name=\"Eddie - IpV6 Block - Low\" dir=out remoteip=0000::/1 action=allow");
+            // Exec("netsh advfirewall firewall add rule name=\"Eddie - IpV6 Block - High\" dir=out remoteip=8000::/1 action=allow");
 
-			if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
+            if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
 			{
-				Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
-				Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
+				Exec("netsh advfirewall firewall add rule name=\"Eddie - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
+				Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
 
-                Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowMulticast\" dir=out action=allow remoteip=224.0.0.0/24");
-                Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowSimpleServiceDiscoveryProtocol\" dir=out action=allow remoteip=239.255.255.250/32");
-                Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - ServiceLocationProtocol\" dir=out action=allow remoteip=239.255.255.253/32");
+                Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowMulticast\" dir=out action=allow remoteip=224.0.0.0/24");
+                Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowSimpleServiceDiscoveryProtocol\" dir=out action=allow remoteip=239.255.255.250/32");
+                Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - ServiceLocationProtocol\" dir=out action=allow remoteip=239.255.255.253/32");
             }
 
-            Exec("netsh advfirewall firewall add rule name=\"AirVPN - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
-            Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+            Exec("netsh advfirewall firewall add rule name=\"Eddie - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+            Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
 
             // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
-            Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
+            Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
                         
 			Exec("netsh advfirewall set allprofiles firewallpolicy BlockInbound,BlockOutbound");
 
@@ -288,16 +288,16 @@ namespace Eddie.Platforms
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 				profile.RestorePolicy();
 
-			// Not need, already restored in after import
-			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - In - AllowLocal\"");
-			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowLocal\"");
-			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowVPN\"");
-			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - AllowAirIPS\"");
-			// Exec("netsh advfirewall firewall delete rule name=\"AirVPN - Out - DHCP\"");
+            // Not need, already restored in after import
+            // Exec("netsh advfirewall firewall delete rule name=\"Eddie - In - AllowLocal\"");
+            // Exec("netsh advfirewall firewall delete rule name=\"Eddie - Out - AllowLocal\"");
+            // Exec("netsh advfirewall firewall delete rule name=\"Eddie - Out - AllowVPN\"");
+            // Exec("netsh advfirewall firewall delete rule name=\"Eddie - Out - AllowAirIPS\"");
+            // Exec("netsh advfirewall firewall delete rule name=\"Eddie - Out - DHCP\"");
 
-			// >2.9.1 edition
-			{
-				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
+            // >2.9.1 edition
+            {
+                string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
 				if (File.Exists(rulesBackupSession))
 				{
 					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
@@ -352,7 +352,7 @@ namespace Eddie.Platforms
 			if (m_activated == false)
 				return;
 
-            List<IpAddressRange> ipsFirewalled = GetAllIps();
+            List<IpAddressRange> ipsFirewalled = GetAllIps(true);
 			string ipList = "";
 			foreach (IpAddressRange ip in ipsFirewalled)
 			{
@@ -364,9 +364,9 @@ namespace Eddie.Platforms
             if (ipList != m_lastestIpList)
 			{
 				if (m_lastestIpList != "")
-					Exec("netsh advfirewall firewall set rule name=\"AirVPN - Out - AllowAirIPS\" dir=out new action=allow remoteip=\"" + ipList + "\"");
+					Exec("netsh advfirewall firewall set rule name=\"Eddie - Out - AllowAirIPS\" dir=out new action=allow remoteip=\"" + ipList + "\"");
 				else
-					Exec("netsh advfirewall firewall add rule name=\"AirVPN - Out - AllowAirIPS\" dir=out action=allow remoteip=\"" + ipList + "\"");
+					Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowAirIPS\" dir=out action=allow remoteip=\"" + ipList + "\"");
 
 				m_lastestIpList = ipList;
 			}            

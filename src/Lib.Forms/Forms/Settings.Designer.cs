@@ -36,9 +36,6 @@ namespace Eddie.Gui.Forms
             Eddie.Gui.Skin.ColumnHeader columnHeader2;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
             Eddie.Gui.Skin.ColumnHeader columnHeader5;
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("uno");
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("due");
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("tre");
             this.lnkAdvancedHelp = new Eddie.Gui.Skin.LinkLabel();
             this.lblOpenVpnRcvbuf = new Eddie.Gui.Skin.Label();
             this.cboOpenVpnRcvbuf = new Eddie.Gui.Skin.ComboBox();
@@ -54,6 +51,7 @@ namespace Eddie.Gui.Forms
             this.lblAdvancedManifestRefresh = new Eddie.Gui.Skin.Label();
             this.cboAdvancedManifestRefresh = new Eddie.Gui.Skin.ComboBox();
             this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+            this.chkWindowsDnsLock = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsDnsForceAllInterfaces = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsDisableDriverUpgrade = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsIPv6DisableAtOs = new Eddie.Gui.Skin.CheckBox();
@@ -91,21 +89,26 @@ namespace Eddie.Gui.Forms
             this.cmdOk = new Eddie.Gui.Skin.Button();
             this.tabSettings = new Eddie.Gui.Skin.TabControl();
             this.tabGeneral = new Eddie.Gui.Skin.TabPage();
+            this.lblConnect = new Eddie.Gui.Skin.Label();
+            this.lblNetLock = new Eddie.Gui.Skin.Label();
+            this.chkConnect = new Eddie.Gui.Skin.CheckBox();
+            this.lblGeneralStartLast = new Eddie.Gui.Skin.Label();
+            this.chkNetLock = new Eddie.Gui.Skin.CheckBox();
+            this.chkGeneralStartLast = new Eddie.Gui.Skin.CheckBox();
+            this.label7 = new Eddie.Gui.Skin.Label();
+            this.chkUiFontGeneral = new Eddie.Gui.Skin.CheckBox();
+            this.label5 = new Eddie.Gui.Skin.Label();
+            this.chkExitConfirm = new Eddie.Gui.Skin.CheckBox();
+            this.label4 = new Eddie.Gui.Skin.Label();
+            this.cboUiUnit = new Eddie.Gui.Skin.ComboBox();
             this.cmdUiFontGeneral = new Eddie.Gui.Skin.Button();
             this.lblUiFontGeneral = new Eddie.Gui.Skin.Label();
-            this.chkUiFontGeneral = new Eddie.Gui.Skin.CheckBox();
-            this.chkNetLock = new Eddie.Gui.Skin.CheckBox();
-            this.chkExitConfirm = new Eddie.Gui.Skin.CheckBox();
             this.pnlGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
             this.chkOsSingleInstance = new Eddie.Gui.Skin.CheckBox();
             this.chkSystemNotifications = new Eddie.Gui.Skin.CheckBox();
             this.chkSystemStart = new Eddie.Gui.Skin.CheckBox();
             this.chkMinimizeTray = new Eddie.Gui.Skin.CheckBox();
-            this.lblGeneralTheme = new Eddie.Gui.Skin.Label();
-            this.cboGeneralTheme = new Eddie.Gui.Skin.ComboBox();
-            this.chkGeneralStartLast = new Eddie.Gui.Skin.CheckBox();
             this.cmdTos = new Eddie.Gui.Skin.Button();
-            this.chkConnect = new Eddie.Gui.Skin.CheckBox();
             this.tabProtocols = new Eddie.Gui.Skin.TabPage();
             this.lnkProtocolsHelp2 = new Eddie.Gui.Skin.LinkLabel();
             this.lnkProtocolsHelp1 = new Eddie.Gui.Skin.LinkLabel();
@@ -114,7 +117,6 @@ namespace Eddie.Gui.Forms
             this.colProtocolsProtocol = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
             this.colProtocolsPort = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
             this.colProtocolsEntry = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colProtocolsCipher = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colProtocolsDescription = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
             this.tabProxy = new Eddie.Gui.Skin.TabPage();
             this.lnkProxyTorHelp = new Eddie.Gui.Skin.LinkLabel();
@@ -161,10 +163,6 @@ namespace Eddie.Gui.Forms
             this.cboDnsSwitchMode = new Eddie.Gui.Skin.ComboBox();
             this.chkDnsCheck = new Eddie.Gui.Skin.CheckBox();
             this.tabNetworkLock = new Eddie.Gui.Skin.TabPage();
-            this.listView1 = new Eddie.Gui.Skin.ListView();
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lblLockAllowPing = new Eddie.Gui.Skin.Label();
             this.lblLockAllowPrivate = new Eddie.Gui.Skin.Label();
             this.lnkLockHelp = new Eddie.Gui.Skin.LinkLabel();
@@ -410,6 +408,7 @@ namespace Eddie.Gui.Forms
             // pnlAdvancedGeneralWindowsOnly
             // 
             this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDnsLock);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDnsForceAllInterfaces);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsIPv6DisableAtOs);
@@ -417,12 +416,23 @@ namespace Eddie.Gui.Forms
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsTapUp);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDhcpSwitch);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriver);
-            this.pnlAdvancedGeneralWindowsOnly.Location = new System.Drawing.Point(403, 18);
+            this.pnlAdvancedGeneralWindowsOnly.Location = new System.Drawing.Point(403, 11);
             this.pnlAdvancedGeneralWindowsOnly.Name = "pnlAdvancedGeneralWindowsOnly";
-            this.pnlAdvancedGeneralWindowsOnly.Size = new System.Drawing.Size(259, 231);
+            this.pnlAdvancedGeneralWindowsOnly.Size = new System.Drawing.Size(259, 241);
             this.pnlAdvancedGeneralWindowsOnly.TabIndex = 69;
             this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
             this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
+            // 
+            // chkWindowsDnsLock
+            // 
+            this.chkWindowsDnsLock.BackColor = System.Drawing.Color.Transparent;
+            this.chkWindowsDnsLock.ForeColor = System.Drawing.Color.Black;
+            this.chkWindowsDnsLock.Location = new System.Drawing.Point(16, 161);
+            this.chkWindowsDnsLock.Name = "chkWindowsDnsLock";
+            this.chkWindowsDnsLock.Size = new System.Drawing.Size(237, 22);
+            this.chkWindowsDnsLock.TabIndex = 89;
+            this.chkWindowsDnsLock.Text = "Ensure DNS Lock";
+            this.chkWindowsDnsLock.UseVisualStyleBackColor = false;
             // 
             // chkWindowsDnsForceAllInterfaces
             // 
@@ -461,11 +471,11 @@ namespace Eddie.Gui.Forms
             // 
             this.chkWindowsWfp.BackColor = System.Drawing.Color.Transparent;
             this.chkWindowsWfp.ForeColor = System.Drawing.Color.Black;
-            this.chkWindowsWfp.Location = new System.Drawing.Point(16, 161);
+            this.chkWindowsWfp.Location = new System.Drawing.Point(178, 185);
             this.chkWindowsWfp.Name = "chkWindowsWfp";
-            this.chkWindowsWfp.Size = new System.Drawing.Size(237, 22);
+            this.chkWindowsWfp.Size = new System.Drawing.Size(75, 19);
             this.chkWindowsWfp.TabIndex = 86;
-            this.chkWindowsWfp.Text = "Experimental: WFP";
+            this.chkWindowsWfp.Text = "WFP";
             this.chkWindowsWfp.UseVisualStyleBackColor = false;
             // 
             // chkWindowsTapUp
@@ -497,9 +507,9 @@ namespace Eddie.Gui.Forms
             this.cmdAdvancedUninstallDriver.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdAdvancedUninstallDriver.FlatAppearance.BorderSize = 0;
             this.cmdAdvancedUninstallDriver.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdAdvancedUninstallDriver.Location = new System.Drawing.Point(16, 189);
+            this.cmdAdvancedUninstallDriver.Location = new System.Drawing.Point(16, 207);
             this.cmdAdvancedUninstallDriver.Name = "cmdAdvancedUninstallDriver";
-            this.cmdAdvancedUninstallDriver.Size = new System.Drawing.Size(237, 30);
+            this.cmdAdvancedUninstallDriver.Size = new System.Drawing.Size(237, 27);
             this.cmdAdvancedUninstallDriver.TabIndex = 65;
             this.cmdAdvancedUninstallDriver.Text = "Uninstall Driver";
             this.cmdAdvancedUninstallDriver.UseVisualStyleBackColor = true;
@@ -885,22 +895,157 @@ namespace Eddie.Gui.Forms
             // tabGeneral
             // 
             this.tabGeneral.BackColor = System.Drawing.Color.White;
+            this.tabGeneral.Controls.Add(this.lblConnect);
+            this.tabGeneral.Controls.Add(this.lblNetLock);
+            this.tabGeneral.Controls.Add(this.chkConnect);
+            this.tabGeneral.Controls.Add(this.lblGeneralStartLast);
+            this.tabGeneral.Controls.Add(this.chkNetLock);
+            this.tabGeneral.Controls.Add(this.chkGeneralStartLast);
+            this.tabGeneral.Controls.Add(this.label7);
+            this.tabGeneral.Controls.Add(this.chkUiFontGeneral);
+            this.tabGeneral.Controls.Add(this.label5);
+            this.tabGeneral.Controls.Add(this.chkExitConfirm);
+            this.tabGeneral.Controls.Add(this.label4);
+            this.tabGeneral.Controls.Add(this.cboUiUnit);
             this.tabGeneral.Controls.Add(this.cmdUiFontGeneral);
             this.tabGeneral.Controls.Add(this.lblUiFontGeneral);
-            this.tabGeneral.Controls.Add(this.chkUiFontGeneral);
-            this.tabGeneral.Controls.Add(this.chkNetLock);
-            this.tabGeneral.Controls.Add(this.chkExitConfirm);
             this.tabGeneral.Controls.Add(this.pnlGeneralWindowsOnly);
-            this.tabGeneral.Controls.Add(this.lblGeneralTheme);
-            this.tabGeneral.Controls.Add(this.cboGeneralTheme);
-            this.tabGeneral.Controls.Add(this.chkGeneralStartLast);
             this.tabGeneral.Controls.Add(this.cmdTos);
-            this.tabGeneral.Controls.Add(this.chkConnect);
             this.tabGeneral.Location = new System.Drawing.Point(4, 24);
             this.tabGeneral.Name = "tabGeneral";
             this.tabGeneral.Size = new System.Drawing.Size(673, 337);
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
+            // 
+            // lblConnect
+            // 
+            this.lblConnect.BackColor = System.Drawing.Color.Transparent;
+            this.lblConnect.ForeColor = System.Drawing.Color.Black;
+            this.lblConnect.Location = new System.Drawing.Point(6, 43);
+            this.lblConnect.Name = "lblConnect";
+            this.lblConnect.Size = new System.Drawing.Size(241, 23);
+            this.lblConnect.TabIndex = 85;
+            this.lblConnect.Text = "Connect when launched:";
+            this.lblConnect.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblNetLock
+            // 
+            this.lblNetLock.BackColor = System.Drawing.Color.Transparent;
+            this.lblNetLock.ForeColor = System.Drawing.Color.Black;
+            this.lblNetLock.Location = new System.Drawing.Point(6, 73);
+            this.lblNetLock.Name = "lblNetLock";
+            this.lblNetLock.Size = new System.Drawing.Size(241, 23);
+            this.lblNetLock.TabIndex = 85;
+            this.lblNetLock.Text = "Lock network at start:";
+            this.lblNetLock.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // chkConnect
+            // 
+            this.chkConnect.BackColor = System.Drawing.Color.Transparent;
+            this.chkConnect.ForeColor = System.Drawing.Color.Black;
+            this.chkConnect.Location = new System.Drawing.Point(253, 43);
+            this.chkConnect.Name = "chkConnect";
+            this.chkConnect.Size = new System.Drawing.Size(133, 23);
+            this.chkConnect.TabIndex = 84;
+            this.chkConnect.UseVisualStyleBackColor = false;
+            // 
+            // lblGeneralStartLast
+            // 
+            this.lblGeneralStartLast.BackColor = System.Drawing.Color.Transparent;
+            this.lblGeneralStartLast.ForeColor = System.Drawing.Color.Black;
+            this.lblGeneralStartLast.Location = new System.Drawing.Point(3, 103);
+            this.lblGeneralStartLast.Name = "lblGeneralStartLast";
+            this.lblGeneralStartLast.Size = new System.Drawing.Size(244, 23);
+            this.lblGeneralStartLast.TabIndex = 87;
+            this.lblGeneralStartLast.Text = "Reconnect to last server at start:";
+            this.lblGeneralStartLast.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // chkNetLock
+            // 
+            this.chkNetLock.BackColor = System.Drawing.Color.Transparent;
+            this.chkNetLock.ForeColor = System.Drawing.Color.Black;
+            this.chkNetLock.Location = new System.Drawing.Point(253, 73);
+            this.chkNetLock.Name = "chkNetLock";
+            this.chkNetLock.Size = new System.Drawing.Size(133, 23);
+            this.chkNetLock.TabIndex = 84;
+            this.chkNetLock.UseVisualStyleBackColor = false;
+            // 
+            // chkGeneralStartLast
+            // 
+            this.chkGeneralStartLast.BackColor = System.Drawing.Color.Transparent;
+            this.chkGeneralStartLast.ForeColor = System.Drawing.Color.Black;
+            this.chkGeneralStartLast.Location = new System.Drawing.Point(253, 103);
+            this.chkGeneralStartLast.Name = "chkGeneralStartLast";
+            this.chkGeneralStartLast.Size = new System.Drawing.Size(28, 23);
+            this.chkGeneralStartLast.TabIndex = 86;
+            this.chkGeneralStartLast.UseVisualStyleBackColor = false;
+            // 
+            // label7
+            // 
+            this.label7.BackColor = System.Drawing.Color.Transparent;
+            this.label7.ForeColor = System.Drawing.Color.Black;
+            this.label7.Location = new System.Drawing.Point(6, 236);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(241, 23);
+            this.label7.TabIndex = 85;
+            this.label7.Text = "UI Main Font:";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // chkUiFontGeneral
+            // 
+            this.chkUiFontGeneral.BackColor = System.Drawing.Color.Transparent;
+            this.chkUiFontGeneral.ForeColor = System.Drawing.Color.Black;
+            this.chkUiFontGeneral.Location = new System.Drawing.Point(253, 236);
+            this.chkUiFontGeneral.Name = "chkUiFontGeneral";
+            this.chkUiFontGeneral.Size = new System.Drawing.Size(28, 23);
+            this.chkUiFontGeneral.TabIndex = 84;
+            this.chkUiFontGeneral.UseVisualStyleBackColor = false;
+            // 
+            // label5
+            // 
+            this.label5.BackColor = System.Drawing.Color.Transparent;
+            this.label5.ForeColor = System.Drawing.Color.Black;
+            this.label5.Location = new System.Drawing.Point(6, 206);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(241, 23);
+            this.label5.TabIndex = 83;
+            this.label5.Text = "Exit confirmation prompt:";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // chkExitConfirm
+            // 
+            this.chkExitConfirm.BackColor = System.Drawing.Color.Transparent;
+            this.chkExitConfirm.ForeColor = System.Drawing.Color.Black;
+            this.chkExitConfirm.Location = new System.Drawing.Point(253, 206);
+            this.chkExitConfirm.Name = "chkExitConfirm";
+            this.chkExitConfirm.Size = new System.Drawing.Size(133, 23);
+            this.chkExitConfirm.TabIndex = 82;
+            this.chkExitConfirm.UseVisualStyleBackColor = false;
+            // 
+            // label4
+            // 
+            this.label4.BackColor = System.Drawing.Color.Transparent;
+            this.label4.ForeColor = System.Drawing.Color.Black;
+            this.label4.Location = new System.Drawing.Point(6, 175);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(241, 23);
+            this.label4.TabIndex = 77;
+            this.label4.Text = "Data units:";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cboUiUnit
+            // 
+            this.cboUiUnit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboUiUnit.FormattingEnabled = true;
+            this.cboUiUnit.Items.AddRange(new object[] {
+            "Disabled",
+            "Automatic",
+            "Resolvconf (Linux only)",
+            "Renaming (Linux only)"});
+            this.cboUiUnit.Location = new System.Drawing.Point(253, 176);
+            this.cboUiUnit.Name = "cboUiUnit";
+            this.cboUiUnit.Size = new System.Drawing.Size(268, 21);
+            this.cboUiUnit.TabIndex = 76;
             // 
             // cmdUiFontGeneral
             // 
@@ -909,9 +1054,9 @@ namespace Eddie.Gui.Forms
             this.cmdUiFontGeneral.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdUiFontGeneral.FlatAppearance.BorderSize = 0;
             this.cmdUiFontGeneral.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdUiFontGeneral.Location = new System.Drawing.Point(348, 168);
+            this.cmdUiFontGeneral.Location = new System.Drawing.Point(527, 236);
             this.cmdUiFontGeneral.Name = "cmdUiFontGeneral";
-            this.cmdUiFontGeneral.Size = new System.Drawing.Size(34, 22);
+            this.cmdUiFontGeneral.Size = new System.Drawing.Size(34, 23);
             this.cmdUiFontGeneral.TabIndex = 70;
             this.cmdUiFontGeneral.Text = "...";
             this.cmdUiFontGeneral.UseVisualStyleBackColor = true;
@@ -922,50 +1067,16 @@ namespace Eddie.Gui.Forms
             this.lblUiFontGeneral.BackColor = System.Drawing.Color.Transparent;
             this.lblUiFontGeneral.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblUiFontGeneral.ForeColor = System.Drawing.Color.Black;
-            this.lblUiFontGeneral.Location = new System.Drawing.Point(108, 168);
+            this.lblUiFontGeneral.Location = new System.Drawing.Point(287, 236);
             this.lblUiFontGeneral.Name = "lblUiFontGeneral";
-            this.lblUiFontGeneral.Size = new System.Drawing.Size(234, 22);
+            this.lblUiFontGeneral.Size = new System.Drawing.Size(234, 23);
             this.lblUiFontGeneral.TabIndex = 69;
             this.lblUiFontGeneral.Text = "Default";
             this.lblUiFontGeneral.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // chkUiFontGeneral
-            // 
-            this.chkUiFontGeneral.BackColor = System.Drawing.Color.Transparent;
-            this.chkUiFontGeneral.ForeColor = System.Drawing.Color.Black;
-            this.chkUiFontGeneral.Location = new System.Drawing.Point(17, 169);
-            this.chkUiFontGeneral.Name = "chkUiFontGeneral";
-            this.chkUiFontGeneral.Size = new System.Drawing.Size(85, 22);
-            this.chkUiFontGeneral.TabIndex = 68;
-            this.chkUiFontGeneral.Text = "Font:";
-            this.chkUiFontGeneral.UseVisualStyleBackColor = false;
-            this.chkUiFontGeneral.CheckedChanged += new System.EventHandler(this.chkUiFontGeneral_CheckedChanged);
-            // 
-            // chkNetLock
-            // 
-            this.chkNetLock.BackColor = System.Drawing.Color.Transparent;
-            this.chkNetLock.ForeColor = System.Drawing.Color.Black;
-            this.chkNetLock.Location = new System.Drawing.Point(17, 42);
-            this.chkNetLock.Name = "chkNetLock";
-            this.chkNetLock.Size = new System.Drawing.Size(413, 22);
-            this.chkNetLock.TabIndex = 67;
-            this.chkNetLock.Text = "*Lock network at start";
-            this.chkNetLock.UseVisualStyleBackColor = false;
-            this.chkNetLock.CheckedChanged += new System.EventHandler(this.chkNetLock_CheckedChanged);
-            // 
-            // chkExitConfirm
-            // 
-            this.chkExitConfirm.BackColor = System.Drawing.Color.Transparent;
-            this.chkExitConfirm.ForeColor = System.Drawing.Color.Black;
-            this.chkExitConfirm.Location = new System.Drawing.Point(17, 197);
-            this.chkExitConfirm.Name = "chkExitConfirm";
-            this.chkExitConfirm.Size = new System.Drawing.Size(413, 22);
-            this.chkExitConfirm.TabIndex = 66;
-            this.chkExitConfirm.Text = "Exit confirmation prompt";
-            this.chkExitConfirm.UseVisualStyleBackColor = false;
-            // 
             // pnlGeneralWindowsOnly
             // 
+            this.pnlGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkOsSingleInstance);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemNotifications);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemStart);
@@ -1025,42 +1136,6 @@ namespace Eddie.Gui.Forms
             this.chkMinimizeTray.Text = "Minimize in tray icon";
             this.chkMinimizeTray.UseVisualStyleBackColor = false;
             // 
-            // lblGeneralTheme
-            // 
-            this.lblGeneralTheme.BackColor = System.Drawing.Color.Maroon;
-            this.lblGeneralTheme.ForeColor = System.Drawing.Color.Black;
-            this.lblGeneralTheme.Location = new System.Drawing.Point(18, 229);
-            this.lblGeneralTheme.Name = "lblGeneralTheme";
-            this.lblGeneralTheme.Size = new System.Drawing.Size(48, 43);
-            this.lblGeneralTheme.TabIndex = 43;
-            this.lblGeneralTheme.Text = "Theme:";
-            this.lblGeneralTheme.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // cboGeneralTheme
-            // 
-            this.cboGeneralTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboGeneralTheme.FormattingEnabled = true;
-            this.cboGeneralTheme.Items.AddRange(new object[] {
-            "Light",
-            "Dark"});
-            this.cboGeneralTheme.Location = new System.Drawing.Point(70, 250);
-            this.cboGeneralTheme.Name = "cboGeneralTheme";
-            this.cboGeneralTheme.Size = new System.Drawing.Size(67, 21);
-            this.cboGeneralTheme.TabIndex = 42;
-            this.cboGeneralTheme.SelectedIndexChanged += new System.EventHandler(this.cboGeneralTheme_SelectedIndexChanged);
-            // 
-            // chkGeneralStartLast
-            // 
-            this.chkGeneralStartLast.BackColor = System.Drawing.Color.Transparent;
-            this.chkGeneralStartLast.ForeColor = System.Drawing.Color.Black;
-            this.chkGeneralStartLast.Location = new System.Drawing.Point(17, 80);
-            this.chkGeneralStartLast.Name = "chkGeneralStartLast";
-            this.chkGeneralStartLast.Size = new System.Drawing.Size(413, 44);
-            this.chkGeneralStartLast.TabIndex = 40;
-            this.chkGeneralStartLast.Text = "Force reconnection to last server at startup (otherwise current best server is pi" +
-    "cked)";
-            this.chkGeneralStartLast.UseVisualStyleBackColor = false;
-            // 
             // cmdTos
             // 
             this.cmdTos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -1076,17 +1151,6 @@ namespace Eddie.Gui.Forms
             this.cmdTos.Text = "Terms of Service";
             this.cmdTos.UseVisualStyleBackColor = true;
             this.cmdTos.Click += new System.EventHandler(this.cmdTos_Click);
-            // 
-            // chkConnect
-            // 
-            this.chkConnect.BackColor = System.Drawing.Color.Transparent;
-            this.chkConnect.ForeColor = System.Drawing.Color.Black;
-            this.chkConnect.Location = new System.Drawing.Point(17, 14);
-            this.chkConnect.Name = "chkConnect";
-            this.chkConnect.Size = new System.Drawing.Size(413, 22);
-            this.chkConnect.TabIndex = 30;
-            this.chkConnect.Text = "*Connect when launched";
-            this.chkConnect.UseVisualStyleBackColor = false;
             // 
             // tabProtocols
             // 
@@ -1150,7 +1214,6 @@ namespace Eddie.Gui.Forms
             this.colProtocolsProtocol,
             this.colProtocolsPort,
             this.colProtocolsEntry,
-            this.colProtocolsCipher,
             this.colProtocolsDescription});
             this.lstProtocols.FullRowSelect = true;
             this.lstProtocols.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -1175,10 +1238,6 @@ namespace Eddie.Gui.Forms
             // colProtocolsEntry
             // 
             this.colProtocolsEntry.Text = "Entry";
-            // 
-            // colProtocolsCipher
-            // 
-            this.colProtocolsCipher.Text = "Cipher";
             // 
             // colProtocolsDescription
             // 
@@ -1748,7 +1807,6 @@ namespace Eddie.Gui.Forms
             // 
             // tabNetworkLock
             // 
-            this.tabNetworkLock.Controls.Add(this.listView1);
             this.tabNetworkLock.Controls.Add(this.lblLockAllowPing);
             this.tabNetworkLock.Controls.Add(this.lblLockAllowPrivate);
             this.tabNetworkLock.Controls.Add(this.lnkLockHelp);
@@ -1765,27 +1823,6 @@ namespace Eddie.Gui.Forms
             this.tabNetworkLock.TabIndex = 4;
             this.tabNetworkLock.Text = "Network lock";
             this.tabNetworkLock.UseVisualStyleBackColor = true;
-            // 
-            // listView1
-            // 
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader6,
-            this.columnHeader7,
-            this.columnHeader8});
-            this.listView1.FullRowSelect = true;
-            this.listView1.GridLines = true;
-            this.listView1.HideSelection = false;
-            this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3});
-            this.listView1.Location = new System.Drawing.Point(17, 123);
-            this.listView1.Name = "listView1";
-            this.listView1.OwnerDraw = true;
-            this.listView1.Size = new System.Drawing.Size(135, 182);
-            this.listView1.TabIndex = 87;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
             // 
             // lblLockAllowPing
             // 
@@ -1992,6 +2029,8 @@ namespace Eddie.Gui.Forms
             // 
             // Settings
             // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(864, 411);
             this.Controls.Add(this.pnlCommands);
             this.Controls.Add(this.tabSettings);
@@ -2031,7 +2070,6 @@ namespace Eddie.Gui.Forms
         private Skin.ColumnHeader colLogDate;
         private Skin.ColumnHeader colLogMessage;
         private Skin.CheckBox chkSystemStart;
-        private Skin.CheckBox chkConnect;
         private Skin.Label lblProxyType;
         private Skin.ComboBox cboProxyMode;
         private Skin.TextBox txtProxyPort;
@@ -2065,7 +2103,6 @@ namespace Eddie.Gui.Forms
         private System.Windows.Forms.ToolStripMenuItem mnuRoutesAdd;
         private System.Windows.Forms.ToolStripMenuItem mnuRoutesRemove;
 		private System.Windows.Forms.ToolStripMenuItem mnuRoutesEdit;
-        private Skin.CheckBox chkGeneralStartLast;
         private Skin.TabControl tabSettings;
         private Skin.TabPage tabGeneral;
         private Skin.TabPage tabProtocols;
@@ -2087,8 +2124,6 @@ namespace Eddie.Gui.Forms
         private Skin.Label label2;
         private Skin.ColumnHeader columnHeader3;
         private Skin.ColumnHeader columnHeader4;
-        private Skin.Label lblGeneralTheme;
-		private Skin.ComboBox cboGeneralTheme;
 		private Skin.CheckBox chkWindowsDhcpSwitch;
 		private Skin.Button cmdAdvancedUninstallDriver;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
@@ -2100,7 +2135,6 @@ namespace Eddie.Gui.Forms
 		private Skin.TextBox txtLogPath;
 		private Skin.Label lblLogPath;
 		private Skin.CheckBox chkLoggingEnabled;
-		private Skin.CheckBox chkExitConfirm;
 		private Skin.TabPage tabNetworkLock;
 		private Skin.Label lblLockAllowedIPS;
 		private Skin.TextBox txtLockAllowedIPS;
@@ -2127,7 +2161,6 @@ namespace Eddie.Gui.Forms
 		private Skin.Button cmdDnsRemove;
 		private Skin.Button cmdDnsAdd;
 		private Skin.ListView lstDnsServers;
-		private Skin.CheckBox chkNetLock;
 		private Skin.Label lblRouteRemoveDefault;
 		private Skin.CheckBox chkRouteRemoveDefault;
 		private Skin.CheckBox chkLogLevelDebug;
@@ -2142,12 +2175,10 @@ namespace Eddie.Gui.Forms
         private Skin.ColumnHeader colProtocolsProtocol;
         private Skin.ColumnHeader colProtocolsPort;
         private System.Windows.Forms.ColumnHeader colProtocolsEntry;
-        private System.Windows.Forms.ColumnHeader colProtocolsCipher;
         private Skin.LinkLabel lnkProtocolsHelp2;
         private Skin.LinkLabel lnkProtocolsHelp1;
         private System.Windows.Forms.CheckBox chkProtocolsAutomatic;
         private Skin.CheckBox chkWindowsWfp;
-        private Skin.CheckBox chkUiFontGeneral;
         private Skin.Label lblUiFontGeneral;
         private Skin.Button cmdUiFontGeneral;
         private Skin.TextBox txtProxyTorControlPassword;
@@ -2163,13 +2194,22 @@ namespace Eddie.Gui.Forms
         private Skin.ComboBox cboOpenVpnDirectivesDefaultSkip;
         private Skin.Label lblLockAllowPing;
         private Skin.Label lblLockAllowPrivate;
-        private Skin.ListView listView1;
-        private System.Windows.Forms.ColumnHeader columnHeader6;
-        private System.Windows.Forms.ColumnHeader columnHeader7;
-        private System.Windows.Forms.ColumnHeader columnHeader8;
         private Skin.CheckBox chkWindowsIPv6DisableAtOs;
         private Skin.CheckBox chkWindowsDnsForceAllInterfaces;
         private Skin.LinkLabel lnkOpenVpnDirectivesHelp;
         private Skin.CheckBox chkOsSingleInstance;
+        private Skin.CheckBox chkWindowsDnsLock;
+        private Skin.Label label5;
+        private Skin.CheckBox chkExitConfirm;
+        private Skin.Label label4;
+        private Skin.ComboBox cboUiUnit;
+        private Skin.Label label7;
+        private Skin.CheckBox chkUiFontGeneral;
+        private Skin.Label lblConnect;
+        private Skin.Label lblNetLock;
+        private Skin.CheckBox chkConnect;
+        private Skin.Label lblGeneralStartLast;
+        private Skin.CheckBox chkNetLock;
+        private Skin.CheckBox chkGeneralStartLast;
     }
 }

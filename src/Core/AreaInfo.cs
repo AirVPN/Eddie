@@ -22,14 +22,14 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class AreaInfo
+    public class AreaInfo : IComparable<AreaInfo>
     {
         public string Code;
         public string Name;
         
         public Int64 Bandwidth = 0;
         public Int64 BandwidthMax = 0;
-        public Int64 Users = 0;
+        public Int64 Users = -1;
         public Int64 Servers = 0;
 
         public enum UserListType
@@ -43,7 +43,12 @@ namespace Eddie.Core
 
         public bool Deleted = false;
 
-		public int CompareToEx(AreaInfo other, string field, bool ascending)
+        public int CompareTo(AreaInfo other)
+        {
+            return Code.CompareTo(other.Code);
+        }
+
+        public int CompareToEx(AreaInfo other, string field, bool ascending)
 		{
 			int returnVal = 0;
 			if (field == "Name")
@@ -125,5 +130,27 @@ namespace Eddie.Core
 			else
 				return "green";
 		}
+
+        public string GetNameForList()
+        {
+            if (Name == "")
+                return Messages.Unknown;
+            else
+                return Name;
+
+        }
+
+        public string GetServersForList()
+        {
+            return Servers.ToString();
+        }
+
+        public string GetUsersForList()
+        {
+            if (Users == -1)
+                return "";
+            else
+                return Users.ToString();
+        }
     }
 }

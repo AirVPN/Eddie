@@ -108,8 +108,9 @@ namespace Eddie.Gui.Controls
 
 		public string ValToDesc(Int64 v)
 		{
-			return Utils.FormatBytesEx2(v*8, true) + "/s (" + Utils.FormatBytesEx2(v, false) + "/s)";			
-		}
+            string r = Utils.FormatBytes(v, true, true);            
+            return r;
+        }
 		
 		public void Switch(int chartIndex)
 		{

@@ -67,20 +67,21 @@ namespace Eddie.Core.Threads
 			{
 				//bool alwaysRun = Engine.Instance.Storage.GetBool("pinger.always"); // 2.6
 				routeScope = new RouteScope(Server.IpEntry);
-
+                                
 				// Ping
 				Ping pingSender = new Ping();
 				PingOptions options = new PingOptions();
 
 				// Use the default Ttl value which is 128,
 				// but change the fragmentation behavior.
-				options.DontFragment = true;
-
+				//options.DontFragment = true;
+                
 				// Create a buffer of 32 bytes of data to be transmitted.								
 				byte[] buffer = RandomGenerator.GetBuffer(32);
-				int timeout = 5000;
+				int timeout = 2000;                
 				PingReply reply = pingSender.Send(Server.IpEntry, timeout, buffer, options);
 				Pinger.Instance.PingResult(Server, reply);
+                
 			}
 			catch (Exception)
 			{				
@@ -142,27 +143,27 @@ namespace Eddie.Core.Threads
 			return canRun;
 		}
 
-		public int GetPingerDelaySuccess() // Delay for already success ping
+		public int GetPingerDelaySuccess(ServerInfo server) // Delay for already success ping
 		{
 			int delay = Engine.Instance.Storage.GetInt("pinger.delay");
 			if (delay == 0)
-				delay = Conversions.ToInt32(Engine.Instance.AirVPN.GetManifestKeyValue("pinger_delay", "180"));
+				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_delay", "1802"));
 			return delay;
 		}
 
-		public int GetPingerDelayRetry() // Delay for failed ping
+		public int GetPingerDelayRetry(ServerInfo server) // Delay for failed ping
 		{
 			int delay = Engine.Instance.Storage.GetInt("pinger.retry");
 			if (delay == 0)
-				delay = Conversions.ToInt32(Engine.Instance.AirVPN.GetManifestKeyValue("pinger_retry", "5"));
+				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_retry", "5"));
 			return delay;
 		}
 
-		public int GetPingerDelayValid() // Delay for consider valid
+		public int GetPingerDelayValid(ServerInfo server) // Delay for consider valid
 		{
 			int delay = Engine.Instance.Storage.GetInt("pinger.valid");
 			if (delay == 0)
-				delay = GetPingerDelaySuccess() * 5;
+				delay = GetPingerDelaySuccess(server) * 5;
 			return delay;
 		}
 
@@ -199,9 +200,7 @@ namespace Eddie.Core.Threads
                 {
 					// Note: If Pinger is not enabled, works like all ping results is 0.						
 					bool enabled = GetEnabled();					
-					int delaySuccess = GetPingerDelaySuccess();
-					int delayRetry = GetPingerDelayRetry();
-
+					
 					int timeNow = Utils.UnixTimeStamp();
 					int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
 
@@ -215,13 +214,20 @@ namespace Eddie.Core.Threads
 						if (GetCanRun() == false)
 							break;
 
-						int delay = delaySuccess;
+                        int delaySuccess = GetPingerDelaySuccess(infoServer);
+                        int delayRetry = GetPingerDelayRetry(infoServer);
+
+                        int delay = delaySuccess;
 						if (infoServer.PingFailedConsecutive > 0)
 							delay = delayRetry;
 
 						if(timeNow - infoServer.LastPingTest >= delay)								
 						{
-							if (enabled)
+                            bool canPingServer = enabled;
+                            if (infoServer.IpEntry == "")
+                                canPingServer = false;
+
+							if (canPingServer)
 							{
 								if (Jobs.Count < jobsLimit)
 								{
@@ -246,9 +252,10 @@ namespace Eddie.Core.Threads
 								infoServer.LastPingTest = timeNow;
 								infoServer.PingTests = 0;
 								infoServer.PingFailedConsecutive = 0;
-								infoServer.Ping = 0;
+								infoServer.Ping = -1;
 								infoServer.LastPingResult = infoServer.LastPingTest;
 								infoServer.LastPingSuccess = infoServer.LastPingTest;
+                                Engine.Instance.MarkServersListUpdated();
 							}
 						}
 						
@@ -285,7 +292,7 @@ namespace Eddie.Core.Threads
 			}
 			else
 			{				
-				result = -1;
+				result = -1;                
 			}
 
 			PingResult(infoServer, result);
@@ -317,7 +324,8 @@ namespace Eddie.Core.Threads
 				else
 					infoServer.Ping = (infoServer.Ping + result) / 2;
 			}
-		}
+            Engine.Instance.MarkServersListUpdated();
+        }
 
 		void OnPingCompleted(object sender, PingCompletedEventArgs e)
 		{
@@ -329,8 +337,7 @@ namespace Eddie.Core.Threads
 		public PingerStats GetStats()
 		{
 			PingerStats stats = new PingerStats();
-
-			int deltaValid = GetPingerDelayValid();			
+            			
 			int timeNow = Utils.UnixTimeStamp();
 
 			int iTotal = 0;
@@ -339,7 +346,9 @@ namespace Eddie.Core.Threads
 			{
 				foreach (ServerInfo infoServer in Engine.Servers.Values)
 				{
-					if( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoServer.LastPingResult) )
+                    int deltaValid = GetPingerDelayValid(infoServer);
+
+                    if ( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoServer.LastPingResult) )
 						stats.OlderCheckDate = infoServer.LastPingResult;
 
 					if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoServer.LastPingResult))

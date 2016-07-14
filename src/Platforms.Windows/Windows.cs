@@ -203,6 +203,12 @@ namespace Eddie.Platforms
             }
         }
 
+        public override string GetExecutablePath()
+        {
+            // It return vshost.exe under VS, better
+            return Environment.GetCommandLineArgs()[0];
+        }
+
         public override string GetUserFolder()
         {
             return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
@@ -400,7 +406,10 @@ namespace Eddie.Platforms
 
         public override string OnNetworkLockRecommendedMode()
         {
-            if( (IsVistaOrHigher()) && (Engine.Instance.Storage.GetBool("windows.wfp")) )
+            if (IsVistaOrHigher() == false)
+                return "none";
+
+            if (Engine.Instance.Storage.GetBool("windows.wfp"))
                 return "windows_wfp";
             else
                 return "windows_firewall";
@@ -498,7 +507,7 @@ namespace Eddie.Platforms
 		{
 			string[] dnsArray = dns.Split(',');
 
-            if ((Engine.Instance.Storage.GetBool("dns.lock")) && (IsVistaOrHigher()) && (Engine.Instance.Storage.GetBool("windows.wfp")))                
+            if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrHigher()) && (Engine.Instance.Storage.GetBool("windows.wfp")))                
             {
                 // This is not required yet, but will be required in Eddie 3.                
                 {
@@ -574,11 +583,11 @@ namespace Eddie.Platforms
 
                         bool skip = true;
 
-                        if((Engine.Instance.Storage.GetBool("dns.lock")) && (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces")) )
-                            skip = false;                            
+                        if((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces")) )
+                            skip = false;
                         if (guid == Engine.Instance.ConnectedVpnInterfaceId)
                             skip = false;
-
+                        
                         if (skip == false)
                         {
                             bool ipEnabled = (bool)objMO["IPEnabled"];
@@ -588,16 +597,24 @@ namespace Eddie.Platforms
                             entry.Guid = guid;
                             entry.Description = objMO["Description"] as string;
                             entry.Dns = objMO["DNSServerSearchOrder"] as string[];
-
+                            
                             entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
 
                             if (entry.Dns == null)
+                            {
                                 continue;
+                            }
 
-                            if (String.Join(",", entry.Dns) == dns)
-                                continue;
+                            if (entry.AutoDns == false) // Added 2.11
+                            {
+                                if (String.Join(",", entry.Dns) == dns)
+                                {
+                                    continue;
+                                }
+                            }
 
-                            string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", entry.Dns));
+                            //string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", detectedDns));
+                            string descFrom = (entry.AutoDns ? "automatic":"manual") + " (" + String.Join(",", entry.Dns) + ")";
                             Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns));
 
                             ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
@@ -1055,14 +1072,26 @@ namespace Eddie.Platforms
 					{
 						if (entry.Guid == guid)
 						{
-							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+                            ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
 							if (entry.AutoDns == false)
 							{
-								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
+                                objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
 							}
-							ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+                            else
+                            {
+                                //objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { };
+                                objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
+                            }
 
-                            string descTo = (entry.AutoDns ? "Empty" : String.Join(",", entry.Dns));
+                            ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+
+                            if (entry.AutoDns == true)
+                            {
+                                // Sometime, under Windows 10, the above method don't set it to automatic. So, registry write.
+                                Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "");
+                            }
+
+                            string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
                             Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
 						}
 					}

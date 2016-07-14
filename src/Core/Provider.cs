@@ -47,6 +47,11 @@ namespace Eddie.Core
 			return false;
 		}
 
+        public virtual bool GetEnabledByDefault()
+        {
+            return true;
+        }
+
 		public virtual List<IpAddressRange> GetNetworkLockAllowedIps()
 		{
 			List<IpAddressRange> list = new List<IpAddressRange>();
@@ -59,26 +64,88 @@ namespace Eddie.Core
 			return "";
 		}
 
+        public virtual bool Enabled
+        {
+            get
+            {
+                return Utils.XmlGetAttributeBool(Storage.DocumentElement, "enabled", GetEnabledByDefault());                
+            }
+            set
+            {
+                Utils.XmlSetAttributeBool(Storage.DocumentElement, "enabled", value);
+            }
+        }
+
+        public string Title
+        {
+            get
+            {
+                return Utils.XmlGetAttributeString(Storage.DocumentElement, "title", GetCode());                
+            }
+        }
+
+        public string TitleForDisplay
+        {
+            get
+            {
+                // No title if is the only
+                if (Engine.Instance.ProvidersManager.Providers.Count == 1)
+                    return "";
+
+                string title = Title;
+                if (title != "")
+                    return title + " - ";
+                return "";
+            }
+        }
+
+        public virtual string SHA256(string str)
+        {
+            return Utils.SHA256(GetCode() + "-" + Title + "-" + str);
+        }
+
+        public virtual string GetKeyValue(string key, string def)
+        {
+            // Option at provider level. If not exists local, try to find in a manifest.
+
+            if (Storage != null)
+            {
+                if (Storage.DocumentElement != null)
+                {
+                    if (Storage.DocumentElement.Attributes[key] != null)
+                    {
+                        return Storage.DocumentElement.Attributes[key].Value;
+                    }
+
+                    XmlElement manifest = Storage.DocumentElement.SelectSingleNode("manifest") as XmlElement;
+                    if (manifest != null)
+                    {
+                        if (manifest.Attributes[key] != null)
+                        {
+                            return manifest.Attributes[key].Value;
+                        }
+                    }
+                }
+            }            
+
+            return def;            
+        }
+        
         public virtual void OnInit()
 		{
             Storage = new XmlDocument();            
-
-            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".enabled", false, "");            
         }
 
-		public virtual void OnLoad()
+		public virtual void OnLoad(XmlElement xmlStorage)
 		{
-            XmlElement nodeStorage = null;
-            if(Engine.Instance.Storage.Providers != null)
-                nodeStorage = Utils.XmlGetFirstElementByTagName(Engine.Instance.Storage.Providers, GetCode());
-			if (nodeStorage != null)
+            if (xmlStorage != null)
 			{
-				Storage.AppendChild(Storage.ImportNode(nodeStorage, true));
+				Storage.AppendChild(Storage.ImportNode(xmlStorage, true));
 			}
 			else
 			{				
 				Storage.AppendChild(Storage.CreateElement(GetCode()));				
-			}
+			}            
 		}
 
 		public virtual void OnBuildOvpnDefaults(OvpnBuilder ovpn, string protocol)
@@ -111,7 +178,19 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual string GetSshKey(string format)
+        // Used for directive auth-user-pass
+        public virtual string GetLogin()
+        {
+            return Utils.XmlGetAttributeString(Storage.DocumentElement, "login", "");
+        }
+
+        // Used for directive auth-user-pass
+        public virtual string GetPassword()
+        {
+            return Utils.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+        }
+
+        public virtual string GetSshKey(string format)
 		{
 			// 'format' can be 'key' or 'ppk'
 			return "";
@@ -120,15 +199,6 @@ namespace Eddie.Core
 		public virtual string GetSslCrt()
 		{
 			return "";
-		}
-
-        public bool GetEnabled()
-		{
-#if (EDDIE3)
-            return Engine.Instance.Storage.GetBool("providers." + GetCode() + ".enabled");
-#else
-            return true;
-#endif
-        }
+		}        
     }
 }

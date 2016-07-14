@@ -66,14 +66,12 @@ namespace Eddie.Gui
 				ExceptionReporter reporter = new ExceptionReporter();
 
 				// Crash Reporting
-				reporter.Config.AppName = "AirVPN";
-				//reporter.Config.CompanyName = "Fuzz Pty Ltd";
-				reporter.Config.TitleText = "AirVPN Client Error Report";
+				reporter.Config.AppName = "Eddie";
+				reporter.Config.TitleText = "Eddie Error Report";
 				reporter.Config.EmailReportAddress = "support@airvpn.org";
 				reporter.Config.ShowSysInfoTab = true;   // all tabs are shown by default
 				reporter.Config.ShowFlatButtons = true;   // this particular config is code-only
-				reporter.Config.TakeScreenshot = true;   // attached if sending email
-				//reporter.Config.FilesToAttach = new[] { "c:/file.txt" }; // any other files to attach
+				reporter.Config.TakeScreenshot = true;   // attached if sending email				
 
 				reporter.Show(e);
 			}

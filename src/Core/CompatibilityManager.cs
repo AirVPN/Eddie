@@ -60,11 +60,14 @@ namespace Eddie.Core
 			// < 2.9 - New certificate for SSL connections
 			if (Engine.Instance.IsLogged())
 			{
-				if (Utils.XmlGetAttributeString(Engine.Instance.AirVPN.User, "ssl_crt", "") == "")
-				{
-					Engine.Instance.ReAuth();					
-				}
-			}
+                if (Engine.Instance.AirVPN != null)
+                {
+                    if (Utils.XmlGetAttributeString(Engine.Instance.AirVPN.User, "ssl_crt", "") == "")
+                    {
+                        Engine.Instance.ReAuth();
+                    }
+                }
+			}            
 		}
 
         public static void FixOptions(Dictionary<string, string> options)
@@ -91,7 +94,7 @@ namespace Eddie.Core
 
 		public static void FixOption(ref string name, ref string value)
 		{
-            // AirVPN <= 2.4 client use  'host,netmask,action' syntax.
+            // Eddie <= 2.4 client use  'host,netmask,action' syntax.
             // If detected, convert to new 'iprange,action,notes' syntax.
             if (name == "routes.custom")
             {

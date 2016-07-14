@@ -30,8 +30,9 @@ namespace Eddie.Platforms
 	public class NetworkLockWfp : NetworkLockPlugin
 	{
         private Dictionary<string, WfpItem> m_rules = new Dictionary<string, WfpItem>();
+        private string m_lastestIpList = "";
 
-		public override string GetCode()
+        public override string GetCode()
 		{
 			return "windows_wfp";
 		}
@@ -122,9 +123,7 @@ namespace Eddie.Platforms
                 xmlRule.AppendChild(XmlIf3);
                 XmlIf3.SetAttribute("field", "ip_remote_port");
                 XmlIf3.SetAttribute("match", "equal");
-                XmlIf3.SetAttribute("port", "67");
-
-                // If4: program=\"%SystemRoot%\\system32\\svchost.exe\"
+                XmlIf3.SetAttribute("port", "67");                
 
                 AddRule("netlock_allow_dhcp", xmlRule);
             }            
@@ -135,23 +134,20 @@ namespace Eddie.Platforms
                 XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                 xmlRule.SetAttribute("name", "NetLock - Block All");
                 xmlRule.SetAttribute("layer", "all");
-                xmlRule.SetAttribute("action", "block");
-                /*
-                XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                xmlRule.AppendChild(XmlIf1);
-                XmlIf1.SetAttribute("field", "ip_local_interface");
-                XmlIf1.SetAttribute("match", "not_equal");
-                XmlIf1.SetAttribute("interface", "loopback");
-                */
+                xmlRule.SetAttribute("action", "block");                
                 AddRule("netlock_block_all", xmlRule);
             }
-		}
+
+            OnUpdateIps();
+        }
 
 		public override void Deactivation()
 		{
 			base.Deactivation();
 
             RemoveAllRules();
+
+            m_lastestIpList = "";
         }
 
         public override void AllowProgram(string path, string name, string guid)
@@ -168,22 +164,92 @@ namespace Eddie.Platforms
             RemoveRule("netlock_allow_program_" + guid);
         }
 
+        public override void AllowInterface(string id)
+        {
+            base.AllowInterface(id);
+
+            AddRule("netlock_allow_interface_" + id, Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id, id));
+        }
+
+        public override void DeallowInterface(string id)
+        {
+            base.DeallowInterface(id);
+
+            RemoveRule("netlock_allow_interface_" + id);
+        }
+
         public override void OnUpdateIps()
 		{
             base.OnUpdateIps();
-		}
+
+            List<IpAddressRange> ipsFirewalled = GetAllIps(false); // Don't need full ip, because the client it's allowed as program.
+            string ipList = "";
+            foreach (IpAddressRange ip in ipsFirewalled)
+            {
+                if (ipList != "")
+                    ipList += ",";
+                ipList += ip.ToCIDR();
+            }
+
+            if (ipList != m_lastestIpList)
+            {
+                if(ExistsRule("netlock_allow_ips"))
+                    RemoveRule("netlock_allow_ips");
+                
+                m_lastestIpList = ipList;
+
+                XmlDocument xmlDocRule = new XmlDocument();
+                XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                xmlRule.SetAttribute("name", "NetLock - Allow IP");
+                xmlRule.SetAttribute("layer", "ipv4");
+                xmlRule.SetAttribute("action", "permit");
+
+                foreach (IpAddressRange ip in ipsFirewalled)
+                {
+                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                    xmlRule.AppendChild(XmlIf1);
+                    XmlIf1.SetAttribute("field", "ip_remote_address");
+                    XmlIf1.SetAttribute("match", "equal");
+                    XmlIf1.SetAttribute("address", ip.GetAddress());
+                    XmlIf1.SetAttribute("mask", ip.GetMask());
+                }
+    
+                AddRule("netlock_allow_ips", xmlRule);
+            }
+        }
 
 		public override void OnRecoveryLoad(XmlElement root)
 		{
 			base.OnRecoveryLoad(root);
-            
+
+            if (root.HasAttribute("ids"))
+            {
+                string list = root.GetAttribute("ids");
+                string[] ids = list.Split(';');
+                foreach(string id in ids)
+                {
+                    ulong nid;
+                    if(ulong.TryParse(id, out nid))
+                        Wfp.RemoveItemId(nid);
+                }
+            }
 		}
 
 		public override void OnRecoverySave(XmlElement root)
 		{
 			base.OnRecoverySave(root);
-			
-		}
+
+            lock (m_rules)
+            {
+                string list = "";
+                foreach (WfpItem item in m_rules.Values)
+                {
+                    foreach (ulong id in item.FirewallIds)
+                        list += id.ToString() + ";";                    
+                }
+                root.SetAttributeNode("ids", list);
+            }
+        }
         
         public void AddRule(string code, XmlElement xmlRule)
         {
@@ -206,6 +272,11 @@ namespace Eddie.Platforms
                 m_rules.Remove(code);
                 Wfp.RemoveItem(item);
             }
+        }
+
+        public bool ExistsRule(string code)
+        {
+            return m_rules.ContainsKey(code);
         }
 
         public void RemoveAllRules()

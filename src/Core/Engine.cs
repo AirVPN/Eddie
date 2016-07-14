@@ -43,22 +43,20 @@ namespace Eddie.Core
 
         private Threads.Pinger m_threadPinger;
         private Threads.Penalities m_threadPenalities;
-		private Threads.Manifest m_threadManifest;
+        private Threads.Discover m_threadDiscover;
+        private Threads.Manifest m_threadManifest;
         private Threads.Session m_threadSession;
         private Storage m_storage;
 		private Stats m_stats;
         private ProvidersManager m_providersManager;
         private LogsManager m_logsManager;
         private NetworkLockManager m_networkLockManager;
-
-        // Clodo, TOFIX, maybe move in ProvidersManager
-        private Int64 m_lastProvidersRefreshTry = 0;
-        private Int64 m_lastProvidersRefreshDone = 0;
         
         public Providers.Service AirVPN; // TOFIX, for compatibility
 
         private Dictionary<string, ServerInfo> m_servers = new Dictionary<string, ServerInfo>();
         private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
+        private bool m_serversInfoUpdated = false;
 		private List<string> FrontMessages = new List<string>();
 		private int m_breakRequests = 0;
 
@@ -80,7 +78,7 @@ namespace Eddie.Core
             Full = 2,
 			MainMessage = 3,
 			Log = 4,
-			Quick = 5
+			QuickX = 5
         }
 
 		private List<ActionService> ActionsList = new List<ActionService>();        
@@ -196,7 +194,7 @@ namespace Eddie.Core
 			bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
 			if (manMode == false)
 			{
-                Logs.Log(LogType.Info, "AirVPN client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
+                Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
 
 				if (DevelopmentEnvironment)
                     Logs.Log(LogType.Info, "Development environment.");
@@ -242,9 +240,9 @@ namespace Eddie.Core
 
             m_stats = new Core.Stats();
 
-#if (EDDIE3)
+//#if (EDDIE3)
             WebServer.Start();
-#endif
+//#endif
 
             m_networkLockManager = new NetworkLockManager();
 			m_networkLockManager.Init();			
@@ -280,7 +278,14 @@ namespace Eddie.Core
 
                 WaitMessageClear();
 
-				bool autoStart = false;
+                // Start threads
+                m_threadPinger = new Threads.Pinger();
+                m_threadPenalities = new Threads.Penalities();
+                m_threadDiscover = new Threads.Discover();
+                m_threadManifest = new Threads.Manifest();
+
+
+                bool autoStart = false;
 				if (ConsoleMode)
 				{
 					Auth();
@@ -369,10 +374,6 @@ namespace Eddie.Core
             PostManifestUpdate();
 
             LoggedUpdate();
-
-            m_threadPinger = new Threads.Pinger();
-			m_threadPenalities = new Threads.Penalities();
-			m_threadManifest = new Threads.Manifest();
             
             return true;
         }
@@ -390,12 +391,15 @@ namespace Eddie.Core
 			if (m_threadPenalities != null)
 				m_threadPenalities.RequestStopSync();
 
-			if (m_threadPinger != null)
+            if (m_threadDiscover != null)
+                m_threadDiscover.RequestStopSync();
+
+            if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
 
-#if (EDDIE3)
+//#if (EDDIE3)
 			WebServer.Stop();
-#endif
+//#endif
 
 			m_networkLockManager.Deactivation(true);
 			m_networkLockManager = null;
@@ -472,13 +476,22 @@ namespace Eddie.Core
 				if (m_threadSession != null)
 					SessionStop();
 			}
-				
-			if (TickDeltaUiRefreshQuick.Elapsed(1000))
+
+            /*
+            if (TickDeltaUiRefreshQuick.Elapsed(1000))
 				OnRefreshUi(RefreshUiMode.Quick);
+            */
 
-			if (TickDeltaUiRefreshFull.Elapsed(10000))
-				OnRefreshUi(RefreshUiMode.Full);
-
+            // Avoid to refresh UI for every ping, for example
+            if (TickDeltaUiRefreshFull.Elapsed(1000))
+            {   
+                if (m_serversInfoUpdated)
+                {
+                    m_serversInfoUpdated = false;
+                    OnRefreshUi(RefreshUiMode.Full);
+                }
+            }
+            
 			Sleep(100);
 		}
 
@@ -507,9 +520,9 @@ namespace Eddie.Core
 
 		public virtual void OnCommand(CommandLine command)
 		{
-#if (EDDIE3)
+//#if (EDDIE3)
             WebServer.OnCommand(command);
-#endif
+//#endif
 
 			string action = command.Get("action","").ToLowerInvariant();
             if (action == "exit")
@@ -584,6 +597,10 @@ namespace Eddie.Core
             else if (action == "ui.show.openvpn.management")
             {
                 Platform.Instance.OpenUrl("http://openvpn.net/index.php/open-source/documentation/miscellaneous/79-management-interface.html");
+            }
+            else if (action == "provider.add.openvpn")
+            {
+                Engine.Instance.ProvidersManager.AddProvider("OpenVPN", null);
             }
             else
             {
@@ -725,6 +742,12 @@ namespace Eddie.Core
 				ActionsList.Add(Engine.ActionService.Disconnect);
 			}
 		}
+
+        public void MarkServersListUpdated()
+        {
+            // Called for minimal changes, like ping
+            m_serversInfoUpdated = true;
+        }
 
 		public void SetConnected(bool connected)
         {
@@ -879,6 +902,10 @@ namespace Eddie.Core
 
         public virtual void OnShowText(string title, string data)
         {
+            XmlElement webMessage = WebServer.CreateMessage("ui.show.text");
+            webMessage.SetAttributeNode("title", title);
+            webMessage.SetAttributeNode("data", data);
+            WebServer.Send(webMessage);
         }
 
         public virtual bool OnAskYesNo(string message)
@@ -895,7 +922,7 @@ namespace Eddie.Core
 		{
             foreach (Provider provider in ProvidersManager.Providers)
             {
-                if (provider.GetEnabled())
+                if (provider.Enabled)
                 {
                     string msg = provider.GetFrontMessage();
                     if ((msg != "") && (FrontMessages.Contains(msg) == false))
@@ -915,7 +942,7 @@ namespace Eddie.Core
 
                 foreach (Provider provider in ProvidersManager.Providers)
                 {
-                    if (provider.GetEnabled())
+                    if (provider.Enabled)
                     {
                         provider.OnBuildServersList();
                     }
@@ -928,7 +955,7 @@ namespace Eddie.Core
                     {
                         if (infoServer.Deleted)
                         {
-                            m_servers.Remove(infoServer.Name);
+                            m_servers.Remove(infoServer.Code);
                             restart = true;
                             break;
                         }
@@ -943,11 +970,11 @@ namespace Eddie.Core
 				List<string> serversBlackList = Storage.GetList("servers.blacklist");
                 foreach (ServerInfo infoServer in m_servers.Values)
                 {
-                    string name = infoServer.Name;
+                    string code = infoServer.Code;
 
-					if (serversWhiteList.Contains(name))
+					if (serversWhiteList.Contains(code))
                         infoServer.UserList = ServerInfo.UserListType.WhiteList;
-					else if (serversBlackList.Contains(name))
+					else if (serversBlackList.Contains(code))
                         infoServer.UserList = ServerInfo.UserListType.BlackList;
                     else
                         infoServer.UserList = ServerInfo.UserListType.None;
@@ -979,7 +1006,14 @@ namespace Eddie.Core
                         infoArea.Name = CountriesManager.GetNameFromCode(countryCode);
                         infoArea.Bandwidth += server.Bandwidth;
                         infoArea.BandwidthMax += server.BandwidthMax;
-                        infoArea.Users += server.Users;
+                        
+                        if (server.Users >= 0)
+                        {
+                            if (infoArea.Users == -1)
+                                infoArea.Users = 0;
+                            infoArea.Users += server.Users;
+                        }
+                        
                         infoArea.Servers++;
                     }
 
@@ -1005,16 +1039,7 @@ namespace Eddie.Core
 
         public virtual void OnRefreshUi(RefreshUiMode mode)
         {
-			if ((mode == Core.Engine.RefreshUiMode.Quick) || (mode == Core.Engine.RefreshUiMode.Full))
-			{
-				string manifestLastUpdate = Utils.FormatTime(m_lastProvidersRefreshDone);
-				if(Core.Threads.Manifest.Instance != null)
-					if(Core.Threads.Manifest.Instance.ForceUpdate)
-						manifestLastUpdate += " (" + Messages.ManifestUpdateForce + ")";
-				Stats.UpdateValue("ManifestLastUpdate", manifestLastUpdate);
-			}
-
-			if ((mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
+            if ((mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
 			{
 				if (Engine.IsConnected())
 				{
@@ -1045,7 +1070,14 @@ namespace Eddie.Core
 
 			if (mode == Core.Engine.RefreshUiMode.Full)
 			{
-				Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
+                string manifestLastUpdate = Utils.FormatTime(ProvidersManager.LastRefreshDone);
+                if (Core.Threads.Manifest.Instance != null)
+                    if (Core.Threads.Manifest.Instance.ForceUpdate)
+                        manifestLastUpdate += " (" + Messages.ManifestUpdateForce + ")";
+                Stats.UpdateValue("ManifestLastUpdate", manifestLastUpdate);
+
+
+                Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
 				if (m_threadPinger != null)
 				{
 					Stats.UpdateValue("Pinger", PingerStats().ToString());					
@@ -1053,7 +1085,7 @@ namespace Eddie.Core
 
 				if (Engine.IsConnected())
 				{
-					Stats.UpdateValue("ServerName", Engine.CurrentServer.Name);
+					Stats.UpdateValue("ServerName", Engine.CurrentServer.DisplayName);
 					Stats.UpdateValue("ServerLatency", Engine.CurrentServer.Ping.ToString() + " ms");
 					Stats.UpdateValue("ServerLocation", CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode) + " - " + Engine.CurrentServer.Location);
 					Stats.UpdateValue("ServerLoad", Engine.CurrentServer.Load().ToString());
@@ -1138,18 +1170,18 @@ namespace Eddie.Core
         // Misc
         // ----------------------------------------------------
 
-        public ServerInfo GetServerInfo(string name, Provider provider)
+        public ServerInfo GetServerInfo(string code, Provider provider)
         {
             ServerInfo infoServer = null;
-            if (m_servers.ContainsKey(name))
-                infoServer = m_servers[name];
+            if (m_servers.ContainsKey(code))
+                infoServer = m_servers[code];
             if (infoServer == null)
             {
                 // Create
                 infoServer = new ServerInfo();
                 infoServer.Provider = provider;
-                infoServer.Name = name;
-                m_servers[name] = infoServer;
+                infoServer.Code = code;
+                m_servers[code] = infoServer;
             }
             infoServer.Deleted = false;
             return infoServer;
@@ -1272,34 +1304,7 @@ namespace Eddie.Core
 
             return null;
         }
-
-        public string ProvidersRefresh()
-        {
-            m_lastProvidersRefreshTry = Utils.UnixTimeStamp();
-
-            Logs.Log(LogType.Verbose, Messages.ManifestUpdate);
-
-            // TOOPTIMIZE: Stop at first error
-            foreach (Provider provider in ProvidersManager.Providers)
-            {
-                if (provider.GetEnabled())
-                {
-                    string result = provider.Refresh();
-                    if (result != "")
-                        return result;
-                }
-            }
-
-            PostManifestUpdate();
-
-            Logs.Log(LogType.Verbose, Messages.ManifestDone);
-
-            m_lastProvidersRefreshDone = Utils.UnixTimeStamp();
-
-            return "";
-        }
-
-
+        
         public string WaitManifestUpdate()
 		{
 			m_threadManifest.ForceUpdate = true;
@@ -1322,7 +1327,7 @@ namespace Eddie.Core
             XmlDocument xmlDoc = new XmlDocument();
             XmlElement xmlKeys = xmlDoc.CreateElement("keys");
 
-            if (AirVPN.User != null)
+            if( (AirVPN != null) && (AirVPN.User != null) )
             {                
                 xmlDoc.AppendChild(xmlKeys);
 
@@ -1336,7 +1341,7 @@ namespace Eddie.Core
 
             OnLoggedUpdate(xmlKeys);
         }
-
+        
         public void RunEventCommand(string name)
         {
 			string filename = Storage.Get("event." + name + ".filename");
@@ -1502,189 +1507,11 @@ namespace Eddie.Core
 		{
 			return Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc);
 		}
-
-        public void BuildOVPN(string protocol, int port, int alt, int proxyPort)
-        {            
-            Storage s = Engine.Instance.Storage;
-						
-            string ip = CurrentServer.IpEntry;
-            if (alt == 1)
-                ip = CurrentServer.IpEntry2;
-
-            OvpnBuilder ovpn = new OvpnBuilder();
-
-            if (s.GetBool("openvpn.skip_defaults") == false)
-            {
-                ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.directives"), "Client level");
-                CurrentServer.Provider.OnBuildOvpnDefaults(ovpn, protocol);
-
-                ovpn.AppendDirectives(CurrentServer.OvpnDirectives, "Server level");
-            }
-
-            if (s.Get("openvpn.dev_node") != "")
-                ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"), "");
-
-            int rcvbuf = s.GetInt("openvpn.rcvbuf");
-            if ((rcvbuf == -2) && (Platform.IsWindows())) rcvbuf = (256 * 1024);
-            if (rcvbuf == -2) rcvbuf = -1;
-            if (rcvbuf != -1)
-                ovpn.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
-
-            int sndbuf = s.GetInt("openvpn.sndbuf");
-            if ((sndbuf == -2) && (Platform.IsWindows())) sndbuf = (256 * 1024);
-            if (sndbuf == -2) sndbuf = -1;
-            if (sndbuf != -1)
-                ovpn.AppendDirective("sndbuf", sndbuf.ToString(), "");
-
-            if (protocol == "UDP")
-            {
-                ovpn.AppendDirective("proto", "udp", "");
-            }
-            else // TCP, SSH, SSL, Tor
-            {
-                ovpn.AppendDirective("proto", "tcp", "");
-            }
-
-            if (protocol == "SSH")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-            else if (protocol == "SSL")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-            else
-                ovpn.AppendDirective("remote", ip + " " + port.ToString(), "");
-
-            string proxyDirectiveName = "";
-            string proxyDirectiveArgs = "";
-
-            string proxyMode = s.GetLower("proxy.mode");
-            if (proxyMode == "tor")
-            {
-                proxyDirectiveName = "socks-proxy";
-            }
-            else if (proxyMode == "http")
-            {
-                proxyDirectiveName = "http-proxy";
-
-            }
-            else if (proxyMode == "socks")
-            {
-                proxyDirectiveName = "socks-proxy";
-            }
-
-            if (proxyDirectiveName != "")
-            {
-                proxyDirectiveArgs += s.Get("proxy.host") + " " + s.Get("proxy.port");
-
-                if ((s.GetLower("proxy.mode") != "none") && (s.GetLower("proxy.mode") != "tor"))
-                {
-                    if (s.Get("proxy.auth") != "None")
-                    {
-                        string fileNameAuth = s.GetPath("AirVPN.ppw");
-                        string fileNameAuthOvpn = fileNameAuth.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
-                        string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
-                        Utils.SaveFile(fileNameAuth, fileNameData);
-                        proxyDirectiveArgs += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
-                    }
-                }
-
-                ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
-            }
-
-            string routesDefault = s.Get("routes.default");
-            if (routesDefault == "out")
-            {
-                ovpn.AppendDirective("route-nopull", "For Routes Out", "");
-
-                // For Checking
-                ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
-
-
-                // For DNS
-                // < 2.9. route directive useless, and DNS are forced manually in every supported platform. // TOCLEAN
-                /*
-				ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
-				ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-				ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-				ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-				ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-				ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-				ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-				ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-				ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway # AirDNS\n"; 
-				*/
-
-                // 2.9, Can be removed when resolv-conf method it's not binded anymore in up/down ovpn directive // TOFIX
-                ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
-            }
-            string routes = s.Get("routes.custom");
-			string[] routes2 = routes.Split(';');
-			foreach (string route in routes2)
-            {
-				string[] routeEntries = route.Split(',');
-                if (routeEntries.Length != 3)
-                    continue;
-
-				IpAddressRange ipCustomRoute = new IpAddressRange(routeEntries[0]);
-
-				if (ipCustomRoute.Valid == false)
-                    Logs.Log(LogType.Warning, Messages.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));
-				else
-				{
-					string action = routeEntries[1];
-					string notes = routeEntries[2];
-
-					if ((routesDefault == "out") && (action == "in"))
-                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " vpn_gateway", Utils.SafeString(notes));
-                    if ((routesDefault == "in") && (action == "out"))
-                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " net_gateway", Utils.SafeString(notes));
-                }
-            }
-
-			if (routesDefault == "in")
-			{
-				if ((protocol == "SSH") || (protocol == "SSL"))
-				{
-                    ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway", "VPN Entry IP");
-                }
-
-                if (proxyMode == "tor")
-				{
-					List<string> torNodeIps = TorControl.GetGuardIps();
-					foreach (string torNodeIp in torNodeIps)
-					{
-                        ovpn.AppendDirective("route", torNodeIp + " 255.255.255.255 net_gateway", "Tor Circuit");
-                    }
-                }
-			}
-
-            ovpn.AppendDirective("management", "localhost " + Engine.Instance.Storage.Get("openvpn.management_port"), "");
-
-            ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
-
-            if (ovpn.GetDirective("proto").StartsWith("udp") == false)
-                ovpn.RemoveDirective("explicit-exit-notify");
-
-			// Experimental - Allow identification as Public Network in Windows. Advanced Option?
-			// ovpn.Append("route-metric 512");
-			// ovpn.Append("route 0.0.0.0 0.0.0.0");
-
-            CurrentServer.Provider.OnBuildOvpnAuth(ovpn);
-
-            Platform.Instance.OnBuildOvpn(ovpn);
-
-            string ovpnText = ovpn.Get();
-
-            CurrentServer.Provider.OnBuildOvpnPost(ref ovpnText);
-
-            
-			            
-            ConnectedOVPN = ovpnText;
-            ConnectedEntryIP = ip;
-            ConnectedPort = port;
-            ConnectedProtocol = protocol;
-        }
-
+        
 		public bool IsLogged()
 		{
+            if (AirVPN == null)
+                return true;
 			return ( (AirVPN.User != null) && (AirVPN.User.Attributes["login"] != null) );			
 		}
 
@@ -1799,7 +1626,7 @@ namespace Eddie.Core
 					if (m_threadSession != null)
 						throw new Exception("Daemon already running.");
 
-					if (Storage.UpdateManifestNeed(true))
+					if (ProvidersManager.NeedUpdate(true))
 					{
 						Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
                         Logs.Log(LogType.Info, Messages.RetrievingManifest);
@@ -1808,7 +1635,7 @@ namespace Eddie.Core
 
 						if (result != "")
 						{
-							if (Storage.UpdateManifestNeed(false))
+							if (ProvidersManager.NeedUpdate(false))
 							{
 								throw new Exception(result);
 							}
@@ -1872,9 +1699,9 @@ namespace Eddie.Core
 			List<string> serversBlackList = new List<string>();
 			foreach (ServerInfo info in m_servers.Values)
 				if (info.UserList == ServerInfo.UserListType.WhiteList)
-					serversWhiteList.Add(info.Name);
+					serversWhiteList.Add(info.Code);
 				else if (info.UserList == ServerInfo.UserListType.BlackList)
-					serversBlackList.Add(info.Name);
+					serversBlackList.Add(info.Code);
 			Storage.SetList("servers.whitelist", serversWhiteList);
 			Storage.SetList("servers.blacklist", serversBlackList);
 
@@ -1947,8 +1774,8 @@ namespace Eddie.Core
 				if ((proxyPort <= 0) || (proxyPort >= 256 * 256))
 					throw new Exception(Messages.CheckingProxyPortWrong);
 								
-				if (protocol != "TCP")
-					throw new Exception(Messages.CheckingProxyNoTcp);
+				if (protocol == "UDP")
+					throw new Exception(Messages.CheckingProxyNoUdp);
 			}
 
 			return Platform.Instance.OnCheckEnvironment();

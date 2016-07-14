@@ -73,6 +73,14 @@ namespace Eddie.Core
         {            
         }
 
+        public virtual void AllowInterface(string id)
+        {
+        }
+
+        public virtual void DeallowInterface(string id)
+        {
+        }
+
         public virtual void OnUpdateIps()
 		{
 			// Called when Ip used by AirVPN (hosts auth or vpn servers) maybe changed.
@@ -118,7 +126,7 @@ namespace Eddie.Core
 			result.Add(ip);
 		}
 
-		public List<IpAddressRange> GetAllIps()
+		public List<IpAddressRange> GetAllIps(bool includeIpUsedByClient)
 		{
 			List<IpAddressRange> result = new List<IpAddressRange>();
 
@@ -160,27 +168,30 @@ namespace Eddie.Core
 					}					
 				}
 			}
-            
-            // Providers
-            foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+
+            if (includeIpUsedByClient)
             {
-                List<IpAddressRange> list = provider.GetNetworkLockAllowedIps();
-                foreach (IpAddressRange ip in list)
-                    AddToIpsList(result, ip, false);
+                // Providers
+                foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+                {
+                    List<IpAddressRange> list = provider.GetNetworkLockAllowedIps();
+                    foreach (IpAddressRange ip in list)
+                        AddToIpsList(result, ip, false);
+                }
+
+                // Servers
+                lock (Engine.Instance.Servers)
+                {
+                    Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>(Engine.Instance.Servers);
+
+                    foreach (ServerInfo infoServer in servers.Values)
+                    {
+                        AddToIpsList(result, infoServer.IpEntry, false);
+                        if (infoServer.IpEntry2.Trim() != "")
+                            AddToIpsList(result, infoServer.IpEntry2, false);
+                    }
+                }
             }
-
-            // Servers
-            lock (Engine.Instance.Servers)
-			{
-				Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>(Engine.Instance.Servers);
-
-				foreach (ServerInfo infoServer in servers.Values)
-				{
-					AddToIpsList(result, infoServer.IpEntry, false);										
-					if (infoServer.IpEntry2.Trim() != "")
-						AddToIpsList(result, infoServer.IpEntry2, false);																
-				}
-			}
 
 			return result;
 		}

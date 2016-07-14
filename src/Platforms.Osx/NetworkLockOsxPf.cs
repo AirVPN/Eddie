@@ -177,7 +177,7 @@ namespace Eddie.Platforms
 				pf += "pass quick proto icmp\n"; // 2.9
 			}
 
-			List<IpAddressRange> ips = GetAllIps();
+			List<IpAddressRange> ips = GetAllIps(true);
 			pf += "# AirVPN IP (Auth and VPN)\n";
 			foreach (IpAddressRange ip in ips)
 			{

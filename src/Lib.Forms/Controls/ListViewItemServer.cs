@@ -36,11 +36,16 @@ namespace Eddie.Gui.Controls
 				return Engine.Instance as Gui.Engine;
             }
         }
-
+                
         public void Update()
         {
-			Text = Info.GetNameForList();
-            ImageKey = Info.CountryCode;
+            string nameForList = Info.GetNameForList();
+            if (Text != nameForList)
+                Text = nameForList;
+
+            string countryCode = Info.CountryCode;
+            if (ImageKey != countryCode)
+                ImageKey = Info.CountryCode;
             
             if (SubItems.Count == 1)
             {
@@ -51,40 +56,48 @@ namespace Eddie.Gui.Controls
                 SubItems.Add("");
             }
 
-            int score = Info.Score();
-            
-            SubItems[1].Text = score.ToString();
+            string score = Info.Score().ToString();
+            if (SubItems[1].Text != score)
+                SubItems[1].Text = score;
 
             
-
-            SubItems[2].Text = Info.GetLocationForList();
+            string location = Info.GetLocationForList();
+            if (SubItems[2].Text != location)
+                SubItems[2].Text = location;
 
             //+" - " + Info.PingTests.ToString();
-			SubItems[3].Text = Info.GetLatencyForList();
+            string latency = Info.GetLatencyForList();
+            if (SubItems[3].Text != latency)
+                SubItems[3].Text = latency;
 
-			SubItems[5].Text = Info.GetUsersForList();
-
+            string users = Info.GetUsersForList();
+            if(SubItems[5].Text != users)
+                SubItems[5].Text = users;
             
-                        
-            switch(Info.UserList)
+
+            Color foreColor = SystemColors.WindowText;
+            int stateImageIndex = 2;
+            switch (Info.UserList)
             {
                 case ServerInfo.UserListType.WhiteList:
                     {
-                        ForeColor = Color.DarkGreen;
-                        StateImageIndex = 0;
+                        foreColor = Color.DarkGreen;
+                        stateImageIndex = 0;
                     } break;
                 case ServerInfo.UserListType.BlackList:
                     {
-                        ForeColor = Color.DarkRed;
-                        StateImageIndex = 1;
-                    } break;
-                default:
-                    {
-                        ForeColor = SystemColors.WindowText;
-                        StateImageIndex = 2;
-                    } break;
+                        foreColor = Color.DarkRed;
+                        stateImageIndex = 1;
+                    } break;                
+            }  
+            if(ForeColor != foreColor)
+            {
+                ForeColor = foreColor;
+            }
+            if(StateImageIndex != stateImageIndex)
+            {
+                StateImageIndex = stateImageIndex;
             }            
-        }
-		
+        }		
     }
 }

@@ -276,5 +276,17 @@ namespace Eddie.Core
             if (m_current != null)
                 m_current.DeallowProgram(path, name, guid);
         }
+
+        public virtual void AllowInterface(string id)
+        {
+            if (m_current != null)
+                m_current.AllowInterface(id);
+        }
+
+        public virtual void DeallowInterface(string id)
+        {
+            if (m_current != null)
+                m_current.DeallowInterface(id);
+        }
     }
 }

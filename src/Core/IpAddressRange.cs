@@ -134,7 +134,17 @@ namespace Eddie.Core
 			return m_IP + " " + m_Mask;
 		}
 
-		public void Clear()
+        public string GetAddress()
+        {
+            return m_IP;
+        }
+
+        public string GetMask()
+        {
+            return m_Mask;
+        }
+
+        public void Clear()
 		{
 			Value = "";
 		}

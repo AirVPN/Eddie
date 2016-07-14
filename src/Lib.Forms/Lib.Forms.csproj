@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{C0357E13-B013-40C5-B511-865A27BC2A47}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -222,12 +220,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Lib.Core.csproj">
-      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
-      <Name>Lib.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\skins.xml" />
     <Content Include="res\about.png" />
     <Content Include="res\about_header_bg.png" />
@@ -338,6 +330,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\Skins\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Lib.Core.csproj">
+      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
+      <Name>Lib.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

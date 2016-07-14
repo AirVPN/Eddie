@@ -27,9 +27,6 @@ namespace Eddie.Gui
 {
     public class Form : System.Windows.Forms.Form
     {
-        //public static Skin.Skins.Light SkinLight = new Skin.Skins.Light(); // TOCLEAN
-        //public static Skin.Skins.Dark SkinDark = new Skin.Skins.Dark();  // TOCLEAN
-        //public static Skin.SkinBase Skin = SkinLight; // TOCLEAN
         public static Skin.SkinReference Skin = new Gui.Skin.SkinReference();
 
         public static Gui.Engine Engine
@@ -67,12 +64,10 @@ namespace Eddie.Gui
 
         public virtual void OnPreInitializeComponent()
         {
-            // Clodo TODO, Linux issues
-            //if (Platform.IsWindows())
-            {
-                AutoScaleMode = AutoScaleMode.Font;
-                AutoScaleDimensions = new SizeF(6F, 13F);
-            }
+            /*
+            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(6F, 13F);
+            */
         }
 
         public virtual void OnInitializeComponent()
@@ -306,9 +301,6 @@ namespace Eddie.Gui
                 Rectangle rd2 = rd;
                 rd2.Width = rSource.Width * rd.Width / i.Width;
                 g.DrawImage(i, rd2, rSource, GraphicsUnit.Pixel);
-
-                //g.DrawImage(i, rd, new Rectangle(0,0,i.Width, i.Height), GraphicsUnit.Pixel); // OK
-                //g.DrawImage(i, rd, rSource, GraphicsUnit.Pixel); // OK
             }
         }
 		

@@ -42,6 +42,8 @@ namespace Eddie.Gui.Skin
             Rectangle R = ClientRectangle;
 
             Brush FB = Form.Skin.ForeBrush;
+            if (Enabled == false)
+                FB = Form.Skin.ForeDisabledBrush;
             			
             if (Image != null)
             {

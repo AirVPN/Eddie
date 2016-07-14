@@ -39,8 +39,13 @@ namespace Eddie.Gui.Controls
 
         public void Update()
         {
-            Text = Info.Name;
-            ImageKey = Info.Code;
+            string nameForList = Info.GetNameForList();
+            if (Text != nameForList)
+                Text = nameForList;
+
+            string code = Info.Code;
+            if(ImageKey != code)
+                ImageKey = code;
 
             if (SubItems.Count == 1)
             {
@@ -50,30 +55,33 @@ namespace Eddie.Gui.Controls
                 SubItems.Add("");                
             }
 
-            String Servers = Info.Servers.ToString();
-            SubItems[1].Text = Servers;
+            string servers = Info.GetServersForList();
+            if (SubItems[1].Text != servers)
+                SubItems[1].Text = servers;
+                        
+            string users = Info.GetUsersForList();
+            if(SubItems[3].Text != users)
+                SubItems[3].Text = users;
 
-            String Users = Info.Users.ToString();
-            SubItems[3].Text = Users;
-
+            Color foreColor = SystemColors.WindowText;
+            int stateImageIndex = 2;
             switch(Info.UserList)
             {
                 case AreaInfo.UserListType.WhiteList:
                     {
-                        ForeColor = Color.DarkGreen;
-                        StateImageIndex = 0;
+                        foreColor = Color.DarkGreen;
+                        stateImageIndex = 0;
                     } break;
                 case AreaInfo.UserListType.BlackList:
                     {
-                        ForeColor = Color.DarkRed;
-                        StateImageIndex = 1;
-                    } break;
-                default:
-                    {
-                        ForeColor = SystemColors.WindowText;
-                        StateImageIndex = 2;
-                    } break;
-            }            
+                        foreColor = Color.DarkRed;
+                        stateImageIndex = 1;
+                    } break;                
+            }
+            if (ForeColor != foreColor)
+                ForeColor = foreColor;
+            if (StateImageIndex != stateImageIndex)
+                StateImageIndex = stateImageIndex;
         }
     }
 }

@@ -61,9 +61,9 @@ namespace Eddie.Core.Threads
         {
 			for (; ; )
 			{
-				if ((ForceUpdate) || (Engine.Storage.UpdateManifestNeed(true)))
+				if ((ForceUpdate) || (Engine.ProvidersManager.NeedUpdate(true)))
 				{
-					m_LastResult = Engine.ProvidersRefresh();
+					m_LastResult = Engine.ProvidersManager.Refresh();
                     if (m_LastResult != "")
 					{
 						//Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ManifestUpdate, m_LastResult)); // < 2.9, Warning

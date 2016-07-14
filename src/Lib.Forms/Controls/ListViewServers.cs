@@ -110,10 +110,20 @@ namespace Eddie.Gui.Controls
                 return true;
         }
 
+        public override Brush OnSubItemBrush(DrawListViewSubItemEventArgs e)
+        {
+            Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
+
+            if (listItemServer.Info.CanConnect() == false)
+                return Form.Skin.ListViewDisabledBackBrush;
+
+            return null;
+        }
+
         public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
 		{
             base.OnListViewDrawSubItem(sender, e);
-
+            
             if (Visible == false)
                 return;
 
@@ -127,33 +137,9 @@ namespace Eddie.Gui.Controls
 
 				Image imageN = GuiUtils.GetResourceImage("stars_n");
 				Image imageH = GuiUtils.GetResourceImage("stars_h");
-
-				//Rectangle sourceN = new Rectangle(0, 0, imageN.Width, imageN.Height); // TOCLEAN
+                				
 				Rectangle sourceH = new Rectangle(0, 0, Convert.ToInt32(Convert.ToDouble(imageH.Width) * part), imageH.Height);
                 
-
-                /*
-				int ODX = imageN.Width;
-				if (e.Bounds.Width < ODX)
-					ODX = e.Bounds.Width;
-				int ODY = imageN.Height;
-
-				int HDX = Convert.ToInt32(Convert.ToDouble(ODX) * part);
-
-				Rectangle destN = new Rectangle(0, 0, ODX, ODY);
-				destN.Offset(e.Bounds.Width / 2, e.Bounds.Height / 2);
-				destN.Offset(e.Bounds.Left, e.Bounds.Top);
-				destN.Offset(-ODX / 2, -ODY / 2);
-
-				Rectangle destH = new Rectangle(0, 0, HDX, ODY);
-				destH.Offset(e.Bounds.Width / 2, e.Bounds.Height / 2);
-				destH.Offset(e.Bounds.Left, e.Bounds.Top);
-				destH.Offset(-ODX / 2, -ODY / 2);
-
-				e.Graphics.DrawImage(imageN, destN);
-				e.Graphics.DrawImage(imageH, destH, sourceH, GraphicsUnit.Pixel);
-                */
-
                 Form.DrawImageContain(e.Graphics, imageN, e.Bounds, 0);                
                 Form.DrawImageContain(e.Graphics, imageH, e.Bounds, 0, sourceH);
             }
@@ -193,7 +179,7 @@ namespace Eddie.Gui.Controls
                 
 				R1.Height -= 1;
 				//e.Graphics.DrawRectangle(m_loadPen, R1);
-				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
+				Form.DrawString(e.Graphics, label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
 			}			
 		}
 
@@ -216,7 +202,8 @@ namespace Eddie.Gui.Controls
 			else if (col == 5)
 				colName = "Users";
 
-			return i1.Info.CompareToEx(i2.Info, colName, order == SortOrder.Ascending);
+            int r = i1.Info.CompareToEx(i2.Info, colName, order == SortOrder.Ascending);
+            return r;
 
 			/*
             int returnVal = -1;
@@ -273,70 +260,80 @@ namespace Eddie.Gui.Controls
 		{
 			lock (this)
 			{
-				//SuspendLayout();
+                //SuspendLayout();
 
-				List<ServerInfo> servers;
+                List<ServerInfo> serversList;
 				lock (Engine.Instance.Servers)
 				{
-					servers = Engine.Instance.GetServers(ShowAll);
+					serversList = Engine.Instance.GetServers(ShowAll);
 				}
 
-				foreach (ServerInfo infoServer in servers)
+                Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>();
+                foreach (ServerInfo infoServer in serversList)
+                {
+                    servers[infoServer.Code] = infoServer;
+                }
+
+                foreach (ServerInfo infoServer in servers.Values)
 				{
-					if (ItemsServers.ContainsKey(infoServer.Name) == false)
+					if (ItemsServers.ContainsKey(infoServer.Code) == false)
 					{
 						Controls.ListViewItemServer listItemServer = new Controls.ListViewItemServer();
-						listItemServer.Name = infoServer.Name;
+						//listItemServer.Name = infoServer.Name; // TOCLEAN
 						listItemServer.Info = infoServer;
 						listItemServer.Update();
-						ItemsServers.Add(infoServer.Name, listItemServer);
+						ItemsServers.Add(infoServer.Code, listItemServer);
 						Items.Add(listItemServer);
 					}
 					else
 					{
-						Controls.ListViewItemServer listItemServer = ItemsServers[infoServer.Name] as ListViewItemServer;
+						Controls.ListViewItemServer listItemServer = ItemsServers[infoServer.Code] as ListViewItemServer;
 						listItemServer.Update();
 					}
 				}
-
-				List<ListViewItemServer> itemsToRemove = new List<ListViewItemServer>();
+                
+                List<ListViewItemServer> itemsToRemove = new List<ListViewItemServer>();
 
 				foreach (ListViewItemServer viewItem in ItemsServers.Values)
 				{
-					if (servers.Contains(viewItem.Info) == false)
+					if (servers.ContainsKey(viewItem.Info.Code) == false)
 					{
 						itemsToRemove.Add(viewItem);
 					}
 				}
 
-				if (Platform.IsWindows())
-				{
-					foreach (ListViewItemServer viewItem in itemsToRemove)
-					{
-						Items.Remove(viewItem);
-						ItemsServers.Remove(viewItem.Info.Name);
-					}
-				}
-				else
-				{
-					// Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
-					List<ListViewItemServer> items = new List<ListViewItemServer>();
-					foreach (ListViewItemServer itemCurrent in Items)
-					{
-						if (itemsToRemove.Contains(itemCurrent) == false)
-							items.Add(itemCurrent);
-					}
-					Items.Clear();
-					ItemsServers.Clear();
-					foreach (ListViewItemServer itemCurrent in items)
-					{
-						ItemsServers.Add(itemCurrent.Info.Name, itemCurrent);
-						Items.Add(itemCurrent);
-					}
-				}
-
-				Sort();
-
+                if (itemsToRemove.Count > 0)
+                {
+                    if (Platform.IsWindows())
+                    {
+                        foreach (ListViewItemServer viewItem in itemsToRemove)
+                        {
+                            Items.Remove(viewItem);
+                            ItemsServers.Remove(viewItem.Info.Code);
+                        }
+                    }
+                    else
+                    {
+                        // Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
+                        // Reproduce the crash by whitelist some server and switch "Show all" continuosly.
+                        List<ListViewItemServer> items = new List<ListViewItemServer>();
+                        foreach (ListViewItemServer itemCurrent in Items)
+                        {
+                            if (itemsToRemove.Contains(itemCurrent) == false)
+                                items.Add(itemCurrent);
+                        }
+                        Items.Clear();
+                        ItemsServers.Clear();
+                        foreach (ListViewItemServer itemCurrent in items)
+                        {
+                            ItemsServers.Add(itemCurrent.Info.Code, itemCurrent);
+                            Items.Add(itemCurrent);
+                        }
+                    }
+                }
+                
+                Sort();
+                
 				//ResumeLayout();
 			}
 		}

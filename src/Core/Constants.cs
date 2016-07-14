@@ -28,7 +28,7 @@ namespace Eddie.Core
 		public static int VersionInt = 217;
 		public static string VersionDesc = "2.11.0";
         public static string WebSite = "https://airvpn.org";
-        public static string ServerHost = "airvpn.org";
+        public static string ServerHostX = "airvpn.org";
 		public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
 		public static string WindowsDriverVersion = "9.21.1";
 		public static string WindowsXpDriverVersion = "9.9.2";

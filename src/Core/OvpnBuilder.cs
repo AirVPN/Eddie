@@ -27,7 +27,13 @@ namespace Eddie.Core
 {
 	public class OvpnBuilder
 	{
-		public Dictionary<string, List<string>> Directives = new Dictionary<string, List<string>>();
+        public class Directive
+        {
+            public string Text;
+            public string Comment;
+        }
+
+		public Dictionary<string, List<Directive>> Directives = new Dictionary<string, List<Directive>>();
 
 		public bool IsMultipleDirective(string name)
 		{
@@ -54,14 +60,21 @@ namespace Eddie.Core
 			result += "# " + Engine.Instance.GenerateFileHeader() + "\n";
 			result += "# " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC" + "\n";
 
-			foreach (KeyValuePair<string, List<string>> kp in Directives)
+			foreach (KeyValuePair<string, List<Directive>> kp in Directives)
 			{
-				foreach (string value in kp.Value)
+				foreach (Directive value in kp.Value)
 				{
-					if (kp.Key.StartsWith("<"))
-						result += kp.Key + "\n" + value.Trim() + "\n" + kp.Key.Replace("<", "</") + "\n";
-					else
-						result += kp.Key + " " + value + "\n";
+                    if (kp.Key.StartsWith("<"))
+                    {
+                        result += kp.Key + "\n" + value.Text.Trim() + "\n" + kp.Key.Replace("<", "</");
+                    }
+                    else
+                    {
+                        result += kp.Key + " " + value.Text.Trim();
+                    }
+                    if(value.Comment != "")
+                        result += " # " + value.Comment;
+                    result += "\n";
 				}
 			}
 
@@ -73,18 +86,23 @@ namespace Eddie.Core
 			if (IsMultipleDirective(name))
 			{
 				if (Directives.ContainsKey(name) == false)
-					Directives[name] = new List<string>();
+					Directives[name] = new List<Directive>();
 			}
 			else
 			{
-				Directives[name] = new List<string>();
+				Directives[name] = new List<Directive>();
 			}
 
-            string t = body.Trim();
-            if (comment != "")
-                t += " # " + comment.Trim();
-			Directives[name].Add(t);			
+            Directive d = new Directive();
+            d.Text = body.Trim();
+            d.Comment = comment.Trim();
+            Directives[name].Add(d);			
 		}
+
+        public bool ExistsDirective(string name)
+        {
+            return Directives.ContainsKey(name);
+        }
 
 		public void RemoveDirective(string name)
 		{
@@ -92,17 +110,27 @@ namespace Eddie.Core
 				Directives.Remove(name);
 		}
 
-		public string GetDirective(string name)
+		public Directive GetDirective(string name)
 		{
 			if (Directives.ContainsKey(name) == false)
-				return "";
+				return new Directive();
 			if(Directives[name].Count != 1)
-				return "";
+				return new Directive();
 			
 			return Directives[name][0];			
 		}
 
-		public void AppendDirectives(string directives, string comment)
+        public Directive GetOneDirective(string name)
+        {
+            if (Directives.ContainsKey(name) == false)
+                return new Directive();
+            if (Directives[name].Count == 0)
+                return new Directive();
+
+            return Directives[name][0];
+        }
+
+        public void AppendDirectives(string directives, string comment)
 		{
 			string text = directives;
 
@@ -121,14 +149,14 @@ namespace Eddie.Core
 				if (posComment1 != -1)
 				{
 					int posEndOfLine = text.IndexOf("\n", posComment1);
-					text = text.Substring(0, posComment1) + text.Substring(posEndOfLine+1);
+					text = text.Substring(0, posComment1) + text.Substring(posEndOfLine);
 				}
 
 				int posComment2 = text.IndexOf("\n;");
 				if (posComment2 != -1)
 				{
 					int posEndOfLine = text.IndexOf("\n", posComment2);
-					text = text.Substring(0, posComment2) + text.Substring(posEndOfLine+1);
+					text = text.Substring(0, posComment2) + text.Substring(posEndOfLine);
 				}
 
 				if (text == originalText)

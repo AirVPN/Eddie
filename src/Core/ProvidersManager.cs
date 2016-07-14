@@ -26,13 +26,25 @@ namespace Eddie.Core
 {
     public class ProvidersManager
     {
+        private Dictionary<string, XmlDocument> Definitions = new Dictionary<string, XmlDocument>();
         private List<Provider> m_providers = new List<Provider>();
+
+        private Int64 m_lastRefreshTry = 0;
+        private Int64 m_lastRefreshDone = 0;
 
         public List<Provider> Providers
         {
             get
             {
                 return m_providers;
+            }
+        }
+
+        public Int64 LastRefreshDone
+        {
+            get
+            {
+                return m_lastRefreshDone;
             }
         }
 
@@ -48,42 +60,57 @@ namespace Eddie.Core
 
             if(Directory.Exists(path) == false) // TOCLEAN, Compatibility <3.0
             {
-                Engine.Instance.AirVPN = Process(ResourcesFiles.GetString("AirVPN.xml")) as Providers.Service;                
+                LoadDefinition(ResourcesFiles.GetString("AirVPN.xml"));
                 return;
-            }
+            }            
 
             FileInfo[] files = new System.IO.DirectoryInfo(path).GetFiles("*.xml");
             foreach(FileInfo fi in files)
             {
                 string xml = File.ReadAllText(fi.FullName);
-                Provider provider = Process(xml);
-
-                if (provider.GetCode() == "AirVPN")
-                    Engine.Instance.AirVPN = provider as Providers.Service;
+                LoadDefinition(xml);                
             }
 		}
 
         public void Load()
         {
+            /*
             foreach (Provider provider in Providers)
             {
                 provider.OnLoad();
             }
+            */
+            foreach (XmlElement xmlProvider in Engine.Instance.Storage.Providers)
+            {
+                string providerCode = xmlProvider.Name;
+                AddProvider(providerCode, xmlProvider);
+            }
+
+            if (Providers.Count == 0)
+                AddProvider("AirVPN", null);
         }
 
-        private Provider Process(string xml)
+        private void LoadDefinition(string xml)
         {
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);            
+            xmlDoc.LoadXml(xml);
 
-            XmlElement xmlProviderDefinition = xmlDoc.DocumentElement;
+            string title = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "title", "");
 
-            string code = xmlProviderDefinition.Name;
+            Definitions[title] = xmlDoc;
+        }
 
-            string providerClass = Utils.XmlGetAttributeString(xmlProviderDefinition, "class", "");
+        public Provider AddProvider(string providerCode, XmlElement xmlStorage)
+        {
+            if (Definitions.ContainsKey(providerCode) == false)
+                return null;
+
+            XmlDocument xmlDefiniton = Definitions[providerCode];
+            
+            string providerClass = Utils.XmlGetAttributeString(xmlDefiniton.DocumentElement, "class", "");
 
             Provider provider = null;
-                        
+
             if (providerClass == "service")
             {
                 provider = new Providers.Service();
@@ -91,22 +118,68 @@ namespace Eddie.Core
             else if (providerClass == "openvpn")
             {
                 provider = new Providers.OpenVPN();
-                Core.Providers.OpenVPN.Singleton = provider as Providers.OpenVPN;
+                //Core.Providers.OpenVPN.Singleton = provider as Providers.OpenVPN;
             }
             else
-                return null;            
+                return null;
 
             if (provider != null)
             {
-                provider.Definition = xmlProviderDefinition;
-                
+                provider.Definition = xmlDefiniton.DocumentElement;
+
                 provider.OnInit();
 
+                provider.OnLoad(xmlStorage);
+
                 m_providers.Add(provider);
+
+                if (provider.GetCode() == "AirVPN")
+                    Engine.Instance.AirVPN = provider as Providers.Service;
             }
 
             return provider;
         }
-        
+
+        public bool NeedUpdate(bool recommended)
+        {
+            Int64 refreshInterval = Engine.Instance.Storage.GetInt("advanced.manifest.refresh");
+            if (refreshInterval == 0)
+                return false;
+
+            if (refreshInterval < 0)
+                refreshInterval = 10; // Default
+            
+            if (m_lastRefreshTry + 60 * refreshInterval < Utils.UnixTimeStamp())
+                return true;
+            
+            return false;
+        }
+
+        public string Refresh()
+        {
+            m_lastRefreshTry = Utils.UnixTimeStamp();
+
+            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestUpdate);
+
+            // TOOPTIMIZE: Stop at first error
+            foreach (Provider provider in Providers)
+            {
+                if (provider.Enabled)
+                {
+                    string result = provider.Refresh();
+                    if (result != "")
+                        return result;
+                }
+            }
+
+            Engine.Instance.PostManifestUpdate();
+
+            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestDone);
+
+            m_lastRefreshDone = Utils.UnixTimeStamp();
+
+            return "";
+        }
+
     }
 }
