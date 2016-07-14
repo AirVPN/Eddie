@@ -17,6 +17,7 @@
                 <outlet property="CboProxyAuthentication" destination="Hai-gc-xnu" id="dgb-Pq-InJ"/>
                 <outlet property="CboProxyType" destination="aVZ-Zz-7LT" id="Mqe-f8-uqX"/>
                 <outlet property="CboRoutesOtherwise" destination="JqH-io-99F" id="Nzg-Tp-iJd"/>
+                <outlet property="CboUiUnit" destination="byI-bX-OE7" id="mzS-MK-HXC"/>
                 <outlet property="ChkAdvancedCheckRoute" destination="ouA-M6-NDw" id="1tH-Ri-pah"/>
                 <outlet property="ChkAdvancedExpertMode" destination="xVq-43-prb" id="Rfu-uO-RXn"/>
                 <outlet property="ChkAdvancedPingerEnabled" destination="PlL-FU-bP0" id="YWu-FP-gGb"/>
@@ -102,33 +103,14 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button id="xhO-Kv-elj">
-                                            <rect key="frame" x="15" y="272" width="325" height="18"/>
+                                            <rect key="frame" x="222" y="236" width="64" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="check" title="*Connect at Startup" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="C2c-Gp-pKt">
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="C2c-Gp-pKt">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button id="2Nm-Y7-BeU">
-                                            <rect key="frame" x="15" y="201" width="325" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <animations/>
-                                            <buttonCell key="cell" type="check" title="Force reconnection to last server at startup" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="9ss-5k-ssY">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                        </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="xOs-FQ-o6W">
-                                            <rect key="frame" x="31" y="185" width="281" height="17"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <animations/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="(otherwise current best server is picked)" id="Uri-Ah-Qws">
-                                                <font key="font" metaFont="miniSystem"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
                                         <button id="umI-pg-cJh">
                                             <rect key="frame" x="389" y="14" width="150" height="30"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
@@ -139,10 +121,10 @@
                                             </buttonCell>
                                         </button>
                                         <button id="ZMV-bb-YYL">
-                                            <rect key="frame" x="15" y="161" width="325" height="18"/>
+                                            <rect key="frame" x="223" y="128" width="81" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="check" title="Exit confirmation prompt" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="gSt-6O-lEi">
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="gSt-6O-lEi">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -178,12 +160,88 @@
                                             <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="message" size="11"/>
                                         </box>
                                         <button id="vVa-Ie-bA5">
-                                            <rect key="frame" x="15" y="248" width="325" height="18"/>
+                                            <rect key="frame" x="222" y="211" width="64" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <buttonCell key="cell" type="check" title="*Activate Network Lock at startup" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="n3b-DJ-zkY">
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="n3b-DJ-zkY">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="hlU-0L-H5X">
+                                            <rect key="frame" x="12" y="104" width="207" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Data units:" id="DH8-Zd-9Yn">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="roD-WZ-JO0">
+                                            <rect key="frame" x="12" y="129" width="207" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Exit confirmation prompt:" id="qs7-Jn-nPs">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="eT8-kw-cPe">
+                                            <rect key="frame" x="12" y="187" width="206" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Reconnect to last server at start:" id="kan-vp-sXJ">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="06G-Em-CQg">
+                                            <rect key="frame" x="12" y="212" width="206" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Activate Network Lock at startup:" id="KRn-QY-Fx8">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="vY0-8k-vZy">
+                                            <rect key="frame" x="12" y="237" width="206" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Connect at startup:" id="7c3-dk-3k4">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <popUpButton verticalHuggingPriority="750" id="byI-bX-OE7">
+                                            <rect key="frame" x="222" y="101" width="259" height="26"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="YGV-B2-N8q">
+                                                <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="menu"/>
+                                                <menu key="menu" title="OtherViews" id="MmI-zm-BKb">
+                                                    <items>
+                                                        <menuItem title="None" state="on" id="3yi-u8-m0O"/>
+                                                        <menuItem title="Basic" id="psK-lF-bWB"/>
+                                                        <menuItem title="NTLM" id="gdy-1t-wrj"/>
+                                                    </items>
+                                                </menu>
+                                            </popUpButtonCell>
+                                        </popUpButton>
+                                        <button id="2Nm-Y7-BeU">
+                                            <rect key="frame" x="222" y="186" width="64" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="9ss-5k-ssY">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
@@ -945,15 +1003,6 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button id="xCu-Ni-GP8">
-                                            <rect key="frame" x="158" y="256" width="251" height="24"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <animations/>
-                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="c97-GD-zCr">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="smallSystem"/>
-                                            </buttonCell>
-                                        </button>
                                         <button id="VOk-Ch-IHJ">
                                             <rect key="frame" x="158" y="230" width="251" height="24"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -983,6 +1032,15 @@
                                                 <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             </textFieldCell>
                                         </textField>
+                                        <button id="xCu-Ni-GP8">
+                                            <rect key="frame" x="158" y="255" width="251" height="24"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="c97-GD-zCr">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="smallSystem"/>
+                                            </buttonCell>
+                                        </button>
                                     </subviews>
                                     <animations/>
                                 </view>
@@ -1293,7 +1351,7 @@
                                                         <rect key="frame" x="5" y="5" width="256" height="204"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <animations/>
-                                                        <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="9jf-bB-n83">
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="9jf-bB-n83">
                                                             <font key="font" size="10" name="Monaco"/>
                                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1305,6 +1363,7 @@
                                             <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="message" size="11"/>
                                         </box>
                                         <box autoresizesSubviews="NO" title="Base directives:" borderType="line" id="PMQ-Ef-3Fn">
                                             <rect key="frame" x="276" y="78" width="270" height="227"/>
@@ -1317,7 +1376,7 @@
                                                         <rect key="frame" x="5" y="6" width="258" height="202"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <animations/>
-                                                        <textFieldCell key="cell" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="vOf-am-cHb">
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="1 2 3" drawsBackground="YES" id="vOf-am-cHb">
                                                             <font key="font" size="10" name="Monaco"/>
                                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1329,6 +1388,7 @@
                                             <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="message" size="11"/>
                                         </box>
                                         <button verticalHuggingPriority="750" id="ixV-Uh-vPo">
                                             <rect key="frame" x="290" y="8" width="252" height="25"/>
@@ -1340,7 +1400,7 @@
                                             </buttonCell>
                                         </button>
                                         <popUpButton verticalHuggingPriority="750" id="9Ew-wV-BcM">
-                                            <rect key="frame" x="277" y="42" width="269" height="26"/>
+                                            <rect key="frame" x="277" y="42" width="266" height="26"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <animations/>
                                             <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="1Of-0h-phI" id="UTq-Eb-pts">
@@ -1355,6 +1415,16 @@
                                                 </menu>
                                             </popUpButtonCell>
                                         </popUpButton>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="ryI-iP-76l">
+                                            <rect key="frame" x="12" y="11" width="170" height="41"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Use Ctrl+Enter for newline" id="ARP-Sn-phb">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                     <animations/>
                                 </view>
@@ -1509,6 +1579,7 @@ Gw
                         <animations/>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <font key="titleFont" metaFont="message" size="11"/>
                     </box>
                     <scrollView focusRingType="none" autohidesScrollers="YES" horizontalLineScroll="21" horizontalPageScroll="10" verticalLineScroll="21" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="S5e-5i-M96">
                         <rect key="frame" x="20" y="80" width="197" height="300"/>

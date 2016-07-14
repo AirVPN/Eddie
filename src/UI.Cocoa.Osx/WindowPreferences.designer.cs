@@ -49,6 +49,9 @@ namespace Eddie.UI.Osx
 		MonoMac.AppKit.NSPopUpButton CboRoutesOtherwise { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboUiUnit { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton ChkAdvancedCheckRoute { get; set; }
 
 		[Outlet]
@@ -255,6 +258,16 @@ namespace Eddie.UI.Osx
 				CboLockMode = null;
 			}
 
+			if (CboOpenVpnDirectivesHelp != null) {
+				CboOpenVpnDirectivesHelp.Dispose ();
+				CboOpenVpnDirectivesHelp = null;
+			}
+
+			if (CboOpenVpnDirectivesSkipDefault != null) {
+				CboOpenVpnDirectivesSkipDefault.Dispose ();
+				CboOpenVpnDirectivesSkipDefault = null;
+			}
+
 			if (CboOpenVpnRcvBuf != null) {
 				CboOpenVpnRcvBuf.Dispose ();
 				CboOpenVpnRcvBuf = null;
@@ -268,6 +281,11 @@ namespace Eddie.UI.Osx
 			if (CboProxyAuthentication != null) {
 				CboProxyAuthentication.Dispose ();
 				CboProxyAuthentication = null;
+			}
+
+			if (CboUiUnit != null) {
+				CboUiUnit.Dispose ();
+				CboUiUnit = null;
 			}
 
 			if (CboProxyType != null) {
@@ -415,6 +433,11 @@ namespace Eddie.UI.Osx
 				CmdLockHelp = null;
 			}
 
+			if (CmdOpenVpnDirectivesHelp != null) {
+				CmdOpenVpnDirectivesHelp.Dispose ();
+				CmdOpenVpnDirectivesHelp = null;
+			}
+
 			if (CmdProtocolsHelp1 != null) {
 				CmdProtocolsHelp1.Dispose ();
 				CmdProtocolsHelp1 = null;
@@ -558,21 +581,6 @@ namespace Eddie.UI.Osx
 			if (TxtProxyPassword != null) {
 				TxtProxyPassword.Dispose ();
 				TxtProxyPassword = null;
-			}
-
-			if (CboOpenVpnDirectivesHelp != null) {
-				CboOpenVpnDirectivesHelp.Dispose ();
-				CboOpenVpnDirectivesHelp = null;
-			}
-
-			if (CboOpenVpnDirectivesSkipDefault != null) {
-				CboOpenVpnDirectivesSkipDefault.Dispose ();
-				CboOpenVpnDirectivesSkipDefault = null;
-			}
-
-			if (CmdOpenVpnDirectivesHelp != null) {
-				CmdOpenVpnDirectivesHelp.Dispose ();
-				CmdOpenVpnDirectivesHelp = null;
 			}
 
 			if (TxtProxyPort != null) {

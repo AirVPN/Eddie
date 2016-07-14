@@ -115,7 +115,7 @@ namespace Eddie.UI.Osx
 
 		public string ValToDesc(Int64 v)
 		{
-			return Utils.FormatBytesEx2(v * 8, true) + "/s (" + Utils.FormatBytesEx2(v, false) + "/s)";
+			return Utils.FormatBytes (v, true, true);
 		}
 
 		public void Switch(int chartIndex)

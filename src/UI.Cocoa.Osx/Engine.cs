@@ -135,6 +135,22 @@ namespace Eddie.UI.Osx
 			}
 		}
 
+		public override void OnShowText(string title, string data)
+		{
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+					{
+						WindowTextViewerController textViewer = new WindowTextViewerController ();
+						WindowsOpen.Add (textViewer);
+						textViewer.Title = title;
+						textViewer.Body = data;
+						textViewer.ShowWindow (MainWindow.Window);
+					});
+			}
+
+		}
+
 		public override bool OnAskYesNo(string message)
 		{
 			bool result = false;

@@ -70,9 +70,6 @@ namespace Eddie.UI.Osx
 
 			TableTabsController = new TableTabsController (TableTabs, TabMain);
 
-			ChkConnect.Title = Messages.WindowsSettingsConnect;
-			ChkNetLock.Title = Messages.WindowsSettingsNetLock;
-
 			ChkNetLock.Activated += (object sender, EventArgs e) => {
 				if (GuiUtils.GetCheck (ChkNetLock)) {
 					if ((Engine.Instance as UI.Osx.Engine).MainWindow.NetworkLockKnowledge () == false)
@@ -113,6 +110,13 @@ namespace Eddie.UI.Osx
 				NSApplication.SharedApplication.RunModalForWindow (tos.Window);
 				tos.Window.Close ();
 			};
+
+			// UI
+
+			CboUiUnit.RemoveAllItems ();
+			CboUiUnit.AddItem (Messages.WindowsSettingsUiUnit0);
+			CboUiUnit.AddItem (Messages.WindowsSettingsUiUnit1);
+			CboUiUnit.AddItem (Messages.WindowsSettingsUiUnit2);
 
 			// Protocols
 
@@ -494,6 +498,15 @@ namespace Eddie.UI.Osx
 			GuiUtils.SetCheck (ChkGeneralOsxNotifications, s.GetBool ("gui.osx.notifications"));
 			GuiUtils.SetCheck (ChkExitConfirm, s.GetBool("gui.exit_confirm"));
 
+			// UI
+			string uiUnit = s.Get ("ui.unit");
+			if (uiUnit == "bytes")
+				GuiUtils.SetSelected (CboUiUnit, Messages.WindowsSettingsUiUnit1);
+			else if (uiUnit == "bits")
+				GuiUtils.SetSelected (CboUiUnit, Messages.WindowsSettingsUiUnit2);
+			else
+				GuiUtils.SetSelected (CboUiUnit, Messages.WindowsSettingsUiUnit0);
+
 			/*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
 			if (interfaceMode == "Dark")
@@ -574,7 +587,7 @@ namespace Eddie.UI.Osx
 			else
 				GuiUtils.SetSelected (CboIpV6, "None");
 
-			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("advanced.pinger.enabled"));
+			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("pinger.enabled"));
 			GuiUtils.SetCheck (ChkRouteRemoveDefaultGateway, s.GetBool("routes.remove_default"));
 			
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
@@ -712,6 +725,14 @@ namespace Eddie.UI.Osx
 			s.SetBool ("gui.osx.notifications", GuiUtils.GetCheck (ChkGeneralOsxNotifications));
 			s.SetBool ("gui.exit_confirm", GuiUtils.GetCheck (ChkExitConfirm));
 
+			// UI
+			string uiUnit = "";
+			if (GuiUtils.GetSelected (CboUiUnit) == Messages.WindowsSettingsUiUnit1)
+				uiUnit = "bytes";
+			else if (GuiUtils.GetSelected (CboUiUnit) == Messages.WindowsSettingsUiUnit2)
+				uiUnit = "bits";
+			s.Set ("ui.unit", uiUnit);
+		
 			/*
 			string interfaceStyle = GuiUtils.GetSelected (CboGeneralOsxInterfaceStyle);
 			//string currentInterfaceStyle = GuiUtils.InterfaceColorMode ();
@@ -771,7 +792,7 @@ namespace Eddie.UI.Osx
 				s.Set ("ipv6.mode", "disable");
 			else
 				s.Set ("ipv6.mode", "disable");
-			s.SetBool ("advanced.pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
+			s.SetBool ("pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
 			s.SetBool ("routes.remove_default", GuiUtils.GetCheck(ChkRouteRemoveDefaultGateway));
 			
 			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);

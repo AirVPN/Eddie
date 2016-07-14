@@ -63,15 +63,10 @@ namespace Eddie.UI.Osx
 			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
 
 			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
-			//TxtLicense.Value = Core.UI.Actions.GetAboutLicense ();
-			//TxtLibraries.Value = Core.UI.Actions.GetAboutThirdParty ();
 
 			CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
 				Engine.Instance.Command ("ui.show.website");
-				Engine.Instance.Command ("ui.show.gpl");
-				Engine.Instance.Command ("ui.show.license");
-				Engine.Instance.Command ("ui.show.libraries");
 			};
 
 			CmdSoftware.Activated += (object sender, EventArgs e) =>
@@ -82,6 +77,16 @@ namespace Eddie.UI.Osx
 			CmdSources.Activated += (object sender, EventArgs e) =>
 			{
 				Engine.Instance.Command ("ui.show.sources");
+			};
+
+			CmdLicense.Activated += (object sender, EventArgs e) =>
+			{
+				Engine.Instance.Command ("ui.show.license");
+			};
+
+			CmdLibraries.Activated += (object sender, EventArgs e) =>
+			{
+				Engine.Instance.Command ("ui.show.libraries");
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>

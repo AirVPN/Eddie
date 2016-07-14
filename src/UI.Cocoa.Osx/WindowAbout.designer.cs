@@ -16,6 +16,12 @@ namespace Eddie.UI.Osx
 		MonoMac.AppKit.NSButton CmdHomePage { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdLibraries { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdLicense { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdOk { get; set; }
 
 		[Outlet]
@@ -25,21 +31,10 @@ namespace Eddie.UI.Osx
 		MonoMac.AppKit.NSButton CmdSources { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextView TxtLibraries { get; set; }
-
-		[Outlet]
-		MonoMac.AppKit.NSTextView TxtLicense { get; set; }
-
-		[Outlet]
 		MonoMac.AppKit.NSTextFieldCell TxtVersion { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (CmdSources != null) {
-				CmdSources.Dispose ();
-				CmdSources = null;
-			}
-
 			if (CmdHomePage != null) {
 				CmdHomePage.Dispose ();
 				CmdHomePage = null;
@@ -55,14 +50,19 @@ namespace Eddie.UI.Osx
 				CmdSoftware = null;
 			}
 
-			if (TxtLibraries != null) {
-				TxtLibraries.Dispose ();
-				TxtLibraries = null;
+			if (CmdSources != null) {
+				CmdSources.Dispose ();
+				CmdSources = null;
 			}
 
-			if (TxtLicense != null) {
-				TxtLicense.Dispose ();
-				TxtLicense = null;
+			if (CmdLicense != null) {
+				CmdLicense.Dispose ();
+				CmdLicense = null;
+			}
+
+			if (CmdLibraries != null) {
+				CmdLibraries.Dispose ();
+				CmdLibraries = null;
 			}
 
 			if (TxtVersion != null) {

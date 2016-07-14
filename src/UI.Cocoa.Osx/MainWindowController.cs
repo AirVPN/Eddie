@@ -473,12 +473,12 @@ namespace Eddie.UI.Osx
 					ImgProgress.StopAnimation (this);
 					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
 					MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
-					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.Name);
+					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.DisplayName);
 
 					TabOverview.SelectAt(2);
 
-					LblConnectedServerName.StringValue = Engine.CurrentServer.Name;
-					LblConnectedLocation.StringValue = CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode) + ", " + Engine.CurrentServer.Location;
+					LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
+					LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
 					TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpExit;
 					ImgConnectedCountry.Image = NSImage.ImageNamed ("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant () + ".png");
 				}
@@ -538,7 +538,7 @@ namespace Eddie.UI.Osx
 					TxtConnectedDownload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false);
 					TxtConnectedUpload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false);
 
-					string msg = Messages.Format (Messages.StatusTextConnected, Constants.Name, Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false), Engine.CurrentServer.Name, CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode));
+					string msg = Engine.Instance.GetConnectedTrayText ();
 					string tmsg = Constants.Name + " - " + msg;
 					this.Window.Title = tmsg;
 					MnuTrayStatus.Title = "> " + msg;
