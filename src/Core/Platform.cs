@@ -1,31 +1,32 @@
-// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Xml;
 using System.Text;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
     public class Platform
     {
@@ -90,7 +91,7 @@ namespace AirVPN.Core
 					{
 						int endTime = Environment.TickCount;
 						int deltaTime = endTime - startTime;
-						Engine.Instance.Log(Engine.LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms");
+						Engine.Instance.Logs.Log(LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms");
 					}
 
                     return Output.Trim();
@@ -124,11 +125,7 @@ namespace AirVPN.Core
         }
 		*/
 
-        public static void DeInit()
-        {
-        }
-
-		public static bool IsUnix()
+        public static bool IsUnix()
         {
             return (Environment.OSVersion.Platform.ToString() == "Unix");
         }
@@ -197,6 +194,16 @@ namespace AirVPN.Core
 			else
 				return "?";
 		}
+
+        public virtual void OnInit()
+        {
+
+        }
+
+        public virtual void OnDeInit()
+        {
+
+        }
 
 		public virtual string GetOsArchitecture()
 		{
@@ -299,7 +306,7 @@ namespace AirVPN.Core
 
 		public virtual string GetExecutablePath()
 		{
-			return System.Reflection.Assembly.GetEntryAssembly().Location;
+            return System.Reflection.Assembly.GetEntryAssembly().Location;
 		}
 
         public virtual string GetUserFolder()
@@ -334,10 +341,56 @@ namespace AirVPN.Core
             return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
         }
 
+        /*
+        public virtual int Ping(string host, int timeout)
+        {
+            string result = ShellCmd("ping " + host + " -n 1");
+
+            string sMS = Utils.ExtractBetween(result, "Maximum = ", "ms,");
+            int iMS;
+            if (int.TryParse(sMS, out iMS))
+                return iMS;
+            else
+                return -1;
+        }
+        */
+
 		public virtual void EnsureExecutablePermissions(string path)
 		{
 		}
-        
+
+        public virtual string GetSystemFont()
+        {
+            return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
+        }
+
+        public virtual string GetSystemFontMonospace()
+        {
+            string fontName = "";
+            if (IsFontInstalled("Consolas"))
+                fontName = "Consolas";
+            else if (IsFontInstalled("Monospace"))
+                fontName = "Monospace";
+            else if (IsFontInstalled("DejaVu Sans Mono"))
+                fontName = "DejaVu Sans Mono";
+            else if (IsFontInstalled("Courier New"))
+                fontName = "Courier New";
+            else
+                fontName = SystemFonts.MenuFont.Name;
+            return fontName + "," + SystemFonts.MenuFont.Size;
+        }
+
+        public virtual bool IsFontInstalled(string fontName)
+        {
+            using (var testFont = new Font(fontName, 8))
+            {
+                return 0 == string.Compare(
+                  fontName,
+                  testFont.Name,
+                  StringComparison.InvariantCultureIgnoreCase);
+            }
+        }
+
         public virtual void FlushDNS()
         {
             NotImplemented();
@@ -392,15 +445,17 @@ namespace AirVPN.Core
 
         public virtual void LogSystemInfo()
         {
-			Engine.Instance.Log(Engine.LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
+			Engine.Instance.Logs.Log(LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
         }
 
 		public virtual string GenerateSystemReport()
 		{
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
+            t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
+            t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
 
-			try
+            try
 			{
 				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 				foreach (NetworkInterface adapter in interfaces)
@@ -453,7 +508,12 @@ namespace AirVPN.Core
 			return t;
 		}
 
-		public virtual void OnAppStart()
+        public virtual bool OnCheckSingleInstance()
+        {
+            return true;
+        }
+
+        public virtual void OnAppStart()
 		{
 		}
 
@@ -466,6 +526,11 @@ namespace AirVPN.Core
 		{
 		}
 
+        public virtual string OnNetworkLockRecommendedMode()
+        {
+            return "";
+        }
+
 		public virtual void OnSessionStart()
 		{
 		}
@@ -477,14 +542,12 @@ namespace AirVPN.Core
 		public virtual void OnDaemonOutput(string source, string message)
 		{
 		}
-
-		/*
+        
 		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
 		public virtual void OnRecovery()
 		{
 		}
-		*/
-
+		
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeRouteDefaultRemoved = Utils.XmlGetFirstElementByTagName(root, "RouteDefaultRemoved");
@@ -511,7 +574,7 @@ namespace AirVPN.Core
 			}
 		}
 
-		public virtual void OnBuildOvpn(ref string ovpn)
+		public virtual void OnBuildOvpn(OvpnBuilder ovpn)
 		{
 		}
 
@@ -591,9 +654,26 @@ namespace AirVPN.Core
 			NotImplemented();
 		}
 
-		public virtual string GetGitDeployPath()
-		{
-			return GetProgramFolder () + "/../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
-		}
+        public virtual string GetProjectPath()
+        {
+            DirectoryInfo di = new DirectoryInfo(GetProgramFolder());
+
+            for (;;)
+            {
+                if (File.Exists(di.FullName + "/version.txt"))
+                    return di.FullName;
+                else
+                {
+                    di = di.Parent;
+                    if (di == null)
+                        return "";
+                }
+            }
+        }
+
+        public virtual string GetGitDeployPath()
+        {
+            return GetProjectPath() + "/deploy/" + Platform.Instance.GetSystemCode() + "/";
+        }
     }
 }

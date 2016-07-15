@@ -20,4 +20,4 @@ It won't be a problem at runtime because on a 64-bit machine, the GAC stores a 6
 
 - x86 / x64 / Any CPU
 Targeting x86/x64 only really matters on the EXE assembly since that is the one that determines the bitness of the process. 
-A DLL (AirVPN.Core) assembly doesn't have a choice, the appropriate build setting for them is Any CPU so they can work both ways.
+A DLL (Eddie.Core) assembly doesn't have a choice, the appropriate build setting for them is Any CPU so they can work both ways.

@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -22,13 +22,14 @@ using System.IO;
 using System.Threading;
 using System.Text;
 using System.Windows.Forms;
-using AirVPN.Core;
+using System.Xml;
+using Eddie.Core;
 
 //using ExceptionReporting;
 
-namespace AirVPN.Gui
+namespace Eddie.Gui
 {
-	public class Engine : AirVPN.Core.Engine
+	public class Engine : Eddie.Core.Engine
     {
 		// We have a list of logs, because we process it only when the form are available.
         public List<LogEntry> LogEntries = new List<LogEntry>();
@@ -37,7 +38,7 @@ namespace AirVPN.Gui
         
         //public AutoResetEvent FormsReady = new AutoResetEvent(false);
         public AutoResetEvent InitDone = new AutoResetEvent(false);
-
+        
         public override bool OnInit()
         {
 			// Engine.Log(Core.Engine.LogType.Verbose, "Old Data: " + Application.UserAppDataPath);
@@ -51,8 +52,8 @@ namespace AirVPN.Gui
 			// System.Threading.Thread.Sleep(1000);
 
             bool result = base.OnInit();
-
-			return result;
+            
+            return result;
         }
 
 		public override void OnUnhandledException(Exception e)
@@ -65,14 +66,12 @@ namespace AirVPN.Gui
 				ExceptionReporter reporter = new ExceptionReporter();
 
 				// Crash Reporting
-				reporter.Config.AppName = "AirVPN";
-				//reporter.Config.CompanyName = "Fuzz Pty Ltd";
-				reporter.Config.TitleText = "AirVPN Client Error Report";
+				reporter.Config.AppName = "Eddie";
+				reporter.Config.TitleText = "Eddie Error Report";
 				reporter.Config.EmailReportAddress = "support@airvpn.org";
 				reporter.Config.ShowSysInfoTab = true;   // all tabs are shown by default
 				reporter.Config.ShowFlatButtons = true;   // this particular config is code-only
-				reporter.Config.TakeScreenshot = true;   // attached if sending email
-				//reporter.Config.FilesToAttach = new[] { "c:/file.txt" }; // any other files to attach
+				reporter.Config.TakeScreenshot = true;   // attached if sending email				
 
 				reporter.Show(e);
 			}
@@ -106,7 +105,31 @@ namespace AirVPN.Gui
                 FormMain.DeInit();
         }
 
-		public override bool OnNoRoot()
+        public override void OnCommand(CommandLine command)
+        {
+            string action = command.Get("action", "").ToLowerInvariant();
+
+            if(action == "ui.show.preferences")
+            {
+                Forms.Settings Dlg = new Forms.Settings();
+                Dlg.ShowDialog();
+
+                FormMain.EnabledUi();
+            }
+            else if (action == "ui.show.about")
+            {
+                Forms.About dlg = new Forms.About();
+                dlg.ShowDialog();
+            }
+            else if (action == "ui.show.menu")
+            {
+                FormMain.ShowMenu();
+            }
+            else
+                base.OnCommand(command);
+        }
+
+        public override bool OnNoRoot()
 		{
 			if (ConsoleMode == false) // GUI Only
 			{
@@ -206,13 +229,13 @@ namespace AirVPN.Gui
 
 					if (command != "")
 					{
-						Log(LogType.Verbose, Messages.AdminRequiredRestart);
+                        Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
 
 						Platform.Instance.Shell(command, arguments, waitEnd);
 					}
 					else
 					{
-						Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);						
+                        Logs.Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);						
 					}
 
 					return true;
@@ -268,7 +291,15 @@ namespace AirVPN.Gui
 				FormMain.ShowFrontMessage(message);
 		}
 
-		public override bool OnAskYesNo(string message)
+        public override void OnShowText(string title, string data)
+        {
+            Forms.TextViewer Dlg = new Forms.TextViewer();
+            Dlg.Title = title;
+            Dlg.Body = data;
+            Dlg.ShowDialog();
+        }
+
+        public override bool OnAskYesNo(string message)
 		{
 			if (FormMain != null)
 				return MessageBox.Show(message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
@@ -276,7 +307,15 @@ namespace AirVPN.Gui
 				return true;
 		}
 
-		public override void OnPostManifestUpdate()
+        public override void OnLoggedUpdate(XmlElement xmlKeys)
+        {
+            base.OnLoggedUpdate(xmlKeys);
+
+            if (FormMain != null)
+                FormMain.LoggedUpdate(xmlKeys);
+        }
+
+        public override void OnPostManifestUpdate()
 		{
 			base.OnPostManifestUpdate();
 

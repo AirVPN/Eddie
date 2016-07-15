@@ -1,27 +1,27 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
 	public class NetworkLockManager
 	{
@@ -76,15 +76,17 @@ namespace AirVPN.Core
 					throw new Exception(Messages.NetworkLockUnexpectedAlreadyActive);
 
 				NetworkLockPlugin nextCurrent = null;
-
-				string requestedMode = Engine.Instance.Storage.Get("netlock.mode");
+                
+                string requestedMode = Engine.Instance.Storage.Get("netlock.mode");
+                if (requestedMode == "auto")
+                    requestedMode = Platform.Instance.OnNetworkLockRecommendedMode();
 
 				if (requestedMode != "none")
-				{
+				{   
 					foreach (NetworkLockPlugin plugin in Modes)
 					{
-						if( (requestedMode == "auto") || (requestedMode == plugin.GetCode()) )
-						{
+                        if (requestedMode == plugin.GetCode())
+                        {
 							nextCurrent = plugin;
 							break;
 						}
@@ -93,26 +95,22 @@ namespace AirVPN.Core
 
 				if (nextCurrent == null)
 				{
-					Engine.Instance.Log(Engine.LogType.Fatal, Messages.NetworkLockNoMode);
+					Engine.Instance.Logs.Log(LogType.Fatal, Messages.NetworkLockNoMode);
 				}
 				else
 				{
 					string message = Messages.NetworkLockActivation + " - " + nextCurrent.GetName();
 					Engine.Instance.WaitMessageSet(message, false);
-					Engine.Instance.Log(Engine.LogType.InfoImportant, message);
+					Engine.Instance.Logs.Log(LogType.InfoImportant, message);
 
 					nextCurrent.Activation();
 
 					m_current = nextCurrent;
-				}
-
-				// Engine.Instance.Storage.SetBool("netlock", true); // TOCLEAN, < 2.9
+				}                
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Fatal, e);
-
-				// Engine.Instance.Storage.SetBool("netlock", false);  // TOCLEAN, < 2.9
+				Engine.Instance.Logs.Log(LogType.Fatal, e);
 			}
 
 			Recovery.Save();
@@ -125,10 +123,10 @@ namespace AirVPN.Core
 				if (onExit == false)
 				{
 					Engine.Instance.WaitMessageSet(Messages.NetworkLockDeactivation, false);
-					Engine.Instance.Log(Engine.LogType.InfoImportant, Messages.NetworkLockDeactivation);
+					Engine.Instance.Logs.Log(LogType.InfoImportant, Messages.NetworkLockDeactivation);
 				}
 				else
-					Engine.Instance.Log(Engine.LogType.Verbose, Messages.NetworkLockDeactivation);
+					Engine.Instance.Logs.Log(LogType.Verbose, Messages.NetworkLockDeactivation);
 
 				try
 				{
@@ -136,17 +134,11 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
-					Engine.Instance.Log(e);
+					Engine.Instance.Logs.Log(e);
 				}
 
 				m_current = null;
 			}
-
-			// TOCLEAN, < 2.9
-			/*
-			if(onExit == false)
-				Engine.Instance.Storage.SetBool("netlock", false);
-			*/
 
 			Recovery.Save();
 		}
@@ -170,7 +162,7 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
-					Engine.Instance.Log(e);
+					Engine.Instance.Logs.Log(e);
 				}
 			}
 		}
@@ -186,7 +178,7 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
-					Engine.Instance.Log(e);
+					Engine.Instance.Logs.Log(e);
 				}
 			}
 		}
@@ -202,7 +194,7 @@ namespace AirVPN.Core
 				}
 				catch (Exception e)
 				{
-					Engine.Instance.Log(e);
+					Engine.Instance.Logs.Log(e);
 				}
 			}
 		}
@@ -231,14 +223,14 @@ namespace AirVPN.Core
 					if (m_current != null)
 						m_current.OnRecoveryLoad(node);
 					else
-						Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockRecoveryUnknownMode);
+						Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockRecoveryUnknownMode);
 
 					Deactivation(false);
 				}
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(e);
+				Engine.Instance.Logs.Log(e);
 			}
 		}
 
@@ -257,7 +249,7 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(e);
+				Engine.Instance.Logs.Log(e);
 			}
 		}
 
@@ -272,5 +264,29 @@ namespace AirVPN.Core
 			if (m_current != null)
 				m_current.DeallowIP(ip);
 		}
-	}
+
+        public virtual void AllowProgram(string path, string name, string guid)
+        {
+            if (m_current != null)
+                m_current.AllowProgram(path, name, guid);
+        }
+
+        public virtual void DeallowProgram(string path, string name, string guid)
+        {
+            if (m_current != null)
+                m_current.DeallowProgram(path, name, guid);
+        }
+
+        public virtual void AllowInterface(string id)
+        {
+            if (m_current != null)
+                m_current.AllowInterface(id);
+        }
+
+        public virtual void DeallowInterface(string id)
+        {
+            if (m_current != null)
+                m_current.DeallowInterface(id);
+        }
+    }
 }

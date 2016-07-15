@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -22,9 +22,9 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
 using System.Text;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Core.Threads
+namespace Eddie.Core.Threads
 {
 	public class PingerStats
 	{
@@ -65,22 +65,23 @@ namespace AirVPN.Core.Threads
 			RouteScope routeScope = null;
 			try
 			{
-				//bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always"); // 2.6
+				//bool alwaysRun = Engine.Instance.Storage.GetBool("pinger.always"); // 2.6
 				routeScope = new RouteScope(Server.IpEntry);
-
+                                
 				// Ping
 				Ping pingSender = new Ping();
 				PingOptions options = new PingOptions();
 
 				// Use the default Ttl value which is 128,
 				// but change the fragmentation behavior.
-				options.DontFragment = true;
-
+				//options.DontFragment = true;
+                
 				// Create a buffer of 32 bytes of data to be transmitted.								
 				byte[] buffer = RandomGenerator.GetBuffer(32);
-				int timeout = 5000;
+				int timeout = 2000;                
 				PingReply reply = pingSender.Send(Server.IpEntry, timeout, buffer, options);
 				Pinger.Instance.PingResult(Server, reply);
+                
 			}
 			catch (Exception)
 			{				
@@ -102,7 +103,7 @@ namespace AirVPN.Core.Threads
 		}
 	}
 
-	public class Pinger : AirVPN.Core.Thread
+	public class Pinger : Eddie.Core.Thread
     {
 		public static Pinger Instance;
 
@@ -121,13 +122,13 @@ namespace AirVPN.Core.Threads
 
 		public bool GetEnabled()
 		{
-			return Engine.Instance.Storage.GetBool("advanced.pinger.enabled");
+			return Engine.Instance.Storage.GetBool("pinger.enabled");
 		}
 
 		public bool GetCanRun()
 		{			
 			bool canRun = true;
-			// bool alwaysRun = Engine.Instance.Storage.GetBool("advanced.pinger.always");
+			// bool alwaysRun = Engine.Instance.Storage.GetBool("pinger.always");
 			bool alwaysRun = false; // 2.6
 
 			// Logic: Can't ping when the connection is unstable. Can't ping when connected to server.
@@ -142,29 +143,48 @@ namespace AirVPN.Core.Threads
 			return canRun;
 		}
 
-		public int getPingerDelaySuccess() // Delay for already success ping
+		public int GetPingerDelaySuccess(ServerInfo server) // Delay for already success ping
 		{
-			int delay = Engine.Instance.Storage.GetInt("advanced.pinger.delay");
+			int delay = Engine.Instance.Storage.GetInt("pinger.delay");
 			if (delay == 0)
-				delay = Conversions.ToInt32(Engine.Instance.Storage.GetManifestKeyValue("pinger_delay", "180"));
+				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_delay", "1802"));
 			return delay;
 		}
 
-		public int getPingerDelayRetry() // Delay for failed ping
+		public int GetPingerDelayRetry(ServerInfo server) // Delay for failed ping
 		{
-			int delay = Engine.Instance.Storage.GetInt("advanced.pinger.retry");
+			int delay = Engine.Instance.Storage.GetInt("pinger.retry");
 			if (delay == 0)
-				delay = Conversions.ToInt32(Engine.Instance.Storage.GetManifestKeyValue("pinger_retry", "5"));
+				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_retry", "5"));
 			return delay;
 		}
 
-		public int getPingerDelayValid() // Delay for consider valid
+		public int GetPingerDelayValid(ServerInfo server) // Delay for consider valid
 		{
-			int delay = Engine.Instance.Storage.GetInt("advanced.pinger.valid");
+			int delay = Engine.Instance.Storage.GetInt("pinger.valid");
 			if (delay == 0)
-				delay = getPingerDelaySuccess() * 5;
+				delay = GetPingerDelaySuccess(server) * 5;
 			return delay;
 		}
+
+        public void InvalidateAll()
+        {
+            Dictionary<string, ServerInfo> servers;
+            lock (Engine.Servers)
+            {
+                servers = new Dictionary<string, ServerInfo>(Engine.Servers);
+            }
+            
+            foreach (ServerInfo infoServer in servers.Values)
+            {
+                infoServer.LastPingTest = 0;
+                infoServer.PingTests = 0;
+                infoServer.PingFailedConsecutive = 0;
+                infoServer.Ping = -1;
+                infoServer.LastPingResult = 0;
+                infoServer.LastPingSuccess = 0;
+            }
+        }
 
         public override void OnRun()
         {            
@@ -180,11 +200,9 @@ namespace AirVPN.Core.Threads
                 {
 					// Note: If Pinger is not enabled, works like all ping results is 0.						
 					bool enabled = GetEnabled();					
-					int delaySuccess = getPingerDelaySuccess();
-					int delayRetry = getPingerDelayRetry();
-
+					
 					int timeNow = Utils.UnixTimeStamp();
-					int jobsLimit = Engine.Instance.Storage.GetInt("advanced.pinger.jobs");
+					int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
 
 					lock (Engine.Servers)
                         servers = new Dictionary<string, ServerInfo>(Engine.Servers);
@@ -196,13 +214,22 @@ namespace AirVPN.Core.Threads
 						if (GetCanRun() == false)
 							break;
 
-						int delay = delaySuccess;
+                        int delaySuccess = GetPingerDelaySuccess(infoServer);
+                        int delayRetry = GetPingerDelayRetry(infoServer);
+
+                        int delay = delaySuccess;
 						if (infoServer.PingFailedConsecutive > 0)
 							delay = delayRetry;
 
 						if(timeNow - infoServer.LastPingTest >= delay)								
 						{
-							if (enabled)
+                            bool canPingServer = enabled;
+                            if (infoServer.IpEntry == "")
+                                canPingServer = false;
+                            if (infoServer.WarningClosed != "")
+                                canPingServer = false;
+
+							if (canPingServer)
 							{
 								if (Jobs.Count < jobsLimit)
 								{
@@ -227,9 +254,10 @@ namespace AirVPN.Core.Threads
 								infoServer.LastPingTest = timeNow;
 								infoServer.PingTests = 0;
 								infoServer.PingFailedConsecutive = 0;
-								infoServer.Ping = 0;
+								infoServer.Ping = -1;
 								infoServer.LastPingResult = infoServer.LastPingTest;
 								infoServer.LastPingSuccess = infoServer.LastPingTest;
+                                Engine.Instance.MarkServersListUpdated();
 							}
 						}
 						
@@ -266,7 +294,7 @@ namespace AirVPN.Core.Threads
 			}
 			else
 			{				
-				result = -1;
+				result = -1;                
 			}
 
 			PingResult(infoServer, result);
@@ -298,7 +326,8 @@ namespace AirVPN.Core.Threads
 				else
 					infoServer.Ping = (infoServer.Ping + result) / 2;
 			}
-		}
+            Engine.Instance.MarkServersListUpdated();
+        }
 
 		void OnPingCompleted(object sender, PingCompletedEventArgs e)
 		{
@@ -310,8 +339,7 @@ namespace AirVPN.Core.Threads
 		public PingerStats GetStats()
 		{
 			PingerStats stats = new PingerStats();
-
-			int deltaValid = getPingerDelayValid();			
+            			
 			int timeNow = Utils.UnixTimeStamp();
 
 			int iTotal = 0;
@@ -320,7 +348,9 @@ namespace AirVPN.Core.Threads
 			{
 				foreach (ServerInfo infoServer in Engine.Servers.Values)
 				{
-					if( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoServer.LastPingResult) )
+                    int deltaValid = GetPingerDelayValid(infoServer);
+
+                    if ( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoServer.LastPingResult) )
 						stats.OlderCheckDate = infoServer.LastPingResult;
 
 					if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoServer.LastPingResult))

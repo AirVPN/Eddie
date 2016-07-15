@@ -1,27 +1,27 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
 	public class NetworkLockPlugin
 	{
@@ -65,7 +65,23 @@ namespace AirVPN.Core
 		{
 		}
 
-		public virtual void OnUpdateIps()
+        public virtual void AllowProgram(string path, string name, string guid)
+        {            
+        }
+
+        public virtual void DeallowProgram(string path, string name, string guid)
+        {            
+        }
+
+        public virtual void AllowInterface(string id)
+        {
+        }
+
+        public virtual void DeallowInterface(string id)
+        {
+        }
+
+        public virtual void OnUpdateIps()
 		{
 			// Called when Ip used by AirVPN (hosts auth or vpn servers) maybe changed.
 		}
@@ -96,21 +112,21 @@ namespace AirVPN.Core
 			if (ip.Valid == false)
 			{
 				if(warning == true)
-					Engine.Instance.Log(Engine.LogType.Error, Messages.Format(Messages.NetworkLockAllowedIpInvalid, ip.ToString()));
+					Engine.Instance.Logs.Log(LogType.Error, Messages.Format(Messages.NetworkLockAllowedIpInvalid, ip.ToString()));
 				return;
 			}
 
 			if (result.Contains(ip))
 			{
 				if (warning == true)
-					Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.NetworkLockAllowedIpDuplicated, ip.ToString()));
+					Engine.Instance.Logs.Log(LogType.Warning, Messages.Format(Messages.NetworkLockAllowedIpDuplicated, ip.ToString()));
 				return;
 			}
 
 			result.Add(ip);
 		}
 
-		public List<IpAddressRange> GetAllIps()
+		public List<IpAddressRange> GetAllIps(bool includeIpUsedByClient)
 		{
 			List<IpAddressRange> result = new List<IpAddressRange>();
 
@@ -153,29 +169,29 @@ namespace AirVPN.Core
 				}
 			}
 
-			// Hosts
-			if (Engine.Instance.Storage.Manifest != null)
-			{
-				XmlNodeList nodesHosts = Engine.Instance.Storage.Manifest.SelectNodes("//hosts/host");
-				foreach (XmlNode nodeHost in nodesHosts)
-				{
-					IpAddressRange ip = new IpAddressRange(nodeHost.Attributes["address"].Value);
-					AddToIpsList(result, ip, false);										
-				}
-			}
+            if (includeIpUsedByClient)
+            {
+                // Providers
+                foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+                {
+                    List<IpAddressRange> list = provider.GetNetworkLockAllowedIps();
+                    foreach (IpAddressRange ip in list)
+                        AddToIpsList(result, ip, false);
+                }
 
-			// Servers
-			lock (Engine.Instance.Servers)
-			{
-				Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>(Engine.Instance.Servers);
+                // Servers
+                lock (Engine.Instance.Servers)
+                {
+                    Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>(Engine.Instance.Servers);
 
-				foreach (ServerInfo infoServer in servers.Values)
-				{
-					AddToIpsList(result, infoServer.IpEntry, false);										
-					if (infoServer.IpEntry2.Trim() != "")
-						AddToIpsList(result, infoServer.IpEntry2, false);																
-				}
-			}
+                    foreach (ServerInfo infoServer in servers.Values)
+                    {
+                        AddToIpsList(result, infoServer.IpEntry, false);
+                        if (infoServer.IpEntry2.Trim() != "")
+                            AddToIpsList(result, infoServer.IpEntry2, false);
+                    }
+                }
+            }
 
 			return result;
 		}

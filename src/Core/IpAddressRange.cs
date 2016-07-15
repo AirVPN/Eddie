@@ -1,27 +1,27 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
 	public class IpAddressRange
 	{
@@ -62,14 +62,6 @@ namespace AirVPN.Core
 			}
 		}
 
-		public bool Loopback
-		{
-			get
-			{				
-				return Value.StartsWith("127.0.0.1");
-			}
-		}
-
 		public string Value
 		{
 			get
@@ -103,14 +95,14 @@ namespace AirVPN.Core
 					if (new IpAddress(m_Mask).Valid)
 					{
 						// Can be converted to CIDR?
-						if (NetMask2bitMask(m_Mask) != "")
+						if (NetMask2bitMaskV4(m_Mask) != "")
 						{
 							valid = true;
 						}
 					}
 					else
 					{
-						m_Mask = BitMask2netMask(m_Mask);
+						m_Mask = BitMask2netMaskV4(m_Mask);
 						if (new IpAddress(m_Mask).Valid)
 						{
 							valid = true;
@@ -131,7 +123,7 @@ namespace AirVPN.Core
 			if(Valid == false)
 				return "";
 
-			return m_IP + "/" + NetMask2bitMask(m_Mask);
+			return m_IP + "/" + NetMask2bitMaskV4(m_Mask);
 		}
 
 		public string ToOpenVPN()
@@ -142,7 +134,17 @@ namespace AirVPN.Core
 			return m_IP + " " + m_Mask;
 		}
 
-		public void Clear()
+        public string GetAddress()
+        {
+            return m_IP;
+        }
+
+        public string GetMask()
+        {
+            return m_Mask;
+        }
+
+        public void Clear()
 		{
 			Value = "";
 		}
@@ -169,7 +171,7 @@ namespace AirVPN.Core
 			return Value;
 		}
 
-		private string NetMask2bitMask(string ip)
+		private string NetMask2bitMaskV4(string ip)
 		{
 			if(ip == "0.0.0.0")
 				return "0";
@@ -241,7 +243,7 @@ namespace AirVPN.Core
 				return "";
 		}
 
-		private string BitMask2netMask(string bit)
+		private string BitMask2netMaskV4(string bit)
 		{
 			if(bit == "0")
 				return "0.0.0.0";	

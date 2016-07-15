@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7531" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7531"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
+            <connections>
+                <outlet property="delegate" destination="533" id="534"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <menu title="AMainMenu" systemMenu="main" id="29">
+            <items>
+                <menuItem title="AirVPN" id="56">
+                    <menu key="submenu" title="AirVPN" systemMenu="apple" id="57">
+                        <items>
+                            <menuItem title="About AirVPN" image="about_16" id="58">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="236">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Preferences…" image="settings_16" keyEquivalent="," id="129"/>
+                            <menuItem isSeparatorItem="YES" id="d6z-Ua-jbI">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="AirVPN Website (Web)" image="home_16" id="cFT-nx-MzJ" userLabel="Menu Item - Website">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Your details and statistics (Web)" image="stats_16" id="KZI-Bi-OUe" userLabel="Menu Item - Client Area">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Forwarding Ports (Web)" image="ports_16" id="YT6-gP-yWE" userLabel="Menu Item - Forwarding Ports">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Speed Test (Web)" image="speed_16" id="DQk-oh-Ot8" userLabel="Menu Item - Speed Test">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="143">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Services" id="131">
+                                <menu key="submenu" title="Services" systemMenu="services" id="130"/>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="144">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Hide AirVPN" keyEquivalent="h" id="134">
+                                <connections>
+                                    <action selector="hide:" target="-1" id="367"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Hide Others" keyEquivalent="h" id="145">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="hideOtherApplications:" target="-1" id="368"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Show All" id="150">
+                                <connections>
+                                    <action selector="unhideAllApplications:" target="-1" id="370"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="149">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Quit AirVPN" image="exit_16" keyEquivalent="q" id="136">
+                                <connections>
+                                    <action selector="terminate:" target="-3" id="449"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Window" id="19">
+                    <menu key="submenu" title="Window" systemMenu="window" id="24">
+                        <items>
+                            <menuItem title="Minimize" keyEquivalent="m" id="23">
+                                <connections>
+                                    <action selector="performMiniaturize:" target="-1" id="37"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Zoom" id="239">
+                                <connections>
+                                    <action selector="performZoom:" target="-1" id="240"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="92">
+                                <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                            </menuItem>
+                            <menuItem title="Bring All to Front" id="5">
+                                <connections>
+                                    <action selector="arrangeInFront:" target="-1" id="39"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
+            </items>
+        </menu>
+        <customObject id="420" customClass="NSFontManager"/>
+        <customObject id="533" customClass="AppDelegate">
+            <connections>
+                <outlet property="MnuMainAbout" destination="58" id="ZbR-1y-6Vd"/>
+                <outlet property="MnuMainClientArea" destination="KZI-Bi-OUe" id="ezp-cr-VUP"/>
+                <outlet property="MnuMainForwardingPorts" destination="YT6-gP-yWE" id="4AV-Ed-xKe"/>
+                <outlet property="MnuMainHome" destination="cFT-nx-MzJ" id="k32-Bx-AxL"/>
+                <outlet property="MnuMainPreferences" destination="129" id="g41-6b-wZh"/>
+                <outlet property="MnuMainQuit" destination="136" id="u7D-PZ-Mct"/>
+                <outlet property="MnuMainSpeedTest" destination="DQk-oh-Ot8" id="FND-nA-VbF"/>
+            </connections>
+        </customObject>
+    </objects>
+    <resources>
+        <image name="about_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="exit_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="home_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="ports_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="settings_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="speed_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="stats_16" width="16.225351333618164" height="16.225351333618164"/>
+    </resources>
+</document>

@@ -1,27 +1,27 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
     public class Software
     {		
@@ -46,7 +46,7 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);
+				Engine.Instance.Logs.Log(LogType.Warning, e);
 				OpenVpnDriver = "";
 			}
 
@@ -62,9 +62,9 @@ namespace AirVPN.Core
 					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
 					if( (OpenVpnVersion.StartsWith("Error:")) || (OpenVpnVersion == "") )
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
-						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + OpenVpnVersion);
-						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(OpenVpnPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + OpenVpnVersion);
+						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(OpenVpnPath));
 						OpenVpnPath = "";
 						OpenVpnVersion = "";
 					}
@@ -78,7 +78,7 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);				
+				Engine.Instance.Logs.Log(LogType.Warning, e);				
 				OpenVpnPath = "";
 				OpenVpnVersion = "";
 			}
@@ -97,9 +97,9 @@ namespace AirVPN.Core
 					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
 					if( (SshVersion.StartsWith("Error:")) || (SshVersion == ""))
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SshPath));
-						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + SshVersion);
-						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(SshPath));						
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SshPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SshVersion);
+						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SshPath));						
 						SshPath = "";
 						SshVersion = "";
 					}
@@ -112,7 +112,7 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);				
+				Engine.Instance.Logs.Log(LogType.Warning, e);				
 				SshPath = "";
 				SshVersion = "";
 			}
@@ -131,9 +131,9 @@ namespace AirVPN.Core
 					SslVersion = Platform.Instance.Shell(SslPath, arguments).Trim();
 					if ((SslVersion.StartsWith("Error:")) || (SslVersion == ""))
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SslPath));
-						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + SslVersion);
-						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(SslPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SslPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SslVersion);
+						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SslPath));
 						SslPath = "";
 						SslVersion = "";
 					}
@@ -147,7 +147,7 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);				
+				Engine.Instance.Logs.Log(LogType.Warning, e);				
 				SslPath = "";
 				SslVersion = "";
 			}
@@ -165,9 +165,9 @@ namespace AirVPN.Core
 					CurlVersion = Platform.Instance.Shell(CurlPath, arguments).Trim();
 					if ((CurlVersion.StartsWith("Error:")) || (CurlVersion == ""))
 					{
-						Engine.Instance.Log(Engine.LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, CurlPath));
-						Engine.Instance.Log(Engine.LogType.Verbose, "Output: " + CurlVersion);
-						Engine.Instance.Log(Engine.LogType.Verbose, Platform.Instance.GetExecutableReport(CurlPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, CurlPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + CurlVersion);
+						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(CurlPath));
 						CurlPath = "";
 						CurlVersion = "";
 					}
@@ -181,54 +181,64 @@ namespace AirVPN.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, e);
+				Engine.Instance.Logs.Log(LogType.Warning, e);
 				CurlPath = "";
 				CurlVersion = "";
 			}
 
 			// Local Time in the past
 			if (DateTime.UtcNow < Constants.dateForPastChecking)
-				Engine.Instance.Log(Engine.LogType.Fatal, Messages.WarningLocalTimeInPast);
+				Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
 		}
 
 		public static void Log()
 		{
 			if(OpenVpnDriver != "")
 			{
-				Engine.Instance.Log(Engine.LogType.Info, "OpenVPN Driver - " + OpenVpnDriver);
+				Engine.Instance.Logs.Log(LogType.Info, "OpenVPN Driver - " + OpenVpnDriver);
 			}
 			else
 			{
-				Engine.Instance.Log(Engine.LogType.Error, "OpenVPN Driver - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN Driver - " + Messages.NotAvailable);
 			}
 
 			if(OpenVpnPath != "")
 			{
-				Engine.Instance.Log(Engine.LogType.Info, "OpenVPN - Version: " + OpenVpnVersion + " (" + OpenVpnPath + ")");
+				Engine.Instance.Logs.Log(LogType.Info, "OpenVPN - Version: " + OpenVpnVersion + " (" + OpenVpnPath + ")");
 			}
 			else
 			{
-				Engine.Instance.Log(Engine.LogType.Error, "OpenVPN - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN - " + Messages.NotAvailable);
 			}
 
 			if(SshPath != "")
 			{
-				Engine.Instance.Log(Engine.LogType.Info, "SSH - Version: " + SshVersion + " (" + SshPath + ")");
+				Engine.Instance.Logs.Log(LogType.Info, "SSH - Version: " + SshVersion + " (" + SshPath + ")");
 			}
 			else
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, "SSH - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Warning, "SSH - " + Messages.NotAvailable);
 			}
 
 			if(SslPath != "")
 			{
-				Engine.Instance.Log(Engine.LogType.Info, "SSL - Version: " + SslVersion + " (" + SslPath + ")");
+				Engine.Instance.Logs.Log(LogType.Info, "SSL - Version: " + SslVersion + " (" + SslPath + ")");
 			}
 			else
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, "SSL - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Warning, "SSL - " + Messages.NotAvailable);
 			}
 		}
+
+        public static bool FileExists(string path)
+        {
+            if (path == "")
+                return false;
+            if (File.Exists(path) == false)
+                return false;
+
+            return true;
+        }
 
 		public static string FindExecutable(string name)
 		{
@@ -252,8 +262,7 @@ namespace AirVPN.Core
 			}
 
 			string path = FindResource(filename, name);
-
-
+            
 			if (path != "") // 2.8
 				Platform.Instance.EnsureExecutablePermissions(path);
 			
@@ -266,27 +275,27 @@ namespace AirVPN.Core
 		}
 
 		public static string FindResource(string filename, string name)
-		{	
-			// Same path
-			{
+		{
+            // Custom location (2.11, below 'Same path' in 2.10)
+            if (name != "")
+            {
+                string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get("executables." + name));
+                if (FileExists(path))
+                    return path;
+            }
+
+            // Same path
+            {
 				string path = Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/" + filename);
-				if (File.Exists(path))
+				if (FileExists(path))
 					return path;
 			}
-
-			// Custom location
-			if(name != "")
-			{
-				string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get("executables." + name));
-				if (File.Exists(path))
-					return path;
-			}
-
+            
 			// GIT source tree
 			if (Engine.Instance.DevelopmentEnvironment)
 			{
 				string path = Platform.Instance.NormalizePath(Platform.Instance.GetGitDeployPath() + filename);	
-				if (File.Exists(path))
+				if (FileExists(path))
 					return path;
 			}
 
@@ -306,11 +315,11 @@ namespace AirVPN.Core
 				if (Platform.Instance.IsUnixSystem())
 				{
 					string pathBin = "/usr/bin/" + fileNameAlt;
-					if (File.Exists(pathBin))
+					if (FileExists(pathBin))
 						return pathBin;
 
 					string pathSBin = "/usr/sbin/" + fileNameAlt;
-					if (File.Exists(pathSBin))
+					if (FileExists(pathSBin))
 						return pathSBin;
 				}
 			}

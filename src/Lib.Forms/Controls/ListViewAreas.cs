@@ -1,29 +1,29 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Gui.Controls
+namespace Eddie.Gui.Controls
 {
     public class ListViewAreas : Skin.ListView
     {
@@ -69,8 +69,10 @@ namespace AirVPN.Gui.Controls
 			columnHeader4.Width = 60;
 			columnHeader4.TextAlign = HorizontalAlignment.Center;
 
-			SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
-			LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            ImageListIcon = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            ImageListState = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            //SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+			//LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 
 			Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 			| System.Windows.Forms.AnchorStyles.Left)
@@ -85,26 +87,28 @@ namespace AirVPN.Gui.Controls
 			UpdateList();
 		}
 
-		public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
-		{
-			if (e.ColumnIndex == 2)
-			{
-				e.DrawDefault = false;
-				DrawSubItemBackground(sender, e);
+        public override bool GetDrawSubItemFull(int columnIndex)
+        {
+            if (columnIndex == 2)
+                return false;
+            else
+                return true;
+        }
 
-				Controls.ListViewItemArea listItemServer = e.Item as Controls.ListViewItemArea;
+        public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+		{
+            base.OnListViewDrawSubItem(sender, e);
+
+            if (Visible == false)
+                return;
+
+            if (e.ColumnIndex == 2)
+            {
+                Controls.ListViewItemArea listItemServer = e.Item as Controls.ListViewItemArea;
 
 				Rectangle R1 = e.Bounds;
 				R1.Inflate(-2, -2);
-				//e.Graphics.FillRectangle(m_loadBrushBg, R1);
-
-				/*
-				Int64 bwCur = 2 * (listItemServer.Info.Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
-				Int64 bwMax = listItemServer.Info.BandwidthMax;
-
-				float p = (float)bwCur / (float)bwMax;
-				*/
-
+				
 				String label = listItemServer.Info.GetLoadForList();
 				float p = listItemServer.Info.GetLoadPercForList();
 				string color = listItemServer.Info.GetLoadColorForList();
@@ -119,14 +123,12 @@ namespace AirVPN.Gui.Controls
 				int W = Conversions.ToInt32(p * R1.Width);
 				if (W > R1.Width)
 					W = R1.Width;
-				e.Graphics.FillRectangle(b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
+				Form.FillRectangle(e.Graphics, b, new Rectangle(R1.Left, R1.Top, W, R1.Height));
 
 				R1.Height -= 1;
 				//e.Graphics.DrawRectangle(m_loadPen, R1);
-				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
-			}
-			else
-				base.OnListViewDrawSubItem(sender, e);
+				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);                                
+			}            
 		}
 
 		public override int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
@@ -187,17 +189,17 @@ namespace AirVPN.Gui.Controls
 
 		public void UpdateList()
 		{
-			//SuspendLayout();
+            //SuspendLayout();
 
-			List<AreaInfo> areas = new List<AreaInfo>();
+            Dictionary<string, AreaInfo> areas = new Dictionary<string, AreaInfo>();
 			lock (Engine.Instance.Areas)
 			{
 				foreach (AreaInfo infoArea in Engine.Instance.Areas.Values)
-					areas.Add(infoArea);
+					areas[infoArea.Code] = infoArea;
 			}
 
-			foreach (AreaInfo infoArea in areas)
-			{
+			foreach (AreaInfo infoArea in areas.Values)
+            {                
 				if (ItemsAreas.ContainsKey(infoArea.Code) == false)
 				{
 					Controls.ListViewItemArea listItemArea = new Controls.ListViewItemArea();
@@ -213,17 +215,49 @@ namespace AirVPN.Gui.Controls
 					listItemArea.Update();
 				}
 			}
+            
+            List<ListViewItemArea> itemsToRemove = new List<ListViewItemArea>();
 
-			foreach (ListViewItemArea viewItem in Items)
-			{
-				if (areas.Contains(viewItem.Info) == false)
-				{
-					Items.Remove(viewItem);
-					ItemsAreas.Remove(viewItem.Info.Code);
-				}
-			}
+            foreach (ListViewItemArea viewItem in ItemsAreas.Values)
+            {
+                if (areas.ContainsKey(viewItem.Info.Code) == false)
+                {
+                    itemsToRemove.Add(viewItem);
+                }
+            }
 
-			//ResumeLayout();
-		}
+            if (itemsToRemove.Count > 0)
+            {
+                if (Platform.IsWindows())
+                {
+                    foreach (ListViewItemArea viewItem in itemsToRemove)
+                    {
+                        Items.Remove(viewItem);
+                        ItemsAreas.Remove(viewItem.Info.Name);
+                    }
+                }
+                else
+                {
+                    
+                    // Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
+                    // Reproduce the crash by whitelist some server and switch "Show all" continuosly.
+                    List<ListViewItemArea> items = new List<ListViewItemArea>();
+                    foreach (ListViewItemArea itemCurrent in Items)
+                    {
+                        if (itemsToRemove.Contains(itemCurrent) == false)
+                            items.Add(itemCurrent);
+                    }
+                    Items.Clear();
+                    ItemsAreas.Clear();
+                    foreach (ListViewItemArea itemCurrent in items)
+                    {
+                        ItemsAreas.Add(itemCurrent.Info.Name, itemCurrent);
+                        Items.Add(itemCurrent);
+                    }
+                }
+            }
+
+            //ResumeLayout();
+        }        
     }
 }

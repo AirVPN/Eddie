@@ -1,36 +1,36 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
-    public class AreaInfo
+    public class AreaInfo : IComparable<AreaInfo>
     {
         public string Code;
-        public string PublicName;
+        public string Name;
         
-        public Int64 Bandwidth;
-        public Int64 BandwidthMax;
-        public Int64 Users;
-        public Int64 Servers;
+        public Int64 Bandwidth = 0;
+        public Int64 BandwidthMax = 0;
+        public Int64 Users = -1;
+        public Int64 Servers = 0;
 
         public enum UserListType
         {
@@ -43,11 +43,20 @@ namespace AirVPN.Core
 
         public bool Deleted = false;
 
-		public int CompareToEx(AreaInfo other, string field, bool ascending)
+        public AreaInfo()
+        {
+        }
+
+        public int CompareTo(AreaInfo other)
+        {
+            return Code.CompareTo(other.Code);
+        }
+
+        public int CompareToEx(AreaInfo other, string field, bool ascending)
 		{
 			int returnVal = 0;
 			if (field == "Name")
-				returnVal = PublicName.CompareTo(other.PublicName);
+				returnVal = Name.CompareTo(other.Name);
 			else if (field == "Servers")
 			{
 				returnVal = this.Servers.CompareTo(other.Servers);
@@ -70,7 +79,7 @@ namespace AirVPN.Core
 			}
 
 			if (returnVal == 0) // Second order, Name
-				returnVal = this.PublicName.CompareTo(other.PublicName);
+				returnVal = this.Name.CompareTo(other.Name);
 
 			// Invert the value returned by String.Compare.
 			if (ascending == false)
@@ -81,7 +90,10 @@ namespace AirVPN.Core
 
 		public string GetLoadForList()
 		{
-			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+            if (BandwidthMax == 0)
+                return "-";
+
+            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -94,7 +106,10 @@ namespace AirVPN.Core
 
 		public float GetLoadPercForList()
 		{
-			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+            if (BandwidthMax == 0)
+                return 0;
+
+            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -104,7 +119,10 @@ namespace AirVPN.Core
 
 		public string GetLoadColorForList()
 		{
-			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+            if (BandwidthMax == 0)
+                return "yellow";
+
+            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -116,5 +134,27 @@ namespace AirVPN.Core
 			else
 				return "green";
 		}
+
+        public string GetNameForList()
+        {
+            if (Name == "")
+                return Messages.Unknown;
+            else
+                return Name;
+
+        }
+
+        public string GetServersForList()
+        {
+            return Servers.ToString();
+        }
+
+        public string GetUsersForList()
+        {
+            if (Users == -1)
+                return "";
+            else
+                return Users.ToString();
+        }
     }
 }

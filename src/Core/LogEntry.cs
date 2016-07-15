@@ -1,34 +1,42 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using System.Text;
 
-namespace AirVPN.Core
+namespace Eddie.Core
 {
     public class LogEntry
     {
         public DateTime Date = DateTime.Now;
-        public Engine.LogType Type;
+        public LogType Type;
         public string Message;
         public int BalloonTime = 1000;
 		public Exception Exception;
+
+		public void WriteXML(XmlElement node)
+		{
+			Utils.XmlSetAttributeInt64(node, "timestamp",Conversions.ToUnixTime(Date));
+			Utils.XmlSetAttributeString(node, "type", GetTypeString());
+			Utils.XmlSetAttributeString(node, "message", Message);
+		}
 
 		public string GetMessageForList()
 		{
@@ -40,23 +48,49 @@ namespace AirVPN.Core
 			return Date.ToShortDateString() + " - " + Date.ToShortTimeString();
 		}
 
+        public static string GetDateForListSample()
+        {
+            // Used to compute an estimation of Grid cell size
+            return DateTime.UtcNow.ToShortDateString() + " - " + DateTime.UtcNow.ToShortTimeString();
+        }
+
+        public string GetTypeChar()
+		{
+			switch (Type)
+			{
+				case LogType.Realtime: return ".";
+				case LogType.Verbose: return ".";
+				case LogType.Info: return "I";
+				case LogType.InfoImportant: return "!";
+				case LogType.Warning: return "W";
+				case LogType.Error: return "E";
+				case LogType.Fatal: return "F";
+				default: return "?";
+			}
+		}
+
+		public string GetTypeString()
+		{
+			switch (Type)
+			{
+				case LogType.Realtime: return "realtime";
+				case LogType.Verbose: return "verbose";
+				case LogType.Info: return "info";
+				case LogType.InfoImportant: return "infoimportant";
+				case LogType.Warning: return "warning";
+				case LogType.Error: return "error";
+				case LogType.Fatal: return "fatal";
+				default: return "?";
+			}
+		}
+
 		public string GetStringLines()
 		{
 			string result = "";
 
 			string o = "";
 
-			switch (Type)
-			{
-				case Engine.LogType.Realtime: o += "."; break;
-				case Engine.LogType.Verbose: o += "."; break;
-				case Engine.LogType.Info: o += "I"; break;
-				case Engine.LogType.InfoImportant: o += "!"; break;
-				case Engine.LogType.Warning: o += "W"; break;
-				case Engine.LogType.Error: o += "E"; break;
-				case Engine.LogType.Fatal: o += "F"; break;
-				default: o += "?"; break;
-			}
+			o += GetTypeChar();
 			o += " ";
 			o += Date.ToString("yyyy.MM.dd HH:mm:ss");
 			o += " - ";

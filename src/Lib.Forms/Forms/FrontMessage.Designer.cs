@@ -1,4 +1,4 @@
-﻿namespace AirVPN.Gui.Forms
+﻿namespace Eddie.Gui.Forms
 {
 	partial class FrontMessage
 	{
@@ -28,66 +28,69 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.cmdClose = new AirVPN.Gui.Skin.Button();
-			this.lnkWebsite = new System.Windows.Forms.LinkLabel();
-			this.lblMessage = new System.Windows.Forms.Label();
-			this.SuspendLayout();
-			// 
-			// cmdClose
-			// 
-			this.cmdClose.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.cmdClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdClose.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdClose.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.cmdClose.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdClose.FlatAppearance.BorderSize = 0;
-			this.cmdClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdClose.Location = new System.Drawing.Point(189, 197);
-			this.cmdClose.Name = "cmdClose";
-			this.cmdClose.Size = new System.Drawing.Size(150, 30);
-			this.cmdClose.TabIndex = 1;
-			this.cmdClose.Text = "Ok";
-			this.cmdClose.UseVisualStyleBackColor = true;
-			this.cmdClose.Click += new System.EventHandler(this.cmdClose_Click);
-			// 
-			// lnkWebsite
-			// 
-			this.lnkWebsite.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-			this.lnkWebsite.BackColor = System.Drawing.Color.Transparent;
-			this.lnkWebsite.Location = new System.Drawing.Point(16, 172);
-			this.lnkWebsite.Name = "lnkWebsite";
-			this.lnkWebsite.Size = new System.Drawing.Size(501, 21);
-			this.lnkWebsite.TabIndex = 3;
-			this.lnkWebsite.TabStop = true;
-			this.lnkWebsite.Text = "More";
-			this.lnkWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			this.lnkWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkWebsite_LinkClicked);
-			// 
-			// lblMessage
-			// 
-			this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.cmdClose = new Eddie.Gui.Skin.Button();
+            this.lnkWebsite = new System.Windows.Forms.LinkLabel();
+            this.lblMessage = new System.Windows.Forms.Label();
+            this.SuspendLayout();
+            // 
+            // cmdClose
+            // 
+            this.cmdClose.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cmdClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdClose.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdClose.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.cmdClose.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdClose.FlatAppearance.BorderSize = 0;
+            this.cmdClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdClose.Location = new System.Drawing.Point(252, 242);
+            this.cmdClose.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cmdClose.Name = "cmdClose";
+            this.cmdClose.Size = new System.Drawing.Size(200, 37);
+            this.cmdClose.TabIndex = 1;
+            this.cmdClose.Text = "Ok";
+            this.cmdClose.UseVisualStyleBackColor = true;
+            this.cmdClose.Click += new System.EventHandler(this.cmdClose_Click);
+            // 
+            // lnkWebsite
+            // 
+            this.lnkWebsite.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.lnkWebsite.BackColor = System.Drawing.Color.Transparent;
+            this.lnkWebsite.Location = new System.Drawing.Point(21, 212);
+            this.lnkWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lnkWebsite.Name = "lnkWebsite";
+            this.lnkWebsite.Size = new System.Drawing.Size(668, 26);
+            this.lnkWebsite.TabIndex = 3;
+            this.lnkWebsite.TabStop = true;
+            this.lnkWebsite.Text = "More";
+            this.lnkWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lnkWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkWebsite_LinkClicked);
+            // 
+            // lblMessage
+            // 
+            this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblMessage.BackColor = System.Drawing.Color.Transparent;
-			this.lblMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMessage.Location = new System.Drawing.Point(12, 9);
-			this.lblMessage.Name = "lblMessage";
-			this.lblMessage.Size = new System.Drawing.Size(505, 158);
-			this.lblMessage.TabIndex = 4;
-			this.lblMessage.Text = "Important Message";
-			this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// FrontMessage
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(529, 239);
-			this.Controls.Add(this.lblMessage);
-			this.Controls.Add(this.lnkWebsite);
-			this.Controls.Add(this.cmdClose);
-			this.Name = "FrontMessage";
-			this.Text = "FrontMessage";
-			this.ResumeLayout(false);
+            this.lblMessage.BackColor = System.Drawing.Color.Transparent;
+            this.lblMessage.Location = new System.Drawing.Point(16, 11);
+            this.lblMessage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(673, 194);
+            this.lblMessage.TabIndex = 4;
+            this.lblMessage.Text = "Important Message";
+            this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // FrontMessage
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(705, 294);
+            this.Controls.Add(this.lblMessage);
+            this.Controls.Add(this.lnkWebsite);
+            this.Controls.Add(this.cmdClose);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Name = "FrontMessage";
+            this.Text = "FrontMessage";
+            this.ResumeLayout(false);
 
 		}
 

@@ -1,29 +1,29 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Platforms
+namespace Eddie.Platforms
 {
 	public class NetworkLockOsxPf : NetworkLockPlugin
 	{
@@ -154,15 +154,30 @@ namespace AirVPN.Platforms
 				pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
 				pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
 				pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
-			}
 
-			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
+                // Multicast
+                pf += "pass out quick inet from 192.168.0.0/16 to 224.0.0.0/24\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 224.0.0.0/24\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 224.0.0.0/24\n";
+
+                // 239.255.255.250  Simple Service Discovery Protocol address
+                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.250/32\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.250/32\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.250/32\n";
+
+                // 239.255.255.253  Service Location Protocol version 2 address
+                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.253/32\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";                
+            }
+
+            if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 			{
 				pf += "# Allow ICMP\n";
 				pf += "pass quick proto icmp\n"; // 2.9
 			}
 
-			List<IpAddressRange> ips = GetAllIps();
+			List<IpAddressRange> ips = GetAllIps(true);
 			pf += "# AirVPN IP (Auth and VPN)\n";
 			foreach (IpAddressRange ip in ips)
 			{
@@ -172,7 +187,7 @@ namespace AirVPN.Platforms
 			
 			if (Utils.SaveFile(m_filePfConf.Path, pf))
 			{
-				Engine.Instance.Log(Engine.LogType.Verbose, "OS X - PF rules updated, reloading");
+				Engine.Instance.Logs.Log(LogType.Verbose, "OS X - PF rules updated, reloading");
 
 				Exec("pfctl -v -f \"" + m_filePfConf.Path + "\"");
 			}

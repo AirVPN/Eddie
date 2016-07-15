@@ -1,20 +1,20 @@
-// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -22,11 +22,11 @@ using System.Drawing;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using AirVPN.Core;
-using AirVPN.Core.UI;
-using AirVPN.Gui.Forms; // Temp
+using Eddie.Core;
+using Eddie.Core.UI;
+using Eddie.Gui.Forms; // Temp
 
-namespace AirVPN.Gui.Controls
+namespace Eddie.Gui.Controls
 {	
     public class ChartSpeed : System.Windows.Forms.Control
     {
@@ -108,8 +108,9 @@ namespace AirVPN.Gui.Controls
 
 		public string ValToDesc(Int64 v)
 		{
-			return Utils.FormatBytesEx2(v*8, true) + "/s (" + Utils.FormatBytesEx2(v, false) + "/s)";			
-		}
+            string r = Utils.FormatBytes(v, true, true);            
+            return r;
+        }
 		
 		public void Switch(int chartIndex)
 		{
@@ -146,8 +147,7 @@ namespace AirVPN.Gui.Controls
 				
         protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
         {
-			//base.OnPaint(e);
-
+			//base.OnPaint(e);            
 			Form.Skin.GraphicsCommon(e.Graphics);
 
             try

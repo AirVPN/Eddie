@@ -1,35 +1,33 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Text;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Gui
+namespace Eddie.Gui
 {
     public class Form : System.Windows.Forms.Form
-    {        
-        public static Skin.Skins.Light SkinLight = new Skin.Skins.Light();
-        public static Skin.Skins.Dark SkinDark = new Skin.Skins.Dark();
-        public static Skin.SkinBase Skin = SkinLight;
+    {
+        public static Skin.SkinReference Skin = new Gui.Skin.SkinReference();
 
         public static Gui.Engine Engine
         {
@@ -41,20 +39,9 @@ namespace AirVPN.Gui
 
         public static bool ChangeSkin(string name)
         {
-            Skin.SkinBase newSkin = null;
-
-			if (Engine.Instance == null)
-                newSkin = SkinLight;
-            else if (name == "Light")
-                newSkin = SkinLight;
-            else if (name == "Dark")
-                newSkin = SkinDark;
-            else
-                newSkin = SkinLight;
-
-            if (Skin != newSkin)
+            if (Skin.Name != name)
             {
-                Skin = newSkin;
+                Gui.Skin.SkinReference.Load(name);
                 return true;
             }
             else
@@ -69,31 +56,51 @@ namespace AirVPN.Gui
 
             Text = TitleText;
 						
-			Icon = global::AirVPN.Lib.Forms.Properties.Resources.icon1;
+			Icon = global::Eddie.Lib.Forms.Properties.Resources.icon1;
 
-			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
-			
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
+
+        }
+
+        public virtual void OnPreInitializeComponent()
+        {
+            /*
+            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(6F, 13F);
+            */
+        }
+
+        public virtual void OnInitializeComponent()
+        {
+            ApplySkin();
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
-            ApplySkin();
         }
 
 		protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Form.DrawImage(e.Graphics, Skin.FormBackgroundImage, this.ClientRectangle);
+            e.Graphics.FillRectangle(Skin.GetBrush("color.form.background"), ClientRectangle);
+            Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
+
             //base.OnPaintBackground(e);
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {			
+        public void ResetSkinCache()
+        {
+            Skin.ClearFontCache();
         }
 
-        public virtual void ApplySkin()
+        public void ApplySkin()
         {
+            if (DesignMode == false)
+                OnApplySkin();
+        }
+
+        public virtual void OnApplySkin()
+        {            
             Skin.Apply(this);
         }
 
@@ -229,8 +236,73 @@ namespace AirVPN.Gui
 
 		public static void DrawImage(Graphics g, Image i, Rectangle r)
 		{
-			g.DrawImage(i, r);
+            g.DrawImage(i, r);
 		}
+
+        public static void DrawImageOpt(Graphics g, Image i, Rectangle r)
+        {
+            g.DrawImage(i, r);
+        }
+
+        private static Size ExpandToBound(Size image, Size boundingBox)
+        {
+            double widthScale = 0, heightScale = 0;
+            if (image.Width != 0)
+                widthScale = (double)boundingBox.Width / (double)image.Width;
+            if (image.Height != 0)
+                heightScale = (double)boundingBox.Height / (double)image.Height;
+
+            double scale = Math.Min(widthScale, heightScale);
+
+            Size result = new Size((int)(image.Width * scale),
+                                (int)(image.Height * scale));
+            return result;
+        }
+
+        public static void DrawImageContain(Graphics g, Image i, Rectangle r, int inflatePerc)
+        {
+            DrawImageContain(g, i, r, inflatePerc, Rectangle.Empty);
+        }
+
+        public static void DrawImageContain(Graphics g, Image i, Rectangle r, int inflatePerc, Rectangle rSource)
+        {
+            if (rSource.IsEmpty == false)
+            {
+                // Check/Normalize, otherwise Mono crash
+                if ((rSource.Width == 0) || (rSource.Height == 0))
+                    return;
+                if (rSource.Width > i.Width)
+                    rSource.Width = i.Width;
+                if (rSource.Height > i.Height)
+                    rSource.Height = i.Height;
+            }
+                
+            
+
+            int idx = r.Width * inflatePerc / 100;
+            int idy = r.Height * inflatePerc / 100;
+            Rectangle rdi = new Rectangle(r.Left + idx / 2, r.Top + idy / 2, r.Width - idx, r.Height - idy);
+
+            Size sizeImageBound = ExpandToBound(i.Size, rdi.Size);
+
+            //if (sizeImageBound.Width < 20) sizeImageBound.Width = 16;
+            //if (sizeImageBound.Height < 20) sizeImageBound.Height = 16;
+
+            Rectangle rd = new Rectangle(
+                (r.Left + r.Right) / 2 - sizeImageBound.Width / 2,
+                (r.Top + r.Bottom) / 2 - sizeImageBound.Height / 2,
+                sizeImageBound.Width,
+                sizeImageBound.Height);
+
+            if (rSource.IsEmpty)
+                g.DrawImage(i, rd);
+            else
+            {
+                Rectangle rd2 = rd;
+                rd2.Width = rSource.Width * rd.Width / i.Width;
+                g.DrawImage(i, rd2, rSource, GraphicsUnit.Pixel);
+            }
+        }
 		
 		public static void DrawStringOutline(Graphics g, String t, Font f, Brush b, Rectangle r, StringFormat sf)
 		{
@@ -256,5 +328,41 @@ namespace AirVPN.Gui
 			rt.Offset(ox, oy);
 			g.DrawString(t, f, b, rt, sf);
 		}
+
+        public static void FillRectangle(Graphics g, Brush b, Rectangle r)
+        {
+            try
+            {
+                g.FillRectangle(b, r);
+            }
+            catch
+            {
+
+            }
+        }
+
+        public static void DrawRectangle(Graphics g, Pen p, Rectangle r)
+        {
+            try
+            {
+                g.DrawRectangle(p, r);
+            }
+            catch
+            {
+
+            }
+        }
+
+        public static void DrawLine(Graphics g, Pen p, Point from, Point to)
+        {
+            try
+            {
+                g.DrawLine(p, from, to);
+            }
+            catch
+            {
+
+            }
+        }
     }
 }

@@ -1,29 +1,29 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Platforms
+namespace Eddie.Platforms
 {
 	public class NetworkLockIptables : NetworkLockPlugin
 	{
@@ -65,7 +65,7 @@ namespace AirVPN.Platforms
 
 			if (File.Exists(rulesBackupSessionV4))
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
+				Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
 				Deactivation();
 			}
 
@@ -73,7 +73,7 @@ namespace AirVPN.Platforms
 
 			if (File.Exists(rulesBackupSessionV6))
 			{
-				Engine.Instance.Log(Engine.LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
+				Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
 				Deactivation();
 			}
 
@@ -114,7 +114,22 @@ namespace AirVPN.Platforms
 				Exec("iptables -A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
 				Exec("iptables -A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
 				Exec("iptables -A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
-			}
+
+                // Multicast
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+
+                // 239.255.255.250  Simple Service Discovery Protocol address
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+
+                // 239.255.255.253  Service Location Protocol version 2 address
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+                Exec("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+            }
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 			{
@@ -188,7 +203,7 @@ namespace AirVPN.Platforms
 		{
 			base.OnUpdateIps();
 
-			List<IpAddressRange> ipsFirewalled = GetAllIps();
+			List<IpAddressRange> ipsFirewalled = GetAllIps(true);
 
 			// Remove IP not present in the new list
 			foreach (IpAddressRange ip in m_currentList)
