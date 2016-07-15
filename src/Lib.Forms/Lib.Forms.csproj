@@ -3,12 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{C0357E13-B013-40C5-B511-865A27BC2A47}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AirVPN.Lib.Forms</RootNamespace>
+    <RootNamespace>Eddie.Lib.Forms</RootNamespace>
     <AssemblyName>Lib.Forms</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,6 +39,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ListViewItemProtocol.cs" />
+    <Compile Include="Controls\Tooltip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\TabNavigator.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\ChartSpeed.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -158,9 +163,7 @@
     <Compile Include="Skin\RadioButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Skin\SkinBase.cs" />
-    <Compile Include="Skin\Skins\Dark.cs" />
-    <Compile Include="Skin\Skins\Light.cs" />
+    <Compile Include="Skin\SkinReference.cs" />
     <Compile Include="Skin\SplitContainer.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -213,19 +216,15 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Lib.Core.csproj">
-      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
-      <Name>Lib.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="Resources\skins.xml" />
     <Content Include="res\about.png" />
     <Content Include="res\about_header_bg.png" />
     <Content Include="res\about_logo.png" />
-    <Content Include="res\add_16.png" />
+    <Content Include="res\add.png" />
     <Content Include="res\blacklist_0.png" />
     <Content Include="res\blacklist_1.png" />
     <Content Include="res\blacklist_2.png" />
@@ -236,15 +235,16 @@
     <Content Include="res\btn_l_d.png" />
     <Content Include="res\btn_l_h.png" />
     <Content Include="res\btn_l_n.png" />
-    <None Include="res\connect.png" />
-    <Content Include="res\connect_16.png" />
-    <Content Include="res\copy_16.png" />
-    <Content Include="res\delete_16.png" />
-    <Content Include="res\disconnect_16.png" />
-    <Content Include="res\edit_16.png" />
-    <Content Include="res\enter_16.png" />
-    <Content Include="res\execute_16.png" />
+    <None Include="res\clear.png" />
+    <Content Include="res\connect.png" />
+    <Content Include="res\copy.png" />
+    <Content Include="res\delete.png" />
+    <Content Include="res\disconnect.png" />
+    <Content Include="res\edit.png" />
+    <Content Include="res\enter.png" />
+    <Content Include="res\execute.png" />
     <Content Include="res\exit.png" />
+    <None Include="res\form.png" />
     <Content Include="res\form_d_bg.png" />
     <Content Include="res\form_l_bg.png" />
     <None Include="res\help.png" />
@@ -253,7 +253,6 @@
     <Content Include="res\icon.png" />
     <Content Include="res\icon_gray.ico" />
     <Content Include="res\login.png" />
-    <Content Include="res\login_16.png" />
     <Content Include="res\logs.png" />
     <None Include="res\log_icons\log_error.png" />
     <None Include="res\log_icons\log_fatal.png" />
@@ -262,6 +261,12 @@
     <None Include="res\log_icons\log_realtime.png" />
     <None Include="res\log_icons\log_verbose.png" />
     <None Include="res\log_icons\log_warning.png" />
+    <None Include="res\maintab_countries.png" />
+    <None Include="res\maintab_logs.png" />
+    <None Include="res\maintab_overview.png" />
+    <None Include="res\maintab_servers.png" />
+    <None Include="res\maintab_speed.png" />
+    <None Include="res\maintab_stats.png" />
     <Content Include="res\main_d_bg.png" />
     <Content Include="res\main_l_bg.png" />
     <Content Include="res\menu_hover.png" />
@@ -286,7 +291,7 @@
     <Content Include="res\restore.png" />
     <Content Include="res\routes_in.png" />
     <Content Include="res\routes_out.png" />
-    <Content Include="res\save_16.png" />
+    <Content Include="res\save.png" />
     <Content Include="res\settings.png" />
     <Content Include="res\shadow.png" />
     <Content Include="res\speed.png" />
@@ -298,10 +303,10 @@
     <Content Include="res\stats_server.png" />
     <Content Include="res\stats_session.png" />
     <Content Include="res\stats_vpn.png" />
-    <None Include="res\status_green_16.png" />
-    <None Include="res\status_red_16.png" />
-    <None Include="res\status_yellow_16.png" />
-    <Content Include="res\success16.png" />
+    <None Include="res\status_green.png" />
+    <None Include="res\status_red.png" />
+    <None Include="res\status_yellow.png" />
+    <Content Include="res\success.png" />
     <Content Include="res\support.png" />
     <Content Include="res\tabs_l_bg.png" />
     <Content Include="res\tab_l_bg.png" />
@@ -317,11 +322,20 @@
     <Content Include="res\topbar_red.png" />
     <Content Include="res\topbar_shadow.png" />
     <Content Include="res\topbar_yellow.png" />
-    <Content Include="res\warning16.png" />
+    <Content Include="res\warning.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\icon.icns" />
     <None Include="res\icon_gray.icns" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\Skins\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Lib.Core.csproj">
+      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
+      <Name>Lib.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

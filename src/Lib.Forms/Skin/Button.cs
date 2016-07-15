@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ using System.Drawing.Imaging;
 using System.Text;
 using System.Windows.Forms;
 
-namespace AirVPN.Gui.Skin
+namespace Eddie.Gui.Skin
 {
     public class Button : System.Windows.Forms.Button
     {
@@ -109,7 +109,7 @@ namespace AirVPN.Gui.Skin
 
 			Brush brushText = Form.Skin.ForeBrush;
 			if (Enabled == false)
-				brushText = Form.Skin.DisabledBrush;
+				brushText = Form.Skin.ForeDisabledBrush;
 
 			if (Image == null)
 			{
@@ -117,10 +117,8 @@ namespace AirVPN.Gui.Skin
 			}
 			else if (Text == "")
 			{
-				Rectangle rImage = new Rectangle((r.Left + r.Right) / 2 - Image.Width / 2, (r.Top + r.Bottom) / 2 - Image.Height / 2, Image.Width, Image.Height);
-				//pevent.Graphics.DrawImage(Image, r);				
-				pevent.Graphics.DrawImage(Image, rImage, 0,0,Image.Width, Image.Height, GraphicsUnit.Pixel, imageAttributes);				
-			}
+                Form.DrawImageContain(pevent.Graphics, Image, r, 30);                
+            }
 			else
 			{	
 				/*

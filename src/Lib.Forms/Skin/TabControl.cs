@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections;
@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
-namespace AirVPN.Gui.Skin
+namespace Eddie.Gui.Skin
 {
     /// <summary>
     /// Summary description for TabControl.
@@ -35,15 +35,34 @@ namespace AirVPN.Gui.Skin
         /// </summary>
         //private System.ComponentModel.Container components = null;
 
+        /* 
         public TabControl()
         {
             // This call is required by the Windows.Forms Form Designer.
             //InitializeComponent();
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);            
-			
         }
-		
+
+        public void AutoSizeTabs()
+        {
+            //this.SizeMode = TabSizeMode.Fixed;
+            //this.ItemSize = new Size((ClientRectangle.Width-50) / TabPages.Count, Convert.ToInt32(this.CreateGraphics().MeasureString("averyveryveryverylongtext", Form.Skin.FontNormal).Height));
+
+            Graphics g = this.CreateGraphics();
+            Size s = new Size(0,0);
+            foreach(TabPage page in TabPages)
+            {
+                Size ts = g.MeasureString(page.Text, Form.Skin.FontNormal).ToSize();
+                ts.Width = ts.Width * 12 / 10;
+                ts.Height = ts.Height * 12 / 10;
+                if (s.Width < ts.Width) s.Width = ts.Width;
+                if (s.Height < ts.Height) s.Height = ts.Height;
+            }
+            this.ItemSize = s;
+            g.Dispose();
+        }
+
         protected override void OnPaintBackground(PaintEventArgs e)
         {            
             try
@@ -153,6 +172,8 @@ namespace AirVPN.Gui.Skin
                 Core.Debug.Trace(ex);
             }
         }
+        */
+        
     }
 
 }

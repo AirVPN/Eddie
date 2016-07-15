@@ -1,29 +1,29 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Platforms
+namespace Eddie.Platforms
 {
     public class Osx : Platform
     {
@@ -122,6 +122,7 @@ namespace AirVPN.Platforms
 
 			// 10.10
 			ShellCmd("discoveryutil udnsflushcaches");
+            ShellCmd("discoveryutil mdnsflushcache"); // 2.11
         }
 
 		public override void EnsureExecutablePermissions(string path)
@@ -205,7 +206,19 @@ namespace AirVPN.Platforms
 			return entryList;
 		}
 
-		public override Dictionary<int, string> GetProcessesList()
+        public override string GenerateSystemReport()
+        {
+            string t = base.GenerateSystemReport();
+
+            t += "\n\n-- OS X specific\n";
+
+            t += "\n-- ifconfig\n";
+            t += ShellCmd("ifconfig");
+
+            return t;
+        }
+
+        public override Dictionary<int, string> GetProcessesList()
 		{
 			// We experience some crash under OSX with the base method.
 			
@@ -241,7 +254,12 @@ namespace AirVPN.Platforms
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockOsxPf());
 		}
 
-		public override void OnRecoveryLoad(XmlElement root)
+        public override string OnNetworkLockRecommendedMode()
+        {
+            return "osx_pf";
+        }
+
+        public override void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeDns = Utils.XmlGetFirstElementByTagName(root, "DnsSwitch");
 			if (nodeDns != null)
@@ -310,7 +328,7 @@ namespace AirVPN.Platforms
 
 					if (mode != "Off")
 					{
-						Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
+						Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
 
 						IpV6ModeEntry entry = new IpV6ModeEntry();
 						entry.Interface = i;
@@ -356,7 +374,7 @@ namespace AirVPN.Platforms
 					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
 				}
 
-				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
@@ -380,29 +398,33 @@ namespace AirVPN.Platforms
 					string i2 = i.Trim();
 					
 					string current = ShellCmd("networksetup -getdnsservers \"" + i2 + "\"");
-					current = current.Replace ("\n", ";");
-					if (current.StartsWith("There aren't any DNS Servers set on "))
-						current = "0.0.0.0";
-					if (Utils.IsIP(current))
-					{
-						if (current != dns)
-						{
-							// Switch
-							Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2));
 
-							DnsSwitchEntry e = new DnsSwitchEntry();
-							e.Name = i2;
-							e.Dns = current;
-							m_listDnsSwitch.Add(e);
+                    // v2
+                    List<string> ips = new List<string>();
+                    foreach(string line in current.Split('\n'))
+                    {
+                        string ip = line.Trim();
+                        if (Utils.IsIP(ip))
+                            ips.Add(ip);
+                    }
 
-							string dns2 = dns.Replace(",", "\" \"");							
-							ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns2 + "\"");
-						}
-					}
-					else
-					{
-						Engine.Instance.Log(Engine.LogType.Verbose, "Unknown networksetup output: '" + current + "' for interface '" + i + "'");
-					}
+                    if (ips.Count != 0)
+                        current = String.Join(",", ips.ToArray());
+                    else
+                        current = "";
+                    if (current != dns)
+                    {
+                        // Switch
+                        Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
+
+                        DnsSwitchEntry e = new DnsSwitchEntry();
+                        e.Name = i2;
+                        e.Dns = current;
+                        m_listDnsSwitch.Add(e);
+
+                        string dns2 = dns.Replace(",", "\" \"");
+                        ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns2 + "\"");
+                    }                    
 				}
 
 				Recovery.Save ();
@@ -418,11 +440,11 @@ namespace AirVPN.Platforms
 			foreach (DnsSwitchEntry e in m_listDnsSwitch)
 			{
 				string v = e.Dns;
-				if(v == "0.0.0.0")
-					v = "empty";
-				v = v.Replace (";", "\" \"");
+                if (v == "")
+                    v = "empty";
+				v = v.Replace (",", "\" \"");
 
-				Engine.Instance.Log(Engine.LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name));
+				Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
 

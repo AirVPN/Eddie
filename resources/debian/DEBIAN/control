@@ -5,7 +5,7 @@ Maintainer: AirVPN Team <maintainer@airvpn.org>
 Priority: optional
 Architecture: all
 Installed-Size: 8192
-Depends: gksu, mono-runtime, mono-utils, libmono-system-runtime2.0-cil, libmono-winforms2.0-cil, libmono-corlib2.0-cil, openvpn, stunnel4
+Depends: gksu, mono-runtime, mono-utils, libmono-system-windows-forms4.0-cil, openvpn, stunnel4
 Bugs: https://airvpn.org/forum/3-airvpn-client/
 Homepage: https://airvpn.org/
 Description: VPN service based on OpenVPN

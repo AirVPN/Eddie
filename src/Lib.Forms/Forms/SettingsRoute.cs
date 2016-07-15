@@ -1,20 +1,20 @@
-﻿// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -22,11 +22,11 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Gui.Forms
+namespace Eddie.Gui.Forms
 {
-    public partial class SettingsRoute : AirVPN.Gui.Form
+    public partial class SettingsRoute : Eddie.Gui.Form
     {
         public String Ip;        
         public String Action;
@@ -34,10 +34,28 @@ namespace AirVPN.Gui.Forms
 
         public SettingsRoute()
         {
+            OnPreInitializeComponent();
             InitializeComponent();
+            OnInitializeComponent();
         }
 
-		protected override void OnLoad(EventArgs e)
+        public override void OnInitializeComponent()
+        {
+            base.OnInitializeComponent();            
+        }
+
+        public override void OnApplySkin()
+        {
+            base.OnApplySkin();
+
+            txtHost.Font = Skin.FontMono;
+
+            GuiUtils.FixHeightVs(txtHost, lblHost);
+            GuiUtils.FixHeightVs(cboAction, lblAction);
+            GuiUtils.FixHeightVs(txtNotes, lblNotes);
+        }
+
+        protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(Messages.WindowsSettingsRouteTitle);
@@ -50,8 +68,8 @@ namespace AirVPN.Gui.Forms
 			txtHost.Text = Ip;
 			cboAction.Text = Settings.RouteDirectionToDescription(Action);
 			txtNotes.Text = Notes;
-
-			EnableIde();
+            
+            EnableIde();
 		}
         
 		private void EnableIde()

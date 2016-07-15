@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Deploy")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Eddie - Deploy Builder")]
+[assembly: AssemblyDescription("Eddie - Deploy Builder")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Deploy")]
-[assembly: AssemblyCopyright("Copyright ©  2011 - 2015")]
+[assembly: AssemblyCompany("https://airvpn.org")]
+[assembly: AssemblyProduct("Eddie - Deploy Builder")]
+[assembly: AssemblyCopyright("Copyright ©  2011 - 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.9.0.0")]
-[assembly: AssemblyFileVersion("2.9.0.0")]
+[assembly: AssemblyVersion("2.11.0.0")]
+[assembly: AssemblyFileVersion("2.11.0.0")]

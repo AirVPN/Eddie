@@ -1,29 +1,29 @@
-// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using AirVPN.Core;
+using Eddie.Core;
 
-namespace AirVPN.Gui.Controls
+namespace Eddie.Gui.Controls
 {
     public class ListViewItemArea : ListViewItem
     {
@@ -39,8 +39,13 @@ namespace AirVPN.Gui.Controls
 
         public void Update()
         {
-            Text = Info.PublicName;
-            ImageKey = Info.Code;
+            string nameForList = Info.GetNameForList();
+            if (Text != nameForList)
+                Text = nameForList;
+
+            string code = Info.Code;
+            if(ImageKey != code)
+                ImageKey = code;
 
             if (SubItems.Count == 1)
             {
@@ -50,30 +55,33 @@ namespace AirVPN.Gui.Controls
                 SubItems.Add("");                
             }
 
-            String Servers = Info.Servers.ToString();
-            SubItems[1].Text = Servers;
+            string servers = Info.GetServersForList();
+            if (SubItems[1].Text != servers)
+                SubItems[1].Text = servers;
+                        
+            string users = Info.GetUsersForList();
+            if(SubItems[3].Text != users)
+                SubItems[3].Text = users;
 
-            String Users = Info.Users.ToString();
-            SubItems[3].Text = Users;
-
+            Color foreColor = SystemColors.WindowText;
+            int stateImageIndex = 2;
             switch(Info.UserList)
             {
                 case AreaInfo.UserListType.WhiteList:
                     {
-                        ForeColor = Color.DarkGreen;
-                        StateImageIndex = 0;
+                        foreColor = Color.DarkGreen;
+                        stateImageIndex = 0;
                     } break;
                 case AreaInfo.UserListType.BlackList:
                     {
-                        ForeColor = Color.DarkRed;
-                        StateImageIndex = 1;
-                    } break;
-                default:
-                    {
-                        ForeColor = SystemColors.WindowText;
-                        StateImageIndex = 2;
-                    } break;
-            }            
+                        foreColor = Color.DarkRed;
+                        stateImageIndex = 1;
+                    } break;                
+            }
+            if (ForeColor != foreColor)
+                ForeColor = foreColor;
+            if (StateImageIndex != stateImageIndex)
+                StateImageIndex = stateImageIndex;
         }
     }
 }

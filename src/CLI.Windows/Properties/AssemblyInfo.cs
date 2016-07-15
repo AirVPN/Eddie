@@ -6,12 +6,12 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AirVPN - Windows CLI")]
-[assembly: AssemblyDescription("AirVPN - Windows Command Line Interface")]
+[assembly: AssemblyTitle("Eddie - Windows CLI")]
+[assembly: AssemblyDescription("Eddie - Windows Command Line Interface")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://airvpn.org")]
-[assembly: AssemblyProduct("AirVPN - Windows CLI")]
-[assembly: AssemblyCopyright("Copyright ©  2011 - 2015")]
+[assembly: AssemblyProduct("Eddie - Windows CLI")]
+[assembly: AssemblyCopyright("Copyright ©  2011 - 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.10.0.0")]
-[assembly: AssemblyFileVersion("2.10.0.0")]
+[assembly: AssemblyVersion("2.11.0.0")]
+[assembly: AssemblyFileVersion("2.11.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("")]

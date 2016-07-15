@@ -1,20 +1,20 @@
-// <airvpn_source_header>
-// This file is part of AirVPN Client software.
-// Copyright (C)2014-2014 AirVPN (support@airvpn.org) / https://airvpn.org )
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
-// AirVPN Client is free software: you can redistribute it and/or modify
+// Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// AirVPN Client is distributed in the hope that it will be useful,
+// Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with AirVPN Client. If not, see <http://www.gnu.org/licenses/>.
-// </airvpn_source_header>
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
 
 using System;
 using System.Collections.Generic;
@@ -28,12 +28,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using System.Xml;
-using AirVPN.Core;
+using Eddie.Core;
 
 
-namespace AirVPN.Core.Threads
+namespace Eddie.Core.Threads
 {
-	public class Session : AirVPN.Core.Thread
+	public class Session : Eddie.Core.Thread
 	{
 		private Process m_processOpenVpn;
 		private Process m_processProxy;
@@ -50,8 +50,12 @@ namespace AirVPN.Core.Threads
 		private TemporaryFile m_fileSslCrt;
 		private TemporaryFile m_fileSslConfig;
 		private TemporaryFile m_fileOvpn;
+        private TemporaryFile m_fileProxyAuth;
+        private TemporaryFile m_filePasswordAuth;
+        private ProgramScope m_programScope = null;
+        private InterfaceScope m_interfaceScope = null;
 
-		public override void OnRun()
+        public override void OnRun()
 		{
 			CancelRequested = false;
 
@@ -103,36 +107,8 @@ namespace AirVPN.Core.Threads
 						continue;
 
 					m_openVpnManagementCommands.Clear();
-
-					string protocol = Engine.Storage.Get("mode.protocol").ToUpperInvariant();
-					int port = Engine.Storage.GetInt("mode.port");
-					int alt = Engine.Storage.GetInt("mode.alt");
-
-					if (protocol == "AUTO")
-					{						
-						protocol = Engine.Storage.GetManifestKeyValue("mode_protocol", "UDP");
-						port = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_port", "443"));
-						alt = Conversions.ToInt32(Engine.Storage.GetManifestKeyValue("mode_alt", "0"));
-					}
-
-					if (protocol == "SSH")
-					{
-						m_proxyPort = Engine.Storage.GetInt("ssh.port");
-						if (m_proxyPort == 0)
-							m_proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-					}
-					else if (protocol == "SSL")
-					{
-						m_proxyPort = Engine.Storage.GetInt("ssl.port");
-						if (m_proxyPort == 0)
-							m_proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-					}
-					else
-					{
-						m_proxyPort = 0;
-					}
-
-					Engine.CurrentServer = Engine.NextServer;
+                                        
+                    Engine.CurrentServer = Engine.NextServer;
 					Engine.NextServer = null;
 
 					if (Engine.Storage.Get("server") != "")
@@ -152,89 +128,122 @@ namespace AirVPN.Core.Threads
 					if (Engine.CurrentServer == null)
 					{
 						allowed = false;
-						Engine.Log(Core.Engine.LogType.Fatal, "No server available.");
+						Engine.Logs.Log(LogType.Fatal, "No server available.");
 						RequestStop();
 					}
-					
-					// Checking auth user status.
-					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
-					if (allowed)
-					{
-						Engine.WaitMessageSet(Messages.AuthorizeConnect, true);
-						Engine.Log(Engine.LogType.Info, Messages.AuthorizeConnect);
 
-						Dictionary<string, string> parameters = new Dictionary<string, string>();
-						parameters["act"] = "connect";
-						parameters["server"] = Engine.CurrentServer.Name;
-						parameters["protocol"] = protocol;
-						parameters["port"] = port.ToString();
-						parameters["alt"] = alt.ToString();
+                    string protocol = Engine.Storage.Get("mode.protocol").ToUpperInvariant();
+                    int port = Engine.Storage.GetInt("mode.port");
+                    int alt = Engine.Storage.GetInt("mode.alt");
 
-						XmlDocument xmlDoc = null;
-						try
-						{
-							xmlDoc = AirExchange.Fetch(Messages.AuthorizeConnect, parameters);
-						}
-						catch (Exception e)
-						{
-							// Note: If failed, continue anyway.
-							Engine.Log(Engine.LogType.Warning, Messages.Format(Messages.AuthorizeConnectFailed, e.Message));
-						}
+                    if (Engine.CurrentServer != null)
+                    {
+                        if (protocol == "AUTO")
+                        {
+                            protocol = Engine.CurrentServer.Provider.GetKeyValue("mode_protocol", "UDP");
+                            string proxyMode = Engine.Storage.GetLower("proxy.mode");
+                            if (proxyMode != "none")
+                                protocol = "TCP";
+                            port = Conversions.ToInt32(Engine.CurrentServer.Provider.GetKeyValue("mode_port", "443"));
+                            alt = Conversions.ToInt32(Engine.CurrentServer.Provider.GetKeyValue("mode_alt", "0"));
+                        }
+                    }
 
-						if (xmlDoc != null) 
-						{
-							string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");							
-							if (userMessage != "")
-							{
-								allowed = false;
-								string userMessageAction = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message_action", "");								
-								if (userMessageAction == "stop")
-								{
-									Engine.Log(Core.Engine.LogType.Fatal, userMessage);
-									Engine.Disconnect(); // 2.8
-									RequestStop();
-								}
-								else if (userMessageAction == "next")
-								{
-									Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
-									waitingMessage = userMessage + ", next in {1} sec.";
-									waitingSecs = 5;
-								}
-								else 
-								{
-									waitingMessage = userMessage + ", retry in {1} sec.";
-									waitingSecs = 10;
-								}
-							}
-						}
-					}
+                    if (protocol == "SSH")
+                    {
+                        m_proxyPort = Engine.Storage.GetInt("ssh.port");
+                        if (m_proxyPort == 0)
+                            m_proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
+                    }
+                    else if (protocol == "SSL")
+                    {
+                        m_proxyPort = Engine.Storage.GetInt("ssl.port");
+                        if (m_proxyPort == 0)
+                            m_proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
+                    }
+                    else
+                    {
+                        m_proxyPort = 0;
+                    }
+
+                    // Checking auth user status.
+                    // Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.                    
+                    if (allowed)
+                    {
+                        if (Engine.CurrentServer.Provider is Providers.Service)
+                        {
+                            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
+                            if (service.SupportConnect)
+                            {
+                                Engine.WaitMessageSet(Messages.AuthorizeConnect, true);
+                                Engine.Logs.Log(LogType.Info, Messages.AuthorizeConnect);
+
+                                Dictionary<string, string> parameters = new Dictionary<string, string>();
+                                parameters["act"] = "connect";
+                                parameters["server"] = Engine.CurrentServer.ProviderNameX;
+                                parameters["protocol"] = protocol;
+                                parameters["port"] = port.ToString();
+                                parameters["alt"] = alt.ToString();
+
+                                XmlDocument xmlDoc = null;
+                                try
+                                {
+                                    xmlDoc = service.Fetch(Messages.AuthorizeConnect, parameters);
+                                }
+                                catch (Exception e)
+                                {
+                                    // Note: If failed, continue anyway.
+                                    Engine.Logs.Log(LogType.Warning, Messages.Format(Messages.AuthorizeConnectFailed, e.Message));
+                                }
+
+                                if (xmlDoc != null)
+                                {
+                                    string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+                                    if (userMessage != "")
+                                    {
+                                        allowed = false;
+                                        string userMessageAction = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message_action", "");
+                                        if (userMessageAction == "stop")
+                                        {
+                                            Engine.Logs.Log(LogType.Fatal, userMessage);
+                                            Engine.Disconnect(); // 2.8
+                                            RequestStop();
+                                        }
+                                        else if (userMessageAction == "next")
+                                        {
+                                            Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
+                                            waitingMessage = userMessage + ", next in {1} sec.";
+                                            waitingSecs = 5;
+                                        }
+                                        else
+                                        {
+                                            waitingMessage = userMessage + ", retry in {1} sec.";
+                                            waitingSecs = 10;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                        
 
 					if (CancelRequested)
 						continue;
 
 					if (allowed)
 					{
-						sessionLastServer = Engine.CurrentServer.Name;
-						Engine.Storage.Set("servers.last", Engine.CurrentServer.Name);
-
-
-						if (Engine.CurrentServer.ServerType == 2)
-						{
-							// Routing servers have only 443-UDP-1ip
-							protocol = "UDP";
-							port = 443;
-							alt = 0;
-						}
-
+						sessionLastServer = Engine.CurrentServer.Code;
+						Engine.Storage.Set("servers.last", Engine.CurrentServer.Code);
+                        
 						routeScope = new RouteScope(Engine.ConnectedEntryIP);
 
 						Engine.RunEventCommand("vpn.pre");
 
-						string connectingMessage = Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.PublicName, Engine.CurrentServer.CountryName, Engine.CurrentServer.Location);
+						string connectingMessage = Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.GetNameWithLocation());
 						Engine.WaitMessageSet(connectingMessage, true);
-						Engine.Log(Engine.LogType.InfoImportant, connectingMessage);
+						Engine.Logs.Log(LogType.InfoImportant, connectingMessage);
 
-						Engine.BuildOVPN(protocol, port, alt, m_proxyPort);
+						BuildOVPN(protocol, port, alt, m_proxyPort);
 
 						if (protocol == "SSH")
 						{
@@ -244,14 +253,14 @@ namespace AirVPN.Core.Threads
 						{
 							StartSslProcess();
 						}
-						else if ((protocol == "TCP") || (protocol == "UDP") || (protocol == "TOR"))
+						else if ((protocol == "TCP") || (protocol == "UDP"))
 						{
 							StartOpenVpnProcess();
 						}
 
 						int waitingSleep = 100; // To avoid CPU stress
 
-						m_reset = "";
+						SetReset("");
 
 						// -----------------------------------
 						// Phase 2: Waiting connection
@@ -259,12 +268,12 @@ namespace AirVPN.Core.Threads
 
 						for (; ; )
 						{
-							if( (m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited) ) // 2.2
-								m_reset = "ERROR";
+                            if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited)) // 2.2
+                                SetReset("ERROR");
 							if( (m_processProxy != null) && (m_processProxy.ReallyExited) ) // 2.2
-								m_reset = "ERROR";
+                                SetReset("ERROR");
 
-							if (Engine.IsConnected())
+                            if (Engine.IsConnected())
 								break;
 
 							if (m_reset != "")
@@ -276,11 +285,6 @@ namespace AirVPN.Core.Threads
 
 						if(m_reset == "")
 							oneConnectionReached = true;
-
-						if( (m_reset == "") && (Engine.Instance.Storage.GetBool("advanced.testmode")) )
-						{
-							m_reset = "STOP";
-						}
 
 						// -----------------------------------
 						// Phase 3 - Running
@@ -346,12 +350,17 @@ namespace AirVPN.Core.Threads
 								{
 									StopRequest = true;
 								}
-
-								if (m_reset == "ERROR")
+                                else if (m_reset == "ERROR") 
 								{
-									Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
+									//Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error"); // Removed in 2.11
 									StopRequest = true;
 								}
+                                else if (m_reset == "FATAL") 
+                                {
+                                    StopRequest = true;
+                                }
+
+                                
 
 								if (Engine.NextServer != null)
 								{
@@ -374,14 +383,19 @@ namespace AirVPN.Core.Threads
 							}
 						}
 
-						// -----------------------------------
-						// Phase 4 - Start disconnection
-						// -----------------------------------
+                        if (m_reset == "ERROR") // Added in 2.11
+                        {
+                            Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
+                        }
 
-						Engine.SetConnected(false);
+                        // -----------------------------------
+                        // Phase 4 - Start disconnection
+                        // -----------------------------------
+
+                        Engine.SetConnected(false);
 
 						Engine.WaitMessageSet(Messages.ConnectionDisconnecting, false);
-						Engine.Log(Engine.LogType.InfoImportant, Messages.ConnectionDisconnecting);
+						Engine.Logs.Log(LogType.InfoImportant, Messages.ConnectionDisconnecting);
 
 						if (Storage.Simulate)
 						{
@@ -445,7 +459,7 @@ namespace AirVPN.Core.Threads
 							}
 							catch (Exception e)
 							{
-								Engine.Log(Core.Engine.LogType.Warning, e);
+								Engine.Logs.Log(LogType.Warning, e);
 							}
 
 							bool exit = true;
@@ -469,7 +483,7 @@ namespace AirVPN.Core.Threads
 						// Phase 6: Cleaning, waiting before retry.
 						// -----------------------------------
 
-						Engine.Log(Engine.LogType.Verbose, Messages.ConnectionStop);
+						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStop);
 
 						Engine.RunEventCommand("vpn.down");
 
@@ -477,16 +491,38 @@ namespace AirVPN.Core.Threads
 
 						Platform.Instance.OnDnsSwitchRestore();
 
-						// Closing temporary files
-						if (m_fileSshKey != null)
-							m_fileSshKey.Close();
-						if (m_fileSslCrt != null)
-							m_fileSslCrt.Close();
-						if (m_fileSslConfig != null)
-							m_fileSslConfig.Close();
-						if (m_fileOvpn != null)
-							m_fileOvpn.Close();
-					}
+                        // Closing temporary files
+                        if (m_fileSshKey != null)
+                        {
+                            m_fileSshKey.Close();
+                            m_fileSshKey = null;
+                        }
+                        if (m_fileSslCrt != null)
+                        {
+                            m_fileSslCrt.Close();
+                            m_fileSslCrt = null;
+                        }
+                        if (m_fileSslConfig != null)
+                        {
+                            m_fileSslConfig.Close();
+                            m_fileSslConfig = null;
+                        }
+                        if (m_fileOvpn != null)
+                        {
+                            m_fileOvpn.Close();
+                            m_fileOvpn = null;
+                        }
+                        if (m_fileProxyAuth != null)
+                        {
+                            m_fileProxyAuth.Close();
+                            m_fileProxyAuth = null;
+                        }
+                        if (m_filePasswordAuth != null)
+                        {
+                            m_filePasswordAuth.Close();
+                            m_filePasswordAuth = null;
+                        }
+                    }
 
 					
 
@@ -496,13 +532,19 @@ namespace AirVPN.Core.Threads
 					// Warning: Avoid to reach this catch: unpredicable status of running processes.
 					Engine.SetConnected(false);
 
-					Engine.Log(Core.Engine.LogType.Warning, e);					
+					Engine.Logs.Log(LogType.Warning, e);					
 				}
 
 				if (routeScope != null)
 					routeScope.End();
 
-				if (m_reset == "AUTH_FAILED")
+                if (m_programScope != null)
+                    m_programScope.End();
+
+                if (m_interfaceScope != null)
+                    m_interfaceScope.End();
+
+                if (m_reset == "AUTH_FAILED")
 				{
 					waitingMessage = "Auth failed, retry in {1} sec.";
 					waitingSecs = 10;
@@ -512,13 +554,19 @@ namespace AirVPN.Core.Threads
 					waitingMessage = "Restart in {1} sec.";
 					waitingSecs = 3;
 				}
-				
-				if (Engine.Instance.Storage.GetBool("advanced.testmode"))
-				{
-					Engine.Instance.RequestStop();
-					break;
-				}
-
+                else if (m_reset == "FATAL") 
+                {
+                    if (Engine.Instance.Storage.GetBool("advanced.testmode"))
+                    {
+                        Engine.Instance.RequestStop();
+                    }
+                    else
+                    {
+                        Engine.Instance.Disconnect();
+                    }
+                    break;
+                }
+								
 				if (waitingSecs > 0)
 				{
 					for (int i = 0; i < waitingSecs; i++)
@@ -537,11 +585,11 @@ namespace AirVPN.Core.Threads
 			{
 				if (CancelRequested)
 				{
-					Engine.Log(Engine.LogType.Info, Messages.SessionCancel);
+					Engine.Logs.Log(LogType.Info, Messages.SessionCancel);
 				}
 				else
 				{
-					Engine.Log(Engine.LogType.Error, Messages.SessionFailed);
+					Engine.Logs.Log(LogType.Error, Messages.SessionFailed);
 				}
 			}
 			
@@ -552,7 +600,11 @@ namespace AirVPN.Core.Threads
 
 		private void StartSshProcess()
 		{
-			if (m_processProxy != null) // Unexpected
+            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
+            if (service == null) // Unexpected
+                return;
+
+            if (m_processProxy != null) // Unexpected
 				return;
 
 			string fileKeyExtension = "";
@@ -563,7 +615,7 @@ namespace AirVPN.Core.Threads
 			
 
 			m_fileSshKey = new TemporaryFile(fileKeyExtension);
-			File.WriteAllText(m_fileSshKey.Path, Utils.XmlGetAttributeString(Engine.Storage.User, "ssh_" + fileKeyExtension, ""));
+			File.WriteAllText(m_fileSshKey.Path, Utils.XmlGetAttributeString(service.User, "ssh_" + fileKeyExtension, ""));
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
@@ -586,7 +638,9 @@ namespace AirVPN.Core.Threads
 				arguments += " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"; // TOOPTIMIZE: To bypass key confirmation. Not the best approach.
 			arguments += " -N -T -v";
 
-			m_processProxy = new Process();
+            m_programScope = new ProgramScope(Software.SshPath, "SSH Tunnel");
+
+            m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SshPath;
 			m_processProxy.StartInfo.Arguments = arguments;
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
@@ -612,16 +666,20 @@ namespace AirVPN.Core.Threads
 		void ProcessSshExited(object sender, EventArgs e)
 		{
 			if (m_reset == "")
-				m_reset = "ERROR";
-		}
+                SetReset("ERROR");
+        }
 
 		private void StartSslProcess()
 		{
-			if (m_processProxy != null) // Unexpected
+            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
+            if (service == null) // Unexpected
+                return;
+
+            if (m_processProxy != null) // Unexpected
 				return;
 
 			m_fileSslCrt = new TemporaryFile("crt");
-			File.WriteAllText(m_fileSslCrt.Path, Utils.XmlGetAttributeString(Engine.Storage.User, "ssl_crt", ""));
+			File.WriteAllText(m_fileSslCrt.Path, Utils.XmlGetAttributeString(service.User, "ssl_crt", ""));
 
 			m_fileSslConfig = new TemporaryFile("ssl");
 
@@ -650,7 +708,9 @@ namespace AirVPN.Core.Threads
 			string sslConfigPath = m_fileSslConfig.Path;
 			Utils.SaveFile(sslConfigPath, sslConfig);
 
-			m_processProxy = new Process();
+            m_programScope = new ProgramScope(Software.SslPath, "SSL Tunnel");
+
+            m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.SslPath;
 			m_processProxy.StartInfo.Arguments = "\"" + sslConfigPath + "\"";
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
@@ -676,8 +736,8 @@ namespace AirVPN.Core.Threads
 		void ProcessSslExited(object sender, EventArgs e)
 		{
 			if (m_reset == "")
-				m_reset = "ERROR";
-		}
+                SetReset("ERROR");
+        }
 
 		private void StartOpenVpnProcess()
 		{
@@ -688,7 +748,10 @@ namespace AirVPN.Core.Threads
 			string ovpnPath = m_fileOvpn.Path;
 			Utils.SaveFile(ovpnPath, Engine.ConnectedOVPN);
 
-			m_processOpenVpn = new Process();
+            if(m_processProxy == null)
+                m_programScope = new ProgramScope(Software.OpenVpnPath, "OpenVPN Tunnel");
+
+            m_processOpenVpn = new Process();
 			m_processOpenVpn.StartInfo.FileName = Software.OpenVpnPath;
 			m_processOpenVpn.StartInfo.Arguments = "";
 			m_processOpenVpn.StartInfo.WorkingDirectory = Utils.GetTempPath();
@@ -723,8 +786,13 @@ namespace AirVPN.Core.Threads
 		void ProcessOpenVpnExited(object sender, EventArgs e)
 		{
 			if(m_reset == "")
-				m_reset = "ERROR";
-		}
+                SetReset("ERROR");
+        }
+
+        public void SetReset(string level)
+        {
+            m_reset = level;
+        }
 
 		public void SendManagementCommand(string Cmd)
 		{
@@ -807,7 +875,7 @@ namespace AirVPN.Core.Threads
 						foreach (string command in m_openVpnManagementCommands)
 						{
 							if (command != "status")
-								Engine.Log(Engine.LogType.Verbose, "Management - Send '" + command + "'");
+								Engine.Logs.Log(LogType.Verbose, "Management - Send '" + command + "'");
 
 							string MyCmd = command + "\n";
 							Byte[] bufS = new byte[1024 * 16];
@@ -832,10 +900,10 @@ namespace AirVPN.Core.Threads
 			}
 			catch (Exception ex)
 			{
-				Engine.Log(Engine.LogType.Warning, ex);
+				Engine.Logs.Log(LogType.Warning, ex);
 
-				m_reset = "ERROR";
-			}
+                SetReset("ERROR");
+            }
 		}
 
 		void ProcessOutput(string source, string message)
@@ -848,6 +916,7 @@ namespace AirVPN.Core.Threads
 				if (source == "OpenVPN")
 				{
 					bool log = true;
+                    LogType logType = LogType.Verbose;
 
 					if (message.IndexOf("MANAGEMENT: CMD 'status'") != -1)
 						log = false;
@@ -859,54 +928,62 @@ namespace AirVPN.Core.Threads
 							(message.IndexOf("Options error: option 'redirect-gateway' cannot be used in this context ([PUSH-OPTIONS])") != -1) ||
 							(message.IndexOf("Options error: option 'dhcp-option' cannot be used in this context ([PUSH-OPTIONS])") != -1)
 						   )
-							log = false;						
-					}
+							log = false;
+                    }
 
-					if (message.IndexOf("Connection reset, restarting") != -1)
+                    if(message.StartsWith("Options error:"))
+                    {
+                        string unrecognizedOption = Utils.RegExMatchOne(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in .*\\:(.*?)\\(.*\\)");
+                        Engine.Logs.Log(LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
+                        Engine.LogOpenvpnConfig();                        
+                        SetReset("FATAL");
+                    }                    
+
+                    if (message.IndexOf("Connection reset, restarting") != -1)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("Exiting due to fatal error") != -1)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("SIGTERM[soft,ping-exit]") != -1) // 2.2
 					{
-						m_reset = "ERROR";
+                        SetReset("ERROR");
+                    }
+
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						SetReset("ERROR");
 					}
 
 					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
 					{
-						m_reset = "ERROR";
-					}
-
-					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
-					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received");
 					if (matchSigReceived.Success)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
 					{
-						Engine.Log(Engine.LogType.Verbose, Messages.AutoPortSwitch);
+						Engine.Logs.Log(LogType.Verbose, Messages.AutoPortSwitch);
 
 						Engine.Storage.SetInt("openvpn.management_port", Engine.Storage.GetInt("openvpn.management_port") + 1);
 
-						m_reset = "RETRY";
-					}
+                        SetReset("RETRY");
+                    }
 
 					if (message.IndexOf("AUTH_FAILED") != -1)
 					{
-						Engine.Log(Engine.LogType.Warning, Messages.AuthFailed);
+						Engine.Logs.Log(LogType.Warning, Messages.AuthFailed);
 
-						m_reset = "AUTH_FAILED";
+						SetReset("AUTH_FAILED");
 					}
 
 					if (message.IndexOf("MANAGEMENT: TCP Socket listening on") != -1)
@@ -915,17 +992,17 @@ namespace AirVPN.Core.Threads
 
 					if (message.IndexOf("TLS: tls_process: killed expiring key") != -1)
 					{
-						Engine.Log(Engine.LogType.Info, Messages.RenewingTls);
+						Engine.Logs.Log(LogType.Info, Messages.RenewingTls);
 					}
 
 					if (message.IndexOf("Initialization Sequence Completed With Errors") != -1)
 					{
-						m_reset = "ERROR";
-					}
+                        SetReset("ERROR");
+                    }
 
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
-						Engine.Log(Core.Engine.LogType.Verbose, Messages.ConnectionStartManagement);
+						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
 
 						m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 						m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
@@ -944,105 +1021,111 @@ namespace AirVPN.Core.Threads
 							Platform.Instance.OnRouteDefaultRemoveDo();
 
 						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
-						Engine.Log(Engine.LogType.Info, Messages.ConnectionFlushDNS);
+						Engine.Logs.Log(LogType.Info, Messages.ConnectionFlushDNS);
 
 						Platform.Instance.FlushDNS();
 
 						// 2.4: Sometime (only under Windows) Interface is not really ready...
 						if (Platform.Instance.WaitTunReady() == false)
-							m_reset = "ERROR";
+                            SetReset("ERROR");
 
-						Engine.Instance.NetworkLockManager.OnVpnEstablished();
+                        Engine.Instance.NetworkLockManager.OnVpnEstablished();
 
-						// Checking Tunnel and Checking DNS are available only on AirVPN servers
-						if (Engine.CurrentServer.IpEntry == Engine.CurrentServer.IpExit)
-						{
-							Engine.Log(Core.Engine.LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
-						}
-						else
-						{
-							if ((m_reset == "") && (Engine.Storage.GetBool("advanced.check.route")))
-							{
-								Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
-								Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingRoute);
+                        if (Engine.CurrentServer.Provider is Providers.Service)
+                        {
+                            Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
 
-								if (m_reset == "")
-								{
-									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
+                            if(Engine.CurrentServer.SupportCheck == false)
+                            {
+                                Engine.Logs.Log(LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
+                            }
+                            else
+                            {
+                                if ((m_reset == "") && (service.CheckTunnel))
+                                {
+                                    Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
+                                    Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingRoute);
 
-									string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+                                    if (m_reset == "")
+                                    {
+                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderNameX.ToLowerInvariant() + "_exit." + service.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
 
-									if (VpnIp != Engine.ConnectedVpnIp)
-									{
-										Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingRouteFailed);
-										m_reset = "ERROR";
-									}
-								}
-								
-								if (m_reset == "")
-								{
-									XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
-									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+                                        string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                        Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+                                        Engine.ConnectedClientTime = Utils.UnixTimeStamp();
 
-									// Real IP are detected with a request over the server entry IP.
-									// Normally this is routed by openvpn outside the tunnel.
-									// But if a proxy is active, don't work.
-									if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
-									{
-										Engine.ConnectedRealIp = Messages.NotAvailable;
-									}
-									else
-									{
-										Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-									}
-								}
-							}
-							else
-							{
-								Engine.ConnectedRealIp = "";
-								Engine.ConnectedServerTime = 0;
-							}
+                                        if (VpnIp != Engine.ConnectedVpnIp)
+                                        {
+                                            Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingRouteFailed);
+                                            SetReset("ERROR");
+                                        }
+                                    }
 
-							// DNS test
-							if ((m_reset == "") && (Engine.Storage.GetBool("dns.check")) && (Engine.Storage.Get("dns.servers") == "") )
-							{
-								Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
-								Engine.Log(Engine.LogType.Info, Messages.ConnectionCheckingDNS);
+                                    if (m_reset == "")
+                                    {
+                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderNameX.ToLowerInvariant() + "." + service.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
+                                        Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+                                        Engine.ConnectedClientTime = Utils.UnixTimeStamp();
 
-								string hash = Utils.GetRandomToken();
+                                        // Real IP are detected with a request over the server entry IP.
+                                        // Normally this is routed by openvpn outside the tunnel.
+                                        // But if a proxy is active, don't work.
+                                        if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
+                                        {
+                                            Engine.ConnectedRealIp = Messages.NotAvailable;
+                                        }
+                                        else
+                                        {
+                                            Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Engine.ConnectedRealIp = "";
+                                    Engine.ConnectedServerTime = 0;
+                                }
 
-								try
-								{
-									// Query a inexistent domain with the hash
-									IPHostEntry entry = Dns.GetHostEntry(hash + ".airvpn.check_dns");
-								}
-								catch (SocketException)
-								{
-								}
+                                // DNS test
+                                if ((m_reset == "") && (service.CheckDns) && (Engine.Storage.Get("dns.servers") == ""))
+                                {
+                                    Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
+                                    Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingDNS);
 
-								// Check if the server has received the above DNS query
-								XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.PublicName.ToLowerInvariant() + "_exit." + Engine.Storage.Manifest.Attributes["check_domain"].Value + "/check_dns/", null, Messages.ConnectionCheckingDNS, true);
+                                    string hash = Utils.GetRandomToken();
 
-								string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
+                                    try
+                                    {
+                                        // Query a inexistent domain with the hash
+                                        IPHostEntry entry = Dns.GetHostEntry(hash + ".airvpn.check_dns");
+                                    }
+                                    catch (SocketException)
+                                    {
+                                    }
 
-								bool failed = (hash != hash2);
+                                    // Check if the server has received the above DNS query
+                                    XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderNameX.ToLowerInvariant() + "_exit." + service.Manifest.Attributes["check_domain"].Value + "/check_dns/", null, Messages.ConnectionCheckingDNS, true);
 
-								if (failed)
-								{
-									Engine.Log(Engine.LogType.Error, Messages.ConnectionCheckingDNSFailed);
-									m_reset = "ERROR";
-								}
-							}
-						}
+                                    string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
+
+                                    bool failed = (hash != hash2);
+
+                                    if (failed)
+                                    {
+                                        Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingDNSFailed);
+                                        SetReset("ERROR");
+                                    }
+                                }
+                            }
+                        }
+
+                        
 
 						if (m_reset == "")
 						{
 							Engine.RunEventCommand("vpn.up");
 
-							Engine.Log(Engine.LogType.InfoImportant, Messages.ConnectionConnected);
+							Engine.Logs.Log(LogType.InfoImportant, Messages.ConnectionConnected);
 							Engine.SetConnected(true);
 						}
 					}
@@ -1055,6 +1138,8 @@ namespace AirVPN.Core.Threads
 						{
 							Engine.ConnectedVpnInterfaceName = match[0];
 							Engine.ConnectedVpnInterfaceId = match[1];
+
+                            m_interfaceScope = new InterfaceScope(Engine.ConnectedVpnInterfaceId);
 
 							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 							foreach (NetworkInterface adapter in interfaces)
@@ -1112,8 +1197,11 @@ namespace AirVPN.Core.Threads
 						}
 					}
 
-					if (log)
-						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+                    if (message.StartsWith("Warning:") && logType < LogType.Warning)
+                        logType = LogType.Warning;
+
+                    if (log)
+						Engine.Logs.Log(logType, source + " > " + message);
 
 					Platform.Instance.OnDaemonOutput(source, message);
 				}
@@ -1139,7 +1227,7 @@ namespace AirVPN.Core.Threads
 					}
 
 					if (log)
-						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+						Engine.Logs.Log(LogType.Verbose, source + " > " + message);
 				}
 				else if (source == "SSL")
 				{
@@ -1151,7 +1239,7 @@ namespace AirVPN.Core.Threads
 					}
 
 					if (log)
-						Engine.Log(Engine.LogType.Verbose, source + " > " + message);
+						Engine.Logs.Log(LogType.Verbose, source + " > " + message);
 				}
 				else if (source == "Management")
 				{
@@ -1160,10 +1248,10 @@ namespace AirVPN.Core.Threads
 			}
 			catch (Exception ex)
 			{
-				Engine.Log(Engine.LogType.Warning, ex);
+				Engine.Logs.Log(LogType.Warning, ex);
 
-				m_reset = "ERROR";
-			}
+                SetReset("ERROR");
+            }
 		}
 
 		public void ProcessOutputManagement(string source, string message)
@@ -1225,11 +1313,207 @@ namespace AirVPN.Core.Threads
 				}
 				else
 				{
-					Engine.Log(Engine.LogType.Verbose, "OpenVpn Management > " + line);
+					Engine.Logs.Log(LogType.Verbose, "OpenVpn Management > " + line);
 				}
 			}
 		}
 
+        public void BuildOVPN(string protocol, int port, int alt, int proxyPort)
+        {
+            ServerInfo CurrentServer = Engine.Instance.CurrentServer;
 
-	}
+            Storage s = Engine.Instance.Storage;
+
+            string ip = CurrentServer.IpEntry;
+            if (alt == 1)
+                ip = CurrentServer.IpEntry2;
+
+            OvpnBuilder ovpn = new OvpnBuilder();
+
+            if (s.GetBool("openvpn.skip_defaults") == false)
+            {
+                ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.directives"), "Client level");
+                CurrentServer.Provider.OnBuildOvpnDefaults(ovpn, protocol);
+
+                ovpn.AppendDirectives(CurrentServer.OvpnDirectives, "Server level");
+            }
+
+            if (s.Get("openvpn.dev_node") != "")
+                ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"), "");
+
+            int rcvbuf = s.GetInt("openvpn.rcvbuf");
+            if ((rcvbuf == -2) && (Platform.IsWindows())) rcvbuf = (256 * 1024);
+            if (rcvbuf == -2) rcvbuf = -1;
+            if (rcvbuf != -1)
+                ovpn.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
+
+            int sndbuf = s.GetInt("openvpn.sndbuf");
+            if ((sndbuf == -2) && (Platform.IsWindows())) sndbuf = (256 * 1024);
+            if (sndbuf == -2) sndbuf = -1;
+            if (sndbuf != -1)
+                ovpn.AppendDirective("sndbuf", sndbuf.ToString(), "");
+
+            if (protocol == "UDP")
+            {
+                ovpn.AppendDirective("proto", "udp", "");
+            }
+            else // TCP, SSH, SSL, Tor
+            {
+                ovpn.AppendDirective("proto", "tcp", "");
+            }
+
+            if (protocol == "SSH")
+                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
+            else if (protocol == "SSL")
+                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
+            else
+                ovpn.AppendDirective("remote", ip + " " + port.ToString(), "");
+
+            string proxyDirectiveName = "";
+            string proxyDirectiveArgs = "";
+
+            string proxyMode = s.GetLower("proxy.mode");
+            if (proxyMode == "tor")
+            {
+                proxyDirectiveName = "socks-proxy";
+            }
+            else if (proxyMode == "http")
+            {
+                proxyDirectiveName = "http-proxy";
+
+            }
+            else if (proxyMode == "socks")
+            {
+                proxyDirectiveName = "socks-proxy";
+            }
+
+            if (proxyDirectiveName != "")
+            {
+                proxyDirectiveArgs += s.Get("proxy.host") + " " + s.Get("proxy.port");
+
+                if ((s.GetLower("proxy.mode") != "none") && (s.GetLower("proxy.mode") != "tor"))
+                {
+                    if (s.Get("proxy.auth") != "None")
+                    {
+                        m_fileProxyAuth = new TemporaryFile("ppw");
+                        string fileNameAuthOvpn = m_fileProxyAuth.Path.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
+                        string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
+                        Utils.SaveFile(m_fileProxyAuth.Path, fileNameData);
+                        proxyDirectiveArgs += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
+                    }
+                }
+
+                ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
+            }
+
+            string routesDefault = s.Get("routes.default");
+            if (routesDefault == "out")
+            {
+                ovpn.AppendDirective("route-nopull", "For Routes Out", "");
+
+                // For Checking
+                ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
+
+
+                // For DNS
+                // < 2.9. route directive useless, and DNS are forced manually in every supported platform. // TOCLEAN
+                /*
+				ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
+				ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+				ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway # AirDNS\n"; 
+				*/
+
+                // 2.9, Can be removed when resolv-conf method it's not binded anymore in up/down ovpn directive // TOFIX
+                ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
+            }
+            string routes = s.Get("routes.custom");
+            string[] routes2 = routes.Split(';');
+            foreach (string route in routes2)
+            {
+                string[] routeEntries = route.Split(',');
+                if (routeEntries.Length != 3)
+                    continue;
+
+                IpAddressRange ipCustomRoute = new IpAddressRange(routeEntries[0]);
+
+                if (ipCustomRoute.Valid == false)
+                    Engine.Instance.Logs.Log(LogType.Warning, Messages.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));
+                else
+                {
+                    string action = routeEntries[1];
+                    string notes = routeEntries[2];
+
+                    if ((routesDefault == "out") && (action == "in"))
+                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " vpn_gateway", Utils.SafeString(notes));
+                    if ((routesDefault == "in") && (action == "out"))
+                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " net_gateway", Utils.SafeString(notes));
+                }
+            }
+
+            if (routesDefault == "in")
+            {
+                if ((protocol == "SSH") || (protocol == "SSL"))
+                {
+                    ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway", "VPN Entry IP");
+                }
+
+                if (proxyMode == "tor")
+                {
+                    List<string> torNodeIps = TorControl.GetGuardIps();
+                    foreach (string torNodeIp in torNodeIps)
+                    {
+                        ovpn.AppendDirective("route", torNodeIp + " 255.255.255.255 net_gateway", "Tor Circuit");
+                    }
+                }
+            }
+
+            ovpn.AppendDirective("management", "localhost " + Engine.Instance.Storage.Get("openvpn.management_port"), "");
+
+            ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
+
+            if (ovpn.GetDirective("proto").Text.StartsWith("udp") == false)
+                ovpn.RemoveDirective("explicit-exit-notify");
+
+            // Experimental - Allow identification as Public Network in Windows. Advanced Option?
+            // ovpn.Append("route-metric 512");
+            // ovpn.Append("route 0.0.0.0 0.0.0.0");
+                        
+            // Used by OpenVPN provider
+            if (ovpn.ExistsDirective("auth-user-pass"))
+            {
+                m_filePasswordAuth = new TemporaryFile("ppw");
+                string fileNameAuthOvpn = m_filePasswordAuth.Path.Replace("\\", "\\\\");
+                string login = CurrentServer.Provider.GetLogin();
+                string password = CurrentServer.Provider.GetPassword();
+                string fileNameData = login + "\n" + password + "\n";
+
+                Utils.SaveFile(m_filePasswordAuth.Path, fileNameData);
+                proxyDirectiveArgs += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant(); 
+
+                ovpn.AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");
+            }
+
+            CurrentServer.Provider.OnBuildOvpnAuth(ovpn);
+
+            Platform.Instance.OnBuildOvpn(ovpn);
+
+            string ovpnText = ovpn.Get();
+
+            CurrentServer.Provider.OnBuildOvpnPost(ref ovpnText);
+
+
+
+            Engine.Instance.ConnectedOVPN = ovpnText;
+            Engine.Instance.ConnectedEntryIP = ip;
+            Engine.Instance.ConnectedPort = port;
+            Engine.Instance.ConnectedProtocol = protocol;
+        }
+
+    }
 }
