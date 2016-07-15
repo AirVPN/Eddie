@@ -25,8 +25,6 @@ in defence of net neutrality, privacy and against censorship.
 "/usr/share/pixmaps/AirVPN.png"
 "/usr/bin/airvpn"
 %dir "/usr/{@lib}/AirVPN/"
-"/usr/{@lib}/AirVPN/libMonoPosixHelper.so"
-"/usr/{@lib}/AirVPN/libgdiplus.so.0"
 "/usr/{@lib}/AirVPN/Lib.Core.dll"
 "/usr/{@lib}/AirVPN/Lib.Forms.dll"
 "/usr/{@lib}/AirVPN/Platforms.Linux.dll"

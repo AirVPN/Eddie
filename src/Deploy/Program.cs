@@ -413,8 +413,8 @@ namespace Deploy
 						
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/openvpn");
 						//RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel"); // OpenSUSE (RPM) don't have stunnel in stable repo
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/libgdiplus.so.0");
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
+						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libgdiplus.so.0");
+						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
                         //Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/websocket-sharp.dll\"");
