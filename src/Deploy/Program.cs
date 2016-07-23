@@ -113,7 +113,12 @@ namespace Deploy
 
 			if (SO == "windows")
 			{
-				ListPackages.Add(new Package("windows", "x86", "portable"));
+                ListPackages.Add(new Package("windows8", "x86", "portable"));
+                ListPackages.Add(new Package("windows8", "x64", "portable"));
+                ListPackages.Add(new Package("windows8", "x86", "installer"));
+                ListPackages.Add(new Package("windows8", "x64", "installer"));
+
+                ListPackages.Add(new Package("windows", "x86", "portable"));
 				ListPackages.Add(new Package("windows", "x64", "portable"));
 				ListPackages.Add(new Package("windows", "x86", "installer"));
 				ListPackages.Add(new Package("windows", "x64", "installer"));
@@ -122,11 +127,6 @@ namespace Deploy
 				ListPackages.Add(new Package("windows_xp", "x64", "portable"));
 				ListPackages.Add(new Package("windows_xp", "x86", "installer"));
 				ListPackages.Add(new Package("windows_xp", "x64", "installer"));
-				
-				ListPackages.Add(new Package("windows8", "x86", "portable"));
-				ListPackages.Add(new Package("windows8", "x64", "portable"));
-				ListPackages.Add(new Package("windows8", "x86", "installer"));				
-				ListPackages.Add(new Package("windows8", "x64", "installer"));
 			}
 
 			if (SO == "linux")
@@ -442,7 +442,7 @@ namespace Deploy
 					pathRelease = pathRelease.Replace ("/x64/Release/", "/Release/");
 
 					// Osx bin have a specific subdirectory
-					pathRelease = pathRelease.Replace ("/src/bin/", "/src/UI.Osx/bin/");
+					pathRelease = pathRelease.Replace ("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
 
 					if (format == "portable")
 					{
