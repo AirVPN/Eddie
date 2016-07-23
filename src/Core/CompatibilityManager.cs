@@ -158,6 +158,10 @@ namespace Eddie.Core
             {
                 name = "pinger.enabled";
             }
+            else if (name == "forms.main") // < 2.11
+            {
+                name = "gui.window.main";
+            }
 
 #if (EDDIE3)            
             if (name == "dns.check") // < 3.0

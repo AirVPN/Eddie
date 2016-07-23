@@ -180,7 +180,7 @@ namespace Eddie.Core.Threads
 
                                 Dictionary<string, string> parameters = new Dictionary<string, string>();
                                 parameters["act"] = "connect";
-                                parameters["server"] = Engine.CurrentServer.ProviderNameX;
+                                parameters["server"] = Engine.CurrentServer.ProviderName;
                                 parameters["protocol"] = protocol;
                                 parameters["port"] = port.ToString();
                                 parameters["alt"] = alt.ToString();
@@ -933,10 +933,15 @@ namespace Eddie.Core.Threads
 
                     if(message.StartsWith("Options error:"))
                     {
-                        string unrecognizedOption = Utils.RegExMatchOne(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in .*\\:(.*?)\\(.*\\)");
-                        Engine.Logs.Log(LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
-                        Engine.LogOpenvpnConfig();                        
-                        SetReset("FATAL");
+                        if (log)
+                        {
+                            string unrecognizedOption = Utils.RegExMatchOne(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in .*\\:(.*?)\\(.*\\)");
+                            if (unrecognizedOption == "")
+                                unrecognizedOption = message.Substring("Options error:".Length);
+                            Engine.Logs.Log(LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
+                            Engine.LogOpenvpnConfig();
+                            SetReset("FATAL");
+                        }
                     }                    
 
                     if (message.IndexOf("Connection reset, restarting") != -1)
@@ -1048,7 +1053,7 @@ namespace Eddie.Core.Threads
 
                                     if (m_reset == "")
                                     {
-                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderNameX.ToLowerInvariant() + "_exit." + service.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
+                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "") + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
 
                                         string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
                                         Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
@@ -1063,7 +1068,7 @@ namespace Eddie.Core.Threads
 
                                     if (m_reset == "")
                                     {
-                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderNameX.ToLowerInvariant() + "." + service.Manifest.Attributes["check_domain"].Value + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
+                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain","") + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
                                         Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
                                         Engine.ConnectedClientTime = Utils.UnixTimeStamp();
 
@@ -1097,14 +1102,18 @@ namespace Eddie.Core.Threads
                                     try
                                     {
                                         // Query a inexistent domain with the hash
-                                        IPHostEntry entry = Dns.GetHostEntry(hash + ".airvpn.check_dns");
+                                        //string dnsHost = hash + ".airvpn.check_dns";
+                                        string dnsHost = service.GetKeyValue("check_dns_query", "").Replace("{hash}", hash);
+                                        //Engine.Logs.Log(LogType.Verbose, "DNS query:" + dnsHost);
+                                        IPHostEntry entry = Dns.GetHostEntry(dnsHost);                                                                                
                                     }
                                     catch (SocketException)
                                     {
                                     }
 
                                     // Check if the server has received the above DNS query
-                                    XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderNameX.ToLowerInvariant() + "_exit." + service.Manifest.Attributes["check_domain"].Value + "/check_dns/", null, Messages.ConnectionCheckingDNS, true);
+                                    string checkUrl = "https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain","") + "/check_dns/";
+                                    XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, null, Messages.ConnectionCheckingDNS, true);
 
                                     string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
 
@@ -1409,7 +1418,7 @@ namespace Eddie.Core.Threads
             string routesDefault = s.Get("routes.default");
             if (routesDefault == "out")
             {
-                ovpn.AppendDirective("route-nopull", "For Routes Out", "");
+                ovpn.AppendDirective("route-nopull", "", "For Routes Out");
 
                 // For Checking
                 ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");

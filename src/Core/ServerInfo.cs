@@ -31,7 +31,7 @@ namespace Eddie.Core
 
         public string Code; // Unique name across providers
         public string DisplayName; // Display name
-        public string ProviderNameX; // Provider name;
+        public string ProviderName; // Provider name;
         public string IpEntry;
         public string IpEntry2;
         public string IpExit;

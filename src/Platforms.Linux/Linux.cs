@@ -24,18 +24,21 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
-using Mono.Unix.Native;
+// using Mono.Unix.Native; // Removed in 2.11
 
 namespace Eddie.Platforms
 {
     public class Linux : Platform
     {
 		private string m_architecture = "";
+        private UInt32 m_uid;
 
 		// Override
 		public Linux()
 		{
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+            m_uid = 9999;
+            UInt32.TryParse(ShellCmd("id -u"), out m_uid);            
 
 			TrustCertificatePolicy.Activate();
 		}
@@ -53,14 +56,14 @@ namespace Eddie.Platforms
 				return base.GetName();
 		}
 
-		public override string GetOsArchitecture()
+        public override string GetOsArchitecture()
 		{
 			return m_architecture;
 		}
 
         public override bool IsAdmin()
         {
-            return (Environment.UserName == "root");
+            return (m_uid == 0);
         }
 
 		public override bool IsUnixSystem()
@@ -95,14 +98,20 @@ namespace Eddie.Platforms
 
 		public override string GetExecutablePath()
 		{
-			// We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
+            // We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
 
+            // Removed in 2.11 to avoid dependencies with libMonoPosixHelper.so
+            // Useless, still required, but at least it's an external requirement.
+            /*
 			string output = "";
 			StringBuilder builder = new StringBuilder(8192);
 			if (Syscall.readlink("/proc/self/exe", builder) >= 0)
 				output = builder.ToString();
+            */
+            int pid = Process.GetCurrentProcess().Id;
+            string output = Platform.Instance.ShellCmd("readlink /proc/" + pid.ToString() + "/exe");
 
-			if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
+            if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
 			{
 				// Exception: Assembly directly load by Mono
 				output = base.GetExecutablePath();
@@ -153,7 +162,12 @@ namespace Eddie.Platforms
 
         public override void FlushDNS()
         {
+            // Too much difficult to find a method available on all Linux platform.
+            /*
             ShellCmd("/etc/rc.d/init.d/nscd restart");
+            if (File.Exists("/usr/bin/systemctl"))
+                ShellCmd("systemctl restart nscd");
+            */
         }
 
 		public override void EnsureExecutablePermissions(string path)

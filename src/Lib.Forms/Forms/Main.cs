@@ -58,7 +58,7 @@ namespace Eddie.Gui.Forms
 		private bool m_formReady = false;
 		private bool m_closing = false;
 
-		// private System.Timers.Timer timerMonoDelayedRedraw = null; // TOCLEAN
+        // private System.Timers.Timer timerMonoDelayedRedraw = null; // TOCLEAN
 
         public Main()
         {
@@ -313,6 +313,7 @@ namespace Eddie.Gui.Forms
             m_listViewServers.ResizeColumnString(3, 8);
             m_listViewServers.ResizeColumnString(4, 20);
             m_listViewServers.ResizeColumnString(5, 5);
+            m_listViewServers.AllowColumnReorder = true;
             pnlServers.Controls.Add(m_listViewServers);
 
             m_listViewAreas = new ListViewAreas();
@@ -322,6 +323,7 @@ namespace Eddie.Gui.Forms
             m_listViewAreas.ResizeColumnString(1, 8);
             m_listViewAreas.ResizeColumnString(2, 20);
             m_listViewAreas.ResizeColumnString(3, 6);
+            m_listViewAreas.AllowColumnReorder = true;
             pnlAreas.Controls.Add(m_listViewAreas);
             
             m_listViewServers.MouseDoubleClick += new MouseEventHandler(m_listViewServers_MouseDoubleClick);
@@ -343,9 +345,12 @@ namespace Eddie.Gui.Forms
 
             //ApplySkin();
 
-			SetFormLayout(Engine.Storage.Get("forms.main"), true, true, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
-			
-			foreach (StatsEntry statsEntry in Engine.Stats.List) 
+			SetFormLayout(Engine.Storage.Get("gui.window.main"), true, true, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+            m_listViewServers.SetUserPrefs(Engine.Storage.Get("gui.list.servers"));
+            m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
+            lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
+
+            foreach (StatsEntry statsEntry in Engine.Stats.List) 
 			{
 				ListViewItemStats statsEntryItem = new ListViewItemStats();
 				statsEntryItem.Entry = statsEntry;
@@ -571,7 +576,10 @@ namespace Eddie.Gui.Forms
 
             if (engine.FormMain != null)
             {
-                engine.Storage.Set("forms.main", engine.FormMain.GetFormLayout());
+                engine.Storage.Set("gui.window.main", engine.FormMain.GetFormLayout());
+                engine.Storage.Set("gui.list.servers", m_listViewServers.GetUserPrefs());
+                engine.Storage.Set("gui.list.areas", m_listViewAreas.GetUserPrefs());
+                engine.Storage.Set("gui.list.logs", lstLogs.GetUserPrefs());
             }
 
             Engine.RequestStop();
@@ -881,12 +889,12 @@ namespace Eddie.Gui.Forms
 				
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
 		{
-			mnuServersWhitelist_Click(sender, e);
+            mnuServersWhitelist_Click(sender, e);
 		}
 
 		private void cmdServersBlackList_Click(object sender, EventArgs e)
 		{
-			mnuServersBlacklist_Click(sender, e);
+            mnuServersBlacklist_Click(sender, e);
 		}
 
 		private void cmdServersUndefined_Click(object sender, EventArgs e)

@@ -44,11 +44,17 @@ namespace Eddie.Platforms
         private WfpItem m_wfpLockNet = new WfpItem();
         private Mutex m_mutexSingleInstance = null;
 
-        static bool IsVistaOrHigher()
+        public static bool IsVistaOrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
 		}
+
+        public static bool IsWin8OrNewer()
+        {
+            OperatingSystem OS = Environment.OSVersion;
+            return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 2));
+        }
 
 		[DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -411,7 +417,7 @@ namespace Eddie.Platforms
         {
             base.OnNetworkLockManagerInit();
 
-            if (IsVistaOrHigher()) // 2.10.1
+            if (IsVistaOrNewer()) // 2.10.1
             {
                 Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
                 Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWfp());
@@ -420,7 +426,7 @@ namespace Eddie.Platforms
 
         public override string OnNetworkLockRecommendedMode()
         {
-            if (IsVistaOrHigher() == false)
+            if (IsVistaOrNewer() == false)
                 return "none";
 
             if (Engine.Instance.Storage.GetBool("windows.wfp"))
@@ -453,7 +459,7 @@ namespace Eddie.Platforms
 		{
             if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
 			{
-                if ((IsVistaOrHigher()) && (Engine.Instance.Storage.GetBool("windows.wfp")) )
+                if ((IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp")) )
                 {
                     XmlDocument xmlDocRule = new XmlDocument();
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
@@ -521,7 +527,7 @@ namespace Eddie.Platforms
 		{
 			string[] dnsArray = dns.Split(',');
 
-            if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrHigher()) && (Engine.Instance.Storage.GetBool("windows.wfp")))                
+            if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp")))                
             {
                 // This is not required yet, but will be required in Eddie 3.                
                 {
@@ -788,7 +794,7 @@ namespace Eddie.Platforms
 						sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);
 					}
 
-					if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrHigher()))
+					if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrNewer()))
 					{
 						// If Eddie is compiled for 32 bit, and architecture is 64 bit, 
 						// tunnel driver path above is real, but Redirector
@@ -877,7 +883,7 @@ namespace Eddie.Platforms
 			}
 
 			string bundleVersion = Constants.WindowsDriverVersion;
-			if (IsVistaOrHigher() == false) // XP
+			if (IsVistaOrNewer() == false) // XP
 				bundleVersion = Constants.WindowsXpDriverVersion;
 
 			bool needReinstall = false;
@@ -915,7 +921,7 @@ namespace Eddie.Platforms
 
 		public string GetDriverInstallerPath()
 		{
-			if(IsVistaOrHigher())
+			if(IsVistaOrNewer())
 				return Software.FindResource("tap-windows.exe");
 			else
 				return Software.FindResource("tap-windows-xp.exe");
@@ -926,7 +932,7 @@ namespace Eddie.Platforms
 			string driverPath = GetDriverInstallerPath();
 
 			if (driverPath == "")
-				throw new Exception(Messages.OsDriverNotAvailable);
+				throw new Exception(Messages.OsDriverInstallerNotAvailable);
 
 			Shell(driverPath, "/S");
 

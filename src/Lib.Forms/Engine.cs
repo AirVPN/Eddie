@@ -231,6 +231,8 @@ namespace Eddie.Gui
 					{
                         Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
 
+                        //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
+
 						Platform.Instance.Shell(command, arguments, waitEnd);
 					}
 					else

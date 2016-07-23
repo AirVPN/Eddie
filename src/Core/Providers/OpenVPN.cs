@@ -84,7 +84,7 @@ namespace Eddie.Core.Providers
 					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 
                     infoServer.DisplayName = Utils.XmlGetAttributeString(nodeProfile, "name", "");
-                    infoServer.ProviderNameX = code;
+                    infoServer.ProviderName = code;
                     infoServer.IpEntry = Utils.XmlGetAttributeString(nodeProfile, "remote", "");
                     infoServer.IpEntry2 = "";
 					infoServer.IpExit = infoServer.IpEntry;

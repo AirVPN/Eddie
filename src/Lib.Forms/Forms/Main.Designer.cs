@@ -1588,7 +1588,7 @@ namespace Eddie.Gui.Forms
             this.lstStats.Margin = new System.Windows.Forms.Padding(0);
             this.lstStats.MultiSelect = false;
             this.lstStats.Name = "lstStats";
-            this.lstStats.OwnerDraw = true;
+            this.lstStats.OwnerDraw = true;            
             this.lstStats.ShowItemToolTips = true;
             this.lstStats.Size = new System.Drawing.Size(721, 326);
             this.lstStats.TabIndex = 1;
@@ -1625,6 +1625,7 @@ namespace Eddie.Gui.Forms
             // 
             // lstLogs
             // 
+            this.lstLogs.AllowColumnReorder = true;
             this.lstLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -1634,7 +1635,7 @@ namespace Eddie.Gui.Forms
             colMessage});
             this.lstLogs.ContextMenuStrip = this.mnuLogsContext;
             this.lstLogs.FullRowSelect = true;
-            this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lstLogs.HideSelection = false;
             this.lstLogs.LabelWrap = false;
             this.lstLogs.Location = new System.Drawing.Point(4, 4);

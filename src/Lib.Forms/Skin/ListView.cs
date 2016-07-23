@@ -149,6 +149,56 @@ namespace Eddie.Gui.Skin
             
             Columns[column].Width = s.Width;
         }
+
+        public string GetUserPrefs()
+        {
+            string t = "";
+            t += this.m_sortColumn + "," + (this.Sorting == SortOrder.Ascending ? "A" : "D") + ";";
+            foreach (System.Windows.Forms.ColumnHeader col in Columns)
+            {
+                t += col.DisplayIndex + "," + col.Width + ";";
+            }
+            return t;
+        }
+
+        public void SetUserPrefs(string value)
+        {
+            if (value.Trim() == "")
+                return;
+            
+            string[] parts = value.Split(';');
+            if (parts.Length >= 1)
+            {
+                string[] sortParts = parts[0].Split(',');
+                if (sortParts.Length == 2)
+                {
+                    if (HeaderStyle == ColumnHeaderStyle.Clickable)
+                    {
+                        int sortColumn = Convert.ToInt32(sortParts[0]);
+                        string sortDirection = sortParts[1];
+                        SetSort(sortColumn, sortDirection == "A" ? SortOrder.Ascending : SortOrder.Descending);
+                    }
+                }
+
+                int colIndex = 0;
+                foreach (System.Windows.Forms.ColumnHeader col in Columns)
+                {
+                    if (parts.Length > colIndex + 1)
+                    {
+                        string[] colParts = parts[colIndex + 1].Split(',');
+                        if (colParts.Length == 2)
+                        {
+                            int displayIndex = Convert.ToInt32(colParts[0]);
+                            int width = Convert.ToInt32(colParts[1]);
+
+                            col.DisplayIndex = displayIndex;
+                            col.Width = width;
+                        }
+                    }
+                    colIndex++;
+                }
+            }
+        }
         				
 		public void DrawSubItemBackground(DrawListViewSubItemEventArgs e)
 		{

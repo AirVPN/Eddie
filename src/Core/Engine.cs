@@ -174,17 +174,15 @@ namespace Eddie.Core
         }
 
 		public bool Initialization()
-		{	
-			if(ResourcesFiles.Count() == 0)			
+		{
+            if (ResourcesFiles.Count() == 0)			
 			{
                 ResourcesFiles.SetString("AirVPN.xml", Lib.Core.Properties.Resources.AirVPN); // TOCLEAN with Eddie3                				
                 ResourcesFiles.SetString("license.txt", Lib.Core.Properties.Resources.License);
 				ResourcesFiles.SetString("thirdparty.txt", Lib.Core.Properties.Resources.ThirdParty);
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
             }
-
-            Platform.Instance.OnInit();
-
+            
 			CountriesManager.Init();
 
             m_logsManager = new LogsManager();
@@ -250,8 +248,10 @@ namespace Eddie.Core
 			m_networkLockManager.Init();			
 
 			CompatibilityManager.Init();
-			
-			return true;
+
+            Platform.Instance.OnInit();
+
+            return true;
 		}
 
         public override void OnRun()
@@ -992,6 +992,8 @@ namespace Eddie.Core
                     foreach (AreaInfo infoArea in m_areas.Values)
                     {
                         infoArea.Deleted = true;
+                        infoArea.Servers = 0;
+                        infoArea.Users = 0;
                     }
                     
                     List<string> areasWhiteList = Storage.GetList("areas.whitelist");

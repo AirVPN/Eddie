@@ -293,8 +293,10 @@ namespace Deploy
 					else if (format == "portable")
 					{
 						CopyFile(pathBaseResources + "/linux_portable/airvpn.config", pathTemp + "/airvpn.config");
-						// mkbundle
-						string command = "mkbundle ";
+                        CopyFile(pathBaseResources + "/linux_portable/airvpn.machine.config", pathTemp + "/airvpn.machine.config");
+
+                        // mkbundle
+                        string command = "mkbundle ";
 						command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
                         //command += " \"" + pathRelease + "/websocket-sharp.dll\"";
                         command += " \"" + pathRelease + "/Lib.Core.dll\"";
@@ -307,10 +309,12 @@ namespace Deploy
 						//command += " \"" + pathRelease + "/Microsoft.Win32.TaskScheduler.dll\""; 
 								
 						command += " --deps";
-						command += " --static";
+                        command += " --keeptemp";
+                        command += " --static";
 						command += " --config \"" + pathTemp + "/airvpn.config\"";
-						command += " --machine-config /etc/mono/2.0/machine.config";
-						command += " -z";
+                        command += " --machine-config \"" + pathTemp + "/airvpn.config\"";
+                        //command += " --machine-config /etc/mono/2.0/machine.config";
+                        command += " -z";
 						command += " -o \"" + pathTemp + "/airvpn\"";						
 						Shell(command);
 

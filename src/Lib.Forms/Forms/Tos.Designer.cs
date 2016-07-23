@@ -45,12 +45,12 @@ namespace Eddie.Gui.Forms
             this.txtTos.BackColor = System.Drawing.Color.White;
             this.txtTos.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.txtTos.Location = new System.Drawing.Point(6, 4);
-            this.txtTos.Margin = new System.Windows.Forms.Padding(10, 10, 10, 10);
+            this.txtTos.Margin = new System.Windows.Forms.Padding(10);
             this.txtTos.Multiline = true;
             this.txtTos.Name = "txtTos";
             this.txtTos.ReadOnly = true;
             this.txtTos.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtTos.Size = new System.Drawing.Size(615, 316);
+            this.txtTos.Size = new System.Drawing.Size(572, 240);
             this.txtTos.TabIndex = 5;
             // 
             // panel1
@@ -61,9 +61,9 @@ namespace Eddie.Gui.Forms
             this.panel1.Controls.Add(this.chkAccept1);
             this.panel1.Controls.Add(this.cmdCancel);
             this.panel1.Controls.Add(this.cmdOk);
-            this.panel1.Location = new System.Drawing.Point(145, 328);
+            this.panel1.Location = new System.Drawing.Point(50, 250);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(338, 104);
+            this.panel1.Size = new System.Drawing.Size(500, 100);
             this.panel1.TabIndex = 18;
             // 
             // chkAccept2
@@ -72,7 +72,7 @@ namespace Eddie.Gui.Forms
             this.chkAccept2.ForeColor = System.Drawing.Color.Black;
             this.chkAccept2.Location = new System.Drawing.Point(29, 35);
             this.chkAccept2.Name = "chkAccept2";
-            this.chkAccept2.Size = new System.Drawing.Size(306, 20);
+            this.chkAccept2.Size = new System.Drawing.Size(468, 25);
             this.chkAccept2.TabIndex = 2;
             this.chkAccept2.Text = "TOS Check 2";
             this.chkAccept2.UseVisualStyleBackColor = false;
@@ -82,9 +82,9 @@ namespace Eddie.Gui.Forms
             // 
             this.chkAccept1.BackColor = System.Drawing.Color.Transparent;
             this.chkAccept1.ForeColor = System.Drawing.Color.Black;
-            this.chkAccept1.Location = new System.Drawing.Point(29, 9);
+            this.chkAccept1.Location = new System.Drawing.Point(29, 5);
             this.chkAccept1.Name = "chkAccept1";
-            this.chkAccept1.Size = new System.Drawing.Size(306, 20);
+            this.chkAccept1.Size = new System.Drawing.Size(468, 25);
             this.chkAccept1.TabIndex = 1;
             this.chkAccept1.Text = "TOS Check 1";
             this.chkAccept1.UseVisualStyleBackColor = false;
@@ -99,8 +99,8 @@ namespace Eddie.Gui.Forms
             this.cmdCancel.FlatAppearance.BorderSize = 0;
             this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmdCancel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.cmdCancel.Location = new System.Drawing.Point(175, 63);
-            this.cmdCancel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cmdCancel.Location = new System.Drawing.Point(260, 65);
+            this.cmdCancel.Margin = new System.Windows.Forms.Padding(4);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(160, 30);
             this.cmdCancel.TabIndex = 4;
@@ -116,8 +116,8 @@ namespace Eddie.Gui.Forms
             this.cmdOk.FlatAppearance.BorderSize = 0;
             this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmdOk.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.cmdOk.Location = new System.Drawing.Point(3, 63);
-            this.cmdOk.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cmdOk.Location = new System.Drawing.Point(80, 65);
+            this.cmdOk.Margin = new System.Windows.Forms.Padding(4);
             this.cmdOk.Name = "cmdOk";
             this.cmdOk.Size = new System.Drawing.Size(160, 30);
             this.cmdOk.TabIndex = 3;
@@ -128,7 +128,7 @@ namespace Eddie.Gui.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(627, 437);
+            this.ClientSize = new System.Drawing.Size(584, 361);
             this.Controls.Add(this.txtTos);
             this.Controls.Add(this.panel1);
             this.MinimizeBox = false;

@@ -34,7 +34,7 @@ namespace Eddie.Core
 		public static string NotFound = "Not found";
         public static string Automatic = "Automatic";
         public static string Ready = "Ready";
-        public static string Unknown = "Unknown";
+        public static string Unknown = "Unknown";        
         public static string StatsNotConnected = "Not connected.";
 		public static string DoubleClickToView = "(Double-Click to View)";
 		public static string ExitConfirm = "Do you really want to exit?";
@@ -62,14 +62,15 @@ namespace Eddie.Core
 		public static string ConsoleKeySwitch = "Server switch requested from keyboard.";
         public static string OsInstanceAlreadyRunning = "An instance of Eddie is already running.";
         public static string OsDriverInstall = "Installing tunnel driver"; 
-		public static string OsDriverNotAvailable = "Driver installer not available.";
+		public static string OsDriverInstallerNotAvailable = "Driver installer not available.";
 		public static string OsDriverFailed = "Driver installation failed.";
 		public static string OsDriverNoAdapterFound = "Cannot find tunnel adapter."; 
 		public static string OsDriverNoVersionFound = "Cannot determine tunnel version."; 
 		public static string OsDriverCannotInstall = "Driver can't be installed."; 
 		public static string OsDriverUninstallDone = "Tunnel driver uninstalled.";
 		public static string OsDriverNeedUpgrade = "Tunnel driver will be upgraded, from {1} to {2}.";
-		public static string OsDriverNoPath = "Unable to find driver path '{1}'"; 
+        public static string OsDriverNotAvailable = "Not available - Will be installed at next connection.";
+        public static string OsDriverNoPath = "Unable to find driver path '{1}'"; 
 		public static string OsDriverNoRegPath = "Unable to find driver registry path"; 
 		public static string BundleExecutableError = "Unexpected bundle executable error {1} ({2}). Dumping report."; 
 		public static string ManifestUpdate = "Updating systems & servers data ...";

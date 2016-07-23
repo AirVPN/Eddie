@@ -1792,7 +1792,7 @@ namespace Eddie.Gui.Forms
             "Renaming (Linux only)"});
             this.cboDnsSwitchMode.Location = new System.Drawing.Point(174, 19);
             this.cboDnsSwitchMode.Name = "cboDnsSwitchMode";
-            this.cboDnsSwitchMode.Size = new System.Drawing.Size(133, 21);
+            this.cboDnsSwitchMode.Size = new System.Drawing.Size(233, 21);
             this.cboDnsSwitchMode.TabIndex = 74;
             // 
             // chkDnsCheck
@@ -1885,14 +1885,13 @@ namespace Eddie.Gui.Forms
             // 
             // lblLockRoutingOutWarning
             // 
-            this.lblLockRoutingOutWarning.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblLockRoutingOutWarning.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblLockRoutingOutWarning.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.lblLockRoutingOutWarning.ForeColor = System.Drawing.Color.White;
             this.lblLockRoutingOutWarning.Location = new System.Drawing.Point(429, 10);
             this.lblLockRoutingOutWarning.Name = "lblLockRoutingOutWarning";
-            this.lblLockRoutingOutWarning.Size = new System.Drawing.Size(234, 281);
+            this.lblLockRoutingOutWarning.Size = new System.Drawing.Size(234, 85);
             this.lblLockRoutingOutWarning.TabIndex = 78;
             this.lblLockRoutingOutWarning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 

@@ -212,7 +212,7 @@ namespace Eddie.Core.Providers
 
                     // Update info
                     infoServer.DisplayName = TitleForDisplay + nodeServer.Attributes["name"].Value;
-                    infoServer.ProviderNameX = nodeServer.Attributes["name"].Value;
+                    infoServer.ProviderName = nodeServer.Attributes["name"].Value;
                     infoServer.IpEntry = Utils.XmlGetAttributeString(nodeServer, "ip_entry", ""); ;
 					infoServer.IpEntry2 = Utils.XmlGetAttributeString(nodeServer, "ip_entry2", "");
 					infoServer.IpExit = Utils.XmlGetAttributeString(nodeServer, "ip_exit", "");

@@ -407,8 +407,8 @@ namespace Eddie.Core
 			SetDefaultBool("windows.disable_driver_upgrade", false, Messages.ManOptionWindowsDisableDriverUpgrade);
             SetDefaultBool("windows.tap_up", true, Messages.ManOptionWindowsTapUp);
             SetDefaultBool("windows.dhcp_disable", false, Messages.ManOptionWindowsDhcpDisable);
-            SetDefaultBool("windows.wfp", false, NotInMan); // Must be default TRUE if WFP works well
-            SetDefaultBool("windows.wfp.persistent", true, NotInMan);
+            SetDefaultBool("windows.wfp", true, NotInMan); // Must be default TRUE if WFP works well
+            SetDefaultBool("windows.wfp.dynamic", false, NotInMan); // If true, rules don't survive if process crash.
             SetDefaultBool("windows.ipv6.os_disable", true, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
             SetDefaultBool("windows.dns.force_all_interfaces", true, Messages.ManOptionWindowsDnsForceAllInterfaces); // Must be default FALSE if WFP works well
             SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
@@ -420,10 +420,13 @@ namespace Eddie.Core
             SetDefault("gui.font.normal.name", "text", "", NotInMan);
             SetDefaultFloat("gui.font.normal.size", 0, NotInMan);
 			SetDefaultInt("gui.log_limit", 1000, NotInMan);
-			SetDefault("forms.main", "text", "", NotInMan);
+			SetDefault("gui.window.main", "text", "", NotInMan);
+            SetDefault("gui.list.servers", "text", "", NotInMan);
+            SetDefault("gui.list.areas", "text", "", NotInMan);
+            SetDefault("gui.list.logs", "text", "", NotInMan);
 
-			// GUI - Windows only
-			SetDefaultBool("gui.windows.tray", true, NotInMan);
+            // GUI - Windows only
+            SetDefaultBool("gui.windows.tray", true, NotInMan);
 			SetDefaultBool("gui.windows.notifications", true, NotInMan);
 
 			// GUI - OSX Only
@@ -443,7 +446,7 @@ namespace Eddie.Core
             Options["help_format"].CommandLineOnly = true;
 
             // Internal only?
-            Options["forms.main"].InternalOnly = true;           
+            Options["gui.window.main"].InternalOnly = true;           
 
         }
 

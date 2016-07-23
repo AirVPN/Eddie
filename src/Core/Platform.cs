@@ -32,6 +32,8 @@ namespace Eddie.Core
     {
 		public static Platform Instance;
 
+        public string ExePath;
+
 		public RouteEntry m_routeDefaultRemove;
 
 		// ----------------------------------------
