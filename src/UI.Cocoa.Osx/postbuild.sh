@@ -2,6 +2,6 @@ codesign -v --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79Y
 codesign -v --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)" "/Users/clodo/Documents/airvpn-client/src/UI.Cocoa.Osx/bin/Release/AirVPN.app/Contents/MacOS/openvpn"
 codesign -v --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)" "/Users/clodo/Documents/airvpn-client/src/UI.Cocoa.Osx/bin/Release/AirVPN.app/Contents/MacOS/stunnel"
 codesign -v --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)" "/Users/clodo/Documents/airvpn-client/src/UI.Cocoa.Osx/bin/Release/AirVPN.app/Contents/ResourceRules.plist"
-codesign -v --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)" "/Users/clodo/Documents/airvpn-client/src/UI.Cocoa.Osx/bin/Release/AirVPN.app"
+codesign -v -d --deep --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)" "/Users/clodo/Documents/airvpn-client/src/UI.Cocoa.Osx/bin/Release/AirVPN.app"
 
 exit 0
