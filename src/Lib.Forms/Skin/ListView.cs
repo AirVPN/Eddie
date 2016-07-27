@@ -63,8 +63,7 @@ namespace Eddie.Gui.Skin
                 // Workaround.
                 ListView l = (c as ListView);
                 l.Columns.Insert(l.Columns.Count, "");
-                l.Columns.RemoveAt(l.Columns.Count-1);
-                //MessageBox.Show("Fix " + c.Name);
+                l.Columns.RemoveAt(l.Columns.Count-1);                
             }
             else
             {

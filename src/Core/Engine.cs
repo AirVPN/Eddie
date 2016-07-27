@@ -300,6 +300,7 @@ namespace Eddie.Core
 						CancelRequested = true;
 					*/
 				}
+                
 				// Clodo: Try to remove: if not logged, no servers, fatal error and exit.
 				if ((IsLogged()) && (Engine.Storage.GetBool("connect")))
 					autoStart = true;
@@ -1307,27 +1308,34 @@ namespace Eddie.Core
             return list;            
         }
 
-		public ServerInfo PickServer()
-		{
-			return PickServer("", false);
+        public ServerInfo PickServerByName(string name)
+        {
+            lock (m_servers)
+            {
+                foreach (ServerInfo s in m_servers.Values)
+                {
+                    if (s.DisplayName == name)
+                        return s;
+                }
+
+                Engine.Instance.Logs.Log(LogType.Fatal, Messages.Format(Messages.ServerByNameNotFound, name));
+                return null;
+            }
+        }
+
+        public ServerInfo PickServer()
+		{   
+            return PickServer("");
 		}
 
-		public ServerInfo PickServer(string preferred, bool required)
+		public ServerInfo PickServer(string preferred)
         {
             lock (m_servers)
             {
 				if (preferred != "") 
 				{
 					if(m_servers.ContainsKey(preferred))
-						return m_servers[preferred];
-					else
-					{
-						if (required)
-						{
-							Engine.Instance.Logs.Log(LogType.Fatal, Messages.Format(Messages.ProfileNotFound, preferred));
-							return null;
-						}
-					}
+						return m_servers[preferred];					
 				}
 
 				List<ServerInfo> list = GetServers(false);
@@ -1684,7 +1692,7 @@ namespace Eddie.Core
 					if (NextServer == null)
 					{
 						if (Engine.Storage.GetBool("servers.startlast"))
-							NextServer = Engine.PickServer(Engine.Storage.Get("servers.last"), false);
+							NextServer = Engine.PickServer(Engine.Storage.Get("servers.last"));
 					}
 
 					m_threadSession = new Threads.Session();
@@ -1696,7 +1704,7 @@ namespace Eddie.Core
 
                 WaitMessageClear();
 
-                if (Engine.Instance.Storage.GetBool("advanced.testmode"))
+                if (Engine.Instance.Storage.GetBool("advanced.batchmode"))
                 {
                     Engine.Instance.RequestStop();                    
                 }
@@ -1820,12 +1828,12 @@ namespace Eddie.Core
 
             report += "AirVPN Support Report - Generated " + DateTime.UtcNow.ToShortDateString() + " " + DateTime.UtcNow.ToShortTimeString() + " " + "UTC\n";
 
+            report += "\n\n-- Important options not at defaults --\n" + Storage.GetReportForSupport();
+
             report += "\n\n-- Logs --\n" + logs;
 
             report += "\n\n-- System --\n" + Platform.Instance.GenerateSystemReport();
-
-            report += "\n\n-- Options --\n" + Storage.GetReport();
-
+            
             return report;
         }
 

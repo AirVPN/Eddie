@@ -59,7 +59,7 @@ namespace Eddie.Core.NetworkLocks
 			{
 				if (IsIP(Entry.Gateway))
 				{
-					if (DefaultGateway.Empty)
+					if (DefaultGateway.Valid == false)
 					{
 						DefaultGateway = Entry.Gateway;
 						DefaultInterface = Entry.Interface;
@@ -72,7 +72,7 @@ namespace Eddie.Core.NetworkLocks
 				}
 			}
 
-			if (DefaultGateway.Empty)
+			if (DefaultGateway.Valid == false)
 				Failed = true;
 
 			if (Failed)
@@ -207,7 +207,7 @@ namespace Eddie.Core.NetworkLocks
 		{
 			if (v == "On-link")
 				return true;
-			if (Utils.IsIP(v))
+			if (IpAddress.IsIP(v))
 				return true;
 			return false;
 		}

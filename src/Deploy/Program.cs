@@ -117,7 +117,7 @@ namespace Deploy
                 ListPackages.Add(new Package("windows8", "x64", "portable"));
                 ListPackages.Add(new Package("windows8", "x86", "installer"));
                 ListPackages.Add(new Package("windows8", "x64", "installer"));
-
+                /*
                 ListPackages.Add(new Package("windows", "x86", "portable"));
 				ListPackages.Add(new Package("windows", "x64", "portable"));
 				ListPackages.Add(new Package("windows", "x86", "installer"));
@@ -127,6 +127,7 @@ namespace Deploy
 				ListPackages.Add(new Package("windows_xp", "x64", "portable"));
 				ListPackages.Add(new Package("windows_xp", "x86", "installer"));
 				ListPackages.Add(new Package("windows_xp", "x64", "installer"));
+                */
 			}
 
 			if (SO == "linux")
@@ -271,8 +272,9 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
+                        CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+                        string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
 
 						if (File.Exists(pathFinal))
 							File.Delete(pathFinal);
@@ -293,7 +295,7 @@ namespace Deploy
 					else if (format == "portable")
 					{
 						CopyFile(pathBaseResources + "/linux_portable/airvpn.config", pathTemp + "/airvpn.config");
-                        CopyFile(pathBaseResources + "/linux_portable/airvpn.machine.config", pathTemp + "/airvpn.machine.config");
+                        //CopyFile(pathBaseResources + "/linux_portable/airvpn.machine.config", pathTemp + "/airvpn.machine.config");
 
                         // mkbundle
                         string command = "mkbundle ";
@@ -312,8 +314,8 @@ namespace Deploy
                         command += " --keeptemp";
                         command += " --static";
 						command += " --config \"" + pathTemp + "/airvpn.config\"";
-                        command += " --machine-config \"" + pathTemp + "/airvpn.config\"";
-                        //command += " --machine-config /etc/mono/2.0/machine.config";
+                        //command += " --machine-config \"" + pathTemp + "/airvpn.config\"";
+                        command += " --machine-config /etc/mono/4.0/machine.config";
                         command += " -z";
 						command += " -o \"" + pathTemp + "/airvpn\"";						
 						Shell(command);
@@ -344,8 +346,9 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
+                        CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
+                        string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
 
 						CreateDirectory(pathTemp + "/usr/lib/AirVPN");
 						MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
@@ -403,8 +406,9 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
+                        CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".rpm");
+                        string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".rpm");
 
 						CreateDirectory(pathTemp + "/usr/" + libSubPath + "/AirVPN");
 						MoveAll(pathTemp, pathTemp + "/usr/" + libSubPath + "/AirVPN");

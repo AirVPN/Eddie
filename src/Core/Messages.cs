@@ -40,8 +40,9 @@ namespace Eddie.Core
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";
 		public static string CheckingRequired = "Unavailable (Check required)";
-		public static string ProfileNotFound = "Requested profile '{1}' not found.";
-		public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
+		public static string ServerByNameNotFound = "Requested server '{1}' not found.";
+        public static string KeyNotFound = "Key '{1}' not found.";
+        public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
 		public static string WaitingLatencyTestsStep = "({1} to go)";
 		public static string ExchangeTryFailed = "{1}, {2}° try failed ({3})";
 		public static string AuthorizeLogin = "Checking login ...";
@@ -255,8 +256,9 @@ namespace Eddie.Core
 		public static string CommandCancel = "Cancel";
 		public static string CommandUnknown = "Unknown command";
 		public static string ManifestUpdateForce = "Updating now...";
+        public static string ResetSettingsConfirm = "WARNING: all custom settings will be lost as well as pre-filled username and password, if any.";
 
-		public static string FilterAllFiles = "All files (*.*)|*.*";
+        public static string FilterAllFiles = "All files (*.*)|*.*";
 		public static string FilterTextFiles = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
 
 		public static string ScoreUnknown = "NC";

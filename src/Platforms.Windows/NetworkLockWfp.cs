@@ -89,12 +89,12 @@ namespace Eddie.Platforms
 
             if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
             {
-                AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", "192.168.0.0", "255.255.0.0"));
-                AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", "172.16.0.0", "255.240.0.0"));
-                AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", "10.0.0.0", "255.0.0.0"));
-                AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", "224.0.0.0", "255.255.255.0"));
-                AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", "239.255.255.250", "255.255.255.255"));
-                AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", "239.255.255.253", "255.255.255.255"));
+                AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddressRange("192.168.0.0/255.255.0.0")));
+                AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddressRange("172.16.0.0/255.240.0.0")));
+                AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", new IpAddressRange("10.0.0.0/255.0.0.0")));
+                AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", new IpAddressRange("224.0.0.0/255.255.255.0")));
+                AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", new IpAddressRange("239.255.255.250/255.255.255.255")));
+                AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddressRange("239.255.255.253/255.255.255.255")));
             }
 
             // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
@@ -166,20 +166,28 @@ namespace Eddie.Platforms
         {
             base.AllowInterface(id);
 
-            AddRule("netlock_allow_interface_" + id, Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id, id));
+            AddRule("netlock_allow_interface_" + id + "_ipv4", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv4", id, "ipv4"));
+
+            /*
+            // TOFIX: Must be enabled in future when IPv6 support is well tested.
+            // Remember: May fail at WFP side with a "Unknown interface" because network interface with IPv6 disabled have Ipv6IfIndex == 0.
+            if (Engine.Instance.Storage.Get("ipv6.mode") != "disable")
+                AddRule("netlock_allow_interface_" + id + "_ipv6", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv6", id, "ipv6"));
+            */
         }
 
         public override void DeallowInterface(string id)
         {
             base.DeallowInterface(id);
 
-            RemoveRule("netlock_allow_interface_" + id);
+            RemoveRule("netlock_allow_interface_" + id + "_ipv4");
+            RemoveRule("netlock_allow_interface_" + id + "_ipv6");
         }
 
         public override void OnUpdateIps()
 		{
             base.OnUpdateIps();
-
+            
             List<IpAddressRange> ipsFirewalled = GetAllIps(false); // Don't need full ip, because the client it's allowed as program.
             string ipList = "";
             foreach (IpAddressRange ip in ipsFirewalled)
@@ -189,30 +197,66 @@ namespace Eddie.Platforms
                 ipList += ip.ToCIDR();
             }
 
+            // Note: IpV6 addresses ignored because .ToCIDR() above return "".
+            // When ToCIDR it's implemented, it still implementation in LibPocketFirewall.dll.
+
             if (ipList != m_lastestIpList)
             {
-                if(ExistsRule("netlock_allow_ips"))
-                    RemoveRule("netlock_allow_ips");
-                
+                if(ExistsRule("netlock_allow_ips_v4"))
+                    RemoveRule("netlock_allow_ips_v4");
+                if (ExistsRule("netlock_allow_ips_v6"))
+                    RemoveRule("netlock_allow_ips_v6");
+
                 m_lastestIpList = ipList;
 
-                XmlDocument xmlDocRule = new XmlDocument();
-                XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                xmlRule.SetAttribute("name", "NetLock - Allow IP");
-                xmlRule.SetAttribute("layer", "ipv4");
-                xmlRule.SetAttribute("action", "permit");
+                XmlElement xmlRuleV4 = null;
+                XmlElement xmlRuleV6 = null;
                 
                 foreach (IpAddressRange ip in ipsFirewalled)
                 {
-                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf1);
-                    XmlIf1.SetAttribute("field", "ip_remote_address");
-                    XmlIf1.SetAttribute("match", "equal");
-                    XmlIf1.SetAttribute("address", ip.GetAddress());
-                    XmlIf1.SetAttribute("mask", ip.GetMask());
+                    XmlElement XmlIf = null;
+
+                    if(ip.Valid)
+                    {
+                        if(ip.IsV4)
+                        {
+                            if(xmlRuleV4 == null)
+                            {
+                                XmlDocument xmlDocRuleV4 = new XmlDocument();
+                                xmlRuleV4 = xmlDocRuleV4.CreateElement("rule");
+                                xmlRuleV4.SetAttribute("name", "NetLock - Allow IP - IPv4");
+                                xmlRuleV4.SetAttribute("layer", "ipv4");
+                                xmlRuleV4.SetAttribute("action", "permit");
+                            }
+                            XmlIf = xmlRuleV4.OwnerDocument.CreateElement("if");
+                        }
+                        else if(ip.IsV6)
+                        {
+                            if (xmlRuleV6 == null)
+                            {
+                                XmlDocument xmlDocRuleV6 = new XmlDocument();
+                                xmlRuleV6 = xmlDocRuleV6.CreateElement("rule");
+                                xmlRuleV6.SetAttribute("name", "NetLock - Allow IP - IPv6");
+                                xmlRuleV6.SetAttribute("layer", "ipv6");
+                                xmlRuleV6.SetAttribute("action", "permit");
+                            }
+                            XmlIf = xmlRuleV6.OwnerDocument.CreateElement("if");
+                        }
+                    }
+
+                    if (XmlIf != null)
+                    {
+                        XmlIf.SetAttribute("field", "ip_remote_address");
+                        XmlIf.SetAttribute("match", "equal");
+                        XmlIf.SetAttribute("address", ip.GetAddress().ToString());
+                        XmlIf.SetAttribute("mask", ip.GetMask()); // Probabily wrong for IPv6
+                    }
                 }
     
-                AddRule("netlock_allow_ips", xmlRule);
+                if(xmlRuleV4 != null)
+                    AddRule("netlock_allow_ips_v4", xmlRuleV4);
+                if (xmlRuleV6 != null)
+                    AddRule("netlock_allow_ips_v6", xmlRuleV6);
             }
         }
 
@@ -256,7 +300,7 @@ namespace Eddie.Platforms
             lock (m_rules)
             {
                 if (m_rules.ContainsKey(code))
-                    throw new Exception("Unexpected: NetLock WFP rule already exists");
+                    throw new Exception("Unexpected: NetLock WFP rule '" + code + "' already exists");
                 WfpItem item = Wfp.AddItem(code, xmlRule);
                 m_rules[code] = item;
             }
@@ -267,7 +311,8 @@ namespace Eddie.Platforms
             lock (m_rules)
             {
                 if (m_rules.ContainsKey(code) == false)
-                    throw new Exception("Unexpected: NetLock WFP rule doesn't exists");
+                    return;
+                    //throw new Exception("Unexpected: NetLock WFP rule '" + code + "' doesn't exists");
                 WfpItem item = m_rules[code];
                 m_rules.Remove(code);
                 Wfp.RemoveItem(item);

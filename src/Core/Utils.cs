@@ -220,11 +220,14 @@ namespace Eddie.Core
 			return Conversions.ToUnixTime(DateTime.UtcNow);
 		}
 
+        // TOCLEAN
+        /*
         public static bool IsIP(string IP)
         {
             IPAddress ip;
             return IPAddress.TryParse(IP, out ip);
         }
+        */
 
         public static string HostFromUrl(string url)
         {
@@ -536,7 +539,7 @@ namespace Eddie.Core
 					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
 					{
 						string ip = d.Address.ToString();
-						if( (IsIP(ip)) && (ip != "0.0.0.0") && (list.Contains(ip) == false) )
+						if( (IpAddress.IsIP(ip)) && (ip != "0.0.0.0") && (list.Contains(ip) == false) )
 						{
 							list.Add(ip);
 						}

@@ -56,6 +56,9 @@ namespace Eddie.Core
 				if (Engine.Instance.NetworkLockManager != null)
 					Engine.Instance.NetworkLockManager.AllowIP(m_address);				
 			}
+            else
+            {
+            }
 		}
 
 		public void End()

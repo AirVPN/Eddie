@@ -89,6 +89,7 @@ namespace Eddie.Gui.Forms
             this.cmdOk = new Eddie.Gui.Skin.Button();
             this.tabSettings = new Eddie.Gui.Skin.TabControl();
             this.tabGeneral = new Eddie.Gui.Skin.TabPage();
+            this.cmdResetToDefault = new Eddie.Gui.Skin.Button();
             this.lblConnect = new Eddie.Gui.Skin.Label();
             this.lblNetLock = new Eddie.Gui.Skin.Label();
             this.chkConnect = new Eddie.Gui.Skin.CheckBox();
@@ -104,10 +105,11 @@ namespace Eddie.Gui.Forms
             this.cmdUiFontGeneral = new Eddie.Gui.Skin.Button();
             this.lblUiFontGeneral = new Eddie.Gui.Skin.Label();
             this.pnlGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+            this.chkUiMinimizeStart = new Eddie.Gui.Skin.CheckBox();
             this.chkOsSingleInstance = new Eddie.Gui.Skin.CheckBox();
             this.chkSystemNotifications = new Eddie.Gui.Skin.CheckBox();
             this.chkSystemStart = new Eddie.Gui.Skin.CheckBox();
-            this.chkMinimizeTray = new Eddie.Gui.Skin.CheckBox();
+            this.chkUiMinimizeTray = new Eddie.Gui.Skin.CheckBox();
             this.cmdTos = new Eddie.Gui.Skin.Button();
             this.tabProtocols = new Eddie.Gui.Skin.TabPage();
             this.lnkProtocolsHelp2 = new Eddie.Gui.Skin.LinkLabel();
@@ -895,6 +897,7 @@ namespace Eddie.Gui.Forms
             // tabGeneral
             // 
             this.tabGeneral.BackColor = System.Drawing.Color.White;
+            this.tabGeneral.Controls.Add(this.cmdResetToDefault);
             this.tabGeneral.Controls.Add(this.lblConnect);
             this.tabGeneral.Controls.Add(this.lblNetLock);
             this.tabGeneral.Controls.Add(this.chkConnect);
@@ -916,6 +919,22 @@ namespace Eddie.Gui.Forms
             this.tabGeneral.Size = new System.Drawing.Size(673, 337);
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
+            // 
+            // cmdResetToDefault
+            // 
+            this.cmdResetToDefault.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cmdResetToDefault.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdResetToDefault.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdResetToDefault.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdResetToDefault.FlatAppearance.BorderSize = 0;
+            this.cmdResetToDefault.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdResetToDefault.Location = new System.Drawing.Point(20, 293);
+            this.cmdResetToDefault.Name = "cmdResetToDefault";
+            this.cmdResetToDefault.Size = new System.Drawing.Size(214, 30);
+            this.cmdResetToDefault.TabIndex = 88;
+            this.cmdResetToDefault.Text = "Reset to default settings";
+            this.cmdResetToDefault.UseVisualStyleBackColor = true;
+            this.cmdResetToDefault.Click += new System.EventHandler(this.cmdResetToDefault_Click);
             // 
             // lblConnect
             // 
@@ -1077,23 +1096,36 @@ namespace Eddie.Gui.Forms
             // pnlGeneralWindowsOnly
             // 
             this.pnlGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlGeneralWindowsOnly.Controls.Add(this.chkUiMinimizeStart);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkOsSingleInstance);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemNotifications);
             this.pnlGeneralWindowsOnly.Controls.Add(this.chkSystemStart);
-            this.pnlGeneralWindowsOnly.Controls.Add(this.chkMinimizeTray);
+            this.pnlGeneralWindowsOnly.Controls.Add(this.chkUiMinimizeTray);
             this.pnlGeneralWindowsOnly.Location = new System.Drawing.Point(436, 14);
             this.pnlGeneralWindowsOnly.Name = "pnlGeneralWindowsOnly";
-            this.pnlGeneralWindowsOnly.Size = new System.Drawing.Size(214, 122);
+            this.pnlGeneralWindowsOnly.Size = new System.Drawing.Size(214, 156);
             this.pnlGeneralWindowsOnly.TabIndex = 65;
             this.pnlGeneralWindowsOnly.TabStop = false;
             this.pnlGeneralWindowsOnly.Text = "Microsoft Windows Only";
+            // 
+            // chkUiMinimizeStart
+            // 
+            this.chkUiMinimizeStart.AutoSize = true;
+            this.chkUiMinimizeStart.BackColor = System.Drawing.Color.Transparent;
+            this.chkUiMinimizeStart.ForeColor = System.Drawing.Color.Black;
+            this.chkUiMinimizeStart.Location = new System.Drawing.Point(22, 46);
+            this.chkUiMinimizeStart.Name = "chkUiMinimizeStart";
+            this.chkUiMinimizeStart.Size = new System.Drawing.Size(96, 17);
+            this.chkUiMinimizeStart.TabIndex = 42;
+            this.chkUiMinimizeStart.Text = "Start minimized";
+            this.chkUiMinimizeStart.UseVisualStyleBackColor = false;
             // 
             // chkOsSingleInstance
             // 
             this.chkOsSingleInstance.AutoSize = true;
             this.chkOsSingleInstance.BackColor = System.Drawing.Color.Transparent;
             this.chkOsSingleInstance.ForeColor = System.Drawing.Color.Black;
-            this.chkOsSingleInstance.Location = new System.Drawing.Point(22, 91);
+            this.chkOsSingleInstance.Location = new System.Drawing.Point(22, 119);
             this.chkOsSingleInstance.Name = "chkOsSingleInstance";
             this.chkOsSingleInstance.Size = new System.Drawing.Size(98, 17);
             this.chkOsSingleInstance.TabIndex = 41;
@@ -1105,7 +1137,7 @@ namespace Eddie.Gui.Forms
             this.chkSystemNotifications.AutoSize = true;
             this.chkSystemNotifications.BackColor = System.Drawing.Color.Transparent;
             this.chkSystemNotifications.ForeColor = System.Drawing.Color.Black;
-            this.chkSystemNotifications.Location = new System.Drawing.Point(22, 68);
+            this.chkSystemNotifications.Location = new System.Drawing.Point(22, 95);
             this.chkSystemNotifications.Name = "chkSystemNotifications";
             this.chkSystemNotifications.Size = new System.Drawing.Size(121, 17);
             this.chkSystemNotifications.TabIndex = 40;
@@ -1124,17 +1156,17 @@ namespace Eddie.Gui.Forms
             this.chkSystemStart.Text = "Start with Windows";
             this.chkSystemStart.UseVisualStyleBackColor = false;
             // 
-            // chkMinimizeTray
+            // chkUiMinimizeTray
             // 
-            this.chkMinimizeTray.AutoSize = true;
-            this.chkMinimizeTray.BackColor = System.Drawing.Color.Transparent;
-            this.chkMinimizeTray.ForeColor = System.Drawing.Color.Black;
-            this.chkMinimizeTray.Location = new System.Drawing.Point(22, 46);
-            this.chkMinimizeTray.Name = "chkMinimizeTray";
-            this.chkMinimizeTray.Size = new System.Drawing.Size(120, 17);
-            this.chkMinimizeTray.TabIndex = 39;
-            this.chkMinimizeTray.Text = "Minimize in tray icon";
-            this.chkMinimizeTray.UseVisualStyleBackColor = false;
+            this.chkUiMinimizeTray.AutoSize = true;
+            this.chkUiMinimizeTray.BackColor = System.Drawing.Color.Transparent;
+            this.chkUiMinimizeTray.ForeColor = System.Drawing.Color.Black;
+            this.chkUiMinimizeTray.Location = new System.Drawing.Point(22, 70);
+            this.chkUiMinimizeTray.Name = "chkUiMinimizeTray";
+            this.chkUiMinimizeTray.Size = new System.Drawing.Size(120, 17);
+            this.chkUiMinimizeTray.TabIndex = 39;
+            this.chkUiMinimizeTray.Text = "Minimize in tray icon";
+            this.chkUiMinimizeTray.UseVisualStyleBackColor = false;
             // 
             // cmdTos
             // 
@@ -1272,7 +1304,7 @@ namespace Eddie.Gui.Forms
             this.tabProxy.Padding = new System.Windows.Forms.Padding(3);
             this.tabProxy.Size = new System.Drawing.Size(673, 337);
             this.tabProxy.TabIndex = 1;
-            this.tabProxy.Text = "Proxy";
+            this.tabProxy.Text = "Proxy / Tor";
             // 
             // lnkProxyTorHelp
             // 
@@ -2090,7 +2122,7 @@ namespace Eddie.Gui.Forms
         private Skin.ColumnHeader colRoutesNotes;
         private Skin.ColumnHeader colRoutesAction;
         private System.Windows.Forms.ImageList imgRoutes;
-		private Skin.CheckBox chkMinimizeTray;
+		private Skin.CheckBox chkUiMinimizeTray;
         private Skin.Label label12;
         private Skin.Button cmdRouteEdit;
         private Skin.Button cmdRouteRemove;
@@ -2210,5 +2242,7 @@ namespace Eddie.Gui.Forms
         private Skin.Label lblGeneralStartLast;
         private Skin.CheckBox chkNetLock;
         private Skin.CheckBox chkGeneralStartLast;
+        private Skin.CheckBox chkUiMinimizeStart;
+        private Skin.Button cmdResetToDefault;
     }
 }

@@ -82,7 +82,7 @@ namespace Eddie.Core.Providers
 			ovpn.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
 			XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
             if (xmlKey == null)
-                throw new Exception("Key not found.");
+                throw new Exception(Messages.Format(Messages.KeyNotFound, key));
             ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
             ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");            
 			ovpn.AppendDirective("key-direction","1", "");

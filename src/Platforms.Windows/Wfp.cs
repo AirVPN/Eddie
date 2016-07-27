@@ -204,14 +204,18 @@ namespace Eddie.Platforms
             }            
         }
 
-        // Shortcuts
+        public static XmlElement CreateItemAllowAddress(string title, IpAddressRange range)
+        {
+            string address = range.GetAddress().ToString();
+            string mask = range.GetMask();
 
-        public static XmlElement CreateItemAllowAddress(string title, string address, string mask)
-        {            
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
-            xmlRule.SetAttribute("layer", "ipv4");
+            if(range.IsV4)
+                xmlRule.SetAttribute("layer", "ipv4");
+            else if(range.IsV6)
+                xmlRule.SetAttribute("layer", "ipv6");
             xmlRule.SetAttribute("action", "permit");            
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);
@@ -239,12 +243,12 @@ namespace Eddie.Platforms
             return xmlRule;
         }
 
-        public static XmlElement CreateItemAllowInterface(string title, string id)
+        public static XmlElement CreateItemAllowInterface(string title, string id, string layers)
         {
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
-            xmlRule.SetAttribute("layer", "all");
+            xmlRule.SetAttribute("layer", layers);
             xmlRule.SetAttribute("action", "permit");            
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);

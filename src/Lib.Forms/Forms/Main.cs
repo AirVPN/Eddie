@@ -417,8 +417,10 @@ namespace Eddie.Gui.Forms
 
             base.OnLoad(e);
 
-
-            Show();
+            if (Engine.Storage.GetBool("gui.windows.start_minimized"))
+                WindowState = FormWindowState.Minimized;
+            else
+                Show();
 
 			m_formReady = true;
             
@@ -568,9 +570,11 @@ namespace Eddie.Gui.Forms
 
 			e.Cancel = true;
 
-			if(Engine.Storage.GetBool("gui.exit_confirm") == true)
-				if (MessageBox.Show(this, Messages.ExitConfirm, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-					return;
+            if (Engine.Storage.GetBool("gui.exit_confirm") == true)
+            {
+                if(Engine.Instance.OnAskYesNo(Messages.ExitConfirm) != true)
+                    return;
+            }
 			
 			Gui.Engine engine = Engine.Instance as Gui.Engine;
 
@@ -1715,11 +1719,15 @@ namespace Eddie.Gui.Forms
 
         private void LogsSupport()
         {
+            Application.UseWaitCursor = true;
+
             string report = Engine.Instance.GetSupportReport(LogsGetBody(false));
 
             Clipboard.SetText(report);
 
-            MessageBox.Show(Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Application.UseWaitCursor = false;
+
+            Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);            
         }
 
 		private void LogsDoCopy(bool selectedOnly)
@@ -1729,8 +1737,8 @@ namespace Eddie.Gui.Forms
 			{
 				Clipboard.SetText(t);
 
-				MessageBox.Show(Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-			}
+                Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);
+            }
 		}
 
 		private void LogsDoSave(bool selectedOnly)
@@ -1752,7 +1760,7 @@ namespace Eddie.Gui.Forms
 						sw.Close();
 					}
 
-					MessageBox.Show(Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Engine.Instance.OnMessageInfo(Messages.LogsSaveToFileDone);
 				}
 			}
 		}
@@ -1760,7 +1768,8 @@ namespace Eddie.Gui.Forms
 		public bool NetworkLockKnowledge()
 		{
 			string Msg = Messages.NetworkLockWarning;
-			return (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+
+            return Engine.Instance.OnAskYesNo(Msg);
 		}
 
 		public void NetworkLockActivation()

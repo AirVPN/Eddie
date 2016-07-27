@@ -497,7 +497,7 @@ namespace Eddie.Core
 					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
 					{
 						string ip = d.Address.ToString();
-						if ((Utils.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
+						if ((IpAddress.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
 						{
 							//gatewaysList.Add(ip);
 

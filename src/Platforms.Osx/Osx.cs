@@ -404,7 +404,7 @@ namespace Eddie.Platforms
                     foreach(string line in current.Split('\n'))
                     {
                         string ip = line.Trim();
-                        if (Utils.IsIP(ip))
+                        if (IpAddress.IsIP(ip))
                             ips.Add(ip);
                     }
 

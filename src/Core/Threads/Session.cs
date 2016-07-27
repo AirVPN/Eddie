@@ -111,15 +111,16 @@ namespace Eddie.Core.Threads
                     Engine.CurrentServer = Engine.NextServer;
 					Engine.NextServer = null;
 
-					if (Engine.Storage.Get("server") != "")
+                    string forceServer = Engine.Storage.Get("server");
+                    if (forceServer != "")
 					{
-						Engine.CurrentServer = Engine.PickServer(Engine.Storage.Get("server"), true);
+                        Engine.CurrentServer = Engine.PickServerByName(forceServer);
 					}
 					else
 					{
 						if (Engine.CurrentServer == null)
 							if (Engine.Storage.GetBool("servers.locklast"))
-								Engine.CurrentServer = Engine.PickServer(sessionLastServer, false);
+								Engine.CurrentServer = Engine.PickServer(sessionLastServer);
 
 						if (Engine.CurrentServer == null)
 							Engine.CurrentServer = Engine.PickServer();
@@ -225,12 +226,22 @@ namespace Eddie.Core.Threads
                             }
                         }
                     }
-                        
 
 					if (CancelRequested)
 						continue;
 
-					if (allowed)
+                    try
+                    {
+                        BuildOVPN(protocol, port, alt, m_proxyPort);
+                    }
+                    catch(Exception e)
+                    {
+                        Engine.Logs.Log(e);
+                        allowed = false;
+                        SetReset("ERROR");
+                    }
+
+                    if (allowed)
 					{
 						sessionLastServer = Engine.CurrentServer.Code;
 						Engine.Storage.Set("servers.last", Engine.CurrentServer.Code);
@@ -242,8 +253,7 @@ namespace Eddie.Core.Threads
 						string connectingMessage = Messages.Format(Messages.ConnectionConnecting, Engine.CurrentServer.GetNameWithLocation());
 						Engine.WaitMessageSet(connectingMessage, true);
 						Engine.Logs.Log(LogType.InfoImportant, connectingMessage);
-
-						BuildOVPN(protocol, port, alt, m_proxyPort);
+                       
 
 						if (protocol == "SSH")
 						{
@@ -544,6 +554,12 @@ namespace Eddie.Core.Threads
                 if (m_interfaceScope != null)
                     m_interfaceScope.End();
 
+                if (Engine.Instance.Storage.GetBool("advanced.batchmode"))
+                {
+                    Engine.Instance.RequestStop();
+                    break;
+                }
+
                 if (m_reset == "AUTH_FAILED")
 				{
 					waitingMessage = "Auth failed, retry in {1} sec.";
@@ -556,29 +572,22 @@ namespace Eddie.Core.Threads
 				}
                 else if (m_reset == "FATAL") 
                 {
-                    if (Engine.Instance.Storage.GetBool("advanced.testmode"))
-                    {
-                        Engine.Instance.RequestStop();
-                    }
-                    else
-                    {
-                        Engine.Instance.Disconnect();
-                    }
+                    Engine.Instance.Disconnect();
                     break;
                 }
-								
-				if (waitingSecs > 0)
-				{
-					for (int i = 0; i < waitingSecs; i++)
-					{
-						Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), true);
-						//Engine.Log(Engine.LogType.Verbose, waitingMessage);
-						if (CancelRequested)
-							break;
+                
+                if (waitingSecs > 0)
+                {
+                    for (int i = 0; i < waitingSecs; i++)
+                    {
+                        Engine.WaitMessageSet(Messages.Format(waitingMessage, (waitingSecs - i).ToString()), true);
+                        //Engine.Log(Engine.LogType.Verbose, waitingMessage);
+                        if (CancelRequested)
+                            break;
 
-						Sleep(1000);
-					}
-				}
+                        Sleep(1000);
+                    }
+                }                
 			}
 
 			if (oneConnectionReached == false)
@@ -1136,6 +1145,9 @@ namespace Eddie.Core.Threads
 
 							Engine.Logs.Log(LogType.InfoImportant, Messages.ConnectionConnected);
 							Engine.SetConnected(true);
+
+                            if (Engine.Instance.Storage.GetBool("advanced.testonly"))
+                                Engine.RequestStop();
 						}
 					}
 

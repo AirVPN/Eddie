@@ -115,12 +115,24 @@ namespace Eddie.Core
             return true;
         }
 
-        public string GetReport()
+        public string GetReportForSupport()
         {
             string result = "";
             foreach (Option option in Options.Values)
             {
-                result += option.Code + ": " + option.Value + "\n";
+                if (option.Important == false)
+                    continue;
+                
+                if (option.Value != "")
+                {
+                    if (option.Value != option.Default)
+                    {
+                        string v = option.Value;
+                        if (option.Code.IndexOf("password") != -1)
+                            v = "(omissis)";
+                        result += option.Code + ": " + v + "\n";
+                    }
+                }
             }
             return result;
         }
@@ -244,27 +256,38 @@ namespace Eddie.Core
 
         public void SetDefault(string name, string type, string val, string man)
         {
+            SetDefault(name, type, val, man, true);
+        }
+
+        public void SetDefault(string name, string type, string val, string man, bool important)
+        {
             Option option = new Option();
             option.Code = name;
             option.Type = type;
             option.Default = val;
             option.Man = man;
+            option.Important = important;
             m_Options[option.Code] = option;
         }
 
 		public void SetDefaultInt(string name, int val, string man)
         {
-			SetDefault(name, "int", val.ToString(CultureInfo.InvariantCulture), man);
+			SetDefault(name, "int", val.ToString(CultureInfo.InvariantCulture), man, true);
         }
 
 		public void SetDefaultBool(string name, bool val, string man)
         {
-			SetDefault(name, "bool", val.ToString(CultureInfo.InvariantCulture), man);
+			SetDefault(name, "bool", val.ToString(CultureInfo.InvariantCulture), man, true);
+        }
+
+        public void SetDefaultBool(string name, bool val, string man, bool important)
+        {
+            SetDefault(name, "bool", val.ToString(CultureInfo.InvariantCulture), man, important);
         }
 
         public void SetDefaultFloat(string name, float val, string man)
         {
-            SetDefault(name, "float", val.ToString(CultureInfo.InvariantCulture), man);
+            SetDefault(name, "float", val.ToString(CultureInfo.InvariantCulture), man, true);
         }
 
         public void Remove(string name)
@@ -290,7 +313,7 @@ namespace Eddie.Core
 			SetDefault("login", "text", "", Messages.ManOptionLogin);
             SetDefault("password", "password", "", Messages.ManOptionPassword);
 			SetDefaultBool("remember", false, Messages.ManOptionRemember);
-            SetDefault("key", "text", "", Messages.ManOptionKey);
+            SetDefault("key", "text", "Default", Messages.ManOptionKey);
             SetDefault("server", "text", "", Messages.ManOptionServer);            
             SetDefaultBool("connect", false, Messages.ManOptionConnect);
 			SetDefaultBool("netlock", false, NotInMan);
@@ -300,9 +323,9 @@ namespace Eddie.Core
 
             SetDefault("ui.unit", "text", "", NotInMan);
 
-            SetDefault("servers.last", "text", "", NotInMan);
-			SetDefault("servers.whitelist", "text", "", Messages.ManOptionServersWhiteList);
-			SetDefault("servers.blacklist", "text", "", Messages.ManOptionServersBlackList);
+            SetDefault("servers.last", "text", "", NotInMan, false);
+			SetDefault("servers.whitelist", "text", "", Messages.ManOptionServersWhiteList, false);
+			SetDefault("servers.blacklist", "text", "", Messages.ManOptionServersBlackList, false);
 			SetDefaultBool("servers.startlast", false, Messages.ManOptionServersStartLast);
 			SetDefaultBool("servers.locklast", false, Messages.ManOptionServersLockLast);
 			SetDefault("servers.scoretype", "choice:Speed,Latency", "Speed", Messages.ManOptionServersScoreType);
@@ -391,7 +414,8 @@ namespace Eddie.Core
 			            
             SetDefaultBool("advanced.skip_privileges", false, NotInMan); // Not in Settings
             SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Not in Settings            
-            SetDefaultBool("advanced.testmode", false, NotInMan); // Not in Settings
+            SetDefaultBool("advanced.batchmode", false, NotInMan); // Not in Settings
+            SetDefaultBool("advanced.testonly", false, NotInMan); // Not in Settings
 
 
             EnsureDefaultsEvent("app.start");
@@ -414,18 +438,19 @@ namespace Eddie.Core
             SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
 
             // GUI only            
-            SetDefaultBool("gui.exit_confirm", true, NotInMan);
-			SetDefault("gui.skin", "text", "Light", NotInMan);
-			SetDefaultBool("gui.tos", false, NotInMan);
+            SetDefaultBool("gui.exit_confirm", true, NotInMan, false);
+			SetDefault("gui.skin", "text", "Light", NotInMan, false);
+			SetDefaultBool("gui.tos", false, NotInMan, false);
             SetDefault("gui.font.normal.name", "text", "", NotInMan);
             SetDefaultFloat("gui.font.normal.size", 0, NotInMan);
 			SetDefaultInt("gui.log_limit", 1000, NotInMan);
-			SetDefault("gui.window.main", "text", "", NotInMan);
-            SetDefault("gui.list.servers", "text", "", NotInMan);
-            SetDefault("gui.list.areas", "text", "", NotInMan);
-            SetDefault("gui.list.logs", "text", "", NotInMan);
+			SetDefault("gui.window.main", "text", "", NotInMan, false);
+            SetDefault("gui.list.servers", "text", "", NotInMan, false);
+            SetDefault("gui.list.areas", "text", "", NotInMan, false);
+            SetDefault("gui.list.logs", "text", "", NotInMan, false);
 
             // GUI - Windows only
+            SetDefaultBool("gui.windows.start_minimized", false, NotInMan);
             SetDefaultBool("gui.windows.tray", true, NotInMan);
 			SetDefaultBool("gui.windows.notifications", true, NotInMan);
 
@@ -436,7 +461,7 @@ namespace Eddie.Core
 			SetDefault ("gui.osx.style", "text", "light", NotInMan);
 
 			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
-			SetDefault("paramtest", "text", "", NotInMan);
+			SetDefault("paramtest", "text", "", NotInMan, false);
 
 
 
