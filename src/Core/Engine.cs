@@ -1852,10 +1852,12 @@ namespace Eddie.Core
             if (CurrentServer == null)
                 return "";
 
-            string t = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(ConnectedLastUploadStep, true, false), CurrentServer.DisplayName, CurrentServer.IpExit);
+            string serverName = CurrentServer.DisplayName;
             string country = CountriesManager.GetNameFromCode(CurrentServer.CountryCode);
             if (country != "")
-                t += " (" + country + ")";
+                serverName += " (" + country + ")";
+
+            string t = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(ConnectedLastUploadStep, true, false), serverName, CurrentServer.IpExit);            
             return t;
         }
     }
