@@ -1858,18 +1858,27 @@ namespace Eddie.Core
             Engine.Logs.Log(LogType.Verbose, t);
         }
 
-        public string GetConnectedTrayText()
+		public string GetConnectedTrayText(bool speed, bool server)
         {
             if (CurrentServer == null)
                 return "";
 
-            string serverName = CurrentServer.DisplayName;
-            string country = CountriesManager.GetNameFromCode(CurrentServer.CountryCode);
-            if (country != "")
-                serverName += " (" + country + ")";
+			string text = "";
 
-            string t = Messages.Format(Messages.StatusTextConnected, Core.Utils.FormatBytes(ConnectedLastDownloadStep, true, false), Core.Utils.FormatBytes(ConnectedLastUploadStep, true, false), serverName, CurrentServer.IpExit);            
-            return t;
+			if (speed) {
+				text += "D:" + Core.Utils.FormatBytes (ConnectedLastDownloadStep, true, false) + " U:" + Core.Utils.FormatBytes(ConnectedLastUploadStep, true, false);
+			}
+			if (server) {
+				if (text != "")
+					text += " - ";
+				string serverName = CurrentServer.DisplayName;
+				string country = CountriesManager.GetNameFromCode(CurrentServer.CountryCode);
+				if (country != "")
+					serverName += " (" + country + ")";
+				text += serverName;
+				text += " - IP:" + CurrentServer.IpExit; 
+			}
+			return text;
         }
     }
 }
