@@ -471,8 +471,16 @@ namespace Eddie.Core
             Options["help_format"].CommandLineOnly = true;
 
             // Internal only?
-            Options["gui.window.main"].InternalOnly = true;           
+            Options["gui.window.main"].InternalOnly = true;
+            Options["gui.list.servers"].InternalOnly = true;
+            Options["gui.list.areas"].InternalOnly = true;
+            Options["gui.list.logs"].InternalOnly = true;
 
+            // Don't clean with user Reset All
+            Options["login"].DontUserReset = true;
+            Options["password"].DontUserReset = true;
+            Options["remember"].DontUserReset = true;
+            Options["key"].DontUserReset = true;
         }
 
         public void EnsureDefaultsEvent(string name)
@@ -482,10 +490,13 @@ namespace Eddie.Core
 			SetDefaultBool("event." + name + ".waitend", true, Messages.ManOptionEventWaitEnd);
         }
 
-        public void ResetAll()
+        public void ResetAll(bool force)
         {
             foreach (Option option in Options.Values)
             {
+                if( (force == false) && (option.DontUserReset) )
+                        continue;
+                
                 option.Value = "";
             }
         }
@@ -591,7 +602,7 @@ namespace Eddie.Core
 
                     xmlDoc.Load(Path);
 
-                    ResetAll();
+                    ResetAll(true);
 
                     Providers = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "providers");
                     if(Providers == null)
@@ -639,7 +650,7 @@ namespace Eddie.Core
                 {
                     Debug.Trace(ex);
                     Engine.Instance.Logs.Log(LogType.Fatal, Messages.OptionsReverted);
-                    ResetAll();
+                    ResetAll(true);
                 }
             }
         }

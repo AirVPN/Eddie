@@ -1205,8 +1205,9 @@ namespace Eddie.Gui.Forms
         {
             if(Engine.Instance.OnAskYesNo(Messages.ResetSettingsConfirm))
             {
-                Engine.Instance.Storage.ResetAll();
+                Engine.Instance.Storage.ResetAll(false);
                 ReadOptions();
+                Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
             }
         }
     }

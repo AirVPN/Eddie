@@ -34,6 +34,7 @@ namespace Eddie.Core
         public bool Important = false; // Dump in support log
 		public bool CommandLineOnly = false;
 		public bool InternalOnly = false; // Don't show in UI
+        public bool DontUserReset = false; // If true, the 'Reset All' launched by user don't clean this option.
     }
 
 }

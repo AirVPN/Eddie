@@ -1552,8 +1552,19 @@ namespace Eddie.Core
 		public bool IsLogged()
 		{
             if (AirVPN == null)
-                return true;
-			return ( (AirVPN.User != null) && (AirVPN.User.Attributes["login"] != null) );			
+                return true; // TOCONTINUE
+
+            if (AirVPN.User == null)
+                return false;
+
+            if (AirVPN.User.Attributes["login"] == null)
+                return false;
+
+            if (Storage.Get("login") == "")
+                return false;
+
+            //return ( (AirVPN.User != null) && (AirVPN.User.Attributes["login"] != null) );			
+            return true;
 		}
 
 		public void Command(string cmd)

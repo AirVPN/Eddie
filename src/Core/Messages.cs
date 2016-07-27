@@ -256,7 +256,8 @@ namespace Eddie.Core
 		public static string CommandCancel = "Cancel";
 		public static string CommandUnknown = "Unknown command";
 		public static string ManifestUpdateForce = "Updating now...";
-        public static string ResetSettingsConfirm = "WARNING: all custom settings will be lost as well as pre-filled username and password, if any.";
+        public static string ResetSettingsConfirm = "WARNING: all custom settings will be lost. Continue?";
+        public static string ResetSettingsDone = "Settings reverted to default.";
 
         public static string FilterAllFiles = "All files (*.*)|*.*";
 		public static string FilterTextFiles = "Text files (*.txt)|*.txt|All files (*.*)|*.*";

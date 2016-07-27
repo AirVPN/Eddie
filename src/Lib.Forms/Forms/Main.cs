@@ -527,7 +527,7 @@ namespace Eddie.Gui.Forms
 				else
 				{
                     DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
-                    if (Engine.Instance.NetworkLockManager.IsActive())
+                    if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) ) 
 					{
 						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
