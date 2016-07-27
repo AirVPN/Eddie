@@ -550,10 +550,12 @@ namespace Eddie.Platforms
                 }
 
                 {
+                    // TOFIX: Missing IPv6 equivalent. Must be done in future when IPv6 support is well tested.
+                    // Remember: May fail at WFP side with a "Unknown interface" because network interface with IPv6 disabled have Ipv6IfIndex == 0.
                     XmlDocument xmlDocRule = new XmlDocument();
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                    xmlRule.SetAttribute("name", "Dns - Allow port 53 on TAP");
-                    xmlRule.SetAttribute("layer", "all");
+                    xmlRule.SetAttribute("name", "Dns - Allow port 53 on TAP - IPv4");
+                    xmlRule.SetAttribute("layer", "ipv4");
                     xmlRule.SetAttribute("action", "permit");
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
@@ -566,7 +568,7 @@ namespace Eddie.Platforms
                     XmlIf2.SetAttribute("match", "equal");
                     XmlIf2.SetAttribute("interface", Engine.Instance.ConnectedVpnInterfaceId);
                     Wfp.AddItem("dns_permit_tap", xmlRule);
-                }
+                }                
                 {
                     XmlDocument xmlDocRule = new XmlDocument();
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");

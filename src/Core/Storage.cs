@@ -433,8 +433,8 @@ namespace Eddie.Core
             SetDefaultBool("windows.dhcp_disable", false, Messages.ManOptionWindowsDhcpDisable);
             SetDefaultBool("windows.wfp", true, NotInMan); // Must be default TRUE if WFP works well
             SetDefaultBool("windows.wfp.dynamic", false, NotInMan); // If true, rules don't survive if process crash.
-            SetDefaultBool("windows.ipv6.os_disable", true, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
-            SetDefaultBool("windows.dns.force_all_interfaces", true, Messages.ManOptionWindowsDnsForceAllInterfaces); // Must be default FALSE if WFP works well
+            SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
+            SetDefaultBool("windows.dns.force_all_interfaces", false, Messages.ManOptionWindowsDnsForceAllInterfaces); // Must be default FALSE if WFP works well
             SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
 
             // GUI only            
@@ -459,9 +459,11 @@ namespace Eddie.Core
 			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			SetDefaultBool("gui.osx.visible", false, NotInMan);
 			SetDefault ("gui.osx.style", "text", "light", NotInMan);
+            SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInMan);
+            SetDefaultBool("gui.osx.sysbar.show_server", false, NotInMan);
 
-			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
-			SetDefault("paramtest", "text", "", NotInMan, false);
+            // TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
+            SetDefault("paramtest", "text", "", NotInMan, false);
 
 
 
