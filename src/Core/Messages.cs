@@ -166,7 +166,7 @@ namespace Eddie.Core
 		public static string TopBarConnected = "Connected to {1}";
 		public static string TopBarNotConnectedLocked = "Not connected. Network locked.";
 		public static string TopBarNotConnectedExposed = "Not connected. Network exposed.";
-		public static string StatusTextConnected = "Down: {1} Up: {2} - {3}";
+		public static string StatusTextConnected = "Down: {1} Up: {2} - {3} - Exit IP: {4}";
 				
 		public static string ChartRange = "Range";
 		public static string ChartGrid = "Grid";
