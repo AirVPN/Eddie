@@ -459,6 +459,7 @@ namespace Eddie.Core
 			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			SetDefaultBool("gui.osx.visible", false, NotInMan);
 			SetDefault ("gui.osx.style", "text", "light", NotInMan);
+			SetDefaultBool("gui.osx.sysbar.show_info", false, NotInMan);
             SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInMan);
             SetDefaultBool("gui.osx.sysbar.show_server", false, NotInMan);
 
