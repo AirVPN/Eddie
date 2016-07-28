@@ -1270,9 +1270,14 @@ namespace Eddie.Gui.Forms
 
 						string notifyText = Constants.Name + " - " + ShortMsg;
 
+                        if (l.Type >= LogType.InfoImportant)
+                        {
+                            Text = Constants.Name + " - " + Msg;
+                        }
+
 						//if(Engine.IsConnected() == false)
 						{
-							Text = Constants.Name + " - " + Msg;
+							//Text = Constants.Name + " - " + Msg;
 
 							mnuStatus.Text = "> " + Msg;
 
@@ -1616,7 +1621,7 @@ namespace Eddie.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-                            string notifyText = Engine.Instance.GetConnectedTrayText();
+                            string notifyText = Engine.Instance.GetConnectedTrayText(true, true);
                             string notifyText2 = Constants.Name + " - " + notifyText;
 							Text = notifyText2;
 							mnuStatus.Text = "> " + notifyText;
@@ -1625,7 +1630,7 @@ namespace Eddie.Gui.Forms
 								if (notifyText2.Length > 62)
 									notifyText2 = notifyText2.Substring(0, 62);
 								m_notifyIcon.Text = notifyText2;
-							}
+                            }
 						}						
                     }
                                         
