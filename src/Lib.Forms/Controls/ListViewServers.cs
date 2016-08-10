@@ -278,20 +278,19 @@ namespace Eddie.Gui.Controls
 				{
 					if (ItemsServers.ContainsKey(infoServer.Code) == false)
 					{
-						Controls.ListViewItemServer listItemServer = new Controls.ListViewItemServer();
-						//listItemServer.Name = infoServer.Name; // TOCLEAN
+                        Controls.ListViewItemServer listItemServer = new Controls.ListViewItemServer();
 						listItemServer.Info = infoServer;
-						listItemServer.Update();
-						ItemsServers.Add(infoServer.Code, listItemServer);
-						Items.Add(listItemServer);
-					}
+                        listItemServer.Update();
+                        ItemsServers.Add(infoServer.Code, listItemServer);
+                        Items.Add(listItemServer); // TOFIX: Mono impressive slow. 'Show all' took around 5 seconds to add 150 items.                        
+                    }
 					else
 					{
 						Controls.ListViewItemServer listItemServer = ItemsServers[infoServer.Code] as ListViewItemServer;
 						listItemServer.Update();
 					}
 				}
-                
+
                 List<ListViewItemServer> itemsToRemove = new List<ListViewItemServer>();
 
 				foreach (ListViewItemServer viewItem in ItemsServers.Values)
@@ -331,11 +330,11 @@ namespace Eddie.Gui.Controls
                         }
                     }
                 }
-                
+
                 Sort();
                 
-				//ResumeLayout();
-			}
+                //ResumeLayout();
+            }
 		}
     }
 }

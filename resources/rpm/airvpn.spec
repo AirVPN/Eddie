@@ -23,6 +23,7 @@ in defence of net neutrality, privacy and against censorship.
 %dir "/usr/share/doc/airvpn/"
 "/usr/share/doc/airvpn/copyright"
 "/usr/share/pixmaps/AirVPN.png"
+"/usr/share/man/man8/airvpn.8.gz"
 "/usr/bin/airvpn"
 %dir "/usr/{@lib}/AirVPN/"
 "/usr/{@lib}/AirVPN/Lib.Core.dll"

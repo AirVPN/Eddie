@@ -27,8 +27,8 @@ namespace Eddie.Core
 		public static string Name = "AirVPN";
         public static string Name2 = "Eddie";
         public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
-        public static int VersionInt = 219;
-		public static string VersionDesc = "2.11.3";
+        public static int VersionInt = 220;
+		public static string VersionDesc = "2.11.4";
         public static string WebSite = "https://airvpn.org";
         public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
 		public static string WindowsDriverVersion = "9.21.2";

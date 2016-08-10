@@ -656,6 +656,9 @@ namespace Eddie.Gui.Forms
             this.imgCountries.Images.SetKeyName(240, "za");
             this.imgCountries.Images.SetKeyName(241, "zm");
             this.imgCountries.Images.SetKeyName(242, "zw");
+            this.imgCountries.Images.SetKeyName(243, "a1");
+            this.imgCountries.Images.SetKeyName(244, "a2");
+            this.imgCountries.Images.SetKeyName(245, "o1");
             // 
             // cmdServersRefresh
             // 
@@ -1588,7 +1591,7 @@ namespace Eddie.Gui.Forms
             this.lstStats.Margin = new System.Windows.Forms.Padding(0);
             this.lstStats.MultiSelect = false;
             this.lstStats.Name = "lstStats";
-            this.lstStats.OwnerDraw = true;            
+            this.lstStats.OwnerDraw = true;
             this.lstStats.ShowItemToolTips = true;
             this.lstStats.Size = new System.Drawing.Size(721, 326);
             this.lstStats.TabIndex = 1;

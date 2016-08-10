@@ -45,7 +45,7 @@ namespace Eddie.UI.Linux
 			{
 				Core.Engine engine = new Core.Engine();
 
-				if (engine.Initialization())
+				if (engine.Initialization(true))
 				{
 					engine.ConsoleStart();
 				}
@@ -56,7 +56,7 @@ namespace Eddie.UI.Linux
 
 				Gui.Engine engine = new Gui.Engine();
 
-				if (engine.Initialization())
+				if (engine.Initialization(false))
 				{
 					engine.FormMain = new Gui.Forms.Main();
 

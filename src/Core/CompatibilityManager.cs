@@ -162,6 +162,10 @@ namespace Eddie.Core
             {
                 name = "gui.window.main";
             }
+            else if (name == "advanced.batchmode")
+            {
+                name = "batch";
+            }
 
 #if (EDDIE3)            
             if (name == "dns.check") // < 3.0

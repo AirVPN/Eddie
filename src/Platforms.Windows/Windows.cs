@@ -457,7 +457,7 @@ namespace Eddie.Platforms
 
 		public override bool OnIpV6Do()
 		{
-            if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
+            if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
                 if ((IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp")) )
                 {
@@ -586,7 +586,7 @@ namespace Eddie.Platforms
                 Engine.Instance.Logs.Log(LogType.Info, Messages.DnsLockActivatedWpf);
             }
 
-			string mode = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
+			string mode = Engine.Instance.Storage.GetLower("dns.mode");
             
 			if (mode == "auto")
 			{

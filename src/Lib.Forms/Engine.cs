@@ -311,6 +311,8 @@ namespace Eddie.Gui
 
         public override void OnShowText(string title, string data)
         {
+            base.OnShowText(title, data);
+
             Forms.TextViewer Dlg = new Forms.TextViewer();
             Dlg.Title = title;
             Dlg.Body = data;

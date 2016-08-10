@@ -148,12 +148,16 @@ namespace Eddie.Core
 			}            
 		}
 
-		public virtual void OnBuildOvpnDefaults(OvpnBuilder ovpn, string protocol)
+		public virtual void OnBuildOvpnDefaults(OvpnBuilder ovpn)
 		{
 
 		}
 
-		public virtual void OnBuildOvpnAuth(OvpnBuilder ovpn)
+        public virtual void OnBuildOvpn(OvpnBuilder ovpn)
+        {
+        }
+
+        public virtual void OnBuildOvpnAuth(OvpnBuilder ovpn)
 		{
 
 		}

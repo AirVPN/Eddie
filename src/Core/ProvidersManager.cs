@@ -48,17 +48,26 @@ namespace Eddie.Core
             }
         }
 
-        public void Init()
-		{
+        public string GetProvidersPath() // TOCLEAN, only until 3.0
+        {
             string path = "";
             if (Engine.Instance.DevelopmentEnvironment)
                 path = Platform.Instance.GetProjectPath();
             else
                 path = Platform.Instance.GetProgramFolder();
-
             path += "//Providers//";
 
-            if(Directory.Exists(path) == false) // TOCLEAN, Compatibility <3.0
+            if (Directory.Exists(path) == false)
+                return "";
+            else
+                return path;
+        }
+
+        public void Init()
+		{
+            string path = GetProvidersPath();
+
+            if (Directory.Exists(path) == false) // TOCLEAN, Compatibility <3.0
             {
                 LoadDefinition(ResourcesFiles.GetString("AirVPN.xml"));
                 return;
@@ -74,12 +83,6 @@ namespace Eddie.Core
 
         public void Load()
         {
-            /*
-            foreach (Provider provider in Providers)
-            {
-                provider.OnLoad();
-            }
-            */
             foreach (XmlElement xmlProvider in Engine.Instance.Storage.Providers)
             {
                 string providerCode = xmlProvider.Name;
@@ -118,7 +121,6 @@ namespace Eddie.Core
             else if (providerClass == "openvpn")
             {
                 provider = new Providers.OpenVPN();
-                //Core.Providers.OpenVPN.Singleton = provider as Providers.OpenVPN;
             }
             else
                 return null;

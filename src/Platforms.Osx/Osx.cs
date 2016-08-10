@@ -125,7 +125,20 @@ namespace Eddie.Platforms
             ShellCmd("discoveryutil mdnsflushcache"); // 2.11
         }
 
-		public override void EnsureExecutablePermissions(string path)
+        public override long Ping(string host, int timeoutSec)
+        {
+            string result = ShellCmd("ping -c 1 -w " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
+            //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
+
+            string sMS = Utils.ExtractBetween(result, "min/avg/max/mdev = ", "/");
+            float iMS;
+            if (float.TryParse(sMS, out iMS))
+                return (Int64)iMS;
+            else
+                return -1;
+        }
+
+        public override void EnsureExecutablePermissions(string path)
 		{
 			if ((path == "") || (File.Exists(path) == false))
 				return;
@@ -166,7 +179,16 @@ namespace Eddie.Platforms
 			base.RouteRemove (r);
 		}
 
-		public override List<RouteEntry> RouteList()
+        public override void ResolveWithoutAnswer(string host)
+        {
+            // Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
+            if (File.Exists("/usr/bin/host"))
+                ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
+            else
+                base.ResolveWithoutAnswer(host);
+        }
+
+        public override List<RouteEntry> RouteList()
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
@@ -313,7 +335,7 @@ namespace Eddie.Platforms
 
 		public override bool OnIpV6Do()
 		{
-			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
+			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
 				string[] interfaces = GetInterfaces();
 				foreach (string i in interfaces)
@@ -388,7 +410,7 @@ namespace Eddie.Platforms
 
 		public override bool OnDnsSwitchDo(string dns)
 		{
-			string mode = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
+			string mode = Engine.Instance.Storage.GetLower("dns.mode");
 
 			if (mode == "auto")
 			{

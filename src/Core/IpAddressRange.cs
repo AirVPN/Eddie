@@ -100,23 +100,21 @@ namespace Eddie.Core
 				bool valid = false;
 				if (m_IP.Valid)
 				{
-					// Mask is CIDR or IP?
-					if (new IpAddress(m_Mask).Valid)
+                    // Mask is CIDR or IP?
+                    if (NetMask2bitMaskV4(m_Mask) != "")
+                    {
+                        // Mask
+                        valid = true;
+                    }
+                    else
 					{
-						// Can be converted to CIDR?
-						if (NetMask2bitMaskV4(m_Mask) != "")
-						{
-							valid = true;
-						}
-					}
-					else
-					{
-						m_Mask = BitMask2netMaskV4(m_Mask);
-						if (new IpAddress(m_Mask).Valid)
-						{
-							valid = true;
-						}
-					}
+                        m_Mask = BitMask2netMaskV4(m_Mask);
+                        if(m_Mask != "")
+                        {
+                            // CIDR
+                            valid = true;
+                        }                        
+					}					
 				}
 
 				if (valid == false)

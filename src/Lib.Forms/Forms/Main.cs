@@ -341,11 +341,12 @@ namespace Eddie.Gui.Forms
             chkShowAll.Checked = false;
 			chkLockLast.Checked = Engine.Storage.GetBool("servers.locklast");
 			cboScoreType.Text = Engine.Storage.Get("servers.scoretype");
-            
+
 
             //ApplySkin();
 
-			SetFormLayout(Engine.Storage.Get("gui.window.main"), true, true, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+            //SetFormLayout(Engine.Storage.Get("gui.window.main"), true, true, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+            SetFormLayout(Engine.Storage.Get("gui.window.main"), Engine.Storage.GetBool("gui.windows.start_minimized"), MinimizeInTray(), new Size(m_windowDefaultWidth, m_windowDefaultHeight));
             m_listViewServers.SetUserPrefs(Engine.Storage.Get("gui.list.servers"));
             m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
             lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
@@ -417,12 +418,7 @@ namespace Eddie.Gui.Forms
 
             base.OnLoad(e);
 
-            if (Engine.Storage.GetBool("gui.windows.start_minimized"))
-                WindowState = FormWindowState.Minimized;
-            else
-                Show();
-
-			m_formReady = true;
+            m_formReady = true;
             
             Engine.OnRefreshUi();
 
@@ -601,23 +597,16 @@ namespace Eddie.Gui.Forms
         {
             base.OnResize(e);
 
-			if (Engine.Storage != null)
-			{
-				if (Engine.Storage.GetBool("gui.windows.tray"))
-				{
-					if (Platform.Instance.IsTraySupported())
-					{
-						if (FormWindowState.Minimized == WindowState)
-						{
-							Hide();
-							EnabledUi();
-						}
-					}
-				}
+            if(MinimizeInTray())
+            {
+                if (FormWindowState.Minimized == WindowState)
+                {
+                    Hide();
+                    EnabledUi();
+                }
+            }
 
-				Resizing();
-			}            
-			
+            Resizing();			
         }
 
 		#region UI Controls Events
@@ -789,7 +778,7 @@ namespace Eddie.Gui.Forms
 		{
 			Forms.TextViewer Dlg = new TextViewer();
 			Dlg.Title = "Man";
-			Dlg.Body = Core.UI.Actions.GetMan("text");
+			Dlg.Body = Engine.Instance.Storage.GetMan("text");
 			Dlg.ShowDialog();
 		}
 
@@ -797,7 +786,7 @@ namespace Eddie.Gui.Forms
 		{
 			Forms.TextViewer Dlg = new TextViewer();
 			Dlg.Title = "Man";
-			Dlg.Body = Core.UI.Actions.GetMan("bbc");
+			Dlg.Body = Engine.Instance.Storage.GetMan("bbc");
 			Dlg.ShowDialog();
 		}
 
@@ -1094,8 +1083,21 @@ namespace Eddie.Gui.Forms
 		{
 			m_pnlCharts.Switch(cboSpeedResolution.SelectedIndex);
 		}
-		
-		#endregion
+
+        #endregion
+
+        public bool MinimizeInTray()
+        {
+            if (Engine.Storage != null)
+            {
+                if (Engine.Storage.GetBool("gui.windows.tray"))
+                {
+                    if (Platform.Instance.IsTraySupported())
+                        return true;
+                }
+            }
+            return false;
+        }
 
 		public void Resizing()
 		{
@@ -1103,6 +1105,9 @@ namespace Eddie.Gui.Forms
 				return;
 
             if (m_pnlCharts == null)
+                return;
+
+            if (Engine.Storage == null)
                 return;
 
             Graphics g = this.CreateGraphics();
@@ -1316,7 +1321,10 @@ namespace Eddie.Gui.Forms
 
         public void EnabledUi()
 		{
-			if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
+            if (m_listViewServers == null) // 2.11.4
+                return;
+
+            if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
 			{
 				mnuRestore.Visible = true;
                 mnuRestoreSep.Visible = true;
@@ -1367,7 +1375,7 @@ namespace Eddie.Gui.Forms
 			}
 
 
-			cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != "") );
+            cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != "") );
 
 			txtLogin.Enabled = (logged == false);
 			txtPassword.Enabled = (logged == false);
@@ -1382,9 +1390,9 @@ namespace Eddie.Gui.Forms
 			{
 				cmdConnect.Enabled = false;
 			}
-                        
+
             cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1));
-			mnuServersConnect.Enabled = cmdServersConnect.Enabled;
+            mnuServersConnect.Enabled = cmdServersConnect.Enabled;
 
 			cmdServersWhiteList.Enabled = (m_listViewServers.SelectedItems.Count > 0);
 			mnuServersWhiteList.Enabled = cmdServersWhiteList.Enabled;
@@ -1403,8 +1411,8 @@ namespace Eddie.Gui.Forms
 			mnuSpeedTest.Enabled = connected;
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
-			
-			if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) )
+
+            if ( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) )
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_on;                

@@ -27,7 +27,6 @@ namespace Eddie.Core.Providers
 {
     public class OpenVPN : Core.Provider
     {
-		//public static OpenVPN Singleton; // TOCLEAN temp
 		public XmlElement Profiles;
         
 		public override string GetCode()
@@ -62,7 +61,12 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-		public override string Refresh()
+        public override void OnBuildOvpn(OvpnBuilder ovpn)
+        {
+            base.OnBuildOvpn(ovpn);            
+        }
+
+        public override string Refresh()
 		{
 			base.Refresh();
 
@@ -111,7 +115,7 @@ namespace Eddie.Core.Providers
 
         public string GetPathScan()
         {
-            return Utils.XmlGetAttributeString(Storage.DocumentElement, "path", "");
+            return Utils.XmlGetAttributeString(Storage.DocumentElement, "path", "").Trim();
         }
 
 		public void Refresh(bool interactive)
@@ -128,15 +132,26 @@ namespace Eddie.Core.Providers
 				string path = Utils.XmlGetAttributeString(nodeProfile, "path", "");
 				if (path != "")
 				{
-					UpdateProfileFromFile(nodeProfile, path);
+                    try
+                    {
+                        UpdateProfileFromFile(nodeProfile, path);
+                    }
+                    catch(Exception e)
+                    {
+                        Engine.Instance.Logs.Log(e);
+                    }
 				}
 			}
 
 			// Scan directory
-			if (pathScan.Trim() != "")
+			if (Directory.Exists(pathScan))
 			{
 				ScanDir(pathScan.Trim(), OptionRecursive, servers, interactive);
 			}
+            else
+            {
+                Engine.Instance.Logs.Log(LogType.Warning, Messages.Format(Messages.ProvidersOpenVpnPathNotFound, pathScan, Title));
+            }
 
 			// Remove profiles
 			for (; ; )
@@ -166,7 +181,7 @@ namespace Eddie.Core.Providers
 
 			int timeDelta = Utils.UnixTimeStamp() - timeStart;
 
-			Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format("N. {1} ovpn profiles processed in {2} secs", Profiles.ChildNodes.Count.ToString(), timeDelta.ToString())); // TOTRANSLATE
+			Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format("{1} - N. {2} ovpn profiles processed in {3} secs", Title, Profiles.ChildNodes.Count.ToString(), timeDelta.ToString())); // TOTRANSLATE
 		}
 
 		public void ScanDir(string path, bool recursive, List<ServerInfo> servers, bool interactive)
@@ -217,6 +232,9 @@ namespace Eddie.Core.Providers
 
 		public void UpdateProfileFromFile(XmlElement nodeProfile, string path)
 		{
+            if (File.Exists(path) == false)
+                return;
+
             Dictionary<string, string> dataProfile = OvpnParse(new FileInfo(path), true);
 
 			if (nodeProfile == null)

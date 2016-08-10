@@ -125,18 +125,23 @@ namespace Eddie.Gui
 
             output += Convert.ToString(R.X) + ",";
             output += Convert.ToString(R.Y) + ",";
+            /* 
 			output += Convert.ToString(ClientSize.Width) + ",";
 			output += Convert.ToString(ClientSize.Height);
+            */
+            // 2.11.4
+            output += Convert.ToString(R.Width) + ",";
+            output += Convert.ToString(R.Height);
 
             return output;
         }
 
-        public void SetFormLayout(string v, bool ignoreVisible, bool defaultVisible, Size defaultSize)
+        public void SetFormLayout(string v, bool forceMinimized, bool minimizeInTray, Size defaultSize)
         {
 			if (v == "")
 			{
 				v = "";
-				v += (defaultVisible ? "1" : "0") + ",";
+				v += "1" + ",";
 				v += "n,";
 				v += (Screen.PrimaryScreen.WorkingArea.Width / 2 - defaultSize.Width / 2).ToString() + ",";
 				v += (Screen.PrimaryScreen.WorkingArea.Height / 2 - defaultSize.Height / 2).ToString() + ",";
@@ -174,24 +179,42 @@ namespace Eddie.Gui
             if (t + h > deskHeight)
                 t = deskHeight - h;
 
-            this.Visible = vis;
-            this.Left = l;
-            this.Top = t;
-			//this.Width = w;
-			//this.Height = h;
+            //this.Visible = vis;
+            //this.Left = l;
+            //this.Top = t;
+            //this.ClientSize = new Size(w, h);
+            this.Bounds = new Rectangle(l, t, w, h); // 2.11.4
 
-			this.ClientSize = new Size(w, h);
-			
+            /*
 			if(ignoreVisible == false)
 				if (this.Visible)
 					this.Activate();
+            */
+            
+            if (forceMinimized)
+                state = "m";
 
             if (state == "m")
-                this.WindowState = FormWindowState.Minimized;
+            {
+                if (minimizeInTray)
+                    this.Visible = false;
+                else
+                {
+                    this.WindowState = FormWindowState.Minimized;
+                    this.Visible = true;
+                }
+            }
+
             else if (state == "M")
+            {
                 this.WindowState = FormWindowState.Maximized;
+                this.Visible = true;
+            }
             else if (state == "n")
+            {
                 this.WindowState = FormWindowState.Normal;
+                this.Visible = true;
+            }
         }
 
         public void SetClientSize(int w, int h)

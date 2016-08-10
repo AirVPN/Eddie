@@ -47,7 +47,7 @@ namespace Deploy
 
 		static void Main(string[] args)
 		{
-			Log("AirVPN deployment v1.1");
+			Log("AirVPN deployment v1.2");
 			Log("PlatformOS: " + Environment.OSVersion.Platform.ToString());
 			Log("VersionString: " + Environment.OSVersion.VersionString.ToString());
 						
@@ -73,7 +73,14 @@ namespace Deploy
             string pathBaseHome = new DirectoryInfo("../../../..").FullName;
 
             Log("Path base: " + pathBaseHome);
-            
+
+            string pathBaseTemp = new DirectoryInfo("../../../../tmp").FullName;
+            string pathBaseDeploy = new DirectoryInfo("../../../../deploy").FullName;
+            string pathBaseRelease = new DirectoryInfo("../../../../src/bin").FullName;
+            string pathBaseRepository = new DirectoryInfo("../../../../repository").FullName;
+            string pathBaseResources = new DirectoryInfo("../../../../resources").FullName;
+            string pathBaseTools = new DirectoryInfo("../../../../tools").FullName;
+
             /* -------------------------------
 			   Checking environment
 			------------------------------- */
@@ -105,19 +112,34 @@ namespace Deploy
 				}
 			}
 
-			/* -------------------------------
+            /* -------------------------------
+                Generate Man pages
+            ------------------------------- */
+
+            if (SO == "windows")
+            {
+                Log("Generating manual files");
+                string pathExe = new FileInfo("../../../../src/bin/x64/Release/CLI.Windows.exe").FullName;
+                File.WriteAllText(pathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html", false));
+                File.WriteAllText(pathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc", false));
+                File.WriteAllText(pathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text", false));
+                File.WriteAllText(pathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man", false));
+            }
+            
+            /* -------------------------------
 			   Build packages list
 			------------------------------- */
 
-			List<Package> ListPackages = new List<Package>();
+            List<Package> ListPackages = new List<Package>();
 
 			if (SO == "windows")
 			{
+                /*
                 ListPackages.Add(new Package("windows8", "x86", "portable"));
                 ListPackages.Add(new Package("windows8", "x64", "portable"));
                 ListPackages.Add(new Package("windows8", "x86", "installer"));
                 ListPackages.Add(new Package("windows8", "x64", "installer"));
-                /*
+                */
                 ListPackages.Add(new Package("windows", "x86", "portable"));
 				ListPackages.Add(new Package("windows", "x64", "portable"));
 				ListPackages.Add(new Package("windows", "x86", "installer"));
@@ -126,8 +148,7 @@ namespace Deploy
 				ListPackages.Add(new Package("windows_xp", "x86", "portable"));
 				ListPackages.Add(new Package("windows_xp", "x64", "portable"));
 				ListPackages.Add(new Package("windows_xp", "x86", "installer"));
-				ListPackages.Add(new Package("windows_xp", "x64", "installer"));
-                */
+				ListPackages.Add(new Package("windows_xp", "x64", "installer"));                
 			}
 
 			if (SO == "linux")
@@ -151,20 +172,19 @@ namespace Deploy
 				ListPackages.Add (new Package ("osx", "x64", "installer"));
 			}
 			
-			string pathBaseTemp = new DirectoryInfo("../../../../tmp").FullName;
-			string pathBaseDeploy = new DirectoryInfo("../../../../deploy").FullName;
-			string pathBaseRelease = new DirectoryInfo("../../../../src/bin").FullName;
-			string pathBaseRepository = new DirectoryInfo("../../../../repository").FullName;
-			string pathBaseResources = new DirectoryInfo("../../../../resources").FullName;
-			string pathBaseTools = new DirectoryInfo("../../../../tools").FullName;
-
 			string versionString = File.ReadAllText(pathBaseHome + "/version.txt").Trim();
 
 			if(SO == "linux")
 				pathBaseTemp = "/tmp/airvpn_deploy";
 
-			int latestNetFramework = 0;
-						
+            Log("What .net framework is currently complied? '2' or '4'.");
+            ConsoleKeyInfo keyFramework = Console.ReadKey();
+            int netFramework = 0;
+            if (keyFramework.KeyChar == '2')
+                netFramework = 2;
+            else if (keyFramework.KeyChar == '4')
+                netFramework = 4;
+
 			foreach(Package package in ListPackages)
 			{
 				string platform = package.Platform;
@@ -176,14 +196,7 @@ namespace Deploy
 					requiredNetFramework = 2;
                 if (platform == "windows_xp")
                     requiredNetFramework = 2;
-
-                if (latestNetFramework != requiredNetFramework)
-				{
-					Log("Ensure that solution is builded with .NET Framework " + requiredNetFramework.ToString());
-					Pause();
-					latestNetFramework = requiredNetFramework;
-				}
-
+                                
 				string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
 				string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
 				string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;
@@ -194,8 +207,14 @@ namespace Deploy
 				if (platform == "windows8") // Windows8 use the same common files of Windows
 					pathDeploy = pathDeploy.Replace("windows8", "windows");
 
-				// Start
-				Log("------------------------------");
+                if (requiredNetFramework != netFramework)
+                {
+                    Log("Building '" + archiveName + "' skipped for mismatch .Net framework");
+                    continue;
+                }
+
+                // Start
+                Log("------------------------------");
 				Log("Building '" + archiveName + "'");
 				Log("------------------------------");
 
@@ -375,9 +394,9 @@ namespace Deploy
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
 
-						File.WriteAllText(pathTemp + "/usr/share/man/man1/airvpn.1", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help"));
-						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man1/airvpn.1\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man1/airvpn.1.gz\"");
+						File.WriteAllText(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
+						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
 
                         //Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/websocket-sharp.dll\"");
                         Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
@@ -424,7 +443,11 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libgdiplus.so.0");
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
 
-						Shell("chmod 755 -R \"" + pathTemp + "\"");
+                        File.WriteAllText(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
+                        Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
+
+                        Shell("chmod 755 -R \"" + pathTemp + "\"");
                         //Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/websocket-sharp.dll\"");
                         Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
@@ -588,14 +611,20 @@ namespace Deploy
 
 		}
 
-		static string Shell(string command)
+        static string Shell(string command)
+        {
+            return Shell(command, true);
+        }
+
+        static string Shell(string command, bool log)
 		{
-			Console.WriteLine("Shell: " + command);
+            if(log)
+			    Console.WriteLine("Shell: " + command);
 
 			if(SO == "windows")
-				return Shell("cmd.exe", String.Format("/c {0}", command), false);
+				return Shell("cmd.exe", String.Format("/c {0}", command), log);
 			else
-				return Shell("sh", String.Format("-c '{0}'", command), false);			
+				return Shell("sh", String.Format("-c '{0}'", command), log);			
 		}
 
 		static string Shell(string filename, string arguments)
@@ -608,7 +637,7 @@ namespace Deploy
 			if(log)
 				Console.WriteLine("Shell, filename: " + filename + ", arguments: " + arguments);
 			string output = ShellPlatformIndipendent(filename, arguments, "", true, false);
-			if(output.Trim() != "")
+			if( (log) && (output.Trim() != "") )
 				Console.WriteLine("Output: " + output);
 			return output;
 		}

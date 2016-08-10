@@ -67,6 +67,10 @@ namespace Eddie.Core.Threads
 			{
 				//bool alwaysRun = Engine.Instance.Storage.GetBool("pinger.always"); // 2.6
 				routeScope = new RouteScope(Server.IpEntry);
+
+                Int64 result = Platform.Instance.Ping(Server.IpEntry, 3);
+                Pinger.Instance.PingResult(Server, result);
+                /*
                                 
 				// Ping
 				Ping pingSender = new Ping();
@@ -81,7 +85,7 @@ namespace Eddie.Core.Threads
 				int timeout = 2000;                
 				PingReply reply = pingSender.Send(Server.IpEntry, timeout, buffer, options);
 				Pinger.Instance.PingResult(Server, reply);
-                
+                */
 			}
 			catch (Exception)
 			{				
@@ -147,7 +151,7 @@ namespace Eddie.Core.Threads
 		{
 			int delay = Engine.Instance.Storage.GetInt("pinger.delay");
 			if (delay == 0)
-				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_delay", "1802"));
+				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_delay", "180"));
 			return delay;
 		}
 

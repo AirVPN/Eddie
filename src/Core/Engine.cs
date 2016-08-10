@@ -51,12 +51,14 @@ namespace Eddie.Core
         private ProvidersManager m_providersManager;
         private LogsManager m_logsManager;
         private NetworkLockManager m_networkLockManager;
+        private WebServer m_webServer;
         
         public Providers.Service AirVPN; // TOFIX, for compatibility
 
         private Dictionary<string, ServerInfo> m_servers = new Dictionary<string, ServerInfo>();
         private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
         private bool m_serversInfoUpdated = false;
+        private bool m_areasInfoUpdated = false;
 		private List<string> FrontMessages = new List<string>();
 		private int m_breakRequests = 0;
 
@@ -157,6 +159,14 @@ namespace Eddie.Core
 			}
 		}
 
+        public WebServer WebServer
+        {
+            get
+            {
+                return m_webServer;
+            }
+        }
+
         public Dictionary<string, ServerInfo> Servers
         {
             get
@@ -173,7 +183,7 @@ namespace Eddie.Core
             }
         }
 
-		public bool Initialization()
+		public bool Initialization(bool cli)
 		{
             if (ResourcesFiles.Count() == 0)			
 			{
@@ -183,15 +193,13 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
             }
             
-			CountriesManager.Init();
-
             m_logsManager = new LogsManager();
-
+            
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
 
-			bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
+            bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
 			if (manMode == false)
 			{
                 Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
@@ -199,12 +207,28 @@ namespace Eddie.Core
 				if (DevelopmentEnvironment)
                     Logs.Log(LogType.Info, "Development environment.");
 			}
+            
+            m_storage = new Core.Storage();
 
+            if (cli)
+            {
+                string login = Storage.Get("login").Trim();
+                string password = Storage.Get("password").Trim();
 
-			m_storage = new Core.Storage();
+                if (Storage.GetBool("help"))
+                {
+                    Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help_format")));
+                    return false;
+                }
+                else if ((login == "") || (password == ""))
+                {
+                    Engine.Instance.Logs.Log(LogType.Fatal, Messages.ConsoleHelp);
+                    return false;
+                }
+            }
 
-			// This is before the Storage.Load, because non-root can't read option (chmod)
-			if (Storage.GetBool("advanced.skip_privileges") == false)
+            // This is before the Storage.Load, because non-root can't read option (chmod)
+            if (Storage.GetBool("advanced.skip_privileges") == false)
 			{
 				if (Platform.Instance.IsAdmin() == false)
 				{
@@ -215,11 +239,13 @@ namespace Eddie.Core
 				}
 			}
 
+            CountriesManager.Init();
+
             // Providers
             m_providersManager = new ProvidersManager();
             m_providersManager.Init();
 
-            m_storage.Load(manMode);
+            m_storage.Load();
 
             m_providersManager.Load();
 
@@ -240,9 +266,11 @@ namespace Eddie.Core
 
             m_stats = new Core.Stats();
 
-#if (EDDIE3)
-            WebServer.Start();
-#endif
+            if( (WebServer.GetPath() != "") && (Storage.GetBool("webui.enabled") == true) )
+            {
+                m_webServer = new WebServer();
+                m_webServer.Start();
+            }
 
             m_networkLockManager = new NetworkLockManager();
 			m_networkLockManager.Init();			
@@ -274,7 +302,7 @@ namespace Eddie.Core
 
 				Platform.Instance.OnAppStart();
 
-				if (Engine.Storage.Get("netlock.mode") != "none")
+				if (Engine.Storage.GetLower("netlock.mode") != "none")
 				{
 					if (Engine.Storage.GetBool("netlock")) // 2.8
 						m_networkLockManager.Activation();					
@@ -402,9 +430,8 @@ namespace Eddie.Core
             if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
 
-#if (EDDIE3)
-			WebServer.Stop();
-#endif
+			if (m_webServer != null)
+                m_webServer.Stop();
 
 			m_networkLockManager.Deactivation(true);
 			m_networkLockManager = null;
@@ -495,6 +522,12 @@ namespace Eddie.Core
                     m_serversInfoUpdated = false;
                     OnRefreshUi(RefreshUiMode.Full);
                 }
+
+                if(m_areasInfoUpdated)
+                {
+                    m_areasInfoUpdated = false;
+                    RecomputeAreas();
+                }
             }
             
 			Sleep(100);
@@ -525,9 +558,13 @@ namespace Eddie.Core
 
 		public virtual void OnCommand(CommandLine command)
 		{
-#if (EDDIE3)
-            WebServer.OnCommand(command);
-#endif
+            if(m_webServer != null)
+            {
+                XmlElement xmlCommand = WebServer.CreateMessage();
+                xmlCommand.SetAttribute("type", "command");
+                command.WriteXML(xmlCommand);
+                m_webServer.Send(xmlCommand);
+            }   
 
 			string action = command.Get("action","").ToLowerInvariant();
             if (action == "exit")
@@ -603,9 +640,17 @@ namespace Eddie.Core
             {
                 Platform.Instance.OpenUrl("http://openvpn.net/index.php/open-source/documentation/miscellaneous/79-management-interface.html");
             }
-            else if (action == "provider.add.openvpn")
+            else if (action == "providers.add.airvpn")
+            {
+                Engine.Instance.ProvidersManager.AddProvider("AirVPN", null);
+            }
+            else if (action == "providers.add.openvpn")
             {
                 Engine.Instance.ProvidersManager.AddProvider("OpenVPN", null);
+            }
+            else if (action == "testlog")
+            {
+                Engine.Instance.Logs.Log(LogType.Warning, "Test Log " + Utils.GetRandomToken());
             }
             else
             {
@@ -663,28 +708,12 @@ namespace Eddie.Core
 		{
 			ConsoleMode = true;
 
-			string login = Storage.Get("login").Trim();
-			string password = Storage.Get("password").Trim();
+			Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelp);				
 
-			if (Storage.GetBool("help"))
-			{
-				Engine.Instance.Logs.Log(LogType.Info, Core.UI.Actions.GetMan(Storage.Get("help_format")));				
-			}
-			else if ((login == "") || (password == ""))
-			{
-				Engine.Instance.Logs.Log(LogType.Fatal, Messages.ConsoleHelp);
-			}
-			else
-			{
-				Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelp);				
+			if(Storage.GetBool("connect") == false)
+				Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelpNoConnect);
 
-				if(Storage.GetBool("connect") == false)
-					Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelpNoConnect);
-
-                return OnInit2();				
-			}
-
-            return false;
+            return OnInit2();							
 		}
 
 		public bool UiStart()
@@ -752,6 +781,11 @@ namespace Eddie.Core
         {
             // Called for minimal changes, like ping
             m_serversInfoUpdated = true;
+        }
+
+        public void MarkAreasListUpdated()
+        {
+            m_areasInfoUpdated = true;
         }
 
 		public void SetConnected(bool connected)
@@ -857,7 +891,15 @@ namespace Eddie.Core
 				return;
 			}
 
-			if (l.Type != LogType.Realtime)
+            if (m_webServer != null)
+            {
+                XmlElement xmlLog = WebServer.CreateMessage();
+                xmlLog.SetAttribute("type", "log");
+                l.WriteXML(xmlLog);
+                m_webServer.Send(xmlLog);
+            }
+
+            if (l.Type != LogType.Realtime)
 			{
 				string lines = l.GetStringLines().Trim();
 				Console.WriteLine(lines);
@@ -907,12 +949,14 @@ namespace Eddie.Core
 
         public virtual void OnShowText(string title, string data)
         {
-#if (EDDIE3)
-            XmlElement webMessage = WebServer.CreateMessage("ui.show.text");
-            webMessage.SetAttributeNode("title", title);
-            webMessage.SetAttributeNode("data", data);
-            WebServer.Send(webMessage);
-#endif
+            if (m_webServer != null)
+            {
+                XmlElement webMessage = WebServer.CreateMessage();
+                webMessage.SetAttribute("type", "ui.show.text");
+                webMessage.SetAttribute("title", title);
+                webMessage.SetAttribute("text", data);
+                m_webServer.Send(webMessage);
+            }
         }
 
         public virtual bool OnAskYesNo(string message)
@@ -987,82 +1031,7 @@ namespace Eddie.Core
                         infoServer.UserList = ServerInfo.UserListType.None;
                 }
 
-                // Compute areas
-                lock (m_areas)
-                {
-                    foreach (AreaInfo infoArea in m_areas.Values)
-                    {
-                        infoArea.Deleted = true;
-                        infoArea.Servers = 0;
-                        infoArea.Users = 0;
-                    }
-                    
-                    List<string> areasWhiteList = Storage.GetList("areas.whitelist");
-                    List<string> areasBlackList = Storage.GetList("areas.blacklist");
-
-                    foreach (ServerInfo server in m_servers.Values)
-                    {
-                        string countryCode = server.CountryCode;
-
-                        AreaInfo infoArea = null;
-                        if (m_areas.ContainsKey(countryCode))
-                        {
-                            infoArea = m_areas[countryCode];
-                            infoArea.Deleted = false;
-                        }
-
-                        if (infoArea == null)
-                        {
-                            // Create
-                            infoArea = new AreaInfo();
-                            infoArea.Code = countryCode;
-                            infoArea.Name = CountriesManager.GetNameFromCode(countryCode);
-                            infoArea.Deleted = false;
-                            m_areas[countryCode] = infoArea;
-                        }
-                        
-                        infoArea.Bandwidth += server.Bandwidth;
-                        infoArea.BandwidthMax += server.BandwidthMax;
-                        
-                        if (server.Users >= 0)
-                        {
-                            if (infoArea.Users == -1)
-                                infoArea.Users = 0;
-                            infoArea.Users += server.Users;
-                        }
-                        
-                        infoArea.Servers++;
-                    }
-
-                    for (;;)
-                    {
-                        bool restart = false;
-                        foreach (AreaInfo infoArea in m_areas.Values)
-                        {
-                            if (infoArea.Deleted)
-                            {
-                                m_areas.Remove(infoArea.Code);
-                                restart = true;
-                                break;
-                            }
-                        }
-
-                        if (restart == false)
-                            break;
-                    }
-
-                    // White/black list
-                    foreach (AreaInfo infoArea in m_areas.Values)
-                    {
-                        string code = infoArea.Code;
-                        if (areasWhiteList.Contains(code))
-                            infoArea.UserList = AreaInfo.UserListType.WhiteList;
-                        else if (areasBlackList.Contains(code))
-                            infoArea.UserList = AreaInfo.UserListType.BlackList;
-                        else
-                            infoArea.UserList = AreaInfo.UserListType.None;
-                    }
-                }
+                RecomputeAreas();
             }
         }
 
@@ -1120,16 +1089,16 @@ namespace Eddie.Core
 				if (Engine.IsConnected())
 				{
 					Stats.UpdateValue("ServerName", Engine.CurrentServer.DisplayName);
-					Stats.UpdateValue("ServerLatency", Engine.CurrentServer.Ping.ToString() + " ms");
-					Stats.UpdateValue("ServerLocation", CountriesManager.GetNameFromCode(Engine.CurrentServer.CountryCode) + " - " + Engine.CurrentServer.Location);
-					Stats.UpdateValue("ServerLoad", Engine.CurrentServer.Load().ToString());
-					Stats.UpdateValue("ServerUsers", Engine.CurrentServer.Users.ToString());
+					Stats.UpdateValue("ServerLatency", Engine.CurrentServer.GetLatencyForList());
+					Stats.UpdateValue("ServerLocation", Engine.CurrentServer.GetLocationForList());
+					Stats.UpdateValue("ServerLoad", Engine.CurrentServer.GetLoadForList());
+					Stats.UpdateValue("ServerUsers", Engine.CurrentServer.GetUsersForList());
 
                     Stats.UpdateValue("AccountLogin", Engine.Storage.Get("login"));
                     Stats.UpdateValue("AccountKey", Engine.Storage.Get("key"));
 
                     Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP);
-					Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpExit);
+                    Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpExit);                    
 					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
 					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
 					if (Engine.ConnectedRealIp != "")
@@ -1529,8 +1498,9 @@ namespace Eddie.Core
 		
 		public XmlDocument XmlFromUrl(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
         {
+            string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, title, 5, bypassProxy));                
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, title, 5, bypassProxy)));
+            doc.LoadXml(str);
             return doc;
         }
 
@@ -1715,7 +1685,7 @@ namespace Eddie.Core
 
                 WaitMessageClear();
 
-                if (Engine.Instance.Storage.GetBool("advanced.batchmode"))
+                if (Engine.Instance.Storage.GetBool("batch"))
                 {
                     Engine.Instance.RequestStop();                    
                 }
@@ -1743,6 +1713,91 @@ namespace Eddie.Core
                 Logs.Log(LogType.InfoImportant, Messages.SessionStop);                
             }
 			
+        }
+
+        public void RecomputeAreas()
+        {
+            // Compute areas
+            lock (m_areas)
+            {
+                foreach (AreaInfo infoArea in m_areas.Values)
+                {
+                    infoArea.Deleted = true;
+                    infoArea.Servers = 0;
+                    infoArea.Users = -1;
+                    infoArea.Bandwidth = 0;
+                    infoArea.BandwidthMax = 0;
+                }
+
+                List<string> areasWhiteList = Storage.GetList("areas.whitelist");
+                List<string> areasBlackList = Storage.GetList("areas.blacklist");
+
+                foreach (ServerInfo server in m_servers.Values)
+                {
+                    string countryCode = server.CountryCode;
+
+                    AreaInfo infoArea = null;
+                    if (m_areas.ContainsKey(countryCode))
+                    {
+                        infoArea = m_areas[countryCode];
+                        infoArea.Deleted = false;
+                    }
+
+                    if (infoArea == null)
+                    {
+                        // Create
+                        infoArea = new AreaInfo();
+                        infoArea.Code = countryCode;
+                        infoArea.Name = CountriesManager.GetNameFromCode(countryCode);
+                        infoArea.Deleted = false;
+                        m_areas[countryCode] = infoArea;
+                    }
+
+                    if (server.BandwidthMax != 0)
+                    {
+                        infoArea.Bandwidth += server.Bandwidth;
+                        infoArea.BandwidthMax += server.BandwidthMax;
+                    }
+
+                    if (server.Users >= 0)
+                    {
+                        if (infoArea.Users == -1)
+                            infoArea.Users = 0;
+                        infoArea.Users += server.Users;
+                    }
+
+                    infoArea.Servers++;
+                }
+
+                for (;;)
+                {
+                    bool restart = false;
+                    foreach (AreaInfo infoArea in m_areas.Values)
+                    {
+                        if (infoArea.Deleted)
+                        {
+                            m_areas.Remove(infoArea.Code);
+                            restart = true;
+                            break;
+                        }
+                    }
+
+                    if (restart == false)
+                        break;
+                }
+
+                // White/black list
+                foreach (AreaInfo infoArea in m_areas.Values)
+                {
+                    string code = infoArea.Code;
+                    if (areasWhiteList.Contains(code))
+                        infoArea.UserList = AreaInfo.UserListType.WhiteList;
+                    else if (areasBlackList.Contains(code))
+                        infoArea.UserList = AreaInfo.UserListType.BlackList;
+                    else
+                        infoArea.UserList = AreaInfo.UserListType.None;
+                }
+            }
         }
 
 		public void UpdateSettings()

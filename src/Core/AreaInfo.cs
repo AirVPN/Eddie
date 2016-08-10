@@ -152,7 +152,7 @@ namespace Eddie.Core
         public string GetUsersForList()
         {
             if (Users == -1)
-                return "";
+                return "-";
             else
                 return Users.ToString();
         }

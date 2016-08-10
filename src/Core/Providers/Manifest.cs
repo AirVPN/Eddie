@@ -65,14 +65,102 @@ namespace Eddie.Core.Providers
 			User = Storage.DocumentElement.SelectSingleNode("user");
 		}
 
-		public override void OnBuildOvpnDefaults(OvpnBuilder ovpn, string protocol)
+		public override void OnBuildOvpnDefaults(OvpnBuilder ovpn)
 		{
-			base.OnBuildOvpnDefaults(ovpn, protocol);
+			base.OnBuildOvpnDefaults(ovpn);
 
 			ovpn.AppendDirectives(Manifest.Attributes["openvpn_directives"].Value.Replace("\t", "").Trim(), "Provider level");
 		}
 
-		public override void OnBuildOvpnAuth(OvpnBuilder ovpn)
+        public override void OnBuildOvpn(OvpnBuilder ovpn)
+        {
+            base.OnBuildOvpn(ovpn);
+
+            // Move here AirVPN specific of Session thread (protocol, remote, alt, port, proxy)
+
+            ServerInfo CurrentServer = Engine.Instance.CurrentServer;
+
+            string protocol = Engine.Instance.Storage.Get("mode.protocol").ToUpperInvariant();
+            int port = Engine.Instance.Storage.GetInt("mode.port");
+            int alt = Engine.Instance.Storage.GetInt("mode.alt");
+            int proxyPort = 0;
+
+            if (protocol == "AUTO")
+            {
+                protocol = CurrentServer.Provider.GetKeyValue("mode_protocol", "UDP");
+                string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
+                if (proxyMode != "none")
+                    protocol = "TCP";
+                port = Conversions.ToInt32(CurrentServer.Provider.GetKeyValue("mode_port", "443"));
+                alt = Conversions.ToInt32(CurrentServer.Provider.GetKeyValue("mode_alt", "0"));
+            }
+
+            if (protocol == "SSH")
+            {
+                proxyPort = Engine.Instance.Storage.GetInt("ssh.port");
+                if (proxyPort == 0)
+                    proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
+            }
+            else if (protocol == "SSL")
+            {
+                proxyPort = Engine.Instance.Storage.GetInt("ssl.port");
+                if (proxyPort == 0)
+                    proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
+            }
+            else
+            {
+                proxyPort = 0;
+            }
+
+            if (protocol == "UDP")
+            {
+                ovpn.AppendDirective("proto", "udp", "");
+            }
+            else // TCP, SSH, SSL, Tor
+            {
+                ovpn.AppendDirective("proto", "tcp", "");
+            }
+
+            string ip = CurrentServer.IpEntry;
+            if (alt == 1)
+                ip = CurrentServer.IpEntry2;
+
+            if (protocol == "SSH")
+                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
+            else if (protocol == "SSL")
+                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
+            else
+                ovpn.AppendDirective("remote", ip + " " + port.ToString(), "");
+
+            string routesDefault = Engine.Instance.Storage.Get("routes.default");
+            if (routesDefault == "in")
+            {
+                if ((protocol == "SSH") || (protocol == "SSL"))
+                {
+                    ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway", "VPN Entry IP");
+                }
+            }
+
+            // Additional tunnel mode
+            if (protocol == "SSH")
+            {
+                ovpn.ProxyPort = Engine.Instance.Storage.GetInt("ssh.port");
+                if (ovpn.ProxyPort == 0)
+                    ovpn.ProxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
+            }
+            else if (protocol == "SSL")
+            {
+                ovpn.ProxyPort = Engine.Instance.Storage.GetInt("ssl.port");
+                if (ovpn.ProxyPort == 0)
+                    ovpn.ProxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
+            }
+
+            ovpn.Protocol = protocol;
+            ovpn.Address = ip;
+            ovpn.Port = port;            
+        }
+
+        public override void OnBuildOvpnAuth(OvpnBuilder ovpn)
 		{
 			base.OnBuildOvpnAuth(ovpn);
 

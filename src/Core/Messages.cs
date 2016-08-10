@@ -39,7 +39,7 @@ namespace Eddie.Core
 		public static string DoubleClickToView = "(Double-Click to View)";
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";
-		public static string CheckingRequired = "Unavailable (Check required)";
+		public static string CheckingRequired = "Unavailable (option 'Checking Tunnel' required)";
 		public static string ServerByNameNotFound = "Requested server '{1}' not found.";
         public static string KeyNotFound = "Key '{1}' not found.";
         public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
@@ -188,6 +188,7 @@ namespace Eddie.Core
 		public static string ServersUsers = "Users";
 
         public static string ProvidersInvalid = "Invalid provider";
+        public static string ProvidersOpenVpnPathNotFound = "Path {1} not found for provider {2}";
 
         public static string WindowsAboutTitle = "About";
 		public static string WindowsAboutVersion = "Version";
@@ -299,38 +300,45 @@ namespace Eddie.Core
 
 
 
-		public static string ManName = "airvpn -- AirVPN Client, console edition";
-		public static string ManSynopsis = "airvpn -cli [-option=\"value\"] ...";
-		public static string ManDescription = "See AirVPN website for more information: https://airvpn.org";
-		public static string ManCopyright = "Copyright (C) AirVPN - Released under GNU General Public License - http://www.gnu.org/licenses/gpl.html";
+		public static string ManName = "airvpn -- Eddie/AirVPN VPN Client, console edition";
+        public static string ManHeaderComment = "Generated automatically with 'airvpn -cli -help -help_format=man'";
+        public static string ManSynopsis = "airvpn -cli [OPTIONS...]";
+		public static string ManDescription = "Eddie/AirVPN is an OpenVPN wrapper providing advanced features such as network lock, connections over SSL/TLS and SSH tunnels, programmable events, customizable routes, extensive control on OpenVPN directives and a comfortable, optional GUI. See AirVPN website for more information: [link]https://airvpn.org[/link]";
+		public static string ManCopyright = "Copyright (C) AirVPN - Released under GNU General Public License - [link]http://www.gnu.org/licenses/gpl.html[/link]";
+        public static string ManHeaderOption1 = "Options can be written as [i]--option=\"value\"[/i].\nDouble-quotes and minus are optional, [i]option=value[/i] is valid.\nEvery option have only one value.\nOptions without a value like [i]--option[/i] are treated as [i]--option=\"True\"[/i]";
+        public static string ManHeaderOption2 = "Default options are read from the profile. Options in command-line override them but are not saved in the profile at exit.\nYou can run the UI, choose options in the UI, and then launch the command-line edition with the profile options, to avoid to specify all the options in the command-line.";
+        public static string ManHeaderOption3 = "The options [i]--login[/i] and [i]--password[/i] are mandatory if they are not already in the profile.\nBy default, the client doesn't connect to any server automatically. Specify [i]--connect[/i] to connect automatically.\nSpecify [i]--netlock[/i] to start with network lock activation.";
+        public static string ManHeaderOption4 = "By default the application works interactively: Press [i]n[/i] to connect to a server, [i]x[/i] or [i]ctrl+c[/i] to exit.\nSpecify [i]--batch[/i] for non-interactive mode.";
 
-		public static string ManOptionCli = "Don't show the graphics user interface. Connect directly.";
-		public static string ManOptionHelp = "Show help manual";
-		public static string ManOptionLogin = "Login of your AirVPN account";
-		public static string ManOptionPassword = "Password of your AirVPN account";
-		public static string ManOptionRemember = "'True' if login data persist after exit.";
-        public static string ManOptionKey = "Key name";
-        public static string ManOptionServer = "Server to connect to. Leave empty to pick recommended server";
+        public static string ManOptionCli = "Don't show the graphics user interface. Connect directly.";
+		public static string ManOptionHelp = "Show help manual.";
+        public static string ManOptionHelpFormat = "Format of the help manual. Can be [i]man[/i], [i]text[/i], [i]html[/i] or [i]bbcode[/i]";
+        public static string ManOptionLogin = "Login of your AirVPN account.";
+		public static string ManOptionPassword = "Password of your AirVPN account.";
+		public static string ManOptionRemember = "[i]True[/i] if login data persist after exit.";
+        public static string ManOptionKey = "Key name.";
+        public static string ManOptionServer = "Server to connect to. Leave empty to pick recommended server.";
 		public static string ManOptionConnect = "Connect automatically at startup. Only for GUI, command-line always starts directly.";
-		public static string ManOptionProfile = "Profile name. Use it to store different set of options";
-		public static string ManOptionPath = "Data path. May be a full path or special value 'program' or 'home'";
+        public static string ManOptionNetLock = "Network lock automatically at startup.";
+        public static string ManOptionProfile = "Profile name. Use it to store different set of options";
+		public static string ManOptionPath = "Data path. May be a full path or special value [i]program[/i] or [i]home[/i]";
                 
-        public static string ManOptionServersWhiteList = "List of servers available for connection. Leave empty for all servers. Separate values with comma. Example: 'Canopus,Syrma,Taygeta'";
-		public static string ManOptionServersBlackList = "List of servers to avoid in connection. Same syntax of whitelist.";
-		public static string ManOptionServersStartLast = "'True' if you want to connect to the last used server. 'False' to choose it automatically.";
-		public static string ManOptionServersLockLast = "'True' if you never leave the selected server, not even in case of disconnection.";
-		public static string ManOptionServersScoreType = "May be 'Speed' or 'Latency'. Affects scoring of servers, indicates if you prefer a better speed or a better latency";
+        //public static string ManOptionServersWhiteList = "List of servers available for connection. Leave empty for all servers. Separate values with comma. Example: 'Canopus,Syrma,Taygeta'";
+		//public static string ManOptionServersBlackList = "List of servers to avoid in connection. Same syntax of whitelist.";
+		public static string ManOptionServersStartLast = "[i]True[/i] if you want to connect to the last used server. [i]False[/i] to choose it automatically.";
+		public static string ManOptionServersLockLast = "[i]True[/i] if you never leave the selected server, not even in case of disconnection.";
+		public static string ManOptionServersScoreType = "May be [i]Speed[/i] or [i]Latency[/i]. Affects scoring of servers, indicates if you prefer a better speed or a better latency";
 		public static string ManOptionAreasWhiteList = "List of areas available for connection. Same as server whitelist syntax. Example: 'nl,de'";
 		public static string ManOptionAreasBlackList = "List of areas to avoid in connection. Same as whitelist syntax.";
 
-		public static string ManOptionModeProtocol = "Protocol for connection. 'UDP', 'TCP' for direct openvpn connection. 'SSH', 'SSL' for additional tunneling";
-		public static string ManOptionModePort = "Port for connection. Currently available: 443, 80, 53, 2018";
+		public static string ManOptionModeProtocol = "Protocol for connection. [i]UDP[/i], [i]TCP[/i] for direct openvpn connection. [i]SSH[/i], [i]SSL[/i] for additional tunneling";
+		public static string ManOptionModePort = "Port for connection.";
 		public static string ManOptionModeAlt = "0 to use the default entry IP, 1 or more for additional entry IP";
 		
-		public static string ManOptionProxyMode = "Proxy mode: 'none', 'http' or 'socks'. 'protocol' option must be 'TCP'.";
+		public static string ManOptionProxyMode = "Proxy mode: [i]none[/i], [i]http[/i] or [i]socks[/i]. [i]protocol[/i] option must be [i]TCP[/i].";
 		public static string ManOptionProxyHost = "Proxy host";
 		public static string ManOptionProxyPort = "Proxy port";
-		public static string ManOptionProxyAuth = "Proxy authentication method: 'None', 'Basic' or 'NTLM'";
+		public static string ManOptionProxyAuth = "Proxy authentication method: [i]None[/i], [i]Basic[/i] or [i]NTLM[/i]";
 		public static string ManOptionProxyLogin = "Proxy login, for authentication";
 		public static string ManOptionProxyPassword = "Proxy password, for authentication";
         public static string ManOptionProxyTorControlPort = "Tor Control port";
@@ -338,11 +346,19 @@ namespace Eddie.Core
         public static string ManOptionProxyTorControlPassword = "Tor Control password. If empty, the software tries to detect the file cookie password";
 
         public static string ManOptionRoutesCustom = "Custom routes. Format: '{ip or range},{in/out},{note (optional)};...'. Separate multiple routes with ;. Example: '1.2.3.4,in;2.3.4.5/23,out,'test'";
-		public static string ManOptionRoutesDefault = "Specify whether routes that don't match the custom route must be inside ('in') or outside ('out') the tunnel.";
+        public static string ManOptionRoutesRemoveDefault = "Remove the default gateway route. Can not work as expected if DHCP renew occurs."; 
+        public static string ManOptionRoutesDefault = "Specify whether routes that don't match the custom route must be inside ([i]in[/i]) or outside ([i]out[/i]) the tunnel.";
 
-		public static string ManOptionDnsMode = "'None' to disable DNS switch. 'Auto' to let the software choose the best method. Otherwise choose a method. Refer to https://airvpn.org/faq/software_advanced/ for more information about each method on each platform.";        
+		public static string ManOptionDnsMode = "[i]None[/i] to disable DNS switch. [i]Auto[/i] to let the software choose the best method. Otherwise choose a method. Refer to [link]https://airvpn.org/faq/software_advanced/[/link] for more information about each method on each platform.";        
         public static string ManOptionDnsServers = "List of DNS servers. If not empty, override the DNS suggested by VPN server. Separate multiple values with comma.";
-		public static string ManOptionDnsCheck = "True/False. When the connection is established, try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";
+		public static string ManOptionDnsCheck = "When the connection is established, if [i]True[/i] it try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";
+
+        public static string ManOptionNetLockMode = "Network Lock mode. Can be [i]None[/i], [i]Auto[/i] or a method name."; 
+        public static string ManOptionNetLockAllowPrivate = "Allow private network in Network Lock mode."; 
+        public static string ManOptionNetLockAllowPing = "Allow ping (ICMP) in Network Lock mode.";
+        public static string ManOptionNetLockAllowedsIps = "List (comma-separated) of IP or range allowed in Network Lock mode.";
+
+        public static string ManOptionIpV6 = "IPv6 mode. Can be [i]disabled[/i] to disable IPv6, or [i]none[/i]";
 
         public static string ManOptionExecutablesOpenVpn = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with Eddie.";
         public static string ManOptionExecutablesSsh = "Path to a custom SSH tunnel executable";
@@ -351,43 +367,48 @@ namespace Eddie.Core
 
 		public static string ManOptionOpenVpnCustom = "Allows you to specify custom OpenVPN directives.";
         public static string ManOptionOpenVpnDevNode = "OpenVPN dev-node directive."; 
-        public static string ManOptionOpenVpnSndBuf = "TCP/UDP send buffer size."; 
-        public static string ManOptionOpenVpnRcvBuf = "TCP/UDP receive buffer size."; 
-        public static string ManOptionOpenVpnSkipDefaults = "If 'false' the custom directives are appended to the default directive.";
+        public static string ManOptionOpenVpnSndBuf = "TCP/UDP send buffer size. Special values: [i]-2[/i]: Automatic, [i]-1[/i]: OpenVPN default."; 
+        public static string ManOptionOpenVpnRcvBuf = "TCP/UDP receive buffer size. Special values: [i]-2[/i]: Automatic, [i]-1[/i]: OpenVPN default.";
+        public static string ManOptionOpenVpnDirectives = "Base OpenVPN directives.";
+        public static string ManOptionOpenVpnSkipDefaults = "If [i]False[/i] the custom directives are appended to the default directive.";
 		public static string ManOptionOpenVpnManagementPort = "Default port of OpenVPN Management Interface.";
-		public static string ManOptionSshPort = "Default port of SSH Tunnel. If 0, a random port is used.";
-		public static string ManOptionSslPort = "Default port of SSL Tunnel. If 0, a random port is used.";
+		public static string ManOptionSshPort = "Default port of SSH Tunnel. If [i]0[/i], a random port is used.";
+		public static string ManOptionSslPort = "Default port of SSL Tunnel. If [i]0[/i], a random port is used.";
 
-        public static string ManOptionOsSingleInstance = "If unchecked, multiple instances of the software can be opened.";
+        public static string ManOptionOsSingleInstance = "If [i]False[/i], multiple instances of the software can be opened.";
         public static string ManOptionWebUiEnabled = "Web-interface enabled or not"; 
         public static string ManOptionWebUiAddress = "Web-interface bind address. Leave empty for all interfaces, localhost or specify an IP address.";
         public static string ManOptionWebUiPort = "Web-interface port.";
 
         public static string ManOptionAdvancedExpert = "Activate some expert information and features.\n- Allows sending commands to OpenVPN Management Interface via Logs window.\n- Show verbose logs message in main windows";		
-		public static string ManOptionAdvancedCheckRoute = "True/False. Send a request to the server, that check it come from within the tunnel, and reply with an acknowledgement.";		
-		public static string ManOptionAdvancedPingerEnabled = "If 'true' the software pings servers to determine latency score. Pings are not performed during VPN connection.";
-		public static string ManOptionAdvancedPingerDelay = "Ping each server every X seconds. If 0, the recommended values are used.";
-		public static string ManOptionAdvancedPingerRetry = "Ping every server that doesn't have ping results every X seconds. If 0, the recommended values are used.";
+		public static string ManOptionAdvancedCheckRoute = "If [i]True[/i] send a request to the server, that check it come from within the tunnel, and reply with an acknowledgement.";		
+		public static string ManOptionAdvancedPingerEnabled = "If [i]True[/i] the software pings servers to determine latency score. Pings are not performed during VPN connection.";
+		public static string ManOptionAdvancedPingerDelay = "Ping each server every [i]X[/i] seconds. If [i]0[/i], the recommended values are used.";
+		public static string ManOptionAdvancedPingerRetry = "Ping every server that doesn't have ping results every X seconds. If [i]0[/i], the recommended values are used.";
 		public static string ManOptionAdvancedPingerJobs = "Maximum parallel jobs/thread for pinging purpose.";
-		public static string ManOptionAdvancedPingerValid = "Global pinger results valid if all ping reply are maximum X seconds ago. If 0, the recommended values are used.";
+		public static string ManOptionAdvancedPingerValid = "Global pinger results valid if all ping reply are maximum X seconds ago. If [i]0[/i], the recommended values are used.";
         
-		public static string ManOptionEventFileName = "Filename of the script/executable to launch on event";
-		public static string ManOptionEventArguments = "Arguments";
-		public static string ManOptionEventWaitEnd = "'true' if the software needs to wait the end (synchronous) or 'false' to be asynchronous";
+		public static string ManOptionEventFileName = "Filename of the script/executable to launch on event.";
+		public static string ManOptionEventArguments = "Arguments of the script/executable.";
+		public static string ManOptionEventWaitEnd = "Use [i]True[/i] if the software needs to wait the end (synchronous) or [i]False[/i] to be asynchronous.";
 
         public static string ManOptionWindowsAdapterService = "OpenVPN TUN/TAP adapter identifier.";
         public static string ManOptionWindowsDisableDriverUpgrade = "Don't try to upgrade the TUN/TAP driver.";
         public static string ManOptionWindowsTapUp = "Force the TAP interface to come UP.";
         public static string ManOptionWindowsDhcpDisable = "If a DHCP adapter is renewed during connection, Windows may reset the original DNS settings.\nIf this option is active, when the connection starts the client changes any DHCP adapter to Static.\nWhen the connection is closed, the client resets every adapter to the original state.\nNo action is performed if there isn't any adapter in DHCP.\n\nThis option is equivalent to one feature of the https://www.dnsleaktest.com/ scripts.";
+        public static string ManOptionWindowsWfp = "Use Windows Filtering Platform."; 
+        public static string ManOptionWindowsWfpDynamic = "If [i]True[/i], Windows Filtering Platform rules don't survive if the process crash.";
         public static string ManOptionWindowsIPv6DisableAtOs = "If IPv6 needs to be disabled, try to disable it also at OS level (registry).";
         public static string ManOptionWindowsDnsForceAllInterfaces = "If DNS leak protection is active, change DNS settings of all network interfaces.";
         public static string ManOptionWindowsDnsLock = "DNS leak protection.";
 
+        public static string ManOptionUiUnit = "Unit of measurement of data volume and speed. Can be [i]bytes[/i], [i]bits[/i] or empty. If empty, bytes are used for volume, bits for speed.";
+
         // Providers - Eddie v3        
-        public static string ManOptionServicesOpenVpnAutoSync = "True/False. If true, profiles are automatically in-sync with the path. If false, profiles are imported and can be edited.";
+        public static string ManOptionServicesOpenVpnAutoSync = "If [i]True[/i], profiles are automatically in-sync with the path. If false, profiles are imported and can be edited.";
         public static string ManOptionServicesOpenVpnPath = "Path where OpenVPN configuration files are fetched from";
-        public static string ManOptionServicesDnsCheck = "True/False. When the connection is established, try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";
-        public static string ManOptionServicesTunnelCheck = "True/False. Send a request to the server, that verifies it comes from within the tunnel, and reply with an acknowledgement.";       
+        public static string ManOptionServicesDnsCheck = "When the connection is established, try to resolve domain names that are resolved only by AirDNS server, to ensure that system is correctly using our DNS server.\nIt's not mandatory to use our DNS server, but it's recommended to enjoy our Geolocation Routing service and avoid DNS blocks by your provider.";
+        public static string ManOptionServicesTunnelCheck = "Send a request to the server, that verifies it comes from within the tunnel, and reply with an acknowledgement.";       
 
         // Platform Windows		
         public static string NetworkAdapterDhcpDone = "Network adapter DHCP switched to static ({1})";
@@ -414,7 +435,7 @@ namespace Eddie.Core
         
         // Platform Linux
         public static string DnsResolvConfScript = "DNS of the system will be updated to VPN DNS (ResolvConf method)"; 
-		public static string DnsRenameBackup = "/etc/resolv.conf renamed to /etc/resolv.conf.airvpn as backup";
+		public static string DnsRenameBackup = "/etc/resolv.conf moved to /etc/resolv.conf.eddie as backup";
 		public static string DnsRenameDone = "DNS of the system updated to VPN DNS (Rename method: /etc/resolv.conf generated)";
 		public static string DnsRenameRestored = "DNS of the system restored to original settings (Rename method)";
 		public static string IpV6Warning = "IPv6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPv6.\n\nContinue?";

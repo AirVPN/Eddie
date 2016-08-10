@@ -170,7 +170,20 @@ namespace Eddie.Platforms
             */
         }
 
-		public override void EnsureExecutablePermissions(string path)
+        public override long Ping(string host, int timeoutSec)
+        {
+            string result = ShellCmd("ping -c 1 -w " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
+            //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
+
+            string sMS = Utils.ExtractBetween(result, "min/avg/max/mdev = ", "/");
+            float iMS;
+            if (float.TryParse(sMS, out iMS))
+                return (Int64)iMS;
+            else
+                return -1;
+        }
+
+        public override void EnsureExecutablePermissions(string path)
 		{
 			if ((path == "") || (File.Exists(path) == false))
 				return;
@@ -209,7 +222,7 @@ namespace Eddie.Platforms
 
 			ShellCmd(cmd);
 		}
-
+        
 		public override void RouteRemove(RouteEntry r)
 		{
 			string cmd = "route del";
@@ -226,8 +239,17 @@ namespace Eddie.Platforms
 			
 			ShellCmd(cmd);
 		}
-		
-		public override List<RouteEntry> RouteList()
+
+        public override void ResolveWithoutAnswer(string host)
+        {
+            // Base method with Dns.GetHostEntry have cache issue, for example on Fedora.
+            if (File.Exists("/usr/bin/host"))
+                ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
+            else
+                base.ResolveWithoutAnswer(host);
+        }
+
+        public override List<RouteEntry> RouteList()
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
@@ -307,7 +329,7 @@ namespace Eddie.Platforms
 
 		public override bool OnCheckEnvironment()
 		{
-			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
+			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
 				string sysctlName = "sysctl net.ipv6.conf.all.disable_ipv6";
 				string ipV6 = ShellCmd(sysctlName).Replace(sysctlName, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
@@ -329,7 +351,7 @@ namespace Eddie.Platforms
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Warning, Messages.IpV6WarningUnableToDetect);
+					Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6WarningUnableToDetect);
 				}
 			}
 
@@ -352,13 +374,16 @@ namespace Eddie.Platforms
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
-				if (File.Exists("/etc/resolv.conf.airvpn") == false)
+				if (File.Exists("/etc/resolv.conf.eddie") == false)
 				{
-					Engine.Instance.Logs.Log(LogType.Info, Messages.DnsRenameBackup);
-					File.Copy("/etc/resolv.conf", "/etc/resolv.conf.airvpn");
+                    if (File.Exists("/etc/resolv.conf"))
+                    {
+                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameBackup);
+                        File.Move("/etc/resolv.conf", "/etc/resolv.conf.eddie");
+                    }
 				}
 
-				Engine.Instance.Logs.Log(LogType.Info, Messages.DnsRenameDone);
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
 
 				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
 
@@ -378,12 +403,14 @@ namespace Eddie.Platforms
 		public override bool OnDnsSwitchRestore()
 		{
 			// Cleaning rename method if pending
-			if (File.Exists("/etc/resolv.conf.airvpn") == true)
+			if (File.Exists("/etc/resolv.conf.eddie") == true)
 			{
-				Engine.Instance.Logs.Log(LogType.Info, Messages.DnsRenameRestored);
+                if (File.Exists("/etc/resolv.conf"))
+                    File.Delete("/etc/resolv.conf");
+                
+                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameRestored);
 
-				File.Copy("/etc/resolv.conf.airvpn", "/etc/resolv.conf", true);
-				File.Delete("/etc/resolv.conf.airvpn");
+				File.Move("/etc/resolv.conf.eddie", "/etc/resolv.conf");
 			}
 
 			base.OnDnsSwitchRestore();
@@ -418,14 +445,12 @@ namespace Eddie.Platforms
 		public override void UnInstallDriver()
 		{
 		}
-
-
-
+        
 
 
 		public string GetDnsSwitchMode()
 		{
-			string current = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
+			string current = Engine.Instance.Storage.GetLower("dns.mode");
 
 			if (current == "auto")
 			{
@@ -449,5 +474,24 @@ namespace Eddie.Platforms
 
 			return current;			
 		}
+
+        public bool DetectLinuxHostNameIssue()
+        {
+            // https://bugzilla.xamarin.com/show_bug.cgi?id=42249
+            // If hostname can't be resolved (missing entry in /etc/hosts), Mono::Ping throw an exception.
+            // Never really called, because in >2.11.4 we use a shell for pinging under Linux.
+            try
+            {
+                foreach (IPAddress addr in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+                {
+
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
+        }
     }
 }

@@ -220,15 +220,6 @@ namespace Eddie.Core
 			return Conversions.ToUnixTime(DateTime.UtcNow);
 		}
 
-        // TOCLEAN
-        /*
-        public static bool IsIP(string IP)
-        {
-            IPAddress ip;
-            return IPAddress.TryParse(IP, out ip);
-        }
-        */
-
         public static string HostFromUrl(string url)
         {
             try
@@ -258,8 +249,24 @@ namespace Eddie.Core
 
             return v;
         }
-				
-		public static string FormatTime(Int64 unix)
+
+        public static string StringRemoveEmptyLines(string v)
+        {
+            for (;;)
+            {
+                string orig = v;
+
+                v = v.Replace("\n\n", "\n");
+                v = v.Trim();
+
+                if (v == orig)
+                    break;
+            }
+
+            return v;
+        }
+
+        public static string FormatTime(Int64 unix)
 		{
 			if (unix == 0)
 				return "-";
@@ -424,7 +431,14 @@ namespace Eddie.Core
 			return value;
 		}
 
-		public static string RegExMatchOne(string input, string pattern)
+        public static string SafeStringHost(string value)
+        {
+            Regex rgx = new Regex("[^a-zA-Z0-9\\.-_]");
+            value = rgx.Replace(value, "");
+            return value;
+        }
+
+        public static string RegExMatchOne(string input, string pattern)
 		{
 			Match match = Regex.Match(input, pattern, RegexOptions.Multiline);
 			if (match.Success)

@@ -70,7 +70,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="icon.ico" />
     <Content Include="Resources\icon.ico" />
   </ItemGroup>
   <ItemGroup>

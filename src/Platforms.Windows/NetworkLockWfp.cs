@@ -171,7 +171,7 @@ namespace Eddie.Platforms
             /*
             // TOFIX: Must be enabled in future when IPv6 support is well tested.
             // Remember: May fail at WFP side with a "Unknown interface" because network interface with IPv6 disabled have Ipv6IfIndex == 0.
-            if (Engine.Instance.Storage.Get("ipv6.mode") != "disable")
+            if (Engine.Instance.Storage.GetLower("ipv6.mode") != "disable")
                 AddRule("netlock_allow_interface_" + id + "_ipv6", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv6", id, "ipv6"));
             */
         }

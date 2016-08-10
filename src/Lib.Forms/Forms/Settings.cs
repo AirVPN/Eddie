@@ -97,7 +97,7 @@ namespace Eddie.Gui.Forms
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
             chkWindowsWfp.Visible = Platform.Instance.IsWindowsSystem();
 
-            if (Engine.Instance.AirVPN.Manifest != null)
+            if( (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null) )
             {
                 XmlNodeList xmlModes = Engine.Instance.AirVPN.Manifest.SelectNodes("//modes/mode");
                 foreach (XmlElement xmlMode in xmlModes)
@@ -138,7 +138,6 @@ namespace Eddie.Gui.Forms
             cboProxyMode.Items.Add("Tor");
 
             // Routes
-
             lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
             lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
             lstRoutes.ResizeColumnMax(2);
@@ -526,7 +525,10 @@ namespace Eddie.Gui.Forms
             }
 
             // Protocols
-            if(chkProtocolsAutomatic.Checked)
+            if (lstProtocols.Items.Count == 0) // Occur if AirVPN provider is disabled
+                chkProtocolsAutomatic.Checked = true;
+
+            if (chkProtocolsAutomatic.Checked)
             {
                 s.Set("mode.protocol", "AUTO");
                 s.SetInt("mode.port", 443);

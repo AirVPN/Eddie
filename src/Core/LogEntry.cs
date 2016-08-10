@@ -34,7 +34,7 @@ namespace Eddie.Core
 		public void WriteXML(XmlElement node)
 		{
 			Utils.XmlSetAttributeInt64(node, "timestamp",Conversions.ToUnixTime(Date));
-			Utils.XmlSetAttributeString(node, "type", GetTypeString());
+			Utils.XmlSetAttributeString(node, "level", GetTypeString());
 			Utils.XmlSetAttributeString(node, "message", Message);
 		}
 
