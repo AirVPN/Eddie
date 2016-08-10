@@ -47,7 +47,7 @@ namespace Deploy
 
 		static void Main(string[] args)
 		{
-			Log("AirVPN deployment v1.2");
+			Log("AirVPN deployment v1.3");
 			Log("PlatformOS: " + Environment.OSVersion.Platform.ToString());
 			Log("VersionString: " + Environment.OSVersion.VersionString.ToString());
 						
@@ -58,7 +58,7 @@ namespace Deploy
 			if (Environment.OSVersion.VersionString.IndexOf ("Windows") != -1)
 				SO = "windows";
 			else if ((Environment.OSVersion.Platform.ToString () == "Unix") && (Shell("uname") == "Darwin") ) {
-				SO = "Osx";
+				SO = "osx";
 			}
 			else if (Environment.OSVersion.Platform.ToString () == "Unix") {
 				SO = "linux";
@@ -167,7 +167,7 @@ namespace Deploy
                 ListPackages.Add(new Package("linux", arch, "rpm"));                
             }
 
-			if (SO == "Osx") {
+			if (SO == "osx") {
 				ListPackages.Add (new Package ("osx", "x64", "portable"));
 				ListPackages.Add (new Package ("osx", "x64", "installer"));
 			}
@@ -177,13 +177,19 @@ namespace Deploy
 			if(SO == "linux")
 				pathBaseTemp = "/tmp/airvpn_deploy";
 
-            Log("What .net framework is currently complied? '2' or '4'.");
-            ConsoleKeyInfo keyFramework = Console.ReadKey();
-            int netFramework = 0;
-            if (keyFramework.KeyChar == '2')
-                netFramework = 2;
-            else if (keyFramework.KeyChar == '4')
-                netFramework = 4;
+			int netFramework = 0;
+			if (SO == "windows") {
+				Log ("What .net framework is currently complied? '2' or '4'.");
+				ConsoleKeyInfo keyFramework = Console.ReadKey ();
+	            
+				if (keyFramework.KeyChar == '2')
+					netFramework = 2;
+				else if (keyFramework.KeyChar == '4')
+					netFramework = 4;
+			} else if (SO == "linux")
+				netFramework = 4;
+			else if (SO == "osx")
+				netFramework = 2;
 
 			foreach(Package package in ListPackages)
 			{
@@ -194,9 +200,11 @@ namespace Deploy
 				int requiredNetFramework = 4;
 				if(platform == "windows")
 					requiredNetFramework = 2;
-                if (platform == "windows_xp")
-                    requiredNetFramework = 2;
-                                
+				if (platform == "windows_xp")
+					requiredNetFramework = 2;
+				else if (platform == "osx")
+					requiredNetFramework = 2;
+				                
 				string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
 				string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
 				string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;

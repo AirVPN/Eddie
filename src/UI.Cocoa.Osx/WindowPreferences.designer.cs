@@ -103,6 +103,15 @@ namespace Eddie.UI.Osx
 		MonoMac.AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkUiSystemBarShowInfo { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkUiSystemBarShowServer { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkUiSystemBarShowSpeed { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdAdvancedEventsClear { get; set; }
 
 		[Outlet]
@@ -146,6 +155,9 @@ namespace Eddie.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdProxyTorTest { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdResetToDefault { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdRouteAdd { get; set; }
@@ -283,11 +295,6 @@ namespace Eddie.UI.Osx
 				CboProxyAuthentication = null;
 			}
 
-			if (CboUiUnit != null) {
-				CboUiUnit.Dispose ();
-				CboUiUnit = null;
-			}
-
 			if (CboProxyType != null) {
 				CboProxyType.Dispose ();
 				CboProxyType = null;
@@ -296,6 +303,26 @@ namespace Eddie.UI.Osx
 			if (CboRoutesOtherwise != null) {
 				CboRoutesOtherwise.Dispose ();
 				CboRoutesOtherwise = null;
+			}
+
+			if (CboUiUnit != null) {
+				CboUiUnit.Dispose ();
+				CboUiUnit = null;
+			}
+
+			if (ChkUiSystemBarShowInfo != null) {
+				ChkUiSystemBarShowInfo.Dispose ();
+				ChkUiSystemBarShowInfo = null;
+			}
+
+			if (ChkUiSystemBarShowSpeed != null) {
+				ChkUiSystemBarShowSpeed.Dispose ();
+				ChkUiSystemBarShowSpeed = null;
+			}
+
+			if (ChkUiSystemBarShowServer != null) {
+				ChkUiSystemBarShowServer.Dispose ();
+				ChkUiSystemBarShowServer = null;
 			}
 
 			if (ChkAdvancedCheckRoute != null) {
@@ -456,6 +483,11 @@ namespace Eddie.UI.Osx
 			if (CmdProxyTorTest != null) {
 				CmdProxyTorTest.Dispose ();
 				CmdProxyTorTest = null;
+			}
+
+			if (CmdResetToDefault != null) {
+				CmdResetToDefault.Dispose ();
+				CmdResetToDefault = null;
 			}
 
 			if (CmdRouteAdd != null) {

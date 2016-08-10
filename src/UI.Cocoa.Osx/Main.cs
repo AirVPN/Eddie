@@ -46,7 +46,7 @@ namespace Eddie.UI.Osx
 			if (CommandLine.SystemEnvironment.Exists ("cli")) {
 				Core.Engine engine = new Core.Engine ();
 
-				if (engine.Initialization ()) {
+				if (engine.Initialization (true)) {
 					engine.ConsoleStart ();
 					engine.Join ();
 				}
@@ -54,7 +54,7 @@ namespace Eddie.UI.Osx
 			} else {
 				Engine engine = new Engine ();
 
-				if (engine.Initialization () == false)
+				if (engine.Initialization (false) == false)
 					return;
 
 				NSApplication.Init ();

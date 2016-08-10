@@ -444,119 +444,128 @@ namespace Eddie.UI.Osx
 
 		public void RefreshUi (Engine.RefreshUiMode mode)
 		{
-			if ((mode == Engine.RefreshUiMode.MainMessage) || (mode == Engine.RefreshUiMode.Full)) {
+			try
+			{
+				if ((mode == Engine.RefreshUiMode.MainMessage) || (mode == Engine.RefreshUiMode.Full)) {
 
-				if (Engine.CurrentServer != null) {
-					ImgTopFlag.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
-				}
-				else {
-					ImgTopFlag.Image = NSImage.ImageNamed ("notconnected.png");
-				}
+					if (Engine.CurrentServer != null) {
+						ImgTopFlag.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
+					}
+					else {
+						ImgTopFlag.Image = NSImage.ImageNamed ("notconnected.png");
+					}
 
-				LblWaiting1.StringValue = Engine.WaitMessage;
+					LblWaiting1.StringValue = Engine.WaitMessage;
 
-				if(Engine.IsWaiting())
-				{
-					ImgProgress.StartAnimation(this);
-					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_yellow.png");
-					MnuTrayStatus.Image = NSImage.ImageNamed ("status_yellow_16.png");
-					LblTopStatus.StringValue = Engine.WaitMessage;
-
-					TabOverview.SelectAt(1);
-
-					CmdCancel.Hidden = (Engine.IsWaitingCancelAllowed() == false);
-					CmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
-					MnuTrayConnect.Enabled = CmdCancel.Enabled;
-				}
-				else if (Engine.IsConnected())
-				{
-					ImgProgress.StopAnimation (this);
-					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
-					MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
-					LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.DisplayName);
-
-					TabOverview.SelectAt(2);
-
-					LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
-					LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
-					TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpExit;
-					ImgConnectedCountry.Image = NSImage.ImageNamed ("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant () + ".png");
-				}
-				else
-				{
-					ImgProgress.StopAnimation (this);
-					ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
-					MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
-					if(Engine.Instance.NetworkLockManager.IsActive())
-						LblTopStatus.StringValue = Messages.TopBarNotConnectedLocked;
-					else
-						LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed;
-
-					TabOverview.SelectAt(0);
-				}
-
-				// Icon update
-				if(StatusItem != null)
-				{
-					//string colorMode = GuiUtils.InterfaceColorMode ();
-					string colorMode = Engine.Storage.Get ("gui.osx.style");
-			
-					if(Engine.IsConnected())
+					if(Engine.IsWaiting())
 					{
-						StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_green.png");
-						//NSApplication.SharedApplication.DockTile. =  DateTime.Now.ToString ();
-						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
+						ImgProgress.StartAnimation(this);
+						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_yellow.png");
+						MnuTrayStatus.Image = NSImage.ImageNamed ("status_yellow_16.png");
+						LblTopStatus.StringValue = Engine.WaitMessage;
+
+						TabOverview.SelectAt(1);
+
+						CmdCancel.Hidden = (Engine.IsWaitingCancelAllowed() == false);
+						CmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+						MnuTrayConnect.Enabled = CmdCancel.Enabled;
+					}
+					else if (Engine.IsConnected())
+					{
+						ImgProgress.StopAnimation (this);
+						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
+						MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
+						LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.DisplayName);
+
+						TabOverview.SelectAt(2);
+
+						LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
+						LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
+						TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpExit;
+						ImgConnectedCountry.Image = NSImage.ImageNamed ("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant () + ".png");
 					}
 					else
 					{
-						StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_red.png");
-						//NSApplication.SharedApplication.DockTile.Description =  DateTime.Now.ToString ();
-						NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
+						ImgProgress.StopAnimation (this);
+						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
+						MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
+						if(Engine.Instance.NetworkLockManager.IsActive())
+							LblTopStatus.StringValue = Messages.TopBarNotConnectedLocked;
+						else
+							LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed;
+
+						TabOverview.SelectAt(0);
+					}
+
+					// Icon update
+					if(StatusItem != null)
+					{
+						//string colorMode = GuiUtils.InterfaceColorMode ();
+						string colorMode = Engine.Storage.Get ("gui.osx.style");
+				
+						if(Engine.IsConnected())
+						{
+							StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_green.png");
+							//NSApplication.SharedApplication.DockTile. =  DateTime.Now.ToString ();
+							NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
+						}
+						else
+						{
+							StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_red.png");
+							//NSApplication.SharedApplication.DockTile.Description =  DateTime.Now.ToString ();
+							NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
+						}
+					}
+
+					EnabledUI();
+				}
+
+				if ((mode == Engine.RefreshUiMode.Log) || (mode == Engine.RefreshUiMode.Full)) {
+
+					lock (Engine.LogsPending) {
+						while (Engine.LogsPending.Count > 0) {
+							LogEntry l = Engine.LogsPending [0];
+							Engine.LogsPending.RemoveAt (0);
+
+							Log (l);
+						}
+					}
+					LblWaiting2.StringValue = Engine.Logs.GetLogDetailTitle();
+				}
+
+				if ((mode == Engine.RefreshUiMode.Stats) || (mode == Engine.RefreshUiMode.Full)) {
+					if (Engine.IsConnected ()) {
+						TxtConnectedSince.StringValue = Engine.Stats.GetValue ("VpnConnectionStart");
+
+						TxtConnectedDownload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false);
+						TxtConnectedUpload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false);
+
+						string msg = Engine.Instance.GetConnectedTrayText (true, true);
+						string tmsg = Constants.Name + " - " + msg;
+						this.Window.Title = tmsg;
+						MnuTrayStatus.Title = "> " + msg;
+
+						StatusItem.ToolTip = msg;
+						StatusItem.Title = Engine.Instance.GetConnectedTrayText(Engine.Instance.Storage.GetBool("gui.osx.sysbar.show_speed"), Engine.Instance.Storage.GetBool("gui.osx.sysbar.show_server"));
+
 					}
 				}
 
-				EnabledUI();
-			}
-
-			if ((mode == Engine.RefreshUiMode.Log) || (mode == Engine.RefreshUiMode.Full)) {
-
-				lock (Engine.LogsPending) {
-					while (Engine.LogsPending.Count > 0) {
-						LogEntry l = Engine.LogsPending [0];
-						Engine.LogsPending.RemoveAt (0);
-
-						Log (l);
-					}
+				if ((mode == Engine.RefreshUiMode.Full)) {
+					if(TableServersController != null)
+						TableServersController.RefreshUI ();
+					if(TableAreasController != null)
+						TableAreasController.RefreshUI ();
 				}
-				LblWaiting2.StringValue = Engine.Logs.GetLogDetailTitle();
-			}
-
-			if ((mode == Engine.RefreshUiMode.Stats) || (mode == Engine.RefreshUiMode.Full)) {
-				if (Engine.IsConnected ()) {
-					TxtConnectedSince.StringValue = Engine.Stats.GetValue ("VpnConnectionStart");
-
-					TxtConnectedDownload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false);
-					TxtConnectedUpload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false);
-
-					string msg = Engine.Instance.GetConnectedTrayText ();
-					string tmsg = Constants.Name + " - " + msg;
-					this.Window.Title = tmsg;
-					MnuTrayStatus.Title = "> " + msg;
-					StatusItem.ToolTip = msg;
-				}
-			}
-
-			if ((mode == Engine.RefreshUiMode.Full)) {
-				if(TableServersController != null)
-					TableServersController.RefreshUI ();
-				if(TableAreasController != null)
-					TableAreasController.RefreshUI ();
-			}
 			 
 
 
-
+			}
+			catch(Exception) {
+				// TOFIX: OS X sometime throw an useless exception in closing phase
+			}
 		}
+
 
 		public void Log(LogEntry l)
 		{
@@ -564,14 +573,18 @@ namespace Eddie.UI.Osx
 
 			TableLogsController.AddLog (l);
 
-			StatusItem.ToolTip = msg;
-
 			if ((msg != "") && (l.Type != LogType.Verbose)) {
 				if(Engine.IsConnected() == false)
 				{
 					Window.Title = Constants.Name + " - " + msg;
 					MnuTrayStatus.Title = "> " + msg;
 				}
+			}
+
+			if (l.Type >= LogType.InfoImportant) {
+				StatusItem.ToolTip = msg;
+				if(Engine.Instance.Storage.GetBool("gui.osx.sysbar.show_info"))
+					StatusItem.Title = msg;
 			}
 
 			if (l.Type >= LogType.InfoImportant)
@@ -785,7 +798,7 @@ namespace Eddie.UI.Osx
 
 		public void CreateMenuBarIcon ()
 		{
-			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem (22);
+			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(NSStatusItemLength.Variable);
 			//StatusItem.Menu = notifyMenu;
 			StatusItem.Menu = MnuTray;
 			StatusItem.Image = NSImage.ImageNamed ("menubar_light_red.png");

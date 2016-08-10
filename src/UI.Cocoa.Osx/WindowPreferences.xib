@@ -34,6 +34,9 @@
                 <outlet property="ChkNetLock" destination="vVa-Ie-bA5" id="6Am-xX-UPb"/>
                 <outlet property="ChkProtocolsAutomatic" destination="h8Y-x2-Tii" id="8F0-TH-PDH"/>
                 <outlet property="ChkRouteRemoveDefaultGateway" destination="58G-W2-QjM" id="aTh-td-Okv"/>
+                <outlet property="ChkUiSystemBarShowInfo" destination="jET-rF-bKQ" id="5Jf-Tp-Gty"/>
+                <outlet property="ChkUiSystemBarShowServer" destination="OBp-SD-TZu" id="hc6-TX-arF"/>
+                <outlet property="ChkUiSystemBarShowSpeed" destination="MuB-kh-swH" id="SSR-cX-o1H"/>
                 <outlet property="CmdAdvancedEventsClear" destination="8i0-Uy-Npo" id="sdX-Pd-h2U"/>
                 <outlet property="CmdAdvancedEventsEdit" destination="Ah2-4M-Je5" id="iOM-Yb-ua7"/>
                 <outlet property="CmdAdvancedHelp" destination="42Z-DG-mw5" id="kok-4t-7OH"/>
@@ -49,6 +52,7 @@
                 <outlet property="CmdProtocolsHelp2" destination="g7d-sl-TUU" id="B9q-SX-k8I"/>
                 <outlet property="CmdProxyTorHelp" destination="HlD-VF-NxK" id="vl8-ii-T0Z"/>
                 <outlet property="CmdProxyTorTest" destination="83a-lF-AXG" id="X20-CA-aVD"/>
+                <outlet property="CmdResetToDefault" destination="Gwr-vP-QoD" id="SOB-1s-kCf"/>
                 <outlet property="CmdRouteAdd" destination="dgh-7v-6Hk" id="Zld-79-69a"/>
                 <outlet property="CmdRouteEdit" destination="OjN-Zs-Oif" id="CAh-Ju-Db4"/>
                 <outlet property="CmdRouteRemove" destination="DQi-F5-OlE" id="nsA-g1-heD"/>
@@ -121,7 +125,7 @@
                                             </buttonCell>
                                         </button>
                                         <button id="ZMV-bb-YYL">
-                                            <rect key="frame" x="223" y="128" width="81" height="18"/>
+                                            <rect key="frame" x="223" y="97" width="81" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <animations/>
                                             <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="gSt-6O-lEi">
@@ -130,14 +134,14 @@
                                             </buttonCell>
                                         </button>
                                         <box autoresizesSubviews="NO" title="Apple OS X Only" borderType="line" id="XKI-HL-Mgn">
-                                            <rect key="frame" x="337" y="191" width="211" height="103"/>
+                                            <rect key="frame" x="337" y="98" width="211" height="196"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="209" height="87"/>
+                                                <rect key="frame" x="1" y="1" width="209" height="180"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <button id="8Ah-Jx-6k0">
-                                                        <rect key="frame" x="16" y="61" width="177" height="18"/>
+                                                        <rect key="frame" x="16" y="154" width="177" height="18"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <animations/>
                                                         <buttonCell key="cell" type="check" title="Start visible" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="tYb-yf-9Yl">
@@ -146,7 +150,7 @@
                                                         </buttonCell>
                                                     </button>
                                                     <button id="EG2-CQ-O27">
-                                                        <rect key="frame" x="16" y="36" width="177" height="18"/>
+                                                        <rect key="frame" x="16" y="129" width="177" height="18"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <animations/>
                                                         <buttonCell key="cell" type="check" title="System Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="txX-ag-YR4">
@@ -154,6 +158,47 @@
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
                                                     </button>
+                                                    <box autoresizesSubviews="NO" title="System Bar" borderType="line" id="Hpe-ja-3mD">
+                                                        <rect key="frame" x="15" y="15" width="166" height="107"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                                                        <view key="contentView">
+                                                            <rect key="frame" x="1" y="1" width="164" height="91"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                            <subviews>
+                                                                <button id="jET-rF-bKQ">
+                                                                    <rect key="frame" x="16" y="65" width="93" height="18"/>
+                                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                    <animations/>
+                                                                    <buttonCell key="cell" type="check" title="Show info" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="S1j-Gh-lxs">
+                                                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                                        <font key="font" metaFont="smallSystem"/>
+                                                                    </buttonCell>
+                                                                </button>
+                                                                <button id="OBp-SD-TZu">
+                                                                    <rect key="frame" x="16" y="21" width="93" height="18"/>
+                                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                    <animations/>
+                                                                    <buttonCell key="cell" type="check" title="Show server" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Wjm-TX-ERX">
+                                                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                                        <font key="font" metaFont="smallSystem"/>
+                                                                    </buttonCell>
+                                                                </button>
+                                                                <button id="MuB-kh-swH">
+                                                                    <rect key="frame" x="16" y="43" width="93" height="18"/>
+                                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                    <animations/>
+                                                                    <buttonCell key="cell" type="check" title="Show speed" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="P8Z-qR-7Fl">
+                                                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                                        <font key="font" metaFont="smallSystem"/>
+                                                                    </buttonCell>
+                                                                </button>
+                                                            </subviews>
+                                                            <animations/>
+                                                        </view>
+                                                        <animations/>
+                                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                    </box>
                                                 </subviews>
                                                 <animations/>
                                             </view>
@@ -172,7 +217,7 @@
                                             </buttonCell>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="hlU-0L-H5X">
-                                            <rect key="frame" x="12" y="104" width="207" height="17"/>
+                                            <rect key="frame" x="12" y="73" width="207" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Data units:" id="DH8-Zd-9Yn">
@@ -182,7 +227,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="roD-WZ-JO0">
-                                            <rect key="frame" x="12" y="129" width="207" height="17"/>
+                                            <rect key="frame" x="12" y="98" width="207" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Exit confirmation prompt:" id="qs7-Jn-nPs">
@@ -222,15 +267,15 @@
                                             </textFieldCell>
                                         </textField>
                                         <popUpButton verticalHuggingPriority="750" id="byI-bX-OE7">
-                                            <rect key="frame" x="222" y="101" width="259" height="26"/>
+                                            <rect key="frame" x="222" y="70" width="259" height="26"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                             <animations/>
-                                            <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="YGV-B2-N8q">
+                                            <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="YGV-B2-N8q">
                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="menu"/>
                                                 <menu key="menu" title="OtherViews" id="MmI-zm-BKb">
                                                     <items>
-                                                        <menuItem title="None" state="on" id="3yi-u8-m0O"/>
+                                                        <menuItem title="None" id="3yi-u8-m0O"/>
                                                         <menuItem title="Basic" id="psK-lF-bWB"/>
                                                         <menuItem title="NTLM" id="gdy-1t-wrj"/>
                                                     </items>
@@ -243,6 +288,15 @@
                                             <animations/>
                                             <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="9ss-5k-ssY">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <button id="Gwr-vP-QoD">
+                                            <rect key="frame" x="24" y="14" width="213" height="30"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="bevel" title="Reset to default settings" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Gaa-Mi-r4v">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
@@ -390,7 +444,7 @@
                                     <animations/>
                                 </view>
                             </tabViewItem>
-                            <tabViewItem label="Proxy" identifier="3" id="k8c-N1-jx5">
+                            <tabViewItem label="Proxy / Tor" identifier="3" id="k8c-N1-jx5">
                                 <view key="view" id="MCk-2y-qBf">
                                     <rect key="frame" x="10" y="7" width="554" height="305"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

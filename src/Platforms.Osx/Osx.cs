@@ -125,18 +125,22 @@ namespace Eddie.Platforms
             ShellCmd("discoveryutil mdnsflushcache"); // 2.11
         }
 
+		/*
         public override long Ping(string host, int timeoutSec)
         {
-            string result = ShellCmd("ping -c 1 -w " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
+			// Note: Linux timeout is -w, OS X timeout is -t
+            string result = ShellCmd("ping -c 1 -t " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
             //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
 
-            string sMS = Utils.ExtractBetween(result, "min/avg/max/mdev = ", "/");
+			// Note: Linux have mdev, OS X have stddev
+            string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
             float iMS;
             if (float.TryParse(sMS, out iMS))
                 return (Int64)iMS;
             else
                 return -1;
         }
+        */
 
         public override void EnsureExecutablePermissions(string path)
 		{
