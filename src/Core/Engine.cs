@@ -192,40 +192,28 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("thirdparty.txt", Lib.Core.Properties.Resources.ThirdParty);
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
             }
-            
+
+            DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
+
             m_logsManager = new LogsManager();
             
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
-
-			DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
-
-            bool manMode = (CommandLine.SystemEnvironment.Exists("help"));
-			if (manMode == false)
-			{
-                Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
-
-				if (DevelopmentEnvironment)
-                    Logs.Log(LogType.Info, "Development environment.");
-			}
             
             m_storage = new Core.Storage();
 
             if (cli)
             {
-                string login = Storage.Get("login").Trim();
-                string password = Storage.Get("password").Trim();
-
                 if (Storage.GetBool("help"))
                 {
                     Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help_format")));
                     return false;
                 }
-                else if ((login == "") || (password == ""))
-                {
-                    Engine.Instance.Logs.Log(LogType.Fatal, Messages.ConsoleHelp);
-                    return false;
-                }
             }
+
+            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
+            
+            if (DevelopmentEnvironment)
+                Logs.Log(LogType.Info, "Development environment.");
 
             // This is before the Storage.Load, because non-root can't read option (chmod)
             if (Storage.GetBool("advanced.skip_privileges") == false)
@@ -708,7 +696,16 @@ namespace Eddie.Core
 		{
 			ConsoleMode = true;
 
-			Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelp);				
+            string login = Storage.Get("login").Trim();
+            string password = Storage.Get("password").Trim();
+
+            if ((login == "") || (password == ""))
+            {
+                Engine.Instance.Logs.Log(LogType.Fatal, Messages.ConsoleHelp);
+                return false;
+            }
+
+            Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelp);				
 
 			if(Storage.GetBool("connect") == false)
 				Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelpNoConnect);
@@ -1628,22 +1625,25 @@ namespace Eddie.Core
 				}
 				else
 				{
-					// Check Driver				
-					if (Platform.Instance.GetDriverAvailable() == "")
-					{
-						if (Platform.Instance.CanInstallDriver())
-						{
-							Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
-							Logs.Log(LogType.InfoImportant, Messages.OsDriverInstall);
+                    // Check Driver				
+                    if (Engine.Instance.Storage.GetBool("advanced.skip_tun_detect") == false)
+                    {
+                        if (Platform.Instance.GetDriverAvailable() == "")
+                        {
+                            if (Platform.Instance.CanInstallDriver())
+                            {
+                                Engine.Instance.WaitMessageSet(Messages.OsDriverInstall, false);
+                                Logs.Log(LogType.InfoImportant, Messages.OsDriverInstall);
 
-							Platform.Instance.InstallDriver();
+                                Platform.Instance.InstallDriver();
 
-							if (Platform.Instance.GetDriverAvailable() == "")
-								throw new Exception(Messages.OsDriverFailed);
-						}
-						else
-							throw new Exception(Messages.OsDriverCannotInstall);
-					}
+                                if (Platform.Instance.GetDriverAvailable() == "")
+                                    throw new Exception(Messages.OsDriverFailed);
+                            }
+                            else
+                                throw new Exception(Messages.OsDriverCannotInstall);
+                        }
+                    }
 
 					if (m_threadSession != null)
 						throw new Exception("Daemon already running.");

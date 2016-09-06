@@ -91,7 +91,7 @@ namespace Eddie.Core.Providers
                     infoServer.ProviderName = code;
                     infoServer.IpEntry = Utils.XmlGetAttributeString(nodeProfile, "remote", "");
                     infoServer.IpEntry2 = "";
-					infoServer.IpExit = infoServer.IpEntry;
+					infoServer.IpExit = "";
 					infoServer.CountryCode = Utils.XmlGetAttributeString(nodeProfile, "country", "");
 					infoServer.Location = "";
 					infoServer.ScoreBase = 0;

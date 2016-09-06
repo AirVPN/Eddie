@@ -140,24 +140,12 @@ namespace Eddie.Core.Providers
                     ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway", "VPN Entry IP");
                 }
             }
-
-            // Additional tunnel mode
-            if (protocol == "SSH")
-            {
-                ovpn.ProxyPort = Engine.Instance.Storage.GetInt("ssh.port");
-                if (ovpn.ProxyPort == 0)
-                    ovpn.ProxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-            }
-            else if (protocol == "SSL")
-            {
-                ovpn.ProxyPort = Engine.Instance.Storage.GetInt("ssl.port");
-                if (ovpn.ProxyPort == 0)
-                    ovpn.ProxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-            }
+            
 
             ovpn.Protocol = protocol;
             ovpn.Address = ip;
-            ovpn.Port = port;            
+            ovpn.Port = port;
+            ovpn.ProxyPort = proxyPort;
         }
 
         public override void OnBuildOvpnAuth(OvpnBuilder ovpn)

@@ -516,6 +516,7 @@ namespace Eddie.Core
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 			            
             SetDefaultBool("advanced.skip_privileges", false, NotInMan); // Skip 'root' detection.
+            SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
             SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.     
             SetDefaultBool("servers.allow_anyway", false, NotInMan); // Allow connection to server in 'Closed' status            
             SetDefaultBool("advanced.testonly", false, NotInMan); // Disconnect when connection occur.

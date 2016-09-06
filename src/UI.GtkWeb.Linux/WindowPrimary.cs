@@ -49,7 +49,7 @@ public partial class WindowPrimary: Gtk.Window
 			if(CanClose)
 				return;
 
-			MyEngine.OnShutdownRequest(false);
+			MyEngine.RequestStop();
 		};
 
 	}

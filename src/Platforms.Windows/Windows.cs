@@ -473,7 +473,7 @@ namespace Eddie.Platforms
                     XmlIf1.SetAttribute("interface", "loopback");
                     Wfp.AddItem("ipv6_block_all", xmlRule);
 
-                    Engine.Instance.Logs.Log(LogType.Info, Messages.IpV6DisabledWpf);
+                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledWpf);
                 }
                 
                 if(Engine.Instance.Storage.GetBool("windows.ipv6.os_disable"))
@@ -493,7 +493,7 @@ namespace Eddie.Platforms
                         UInt32 newValue = 17;
                         Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", newValue, RegistryValueKind.DWord);
 
-                        Engine.Instance.Logs.Log(LogType.Info, Messages.IpV6DisabledOs);
+                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledOs);
 
                         Recovery.Save();
                     }
@@ -512,11 +512,11 @@ namespace Eddie.Platforms
 				Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", m_oldIpV6, RegistryValueKind.DWord);
 				m_oldIpV6 = null;
 
-				Engine.Instance.Logs.Log(LogType.Info, Messages.IpV6RestoredOs);
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredOs);
 			}
 
             if(Wfp.RemoveItem("ipv6_block_all"))
-                Engine.Instance.Logs.Log(LogType.Info, Messages.IpV6RestoredWpf);
+                Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredWpf);
 
             base.OnIpV6Restore();
 
@@ -583,7 +583,7 @@ namespace Eddie.Platforms
                     Wfp.AddItem("dns_block_all", xmlRule);
                 }
 
-                Engine.Instance.Logs.Log(LogType.Info, Messages.DnsLockActivatedWpf);
+                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockActivatedWpf);
             }
 
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
@@ -637,7 +637,7 @@ namespace Eddie.Platforms
 
                             //string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", detectedDns));
                             string descFrom = (entry.AutoDns ? "automatic":"manual") + " (" + String.Join(",", entry.Dns) + ")";
-                            Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns));
+                            Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns));
 
                             ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
                             objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
@@ -669,7 +669,7 @@ namespace Eddie.Platforms
             DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_tap");
             DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_block_all");
             if (DnsPermitExists)
-                Engine.Instance.Logs.Log(LogType.Info, Messages.DnsLockDeactivatedWpf);
+                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockDeactivatedWpf);
 
             base.OnDnsSwitchRestore();
 
@@ -1018,7 +1018,7 @@ namespace Eddie.Platforms
 					
 					entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
 
-					Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDhcpDone, entry.Description));
+					Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDhcpDone, entry.Description));
 					
 					ManagementBaseObject objEnableStatic = objMO.GetMethodParameters("EnableStatic");
 					//objNewIP["IPAddress"] = new string[] { ipAddress };
@@ -1075,7 +1075,7 @@ namespace Eddie.Platforms
 							}
 							ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
-							Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDhcpRestored, entry.Description));
+							Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDhcpRestored, entry.Description));
 						}
 					}
 				}
@@ -1122,7 +1122,7 @@ namespace Eddie.Platforms
                             }
 
                             string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
-                            Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
+                            Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
 						}
 					}
 				}

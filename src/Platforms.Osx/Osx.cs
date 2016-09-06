@@ -126,12 +126,15 @@ namespace Eddie.Platforms
         }
 
 		/*
+        // Mono under Linux have issue when hostname can't be resolved.
+        // Until this kind of issue doesn't occur on OS X, we still leave this Ping function commented.
+        */
+        /*
         public override long Ping(string host, int timeoutSec)
         {
 			// Note: Linux timeout is -w, OS X timeout is -t
             string result = ShellCmd("ping -c 1 -t " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
-            //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
-
+            
 			// Note: Linux have mdev, OS X have stddev
             string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
             float iMS;
@@ -354,7 +357,7 @@ namespace Eddie.Platforms
 
 					if (mode != "Off")
 					{
-						Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
 
 						IpV6ModeEntry entry = new IpV6ModeEntry();
 						entry.Interface = i;
@@ -400,7 +403,7 @@ namespace Eddie.Platforms
 					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
 				}
 
-				Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
@@ -441,7 +444,7 @@ namespace Eddie.Platforms
                     if (current != dns)
                     {
                         // Switch
-                        Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
+                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
 
                         DnsSwitchEntry e = new DnsSwitchEntry();
                         e.Name = i2;
@@ -470,7 +473,7 @@ namespace Eddie.Platforms
                     v = "empty";
 				v = v.Replace (",", "\" \"");
 
-				Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
 

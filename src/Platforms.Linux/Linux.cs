@@ -317,7 +317,7 @@ namespace Eddie.Platforms
                 if (dnsScriptPath != "")
                 {
                     EnsureExecutablePermissions(dnsScriptPath);
-                    Engine.Instance.Logs.Log(LogType.Info, Messages.DnsResolvConfScript);
+                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsResolvConfScript);
                     ovpn.AppendDirective("script-security", "2", "");
                     ovpn.AppendDirective("up", dnsScriptPath, "");
                     ovpn.AppendDirective("down", dnsScriptPath, "");

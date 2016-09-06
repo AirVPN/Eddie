@@ -1397,18 +1397,11 @@ namespace Eddie.Core.Threads
 			}
 		}
 
-        //public void BuildOVPN(string protocol, int port, int alt, int proxyPort)
         public void BuildOVPN()
         {
             ServerInfo CurrentServer = Engine.Instance.CurrentServer;
 
             Storage s = Engine.Instance.Storage;
-
-            /*
-            string ip = CurrentServer.IpEntry;
-            if (alt == 1)
-                ip = CurrentServer.IpEntry2;
-            */
 
             OvpnBuilder ovpn = new OvpnBuilder();
 
@@ -1434,26 +1427,7 @@ namespace Eddie.Core.Threads
             if (sndbuf == -2) sndbuf = -1;
             if (sndbuf != -1)
                 ovpn.AppendDirective("sndbuf", sndbuf.ToString(), "");
-
-            /*
-            if (protocol == "UDP")
-            {
-                ovpn.AppendDirective("proto", "udp", "");
-            }
-            else // TCP, SSH, SSL, Tor
-            {
-                ovpn.AppendDirective("proto", "tcp", "");
-            }
-
             
-            if (protocol == "SSH")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-            else if (protocol == "SSL")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-            else
-                ovpn.AppendDirective("remote", ip + " " + port.ToString(), "");
-            */
-
             string proxyDirectiveName = "";
             string proxyDirectiveArgs = "";
 
@@ -1497,8 +1471,8 @@ namespace Eddie.Core.Threads
                 ovpn.AppendDirective("route-nopull", "", "For Routes Out");
 
                 // For Checking
-                ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
-
+                if(CurrentServer.IpExit != "")
+                    ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
 
                 // For DNS
                 // < 2.9. route directive useless, and DNS are forced manually in every supported platform. // TOCLEAN
@@ -1543,13 +1517,6 @@ namespace Eddie.Core.Threads
 
             if (routesDefault == "in")
             {
-                /*
-                if ((protocol == "SSH") || (protocol == "SSL"))
-                {
-                    ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway", "VPN Entry IP");
-                }
-                */
-
                 if (proxyMode == "tor")
                 {
                     List<string> torNodeIps = TorControl.GetGuardIps();
