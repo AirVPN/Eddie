@@ -162,7 +162,7 @@ namespace Deploy
 				if (arch == "x86_64")
 					arch = "x64";
 				else if(arch == "armv7l")
-					arch = "arm";
+					arch = "armv7l";
                 else
                     arch = "x86";
 				ListPackages.Add(new Package("linux", arch, "ui", true, "mono"));

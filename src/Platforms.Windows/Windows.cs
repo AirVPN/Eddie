@@ -42,7 +42,7 @@ namespace Eddie.Platforms
         private WfpItem m_wfpLockIPv6 = new WfpItem();
         private WfpItem m_wfpLockDns = new WfpItem();
         private WfpItem m_wfpLockNet = new WfpItem();
-        private Mutex m_mutexSingleInstance = null;
+        private Mutex m_mutexSingleInstance = null; 
 
         public static bool IsVistaOrNewer()
 		{
