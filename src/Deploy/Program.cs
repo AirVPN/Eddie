@@ -31,15 +31,19 @@ namespace Deploy
 	{
 		public string Platform;
 		public string Architecture;
+        public string UI; // TOFIX: Not yet used
+        public bool Bundles; // TOFIX: Not yet used
 		public string Format;
 
-		public Package(string platform, string architecture, string format)
+		public Package(string platform, string architecture, string ui, bool bundles, string format)
 		{
 			Platform = platform;
 			Architecture = architecture;
+            UI = ui;
+            Bundles = bundles;
 			Format = format;
 		}
-	}
+    }
 
 	class Program
 	{
@@ -47,7 +51,7 @@ namespace Deploy
 
 		static void Main(string[] args)
 		{
-			Log("AirVPN deployment v1.3");
+			Log("Eddie deployment v1.4");
 			Log("PlatformOS: " + Environment.OSVersion.Platform.ToString());
 			Log("VersionString: " + Environment.OSVersion.VersionString.ToString());
 						
@@ -140,15 +144,15 @@ namespace Deploy
                 ListPackages.Add(new Package("windows8", "x86", "installer"));
                 ListPackages.Add(new Package("windows8", "x64", "installer"));
                 */
-                ListPackages.Add(new Package("windows", "x86", "portable"));
-				ListPackages.Add(new Package("windows", "x64", "portable"));
-				ListPackages.Add(new Package("windows", "x86", "installer"));
-				ListPackages.Add(new Package("windows", "x64", "installer"));
+                ListPackages.Add(new Package("windows", "x86", "ui", true, "portable"));
+				ListPackages.Add(new Package("windows", "x64", "ui", true, "portable"));
+				ListPackages.Add(new Package("windows", "x86", "ui", true, "installer"));
+				ListPackages.Add(new Package("windows", "x64", "ui", true, "installer"));
 
-				ListPackages.Add(new Package("windows_xp", "x86", "portable"));
-				ListPackages.Add(new Package("windows_xp", "x64", "portable"));
-				ListPackages.Add(new Package("windows_xp", "x86", "installer"));
-				ListPackages.Add(new Package("windows_xp", "x64", "installer"));                
+				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, "portable"));
+				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, "portable"));
+				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, "installer"));
+				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, "installer"));                
 			}
 
 			if (SO == "linux")
@@ -157,25 +161,25 @@ namespace Deploy
 
 				if (arch == "x86_64")
 					arch = "x64";
-				else
-					arch = "x86";
-				ListPackages.Add(new Package("linux", arch, "mono"));
-				ListPackages.Add(new Package("linux", arch, "portable"));
-                ListPackages.Add(new Package("linux", arch, "debian"));
-                //ListPackages.Add(new Package("linux", arch, "debian2"));
-                //ListPackages.Add(new Package("linux", arch, "debian4"));
-                ListPackages.Add(new Package("linux", arch, "rpm"));                
+				else if(arch == "armv7l")
+					arch = "arm";
+                else
+                    arch = "x86";
+				ListPackages.Add(new Package("linux", arch, "ui", true, "mono"));
+				ListPackages.Add(new Package("linux", arch, "ui", true, "portable"));
+                ListPackages.Add(new Package("linux", arch, "ui", false, "debian"));
+                ListPackages.Add(new Package("linux", arch, "ui", false, "rpm"));                
             }
 
 			if (SO == "osx") {
-				ListPackages.Add (new Package ("osx", "x64", "portable"));
-				ListPackages.Add (new Package ("osx", "x64", "installer"));
+				ListPackages.Add (new Package ("osx", "x64", "ui", true, "portable"));
+				ListPackages.Add (new Package ("osx", "x64", "ui", true, "installer"));
 			}
 			
 			string versionString = File.ReadAllText(pathBaseHome + "/version.txt").Trim();
 
 			if(SO == "linux")
-				pathBaseTemp = "/tmp/airvpn_deploy";
+				pathBaseTemp = "/tmp/eddie_deploy";
 
 			int netFramework = 0;
 			if (SO == "windows") {
@@ -195,6 +199,7 @@ namespace Deploy
 			{
 				string platform = package.Platform;
 				string arch = package.Architecture;
+                string ui = package.UI;
 				string format = package.Format;
 
 				int requiredNetFramework = 4;
@@ -205,9 +210,11 @@ namespace Deploy
 				else if (platform == "osx")
 					requiredNetFramework = 2;
 				                
-				string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
-				string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
-				string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;
+				//string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
+				//string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
+                string archiveName = "eddie_" + versionString + "_" + platform + "_" + arch + "_" + ui + "_" + format;
+                string fileName = archiveName;
+                string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;
 				string pathTemp = pathBaseTemp + "/" + archiveName;
 				string pathRelease = pathBaseRelease + "/" + arch + "/Release/";
 
@@ -258,7 +265,7 @@ namespace Deploy
 					else if (format == "installer")
 					{
 						// NSIS
-						string nsis = File.ReadAllText(pathBaseResources + "/nsis/AirVPN.nsi");
+						string nsis = File.ReadAllText(pathBaseResources + "/nsis/Eddie.nsi");
 
                         string pathExe = NormalizePath(pathBaseRepository + "/" + fileName + ".exe");
 
@@ -282,10 +289,10 @@ namespace Deploy
 						if(arch == "x64")
 							nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
 
-						File.WriteAllText(pathTemp + "/AirVPN.nsi", nsis);
+						File.WriteAllText(pathTemp + "/Eddie.nsi", nsis);
 
-                        //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");
-                        Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/AirVPN.nsi") + "\"");
+                        //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+                        Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
 
                         WindowsSignFile(pathExe);
                     }
@@ -321,8 +328,8 @@ namespace Deploy
 					}
 					else if (format == "portable")
 					{
-						CopyFile(pathBaseResources + "/linux_portable/airvpn.config", pathTemp + "/airvpn.config");
-                        //CopyFile(pathBaseResources + "/linux_portable/airvpn.machine.config", pathTemp + "/airvpn.machine.config");
+						CopyFile(pathBaseResources + "/linux_portable/eddie.config", pathTemp + "/airvpn.config");
+                        //CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
 
                         // mkbundle
                         string command = "mkbundle ";
@@ -340,14 +347,14 @@ namespace Deploy
 						command += " --deps";
                         command += " --keeptemp";
                         command += " --static";
-						command += " --config \"" + pathTemp + "/airvpn.config\"";
-                        //command += " --machine-config \"" + pathTemp + "/airvpn.config\"";
+						command += " --config \"" + pathTemp + "/eddie.config\"";
+                        //command += " --machine-config \"" + pathTemp + "/eddie.config\"";
                         command += " --machine-config /etc/mono/4.0/machine.config";
                         command += " -z";
 						command += " -o \"" + pathTemp + "/airvpn\"";						
 						Shell(command);
 
-						RemoveFile(pathTemp + "/airvpn.config");
+						RemoveFile(pathTemp + "/eddie.config");
 
 						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
 

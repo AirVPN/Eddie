@@ -144,7 +144,7 @@ namespace Eddie.Core
 
 		public string GetSystemCode()
         {			
-			string t = GetCode() + "_" + GetArchitecture();
+			string t = GetCode() + "_" + GetOsArchitecture();
             t = t.Replace(" ", "_");
             t = t.ToLower();
             return t;

@@ -110,14 +110,16 @@ namespace Eddie.Platforms
         {
             base.OnInit();
 
-            Wfp.Start();
+            if(IsVistaOrNewer())
+                Wfp.Start();
         }
 
         public override void OnDeInit()
         {
             base.OnDeInit();
 
-            Wfp.Stop();
+            if (IsVistaOrNewer())
+                Wfp.Stop();
         }
 
         public override string GetOsArchitecture()
@@ -691,8 +693,9 @@ namespace Eddie.Platforms
         {
             base.OnRecovery();
 
-            if (Wfp.ClearPendingRules())
-                Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
+            if (IsVistaOrNewer())
+                if (Wfp.ClearPendingRules())
+                    Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
         }
 
         public override void OnRecoveryLoad(XmlElement root)

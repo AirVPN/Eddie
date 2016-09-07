@@ -210,7 +210,7 @@ namespace Eddie.Core
                 }
             }
 
-            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + " / " + Platform.Instance.GetOsArchitecture());
+            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetOsArchitecture() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName());
             
             if (DevelopmentEnvironment)
                 Logs.Log(LogType.Info, "Development environment.");
