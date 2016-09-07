@@ -157,7 +157,8 @@ namespace Eddie.Core
 			if (a == "x64") return "x64";
 			if (a == "AMD64") return "x64";
 			if (a == "x86_64") return "x64";
-			return "Unknown";
+            if (a == "armv7l") return "armv7l"; // RPI
+            return "Unknown";
 		}
 
 		// ----------------------------------------
