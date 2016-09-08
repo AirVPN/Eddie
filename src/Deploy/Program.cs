@@ -47,7 +47,16 @@ namespace Deploy
 
 	class Program
 	{
-		private static string SO = "";
+        private static string PathBase = "";
+        private static string PathBaseTemp = new DirectoryInfo(PathBase + "/tmp").FullName;
+        private static string PathBaseDeploy = new DirectoryInfo(PathBase + "/deploy").FullName;
+        private static string PathBaseRelease = new DirectoryInfo(PathBase + "/src/bin").FullName;
+        private static string PathBaseRepository = new DirectoryInfo(PathBase + "/repository").FullName;
+        private static string PathBaseResources = new DirectoryInfo(PathBase + "/resources").FullName;
+        private static string PathBaseTools = new DirectoryInfo(PathBase + "/tools").FullName;
+        private static string PathBaseSigning = new DirectoryInfo(PathBase + "/signing").FullName;
+
+        private static string SO = "";
 
 		static void Main(string[] args)
 		{
@@ -74,16 +83,17 @@ namespace Deploy
 			}
 			Log("Platform: " + SO);
 
-            string pathBaseHome = new DirectoryInfo("../../../..").FullName;
+            PathBase = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).Directory.Parent.Parent.Parent.Parent.FullName;
 
-            Log("Path base: " + pathBaseHome);
+            Log("Path base: " + PathBase);
 
-            string pathBaseTemp = new DirectoryInfo("../../../../tmp").FullName;
-            string pathBaseDeploy = new DirectoryInfo("../../../../deploy").FullName;
-            string pathBaseRelease = new DirectoryInfo("../../../../src/bin").FullName;
-            string pathBaseRepository = new DirectoryInfo("../../../../repository").FullName;
-            string pathBaseResources = new DirectoryInfo("../../../../resources").FullName;
-            string pathBaseTools = new DirectoryInfo("../../../../tools").FullName;
+            PathBaseTemp = new DirectoryInfo(PathBase + "/tmp").FullName;
+            PathBaseDeploy = new DirectoryInfo(PathBase + "/deploy").FullName;
+            PathBaseRelease = new DirectoryInfo(PathBase + "/src/bin").FullName;
+            PathBaseRepository = new DirectoryInfo(PathBase + "/repository").FullName;
+            PathBaseResources = new DirectoryInfo(PathBase + "/resources").FullName;
+            PathBaseTools = new DirectoryInfo(PathBase + "/tools").FullName;
+            PathBaseSigning = new DirectoryInfo(PathBase + "/signing").FullName;
 
             /* -------------------------------
 			   Checking environment
@@ -123,11 +133,11 @@ namespace Deploy
             if (SO == "windows")
             {
                 Log("Generating manual files");
-                string pathExe = new FileInfo("../../../../src/bin/x64/Release/CLI.Windows.exe").FullName;
-                File.WriteAllText(pathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html", false));
-                File.WriteAllText(pathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc", false));
-                File.WriteAllText(pathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text", false));
-                File.WriteAllText(pathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man", false));
+                string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
+                File.WriteAllText(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html", false));
+                File.WriteAllText(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc", false));
+                File.WriteAllText(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text", false));
+                File.WriteAllText(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man", false));
             }
             
             /* -------------------------------
@@ -172,14 +182,14 @@ namespace Deploy
             }
 
 			if (SO == "osx") {
-				ListPackages.Add (new Package ("osx", "x64", "ui", true, "portable"));
-				ListPackages.Add (new Package ("osx", "x64", "ui", true, "installer"));
+				ListPackages.Add(new Package ("osx", "x64", "ui", true, "portable"));
+				ListPackages.Add(new Package ("osx", "x64", "ui", true, "installer"));
 			}
 			
-			string versionString = File.ReadAllText(pathBaseHome + "/version.txt").Trim();
+			string versionString = File.ReadAllText(PathBase + "/version.txt").Trim();
 
 			if(SO == "linux")
-				pathBaseTemp = "/tmp/eddie_deploy";
+				PathBaseTemp = "/tmp/eddie_deploy";
 
 			int netFramework = 0;
 			if (SO == "windows") {
@@ -214,9 +224,9 @@ namespace Deploy
 				//string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
                 string archiveName = "eddie_" + versionString + "_" + platform + "_" + arch + "_" + ui + "_" + format;
                 string fileName = archiveName;
-                string pathDeploy = pathBaseDeploy + "/" + platform + "_" + arch;
-				string pathTemp = pathBaseTemp + "/" + archiveName;
-				string pathRelease = pathBaseRelease + "/" + arch + "/Release/";
+                string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
+				string pathTemp = PathBaseTemp + "/" + archiveName;
+				string pathRelease = PathBaseRelease + "/" + arch + "/Release/";
 
 				// Exceptions
 				if (platform == "windows8") // Windows8 use the same common files of Windows
@@ -235,7 +245,7 @@ namespace Deploy
 
 				CreateDirectory(pathTemp);
 
-				CreateDirectory (pathBaseRepository, false);
+				CreateDirectory (PathBaseRepository, false);
 
 				CopyAll(pathDeploy, pathTemp);
 
@@ -252,24 +262,24 @@ namespace Deploy
                     
 					if (format == "portable")
 					{
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".zip");
+						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".zip");
 
 						if (File.Exists(pathFinal))
 							File.Delete(pathFinal);
 
 						// ZIP
-						string command = pathBaseTools + "/windows/7za.exe a -mx9 -tzip";
+						string command = PathBaseTools + "/windows/7za.exe a -mx9 -tzip";
 						command += " \"" + pathFinal + "\" \"" + pathTemp;
 						Shell(command);
 					}
 					else if (format == "installer")
 					{
 						// NSIS
-						string nsis = File.ReadAllText(pathBaseResources + "/nsis/Eddie.nsi");
+						string nsis = File.ReadAllText(PathBaseResources + "/nsis/Eddie.nsi");
 
-                        string pathExe = NormalizePath(pathBaseRepository + "/" + fileName + ".exe");
+                        string pathExe = NormalizePath(PathBaseRepository + "/" + fileName + ".exe");
 
-                        nsis = nsis.Replace("{@resources}", NormalizePath(pathBaseResources + "/nsis"));
+                        nsis = nsis.Replace("{@resources}", NormalizePath(PathBaseResources + "/nsis"));
 						nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
 						nsis = nsis.Replace("{@out}", pathExe);
 
@@ -308,7 +318,7 @@ namespace Deploy
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
                         CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
-                        string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+                        string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
 						if (File.Exists(pathFinal))
 							File.Delete(pathFinal);
@@ -328,7 +338,7 @@ namespace Deploy
 					}
 					else if (format == "portable")
 					{
-						CopyFile(pathBaseResources + "/linux_portable/eddie.config", pathTemp + "/airvpn.config");
+						CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/airvpn.config");
                         //CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
 
                         // mkbundle
@@ -356,7 +366,7 @@ namespace Deploy
 
 						RemoveFile(pathTemp + "/eddie.config");
 
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
 						if (File.Exists(pathFinal))
 							File.Delete(pathFinal);
@@ -382,11 +392,11 @@ namespace Deploy
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
                         CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
-                        string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".deb");
+                        string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".deb");
 
 						CreateDirectory(pathTemp + "/usr/lib/AirVPN");
 						MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
-						CopyDirectory(pathBaseResources + "/" + format, pathTemp);
+						CopyDirectory(PathBaseResources + "/" + format, pathTemp);
 
 						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString);
 						string debianArchitecture = "unknown";
@@ -442,11 +452,11 @@ namespace Deploy
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
                         CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
-                        string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".rpm");
+                        string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".rpm");
 
 						CreateDirectory(pathTemp + "/usr/" + libSubPath + "/AirVPN");
 						MoveAll(pathTemp, pathTemp + "/usr/" + libSubPath + "/AirVPN");
-						CopyDirectory(pathBaseResources + "/rpm", pathTemp);
+						CopyDirectory(PathBaseResources + "/rpm", pathTemp);
 
 						ReplaceInFile(pathTemp + "/airvpn.spec", "{@version}", versionString);
 						ReplaceInFile(pathTemp + "/airvpn.spec", "{@lib}", libSubPath);
@@ -489,7 +499,7 @@ namespace Deploy
 					if (format == "portable")
 					{
 						// TAR.GZ
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".tar.gz");
+						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
 						if (File.Exists(pathFinal))
 							File.Delete(pathFinal);
@@ -500,7 +510,7 @@ namespace Deploy
 					}
 					else if (format == "installer")
 					{
-						string pathFinal = NormalizePath(pathBaseRepository + "/" + fileName + ".pkg");
+						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
 
 						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
 					}
@@ -674,18 +684,15 @@ namespace Deploy
 
         static void WindowsSignFile(string path)
         {
-            string pathBaseSigning = new DirectoryInfo("../../../../signing").FullName;
-            string pathBaseTools = new DirectoryInfo("../../../../tools").FullName;
-
-            string pathPfx = NormalizePath(pathBaseSigning + "/eddie.pfx");
-            string pathPfxPwd = NormalizePath(pathBaseSigning + "/eddie.pfx.pwd");
+            string pathPfx = NormalizePath(PathBaseSigning + "/eddie.pfx");
+            string pathPfxPwd = NormalizePath(PathBaseSigning + "/eddie.pfx.pwd");
 
             string title = "Eddie - AirVPN Client";
 
             if( (File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)) )
             {
                 string cmd = "";
-                cmd += pathBaseTools + "/windows/signtool.exe";
+                cmd += PathBaseTools + "/windows/signtool.exe";
                 cmd += " sign";
                 cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
                 cmd += " /f " + pathPfx; // Pfx
