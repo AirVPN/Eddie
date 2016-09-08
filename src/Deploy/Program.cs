@@ -68,7 +68,7 @@ namespace Deploy
 
 		static void Main(string[] args)
 		{
-			Log("Eddie deployment v1.4");
+            Log("Eddie deployment v1.4");
 			Log("PlatformOS: " + Environment.OSVersion.Platform.ToString());
 			Log("VersionString: " + Environment.OSVersion.VersionString.ToString());
 						
@@ -142,10 +142,10 @@ namespace Deploy
             {
                 Log("Generating manual files");
                 string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
-                File.WriteAllText(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html", false));
-                File.WriteAllText(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc", false));
-                File.WriteAllText(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text", false));
-                File.WriteAllText(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man", false));
+                WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html", false));
+                WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc", false));
+                WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text", false));
+                WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man", false));
             }
             
             /* -------------------------------
@@ -308,7 +308,7 @@ namespace Deploy
 						if(arch == "x64")
 							nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
 
-						File.WriteAllText(pathTemp + "/Eddie.nsi", nsis);
+                        WriteTextFile(pathTemp + "/Eddie.nsi", nsis);
 
                         //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
                         Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
@@ -347,7 +347,7 @@ namespace Deploy
 					}
 					else if (format == "portable")
 					{
-						CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/airvpn.config");
+						CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
                         //CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
 
                         // mkbundle
@@ -423,12 +423,12 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
-                        						
-						File.WriteAllText(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl(Constants.ChangeLogUrl));
+
+                        WriteTextFile(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl(Constants.ChangeLogUrl));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
 
-						File.WriteAllText(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
+                        WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
 
@@ -477,7 +477,7 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libgdiplus.so.0");
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
 
-                        File.WriteAllText(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
+                        WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
                         Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
                         Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
 
@@ -760,6 +760,14 @@ namespace Deploy
 				File.Move(fi.FullName, to + "/" + fi.Name);
 			}
 		}
+
+        static void WriteTextFile(string path, string contents)
+        {
+            string dir = Path.GetDirectoryName(path);
+            if (Directory.Exists(dir) == false)
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(path, contents);
+        }
 
 		static void ReplaceInFile(string path, string from, string to)
 		{
