@@ -159,7 +159,7 @@ namespace Eddie.Gui
             int deskHeight = SystemInformation.VirtualScreen.Height;
             int deskWidth = SystemInformation.VirtualScreen.Width;
 
-            bool vis = ((fields[0] == "0") ? false : true);
+            bool vis = ((fields[0] == "0") ? false : true); // pazzo vis non usato
             String state = fields[1];
             int l = Convert.ToInt32(fields[2]);
             int t = Convert.ToInt32(fields[3]);

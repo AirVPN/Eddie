@@ -273,7 +273,7 @@ namespace Eddie.Platforms
             p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
             p.StartInfo.WorkingDirectory = Path.GetTempPath();
             p.Start();
-            string output = p.StandardOutput.ReadToEnd();
+            p.StandardOutput.ReadToEnd();
             p.WaitForExit();
 
             System.Xml.XmlDocument xmlDoc = new XmlDocument();

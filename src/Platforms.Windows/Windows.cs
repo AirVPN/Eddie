@@ -38,10 +38,7 @@ namespace Eddie.Platforms
     {
 		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
-		private object m_oldIpV6 = null;
-        private WfpItem m_wfpLockIPv6 = new WfpItem();
-        private WfpItem m_wfpLockDns = new WfpItem();
-        private WfpItem m_wfpLockNet = new WfpItem();
+		private object m_oldIpV6 = null;        
         private Mutex m_mutexSingleInstance = null; 
 
         public static bool IsVistaOrNewer()
@@ -178,8 +175,6 @@ namespace Eddie.Platforms
 				{
 					if(ts.RootFolder.Tasks.Exists("AirVPN"))
 						ts.RootFolder.DeleteTask("AirVPN");
-
-					string path = Platform.Instance.GetExecutablePath();
 
 					// Create a new task definition and assign properties
 					TaskDefinition td = ts.NewTask();
@@ -643,7 +638,7 @@ namespace Eddie.Platforms
 
                             ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
                             objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
-                            ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+                            objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
                             m_listOldDns.Add(entry);
                         }
@@ -1028,15 +1023,15 @@ namespace Eddie.Platforms
 					//objNewIP["SubnetMask"] = new string[] { subnetMask };
 					objEnableStatic["IPAddress"] = new string[] { entry.IpAddress[0] };
 					objEnableStatic["SubnetMask"] = new string[] { entry.SubnetMask[0] };
-					ManagementBaseObject objEnableStaticMethod = objMO.InvokeMethod("EnableStatic", objEnableStatic, null);
+					objMO.InvokeMethod("EnableStatic", objEnableStatic, null);
 
 					ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
 					objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
-					ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+					objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
 					ManagementBaseObject objSetGateways = objMO.GetMethodParameters("SetGateways");
 					objSetGateways["DefaultIPGateway"] = new string[] { entry.Gateway[0] };
-					ManagementBaseObject objSetGatewaysMethod = objMO.InvokeMethod("SetGateways", objSetGateways, null);
+					objMO.InvokeMethod("SetGateways", objSetGateways, null);
 
 					m_listOldDhcp.Add(entry);
 					
@@ -1069,14 +1064,14 @@ namespace Eddie.Platforms
 						if (entry.Guid == guid)
 						{
 							ManagementBaseObject objEnableDHCP = objMO.GetMethodParameters("EnableDHCP");
-							ManagementBaseObject objEnableDHCPMethod = objMO.InvokeMethod("EnableDHCP", objEnableDHCP, null);
+							objMO.InvokeMethod("EnableDHCP", objEnableDHCP, null);
 
 							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
 							if (entry.AutoDns == false)
 							{
 								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
 							}
-							ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+							objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
 							Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDhcpRestored, entry.Description));
 						}
@@ -1116,7 +1111,7 @@ namespace Eddie.Platforms
                                 objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
                             }
 
-                            ManagementBaseObject objSetDNSServerSearchOrderMethod = objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+                            objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
                             if (entry.AutoDns == true)
                             {

@@ -291,7 +291,7 @@ namespace Eddie.Gui.Controls
             m_selectedItem = index;            
 
             Control tabPageControl = Pages[m_selectedItem];
-            Rectangle tabPageRectangle = GetPageRect();
+            //Rectangle tabPageRectangle = GetPageRect();
             CheckSizes();
 
             tabPageControl.Visible = true;            

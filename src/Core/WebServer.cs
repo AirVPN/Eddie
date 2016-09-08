@@ -187,7 +187,7 @@ namespace Eddie.Core
         
         public string SendResponse(HttpListenerRequest request)
         {
-            string physicalPath = GetPath() + request.RawUrl;
+            // string physicalPath = GetPath() + request.RawUrl;
 
             if(request.RawUrl == "/api/command/")
             {

@@ -708,7 +708,7 @@ namespace Deploy
                 cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
                 cmd += " /d \"" + title + "\""; // Title
                 cmd += " \"" + path + "\""; // File
-                string result = Shell(cmd);                
+                Shell(cmd);                
             }
             else
             {
