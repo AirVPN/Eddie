@@ -44,11 +44,13 @@ namespace Deploy
             UI = ui;
             Bundles = bundles;
 			Format = format;
-
+            
             ArchitectureCompile = Architecture;
-            if (ArchitectureCompile == "armv7l") // Arm pick x64 executabled (that are anyway CIL).
+            if (ArchitectureCompile == "armv7l") // Arm pick x64 executabled (that are anyway CIL).                
                 ArchitectureCompile = "x64";
-		}
+
+            Console.WriteLine("AddPackage " + Architecture + "/" + ArchitectureCompile);
+        }
     }
 
 	class Program
