@@ -30,18 +30,24 @@ namespace Deploy
 	public class Package
 	{
 		public string Platform;
-		public string Architecture;
+		public string Architecture;        
         public string UI; // TOFIX: Not yet used
         public bool Bundles; // TOFIX: Not yet used
 		public string Format;
 
-		public Package(string platform, string architecture, string ui, bool bundles, string format)
+        public string ArchitectureCompile; 
+
+        public Package(string platform, string architecture, string ui, bool bundles, string format)
 		{
 			Platform = platform;
 			Architecture = architecture;
             UI = ui;
             Bundles = bundles;
 			Format = format;
+
+            ArchitectureCompile = Architecture;
+            if (ArchitectureCompile == "armv7l") // Arm pick x64 executabled (that are anyway CIL).
+                ArchitectureCompile = "x64";
 		}
     }
 
@@ -209,6 +215,7 @@ namespace Deploy
 			{
 				string platform = package.Platform;
 				string arch = package.Architecture;
+                string archCompile = package.ArchitectureCompile;
                 string ui = package.UI;
 				string format = package.Format;
 
@@ -226,7 +233,7 @@ namespace Deploy
                 string fileName = archiveName;
                 string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
 				string pathTemp = PathBaseTemp + "/" + archiveName;
-				string pathRelease = PathBaseRelease + "/" + arch + "/Release/";
+				string pathRelease = PathBaseRelease + "/" + archCompile + "/Release/";
 
 				// Exceptions
 				if (platform == "windows8") // Windows8 use the same common files of Windows
