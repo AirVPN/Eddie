@@ -536,7 +536,7 @@ namespace Deploy
 				Console.WriteLine("cp ../../../../repository/airvpn_linux_* /media/sf_airvpn-client/repository/");
 			}
 
-			Pause();
+			//Pause();
 
 
 		}
