@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml;
@@ -29,10 +28,10 @@ namespace Eddie.Core
 {
     public class WebServer
     {
-        //public static WebServer Instance;
-
+        /*
         private HttpListener m_listener = new HttpListener();
         private Func<HttpListenerRequest, string> m_responderMethod;
+        */
 
         private List<XmlElement> m_pullItems = new List<XmlElement>();
 
@@ -50,6 +49,7 @@ namespace Eddie.Core
                 return "";
         }
 
+        /*
         public void Init(string prefix, Func<HttpListenerRequest, string> method)
         {
             if (GetPath() == "")
@@ -66,11 +66,13 @@ namespace Eddie.Core
             m_listener.Prefixes.Add(prefix);
 
             m_responderMethod = method;
-            m_listener.Start();
+            m_listener.Start();            
         }
+        */
  
         public void Run()
         {
+            /*
             ThreadPool.QueueUserWorkItem((o) =>
             {
                 try
@@ -106,6 +108,7 @@ namespace Eddie.Core
                 }
                 catch { } // suppress any exceptions
             });
+            */
         }
 
         void WriteFile(HttpListenerContext ctx, string path, bool asDownload)
@@ -174,15 +177,19 @@ namespace Eddie.Core
 
         public void Stop()
         {
+            /*
             m_listener.Stop();
             m_listener.Close();
+            */
         }
         
         public void Start()
         {
+            /*
             string listenUrl = "http://" + Engine.Instance.Storage.Get("webui.ip") + ":" + Engine.Instance.Storage.Get("webui.port") + "/";
             Init(listenUrl, SendResponse);
             Run();
+            */
         }
         
         public string SendResponse(HttpListenerRequest request)

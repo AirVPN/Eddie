@@ -33,17 +33,19 @@ namespace Deploy
 		public string Architecture;        
         public string UI; // TOFIX: Not yet used
         public bool Bundles; // TOFIX: Not yet used
+        public int NetFramework = 0;
 		public string Format;
 
         public string ArchitectureCompile; 
 
-        public Package(string platform, string architecture, string ui, bool bundles, string format)
+        public Package(string platform, string architecture, string ui, bool bundles, int netFramework, string format)
 		{
 			Platform = platform;
 			Architecture = architecture;
             UI = ui;
             Bundles = bundles;
-			Format = format;
+            NetFramework = netFramework;
+            Format = format;
             
             ArchitectureCompile = Architecture;
             if (ArchitectureCompile == "armv7l") // Arm pick x64 executabled (that are anyway CIL).                
@@ -103,14 +105,14 @@ namespace Deploy
 			}
 			Log("Platform: " + SO);
 
-            PathBase = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).Directory.Parent.Parent.Parent.Parent.FullName;
+            PathBase = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).Directory.Parent.Parent.Parent.Parent.Parent.FullName;
 
             Log("Path base: " + PathBase);
 
             PathBaseTemp = new DirectoryInfo(PathBase + "/tmp").FullName;
             PathBaseDeploy = new DirectoryInfo(PathBase + "/deploy").FullName;
             PathBaseRelease = new DirectoryInfo(PathBase + "/src/bin").FullName;
-            PathBaseRepository = new DirectoryInfo(PathBase + "/repository").FullName;
+            PathBaseRepository = new DirectoryInfo(PathBase + "/repository/files").FullName;
             PathBaseResources = new DirectoryInfo(PathBase + "/resources").FullName;
             PathBaseTools = new DirectoryInfo(PathBase + "/tools").FullName;
             PathBaseSigning = new DirectoryInfo(PathBase + "/repository/signing").FullName;
@@ -196,21 +198,20 @@ namespace Deploy
 
 			if (SO == "windows")
 			{
-                /*
-                ListPackages.Add(new Package("windows8", "x86", "portable"));
-                ListPackages.Add(new Package("windows8", "x64", "portable"));
-                ListPackages.Add(new Package("windows8", "x86", "installer"));
-                ListPackages.Add(new Package("windows8", "x64", "installer"));
-                */
-                ListPackages.Add(new Package("windows", "x86", "ui", true, "portable"));
-				ListPackages.Add(new Package("windows", "x64", "ui", true, "portable"));
-				ListPackages.Add(new Package("windows", "x86", "ui", true, "installer"));
-				ListPackages.Add(new Package("windows", "x64", "ui", true, "installer"));
+                ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "portable"));
+                ListPackages.Add(new Package("windows8", "x64", "ui", true, 4, "portable"));
+                ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "installer"));
+                ListPackages.Add(new Package("windows8", "x64", "ui", true, 4, "installer"));
 
-				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, "portable"));
-				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, "portable"));
-				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, "installer"));
-				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, "installer"));                
+                ListPackages.Add(new Package("windows", "x86", "ui", true, 2, "portable"));
+				ListPackages.Add(new Package("windows", "x64", "ui", true, 2, "portable"));
+				ListPackages.Add(new Package("windows", "x86", "ui", true, 2, "installer"));
+				ListPackages.Add(new Package("windows", "x64", "ui", true, 2, "installer"));
+
+				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "portable"));
+				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "portable"));
+				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "installer"));
+				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "installer"));                
 			}
 
 			if (SO == "linux")
@@ -223,15 +224,15 @@ namespace Deploy
 					arch = "armv7l";
                 else
                     arch = "x86";
-				ListPackages.Add(new Package("linux", arch, "ui", true, "mono"));
-				ListPackages.Add(new Package("linux", arch, "ui", true, "portable"));
-                ListPackages.Add(new Package("linux", arch, "ui", false, "debian"));
-                ListPackages.Add(new Package("linux", arch, "ui", false, "rpm"));                
+				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
+				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
+                ListPackages.Add(new Package("linux", arch, "ui", false, 4, "debian"));
+                ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));                
             }
 
 			if (SO == "osx") {
-				ListPackages.Add(new Package ("osx", "x64", "ui", true, "portable"));
-				ListPackages.Add(new Package ("osx", "x64", "ui", true, "installer"));
+				ListPackages.Add(new Package("osx", "x64", "ui", true, 4, "portable"));
+				ListPackages.Add(new Package("osx", "x64", "ui", true, 4, "installer"));
 			}
 			
 			string versionString = File.ReadAllText(PathBase + "/version.txt").Trim();
@@ -239,6 +240,7 @@ namespace Deploy
 			if(SO == "linux")
 				PathBaseTemp = "/tmp/eddie_deploy";
 
+            /* // TOCLEAN
 			int netFramework = 0;
 			if (SO == "windows") {
 				Log ("What .net framework is currently complied? '2' or '4'.");
@@ -252,15 +254,18 @@ namespace Deploy
 				netFramework = 4;
 			else if (SO == "osx")
 				netFramework = 2;
+            */
 
-			foreach(Package package in ListPackages)
+            foreach (Package package in ListPackages)
 			{
 				string platform = package.Platform;
 				string arch = package.Architecture;
                 string archCompile = package.ArchitectureCompile;
                 string ui = package.UI;
+                int requiredNetFramework = package.NetFramework;
 				string format = package.Format;
 
+                /* // TOCLEAN
 				int requiredNetFramework = 4;
 				if(platform == "windows")
 					requiredNetFramework = 2;
@@ -268,9 +273,10 @@ namespace Deploy
 					requiredNetFramework = 2;
 				else if (platform == "osx")
 					requiredNetFramework = 2;
-				                
-				//string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
-				//string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
+                */
+
+                //string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
+                //string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
                 string archiveName = "eddie_" + versionString + "_" + platform + "_" + arch + "_" + ui + "_" + format;
                 string fileName = archiveName;
                 string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
@@ -281,16 +287,35 @@ namespace Deploy
 				if (platform == "windows8") // Windows8 use the same common files of Windows
 					pathDeploy = pathDeploy.Replace("windows8", "windows");
 
+                /* // TOCLEAN
                 if (requiredNetFramework != netFramework)
                 {
                     Log("Building '" + archiveName + "' skipped for mismatch .Net framework");
                     continue;
                 }
+                */
 
                 // Start
                 Log("------------------------------");
 				Log("Building '" + archiveName + "'");
-				Log("------------------------------");
+
+                bool skipCompile = false;
+                if (SO == "osx")
+                    skipCompile = true;
+
+                if (skipCompile)
+                {
+                    Log("Expected already compiled binaries for this platform.");
+                }
+                else
+                {
+                    if (Compile(archCompile, requiredNetFramework) == false)
+                    {
+                        continue;
+                    }
+                }
+
+                Log("Packaging files");
 
 				CreateDirectory(pathTemp);
 
@@ -564,8 +589,8 @@ namespace Deploy
 					
 			}
 
-			Log("Done");
-
+            Log("------------------------------");
+            Log("Done");
 
 			if (SO == "linux")
 			{
@@ -588,6 +613,40 @@ namespace Deploy
         static bool IsOfficial()
         {
             return Program.Arguments.Contains("official");
+        }
+
+        static bool Compile(string architecture, int netFramework)
+        {
+            Log("Compilation, Architecture: " + architecture + ", NetFramework: " + netFramework.ToString());
+
+            string pathCompiler = "";
+            if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
+            {
+                pathCompiler = "c:\\Program Files (x86)\\MSBuild\\14.0\\Bin\\msbuild.exe";
+            }
+            else
+            {
+                pathCompiler = "/usr/bin/xbuild";
+            }
+
+            if(File.Exists(pathCompiler) == false)
+            {
+                Log("Compiler expected in " + pathCompiler + " but not found, build skipped.");
+                return false;
+            }
+
+            string arguments = "/p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework.ToString() + ".0\" /t:Rebuild \"" + PathBase + "/src/Eddie_VS2015.sln\"";
+            string o = Shell(pathCompiler, arguments);
+
+            if (o.IndexOf("0 Error(s)") != -1)
+            {
+                return true;
+            }
+            else
+            {
+                Log("Compilation errors, build skipped.");
+                return false;
+            }
         }
 
 		static string NormalizePath(string path)
