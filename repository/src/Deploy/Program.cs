@@ -377,7 +377,7 @@ namespace Deploy
                         //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
                         Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
 
-                        WindowsSignFile(pathExe);
+                        WindowsSignFile(pathExe, true);
                     }
 				}
 				else if (platform == "linux")
@@ -790,6 +790,8 @@ namespace Deploy
 
         static void WindowsSignPath(string path)
         {
+            Log("Windows Signing path: " + path);
+
             string[] files = Directory.GetFiles(path);
             foreach (string file in files)
             {
@@ -799,11 +801,11 @@ namespace Deploy
                     skip = true;
 
                 if(skip == false)
-                    WindowsSignFile(file);
+                    WindowsSignFile(file, false);
             }            
         }
 
-        static void WindowsSignFile(string path)
+        static void WindowsSignFile(string path, bool log)
         {
             if (Program.Arguments.Contains("official") == false)
                 return;
@@ -815,7 +817,8 @@ namespace Deploy
 
             if( (File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)) )
             {
-                Log("Windows Signing files");
+                if(log)
+                    Log("Windows Signing file: " + path);
 
                 string cmd = "";
                 cmd += PathBaseTools + "/windows/signtool.exe";
