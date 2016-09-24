@@ -326,7 +326,7 @@ namespace Eddie.Core
             foreach (string v in va)
             {
                 if(v != "")
-                    output.Add(v);
+                    output.Add(v.Trim()); // Trim added in 2.11.5
             }
             return output;
         }
@@ -431,8 +431,8 @@ namespace Eddie.Core
 			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
             
             SetDefault("servers.last", "text", "", NotInMan, false);
-			SetDefault("servers.whitelist", "text", "", NotInMan, false); // Removed from man, because it's an hash list in >=2.11
-			SetDefault("servers.blacklist", "text", "", NotInMan, false); // Removed from man, because it's an hash list in >=2.11
+			SetDefault("servers.whitelist", "text", "", Messages.ManOptionServersWhiteList); 
+			SetDefault("servers.blacklist", "text", "", Messages.ManOptionServersBlackList); 
             SetDefaultBool("servers.startlast", false, Messages.ManOptionServersStartLast);
 			SetDefaultBool("servers.locklast", false, Messages.ManOptionServersLockLast);
 			SetDefault("servers.scoretype", "choice:Speed,Latency", "Speed", Messages.ManOptionServersScoreType);

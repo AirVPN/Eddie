@@ -281,7 +281,9 @@ namespace Eddie.Core
 		public static string StatsVpnSpeedDownload = "VPN Speed Download";
 		public static string StatsVpnSpeedUpload = "VPN Speed Upload";
 		public static string StatsVpnConnectionStart = "VPN Start";
-		public static string StatsVpnTotalDownload = "VPN Total Download";
+        public static string StatsSessionTotalDownload = "Session Total Download";
+        public static string StatsSessionTotalUpload = "Session Total Upload";
+        public static string StatsVpnTotalDownload = "VPN Total Download";
 		public static string StatsVpnTotalUpload = "VPN Total Upload";
 		public static string StatsVpnIpEntry = "IP Entry";
 		public static string StatsVpnIpExit = "IP Exit";
@@ -323,8 +325,8 @@ namespace Eddie.Core
         public static string ManOptionProfile = "Profile name. Use it to store different set of options";
 		public static string ManOptionPath = "Data path. May be a full path or special value [i]program[/i] or [i]home[/i]";
                 
-        //public static string ManOptionServersWhiteList = "List of servers available for connection. Leave empty for all servers. Separate values with comma. Example: 'Canopus,Syrma,Taygeta'";
-		//public static string ManOptionServersBlackList = "List of servers to avoid in connection. Same syntax of whitelist.";
+        public static string ManOptionServersWhiteList = "List of servers available for connection. Leave empty for all servers. Separate values with comma. Use ID or display name. Example: 'Canopus,Syrma,Taygeta'";
+		public static string ManOptionServersBlackList = "List of servers to avoid in connection. Same syntax of whitelist.";
 		public static string ManOptionServersStartLast = "[i]True[/i] if you want to connect to the last used server. [i]False[/i] to choose it automatically.";
 		public static string ManOptionServersLockLast = "[i]True[/i] if you never leave the selected server, not even in case of disconnection.";
 		public static string ManOptionServersScoreType = "May be [i]Speed[/i] or [i]Latency[/i]. Affects scoring of servers, indicates if you prefer a better speed or a better latency";

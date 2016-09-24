@@ -107,10 +107,11 @@ namespace Eddie.Core
 		public string ConnectedVpnGateway = "";
 		public string ConnectedVpnInterfaceName = "";
 		public string ConnectedVpnInterfaceId = "";
-		public string ConnectedVpnDns = "";
-        public TimeDelta ConnectedLastStatsTick = new TimeDelta();
-        public Int64 ConnectedLastRead = -1;
-        public Int64 ConnectedLastWrite = -1;
+		public string ConnectedVpnDns = "";        
+        public Int64 ConnectedVpnStatsRead = 0;
+        public Int64 ConnectedVpnStatsWrite = 0;
+        public Int64 ConnectedSessionStatsRead = 0;
+        public Int64 ConnectedSessionStatsWrite = 0;
         public Int64 ConnectedLastDownloadStep = -1;
         public Int64 ConnectedLastUploadStep = -1;
         
@@ -794,9 +795,7 @@ namespace Eddie.Core
                     // OnConnected
                     Connected = true;
                     ConnectedSince = DateTime.UtcNow;
-					ConnectedLastRead = -1;
-					ConnectedLastWrite = -1;
-                    
+					
                     WaitMessageClear();
 
                     OnRefreshUi(RefreshUiMode.Full);
@@ -1019,10 +1018,24 @@ namespace Eddie.Core
                 foreach (ServerInfo infoServer in m_servers.Values)
                 {
                     string code = infoServer.Code;
+                    string displayName = infoServer.DisplayName;
 
+                    /* 
 					if (serversWhiteList.Contains(code))
                         infoServer.UserList = ServerInfo.UserListType.WhiteList;
 					else if (serversBlackList.Contains(code))
+                        infoServer.UserList = ServerInfo.UserListType.BlackList;
+                    else
+                        infoServer.UserList = ServerInfo.UserListType.None;
+                    */
+                    // 2.11.5
+                    if (serversWhiteList.Contains(code))
+                        infoServer.UserList = ServerInfo.UserListType.WhiteList;
+                    else if (serversWhiteList.Contains(displayName))
+                        infoServer.UserList = ServerInfo.UserListType.WhiteList;
+                    else if (serversBlackList.Contains(code))
+                        infoServer.UserList = ServerInfo.UserListType.BlackList;
+                    else if (serversBlackList.Contains(displayName))
                         infoServer.UserList = ServerInfo.UserListType.BlackList;
                     else
                         infoServer.UserList = ServerInfo.UserListType.None;
@@ -1051,8 +1064,12 @@ namespace Eddie.Core
 						Stats.UpdateValue("VpnConnectionStart", TSText);
 
 					}
-					Stats.UpdateValue("VpnTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedLastRead, false, true));
-					Stats.UpdateValue("VpnTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedLastWrite, false, true));
+
+                    Stats.UpdateValue("SessionTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedSessionStatsRead, false, true));
+                    Stats.UpdateValue("SessionTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedSessionStatsWrite, false, true));
+
+                    Stats.UpdateValue("VpnTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedVpnStatsRead, false, true));
+					Stats.UpdateValue("VpnTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedVpnStatsWrite, false, true));
 
 					Stats.UpdateValue("VpnSpeedDownload", Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, true));
 					Stats.UpdateValue("VpnSpeedUpload", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, true));
@@ -1060,7 +1077,11 @@ namespace Eddie.Core
 				else
 				{
 					Stats.UpdateValue("VpnConnectionStart", Messages.StatsNotConnected);
-					Stats.UpdateValue("VpnTotalDownload", Messages.StatsNotConnected);
+
+                    Stats.UpdateValue("SessionTotalDownload", Messages.StatsNotConnected);
+                    Stats.UpdateValue("SessionTotalUpload", Messages.StatsNotConnected);
+
+                    Stats.UpdateValue("VpnTotalDownload", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnTotalUpload", Messages.StatsNotConnected);
 
 					Stats.UpdateValue("VpnSpeedDownload", Messages.StatsNotConnected);

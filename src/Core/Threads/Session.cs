@@ -54,11 +54,20 @@ namespace Eddie.Core.Threads
         private ProgramScope m_programScope = null;
         private InterfaceScope m_interfaceScope = null;
 
+        private Int64 InterfaceTunBytesReadInitial = -1;
+        private Int64 InterfaceTunBytesWriteInitial = -1;
+        private Int64 InterfaceTunBytesLastRead = -1;
+        private Int64 InterfaceTunBytesLastWrite = -1;
+        public TimeDelta InterfaceTunBytesLastTick = new TimeDelta();
+
         private OvpnBuilder m_ovpn;
         
         public override void OnRun()
 		{
 			CancelRequested = false;
+
+            Engine.ConnectedSessionStatsRead = 0;
+            Engine.ConnectedSessionStatsWrite = 0;
 
 			string sessionLastServer = "";
 
@@ -74,7 +83,10 @@ namespace Eddie.Core.Threads
 				m_processOpenVpn = null;
 				m_processProxy = null;
 
-				try
+                Engine.ConnectedVpnStatsRead = 0;
+                Engine.ConnectedVpnStatsWrite = 0;
+
+                try
 				{
 					// -----------------------------------
 					// Phase 1: Initialization and start
@@ -335,26 +347,22 @@ namespace Eddie.Core.Threads
 									{
 										if (m_interfaceTun != null)
 										{
-											Int64 read = m_interfaceTun.GetIPv4Statistics().BytesReceived;
-											Int64 write = m_interfaceTun.GetIPv4Statistics().BytesSent;
+											Int64 tunRead = 0;
+                                            Int64 tunWrite = 0;
+                                            
+                                            tunRead += m_interfaceTun.GetIPv4Statistics().BytesReceived;
+                                            tunWrite += m_interfaceTun.GetIPv4Statistics().BytesSent;
+                                            
+                                            if (InterfaceTunBytesReadInitial == -1)
+                                            {
+                                                InterfaceTunBytesReadInitial = tunRead;
+                                                InterfaceTunBytesWriteInitial = tunWrite;
+                                            }
+                                            tunRead -= InterfaceTunBytesReadInitial;
+                                            tunWrite -= InterfaceTunBytesWriteInitial;
 
-											if (Engine.ConnectedLastRead != -1)
-											{
-												int delta = Engine.ConnectedLastStatsTick.Reset();
-												if (delta > 0)
-												{
-													Engine.ConnectedLastDownloadStep = (1000 * (read - Engine.ConnectedLastRead)) / delta;
-													Engine.ConnectedLastUploadStep = (1000 * (write - Engine.ConnectedLastWrite)) / delta;
-												}
-											}
-
-											Engine.ConnectedLastRead = read;
-											Engine.ConnectedLastWrite = write;
-
-											Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
-
-											Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
-										}
+                                            UpdateBytesStats(tunRead, tunWrite);                                            
+                                        }
 									}
 									else if (Platform.Instance.GetTunStatsMode() == "OpenVpnManagement")
 									{
@@ -812,7 +820,7 @@ namespace Eddie.Core.Threads
             m_reset = level;
         }
 
-		public void SendManagementCommand(string Cmd)
+        public void SendManagementCommand(string Cmd)
 		{
 			if (Cmd == "k1")
 			{
@@ -1223,8 +1231,14 @@ namespace Eddie.Core.Threads
 							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 							foreach (NetworkInterface adapter in interfaces)
 							{
-								if (adapter.Id == Engine.ConnectedVpnInterfaceId)
-									m_interfaceTun = adapter;
+                                if (adapter.Id == Engine.ConnectedVpnInterfaceId)
+                                {
+                                    m_interfaceTun = adapter;
+                                    InterfaceTunBytesReadInitial = -1;
+                                    InterfaceTunBytesWriteInitial = -1;
+                                    InterfaceTunBytesLastRead = -1;
+                                    InterfaceTunBytesLastWrite = -1;
+                                }
 							}
 						}
 					}
@@ -1241,9 +1255,15 @@ namespace Eddie.Core.Threads
 							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 							foreach (NetworkInterface adapter in interfaces)
 							{
-								if (adapter.Id == Engine.ConnectedVpnInterfaceId)
-									m_interfaceTun = adapter;
-							}
+                                if (adapter.Id == Engine.ConnectedVpnInterfaceId)
+                                {
+                                    m_interfaceTun = adapter;
+                                    InterfaceTunBytesReadInitial = -1;
+                                    InterfaceTunBytesWriteInitial = -1;
+                                    InterfaceTunBytesLastRead = -1;
+                                    InterfaceTunBytesLastWrite = -1;
+                                }
+                            }
 						}
 					}
 
@@ -1362,27 +1382,9 @@ namespace Eddie.Core.Threads
 							read = Conversions.ToInt64(readArray[1]);
 						if (writeArray.Length == 2)
 							write = Conversions.ToInt64(writeArray[1]);
-												
-						lock (Engine)
-						{
-							if (Engine.ConnectedLastRead != -1)
-							{
-								int delta = Engine.ConnectedLastStatsTick.Reset();
-								if (delta > 0)
-								{
-									Engine.ConnectedLastDownloadStep = (1000 * (read - Engine.ConnectedLastRead)) / delta;
-									Engine.ConnectedLastUploadStep = (1000 * (write - Engine.ConnectedLastWrite)) / delta;
-								}
-							}
 
-							Engine.ConnectedLastRead = read;
-							Engine.ConnectedLastWrite = write;
-
-							Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
-						}
-
-						Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
-
+                        UpdateBytesStats(read, write);
+                        
 						m_openVpnManagementStatisticsLines.Clear();
 					}
 				}
@@ -1396,6 +1398,38 @@ namespace Eddie.Core.Threads
 				}
 			}
 		}
+
+        public void UpdateBytesStats(Int64 read, Int64 write)
+        {
+            Int64 deltaRead = read;
+            if (InterfaceTunBytesLastRead != -1)
+                deltaRead = read - InterfaceTunBytesLastRead;
+            Engine.ConnectedSessionStatsRead += deltaRead;
+            Engine.ConnectedVpnStatsRead += deltaRead;
+
+            Int64 deltaWrite = write;
+            if (InterfaceTunBytesLastWrite != -1)
+                deltaWrite = write - InterfaceTunBytesLastWrite;
+            Engine.ConnectedSessionStatsWrite += deltaWrite;
+            Engine.ConnectedVpnStatsWrite += deltaWrite;
+
+            if (InterfaceTunBytesLastRead != -1)
+            {
+                int delta = InterfaceTunBytesLastTick.Reset();
+                if (delta > 0)
+                {
+                    Engine.ConnectedLastDownloadStep = (1000 * (deltaRead)) / delta;
+                    Engine.ConnectedLastUploadStep = (1000 * (deltaWrite)) / delta;
+                }
+            }
+
+            InterfaceTunBytesLastRead = read;
+            InterfaceTunBytesLastWrite = write;
+
+            Engine.Instance.Stats.Charts.Hit(Engine.ConnectedLastDownloadStep, Engine.ConnectedLastUploadStep);
+
+            Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
+        }
 
         public void BuildOVPN()
         {

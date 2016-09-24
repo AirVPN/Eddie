@@ -28,11 +28,9 @@ namespace Eddie.Core
 {
     public class WebServer
     {
-        /*
         private HttpListener m_listener = new HttpListener();
-        private Func<HttpListenerRequest, string> m_responderMethod;
-        */
-
+        //private Func<HttpListenerRequest, string> m_responderMethod;
+        
         private List<XmlElement> m_pullItems = new List<XmlElement>();
 
         public static string GetPath()
@@ -49,8 +47,8 @@ namespace Eddie.Core
                 return "";
         }
 
-        /*
-        public void Init(string prefix, Func<HttpListenerRequest, string> method)
+        //public void Init(string prefix, Func<HttpListenerRequest, string> method)
+        public void Init(string prefix)
         {
             if (GetPath() == "")
                 return;
@@ -59,20 +57,20 @@ namespace Eddie.Core
                 throw new NotSupportedException(
                     "Needs Windows XP SP2, Server 2003 or later.");
 
+            /*
             // A responder method is required
             if (method == null)
                 throw new ArgumentException("method");
+            */
 
             m_listener.Prefixes.Add(prefix);
 
-            m_responderMethod = method;
+            //m_responderMethod = method;
             m_listener.Start();            
         }
-        */
- 
+        
         public void Run()
         {
-            /*
             ThreadPool.QueueUserWorkItem((o) =>
             {
                 try
@@ -91,7 +89,7 @@ namespace Eddie.Core
                                 }
                                 else
                                 {
-                                    string rstr = m_responderMethod(ctx.Request);
+                                    string rstr = SendResponse(ctx.Request);
                                     byte[] buf = Encoding.UTF8.GetBytes(rstr);
                                     ctx.Response.ContentLength64 = buf.Length;
                                     ctx.Response.OutputStream.Write(buf, 0, buf.Length);
@@ -107,8 +105,7 @@ namespace Eddie.Core
                     }
                 }
                 catch { } // suppress any exceptions
-            });
-            */
+            });            
         }
 
         void WriteFile(HttpListenerContext ctx, string path, bool asDownload)
@@ -177,19 +174,16 @@ namespace Eddie.Core
 
         public void Stop()
         {
-            /*
             m_listener.Stop();
-            m_listener.Close();
-            */
+            m_listener.Close();            
         }
         
         public void Start()
         {
-            /*
             string listenUrl = "http://" + Engine.Instance.Storage.Get("webui.ip") + ":" + Engine.Instance.Storage.Get("webui.port") + "/";
-            Init(listenUrl, SendResponse);
-            Run();
-            */
+            //Init(listenUrl, SendResponse);
+            Init(listenUrl);
+            Run();            
         }
         
         public string SendResponse(HttpListenerRequest request)
