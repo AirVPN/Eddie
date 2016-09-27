@@ -183,6 +183,7 @@ namespace Eddie.Gui
             //this.Left = l;
             //this.Top = t;
             //this.ClientSize = new Size(w, h);
+            MessageBox.Show(this.Bounds.ToString());
             this.Bounds = new Rectangle(l, t, w, h); // 2.11.4
 
             /*

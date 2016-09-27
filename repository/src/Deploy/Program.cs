@@ -277,7 +277,7 @@ namespace Deploy
 
                 //string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
                 //string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
-                string archiveName = "eddie_" + versionString + "_" + platform + "_" + arch + "_" + ui + "_" + format;
+                string archiveName = "eddie-" + ui + "_" + versionString + "_" + platform + "_" + arch + "_" + format;
                 string fileName = archiveName;
                 string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
 				string pathTemp = PathBaseTemp + "/" + archiveName;
