@@ -1276,6 +1276,8 @@ namespace Eddie.Core.Threads
 							Engine.ConnectedVpnInterfaceId = match.Groups[1].Value;
 
 							m_interfaceTun = null; // Not used under OSX, see Platforms.Osx.GetTunStatsMode comment
+							InterfaceTunBytesLastRead = -1;
+							InterfaceTunBytesLastWrite = -1;
 						}
 					}
 
@@ -1401,15 +1403,25 @@ namespace Eddie.Core.Threads
 
         public void UpdateBytesStats(Int64 read, Int64 write)
         {
-            Int64 deltaRead = read;
-            if (InterfaceTunBytesLastRead != -1)
-                deltaRead = read - InterfaceTunBytesLastRead;
+			if (read < 0)
+				read = 0; // Unexpected, ignore if it happens
+			if (write < 0)
+				write = 0; // Unexpected, ignore if it happens
+			Int64 deltaRead = read;
+			if (InterfaceTunBytesLastRead != -1) {
+				deltaRead = read - InterfaceTunBytesLastRead;
+				if (deltaRead < 0)
+					deltaRead = 0; // Unexpected, ignore if it happens
+			}
             Engine.ConnectedSessionStatsRead += deltaRead;
             Engine.ConnectedVpnStatsRead += deltaRead;
 
             Int64 deltaWrite = write;
-            if (InterfaceTunBytesLastWrite != -1)
-                deltaWrite = write - InterfaceTunBytesLastWrite;
+			if (InterfaceTunBytesLastWrite != -1) {
+				deltaWrite = write - InterfaceTunBytesLastWrite;
+				if (deltaWrite < 0)
+					deltaWrite = 0; // Unexpected, ignore if it happens
+			}
             Engine.ConnectedSessionStatsWrite += deltaWrite;
             Engine.ConnectedVpnStatsWrite += deltaWrite;
 

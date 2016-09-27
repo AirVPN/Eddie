@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Osx", "Platforms.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestOsx", "TestOsx\TestOsx.csproj", "{7B54F325-289B-4B0D-B5DF-594E12D87105}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deploy", "Deploy\Deploy.csproj", "{B0C52400-DD89-474B-ACA1-673DA6D97AFF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -52,16 +50,6 @@ Global
 		{8A54C394-4DE9-4512-9A04-701049176953}.Release|x64.Build.0 = Release|x86
 		{8A54C394-4DE9-4512-9A04-701049176953}.Release|x86.ActiveCfg = Release|x86
 		{8A54C394-4DE9-4512-9A04-701049176953}.Release|x86.Build.0 = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.AppStore|x86.ActiveCfg = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.AppStore|x86.Build.0 = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x64.ActiveCfg = Debug|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x64.Build.0 = Debug|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x86.ActiveCfg = Debug|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x86.Build.0 = Debug|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x64.ActiveCfg = Release|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x64.Build.0 = Release|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x86.ActiveCfg = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x86.Build.0 = Release|x86
 		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.AppStore|x86.ActiveCfg = Release|Any CPU
 		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.AppStore|x86.Build.0 = Release|Any CPU
 		{CE0A865E-9650-4283-8EBB-2603C6C52F47}.Debug|x64.ActiveCfg = Debug|Any CPU
