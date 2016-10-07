@@ -199,7 +199,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN Driver - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN Driver - " + Messages.OsDriverNotAvailable);
 			}
 
 			if(OpenVpnPath != "")
@@ -227,8 +227,8 @@ namespace Eddie.Core
 			else
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "SSL - " + Messages.NotAvailable);
-			}
-		}
+			}            
+        }
 
         public static bool FileExists(string path)
         {

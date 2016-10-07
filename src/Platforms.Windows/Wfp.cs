@@ -59,16 +59,27 @@ namespace Eddie.Platforms
         [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr LibPocketFirewallGetLastError();
 
+        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern UInt32 LibPocketFirewallGetLastErrorCode();
+
         public static string LibPocketFirewallGetLastError2()
         {
             IntPtr result = LibPocketFirewallGetLastError();
             string s = Marshal.PtrToStringAnsi(result);
+            UInt32 code = LibPocketFirewallGetLastErrorCode();
+            if (code != 0)
+                s += " (0x" + code.ToString("x") + ")";
             return s;
         }
 
         public static string GetName()
         {
             return Constants.Name2 + "-" + Constants.AppID;
+        }
+
+        public static bool GetDynamicMode()
+        {
+            return Engine.Instance.Storage.GetBool("windows.wfp.dynamic");            
         }
 
         public static void Start()
@@ -79,6 +90,7 @@ namespace Eddie.Platforms
             XmlElement xmlInfo = xmlStart.CreateElement("firewall");
             xmlInfo.SetAttribute("description", Constants.Name2);
             xmlInfo.SetAttribute("weight", "max");
+            xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");            
 
             if (LibPocketFirewallStart(xmlInfo.OuterXml) == false)
                 throw new Exception(Messages.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
@@ -192,17 +204,19 @@ namespace Eddie.Platforms
             }            
         }
 
-        // Shortcuts
+        public static XmlElement CreateItemAllowAddress(string title, IpAddressRange range)
+        {
+            string address = range.GetAddress().ToString();
+            string mask = range.GetMask();
 
-        public static XmlElement CreateItemAllowAddress(string title, bool persistent, string address, string mask)
-        {            
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
-            xmlRule.SetAttribute("layer", "ipv4");
-            xmlRule.SetAttribute("action", "permit");
-            if (persistent)
-                xmlRule.SetAttribute("persistent", "true");
+            if(range.IsV4)
+                xmlRule.SetAttribute("layer", "ipv4");
+            else if(range.IsV6)
+                xmlRule.SetAttribute("layer", "ipv6");
+            xmlRule.SetAttribute("action", "permit");            
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);
             XmlIf1.SetAttribute("field", "ip_remote_address");
@@ -213,15 +227,13 @@ namespace Eddie.Platforms
             return xmlRule;
         }
 
-        public static XmlElement CreateItemAllowProgram(string title, bool persistent, string path)
+        public static XmlElement CreateItemAllowProgram(string title, string path)
         {
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
             xmlRule.SetAttribute("layer", "all");
-            xmlRule.SetAttribute("action", "permit");
-            if(persistent)
-                xmlRule.SetAttribute("persistent", "true");
+            xmlRule.SetAttribute("action", "permit");            
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);
             XmlIf1.SetAttribute("field", "ale_app_id");
@@ -231,15 +243,13 @@ namespace Eddie.Platforms
             return xmlRule;
         }
 
-        public static XmlElement CreateItemAllowInterface(string title, bool persistent, string id)
+        public static XmlElement CreateItemAllowInterface(string title, string id, string layers)
         {
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");
             xmlRule.SetAttribute("name", title);
-            xmlRule.SetAttribute("layer", "all");
-            xmlRule.SetAttribute("action", "permit");
-            if (persistent)
-                xmlRule.SetAttribute("persistent", "true");
+            xmlRule.SetAttribute("layer", layers);
+            xmlRule.SetAttribute("action", "permit");            
             XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
             xmlRule.AppendChild(XmlIf1);
             XmlIf1.SetAttribute("field", "ip_local_interface");
@@ -263,7 +273,7 @@ namespace Eddie.Platforms
             p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
             p.StartInfo.WorkingDirectory = Path.GetTempPath();
             p.Start();
-            string output = p.StandardOutput.ReadToEnd();
+            p.StandardOutput.ReadToEnd();
             p.WaitForExit();
 
             System.Xml.XmlDocument xmlDoc = new XmlDocument();

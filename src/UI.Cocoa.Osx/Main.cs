@@ -36,7 +36,6 @@ namespace Eddie.UI.Osx
 
 			// Due to a bug in Xamarin, that don't recognize resources inside Core library if Mono is bundled, we embed some resources in entry assembly.
 
-			//Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "AirVPN.xml", "AirVPN.xml");
 			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "license.txt", "License.txt");
 			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "thirdparty.txt", "ThirdParty.txt");
 			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "tos.txt", "TOS.txt");
@@ -46,7 +45,7 @@ namespace Eddie.UI.Osx
 			if (CommandLine.SystemEnvironment.Exists ("cli")) {
 				Core.Engine engine = new Core.Engine ();
 
-				if (engine.Initialization ()) {
+				if (engine.Initialization (true)) {
 					engine.ConsoleStart ();
 					engine.Join ();
 				}
@@ -54,7 +53,7 @@ namespace Eddie.UI.Osx
 			} else {
 				Engine engine = new Engine ();
 
-				if (engine.Initialization () == false)
+				if (engine.Initialization (false) == false)
 					return;
 
 				NSApplication.Init ();

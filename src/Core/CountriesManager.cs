@@ -36,7 +36,11 @@ namespace Eddie.Core
 		
 		public static void Init()
 		{
-			Add("AF","Afghanistan");
+            Add("A1", "Anonymous Proxy");
+            Add("A2", "Satellite Provider");
+            Add("O1", "Other Country");
+
+            Add("AF","Afghanistan");
 			Add("AX","Åland Islands");
 			Add("AL","Albania");
 			Add("DZ","Algeria");

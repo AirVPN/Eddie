@@ -97,7 +97,7 @@ namespace Eddie.Gui.Forms
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
             chkWindowsWfp.Visible = Platform.Instance.IsWindowsSystem();
 
-            if (Engine.Instance.AirVPN.Manifest != null)
+            if( (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null) )
             {
                 XmlNodeList xmlModes = Engine.Instance.AirVPN.Manifest.SelectNodes("//modes/mode");
                 foreach (XmlElement xmlMode in xmlModes)
@@ -138,7 +138,6 @@ namespace Eddie.Gui.Forms
             cboProxyMode.Items.Add("Tor");
 
             // Routes
-
             lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
             lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
             lstRoutes.ResizeColumnMax(2);
@@ -231,7 +230,8 @@ namespace Eddie.Gui.Forms
             // General            
             chkConnect.Checked = s.GetBool("connect");
 			chkNetLock.Checked = s.GetBool("netlock");
-            chkMinimizeTray.Checked = s.GetBool("gui.windows.tray");
+            chkUiMinimizeStart.Checked = s.GetBool("gui.windows.start_minimized");
+            chkUiMinimizeTray.Checked = s.GetBool("gui.windows.tray");
 			chkSystemNotifications.Checked = s.GetBool("gui.windows.notifications");
             chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
 			chkExitConfirm.Checked = s.GetBool("gui.exit_confirm");
@@ -422,7 +422,7 @@ namespace Eddie.Gui.Forms
 			string[] dnsServers = s.Get("dns.servers").Split(',');
 			foreach (string dnsServer in dnsServers)
 			{
-				if(Utils.IsIP(dnsServer))
+				if(IpAddress.IsIP(dnsServer))
 					lstDnsServers.Items.Add(new ListViewItem(dnsServer));
 			}
 
@@ -482,7 +482,7 @@ namespace Eddie.Gui.Forms
 		{
 			if( (RouteDescriptionToDirection(cboRoutesOtherwise.Text) == "out") && (lstRoutes.Items.Count == 0) )			
 			{
-				if (MessageBox.Show(this, Messages.WindowsSettingsRouteOutEmptyList, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if(Engine.Instance.OnAskYesNo(Messages.WindowsSettingsRouteOutEmptyList) == false)
 					return false;  
 			}
 
@@ -497,7 +497,8 @@ namespace Eddie.Gui.Forms
             // General            
             s.SetBool("connect", chkConnect.Checked);
 			s.SetBool("netlock", chkNetLock.Checked);
-            s.SetBool("gui.windows.tray", chkMinimizeTray.Checked);
+            s.SetBool("gui.windows.start_minimized", chkUiMinimizeStart.Checked);
+            s.SetBool("gui.windows.tray", chkUiMinimizeTray.Checked);
 			s.SetBool("gui.windows.notifications", chkSystemNotifications.Checked);			 
             s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
 			s.SetBool("gui.exit_confirm", chkExitConfirm.Checked);
@@ -524,7 +525,10 @@ namespace Eddie.Gui.Forms
             }
 
             // Protocols
-            if(chkProtocolsAutomatic.Checked)
+            if (lstProtocols.Items.Count == 0) // Occur if AirVPN provider is disabled
+                chkProtocolsAutomatic.Checked = true;
+
+            if (chkProtocolsAutomatic.Checked)
             {
                 s.Set("mode.protocol", "AUTO");
                 s.SetInt("mode.port", 443);
@@ -997,7 +1001,7 @@ namespace Eddie.Gui.Forms
 
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
-			MessageBox.Show(Messages.OsDriverUninstallDone, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Engine.Instance.OnMessageInfo(Messages.OsDriverUninstallDone);
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
@@ -1012,7 +1016,8 @@ namespace Eddie.Gui.Forms
 
 		private void cmdProxyTorTest_Click(object sender, EventArgs e)
 		{
-			MessageBox.Show(TorControl.Test(txtProxyHost.Text, Conversions.ToInt32(txtProxyTorControlPort.Text), txtProxyTorControlPassword.Text));
+            string t = TorControl.Test(txtProxyHost.Text, Conversions.ToInt32(txtProxyTorControlPort.Text), txtProxyTorControlPassword.Text);
+            Engine.Instance.OnMessageInfo(t);
 		}
 
 		private void optModeAutomatic_CheckedChanged(object sender, EventArgs e)
@@ -1198,6 +1203,14 @@ namespace Eddie.Gui.Forms
             EnableIde();
         }
 
-        
+        private void cmdResetToDefault_Click(object sender, EventArgs e)
+        {
+            if(Engine.Instance.OnAskYesNo(Messages.ResetSettingsConfirm))
+            {
+                Engine.Instance.Storage.ResetAll(false);
+                ReadOptions();
+                Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
+            }
+        }
     }
 }

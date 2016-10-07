@@ -74,7 +74,7 @@ namespace Eddie.Core
 			return result;
 		}
 
-        public void WriteXml(XmlElement xmlElement)
+        public void WriteXML(XmlElement xmlElement)
         {
             foreach (KeyValuePair<string, string> item in Params)
                 xmlElement.SetAttribute(item.Key, item.Value);

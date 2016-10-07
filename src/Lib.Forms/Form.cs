@@ -125,18 +125,23 @@ namespace Eddie.Gui
 
             output += Convert.ToString(R.X) + ",";
             output += Convert.ToString(R.Y) + ",";
+            /* 
 			output += Convert.ToString(ClientSize.Width) + ",";
 			output += Convert.ToString(ClientSize.Height);
+            */
+            // 2.11.4
+            output += Convert.ToString(R.Width) + ",";
+            output += Convert.ToString(R.Height);
 
             return output;
         }
 
-        public void SetFormLayout(string v, bool ignoreVisible, bool defaultVisible, Size defaultSize)
+        public void SetFormLayout(string v, bool forceMinimized, bool forceMaximized, bool minimizeInTray, Size defaultSize)
         {
 			if (v == "")
 			{
 				v = "";
-				v += (defaultVisible ? "1" : "0") + ",";
+				v += "1" + ",";
 				v += "n,";
 				v += (Screen.PrimaryScreen.WorkingArea.Width / 2 - defaultSize.Width / 2).ToString() + ",";
 				v += (Screen.PrimaryScreen.WorkingArea.Height / 2 - defaultSize.Height / 2).ToString() + ",";
@@ -154,7 +159,6 @@ namespace Eddie.Gui
             int deskHeight = SystemInformation.VirtualScreen.Height;
             int deskWidth = SystemInformation.VirtualScreen.Width;
 
-            bool vis = ((fields[0] == "0") ? false : true);
             String state = fields[1];
             int l = Convert.ToInt32(fields[2]);
             int t = Convert.ToInt32(fields[3]);
@@ -174,24 +178,42 @@ namespace Eddie.Gui
             if (t + h > deskHeight)
                 t = deskHeight - h;
 
-            this.Visible = vis;
-            this.Left = l;
-            this.Top = t;
-			//this.Width = w;
-			//this.Height = h;
-
-			this.ClientSize = new Size(w, h);
-			
-			if(ignoreVisible == false)
-				if (this.Visible)
-					this.Activate();
+            this.StartPosition = FormStartPosition.Manual;
+            
+            if(this.WindowState == FormWindowState.Minimized)
+            {
+                // If started minimized (Windows shortcut 'run' mode), settings .Bounds below don't work if not visible.
+                this.Visible = true;
+            }
+            
+            this.Bounds = new Rectangle(l, t, w, h);
+            
+            if (forceMinimized)
+                state = "m";
+            else if (forceMaximized)
+                state = "M";
 
             if (state == "m")
-                this.WindowState = FormWindowState.Minimized;
+            {
+                if (minimizeInTray)
+                    this.Visible = false;
+                else
+                {
+                    this.WindowState = FormWindowState.Minimized;
+                    this.Visible = true;
+                }
+            }
+
             else if (state == "M")
+            {
                 this.WindowState = FormWindowState.Maximized;
+                this.Visible = true;
+            }
             else if (state == "n")
+            {
                 this.WindowState = FormWindowState.Normal;
+                this.Visible = true;
+            }
         }
 
         public void SetClientSize(int w, int h)

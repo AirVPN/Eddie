@@ -36,36 +36,6 @@ namespace Eddie.Core.UI
 		public static string GetTos()
 		{
 			return ResourcesFiles.GetString("tos.txt");			
-		}
-
-		public static string GetMan(string format)
-		{
-			string o = "\n";
-			o += "[b]NAME[/b]\n";
-			o += "\t" + Messages.ManName.Replace("\n","\n\t");
-			o += "\n\n[b]SYNOPSIS[/b]\n";
-			o += "\t" + Messages.ManSynopsis.Replace("\n", "\n\t");
-			o += "\n\n[b]DESCRIPTION[/b]\n";
-			o += "\t" + Messages.ManDescription.Replace("\n", "\n\t");
-			o += "\n\n[b]OPTIONS[/b]\n";
-			o += "\t[list]" + Engine.Instance.Storage.GetMan().Replace("\n", "\n\t") + "[/list]";
-			o += "\n\n[b]COPYRIGHT[/b]\n";
-			o += "\t" + Messages.ManCopyright.Replace("\n", "\n\t\t");
-			o += "\n";
-
-			if (format != "bbc")
-			{
-				o = o.Replace("[b]", "");
-				o = o.Replace("[/b]", "");
-				o = o.Replace("[i]", "");
-				o = o.Replace("[/i]", "");
-				o = o.Replace("[*]", "");
-				o = o.Replace("[/*]", "");
-				o = o.Replace("[list]", "");
-				o = o.Replace("[/list]", "");
-			}
-
-			return o;
-		}
+		}        
 	}
 }

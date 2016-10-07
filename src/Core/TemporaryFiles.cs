@@ -61,15 +61,23 @@ namespace Eddie.Core
             Clean("");
         }
 
-        public static void Clean(string group)
-		{
+        private static void Clean(string group)
+		{            
+            List<TemporaryFile> filesToRemove = new List<TemporaryFile>();
 			foreach (TemporaryFile file in m_files)
 			{
-                if(file.Group == group)
-                    Remove(file);
+                if (file.Group == group)
+                    filesToRemove.Add(file);                    
                 else if(group == "")
-                    Remove(file); ;
+                    filesToRemove.Add(file);                
             }
+
+            foreach(TemporaryFile file in filesToRemove)
+            {
+                m_files.Remove(file);
+                Remove(file);
+            }
+
             if (group == "")
             {
                 // Cleaning old zombie temporary files

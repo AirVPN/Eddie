@@ -52,12 +52,11 @@ namespace Eddie.Core.Threads
                         if (timeNow - infoServer.LastDiscover >= delay)
                         {
                             // TOFIX / TOCONTINUE
-                            // DiscoverIp(infoServer);
+                            DiscoverIp(infoServer);
 
                             infoServer.LastDiscover = timeNow;
                         }
                     }
-
 
                     if (CancelRequested)
                         return;                    
@@ -97,11 +96,20 @@ namespace Eddie.Core.Threads
                             Utils.XmlRenameTagName(xmlDoc.DocumentElement, "CountryCode", "country_code");
 
                             // Node parsing
-                            string countryCode = Utils.XmlGetBody(Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "country_code")).ToLowerInvariant().Trim();
-                            if(CountriesManager.IsCountryCode(countryCode))
-                                server.CountryCode = countryCode;
+                            //string countryCode = Utils.XmlGetBody(Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "country_code")).ToLowerInvariant().Trim();
+                            string countryCode = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//country_code") as XmlElement).ToLowerInvariant().Trim();
+                            if (CountriesManager.IsCountryCode(countryCode))
+                            {
+                                if(server.CountryCode != countryCode)
+                                {
+                                    server.CountryCode = countryCode;
+                                    Engine.Instance.MarkServersListUpdated();
+                                    Engine.Instance.MarkAreasListUpdated();
+                                }
+                            }
+                                    
 
-                            string cityName = Utils.XmlGetBody(Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "city_name")).Trim();
+                            string cityName = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//city_name") as XmlElement).Trim();
                             if (cityName == "N/A")
                                 cityName = "";
                             if (cityName != "")

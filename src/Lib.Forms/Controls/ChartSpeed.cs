@@ -40,7 +40,7 @@ namespace Eddie.Gui.Controls
 		private Pen m_penDownloadLine;
 		private Pen m_penUploadGraph;
 		private Pen m_penUploadLine;
-		private Brush m_brushLegendText;
+		//private Brush m_brushLegendText;
 		private Brush m_brushDownloadText;
 		private Brush m_brushUploadText;
 		
@@ -69,7 +69,7 @@ namespace Eddie.Gui.Controls
 			m_penDownloadLine = new Pen(Colors.LightChartLineDownload, 1);
 			m_penUploadGraph = new Pen(Colors.LightChartLineUpload, 1);
 			m_penUploadLine = new Pen(Colors.LightChartLineUpload, 1);
-			m_brushLegendText = new SolidBrush(Colors.LightChartLegend);
+			//m_brushLegendText = new SolidBrush(Colors.LightChartLegend);
 			m_brushDownloadText = new SolidBrush(Colors.LightChartLineDownload);
 			m_brushUploadText = new SolidBrush(Colors.LightChartLineUpload);
 						

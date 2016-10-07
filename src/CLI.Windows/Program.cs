@@ -36,7 +36,7 @@ namespace Eddie.CLI.Windows
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			if (engine.Initialization())
+			if (engine.Initialization(true))
 			{
 				engine.ConsoleStart();
 			}

@@ -135,6 +135,32 @@ namespace Eddie.UI.Osx
 			}
 		}
 
+		public override void OnMessageInfo (string message)
+		{
+			base.OnMessageInfo (message);
+
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+					{
+						GuiUtils.MessageBox(message);
+					});
+			}
+		}
+
+		public override void OnMessageError (string message)
+		{
+			base.OnMessageError (message);
+
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+					{
+						GuiUtils.MessageBox(message);
+					});
+			}
+		}
+
 		public override void OnShowText(string title, string data)
 		{
 			if (MainWindow != null)

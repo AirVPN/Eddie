@@ -231,6 +231,8 @@ namespace Eddie.Gui
 					{
                         Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
 
+                        //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
+
 						Platform.Instance.Shell(command, arguments, waitEnd);
 					}
 					else
@@ -291,8 +293,26 @@ namespace Eddie.Gui
 				FormMain.ShowFrontMessage(message);
 		}
 
+        public override void OnMessageInfo(string message)
+        {
+            base.OnMessageInfo(message);
+
+            if (FormMain != null)
+                MessageBox.Show(FormMain, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        public override void OnMessageError(string message)
+        {
+            base.OnMessageError(message);
+
+            if (FormMain != null)
+                MessageBox.Show(FormMain, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
         public override void OnShowText(string title, string data)
         {
+            base.OnShowText(title, data);
+
             Forms.TextViewer Dlg = new Forms.TextViewer();
             Dlg.Title = title;
             Dlg.Body = data;

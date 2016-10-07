@@ -14,7 +14,7 @@ namespace UI.GtkWeb.Linux
 
 			Engine engine = new Engine ();
 
-			if (engine.Initialization () == false)
+			if (engine.Initialization (false) == false)
 				return;
 
 			engine.TerminateEvent += delegate() {

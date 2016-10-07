@@ -29,11 +29,17 @@ namespace Eddie.Core
 	{
         public class Directive
         {
-            public string Text;
-            public string Comment;
+            public string Text = "";
+            public string Comment = "";
         }
 
 		public Dictionary<string, List<Directive>> Directives = new Dictionary<string, List<Directive>>();
+
+        // Special values. This values can vary based on ovpn connection, but in some circumstances (SSH, SSL) need to be fixed before the connection.
+        public string Protocol;
+        public string Address;
+        public int Port = 0;
+        public int ProxyPort = 0; // Port need to be used by SSH/SSL 
 
 		public bool IsMultipleDirective(string name)
 		{
@@ -51,7 +57,39 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public string Get()
+        public static int DirectiveOrder(string name)
+        {
+            // Some directive, for example 'max-routes', must be before the other 'route' directives.
+            // Some ordering it's only for readability.
+
+            if (name == "dev")
+                return 0;
+            else if (name == "proto")
+                return 1;
+            else if (name == "remote")
+                return 2;
+            else if (name == "max-routes")
+                return 100;
+            else if (name == "ca")
+                return 10000;
+            else if (name == "cert")
+                return 10001;
+            else if (name == "key")
+                return 10001;
+            else if (name.StartsWith("<"))
+                return 10010;
+            else
+                return 1000;
+        }
+
+        public static int CompareDirectiveOrder(string d1, string d2)
+        {
+            int w1 = DirectiveOrder(d1);
+            int w2 = DirectiveOrder(d2);
+            return w1.CompareTo(w2);
+        }
+
+        public string Get()
 		{
 			string result = "";
 
@@ -60,17 +98,28 @@ namespace Eddie.Core
 			result += "# " + Engine.Instance.GenerateFileHeader() + "\n";
 			result += "# " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC" + "\n";
 
-			foreach (KeyValuePair<string, List<Directive>> kp in Directives)
+            // Obtain directive key list
+            List<string> directives = new List<string>();
+            foreach (KeyValuePair<string, List<Directive>> kp in Directives)
+            {
+                directives.Add(kp.Key);
+            }
+
+            // Sorting
+            directives.Sort(CompareDirectiveOrder);
+
+            foreach (string directiveKey in directives)                
 			{
-				foreach (Directive value in kp.Value)
+                List<Directive> directivesKey = Directives[directiveKey];
+				foreach (Directive value in directivesKey)
 				{
-                    if (kp.Key.StartsWith("<"))
+                    if (directiveKey.StartsWith("<"))
                     {
-                        result += kp.Key + "\n" + value.Text.Trim() + "\n" + kp.Key.Replace("<", "</");
+                        result += directiveKey + "\n" + value.Text.Trim() + "\n" + directiveKey.Replace("<", "</");
                     }
                     else
                     {
-                        result += kp.Key + " " + value.Text.Trim();
+                        result += directiveKey + " " + value.Text.Trim();
                     }
                     if(value.Comment != "")
                         result += " # " + value.Comment;
@@ -227,6 +276,35 @@ namespace Eddie.Core
 
 			
 		}
+
+        // Apply some fixes
+        public void Normalize()
+        {
+            // TOOPTIMIZE: Currently Eddie don't work well with verb>3
+            AppendDirective("verb", "3", "");
+
+            // Eddie have it's own Lock DNS (based on WFP, same as block-outside-dns)
+            if (ExistsDirective("block-outside-dns"))
+                RemoveDirective("block-outside-dns");
+
+            // explicit-exit-notify works only with udp
+            if (GetDirective("proto").Text.ToLowerInvariant().StartsWith("udp") == false)
+                RemoveDirective("explicit-exit-notify");
+
+            // OpenVPN allows 100 route directives max by default.
+            // Since Eddie can't know here how many routes are pulled from an OpenVPN server, it uses some tolerance. In any case manual setting is possible.
+            if (ExistsDirective("max-routes") == false) // Only if not manually specified
+            {
+                if (ExistsDirective("route"))
+                {
+                    List<Directive> routes = Directives["route"];
+                    if ((routes != null) && (routes.Count > 50))
+                    {
+                        AppendDirective("max-routes", (routes.Count + 100).ToString(), "Automatic");
+                    }
+                }
+            }
+        }
 
 	}
 }

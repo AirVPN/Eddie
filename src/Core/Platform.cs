@@ -32,6 +32,8 @@ namespace Eddie.Core
     {
 		public static Platform Instance;
 
+        public string ExePath;
+
 		public RouteEntry m_routeDefaultRemove;
 
 		// ----------------------------------------
@@ -42,7 +44,7 @@ namespace Eddie.Core
 		{
 			if (WaitEnd)
 			{
-				lock (Instance)
+				//lock (Instance) // Removed in 2.11.4
 				{
 					return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
 				}
@@ -142,7 +144,7 @@ namespace Eddie.Core
 
 		public string GetSystemCode()
         {			
-			string t = GetCode() + "_" + GetArchitecture();
+			string t = GetCode() + "_" + GetOsArchitecture();
             t = t.Replace(" ", "_");
             t = t.ToLower();
             return t;
@@ -155,7 +157,8 @@ namespace Eddie.Core
 			if (a == "x64") return "x64";
 			if (a == "AMD64") return "x64";
 			if (a == "x86_64") return "x64";
-			return "Unknown";
+            if (a == "armv7l") return "armv7l"; // RPI
+            return "Unknown";
 		}
 
 		// ----------------------------------------
@@ -355,6 +358,26 @@ namespace Eddie.Core
         }
         */
 
+        public virtual Int64 Ping(string host, int timeoutSec)
+        {
+            Ping pingSender = new Ping();
+            PingOptions options = new PingOptions();
+
+            // Use the default Ttl value which is 128,
+            // but change the fragmentation behavior.
+            //options.DontFragment = true;
+
+            // Create a buffer of 32 bytes of data to be transmitted.								
+            byte[] buffer = RandomGenerator.GetBuffer(32);
+            int timeout = timeoutSec * 1000;
+            PingReply reply = pingSender.Send(host, timeout, buffer, options);
+
+            if (reply.Status == IPStatus.Success)
+                return reply.RoundtripTime;
+            else
+                return -1;            
+        }
+
 		public virtual void EnsureExecutablePermissions(string path)
 		{
 		}
@@ -406,6 +429,18 @@ namespace Eddie.Core
 			NotImplemented();
 		}
 
+        public virtual void ResolveWithoutAnswer(string host)
+        {
+            try
+            {
+                Dns.GetHostEntry(host);
+            }
+            catch(Exception)
+            {
+
+            }
+        }
+
 		public virtual bool WaitTunReady()
 		{
 			return true;
@@ -454,7 +489,7 @@ namespace Eddie.Core
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
             t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
             t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
-
+            
             try
 			{
 				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
@@ -495,7 +530,7 @@ namespace Eddie.Core
 					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
 					{
 						string ip = d.Address.ToString();
-						if ((Utils.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
+						if ((IpAddress.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
 						{
 							//gatewaysList.Add(ip);
 

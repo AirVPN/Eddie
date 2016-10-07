@@ -581,6 +581,8 @@
     <BundleResource Include="Resources\log_icons\log_realtime.png" />
     <BundleResource Include="Resources\log_icons\log_verbose.png" />
     <BundleResource Include="Resources\log_icons\log_warning.png" />
+    <BundleResource Include="Resources\flag_a1.png" />
+    <BundleResource Include="Resources\flag_o1.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

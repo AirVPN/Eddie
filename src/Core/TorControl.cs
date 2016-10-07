@@ -53,8 +53,15 @@ namespace Eddie.Core
 			}
 
 			{
-				// OSX, TorBrowser 4.0 and above
+				// OS X, TorBrowser 4.0 and above
 				string path = "/Applications/TorBrowser.app/TorBrowser/Data/Tor/control_auth_cookie";				
+				if (File.Exists(path))
+					return path;
+			}
+
+			{
+				// OS X, TorBrowser 6.0
+				string path = "/Users/" + Environment.UserName + "/Library/Application Support/TorBrowser-Data/Tor/control_auth_cookie";
 				if (File.Exists(path))
 					return path;
 			}

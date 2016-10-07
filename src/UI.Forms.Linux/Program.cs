@@ -37,6 +37,7 @@ namespace Eddie.UI.Linux
 			Application.SetCompatibleTextRenderingDefault(false);
 
 			Platform.Instance = new Eddie.Platforms.Linux();
+            Platform.Instance.ExePath = Environment.GetCommandLineArgs()[0];
 
 			CommandLine.InitSystem(Environment.CommandLine);
 
@@ -44,7 +45,7 @@ namespace Eddie.UI.Linux
 			{
 				Core.Engine engine = new Core.Engine();
 
-				if (engine.Initialization())
+				if (engine.Initialization(true))
 				{
 					engine.ConsoleStart();
 				}
@@ -55,7 +56,7 @@ namespace Eddie.UI.Linux
 
 				Gui.Engine engine = new Gui.Engine();
 
-				if (engine.Initialization())
+				if (engine.Initialization(false))
 				{
 					engine.FormMain = new Gui.Forms.Main();
 

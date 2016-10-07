@@ -25,7 +25,7 @@ namespace Eddie.CLI.Linux
 	{
 		static void Main(string[] args)
 		{
-			Platform.Instance = new Eddie.Platforms.Linux();
+            Platform.Instance = new Eddie.Platforms.Linux();
 
 			CommandLine.InitSystem(Environment.CommandLine);
 
@@ -33,7 +33,7 @@ namespace Eddie.CLI.Linux
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			if (engine.Initialization())
+			if (engine.Initialization(true))
 			{
 				engine.ConsoleStart();
 			}

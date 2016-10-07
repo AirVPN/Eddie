@@ -109,7 +109,7 @@ namespace Eddie.Core
                 string host = Utils.HostFromUrl(url);
 
                 hostN++;
-				if (Utils.IsIP(host) == false)
+				if (IpAddress.IsIP(host) == false)
 				{
 					// If locked network are enabled, skip the hostname and try only by IP.
 					// To avoid DNS issue (generally, to avoid losing time).

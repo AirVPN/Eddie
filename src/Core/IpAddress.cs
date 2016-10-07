@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Xml;
 
@@ -25,42 +26,72 @@ namespace Eddie.Core
 {
 	public class IpAddress
 	{
-		public string Value = "";
+		private IPAddress m_ip;
+
+        public static bool IsIP(string ip)
+        {
+            IPAddress ip2;
+            bool valid = IPAddress.TryParse(ip, out ip2);
+            return valid;
+        }
 
 		public IpAddress()
 		{
-			Value = "";
-		}
+			m_ip = null;
+        }
 
 		public IpAddress(string value)
 		{
-			Value = value.Trim();
-		}
+			if (IPAddress.TryParse(value.ToLowerInvariant().Trim(), out m_ip) == false)
+                m_ip = null;
+
+            // Only IPv4 or IPv6 address
+            if (m_ip != null)
+            {
+                if ((m_ip.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork) &&
+                    (m_ip.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6))
+                    m_ip = null;
+            }
+        }
 
 		public static implicit operator IpAddress(string value)
 		{
 			return new IpAddress(value);
 		}
-
-		public bool Empty
-		{
-			get
-			{
-				return (Value == "");
-			}
-		}
-
+        
 		public bool Valid
 		{
 			get
 			{
-				return System.Text.RegularExpressions.Regex.IsMatch(Value, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
+                return m_ip != null;
 			}
 		}
 
+        public bool IsV4
+        {
+            get
+            {
+                if (Valid == false)
+                    return false;
+                
+                return m_ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
+            }
+        }
+
+        public bool IsV6
+        {
+            get
+            {
+                if (Valid == false)
+                    return false;
+
+                return m_ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6;
+            }
+        }
+
 		public void Clear()
 		{
-			Value = "";
+			m_ip = null;
 		}
 
 		public override bool Equals(object obj)
@@ -72,17 +103,28 @@ namespace Eddie.Core
 			if (two == null)
 				return false;
 
-			return Value == two.Value;
+			return ToString() == two.ToString();
 		}
 
 		public override int GetHashCode()
 		{
-			return Value.GetHashCode();
+			return m_ip.ToString().GetHashCode();
 		}
 
 		public override string ToString()
 		{
-			return Value;
+			return m_ip.ToString();
 		}
+
+        public string Value
+        {
+            get
+            {
+                if (Valid == false)
+                    return "";
+                else
+                    return m_ip.ToString();
+            }
+        }
 	}
 }

@@ -31,7 +31,7 @@ namespace Eddie.Core
 
         public string Code; // Unique name across providers
         public string DisplayName; // Display name
-        public string ProviderNameX; // Provider name;
+        public string ProviderName; // Provider name;
         public string IpEntry;
         public string IpEntry2;
         public string IpExit;
@@ -140,6 +140,9 @@ namespace Eddie.Core
 
         public bool CanConnect()
         {
+            if (Engine.Instance.Storage.GetBool("servers.allow_anyway"))
+                return true;
+
             if (WarningClosed != "")
                 return false;
 
@@ -167,12 +170,12 @@ namespace Eddie.Core
                 return 99995;            
             else
             {
-				string scoreType = Engine.Instance.Storage.Get("servers.scoretype");
+				string scoreType = Engine.Instance.Storage.GetLower("servers.scoretype");
                 double ScoreB = ScoreBase;
 
-                if (scoreType == "Speed")
+                if (scoreType == "speed")
 					ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
-                else if(scoreType == "Latency")
+                else if(scoreType == "latency")
                     ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor","500"));
 
                 double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor","1000"));

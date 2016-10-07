@@ -656,6 +656,9 @@ namespace Eddie.Gui.Forms
             this.imgCountries.Images.SetKeyName(240, "za");
             this.imgCountries.Images.SetKeyName(241, "zm");
             this.imgCountries.Images.SetKeyName(242, "zw");
+            this.imgCountries.Images.SetKeyName(243, "a1");
+            this.imgCountries.Images.SetKeyName(244, "a2");
+            this.imgCountries.Images.SetKeyName(245, "o1");
             // 
             // cmdServersRefresh
             // 
@@ -1625,6 +1628,7 @@ namespace Eddie.Gui.Forms
             // 
             // lstLogs
             // 
+            this.lstLogs.AllowColumnReorder = true;
             this.lstLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -1634,7 +1638,7 @@ namespace Eddie.Gui.Forms
             colMessage});
             this.lstLogs.ContextMenuStrip = this.mnuLogsContext;
             this.lstLogs.FullRowSelect = true;
-            this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lstLogs.HideSelection = false;
             this.lstLogs.LabelWrap = false;
             this.lstLogs.Location = new System.Drawing.Point(4, 4);

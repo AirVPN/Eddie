@@ -143,14 +143,7 @@ namespace Eddie.Gui.Controls
             base.OnClick(e);
 
             if (m_hoverItem != -1)
-                SelectTab(m_hoverItem);
-
-            /*
-            string d = "";
-            for (int i = 0; i < GetTabCount(); i++)
-                d += (Pages[i].Container.Visible ? "1" : "0");
-            MessageBox.Show(d);
-            */
+                SelectTab(m_hoverItem);            
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -298,7 +291,7 @@ namespace Eddie.Gui.Controls
             m_selectedItem = index;            
 
             Control tabPageControl = Pages[m_selectedItem];
-            Rectangle tabPageRectangle = GetPageRect();
+            //Rectangle tabPageRectangle = GetPageRect();
             CheckSizes();
 
             tabPageControl.Visible = true;            

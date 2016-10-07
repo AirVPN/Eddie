@@ -57,8 +57,9 @@ namespace Eddie.Gui.Forms
 
 		private bool m_formReady = false;
 		private bool m_closing = false;
+        private bool m_windowStateSetByShortcut = false;
 
-		// private System.Timers.Timer timerMonoDelayedRedraw = null; // TOCLEAN
+        // private System.Timers.Timer timerMonoDelayedRedraw = null; // TOCLEAN
 
         public Main()
         {
@@ -313,6 +314,7 @@ namespace Eddie.Gui.Forms
             m_listViewServers.ResizeColumnString(3, 8);
             m_listViewServers.ResizeColumnString(4, 20);
             m_listViewServers.ResizeColumnString(5, 5);
+            m_listViewServers.AllowColumnReorder = true;
             pnlServers.Controls.Add(m_listViewServers);
 
             m_listViewAreas = new ListViewAreas();
@@ -322,6 +324,7 @@ namespace Eddie.Gui.Forms
             m_listViewAreas.ResizeColumnString(1, 8);
             m_listViewAreas.ResizeColumnString(2, 20);
             m_listViewAreas.ResizeColumnString(3, 6);
+            m_listViewAreas.AllowColumnReorder = true;
             pnlAreas.Controls.Add(m_listViewAreas);
             
             m_listViewServers.MouseDoubleClick += new MouseEventHandler(m_listViewServers_MouseDoubleClick);
@@ -339,13 +342,24 @@ namespace Eddie.Gui.Forms
             chkShowAll.Checked = false;
 			chkLockLast.Checked = Engine.Storage.GetBool("servers.locklast");
 			cboScoreType.Text = Engine.Storage.Get("servers.scoretype");
-            
+
 
             //ApplySkin();
+                        
+            bool forceMinimized = false;
+            if (Engine.Storage.GetBool("gui.windows.start_minimized"))
+                forceMinimized = true;
+            if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Minimized))
+                forceMinimized = true;
+            bool forceMaximized = false;
+            if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Maximized))
+                forceMaximized = true;
+            SetFormLayout(Engine.Storage.Get("gui.window.main"), forceMinimized, forceMaximized, MinimizeInTray(), new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+            m_listViewServers.SetUserPrefs(Engine.Storage.Get("gui.list.servers"));
+            m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
+            lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
 
-			SetFormLayout(Engine.Storage.Get("forms.main"), true, true, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
-			
-			foreach (StatsEntry statsEntry in Engine.Stats.List) 
+            foreach (StatsEntry statsEntry in Engine.Stats.List) 
 			{
 				ListViewItemStats statsEntryItem = new ListViewItemStats();
 				statsEntryItem.Entry = statsEntry;
@@ -412,10 +426,7 @@ namespace Eddie.Gui.Forms
 
             base.OnLoad(e);
 
-
-            Show();
-
-			m_formReady = true;
+            m_formReady = true;
             
             Engine.OnRefreshUi();
 
@@ -430,7 +441,7 @@ namespace Eddie.Gui.Forms
 			}            
             */
         }
-        
+
         /* // TOCLEAN
         void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
 		{
@@ -441,7 +452,20 @@ namespace Eddie.Gui.Forms
 		}
         */
 
-		protected override void OnKeyDown(KeyEventArgs e) // 2.10.1
+        protected override void WndProc(ref Message m)
+        {
+            /*WM_SIZE*/
+            if (m.Msg == 0x0005)
+            {
+                // This will be set to true if the shortcut uses the Maximized or Minimized
+                // options because then it runs before OnLoad.
+                m_windowStateSetByShortcut = true;                
+            }
+            else
+                base.WndProc(ref m);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e) // 2.10.1
 		{
 			base.OnKeyDown(e);
 
@@ -520,7 +544,7 @@ namespace Eddie.Gui.Forms
 				else
 				{
                     DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
-                    if (Engine.Instance.NetworkLockManager.IsActive())
+                    if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) ) 
 					{
 						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
@@ -563,15 +587,20 @@ namespace Eddie.Gui.Forms
 
 			e.Cancel = true;
 
-			if(Engine.Storage.GetBool("gui.exit_confirm") == true)
-				if (MessageBox.Show(this, Messages.ExitConfirm, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-					return;
+            if (Engine.Storage.GetBool("gui.exit_confirm") == true)
+            {
+                if(Engine.Instance.OnAskYesNo(Messages.ExitConfirm) != true)
+                    return;
+            }
 			
 			Gui.Engine engine = Engine.Instance as Gui.Engine;
 
             if (engine.FormMain != null)
             {
-                engine.Storage.Set("forms.main", engine.FormMain.GetFormLayout());
+                engine.Storage.Set("gui.window.main", engine.FormMain.GetFormLayout());
+                engine.Storage.Set("gui.list.servers", m_listViewServers.GetUserPrefs());
+                engine.Storage.Set("gui.list.areas", m_listViewAreas.GetUserPrefs());
+                engine.Storage.Set("gui.list.logs", lstLogs.GetUserPrefs());
             }
 
             Engine.RequestStop();
@@ -589,23 +618,16 @@ namespace Eddie.Gui.Forms
         {
             base.OnResize(e);
 
-			if (Engine.Storage != null)
-			{
-				if (Engine.Storage.GetBool("gui.windows.tray"))
-				{
-					if (Platform.Instance.IsTraySupported())
-					{
-						if (FormWindowState.Minimized == WindowState)
-						{
-							Hide();
-							EnabledUi();
-						}
-					}
-				}
+            if(MinimizeInTray())
+            {
+                if (FormWindowState.Minimized == WindowState)
+                {
+                    Hide();
+                    EnabledUi();
+                }
+            }
 
-				Resizing();
-			}            
-			
+            Resizing();			
         }
 
 		#region UI Controls Events
@@ -777,7 +799,7 @@ namespace Eddie.Gui.Forms
 		{
 			Forms.TextViewer Dlg = new TextViewer();
 			Dlg.Title = "Man";
-			Dlg.Body = Core.UI.Actions.GetMan("text");
+			Dlg.Body = Engine.Instance.Storage.GetMan("text");
 			Dlg.ShowDialog();
 		}
 
@@ -785,7 +807,7 @@ namespace Eddie.Gui.Forms
 		{
 			Forms.TextViewer Dlg = new TextViewer();
 			Dlg.Title = "Man";
-			Dlg.Body = Core.UI.Actions.GetMan("bbc");
+			Dlg.Body = Engine.Instance.Storage.GetMan("bbc");
 			Dlg.ShowDialog();
 		}
 
@@ -881,12 +903,12 @@ namespace Eddie.Gui.Forms
 				
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
 		{
-			mnuServersWhitelist_Click(sender, e);
+            mnuServersWhitelist_Click(sender, e);
 		}
 
 		private void cmdServersBlackList_Click(object sender, EventArgs e)
 		{
-			mnuServersBlacklist_Click(sender, e);
+            mnuServersBlacklist_Click(sender, e);
 		}
 
 		private void cmdServersUndefined_Click(object sender, EventArgs e)
@@ -1082,8 +1104,21 @@ namespace Eddie.Gui.Forms
 		{
 			m_pnlCharts.Switch(cboSpeedResolution.SelectedIndex);
 		}
-		
-		#endregion
+
+        #endregion
+
+        public bool MinimizeInTray()
+        {
+            if (Engine.Storage != null)
+            {
+                if (Engine.Storage.GetBool("gui.windows.tray"))
+                {
+                    if (Platform.Instance.IsTraySupported())
+                        return true;
+                }
+            }
+            return false;
+        }
 
 		public void Resizing()
 		{
@@ -1091,6 +1126,9 @@ namespace Eddie.Gui.Forms
 				return;
 
             if (m_pnlCharts == null)
+                return;
+
+            if (Engine.Storage == null)
                 return;
 
             Graphics g = this.CreateGraphics();
@@ -1258,9 +1296,14 @@ namespace Eddie.Gui.Forms
 
 						string notifyText = Constants.Name + " - " + ShortMsg;
 
+                        if (l.Type >= LogType.InfoImportant)
+                        {
+                            Text = Constants.Name + " - " + Msg;
+                        }
+
 						//if(Engine.IsConnected() == false)
 						{
-							Text = Constants.Name + " - " + Msg;
+							//Text = Constants.Name + " - " + Msg;
 
 							mnuStatus.Text = "> " + Msg;
 
@@ -1299,7 +1342,10 @@ namespace Eddie.Gui.Forms
 
         public void EnabledUi()
 		{
-			if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
+            if (m_listViewServers == null) // 2.11.4
+                return;
+
+            if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
 			{
 				mnuRestore.Visible = true;
                 mnuRestoreSep.Visible = true;
@@ -1350,7 +1396,7 @@ namespace Eddie.Gui.Forms
 			}
 
 
-			cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != "") );
+            cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != "") );
 
 			txtLogin.Enabled = (logged == false);
 			txtPassword.Enabled = (logged == false);
@@ -1365,9 +1411,9 @@ namespace Eddie.Gui.Forms
 			{
 				cmdConnect.Enabled = false;
 			}
-                        
+
             cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1));
-			mnuServersConnect.Enabled = cmdServersConnect.Enabled;
+            mnuServersConnect.Enabled = cmdServersConnect.Enabled;
 
 			cmdServersWhiteList.Enabled = (m_listViewServers.SelectedItems.Count > 0);
 			mnuServersWhiteList.Enabled = cmdServersWhiteList.Enabled;
@@ -1386,8 +1432,8 @@ namespace Eddie.Gui.Forms
 			mnuSpeedTest.Enabled = connected;
 			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
 			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
-			
-			if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) )
+
+            if ( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) )
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
 				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_on;                
@@ -1604,7 +1650,7 @@ namespace Eddie.Gui.Forms
 							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
 							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-                            string notifyText = Engine.Instance.GetConnectedTrayText();
+                            string notifyText = Engine.Instance.GetConnectedTrayText(true, true);
                             string notifyText2 = Constants.Name + " - " + notifyText;
 							Text = notifyText2;
 							mnuStatus.Text = "> " + notifyText;
@@ -1613,7 +1659,7 @@ namespace Eddie.Gui.Forms
 								if (notifyText2.Length > 62)
 									notifyText2 = notifyText2.Substring(0, 62);
 								m_notifyIcon.Text = notifyText2;
-							}
+                            }
 						}						
                     }
                                         
@@ -1707,11 +1753,15 @@ namespace Eddie.Gui.Forms
 
         private void LogsSupport()
         {
+            Application.UseWaitCursor = true;
+
             string report = Engine.Instance.GetSupportReport(LogsGetBody(false));
 
             Clipboard.SetText(report);
 
-            MessageBox.Show(Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Application.UseWaitCursor = false;
+
+            Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);            
         }
 
 		private void LogsDoCopy(bool selectedOnly)
@@ -1721,8 +1771,8 @@ namespace Eddie.Gui.Forms
 			{
 				Clipboard.SetText(t);
 
-				MessageBox.Show(Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-			}
+                Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);
+            }
 		}
 
 		private void LogsDoSave(bool selectedOnly)
@@ -1744,7 +1794,7 @@ namespace Eddie.Gui.Forms
 						sw.Close();
 					}
 
-					MessageBox.Show(Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Engine.Instance.OnMessageInfo(Messages.LogsSaveToFileDone);
 				}
 			}
 		}
@@ -1752,7 +1802,8 @@ namespace Eddie.Gui.Forms
 		public bool NetworkLockKnowledge()
 		{
 			string Msg = Messages.NetworkLockWarning;
-			return (MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+
+            return Engine.Instance.OnAskYesNo(Msg);
 		}
 
 		public void NetworkLockActivation()

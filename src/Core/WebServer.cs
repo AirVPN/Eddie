@@ -16,21 +16,22 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#if (EDDIE3)
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Text;
+using System.IO;
 using System.Xml;
-using WebSocketSharp;
-using WebSocketSharp.Net;
-using WebSocketSharp.Server;
 
 namespace Eddie.Core
 {
     public class WebServer
     {
-		private static HttpServer m_server;
+        private HttpListener m_listener = new HttpListener();
+        //private Func<HttpListenerRequest, string> m_responderMethod;
+        
+        private List<XmlElement> m_pullItems = new List<XmlElement>();
 
         public static string GetPath()
         {
@@ -46,227 +47,197 @@ namespace Eddie.Core
                 return "";
         }
 
-		public static void Start()
-		{
+        //public void Init(string prefix, Func<HttpListenerRequest, string> method)
+        public void Init(string prefix)
+        {
             if (GetPath() == "")
                 return;
 
-			/* Create a new instance of the HttpServer class.
-       *
-       * If you would like to provide the secure connection, you should create the instance
-       * with the 'secure' parameter set to true.
-       */
-			if (Engine.Instance.Storage.GetBool("webui.enabled") == false)
-				return;
+            if (!HttpListener.IsSupported)
+                throw new NotSupportedException(
+                    "Needs Windows XP SP2, Server 2003 or later.");
 
-			m_server = new HttpServer(Engine.Instance.Storage.GetInt("webui.port"), false);
-
-
-
-			//httpsv = new HttpServer (4649, true);
-#if DEBUG
-			// To change the logging level.
-			m_server.Log.Level = LogLevel.Trace;
-
-			// To change the wait time for the response to the WebSocket Ping or Close.
-			m_server.WaitTime = TimeSpan.FromSeconds(2);
-#endif
             /*
-      var cert = ConfigurationManager.AppSettings["ServerCertFile"];
-      var passwd = ConfigurationManager.AppSettings["CertFilePassword"];
-      httpsv.SslConfiguration.ServerCertificate = new X509Certificate2 (cert, passwd);
-	  */
+            // A responder method is required
+            if (method == null)
+                throw new ArgumentException("method");
+            */
 
-            /* To provide the HTTP Authentication (Basic/Digest).
-			httpsv.AuthenticationSchemes = AuthenticationSchemes.Basic;
-			httpsv.Realm = "WebSocket Test";
-			httpsv.UserCredentialsFinder = id => {
-			  var name = id.Name;
+            m_listener.Prefixes.Add(prefix);
 
-			  // Return user name, password, and roles.
-			  return name == "nobita"
-					 ? new NetworkCredential (name, "password", "gunfighter")
-					 : null; // If the user credentials aren't found.
-			};
-			 */
-             
-            m_server.RootPath = GetPath(); 
-
-			// To set the HTTP GET method event.
-			m_server.OnGet += new EventHandler<HttpRequestEventArgs>(OnGet);
-			
-
-			// Not to remove the inactive WebSocket sessions periodically.
-			//httpsv.KeepClean = false;
-
-			// To resolve to wait for socket in TIME_WAIT state.
-			//httpsv.ReuseAddress = true;
-
-			// Add the WebSocket services.
-			m_server.AddWebSocketService<WebSocketService>("/eddie");
-
-			
-			//httpsv.AddWebSocketService<Chat> ("/Chat");
-
-			/* Add the WebSocket service with initializing.
-			httpsv.AddWebSocketService<Chat> (
-			  "/Chat",
-			  () => new Chat ("Anon#") {
-				Protocol = "chat",
-				// To validate the Origin header.
-				OriginValidator = val => {
-				  // Check the value of the Origin header, and return true if valid.
-				  Uri origin;
-				  return !val.IsNullOrEmpty () &&
-						 Uri.TryCreate (val, UriKind.Absolute, out origin) &&
-						 origin.Host == "localhost";
-				},
-				// To validate the Cookies.
-				CookiesValidator = (req, res) => {
-				  // Check the Cookies in 'req', and set the Cookies to send to the client with 'res'
-				  // if necessary.
-				  foreach (Cookie cookie in req) {
-					cookie.Expired = true;
-					res.Add (cookie);
-				  }
-
-				  return true; // If valid.
-				}
-			  });
-			 */
-
-			m_server.Start();
-			if (m_server.IsListening)
-			{
-				Console.WriteLine("Listening on port {0}, and providing WebSocket services:", m_server.Port);
-				foreach (string path in m_server.WebSocketServices.Paths)
-					Console.WriteLine("- {0}", path);
-			}
-
-
-
-			Engine.Instance.Logs.LogEvent += new LogsManager.LogEventHandler(LogsLogEvent);
-		}
-
-		static void OnGet(object sender, HttpRequestEventArgs e)
-		{
-			
-			HttpListenerRequest req = e.Request;
-			HttpListenerResponse res = e.Response;
-
-            string path = req.Url.LocalPath;
-            if (path == "/")
-				path += "index.html";
-
-			byte[] content = m_server.GetFile(path);
-			if (content == null)
-			{
-				res.StatusCode = (int)HttpStatusCode.NotFound;
-				return;
-			}
-
-			if (path.EndsWith(".html"))
-			{
-				res.ContentType = "text/html";
-				res.ContentEncoding = Encoding.UTF8;
-			}
-
-			if (path.EndsWith(".css"))
-			{
-				res.ContentType = "text/css";
-				res.ContentEncoding = Encoding.UTF8;
-			}
-
-			if (path.EndsWith(".js"))
-			{
-				res.ContentType = "text/javascript";
-				res.ContentEncoding = Encoding.UTF8;
-			}
-
-			if (path.EndsWith(".png"))
-			{
-				res.ContentType = "image/png";
-			}
-
-			if (path.EndsWith(".gif"))
-			{
-				res.ContentType = "image/gif";
-			}
-			
-			res.WriteContent(content);
-		}
-
-		public static void Stop()
-		{
-			if (m_server != null)
-			{
-				Engine.Instance.Logs.LogEvent -= new LogsManager.LogEventHandler(LogsLogEvent);
-
-				m_server.Stop();
-			}
-		}
-
-		public static WebSocketSessionManager Sessions
-		{
-			get
-			{
-				return m_server.WebSocketServices["/eddie"].Sessions;
-			}
-		}
-
-		public static void Send(XmlElement nodeMessage)
-		{
-            if (m_server != null)
-                Sessions.Broadcast(nodeMessage.OwnerDocument.OuterXml);
-		}
-
-		public static XmlElement CreateMessage(string type)
-		{
-			XmlDocument doc = new XmlDocument();
-			XmlElement nodeRoot = doc.CreateElement("message");
-			doc.AppendChild(nodeRoot);
-			Utils.XmlSetAttributeString(nodeRoot, "type", type);
-			XmlElement nodeData = doc.CreateElement("data");
-			nodeRoot.AppendChild(nodeData);
-			return nodeData;
-		}
-
-		public static void OnMessage(MessageEventArgs e)
-		{
-			if (e.Data == "connect")
-			{
-				ConnectEvent();
-			}
-            else
-            {
-                Engine.Instance.Command(e.Data);
-            }
-		}
-
-        public static void OnCommand(CommandLine cmd)
+            //m_responderMethod = method;
+            m_listener.Start();            
+        }
+        
+        public void Run()
         {
-            if (m_server == null)
-                return;
-
-            XmlElement xmlCommand = CreateMessage(cmd.Get("action","Unknown"));
-            cmd.WriteXml(xmlCommand);
-            Send(xmlCommand);
+            ThreadPool.QueueUserWorkItem((o) =>
+            {
+                try
+                {
+                    while (m_listener.IsListening)
+                    {
+                        ThreadPool.QueueUserWorkItem((c) =>
+                        {
+                            var ctx = c as HttpListenerContext;
+                            try
+                            {
+                                string localPath = GetPath() + ctx.Request.Url.LocalPath;
+                                if (File.Exists(localPath))
+                                {
+                                    WriteFile(ctx, localPath, false);
+                                }
+                                else
+                                {
+                                    string rstr = SendResponse(ctx.Request);
+                                    byte[] buf = Encoding.UTF8.GetBytes(rstr);
+                                    ctx.Response.ContentLength64 = buf.Length;
+                                    ctx.Response.OutputStream.Write(buf, 0, buf.Length);
+                                }
+                            }
+                            catch { } // suppress any exceptions
+                            finally
+                            {
+                                // always close the stream
+                                ctx.Response.OutputStream.Close();
+                            }
+                        }, m_listener.GetContext());
+                    }
+                }
+                catch { } // suppress any exceptions
+            });            
         }
 
-		static void LogsLogEvent(LogEntry e)
-		{
-			XmlElement result = CreateMessage("log");
-			e.WriteXML(result);
-			Send(result);
-		}
+        void WriteFile(HttpListenerContext ctx, string path, bool asDownload)
+        {
+            var response = ctx.Response;
+            using (FileStream fs = File.OpenRead(path))
+            {
+                string filename = Path.GetFileName(path);
+                //response is HttpListenerContext.Response...
+                response.ContentLength64 = fs.Length;
+                response.SendChunked = false;
+                if (asDownload)
+                {
+                    response.ContentType = System.Net.Mime.MediaTypeNames.Application.Octet;
+                    response.AddHeader("Content-disposition", "attachment; filename=" + filename);
+                }
+                else
+                {
+                    if (path.EndsWith(".html"))
+                    {
+                        response.ContentType = "text/html";
+                        response.ContentEncoding = Encoding.UTF8;
+                    }
 
-		static void ConnectEvent()
-		{
-			XmlElement result = CreateMessage("connect");
+                    if (path.EndsWith(".css"))
+                    {
+                        response.ContentType = "text/css";
+                        response.ContentEncoding = Encoding.UTF8;
+                    }
 
-			Send(result);
-		}
+                    if (path.EndsWith(".js"))
+                    {
+                        response.ContentType = "text/javascript";
+                        response.ContentEncoding = Encoding.UTF8;
+                    }
+
+                    if (path.EndsWith(".png"))
+                    {
+                        response.ContentType = "image/png";
+                    }
+
+                    if (path.EndsWith(".gif"))
+                    {
+                        response.ContentType = "image/gif";
+                    }
+                }
+
+                byte[] buffer = new byte[64 * 1024];
+                int read;
+                using (BinaryWriter bw = new BinaryWriter(response.OutputStream))
+                {
+                    while ((read = fs.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        bw.Write(buffer, 0, read);
+                        bw.Flush(); //seems to have no effect
+                    }
+
+                    bw.Close();
+                }
+
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.StatusDescription = "OK";
+                response.OutputStream.Close();
+            }
+        }
+
+        public void Stop()
+        {
+            m_listener.Stop();
+            m_listener.Close();            
+        }
+        
+        public void Start()
+        {
+            string listenUrl = "http://" + Engine.Instance.Storage.Get("webui.ip") + ":" + Engine.Instance.Storage.Get("webui.port") + "/";
+            //Init(listenUrl, SendResponse);
+            Init(listenUrl);
+            Run();            
+        }
+        
+        public string SendResponse(HttpListenerRequest request)
+        {
+            // string physicalPath = GetPath() + request.RawUrl;
+
+            if(request.RawUrl == "/api/command/")
+            {
+                // Pull mode
+                var data = new StreamReader(request.InputStream).ReadToEnd();
+                Receive(data);
+                return "ok";
+            }
+            else if(request.RawUrl == "/pull/receive/")
+            {
+                lock(m_pullItems)
+                {
+                    if (m_pullItems.Count == 0)
+                        return "";
+
+                    XmlElement data = m_pullItems[0];
+                    m_pullItems.RemoveAt(0);
+                    return data.OuterXml;
+                }
+            }
+
+            return string.Format("<HTML><BODY>Test.<br>{0}</BODY></HTML>", DateTime.Now);
+        }
+
+        public static XmlElement CreateMessage()
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlElement nodeRoot = doc.CreateElement("message");
+            doc.AppendChild(nodeRoot);
+            return nodeRoot;
+        }
+
+        public void Receive(string data)
+        {
+            Engine.Instance.Command(data);
+        }
+
+        public delegate void SendEventHandler(XmlElement xmlMessage);
+        public event SendEventHandler SendEvent;
+
+        public void Send(XmlElement xmlMessage)
+        {
+            if (SendEvent != null)
+                SendEvent(xmlMessage.OwnerDocument.DocumentElement);
+
+            lock (m_pullItems)
+            {
+                m_pullItems.Add(xmlMessage); // Clodo TOFIX memory huge
+            }            
+        }
     }
 }
-
-#endif

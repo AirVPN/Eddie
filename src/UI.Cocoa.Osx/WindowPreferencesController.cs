@@ -111,6 +111,15 @@ namespace Eddie.UI.Osx
 				tos.Window.Close ();
 			};
 
+			CmdResetToDefault.Activated += (object sender, EventArgs e) => {
+				if(Engine.Instance.OnAskYesNo(Messages.ResetSettingsConfirm))
+				{
+					Engine.Instance.Storage.ResetAll(false);
+					ReadOptions();
+					Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
+				}
+			};
+
 			// UI
 
 			CboUiUnit.RemoveAllItems ();
@@ -496,6 +505,10 @@ namespace Eddie.UI.Osx
 			GuiUtils.SetCheck (ChkGeneralOsxVisible, s.GetBool ("gui.osx.visible"));
 			// GuiUtils.SetCheck (ChkGeneralOsxDock, s.GetBool ("gui.osx.dock")); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			GuiUtils.SetCheck (ChkGeneralOsxNotifications, s.GetBool ("gui.osx.notifications"));
+			GuiUtils.SetCheck (ChkUiSystemBarShowInfo, s.GetBool ("gui.osx.sysbar.show_info"));
+			GuiUtils.SetCheck (ChkUiSystemBarShowSpeed, s.GetBool ("gui.osx.sysbar.show_speed"));
+			GuiUtils.SetCheck (ChkUiSystemBarShowServer, s.GetBool ("gui.osx.sysbar.show_server"));
+
 			GuiUtils.SetCheck (ChkExitConfirm, s.GetBool("gui.exit_confirm"));
 
 			// UI
@@ -657,7 +670,7 @@ namespace Eddie.UI.Osx
 			TableDnsServersController.Clear ();
 			string[] dnsServers = s.Get ("dns.servers").Split (',');
 			foreach (string dnsServer in dnsServers) {
-				if (Utils.IsIP (dnsServer))
+				if (IpAddress.IsIP (dnsServer))
 					TableDnsServersController.Add (dnsServer);
 			}
 
@@ -723,6 +736,9 @@ namespace Eddie.UI.Osx
 			s.SetBool ("gui.osx.visible", GuiUtils.GetCheck (ChkGeneralOsxVisible));
 			// s.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock)); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			s.SetBool ("gui.osx.notifications", GuiUtils.GetCheck (ChkGeneralOsxNotifications));
+			s.SetBool ("gui.osx.sysbar.show_info", GuiUtils.GetCheck (ChkUiSystemBarShowInfo));
+			s.SetBool ("gui.osx.sysbar.show_speed", GuiUtils.GetCheck (ChkUiSystemBarShowSpeed));
+			s.SetBool ("gui.osx.sysbar.show_server", GuiUtils.GetCheck (ChkUiSystemBarShowServer));
 			s.SetBool ("gui.exit_confirm", GuiUtils.GetCheck (ChkExitConfirm));
 
 			// UI

@@ -125,7 +125,27 @@ namespace Eddie.Platforms
             ShellCmd("discoveryutil mdnsflushcache"); // 2.11
         }
 
-		public override void EnsureExecutablePermissions(string path)
+		/*
+        // Mono under Linux have issue when hostname can't be resolved.
+        // Until this kind of issue doesn't occur on OS X, we still leave this Ping function commented.
+        */
+        /*
+        public override long Ping(string host, int timeoutSec)
+        {
+			// Note: Linux timeout is -w, OS X timeout is -t
+            string result = ShellCmd("ping -c 1 -t " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
+            
+			// Note: Linux have mdev, OS X have stddev
+            string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
+            float iMS;
+            if (float.TryParse(sMS, out iMS))
+                return (Int64)iMS;
+            else
+                return -1;
+        }
+        */
+
+        public override void EnsureExecutablePermissions(string path)
 		{
 			if ((path == "") || (File.Exists(path) == false))
 				return;
@@ -166,7 +186,16 @@ namespace Eddie.Platforms
 			base.RouteRemove (r);
 		}
 
-		public override List<RouteEntry> RouteList()
+        public override void ResolveWithoutAnswer(string host)
+        {
+            // Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
+            if (File.Exists("/usr/bin/host"))
+                ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
+            else
+                base.ResolveWithoutAnswer(host);
+        }
+
+        public override List<RouteEntry> RouteList()
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
@@ -313,7 +342,7 @@ namespace Eddie.Platforms
 
 		public override bool OnIpV6Do()
 		{
-			if (Engine.Instance.Storage.Get("ipv6.mode") == "disable")
+			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
 				string[] interfaces = GetInterfaces();
 				foreach (string i in interfaces)
@@ -328,7 +357,7 @@ namespace Eddie.Platforms
 
 					if (mode != "Off")
 					{
-						Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
 
 						IpV6ModeEntry entry = new IpV6ModeEntry();
 						entry.Interface = i;
@@ -374,7 +403,7 @@ namespace Eddie.Platforms
 					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
 				}
 
-				Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
@@ -388,7 +417,7 @@ namespace Eddie.Platforms
 
 		public override bool OnDnsSwitchDo(string dns)
 		{
-			string mode = Engine.Instance.Storage.Get("dns.mode").ToLowerInvariant();
+			string mode = Engine.Instance.Storage.GetLower("dns.mode");
 
 			if (mode == "auto")
 			{
@@ -404,7 +433,7 @@ namespace Eddie.Platforms
                     foreach(string line in current.Split('\n'))
                     {
                         string ip = line.Trim();
-                        if (Utils.IsIP(ip))
+                        if (IpAddress.IsIP(ip))
                             ips.Add(ip);
                     }
 
@@ -415,7 +444,7 @@ namespace Eddie.Platforms
                     if (current != dns)
                     {
                         // Switch
-                        Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
+                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
 
                         DnsSwitchEntry e = new DnsSwitchEntry();
                         e.Name = i2;
@@ -444,7 +473,7 @@ namespace Eddie.Platforms
                     v = "empty";
 				v = v.Replace (",", "\" \"");
 
-				Engine.Instance.Logs.Log(LogType.Info, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
 

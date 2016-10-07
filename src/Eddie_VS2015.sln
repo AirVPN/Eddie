@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Core", "Core\Lib.Core.csproj", "{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deploy", "Deploy\Deploy.csproj", "{B0C52400-DD89-474B-ACA1-673DA6D97AFF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{76FDBBC8-AD4E-4B0C-8AE6-C9E7B52CA2A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Forms", "Lib.Forms\Lib.Forms.csproj", "{C0357E13-B013-40C5-B511-865A27BC2A47}"
@@ -24,8 +22,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Forms.Linux", "UI.Forms.Linux\UI.Forms.Linux.csproj", "{C21E315F-C565-4AF0-9E15-9DDF2DD8FBD4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Forms.Windows", "UI.Forms.Windows\UI.Forms.Windows.csproj", "{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.WpfWeb.Windows", "UI.WpfWeb.Windows\UI.WpfWeb.Windows.csproj", "{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}"
 EndProject
 Global
 	GlobalSection(Performance) = preSolution
@@ -58,20 +54,6 @@ Global
 		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x64.Build.0 = Release|Any CPU
 		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x86.ActiveCfg = Release|Any CPU
 		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x86.Build.0 = Release|Any CPU
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x64.ActiveCfg = Debug|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x64.Build.0 = Debug|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x86.ActiveCfg = Debug|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Debug|x86.Build.0 = Debug|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|Any CPU.ActiveCfg = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|Mixed Platforms.Build.0 = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x64.ActiveCfg = Release|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x64.Build.0 = Release|x64
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x86.ActiveCfg = Release|x86
-		{B0C52400-DD89-474B-ACA1-673DA6D97AFF}.Release|x86.Build.0 = Release|x86
 		{C0357E13-B013-40C5-B511-865A27BC2A47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C0357E13-B013-40C5-B511-865A27BC2A47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0357E13-B013-40C5-B511-865A27BC2A47}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -188,20 +170,6 @@ Global
 		{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}.Release|x64.Build.0 = Release|x64
 		{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}.Release|x86.ActiveCfg = Release|x86
 		{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}.Release|x86.Build.0 = Release|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Debug|x64.ActiveCfg = Debug|x64
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Debug|x64.Build.0 = Debug|x64
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Debug|x86.ActiveCfg = Debug|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Debug|x86.Build.0 = Debug|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Release|Any CPU.ActiveCfg = Release|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Release|Mixed Platforms.Build.0 = Release|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Release|x64.ActiveCfg = Release|x64
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Release|x64.Build.0 = Release|x64
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Release|x86.ActiveCfg = Release|x86
-		{0EAAC2F7-A512-4CB8-BFFA-F698BFF1BB31}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

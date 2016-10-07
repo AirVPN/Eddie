@@ -27,7 +27,7 @@ namespace Eddie.Core
 	{
 		private string m_Value;
 		
-		private string m_IP;
+		private IpAddress m_IP;
 		private string m_Mask;
 
 		public IpAddressRange()
@@ -39,30 +39,39 @@ namespace Eddie.Core
 		{
 			Value = value.Trim();
 		}
-
-		public static implicit operator IpAddressRange(string value)
+        
+        public static implicit operator IpAddressRange(string value)
 		{
 			return new IpAddressRange(value);
 		}
-
-		public bool Empty
-		{
-			get
-			{
-				return (m_IP == "");
-			}
-		}
-
+        
 		public bool Valid
 		{
 			get
 			{
-				//return System.Text.RegularExpressions.Regex.IsMatch(Value, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
-				return (m_IP != "");
+                //return System.Text.RegularExpressions.Regex.IsMatch(Value, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
+                //return (m_IP != "");
+                return m_IP.Valid;
 			}
 		}
 
-		public string Value
+        public bool IsV4
+        {
+            get
+            {
+                return m_IP.IsV4;
+            }
+        }
+
+        public bool IsV6
+        {
+            get
+            {
+                return m_IP.IsV6;
+            }
+        }
+
+        public string Value
 		{
 			get
 			{
@@ -89,25 +98,23 @@ namespace Eddie.Core
 				}
 
 				bool valid = false;
-				if (new IpAddress(m_IP).Valid)
+				if (m_IP.Valid)
 				{
-					// Mask is CIDR or IP?
-					if (new IpAddress(m_Mask).Valid)
+                    // Mask is CIDR or IP?
+                    if (NetMask2bitMaskV4(m_Mask) != "")
+                    {
+                        // Mask
+                        valid = true;
+                    }
+                    else
 					{
-						// Can be converted to CIDR?
-						if (NetMask2bitMaskV4(m_Mask) != "")
-						{
-							valid = true;
-						}
-					}
-					else
-					{
-						m_Mask = BitMask2netMaskV4(m_Mask);
-						if (new IpAddress(m_Mask).Valid)
-						{
-							valid = true;
-						}
-					}
+                        m_Mask = BitMask2netMaskV4(m_Mask);
+                        if(m_Mask != "")
+                        {
+                            // CIDR
+                            valid = true;
+                        }                        
+					}					
 				}
 
 				if (valid == false)
@@ -123,18 +130,24 @@ namespace Eddie.Core
 			if(Valid == false)
 				return "";
 
-			return m_IP + "/" + NetMask2bitMaskV4(m_Mask);
-		}
+            if (IsV4)
+                return m_IP.ToString() + "/" + NetMask2bitMaskV4(m_Mask);
+            else
+                return ""; // TOFIX, unknown how to format. When implemented, read comment in NetworkLockWfp::OnUpdateIps
+        }
 
 		public string ToOpenVPN()
 		{
 			if (Valid == false)
 				return "";
-			
-			return m_IP + " " + m_Mask;
+
+            if (IsV4)
+                return m_IP.ToString() + " " + m_Mask.ToString();
+            else
+                return ""; // TOFIX, unknown how to format IPv6 route directive
 		}
 
-        public string GetAddress()
+        public IpAddress GetAddress()
         {
             return m_IP;
         }
