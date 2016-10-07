@@ -82,18 +82,6 @@ namespace Eddie.Lib.Core.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-16&quot;?&gt;
-        ///&lt;RSAParameters xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
-        ///  &lt;Exponent&gt;AQAB&lt;/Exponent&gt;
-        ///  &lt;Modulus&gt;wuQXz7eZeEBwaaRsVK8iEHpueXoKyQzW8sr8qMUkZIcKtKv5iseXMrTbcGYGpRXdiqXp7FqrSjPSMDuRGaHfjWgjbnW4PwecmgJSfhkWt4xY8OnIwKkuI2Eo0MAa9lduPOQRKSfa9I1PBogIyEUrf7kSjcoJQgeY66D429m1BDWY3f65c+8HrCQ8qPg1GY+pSxuwp6+2dV7fd1tiKLQEoJg9NeWGW0he/DDkNSe4c8gFfHj3ANYwDhTQijb+VaVZqPmxVJIzLoE1JOom0/P8fKsvpx3cFOtDS4apiI+N7MyVAMcx5Jjk2AQ/tyD [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Auth {
-            get {
-                return ResourceManager.GetString("Auth", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon icon {
@@ -139,6 +127,17 @@ namespace Eddie.Lib.Core.Properties {
         internal static string Manifest {
             get {
                 return ResourceManager.GetString("Manifest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;provider title=&quot;OpenVPN&quot; website=&quot;https://openvpn.net/&quot; class=&quot;openvpn&quot;&gt;
+        ///&lt;/provider&gt;.
+        /// </summary>
+        internal static string OpenVPN {
+            get {
+                return ResourceManager.GetString("OpenVPN", resourceCulture);
             }
         }
         

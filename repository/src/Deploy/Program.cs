@@ -597,7 +597,7 @@ namespace Deploy
                 if(IsOfficial())
                 {
                     Console.WriteLine("If running from a developing VM, maybe need:");
-                    Console.WriteLine("cp ../../../../repository/airvpn_linux_* /media/sf_airvpn-client/repository/");
+                    Console.WriteLine("cp files/eddie* /media/sf_airvpn-client/repository/files/");
                 }
 			}
 

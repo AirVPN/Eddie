@@ -70,6 +70,7 @@ namespace Eddie.Core
             if (Directory.Exists(path) == false) // TOCLEAN, Compatibility <3.0
             {
                 LoadDefinition(ResourcesFiles.GetString("AirVPN.xml"));
+                LoadDefinition(ResourcesFiles.GetString("OpenVPN.xml"));
                 return;
             }            
 

@@ -130,13 +130,13 @@
   <data name="TOS" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\TOS.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="Auth" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\auth.xml;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="Manifest" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\manifest.xml;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="AirVPN" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\AirVPN.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="OpenVPN" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\OpenVPN.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
 </root>

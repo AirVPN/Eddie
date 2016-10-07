@@ -136,9 +136,9 @@
     <None Include="Resources\TOS.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\auth.xml" />
     <None Include="Resources\manifest.xml" />
     <None Include="Resources\AirVPN.xml" />
+    <None Include="Resources\OpenVPN.xml" />
     <Content Include="_Readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

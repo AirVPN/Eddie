@@ -2,84 +2,57 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleDisplayName</key>
-	<string>AirVPN</string>
-	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>pdf</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>NSPDFPboardType</string>
-			<key>CFBundleTypeRole</key>
-			<string>None</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>tiff</string>
-				<string>tif</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>NSTIFFPboardType</string>
-			<key>CFBundleTypeRole</key>
-			<string>None</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>AirVPN</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>airvpn_file.icns</string>
-			<key>CFBundleTypeName</key>
-			<string>AirVPN Document</string>
-			<key>CFBundleTypeMIMETypes</key>
-			<array>
-				<string>application/airvpn</string>
-			</array>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>****</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSTypeIsPackage</key>
-			<false/>
-		</dict>
-	</array>
-	<key>CFBundleExecutable</key>
-	<string>AirVPN</string>
-	<key>CFBundleGetInfoString</key>
-	<string>AirVPN</string>
-	<key>CFBundleIconFile</key>
-	<string>AirVPN.icns</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.AirVPN</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>AirVPN</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.9</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>CFBundleIconFile</key>
+	<string>icon</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>CFBundleShortVersionString</key>
+	<string>{@version}</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.eddie.client</string>
+	<key>CFBundleDisplayName</key>
+	<string>AirVPN</string>
+	<key>NSSupportsSuddenTermination</key>
+	<string>NO</string>
+	<key>BuildMachineOSBuild</key>
+	<string>15F34</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>MonoBundleExecutable</key>
+	<string>AirVPN.exe</string>
+	<key>CFBundleExecutable</key>
+	<string>AirVPN</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>0.13</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>0.13</string>
-	<key>LSEnvironment</key>
-	<dict>
-		<key>LC_ALL</key>
-		<string>C</string>
-	</dict>
-	<key>LSRequiresCarbon</key>
-	<true/>
+	<key>DTCompiler</key>
+	<string>com.apple.compilers.llvm.clang.1_0</string>
+	<key>DTPlatformBuild</key>
+	<string>6D570</string>
+	<key>DTPlatformVersion</key>
+	<string>GM</string>
+	<key>DTSDKBuild</key>
+	<string>15F34</string>
+	<key>DTSDKName</key>
+	<string>macosx10.10</string>
+	<key>DTXcode</key>
+	<string>0630</string>
+	<key>DTXcodeBuild</key>
+	<string>6D570</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 20014-2014, AirVPN Team</string>
+	<string>Copyright © AirVPN Team</string>
 </dict>
 </plist>
