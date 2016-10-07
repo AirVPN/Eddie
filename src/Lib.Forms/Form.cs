@@ -136,7 +136,7 @@ namespace Eddie.Gui
             return output;
         }
 
-        public void SetFormLayout(string v, bool forceMinimized, bool minimizeInTray, Size defaultSize)
+        public void SetFormLayout(string v, bool forceMinimized, bool forceMaximized, bool minimizeInTray, Size defaultSize)
         {
 			if (v == "")
 			{
@@ -159,7 +159,6 @@ namespace Eddie.Gui
             int deskHeight = SystemInformation.VirtualScreen.Height;
             int deskWidth = SystemInformation.VirtualScreen.Width;
 
-            bool vis = ((fields[0] == "0") ? false : true); // pazzo vis non usato
             String state = fields[1];
             int l = Convert.ToInt32(fields[2]);
             int t = Convert.ToInt32(fields[3]);
@@ -179,21 +178,20 @@ namespace Eddie.Gui
             if (t + h > deskHeight)
                 t = deskHeight - h;
 
-            //this.Visible = vis;
-            //this.Left = l;
-            //this.Top = t;
-            //this.ClientSize = new Size(w, h);
-            MessageBox.Show(this.Bounds.ToString());
-            this.Bounds = new Rectangle(l, t, w, h); // 2.11.4
-
-            /*
-			if(ignoreVisible == false)
-				if (this.Visible)
-					this.Activate();
-            */
+            this.StartPosition = FormStartPosition.Manual;
+            
+            if(this.WindowState == FormWindowState.Minimized)
+            {
+                // If started minimized (Windows shortcut 'run' mode), settings .Bounds below don't work if not visible.
+                this.Visible = true;
+            }
+            
+            this.Bounds = new Rectangle(l, t, w, h);
             
             if (forceMinimized)
                 state = "m";
+            else if (forceMaximized)
+                state = "M";
 
             if (state == "m")
             {

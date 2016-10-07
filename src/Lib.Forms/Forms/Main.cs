@@ -57,6 +57,7 @@ namespace Eddie.Gui.Forms
 
 		private bool m_formReady = false;
 		private bool m_closing = false;
+        private bool m_windowStateSetByShortcut = false;
 
         // private System.Timers.Timer timerMonoDelayedRedraw = null; // TOCLEAN
 
@@ -344,9 +345,16 @@ namespace Eddie.Gui.Forms
 
 
             //ApplySkin();
-
-            //SetFormLayout(Engine.Storage.Get("gui.window.main"), true, true, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
-            SetFormLayout(Engine.Storage.Get("gui.window.main"), Engine.Storage.GetBool("gui.windows.start_minimized"), MinimizeInTray(), new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+                        
+            bool forceMinimized = false;
+            if (Engine.Storage.GetBool("gui.windows.start_minimized"))
+                forceMinimized = true;
+            if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Minimized))
+                forceMinimized = true;
+            bool forceMaximized = false;
+            if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Maximized))
+                forceMaximized = true;
+            SetFormLayout(Engine.Storage.Get("gui.window.main"), forceMinimized, forceMaximized, MinimizeInTray(), new Size(m_windowDefaultWidth, m_windowDefaultHeight));
             m_listViewServers.SetUserPrefs(Engine.Storage.Get("gui.list.servers"));
             m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
             lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
@@ -433,7 +441,7 @@ namespace Eddie.Gui.Forms
 			}            
             */
         }
-        
+
         /* // TOCLEAN
         void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
 		{
@@ -444,7 +452,20 @@ namespace Eddie.Gui.Forms
 		}
         */
 
-		protected override void OnKeyDown(KeyEventArgs e) // 2.10.1
+        protected override void WndProc(ref Message m)
+        {
+            /*WM_SIZE*/
+            if (m.Msg == 0x0005)
+            {
+                // This will be set to true if the shortcut uses the Maximized or Minimized
+                // options because then it runs before OnLoad.
+                m_windowStateSetByShortcut = true;                
+            }
+            else
+                base.WndProc(ref m);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e) // 2.10.1
 		{
 			base.OnKeyDown(e);
 

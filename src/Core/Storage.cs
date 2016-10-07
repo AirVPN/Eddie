@@ -663,19 +663,22 @@ namespace Eddie.Core
                     providersNode.AppendChild(providerNode);
                 }
 
-                if (Engine.Instance.ProvidersManager.GetProvidersPath() != "")
+                if(Engine.Instance.ProvidersManager.Providers.Count == 1)
                 {
-                    // Move providers->AirVPN to root.
-                    XmlElement xmlAirVPN = Utils.XmlGetFirstElementByTagName(providersNode, "AirVPN");
-                    if (xmlAirVPN != null)
+                    if (Engine.Instance.ProvidersManager.Providers[0].GetCode() == "AirVPN")
                     {
-                        foreach (XmlElement xmlChild in xmlAirVPN.ChildNodes)
-                            Utils.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
-                        providersNode.RemoveChild(xmlAirVPN);
+                        // Move providers->AirVPN to root.
+                        XmlElement xmlAirVPN = Utils.XmlGetFirstElementByTagName(providersNode, "AirVPN");
+                        if (xmlAirVPN != null)
+                        {
+                            foreach (XmlElement xmlChild in xmlAirVPN.ChildNodes)
+                                Utils.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
+                            providersNode.RemoveChild(xmlAirVPN);
+                        }
+                        if (providersNode.ChildNodes.Count == 0)
+                            providersNode.ParentNode.RemoveChild(providersNode);
                     }
-                    if (providersNode.ChildNodes.Count == 0)
-                        providersNode.ParentNode.RemoveChild(providersNode);
-                }
+                }                
 
                 xmlDoc.Save(path);
             }
