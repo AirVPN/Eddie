@@ -410,7 +410,7 @@ namespace Deploy
 					}
 					else if( (format == "portable") && (AvailableMkBundle) )
 					{
-						CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
+						//CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
                         //CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
 
                         // mkbundle
@@ -428,14 +428,16 @@ namespace Deploy
 						command += " --deps";
                         command += " --keeptemp";
                         command += " --static";
-						command += " --config \"" + pathTemp + "/eddie.config\"";
+                        //command += " --config \"" + pathTemp + "/eddie.config\"";
+                        command += " --config \"" + PathBaseResources + "/linux_portable/eddie.config\"";
+                        
                         //command += " --machine-config \"" + pathTemp + "/eddie.config\"";
                         command += " --machine-config /etc/mono/4.0/machine.config";
                         command += " -z";
 						command += " -o \"" + pathTemp + "/airvpn\"";						
 						Shell(command);
 
-						RemoveFile(pathTemp + "/eddie.config");
+						//RemoveFile(pathTemp + "/eddie.config");
 
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
