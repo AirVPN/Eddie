@@ -836,9 +836,17 @@ namespace Deploy
             }
         }
 
+        static void MoveFile(string fromFilePath, string toFilePath)
+        {
+            if (IsVerbose())
+                Log("Move file from '" + fromFilePath + "' to '" + toFilePath + "'");
+            File.Move(NormalizePath(fromFilePath), NormalizePath(toFilePath));
+        }
 
         static void CopyFile(string fromFilePath, string toFilePath)
 		{
+            if (IsVerbose())
+                Log("Copy file from '" + fromFilePath + "' to '" + toFilePath + "'");
 			File.Copy(NormalizePath(fromFilePath), NormalizePath(toFilePath), false);
 		}
 
@@ -854,7 +862,9 @@ namespace Deploy
 
 		static void RemoveFile(string path)
 		{
-			File.Delete(path);
+            if (IsVerbose())
+                Log("Remove file '" + path + "'");
+            File.Delete(path);
 		}
 
 		static void CopyAll(string from, string to)
@@ -877,12 +887,14 @@ namespace Deploy
 			{
 				FileInfo fi = new FileInfo(file);
 
-				File.Move(fi.FullName, to + "/" + fi.Name);
+				MoveFile(fi.FullName, to + "/" + fi.Name);
 			}
 		}
 
         static void WriteTextFile(string path, string contents)
         {
+            if (IsVerbose())
+                Log("Write text in '" + path + "'");
             string dir = Path.GetDirectoryName(path);
             if (Directory.Exists(dir) == false)
                 Directory.CreateDirectory(dir);
@@ -891,13 +903,18 @@ namespace Deploy
 
 		static void ReplaceInFile(string path, string from, string to)
 		{
-			File.WriteAllText(path, File.ReadAllText(path).Replace(from, to));
+            if (IsVerbose())
+                Log("Replace text in '" + path + "'");
+            File.WriteAllText(path, File.ReadAllText(path).Replace(from, to));
 		}
 
 		static void CopyDirectory(string fromPath, string toPath)
 		{
-			//Now Create all of the directories
-			foreach (string dirPath in Directory.GetDirectories(fromPath, "*", SearchOption.AllDirectories))
+            if (IsVerbose())
+                Log("Copy directory from '" + fromPath + "' to '" + toPath + "'");
+
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(fromPath, "*", SearchOption.AllDirectories))
 				Directory.CreateDirectory(dirPath.Replace(fromPath, toPath));
 
 			//Copy all the files & Replaces any files with the same name
