@@ -232,7 +232,7 @@ namespace Eddie.Core.Providers
 
 		public void UpdateProfileFromFile(XmlElement nodeProfile, string path)
 		{
-            if (File.Exists(path) == false)
+            if (Platform.Instance.FileExists(path) == false)
                 return;
 
             Dictionary<string, string> dataProfile = OvpnParse(new FileInfo(path), true);
@@ -269,7 +269,7 @@ namespace Eddie.Core.Providers
 			{
                 Dictionary<string, string> dictInfo = new Dictionary<string, string>();
 
-                string ovpnOriginal = File.ReadAllText(file.FullName);                
+                string ovpnOriginal = Platform.Instance.FileContentsReadText(file.FullName);                
                 
 
                 OvpnBuilder ovpnBuilder = new OvpnBuilder();

@@ -989,7 +989,7 @@ namespace Eddie.UI.Osx
 				panel.CanCreateDirectories = true;
 				int result = panel.RunModal ();
 				if (result == 1) {
-					System.IO.File.WriteAllText (panel.Url.Path, t);
+					Platform.Instance.FileContentsWriteText(panel.Url.Path, t);
 			
 					GuiUtils.MessageBox (Messages.LogsSaveToFileDone);
 				}

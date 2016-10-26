@@ -88,7 +88,7 @@ namespace Eddie.Core
             if (DataPath == "")
             {
 				DataPath = Platform.Instance.GetProgramFolder();
-                if (Utils.HasAccessToWrite(DataPath) == false)
+                if (Platform.Instance.HasAccessToWrite(DataPath) == false)
                     DataPath = "";
             }
 
@@ -106,7 +106,7 @@ namespace Eddie.Core
 
         public static bool TestDataPath(string path, bool log)
         {
-            if (Utils.HasAccessToWrite(path) == false)
+            if (Platform.Instance.HasAccessToWrite(path) == false)
             {
                 if(log == true)
                     Engine.Instance.Logs.Log(LogType.Info, "Unable to write in path '" + path + "'");
@@ -706,7 +706,7 @@ namespace Eddie.Core
 
 					Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.OptionsRead, Path));
 
-					if (File.Exists(Path) == false)
+					if (Platform.Instance.FileExists(Path) == false)
 					{
 						Engine.Instance.Logs.Log(LogType.Verbose, Messages.OptionsNotFound);
 						return;

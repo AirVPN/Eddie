@@ -70,10 +70,16 @@ namespace Eddie.Core
 					}
 					else if (OpenVpnVersion != "")
 					{
-						int posS = OpenVpnVersion.IndexOf(" ", 8);
-						if (posS > 1)
+                        string ver = Utils.ExtractBetween(OpenVpnVersion, "OpenVPN ", " ");
+                        string libs = Utils.ExtractBetween(OpenVpnVersion, "library versions:", "\n").Trim();
+                        /*
+                        int posS = OpenVpnVersion.IndexOf(" ", 8);
+                        if (posS > 1)
 							OpenVpnVersion = OpenVpnVersion.Substring(0, posS);
-					}
+                        */
+                        OpenVpnVersion = ver + " - " + libs;
+
+                    }
 				}
 			}
 			catch (Exception e)
@@ -234,7 +240,7 @@ namespace Eddie.Core
         {
             if (path == "")
                 return false;
-            if (File.Exists(path) == false)
+            if (Platform.Instance.FileExists(path) == false)
                 return false;
 
             return true;

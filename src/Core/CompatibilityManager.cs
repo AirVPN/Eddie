@@ -38,22 +38,22 @@ namespace Eddie.Core
 				// < 2.9 - Old Windows Firewall original backup rules path
 				string oldPathRulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrulesorig.wfw";
 				string newPathRulesBackupFirstTime = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
-				if (File.Exists(oldPathRulesBackupFirstTime))
+				if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
 				{
-					if (File.Exists(newPathRulesBackupFirstTime))
-						File.Delete(oldPathRulesBackupFirstTime);
+					if (Platform.Instance.FileExists(newPathRulesBackupFirstTime))
+                        Platform.Instance.FileDelete(oldPathRulesBackupFirstTime);
 					else
-						File.Move(oldPathRulesBackupFirstTime, newPathRulesBackupFirstTime);
+						Platform.Instance.FileMove(oldPathRulesBackupFirstTime, newPathRulesBackupFirstTime);
 				}
 
 				string oldPathRulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
 				string newPathRulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_backup.airvpn";
-				if (File.Exists(oldPathRulesBackupFirstTime))
+				if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
 				{
-					if (File.Exists(newPathRulesBackupSession))
-						File.Delete(oldPathRulesBackupSession);
+					if (Platform.Instance.FileExists(newPathRulesBackupSession))
+                        Platform.Instance.FileDelete(oldPathRulesBackupSession);
 					else
-						File.Move(oldPathRulesBackupSession, newPathRulesBackupSession);
+                        Platform.Instance.FileMove(oldPathRulesBackupSession, newPathRulesBackupSession);
 				}
 			}
 

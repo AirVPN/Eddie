@@ -42,7 +42,7 @@ namespace Eddie.UI.Windows
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 Platform.Instance = new Eddie.Platforms.Windows();
-
+                
                 CommandLine.InitSystem(Environment.CommandLine);
 
                 if (CommandLine.SystemEnvironment.Exists("cli"))

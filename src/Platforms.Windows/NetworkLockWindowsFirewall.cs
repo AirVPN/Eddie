@@ -120,19 +120,19 @@ namespace Eddie.Platforms
 
 		public void StateOn()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + id + " state on");
+			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + " state on");
 		}
 
 		public void StateOff()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + id + " state off");
+			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + " state off");
 		}
 
 		public void NotifyOn()
 		{
             //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
             //Platform.Instance.ShellCmd("netsh firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
-            Platform.Instance.ShellCmd("netsh advfirewall set " + id + "settings inboundusernotification enable");
+            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + "settings inboundusernotification enable");
             
         }
 
@@ -140,12 +140,12 @@ namespace Eddie.Platforms
 		{
             //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
             //Platform.Instance.ShellCmd("netsh firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
-            Platform.Instance.ShellCmd("netsh advfirewall set " + id + "settings inboundusernotification disable");
+            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + "settings inboundusernotification disable");
         }
 
 		public void RestorePolicy()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + id + " firewallpolicy " + Inbound + "," + Outbound);
+			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + " firewallpolicy " + Inbound + "," + Outbound);
 		}
 
 		public void ReadXML(XmlElement node)
@@ -217,14 +217,14 @@ namespace Eddie.Platforms
 			// If 'winfirewall_rules_original.airvpn' doesn't exists, create it. It's a general backup of the first time.
 			// We create this kind of file in Windows System directory, because it's system critical data, and to allow it to survive between re-installation of the software.
 			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_original.wfw";
-			if (File.Exists(rulesBackupFirstTime) == false)
+			if (Platform.Instance.FileExists(rulesBackupFirstTime) == false)
 				Exec("netsh advfirewall export \"" + rulesBackupFirstTime + "\"");
 
 			string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
-			if (File.Exists(rulesBackupSession))
-				File.Delete(rulesBackupSession);
+			if (Platform.Instance.FileExists(rulesBackupSession))
+                Platform.Instance.FileDelete(rulesBackupSession);
 			Exec("netsh advfirewall export \"" + rulesBackupSession + "\"");
-			if (File.Exists(rulesBackupSession) == false)
+			if (Platform.Instance.FileExists(rulesBackupSession) == false)
 				throw new Exception(Messages.NetworkLockWindowsFirewallBackupFailed);
 
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
@@ -298,30 +298,30 @@ namespace Eddie.Platforms
             // >2.9.1 edition
             {
                 string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
-				if (File.Exists(rulesBackupSession))
+				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
 					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
-					File.Delete(rulesBackupSession);
+                    Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
 
 			// Old <2.8 edition
 			{
 				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
-				if (File.Exists(rulesBackupSession))
+				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
 					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
-					File.Delete(rulesBackupSession);
+                    Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
 
 			// Old 2.9.0 edition, recover
 			{
 				string rulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
-				if (File.Exists(rulesBackupSession))
+				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
 					Exec("netsh advfirewall import \"" + rulesBackupSession + "\"");
-					File.Delete(rulesBackupSession);
+                    Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
 

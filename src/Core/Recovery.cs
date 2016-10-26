@@ -50,8 +50,8 @@ namespace Eddie.Core
 				string path = RecoveryPath();
 				if( (root.ChildNodes.Count == 0) && (root.Attributes.Count == 0) )
 				{
-					if (File.Exists(path))
-						File.Delete(path);
+					if (Platform.Instance.FileExists(path))
+						Platform.Instance.FileDelete(path);
 				}
 				else
 					doc.Save(RecoveryPath());
@@ -66,7 +66,7 @@ namespace Eddie.Core
 
 				// Platform.Instance.OnRecovery();
 
-				if (File.Exists(path))
+				if (Platform.Instance.FileExists(path))
 				{
 					try
 					{
@@ -87,7 +87,7 @@ namespace Eddie.Core
 						Engine.Instance.Logs.Log(e);
 					}
 
-					File.Delete(path);
+                    Platform.Instance.FileDelete(path);
 				}
 			}
 		}

@@ -266,6 +266,14 @@ namespace Eddie.Core
             return v;
         }
 
+        public static string StringNormalizePath(string path)
+        {
+            // Note: Used only in already-quoted path.
+            path = path.Replace("'", "");
+            path = path.Replace("`", "");            
+            return path;
+        }
+                
         public static string FormatTime(Int64 unix)
 		{
 			if (unix == 0)
@@ -403,26 +411,7 @@ namespace Eddie.Core
             return 0;
         }
 
-        public static bool HasAccessToWrite(string path)
-        {
-            try
-            {                
-                DirectoryInfo di = new DirectoryInfo(path);
-                if (di.Exists == false)
-                    di.Create();
-
-				string tempPath = path + Platform.Instance.DirSep + "test.tmp";
-                
-                using (FileStream fs = File.Create(tempPath, 1, FileOptions.DeleteOnClose))
-                {
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        
 
 		public static string SafeString(string value)
 		{
@@ -526,21 +515,6 @@ namespace Eddie.Core
 
 			return result;
 		}
-
-		public static bool SaveFile(string path, string content)
-        {
-			if (File.Exists(path))
-			{
-				if (File.ReadAllText(path) == content)
-					return false;
-			}
-
-            TextWriter tw = new StreamWriter(path);
-            tw.Write(content);
-            tw.Close();
-
-			return true;
-        }
 
 		public static List<string> GetNetworkGateways()
 		{

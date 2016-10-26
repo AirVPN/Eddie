@@ -262,46 +262,56 @@ namespace Eddie.Platforms
         public static bool ClearPendingRules()
         {
             bool found = false;
-            string wfpName = GetName();
-            string path = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".xml";
+            try
+            {                
+                string wfpName = GetName();
+                string path = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".xml";
 
-            System.Diagnostics.Process p = new System.Diagnostics.Process();
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.FileName = "NetSh.exe";
-            p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
-            p.StartInfo.WorkingDirectory = Path.GetTempPath();
-            p.Start();
-            p.StandardOutput.ReadToEnd();
-            p.WaitForExit();
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.FileName = "NetSh.exe";
+                p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
+                p.StartInfo.WorkingDirectory = Path.GetTempPath();
+                p.Start();
+                p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
 
-            System.Xml.XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(path);
-            foreach (XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
-            {
-                foreach (XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
+                if (File.Exists(path))
                 {
-                    foreach (XmlElement xmlName in xmlItem.SelectNodes("displayData/name"))
+                    System.Xml.XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.Load(path);
+                    foreach (XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
                     {
-                        string name = xmlName.InnerText;
-                        if (name == wfpName)
+                        foreach (XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
                         {
-                            foreach (XmlNode xmlFilterId in xmlItem.GetElementsByTagName("filterId"))
+                            foreach (XmlElement xmlName in xmlItem.SelectNodes("displayData/name"))
                             {
-                                ulong id;
-                                if (ulong.TryParse(xmlFilterId.InnerText, out id))
+                                string name = xmlName.InnerText;
+                                if (name == wfpName)
                                 {
-                                    LibPocketFirewallRemoveRuleDirect(id);
-                                    found = true;
+                                    foreach (XmlNode xmlFilterId in xmlItem.GetElementsByTagName("filterId"))
+                                    {
+                                        ulong id;
+                                        if (ulong.TryParse(xmlFilterId.InnerText, out id))
+                                        {
+                                            LibPocketFirewallRemoveRuleDirect(id);
+                                            found = true;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+
+                    Platform.Instance.FileDelete(path);
                 }
             }
-            
-            File.Delete(path);
+            catch(Exception e)
+            {
+                Engine.Instance.Logs.Log(e);
+            }
 
             return found;
         }

@@ -63,7 +63,7 @@ namespace Eddie.Platforms
 
 			string rulesBackupSessionV4 = GetBackupPath("4");
 
-			if (File.Exists(rulesBackupSessionV4))
+			if (Platform.Instance.FileExists(rulesBackupSessionV4))
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
 				Deactivation();
@@ -71,7 +71,7 @@ namespace Eddie.Platforms
 
 			string rulesBackupSessionV6 = GetBackupPath("6");
 
-			if (File.Exists(rulesBackupSessionV6))
+			if (Platform.Instance.FileExists(rulesBackupSessionV6))
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
 				Deactivation();
@@ -166,7 +166,7 @@ namespace Eddie.Platforms
 			// IPV4
 			string rulesBackupSessionV4 = GetBackupPath("4");
 
-			if (File.Exists(rulesBackupSessionV4))
+			if (Platform.Instance.FileExists(rulesBackupSessionV4))
 			{
 				// Flush
 				Exec("iptables -F");
@@ -176,13 +176,13 @@ namespace Eddie.Platforms
 				// Backup
 				Exec("iptables-restore <\"" + rulesBackupSessionV4 + "\"");
 
-				File.Delete(rulesBackupSessionV4);
+                Platform.Instance.FileDelete(rulesBackupSessionV4);
 			}
 
 			// IPV6
 			string rulesBackupSessionV6 = GetBackupPath("6");
 
-			if (File.Exists(rulesBackupSessionV6))
+			if (Platform.Instance.FileExists(rulesBackupSessionV6))
 			{
 				// Flush
 				Exec("ip6tables -F");
@@ -192,7 +192,7 @@ namespace Eddie.Platforms
 				// Backup
 				Exec("ip6tables-restore <\"" + rulesBackupSessionV6 + "\"");
 
-				File.Delete(rulesBackupSessionV6);
+                Platform.Instance.FileDelete(rulesBackupSessionV6);
 			}
 
 			// IPS

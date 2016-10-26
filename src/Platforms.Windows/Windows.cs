@@ -767,7 +767,7 @@ namespace Eddie.Platforms
 			{
 				string uninstallPath = objUninstallPath as string;
 
-				if (File.Exists(uninstallPath))
+				if (Platform.Instance.FileExists(uninstallPath))
 					return uninstallPath;
 			}
 
@@ -805,7 +805,7 @@ namespace Eddie.Platforms
 						sysPath = sysPath.Replace("\\system32\\", "\\sysnative\\");
 					}
 
-					if (File.Exists(sysPath) == false)
+					if (Platform.Instance.FileExists(sysPath) == false)
 					{
 						throw new Exception(Messages.Format(Messages.OsDriverNoPath, sysPath));
 					}
@@ -908,7 +908,7 @@ namespace Eddie.Platforms
 		{
 			string driverPath = GetDriverInstallerPath();
 			
-			return File.Exists(driverPath);
+			return Platform.Instance.FileExists(driverPath);
 		}
 
 		public override bool CanUnInstallDriver()

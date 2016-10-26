@@ -641,7 +641,7 @@ namespace Eddie.Core.Threads
 			
 
 			m_fileSshKey = new TemporaryFile(fileKeyExtension);
-			File.WriteAllText(m_fileSshKey.Path, Utils.XmlGetAttributeString(service.User, "ssh_" + fileKeyExtension, ""));
+			Platform.Instance.FileContentsWriteText(m_fileSshKey.Path, Utils.XmlGetAttributeString(service.User, "ssh_" + fileKeyExtension, ""));
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
@@ -705,7 +705,7 @@ namespace Eddie.Core.Threads
 				return;
 
 			m_fileSslCrt = new TemporaryFile("crt");
-			File.WriteAllText(m_fileSslCrt.Path, Utils.XmlGetAttributeString(service.User, "ssl_crt", ""));
+            Platform.Instance.FileContentsWriteText(m_fileSslCrt.Path, Utils.XmlGetAttributeString(service.User, "ssl_crt", ""));
 
 			m_fileSslConfig = new TemporaryFile("ssl");
 
@@ -732,7 +732,7 @@ namespace Eddie.Core.Threads
 			sslConfig += "\n";
 
 			string sslConfigPath = m_fileSslConfig.Path;
-			Utils.SaveFile(sslConfigPath, sslConfig);
+			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig);
 
             m_programScope = new ProgramScope(Software.SslPath, "SSL Tunnel");
 
@@ -772,7 +772,7 @@ namespace Eddie.Core.Threads
 
 			m_fileOvpn = new TemporaryFile("ovpn");
 			string ovpnPath = m_fileOvpn.Path;
-			Utils.SaveFile(ovpnPath, Engine.ConnectedOVPN);
+            Platform.Instance.FileContentsWriteText(ovpnPath, Engine.ConnectedOVPN);
 
             if(m_processProxy == null)
                 m_programScope = new ProgramScope(Software.OpenVpnPath, "OpenVPN Tunnel");
@@ -1503,7 +1503,7 @@ namespace Eddie.Core.Threads
                         m_fileProxyAuth = new TemporaryFile("ppw");
                         string fileNameAuthOvpn = m_fileProxyAuth.Path.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
                         string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
-                        Utils.SaveFile(m_fileProxyAuth.Path, fileNameData);
+                        Platform.Instance.FileContentsWriteText(m_fileProxyAuth.Path, fileNameData);
                         proxyDirectiveArgs += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
                     }
                 }
@@ -1590,7 +1590,7 @@ namespace Eddie.Core.Threads
                 string password = CurrentServer.Provider.GetPassword();
                 string fileNameData = login + "\n" + password + "\n";
 
-                Utils.SaveFile(m_filePasswordAuth.Path, fileNameData);
+                Platform.Instance.FileContentsWriteText(m_filePasswordAuth.Path, fileNameData);
                 proxyDirectiveArgs += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant(); 
 
                 ovpn.AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");

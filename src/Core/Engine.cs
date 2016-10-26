@@ -195,7 +195,7 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
             }
 
-            DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
+            DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
 
             m_logsManager = new LogsManager();
             
@@ -917,7 +917,7 @@ namespace Eddie.Core
 								foreach (string path in paths)
 								{
 									Directory.CreateDirectory(Path.GetDirectoryName(path));
-									File.AppendAllText(path, lines + "\n");
+									Platform.Instance.FileContentsAppendText(path, lines + "\n");
 								}
 							}
 							catch(Exception e) 
@@ -1475,9 +1475,9 @@ namespace Eddie.Core
 									args += " --data \"" + dataParameters + "\"";
 								string str = Platform.Instance.Shell(Software.CurlPath, args);
 								byte[] bytes;
-								if (File.Exists(fileOutput.Path))
+								if (Platform.Instance.FileExists(fileOutput.Path))
 								{
-									bytes = File.ReadAllBytes(fileOutput.Path);
+									bytes = Platform.Instance.FileContentsReadBytes(fileOutput.Path);
 									fileOutput.Close();
 									return bytes;
 								}
