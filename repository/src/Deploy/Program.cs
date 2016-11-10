@@ -325,11 +325,19 @@ namespace Deploy
 
 				if (platform.StartsWith("windows"))
 				{
-                    CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-					CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                    CopyFile(pathRelease, "Lib.Core.dll", pathTemp);					
 					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
-					CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe");
-					CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe");
+					
+                    if(format == "ui")
+                    {
+                        CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                        CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe"); // TODO Eddie3: "Eddie-UI.exe"
+                        CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe"); // TODO Eddie3: "Eddie-CLI.exe"
+                    }
+                    else if(format == "cli")
+                    {
+                        CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
+                    }                    
 
                     WindowsSignPath(pathTemp);                    
                     
@@ -347,37 +355,48 @@ namespace Deploy
 					}
 					else if (format == "installer")
 					{
-						// NSIS
-						string nsis = File.ReadAllText(PathBaseResources + "/nsis/Eddie.nsi");
+                        string nsis = "";
 
-                        string pathExe = NormalizePath(PathBaseRepository + "/" + fileName + ".exe");
+                        if(format == "ui")
+                        {
+                            nsis = File.ReadAllText(PathBaseResources + "/nsis/Eddie-UI.nsi");
+                        }
+                        else if(format == "cli")
+                        {
 
-                        nsis = nsis.Replace("{@resources}", NormalizePath(PathBaseResources + "/nsis"));
-						nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
-						nsis = nsis.Replace("{@out}", pathExe);
+                        }
 
-						string filesAdd = "";
-						string filesDelete = "";
-						foreach (string filePath in Directory.GetFiles(pathTemp))
-						{
-							string name = new FileInfo(filePath).Name;
+                        if (nsis != "")
+                        {
+                            string pathExe = NormalizePath(PathBaseRepository + "/" + fileName + ".exe");
 
-							filesAdd += "File \"" + name + "\"\r\n";
-							filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
-						}
+                            nsis = nsis.Replace("{@resources}", NormalizePath(PathBaseResources + "/nsis"));
+                            nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
+                            nsis = nsis.Replace("{@out}", pathExe);
 
-						nsis = nsis.Replace("{@files_add}", filesAdd);
-						nsis = nsis.Replace("{@files_delete}", filesDelete);
+                            string filesAdd = "";
+                            string filesDelete = "";
+                            foreach (string filePath in Directory.GetFiles(pathTemp))
+                            {
+                                string name = new FileInfo(filePath).Name;
 
-						if(arch == "x64")
-							nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
+                                filesAdd += "File \"" + name + "\"\r\n";
+                                filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
+                            }
 
-                        WriteTextFile(pathTemp + "/Eddie.nsi", nsis);
+                            nsis = nsis.Replace("{@files_add}", filesAdd);
+                            nsis = nsis.Replace("{@files_delete}", filesDelete);
 
-                        //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
-                        Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+                            if (arch == "x64")
+                                nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
 
-                        WindowsSignFile(pathExe, true);
+                            WriteTextFile(pathTemp + "/Eddie.nsi", nsis);
+
+                            //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+                            Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+
+                            WindowsSignFile(pathExe, true);
+                        }
                     }
 				}
 				else if (platform == "linux")

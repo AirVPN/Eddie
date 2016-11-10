@@ -382,7 +382,7 @@ namespace Eddie.Core
 				Logs.Log(LogType.Verbose, "Executable Path: " + Platform.Instance.GetExecutablePath());
 				Logs.Log(LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 
-                if (Storage.Get("profile") != "AirVPN")
+                if (Storage.Get("profile") != "AirVPN.xml")
                     Logs.Log(LogType.Verbose, "Profile: " + Storage.Get("profile"));
 
                 //return OnInit2(); // 2.11, now called on ConsoleStart and UiStart
@@ -427,6 +427,8 @@ namespace Eddie.Core
 			m_networkLockManager = null;
 			
 			TemporaryFiles.Clean();
+
+            Platform.Instance.OnCheckSingleInstanceClear();
 
             Platform.Instance.OnDeInit();
         }

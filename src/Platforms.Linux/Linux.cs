@@ -22,6 +22,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
@@ -33,8 +34,8 @@ namespace Eddie.Platforms
 		private string m_architecture = "";
         private UInt32 m_uid;
 
-		// Override
-		public Linux()
+        // Override
+        public Linux()
 		{
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
             m_uid = 9999;
@@ -369,7 +370,62 @@ namespace Eddie.Platforms
 			return true;
 		}
 
-		public override void OnNetworkLockManagerInit()
+        public override bool OnCheckSingleInstance()
+        {
+            try
+            {
+                int currentId = Process.GetCurrentProcess().Id;
+                string path = Utils.GetTempPath() + "/" + Constants.Name2 + "_" + Constants.AppID + ".pid";
+                if (File.Exists(path) == false)
+                {                    
+                }
+                else
+                {
+                    int otherId;
+                    if(int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
+                    {
+                        string procFile = "/proc/" + otherId.ToString() + "/cmdline";
+                        if(File.Exists(procFile))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                Platform.Instance.FileContentsWriteText(path, currentId.ToString());
+
+                return true;
+            }
+            catch(Exception e)
+            {
+                Engine.Instance.Logs.Log(e);
+                return true;
+            }            
+        }
+
+        public override void OnCheckSingleInstanceClear()
+        {
+            try
+            {
+                int currentId = Process.GetCurrentProcess().Id;
+                string path = Utils.GetTempPath() + "/" + Constants.Name2 + "_" + Constants.AppID + ".pid";
+                if (File.Exists(path))
+                {
+                    int otherId;
+                    if (int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
+                    {
+                        if (otherId == currentId)
+                            Platform.Instance.FileDelete(path);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Engine.Instance.Logs.Log(e);
+            }
+        }
+
+        public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
 

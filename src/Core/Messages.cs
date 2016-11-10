@@ -317,7 +317,7 @@ namespace Eddie.Core
         public static string ManOptionHelpFormat = "Format of the help manual. Can be [i]man[/i], [i]text[/i], [i]html[/i] or [i]bbcode[/i]";
         public static string ManOptionLogin = "Login of your AirVPN account.";
 		public static string ManOptionPassword = "Password of your AirVPN account.";
-		public static string ManOptionRemember = "[i]True[/i] if login data persist after exit.";
+		public static string ManOptionRemember = "[i]True[/i] if username and password persist after exit.";
         public static string ManOptionKey = "Key name.";
         public static string ManOptionServer = "Server to connect to. Leave empty to pick recommended server.";
 		public static string ManOptionConnect = "Connect automatically at startup. Only for GUI, command-line always starts directly.";

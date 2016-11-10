@@ -643,6 +643,10 @@ namespace Eddie.Core
             return true;
         }
 
+        public virtual void OnCheckSingleInstanceClear()
+        {
+        }
+
         public virtual void OnAppStart()
 		{
 		}
