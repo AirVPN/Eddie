@@ -405,6 +405,7 @@ namespace Eddie.Core
         public static string ManOptionWindowsDnsLock = "DNS leak protection.";
 
         public static string ManOptionUiUnit = "Unit of measurement of data volume and speed. Can be [i]bytes[/i], [i]bits[/i] or empty. If empty, bytes are used for volume, bits for speed.";
+        public static string ManOptionUiIEC = "Use IEC standard and not metric standard. For example kilobyte are replaced by kibibyte";
 
         // Providers - Eddie v3        
         public static string ManOptionServicesOpenVpnAutoSync = "If [i]True[/i], profiles are automatically in-sync with the path. If false, profiles are imported and can be edited.";

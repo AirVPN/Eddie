@@ -198,6 +198,25 @@ namespace Deploy
 
 			if (SO == "windows")
 			{
+                foreach (string arch in new string[] { "x86", "x64" })
+                {
+                    foreach (string ui in new string[] { "ui", "cli" })
+                    {
+                        foreach (string format in new string[] { "portable", "installer" })
+                        {
+                            foreach (string os in new string[] { "windows8", "windows", "windows_xp" })
+                            {
+                                int netFramework = 4;
+                                if (os == "windows")
+                                    netFramework = 2;
+                                if (os == "windows_xp")
+                                    netFramework = 2;
+                                ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
+                            }
+                        }
+                    }
+                }
+                /*
                 ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "portable"));
                 ListPackages.Add(new Package("windows8", "x64", "ui", true, 4, "portable"));
                 ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "installer"));
@@ -211,8 +230,9 @@ namespace Deploy
 				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "portable"));
 				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "portable"));
 				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "installer"));
-				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "installer"));                
-			}
+				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "installer"));                                
+                */
+            }
 
 			if (SO == "linux")
 			{
@@ -328,13 +348,13 @@ namespace Deploy
                     CopyFile(pathRelease, "Lib.Core.dll", pathTemp);					
 					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
 					
-                    if(format == "ui")
+                    if(ui == "ui")
                     {
                         CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
                         CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe"); // TODO Eddie3: "Eddie-UI.exe"
                         CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe"); // TODO Eddie3: "Eddie-CLI.exe"
                     }
-                    else if(format == "cli")
+                    else if(ui == "cli")
                     {
                         CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
                     }                    
@@ -357,11 +377,11 @@ namespace Deploy
 					{
                         string nsis = "";
 
-                        if(format == "ui")
+                        if(ui == "ui")
                         {
                             nsis = File.ReadAllText(PathBaseResources + "/nsis/Eddie-UI.nsi");
                         }
-                        else if(format == "cli")
+                        else if(ui == "cli")
                         {
 
                         }

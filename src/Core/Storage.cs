@@ -544,6 +544,7 @@ namespace Eddie.Core
 
             // General UI
             SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
+            SetDefaultBool("ui.iec", false, Messages.ManOptionUiIEC);
 
             // GUI only            
             SetDefaultBool("gui.exit_confirm", true, NotInMan, false);

@@ -320,9 +320,15 @@ namespace Eddie.Core
 
         public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes)
         {
+            string userUnit = Engine.Instance.Storage.Get("ui.unit");
+            bool iec = Engine.Instance.Storage.GetBool("ui.iec");
+            return FormatBytes(bytes, speedSec, showBytes, userUnit, iec);
+        }
+
+        public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes, string userUnit, bool iec)
+        {
             Int64 v = bytes;
 
-            string userUnit = Engine.Instance.Storage.Get("ui.unit");
             if (userUnit == "")
             {
                 if (speedSec)
@@ -337,9 +343,19 @@ namespace Eddie.Core
             Int64 number = 0;
             string unit = "";
             if (userUnit == "bits")
-                FormatBytesEx(v, new string[] { "bit", "kbit", "Mbit", "Gbit", "Tbit", "Pbit" }, ref number, ref unit);
+            {               
+                if(iec == false) 
+                    FormatBytesEx(v, new string[] { "bit", "kbit", "Mbit", "Gbit", "Tbit", "Pbit" }, 1000, ref number, ref unit);
+                else
+                    FormatBytesEx(v, new string[] { "bit", "kibit", "Mibit", "Gibit", "Tibit", "Pibit" }, 1024, ref number, ref unit);
+            }
             else
-                FormatBytesEx(v, new string[] { "B", "KB", "MB", "GB", "TB", "PB" }, ref number, ref unit);
+            {
+                if(iec == false)
+                    FormatBytesEx(v, new string[] { "B", "kB", "MB", "GB", "TB", "PB" }, 1000, ref number, ref unit);
+                else
+                    FormatBytesEx(v, new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB" }, 1024, ref number, ref unit);
+            }
 
             string output = number.ToString() + " " + unit;
             if (speedSec)
@@ -354,7 +370,7 @@ namespace Eddie.Core
             return output;
         }
 
-		public static void FormatBytesEx(Int64 val, string[] suf, ref Int64 number, ref string unit)
+		public static void FormatBytesEx(Int64 val, string[] suf, int logBase, ref Int64 number, ref string unit)
         {
             if (val <= 0)
             {
@@ -364,8 +380,8 @@ namespace Eddie.Core
             else
             {
                 //string[] suf = { "B", "KB", "MB", "GB", "TB", "PB" };                
-                int place = Conversions.ToInt32(Math.Floor(Math.Log(val, 1000)));
-                double num = Math.Round(val / Math.Pow(1000, place), 1);
+                int place = Conversions.ToInt32(Math.Floor(Math.Log(val, logBase)));
+                double num = Math.Round(val / Math.Pow(logBase, place), 1);
 				number = Conversions.ToInt64(num);
                 unit = suf[place];
             }
