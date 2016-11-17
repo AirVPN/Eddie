@@ -22,6 +22,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
@@ -33,8 +34,8 @@ namespace Eddie.Platforms
 		private string m_architecture = "";
         private UInt32 m_uid;
 
-		// Override
-		public Linux()
+        // Override
+        public Linux()
 		{
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
             m_uid = 9999;
@@ -50,8 +51,8 @@ namespace Eddie.Platforms
 
 		public override string GetName()
 		{
-			if (File.Exists("/etc/issue"))
-				return File.ReadAllText("/etc/issue").Replace("\n","").Replace("\r"," - ").Trim();
+			if (Platform.Instance.FileExists("/etc/issue"))
+				return FileContentsReadText("/etc/issue").Replace("\n","").Replace("\r"," - ").Trim();
 			else
 				return base.GetName();
 		}
@@ -91,9 +92,20 @@ namespace Eddie.Platforms
             }
         }
 
-		public override string GetExecutableReport(string path)
+        public override bool FileImmutableGet(string path)
+        {
+            return (ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"").IndexOf("i") != -1);
+        }
+
+        public override void FileImmutableSet(string path, bool value)
+        {
+            string flag = (value ? "+i" : "-i");
+            ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+        }
+        
+        public override string GetExecutableReport(string path)
 		{
-			return ShellCmd("ldd \"" + path + "\"");
+			return ShellCmd("ldd \"" + Utils.StringNormalizePath(path) + "\"");
 		}
 
 		public override string GetExecutablePath()
@@ -132,7 +144,7 @@ namespace Eddie.Platforms
 
         public override string GetSystemFont()
         {
-            if(File.Exists("/usr/bin/gsettings")) // gnome
+            if(Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
             {
                 string detected = Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface font-name").Trim('\'');
                 int posSize = detected.LastIndexOf(" ");
@@ -147,7 +159,7 @@ namespace Eddie.Platforms
 
         public override string GetSystemFontMonospace()
         {
-            if (File.Exists("/usr/bin/gsettings")) // gnome
+            if (Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
             {
                 string detected = Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
                 int posSize = detected.LastIndexOf(" ");
@@ -162,20 +174,20 @@ namespace Eddie.Platforms
 
         public override void FlushDNS()
         {
-            // Too much difficult to find a method available on all Linux platform.
+            // Too much issues to find a method available on all Linux platform.
             /*
             ShellCmd("/etc/rc.d/init.d/nscd restart");
-            if (File.Exists("/usr/bin/systemctl"))
+            if (Platform.Instance.FileExists("/usr/bin/systemctl"))
                 ShellCmd("systemctl restart nscd");
             */
         }
 
         public override long Ping(string host, int timeoutSec)
         {
-            string result = ShellCmd("ping -c 1 -w " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
+            string result = ShellCmd("ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host));
             //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
 
-            string sMS = Utils.ExtractBetween(result, "min/avg/max/mdev = ", "/");
+            string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
             if (float.TryParse(sMS, out iMS))
                 return (Int64)iMS;
@@ -185,10 +197,10 @@ namespace Eddie.Platforms
 
         public override void EnsureExecutablePermissions(string path)
 		{
-			if ((path == "") || (File.Exists(path) == false))
+			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
-			ShellCmd("chmod +x \"" + path + "\"");			
+			ShellCmd("chmod +x \"" + Utils.StringNormalizePath(path) + "\"");			
 		}
 
 
@@ -243,7 +255,7 @@ namespace Eddie.Platforms
         public override void ResolveWithoutAnswer(string host)
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora.
-            if (File.Exists("/usr/bin/host"))
+            if (Platform.Instance.FileExists("/usr/bin/host"))
                 ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
             else
                 base.ResolveWithoutAnswer(host);
@@ -358,7 +370,62 @@ namespace Eddie.Platforms
 			return true;
 		}
 
-		public override void OnNetworkLockManagerInit()
+        public override bool OnCheckSingleInstance()
+        {
+            try
+            {
+                int currentId = Process.GetCurrentProcess().Id;
+                string path = Utils.GetTempPath() + "/" + Constants.Name2 + "_" + Constants.AppID + ".pid";
+                if (File.Exists(path) == false)
+                {                    
+                }
+                else
+                {
+                    int otherId;
+                    if(int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
+                    {
+                        string procFile = "/proc/" + otherId.ToString() + "/cmdline";
+                        if(File.Exists(procFile))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                Platform.Instance.FileContentsWriteText(path, currentId.ToString());
+
+                return true;
+            }
+            catch(Exception e)
+            {
+                Engine.Instance.Logs.Log(e);
+                return true;
+            }            
+        }
+
+        public override void OnCheckSingleInstanceClear()
+        {
+            try
+            {
+                int currentId = Process.GetCurrentProcess().Id;
+                string path = Utils.GetTempPath() + "/" + Constants.Name2 + "_" + Constants.AppID + ".pid";
+                if (File.Exists(path))
+                {
+                    int otherId;
+                    if (int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
+                    {
+                        if (otherId == currentId)
+                            Platform.Instance.FileDelete(path);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Engine.Instance.Logs.Log(e);
+            }
+        }
+
+        public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
 
@@ -374,12 +441,12 @@ namespace Eddie.Platforms
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
-				if (File.Exists("/etc/resolv.conf.eddie") == false)
+				if (FileExists("/etc/resolv.conf.eddie") == false)
 				{
-                    if (File.Exists("/etc/resolv.conf"))
+                    if (FileExists("/etc/resolv.conf"))
                     {
                         Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameBackup);
-                        File.Move("/etc/resolv.conf", "/etc/resolv.conf.eddie");
+                        FileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie");
                     }
 				}
 
@@ -392,7 +459,7 @@ namespace Eddie.Platforms
 				foreach(string dnsSingle in dnsArray)
 					text += "nameserver " + dnsSingle + "\n";
 
-				File.WriteAllText("/etc/resolv.conf", text);
+                FileContentsWriteText("/etc/resolv.conf", text);
 			}
 
 			base.OnDnsSwitchDo(dns);
@@ -403,14 +470,14 @@ namespace Eddie.Platforms
 		public override bool OnDnsSwitchRestore()
 		{
 			// Cleaning rename method if pending
-			if (File.Exists("/etc/resolv.conf.eddie") == true)
+			if (FileExists("/etc/resolv.conf.eddie") == true)
 			{
-                if (File.Exists("/etc/resolv.conf"))
-                    File.Delete("/etc/resolv.conf");
+                if (FileExists("/etc/resolv.conf"))
+                    FileDelete("/etc/resolv.conf");
                 
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameRestored);
 
-				File.Move("/etc/resolv.conf.eddie", "/etc/resolv.conf");
+				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");
 			}
 
 			base.OnDnsSwitchRestore();
@@ -420,9 +487,9 @@ namespace Eddie.Platforms
 
 		public override string GetDriverAvailable()
 		{
-			if (File.Exists("/dev/net/tun"))
+			if (Platform.Instance.FileExists("/dev/net/tun"))
 				return "Found, /dev/net/tun";
-			else if (File.Exists("/dev/tun"))
+			else if (Platform.Instance.FileExists("/dev/tun"))
 				return "Found, /dev/tun";
 
 			return "";
@@ -456,19 +523,19 @@ namespace Eddie.Platforms
 			{
 				// 2.10.1
 				current = "rename";
-				/*
-				if (File.Exists("/sbin/resolvconf"))
+                /*
+				if (Platform.Instance.FileExists("/sbin/resolvconf"))
 					current = "resolvconf";
 				else
 					current = "rename";
 				*/
-			}
-			
-			// Fallback
-			if( (current == "resolvconv") && (Software.FindResource("update-resolv-conf") == "") )
+            }
+
+            // Fallback
+            if ( (current == "resolvconv") && (Software.FindResource("update-resolv-conf") == "") )
 				current = "rename";
 
-			if ((current == "resolvconv") && (File.Exists("/sbin/resolvconf") == false))
+			if ((current == "resolvconv") && (Platform.Instance.FileExists("/sbin/resolvconf") == false))
 				current = "rename";
 
 

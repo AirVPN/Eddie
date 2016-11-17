@@ -45,7 +45,7 @@ namespace Eddie.Platforms
 
 		public override bool GetSupport()
 		{
-			if (File.Exists("/etc/pf.conf") == false)
+			if (Platform.Instance.FileExists("/etc/pf.conf") == false)
 				return false;
 
 			return true;
@@ -185,7 +185,7 @@ namespace Eddie.Platforms
 				pf += "pass out quick inet from any to " + ip.ToCIDR() + " flags S/SA keep state\n";
 			}
 			
-			if (Utils.SaveFile(m_filePfConf.Path, pf))
+			if (Platform.Instance.FileContentsWriteText(m_filePfConf.Path, pf))
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "OS X - PF rules updated, reloading");
 

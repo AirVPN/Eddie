@@ -22,7 +22,7 @@ using MonoMac.Foundation;
 using MonoMac.AppKit;
 using Eddie.Core;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	public class TableStatsController : NSTableViewDataSource
 	{

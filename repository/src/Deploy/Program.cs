@@ -198,6 +198,25 @@ namespace Deploy
 
 			if (SO == "windows")
 			{
+                foreach (string arch in new string[] { "x86", "x64" })
+                {
+                    foreach (string ui in new string[] { "ui", "cli" })
+                    {
+                        foreach (string format in new string[] { "portable", "installer" })
+                        {
+                            foreach (string os in new string[] { "windows8", "windows", "windows_xp" })
+                            {
+                                int netFramework = 4;
+                                if (os == "windows")
+                                    netFramework = 2;
+                                if (os == "windows_xp")
+                                    netFramework = 2;
+                                ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
+                            }
+                        }
+                    }
+                }
+                /*
                 ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "portable"));
                 ListPackages.Add(new Package("windows8", "x64", "ui", true, 4, "portable"));
                 ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "installer"));
@@ -211,8 +230,9 @@ namespace Deploy
 				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "portable"));
 				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "portable"));
 				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "installer"));
-				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "installer"));                
-			}
+				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "installer"));                                
+                */
+            }
 
 			if (SO == "linux")
 			{
@@ -325,11 +345,19 @@ namespace Deploy
 
 				if (platform.StartsWith("windows"))
 				{
-                    CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-					CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                    CopyFile(pathRelease, "Lib.Core.dll", pathTemp);					
 					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
-					CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe");
-					CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe");
+					
+                    if(ui == "ui")
+                    {
+                        CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                        CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe"); // TODO Eddie3: "Eddie-UI.exe"
+                        CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe"); // TODO Eddie3: "Eddie-CLI.exe"
+                    }
+                    else if(ui == "cli")
+                    {
+                        CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
+                    }                    
 
                     WindowsSignPath(pathTemp);                    
                     
@@ -347,37 +375,48 @@ namespace Deploy
 					}
 					else if (format == "installer")
 					{
-						// NSIS
-						string nsis = File.ReadAllText(PathBaseResources + "/nsis/Eddie.nsi");
+                        string nsis = "";
 
-                        string pathExe = NormalizePath(PathBaseRepository + "/" + fileName + ".exe");
+                        if(ui == "ui")
+                        {
+                            nsis = File.ReadAllText(PathBaseResources + "/nsis/Eddie-UI.nsi");
+                        }
+                        else if(ui == "cli")
+                        {
 
-                        nsis = nsis.Replace("{@resources}", NormalizePath(PathBaseResources + "/nsis"));
-						nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
-						nsis = nsis.Replace("{@out}", pathExe);
+                        }
 
-						string filesAdd = "";
-						string filesDelete = "";
-						foreach (string filePath in Directory.GetFiles(pathTemp))
-						{
-							string name = new FileInfo(filePath).Name;
+                        if (nsis != "")
+                        {
+                            string pathExe = NormalizePath(PathBaseRepository + "/" + fileName + ".exe");
 
-							filesAdd += "File \"" + name + "\"\r\n";
-							filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
-						}
+                            nsis = nsis.Replace("{@resources}", NormalizePath(PathBaseResources + "/nsis"));
+                            nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
+                            nsis = nsis.Replace("{@out}", pathExe);
 
-						nsis = nsis.Replace("{@files_add}", filesAdd);
-						nsis = nsis.Replace("{@files_delete}", filesDelete);
+                            string filesAdd = "";
+                            string filesDelete = "";
+                            foreach (string filePath in Directory.GetFiles(pathTemp))
+                            {
+                                string name = new FileInfo(filePath).Name;
 
-						if(arch == "x64")
-							nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
+                                filesAdd += "File \"" + name + "\"\r\n";
+                                filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
+                            }
 
-                        WriteTextFile(pathTemp + "/Eddie.nsi", nsis);
+                            nsis = nsis.Replace("{@files_add}", filesAdd);
+                            nsis = nsis.Replace("{@files_delete}", filesDelete);
 
-                        //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
-                        Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+                            if (arch == "x64")
+                                nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
 
-                        WindowsSignFile(pathExe, true);
+                            WriteTextFile(pathTemp + "/Eddie.nsi", nsis);
+
+                            //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+                            Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+
+                            WindowsSignFile(pathExe, true);
+                        }
                     }
 				}
 				else if (platform == "linux")
@@ -410,7 +449,7 @@ namespace Deploy
 					}
 					else if( (format == "portable") && (AvailableMkBundle) )
 					{
-						CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
+						//CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
                         //CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
 
                         // mkbundle
@@ -428,14 +467,16 @@ namespace Deploy
 						command += " --deps";
                         command += " --keeptemp";
                         command += " --static";
-						command += " --config \"" + pathTemp + "/eddie.config\"";
+                        //command += " --config \"" + pathTemp + "/eddie.config\"";
+                        command += " --config \"" + PathBaseResources + "/linux_portable/eddie.config\"";
+                        
                         //command += " --machine-config \"" + pathTemp + "/eddie.config\"";
                         command += " --machine-config /etc/mono/4.0/machine.config";
                         command += " -z";
 						command += " -o \"" + pathTemp + "/airvpn\"";						
 						Shell(command);
 
-						RemoveFile(pathTemp + "/eddie.config");
+						//RemoveFile(pathTemp + "/eddie.config");
 
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
@@ -836,9 +877,17 @@ namespace Deploy
             }
         }
 
+        static void MoveFile(string fromFilePath, string toFilePath)
+        {
+            if (IsVerbose())
+                Log("Move file from '" + fromFilePath + "' to '" + toFilePath + "'");
+            File.Move(NormalizePath(fromFilePath), NormalizePath(toFilePath));
+        }
 
         static void CopyFile(string fromFilePath, string toFilePath)
 		{
+            if (IsVerbose())
+                Log("Copy file from '" + fromFilePath + "' to '" + toFilePath + "'");
 			File.Copy(NormalizePath(fromFilePath), NormalizePath(toFilePath), false);
 		}
 
@@ -854,7 +903,9 @@ namespace Deploy
 
 		static void RemoveFile(string path)
 		{
-			File.Delete(path);
+            if (IsVerbose())
+                Log("Remove file '" + path + "'");
+            File.Delete(path);
 		}
 
 		static void CopyAll(string from, string to)
@@ -877,12 +928,14 @@ namespace Deploy
 			{
 				FileInfo fi = new FileInfo(file);
 
-				File.Move(fi.FullName, to + "/" + fi.Name);
+				MoveFile(fi.FullName, to + "/" + fi.Name);
 			}
 		}
 
         static void WriteTextFile(string path, string contents)
         {
+            if (IsVerbose())
+                Log("Write text in '" + path + "'");
             string dir = Path.GetDirectoryName(path);
             if (Directory.Exists(dir) == false)
                 Directory.CreateDirectory(dir);
@@ -891,13 +944,18 @@ namespace Deploy
 
 		static void ReplaceInFile(string path, string from, string to)
 		{
-			File.WriteAllText(path, File.ReadAllText(path).Replace(from, to));
+            if (IsVerbose())
+                Log("Replace text in '" + path + "'");
+            File.WriteAllText(path, File.ReadAllText(path).Replace(from, to));
 		}
 
 		static void CopyDirectory(string fromPath, string toPath)
 		{
-			//Now Create all of the directories
-			foreach (string dirPath in Directory.GetDirectories(fromPath, "*", SearchOption.AllDirectories))
+            if (IsVerbose())
+                Log("Copy directory from '" + fromPath + "' to '" + toPath + "'");
+
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(fromPath, "*", SearchOption.AllDirectories))
 				Directory.CreateDirectory(dirPath.Replace(fromPath, toPath));
 
 			//Copy all the files & Replaces any files with the same name

@@ -77,7 +77,7 @@ namespace Eddie.Core
             FileInfo[] files = new System.IO.DirectoryInfo(path).GetFiles("*.xml");
             foreach(FileInfo fi in files)
             {
-                string xml = File.ReadAllText(fi.FullName);
+                string xml = Platform.Instance.FileContentsReadText(fi.FullName);
                 LoadDefinition(xml);                
             }
 		}

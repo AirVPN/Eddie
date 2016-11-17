@@ -8,11 +8,11 @@
     <ProjectGuid>{8A54C394-4DE9-4512-9A04-701049176953}</ProjectGuid>
     <ProjectTypeGuids>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>AirVPN.UI.Osx</RootNamespace>
+    <RootNamespace>Eddie.UI.Cocoa.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <ReleaseVersion>2.11</ReleaseVersion>
-    <AssemblyName>AirVPN</AssemblyName>
+    <AssemblyName>Eddie</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,25 +26,32 @@
     <ConsolePause>false</ConsolePause>
     <UseSGen>true</UseSGen>
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <EnablePackageSigning>true</EnablePackageSigning>
+    <EnablePackageSigning>false</EnablePackageSigning>
     <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
-    <EnableCodeSigning>true</EnableCodeSigning>
+    <EnableCodeSigning>false</EnableCodeSigning>
     <CreatePackage>true</CreatePackage>
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <Commandlineparameters>profile=/Users/Clodo/AirVPN.xml</Commandlineparameters>
     <LinkMode>Full</LinkMode>
     <CustomCommands>
       <CustomCommands>
-        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" workingdir="" externalConsole="True" />
+        <Command>
+          <type>BeforeBuild</type>
+          <command>${ProjectDir}/prebuild.sh</command>
+          <workingdir></workingdir>
+          <externalConsole>True</externalConsole>
+        </Command>
       </CustomCommands>
     </CustomCommands>
+    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
+    <TlsProvider>Default</TlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <LinkMode>Full</LinkMode>
     <UseSGen>false</UseSGen>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
@@ -55,12 +62,24 @@
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <CustomCommands>
       <CustomCommands>
-        <Command type="BeforeBuild" command="${ProjectDir}/prebuild.sh" workingdir="${ProjectDir}/" externalConsole="True" />
-        <Command type="AfterBuild" command="${ProjectDir}/postbuild.sh" workingdir="${ProjectDir}/" externalConsole="True" />
+        <Command>
+          <type>BeforeBuild</type>
+          <command>${ProjectDir}/prebuild.sh</command>
+          <workingdir>${ProjectDir}/</workingdir>
+          <externalConsole>True</externalConsole>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>${ProjectDir}/postbuild.sh</command>
+          <workingdir>${ProjectDir}/</workingdir>
+          <externalConsole>True</externalConsole>
+        </Command>
       </CustomCommands>
     </CustomCommands>
     <Externalconsole>true</Externalconsole>
     <DebugSymbols>true</DebugSymbols>
+    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
+    <TlsProvider>Legacy</TlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>full</DebugType>
@@ -80,6 +99,8 @@
     <EnablePackageSigning>true</EnablePackageSigning>
     <I18n>
     </I18n>
+    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
+    <TlsProvider>Default</TlsProvider>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -83,7 +83,7 @@ namespace Eddie.Core
                             try
                             {
                                 string localPath = GetPath() + ctx.Request.Url.LocalPath;
-                                if (File.Exists(localPath))
+                                if (Platform.Instance.FileExists(localPath))
                                 {
                                     WriteFile(ctx, localPath, false);
                                 }

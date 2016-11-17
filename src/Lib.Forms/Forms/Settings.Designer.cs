@@ -182,6 +182,7 @@ namespace Eddie.Gui.Forms
             this.txtLogPath = new Eddie.Gui.Skin.TextBox();
             this.lblLogPath = new Eddie.Gui.Skin.Label();
             this.chkLoggingEnabled = new Eddie.Gui.Skin.CheckBox();
+            this.chkUiIEC = new Eddie.Gui.Skin.CheckBox();
             tabAdvanced = new Eddie.Gui.Skin.TabPage();
             tabDirectives = new Eddie.Gui.Skin.TabPage();
             tabEventsw = new Eddie.Gui.Skin.TabPage();
@@ -897,6 +898,7 @@ namespace Eddie.Gui.Forms
             // tabGeneral
             // 
             this.tabGeneral.BackColor = System.Drawing.Color.White;
+            this.tabGeneral.Controls.Add(this.chkUiIEC);
             this.tabGeneral.Controls.Add(this.cmdResetToDefault);
             this.tabGeneral.Controls.Add(this.lblConnect);
             this.tabGeneral.Controls.Add(this.lblNetLock);
@@ -2058,6 +2060,18 @@ namespace Eddie.Gui.Forms
             this.chkLoggingEnabled.Text = "Logging on file enabled";
             this.chkLoggingEnabled.UseVisualStyleBackColor = false;
             // 
+            // chkUiIEC
+            // 
+            this.chkUiIEC.AutoSize = true;
+            this.chkUiIEC.BackColor = System.Drawing.Color.Transparent;
+            this.chkUiIEC.ForeColor = System.Drawing.Color.Black;
+            this.chkUiIEC.Location = new System.Drawing.Point(527, 179);
+            this.chkUiIEC.Name = "chkUiIEC";
+            this.chkUiIEC.Size = new System.Drawing.Size(43, 17);
+            this.chkUiIEC.TabIndex = 43;
+            this.chkUiIEC.Text = "IEC";
+            this.chkUiIEC.UseVisualStyleBackColor = false;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -2081,6 +2095,7 @@ namespace Eddie.Gui.Forms
             this.pnlCommands.ResumeLayout(false);
             this.tabSettings.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
+            this.tabGeneral.PerformLayout();
             this.pnlGeneralWindowsOnly.ResumeLayout(false);
             this.pnlGeneralWindowsOnly.PerformLayout();
             this.tabProtocols.ResumeLayout(false);
@@ -2244,5 +2259,6 @@ namespace Eddie.Gui.Forms
         private Skin.CheckBox chkGeneralStartLast;
         private Skin.CheckBox chkUiMinimizeStart;
         private Skin.Button cmdResetToDefault;
+        private Skin.CheckBox chkUiIEC;
     }
 }

@@ -1,4 +1,4 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -22,7 +22,7 @@ using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class WindowPreferencesRoute : MonoMac.AppKit.NSWindow
 	{

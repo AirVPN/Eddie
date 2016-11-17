@@ -147,7 +147,7 @@ namespace Eddie.Platforms
 
         public override void EnsureExecutablePermissions(string path)
 		{
-			if ((path == "") || (File.Exists(path) == false))
+			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
 			ShellCmd("chmod +x \"" + path + "\"");
@@ -189,7 +189,7 @@ namespace Eddie.Platforms
         public override void ResolveWithoutAnswer(string host)
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
-            if (File.Exists("/usr/bin/host"))
+            if (Platform.Instance.FileExists("/usr/bin/host"))
                 ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
             else
                 base.ResolveWithoutAnswer(host);

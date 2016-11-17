@@ -195,7 +195,7 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
             }
 
-            DevelopmentEnvironment = File.Exists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
+            DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
 
             m_logsManager = new LogsManager();
             
@@ -212,8 +212,9 @@ namespace Eddie.Core
                 }
             }
 
-            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName());
-            
+            string monoVersion = System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
+            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Mono/.Net Framework: " + monoVersion);
+
             if (DevelopmentEnvironment)
                 Logs.Log(LogType.Info, "Development environment.");
 
@@ -382,7 +383,7 @@ namespace Eddie.Core
 				Logs.Log(LogType.Verbose, "Executable Path: " + Platform.Instance.GetExecutablePath());
 				Logs.Log(LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 
-                if (Storage.Get("profile") != "AirVPN")
+                if (Storage.Get("profile") != "AirVPN.xml")
                     Logs.Log(LogType.Verbose, "Profile: " + Storage.Get("profile"));
 
                 //return OnInit2(); // 2.11, now called on ConsoleStart and UiStart
@@ -427,6 +428,8 @@ namespace Eddie.Core
 			m_networkLockManager = null;
 			
 			TemporaryFiles.Clean();
+
+            Platform.Instance.OnCheckSingleInstanceClear();
 
             Platform.Instance.OnDeInit();
         }
@@ -917,7 +920,7 @@ namespace Eddie.Core
 								foreach (string path in paths)
 								{
 									Directory.CreateDirectory(Path.GetDirectoryName(path));
-									File.AppendAllText(path, lines + "\n");
+									Platform.Instance.FileContentsAppendText(path, lines + "\n");
 								}
 							}
 							catch(Exception e) 
@@ -1475,9 +1478,9 @@ namespace Eddie.Core
 									args += " --data \"" + dataParameters + "\"";
 								string str = Platform.Instance.Shell(Software.CurlPath, args);
 								byte[] bytes;
-								if (File.Exists(fileOutput.Path))
+								if (Platform.Instance.FileExists(fileOutput.Path))
 								{
-									bytes = File.ReadAllBytes(fileOutput.Path);
+									bytes = Platform.Instance.FileContentsReadBytes(fileOutput.Path);
 									fileOutput.Close();
 									return bytes;
 								}

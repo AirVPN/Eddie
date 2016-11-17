@@ -50,13 +50,14 @@ namespace Eddie.Core
 			if (path == "")
 				path = Platform.Instance.GetDefaultDataPath();
 
-
+            /* Removed in 2.11.6
             if (profile.IndexOf(".") != -1)
             {
                 // Profile must not have an extension.
                 profile = profile.Substring(0, profile.IndexOf("."));
 				CommandLine.SystemEnvironment.Set("profile",profile);
             }
+            */
 
 			if (Platform.Instance.IsPath(profile))            
             {
@@ -88,7 +89,7 @@ namespace Eddie.Core
             if (DataPath == "")
             {
 				DataPath = Platform.Instance.GetProgramFolder();
-                if (Utils.HasAccessToWrite(DataPath) == false)
+                if (Platform.Instance.HasAccessToWrite(DataPath) == false)
                     DataPath = "";
             }
 
@@ -106,7 +107,7 @@ namespace Eddie.Core
 
         public static bool TestDataPath(string path, bool log)
         {
-            if (Utils.HasAccessToWrite(path) == false)
+            if (Platform.Instance.HasAccessToWrite(path) == false)
             {
                 if(log == true)
                     Engine.Instance.Logs.Log(LogType.Info, "Unable to write in path '" + path + "'");
@@ -427,7 +428,7 @@ namespace Eddie.Core
             SetDefaultBool("connect", false, Messages.ManOptionConnect);
 			SetDefaultBool("netlock", false, Messages.ManOptionNetLock);
 
-			SetDefault("profile", "text","AirVPN", Messages.ManOptionProfile); // Not in Settings
+			SetDefault("profile", "text","AirVPN.xml", Messages.ManOptionProfile); // Not in Settings
 			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
             
             SetDefault("servers.last", "text", "", NotInMan, false);
@@ -543,6 +544,7 @@ namespace Eddie.Core
 
             // General UI
             SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
+            SetDefaultBool("ui.iec", false, Messages.ManOptionUiIEC);
 
             // GUI only            
             SetDefaultBool("gui.exit_confirm", true, NotInMan, false);
@@ -613,7 +615,7 @@ namespace Eddie.Core
 
         public void Save()
         {
-			string path = GetPath(Get("profile") + ".xml");
+			string path = GetPath(Get("profile"));
 
 			bool remember = GetBool("remember");
 			
@@ -702,11 +704,11 @@ namespace Eddie.Core
 					if (profile.ToLowerInvariant() == "none")
 						return;
 
-					string Path = GetPath(profile + ".xml");
+					string Path = GetPath(profile);
 
 					Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.OptionsRead, Path));
 
-					if (File.Exists(Path) == false)
+					if (Platform.Instance.FileExists(Path) == false)
 					{
 						Engine.Instance.Logs.Log(LogType.Verbose, Messages.OptionsNotFound);
 						return;

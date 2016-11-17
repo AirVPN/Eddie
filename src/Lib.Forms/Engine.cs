@@ -154,7 +154,7 @@ namespace Eddie.Gui
 					command2 += cmdline;
 					bool waitEnd = false;
 					
-					if (File.Exists("/usr/bin/kdesudo"))
+					if (Platform.Instance.FileExists("/usr/bin/kdesudo"))
 					{
 						command = "kdesudo";
 						arguments = "";
@@ -165,7 +165,7 @@ namespace Eddie.Gui
 						//arguments += " \"" + command2 + "\"";
 						arguments += " \"" + command2 + "\"";
 					}
-					else if (File.Exists("/usr/bin/kdesu"))
+					else if (Platform.Instance.FileExists("/usr/bin/kdesu"))
 					{
 						command = "kdesu";
 						arguments = "";
@@ -176,9 +176,9 @@ namespace Eddie.Gui
 						//arguments += " \"" + command2 + "\"";
 						arguments += " \"" + command2 + "\"";
 					}
-					/*
+                    /*
 					 * Under Debian, gksudo don't work, gksu work...
-					if (File.Exists("/usr/bin/gksudo"))
+					if (Platform.Instance.FileExists("/usr/bin/gksudo"))
 					{
 						command = "gksudo";
 						arguments = "";
@@ -188,7 +188,7 @@ namespace Eddie.Gui
 					}
 					else 
 					*/
-					else if (File.Exists("/usr/bin/gksu"))
+                    else if (Platform.Instance.FileExists("/usr/bin/gksu"))
 					{
 						command = "gksu";
 						arguments = "";
@@ -196,7 +196,7 @@ namespace Eddie.Gui
 						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
 						arguments += " \"" + command2 + "\"";
 					}
-					else if (File.Exists("/usr/bin/xdg-su")) // OpenSUSE
+					else if (Platform.Instance.FileExists("/usr/bin/xdg-su")) // OpenSUSE
 					{
 						command = "xdg-su";
 						arguments = "";
@@ -204,14 +204,14 @@ namespace Eddie.Gui
 						arguments += " -c "; // The command
 						arguments += " \"" + command2 + "\"";
 					}
-					else if (File.Exists("/usr/bin/beesu")) // Fedora
+					else if (Platform.Instance.FileExists("/usr/bin/beesu")) // Fedora
 					{
 						command = "beesu";
 						arguments = "";
 						arguments += " " + command2 + "";
 					}
-					/*
-					else if (File.Exists("/usr/bin/pkexec"))
+                    /*
+					else if (Platform.Instance.FileExists("/usr/bin/pkexec"))
 					{
 						// Different behiavour on different platforms
 						command = "pkexec";
@@ -227,7 +227,7 @@ namespace Eddie.Gui
 					}
 					*/
 
-					if (command != "")
+                    if (command != "")
 					{
                         Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
 

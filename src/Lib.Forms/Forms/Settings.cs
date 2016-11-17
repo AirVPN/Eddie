@@ -245,6 +245,7 @@ namespace Eddie.Gui.Forms
                 cboUiUnit.SelectedIndex = 2;
             else 
                 cboUiUnit.SelectedIndex = 0;
+            chkUiIEC.Checked = s.GetBool("ui.iec");
 
             if (s.Get("gui.font.normal.name") != "")
             {
@@ -511,6 +512,7 @@ namespace Eddie.Gui.Forms
             else if (cboUiUnit.SelectedIndex == 2)
                 uiUnit = "bits";
             s.Set("ui.unit", uiUnit);
+            s.SetBool("ui.iec", chkUiIEC.Checked);
 
             if (chkUiFontGeneral.Checked)
             {

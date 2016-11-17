@@ -285,11 +285,106 @@ namespace Eddie.Core
 
             char[] charsToTrimEnd = { '/', '\\' };
             p = p.TrimEnd(charsToTrimEnd);
-            
+
             return p;
         }
 
-		public virtual string GetExecutableReport(string path)
+        public virtual bool FileExists(string path)
+        {
+            return (File.Exists(path));
+        }
+
+        public virtual void FileDelete(string path)
+        {
+            if (File.Exists(path) == false)
+                return;
+
+            if (FileImmutableGet(path))
+                FileImmutableSet(path, false);
+            File.Delete(path);
+        }
+
+        public virtual void FileMove(string from, string to)
+        {
+            if (FileExists(to))
+                FileDelete(to);
+
+            bool immutable = FileImmutableGet(from);
+            if (immutable)
+                FileImmutableSet(from, false);
+            File.Move(from, to);
+            if (immutable)
+                FileImmutableSet(to, true);
+        }
+
+        public virtual string FileContentsReadText(string path)
+        {
+            return File.ReadAllText(path);
+        }
+
+        public virtual bool FileContentsWriteText(string path, string contents)
+        {
+            if (FileExists(path))
+            {
+                string current = FileContentsReadText(path);
+                if (current == contents)
+                    return false;
+            }
+            bool immutable = FileImmutableGet(path);
+            if (immutable)
+                FileImmutableSet(path, false);
+            File.WriteAllText(path, contents);
+            if (immutable)
+                FileImmutableSet(path, true);
+            return true;
+        }
+
+        public virtual void FileContentsAppendText(string path, string contents)
+        {
+            bool immutable = FileImmutableGet(path);
+            if (immutable)
+                FileImmutableSet(path, false);
+            File.AppendAllText(path, contents);
+            if (immutable)
+                FileImmutableSet(path, true);
+        }
+
+        public virtual byte[] FileContentsReadBytes(string path)
+        {
+            return File.ReadAllBytes(path);
+        }
+
+        public virtual bool FileImmutableGet(string path)
+        {
+            return false;
+        }
+
+        public virtual void FileImmutableSet(string path, bool value)
+        {
+        }
+
+        public virtual bool HasAccessToWrite(string path)
+        {
+            try
+            {
+                DirectoryInfo di = new DirectoryInfo(path);
+                if (di.Exists == false)
+                    di.Create();
+
+                string tempPath = path + Platform.Instance.DirSep + "test.tmp";
+
+                using (FileStream fs = File.Create(tempPath, 1, FileOptions.DeleteOnClose))
+                {
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public virtual string GetExecutableReport(string path)
 		{
 			return "";
 		}
@@ -548,6 +643,10 @@ namespace Eddie.Core
             return true;
         }
 
+        public virtual void OnCheckSingleInstanceClear()
+        {
+        }
+
         public virtual void OnAppStart()
 		{
 		}
@@ -695,7 +794,7 @@ namespace Eddie.Core
 
             for (;;)
             {
-                if (File.Exists(di.FullName + "/version.txt"))
+                if (FileExists(di.FullName + "/version.txt"))
                     return di.FullName;
                 else
                 {

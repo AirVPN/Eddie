@@ -45,8 +45,7 @@ namespace Eddie.Core
 		{			
 			try
 			{
-				if (File.Exists(path))
-					File.Delete(path);
+				Platform.Instance.FileDelete(path);
 			}
 			catch (Exception)
 			{

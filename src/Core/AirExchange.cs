@@ -42,13 +42,22 @@ namespace Eddie.Core
 			rijAlg.GenerateKey();
 			rijAlg.GenerateIV();
 
-			// Generate S
-
-			StringReader sr = new System.IO.StringReader(authPublicKey);
+            // Generate S
+            
+            // Bug workaround: Xamarin 6.1.2 macOS throw an 'Default constructor not found for type System.Diagnostics.FilterElement' error.
+            // in 'new System.Xml.Serialization.XmlSerializer', so i avoid that.
+            /*
+            StringReader sr = new System.IO.StringReader(authPublicKey);
 			System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
 			RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
+            */
+            RSAParameters publicKey = new RSAParameters();
+            XmlDocument docAuthPublicKey = new XmlDocument();
+            docAuthPublicKey.LoadXml(authPublicKey);
+            publicKey.Modulus = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Modulus"].InnerText);
+            publicKey.Exponent = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Exponent"].InnerText);            
 
-			RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
+            RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
 			csp.ImportParameters(publicKey);
 
 			Dictionary<string, byte[]> assocParamS = new Dictionary<string, byte[]>();

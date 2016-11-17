@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>AirVPN</string>
+	<string>Eddie</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
@@ -21,7 +21,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.eddie.client</string>
 	<key>CFBundleDisplayName</key>
-	<string>AirVPN</string>
+	<string>Eddie</string>
 	<key>NSSupportsSuddenTermination</key>
 	<string>NO</string>
 	<key>BuildMachineOSBuild</key>
@@ -29,9 +29,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>MonoBundleExecutable</key>
-	<string>AirVPN.exe</string>
+	<string>Eddie.exe</string>
 	<key>CFBundleExecutable</key>
-	<string>AirVPN</string>
+	<string>Eddie</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -53,6 +53,6 @@
 	<key>DTXcodeBuild</key>
 	<string>6D570</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © AirVPN Team</string>
+	<string>GPL3 - Copyright © AirVPN Team</string>
 </dict>
 </plist>

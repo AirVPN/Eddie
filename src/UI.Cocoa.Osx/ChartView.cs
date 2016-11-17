@@ -1,4 +1,4 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -24,7 +24,7 @@ using MonoMac.CoreGraphics;
 using Eddie.Core;
 using Eddie.Core.UI;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	[Register("ChartView")]
 	public class ChartView : NSView

@@ -317,7 +317,7 @@ namespace Eddie.Core
         public static string ManOptionHelpFormat = "Format of the help manual. Can be [i]man[/i], [i]text[/i], [i]html[/i] or [i]bbcode[/i]";
         public static string ManOptionLogin = "Login of your AirVPN account.";
 		public static string ManOptionPassword = "Password of your AirVPN account.";
-		public static string ManOptionRemember = "[i]True[/i] if login data persist after exit.";
+		public static string ManOptionRemember = "[i]True[/i] if username and password persist after exit.";
         public static string ManOptionKey = "Key name.";
         public static string ManOptionServer = "Server to connect to. Leave empty to pick recommended server.";
 		public static string ManOptionConnect = "Connect automatically at startup. Only for GUI, command-line always starts directly.";
@@ -405,6 +405,7 @@ namespace Eddie.Core
         public static string ManOptionWindowsDnsLock = "DNS leak protection.";
 
         public static string ManOptionUiUnit = "Unit of measurement of data volume and speed. Can be [i]bytes[/i], [i]bits[/i] or empty. If empty, bytes are used for volume, bits for speed.";
+        public static string ManOptionUiIEC = "Use IEC standard and not metric standard. For example kilobyte are replaced by kibibyte";
 
         // Providers - Eddie v3        
         public static string ManOptionServicesOpenVpnAutoSync = "If [i]True[/i], profiles are automatically in-sync with the path. If false, profiles are imported and can be edited.";
@@ -423,7 +424,8 @@ namespace Eddie.Core
         public static string DnsLockDeactivatedWpf = "DNS leak protection with packet filtering disabled."; 
         public static string HackInterfaceUpDone = "Eddie Windows Interface Hack executed ({1})";
         public static string WfpStartFail = "Windows WFP, Start failed: {1}";
-        public static string WfpRuleAddFail = "Windows WFP, Add rule failed: {1}";       
+        public static string WfpRuleAddFail = "Windows WFP, Add rule failed: {1}:{2}";
+        public static string WfpRuleAddSuccess = "Windows WFP, Add rule success: {1}";
         public static string WfpRuleRemoveFail = "Windows WFP, Add rule failed: {1}";
         public static string WfpRecovery = "Windows WFP, recovery of pending rules.";
 

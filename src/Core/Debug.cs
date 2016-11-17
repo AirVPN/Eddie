@@ -47,9 +47,7 @@ namespace Eddie.Core
 
             lock (SpinLock)
             {
-                StreamWriter w = File.AppendText("debug.log");
-                w.WriteLine(msg);
-                w.Close();
+                Platform.Instance.FileContentsAppendText("debug.log", msg + "\r\n");                
             }
         }
 

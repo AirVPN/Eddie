@@ -34,35 +34,35 @@ namespace Eddie.Core
 			{
 				// Tor Browser Bundle, Unix and Windows at 10/16/2014				
 				string path1 = Platform.Instance.NormalizePath(new FileInfo(processes[0].MainModule.FileName).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");				
-				if (File.Exists(path1))
+				if (Platform.Instance.FileExists(path1))
 					return path1;
 			}
 
 			{
 				// Unix
 				string path = "/var/run/tor/control.authcookie";
-				if (File.Exists(path))
+				if (Platform.Instance.FileExists(path))
 					return path;
 			}
 
 			{
 				// Unix
 				string path = "/var/lib/tor/control_auth_cookie";				
-				if (File.Exists(path))
+				if (Platform.Instance.FileExists(path))
 					return path;
 			}
 
 			{
 				// OS X, TorBrowser 4.0 and above
 				string path = "/Applications/TorBrowser.app/TorBrowser/Data/Tor/control_auth_cookie";				
-				if (File.Exists(path))
+				if (Platform.Instance.FileExists(path))
 					return path;
 			}
 
 			{
 				// OS X, TorBrowser 6.0
 				string path = "/Users/" + Environment.UserName + "/Library/Application Support/TorBrowser-Data/Tor/control_auth_cookie";
-				if (File.Exists(path))
+				if (Platform.Instance.FileExists(path))
 					return path;
 			}
 
@@ -96,7 +96,7 @@ namespace Eddie.Core
 
 					Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.TorControlAuth, "Cookie, from " + path));
 
-					password = File.ReadAllBytes(path);
+					password = Platform.Instance.FileContentsReadBytes(path);
 				}
 				else
 				{

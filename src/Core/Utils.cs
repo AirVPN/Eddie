@@ -266,6 +266,14 @@ namespace Eddie.Core
             return v;
         }
 
+        public static string StringNormalizePath(string path)
+        {
+            // Note: Used only in already-quoted path.
+            path = path.Replace("'", "");
+            path = path.Replace("`", "");            
+            return path;
+        }
+                
         public static string FormatTime(Int64 unix)
 		{
 			if (unix == 0)
@@ -312,9 +320,15 @@ namespace Eddie.Core
 
         public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes)
         {
+            string userUnit = Engine.Instance.Storage.Get("ui.unit");
+            bool iec = Engine.Instance.Storage.GetBool("ui.iec");
+            return FormatBytes(bytes, speedSec, showBytes, userUnit, iec);
+        }
+
+        public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes, string userUnit, bool iec)
+        {
             Int64 v = bytes;
 
-            string userUnit = Engine.Instance.Storage.Get("ui.unit");
             if (userUnit == "")
             {
                 if (speedSec)
@@ -329,9 +343,19 @@ namespace Eddie.Core
             Int64 number = 0;
             string unit = "";
             if (userUnit == "bits")
-                FormatBytesEx(v, new string[] { "bit", "kbit", "Mbit", "Gbit", "Tbit", "Pbit" }, ref number, ref unit);
+            {               
+                if(iec == false) 
+                    FormatBytesEx(v, new string[] { "bit", "kbit", "Mbit", "Gbit", "Tbit", "Pbit" }, 1000, ref number, ref unit);
+                else
+                    FormatBytesEx(v, new string[] { "bit", "kibit", "Mibit", "Gibit", "Tibit", "Pibit" }, 1024, ref number, ref unit);
+            }
             else
-                FormatBytesEx(v, new string[] { "B", "KB", "MB", "GB", "TB", "PB" }, ref number, ref unit);
+            {
+                if(iec == false)
+                    FormatBytesEx(v, new string[] { "B", "kB", "MB", "GB", "TB", "PB" }, 1000, ref number, ref unit);
+                else
+                    FormatBytesEx(v, new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB" }, 1024, ref number, ref unit);
+            }
 
             string output = number.ToString() + " " + unit;
             if (speedSec)
@@ -346,7 +370,7 @@ namespace Eddie.Core
             return output;
         }
 
-		public static void FormatBytesEx(Int64 val, string[] suf, ref Int64 number, ref string unit)
+		public static void FormatBytesEx(Int64 val, string[] suf, int logBase, ref Int64 number, ref string unit)
         {
             if (val <= 0)
             {
@@ -356,8 +380,8 @@ namespace Eddie.Core
             else
             {
                 //string[] suf = { "B", "KB", "MB", "GB", "TB", "PB" };                
-                int place = Conversions.ToInt32(Math.Floor(Math.Log(val, 1000)));
-                double num = Math.Round(val / Math.Pow(1000, place), 1);
+                int place = Conversions.ToInt32(Math.Floor(Math.Log(val, logBase)));
+                double num = Math.Round(val / Math.Pow(logBase, place), 1);
 				number = Conversions.ToInt64(num);
                 unit = suf[place];
             }
@@ -403,26 +427,7 @@ namespace Eddie.Core
             return 0;
         }
 
-        public static bool HasAccessToWrite(string path)
-        {
-            try
-            {                
-                DirectoryInfo di = new DirectoryInfo(path);
-                if (di.Exists == false)
-                    di.Create();
-
-				string tempPath = path + Platform.Instance.DirSep + "test.tmp";
-                
-                using (FileStream fs = File.Create(tempPath, 1, FileOptions.DeleteOnClose))
-                {
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        
 
 		public static string SafeString(string value)
 		{
@@ -526,21 +531,6 @@ namespace Eddie.Core
 
 			return result;
 		}
-
-		public static bool SaveFile(string path, string content)
-        {
-			if (File.Exists(path))
-			{
-				if (File.ReadAllText(path) == content)
-					return false;
-			}
-
-            TextWriter tw = new StreamWriter(path);
-            tw.Write(content);
-            tw.Close();
-
-			return true;
-        }
 
 		public static List<string> GetNetworkGateways()
 		{

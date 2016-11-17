@@ -7,7 +7,7 @@
 using MonoMac.Foundation;
 using System.CodeDom.Compiler;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	[Register ("WindowPreferencesController")]
 	partial class WindowPreferencesController
@@ -101,6 +101,9 @@ namespace Eddie.UI.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkUiIEC { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkUiSystemBarShowInfo { get; set; }
@@ -245,6 +248,11 @@ namespace Eddie.UI.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (ChkUiIEC != null) {
+				ChkUiIEC.Dispose ();
+				ChkUiIEC = null;
+			}
+
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
@@ -308,21 +316,6 @@ namespace Eddie.UI.Osx
 			if (CboUiUnit != null) {
 				CboUiUnit.Dispose ();
 				CboUiUnit = null;
-			}
-
-			if (ChkUiSystemBarShowInfo != null) {
-				ChkUiSystemBarShowInfo.Dispose ();
-				ChkUiSystemBarShowInfo = null;
-			}
-
-			if (ChkUiSystemBarShowSpeed != null) {
-				ChkUiSystemBarShowSpeed.Dispose ();
-				ChkUiSystemBarShowSpeed = null;
-			}
-
-			if (ChkUiSystemBarShowServer != null) {
-				ChkUiSystemBarShowServer.Dispose ();
-				ChkUiSystemBarShowServer = null;
 			}
 
 			if (ChkAdvancedCheckRoute != null) {
@@ -408,6 +401,21 @@ namespace Eddie.UI.Osx
 			if (ChkRouteRemoveDefaultGateway != null) {
 				ChkRouteRemoveDefaultGateway.Dispose ();
 				ChkRouteRemoveDefaultGateway = null;
+			}
+
+			if (ChkUiSystemBarShowInfo != null) {
+				ChkUiSystemBarShowInfo.Dispose ();
+				ChkUiSystemBarShowInfo = null;
+			}
+
+			if (ChkUiSystemBarShowServer != null) {
+				ChkUiSystemBarShowServer.Dispose ();
+				ChkUiSystemBarShowServer = null;
+			}
+
+			if (ChkUiSystemBarShowSpeed != null) {
+				ChkUiSystemBarShowSpeed.Dispose ();
+				ChkUiSystemBarShowSpeed = null;
 			}
 
 			if (CmdAdvancedEventsClear != null) {
