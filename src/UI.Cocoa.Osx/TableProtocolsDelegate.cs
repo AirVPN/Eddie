@@ -19,7 +19,7 @@
 using System;
 using MonoMac.AppKit;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	public class TableProtocolsDelegate : NSTableViewDelegate
 	{

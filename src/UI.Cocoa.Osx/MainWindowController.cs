@@ -25,7 +25,7 @@ using MonoMac.Foundation;
 using MonoMac.AppKit;
 using Eddie.Core;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class MainWindowController : MonoMac.AppKit.NSWindowController
 	{
@@ -71,10 +71,10 @@ namespace Eddie.UI.Osx
 		}
 
 		
-		public UI.Osx.Engine Engine
+		public UI.Cocoa.Osx.Engine Engine
 		{
 			get {
-				return Core.Engine.Instance as UI.Osx.Engine;
+				return Core.Engine.Instance as UI.Cocoa.Osx.Engine;
 			}
 		}
 			
@@ -957,8 +957,7 @@ namespace Eddie.UI.Osx
 
 		void SupportReport()
 		{
-			//string report = Engine.Instance.GetSupportReport (TableLogsController.GetBody (false));
-			string report = "Pazzo";
+			string report = Engine.Instance.GetSupportReport (TableLogsController.GetBody (false));
 
 			string [] pboardTypes = new string[] { "NSStringPboardType" };
 			NSPasteboard.GeneralPasteboard.DeclareTypes (pboardTypes, null);

@@ -23,7 +23,7 @@ using MonoMac.Foundation;
 using MonoMac.AppKit;
 using Eddie.Core;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class WindowPreferencesController : MonoMac.AppKit.NSWindowController
 	{
@@ -72,7 +72,7 @@ namespace Eddie.UI.Osx
 
 			ChkNetLock.Activated += (object sender, EventArgs e) => {
 				if (GuiUtils.GetCheck (ChkNetLock)) {
-					if ((Engine.Instance as UI.Osx.Engine).MainWindow.NetworkLockKnowledge () == false)
+					if ((Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.NetworkLockKnowledge () == false)
 						GuiUtils.SetCheck (ChkNetLock, false);
 				}
 			};
@@ -519,7 +519,7 @@ namespace Eddie.UI.Osx
 				GuiUtils.SetSelected (CboUiUnit, Messages.WindowsSettingsUiUnit2);
 			else
 				GuiUtils.SetSelected (CboUiUnit, Messages.WindowsSettingsUiUnit0);
-
+			GuiUtils.SetCheck(ChkUiIEC, s.GetBool("ui.iec"));
 			/*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
 			if (interfaceMode == "Dark")
@@ -748,6 +748,7 @@ namespace Eddie.UI.Osx
 			else if (GuiUtils.GetSelected (CboUiUnit) == Messages.WindowsSettingsUiUnit2)
 				uiUnit = "bits";
 			s.Set ("ui.unit", uiUnit);
+			s.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
 		
 			/*
 			string interfaceStyle = GuiUtils.GetSelected (CboGeneralOsxInterfaceStyle);

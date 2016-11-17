@@ -1,5 +1,5 @@
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	// Should subclass MonoMac.AppKit.NSWindow
 	[MonoMac.Foundation.Register("WindowOpenVpnManagementCommand")]

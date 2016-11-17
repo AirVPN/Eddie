@@ -22,7 +22,7 @@ using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class WindowAbout : MonoMac.AppKit.NSWindow
 	{

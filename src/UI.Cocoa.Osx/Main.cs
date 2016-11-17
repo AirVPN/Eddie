@@ -24,7 +24,7 @@ using MonoMac.AppKit;
 using MonoMac.ObjCRuntime;
 using Eddie.Core;
 
-namespace Eddie.UI.Osx
+namespace Eddie.UI.Cocoa.Osx
 {
 	class MainClass
 	{
