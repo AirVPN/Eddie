@@ -190,10 +190,12 @@ namespace Eddie.Platforms
 
                     if (id1 == 0)
                     {
-                        throw new Exception(Messages.Format(Messages.WfpRuleAddFail, LibPocketFirewallGetLastError2()));
+                        throw new Exception(Messages.Format(Messages.WfpRuleAddFail, LibPocketFirewallGetLastError2(), xmlStr));
                     }
                     else
                     {
+                        // Only used for debugging WFP issue with rules in some system
+                        // Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.WfpRuleAddSuccess, xmlStr));
                         item.FirewallIds.Add(id1);
                     }
                 }

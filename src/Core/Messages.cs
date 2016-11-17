@@ -424,7 +424,8 @@ namespace Eddie.Core
         public static string DnsLockDeactivatedWpf = "DNS leak protection with packet filtering disabled."; 
         public static string HackInterfaceUpDone = "Eddie Windows Interface Hack executed ({1})";
         public static string WfpStartFail = "Windows WFP, Start failed: {1}";
-        public static string WfpRuleAddFail = "Windows WFP, Add rule failed: {1}";       
+        public static string WfpRuleAddFail = "Windows WFP, Add rule failed: {1}:{2}";
+        public static string WfpRuleAddSuccess = "Windows WFP, Add rule success: {1}";
         public static string WfpRuleRemoveFail = "Windows WFP, Add rule failed: {1}";
         public static string WfpRecovery = "Windows WFP, recovery of pending rules.";
 

@@ -212,8 +212,9 @@ namespace Eddie.Core
                 }
             }
 
-            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName());
-            
+            string monoVersion = System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
+            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Mono/.Net Framework: " + monoVersion);
+
             if (DevelopmentEnvironment)
                 Logs.Log(LogType.Info, "Development environment.");
 
