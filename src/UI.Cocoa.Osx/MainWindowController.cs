@@ -1009,6 +1009,11 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.ShowWindowWithFocus (windowPreferences,this);
 		}
 
+		public void ShowDataDirectory()
+		{
+			Engine.Instance.Command("ui.show.datapath");
+		}
+
 		public void ShowHome()
 		{
 			Engine.Instance.Command ("ui.show.website");

@@ -604,6 +604,8 @@
     <BundleResource Include="Resources\log_icons\log_warning.png" />
     <BundleResource Include="Resources\flag_a1.png" />
     <BundleResource Include="Resources\flag_o1.png" />
+    <BundleResource Include="Resources\open_path_16.png" />
+    <BundleResource Include="Resources\open_path.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

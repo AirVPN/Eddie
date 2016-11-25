@@ -24,6 +24,9 @@
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
                             <menuItem title="Preferences…" image="settings_16" keyEquivalent="," id="129"/>
+                            <menuItem title="Open data directory" image="open_path_16" id="0sw-V8-7aE">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="d6z-Ua-jbI">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
@@ -108,6 +111,7 @@
                 <outlet property="MnuMainClientArea" destination="KZI-Bi-OUe" id="ezp-cr-VUP"/>
                 <outlet property="MnuMainForwardingPorts" destination="YT6-gP-yWE" id="4AV-Ed-xKe"/>
                 <outlet property="MnuMainHome" destination="cFT-nx-MzJ" id="k32-Bx-AxL"/>
+                <outlet property="MnuMainOpenDataDirectory" destination="0sw-V8-7aE" id="UqL-rV-h0m"/>
                 <outlet property="MnuMainPreferences" destination="129" id="g41-6b-wZh"/>
                 <outlet property="MnuMainQuit" destination="136" id="u7D-PZ-Mct"/>
                 <outlet property="MnuMainSpeedTest" destination="DQk-oh-Ot8" id="FND-nA-VbF"/>
@@ -118,6 +122,7 @@
         <image name="about_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="exit_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="home_16" width="16.225351333618164" height="16.225351333618164"/>
+        <image name="open_path_16" width="16" height="16"/>
         <image name="ports_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="settings_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="speed_16" width="16.225351333618164" height="16.225351333618164"/>

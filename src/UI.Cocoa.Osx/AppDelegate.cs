@@ -111,6 +111,11 @@ namespace Eddie.UI.Cocoa.Osx
 				mainWindowController.ShowPreferences();
 			};
 
+			MnuMainOpenDataDirectory.Activated += (object sender, EventArgs e) =>
+			{
+				mainWindowController.ShowDataDirectory();
+			};
+
 			MnuMainHome.Activated += (object sender, EventArgs e) =>
 			{
 				mainWindowController.ShowHome();

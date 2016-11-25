@@ -145,6 +145,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton CmdLockHelp { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdLoggingOpen { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdOpenVpnDirectivesHelp { get; set; }
 
 		[Outlet]
@@ -248,9 +251,9 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (ChkUiIEC != null) {
-				ChkUiIEC.Dispose ();
-				ChkUiIEC = null;
+			if (CmdLoggingOpen != null) {
+				CmdLoggingOpen.Dispose ();
+				CmdLoggingOpen = null;
 			}
 
 			if (CboAdvancedManifestRefresh != null) {
@@ -401,6 +404,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkRouteRemoveDefaultGateway != null) {
 				ChkRouteRemoveDefaultGateway.Dispose ();
 				ChkRouteRemoveDefaultGateway = null;
+			}
+
+			if (ChkUiIEC != null) {
+				ChkUiIEC.Dispose ();
+				ChkUiIEC = null;
 			}
 
 			if (ChkUiSystemBarShowInfo != null) {
