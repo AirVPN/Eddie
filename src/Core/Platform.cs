@@ -453,11 +453,12 @@ namespace Eddie.Core
         {
             try
             {
-                if (FileExists(path))
-                    path = new FileInfo(path).DirectoryName;
-                if (DirectoryExists(path))
+                string dirPath = path;
+                if (DirectoryExists(dirPath) == false)
+                    dirPath = Path.GetDirectoryName(dirPath);
+                if (DirectoryExists(dirPath))
                 {
-                    Process.Start(path);
+                    Process.Start(dirPath);
                     return true;
                 }
                 return false;
