@@ -278,7 +278,7 @@ namespace Eddie.Core
             }
         }
 
-		public virtual string NormalizePath(string p)
+        public virtual string NormalizePath(string p)
         {
             p = p.Replace("/", DirSep);
             p = p.Replace("\\", DirSep);
@@ -292,6 +292,11 @@ namespace Eddie.Core
         public virtual bool FileExists(string path)
         {
             return (File.Exists(path));
+        }
+
+        public virtual bool DirectoryExists(string path)
+        {
+            return (Directory.Exists(path));
         }
 
         public virtual void FileDelete(string path)
@@ -324,15 +329,16 @@ namespace Eddie.Core
 
         public virtual bool FileContentsWriteText(string path, string contents)
         {
+            bool immutable = false;
             if (FileExists(path))
             {
                 string current = FileContentsReadText(path);
                 if (current == contents)
                     return false;
-            }
-            bool immutable = FileImmutableGet(path);
-            if (immutable)
-                FileImmutableSet(path, false);
+                immutable = FileImmutableGet(path);
+                if (immutable)
+                    FileImmutableSet(path, false);
+            }            
             File.WriteAllText(path, contents);
             if (immutable)
                 FileImmutableSet(path, true);
@@ -341,9 +347,13 @@ namespace Eddie.Core
 
         public virtual void FileContentsAppendText(string path, string contents)
         {
-            bool immutable = FileImmutableGet(path);
-            if (immutable)
-                FileImmutableSet(path, false);
+            bool immutable = false;
+            if (FileExists(path))
+            {
+                immutable = FileImmutableGet(path);
+                if (immutable)
+                    FileImmutableSet(path, false);
+            }
             File.AppendAllText(path, contents);
             if (immutable)
                 FileImmutableSet(path, true);
@@ -437,6 +447,25 @@ namespace Eddie.Core
 		public virtual string Shell(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
         {
             return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+        }
+
+        public virtual bool OpenDirectoryInFileManager(string path)
+        {
+            try
+            {
+                if (FileExists(path))
+                    path = new FileInfo(path).DirectoryName;
+                if (DirectoryExists(path))
+                {
+                    Process.Start(path);
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /*
@@ -635,7 +664,7 @@ namespace Eddie.Core
 				}
 			}
 
-			return t;
+			return NormalizeString(t);
 		}
 
         public virtual bool OnCheckSingleInstance()

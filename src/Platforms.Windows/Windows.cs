@@ -209,7 +209,7 @@ namespace Eddie.Platforms
 
 		public override string NormalizeString(string val)
         {
-            return val.Replace("\n", "\r\n");
+            return val.Replace("\r\n", "\n").Replace("\n", "\r\n");
         }
 
         public override string DirSep
@@ -395,10 +395,8 @@ namespace Eddie.Platforms
 					t += "\t" + prop.Name + ": " + Conversions.ToString(prop.Value) + "\n";					
 				}				
 			}
-
             
-
-			return t;
+			return NormalizeString(t);
 		}
 
         public override bool OnCheckSingleInstance()

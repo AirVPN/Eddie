@@ -386,18 +386,18 @@ namespace Eddie.Core.Threads
                                 {
                                     StopRequest = true;
                                 }
-
                                 
-
 								if (Engine.NextServer != null)
 								{
+                                    SetReset("SWITCH"); // Clodo: 2.11.8 new, test it
 									StopRequest = true;
 								}
 
 								if (Engine.SwitchServer != false)
 								{
 									Engine.SwitchServer = false;
-									StopRequest = true;
+                                    SetReset("SWITCH"); // Clodo: 2.11.8 new, test it
+                                    StopRequest = true;
 								}
 
 								if (CancelRequested)
@@ -648,8 +648,9 @@ namespace Eddie.Core.Threads
 				// TOCHECK: under OSX with chmod 700 fail, need investigation.
 				if (Platform.Instance.GetCode() != "OSX") 
 				{
-					Platform.Instance.ShellCmd("chmod 700 \"" + m_fileSshKey.Path + "\"");
-				}
+                    string cmd = "chmod 600 \"" + m_fileSshKey.Path + "\"";
+                    Platform.Instance.ShellCmd(cmd);                    
+                }
 			}
 			
 			string arguments = "";
@@ -817,7 +818,14 @@ namespace Eddie.Core.Threads
 
         public void SetReset(string level)
         {
-            m_reset = level;
+            // Clodo: 2.11.8 new, test it
+            if (level == "")
+                m_reset = "";
+            else if(m_reset == "")
+                m_reset = level;
+
+            // Clodo: 2.11.7 version, for reference
+            //m_reset = level;
         }
 
         public void SendManagementCommand(string Cmd)

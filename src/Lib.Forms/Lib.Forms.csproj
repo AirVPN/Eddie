@@ -275,6 +275,7 @@
     <None Include="res\netlock_on.png" />
     <None Include="res\netlock_status_off.png" />
     <None Include="res\netlock_status_on.png" />
+    <None Include="res\open_path.png" />
     <Content Include="res\ports.png" />
     <Content Include="res\progress.gif" />
     <None Include="res\progress01.png" />

@@ -1214,5 +1214,15 @@ namespace Eddie.Gui.Forms
                 Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
             }
         }
+
+        private void cmdLoggingOpen_Click(object sender, EventArgs e)
+        {
+            List<string> paths = Engine.Instance.Logs.ParseLogFilePath(txtLogPath.Text);
+            foreach (string path in paths)
+            {
+                if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
+                    Engine.Instance.OnMessageError(Messages.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+            }
+        }
     }
 }

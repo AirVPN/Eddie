@@ -89,6 +89,7 @@ namespace Eddie.Gui.Forms
             this.cmdOk = new Eddie.Gui.Skin.Button();
             this.tabSettings = new Eddie.Gui.Skin.TabControl();
             this.tabGeneral = new Eddie.Gui.Skin.TabPage();
+            this.chkUiIEC = new Eddie.Gui.Skin.CheckBox();
             this.cmdResetToDefault = new Eddie.Gui.Skin.Button();
             this.lblConnect = new Eddie.Gui.Skin.Label();
             this.lblNetLock = new Eddie.Gui.Skin.Label();
@@ -182,7 +183,7 @@ namespace Eddie.Gui.Forms
             this.txtLogPath = new Eddie.Gui.Skin.TextBox();
             this.lblLogPath = new Eddie.Gui.Skin.Label();
             this.chkLoggingEnabled = new Eddie.Gui.Skin.CheckBox();
-            this.chkUiIEC = new Eddie.Gui.Skin.CheckBox();
+            this.cmdLoggingOpen = new Eddie.Gui.Skin.Button();
             tabAdvanced = new Eddie.Gui.Skin.TabPage();
             tabDirectives = new Eddie.Gui.Skin.TabPage();
             tabEventsw = new Eddie.Gui.Skin.TabPage();
@@ -921,6 +922,18 @@ namespace Eddie.Gui.Forms
             this.tabGeneral.Size = new System.Drawing.Size(673, 337);
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
+            // 
+            // chkUiIEC
+            // 
+            this.chkUiIEC.AutoSize = true;
+            this.chkUiIEC.BackColor = System.Drawing.Color.Transparent;
+            this.chkUiIEC.ForeColor = System.Drawing.Color.Black;
+            this.chkUiIEC.Location = new System.Drawing.Point(527, 179);
+            this.chkUiIEC.Name = "chkUiIEC";
+            this.chkUiIEC.Size = new System.Drawing.Size(43, 17);
+            this.chkUiIEC.TabIndex = 43;
+            this.chkUiIEC.Text = "IEC";
+            this.chkUiIEC.UseVisualStyleBackColor = false;
             // 
             // cmdResetToDefault
             // 
@@ -1977,6 +1990,7 @@ namespace Eddie.Gui.Forms
             // 
             // tabLogging
             // 
+            this.tabLogging.Controls.Add(this.cmdLoggingOpen);
             this.tabLogging.Controls.Add(this.chkLogLevelDebug);
             this.tabLogging.Controls.Add(this.TxtLoggingPathComputed);
             this.tabLogging.Controls.Add(this.lblLoggingHelp);
@@ -2060,17 +2074,21 @@ namespace Eddie.Gui.Forms
             this.chkLoggingEnabled.Text = "Logging on file enabled";
             this.chkLoggingEnabled.UseVisualStyleBackColor = false;
             // 
-            // chkUiIEC
+            // cmdLoggingOpen
             // 
-            this.chkUiIEC.AutoSize = true;
-            this.chkUiIEC.BackColor = System.Drawing.Color.Transparent;
-            this.chkUiIEC.ForeColor = System.Drawing.Color.Black;
-            this.chkUiIEC.Location = new System.Drawing.Point(527, 179);
-            this.chkUiIEC.Name = "chkUiIEC";
-            this.chkUiIEC.Size = new System.Drawing.Size(43, 17);
-            this.chkUiIEC.TabIndex = 43;
-            this.chkUiIEC.Text = "IEC";
-            this.chkUiIEC.UseVisualStyleBackColor = false;
+            this.cmdLoggingOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdLoggingOpen.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdLoggingOpen.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdLoggingOpen.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdLoggingOpen.FlatAppearance.BorderSize = 0;
+            this.cmdLoggingOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdLoggingOpen.Location = new System.Drawing.Point(451, 37);
+            this.cmdLoggingOpen.Name = "cmdLoggingOpen";
+            this.cmdLoggingOpen.Size = new System.Drawing.Size(214, 30);
+            this.cmdLoggingOpen.TabIndex = 64;
+            this.cmdLoggingOpen.Text = "Open in file-manager";
+            this.cmdLoggingOpen.UseVisualStyleBackColor = true;
+            this.cmdLoggingOpen.Click += new System.EventHandler(this.cmdLoggingOpen_Click);
             // 
             // Settings
             // 
@@ -2260,5 +2278,6 @@ namespace Eddie.Gui.Forms
         private Skin.CheckBox chkUiMinimizeStart;
         private Skin.Button cmdResetToDefault;
         private Skin.CheckBox chkUiIEC;
+        private Skin.Button cmdLoggingOpen;
     }
 }

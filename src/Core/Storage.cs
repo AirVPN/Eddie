@@ -135,7 +135,7 @@ namespace Eddie.Core
                     }
                 }
             }
-            return result;
+            return Platform.Instance.NormalizeString(result);
         }
 
 		public string GetMan(string format)
@@ -263,7 +263,7 @@ namespace Eddie.Core
                 o = o.Replace("[/i]", "'");
             }
             
-            return o;
+            return Platform.Instance.NormalizeString(o);
         }
 
 		public bool Exists(string name)

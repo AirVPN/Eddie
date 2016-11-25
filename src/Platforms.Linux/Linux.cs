@@ -94,13 +94,19 @@ namespace Eddie.Platforms
 
         public override bool FileImmutableGet(string path)
         {
-            return (ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"").IndexOf("i") != -1);
+            if (FileExists(path))
+                return (ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"").IndexOf("i") != -1);
+            else
+                return false;
         }
 
         public override void FileImmutableSet(string path, bool value)
         {
-            string flag = (value ? "+i" : "-i");
-            ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+            if (FileExists(path))
+            {
+                string flag = (value ? "+i" : "-i");
+                ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+            }
         }
         
         public override string GetExecutableReport(string path)

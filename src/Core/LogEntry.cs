@@ -98,7 +98,7 @@ namespace Eddie.Core
 			foreach (string line in Message.Split('\n'))
 			{
 				if (line.Trim() != "")
-					result += o + line.Trim() + "\n";
+					result += o + line.Replace("\r","").Trim() + "\n";
 			}
 
 			return result.Trim();

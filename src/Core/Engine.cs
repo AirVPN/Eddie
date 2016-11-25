@@ -920,7 +920,8 @@ namespace Eddie.Core
 								foreach (string path in paths)
 								{
 									Directory.CreateDirectory(Path.GetDirectoryName(path));
-									Platform.Instance.FileContentsAppendText(path, lines + "\n");
+                                    string text = Platform.Instance.NormalizeString(lines + "\n");
+									Platform.Instance.FileContentsAppendText(path, text);
 								}
 							}
 							catch(Exception e) 
@@ -1925,7 +1926,7 @@ namespace Eddie.Core
 
             report += "\n\n-- System --\n" + Platform.Instance.GenerateSystemReport();
             
-            return report;
+            return Platform.Instance.NormalizeString(report);
         }
 
         public void LogOpenvpnConfig()

@@ -685,7 +685,12 @@ namespace Eddie.Gui.Forms
             Engine.Instance.Command("ui.show.preferences");
         }
 
-		private void mnuStatus_Click(object sender, EventArgs e)
+        private void mnuOpenDataPath_Click(object sender, EventArgs e)
+        {
+            Engine.Instance.Command("ui.show.datapath");
+        }
+
+        private void mnuStatus_Click(object sender, EventArgs e)
 		{
 			Restore();
 		}
@@ -1733,16 +1738,6 @@ namespace Eddie.Gui.Forms
 
 					if (skip == false)
 					{
-						/*
-						String line = "";
-						for (int j = 0; j < lstLogs.Columns.Count; j++)
-						{
-							line += lstLogs.Items[i].SubItems[j].Text;
-							line += "\t";
-						}
-						buffer.Append(line.Trim());
-						buffer.Append("\n");
-						*/
 						buffer.Append((lstLogs.Items[i] as ListViewItemLog).Info.GetStringLines() + "\n");
 					}
 				}
@@ -1834,5 +1829,7 @@ namespace Eddie.Gui.Forms
         {
             Engine.Instance.Storage.Set("key", cboKey.SelectedItem as string);
         }
+
+        
     }
 }

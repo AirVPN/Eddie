@@ -116,6 +116,10 @@ namespace Eddie.Gui
 
                 FormMain.EnabledUi();
             }
+            else if (action == "ui.show.datapath")
+            {
+                Platform.Instance.OpenDirectoryInFileManager(Storage.DataPath);
+            }
             else if (action == "ui.show.about")
             {
                 Forms.About dlg = new Forms.About();
