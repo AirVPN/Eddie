@@ -616,7 +616,7 @@ namespace Deploy
 						if (File.Exists(pathFinal))
 							File.Delete(pathFinal);
 
-						string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " AirVPN.app";
+						string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
 						Shell(command2);
 
 					}
