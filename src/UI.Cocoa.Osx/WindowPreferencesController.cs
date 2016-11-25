@@ -282,6 +282,16 @@ namespace Eddie.UI.Cocoa.Osx
 				RefreshLogPreview();
 			};
 
+			CmdLoggingOpen.Activated += (object sender, EventArgs e) =>
+			{
+				List<string> paths = Engine.Instance.Logs.ParseLogFilePath(TxtLoggingPath.StringValue);
+				foreach (string path in paths)
+				{
+					if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
+						Engine.Instance.OnMessageError(Messages.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+				}
+			};
+
 			// Directives
 			CboOpenVpnDirectivesSkipDefault.RemoveAllItems ();
 			CboOpenVpnDirectivesSkipDefault.AddItem (Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip1);
