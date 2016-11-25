@@ -192,7 +192,7 @@ namespace Eddie.Platforms
 
         protected override void OpenDirectoryInFileManagerEx(string path)
         {
-            Shell("su", " - " + m_logname + " xdg-open \"" + path + "\"", false);
+            Shell("su", " - " + m_logname + " -c 'xdg-open \"" + path + "\"'", false);
         }
 
         public override long Ping(string host, int timeoutSec)
