@@ -576,6 +576,10 @@ namespace Eddie.Core
             {
                 OnShowText("Libraries and Tools", ResourcesFiles.GetString("thirdparty.txt"));
             }
+            else if (action == "ui.show.datapath")
+            {
+                Platform.Instance.OpenDirectoryInFileManager(Storage.DataPath);
+            }
             else if (action == "ui.show.website")
             {
                 Platform.Instance.OpenUrl(Constants.WebSite + "/" + "");

@@ -177,13 +177,13 @@ namespace Eddie.Gui.Forms
             this.lblLockMode = new Eddie.Gui.Skin.Label();
             this.cboLockMode = new Eddie.Gui.Skin.ComboBox();
             this.tabLogging = new Eddie.Gui.Skin.TabPage();
+            this.cmdLoggingOpen = new Eddie.Gui.Skin.Button();
             this.chkLogLevelDebug = new Eddie.Gui.Skin.CheckBox();
             this.TxtLoggingPathComputed = new Eddie.Gui.Skin.Label();
             this.lblLoggingHelp = new Eddie.Gui.Skin.Label();
             this.txtLogPath = new Eddie.Gui.Skin.TextBox();
             this.lblLogPath = new Eddie.Gui.Skin.Label();
             this.chkLoggingEnabled = new Eddie.Gui.Skin.CheckBox();
-            this.cmdLoggingOpen = new Eddie.Gui.Skin.Button();
             tabAdvanced = new Eddie.Gui.Skin.TabPage();
             tabDirectives = new Eddie.Gui.Skin.TabPage();
             tabEventsw = new Eddie.Gui.Skin.TabPage();
@@ -2004,6 +2004,22 @@ namespace Eddie.Gui.Forms
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
             // 
+            // cmdLoggingOpen
+            // 
+            this.cmdLoggingOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdLoggingOpen.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdLoggingOpen.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdLoggingOpen.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdLoggingOpen.FlatAppearance.BorderSize = 0;
+            this.cmdLoggingOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdLoggingOpen.Location = new System.Drawing.Point(451, 197);
+            this.cmdLoggingOpen.Name = "cmdLoggingOpen";
+            this.cmdLoggingOpen.Size = new System.Drawing.Size(214, 30);
+            this.cmdLoggingOpen.TabIndex = 64;
+            this.cmdLoggingOpen.Text = "Open in file-manager";
+            this.cmdLoggingOpen.UseVisualStyleBackColor = true;
+            this.cmdLoggingOpen.Click += new System.EventHandler(this.cmdLoggingOpen_Click);
+            // 
             // chkLogLevelDebug
             // 
             this.chkLogLevelDebug.AutoSize = true;
@@ -2024,7 +2040,7 @@ namespace Eddie.Gui.Forms
             this.TxtLoggingPathComputed.ForeColor = System.Drawing.Color.Black;
             this.TxtLoggingPathComputed.Location = new System.Drawing.Point(74, 102);
             this.TxtLoggingPathComputed.Name = "TxtLoggingPathComputed";
-            this.TxtLoggingPathComputed.Size = new System.Drawing.Size(586, 97);
+            this.TxtLoggingPathComputed.Size = new System.Drawing.Size(586, 87);
             this.TxtLoggingPathComputed.TabIndex = 62;
             this.TxtLoggingPathComputed.Text = "Current Computed Path";
             this.TxtLoggingPathComputed.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -2073,22 +2089,6 @@ namespace Eddie.Gui.Forms
             this.chkLoggingEnabled.TabIndex = 55;
             this.chkLoggingEnabled.Text = "Logging on file enabled";
             this.chkLoggingEnabled.UseVisualStyleBackColor = false;
-            // 
-            // cmdLoggingOpen
-            // 
-            this.cmdLoggingOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdLoggingOpen.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cmdLoggingOpen.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.cmdLoggingOpen.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.cmdLoggingOpen.FlatAppearance.BorderSize = 0;
-            this.cmdLoggingOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdLoggingOpen.Location = new System.Drawing.Point(451, 37);
-            this.cmdLoggingOpen.Name = "cmdLoggingOpen";
-            this.cmdLoggingOpen.Size = new System.Drawing.Size(214, 30);
-            this.cmdLoggingOpen.TabIndex = 64;
-            this.cmdLoggingOpen.Text = "Open in file-manager";
-            this.cmdLoggingOpen.UseVisualStyleBackColor = true;
-            this.cmdLoggingOpen.Click += new System.EventHandler(this.cmdLoggingOpen_Click);
             // 
             // Settings
             // 
