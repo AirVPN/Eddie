@@ -33,15 +33,17 @@ namespace Eddie.Platforms
     {
 		private string m_architecture = "";
         private UInt32 m_uid;
+        private string m_logname;
 
         // Override
         public Linux()
 		{
- 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+ 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());            
             m_uid = 9999;
-            UInt32.TryParse(ShellCmd("id -u"), out m_uid);            
+            UInt32.TryParse(ShellCmd("id -u"), out m_uid);
+            m_logname = ShellCmd("logname").Trim();
 
-			TrustCertificatePolicy.Activate();
+            TrustCertificatePolicy.Activate();
 		}
 
 		public override string GetCode()
@@ -186,6 +188,11 @@ namespace Eddie.Platforms
             if (Platform.Instance.FileExists("/usr/bin/systemctl"))
                 ShellCmd("systemctl restart nscd");
             */
+        }
+
+        protected override void OpenDirectoryInFileManagerEx(string path)
+        {
+            Shell("su", " - " + m_logname + " xdg-open \"" + path + "\"", false);
         }
 
         public override long Ping(string host, int timeoutSec)

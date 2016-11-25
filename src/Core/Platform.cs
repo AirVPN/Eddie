@@ -458,7 +458,7 @@ namespace Eddie.Core
                     dirPath = Path.GetDirectoryName(dirPath);
                 if (DirectoryExists(dirPath))
                 {
-                    Process.Start(dirPath);
+                    OpenDirectoryInFileManagerEx(dirPath);
                     return true;
                 }
                 return false;
@@ -467,6 +467,11 @@ namespace Eddie.Core
             {
                 return false;
             }
+        }
+
+        protected virtual void OpenDirectoryInFileManagerEx(string path)
+        {
+            Process.Start(path);            
         }
 
         /*
