@@ -223,7 +223,7 @@ namespace Eddie.Core
 
         public void Receive(string data)
         {
-            Engine.Instance.Command(data);
+            Engine.Instance.Command(data, true);
         }
 
         public delegate void SendEventHandler(XmlElement xmlMessage);

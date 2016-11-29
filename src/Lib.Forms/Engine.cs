@@ -105,7 +105,7 @@ namespace Eddie.Gui
                 FormMain.DeInit();
         }
 
-        public override void OnCommand(CommandLine command)
+        public override void OnCommand(CommandLine command, bool ignoreIfNotExists)
         {
             string action = command.Get("action", "").ToLowerInvariant();
 
@@ -126,7 +126,7 @@ namespace Eddie.Gui
                 FormMain.ShowMenu();
             }
             else
-                base.OnCommand(command);
+                base.OnCommand(command, ignoreIfNotExists);
         }
 
         public override bool OnNoRoot()

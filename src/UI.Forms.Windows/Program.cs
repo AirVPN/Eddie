@@ -29,10 +29,10 @@ namespace Eddie.UI.Windows
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
-
+        
 		[STAThread]
 		static void Main()
-		{
+        {
             try
             {
                 if (Environment.OSVersion.Version.Major >= 6)

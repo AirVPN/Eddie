@@ -41,8 +41,17 @@ namespace Eddie.Platforms
  			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());            
             m_uid = 9999;
             UInt32.TryParse(ShellCmd("id -u"), out m_uid);
-            m_logname = ShellCmd("logname").Trim();
 
+
+            // Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
+            // Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
+            // Manjaro, same as Ubuntu
+            m_logname = ShellCmd("echo $SUDO_USER").Trim();
+            if (m_logname == "")
+                m_logname = ShellCmd("logname");
+            if (m_logname.Contains("no login name"))
+                m_logname = Environment.UserName;
+            
             TrustCertificatePolicy.Activate();
 		}
 
@@ -192,7 +201,8 @@ namespace Eddie.Platforms
 
         protected override void OpenDirectoryInFileManagerEx(string path)
         {
-            Shell("su", " - " + m_logname + " -c 'xdg-open \"" + path + "\"'", false);
+            string args = " - " + m_logname + " -c 'xdg-open \"" + path + "\"'";
+            Shell("su", args, false);
         }
 
         public override long Ping(string host, int timeoutSec)
@@ -317,8 +327,15 @@ namespace Eddie.Platforms
 		{
 			string t = base.GenerateSystemReport();
 
-			
-			return t;
+            t += "\n\n-- Linux\n";
+
+            t += "UID: " + m_uid + "\n";
+            t += "LogName: " + m_logname + "\n";
+
+            t += "\n-- ifconfig\n";
+            t += ShellCmd("ifconfig");
+
+            return t;
 		}
 
 		public override void OnAppStart()

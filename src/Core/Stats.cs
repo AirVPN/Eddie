@@ -57,25 +57,30 @@ namespace Eddie.Core
 			Add("VpnGateway", Messages.StatsVpnGateway, "vpn");
             Add("SessionTotalDownload", Messages.StatsSessionTotalDownload, "session");
             Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");
-            Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", false);
-			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system");
-			Add("Pinger", Messages.StatsPinger, "system"); 
-			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");			
-			Add("SystemReport", Messages.StatsSystemReport, "system");
-		}
+            Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn");
+			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system", "Update");
+			Add("Pinger", Messages.StatsPinger, "system", "Update"); 
+			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");
+            Add("PathProfile", Messages.StatsSystemPathProfile, "system", "Open");
+            Add("PathApp", Messages.StatsSystemPathApp, "system", "Open");
+            Add("SystemReport", Messages.StatsSystemReport, "system", "View");
+            
+            UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
+            UpdateValue("PathApp", Platform.Instance.GetProgramFolder());
+        }
 
 		public void Add(string key, string caption, string icon)
 		{
-			Add(key, caption, icon, true);
+			Add(key, caption, icon, "");
 		}
 
-		public void Add(string key, string caption, string icon, bool dump)
+		public void Add(string key, string caption, string icon, string clickable)
 		{
 			StatsEntry entry = new StatsEntry();
 			entry.Key = key;
 			entry.Caption = caption;
 			entry.Icon = icon;
-			entry.Dump = dump;
+            entry.Clickable = clickable;
 			Dict[key] = entry;
 			List.Add(entry);
 		}

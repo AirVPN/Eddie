@@ -378,13 +378,13 @@ namespace Eddie.Core
 					}
 				}
 
-                Logs.Log(LogType.Verbose, "Data Path: " + Storage.DataPath);
-				Logs.Log(LogType.Verbose, "App Path: " + Platform.Instance.GetProgramFolder());
-				Logs.Log(LogType.Verbose, "Executable Path: " + Platform.Instance.GetExecutablePath());
+                Logs.Log(LogType.Verbose, "Data path: " + Storage.DataPath);
+				Logs.Log(LogType.Verbose, "Application path: " + Platform.Instance.GetProgramFolder());
+				Logs.Log(LogType.Verbose, "Executable path: " + Platform.Instance.GetExecutablePath());
 				Logs.Log(LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 
                 if (Storage.Get("profile") != "AirVPN.xml")
-                    Logs.Log(LogType.Verbose, "Profile: " + Storage.Get("profile"));
+                    Logs.Log(LogType.Verbose, "Profile path: " + Storage.GetProfilePath());
 
                 //return OnInit2(); // 2.11, now called on ConsoleStart and UiStart
                 return true;
@@ -549,7 +549,7 @@ namespace Eddie.Core
 			OnExit();	
 		}
 
-		public virtual void OnCommand(CommandLine command)
+		public virtual void OnCommand(CommandLine command, bool ignoreIfNotExists)
 		{
             if(m_webServer != null)
             {
@@ -575,10 +575,6 @@ namespace Eddie.Core
             else if (action == "ui.show.libraries")
             {
                 OnShowText("Libraries and Tools", ResourcesFiles.GetString("thirdparty.txt"));
-            }
-            else if (action == "ui.show.datapath")
-            {
-                Platform.Instance.OpenDirectoryInFileManager(Storage.DataPath);
             }
             else if (action == "ui.show.website")
             {
@@ -637,6 +633,34 @@ namespace Eddie.Core
             {
                 Platform.Instance.OpenUrl("http://openvpn.net/index.php/open-source/documentation/miscellaneous/79-management-interface.html");
             }
+            else if (action == "ui.stats.vpngeneratedovpn")
+            {
+                if (IsConnected() == false)
+                    return;
+
+                OnShowText(Messages.StatsVpnGeneratedOVPN, ConnectedOVPN);
+            }
+            else if (action == "ui.stats.systemreport")
+            {
+                OnShowText(Messages.StatsSystemReport, Platform.Instance.GenerateSystemReport());
+            }
+            else if (action == "ui.stats.pinger")
+            {
+                Core.Threads.Pinger.Instance.InvalidateAll();
+                OnRefreshUi(Core.Engine.RefreshUiMode.Full);
+            }
+            else if (action == "ui.stats.manifestlastupdate")
+            {
+                Core.Threads.Manifest.Instance.ForceUpdate = true;
+            }
+            else if (action == "ui.stats.pathapp")
+            {
+                Platform.Instance.OpenDirectoryInFileManager(Stats.Get("PathApp").Value);
+            }
+            else if (action == "ui.stats.pathprofile")
+            {
+                Platform.Instance.OpenDirectoryInFileManager(Stats.Get("PathProfile").Value);
+            }
             else if (action == "providers.add.airvpn")
             {
                 Engine.Instance.ProvidersManager.AddProvider("AirVPN", null);
@@ -651,7 +675,8 @@ namespace Eddie.Core
             }
             else
             {
-                throw new Exception(Messages.CommandUnknown);
+                if(ignoreIfNotExists == false)
+                    throw new Exception(Messages.CommandUnknown);
             }
 		}
 
@@ -1105,9 +1130,7 @@ namespace Eddie.Core
                     if (Core.Threads.Manifest.Instance.ForceUpdate)
                         manifestLastUpdate += " (" + Messages.ManifestUpdateForce + ")";
                 Stats.UpdateValue("ManifestLastUpdate", manifestLastUpdate);
-
-
-                Stats.UpdateValue("SystemReport", Messages.DoubleClickToView);
+                
 				if (m_threadPinger != null)
 				{
 					Stats.UpdateValue("Pinger", PingerStats().ToString());					
@@ -1136,7 +1159,7 @@ namespace Eddie.Core
 					Stats.UpdateValue("VpnDns", Engine.ConnectedVpnDns);
 					Stats.UpdateValue("VpnInterface", Engine.ConnectedVpnInterfaceName);
 					Stats.UpdateValue("VpnGateway", Engine.ConnectedVpnGateway);
-					Stats.UpdateValue("VpnGeneratedOVPN", Messages.DoubleClickToView);
+					Stats.UpdateValue("VpnGeneratedOVPN", "");
 
 					if (Engine.ConnectedServerTime != 0)
 						Stats.UpdateValue("SystemTimeServerDifference", (Engine.ConnectedServerTime - Engine.ConnectedClientTime).ToString() + " seconds");
@@ -1564,13 +1587,18 @@ namespace Eddie.Core
             return true;
 		}
 
-		public void Command(string cmd)
+        public void Command(string cmd)
+        {
+            Command(cmd, false);
+        }
+
+        public void Command(string cmd, bool ignoreIfNotExists)
 		{
 			CommandLine command = new CommandLine(cmd, false, true);
 
-			try
+            try
 			{
-				OnCommand(command);
+				OnCommand(command, ignoreIfNotExists);
 
 				//Log(LogType.Verbose, "Command '" + command.GetFull() + "' executed");
 			}

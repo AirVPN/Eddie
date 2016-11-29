@@ -389,14 +389,14 @@ namespace Eddie.Core.Threads
                                 
 								if (Engine.NextServer != null)
 								{
-                                    SetReset("SWITCH"); // Clodo: 2.11.8 new, test it
+                                    SetReset("SWITCH"); // 2.11.8
 									StopRequest = true;
 								}
 
 								if (Engine.SwitchServer != false)
 								{
 									Engine.SwitchServer = false;
-                                    SetReset("SWITCH"); // Clodo: 2.11.8 new, test it
+                                    SetReset("SWITCH"); // 2.11.8
                                     StopRequest = true;
 								}
 
@@ -818,13 +818,13 @@ namespace Eddie.Core.Threads
 
         public void SetReset(string level)
         {
-            // Clodo: 2.11.8 new, test it
+            // 2.11.8
             if (level == "")
                 m_reset = "";
             else if(m_reset == "")
                 m_reset = level;
 
-            // Clodo: 2.11.7 version, for reference
+            // 2.11.7 version, for reference
             //m_reset = level;
         }
 
@@ -969,12 +969,19 @@ namespace Eddie.Core.Threads
                     {
                         if (log)
                         {
-                            string unrecognizedOption = Utils.RegExMatchOne(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in .*\\:(.*?)\\(.*\\)");
-                            if (unrecognizedOption == "")
-                                unrecognizedOption = message.Substring("Options error:".Length);
-                            Engine.Logs.Log(LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
-                            Engine.LogOpenvpnConfig();
-                            SetReset("FATAL");
+                            List<string> matches = Utils.RegExMatchSingle(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in (.*?)\\:\\d+\\:(.*?)\\(.*\\)");
+                            if(matches.Count == 2)
+                            {
+                                string context = matches[0].Trim();
+                                string unrecognizedOption = matches[1].Trim();
+
+                                if (context != "[PUSH-OPTIONS]")
+                                {
+                                    Engine.Logs.Log(LogType.Fatal, Messages.Format(Messages.DirectiveError, unrecognizedOption));
+                                    Engine.LogOpenvpnConfig();
+                                    SetReset("FATAL");
+                                }
+                            }                            
                         }
                     }
 

@@ -407,6 +407,12 @@ namespace Eddie.Core
             }
         }
 
+        public string GetProfilePath()
+        {
+            string path = GetPath(Get("profile"));
+            return path;
+        }
+
         public string GetPath(string filename)
         {
 			return DataPath + Platform.Instance.DirSep + filename;            
@@ -486,7 +492,7 @@ namespace Eddie.Core
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);            
             SetDefaultInt("openvpn.sndbuf", -2, Messages.ManOptionOpenVpnSndBuf); // 2.11
             SetDefaultInt("openvpn.rcvbuf", -2, Messages.ManOptionOpenVpnRcvBuf); // 2.11
-            SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);
+            SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);            
             SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
             
 			// Not in Settings
@@ -615,7 +621,7 @@ namespace Eddie.Core
 
         public void Save()
         {
-			string path = GetPath(Get("profile"));
+            string path = GetProfilePath();
 
 			bool remember = GetBool("remember");
 			
@@ -700,21 +706,20 @@ namespace Eddie.Core
 
                     Providers = xmlDoc.CreateElement("providers");
 
-                    string profile = Get("profile");
-					if (profile.ToLowerInvariant() == "none")
+                    if (Get("profile").ToLowerInvariant() == "none")
 						return;
 
-					string Path = GetPath(profile);
+                    string path = GetProfilePath();
 
-					Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.OptionsRead, Path));
+                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.OptionsRead, path));
 
-					if (Platform.Instance.FileExists(Path) == false)
+					if (Platform.Instance.FileExists(path) == false)
 					{
 						Engine.Instance.Logs.Log(LogType.Verbose, Messages.OptionsNotFound);
 						return;
 					}
 
-                    xmlDoc.Load(Path);
+                    xmlDoc.Load(path);
 
                     ResetAll(true);
 

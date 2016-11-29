@@ -238,7 +238,14 @@ namespace Eddie.Platforms
 
         public override void FlushDNS()
         {
+            // <2.11.8
+            //ShellCmd("ipconfig /flushdns");
+
+            // 2.11.8 - Same trick of OpenVPN register-dns
+            ShellCmd("net stop dnscache");
+            ShellCmd("net start dnscache");
             ShellCmd("ipconfig /flushdns");
+            ShellCmd("ipconfig /registerdns");
         }
 
 		public override void RouteAdd(RouteEntry r)
@@ -369,7 +376,7 @@ namespace Eddie.Platforms
 		{
 			string t = base.GenerateSystemReport();
 
-			t += "\n\n-- Windows-Only specific\n";
+			t += "\n\n-- Windows\n";
 
             t += "\n-- ipconfig /all\n";
             t += ShellCmd("ipconfig /all");

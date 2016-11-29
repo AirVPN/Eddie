@@ -48,8 +48,7 @@ namespace Eddie.Gui.Forms
             this.mnuPorts = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuSpeedTest = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuOpenDataPath = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();            
             this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
@@ -236,8 +235,7 @@ namespace Eddie.Gui.Forms
             this.mnuPorts,
             this.mnuSpeedTest,
             this.mnuSeparator1,
-            this.mnuSettings,
-            this.mnuOpenDataPath,
+            this.mnuSettings,            
             this.mnuDevelopers,
             this.mnuTools,
             this.mnuAbout,
@@ -314,14 +312,6 @@ namespace Eddie.Gui.Forms
             this.mnuSettings.Size = new System.Drawing.Size(252, 26);
             this.mnuSettings.Text = "&Preferences";
             this.mnuSettings.Click += new System.EventHandler(this.mnuSettings_Click);
-            // 
-            // mnuOpenDataPath
-            // 
-            this.mnuOpenDataPath.Image = global::Eddie.Lib.Forms.Properties.Resources.open_path;
-            this.mnuOpenDataPath.Name = "mnuOpenDataPath";
-            this.mnuOpenDataPath.Size = new System.Drawing.Size(252, 26);
-            this.mnuOpenDataPath.Text = "Open data directory";
-            this.mnuOpenDataPath.Click += new System.EventHandler(this.mnuOpenDataPath_Click);
             // 
             // mnuDevelopers
             // 
@@ -1796,8 +1786,7 @@ namespace Eddie.Gui.Forms
         private Skin.Button cmdAreasBlackList;
         private Skin.Panel pnlAreas;
         private Skin.Panel pnlServers;
-        private Skin.Button cmdAreasWhiteList;
-        private System.Windows.Forms.ToolStripMenuItem mnuOpenDataPath;
+        private Skin.Button cmdAreasWhiteList;        
     }
 }
 

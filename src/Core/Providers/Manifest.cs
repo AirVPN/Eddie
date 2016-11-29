@@ -282,7 +282,7 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlNode nodeServer in Manifest.SelectNodes("//servers/server"))
 				{
-                    string code = Utils.SHA256(nodeServer.Attributes["name"].Value);
+                    string code = Utils.HashSHA256(nodeServer.Attributes["name"].Value);
                     
 					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 

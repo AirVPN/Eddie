@@ -83,7 +83,7 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlElement nodeProfile in Profiles.ChildNodes)
 				{
-                    string code = SHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
+                    string code = HashSHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
                     
 					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 

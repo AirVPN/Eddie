@@ -36,7 +36,7 @@ namespace Eddie.Core
         public static string Ready = "Ready";
         public static string Unknown = "Unknown";        
         public static string StatsNotConnected = "Not connected.";
-		public static string DoubleClickToView = "(Double-Click to View)";
+		public static string DoubleClickToAction = "(double-click to {1})";
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";
 		public static string CheckingRequired = "Unavailable (option 'Checking Tunnel' required)";
@@ -299,7 +299,9 @@ namespace Eddie.Core
 		public static string StatsManifestLastUpdate = "Latest Manifest Update";
 		public static string StatsPinger = "Pinger stats";
 		public static string StatsSystemTimeServerDifference = "Server Time Difference";
-		public static string StatsSystemReport = "System Report";
+        public static string StatsSystemPathProfile = "Profile path";
+        public static string StatsSystemPathApp = "Application path";
+        public static string StatsSystemReport = "System Report";
 
 
 

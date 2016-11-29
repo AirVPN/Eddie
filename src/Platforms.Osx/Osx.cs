@@ -239,7 +239,7 @@ namespace Eddie.Platforms
         {
             string t = base.GenerateSystemReport();
 
-            t += "\n\n-- OS X specific\n";
+            t += "\n\n-- OS X\n";
 
             t += "\n-- ifconfig\n";
             t += ShellCmd("ifconfig");

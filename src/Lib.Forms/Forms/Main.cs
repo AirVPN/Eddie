@@ -365,7 +365,7 @@ namespace Eddie.Gui.Forms
 				statsEntryItem.Entry = statsEntry;
 				statsEntryItem.Text = statsEntry.Caption;
 				statsEntryItem.ImageKey = statsEntry.Icon;
-
+                                
 				lstStats.Items.Add(statsEntryItem);
 				m_statsItems[statsEntry.Key] = statsEntryItem;
 
@@ -685,11 +685,6 @@ namespace Eddie.Gui.Forms
             Engine.Instance.Command("ui.show.preferences");
         }
 
-        private void mnuOpenDataPath_Click(object sender, EventArgs e)
-        {
-            Engine.Instance.Command("ui.show.datapath");
-        }
-
         private void mnuStatus_Click(object sender, EventArgs e)
 		{
 			Restore();
@@ -1007,6 +1002,9 @@ namespace Eddie.Gui.Forms
 
 			ListViewItemStats item = lstStats.SelectedItems[0] as ListViewItemStats;
 
+            Engine.Instance.Command("ui.stats." + item.Entry.Key, true);
+
+            /* // TOCLEAN
 			if (item.Entry.Key == "VpnGeneratedOVPN")
 			{
 				if (Engine.IsConnected() == false)
@@ -1033,6 +1031,7 @@ namespace Eddie.Gui.Forms
 			{
 				Core.Threads.Manifest.Instance.ForceUpdate = true;
 			}
+            */
 		}
 
         private void tabMain_TabSwitch()
@@ -1693,8 +1692,8 @@ namespace Eddie.Gui.Forms
 				{
 					ListViewItemStats item = m_statsItems[entry.Key];
 					if (item.SubItems.Count == 1)
-						item.SubItems.Add("");
-					item.SubItems[1].Text = entry.Value;                    
+						item.SubItems.Add("");                    
+                    item.SubItems[1].Text = entry.Text;
                 }
 			}
 		}
