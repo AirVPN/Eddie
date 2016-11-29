@@ -46,6 +46,9 @@ namespace Eddie.UI.Cocoa.Osx
 			int i = tableView.SelectedRow;
 			if ((i >= 0) && (i < Engine.Instance.Stats.List.Count)) {
 				StatsEntry e = Engine.Instance.Stats.List [tableView.SelectedRow];
+
+				Engine.Instance.Command("ui.stats." + e.Key, true);
+				/*
 				if (e.Key == "VpnGeneratedOVPN") {
 					if (Engine.Instance.IsConnected () == false)
 						return;
@@ -63,6 +66,7 @@ namespace Eddie.UI.Cocoa.Osx
 				} else if (e.Key == "ManifestLastUpdate") {
 					Core.Threads.Manifest.Instance.ForceUpdate = true;
 				}
+				*/
 
 			}
 		}
@@ -85,7 +89,7 @@ namespace Eddie.UI.Cocoa.Osx
 				return new NSString (e.Caption);
 			}
 			else if (tableColumn.Identifier == "Value") {
-				return new NSString (e.Value);
+				return new NSString (e.Text);
 			}
 			else 
 				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));

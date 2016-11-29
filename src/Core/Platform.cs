@@ -617,8 +617,10 @@ namespace Eddie.Core
 		{
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
-            t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
-            t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
+			if(Platform.Instance.GetSystemFont() != "")
+            	t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
+			if(Platform.Instance.GetSystemFontMonospace() != "")
+            	t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
             
             try
 			{

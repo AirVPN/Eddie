@@ -645,11 +645,11 @@ namespace Eddie.Core.Threads
 			
 			if (Platform.Instance.IsUnixSystem())
 			{
-				// TOCHECK: under OSX with chmod 700 fail, need investigation.
+				// under OS X, SSH change it's UID to normal user.
 				if (Platform.Instance.GetCode() != "OSX") 
 				{
                     string cmd = "chmod 600 \"" + m_fileSshKey.Path + "\"";
-                    Platform.Instance.ShellCmd(cmd);                    
+					Platform.Instance.ShellCmd(cmd);
                 }
 			}
 			

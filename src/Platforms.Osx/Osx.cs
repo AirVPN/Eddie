@@ -153,6 +153,18 @@ namespace Eddie.Platforms
 			ShellCmd("chmod +x \"" + path + "\"");
 		}
 
+		public override string GetSystemFont()
+		{
+			// Crash with Xamarin 6.1.2
+			return "";
+		}
+
+		public override string GetSystemFontMonospace()
+		{
+			// Crash with Xamarin 6.1.2
+			return "";
+		}
+
 		public override string GetDriverAvailable()
 		{
 			return "Expected";

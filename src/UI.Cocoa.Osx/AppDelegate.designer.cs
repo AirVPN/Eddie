@@ -25,9 +25,6 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSMenuItem MnuMainHome { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainOpenDataDirectory { get; set; }
-
-		[Outlet]
 		MonoMac.AppKit.NSMenuItem MnuMainPreferences { get; set; }
 
 		[Outlet]
@@ -71,11 +68,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (MnuMainSpeedTest != null) {
 				MnuMainSpeedTest.Dispose ();
 				MnuMainSpeedTest = null;
-			}
-
-			if (MnuMainOpenDataDirectory != null) {
-				MnuMainOpenDataDirectory.Dispose ();
-				MnuMainOpenDataDirectory = null;
 			}
 		}
 	}
