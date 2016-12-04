@@ -33,38 +33,59 @@ namespace Eddie.UI.Linux
 		[STAThread]
 		static void Main()
 		{
-			//Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
+            try
+            {
+                //Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
 
-			Platform.Instance = new Eddie.Platforms.Linux();
-            Platform.Instance.ExePath = Environment.GetCommandLineArgs()[0];
-            
-			CommandLine.InitSystem(Environment.CommandLine);
+                Platform.Instance = new Eddie.Platforms.Linux();
+                Platform.Instance.ExePath = Environment.GetCommandLineArgs()[0];
 
-			if (CommandLine.SystemEnvironment.Exists("cli"))
-			{
-				Core.Engine engine = new Core.Engine();
+                CommandLine.InitSystem(Environment.CommandLine);
 
-				if (engine.Initialization(true))
-				{
-					engine.ConsoleStart();
-				}
-			}
-			else
-			{
-				GuiUtils.Init();
+                if (CommandLine.SystemEnvironment.Exists("cli"))
+                {
+                    Core.Engine engine = new Core.Engine();
 
-				Gui.Engine engine = new Gui.Engine();
+                    if (engine.Initialization(true))
+                    {
+                        engine.ConsoleStart();
+                    }
+                }
+                else
+                {
+                    GuiUtils.Init();
 
-				if (engine.Initialization(false))
-				{
-					engine.FormMain = new Gui.Forms.Main();
+                    Gui.Engine engine = new Gui.Engine();
 
-					engine.UiStart();
+                    engine.TerminateEvent += Engine_TerminateEvent;
 
-					Application.Run(engine.FormMain);
-				}
-			}
-		}
-	}
+                    if (engine.Initialization(false))
+                    {
+                        engine.FormMain = new Gui.Forms.Main();
+
+                        engine.UiStart();
+
+                        // Application.Run(engine.FormMain); // Removed in 2.11.9
+
+                        engine.FormMain.LoadPhase();
+
+                        m_context = new ApplicationContext();
+                        Application.Run(m_context);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, Constants.Name2, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        static ApplicationContext m_context;
+
+        private static void Engine_TerminateEvent()
+        {
+            m_context.ExitThread();
+        }
+    }
 }

@@ -229,6 +229,7 @@ namespace Eddie.Platforms
                                 xmlRuleV4.SetAttribute("action", "permit");
                             }
                             XmlIf = xmlRuleV4.OwnerDocument.CreateElement("if");
+                            xmlRuleV4.AppendChild(XmlIf); // bugfix 2.11.9
                         }
                         else if(ip.IsV6)
                         {
@@ -241,6 +242,7 @@ namespace Eddie.Platforms
                                 xmlRuleV6.SetAttribute("action", "permit");
                             }
                             XmlIf = xmlRuleV6.OwnerDocument.CreateElement("if");
+                            xmlRuleV6.AppendChild(XmlIf); // bugfix 2.11.9
                         }
                     }
 
@@ -255,7 +257,7 @@ namespace Eddie.Platforms
     
                 if(xmlRuleV4 != null)
                     AddRule("netlock_allow_ips_v4", xmlRuleV4);
-                if (xmlRuleV6 != null)
+                if(xmlRuleV6 != null)
                     AddRule("netlock_allow_ips_v6", xmlRuleV6);
             }
         }

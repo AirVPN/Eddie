@@ -425,7 +425,7 @@ namespace Eddie.Core
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
 			SetDefaultBool("help", false, Messages.ManOptionHelp);
 			SetDefault("help_format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
-            SetDefaultBool("batch", false, NotInMan); // Don't lock interface, exit when connection is closed.
+            SetDefaultBool("batch", false, NotInMan); // Don't lock interface, exit when connection is closed.            
             SetDefault("login", "text", "", Messages.ManOptionLogin);
             SetDefault("password", "password", "", Messages.ManOptionPassword);
 			SetDefaultBool("remember", false, Messages.ManOptionRemember);
@@ -450,6 +450,9 @@ namespace Eddie.Core
             SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
             SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
 
+            SetDefaultBool("backend", false, NotInMan); // Backend mode, dump Commands and not user-friendly log. Eddie3
+
+            SetDefaultBool("log.console.enabled", true, NotInMan);
             SetDefaultBool("log.file.enabled", false, NotInMan);
 			SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
 			SetDefaultBool("log.level.debug", false, NotInMan);

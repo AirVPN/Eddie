@@ -31,7 +31,7 @@ namespace Eddie.Core
         private HttpListener m_listener = new HttpListener();
         //private Func<HttpListenerRequest, string> m_responderMethod;
         
-        private List<XmlElement> m_pullItems = new List<XmlElement>();
+        private List<XmlItem> m_pullItems = new List<XmlItem>();
 
         public static string GetPath()
         {
@@ -57,11 +57,7 @@ namespace Eddie.Core
                 throw new NotSupportedException(
                     "Needs Windows XP SP2, Server 2003 or later.");
 
-            /*
-            // A responder method is required
-            if (method == null)
-                throw new ArgumentException("method");
-            */
+            Engine.Instance.CommandEvent += OnCommandEvent;
 
             m_listener.Prefixes.Add(prefix);
 
@@ -82,7 +78,10 @@ namespace Eddie.Core
                             var ctx = c as HttpListenerContext;
                             try
                             {
-                                string localPath = GetPath() + ctx.Request.Url.LocalPath;
+                                string urlPath = ctx.Request.Url.LocalPath;
+                                if (urlPath == "/")
+                                    urlPath = "/index.html";
+                                string localPath = GetPath() + urlPath;
                                 if (Platform.Instance.FileExists(localPath))
                                 {
                                     WriteFile(ctx, localPath, false);
@@ -204,13 +203,18 @@ namespace Eddie.Core
                     if (m_pullItems.Count == 0)
                         return "";
 
-                    XmlElement data = m_pullItems[0];
+                    XmlItem data = m_pullItems[0];
                     m_pullItems.RemoveAt(0);
-                    return data.OuterXml;
+                    return data.ToString();
                 }
             }
 
             return string.Format("<HTML><BODY>Test.<br>{0}</BODY></HTML>", DateTime.Now);
+        }
+
+        private void OnCommandEvent(XmlItem xml)
+        {
+            Send(xml);
         }
 
         public static XmlElement CreateMessage()
@@ -226,17 +230,18 @@ namespace Eddie.Core
             Engine.Instance.Command(data, true);
         }
 
-        public delegate void SendEventHandler(XmlElement xmlMessage);
+        // Clodo: Abolire, è usata per aggancio con WpfWeb
+        public delegate void SendEventHandler(XmlItem xml);
         public event SendEventHandler SendEvent;
 
-        public void Send(XmlElement xmlMessage)
+        public void Send(XmlItem xml)
         {
             if (SendEvent != null)
-                SendEvent(xmlMessage.OwnerDocument.DocumentElement);
+                SendEvent(xml);
 
             lock (m_pullItems)
             {
-                m_pullItems.Add(xmlMessage); // Clodo TOFIX memory huge
+                m_pullItems.Add(xml); // Clodo TOFIX memory huge
             }            
         }
     }

@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="XmlItem.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="CountriesManager.cs" />

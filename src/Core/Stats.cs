@@ -100,7 +100,13 @@ namespace Eddie.Core
 			if (entry.Value != newValue)
 			{
 				entry.Value = newValue;
-				Engine.Instance.OnStatsChange(entry);
+
+                XmlItem xml = new XmlItem("command");
+                xml.SetAttribute("action", "ui.stats.change");
+                entry.WriteXML(xml);
+                Engine.Instance.Command(xml);
+
+                Engine.Instance.OnStatsChange(entry);
 			}
 		}
 

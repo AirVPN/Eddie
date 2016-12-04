@@ -60,13 +60,20 @@ namespace Eddie.UI.Windows
 
                     Gui.Engine engine = new Gui.Engine();
 
+                    engine.TerminateEvent += Engine_TerminateEvent;
+
                     if (engine.Initialization(false))
                     {
                         engine.FormMain = new Gui.Forms.Main();
 
                         engine.UiStart();
 
-                        Application.Run(engine.FormMain);                        
+                        // Application.Run(engine.FormMain); // Removed in 2.11.9                      
+
+                        engine.FormMain.LoadPhase();
+
+                        m_context = new ApplicationContext();                        
+                        Application.Run(m_context);
                     }
                 }
             }
@@ -75,6 +82,13 @@ namespace Eddie.UI.Windows
                 MessageBox.Show(e.Message, Constants.Name2, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 		}
+
+        static ApplicationContext m_context;
+
+        private static void Engine_TerminateEvent()
+        {
+            m_context.ExitThread();
+        }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();

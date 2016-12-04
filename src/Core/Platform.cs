@@ -409,7 +409,7 @@ namespace Eddie.Core
         {
             //Assembly.GetExecutingAssembly().Location
             //return new FileInfo(ExecutablePath).DirectoryName;
-			return Path.GetDirectoryName(GetExecutablePath());
+            return Path.GetDirectoryName(GetExecutablePath());
         }
 
 		public virtual string GetExecutablePath()

@@ -50,7 +50,7 @@ namespace Eddie.Core
             {
                 int tickElapsed = Environment.TickCount - m_tickStart;
                 m_tickStart = 0;
-                Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");                
+                // Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");                
             }
 		}
 	}

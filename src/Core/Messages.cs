@@ -24,6 +24,7 @@ namespace Eddie.Core
 {
     public static class Messages
     {
+        // Start Messages
         public static string AppStarting = "Starting";
         public static string AppShutdownStart = "Shutdown in progress"; 
         public static string AppShutdownComplete = "Shutdown complete"; 
@@ -256,7 +257,7 @@ namespace Eddie.Core
 		public static string CommandConnectSubtitle = "or choose a specific server in 'Servers' tab.";
 		public static string CommandDisconnect = "Disconnect";
 		public static string CommandCancel = "Cancel";
-		public static string CommandUnknown = "Unknown command";
+		public static string CommandUnknown = "Unknown command: {1}";
 		public static string ManifestUpdateForce = "Updating now...";
         public static string ResetSettingsConfirm = "WARNING: all custom settings will be lost. Continue?";
         public static string ResetSettingsDone = "Settings reverted to default.";
@@ -448,7 +449,9 @@ namespace Eddie.Core
 		public static string IpV6Warning = "IPv6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPv6.\n\nContinue?";
 		public static string IpV6WarningUnableToDetect = "Unable to understand if IPv6 is active.";
 
-		public static string Format(string format, string param1)
+        // End Messages
+
+        public static string Format(string format, string param1)
 		{
 			return format.Replace("{1}", param1);
 		}

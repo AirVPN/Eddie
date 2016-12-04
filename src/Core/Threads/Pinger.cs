@@ -306,13 +306,6 @@ namespace Eddie.Core.Threads
 
 		public void PingResult(ServerInfo infoServer, Int64 result)
 		{
-			/*
-			if(result == -1)
-				Console.WriteLine("Ping " + infoServer.IpEntry + " failed");
-			else
-				Console.WriteLine("Ping " + infoServer.IpEntry + " done, " + result.ToString() + " ms");			
-			*/
-
 			infoServer.PingTests++;
 			infoServer.LastPingResult = Utils.UnixTimeStamp();
 			if (result == -1)
@@ -365,8 +358,6 @@ namespace Eddie.Core.Threads
 						stats.Invalid++;						
 				}
 			}
-
-			//Console.WriteLine("Ping Total:" + iTotal.ToString() + ", Invalid:" + iInvalid.ToString());
 
 			stats.Valid = (stats.Invalid == 0);
 

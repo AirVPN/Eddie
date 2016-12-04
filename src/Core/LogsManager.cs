@@ -89,6 +89,11 @@ namespace Eddie.Core
 			if(LogEvent != null)
 				LogEvent(l);
 
+            XmlItem xml = new XmlItem("command");
+            xml.SetAttribute("action", "ui.log");
+            l.WriteXML(xml);
+            Engine.Instance.Command(xml);
+
 			Engine.Instance.OnLog(l);
 		}
 

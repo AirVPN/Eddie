@@ -223,8 +223,11 @@ namespace Eddie.Platforms
         public override string GetExecutablePath()
         {
             // It return vshost.exe under VS, better
-            return Environment.GetCommandLineArgs()[0];
+            string path = Environment.GetCommandLineArgs()[0];
+            path = Path.GetFullPath(path); // 2.11.9
+            return path;
         }
+        
 
         public override string GetUserFolder()
         {

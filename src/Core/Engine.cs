@@ -41,6 +41,9 @@ namespace Eddie.Core
 		public delegate void TerminateHandler();
 		public event TerminateHandler TerminateEvent;
 
+        public delegate void CommandEventHandler(XmlItem data);
+        public event CommandEventHandler CommandEvent;
+
         private Threads.Pinger m_threadPinger;
         private Threads.Penalities m_threadPenalities;
         private Threads.Discover m_threadDiscover;
@@ -334,11 +337,19 @@ namespace Eddie.Core
 
 					if (ConsoleMode)
 					{
-						if (Console.KeyAvailable)
-						{
-							ConsoleKeyInfo key = Console.ReadKey();
-							OnConsoleKey(key);
-						}
+                        try
+                        {
+                            // try/catch because throw an exception if stdin is redirected.
+                            // May in future we can use Console.IsInputRedirected, but require .Net 4.5
+                            if (Console.KeyAvailable)
+                            {
+                                ConsoleKeyInfo key = Console.ReadKey();
+                                OnConsoleKey(key);
+                            }
+                        }
+                        catch
+                        {
+                        }						
 					}
 
                     if (CancelRequested)
@@ -549,32 +560,40 @@ namespace Eddie.Core
 			OnExit();	
 		}
 
-		public virtual void OnCommand(CommandLine command, bool ignoreIfNotExists)
+		public virtual void OnCommand(XmlItem xml, bool ignoreIfNotExists)
 		{
-            if(m_webServer != null)
-            {
-                XmlElement xmlCommand = WebServer.CreateMessage();
-                xmlCommand.SetAttribute("type", "command");
-                command.WriteXML(xmlCommand);
-                m_webServer.Send(xmlCommand);
-            }   
-
-			string action = command.Get("action","").ToLowerInvariant();
+            string action = xml.GetAttribute("action").ToLowerInvariant();
             if (action == "exit")
             {
                 OnExit();
             }
             else if (action == "openvpn")
             {
-                SendManagementCommand(command.Get("command", ""));
+                SendManagementCommand(xml.GetAttribute("command"));
+            }
+            else if (action == "ui.show.text")
+            {
+                OnShowText(xml.GetAttribute("title",""), xml.GetAttribute("body",""));
+            }
+            else if (action == "ui.show.url")
+            {
+                Platform.Instance.OpenUrl(xml.GetAttribute("url"));
             }
             else if (action == "ui.show.license")
             {
-                OnShowText("License", ResourcesFiles.GetString("license.txt"));
+                XmlItem xml2 = new XmlItem("command");
+                xml2.SetAttribute("action", "ui.show.text");
+                xml2.SetAttribute("title", "License");
+                xml2.SetAttribute("body", ResourcesFiles.GetString("license.txt"));
+                Command(xml2);
             }
             else if (action == "ui.show.libraries")
             {
-                OnShowText("Libraries and Tools", ResourcesFiles.GetString("thirdparty.txt"));
+                XmlItem xml2 = new XmlItem("command");
+                xml2.SetAttribute("action", "ui.show.text");
+                xml2.SetAttribute("title", "Libraries and Tools");
+                xml2.SetAttribute("body", ResourcesFiles.GetString("thirdparty.txt"));
+                Command(xml2);
             }
             else if (action == "ui.show.website")
             {
@@ -676,7 +695,7 @@ namespace Eddie.Core
             else
             {
                 if(ignoreIfNotExists == false)
-                    throw new Exception(Messages.CommandUnknown);
+                    throw new Exception(Messages.Format(Messages.CommandUnknown, xml.ToString()));
             }
 		}
 
@@ -920,26 +939,18 @@ namespace Eddie.Core
 				return;
 			}
 
-            if (m_webServer != null)
-            {
-                XmlElement xmlLog = WebServer.CreateMessage();
-                xmlLog.SetAttribute("type", "log");
-                l.WriteXML(xmlLog);
-                m_webServer.Send(xmlLog);
-            }
-
             if (l.Type != LogType.Realtime)
 			{
-				string lines = l.GetStringLines().Trim();
-				Console.WriteLine(lines);
-
-				// File logging
+				string lines = l.GetStringLines().Trim();				
 
 				if (Storage != null)
 				{
 					lock (Storage)
-					{
-						if (Storage.GetBool("log.file.enabled"))
+					{                        
+                        if (Storage.GetBool("log.console.enabled"))
+                            Console.WriteLine(lines);
+
+                        if (Storage.GetBool("log.file.enabled"))
 						{
 							try
 							{
@@ -978,15 +989,7 @@ namespace Eddie.Core
         }
 
         public virtual void OnShowText(string title, string data)
-        {
-            if (m_webServer != null)
-            {
-                XmlElement webMessage = WebServer.CreateMessage();
-                webMessage.SetAttribute("type", "ui.show.text");
-                webMessage.SetAttribute("title", title);
-                webMessage.SetAttribute("text", data);
-                m_webServer.Send(webMessage);
-            }
+        {            
         }
 
         public virtual bool OnAskYesNo(string message)
@@ -1589,25 +1592,37 @@ namespace Eddie.Core
 
         public void Command(string cmd)
         {
-            Command(cmd, false);
+            Command(cmd, true);
+        }
+        
+        public void Command(string cmd, bool ignoreIfNotExists)
+        {
+            Command(new XmlItem(cmd), ignoreIfNotExists);
         }
 
-        public void Command(string cmd, bool ignoreIfNotExists)
-		{
-			CommandLine command = new CommandLine(cmd, false, true);
+        public void Command(XmlItem xml)
+        {
+            Command(xml, true);
+        }
 
+        public void Command(XmlItem xml, bool ignoreIfNotExists)
+        {
             try
-			{
-				OnCommand(command, ignoreIfNotExists);
+            {
+                if (Storage.GetBool("backend"))
+                    Console.WriteLine(xml.ToString());
 
-				//Log(LogType.Verbose, "Command '" + command.GetFull() + "' executed");
-			}
-			catch (Exception e)
-			{
+                if (CommandEvent != null)
+                    CommandEvent(xml);
+
+                OnCommand(xml, ignoreIfNotExists);
+            }
+            catch (Exception e)
+            {
                 Logs.Log(LogType.Error, e);
-			}
-		}
-
+            }
+        }
+        
 		private void Auth()
 		{
 			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin, false);

@@ -201,6 +201,7 @@ namespace Eddie.Platforms
 
         protected override void OpenDirectoryInFileManagerEx(string path)
         {
+            // TOFIX Don't work well on all distro
             string args = " - " + m_logname + " -c 'xdg-open \"" + path + "\"'";
             Shell("su", args, false);
         }
@@ -589,6 +590,6 @@ namespace Eddie.Platforms
             {
                 return true;
             }
-        }
+        }        
     }
 }

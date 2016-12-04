@@ -31,6 +31,13 @@ namespace Eddie.Core
         public string Clickable = "";
 		public bool Listed = false; // Not really used
 
+        public void WriteXML(XmlItem item)
+        {
+            item.SetAttribute("key", Key);
+            item.SetAttribute("value", Value);
+            item.SetAttribute("text", Text);
+        }
+
         public string Text
         {
             get

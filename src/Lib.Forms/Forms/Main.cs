@@ -229,6 +229,11 @@ namespace Eddie.Gui.Forms
 
         protected override void OnLoad(EventArgs e)
         {
+            base.OnLoad(e);
+        }
+
+        public void LoadPhase()
+        {
             m_lockCoordUpdate = true;
 
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
@@ -424,7 +429,7 @@ namespace Eddie.Gui.Forms
 
             Resizing();
 
-            base.OnLoad(e);
+            // base.OnLoad(e); // Removed in 2.11.9
 
             m_formReady = true;
             
@@ -451,6 +456,11 @@ namespace Eddie.Gui.Forms
             Refresh();
 		}
         */
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+        }
 
         protected override void WndProc(ref Message m)
         {
@@ -499,7 +509,6 @@ namespace Eddie.Gui.Forms
                 {
                     if (m_tabMain.Width != ClientSize.Width)
                     {
-                        // Console.WriteLine("Detected Mono issue");
                         Resizing();
                     }
                 }
@@ -608,12 +617,6 @@ namespace Eddie.Gui.Forms
             base.OnClosing(e);
         }
 
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);            
-        }
-              
-                
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -1820,7 +1823,7 @@ namespace Eddie.Gui.Forms
 				string command = txtCommand.Text;
 				txtCommand.Text = "";
 				
-				Engine.Instance.Command(command);
+				Engine.Instance.Command(command, false);
 			}			
 		}
 

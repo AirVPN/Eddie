@@ -226,7 +226,7 @@ namespace Eddie.Core.Providers
 			}
 			catch (System.Exception e)
 			{
-				Console.WriteLine(e.Message);
+                Engine.Instance.Logs.Log(e);
 			}
 		}
 

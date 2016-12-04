@@ -33,8 +33,16 @@ namespace Eddie.Core
 		}
 		
 		public Dictionary<string, string> Params = new Dictionary<string, string>();
-		
-		public CommandLine(string line, bool ignoreFirst, bool firstIsAction)
+
+        // ------------
+        // Costructors
+        // ------------
+
+        public CommandLine()
+        {
+        }
+
+        public CommandLine(string line, bool ignoreFirst, bool firstIsAction)
 		{
 			Params = ParseCommandLine(line, ignoreFirst, firstIsAction);
 		}
@@ -58,6 +66,10 @@ namespace Eddie.Core
             Set(key2, val2);
         }
 
+        // ------------
+        // Import / Export
+        // ------------
+
         public string GetFull()
 		{
 			string o = "";
@@ -74,13 +86,36 @@ namespace Eddie.Core
 			return result;
 		}
 
+        public override string ToString()
+        {
+            return GetFull();
+        }
+
+        /*
         public void WriteXML(XmlElement xmlElement)
         {
             foreach (KeyValuePair<string, string> item in Params)
                 xmlElement.SetAttribute(item.Key, item.Value);
         }
 
-		public bool Exists(string name)
+        public XmlElement ToXml()
+        {
+            XmlElement xmlElement = Utils.XmlCreateElement("command");
+            WriteXML(xmlElement);
+            return xmlElement;
+        }        
+
+        public string ToXmlString()
+        {
+            return ToXml().OuterXml;
+        }
+        */
+
+        // ------------
+        // Management
+        // ------------
+
+        public bool Exists(string name)
 		{
 			return Params.ContainsKey(name);
 		}
@@ -98,6 +133,16 @@ namespace Eddie.Core
 				return def;
 		}
 
+        public string Get(string name)
+        {
+            return Get(name, "");
+        }
+
+        public void Set(string name, int value)
+        {
+            Set(name, value.ToString());
+        }
+
 		public void SetPos(int pos, string name)
 		{
 			int p = 0;
@@ -113,7 +158,11 @@ namespace Eddie.Core
 			}
 		}
 
-		private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst, bool firstIsAction)
+        // ------------
+        // Misc
+        // ------------
+
+        private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst, bool firstIsAction)
 		{
 			Dictionary<string, string> result = new Dictionary<string, string>();
 
