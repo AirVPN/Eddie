@@ -34,9 +34,9 @@ namespace Eddie.Core
 
         public RouteEntry m_routeDefaultRemove;
 
-        protected string m_ApplicationPath;
-        protected string m_ExecutablePath;
-        protected string m_UserPath;
+        protected string m_ApplicationPath = "";
+        protected string m_ExecutablePath = "";
+        protected string m_UserPath = "";
 
         // ----------------------------------------
         // Static - Also used before the derivated class is created
