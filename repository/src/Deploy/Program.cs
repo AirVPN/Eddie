@@ -625,6 +625,10 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
+							SignSingleFile(platform, pathTemp + "/eddie-cli");
+							SignSingleFile(platform, pathTemp + "/openvpn");
+							SignSingleFile(platform, pathTemp + "/stunnel");
+
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
 
@@ -649,6 +653,11 @@ namespace Deploy
 							if (File.Exists(pathFinal))
 								File.Delete(pathFinal);
 
+							//SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
+							SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
+							SignSingleFile(platform, pathRelease + "Eddie.app");
+
 							string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
 							Shell(command2);
 						}
@@ -662,6 +671,8 @@ namespace Deploy
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
 
 						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
+
+						SignSingleFile(platform, pathFinal);
 					}
 					else if (format == "mono")
 					{
@@ -681,6 +692,9 @@ namespace Deploy
 
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+
+							SignSingleFile(platform, pathTemp + "/openvpn");
+							SignSingleFile(platform, pathTemp + "/stunnel");
 
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -746,7 +760,7 @@ namespace Deploy
             string arguments = "/p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework.ToString() + ".0\" /t:Rebuild \"" + PathBase + "/src/Eddie_VS2015.sln\"";
             string o = Shell(pathCompiler, arguments);
 
-            if (o.IndexOf("0 Error(s)") != -1)
+			if (o.IndexOf("0 Error(s)", StringComparison.InvariantCulture) != -1)
             {
                 return true;
             }
@@ -813,7 +827,7 @@ namespace Deploy
 			Log("Not yet implemented.");
 		}
 
-		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+		static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
 		{
 			try
 			{
@@ -905,7 +919,7 @@ namespace Deploy
             {
                 bool skip = false;
 
-                if (file.EndsWith("tap-windows.exe")) // Already signed by OpenVPN Technologies
+				if (file.EndsWith("tap-windows.exe", StringComparison.InvariantCulture)) // Already signed by OpenVPN Technologies
                     skip = true;
 
                 if(skip == false)
@@ -913,7 +927,53 @@ namespace Deploy
             }            
         }
 
-        static void WindowsSignFile(string path, bool log)
+		static void SignSingleFile(string platform, string path)
+		{
+			if (Program.Arguments.Contains("official") == false)
+				return;
+
+			if (platform == "osx")
+			{
+				string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
+				if (File.Exists(pathSignString))
+				{
+					string appleSign = File.ReadAllText(pathSignString).Trim();
+					string cmd = "codesign -d --deep -v --force --sign \"" + appleSign + "\" \"" + path + "\"";
+					string output = Shell(cmd);
+					Log("macOS Signing file: " + output);
+				}
+				else
+					Log("Missing Apple Developer ID for macOS signatures. (" + pathSignString + ")");
+			}
+			else if (platform.StartsWith("windows", StringComparison.InvariantCulture))
+			{
+				string pathPfx = NormalizePath(PathBaseSigning + "/eddie.pfx");
+				string pathPfxPwd = NormalizePath(PathBaseSigning + "/eddie.pfx.pwd");
+
+				string title = "Eddie - AirVPN Client";
+
+				if ((File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)))
+				{
+					string cmd = "";
+					cmd += PathBaseTools + "/windows/signtool.exe";
+					cmd += " sign";
+					cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
+					cmd += " /f " + pathPfx; // Pfx
+					cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
+					cmd += " /d \"" + title + "\""; // Title
+					cmd += " \"" + path + "\""; // File
+					string output = Shell(cmd);
+
+					Log("Windows Signing file: \"" + path + "\": " + output);
+				}
+				else
+				{
+					Log("Missing PFX or password for Windows signatures. (" + pathPfx + " , " + pathPfxPwd + ")");
+				}
+			}
+		}
+
+        static void WindowsSignFile(string path, bool log) // TOCLEAN
         {
             if (Program.Arguments.Contains("official") == false)
                 return;
@@ -940,7 +1000,7 @@ namespace Deploy
             }
             else
             {
-                Log("Missing PFX or password for Windows Signatures.");
+				Log("Missing PFX or password for Windows signatures. (" + pathPfx + " , " + pathPfxPwd + ")");
             }
         }
 
