@@ -253,6 +253,8 @@ namespace Deploy
 			if (SO == "osx") {
 				ListPackages.Add(new Package("osx", "x64", "ui", true, 4, "portable"));
 				ListPackages.Add(new Package("osx", "x64", "ui", true, 4, "installer"));
+				ListPackages.Add(new Package("osx", "x64", "cli", true, 4, "portable"));
+				ListPackages.Add(new Package("osx", "x64", "cli", true, 4, "mono"));
 			}
 			
 			string versionString = File.ReadAllText(PathBase + "/version.txt").Trim();
@@ -603,28 +605,93 @@ namespace Deploy
 				}
 				else if (platform == "osx")
 				{
-					pathRelease = pathRelease.Replace ("/x64/Release/", "/Release/");
-
-					// Osx bin have a specific subdirectory
-					pathRelease = pathRelease.Replace ("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+					
 
 					if (format == "portable")
 					{
-						// TAR.GZ
-						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+						if (ui == "cli")
+						{	
+							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.Osx/bin/");
 
-						if (File.Exists(pathFinal))
-							File.Delete(pathFinal);
+							CopyFile(pathRelease, "eddie-cli", pathTemp, "eddie-cli");
 
-						string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
-						Shell(command2);
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
+							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+
+							RemoveFile(pathTemp + "/libgdiplus.so.0");
+							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
+
+							CreateDirectory(pathTemp + "/" + fileName);
+							MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+							// TAR.GZ
+							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+							Shell(command2);
+
+							// cazzo
+							// codesign -v --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)" "/Users/clodo/Documents/airvpn-client/src/UI.Cocoa.Osx/bin/Release/Eddie.app/Contents/MacOS/openvpn"
+						}
+						else if (ui == "ui")
+						{
+							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+
+							// TAR.GZ
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
+							Shell(command2);
+						}
 
 					}
 					else if (format == "installer")
 					{
+						pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+						pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
 
 						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
+					}
+					else if (format == "mono")
+					{
+						if (ui == "cli")
+						{
+							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.Osx/bin/");
+
+							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+							CopyFile(pathRelease, "Platforms.Osx.dll", pathTemp);
+							CopyFile(pathRelease, "CLI.Osx.exe", pathTemp, "Eddie-CLI.exe");
+
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+
+							RemoveFile(pathTemp + "/libgdiplus.so.0");
+							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
+
+							CreateDirectory(pathTemp + "/" + fileName);
+							MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+							// TAR.GZ
+							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+							Shell(command2);
+						}
 					}
 				}
 					
