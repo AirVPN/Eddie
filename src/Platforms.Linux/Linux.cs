@@ -125,9 +125,11 @@ namespace Eddie.Platforms
 			return ShellCmd("ldd \"" + Utils.StringNormalizePath(path) + "\"");
 		}
 
-		public override string GetExecutablePath()
+		public override string GetExecutablePathEx()
 		{
             // We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
+
+            // TOFIX: Linux and OS X version are different, merge. Probably OS X it's more a clean approach.
 
             // Removed in 2.11 to avoid dependencies with libMonoPosixHelper.so
             // Useless, still required, but at least it's an external requirement.
@@ -149,7 +151,7 @@ namespace Eddie.Platforms
 			return output;
 		}
 
-        public override string GetUserFolder()
+        public override string GetUserPathEx()
         {
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }

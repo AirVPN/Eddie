@@ -39,8 +39,7 @@ namespace Eddie.UI.Linux
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 Platform.Instance = new Eddie.Platforms.Linux();
-                Platform.Instance.ExePath = Environment.GetCommandLineArgs()[0];
-
+                
                 CommandLine.InitSystem(Environment.CommandLine);
 
                 if (CommandLine.SystemEnvironment.Exists("cli"))

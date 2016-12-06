@@ -74,9 +74,9 @@ namespace Eddie.Core
             if (DataPath == "")
             {
                 if (path == "home")
-					path = Platform.Instance.GetUserFolder();
+					path = Platform.Instance.GetUserPath();
                 else if (path == "program")
-                    path = Platform.Instance.GetProgramFolder();
+                    path = Platform.Instance.GetApplicationPath();
 
                 if (path != "")
                 {
@@ -88,13 +88,13 @@ namespace Eddie.Core
                         
             if (DataPath == "")
             {
-				DataPath = Platform.Instance.GetProgramFolder();
+				DataPath = Platform.Instance.GetApplicationPath();
                 if (Platform.Instance.HasAccessToWrite(DataPath) == false)
                     DataPath = "";
             }
 
             if (DataPath == "")
-				DataPath = Platform.Instance.GetUserFolder();
+				DataPath = Platform.Instance.GetUserPath();
         }
 
         public Dictionary<string, Option> Options

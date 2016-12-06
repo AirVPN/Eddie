@@ -198,7 +198,7 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
             }
 
-            DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/dev.txt"));
+            DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/dev.txt"));
 
             m_logsManager = new LogsManager();
             
@@ -390,7 +390,7 @@ namespace Eddie.Core
 				}
 
                 Logs.Log(LogType.Verbose, "Data path: " + Storage.DataPath);
-				Logs.Log(LogType.Verbose, "Application path: " + Platform.Instance.GetProgramFolder());
+				Logs.Log(LogType.Verbose, "Application path: " + Platform.Instance.GetApplicationPath());
 				Logs.Log(LogType.Verbose, "Executable path: " + Platform.Instance.GetExecutablePath());
 				Logs.Log(LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 

@@ -93,7 +93,7 @@ namespace Eddie.Platforms
 			return ShellCmd("otool -L \"" + path + "\"");
 		}
 
-		public override string GetExecutablePath()
+		public override string GetExecutablePathEx()
 		{
 			string currentPath = System.Reflection.Assembly.GetEntryAssembly().Location;
 			if(new FileInfo(currentPath).Directory.Name == "MonoBundle")
@@ -101,10 +101,18 @@ namespace Eddie.Platforms
 				// OSX Bundle detected, use the launcher executable
 				currentPath = currentPath.Replace("/MonoBundle/","/MacOS/").Replace(".exe","");
 			}
+            else if(Process.GetCurrentProcess().ProcessName.StartsWith("mono", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // mono <app>, Entry Assembly path it's ok
+            }
+            else
+            {
+                currentPath = Process.GetCurrentProcess().MainModule.FileName;
+            }
 			return currentPath;
 		}
 
-        public override string GetUserFolder()
+        public override string GetUserPathEx()
         {
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
@@ -507,7 +515,7 @@ namespace Eddie.Platforms
 		public override string GetGitDeployPath()
 		{
 			// Under OSX, binary is inside a bundle AirVPN.app/Contents/MacOS/
-			return GetProgramFolder () + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
+			return GetApplicationPath() + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
 		}
 
 		public string[] GetInterfaces()

@@ -66,7 +66,7 @@ namespace Eddie.Core
             Add("SystemReport", Messages.StatsSystemReport, "system", "View");
             
             UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
-            UpdateValue("PathApp", Platform.Instance.GetProgramFolder());
+            UpdateValue("PathApp", Platform.Instance.GetApplicationPath());
         }
 
 		public void Add(string key, string caption, string icon)

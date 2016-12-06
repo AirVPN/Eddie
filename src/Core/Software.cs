@@ -292,7 +292,7 @@ namespace Eddie.Core
 
             // Same path
             {
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/" + filename);
+				string path = Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/" + filename);
 				if (FileExists(path))
 					return path;
 			}

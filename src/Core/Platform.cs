@@ -32,15 +32,17 @@ namespace Eddie.Core
     {
 		public static Platform Instance;
 
-        public string ExePath;
+        public RouteEntry m_routeDefaultRemove;
 
-		public RouteEntry m_routeDefaultRemove;
+        protected string m_ApplicationPath;
+        protected string m_ExecutablePath;
+        protected string m_UserPath;
 
-		// ----------------------------------------
+        // ----------------------------------------
         // Static - Also used before the derivated class is created
         // ----------------------------------------
 
-		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+        public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
 		{
 			if (WaitEnd)
 			{
@@ -171,10 +173,35 @@ namespace Eddie.Core
 		}
 
         // ----------------------------------------
+        // Method
+        // ----------------------------------------
+
+        public string GetApplicationPath()
+        {
+            if(m_ApplicationPath == "")
+                m_ApplicationPath = GetApplicationPathEx();
+            return m_ApplicationPath;
+        }
+
+        public string GetExecutablePath()
+        {
+            if (m_ExecutablePath == "")
+                m_ExecutablePath = GetExecutablePathEx();
+            return m_ExecutablePath;
+        }
+
+        public string GetUserPath()
+        {
+            if (m_UserPath == "")
+                m_UserPath = GetUserPathEx();
+            return m_UserPath;
+        }
+
+        // ----------------------------------------
         // Virtual
         // ----------------------------------------
 
-		public virtual string GetCode()
+        public virtual string GetCode()
 		{
 			return "Unknown";
 		}
@@ -405,19 +432,19 @@ namespace Eddie.Core
             return (v.IndexOf(DirSep) != -1);
         }
 
-        public virtual string GetProgramFolder()
+        public virtual string GetApplicationPathEx()
         {
             //Assembly.GetExecutingAssembly().Location
             //return new FileInfo(ExecutablePath).DirectoryName;
             return Path.GetDirectoryName(GetExecutablePath());
         }
 
-		public virtual string GetExecutablePath()
+		public virtual string GetExecutablePathEx()
 		{
             return System.Reflection.Assembly.GetEntryAssembly().Location;
 		}
 
-        public virtual string GetUserFolder()
+        public virtual string GetUserPathEx()
         {
             NotImplemented();
             return "";
@@ -827,7 +854,7 @@ namespace Eddie.Core
 
         public virtual string GetProjectPath()
         {
-            DirectoryInfo di = new DirectoryInfo(GetProgramFolder());
+            DirectoryInfo di = new DirectoryInfo(GetApplicationPath());
 
             for (;;)
             {

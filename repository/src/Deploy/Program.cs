@@ -361,7 +361,7 @@ namespace Deploy
                         CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
                     }                    
 
-                    WindowsSignPath(pathTemp);                    
+                    SignPath(platform, pathTemp);                    
                     
 					if (format == "portable")
 					{
@@ -417,7 +417,7 @@ namespace Deploy
                             //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
                             Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
 
-                            WindowsSignFile(pathExe, true);
+                            SignFile(platform, pathExe);
                         }
                     }
 				}
@@ -625,9 +625,9 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
-							SignSingleFile(platform, pathTemp + "/eddie-cli");
-							SignSingleFile(platform, pathTemp + "/openvpn");
-							SignSingleFile(platform, pathTemp + "/stunnel");
+							SignFile(platform, pathTemp + "/eddie-cli");
+                            SignFile(platform, pathTemp + "/openvpn");
+                            SignFile(platform, pathTemp + "/stunnel");
 
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -653,10 +653,10 @@ namespace Deploy
 							if (File.Exists(pathFinal))
 								File.Delete(pathFinal);
 
-							//SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
-							SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
-							SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
-							SignSingleFile(platform, pathRelease + "Eddie.app");
+                            //SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+                            SignFile(platform, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
+                            SignFile(platform, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
+                            SignFile(platform, pathRelease + "Eddie.app");
 
 							string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
 							Shell(command2);
@@ -672,7 +672,7 @@ namespace Deploy
 
 						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
 
-						SignSingleFile(platform, pathFinal);
+                        SignFile(platform, pathFinal);
 					}
 					else if (format == "mono")
 					{
@@ -693,8 +693,8 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
-							SignSingleFile(platform, pathTemp + "/openvpn");
-							SignSingleFile(platform, pathTemp + "/stunnel");
+                            SignFile(platform, pathTemp + "/openvpn");
+                            SignFile(platform, pathTemp + "/stunnel");
 
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -910,9 +910,9 @@ namespace Deploy
 			return output;
 		}
 
-        static void WindowsSignPath(string path)
+        static void SignPath(string platform, string path)
         {
-            Log("Windows Signing path: " + path);
+            Log("Signing path: " + path);
 
             string[] files = Directory.GetFiles(path);
             foreach (string file in files)
@@ -923,11 +923,11 @@ namespace Deploy
                     skip = true;
 
                 if(skip == false)
-                    WindowsSignFile(file, false);
+                    SignFile(platform, file);
             }            
         }
 
-		static void SignSingleFile(string platform, string path)
+		static void SignFile(string platform, string path)
 		{
 			if (Program.Arguments.Contains("official") == false)
 				return;
@@ -972,38 +972,7 @@ namespace Deploy
 				}
 			}
 		}
-
-        static void WindowsSignFile(string path, bool log) // TOCLEAN
-        {
-            if (Program.Arguments.Contains("official") == false)
-                return;
-
-            string pathPfx = NormalizePath(PathBaseSigning + "/eddie.pfx");
-            string pathPfxPwd = NormalizePath(PathBaseSigning + "/eddie.pfx.pwd");
-
-            string title = "Eddie - AirVPN Client";
-
-            if( (File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)) )
-            {
-                if(log)
-                    Log("Windows Signing file: " + path);
-
-                string cmd = "";
-                cmd += PathBaseTools + "/windows/signtool.exe";
-                cmd += " sign";
-                cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
-                cmd += " /f " + pathPfx; // Pfx
-                cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
-                cmd += " /d \"" + title + "\""; // Title
-                cmd += " \"" + path + "\""; // File
-                Shell(cmd);                
-            }
-            else
-            {
-				Log("Missing PFX or password for Windows signatures. (" + pathPfx + " , " + pathPfxPwd + ")");
-            }
-        }
-
+        
         static void MoveFile(string fromFilePath, string toFilePath)
         {
             if (IsVerbose())

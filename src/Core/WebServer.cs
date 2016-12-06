@@ -39,7 +39,7 @@ namespace Eddie.Core
             if (Engine.Instance.DevelopmentEnvironment)
                 pathRoot = Platform.Instance.GetProjectPath();
             else
-                pathRoot = Platform.Instance.GetProgramFolder();
+                pathRoot = Platform.Instance.GetApplicationPath();
             pathRoot += "//webui//";
             if (System.IO.Directory.Exists(pathRoot))
                 return pathRoot;

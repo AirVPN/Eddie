@@ -220,7 +220,7 @@ namespace Eddie.Platforms
             }
         }
 
-        public override string GetExecutablePath()
+        public override string GetExecutablePathEx()
         {
             // It return vshost.exe under VS, better
             string path = Environment.GetCommandLineArgs()[0];
@@ -229,7 +229,7 @@ namespace Eddie.Platforms
         }
         
 
-        public override string GetUserFolder()
+        public override string GetUserPathEx()
         {
             return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
         }
