@@ -198,7 +198,7 @@ namespace Deploy
 
 			if (SO == "windows")
 			{
-                foreach (string arch in new string[] { "x86", "x64" })
+                foreach (string arch in new string[] { "x64", "x86" })
                 {
                     foreach (string ui in new string[] { "ui", "cli" })
                     {
@@ -347,8 +347,9 @@ namespace Deploy
 
 				if (platform.StartsWith("windows"))
 				{
-                    CopyFile(pathRelease, "Lib.Core.dll", pathTemp);					
-					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
+                    CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+                    CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+                    CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
 					
                     if(ui == "ui")
                     {
@@ -426,7 +427,8 @@ namespace Deploy
 					if (format == "mono")
 					{
                         CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
                         CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
@@ -458,7 +460,8 @@ namespace Deploy
                         string command = "mkbundle ";
 						command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
                         command += " \"" + pathRelease + "/Lib.Core.dll\"";
-						command += " \"" + pathRelease + "/Lib.Forms.dll\"";
+                        command += " \"" + pathRelease + "/Lib.Common.dll\"";
+                        command += " \"" + pathRelease + "/Lib.Forms.dll\"";
 						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
 
 						// TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
@@ -499,7 +502,8 @@ namespace Deploy
                     else if( (format == "debian") && (AvailableDpkg) )
                     {
                         CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
                         CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
@@ -536,7 +540,8 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
 
                         Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Common.dll\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
@@ -557,7 +562,8 @@ namespace Deploy
 							libSubPath = "lib64";
 
                         CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+                        CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
                         CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
@@ -584,7 +590,8 @@ namespace Deploy
 
                         Shell("chmod 755 -R \"" + pathTemp + "\"");
                         Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Common.dll\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
@@ -682,7 +689,8 @@ namespace Deploy
 							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.Osx/bin/");
 
 							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-							CopyFile(pathRelease, "Platforms.Osx.dll", pathTemp);
+                            CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+                            CopyFile(pathRelease, "Platforms.Osx.dll", pathTemp);
 							CopyFile(pathRelease, "CLI.Osx.exe", pathTemp, "Eddie-CLI.exe");
 
 							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
