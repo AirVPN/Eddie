@@ -26,8 +26,6 @@ namespace Eddie.CLI.Osx
 {
 	class Program
 	{
-		//static bool Quit = false;
-
 		static void Main(string[] args)
 		{
 			Platform.Instance = new Eddie.Platforms.Osx();
