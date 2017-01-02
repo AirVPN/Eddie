@@ -475,11 +475,11 @@ namespace Eddie.Gui.Forms
             // 
             this.chkWindowsDebugWorkaround.BackColor = System.Drawing.Color.Transparent;
             this.chkWindowsDebugWorkaround.ForeColor = System.Drawing.Color.Black;
-            this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(126, 185);
+            this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(88, 185);
             this.chkWindowsDebugWorkaround.Name = "chkWindowsDebugWorkaround";
-            this.chkWindowsDebugWorkaround.Size = new System.Drawing.Size(127, 19);
+            this.chkWindowsDebugWorkaround.Size = new System.Drawing.Size(165, 19);
             this.chkWindowsDebugWorkaround.TabIndex = 86;
-            this.chkWindowsDebugWorkaround.Text = "Debug workarounds";
+            this.chkWindowsDebugWorkaround.Text = "Experimental workarounds";
             this.chkWindowsDebugWorkaround.UseVisualStyleBackColor = false;
             // 
             // chkWindowsTapUp
