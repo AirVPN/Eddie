@@ -644,10 +644,7 @@ namespace Deploy
 
 							// TAR.GZ
 							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
-							Shell(command2);
-
-							// cazzo
-							// codesign -v --force --sign "Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)" "/Users/clodo/Documents/airvpn-client/src/UI.Cocoa.Osx/bin/Release/Eddie.app/Contents/MacOS/openvpn"
+							Shell(command2);                            
 						}
 						else if (ui == "ui")
 						{
