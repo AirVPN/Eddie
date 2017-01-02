@@ -37,11 +37,11 @@ namespace Eddie.Core.Threads
 		{
 			if (Engine.Instance.IsConnected())
 			{
-				return Messages.Format(Messages.PingerStatsPending, Utils.FormatTime(LatestCheckDate));
+				return MessagesFormatter.Format(Messages.PingerStatsPending, Utils.FormatTime(LatestCheckDate));
 			}
 			else
 			{
-				return Messages.Format(Messages.PingerStatsNormal, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
+				return MessagesFormatter.Format(Messages.PingerStatsNormal, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
 			}			
 		}
 	}

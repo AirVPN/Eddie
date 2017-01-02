@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -62,7 +63,7 @@ namespace Eddie.Core
 					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
 					if( (OpenVpnVersion.StartsWith("Error:")) || (OpenVpnVersion == "") )
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + OpenVpnVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(OpenVpnPath));
 						OpenVpnPath = "";
@@ -103,7 +104,7 @@ namespace Eddie.Core
 					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
 					if( (SshVersion.StartsWith("Error:")) || (SshVersion == ""))
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SshPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, SshPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SshVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SshPath));						
 						SshPath = "";
@@ -137,7 +138,7 @@ namespace Eddie.Core
 					SslVersion = Platform.Instance.Shell(SslPath, arguments).Trim();
 					if ((SslVersion.StartsWith("Error:")) || (SslVersion == ""))
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SslPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, SslPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SslVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SslPath));
 						SslPath = "";
@@ -171,7 +172,7 @@ namespace Eddie.Core
 					CurlVersion = Platform.Instance.Shell(CurlPath, arguments).Trim();
 					if ((CurlVersion.StartsWith("Error:")) || (CurlVersion == ""))
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, CurlPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, CurlPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + CurlVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(CurlPath));
 						CurlPath = "";

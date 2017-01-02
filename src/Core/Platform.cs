@@ -225,6 +225,11 @@ namespace Eddie.Core
 				return "?";
 		}
 
+        public virtual string GetMonoVersion()
+        {
+            return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
+        }
+
         public virtual void OnInit()
         {
 
@@ -372,7 +377,7 @@ namespace Eddie.Core
             return true;
         }
 
-        public virtual void FileContentsAppendText(string path, string contents)
+        public virtual void FileContentsAppendText(string path, string contents, Encoding encoding)
         {
             bool immutable = false;
             if (FileExists(path))
@@ -381,7 +386,7 @@ namespace Eddie.Core
                 if (immutable)
                     FileImmutableSet(path, false);
             }
-            File.AppendAllText(path, contents);
+            File.AppendAllText(path, contents, encoding);
             if (immutable)
                 FileImmutableSet(path, true);
         }

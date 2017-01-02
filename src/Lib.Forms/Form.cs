@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Text;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.Gui

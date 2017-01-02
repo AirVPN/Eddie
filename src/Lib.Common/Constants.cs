@@ -18,17 +18,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 
-namespace Eddie.Core
-{	
-    public class Commands
+namespace Eddie.Lib.Common
+{
+    public static class Constants
     {
-		public static void Do(CommandLine command)
-		{
-			
-		}
+		public static string Name = "AirVPN";
+        public static string Name2 = "Eddie";
+        public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
+        public static int VersionInt = 226;
+		public static string VersionDesc = "2.11.10";
+        public static string WebSite = "https://airvpn.org";
+        public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
+        public static string WindowsDriverVersion = "9.21.2";
+        public static string WindowsXpDriverVersion = "9.9.2";
+        public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
+        public static int DefaultTcpPort = 11111;
     }
 }

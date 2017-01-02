@@ -29,6 +29,7 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 using Eddie.Gui.Controls;
 
@@ -548,18 +549,18 @@ namespace Eddie.Gui.Forms
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
-					Form.DrawStringOutline(e.Graphics, Messages.Format(Messages.TopBarConnected, serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+					Form.DrawStringOutline(e.Graphics, MessagesFormatter.Format(MessagesUi.TopBarConnected, serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 				}
 				else
 				{
                     DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
                     if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) ) 
 					{
-						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, MessagesUi.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 					else
 					{
-						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedExposed, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, MessagesUi.TopBarNotConnectedExposed, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 				}
 
@@ -1140,7 +1141,7 @@ namespace Eddie.Gui.Forms
 
             Graphics g = this.CreateGraphics();
 
-            m_topHeaderHeight = GuiUtils.GetFontSize(g, Skin.FontBig, Messages.TopBarNotConnectedExposed).Height;
+            m_topHeaderHeight = GuiUtils.GetFontSize(g, Skin.FontBig, MessagesUi.TopBarNotConnectedExposed).Height;
             if (m_topHeaderHeight < 30)
                 m_topHeaderHeight = 30;
 

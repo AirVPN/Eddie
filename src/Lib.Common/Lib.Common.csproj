@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</ProjectGuid>
+    <ProjectGuid>{9731FF8C-703E-4132-9427-5B410CF8E382}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Eddie.Platforms.Osx</RootNamespace>
-    <AssemblyName>Platforms.Osx</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <RootNamespace>Eddie.Lib.Common</RootNamespace>
+    <AssemblyName>Lib.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -31,22 +32,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NetworkLockOsxPf.cs" />
-    <Compile Include="Osx.cs" />
+    <Compile Include="CommandLine.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="MessagesUi.cs" />
+    <Compile Include="MessagesFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Lib.Core.csproj">
-      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
-      <Name>Lib.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
-      <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
-      <Name>Lib.Common</Name>
-    </ProjectReference>
+    <Compile Include="CommonUtils.cs" />
+    <Compile Include="XmlItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

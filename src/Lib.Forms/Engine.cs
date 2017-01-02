@@ -23,6 +23,7 @@ using System.Threading;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 //using ExceptionReporting;
@@ -279,7 +280,7 @@ namespace Eddie.Gui
 				{
 					if (l.Type == LogType.Fatal)
 					{
-						MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
 			}
@@ -298,7 +299,9 @@ namespace Eddie.Gui
             base.OnMessageInfo(message);
 
             if (FormMain != null)
+            {
                 MessageBox.Show(FormMain, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         public override void OnMessageError(string message)

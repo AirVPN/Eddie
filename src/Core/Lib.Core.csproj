@@ -8,12 +8,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Eddie.Lib.Core</RootNamespace>
     <AssemblyName>Lib.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <ReleaseVersion>2.11</ReleaseVersion>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +20,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -43,8 +42,7 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
-    <Compile Include="XmlItem.cs" />
-    <Compile Include="Commands.cs" />
+    <Compile Include="TcpServer.cs" />
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="CountriesManager.cs" />
     <Compile Include="InterfaceScope.cs" />
@@ -79,10 +77,8 @@
     <Compile Include="TemporaryFiles.cs" />
     <Compile Include="UI\Chart.cs" />
     <Compile Include="UI\Charts.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="Conversions.cs" />
     <Compile Include="UI\Actions.cs" />
-    <Compile Include="CommandLine.cs" />
     <Compile Include="UI\Colors.cs" />
     <Compile Include="RandomGenerator.cs" />
     <Compile Include="Stats.cs" />
@@ -141,6 +137,12 @@
     <None Include="Resources\AirVPN.xml" />
     <None Include="Resources\OpenVPN.xml" />
     <Content Include="_Readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
+      <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
+      <Name>Lib.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -8,12 +8,13 @@
     <RootNamespace>UI.GtkWeb.Linux</RootNamespace>
     <AssemblyName>UI.GtkWeb.Linux</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ApplicationIcon>..\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -23,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\bin\x86\Release\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -56,32 +57,35 @@
       <Package>gtk-sharp-2.0</Package>
     </Reference>
     <Reference Include="Mono.Posix" />
-    <Reference Include="webkit-sharp, Version=1.1.15.0, Culture=neutral, PublicKeyToken=eaa1d335d2e19745">
-      <Package>webkit-sharp-1.0</Package>
-    </Reference>
+    <Reference Include="webkit-sharp, Version=1.1.15.0, Culture=neutral, PublicKeyToken=eaa1d335d2e19745" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\splash.png" />
+    <EmbeddedResource Include="Resources\icon.png" />
+    <EmbeddedResource Include="Resources\icon_gray.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Engine.cs" />
     <Compile Include="gtk-gui\WindowPrimary.cs" />
     <Compile Include="WindowPrimary.cs" />
+    <Compile Include="WebView.cs" />
+    <Compile Include="WindowSplash.cs" />
+    <Compile Include="gtk-gui\UI.GtkWeb.Linux.WindowSplash.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Core\Lib.Core.csproj">
-      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
-      <Name>Lib.Core</Name>
+    <ProjectReference Include="..\Lib.UiWeb\Lib.UiWeb.csproj">
+      <Project>{9641D500-E197-4BC7-B850-AB37FF428F15}</Project>
+      <Name>Lib.UiWeb</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Platforms.Linux\Platforms.Linux.csproj">
-      <Project>{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}</Project>
-      <Name>Platforms.Linux</Name>
+    <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
+      <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
+      <Name>Lib.Common</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

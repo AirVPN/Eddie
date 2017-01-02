@@ -23,6 +23,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -148,7 +149,7 @@ namespace Eddie.Core
 						info += ", with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
 
 					if (Engine.Instance.Storage.GetBool("advanced.expert"))
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")
 						firstError = info;

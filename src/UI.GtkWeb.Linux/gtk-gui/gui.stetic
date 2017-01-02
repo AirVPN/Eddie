@@ -6,8 +6,8 @@
   </configuration>
   <import>
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <widget-library name="../bin/Debug/UI.GtkWeb.Linux.exe" internal="true" />
     <widget-library name="webkit-sharp, Version=1.1.15.0, Culture=neutral, PublicKeyToken=eaa1d335d2e19745" />
+    <widget-library name="../../bin/x86/Debug/UI.GtkWeb.Linux.exe" internal="true" />
   </import>
   <widget class="Gtk.Window" id="WindowPrimary" design-size="400 300">
     <property name="MemberName" />
@@ -29,6 +29,14 @@
           <placeholder />
         </child>
       </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Window" id="UI.GtkWeb.Linux.WindowSplash" design-size="400 300">
+    <property name="MemberName" />
+    <property name="Title" translatable="yes">WindowSplash</property>
+    <property name="WindowPosition">CenterOnParent</property>
+    <child>
+      <placeholder />
     </child>
   </widget>
 </stetic-interface>

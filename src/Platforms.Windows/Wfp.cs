@@ -28,6 +28,7 @@ using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using System.Threading;
+using Eddie.Lib.Common;
 using Eddie.Core;
 using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
@@ -93,7 +94,7 @@ namespace Eddie.Platforms
             xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");            
 
             if (LibPocketFirewallStart(xmlInfo.OuterXml) == false)
-                throw new Exception(Messages.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
+                throw new Exception(MessagesFormatter.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
         }
 
         public static void Stop()
@@ -122,7 +123,7 @@ namespace Eddie.Platforms
                 {
                     bool result = RemoveItemId(id);
                     if (result == false)
-                        throw new Exception(Messages.Format(Messages.WfpRuleRemoveFail, LibPocketFirewallGetLastError2()));
+                        throw new Exception(MessagesFormatter.Format(Messages.WfpRuleRemoveFail, LibPocketFirewallGetLastError2()));
                 }
 
                 Items.Remove(item.Code);
@@ -190,7 +191,7 @@ namespace Eddie.Platforms
 
                     if (id1 == 0)
                     {
-                        throw new Exception(Messages.Format(Messages.WfpRuleAddFail, LibPocketFirewallGetLastError2(), xmlStr));
+                        throw new Exception(MessagesFormatter.Format(Messages.WfpRuleAddFail, LibPocketFirewallGetLastError2(), xmlStr));
                     }
                     else
                     {

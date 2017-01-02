@@ -19,33 +19,17 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
-using Eddie.Lib.Common;
-using Eddie.Core;
 
-namespace Eddie.CLI.Windows
+namespace Eddie.Lib.Common
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			Platform.Instance = new Eddie.Platforms.Windows();
-
-			CommandLine.InitSystem(Environment.CommandLine);
-
-			Core.Engine engine = new Core.Engine();
-
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
-			if (engine.Initialization(true))
-			{
-				engine.ConsoleStart();
-			}
-		}
-
-		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-		{
-			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);			
-		}
-	}
+    // Here messages used by UI
+    public static class MessagesUi
+    {
+        // Start Messages
+        public static string TopBarConnected = "Connected to {1}";
+        public static string TopBarNotConnectedLocked = "Not connected. Network locked.";
+        public static string TopBarNotConnectedExposed = "Not connected. Network exposed.";
+        public static string StatusTextConnected = "Down: {1} Up: {2} - {3} - IP: {4}";
+        // End Messages
+    }
 }

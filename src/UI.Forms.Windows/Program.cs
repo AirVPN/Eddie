@@ -19,6 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Text;
+using Eddie.Lib.Common;
 using Eddie.Core;
 using Eddie.Gui;
 

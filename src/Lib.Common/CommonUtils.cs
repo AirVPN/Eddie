@@ -18,21 +18,30 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Security.Cryptography;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
 
-namespace Eddie.Core
+namespace Eddie.Lib.Common
 {
-    public static class Constants
+    public class CommonUtils
     {
-		public static string Name = "AirVPN";
-        public static string Name2 = "Eddie";
-        public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
-        public static int VersionInt = 225;
-		public static string VersionDesc = "2.11.9";
-        public static string WebSite = "https://airvpn.org";
-        public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
-		public static string WindowsDriverVersion = "9.21.2";
-		public static string WindowsXpDriverVersion = "9.9.2";
-		public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
+        public static string JsonEncode(string str)
+        {
+            string jsStr = str.Trim();
+            jsStr = jsStr.Replace("\\", "\\\\");
+            jsStr = jsStr.Replace("\"", "\\\"");
+            jsStr = jsStr.Replace("\r", "\\r");
+            jsStr = jsStr.Replace("\n", "\\n");
+
+            return jsStr;
+        }
     }
 }
+

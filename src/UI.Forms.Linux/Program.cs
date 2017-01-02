@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Eddie.Lib.Common;
 using Eddie.Core;
 using Eddie.Gui;
 
@@ -58,7 +59,7 @@ namespace Eddie.UI.Linux
                     Gui.Engine engine = new Gui.Engine();
 
                     engine.TerminateEvent += Engine_TerminateEvent;
-
+                    
                     if (engine.Initialization(false))
                     {
                         engine.FormMain = new Gui.Forms.Main();

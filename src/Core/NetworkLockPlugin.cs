@@ -112,14 +112,14 @@ namespace Eddie.Core
 			if (ip.Valid == false)
 			{
 				if(warning == true)
-					Engine.Instance.Logs.Log(LogType.Error, Messages.Format(Messages.NetworkLockAllowedIpInvalid, ip.ToString()));
+					Engine.Instance.Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.NetworkLockAllowedIpInvalid, ip.ToString()));
 				return;
 			}
 
 			if (result.Contains(ip))
 			{
 				if (warning == true)
-					Engine.Instance.Logs.Log(LogType.Warning, Messages.Format(Messages.NetworkLockAllowedIpDuplicated, ip.ToString()));
+					Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.NetworkLockAllowedIpDuplicated, ip.ToString()));
 				return;
 			}
 

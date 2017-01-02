@@ -22,6 +22,7 @@ using System.Text;
 
 namespace Eddie.Core
 {
+    // Here messages used only by Core
     public static class Messages
     {
         // Start Messages
@@ -121,11 +122,13 @@ namespace Eddie.Core
 
         public static string ConnectionStartManagement = "Starting Management Interface";
 		public static string ConnectionCheckingRoute = "Checking route";
-		public static string ConnectionCheckingRoute2 = "Checking info";
+        public static string ConnectionCheckingTryRoute = "Checking route ({1}° try)";
+        public static string ConnectionCheckingRoute2 = "Checking info";
 		public static string ConnectionCheckingRouteNotAvailable = "Checking route not available on this server.";
 		public static string ConnectionCheckingRouteFailed = "Routing checking failed.";
 		public static string ConnectionCheckingDNS = "Checking DNS";
-		public static string ConnectionCheckingDNSFailed = "DNS checking failed.";
+        public static string ConnectionCheckingTryDNS = "Checking DNS ({1}° try)";
+        public static string ConnectionCheckingDNSFailed = "DNS checking failed.";
 		public static string ConnectionFlushDNS = "Flushing DNS";
 		public static string ConnectionConnected = "Connected.";
 		public static string ConnectionConnecting = "Connecting to {1}";
@@ -161,13 +164,12 @@ namespace Eddie.Core
 		public static string TorControlNoIps = "Unable to find IP address of Tor first node of an established circuit.";
 		public static string TorControlException = "Unable to communicate with Tor ({1}). Is Tor up and running?";
 		public static string TorControlTest = "Successful test. Tor Version: ";
+
+        public static string TcpServerNoBindAddress = "Unable to start TCP server: Address {1} mismatch";
 		
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
-		public static string TopBarConnected = "Connected to {1}";
-		public static string TopBarNotConnectedLocked = "Not connected. Network locked.";
-		public static string TopBarNotConnectedExposed = "Not connected. Network exposed.";
-		public static string StatusTextConnected = "Down: {1} Up: {2} - {3} - IP: {4}";
+		
 				
 		public static string ChartRange = "Range";
 		public static string ChartGrid = "Grid";
@@ -450,48 +452,5 @@ namespace Eddie.Core
 		public static string IpV6WarningUnableToDetect = "Unable to understand if IPv6 is active.";
 
         // End Messages
-
-        public static string Format(string format, string param1)
-		{
-			return format.Replace("{1}", param1);
-		}
-
-		public static string Format(string format, string param1, string param2)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			return o;
-		}
-
-		public static string Format(string format, string param1, string param2, string param3)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			o = o.Replace("{3}", param3);
-			return o;
-		}
-
-		public static string Format(string format, string param1, string param2, string param3, string param4)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			o = o.Replace("{3}", param3);
-			o = o.Replace("{4}", param4);
-			return o;
-		}
-
-		public static string Format(string format, string param1, string param2, string param3, string param4, string param5)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			o = o.Replace("{3}", param3);
-			o = o.Replace("{4}", param4);
-			o = o.Replace("{5}", param5);
-			return o;
-		}
     }
 }

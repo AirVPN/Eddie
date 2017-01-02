@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -47,7 +48,7 @@ namespace Eddie.Core
                 {
                     if (t != "")
                         t += " ";
-                    t += Messages.Format(Messages.DoubleClickToAction, Clickable);
+                    t += MessagesFormatter.Format(Messages.DoubleClickToAction, Clickable);
                 }
                 return t;
             }

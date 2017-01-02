@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -289,7 +290,7 @@ namespace Eddie.Core
                 }
                 else
                 {
-                    Engine.Instance.Logs.Log(LogType.Error, Messages.Format(Messages.OptionsUnknown, name));
+                    Engine.Instance.Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.OptionsUnknown, name));
                     return "";
                 }
             }
@@ -320,6 +321,23 @@ namespace Eddie.Core
 			return Conversions.ToInt64(Get(name));			
         }
 
+        public Encoding GetEncoding(string name)
+        {
+            string v = Get(name);
+            if (v == "utf-8")
+                return Encoding.UTF8;
+            else if (v == "utf-7")
+                return Encoding.UTF7;
+            else if (v == "utf-32")
+                return Encoding.UTF32;
+            else if (v == "utf-16")
+                return Encoding.Unicode;
+            else if (v == "ascii")
+                return Encoding.ASCII;
+            else
+                return Encoding.ASCII;
+        }
+
         public List<string> GetList(string name)
         {
             List<string> output = new List<string>();
@@ -337,7 +355,7 @@ namespace Eddie.Core
             lock (this)
             {
                 if (Exists(name) == false)
-                    Engine.Instance.Logs.Log(LogType.Warning, Messages.Format(Messages.OptionsUnknown, name));
+                    Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.OptionsUnknown, name));
                 else
                     Options[name].Value = val;
             }
@@ -434,7 +452,10 @@ namespace Eddie.Core
             SetDefaultBool("connect", false, Messages.ManOptionConnect);
 			SetDefaultBool("netlock", false, Messages.ManOptionNetLock);
 
-			SetDefault("profile", "text","AirVPN.xml", Messages.ManOptionProfile); // Not in Settings
+            SetDefault("console.mode", "choice:batch,keys,backend,tcp", "keys", NotInMan);
+            SetDefault("console.control.path", "text", "", NotInMan);
+
+            SetDefault("profile", "text","AirVPN.xml", Messages.ManOptionProfile); // Not in Settings
 			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
             
             SetDefault("servers.last", "text", "", NotInMan, false);
@@ -449,12 +470,10 @@ namespace Eddie.Core
 
             SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
             SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
-
-            SetDefaultBool("backend", false, NotInMan); // Backend mode, dump Commands and not user-friendly log. Eddie3
-
-            SetDefaultBool("log.console.enabled", true, NotInMan);
+                        
             SetDefaultBool("log.file.enabled", false, NotInMan);
-			SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
+            SetDefault("log.file.encoding", "encoding", "utf-8", NotInMan);
+            SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
 			SetDefaultBool("log.level.debug", false, NotInMan);
 
 			SetDefault("mode.protocol", "text", "AUTO", Messages.ManOptionModeProtocol);
@@ -505,12 +524,14 @@ namespace Eddie.Core
 
             SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
 
-            if (WebServer.GetPath() != "")
-            {                
-                SetDefaultBool("webui.enabled", true, Messages.ManOptionWebUiEnabled);
-                SetDefault("webui.ip", "text", "localhost", Messages.ManOptionWebUiAddress);
-                SetDefaultInt("webui.port", 4649, Messages.ManOptionWebUiPort);
-            }
+            bool webui = (WebServer.GetPath() != ""); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
+            SetDefaultBool("webui.enabled", webui, NotInMan); // Messages.ManOptionWebUiEnabled
+            SetDefault("webui.ip", "text", "localhost", NotInMan); // Messages.ManOptionWebUiAddress
+            SetDefaultInt("webui.port", 4649, NotInMan); // Messages.ManOptionWebUiPort
+
+            SetDefaultBool("tcpserver.enabled", webui, NotInMan);
+            SetDefault("tcpserver.ip", "text", "localhost", NotInMan);
+            SetDefaultInt("tcpserver.port", Constants.DefaultTcpPort, NotInMan);            
 
             SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);			
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
@@ -545,11 +566,13 @@ namespace Eddie.Core
 			SetDefaultBool("windows.disable_driver_upgrade", false, Messages.ManOptionWindowsDisableDriverUpgrade);
             SetDefaultBool("windows.tap_up", true, Messages.ManOptionWindowsTapUp);
             SetDefaultBool("windows.dhcp_disable", false, Messages.ManOptionWindowsDhcpDisable);
-            SetDefaultBool("windows.wfp", true, Messages.ManOptionWindowsWfp); 
+            SetDefaultBool("windows.wfp.enable", true, Messages.ManOptionWindowsWfp); // TOCLEAN
             SetDefaultBool("windows.wfp.dynamic", false, Messages.ManOptionWindowsWfpDynamic);
             SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
             SetDefaultBool("windows.dns.force_all_interfaces", true, Messages.ManOptionWindowsDnsForceAllInterfaces); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
             SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
+
+            SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some wariants to identify issues
 
             // General UI
             SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
@@ -714,7 +737,7 @@ namespace Eddie.Core
 
                     string path = GetProfilePath();
 
-                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.OptionsRead, path));
+                    Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OptionsRead, path));
 
 					if (Platform.Instance.FileExists(path) == false)
 					{

@@ -18,6 +18,7 @@
 
 using System;
 using Eddie.Core;
+using Eddie.Lib.Common;
 
 namespace Eddie.CLI.Linux
 {
@@ -26,17 +27,16 @@ namespace Eddie.CLI.Linux
 		static void Main(string[] args)
 		{
             Platform.Instance = new Eddie.Platforms.Linux();
-
-			CommandLine.InitSystem(Environment.CommandLine);
+            CommandLine.InitSystem(Environment.CommandLine);
 
 			Engine engine = new Engine();
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			if (engine.Initialization(true))
+            if (engine.Initialization(true))
 			{
-				engine.ConsoleStart();
-			}
+                engine.ConsoleStart();                
+            }
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

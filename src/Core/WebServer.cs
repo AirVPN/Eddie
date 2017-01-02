@@ -23,6 +23,7 @@ using System.Threading;
 using System.Text;
 using System.IO;
 using System.Xml;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -47,7 +48,6 @@ namespace Eddie.Core
                 return "";
         }
 
-        //public void Init(string prefix, Func<HttpListenerRequest, string> method)
         public void Init(string prefix)
         {
             if (GetPath() == "")
@@ -61,8 +61,7 @@ namespace Eddie.Core
 
             m_listener.Prefixes.Add(prefix);
 
-            //m_responderMethod = method;
-            m_listener.Start();            
+            m_listener.Start();
         }
         
         public void Run()
@@ -128,27 +127,27 @@ namespace Eddie.Core
                         response.ContentType = "text/html";
                         response.ContentEncoding = Encoding.UTF8;
                     }
-
-                    if (path.EndsWith(".css"))
+                    else if (path.EndsWith(".css"))
                     {
                         response.ContentType = "text/css";
                         response.ContentEncoding = Encoding.UTF8;
                     }
-
-                    if (path.EndsWith(".js"))
+                    else if (path.EndsWith(".js"))
                     {
                         response.ContentType = "text/javascript";
                         response.ContentEncoding = Encoding.UTF8;
                     }
-
-                    if (path.EndsWith(".png"))
+                    else if (path.EndsWith(".png"))
                     {
                         response.ContentType = "image/png";
                     }
-
-                    if (path.EndsWith(".gif"))
+                    else if (path.EndsWith(".gif"))
                     {
                         response.ContentType = "image/gif";
+                    }
+                    else if (path.EndsWith(".ico"))
+                    {
+                        response.ContentType = "image/x-icon";
                     }
                 }
 
@@ -230,7 +229,7 @@ namespace Eddie.Core
             Engine.Instance.Command(data, true);
         }
 
-        // Clodo: Abolire, è usata per aggancio con WpfWeb
+        // Clodo, TOCLEAN; still used?
         public delegate void SendEventHandler(XmlItem xml);
         public event SendEventHandler SendEvent;
 

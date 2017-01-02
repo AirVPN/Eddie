@@ -55,7 +55,7 @@ namespace Eddie.Gui.Forms
             this.chkWindowsDnsForceAllInterfaces = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsDisableDriverUpgrade = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsIPv6DisableAtOs = new Eddie.Gui.Skin.CheckBox();
-            this.chkWindowsWfp = new Eddie.Gui.Skin.CheckBox();
+            this.chkWindowsDebugWorkaround = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsTapUp = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsDhcpSwitch = new Eddie.Gui.Skin.CheckBox();
             this.cmdAdvancedUninstallDriver = new Eddie.Gui.Skin.Button();
@@ -416,7 +416,7 @@ namespace Eddie.Gui.Forms
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDnsForceAllInterfaces);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsIPv6DisableAtOs);
-            this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsWfp);
+            this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsTapUp);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDhcpSwitch);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriver);
@@ -471,16 +471,16 @@ namespace Eddie.Gui.Forms
             this.chkWindowsIPv6DisableAtOs.Text = "Disable IPv6 at OS level if requested";
             this.chkWindowsIPv6DisableAtOs.UseVisualStyleBackColor = false;
             // 
-            // chkWindowsWfp
+            // chkWindowsDebugWorkaround
             // 
-            this.chkWindowsWfp.BackColor = System.Drawing.Color.Transparent;
-            this.chkWindowsWfp.ForeColor = System.Drawing.Color.Black;
-            this.chkWindowsWfp.Location = new System.Drawing.Point(178, 185);
-            this.chkWindowsWfp.Name = "chkWindowsWfp";
-            this.chkWindowsWfp.Size = new System.Drawing.Size(75, 19);
-            this.chkWindowsWfp.TabIndex = 86;
-            this.chkWindowsWfp.Text = "WFP";
-            this.chkWindowsWfp.UseVisualStyleBackColor = false;
+            this.chkWindowsDebugWorkaround.BackColor = System.Drawing.Color.Transparent;
+            this.chkWindowsDebugWorkaround.ForeColor = System.Drawing.Color.Black;
+            this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(126, 185);
+            this.chkWindowsDebugWorkaround.Name = "chkWindowsDebugWorkaround";
+            this.chkWindowsDebugWorkaround.Size = new System.Drawing.Size(127, 19);
+            this.chkWindowsDebugWorkaround.TabIndex = 86;
+            this.chkWindowsDebugWorkaround.Text = "Debug workarounds";
+            this.chkWindowsDebugWorkaround.UseVisualStyleBackColor = false;
             // 
             // chkWindowsTapUp
             // 
@@ -2242,7 +2242,7 @@ namespace Eddie.Gui.Forms
         private Skin.LinkLabel lnkProtocolsHelp2;
         private Skin.LinkLabel lnkProtocolsHelp1;
         private System.Windows.Forms.CheckBox chkProtocolsAutomatic;
-        private Skin.CheckBox chkWindowsWfp;
+        private Skin.CheckBox chkWindowsDebugWorkaround;
         private Skin.Label lblUiFontGeneral;
         private Skin.Button cmdUiFontGeneral;
         private Skin.TextBox txtProxyTorControlPassword;

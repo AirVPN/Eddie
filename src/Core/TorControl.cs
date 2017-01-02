@@ -94,13 +94,13 @@ namespace Eddie.Core
 					if (path == "")
 						throw new Exception(Messages.TorControlNoPath);
 
-					Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.TorControlAuth, "Cookie, from " + path));
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Cookie, from " + path));
 
 					password = Platform.Instance.FileContentsReadBytes(path);
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.TorControlAuth, "Password"));
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Password"));
 				}
 			}
 			
@@ -147,7 +147,7 @@ namespace Eddie.Core
 			}
 			catch (Exception e)
 			{
-				result = Messages.Format(Messages.TorControlException, e.Message);
+				result = MessagesFormatter.Format(Messages.TorControlException, e.Message);
 			}
 
 			Engine.Instance.Logs.Log(LogType.Verbose, "Tor Test: " + result);
@@ -200,7 +200,7 @@ namespace Eddie.Core
 
 						if (ips.Contains(ip) == false)
 						{
-							Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.TorControlGuardIp, ip, id));							
+							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlGuardIp, ip, id));							
 							ips.Add(ip);
 						}
 					}
@@ -215,7 +215,7 @@ namespace Eddie.Core
 			}
 			catch (Exception e)
 			{
-				throw new Exception(Messages.Format(Messages.TorControlException, e.Message));
+				throw new Exception(MessagesFormatter.Format(Messages.TorControlException, e.Message));
 			}
 		}
 

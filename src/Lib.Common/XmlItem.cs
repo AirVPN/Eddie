@@ -18,24 +18,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace Eddie.Core
-{	
+namespace Eddie.Lib.Common
+{
     public class XmlItem
     {
         XmlElement m_element;
-        
+
         public XmlItem(string value)
-        {  
-            if(value.StartsWith("<"))
+        {
+            if (value.StartsWith("<"))
             {
                 // Try parse XML
-                throw new Exception("Not yet implemented");
-            }          
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(value);
+                m_element = xmlDoc.DocumentElement;
+            }
             else
             {
                 // Try parse CommandLine
@@ -78,9 +81,64 @@ namespace Eddie.Core
             return GetAttribute(name, "");
         }
 
+        public bool GetAttributeBool(string name, bool def)
+        {
+            if (HasAttribute(name))
+            {
+                string v = GetAttribute(name).ToLowerInvariant();
+                if (v == "false")
+                    return false;
+                else if (v == "true")
+                    return true;
+                else if (v == "off")
+                    return false;
+                else if (v == "on")
+                    return true;
+                else
+                {
+                    int i;
+                    if (int.TryParse(v, out i))
+                    {
+                        return (i != 0);
+                    }
+                    else
+                        return false;
+                }
+            }
+            else
+                return def;
+        }
+
+        public int GetAttributeInt(string name, int def)
+        {
+            if (HasAttribute(name))
+            {
+                string v = GetAttribute(name);
+                int i;
+                if (int.TryParse(v, out i))
+                {
+                    return i;
+                }
+                else
+                    return 0;
+            }
+            else
+                return def;
+        }
+
         public void SetAttribute(string name, string value)
         {
-            m_element.SetAttribute(name, value);   
+            m_element.SetAttribute(name, value);
+        }
+
+        public void SetAttributeInt(string name, int value)
+        {
+            SetAttribute(name, value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public void SetAttributeBool(string name, bool value)
+        {
+            SetAttribute(name, value ? "true" : "false");
         }
 
         public void SetAttributeInt64(string name, Int64 value)

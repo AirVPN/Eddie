@@ -26,6 +26,7 @@ using System.Web;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -55,6 +56,7 @@ namespace Eddie.Core
         private LogsManager m_logsManager;
         private NetworkLockManager m_networkLockManager;
         private WebServer m_webServer;
+        private TcpServer m_tcpServer;
         
         public Providers.Service AirVPN; // TOFIX, for compatibility
 
@@ -63,7 +65,7 @@ namespace Eddie.Core
         private bool m_serversInfoUpdated = false;
         private bool m_areasInfoUpdated = false;
 		private List<string> FrontMessages = new List<string>();
-		private int m_breakRequests = 0;
+		private int m_breakRequests = 0;        
 
 		public enum ActionService
         {
@@ -81,9 +83,8 @@ namespace Eddie.Core
             None = 0,
             Stats = 1,
             Full = 2,
-			MainMessage = 3,
-			Log = 4,
-			QuickX = 5
+			MainMessage = 3, // Clodo, TOCLEAN?
+            Log = 4 // Clodo, TOCLEAN?
         }
 
 		private List<ActionService> ActionsList = new List<ActionService>();        
@@ -171,6 +172,14 @@ namespace Eddie.Core
             }
         }
 
+        public TcpServer TcpServer
+        {
+            get
+            {
+                return m_tcpServer;
+            }
+        }
+
         public Dictionary<string, ServerInfo> Servers
         {
             get
@@ -199,9 +208,8 @@ namespace Eddie.Core
             }
 
             DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/dev.txt"));
-
             m_logsManager = new LogsManager();
-            
+
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
             
             m_storage = new Core.Storage();
@@ -215,9 +223,8 @@ namespace Eddie.Core
                 }
             }
 
-            string monoVersion = System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
-            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Mono/.Net Framework: " + monoVersion);
-
+            Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Mono/.Net Framework: " + Platform.Instance.GetMonoVersion());
+            
             if (DevelopmentEnvironment)
                 Logs.Log(LogType.Info, "Development environment.");
 
@@ -241,6 +248,28 @@ namespace Eddie.Core
 
             m_storage.Load();
 
+            if (Storage.GetBool("tcpserver.enabled") == true)
+            {
+                m_tcpServer = new TcpServer();
+                m_tcpServer.Start();
+
+                /*
+                string pathControl = Storage.Get("console.control.path");
+                if (pathControl != "")
+                {
+                    Platform.Instance.FileContentsWriteText(pathControl, Storage.Get("tcpserver.port"));
+
+                    m_tcpServer.SignalConnection.WaitOne(); // Clodo, TOCHECK; CTRL+C stop it?
+                }
+                */
+
+                if (Storage.Get("console.mode") == "tcp")
+                {
+                    // Start requested by an UI, wait it.
+                    m_tcpServer.SignalConnection.WaitOne(); // Clodo, TOCHECK; CTRL+C stop it?
+                }
+            }
+
             m_providersManager.Load();
 
             if (Storage.GetBool("cli"))
@@ -263,7 +292,7 @@ namespace Eddie.Core
             if( (WebServer.GetPath() != "") && (Storage.GetBool("webui.enabled") == true) )
             {
                 m_webServer = new WebServer();
-                m_webServer.Start();
+                m_webServer.Start();                
             }
 
             m_networkLockManager = new NetworkLockManager();
@@ -304,7 +333,6 @@ namespace Eddie.Core
 
                 WaitMessageClear();
 
-                // Start threads
                 m_threadPinger = new Threads.Pinger();
                 m_threadPenalities = new Threads.Penalities();
                 m_threadDiscover = new Threads.Discover();
@@ -330,26 +358,29 @@ namespace Eddie.Core
 					Connect();
 				else
                     Logs.Log(LogType.InfoImportant, Messages.Ready);
-                
+
                 for (; ; )
                 {
                     OnWork();
 
-					if (ConsoleMode)
+					if (ConsoleMode) 
 					{
-                        try
+                        if (Storage.Get("console.mode") == "keys")
                         {
-                            // try/catch because throw an exception if stdin is redirected.
-                            // May in future we can use Console.IsInputRedirected, but require .Net 4.5
-                            if (Console.KeyAvailable)
+                            try
                             {
-                                ConsoleKeyInfo key = Console.ReadKey();
-                                OnConsoleKey(key);
+                                // try/catch because throw an exception if stdin is redirected.
+                                // May in future we can use Console.IsInputRedirected, but require .Net 4.5                            
+                                if (Console.KeyAvailable)
+                                {
+                                    ConsoleKeyInfo key = Console.ReadKey();
+                                    OnConsoleKey(key);
+                                }
+                            }
+                            catch
+                            {
                             }
                         }
-                        catch
-                        {
-                        }						
 					}
 
                     if (CancelRequested)
@@ -361,12 +392,14 @@ namespace Eddie.Core
 
             OnDeInit();
 
-			RunEventCommand("app.stop");                
+			RunEventCommand("app.stop");
 
-			OnDeInit2();
+            Command("shutdown.done"); // Clodo, new Eddie3
+
+            OnDeInit2();
 
             Logs.Log(LogType.Verbose, Messages.AppShutdownComplete);
-
+            
             Terminated = true;
 			if (TerminateEvent != null)
 				TerminateEvent();
@@ -385,7 +418,7 @@ namespace Eddie.Core
 
 					if (Storage.Exists(commandLineParamKey) == false)
 					{
-						Logs.Log(LogType.Error, Messages.Format(Messages.CommandLineUnknownOption, commandLineParamKey));						
+						Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.CommandLineUnknownOption, commandLineParamKey));						
 					}
 				}
 
@@ -418,7 +451,7 @@ namespace Eddie.Core
             SessionStop();
 
 			WaitMessageSet(Messages.AppExiting, false);
-			//Engine.Log(Engine.LogType.InfoImportant, Messages.AppExiting);
+            //Engine.Log(Engine.LogType.InfoImportant, Messages.AppExiting);
 
             if (m_threadManifest != null)
 				m_threadManifest.RequestStopSync();				
@@ -431,18 +464,15 @@ namespace Eddie.Core
 
             if (m_threadPinger != null)
 				m_threadPinger.RequestStopSync();
-
-			if (m_webServer != null)
-                m_webServer.Stop();
-
-			m_networkLockManager.Deactivation(true);
+            
+            m_networkLockManager.Deactivation(true);
 			m_networkLockManager = null;
 			
 			TemporaryFiles.Clean();
 
             Platform.Instance.OnCheckSingleInstanceClear();
 
-            Platform.Instance.OnDeInit();
+            Platform.Instance.OnDeInit();            
         }
 
         public virtual void OnDeInit2()
@@ -456,6 +486,12 @@ namespace Eddie.Core
 					DeAuth();
 				}
 			}
+
+            if (m_webServer != null)
+                m_webServer.Stop();
+
+            if (m_tcpServer != null)
+                m_tcpServer.Stop();
         }
 
 		public virtual bool OnNoRoot()
@@ -539,18 +575,21 @@ namespace Eddie.Core
 
 		public virtual void OnConsoleKey(ConsoleKeyInfo key)
 		{
-			if (key.KeyChar == 'x')
-			{
-                Logs.Log(LogType.Info, Messages.ConsoleKeyCancel);
-				OnExit();
-			}
-			else if (key.KeyChar == 'n')
-			{
-                Logs.Log(LogType.Info, Messages.ConsoleKeySwitch);
-				SwitchServer = true;
-				if ((Engine.IsLogged()) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
-					Connect();
-			}
+            if (Engine.Storage.Get("console.mode") == "keys")
+            {
+                if (key.KeyChar == 'x')
+                {
+                    Logs.Log(LogType.Info, Messages.ConsoleKeyCancel);
+                    OnExit();
+                }
+                else if (key.KeyChar == 'n')
+                {
+                    Logs.Log(LogType.Info, Messages.ConsoleKeySwitch);
+                    SwitchServer = true;
+                    if ((Engine.IsLogged()) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
+                        Connect();
+                }
+            }
 		}
 
 		public virtual void OnConsoleBreak()
@@ -692,10 +731,20 @@ namespace Eddie.Core
             {
                 Engine.Instance.Logs.Log(LogType.Warning, "Test Log " + Utils.GetRandomToken());
             }
+            else if (action == "ui.hello")
+            {
+                Engine.Instance.Command("ui.show.ready"); 
+            }
+            else if (action == "ui.start")
+            {
+                UiSendOsInfo();
+                UiSendStatusInfo();
+                UiSendQuickInfo();
+            }
             else
             {
                 if(ignoreIfNotExists == false)
-                    throw new Exception(Messages.Format(Messages.CommandUnknown, xml.ToString()));
+                    throw new Exception(MessagesFormatter.Format(Messages.CommandUnknown, xml.ToString()));
             }
 		}
 
@@ -947,7 +996,9 @@ namespace Eddie.Core
 				{
 					lock (Storage)
 					{                        
-                        if (Storage.GetBool("log.console.enabled"))
+                        if (Storage.Get("console.mode") == "batch")
+                            Console.WriteLine(lines);
+                        if (Storage.Get("console.mode") == "keys")
                             Console.WriteLine(lines);
 
                         if (Storage.GetBool("log.file.enabled"))
@@ -955,18 +1006,19 @@ namespace Eddie.Core
 							try
 							{
 								string logPath = Storage.Get("log.file.path").Trim();
+                                Encoding encoding = Storage.GetEncoding("log.file.encoding");
 
 								List<string> paths = Logs.ParseLogFilePath(logPath);
 								foreach (string path in paths)
 								{
 									Directory.CreateDirectory(Path.GetDirectoryName(path));
                                     string text = Platform.Instance.NormalizeString(lines + "\n");
-									Platform.Instance.FileContentsAppendText(path, text);
+									Platform.Instance.FileContentsAppendText(path, text, encoding);
 								}
 							}
 							catch(Exception e) 
 							{
-                                Logs.Log(LogType.Warning, Messages.Format("Log to file disabled due to error, {1}", e.Message));
+                                Logs.Log(LogType.Warning, MessagesFormatter.Format("Log to file disabled due to error, {1}", e.Message));
 								Storage.SetBool ("log.file.enabled", false);
 							}
 						}
@@ -1193,6 +1245,21 @@ namespace Eddie.Core
 					Stats.UpdateValue("SystemTimeServerDifference", Messages.StatsNotConnected);
 				}
 			}
+
+            if(mode == RefreshUiMode.Stats)
+            {
+                UiSendQuickInfo();
+            }
+
+            if(mode == RefreshUiMode.Full)
+            {
+                UiSendStatusInfo();
+            }
+
+            if(mode == RefreshUiMode.MainMessage)
+            {
+                UiSendStatusInfo();
+            }
         }
 
 		public virtual void OnStatsChange(StatsEntry entry)
@@ -1340,7 +1407,7 @@ namespace Eddie.Core
                         return s;
                 }
 
-                Engine.Instance.Logs.Log(LogType.Fatal, Messages.Format(Messages.ServerByNameNotFound, name));
+                Engine.Instance.Logs.Log(LogType.Fatal, MessagesFormatter.Format(Messages.ServerByNameNotFound, name));
                 return null;
             }
         }
@@ -1413,7 +1480,7 @@ namespace Eddie.Core
 
             if (filename.Trim() != "")
             {
-				string message = Messages.Format(Messages.AppEvent, name);
+				string message = MessagesFormatter.Format(Messages.AppEvent, name);
 				WaitMessageSet(message, false);
 				Logs.Log(LogType.Info, message);
 
@@ -1541,7 +1608,7 @@ namespace Eddie.Core
 						lastException = e.Message;
 
 						if(Engine.Storage.GetBool("advanced.expert"))
-							Engine.Instance.Logs.Log(LogType.Warning, Messages.Format(Messages.FetchTryFailed, title, (t + 1).ToString(), lastException));
+							Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FetchTryFailed, title, (t + 1).ToString(), lastException));
 					}
 				}
 			}
@@ -1569,7 +1636,7 @@ namespace Eddie.Core
 
 		public string GenerateFileHeader()
 		{
-			return Messages.Format(Messages.GeneratedFileHeader, Constants.VersionDesc);
+			return MessagesFormatter.Format(Messages.GeneratedFileHeader, Constants.VersionDesc);
 		}
         
 		public bool IsLogged()
@@ -1609,7 +1676,7 @@ namespace Eddie.Core
         {
             try
             {
-                if (Storage.GetBool("backend"))
+                if (Engine.Storage.Get("console.mode") == "backend")
                     Console.WriteLine(xml.ToString());
 
                 if (CommandEvent != null)
@@ -1651,7 +1718,7 @@ namespace Eddie.Core
 			}
 			catch (Exception e)
 			{
-                Logs.Log(LogType.Fatal, Messages.Format(Messages.AuthorizeLoginFailed, e.Message));				
+                Logs.Log(LogType.Fatal, MessagesFormatter.Format(Messages.AuthorizeLoginFailed, e.Message));				
 			}
 
 			SaveSettings(); // 2.8
@@ -1771,6 +1838,7 @@ namespace Eddie.Core
             {
                 try
                 {
+                    m_threadSession.SetReset("CANCEL"); // New 2.11.10
 					m_threadSession.RequestStopSync();
 					m_threadSession = null;                    
                 }
@@ -2007,6 +2075,53 @@ namespace Eddie.Core
 				text += " - IP:" + CurrentServer.IpExit; 
 			}
 			return text;
+        }
+
+        public void UiSendOsInfo()
+        {
+            // Data sended at connection, never changed, at least until options changes.
+            XmlItem xml = new XmlItem("command");
+            xml.SetAttribute("action", "ui.info.os");
+            xml.SetAttribute("eddie.version.text", Constants.VersionDesc);
+            xml.SetAttributeInt("eddie.version.int", Constants.VersionInt);
+            xml.SetAttribute("eddie.windows.tap.driver", Constants.WindowsDriverVersion);
+            xml.SetAttribute("eddie.windows-xp.tap.driver", Constants.WindowsXpDriverVersion);
+            xml.SetAttributeBool("eddie.development", DevelopmentEnvironment);
+            xml.SetAttribute("mono.version", Platform.Instance.GetMonoVersion());
+            xml.SetAttribute("os.code", Platform.Instance.GetSystemCode());
+            xml.SetAttribute("os.name", Platform.Instance.GetName());
+            xml.SetAttribute("tools.tap-driver.version", Software.OpenVpnDriver);
+            xml.SetAttribute("tools.openvpn.version", Software.OpenVpnVersion);
+            xml.SetAttribute("tools.openvpn.path", Software.OpenVpnPath);
+            xml.SetAttribute("tools.ssh.version", Software.SshVersion);
+            xml.SetAttribute("tools.ssh.path", Software.SshPath);
+            xml.SetAttribute("tools.ssl.version", Software.SslVersion);
+            xml.SetAttribute("tools.ssl.path", Software.SslPath);
+
+            Command(xml);
+        }
+
+        public void UiSendQuickInfo()
+        {
+            // Data sended every seconds
+        }
+
+        public void UiSendStatusInfo()
+        {
+            // Data sended in case of big event, like connect/disconnect.
+            XmlItem xml = new XmlItem("command");
+            xml.SetAttribute("action", "ui.info.status");
+            xml.SetAttributeBool("logged", IsLogged());
+            xml.SetAttributeBool("waiting", IsWaiting());
+            xml.SetAttribute("waiting.message", WaitMessage);
+            xml.SetAttributeBool("connected", IsConnected());
+            xml.SetAttributeBool("netlock", ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive())));
+            if(CurrentServer != null)
+            {
+                xml.SetAttribute("server.country.code", CurrentServer.CountryCode);
+                xml.SetAttribute("server.display-name", CurrentServer.DisplayName);
+            }
+            Command(xml);
         }
     }
 }

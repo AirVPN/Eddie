@@ -24,6 +24,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
 
@@ -104,11 +105,21 @@ namespace Eddie.Platforms
         }
 
         public override bool FileImmutableGet(string path)
-        {
-            if (FileExists(path))
-                return (ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"").IndexOf("i") != -1);
-            else
+        {   
+            // We don't find a better direct method in Mono/Posix
+                     
+            if (FileExists(path) == false)
                 return false;
+
+            string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"");
+
+            if (result.IndexOf(' ') != 16) // Errors start with 'lsattr: '
+                return false;
+
+            if (result[4] == 'i')
+                return true;
+
+            return false;         
         }
 
         public override void FileImmutableSet(string path, bool value)
@@ -145,7 +156,7 @@ namespace Eddie.Platforms
             if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
 			{
 				// Exception: Assembly directly load by Mono
-				output = base.GetExecutablePath();
+				output = base.GetExecutablePathEx();
 			}
 
 			return output;

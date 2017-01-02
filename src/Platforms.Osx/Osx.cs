@@ -377,7 +377,7 @@ namespace Eddie.Platforms
 
 					if (mode != "Off")
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Disabled, i));
 
 						IpV6ModeEntry entry = new IpV6ModeEntry();
 						entry.Interface = i;
@@ -423,7 +423,7 @@ namespace Eddie.Platforms
 					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
 				}
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
@@ -464,7 +464,7 @@ namespace Eddie.Platforms
                     if (current != dns)
                     {
                         // Switch
-                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
+                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
 
                         DnsSwitchEntry e = new DnsSwitchEntry();
                         e.Name = i2;
@@ -493,7 +493,7 @@ namespace Eddie.Platforms
                     v = "empty";
 				v = v.Replace (",", "\" \"");
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
 

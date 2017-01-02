@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.Gui.Forms
