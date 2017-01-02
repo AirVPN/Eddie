@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Xml;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
