@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -288,7 +289,7 @@ namespace Eddie.UI.Cocoa.Osx
 				foreach (string path in paths)
 				{
 					if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
-						Engine.Instance.OnMessageError(Messages.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+						Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
 				}
 			};
 
