@@ -774,7 +774,8 @@ namespace Deploy
             }
             else
             {
-                Log("Compilation errors, build skipped.");
+                Log("Compilation errors, build skipped. Dump compilation report.");
+                Log(o);
                 return false;
             }
         }
