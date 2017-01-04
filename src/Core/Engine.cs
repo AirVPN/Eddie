@@ -2035,6 +2035,8 @@ namespace Eddie.Core
 
             report += "AirVPN Support Report - Generated " + DateTime.UtcNow.ToShortDateString() + " " + DateTime.UtcNow.ToShortTimeString() + " " + "UTC\n";
 
+            report += "\n\n-- Environment --\n" + Platform.Instance.GenerateEnvironmentReport();
+
             report += "\n\n-- Important options not at defaults --\n" + Storage.GetReportForSupport();
 
             report += "\n\n-- Logs --\n" + logs;

@@ -90,6 +90,8 @@ namespace Eddie.UI.Windows
         private static void Engine_TerminateEvent()
         {
             m_context.ExitThread();
+
+            Application.Exit();
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]

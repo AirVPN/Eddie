@@ -242,11 +242,13 @@ namespace Eddie.Platforms
 
         public override void FlushDNS()
         {
+            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
+
             // <2.11.8
             //ShellCmd("ipconfig /flushdns");
 
             // 2.11.10
-            if(Engine.Instance.Storage.GetBool("windows.workarounds"))
+            if (Engine.Instance.Storage.GetBool("windows.workarounds"))
             {
                 ShellCmd("net stop dnscache");
                 ShellCmd("net start dnscache");
@@ -451,7 +453,7 @@ namespace Eddie.Platforms
 			if (Engine.Instance.Storage.GetBool("windows.dhcp_disable"))
 				SwitchToStaticDo();
 
-			FlushDNS();
+			// FlushDNS(); // Removed in 2.11.10
 
 			Recovery.Save();
 		}

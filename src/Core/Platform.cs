@@ -25,6 +25,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Xml;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -645,14 +646,42 @@ namespace Eddie.Core
 			Engine.Instance.Logs.Log(LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
         }
 
-		public virtual string GenerateSystemReport()
+        public virtual string GenerateEnvironmentReport()
+        {
+            string t = "";
+
+            t += "Eddie version: " + Constants.VersionDesc + "\n";
+            t += "Eddie OS build: " + Platform.Instance.GetSystemCode() + "\n";
+            t += "OS type: " + Platform.Instance.GetCode() + "\n";
+            t += "OS name: " + Platform.Instance.GetName() + "\n";
+            t += "OS description: " + Platform.Instance.VersionDescription() + "\n";
+            t += "Mono /.Net Framework: " + Platform.Instance.GetMonoVersion() + "\n";
+
+            t += "OpenVPN driver: " + Software.OpenVpnDriver + "\n";
+            t += "OpenVPN: " + Software.OpenVpnVersion + " (" + Software.OpenVpnPath + ")\n";
+            t += "SSH: " + Software.SshVersion + " (" + Software.SshPath + ")\n";
+            t += "SSL: " + Software.SslVersion + " (" + Software.SslPath + ")\n";
+
+            t += "Profile path: " + Engine.Instance.Storage.GetProfilePath() + "\n";
+            t += "Data path: " + Storage.DataPath + "\n";
+            t += "Application path: " + Platform.Instance.GetApplicationPath() + "\n";
+            t += "Executable path: " + Platform.Instance.GetExecutablePath() + "\n";
+            t += "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull() + "\n";
+
+            return t;
+        }
+
+        public virtual string GenerateSystemReport()
 		{
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
+
+            /*
 			if(Platform.Instance.GetSystemFont() != "")
             	t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
 			if(Platform.Instance.GetSystemFontMonospace() != "")
             	t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
+            */
             
             try
 			{

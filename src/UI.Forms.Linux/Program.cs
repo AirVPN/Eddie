@@ -86,6 +86,8 @@ namespace Eddie.UI.Linux
         private static void Engine_TerminateEvent()
         {
             m_context.ExitThread();
+
+            Application.Exit();
         }
     }
 }

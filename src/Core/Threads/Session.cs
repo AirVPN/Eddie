@@ -1114,9 +1114,8 @@ namespace Eddie.Core.Threads
 						if (Engine.Instance.Storage.GetBool("routes.remove_default"))
 							Platform.Instance.OnRouteDefaultRemoveDo();
 
-						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
-						Engine.Logs.Log(LogType.Info, Messages.ConnectionFlushDNS);
-
+                        Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
+                        						
 						Platform.Instance.FlushDNS();
 
 						// 2.4: Sometime (only under Windows) Interface is not really ready...

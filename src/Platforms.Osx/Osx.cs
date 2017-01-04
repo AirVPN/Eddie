@@ -124,8 +124,10 @@ namespace Eddie.Platforms
 
         public override void FlushDNS()
         {
-			// 10.9
-			ShellCmd("dscacheutil -flushcache");
+            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
+
+            // 10.9
+            ShellCmd("dscacheutil -flushcache");
 			ShellCmd("killall -HUP mDNSResponder");
 
 			// 10.10
