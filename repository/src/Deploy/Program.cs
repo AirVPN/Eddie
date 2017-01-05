@@ -245,7 +245,9 @@ namespace Deploy
                 else
                     arch = "x86";
 				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
-				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
+                ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
+                ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
+                ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));
                 ListPackages.Add(new Package("linux", arch, "ui", false, 4, "debian"));
                 ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));                
             }
@@ -428,11 +430,19 @@ namespace Deploy
 					{
                         CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
                         CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-                        CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
-						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
-                        CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
+                        CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 
+                        if (ui == "cli")
+                        {
+                            CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
+                        }
+                        else if(ui == "ui")
+                        {
+                            CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+                            CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
+                            CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
+                        }
+                        
                         string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
 						if (File.Exists(pathFinal))
@@ -458,18 +468,27 @@ namespace Deploy
 
                         // mkbundle
                         string command = "mkbundle ";
-						command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
-                        command += " \"" + pathRelease + "/Lib.Core.dll\"";
-                        command += " \"" + pathRelease + "/Lib.Common.dll\"";
-                        command += " \"" + pathRelease + "/Lib.Forms.dll\"";
+						command += " \"" + pathRelease + "/Lib.Core.dll\"";
+                        command += " \"" + pathRelease + "/Lib.Common.dll\"";                        
 						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
 
-						// TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
-						// Otherwise, we need to have two different WinForms project (Windows AND Linux)
-						//command += " \"" + pathRelease + "/Windows.dll\"";
-						//command += " \"" + pathRelease + "/Microsoft.Win32.TaskScheduler.dll\""; 
-								
-						command += " --deps";
+                        if (ui == "cli")
+                        {
+                            command += " \"" + pathRelease + "/CLI.Linux.exe\"";
+                        }
+                        else if (ui == "ui")
+                        {
+                            command += " \"" + pathRelease + "/Lib.Forms.dll\"";
+                            command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
+                        }
+
+
+                        // TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
+                        // Otherwise, we need to have two different WinForms project (Windows AND Linux)
+                        //command += " \"" + pathRelease + "/Windows.dll\"";
+                        //command += " \"" + pathRelease + "/Microsoft.Win32.TaskScheduler.dll\""; 
+
+                        command += " --deps";
                         command += " --keeptemp";
                         command += " --static";
                         //command += " --config \"" + pathTemp + "/eddie.config\"";
@@ -478,7 +497,16 @@ namespace Deploy
                         //command += " --machine-config \"" + pathTemp + "/eddie.config\"";
                         command += " --machine-config /etc/mono/4.0/machine.config";
                         command += " -z";
-						command += " -o \"" + pathTemp + "/airvpn\"";						
+
+                        if(ui == "cli")
+                        {
+                            command += " -o \"" + pathTemp + "/eddie-cli\"";
+                        }
+                        else if(ui == "ui")
+                        {
+                            command += " -o \"" + pathTemp + "/airvpn\"";
+                        }
+						
 						Shell(command);
 
 						//RemoveFile(pathTemp + "/eddie.config");
@@ -488,7 +516,14 @@ namespace Deploy
 						if (File.Exists(pathFinal))
 							File.Delete(pathFinal);
 
-						Shell("chmod 755 \"" + pathTemp + "/airvpn\"");
+                        if (ui == "cli")
+                        {
+                            Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
+                        }
+                        else
+                        {
+                            Shell("chmod 755 \"" + pathTemp + "/airvpn\"");
+                        }
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 

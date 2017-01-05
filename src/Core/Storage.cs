@@ -521,6 +521,7 @@ namespace Eddie.Core
 			SetDefaultInt("openvpn.management_port", 3100, Messages.ManOptionOpenVpnManagementPort);
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
+            SetDefault("ssl.options", "text", "", NotInMan); // "NO_SSLv2" < 2.11.10
 
             SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
 

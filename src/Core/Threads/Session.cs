@@ -719,7 +719,8 @@ namespace Eddie.Core.Threads
 				sslConfig += "foreground = yes\n"; // Without this, the process fork and it's exit can't be detected.
 				sslConfig += "pid = /tmp/" + RandomGenerator.GetHash() + ".pid\n"; // 2.2
 			}
-			sslConfig += "options = NO_SSLv2\n";
+            if(Engine.Instance.Storage.Get("ssl.options") != "")
+			    sslConfig += "options = " + Engine.Instance.Storage.Get("ssl.options") + "\n";
 			sslConfig += "client = yes\n";
 			sslConfig += "debug = 6\n";
 			sslConfig += "\n";
