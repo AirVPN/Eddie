@@ -19,5 +19,5 @@ export CC="cc -arch i386 -lobjc -liconv -framework CoreFoundation -I /Library/Fr
 export PATH=/Library/Frameworks/Mono.framework/Versions/Current/bin/:$PATH
 
 
-mkbundle CLI.Osx.exe Lib.Core.dll Platforms.Osx.dll -z --static --deps -o eddie-cli
+mkbundle CLI.Osx.exe Lib.Common.dll Lib.Core.dll Platforms.Osx.dll -z --static --deps -o eddie-cli
 
