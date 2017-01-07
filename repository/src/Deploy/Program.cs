@@ -468,20 +468,20 @@ namespace Deploy
 
                         // mkbundle
                         string command = "mkbundle ";
-						command += " \"" + pathRelease + "/Lib.Core.dll\"";
-                        command += " \"" + pathRelease + "/Lib.Common.dll\"";                        
-						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
-
+						
                         if (ui == "cli")
                         {
                             command += " \"" + pathRelease + "/CLI.Linux.exe\"";
                         }
                         else if (ui == "ui")
-                        {
-                            command += " \"" + pathRelease + "/Lib.Forms.dll\"";
+                        {                            
                             command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
+                            command += " \"" + pathRelease + "/Lib.Forms.dll\"";
                         }
 
+                        command += " \"" + pathRelease + "/Lib.Core.dll\"";
+                        command += " \"" + pathRelease + "/Lib.Common.dll\"";
+                        command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
 
                         // TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
                         // Otherwise, we need to have two different WinForms project (Windows AND Linux)
