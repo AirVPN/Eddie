@@ -334,25 +334,55 @@ namespace Eddie.Core
 
         public virtual void FileDelete(string path)
         {
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileDelete - 1");
+
             if (File.Exists(path) == false)
                 return;
 
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileDelete - 2");
+
             if (FileImmutableGet(path))
+            {
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileDelete - 3");
                 FileImmutableSet(path, false);
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileDelete - 4");
+            }
+
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileDelete - 5");
+
             File.Delete(path);
+
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileDelete - 6");
         }
 
         public virtual void FileMove(string from, string to)
         {
+            Engine.Instance.Logs.Log(LogType.Verbose,"CustomTest - FileMove - 1");
+
             if (FileExists(to))
                 FileDelete(to);
 
+            Engine.Instance.Logs.Log(LogType.Verbose,"CustomTest - FileMove - 2");
+
             bool immutable = FileImmutableGet(from);
+
+            Engine.Instance.Logs.Log(LogType.Verbose,"CustomTest - FileMove - 3");
+
             if (immutable)
+            {
+                Engine.Instance.Logs.Log(LogType.Verbose,"CustomTest - FileMove - 4");
                 FileImmutableSet(from, false);
+                Engine.Instance.Logs.Log(LogType.Verbose,"CustomTest - FileMove - 5");
+            }
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileMove - 6");
             File.Move(from, to);
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileMove - 7");
             if (immutable)
+            {
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileMove - 8");
                 FileImmutableSet(to, true);
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileMove - 9");
+            }
         }
 
         public virtual string FileContentsReadText(string path)

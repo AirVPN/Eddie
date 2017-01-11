@@ -409,16 +409,20 @@ namespace Eddie.Core
         {
             lock (this)
             {
-				foreach (string commandLineParamKey in CommandLine.SystemEnvironment.Params.Keys)
+                foreach (string commandLineParamKey in CommandLine.SystemEnvironment.Params.Keys)
 				{
-					// 2.10.1
-					// OS X sometime pass as command-line arguments a 'psn_0_16920610' or similar. Ignore it.
-					if (commandLineParamKey.StartsWith("psn_"))
+                    // 2.10.1
+                    // OS X sometime pass as command-line arguments a 'psn_0_16920610' or similar. Ignore it.
+                    if (commandLineParamKey.StartsWith("psn_"))
 						continue;
 
-					if (Storage.Exists(commandLineParamKey) == false)
+                    // 2.11.11 - Used to avoid a Mono crash if pressed Win key
+                    if (commandLineParamKey == "verify-all")
+                        continue;
+
+                    if (Storage.Exists(commandLineParamKey) == false)
 					{
-						Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.CommandLineUnknownOption, commandLineParamKey));						
+                        Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.CommandLineUnknownOption, commandLineParamKey));						
 					}
 				}
 

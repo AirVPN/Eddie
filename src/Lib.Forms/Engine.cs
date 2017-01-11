@@ -265,20 +265,20 @@ namespace Eddie.Gui
 		
         public override void OnLog(LogEntry l)
         {
-			base.OnLog(l);
-			
-			if( (Engine.Storage == null) || (Engine.Storage.GetBool("cli") == false) )
+            base.OnLog(l);
+            
+            if ( (Engine.Storage == null) || (Engine.Storage.GetBool("cli") == false) )
 			{
-				lock (LogEntries)
+                lock (LogEntries)
 				{
 					LogEntries.Add(l);
-				}
+                }
 				if (FormMain != null)
-					FormMain.RefreshUi(RefreshUiMode.Log);            
-				
-				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
+					FormMain.RefreshUi(RefreshUiMode.Log);
+            
+                if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
 				{
-					if (l.Type == LogType.Fatal)
+                    if (l.Type == LogType.Fatal)
 					{
                         MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}

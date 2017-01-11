@@ -67,6 +67,8 @@ namespace Deploy
         private static string SO = "";
         private static List<string> Arguments;
 
+        private static int Errors = 0;
+
 		static void Main(string[] args)
 		{            
             Log("Eddie deployment v1.4");
@@ -752,7 +754,10 @@ namespace Deploy
 			}
 
             Log("------------------------------");
-            Log("Done");
+            if (Errors == 0)
+                Log("Done");
+            else
+                Log("WARNING: Done with " + Errors.ToString() + " errors.");
 
 			if (SO == "linux")
 			{
@@ -794,6 +799,7 @@ namespace Deploy
             if(File.Exists(pathCompiler) == false)
             {
                 Log("Compiler expected in " + pathCompiler + " but not found, build skipped.");
+                Errors++;
                 return false;
             }
 
@@ -808,6 +814,7 @@ namespace Deploy
             {
                 Log("Compilation errors, build skipped. Dump compilation report.");
                 Log(o);
+                Errors++;
                 return false;
             }
         }
@@ -1006,11 +1013,15 @@ namespace Deploy
 					string output = Shell(cmd);
 
 					Log("Windows Signing file: \"" + path + "\": " + output);
+
+                    if (output.Contains("Error"))
+                        Errors++;
 				}
 				else
 				{
 					Log("Missing PFX or password for Windows signatures. (" + pathPfx + " , " + pathPfxPwd + ")");
-				}
+                    Errors++;
+                }
 			}
 		}
         

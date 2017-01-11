@@ -57,6 +57,13 @@ namespace Eddie.Core
 				}
 			}
 
+            if(Platform.Instance.IsLinuxSystem())
+            {
+                // < 2.11 - Old file name
+                if (Platform.Instance.FileExists("/etc/resolv.conf.airvpn"))
+                    Platform.Instance.FileDelete("/etc/resolv.conf.airvpn");
+            }
+
 			// < 2.9 - New certificate for SSL connections
 			if (Engine.Instance.IsLogged())
 			{

@@ -113,6 +113,8 @@ namespace Eddie.Platforms
 
             string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"");
 
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileImmutableGet - 1 - " + result);
+
             if (result.IndexOf(' ') != 16) // Errors start with 'lsattr: '
                 return false;
 
@@ -124,10 +126,13 @@ namespace Eddie.Platforms
 
         public override void FileImmutableSet(string path, bool value)
         {
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileImmutableSet - 1");
             if (FileExists(path))
             {
                 string flag = (value ? "+i" : "-i");
-                ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+                string result = ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileImmutableSet - 2 - " + result);
             }
         }
         
@@ -221,8 +226,13 @@ namespace Eddie.Platforms
 
         public override long Ping(string host, int timeoutSec)
         {
-            string result = ShellCmd("ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host));
+            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host);
+            string result = ShellCmd(cmd);
+
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 1 - " + cmd + " >> " + result);
             //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
+
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 2 - " + base.Ping(host, timeoutSec));
 
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
@@ -485,16 +495,21 @@ namespace Eddie.Platforms
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 1");
 				if (FileExists("/etc/resolv.conf.eddie") == false)
 				{
+                    Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 2");
                     if (FileExists("/etc/resolv.conf"))
                     {
+                        Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 3");
                         Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameBackup);
                         FileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie");
                     }
 				}
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 4");
+
+                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
 
 				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
 
@@ -504,7 +519,9 @@ namespace Eddie.Platforms
 					text += "nameserver " + dnsSingle + "\n";
 
                 FileContentsWriteText("/etc/resolv.conf", text);
-			}
+
+                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 5");
+            }
 
 			base.OnDnsSwitchDo(dns);
 
