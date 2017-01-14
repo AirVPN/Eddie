@@ -62,6 +62,10 @@ namespace Eddie.Core
                 // < 2.11 - Old file name
                 if (Platform.Instance.FileExists("/etc/resolv.conf.airvpn"))
                     Platform.Instance.FileDelete("/etc/resolv.conf.airvpn");
+
+                // A bug in old experimental 2.11 cause the set of immutable flag in rare cases.
+                if(Platform.Instance.FileImmutableGet("/etc/resolv.conf"))
+                    Platform.Instance.FileImmutableSet("/etc/resolv.conf", false);
             }
 
 			// < 2.9 - New certificate for SSL connections

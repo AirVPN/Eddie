@@ -28,11 +28,11 @@ namespace Eddie.UI.Windows
 {
 	static class Program
 	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-        
-		[STAThread]
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        /// 
+        [STAThread]
 		static void Main()
         {
             try
@@ -44,7 +44,7 @@ namespace Eddie.UI.Windows
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 Platform.Instance = new Eddie.Platforms.Windows();
-                
+
                 CommandLine.InitSystem(Environment.CommandLine);
 
                 if (CommandLine.SystemEnvironment.Exists("cli"))

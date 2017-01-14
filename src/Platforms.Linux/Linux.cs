@@ -106,33 +106,36 @@ namespace Eddie.Platforms
 
         public override bool FileImmutableGet(string path)
         {   
-            // We don't find a better direct method in Mono/Posix
+            // We don't find a better direct method in Mono/Posix without adding ioctl references
+            // The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
                      
             if (FileExists(path) == false)
                 return false;
 
             string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"");
-
-            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileImmutableGet - 1 - " + result);
-
-            if (result.IndexOf(' ') != 16) // Errors start with 'lsattr: '
+                        
+            /* // < 2.11.11
+            if (result.IndexOf(' ') != 16) 
                 return false;
-
             if (result[4] == 'i')
                 return true;
+            */
 
-            return false;         
+            if (result.StartsWith("lsattr: ")) // Generic error
+                return false;
+
+            if (result.IndexOf(' ') != -1)
+                result = result.Substring(0, result.IndexOf(' '));
+
+            return (result.IndexOf("-i-") != -1);            
         }
 
         public override void FileImmutableSet(string path, bool value)
         {
-            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileImmutableSet - 1");
             if (FileExists(path))
             {
                 string flag = (value ? "+i" : "-i");
-                string result = ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
-
-                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - FileImmutableSet - 2 - " + result);
+                ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
             }
         }
         
@@ -228,18 +231,26 @@ namespace Eddie.Platforms
         {
             string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host);
             string result = ShellCmd(cmd);
-
+            
             Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 1 - " + cmd + " >> " + result);
             //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
 
-            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 2 - " + base.Ping(host, timeoutSec));
-
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 2 - " + System.Globalization.CultureInfo.CurrentCulture.Name + "," + System.Globalization.CultureInfo.CurrentUICulture.Name + "," + base.Ping(host, timeoutSec));
+            
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
+            /*
             if (float.TryParse(sMS, out iMS))
                 return (Int64)iMS;
             else
                 return -1;
+            */
+            if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+                iMS = -1;
+                
+            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 3 - " + iMS.ToString() + " - " + sMS);
+
+            return (long) iMS;
         }
 
         public override void EnsureExecutablePermissions(string path)

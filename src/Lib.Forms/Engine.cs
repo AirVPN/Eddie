@@ -153,6 +153,7 @@ namespace Eddie.Gui
 					command2 += Platform.Instance.GetExecutablePath();
 					command2 += " ";
 					command2 += cmdline;
+                    command2 = command2.Trim(); // 2.11.11
 					bool waitEnd = false;
 					
 					if (Platform.Instance.FileExists("/usr/bin/kdesudo"))
@@ -234,7 +235,7 @@ namespace Eddie.Gui
 
                         //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
 
-						Platform.Instance.Shell(command, arguments, waitEnd);
+                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd);
 					}
 					else
 					{
