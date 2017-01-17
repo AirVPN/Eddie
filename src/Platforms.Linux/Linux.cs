@@ -232,11 +232,6 @@ namespace Eddie.Platforms
             string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host);
             string result = ShellCmd(cmd);
             
-            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 1 - " + cmd + " >> " + result);
-            //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
-
-            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 2 - " + System.Globalization.CultureInfo.CurrentCulture.Name + "," + System.Globalization.CultureInfo.CurrentUICulture.Name + "," + base.Ping(host, timeoutSec));
-            
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
             /*
@@ -247,9 +242,7 @@ namespace Eddie.Platforms
             */
             if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
                 iMS = -1;
-                
-            Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - Ping - 3 - " + iMS.ToString() + " - " + sMS);
-
+            
             return (long) iMS;
         }
 
@@ -506,19 +499,14 @@ namespace Eddie.Platforms
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
-                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 1");
-				if (FileExists("/etc/resolv.conf.eddie") == false)
+                if (FileExists("/etc/resolv.conf.eddie") == false)
 				{
-                    Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 2");
                     if (FileExists("/etc/resolv.conf"))
                     {
-                        Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 3");
                         Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameBackup);
                         FileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie");
                     }
 				}
-
-                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 4");
 
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
 
@@ -529,9 +517,7 @@ namespace Eddie.Platforms
 				foreach(string dnsSingle in dnsArray)
 					text += "nameserver " + dnsSingle + "\n";
 
-                FileContentsWriteText("/etc/resolv.conf", text);
-
-                Engine.Instance.Logs.Log(LogType.Verbose, "CustomTest - OnDnsSwitchDo - 5");
+                FileContentsWriteText("/etc/resolv.conf", text);                
             }
 
 			base.OnDnsSwitchDo(dns);

@@ -31,7 +31,7 @@ namespace Eddie.Core
             {
                 if( (v is String) && (v.ToString() == "") )
                     return def;
-                return Convert.ToInt32(v);
+                return Convert.ToInt32(v, CultureInfo.InvariantCulture);
             }
             catch (Exception ex)
             {
@@ -43,7 +43,7 @@ namespace Eddie.Core
 		public static Int32 ToInt32(string v)
 		{
 			Int32 vo;
-			if (Int32.TryParse(v, out vo))
+			if (Int32.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out vo))
 				return vo;
 			else
 				return 0;
@@ -51,18 +51,18 @@ namespace Eddie.Core
 
 		public static Int32 ToInt32(float v)
 		{
-			return Convert.ToInt32(v);
+			return Convert.ToInt32(v, CultureInfo.InvariantCulture);
 		}
 
 		public static Int32 ToInt32(double v)
 		{
-			return Convert.ToInt32(v);
+			return Convert.ToInt32(v, CultureInfo.InvariantCulture);
 		}
 
 		public static Int64 ToInt64(string v)
 		{
 			Int64 vo;
-			if (Int64.TryParse(v, out vo))
+			if (Int64.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out vo))
 				return vo;
 			else
 				return 0;
@@ -74,7 +74,7 @@ namespace Eddie.Core
 			{
 				if ((v is String) && (v.ToString() == ""))
 					return 0;
-				return Convert.ToInt64(v);
+				return Convert.ToInt64(v, CultureInfo.InvariantCulture);
 			}
 			catch (Exception ex)
 			{
@@ -85,12 +85,12 @@ namespace Eddie.Core
 
 		public static Int64 ToInt64(float v)
 		{
-			return Convert.ToInt64(v);
+			return Convert.ToInt64(v, CultureInfo.InvariantCulture);
 		}
 
 		public static Int64 ToInt64(double v)
 		{
-			return Convert.ToInt64(v);
+			return Convert.ToInt64(v, CultureInfo.InvariantCulture);
 		}
 
 		public static UInt32 ToUInt32(object v, UInt32 def)
@@ -99,7 +99,7 @@ namespace Eddie.Core
 			{
 				if ((v is String) && (v.ToString() == ""))
 					return def;
-				return Convert.ToUInt32(v);
+				return Convert.ToUInt32(v, CultureInfo.InvariantCulture);
 			}
 			catch (Exception ex)
 			{
@@ -111,7 +111,7 @@ namespace Eddie.Core
         public static float ToFloat(string v)
         {
             float vo;
-            if (float.TryParse(v, out vo))
+            if (float.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out vo))
                 return vo;
             else
                 return 0;
@@ -153,7 +153,7 @@ namespace Eddie.Core
 
 		public static int ToUnixTime(DateTime dt)
 		{
-			return Convert.ToInt32((dt - new DateTime(1970, 1, 1)).TotalSeconds);
+			return Convert.ToInt32((dt - new DateTime(1970, 1, 1)).TotalSeconds, CultureInfo.InvariantCulture);
 		}
 
     }

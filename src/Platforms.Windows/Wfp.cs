@@ -179,7 +179,9 @@ namespace Eddie.Platforms
                     layers.Add(xml.GetAttribute("layer"));
 
                 if (xml.HasAttribute("weight") == false)
-                    xml.SetAttribute("weight", "auto");
+                {
+                    xml.SetAttribute("weight", "1000");
+                }
 
                 foreach (string layer in layers)
                 {

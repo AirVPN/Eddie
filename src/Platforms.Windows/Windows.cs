@@ -478,6 +478,7 @@ namespace Eddie.Platforms
                     xmlRule.SetAttribute("name", "IPv6 - Block");
                     xmlRule.SetAttribute("layer", "ipv6");
                     xmlRule.SetAttribute("action", "block");
+                    xmlRule.SetAttribute("weight", "3000"); 
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
                     XmlIf1.SetAttribute("field", "ip_local_interface");
@@ -541,6 +542,23 @@ namespace Eddie.Platforms
 
             if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))                
             {
+                // Order is important! IPv6 block use weight 3000, DNS-Lock 2000, WFP 1000. All within a parent filter of max priority.
+                // Otherwise the netlock allow-private rule can allow DNS outside the tunnel in some configuration.
+                {
+                    XmlDocument xmlDocRule = new XmlDocument();
+                    XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                    xmlRule.SetAttribute("name", "Dns - Block port 53");
+                    xmlRule.SetAttribute("layer", "all");
+                    xmlRule.SetAttribute("action", "block");
+                    xmlRule.SetAttribute("weight", "2000"); 
+                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                    xmlRule.AppendChild(XmlIf1);
+                    XmlIf1.SetAttribute("field", "ip_remote_port");
+                    XmlIf1.SetAttribute("match", "equal");
+                    XmlIf1.SetAttribute("port", "53");
+                    Wfp.AddItem("dns_block_all", xmlRule);
+                }
+
                 // This is not required yet, but will be required in Eddie 3.                
                 {
                     XmlDocument xmlDocRule = new XmlDocument();
@@ -548,6 +566,7 @@ namespace Eddie.Platforms
                     xmlRule.SetAttribute("name", "Dns - Allow port 53 of OpenVPN");
                     xmlRule.SetAttribute("layer", "all");
                     xmlRule.SetAttribute("action", "permit");
+                    xmlRule.SetAttribute("weight", "2000"); 
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
                     XmlIf1.SetAttribute("field", "ip_remote_port");
@@ -569,6 +588,7 @@ namespace Eddie.Platforms
                     xmlRule.SetAttribute("name", "Dns - Allow port 53 on TAP - IPv4");
                     xmlRule.SetAttribute("layer", "ipv4");
                     xmlRule.SetAttribute("action", "permit");
+                    xmlRule.SetAttribute("weight", "2000"); 
                     XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
                     xmlRule.AppendChild(XmlIf1);
                     XmlIf1.SetAttribute("field", "ip_remote_port");
@@ -581,19 +601,7 @@ namespace Eddie.Platforms
                     XmlIf2.SetAttribute("interface", Engine.Instance.ConnectedVpnInterfaceId);
                     Wfp.AddItem("dns_permit_tap", xmlRule);
                 }                
-                {
-                    XmlDocument xmlDocRule = new XmlDocument();
-                    XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                    xmlRule.SetAttribute("name", "Dns - Block port 53");
-                    xmlRule.SetAttribute("layer", "all");
-                    xmlRule.SetAttribute("action", "block");
-                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf1);
-                    XmlIf1.SetAttribute("field", "ip_remote_port");
-                    XmlIf1.SetAttribute("match", "equal");
-                    XmlIf1.SetAttribute("port", "53");
-                    Wfp.AddItem("dns_block_all", xmlRule);
-                }
+                
 
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockActivatedWpf);
             }

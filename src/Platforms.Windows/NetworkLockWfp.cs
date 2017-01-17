@@ -51,6 +51,16 @@ namespace Eddie.Platforms
 		{
 			base.Activation();
 
+            // Block All
+            {
+                XmlDocument xmlDocRule = new XmlDocument();
+                XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                xmlRule.SetAttribute("name", "NetLock - Block All");
+                xmlRule.SetAttribute("layer", "all");
+                xmlRule.SetAttribute("action", "block");
+                AddRule("netlock_block_all", xmlRule);
+            }
+
             // Allow Eddie / OpenVPN / Stunnel / Plink
             AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Private - Allow Eddie", Platform.Instance.GetExecutablePath()));
 
@@ -125,17 +135,7 @@ namespace Eddie.Platforms
 
                 AddRule("netlock_allow_dhcp", xmlRule);
             }            
-
-            // Block All
-            {
-                XmlDocument xmlDocRule = new XmlDocument();
-                XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                xmlRule.SetAttribute("name", "NetLock - Block All");
-                xmlRule.SetAttribute("layer", "all");
-                xmlRule.SetAttribute("action", "block");
-                AddRule("netlock_block_all", xmlRule);
-            }
-
+            
             OnUpdateIps();
         }
 
