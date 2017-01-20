@@ -366,7 +366,7 @@ namespace Deploy
                         CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
                     }                    
 
-                    SignPath(platform, pathTemp);                    
+                    SignPath(platform, format, pathTemp);                    
                     
 					if (format == "portable")
 					{
@@ -422,7 +422,7 @@ namespace Deploy
                             //Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
                             Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
 
-                            SignFile(platform, pathExe);
+                            SignFile(platform, format, pathExe);
                         }
                     }
 				}
@@ -591,7 +591,9 @@ namespace Deploy
 
 						Log("Lintian report:");
 						Log(Shell("lintian \"" + pathFinal + "\""));
-					}
+
+                        SignFile(platform, format, pathFinal);
+                    }
 					else if( (format == "rpm") && (AvailableRPM) )
 					{
                         string libSubPath = "lib";
@@ -669,9 +671,9 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
-							SignFile(platform, pathTemp + "/eddie-cli");
-                            SignFile(platform, pathTemp + "/openvpn");
-                            SignFile(platform, pathTemp + "/stunnel");
+							SignFile(platform, format, pathTemp + "/eddie-cli");
+                            SignFile(platform, format, pathTemp + "/openvpn");
+                            SignFile(platform, format, pathTemp + "/stunnel");
 
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -695,9 +697,9 @@ namespace Deploy
 								File.Delete(pathFinal);
 
                             //SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
-                            SignFile(platform, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
-                            SignFile(platform, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
-                            SignFile(platform, pathRelease + "Eddie.app");
+                            SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
+                            SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
+                            SignFile(platform, format, pathRelease + "Eddie.app");
 
 							string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
 							Shell(command2);
@@ -713,7 +715,7 @@ namespace Deploy
 
 						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
 
-                        SignFile(platform, pathFinal);
+                        SignFile(platform, format, pathFinal);
 					}
 					else if (format == "mono")
 					{
@@ -735,8 +737,8 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
-                            SignFile(platform, pathTemp + "/openvpn");
-                            SignFile(platform, pathTemp + "/stunnel");
+                            SignFile(platform, format, pathTemp + "/openvpn");
+                            SignFile(platform, format, pathTemp + "/stunnel");
 
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -958,7 +960,7 @@ namespace Deploy
 			return output;
 		}
 
-        static void SignPath(string platform, string path)
+        static void SignPath(string platform, string format, string path)
         {
             Log("Signing path: " + path);
 
@@ -971,11 +973,11 @@ namespace Deploy
                     skip = true;
 
                 if(skip == false)
-                    SignFile(platform, file);
+                    SignFile(platform, format, file);
             }            
         }
 
-		static void SignFile(string platform, string path)
+		static void SignFile(string platform, string format, string path)
 		{
 			if (Program.Arguments.Contains("official") == false)
 				return;
@@ -1023,6 +1025,26 @@ namespace Deploy
                     Errors++;
                 }
 			}
+            else if(platform == "linux")
+            {
+                if(format == "debian")
+                {
+                    string pathPassphrase = NormalizePath(PathBaseSigning + "gpg.passphrase");
+                    if (File.Exists(pathPassphrase))
+                    {
+                        string passphrase = File.ReadAllText(pathPassphrase);
+                        Log("Signing .deb file (keys need to be already configured)");
+                        string cmd = "dpkg-sig -g \"--no-tty --passphrase " + passphrase + "\" --sign builder " + path;
+                        string output = Shell(cmd);
+                        Log("Debug test: " + output);
+                    }
+                    else
+                    {
+                        Log("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
+                        Errors++;
+                    }
+                }
+            }
 		}
         
         static void MoveFile(string fromFilePath, string toFilePath)
