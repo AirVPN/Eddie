@@ -644,7 +644,8 @@ namespace Deploy
                         command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
 
                         Log("RPM Build");
-						Shell(command);
+						string output = Shell(command);
+                        Log("RPM Test:" + output);
 
 						Shell("mv ../*.rpm " + pathFinal);
 					}
@@ -1029,12 +1030,13 @@ namespace Deploy
             {
                 if(format == "debian")
                 {
-                    string pathPassphrase = NormalizePath(PathBaseSigning + "gpg.passphrase");
+                    string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
                     if (File.Exists(pathPassphrase))
                     {
                         string passphrase = File.ReadAllText(pathPassphrase);
                         Log("Signing .deb file (keys need to be already configured)");
                         string cmd = "dpkg-sig -g \"--no-tty --passphrase " + passphrase + "\" --sign builder " + path;
+                        Log("Debug test: " + cmd);
                         string output = Shell(cmd);
                         Log("Debug test: " + output);
                     }
