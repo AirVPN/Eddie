@@ -185,7 +185,7 @@ namespace Eddie.Core
                 o = o.Replace("\n", "");
 
                 // Header
-                o = ".\\\"" + Messages.ManHeaderComment + "\"\n.TH airvpn 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\\n" + o;                
+                o = ".\\\"" + Messages.ManHeaderComment + "\n.TH airvpn 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\"\\n" + o;                
 
                 o = o.Replace("[sh]", "\n.SH ");
                 o = o.Replace("[/sh]", "\n");
