@@ -182,6 +182,9 @@ namespace Eddie.Core
 
             if (format == "man")
             {
+                // Escape dot that can go at beginning of line
+                o = o.Replace("].", "]\\[char46]");
+
                 o = o.Replace("\n", "");
 
                 // Header
