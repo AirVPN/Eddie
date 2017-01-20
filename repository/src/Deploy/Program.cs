@@ -630,24 +630,21 @@ namespace Deploy
 
                                 command += " -sign";
 
-                                //command = "echo \"" + passphrase + "\" | setsid " + command;
-                                command = "echo " + passphrase + " | setsid " + command;
+                                //command = "echo " + passphrase + " | setsid " + command;
+                                // Don't work, i don't yet find a working method to automate it.
+                                Log("Enter AirVPN Staff signing password for RPM build");
                             }
                             else
                             {
                                 Log("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
                                 Errors++;
-                            }
-
-                            //Log("Enter AirVPN Staff signing password for RPM build");
-                            //command += " -sign";
+                            }                            
                         }
                         command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
 
                         Log("RPM Build");
                         Log("pazzo:" + command);
-                        //string output = Shell(command);
-                        string output = "";
+                        string output = Shell(command);
                         if (IsOfficial())
                         {
                             if (output.Contains("signing failed"))
@@ -659,7 +656,7 @@ namespace Deploy
                                 Log(output);
                         }
                         
-						//Shell("mv ../*.rpm " + pathFinal);
+						Shell("mv ../*.rpm " + pathFinal);
 					}
 				}
 				else if (platform == "osx")
