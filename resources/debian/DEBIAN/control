@@ -1,7 +1,7 @@
 Package: airvpn
 Version: {@version}
 Section: net
-Maintainer: AirVPN Team <maintainer@airvpn.org>
+Maintainer: Eddie Team <maintainer@eddie.website>
 Priority: optional
 Architecture: all
 Installed-Size: 8192
