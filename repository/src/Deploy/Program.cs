@@ -646,7 +646,8 @@ namespace Deploy
 
                         Log("RPM Build");
                         Log("pazzo:" + command);
-                        string output = Shell(command);
+                        //string output = Shell(command);
+                        string output = "";
                         if (IsOfficial())
                         {
                             if (output.Contains("signing failed"))
@@ -658,7 +659,7 @@ namespace Deploy
                                 Log(output);
                         }
                         
-						Shell("mv ../*.rpm " + pathFinal);
+						//Shell("mv ../*.rpm " + pathFinal);
 					}
 				}
 				else if (platform == "osx")
