@@ -230,7 +230,7 @@ namespace Deploy
 					arch = "armv7l";
                 else
                     arch = "x86";
-                /* cazzo
+                /* pazzo
 				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
                 ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
                 ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
@@ -656,7 +656,7 @@ namespace Deploy
                             }
                         }
                         
-						Shell("mv ../*.rpm " + pathFinal);
+						//pazzo Shell("mv ../*.rpm " + pathFinal);
 					}
 				}
 				else if (platform == "osx")
