@@ -645,8 +645,9 @@ namespace Deploy
                         command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
 
                         Log("RPM Build");
-                        Log("DEbugTest:" + command);
-						string output = Shell(command);
+                        Log("DebugTest:" + command);
+                        //string output = Shell(command);
+                        string output = "";
                         if (IsOfficial())
                         {
                             if (output.Contains("signing failed"))
