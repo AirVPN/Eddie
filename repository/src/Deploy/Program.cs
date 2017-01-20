@@ -230,12 +230,11 @@ namespace Deploy
 					arch = "armv7l";
                 else
                     arch = "x86";
-                /* pazzo
+                
 				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
                 ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
                 ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
-                ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));
-                */
+                ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));                
                 ListPackages.Add(new Package("linux", arch, "ui", false, 4, "debian"));
                 ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));                
             }
@@ -645,7 +644,6 @@ namespace Deploy
                         command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
 
                         Log("RPM Build");
-                        Log("DebugTest:" + command);
                         string output = Shell(command);
                         if (IsOfficial())
                         {
@@ -654,6 +652,8 @@ namespace Deploy
                                 Log("RPM fail: " + output);
                                 Errors++;
                             }
+                            else
+                                Log(output);
                         }
                         
 						Shell("mv ../*.rpm " + pathFinal);
@@ -1046,11 +1046,13 @@ namespace Deploy
                         Log("Signing .deb file (keys need to be already configured)");
                         string cmd = "dpkg-sig -g \"--no-tty --passphrase " + passphrase + "\" --sign builder " + path;
                         string output = Shell(cmd);
-                        if(output.Contains("Signed deb ") == false)
+                        if (output.Contains("Signed deb ") == false)
                         {
                             Log("Signing .deb failed: " + output);
                             Errors++;
                         }
+                        else
+                            Log(output);
                     }
                     else
                     {
