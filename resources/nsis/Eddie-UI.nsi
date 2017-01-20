@@ -1,5 +1,4 @@
-;NSIS AirVPN Main Setup
-;Written by Clodo - 06/12/2005
+;NSIS Eddie Main Setup
 
 ;--------------------------------
 ;Include Modern UI
@@ -220,7 +219,7 @@
 		SectionIn RO
 		SetOutPath "$INSTDIR"
 		
-		; Basic (required) AirVPN files...
+		; Basic (required) Eddie files...
 		{@files_add}
 		
 		;Store installation folder

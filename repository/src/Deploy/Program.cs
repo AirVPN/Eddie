@@ -23,6 +23,7 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Deploy
@@ -118,6 +119,11 @@ namespace Deploy
             PathBaseResources = new DirectoryInfo(PathBase + "/resources").FullName;
             PathBaseTools = new DirectoryInfo(PathBase + "/tools").FullName;
             PathBaseSigning = new DirectoryInfo(PathBase + "/repository/signing").FullName;
+
+            //string versionString = File.ReadAllText(PathBase + "/version.txt").Trim();
+            string versionString3 = ExtractBetween(File.ReadAllText(PathBase + "/src/Lib.Common/Constants.cs"), "public static string VersionDesc = \"", "\"");
+            string versionString2 = versionString3.Substring(0, versionString3.LastIndexOf('.'));
+
 
             /* --------------------------------------------------------------
 			   Checking environment, required
@@ -246,9 +252,11 @@ namespace Deploy
 				ListPackages.Add(new Package("osx", "x64", "cli", true, 4, "mono"));
 			}
 			
-			string versionString = File.ReadAllText(PathBase + "/version.txt").Trim();
+            
 
-			if(SO == "linux")
+
+
+            if (SO == "linux")
 				PathBaseTemp = "/tmp/eddie_deploy";
 
             /* // TOCLEAN
@@ -288,7 +296,7 @@ namespace Deploy
 
                 //string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
                 //string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
-                string archiveName = "eddie-" + ui + "_" + versionString + "_" + platform + "_" + arch + "_" + format;
+                string archiveName = "eddie-" + ui + "_" + versionString2 + "_" + platform + "_" + arch + "_" + format;
                 string fileName = archiveName;
                 string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
 				string pathTemp = PathBaseTemp + "/" + archiveName;
@@ -536,7 +544,7 @@ namespace Deploy
 						MoveAll(pathTemp, pathTemp + "/usr/lib/AirVPN");
 						CopyDirectory(PathBaseResources + "/" + format, pathTemp);
 
-						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString);
+						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString3);
 						string debianArchitecture = "unknown";
 						if(arch == "x86")
 							debianArchitecture = "i386"; // any-i386? not accepted by reprepro
@@ -598,7 +606,7 @@ namespace Deploy
 						MoveAll(pathTemp, pathTemp + "/usr/" + libSubPath + "/AirVPN");
 						CopyDirectory(PathBaseResources + "/rpm", pathTemp);
 
-						ReplaceInFile(pathTemp + "/airvpn.spec", "{@version}", versionString);
+						ReplaceInFile(pathTemp + "/airvpn.spec", "{@version}", versionString3);
 						ReplaceInFile(pathTemp + "/airvpn.spec", "{@lib}", libSubPath);
 
 						ReplaceInFile(pathTemp + "/usr/bin/airvpn", "{@lib}", libSubPath);						
@@ -1148,7 +1156,22 @@ namespace Deploy
 				File.Copy(newPath, newPath.Replace(fromPath, toPath), true);
 		}
 
-		static void Log(string message)
+        public static string ExtractBetween(string str, string from, string to)
+        {
+            int iPos1 = str.IndexOf(from);
+            if (iPos1 != -1)
+            {
+                int iPos2 = str.IndexOf(to, iPos1 + from.Length);
+                if (iPos2 != -1)
+                {
+                    return str.Substring(iPos1 + from.Length, iPos2 - iPos1 - from.Length);
+                }
+            }
+
+            return "";
+        }
+
+        static void Log(string message)
 		{
 			Console.WriteLine(message);
 		}
