@@ -27,8 +27,8 @@ namespace Eddie.Lib.Common
 		public static string Name = "AirVPN";
         public static string Name2 = "Eddie";
         public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
-        public static int VersionInt = 227;
-		public static string VersionDesc = "2.11.11";
+        public static int VersionInt = 228;
+		public static string VersionDesc = "2.11.12";
         public static string WebSite = "https://airvpn.org";
         public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
         public static string WindowsDriverVersion = "9.21.2";

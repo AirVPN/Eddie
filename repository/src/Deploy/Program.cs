@@ -218,22 +218,6 @@ namespace Deploy
                         }
                     }
                 }
-                /*
-                ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "portable"));
-                ListPackages.Add(new Package("windows8", "x64", "ui", true, 4, "portable"));
-                ListPackages.Add(new Package("windows8", "x86", "ui", true, 4, "installer"));
-                ListPackages.Add(new Package("windows8", "x64", "ui", true, 4, "installer"));
-
-                ListPackages.Add(new Package("windows", "x86", "ui", true, 2, "portable"));
-				ListPackages.Add(new Package("windows", "x64", "ui", true, 2, "portable"));
-				ListPackages.Add(new Package("windows", "x86", "ui", true, 2, "installer"));
-				ListPackages.Add(new Package("windows", "x64", "ui", true, 2, "installer"));
-
-				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "portable"));
-				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "portable"));
-				ListPackages.Add(new Package("windows_xp", "x86", "ui", true, 2, "installer"));
-				ListPackages.Add(new Package("windows_xp", "x64", "ui", true, 2, "installer"));                                
-                */
             }
 
 			if (SO == "linux")
@@ -246,10 +230,12 @@ namespace Deploy
 					arch = "armv7l";
                 else
                     arch = "x86";
+                /* cazzo
 				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
                 ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
                 ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
                 ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));
+                */
                 ListPackages.Add(new Package("linux", arch, "ui", false, 4, "debian"));
                 ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));                
             }
@@ -645,8 +631,12 @@ namespace Deploy
 
                         Log("RPM Build");
 						string output = Shell(command);
-                        Log("RPM Test:" + output);
-
+                        if(output.Contains("signing failed"))
+                        {
+                            Log("RPM fail: " + output);
+                            Errors++;
+                        }
+                        
 						Shell("mv ../*.rpm " + pathFinal);
 					}
 				}
@@ -1036,9 +1026,12 @@ namespace Deploy
                         string passphrase = File.ReadAllText(pathPassphrase);
                         Log("Signing .deb file (keys need to be already configured)");
                         string cmd = "dpkg-sig -g \"--no-tty --passphrase " + passphrase + "\" --sign builder " + path;
-                        Log("Debug test: " + cmd);
                         string output = Shell(cmd);
-                        Log("Debug test: " + output);
+                        if(output.Contains("Signed deb ") == false)
+                        {
+                            Log("Signing .deb failed: " + output);
+                            Errors++;
+                        }
                     }
                     else
                     {
