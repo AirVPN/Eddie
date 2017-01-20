@@ -539,11 +539,11 @@ namespace Deploy
 						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString);
 						string debianArchitecture = "unknown";
 						if(arch == "x86")
-							debianArchitecture = "any-i386";
-						else if (arch == "x64")
-							debianArchitecture = "any-amd64";
+							debianArchitecture = "i386"; // any-i386? not accepted by reprepro
+                        else if (arch == "x64")
+							debianArchitecture = "amd64"; // any-amd64?
                         else if (arch == "armhf")
-                            debianArchitecture = "any-armhf";
+                            debianArchitecture = "armhf"; // any-armhf
                         ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
 
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
@@ -643,7 +643,6 @@ namespace Deploy
                         command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
 
                         Log("RPM Build");
-                        Log("pazzo:" + command);
                         string output = Shell(command);
                         if (IsOfficial())
                         {
