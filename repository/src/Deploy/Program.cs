@@ -624,17 +624,36 @@ namespace Deploy
                         string command = "rpmbuild";
                         if(IsOfficial())
                         {
-                            Log("Enter AirVPN Staff signing password for RPM build");
-                            command += " -sign";
+                            string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
+                            if (File.Exists(pathPassphrase))
+                            {
+                                string passphrase = File.ReadAllText(pathPassphrase);
+
+                                command += " -sign";
+
+                                command = "echo \"" + passphrase + "\" | setsid " + command;
+                            }
+                            else
+                            {
+                                Log("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
+                                Errors++;
+                            }
+
+                            //Log("Enter AirVPN Staff signing password for RPM build");
+                            //command += " -sign";
                         }
                         command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
 
                         Log("RPM Build");
+                        Log("DEbugTest:" + command);
 						string output = Shell(command);
-                        if(output.Contains("signing failed"))
+                        if (IsOfficial())
                         {
-                            Log("RPM fail: " + output);
-                            Errors++;
+                            if (output.Contains("signing failed"))
+                            {
+                                Log("RPM fail: " + output);
+                                Errors++;
+                            }
                         }
                         
 						Shell("mv ../*.rpm " + pathFinal);
