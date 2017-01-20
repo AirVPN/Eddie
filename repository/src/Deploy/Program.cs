@@ -630,7 +630,8 @@ namespace Deploy
 
                                 command += " -sign";
 
-                                command = "echo \"" + passphrase + "\" | setsid " + command;
+                                //command = "echo \"" + passphrase + "\" | setsid " + command;
+                                command = "echo " + passphrase + " | setsid " + command;
                             }
                             else
                             {
@@ -644,6 +645,7 @@ namespace Deploy
                         command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
 
                         Log("RPM Build");
+                        Log("pazzo:" + command);
                         string output = Shell(command);
                         if (IsOfficial())
                         {
