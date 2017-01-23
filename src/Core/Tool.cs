@@ -111,7 +111,10 @@ namespace Eddie.Core
         {
             if (Path == "")
                 return "";
-            
+
+            // TOFIX: No SHA512CryptoServiceProvider in .Net 2.0
+            return "";
+            /*
             try
             {
                 HashAlgorithm algo = new SHA512CryptoServiceProvider();
@@ -127,6 +130,7 @@ namespace Eddie.Core
                 Engine.Instance.Logs.Log(LogType.Warning, e);
                 return "";
             }
+            */
         }
 
         public void FindResource(string filename)

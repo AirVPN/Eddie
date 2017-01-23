@@ -96,7 +96,7 @@ namespace Deploy
 			if (Environment.OSVersion.VersionString.IndexOf ("Windows") != -1)
 				SO = "windows";
 			else if ((Environment.OSVersion.Platform.ToString () == "Unix") && (Shell("uname") == "Darwin") ) {
-				SO = "osx";
+				SO = "macos";
 			}
 			else if (Environment.OSVersion.Platform.ToString () == "Unix") {
 				SO = "linux";
@@ -211,12 +211,12 @@ namespace Deploy
                     {
                         foreach (string format in new string[] { "portable", "installer" })
                         {
-                            foreach (string os in new string[] { "windows8", "windows", "windows_xp" })
+                            foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })
                             {
                                 int netFramework = 4;
-                                if (os == "windows")
+                                if (os == "windows-7")
                                     netFramework = 2;
-                                if (os == "windows_xp")
+                                if (os == "windows-xp")
                                     netFramework = 2;
                                 ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
                             }
@@ -244,11 +244,11 @@ namespace Deploy
                 ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));                
             }
 
-			if (SO == "osx") {
-				ListPackages.Add(new Package("osx", "x64", "ui", true, 4, "portable"));
-				ListPackages.Add(new Package("osx", "x64", "ui", true, 4, "installer"));
-				ListPackages.Add(new Package("osx", "x64", "cli", true, 4, "portable"));
-				ListPackages.Add(new Package("osx", "x64", "cli", true, 4, "mono"));
+			if (SO == "macos") {
+				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "portable"));
+				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "installer"));
+				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "portable"));
+				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "mono"));
 			}
 			
             
@@ -302,8 +302,10 @@ namespace Deploy
 				string pathRelease = PathBaseRelease + "/" + archCompile + "/Release/";
 
 				// Exceptions
-				if (platform == "windows8") // Windows8 use the same common files of Windows
-					pathDeploy = pathDeploy.Replace("windows8", "windows");
+				if (platform == "windows-10") // Windows_10 use the same common files of Windows
+					pathDeploy = pathDeploy.Replace("windows-10", "windows");
+                if (platform == "windows-7") // Windows_7 use the same common files of Windows
+                    pathDeploy = pathDeploy.Replace("windows-7", "windows");
 
                 /* // TOCLEAN
                 if (requiredNetFramework != netFramework)
@@ -318,7 +320,7 @@ namespace Deploy
 				Log("Building '" + archiveName + "'");
 
                 bool skipCompile = false;
-                if (SO == "osx")
+                if (SO == "macos")
                     skipCompile = true;
 
                 if (skipCompile)
@@ -549,8 +551,8 @@ namespace Deploy
 							debianArchitecture = "i386"; // any-i386? not accepted by reprepro
                         else if (arch == "x64")
 							debianArchitecture = "amd64"; // any-amd64?
-                        else if (arch == "armhf")
-                            debianArchitecture = "armhf"; // any-armhf
+                        else if (arch == "armv7l")
+                            debianArchitecture = "armv7l"; // any-armhf
                         ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
 
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
@@ -665,7 +667,7 @@ namespace Deploy
 						Shell("mv ../*.rpm " + pathFinal);
 					}
 				}
-				else if (platform == "osx")
+				else if (platform == "macos")
 				{
 					
 
@@ -998,7 +1000,7 @@ namespace Deploy
 			if (Program.Arguments.Contains("official") == false)
 				return;
 
-			if (platform == "osx")
+			if (platform == "macos")
 			{
 				string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
 				if (File.Exists(pathSignString))
