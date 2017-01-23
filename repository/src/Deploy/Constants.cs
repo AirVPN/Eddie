@@ -25,7 +25,7 @@ namespace Deploy
 {
     public static class Constants
     {
-        public static string ChangeLogUrl = "https://eddie.website/changelogs/?software=client&format=debian&hidden=yes";
+        public static string ChangeLogUrl = "https://eddie.website/changelog/?software=client&format=debian&hidden=yes";
         public static string WindowsSigningTimestampUrl = "http://timestamp.comodoca.com/authenticode";
     }
 }
