@@ -120,7 +120,6 @@ namespace Deploy
             PathBaseTools = new DirectoryInfo(PathBase + "/tools").FullName;
             PathBaseSigning = new DirectoryInfo(PathBase + "/repository/signing").FullName;
 
-            //string versionString = File.ReadAllText(PathBase + "/version.txt").Trim();
             string versionString3 = ExtractBetween(File.ReadAllText(PathBase + "/src/Lib.Common/Constants.cs"), "public static string VersionDesc = \"", "\"");
             string versionString2 = versionString3.Substring(0, versionString3.LastIndexOf('.'));
 
@@ -296,7 +295,7 @@ namespace Deploy
 
                 //string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
                 //string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
-                string archiveName = "eddie-" + ui + "_" + versionString2 + "_" + platform + "_" + arch + "_" + format;
+                string archiveName = "eddie-" + ui + "_" + versionString3 + "_" + platform + "_" + arch + "_" + format;
                 string fileName = archiveName;
                 string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
 				string pathTemp = PathBaseTemp + "/" + archiveName;

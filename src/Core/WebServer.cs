@@ -188,14 +188,14 @@ namespace Eddie.Core
         {
             // string physicalPath = GetPath() + request.RawUrl;
 
-            if(request.RawUrl == "/api/command/")
+            if(request.Url.AbsolutePath == "/api/command/")
             {
                 // Pull mode
                 var data = new StreamReader(request.InputStream).ReadToEnd();
                 Receive(data);
                 return "ok";
             }
-            else if(request.RawUrl == "/pull/receive/")
+            else if(request.Url.AbsolutePath == "/pull/receive/")
             {
                 lock(m_pullItems)
                 {
@@ -208,7 +208,7 @@ namespace Eddie.Core
                 }
             }
 
-            return string.Format("<HTML><BODY>Test.<br>{0}</BODY></HTML>", DateTime.Now);
+            return string.Format("<HTML><BODY>Unexpected. {0}</BODY></HTML>", DateTime.Now);
         }
 
         private void OnCommandEvent(XmlItem xml)

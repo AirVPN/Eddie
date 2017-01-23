@@ -324,6 +324,9 @@ namespace Eddie.Core
 
         public virtual bool FileExists(string path)
         {
+            if (path == "")
+                return false;
+
             return (File.Exists(path));
         }
 

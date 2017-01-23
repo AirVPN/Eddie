@@ -45,6 +45,11 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="Tools\Curl.cs" />
+    <Compile Include="Tools\SSL.cs" />
+    <Compile Include="Tools\SSH.cs" />
+    <Compile Include="Tools\OpenVPN.cs" />
+    <Compile Include="Tools\File.cs" />
     <Compile Include="TcpServer.cs" />
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="CountriesManager.cs" />
@@ -61,6 +66,7 @@
     <Compile Include="RemoteAccess.cs" />
     <Compile Include="PerformanceScope.cs" />
     <Compile Include="Threads\Discover.cs" />
+    <Compile Include="Tool.cs" />
     <Compile Include="TorControl.cs" />
     <Compile Include="IpAddressRange.cs" />
     <Compile Include="NetworkLockManager.cs" />

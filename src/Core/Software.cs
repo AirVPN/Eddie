@@ -24,6 +24,7 @@ using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
+    // TOCLEAN, replace almost all with Tools
     public class Software
     {		
 		public static string OpenVpnDriver = "";
@@ -38,8 +39,24 @@ namespace Eddie.Core
 		public static string CurlVersion = "";
 		public static string CurlPath = "";
 
-		public static void Checking()
+        public static Dictionary<string, Tool> Tools = new Dictionary<string, Tool>();
+        
+        public static void AddTool(string code, string hash, Tool t)
+        {
+            t.Code = code;
+            t.Hash = hash;
+            Tools[code] = t;
+        }
+
+        public static Tool GetTool(string code)
+        {
+            return Tools[code];
+        }
+
+        public static void Checking()
 		{
+            Tools.Clear();
+
 			// OpenVPN Driver
 			try
 			{
@@ -51,8 +68,28 @@ namespace Eddie.Core
 				OpenVpnDriver = "";
 			}
 
-			// OpenVPN Binary
-			try
+            // Tools
+            /*
+            AddTool("openvpn", "hash", new Tools.OpenVPN());
+            AddTool("ssh", "hash", new Tools.SSH());
+            AddTool("ssl", "hash", new Tools.SSL());
+            AddTool("curl", "hash", new Tools.Curl());
+            if (Platform.IsUnix())
+            {
+                AddTool("update-resolv-conf", "hash", new Tools.File("update-resolv-conf"));
+            }
+            if (Platform.IsWindows())
+            {
+                AddTool("tap-windows", "hash", new Tools.File("tap-windows.exe"));
+                AddTool("tap-windows-xp", "hash", new Tools.File("tap-windows-xp.exe"));
+            }
+
+            foreach (Tool tool in Tools.Values)
+                tool.UpdatePath();
+            */
+            
+            // OpenVPN Binary
+            try
 			{
 				string executableName = "openvpn";
 				
