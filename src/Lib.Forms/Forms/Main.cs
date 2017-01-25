@@ -414,7 +414,7 @@ namespace Eddie.Gui.Forms
                 m_toolTip.Connect(this.cmdLogsCopy, Messages.TooltipLogsCopy);
                 m_toolTip.Connect(this.cmdLogsSave, Messages.TooltipLogsSave);
                 m_toolTip.Connect(this.cmdLogsSupport, Messages.TooltipLogsSupport);
-
+                                
                 Controls.SetChildIndex(m_toolTip, 0);
             }
 
