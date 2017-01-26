@@ -478,6 +478,7 @@ namespace Eddie.Core
             SetDefault("log.file.encoding", "encoding", "utf-8", NotInMan);
             SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
 			SetDefaultBool("log.level.debug", false, NotInMan);
+            SetDefaultBool("log.repeat", false, NotInMan);
 
 			SetDefault("mode.protocol", "text", "AUTO", Messages.ManOptionModeProtocol);
 			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);

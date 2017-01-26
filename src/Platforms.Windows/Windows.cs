@@ -227,17 +227,16 @@ namespace Eddie.Platforms
             string path = Environment.GetCommandLineArgs()[0];
             path = Path.GetFullPath(path); // 2.11.9
             return path;
-        }
-        
+        }        
 
         public override string GetUserPathEx()
         {
             return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
         }
 
-        public override string ShellCmd(string Command)
+        public override string ShellCmd(string Command, bool noDebugLog)
         {
-            return Shell("cmd.exe", String.Format("/c {0}", Command));
+            return Shell("cmd.exe", String.Format("/c {0}", Command), "", true, false, noDebugLog);
         }
 
         public override void FlushDNS()

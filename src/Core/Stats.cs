@@ -58,7 +58,7 @@ namespace Eddie.Core
 			Add("VpnGateway", Messages.StatsVpnGateway, "vpn");
             Add("SessionTotalDownload", Messages.StatsSessionTotalDownload, "session");
             Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");
-            Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn");
+            Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", "view");
 			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system", "Update");
 			Add("Pinger", Messages.StatsPinger, "system", "Update"); 
 			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");

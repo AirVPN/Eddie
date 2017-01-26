@@ -65,12 +65,17 @@ namespace Eddie.Core
 
 		public void Log(LogType Type, string Message, int BalloonTime, Exception e)
 		{
-			// Avoid repetition
-			if (Message == m_logLast)
-				return;
-			m_logLast = Message;
+            // Avoid repetition
+            if(Engine.Instance.Storage.GetBool("log.repeat") == false)
+            {
+                string logRepetitionNormalized = Message;
+                logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
+                if (logRepetitionNormalized == m_logLast)
+                    return;
+                m_logLast = logRepetitionNormalized;
+            }
 
-			LogEntry l = new LogEntry();
+            LogEntry l = new LogEntry();
 			l.Type = Type;
 			l.Message = Message;
 			l.BalloonTime = BalloonTime;

@@ -988,7 +988,37 @@ namespace Eddie.Core.Threads
                         }
                     }
 
-                    // Detect TCP connection
+                    // Detect connection (OpenVPN >2.4)
+                    if (message.IndexOf("Peer Connection Initiated with [AF_INET]") != -1)
+                    {
+                        Engine.Instance.ConnectedProtocol = m_ovpn.Protocol;
+                        if (m_ovpn.Protocol == "SSH")
+                        {
+                            Engine.Instance.ConnectedEntryIP = m_ovpn.Address;
+                            Engine.Instance.ConnectedPort = m_ovpn.Port;
+                        }
+                        else if (m_ovpn.Protocol == "SSL")
+                        {
+                            Engine.Instance.ConnectedEntryIP = m_ovpn.Address;
+                            Engine.Instance.ConnectedPort = m_ovpn.Port;
+                        }
+                        else
+                        {
+                            string t = message;
+                            t = t.Replace("Peer Connection Initiated with", "").Trim();
+                            t = t.Replace("[nonblock]", "").Trim();
+                            t = t.Replace("[server]", "").Trim();
+                            t = t.Replace("[AF_INET]", "").Trim();
+                            string[] parts = t.Split(':');
+                            if (parts.Length == 2)
+                            {
+                                Engine.Instance.ConnectedEntryIP = parts[0];
+                                Engine.Instance.ConnectedPort = Convert.ToInt32(parts[1]);
+                            }
+                        }
+                    }
+
+                    // Detect TCP connection (OpenVPN <2.4)
                     if (message.IndexOf("Attempting to establish TCP connection with [AF_INET]") != -1)
                     {
                         if (m_ovpn.Protocol == "SSH")
@@ -1019,7 +1049,7 @@ namespace Eddie.Core.Threads
                         }
                     }
 
-                    // Detect UDP connection
+                    // Detect UDP connection (OpenVPN <2.4)
                     if (message.IndexOf("UDPv4 link remote: [AF_INET]") != -1)
                     {
                         string t = message;

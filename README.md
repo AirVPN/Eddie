@@ -1,4 +1,4 @@
-Eddie - OpenVPN GUI
+### Eddie - OpenVPN GUI
 
 OpenVPN GUI (open source under GPLv3 license) with additional features like:
 - User-friendly UI
@@ -19,11 +19,11 @@ Currently release 2.x supports only AirVPN authentication and servers. Support o
 - [Download](https://airvpn.org/enter/)
 - [Overview](https://airvpn.org/software/)
 - [FAQ](https://airvpn.org/forum/34-client-software/)
-- [Support forum](https://airvpn.org/forum/3-airvpn-client/)
+- [Support forum](https://eddie.website/support/)
 - [Changelogs](https://eddie.website/changelog/?software=client&format=html)
 
 ### Tech
 
-Eddie is written in C# with .Net/Mono framework. macOS edition use Xamarin.Mac. It is bundled with precompiled binary versions of OpenVPN, stunnel, plink/ssh and other tools for many platforms and architectures. If you don't want them, simply remove them and Eddie will search your file system, or provide custom paths.
+Eddie is written in C# with .Net/Mono framework. macOS edition use Xamarin.Mac. It is bundled with precompiled binary versions of OpenVPN, stunnel, plink/ssh and other tools for many platforms and architectures. If you don't want them, simply remove them and Eddie will locate it in your file system, or provide custom paths.
 
 To compile from sources, follow this [this guide](https://airvpn.org/topic/12760-how-can-i-compile-the-source-code/). 

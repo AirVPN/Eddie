@@ -39,7 +39,7 @@ namespace Eddie.Platforms
         // Override
         public Linux()
 		{
- 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());            
+ 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false, true).Trim());            
             m_uid = 9999;
             UInt32.TryParse(ShellCmd("id -u"), out m_uid);
 
@@ -112,7 +112,7 @@ namespace Eddie.Platforms
             if (FileExists(path) == false)
                 return false;
 
-            string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"");
+            string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
                         
             /* // < 2.11.11
             if (result.IndexOf(' ') != 16) 
@@ -175,9 +175,9 @@ namespace Eddie.Platforms
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
 
-        public override string ShellCmd(string Command)
+        public override string ShellCmd(string Command, bool noDebugLog)
         {
-            return Shell("sh", String.Format("-c '{0}'", Command));
+            return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
         }
 
         public override string GetSystemFont()

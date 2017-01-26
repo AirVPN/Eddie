@@ -35,7 +35,7 @@ namespace Eddie.Platforms
         // Override
 		public Osx()
 		{
-			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false, true).Trim());
 		}
 
 		public override string GetCode()
@@ -117,9 +117,9 @@ namespace Eddie.Platforms
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
 
-        public override string ShellCmd(string Command)
+        public override string ShellCmd(string Command, bool noDebugLog)
         {
-            return Shell("sh", String.Format("-c '{0}'", Command), true);
+            return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
         }
 
         public override void FlushDNS()

@@ -1079,8 +1079,8 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsClean_Click(object sender, EventArgs e)
 		{
-			lstLogs.Items.Clear();
-		}
+            lstLogs.Items.Clear();            
+        }
 
 		private void cmdLogsSave_Click(object sender, EventArgs e)
 		{

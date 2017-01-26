@@ -43,20 +43,20 @@ namespace Eddie.Core
         // Static - Also used before the derivated class is created
         // ----------------------------------------
 
-        public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+        public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
 		{
 			if (WaitEnd)
 			{
 				//lock (Instance) // Removed in 2.11.4
 				{
-					return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+					return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
 				}
 			}
 			else
-				return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+				return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
 		}
 
-		public static string ShellPlatformIndipendentEx(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+		public static string ShellPlatformIndipendentEx(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
         {			
 			try
             {
@@ -92,14 +92,19 @@ namespace Eddie.Core
                     string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
                     p.WaitForExit();
 
-					if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
-					{
-						int endTime = Environment.TickCount;
-						int deltaTime = endTime - startTime;
-						Engine.Instance.Logs.Log(LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms");
-					}
+                    Output = Output.Trim();
 
-                    return Output.Trim();
+                    if (noDebugLog == false) // Avoid recursion
+                    {
+                        if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
+                        {
+                            int endTime = Environment.TickCount;
+                            int deltaTime = endTime - startTime;
+                            Engine.Instance.Logs.Log(LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms, Output: " + Output);
+                        }
+                    }
+
+                    return Output;
                 }
                 else
                 {
@@ -472,7 +477,12 @@ namespace Eddie.Core
             System.Diagnostics.Process.Start(url);             
         }
 
-		public virtual string ShellCmd(string Command)
+        public virtual string ShellCmd(string Command)
+        {
+            return ShellCmd(Command, false);
+        }
+
+        public virtual string ShellCmd(string Command, bool noDebugLog)
         {
             NotImplemented();
             return "";
@@ -480,17 +490,17 @@ namespace Eddie.Core
 
 		public virtual string Shell(string FileName, string Arguments)
 		{
-			return Shell(FileName, Arguments, "", true, false);
+			return Shell(FileName, Arguments, "", true, false, false);
 		}
 
 		public virtual string Shell(string FileName, string Arguments, bool WaitEnd)
         {
-            return Shell(FileName, Arguments, "", WaitEnd, false);
+            return Shell(FileName, Arguments, "", WaitEnd, false, false);
         }
 
-		public virtual string Shell(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+        public virtual string Shell(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
         {
-            return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+            return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
         }
 
         public virtual bool OpenDirectoryInFileManager(string path)
