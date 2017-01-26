@@ -121,7 +121,7 @@ namespace Deploy
             PathBaseSigning = new DirectoryInfo(PathBase + "/repository/signing").FullName;
 
             string versionString3 = ExtractBetween(File.ReadAllText(PathBase + "/src/Lib.Common/Constants.cs"), "public static string VersionDesc = \"", "\"");
-            string versionString2 = versionString3.Substring(0, versionString3.LastIndexOf('.'));
+            //string versionString2 = versionString3.Substring(0, versionString3.LastIndexOf('.'));
 
 
             /* --------------------------------------------------------------
@@ -635,12 +635,12 @@ namespace Deploy
                             string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
                             if (File.Exists(pathPassphrase))
                             {
-                                string passphrase = File.ReadAllText(pathPassphrase);
-
                                 command += " -sign";
 
+                                // I don't yet find a working method to automate it.
+                                //string passphrase = File.ReadAllText(pathPassphrase);
                                 //command = "echo " + passphrase + " | setsid " + command;
-                                // Don't work, i don't yet find a working method to automate it.
+
                                 Log("Enter AirVPN Staff signing password for RPM build");
                             }
                             else
