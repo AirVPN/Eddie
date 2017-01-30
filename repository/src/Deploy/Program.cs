@@ -217,10 +217,7 @@ namespace Deploy
                                 if (os == "windows-7")
                                     netFramework = 2;
                                 if (os == "windows-xp")
-                                    netFramework = 2;
-                                // cazzo
-                                if (netFramework == 4)
-                                    continue;
+                                    netFramework = 2;                                
                                 ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
                             }
                         }

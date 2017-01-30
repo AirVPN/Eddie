@@ -1291,7 +1291,7 @@ namespace Eddie.Core.Threads
                                             XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingDNS, true);
 
                                             string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
-
+                                            
                                             if (hash != hash2)
                                                 throw new Exception(Messages.ConnectionCheckingNoMatchDNS);
 
