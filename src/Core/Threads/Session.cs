@@ -1187,19 +1187,27 @@ namespace Eddie.Core.Threads
                                             System.Threading.Thread.Sleep(t * 1000);
                                         }
 
-                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "") + "/check_tun/", null, Messages.ConnectionCheckingRoute, true);
-
-                                        string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-                                        Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-                                        Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-                                        
-                                        bool failed = (VpnIp != Engine.ConnectedVpnIp);
-
-                                        if (failed == false)
+                                        try
                                         {
+                                            // string checkUrl = "https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "") + "/check_tun/";
+                                            string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+                                            string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+                                            XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute, true);
+
+                                            string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                            Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+                                            Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+                                            if(VpnIp != Engine.ConnectedVpnIp)
+                                                throw new Exception(Messages.ConnectionCheckingNoMatchRoute);
+
                                             ok = true;
                                             break;
                                         }
+                                        catch (Exception e)
+                                        {
+                                            Engine.Logs.Log(e);
+                                        }                                        
                                     }
 
                                     if ((m_reset == "") && (ok == false))
@@ -1210,20 +1218,33 @@ namespace Eddie.Core.Threads
 
                                     if (m_reset == "")
                                     {
-                                        XmlDocument xmlDoc = Engine.XmlFromUrl("https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain","") + "/check_tun/", null, Messages.ConnectionCheckingRoute2, true);
-                                        Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-                                        Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-
                                         // Real IP are detected with a request over the server entry IP.
                                         // Normally this is routed by openvpn outside the tunnel.
                                         // But if a proxy is active, don't work.
                                         if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
                                         {
                                             Engine.ConnectedRealIp = Messages.NotAvailable;
+                                            Engine.ConnectedServerTime = 0;
                                         }
                                         else
                                         {
-                                            Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                            try
+                                            {
+                                                string checkUrl = "https://" + Engine.ConnectedEntryIP + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+                                                string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
+                                                XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute2, true);
+                                                Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+                                                Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+                                                Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                Engine.Logs.Log(e);
+
+                                                Engine.ConnectedRealIp = Messages.NotAvailable;
+                                                Engine.ConnectedServerTime = 0;
+                                            }
                                         }
                                     }
                                 }
@@ -1256,24 +1277,30 @@ namespace Eddie.Core.Threads
                                             System.Threading.Thread.Sleep(t * 1000);
                                         }
 
-                                        string hash = Utils.GetRandomToken();
-
-                                        // Query a inexistent domain with the hash
-                                        string dnsHost = service.GetKeyValue("check_dns_query", "").Replace("{hash}", hash);                                            
-                                        Platform.Instance.ResolveWithoutAnswer(dnsHost);
-                                        
-                                        // Check if the server has received the above DNS query
-                                        string checkUrl = "https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "") + "/check_dns/";
-                                        XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, null, Messages.ConnectionCheckingDNS, true);
-
-                                        string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
-
-                                        bool failed = (hash != hash2);
-
-                                        if(failed == false)
+                                        try
                                         {
+                                            string hash = Utils.GetRandomToken();
+
+                                            // Query a inexistent domain with the hash
+                                            string dnsHost = service.GetKeyValue("check_dns_query", "").Replace("{hash}", hash);
+                                            Platform.Instance.ResolveWithoutAnswer(dnsHost);
+
+                                            // Check if the server has received the above DNS query
+                                            string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_dns/";
+                                            string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+                                            XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingDNS, true);
+
+                                            string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
+
+                                            if (hash != hash2)
+                                                throw new Exception(Messages.ConnectionCheckingNoMatchDNS);
+
                                             ok = true;
                                             break;
+                                        }
+                                        catch(Exception e)
+                                        {
+                                            Engine.Logs.Log(e);
                                         }                                        
                                     }
 

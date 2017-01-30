@@ -29,16 +29,24 @@ namespace Eddie.Core
     {
         private static bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-			// Data exchange security are NOT based on SSL. Look "AirExchange.cs".
+            // TOFIX
 
-			// The only SSL sessions are for checking tunnel and DNS, with a request to the VPN server itself.
+            /*
+			Data exchange security are NOT based on SSL. Look "AirExchange.cs".
 
-			// Mono doesn't include by default root certificates: http://www.mono-project.com/docs/faq/security/
+			The only SSL sessions are for checking tunnel and DNS, with a request to the VPN server itself.
+            No sensitive data are transmitted in this kind of sessions.
 
-			// This is used only from Linux, not used under Windows or OS X.
+            Validation of certificate it's skipped in two cases:
 
-			// TOFIX
-			
+            1: Linux. Mono doesn't include by default root certificates: http://www.mono-project.com/docs/faq/security/            
+
+            2: Windows, only in .Net 2.0 edition (Windows Vista / Windows 7 / Windows XP)
+               Checking route and checking tunnel are performed direct on IP address, without DNS resolution.
+               Host-name are provided as additional request-header for certificate validation.
+               But .Net 2.0 don't provide the method. Look the preprocessor EDDIENET20.
+            */
+            
             return true;
         }
 

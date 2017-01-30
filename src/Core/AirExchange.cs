@@ -88,7 +88,7 @@ namespace Eddie.Core
 
             // 'POST' Edition - >= 2.9			
             // Debug with an url direct to backend service client debugging page			            
-			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", 1, Engine.Instance.IsConnected());
+			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, "", fetchParameters, "", Engine.Instance.IsConnected());
 			
 			// Decrypt answer
 			MemoryStream aesDecryptStream = new MemoryStream();

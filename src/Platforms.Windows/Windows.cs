@@ -91,10 +91,14 @@ namespace Eddie.Platforms
 		
         // Override
 		public Windows()
-		{            
+		{
+#if EDDIENET20
+            // Look the comment in TrustCertificatePolicy.cs
+            TrustCertificatePolicy.Activate();
+#endif
         }
 
-		public override string GetCode()
+        public override string GetCode()
 		{
 			return "Windows";
 		}

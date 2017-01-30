@@ -88,7 +88,7 @@ namespace Eddie.Core.Threads
                         string url = method;
                         url = url.Replace("{@ip}", server.IpEntry);
 
-                        XmlDocument xmlDoc = Engine.Instance.XmlFromUrl(url, null, "iptitle", false); // Clodo: Bypass proxy?
+                        XmlDocument xmlDoc = Engine.Instance.XmlFromUrl(url, "", null, "iptitle", false); // Clodo: Bypass proxy?
 
                         if (xmlDoc.DocumentElement.HasChildNodes)
                         {

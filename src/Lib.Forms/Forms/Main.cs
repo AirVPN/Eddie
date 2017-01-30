@@ -719,7 +719,7 @@ namespace Eddie.Gui.Forms
 		
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
-			Engine.Storage.SetBool("remember", chkRemember.Checked);
+            Engine.Storage.SetBool("remember", chkRemember.Checked);
 		}
 
 		private void cmdLogin_Click(object sender, EventArgs e)

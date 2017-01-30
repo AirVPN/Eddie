@@ -218,6 +218,9 @@ namespace Deploy
                                     netFramework = 2;
                                 if (os == "windows-xp")
                                     netFramework = 2;
+                                // cazzo
+                                if (netFramework == 4)
+                                    continue;
                                 ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
                             }
                         }
@@ -824,6 +827,15 @@ namespace Deploy
             }
 
             string arguments = "/p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework.ToString() + ".0\" /t:Rebuild \"" + PathBase + "/src/Eddie_VS2015.sln\"";
+
+            if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
+            {
+                if(netFramework == 2)
+                {
+                    arguments += " /p:DefineConstants=\"EDDIENET20\"";
+                }
+            }
+
             string o = Shell(pathCompiler, arguments);
 
 			if (o.IndexOf("0 Error(s)", StringComparison.InvariantCulture) != -1)

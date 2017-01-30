@@ -577,7 +577,7 @@ namespace Eddie.Core
             SetDefaultBool("windows.dns.force_all_interfaces", false, Messages.ManOptionWindowsDnsForceAllInterfaces); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
             SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
 
-            SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some wariants to identify issues
+            SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 
             // General UI
             SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);

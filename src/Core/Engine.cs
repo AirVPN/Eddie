@@ -1500,15 +1500,115 @@ namespace Eddie.Core
 				m_threadSession.SendManagementCommand(command);
 		}
 
-		public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, int ntry, bool bypassProxy)
+		public byte[] FetchUrlEx(string url, string host, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
 		{
-			string lastException = "";
+            // Note: by default WebClient try to determine the proxy used by IE/Windows
+            WebClientEx wc = new WebClientEx();
+            wc.CustomHost = host;
+
+            if (bypassProxy)
+            {
+                // Don't use a proxy if connected to the VPN
+                wc.Proxy = null;
+            }
+            else
+            {
+                string proxyMode = Storage.Get("proxy.mode").ToLowerInvariant();
+                string proxyHost = Storage.Get("proxy.host");
+                int proxyPort = Storage.GetInt("proxy.port");
+                string proxyAuth = Storage.Get("proxy.auth").ToLowerInvariant();
+                string proxyLogin = Storage.Get("proxy.login");
+                string proxyPassword = Storage.Get("proxy.password");
+
+                if (proxyMode == "Tor")
+                {
+                    proxyMode = "socks";
+                    proxyAuth = "none";
+                    proxyLogin = "";
+                    proxyPassword = "";
+                }
+
+                if (proxyMode == "http")
+                {
+                    System.Net.WebProxy proxy = new System.Net.WebProxy(proxyHost, proxyPort);
+                    //string proxyUrl = "http://" + Storage.Get("proxy.host") + ":" + Storage.GetInt("proxy.port").ToString() + "/";
+                    //System.Net.WebProxy proxy = new System.Net.WebProxy(proxyUrl, true);					
+
+                    if (proxyAuth != "none")
+                    {
+                        //wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), Storage.Get("proxy.host"));
+                        wc.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
+                        proxy.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
+                        wc.UseDefaultCredentials = false;
+                    }
+
+                    wc.Proxy = proxy;
+                }
+                else if (proxyMode == "socks")
+                {
+                    // Socks Proxy supported with a curl shell
+                    if (Software.CurlPath == "")
+                    {
+                        throw new Exception(Messages.CUrlRequiredForProxySocks);
+                    }
+                    else
+                    {
+                        string dataParameters = "";
+                        if (parameters != null)
+                        {
+                            foreach (string k in parameters.Keys)
+                            {
+                                if (dataParameters != "")
+                                    dataParameters += "&";
+                                dataParameters += k + "=" + Uri.EscapeUriString(parameters[k]);
+                            }
+                        }
+
+                        TemporaryFile fileOutput = new TemporaryFile("bin");
+                        string args = " \"" + url + "\" --socks4a " + proxyHost + ":" + proxyPort;
+                        if (proxyAuth != "none")
+                        {
+                            args += " -U " + proxyLogin + ":" + proxyPassword;
+                        }
+                        args += " -o \"" + fileOutput.Path + "\"";
+                        args += " --progress-bar";
+                        if (dataParameters != "")
+                            args += " --data \"" + dataParameters + "\"";
+                        string str = Platform.Instance.Shell(Software.CurlPath, args);
+                        byte[] bytes;
+                        if (Platform.Instance.FileExists(fileOutput.Path))
+                        {
+                            bytes = Platform.Instance.FileContentsReadBytes(fileOutput.Path);
+                            fileOutput.Close();
+                            return bytes;
+                        }
+                        else
+                        {
+                            throw new Exception(str);
+                        }
+                    }
+                }
+                else if (proxyMode != "detect")
+                {
+                    wc.Proxy = null;
+                }
+            }
+
+            if (parameters == null)
+                return wc.DownloadData(url);
+            else
+                return wc.UploadValues(url, "POST", parameters);
+
+            // < 2.11.13
+            /*
+        	string lastException = "";
 			for (int t = 0; t < ntry; t++)
 			{
 				try
 				{
 					// Note: by default WebClient try to determine the proxy used by IE/Windows
 					WebClientEx wc = new WebClientEx();
+                    wc.CustomHost = host;
 
 					if (bypassProxy)
 					{
@@ -1598,7 +1698,7 @@ namespace Eddie.Core
 						}
 					}
 
-					if (parameters == null)
+                    if (parameters == null)
 						return wc.DownloadData(url);
 					else
 						return wc.UploadValues(url, "POST", parameters);
@@ -1618,11 +1718,12 @@ namespace Eddie.Core
 			}
 
 			throw new Exception(lastException);			
-		}
+            */
+        }
 		
-		public XmlDocument XmlFromUrl(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
+		public XmlDocument XmlFromUrl(string url, string host, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
         {
-            string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, title, 5, bypassProxy));                
+            string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, host, parameters, title, bypassProxy));                
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(str);
             return doc;
@@ -2083,19 +2184,32 @@ namespace Eddie.Core
 			return text;
         }
 
-        public void UiSendOsInfo()
+        public void UiSendStartInfo()
         {
-            // Data sended at connection, never changed, at least until options changes.
+            // Data sended at connection, never changed
             XmlItem xml = new XmlItem("command");
-            xml.SetAttribute("action", "ui.info.os");
+            xml.SetAttribute("action", "ui.info.start");
+
             xml.SetAttribute("eddie.version.text", Constants.VersionDesc);
             xml.SetAttributeInt("eddie.version.int", Constants.VersionInt);
-            xml.SetAttribute("eddie.windows.tap.driver", Constants.WindowsDriverVersion);
-            xml.SetAttribute("eddie.windows-xp.tap.driver", Constants.WindowsXpDriverVersion);
             xml.SetAttributeBool("eddie.development", DevelopmentEnvironment);
             xml.SetAttribute("mono.version", Platform.Instance.GetMonoVersion());
             xml.SetAttribute("os.code", Platform.Instance.GetSystemCode());
             xml.SetAttribute("os.name", Platform.Instance.GetName());
+
+            //XmlItem xmlOptions = xml.CreateChild("options");
+
+            Command(xml);
+        }
+
+        public void UiSendOsInfo()
+        {
+            // Data sended at connection, never changed, at least until options changes.
+            XmlItem xml = new XmlItem("command");
+            xml.SetAttribute("action", "ui.info.os");            
+
+            xml.SetAttribute("eddie.windows.tap.driver", Constants.WindowsDriverVersion);
+            xml.SetAttribute("eddie.windows-xp.tap.driver", Constants.WindowsXpDriverVersion);                        
             xml.SetAttribute("tools.tap-driver.version", Software.OpenVpnDriver);
             xml.SetAttribute("tools.openvpn.version", Software.OpenVpnVersion);
             xml.SetAttribute("tools.openvpn.path", Software.OpenVpnPath);
@@ -2109,7 +2223,20 @@ namespace Eddie.Core
 
         public void UiSendQuickInfo()
         {
-            // Data sended every seconds
+            // Data sended every second
+            /*
+            XmlItem xml = new XmlItem("command");
+            xml.SetAttribute("action", "ui.info.os");
+
+            xml.SetAttributeInt64("stats.vpn.download.bytes", Engine.ConnectedLastDownloadStep);
+            xml.SetAttribute("stats.vpn.download.text", Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false));
+            xml.SetAttributeInt64("stats.vpn.upload.bytes", Engine.ConnectedLastUploadStep);
+            xml.SetAttribute("stats.vpn.upload.text", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false));
+
+            xml.SetAttribute("status.text", Engine.Instance.GetConnectedTrayText(true, true));            
+
+            Command(xml);
+            */
         }
 
         public void UiSendStatusInfo()

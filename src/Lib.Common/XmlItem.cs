@@ -50,6 +50,11 @@ namespace Eddie.Lib.Common
             }
         }
 
+        public XmlItem(XmlElement xmlElement)
+        {
+            m_element = xmlElement;
+        }
+
         public override string ToString()
         {
             return m_element.OuterXml;
@@ -154,6 +159,13 @@ namespace Eddie.Lib.Common
         XmlItem GetFirstChild()
         {
             return null;
+        }
+
+        public XmlItem CreateChild(string name)
+        {
+            XmlElement xmlChild = m_element.OwnerDocument.CreateElement(name);
+            m_element.AppendChild(xmlChild);
+            return new XmlItem(xmlChild);
         }
     }
 }

@@ -29,6 +29,7 @@ namespace Eddie.Core
 		private String m_lastLogMessage;
 		private int m_logDotCount = 0;
 		private string m_logLast = "";
+        private int m_logLastCount = 0;
 
 		public List<LogEntry> Entries = new List<LogEntry>();
 
@@ -71,8 +72,21 @@ namespace Eddie.Core
                 string logRepetitionNormalized = Message;
                 logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
                 if (logRepetitionNormalized == m_logLast)
+                {
+                    m_logLastCount++;
                     return;
-                m_logLast = logRepetitionNormalized;
+                }
+                else
+                {
+                    int oldCount = m_logLastCount;
+                    m_logLast = logRepetitionNormalized;
+                    m_logLastCount = 0;
+
+                    if (oldCount != 0)
+                    {
+                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.LogsLineRepetitionSummary, oldCount.ToString()));
+                    }                    
+                }
             }
 
             LogEntry l = new LogEntry();

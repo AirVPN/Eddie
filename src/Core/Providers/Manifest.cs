@@ -359,7 +359,7 @@ namespace Eddie.Core.Providers
 
 			if (Manifest != null)
 			{
-				XmlNodeList nodesUrls = Manifest.SelectNodes("//urls/url");
+                XmlNodeList nodesUrls = Manifest.SelectNodes("//urls/url");
 				foreach (XmlNode nodeUrl in nodesUrls)
 				{
 					urls.Add(nodeUrl.Attributes["address"].Value);

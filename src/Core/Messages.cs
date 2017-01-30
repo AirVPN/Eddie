@@ -100,9 +100,9 @@ namespace Eddie.Core
 		public static string CUrlRequiredForProxySocks = "CUrl is not installed on this system, and it's required for SOCKS proxy.";
 		public static string SocksProxyError = "Socks proxy connection error.";
 
-		public static string FetchTryFailed = "{1}, {2}° try failed ({3})";
+		public static string LogsLineRepetitionSummary = "Above log line repeated {1} times more";
 
-		public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; 
+        public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; 
 		public static string PingerStatsPending = "Disabled during VPN connection. Latest check: {1}";
 		
 		public static string CheckingEnvironment = "Checking environment";
@@ -123,11 +123,13 @@ namespace Eddie.Core
         public static string ConnectionStartManagement = "Starting Management Interface";
 		public static string ConnectionCheckingRoute = "Checking route";
         public static string ConnectionCheckingTryRoute = "Checking route ({1}° try)";
+        public static string ConnectionCheckingNoMatchRoute = "Checking route don't match";
         public static string ConnectionCheckingRoute2 = "Checking info";
 		public static string ConnectionCheckingRouteNotAvailable = "Checking route not available on this server.";
 		public static string ConnectionCheckingRouteFailed = "Routing checking failed.";
 		public static string ConnectionCheckingDNS = "Checking DNS";
         public static string ConnectionCheckingTryDNS = "Checking DNS ({1}° try)";
+        public static string ConnectionCheckingNoMatchDNS = "Checking DNS don't match";
         public static string ConnectionCheckingDNSFailed = "DNS checking failed.";
 		public static string ConnectionFlushDNS = "Flushing DNS";
 		public static string ConnectionConnected = "Connected.";
