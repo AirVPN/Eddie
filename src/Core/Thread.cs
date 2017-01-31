@@ -59,6 +59,11 @@ namespace Eddie.Core
 		{
 			m_Thread.Join ();
 		}
+
+        public virtual void Abort()
+        {
+            m_Thread.Abort();
+        }
                 
         public virtual void RequestStop()
         {

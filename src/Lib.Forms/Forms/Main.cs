@@ -29,6 +29,7 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 using Eddie.Gui.Controls;
 
@@ -229,32 +230,37 @@ namespace Eddie.Gui.Forms
 
         protected override void OnLoad(EventArgs e)
         {
+            base.OnLoad(e);
+        }
+
+        public void LoadPhase()
+        {
             m_lockCoordUpdate = true;
 
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
-			MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
+            MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
 
-			KeyPreview = true;  // 2.10.1
+            KeyPreview = true;  // 2.10.1
 
-			m_formReady = false;
+            m_formReady = false;
 
-			Visible = false;
+            Visible = false;
 
             //base.OnLoad(e);
 
             CommonInit("");
 
-			if (Platform.Instance.IsTraySupported())
+            if (Platform.Instance.IsTraySupported())
             {
                 m_notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
                 m_notifyIcon.Icon = this.Icon;
                 m_notifyIcon.Text = "AirVPN";
                 m_notifyIcon.Visible = true;
-                m_notifyIcon.BalloonTipTitle = Constants.Name;				
+                m_notifyIcon.BalloonTipTitle = Constants.Name;
 
                 m_notifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
                 //m_notifyIcon.Click += new EventHandler(notifyIcon_Click);				
-				m_notifyIcon.ContextMenuStrip = mnuMain;
+                m_notifyIcon.ContextMenuStrip = mnuMain;
             }
 
             m_tabMain = new TabNavigator();
@@ -272,42 +278,42 @@ namespace Eddie.Gui.Forms
                 m_tabMain.TabSwitch += tabMain_TabSwitch;
                 this.Controls.Add(m_tabMain);
             }
-            
-            m_imgProgressInfinite = new ProgressInfinite();
-			this.pnlWaiting.Controls.Add(m_imgProgressInfinite);
-			
-			// Controls initialization
-			mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
-			mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
 
-			chkRemember.BackColor = Color.Transparent;
-                        
-            if(Platform.IsWindows())
+            m_imgProgressInfinite = new ProgressInfinite();
+            this.pnlWaiting.Controls.Add(m_imgProgressInfinite);
+
+            // Controls initialization
+            mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
+            mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
+
+            chkRemember.BackColor = Color.Transparent;
+
+            if (Platform.IsWindows())
             {
                 // TOFIX: Under Mono crash...
                 m_toolTip = new Controls.ToolTip();
                 Controls.Add(m_toolTip);
             }
-                        
+
             m_pnlCharts = new ChartSpeed();
-			m_pnlCharts.Left = holSpeedChart.Left;
-			m_pnlCharts.Top = holSpeedChart.Top;
-			m_pnlCharts.Width = holSpeedChart.Width;
-			m_pnlCharts.Height = holSpeedChart.Height;
-			m_pnlCharts.Anchor = holSpeedChart.Anchor;
-			holSpeedChart.Visible = false;
-            if(m_tabMain.Pages.Count != 0)
-			    m_tabMain.Pages[3].Controls.Add(m_pnlCharts);
+            m_pnlCharts.Left = holSpeedChart.Left;
+            m_pnlCharts.Top = holSpeedChart.Top;
+            m_pnlCharts.Width = holSpeedChart.Width;
+            m_pnlCharts.Height = holSpeedChart.Height;
+            m_pnlCharts.Anchor = holSpeedChart.Anchor;
+            holSpeedChart.Visible = false;
+            if (m_tabMain.Pages.Count != 0)
+                m_tabMain.Pages[3].Controls.Add(m_pnlCharts);
 
-			m_cmdMainMenu = new MenuButton();
-			m_cmdMainMenu.Left = 0;
-			m_cmdMainMenu.Top = 0;
-			m_cmdMainMenu.Click += cmdMenu_Click;
-			Controls.Add(m_cmdMainMenu);
+            m_cmdMainMenu = new MenuButton();
+            m_cmdMainMenu.Left = 0;
+            m_cmdMainMenu.Top = 0;
+            m_cmdMainMenu.Click += cmdMenu_Click;
+            Controls.Add(m_cmdMainMenu);
 
-			m_listViewServers = new ListViewServers();
-			m_listViewServers.ContextMenuStrip = mnuServers;
-			m_listViewServers.Dock = DockStyle.Fill;
+            m_listViewServers = new ListViewServers();
+            m_listViewServers.ContextMenuStrip = mnuServers;
+            m_listViewServers.Dock = DockStyle.Fill;
             m_listViewServers.ResizeColumnString(0, 20);
             m_listViewServers.ResizeColumnString(1, 5);
             m_listViewServers.ResizeColumnString(2, 20);
@@ -318,34 +324,34 @@ namespace Eddie.Gui.Forms
             pnlServers.Controls.Add(m_listViewServers);
 
             m_listViewAreas = new ListViewAreas();
-			m_listViewAreas.ContextMenuStrip = mnuAreas;
-			m_listViewAreas.Dock = DockStyle.Fill;
+            m_listViewAreas.ContextMenuStrip = mnuAreas;
+            m_listViewAreas.Dock = DockStyle.Fill;
             m_listViewAreas.ResizeColumnString(0, 14);
             m_listViewAreas.ResizeColumnString(1, 8);
             m_listViewAreas.ResizeColumnString(2, 20);
             m_listViewAreas.ResizeColumnString(3, 6);
             m_listViewAreas.AllowColumnReorder = true;
             pnlAreas.Controls.Add(m_listViewAreas);
-            
-            m_listViewServers.MouseDoubleClick += new MouseEventHandler(m_listViewServers_MouseDoubleClick);
-			m_listViewServers.SelectedIndexChanged += new EventHandler(m_listViewServers_SelectedIndexChanged);
-			m_listViewAreas.SelectedIndexChanged += new EventHandler(m_listViewAreas_SelectedIndexChanged);
 
-			lstStats.ImageIconResourcePrefix = "stats_";
+            m_listViewServers.MouseDoubleClick += new MouseEventHandler(m_listViewServers_MouseDoubleClick);
+            m_listViewServers.SelectedIndexChanged += new EventHandler(m_listViewServers_SelectedIndexChanged);
+            m_listViewAreas.SelectedIndexChanged += new EventHandler(m_listViewAreas_SelectedIndexChanged);
+
+            lstStats.ImageIconResourcePrefix = "stats_";
             lstStats.ResizeColumnMax(1);
-            
+
             lstLogs.ImageIconResourcePrefix = "log_";
             lstLogs.ResizeColumnString(0, 2);
             lstLogs.ResizeColumnString(1, LogEntry.GetDateForListSample());
             lstLogs.ResizeColumnMax(2);
-            
+
             chkShowAll.Checked = false;
-			chkLockLast.Checked = Engine.Storage.GetBool("servers.locklast");
-			cboScoreType.Text = Engine.Storage.Get("servers.scoretype");
+            chkLockLast.Checked = Engine.Storage.GetBool("servers.locklast");
+            cboScoreType.Text = Engine.Storage.Get("servers.scoretype");
 
 
             //ApplySkin();
-                        
+
             bool forceMinimized = false;
             if (Engine.Storage.GetBool("gui.windows.start_minimized"))
                 forceMinimized = true;
@@ -359,34 +365,34 @@ namespace Eddie.Gui.Forms
             m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
             lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
 
-            foreach (StatsEntry statsEntry in Engine.Stats.List) 
-			{
-				ListViewItemStats statsEntryItem = new ListViewItemStats();
-				statsEntryItem.Entry = statsEntry;
-				statsEntryItem.Text = statsEntry.Caption;
-				statsEntryItem.ImageKey = statsEntry.Icon;
+            foreach (StatsEntry statsEntry in Engine.Stats.List)
+            {
+                ListViewItemStats statsEntryItem = new ListViewItemStats();
+                statsEntryItem.Entry = statsEntry;
+                statsEntryItem.Text = statsEntry.Caption;
+                statsEntryItem.ImageKey = statsEntry.Icon;
 
-				lstStats.Items.Add(statsEntryItem);
-				m_statsItems[statsEntry.Key] = statsEntryItem;
+                lstStats.Items.Add(statsEntryItem);
+                m_statsItems[statsEntry.Key] = statsEntryItem;
 
-				StatsChange(statsEntry); // Without this, glitch in listview under Linux                
+                StatsChange(statsEntry); // Without this, glitch in listview under Linux                
             }
-             
+
             lstStats.ResizeColumnAuto(0);
 
             cboSpeedResolution.Items.Clear();
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution1);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution2);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution3);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution4);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution5);
-			cboSpeedResolution.SelectedIndex = 0;
+            cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution1);
+            cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution2);
+            cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution3);
+            cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution4);
+            cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution5);
+            cboSpeedResolution.SelectedIndex = 0;
 
-			// Tooltips
-			cmdConnect.Text = Messages.CommandConnect;
-			lblConnectSubtitle.Text = Messages.CommandConnectSubtitle;
-			cmdDisconnect.Text = Messages.CommandDisconnect;
-			cmdCancel.Text = Messages.CommandCancel;
+            // Tooltips
+            cmdConnect.Text = Messages.CommandConnect;
+            lblConnectSubtitle.Text = Messages.CommandConnectSubtitle;
+            cmdDisconnect.Text = Messages.CommandDisconnect;
+            cmdCancel.Text = Messages.CommandCancel;
 
             if (m_toolTip != null)
             {
@@ -408,26 +414,26 @@ namespace Eddie.Gui.Forms
                 m_toolTip.Connect(this.cmdLogsCopy, Messages.TooltipLogsCopy);
                 m_toolTip.Connect(this.cmdLogsSave, Messages.TooltipLogsSave);
                 m_toolTip.Connect(this.cmdLogsSupport, Messages.TooltipLogsSupport);
-
+                                
                 Controls.SetChildIndex(m_toolTip, 0);
             }
-            
+
             // Start
             if (Engine.Storage.GetBool("remember"))
-			{
-				chkRemember.Checked = true;
-				txtLogin.Text = Engine.Storage.Get("login");
-				txtPassword.Text = Engine.Storage.Get("password");				
-			}
-            
+            {
+                chkRemember.Checked = true;
+                txtLogin.Text = Engine.Storage.Get("login");
+                txtPassword.Text = Engine.Storage.Get("password");
+            }
+
             m_lockCoordUpdate = false;
 
             Resizing();
 
-            base.OnLoad(e);
+            // base.OnLoad(e); // Removed in 2.11.9
 
             m_formReady = true;
-            
+
             Engine.OnRefreshUi();
 
             /* TOCLEAN
@@ -440,6 +446,9 @@ namespace Eddie.Gui.Forms
 				timerMonoDelayedRedraw.Enabled = true;
 			}            
             */
+
+
+
         }
 
         /* // TOCLEAN
@@ -451,6 +460,11 @@ namespace Eddie.Gui.Forms
             Refresh();
 		}
         */
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+        }
 
         protected override void WndProc(ref Message m)
         {
@@ -499,7 +513,6 @@ namespace Eddie.Gui.Forms
                 {
                     if (m_tabMain.Width != ClientSize.Width)
                     {
-                        // Console.WriteLine("Detected Mono issue");
                         Resizing();
                     }
                 }
@@ -539,18 +552,18 @@ namespace Eddie.Gui.Forms
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
-					Form.DrawStringOutline(e.Graphics, Messages.Format(Messages.TopBarConnected, serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+					Form.DrawStringOutline(e.Graphics, MessagesFormatter.Format(MessagesUi.TopBarConnected, serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 				}
 				else
 				{
                     DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
                     if( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()) ) 
 					{
-						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, MessagesUi.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 					else
 					{
-						Form.DrawStringOutline(e.Graphics, Messages.TopBarNotConnectedExposed, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, MessagesUi.TopBarNotConnectedExposed, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 				}
 
@@ -608,12 +621,6 @@ namespace Eddie.Gui.Forms
             base.OnClosing(e);
         }
 
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);            
-        }
-              
-                
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -685,7 +692,7 @@ namespace Eddie.Gui.Forms
             Engine.Instance.Command("ui.show.preferences");
         }
 
-		private void mnuStatus_Click(object sender, EventArgs e)
+        private void mnuStatus_Click(object sender, EventArgs e)
 		{
 			Restore();
 		}
@@ -712,7 +719,7 @@ namespace Eddie.Gui.Forms
 		
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
-			Engine.Storage.SetBool("remember", chkRemember.Checked);
+            Engine.Storage.SetBool("remember", chkRemember.Checked);
 		}
 
 		private void cmdLogin_Click(object sender, EventArgs e)
@@ -1002,6 +1009,9 @@ namespace Eddie.Gui.Forms
 
 			ListViewItemStats item = lstStats.SelectedItems[0] as ListViewItemStats;
 
+            Engine.Instance.Command("ui.stats." + item.Entry.Key, true);
+
+            /* // TOCLEAN
 			if (item.Entry.Key == "VpnGeneratedOVPN")
 			{
 				if (Engine.IsConnected() == false)
@@ -1028,6 +1038,7 @@ namespace Eddie.Gui.Forms
 			{
 				Core.Threads.Manifest.Instance.ForceUpdate = true;
 			}
+            */
 		}
 
         private void tabMain_TabSwitch()
@@ -1068,8 +1079,8 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsClean_Click(object sender, EventArgs e)
 		{
-			lstLogs.Items.Clear();
-		}
+            lstLogs.Items.Clear();            
+        }
 
 		private void cmdLogsSave_Click(object sender, EventArgs e)
 		{
@@ -1133,7 +1144,7 @@ namespace Eddie.Gui.Forms
 
             Graphics g = this.CreateGraphics();
 
-            m_topHeaderHeight = GuiUtils.GetFontSize(g, Skin.FontBig, Messages.TopBarNotConnectedExposed).Height;
+            m_topHeaderHeight = GuiUtils.GetFontSize(g, Skin.FontBig, MessagesUi.TopBarNotConnectedExposed).Height;
             if (m_topHeaderHeight < 30)
                 m_topHeaderHeight = 30;
 
@@ -1624,21 +1635,21 @@ namespace Eddie.Gui.Forms
 
 					if ((mode == Core.Engine.RefreshUiMode.Log) || (mode == Core.Engine.RefreshUiMode.Full))
 					{
-						lock (Engine.LogEntries)
+                        lock (Engine.LogEntries)
+                        {
+                            while (Engine.LogEntries.Count > 0)
+                            {
+                                LogEntry l = Engine.LogEntries[0];
+                                Engine.LogEntries.RemoveAt(0);
+
+                                Log(l);
+                            }
+                        }
+                        
+						if (Engine.IsWaiting())
 						{
-							while (Engine.LogEntries.Count > 0)
-							{
-								LogEntry l = Engine.LogEntries[0];
-								Engine.LogEntries.RemoveAt(0);
-
-								Log(l);
-							}
-
-							if (Engine.IsWaiting())
-							{
-								lblWait2.Text = Engine.Logs.GetLogDetailTitle();
-							}
-						}
+							lblWait2.Text = Engine.Logs.GetLogDetailTitle();
+						}						
 					}
 
                     if( (mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
@@ -1688,8 +1699,8 @@ namespace Eddie.Gui.Forms
 				{
 					ListViewItemStats item = m_statsItems[entry.Key];
 					if (item.SubItems.Count == 1)
-						item.SubItems.Add("");
-					item.SubItems[1].Text = entry.Value;                    
+						item.SubItems.Add("");                    
+                    item.SubItems[1].Text = entry.Text;
                 }
 			}
 		}
@@ -1733,16 +1744,6 @@ namespace Eddie.Gui.Forms
 
 					if (skip == false)
 					{
-						/*
-						String line = "";
-						for (int j = 0; j < lstLogs.Columns.Count; j++)
-						{
-							line += lstLogs.Items[i].SubItems[j].Text;
-							line += "\t";
-						}
-						buffer.Append(line.Trim());
-						buffer.Append("\n");
-						*/
 						buffer.Append((lstLogs.Items[i] as ListViewItemLog).Info.GetStringLines() + "\n");
 					}
 				}
@@ -1826,7 +1827,7 @@ namespace Eddie.Gui.Forms
 				string command = txtCommand.Text;
 				txtCommand.Text = "";
 				
-				Engine.Instance.Command(command);
+				Engine.Instance.Command(command, false);
 			}			
 		}
 
@@ -1834,5 +1835,7 @@ namespace Eddie.Gui.Forms
         {
             Engine.Instance.Storage.Set("key", cboKey.SelectedItem as string);
         }
+
+        
     }
 }

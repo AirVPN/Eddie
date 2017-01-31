@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -280,6 +281,16 @@ namespace Eddie.UI.Cocoa.Osx
 
 			TxtLoggingPath.Changed += (object sender, EventArgs e) => {
 				RefreshLogPreview();
+			};
+
+			CmdLoggingOpen.Activated += (object sender, EventArgs e) =>
+			{
+				List<string> paths = Engine.Instance.Logs.ParseLogFilePath(TxtLoggingPath.StringValue);
+				foreach (string path in paths)
+				{
+					if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
+						Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+				}
 			};
 
 			// Directives

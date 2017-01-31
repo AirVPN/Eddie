@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -31,13 +32,13 @@ namespace Eddie.Core
         public int BalloonTime = 1000;
 		public Exception Exception;
 
-		public void WriteXML(XmlElement node)
+        public void WriteXML(XmlItem item)
 		{
-			Utils.XmlSetAttributeInt64(node, "timestamp",Conversions.ToUnixTime(Date));
-			Utils.XmlSetAttributeString(node, "level", GetTypeString());
-			Utils.XmlSetAttributeString(node, "message", Message);
+            item.SetAttributeInt64("timestamp", Conversions.ToUnixTime(Date));
+            item.SetAttribute("level", GetTypeString());
+            item.SetAttribute("message", Message);			
 		}
-
+                
 		public string GetMessageForList()
 		{
 			return Message.Replace("\r", "").Replace("\n", " | ");			
@@ -98,7 +99,7 @@ namespace Eddie.Core
 			foreach (string line in Message.Split('\n'))
 			{
 				if (line.Trim() != "")
-					result += o + line.Trim() + "\n";
+					result += o + line.Replace("\r","").Trim() + "\n";
 			}
 
 			return result.Trim();

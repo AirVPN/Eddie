@@ -20,9 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
+    // TOCLEAN, replace almost all with Tools
     public class Software
     {		
 		public static string OpenVpnDriver = "";
@@ -37,8 +39,24 @@ namespace Eddie.Core
 		public static string CurlVersion = "";
 		public static string CurlPath = "";
 
-		public static void Checking()
+        public static Dictionary<string, Tool> Tools = new Dictionary<string, Tool>();
+        
+        public static void AddTool(string code, string hash, Tool t)
+        {
+            t.Code = code;
+            t.Hash = hash;
+            Tools[code] = t;
+        }
+
+        public static Tool GetTool(string code)
+        {
+            return Tools[code];
+        }
+
+        public static void Checking()
 		{
+            Tools.Clear();
+
 			// OpenVPN Driver
 			try
 			{
@@ -50,8 +68,28 @@ namespace Eddie.Core
 				OpenVpnDriver = "";
 			}
 
-			// OpenVPN Binary
-			try
+            // Tools
+            /*
+            AddTool("openvpn", "hash", new Tools.OpenVPN());
+            AddTool("ssh", "hash", new Tools.SSH());
+            AddTool("ssl", "hash", new Tools.SSL());
+            AddTool("curl", "hash", new Tools.Curl());
+            if (Platform.IsUnix())
+            {
+                AddTool("update-resolv-conf", "hash", new Tools.File("update-resolv-conf"));
+            }
+            if (Platform.IsWindows())
+            {
+                AddTool("tap-windows", "hash", new Tools.File("tap-windows.exe"));
+                AddTool("tap-windows-xp", "hash", new Tools.File("tap-windows-xp.exe"));
+            }
+
+            foreach (Tool tool in Tools.Values)
+                tool.UpdatePath();
+            */
+            
+            // OpenVPN Binary
+            try
 			{
 				string executableName = "openvpn";
 				
@@ -62,7 +100,7 @@ namespace Eddie.Core
 					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
 					if( (OpenVpnVersion.StartsWith("Error:")) || (OpenVpnVersion == "") )
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + OpenVpnVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(OpenVpnPath));
 						OpenVpnPath = "";
@@ -103,7 +141,7 @@ namespace Eddie.Core
 					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
 					if( (SshVersion.StartsWith("Error:")) || (SshVersion == ""))
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SshPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, SshPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SshVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SshPath));						
 						SshPath = "";
@@ -137,7 +175,7 @@ namespace Eddie.Core
 					SslVersion = Platform.Instance.Shell(SslPath, arguments).Trim();
 					if ((SslVersion.StartsWith("Error:")) || (SslVersion == ""))
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, SslPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, SslPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SslVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SslPath));
 						SslPath = "";
@@ -171,7 +209,7 @@ namespace Eddie.Core
 					CurlVersion = Platform.Instance.Shell(CurlPath, arguments).Trim();
 					if ((CurlVersion.StartsWith("Error:")) || (CurlVersion == ""))
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.BundleExecutableError, executableName, CurlPath));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, CurlPath));
 						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + CurlVersion);
 						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(CurlPath));
 						CurlPath = "";
@@ -292,7 +330,7 @@ namespace Eddie.Core
 
             // Same path
             {
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetProgramFolder() + "/" + filename);
+				string path = Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/" + filename);
 				if (FileExists(path))
 					return path;
 			}

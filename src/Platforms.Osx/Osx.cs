@@ -35,7 +35,7 @@ namespace Eddie.Platforms
         // Override
 		public Osx()
 		{
-			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false, true).Trim());
 		}
 
 		public override string GetCode()
@@ -93,7 +93,7 @@ namespace Eddie.Platforms
 			return ShellCmd("otool -L \"" + path + "\"");
 		}
 
-		public override string GetExecutablePath()
+		public override string GetExecutablePathEx()
 		{
 			string currentPath = System.Reflection.Assembly.GetEntryAssembly().Location;
 			if(new FileInfo(currentPath).Directory.Name == "MonoBundle")
@@ -101,23 +101,33 @@ namespace Eddie.Platforms
 				// OSX Bundle detected, use the launcher executable
 				currentPath = currentPath.Replace("/MonoBundle/","/MacOS/").Replace(".exe","");
 			}
+            else if(Process.GetCurrentProcess().ProcessName.StartsWith("mono", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // mono <app>, Entry Assembly path it's ok
+            }
+            else
+            {
+                currentPath = Process.GetCurrentProcess().MainModule.FileName;
+            }
 			return currentPath;
 		}
 
-        public override string GetUserFolder()
+        public override string GetUserPathEx()
         {
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
 
-        public override string ShellCmd(string Command)
+        public override string ShellCmd(string Command, bool noDebugLog)
         {
-            return Shell("sh", String.Format("-c '{0}'", Command), true);
+            return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
         }
 
         public override void FlushDNS()
         {
-			// 10.9
-			ShellCmd("dscacheutil -flushcache");
+            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
+
+            // 10.9
+            ShellCmd("dscacheutil -flushcache");
 			ShellCmd("killall -HUP mDNSResponder");
 
 			// 10.10
@@ -151,6 +161,18 @@ namespace Eddie.Platforms
 				return;
 
 			ShellCmd("chmod +x \"" + path + "\"");
+		}
+
+		public override string GetSystemFont()
+		{
+			// Crash with Xamarin 6.1.2
+			return "";
+		}
+
+		public override string GetSystemFontMonospace()
+		{
+			// Crash with Xamarin 6.1.2
+			return "";
 		}
 
 		public override string GetDriverAvailable()
@@ -239,7 +261,7 @@ namespace Eddie.Platforms
         {
             string t = base.GenerateSystemReport();
 
-            t += "\n\n-- OS X specific\n";
+            t += "\n\n-- OS X\n";
 
             t += "\n-- ifconfig\n";
             t += ShellCmd("ifconfig");
@@ -357,7 +379,7 @@ namespace Eddie.Platforms
 
 					if (mode != "Off")
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Disabled, i));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Disabled, i));
 
 						IpV6ModeEntry entry = new IpV6ModeEntry();
 						entry.Interface = i;
@@ -403,7 +425,7 @@ namespace Eddie.Platforms
 					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
 				}
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
@@ -444,7 +466,7 @@ namespace Eddie.Platforms
                     if (current != dns)
                     {
                         // Switch
-                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
+                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
 
                         DnsSwitchEntry e = new DnsSwitchEntry();
                         e.Name = i2;
@@ -473,7 +495,7 @@ namespace Eddie.Platforms
                     v = "empty";
 				v = v.Replace (",", "\" \"");
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
 			}
 
@@ -495,7 +517,7 @@ namespace Eddie.Platforms
 		public override string GetGitDeployPath()
 		{
 			// Under OSX, binary is inside a bundle AirVPN.app/Contents/MacOS/
-			return GetProgramFolder () + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
+			return GetApplicationPath() + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
 		}
 
 		public string[] GetInterfaces()

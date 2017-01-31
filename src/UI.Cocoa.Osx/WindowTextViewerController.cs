@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using Eddie.Lib.Common;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -62,7 +63,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib ();
 
-			Window.Title = Eddie.Core.Constants.Name + " - " + Title;
+			Window.Title = Constants.Name + " - " + Title;
 			TxtBody2.Value = Body;
 
 			CmdOk.Activated += (object sender, EventArgs e) =>

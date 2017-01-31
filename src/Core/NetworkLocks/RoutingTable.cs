@@ -121,7 +121,7 @@ namespace Eddie.Core.NetworkLocks
 			foreach (RouteEntry Entry in EntryRemoved.Values)
 			{
 				Entry.Add();
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.NetworkLockRouteRestored, Entry.ToString()));
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkLockRouteRestored, Entry.ToString()));
 			}
 
 			DefaultGateway = "";

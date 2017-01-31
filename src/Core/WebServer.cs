@@ -23,6 +23,7 @@ using System.Threading;
 using System.Text;
 using System.IO;
 using System.Xml;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -31,7 +32,7 @@ namespace Eddie.Core
         private HttpListener m_listener = new HttpListener();
         //private Func<HttpListenerRequest, string> m_responderMethod;
         
-        private List<XmlElement> m_pullItems = new List<XmlElement>();
+        private List<XmlItem> m_pullItems = new List<XmlItem>();
 
         public static string GetPath()
         {
@@ -39,7 +40,7 @@ namespace Eddie.Core
             if (Engine.Instance.DevelopmentEnvironment)
                 pathRoot = Platform.Instance.GetProjectPath();
             else
-                pathRoot = Platform.Instance.GetProgramFolder();
+                pathRoot = Platform.Instance.GetApplicationPath();
             pathRoot += "//webui//";
             if (System.IO.Directory.Exists(pathRoot))
                 return pathRoot;
@@ -47,7 +48,6 @@ namespace Eddie.Core
                 return "";
         }
 
-        //public void Init(string prefix, Func<HttpListenerRequest, string> method)
         public void Init(string prefix)
         {
             if (GetPath() == "")
@@ -57,16 +57,11 @@ namespace Eddie.Core
                 throw new NotSupportedException(
                     "Needs Windows XP SP2, Server 2003 or later.");
 
-            /*
-            // A responder method is required
-            if (method == null)
-                throw new ArgumentException("method");
-            */
+            Engine.Instance.CommandEvent += OnCommandEvent;
 
             m_listener.Prefixes.Add(prefix);
 
-            //m_responderMethod = method;
-            m_listener.Start();            
+            m_listener.Start();
         }
         
         public void Run()
@@ -82,7 +77,10 @@ namespace Eddie.Core
                             var ctx = c as HttpListenerContext;
                             try
                             {
-                                string localPath = GetPath() + ctx.Request.Url.LocalPath;
+                                string urlPath = ctx.Request.Url.LocalPath;
+                                if (urlPath == "/")
+                                    urlPath = "/index.html";
+                                string localPath = GetPath() + urlPath;
                                 if (Platform.Instance.FileExists(localPath))
                                 {
                                     WriteFile(ctx, localPath, false);
@@ -129,27 +127,27 @@ namespace Eddie.Core
                         response.ContentType = "text/html";
                         response.ContentEncoding = Encoding.UTF8;
                     }
-
-                    if (path.EndsWith(".css"))
+                    else if (path.EndsWith(".css"))
                     {
                         response.ContentType = "text/css";
                         response.ContentEncoding = Encoding.UTF8;
                     }
-
-                    if (path.EndsWith(".js"))
+                    else if (path.EndsWith(".js"))
                     {
                         response.ContentType = "text/javascript";
                         response.ContentEncoding = Encoding.UTF8;
                     }
-
-                    if (path.EndsWith(".png"))
+                    else if (path.EndsWith(".png"))
                     {
                         response.ContentType = "image/png";
                     }
-
-                    if (path.EndsWith(".gif"))
+                    else if (path.EndsWith(".gif"))
                     {
                         response.ContentType = "image/gif";
+                    }
+                    else if (path.EndsWith(".ico"))
+                    {
+                        response.ContentType = "image/x-icon";
                     }
                 }
 
@@ -190,27 +188,32 @@ namespace Eddie.Core
         {
             // string physicalPath = GetPath() + request.RawUrl;
 
-            if(request.RawUrl == "/api/command/")
+            if(request.Url.AbsolutePath == "/api/command/")
             {
                 // Pull mode
                 var data = new StreamReader(request.InputStream).ReadToEnd();
                 Receive(data);
                 return "ok";
             }
-            else if(request.RawUrl == "/pull/receive/")
+            else if(request.Url.AbsolutePath == "/pull/receive/")
             {
                 lock(m_pullItems)
                 {
                     if (m_pullItems.Count == 0)
                         return "";
 
-                    XmlElement data = m_pullItems[0];
+                    XmlItem data = m_pullItems[0];
                     m_pullItems.RemoveAt(0);
-                    return data.OuterXml;
+                    return data.ToString();
                 }
             }
 
-            return string.Format("<HTML><BODY>Test.<br>{0}</BODY></HTML>", DateTime.Now);
+            return string.Format("<HTML><BODY>Unexpected. {0}</BODY></HTML>", DateTime.Now);
+        }
+
+        private void OnCommandEvent(XmlItem xml)
+        {
+            Send(xml);
         }
 
         public static XmlElement CreateMessage()
@@ -223,20 +226,21 @@ namespace Eddie.Core
 
         public void Receive(string data)
         {
-            Engine.Instance.Command(data);
+            Engine.Instance.Command(data, true);
         }
 
-        public delegate void SendEventHandler(XmlElement xmlMessage);
+        // Clodo, TOCLEAN; still used?
+        public delegate void SendEventHandler(XmlItem xml);
         public event SendEventHandler SendEvent;
 
-        public void Send(XmlElement xmlMessage)
+        public void Send(XmlItem xml)
         {
             if (SendEvent != null)
-                SendEvent(xmlMessage.OwnerDocument.DocumentElement);
+                SendEvent(xml);
 
             lock (m_pullItems)
             {
-                m_pullItems.Add(xmlMessage); // Clodo TOFIX memory huge
+                m_pullItems.Add(xml); // Clodo TOFIX memory huge
             }            
         }
     }

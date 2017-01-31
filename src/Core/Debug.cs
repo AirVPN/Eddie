@@ -47,7 +47,7 @@ namespace Eddie.Core
 
             lock (SpinLock)
             {
-                Platform.Instance.FileContentsAppendText("debug.log", msg + "\r\n");                
+                Platform.Instance.FileContentsAppendText("debug.log", msg + "\r\n", Encoding.UTF8);                
             }
         }
 

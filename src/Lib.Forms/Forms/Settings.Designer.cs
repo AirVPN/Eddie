@@ -55,7 +55,7 @@ namespace Eddie.Gui.Forms
             this.chkWindowsDnsForceAllInterfaces = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsDisableDriverUpgrade = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsIPv6DisableAtOs = new Eddie.Gui.Skin.CheckBox();
-            this.chkWindowsWfp = new Eddie.Gui.Skin.CheckBox();
+            this.chkWindowsDebugWorkaround = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsTapUp = new Eddie.Gui.Skin.CheckBox();
             this.chkWindowsDhcpSwitch = new Eddie.Gui.Skin.CheckBox();
             this.cmdAdvancedUninstallDriver = new Eddie.Gui.Skin.Button();
@@ -89,6 +89,7 @@ namespace Eddie.Gui.Forms
             this.cmdOk = new Eddie.Gui.Skin.Button();
             this.tabSettings = new Eddie.Gui.Skin.TabControl();
             this.tabGeneral = new Eddie.Gui.Skin.TabPage();
+            this.chkUiIEC = new Eddie.Gui.Skin.CheckBox();
             this.cmdResetToDefault = new Eddie.Gui.Skin.Button();
             this.lblConnect = new Eddie.Gui.Skin.Label();
             this.lblNetLock = new Eddie.Gui.Skin.Label();
@@ -176,13 +177,13 @@ namespace Eddie.Gui.Forms
             this.lblLockMode = new Eddie.Gui.Skin.Label();
             this.cboLockMode = new Eddie.Gui.Skin.ComboBox();
             this.tabLogging = new Eddie.Gui.Skin.TabPage();
+            this.cmdLoggingOpen = new Eddie.Gui.Skin.Button();
             this.chkLogLevelDebug = new Eddie.Gui.Skin.CheckBox();
             this.TxtLoggingPathComputed = new Eddie.Gui.Skin.Label();
             this.lblLoggingHelp = new Eddie.Gui.Skin.Label();
             this.txtLogPath = new Eddie.Gui.Skin.TextBox();
             this.lblLogPath = new Eddie.Gui.Skin.Label();
             this.chkLoggingEnabled = new Eddie.Gui.Skin.CheckBox();
-            this.chkUiIEC = new Eddie.Gui.Skin.CheckBox();
             tabAdvanced = new Eddie.Gui.Skin.TabPage();
             tabDirectives = new Eddie.Gui.Skin.TabPage();
             tabEventsw = new Eddie.Gui.Skin.TabPage();
@@ -415,7 +416,7 @@ namespace Eddie.Gui.Forms
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDnsForceAllInterfaces);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsIPv6DisableAtOs);
-            this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsWfp);
+            this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsTapUp);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDhcpSwitch);
             this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriver);
@@ -470,16 +471,16 @@ namespace Eddie.Gui.Forms
             this.chkWindowsIPv6DisableAtOs.Text = "Disable IPv6 at OS level if requested";
             this.chkWindowsIPv6DisableAtOs.UseVisualStyleBackColor = false;
             // 
-            // chkWindowsWfp
+            // chkWindowsDebugWorkaround
             // 
-            this.chkWindowsWfp.BackColor = System.Drawing.Color.Transparent;
-            this.chkWindowsWfp.ForeColor = System.Drawing.Color.Black;
-            this.chkWindowsWfp.Location = new System.Drawing.Point(178, 185);
-            this.chkWindowsWfp.Name = "chkWindowsWfp";
-            this.chkWindowsWfp.Size = new System.Drawing.Size(75, 19);
-            this.chkWindowsWfp.TabIndex = 86;
-            this.chkWindowsWfp.Text = "WFP";
-            this.chkWindowsWfp.UseVisualStyleBackColor = false;
+            this.chkWindowsDebugWorkaround.BackColor = System.Drawing.Color.Transparent;
+            this.chkWindowsDebugWorkaround.ForeColor = System.Drawing.Color.Black;
+            this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(88, 185);
+            this.chkWindowsDebugWorkaround.Name = "chkWindowsDebugWorkaround";
+            this.chkWindowsDebugWorkaround.Size = new System.Drawing.Size(165, 19);
+            this.chkWindowsDebugWorkaround.TabIndex = 86;
+            this.chkWindowsDebugWorkaround.Text = "Experimental workarounds";
+            this.chkWindowsDebugWorkaround.UseVisualStyleBackColor = false;
             // 
             // chkWindowsTapUp
             // 
@@ -921,6 +922,18 @@ namespace Eddie.Gui.Forms
             this.tabGeneral.Size = new System.Drawing.Size(673, 337);
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
+            // 
+            // chkUiIEC
+            // 
+            this.chkUiIEC.AutoSize = true;
+            this.chkUiIEC.BackColor = System.Drawing.Color.Transparent;
+            this.chkUiIEC.ForeColor = System.Drawing.Color.Black;
+            this.chkUiIEC.Location = new System.Drawing.Point(527, 179);
+            this.chkUiIEC.Name = "chkUiIEC";
+            this.chkUiIEC.Size = new System.Drawing.Size(43, 17);
+            this.chkUiIEC.TabIndex = 43;
+            this.chkUiIEC.Text = "IEC";
+            this.chkUiIEC.UseVisualStyleBackColor = false;
             // 
             // cmdResetToDefault
             // 
@@ -1977,6 +1990,7 @@ namespace Eddie.Gui.Forms
             // 
             // tabLogging
             // 
+            this.tabLogging.Controls.Add(this.cmdLoggingOpen);
             this.tabLogging.Controls.Add(this.chkLogLevelDebug);
             this.tabLogging.Controls.Add(this.TxtLoggingPathComputed);
             this.tabLogging.Controls.Add(this.lblLoggingHelp);
@@ -1989,6 +2003,22 @@ namespace Eddie.Gui.Forms
             this.tabLogging.TabIndex = 3;
             this.tabLogging.Text = "Logging";
             this.tabLogging.UseVisualStyleBackColor = true;
+            // 
+            // cmdLoggingOpen
+            // 
+            this.cmdLoggingOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdLoggingOpen.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cmdLoggingOpen.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.cmdLoggingOpen.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.cmdLoggingOpen.FlatAppearance.BorderSize = 0;
+            this.cmdLoggingOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmdLoggingOpen.Location = new System.Drawing.Point(451, 197);
+            this.cmdLoggingOpen.Name = "cmdLoggingOpen";
+            this.cmdLoggingOpen.Size = new System.Drawing.Size(214, 30);
+            this.cmdLoggingOpen.TabIndex = 64;
+            this.cmdLoggingOpen.Text = "Open in file-manager";
+            this.cmdLoggingOpen.UseVisualStyleBackColor = true;
+            this.cmdLoggingOpen.Click += new System.EventHandler(this.cmdLoggingOpen_Click);
             // 
             // chkLogLevelDebug
             // 
@@ -2010,7 +2040,7 @@ namespace Eddie.Gui.Forms
             this.TxtLoggingPathComputed.ForeColor = System.Drawing.Color.Black;
             this.TxtLoggingPathComputed.Location = new System.Drawing.Point(74, 102);
             this.TxtLoggingPathComputed.Name = "TxtLoggingPathComputed";
-            this.TxtLoggingPathComputed.Size = new System.Drawing.Size(586, 97);
+            this.TxtLoggingPathComputed.Size = new System.Drawing.Size(586, 87);
             this.TxtLoggingPathComputed.TabIndex = 62;
             this.TxtLoggingPathComputed.Text = "Current Computed Path";
             this.TxtLoggingPathComputed.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -2059,18 +2089,6 @@ namespace Eddie.Gui.Forms
             this.chkLoggingEnabled.TabIndex = 55;
             this.chkLoggingEnabled.Text = "Logging on file enabled";
             this.chkLoggingEnabled.UseVisualStyleBackColor = false;
-            // 
-            // chkUiIEC
-            // 
-            this.chkUiIEC.AutoSize = true;
-            this.chkUiIEC.BackColor = System.Drawing.Color.Transparent;
-            this.chkUiIEC.ForeColor = System.Drawing.Color.Black;
-            this.chkUiIEC.Location = new System.Drawing.Point(527, 179);
-            this.chkUiIEC.Name = "chkUiIEC";
-            this.chkUiIEC.Size = new System.Drawing.Size(43, 17);
-            this.chkUiIEC.TabIndex = 43;
-            this.chkUiIEC.Text = "IEC";
-            this.chkUiIEC.UseVisualStyleBackColor = false;
             // 
             // Settings
             // 
@@ -2224,7 +2242,7 @@ namespace Eddie.Gui.Forms
         private Skin.LinkLabel lnkProtocolsHelp2;
         private Skin.LinkLabel lnkProtocolsHelp1;
         private System.Windows.Forms.CheckBox chkProtocolsAutomatic;
-        private Skin.CheckBox chkWindowsWfp;
+        private Skin.CheckBox chkWindowsDebugWorkaround;
         private Skin.Label lblUiFontGeneral;
         private Skin.Button cmdUiFontGeneral;
         private Skin.TextBox txtProxyTorControlPassword;
@@ -2260,5 +2278,6 @@ namespace Eddie.Gui.Forms
         private Skin.CheckBox chkUiMinimizeStart;
         private Skin.Button cmdResetToDefault;
         private Skin.CheckBox chkUiIEC;
+        private Skin.Button cmdLoggingOpen;
     }
 }

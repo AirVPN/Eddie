@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Text;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.Gui
@@ -185,7 +186,7 @@ namespace Eddie.Gui
                 // If started minimized (Windows shortcut 'run' mode), settings .Bounds below don't work if not visible.
                 this.Visible = true;
             }
-            
+
             this.Bounds = new Rectangle(l, t, w, h);
             
             if (forceMinimized)
@@ -196,7 +197,9 @@ namespace Eddie.Gui
             if (state == "m")
             {
                 if (minimizeInTray)
+                {
                     this.Visible = false;
+                }
                 else
                 {
                     this.WindowState = FormWindowState.Minimized;

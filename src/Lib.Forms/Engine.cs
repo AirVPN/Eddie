@@ -23,6 +23,7 @@ using System.Threading;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 //using ExceptionReporting;
@@ -105,9 +106,9 @@ namespace Eddie.Gui
                 FormMain.DeInit();
         }
 
-        public override void OnCommand(CommandLine command)
+        public override void OnCommand(XmlItem xml, bool ignoreIfNotExists)
         {
-            string action = command.Get("action", "").ToLowerInvariant();
+            string action = xml.GetAttribute("action").ToLowerInvariant();
 
             if(action == "ui.show.preferences")
             {
@@ -115,7 +116,7 @@ namespace Eddie.Gui
                 Dlg.ShowDialog();
 
                 FormMain.EnabledUi();
-            }
+            }            
             else if (action == "ui.show.about")
             {
                 Forms.About dlg = new Forms.About();
@@ -126,7 +127,7 @@ namespace Eddie.Gui
                 FormMain.ShowMenu();
             }
             else
-                base.OnCommand(command);
+                base.OnCommand(xml, ignoreIfNotExists);
         }
 
         public override bool OnNoRoot()
@@ -152,6 +153,7 @@ namespace Eddie.Gui
 					command2 += Platform.Instance.GetExecutablePath();
 					command2 += " ";
 					command2 += cmdline;
+                    command2 = command2.Trim(); // 2.11.11
 					bool waitEnd = false;
 					
 					if (Platform.Instance.FileExists("/usr/bin/kdesudo"))
@@ -233,7 +235,7 @@ namespace Eddie.Gui
 
                         //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
 
-						Platform.Instance.Shell(command, arguments, waitEnd);
+                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd);
 					}
 					else
 					{
@@ -264,22 +266,22 @@ namespace Eddie.Gui
 		
         public override void OnLog(LogEntry l)
         {
-			base.OnLog(l);
-			
-			if( (Engine.Storage == null) || (Engine.Storage.GetBool("cli") == false) )
+            base.OnLog(l);
+            
+            if ( (Engine.Storage == null) || (Engine.Storage.GetBool("cli") == false) )
 			{
-				lock (LogEntries)
+                lock (LogEntries)
 				{
 					LogEntries.Add(l);
-				}
+                }
 				if (FormMain != null)
-					FormMain.RefreshUi(RefreshUiMode.Log);            
-				
-				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
+					FormMain.RefreshUi(RefreshUiMode.Log);
+            
+                if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
 				{
-					if (l.Type == LogType.Fatal)
+                    if (l.Type == LogType.Fatal)
 					{
-						MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
 			}
@@ -298,7 +300,9 @@ namespace Eddie.Gui
             base.OnMessageInfo(message);
 
             if (FormMain != null)
+            {
                 MessageBox.Show(FormMain, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         public override void OnMessageError(string message)

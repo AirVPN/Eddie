@@ -1,10 +1,11 @@
 // WARNING
 //
 // This file has been generated automatically by Xamarin Studio to store outlets and
-// actions made in the Xcode designer. If it is removed, they will be lost.
+// actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
 using MonoMac.Foundation;
+using System.CodeDom.Compiler;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -59,14 +60,14 @@ namespace Eddie.UI.Cocoa.Osx
 				MnuMainPreferences = null;
 			}
 
-			if (MnuMainSpeedTest != null) {
-				MnuMainSpeedTest.Dispose ();
-				MnuMainSpeedTest = null;
-			}
-
 			if (MnuMainQuit != null) {
 				MnuMainQuit.Dispose ();
 				MnuMainQuit = null;
+			}
+
+			if (MnuMainSpeedTest != null) {
+				MnuMainSpeedTest.Dispose ();
+				MnuMainSpeedTest = null;
 			}
 		}
 	}

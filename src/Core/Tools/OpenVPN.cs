@@ -19,20 +19,37 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
+using Eddie.Core;
 
-namespace Eddie.Core
+namespace Eddie.Core.Tools
 {
-    public static class Constants
+    public class OpenVPN : Tool
     {
-		public static string Name = "AirVPN";
-        public static string Name2 = "Eddie";
-        public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
-        public static int VersionInt = 224;
-		public static string VersionDesc = "2.11.8";
-        public static string WebSite = "https://airvpn.org";
-        public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
-		public static string WindowsDriverVersion = "9.21.2";
-		public static string WindowsXpDriverVersion = "9.9.2";
-		public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
+        public override void OnNormalizeVersion()
+        {
+            if (Version == "")
+                return;
+
+            string ver = Utils.ExtractBetween(Version, "OpenVPN ", " ");
+            string libs = Utils.ExtractBetween(Version, "library versions:", "\n").Trim();
+            Version = ver + " - " + libs;
+        }
+
+        public override string GetFileName()
+        {
+            if (Platform.Instance.IsWindowsSystem())
+            {
+                return "openvpn.exe";
+            }
+            else
+                return base.GetFileName();
+        }
+
+        public override string GetVersionArguments()
+        {
+            return "--version";
+        }
     }
 }

@@ -23,6 +23,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -87,7 +88,7 @@ namespace Eddie.Core
 
             // 'POST' Edition - >= 2.9			
             // Debug with an url direct to backend service client debugging page			            
-			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", 1, Engine.Instance.IsConnected());
+			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, "", fetchParameters, "", Engine.Instance.IsConnected());
 			
 			// Decrypt answer
 			MemoryStream aesDecryptStream = new MemoryStream();
@@ -148,7 +149,7 @@ namespace Eddie.Core
 						info += ", with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
 
 					if (Engine.Instance.Storage.GetBool("advanced.expert"))
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
 
 					if (firstError == "")
 						firstError = info;

@@ -99,9 +99,9 @@ namespace Eddie.Core
             }
         }
 
-        public virtual string SHA256(string str)
+        public virtual string HashSHA256(string str)
         {
-            return Utils.SHA256(GetCode() + "-" + Title + "-" + str);
+            return Utils.HashSHA256(GetCode() + "-" + Title + "-" + str);
         }
 
         public virtual string GetKeyValue(string key, string def)

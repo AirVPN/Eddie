@@ -27,6 +27,7 @@ in defence of net neutrality, privacy and against censorship.
 "/usr/bin/airvpn"
 %dir "/usr/{@lib}/AirVPN/"
 "/usr/{@lib}/AirVPN/Lib.Core.dll"
+"/usr/{@lib}/AirVPN/Lib.Common.dll"
 "/usr/{@lib}/AirVPN/Lib.Forms.dll"
 "/usr/{@lib}/AirVPN/Platforms.Linux.dll"
 "/usr/{@lib}/AirVPN/update-resolv-conf"

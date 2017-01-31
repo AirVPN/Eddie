@@ -51,6 +51,7 @@
                 <outlet property="CmdDnsRemove" destination="ugR-wL-aSk" id="5Sh-bx-o0g"/>
                 <outlet property="CmdGeneralTos" destination="umI-pg-cJh" id="yEJ-FP-2qU"/>
                 <outlet property="CmdLockHelp" destination="5AI-c0-dFt" id="gSo-Do-D4r"/>
+                <outlet property="CmdLoggingOpen" destination="f0I-KF-UT2" id="vEZ-FH-N6a"/>
                 <outlet property="CmdOpenVpnDirectivesHelp" destination="ixV-Uh-vPo" id="Uau-N7-QkG"/>
                 <outlet property="CmdProtocolsHelp1" destination="M7S-Xd-x1D" id="PCW-jC-ai2"/>
                 <outlet property="CmdProtocolsHelp2" destination="g7d-sl-TUU" id="B9q-SX-k8I"/>
@@ -1250,8 +1251,8 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="c9X-34-ftI">
-                                            <rect key="frame" x="67" y="146" width="470" height="101"/>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="c9X-34-ftI">
+                                            <rect key="frame" x="67" y="155" width="470" height="92"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" title="Label" id="rxv-bo-Jmj">
                                                 <font key="font" metaFont="miniSystem"/>
@@ -1261,9 +1262,17 @@
                                         </textField>
                                         <button id="IYo-X6-SMs">
                                             <rect key="frame" x="289" y="283" width="490" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Log debug (for troubleshooting)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="fmb-Jw-vua">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <button misplaced="YES" id="f0I-KF-UT2">
+                                            <rect key="frame" x="389" y="125" width="150" height="30"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="bevel" title="Open in file-manager" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Yol-1J-U9v">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>

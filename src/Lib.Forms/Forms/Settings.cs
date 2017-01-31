@@ -95,7 +95,7 @@ namespace Eddie.Gui.Forms
 
 			pnlGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
 			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
-            chkWindowsWfp.Visible = Platform.Instance.IsWindowsSystem();
+            chkWindowsDebugWorkaround.Visible = Platform.Instance.IsWindowsSystem();
 
             if( (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null) )
             {
@@ -347,7 +347,7 @@ namespace Eddie.Gui.Forms
             chkWindowsIPv6DisableAtOs.Checked = s.GetBool("windows.ipv6.os_disable");
             chkWindowsDnsForceAllInterfaces.Checked = s.GetBool("windows.dns.force_all_interfaces");
             chkWindowsDnsLock.Checked = s.GetBool("windows.dns.lock");            
-            chkWindowsWfp.Checked = s.GetBool("windows.wfp");
+            chkWindowsDebugWorkaround.Checked = s.GetBool("windows.workarounds");
 
             txtExePath.Text = s.Get("executables.openvpn");
 
@@ -594,7 +594,7 @@ namespace Eddie.Gui.Forms
             s.SetBool("windows.ipv6.os_disable", chkWindowsIPv6DisableAtOs.Checked);
             s.SetBool("windows.dns.force_all_interfaces", chkWindowsDnsForceAllInterfaces.Checked);
             s.SetBool("windows.dns.lock", chkWindowsDnsLock.Checked);
-            s.SetBool("windows.wfp", chkWindowsWfp.Checked);
+            s.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
 
             s.Set("executables.openvpn", txtExePath.Text);
 
@@ -1212,6 +1212,16 @@ namespace Eddie.Gui.Forms
                 Engine.Instance.Storage.ResetAll(false);
                 ReadOptions();
                 Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
+            }
+        }
+
+        private void cmdLoggingOpen_Click(object sender, EventArgs e)
+        {
+            List<string> paths = Engine.Instance.Logs.ParseLogFilePath(txtLogPath.Text);
+            foreach (string path in paths)
+            {
+                if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
+                    Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
             }
         }
     }

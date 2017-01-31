@@ -25,6 +25,8 @@ namespace Eddie.Core
 {
 	public class WebClientEx : System.Net.WebClient
 	{
+        public string CustomHost = "";
+
 		protected override WebRequest GetWebRequest(Uri address)
 		{
 			WebRequest w = base.GetWebRequest(address);
@@ -35,7 +37,13 @@ namespace Eddie.Core
 			}
 			wHttp.ServicePoint.Expect100Continue = false; // 2.10.1
 			wHttp.AllowAutoRedirect = false; // 2.9
-			w.Timeout = 10000;		
+
+#if !EDDIENET20
+            // Look the comment in TrustCertificatePolicy.cs
+            if (CustomHost != "")
+                wHttp.Host = CustomHost;
+#endif
+            w.Timeout = 10000;		
 			
 			return w;
 		}

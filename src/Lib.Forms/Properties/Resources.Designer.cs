@@ -623,6 +623,16 @@ namespace Eddie.Lib.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap open_path {
+            get {
+                object obj = ResourceManager.GetObject("open_path", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ports {
             get {
                 object obj = ResourceManager.GetObject("ports", resourceCulture);

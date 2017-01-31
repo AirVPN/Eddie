@@ -62,21 +62,14 @@ namespace Eddie.Platforms
 			base.Activation();
 
 			string rulesBackupSessionV4 = GetBackupPath("4");
+            string rulesBackupSessionV6 = GetBackupPath("6");
 
-			if (Platform.Instance.FileExists(rulesBackupSessionV4))
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
+            if( (Platform.Instance.FileExists(rulesBackupSessionV4)) || (Platform.Instance.FileExists(rulesBackupSessionV6)) )
+            {
+				Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockLinuxUnexpectedAlreadyActive);
 				Deactivation();
 			}
-
-			string rulesBackupSessionV6 = GetBackupPath("6");
-
-			if (Platform.Instance.FileExists(rulesBackupSessionV6))
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, Messages.NetworkLockUnexpectedAlreadyActive);
-				Deactivation();
-			}
-
+            
 			// Backup V4
 			Exec("iptables-save >\"" + rulesBackupSessionV4 + "\"");
 

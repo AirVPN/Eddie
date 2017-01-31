@@ -24,6 +24,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
 
@@ -33,15 +34,26 @@ namespace Eddie.Platforms
     {
 		private string m_architecture = "";
         private UInt32 m_uid;
+        private string m_logname;
 
         // Override
         public Linux()
 		{
- 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false).Trim());
+ 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false, true).Trim());            
             m_uid = 9999;
-            UInt32.TryParse(ShellCmd("id -u"), out m_uid);            
+            UInt32.TryParse(ShellCmd("id -u"), out m_uid);
 
-			TrustCertificatePolicy.Activate();
+
+            // Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
+            // Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
+            // Manjaro, same as Ubuntu
+            m_logname = ShellCmd("echo $SUDO_USER").Trim();
+            if (m_logname == "")
+                m_logname = ShellCmd("logname");
+            if (m_logname.Contains("no login name"))
+                m_logname = Environment.UserName;
+            
+            TrustCertificatePolicy.Activate();
 		}
 
 		public override string GetCode()
@@ -93,14 +105,38 @@ namespace Eddie.Platforms
         }
 
         public override bool FileImmutableGet(string path)
-        {
-            return (ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"").IndexOf("i") != -1);
+        {   
+            // We don't find a better direct method in Mono/Posix without adding ioctl references
+            // The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
+                     
+            if (FileExists(path) == false)
+                return false;
+
+            string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
+                        
+            /* // < 2.11.11
+            if (result.IndexOf(' ') != 16) 
+                return false;
+            if (result[4] == 'i')
+                return true;
+            */
+
+            if (result.StartsWith("lsattr: ")) // Generic error
+                return false;
+
+            if (result.IndexOf(' ') != -1)
+                result = result.Substring(0, result.IndexOf(' '));
+
+            return (result.IndexOf("-i-") != -1);            
         }
 
         public override void FileImmutableSet(string path, bool value)
         {
-            string flag = (value ? "+i" : "-i");
-            ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+            if (FileExists(path))
+            {
+                string flag = (value ? "+i" : "-i");
+                ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+            }
         }
         
         public override string GetExecutableReport(string path)
@@ -108,9 +144,11 @@ namespace Eddie.Platforms
 			return ShellCmd("ldd \"" + Utils.StringNormalizePath(path) + "\"");
 		}
 
-		public override string GetExecutablePath()
+		public override string GetExecutablePathEx()
 		{
             // We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
+
+            // TOFIX: Linux and OS X version are different, merge. Probably OS X it's more a clean approach.
 
             // Removed in 2.11 to avoid dependencies with libMonoPosixHelper.so
             // Useless, still required, but at least it's an external requirement.
@@ -126,20 +164,20 @@ namespace Eddie.Platforms
             if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
 			{
 				// Exception: Assembly directly load by Mono
-				output = base.GetExecutablePath();
+				output = base.GetExecutablePathEx();
 			}
 
 			return output;
 		}
 
-        public override string GetUserFolder()
+        public override string GetUserPathEx()
         {
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
 
-        public override string ShellCmd(string Command)
+        public override string ShellCmd(string Command, bool noDebugLog)
         {
-            return Shell("sh", String.Format("-c '{0}'", Command));
+            return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
         }
 
         public override string GetSystemFont()
@@ -182,17 +220,30 @@ namespace Eddie.Platforms
             */
         }
 
+        protected override void OpenDirectoryInFileManagerEx(string path)
+        {
+            // TOFIX Don't work well on all distro
+            string args = " - " + m_logname + " -c 'xdg-open \"" + path + "\"'";
+            Shell("su", args, false);
+        }
+
         public override long Ping(string host, int timeoutSec)
         {
-            string result = ShellCmd("ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host));
-            //string result = "rtt min/avg/max/mdev = 18.120/18.120/18.120/0.000 ms";
-
+            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host);
+            string result = ShellCmd(cmd);
+            
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
+            /*
             if (float.TryParse(sMS, out iMS))
                 return (Int64)iMS;
             else
                 return -1;
+            */
+            if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+                iMS = -1;
+            
+            return (long) iMS;
         }
 
         public override void EnsureExecutablePermissions(string path)
@@ -304,8 +355,15 @@ namespace Eddie.Platforms
 		{
 			string t = base.GenerateSystemReport();
 
-			
-			return t;
+            t += "\n\n-- Linux\n";
+
+            t += "UID: " + m_uid + "\n";
+            t += "LogName: " + m_logname + "\n";
+
+            t += "\n-- ifconfig\n";
+            t += ShellCmd("ifconfig");
+
+            return t;
 		}
 
 		public override void OnAppStart()
@@ -441,7 +499,7 @@ namespace Eddie.Platforms
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
-				if (FileExists("/etc/resolv.conf.eddie") == false)
+                if (FileExists("/etc/resolv.conf.eddie") == false)
 				{
                     if (FileExists("/etc/resolv.conf"))
                     {
@@ -450,7 +508,7 @@ namespace Eddie.Platforms
                     }
 				}
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
+                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
 
 				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
 
@@ -459,8 +517,8 @@ namespace Eddie.Platforms
 				foreach(string dnsSingle in dnsArray)
 					text += "nameserver " + dnsSingle + "\n";
 
-                FileContentsWriteText("/etc/resolv.conf", text);
-			}
+                FileContentsWriteText("/etc/resolv.conf", text);                
+            }
 
 			base.OnDnsSwitchDo(dns);
 
@@ -559,6 +617,6 @@ namespace Eddie.Platforms
             {
                 return true;
             }
-        }
+        }        
     }
 }

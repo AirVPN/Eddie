@@ -13,6 +13,7 @@
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <ReleaseVersion>2.11</ReleaseVersion>
     <AssemblyName>Eddie</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -604,6 +605,8 @@
     <BundleResource Include="Resources\log_icons\log_warning.png" />
     <BundleResource Include="Resources\flag_a1.png" />
     <BundleResource Include="Resources\flag_o1.png" />
+    <BundleResource Include="Resources\open_path_16.png" />
+    <BundleResource Include="Resources\open_path.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">
@@ -613,6 +616,10 @@
     <ProjectReference Include="..\Platforms.Osx\Platforms.Osx.csproj">
       <Project>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</Project>
       <Name>Platforms.Osx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
+      <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
+      <Name>Lib.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

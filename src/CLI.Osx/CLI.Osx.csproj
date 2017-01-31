@@ -10,6 +10,7 @@
     <RootNamespace>CLI.Osx</RootNamespace>
     <AssemblyName>CLI.Osx</AssemblyName>
     <ReleaseVersion>2.11</ReleaseVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,6 +32,15 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>${ProjectDir}/postbuild.sh</command>
+          <workingdir>${ProjectDir}/bin/Release</workingdir>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -48,6 +58,10 @@
     <ProjectReference Include="..\Platforms.Osx\Platforms.Osx.csproj">
       <Project>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</Project>
       <Name>Platforms.Osx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
+      <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
+      <Name>Lib.Common</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

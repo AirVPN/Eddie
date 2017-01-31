@@ -18,17 +18,30 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
+using Eddie.Core;
 
-namespace Eddie.Core
-{	
-    public class Commands
+namespace Eddie.Core.Tools
+{
+    public class File : Tool
     {
-		public static void Do(CommandLine command)
-		{
-			
-		}
+        public string FileName;
+
+        public File(string filename)
+        {
+            FileName = filename;
+        }
+
+        public override void OnUpdatePath()
+        {
+            FindResource(FileName);
+        }
+
+        public override void OnUpdateVersion()
+        {
+            // Do nothing - Don't call base
+        }
     }
 }

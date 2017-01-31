@@ -19,6 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Text;
+using Eddie.Lib.Common;
 using Eddie.Core;
 using Eddie.Gui;
 
@@ -26,13 +28,13 @@ namespace Eddie.UI.Windows
 {
 	static class Program
 	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-
-		[STAThread]
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        /// 
+        [STAThread]
 		static void Main()
-		{
+        {
             try
             {
                 if (Environment.OSVersion.Version.Major >= 6)
@@ -42,7 +44,7 @@ namespace Eddie.UI.Windows
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 Platform.Instance = new Eddie.Platforms.Windows();
-                
+
                 CommandLine.InitSystem(Environment.CommandLine);
 
                 if (CommandLine.SystemEnvironment.Exists("cli"))
@@ -60,13 +62,20 @@ namespace Eddie.UI.Windows
 
                     Gui.Engine engine = new Gui.Engine();
 
+                    engine.TerminateEvent += Engine_TerminateEvent;
+
                     if (engine.Initialization(false))
                     {
                         engine.FormMain = new Gui.Forms.Main();
 
                         engine.UiStart();
 
-                        Application.Run(engine.FormMain);                        
+                        // Application.Run(engine.FormMain); // Removed in 2.11.9                      
+
+                        engine.FormMain.LoadPhase();
+
+                        m_context = new ApplicationContext();                        
+                        Application.Run(m_context);
                     }
                 }
             }
@@ -75,6 +84,15 @@ namespace Eddie.UI.Windows
                 MessageBox.Show(e.Message, Constants.Name2, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 		}
+
+        static ApplicationContext m_context;
+
+        private static void Engine_TerminateEvent()
+        {
+            m_context.ExitThread();
+
+            Application.Exit();
+        }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();

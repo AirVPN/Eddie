@@ -48,7 +48,7 @@ namespace Eddie.Gui.Forms
             this.mnuPorts = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuSpeedTest = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();            
             this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
@@ -235,7 +235,7 @@ namespace Eddie.Gui.Forms
             this.mnuPorts,
             this.mnuSpeedTest,
             this.mnuSeparator1,
-            this.mnuSettings,
+            this.mnuSettings,            
             this.mnuDevelopers,
             this.mnuTools,
             this.mnuAbout,
@@ -244,7 +244,7 @@ namespace Eddie.Gui.Forms
             this.mnuRestoreSep,
             this.mnuExit});
             this.mnuMain.Name = "trayMenu";
-            this.mnuMain.Size = new System.Drawing.Size(253, 340);
+            this.mnuMain.Size = new System.Drawing.Size(253, 388);
             // 
             // mnuStatus
             // 
@@ -1786,7 +1786,7 @@ namespace Eddie.Gui.Forms
         private Skin.Button cmdAreasBlackList;
         private Skin.Panel pnlAreas;
         private Skin.Panel pnlServers;
-        private Skin.Button cmdAreasWhiteList;
+        private Skin.Button cmdAreasWhiteList;        
     }
 }
 

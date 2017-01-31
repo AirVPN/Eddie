@@ -19,16 +19,39 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
     public class StatsEntry
     {
-		public string Key;
-		public string Caption;
-		public string Icon;
-		public string Value;
-		public bool Dump = false; // Not really used
+		public string Key = "";
+		public string Caption = "";
+		public string Icon = "";
+		public string Value = "";
+        public string Clickable = "";
 		public bool Listed = false; // Not really used
+
+        public void WriteXML(XmlItem item)
+        {
+            item.SetAttribute("key", Key);
+            item.SetAttribute("value", Value);
+            item.SetAttribute("text", Text);
+        }
+
+        public string Text
+        {
+            get
+            {
+                string t = Value;
+                if(Clickable != "")
+                {
+                    if (t != "")
+                        t += " ";
+                    t += MessagesFormatter.Format(Messages.DoubleClickToAction, Clickable);
+                }
+                return t;
+            }
+        }
     }
 }

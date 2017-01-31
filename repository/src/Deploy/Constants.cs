@@ -25,7 +25,7 @@ namespace Deploy
 {
     public static class Constants
     {
-        public static string ChangeLogUrl = "https://airvpn.org/services/changelog.php?software=client&format=debian";
+        public static string ChangeLogUrl = "https://eddie.website/changelog/?software=client&format=debian&hidden=yes";
         public static string WindowsSigningTimestampUrl = "http://timestamp.comodoca.com/authenticode";
     }
 }

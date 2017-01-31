@@ -1,7 +1,7 @@
 using System;
 using Gtk;
 using WebKit;
-using Eddie.Core;
+using Eddie.Lib.UiWeb;
 
 public partial class WindowPrimary: Gtk.Window
 {	
@@ -9,14 +9,14 @@ public partial class WindowPrimary: Gtk.Window
 
 	private static Gtk.StatusIcon notifyIcon;
 
-	WebView webBrowser;
+	//WebView webBrowser;
 
 	public WindowPrimary (): base (Gtk.WindowType.Toplevel)
 	{
 		Build ();
 
-		SetDefaultSize(250, 200);
-		SetPosition(WindowPosition.Center);
+		//SetDefaultSize(250, 200);
+		//SetPosition(WindowPosition.Center);
 
 		/*
 		if (Platform.Instance.IsTraySupported ()) {
@@ -34,6 +34,7 @@ public partial class WindowPrimary: Gtk.Window
 		}
 		*/
 
+		/*
 		webBrowser = new WebView ();
 		webBrowser.Editable = false;
 		webBrowser.Open("http://localhost:4649");
@@ -43,28 +44,24 @@ public partial class WindowPrimary: Gtk.Window
 		//w.Expand = true;
 		//w.Fill = true;
 		pnlMain.ShowAll ();
+		*/
 
 		DeleteEvent += delegate(object o, Gtk.DeleteEventArgs args) {
 
 			if(CanClose)
 				return;
 
-			MyEngine.RequestStop();
+			//MyEngine.RequestStop();
 		};
 
-	}
 
-	public UI.GtkWeb.Linux.Engine MyEngine
-	{
-		get {
-			return Eddie.Core.Engine.Instance as UI.GtkWeb.Linux.Engine;
-		}
 	}
 
 	public void Restore()
 	{
 		this.Show ();
 	}
+
 
 	void OnNotifyIconActivate (object sender, EventArgs e)
 	{

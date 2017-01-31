@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -28,6 +29,7 @@ namespace Eddie.Core
 		private String m_lastLogMessage;
 		private int m_logDotCount = 0;
 		private string m_logLast = "";
+        private int m_logLastCount = 0;
 
 		public List<LogEntry> Entries = new List<LogEntry>();
 
@@ -64,12 +66,30 @@ namespace Eddie.Core
 
 		public void Log(LogType Type, string Message, int BalloonTime, Exception e)
 		{
-			// Avoid repetition
-			if (Message == m_logLast)
-				return;
-			m_logLast = Message;
+            // Avoid repetition
+            if(Engine.Instance.Storage.GetBool("log.repeat") == false)
+            {
+                string logRepetitionNormalized = Message;
+                logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
+                if (logRepetitionNormalized == m_logLast)
+                {
+                    m_logLastCount++;
+                    return;
+                }
+                else
+                {
+                    int oldCount = m_logLastCount;
+                    m_logLast = logRepetitionNormalized;
+                    m_logLastCount = 0;
 
-			LogEntry l = new LogEntry();
+                    if (oldCount != 0)
+                    {
+                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.LogsLineRepetitionSummary, oldCount.ToString()));
+                    }                    
+                }
+            }
+
+            LogEntry l = new LogEntry();
 			l.Type = Type;
 			l.Message = Message;
 			l.BalloonTime = BalloonTime;
@@ -88,6 +108,11 @@ namespace Eddie.Core
 
 			if(LogEvent != null)
 				LogEvent(l);
+
+            XmlItem xml = new XmlItem("command");
+            xml.SetAttribute("action", "ui.log");
+            l.WriteXML(xml);
+            Engine.Instance.Command(xml);
 
 			Engine.Instance.OnLog(l);
 		}

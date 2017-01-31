@@ -83,7 +83,7 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlElement nodeProfile in Profiles.ChildNodes)
 				{
-                    string code = SHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
+                    string code = HashSHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
                     
 					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 
@@ -150,7 +150,7 @@ namespace Eddie.Core.Providers
 			}
             else
             {
-                Engine.Instance.Logs.Log(LogType.Warning, Messages.Format(Messages.ProvidersOpenVpnPathNotFound, pathScan, Title));
+                Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.ProvidersOpenVpnPathNotFound, pathScan, Title));
             }
 
 			// Remove profiles
@@ -181,7 +181,7 @@ namespace Eddie.Core.Providers
 
 			int timeDelta = Utils.UnixTimeStamp() - timeStart;
 
-			Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format("{1} - N. {2} ovpn profiles processed in {3} secs", Title, Profiles.ChildNodes.Count.ToString(), timeDelta.ToString())); // TOTRANSLATE
+			Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format("{1} - N. {2} ovpn profiles processed in {3} secs", Title, Profiles.ChildNodes.Count.ToString(), timeDelta.ToString())); // TOTRANSLATE
 		}
 
 		public void ScanDir(string path, bool recursive, List<ServerInfo> servers, bool interactive)
@@ -226,7 +226,7 @@ namespace Eddie.Core.Providers
 			}
 			catch (System.Exception e)
 			{
-				Console.WriteLine(e.Message);
+                Engine.Instance.Logs.Log(e);
 			}
 		}
 
@@ -343,7 +343,7 @@ namespace Eddie.Core.Providers
 			}
 			catch (System.Exception e)
 			{
-				string message = Messages.Format("Profiles scan, {1} (in profile '{1}')", e.Message, file.FullName); // TOTRANSLATE
+				string message = MessagesFormatter.Format("Profiles scan, {1} (in profile '{1}')", e.Message, file.FullName); // TOTRANSLATE
 				if (interactive)
 					Engine.Instance.Logs.Log(LogType.Fatal, message);
 				else

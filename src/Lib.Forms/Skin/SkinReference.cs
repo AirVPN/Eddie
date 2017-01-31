@@ -100,43 +100,7 @@ namespace Eddie.Gui.Skin
             string value = GetItem(name);
             return GetColorEx(value);
         }
-                
-        /*
-        public static string GetSystemFontName(string fontName)
-        {
-            Console.WriteLine("Font1:" + SystemFonts.CaptionFont.ToString());
-            Console.WriteLine("DefaultFont:" + SystemFonts.DefaultFont.ToString()); // MS Sans Serif
-            Console.WriteLine("DialogFont:" + SystemFonts.DialogFont.ToString()); // Tahoma
-            Console.WriteLine("IconTitleFont:" + SystemFonts.IconTitleFont.ToString());
-            Console.WriteLine("MenuFont:" + SystemFonts.MenuFont.ToString());
-            Console.WriteLine("MessageBoxFont:" + SystemFonts.MessageBoxFont.ToString());
-            Console.WriteLine("SmallCaptionFont:" + SystemFonts.SmallCaptionFont.ToString());
-            Console.WriteLine("StatusFont:" + SystemFonts.StatusFont.ToString());
-            
-            if (fontName == "System")
-                fontName = SystemFonts.MenuFont.Name;
-            else if (fontName == "SystemMonospace")
-            {
-                if (IsFontInstalled("Consolas"))
-                    fontName = "Consolas";
-                else if (IsFontInstalled("Monospace"))
-                    fontName = "Monospace";
-                else if (IsFontInstalled("DejaVu Sans Mono"))
-                    fontName = "DejaVu Sans Mono";
-                else if (IsFontInstalled("Courier New"))
-                    fontName = "Courier New";
-                else
-                    fontName = SystemFonts.MenuFont.Name;
-            }
-            return fontName;
-        }
-
-        public static float GetSystemFontSize()
-        {
-            return SystemFonts.MenuFont.SizeInPoints;
-        }
-        */
-
+        
         public void ClearFontCache()
         {
             GdiCacheFonts.Clear();

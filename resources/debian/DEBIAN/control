@@ -1,9 +1,9 @@
 Package: airvpn
 Version: {@version}
 Section: net
-Maintainer: AirVPN Team <maintainer@airvpn.org>
+Maintainer: Eddie <maintainer@eddie.website>
 Priority: optional
-Architecture: all
+Architecture: {@architecture}
 Installed-Size: 8192
 Depends: gksu, mono-runtime, mono-utils, libmono-system-windows-forms4.0-cil, openvpn, stunnel4
 Bugs: https://airvpn.org/forum/3-airvpn-client/

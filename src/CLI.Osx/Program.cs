@@ -20,32 +20,27 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.CLI.Osx
 {
 	class Program
 	{
-		//static bool Quit = false;
-
 		static void Main(string[] args)
 		{
-
 			Platform.Instance = new Eddie.Platforms.Osx();
 
 			CommandLine.InitSystem(Environment.CommandLine);
-			/*
+
 			Core.Engine engine = new Core.Engine();
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			if (engine.Initialization())
+			if (engine.Initialization(true))
 			{
 				engine.ConsoleStart();
 			}
-			*/
-
-			Console.WriteLine ("x");
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

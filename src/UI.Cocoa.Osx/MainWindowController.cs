@@ -23,6 +23,7 @@ using System.Linq;
 using System.Xml;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -475,7 +476,7 @@ namespace Eddie.UI.Cocoa.Osx
 						ImgProgress.StopAnimation (this);
 						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
 						MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
-						LblTopStatus.StringValue = Messages.Format(Messages.TopBarConnected, Engine.CurrentServer.DisplayName);
+						LblTopStatus.StringValue = MessagesFormatter.Format(MessagesUi.TopBarConnected, Engine.CurrentServer.DisplayName);
 
 						TabOverview.SelectAt(2);
 
@@ -490,9 +491,9 @@ namespace Eddie.UI.Cocoa.Osx
 						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
 						MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
 						if(Engine.Instance.NetworkLockManager.IsActive())
-							LblTopStatus.StringValue = Messages.TopBarNotConnectedLocked;
+							LblTopStatus.StringValue = MessagesUi.TopBarNotConnectedLocked;
 						else
-							LblTopStatus.StringValue = Messages.TopBarNotConnectedExposed;
+							LblTopStatus.StringValue = MessagesUi.TopBarNotConnectedExposed;
 
 						TabOverview.SelectAt(0);
 					}

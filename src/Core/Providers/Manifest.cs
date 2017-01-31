@@ -158,7 +158,7 @@ namespace Eddie.Core.Providers
 			ovpn.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
 			XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
             if (xmlKey == null)
-                throw new Exception(Messages.Format(Messages.KeyNotFound, key));
+                throw new Exception(MessagesFormatter.Format(Messages.KeyNotFound, key));
             ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
             ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");            
 			ovpn.AppendDirective("key-direction","1", "");
@@ -212,7 +212,7 @@ namespace Eddie.Core.Providers
 			}
 			catch (Exception e)
 			{
-				return Messages.Format(Messages.ManifestFailed, e.Message);
+				return MessagesFormatter.Format(Messages.ManifestFailed, e.Message);
 			}
 		}
 
@@ -282,7 +282,7 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlNode nodeServer in Manifest.SelectNodes("//servers/server"))
 				{
-                    string code = Utils.SHA256(nodeServer.Attributes["name"].Value);
+                    string code = Utils.HashSHA256(nodeServer.Attributes["name"].Value);
                     
 					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 
@@ -359,7 +359,7 @@ namespace Eddie.Core.Providers
 
 			if (Manifest != null)
 			{
-				XmlNodeList nodesUrls = Manifest.SelectNodes("//urls/url");
+                XmlNodeList nodesUrls = Manifest.SelectNodes("//urls/url");
 				foreach (XmlNode nodeUrl in nodesUrls)
 				{
 					urls.Add(nodeUrl.Attributes["address"].Value);

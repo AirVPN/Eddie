@@ -25,6 +25,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Xml;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -32,28 +33,30 @@ namespace Eddie.Core
     {
 		public static Platform Instance;
 
-        public string ExePath;
+        public RouteEntry m_routeDefaultRemove;
 
-		public RouteEntry m_routeDefaultRemove;
+        protected string m_ApplicationPath = "";
+        protected string m_ExecutablePath = "";
+        protected string m_UserPath = "";
 
-		// ----------------------------------------
+        // ----------------------------------------
         // Static - Also used before the derivated class is created
         // ----------------------------------------
 
-		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+        public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
 		{
 			if (WaitEnd)
 			{
 				//lock (Instance) // Removed in 2.11.4
 				{
-					return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+					return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
 				}
 			}
 			else
-				return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+				return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
 		}
 
-		public static string ShellPlatformIndipendentEx(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+		public static string ShellPlatformIndipendentEx(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
         {			
 			try
             {
@@ -89,14 +92,19 @@ namespace Eddie.Core
                     string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
                     p.WaitForExit();
 
-					if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
-					{
-						int endTime = Environment.TickCount;
-						int deltaTime = endTime - startTime;
-						Engine.Instance.Logs.Log(LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms");
-					}
+                    Output = Output.Trim();
 
-                    return Output.Trim();
+                    if (noDebugLog == false) // Avoid recursion
+                    {
+                        if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
+                        {
+                            int endTime = Environment.TickCount;
+                            int deltaTime = endTime - startTime;
+                            Engine.Instance.Logs.Log(LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms, Output: " + Output);
+                        }
+                    }
+
+                    return Output;
                 }
                 else
                 {
@@ -171,10 +179,35 @@ namespace Eddie.Core
 		}
 
         // ----------------------------------------
+        // Method
+        // ----------------------------------------
+
+        public string GetApplicationPath()
+        {
+            if(m_ApplicationPath == "")
+                m_ApplicationPath = GetApplicationPathEx();
+            return m_ApplicationPath;
+        }
+
+        public string GetExecutablePath()
+        {
+            if (m_ExecutablePath == "")
+                m_ExecutablePath = GetExecutablePathEx();
+            return m_ExecutablePath;
+        }
+
+        public string GetUserPath()
+        {
+            if (m_UserPath == "")
+                m_UserPath = GetUserPathEx();
+            return m_UserPath;
+        }
+
+        // ----------------------------------------
         // Virtual
         // ----------------------------------------
 
-		public virtual string GetCode()
+        public virtual string GetCode()
 		{
 			return "Unknown";
 		}
@@ -197,6 +230,11 @@ namespace Eddie.Core
 			else
 				return "?";
 		}
+
+        public virtual string GetMonoVersion()
+        {
+            return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
+        }
 
         public virtual void OnInit()
         {
@@ -278,7 +316,7 @@ namespace Eddie.Core
             }
         }
 
-		public virtual string NormalizePath(string p)
+        public virtual string NormalizePath(string p)
         {
             p = p.Replace("/", DirSep);
             p = p.Replace("\\", DirSep);
@@ -291,16 +329,27 @@ namespace Eddie.Core
 
         public virtual bool FileExists(string path)
         {
+            if (path == "")
+                return false;
+
             return (File.Exists(path));
+        }
+
+        public virtual bool DirectoryExists(string path)
+        {
+            return (Directory.Exists(path));
         }
 
         public virtual void FileDelete(string path)
         {
             if (File.Exists(path) == false)
                 return;
-
+            
             if (FileImmutableGet(path))
+            {
                 FileImmutableSet(path, false);
+            }
+
             File.Delete(path);
         }
 
@@ -310,11 +359,16 @@ namespace Eddie.Core
                 FileDelete(to);
 
             bool immutable = FileImmutableGet(from);
+
             if (immutable)
+            {
                 FileImmutableSet(from, false);
+            }
             File.Move(from, to);
             if (immutable)
+            {
                 FileImmutableSet(to, true);
+            }
         }
 
         public virtual string FileContentsReadText(string path)
@@ -324,27 +378,32 @@ namespace Eddie.Core
 
         public virtual bool FileContentsWriteText(string path, string contents)
         {
+            bool immutable = false;
             if (FileExists(path))
             {
                 string current = FileContentsReadText(path);
                 if (current == contents)
                     return false;
-            }
-            bool immutable = FileImmutableGet(path);
-            if (immutable)
-                FileImmutableSet(path, false);
+                immutable = FileImmutableGet(path);
+                if (immutable)
+                    FileImmutableSet(path, false);
+            }            
             File.WriteAllText(path, contents);
             if (immutable)
                 FileImmutableSet(path, true);
             return true;
         }
 
-        public virtual void FileContentsAppendText(string path, string contents)
+        public virtual void FileContentsAppendText(string path, string contents, Encoding encoding)
         {
-            bool immutable = FileImmutableGet(path);
-            if (immutable)
-                FileImmutableSet(path, false);
-            File.AppendAllText(path, contents);
+            bool immutable = false;
+            if (FileExists(path))
+            {
+                immutable = FileImmutableGet(path);
+                if (immutable)
+                    FileImmutableSet(path, false);
+            }
+            File.AppendAllText(path, contents, encoding);
             if (immutable)
                 FileImmutableSet(path, true);
         }
@@ -395,19 +454,19 @@ namespace Eddie.Core
             return (v.IndexOf(DirSep) != -1);
         }
 
-        public virtual string GetProgramFolder()
+        public virtual string GetApplicationPathEx()
         {
             //Assembly.GetExecutingAssembly().Location
             //return new FileInfo(ExecutablePath).DirectoryName;
-			return Path.GetDirectoryName(GetExecutablePath());
+            return Path.GetDirectoryName(GetExecutablePath());
         }
 
-		public virtual string GetExecutablePath()
+		public virtual string GetExecutablePathEx()
 		{
             return System.Reflection.Assembly.GetEntryAssembly().Location;
 		}
 
-        public virtual string GetUserFolder()
+        public virtual string GetUserPathEx()
         {
             NotImplemented();
             return "";
@@ -418,7 +477,12 @@ namespace Eddie.Core
             System.Diagnostics.Process.Start(url);             
         }
 
-		public virtual string ShellCmd(string Command)
+        public virtual string ShellCmd(string Command)
+        {
+            return ShellCmd(Command, false);
+        }
+
+        public virtual string ShellCmd(string Command, bool noDebugLog)
         {
             NotImplemented();
             return "";
@@ -426,17 +490,42 @@ namespace Eddie.Core
 
 		public virtual string Shell(string FileName, string Arguments)
 		{
-			return Shell(FileName, Arguments, "", true, false);
+			return Shell(FileName, Arguments, "", true, false, false);
 		}
 
 		public virtual string Shell(string FileName, string Arguments, bool WaitEnd)
         {
-            return Shell(FileName, Arguments, "", WaitEnd, false);
+            return Shell(FileName, Arguments, "", WaitEnd, false, false);
         }
 
-		public virtual string Shell(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow)
+        public virtual string Shell(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
         {
-            return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow);
+            return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
+        }
+
+        public virtual bool OpenDirectoryInFileManager(string path)
+        {
+            try
+            {
+                string dirPath = path;
+                if (DirectoryExists(dirPath) == false)
+                    dirPath = Path.GetDirectoryName(dirPath);
+                if (DirectoryExists(dirPath))
+                {
+                    OpenDirectoryInFileManagerEx(dirPath);
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        protected virtual void OpenDirectoryInFileManagerEx(string path)
+        {
+            Process.Start(path);            
         }
 
         /*
@@ -578,12 +667,42 @@ namespace Eddie.Core
 			Engine.Instance.Logs.Log(LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
         }
 
-		public virtual string GenerateSystemReport()
+        public virtual string GenerateEnvironmentReport()
+        {
+            string t = "";
+
+            t += "Eddie version: " + Constants.VersionDesc + "\n";
+            t += "Eddie OS build: " + Platform.Instance.GetSystemCode() + "\n";
+            t += "OS type: " + Platform.Instance.GetCode() + "\n";
+            t += "OS name: " + Platform.Instance.GetName() + "\n";
+            t += "OS description: " + Platform.Instance.VersionDescription() + "\n";
+            t += "Mono /.Net Framework: " + Platform.Instance.GetMonoVersion() + "\n";
+
+            t += "OpenVPN driver: " + Software.OpenVpnDriver + "\n";
+            t += "OpenVPN: " + Software.OpenVpnVersion + " (" + Software.OpenVpnPath + ")\n";
+            t += "SSH: " + Software.SshVersion + " (" + Software.SshPath + ")\n";
+            t += "SSL: " + Software.SslVersion + " (" + Software.SslPath + ")\n";
+
+            t += "Profile path: " + Engine.Instance.Storage.GetProfilePath() + "\n";
+            t += "Data path: " + Storage.DataPath + "\n";
+            t += "Application path: " + Platform.Instance.GetApplicationPath() + "\n";
+            t += "Executable path: " + Platform.Instance.GetExecutablePath() + "\n";
+            t += "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull() + "\n";
+
+            return t;
+        }
+
+        public virtual string GenerateSystemReport()
 		{
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
-            t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
-            t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
+
+            /*
+			if(Platform.Instance.GetSystemFont() != "")
+            	t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
+			if(Platform.Instance.GetSystemFontMonospace() != "")
+            	t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
+            */
             
             try
 			{
@@ -635,7 +754,7 @@ namespace Eddie.Core
 				}
 			}
 
-			return t;
+			return NormalizeString(t);
 		}
 
         public virtual bool OnCheckSingleInstance()
@@ -790,7 +909,7 @@ namespace Eddie.Core
 
         public virtual string GetProjectPath()
         {
-            DirectoryInfo di = new DirectoryInfo(GetProgramFolder());
+            DirectoryInfo di = new DirectoryInfo(GetApplicationPath());
 
             for (;;)
             {

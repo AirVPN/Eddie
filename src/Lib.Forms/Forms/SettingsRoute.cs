@@ -76,7 +76,7 @@ namespace Eddie.Gui.Forms
 		{
 			if (new IpAddressRange(txtHost.Text).Valid == false)
 			{
-				lblHostHelp.Text = Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp;
+				lblHostHelp.Text = Platform.Instance.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
 				cmdOk.Enabled = false;
 			}
 			else

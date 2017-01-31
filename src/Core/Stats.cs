@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -57,25 +58,30 @@ namespace Eddie.Core
 			Add("VpnGateway", Messages.StatsVpnGateway, "vpn");
             Add("SessionTotalDownload", Messages.StatsSessionTotalDownload, "session");
             Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");
-            Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", false);
-			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system");
-			Add("Pinger", Messages.StatsPinger, "system"); 
-			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");			
-			Add("SystemReport", Messages.StatsSystemReport, "system");
-		}
+            Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", "view");
+			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system", "Update");
+			Add("Pinger", Messages.StatsPinger, "system", "Update"); 
+			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");
+            Add("PathProfile", Messages.StatsSystemPathProfile, "system", "Open");
+            Add("PathApp", Messages.StatsSystemPathApp, "system", "Open");
+            Add("SystemReport", Messages.StatsSystemReport, "system", "View");
+            
+            UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
+            UpdateValue("PathApp", Platform.Instance.GetApplicationPath());
+        }
 
 		public void Add(string key, string caption, string icon)
 		{
-			Add(key, caption, icon, true);
+			Add(key, caption, icon, "");
 		}
 
-		public void Add(string key, string caption, string icon, bool dump)
+		public void Add(string key, string caption, string icon, string clickable)
 		{
 			StatsEntry entry = new StatsEntry();
 			entry.Key = key;
 			entry.Caption = caption;
 			entry.Icon = icon;
-			entry.Dump = dump;
+            entry.Clickable = clickable;
 			Dict[key] = entry;
 			List.Add(entry);
 		}
@@ -95,7 +101,13 @@ namespace Eddie.Core
 			if (entry.Value != newValue)
 			{
 				entry.Value = newValue;
-				Engine.Instance.OnStatsChange(entry);
+
+                XmlItem xml = new XmlItem("command");
+                xml.SetAttribute("action", "ui.stats.change");
+                entry.WriteXML(xml);
+                Engine.Instance.Command(xml);
+
+                Engine.Instance.OnStatsChange(entry);
 			}
 		}
 

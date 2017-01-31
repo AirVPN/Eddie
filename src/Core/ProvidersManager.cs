@@ -54,7 +54,7 @@ namespace Eddie.Core
             if (Engine.Instance.DevelopmentEnvironment)
                 path = Platform.Instance.GetProjectPath();
             else
-                path = Platform.Instance.GetProgramFolder();
+                path = Platform.Instance.GetApplicationPath();
             path += "//Providers//";
 
             if (Directory.Exists(path) == false)

@@ -22,8 +22,10 @@ using System.Text;
 
 namespace Eddie.Core
 {
+    // Here messages used only by Core
     public static class Messages
     {
+        // Start Messages
         public static string AppStarting = "Starting";
         public static string AppShutdownStart = "Shutdown in progress"; 
         public static string AppShutdownComplete = "Shutdown complete"; 
@@ -36,7 +38,7 @@ namespace Eddie.Core
         public static string Ready = "Ready";
         public static string Unknown = "Unknown";        
         public static string StatsNotConnected = "Not connected.";
-		public static string DoubleClickToView = "(Double-Click to View)";
+		public static string DoubleClickToAction = "(double-click to {1})";
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";
 		public static string CheckingRequired = "Unavailable (option 'Checking Tunnel' required)";
@@ -98,9 +100,9 @@ namespace Eddie.Core
 		public static string CUrlRequiredForProxySocks = "CUrl is not installed on this system, and it's required for SOCKS proxy.";
 		public static string SocksProxyError = "Socks proxy connection error.";
 
-		public static string FetchTryFailed = "{1}, {2}° try failed ({3})";
+		public static string LogsLineRepetitionSummary = "Above log line repeated {1} times more";
 
-		public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; 
+        public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; 
 		public static string PingerStatsPending = "Disabled during VPN connection. Latest check: {1}";
 		
 		public static string CheckingEnvironment = "Checking environment";
@@ -120,11 +122,15 @@ namespace Eddie.Core
 
         public static string ConnectionStartManagement = "Starting Management Interface";
 		public static string ConnectionCheckingRoute = "Checking route";
-		public static string ConnectionCheckingRoute2 = "Checking info";
+        public static string ConnectionCheckingTryRoute = "Checking route ({1}° try)";
+        public static string ConnectionCheckingNoMatchRoute = "Checking route don't match";
+        public static string ConnectionCheckingRoute2 = "Checking info";
 		public static string ConnectionCheckingRouteNotAvailable = "Checking route not available on this server.";
 		public static string ConnectionCheckingRouteFailed = "Routing checking failed.";
 		public static string ConnectionCheckingDNS = "Checking DNS";
-		public static string ConnectionCheckingDNSFailed = "DNS checking failed.";
+        public static string ConnectionCheckingTryDNS = "Checking DNS ({1}° try)";
+        public static string ConnectionCheckingNoMatchDNS = "Checking DNS don't match";
+        public static string ConnectionCheckingDNSFailed = "DNS checking failed.";
 		public static string ConnectionFlushDNS = "Flushing DNS";
 		public static string ConnectionConnected = "Connected.";
 		public static string ConnectionConnecting = "Connecting to {1}";
@@ -152,7 +158,8 @@ namespace Eddie.Core
 
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
 		public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
-		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
+        public static string NetworkLockLinuxUnexpectedAlreadyActive = "Unexpected already active iptables network lock";
+        public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
 		public static string TorControlAuth = "Tor Control authentication method: {1}";
 		public static string TorControlGuardIp = "Tor Control Guard IP detected: {1} ({2})";
@@ -160,13 +167,12 @@ namespace Eddie.Core
 		public static string TorControlNoIps = "Unable to find IP address of Tor first node of an established circuit.";
 		public static string TorControlException = "Unable to communicate with Tor ({1}). Is Tor up and running?";
 		public static string TorControlTest = "Successful test. Tor Version: ";
+
+        public static string TcpServerNoBindAddress = "Unable to start TCP server: Address {1} mismatch";
 		
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 		
-		public static string TopBarConnected = "Connected to {1}";
-		public static string TopBarNotConnectedLocked = "Not connected. Network locked.";
-		public static string TopBarNotConnectedExposed = "Not connected. Network exposed.";
-		public static string StatusTextConnected = "Down: {1} Up: {2} - {3} - IP: {4}";
+		
 				
 		public static string ChartRange = "Range";
 		public static string ChartGrid = "Grid";
@@ -219,6 +225,7 @@ namespace Eddie.Core
 		public static string WindowsSettingsOpenVpnDefault = "OpenVPN Default";
         public static string WindowsSettingsOpenVpnDirectivesDefaultSkip1 = "Append Custom directives";
         public static string WindowsSettingsOpenVpnDirectivesDefaultSkip2 = "Use only Custom directives, ignore Base, Provider and Server directives";
+        public static string WindowsSettingsLogsCannotOpenDirectory = "Cannot open logs directory {1}";
         public static string WindowsOpenVpnManagementCommandTitle = "OpenVPN Management Command";
 		public static string WindowsPortForwardingTitle = "Tools - Port Forwarding Tester";
 		public static string WindowsMainSpeedResolution1 = "Range: 1 minute, Grid: 10 seconds, Step: 1 second"; 
@@ -255,7 +262,7 @@ namespace Eddie.Core
 		public static string CommandConnectSubtitle = "or choose a specific server in 'Servers' tab.";
 		public static string CommandDisconnect = "Disconnect";
 		public static string CommandCancel = "Cancel";
-		public static string CommandUnknown = "Unknown command";
+		public static string CommandUnknown = "Unknown command: {1}";
 		public static string ManifestUpdateForce = "Updating now...";
         public static string ResetSettingsConfirm = "WARNING: all custom settings will be lost. Continue?";
         public static string ResetSettingsDone = "Settings reverted to default.";
@@ -298,7 +305,9 @@ namespace Eddie.Core
 		public static string StatsManifestLastUpdate = "Latest Manifest Update";
 		public static string StatsPinger = "Pinger stats";
 		public static string StatsSystemTimeServerDifference = "Server Time Difference";
-		public static string StatsSystemReport = "System Report";
+        public static string StatsSystemPathProfile = "Profile path";
+        public static string StatsSystemPathApp = "Application path";
+        public static string StatsSystemReport = "System Report";
 
 
 
@@ -307,7 +316,7 @@ namespace Eddie.Core
         public static string ManSynopsis = "airvpn -cli [OPTIONS...]";
 		public static string ManDescription = "Eddie/AirVPN is an OpenVPN wrapper providing advanced features such as network lock, connections over SSL/TLS and SSH tunnels, programmable events, customizable routes, extensive control on OpenVPN directives and a comfortable, optional GUI. See AirVPN website for more information: [link]https://airvpn.org[/link]";
 		public static string ManCopyright = "Copyright (C) AirVPN - Released under GNU General Public License - [link]http://www.gnu.org/licenses/gpl.html[/link]";
-        public static string ManHeaderOption1 = "Options can be written as [i]--option=\"value\"[/i].\nDouble-quotes and minus are optional, [i]option=value[/i] is valid.\nEvery option have only one value.\nOptions without a value like [i]--option[/i] are treated as [i]--option=\"True\"[/i]";
+        public static string ManHeaderOption1 = "Options can be written as [i]--option=\"value\"[/i]\nDouble-quotes and minus are optional, [i]option=value[/i] is valid.\nEvery option have only one value.\nOptions without a value like [i]--option[/i] are treated as [i]--option=\"True\"[/i]";
         public static string ManHeaderOption2 = "Default options are read from the profile. Options in command-line override them but are not saved in the profile at exit.\nYou can run the UI, choose options in the UI, and then launch the command-line edition with the profile options, to avoid to specify all the options in the command-line.";
         public static string ManHeaderOption3 = "The options [i]--login[/i] and [i]--password[/i] are mandatory if they are not already in the profile.\nBy default, the client doesn't connect to any server automatically. Specify [i]--connect[/i] to connect automatically.\nSpecify [i]--netlock[/i] to start with network lock activation.";
         public static string ManHeaderOption4 = "By default the application works interactively: Press [i]n[/i] to connect to a server, [i]x[/i] or [i]ctrl+c[/i] to exit.\nSpecify [i]--batch[/i] for non-interactive mode.";
@@ -445,47 +454,6 @@ namespace Eddie.Core
 		public static string IpV6Warning = "IPv6 detected.\n\nThis can cause data leak ONLY if your ISP provides IPv6 support.\nCurrently our software can't disable and restore safely IPv6 on Linux.\nIf you continue, IPv6 detection will be disabled. You can re-enable it in Preferences -> Advanced -> IPv6.\n\nContinue?";
 		public static string IpV6WarningUnableToDetect = "Unable to understand if IPv6 is active.";
 
-		public static string Format(string format, string param1)
-		{
-			return format.Replace("{1}", param1);
-		}
-
-		public static string Format(string format, string param1, string param2)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			return o;
-		}
-
-		public static string Format(string format, string param1, string param2, string param3)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			o = o.Replace("{3}", param3);
-			return o;
-		}
-
-		public static string Format(string format, string param1, string param2, string param3, string param4)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			o = o.Replace("{3}", param3);
-			o = o.Replace("{4}", param4);
-			return o;
-		}
-
-		public static string Format(string format, string param1, string param2, string param3, string param4, string param5)
-		{
-			string o = format;
-			o = o.Replace("{1}", param1);
-			o = o.Replace("{2}", param2);
-			o = o.Replace("{3}", param3);
-			o = o.Replace("{4}", param4);
-			o = o.Replace("{5}", param5);
-			return o;
-		}
+        // End Messages
     }
 }
