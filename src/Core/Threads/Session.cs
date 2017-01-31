@@ -1005,10 +1005,8 @@ namespace Eddie.Core.Threads
                         else
                         {
                             string t = message;
-                            t = t.Replace("Peer Connection Initiated with", "").Trim();
                             t = t.Replace("[nonblock]", "").Trim();
-                            t = t.Replace("[server]", "").Trim();
-                            t = t.Replace("[AF_INET]", "").Trim();
+                            t = Utils.RegExMatchOne(t, "\\[AF_INET\\](.+?)$");
                             string[] parts = t.Split(':');
                             if (parts.Length == 2)
                             {

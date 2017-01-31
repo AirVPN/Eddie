@@ -741,6 +741,7 @@ namespace Eddie.Core
             }
             else if (action == "ui.start")
             {
+                UiSendStartInfo();
                 UiSendOsInfo();
                 UiSendStatusInfo();
                 UiSendQuickInfo();
