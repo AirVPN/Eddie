@@ -916,7 +916,7 @@ namespace Eddie.Core
 
             for (;;)
             {
-                if (FileExists(di.FullName + "/version.txt"))
+                if ((FileExists(di.FullName + "/README.md")) && (FileContentsReadText(di.FullName + "/version.txt").Contains("Eddie - OpenVPN GUI")))
                     return di.FullName;
                 else
                 {
