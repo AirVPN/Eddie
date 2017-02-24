@@ -230,7 +230,7 @@ namespace Eddie.Platforms
         public override long Ping(string host, int timeoutSec)
         {
             string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.StringSafeHost(host);
-            string result = ShellCmd(cmd);
+            string result = ShellCmd(cmd, true);
             
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;

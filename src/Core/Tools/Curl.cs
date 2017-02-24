@@ -188,15 +188,19 @@ namespace Eddie.Core.Tools
                     stdoutStream.BaseStream.CopyTo(p.StandardInput.BaseStream);
                     p.StandardInput.Close();
                 }
-            */
-                string stderr = p.StandardError.ReadToEnd();
+            */                
                 using (var memstream = new System.IO.MemoryStream())
                 {
                     p.StandardOutput.BaseStream.CopyTo(memstream);
                     output = memstream.ToArray();
-                }                                
-                int exitcode = p.ExitCode;
+                }
+                string stderr = p.StandardError.ReadToEnd();
+
                 p.WaitForExit();
+
+                int exitcode = p.ExitCode;
+
+                
 
                 error = stderr;
 
