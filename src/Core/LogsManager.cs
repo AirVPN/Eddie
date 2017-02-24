@@ -67,7 +67,7 @@ namespace Eddie.Core
 		public void Log(LogType Type, string Message, int BalloonTime, Exception e)
 		{
             // Avoid repetition
-            if(Engine.Instance.Storage.GetBool("log.repeat") == false)
+            if( (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.repeat") == false) )
             {
                 string logRepetitionNormalized = Message;
                 logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");

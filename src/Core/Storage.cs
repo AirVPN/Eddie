@@ -512,10 +512,10 @@ namespace Eddie.Core
 
 			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIpV6);
 
-			SetDefault("executables.openvpn", "path_file", "", Messages.ManOptionExecutablesOpenVpn);
-			SetDefault("executables.ssh", "path_file", "", Messages.ManOptionExecutablesSsh);
-			SetDefault("executables.ssl", "path_file", "", Messages.ManOptionExecutablesSsl);
-			SetDefault("executables.curl", "path_file", "", Messages.ManOptionExecutablesCurl);
+			SetDefault("tools.openvpn.path", "path_file", "", Messages.ManOptionToolsOpenVpnPath);
+			SetDefault("tools.ssh.path", "path_file", "", Messages.ManOptionToolsSshPath);
+			SetDefault("tools.ssl.path", "path_file", "", Messages.ManOptionToolsSslPath);
+			SetDefault("tools.curl.path", "path_file", "", Messages.ManOptionToolsCurlPath);
 
             SetDefaultInt("tools.curl.max-time", 10, NotInMan);
 

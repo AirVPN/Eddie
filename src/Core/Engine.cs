@@ -1690,7 +1690,7 @@ namespace Eddie.Core
         {
             try
             {
-                if (Engine.Storage.Get("console.mode") == "backend")
+                if( (Engine.Storage != null) && (Engine.Storage.Get("console.mode") == "backend") )
                     Console.WriteLine(xml.ToString());
 
                 if (CommandEvent != null)

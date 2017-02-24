@@ -177,6 +177,22 @@ namespace Eddie.Core
             {
                 name = "batch";
             }
+            else if (name == "executables.openvpn")
+            {
+                name = "tools.openvpn.path";
+            }
+            else if (name == "executables.ssh")
+            {
+                name = "tools.ssh.path";
+            }
+            else if (name == "executables.ssl")
+            {
+                name = "tools.ssl.path";
+            }
+            else if (name == "executables.curl")
+            {
+                name = "tools.curl.path";
+            }
 
 #if (EDDIE3)            
             if (name == "dns.check") // < 3.0
