@@ -120,32 +120,31 @@ namespace Eddie.Platforms
 
 		public void StateOn()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + " state on");
+			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " state on");
 		}
 
 		public void StateOff()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + " state off");
+			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " state off");
 		}
 
 		public void NotifyOn()
 		{
             //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
             //Platform.Instance.ShellCmd("netsh firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
-            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + "settings inboundusernotification enable");
-            
+            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " settings inboundusernotification enable");            
         }
 
 		public void NotifyOff()
 		{
             //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
             //Platform.Instance.ShellCmd("netsh firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
-            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + "settings inboundusernotification disable");
+            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " settings inboundusernotification disable");
         }
 
 		public void RestorePolicy()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.SafeString(id) + " firewallpolicy " + Inbound + "," + Outbound);
+			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " firewallpolicy " + Inbound + "," + Outbound);
 		}
 
 		public void ReadXML(XmlElement node)

@@ -29,16 +29,29 @@ namespace Eddie.Core
     {
 		public static string GetControlAuthCookiePath()
 		{
-			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");			
+            string cookieCustomPath = Engine.Instance.Storage.Get("proxy.tor.control.cookie-path");
+            if(cookieCustomPath != "")
+            {
+                if (Platform.Instance.FileExists(cookieCustomPath))
+                    return cookieCustomPath;
+            }
+
+            System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");			
 			if (processes.Length > 0)
 			{
 				// Tor Browser Bundle, Unix and Windows at 10/16/2014				
 				string path1 = Platform.Instance.NormalizePath(new FileInfo(processes[0].MainModule.FileName).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");				
 				if (Platform.Instance.FileExists(path1))
 					return path1;
-			}
 
-			{
+                string path2 = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("APPDATA") + "/tor/control_auth_cookie");
+                if (Platform.Instance.FileExists(path2))
+                    return path2;
+
+                // c:\Users\Clodo\AppData\Roaming\tor\
+            }
+
+            {
 				// Unix
 				string path = "/var/run/tor/control.authcookie";
 				if (Platform.Instance.FileExists(path))

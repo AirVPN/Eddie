@@ -52,11 +52,11 @@ namespace Eddie.Platforms
                 m_logname = ShellCmd("logname");
             if (m_logname.Contains("no login name"))
                 m_logname = Environment.UserName;
-            
-            TrustCertificatePolicy.Activate();
-		}
 
-		public override string GetCode()
+            //ClodoTest TrustCertificatePolicy.Activate();
+        }
+
+        public override string GetCode()
 		{
 			return "Linux";
 		}
@@ -112,7 +112,7 @@ namespace Eddie.Platforms
             if (FileExists(path) == false)
                 return false;
 
-            string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
+            string result = ShellCmd("lsattr \"" + Utils.SafeStringPath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
                         
             /* // < 2.11.11
             if (result.IndexOf(' ') != 16) 
@@ -135,13 +135,13 @@ namespace Eddie.Platforms
             if (FileExists(path))
             {
                 string flag = (value ? "+i" : "-i");
-                ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+                ShellCmd("chattr " + flag + " \"" + Utils.SafeStringPath(path) + "\"");
             }
         }
         
         public override string GetExecutableReport(string path)
 		{
-			return ShellCmd("ldd \"" + Utils.StringNormalizePath(path) + "\"");
+			return ShellCmd("ldd \"" + Utils.SafeStringPath(path) + "\"");
 		}
 
 		public override string GetExecutablePathEx()
@@ -229,7 +229,7 @@ namespace Eddie.Platforms
 
         public override long Ping(string host, int timeoutSec)
         {
-            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host);
+            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.StringSafeHost(host);
             string result = ShellCmd(cmd);
             
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
@@ -251,7 +251,7 @@ namespace Eddie.Platforms
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
-			ShellCmd("chmod +x \"" + Utils.StringNormalizePath(path) + "\"");			
+			ShellCmd("chmod +x \"" + Utils.SafeStringPath(path) + "\"");			
 		}
 
 
@@ -307,7 +307,7 @@ namespace Eddie.Platforms
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora.
             if (Platform.Instance.FileExists("/usr/bin/host"))
-                ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
+                ShellCmd("host -W 5 -t A " + Utils.StringSafeHost(host));
             else
                 base.ResolveWithoutAnswer(host);
         }
@@ -517,7 +517,8 @@ namespace Eddie.Platforms
 				foreach(string dnsSingle in dnsArray)
 					text += "nameserver " + dnsSingle + "\n";
 
-                FileContentsWriteText("/etc/resolv.conf", text);                
+                FileContentsWriteText("/etc/resolv.conf", text);
+                ShellCmd("chmod 644 /etc/resolv.conf");
             }
 
 			base.OnDnsSwitchDo(dns);
@@ -535,8 +536,8 @@ namespace Eddie.Platforms
                 
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameRestored);
 
-				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");
-			}
+				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");                
+            }
 
 			base.OnDnsSwitchRestore();
 

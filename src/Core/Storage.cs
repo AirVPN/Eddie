@@ -108,6 +108,8 @@ namespace Eddie.Core
 
         public static bool TestDataPath(string path, bool log)
         {
+            Engine.Instance.Logs.Log(LogType.Info, "ClodoTest Unable to write in path '" + path + "'");
+
             if (Platform.Instance.HasAccessToWrite(path) == false)
             {
                 if(log == true)
@@ -491,7 +493,8 @@ namespace Eddie.Core
 			SetDefault("proxy.login", "text", "", Messages.ManOptionProxyLogin);
 			SetDefault("proxy.password", "password", "", Messages.ManOptionProxyPassword);
             SetDefaultInt("proxy.tor.control.port", 9151, Messages.ManOptionProxyTorControlPort); 
-            SetDefaultBool("proxy.tor.control.auth", true, Messages.ManOptionProxyTorControlAuth); 
+            SetDefaultBool("proxy.tor.control.auth", true, Messages.ManOptionProxyTorControlAuth);
+            SetDefault("proxy.tor.control.cookie-path", "", "", NotInMan);
             SetDefault("proxy.tor.control.password", "password", "", Messages.ManOptionProxyTorControlPassword); 
 
             SetDefault("routes.default", "choice:in,out", "in", Messages.ManOptionRoutesDefault);
@@ -513,6 +516,8 @@ namespace Eddie.Core
 			SetDefault("executables.ssh", "path_file", "", Messages.ManOptionExecutablesSsh);
 			SetDefault("executables.ssl", "path_file", "", Messages.ManOptionExecutablesSsl);
 			SetDefault("executables.curl", "path_file", "", Messages.ManOptionExecutablesCurl);
+
+            SetDefaultInt("tools.curl.max-time", 10, NotInMan);
 
             SetDefault("openvpn.custom", "text", "", Messages.ManOptionOpenVpnCustom);
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);            

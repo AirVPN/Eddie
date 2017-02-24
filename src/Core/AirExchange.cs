@@ -88,7 +88,7 @@ namespace Eddie.Core
 
             // 'POST' Edition - >= 2.9			
             // Debug with an url direct to backend service client debugging page			            
-			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, "", fetchParameters, "", Engine.Instance.IsConnected());
+			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", false, "");
 			
 			// Decrypt answer
 			MemoryStream aesDecryptStream = new MemoryStream();
@@ -129,7 +129,7 @@ namespace Eddie.Core
 
 				try
 				{
-					RouteScope routeScope = new RouteScope(host);
+                    RouteScope routeScope = new RouteScope(host);
                     XmlDocument xmlDoc = AirExchange.FetchUrl(authPublicKey, url, parameters);
                     routeScope.End();
 					if (xmlDoc == null)

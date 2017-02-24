@@ -106,7 +106,7 @@ namespace Eddie.Gui
                 FormMain.DeInit();
         }
 
-        public override void OnCommand(XmlItem xml, bool ignoreIfNotExists)
+        public override XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
         {
             string action = xml.GetAttribute("action").ToLowerInvariant();
 
@@ -127,7 +127,9 @@ namespace Eddie.Gui
                 FormMain.ShowMenu();
             }
             else
-                base.OnCommand(xml, ignoreIfNotExists);
+                return base.OnCommand(xml, ignoreIfNotExists);
+
+            return null;
         }
 
         public override bool OnNoRoot()

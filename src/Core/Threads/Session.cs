@@ -665,10 +665,10 @@ namespace Eddie.Core.Threads
 				arguments += " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"; // TOOPTIMIZE: To bypass key confirmation. Not the best approach.
 			arguments += " -N -T -v";
 
-            m_programScope = new ProgramScope(Software.SshPath, "SSH Tunnel");
+            m_programScope = new ProgramScope(Software.GetTool("ssh").Path, "SSH Tunnel");
 
             m_processProxy = new Process();
-			m_processProxy.StartInfo.FileName = Software.SshPath;
+			m_processProxy.StartInfo.FileName = Software.GetTool("ssh").Path;
 			m_processProxy.StartInfo.Arguments = arguments;
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
 
@@ -736,10 +736,10 @@ namespace Eddie.Core.Threads
 			string sslConfigPath = m_fileSslConfig.Path;
 			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig);
 
-            m_programScope = new ProgramScope(Software.SslPath, "SSL Tunnel");
+            m_programScope = new ProgramScope(Software.GetTool("ssl").Path, "SSL Tunnel");
 
             m_processProxy = new Process();
-			m_processProxy.StartInfo.FileName = Software.SslPath;
+			m_processProxy.StartInfo.FileName = Software.GetTool("ssl").Path;
 			m_processProxy.StartInfo.Arguments = "\"" + sslConfigPath + "\"";
 			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
 
@@ -777,10 +777,10 @@ namespace Eddie.Core.Threads
             Platform.Instance.FileContentsWriteText(ovpnPath, Engine.ConnectedOVPN);
 
             if(m_processProxy == null)
-                m_programScope = new ProgramScope(Software.OpenVpnPath, "OpenVPN Tunnel");
+                m_programScope = new ProgramScope(Software.GetTool("openvpn").Path, "OpenVPN Tunnel");
 
             m_processOpenVpn = new Process();
-			m_processOpenVpn.StartInfo.FileName = Software.OpenVpnPath;
+			m_processOpenVpn.StartInfo.FileName = Software.GetTool("openvpn").Path;
 			m_processOpenVpn.StartInfo.Arguments = "";
 			m_processOpenVpn.StartInfo.WorkingDirectory = Utils.GetTempPath();
 
@@ -1187,10 +1187,18 @@ namespace Eddie.Core.Threads
 
                                         try
                                         {
+                                            // <2.11
                                             // string checkUrl = "https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "") + "/check_tun/";
-                                            string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+
+                                            // 2.11
+                                            // string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+                                            // string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+                                            // XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute, true);
+
+                                            // 2.12
                                             string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
-                                            XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute, true);
+                                            string checkUrl = "https://" + checkDomain + "/check_tun/";
+                                            XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.CurrentServer.IpExit);
 
                                             string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
                                             Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
@@ -1228,9 +1236,16 @@ namespace Eddie.Core.Threads
                                         {
                                             try
                                             {
-                                                string checkUrl = "https://" + Engine.ConnectedEntryIP + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+                                                // 2.11
+                                                // string checkUrl = "https://" + Engine.ConnectedEntryIP + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+                                                // string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
+                                                // XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute2, true);
+
+                                                // 2.12
                                                 string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
-                                                XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute2, true);
+                                                string checkUrl = "https://" + checkDomain + "/check_tun/";
+                                                XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.ConnectedEntryIP);
+
                                                 Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
                                                 Engine.ConnectedClientTime = Utils.UnixTimeStamp();
 
@@ -1284,10 +1299,17 @@ namespace Eddie.Core.Threads
                                             Platform.Instance.ResolveWithoutAnswer(dnsHost);
 
                                             // Check if the server has received the above DNS query
-                                            string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_dns/";
-                                            string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
-                                            XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingDNS, true);
 
+                                            // 2.11
+                                            // string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_dns/";
+                                            // string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+                                            // XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingDNS, true);
+
+                                            // 2.12
+                                            string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+                                            string checkUrl = "https://" + checkDomain + "/check_dns/";
+                                            XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.CurrentServer.IpExit);
+                                            
                                             string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
                                             
                                             if (hash != hash2)
@@ -1696,9 +1718,9 @@ namespace Eddie.Core.Threads
                     string notes = routeEntries[2];
 
                     if ((routesDefault == "out") && (action == "in"))
-                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " vpn_gateway", Utils.SafeString(notes));
+                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " vpn_gateway", Utils.StringSafe(notes));
                     if ((routesDefault == "in") && (action == "out"))
-                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " net_gateway", Utils.SafeString(notes));
+                        ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " net_gateway", Utils.StringSafe(notes));
                 }
             }
 

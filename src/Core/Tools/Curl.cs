@@ -27,11 +27,18 @@ namespace Eddie.Core.Tools
 {
     public class Curl : Tool
     {
+        public string minVersionRequired = "7.21.7";
+
         public override void OnNormalizeVersion()
         {
             int posS = Version.IndexOf("\n");
             if (posS > 1)
                 Version = Version.Substring(0, posS);
+            if (Version.StartsWith("curl "))
+                Version = Version.Substring(5);
+
+            if (Utils.CompareVersions(Version, minVersionRequired) == -1)
+                Engine.Instance.Logs.Log(LogType.Fatal, GetRequiredVersionMessage());
         }
 
         public override string GetFileName()
@@ -47,6 +54,174 @@ namespace Eddie.Core.Tools
         public override string GetVersionArguments()
         {
             return "--version";
+        }
+
+        public string GetRequiredVersionMessage()
+        {
+            return "curl version " + Version + " installed in your system is too old. Minimum " + minVersionRequired + " required. Please upgrade.";
+        }
+
+        public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
+        {
+            if (Available() == false)
+                throw new Exception("curl is required.");
+
+            if (Utils.CompareVersions(Version, minVersionRequired) == -1)
+                throw new Exception(GetRequiredVersionMessage());
+
+            // Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
+            bool bypassProxy = forceBypassProxy;
+            if (bypassProxy == false)
+                bypassProxy = Engine.Instance.IsConnected();
+
+            string dataParameters = "";
+            if (parameters != null)
+            {
+                foreach (string k in parameters.Keys)
+                {
+                    if (dataParameters != "")
+                        dataParameters += "&";
+                    dataParameters += Utils.StringSafeAlphaNumeric(k) + "=" + Uri.EscapeUriString(parameters[k]);
+                }
+            }
+
+            string args = "";
+            if (bypassProxy == false)
+            {
+                string proxyMode = Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant();
+                string proxyHost = Engine.Instance.Storage.Get("proxy.host");
+                int proxyPort = Engine.Instance.Storage.GetInt("proxy.port");
+                string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
+                string proxyLogin = Engine.Instance.Storage.Get("proxy.login");
+                string proxyPassword = Engine.Instance.Storage.Get("proxy.password");
+
+                if (proxyMode == "detect")
+                    throw new Exception("Proxy mode 'Detect' deprecated, please specify explicit.");
+
+                if (proxyMode == "tor")
+                {
+                    proxyMode = "socks";
+                    proxyAuth = "none";
+                    proxyLogin = "";
+                    proxyPassword = "";
+                }
+
+                if (proxyMode == "http")
+                {
+                    args += " --proxy http://" + Utils.StringSafeHost(proxyHost) + ":" + proxyPort.ToString();
+                }
+                else if (proxyMode == "socks")
+                {
+                    // curl support different types of proxy. OpenVPN not, only socks5. So, it's useless to support other kind of proxy here.
+                    args += " --proxy socks5://" + Utils.StringSafeHost(proxyHost) + ":" + proxyPort.ToString();
+                }
+
+                if (proxyAuth != "none")
+                {
+                    if (proxyAuth == "basic")
+                        args += " --proxy-basic";
+                    else if (proxyAuth == "ntlm")
+                        args += " --proxy-ntlm";
+
+                    if ((proxyLogin != "") && (proxyPassword != ""))
+                        args += " --proxy-user " + Utils.StringSafeLogin(proxyLogin) + ":" + Utils.StringSafePassword(proxyPassword);
+                }
+            }
+
+            //
+            args += " \"" + Utils.SafeStringUrl(url) + "\"";
+            args += " -sS"; // -s Silent mode, -S with errors
+            args += " --max-time " + Engine.Instance.Storage.GetInt("tools.curl.max-time").ToString();
+            
+            //args += " --no-progress-bar";
+
+            Tool cacertTool = Software.GetTool("cacert.pem");
+            if (cacertTool.Available())
+                args += " --cacert \"" + Utils.SafeStringPath(cacertTool.Path) + "\"";
+
+            if (resolve != "")
+                args += " --resolve " + resolve;
+
+            if (dataParameters != "")
+                args += " --data \"" + dataParameters + "\"";
+
+            /*
+            // ClodoTest
+            TemporaryFile fileOutput = new TemporaryFile("bin");
+            args += " -o \"" + fileOutput.Path + "\"";
+            string str = Platform.Instance.Shell(this.GetPath(), args);
+            byte[] bytes;
+            if (Platform.Instance.FileExists(fileOutput.Path))
+            {
+                bytes = Platform.Instance.FileContentsReadBytes(fileOutput.Path);
+                fileOutput.Close();
+                return bytes;
+            }
+            else
+            {
+                throw new Exception(str);
+            }
+            // end ClodoTest
+            */
+
+            string error = "";
+            byte[] output = default(byte[]);
+            try
+            {
+                Process p = new Process();
+
+                p.StartInfo.FileName = Utils.SafeStringPath(this.GetPath());
+                p.StartInfo.Arguments = args;
+                p.StartInfo.WorkingDirectory = "";
+
+                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.RedirectStandardError = true;
+
+                p.Start();
+
+                /*
+                using (var stdoutStream = new System.IO.StreamReader()
+                {
+                    stdoutStream.BaseStream.CopyTo(p.StandardInput.BaseStream);
+                    p.StandardInput.Close();
+                }
+            */
+                string stderr = p.StandardError.ReadToEnd();
+                using (var memstream = new System.IO.MemoryStream())
+                {
+                    p.StandardOutput.BaseStream.CopyTo(memstream);
+                    output = memstream.ToArray();
+                }                                
+                int exitcode = p.ExitCode;
+                p.WaitForExit();
+
+                error = stderr;
+
+                // ClodoTest
+                Engine.Instance.Logs.LogDebug("----curl----");
+                Engine.Instance.Logs.LogDebug("curl shell: " + Path);
+                Engine.Instance.Logs.LogDebug("curl args: " + args);
+                Engine.Instance.Logs.LogDebug("curl stdout len: " + output.Length.ToString());
+                if(stderr == "")
+                    Engine.Instance.Logs.LogDebug("curl stderr: -empty-");
+                else
+                    Engine.Instance.Logs.LogDebug("curl stderr: " + stderr);
+                Engine.Instance.Logs.LogDebug("curl exitcode: " + exitcode.ToString());
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+                output = default(byte[]);
+            }
+
+            if (error != "")
+                throw new Exception(error);
+
+            //return Encoding.ASCII.GetBytes(output);
+            return output;
         }
     }
 }

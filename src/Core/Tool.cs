@@ -27,7 +27,7 @@ namespace Eddie.Core
     public class Tool
     {
         public string Code = "";
-        public string Path = "";
+        public string Path = ""; // TOFIX: must be private, use GetPath everywhere
         public string Version = "";
         public string Location = "missing";
         public string Hash = "";
@@ -38,9 +38,7 @@ namespace Eddie.Core
             {
                 OnUpdatePath();
                 OnUpdateVersion();
-                OnNormalizeVersion();
-
-                Engine.Instance.Logs.Log(LogType.Warning, "Test, " + Code + ", " + Version + ", " + Path);
+                OnNormalizeVersion();                
             }
             catch (Exception e)
             {
@@ -52,6 +50,11 @@ namespace Eddie.Core
                 Version = "";
                 Location = "missing";
             }
+        }
+
+        public virtual bool Available()
+        {
+            return (Version != "");
         }
 
         public virtual void OnUpdatePath()
@@ -93,13 +96,14 @@ namespace Eddie.Core
             if (Location == "system")
                 return Path;
 
-            //string realHash = ComputeHash();
-            string realHash = "?";
+            /*
+            string realHash = ComputeHash();
             if (realHash != Hash)
             {
                 //Engine.Instance.Logs.Log(LogType.Error, MessagesFormatter.Format("Unexpected hash of executable '{1}': {2} vs {3}", Path, realHash, Hash));
                 return "";
             }
+            */
 
             if (Platform.Instance.FileExists(Path))
                 Platform.Instance.EnsureExecutablePermissions(Path);

@@ -92,10 +92,13 @@ namespace Eddie.Platforms
         // Override
 		public Windows()
 		{
+            //ClodoTest
+            /*
 #if EDDIENET20
             // Look the comment in TrustCertificatePolicy.cs
             TrustCertificatePolicy.Activate();
 #endif
+            */
         }
 
         public override string GetCode()
@@ -579,7 +582,7 @@ namespace Eddie.Platforms
                     xmlRule.AppendChild(XmlIf2);
                     XmlIf2.SetAttribute("field", "ale_app_id");
                     XmlIf2.SetAttribute("match", "equal");
-                    XmlIf2.SetAttribute("path", Software.OpenVpnPath);
+                    XmlIf2.SetAttribute("path", Software.GetTool("openvpn").Path);
                     Wfp.AddItem("dns_permit_openvpn", xmlRule);
                 }
 

@@ -34,6 +34,11 @@ namespace Eddie.Core.Tools
             FileName = filename;
         }
 
+        public override bool Available()
+        {
+            return (Path != "");
+        }
+
         public override void OnUpdatePath()
         {
             FindResource(FileName);

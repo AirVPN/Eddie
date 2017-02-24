@@ -384,15 +384,7 @@ namespace Eddie.Core
 
             return v;
         }
-
-        public static string StringNormalizePath(string path)
-        {
-            // Note: Used only in already-quoted path.
-            path = path.Replace("'", "");
-            path = path.Replace("`", "");            
-            return path;
-        }
-                
+        
         public static string FormatTime(Int64 unix)
 		{
 			if (unix == 0)
@@ -545,21 +537,58 @@ namespace Eddie.Core
 
             return 0;
         }
-
         
-
-		public static string SafeString(string value)
+        // StringSafe* set of functions are used to prune/escape values destinated to shell execution.
+		public static string StringSafe(string value)
 		{
-			Regex rgx = new Regex("[^a-zA-Z0-9 -_]");
-			value = rgx.Replace(value, "");
-			return value;
+            return StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_");            
 		}
 
-        public static string SafeStringHost(string value)
+        public static string StringSafeAlphaNumeric(string value)
         {
-            Regex rgx = new Regex("[^a-zA-Z0-9\\.-_]");
-            value = rgx.Replace(value, "");
-            return value;
+            return StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        }
+
+        public static string StringSafeHost(string value)
+        {
+            return StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_");            
+        }
+
+        public static string SafeStringUrl(string value)
+        {
+            return value; // ClodoTest todo
+        }
+
+        public static string SafeStringPath(string path)
+        {
+            // Note: Used only in already-quoted path.
+            path = path.Replace("'", "");
+            path = path.Replace("`", "");
+            return path;
+        }
+
+        public static string StringSafeLogin(string value)
+        {
+            return value; // ClodoTest todo
+        }
+
+        public static string StringSafePassword(string value)
+        {
+            return value; // ClodoTest todo
+        }
+
+        public static string StringPruneCharsNotIn(string value, string chars)
+        {
+            string result = "";
+            foreach (char c in value.ToCharArray())
+                if (chars.IndexOf(c) != -1)
+                    result += c;
+            return result;
+        }
+
+        public static string RegExReplace(string input, string pattern, string replacement)
+        {
+            return Regex.Replace(input, pattern, replacement);
         }
 
         public static string RegExMatchOne(string input, string pattern)

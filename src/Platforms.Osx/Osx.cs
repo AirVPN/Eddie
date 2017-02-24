@@ -212,7 +212,7 @@ namespace Eddie.Platforms
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
             if (Platform.Instance.FileExists("/usr/bin/host"))
-                ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
+                ShellCmd("host -W 5 -t A " + Utils.StringSafeHost(host));
             else
                 base.ResolveWithoutAnswer(host);
         }

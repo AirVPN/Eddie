@@ -112,11 +112,7 @@
     <Compile Include="Threads\Penalities.cs" />
     <Compile Include="Threads\Pinger.cs" />
     <Compile Include="TimeDelta.cs" />
-    <Compile Include="TrustCertificatePolicy.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="WebClientEx.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>

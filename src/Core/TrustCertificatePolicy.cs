@@ -46,12 +46,15 @@ namespace Eddie.Core
                Host-name are provided as additional request-header for certificate validation.
                But .Net 2.0 don't provide the method. Look the preprocessor EDDIENET20.
             */
+
+            Console.WriteLine("cazzo123");
             
             return true;
         }
 
         public static void Activate()
         {
+            Console.WriteLine("cazzo234");
             System.Net.ServicePointManager.ServerCertificateValidationCallback = ValidateCertificate;
         }
     }

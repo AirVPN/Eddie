@@ -100,7 +100,9 @@ namespace Eddie.Core
                         {
                             int endTime = Environment.TickCount;
                             int deltaTime = endTime - startTime;
-                            Engine.Instance.Logs.Log(LogType.Verbose, "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms, Output: " + Output);
+                            string message = "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms, Output: " + Output;
+                            message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=","{base64-omissis}");
+                            Engine.Instance.Logs.Log(LogType.Verbose, message);
                         }
                     }
 
@@ -678,10 +680,11 @@ namespace Eddie.Core
             t += "OS description: " + Platform.Instance.VersionDescription() + "\n";
             t += "Mono /.Net Framework: " + Platform.Instance.GetMonoVersion() + "\n";
 
-            t += "OpenVPN driver: " + Software.OpenVpnDriver + "\n";
-            t += "OpenVPN: " + Software.OpenVpnVersion + " (" + Software.OpenVpnPath + ")\n";
-            t += "SSH: " + Software.SshVersion + " (" + Software.SshPath + ")\n";
-            t += "SSL: " + Software.SslVersion + " (" + Software.SslPath + ")\n";
+            t += "OpenVPN driver: " + Software.OpenVpnDriver + "\n";            
+            t += "OpenVPN: " + Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")\n";
+            t += "SSH: " + Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")\n";
+            t += "SSL: " + Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")\n";
+            t += "curl: " + Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")\n";
 
             t += "Profile path: " + Engine.Instance.Storage.GetProfilePath() + "\n";
             t += "Data path: " + Storage.DataPath + "\n";
