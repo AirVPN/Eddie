@@ -251,28 +251,8 @@ namespace Deploy
 				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "mono"));
 			}
 			
-            
-
-
-
             if (SO == "linux")
 				PathBaseTemp = "/tmp/eddie_deploy";
-
-            /* // TOCLEAN
-			int netFramework = 0;
-			if (SO == "windows") {
-				Log ("What .net framework is currently complied? '2' or '4'.");
-				ConsoleKeyInfo keyFramework = Console.ReadKey ();
-	            
-				if (keyFramework.KeyChar == '2')
-					netFramework = 2;
-				else if (keyFramework.KeyChar == '4')
-					netFramework = 4;
-			} else if (SO == "linux")
-				netFramework = 4;
-			else if (SO == "osx")
-				netFramework = 2;
-            */
 
             foreach (Package package in ListPackages)
 			{
@@ -282,16 +262,6 @@ namespace Deploy
                 string ui = package.UI;
                 int requiredNetFramework = package.NetFramework;
 				string format = package.Format;
-
-                /* // TOCLEAN
-				int requiredNetFramework = 4;
-				if(platform == "windows")
-					requiredNetFramework = 2;
-				if (platform == "windows_xp")
-					requiredNetFramework = 2;
-				else if (platform == "osx")
-					requiredNetFramework = 2;
-                */
 
                 //string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
                 //string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
@@ -306,15 +276,7 @@ namespace Deploy
 					pathDeploy = pathDeploy.Replace("windows-10", "windows");
                 if (platform == "windows-7") // Windows_7 use the same common files of Windows
                     pathDeploy = pathDeploy.Replace("windows-7", "windows");
-
-                /* // TOCLEAN
-                if (requiredNetFramework != netFramework)
-                {
-                    Log("Building '" + archiveName + "' skipped for mismatch .Net framework");
-                    continue;
-                }
-                */
-
+                                
                 // Start
                 Log("------------------------------");
 				Log("Building '" + archiveName + "'");

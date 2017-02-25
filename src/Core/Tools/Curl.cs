@@ -144,28 +144,10 @@ namespace Eddie.Core.Tools
 
             if (dataParameters != "")
                 args += " --data \"" + dataParameters + "\"";
-
-            /*
-            // ClodoTest
-            TemporaryFile fileOutput = new TemporaryFile("bin");
-            args += " -o \"" + fileOutput.Path + "\"";
-            string str = Platform.Instance.Shell(this.GetPath(), args);
-            byte[] bytes;
-            if (Platform.Instance.FileExists(fileOutput.Path))
-            {
-                bytes = Platform.Instance.FileContentsReadBytes(fileOutput.Path);
-                fileOutput.Close();
-                return bytes;
-            }
-            else
-            {
-                throw new Exception(str);
-            }
-            // end ClodoTest
-            */
-
+            
             string error = "";
             byte[] output = default(byte[]);
+            int exitcode = -1;
             try
             {
                 Process p = new Process();
@@ -181,39 +163,17 @@ namespace Eddie.Core.Tools
                 p.StartInfo.RedirectStandardError = true;
 
                 p.Start();
-
-                /*
-                using (var stdoutStream = new System.IO.StreamReader()
-                {
-                    stdoutStream.BaseStream.CopyTo(p.StandardInput.BaseStream);
-                    p.StandardInput.Close();
-                }
-            */                
+              
                 using (var memstream = new System.IO.MemoryStream())
                 {
                     p.StandardOutput.BaseStream.CopyTo(memstream);
                     output = memstream.ToArray();
                 }
-                string stderr = p.StandardError.ReadToEnd();
+                error = p.StandardError.ReadToEnd();
 
                 p.WaitForExit();
 
-                int exitcode = p.ExitCode;
-
-                
-
-                error = stderr;
-
-                // ClodoTest
-                Engine.Instance.Logs.LogDebug("----curl----");
-                Engine.Instance.Logs.LogDebug("curl shell: " + Path);
-                Engine.Instance.Logs.LogDebug("curl args: " + args);
-                Engine.Instance.Logs.LogDebug("curl stdout len: " + output.Length.ToString());
-                if(stderr == "")
-                    Engine.Instance.Logs.LogDebug("curl stderr: -empty-");
-                else
-                    Engine.Instance.Logs.LogDebug("curl stderr: " + stderr);
-                Engine.Instance.Logs.LogDebug("curl exitcode: " + exitcode.ToString());
+                exitcode = p.ExitCode;
             }
             catch (Exception e)
             {
@@ -224,7 +184,6 @@ namespace Eddie.Core.Tools
             if (error != "")
                 throw new Exception(error);
 
-            //return Encoding.ASCII.GetBytes(output);
             return output;
         }
     }

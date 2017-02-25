@@ -53,7 +53,7 @@ namespace Eddie.Platforms
             if (m_logname.Contains("no login name"))
                 m_logname = Environment.UserName;
 
-            //ClodoTest TrustCertificatePolicy.Activate();
+            // TrustCertificatePolicy.Activate();
         }
 
         public override string GetCode()

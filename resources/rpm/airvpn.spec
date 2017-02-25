@@ -31,6 +31,7 @@ in defence of net neutrality, privacy and against censorship.
 "/usr/{@lib}/AirVPN/Lib.Forms.dll"
 "/usr/{@lib}/AirVPN/Platforms.Linux.dll"
 "/usr/{@lib}/AirVPN/update-resolv-conf"
+"/usr/{@lib}/AirVPN/cacert.pem"
 "/usr/{@lib}/AirVPN/AirVPN.exe"
 "/usr/{@lib}/AirVPN/CLI.exe"
 "/usr/{@lib}/AirVPN/stunnel"

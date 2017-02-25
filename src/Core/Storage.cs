@@ -108,8 +108,6 @@ namespace Eddie.Core
 
         public static bool TestDataPath(string path, bool log)
         {
-            Engine.Instance.Logs.Log(LogType.Info, "ClodoTest Unable to write in path '" + path + "'");
-
             if (Platform.Instance.HasAccessToWrite(path) == false)
             {
                 if(log == true)

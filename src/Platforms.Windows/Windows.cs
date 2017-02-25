@@ -92,7 +92,6 @@ namespace Eddie.Platforms
         // Override
 		public Windows()
 		{
-            //ClodoTest
             /*
 #if EDDIENET20
             // Look the comment in TrustCertificatePolicy.cs

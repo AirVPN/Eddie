@@ -325,9 +325,6 @@ namespace Eddie.Core
 
 				Recovery.Load();
 
-                // ClodoTest
-                Engine.Instance.FetchUrlEx("https://ipleak.net/json/", null, "test", false, "");
-                
                 RunEventCommand("app.start");
 
 				Platform.Instance.OnAppStart();
