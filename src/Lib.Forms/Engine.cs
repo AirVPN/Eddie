@@ -237,8 +237,8 @@ namespace Eddie.Gui
 
                         //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
 
-                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd);
-					}
+                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
+                    }
 					else
 					{
                         Logs.Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);						

@@ -648,8 +648,8 @@ namespace Eddie.Core.Threads
 				// under OS X, SSH change it's UID to normal user.
 				if (Platform.Instance.GetCode() != "OSX") 
 				{
-                    string cmd = "chmod 600 \"" + m_fileSshKey.Path + "\"";
-					Platform.Instance.ShellCmd(cmd);
+                    string cmd = "chmod 600 \"" + SystemShell.EscapePath(m_fileSshKey.Path) + "\"";
+                    Platform.Instance.ShellCmd(cmd);
                 }
 			}
 			

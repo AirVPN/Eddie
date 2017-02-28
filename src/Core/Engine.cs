@@ -1533,7 +1533,7 @@ namespace Eddie.Core
             return curl.FetchUrlEx(url, parameters, title, forceBypassProxy, resolve);
         }
 
-        /*
+        /* TOCLEAN
         public byte[] FetchUrlExOld(string url, string host, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
 		{
             // Note: by default WebClient try to determine the proxy used by IE/Windows

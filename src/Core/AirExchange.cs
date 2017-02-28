@@ -146,7 +146,7 @@ namespace Eddie.Core
 					string proxyMode = Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant();
 					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
 					if (proxyMode != "none")
-						info += ", with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
+						info += " - with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
 
 					if (Engine.Instance.Storage.GetBool("advanced.expert"))
 						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));

@@ -189,8 +189,8 @@ namespace Eddie.Platforms
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "OS X - PF rules updated, reloading");
 
-				Exec("pfctl -v -f \"" + m_filePfConf.Path + "\"");
-			}
+				Exec("pfctl -v -f \"" + SystemShell.EscapePath(m_filePfConf.Path) + "\""); 
+            }
 		}
 
 		public override void OnVpnEstablished()

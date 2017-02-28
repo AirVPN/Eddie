@@ -726,8 +726,8 @@ namespace Eddie.Core
             }
 
 			if (Platform.Instance.IsUnixSystem())
-				Platform.Instance.ShellCmd("chmod 600 \"" + path + "\"");
-			
+				Platform.Instance.ShellCmd("chmod 600 \"" + SystemShell.EscapePath(path) + "\"");
+
         }
 
         public void Load()

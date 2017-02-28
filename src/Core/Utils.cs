@@ -538,7 +538,7 @@ namespace Eddie.Core
             return 0;
         }
         
-        // StringSafe* set of functions are used to prune/escape values destinated to shell execution.
+        // StringSafe* set of functions are NOT used to prune/escape values destinated to shell execution. Use SystemShell class instead.
 		public static string StringSafe(string value)
 		{
             return StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_");            
@@ -548,35 +548,7 @@ namespace Eddie.Core
         {
             return StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         }
-
-        public static string StringSafeHost(string value)
-        {
-            return StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_");            
-        }
-
-        public static string SafeStringUrl(string value)
-        {
-            return value; // ClodoTest todo
-        }
-
-        public static string SafeStringPath(string path)
-        {
-            // Note: Used only in already-quoted path.
-            path = path.Replace("'", "");
-            path = path.Replace("`", "");
-            return path;
-        }
-
-        public static string StringSafeLogin(string value)
-        {
-            return value; // ClodoTest todo
-        }
-
-        public static string StringSafePassword(string value)
-        {
-            return value; // ClodoTest todo
-        }
-
+        
         public static string StringPruneCharsNotIn(string value, string chars)
         {
             string result = "";

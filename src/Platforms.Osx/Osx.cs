@@ -90,7 +90,7 @@ namespace Eddie.Platforms
 
 		public override string GetExecutableReport(string path)
 		{
-			return ShellCmd("otool -L \"" + path + "\"");
+			return ShellCmd("otool -L \"" + SystemShell.EscapePath(path) + "\"");
 		}
 
 		public override string GetExecutablePathEx()
@@ -135,32 +135,28 @@ namespace Eddie.Platforms
             ShellCmd("discoveryutil mdnsflushcache"); // 2.11
         }
 
-		/*
-        // Mono under Linux have issue when hostname can't be resolved.
-        // Until this kind of issue doesn't occur on OS X, we still leave this Ping function commented.
-        */
-        /*
+        // Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
         public override long Ping(string host, int timeoutSec)
         {
 			// Note: Linux timeout is -w, OS X timeout is -t
-            string result = ShellCmd("ping -c 1 -t " + timeoutSec + " -q -n " + Utils.SafeStringHost(host));
+			string cmd = "ping -c 1 -t " + timeoutSec + " -q -n " + SystemShell.EscapeHost(host);
+            string result = ShellCmd(cmd);
             
 			// Note: Linux have mdev, OS X have stddev
             string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
             float iMS;
-            if (float.TryParse(sMS, out iMS))
-                return (Int64)iMS;
-            else
-                return -1;
-        }
-        */
+			if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+				iMS = -1;
 
+			return (long)iMS;
+        }
+        
         public override void EnsureExecutablePermissions(string path)
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
-			ShellCmd("chmod +x \"" + path + "\"");
+			ShellCmd("chmod +x \"" + SystemShell.EscapePath(path) + "\"");
 		}
 
 		public override string GetSystemFont()
@@ -212,7 +208,7 @@ namespace Eddie.Platforms
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
             if (Platform.Instance.FileExists("/usr/bin/host"))
-                ShellCmd("host -W 5 -t A " + Utils.StringSafeHost(host));
+                ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
             else
                 base.ResolveWithoutAnswer(host);
         }
@@ -369,9 +365,9 @@ namespace Eddie.Platforms
 				string[] interfaces = GetInterfaces();
 				foreach (string i in interfaces)
 				{
-					string getInfo = ShellCmd("networksetup -getinfo \"" + i + "\"");
+					string getInfo = ShellCmd("networksetup -getinfo \"" + SystemShell.EscapeInsideQuote(i) + "\"");
 
-					string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
+                    string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
 					string address = Utils.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
 					
 					if( (mode == "") && (address != "") )
@@ -392,8 +388,8 @@ namespace Eddie.Platforms
 						}
 						m_listIpV6Mode.Add(entry);
 
-						ShellCmd("networksetup -setv6off \"" + i + "\"");
-					}					
+						ShellCmd("networksetup -setv6off \"" + SystemShell.EscapeInsideQuote(i) + "\""); 
+                    }					
 				}
 
 				Recovery.Save();				
@@ -407,23 +403,23 @@ namespace Eddie.Platforms
 		public override bool OnIpV6Restore()
 		{
 			foreach (IpV6ModeEntry entry in m_listIpV6Mode)
-			{
-				if (entry.Mode == "Off")
+			{                
+                if (entry.Mode == "Off")
 				{
-					ShellCmd("networksetup -setv6off \"" + entry.Interface + "\"");
-				}
+					ShellCmd("networksetup -setv6off \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
+                }
 				else if (entry.Mode == "Automatic")
 				{
-					ShellCmd("networksetup -setv6automatic \"" + entry.Interface + "\"");
-				}
+					ShellCmd("networksetup -setv6automatic \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
+                }
 				else if (entry.Mode == "LinkLocal")
 				{
-					ShellCmd("networksetup -setv6LinkLocal \"" + entry.Interface + "\"");
+					ShellCmd("networksetup -setv6LinkLocal \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\""); 
 				}
 				else if (entry.Mode == "Manual")
 				{
-					ShellCmd("networksetup -setv6manual \"" + entry.Interface + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router);
-				}
+					ShellCmd("networksetup -setv6manual \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router); // IJTF2 // TOCHECK
+                }
 
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
@@ -448,7 +444,7 @@ namespace Eddie.Platforms
 				{
 					string i2 = i.Trim();
 					
-					string current = ShellCmd("networksetup -getdnsservers \"" + i2 + "\"");
+					string current = ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\""); 
 
                     // v2
                     List<string> ips = new List<string>();
@@ -474,7 +470,7 @@ namespace Eddie.Platforms
                         m_listDnsSwitch.Add(e);
 
                         string dns2 = dns.Replace(",", "\" \"");
-                        ShellCmd("networksetup -setdnsservers \"" + i2 + "\" \"" + dns2 + "\"");
+                        ShellCmd("networksetup -setdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\" \"" + dns2 + "\""); // IJTF2 eh?
                     }                    
 				}
 
@@ -496,8 +492,8 @@ namespace Eddie.Platforms
 				v = v.Replace (",", "\" \"");
 
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
-				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\"");
-			}
+				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\""); // IJTF2
+            }
 
 			m_listDnsSwitch.Clear();
 
@@ -523,7 +519,7 @@ namespace Eddie.Platforms
 		public string[] GetInterfaces()
 		{
 			string[] interfaces = ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split('\n');
-			return interfaces;
+            return interfaces;
 		}
     }
 

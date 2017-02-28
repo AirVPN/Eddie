@@ -31,11 +31,14 @@ namespace Eddie.Core.Tools
 
         public override void OnNormalizeVersion()
         {
+            Version = Utils.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
+            /*
             int posS = Version.IndexOf("\n");
             if (posS > 1)
                 Version = Version.Substring(0, posS);
             if (Version.StartsWith("curl "))
                 Version = Version.Substring(5);
+            */
 
             if (Utils.CompareVersions(Version, minVersionRequired) == -1)
                 Engine.Instance.Logs.Log(LogType.Fatal, GetRequiredVersionMessage());
@@ -58,13 +61,13 @@ namespace Eddie.Core.Tools
 
         public string GetRequiredVersionMessage()
         {
-            return "curl version " + Version + " installed in your system is too old. Minimum " + minVersionRequired + " required. Please upgrade.";
+            return MessagesFormatter.Format(Messages.ToolsCurlVersionNotSupported, Version, minVersionRequired);            
         }
 
         public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
         {
             if (Available() == false)
-                throw new Exception("curl is required.");
+                throw new Exception(Messages.ToolsCurlRequired);
 
             if (Utils.CompareVersions(Version, minVersionRequired) == -1)
                 throw new Exception(GetRequiredVersionMessage());
@@ -81,7 +84,7 @@ namespace Eddie.Core.Tools
                 {
                     if (dataParameters != "")
                         dataParameters += "&";
-                    dataParameters += Utils.StringSafeAlphaNumeric(k) + "=" + Uri.EscapeUriString(parameters[k]);
+                    dataParameters += SystemShell.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(parameters[k]);
                 }
             }
 
@@ -96,7 +99,7 @@ namespace Eddie.Core.Tools
                 string proxyPassword = Engine.Instance.Storage.Get("proxy.password");
 
                 if (proxyMode == "detect")
-                    throw new Exception("Proxy mode 'Detect' deprecated, please specify explicit.");
+                    throw new Exception(Messages.ProxyDetectDeprecated);
 
                 if (proxyMode == "tor")
                 {
@@ -108,12 +111,12 @@ namespace Eddie.Core.Tools
 
                 if (proxyMode == "http")
                 {
-                    args += " --proxy http://" + Utils.StringSafeHost(proxyHost) + ":" + proxyPort.ToString();
+                    args += " --proxy http://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
                 }
                 else if (proxyMode == "socks")
                 {
                     // curl support different types of proxy. OpenVPN not, only socks5. So, it's useless to support other kind of proxy here.
-                    args += " --proxy socks5://" + Utils.StringSafeHost(proxyHost) + ":" + proxyPort.ToString();
+                    args += " --proxy socks5://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
                 }
 
                 if (proxyAuth != "none")
@@ -123,21 +126,24 @@ namespace Eddie.Core.Tools
                     else if (proxyAuth == "ntlm")
                         args += " --proxy-ntlm";
 
+                    if (SystemShell.EscapeInsideQuoteAcceptable(proxyLogin) == false)
+                        throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Login"));
+
+                    if (SystemShell.EscapeInsideQuoteAcceptable(proxyPassword) == false)
+                        throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Password"));
+
                     if ((proxyLogin != "") && (proxyPassword != ""))
-                        args += " --proxy-user " + Utils.StringSafeLogin(proxyLogin) + ":" + Utils.StringSafePassword(proxyPassword);
+                        args += " --proxy-user \"" + SystemShell.EscapeInsideQuote(proxyLogin) + "\":\"" + SystemShell.EscapeInsideQuote(proxyPassword) + "\"";
                 }
             }
 
-            //
-            args += " \"" + Utils.SafeStringUrl(url) + "\"";
+            args += " \"" + SystemShell.EscapeUrl(url) + "\"";
             args += " -sS"; // -s Silent mode, -S with errors
             args += " --max-time " + Engine.Instance.Storage.GetInt("tools.curl.max-time").ToString();
             
-            //args += " --no-progress-bar";
-
             Tool cacertTool = Software.GetTool("cacert.pem");
             if (cacertTool.Available())
-                args += " --cacert \"" + Utils.SafeStringPath(cacertTool.Path) + "\"";
+                args += " --cacert \"" + SystemShell.EscapePath(cacertTool.Path) + "\"";
 
             if (resolve != "")
                 args += " --resolve " + resolve;
@@ -152,7 +158,7 @@ namespace Eddie.Core.Tools
             {
                 Process p = new Process();
 
-                p.StartInfo.FileName = Utils.SafeStringPath(this.GetPath());
+                p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
                 p.StartInfo.Arguments = args;
                 p.StartInfo.WorkingDirectory = "";
 

@@ -47,7 +47,7 @@ namespace Eddie.Platforms
             // Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
             // Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
             // Manjaro, same as Ubuntu
-            m_logname = ShellCmd("echo $SUDO_USER").Trim();
+            m_logname = ShellCmd("echo $SUDO_USER").Trim(); // IJTF2 // TOCHECK
             if (m_logname == "")
                 m_logname = ShellCmd("logname");
             if (m_logname.Contains("no login name"))
@@ -112,7 +112,7 @@ namespace Eddie.Platforms
             if (FileExists(path) == false)
                 return false;
 
-            string result = ShellCmd("lsattr \"" + Utils.SafeStringPath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
+            string result = ShellCmd("lsattr \"" + SystemShell.EscapePath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
                         
             /* // < 2.11.11
             if (result.IndexOf(' ') != 16) 
@@ -135,13 +135,13 @@ namespace Eddie.Platforms
             if (FileExists(path))
             {
                 string flag = (value ? "+i" : "-i");
-                ShellCmd("chattr " + flag + " \"" + Utils.SafeStringPath(path) + "\"");
+                ShellCmd("chattr " + flag + " \"" + SystemShell.EscapePath(path) + "\"");
             }
         }
         
         public override string GetExecutableReport(string path)
 		{
-			return ShellCmd("ldd \"" + Utils.SafeStringPath(path) + "\"");
+			return ShellCmd("ldd \"" + SystemShell.EscapePath(path) + "\"");
 		}
 
 		public override string GetExecutablePathEx()
@@ -223,13 +223,13 @@ namespace Eddie.Platforms
         protected override void OpenDirectoryInFileManagerEx(string path)
         {
             // TOFIX Don't work well on all distro
-            string args = " - " + m_logname + " -c 'xdg-open \"" + path + "\"'";
+            string args = " - " + m_logname + " -c 'xdg-open \"" + SystemShell.EscapePath(path) + "\"'"; // IJTF2 // TOCHECK
             Shell("su", args, false);
         }
 
         public override long Ping(string host, int timeoutSec)
         {
-            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.StringSafeHost(host);
+            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host);
             string result = ShellCmd(cmd, true);
             
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
@@ -251,7 +251,7 @@ namespace Eddie.Platforms
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
-			ShellCmd("chmod +x \"" + Utils.SafeStringPath(path) + "\"");			
+			ShellCmd("chmod +x \"" + SystemShell.EscapePath(path) + "\"");			
 		}
 
 
@@ -283,8 +283,8 @@ namespace Eddie.Platforms
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
 
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
         
 		public override void RouteRemove(RouteEntry r)
 		{
@@ -300,14 +300,14 @@ namespace Eddie.Platforms
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
 			
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
 
         public override void ResolveWithoutAnswer(string host)
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora.
             if (Platform.Instance.FileExists("/usr/bin/host"))
-                ShellCmd("host -W 5 -t A " + Utils.StringSafeHost(host));
+                ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
             else
                 base.ResolveWithoutAnswer(host);
         }

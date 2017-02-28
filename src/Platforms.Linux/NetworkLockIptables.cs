@@ -71,13 +71,13 @@ namespace Eddie.Platforms
 			}
             
 			// Backup V4
-			Exec("iptables-save >\"" + rulesBackupSessionV4 + "\"");
+			Exec("iptables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\""); 
 
-			// Backup V6
-			Exec("ip6tables-save >\"" + rulesBackupSessionV6 + "\"");
+            // Backup V6
+            Exec("ip6tables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\""); 
 
-			// Flush V4
-			Exec("iptables -F");
+            // Flush V4
+            Exec("iptables -F");
 			Exec("iptables -t nat -F");
 			Exec("iptables -t mangle -F");
 
@@ -167,7 +167,7 @@ namespace Eddie.Platforms
 				Exec("iptables -t mangle -F");
 
 				// Backup
-				Exec("iptables-restore <\"" + rulesBackupSessionV4 + "\"");
+				Exec("iptables-restore <\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\""); 
 
                 Platform.Instance.FileDelete(rulesBackupSessionV4);
 			}
@@ -183,7 +183,7 @@ namespace Eddie.Platforms
 				Exec("ip6tables -t mangle -F");
 
 				// Backup
-				Exec("ip6tables-restore <\"" + rulesBackupSessionV6 + "\"");
+				Exec("ip6tables-restore <\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\""); 
 
                 Platform.Instance.FileDelete(rulesBackupSessionV6);
 			}

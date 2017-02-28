@@ -78,7 +78,7 @@ namespace Eddie.Core
 		public static string BundleExecutableError = "Unexpected bundle executable error {1} ({2}). Dumping report."; 
 		public static string ManifestUpdate = "Updating systems & servers data ...";
 		public static string ManifestDone = "Systems & servers data update completed";
-		public static string ManifestFailed = "Cannot retrieve systems & servers data. Please retry later or contact us for help. ({1})";
+		public static string ManifestFailed = "Cannot retrieve systems & servers data. ({1})";
 		public static string ManifestFailedContinue = "Unable to retrieve systems & servers data. Continue anyway with the old data.";
 		public static string CommandLineUnknownOption = "Unknown option in command-line: {1}";
 		public static string OptionsRead = "Reading options from {1}";
@@ -97,10 +97,12 @@ namespace Eddie.Core
 		public static string AlreadyRunningSshPLink = "SSH tunnel (plink) is already running.";
 		public static string AlreadyRunningSsh = "SSH tunnel is already running.";
 
-		public static string CUrlRequiredForProxySocks = "CUrl is not installed on this system, and it's required for SOCKS proxy.";
 		public static string SocksProxyError = "Socks proxy connection error.";
+        public static string ProxyDetectDeprecated = "Proxy mode 'Detect' is deprecated, please specify explicitly."; 
 
-		public static string LogsLineRepetitionSummary = "Above log line repeated {1} times more";
+        public static string LogsLineRepetitionSummary = "Above log line repeated {1} times more";
+
+        public static string UnacceptableCharacters = "{1} contains not yet supported characters ('`\"%!$), sorry."; 
 
         public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; 
 		public static string PingerStatsPending = "Disabled during VPN connection. Latest check: {1}";
@@ -274,7 +276,11 @@ namespace Eddie.Core
 
 		public static string ConsoleHelp = "Run the program with login & password of your AirVPN account. For example:\nairvpn -cli -login=mynick -password=mypassword\n\nSee https://airvpn.org/software/ for more information, or run with -help for inline manual.";
 
-		public static string TimeJustNow = "Just now";
+        public static string ToolsCurlRequired = "curl is required."; 
+        public static string ToolsCurlVersionNotSupported = "curl version {1} installed in your system is too old. Version {2} or higher required. Please upgrade."; 
+
+
+        public static string TimeJustNow = "Just now";
 		public static string TimeAgo = "ago";
 		public static string TimeRemain = "remain";
         

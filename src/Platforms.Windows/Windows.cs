@@ -274,14 +274,14 @@ namespace Eddie.Platforms
 			*/
 			if (r.Interface != "")
 				cmd += " if " + r.Interface;
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
 
 		public override void RouteRemove(RouteEntry r)
 		{
 			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
 
 		public override bool WaitTunReady()
 		{
@@ -996,7 +996,7 @@ namespace Eddie.Platforms
 				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
                 {
                     Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.HackInterfaceUpDone, adapter.Name));
-                    ShellCmd("netsh interface set interface \"" + adapter.Name + "\" ENABLED");
+                    ShellCmd("netsh interface set interface \"" + SystemShell.EscapeInsideQuote(adapter.Name) + "\" ENABLED"); // IJTF2 // TOCHECK
                 }
             }            
         }

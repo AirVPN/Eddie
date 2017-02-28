@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="SystemShell.cs" />
     <Compile Include="Tools\Curl.cs" />
     <Compile Include="Tools\SSL.cs" />
     <Compile Include="Tools\SSH.cs" />
