@@ -11,7 +11,7 @@
     <RootNamespace>Eddie.UI.Cocoa.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.11</ReleaseVersion>
+    <ReleaseVersion>2.12</ReleaseVersion>
     <AssemblyName>Eddie</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
