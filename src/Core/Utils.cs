@@ -497,7 +497,17 @@ namespace Eddie.Core
                 unit = suf[place];
             }
         }
-        		        
+
+        public static void CopyStream(Stream input, Stream output)
+        {
+            byte[] buffer = new byte[4096];
+            int read;
+            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, read);
+            }
+        }
+        
         public static int CompareVersions(string v1, string v2)
         {
             char[] splitTokens = new char[] { '.', ',' };

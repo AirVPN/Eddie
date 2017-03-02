@@ -48,6 +48,12 @@ namespace Eddie.Platforms
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
 		}
 
+        public static bool IsWin7OrNewer()
+        {
+            OperatingSystem OS = Environment.OSVersion;
+            return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 1));
+        }
+
         public static bool IsWin8OrNewer()
         {
             OperatingSystem OS = Environment.OSVersion;
@@ -478,6 +484,33 @@ namespace Eddie.Platforms
 			{
                 if ((IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")) )
                 {
+                    {
+                        XmlDocument xmlDocRule = new XmlDocument();
+                        XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                        xmlRule.SetAttribute("name", "IPv6 - Block");
+                        xmlRule.SetAttribute("layer", "ipv6");
+                        xmlRule.SetAttribute("action", "block");
+                        xmlRule.SetAttribute("weight", "3000");
+                        Wfp.AddItem("ipv6_block_all", xmlRule);
+                    }
+
+                    {
+                        XmlDocument xmlDocRule = new XmlDocument();
+                        XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                        xmlRule.SetAttribute("name", "IPv6 - Allow loopback");
+                        xmlRule.SetAttribute("layer", "ipv6");
+                        xmlRule.SetAttribute("action", "permit");
+                        xmlRule.SetAttribute("weight", "3001");
+                        XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                        xmlRule.AppendChild(XmlIf1);
+                        XmlIf1.SetAttribute("field", "ip_local_interface");
+                        XmlIf1.SetAttribute("match", "equal");
+                        XmlIf1.SetAttribute("interface", "loopback");
+                        Wfp.AddItem("ipv6_allow_loopback", xmlRule);
+                    }                    
+
+                    // <2.12.1
+                    /*
                     XmlDocument xmlDocRule = new XmlDocument();
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                     xmlRule.SetAttribute("name", "IPv6 - Block");
@@ -490,6 +523,7 @@ namespace Eddie.Platforms
                     XmlIf1.SetAttribute("match", "not_equal");
                     XmlIf1.SetAttribute("interface", "loopback");
                     Wfp.AddItem("ipv6_block_all", xmlRule);
+                    */
 
                     Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledWpf);
                 }
@@ -533,7 +567,8 @@ namespace Eddie.Platforms
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredOs);
 			}
 
-            if(Wfp.RemoveItem("ipv6_block_all"))
+
+            if( (Wfp.RemoveItem("ipv6_block_all")) && (Wfp.RemoveItem("ipv6_allow_loopback")) )
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredWpf);
 
             base.OnIpV6Restore();
@@ -716,7 +751,8 @@ namespace Eddie.Platforms
         {
             base.OnRecovery();
 
-            if (IsVistaOrNewer())
+            //if (IsVistaOrNewer())
+            if (IsWin7OrNewer()) // 2.12.2
                 if (Wfp.ClearPendingRules())
                     Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
         }
@@ -896,7 +932,7 @@ namespace Eddie.Platforms
 			}
 
             // Remember: uninstalling OpenVPN doesn't remove tap0901.sys, so finding an adapter is mandatory.
-			if (result == "")
+            if (result == "")
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsDriverNoAdapterFound);
 				return "";
@@ -950,9 +986,9 @@ namespace Eddie.Platforms
 		public string GetDriverInstallerPath()
 		{
 			if(IsVistaOrNewer())
-				return Software.FindResource("tap-windows.exe");
+				return Software.FindResource("tap-windows");
 			else
-				return Software.FindResource("tap-windows-xp.exe");
+				return Software.FindResource("tap-windows-xp");
 		}
 
 		public override void InstallDriver()

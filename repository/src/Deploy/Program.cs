@@ -72,7 +72,7 @@ namespace Deploy
 
 		static void Main(string[] args)
 		{            
-            Log("Eddie deployment v1.4");
+            Log("Eddie deployment v1.5 - " + DateTime.UtcNow.ToLongDateString() + " - " + DateTime.UtcNow.ToLongTimeString());
             Log("Arguments allowed: 'verbose' (show more logs), 'official' (signing files)");
 			
             Arguments = new List<string>();
@@ -103,7 +103,7 @@ namespace Deploy
 			}
 			else 
 			{
-				Console.WriteLine("Unknown platform.");
+				Log("Unknown platform.");
 				return;
 			}
 			Log("Platform: " + SO);
@@ -182,21 +182,7 @@ namespace Deploy
             ------------------------------- */
 
             Pause();
-
-            /* -------------------------------
-                Generate Man pages
-            ------------------------------- */
-
-            if (SO == "windows")
-            {
-                Log("Generating manual files");
-                string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
-                WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html"));
-                WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc"));
-                WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text"));
-                WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man"));
-            }
-            
+                        
             /* -------------------------------
 			   Build packages list
 			------------------------------- */
@@ -735,6 +721,21 @@ namespace Deploy
 					
 			}
 
+            /* -------------------------------
+                Generate Man pages
+            ------------------------------- */
+
+            if (SO == "windows")
+            {
+                Log("Generating manual files");
+                string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
+                WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html"));
+                WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc"));
+                WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text"));
+                WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man"));
+            }
+
+
             Log("------------------------------");
             if (Errors == 0)
                 Log("Done");
@@ -961,7 +962,10 @@ namespace Deploy
 				if (file.EndsWith("tap-windows.exe", StringComparison.InvariantCulture)) // Already signed by OpenVPN Technologies
                     skip = true;
 
-                if(skip == false)
+                if (file.EndsWith("cacert.pem", StringComparison.InvariantCulture))
+                    skip = true;
+
+                if (skip == false)
                     SignFile(platform, format, file);
             }            
         }
@@ -1146,6 +1150,7 @@ namespace Deploy
         static void Log(string message)
 		{
 			Console.WriteLine(message);
+            File.AppendAllText("build.log", message + "\r\n");
 		}
 
 		static void Pause()

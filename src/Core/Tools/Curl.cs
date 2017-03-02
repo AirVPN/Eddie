@@ -119,7 +119,7 @@ namespace Eddie.Core.Tools
                     args += " --proxy socks5://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
                 }
 
-                if (proxyAuth != "none")
+                if( (proxyMode != "none") && (proxyAuth != "none") )
                 {
                     if (proxyAuth == "basic")
                         args += " --proxy-basic";
@@ -169,12 +169,14 @@ namespace Eddie.Core.Tools
                 p.StartInfo.RedirectStandardError = true;
 
                 p.Start();
-              
-                using (var memstream = new System.IO.MemoryStream())
+
+                using (var memoryStream = new System.IO.MemoryStream())
                 {
-                    p.StandardOutput.BaseStream.CopyTo(memstream);
-                    output = memstream.ToArray();
+                    //p.StandardOutput.BaseStream.CopyTo(memstream); // .Net 4 only
+                    Utils.CopyStream(p.StandardOutput.BaseStream, memoryStream);
+                    output = memoryStream.ToArray();
                 }
+                
                 error = p.StandardError.ReadToEnd();
 
                 p.WaitForExit();

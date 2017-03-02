@@ -61,8 +61,8 @@ namespace Eddie.Core
 			// OpenVPN Driver
 			try
 			{
-				OpenVpnDriver = Platform.Instance.GetDriverAvailable();				
-			}
+				OpenVpnDriver = Platform.Instance.GetDriverAvailable();
+            }
 			catch (Exception e)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, e);

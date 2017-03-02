@@ -169,17 +169,17 @@ namespace Eddie.Core
 
 		public static List<string> GetGuardIps()
 		{
-			try
+            List<string> ips = new List<string>();
+
+            try
 			{
 				string controlHost = Engine.Instance.Storage.Get("proxy.host").ToLowerInvariant().Trim();
 
 				if ((controlHost != "127.0.0.1") && (controlHost.ToLowerInvariant() != "localhost"))
 				{
-					// Guard IPS are used to avoid routing loop, that occur only if the Tor host is the same machine when OpenVPN run.
-					return new List<string>();
+                    // Guard IPS are used to avoid routing loop, that occur only if the Tor host is the same machine when OpenVPN run.
+                    return ips;
 				}
-
-				List<string> ips = new List<string>();
 
 				TcpClient s = Connect();
 				
@@ -221,16 +221,20 @@ namespace Eddie.Core
 
 				s.Close();
 
-				if (ips.Count == 0)
-					throw new Exception(Messages.TorControlNoIps);
-
-				return ips;
+                if (ips.Count == 0)
+                {
+                    Engine.Instance.Logs.Log(LogType.Warning, Messages.TorControlNoIps);
+                    //throw new Exception(Messages.TorControlNoIps);                				
+                }
 			}
 			catch (Exception e)
 			{
-				throw new Exception(MessagesFormatter.Format(Messages.TorControlException, e.Message));
-			}
-		}
+                //throw new Exception(MessagesFormatter.Format(Messages.TorControlException, e.Message));
+                Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.TorControlException, e.Message));
+            }
+
+            return ips;
+        }
 
 		public static string Read(TcpClient s)
 		{
