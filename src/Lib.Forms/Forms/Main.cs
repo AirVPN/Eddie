@@ -1667,9 +1667,10 @@ namespace Eddie.Gui.Forms
 							mnuStatus.Text = "> " + notifyText;
 							if (m_notifyIcon != null)
 							{
-								if (notifyText2.Length > 62)
-									notifyText2 = notifyText2.Substring(0, 62);
-								m_notifyIcon.Text = notifyText2;
+                                string tooltipText = notifyText2.Replace(" - ", "\n");
+                                if (tooltipText.Length > 127)
+                                    tooltipText = tooltipText.Substring(0, 127);                                
+                                GuiUtils.SetNotifyIconText(m_notifyIcon, tooltipText);
                             }
 						}						
                     }

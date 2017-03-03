@@ -25,9 +25,9 @@ namespace Eddie.Core
 {
 	public class ProgramScope
 	{
-        private string m_guid;
-		private string m_path;
-        private string m_name;
+        private string m_guid = "";
+		private string m_path = "";
+        private string m_name = "";
 
 		public ProgramScope(string path, string name)
 		{

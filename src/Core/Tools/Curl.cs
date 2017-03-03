@@ -72,6 +72,8 @@ namespace Eddie.Core.Tools
             if (Utils.CompareVersions(Version, minVersionRequired) == -1)
                 throw new Exception(GetRequiredVersionMessage());
 
+            ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");
+
             // Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
             bool bypassProxy = forceBypassProxy;
             if (bypassProxy == false)
@@ -156,6 +158,13 @@ namespace Eddie.Core.Tools
             int exitcode = -1;
             try
             {
+                if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
+                {
+                    string message = "curl " + this.GetPath() + " " + args;
+                    message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
+                    Engine.Instance.Logs.Log(LogType.Verbose, message);
+                }
+
                 Process p = new Process();
 
                 p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
@@ -189,8 +198,10 @@ namespace Eddie.Core.Tools
                 output = default(byte[]);
             }
 
+            programScope.End();
+
             if (error != "")
-                throw new Exception(error);
+                throw new Exception(error.Trim());
 
             return output;
         }

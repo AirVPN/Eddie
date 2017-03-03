@@ -53,7 +53,7 @@ namespace Eddie.Core
 		public static string AuthorizeLogout = "Logout ...";
 		public static string AuthorizeLogoutDone = "Logged out.";
 		public static string AuthorizeConnect = "Checking authorization ...";
-		public static string AuthorizeConnectFailed = "Authorization check failed, continue anyway ({1])";
+		public static string AuthorizeConnectFailed = "Authorization check failed, continue anyway ({1})";
 		public static string AppExiting = "Exiting";
 		public static string AppEvent = "Running event {1}";				
 		public static string AutoPortSwitch = "Auto retry with another port.";
