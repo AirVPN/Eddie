@@ -158,12 +158,14 @@ namespace Eddie.Core.Tools
             int exitcode = -1;
             try
             {
+                /*
                 if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
                 {
                     string message = "curl " + this.GetPath() + " " + args;
                     message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
                     Engine.Instance.Logs.Log(LogType.Verbose, message);
                 }
+                */
 
                 Process p = new Process();
 
