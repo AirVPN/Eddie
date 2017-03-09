@@ -228,7 +228,7 @@ namespace Eddie.Core
                 }
                 else if (Storage.GetBool("help"))
                 {
-                    Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help-format")));
+                    Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help.format")));
                     return false;
                 }
             }
