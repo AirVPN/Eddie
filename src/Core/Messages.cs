@@ -57,7 +57,8 @@ namespace Eddie.Core
 		public static string AppExiting = "Exiting";
 		public static string AppEvent = "Running event {1}";				
 		public static string AutoPortSwitch = "Auto retry with another port.";
-		public static string AuthFailed = "Authorization failed. Look at the client area to discover the reason.";
+        public static string AuthFailed = "Authorization failed.";
+        public static string AirVpnAuthFailed = "Authorization failed. Look at the client area to discover the reason.";
 		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'N' to connect/reconnect to the best available server.";
 		public static string ConsoleKeyboardHelpNoConnect = "Use -connect to start connection when application starts";
 		public static string ConsoleKeyBreak = "Break signal received. Shutdown. Hit again to force break.";
@@ -318,7 +319,7 @@ namespace Eddie.Core
 
 
 		public static string ManName = "airvpn -- Eddie/AirVPN VPN Client, console edition";
-        public static string ManHeaderComment = "Generated automatically with 'airvpn -cli -help -help_format=man'";
+        public static string ManHeaderComment = "Generated automatically with 'airvpn -cli -help -help-format=man'";
         public static string ManSynopsis = "airvpn -cli [OPTIONS...]";
 		public static string ManDescription = "Eddie/AirVPN is an OpenVPN wrapper providing advanced features such as network lock, connections over SSL/TLS and SSH tunnels, programmable events, customizable routes, extensive control on OpenVPN directives and a comfortable, optional GUI. See AirVPN website for more information: [link]https://airvpn.org[/link]";
 		public static string ManCopyright = "Copyright (C) AirVPN - Released under GNU General Public License - [link]http://www.gnu.org/licenses/gpl.html[/link]";

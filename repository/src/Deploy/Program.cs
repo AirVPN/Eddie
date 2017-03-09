@@ -510,6 +510,9 @@ namespace Deploy
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
 
+                        CreateDirectory(pathTemp + "/usr/share/AirVPN");
+                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem"+ pathTemp, "/usr/share/AirVPN/cacert.pem");
+
                         WriteTextFile(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl(Constants.ChangeLogUrl));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
@@ -564,6 +567,9 @@ namespace Deploy
 						//RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel"); // OpenSUSE (RPM) don't have stunnel in stable repo
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libgdiplus.so.0");
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
+
+                        CreateDirectory(pathTemp + "/usr/share/AirVPN");
+                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem" + pathTemp, "/usr/share/AirVPN/cacert.pem");
 
                         WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
                         Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");

@@ -444,8 +444,10 @@ namespace Eddie.Core
 			string NotInMan = ""; // Option not listed in 'man' documentation.
 
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
-			SetDefaultBool("help", false, Messages.ManOptionHelp);
-			SetDefault("help_format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
+            SetDefaultBool("version", false, NotInMan);
+            SetDefaultBool("version.short", false, NotInMan);
+            SetDefaultBool("help", false, Messages.ManOptionHelp);
+			SetDefault("help.format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
             SetDefaultBool("batch", false, NotInMan); // Don't lock interface, exit when connection is closed.            
             SetDefault("login", "text", "", Messages.ManOptionLogin);
             SetDefault("password", "password", "", Messages.ManOptionPassword);
@@ -529,6 +531,7 @@ namespace Eddie.Core
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
             SetDefault("ssl.options", "text", "", NotInMan); // "NO_SSLv2" < 2.11.10
+            SetDefaultInt("ssl.verify", -1, NotInMan);
 
             SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
 
@@ -620,7 +623,7 @@ namespace Eddie.Core
             // Command-line only?
             Options["cli"].CommandLineOnly = true;
             Options["help"].CommandLineOnly = true;
-            Options["help_format"].CommandLineOnly = true;
+            Options["help.format"].CommandLineOnly = true;
 
             // Internal only?
             Options["gui.window.main"].InternalOnly = true;

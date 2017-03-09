@@ -211,6 +211,14 @@ namespace Eddie.Core
                         Location = "system";
                         return;
                     }
+
+                    string pathShare = "/usr/share/" + Lib.Common.Constants.Name + "/" + fileNameAlt;
+                    if (Platform.Instance.FileExists(pathShare))
+                    {
+                        Path = pathShare;
+                        Location = "system";
+                        return;
+                    }
                 }
             }
         }

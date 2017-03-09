@@ -727,8 +727,9 @@ namespace Eddie.Core.Threads
 			sslConfig += "[openvpn]\n";
 			sslConfig += "accept = 127.0.0.1:" + Conversions.ToString(m_ovpn.ProxyPort) + "\n";
 			sslConfig += "connect = " + m_ovpn.Address + ":" + m_ovpn.Port + "\n";
-			sslConfig += "TIMEOUTclose = 0\n";			
-			sslConfig += "verify = 3\n";
+			sslConfig += "TIMEOUTclose = 0\n";
+            if (Engine.Instance.Storage.GetInt("ssl.verify") != -1)
+                sslConfig += "verify = " + Engine.Instance.Storage.GetInt("ssl.verify").ToString() + "\n";
 			//sslConfig += "CAfile = \"" + m_fileSslCrt.Path + "\"\n";
 			sslConfig += "CAfile = " + m_fileSslCrt.Path + "\n";
 			sslConfig += "\n";
@@ -1104,7 +1105,7 @@ namespace Eddie.Core.Threads
 
 					if (message.IndexOf("AUTH_FAILED") != -1)
 					{
-						Engine.Logs.Log(LogType.Warning, Messages.AuthFailed);
+                        Engine.Instance.CurrentServer.Provider.OnAuthFailed();						
 
 						SetReset("AUTH_FAILED");
 					}

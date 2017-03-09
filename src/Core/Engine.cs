@@ -216,9 +216,19 @@ namespace Eddie.Core
 
             if (cli)
             {
-                if (Storage.GetBool("help"))
+                if (Storage.GetBool("version"))
                 {
-                    Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help_format")));
+                    Console.WriteLine(Constants.Name2 + " - version " + Constants.VersionDesc);
+                    return false;
+                }
+                else if (Storage.GetBool("version.short"))
+                {
+                    Console.WriteLine(Lib.Common.Constants.VersionDesc);
+                    return false;
+                }
+                else if (Storage.GetBool("help"))
+                {
+                    Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help-format")));
                     return false;
                 }
             }
