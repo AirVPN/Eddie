@@ -56,7 +56,7 @@
     <LinkMode>Full</LinkMode>
     <UseSGen>false</UseSGen>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
-    <CreatePackage>true</CreatePackage>
+    <CreatePackage>false</CreatePackage>
     <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
     <EnableCodeSigning>false</EnableCodeSigning>
     <EnablePackageSigning>true</EnablePackageSigning>

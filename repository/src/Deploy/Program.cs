@@ -643,7 +643,7 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
-							SignFile(platform, format, pathTemp + "/eddie-cli");
+							SignFile(platform, format, pathTemp + "/eddie-cli"); // WARNING: Currently 2017-03-10 , signing don't work for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
                             SignFile(platform, format, pathTemp + "/openvpn");
                             SignFile(platform, format, pathTemp + "/stunnel");
 
@@ -669,6 +669,7 @@ namespace Deploy
 								File.Delete(pathFinal);
 
                             //SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/Eddie");
                             SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
                             SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
                             SignFile(platform, format, pathRelease + "Eddie.app");
@@ -680,6 +681,7 @@ namespace Deploy
 					}
 					else if (format == "installer")
 					{
+						/*
 						pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
 						pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
 
@@ -688,6 +690,43 @@ namespace Deploy
 						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
 
                         SignFile(platform, format, pathFinal);
+						*/
+						if (ui == "ui")
+						{
+							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+
+							// TAR.GZ
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
+
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							//SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/Eddie");
+							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
+							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathRelease + "Eddie.app");
+
+							string command2 = "pkgbuild";
+							command2 += " --identifier com.eddie.client";
+							command2 += " --version " + versionString3;
+							command2 += " --install-location /Applications";
+							command2 += " --component \"" + pathRelease + "Eddie.app\"";
+
+							string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
+							if (File.Exists(pathSignString))
+							{
+								string appleSign = File.ReadAllText(pathSignString).Trim();
+								command2 += " --sign \"" + appleSign + "\"";
+								command2 += " --timestamp";
+							}
+							command2 += " \"" + pathFinal + "\"";
+							Log("pkgbuild command: " + command2);
+							Log(Shell(command2));
+
+							//SignFile(platform, format, pathFinal);
+						}
 					}
 					else if (format == "mono")
 					{
@@ -988,6 +1027,7 @@ namespace Deploy
 				{
 					string appleSign = File.ReadAllText(pathSignString).Trim();
 					string cmd = "codesign -d --deep -v --force --sign \"" + appleSign + "\" \"" + path + "\"";
+
 					string output = Shell(cmd);
 					Log("macOS Signing file: " + output);
 				}

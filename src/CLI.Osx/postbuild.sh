@@ -19,5 +19,6 @@ export CC="cc -arch i386 -lobjc -liconv -framework CoreFoundation -I /Library/Fr
 export PATH=/Library/Frameworks/Mono.framework/Versions/Current/bin/:$PATH
 
 
-mkbundle CLI.Osx.exe Lib.Common.dll Lib.Core.dll Platforms.Osx.dll -z --static --deps -o eddie-cli
+# WARNING: Currently 2017-03-10 , cannot be signed for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
+mkbundle --sdk /Library/Frameworks/Mono.framework/Versions/Current CLI.Osx.exe Lib.Common.dll Lib.Core.dll Platforms.Osx.dll -z --static --deps -o eddie-cli
 
