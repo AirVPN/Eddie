@@ -135,6 +135,15 @@ namespace Eddie.Core
             {
                 Engine.Instance.Logs.Log(LogType.Warning, "curl - " + Messages.NotAvailable);
             }
+
+            if (GetTool("cacert.pem").Available())
+            {
+                Engine.Instance.Logs.Log(LogType.Info, "Certification Authorities: " + GetTool("cacert.pem").Path);
+            }
+            else
+            {
+                Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + Messages.NotAvailable);
+            }
         }        
 
         public static string FindResource(string tool) // TOCLEAN
