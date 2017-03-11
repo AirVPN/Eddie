@@ -511,7 +511,7 @@ namespace Deploy
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
 
                         CreateDirectory(pathTemp + "/usr/share/AirVPN");
-                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem"+ pathTemp, "/usr/share/AirVPN/cacert.pem");
+                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
 
                         WriteTextFile(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl(Constants.ChangeLogUrl));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
