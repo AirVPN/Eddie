@@ -529,8 +529,9 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 								
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/copyright\"");
-								
-						string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
+                        Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
+
+                        string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
 						Log(command);
 						Shell(command);
 
@@ -569,7 +570,7 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
 
                         CreateDirectory(pathTemp + "/usr/share/AirVPN");
-                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem" + pathTemp, "/usr/share/AirVPN/cacert.pem");
+                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
 
                         WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
                         Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
@@ -582,6 +583,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
 
                         string command = "rpmbuild";
                         if(IsOfficial())
