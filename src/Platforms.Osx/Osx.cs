@@ -40,7 +40,7 @@ namespace Eddie.Platforms
 
 		public override string GetCode()
 		{
-			return "OSX";
+			return "MacOS";
 		}
 
 		public override string GetName()
