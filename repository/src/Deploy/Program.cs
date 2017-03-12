@@ -233,6 +233,7 @@ namespace Deploy
 			if (SO == "macos") {
 				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "portable"));
 				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "installer"));
+				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "disk"));
 				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "portable"));
 				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "mono"));
 			}
@@ -570,7 +571,7 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
 
                         CreateDirectory(pathTemp + "/usr/share/AirVPN");
-                        MoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
+                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
 
                         WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
                         Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
@@ -670,11 +671,15 @@ namespace Deploy
 							if (File.Exists(pathFinal))
 								File.Delete(pathFinal);
 
-                            //SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
-							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/Eddie");
-                            SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
-                            SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
-                            SignFile(platform, format, pathRelease + "Eddie.app");
+							MoveFile(pathTemp + "/openvpn", pathRelease + "/Eddie.app/Contents/MacOS/openvpn");
+							MoveFile(pathTemp + "/stunnel", pathRelease + "/Eddie.app/Contents/MacOS/stunnel");
+							MoveFile(pathTemp + "/cacert.pem", pathRelease + "/Eddie.app/Contents/Resources/cacert.pem");
+
+                            //SignSingleFile(platform, pathRelease + "/Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignFile(platform, format, pathRelease + "/Eddie.app/Contents/MacOS/Eddie");
+                            SignFile(platform, format, pathRelease + "/Eddie.app/Contents/MacOS/openvpn");
+                            SignFile(platform, format, pathRelease + "/Eddie.app/Contents/MacOS/stunnel");
+                            SignFile(platform, format, pathRelease + "/Eddie.app");
 
 							string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
 							Shell(command2);
@@ -698,23 +703,30 @@ namespace Deploy
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
 							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
 
+							CreateDirectory(pathTemp + "/Applications/Eddie.app");
+							CopyDirectory(pathRelease + "Eddie.app", pathTemp + "/Applications/Eddie.app");
+
 							// TAR.GZ
 							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
 
 							if (File.Exists(pathFinal))
 								File.Delete(pathFinal);
 
+							MoveFile(pathTemp + "/openvpn", pathTemp + "/Applications/Eddie.app/Contents/MacOS/openvpn");
+							MoveFile(pathTemp + "/stunnel", pathTemp + "/Applications/Eddie.app/Contents/MacOS/stunnel");
+							MoveFile(pathTemp + "/cacert.pem", pathTemp + "/Applications/Eddie.app/Contents/Resources/cacert.pem");
+
 							//SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
-							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/Eddie");
-							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
-							SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
-							SignFile(platform, format, pathRelease + "Eddie.app");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/Eddie");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/openvpn");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app");
 
 							string command2 = "pkgbuild";
 							command2 += " --identifier com.eddie.client";
 							command2 += " --version " + versionString3;
-							command2 += " --install-location /Applications";
-							command2 += " --component \"" + pathRelease + "Eddie.app\"";
+							command2 += " --root \"" + pathTemp + "\"";
+							//command2 += " --component \"" + pathRelease + "Eddie.app\"";
 
 							string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
 							if (File.Exists(pathSignString))
@@ -728,6 +740,47 @@ namespace Deploy
 							Log(Shell(command2));
 
 							//SignFile(platform, format, pathFinal);
+						}
+					}
+					else if (format == "disk")
+					{
+						if (ui == "ui")
+						{
+							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+
+							Log("Copy DMG base");
+							CopyFile(PathBaseResources + "/macos/diskbase.dmg", pathTemp + "temp.dmg");
+							Log("Resize DMG");
+							Shell("hdiutil resize -size 200m '" + pathTemp + "temp.dmg" + "'");
+							Log("Attach DMG");
+							Shell("hdiutil attach '" + pathTemp + "temp.dmg" + "' -mountpoint '" + pathTemp + "DiskBuild'");
+							Log("Fill DMG");
+
+							CreateDirectory(pathTemp + "DiskBuild/Eddie.app");
+							CopyDirectory(pathRelease + "Eddie.app", pathTemp + "/DiskBuild/Eddie.app");
+
+							// TAR.GZ
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".dmg");
+
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							MoveFile(pathTemp + "/openvpn", pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/openvpn");
+							MoveFile(pathTemp + "/stunnel", pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/stunnel");
+							MoveFile(pathTemp + "/cacert.pem", pathTemp + "/DiskBuild/Eddie.app/Contents/Resources/cacert.pem");
+
+							//SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/Eddie");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/openvpn");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app");
+
+							Log("Detach DMG");
+							Shell("hdiurl detach '" + pathTemp + "/DiskBuild" + "'");
+							Log("Compress DMG");
+							Shell("hdiutil convert '" + pathTemp + "/temp.dmg" + "' -format UDCO -imagekey zlib-level=9 -o '" + pathFinal + "'");
+
 						}
 					}
 					else if (format == "mono")
