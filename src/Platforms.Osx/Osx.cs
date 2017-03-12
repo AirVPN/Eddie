@@ -137,6 +137,22 @@ namespace Eddie.Platforms
 
         public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
         {
+            string pathBin = "/usr/bin/" + name;
+            if (Platform.Instance.FileExists(pathBin))
+            {
+                path = pathBin;
+                location = "system";
+                return true;
+            }
+
+            string pathSBin = "/usr/sbin/" + name;
+            if (Platform.Instance.FileExists(pathSBin))
+            {
+                path = pathSBin;
+                location = "system";
+                return true;
+            }
+
             // Look in application bundle resources
             string resPath = NormalizePath(relativePath) + "/../Resources/" + name;
             if (File.Exists(resPath))
