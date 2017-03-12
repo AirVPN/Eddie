@@ -227,6 +227,35 @@ namespace Eddie.Platforms
             Shell("su", args, false);
         }
 
+        public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
+        {
+            string pathBin = "/usr/bin/" + name;
+            if (Platform.Instance.FileExists(pathBin))
+            {
+                path = pathBin;
+                location = "system";
+                return true;
+            }
+
+            string pathSBin = "/usr/sbin/" + name;
+            if (Platform.Instance.FileExists(pathSBin))
+            {
+                path = pathSBin;
+                location = "system";
+                return true;
+            }
+
+            string pathShare = "/usr/share/" + Lib.Common.Constants.Name + "/" + name;
+            if (Platform.Instance.FileExists(pathShare))
+            {
+                path = pathShare;
+                location = "system";
+                return true;
+            }
+
+            return base.SearchTool(name, relativePath, ref path, ref location);
+        }
+
         public override long Ping(string host, int timeoutSec)
         {
             string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host);

@@ -193,33 +193,8 @@ namespace Eddie.Core
 
             foreach (string fileNameAlt in names)
             {
-                // Linux
-                if (Platform.Instance.IsUnixSystem())
-                {
-                    string pathBin = "/usr/bin/" + fileNameAlt;
-                    if (Platform.Instance.FileExists(pathBin))
-                    {
-                        Path = pathBin;
-                        Location = "system";
-                        return;
-                    }
-
-                    string pathSBin = "/usr/sbin/" + fileNameAlt;
-                    if (Platform.Instance.FileExists(pathSBin))
-                    {
-                        Path = pathSBin;
-                        Location = "system";
-                        return;
-                    }
-
-                    string pathShare = "/usr/share/" + Lib.Common.Constants.Name + "/" + fileNameAlt;
-                    if (Platform.Instance.FileExists(pathShare))
-                    {
-                        Path = pathShare;
-                        Location = "system";
-                        return;
-                    }
-                }
+                if (Platform.Instance.SearchTool(fileNameAlt, Platform.Instance.GetApplicationPath(), ref Path, ref Location))
+                    break;
             }
         }
     }

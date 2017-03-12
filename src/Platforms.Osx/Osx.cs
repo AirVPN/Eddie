@@ -135,6 +135,20 @@ namespace Eddie.Platforms
             ShellCmd("discoveryutil mdnsflushcache"); // 2.11
         }
 
+        public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
+        {
+            // Look in application bundle resources
+            string resPath = NormalizePath(relativePath) + "/../Resources/" + name;
+            if (File.Exists(resPath))
+            {
+                path = resPath;
+                location = "bundle";
+                return true;
+            }
+
+            return base.SearchTool(name, relativePath, ref path, ref location);
+        }
+
         // Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
         public override long Ping(string host, int timeoutSec)
         {

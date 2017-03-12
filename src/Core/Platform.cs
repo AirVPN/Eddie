@@ -544,6 +544,11 @@ namespace Eddie.Core
         }
         */
 
+        public virtual bool SearchTool(string name, string relativePath, ref string path, ref string location)
+        {
+            return false;
+        }
+
         public virtual Int64 Ping(string host, int timeoutSec)
         {
             Ping pingSender = new Ping();
