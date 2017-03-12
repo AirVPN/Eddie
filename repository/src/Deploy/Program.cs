@@ -786,12 +786,12 @@ namespace Deploy
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
 							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
 
-							Log("Copy DMG base");
-							CopyFile(PathBaseResources + "/macos/diskbase.dmg", pathTemp + "/temp.dmg");
+							Log("Extract DMG base");
+							Shell("tar -jxvf " + "\"" + PathBaseResources + "/macos/diskbase.dmg.tar.bz2\" -C \"" + pathTemp + "\"");
 							Log("Resize DMG");
-							Shell("hdiutil resize -size 200m '" + pathTemp + "/temp.dmg" + "'");
+							Shell("hdiutil resize -size 200m '" + pathTemp + "/diskbase.dmg" + "'");
 							Log("Attach DMG");
-							Shell("hdiutil attach '" + pathTemp + "/temp.dmg" + "' -mountpoint '" + pathTemp + "/DiskBuild'");
+							Shell("hdiutil attach '" + pathTemp + "/diskbase.dmg" + "' -mountpoint '" + pathTemp + "/DiskBuild'");
 							Log("Fill DMG");
 
 							CreateDirectory(pathTemp + "/DiskBuild/Eddie.app");
