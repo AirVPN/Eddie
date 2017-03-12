@@ -69,12 +69,6 @@
           <workingdir>${ProjectDir}/</workingdir>
           <externalConsole>True</externalConsole>
         </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>${ProjectDir}/postbuild.sh</command>
-          <workingdir>${ProjectDir}/</workingdir>
-          <externalConsole>True</externalConsole>
-        </Command>
       </CustomCommands>
     </CustomCommands>
     <Externalconsole>true</Externalconsole>
@@ -626,5 +620,7 @@
     <EmbeddedResource Include="Resources\ThirdParty.txt" />
     <EmbeddedResource Include="Resources\TOS.txt" />
     <EmbeddedResource Include="Resources\License.txt" />
+    <EmbeddedResource Include="Resources\OpenVPN.xml" />
+    <EmbeddedResource Include="Resources\AirVPN.xml" />
   </ItemGroup>
 </Project>

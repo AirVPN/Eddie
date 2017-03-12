@@ -40,6 +40,8 @@ namespace Eddie.UI.Cocoa.Osx
 			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "license.txt", "License.txt");
 			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "thirdparty.txt", "ThirdParty.txt");
 			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "tos.txt", "TOS.txt");
+			Core.ResourcesFiles.LoadString (Assembly.GetEntryAssembly (), "AirVPN.xml", "AirVPN.xml");
+			Core.ResourcesFiles.LoadString(Assembly.GetEntryAssembly(), "OpenVPN.xml", "OpenVPN.xml");
 
 			Core.ResourcesFiles.Count ();
 
