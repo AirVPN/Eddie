@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="SystemShell.cs" />
     <Compile Include="Tools\Curl.cs" />
     <Compile Include="Tools\SSL.cs" />
     <Compile Include="Tools\SSH.cs" />
@@ -112,11 +113,7 @@
     <Compile Include="Threads\Penalities.cs" />
     <Compile Include="Threads\Pinger.cs" />
     <Compile Include="TimeDelta.cs" />
-    <Compile Include="TrustCertificatePolicy.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="WebClientEx.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>

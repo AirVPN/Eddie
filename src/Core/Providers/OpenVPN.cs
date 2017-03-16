@@ -63,7 +63,10 @@ namespace Eddie.Core.Providers
 
         public override void OnBuildOvpn(OvpnBuilder ovpn)
         {
-            base.OnBuildOvpn(ovpn);            
+            base.OnBuildOvpn(ovpn);
+
+            if (ovpn.ExistsDirective("auth-retry"))
+                ovpn.AppendDirective("auth-retry", "none", "");
         }
 
         public override string Refresh()

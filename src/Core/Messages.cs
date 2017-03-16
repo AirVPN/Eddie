@@ -53,11 +53,12 @@ namespace Eddie.Core
 		public static string AuthorizeLogout = "Logout ...";
 		public static string AuthorizeLogoutDone = "Logged out.";
 		public static string AuthorizeConnect = "Checking authorization ...";
-		public static string AuthorizeConnectFailed = "Authorization check failed, continue anyway ({1])";
+		public static string AuthorizeConnectFailed = "Authorization check failed, continue anyway ({1})";
 		public static string AppExiting = "Exiting";
 		public static string AppEvent = "Running event {1}";				
 		public static string AutoPortSwitch = "Auto retry with another port.";
-		public static string AuthFailed = "Authorization failed. Look at the client area to discover the reason.";
+        public static string AuthFailed = "Authorization failed.";
+        public static string AirVpnAuthFailed = "Authorization failed. Look at the client area to discover the reason.";
 		public static string ConsoleKeyboardHelp = "Press 'X' to Cancel, 'N' to connect/reconnect to the best available server.";
 		public static string ConsoleKeyboardHelpNoConnect = "Use -connect to start connection when application starts";
 		public static string ConsoleKeyBreak = "Break signal received. Shutdown. Hit again to force break.";
@@ -78,7 +79,7 @@ namespace Eddie.Core
 		public static string BundleExecutableError = "Unexpected bundle executable error {1} ({2}). Dumping report."; 
 		public static string ManifestUpdate = "Updating systems & servers data ...";
 		public static string ManifestDone = "Systems & servers data update completed";
-		public static string ManifestFailed = "Cannot retrieve systems & servers data. Please retry later or contact us for help. ({1})";
+		public static string ManifestFailed = "Cannot retrieve systems & servers data. ({1})";
 		public static string ManifestFailedContinue = "Unable to retrieve systems & servers data. Continue anyway with the old data.";
 		public static string CommandLineUnknownOption = "Unknown option in command-line: {1}";
 		public static string OptionsRead = "Reading options from {1}";
@@ -97,10 +98,12 @@ namespace Eddie.Core
 		public static string AlreadyRunningSshPLink = "SSH tunnel (plink) is already running.";
 		public static string AlreadyRunningSsh = "SSH tunnel is already running.";
 
-		public static string CUrlRequiredForProxySocks = "CUrl is not installed on this system, and it's required for SOCKS proxy.";
 		public static string SocksProxyError = "Socks proxy connection error.";
+        public static string ProxyDetectDeprecated = "Proxy mode 'Detect' is deprecated, please specify explicitly."; 
 
-		public static string LogsLineRepetitionSummary = "Above log line repeated {1} times more";
+        public static string LogsLineRepetitionSummary = "Above log line repeated {1} times more";
+
+        public static string UnacceptableCharacters = "{1} contains not yet supported characters ('`\"%!$), sorry."; 
 
         public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; 
 		public static string PingerStatsPending = "Disabled during VPN connection. Latest check: {1}";
@@ -274,7 +277,11 @@ namespace Eddie.Core
 
 		public static string ConsoleHelp = "Run the program with login & password of your AirVPN account. For example:\nairvpn -cli -login=mynick -password=mypassword\n\nSee https://airvpn.org/software/ for more information, or run with -help for inline manual.";
 
-		public static string TimeJustNow = "Just now";
+        public static string ToolsCurlRequired = "curl is required."; 
+        public static string ToolsCurlVersionNotSupported = "curl version {1} installed in your system is too old. Version {2} or higher required. Please upgrade."; 
+
+
+        public static string TimeJustNow = "Just now";
 		public static string TimeAgo = "ago";
 		public static string TimeRemain = "remain";
         
@@ -312,7 +319,7 @@ namespace Eddie.Core
 
 
 		public static string ManName = "airvpn -- Eddie/AirVPN VPN Client, console edition";
-        public static string ManHeaderComment = "Generated automatically with 'airvpn -cli -help -help_format=man'";
+        public static string ManHeaderComment = "Generated automatically with 'airvpn -cli -help -help.format=man'";
         public static string ManSynopsis = "airvpn -cli [OPTIONS...]";
 		public static string ManDescription = "Eddie/AirVPN is an OpenVPN wrapper providing advanced features such as network lock, connections over SSL/TLS and SSH tunnels, programmable events, customizable routes, extensive control on OpenVPN directives and a comfortable, optional GUI. See AirVPN website for more information: [link]https://airvpn.org[/link]";
 		public static string ManCopyright = "Copyright (C) AirVPN - Released under GNU General Public License - [link]http://www.gnu.org/licenses/gpl.html[/link]";
@@ -371,10 +378,10 @@ namespace Eddie.Core
 
         public static string ManOptionIpV6 = "IPv6 mode. Can be [i]disabled[/i] to disable IPv6, or [i]none[/i]";
 
-        public static string ManOptionExecutablesOpenVpn = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with Eddie.";
-        public static string ManOptionExecutablesSsh = "Path to a custom SSH tunnel executable";
-		public static string ManOptionExecutablesSsl = "Path to a custom SSL tunnel executable";
-		public static string ManOptionExecutablesCurl = "Path to a custom curl executable, used only with socks proxy";
+        public static string ManOptionToolsOpenVpnPath = "Allows you to specify a path to OpenVPN executable, to skip the executable bundled with Eddie.";
+        public static string ManOptionToolsSshPath = "Path to a custom SSH tunnel executable";
+		public static string ManOptionToolsSslPath = "Path to a custom SSL tunnel executable";
+		public static string ManOptionToolsCurlPath = "Path to a custom curl executable, used only with socks proxy";
 
 		public static string ManOptionOpenVpnCustom = "Allows you to specify custom OpenVPN directives.";
         public static string ManOptionOpenVpnDevNode = "OpenVPN dev-node directive."; 

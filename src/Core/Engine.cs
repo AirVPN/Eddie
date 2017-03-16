@@ -216,9 +216,19 @@ namespace Eddie.Core
 
             if (cli)
             {
-                if (Storage.GetBool("help"))
+                if (Storage.GetBool("version"))
                 {
-                    Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help_format")));
+                    Console.WriteLine(Constants.Name2 + " - version " + Constants.VersionDesc);
+                    return false;
+                }
+                else if (Storage.GetBool("version.short"))
+                {
+                    Console.WriteLine(Lib.Common.Constants.VersionDesc);
+                    return false;
+                }
+                else if (Storage.GetBool("help"))
+                {
+                    Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help.format")));
                     return false;
                 }
             }
@@ -301,7 +311,7 @@ namespace Eddie.Core
 			CompatibilityManager.Init();
 
             Platform.Instance.OnInit();
-
+            
             return true;
 		}
 
@@ -316,6 +326,10 @@ namespace Eddie.Core
 				Software.Checking();
 
 				Software.Log();
+
+                // Local Time in the past
+                if (DateTime.UtcNow < Constants.dateForPastChecking)
+                    Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
 
                 Platform.Instance.OnRecovery();
 
@@ -603,8 +617,10 @@ namespace Eddie.Core
 			OnExit();	
 		}
 
-		public virtual void OnCommand(XmlItem xml, bool ignoreIfNotExists)
+		public virtual XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
 		{
+            XmlItem ret = new XmlItem();
+
             string action = xml.GetAttribute("action").ToLowerInvariant();
             if (action == "exit")
             {
@@ -621,6 +637,10 @@ namespace Eddie.Core
             else if (action == "ui.show.url")
             {
                 Platform.Instance.OpenUrl(xml.GetAttribute("url"));
+            }
+            else if (action == "ui.get.license") // Eddie3
+            {
+                ret.SetAttribute("body", ResourcesFiles.GetString("license.txt"));
             }
             else if (action == "ui.show.license")
             {
@@ -697,10 +717,10 @@ namespace Eddie.Core
             }
             else if (action == "ui.stats.vpngeneratedovpn")
             {
-                if (IsConnected() == false)
-                    return;
-
-                OnShowText(Messages.StatsVpnGeneratedOVPN, ConnectedOVPN);
+                if (IsConnected())
+                {
+                    OnShowText(Messages.StatsVpnGeneratedOVPN, ConnectedOVPN);
+                }
             }
             else if (action == "ui.stats.systemreport")
             {
@@ -751,6 +771,8 @@ namespace Eddie.Core
                 if(ignoreIfNotExists == false)
                     throw new Exception(MessagesFormatter.Format(Messages.CommandUnknown, xml.ToString()));
             }
+
+            return ret;
 		}
 
 		public virtual void OnSettingsChanged()
@@ -1501,7 +1523,28 @@ namespace Eddie.Core
 				m_threadSession.SendManagementCommand(command);
 		}
 
-		public byte[] FetchUrlEx(string url, string host, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
+        public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, string title)
+        {
+            return FetchUrlXml(url, parameters, title, false, "");
+        }
+
+        public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
+        {
+            string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, title, forceBypassProxy, resolve));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(str);
+            return doc;
+        }
+        
+        public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
+        {
+            Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
+                        
+            return curl.FetchUrlEx(url, parameters, title, forceBypassProxy, resolve);
+        }
+
+        /* TOCLEAN
+        public byte[] FetchUrlExOld(string url, string host, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
 		{
             // Note: by default WebClient try to determine the proxy used by IE/Windows
             WebClientEx wc = new WebClientEx();
@@ -1598,138 +1641,10 @@ namespace Eddie.Core
             if (parameters == null)
                 return wc.DownloadData(url);
             else
-                return wc.UploadValues(url, "POST", parameters);
-
-            // < 2.11.13
-            /*
-        	string lastException = "";
-			for (int t = 0; t < ntry; t++)
-			{
-				try
-				{
-					// Note: by default WebClient try to determine the proxy used by IE/Windows
-					WebClientEx wc = new WebClientEx();
-                    wc.CustomHost = host;
-
-					if (bypassProxy)
-					{
-						// Don't use a proxy if connected to the VPN
-						wc.Proxy = null;
-					}
-					else
-					{
-						string proxyMode = Storage.Get("proxy.mode").ToLowerInvariant();
-						string proxyHost = Storage.Get("proxy.host");
-						int proxyPort = Storage.GetInt("proxy.port");
-						string proxyAuth = Storage.Get("proxy.auth").ToLowerInvariant();
-						string proxyLogin = Storage.Get("proxy.login");
-						string proxyPassword = Storage.Get("proxy.password");
-
-						if(proxyMode == "Tor")
-						{
-							proxyMode = "socks";
-                            proxyAuth = "none"; 
-							proxyLogin = "";
-							proxyPassword = "";
-						}
-
-                        if (proxyMode == "http")
-						{
-							System.Net.WebProxy proxy = new System.Net.WebProxy(proxyHost, proxyPort);
-							//string proxyUrl = "http://" + Storage.Get("proxy.host") + ":" + Storage.GetInt("proxy.port").ToString() + "/";
-							//System.Net.WebProxy proxy = new System.Net.WebProxy(proxyUrl, true);					
-
-							if (proxyAuth != "none")
-							{
-								//wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), Storage.Get("proxy.host"));
-								wc.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
-								proxy.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
-								wc.UseDefaultCredentials = false;
-							}
-
-							wc.Proxy = proxy;
-						}
-						else if (proxyMode == "socks")
-						{
-							// Socks Proxy supported with a curl shell
-							if (Software.CurlPath == "")
-							{
-								throw new Exception(Messages.CUrlRequiredForProxySocks);
-							}
-							else
-							{
-								string dataParameters = "";
-								if (parameters != null)
-								{
-									foreach (string k in parameters.Keys)
-									{
-										if (dataParameters != "")
-											dataParameters += "&";
-										dataParameters += k + "=" + Uri.EscapeUriString(parameters[k]);
-									}
-								}
-
-								TemporaryFile fileOutput = new TemporaryFile("bin");
-								string args = " \"" + url + "\" --socks4a " + proxyHost + ":" + proxyPort;
-								if (proxyAuth != "none")
-								{
-									args += " -U " + proxyLogin + ":" + proxyPassword;
-								}
-								args += " -o \"" + fileOutput.Path + "\"";
-								args += " --progress-bar";
-								if (dataParameters != "")
-									args += " --data \"" + dataParameters + "\"";
-								string str = Platform.Instance.Shell(Software.CurlPath, args);
-								byte[] bytes;
-								if (Platform.Instance.FileExists(fileOutput.Path))
-								{
-									bytes = Platform.Instance.FileContentsReadBytes(fileOutput.Path);
-									fileOutput.Close();
-									return bytes;
-								}
-								else
-								{
-									throw new Exception(str);
-								}
-							}
-						}
-						else if (proxyMode != "detect")
-						{
-							wc.Proxy = null;
-						}
-					}
-
-                    if (parameters == null)
-						return wc.DownloadData(url);
-					else
-						return wc.UploadValues(url, "POST", parameters);
-				}
-				catch (Exception e)
-				{
-					if (ntry == 1) // AirAuth have it's catch errors retry logic.
-						throw e;
-					else
-					{
-						lastException = e.Message;
-
-						if(Engine.Storage.GetBool("advanced.expert"))
-							Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FetchTryFailed, title, (t + 1).ToString(), lastException));
-					}
-				}
-			}
-
-			throw new Exception(lastException);			
-            */
+                return wc.UploadValues(url, "POST", parameters);            
         }
+        */
 		
-		public XmlDocument XmlFromUrl(string url, string host, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
-        {
-            string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, host, parameters, title, bypassProxy));                
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(str);
-            return doc;
-        }
-
 		public int PingerInvalid()
 		{
 			return m_threadPinger.GetStats().Invalid;
@@ -1768,31 +1683,32 @@ namespace Eddie.Core
             Command(cmd, true);
         }
         
-        public void Command(string cmd, bool ignoreIfNotExists)
+        public XmlItem Command(string cmd, bool ignoreIfNotExists)
         {
-            Command(new XmlItem(cmd), ignoreIfNotExists);
+            return Command(new XmlItem(cmd), ignoreIfNotExists);
         }
 
-        public void Command(XmlItem xml)
+        public XmlItem Command(XmlItem xml)
         {
-            Command(xml, true);
+            return Command(xml, true);
         }
 
-        public void Command(XmlItem xml, bool ignoreIfNotExists)
+        public XmlItem Command(XmlItem xml, bool ignoreIfNotExists)
         {
             try
             {
-                if (Engine.Storage.Get("console.mode") == "backend")
+                if( (Engine.Storage != null) && (Engine.Storage.Get("console.mode") == "backend") )
                     Console.WriteLine(xml.ToString());
 
                 if (CommandEvent != null)
                     CommandEvent(xml);
 
-                OnCommand(xml, ignoreIfNotExists);
+                return OnCommand(xml, ignoreIfNotExists);
             }
             catch (Exception e)
             {
                 Logs.Log(LogType.Error, e);
+                return null;
             }
         }
         
@@ -2082,8 +1998,7 @@ namespace Eddie.Core
 
 		public bool CheckEnvironment()
 		{			
-			bool installed = (Software.OpenVpnVersion != "");
-			if (installed == false)
+			if (Software.GetTool("openvpn").Available() == false)
 				throw new Exception("OpenVPN " + Messages.NotFound);
 
 			string protocol = Storage.Get("mode.protocol").ToUpperInvariant();
@@ -2091,10 +2006,10 @@ namespace Eddie.Core
 			if ((protocol != "AUTO") && (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL") )
 				throw new Exception(Messages.CheckingProtocolUnknown);
 
-			if( (protocol == "SSH") && (Software.SshVersion == "") )
+			if( (protocol == "SSH") && (Software.GetTool("ssh").Available() == false) )
 				throw new Exception("SSH " + Messages.NotFound);
 
-			if( (protocol == "SSL") && (Software.SslVersion == "") )
+			if( (protocol == "SSL") && (Software.GetTool("ssl").Available() == false) )
 				throw new Exception("SSL " + Messages.NotFound);
 
 			if (Storage.GetBool("advanced.skip_alreadyrun") == false)
@@ -2212,12 +2127,14 @@ namespace Eddie.Core
             xml.SetAttribute("eddie.windows.tap.driver", Constants.WindowsDriverVersion);
             xml.SetAttribute("eddie.windows-xp.tap.driver", Constants.WindowsXpDriverVersion);                        
             xml.SetAttribute("tools.tap-driver.version", Software.OpenVpnDriver);
-            xml.SetAttribute("tools.openvpn.version", Software.OpenVpnVersion);
-            xml.SetAttribute("tools.openvpn.path", Software.OpenVpnPath);
-            xml.SetAttribute("tools.ssh.version", Software.SshVersion);
-            xml.SetAttribute("tools.ssh.path", Software.SshPath);
-            xml.SetAttribute("tools.ssl.version", Software.SslVersion);
-            xml.SetAttribute("tools.ssl.path", Software.SslPath);
+            xml.SetAttribute("tools.curl.version", Software.GetTool("curl").Version);
+            xml.SetAttribute("tools.curl.path", Software.GetTool("curl").Path);
+            xml.SetAttribute("tools.openvpn.version", Software.GetTool("openvpn").Version);
+            xml.SetAttribute("tools.openvpn.path", Software.GetTool("openvpn").Path);
+            xml.SetAttribute("tools.ssh.version", Software.GetTool("ssh").Version);
+            xml.SetAttribute("tools.ssh.path", Software.GetTool("ssh").Path);
+            xml.SetAttribute("tools.ssl.version", Software.GetTool("ssl").Version);
+            xml.SetAttribute("tools.ssl.path", Software.GetTool("ssl").Path);
 
             Command(xml);
         }

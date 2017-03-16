@@ -48,6 +48,12 @@ namespace Eddie.Platforms
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
 		}
 
+        public static bool IsWin7OrNewer()
+        {
+            OperatingSystem OS = Environment.OSVersion;
+            return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 1));
+        }
+
         public static bool IsWin8OrNewer()
         {
             OperatingSystem OS = Environment.OSVersion;
@@ -92,10 +98,12 @@ namespace Eddie.Platforms
         // Override
 		public Windows()
 		{
+            /*
 #if EDDIENET20
             // Look the comment in TrustCertificatePolicy.cs
             TrustCertificatePolicy.Activate();
 #endif
+            */
         }
 
         public override string GetCode()
@@ -272,14 +280,14 @@ namespace Eddie.Platforms
 			*/
 			if (r.Interface != "")
 				cmd += " if " + r.Interface;
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
 
 		public override void RouteRemove(RouteEntry r)
 		{
 			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
 
 		public override bool WaitTunReady()
 		{
@@ -476,6 +484,33 @@ namespace Eddie.Platforms
 			{
                 if ((IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")) )
                 {
+                    {
+                        XmlDocument xmlDocRule = new XmlDocument();
+                        XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                        xmlRule.SetAttribute("name", "IPv6 - Block");
+                        xmlRule.SetAttribute("layer", "ipv6");
+                        xmlRule.SetAttribute("action", "block");
+                        xmlRule.SetAttribute("weight", "3000");
+                        Wfp.AddItem("ipv6_block_all", xmlRule);
+                    }
+
+                    {
+                        XmlDocument xmlDocRule = new XmlDocument();
+                        XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+                        xmlRule.SetAttribute("name", "IPv6 - Allow loopback");
+                        xmlRule.SetAttribute("layer", "ipv6");
+                        xmlRule.SetAttribute("action", "permit");
+                        xmlRule.SetAttribute("weight", "3001");
+                        XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+                        xmlRule.AppendChild(XmlIf1);
+                        XmlIf1.SetAttribute("field", "ip_local_interface");
+                        XmlIf1.SetAttribute("match", "equal");
+                        XmlIf1.SetAttribute("interface", "loopback");
+                        Wfp.AddItem("ipv6_allow_loopback", xmlRule);
+                    }                    
+
+                    // <2.12.1
+                    /*
                     XmlDocument xmlDocRule = new XmlDocument();
                     XmlElement xmlRule = xmlDocRule.CreateElement("rule");
                     xmlRule.SetAttribute("name", "IPv6 - Block");
@@ -488,6 +523,7 @@ namespace Eddie.Platforms
                     XmlIf1.SetAttribute("match", "not_equal");
                     XmlIf1.SetAttribute("interface", "loopback");
                     Wfp.AddItem("ipv6_block_all", xmlRule);
+                    */
 
                     Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledWpf);
                 }
@@ -531,7 +567,8 @@ namespace Eddie.Platforms
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredOs);
 			}
 
-            if(Wfp.RemoveItem("ipv6_block_all"))
+
+            if( (Wfp.RemoveItem("ipv6_block_all")) && (Wfp.RemoveItem("ipv6_allow_loopback")) )
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredWpf);
 
             base.OnIpV6Restore();
@@ -579,7 +616,7 @@ namespace Eddie.Platforms
                     xmlRule.AppendChild(XmlIf2);
                     XmlIf2.SetAttribute("field", "ale_app_id");
                     XmlIf2.SetAttribute("match", "equal");
-                    XmlIf2.SetAttribute("path", Software.OpenVpnPath);
+                    XmlIf2.SetAttribute("path", Software.GetTool("openvpn").Path);
                     Wfp.AddItem("dns_permit_openvpn", xmlRule);
                 }
 
@@ -714,7 +751,8 @@ namespace Eddie.Platforms
         {
             base.OnRecovery();
 
-            if (IsVistaOrNewer())
+            //if (IsVistaOrNewer())
+            if (IsWin7OrNewer()) // 2.12.2
                 if (Wfp.ClearPendingRules())
                     Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
         }
@@ -894,7 +932,7 @@ namespace Eddie.Platforms
 			}
 
             // Remember: uninstalling OpenVPN doesn't remove tap0901.sys, so finding an adapter is mandatory.
-			if (result == "")
+            if (result == "")
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsDriverNoAdapterFound);
 				return "";
@@ -948,9 +986,9 @@ namespace Eddie.Platforms
 		public string GetDriverInstallerPath()
 		{
 			if(IsVistaOrNewer())
-				return Software.FindResource("tap-windows.exe");
+				return Software.FindResource("tap-windows");
 			else
-				return Software.FindResource("tap-windows-xp.exe");
+				return Software.FindResource("tap-windows-xp");
 		}
 
 		public override void InstallDriver()
@@ -994,7 +1032,7 @@ namespace Eddie.Platforms
 				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
                 {
                     Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.HackInterfaceUpDone, adapter.Name));
-                    ShellCmd("netsh interface set interface \"" + adapter.Name + "\" ENABLED");
+                    ShellCmd("netsh interface set interface \"" + SystemShell.EscapeInsideQuote(adapter.Name) + "\" ENABLED"); // IJTF2 // TOCHECK
                 }
             }            
         }

@@ -11,7 +11,7 @@
     <RootNamespace>Eddie.UI.Cocoa.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.11</ReleaseVersion>
+    <ReleaseVersion>2.12</ReleaseVersion>
     <AssemblyName>Eddie</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -56,7 +56,7 @@
     <LinkMode>Full</LinkMode>
     <UseSGen>false</UseSGen>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
-    <CreatePackage>true</CreatePackage>
+    <CreatePackage>false</CreatePackage>
     <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
     <EnableCodeSigning>false</EnableCodeSigning>
     <EnablePackageSigning>true</EnablePackageSigning>
@@ -66,12 +66,6 @@
         <Command>
           <type>BeforeBuild</type>
           <command>${ProjectDir}/prebuild.sh</command>
-          <workingdir>${ProjectDir}/</workingdir>
-          <externalConsole>True</externalConsole>
-        </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>${ProjectDir}/postbuild.sh</command>
           <workingdir>${ProjectDir}/</workingdir>
           <externalConsole>True</externalConsole>
         </Command>
@@ -626,5 +620,7 @@
     <EmbeddedResource Include="Resources\ThirdParty.txt" />
     <EmbeddedResource Include="Resources\TOS.txt" />
     <EmbeddedResource Include="Resources\License.txt" />
+    <EmbeddedResource Include="Resources\OpenVPN.xml" />
+    <EmbeddedResource Include="Resources\AirVPN.xml" />
   </ItemGroup>
 </Project>

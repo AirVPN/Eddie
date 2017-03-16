@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
         <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -33,7 +33,7 @@
                 <outlet property="ChkLockAllowPing" destination="VOk-Ch-IHJ" id="bOd-ou-0lG"/>
                 <outlet property="ChkLockAllowPrivate" destination="xCu-Ni-GP8" id="kfh-B7-rbA"/>
                 <outlet property="ChkLogLevelDebug" destination="IYo-X6-SMs" id="6uy-Fd-QTP"/>
-                <outlet property="ChkLoggingEnabled" destination="IYo-X6-SMs" id="XR8-qC-q9r"/>
+                <outlet property="ChkLoggingEnabled" destination="IxZ-rQ-MFk" id="XR8-qC-q9r"/>
                 <outlet property="ChkNetLock" destination="vVa-Ie-bA5" id="6Am-xX-UPb"/>
                 <outlet property="ChkProtocolsAutomatic" destination="h8Y-x2-Tii" id="8F0-TH-PDH"/>
                 <outlet property="ChkRouteRemoveDefaultGateway" destination="58G-W2-QjM" id="aTh-td-Okv"/>
@@ -1216,7 +1216,7 @@
                                     <rect key="frame" x="10" y="7" width="554" height="305"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button id="IxZ-rQ-MFk">
+                                        <button misplaced="YES" id="IxZ-rQ-MFk">
                                             <rect key="frame" x="15" y="281" width="242" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Logging on file enabled" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="iHq-HO-R53">

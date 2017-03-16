@@ -192,8 +192,8 @@ namespace Eddie.Core
             {
                 // Pull mode
                 var data = new StreamReader(request.InputStream).ReadToEnd();
-                Receive(data);
-                return "ok";
+                XmlItem ret = Receive(data);
+                return ret.ToString();
             }
             else if(request.Url.AbsolutePath == "/pull/receive/")
             {
@@ -224,9 +224,9 @@ namespace Eddie.Core
             return nodeRoot;
         }
 
-        public void Receive(string data)
+        public XmlItem Receive(string data)
         {
-            Engine.Instance.Command(data, true);
+            return Engine.Instance.Command(data, true);
         }
 
         // Clodo, TOCLEAN; still used?

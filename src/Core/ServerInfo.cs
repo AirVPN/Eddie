@@ -91,7 +91,7 @@ namespace Eddie.Core
 			}
 			else if (field == "Location")
 			{
-				returnVal = GetLocationForList().CompareTo(other.GetLocationForList());
+				returnVal = GetLocationForOrdering().CompareTo(other.GetLocationForOrdering());
 			}
 			else if (field == "Latency")
 			{
@@ -248,7 +248,13 @@ namespace Eddie.Core
             return result;
         }
 
-		public string GetUsersForList()
+        public string GetLocationForOrdering()
+        {
+            string result = CountriesManager.GetNameFromCode(CountryCode) + " - " + Location;
+            return result;
+        }
+
+        public string GetUsersForList()
 		{
             if (Users == -1)
                 return "-";

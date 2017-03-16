@@ -27,7 +27,7 @@ namespace Eddie.Core
     public class Tool
     {
         public string Code = "";
-        public string Path = "";
+        public string Path = ""; // TOFIX: must be private, use GetPath everywhere
         public string Version = "";
         public string Location = "missing";
         public string Hash = "";
@@ -38,9 +38,7 @@ namespace Eddie.Core
             {
                 OnUpdatePath();
                 OnUpdateVersion();
-                OnNormalizeVersion();
-
-                Engine.Instance.Logs.Log(LogType.Warning, "Test, " + Code + ", " + Version + ", " + Path);
+                OnNormalizeVersion();                
             }
             catch (Exception e)
             {
@@ -52,6 +50,11 @@ namespace Eddie.Core
                 Version = "";
                 Location = "missing";
             }
+        }
+
+        public virtual bool Available()
+        {
+            return (Version != "");
         }
 
         public virtual void OnUpdatePath()
@@ -93,13 +96,14 @@ namespace Eddie.Core
             if (Location == "system")
                 return Path;
 
-            //string realHash = ComputeHash();
-            string realHash = "?";
+            /*
+            string realHash = ComputeHash();
             if (realHash != Hash)
             {
                 //Engine.Instance.Logs.Log(LogType.Error, MessagesFormatter.Format("Unexpected hash of executable '{1}': {2} vs {3}", Path, realHash, Hash));
                 return "";
             }
+            */
 
             if (Platform.Instance.FileExists(Path))
                 Platform.Instance.EnsureExecutablePermissions(Path);
@@ -139,23 +143,21 @@ namespace Eddie.Core
             string customLocationOption = "tools." + Code + ".location"; // "" (auto), "bundle", "system", "custom";
             if (Engine.Instance.Storage.Exists(customLocationOption))
                 searchLocation = Engine.Instance.Storage.Get(customLocationOption);
-            
-            // Custom location            
-            if( (searchLocation == "custom") && (Code != "") )
-            {                
-                string customPathOption = "tools." + Code + ".path";
-                if (Engine.Instance.Storage.Exists(customPathOption))
+
+            string customPathOption = "tools." + Code + ".path";
+            if (Engine.Instance.Storage.Exists(customPathOption))
+            {
+                string path = Platform.Instance.NormalizePath(customPathOption);
+                if (Platform.Instance.FileExists(path))
                 {
-                    string path = Platform.Instance.NormalizePath(customPathOption);
-                    if (Platform.Instance.FileExists(path))
-                    {
-                        Path = path;
-                        Location = "custom";
-                        return;
-                    }
+                    Path = path;
+                    Location = "custom";
+                    return;
                 }
             }
-
+            
+            
+                        
             // Same path
             {
                 string path = Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/" + filename);
@@ -191,25 +193,8 @@ namespace Eddie.Core
 
             foreach (string fileNameAlt in names)
             {
-                // Linux
-                if (Platform.Instance.IsUnixSystem())
-                {
-                    string pathBin = "/usr/bin/" + fileNameAlt;
-                    if (Platform.Instance.FileExists(pathBin))
-                    {
-                        Path = pathBin;
-                        Location = "system";
-                        return;
-                    }
-
-                    string pathSBin = "/usr/sbin/" + fileNameAlt;
-                    if (Platform.Instance.FileExists(pathSBin))
-                    {
-                        Path = pathSBin;
-                        Location = "system";
-                        return;
-                    }
-                }
+                if (Platform.Instance.SearchTool(fileNameAlt, Platform.Instance.GetApplicationPath(), ref Path, ref Location))
+                    break;
             }
         }
     }

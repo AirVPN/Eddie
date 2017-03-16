@@ -106,7 +106,7 @@ namespace Eddie.Gui
                 FormMain.DeInit();
         }
 
-        public override void OnCommand(XmlItem xml, bool ignoreIfNotExists)
+        public override XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
         {
             string action = xml.GetAttribute("action").ToLowerInvariant();
 
@@ -127,7 +127,9 @@ namespace Eddie.Gui
                 FormMain.ShowMenu();
             }
             else
-                base.OnCommand(xml, ignoreIfNotExists);
+                return base.OnCommand(xml, ignoreIfNotExists);
+
+            return null;
         }
 
         public override bool OnNoRoot()
@@ -235,8 +237,8 @@ namespace Eddie.Gui
 
                         //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
 
-                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd);
-					}
+                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
+                    }
 					else
 					{
                         Logs.Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);						

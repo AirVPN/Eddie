@@ -167,6 +167,11 @@ namespace Eddie.Core
 			
 		}
 
+        public virtual void OnAuthFailed()
+        {
+            Engine.Instance.Logs.Log(LogType.Warning, Messages.AuthFailed);
+        }
+
 		public virtual string Refresh()
 		{
 			return "";

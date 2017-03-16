@@ -30,7 +30,7 @@ namespace Eddie.CLI.Windows
 		static void Main(string[] args)
 		{
 			Platform.Instance = new Eddie.Platforms.Windows();
-
+            
 			CommandLine.InitSystem(Environment.CommandLine);
 
 			Core.Engine engine = new Core.Engine();
@@ -39,7 +39,7 @@ namespace Eddie.CLI.Windows
 
 			if (engine.Initialization(true))
 			{
-				engine.ConsoleStart();
+                engine.ConsoleStart();
 			}
 		}
 

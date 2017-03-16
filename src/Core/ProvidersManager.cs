@@ -92,6 +92,44 @@ namespace Eddie.Core
 
             if (Providers.Count == 0)
                 AddProvider("AirVPN", null);
+
+            // Hack Eddie 2.x
+            {
+                string specialOvpnDirectory = Engine.Instance.Storage.GetPath("ovpn");
+
+                // First, find OpenVPN provider if already exists and match {data}/ovpn
+                Core.Providers.OpenVPN providerSpecialOpenVPN = null;
+                foreach (Provider p in Providers)
+                {
+                    if (p is Providers.OpenVPN)
+                    {
+                        if ((p as Providers.OpenVPN).GetPathScan() == specialOvpnDirectory)
+                        {
+                            providerSpecialOpenVPN = p as Providers.OpenVPN;
+                        }
+                    }
+                }
+
+                // Remove if directory don't exists
+                if (providerSpecialOpenVPN != null)
+                {
+                    if (Platform.Instance.DirectoryExists(specialOvpnDirectory) == false)
+                    {
+                        Providers.Remove(providerSpecialOpenVPN);
+                    }
+                }
+
+                // Add if directory exists
+                if (providerSpecialOpenVPN == null)
+                {
+                    if (Platform.Instance.DirectoryExists(specialOvpnDirectory))
+                    {
+                        providerSpecialOpenVPN = AddProvider("OpenVPN", null) as Providers.OpenVPN;
+                        Utils.XmlSetAttributeString(providerSpecialOpenVPN.Storage.DocumentElement, "path", specialOvpnDirectory);
+                    }
+                }
+
+            }
         }
 
         private void LoadDefinition(string xml)

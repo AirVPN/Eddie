@@ -444,8 +444,10 @@ namespace Eddie.Core
 			string NotInMan = ""; // Option not listed in 'man' documentation.
 
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
-			SetDefaultBool("help", false, Messages.ManOptionHelp);
-			SetDefault("help_format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
+            SetDefaultBool("version", false, NotInMan);
+            SetDefaultBool("version.short", false, NotInMan);
+            SetDefaultBool("help", false, Messages.ManOptionHelp);
+			SetDefault("help.format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
             SetDefaultBool("batch", false, NotInMan); // Don't lock interface, exit when connection is closed.            
             SetDefault("login", "text", "", Messages.ManOptionLogin);
             SetDefault("password", "password", "", Messages.ManOptionPassword);
@@ -491,7 +493,8 @@ namespace Eddie.Core
 			SetDefault("proxy.login", "text", "", Messages.ManOptionProxyLogin);
 			SetDefault("proxy.password", "password", "", Messages.ManOptionProxyPassword);
             SetDefaultInt("proxy.tor.control.port", 9151, Messages.ManOptionProxyTorControlPort); 
-            SetDefaultBool("proxy.tor.control.auth", true, Messages.ManOptionProxyTorControlAuth); 
+            SetDefaultBool("proxy.tor.control.auth", true, Messages.ManOptionProxyTorControlAuth);
+            SetDefault("proxy.tor.control.cookie-path", "", "", NotInMan);
             SetDefault("proxy.tor.control.password", "password", "", Messages.ManOptionProxyTorControlPassword); 
 
             SetDefault("routes.default", "choice:in,out", "in", Messages.ManOptionRoutesDefault);
@@ -509,10 +512,12 @@ namespace Eddie.Core
 
 			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIpV6);
 
-			SetDefault("executables.openvpn", "path_file", "", Messages.ManOptionExecutablesOpenVpn);
-			SetDefault("executables.ssh", "path_file", "", Messages.ManOptionExecutablesSsh);
-			SetDefault("executables.ssl", "path_file", "", Messages.ManOptionExecutablesSsl);
-			SetDefault("executables.curl", "path_file", "", Messages.ManOptionExecutablesCurl);
+			SetDefault("tools.openvpn.path", "path_file", "", Messages.ManOptionToolsOpenVpnPath);
+			SetDefault("tools.ssh.path", "path_file", "", Messages.ManOptionToolsSshPath);
+			SetDefault("tools.ssl.path", "path_file", "", Messages.ManOptionToolsSslPath);
+			SetDefault("tools.curl.path", "path_file", "", Messages.ManOptionToolsCurlPath);
+
+            SetDefaultInt("tools.curl.max-time", 10, NotInMan);
 
             SetDefault("openvpn.custom", "text", "", Messages.ManOptionOpenVpnCustom);
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);            
@@ -526,6 +531,7 @@ namespace Eddie.Core
 			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort); 
 			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
             SetDefault("ssl.options", "text", "", NotInMan); // "NO_SSLv2" < 2.11.10
+            SetDefaultInt("ssl.verify", -1, NotInMan);
 
             SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
 
@@ -617,7 +623,7 @@ namespace Eddie.Core
             // Command-line only?
             Options["cli"].CommandLineOnly = true;
             Options["help"].CommandLineOnly = true;
-            Options["help_format"].CommandLineOnly = true;
+            Options["help.format"].CommandLineOnly = true;
 
             // Internal only?
             Options["gui.window.main"].InternalOnly = true;
@@ -723,8 +729,8 @@ namespace Eddie.Core
             }
 
 			if (Platform.Instance.IsUnixSystem())
-				Platform.Instance.ShellCmd("chmod 600 \"" + path + "\"");
-			
+				Platform.Instance.ShellCmd("chmod 600 \"" + SystemShell.EscapePath(path) + "\"");
+
         }
 
         public void Load()

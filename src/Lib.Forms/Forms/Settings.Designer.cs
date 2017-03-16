@@ -1496,7 +1496,6 @@ namespace Eddie.Gui.Forms
             this.cboProxyMode.FormattingEnabled = true;
             this.cboProxyMode.Items.AddRange(new object[] {
             "None",
-            "Detect",
             "Http",
             "Socks",
             "Tor"});

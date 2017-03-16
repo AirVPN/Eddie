@@ -28,8 +28,8 @@ namespace Eddie.CLI.Linux
 		{
             Platform.Instance = new Eddie.Platforms.Linux();
             CommandLine.InitSystem(Environment.CommandLine);
-
-			Engine engine = new Engine();
+            
+            Engine engine = new Engine();
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 

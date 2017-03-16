@@ -24,10 +24,10 @@ using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
-    // TOCLEAN, replace almost all with Tools
     public class Software
     {		
 		public static string OpenVpnDriver = "";
+        /*
 		public static string OpenVpnPath = "";
 		public static string OpenVpnVersion = "";
 
@@ -38,6 +38,7 @@ namespace Eddie.Core
 
 		public static string CurlVersion = "";
 		public static string CurlPath = "";
+        */
 
         public static Dictionary<string, Tool> Tools = new Dictionary<string, Tool>();
         
@@ -60,8 +61,8 @@ namespace Eddie.Core
 			// OpenVPN Driver
 			try
 			{
-				OpenVpnDriver = Platform.Instance.GetDriverAvailable();				
-			}
+				OpenVpnDriver = Platform.Instance.GetDriverAvailable();
+            }
 			catch (Exception e)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, e);
@@ -69,11 +70,11 @@ namespace Eddie.Core
 			}
 
             // Tools
-            /*
             AddTool("openvpn", "hash", new Tools.OpenVPN());
             AddTool("ssh", "hash", new Tools.SSH());
             AddTool("ssl", "hash", new Tools.SSL());
             AddTool("curl", "hash", new Tools.Curl());
+            AddTool("cacert.pem", "hash", new Tools.File("cacert.pem"));
             if (Platform.IsUnix())
             {
                 AddTool("update-resolv-conf", "hash", new Tools.File("update-resolv-conf"));
@@ -85,154 +86,7 @@ namespace Eddie.Core
             }
 
             foreach (Tool tool in Tools.Values)
-                tool.UpdatePath();
-            */
-            
-            // OpenVPN Binary
-            try
-			{
-				string executableName = "openvpn";
-				
-				OpenVpnPath = FindExecutable(executableName);
-
-				if (OpenVpnPath != "")
-				{
-					OpenVpnVersion = Platform.Instance.Shell(OpenVpnPath, "--version").Trim();
-					if( (OpenVpnVersion.StartsWith("Error:")) || (OpenVpnVersion == "") )
-					{
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, OpenVpnPath));
-						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + OpenVpnVersion);
-						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(OpenVpnPath));
-						OpenVpnPath = "";
-						OpenVpnVersion = "";
-					}
-					else if (OpenVpnVersion != "")
-					{
-                        string ver = Utils.ExtractBetween(OpenVpnVersion, "OpenVPN ", " ");
-                        string libs = Utils.ExtractBetween(OpenVpnVersion, "library versions:", "\n").Trim();
-                        /*
-                        int posS = OpenVpnVersion.IndexOf(" ", 8);
-                        if (posS > 1)
-							OpenVpnVersion = OpenVpnVersion.Substring(0, posS);
-                        */
-                        OpenVpnVersion = ver + " - " + libs;
-
-                    }
-				}
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, e);				
-				OpenVpnPath = "";
-				OpenVpnVersion = "";
-			}
-
-			
-			// SSH Tunnel Binary
-			try
-			{
-				string executableName = "ssh";
-								
-				SshPath = FindExecutable(executableName);
-
-				if (SshPath != "")
-				{
-					string arguments = "-V";
-					SshVersion = Platform.Instance.Shell(SshPath, arguments).Trim();
-					if( (SshVersion.StartsWith("Error:")) || (SshVersion == ""))
-					{
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, SshPath));
-						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SshVersion);
-						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SshPath));						
-						SshPath = "";
-						SshVersion = "";
-					}
-					else if (SshVersion != "")
-					{
-						if (Platform.Instance.IsWindowsSystem()) 
-							SshVersion = SshVersion.Replace(": Release", "").Trim();
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, e);				
-				SshPath = "";
-				SshVersion = "";
-			}
-
-			// SSL Tunnel Binary
-			try
-			{
-				string executableName = "ssl";
-								
-				SslPath = FindExecutable(executableName);
-
-				
-				if (SslPath != "")
-				{
-					string arguments = "-version";					
-					SslVersion = Platform.Instance.Shell(SslPath, arguments).Trim();
-					if ((SslVersion.StartsWith("Error:")) || (SslVersion == ""))
-					{
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, SslPath));
-						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + SslVersion);
-						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(SslPath));
-						SslPath = "";
-						SslVersion = "";
-					}
-					else
-					{
-						int posS = SslVersion.IndexOf(" ", 8);
-						if (posS > 1)
-							SslVersion = SslVersion.Substring(0, posS);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, e);				
-				SslPath = "";
-				SslVersion = "";
-			}
-
-			// CUrl			
-			try
-			{
-				string executableName = "curl";
-
-				CurlPath = FindExecutable(executableName);
-
-				if (CurlPath != "")
-				{
-					string arguments = "--version";
-					CurlVersion = Platform.Instance.Shell(CurlPath, arguments).Trim();
-					if ((CurlVersion.StartsWith("Error:")) || (CurlVersion == ""))
-					{
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, executableName, CurlPath));
-						Engine.Instance.Logs.Log(LogType.Verbose, "Output: " + CurlVersion);
-						Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(CurlPath));
-						CurlPath = "";
-						CurlVersion = "";
-					}
-					else
-					{
-						int posS = CurlVersion.IndexOf("\n");
-						if (posS > 1)
-							CurlVersion = CurlVersion.Substring(0, posS);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, e);
-				CurlPath = "";
-				CurlVersion = "";
-			}
-
-			// Local Time in the past
-			if (DateTime.UtcNow < Constants.dateForPastChecking)
-				Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
+                tool.UpdatePath();            
 		}
 
 		public static void Log()
@@ -246,132 +100,60 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN Driver - " + Messages.OsDriverNotAvailable);
 			}
 
-			if(OpenVpnPath != "")
-			{
-				Engine.Instance.Logs.Log(LogType.Info, "OpenVPN - Version: " + OpenVpnVersion + " (" + OpenVpnPath + ")");
+            if (GetTool("openvpn").Available())
+            {
+				Engine.Instance.Logs.Log(LogType.Info, "OpenVPN - Version: " + GetTool("openvpn").Version + " (" + GetTool("openvpn").Path + ")");
 			}
 			else
 			{
 				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN - " + Messages.NotAvailable);
 			}
 
-			if(SshPath != "")
-			{
-				Engine.Instance.Logs.Log(LogType.Info, "SSH - Version: " + SshVersion + " (" + SshPath + ")");
+            if (GetTool("ssh").Available())
+            {
+				Engine.Instance.Logs.Log(LogType.Info, "SSH - Version: " + GetTool("ssh").Version + " (" + GetTool("ssh").Path + ")");
 			}
 			else
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "SSH - " + Messages.NotAvailable);
 			}
 
-			if(SslPath != "")
-			{
-				Engine.Instance.Logs.Log(LogType.Info, "SSL - Version: " + SslVersion + " (" + SslPath + ")");
+            if (GetTool("ssl").Available())
+            {
+				Engine.Instance.Logs.Log(LogType.Info, "SSL - Version: " + GetTool("ssl").Version + " (" + GetTool("ssl").Path + ")");
 			}
 			else
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "SSL - " + Messages.NotAvailable);
-			}            
-        }
-
-        public static bool FileExists(string path)
-        {
-            if (path == "")
-                return false;
-            if (Platform.Instance.FileExists(path) == false)
-                return false;
-
-            return true;
-        }
-
-		public static string FindExecutable(string name)
-		{
-			string filename = name;
-
-			if (Platform.Instance.IsWindowsSystem())
-			{
-				if (name == "openvpn")
-					filename = "openvpn.exe";
-				else if (name == "ssh")
-					filename = "plink.exe";
-				else if (name == "ssl")
-					filename = "stunnel.exe";
-				else
-					filename = name + ".exe";
-			}
-			else
-			{
-				if (name == "ssl")
-					filename = "stunnel";
 			}
 
-			string path = FindResource(filename, name);
-            
-			if (path != "") // 2.8
-				Platform.Instance.EnsureExecutablePermissions(path);
-			
-			return path;
-		}
-
-		public static string FindResource(string filename)
-		{
-			return FindResource(filename, "");
-		}
-
-		public static string FindResource(string filename, string name)
-		{
-            // Custom location (2.11, below 'Same path' in 2.10)
-            if (name != "")
+            if (GetTool("curl").Available())
             {
-                string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get("executables." + name));
-                if (FileExists(path))
-                    return path;
+                Engine.Instance.Logs.Log(LogType.Info, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
+            }
+            else
+            {
+                Engine.Instance.Logs.Log(LogType.Warning, "curl - " + Messages.NotAvailable);
             }
 
-            // Same path
+            if (GetTool("cacert.pem").Available())
             {
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/" + filename);
-				if (FileExists(path))
-					return path;
-			}
-            
-			// GIT source tree
-			if (Engine.Instance.DevelopmentEnvironment)
-			{
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetGitDeployPath() + filename);	
-				if (FileExists(path))
-					return path;
-			}
+                Engine.Instance.Logs.Log(LogType.Info, "Certification Authorities: " + GetTool("cacert.pem").Path);
+            }
+            else
+            {
+                Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + Messages.NotAvailable);
+            }
+        }        
 
-			// System
-			List<string> names = new List<string>();			
-			if (filename == "stunnel")
-			{				
-				// For example, under Ubuntu is 'stunnel4', under Fedora is 'stunnel'.
-				names.Add("stunnel5");
-				names.Add("stunnel4");				
-			}
-			names.Add(filename);
+        public static string FindResource(string tool) // TOCLEAN
+        {
+            Tool t = GetTool(tool);
+            if (t.Available())
+                return t.Path;
+            else
+                return "";
+        }
 
-			foreach (string fileNameAlt in names)
-			{
-				// Linux
-				if (Platform.Instance.IsUnixSystem())
-				{
-					string pathBin = "/usr/bin/" + fileNameAlt;
-					if (FileExists(pathBin))
-						return pathBin;
-
-					string pathSBin = "/usr/sbin/" + fileNameAlt;
-					if (FileExists(pathSBin))
-						return pathSBin;
-				}
-			}
-
-			return "";
-		}
-
-
-
-	}
+    }
 }

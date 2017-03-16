@@ -5,9 +5,9 @@ Maintainer: Eddie <maintainer@eddie.website>
 Priority: optional
 Architecture: {@architecture}
 Installed-Size: 8192
-Depends: gksu, mono-runtime, mono-utils, libmono-system-windows-forms4.0-cil, openvpn, stunnel4
-Bugs: https://airvpn.org/forum/3-airvpn-client/
-Homepage: https://airvpn.org/
+Depends: gksu, mono-runtime, mono-utils, libmono-system-core4.0-cil, libmono-system-windows-forms4.0-cil, openvpn, stunnel4, curl
+Bugs: https://eddie.website/support/
+Homepage: https://eddie.website/
 Description: VPN service based on OpenVPN
  VPN based on OpenVPN and operated by activists and hacktivists 
  in defence of net neutrality, privacy and against censorship.

@@ -29,16 +29,29 @@ namespace Eddie.Core
     {
 		public static string GetControlAuthCookiePath()
 		{
-			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");			
+            string cookieCustomPath = Engine.Instance.Storage.Get("proxy.tor.control.cookie-path");
+            if(cookieCustomPath != "")
+            {
+                if (Platform.Instance.FileExists(cookieCustomPath))
+                    return cookieCustomPath;
+            }
+
+            System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");			
 			if (processes.Length > 0)
 			{
 				// Tor Browser Bundle, Unix and Windows at 10/16/2014				
 				string path1 = Platform.Instance.NormalizePath(new FileInfo(processes[0].MainModule.FileName).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");				
 				if (Platform.Instance.FileExists(path1))
 					return path1;
-			}
 
-			{
+                string path2 = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("APPDATA") + "/tor/control_auth_cookie");
+                if (Platform.Instance.FileExists(path2))
+                    return path2;
+
+                // c:\Users\Clodo\AppData\Roaming\tor\
+            }
+
+            {
 				// Unix
 				string path = "/var/run/tor/control.authcookie";
 				if (Platform.Instance.FileExists(path))
@@ -156,17 +169,17 @@ namespace Eddie.Core
 
 		public static List<string> GetGuardIps()
 		{
-			try
+            List<string> ips = new List<string>();
+
+            try
 			{
 				string controlHost = Engine.Instance.Storage.Get("proxy.host").ToLowerInvariant().Trim();
 
 				if ((controlHost != "127.0.0.1") && (controlHost.ToLowerInvariant() != "localhost"))
 				{
-					// Guard IPS are used to avoid routing loop, that occur only if the Tor host is the same machine when OpenVPN run.
-					return new List<string>();
+                    // Guard IPS are used to avoid routing loop, that occur only if the Tor host is the same machine when OpenVPN run.
+                    return ips;
 				}
-
-				List<string> ips = new List<string>();
 
 				TcpClient s = Connect();
 				
@@ -208,16 +221,20 @@ namespace Eddie.Core
 
 				s.Close();
 
-				if (ips.Count == 0)
-					throw new Exception(Messages.TorControlNoIps);
-
-				return ips;
+                if (ips.Count == 0)
+                {
+                    Engine.Instance.Logs.Log(LogType.Warning, Messages.TorControlNoIps);
+                    //throw new Exception(Messages.TorControlNoIps);                				
+                }
 			}
 			catch (Exception e)
 			{
-				throw new Exception(MessagesFormatter.Format(Messages.TorControlException, e.Message));
-			}
-		}
+                //throw new Exception(MessagesFormatter.Format(Messages.TorControlException, e.Message));
+                Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.TorControlException, e.Message));
+            }
+
+            return ips;
+        }
 
 		public static string Read(TcpClient s)
 		{

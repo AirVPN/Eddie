@@ -30,6 +30,11 @@ namespace Eddie.Lib.Common
     {
         XmlElement m_element;
 
+        public XmlItem()
+        {
+            Init("return");
+        }
+
         public XmlItem(string value)
         {
             if (value.StartsWith("<"))

@@ -91,7 +91,7 @@ namespace Eddie.UI.Windows
         {
             m_context.ExitThread();
 
-            Application.Exit();
+            //Application.Exit(); // Removed in 2.12, otherwise lock Core thread. Still required in Linux edition.
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]

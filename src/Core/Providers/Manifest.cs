@@ -186,7 +186,12 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-		public override string Refresh()
+        public override void OnAuthFailed()
+        {
+            Engine.Instance.Logs.Log(LogType.Warning, Messages.AirVpnAuthFailed);
+        }
+
+        public override string Refresh()
 		{
 			base.Refresh();
 

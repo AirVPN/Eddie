@@ -72,7 +72,7 @@ namespace Deploy
 
 		static void Main(string[] args)
 		{            
-            Log("Eddie deployment v1.4");
+            Log("Eddie deployment v1.5 - " + DateTime.UtcNow.ToLongDateString() + " - " + DateTime.UtcNow.ToLongTimeString());
             Log("Arguments allowed: 'verbose' (show more logs), 'official' (signing files)");
 			
             Arguments = new List<string>();
@@ -103,7 +103,7 @@ namespace Deploy
 			}
 			else 
 			{
-				Console.WriteLine("Unknown platform.");
+				Log("Unknown platform.");
 				return;
 			}
 			Log("Platform: " + SO);
@@ -182,21 +182,7 @@ namespace Deploy
             ------------------------------- */
 
             Pause();
-
-            /* -------------------------------
-                Generate Man pages
-            ------------------------------- */
-
-            if (SO == "windows")
-            {
-                Log("Generating manual files");
-                string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
-                WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html"));
-                WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc"));
-                WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text"));
-                WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man"));
-            }
-            
+                        
             /* -------------------------------
 			   Build packages list
 			------------------------------- */
@@ -247,32 +233,13 @@ namespace Deploy
 			if (SO == "macos") {
 				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "portable"));
 				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "installer"));
-				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "portable"));
+				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "disk"));
 				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "mono"));
+				ListPackages.Add(new Package("macos", "x64", "cli", true, 4, "portable"));
 			}
 			
-            
-
-
-
             if (SO == "linux")
 				PathBaseTemp = "/tmp/eddie_deploy";
-
-            /* // TOCLEAN
-			int netFramework = 0;
-			if (SO == "windows") {
-				Log ("What .net framework is currently complied? '2' or '4'.");
-				ConsoleKeyInfo keyFramework = Console.ReadKey ();
-	            
-				if (keyFramework.KeyChar == '2')
-					netFramework = 2;
-				else if (keyFramework.KeyChar == '4')
-					netFramework = 4;
-			} else if (SO == "linux")
-				netFramework = 4;
-			else if (SO == "osx")
-				netFramework = 2;
-            */
 
             foreach (Package package in ListPackages)
 			{
@@ -282,16 +249,6 @@ namespace Deploy
                 string ui = package.UI;
                 int requiredNetFramework = package.NetFramework;
 				string format = package.Format;
-
-                /* // TOCLEAN
-				int requiredNetFramework = 4;
-				if(platform == "windows")
-					requiredNetFramework = 2;
-				if (platform == "windows_xp")
-					requiredNetFramework = 2;
-				else if (platform == "osx")
-					requiredNetFramework = 2;
-                */
 
                 //string archiveName = "airvpn_" + platform + "_" + arch + "_" + format;
                 //string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
@@ -306,15 +263,7 @@ namespace Deploy
 					pathDeploy = pathDeploy.Replace("windows-10", "windows");
                 if (platform == "windows-7") // Windows_7 use the same common files of Windows
                     pathDeploy = pathDeploy.Replace("windows-7", "windows");
-
-                /* // TOCLEAN
-                if (requiredNetFramework != netFramework)
-                {
-                    Log("Building '" + archiveName + "' skipped for mismatch .Net framework");
-                    continue;
-                }
-                */
-
+                                
                 // Start
                 Log("------------------------------");
 				Log("Building '" + archiveName + "'");
@@ -562,6 +511,9 @@ namespace Deploy
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
 
+                        CreateDirectory(pathTemp + "/usr/share/AirVPN");
+                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
+
                         WriteTextFile(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl(Constants.ChangeLogUrl));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
@@ -578,8 +530,9 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 								
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/copyright\"");
-								
-						string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
+                        Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
+
+                        string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
 						Log(command);
 						Shell(command);
 
@@ -617,6 +570,9 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libgdiplus.so.0");
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
 
+                        CreateDirectory(pathTemp + "/usr/share/AirVPN");
+                        MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
+
                         WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
                         Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
                         Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
@@ -628,6 +584,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
+                        Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
 
                         string command = "rpmbuild";
                         if(IsOfficial())
@@ -678,18 +635,52 @@ namespace Deploy
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
 							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.Osx/bin/");
 
-							CopyFile(pathRelease, "eddie-cli", pathTemp, "eddie-cli");
+							//CopyFile(pathRelease, "eddie-cli", pathTemp, "eddie-cli");
 
 							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
 							if (File.Exists(pathFinal))
 								File.Delete(pathFinal);
 
+							{
+								// Tested with Xamarin Studio 6.1.2 build 44, Mono 4.6.2, macOS Sierra 10.12.1
+
+								string cmd = "";
+
+								// Ensure it can find pkg-config:
+								cmd += "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib/pkgconfig:/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig;";
+
+								// Force 32bit build and manually set some clang linker properties:
+								cmd += "export AS=\"as -arch i386\";";
+								cmd += "export CC=\"cc -arch i386 -lobjc -liconv -framework CoreFoundation -I /Library/Frameworks/Mono.framework/Versions/Current/include/mono-2.0/\";";
+
+								// Force 64bit build and manually set some clang linker properties:
+								// export AS="as -arch x86_64"
+								// export CC="cc -arch x86_64 -lobjc -liconv -framework CoreFoundation -I /Library/Frameworks/Mono.framework/Versions/Current/include/mono-2.0/"
+
+								// Other ensure it can find pig-config
+								cmd += "export PATH=/Library/Frameworks/Mono.framework/Versions/Current/bin/:$PATH;";
+
+								// WARNING: Currently 2017-03-10 , cannot be signed for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
+								cmd += "mkbundle";
+								cmd += " --sdk /Library/Frameworks/Mono.framework/Versions/Current";
+								cmd += " \"" + pathRelease + "/CLI.Osx.exe\"";
+								cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
+								cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
+								cmd += " \"" + pathRelease + "/Platforms.Osx.dll\"";
+								cmd += " -z";
+								cmd += " --static";
+								cmd += " --deps";
+								cmd += " -o \"" + pathTemp + "/eddie-cli\"";
+
+								Shell(cmd);
+							}
+
 							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 
-							SignFile(platform, format, pathTemp + "/eddie-cli");
+							SignFile(platform, format, pathTemp + "/eddie-cli"); // WARNING: Currently 2017-03-10 , signing don't work for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
                             SignFile(platform, format, pathTemp + "/openvpn");
                             SignFile(platform, format, pathTemp + "/stunnel");
 
@@ -708,32 +699,131 @@ namespace Deploy
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
 							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
 
+							CreateDirectory(pathTemp + "/Eddie.app");
+							CopyDirectory(pathRelease + "Eddie.app", pathTemp + "/Eddie.app");
+
 							// TAR.GZ
 							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
 							if (File.Exists(pathFinal))
 								File.Delete(pathFinal);
 
-                            //SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
-                            SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/openvpn");
-                            SignFile(platform, format, pathRelease + "Eddie.app/Contents/MacOS/stunnel");
-                            SignFile(platform, format, pathRelease + "Eddie.app");
+							CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/Eddie.app/Contents/Info.plist");
+							ReplaceInFile(pathTemp + "/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
 
-							string command2 = "cd \"" + pathRelease + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
+							MoveFile(pathTemp + "/openvpn", pathTemp + "/Eddie.app/Contents/MacOS/openvpn");
+							MoveFile(pathTemp + "/stunnel", pathTemp + "/Eddie.app/Contents/MacOS/stunnel");
+							MoveFile(pathTemp + "/cacert.pem", pathTemp + "/Eddie.app/Contents/Resources/cacert.pem");
+
+							RemoveFile(pathTemp + "/Eddie.app/Contents/MacOS/dev.txt");
+
+                            //SignSingleFile(platform, pathTemp + "/Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/Eddie");
+                            SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/openvpn");
+                            SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/stunnel");
+                            SignFile(platform, format, pathTemp + "/Eddie.app");
+
+							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
 							Shell(command2);
 						}
 
 					}
 					else if (format == "installer")
 					{
-						pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-						pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+						if (ui == "ui")
+						{
+							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
 
-						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
+							CreateDirectory(pathTemp + "/Applications/Eddie.app");
+							CopyDirectory(pathRelease + "Eddie.app", pathTemp + "/Applications/Eddie.app");
 
-						Shell ("cp " + pathRelease + "/*.pkg " + pathFinal);
+							// TAR.GZ
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
 
-                        SignFile(platform, format, pathFinal);
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/Applications/Eddie.app/Contents/Info.plist");
+							ReplaceInFile(pathTemp + "/Applications/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
+
+							MoveFile(pathTemp + "/openvpn", pathTemp + "/Applications/Eddie.app/Contents/MacOS/openvpn");
+							MoveFile(pathTemp + "/stunnel", pathTemp + "/Applications/Eddie.app/Contents/MacOS/stunnel");
+							MoveFile(pathTemp + "/cacert.pem", pathTemp + "/Applications/Eddie.app/Contents/Resources/cacert.pem");
+
+							RemoveFile(pathTemp + "/Applications/Eddie.app/Contents/MacOS/dev.txt");
+
+							//SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/Eddie");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/openvpn");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app");
+
+							string command2 = "pkgbuild";
+							command2 += " --identifier com.eddie.client";
+							command2 += " --version " + versionString3;
+							command2 += " --root \"" + pathTemp + "\"";
+							//command2 += " --component \"" + pathRelease + "Eddie.app\"";
+
+							string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
+							if (File.Exists(pathSignString))
+							{
+								string appleSign = File.ReadAllText(pathSignString).Trim();
+								command2 += " --sign \"" + appleSign + "\"";
+								command2 += " --timestamp";
+							}
+							command2 += " \"" + pathFinal + "\"";
+							Log("pkgbuild command: " + command2);
+							Log(Shell(command2));
+
+							//SignFile(platform, format, pathFinal);
+						}
+					}
+					else if (format == "disk")
+					{
+						if (ui == "ui")
+						{
+							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+
+							Log("Extract DMG base");
+							Shell("tar -jxvf " + "\"" + PathBaseResources + "/macos/diskbase.dmg.tar.bz2\" -C \"" + pathTemp + "\"");
+							Log("Resize DMG");
+							Shell("hdiutil resize -size 200m '" + pathTemp + "/diskbase.dmg" + "'");
+							Log("Attach DMG");
+							Shell("hdiutil attach '" + pathTemp + "/diskbase.dmg" + "' -mountpoint '" + pathTemp + "/DiskBuild'");
+							Log("Fill DMG");
+
+							CreateDirectory(pathTemp + "/DiskBuild/Eddie.app");
+							CopyDirectory(pathRelease + "Eddie.app", pathTemp + "/DiskBuild/Eddie.app");
+
+							// TAR.GZ
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".dmg");
+
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/DiskBuild/Eddie.app/Contents/Info.plist");
+							ReplaceInFile(pathTemp + "/DiskBuild/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
+
+							MoveFile(pathTemp + "/openvpn", pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/openvpn");
+							MoveFile(pathTemp + "/stunnel", pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/stunnel");
+							MoveFile(pathTemp + "/cacert.pem", pathTemp + "/DiskBuild/Eddie.app/Contents/Resources/cacert.pem");
+
+							RemoveFile(pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/dev.txt");
+
+							//SignSingleFile(platform, pathRelease + "Eddie.app/Contents/MonoBundle/libMonoPosixHelper.dylib");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/Eddie");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/openvpn");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app");
+
+							Log("Detach DMG");
+							Shell("hdiutil detach \"" + pathTemp + "/DiskBuild" + "\"");
+							Log("Compress DMG");
+							Shell("hdiutil convert \"" + pathTemp + "/temp.dmg" + "\" -format UDCO -imagekey zlib-level=9 -o \"" + pathFinal + "\"");
+
+						}
 					}
 					else if (format == "mono")
 					{
@@ -772,6 +862,21 @@ namespace Deploy
 				}
 					
 			}
+
+            /* -------------------------------
+                Generate Man pages
+            ------------------------------- */
+
+            if (SO == "windows")
+            {
+                Log("Generating manual files");
+                string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
+                WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html"));
+                WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc"));
+                WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text"));
+                WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man"));
+            }
+
 
             Log("------------------------------");
             if (Errors == 0)
@@ -999,7 +1104,10 @@ namespace Deploy
 				if (file.EndsWith("tap-windows.exe", StringComparison.InvariantCulture)) // Already signed by OpenVPN Technologies
                     skip = true;
 
-                if(skip == false)
+                if (file.EndsWith("cacert.pem", StringComparison.InvariantCulture))
+                    skip = true;
+
+                if (skip == false)
                     SignFile(platform, format, file);
             }            
         }
@@ -1016,6 +1124,7 @@ namespace Deploy
 				{
 					string appleSign = File.ReadAllText(pathSignString).Trim();
 					string cmd = "codesign -d --deep -v --force --sign \"" + appleSign + "\" \"" + path + "\"";
+
 					string output = Shell(cmd);
 					Log("macOS Signing file: " + output);
 				}
@@ -1082,16 +1191,27 @@ namespace Deploy
         
         static void MoveFile(string fromFilePath, string toFilePath)
         {
+			fromFilePath = NormalizePath(fromFilePath);
+			toFilePath = NormalizePath(toFilePath);
             if (IsVerbose())
                 Log("Move file from '" + fromFilePath + "' to '" + toFilePath + "'");
-            File.Move(NormalizePath(fromFilePath), NormalizePath(toFilePath));
+			if (File.Exists(fromFilePath) == false)
+				throw new Exception("MoveFile failed, source don't exists: " + fromFilePath);
+			if (File.Exists(toFilePath))
+				File.Delete(toFilePath);
+            File.Move(fromFilePath, toFilePath);
         }
 
         static void CopyFile(string fromFilePath, string toFilePath)
 		{
-            if (IsVerbose())
+			fromFilePath = NormalizePath(fromFilePath);
+			toFilePath = NormalizePath(toFilePath);
+			if (IsVerbose())
                 Log("Copy file from '" + fromFilePath + "' to '" + toFilePath + "'");
-			File.Copy(NormalizePath(fromFilePath), NormalizePath(toFilePath), false);
+			if (File.Exists(toFilePath))
+				File.Delete(toFilePath);		
+				    
+			File.Copy(fromFilePath, toFilePath, false);
 		}
 
 		static void CopyFile(string fromPath, string fromFile, string toPath)
@@ -1163,7 +1283,11 @@ namespace Deploy
 
 			//Copy all the files & Replaces any files with the same name
 			foreach (string newPath in Directory.GetFiles(fromPath, "*.*", SearchOption.AllDirectories))
-				File.Copy(newPath, newPath.Replace(fromPath, toPath), true);
+			{
+				string fileFromPath = newPath;
+				string fileToPath = newPath.Replace(fromPath, toPath);
+				File.Copy(fileFromPath, fileToPath, true);
+			}
 		}
 
         public static string ExtractBetween(string str, string from, string to)
@@ -1184,6 +1308,7 @@ namespace Deploy
         static void Log(string message)
 		{
 			Console.WriteLine(message);
+            File.AppendAllText("build.log", message + "\r\n");
 		}
 
 		static void Pause()

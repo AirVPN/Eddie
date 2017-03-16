@@ -47,16 +47,16 @@ namespace Eddie.Platforms
             // Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
             // Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
             // Manjaro, same as Ubuntu
-            m_logname = ShellCmd("echo $SUDO_USER").Trim();
+            m_logname = ShellCmd("echo $SUDO_USER").Trim(); // IJTF2 // TOCHECK
             if (m_logname == "")
                 m_logname = ShellCmd("logname");
             if (m_logname.Contains("no login name"))
                 m_logname = Environment.UserName;
-            
-            TrustCertificatePolicy.Activate();
-		}
 
-		public override string GetCode()
+            // TrustCertificatePolicy.Activate();
+        }
+
+        public override string GetCode()
 		{
 			return "Linux";
 		}
@@ -112,7 +112,7 @@ namespace Eddie.Platforms
             if (FileExists(path) == false)
                 return false;
 
-            string result = ShellCmd("lsattr \"" + Utils.StringNormalizePath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
+            string result = ShellCmd("lsattr \"" + SystemShell.EscapePath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
                         
             /* // < 2.11.11
             if (result.IndexOf(' ') != 16) 
@@ -135,13 +135,13 @@ namespace Eddie.Platforms
             if (FileExists(path))
             {
                 string flag = (value ? "+i" : "-i");
-                ShellCmd("chattr " + flag + " \"" + Utils.StringNormalizePath(path) + "\"");
+                ShellCmd("chattr " + flag + " \"" + SystemShell.EscapePath(path) + "\"");
             }
         }
         
         public override string GetExecutableReport(string path)
 		{
-			return ShellCmd("ldd \"" + Utils.StringNormalizePath(path) + "\"");
+			return ShellCmd("ldd \"" + SystemShell.EscapePath(path) + "\"");
 		}
 
 		public override string GetExecutablePathEx()
@@ -223,14 +223,43 @@ namespace Eddie.Platforms
         protected override void OpenDirectoryInFileManagerEx(string path)
         {
             // TOFIX Don't work well on all distro
-            string args = " - " + m_logname + " -c 'xdg-open \"" + path + "\"'";
+            string args = " - " + m_logname + " -c 'xdg-open \"" + SystemShell.EscapePath(path) + "\"'"; // IJTF2 // TOCHECK
             Shell("su", args, false);
+        }
+
+        public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
+        {
+            string pathBin = "/usr/bin/" + name;
+            if (Platform.Instance.FileExists(pathBin))
+            {
+                path = pathBin;
+                location = "system";
+                return true;
+            }
+
+            string pathSBin = "/usr/sbin/" + name;
+            if (Platform.Instance.FileExists(pathSBin))
+            {
+                path = pathSBin;
+                location = "system";
+                return true;
+            }
+
+            string pathShare = "/usr/share/" + Lib.Common.Constants.Name + "/" + name;
+            if (Platform.Instance.FileExists(pathShare))
+            {
+                path = pathShare;
+                location = "system";
+                return true;
+            }
+
+            return base.SearchTool(name, relativePath, ref path, ref location);
         }
 
         public override long Ping(string host, int timeoutSec)
         {
-            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + Utils.SafeStringHost(host);
-            string result = ShellCmd(cmd);
+            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host);
+            string result = ShellCmd(cmd, true);
             
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
@@ -251,7 +280,7 @@ namespace Eddie.Platforms
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
-			ShellCmd("chmod +x \"" + Utils.StringNormalizePath(path) + "\"");			
+			ShellCmd("chmod +x \"" + SystemShell.EscapePath(path) + "\"");			
 		}
 
 
@@ -283,8 +312,8 @@ namespace Eddie.Platforms
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
 
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
         
 		public override void RouteRemove(RouteEntry r)
 		{
@@ -300,14 +329,14 @@ namespace Eddie.Platforms
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
 			
-			ShellCmd(cmd);
-		}
+			ShellCmd(cmd); // IJTF2 // TOCHECK
+        }
 
         public override void ResolveWithoutAnswer(string host)
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora.
             if (Platform.Instance.FileExists("/usr/bin/host"))
-                ShellCmd("host -W 5 -t A " + Utils.SafeStringHost(host));
+                ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
             else
                 base.ResolveWithoutAnswer(host);
         }
@@ -517,7 +546,8 @@ namespace Eddie.Platforms
 				foreach(string dnsSingle in dnsArray)
 					text += "nameserver " + dnsSingle + "\n";
 
-                FileContentsWriteText("/etc/resolv.conf", text);                
+                FileContentsWriteText("/etc/resolv.conf", text);
+                ShellCmd("chmod 644 /etc/resolv.conf");
             }
 
 			base.OnDnsSwitchDo(dns);
@@ -535,8 +565,8 @@ namespace Eddie.Platforms
                 
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameRestored);
 
-				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");
-			}
+				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");                
+            }
 
 			base.OnDnsSwitchRestore();
 

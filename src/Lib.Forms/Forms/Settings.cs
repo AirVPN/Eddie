@@ -132,7 +132,6 @@ namespace Eddie.Gui.Forms
             // Proxy
             cboProxyMode.Items.Clear();
             cboProxyMode.Items.Add("None");
-            cboProxyMode.Items.Add("Detect");
             cboProxyMode.Items.Add("Http");
             cboProxyMode.Items.Add("Socks");
             cboProxyMode.Items.Add("Tor");
@@ -349,7 +348,7 @@ namespace Eddie.Gui.Forms
             chkWindowsDnsLock.Checked = s.GetBool("windows.dns.lock");            
             chkWindowsDebugWorkaround.Checked = s.GetBool("windows.workarounds");
 
-            txtExePath.Text = s.Get("executables.openvpn");
+            txtExePath.Text = s.Get("tools.openvpn.path");
 
 			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
@@ -596,7 +595,7 @@ namespace Eddie.Gui.Forms
             s.SetBool("windows.dns.lock", chkWindowsDnsLock.Checked);
             s.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
 
-            s.Set("executables.openvpn", txtExePath.Text);
+            s.Set("tools.openvpn.path", txtExePath.Text);
 
 			int manifestRefreshIndex = cboAdvancedManifestRefresh.SelectedIndex;
 			if (manifestRefreshIndex == 0) // Auto
