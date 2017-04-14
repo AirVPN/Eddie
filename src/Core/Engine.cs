@@ -2016,21 +2016,18 @@ namespace Eddie.Core
 			{
 				Dictionary<int, string> processes = Platform.Instance.GetProcessesList();
 				
-				foreach (string name in processes.Values)
+				foreach (string cmd in processes.Values)
 				{
-					if (name == "openvpn")
-						throw new Exception(Messages.AlreadyRunningOpenVPN);
+                    if(cmd.StartsWith(Software.GetTool("openvpn").Path))
+						throw new Exception(MessagesFormatter.Format(Messages.AlreadyRunningOpenVPN, cmd));
 
-					if ((protocol == "SSL") && (name == "stunnel"))
+					if ((protocol == "SSL") && (cmd.StartsWith(Software.GetTool("ssl").Path)))
 					{
-						throw new Exception(Messages.AlreadyRunningSTunnel);
+						throw new Exception(MessagesFormatter.Format(Messages.AlreadyRunningSTunnel, cmd));
 					}
 
-					if ((protocol == "SSH") && (name == "plink"))
-						throw new Exception(Messages.AlreadyRunningSshPLink);
-
-					if ((protocol == "SSH") && (name == "ssh"))
-						throw new Exception(Messages.AlreadyRunningSsh);					
+                    if ((protocol == "SSH") && (cmd.StartsWith(Software.GetTool("ssh").Path)))
+                        throw new Exception(MessagesFormatter.Format(Messages.AlreadyRunningSsh, cmd));
 				}
 			}
 
@@ -2047,7 +2044,7 @@ namespace Eddie.Core
 					throw new Exception(Messages.CheckingProxyNoUdp);
 			}
 
-			return Platform.Instance.OnCheckEnvironment();
+            return Platform.Instance.OnCheckEnvironment();
 		}
 
         public string GetSupportReport(string logs)

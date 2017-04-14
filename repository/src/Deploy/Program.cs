@@ -218,7 +218,7 @@ namespace Deploy
 				if (arch == "x86_64")
 					arch = "x64";
 				else if(arch == "armv7l")
-					arch = "armv7l";
+					arch = "armhf";
                 else
                     arch = "x86";
                 
@@ -500,8 +500,8 @@ namespace Deploy
 							debianArchitecture = "i386"; // any-i386? not accepted by reprepro
                         else if (arch == "x64")
 							debianArchitecture = "amd64"; // any-amd64?
-                        else if (arch == "armv7l")
-                            debianArchitecture = "armv7l"; // any-armhf
+                        else if (arch == "armhf")
+                            debianArchitecture = "armhf"; // any-armhf
                         ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
 
 						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");

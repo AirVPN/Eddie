@@ -1628,13 +1628,15 @@ namespace Eddie.Core.Threads
 
             int rcvbuf = s.GetInt("openvpn.rcvbuf");
             if ((rcvbuf == -2) && (Platform.IsWindows())) rcvbuf = (256 * 1024);
-            if (rcvbuf == -2) rcvbuf = -1;
+			if ((rcvbuf == -2) && (Platform.Instance.GetCode() == "macOS")) rcvbuf = (256 * 1024);
+			if (rcvbuf == -2) rcvbuf = -1;
             if (rcvbuf != -1)
                 ovpn.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
 
             int sndbuf = s.GetInt("openvpn.sndbuf");
             if ((sndbuf == -2) && (Platform.IsWindows())) sndbuf = (256 * 1024);
-            if (sndbuf == -2) sndbuf = -1;
+			if ((sndbuf == -2) && (Platform.Instance.GetCode() == "macOS")) sndbuf = (256 * 1024);
+			if (sndbuf == -2) sndbuf = -1;
             if (sndbuf != -1)
                 ovpn.AppendDirective("sndbuf", sndbuf.ToString(), "");
             

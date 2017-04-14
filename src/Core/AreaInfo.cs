@@ -32,27 +32,27 @@ namespace Eddie.Core
         public Int64 Users = -1;
         public Int64 Servers = 0;
 
-        public enum UserListType
-        {
-            None = 0,
-            WhiteList = 1,
-            BlackList = 2
-        }
+		public enum UserListType
+		{
+			None = 0,
+			WhiteList = 1,
+			BlackList = 2
+		}
 
-        public UserListType UserList = UserListType.None;
+		public UserListType UserList = UserListType.None;
 
-        public bool Deleted = false;
+		public bool Deleted = false;
 
-        public AreaInfo()
-        {
-        }
+		public AreaInfo()
+		{
+		}
 
-        public int CompareTo(AreaInfo other)
-        {
-            return Code.CompareTo(other.Code);
-        }
+		public int CompareTo(AreaInfo other)
+		{
+			return Code.CompareTo(other.Code);
+		}
 
-        public int CompareToEx(AreaInfo other, string field, bool ascending)
+		public int CompareToEx(AreaInfo other, string field, bool ascending)
 		{
 			int returnVal = 0;
 			if (field == "Name")

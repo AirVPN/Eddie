@@ -82,12 +82,12 @@ namespace Eddie.Core
 			fetchParameters["s"] = Base64Encode(bytesParamS);
 			fetchParameters["d"] = Base64Encode(bytesParamD);
 
-            // 'GET' Edition - < 2.9			
-            // string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
-            // byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
+			// 'GET' Edition - < 2.9			
+			// string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
+			// byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
 
-            // 'POST' Edition - >= 2.9			
-            // Debug with an url direct to backend service client debugging page			            
+			// 'POST' Edition - >= 2.9			
+			// Debug with an url direct to backend service client debugging page			            
 			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", false, "");
 			
 			// Decrypt answer

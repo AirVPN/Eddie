@@ -649,16 +649,23 @@ namespace Eddie.Core
 
 			System.Diagnostics.Process[] processlist = Process.GetProcesses();
 
+			string megareport = "";
+
 			foreach (System.Diagnostics.Process p in processlist)
 			{
+				megareport += p.SessionId + ":";
 				try
 				{
-					result[p.Id] = p.ProcessName.ToLowerInvariant();					
+                    //result[p.Id] = p.ProcessName.ToLowerInvariant();					
+                    if ((p.MainModule != null) && (p.MainModule.FileName != null))
+                        result[p.Id] = p.MainModule.FileName;
 				}
-				catch (System.InvalidOperationException)
-				{
-					// occur on some OSX process, ignore it.
+				catch
+                {
+					megareport += "ERRORE";
 				}
+
+				megareport += "\r\n";
 			}
 
 			return result;
