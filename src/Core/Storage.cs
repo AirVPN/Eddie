@@ -582,8 +582,9 @@ namespace Eddie.Core
             SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
             SetDefaultBool("windows.dns.force_all_interfaces", false, Messages.ManOptionWindowsDnsForceAllInterfaces); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
             SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
-
-            SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
+			SetDefaultInt("windows.metrics.tap.ipv4", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
+			SetDefaultInt("windows.metrics.tap.ipv6", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
+			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 
             // General UI
             SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
@@ -620,12 +621,12 @@ namespace Eddie.Core
 
 
 
-            // Command-line only?
+            // Command-line only
             Options["cli"].CommandLineOnly = true;
             Options["help"].CommandLineOnly = true;
             Options["help.format"].CommandLineOnly = true;
 
-            // Internal only?
+            // Internal only
             Options["gui.window.main"].InternalOnly = true;
             Options["gui.list.servers"].InternalOnly = true;
             Options["gui.list.areas"].InternalOnly = true;

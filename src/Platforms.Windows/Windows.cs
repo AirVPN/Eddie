@@ -98,13 +98,13 @@ namespace Eddie.Platforms
         // Override
 		public Windows()
 		{
-            /*
+			/*
 #if EDDIENET20
             // Look the comment in TrustCertificatePolicy.cs
             TrustCertificatePolicy.Activate();
 #endif
-            */
-        }
+            */			
+		}
 
         public override string GetCode()
 		{
@@ -1195,6 +1195,33 @@ namespace Eddie.Platforms
 			}
 
 			m_listOldDns.Clear();
+		}
+
+		private int GetInterfaceMetric(int interfaceIdx, string layer)
+		{
+			if ((layer == "ipv4") || (layer == "ipv6"))
+			{
+				string cmd = "netsh interface " + layer + " show interface " + SystemShell.EscapeInt(interfaceIdx);
+				string data = ShellCmd(cmd);
+				foreach(string line in data.Split('\n'))
+				{
+					string[] fields = line.Split(':');
+					if (fields.Length != 2)
+						continue;
+					if (fields[0].Trim() == "Metric")
+						return Conversions.ToInt32(fields[1]);
+				}
+			}
+			return 123;
+		}
+
+		private void SetInterfaceMetric(int interfaceIdx, string layer, int metric)
+		{
+			if ((layer == "ipv4") || (layer == "ipv6"))
+			{
+				string cmd = "netsh interface " + layer + " set interface " + SystemShell.EscapeInt(interfaceIdx) + " metric=" + SystemShell.EscapeInt(metric);
+				ShellCmd(cmd);
+			}
 		}
     }
 

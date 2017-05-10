@@ -37,7 +37,7 @@ namespace Eddie.UI.Windows
         {
             try
             {
-                if (Environment.OSVersion.Version.Major >= 6)
+				if (Environment.OSVersion.Version.Major >= 6)
                     SetProcessDPIAware();
 
                 //Application.EnableVisualStyles();

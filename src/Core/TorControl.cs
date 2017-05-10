@@ -46,9 +46,7 @@ namespace Eddie.Core
 
                 string path2 = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("APPDATA") + "/tor/control_auth_cookie");
                 if (Platform.Instance.FileExists(path2))
-                    return path2;
-
-                // c:\Users\Clodo\AppData\Roaming\tor\
+					return path2;					
             }
 
             {

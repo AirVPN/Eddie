@@ -26,9 +26,7 @@ namespace Eddie.Core
     public class ServerInfo : IComparable<ServerInfo>
     {
         public Provider Provider;        
-        //public string Name; // Unique name, display name
-        //public string ProviderName;
-
+        
         public string Code; // Unique name across providers
         public string DisplayName; // Display name
         public string ProviderName; // Provider name;

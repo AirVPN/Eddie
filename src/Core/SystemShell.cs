@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Eddie.Core
@@ -28,6 +29,11 @@ namespace Eddie.Core
         {
             return Utils.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         }
+
+		public static string EscapeInt(int value)
+		{
+			return value.ToString(CultureInfo.InvariantCulture);
+		}
 
         public static string EscapeHost(string value)
         {

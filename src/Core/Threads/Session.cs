@@ -1201,19 +1201,20 @@ namespace Eddie.Core.Threads
                                             string checkUrl = "https://" + checkDomain + "/check_tun/";
                                             XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.CurrentServer.IpExit);
 
-                                            string VpnIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-                                            Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-                                            Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+                                            string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
+                                            
+                                            if(Engine.ConnectedVpnIp != answer)
+												throw new Exception(MessagesFormatter.Format(Messages.ConnectionCheckingTryRouteFail, answer));
 
-                                            if(VpnIp != Engine.ConnectedVpnIp)
-                                                throw new Exception(Messages.ConnectionCheckingNoMatchRoute);
+											Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+											Engine.ConnectedClientTime = Utils.UnixTimeStamp();
 
-                                            ok = true;
+											ok = true;
                                             break;
                                         }
                                         catch (Exception e)
                                         {
-                                            Engine.Logs.Log(e);
+                                            Engine.Logs.Log(LogType.Verbose, e);
                                         }                                        
                                     }
 
@@ -1294,9 +1295,11 @@ namespace Eddie.Core.Threads
                                         try
                                         {
                                             string hash = Utils.GetRandomToken();
+											string randomIp = RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255);
 
-                                            // Query a inexistent domain with the hash
-                                            string dnsHost = service.GetKeyValue("check_dns_query", "").Replace("{hash}", hash);
+											// Query a inexistent domain with the hash
+											string dnsQuery = service.GetKeyValue("check_dns_query", "");
+											string dnsHost = dnsQuery.Replace("{hash}", hash);
                                             Platform.Instance.ResolveWithoutAnswer(dnsHost);
 
                                             // Check if the server has received the above DNS query
@@ -1311,17 +1314,17 @@ namespace Eddie.Core.Threads
                                             string checkUrl = "https://" + checkDomain + "/check_dns/";
                                             XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.CurrentServer.IpExit);
                                             
-                                            string hash2 = xmlDoc.DocumentElement.Attributes["hash"].Value;
+                                            string answer = xmlDoc.DocumentElement.Attributes["hash"].Value;
                                             
-                                            if (hash != hash2)
-                                                throw new Exception(Messages.ConnectionCheckingNoMatchDNS);
+                                            if (hash != answer)
+                                                throw new Exception(MessagesFormatter.Format(Messages.ConnectionCheckingTryDNSFail, answer));											
 
                                             ok = true;
                                             break;
                                         }
                                         catch(Exception e)
                                         {
-                                            Engine.Logs.Log(e);
+                                            Engine.Logs.Log(LogType.Verbose, e);
                                         }                                        
                                     }
 
