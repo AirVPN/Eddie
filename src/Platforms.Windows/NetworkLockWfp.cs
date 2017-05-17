@@ -198,7 +198,7 @@ namespace Eddie.Platforms
             }
 
             // Note: IpV6 addresses ignored because .ToCIDR() above return "".
-            // When ToCIDR it's implemented, it still missing implementation in LibPocketFirewall.dll.
+            // When ToCIDR it's implemented, it still missing implementation in Platforms.Windows.Native.dll.
 
             if (ipList != m_lastestIpList)
             {

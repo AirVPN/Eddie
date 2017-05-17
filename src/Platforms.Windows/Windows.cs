@@ -35,30 +35,38 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace Eddie.Platforms
 {
-    public class Windows : Platform
-    {
+	public class Windows : Platform
+	{
+		[DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern int GetInterfaceMetric(int idx, string layer);
+		[DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern int SetInterfaceMetric(int idx, string layer, int value);
+
 		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
-		private object m_oldIpV6 = null;        
-        private Mutex m_mutexSingleInstance = null; 
+		private object m_oldIpV6 = null;
+		private string m_oldMetricInterface = "";
+		private int m_oldMetricIPv4 = -1; // cazzo
+		private int m_oldMetricIPv6 = -1; // cazzo
+		private Mutex m_mutexSingleInstance = null; 
 
-        public static bool IsVistaOrNewer()
+		public static bool IsVistaOrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 6);
 		}
 
-        public static bool IsWin7OrNewer()
-        {
-            OperatingSystem OS = Environment.OSVersion;
-            return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 1));
-        }
+		public static bool IsWin7OrNewer()
+		{
+			OperatingSystem OS = Environment.OSVersion;
+			return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 1));
+		}
 
-        public static bool IsWin8OrNewer()
-        {
-            OperatingSystem OS = Environment.OSVersion;
-            return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 2));
-        }
+		public static bool IsWin8OrNewer()
+		{
+			OperatingSystem OS = Environment.OSVersion;
+			return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 2));
+		}
 
 		[DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -95,18 +103,18 @@ namespace Eddie.Platforms
 			}
 		}
 		
-        // Override
+		// Override
 		public Windows()
 		{
 			/*
 #if EDDIENET20
-            // Look the comment in TrustCertificatePolicy.cs
-            TrustCertificatePolicy.Activate();
+			// Look the comment in TrustCertificatePolicy.cs
+			TrustCertificatePolicy.Activate();
 #endif
-            */			
+			*/			
 		}
 
-        public override string GetCode()
+		public override string GetCode()
 		{
 			return "Windows";
 		}
@@ -116,23 +124,23 @@ namespace Eddie.Platforms
 			return System.Environment.OSVersion.VersionString;			
 		}
 
-        public override void OnInit()
-        {
-            base.OnInit();
+		public override void OnInit()
+		{
+			base.OnInit();
 
-            if(IsVistaOrNewer())
-                Wfp.Start();
-        }
+			if(IsVistaOrNewer())
+				Wfp.Start();
+		}
 
-        public override void OnDeInit()
-        {
-            base.OnDeInit();
+		public override void OnDeInit()
+		{
+			base.OnDeInit();
 
-            if (IsVistaOrNewer())
-                Wfp.Stop();
-        }
+			if (IsVistaOrNewer())
+				Wfp.Stop();
+		}
 
-        public override string GetOsArchitecture()
+		public override string GetOsArchitecture()
 		{
 			if (GetArchitecture() == "x64")
 				return "x64";
@@ -141,9 +149,9 @@ namespace Eddie.Platforms
 			return "x86";
 		}
 
-        public override bool IsAdmin()
-        {
-            //return true; // Manifest ensure that
+		public override bool IsAdmin()
+		{
+			//return true; // Manifest ensure that
 
 			// 2.10.1
 			bool isElevated;
@@ -152,12 +160,12 @@ namespace Eddie.Platforms
 			isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
 
 			return isElevated;
-        }
+		}
 
-        public override bool IsTraySupported()
-        {
-            return true;
-        }
+		public override bool IsTraySupported()
+		{
+			return true;
+		}
 
 		public override bool GetAutoStart()
 		{
@@ -213,61 +221,61 @@ namespace Eddie.Platforms
 				}
 			}
 			catch (NotV1SupportedException)
-            {
-                //Ignore, not supported on XP
-            }
+			{
+				//Ignore, not supported on XP
+			}
 
 			return true;
 		}
 
 		public override string NormalizeString(string val)
-        {
-            return val.Replace("\r\n", "\n").Replace("\n", "\r\n");
-        }
+		{
+			return val.Replace("\r\n", "\n").Replace("\n", "\r\n");
+		}
 
-        public override string DirSep
-        {
-            get
-            {
-                return "\\";
-            }
-        }
+		public override string DirSep
+		{
+			get
+			{
+				return "\\";
+			}
+		}
 
-        public override string GetExecutablePathEx()
-        {
-            // It return vshost.exe under VS, better
-            string path = Environment.GetCommandLineArgs()[0];
-            path = Path.GetFullPath(path); // 2.11.9
-            return path;
-        }        
+		public override string GetExecutablePathEx()
+		{
+			// It return vshost.exe under VS, better
+			string path = Environment.GetCommandLineArgs()[0];
+			path = Path.GetFullPath(path); // 2.11.9
+			return path;
+		}        
 
-        public override string GetUserPathEx()
-        {
-            return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
-        }
+		public override string GetUserPathEx()
+		{
+			return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
+		}
 
-        public override string ShellCmd(string Command, bool noDebugLog)
-        {
-            return Shell("cmd.exe", String.Format("/c {0}", Command), "", true, false, noDebugLog);
-        }
+		public override string ShellCmd(string Command, bool noDebugLog)
+		{
+			return Shell("cmd.exe", String.Format("/c {0}", Command), "", true, false, noDebugLog);
+		}
 
-        public override void FlushDNS()
-        {
-            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
+		public override void FlushDNS()
+		{
+			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
 
-            // <2.11.8
-            //ShellCmd("ipconfig /flushdns");
+			// <2.11.8
+			//ShellCmd("ipconfig /flushdns");
 
-            // 2.11.10
-            if (Engine.Instance.Storage.GetBool("windows.workarounds"))
-            {
-                ShellCmd("net stop dnscache");
-                ShellCmd("net start dnscache");
-            }
+			// 2.11.10
+			if (Engine.Instance.Storage.GetBool("windows.workarounds"))
+			{
+				ShellCmd("net stop dnscache");
+				ShellCmd("net start dnscache");
+			}
 
-            ShellCmd("ipconfig /flushdns");
-            ShellCmd("ipconfig /registerdns");
-        }
+			ShellCmd("ipconfig /flushdns");
+			ShellCmd("ipconfig /registerdns");
+		}
 
 		public override void RouteAdd(RouteEntry r)
 		{
@@ -281,13 +289,13 @@ namespace Eddie.Platforms
 			if (r.Interface != "")
 				cmd += " if " + r.Interface;
 			ShellCmd(cmd); // IJTF2 // TOCHECK
-        }
+		}
 
 		public override void RouteRemove(RouteEntry r)
 		{
 			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
 			ShellCmd(cmd); // IJTF2 // TOCHECK
-        }
+		}
 
 		public override bool WaitTunReady()
 		{
@@ -330,7 +338,7 @@ namespace Eddie.Platforms
 			Dictionary<string, string> InterfacesIp2Id = new Dictionary<string, string>();
 
 			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-            ManagementObjectCollection objMOC = objMC.GetInstances();
+			ManagementObjectCollection objMOC = objMC.GetInstances();
 
 			foreach (ManagementObject objMO in objMOC)
 			{				
@@ -399,12 +407,14 @@ namespace Eddie.Platforms
 
 			t += "\n\n-- Windows\n";
 
-            t += "\n-- ipconfig /all\n";
-            t += ShellCmd("ipconfig /all");
-            t += "\n-- NetworkAdapterConfiguration\n";
+			t += "\n-- ipconfig /all\n";
+			t += ShellCmd("ipconfig /all");
+			t += "\n-- route print\n";
+			t += ShellCmd("route print");
+			t += "\n-- NetworkAdapterConfiguration\n";
 
-            ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-            ManagementObjectCollection objMOC = objMC.GetInstances();
+			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+			ManagementObjectCollection objMOC = objMC.GetInstances();
 
 			foreach (ManagementObject objMO in objMOC)
 			{	
@@ -423,42 +433,42 @@ namespace Eddie.Platforms
 					t += "\t" + prop.Name + ": " + Conversions.ToString(prop.Value) + "\n";					
 				}				
 			}
-            
+			
 			return NormalizeString(t);
 		}
 
-        public override bool OnCheckSingleInstance()
-        {
-            m_mutexSingleInstance = new Mutex(false, "Global\\" + "b57887e0-65d0-4d18-b57f-106de6e0f1b6");            
-            if (m_mutexSingleInstance.WaitOne(0, false) == false)
-                return false;
-            else
-                return true;
-        }
+		public override bool OnCheckSingleInstance()
+		{
+			m_mutexSingleInstance = new Mutex(false, "Global\\" + "b57887e0-65d0-4d18-b57f-106de6e0f1b6");            
+			if (m_mutexSingleInstance.WaitOne(0, false) == false)
+				return false;
+			else
+				return true;
+		}
 
-        public override void OnNetworkLockManagerInit()
-        {
-            base.OnNetworkLockManagerInit();
+		public override void OnNetworkLockManagerInit()
+		{
+			base.OnNetworkLockManagerInit();
 
-            if (IsVistaOrNewer()) // 2.10.1
-            {
-                Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
-                Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWfp());
-            }
-        }
+			if (IsVistaOrNewer()) // 2.10.1
+			{
+				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
+				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWfp());
+			}
+		}
 
-        public override string OnNetworkLockRecommendedMode()
-        {
-            if (IsVistaOrNewer() == false)
-                return "none";
+		public override string OnNetworkLockRecommendedMode()
+		{
+			if (IsVistaOrNewer() == false)
+				return "none";
 
-            if (Engine.Instance.Storage.GetBool("windows.wfp.enable"))
-                return "windows_wfp";
-            else
-                return "windows_firewall";
-        }
+			if (Engine.Instance.Storage.GetBool("windows.wfp.enable"))
+				return "windows_wfp";
+			else
+				return "windows_firewall";
+		}
 
-        public override void OnSessionStart()
+		public override void OnSessionStart()
 		{
 			// https://airvpn.org/topic/11162-airvpn-client-advanced-features/ -> Switch DHCP to Static			
 			if (Engine.Instance.Storage.GetBool("windows.dhcp_disable"))
@@ -480,76 +490,76 @@ namespace Eddie.Platforms
 
 		public override bool OnIpV6Do()
 		{
-            if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
+			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
-                if ((IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")) )
-                {
-                    {
-                        XmlDocument xmlDocRule = new XmlDocument();
-                        XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                        xmlRule.SetAttribute("name", "IPv6 - Block");
-                        xmlRule.SetAttribute("layer", "ipv6");
-                        xmlRule.SetAttribute("action", "block");
-                        xmlRule.SetAttribute("weight", "3000");
-                        Wfp.AddItem("ipv6_block_all", xmlRule);
-                    }
+				if ((IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")) )
+				{
+					{
+						XmlDocument xmlDocRule = new XmlDocument();
+						XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+						xmlRule.SetAttribute("name", "IPv6 - Block");
+						xmlRule.SetAttribute("layer", "ipv6");
+						xmlRule.SetAttribute("action", "block");
+						xmlRule.SetAttribute("weight", "3000");
+						Wfp.AddItem("ipv6_block_all", xmlRule);
+					}
 
-                    {
-                        XmlDocument xmlDocRule = new XmlDocument();
-                        XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                        xmlRule.SetAttribute("name", "IPv6 - Allow loopback");
-                        xmlRule.SetAttribute("layer", "ipv6");
-                        xmlRule.SetAttribute("action", "permit");
-                        xmlRule.SetAttribute("weight", "3001");
-                        XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                        xmlRule.AppendChild(XmlIf1);
-                        XmlIf1.SetAttribute("field", "ip_local_interface");
-                        XmlIf1.SetAttribute("match", "equal");
-                        XmlIf1.SetAttribute("interface", "loopback");
-                        Wfp.AddItem("ipv6_allow_loopback", xmlRule);
-                    }                    
+					{
+						XmlDocument xmlDocRule = new XmlDocument();
+						XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+						xmlRule.SetAttribute("name", "IPv6 - Allow loopback");
+						xmlRule.SetAttribute("layer", "ipv6");
+						xmlRule.SetAttribute("action", "permit");
+						xmlRule.SetAttribute("weight", "3001");
+						XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+						xmlRule.AppendChild(XmlIf1);
+						XmlIf1.SetAttribute("field", "ip_local_interface");
+						XmlIf1.SetAttribute("match", "equal");
+						XmlIf1.SetAttribute("interface", "loopback");
+						Wfp.AddItem("ipv6_allow_loopback", xmlRule);
+					}                    
 
-                    // <2.12.1
-                    /*
-                    XmlDocument xmlDocRule = new XmlDocument();
-                    XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                    xmlRule.SetAttribute("name", "IPv6 - Block");
-                    xmlRule.SetAttribute("layer", "ipv6");
-                    xmlRule.SetAttribute("action", "block");
-                    xmlRule.SetAttribute("weight", "3000"); 
-                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf1);
-                    XmlIf1.SetAttribute("field", "ip_local_interface");
-                    XmlIf1.SetAttribute("match", "not_equal");
-                    XmlIf1.SetAttribute("interface", "loopback");
-                    Wfp.AddItem("ipv6_block_all", xmlRule);
-                    */
+					// <2.12.1
+					/*
+					XmlDocument xmlDocRule = new XmlDocument();
+					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+					xmlRule.SetAttribute("name", "IPv6 - Block");
+					xmlRule.SetAttribute("layer", "ipv6");
+					xmlRule.SetAttribute("action", "block");
+					xmlRule.SetAttribute("weight", "3000"); 
+					XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf1);
+					XmlIf1.SetAttribute("field", "ip_local_interface");
+					XmlIf1.SetAttribute("match", "not_equal");
+					XmlIf1.SetAttribute("interface", "loopback");
+					Wfp.AddItem("ipv6_block_all", xmlRule);
+					*/
 
-                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledWpf);
-                }
-                
-                if(Engine.Instance.Storage.GetBool("windows.ipv6.os_disable"))
-                {
-                    // http://support.microsoft.com/kb/929852
+					Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledWpf);
+				}
+				
+				if(Engine.Instance.Storage.GetBool("windows.ipv6.os_disable"))
+				{
+					// http://support.microsoft.com/kb/929852
 
-                    m_oldIpV6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
-                    if (Conversions.ToUInt32(m_oldIpV6, 0) == 0) // 0 is the Windows default if the key doesn't exist.
-                        m_oldIpV6 = 0;
+					m_oldIpV6 = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
+					if (Conversions.ToUInt32(m_oldIpV6, 0) == 0) // 0 is the Windows default if the key doesn't exist.
+						m_oldIpV6 = 0;
 
-                    if (Conversions.ToUInt32(m_oldIpV6, 0) == 17) // Nothing to do
-                    {
-                        m_oldIpV6 = null;
-                    }
-                    else
-                    {
-                        UInt32 newValue = 17;
-                        Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", newValue, RegistryValueKind.DWord);
+					if (Conversions.ToUInt32(m_oldIpV6, 0) == 17) // Nothing to do
+					{
+						m_oldIpV6 = null;
+					}
+					else
+					{
+						UInt32 newValue = 17;
+						Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", newValue, RegistryValueKind.DWord);
 
-                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledOs);
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6DisabledOs);
 
-                        Recovery.Save();
-                    }
-                }
+						Recovery.Save();
+					}
+				}
 
 				base.OnIpV6Do();
 			}
@@ -559,7 +569,7 @@ namespace Eddie.Platforms
 
 		public override bool OnIpV6Restore()
 		{
-            if (m_oldIpV6 != null)
+			if (m_oldIpV6 != null)
 			{
 				Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", m_oldIpV6, RegistryValueKind.DWord);
 				m_oldIpV6 = null;
@@ -568,10 +578,10 @@ namespace Eddie.Platforms
 			}
 
 
-            if( (Wfp.RemoveItem("ipv6_block_all")) && (Wfp.RemoveItem("ipv6_allow_loopback")) )
-                Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredWpf);
+			if( (Wfp.RemoveItem("ipv6_block_all")) && (Wfp.RemoveItem("ipv6_allow_loopback")) )
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.IpV6RestoredWpf);
 
-            base.OnIpV6Restore();
+			base.OnIpV6Restore();
 
 			return true;
 		}
@@ -580,139 +590,139 @@ namespace Eddie.Platforms
 		{
 			string[] dnsArray = dns.Split(',');
 
-            if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))                
-            {
-                // Order is important! IPv6 block use weight 3000, DNS-Lock 2000, WFP 1000. All within a parent filter of max priority.
-                // Otherwise the netlock allow-private rule can allow DNS outside the tunnel in some configuration.
-                {
-                    XmlDocument xmlDocRule = new XmlDocument();
-                    XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                    xmlRule.SetAttribute("name", "Dns - Block port 53");
-                    xmlRule.SetAttribute("layer", "all");
-                    xmlRule.SetAttribute("action", "block");
-                    xmlRule.SetAttribute("weight", "2000"); 
-                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf1);
-                    XmlIf1.SetAttribute("field", "ip_remote_port");
-                    XmlIf1.SetAttribute("match", "equal");
-                    XmlIf1.SetAttribute("port", "53");
-                    Wfp.AddItem("dns_block_all", xmlRule);
-                }
+			if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))                
+			{
+				// Order is important! IPv6 block use weight 3000, DNS-Lock 2000, WFP 1000. All within a parent filter of max priority.
+				// Otherwise the netlock allow-private rule can allow DNS outside the tunnel in some configuration.
+				{
+					XmlDocument xmlDocRule = new XmlDocument();
+					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+					xmlRule.SetAttribute("name", "Dns - Block port 53");
+					xmlRule.SetAttribute("layer", "all");
+					xmlRule.SetAttribute("action", "block");
+					xmlRule.SetAttribute("weight", "2000"); 
+					XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf1);
+					XmlIf1.SetAttribute("field", "ip_remote_port");
+					XmlIf1.SetAttribute("match", "equal");
+					XmlIf1.SetAttribute("port", "53");
+					Wfp.AddItem("dns_block_all", xmlRule);
+				}
 
-                // This is not required yet, but will be required in Eddie 3.                
-                {
-                    XmlDocument xmlDocRule = new XmlDocument();
-                    XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                    xmlRule.SetAttribute("name", "Dns - Allow port 53 of OpenVPN");
-                    xmlRule.SetAttribute("layer", "all");
-                    xmlRule.SetAttribute("action", "permit");
-                    xmlRule.SetAttribute("weight", "2000"); 
-                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf1);
-                    XmlIf1.SetAttribute("field", "ip_remote_port");
-                    XmlIf1.SetAttribute("match", "equal");
-                    XmlIf1.SetAttribute("port", "53");
-                    XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf2);
-                    XmlIf2.SetAttribute("field", "ale_app_id");
-                    XmlIf2.SetAttribute("match", "equal");
-                    XmlIf2.SetAttribute("path", Software.GetTool("openvpn").Path);
-                    Wfp.AddItem("dns_permit_openvpn", xmlRule);
-                }
+				// This is not required yet, but will be required in Eddie 3.                
+				{
+					XmlDocument xmlDocRule = new XmlDocument();
+					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+					xmlRule.SetAttribute("name", "Dns - Allow port 53 of OpenVPN");
+					xmlRule.SetAttribute("layer", "all");
+					xmlRule.SetAttribute("action", "permit");
+					xmlRule.SetAttribute("weight", "2000"); 
+					XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf1);
+					XmlIf1.SetAttribute("field", "ip_remote_port");
+					XmlIf1.SetAttribute("match", "equal");
+					XmlIf1.SetAttribute("port", "53");
+					XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf2);
+					XmlIf2.SetAttribute("field", "ale_app_id");
+					XmlIf2.SetAttribute("match", "equal");
+					XmlIf2.SetAttribute("path", Software.GetTool("openvpn").Path);
+					Wfp.AddItem("dns_permit_openvpn", xmlRule);
+				}
 
-                {
-                    // TOFIX: Missing IPv6 equivalent. Must be done in future when IPv6 support is well tested.
-                    // Remember: May fail at WFP side with a "Unknown interface" because network interface with IPv6 disabled have Ipv6IfIndex == 0.
-                    XmlDocument xmlDocRule = new XmlDocument();
-                    XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                    xmlRule.SetAttribute("name", "Dns - Allow port 53 on TAP - IPv4");
-                    xmlRule.SetAttribute("layer", "ipv4");
-                    xmlRule.SetAttribute("action", "permit");
-                    xmlRule.SetAttribute("weight", "2000"); 
-                    XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf1);
-                    XmlIf1.SetAttribute("field", "ip_remote_port");
-                    XmlIf1.SetAttribute("match", "equal");
-                    XmlIf1.SetAttribute("port", "53");
-                    XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
-                    xmlRule.AppendChild(XmlIf2);
-                    XmlIf2.SetAttribute("field", "ip_local_interface");
-                    XmlIf2.SetAttribute("match", "equal");
-                    XmlIf2.SetAttribute("interface", Engine.Instance.ConnectedVpnInterfaceId);
-                    Wfp.AddItem("dns_permit_tap", xmlRule);
-                }                
-                
+				{
+					// TOFIX: Missing IPv6 equivalent. Must be done in future when IPv6 support is well tested.
+					// Remember: May fail at WFP side with a "Unknown interface" because network interface with IPv6 disabled have Ipv6IfIndex == 0.
+					XmlDocument xmlDocRule = new XmlDocument();
+					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+					xmlRule.SetAttribute("name", "Dns - Allow port 53 on TAP - IPv4");
+					xmlRule.SetAttribute("layer", "ipv4");
+					xmlRule.SetAttribute("action", "permit");
+					xmlRule.SetAttribute("weight", "2000"); 
+					XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf1);
+					XmlIf1.SetAttribute("field", "ip_remote_port");
+					XmlIf1.SetAttribute("match", "equal");
+					XmlIf1.SetAttribute("port", "53");
+					XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf2);
+					XmlIf2.SetAttribute("field", "ip_local_interface");
+					XmlIf2.SetAttribute("match", "equal");
+					XmlIf2.SetAttribute("interface", Engine.Instance.ConnectedVpnInterfaceId);
+					Wfp.AddItem("dns_permit_tap", xmlRule);
+				}                
+				
 
-                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockActivatedWpf);
-            }
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockActivatedWpf);
+			}
 
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
-            
+			
 			if (mode == "auto")
 			{
-                try
-                {
-                    ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-                    ManagementObjectCollection objMOC = objMC.GetInstances();
+				try
+				{
+					ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+					ManagementObjectCollection objMOC = objMC.GetInstances();
 
-                    foreach (ManagementObject objMO in objMOC)
-                    {
-                        /*
+					foreach (ManagementObject objMO in objMOC)
+					{
+						/*
 						if (!((bool)objMO["IPEnabled"]))
 							continue;
 						*/
-                        string guid = objMO["SettingID"] as string;
+						string guid = objMO["SettingID"] as string;
 
-                        bool skip = true;
+						bool skip = true;
 
-                        if((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces")) )
-                            skip = false;
-                        if (guid == Engine.Instance.ConnectedVpnInterfaceId)
-                            skip = false;
-                        
-                        if (skip == false)
-                        {
-                            bool ipEnabled = (bool)objMO["IPEnabled"];
+						if((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces")) )
+							skip = false;
+						if (guid == Engine.Instance.ConnectedVpnInterfaceId)
+							skip = false;
+						
+						if (skip == false)
+						{
+							bool ipEnabled = (bool)objMO["IPEnabled"];
 
-                            NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
+							NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
 
-                            entry.Guid = guid;
-                            entry.Description = objMO["Description"] as string;
-                            entry.Dns = objMO["DNSServerSearchOrder"] as string[];
-                            
-                            entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
+							entry.Guid = guid;
+							entry.Description = objMO["Description"] as string;
+							entry.Dns = objMO["DNSServerSearchOrder"] as string[];
+							
+							entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
 
-                            if (entry.Dns == null)
-                            {
-                                continue;
-                            }
+							if (entry.Dns == null)
+							{
+								continue;
+							}
 
-                            if (entry.AutoDns == false) // Added 2.11
-                            {
-                                if (String.Join(",", entry.Dns) == dns)
-                                {
-                                    continue;
-                                }
-                            }
+							if (entry.AutoDns == false) // Added 2.11
+							{
+								if (String.Join(",", entry.Dns) == dns)
+								{
+									continue;
+								}
+							}
 
-                            //string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", detectedDns));
-                            string descFrom = (entry.AutoDns ? "automatic":"manual") + " (" + String.Join(",", entry.Dns) + ")";
-                            Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns));
+							//string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", detectedDns));
+							string descFrom = (entry.AutoDns ? "automatic":"manual") + " (" + String.Join(",", entry.Dns) + ")";
+							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns));
 
-                            ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-                            objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
-                            objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+							objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
+							objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
-                            m_listOldDns.Add(entry);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Engine.Instance.Logs.Log(e);
-                }
+							m_listOldDns.Add(entry);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Engine.Instance.Logs.Log(e);
+				}
 
-                Recovery.Save();                
+				Recovery.Save();
 			}
 
 			base.OnDnsSwitchDo(dns);
@@ -724,16 +734,132 @@ namespace Eddie.Platforms
 		{
 			DnsForceRestore();
 
-            bool DnsPermitExists = false;
-            DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_openvpn");
-            DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_tap");
-            DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_block_all");
-            if (DnsPermitExists)
-                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockDeactivatedWpf);
+			bool DnsPermitExists = false;
+			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_openvpn");
+			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_tap");
+			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_block_all");
+			if (DnsPermitExists)
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockDeactivatedWpf);
 
-            base.OnDnsSwitchRestore();
+			base.OnDnsSwitchRestore();
 
 			return true;
+		}
+
+		public override bool OnInterfaceDo(string id)
+		{
+			int interfaceMetricIPv4Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv4");
+			int interfaceMetricIPv6Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv6");
+			if( (interfaceMetricIPv4Value == -1) || (interfaceMetricIPv6Value == -1) )
+				return true;
+
+			if (interfaceMetricIPv4Value == -2) // Automatic/Recommended
+				interfaceMetricIPv4Value = 3;
+			if (interfaceMetricIPv6Value == -2) // Automatic/Recommended
+				interfaceMetricIPv6Value = 4; // cazzo
+
+			int interfaceMetricIPv4Idx = -1;
+			string interfaceMetricIPv4Name = "";
+			int interfaceMetricIPv6Idx = -1;
+			string interfaceMetricIPv6Name = "";
+
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				if (adapter.Id == id)
+				{
+					if (interfaceMetricIPv4Value != -1)
+					{
+						interfaceMetricIPv4Idx = adapter.GetIPProperties().GetIPv4Properties().Index;
+						interfaceMetricIPv4Name = adapter.Name;
+					}
+					if (interfaceMetricIPv6Value != -1)
+					{
+						interfaceMetricIPv6Idx = adapter.GetIPProperties().GetIPv6Properties().Index;
+						interfaceMetricIPv6Name = adapter.Name;
+					}
+					break;
+				}					
+			}
+
+			int interfaceMetricIPv4Current = -1;
+			int interfaceMetricIPv6Current = -1;
+
+			if (interfaceMetricIPv4Idx != -1)
+				interfaceMetricIPv4Current = GetInterfaceMetric(interfaceMetricIPv4Idx, "ipv4");
+			if (interfaceMetricIPv6Idx != -1)
+				interfaceMetricIPv6Current = GetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6");
+
+			if( (interfaceMetricIPv4Current != -1) && (interfaceMetricIPv4Current != interfaceMetricIPv4Value) )
+			{
+				string fromStr = (interfaceMetricIPv4Current == 0) ? "Automatic" : interfaceMetricIPv4Current.ToString();
+				string toStr = (interfaceMetricIPv4Value == 0) ? "Automatic" : interfaceMetricIPv4Value.ToString();
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricSwitch, interfaceMetricIPv4Name, fromStr, toStr, "IPv4"));
+				m_oldMetricInterface = id;
+				m_oldMetricIPv4 = interfaceMetricIPv4Current;
+				SetInterfaceMetric(interfaceMetricIPv4Idx, "ipv4", interfaceMetricIPv4Value);
+
+				Recovery.Save();
+			}
+
+			if ((interfaceMetricIPv6Current != -1) && (interfaceMetricIPv6Current != interfaceMetricIPv6Value))
+			{
+				string fromStr = (interfaceMetricIPv6Current == 0) ? "Automatic" : interfaceMetricIPv6Current.ToString();
+				string toStr = (interfaceMetricIPv6Value == 0) ? "Automatic" : interfaceMetricIPv6Value.ToString();
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricSwitch, interfaceMetricIPv6Name, fromStr, toStr, "IPv6"));
+				m_oldMetricInterface = id;
+				m_oldMetricIPv6 = interfaceMetricIPv6Current;
+				SetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6", interfaceMetricIPv6Value);
+
+				Recovery.Save();
+			}
+			
+			return base.OnInterfaceDo(id);
+		}
+
+		public override bool OnInterfaceRestore()
+		{
+			if(m_oldMetricInterface != "")
+			{
+				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+				foreach (NetworkInterface adapter in interfaces)
+				{
+					if (adapter.Id == m_oldMetricInterface)
+					{
+						if(m_oldMetricIPv4 != -1)
+						{
+							int idx = adapter.GetIPProperties().GetIPv4Properties().Index;
+							int current = GetInterfaceMetric(idx, "ipv4");
+							if (current != m_oldMetricIPv4)
+							{
+								string fromStr = (current == 0) ? "Automatic" : current.ToString();
+								string toStr = (m_oldMetricIPv4 == 0) ? "Automatic" : m_oldMetricIPv4.ToString();
+								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv4"));
+								SetInterfaceMetric(idx, "ipv4", m_oldMetricIPv4);
+							}
+							m_oldMetricIPv4 = -1;
+						}
+
+						if (m_oldMetricIPv6 != -1)
+						{
+							int idx = adapter.GetIPProperties().GetIPv6Properties().Index;
+							int current = GetInterfaceMetric(idx, "ipv6");
+							if (current != m_oldMetricIPv6)
+							{
+								string fromStr = (current == 0) ? "Automatic" : current.ToString();
+								string toStr = (m_oldMetricIPv6 == 0) ? "Automatic" : m_oldMetricIPv6.ToString();
+								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv6"));
+								SetInterfaceMetric(idx, "ipv6", m_oldMetricIPv6);
+							}
+							m_oldMetricIPv6 = -1;
+						}
+
+						m_oldMetricInterface = "";
+						break;
+					}
+				}
+			}
+			return base.OnInterfaceRestore();
 		}
 
 		public override void OnDaemonOutput(string source, string message)
@@ -747,17 +873,16 @@ namespace Eddie.Platforms
 			}
 		}
 
-        public override void OnRecovery()
-        {
-            base.OnRecovery();
+		public override void OnRecovery()
+		{
+			base.OnRecovery();
 
-            //if (IsVistaOrNewer())
-            if (IsWin7OrNewer()) // 2.12.2
-                if (Wfp.ClearPendingRules())
-                    Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
-        }
+			if (IsWin7OrNewer()) // 2.12.2
+				if (Wfp.ClearPendingRules())
+					Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
+		}
 
-        public override void OnRecoveryLoad(XmlElement root)
+		public override void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeDhcp = Utils.XmlGetFirstElementByTagName(root, "DhcpSwitch");
 			if (nodeDhcp != null)
@@ -786,8 +911,15 @@ namespace Eddie.Platforms
 				m_oldIpV6 = Conversions.ToUInt32(Utils.XmlGetAttributeInt64(root, "IpV6", 0), 0);
 			}
 
-			SwitchToStaticRestore();
+			if (Utils.XmlExistsAttribute(root, "interface-metric-id"))
+			{
+				m_oldMetricInterface = Utils.XmlGetAttributeString(root, "interface-metric-id", "");
+				m_oldMetricIPv4 = Utils.XmlGetAttributeInt(root, "interface-metric-ipv4", -1);
+				m_oldMetricIPv6 = Utils.XmlGetAttributeInt(root, "interface-metric-ipv6", -1);
+			}
 
+			SwitchToStaticRestore();
+			
 			base.OnRecoveryLoad(root);			
 		}
 
@@ -819,6 +951,13 @@ namespace Eddie.Platforms
 
 			if (m_oldIpV6 != null)
 				Utils.XmlSetAttributeInt64(root, "IpV6", Conversions.ToInt64(m_oldIpV6));
+
+			if(m_oldMetricInterface != "")
+			{
+				Utils.XmlSetAttributeString(root, "interface-metric-id", m_oldMetricInterface);
+				Utils.XmlSetAttributeInt(root, "interface-metric-ipv4", m_oldMetricIPv4);
+				Utils.XmlSetAttributeInt(root, "interface-metric-ipv6", m_oldMetricIPv6);
+			}
 		}
 
 		private string GetDriverUninstallPath()
@@ -918,26 +1057,26 @@ namespace Eddie.Platforms
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
-                // Changed in 2.10.4
+				// Changed in 2.10.4
 
-                // TAP-Win32 Adapter V9
-                // or
-                // TAP-Windows Adapter V9
-                // or something that start with TAP-Win under XP
-                if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
-                {
-                    result = adapter.Description;
-                    break;
-                }                
+				// TAP-Win32 Adapter V9
+				// or
+				// TAP-Windows Adapter V9
+				// or something that start with TAP-Win under XP
+				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
+				{
+					result = adapter.Description;
+					break;
+				}                
 			}
 
-            // Remember: uninstalling OpenVPN doesn't remove tap0901.sys, so finding an adapter is mandatory.
-            if (result == "")
+			// Remember: uninstalling OpenVPN doesn't remove tap0901.sys, so finding an adapter is mandatory.
+			if (result == "")
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsDriverNoAdapterFound);
 				return "";
 			}
-            
+			
 			string version = GetDriverVersion();
 
 			if (version == "")
@@ -961,8 +1100,8 @@ namespace Eddie.Platforms
 				return "";
 			}
 
-            if (result != "")
-                result += ", version ";
+			if (result != "")
+				result += ", version ";
 			result += version;
 
 			return result;
@@ -1015,7 +1154,7 @@ namespace Eddie.Platforms
 		}
 
 		
-        // Specific
+		// Specific
 		public bool IsWindows8()
 		{
 			if ((Environment.OSVersion.Version.Major == 6) && (Environment.OSVersion.Version.Minor == 2))
@@ -1024,18 +1163,18 @@ namespace Eddie.Platforms
 			return false;
 		}
 
-        public void HackWindowsInterfaceUp()
-        {
-            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface adapter in interfaces)
-            {
+		public void HackWindowsInterfaceUp()
+		{
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
 				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
-                {
-                    Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.HackInterfaceUpDone, adapter.Name));
-                    ShellCmd("netsh interface set interface \"" + SystemShell.EscapeInsideQuote(adapter.Name) + "\" ENABLED"); // IJTF2 // TOCHECK
-                }
-            }            
-        }
+				{
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.HackInterfaceUpDone, adapter.Name));
+					ShellCmd("netsh interface set interface \"" + SystemShell.EscapeInsideQuote(adapter.Name) + "\" ENABLED"); // IJTF2 // TOCHECK
+				}
+			}            
+		}
 
 		/*
 		private void WaitUntilEnabled(ManagementObject objMOC)
@@ -1164,27 +1303,27 @@ namespace Eddie.Platforms
 					{
 						if (entry.Guid == guid)
 						{
-                            ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
 							if (entry.AutoDns == false)
 							{
-                                objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
+								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
 							}
-                            else
-                            {
-                                //objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { };
-                                objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
-                            }
+							else
+							{
+								//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { };
+								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
+							}
 
-                            objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+							objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
-                            if (entry.AutoDns == true)
-                            {
-                                // Sometime, under Windows 10, the above method don't set it to automatic. So, registry write.
-                                Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "");
-                            }
+							if (entry.AutoDns == true)
+							{
+								// Sometime, under Windows 10, the above method don't set it to automatic. So, registry write.
+								Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "");
+							}
 
-                            string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
-                            Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
+							string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
+							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
 						}
 					}
 				}
@@ -1195,35 +1334,8 @@ namespace Eddie.Platforms
 			}
 
 			m_listOldDns.Clear();
-		}
-
-		private int GetInterfaceMetric(int interfaceIdx, string layer)
-		{
-			if ((layer == "ipv4") || (layer == "ipv6"))
-			{
-				string cmd = "netsh interface " + layer + " show interface " + SystemShell.EscapeInt(interfaceIdx);
-				string data = ShellCmd(cmd);
-				foreach(string line in data.Split('\n'))
-				{
-					string[] fields = line.Split(':');
-					if (fields.Length != 2)
-						continue;
-					if (fields[0].Trim() == "Metric")
-						return Conversions.ToInt32(fields[1]);
-				}
-			}
-			return 123;
-		}
-
-		private void SetInterfaceMetric(int interfaceIdx, string layer, int metric)
-		{
-			if ((layer == "ipv4") || (layer == "ipv6"))
-			{
-				string cmd = "netsh interface " + layer + " set interface " + SystemShell.EscapeInt(interfaceIdx) + " metric=" + SystemShell.EscapeInt(metric);
-				ShellCmd(cmd);
-			}
-		}
-    }
+		}		
+	}
 
 	public class NetworkManagerDhcpEntry
 	{

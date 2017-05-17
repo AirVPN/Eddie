@@ -389,10 +389,33 @@ namespace Eddie.Platforms
             t += "UID: " + m_uid + "\n";
             t += "LogName: " + m_logname + "\n";
 
-            t += "\n-- ifconfig\n";
-            t += ShellCmd("ifconfig");
+            t += "\n-- ip addr show\n";
+            t += ShellCmd("ip addr show");
+			t += "\n-- ip link show\n";
+			t += ShellCmd("ip link show");
+			t += "\n-- ip route show\n";
+			t += ShellCmd("ip route show");
 
-            return t;
+			return t;
+		}
+
+		public override Dictionary<int, string> GetProcessesList()
+		{
+			Dictionary<int, string> result = new Dictionary<int, string>();
+			String resultS = ShellCmd("ps -eo pid,command");
+			string[] resultA = resultS.Split('\n');
+			foreach (string pS in resultA)
+			{
+				int posS = pS.IndexOf(' ');
+				if (posS != -1)
+				{
+					int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
+					string name = pS.Substring(posS).Trim();
+					result[pid] = name;
+				}
+			}
+
+			return result;
 		}
 
 		public override void OnAppStart()

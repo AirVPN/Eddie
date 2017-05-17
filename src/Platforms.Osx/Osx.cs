@@ -6,12 +6,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
@@ -25,14 +25,14 @@ using Eddie.Core;
 
 namespace Eddie.Platforms
 {
-    public class Osx : Platform
-    {
+	public class Osx : Platform
+	{
 		private string m_architecture = "";
 
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
-        // Override
+		// Override
 		public Osx()
 		{
 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false, true).Trim());
@@ -59,14 +59,14 @@ namespace Eddie.Platforms
 			return "home";
 		}
 
-        public override bool IsAdmin()
-        {
+		public override bool IsAdmin()
+		{
 			// return true; // Uncomment for debugging
 
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
 			string u = ShellCmd ("whoami").ToLowerInvariant().Trim();
 			return (u == "root");
-        }
+		}
 
 		public override bool IsUnixSystem()
 		{
@@ -74,19 +74,19 @@ namespace Eddie.Platforms
 		}
 
 		public override string VersionDescription()
-        {
+		{
 			string o = base.VersionDescription();
-            o += " - " + ShellCmd("uname -a").Trim();
-            return o;
-        }
+			o += " - " + ShellCmd("uname -a").Trim();
+			return o;
+		}
 
-        public override string DirSep
-        {
-            get
-            {
-                return "/";
-            }
-        }
+		public override string DirSep
+		{
+			get
+			{
+				return "/";
+			}
+		}
 
 		public override string GetExecutableReport(string path)
 		{
@@ -101,87 +101,87 @@ namespace Eddie.Platforms
 				// OSX Bundle detected, use the launcher executable
 				currentPath = currentPath.Replace("/MonoBundle/","/MacOS/").Replace(".exe","");
 			}
-            else if(Process.GetCurrentProcess().ProcessName.StartsWith("mono", StringComparison.InvariantCultureIgnoreCase))
-            {
-                // mono <app>, Entry Assembly path it's ok
-            }
-            else
-            {
-                currentPath = Process.GetCurrentProcess().MainModule.FileName;
-            }
+			else if(Process.GetCurrentProcess().ProcessName.StartsWith("mono", StringComparison.InvariantCultureIgnoreCase))
+			{
+				// mono <app>, Entry Assembly path it's ok
+			}
+			else
+			{
+				currentPath = Process.GetCurrentProcess().MainModule.FileName;
+			}
 			return currentPath;
 		}
 
-        public override string GetUserPathEx()
-        {
-            return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
-        }
+		public override string GetUserPathEx()
+		{
+			return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
+		}
 
-        public override string ShellCmd(string Command, bool noDebugLog)
-        {
-            return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
-        }
+		public override string ShellCmd(string Command, bool noDebugLog)
+		{
+			return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
+		}
 
-        public override void FlushDNS()
-        {
-            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
+		public override void FlushDNS()
+		{
+			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
 
-            // 10.9
-            ShellCmd("dscacheutil -flushcache");
+			// 10.9
+			ShellCmd("dscacheutil -flushcache");
 			ShellCmd("killall -HUP mDNSResponder");
 
 			// 10.10
 			ShellCmd("discoveryutil udnsflushcaches");
-            ShellCmd("discoveryutil mdnsflushcache"); // 2.11
-        }
+			ShellCmd("discoveryutil mdnsflushcache"); // 2.11
+		}
 
-        public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
-        {
-            string pathBin = "/usr/bin/" + name;
-            if (Platform.Instance.FileExists(pathBin))
-            {
-                path = pathBin;
-                location = "system";
-                return true;
-            }
+		public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
+		{
+			string pathBin = "/usr/bin/" + name;
+			if (Platform.Instance.FileExists(pathBin))
+			{
+				path = pathBin;
+				location = "system";
+				return true;
+			}
 
-            string pathSBin = "/usr/sbin/" + name;
-            if (Platform.Instance.FileExists(pathSBin))
-            {
-                path = pathSBin;
-                location = "system";
-                return true;
-            }
+			string pathSBin = "/usr/sbin/" + name;
+			if (Platform.Instance.FileExists(pathSBin))
+			{
+				path = pathSBin;
+				location = "system";
+				return true;
+			}
 
-            // Look in application bundle resources
-            string resPath = NormalizePath(relativePath) + "/../Resources/" + name;
-            if (File.Exists(resPath))
-            {
-                path = resPath;
-                location = "bundle";
-                return true;
-            }
+			// Look in application bundle resources
+			string resPath = NormalizePath(relativePath) + "/../Resources/" + name;
+			if (File.Exists(resPath))
+			{
+				path = resPath;
+				location = "bundle";
+				return true;
+			}
 
-            return base.SearchTool(name, relativePath, ref path, ref location);
-        }
+			return base.SearchTool(name, relativePath, ref path, ref location);
+		}
 
-        // Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
-        public override long Ping(string host, int timeoutSec)
-        {
+		// Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
+		public override long Ping(string host, int timeoutSec)
+		{
 			// Note: Linux timeout is -w, OS X timeout is -t
 			string cmd = "ping -c 1 -t " + timeoutSec + " -q -n " + SystemShell.EscapeHost(host);
-            string result = ShellCmd(cmd);
-            
+			string result = ShellCmd(cmd);
+
 			// Note: Linux have mdev, OS X have stddev
-            string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
-            float iMS;
+			string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
+			float iMS;
 			if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
 				iMS = -1;
 
 			return (long)iMS;
-        }
-        
-        public override void EnsureExecutablePermissions(string path)
+		}
+
+		public override void EnsureExecutablePermissions(string path)
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
@@ -234,47 +234,52 @@ namespace Eddie.Platforms
 			base.RouteRemove (r);
 		}
 
-        public override void ResolveWithoutAnswer(string host)
-        {
-            // Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
-            if (Platform.Instance.FileExists("/usr/bin/host"))
-                ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
-            else
-                base.ResolveWithoutAnswer(host);
-        }
+		public override void ResolveWithoutAnswer(string host)
+		{
+			// Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
+			if (Platform.Instance.FileExists("/usr/bin/host"))
+				ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
+			else
+				base.ResolveWithoutAnswer(host);
+		}
 
-        public override List<RouteEntry> RouteList()
-		{	
+		public override List<RouteEntry> RouteList()
+		{
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
-			string result = ShellCmd("route -n -ee");
+			string result = ShellCmd("netstat -rnl");
 
 			string[] lines = result.Split('\n');
 			foreach (string line in lines)
 			{
+				if (line == "Routing tables")
+					continue;
+				if (line == "Internet:")
+					continue;
+				if (line == "Internet6:")
+					continue;
+
 				string[] fields = Utils.StringCleanSpace(line).Split(' ');
 
-				if (fields.Length == 11)
+				if (fields.Length == 8)
 				{
+					if (fields[0] == "Destination")
+						continue;
+
 					RouteEntry e = new RouteEntry();
 					e.Address = fields[0];
 					e.Gateway = fields[1];
-					e.Mask = fields[2];
-					e.Flags = fields[3].ToUpperInvariant();
-					e.Metrics = fields[4];
-					// ref
-					// use
-					e.Interface = fields[7];
-					e.Mss = fields[8];
-					e.Window = fields[9];
-					e.Irtt = fields[10];
+					e.Flags = fields[2];
+					// Refs
+					// Use
+					// Mtu
+					e.Interface = fields[6];
+					// Expire
 
 					if (e.Address.Valid == false)
 						continue;
 					if (e.Gateway.Valid == false)
-						continue;
-					if (e.Mask.Valid == false)
-						continue;
+						continue;					
 
 					entryList.Add(e);
 				}
@@ -283,26 +288,26 @@ namespace Eddie.Platforms
 			return entryList;
 		}
 
-        public override string GenerateSystemReport()
-        {
-            string t = base.GenerateSystemReport();
+		public override string GenerateSystemReport()
+		{
+			string t = base.GenerateSystemReport();
 
-            t += "\n\n-- OS X\n";
+			t += "\n\n-- OS X\n";
 
-            t += "\n-- ifconfig\n";
-            t += ShellCmd("ifconfig");
+			t += "\n-- ifconfig\n";
+			t += ShellCmd("ifconfig");
+			t += "\n-- netstat /rnl\n";
+			t += ShellCmd("netstat /rnl");
 
-            return t;
-        }
+			return t;
+		}
 
-        public override Dictionary<int, string> GetProcessesList()
+		public override Dictionary<int, string> GetProcessesList()
 		{
 			// We experience some crash under OSX with the base method.
 			
 			Dictionary<int, string> result = new Dictionary<int,string>();
-
-			String resultS = ShellCmd("top -b -n 1 | awk '{print $1,$12}'");
-
+			String resultS = ShellCmd("ps -eo pid,command");
 			string[] resultA = resultS.Split('\n');
 			foreach (string pS in resultA)
 			{
@@ -310,12 +315,11 @@ namespace Eddie.Platforms
 				if (posS != -1)
 				{
 					int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
-					string name = pS.Substring(posS).Trim().ToLowerInvariant();
-
+					string name = pS.Substring(posS).Trim();
 					result[pid] = name;
 				}
 			}
-
+			
 			return result;
 		}
 
@@ -331,12 +335,12 @@ namespace Eddie.Platforms
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockOsxPf());
 		}
 
-        public override string OnNetworkLockRecommendedMode()
-        {
-            return "osx_pf";
-        }
+		public override string OnNetworkLockRecommendedMode()
+		{
+			return "osx_pf";
+		}
 
-        public override void OnRecoveryLoad(XmlElement root)
+		public override void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeDns = Utils.XmlGetFirstElementByTagName(root, "DnsSwitch");
 			if (nodeDns != null)
@@ -397,9 +401,9 @@ namespace Eddie.Platforms
 				{
 					string getInfo = ShellCmd("networksetup -getinfo \"" + SystemShell.EscapeInsideQuote(i) + "\"");
 
-                    string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
+					string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
 					string address = Utils.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
-					
+
 					if( (mode == "") && (address != "") )
 						mode = "LinkLocal";
 
@@ -418,11 +422,11 @@ namespace Eddie.Platforms
 						}
 						m_listIpV6Mode.Add(entry);
 
-						ShellCmd("networksetup -setv6off \"" + SystemShell.EscapeInsideQuote(i) + "\""); 
-                    }					
+						ShellCmd("networksetup -setv6off \"" + SystemShell.EscapeInsideQuote(i) + "\"");
+					}
 				}
 
-				Recovery.Save();				
+				Recovery.Save();
 			}
 
 			base.OnIpV6Do();
@@ -433,29 +437,29 @@ namespace Eddie.Platforms
 		public override bool OnIpV6Restore()
 		{
 			foreach (IpV6ModeEntry entry in m_listIpV6Mode)
-			{                
-                if (entry.Mode == "Off")
+			{
+				if (entry.Mode == "Off")
 				{
 					ShellCmd("networksetup -setv6off \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
-                }
+				}
 				else if (entry.Mode == "Automatic")
 				{
 					ShellCmd("networksetup -setv6automatic \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
-                }
+				}
 				else if (entry.Mode == "LinkLocal")
 				{
-					ShellCmd("networksetup -setv6LinkLocal \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\""); 
+					ShellCmd("networksetup -setv6LinkLocal \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
 				}
 				else if (entry.Mode == "Manual")
 				{
 					ShellCmd("networksetup -setv6manual \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router); // IJTF2 // TOCHECK
-                }
+				}
 
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
-			
+
 			Recovery.Save();
 
 			base.OnIpV6Restore();
@@ -473,35 +477,35 @@ namespace Eddie.Platforms
 				foreach (string i in interfaces)
 				{
 					string i2 = i.Trim();
-					
-					string current = ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\""); 
 
-                    // v2
-                    List<string> ips = new List<string>();
-                    foreach(string line in current.Split('\n'))
-                    {
-                        string ip = line.Trim();
-                        if (IpAddress.IsIP(ip))
-                            ips.Add(ip);
-                    }
+					string current = ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
 
-                    if (ips.Count != 0)
-                        current = String.Join(",", ips.ToArray());
-                    else
-                        current = "";
-                    if (current != dns)
-                    {
-                        // Switch
-                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
+					// v2
+					List<string> ips = new List<string>();
+					foreach(string line in current.Split('\n'))
+					{
+						string ip = line.Trim();
+						if (IpAddress.IsIP(ip))
+							ips.Add(ip);
+					}
 
-                        DnsSwitchEntry e = new DnsSwitchEntry();
-                        e.Name = i2;
-                        e.Dns = current;
-                        m_listDnsSwitch.Add(e);
+					if (ips.Count != 0)
+						current = String.Join(",", ips.ToArray());
+					else
+						current = "";
+					if (current != dns)
+					{
+						// Switch
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
 
-                        string dns2 = dns.Replace(",", "\" \"");
-                        ShellCmd("networksetup -setdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\" \"" + dns2 + "\""); // IJTF2 eh?
-                    }                    
+						DnsSwitchEntry e = new DnsSwitchEntry();
+						e.Name = i2;
+						e.Dns = current;
+						m_listDnsSwitch.Add(e);
+
+						string dns2 = dns.Replace(",", "\" \"");
+						ShellCmd("networksetup -setdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\" \"" + dns2 + "\""); // IJTF2 eh?
+					}
 				}
 
 				Recovery.Save ();
@@ -517,13 +521,13 @@ namespace Eddie.Platforms
 			foreach (DnsSwitchEntry e in m_listDnsSwitch)
 			{
 				string v = e.Dns;
-                if (v == "")
-                    v = "empty";
+				if (v == "")
+					v = "empty";
 				v = v.Replace (",", "\" \"");
 
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\""); // IJTF2
-            }
+			}
 
 			m_listDnsSwitch.Clear();
 
@@ -549,9 +553,9 @@ namespace Eddie.Platforms
 		public string[] GetInterfaces()
 		{
 			string[] interfaces = ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split('\n');
-            return interfaces;
+			return interfaces;
 		}
-    }
+	}
 
 	public class DnsSwitchEntry
 	{

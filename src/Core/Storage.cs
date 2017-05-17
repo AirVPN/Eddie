@@ -523,7 +523,8 @@ namespace Eddie.Core
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);            
             SetDefaultInt("openvpn.sndbuf", -2, Messages.ManOptionOpenVpnSndBuf); // 2.11
             SetDefaultInt("openvpn.rcvbuf", -2, Messages.ManOptionOpenVpnRcvBuf); // 2.11
-            SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);            
+            SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);
+			SetDefault("openvpn.directives.path", "path_file", "", NotInMan);
             SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
             
 			// Not in Settings

@@ -44,7 +44,8 @@ namespace Eddie.Core
 		public static string CheckingRequired = "Unavailable (option 'Checking Tunnel' required)";
 		public static string ServerByNameNotFound = "Requested server '{1}' not found.";
         public static string KeyNotFound = "Key '{1}' not found.";
-        public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
+		public static string FileNotFound = "File '{1}' not found.";
+		public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
 		public static string WaitingLatencyTestsStep = "({1} to go)";
 		public static string ExchangeTryFailed = "{1}, {2}° try failed ({3})";
 		public static string AuthorizeLogin = "Checking login ...";
@@ -431,6 +432,8 @@ namespace Eddie.Core
         // Platform Windows		
         public static string NetworkAdapterDhcpDone = "Network adapter DHCP switched to static ({1})";
 		public static string NetworkAdapterDhcpRestored = "DHCP of a network adapter restored to original settings ({1})";
+		public static string NetworkAdapterMetricSwitch = "Interface {1} metric changed from {2} to {3}, layer {4}";
+		public static string NetworkAdapterMetricRestore = "Interface {1} metric restored from {2} to {3}, layer {4}";
 		public static string IpV6DisabledOs = "IPv6 disabled with registry changes.";
         public static string IpV6RestoredOs = "IPv6 restored with registry changes.";
         public static string IpV6DisabledWpf = "IPv6 disabled with packet filtering."; 

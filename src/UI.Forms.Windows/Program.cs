@@ -45,7 +45,7 @@ namespace Eddie.UI.Windows
 
                 Platform.Instance = new Eddie.Platforms.Windows();
 
-                CommandLine.InitSystem(Environment.CommandLine);
+				CommandLine.InitSystem(Environment.CommandLine);
                 
                 if (CommandLine.SystemEnvironment.Exists("cli"))
                 {

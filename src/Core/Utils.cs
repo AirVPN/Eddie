@@ -269,6 +269,15 @@ namespace Eddie.Core
 				return Conversions.ToBool(nodeAttr.Value);
 		}
 
+		public static int XmlGetAttributeInt(XmlNode node, string name, int def)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToInt32(nodeAttr.Value);
+		}
+
 		public static Int64 XmlGetAttributeInt64(XmlNode node, string name, Int64 def)
 		{
 			XmlNode nodeAttr = node.Attributes[name];
@@ -294,6 +303,11 @@ namespace Eddie.Core
 		public static void XmlSetAttributeBool(XmlElement node, string name, bool val)
 		{
 			node.SetAttribute(name, Conversions.ToString(val));			
+		}
+
+		public static void XmlSetAttributeInt(XmlElement node, string name, int val)
+		{
+			node.SetAttribute(name, Conversions.ToString(val));
 		}
 
 		public static void XmlSetAttributeInt64(XmlElement node, string name, Int64 val)

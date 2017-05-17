@@ -649,11 +649,8 @@ namespace Eddie.Core
 
 			System.Diagnostics.Process[] processlist = Process.GetProcesses();
 
-			string megareport = "";
-
 			foreach (System.Diagnostics.Process p in processlist)
 			{
-				megareport += p.SessionId + ":";
 				try
 				{
                     //result[p.Id] = p.ProcessName.ToLowerInvariant();					
@@ -662,10 +659,7 @@ namespace Eddie.Core
 				}
 				catch
                 {
-					megareport += "ERRORE";
-				}
-
-				megareport += "\r\n";
+				}				
 			}
 
 			return result;
@@ -735,6 +729,7 @@ namespace Eddie.Core
 				t += "Unable to fetch network interfaces.\n";
 			}
 
+			/* // Removed in 2.13.1
 			t += "\nRouting:\n";
 			try
 			{
@@ -748,7 +743,7 @@ namespace Eddie.Core
 			{
 				t += "Unable to fetch routes.\n";
 			}
-
+			*/
 
 			t += "\nDefault gateways:\n";
 			List<string> gatewaysList = new List<string>();
@@ -827,6 +822,7 @@ namespace Eddie.Core
 
 			OnRouteDefaultRemoveRestore();
 			OnDnsSwitchRestore();
+			OnInterfaceRestore();
 			OnIpV6Restore();
 		}
 
@@ -852,6 +848,16 @@ namespace Eddie.Core
 		}
 
 		public virtual bool OnDnsSwitchRestore()
+		{
+			return true;
+		}
+
+		public virtual bool OnInterfaceDo(string id)
+		{
+			return true;
+		}
+
+		public virtual bool OnInterfaceRestore()
 		{
 			return true;
 		}

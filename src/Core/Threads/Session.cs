@@ -518,6 +518,8 @@ namespace Eddie.Core.Threads
 
 						Platform.Instance.OnDnsSwitchRestore();
 
+						Platform.Instance.OnInterfaceRestore();
+
                         // Closing temporary files
                         if (m_fileSshKey != null)
                         {
@@ -1126,7 +1128,7 @@ namespace Eddie.Core.Threads
 
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
-						 Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
+						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
 
 						m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 						m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
@@ -1136,6 +1138,8 @@ namespace Eddie.Core.Threads
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
 					{
+						Platform.Instance.OnInterfaceDo(Engine.Instance.ConnectedVpnInterfaceId);
+
 						if (Engine.Instance.Storage.Get("dns.servers") != "")
 							Platform.Instance.OnDnsSwitchDo(Engine.Instance.Storage.Get("dns.servers"));
 						else if(Engine.ConnectedVpnDns != "")
@@ -1621,6 +1625,19 @@ namespace Eddie.Core.Threads
             if (s.GetBool("openvpn.skip_defaults") == false)
             {
                 ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.directives"), "Client level");
+				string directivesPath = Engine.Instance.Storage.Get("openvpn.directives.path");
+				if (directivesPath.Trim() != "")
+				{
+					if(Platform.Instance.FileExists(directivesPath))
+					{
+						string text = Platform.Instance.FileContentsReadText(directivesPath);
+						ovpn.AppendDirectives(text, "Client level");
+					}
+					else
+					{
+						Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FileNotFound, directivesPath));
+					}
+				}
                 CurrentServer.Provider.OnBuildOvpnDefaults(ovpn);
 
                 ovpn.AppendDirectives(CurrentServer.OvpnDirectives, "Server level");

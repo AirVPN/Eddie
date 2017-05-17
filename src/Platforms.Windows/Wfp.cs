@@ -39,28 +39,28 @@ namespace Eddie.Platforms
     {
         private static Dictionary<string, WfpItem> Items = new Dictionary<string, WfpItem>();
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void LibPocketFirewallInit(string name);
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern bool LibPocketFirewallStart(string xml);
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern bool LibPocketFirewallStop();
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern UInt64 LibPocketFirewallAddRule(string xml);
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern bool LibPocketFirewallRemoveRule(UInt64 id);
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool LibPocketFirewallRemoveRuleDirect(UInt64 id);
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr LibPocketFirewallGetLastError();
 
-        [DllImport("LibPocketFirewall.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern UInt32 LibPocketFirewallGetLastErrorCode();
 
         public static string LibPocketFirewallGetLastError2()
