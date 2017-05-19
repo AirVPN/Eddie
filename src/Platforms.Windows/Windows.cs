@@ -46,8 +46,8 @@ namespace Eddie.Platforms
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private object m_oldIpV6 = null;
 		private string m_oldMetricInterface = "";
-		private int m_oldMetricIPv4 = -1; // cazzo
-		private int m_oldMetricIPv6 = -1; // cazzo
+		private int m_oldMetricIPv4 = -1; 
+		private int m_oldMetricIPv6 = -1; 
 		private Mutex m_mutexSingleInstance = null; 
 
 		public static bool IsVistaOrNewer()
@@ -756,7 +756,7 @@ namespace Eddie.Platforms
 			if (interfaceMetricIPv4Value == -2) // Automatic/Recommended
 				interfaceMetricIPv4Value = 3;
 			if (interfaceMetricIPv6Value == -2) // Automatic/Recommended
-				interfaceMetricIPv6Value = 4; // cazzo
+				interfaceMetricIPv6Value = 3;
 
 			int interfaceMetricIPv4Idx = -1;
 			string interfaceMetricIPv4Name = "";

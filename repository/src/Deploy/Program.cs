@@ -571,7 +571,7 @@ namespace Deploy
 						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
 
 						CreateDirectory(pathTemp + "/usr/share/AirVPN");
-						MoveFile(pathTemp + "/usr/lib/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
+						MoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
 
 						WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
