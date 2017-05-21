@@ -169,8 +169,8 @@ namespace Eddie.Platforms
 		public override long Ping(string host, int timeoutSec)
 		{
 			// Note: Linux timeout is -w, OS X timeout is -t
-			string cmd = "ping -c 1 -t " + timeoutSec + " -q -n " + SystemShell.EscapeHost(host);
-			string result = ShellCmd(cmd);
+			string args = "-c 1 -t " + SystemShell.EscapeInt(timeoutSec) + " -q -n " + SystemShell.EscapeHost(host);
+			string result = Shell("/sbin/ping", args);
 
 			// Note: Linux have mdev, OS X have stddev
 			string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
