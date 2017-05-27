@@ -35,7 +35,7 @@ namespace Eddie.Platforms
 		// Override
 		public Osx()
 		{
-			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false, true).Trim());
+			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true).Trim());
 		}
 
 		public override string GetCode()
@@ -117,9 +117,17 @@ namespace Eddie.Platforms
 			return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
 		}
 
-		public override string ShellCmd(string Command, bool noDebugLog)
+		/* ClodoTemp
+		public override string ShellCmd(string Command)
 		{
-			return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
+			return Shell("sh", String.Format("-c '{0}'", Command));
+		}
+		*/
+
+		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
+		{
+			path = "sh";
+			arguments = new string[] { "-c", "'" + command + "'" };
 		}
 
 		public override void FlushDNS()
@@ -170,7 +178,7 @@ namespace Eddie.Platforms
 		{
 			// Note: Linux timeout is -w, OS X timeout is -t
 			string args = "-c 1 -t " + SystemShell.EscapeInt(timeoutSec) + " -q -n " + SystemShell.EscapeHost(host);
-			string result = Shell("/sbin/ping", args);
+			string result = SystemShell.Shell("/sbin/ping", args);
 
 			// Note: Linux have mdev, OS X have stddev
 			string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");

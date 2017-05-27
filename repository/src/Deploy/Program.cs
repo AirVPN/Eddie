@@ -518,7 +518,7 @@ namespace Deploy
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
 
-						WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
+						WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help -help.format=man"));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
 
@@ -573,7 +573,7 @@ namespace Deploy
 						CreateDirectory(pathTemp + "/usr/share/AirVPN");
 						MoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/cacert.pem", pathTemp + "/usr/share/AirVPN/cacert.pem");
 
-						WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help_format=man"));
+						WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help.format=man"));
 						Shell("gzip -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
 
@@ -871,10 +871,10 @@ namespace Deploy
 			{
 				Log("Generating manual files");
 				string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
-				WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help_format=html"));
-				WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help_format=bbc"));
-				WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help_format=text"));
-				WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help_format=man"));
+				WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help.format=html"));
+				WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help.format=bbc"));
+				WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help.format=text"));
+				WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help.format=man"));
 			}
 
 

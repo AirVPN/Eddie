@@ -237,7 +237,7 @@ namespace Eddie.Gui
 
                         //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
 
-                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
+                        SystemShell.Shell(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
                     }
 					else
 					{

@@ -6,12 +6,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
@@ -65,23 +65,23 @@ namespace Eddie.Core
 		{
 		}
 
-        public virtual void AllowProgram(string path, string name, string guid)
-        {            
-        }
+		public virtual void AllowProgram(string path, string name, string guid)
+		{
+		}
 
-        public virtual void DeallowProgram(string path, string name, string guid)
-        {            
-        }
+		public virtual void DeallowProgram(string path, string name, string guid)
+		{
+		}
 
-        public virtual void AllowInterface(string id)
-        {
-        }
+		public virtual void AllowInterface(string id)
+		{
+		}
 
-        public virtual void DeallowInterface(string id)
-        {
-        }
+		public virtual void DeallowInterface(string id)
+		{
+		}
 
-        public virtual void OnUpdateIps()
+		public virtual void OnUpdateIps()
 		{
 			// Called when Ip used by AirVPN (hosts auth or vpn servers) maybe changed.
 		}
@@ -100,11 +100,6 @@ namespace Eddie.Core
 
 		public virtual void OnRecoverySave(XmlElement root)
 		{
-		}
-
-		public string Exec(string cmd)
-		{
-			return Platform.Instance.ShellCmd(cmd);
 		}
 
 		public void AddToIpsList(List<IpAddressRange> result, IpAddressRange ip, bool warning)
@@ -145,7 +140,7 @@ namespace Eddie.Core
 					if (ip2 == "")
 						continue;
 
-					AddToIpsList(result, new IpAddressRange(ip2), true);					
+					AddToIpsList(result, new IpAddressRange(ip2), true);
 				}
 			}
 
@@ -159,39 +154,39 @@ namespace Eddie.Core
 					if (routeEntries.Length < 2)
 						continue;
 
-					string ip = routeEntries[0];					
+					string ip = routeEntries[0];
 					string action = routeEntries[1];
-					
+
 					if (action == "out")
 					{
-						AddToIpsList(result, new IpAddressRange(ip), true);					
-					}					
+						AddToIpsList(result, new IpAddressRange(ip), true);
+					}
 				}
 			}
 
-            if (includeIpUsedByClient)
-            {
-                // Providers
-                foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
-                {
-                    List<IpAddressRange> list = provider.GetNetworkLockAllowedIps();
-                    foreach (IpAddressRange ip in list)
-                        AddToIpsList(result, ip, false);
-                }
+			if (includeIpUsedByClient)
+			{
+				// Providers
+				foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+				{
+					List<IpAddressRange> list = provider.GetNetworkLockAllowedIps();
+					foreach (IpAddressRange ip in list)
+						AddToIpsList(result, ip, false);
+				}
 
-                // Servers
-                lock (Engine.Instance.Servers)
-                {
-                    Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>(Engine.Instance.Servers);
+				// Servers
+				lock (Engine.Instance.Servers)
+				{
+					Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>(Engine.Instance.Servers);
 
-                    foreach (ServerInfo infoServer in servers.Values)
-                    {
-                        AddToIpsList(result, infoServer.IpEntry, false);
-                        if (infoServer.IpEntry2.Trim() != "")
-                            AddToIpsList(result, infoServer.IpEntry2, false);
-                    }
-                }
-            }
+					foreach (ServerInfo infoServer in servers.Values)
+					{
+						AddToIpsList(result, infoServer.IpEntry, false);
+						if (infoServer.IpEntry2.Trim() != "")
+							AddToIpsList(result, infoServer.IpEntry2, false);
+					}
+				}
+			}
 
 			return result;
 		}

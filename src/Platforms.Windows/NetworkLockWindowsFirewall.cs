@@ -120,31 +120,31 @@ namespace Eddie.Platforms
 
 		public void StateOn()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " state on");
+			SystemShell.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " state on");
 		}
 
 		public void StateOff()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " state off");
+			SystemShell.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " state off");
 		}
 
 		public void NotifyOn()
 		{
-            //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
-            //Platform.Instance.ShellCmd("netsh firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
-            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " settings inboundusernotification enable");            
+			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
+			//Platform.Instance.ShellCmd("netsh firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
+			SystemShell.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " settings inboundusernotification enable");            
         }
 
 		public void NotifyOff()
 		{
-            //Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
-            //Platform.Instance.ShellCmd("netsh firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
-            Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " settings inboundusernotification disable");
+			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
+			//Platform.Instance.ShellCmd("netsh firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
+			SystemShell.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " settings inboundusernotification disable");
         }
 
 		public void RestorePolicy()
 		{
-			Platform.Instance.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " firewallpolicy " + Inbound + "," + Outbound);
+			SystemShell.ShellCmd("netsh advfirewall set " + Utils.StringSafe(id) + " firewallpolicy " + Inbound + "," + Outbound);
 		}
 
 		public void ReadXML(XmlElement node)
@@ -217,12 +217,12 @@ namespace Eddie.Platforms
 			// We create this kind of file in Windows System directory, because it's system critical data, and to allow it to survive between re-installation of the software.
 			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_original.wfw";
 			if (Platform.Instance.FileExists(rulesBackupFirstTime) == false)
-				Exec("netsh advfirewall export \"" + SystemShell.EscapePath(rulesBackupFirstTime) + "\""); 
+				SystemShell.ShellCmd("netsh advfirewall export \"" + SystemShell.EscapePath(rulesBackupFirstTime) + "\""); 
 
             string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
 			if (Platform.Instance.FileExists(rulesBackupSession))
                 Platform.Instance.FileDelete(rulesBackupSession);
-			Exec("netsh advfirewall export \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
+			SystemShell.ShellCmd("netsh advfirewall export \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
             if (Platform.Instance.FileExists(rulesBackupSession) == false)
 				throw new Exception(Messages.NetworkLockWindowsFirewallBackupFailed);
 
@@ -244,14 +244,14 @@ namespace Eddie.Platforms
                 */
 			}
 
-            // Disable all notifications
-            Exec("netsh advfirewall set allprofiles settings inboundusernotification disable");
+			// Disable all notifications
+			SystemShell.ShellCmd("netsh advfirewall set allprofiles settings inboundusernotification disable");
 
-            Exec("netsh advfirewall firewall delete rule name=all");
+			SystemShell.ShellCmd("netsh advfirewall firewall delete rule name=all");
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
 			{
-				Exec("netsh advfirewall firewall add rule name=\"Eddie - ICMP V4\" dir=in action=allow protocol=icmpv4");
+				SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - ICMP V4\" dir=in action=allow protocol=icmpv4");
 			}
 
             // Exec("netsh advfirewall firewall add rule name=\"Eddie - IpV6 Block - Low\" dir=out remoteip=0000::/1 action=allow");
@@ -259,21 +259,21 @@ namespace Eddie.Platforms
 
             if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
 			{
-				Exec("netsh advfirewall firewall add rule name=\"Eddie - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
-				Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
+				SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
+				SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
 
-                Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowMulticast\" dir=out action=allow remoteip=224.0.0.0/24");
-                Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowSimpleServiceDiscoveryProtocol\" dir=out action=allow remoteip=239.255.255.250/32");
-                Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - ServiceLocationProtocol\" dir=out action=allow remoteip=239.255.255.253/32");
+				SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowMulticast\" dir=out action=allow remoteip=224.0.0.0/24");
+				SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowSimpleServiceDiscoveryProtocol\" dir=out action=allow remoteip=239.255.255.250/32");
+				SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - ServiceLocationProtocol\" dir=out action=allow remoteip=239.255.255.253/32");
             }
 
-            Exec("netsh advfirewall firewall add rule name=\"Eddie - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
-            Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - In - AllowVPN\" dir=in action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
+			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowVPN\" dir=out action=allow localip=10.4.0.0/16,10.5.0.0/16,10.6.0.0/16,10.7.0.0/16,10.8.0.0/16,10.9.0.0/16,10.30.0.0/16,10.50.0.0/16");
 
-            // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
-            Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
-                        
-			Exec("netsh advfirewall set allprofiles firewallpolicy BlockInbound,BlockOutbound");
+			// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
+			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
+
+			SystemShell.ShellCmd("netsh advfirewall set allprofiles firewallpolicy BlockInbound,BlockOutbound");
 
 			m_activated = true; // To avoid OnUpdateIps before this moment
 
@@ -299,7 +299,7 @@ namespace Eddie.Platforms
                 string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
-					Exec("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
+					SystemShell.ShellCmd("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
                     Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
@@ -309,7 +309,7 @@ namespace Eddie.Platforms
 				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
-					Exec("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
+					SystemShell.ShellCmd("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
                     Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
@@ -319,7 +319,7 @@ namespace Eddie.Platforms
 				string rulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
-					Exec("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
+					SystemShell.ShellCmd("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
                     Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
@@ -363,9 +363,9 @@ namespace Eddie.Platforms
             if (ipList != m_lastestIpList)
 			{
 				if (m_lastestIpList != "")
-					Exec("netsh advfirewall firewall set rule name=\"Eddie - Out - AllowAirIPS\" dir=out new action=allow remoteip=\"" + ipList + "\"");
+					SystemShell.ShellCmd("netsh advfirewall firewall set rule name=\"Eddie - Out - AllowAirIPS\" dir=out new action=allow remoteip=\"" + ipList + "\"");
 				else
-					Exec("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowAirIPS\" dir=out action=allow remoteip=\"" + ipList + "\"");
+					SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowAirIPS\" dir=out action=allow remoteip=\"" + ipList + "\"");
 
 				m_lastestIpList = ipList;
 			}            

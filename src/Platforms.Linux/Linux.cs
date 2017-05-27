@@ -39,17 +39,16 @@ namespace Eddie.Platforms
         // Override
         public Linux()
 		{
- 			m_architecture = NormalizeArchitecture(ShellPlatformIndipendent("sh", "-c 'uname -m'", "", true, false, true).Trim());            
+ 			m_architecture = NormalizeArchitecture(SystemShell.ShellCmd("uname -m").Trim());            
             m_uid = 9999;
-            UInt32.TryParse(ShellCmd("id -u"), out m_uid);
-
+            UInt32.TryParse(SystemShell.ShellCmd("id -u"), out m_uid);
 
             // Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
             // Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
             // Manjaro, same as Ubuntu
-            m_logname = ShellCmd("echo $SUDO_USER").Trim(); // IJTF2 // TOCHECK
+            m_logname = SystemShell.ShellCmd("echo $SUDO_USER").Trim(); // IJTF2 // TOCHECK
             if (m_logname == "")
-                m_logname = ShellCmd("logname");
+                m_logname = SystemShell.ShellCmd("logname");
             if (m_logname.Contains("no login name"))
                 m_logname = Environment.UserName;
 
@@ -87,7 +86,7 @@ namespace Eddie.Platforms
 		public override string VersionDescription()
         {
 			string o = base.VersionDescription();
-            o += " - " + ShellCmd("uname -a").Trim();
+            o += " - " + SystemShell.ShellCmd("uname -a").Trim();
             return o;
         }
 
@@ -112,7 +111,7 @@ namespace Eddie.Platforms
             if (FileExists(path) == false)
                 return false;
 
-            string result = ShellCmd("lsattr \"" + SystemShell.EscapePath(path) + "\"", true); // noDebugLog=true to avoid log recursion.
+            string result = SystemShell.ShellCmd("lsattr \"" + SystemShell.EscapePath(path) + "\""); // noDebugLog=true to avoid log recursion.
                         
             /* // < 2.11.11
             if (result.IndexOf(' ') != 16) 
@@ -135,13 +134,21 @@ namespace Eddie.Platforms
             if (FileExists(path))
             {
                 string flag = (value ? "+i" : "-i");
-                ShellCmd("chattr " + flag + " \"" + SystemShell.EscapePath(path) + "\"");
+				SystemShell.ShellCmd("chattr " + flag + " \"" + SystemShell.EscapePath(path) + "\"");
             }
         }
-        
-        public override string GetExecutableReport(string path)
+
+		public override void FileEnsureExecutablePermission(string path)
 		{
-			return ShellCmd("ldd \"" + SystemShell.EscapePath(path) + "\"");
+			if ((path == "") || (Platform.Instance.FileExists(path) == false))
+				return;
+
+			SystemShell.ShellCmd("chmod +x \"" + SystemShell.EscapePath(path) + "\"");
+		}
+
+		public override string GetExecutableReport(string path)
+		{
+			return SystemShell.ShellCmd("ldd \"" + SystemShell.EscapePath(path) + "\"");
 		}
 
 		public override string GetExecutablePathEx()
@@ -159,7 +166,7 @@ namespace Eddie.Platforms
 				output = builder.ToString();
             */
             int pid = Process.GetCurrentProcess().Id;
-            string output = Platform.Instance.ShellCmd("readlink /proc/" + pid.ToString() + "/exe");
+            string output = SystemShell.ShellCmd("readlink /proc/" + pid.ToString() + "/exe");
 
             if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
 			{
@@ -175,16 +182,24 @@ namespace Eddie.Platforms
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
 
-        public override string ShellCmd(string Command, bool noDebugLog)
+		/* ClodoTemp
+        public override string ShellCmd(string Command)
         {
-            return Shell("sh", String.Format("-c '{0}'", Command), "", true, false, noDebugLog);
+            return Shell("sh", String.Format("-c '{0}'", Command));
         }
+		*/
 
-        public override string GetSystemFont()
+		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
+		{
+			path = "sh";
+			arguments = new string[] { "-c", "'" + command + "'" };
+		}
+
+		public override string GetSystemFont()
         {
             if(Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
             {
-                string detected = Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface font-name").Trim('\'');
+                string detected = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface font-name").Trim('\'');
                 int posSize = detected.LastIndexOf(" ");
                 if (posSize != -1)
                     detected = detected.Substring(0, posSize) + "," + detected.Substring(posSize + 1);
@@ -199,7 +214,7 @@ namespace Eddie.Platforms
         {
             if (Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
             {
-                string detected = Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+                string detected = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
                 int posSize = detected.LastIndexOf(" ");
                 if (posSize != -1)
                     detected = detected.Substring(0, posSize) + "," + detected.Substring(posSize + 1);
@@ -224,7 +239,7 @@ namespace Eddie.Platforms
         {
             // TOFIX Don't work well on all distro
             string args = " - " + m_logname + " -c 'xdg-open \"" + SystemShell.EscapePath(path) + "\"'"; // IJTF2 // TOCHECK
-            Shell("su", args, false);
+            SystemShell.Shell("su", args, false);
         }
 
         public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
@@ -259,7 +274,7 @@ namespace Eddie.Platforms
         public override long Ping(string host, int timeoutSec)
         {
             string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host);
-            string result = ShellCmd(cmd, true);
+            string result = SystemShell.ShellCmd(cmd);
             
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
@@ -274,16 +289,7 @@ namespace Eddie.Platforms
             
             return (long) iMS;
         }
-
-        public override void EnsureExecutablePermissions(string path)
-		{
-			if ((path == "") || (Platform.Instance.FileExists(path) == false))
-				return;
-
-			ShellCmd("chmod +x \"" + SystemShell.EscapePath(path) + "\"");			
-		}
-
-
+		
 		public override void RouteAdd(RouteEntry r)
 		{
 			string cmd = "route add";
@@ -312,7 +318,7 @@ namespace Eddie.Platforms
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
 
-			ShellCmd(cmd); // IJTF2 // TOCHECK
+			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
         }
         
 		public override void RouteRemove(RouteEntry r)
@@ -328,15 +334,15 @@ namespace Eddie.Platforms
 			*/
 			if(r.Interface != "")
 				cmd += " dev " + r.Interface;
-			
-			ShellCmd(cmd); // IJTF2 // TOCHECK
+
+			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
         }
 
         public override void ResolveWithoutAnswer(string host)
         {
             // Base method with Dns.GetHostEntry have cache issue, for example on Fedora.
             if (Platform.Instance.FileExists("/usr/bin/host"))
-                ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
+				SystemShell.ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
             else
                 base.ResolveWithoutAnswer(host);
         }
@@ -345,7 +351,7 @@ namespace Eddie.Platforms
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
-			string result = ShellCmd("route -n -ee");
+			string result = SystemShell.ShellCmd("route -n -ee");
 
 			string[] lines = result.Split('\n');
 			foreach (string line in lines)
@@ -390,11 +396,11 @@ namespace Eddie.Platforms
             t += "LogName: " + m_logname + "\n";
 
             t += "\n-- ip addr show\n";
-            t += ShellCmd("ip addr show");
+            t += SystemShell.ShellCmd("ip addr show");
 			t += "\n-- ip link show\n";
-			t += ShellCmd("ip link show");
+			t += SystemShell.ShellCmd("ip link show");
 			t += "\n-- ip route show\n";
-			t += ShellCmd("ip route show");
+			t += SystemShell.ShellCmd("ip route show");
 
 			return t;
 		}
@@ -402,7 +408,7 @@ namespace Eddie.Platforms
 		public override Dictionary<int, string> GetProcessesList()
 		{
 			Dictionary<int, string> result = new Dictionary<int, string>();
-			String resultS = ShellCmd("ps -eo pid,command");
+			String resultS = SystemShell.ShellCmd("ps -eo pid,command");
 			string[] resultA = resultS.Split('\n');
 			foreach (string pS in resultA)
 			{
@@ -438,7 +444,7 @@ namespace Eddie.Platforms
                 string dnsScriptPath = Software.FindResource("update-resolv-conf");
                 if (dnsScriptPath != "")
                 {
-                    EnsureExecutablePermissions(dnsScriptPath);
+                    FileEnsureExecutablePermission(dnsScriptPath);
                     Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsResolvConfScript);
                     ovpn.AppendDirective("script-security", "2", "");
                     ovpn.AppendDirective("up", dnsScriptPath, "");
@@ -454,7 +460,7 @@ namespace Eddie.Platforms
 			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
 				string sysctlName = "sysctl net.ipv6.conf.all.disable_ipv6";
-				string ipV6 = ShellCmd(sysctlName).Replace(sysctlName, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
+				string ipV6 = SystemShell.ShellCmd(sysctlName).Replace(sysctlName, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
 
 				if (ipV6 == "0")
 				{
@@ -570,7 +576,7 @@ namespace Eddie.Platforms
 					text += "nameserver " + dnsSingle + "\n";
 
                 FileContentsWriteText("/etc/resolv.conf", text);
-                ShellCmd("chmod 644 /etc/resolv.conf");
+				SystemShell.ShellCmd("chmod 644 /etc/resolv.conf");
             }
 
 			base.OnDnsSwitchDo(dns);

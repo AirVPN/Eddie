@@ -45,6 +45,12 @@ namespace Eddie.UI.Windows
 
                 Platform.Instance = new Eddie.Platforms.Windows();
 
+				// ClodoTemp
+				string test1 = SystemShell.ShellCmd("ipconfig /flushdns"); // Avoid
+				string test2 = SystemShell.Shell("ipconfig", "/flushdns"); // Better
+				string test3 = SystemShell.ShellCmd("dir C:\\"); // Must
+				string test4 = SystemShell.Shell("dir", "C:\\"); // No
+				
 				CommandLine.InitSystem(Environment.CommandLine);
                 
                 if (CommandLine.SystemEnvironment.Exists("cli"))

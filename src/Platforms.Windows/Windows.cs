@@ -241,6 +241,14 @@ namespace Eddie.Platforms
 			}
 		}
 
+		public override string EndOfLineSep
+		{
+			get
+			{
+				return "\r\n";
+			}
+		}
+
 		public override string GetExecutablePathEx()
 		{
 			// It return vshost.exe under VS, better
@@ -254,9 +262,17 @@ namespace Eddie.Platforms
 			return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
 		}
 
-		public override string ShellCmd(string Command, bool noDebugLog)
+		/* ClodoTemp
+		public override string ShellCmd(string Command)
 		{
-			return Shell("cmd.exe", String.Format("/c {0}", Command), "", true, false, noDebugLog);
+			return SystemShell.Shell("cmd.exe", String.Format("/c {0}", Command));
+		}
+		*/
+
+		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
+		{
+			path = "cmd.exe";
+			arguments = new string[] { "/c", command };
 		}
 
 		public override void FlushDNS()
@@ -269,12 +285,12 @@ namespace Eddie.Platforms
 			// 2.11.10
 			if (Engine.Instance.Storage.GetBool("windows.workarounds"))
 			{
-				ShellCmd("net stop dnscache");
-				ShellCmd("net start dnscache");
+				SystemShell.ShellCmd("net stop dnscache");
+				SystemShell.ShellCmd("net start dnscache");
 			}
 
-			ShellCmd("ipconfig /flushdns");
-			ShellCmd("ipconfig /registerdns");
+			SystemShell.ShellCmd("ipconfig /flushdns");
+			SystemShell.ShellCmd("ipconfig /registerdns");
 		}
 
 		public override void RouteAdd(RouteEntry r)
@@ -288,13 +304,13 @@ namespace Eddie.Platforms
 			*/
 			if (r.Interface != "")
 				cmd += " if " + r.Interface;
-			ShellCmd(cmd); // IJTF2 // TOCHECK
+			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
 		}
 
 		public override void RouteRemove(RouteEntry r)
 		{
 			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
-			ShellCmd(cmd); // IJTF2 // TOCHECK
+			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
 		}
 
 		public override bool WaitTunReady()
@@ -358,7 +374,7 @@ namespace Eddie.Platforms
 			InterfacesIp2Id["127.0.0.1"] = "1";
 
 			string cmd = "route PRINT";
-			string result = ShellCmd(cmd);
+			string result = SystemShell.ShellCmd(cmd);
 
 			string[] lines = result.Split('\n');
 			foreach (string line in lines)
@@ -408,9 +424,9 @@ namespace Eddie.Platforms
 			t += "\n\n-- Windows\n";
 
 			t += "\n-- ipconfig /all\n";
-			t += ShellCmd("ipconfig /all");
+			t += SystemShell.ShellCmd("ipconfig /all");
 			t += "\n-- route print\n";
-			t += ShellCmd("route print");
+			t += SystemShell.ShellCmd("route print");
 			t += "\n-- NetworkAdapterConfiguration\n";
 
 			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
@@ -1137,7 +1153,7 @@ namespace Eddie.Platforms
 			if (driverPath == "")
 				throw new Exception(Messages.OsDriverInstallerNotAvailable);
 
-			Shell(driverPath, "/S");
+			SystemShell.Shell(driverPath, "/S");
 
 			System.Threading.Thread.Sleep(3000);
 		}
@@ -1148,7 +1164,7 @@ namespace Eddie.Platforms
 			if (uninstallPath == "")
 				return;
 
-			Shell(uninstallPath, "/S");
+			SystemShell.Shell(uninstallPath, "/S");
 
 			System.Threading.Thread.Sleep(3000);
 		}
@@ -1171,7 +1187,7 @@ namespace Eddie.Platforms
 				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
 				{
 					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.HackInterfaceUpDone, adapter.Name));
-					ShellCmd("netsh interface set interface \"" + SystemShell.EscapeInsideQuote(adapter.Name) + "\" ENABLED"); // IJTF2 // TOCHECK
+					SystemShell.ShellCmd("netsh interface set interface \"" + SystemShell.EscapeInsideQuote(adapter.Name) + "\" ENABLED"); // IJTF2 // TOCHECK
 				}
 			}            
 		}

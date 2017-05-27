@@ -6,12 +6,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Eddie is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
@@ -29,137 +29,104 @@ using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
-    public class Platform
-    {
+	public class Platform
+	{
 		public static Platform Instance;
 
-        public RouteEntry m_routeDefaultRemove;
+		public RouteEntry m_routeDefaultRemove;
 
-        protected string m_ApplicationPath = "";
-        protected string m_ExecutablePath = "";
-        protected string m_UserPath = "";
+		protected string m_ApplicationPath = "";
+		protected string m_ExecutablePath = "";
+		protected string m_UserPath = "";
 
-        // ----------------------------------------
-        // Static - Also used before the derivated class is created
-        // ----------------------------------------
-
-        public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
+		// ----------------------------------------
+		// Static - Also used before the derivated class is created
+		// ----------------------------------------
+		/* ClodoTemp
+		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd)
 		{
-			if (WaitEnd)
-			{
-				//lock (Instance) // Removed in 2.11.4
-				{
-					return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
-				}
-			}
-			else
-				return ShellPlatformIndipendentEx(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
-		}
-
-		public static string ShellPlatformIndipendentEx(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
-        {			
 			try
-            {
+			{
 				int startTime = Environment.TickCount;
 
-                Process p = new Process();
+				Process p = new Process();
 
-                p.StartInfo.Arguments = Arguments;
+				p.StartInfo.Arguments = Arguments;
 
-                if (WorkingDirectory != "")
-                    p.StartInfo.WorkingDirectory = WorkingDirectory;
+				if (WorkingDirectory != "")
+					p.StartInfo.WorkingDirectory = WorkingDirectory;
 
-                p.StartInfo.FileName = FileName;
+				p.StartInfo.FileName = FileName;
 
-                if (ShowWindow == false)
-                {
-                    //#do not show DOS window
-                    p.StartInfo.CreateNoWindow = true;
-                    p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                }
+				p.StartInfo.CreateNoWindow = true;
+				p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
-                if (WaitEnd)
-                {
-                    p.StartInfo.UseShellExecute = false;
-                    p.StartInfo.RedirectStandardOutput = true;
+				if (WaitEnd)
+				{
+					p.StartInfo.UseShellExecute = false;
+					p.StartInfo.RedirectStandardOutput = true;
 					p.StartInfo.RedirectStandardError = true;
-                }
+				}
 
-                p.Start();
+				p.Start();
 
-                if (WaitEnd)
-                {
-                    string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
-                    p.WaitForExit();
+				if (WaitEnd)
+				{
+					string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
+					p.WaitForExit();
 
-                    Output = Output.Trim();
+					Output = Output.Trim();
 
-                    if (noDebugLog == false) // Avoid recursion
-                    {
-                        if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
-                        {
-                            int endTime = Environment.TickCount;
-                            int deltaTime = endTime - startTime;
-                            string message = "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms, Output: " + Output;
-                            message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=","{base64-omissis}");
-                            Engine.Instance.Logs.Log(LogType.Verbose, message);
-                        }
-                    }
+					// c'era nodebuglog per : lsattr, ping, uname -m
+					if(Arguments.Contains("lsattr") == false) // Avoid recursion
+					{
+						if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
+						{
+							int endTime = Environment.TickCount;
+							int deltaTime = endTime - startTime;
+							string message = "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms, Output: " + Output;
+							message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=","{base64-omissis}");
+							Engine.Instance.Logs.Log(LogType.Verbose, message);
+						}
+					}
 
-                    return Output;
-                }
-                else
-                {
-                    return "";
-                }
-            }
-            catch (Exception E)
-            {
-                return "Error:" + E.Message; // 2.8
-            }
-
-
-        }
-        
-		/*
-        public static void Init()
-        {   
-            if (IsUnix())
-            {
-				Platform.Instance = new Platforms.Linux();
-            }
-            else if (IsWindows())
-            {
-				Platform.Instance = new Platforms.Windows();				             
-            }
-
-			Platform.Instance.OnInit();
-        }
+					return Output;
+				}
+				else
+				{
+					return "";
+				}
+			}
+			catch (Exception E)
+			{
+				return "Error:" + E.Message; // 2.8
+			}
+		}
 		*/
 
-        public static bool IsUnix()
-        {
-            return (Environment.OSVersion.Platform.ToString() == "Unix");
-        }
+		public static bool IsUnix()
+		{
+			return (Environment.OSVersion.Platform.ToString() == "Unix");
+		}
 
 		public static bool IsWindows()
-        {
-            return (Environment.OSVersion.VersionString.IndexOf("Windows") != -1);
-        }
+		{
+			return (Environment.OSVersion.VersionString.IndexOf("Windows") != -1);
+		}
 
 		private static bool IsLinux()
-        {
-			return Instance.GetCode() == "Linux";			
-        }
+		{
+			return Instance.GetCode() == "Linux";
+		}
 
 		public string GetSystemCode()
-        {			
+		{
 			string t = GetCode() + "_" + GetOsArchitecture();
-            t = t.Replace(" ", "_");
-            t = t.ToLower();
-            return t;
-        }
-				
+			t = t.Replace(" ", "_");
+			t = t.ToLower();
+			return t;
+		}
+
 		public static string NormalizeArchitecture(string a)
 		{
 			if (a == "x86") return "x86";
@@ -167,8 +134,8 @@ namespace Eddie.Core
 			if (a == "x64") return "x64";
 			if (a == "AMD64") return "x64";
 			if (a == "x86_64") return "x64";
-            if (a == "armv7l") return "armv7l"; // RPI
-            return "Unknown";
+			if (a == "armv7l") return "armv7l"; // RPI
+			return "Unknown";
 		}
 
 		// ----------------------------------------
@@ -180,36 +147,36 @@ namespace Eddie.Core
 			Instance = this;
 		}
 
-        // ----------------------------------------
-        // Method
-        // ----------------------------------------
+		// ----------------------------------------
+		// Method
+		// ----------------------------------------
 
-        public string GetApplicationPath()
-        {
-            if(m_ApplicationPath == "")
-                m_ApplicationPath = GetApplicationPathEx();
-            return m_ApplicationPath;
-        }
+		public string GetApplicationPath()
+		{
+			if(m_ApplicationPath == "")
+				m_ApplicationPath = GetApplicationPathEx();
+			return m_ApplicationPath;
+		}
 
-        public string GetExecutablePath()
-        {
-            if (m_ExecutablePath == "")
-                m_ExecutablePath = GetExecutablePathEx();
-            return m_ExecutablePath;
-        }
+		public string GetExecutablePath()
+		{
+			if (m_ExecutablePath == "")
+				m_ExecutablePath = GetExecutablePathEx();
+			return m_ExecutablePath;
+		}
 
-        public string GetUserPath()
-        {
-            if (m_UserPath == "")
-                m_UserPath = GetUserPathEx();
-            return m_UserPath;
-        }
+		public string GetUserPath()
+		{
+			if (m_UserPath == "")
+				m_UserPath = GetUserPathEx();
+			return m_UserPath;
+		}
 
-        // ----------------------------------------
-        // Virtual
-        // ----------------------------------------
+		// ----------------------------------------
+		// Virtual
+		// ----------------------------------------
 
-        public virtual string GetCode()
+		public virtual string GetCode()
 		{
 			return "Unknown";
 		}
@@ -233,40 +200,40 @@ namespace Eddie.Core
 				return "?";
 		}
 
-        public virtual string GetMonoVersion()
-        {
-            return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
-        }
+		public virtual string GetMonoVersion()
+		{
+			return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
+		}
 
-        public virtual void OnInit()
-        {
+		public virtual void OnInit()
+		{
 
-        }
+		}
 
-        public virtual void OnDeInit()
-        {
+		public virtual void OnDeInit()
+		{
 
-        }
+		}
 
 		public virtual string GetOsArchitecture()
 		{
 			return "Unknown";
 		}
 
-        public virtual void NotImplemented()
-        {
-            throw new Exception("Not Implemented.");
-        }
+		public virtual void NotImplemented()
+		{
+			throw new Exception("Not Implemented.");
+		}
 
 		public virtual string GetDefaultDataPath()
 		{
 			return "";
 		}
 
-        public virtual bool IsAdmin()
-        {
-            return false;            
-        }
+		public virtual bool IsAdmin()
+		{
+			return false;
+		}
 
 		public virtual bool IsUnixSystem()
 		{
@@ -283,17 +250,17 @@ namespace Eddie.Core
 			return (IsUnixSystem() == false);
 		}
 
-		
+
 
 		public virtual string VersionDescription()
-        {
-            return Environment.OSVersion.VersionString;
-        }
+		{
+			return Environment.OSVersion.VersionString;
+		}
 
-        public virtual bool IsTraySupported()
-        {
-            return false;
-        }
+		public virtual bool IsTraySupported()
+		{
+			return false;
+		}
 
 		public virtual bool GetAutoStart()
 		{
@@ -306,309 +273,373 @@ namespace Eddie.Core
 		}
 
 		public virtual string NormalizeString(string val)
-        {
-            return val;
-        }
+		{
+			return val;
+		}
 
-        public virtual string DirSep
-        {
-            get
-            {
-                return "/";
-            }
-        }
+		public virtual string DirSep
+		{
+			get
+			{
+				return "/";
+			}
+		}
 
-        public virtual string NormalizePath(string p)
-        {
-            p = p.Replace("/", DirSep);
-            p = p.Replace("\\", DirSep);
+		public virtual string EndOfLineSep
+		{
+			get
+			{
+				return "\n";
+			}
+		}
 
-            char[] charsToTrimEnd = { '/', '\\' };
-            p = p.TrimEnd(charsToTrimEnd);
+		public virtual string NormalizePath(string p)
+		{
+			p = p.Replace("/", DirSep);
+			p = p.Replace("\\", DirSep);
 
-            return p;
-        }
+			char[] charsToTrimEnd = { '/', '\\' };
+			p = p.TrimEnd(charsToTrimEnd);
 
-        public virtual bool FileExists(string path)
-        {
-            if (path == "")
-                return false;
+			return p;
+		}
 
-            return (File.Exists(path));
-        }
+		public virtual bool FileExists(string path)
+		{
+			if (path == "")
+				return false;
 
-        public virtual bool DirectoryExists(string path)
-        {
-            return (Directory.Exists(path));
-        }
+			return (File.Exists(path));
+		}
 
-        public virtual void FileDelete(string path)
-        {
-            if (File.Exists(path) == false)
-                return;
-            
-            if (FileImmutableGet(path))
-            {
-                FileImmutableSet(path, false);
-            }
+		public virtual bool DirectoryExists(string path)
+		{
+			return (Directory.Exists(path));
+		}
 
-            File.Delete(path);
-        }
+		public virtual void FileDelete(string path)
+		{
+			if (File.Exists(path) == false)
+				return;
 
-        public virtual void FileMove(string from, string to)
-        {
-            if (FileExists(to))
-                FileDelete(to);
+			if (FileImmutableGet(path))
+			{
+				FileImmutableSet(path, false);
+			}
 
-            bool immutable = FileImmutableGet(from);
+			File.Delete(path);
+		}
 
-            if (immutable)
-            {
-                FileImmutableSet(from, false);
-            }
-            File.Move(from, to);
-            if (immutable)
-            {
-                FileImmutableSet(to, true);
-            }
-        }
+		public virtual void FileMove(string from, string to)
+		{
+			if (FileExists(to))
+				FileDelete(to);
 
-        public virtual string FileContentsReadText(string path)
-        {
-            return File.ReadAllText(path);
-        }
+			bool immutable = FileImmutableGet(from);
 
-        public virtual bool FileContentsWriteText(string path, string contents)
-        {
-            bool immutable = false;
-            if (FileExists(path))
-            {
-                string current = FileContentsReadText(path);
-                if (current == contents)
-                    return false;
-                immutable = FileImmutableGet(path);
-                if (immutable)
-                    FileImmutableSet(path, false);
-            }            
-            File.WriteAllText(path, contents);
-            if (immutable)
-                FileImmutableSet(path, true);
-            return true;
-        }
+			if (immutable)
+			{
+				FileImmutableSet(from, false);
+			}
+			File.Move(from, to);
+			if (immutable)
+			{
+				FileImmutableSet(to, true);
+			}
+		}
 
-        public virtual void FileContentsAppendText(string path, string contents, Encoding encoding)
-        {
-            bool immutable = false;
-            if (FileExists(path))
-            {
-                immutable = FileImmutableGet(path);
-                if (immutable)
-                    FileImmutableSet(path, false);
-            }
-            File.AppendAllText(path, contents, encoding);
-            if (immutable)
-                FileImmutableSet(path, true);
-        }
+		public virtual string FileContentsReadText(string path)
+		{
+			return File.ReadAllText(path);
+		}
 
-        public virtual byte[] FileContentsReadBytes(string path)
-        {
-            return File.ReadAllBytes(path);
-        }
+		public virtual bool FileContentsWriteText(string path, string contents)
+		{
+			bool immutable = false;
+			if (FileExists(path))
+			{
+				string current = FileContentsReadText(path);
+				if (current == contents)
+					return false;
+				immutable = FileImmutableGet(path);
+				if (immutable)
+					FileImmutableSet(path, false);
+			}
+			File.WriteAllText(path, contents);
+			if (immutable)
+				FileImmutableSet(path, true);
+			return true;
+		}
 
-        public virtual bool FileImmutableGet(string path)
-        {
-            return false;
-        }
+		public virtual void FileContentsAppendText(string path, string contents, Encoding encoding)
+		{
+			bool immutable = false;
+			if (FileExists(path))
+			{
+				immutable = FileImmutableGet(path);
+				if (immutable)
+					FileImmutableSet(path, false);
+			}
+			File.AppendAllText(path, contents, encoding);
+			if (immutable)
+				FileImmutableSet(path, true);
+		}
 
-        public virtual void FileImmutableSet(string path, bool value)
-        {
-        }
+		public virtual byte[] FileContentsReadBytes(string path)
+		{
+			return File.ReadAllBytes(path);
+		}
 
-        public virtual bool HasAccessToWrite(string path)
-        {
-            try
-            {
-                DirectoryInfo di = new DirectoryInfo(path);
-                if (di.Exists == false)
-                    di.Create();
+		public virtual bool FileImmutableGet(string path)
+		{
+			return false;
+		}
 
-                string tempPath = path + Platform.Instance.DirSep + "test.tmp";
+		public virtual void FileImmutableSet(string path, bool value)
+		{
+		}
 
-                using (FileStream fs = File.Create(tempPath, 1, FileOptions.DeleteOnClose))
-                {
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+		public virtual void FilePermissionsSet(string path, int mod)
+		{
 
-        public virtual string GetExecutableReport(string path)
+		}
+
+		public virtual void FileEnsureExecutablePermission(string path)
+		{
+		}
+
+		public virtual bool HasAccessToWrite(string path)
+		{
+			try
+			{
+				DirectoryInfo di = new DirectoryInfo(path);
+				if (di.Exists == false)
+					di.Create();
+
+				string tempPath = path + Platform.Instance.DirSep + "test.tmp";
+
+				using (FileStream fs = File.Create(tempPath, 1, FileOptions.DeleteOnClose))
+				{
+				}
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		public virtual string GetExecutableReport(string path)
 		{
 			return "";
 		}
-                
-        public virtual bool IsPath(string v)
-        {
-            // Filename or path (absolute or relative) ?
-            return (v.IndexOf(DirSep) != -1);
-        }
 
-        public virtual string GetApplicationPathEx()
-        {
-            //Assembly.GetExecutingAssembly().Location
-            //return new FileInfo(ExecutablePath).DirectoryName;
-            return Path.GetDirectoryName(GetExecutablePath());
-        }
+		public virtual bool IsPath(string v)
+		{
+			// Filename or path (absolute or relative) ?
+			return (v.IndexOf(DirSep) != -1);
+		}
+
+		public virtual string GetApplicationPathEx()
+		{
+			//Assembly.GetExecutingAssembly().Location
+			//return new FileInfo(ExecutablePath).DirectoryName;
+			return Path.GetDirectoryName(GetExecutablePath());
+		}
 
 		public virtual string GetExecutablePathEx()
 		{
-            return System.Reflection.Assembly.GetEntryAssembly().Location;
+			return System.Reflection.Assembly.GetEntryAssembly().Location;
 		}
 
-        public virtual string GetUserPathEx()
-        {
-            NotImplemented();
-            return "";
-        }
+		public virtual string GetUserPathEx()
+		{
+			NotImplemented();
+			return "";
+		}
 
-        public virtual void OpenUrl(string url)
-        {
-            System.Diagnostics.Process.Start(url);             
-        }
+		public virtual void OpenUrl(string url)
+		{
+			System.Diagnostics.Process.Start(url);
+		}
 
-        public virtual string ShellCmd(string Command)
-        {
-            return ShellCmd(Command, false);
-        }
+		// Avoid when possible, but for example under Windows sometime commands are not executable in file-system.
+		public virtual void ShellCommandDirect(string command, out string path, out string[] arguments)
+		{
+			path = "";
+			arguments = new string[] { };
+			NotImplemented();
+		}
 
-        public virtual string ShellCmd(string Command, bool noDebugLog)
-        {
-            NotImplemented();
-            return "";
-        }
+		public virtual void ShellSync(string path, string[] arguments, out string stdout, out string stderr)
+		{
+			try
+			{
+				Process p = new Process();
 
+				p.StartInfo.FileName = path;
+				p.StartInfo.Arguments = String.Join(" ", arguments);
+				p.StartInfo.WorkingDirectory = "";
+				p.StartInfo.CreateNoWindow = true;
+				p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.RedirectStandardOutput = true;
+				p.StartInfo.RedirectStandardError = true;
+				p.Start();
+
+				stdout = p.StandardOutput.ReadToEnd().Trim();
+				stderr = p.StandardError.ReadToEnd().Trim();
+
+				p.WaitForExit();
+			}
+			catch(Exception ex)
+			{
+				stdout = "";
+				stderr = "Error: " + ex.Message;
+			}
+		}
+
+		public virtual void ShellASync(string path, string[] arguments)
+		{
+			try
+			{
+				Process p = new Process();
+				p.StartInfo.FileName = path;
+				p.StartInfo.Arguments = String.Join(" ", arguments);
+				p.StartInfo.WorkingDirectory = "";
+				p.StartInfo.CreateNoWindow = true;
+				p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+				p.Start();
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(ex);
+			}
+		}
+
+		// ClodoTemp da qui in giu abolire
+		/*
+		public virtual string ShellCmd(string Command)
+		{
+			NotImplemented();
+			return "";
+		}
+		*/
+
+		/*
 		public virtual string Shell(string FileName, string Arguments)
 		{
-			return Shell(FileName, Arguments, "", true, false, false);
+			return ShellPlatformIndipendent(FileName, Arguments, "", true);
 		}
+		*/
 
+		/*
 		public virtual string Shell(string FileName, string Arguments, bool WaitEnd)
-        {
-            return Shell(FileName, Arguments, "", WaitEnd, false, false);
-        }
-
-        public virtual string Shell(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd, bool ShowWindow, bool noDebugLog)
-        {
-            return ShellPlatformIndipendent(FileName, Arguments, WorkingDirectory, WaitEnd, ShowWindow, noDebugLog);
-        }
-
-        public virtual bool OpenDirectoryInFileManager(string path)
-        {
-            try
-            {
-                string dirPath = path;
-                if (DirectoryExists(dirPath) == false)
-                    dirPath = Path.GetDirectoryName(dirPath);
-                if (DirectoryExists(dirPath))
-                {
-                    OpenDirectoryInFileManagerEx(dirPath);
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        protected virtual void OpenDirectoryInFileManagerEx(string path)
-        {
-            Process.Start(path);            
-        }
-
-        /*
-        public virtual int Ping(string host, int timeout)
-        {
-            string result = ShellCmd("ping " + host + " -n 1");
-
-            string sMS = Utils.ExtractBetween(result, "Maximum = ", "ms,");
-            int iMS;
-            if (int.TryParse(sMS, out iMS))
-                return iMS;
-            else
-                return -1;
-        }
-        */
-
-        public virtual bool SearchTool(string name, string relativePath, ref string path, ref string location)
-        {
-            return false;
-        }
-
-        public virtual Int64 Ping(string host, int timeoutSec)
-        {
-            Ping pingSender = new Ping();
-            PingOptions options = new PingOptions();
-
-            // Use the default Ttl value which is 128,
-            // but change the fragmentation behavior.
-            //options.DontFragment = true;
-
-            // Create a buffer of 32 bytes of data to be transmitted.								
-            byte[] buffer = RandomGenerator.GetBuffer(32);
-            int timeout = timeoutSec * 1000;
-            PingReply reply = pingSender.Send(host, timeout, buffer, options);
-
-            if (reply.Status == IPStatus.Success)
-                return reply.RoundtripTime;
-            else
-                return -1;            
-        }
-
-		public virtual void EnsureExecutablePermissions(string path)
 		{
+			return ShellPlatformIndipendent(FileName, Arguments, "", WaitEnd);
+		}
+		*/
+
+		public virtual bool OpenDirectoryInFileManager(string path)
+		{
+			try
+			{
+				string dirPath = path;
+				if (DirectoryExists(dirPath) == false)
+					dirPath = Path.GetDirectoryName(dirPath);
+				if (DirectoryExists(dirPath))
+				{
+					OpenDirectoryInFileManagerEx(dirPath);
+					return true;
+				}
+				return false;
+			}
+			catch
+			{
+				return false;
+			}
 		}
 
-        public virtual string GetSystemFont()
-        {
-            return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
-        }
+		protected virtual void OpenDirectoryInFileManagerEx(string path)
+		{
+			Process.Start(path);
+		}
 
-        public virtual string GetSystemFontMonospace()
-        {
-            string fontName = "";
-            if (IsFontInstalled("Consolas"))
-                fontName = "Consolas";
-            else if (IsFontInstalled("Monospace"))
-                fontName = "Monospace";
-            else if (IsFontInstalled("DejaVu Sans Mono"))
-                fontName = "DejaVu Sans Mono";
-            else if (IsFontInstalled("Courier New"))
-                fontName = "Courier New";
-            else
-                fontName = SystemFonts.MenuFont.Name;
-            return fontName + "," + SystemFonts.MenuFont.Size;
-        }
+		/*
+		public virtual int Ping(string host, int timeout)
+		{
+			string result = ShellCmd("ping " + host + " -n 1");
 
-        public virtual bool IsFontInstalled(string fontName)
-        {
-            using (var testFont = new Font(fontName, 8))
-            {
-                return 0 == string.Compare(
-                  fontName,
-                  testFont.Name,
-                  StringComparison.InvariantCultureIgnoreCase);
-            }
-        }
+			string sMS = Utils.ExtractBetween(result, "Maximum = ", "ms,");
+			int iMS;
+			if (int.TryParse(sMS, out iMS))
+				return iMS;
+			else
+				return -1;
+		}
+		*/
 
-        public virtual void FlushDNS()
-        {
-            NotImplemented();
-        }
+		public virtual bool SearchTool(string name, string relativePath, ref string path, ref string location)
+		{
+			return false;
+		}
+
+		public virtual Int64 Ping(string host, int timeoutSec)
+		{
+			Ping pingSender = new Ping();
+			PingOptions options = new PingOptions();
+
+			// Use the default Ttl value which is 128,
+			// but change the fragmentation behavior.
+			//options.DontFragment = true;
+
+			// Create a buffer of 32 bytes of data to be transmitted.
+			byte[] buffer = RandomGenerator.GetBuffer(32);
+			int timeout = timeoutSec * 1000;
+			PingReply reply = pingSender.Send(host, timeout, buffer, options);
+
+			if (reply.Status == IPStatus.Success)
+				return reply.RoundtripTime;
+			else
+				return -1;
+		}
+
+		public virtual string GetSystemFont()
+		{
+			return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
+		}
+
+		public virtual string GetSystemFontMonospace()
+		{
+			string fontName = "";
+			if (IsFontInstalled("Consolas"))
+				fontName = "Consolas";
+			else if (IsFontInstalled("Monospace"))
+				fontName = "Monospace";
+			else if (IsFontInstalled("DejaVu Sans Mono"))
+				fontName = "DejaVu Sans Mono";
+			else if (IsFontInstalled("Courier New"))
+				fontName = "Courier New";
+			else
+				fontName = SystemFonts.MenuFont.Name;
+			return fontName + "," + SystemFonts.MenuFont.Size;
+		}
+
+		public virtual bool IsFontInstalled(string fontName)
+		{
+			using (var testFont = new Font(fontName, 8))
+			{
+				return 0 == string.Compare(
+				  fontName,
+				  testFont.Name,
+				  StringComparison.InvariantCultureIgnoreCase);
+			}
+		}
+
+		public virtual void FlushDNS()
+		{
+			NotImplemented();
+		}
 
 		public virtual void RouteAdd(RouteEntry r)
 		{
@@ -620,17 +651,17 @@ namespace Eddie.Core
 			NotImplemented();
 		}
 
-        public virtual void ResolveWithoutAnswer(string host)
-        {
-            try
-            {
-                Dns.GetHostEntry(host);
-            }
-            catch(Exception)
-            {
+		public virtual void ResolveWithoutAnswer(string host)
+		{
+			try
+			{
+				Dns.GetHostEntry(host);
+			}
+			catch(Exception)
+			{
 
-            }
-        }
+			}
+		}
 
 		public virtual bool WaitTunReady()
 		{
@@ -653,13 +684,13 @@ namespace Eddie.Core
 			{
 				try
 				{
-                    //result[p.Id] = p.ProcessName.ToLowerInvariant();					
-                    if ((p.MainModule != null) && (p.MainModule.FileName != null))
-                        result[p.Id] = p.MainModule.FileName;
+					//result[p.Id] = p.ProcessName.ToLowerInvariant();
+					if ((p.MainModule != null) && (p.MainModule.FileName != null))
+						result[p.Id] = p.MainModule.FileName;
 				}
 				catch
-                {
-				}				
+				{
+				}
 			}
 
 			return result;
@@ -667,53 +698,53 @@ namespace Eddie.Core
 
 		public virtual string GetTunStatsMode()
 		{
-			return "NetworkInterface";			
+			return "NetworkInterface";
 		}
 
-        public virtual void LogSystemInfo()
-        {
+		public virtual void LogSystemInfo()
+		{
 			Engine.Instance.Logs.Log(LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
-        }
+		}
 
-        public virtual string GenerateEnvironmentReport()
-        {
-            string t = "";
+		public virtual string GenerateEnvironmentReport()
+		{
+			string t = "";
 
-            t += "Eddie version: " + Constants.VersionDesc + "\n";
-            t += "Eddie OS build: " + Platform.Instance.GetSystemCode() + "\n";
-            t += "OS type: " + Platform.Instance.GetCode() + "\n";
-            t += "OS name: " + Platform.Instance.GetName() + "\n";
-            t += "OS description: " + Platform.Instance.VersionDescription() + "\n";
-            t += "Mono /.Net Framework: " + Platform.Instance.GetMonoVersion() + "\n";
+			t += "Eddie version: " + Constants.VersionDesc + "\n";
+			t += "Eddie OS build: " + Platform.Instance.GetSystemCode() + "\n";
+			t += "OS type: " + Platform.Instance.GetCode() + "\n";
+			t += "OS name: " + Platform.Instance.GetName() + "\n";
+			t += "OS description: " + Platform.Instance.VersionDescription() + "\n";
+			t += "Mono /.Net Framework: " + Platform.Instance.GetMonoVersion() + "\n";
 
-            t += "OpenVPN driver: " + Software.OpenVpnDriver + "\n";            
-            t += "OpenVPN: " + Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")\n";
-            t += "SSH: " + Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")\n";
-            t += "SSL: " + Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")\n";
-            t += "curl: " + Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")\n";
+			t += "OpenVPN driver: " + Software.OpenVpnDriver + "\n";
+			t += "OpenVPN: " + Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")\n";
+			t += "SSH: " + Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")\n";
+			t += "SSL: " + Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")\n";
+			t += "curl: " + Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")\n";
 
-            t += "Profile path: " + Engine.Instance.Storage.GetProfilePath() + "\n";
-            t += "Data path: " + Storage.DataPath + "\n";
-            t += "Application path: " + Platform.Instance.GetApplicationPath() + "\n";
-            t += "Executable path: " + Platform.Instance.GetExecutablePath() + "\n";
-            t += "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull() + "\n";
+			t += "Profile path: " + Engine.Instance.Storage.GetProfilePath() + "\n";
+			t += "Data path: " + Storage.DataPath + "\n";
+			t += "Application path: " + Platform.Instance.GetApplicationPath() + "\n";
+			t += "Executable path: " + Platform.Instance.GetExecutablePath() + "\n";
+			t += "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull() + "\n";
 
-            return t;
-        }
+			return t;
+		}
 
-        public virtual string GenerateSystemReport()
+		public virtual string GenerateSystemReport()
 		{
 			string t = "";
 			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
 
-            /*
+			/*
 			if(Platform.Instance.GetSystemFont() != "")
-            	t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
+				t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
 			if(Platform.Instance.GetSystemFontMonospace() != "")
-            	t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
-            */
-            
-            try
+				t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
+			*/
+
+			try
 			{
 				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 				foreach (NetworkInterface adapter in interfaces)
@@ -767,16 +798,16 @@ namespace Eddie.Core
 			return NormalizeString(t);
 		}
 
-        public virtual bool OnCheckSingleInstance()
-        {
-            return true;
-        }
+		public virtual bool OnCheckSingleInstance()
+		{
+			return true;
+		}
 
-        public virtual void OnCheckSingleInstanceClear()
-        {
-        }
+		public virtual void OnCheckSingleInstanceClear()
+		{
+		}
 
-        public virtual void OnAppStart()
+		public virtual void OnAppStart()
 		{
 		}
 
@@ -789,10 +820,10 @@ namespace Eddie.Core
 		{
 		}
 
-        public virtual string OnNetworkLockRecommendedMode()
-        {
-            return "";
-        }
+		public virtual string OnNetworkLockRecommendedMode()
+		{
+			return "";
+		}
 
 		public virtual void OnSessionStart()
 		{
@@ -805,19 +836,19 @@ namespace Eddie.Core
 		public virtual void OnDaemonOutput(string source, string message)
 		{
 		}
-        
+
 		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
 		public virtual void OnRecovery()
 		{
 		}
-		
+
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
 			XmlElement nodeRouteDefaultRemoved = Utils.XmlGetFirstElementByTagName(root, "RouteDefaultRemoved");
 			if (nodeRouteDefaultRemoved != null)
 			{
 				m_routeDefaultRemove = new RouteEntry();
-				m_routeDefaultRemove.ReadXML(nodeRouteDefaultRemoved);				
+				m_routeDefaultRemove.ReadXML(nodeRouteDefaultRemoved);
 			}
 
 			OnRouteDefaultRemoveRestore();
@@ -928,26 +959,26 @@ namespace Eddie.Core
 			NotImplemented();
 		}
 
-        public virtual string GetProjectPath()
-        {
-            DirectoryInfo di = new DirectoryInfo(GetApplicationPath());
+		public virtual string GetProjectPath()
+		{
+			DirectoryInfo di = new DirectoryInfo(GetApplicationPath());
 
-            for (;;)
-            {
-                if ((FileExists(di.FullName + "/README.md")) && (FileContentsReadText(di.FullName + "/README.md").Contains("Eddie - OpenVPN GUI")))
-                    return di.FullName;
-                else
-                {
-                    di = di.Parent;
-                    if (di == null)
-                        return "";
-                }
-            }
-        }
+			for (;;)
+			{
+				if ((FileExists(di.FullName + "/README.md")) && (FileContentsReadText(di.FullName + "/README.md").Contains("Eddie - OpenVPN GUI")))
+					return di.FullName;
+				else
+				{
+					di = di.Parent;
+					if (di == null)
+						return "";
+				}
+			}
+		}
 
-        public virtual string GetGitDeployPath()
-        {
-            return GetProjectPath() + "/deploy/" + Platform.Instance.GetSystemCode() + "/";
-        }
-    }
+		public virtual string GetGitDeployPath()
+		{
+			return GetProjectPath() + "/deploy/" + Platform.Instance.GetSystemCode() + "/";
+		}
+	}
 }
