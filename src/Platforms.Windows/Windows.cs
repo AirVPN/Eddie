@@ -123,21 +123,21 @@ namespace Eddie.Platforms
 		{
 			return System.Environment.OSVersion.VersionString;			
 		}
-
-		public override void OnInit()
-		{
-			base.OnInit();
-
-			if(IsVistaOrNewer())
-				Wfp.Start();
-		}
-
+		
 		public override void OnDeInit()
 		{
 			base.OnDeInit();
 
 			if (IsVistaOrNewer())
 				Wfp.Stop();
+		}
+
+		public override void OnStart()
+		{
+			base.OnStart();
+
+			if (IsVistaOrNewer())
+				Wfp.Start();
 		}
 
 		public override string GetOsArchitecture()

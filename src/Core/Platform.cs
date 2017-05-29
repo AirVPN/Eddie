@@ -205,12 +205,17 @@ namespace Eddie.Core
 			return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
 
-		public virtual void OnInit()
+		public virtual void OnInit(bool cli)
 		{
 
 		}
 
 		public virtual void OnDeInit()
+		{
+
+		}
+
+		public virtual void OnStart()
 		{
 
 		}

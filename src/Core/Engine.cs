@@ -198,6 +198,8 @@ namespace Eddie.Core
 
 		public bool Initialization(bool cli)
 		{
+			Platform.Instance.OnInit(cli);
+
 			if (ResourcesFiles.Count() == 0)
 			{
 				ResourcesFiles.SetString("AirVPN.xml", Lib.Core.Properties.Resources.AirVPN); // TOCLEAN with Eddie3
@@ -310,7 +312,7 @@ namespace Eddie.Core
 
 			CompatibilityManager.Init();
 
-			Platform.Instance.OnInit();
+			Platform.Instance.OnStart();
 
 			return true;
 		}

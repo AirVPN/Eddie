@@ -32,6 +32,7 @@ namespace Eddie.Platforms
 {
     public class Linux : Platform
     {
+		private string m_version = "";
 		private string m_architecture = "";
         private UInt32 m_uid;
         private string m_logname;
@@ -39,6 +40,7 @@ namespace Eddie.Platforms
         // Override
         public Linux()
 		{
+			m_version = SystemShell.ShellCmd("uname -a").Trim();
  			m_architecture = NormalizeArchitecture(SystemShell.ShellCmd("uname -m").Trim());            
             m_uid = 9999;
             UInt32.TryParse(SystemShell.ShellCmd("id -u"), out m_uid);
@@ -51,8 +53,6 @@ namespace Eddie.Platforms
                 m_logname = SystemShell.ShellCmd("logname");
             if (m_logname.Contains("no login name"))
                 m_logname = Environment.UserName;
-
-            // TrustCertificatePolicy.Activate();
         }
 
         public override string GetCode()
@@ -86,7 +86,7 @@ namespace Eddie.Platforms
 		public override string VersionDescription()
         {
 			string o = base.VersionDescription();
-            o += " - " + SystemShell.ShellCmd("uname -a").Trim();
+            o += " - " + m_version;
             return o;
         }
 
@@ -111,16 +111,17 @@ namespace Eddie.Platforms
             if (FileExists(path) == false)
                 return false;
 
-            string result = SystemShell.ShellCmd("lsattr \"" + SystemShell.EscapePath(path) + "\""); // noDebugLog=true to avoid log recursion.
-                        
-            /* // < 2.11.11
+			//ClodoTemp string result = SystemShell.ShellCmd("lsattr \"" + SystemShell.EscapePath(path) + "\""); // noDebugLog=true to avoid log recursion.
+			string result = SystemShell.Shell("lsattr","\"" + SystemShell.EscapePath(path) + "\"");
+
+			/* // < 2.11.11
             if (result.IndexOf(' ') != 16) 
                 return false;
             if (result[4] == 'i')
                 return true;
             */
 
-            if (result.StartsWith("lsattr: ")) // Generic error
+			if (result.StartsWith("lsattr: ")) // Generic error
                 return false;
 
             if (result.IndexOf(' ') != -1)
@@ -273,8 +274,11 @@ namespace Eddie.Platforms
 
         public override long Ping(string host, int timeoutSec)
         {
-            string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host);
-            string result = SystemShell.ShellCmd(cmd);
+			// ClodoTemp
+            //string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host);
+            //string result = SystemShell.ShellCmd(cmd);
+			string path = "ping";
+			string result = SystemShell.Shell("ping", "-c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host));
             
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;

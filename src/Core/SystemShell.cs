@@ -118,9 +118,12 @@ namespace Eddie.Core
 				string output = stdout + Platform.Instance.EndOfLineSep + stderr;
 				output = output.Trim();
 
-				if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
+				bool log = ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
+				if (path == "ping") log = false; // Exception, to avoid a lots of log
+				if (path == "lsattr") log = false; // Exception, to avoid recursive issues
+
+				if (log)
 				{
-					// ClodoTemp nodebuglog for : lsattr, ping, uname -m ?
 					int deltaTime = endTime - startTime;
 					string message = "Shell of '" + path + "'";
 					if (arguments.Length > 0)
