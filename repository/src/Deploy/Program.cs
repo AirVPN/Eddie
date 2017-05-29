@@ -633,7 +633,7 @@ namespace Deploy
 						if (ui == "cli")
 						{
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.Osx/bin/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.MacOS/bin/");
 
 							//CopyFile(pathRelease, "eddie-cli", pathTemp, "eddie-cli");
 
@@ -664,10 +664,11 @@ namespace Deploy
 								// WARNING: Currently 2017-03-10 , cannot be signed for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
 								cmd += "mkbundle";
 								cmd += " --sdk /Library/Frameworks/Mono.framework/Versions/Current";
-								cmd += " \"" + pathRelease + "/CLI.Osx.exe\"";
+								cmd += " \"" + pathRelease + "/CLI.MacOS.exe\"";
 								cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
 								cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
-								cmd += " \"" + pathRelease + "/Platforms.Osx.dll\"";
+								cmd += " \"" + pathRelease + "/Platforms.macOS.dll\"";
+                                cmd += " \"" + pathRelease + "/XamMac.dll\"";
 								cmd += " -z";
 								cmd += " --static";
 								cmd += " --deps";
@@ -676,16 +677,17 @@ namespace Deploy
 								Shell(cmd);
 							}
 
+                            CopyFile(pathRelease, "libxammac.dylib", pathTemp);
+
 							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+                            Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
 
 							SignFile(platform, format, pathTemp + "/eddie-cli"); // WARNING: Currently 2017-03-10 , signing don't work for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
 							SignFile(platform, format, pathTemp + "/openvpn");
 							SignFile(platform, format, pathTemp + "/stunnel");
-
-							RemoveFile(pathTemp + "/libgdiplus.so.0");
-							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
+                            SignFile(platform, format, pathTemp + "/libxammac.dylib");
 
 							CreateDirectory(pathTemp + "/" + fileName);
 							MoveAll(pathTemp, pathTemp + "/" + fileName);
@@ -821,7 +823,7 @@ namespace Deploy
 							Log("Detach DMG");
 							Shell("hdiutil detach \"" + pathTemp + "/DiskBuild" + "\"");
 							Log("Compress DMG");
-							Shell("hdiutil convert \"" + pathTemp + "/temp.dmg" + "\" -format UDCO -imagekey zlib-level=9 -o \"" + pathFinal + "\"");
+							Shell("hdiutil convert \"" + pathTemp + "/diskbase.dmg" + "\" -format UDCO -imagekey zlib-level=9 -o \"" + pathFinal + "\"");
 
 						}
 					}
@@ -830,12 +832,14 @@ namespace Deploy
 						if (ui == "cli")
 						{
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.Osx/bin/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.MacOS/bin/");
 
 							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-							CopyFile(pathRelease, "Platforms.Osx.dll", pathTemp);
-							CopyFile(pathRelease, "CLI.Osx.exe", pathTemp, "Eddie-CLI.exe");
+							CopyFile(pathRelease, "Platforms.macOS.dll", pathTemp);
+                            CopyFile(pathRelease, "XamMac.dll", pathTemp);
+                            CopyFile(pathRelease, "libxammac.dylib", pathTemp);
+							CopyFile(pathRelease, "CLI.MacOS.exe", pathTemp, "Eddie-CLI.exe");
 
 							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
@@ -844,9 +848,11 @@ namespace Deploy
 
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+                            Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
 
 							SignFile(platform, format, pathTemp + "/openvpn");
 							SignFile(platform, format, pathTemp + "/stunnel");
+                            SignFile(platform, format, pathTemp + "/libxammac.dylib");
 
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");

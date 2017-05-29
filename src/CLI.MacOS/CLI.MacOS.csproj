@@ -8,7 +8,7 @@
     <ProjectGuid>{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>CLI.MacOS</RootNamespace>
-    <AssemblyName>CLI.Osx</AssemblyName>
+    <AssemblyName>CLI.MacOS</AssemblyName>
     <ReleaseVersion>2.13</ReleaseVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
