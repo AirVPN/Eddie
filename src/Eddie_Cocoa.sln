@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Osx", "Platforms.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Common", "Lib.Common\Lib.Common.csproj", "{9731FF8C-703E-4132-9427-5B410CF8E382}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.macOS", "Platforms.macOS\Platforms.macOS.csproj", "{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -70,9 +72,19 @@ Global
 		{9731FF8C-703E-4132-9427-5B410CF8E382}.Debug|x64.Build.0 = Debug|Any CPU
 		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x64.ActiveCfg = Release|Any CPU
 		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x64.Build.0 = Release|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x86.Build.0 = Debug|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x86.ActiveCfg = Release|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x86.Build.0 = Release|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.AppStore|x86.ActiveCfg = Release|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.AppStore|x86.Build.0 = Release|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x64.Build.0 = Debug|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x64.ActiveCfg = Release|Any CPU
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = UI.Cocoa.Osx\UI.Cocoa.Osx.csproj
-		version = 2.12
+		version = 2.13
 	EndGlobalSection
 EndGlobal

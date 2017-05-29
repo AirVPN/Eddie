@@ -87,15 +87,15 @@ namespace Eddie.UI.Cocoa.Osx
 			// AppleInterfaceStyle is user-level settings.
 			// Setting the 'Dark mode' in preferences, don't change the interface style of the ROOT user, and AirVPN client run as root.
 			// We detect the settings when this software relaunch itself, and here we update accordly the settings of the current (ROOT) user.
-			string rootColorMode = Core.Platform.Instance.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null").ToString ().ToLowerInvariant ();
+			string rootColorMode = Core.SystemShell.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null").ToString ().ToLowerInvariant ();
 			if (rootColorMode == "")
 				rootColorMode = "light";
 			string argsColorMode = Engine.Instance.Storage.Get ("gui.osx.style");
 			if (rootColorMode != argsColorMode) {
 				if(argsColorMode == "dark")
-					Core.Platform.Instance.ShellCmd ("defaults write -g AppleInterfaceStyle Dark");
+					Core.SystemShell.ShellCmd ("defaults write -g AppleInterfaceStyle Dark");
 				else 
-					Core.Platform.Instance.ShellCmd ("defaults remove -g AppleInterfaceStyle");
+					Core.SystemShell.ShellCmd ("defaults remove -g AppleInterfaceStyle");
 			}
 		}
 

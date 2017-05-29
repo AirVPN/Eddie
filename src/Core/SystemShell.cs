@@ -99,6 +99,11 @@ namespace Eddie.Core
 			return Shell(path, new string[] { arguments }, true);
 		}
 
+		public static string Shell(string path, string[] arguments)
+		{
+			return Shell(path, arguments, true);
+		}
+
 		public static string Shell(string path, string arguments, bool waitEnd)
 		{
 			return Shell(path, new string[] { arguments }, waitEnd);

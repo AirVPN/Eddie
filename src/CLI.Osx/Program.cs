@@ -23,13 +23,13 @@ using System.Threading;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
-namespace Eddie.CLI.Osx
+namespace Eddie.CLI.MacOS
 {
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			Platform.Instance = new Eddie.Platforms.Osx();
+            Platform.Instance = new Eddie.Platforms.MacOS();
 
 			CommandLine.InitSystem(Environment.CommandLine);
 

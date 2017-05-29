@@ -62,7 +62,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			string path = Platform.Instance.GetExecutablePath();
 			List<string> args = CommandLine.SystemEnvironment.GetFullArray ();
-			string colorMode = Platform.Instance.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null");
+            string colorMode = Core.SystemShell.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null");
 			if(colorMode == "Dark")
 				args.Add("gui.osx.style=\"dark\"");
 			RootLauncher.LaunchExternalTool(path, args.ToArray());

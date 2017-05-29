@@ -91,11 +91,20 @@ namespace Eddie.UI.Cocoa.Osx
 			TableDnsServersController = new TableDnsServersController (this.TableDnsServers);
 			TableAdvancedEventsController = new TableAdvancedEventsController (this.TableAdvancedEvents);
 
-			CmdSave.Activated += (object sender, EventArgs e) => {
-				if(Check())
+			CmdSave.Activated += (object sender, EventArgs e) =>
+			{
+				try
 				{
-					SaveOptions ();
-					Close ();
+					if (Check())
+					{
+						SaveOptions();
+						Close();
+					}
+
+				}
+				catch (Exception ex)
+				{
+                    Core.Engine.Instance.Logs.Log(LogType.Fatal, ex);
 				}
 			};
 
@@ -614,7 +623,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck (ChkAdvancedPingerEnabled, s.GetBool ("pinger.enabled"));
 			GuiUtils.SetCheck (ChkRouteRemoveDefaultGateway, s.GetBool("routes.remove_default"));
 			
-			TxtAdvancedOpenVpnPath.StringValue = s.Get ("executables.openvpn");
+			TxtAdvancedOpenVpnPath.StringValue = s.Get ("tools.openvpn.path");
 
 			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
@@ -823,7 +832,7 @@ namespace Eddie.UI.Cocoa.Osx
 			s.SetBool ("pinger.enabled", GuiUtils.GetCheck (ChkAdvancedPingerEnabled));
 			s.SetBool ("routes.remove_default", GuiUtils.GetCheck(ChkRouteRemoveDefaultGateway));
 			
-			s.Set ("executables.openvpn", TxtAdvancedOpenVpnPath.StringValue);
+			s.Set ("tools.openvpn.path", TxtAdvancedOpenVpnPath.StringValue);
 
 			string manifestRefresh = GuiUtils.GetSelected(CboAdvancedManifestRefresh);
 			if (manifestRefresh == "Automatic") // Auto

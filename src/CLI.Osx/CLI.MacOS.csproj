@@ -7,9 +7,9 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CLI.Osx</RootNamespace>
+    <RootNamespace>CLI.MacOS</RootNamespace>
     <AssemblyName>CLI.Osx</AssemblyName>
-    <ReleaseVersion>2.12</ReleaseVersion>
+    <ReleaseVersion>2.13</ReleaseVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -25,13 +25,21 @@
     <Commandlineparameters>login=airtest01 password=airtest0101 -help</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugType>full</DebugType>
+    <DebugType></DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp /Library/Frameworks/Xamarin.Mac.framework/Versions/3.4.0.36/lib/libxammac.dylib ${TargetDir}</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -46,13 +54,13 @@
       <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
       <Name>Lib.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Platforms.Osx\Platforms.Osx.csproj">
-      <Project>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</Project>
-      <Name>Platforms.Osx</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
       <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
       <Name>Lib.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platforms.macOS\Platforms.macOS.csproj">
+      <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
+      <Name>Platforms.macOS</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

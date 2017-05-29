@@ -11,7 +11,7 @@
     <RootNamespace>Eddie.UI.Cocoa.Osx</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.12</ReleaseVersion>
+    <ReleaseVersion>2.13</ReleaseVersion>
     <AssemblyName>Eddie</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -23,14 +23,14 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <ConsolePause>false</ConsolePause>
     <UseSGen>true</UseSGen>
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
     <EnablePackageSigning>false</EnablePackageSigning>
     <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
     <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>true</CreatePackage>
+    <CreatePackage>false</CreatePackage>
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <Commandlineparameters>profile=/Users/Clodo/AirVPN.xml</Commandlineparameters>
     <LinkMode>Full</LinkMode>
@@ -39,7 +39,7 @@
         <Command>
           <type>BeforeBuild</type>
           <command>${ProjectDir}/prebuild.sh</command>
-          <workingdir></workingdir>
+          <workingdir>${ProjectDir}/</workingdir>
           <externalConsole>True</externalConsole>
         </Command>
       </CustomCommands>
@@ -59,7 +59,7 @@
     <CreatePackage>false</CreatePackage>
     <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
     <EnableCodeSigning>false</EnableCodeSigning>
-    <EnablePackageSigning>true</EnablePackageSigning>
+    <EnablePackageSigning>false</EnablePackageSigning>
     <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
     <CustomCommands>
       <CustomCommands>
@@ -73,6 +73,7 @@
     </CustomCommands>
     <Externalconsole>true</Externalconsole>
     <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
     <HttpClientHandler>HttpClientHandler</HttpClientHandler>
     <TlsProvider>Legacy</TlsProvider>
   </PropertyGroup>
@@ -607,13 +608,13 @@
       <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
       <Name>Lib.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Platforms.Osx\Platforms.Osx.csproj">
-      <Project>{CE0A865E-9650-4283-8EBB-2603C6C52F47}</Project>
-      <Name>Platforms.Osx</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
       <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
       <Name>Lib.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platforms.macOS\Platforms.macOS.csproj">
+      <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
+      <Name>Platforms.macOS</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

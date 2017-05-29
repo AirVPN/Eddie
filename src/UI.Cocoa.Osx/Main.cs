@@ -29,9 +29,13 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	class MainClass
 	{
+        
+
 		static void Main (string[] args)
 		{
-			Core.Platform.Instance = new Eddie.Platforms.Osx();
+            NSApplication.Init();
+
+            Core.Platform.Instance = new Eddie.Platforms.MacOS();
 
 			CommandLine.InitSystem(Environment.CommandLine);
 
@@ -59,7 +63,7 @@ namespace Eddie.UI.Cocoa.Osx
 				if (engine.Initialization (false) == false)
 					return;
 
-				NSApplication.Init ();
+				
 				NSApplication.Main (args);
 			}
 		}
