@@ -36,6 +36,8 @@ namespace Eddie.Platforms
 		private string m_architecture = "";
         private UInt32 m_uid;
         private string m_logname;
+		private string m_fontSystem;
+		private string m_fontMonoSpace;
 
         // Override
         public Linux()
@@ -72,6 +74,24 @@ namespace Eddie.Platforms
 				m_logname = SystemShell.ShellCmd("logname");
 			if (m_logname.Contains("no login name"))
 				m_logname = Environment.UserName;
+
+			m_fontSystem = "";
+			if (Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
+			{
+				m_fontSystem = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface font-name").Trim('\'');
+				int posSize = m_fontSystem.LastIndexOf(" ");
+				if (posSize != -1)
+					m_fontSystem = m_fontSystem.Substring(0, posSize) + "," + m_fontSystem.Substring(posSize + 1);				
+			}
+
+			m_fontMonoSpace = "";
+			if (Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
+			{
+				m_fontMonoSpace = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+				int posSize = m_fontMonoSpace.LastIndexOf(" ");
+				if (posSize != -1)
+					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);				
+			}
 		}
 
 		public override string GetOsArchitecture()
@@ -196,32 +216,18 @@ namespace Eddie.Platforms
 
 		public override string GetSystemFont()
         {
-            if(Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
-            {
-                string detected = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface font-name").Trim('\'');
-                int posSize = detected.LastIndexOf(" ");
-                if (posSize != -1)
-                    detected = detected.Substring(0, posSize) + "," + detected.Substring(posSize + 1);
-                // if (IsFontInstalled(detected)) // Don't work under Debian7
-                    return detected;                
-            }
-                
-            return base.GetSystemFont();
+			if (m_fontSystem != "")
+				return m_fontSystem;
+			else                
+				return base.GetSystemFont();
         }
 
         public override string GetSystemFontMonospace()
         {
-            if (Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
-            {
-                string detected = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
-                int posSize = detected.LastIndexOf(" ");
-                if (posSize != -1)
-                    detected = detected.Substring(0, posSize) + "," + detected.Substring(posSize + 1);
-                // if (IsFontInstalled(detected)) // Don't work under Debian7
-                return detected;
-            }
-
-            return base.GetSystemFontMonospace();
+			if (m_fontMonoSpace != "")
+				return m_fontMonoSpace;
+			else
+				return base.GetSystemFontMonospace();
         }
 
         public override void FlushDNS()
