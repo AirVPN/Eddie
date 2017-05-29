@@ -38,72 +38,7 @@ namespace Eddie.Core
 		protected string m_ApplicationPath = "";
 		protected string m_ExecutablePath = "";
 		protected string m_UserPath = "";
-
-		// ----------------------------------------
-		// Static - Also used before the derivated class is created
-		// ----------------------------------------
-		/* ClodoTemp
-		public static string ShellPlatformIndipendent(string FileName, string Arguments, string WorkingDirectory, bool WaitEnd)
-		{
-			try
-			{
-				int startTime = Environment.TickCount;
-
-				Process p = new Process();
-
-				p.StartInfo.Arguments = Arguments;
-
-				if (WorkingDirectory != "")
-					p.StartInfo.WorkingDirectory = WorkingDirectory;
-
-				p.StartInfo.FileName = FileName;
-
-				p.StartInfo.CreateNoWindow = true;
-				p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-
-				if (WaitEnd)
-				{
-					p.StartInfo.UseShellExecute = false;
-					p.StartInfo.RedirectStandardOutput = true;
-					p.StartInfo.RedirectStandardError = true;
-				}
-
-				p.Start();
-
-				if (WaitEnd)
-				{
-					string Output = p.StandardOutput.ReadToEnd() + "\n" + p.StandardError.ReadToEnd();
-					p.WaitForExit();
-
-					Output = Output.Trim();
-
-					// c'era nodebuglog per : lsattr, ping, uname -m
-					if(Arguments.Contains("lsattr") == false) // Avoid recursion
-					{
-						if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
-						{
-							int endTime = Environment.TickCount;
-							int deltaTime = endTime - startTime;
-							string message = "Shell of '" + FileName + "','" + Arguments + "' done sync in " + deltaTime.ToString() + " ms, Output: " + Output;
-							message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=","{base64-omissis}");
-							Engine.Instance.Logs.Log(LogType.Verbose, message);
-						}
-					}
-
-					return Output;
-				}
-				else
-				{
-					return "";
-				}
-			}
-			catch (Exception E)
-			{
-				return "Error:" + E.Message; // 2.8
-			}
-		}
-		*/
-
+		
 		public static bool IsUnix()
 		{
 			return (Environment.OSVersion.Platform.ToString() == "Unix");
@@ -521,30 +456,7 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(ex);
 			}
 		}
-
-		// ClodoTemp da qui in giu abolire
-		/*
-		public virtual string ShellCmd(string Command)
-		{
-			NotImplemented();
-			return "";
-		}
-		*/
-
-		/*
-		public virtual string Shell(string FileName, string Arguments)
-		{
-			return ShellPlatformIndipendent(FileName, Arguments, "", true);
-		}
-		*/
-
-		/*
-		public virtual string Shell(string FileName, string Arguments, bool WaitEnd)
-		{
-			return ShellPlatformIndipendent(FileName, Arguments, "", WaitEnd);
-		}
-		*/
-
+				
 		public virtual bool OpenDirectoryInFileManager(string path)
 		{
 			try

@@ -262,13 +262,6 @@ namespace Eddie.Platforms
 			return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
 		}
 
-		/* ClodoTemp
-		public override string ShellCmd(string Command)
-		{
-			return SystemShell.Shell("cmd.exe", String.Format("/c {0}", Command));
-		}
-		*/
-
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{
 			path = "cmd.exe";

@@ -39,20 +39,7 @@ namespace Eddie.Platforms
 
         // Override
         public Linux()
-		{
-			m_version = SystemShell.ShellCmd("uname -a").Trim();
- 			m_architecture = NormalizeArchitecture(SystemShell.ShellCmd("uname -m").Trim());            
-            m_uid = 9999;
-            UInt32.TryParse(SystemShell.ShellCmd("id -u"), out m_uid);
-
-            // Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
-            // Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
-            // Manjaro, same as Ubuntu
-            m_logname = SystemShell.ShellCmd("echo $SUDO_USER").Trim(); // IJTF2 // TOCHECK
-            if (m_logname == "")
-                m_logname = SystemShell.ShellCmd("logname");
-            if (m_logname.Contains("no login name"))
-                m_logname = Environment.UserName;
+		{			
         }
 
         public override string GetCode()
@@ -68,7 +55,26 @@ namespace Eddie.Platforms
 				return base.GetName();
 		}
 
-        public override string GetOsArchitecture()
+		public override void OnInit(bool cli)
+		{
+			base.OnInit(cli);
+
+			m_version = SystemShell.ShellCmd("uname -a").Trim();
+			m_architecture = NormalizeArchitecture(SystemShell.ShellCmd("uname -m").Trim());
+			m_uid = 9999;
+			UInt32.TryParse(SystemShell.ShellCmd("id -u"), out m_uid);
+
+			// Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
+			// Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
+			// Manjaro, same as Ubuntu
+			m_logname = SystemShell.ShellCmd("echo $SUDO_USER").Trim(); // IJTF2 // TOCHECK
+			if (m_logname == "")
+				m_logname = SystemShell.ShellCmd("logname");
+			if (m_logname.Contains("no login name"))
+				m_logname = Environment.UserName;
+		}
+
+		public override string GetOsArchitecture()
 		{
 			return m_architecture;
 		}
@@ -111,7 +117,6 @@ namespace Eddie.Platforms
             if (FileExists(path) == false)
                 return false;
 
-			//ClodoTemp string result = SystemShell.ShellCmd("lsattr \"" + SystemShell.EscapePath(path) + "\""); // noDebugLog=true to avoid log recursion.
 			string result = SystemShell.Shell("lsattr","\"" + SystemShell.EscapePath(path) + "\"");
 
 			/* // < 2.11.11
@@ -182,13 +187,6 @@ namespace Eddie.Platforms
         {
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
-
-		/* ClodoTemp
-        public override string ShellCmd(string Command)
-        {
-            return Shell("sh", String.Format("-c '{0}'", Command));
-        }
-		*/
 
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{
@@ -274,20 +272,10 @@ namespace Eddie.Platforms
 
         public override long Ping(string host, int timeoutSec)
         {
-			// ClodoTemp
-            //string cmd = "ping -c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host);
-            //string result = SystemShell.ShellCmd(cmd);
-			string path = "ping";
 			string result = SystemShell.Shell("ping", "-c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host));
             
             string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
             float iMS;
-            /*
-            if (float.TryParse(sMS, out iMS))
-                return (Int64)iMS;
-            else
-                return -1;
-            */
             if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
                 iMS = -1;
             
