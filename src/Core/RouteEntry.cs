@@ -72,9 +72,9 @@ namespace Eddie.Core
 
 		public void WriteXML(XmlElement node)
 		{
-			node.SetAttribute("address", Address.Value);
-			node.SetAttribute("mask", Mask.Value);
-			node.SetAttribute("gateway", Gateway.Value);
+			node.SetAttribute("address", Address.Address);
+			node.SetAttribute("mask", Mask.Address);
+			node.SetAttribute("gateway", Gateway.Address);
 			node.SetAttribute("interface", Interface);
 			node.SetAttribute("metrics", Metrics);
 
@@ -94,12 +94,12 @@ namespace Eddie.Core
 
 		public static string ToKey(IpAddress address, IpAddress mask)
 		{
-			return address.Value + "-" + mask.Value;
+			return address.Address + "-" + mask.Address;
 		}
 
 		public override string ToString()
 		{
-			return "Address: " + Address.Value + ", Mask: " + Mask.Value + ", Gateway: " + Gateway.Value + ", Interface: " + Interface + ", Metrics: " + Metrics + ", Flags: " + Flags + ", Mss: " + Mss + ", Window: " + Window + ", Irtt: " + Irtt;
+			return "Address: " + Address.Address + ", Mask: " + Mask.Address + ", Gateway: " + Gateway.Address + ", Interface: " + Interface + ", Metrics: " + Metrics + ", Flags: " + Flags + ", Mss: " + Mss + ", Window: " + Window + ", Irtt: " + Irtt;
 		}
 	}
 }

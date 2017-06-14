@@ -2073,6 +2073,7 @@ namespace Eddie.Core
 			t = Regex.Replace(t, "<key>(.*?)</key>", "<key>omissis</key>", RegexOptions.Singleline);
 			t = Regex.Replace(t, "<cert>(.*?)</cert>", "<cert>omissis</cert>", RegexOptions.Singleline);
 			t = Regex.Replace(t, "<tls-auth>(.*?)</tls-auth>", "<tls-auth>omissis</tls-auth>", RegexOptions.Singleline);
+			t = Regex.Replace(t, "<tls-crypt>(.*?)</tls-crypt>", "<tls-auth>omissis</tls-auth>", RegexOptions.Singleline);
 			Engine.Logs.Log(LogType.Verbose, t);
 		}
 

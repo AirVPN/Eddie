@@ -86,6 +86,9 @@ namespace Eddie.Core
 		// Avoid when possible
 		public static string ShellCmd(string command)
 		{
+			if (command == "")
+				return "";
+
 			string path;
 			string[] arguments;
 

@@ -27,7 +27,7 @@ namespace Eddie.Platforms
 {
 	public class NetworkLockIptables : NetworkLockPlugin
 	{
-		private List<IpAddressRange> m_currentList = new List<IpAddressRange>();
+		private IpAddresses m_currentList = new IpAddresses();
 
 		public override string GetCode()
 		{
@@ -77,14 +77,22 @@ namespace Eddie.Platforms
 			SystemShell.ShellCmd("ip6tables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\"");
 
 			// Flush V4
-			SystemShell.ShellCmd("iptables -F");
+			SystemShell.ShellCmd("iptables -P INPUT ACCEPT");
+			SystemShell.ShellCmd("iptables -P FORWARD ACCEPT");
+			SystemShell.ShellCmd("iptables -P OUTPUT ACCEPT");
 			SystemShell.ShellCmd("iptables -t nat -F");
 			SystemShell.ShellCmd("iptables -t mangle -F");
+			SystemShell.ShellCmd("iptables -F");
+			SystemShell.ShellCmd("iptables -X");
 
 			// Flush V6
-			SystemShell.ShellCmd("ip6tables -F");
+			SystemShell.ShellCmd("ip6tables -P INPUT ACCEPT");
+			SystemShell.ShellCmd("ip6tables -P FORWARD ACCEPT");
+			SystemShell.ShellCmd("ip6tables -P OUTPUT ACCEPT");
 			SystemShell.ShellCmd("ip6tables -t nat -F");
 			SystemShell.ShellCmd("ip6tables -t mangle -F");
+			SystemShell.ShellCmd("ip6tables -F");
+			SystemShell.ShellCmd("ip6tables -X");
 
 			// Local V4
 			SystemShell.ShellCmd("iptables -A INPUT -i lo -j ACCEPT");
@@ -162,11 +170,15 @@ namespace Eddie.Platforms
 			if (Platform.Instance.FileExists(rulesBackupSessionV4))
 			{
 				// Flush
-				SystemShell.ShellCmd("iptables -F");
+				SystemShell.ShellCmd("iptables -P INPUT ACCEPT");
+				SystemShell.ShellCmd("iptables -P FORWARD ACCEPT");
+				SystemShell.ShellCmd("iptables -P OUTPUT ACCEPT");				
 				SystemShell.ShellCmd("iptables -t nat -F");
 				SystemShell.ShellCmd("iptables -t mangle -F");
+				SystemShell.ShellCmd("iptables -F");
+				SystemShell.ShellCmd("iptables -X");
 
-				// Backup
+				// Restore
 				SystemShell.ShellCmd("iptables-restore <\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\""); 
 
                 Platform.Instance.FileDelete(rulesBackupSessionV4);
@@ -177,10 +189,14 @@ namespace Eddie.Platforms
 
 			if (Platform.Instance.FileExists(rulesBackupSessionV6))
 			{
-				// Flush
-				SystemShell.ShellCmd("ip6tables -F");
+				// Restore
+				SystemShell.ShellCmd("ip6tables -P INPUT ACCEPT");
+				SystemShell.ShellCmd("ip6tables -P FORWARD ACCEPT");
+				SystemShell.ShellCmd("ip6tables -P OUTPUT ACCEPT");
 				SystemShell.ShellCmd("ip6tables -t nat -F");
 				SystemShell.ShellCmd("ip6tables -t mangle -F");
+				SystemShell.ShellCmd("ip6tables -F");
+				SystemShell.ShellCmd("ip6tables -X");
 
 				// Backup
 				SystemShell.ShellCmd("ip6tables-restore <\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\""); 
@@ -196,31 +212,39 @@ namespace Eddie.Platforms
 		{
 			base.OnUpdateIps();
 
-			List<IpAddressRange> ipsFirewalled = GetAllIps(true);
+			IpAddresses ipsFirewalled = GetAllIps(true);
 
 			// Remove IP not present in the new list
-			foreach (IpAddressRange ip in m_currentList)
+			foreach (IpAddress ip in m_currentList.IPs)
 			{
 				if(ipsFirewalled.Contains(ip) == false)
 				{
 					// Delete
-					string cmd = "iptables -D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT";
+					string cmd = "";
+					if(ip.IsV4)
+						cmd = "iptables -D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT";
+					else if(ip.IsV6)
+						cmd = "ip6tables -D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT";
 					SystemShell.ShellCmd(cmd);
 				}
 			}
 
 			// Add IP
-			foreach (IpAddressRange ip in ipsFirewalled)
+			foreach (IpAddress ip in ipsFirewalled.IPs)
 			{
 				if (m_currentList.Contains(ip) == false)
 				{
 					// Add
-					string cmd = "iptables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
+					string cmd = "";
+					if(ip.IsV4)
+						cmd = "iptables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
+					else if(ip.IsV6)
+						cmd = "iptables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
 					SystemShell.ShellCmd(cmd);
 				}
 			}
 
 			m_currentList = ipsFirewalled;
-		}
+		}		
 	}
 }

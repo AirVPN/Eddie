@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core.Providers
 {
@@ -221,9 +222,9 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-        public override List<IpAddressRange> GetNetworkLockAllowedIps()
+        public override IpAddresses GetNetworkLockAllowedIps()
         {
-            List<IpAddressRange> result = base.GetNetworkLockAllowedIps();
+			IpAddresses result = base.GetNetworkLockAllowedIps();
 
             // Hosts
             XmlNodeList nodesUrls = Storage.DocumentElement.SelectNodes("//urls/url");
@@ -231,8 +232,7 @@ namespace Eddie.Core.Providers
             {
                 string url = nodeUrl.Attributes["address"].Value;
                 string host = Utils.HostFromUrl(url);                
-                IpAddressRange ip = new IpAddressRange(host); // TOFIX: Presume it's an IP address, but can be hostname.
-                result.Add(ip);
+                result.Add(host);
             }
 
             return result;
@@ -375,5 +375,32 @@ namespace Eddie.Core.Providers
 
             return AirExchange.FetchUrls(title, authPublicKey, urls, parameters);            
 		}        
+
+		public XmlElement GetModeXml()
+		{
+			String protocol = Engine.Instance.Storage.Get("mode.protocol").ToUpperInvariant();
+			int port = Engine.Instance.Storage.GetInt("mode.port");
+			int alternate = Engine.Instance.Storage.GetInt("mode.alt");
+
+			if (protocol == "AUTO")
+			{
+				protocol = GetKeyValue("mode_protocol", "UDP");
+				string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
+				if (proxyMode != "none")
+					protocol = "TCP";
+				port = Conversions.ToInt32(GetKeyValue("mode_port", "443"));
+				alternate = Conversions.ToInt32(GetKeyValue("mode_alt", "0"));
+			}
+
+			XmlNodeList xmlModes = Manifest.SelectNodes("//modes/mode");
+			foreach (XmlElement xmlMode in xmlModes)
+			{
+				if ((Utils.XmlGetAttributeString(xmlMode, "protocol", "").ToUpperInvariant() == protocol) &&
+					(Utils.XmlGetAttributeInt(xmlMode, "port", -1) == port) &&
+					(Utils.XmlGetAttributeInt(xmlMode, "entry_index", -1) == alternate))
+					return xmlMode;
+			}
+			return null;
+		}
     }
 }

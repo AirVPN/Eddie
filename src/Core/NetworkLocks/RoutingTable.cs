@@ -57,7 +57,7 @@ namespace Eddie.Core.NetworkLocks
 
 			foreach (RouteEntry Entry in EntryList)
 			{
-				if (IsIP(Entry.Gateway))
+				if (Entry.Gateway.Valid)
 				{
 					if (DefaultGateway.Valid == false)
 					{
@@ -177,7 +177,7 @@ namespace Eddie.Core.NetworkLocks
 			if ((EntryAdded.Count != 0) || (EntryRemoved.Count != 0))
 			{
 				XmlDocument doc = root.OwnerDocument;				
-				root.SetAttribute("gateway", DefaultGateway.Value);
+				root.SetAttribute("gateway", DefaultGateway.Address);
 				root.SetAttribute("interface", DefaultInterface);
 
 				XmlElement nodeAdded = root.AppendChild(doc.CreateElement("added")) as XmlElement;
@@ -212,19 +212,12 @@ namespace Eddie.Core.NetworkLocks
 			return false;
 		}
 
-		public static bool IsIP(IpAddress v)
-		{
-			return IsIP(v.Value);
-		}
-
-		
 		bool Failed = false;
 
 		public void RouteAdd(IpAddress address)
 		{
 			RouteAdd(address, new IpAddress("255.255.255.255"), DefaultGateway, DefaultInterface);
 		}
-
 
 		public void RouteAdd(IpAddress address, IpAddress mask, IpAddress gateway, string iface)
 		{

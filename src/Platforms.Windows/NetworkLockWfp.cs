@@ -62,7 +62,7 @@ namespace Eddie.Platforms
             }
 
             // Allow Eddie / OpenVPN / Stunnel / Plink
-            AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Private - Allow Eddie", Platform.Instance.GetExecutablePath()));
+            AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie", Platform.Instance.GetExecutablePath()));
 
             // Allow loopback
             {
@@ -99,19 +99,19 @@ namespace Eddie.Platforms
 
             if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
             {
-                AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddressRange("192.168.0.0/255.255.0.0")));
-                AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddressRange("172.16.0.0/255.240.0.0")));
-                AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", new IpAddressRange("10.0.0.0/255.0.0.0")));
-                AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", new IpAddressRange("224.0.0.0/255.255.255.0")));
-                AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", new IpAddressRange("239.255.255.250/255.255.255.255")));
-                AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddressRange("239.255.255.253/255.255.255.255")));
+                AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddress("192.168.0.0/255.255.0.0")));
+                AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddress("172.16.0.0/255.240.0.0")));
+                AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", new IpAddress("10.0.0.0/255.0.0.0")));
+                AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", new IpAddress("224.0.0.0/255.255.255.0")));
+                AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", new IpAddress("239.255.255.250/255.255.255.255")));
+                AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddress("239.255.255.253/255.255.255.255")));
             }
 
             // Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
             {
                 XmlDocument xmlDocRule = new XmlDocument();
                 XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-                xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
+                xmlRule.SetAttribute("name", "NetLock - Allow DHCP");
                 xmlRule.SetAttribute("layer", "all");
                 xmlRule.SetAttribute("action", "permit");
                 
@@ -187,16 +187,10 @@ namespace Eddie.Platforms
         public override void OnUpdateIps()
 		{
             base.OnUpdateIps();
-            
-            List<IpAddressRange> ipsFirewalled = GetAllIps(false); // Don't need full ip, because the client it's allowed as program.
-            string ipList = "";
-            foreach (IpAddressRange ip in ipsFirewalled)
-            {
-                if (ipList != "")
-                    ipList += ",";
-                ipList += ip.ToCIDR();
-            }
 
+			IpAddresses ipsAllowed = GetAllIps(false); // Don't need full ip, because the client it's allowed as program.			
+            string ipList = ipsAllowed.ToString();
+            
             // Note: IpV6 addresses ignored because .ToCIDR() above return "".
             // When ToCIDR it's implemented, it still missing implementation in Platforms.Windows.Native.dll.
 
@@ -204,15 +198,15 @@ namespace Eddie.Platforms
             {
                 if(ExistsRule("netlock_allow_ips_v4"))
                     RemoveRule("netlock_allow_ips_v4");
-                if (ExistsRule("netlock_allow_ips_v6"))
+                if(ExistsRule("netlock_allow_ips_v6"))
                     RemoveRule("netlock_allow_ips_v6");
 
                 m_lastestIpList = ipList;
 
                 XmlElement xmlRuleV4 = null;
                 XmlElement xmlRuleV6 = null;
-                
-                foreach (IpAddressRange ip in ipsFirewalled)
+
+				foreach (IpAddress ip in ipsAllowed.IPs)
                 {
                     XmlElement XmlIf = null;
 
@@ -250,8 +244,8 @@ namespace Eddie.Platforms
                     {
                         XmlIf.SetAttribute("field", "ip_remote_address");
                         XmlIf.SetAttribute("match", "equal");
-                        XmlIf.SetAttribute("address", ip.GetAddress().ToString());
-                        XmlIf.SetAttribute("mask", ip.GetMask()); // Probabily wrong for IPv6
+                        XmlIf.SetAttribute("address", ip.Address);
+                        XmlIf.SetAttribute("mask", ip.Mask);
                     }
                 }
     

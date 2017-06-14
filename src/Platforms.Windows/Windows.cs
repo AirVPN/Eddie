@@ -289,7 +289,7 @@ namespace Eddie.Platforms
 		public override void RouteAdd(RouteEntry r)
 		{
 			string cmd = "";
-			cmd += "route add " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
+			cmd += "route add " + r.Address.Address + " mask " + r.Mask.Address + " " + r.Gateway.Address;
 			/*
 			 * Metric param are ignored or misinterpreted. http://serverfault.com/questions/238695/how-can-i-set-the-metric-of-a-manually-added-route-on-windows
 			if(r.Metrics != "")
@@ -302,7 +302,7 @@ namespace Eddie.Platforms
 
 		public override void RouteRemove(RouteEntry r)
 		{
-			string cmd = "route delete " + r.Address.Value + " mask " + r.Mask.Value + " " + r.Gateway.Value;
+			string cmd = "route delete " + r.Address.Address + " mask " + r.Mask.Address + " " + r.Gateway.Address;
 			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
 		}
 
@@ -389,7 +389,7 @@ namespace Eddie.Platforms
 					if(e.Mask.Valid == false)
 						continue;
 
-					if (e.Gateway.Value != "On-link")
+					if (e.Gateway.Address != "On-link")
 					{
 						if (e.Gateway.Valid == false)
 							continue;

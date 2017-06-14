@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
+    <Compile Include="IpAddresses.cs" />
     <Compile Include="SystemShell.cs" />
     <Compile Include="Tools\Curl.cs" />
     <Compile Include="Tools\SSL.cs" />
@@ -69,10 +70,9 @@
     <Compile Include="Threads\Discover.cs" />
     <Compile Include="Tool.cs" />
     <Compile Include="TorControl.cs" />
-    <Compile Include="IpAddressRange.cs" />
+    <Compile Include="IpAddress.cs" />
     <Compile Include="NetworkLockManager.cs" />
     <Compile Include="NetworkLockPlugin.cs" />
-    <Compile Include="IpAddress.cs" />
     <Compile Include="NetworkLocks\RoutingTable.cs" />
     <Compile Include="RouteScope.cs" />
     <Compile Include="RouteEntry.cs" />

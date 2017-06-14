@@ -188,7 +188,7 @@ namespace Eddie.Platforms
                     XmlElement xmlClone = xml.CloneNode(true) as XmlElement;
                     xmlClone.SetAttribute("layer", layer);                    
                     string xmlStr = xmlClone.OuterXml;
-
+					
                     UInt64 id1 = LibPocketFirewallAddRule(xmlStr);
 
                     if (id1 == 0)
@@ -209,10 +209,10 @@ namespace Eddie.Platforms
             }            
         }
 
-        public static XmlElement CreateItemAllowAddress(string title, IpAddressRange range)
+        public static XmlElement CreateItemAllowAddress(string title, IpAddress range)
         {
-            string address = range.GetAddress().ToString();
-            string mask = range.GetMask();
+            string address = range.Address;
+            string mask = range.Mask;
 
             XmlDocument xmlDocRule = new XmlDocument();
             XmlElement xmlRule = xmlDocRule.CreateElement("rule");

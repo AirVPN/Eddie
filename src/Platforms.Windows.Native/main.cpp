@@ -26,6 +26,7 @@
 #include <ws2def.h>
 #include <ws2ipdef.h>
 #include <iphlpapi.h>
+#include <map>
 
 
 #pragma comment(lib, "iphlpapi.lib")
@@ -361,6 +362,24 @@ BOOL LibPocketFirewallStop()
 	return bStopped;
 }
 
+struct RuleData
+{
+	RuleData()
+	{
+		::ZeroMemory(&ipAddressV4, sizeof(FWP_V4_ADDR_AND_MASK));
+		::ZeroMemory(&ipAddressV6, sizeof(FWP_V6_ADDR_AND_MASK));
+		::ZeroMemory(&portRange, sizeof(FWP_RANGE0));
+		ipAddressV4.mask = ntohl(4294967295); // 255.255.255.255
+		ipAddressV6.prefixLength = 128;
+		filterWeight = 0;
+	}
+
+	FWP_V4_ADDR_AND_MASK ipAddressV4;
+	FWP_V6_ADDR_AND_MASK ipAddressV6;
+	FWP_RANGE0 portRange;
+	UINT64 filterWeight;
+};
+
 
 UINT64 LibPocketFirewallAddRule(const char* xml)
 {
@@ -389,16 +408,9 @@ UINT64 LibPocketFirewallAddRule(const char* xml)
 	const char* xmlE = xml;
 
 	int conditionIndex = -1;
+	std::map<int, RuleData> rulesMap;
 
 	std::wstring ruleWName;
-
-	// Temporary vars for multiple value fields
-	FWP_V4_ADDR_AND_MASK ipAddressV4;
-	::ZeroMemory(&ipAddressV4, sizeof(FWP_V4_ADDR_AND_MASK));
-	FWP_V6_ADDR_AND_MASK ipAddressV6;
-	::ZeroMemory(&ipAddressV6, sizeof(FWP_V6_ADDR_AND_MASK));
-	FWP_RANGE0 portRange;
-	UINT64 filterWeight;
 
 	for (; *xmlE; xmlE++) {
 		yxml_ret_t r = yxml_parse(&x, *xmlE);
@@ -491,9 +503,11 @@ UINT64 LibPocketFirewallAddRule(const char* xml)
 					}
 					else
 					{
+						RuleData &ruleData = rulesMap[conditionIndex];
+
 						Filter.weight.type = FWP_UINT64;
-						filterWeight = atoi(attrValue.c_str());
-						Filter.weight.uint64 = &filterWeight; // TODO : not sure if safe to retain pointer here
+						ruleData.filterWeight = atoi(attrValue.c_str());
+						Filter.weight.uint64 = &ruleData.filterWeight; 
 					}
 				}
 				else
@@ -508,6 +522,7 @@ UINT64 LibPocketFirewallAddRule(const char* xml)
 				if (attrName == "field")
 				{
 					conditionIndex++;
+					rulesMap[conditionIndex] = RuleData();
 
 					// https://msdn.microsoft.com/en-us/library/windows/desktop/aa363996(v=vs.85).aspx
 
@@ -637,58 +652,96 @@ UINT64 LibPocketFirewallAddRule(const char* xml)
 						(Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4) ||
 						(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4))
 					{
-						UINT32 IpAddr;
-						inet_pton(AF_INET, attrValue.c_str(), &IpAddr);
-						ipAddressV4.addr = ntohl(IpAddr);
+						UINT32 IpAddr = 0;
+						if(!inet_pton(AF_INET, attrValue.c_str(), &IpAddr))
+						{
+							lastError = "inet_pton ipv4 address failed with '" + attrValue + "'";
+							lastErrorCode = 0;
+							return 0;
+						}
+						
+						RuleData &ruleData = rulesMap[conditionIndex];
+						ruleData.ipAddressV4.addr = ntohl(IpAddr);
 
 						Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
-						Condition[conditionIndex].conditionValue.v4AddrMask = &ipAddressV4;
+						Condition[conditionIndex].conditionValue.v4AddrMask = &ruleData.ipAddressV4;
 					}
 					else if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V6) ||
 						(Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6) ||
 						(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6))
 					{
-						// TOFIX, missing IPv6 implementation
+						in6_addr IpAddr6;
+						::ZeroMemory(&IpAddr6, sizeof(in6_addr));
+
+						if(!inet_pton(AF_INET6, attrValue.c_str(), &IpAddr6))
+						{
+							lastError = "inet_pton ipv6 address failed with '" + attrValue + "'";
+							lastErrorCode = 0;
+							return 0;
+						}
+
+						RuleData &ruleData = rulesMap[conditionIndex];
+						memcpy(&ruleData.ipAddressV6.addr, &IpAddr6.u.Byte, 16);
+
+						Condition[conditionIndex].conditionValue.type = FWP_V6_ADDR_MASK;
+						Condition[conditionIndex].conditionValue.v6AddrMask = &ruleData.ipAddressV6;
 					}
-
-
 				}
 				else if (attrName == "mask")
 				{
-					if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4))
+					if (attrValue != "")
 					{
-						UINT32 Mask;
-						inet_pton(AF_INET, attrValue.c_str(), &Mask);
-						ipAddressV4.mask = ntohl(Mask);
+						if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4) ||
+							(Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V4) ||
+							(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V4))
+						{
+							UINT32 Mask;
+							if(!inet_pton(AF_INET, attrValue.c_str(), &Mask))
+							{
+								lastError = "inet_pton ipv4 mask failed with '" + attrValue + "'";
+								lastErrorCode = 0;
+								return 0;
+							}
 
-						Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
-						Condition[conditionIndex].conditionValue.v4AddrMask = &ipAddressV4;
-					}
-					else if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V6) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6) ||
-						(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6))
-					{
-						// TOFIX, missing IPv6 implementation
-					}
+							RuleData &ruleData = rulesMap[conditionIndex];
+							ruleData.ipAddressV4.mask = ntohl(Mask);
 
+							Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
+							Condition[conditionIndex].conditionValue.v4AddrMask = &ruleData.ipAddressV4;
+						}
+						else if ((Filter.layerKey == FWPM_LAYER_ALE_AUTH_CONNECT_V6) ||
+							(Filter.layerKey == FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6) ||
+							(Filter.layerKey == FWPM_LAYER_ALE_FLOW_ESTABLISHED_V6))
+						{
+							UINT8 prefixLength = atoi(attrValue.c_str());
+						
+							RuleData &ruleData = rulesMap[conditionIndex];
+							ruleData.ipAddressV6.prefixLength = prefixLength;
+
+							Condition[conditionIndex].conditionValue.type = FWP_V6_ADDR_MASK;
+							Condition[conditionIndex].conditionValue.v6AddrMask = &ruleData.ipAddressV6;
+						}
+					}
 				}
 				else if (attrName == "port_from")
 				{
-					portRange.valueLow.type = FWP_UINT16;
-					portRange.valueLow.uint16 = atoi(attrValue.c_str());
+					RuleData &ruleData = rulesMap[conditionIndex];
+
+					ruleData.portRange.valueLow.type = FWP_UINT16;
+					ruleData.portRange.valueLow.uint16 = atoi(attrValue.c_str());
 
 					Condition[conditionIndex].conditionValue.type = FWP_RANGE_TYPE;
-					Condition[conditionIndex].conditionValue.rangeValue = &portRange;
+					Condition[conditionIndex].conditionValue.rangeValue = &ruleData.portRange;
 				}
 				else if (attrName == "port_to")
 				{
-					portRange.valueHigh.type = FWP_UINT16;
-					portRange.valueHigh.uint16 = atoi(attrValue.c_str());
+					RuleData &ruleData = rulesMap[conditionIndex];
+
+					ruleData.portRange.valueHigh.type = FWP_UINT16;
+					ruleData.portRange.valueHigh.uint16 = atoi(attrValue.c_str());
 
 					Condition[conditionIndex].conditionValue.type = FWP_RANGE_TYPE;
-					Condition[conditionIndex].conditionValue.rangeValue = &portRange;
+					Condition[conditionIndex].conditionValue.rangeValue = &ruleData.portRange;
 				}
 				else if (attrName == "protocol")
 				{

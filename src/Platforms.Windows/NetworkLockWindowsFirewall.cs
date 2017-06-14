@@ -351,9 +351,9 @@ namespace Eddie.Platforms
 			if (m_activated == false)
 				return;
 
-            List<IpAddressRange> ipsFirewalled = GetAllIps(true);
+			IpAddresses ipsFirewalled = GetAllIps(true);
 			string ipList = "";
-			foreach (IpAddressRange ip in ipsFirewalled)
+			foreach (IpAddress ip in ipsFirewalled.IPs)
 			{
 				if (ipList != "")
 					ipList += ",";

@@ -28,7 +28,7 @@ namespace Eddie.UI.Windows
 {
 	static class Program
 	{
-        /// <summary>
+		/// <summary>
         /// The main entry point for the application.
         /// </summary>
         /// 
@@ -44,7 +44,7 @@ namespace Eddie.UI.Windows
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 Platform.Instance = new Eddie.Platforms.Windows();
-
+				
 				CommandLine.InitSystem(Environment.CommandLine);
                 
                 if (CommandLine.SystemEnvironment.Exists("cli"))

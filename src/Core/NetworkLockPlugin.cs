@@ -102,45 +102,22 @@ namespace Eddie.Core
 		{
 		}
 
-		public void AddToIpsList(List<IpAddressRange> result, IpAddressRange ip, bool warning)
+		public IpAddresses GetAllIps(bool includeIpUsedByClient)
 		{
-			if (ip.Valid == false)
-			{
-				if(warning == true)
-					Engine.Instance.Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.NetworkLockAllowedIpInvalid, ip.ToString()));
-				return;
-			}
-
-			if (result.Contains(ip))
-			{
-				if (warning == true)
-					Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.NetworkLockAllowedIpDuplicated, ip.ToString()));
-				return;
-			}
-
-			result.Add(ip);
-		}
-
-		public List<IpAddressRange> GetAllIps(bool includeIpUsedByClient)
-		{
-			List<IpAddressRange> result = new List<IpAddressRange>();
+			IpAddresses result = new IpAddresses();
 
 			// Custom
 			{
 				string list = Engine.Instance.Storage.Get("netlock.allowed_ips");
-				List<string> ips = Utils.CommaStringToListString(list);
-				foreach (string ip in ips)
+				List<string> hosts = Utils.CommaStringToListString(list);
+				foreach (string host in hosts)
 				{
-					string ip2 = ip.Trim();
-
-					int posComment = ip2.IndexOf("#");
+					string host2 = host;
+					int posComment = host2.IndexOf("#");
 					if (posComment != -1)
-						ip2 = ip2.Substring(0, posComment).Trim();
+						host2 = host2.Substring(0, posComment).Trim();
 
-					if (ip2 == "")
-						continue;
-
-					AddToIpsList(result, new IpAddressRange(ip2), true);
+					result.Add(host2);
 				}
 			}
 
@@ -154,12 +131,12 @@ namespace Eddie.Core
 					if (routeEntries.Length < 2)
 						continue;
 
-					string ip = routeEntries[0];
+					string host = routeEntries[0];
 					string action = routeEntries[1];
 
 					if (action == "out")
 					{
-						AddToIpsList(result, new IpAddressRange(ip), true);
+						result.Add(host);
 					}
 				}
 			}
@@ -169,9 +146,7 @@ namespace Eddie.Core
 				// Providers
 				foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
 				{
-					List<IpAddressRange> list = provider.GetNetworkLockAllowedIps();
-					foreach (IpAddressRange ip in list)
-						AddToIpsList(result, ip, false);
+					result.Add(provider.GetNetworkLockAllowedIps());					
 				}
 
 				// Servers
@@ -181,9 +156,8 @@ namespace Eddie.Core
 
 					foreach (ServerInfo infoServer in servers.Values)
 					{
-						AddToIpsList(result, infoServer.IpEntry, false);
-						if (infoServer.IpEntry2.Trim() != "")
-							AddToIpsList(result, infoServer.IpEntry2, false);
+						result.Add(infoServer.IpEntry);
+						result.Add(infoServer.IpEntry2);						
 					}
 				}
 			}

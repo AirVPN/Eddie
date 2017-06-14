@@ -149,8 +149,8 @@ namespace Eddie.Core
         public static string NetworkLockStatusDeactive = "Network Lock disabled"; // OS X only
 
         public static string NetworkLockNoMode = "There is no available or enabled Network Lock mode, sorry.";
-		public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated"; 
-		public static string NetworkLockAllowedIpInvalid = "Allowed IP '{1}' in custom lock invalid"; 
+		//public static string NetworkLockAllowedIpDuplicated = "Allowed IP '{1}' in custom lock duplicated"; 
+		//public static string NetworkLockAllowedIpInvalid = "Allowed IP '{1}' in custom lock invalid"; 
 		public static string NetworkLockRecoveryWhenActive = "Unexpected: Recovery Load with Network Lock active";
 		public static string NetworkLockRecoveryUnknownMode = "Unknown mode in Network Lock Recovery"; 
 				

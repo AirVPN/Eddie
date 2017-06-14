@@ -21,15 +21,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-// Titolo
-// Descrizione
-// Logo?
-// Modalità Manifest (url, pkcssalpippo)
-// Url/Hosts di default
-// Elenco protocollo+porta+ip+cipher
-// Supporto al Check Tunnel
-// Supporto al Check DNS
-
 namespace Eddie.Core
 {
     public class Provider
@@ -52,9 +43,9 @@ namespace Eddie.Core
             return true;
         }
 
-		public virtual List<IpAddressRange> GetNetworkLockAllowedIps()
+		public virtual IpAddresses GetNetworkLockAllowedIps()
 		{
-			List<IpAddressRange> list = new List<IpAddressRange>();
+			IpAddresses list = new IpAddresses();
 
 			return list;
 		}

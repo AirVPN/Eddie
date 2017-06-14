@@ -145,46 +145,7 @@ namespace Eddie.Core.Threads
 						Engine.Logs.Log(LogType.Fatal, "No server available.");
 						RequestStop();
 					}
-
-					/*
-					string protocol = Engine.Storage.Get("mode.protocol").ToUpperInvariant();
-					int port = Engine.Storage.GetInt("mode.port");
-					int alt = Engine.Storage.GetInt("mode.alt");
-
-					if (Engine.CurrentServer != null)
-					{
-						if (protocol == "AUTO")
-						{
-							protocol = Engine.CurrentServer.Provider.GetKeyValue("mode_protocol", "UDP");
-							string proxyMode = Engine.Storage.GetLower("proxy.mode");
-							if (proxyMode != "none")
-								protocol = "TCP";
-							port = Conversions.ToInt32(Engine.CurrentServer.Provider.GetKeyValue("mode_port", "443"));
-							alt = Conversions.ToInt32(Engine.CurrentServer.Provider.GetKeyValue("mode_alt", "0"));
-						}
-					}
-
-					if (protocol == "SSH")
-					{
-						connectionMode = "SSH";
-						m_proxyPort = Engine.Storage.GetInt("ssh.port");
-						if (m_proxyPort == 0)
-							m_proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-					}
-					else if (protocol == "SSL")
-					{
-						connectionMode = "SSL";
-						m_proxyPort = Engine.Storage.GetInt("ssl.port");
-						if (m_proxyPort == 0)
-							m_proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-					}
-					else
-					{
-						connectionMode = "OpenVPN";
-						m_proxyPort = 0;
-					}
-					*/
-
+					
 					// Checking auth user status.
 					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
 					if (allowed)
@@ -976,7 +937,7 @@ namespace Eddie.Core.Threads
 						if (log)
 						{
 							List<string> matches = Utils.RegExMatchSingle(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in (.*?)\\:\\d+\\:(.*?)\\(.*\\)");
-							if(matches.Count == 2)
+							if( (matches != null) && (matches.Count == 2) )
 							{
 								string context = matches[0].Trim();
 								string unrecognizedOption = matches[1].Trim();
@@ -1731,7 +1692,7 @@ namespace Eddie.Core.Threads
 				if (routeEntries.Length != 3)
 					continue;
 
-				IpAddressRange ipCustomRoute = new IpAddressRange(routeEntries[0]);
+				IpAddress ipCustomRoute = new IpAddress(routeEntries[0]);
 
 				if (ipCustomRoute.Valid == false)
 					Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));

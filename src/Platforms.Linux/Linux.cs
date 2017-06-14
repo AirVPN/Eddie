@@ -292,9 +292,9 @@ namespace Eddie.Platforms
 		{
 			string cmd = "route add";
 
-			cmd += " -net " + r.Address.Value;
-			cmd += " netmask " + r.Mask.Value;
-			cmd += " gw " + r.Gateway.Value;
+			cmd += " -net " + r.Address.Address;
+			cmd += " netmask " + r.Mask.Address;
+			cmd += " gw " + r.Gateway.Address;
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;
 			if( (r.Mss != "") && (r.Mss != "0") )
@@ -323,9 +323,9 @@ namespace Eddie.Platforms
 		{
 			string cmd = "route del";
 
-			cmd += " -net " + r.Address.Value;
-			cmd += " gw " + r.Gateway.Value;
-			cmd += " netmask " + r.Mask.Value;			
+			cmd += " -net " + r.Address.Address;
+			cmd += " gw " + r.Gateway.Address;
+			cmd += " netmask " + r.Mask.Address;			
 			/*
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;			

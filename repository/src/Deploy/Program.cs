@@ -1100,6 +1100,9 @@ namespace Deploy
 
 		static void SignPath(string platform, string format, string path)
 		{
+			if (Program.Arguments.Contains("official") == false)
+				return;
+
 			Log("Signing path: " + path);
 
 			string[] files = Directory.GetFiles(path);

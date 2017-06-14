@@ -568,6 +568,23 @@ namespace Eddie.Core
 			NotImplemented();
 		}
 
+		public virtual IpAddresses ResolveDNS(string host)
+		{
+			IpAddresses result = new IpAddresses();
+			try
+			{
+				IPHostEntry entry = Dns.GetHostEntry(host);
+				foreach (IPAddress ip in entry.AddressList)
+					result.Add(ip.ToString());
+			}
+			catch(Exception)
+			{
+
+			}
+			
+			return result;
+		}
+
 		public virtual void ResolveWithoutAnswer(string host)
 		{
 			try

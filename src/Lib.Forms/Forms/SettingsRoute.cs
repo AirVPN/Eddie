@@ -74,7 +74,7 @@ namespace Eddie.Gui.Forms
         
 		private void EnableIde()
 		{
-			if (new IpAddressRange(txtHost.Text).Valid == false)
+			if (new IpAddress(txtHost.Text).Valid == false) // ClodoTemp
 			{
 				lblHostHelp.Text = Platform.Instance.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
 				cmdOk.Enabled = false;
