@@ -112,6 +112,9 @@ namespace Eddie.Core
 			if(LogEvent != null)
 				LogEvent(l);
 
+			// ClodoTemp
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(l);
+
 			Engine.Instance.OnLog(l);
 		}
 

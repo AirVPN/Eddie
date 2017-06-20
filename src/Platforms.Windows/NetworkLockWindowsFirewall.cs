@@ -208,7 +208,7 @@ namespace Eddie.Platforms
 			catch (Exception e)
 			{
 				if (e.Message.Contains("MpsSvc"))
-					throw new Exception(Messages.NetworkLockUnableToStartService);
+					throw new Exception(Messages.NetworkLockWindowsFirewallUnableToStartService);
 				else
 					throw e;
 			}
