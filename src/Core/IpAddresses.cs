@@ -88,6 +88,36 @@ namespace Eddie.Core
 			}
 		}
 
+		public int CountIPv4
+		{
+			get
+			{
+				int n = 0;
+				lock(IPs)
+				{
+					foreach (IpAddress ip in IPs)
+						if (ip.IsV4)
+							n++;
+				}
+				return n;
+			}
+		}
+
+		public int CountIPv6
+		{
+			get
+			{
+				int n = 0;
+				lock (IPs)
+				{
+					foreach (IpAddress ip in IPs)
+						if (ip.IsV6)
+							n++;
+				}
+				return n;
+			}
+		}
+
 		public void Clear()
 		{
 			lock (IPs)

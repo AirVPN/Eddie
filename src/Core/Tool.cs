@@ -111,6 +111,16 @@ namespace Eddie.Core
 			return Path;
 		}
 
+		public bool VersionUnder(string v)
+		{
+			return (Utils.CompareVersions(Version, v) == -1);
+		}
+
+		public bool VersionAboveOrEqual(string v)
+		{
+			return (Utils.CompareVersions(Version, v) >= 0);
+		}
+
 		public string ComputeHash()
 		{
 			if (Path == "")
@@ -158,9 +168,9 @@ namespace Eddie.Core
 
 
 
-			// Same path
+			// Common path
 			{
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/" + filename);
+				string path = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "/" + filename);
 				if (Platform.Instance.FileExists(path))
 				{
 					Path = path;
@@ -169,10 +179,10 @@ namespace Eddie.Core
 				}
 			}
 
-			// GIT source tree
+			// Development file structure
 			if (Engine.Instance.DevelopmentEnvironment)
 			{
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetGitDeployPath() + filename);
+				string path = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "/../deploy/" + Platform.Instance.GetSystemCode() + "/" + filename);
 				if (Platform.Instance.FileExists(path))
 				{
 					Path = path;

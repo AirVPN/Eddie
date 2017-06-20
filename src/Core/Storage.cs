@@ -446,7 +446,8 @@ namespace Eddie.Core
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
             SetDefaultBool("version", false, NotInMan);
             SetDefaultBool("version.short", false, NotInMan);
-            SetDefaultBool("help", false, Messages.ManOptionHelp);
+			SetDefaultBool("development", false, NotInMan); // If in development file structure
+			SetDefaultBool("help", false, Messages.ManOptionHelp);
 			SetDefault("help.format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
             SetDefaultBool("batch", false, NotInMan); // Don't lock interface, exit when connection is closed.            
             SetDefault("login", "text", "", Messages.ManOptionLogin);
@@ -578,7 +579,7 @@ namespace Eddie.Core
 			SetDefaultBool("windows.disable_driver_upgrade", false, Messages.ManOptionWindowsDisableDriverUpgrade);
             SetDefaultBool("windows.tap_up", true, Messages.ManOptionWindowsTapUp);
             SetDefaultBool("windows.dhcp_disable", false, Messages.ManOptionWindowsDhcpDisable);
-            SetDefaultBool("windows.wfp.enable", true, Messages.ManOptionWindowsWfp); // TOCLEAN
+            SetDefaultBool("windows.wfp.enable", true, Messages.ManOptionWindowsWfp);
             SetDefaultBool("windows.wfp.dynamic", false, Messages.ManOptionWindowsWfpDynamic);
             SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
             SetDefaultBool("windows.dns.force_all_interfaces", false, Messages.ManOptionWindowsDnsForceAllInterfaces); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.

@@ -60,8 +60,6 @@ namespace Eddie.Gui.Forms
 		private bool m_closing = false;
         private bool m_windowStateSetByShortcut = false;
 
-        // private System.Timers.Timer timerMonoDelayedRedraw = null; // TOCLEAN
-
         public Main()
         {
             Gui.Skin.SkinReference.Load(Engine.Instance.Storage.Get("gui.skin"));
@@ -435,31 +433,7 @@ namespace Eddie.Gui.Forms
             m_formReady = true;
 
             Engine.OnRefreshUi();
-
-            /* TOCLEAN
-			if (Platform.IsUnix())
-			{
-				// Mono Bug, issue on start drawing in some systems like Mint
-				timerMonoDelayedRedraw = new System.Timers.Timer();
-				timerMonoDelayedRedraw.Elapsed += new System.Timers.ElapsedEventHandler(OnMonoDelayedRedraw);
-				timerMonoDelayedRedraw.Interval = 1000;
-				timerMonoDelayedRedraw.Enabled = true;
-			}            
-            */
-
-
-
         }
-
-        /* // TOCLEAN
-        void OnMonoDelayedRedraw(object sender, System.Timers.ElapsedEventArgs e)
-		{
-			timerMonoDelayedRedraw.Enabled = false;
-
-            Resizing();
-            Refresh();
-		}
-        */
 
         protected override void OnVisibleChanged(EventArgs e)
         {
@@ -1757,7 +1731,7 @@ namespace Eddie.Gui.Forms
         {
             Application.UseWaitCursor = true;
 
-            string report = Engine.Instance.GetSupportReport(LogsGetBody(false));
+            string report = Engine.Instance.GetSupportReport();
 
             Clipboard.SetText(report);
 

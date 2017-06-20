@@ -47,27 +47,12 @@ namespace Eddie.Core
                 return m_lastRefreshDone;
             }
         }
-
-        public string GetProvidersPath() // TOCLEAN, only until 3.0
-        {
-            string path = "";
-            if (Engine.Instance.DevelopmentEnvironment)
-                path = Platform.Instance.GetProjectPath();
-            else
-                path = Platform.Instance.GetApplicationPath();
-            path += "//Providers//";
-
-            if (Directory.Exists(path) == false)
-                return "";
-            else
-                return path;
-        }
-
+		
         public void Init()
 		{
-            string path = GetProvidersPath();
+			string path = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "/providers");
 
-            if (Directory.Exists(path) == false) // TOCLEAN, Compatibility <3.0
+            if (Platform.Instance.DirectoryExists(path) == false) // TOCLEAN, Compatibility <3.0
             {
                 LoadDefinition(ResourcesFiles.GetString("AirVPN.xml"));
                 LoadDefinition(ResourcesFiles.GetString("OpenVPN.xml"));

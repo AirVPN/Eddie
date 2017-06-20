@@ -58,6 +58,7 @@ namespace Deploy
 	{
 		private static string PathBase = "";
 		private static string PathBaseTemp = "";
+		private static string PathBaseCommon = "";
 		private static string PathBaseDeploy = "";
 		private static string PathBaseRelease = "";
 		private static string PathBaseRepository = "";
@@ -113,6 +114,7 @@ namespace Deploy
 			Log("Path base: " + PathBase);
 
 			PathBaseTemp = new DirectoryInfo(PathBase + "/tmp").FullName;
+			PathBaseCommon = new DirectoryInfo(PathBase + "/common").FullName;
 			PathBaseDeploy = new DirectoryInfo(PathBase + "/deploy").FullName;
 			PathBaseRelease = new DirectoryInfo(PathBase + "/src/bin").FullName;
 			PathBaseRepository = new DirectoryInfo(PathBase + "/repository/files").FullName;
@@ -254,6 +256,7 @@ namespace Deploy
 				//string fileName = "airvpn_" + platform + "_" + arch + "_" + format;
 				string archiveName = "eddie-" + ui + "_" + versionString3 + "_" + platform + "_" + arch + "_" + format;
 				string fileName = archiveName;
+				string pathCommon = PathBaseCommon;
 				string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
 				string pathTemp = PathBaseTemp + "/" + archiveName;
 				string pathRelease = PathBaseRelease + "/" + archCompile + "/Release/";
@@ -289,6 +292,9 @@ namespace Deploy
 				CreateDirectory(pathTemp);
 
 				CreateDirectory (PathBaseRepository, false);
+
+				// Warning: subdir 'providers' and 'webui' are skipped only because CopyAll don't copy directory yet.
+				CopyAll(pathCommon, pathTemp);
 
 				CopyAll(pathDeploy, pathTemp);
 
@@ -1243,7 +1249,7 @@ namespace Deploy
 		static void CopyAll(string from, string to)
 		{
 			string[] files = Directory.GetFiles(from);
-
+			
 			foreach (string file in files)
 			{
 				FileInfo fi = new FileInfo(file);

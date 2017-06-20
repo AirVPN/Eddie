@@ -32,7 +32,26 @@ namespace Eddie.UI.Windows
         /// The main entry point for the application.
         /// </summary>
         /// 
-        [STAThread]
+
+		public static IpAddresses ResolveDNSLinux(string host)
+		{
+			IpAddresses result = new IpAddresses();
+			string hostout = System.IO.File.ReadAllText("r:\\l.txt");
+			// Note: CNAME record are automatically followed.
+			foreach(string line in hostout.Split('\n'))
+			{
+				string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
+				if (ipv4 != "")
+					result.Add(ipv4.Trim());
+
+				string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
+				if (ipv6 != "")
+					result.Add(ipv6.Trim());
+			}
+			return result;
+		}
+
+		[STAThread]
 		static void Main()
         {
             try
@@ -40,8 +59,10 @@ namespace Eddie.UI.Windows
 				if (Environment.OSVersion.Version.Major >= 6)
                     SetProcessDPIAware();
 
-                //Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
+				IpAddresses test = ResolveDNSLinux("JHJF");
+
+				//Application.EnableVisualStyles();
+				Application.SetCompatibleTextRenderingDefault(false);
 
                 Platform.Instance = new Eddie.Platforms.Windows();
 				

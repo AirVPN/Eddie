@@ -36,13 +36,8 @@ namespace Eddie.Core
 
         public static string GetPath()
         {
-            string pathRoot = "";
-            if (Engine.Instance.DevelopmentEnvironment)
-                pathRoot = Platform.Instance.GetProjectPath();
-            else
-                pathRoot = Platform.Instance.GetApplicationPath();
-            pathRoot += "//webui//";
-            if (System.IO.Directory.Exists(pathRoot))
+			string pathRoot = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "//webui//");			
+            if(Platform.Instance.DirectoryExists(pathRoot))
                 return pathRoot;
             else
                 return "";

@@ -89,7 +89,7 @@ namespace Eddie.Core
                 }
             }
 
-            LogEntry l = new LogEntry();
+			LogEntry l = new LogEntry();
 			l.Type = Type;
 			l.Message = Message;
 			l.BalloonTime = BalloonTime;
@@ -102,17 +102,15 @@ namespace Eddie.Core
 				m_logDotCount = m_logDotCount % 10;
 			}
 
-			Entries.Add(l);
-			if( (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Entries.Count >= Engine.Instance.Storage.GetInt("gui.log_limit")) )
-				Entries.RemoveAt(0);
+			lock (Entries)
+			{
+				Entries.Add(l);
+				if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Entries.Count >= Engine.Instance.Storage.GetInt("gui.log_limit")))
+					Entries.RemoveAt(0);
+			}
 
 			if(LogEvent != null)
 				LogEvent(l);
-
-            XmlItem xml = new XmlItem("command");
-            xml.SetAttribute("action", "ui.log");
-            l.WriteXML(xml);
-            Engine.Instance.Command(xml);
 
 			Engine.Instance.OnLog(l);
 		}
@@ -138,6 +136,17 @@ namespace Eddie.Core
 		public string GetLogSuggestedFileName()
 		{
 			return "Eddie_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt";
+		}
+
+		public override string ToString()
+		{
+			string result = "";
+			lock(Entries)
+			{
+				foreach (LogEntry entry in Entries)
+					result += entry.GetStringLines() + "\n";
+			}
+			return result;
 		}
 
 		public List<string> ParseLogFilePath(string paths)

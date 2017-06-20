@@ -36,8 +36,10 @@ namespace Eddie.Core
 		public static string NotFound = "Not found";
         public static string Automatic = "Automatic";
         public static string Ready = "Ready";
-        public static string Unknown = "Unknown";        
-        public static string StatsNotConnected = "Not connected.";
+        public static string Unknown = "Unknown";
+		public static string Yes = "Yes";
+		public static string No = "No";
+		public static string StatsNotConnected = "Not connected.";
 		public static string DoubleClickToAction = "(double-click to {1})";
 		public static string ExitConfirm = "Do you really want to exit?";
 		public static string WarningLocalTimeInPast = "We have detected a local date/time set to the past.\nThis may cause issues with security verifications.\n\nContinue at your own risk.\n\nIf you're a time traveller, you have been warned.";

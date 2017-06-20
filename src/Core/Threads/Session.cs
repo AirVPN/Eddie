@@ -1091,10 +1091,16 @@ namespace Eddie.Core.Threads
 					{
 						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
 
+						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-1");
+
 						m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-2");
 						m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
+						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-3");
 						m_openVpnManagementSocket.SendTimeout = 5000;
 						m_openVpnManagementSocket.ReceiveTimeout = 5000;
+
+						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-4");
 					}
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
@@ -1608,15 +1614,13 @@ namespace Eddie.Core.Threads
 				ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"), "");
 
 			int rcvbuf = s.GetInt("openvpn.rcvbuf");
-			if ((rcvbuf == -2) && (Platform.IsWindows())) rcvbuf = (256 * 1024);
-			if ((rcvbuf == -2) && (Platform.Instance.GetCode() == "MacOS")) rcvbuf = (256 * 1024);
+			if (rcvbuf == -2) rcvbuf = Platform.Instance.GetRecommendedRcvBufDirective();
 			if (rcvbuf == -2) rcvbuf = -1;
 			if (rcvbuf != -1)
 				ovpn.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
 
 			int sndbuf = s.GetInt("openvpn.sndbuf");
-			if ((sndbuf == -2) && (Platform.IsWindows())) sndbuf = (256 * 1024);
-			if ((sndbuf == -2) && (Platform.Instance.GetCode() == "MacOS")) sndbuf = (256 * 1024);
+			if (sndbuf == -2) sndbuf = Platform.Instance.GetRecommendedSndBufDirective();
 			if (sndbuf == -2) sndbuf = -1;
 			if (sndbuf != -1)
 				ovpn.AppendDirective("sndbuf", sndbuf.ToString(), "");
@@ -1664,7 +1668,7 @@ namespace Eddie.Core.Threads
 				ovpn.AppendDirective("route-nopull", "", "For Routes Out");
 
 				// For Checking
-				if(CurrentServer.IpExit != "")
+				if(CurrentServer.IpExit != "") // ClodoIPv6
 					ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
 
 				// For DNS
@@ -1684,6 +1688,7 @@ namespace Eddie.Core.Threads
 				// 2.9, Can be removed when resolv-conf method it's not binded anymore in up/down ovpn directive // TOFIX
 				ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
 			}
+
 			string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)
@@ -1701,10 +1706,20 @@ namespace Eddie.Core.Threads
 					string action = routeEntries[1];
 					string notes = routeEntries[2];
 
+					string gateway = "";
+
 					if ((routesDefault == "out") && (action == "in"))
-						ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " vpn_gateway", Utils.StringSafe(notes));
+						gateway = "vpn_gateway";
 					if ((routesDefault == "in") && (action == "out"))
-						ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " net_gateway", Utils.StringSafe(notes));
+						gateway = "net_gateway";
+					
+					if(gateway != "")
+					{
+						if(ipCustomRoute.IsV4)
+							ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " " + gateway, Utils.StringSafe(notes));
+						else if(ipCustomRoute.IsV6)
+							ovpn.AppendDirective("route-ipv6", ipCustomRoute.ToOpenVPN() + " " + gateway, Utils.StringSafe(notes));
+					}
 				}
 			}
 
@@ -1712,10 +1727,13 @@ namespace Eddie.Core.Threads
 			{
 				if (proxyMode == "tor")
 				{
-					List<string> torNodeIps = TorControl.GetGuardIps();
-					foreach (string torNodeIp in torNodeIps)
+					IpAddresses torNodeIps = TorControl.GetGuardIps();
+					foreach (IpAddress torNodeIp in torNodeIps.IPs)
 					{
-						ovpn.AppendDirective("route", torNodeIp + " 255.255.255.255 net_gateway", "Tor Circuit");
+						if (torNodeIp.IsV4)
+							ovpn.AppendDirective("route", torNodeIp.ToOpenVPN() + " net_gateway", "Tor Circuit");
+						else if(torNodeIp.IsV6)
+							ovpn.AppendDirective("route-ipv6", torNodeIp.ToOpenVPN() + " net_gateway", "Tor Circuit");
 					}
 				}
 			}

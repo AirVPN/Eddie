@@ -47,6 +47,7 @@ namespace Eddie.Core
 			if (
 				(name == "remote") ||
 				(name == "route") ||
+				(name == "route-ipv6") ||
 				(name == "plugin") ||
 				(name == "x509-track") ||
 				(name == "http-proxy-option") ||
@@ -142,10 +143,19 @@ namespace Eddie.Core
 				Directives[name] = new List<Directive>();
 			}
 
-            Directive d = new Directive();
-            d.Text = body.Trim();
-            d.Comment = comment.Trim();
-            Directives[name].Add(d);			
+			// Exception: If start with -, remove.
+			if(name.StartsWith("-"))
+			{
+				if(Directives.ContainsKey(name.Substring(1)))
+					Directives.Remove(name.Substring(1));
+			}
+			else
+			{
+				Directive d = new Directive();
+				d.Text = body.Trim();
+				d.Comment = comment.Trim();
+				Directives[name].Add(d);
+			}
 		}
 
         public bool ExistsDirective(string name)
@@ -291,19 +301,23 @@ namespace Eddie.Core
             if (GetDirective("proto").Text.ToLowerInvariant().StartsWith("udp") == false)
                 RemoveDirective("explicit-exit-notify");
 
-            // OpenVPN allows 100 route directives max by default.
-            // Since Eddie can't know here how many routes are pulled from an OpenVPN server, it uses some tolerance. In any case manual setting is possible.
-            if (ExistsDirective("max-routes") == false) // Only if not manually specified
-            {
-                if (ExistsDirective("route"))
-                {
-                    List<Directive> routes = Directives["route"];
-                    if ((routes != null) && (routes.Count > 50))
-                    {
-                        AppendDirective("max-routes", (routes.Count + 100).ToString(), "Automatic");
-                    }
-                }
-            }
+			// OpenVPN < 2.4 allows 100 route directives max by default.
+			// Since Eddie can't know here how many routes are pulled from an OpenVPN server, it uses some tolerance. In any case manual setting is possible.
+
+			if (Software.GetTool("openvpn").VersionUnder("2.4")) // max-routes is deprecated in 2.4
+			{
+				if (ExistsDirective("max-routes") == false) // Only if not manually specified
+				{
+					if (ExistsDirective("route"))
+					{
+						List<Directive> routes = Directives["route"];
+						if ((routes != null) && (routes.Count > 50))
+						{
+							AppendDirective("max-routes", (routes.Count + 100).ToString(), "Automatic");
+						}
+					}
+				}
+			}
         }
 
 	}

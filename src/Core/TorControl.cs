@@ -165,9 +165,9 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public static List<string> GetGuardIps()
+		public static IpAddresses GetGuardIps()
 		{
-            List<string> ips = new List<string>();
+			IpAddresses ips = new IpAddresses();
 
             try
 			{

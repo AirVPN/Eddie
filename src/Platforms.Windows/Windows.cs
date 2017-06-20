@@ -268,6 +268,16 @@ namespace Eddie.Platforms
 			arguments = new string[] { "/c", command };
 		}
 
+		public override int GetRecommendedRcvBufDirective()
+		{
+			return 256 * 1024;
+		}
+
+		public override int GetRecommendedSndBufDirective()
+		{
+			return 256 * 1024;
+		}
+
 		public override void FlushDNS()
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
@@ -409,17 +419,15 @@ namespace Eddie.Platforms
 			
 			return entryList;
 		}
-		
-		public override string GenerateSystemReport()
+
+		public override void OnReport(Report report)
 		{
-			string t = base.GenerateSystemReport();
+			base.OnReport(report);
 
-			t += "\n\n-- Windows\n";
+			report.Add("ipconfig /all", SystemShell.ShellCmd("ipconfig /all"));
+			report.Add("route print", SystemShell.ShellCmd("route print"));
 
-			t += "\n-- ipconfig /all\n";
-			t += SystemShell.ShellCmd("ipconfig /all");
-			t += "\n-- route print\n";
-			t += SystemShell.ShellCmd("route print");
+			/* // Too much data, generally useless
 			t += "\n-- NetworkAdapterConfiguration\n";
 
 			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
@@ -427,11 +435,6 @@ namespace Eddie.Platforms
 
 			foreach (ManagementObject objMO in objMOC)
 			{	
-				/*
-				if (!((bool)objMO["IPEnabled"]))
-					continue;
-				*/
-
 				t += "\n";
 				t += "Network Adapter: " + Conversions.ToString(objMO.Properties["Caption"].Value) + "\n";
 				t += "DNS: " + Conversions.ToString(objMO.Properties["DNSServerSearchOrder"].Value) + "\n";
@@ -442,10 +445,9 @@ namespace Eddie.Platforms
 					t += "\t" + prop.Name + ": " + Conversions.ToString(prop.Value) + "\n";					
 				}				
 			}
-			
-			return NormalizeString(t);
+			*/
 		}
-
+		
 		public override bool OnCheckSingleInstance()
 		{
 			m_mutexSingleInstance = new Mutex(false, "Global\\" + "b57887e0-65d0-4d18-b57f-106de6e0f1b6");            
@@ -597,6 +599,7 @@ namespace Eddie.Platforms
 
 		public override bool OnDnsSwitchDo(string dns)
 		{
+			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-dns1");
 			string[] dnsArray = dns.Split(',');
 
 			if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))                
@@ -664,6 +667,8 @@ namespace Eddie.Platforms
 
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockActivatedWpf);
 			}
+
+			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-dns2");
 
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
 			
@@ -734,6 +739,8 @@ namespace Eddie.Platforms
 				Recovery.Save();
 			}
 
+			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-dns3");
+
 			base.OnDnsSwitchDo(dns);
 
 			return true;
@@ -757,6 +764,7 @@ namespace Eddie.Platforms
 
 		public override bool OnInterfaceDo(string id)
 		{
+			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-im1");
 			int interfaceMetricIPv4Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv4");
 			int interfaceMetricIPv6Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv6");
 			if( (interfaceMetricIPv4Value == -1) || (interfaceMetricIPv6Value == -1) )
@@ -822,7 +830,9 @@ namespace Eddie.Platforms
 
 				Recovery.Save();
 			}
-			
+
+			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-im2");
+
 			return base.OnInterfaceDo(id);
 		}
 

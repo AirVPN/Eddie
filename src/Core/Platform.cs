@@ -38,7 +38,8 @@ namespace Eddie.Core
 		protected string m_ApplicationPath = "";
 		protected string m_ExecutablePath = "";
 		protected string m_UserPath = "";
-		
+		protected string m_CommonPath = "";
+
 		public static bool IsUnix()
 		{
 			return (Environment.OSVersion.Platform.ToString() == "Unix");
@@ -105,6 +106,31 @@ namespace Eddie.Core
 			if (m_UserPath == "")
 				m_UserPath = GetUserPathEx();
 			return m_UserPath;
+		}
+
+		public string GetCommonPath()
+		{
+			if (m_CommonPath == "")
+			{
+				m_CommonPath = GetApplicationPath();
+
+				if (Engine.Instance.DevelopmentEnvironment)
+				{
+					DirectoryInfo di = new DirectoryInfo(GetApplicationPath());
+					
+					for(;di != null;)
+					{						
+						if(DirectoryExists(di.FullName + "/common"))
+						{
+							m_CommonPath = di.FullName + "/common";
+							break;
+						}
+						else
+							di = di.Parent;
+					}
+				}
+			}
+			return m_CommonPath;
 		}
 
 		// ----------------------------------------
@@ -521,6 +547,16 @@ namespace Eddie.Core
 				return -1;
 		}
 
+		public virtual int GetRecommendedSndBufDirective()
+		{
+			return -1;
+		}
+
+		public virtual int GetRecommendedRcvBufDirective()
+		{
+			return -1;
+		}
+
 		public virtual string GetSystemFont()
 		{
 			return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
@@ -587,14 +623,7 @@ namespace Eddie.Core
 
 		public virtual void ResolveWithoutAnswer(string host)
 		{
-			try
-			{
-				Dns.GetHostEntry(host);
-			}
-			catch(Exception)
-			{
-
-			}
+			ResolveDNS(host);
 		}
 
 		public virtual bool WaitTunReady()
@@ -639,99 +668,11 @@ namespace Eddie.Core
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
 		}
-
-		public virtual string GenerateEnvironmentReport()
+		
+		public virtual void OnReport(Report report)
 		{
-			string t = "";
-
-			t += "Eddie version: " + Constants.VersionDesc + "\n";
-			t += "Eddie OS build: " + Platform.Instance.GetSystemCode() + "\n";
-			t += "OS type: " + Platform.Instance.GetCode() + "\n";
-			t += "OS name: " + Platform.Instance.GetName() + "\n";
-			t += "OS description: " + Platform.Instance.VersionDescription() + "\n";
-			t += "Mono /.Net Framework: " + Platform.Instance.GetMonoVersion() + "\n";
-
-			t += "OpenVPN driver: " + Software.OpenVpnDriver + "\n";
-			t += "OpenVPN: " + Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")\n";
-			t += "SSH: " + Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")\n";
-			t += "SSL: " + Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")\n";
-			t += "curl: " + Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")\n";
-
-			t += "Profile path: " + Engine.Instance.Storage.GetProfilePath() + "\n";
-			t += "Data path: " + Storage.DataPath + "\n";
-			t += "Application path: " + Platform.Instance.GetApplicationPath() + "\n";
-			t += "Executable path: " + Platform.Instance.GetExecutablePath() + "\n";
-			t += "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull() + "\n";
-
-			return t;
 		}
-
-		public virtual string GenerateSystemReport()
-		{
-			string t = "";
-			t += "Operating System: " + Platform.Instance.VersionDescription() + "\n";
-
-			/*
-			if(Platform.Instance.GetSystemFont() != "")
-				t += "System font: " + Platform.Instance.GetSystemFont() + "\n";
-			if(Platform.Instance.GetSystemFontMonospace() != "")
-				t += "System monospace font: " + Platform.Instance.GetSystemFontMonospace() + "\n";
-			*/
-
-			try
-			{
-				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-				foreach (NetworkInterface adapter in interfaces)
-				{
-					t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
-					//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
-					//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
-					t += "\n";
-				}
-			}
-			catch (Exception)
-			{
-				t += "Unable to fetch network interfaces.\n";
-			}
-
-			/* // Removed in 2.13.1
-			t += "\nRouting:\n";
-			try
-			{
-				List<RouteEntry> routeEntries = RouteList();
-				foreach (RouteEntry routeEntry in routeEntries)
-				{
-					t += routeEntry.ToString() + "\n";
-				}
-			}
-			catch (Exception)
-			{
-				t += "Unable to fetch routes.\n";
-			}
-			*/
-
-			t += "\nDefault gateways:\n";
-			List<string> gatewaysList = new List<string>();
-			foreach (NetworkInterface f in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				if (f.OperationalStatus == OperationalStatus.Up)
-				{
-					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
-					{
-						string ip = d.Address.ToString();
-						if ((IpAddress.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
-						{
-							//gatewaysList.Add(ip);
-
-							t += ip + ", " + f.Description + "\n";
-						}
-					}
-				}
-			}
-
-			return NormalizeString(t);
-		}
-
+		
 		public virtual bool OnCheckSingleInstance()
 		{
 			return true;
@@ -892,7 +833,7 @@ namespace Eddie.Core
 		{
 			NotImplemented();
 		}
-
+		/* // TOCLEAN
 		public virtual string GetProjectPath()
 		{
 			DirectoryInfo di = new DirectoryInfo(GetApplicationPath());
@@ -910,9 +851,10 @@ namespace Eddie.Core
 			}
 		}
 
-		public virtual string GetGitDeployPath()
+		public virtual string GetGitDeployPath() // TOCLEAN?
 		{
 			return GetProjectPath() + "/deploy/" + Platform.Instance.GetSystemCode() + "/";
 		}
+		*/
 	}
 }

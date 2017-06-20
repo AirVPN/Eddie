@@ -34,7 +34,7 @@ namespace Eddie.Core
 	{
 		public static Engine Instance;
 
-		public bool DevelopmentEnvironment = false;
+		//TOCLEAN public bool DevelopmentEnvironment = false;
 
 		public bool ConsoleMode = false;
 
@@ -196,6 +196,14 @@ namespace Eddie.Core
 			}
 		}
 
+		public bool DevelopmentEnvironment
+		{
+			get
+			{
+				return CommandLine.SystemEnvironment.Exists("development");
+			}
+		}
+
 		public bool Initialization(bool cli)
 		{
 			Platform.Instance.OnInit(cli);
@@ -209,7 +217,7 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
 			}
 
-			DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/dev.txt"));
+			//TOCLEAN DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/dev.txt"));
 			m_logsManager = new LogsManager();
 
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
@@ -726,7 +734,7 @@ namespace Eddie.Core
 			}
 			else if (action == "ui.stats.systemreport")
 			{
-				OnShowText(Messages.StatsSystemReport, Platform.Instance.GenerateSystemReport());
+				OnShowText(Messages.StatsSystemReport, GetSupportReport());
 			}
 			else if (action == "ui.stats.pinger")
 			{
@@ -2049,21 +2057,10 @@ namespace Eddie.Core
 			return Platform.Instance.OnCheckEnvironment();
 		}
 
-		public string GetSupportReport(string logs)
+		public string GetSupportReport()
 		{
-			string report = "";
-
-			report += "AirVPN Support Report - Generated " + DateTime.UtcNow.ToShortDateString() + " " + DateTime.UtcNow.ToShortTimeString() + " " + "UTC\n";
-
-			report += "\n\n-- Environment --\n" + Platform.Instance.GenerateEnvironmentReport();
-
-			report += "\n\n-- Important options not at defaults --\n" + Storage.GetReportForSupport();
-
-			report += "\n\n-- Logs --\n" + logs;
-
-			report += "\n\n-- System --\n" + Platform.Instance.GenerateSystemReport();
-
-			return Platform.Instance.NormalizeString(report);
+			Report report = new Report();
+			return Platform.Instance.NormalizeString(report.ToString());			
 		}
 
 		public void LogOpenvpnConfig()

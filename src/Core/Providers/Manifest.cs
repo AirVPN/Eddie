@@ -161,9 +161,12 @@ namespace Eddie.Core.Providers
             if (xmlKey == null)
                 throw new Exception(MessagesFormatter.Format(Messages.KeyNotFound, key));
             ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
-            ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");            
-			ovpn.AppendDirective("key-direction","1", "");
-			ovpn.AppendDirective("<tls-auth>", nodeUser.Attributes["ta"].Value, "");
+            ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");
+			if (ovpn.ExistsDirective("<tls-crypt>") == false) // TOCLEAN, Hack
+			{
+				ovpn.AppendDirective("key-direction", "1", "");
+				ovpn.AppendDirective("<tls-auth>", nodeUser.Attributes["ta"].Value, "");
+			}
 		}
 
 		public override void OnBuildOvpnPost(ref string ovpn)

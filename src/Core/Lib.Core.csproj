@@ -46,7 +46,9 @@
     <Compile Include="AreaInfo.cs" />
     <Compile Include="AirExchange.cs" />
     <Compile Include="IpAddresses.cs" />
+    <Compile Include="ReportItem.cs" />
     <Compile Include="SystemShell.cs" />
+    <Compile Include="Report.cs" />
     <Compile Include="Tools\Curl.cs" />
     <Compile Include="Tools\SSL.cs" />
     <Compile Include="Tools\SSH.cs" />

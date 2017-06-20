@@ -214,6 +214,16 @@ namespace Eddie.Platforms
 			arguments = new string[] { "-c", "'" + command + "'" };
 		}
 
+		public override int GetRecommendedRcvBufDirective()
+		{
+			return base.GetRecommendedRcvBufDirective();
+		}
+
+		public override int GetRecommendedSndBufDirective()
+		{
+			return base.GetRecommendedSndBufDirective();
+		}
+
 		public override string GetSystemFont()
         {
 			if (m_fontSystem != "")
@@ -336,15 +346,26 @@ namespace Eddie.Platforms
 			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
         }
 
-        public override void ResolveWithoutAnswer(string host)
-        {
-            // Base method with Dns.GetHostEntry have cache issue, for example on Fedora.
-            if (Platform.Instance.FileExists("/usr/bin/host"))
-				SystemShell.ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
-            else
-                base.ResolveWithoutAnswer(host);
-        }
+		public override IpAddresses ResolveDNS(string host)
+		{
+			IpAddresses result = new IpAddresses();
 
+			// Note: CNAME record are automatically followed.
+			string hostout = SystemShell.ShellCmd("host -W 5 " + SystemShell.EscapeHost(host));
+			
+			foreach (string line in hostout.Split('\n'))
+			{
+				string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
+				if (ipv4 != "")
+					result.Add(ipv4.Trim());
+
+				string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
+				if (ipv6 != "")
+					result.Add(ipv6.Trim());
+			}
+			return result;
+		}
+		
         public override List<RouteEntry> RouteList()
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
@@ -384,25 +405,17 @@ namespace Eddie.Platforms
 			return entryList;
 		}
 
-		public override string GenerateSystemReport()
+		public override void OnReport(Report report)
 		{
-			string t = base.GenerateSystemReport();
+			base.OnReport(report);
 
-            t += "\n\n-- Linux\n";
-
-            t += "UID: " + m_uid + "\n";
-            t += "LogName: " + m_logname + "\n";
-
-            t += "\n-- ip addr show\n";
-            t += SystemShell.ShellCmd("ip addr show");
-			t += "\n-- ip link show\n";
-			t += SystemShell.ShellCmd("ip link show");
-			t += "\n-- ip route show\n";
-			t += SystemShell.ShellCmd("ip route show");
-
-			return t;
+			report.Add("UID", Conversions.ToString(m_uid));
+			report.Add("LogName", m_logname);
+			report.Add("ip addr show", SystemShell.ShellCmd("ip addr show"));
+			report.Add("ip link show", SystemShell.ShellCmd("ip link show"));
+			report.Add("ip route show", SystemShell.ShellCmd("ip route show"));
 		}
-
+		
 		public override Dictionary<int, string> GetProcessesList()
 		{
 			Dictionary<int, string> result = new Dictionary<int, string>();
