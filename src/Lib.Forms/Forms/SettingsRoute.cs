@@ -84,19 +84,7 @@ namespace Eddie.Gui.Forms
 			{
 				lblHostHelp.Text = ip.ToString() + "\n" + Messages.WindowsSettingsRouteEditIp;
 				cmdOk.Enabled = true;
-			}
-			/*
-			if (new IpAddress(txtHost.Text).Valid == false) // ClodoTemp
-			{
-				lblHostHelp.Text = Platform.Instance.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
-				cmdOk.Enabled = false;
-			}
-			else
-			{
-				lblHostHelp.Text = Messages.WindowsSettingsRouteEditIp;
-				cmdOk.Enabled = true;
-			}
-			*/
+			}			
 		}
 
         private void cmdOk_Click(object sender, EventArgs e)

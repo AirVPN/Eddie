@@ -45,17 +45,21 @@ namespace Eddie.Core
 
 		public void Add(string v)
 		{
-			if (v.Trim() != "")
+			string[] lines = v.Split('\n');
+			foreach(string line in lines)
 			{
-				IpAddress ip = new IpAddress(v);
-				if (ip.Valid)
+				if (line.Trim() != "")
 				{
-					Add(ip);
-				}
-				else
-				{
-					// Resolve
-					Add(Platform.Instance.ResolveDNS(v));
+					IpAddress ip = new IpAddress(line.Trim());
+					if (ip.Valid)
+					{
+						Add(ip);
+					}
+					else
+					{
+						// Resolve
+						Add(Platform.Instance.ResolveDNS(line.Trim()));
+					}
 				}
 			}
 		}
