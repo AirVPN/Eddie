@@ -621,6 +621,11 @@ namespace Eddie.Core
 			return result;
 		}
 
+		public virtual IpAddresses DetectDNS()
+		{
+			return new IpAddresses();
+		}
+
 		public virtual void ResolveWithoutAnswer(string host)
 		{
 			ResolveDNS(host);

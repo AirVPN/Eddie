@@ -316,6 +316,30 @@ namespace Eddie.Platforms
 			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
 		}
 
+		public override IpAddresses DetectDNS()
+		{
+			IpAddresses list = new IpAddresses();
+
+			NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+			foreach (NetworkInterface networkInterface in networkInterfaces)
+			{
+				if (networkInterface.OperationalStatus == OperationalStatus.Up)
+				{
+					IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+					IPAddressCollection dnsAddresses = ipProperties.DnsAddresses;
+
+					foreach (IPAddress dnsAddress in dnsAddresses)
+					{
+						if(dnsAddress.IsIPv6SiteLocal == false)
+							list.Add(dnsAddress.ToString());
+					}
+				}
+			}			
+
+			return list;
+		}
+
 		public override bool WaitTunReady()
 		{
 			int tickStart = Environment.TickCount;
@@ -599,7 +623,6 @@ namespace Eddie.Platforms
 
 		public override bool OnDnsSwitchDo(string dns)
 		{
-			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-dns1");
 			string[] dnsArray = dns.Split(',');
 
 			if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))                
@@ -667,8 +690,6 @@ namespace Eddie.Platforms
 
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockActivatedWpf);
 			}
-
-			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-dns2");
 
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
 			
@@ -739,8 +760,6 @@ namespace Eddie.Platforms
 				Recovery.Save();
 			}
 
-			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-dns3");
-
 			base.OnDnsSwitchDo(dns);
 
 			return true;
@@ -764,7 +783,6 @@ namespace Eddie.Platforms
 
 		public override bool OnInterfaceDo(string id)
 		{
-			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-im1");
 			int interfaceMetricIPv4Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv4");
 			int interfaceMetricIPv6Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv6");
 			if( (interfaceMetricIPv4Value == -1) || (interfaceMetricIPv6Value == -1) )
@@ -782,18 +800,36 @@ namespace Eddie.Platforms
 
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
-			{
+			{				
 				if (adapter.Id == id)
 				{
 					if (interfaceMetricIPv4Value != -1)
 					{
-						interfaceMetricIPv4Idx = adapter.GetIPProperties().GetIPv4Properties().Index;
-						interfaceMetricIPv4Name = adapter.Name;
+						try
+						{
+							interfaceMetricIPv4Idx = adapter.GetIPProperties().GetIPv4Properties().Index;
+							interfaceMetricIPv4Name = adapter.Name;
+						}						
+						catch
+						{
+							// Throw System.Net.NetworkInformation.NetworkInformationException: 
+							// 'The requested protocol has not been configured into the system, or no implementation for it exists'
+							// if IPv4 it's disabled in the adapter.
+						}
 					}
 					if (interfaceMetricIPv6Value != -1)
 					{
-						interfaceMetricIPv6Idx = adapter.GetIPProperties().GetIPv6Properties().Index;
-						interfaceMetricIPv6Name = adapter.Name;
+						try
+						{
+							interfaceMetricIPv6Idx = adapter.GetIPProperties().GetIPv6Properties().Index;
+							interfaceMetricIPv6Name = adapter.Name;
+						}
+						catch
+						{
+							// Throw System.Net.NetworkInformation.NetworkInformationException: 
+							// 'The requested protocol has not been configured into the system, or no implementation for it exists'
+							// if IPv6 it's disabled in the adapter.
+						}
 					}
 					break;
 				}					
@@ -807,7 +843,7 @@ namespace Eddie.Platforms
 			if (interfaceMetricIPv6Idx != -1)
 				interfaceMetricIPv6Current = GetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6");
 
-			if( (interfaceMetricIPv4Current != -1) && (interfaceMetricIPv4Current != interfaceMetricIPv4Value) )
+			if ( (interfaceMetricIPv4Current != -1) && (interfaceMetricIPv4Current != interfaceMetricIPv4Value) )
 			{
 				string fromStr = (interfaceMetricIPv4Current == 0) ? "Automatic" : interfaceMetricIPv4Current.ToString();
 				string toStr = (interfaceMetricIPv4Value == 0) ? "Automatic" : interfaceMetricIPv4Value.ToString();
@@ -830,8 +866,6 @@ namespace Eddie.Platforms
 
 				Recovery.Save();
 			}
-
-			Engine.Instance.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-im2");
 
 			return base.OnInterfaceDo(id);
 		}

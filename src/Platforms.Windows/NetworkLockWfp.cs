@@ -191,9 +191,6 @@ namespace Eddie.Platforms
 			IpAddresses ipsAllowed = GetAllIps(false); // Don't need full ip, because the client it's allowed as program.			
             string ipList = ipsAllowed.ToString();
             
-            // Note: IpV6 addresses ignored because .ToCIDR() above return "".
-            // When ToCIDR it's implemented, it still missing implementation in Platforms.Windows.Native.dll.
-
             if (ipList != m_lastestIpList)
             {
                 if(ExistsRule("netlock_allow_ips_v4"))

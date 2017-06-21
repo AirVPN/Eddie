@@ -1091,16 +1091,10 @@ namespace Eddie.Core.Threads
 					{
 						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
 
-						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-1");
-
 						m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-2");
 						m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
-						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-3");
 						m_openVpnManagementSocket.SendTimeout = 5000;
-						m_openVpnManagementSocket.ReceiveTimeout = 5000;
-
-						Engine.Logs.LogDebug("1005f666d61117a32dd7a2332b4772dc2304b1ec-4");
+						m_openVpnManagementSocket.ReceiveTimeout = 5000;						
 					}
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
@@ -1668,7 +1662,7 @@ namespace Eddie.Core.Threads
 				ovpn.AppendDirective("route-nopull", "", "For Routes Out");
 
 				// For Checking
-				if(CurrentServer.IpExit != "") // ClodoIPv6
+				if(CurrentServer.IpExit != "") // TOFIX IPv6
 					ovpn.AppendDirective("route", CurrentServer.IpExit + " 255.255.255.255 vpn_gateway", "For Checking Route");
 
 				// For DNS
@@ -1697,9 +1691,10 @@ namespace Eddie.Core.Threads
 				if (routeEntries.Length != 3)
 					continue;
 
-				IpAddress ipCustomRoute = new IpAddress(routeEntries[0]);
+				string ipCustomRoute = routeEntries[0];
+				IpAddresses ipsCustomRoute = new IpAddresses(ipCustomRoute);
 
-				if (ipCustomRoute.Valid == false)
+				if (ipsCustomRoute.Count == 0)
 					Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));
 				else
 				{
@@ -1713,12 +1708,19 @@ namespace Eddie.Core.Threads
 					if ((routesDefault == "in") && (action == "out"))
 						gateway = "net_gateway";
 					
+					
 					if(gateway != "")
 					{
-						if(ipCustomRoute.IsV4)
-							ovpn.AppendDirective("route", ipCustomRoute.ToOpenVPN() + " " + gateway, Utils.StringSafe(notes));
-						else if(ipCustomRoute.IsV6)
-							ovpn.AppendDirective("route-ipv6", ipCustomRoute.ToOpenVPN() + " " + gateway, Utils.StringSafe(notes));
+						foreach (IpAddress ip in ipsCustomRoute.IPs)
+						{
+							if (ip.IsV4)
+								ovpn.AppendDirective("route", ip.ToOpenVPN() + " " + gateway, Utils.StringSafe(notes));
+							// TOFIX IPv6
+							/*
+							else if(ipCustomRoute.IsV6)
+								ovpn.AppendDirective("route-ipv6", ipCustomRoute.ToOpenVPN() + " " + gateway + "_ipv6", Utils.StringSafe(notes));
+							*/
+						}
 					}
 				}
 			}
@@ -1732,8 +1734,11 @@ namespace Eddie.Core.Threads
 					{
 						if (torNodeIp.IsV4)
 							ovpn.AppendDirective("route", torNodeIp.ToOpenVPN() + " net_gateway", "Tor Circuit");
+						// TOFIX IPv6
+						/*
 						else if(torNodeIp.IsV6)
-							ovpn.AppendDirective("route-ipv6", torNodeIp.ToOpenVPN() + " net_gateway", "Tor Circuit");
+							ovpn.AppendDirective("route-ipv6", torNodeIp.ToOpenVPN() + " net_gateway_ipv6", "Tor Circuit");
+						*/
 					}
 				}
 			}

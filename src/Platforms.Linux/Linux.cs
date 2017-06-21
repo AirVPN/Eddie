@@ -605,7 +605,7 @@ namespace Eddie.Platforms
                 
                 Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameRestored);
 
-				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");                
+				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");
             }
 
 			base.OnDnsSwitchRestore();

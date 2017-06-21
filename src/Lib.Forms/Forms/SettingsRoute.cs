@@ -74,6 +74,18 @@ namespace Eddie.Gui.Forms
         
 		private void EnableIde()
 		{
+			IpAddresses ip = new IpAddresses(txtHost.Text);
+			if(ip.Count == 0)
+			{
+				lblHostHelp.Text = Platform.Instance.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
+				cmdOk.Enabled = false;
+			}
+			else
+			{
+				lblHostHelp.Text = ip.ToString() + "\n" + Messages.WindowsSettingsRouteEditIp;
+				cmdOk.Enabled = true;
+			}
+			/*
 			if (new IpAddress(txtHost.Text).Valid == false) // ClodoTemp
 			{
 				lblHostHelp.Text = Platform.Instance.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
@@ -84,6 +96,7 @@ namespace Eddie.Gui.Forms
 				lblHostHelp.Text = Messages.WindowsSettingsRouteEditIp;
 				cmdOk.Enabled = true;
 			}
+			*/
 		}
 
         private void cmdOk_Click(object sender, EventArgs e)
@@ -92,10 +105,10 @@ namespace Eddie.Gui.Forms
 			Action = Settings.RouteDescriptionToDirection(cboAction.Text);
 			Notes = txtNotes.Text;			
         }
-
-		private void txtHost_TextChanged(object sender, EventArgs e)
+		
+		private void txtHost_Leave(object sender, EventArgs e)
 		{
 			EnableIde();
 		}
-    }
+	}
 }

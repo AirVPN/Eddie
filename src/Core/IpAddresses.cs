@@ -48,13 +48,13 @@ namespace Eddie.Core
 			if (v.Trim() != "")
 			{
 				IpAddress ip = new IpAddress(v);
-				if (ip.Valid) // ClodoTemp
+				if (ip.Valid)
 				{
 					Add(ip);
 				}
 				else
 				{
-					// Try resolve
+					// Resolve
 					Add(Platform.Instance.ResolveDNS(v));
 				}
 			}
@@ -132,7 +132,7 @@ namespace Eddie.Core
 			foreach (IpAddress ip in IPs)
 			{
 				if (result != "")
-					result += ",";
+					result += ", ";
 				result += ip.ToCIDR();
 			}
 			return result;

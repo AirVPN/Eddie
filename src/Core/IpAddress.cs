@@ -168,19 +168,19 @@ namespace Eddie.Core
 				return m_ip.ToString();
 			else
 				return m_ip.ToString() + "/" + m_bitmask.ToString();
-
-			// TOFIX, unknown how to format. When implemented, read comment in NetworkLockWfp::OnUpdateIps
 		}
 
 		public string ToOpenVPN()
 		{
 			if (Valid == false)
 				return "";
-
+			
 			if (IsV4)
 				return m_ip.ToString() + " " + BitMask2netMaskV4(m_bitmask);
-            else
-                return ToCIDR(); // TOFIX, unknown how to format IPv6 route directive
+			else if (IsV6)
+				return ToCIDR();
+			else
+				return "";
 		}
 
 		public string Address

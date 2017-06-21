@@ -70,13 +70,13 @@ namespace Eddie.Platforms
 				Deactivation();
 			}
 
-			// Backup V4
+			// IPv4 - Backup
 			SystemShell.ShellCmd("iptables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\"");
 
-			// Backup V6
+			// IPv6 - Backup
 			SystemShell.ShellCmd("ip6tables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\"");
 
-			// Flush V4
+			// IPv4 - Flush
 			SystemShell.ShellCmd("iptables -P INPUT ACCEPT");
 			SystemShell.ShellCmd("iptables -P FORWARD ACCEPT");
 			SystemShell.ShellCmd("iptables -P OUTPUT ACCEPT");
@@ -85,7 +85,7 @@ namespace Eddie.Platforms
 			SystemShell.ShellCmd("iptables -F");
 			SystemShell.ShellCmd("iptables -X");
 
-			// Flush V6
+			// IPv6 - Flush
 			SystemShell.ShellCmd("ip6tables -P INPUT ACCEPT");
 			SystemShell.ShellCmd("ip6tables -P FORWARD ACCEPT");
 			SystemShell.ShellCmd("ip6tables -P OUTPUT ACCEPT");
@@ -94,13 +94,18 @@ namespace Eddie.Platforms
 			SystemShell.ShellCmd("ip6tables -F");
 			SystemShell.ShellCmd("ip6tables -X");
 
-			// Local V4
+			// IPv4 - Local
 			SystemShell.ShellCmd("iptables -A INPUT -i lo -j ACCEPT");
 			SystemShell.ShellCmd("iptables -A OUTPUT -o lo -j ACCEPT");
 
-			// Local V6
+			// IPv6 - Local
 			SystemShell.ShellCmd("ip6tables -A INPUT -i lo -j ACCEPT");
 			SystemShell.ShellCmd("ip6tables -A OUTPUT -o lo -j ACCEPT");
+
+			// IPv6 - Disable processing of any RH0 packet which could allow a ping-pong of packets
+			SystemShell.ShellCmd("ip6tables -A INPUT -m rt --rt-type 0 -j DROP");
+			SystemShell.ShellCmd("ip6tables -A OUTPUT -m rt --rt-type 0 -j DROP");
+			SystemShell.ShellCmd("ip6tables -A FORWARD -m rt --rt-type 0 -j DROP");
 
 			// Make sure you can communicate with any DHCP server
 			SystemShell.ShellCmd("iptables -A OUTPUT -d 255.255.255.255 -j ACCEPT");
@@ -108,7 +113,7 @@ namespace Eddie.Platforms
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
 			{
-				// Make sure that you can communicate within your own private networks
+				// IPv4 - Make sure that you can communicate within your own private networks
 				SystemShell.ShellCmd("iptables -A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
@@ -116,42 +121,61 @@ namespace Eddie.Platforms
 				SystemShell.ShellCmd("iptables -A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
 
-				// Multicast
+				// IPv4 - Multicast
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
 
-				// 239.255.255.250  Simple Service Discovery Protocol address
+				// IPv4 - 239.255.255.250  Simple Service Discovery Protocol address
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
 
-				// 239.255.255.253  Service Location Protocol version 2 address
+				// IPv4 - 239.255.255.253  Service Location Protocol version 2 address
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
-            }
+
+				// IPv6 - Allow Link-Local addresses
+				SystemShell.ShellCmd("ip6tables -A INPUT -s fe80::/10 -j ACCEPT");
+				SystemShell.ShellCmd("ip6tables -A OUTPUT -s fe80::/10 -j ACCEPT");
+
+				// IPv6 - Allow multicast
+				SystemShell.ShellCmd("ip6tables -A INPUT -d ff00::/8 -j ACCEPT");
+				SystemShell.ShellCmd("ip6tables -A OUTPUT -d ff00::/8 -j ACCEPT");
+			}
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 			{
-				// Allow incoming pings (can be disabled)
+				// IPv4
 				SystemShell.ShellCmd("iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
+
+				// IPv6
+				SystemShell.ShellCmd("ip6tables -A INPUT -p icmpv6 -j ACCEPT");
+				SystemShell.ShellCmd("ip6tables -A OUTPUT -p icmpv6 -j ACCEPT");
 			}
 
-			// Allow established sessions to receive traffic: 
+			// IPv4 - Allow established sessions to receive traffic
 			SystemShell.ShellCmd("iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
+			// IPv6 - Allow established sessions to receive traffic
+			SystemShell.ShellCmd("ip6tables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
 
-			// Allow TUN 
+			// IPv4 - Allow TUN
 			SystemShell.ShellCmd("iptables -A INPUT -i tun+ -j ACCEPT");
 			SystemShell.ShellCmd("iptables -A FORWARD -i tun+ -j ACCEPT");
 			SystemShell.ShellCmd("iptables -A OUTPUT -o tun+ -j ACCEPT");
 
-			// Block All V4
+			// IPv6 - Allow TUN 
+			SystemShell.ShellCmd("ip6tables -A INPUT -i tun+ -j ACCEPT");
+			SystemShell.ShellCmd("ip6tables -A FORWARD -i tun+ -j ACCEPT");
+			SystemShell.ShellCmd("ip6tables -A OUTPUT -o tun+ -j ACCEPT");
+
+			// IPv4 - Block All
 			SystemShell.ShellCmd("iptables -A OUTPUT -j DROP");
 			SystemShell.ShellCmd("iptables -A INPUT -j DROP");
 			SystemShell.ShellCmd("iptables -A FORWARD -j DROP");
 
-			// Block All V6
+			// IPv6 - Block All
 			SystemShell.ShellCmd("ip6tables -A OUTPUT -j DROP");
 			SystemShell.ShellCmd("ip6tables -A INPUT -j DROP");
 			SystemShell.ShellCmd("ip6tables -A FORWARD -j DROP");
@@ -164,7 +188,7 @@ namespace Eddie.Platforms
 		{
 			base.Deactivation();
 
-			// IPV4
+			// IPv4
 			string rulesBackupSessionV4 = GetBackupPath("4");
 
 			if (Platform.Instance.FileExists(rulesBackupSessionV4))
@@ -184,7 +208,7 @@ namespace Eddie.Platforms
                 Platform.Instance.FileDelete(rulesBackupSessionV4);
 			}
 
-			// IPV6
+			// IPv6
 			string rulesBackupSessionV6 = GetBackupPath("6");
 
 			if (Platform.Instance.FileExists(rulesBackupSessionV6))
@@ -219,7 +243,7 @@ namespace Eddie.Platforms
 			{
 				if(ipsFirewalled.Contains(ip) == false)
 				{
-					// Delete
+					// Remove
 					string cmd = "";
 					if(ip.IsV4)
 						cmd = "iptables -D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT";
@@ -239,7 +263,7 @@ namespace Eddie.Platforms
 					if(ip.IsV4)
 						cmd = "iptables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
 					else if(ip.IsV6)
-						cmd = "iptables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
+						cmd = "ip6tables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
 					SystemShell.ShellCmd(cmd);
 				}
 			}

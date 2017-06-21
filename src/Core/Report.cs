@@ -84,6 +84,16 @@ namespace Eddie.Core
 			IpAddresses dns = new IpAddresses("dnstest.eddie.website");
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Yes : Messages.No);
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);
+
+			IpAddresses list = new IpAddresses(); // ClodoTemp
+			list.Add("ipleak.net");
+			Add("ipleak.net n. records", list.Count.ToString());
+			list.Add("nl.airvpn.org");
+			Add("nl.airvpn.org n. records", list.Count.ToString());
+
+			// ClodoTemp
+			string json = Newtonsoft.Json.JsonConvert.SerializeObject(dns);
+			Add("json test", json);
 		}
 
 		public void Environment()
@@ -105,7 +115,9 @@ namespace Eddie.Core
 			Add("Data path", Storage.DataPath);
 			Add("Application path", Platform.Instance.GetApplicationPath());
 			Add("Executable path", Platform.Instance.GetExecutablePath());
-			Add("Command line arguments", "(" + Lib.Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Lib.Common.CommandLine.SystemEnvironment.GetFull());			
+			Add("Command line arguments", "(" + Lib.Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Lib.Common.CommandLine.SystemEnvironment.GetFull());
+
+			Add("DNS", Platform.Instance.DetectDNS().ToString());
 		}
 
 		public void NetworkInterfaces()

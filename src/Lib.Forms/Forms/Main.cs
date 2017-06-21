@@ -1737,14 +1737,7 @@ namespace Eddie.Gui.Forms
 
             Application.UseWaitCursor = false;
 
-            Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);
-
-			// ClodoTemp
-			IpAddresses list = new IpAddresses();
-			list.Add("ipleak.net");
-			Engine.Instance.Logs.LogDebug(list.Count.ToString());
-			list.Add("nl.airvpn.org");
-			Engine.Instance.Logs.LogDebug(list.Count.ToString());
+            Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);			
 		}
 
 		private void LogsDoCopy(bool selectedOnly)

@@ -37,6 +37,7 @@ namespace Eddie.Core
 
 		public static string EscapeHost(string value)
 		{
+			// Note: RFC 952 with _ exception.
 			return Utils.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_");
 		}
 

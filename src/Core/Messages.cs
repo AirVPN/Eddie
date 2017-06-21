@@ -221,7 +221,7 @@ namespace Eddie.Core
 		public static string WindowsSettingsEventTitle = "Preferences - Event";
 		public static string WindowsSettingsLoggingHelp = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation.\nRelative to data path. For multiple logs with different paths, separe it with a semicolon ;\n\nAdvanced example:\nlogs/single.log;logs/months/eddie_%d.log;logs/week/eddie_%w.log";
 		public static string WindowsSettingsRouteLockHelp = "IP in 'Outside Tunnel' are also unlocked when Network Lock feature is active."; 
-		public static string WindowsSettingsRouteEditIp = "Specify single IP address (ex. 1.2.3.4) or\nCIDR range (ex. 1.2.3.4/24) or\nsubnet range (ex. 1.2.3.4/255.255.255.128)";
+		public static string WindowsSettingsRouteEditIp = "Specify an hostname or a single IP address (ex. 1.2.3.4) or CIDR range (ex. 1.2.3.4/24) or subnet range (ex. 1.2.3.4/255.255.255.128)";
 		public static string WindowsSettingsRouteInvalid = "Invalid IP address or range.";
 		public static string WindowsSettingsRouteOutEmptyList = "WARNING: not specified routes go outside the tunnel, but you did not specify any route. Continue?";
 		public static string WindowsSettingsDnsCheck = "Check if the tunnel uses AirVPN DNS";
