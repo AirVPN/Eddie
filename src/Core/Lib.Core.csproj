@@ -147,10 +147,6 @@
     <Content Include="_Readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\Newtonsoft.Json\Source\Src\Newtonsoft.Json\Newtonsoft.Json.csproj">
-      <Project>{eeea67f9-9089-481d-a4dc-0966dec9fd7d}</Project>
-      <Name>Newtonsoft.Json</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
       <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
       <Name>Lib.Common</Name>

@@ -83,17 +83,7 @@ namespace Eddie.Core
 		{
 			IpAddresses dns = new IpAddresses("dnstest.eddie.website");
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Yes : Messages.No);
-			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);
-
-			IpAddresses list = new IpAddresses(); // ClodoTemp
-			list.Add("ipleak.net");
-			Add("ipleak.net n. records", list.Count.ToString());
-			list.Add("nl.airvpn.org");
-			Add("nl.airvpn.org n. records", list.Count.ToString());
-
-			// ClodoTemp
-			string json = Newtonsoft.Json.JsonConvert.SerializeObject(dns);
-			Add("json test", json);
+			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);			
 		}
 
 		public void Environment()
