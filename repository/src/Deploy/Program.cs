@@ -301,6 +301,7 @@ namespace Deploy
 				if (platform.StartsWith("windows"))
 				{
 					CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+					CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);					
 					CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
 
@@ -380,6 +381,7 @@ namespace Deploy
 					if (format == "mono")
 					{
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+						CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 
@@ -431,6 +433,7 @@ namespace Deploy
 						}
 
 						command += " \"" + pathRelease + "/Lib.Core.dll\"";
+						command += " \"" + pathRelease + "/Newtonsoft.Json.dll\"";
 						command += " \"" + pathRelease + "/Lib.Common.dll\"";
 						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
 
@@ -488,6 +491,7 @@ namespace Deploy
 					else if( (format == "debian") && (AvailableDpkg) )
 					{
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+						CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);						
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
@@ -529,6 +533,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
 
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Newtonsoft.Json.dll\"");						
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
@@ -554,7 +559,8 @@ namespace Deploy
 							libSubPath = "lib64";
 
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+						CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);						
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
@@ -585,6 +591,7 @@ namespace Deploy
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Newtonsoft.Json.dll\"");						
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
@@ -673,8 +680,9 @@ namespace Deploy
 								cmd += " \"" + pathRelease + "/CLI.MacOS.exe\"";
 								cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
 								cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
-								cmd += " \"" + pathRelease + "/Platforms.macOS.dll\"";
-                                cmd += " \"" + pathRelease + "/XamMac.dll\"";
+								cmd += " \"" + pathRelease + "/Newtonsoft.Json.dll\"";
+								cmd += " \"" + pathRelease + "/Platforms.macOS.dll\"";								
+								cmd += " \"" + pathRelease + "/XamMac.dll\"";
 								cmd += " -z";
 								cmd += " --static";
 								cmd += " --deps";
@@ -843,8 +851,9 @@ namespace Deploy
 							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 							CopyFile(pathRelease, "Platforms.macOS.dll", pathTemp);
-                            CopyFile(pathRelease, "XamMac.dll", pathTemp);
-                            CopyFile(pathRelease, "libxammac.dylib", pathTemp);
+							CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
+							CopyFile(pathRelease, "XamMac.dll", pathTemp);
+							CopyFile(pathRelease, "libxammac.dylib", pathTemp);
 							CopyFile(pathRelease, "CLI.MacOS.exe", pathTemp, "Eddie-CLI.exe");
 
 							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");

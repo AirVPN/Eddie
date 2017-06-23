@@ -104,5 +104,10 @@ namespace Eddie.Gui.Forms
         {
             Engine.Command("ui.show.libraries");
         }
-    }
+
+		private void cmdSystemReport_Click(object sender, EventArgs e)
+		{
+			Engine.OnShowText(Messages.StatsSystemReport, Engine.GetSupportReport());
+		}
+	}
 }

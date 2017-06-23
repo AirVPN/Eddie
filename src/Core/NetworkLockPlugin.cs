@@ -141,6 +141,10 @@ namespace Eddie.Core
 				}
 			}
 
+			// DNS
+			if (Engine.Instance.Storage.GetBool("netlock.allow_dns"))
+				result.Add(Platform.Instance.DetectDNS());
+
 			if (includeIpUsedByClient)
 			{
 				// Providers

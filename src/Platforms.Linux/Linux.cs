@@ -365,8 +365,27 @@ namespace Eddie.Platforms
 			}
 			return result;
 		}
-		
-        public override List<RouteEntry> RouteList()
+
+		public override IpAddresses DetectDNS()
+		{
+			IpAddresses list = new IpAddresses();
+			if (FileExists("/etc/resolv.conf"))
+			{
+				string o = FileContentsReadText("/etc/resolv.conf");
+				foreach (string line in o.Split('\n'))
+				{
+					if (line.Trim().StartsWith("#"))
+						continue;
+					if (line.Trim().StartsWith("nameserver"))
+					{
+						list.Add(line.Substring(11).Trim());
+					}
+				}
+			}
+			return list;
+		}
+
+		public override List<RouteEntry> RouteList()
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
 

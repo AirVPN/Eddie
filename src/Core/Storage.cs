@@ -147,16 +147,6 @@ namespace Eddie.Core
                 if (option.Man != "")
                 {
                     body += "[option_block][option_code]" + option.Code + "[/option_code]\n\t\t" + option.Man.Replace("\n", "\n\t");
-                    /*
-                    if (manDefault != "")
-                    {
-                        if (option.Value != option.Default)
-                            body += " - Current: '[i]" + option.Value + "[/i]'";
-                        body += " - Default: " + ((option.Default == "") ? "-Empty-" : "'[i]" + option.Default + "[/i]'");
-                        
-
-                    }
-                    */
                     if (option.Default != "")
                         body += " Default: [i]" + option.Default + "[/i]";
                     body += "[/option_block]\n";
@@ -502,13 +492,14 @@ namespace Eddie.Core
 			SetDefault("routes.custom", "text", "", Messages.ManOptionRoutesCustom);
 			SetDefaultBool("routes.remove_default", false, Messages.ManOptionRoutesRemoveDefault); // Will be probably deprecated, issues with DHCP renew.
 
-			SetDefault("dns.mode", "text", "auto", Messages.ManOptionDnsMode);            
+			SetDefault("dns.mode", "text", "auto", Messages.ManOptionDnsMode);
 			SetDefault("dns.servers", "text", "", Messages.ManOptionDnsServers);
 			SetDefaultBool("dns.check", true, Messages.ManOptionDnsCheck);
 
 			SetDefault("netlock.mode", "text", "auto", Messages.ManOptionNetLockMode);
 			SetDefaultBool("netlock.allow_private", true, Messages.ManOptionNetLockAllowPrivate);
-			SetDefaultBool("netlock.allow_ping", true, Messages.ManOptionNetLockAllowPing); 		
+			SetDefaultBool("netlock.allow_ping", true, Messages.ManOptionNetLockAllowPing);
+			SetDefaultBool("netlock.allow_dns", false, Messages.ManOptionNetLockAllowDNS);
 			SetDefault("netlock.allowed_ips", "text", "", Messages.ManOptionNetLockAllowedsIps); 
 
 			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIpV6);

@@ -32,7 +32,7 @@ namespace Eddie.UI.Windows
         /// The main entry point for the application.
         /// </summary>
         /// 
-		
+
 		[STAThread]
 		static void Main()
         {
@@ -47,7 +47,7 @@ namespace Eddie.UI.Windows
                 Platform.Instance = new Eddie.Platforms.Windows();
 
 				CommandLine.InitSystem(Environment.CommandLine);
-
+				
 				if (CommandLine.SystemEnvironment.Exists("cli"))
                 {
                     Core.Engine engine = new Core.Engine();

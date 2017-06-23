@@ -184,6 +184,8 @@ namespace Eddie.Gui.Forms
 			this.txtLogPath = new Eddie.Gui.Skin.TextBox();
 			this.lblLogPath = new Eddie.Gui.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Gui.Skin.CheckBox();
+			this.lblLockAllowDNS = new Eddie.Gui.Skin.Label();
+			this.chkLockAllowDNS = new Eddie.Gui.Skin.CheckBox();
 			tabAdvanced = new Eddie.Gui.Skin.TabPage();
 			tabDirectives = new Eddie.Gui.Skin.TabPage();
 			tabEventsw = new Eddie.Gui.Skin.TabPage();
@@ -1853,6 +1855,8 @@ namespace Eddie.Gui.Forms
 			// 
 			// tabNetworkLock
 			// 
+			this.tabNetworkLock.Controls.Add(this.lblLockAllowDNS);
+			this.tabNetworkLock.Controls.Add(this.chkLockAllowDNS);
 			this.tabNetworkLock.Controls.Add(this.lblLockAllowPing);
 			this.tabNetworkLock.Controls.Add(this.lblLockAllowPrivate);
 			this.tabNetworkLock.Controls.Add(this.lnkLockHelp);
@@ -1945,7 +1949,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblLockAllowedIPS.BackColor = System.Drawing.Color.Transparent;
 			this.lblLockAllowedIPS.ForeColor = System.Drawing.Color.Black;
-			this.lblLockAllowedIPS.Location = new System.Drawing.Point(20, 100);
+			this.lblLockAllowedIPS.Location = new System.Drawing.Point(20, 135);
 			this.lblLockAllowedIPS.Name = "lblLockAllowedIPS";
 			this.lblLockAllowedIPS.Size = new System.Drawing.Size(138, 20);
 			this.lblLockAllowedIPS.TabIndex = 76;
@@ -1959,11 +1963,11 @@ namespace Eddie.Gui.Forms
 			this.txtLockAllowedIPS.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtLockAllowedIPS.Location = new System.Drawing.Point(164, 100);
+			this.txtLockAllowedIPS.Location = new System.Drawing.Point(164, 136);
 			this.txtLockAllowedIPS.Multiline = true;
 			this.txtLockAllowedIPS.Name = "txtLockAllowedIPS";
 			this.txtLockAllowedIPS.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtLockAllowedIPS.Size = new System.Drawing.Size(259, 191);
+			this.txtLockAllowedIPS.Size = new System.Drawing.Size(259, 155);
 			this.txtLockAllowedIPS.TabIndex = 75;
 			// 
 			// lblLockMode
@@ -2088,6 +2092,28 @@ namespace Eddie.Gui.Forms
 			this.chkLoggingEnabled.TabIndex = 55;
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
+			// 
+			// lblLockAllowDNS
+			// 
+			this.lblLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockAllowDNS.ForeColor = System.Drawing.Color.Black;
+			this.lblLockAllowDNS.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblLockAllowDNS.Location = new System.Drawing.Point(14, 101);
+			this.lblLockAllowDNS.Name = "lblLockAllowDNS";
+			this.lblLockAllowDNS.Size = new System.Drawing.Size(144, 25);
+			this.lblLockAllowDNS.TabIndex = 86;
+			this.lblLockAllowDNS.Text = "Allow detected DNS:";
+			this.lblLockAllowDNS.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkLockAllowDNS
+			// 
+			this.chkLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
+			this.chkLockAllowDNS.ForeColor = System.Drawing.Color.Black;
+			this.chkLockAllowDNS.Location = new System.Drawing.Point(164, 101);
+			this.chkLockAllowDNS.Name = "chkLockAllowDNS";
+			this.chkLockAllowDNS.Size = new System.Drawing.Size(163, 25);
+			this.chkLockAllowDNS.TabIndex = 85;
+			this.chkLockAllowDNS.UseVisualStyleBackColor = false;
 			// 
 			// Settings
 			// 
@@ -2278,5 +2304,7 @@ namespace Eddie.Gui.Forms
         private Skin.Button cmdResetToDefault;
         private Skin.CheckBox chkUiIEC;
         private Skin.Button cmdLoggingOpen;
-    }
+		private Skin.Label lblLockAllowDNS;
+		private Skin.CheckBox chkLockAllowDNS;
+	}
 }

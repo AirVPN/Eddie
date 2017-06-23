@@ -378,7 +378,8 @@ namespace Eddie.Core
         public static string ManOptionNetLockMode = "Network Lock mode. Can be [i]None[/i], [i]Auto[/i] or a method name."; 
         public static string ManOptionNetLockAllowPrivate = "Allow private network in Network Lock mode."; 
         public static string ManOptionNetLockAllowPing = "Allow ping (ICMP) in Network Lock mode.";
-        public static string ManOptionNetLockAllowedsIps = "List (comma-separated) of IP or range allowed in Network Lock mode.";
+		public static string ManOptionNetLockAllowDNS = "Allow detected DNS servers in Network Lock mode.";
+		public static string ManOptionNetLockAllowedsIps = "List (comma-separated) of IP or range allowed in Network Lock mode.";
 
         public static string ManOptionIpV6 = "IPv6 mode. Can be [i]disabled[/i] to disable IPv6, or [i]none[/i]";
 

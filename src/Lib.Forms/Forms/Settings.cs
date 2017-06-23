@@ -441,6 +441,7 @@ namespace Eddie.Gui.Forms
 			}
 			chkLockAllowPrivate.Checked = s.GetBool("netlock.allow_private");
 			chkLockAllowPing.Checked = s.GetBool("netlock.allow_ping");
+			chkLockAllowDNS.Checked = s.GetBool("netlock.allow_dns");
 			txtLockAllowedIPS.Text = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
@@ -691,6 +692,7 @@ namespace Eddie.Gui.Forms
 			}
 			s.SetBool("netlock.allow_private", chkLockAllowPrivate.Checked);
 			s.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
+			s.SetBool("netlock.allow_dns", chkLockAllowDNS.Checked);
 			s.Set("netlock.allowed_ips", txtLockAllowedIPS.Text);
 
 			// Advanced - Logging
