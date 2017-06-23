@@ -1,6 +1,6 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
@@ -31,6 +31,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton CmdSources { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdSystemReport { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextFieldCell TxtVersion { get; set; }
 		
 		void ReleaseDesignerOutlets ()
@@ -38,6 +41,16 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdHomePage != null) {
 				CmdHomePage.Dispose ();
 				CmdHomePage = null;
+			}
+
+			if (CmdLibraries != null) {
+				CmdLibraries.Dispose ();
+				CmdLibraries = null;
+			}
+
+			if (CmdLicense != null) {
+				CmdLicense.Dispose ();
+				CmdLicense = null;
 			}
 
 			if (CmdOk != null) {
@@ -55,14 +68,9 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdSources = null;
 			}
 
-			if (CmdLicense != null) {
-				CmdLicense.Dispose ();
-				CmdLicense = null;
-			}
-
-			if (CmdLibraries != null) {
-				CmdLibraries.Dispose ();
-				CmdLibraries = null;
+			if (CmdSystemReport != null) {
+				CmdSystemReport.Dispose ();
+				CmdSystemReport = null;
 			}
 
 			if (TxtVersion != null) {

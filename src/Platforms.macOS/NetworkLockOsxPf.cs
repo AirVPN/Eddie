@@ -168,28 +168,35 @@ namespace Eddie.Platforms
                 // 239.255.255.253  Service Location Protocol version 2 address
                 pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.253/32\n";
                 pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
-                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";                
+                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";
+
+                // TOFIX: IPv6 missing
             }
 
             if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 			{
 				pf += "# Allow ICMP\n";
 				pf += "pass quick proto icmp\n"; // 2.9
+                pf += "pass in quick proto icmp6 all\n"; // 2.13.2
 			}
 
-			List<IpAddressRange> ips = GetAllIps(true);
+            IpAddresses ips = GetAllIps(true);
 			pf += "# AirVPN IP (Auth and VPN)\n";
-			foreach (IpAddressRange ip in ips)
+            foreach (IpAddress ip in ips.IPs)
 			{
-				//pf += "pass out quick inet from 192.168.0.0/16 to " + ip.ToString() + " flags S/SA keep state\n";
-				pf += "pass out quick inet from any to " + ip.ToCIDR() + " flags S/SA keep state\n";
+                if(ip.IsV4)
+                    pf += "pass out quick inet from any to " + ip.ToCIDR() + " flags S/SA keep state\n";
+                else if(ip.IsV6)
+                    pf += "pass out quick inet6 from any to " + ip.ToCIDR() + " flags S/SA keep state\n";
 			}
 			
 			if (Platform.Instance.FileContentsWriteText(m_filePfConf.Path, pf))
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "OS X - PF rules updated, reloading");
 
-				SystemShell.ShellCmd("pfctl -v -f \"" + SystemShell.EscapePath(m_filePfConf.Path) + "\""); 
+				string result = SystemShell.ShellCmd("pfctl -v -f \"" + SystemShell.EscapePath(m_filePfConf.Path) + "\"");
+                if (result.IndexOf("rules not loaded", StringComparison.InvariantCulture) != -1)
+                    throw new Exception(Messages.NetworkLockMacOSUnableToStart);
             }
 		}
 

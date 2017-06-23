@@ -1,6 +1,6 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
@@ -80,6 +80,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkGeneralStartLast { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ChkLockAllowDNS { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton ChkLockAllowPing { get; set; }
@@ -251,11 +254,6 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (CmdLoggingOpen != null) {
-				CmdLoggingOpen.Dispose ();
-				CmdLoggingOpen = null;
-			}
-
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
@@ -376,6 +374,11 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkLockAllowPing = null;
 			}
 
+			if (ChkLockAllowDNS != null) {
+				ChkLockAllowDNS.Dispose ();
+				ChkLockAllowDNS = null;
+			}
+
 			if (ChkLockAllowPrivate != null) {
 				ChkLockAllowPrivate.Dispose ();
 				ChkLockAllowPrivate = null;
@@ -474,6 +477,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdLockHelp != null) {
 				CmdLockHelp.Dispose ();
 				CmdLockHelp = null;
+			}
+
+			if (CmdLoggingOpen != null) {
+				CmdLoggingOpen.Dispose ();
+				CmdLoggingOpen = null;
 			}
 
 			if (CmdOpenVpnDirectivesHelp != null) {

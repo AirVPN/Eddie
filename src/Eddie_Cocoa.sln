@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.macOS", "Platform
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI.MacOS", "CLI.MacOS\CLI.MacOS.csproj", "{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newtonsoft.Json", "..\dependencies\Newtonsoft.Json\Source\Src\Newtonsoft.Json\Newtonsoft.Json.csproj", "{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -70,6 +72,16 @@ Global
 		{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}.Debug|x64.Build.0 = Debug|x86
 		{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}.Release|x64.ActiveCfg = Release|x86
 		{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}.Release|x64.Build.0 = Release|x86
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Debug|x86.Build.0 = Debug|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Release|x86.ActiveCfg = Release|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Release|x86.Build.0 = Release|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.AppStore|x86.ActiveCfg = Release|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.AppStore|x86.Build.0 = Release|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Debug|x64.Build.0 = Debug|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Release|x64.ActiveCfg = Release|Any CPU
+		{EEEA67F9-9089-481D-A4DC-0966DEC9FD7D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = UI.Cocoa.Osx\UI.Cocoa.Osx.csproj

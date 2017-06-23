@@ -95,6 +95,11 @@ namespace Eddie.UI.Cocoa.Osx
 				this.Close();
 				NSApplication.SharedApplication.StopModal();
 			};
+
+			CmdSystemReport.Activated += (object sender, EventArgs e) =>
+			{
+                Engine.Instance.OnShowText(Messages.StatsSystemReport, Engine.Instance.GetSupportReport());
+			};
 		}
 	}
 }

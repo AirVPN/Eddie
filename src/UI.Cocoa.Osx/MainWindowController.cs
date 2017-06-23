@@ -958,7 +958,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void SupportReport()
 		{
-			string report = Engine.Instance.GetSupportReport (TableLogsController.GetBody (false));
+			string report = Engine.Instance.GetSupportReport();
 
 			string [] pboardTypes = new string[] { "NSStringPboardType" };
 			NSPasteboard.GeneralPasteboard.DeclareTypes (pboardTypes, null);
