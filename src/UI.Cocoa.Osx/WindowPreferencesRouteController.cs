@@ -112,11 +112,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void EnableIde()
 		{
-			if (new IpAddressRange (TxtIP.StringValue).Valid == false) {
+            IpAddresses ip = new IpAddresses(TxtIP.StringValue);
+            if (ip.Count == 0) {
 				LblHelp.StringValue = Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp;
 				CmdOk.Enabled = false;
 			} else {
-				LblHelp.StringValue = Messages.WindowsSettingsRouteEditIp;
+                LblHelp.StringValue = ip.ToString() + "\n" + Messages.WindowsSettingsRouteEditIp;
 				CmdOk.Enabled = true;
 			}
 

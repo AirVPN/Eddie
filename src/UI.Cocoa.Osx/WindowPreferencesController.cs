@@ -707,7 +707,8 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			}
 			GuiUtils.SetCheck(ChkLockAllowPrivate, s.GetBool("netlock.allow_private"));
-			GuiUtils.SetCheck(ChkLockAllowPing, s.GetBool("netlock.allow_ping"));			
+			GuiUtils.SetCheck(ChkLockAllowPing, s.GetBool("netlock.allow_ping"));	
+            GuiUtils.SetCheck(ChkLockAllowDNS, s.GetBool("netlock.allow_dns"));
 			TxtLockAllowedIPS.StringValue = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
@@ -915,7 +916,8 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			}
 			s.SetBool ("netlock.allow_private", GuiUtils.GetCheck (ChkLockAllowPrivate));
-			s.SetBool ("netlock.allow_ping", GuiUtils.GetCheck (ChkLockAllowPing));			
+			s.SetBool ("netlock.allow_ping", GuiUtils.GetCheck (ChkLockAllowPing));
+            s.SetBool ("netlock.allow_dns", GuiUtils.GetCheck(ChkLockAllowDNS));
 			s.Set ("netlock.allowed_ips", TxtLockAllowedIPS.StringValue);
 
 			// Advanced - Logging

@@ -137,6 +137,16 @@ namespace Eddie.Platforms
 			return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
 		}
 
+		public override int GetRecommendedRcvBufDirective()
+		{
+			return 256 * 1024;
+		}
+
+		public override int GetRecommendedSndBufDirective()
+		{
+			return 256 * 1024;
+		}
+
 		public override void FlushDNS()
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
@@ -316,14 +326,43 @@ namespace Eddie.Platforms
 			base.RouteRemove (r);
 		}
 
-		public override void ResolveWithoutAnswer(string host)
+		public override IpAddresses ResolveDNS(string host)
 		{
 			// Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
-			if (Platform.Instance.FileExists("/usr/bin/host"))
-				SystemShell.ShellCmd("host -W 5 -t A " + SystemShell.EscapeHost(host));
-			else
-				base.ResolveWithoutAnswer(host);
+            // Also, base methos with Dns.GetHostEntry sometime don't fetch AAAA IPv6 addresses.
+
+			IpAddresses result = new IpAddresses();
+
+			// Note: CNAME record are automatically followed.
+			string hostout = SystemShell.ShellCmd("host -W 5 " + SystemShell.EscapeHost(host));
+
+			foreach (string line in hostout.Split('\n'))
+			{
+				string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
+				if (ipv4 != "")
+					result.Add(ipv4.Trim());
+
+				string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
+				if (ipv6 != "")
+					result.Add(ipv6.Trim());
+			}
+			return result;
 		}
+
+        public override IpAddresses DetectDNS()
+        {
+            IpAddresses list = new IpAddresses();
+            string[] interfaces = GetInterfaces();
+            foreach (string i in interfaces)
+            {
+                string i2 = i.Trim();
+
+                string current = SystemShell.ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
+
+                list.Add(current);
+            }
+            return list;
+        }
 
 		public override List<RouteEntry> RouteList()
 		{
@@ -370,19 +409,13 @@ namespace Eddie.Platforms
 			return entryList;
 		}
 
-		public override string GenerateSystemReport()
-		{
-			string t = base.GenerateSystemReport();
+        public override void OnReport(Report report)
+        {
+            base.OnReport(report);
 
-			t += "\n\n-- OS X\n";
-
-			t += "\n-- ifconfig\n";
-			t += SystemShell.ShellCmd("ifconfig");
-			t += "\n-- netstat /rnl\n";
-			t += SystemShell.ShellCmd("netstat /rnl");
-
-			return t;
-		}
+            report.Add("ifconfig", SystemShell.ShellCmd("ifconfig"));
+            report.Add("netstat /rnl", SystemShell.ShellCmd("netstat /rnl"));
+        }
 
 		public override Dictionary<int, string> GetProcessesList()
 		{
@@ -624,12 +657,6 @@ namespace Eddie.Platforms
 		{
 			// Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
 			return "OpenVpnManagement";
-		}
-
-		public override string GetGitDeployPath()
-		{
-			// Under OSX, binary is inside a bundle AirVPN.app/Contents/MacOS/
-			return GetApplicationPath() + "/../../../../../../../deploy/" + Platform.Instance.GetSystemCode () + "/";
 		}
 
 		public string[] GetInterfaces()
