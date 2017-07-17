@@ -993,7 +993,7 @@ namespace Eddie.Core.Threads
 					// Detect connection (OpenVPN >2.4)
 					if (Utils.RegExMatchOne(messageLower, "peer connection initiated with \\[af_inet6?\\]([0-9a-f\\.\\:]+?):(\\d+?)") != "")
 					{
-						//cazzo Engine.Instance.ConnectedProtocol = m_ovpnStartup.Protocol;
+						//ClodoTemp Engine.Instance.ConnectedProtocol = m_ovpnStartup.Protocol;
 						if (m_ovpnStartup.Protocol == "SSH")
 						{
 							Engine.Instance.ConnectedEntryIP = m_ovpnStartup.Address;
@@ -1022,13 +1022,13 @@ namespace Eddie.Core.Threads
 					{
 						if (m_ovpnStartup.Protocol == "SSH")
 						{
-							//cazzo Engine.Instance.ConnectedProtocol = "SSH";
+							//ClodoTemp Engine.Instance.ConnectedProtocol = "SSH";
 							Engine.Instance.ConnectedEntryIP = m_ovpnStartup.Address;
 							Engine.Instance.ConnectedPort = m_ovpnStartup.Port;
 						}
 						else if (m_ovpnStartup.Protocol == "SSL")
 						{
-							//cazzo Engine.Instance.ConnectedProtocol = "SSL";
+							//ClodoTemp Engine.Instance.ConnectedProtocol = "SSL";
 							Engine.Instance.ConnectedEntryIP = m_ovpnStartup.Address;
 							Engine.Instance.ConnectedPort = m_ovpnStartup.Port;
 						}
@@ -1041,7 +1041,7 @@ namespace Eddie.Core.Threads
 							string[] parts = t.Split(':');
 							if (parts.Length == 2)
 							{
-								//cazzo Engine.Instance.ConnectedProtocol = "TCP";
+								//ClodoTemp Engine.Instance.ConnectedProtocol = "TCP";
 								Engine.Instance.ConnectedEntryIP = parts[0];
 								Engine.Instance.ConnectedPort = Convert.ToInt32(parts[1]);
 							}
@@ -1057,7 +1057,7 @@ namespace Eddie.Core.Threads
 						string[] parts = t.Split(':');
 						if (parts.Length == 2)
 						{
-							//cazzo Engine.Instance.ConnectedProtocol = "UDP";
+							//ClodoTemp Engine.Instance.ConnectedProtocol = "UDP";
 							Engine.Instance.ConnectedEntryIP = parts[0];
 							Engine.Instance.ConnectedPort = Convert.ToInt32(parts[1]);
 						}
