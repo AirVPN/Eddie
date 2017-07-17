@@ -380,6 +380,10 @@ namespace Eddie.Core
 		{
 		}
 
+		public virtual void FileEnsurePermission(string path, string mode)
+		{
+		}
+
 		public virtual bool HasAccessToWrite(string path)
 		{
 			try

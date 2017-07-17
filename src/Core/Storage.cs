@@ -736,9 +736,7 @@ namespace Eddie.Core
                 xmlDoc.Save(path);
             }
 
-			if (Platform.Instance.IsUnixSystem())
-				SystemShell.ShellCmd("chmod 600 \"" + SystemShell.EscapePath(path) + "\"");
-
+			Platform.Instance.FileEnsurePermission(path, "600");
         }
 
         public void Load()

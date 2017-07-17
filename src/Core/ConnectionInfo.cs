@@ -429,6 +429,8 @@ namespace Eddie.Core
 							fileNameAuthOvpn = ovpn.FileProxyAuth.Path.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
 							string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
 							Platform.Instance.FileContentsWriteText(ovpn.FileProxyAuth.Path, fileNameData);
+							Platform.Instance.FileEnsurePermission(ovpn.FileProxyAuth.Path, "600");
+
 						}						
 						proxyDirectiveArgs += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
 					}

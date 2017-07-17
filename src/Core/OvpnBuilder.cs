@@ -34,9 +34,9 @@ namespace Eddie.Core
 		}
 
 		public Dictionary<string, List<Directive>> Directives = new Dictionary<string, List<Directive>>();
-
-		public TemporaryFile FileProxyAuth;
+				
 		public TemporaryFile FilePasswordAuth;
+		public TemporaryFile FileProxyAuth;
 
 		// Special values. This values can vary based on ovpn connection, but in some circumstances (SSH, SSL) need to be fixed before the connection.
 		private string m_protocol = "";
@@ -390,12 +390,13 @@ namespace Eddie.Core
 			string fileNameData = username + "\n" + password + "\n";
 
 			Platform.Instance.FileContentsWriteText(FilePasswordAuth.Path, fileNameData);
+			Platform.Instance.FileEnsurePermission(FilePasswordAuth.Path, "600");
 
 			AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");
 		}
-
-        // Apply some fixes
-        public void Normalize()
+				
+		// Apply some fixes
+		public void Normalize()
         {
             // TOOPTIMIZE: Currently Eddie don't work well with verb>3
             AppendDirective("verb", "3", "");
@@ -429,16 +430,16 @@ namespace Eddie.Core
 
 		public void Close()
 		{
-			if(FileProxyAuth != null)
-			{
-				FileProxyAuth.Close();
-				FileProxyAuth = null;
-			}
-
 			if(FilePasswordAuth != null)
 			{
 				FilePasswordAuth.Close();
 				FilePasswordAuth = null;
+			}
+
+			if (FileProxyAuth != null)
+			{
+				FileProxyAuth.Close();
+				FileProxyAuth = null;
 			}
 		}
 	}

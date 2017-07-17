@@ -162,12 +162,18 @@ namespace Eddie.Platforms
             }
         }
 
-		public override void FileEnsureExecutablePermission(string path)
+		public override void FileEnsurePermission(string path, string mode)
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
+			
+			// 'mode' not escaped, called hard-coded.
+			SystemShell.ShellCmd("chmod " + mode + " \"" + SystemShell.EscapePath(path) + "\"");
+		}
 
-			SystemShell.ShellCmd("chmod +x \"" + SystemShell.EscapePath(path) + "\"");
+		public override void FileEnsureExecutablePermission(string path)
+		{
+			FileEnsurePermission(path, "+x");
 		}
 
 		public override string GetExecutableReport(string path)
@@ -602,7 +608,7 @@ namespace Eddie.Platforms
 					text += "nameserver " + dnsSingle.Address + "\n";
 
                 FileContentsWriteText("/etc/resolv.conf", text);
-				SystemShell.ShellCmd("chmod 644 /etc/resolv.conf");
+				Platform.Instance.FileEnsurePermission("/etc/resolv.conf", "644");
             }
 
 			base.OnDnsSwitchDo(dns);
