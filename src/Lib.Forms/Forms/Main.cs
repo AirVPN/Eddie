@@ -1680,7 +1680,7 @@ namespace Eddie.Gui.Forms
 			}
 			else
 			{
-				Forms.Login Dlg = new Forms.Login();
+				Forms.WindowCredentials Dlg = new Forms.WindowCredentials();
 				if (Dlg.ShowDialog(this) == DialogResult.OK) // ClodoTemp if parent of MainForm, throw cross-thread-ui exception
 					return Dlg.Credentials;
 				else

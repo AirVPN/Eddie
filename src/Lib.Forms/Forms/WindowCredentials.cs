@@ -28,11 +28,11 @@ using Eddie.Core;
 
 namespace Eddie.Gui.Forms
 {
-    public partial class Login : Eddie.Gui.Form
+    public partial class WindowCredentials : Eddie.Gui.Form
     {
 		public Credentials Credentials;
 		
-        public Login()
+        public WindowCredentials()
         {
             OnPreInitializeComponent();
             InitializeComponent();
@@ -59,17 +59,22 @@ namespace Eddie.Gui.Forms
 
             CommonInit(Messages.WindowsLoginTitle);
 
-			cboRemember.Items.Add(Messages.WindowsLoginRememberNo);
-			cboRemember.Items.Add(Messages.WindowsLoginRememberRun);
-			cboRemember.Items.Add(Messages.WindowsLoginRememberPermanent);
-			cboRemember.Text = Messages.WindowsLoginRememberRun;
+			cboRemember.Items.Add(Messages.WindowsCredentialsRememberNo);
+			cboRemember.Items.Add(Messages.WindowsCredentialsRememberRun);
+			cboRemember.Items.Add(Messages.WindowsCredentialsRememberPermanent);
+			cboRemember.Text = Messages.WindowsCredentialsRememberRun;
 
 			EnableIde();
 		}
 
 		private void EnableIde()
 		{
-
+			bool acceptable = true;
+			if (txtUsername.Text.Trim() == "")
+				acceptable = false;
+			if (txtPassword.Text.Trim() == "")
+				acceptable = false;
+			cmdOk.Enabled = acceptable;
 		}
 		
 		private void cmdOk_Click(object sender, EventArgs e)
@@ -78,14 +83,19 @@ namespace Eddie.Gui.Forms
 
 			Credentials.Username = txtUsername.Text;
 			Credentials.Password = txtPassword.Text;
-			if (cboRemember.Text == Messages.WindowsLoginRememberNo)
+			if (cboRemember.Text == Messages.WindowsCredentialsRememberNo)
 				Credentials.Remember = "no";
-			else if (cboRemember.Text == Messages.WindowsLoginRememberRun)
+			else if (cboRemember.Text == Messages.WindowsCredentialsRememberRun)
 				Credentials.Remember = "run";
-			else if (cboRemember.Text == Messages.WindowsLoginRememberPermanent)
+			else if (cboRemember.Text == Messages.WindowsCredentialsRememberPermanent)
 				Credentials.Remember = "permanent";
 			else
 				Credentials.Remember = "no";
+		}
+
+		private void txtUsername_TextChanged(object sender, EventArgs e)
+		{
+			EnableIde();
 		}
 	}
 }

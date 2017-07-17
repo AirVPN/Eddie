@@ -1,7 +1,7 @@
 ﻿namespace Eddie.Gui.Forms
 {
-    partial class Login
-    {
+    partial class WindowCredentials
+	{
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -83,6 +83,7 @@
 			this.txtUsername.Name = "txtUsername";
 			this.txtUsername.Size = new System.Drawing.Size(222, 20);
 			this.txtUsername.TabIndex = 57;
+			this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
 			// 
 			// cmdOk
 			// 

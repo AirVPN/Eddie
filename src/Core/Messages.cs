@@ -219,9 +219,9 @@ namespace Eddie.Core
 		public static string WindowsTosAccept = "Accept"; 
 		public static string WindowsTosReject = "Reject";
 		public static string WindowsLoginTitle = "Login";
-		public static string WindowsLoginRememberNo = "No"; // TOTRANSLATE
-		public static string WindowsLoginRememberRun = "Until closing app"; // TOTRANSLATE
-		public static string WindowsLoginRememberPermanent = "Permanent"; // TOTRANSLATE
+		public static string WindowsCredentialsRememberNo = "No"; // TOTRANSLATE
+		public static string WindowsCredentialsRememberRun = "Until closing app"; // TOTRANSLATE
+		public static string WindowsCredentialsRememberPermanent = "Permanent"; // TOTRANSLATE
 		public static string WindowsFrontMessageTitle = "Important Message";
 		public static string WindowsFrontMessageAccept = "Ok";
 		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations";

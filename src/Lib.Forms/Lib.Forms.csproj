@@ -71,11 +71,11 @@
     <Compile Include="Form.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Login.cs">
+    <Compile Include="Forms\WindowCredentials.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Login.Designer.cs">
-      <DependentUpon>Login.cs</DependentUpon>
+    <Compile Include="Forms\WindowCredentials.Designer.cs">
+      <DependentUpon>WindowCredentials.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\About.cs">
       <SubType>Form</SubType>
@@ -208,8 +208,8 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\Login.resx">
-      <DependentUpon>Login.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\WindowCredentials.resx">
+      <DependentUpon>WindowCredentials.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\About.resx">
       <DependentUpon>About.cs</DependentUpon>
