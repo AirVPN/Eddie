@@ -28,8 +28,7 @@ namespace Eddie.Core
 		public XmlElement Definition;
 		public XmlDocument Storage;
 
-		private string m_runUsername = "";
-		private string m_runPassword = "";
+		private Credentials m_runCredentials;		
 
 		public virtual string GetCode()
 		{
@@ -188,8 +187,7 @@ namespace Eddie.Core
 
 		public virtual void ClearCredentials()
 		{
-			m_runUsername = "";
-			m_runPassword = "";
+			m_runCredentials = null;
 			Utils.XmlSetAttributeString(Storage.DocumentElement, "login", "");
 			Utils.XmlSetAttributeString(Storage.DocumentElement, "password", "");
 		}
@@ -203,10 +201,13 @@ namespace Eddie.Core
 					ovpn.RemoveDirective("auth-user-pass");
 
 					string username = "";
-					string password = "";					
+					string password = "";
 
-					username = m_runUsername;
-					password = m_runPassword;
+					if (m_runCredentials != null)
+					{
+						username = m_runCredentials.Username;
+						password = m_runCredentials.Password;
+					}
 
 					if (username == "")
 					{
@@ -216,19 +217,20 @@ namespace Eddie.Core
 
 					if (username == "")
 					{
-						string remember = "";
-
-						if (Engine.Instance.OnAskUsernamePassword("blabla", out username, out password, out remember) == false)
+						Credentials credentials;
+						
+						credentials = Engine.Instance.OnAskCredentials();
+						if( (credentials == null) || (credentials.IsFilled == false) )
 							return false;
 
-						Engine.Instance.Logs.Log(LogType.Fatal, remember);
+						username = credentials.Username;
+						password = credentials.Password;
 
-						if (remember == "run")
+						if (credentials.Remember == "run")
 						{
-							m_runUsername = username;
-							m_runPassword = password;
+							m_runCredentials = credentials;
 						}
-						else if (remember == "permanent")
+						else if (credentials.Remember == "permanent")
 						{
 							Utils.XmlSetAttributeString(Storage.DocumentElement, "login", username);
 							Utils.XmlSetAttributeString(Storage.DocumentElement, "password", password);

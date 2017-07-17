@@ -27,11 +27,11 @@ namespace Eddie.Core
 {
 	public class OvpnBuilder
 	{
-        public class Directive
-        {
-            public string Text = "";
-            public string Comment = "";
-        }
+		public class Directive
+		{
+			public string Text = "";
+			public string Comment = "";
+		}
 
 		public Dictionary<string, List<Directive>> Directives = new Dictionary<string, List<Directive>>();
 
@@ -39,10 +39,25 @@ namespace Eddie.Core
 		public TemporaryFile FilePasswordAuth;
 
 		// Special values. This values can vary based on ovpn connection, but in some circumstances (SSH, SSL) need to be fixed before the connection.
-		public string Protocol;
-        public IpAddress Address;
-        public int Port = 0;
-        public int ProxyPort = 0; // Port need to be used by SSH/SSL 
+		private string m_protocol = "";
+		public IpAddress Address;
+		public int Port = 0;
+		public int ProxyPort = 0; // Port need to be used by SSH/SSL 
+
+		public string Protocol
+		{
+			get
+			{
+				if (m_protocol != "")
+					return m_protocol;
+				else
+					return GetOneDirectiveText("proto").ToUpperInvariant();
+			}
+			set
+			{
+				m_protocol = value;
+			}
+		}
 
 		public bool IsMultipleDirective(string name)
 		{

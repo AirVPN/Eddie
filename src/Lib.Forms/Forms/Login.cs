@@ -30,11 +30,8 @@ namespace Eddie.Gui.Forms
 {
     public partial class Login : Eddie.Gui.Form
     {
-		public string Message;
-		public string Username;
-		public string Password;
-		public string Remember = "none";
-
+		public Credentials Credentials;
+		
         public Login()
         {
             OnPreInitializeComponent();
@@ -51,7 +48,7 @@ namespace Eddie.Gui.Forms
         {
             base.OnApplySkin();
 
-			GuiUtils.FixHeightVs(txtUserName, lblUserName);
+			GuiUtils.FixHeightVs(txtUsername, lblUsername);
 			GuiUtils.FixHeightVs(txtPassword, lblPassword);
 			GuiUtils.FixHeightVs(lblRemember, cboRemember);
 		}
@@ -77,16 +74,18 @@ namespace Eddie.Gui.Forms
 		
 		private void cmdOk_Click(object sender, EventArgs e)
 		{
-			Username = txtUserName.Text;
-			Password = txtPassword.Text;
+			Credentials = new Credentials();
+
+			Credentials.Username = txtUsername.Text;
+			Credentials.Password = txtPassword.Text;
 			if (cboRemember.Text == Messages.WindowsLoginRememberNo)
-				Remember = "no";
+				Credentials.Remember = "no";
 			else if (cboRemember.Text == Messages.WindowsLoginRememberRun)
-				Remember = "run";
+				Credentials.Remember = "run";
 			else if (cboRemember.Text == Messages.WindowsLoginRememberPermanent)
-				Remember = "permanent";
+				Credentials.Remember = "permanent";
 			else
-				Remember = "no";
+				Credentials.Remember = "no";
 		}
 	}
 }

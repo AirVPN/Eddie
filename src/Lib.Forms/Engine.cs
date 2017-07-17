@@ -329,24 +329,11 @@ namespace Eddie.Gui
 				return true;
 		}
 
-		public override bool OnAskUsernamePassword(string message, out string username, out string password, out string remember)
+		public override Credentials OnAskCredentials()
 		{
-			Forms.Login Dlg = new Forms.Login();
-			Dlg.Message = message;
-			if (Dlg.ShowDialog() == DialogResult.OK)
-			{
-				username = Dlg.Username;
-				password = Dlg.Password;
-				remember = Dlg.Remember;
-				return true;
-			}
-			else
-			{
-				username = "";
-				password = "";
-				remember = "";
-				return false;
-			}
+			if (FormMain != null)
+				return FormMain.AskCredentials();
+			return null;			
 		}
 
         public override void OnLoggedUpdate(XmlElement xmlKeys)

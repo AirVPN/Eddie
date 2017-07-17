@@ -1547,7 +1547,7 @@ namespace Eddie.Gui.Forms
 
 							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
 							lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
-							txtConnectedExitIp.Text = Engine.CurrentServer.IpsExit.ToStringIPv4();
+							txtConnectedExitIp.Text = Engine.CurrentServer.IpsExit.ToString();
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
 							if (imgCountries.Images.ContainsKey(iconFlagCode))
@@ -1670,6 +1670,24 @@ namespace Eddie.Gui.Forms
 			}
 		}
 
+		private delegate Credentials AskCredentialsDelegate();
+		public Credentials AskCredentials()
+		{
+			if (this.InvokeRequired)
+			{
+				AskCredentialsDelegate inv = new AskCredentialsDelegate(this.AskCredentials);
+				return this.Invoke(inv, new object[] { }) as Credentials;
+			}
+			else
+			{
+				Forms.Login Dlg = new Forms.Login();
+				if (Dlg.ShowDialog(this) == DialogResult.OK) // ClodoTemp if parent of MainForm, throw cross-thread-ui exception
+					return Dlg.Credentials;
+				else
+					return null;
+			}
+		}
+
         public bool TermsOfServiceCheck(bool force)
         {
             bool show = force;
@@ -1694,7 +1712,7 @@ namespace Eddie.Gui.Forms
                 return true;
             }
         }
-
+		
 		private String LogsGetBody(bool selectedOnly)
 		{
 			lock (this)

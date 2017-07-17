@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
 			this.lblPassword = new Eddie.Gui.Skin.Label();
-			this.lblUserName = new Eddie.Gui.Skin.Label();
+			this.lblUsername = new Eddie.Gui.Skin.Label();
 			this.txtPassword = new Eddie.Gui.Skin.TextBox();
-			this.txtUserName = new Eddie.Gui.Skin.TextBox();
+			this.txtUsername = new Eddie.Gui.Skin.TextBox();
 			this.cmdOk = new Eddie.Gui.Skin.Button();
 			this.cmdCancel = new Eddie.Gui.Skin.Button();
 			this.cboRemember = new Eddie.Gui.Skin.ComboBox();
@@ -50,17 +50,17 @@
 			this.lblPassword.Text = "Password:";
 			this.lblPassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
-			// lblUserName
+			// lblUsername
 			// 
-			this.lblUserName.BackColor = System.Drawing.Color.Transparent;
-			this.lblUserName.ForeColor = System.Drawing.Color.Black;
-			this.lblUserName.Location = new System.Drawing.Point(11, 16);
-			this.lblUserName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-			this.lblUserName.Name = "lblUserName";
-			this.lblUserName.Size = new System.Drawing.Size(76, 20);
-			this.lblUserName.TabIndex = 60;
-			this.lblUserName.Text = "Username:";
-			this.lblUserName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblUsername.BackColor = System.Drawing.Color.Transparent;
+			this.lblUsername.ForeColor = System.Drawing.Color.Black;
+			this.lblUsername.Location = new System.Drawing.Point(11, 16);
+			this.lblUsername.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblUsername.Name = "lblUsername";
+			this.lblUsername.Size = new System.Drawing.Size(76, 20);
+			this.lblUsername.TabIndex = 60;
+			this.lblUsername.Text = "Username:";
+			this.lblUsername.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// txtPassword
 			// 
@@ -74,15 +74,15 @@
 			this.txtPassword.Size = new System.Drawing.Size(222, 20);
 			this.txtPassword.TabIndex = 58;
 			// 
-			// txtUserName
+			// txtUsername
 			// 
-			this.txtUserName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.txtUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtUserName.Location = new System.Drawing.Point(91, 16);
-			this.txtUserName.Margin = new System.Windows.Forms.Padding(2);
-			this.txtUserName.Name = "txtUserName";
-			this.txtUserName.Size = new System.Drawing.Size(222, 20);
-			this.txtUserName.TabIndex = 57;
+			this.txtUsername.Location = new System.Drawing.Point(91, 16);
+			this.txtUsername.Margin = new System.Windows.Forms.Padding(2);
+			this.txtUsername.Name = "txtUsername";
+			this.txtUsername.Size = new System.Drawing.Size(222, 20);
+			this.txtUsername.TabIndex = 57;
 			// 
 			// cmdOk
 			// 
@@ -96,7 +96,7 @@
 			this.cmdOk.Name = "cmdOk";
 			this.cmdOk.Size = new System.Drawing.Size(106, 27);
 			this.cmdOk.TabIndex = 62;
-			this.cmdOk.Text = "Save";
+			this.cmdOk.Text = "Login";
 			this.cmdOk.UseVisualStyleBackColor = true;
 			this.cmdOk.Click += new System.EventHandler(this.cmdOk_Click);
 			// 
@@ -148,10 +148,11 @@
 			this.Controls.Add(this.cmdOk);
 			this.Controls.Add(this.cmdCancel);
 			this.Controls.Add(this.lblPassword);
-			this.Controls.Add(this.lblUserName);
+			this.Controls.Add(this.lblUsername);
 			this.Controls.Add(this.txtPassword);
-			this.Controls.Add(this.txtUserName);
+			this.Controls.Add(this.txtUsername);
 			this.Margin = new System.Windows.Forms.Padding(4);
+			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "Login";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -164,9 +165,9 @@
 		#endregion
 
 		private Skin.Label lblPassword;
-		private Skin.Label lblUserName;
+		private Skin.Label lblUsername;
 		private Skin.TextBox txtPassword;
-		public Skin.TextBox txtUserName;
+		public Skin.TextBox txtUsername;
 		private Skin.Button cmdOk;
 		private Skin.Button cmdCancel;
 		private Skin.ComboBox cboRemember;

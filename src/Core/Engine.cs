@@ -1082,12 +1082,9 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public virtual bool OnAskUsernamePassword(string message, out string username, out string password, out string remember)
+		public virtual Credentials OnAskCredentials()
 		{
-			username = "";
-			password = "";
-			remember = "";
-			return false;
+			return null;
 		}
 
 		public virtual void OnLoggedUpdate(XmlElement xmlKeys)
@@ -1282,13 +1279,18 @@ namespace Eddie.Core
 					Stats.UpdateValue("AccountKey", Engine.Storage.Get("key"));
 
 					Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP.ToString());
-					Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpsExit.ToString());
+					if(Engine.CurrentServer.IpsExit.Count != 0)
+						Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpsExit.ToString());
+					else
+						Stats.UpdateValue("VpnIpExit", Messages.NotAvailable);
 					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
 					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
 					if (Engine.ConnectedRealIp != "")
 						Stats.UpdateValue("VpnRealIp", Engine.ConnectedRealIp);
-					else
+					else if (Engine.CurrentServer.SupportCheck)
 						Stats.UpdateValue("VpnRealIp", Messages.CheckingRequired);
+					else
+						Stats.UpdateValue("VpnRealIp", Messages.NotAvailable);
 					Stats.UpdateValue("VpnIp", Engine.ConnectedOVPN.ExtractVpnIPs().ToString());
 					Stats.UpdateValue("VpnDns", Engine.ConnectedOVPN.ExtractDns().ToString());
 					Stats.UpdateValue("VpnInterface", Engine.ConnectedVpnInterfaceName);
@@ -1299,8 +1301,10 @@ namespace Eddie.Core
 
 					if (Engine.ConnectedServerTime != 0)
 						Stats.UpdateValue("SystemTimeServerDifference", (Engine.ConnectedServerTime - Engine.ConnectedClientTime).ToString() + " seconds");
-					else
+					else if(Engine.CurrentServer.SupportCheck)
 						Stats.UpdateValue("SystemTimeServerDifference", Messages.CheckingRequired);
+					else
+						Stats.UpdateValue("SystemTimeServerDifference", Messages.NotAvailable);
 				}
 				else
 				{

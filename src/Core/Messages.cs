@@ -145,6 +145,7 @@ namespace Eddie.Core
         public static string ConnectionCheckingDNSFailed = "Checking DNS failed.";
 		public static string ConnectionFlushDNS = "Flushing DNS";
 		public static string ConnectionConnected = "Connected.";
+		public static string ConnectionCredentials = "Checking credentials"; // TOTRANSLATE
 		public static string ConnectionConnecting = "Connecting to {1}";
 		public static string ConnectionDisconnecting = "Disconnecting";
 
