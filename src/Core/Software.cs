@@ -74,7 +74,7 @@ namespace Eddie.Core
             AddTool("ssh", "hash", new Tools.SSH());
             AddTool("ssl", "hash", new Tools.SSL());
             AddTool("curl", "hash", new Tools.Curl());
-            AddTool("cacert.pem", "hash", new Tools.File("cacert.pem"));
+            AddTool("cacert.pem", "hash", new Tools.File("cacert.pem", true));
             if (Platform.IsUnix())
             {
                 AddTool("update-resolv-conf", "hash", new Tools.File("update-resolv-conf"));
@@ -87,6 +87,12 @@ namespace Eddie.Core
 
             foreach (Tool tool in Tools.Values)
                 tool.UpdatePath();            
+		}
+
+		public static void ExceptionForRequired()
+		{
+			foreach (Tool tool in Tools.Values)
+				tool.ExceptionIfRequired();
 		}
 
 		public static void Log()
@@ -146,7 +152,7 @@ namespace Eddie.Core
             }
         }        
 
-        public static string FindResource(string tool) // TOCLEAN
+        public static string FindResource(string tool)
         {
             Tool t = GetTool(tool);
             if (t.Available())

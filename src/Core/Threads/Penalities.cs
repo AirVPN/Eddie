@@ -35,10 +35,10 @@ namespace Eddie.Core.Threads
         {
 			for (; ; )
             {
-                lock (Engine.Servers)
+                lock (Engine.Connections)
                 {
                     
-                    foreach (ServerInfo infoServer in Engine.Servers.Values)
+                    foreach (ConnectionInfo infoServer in Engine.Connections.Values)
                     {
                         if(infoServer.Penality>0)
                             infoServer.Penality--;                    

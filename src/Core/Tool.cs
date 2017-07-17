@@ -79,6 +79,11 @@ namespace Eddie.Core
 		{
 		}
 
+		public virtual void ExceptionIfRequired()
+		{
+
+		}
+
 		public virtual string GetFileName()
 		{
 			return Code;
@@ -157,7 +162,7 @@ namespace Eddie.Core
 			string customPathOption = "tools." + Code + ".path";
 			if (Engine.Instance.Storage.Exists(customPathOption))
 			{
-				string path = Platform.Instance.NormalizePath(customPathOption);
+				string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get(customPathOption));
 				if (Platform.Instance.FileExists(path))
 				{
 					Path = path;

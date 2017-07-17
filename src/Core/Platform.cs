@@ -147,6 +147,11 @@ namespace Eddie.Core
 			return "Unknown";
 		}
 
+		public virtual string GetVersion()
+		{
+			return Environment.OSVersion.VersionString;
+		}
+
 		public virtual string GetArchitecture()
 		{
 			if (IntPtr.Size == 8)
@@ -215,14 +220,7 @@ namespace Eddie.Core
 		{
 			return (IsUnixSystem() == false);
 		}
-
-
-
-		public virtual string VersionDescription()
-		{
-			return Environment.OSVersion.VersionString;
-		}
-
+		
 		public virtual bool IsTraySupported()
 		{
 			return false;
@@ -256,6 +254,14 @@ namespace Eddie.Core
 			get
 			{
 				return "\n";
+			}
+		}
+
+		public virtual char[] CharsNotAllowedInPath
+		{
+			get
+			{
+				return Path.GetInvalidPathChars();
 			}
 		}
 
@@ -626,11 +632,6 @@ namespace Eddie.Core
 			return new IpAddresses();
 		}
 
-		public virtual void ResolveWithoutAnswer(string host)
-		{
-			ResolveDNS(host);
-		}
-
 		public virtual bool WaitTunReady()
 		{
 			return true;
@@ -669,11 +670,6 @@ namespace Eddie.Core
 			return "NetworkInterface";
 		}
 
-		public virtual void LogSystemInfo()
-		{
-			Engine.Instance.Logs.Log(LogType.Verbose, "Operating System: " + Platform.Instance.VersionDescription());
-		}
-		
 		public virtual void OnReport(Report report)
 		{
 		}
@@ -753,7 +749,7 @@ namespace Eddie.Core
 		{
 		}
 
-		public virtual bool OnDnsSwitchDo(string dns)
+		public virtual bool OnDnsSwitchDo(IpAddresses dns)
 		{
 			return true;
 		}
@@ -837,29 +833,6 @@ namespace Eddie.Core
 		public virtual void UnInstallDriver()
 		{
 			NotImplemented();
-		}
-		/* // TOCLEAN
-		public virtual string GetProjectPath()
-		{
-			DirectoryInfo di = new DirectoryInfo(GetApplicationPath());
-
-			for (;;)
-			{
-				if ((FileExists(di.FullName + "/README.md")) && (FileContentsReadText(di.FullName + "/README.md").Contains("Eddie - OpenVPN GUI")))
-					return di.FullName;
-				else
-				{
-					di = di.Parent;
-					if (di == null)
-						return "";
-				}
-			}
-		}
-
-		public virtual string GetGitDeployPath() // TOCLEAN?
-		{
-			return GetProjectPath() + "/deploy/" + Platform.Instance.GetSystemCode() + "/";
-		}
-		*/
+		}		
 	}
 }

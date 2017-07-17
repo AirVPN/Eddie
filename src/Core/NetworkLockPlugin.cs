@@ -109,7 +109,8 @@ namespace Eddie.Core
 			// Custom
 			{
 				string list = Engine.Instance.Storage.Get("netlock.allowed_ips");
-				List<string> hosts = Utils.CommaStringToListString(list);
+				list = list.Replace("\u2028", ","); // OS X Hack  // TOCLEAN
+				List<string> hosts = Utils.StringToList(list);
 				foreach (string host in hosts)
 				{
 					string host2 = host;
@@ -154,14 +155,13 @@ namespace Eddie.Core
 				}
 
 				// Servers
-				lock (Engine.Instance.Servers)
+				lock (Engine.Instance.Connections)
 				{
-					Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>(Engine.Instance.Servers);
+					Dictionary<string, ConnectionInfo> servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
 
-					foreach (ServerInfo infoServer in servers.Values)
+					foreach (ConnectionInfo infoServer in servers.Values)
 					{
-						result.Add(infoServer.IpEntry);
-						result.Add(infoServer.IpEntry2);						
+						result.Add(infoServer.IpsEntry);						
 					}
 				}
 			}

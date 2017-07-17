@@ -42,16 +42,12 @@ namespace Eddie.Gui
         
         public override bool OnInit()
         {
-			// Engine.Log(Core.Engine.LogType.Verbose, "Old Data: " + Application.UserAppDataPath);
-            
-            Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
+			Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
 			Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
 			// Add the event handler for handling non-UI thread exceptions to the event. 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
-			// System.Threading.Thread.Sleep(1000);
-
+			
             bool result = base.OnInit();
             
             return result;
@@ -80,7 +76,7 @@ namespace Eddie.Gui
 		}
 
 		public static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
-		{
+		{			
 			Engine.OnUnhandledException(e.Exception);
 		}
 
@@ -331,6 +327,26 @@ namespace Eddie.Gui
 				return MessageBox.Show(message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
 			else
 				return true;
+		}
+
+		public override bool OnAskUsernamePassword(string message, out string username, out string password, out string remember)
+		{
+			Forms.Login Dlg = new Forms.Login();
+			Dlg.Message = message;
+			if (Dlg.ShowDialog() == DialogResult.OK)
+			{
+				username = Dlg.Username;
+				password = Dlg.Password;
+				remember = Dlg.Remember;
+				return true;
+			}
+			else
+			{
+				username = "";
+				password = "";
+				remember = "";
+				return false;
+			}
 		}
 
         public override void OnLoggedUpdate(XmlElement xmlKeys)

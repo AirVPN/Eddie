@@ -34,8 +34,6 @@ namespace Eddie.Core
 	{
 		public static Engine Instance;
 
-		//TOCLEAN public bool DevelopmentEnvironment = false;
-
 		public bool ConsoleMode = false;
 
 		public bool Terminated = false;
@@ -60,12 +58,14 @@ namespace Eddie.Core
 
 		public Providers.Service AirVPN; // TOFIX, for compatibility
 
-		private Dictionary<string, ServerInfo> m_servers = new Dictionary<string, ServerInfo>();
+		private Dictionary<string, ConnectionInfo> m_connections = new Dictionary<string, ConnectionInfo>();
 		private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
 		private bool m_serversInfoUpdated = false;
 		private bool m_areasInfoUpdated = false;
-		private List<string> FrontMessages = new List<string>();
+		private List<string> m_frontMessages = new List<string>();
 		private int m_breakRequests = 0;
+		private TimeDelta m_tickDeltaUiRefreshQuick = new TimeDelta();
+		private TimeDelta m_tickDeltaUiRefreshFull = new TimeDelta();
 
 		public enum ActionService
 		{
@@ -87,31 +87,26 @@ namespace Eddie.Core
 			Log = 4 // Clodo, TOCLEAN?
 		}
 
-		private List<ActionService> ActionsList = new List<ActionService>();
-		public string m_waitMessage = Messages.AppStarting;
-		public bool m_waitCancel = false;
+		private List<ActionService> m_actionsList = new List<ActionService>();
+		private string m_waitMessage = Messages.AppStarting;
+		private bool m_waitCancel = false;
+		private bool m_connected = false;
 
-		private bool Connected = false;
-		public ServerInfo CurrentServer;
-		public ServerInfo NextServer;
+		public ConnectionInfo CurrentServer;
+		public ConnectionInfo NextServer;
 		public bool SwitchServer;
-
-		public TimeDelta TickDeltaUiRefreshQuick = new TimeDelta();
-		public TimeDelta TickDeltaUiRefreshFull = new TimeDelta();
-
-		public DateTime ConnectedSince = DateTime.MinValue;
-		public string ConnectedEntryIP = "";
-		public int ConnectedPort = 0;
+		
+		public DateTime ConnectedSince = DateTime.MinValue;				
+		public OvpnBuilder ConnectedOVPN; // TOCLEAN?
 		public string ConnectedProtocol = "";
-		public string ConnectedOVPN = "";
+		public IpAddress ConnectedEntryIP = "";
+		public int ConnectedPort = 0;
 		public Int64 ConnectedServerTime = 0;
 		public Int64 ConnectedClientTime = 0;
 		public string ConnectedRealIp = "";
-		public string ConnectedVpnIp = "";
-		public string ConnectedVpnGateway = "";
+		public string ConnectedControlChannel = "";
 		public string ConnectedVpnInterfaceName = "";
 		public string ConnectedVpnInterfaceId = "";
-		public string ConnectedVpnDns = "";
 		public Int64 ConnectedVpnStatsRead = 0;
 		public Int64 ConnectedVpnStatsWrite = 0;
 		public Int64 ConnectedSessionStatsRead = 0;
@@ -180,11 +175,11 @@ namespace Eddie.Core
 			}
 		}
 
-		public Dictionary<string, ServerInfo> Servers
+		public Dictionary<string, ConnectionInfo> Connections
 		{
 			get
 			{
-				return m_servers;
+				return m_connections;
 			}
 		}
 
@@ -217,7 +212,6 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
 			}
 
-			//TOCLEAN DevelopmentEnvironment = Platform.Instance.FileExists(Platform.Instance.NormalizePath(Platform.Instance.GetApplicationPath() + "/dev.txt"));
 			m_logsManager = new LogsManager();
 
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
@@ -228,7 +222,7 @@ namespace Eddie.Core
 			{
 				if (Storage.GetBool("version"))
 				{
-					Console.WriteLine(Constants.Name2 + " - version " + Constants.VersionDesc);
+					Console.WriteLine(Constants.Name + " - version " + Constants.VersionDesc);
 					return false;
 				}
 				else if (Storage.GetBool("version.short"))
@@ -243,7 +237,7 @@ namespace Eddie.Core
 				}
 			}
 
-			Logs.Log(LogType.Info, "Eddie client version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Mono/.Net Framework: " + Platform.Instance.GetMonoVersion());
+			Logs.Log(LogType.Info, "Eddie version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net Framework: " + Platform.Instance.GetMonoVersion());
 
 			if (DevelopmentEnvironment)
 				Logs.Log(LogType.Info, "Development environment.");
@@ -331,9 +325,7 @@ namespace Eddie.Core
 
 			if(initResult == true)
 			{
-				Platform.Instance.LogSystemInfo();
-
-				Software.Checking();
+				// Software.Checking(); // ClodoTemp
 
 				Software.Log();
 
@@ -464,7 +456,9 @@ namespace Eddie.Core
 		}
 
 		public virtual bool OnInit2()
-		{
+		{		
+			Software.Checking(); // ClodoTemp
+
 			Start();
 
 			PostManifestUpdate();
@@ -532,12 +526,12 @@ namespace Eddie.Core
 		{
 			ActionService currentAction = ActionService.None;
 
-			lock (ActionsList)
+			lock (m_actionsList)
 			{
-				if (ActionsList.Count > 0)
+				if (m_actionsList.Count > 0)
 				{
-					currentAction = ActionsList[0];
-					ActionsList.RemoveAt(0);
+					currentAction = m_actionsList[0];
+					m_actionsList.RemoveAt(0);
 				}
 			}
 
@@ -583,7 +577,7 @@ namespace Eddie.Core
 			*/
 
 			// Avoid to refresh UI for every ping, for example
-			if (TickDeltaUiRefreshFull.Elapsed(1000))
+			if (m_tickDeltaUiRefreshFull.Elapsed(1000))
 			{
 				if (m_serversInfoUpdated)
 				{
@@ -727,9 +721,9 @@ namespace Eddie.Core
 			}
 			else if (action == "ui.stats.vpngeneratedovpn")
 			{
-				if (IsConnected())
+				if( (IsConnected()) && (ConnectedOVPN != null) )
 				{
-					OnShowText(Messages.StatsVpnGeneratedOVPN, ConnectedOVPN);
+					OnShowText(Messages.StatsVpnGeneratedOVPN, ConnectedOVPN.Get());
 				}
 			}
 			else if (action == "ui.stats.systemreport")
@@ -788,6 +782,8 @@ namespace Eddie.Core
 		public virtual void OnSettingsChanged()
 		{
 			SaveSettings(); // 2.8
+
+			OnCheckConnections();
 
 			OnRefreshUi(RefreshUiMode.Full);
 
@@ -867,49 +863,49 @@ namespace Eddie.Core
 
 		public void Connect()
 		{
-			lock (ActionsList)
+			lock (m_actionsList)
 			{
-				ActionsList.Add(Engine.ActionService.Connect);
+				m_actionsList.Add(Engine.ActionService.Connect);
 			}
 		}
 
 		public void Login()
 		{
-			lock (ActionsList)
+			lock (m_actionsList)
 			{
-				ActionsList.Add(Engine.ActionService.Login);
+				m_actionsList.Add(Engine.ActionService.Login);
 			}
 		}
 
 		public void Logout()
 		{
-			lock (ActionsList)
+			lock (m_actionsList)
 			{
-				ActionsList.Add(Engine.ActionService.Logout);
+				m_actionsList.Add(Engine.ActionService.Logout);
 			}
 		}
 
 		public void NetLockIn()
 		{
-			lock (ActionsList)
+			lock (m_actionsList)
 			{
-				ActionsList.Add(Engine.ActionService.NetLockIn);
+				m_actionsList.Add(Engine.ActionService.NetLockIn);
 			}
 		}
 
 		public void NetLockOut()
 		{
-			lock (ActionsList)
+			lock (m_actionsList)
 			{
-				ActionsList.Add(Engine.ActionService.NetLockOut);
+				m_actionsList.Add(Engine.ActionService.NetLockOut);
 			}
 		}
 
 		public void Disconnect()
 		{
-			lock (ActionsList)
+			lock (m_actionsList)
 			{
-				ActionsList.Add(Engine.ActionService.Disconnect);
+				m_actionsList.Add(Engine.ActionService.Disconnect);
 			}
 		}
 
@@ -928,10 +924,10 @@ namespace Eddie.Core
 		{
 			lock (this)
 			{
-				if ((connected == true) && (Connected == false))
+				if ((connected == true) && (m_connected == false))
 				{
 					// OnConnected
-					Connected = true;
+					m_connected = true;
 					ConnectedSince = DateTime.UtcNow;
 
 					WaitMessageClear();
@@ -939,10 +935,10 @@ namespace Eddie.Core
 					OnRefreshUi(RefreshUiMode.Full);
 				}
 
-				if ((connected == false) && (Connected == true))
+				if ((connected == false) && (m_connected == true))
 				{
 					// OnDisconnected
-					Connected = false;
+					m_connected = false;
 					ConnectedSince = DateTime.MinValue;
 					ConnectedLastDownloadStep = 0;
 					ConnectedLastUploadStep = 0;
@@ -963,7 +959,7 @@ namespace Eddie.Core
 		{
 			if (message != "")
 			{
-				if (Connected)
+				if (m_connected)
 					throw new Exception("Unexpected status.");
 			}
 
@@ -978,7 +974,7 @@ namespace Eddie.Core
 
 		public bool IsConnected()
 		{
-			return Connected;
+			return m_connected;
 		}
 
 		public bool IsWaiting()
@@ -1086,6 +1082,14 @@ namespace Eddie.Core
 			return true;
 		}
 
+		public virtual bool OnAskUsernamePassword(string message, out string username, out string password, out string remember)
+		{
+			username = "";
+			password = "";
+			remember = "";
+			return false;
+		}
+
 		public virtual void OnLoggedUpdate(XmlElement xmlKeys)
 		{
 
@@ -1098,17 +1102,17 @@ namespace Eddie.Core
 				if (provider.Enabled)
 				{
 					string msg = provider.GetFrontMessage();
-					if ((msg != "") && (FrontMessages.Contains(msg) == false))
+					if ((msg != "") && (m_frontMessages.Contains(msg) == false))
 					{
 						OnFrontMessage(msg);
-						FrontMessages.Add(msg);
+						m_frontMessages.Add(msg);
 					}
 				}
 			}
 
-			lock(m_servers)
+			lock(m_connections)
 			{
-				foreach (ServerInfo infoServer in m_servers.Values)
+				foreach (ConnectionInfo infoServer in m_connections.Values)
 				{
 					infoServer.Deleted = true;
 				}
@@ -1117,18 +1121,18 @@ namespace Eddie.Core
 				{
 					if (provider.Enabled)
 					{
-						provider.OnBuildServersList();
+						provider.OnBuildConnections();						
 					}
 				}
 
 				for (;;)
 				{
 					bool restart = false;
-					foreach (ServerInfo infoServer in m_servers.Values)
+					foreach (ConnectionInfo infoServer in m_connections.Values)
 					{
 						if (infoServer.Deleted)
 						{
-							m_servers.Remove(infoServer.Code);
+							m_connections.Remove(infoServer.Code);
 							restart = true;
 							break;
 						}
@@ -1141,10 +1145,10 @@ namespace Eddie.Core
 				// White/black list
 				List<string> serversWhiteList = Storage.GetList("servers.whitelist");
 				List<string> serversBlackList = Storage.GetList("servers.blacklist");
-				foreach (ServerInfo infoServer in m_servers.Values)
+				foreach (ConnectionInfo infoConnection in m_connections.Values)
 				{
-					string code = infoServer.Code;
-					string displayName = infoServer.DisplayName;
+					string code = infoConnection.Code;
+					string displayName = infoConnection.DisplayName;
 
 					/*
 					if (serversWhiteList.Contains(code))
@@ -1156,18 +1160,56 @@ namespace Eddie.Core
 					*/
 					// 2.11.5
 					if (serversWhiteList.Contains(code))
-						infoServer.UserList = ServerInfo.UserListType.WhiteList;
+						infoConnection.UserList = ConnectionInfo.UserListType.WhiteList;
 					else if (serversWhiteList.Contains(displayName))
-						infoServer.UserList = ServerInfo.UserListType.WhiteList;
+						infoConnection.UserList = ConnectionInfo.UserListType.WhiteList;
 					else if (serversBlackList.Contains(code))
-						infoServer.UserList = ServerInfo.UserListType.BlackList;
+						infoConnection.UserList = ConnectionInfo.UserListType.BlackList;
 					else if (serversBlackList.Contains(displayName))
-						infoServer.UserList = ServerInfo.UserListType.BlackList;
+						infoConnection.UserList = ConnectionInfo.UserListType.BlackList;
 					else
-						infoServer.UserList = ServerInfo.UserListType.None;
+						infoConnection.UserList = ConnectionInfo.UserListType.None;
 				}
 
 				RecomputeAreas();
+
+				OnCheckConnections();
+			}
+		}
+
+		public virtual void OnCheckConnections()
+		{
+			lock (m_connections)
+			{
+				foreach (ConnectionInfo connection in m_connections.Values)
+				{
+					connection.Warnings.Clear();
+					if (connection.WarningOpen != "")
+						connection.WarningAdd(connection.WarningOpen, ConnectionInfoWarning.WarningType.Warning);
+					if (connection.WarningClosed != "")
+						connection.WarningAdd(connection.WarningClosed, ConnectionInfoWarning.WarningType.Error);
+
+					if ((Engine.Instance.Storage.Get("protocol.ip.entry") == "ipv6-only") && (connection.IpsEntry.CountIPv6 == 0))
+						connection.WarningAdd(Messages.ConnectionWarningNoEntryIPv6, ConnectionInfoWarning.WarningType.Error);
+					if ((Engine.Instance.Storage.Get("protocol.ip.entry") == "ipv4-only") && (connection.IpsEntry.CountIPv4 == 0))
+						connection.WarningAdd(Messages.ConnectionWarningNoEntryIPv4, ConnectionInfoWarning.WarningType.Error);
+					if ((Engine.Instance.Storage.Get("protocol.ipv4.route") == "in-always") && (connection.SupportIPv4 == false) )
+						connection.WarningAdd(Messages.ConnectionWarningNoExitIPv4, ConnectionInfoWarning.WarningType.Error);
+					if ((Engine.Instance.Storage.Get("protocol.ipv6.route") == "in-always") && (connection.SupportIPv6 == false))
+						connection.WarningAdd(Messages.ConnectionWarningNoExitIPv6, ConnectionInfoWarning.WarningType.Error);
+
+					OvpnBuilder ovpn = connection.BuildOVPN(true);
+					
+					if(ovpn != null)
+						if ((ovpn.ExistsDirective("<tls-crypt>")) && (Software.GetTool("openvpn").VersionUnder("2.4")))
+							connection.WarningAdd(Messages.ConnectionWarningOlderOpenVpnTlsCrypt, ConnectionInfoWarning.WarningType.Error);
+				}
+
+				foreach (Provider provider in ProvidersManager.Providers)
+				{
+					if (provider.Enabled)
+						provider.OnCheckConnections();
+				}
 			}
 		}
 
@@ -1239,18 +1281,20 @@ namespace Eddie.Core
 					Stats.UpdateValue("AccountLogin", Engine.Storage.Get("login"));
 					Stats.UpdateValue("AccountKey", Engine.Storage.Get("key"));
 
-					Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP);
-					Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpExit);
+					Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP.ToString());
+					Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpsExit.ToString());
 					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
 					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
 					if (Engine.ConnectedRealIp != "")
 						Stats.UpdateValue("VpnRealIp", Engine.ConnectedRealIp);
 					else
 						Stats.UpdateValue("VpnRealIp", Messages.CheckingRequired);
-					Stats.UpdateValue("VpnIp", Engine.ConnectedVpnIp);
-					Stats.UpdateValue("VpnDns", Engine.ConnectedVpnDns);
+					Stats.UpdateValue("VpnIp", Engine.ConnectedOVPN.ExtractVpnIPs().ToString());
+					Stats.UpdateValue("VpnDns", Engine.ConnectedOVPN.ExtractDns().ToString());
 					Stats.UpdateValue("VpnInterface", Engine.ConnectedVpnInterfaceName);
-					Stats.UpdateValue("VpnGateway", Engine.ConnectedVpnGateway);
+					Stats.UpdateValue("VpnGateway", Engine.ConnectedOVPN.ExtractGateway().ToString());
+					Stats.UpdateValue("VpnCipher", Engine.ConnectedOVPN.ExtractCipher());
+					Stats.UpdateValue("VpnControlChannel", Engine.ConnectedControlChannel);
 					Stats.UpdateValue("VpnGeneratedOVPN", "");
 
 					if (Engine.ConnectedServerTime != 0)
@@ -1278,6 +1322,8 @@ namespace Eddie.Core
 					Stats.UpdateValue("VpnDns", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnInterface", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnGateway", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnCipher", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnControlChannel", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnGeneratedOVPN", Messages.StatsNotConnected);
 					Stats.UpdateValue("SystemTimeServerDifference", Messages.StatsNotConnected);
 				}
@@ -1330,36 +1376,36 @@ namespace Eddie.Core
 		// Misc
 		// ----------------------------------------------------
 
-		public ServerInfo GetServerInfo(string code, Provider provider)
+		public ConnectionInfo GetConnectionInfo(string code, Provider provider)
 		{
-			ServerInfo infoServer = null;
-			if (m_servers.ContainsKey(code))
-				infoServer = m_servers[code];
-			if (infoServer == null)
+			ConnectionInfo infoConnection = null;
+			if (m_connections.ContainsKey(code))
+				infoConnection = m_connections[code];
+			if (infoConnection == null)
 			{
 				// Create
-				infoServer = new ServerInfo();
-				infoServer.Provider = provider;
-				infoServer.Code = code;
-				m_servers[code] = infoServer;
+				infoConnection = new ConnectionInfo();
+				infoConnection.Provider = provider;
+				infoConnection.Code = code;
+				m_connections[code] = infoConnection;
 			}
-			infoServer.Deleted = false;
-			return infoServer;
+			infoConnection.Deleted = false;
+			return infoConnection;
 		}
 
 		// Return the list of selected servers, based on settings, filter, ordered by score.
 		// Filter can be "earth","europe","nl","castor".
-		public List<ServerInfo> GetServers(bool all)
+		public List<ConnectionInfo> GetConnections(bool all)
 		{
-			List<ServerInfo> list = new List<ServerInfo>();
+			List<ConnectionInfo> list = new List<ConnectionInfo>();
 
-			lock (m_servers)
+			lock (m_connections)
 			{
 				bool existsWhiteListAreas = false;
 				bool existsWhiteListServers = false;
-				foreach (ServerInfo server in m_servers.Values)
+				foreach (ConnectionInfo server in m_connections.Values)
 				{
-					if (server.UserList == ServerInfo.UserListType.WhiteList)
+					if (server.UserList == ConnectionInfo.UserListType.WhiteList)
 					{
 						existsWhiteListServers = true;
 						break;
@@ -1374,13 +1420,13 @@ namespace Eddie.Core
 					}
 				}
 
-				foreach (ServerInfo server in m_servers.Values)
+				foreach (ConnectionInfo server in m_connections.Values)
 				{
 					bool skip = false;
 
 					if (all == false)
 					{
-						ServerInfo.UserListType serverUserList = server.UserList;
+						ConnectionInfo.UserListType serverUserList = server.UserList;
 						AreaInfo.UserListType countryUserList = AreaInfo.UserListType.None;
 
 						/*
@@ -1396,11 +1442,11 @@ namespace Eddie.Core
 						if (m_areas.ContainsKey(server.CountryCode))
 							countryUserList = m_areas[server.CountryCode].UserList;
 
-						if (serverUserList == ServerInfo.UserListType.BlackList)
+						if (serverUserList == ConnectionInfo.UserListType.BlackList)
 						{
 							skip = true;
 						}
-						else if (serverUserList == ServerInfo.UserListType.WhiteList)
+						else if (serverUserList == ConnectionInfo.UserListType.WhiteList)
 						{
 							skip = false;
 						}
@@ -1410,7 +1456,7 @@ namespace Eddie.Core
 							{
 								skip = true;
 							}
-							else if ((existsWhiteListServers) && (serverUserList == ServerInfo.UserListType.None))
+							else if ((existsWhiteListServers) && (serverUserList == ConnectionInfo.UserListType.None))
 							{
 								skip = true;
 							}
@@ -1434,11 +1480,11 @@ namespace Eddie.Core
 			return list;
 		}
 
-		public ServerInfo PickServerByName(string name)
+		public ConnectionInfo PickConnectionByName(string name)
 		{
-			lock (m_servers)
+			lock (m_connections)
 			{
-				foreach (ServerInfo s in m_servers.Values)
+				foreach (ConnectionInfo s in m_connections.Values)
 				{
 					if (s.DisplayName == name)
 						return s;
@@ -1449,22 +1495,22 @@ namespace Eddie.Core
 			}
 		}
 
-		public ServerInfo PickServer()
+		public ConnectionInfo PickConnection()
 		{
-			return PickServer("");
+			return PickConnection("");
 		}
 
-		public ServerInfo PickServer(string preferred)
+		public ConnectionInfo PickConnection(string preferred)
 		{
-			lock (m_servers)
+			lock (m_connections)
 			{
 				if (preferred != "")
 				{
-					if(m_servers.ContainsKey(preferred))
-						return m_servers[preferred];
+					if(m_connections.ContainsKey(preferred))
+						return m_connections[preferred];
 				}
 
-				List<ServerInfo> list = GetServers(false);
+				List<ConnectionInfo> list = GetConnections(false);
 				if (list.Count > 0)
 					return list[0];
 			}
@@ -1552,109 +1598,7 @@ namespace Eddie.Core
 
 			return curl.FetchUrlEx(url, parameters, title, forceBypassProxy, resolve);
 		}
-
-		/* TOCLEAN
-		public byte[] FetchUrlExOld(string url, string host, System.Collections.Specialized.NameValueCollection parameters, string title, bool bypassProxy)
-		{
-			// Note: by default WebClient try to determine the proxy used by IE/Windows
-			WebClientEx wc = new WebClientEx();
-			wc.CustomHost = host;
-
-			if (bypassProxy)
-			{
-				// Don't use a proxy if connected to the VPN
-				wc.Proxy = null;
-			}
-			else
-			{
-				string proxyMode = Storage.Get("proxy.mode").ToLowerInvariant();
-				string proxyHost = Storage.Get("proxy.host");
-				int proxyPort = Storage.GetInt("proxy.port");
-				string proxyAuth = Storage.Get("proxy.auth").ToLowerInvariant();
-				string proxyLogin = Storage.Get("proxy.login");
-				string proxyPassword = Storage.Get("proxy.password");
-
-				if (proxyMode == "Tor")
-				{
-					proxyMode = "socks";
-					proxyAuth = "none";
-					proxyLogin = "";
-					proxyPassword = "";
-				}
-
-				if (proxyMode == "http")
-				{
-					System.Net.WebProxy proxy = new System.Net.WebProxy(proxyHost, proxyPort);
-					//string proxyUrl = "http://" + Storage.Get("proxy.host") + ":" + Storage.GetInt("proxy.port").ToString() + "/";
-					//System.Net.WebProxy proxy = new System.Net.WebProxy(proxyUrl, true);
-
-					if (proxyAuth != "none")
-					{
-						//wc.Credentials = new System.Net.NetworkCredential(Storage.Get("proxy.login"), Storage.Get("proxy.password"), Storage.Get("proxy.host"));
-						wc.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
-						proxy.Credentials = new System.Net.NetworkCredential(proxyLogin, proxyPassword, "");
-						wc.UseDefaultCredentials = false;
-					}
-
-					wc.Proxy = proxy;
-				}
-				else if (proxyMode == "socks")
-				{
-					// Socks Proxy supported with a curl shell
-					if (Software.CurlPath == "")
-					{
-						throw new Exception(Messages.CUrlRequiredForProxySocks);
-					}
-					else
-					{
-						string dataParameters = "";
-						if (parameters != null)
-						{
-							foreach (string k in parameters.Keys)
-							{
-								if (dataParameters != "")
-									dataParameters += "&";
-								dataParameters += k + "=" + Uri.EscapeUriString(parameters[k]);
-							}
-						}
-
-						TemporaryFile fileOutput = new TemporaryFile("bin");
-						string args = " \"" + url + "\" --socks4a " + proxyHost + ":" + proxyPort;
-						if (proxyAuth != "none")
-						{
-							args += " -U " + proxyLogin + ":" + proxyPassword;
-						}
-						args += " -o \"" + fileOutput.Path + "\"";
-						args += " --progress-bar";
-						if (dataParameters != "")
-							args += " --data \"" + dataParameters + "\"";
-						string str = Platform.Instance.Shell(Software.CurlPath, args);
-						byte[] bytes;
-						if (Platform.Instance.FileExists(fileOutput.Path))
-						{
-							bytes = Platform.Instance.FileContentsReadBytes(fileOutput.Path);
-							fileOutput.Close();
-							return bytes;
-						}
-						else
-						{
-							throw new Exception(str);
-						}
-					}
-				}
-				else if (proxyMode != "detect")
-				{
-					wc.Proxy = null;
-				}
-			}
-
-			if (parameters == null)
-				return wc.DownloadData(url);
-			else
-				return wc.UploadValues(url, "POST", parameters);
-		}
-		*/
-
+		
 		public int PingerInvalid()
 		{
 			return m_threadPinger.GetStats().Invalid;
@@ -1845,7 +1789,7 @@ namespace Eddie.Core
 					if (NextServer == null)
 					{
 						if (Engine.Storage.GetBool("servers.startlast"))
-							NextServer = Engine.PickServer(Engine.Storage.Get("servers.last"));
+							NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
 					}
 
 					m_threadSession = new Threads.Session();
@@ -1905,7 +1849,7 @@ namespace Eddie.Core
 				List<string> areasWhiteList = Storage.GetList("areas.whitelist");
 				List<string> areasBlackList = Storage.GetList("areas.blacklist");
 
-				foreach (ServerInfo server in m_servers.Values)
+				foreach (ConnectionInfo server in m_connections.Values)
 				{
 					string countryCode = server.CountryCode;
 
@@ -1975,15 +1919,15 @@ namespace Eddie.Core
 
 		public void UpdateSettings()
 		{
-			List<string> serversWhiteList = new List<string>();
-			List<string> serversBlackList = new List<string>();
-			foreach (ServerInfo info in m_servers.Values)
-				if (info.UserList == ServerInfo.UserListType.WhiteList)
-					serversWhiteList.Add(info.Code);
-				else if (info.UserList == ServerInfo.UserListType.BlackList)
-					serversBlackList.Add(info.Code);
-			Storage.SetList("servers.whitelist", serversWhiteList);
-			Storage.SetList("servers.blacklist", serversBlackList);
+			List<string> connectionsWhiteList = new List<string>();
+			List<string> connectionsBlackList = new List<string>();
+			foreach (ConnectionInfo info in m_connections.Values)
+				if (info.UserList == ConnectionInfo.UserListType.WhiteList)
+					connectionsWhiteList.Add(info.Code);
+				else if (info.UserList == ConnectionInfo.UserListType.BlackList)
+					connectionsBlackList.Add(info.Code);
+			Storage.SetList("servers.whitelist", connectionsWhiteList);
+			Storage.SetList("servers.blacklist", connectionsBlackList);
 
 			List<string> areasWhiteList = new List<string>();
 			List<string> areasBlackList = new List<string>();
@@ -2008,14 +1952,14 @@ namespace Eddie.Core
 
 		public bool CheckEnvironment()
 		{
-			if (Software.GetTool("openvpn").Available() == false)
-				throw new Exception("OpenVPN " + Messages.NotFound);
-
+			Software.ExceptionForRequired();
+			
 			string protocol = Storage.Get("mode.protocol").ToUpperInvariant();
 
 			if ((protocol != "AUTO") && (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL") )
 				throw new Exception(Messages.CheckingProtocolUnknown);
-
+			
+			// TOCLEAN : Must be moved at provider level
 			if( (protocol == "SSH") && (Software.GetTool("ssh").Available() == false) )
 				throw new Exception("SSH " + Messages.NotFound);
 
@@ -2092,7 +2036,7 @@ namespace Eddie.Core
 				if (country != "")
 					serverName += " (" + country + ")";
 				text += serverName;
-				text += " - IP:" + CurrentServer.IpExit;
+				text += " - IP:" + CurrentServer.IpsExit.ToStringIPv4();
 			}
 			return text;
 		}

@@ -31,7 +31,7 @@ namespace Eddie.Gui.Forms
 			this.components = new System.ComponentModel.Container();
 			Eddie.Gui.Skin.TabPage tabAdvanced;
 			Eddie.Gui.Skin.TabPage tabDirectives;
-			Eddie.Gui.Skin.TabPage tabEventsw;
+			Eddie.Gui.Skin.TabPage tabEvents;
 			Eddie.Gui.Skin.ColumnHeader columnHeader1;
 			Eddie.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
@@ -112,6 +112,13 @@ namespace Eddie.Gui.Forms
 			this.chkSystemStart = new Eddie.Gui.Skin.CheckBox();
 			this.chkUiMinimizeTray = new Eddie.Gui.Skin.CheckBox();
 			this.cmdTos = new Eddie.Gui.Skin.Button();
+			this.tabProviders = new System.Windows.Forms.TabPage();
+			this.cmdProviderEdit = new Eddie.Gui.Skin.Button();
+			this.cmdProviderRemove = new Eddie.Gui.Skin.Button();
+			this.cmdProviderAdd = new Eddie.Gui.Skin.Button();
+			this.label8 = new Eddie.Gui.Skin.Label();
+			this.lstProviders = new Eddie.Gui.Skin.ListView();
+			this.colProviderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabProtocols = new Eddie.Gui.Skin.TabPage();
 			this.lnkProtocolsHelp2 = new Eddie.Gui.Skin.LinkLabel();
 			this.lnkProtocolsHelp1 = new Eddie.Gui.Skin.LinkLabel();
@@ -121,6 +128,7 @@ namespace Eddie.Gui.Forms
 			this.colProtocolsPort = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
 			this.colProtocolsEntry = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProtocolsDescription = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
+			this.colProtocolsTech = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabProxy = new Eddie.Gui.Skin.TabPage();
 			this.lnkProxyTorHelp = new Eddie.Gui.Skin.LinkLabel();
 			this.txtProxyTorControlPassword = new Eddie.Gui.Skin.TextBox();
@@ -166,6 +174,8 @@ namespace Eddie.Gui.Forms
 			this.cboDnsSwitchMode = new Eddie.Gui.Skin.ComboBox();
 			this.chkDnsCheck = new Eddie.Gui.Skin.CheckBox();
 			this.tabNetworkLock = new Eddie.Gui.Skin.TabPage();
+			this.lblLockAllowDNS = new Eddie.Gui.Skin.Label();
+			this.chkLockAllowDNS = new Eddie.Gui.Skin.CheckBox();
 			this.lblLockAllowPing = new Eddie.Gui.Skin.Label();
 			this.lblLockAllowPrivate = new Eddie.Gui.Skin.Label();
 			this.lnkLockHelp = new Eddie.Gui.Skin.LinkLabel();
@@ -184,29 +194,36 @@ namespace Eddie.Gui.Forms
 			this.txtLogPath = new Eddie.Gui.Skin.TextBox();
 			this.lblLogPath = new Eddie.Gui.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Gui.Skin.CheckBox();
-			this.lblLockAllowDNS = new Eddie.Gui.Skin.Label();
-			this.chkLockAllowDNS = new Eddie.Gui.Skin.CheckBox();
+			this.tabExperimentals = new System.Windows.Forms.TabPage();
+			this.lblProtocolIPEntry = new Eddie.Gui.Skin.Label();
+			this.cboProtocolIPEntry = new Eddie.Gui.Skin.ComboBox();
+			this.lblProtocolIPv4Route = new Eddie.Gui.Skin.Label();
+			this.cboProtocolIPv4Route = new Eddie.Gui.Skin.ComboBox();
+			this.lblProtocolIPv6Route = new Eddie.Gui.Skin.Label();
+			this.cboProtocolIPv6Route = new Eddie.Gui.Skin.ComboBox();
 			tabAdvanced = new Eddie.Gui.Skin.TabPage();
 			tabDirectives = new Eddie.Gui.Skin.TabPage();
-			tabEventsw = new Eddie.Gui.Skin.TabPage();
+			tabEvents = new Eddie.Gui.Skin.TabPage();
 			columnHeader1 = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
 			columnHeader2 = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
 			columnHeader5 = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
 			tabAdvanced.SuspendLayout();
 			this.pnlAdvancedGeneralWindowsOnly.SuspendLayout();
 			tabDirectives.SuspendLayout();
-			tabEventsw.SuspendLayout();
+			tabEvents.SuspendLayout();
 			this.mnuRoutes.SuspendLayout();
 			this.pnlCommands.SuspendLayout();
 			this.tabSettings.SuspendLayout();
 			this.tabGeneral.SuspendLayout();
 			this.pnlGeneralWindowsOnly.SuspendLayout();
+			this.tabProviders.SuspendLayout();
 			this.tabProtocols.SuspendLayout();
 			this.tabProxy.SuspendLayout();
 			this.tabRoutes.SuspendLayout();
 			this.tabDNS.SuspendLayout();
 			this.tabNetworkLock.SuspendLayout();
 			this.tabLogging.SuspendLayout();
+			this.tabExperimentals.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabAdvanced
@@ -680,18 +697,18 @@ namespace Eddie.Gui.Forms
 			this.txtOpenVpnDirectivesCustom.Size = new System.Drawing.Size(315, 243);
 			this.txtOpenVpnDirectivesCustom.TabIndex = 57;
 			// 
-			// tabEventsw
+			// tabEvents
 			// 
-			tabEventsw.BackColor = System.Drawing.Color.White;
-			tabEventsw.Controls.Add(this.cmdAdvancedEventsEdit);
-			tabEventsw.Controls.Add(this.cmdAdvancedEventsClear);
-			tabEventsw.Controls.Add(this.lstAdvancedEvents);
-			tabEventsw.Controls.Add(this.label1);
-			tabEventsw.Location = new System.Drawing.Point(4, 24);
-			tabEventsw.Name = "tabEventsw";
-			tabEventsw.Size = new System.Drawing.Size(673, 337);
-			tabEventsw.TabIndex = 2;
-			tabEventsw.Text = "Events";
+			tabEvents.BackColor = System.Drawing.Color.White;
+			tabEvents.Controls.Add(this.cmdAdvancedEventsEdit);
+			tabEvents.Controls.Add(this.cmdAdvancedEventsClear);
+			tabEvents.Controls.Add(this.lstAdvancedEvents);
+			tabEvents.Controls.Add(this.label1);
+			tabEvents.Location = new System.Drawing.Point(4, 24);
+			tabEvents.Name = "tabEvents";
+			tabEvents.Size = new System.Drawing.Size(673, 337);
+			tabEvents.TabIndex = 2;
+			tabEvents.Text = "Events";
 			// 
 			// cmdAdvancedEventsEdit
 			// 
@@ -882,6 +899,7 @@ namespace Eddie.Gui.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabSettings.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tabSettings.Controls.Add(this.tabGeneral);
+			this.tabSettings.Controls.Add(this.tabProviders);
 			this.tabSettings.Controls.Add(this.tabProtocols);
 			this.tabSettings.Controls.Add(this.tabProxy);
 			this.tabSettings.Controls.Add(this.tabRoutes);
@@ -890,7 +908,8 @@ namespace Eddie.Gui.Forms
 			this.tabSettings.Controls.Add(tabAdvanced);
 			this.tabSettings.Controls.Add(this.tabLogging);
 			this.tabSettings.Controls.Add(tabDirectives);
-			this.tabSettings.Controls.Add(tabEventsw);
+			this.tabSettings.Controls.Add(tabEvents);
+			this.tabSettings.Controls.Add(this.tabExperimentals);
 			this.tabSettings.ItemSize = new System.Drawing.Size(80, 20);
 			this.tabSettings.Location = new System.Drawing.Point(183, 0);
 			this.tabSettings.Name = "tabSettings";
@@ -1201,6 +1220,100 @@ namespace Eddie.Gui.Forms
 			this.cmdTos.UseVisualStyleBackColor = true;
 			this.cmdTos.Click += new System.EventHandler(this.cmdTos_Click);
 			// 
+			// tabProviders
+			// 
+			this.tabProviders.Controls.Add(this.cmdProviderEdit);
+			this.tabProviders.Controls.Add(this.cmdProviderRemove);
+			this.tabProviders.Controls.Add(this.cmdProviderAdd);
+			this.tabProviders.Controls.Add(this.label8);
+			this.tabProviders.Controls.Add(this.lstProviders);
+			this.tabProviders.Location = new System.Drawing.Point(4, 24);
+			this.tabProviders.Name = "tabProviders";
+			this.tabProviders.Size = new System.Drawing.Size(673, 337);
+			this.tabProviders.TabIndex = 6;
+			this.tabProviders.Text = "Providers";
+			this.tabProviders.UseVisualStyleBackColor = true;
+			// 
+			// cmdProviderEdit
+			// 
+			this.cmdProviderEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdProviderEdit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdProviderEdit.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdProviderEdit.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdProviderEdit.FlatAppearance.BorderSize = 0;
+			this.cmdProviderEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdProviderEdit.Image = global::Eddie.Lib.Forms.Properties.Resources.edit;
+			this.cmdProviderEdit.Location = new System.Drawing.Point(632, 103);
+			this.cmdProviderEdit.Name = "cmdProviderEdit";
+			this.cmdProviderEdit.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderEdit.TabIndex = 46;
+			this.cmdProviderEdit.UseVisualStyleBackColor = true;
+			// 
+			// cmdProviderRemove
+			// 
+			this.cmdProviderRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdProviderRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdProviderRemove.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdProviderRemove.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdProviderRemove.FlatAppearance.BorderSize = 0;
+			this.cmdProviderRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdProviderRemove.Image = global::Eddie.Lib.Forms.Properties.Resources.delete;
+			this.cmdProviderRemove.Location = new System.Drawing.Point(632, 69);
+			this.cmdProviderRemove.Name = "cmdProviderRemove";
+			this.cmdProviderRemove.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderRemove.TabIndex = 45;
+			this.cmdProviderRemove.UseVisualStyleBackColor = true;
+			// 
+			// cmdProviderAdd
+			// 
+			this.cmdProviderAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdProviderAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdProviderAdd.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdProviderAdd.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdProviderAdd.FlatAppearance.BorderSize = 0;
+			this.cmdProviderAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdProviderAdd.Image = global::Eddie.Lib.Forms.Properties.Resources.add;
+			this.cmdProviderAdd.Location = new System.Drawing.Point(632, 35);
+			this.cmdProviderAdd.Name = "cmdProviderAdd";
+			this.cmdProviderAdd.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderAdd.TabIndex = 44;
+			this.cmdProviderAdd.UseVisualStyleBackColor = true;
+			// 
+			// label8
+			// 
+			this.label8.BackColor = System.Drawing.Color.Transparent;
+			this.label8.ForeColor = System.Drawing.Color.Black;
+			this.label8.Location = new System.Drawing.Point(6, 10);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(654, 22);
+			this.label8.TabIndex = 43;
+			this.label8.Text = "Network routing rules about what destination must be in the VPN tunnel or not.";
+			// 
+			// lstProviders
+			// 
+			this.lstProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstProviders.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colProviderName});
+			this.lstProviders.ContextMenuStrip = this.mnuRoutes;
+			this.lstProviders.FullRowSelect = true;
+			this.lstProviders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.lstProviders.HideSelection = false;
+			this.lstProviders.Location = new System.Drawing.Point(6, 35);
+			this.lstProviders.MultiSelect = false;
+			this.lstProviders.Name = "lstProviders";
+			this.lstProviders.OwnerDraw = true;
+			this.lstProviders.Size = new System.Drawing.Size(621, 264);
+			this.lstProviders.SmallImageList = this.imgRoutes;
+			this.lstProviders.TabIndex = 42;
+			this.lstProviders.UseCompatibleStateImageBehavior = false;
+			this.lstProviders.View = System.Windows.Forms.View.Details;
+			// 
+			// colProviderName
+			// 
+			this.colProviderName.Text = "Provider";
+			// 
 			// tabProtocols
 			// 
 			this.tabProtocols.BackColor = System.Drawing.Color.White;
@@ -1263,7 +1376,8 @@ namespace Eddie.Gui.Forms
             this.colProtocolsProtocol,
             this.colProtocolsPort,
             this.colProtocolsEntry,
-            this.colProtocolsDescription});
+            this.colProtocolsDescription,
+            this.colProtocolsTech});
 			this.lstProtocols.FullRowSelect = true;
 			this.lstProtocols.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstProtocols.HideSelection = false;
@@ -1286,12 +1400,16 @@ namespace Eddie.Gui.Forms
 			// 
 			// colProtocolsEntry
 			// 
-			this.colProtocolsEntry.Text = "Entry";
+			this.colProtocolsEntry.Text = "IP";
 			// 
 			// colProtocolsDescription
 			// 
 			this.colProtocolsDescription.Text = "Description";
 			this.colProtocolsDescription.Width = 200;
+			// 
+			// colProtocolsTech
+			// 
+			this.colProtocolsTech.Text = "Specs";
 			// 
 			// tabProxy
 			// 
@@ -1874,6 +1992,28 @@ namespace Eddie.Gui.Forms
 			this.tabNetworkLock.Text = "Network lock";
 			this.tabNetworkLock.UseVisualStyleBackColor = true;
 			// 
+			// lblLockAllowDNS
+			// 
+			this.lblLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockAllowDNS.ForeColor = System.Drawing.Color.Black;
+			this.lblLockAllowDNS.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblLockAllowDNS.Location = new System.Drawing.Point(14, 101);
+			this.lblLockAllowDNS.Name = "lblLockAllowDNS";
+			this.lblLockAllowDNS.Size = new System.Drawing.Size(144, 25);
+			this.lblLockAllowDNS.TabIndex = 86;
+			this.lblLockAllowDNS.Text = "Allow detected DNS:";
+			this.lblLockAllowDNS.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkLockAllowDNS
+			// 
+			this.chkLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
+			this.chkLockAllowDNS.ForeColor = System.Drawing.Color.Black;
+			this.chkLockAllowDNS.Location = new System.Drawing.Point(164, 101);
+			this.chkLockAllowDNS.Name = "chkLockAllowDNS";
+			this.chkLockAllowDNS.Size = new System.Drawing.Size(163, 25);
+			this.chkLockAllowDNS.TabIndex = 85;
+			this.chkLockAllowDNS.UseVisualStyleBackColor = false;
+			// 
 			// lblLockAllowPing
 			// 
 			this.lblLockAllowPing.BackColor = System.Drawing.Color.Transparent;
@@ -2093,27 +2233,89 @@ namespace Eddie.Gui.Forms
 			this.chkLoggingEnabled.Text = "Logging on file enabled";
 			this.chkLoggingEnabled.UseVisualStyleBackColor = false;
 			// 
-			// lblLockAllowDNS
+			// tabExperimentals
 			// 
-			this.lblLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
-			this.lblLockAllowDNS.ForeColor = System.Drawing.Color.Black;
-			this.lblLockAllowDNS.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblLockAllowDNS.Location = new System.Drawing.Point(14, 101);
-			this.lblLockAllowDNS.Name = "lblLockAllowDNS";
-			this.lblLockAllowDNS.Size = new System.Drawing.Size(144, 25);
-			this.lblLockAllowDNS.TabIndex = 86;
-			this.lblLockAllowDNS.Text = "Allow detected DNS:";
-			this.lblLockAllowDNS.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.tabExperimentals.Controls.Add(this.lblProtocolIPv6Route);
+			this.tabExperimentals.Controls.Add(this.cboProtocolIPv6Route);
+			this.tabExperimentals.Controls.Add(this.lblProtocolIPv4Route);
+			this.tabExperimentals.Controls.Add(this.cboProtocolIPv4Route);
+			this.tabExperimentals.Controls.Add(this.lblProtocolIPEntry);
+			this.tabExperimentals.Controls.Add(this.cboProtocolIPEntry);
+			this.tabExperimentals.Location = new System.Drawing.Point(4, 24);
+			this.tabExperimentals.Name = "tabExperimentals";
+			this.tabExperimentals.Size = new System.Drawing.Size(673, 337);
+			this.tabExperimentals.TabIndex = 7;
+			this.tabExperimentals.Text = "Experimentals";
+			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
-			// chkLockAllowDNS
+			// lblProtocolIPEntry
 			// 
-			this.chkLockAllowDNS.BackColor = System.Drawing.Color.Transparent;
-			this.chkLockAllowDNS.ForeColor = System.Drawing.Color.Black;
-			this.chkLockAllowDNS.Location = new System.Drawing.Point(164, 101);
-			this.chkLockAllowDNS.Name = "chkLockAllowDNS";
-			this.chkLockAllowDNS.Size = new System.Drawing.Size(163, 25);
-			this.chkLockAllowDNS.TabIndex = 85;
-			this.chkLockAllowDNS.UseVisualStyleBackColor = false;
+			this.lblProtocolIPEntry.BackColor = System.Drawing.Color.Transparent;
+			this.lblProtocolIPEntry.ForeColor = System.Drawing.Color.Black;
+			this.lblProtocolIPEntry.Location = new System.Drawing.Point(18, 15);
+			this.lblProtocolIPEntry.Name = "lblProtocolIPEntry";
+			this.lblProtocolIPEntry.Size = new System.Drawing.Size(220, 21);
+			this.lblProtocolIPEntry.TabIndex = 91;
+			this.lblProtocolIPEntry.Text = "IP Protocol used for connection:";
+			this.lblProtocolIPEntry.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboProtocolIPEntry
+			// 
+			this.cboProtocolIPEntry.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboProtocolIPEntry.FormattingEnabled = true;
+			this.cboProtocolIPEntry.Items.AddRange(new object[] {
+            "None",
+            "Disable"});
+			this.cboProtocolIPEntry.Location = new System.Drawing.Point(247, 15);
+			this.cboProtocolIPEntry.Name = "cboProtocolIPEntry";
+			this.cboProtocolIPEntry.Size = new System.Drawing.Size(133, 21);
+			this.cboProtocolIPEntry.TabIndex = 90;
+			// 
+			// lblProtocolIPv4Route
+			// 
+			this.lblProtocolIPv4Route.BackColor = System.Drawing.Color.Transparent;
+			this.lblProtocolIPv4Route.ForeColor = System.Drawing.Color.Black;
+			this.lblProtocolIPv4Route.Location = new System.Drawing.Point(18, 42);
+			this.lblProtocolIPv4Route.Name = "lblProtocolIPv4Route";
+			this.lblProtocolIPv4Route.Size = new System.Drawing.Size(220, 21);
+			this.lblProtocolIPv4Route.TabIndex = 93;
+			this.lblProtocolIPv4Route.Text = "Layer IPv4:";
+			this.lblProtocolIPv4Route.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboProtocolIPv4Route
+			// 
+			this.cboProtocolIPv4Route.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboProtocolIPv4Route.FormattingEnabled = true;
+			this.cboProtocolIPv4Route.Items.AddRange(new object[] {
+            "None",
+            "Disable"});
+			this.cboProtocolIPv4Route.Location = new System.Drawing.Point(247, 42);
+			this.cboProtocolIPv4Route.Name = "cboProtocolIPv4Route";
+			this.cboProtocolIPv4Route.Size = new System.Drawing.Size(325, 21);
+			this.cboProtocolIPv4Route.TabIndex = 92;
+			// 
+			// lblProtocolIPv6Route
+			// 
+			this.lblProtocolIPv6Route.BackColor = System.Drawing.Color.Transparent;
+			this.lblProtocolIPv6Route.ForeColor = System.Drawing.Color.Black;
+			this.lblProtocolIPv6Route.Location = new System.Drawing.Point(18, 69);
+			this.lblProtocolIPv6Route.Name = "lblProtocolIPv6Route";
+			this.lblProtocolIPv6Route.Size = new System.Drawing.Size(220, 21);
+			this.lblProtocolIPv6Route.TabIndex = 95;
+			this.lblProtocolIPv6Route.Text = "Layer IPv6:";
+			this.lblProtocolIPv6Route.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboProtocolIPv6Route
+			// 
+			this.cboProtocolIPv6Route.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboProtocolIPv6Route.FormattingEnabled = true;
+			this.cboProtocolIPv6Route.Items.AddRange(new object[] {
+            "None",
+            "Disable"});
+			this.cboProtocolIPv6Route.Location = new System.Drawing.Point(247, 69);
+			this.cboProtocolIPv6Route.Name = "cboProtocolIPv6Route";
+			this.cboProtocolIPv6Route.Size = new System.Drawing.Size(325, 21);
+			this.cboProtocolIPv6Route.TabIndex = 94;
 			// 
 			// Settings
 			// 
@@ -2133,7 +2335,7 @@ namespace Eddie.Gui.Forms
 			this.pnlAdvancedGeneralWindowsOnly.ResumeLayout(false);
 			tabDirectives.ResumeLayout(false);
 			tabDirectives.PerformLayout();
-			tabEventsw.ResumeLayout(false);
+			tabEvents.ResumeLayout(false);
 			this.mnuRoutes.ResumeLayout(false);
 			this.pnlCommands.ResumeLayout(false);
 			this.tabSettings.ResumeLayout(false);
@@ -2141,6 +2343,7 @@ namespace Eddie.Gui.Forms
 			this.tabGeneral.PerformLayout();
 			this.pnlGeneralWindowsOnly.ResumeLayout(false);
 			this.pnlGeneralWindowsOnly.PerformLayout();
+			this.tabProviders.ResumeLayout(false);
 			this.tabProtocols.ResumeLayout(false);
 			this.tabProxy.ResumeLayout(false);
 			this.tabProxy.PerformLayout();
@@ -2150,6 +2353,7 @@ namespace Eddie.Gui.Forms
 			this.tabNetworkLock.PerformLayout();
 			this.tabLogging.ResumeLayout(false);
 			this.tabLogging.PerformLayout();
+			this.tabExperimentals.ResumeLayout(false);
 			this.ResumeLayout(false);
 
         }
@@ -2306,5 +2510,20 @@ namespace Eddie.Gui.Forms
         private Skin.Button cmdLoggingOpen;
 		private Skin.Label lblLockAllowDNS;
 		private Skin.CheckBox chkLockAllowDNS;
+		private System.Windows.Forms.ColumnHeader colProtocolsTech;
+		private System.Windows.Forms.TabPage tabProviders;
+		private System.Windows.Forms.TabPage tabExperimentals;
+		private Skin.Label lblProtocolIPEntry;
+		private Skin.ComboBox cboProtocolIPEntry;
+		private Skin.Button cmdProviderEdit;
+		private Skin.Button cmdProviderRemove;
+		private Skin.Button cmdProviderAdd;
+		private Skin.Label label8;
+		private Skin.ListView lstProviders;
+		private System.Windows.Forms.ColumnHeader colProviderName;
+		private Skin.Label lblProtocolIPv6Route;
+		private Skin.ComboBox cboProtocolIPv6Route;
+		private Skin.Label lblProtocolIPv4Route;
+		private Skin.ComboBox cboProtocolIPv4Route;
 	}
 }

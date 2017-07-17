@@ -18,6 +18,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -29,6 +32,8 @@ namespace Eddie.Core.Providers
     {		
 		public XmlNode Manifest;
 		public XmlNode User;
+
+		public List<ConnectionMode> Modes = new List<ConnectionMode>();
 
 		public override string GetCode()
 		{
@@ -73,36 +78,21 @@ namespace Eddie.Core.Providers
 			ovpn.AppendDirectives(Manifest.Attributes["openvpn_directives"].Value.Replace("\t", "").Trim(), "Provider level");
 		}
 
-        public override void OnBuildOvpn(OvpnBuilder ovpn)
+        public override void OnBuildOvpn(ConnectionInfo connection, OvpnBuilder ovpn)
         {
-            base.OnBuildOvpn(ovpn);
+            base.OnBuildOvpn(connection, ovpn);
 
-            // Move here AirVPN specific of Session thread (protocol, remote, alt, port, proxy)
+			ConnectionMode mode = GetMode();
 
-            ServerInfo CurrentServer = Engine.Instance.CurrentServer;
-
-            string protocol = Engine.Instance.Storage.Get("mode.protocol").ToUpperInvariant();
-            int port = Engine.Instance.Storage.GetInt("mode.port");
-            int alt = Engine.Instance.Storage.GetInt("mode.alt");
             int proxyPort = 0;
 
-            if (protocol == "AUTO")
-            {
-                protocol = CurrentServer.Provider.GetKeyValue("mode_protocol", "UDP");
-                string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
-                if (proxyMode != "none")
-                    protocol = "TCP";
-                port = Conversions.ToInt32(CurrentServer.Provider.GetKeyValue("mode_port", "443"));
-                alt = Conversions.ToInt32(CurrentServer.Provider.GetKeyValue("mode_alt", "0"));
-            }
-
-            if (protocol == "SSH")
+            if (mode.Protocol == "SSH")
             {
                 proxyPort = Engine.Instance.Storage.GetInt("ssh.port");
                 if (proxyPort == 0)
                     proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
             }
-            else if (protocol == "SSL")
+            else if (mode.Protocol == "SSL")
             {
                 proxyPort = Engine.Instance.Storage.GetInt("ssl.port");
                 if (proxyPort == 0)
@@ -113,39 +103,57 @@ namespace Eddie.Core.Providers
                 proxyPort = 0;
             }
 
-            if (protocol == "UDP")
-            {
-                ovpn.AppendDirective("proto", "udp", "");
-            }
-            else // TCP, SSH, SSL, Tor
-            {
-                ovpn.AppendDirective("proto", "tcp", "");
-            }
+			{
+				string modeDirectives = mode.Directives;
+				string paramUserTA = "";
+				if (User != null)
+					paramUserTA = Utils.XmlGetAttributeString(User, "ta", "");
+				modeDirectives = modeDirectives.Replace("{@user-ta}", paramUserTA);
+				ovpn.AppendDirectives(modeDirectives, "Mode level");
+			}
 
-            string ip = CurrentServer.IpEntry;
-            if (alt == 1)
-                ip = CurrentServer.IpEntry2;
+			// Pick the IP
+			IpAddress ip = null; 
+			string protocolEntry = Engine.Instance.Storage.Get("protocol.ip.entry");
+			if (protocolEntry == "ipv6-ipv4")
+			{
+				ip = connection.IpsEntry.GetV6ByIndex(mode.EntryIndex);
+				if (ip == null)
+					ip = connection.IpsEntry.GetV4ByIndex(mode.EntryIndex);
+			}
+			else if (protocolEntry == "ipv4-ipv6")
+			{
+				ip = connection.IpsEntry.GetV4ByIndex(mode.EntryIndex);
+				if (ip == null)
+					ip = connection.IpsEntry.GetV6ByIndex(mode.EntryIndex);
+			}
+			else if (protocolEntry == "ipv6-only")
+				ip = connection.IpsEntry.GetV6ByIndex(mode.EntryIndex);
+			else if (protocolEntry == "ipv4-only")
+				ip = connection.IpsEntry.GetV4ByIndex(mode.EntryIndex);
 
-            if (protocol == "SSH")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-            else if (protocol == "SSL")
-                ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-            else
-                ovpn.AppendDirective("remote", ip + " " + port.ToString(), "");
+			if (ip != null)
+			{
+				if (mode.Protocol == "SSH")
+					ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
+				else if (mode.Protocol == "SSL")
+					ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
+				else
+					ovpn.AppendDirective("remote", ip.AddressQ + " " + mode.Port.ToString(), "");
 
-            string routesDefault = Engine.Instance.Storage.Get("routes.default");
-            if (routesDefault == "in")
-            {
-                if ((protocol == "SSH") || (protocol == "SSL"))
-                {
-                    ovpn.AppendDirective("route", ip + " 255.255.255.255 net_gateway", "VPN Entry IP");
-                }
-            }
+				string routesDefault = Engine.Instance.Storage.Get("routes.default");
+				if (routesDefault == "in")
+				{
+					if ((mode.Protocol == "SSH") || (mode.Protocol == "SSL"))
+					{
+						ovpn.AppendDirective("route", ip.ToOpenVPN() + " net_gateway", "VPN Entry IP"); // ClodoIPv6 // ToFix
+					}
+				}
+			}
             
-
-            ovpn.Protocol = protocol;
+            ovpn.Protocol = mode.Protocol; // TOCLEAN
             ovpn.Address = ip;
-            ovpn.Port = port;
+            ovpn.Port = mode.Port;
             ovpn.ProxyPort = proxyPort;
         }
 
@@ -156,17 +164,15 @@ namespace Eddie.Core.Providers
             string key = Engine.Instance.Storage.Get("key");
 
             XmlNode nodeUser = User;            
-			ovpn.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
-			XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
-            if (xmlKey == null)
-                throw new Exception(MessagesFormatter.Format(Messages.KeyNotFound, key));
-            ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
-            ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");
-			if (ovpn.ExistsDirective("<tls-crypt>") == false) // TOCLEAN, Hack
+			if(nodeUser != null)
 			{
-				ovpn.AppendDirective("key-direction", "1", "");
-				ovpn.AppendDirective("<tls-auth>", nodeUser.Attributes["ta"].Value, "");
-			}
+				ovpn.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
+				XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
+				if (xmlKey == null)
+					throw new Exception(MessagesFormatter.Format(Messages.KeyNotFound, key));
+				ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
+				ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");
+			}		
 		}
 
 		public override void OnBuildOvpnPost(ref string ovpn)
@@ -277,9 +283,9 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-		public override void OnBuildServersList()
+		public override void OnBuildConnections()
 		{
-			base.OnBuildServersList();
+			base.OnBuildConnections();
 
             /*
 			if (IsLogged() == false)
@@ -291,15 +297,14 @@ namespace Eddie.Core.Providers
 				foreach (XmlNode nodeServer in Manifest.SelectNodes("//servers/server"))
 				{
                     string code = Utils.HashSHA256(nodeServer.Attributes["name"].Value);
-                    
-					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
+
+					ConnectionInfo infoServer = Engine.Instance.GetConnectionInfo(code, this);
 
                     // Update info
                     infoServer.DisplayName = TitleForDisplay + nodeServer.Attributes["name"].Value;
                     infoServer.ProviderName = nodeServer.Attributes["name"].Value;
-                    infoServer.IpEntry = Utils.XmlGetAttributeString(nodeServer, "ip_entry", ""); ;
-					infoServer.IpEntry2 = Utils.XmlGetAttributeString(nodeServer, "ip_entry2", "");
-					infoServer.IpExit = Utils.XmlGetAttributeString(nodeServer, "ip_exit", "");
+					infoServer.IpsEntry.Set(Utils.XmlGetAttributeString(nodeServer, "ips_entry", ""));
+					infoServer.IpsExit.Set(Utils.XmlGetAttributeString(nodeServer, "ips_exit", ""));
 					infoServer.CountryCode = Utils.XmlGetAttributeString(nodeServer, "country_code", "");
 					infoServer.Location = Utils.XmlGetAttributeString(nodeServer, "location", "");
 					infoServer.ScoreBase = Utils.XmlGetAttributeInt64(nodeServer, "scorebase", 0);
@@ -308,9 +313,32 @@ namespace Eddie.Core.Providers
 					infoServer.Users = Utils.XmlGetAttributeInt64(nodeServer, "users", 0);
 					infoServer.WarningOpen = Utils.XmlGetAttributeString(nodeServer, "warning_open", "");
 					infoServer.WarningClosed = Utils.XmlGetAttributeString(nodeServer, "warning_closed", "");
-                    infoServer.SupportCheck = Utils.XmlGetAttributeBool(nodeServer, "support_check", false);
-                    infoServer.OvpnDirectives = Utils.XmlGetAttributeString(nodeServer, "openvpn_directives", "");                    
-                }
+					infoServer.SupportIPv4 = Utils.XmlGetAttributeBool(nodeServer, "support_ipv4", false);
+					infoServer.SupportIPv6 = Utils.XmlGetAttributeBool(nodeServer, "support_ipv6", false);
+					infoServer.SupportCheck = Utils.XmlGetAttributeBool(nodeServer, "support_check", false);
+                    infoServer.OvpnDirectives = Utils.XmlGetAttributeString(nodeServer, "openvpn_directives", "");					
+				}
+			}
+
+			RefreshModes();
+		}
+
+		public override void OnCheckConnections()
+		{
+			base.OnCheckConnections();
+
+			ConnectionMode mode = GetMode();
+
+			lock(Engine.Instance.Connections)
+			{
+				foreach(ConnectionInfo connection in Engine.Instance.Connections.Values)
+				{
+					if (connection.Provider != this)
+						continue;
+
+					if (mode.EntryIndex >= connection.IpsEntry.CountIPv4)
+						connection.WarningAdd(Messages.ConnectionWarningModeUnsupported, ConnectionInfoWarning.WarningType.Error);					
+				}
 			}
 		}
 
@@ -361,6 +389,21 @@ namespace Eddie.Core.Providers
             }
         }
 
+		public void RefreshModes()
+		{
+			// Update modes
+			lock (Modes)
+			{
+				Modes.Clear();
+				foreach (XmlNode xmlMode in Manifest.SelectNodes("//modes/mode"))
+				{
+					ConnectionMode mode = new ConnectionMode();
+					mode.ReadXML(xmlMode as XmlElement);
+					Modes.Add(mode);
+				}
+			}
+		}
+
         public XmlDocument Fetch(string title, Dictionary<string, string> parameters)
 		{
 			List<string> urls = new List<string>();
@@ -376,33 +419,171 @@ namespace Eddie.Core.Providers
             
 			string authPublicKey = Manifest.SelectSingleNode("rsa").InnerXml;
 
-            return AirExchange.FetchUrls(title, authPublicKey, urls, parameters);            
-		}        
+            return FetchUrls(title, authPublicKey, urls, parameters);            
+		}
 
-		public XmlElement GetModeXml()
+		// This is the only method about exchange data between this software and AirVPN infrastructure.
+		// We don't use SSL. Useless layer in our case, and we need to fetch hostname and direct IP that don't permit common-name match.
+
+		// 'S' is the AES 256 bit one-time session key, crypted with a RSA 4096 public-key.
+		// 'D' is the data from the client to our server, crypted with the AES.
+		// The server answer is XML decrypted with the same AES session.
+		public static XmlDocument FetchUrl(string authPublicKey, string url, Dictionary<string, string> parameters)
+		{
+			// AES				
+			RijndaelManaged rijAlg = new RijndaelManaged();
+			rijAlg.KeySize = 256;
+			rijAlg.GenerateKey();
+			rijAlg.GenerateIV();
+
+			// Generate S
+
+			// Bug workaround: Xamarin 6.1.2 macOS throw an 'Default constructor not found for type System.Diagnostics.FilterElement' error.
+			// in 'new System.Xml.Serialization.XmlSerializer', so i avoid that.
+			/*
+            StringReader sr = new System.IO.StringReader(authPublicKey);
+			System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
+			RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
+            */
+			RSAParameters publicKey = new RSAParameters();
+			XmlDocument docAuthPublicKey = new XmlDocument();
+			docAuthPublicKey.LoadXml(authPublicKey);
+			publicKey.Modulus = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Modulus"].InnerText);
+			publicKey.Exponent = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Exponent"].InnerText);
+
+			RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
+			csp.ImportParameters(publicKey);
+
+			Dictionary<string, byte[]> assocParamS = new Dictionary<string, byte[]>();
+			assocParamS["key"] = rijAlg.Key;
+			assocParamS["iv"] = rijAlg.IV;
+
+			byte[] bytesParamS = csp.Encrypt(Utils.AssocToUtf8Bytes(assocParamS), false);
+
+			// Generate D
+
+			byte[] aesDataIn = Utils.AssocToUtf8Bytes(parameters);
+			MemoryStream aesCryptStream = new MemoryStream();
+			ICryptoTransform aesEncryptor = rijAlg.CreateEncryptor();
+			CryptoStream aesCryptStream2 = new CryptoStream(aesCryptStream, aesEncryptor, CryptoStreamMode.Write);
+			aesCryptStream2.Write(aesDataIn, 0, aesDataIn.Length);
+			aesCryptStream2.FlushFinalBlock();
+			byte[] bytesParamD = aesCryptStream.ToArray();
+
+			// HTTP Fetch
+			System.Collections.Specialized.NameValueCollection fetchParameters = new System.Collections.Specialized.NameValueCollection();
+			fetchParameters["s"] = Utils.Base64Encode(bytesParamS);
+			fetchParameters["d"] = Utils.Base64Encode(bytesParamD);
+
+			// 'GET' Edition - < 2.9			
+			// string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
+			// byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
+
+			// 'POST' Edition - >= 2.9			
+			// Debug with an url direct to backend service client debugging page			            
+			url = "https://airvpn.org/services/client/indexn.php"; // ClodoTemp
+			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", false, "");
+
+			// Decrypt answer
+			MemoryStream aesDecryptStream = new MemoryStream();
+			ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor();
+			CryptoStream aesDecryptStream2 = new CryptoStream(aesDecryptStream, aesDecryptor, CryptoStreamMode.Write);
+			aesDecryptStream2.Write(fetchResponse, 0, fetchResponse.Length);
+			aesDecryptStream2.FlushFinalBlock();
+			byte[] fetchResponsePlain = aesDecryptStream.ToArray();
+
+			string finalData = System.Text.Encoding.UTF8.GetString(fetchResponsePlain);
+
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(finalData);
+			return doc;
+		}
+
+		public static XmlDocument FetchUrls(string title, string authPublicKey, List<string> urls, Dictionary<string, string> parameters)
+		{
+			parameters["login"] = Engine.Instance.Storage.Get("login");
+			parameters["password"] = Engine.Instance.Storage.Get("password");
+			parameters["system"] = Platform.Instance.GetSystemCode();
+			parameters["version"] = Constants.VersionInt.ToString(CultureInfo.InvariantCulture);
+
+			string firstError = "";
+			int hostN = 0;
+			foreach (string url in urls)
+			{
+				string host = Utils.HostFromUrl(url);
+
+				hostN++;
+				if (IpAddress.IsIP(host) == false)
+				{
+					// If locked network are enabled, skip the hostname and try only by IP.
+					// To avoid DNS issue (generally, to avoid losing time).
+					if (Engine.Instance.NetworkLockManager.IsDnsResolutionAvailable(host) == false)
+						continue;
+				}
+
+				try
+				{
+					RouteScope routeScope = new RouteScope(host);
+					XmlDocument xmlDoc = FetchUrl(authPublicKey, url, parameters);
+					routeScope.End();
+					if (xmlDoc == null)
+						throw new Exception("No answer.");
+
+					if (xmlDoc.DocumentElement.Attributes["error"] != null)
+						throw new Exception(xmlDoc.DocumentElement.Attributes["error"].Value);
+
+					return xmlDoc;
+				}
+				catch (Exception e)
+				{
+					string info = e.Message;
+					string proxyMode = Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant();
+					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
+					if (proxyMode != "none")
+						info += " - with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
+
+					if (Engine.Instance.Storage.GetBool("advanced.expert"))
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
+
+					if (firstError == "")
+						firstError = info;
+				}
+			}
+
+			throw new Exception(firstError);
+		}
+
+		public ConnectionMode GetMode()
 		{
 			String protocol = Engine.Instance.Storage.Get("mode.protocol").ToUpperInvariant();
 			int port = Engine.Instance.Storage.GetInt("mode.port");
-			int alternate = Engine.Instance.Storage.GetInt("mode.alt");
+			int entry = Engine.Instance.Storage.GetInt("mode.alt");
 
 			if (protocol == "AUTO")
 			{
-				protocol = GetKeyValue("mode_protocol", "UDP");
 				string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
-				if (proxyMode != "none")
-					protocol = "TCP";
-				port = Conversions.ToInt32(GetKeyValue("mode_port", "443"));
-				alternate = Conversions.ToInt32(GetKeyValue("mode_alt", "0"));
+
+				foreach (ConnectionMode mode in Modes)
+				{
+					if (mode.Available == false)
+						continue;
+					if ((proxyMode != "none") && (mode.Protocol != "TCP"))
+						continue;
+
+					return mode;
+				}				
+			}
+			else
+			{
+				foreach (ConnectionMode mode in Modes)
+				{
+					if ((mode.Protocol.ToLowerInvariant() == protocol.ToLowerInvariant()) &&
+						(mode.Port == port) &&
+						(mode.EntryIndex == entry))
+						return mode;
+				}
 			}
 
-			XmlNodeList xmlModes = Manifest.SelectNodes("//modes/mode");
-			foreach (XmlElement xmlMode in xmlModes)
-			{
-				if ((Utils.XmlGetAttributeString(xmlMode, "protocol", "").ToUpperInvariant() == protocol) &&
-					(Utils.XmlGetAttributeInt(xmlMode, "port", -1) == port) &&
-					(Utils.XmlGetAttributeInt(xmlMode, "entry_index", -1) == alternate))
-					return xmlMode;
-			}
 			return null;
 		}
     }

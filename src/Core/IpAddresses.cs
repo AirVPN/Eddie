@@ -38,13 +38,33 @@ namespace Eddie.Core
 			Add(value);
 		}
 
+		public IpAddresses(string[] values)
+		{
+			Add(string.Join(",", values));
+		}
+
 		public bool Contains(IpAddress ip)
 		{
 			return (IPs.Contains(ip));
 		}
 
+		public bool ContainsAddress(IpAddress ip)
+		{
+			foreach (IpAddress ipc in IPs)
+				if (ipc.Address == ip.Address)
+					return true;
+			return false;
+		}
+
+		public void Set(string v)
+		{
+			IPs.Clear();
+			Add(v);
+		}
+
 		public void Add(string v)
 		{
+			v = v.Replace(",", "\n");
 			string[] lines = v.Split('\n');
 			foreach(string line in lines)
 			{
@@ -130,16 +150,115 @@ namespace Eddie.Core
 			}
 		}
 
-		public override string ToString()
+		public IpAddress GetV4ByIndex(int index)
+		{
+			lock (IPs)
+			{
+				int i = -1;
+				foreach (IpAddress ip in IPs)
+				{
+					if(ip.IsV4)
+					{
+						i++;
+						if (i == index)
+							return ip;
+					}
+				}
+				return null;
+			}
+		}
+
+		public IpAddress GetV6ByIndex(int index)
+		{
+			lock (IPs)
+			{
+				int i = -1;
+				foreach (IpAddress ip in IPs)
+				{
+					if (ip.IsV6)
+					{
+						i++;
+						if (i == index)
+							return ip;
+					}
+				}
+				return null;
+			}
+		}
+
+		public string ToStringFirstIPv4() // TOCLEAN
+		{
+			foreach (IpAddress ip in IPs)
+			{
+				if (ip.IsV4)
+					return ip.Address;
+			}
+			return "";
+		}
+
+		public string ToStringIPv4() // TOCLEAN
 		{
 			string result = "";
 			foreach (IpAddress ip in IPs)
 			{
+				if (ip.IsV4 == false)
+					continue;
+
 				if (result != "")
 					result += ", ";
 				result += ip.ToCIDR();
 			}
 			return result;
+		}
+
+		public string Addresses
+		{
+			get
+			{
+				string result = "";
+				foreach (IpAddress ip in IPs)
+				{
+					if (result != "")
+						result += ", ";
+					result += ip.Address;
+				}
+				return result;
+			}
+		}
+
+		public string[] AddressesToStringArray()
+		{
+			List<string> result = new List<string>();
+			foreach (IpAddress ip in IPs)
+				result.Add(ip.Address);
+			return result.ToArray();
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj == null)
+				return false;
+
+			IpAddresses two = obj as IpAddresses;
+			if (two == null)
+				return false;
+						
+			// Works because ToString sort items.
+			return ToString() == two.ToString();
+		}
+
+		public override int GetHashCode()
+		{
+			return ToString().GetHashCode();
+		}
+
+		public override string ToString()
+		{
+			List<string> items = new List<string>();
+			foreach (IpAddress ip in IPs)
+				items.Add(ip.ToCIDR());
+			items.Sort();
+			return string.Join(", ", items.ToArray());
 		}
 	}
 }

@@ -56,9 +56,11 @@ namespace Eddie.Core
 			Add("VpnDns", Messages.StatsVpnDns, "vpn");
 			Add("VpnInterface", Messages.StatsVpnInterface, "vpn");
 			Add("VpnGateway", Messages.StatsVpnGateway, "vpn");
-            Add("SessionTotalDownload", Messages.StatsSessionTotalDownload, "session");
-            Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");
-            Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", "view");
+			Add("VpnCipher", Messages.StatsVpnCipher, "vpn");
+			Add("VpnControlChannel", Messages.StatsVpnControlChannel, "vpn");
+			Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", "view");
+			Add("SessionTotalDownload", Messages.StatsSessionTotalDownload, "session");
+            Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");            
 			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system", "Update");
 			Add("Pinger", Messages.StatsPinger, "system", "Update"); 
 			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");

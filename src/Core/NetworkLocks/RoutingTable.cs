@@ -22,6 +22,8 @@ using System.Text;
 using System.Xml;
 
 /*
+ * NOT USED
+ * 
  * Known limits:
  * 
  * - Set all profiles firewallpolicy

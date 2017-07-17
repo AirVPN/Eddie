@@ -121,7 +121,7 @@ namespace Eddie.Platforms
 
 		public override string GetName()
 		{
-			return System.Environment.OSVersion.VersionString;			
+			return Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", "").ToString();
 		}
 		
 		public override void OnDeInit()
@@ -410,6 +410,10 @@ namespace Eddie.Platforms
 
 				if(fields.Length == 5)
 				{
+					// On-link are addresses that can be resolved locally. They don't need a gateway because they don't need to be routed.
+					if (fields[2].ToLowerInvariant() == "on-link")
+						continue;
+
 					// Route line.
 					RouteEntry e = new RouteEntry();
 					e.Address = fields[0];
@@ -422,12 +426,8 @@ namespace Eddie.Platforms
 						continue;
 					if(e.Mask.Valid == false)
 						continue;
-
-					if (e.Gateway.Address != "On-link")
-					{
-						if (e.Gateway.Valid == false)
-							continue;
-					}
+					if (e.Gateway.Valid == false)
+						continue;
 					
 					if (InterfacesIp2Id.ContainsKey(e.Interface))
 					{
@@ -518,7 +518,7 @@ namespace Eddie.Platforms
 		{			
 			SwitchToStaticRestore();
 
-			FlushDNS();
+			// FlushDNS(); // Moved in 2.13.3 in ::session.cs, but only if a connection occur.
 
 			Recovery.Save();
 		}
@@ -621,9 +621,9 @@ namespace Eddie.Platforms
 			return true;
 		}
 
-		public override bool OnDnsSwitchDo(string dns)
+		public override bool OnDnsSwitchDo(IpAddresses dns)
 		{
-			string[] dnsArray = dns.Split(',');
+			//TOCLEAN string[] dnsArray = dns.Split(',');
 
 			if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))                
 			{
@@ -734,18 +734,16 @@ namespace Eddie.Platforms
 
 							if (entry.AutoDns == false) // Added 2.11
 							{
-								if (String.Join(",", entry.Dns) == dns)
-								{
-									continue;
-								}
+								if (dns.Equals(new IpAddresses(entry.Dns)))
+									continue;								
 							}
 
 							//string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", detectedDns));
 							string descFrom = (entry.AutoDns ? "automatic":"manual") + " (" + String.Join(",", entry.Dns) + ")";
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns));
+							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns.Addresses));
 
 							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-							objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dnsArray;
+							objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dns.AddressesToStringArray();
 							objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
 
 							m_listOldDns.Add(entry);

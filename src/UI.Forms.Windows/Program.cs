@@ -29,10 +29,10 @@ namespace Eddie.UI.Windows
 	static class Program
 	{
 		/// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        /// 
-
+		/// The main entry point for the application.
+		/// </summary>
+		/// 
+		
 		[STAThread]
 		static void Main()
         {
@@ -71,19 +71,22 @@ namespace Eddie.UI.Windows
 
                         engine.UiStart();
 
-                        // Application.Run(engine.FormMain); // Removed in 2.11.9                      
+                        // Application.Run(engine.FormMain); // Removed in 2.11.9
 
                         engine.FormMain.LoadPhase();
 
                         m_context = new ApplicationContext();                        
-                        Application.Run(m_context);
                     }
                 }
             }
             catch(Exception e)
             {
-                MessageBox.Show(e.Message, Constants.Name2, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+			// Application.Run must be outside the catch above, otherwise it's not unhandled
+			if (m_context != null)
+				Application.Run(m_context);
 		}
 
         static ApplicationContext m_context;

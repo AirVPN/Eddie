@@ -28,6 +28,9 @@ namespace Eddie.Core
 		public XmlElement Definition;
 		public XmlDocument Storage;
 
+		private string m_runUsername = "";
+		private string m_runPassword = "";
+
 		public virtual string GetCode()
 		{
 			return "";
@@ -144,7 +147,7 @@ namespace Eddie.Core
 
 		}
 
-        public virtual void OnBuildOvpn(OvpnBuilder ovpn)
+        public virtual void OnBuildOvpn(ConnectionInfo connection, OvpnBuilder ovpn)
         {
         }
 
@@ -158,9 +161,11 @@ namespace Eddie.Core
 			
 		}
 
-        public virtual void OnAuthFailed()
+		public virtual void OnAuthFailed()
         {
-            Engine.Instance.Logs.Log(LogType.Warning, Messages.AuthFailed);
+            Engine.Instance.Logs.Log(LogType.Fatal, Messages.AuthFailed);
+
+			ClearCredentials();
         }
 
 		public virtual string Refresh()
@@ -168,9 +173,12 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public virtual void OnBuildServersList()
+		public virtual void OnBuildConnections()
 		{
+		}
 
+		public virtual void OnCheckConnections()
+		{			
 		}
 
 		public virtual bool IsLogged()
@@ -178,8 +186,64 @@ namespace Eddie.Core
 			return false;
 		}
 
-        // Used for directive auth-user-pass
-        public virtual string GetLogin()
+		public virtual void ClearCredentials()
+		{
+			m_runUsername = "";
+			m_runPassword = "";
+			Utils.XmlSetAttributeString(Storage.DocumentElement, "login", "");
+			Utils.XmlSetAttributeString(Storage.DocumentElement, "password", "");
+		}
+
+		public virtual bool ApplyCredentials(OvpnBuilder ovpn)
+		{
+			if(ovpn.ExistsDirective("auth-user-pass"))
+			{
+				if(ovpn.GetOneDirectiveText("auth-user-pass") == "") // If empty
+				{
+					ovpn.RemoveDirective("auth-user-pass");
+
+					string username = "";
+					string password = "";					
+
+					username = m_runUsername;
+					password = m_runPassword;
+
+					if (username == "")
+					{
+						username = Utils.XmlGetAttributeString(Storage.DocumentElement, "login", "");
+						password = Utils.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+					}
+
+					if (username == "")
+					{
+						string remember = "";
+
+						if (Engine.Instance.OnAskUsernamePassword("blabla", out username, out password, out remember) == false)
+							return false;
+
+						Engine.Instance.Logs.Log(LogType.Fatal, remember);
+
+						if (remember == "run")
+						{
+							m_runUsername = username;
+							m_runPassword = password;
+						}
+						else if (remember == "permanent")
+						{
+							Utils.XmlSetAttributeString(Storage.DocumentElement, "login", username);
+							Utils.XmlSetAttributeString(Storage.DocumentElement, "password", password);
+						}
+					}					
+
+					ovpn.SetAuthUserPass(username, password);
+				}
+			}
+
+			return true;
+		}
+
+		// Used for directive auth-user-pass
+		public virtual string GetUsername()
         {
             return Utils.XmlGetAttributeString(Storage.DocumentElement, "login", "");
         }

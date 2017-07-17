@@ -101,6 +101,8 @@ namespace Eddie.Core
 			m_ip = null;
 			m_bitmask = -1;
 
+			value = value.Trim().Replace(" ", "/");
+
 			string ip = "";
 			string mask = "";
 			int posS = value.IndexOf('/');
@@ -188,6 +190,17 @@ namespace Eddie.Core
 			get
 			{
 				return m_ip.ToString();
+			}
+		}
+
+		public string AddressQ
+		{
+			get
+			{
+				if (IsV6)
+					return "[" + m_ip.ToString() + "]";
+				else
+					return m_ip.ToString();
 			}
 		}
 

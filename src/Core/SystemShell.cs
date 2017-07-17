@@ -53,7 +53,10 @@ namespace Eddie.Core
 		public static string EscapePath(string path)
 		{
 			// Note: Used only in already-quoted (double-quote).
-			return EscapeInsideQuote(path);
+			foreach (char c in Platform.Instance.CharsNotAllowedInPath)
+				path = path.Replace(c, '-');
+			path = path.Replace("\"", "\\\""); // In Windows " it's already removed above.
+			return path;
 		}
 
 		public static string EscapeInsideQuote(string value)
@@ -64,12 +67,14 @@ namespace Eddie.Core
 			// For the moment, simply remove. Will be an issue only in rare cases.
 			// Look for reference https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
 			// Advise /check these chars where it's used. Look EscapeInsideQuoteAcceptable
-			value = value.Replace("'", "");
-			value = value.Replace("`", "");
-			value = value.Replace("\"", "");
-			value = value.Replace("%", "");
-			value = value.Replace("!", ""); // Delayed variable substitution
-			value = value.Replace("$", "");
+			foreach (char c in Platform.Instance.CharsNotAllowedInPath)
+				value = value.Replace(c, '-');
+			value = value.Replace("'", "-");
+			value = value.Replace("`", "-");
+			value = value.Replace("\"", "-");
+			value = value.Replace("%", "-");
+			value = value.Replace("!", "-"); // Delayed variable substitution
+			value = value.Replace("$", "-");
 			return value;
 		}
 

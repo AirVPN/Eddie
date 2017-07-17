@@ -75,7 +75,7 @@ namespace Eddie.Platforms
 
         public static string GetName()
         {
-            return Constants.Name2 + "-" + Constants.AppID;
+            return Constants.Name + "-" + Constants.AppID;
         }
 
         public static bool GetDynamicMode()
@@ -89,7 +89,7 @@ namespace Eddie.Platforms
 
             XmlDocument xmlStart = new XmlDocument();
             XmlElement xmlInfo = xmlStart.CreateElement("firewall");
-            xmlInfo.SetAttribute("description", Constants.Name2);
+            xmlInfo.SetAttribute("description", Constants.Name);
             xmlInfo.SetAttribute("weight", "max");
             xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");            
 

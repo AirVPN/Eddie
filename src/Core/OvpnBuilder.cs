@@ -35,9 +35,12 @@ namespace Eddie.Core
 
 		public Dictionary<string, List<Directive>> Directives = new Dictionary<string, List<Directive>>();
 
-        // Special values. This values can vary based on ovpn connection, but in some circumstances (SSH, SSL) need to be fixed before the connection.
-        public string Protocol;
-        public string Address;
+		public TemporaryFile FileProxyAuth;
+		public TemporaryFile FilePasswordAuth;
+
+		// Special values. This values can vary based on ovpn connection, but in some circumstances (SSH, SSL) need to be fixed before the connection.
+		public string Protocol;
+        public IpAddress Address;
         public int Port = 0;
         public int ProxyPort = 0; // Port need to be used by SSH/SSL 
 
@@ -48,9 +51,11 @@ namespace Eddie.Core
 				(name == "remote") ||
 				(name == "route") ||
 				(name == "route-ipv6") ||
+				(name == "dhcp-option") ||
 				(name == "plugin") ||
 				(name == "x509-track") ||
 				(name == "http-proxy-option") ||
+				(name == "pull-filter") ||				
 				(name == "ignore-unknown-option")
 			  )
 				return true;
@@ -90,15 +95,28 @@ namespace Eddie.Core
             return w1.CompareTo(w2);
         }
 
+		public OvpnBuilder Clone()
+		{
+			// Note: only directives
+			OvpnBuilder n = new OvpnBuilder();
+			foreach (KeyValuePair<string, List<Directive>> kp in Directives)
+			{
+				foreach(Directive d in kp.Value)
+				{
+					n.AppendDirective(kp.Key, d.Text, d.Comment);
+				}
+			}
+			return n;
+		}
+
         public string Get()
 		{
 			string result = "";
 
 			DateTime now = DateTime.UtcNow;
 
-			result += "# " + Engine.Instance.GenerateFileHeader() + "\n";
-			result += "# " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC" + "\n";
-
+			result += "# " + Engine.Instance.GenerateFileHeader() + " - " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC\n";
+			
             // Obtain directive key list
             List<string> directives = new List<string>();
             foreach (KeyValuePair<string, List<Directive>> kp in Directives)
@@ -169,25 +187,22 @@ namespace Eddie.Core
 				Directives.Remove(name);
 		}
 
-		public Directive GetDirective(string name)
+		public List<Directive> GetDirectiveList(string name)
 		{
 			if (Directives.ContainsKey(name) == false)
-				return new Directive();
-			if(Directives[name].Count != 1)
-				return new Directive();
-			
-			return Directives[name][0];			
+				return null;
+			else
+				return Directives[name];
 		}
 
-        public Directive GetOneDirective(string name)
-        {
-            if (Directives.ContainsKey(name) == false)
-                return new Directive();
-            if (Directives[name].Count == 0)
-                return new Directive();
-
-            return Directives[name][0];
-        }
+		public string GetOneDirectiveText(string name)
+		{
+			if (Directives.ContainsKey(name) == false)
+				return "";
+			if (Directives[name].Count == 0)
+				return "";
+			return Directives[name][0].Text;
+		}
 
         public void AppendDirectives(string directives, string comment)
 		{
@@ -281,10 +296,87 @@ namespace Eddie.Core
 
 				AppendDirective(directiveName.Trim(), directiveBody.Trim(), comment);
 			}
+		}
 
+		public IpAddresses ExtractVpnIPs()
+		{
+			IpAddresses result = new IpAddresses();
+			if (ExistsDirective("ifconfig"))
+			{
+				string ip = GetOneDirectiveText("ifconfig");
+				result.Add(ip);
+			}
 
+			if (ExistsDirective("ifconfig-ipv6"))
+			{
+				string[] fields = GetOneDirectiveText("ifconfig-ipv6").Split(' ');
+				if (fields.Length == 2)
+					result.Add(fields[0]);
+			}
 
+			return result;
+		}
+
+		public IpAddresses ExtractDns()
+		{
+			IpAddresses result = new IpAddresses();
+			List<Directive> directives = GetDirectiveList("dhcp-option");
+			if(directives != null)
+			{
+				foreach(Directive d in directives)
+				{
+					string[] fields = d.Text.Split(' ');
+					if (fields.Length != 2)
+						continue;
+					if (fields[0] == "DNS") 
+						result.Add(fields[1]);
+					if (fields[0] == "DNS6")
+						result.Add(fields[1]);					
+				}
+			}
 			
+			return result;
+		}
+
+		public IpAddresses ExtractGateway()
+		{
+			IpAddresses result = new IpAddresses();
+			if(ExistsDirective("route-gateway"))
+			{
+				string ip = GetOneDirectiveText("route-gateway");
+				result.Add(ip);				
+			}
+
+			if(ExistsDirective("ifconfig-ipv6"))
+			{
+				string[] fields = GetOneDirectiveText("ifconfig-ipv6").Split(' ');
+				if (fields.Length == 2)
+					result.Add(fields[1]);
+			}
+
+			return result;
+		}
+
+		public string ExtractCipher()
+		{
+			return GetOneDirectiveText("cipher");
+		}
+
+		public void SetAuthUserPass(string username, string password)
+		{
+			if(FilePasswordAuth != null)
+			{
+				FilePasswordAuth.Close();
+				FilePasswordAuth = null;
+			}
+
+			FilePasswordAuth = new TemporaryFile("ppw");
+			string fileNameAuthOvpn = FilePasswordAuth.Path.Replace("\\", "\\\\");
+			string fileNameData = username + "\n" + password + "\n";
+
+			Platform.Instance.FileContentsWriteText(FilePasswordAuth.Path, fileNameData);
+
+			AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");
 		}
 
         // Apply some fixes
@@ -298,7 +390,7 @@ namespace Eddie.Core
                 RemoveDirective("block-outside-dns");
 
             // explicit-exit-notify works only with udp
-            if (GetDirective("proto").Text.ToLowerInvariant().StartsWith("udp") == false)
+            if (GetOneDirectiveText("proto").ToLowerInvariant().StartsWith("udp") == false)
                 RemoveDirective("explicit-exit-notify");
 
 			// OpenVPN < 2.4 allows 100 route directives max by default.
@@ -320,5 +412,19 @@ namespace Eddie.Core
 			}
         }
 
+		public void Close()
+		{
+			if(FileProxyAuth != null)
+			{
+				FileProxyAuth.Close();
+				FileProxyAuth = null;
+			}
+
+			if(FilePasswordAuth != null)
+			{
+				FilePasswordAuth.Close();
+				FilePasswordAuth = null;
+			}
+		}
 	}
 }

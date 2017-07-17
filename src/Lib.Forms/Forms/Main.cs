@@ -252,7 +252,7 @@ namespace Eddie.Gui.Forms
             {
                 m_notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
                 m_notifyIcon.Icon = this.Icon;
-                m_notifyIcon.Text = "AirVPN";
+                m_notifyIcon.Text = Constants.Name;
                 m_notifyIcon.Visible = true;
                 m_notifyIcon.BalloonTipTitle = Constants.Name;
 
@@ -794,10 +794,10 @@ namespace Eddie.Gui.Forms
 
 		private void mnuDevelopersReset_Click(object sender, EventArgs e)
 		{
-			Dictionary<string, ServerInfo> servers;
-			lock (Engine.Servers)
-				servers = new Dictionary<string, ServerInfo>(Engine.Servers);
-			foreach (ServerInfo infoServer in servers.Values)
+			Dictionary<string, ConnectionInfo> servers;
+			lock (Engine.Connections)
+				servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+			foreach (ConnectionInfo infoServer in servers.Values)
 			{
 				infoServer.PingTests = 0;
 				infoServer.PingFailedConsecutive = 0;
@@ -842,7 +842,7 @@ namespace Eddie.Gui.Forms
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
-				item.Info.UserList = ServerInfo.UserListType.WhiteList;
+				item.Info.UserList = ConnectionInfo.UserListType.WhiteList;
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
@@ -854,7 +854,7 @@ namespace Eddie.Gui.Forms
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
-				item.Info.UserList = ServerInfo.UserListType.BlackList;
+				item.Info.UserList = ConnectionInfo.UserListType.BlackList;
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
@@ -866,13 +866,23 @@ namespace Eddie.Gui.Forms
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
-				item.Info.UserList = ServerInfo.UserListType.None;
+				item.Info.UserList = ConnectionInfo.UserListType.None;
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
             //m_listViewServers.UpdateList();			
             Engine.OnRefreshUi();
         }
+
+		private void mnuServersViewOVPN_Click(object sender, EventArgs e)
+		{
+			if(m_listViewServers.SelectedItems.Count == 1)
+			{
+				ListViewItemServer item = m_listViewServers.SelectedItems[0] as ListViewItemServer;
+				string ovpn = item.Info.BuildOVPN(true).Get();
+				Engine.Instance.OnShowText(Messages.ConnectionsShowOVPN, ovpn);				
+			}
+		}
 
 		private void mnuServersRefresh_Click(object sender, EventArgs e)
 		{
@@ -895,6 +905,11 @@ namespace Eddie.Gui.Forms
 		private void cmdServersUndefined_Click(object sender, EventArgs e)
 		{
 			mnuServersUndefined_Click(sender, e);
+		}
+
+		private void cmdServersViewOVPN_Click(object sender, EventArgs e)
+		{
+			mnuServersViewOVPN_Click(sender, e);
 		}
 
 		private void cmdServersRefresh_Click(object sender, EventArgs e)
@@ -983,36 +998,7 @@ namespace Eddie.Gui.Forms
 
 			ListViewItemStats item = lstStats.SelectedItems[0] as ListViewItemStats;
 
-            Engine.Instance.Command("ui.stats." + item.Entry.Key, true);
-
-            /* // TOCLEAN
-			if (item.Entry.Key == "VpnGeneratedOVPN")
-			{
-				if (Engine.IsConnected() == false)
-					return;
-
-				Forms.TextViewer Dlg = new TextViewer();
-				Dlg.Title = item.Entry.Caption;
-				Dlg.Body = Engine.ConnectedOVPN;
-				Dlg.ShowDialog();
-			}
-			else if (item.Entry.Key == "SystemReport")
-			{
-				Forms.TextViewer Dlg = new TextViewer();
-				Dlg.Title = item.Entry.Caption;
-				Dlg.Body = Platform.Instance.GenerateSystemReport();
-				Dlg.ShowDialog();
-			}
-            else if (item.Entry.Key == "Pinger")
-            {
-                Core.Threads.Pinger.Instance.InvalidateAll();
-                RefreshUi(Core.Engine.RefreshUiMode.Full);
-            }
-			else if (item.Entry.Key == "ManifestLastUpdate")
-			{
-				Core.Threads.Manifest.Instance.ForceUpdate = true;
-			}
-            */
+            Engine.Instance.Command("ui.stats." + item.Entry.Key, true);			
 		}
 
         private void tabMain_TabSwitch()
@@ -1068,9 +1054,11 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-            Skin.Apply(lstLogs);
+			// ClodoTemp
+			byte[] temp = Engine.Instance.FetchUrlEx("http://freegeoip.net", null, "test", false, "");
+			Engine.Instance.Logs.Log(LogType.Fatal, temp.Length.ToString());
 
-            LogsSupport();            
+			LogsSupport();
         }
 
 		private void cmdLogsOpenVpnManagement_Click(object sender, EventArgs e)
@@ -1406,8 +1394,10 @@ namespace Eddie.Gui.Forms
 			mnuServersBlackList.Enabled = cmdServersBlackList.Enabled;
 			cmdServersUndefined.Enabled = cmdServersWhiteList.Enabled;
 			mnuServersUndefined.Enabled = cmdServersUndefined.Enabled;
+			cmdServersViewOVPN.Enabled = (m_listViewServers.SelectedItems.Count == 1);
+			mnuServersViewOVPN.Enabled = cmdServersViewOVPN.Enabled;
 
-            cmdAreasWhiteList.Enabled = (m_listViewAreas.SelectedItems.Count > 0);
+			cmdAreasWhiteList.Enabled = (m_listViewAreas.SelectedItems.Count > 0);
 			mnuAreasWhiteList.Enabled = cmdAreasWhiteList.Enabled;
 			cmdAreasBlackList.Enabled = cmdAreasWhiteList.Enabled;
 			mnuAreasBlackList.Enabled = cmdAreasBlackList.Enabled;
@@ -1557,7 +1547,7 @@ namespace Eddie.Gui.Forms
 
 							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
 							lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
-							txtConnectedExitIp.Text = Engine.CurrentServer.IpExit;
+							txtConnectedExitIp.Text = Engine.CurrentServer.IpsExit.ToStringIPv4();
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
 							if (imgCountries.Images.ContainsKey(iconFlagCode))
@@ -1809,8 +1799,6 @@ namespace Eddie.Gui.Forms
         private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
         {
             Engine.Instance.Storage.Set("key", cboKey.SelectedItem as string);
-        }
-
-        
-    }
+        }		
+	}
 }

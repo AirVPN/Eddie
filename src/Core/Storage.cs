@@ -129,9 +129,11 @@ namespace Eddie.Core
                 {
                     if (option.Value != option.Default)
                     {
-                        string v = option.Value;
-                        if (option.Code.IndexOf("password") != -1)
-                            v = "(omissis)";
+                        string v = "";
+						if (option.Omissis)
+							v = "(omissis)";
+						else
+							v = option.Value;
                         result += option.Code + ": " + v + "\n";
                     }
                 }
@@ -504,6 +506,10 @@ namespace Eddie.Core
 
 			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIpV6);
 
+			SetDefault("protocol.ip.entry", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
+			SetDefault("protocol.ipv4.route", "choice:in-always,in-out,in-block,out,block", "in-block", NotInMan);
+			SetDefault("protocol.ipv6.route", "choice:in-always,in-out,in-block,out,block", "in-block", NotInMan);
+
 			SetDefault("tools.openvpn.path", "path_file", "", Messages.ManOptionToolsOpenVpnPath);
 			SetDefault("tools.ssh.path", "path_file", "", Messages.ManOptionToolsSshPath);
 			SetDefault("tools.ssl.path", "path_file", "", Messages.ManOptionToolsSslPath);
@@ -515,7 +521,7 @@ namespace Eddie.Core
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);            
             SetDefaultInt("openvpn.sndbuf", -2, Messages.ManOptionOpenVpnSndBuf); // 2.11
             SetDefaultInt("openvpn.rcvbuf", -2, Messages.ManOptionOpenVpnRcvBuf); // 2.11
-            SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);
+            SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);
 			SetDefault("openvpn.directives.path", "path_file", "", NotInMan);
             SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
             
@@ -552,8 +558,8 @@ namespace Eddie.Core
 			            
             SetDefaultBool("advanced.skip_privileges", false, NotInMan); // Skip 'root' detection.
             SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
-            SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.     
-            SetDefaultBool("servers.allow_anyway", false, NotInMan); // Allow connection to server in 'Closed' status            
+            SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.
+            SetDefaultBool("connections.allow_anyway", false, NotInMan); // Allow connection even if in 'Not available' status.
             SetDefaultBool("advanced.testonly", false, NotInMan); // Disconnect when connection occur.
 
 
@@ -625,8 +631,16 @@ namespace Eddie.Core
             Options["gui.list.areas"].InternalOnly = true;
             Options["gui.list.logs"].InternalOnly = true;
 
-            // Don't clean with user Reset All
-            Options["login"].DontUserReset = true;
+			// Omissis
+			Options["login"].Omissis = true;
+			Options["password"].Omissis = true;
+			Options["key"].Omissis = true;
+			Options["proxy.login"].Omissis = true;
+			Options["proxy.password"].Omissis = true;
+			Options["proxy.tor.control.password"].Omissis = true;
+
+			// Don't clean with user Reset All
+			Options["login"].DontUserReset = true;
             Options["password"].DontUserReset = true;
             Options["remember"].DontUserReset = true;
             Options["key"].DontUserReset = true;

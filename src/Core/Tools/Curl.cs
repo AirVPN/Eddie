@@ -31,20 +31,19 @@ namespace Eddie.Core.Tools
 
         public override void OnNormalizeVersion()
         {
-            Version = Utils.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
-            /*
-            int posS = Version.IndexOf("\n");
-            if (posS > 1)
-                Version = Version.Substring(0, posS);
-            if (Version.StartsWith("curl "))
-                Version = Version.Substring(5);
-            */
-
-            if (Utils.CompareVersions(Version, minVersionRequired) == -1)
-                Engine.Instance.Logs.Log(LogType.Fatal, GetRequiredVersionMessage());
+            Version = Utils.RegExMatchOne(Version, "^curl\\s(.*?)\\s");            
         }
 
-        public override string GetFileName()
+		public override void ExceptionIfRequired()
+		{
+			if (Available() == false)
+				throw new Exception(Messages.ToolsCurlRequired);
+
+			if (Utils.CompareVersions(Version, minVersionRequired) == -1)
+				throw new Exception(GetRequiredVersionMessage());
+		}
+
+		public override string GetFileName()
         {
             if (Platform.Instance.IsWindowsSystem())
             {
@@ -66,11 +65,7 @@ namespace Eddie.Core.Tools
 
         public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
         {
-            if (Available() == false)
-                throw new Exception(Messages.ToolsCurlRequired);
-
-            if (Utils.CompareVersions(Version, minVersionRequired) == -1)
-                throw new Exception(GetRequiredVersionMessage());
+			ExceptionIfRequired();
 
             ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");
 
@@ -173,7 +168,7 @@ namespace Eddie.Core.Tools
                 p.StartInfo.Arguments = args;
                 p.StartInfo.WorkingDirectory = "";
 
-                p.StartInfo.CreateNoWindow = true;
+				p.StartInfo.CreateNoWindow = true;
                 p.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 p.StartInfo.UseShellExecute = false;
                 p.StartInfo.RedirectStandardOutput = true;

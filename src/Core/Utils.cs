@@ -196,7 +196,42 @@ namespace Eddie.Core
             return decryptedBytes;
         }
 
-        public static string GetNameFromPath(string path)
+		public static string Base64Encode(byte[] data)
+		{
+			return System.Convert.ToBase64String(data);
+		}
+
+		public static byte[] Base64Decode(string data)
+		{
+			return System.Convert.FromBase64String(data);
+		}
+
+		public static byte[] StringToUtf8Bytes(string data)
+		{
+			return System.Text.Encoding.UTF8.GetBytes(data);
+		}
+
+		public static byte[] AssocToUtf8Bytes(Dictionary<string, string> assoc)
+		{
+			string output = "";
+			foreach (KeyValuePair<string, string> kp in assoc)
+			{
+				output += Base64Encode(StringToUtf8Bytes(kp.Key)) + ":" + Base64Encode(StringToUtf8Bytes(kp.Value)) + "\n";
+			}
+			return System.Text.Encoding.UTF8.GetBytes(output);
+		}
+
+		public static byte[] AssocToUtf8Bytes(Dictionary<string, byte[]> assoc)
+		{
+			string output = "";
+			foreach (KeyValuePair<string, byte[]> kp in assoc)
+			{
+				output += Base64Encode(StringToUtf8Bytes(kp.Key)) + ":" + Base64Encode(kp.Value) + "\n";
+			}
+			return System.Text.Encoding.UTF8.GetBytes(output);
+		}
+
+		public static string GetNameFromPath(string path)
         {
             return new FileInfo(path).Name;
         }
@@ -655,26 +690,25 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public static List<string> CommaStringToListString(string lines)
+		public static List<string> StringToList(string lines)
 		{
-			List<string> result = new List<string> ();
+			return StringToList(lines, "\n\r; ,");
+		}
 
-			// Normalization
-			lines = lines.Replace ("\n", ",");
-			lines = lines.Replace ("\r", ",");
-			lines = lines.Replace (";", ",");
-			lines = lines.Replace (" ", ",");
-			lines = lines.Replace ("\u2028", ","); // OS X
+		public static List<string> StringToList(string lines, string separators)
+		{
+			List<string> result = new List<string>();
 
-			string[] items = lines.Split (',');
+			string[] items = lines.Split(separators.ToCharArray());
 			foreach (string item in items)
             {
-				if (item.Trim () != "")
-					result.Add (item);
+				string itemT = item.Trim();
+				if (itemT != "")
+					result.Add(itemT);
 			}
 
 			return result;
-		}
+		}		
 
 		public static List<string> GetNetworkGateways()
 		{

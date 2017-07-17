@@ -34,18 +34,18 @@ namespace Eddie.Core.Threads
 
         public override void OnRun()
         {
-            Dictionary<string, ServerInfo> servers;
+            Dictionary<string, ConnectionInfo> servers;
 
             for (; ; )
             {
-                lock (Engine.Servers)
-                        servers = new Dictionary<string, ServerInfo>(Engine.Servers);
+                lock (Engine.Connections)
+                        servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
 
                 int timeNow = Utils.UnixTimeStamp();
 
                 int delay = 60;
 
-                foreach (ServerInfo infoServer in servers.Values)
+                foreach (ConnectionInfo infoServer in servers.Values)
                 {
                     if (infoServer.NeedDiscover)
                     {
@@ -72,7 +72,7 @@ namespace Eddie.Core.Threads
             }
         }
 
-        public void DiscoverIp(ServerInfo server)
+        public void DiscoverIp(ConnectionInfo server)
         {
             string[] methods = Engine.Instance.Storage.Get("discover.ip_webservice.list").Split(';');
             bool onlyFirstResponse = Engine.Instance.Storage.GetBool("discover.ip_webservice.first");
@@ -86,7 +86,7 @@ namespace Eddie.Core.Threads
                         // Fetch a webservice
 
                         string url = method;
-                        url = url.Replace("{@ip}", server.IpEntry);
+                        url = url.Replace("{@ip}", server.IpsEntry.ToStringFirstIPv4());
 
                         XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(url, null, "iptitle");
 

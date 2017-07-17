@@ -61,9 +61,9 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-        public override void OnBuildOvpn(OvpnBuilder ovpn)
+        public override void OnBuildOvpn(ConnectionInfo connection, OvpnBuilder ovpn)
         {
-            base.OnBuildOvpn(ovpn);
+            base.OnBuildOvpn(connection, ovpn);
 
             if (ovpn.ExistsDirective("auth-retry"))
                 ovpn.AppendDirective("auth-retry", "none", "");
@@ -78,41 +78,42 @@ namespace Eddie.Core.Providers
 			return "";
 		}
 
-		public override void OnBuildServersList()
+		public override void OnBuildConnections()
 		{
-			base.OnBuildServersList();
+			base.OnBuildConnections();
 
             lock (Profiles)
 			{
 				foreach (XmlElement nodeProfile in Profiles.ChildNodes)
 				{
                     string code = HashSHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
-                    
-					ServerInfo infoServer = Engine.Instance.GetServerInfo(code, this);
 
-                    infoServer.DisplayName = Utils.XmlGetAttributeString(nodeProfile, "name", "");
-                    infoServer.ProviderName = code;
-                    infoServer.IpEntry = Utils.XmlGetAttributeString(nodeProfile, "remote", "");
-                    infoServer.IpEntry2 = "";
-					infoServer.IpExit = "";
-					infoServer.CountryCode = Utils.XmlGetAttributeString(nodeProfile, "country", "");
-					infoServer.Location = "";
-					infoServer.ScoreBase = 0;
-					infoServer.Bandwidth = 0;
-					infoServer.BandwidthMax = 0;
-					infoServer.Users = -1;
-					infoServer.WarningOpen = "";
-					infoServer.WarningClosed = "";
-                    infoServer.SupportCheck = false;
-                    infoServer.OvpnDirectives = Utils.XmlGetAttributeString(nodeProfile, "ovpn", "");
+					ConnectionInfo infoConnection = Engine.Instance.GetConnectionInfo(code, this);
 
-                    infoServer.NeedDiscover = true;
+					infoConnection.DisplayName = Utils.XmlGetAttributeString(nodeProfile, "name", "");
+					infoConnection.ProviderName = code;
+					infoConnection.IpsEntry.Clear();
+					infoConnection.IpsEntry.Add(Utils.XmlGetAttributeString(nodeProfile, "remote", "")); // Clodo ToFix
+					infoConnection.IpsExit.Clear();
+					infoConnection.CountryCode = Utils.XmlGetAttributeString(nodeProfile, "country", "");
+					infoConnection.Location = "";
+					infoConnection.ScoreBase = 0;
+					infoConnection.Bandwidth = 0;
+					infoConnection.BandwidthMax = 0;
+					infoConnection.Users = -1;
+					infoConnection.WarningOpen = "";
+					infoConnection.WarningClosed = "";
+					infoConnection.SupportCheck = false;
+					infoConnection.SupportIPv4 = (infoConnection.IpsEntry.CountIPv4 != 0); // This is a supposition
+					infoConnection.SupportIPv6 = (infoConnection.IpsEntry.CountIPv6 != 0); // This is a supposition
+					infoConnection.OvpnDirectives = Utils.XmlGetAttributeString(nodeProfile, "ovpn", ""); // Clodo ToFix
+					infoConnection.Path = Utils.XmlGetAttributeString(nodeProfile, "path", "");
+
+					infoConnection.NeedDiscover = true;
 				}
 			}
 		}
-
-
-
+		
 		public bool OptionRecursive = true; // Maybe an option
 		public bool OptionRemoveIfFileMissing = true; // Maybe an option
 
@@ -127,7 +128,7 @@ namespace Eddie.Core.Providers
             
             int timeStart = Utils.UnixTimeStamp();
 
-			List<ServerInfo> servers = new List<ServerInfo>();
+			List<ConnectionInfo> connections = new List<ConnectionInfo>();
 
 			// Check current profiles
 			foreach (XmlElement nodeProfile in Profiles.ChildNodes)
@@ -149,7 +150,7 @@ namespace Eddie.Core.Providers
 			// Scan directory
 			if (Directory.Exists(pathScan))
 			{
-				ScanDir(pathScan.Trim(), OptionRecursive, servers, interactive);
+				ScanDir(pathScan.Trim(), OptionRecursive, connections, interactive);
 			}
             else
             {
@@ -171,23 +172,19 @@ namespace Eddie.Core.Providers
 				if (changed == false)
 					break;
 			}
-			// Rimuovo i profili senza 'checked'
-
+			
 			// Clean flags
 			foreach (XmlElement nodeProfile in Profiles.ChildNodes)
 			{
 				nodeProfile.Attributes.RemoveNamedItem("checked");
 			}
-
-
-
-
+			
 			int timeDelta = Utils.UnixTimeStamp() - timeStart;
 
 			Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format("{1} - N. {2} ovpn profiles processed in {3} secs", Title, Profiles.ChildNodes.Count.ToString(), timeDelta.ToString())); // TOTRANSLATE
 		}
 
-		public void ScanDir(string path, bool recursive, List<ServerInfo> servers, bool interactive)
+		public void ScanDir(string path, bool recursive, List<ConnectionInfo> connections, bool interactive)
 		{
 			try
 			{
@@ -223,7 +220,7 @@ namespace Eddie.Core.Providers
 				{
 					foreach (string dirPath in Directory.GetDirectories(path))
 					{
-						ScanDir(dirPath, recursive, servers, interactive);
+						ScanDir(dirPath, recursive, connections, interactive);
 					}
 				}
 			}
@@ -279,17 +276,11 @@ namespace Eddie.Core.Providers
                 ovpnBuilder.AppendDirectives(ovpnOriginal, "Original");
                 string ovpnNormalized = ovpnBuilder.Get();
 
-                OvpnBuilder.Directive directiveRemote = ovpnBuilder.GetOneDirective("remote");
-                if(directiveRemote != null)
-                {
-                    string host = directiveRemote.Text;
-                    int posPort = host.IndexOf(" ");
-                    if (posPort != -1)
-                        host = host.Substring(0, posPort).Trim();
-                    dictInfo["remote"] = host;
-                }
-                else
-                    dictInfo["remote"] = "";
+                string host = ovpnBuilder.GetOneDirectiveText("remote");                
+                int posPort = host.IndexOf(" ");
+                if (posPort != -1)
+                    host = host.Substring(0, posPort).Trim();
+                dictInfo["remote"] = host;                
 
                 dictInfo["ovpn"] = ovpnNormalized;
 				dictInfo["path"] = file.FullName;
@@ -301,8 +292,6 @@ namespace Eddie.Core.Providers
 
 					name = name.Replace(GetPathScan(), "").Trim();
 
-					//name = Regex.Replace(name, "udp", "", RegexOptions.IgnoreCase);
-					//name = Regex.Replace(name, "tcp", "", RegexOptions.IgnoreCase);
 					name = Regex.Replace(name, "tblk", "", RegexOptions.IgnoreCase); // TunnelBlick
 					name = Regex.Replace(name, "ovpn", "", RegexOptions.IgnoreCase); // OpenVPN
 

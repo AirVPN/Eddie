@@ -57,6 +57,11 @@ namespace Eddie.Platforms
 				return base.GetName();
 		}
 
+		public override string GetVersion()
+		{
+			return m_version;
+		}
+
 		public override void OnInit(bool cli)
 		{
 			base.OnInit(cli);
@@ -109,14 +114,7 @@ namespace Eddie.Platforms
 			return true;
 		}
 
-		public override string VersionDescription()
-        {
-			string o = base.VersionDescription();
-            o += " - " + m_version;
-            return o;
-        }
-
-        public override void OpenUrl(string url)
+		public override void OpenUrl(string url)
         {
             System.Diagnostics.Process.Start("xdg-open", url);
         }
@@ -275,7 +273,7 @@ namespace Eddie.Platforms
                 return true;
             }
 
-            string pathShare = "/usr/share/" + Lib.Common.Constants.Name + "/" + name;
+            string pathShare = "/usr/share/" + Lib.Common.Constants.NameCompatibility + "/" + name;
             if (Platform.Instance.FileExists(pathShare))
             {
                 path = pathShare;
@@ -521,7 +519,7 @@ namespace Eddie.Platforms
             try
             {
                 int currentId = Process.GetCurrentProcess().Id;
-                string path = Utils.GetTempPath() + "/" + Constants.Name2 + "_" + Constants.AppID + ".pid";
+                string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
                 if (File.Exists(path) == false)
                 {                    
                 }
@@ -546,7 +544,7 @@ namespace Eddie.Platforms
             {
                 Engine.Instance.Logs.Log(e);
                 return true;
-            }            
+            }
         }
 
         public override void OnCheckSingleInstanceClear()
@@ -554,7 +552,7 @@ namespace Eddie.Platforms
             try
             {
                 int currentId = Process.GetCurrentProcess().Id;
-                string path = Utils.GetTempPath() + "/" + Constants.Name2 + "_" + Constants.AppID + ".pid";
+                string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
                 if (File.Exists(path))
                 {
                     int otherId;
@@ -583,7 +581,7 @@ namespace Eddie.Platforms
             return "linux_iptables";
         }
 
-        public override bool OnDnsSwitchDo(string dns)
+        public override bool OnDnsSwitchDo(IpAddresses dns)
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
@@ -600,10 +598,8 @@ namespace Eddie.Platforms
 
 				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
 
-				string[] dnsArray = dns.Split(',');
-
-				foreach(string dnsSingle in dnsArray)
-					text += "nameserver " + dnsSingle + "\n";
+				foreach(IpAddress dnsSingle in dns.IPs)
+					text += "nameserver " + dnsSingle.Address + "\n";
 
                 FileContentsWriteText("/etc/resolv.conf", text);
 				SystemShell.ShellCmd("chmod 644 /etc/resolv.conf");

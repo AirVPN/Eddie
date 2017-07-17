@@ -70,16 +70,19 @@ namespace Eddie.UI.Linux
 
                         engine.FormMain.LoadPhase();
 
-                        m_context = new ApplicationContext();
-                        Application.Run(m_context);
+                        m_context = new ApplicationContext();                        
                     }
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, Constants.Name2, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
+
+			// Application.Run must be outside the catch above, otherwise it's not unhandled
+			if (m_context != null)
+				Application.Run(m_context);
+		}
 
         static ApplicationContext m_context;
 

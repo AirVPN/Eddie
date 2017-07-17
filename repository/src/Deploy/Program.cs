@@ -122,7 +122,7 @@ namespace Deploy
 			PathBaseTools = new DirectoryInfo(PathBase + "/tools").FullName;
 			PathBaseSigning = new DirectoryInfo(PathBase + "/repository/signing").FullName;
 
-			string versionString3 = ExtractBetween(File.ReadAllText(PathBase + "/src/Lib.Common/Constants.cs"), "public static string VersionDesc = \"", "\"");
+			string versionString3 = ExtractBetween(ReadTextFile(PathBase + "/src/Lib.Common/Constants.cs"), "public static string VersionDesc = \"", "\"");
 			//string versionString2 = versionString3.Substring(0, versionString3.LastIndexOf('.'));
 
 
@@ -199,8 +199,18 @@ namespace Deploy
 					{
 						foreach (string format in new string[] { "portable", "installer" })
 						{
-							foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })
+							foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })							
 							{
+								// cazzo
+								if (os == "windows-10")
+									continue;
+								if (ui == "cli")
+									continue;
+								if (arch == "x86")
+									continue;
+								if (format == "installer")
+									continue;
+
 								int netFramework = 4;
 								if (os == "windows-7")
 									netFramework = 2;
@@ -336,7 +346,7 @@ namespace Deploy
 
 						if(ui == "ui")
 						{
-							nsis = File.ReadAllText(PathBaseResources + "/nsis/Eddie-UI.nsi");
+							nsis = ReadTextFile(PathBaseResources + "/nsis/Eddie-UI.nsi");
 						}
 						else if(ui == "cli")
 						{
@@ -784,7 +794,7 @@ namespace Deploy
 							string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
 							if (File.Exists(pathSignString))
 							{
-								string appleSign = File.ReadAllText(pathSignString).Trim();
+								string appleSign = ReadTextFile(pathSignString).Trim();
 								command2 += " --sign \"" + appleSign + "\"";
 								command2 += " --timestamp";
 							}
@@ -949,7 +959,21 @@ namespace Deploy
 				return false;
 			}
 
-			string arguments = "/p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework.ToString() + ".0\" /t:Rebuild \"" + PathBase + "/src/Eddie_VS2015.sln\"";
+			string pathProject = PathBase + "/src/Eddie_VS2015.sln";
+
+			/*
+			if(netFramework == 2)
+			{
+				string sln = ReadTextFile(pathProject);
+				
+				sln = StringRemoveLineWith(sln, "{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}.");
+
+				pathProject = pathProject.Replace(".sln", ".Net2.sln");
+				WriteTextFile(pathProject, sln);
+			}
+			*/
+			
+			string arguments = "/p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework.ToString() + ".0\" /t:Rebuild \"" + pathProject + "\"";
 
 			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
 			{
@@ -1279,6 +1303,13 @@ namespace Deploy
 			}
 		}
 
+		static string ReadTextFile(string path)
+		{
+			if (IsVerbose())
+				Log("Read text in '" + path + "'");
+			return File.ReadAllText(path);
+		}
+
 		static void WriteTextFile(string path, string contents)
 		{
 			if (IsVerbose())
@@ -1327,6 +1358,17 @@ namespace Deploy
 			}
 
 			return "";
+		}
+
+		public static string StringRemoveLineWith(string str, string find)
+		{
+			string final = "";
+			foreach(string line in str.Split('\n'))
+			{
+				if (line.IndexOf(find) == -1)
+					final += line + "\n";
+			}
+			return final;
 		}
 
 		static void Log(string message)

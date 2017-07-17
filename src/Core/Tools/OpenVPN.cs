@@ -37,7 +37,13 @@ namespace Eddie.Core.Tools
             Version = ver + " - " + libs;
         }
 
-        public override string GetFileName()
+		public override void ExceptionIfRequired()
+		{
+			if (Available() == false)
+				throw new Exception("OpenVPN " + Messages.NotFound);
+		}
+
+		public override string GetFileName()
         {
             if (Platform.Instance.IsWindowsSystem())
             {

@@ -27,7 +27,7 @@ namespace Eddie.Gui.Controls
 {
     public class ListViewItemServer : ListViewItem
     {
-        public ServerInfo Info;
+        public ConnectionInfo Info;
 
         public Engine Engine
         {
@@ -79,12 +79,12 @@ namespace Eddie.Gui.Controls
             int stateImageIndex = 2;
             switch (Info.UserList)
             {
-                case ServerInfo.UserListType.WhiteList:
+                case ConnectionInfo.UserListType.WhiteList:
                     {
                         foreColor = Color.DarkGreen;
                         stateImageIndex = 0;
                     } break;
-                case ServerInfo.UserListType.BlackList:
+                case ConnectionInfo.UserListType.BlackList:
                     {
                         foreColor = Color.DarkRed;
                         stateImageIndex = 1;

@@ -27,8 +27,6 @@ namespace Eddie.Gui.Controls
 {
     public class ListViewItemProtocol : ListViewItem
     {
-        public string Protocol;
-        public int Port;
-        public int Entry;        
-    }
+		public ConnectionMode Mode;		
+	}
 }

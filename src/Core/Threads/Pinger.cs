@@ -49,7 +49,7 @@ namespace Eddie.Core.Threads
 	public class PingerJob
 	{
 		//public System.Threading.Thread T;
-		public ServerInfo Server;
+		public ConnectionInfo Server;
 
 		/*
 		public void Start()
@@ -66,9 +66,9 @@ namespace Eddie.Core.Threads
 			try
 			{
 				//bool alwaysRun = Engine.Instance.Storage.GetBool("pinger.always"); // 2.6
-				routeScope = new RouteScope(Server.IpEntry);
+				routeScope = new RouteScope(Server.IpsEntry.ToStringFirstIPv4());
 
-                Int64 result = Platform.Instance.Ping(Server.IpEntry, 3);
+                Int64 result = Platform.Instance.Ping(Server.IpsEntry.ToStringFirstIPv4(), 3);
                 Pinger.Instance.PingResult(Server, result);
                 /*
                                 
@@ -147,7 +147,7 @@ namespace Eddie.Core.Threads
 			return canRun;
 		}
 
-		public int GetPingerDelaySuccess(ServerInfo server) // Delay for already success ping
+		public int GetPingerDelaySuccess(ConnectionInfo server) // Delay for already success ping
 		{
 			int delay = Engine.Instance.Storage.GetInt("pinger.delay");
 			if (delay == 0)
@@ -155,7 +155,7 @@ namespace Eddie.Core.Threads
 			return delay;
 		}
 
-		public int GetPingerDelayRetry(ServerInfo server) // Delay for failed ping
+		public int GetPingerDelayRetry(ConnectionInfo server) // Delay for failed ping
 		{
 			int delay = Engine.Instance.Storage.GetInt("pinger.retry");
 			if (delay == 0)
@@ -163,7 +163,7 @@ namespace Eddie.Core.Threads
 			return delay;
 		}
 
-		public int GetPingerDelayValid(ServerInfo server) // Delay for consider valid
+		public int GetPingerDelayValid(ConnectionInfo server) // Delay for consider valid
 		{
 			int delay = Engine.Instance.Storage.GetInt("pinger.valid");
 			if (delay == 0)
@@ -173,13 +173,13 @@ namespace Eddie.Core.Threads
 
         public void InvalidateAll()
         {
-            Dictionary<string, ServerInfo> servers;
-            lock (Engine.Servers)
+            Dictionary<string, ConnectionInfo> servers;
+            lock (Engine.Connections)
             {
-                servers = new Dictionary<string, ServerInfo>(Engine.Servers);
+                servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
             }
             
-            foreach (ServerInfo infoServer in servers.Values)
+            foreach (ConnectionInfo infoServer in servers.Values)
             {
                 infoServer.LastPingTest = 0;
                 infoServer.PingTests = 0;
@@ -192,7 +192,7 @@ namespace Eddie.Core.Threads
 
         public override void OnRun()
         {            
-            Dictionary<string, ServerInfo> servers;
+            Dictionary<string, ConnectionInfo> servers;
 
             for (; ; )
             {
@@ -208,12 +208,12 @@ namespace Eddie.Core.Threads
 					int timeNow = Utils.UnixTimeStamp();
 					int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
 
-					lock (Engine.Servers)
-                        servers = new Dictionary<string, ServerInfo>(Engine.Servers);
+					lock (Engine.Connections)
+                        servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
 					
 					bool startOne = false;
 
-                    foreach (ServerInfo infoServer in servers.Values)
+                    foreach (ConnectionInfo infoServer in servers.Values)
                     {
 						if (GetCanRun() == false)
 							break;
@@ -228,10 +228,8 @@ namespace Eddie.Core.Threads
 						if(timeNow - infoServer.LastPingTest >= delay)								
 						{
                             bool canPingServer = enabled;
-                            if (infoServer.IpEntry == "")
-                                canPingServer = false;
-                            if (infoServer.WarningClosed != "")
-                                canPingServer = false;
+                            if (infoServer.CanPing() == false)
+                                canPingServer = false;                            
 
 							if (canPingServer)
 							{
@@ -288,7 +286,7 @@ namespace Eddie.Core.Threads
 			job.Run();
 		}
 
-		public void PingResult(ServerInfo infoServer, PingReply reply)
+		public void PingResult(ConnectionInfo infoServer, PingReply reply)
 		{
 			Int64 result = 0;
 						
@@ -304,7 +302,7 @@ namespace Eddie.Core.Threads
 			PingResult(infoServer, result);
 		}
 
-		public void PingResult(ServerInfo infoServer, Int64 result)
+		public void PingResult(ConnectionInfo infoServer, Int64 result)
 		{
 			infoServer.PingTests++;
 			infoServer.LastPingResult = Utils.UnixTimeStamp();
@@ -328,7 +326,7 @@ namespace Eddie.Core.Threads
 
 		void OnPingCompleted(object sender, PingCompletedEventArgs e)
 		{
-			ServerInfo infoServer = e.UserState as ServerInfo;
+			ConnectionInfo infoServer = e.UserState as ConnectionInfo;
 
 			PingResult(infoServer, e.Reply);
 		}
@@ -341,20 +339,20 @@ namespace Eddie.Core.Threads
 
 			int iTotal = 0;
 			
-			lock (Engine.Servers)
+			lock (Engine.Connections)
 			{
-				foreach (ServerInfo infoServer in Engine.Servers.Values)
+				foreach (ConnectionInfo infoConnection in Engine.Connections.Values)
 				{
-                    int deltaValid = GetPingerDelayValid(infoServer);
+                    int deltaValid = GetPingerDelayValid(infoConnection);
 
-                    if ( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoServer.LastPingResult) )
-						stats.OlderCheckDate = infoServer.LastPingResult;
+                    if ( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoConnection.LastPingResult) )
+						stats.OlderCheckDate = infoConnection.LastPingResult;
 
-					if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoServer.LastPingResult))
-						stats.LatestCheckDate = infoServer.LastPingResult;
+					if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoConnection.LastPingResult))
+						stats.LatestCheckDate = infoConnection.LastPingResult;
 
 					iTotal++;
-					if (timeNow - infoServer.LastPingResult > deltaValid)
+					if (timeNow - infoConnection.LastPingResult > deltaValid)
 						stats.Invalid++;						
 				}
 			}

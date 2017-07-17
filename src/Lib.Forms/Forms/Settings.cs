@@ -72,7 +72,10 @@ namespace Eddie.Gui.Forms
             GuiUtils.FixHeightVs(chkExpert, lblExpert);
             GuiUtils.FixHeightVs(chkAdvancedCheckRoute, lblAdvancedCheckRoute);
             GuiUtils.FixHeightVs(cboIpV6, lblIpV6);
-            GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
+			GuiUtils.FixHeightVs(cboProtocolIPEntry, lblProtocolIPEntry);
+			GuiUtils.FixHeightVs(cboProtocolIPv4Route, lblProtocolIPv4Route);
+			GuiUtils.FixHeightVs(cboProtocolIPv6Route, lblProtocolIPv6Route);
+			GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
             GuiUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);
             GuiUtils.FixHeightVs(chkRouteRemoveDefault, lblRouteRemoveDefault);
             GuiUtils.FixHeightVs(cboOpenVpnRcvbuf, lblOpenVpnRcvbuf);
@@ -99,29 +102,23 @@ namespace Eddie.Gui.Forms
 
             if( (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null) )
             {
-                XmlNodeList xmlModes = Engine.Instance.AirVPN.Manifest.SelectNodes("//modes/mode");
-                foreach (XmlElement xmlMode in xmlModes)
-                {
-                    Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
-                    itemMode.Protocol = xmlMode.GetAttribute("protocol").ToUpperInvariant();
-                    itemMode.Port = Conversions.ToInt32(xmlMode.GetAttribute("port"), 443);
-                    itemMode.Entry = Conversions.ToInt32(xmlMode.GetAttribute("entry_index"),0);
-                    while (itemMode.SubItems.Count < 5)
-                        itemMode.SubItems.Add("");
-
-                    itemMode.SubItems[0].Text = itemMode.Protocol;
-                    itemMode.SubItems[1].Text = itemMode.Port.ToString();
-                    if (itemMode.Entry == 0)
-                        itemMode.SubItems[2].Text = "Primary";
-                    else if (itemMode.Entry == 1)
-                        itemMode.SubItems[2].Text = "Alternative";
-                    else
-                        itemMode.SubItems[2].Text = "Alternative " + xmlMode.GetAttribute("entry_index");
-                    itemMode.SubItems[3].Text = xmlMode.GetAttribute("title");
-                    lstProtocols.Items.Add(itemMode);
-                }
-                lstProtocols.ResizeColumnsAuto();
-            }
+				foreach(ConnectionMode mode in Engine.Instance.AirVPN.Modes)
+				{
+					if (mode.Available == false)
+						continue;
+					Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
+					itemMode.Mode = mode;
+					while (itemMode.SubItems.Count < 6)
+						itemMode.SubItems.Add("");
+					itemMode.SubItems[0].Text = mode.Protocol;
+					itemMode.SubItems[1].Text = Conversions.ToString(mode.Port);
+					itemMode.SubItems[2].Text = Conversions.ToString(mode.EntryIndex + 1);
+					itemMode.SubItems[3].Text = mode.Title;
+					itemMode.SubItems[4].Text = mode.Specs;
+					lstProtocols.Items.Add(itemMode);
+				}				
+				lstProtocols.ResizeColumnsAuto();
+			}
 
             // UI
             cboUiUnit.Items.Clear();
@@ -182,6 +179,26 @@ namespace Eddie.Gui.Forms
 			cboOpenVpnSndbuf.Items.Add("128 KB");
 			cboOpenVpnSndbuf.Items.Add("256 KB");
 			cboOpenVpnSndbuf.Items.Add("512 KB");
+
+			cboProtocolIPEntry.Items.Clear();
+			cboProtocolIPEntry.Items.Add("IPv6, IPv4");
+			cboProtocolIPEntry.Items.Add("IPv4, IPv6");
+			cboProtocolIPEntry.Items.Add("IPv6 only");
+			cboProtocolIPEntry.Items.Add("IPv4 only");
+
+			cboProtocolIPv4Route.Items.Clear();
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteInAlways);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrOut);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrBlock);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteOut);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteBlock);
+
+			cboProtocolIPv6Route.Items.Clear();
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteInAlways);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrOut);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrBlock);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteOut);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteBlock);
 
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
@@ -260,7 +277,7 @@ namespace Eddie.Gui.Forms
             // Protocol
             String protocol = s.Get("mode.protocol").ToUpperInvariant();
             int port = s.GetInt("mode.port");
-            int alternate = s.GetInt("mode.alt");			
+            int entry = s.GetInt("mode.alt");			
 			if (protocol == "AUTO")
             {
                 chkProtocolsAutomatic.Checked = true;
@@ -271,9 +288,9 @@ namespace Eddie.Gui.Forms
 
                 foreach(Controls.ListViewItemProtocol itemProtocol in lstProtocols.Items)
                 {
-                    if( (itemProtocol.Protocol == protocol) &&
-                        (itemProtocol.Port == port) &&
-                        (itemProtocol.Entry == alternate) )
+                    if( (itemProtocol.Mode.Protocol == protocol) &&
+                        (itemProtocol.Mode.Port == port) &&
+                        (itemProtocol.Mode.EntryIndex == entry) )
                     {
                         found = true;
                         itemProtocol.Selected = true;
@@ -336,7 +353,46 @@ namespace Eddie.Gui.Forms
 			else
 				cboIpV6.Text = "None";
 
-			
+			string protocolIpEntry = s.Get("protocol.ip.entry");
+			if (protocolIpEntry == "ipv6-ipv4")
+				cboProtocolIPEntry.Text = "IPv6, IPv4";
+			else if (protocolIpEntry == "ipv4-ipv6")
+				cboProtocolIPEntry.Text = "IPv4, IPv6";
+			else if (protocolIpEntry == "ipv6-only")
+				cboProtocolIPEntry.Text = "IPv6 only";
+			else if (protocolIpEntry == "ipv4-only")
+				cboProtocolIPEntry.Text = "IPv4 only";
+			else
+				cboProtocolIPEntry.Text = "IPv6, IPv4";
+
+			string protocolIPv4Route = s.Get("protocol.ipv4.route");
+			if (protocolIPv4Route == "in-always")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInAlways;
+			else if (protocolIPv4Route == "in-out")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInOrOut;
+			else if (protocolIPv4Route == "in-block")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+			else if (protocolIPv4Route == "out")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteOut;
+			else if (protocolIPv4Route == "block")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteBlock;
+			else
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+
+			string protocolIPv6Route = s.Get("protocol.ipv6.route");
+			if (protocolIPv6Route == "in-always")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInAlways;
+			else if (protocolIPv6Route == "in-out")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrOut;
+			else if (protocolIPv6Route == "in-block")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+			else if (protocolIPv6Route == "out")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteOut;
+			else if (protocolIPv6Route == "block")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteBlock;
+			else
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+
 			chkAdvancedPingerEnabled.Checked = s.GetBool("pinger.enabled");
 			chkRouteRemoveDefault.Checked = s.GetBool("routes.remove_default");
 			
@@ -540,9 +596,9 @@ namespace Eddie.Gui.Forms
             {
                 Controls.ListViewItemProtocol item = lstProtocols.SelectedItems[0] as Controls.ListViewItemProtocol;
 
-                s.Set("mode.protocol", item.Protocol);
-                s.SetInt("mode.port", item.Port);
-                s.SetInt("mode.alt", item.Entry);
+                s.Set("mode.protocol", item.Mode.Protocol);
+                s.SetInt("mode.port", item.Mode.Port);
+                s.SetInt("mode.alt", item.Mode.EntryIndex);
             }
             else
             {
@@ -584,7 +640,47 @@ namespace Eddie.Gui.Forms
 				s.Set("ipv6.mode", "disable");
 			else
 				s.Set("ipv6.mode", "none");
-			
+
+			string protocolIpEntry = cboProtocolIPEntry.Text;
+			if (protocolIpEntry == "IPv6, IPv4")
+				s.Set("protocol.ip.entry", "ipv6-ipv4");
+			else if (protocolIpEntry == "IPv4, IPv6")
+				s.Set("protocol.ip.entry", "ipv4-ipv6");
+			else if (protocolIpEntry == "IPv6 only")
+				s.Set("protocol.ip.entry", "ipv6-only");
+			else if (protocolIpEntry == "IPv4 only")
+				s.Set("protocol.ip.entry", "ipv4-only");
+			else 
+				s.Set("protocol.ip.entry", "ipv6-ipv4");
+
+			string protocolIPv4Route = cboProtocolIPv4Route.Text;
+			if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteInAlways)
+				s.Set("protocol.ipv4.route", "in-always");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteInOrOut)
+				s.Set("protocol.ipv4.route", "in-out");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteInOrBlock)
+				s.Set("protocol.ipv4.route", "in-block");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteOut)
+				s.Set("protocol.ipv4.route", "out");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteBlock)
+				s.Set("protocol.ipv4.route", "block");
+			else
+				s.Set("protocol.ipv4.route", "in-block");
+
+			string protocolIPv6Route = cboProtocolIPv6Route.Text;
+			if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteInAlways)
+				s.Set("protocol.ipv6.route", "in-always");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteInOrOut)
+				s.Set("protocol.ipv6.route", "in-out");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteInOrBlock)
+				s.Set("protocol.ipv6.route", "in-block");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteOut)
+				s.Set("protocol.ipv6.route", "out");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteBlock)
+				s.Set("protocol.ipv6.route", "block");
+			else
+				s.Set("protocol.ipv6.route", "in-block");
+
 			s.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
 			s.SetBool("routes.remove_default", chkRouteRemoveDefault.Checked);
 						

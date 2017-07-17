@@ -91,7 +91,7 @@ namespace Eddie.Gui.Skin
 
             Graphics g = this.CreateGraphics();
 
-            int minWidth = GuiUtils.GetFontSize(g, Font, Columns[column].Text).Width;
+            int minWidth = GuiUtils.GetFontSize(g, Font, Columns[column].Text).Width + 10;
 
             foreach (ListViewItem item in Items)
             {

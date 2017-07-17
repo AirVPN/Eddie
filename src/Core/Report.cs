@@ -83,16 +83,28 @@ namespace Eddie.Core
 		{
 			IpAddresses dns = new IpAddresses("dnstest.eddie.website");
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Yes : Messages.No);
-			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);			
+			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);
+
+			string charsNotAllowed = Platform.Instance.CharsNotAllowedInPath.Length.ToString() + ":";
+			foreach(char c in Platform.Instance.CharsNotAllowedInPath)
+			{
+				if (c < 32)
+					charsNotAllowed += "0x" + ((int)c).ToString() + ";";
+				else
+					charsNotAllowed += c + ";";
+			}
+			Add("Chars not allowed in path", charsNotAllowed); // ClodoTemp
 		}
 
 		public void Environment()
 		{
 			Add("Eddie version", Lib.Common.Constants.VersionDesc);
 			Add("Eddie OS build", Platform.Instance.GetSystemCode());
+			Add("Eddie architecture", Platform.Instance.GetArchitecture());
 			Add("OS type", Platform.Instance.GetCode());
 			Add("OS name", Platform.Instance.GetName());
-			Add("OS description", Platform.Instance.VersionDescription());
+			Add("OS version", Platform.Instance.GetVersion());
+			Add("OS architecture", Platform.Instance.GetOsArchitecture());
 			Add("Mono /.Net Framework", Platform.Instance.GetMonoVersion());
 
 			Add("OpenVPN driver", Software.OpenVpnDriver);
@@ -107,7 +119,12 @@ namespace Eddie.Core
 			Add("Executable path", Platform.Instance.GetExecutablePath());
 			Add("Command line arguments", "(" + Lib.Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Lib.Common.CommandLine.SystemEnvironment.GetFull());
 
-			Add("DNS", Platform.Instance.DetectDNS().ToString());
+			Add("Detected DNS", Platform.Instance.DetectDNS().ToString());
+			/*
+			#if !EDDIENET20
+			Add("JsonTest", Newtonsoft.Json.JsonConvert.SerializeObject(new IpAddress("8.8.8.8")));
+			#endif
+			*/
 		}
 
 		public void NetworkInterfaces()

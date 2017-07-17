@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
-    <Compile Include="AirExchange.cs" />
+    <Compile Include="ConnectionInfoWarning.cs" />
+    <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="ConnectionMode.cs" />
     <Compile Include="IpAddresses.cs" />
     <Compile Include="ReportItem.cs" />
     <Compile Include="SystemShell.cs" />
@@ -106,7 +108,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ServerInfo.cs" />
     <Compile Include="Software.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="Thread.cs" />

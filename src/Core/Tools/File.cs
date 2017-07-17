@@ -28,13 +28,21 @@ namespace Eddie.Core.Tools
     public class File : Tool
     {
         public string FileName;
+		public bool Required;
 
-        public File(string filename)
+        public File(string filename, bool required)
         {
             FileName = filename;
+			Required = required;
         }
 
-        public override bool Available()
+		public File(string filename)
+		{
+			FileName = filename;
+			Required = false;
+		}
+
+		public override bool Available()
         {
             return (Path != "");
         }
@@ -48,5 +56,14 @@ namespace Eddie.Core.Tools
         {
             // Do nothing - Don't call base
         }
-    }
+
+		public override void ExceptionIfRequired()
+		{
+			if(Required)
+			{
+				if (Available() == false)
+					throw new Exception(FileName + " - " + Messages.NotFound);
+			}
+		}
+	}
 }
