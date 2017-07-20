@@ -324,6 +324,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 			};
 
+            LblAdvancedProviders.Hidden = (!Constants.AlphaFeatures);
+            ChkAdvancedProviders.Hidden = (!Constants.AlphaFeatures);
 
 			ReadOptions ();
 

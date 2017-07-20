@@ -390,7 +390,7 @@ namespace Eddie.Core
 			string fileNameData = username + "\n" + password + "\n";
 
 			Platform.Instance.FileContentsWriteText(FilePasswordAuth.Path, fileNameData);
-			Platform.Instance.FileEnsurePermission(FilePasswordAuth.Path, "644");
+			// Platform.Instance.FileEnsurePermission(FilePasswordAuth.Path, "644"); // TOFIX, macOS with custom .ovpn throw a warning about file permissions
 
 			AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");
 		}

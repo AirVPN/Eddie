@@ -647,7 +647,7 @@ namespace Eddie.UI.Cocoa.Osx
 			LblKey.Hidden = ( (logged == false) || (CboKey.ItemCount < 2) );
 			CboKey.Hidden = LblKey.Hidden;
 
-            CmdConnect.Enabled = Engine.Instance.CanConnect()();
+            CmdConnect.Enabled = Engine.Instance.CanConnect();
 
 			CmdServersConnect.Enabled = ((logged) && (TableServers.SelectedRowCount == 1));
 			CmdServersWhiteList.Enabled = (TableServers.SelectedRowCount > 0);
@@ -715,9 +715,6 @@ namespace Eddie.UI.Cocoa.Osx
                     TabMain.Remove(TabProviders);
                 }
             }
-
-
-            TabMain.Rem
 		}
 
 		public void SettingsChanged()
