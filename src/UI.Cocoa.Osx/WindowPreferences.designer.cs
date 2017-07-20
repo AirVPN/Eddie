@@ -64,6 +64,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton ChkAdvancedPingerEnabled { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkAdvancedProviders { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton ChkConnect { get; set; }
 
 		[Outlet]
@@ -179,6 +182,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdSave { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblAdvancedProviders { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblDnsServers { get; set; }
@@ -369,14 +375,14 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkGeneralStartLast = null;
 			}
 
-			if (ChkLockAllowPing != null) {
-				ChkLockAllowPing.Dispose ();
-				ChkLockAllowPing = null;
-			}
-
 			if (ChkLockAllowDNS != null) {
 				ChkLockAllowDNS.Dispose ();
 				ChkLockAllowDNS = null;
+			}
+
+			if (ChkLockAllowPing != null) {
+				ChkLockAllowPing.Dispose ();
+				ChkLockAllowPing = null;
 			}
 
 			if (ChkLockAllowPrivate != null) {
@@ -607,6 +613,16 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtAdvancedOpenVpnPath != null) {
 				TxtAdvancedOpenVpnPath.Dispose ();
 				TxtAdvancedOpenVpnPath = null;
+			}
+
+			if (LblAdvancedProviders != null) {
+				LblAdvancedProviders.Dispose ();
+				LblAdvancedProviders = null;
+			}
+
+			if (ChkAdvancedProviders != null) {
+				ChkAdvancedProviders.Dispose ();
+				ChkAdvancedProviders = null;
 			}
 
 			if (TxtLockAllowedIPS != null) {

@@ -41,6 +41,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		private WindowAboutController windowAbout;
 		private WindowPreferencesController windowPreferences;
+        private NSTabViewItem TabProviders;
 
 		#region Constructors
 		// Called when created from unmanaged code
@@ -86,6 +87,8 @@ namespace Eddie.UI.Cocoa.Osx
 			Window.Delegate = new MainWindowDelegate (this);
 
 			Window.AcceptsMouseMovedEvents = true;
+
+            TabProviders = TabMain.Items[1];
 
 			CreateMenuBarIcon ();
 
@@ -644,11 +647,7 @@ namespace Eddie.UI.Cocoa.Osx
 			LblKey.Hidden = ( (logged == false) || (CboKey.ItemCount < 2) );
 			CboKey.Hidden = LblKey.Hidden;
 
-			if (logged) {
-				CmdConnect.Enabled = true;
-			} else {
-				CmdConnect.Enabled = false;
-			}
+            CmdConnect.Enabled = Engine.Instance.CanConnect()();
 
 			CmdServersConnect.Enabled = ((logged) && (TableServers.SelectedRowCount == 1));
 			CmdServersWhiteList.Enabled = (TableServers.SelectedRowCount > 0);
@@ -658,6 +657,20 @@ namespace Eddie.UI.Cocoa.Osx
 			MnuServersWhitelist.Enabled = CmdServersWhiteList.Enabled;
 			MnuServersBlacklist.Enabled = CmdServersBlackList.Enabled;
 			MnuServersUndefined.Enabled = CmdServersUndefined.Enabled;
+
+            CmdServersMore.Enabled = (TableServers.SelectedRowCount == 1);
+            MnuServersMore.Enabled = CmdServersMore.Enabled;
+
+            if(TableServers.SelectedRowCount == 1)
+            {
+                ConnectionInfo s = TableServersController.GetRelatedItem(TableServers.SelectedRow);
+                CmdServersRename.Enabled = (s.Provider is Core.Providers.OpenVPN);
+            }
+            else
+            {
+                CmdServersRename.Enabled = false;
+            }
+            MnuServersRename.Enabled = CmdServersRename.Enabled;
 
 			CmdAreasWhiteList.Enabled = (TableAreas.SelectedRowCount > 0);
 			CmdAreasBlackList.Enabled = CmdAreasWhiteList.Enabled;
@@ -688,7 +701,23 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			}
 
+            if(Engine.Instance.Storage.GetBool("advanced.providers"))
+            {
+                if (TabMain.Items[1] != TabProviders)
+                {
+                    TabMain.Insert(TabProviders, 1);
+                }
+            }
+            else
+            {
+                if (TabMain.Items[1] == TabProviders)
+                {
+                    TabMain.Remove(TabProviders);
+                }
+            }
 
+
+            TabMain.Rem
 		}
 
 		public void SettingsChanged()

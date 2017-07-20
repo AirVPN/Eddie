@@ -1,6 +1,6 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
@@ -79,7 +79,13 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton CmdServersConnect { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdServersMore { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdServersRefresh { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdServersRename { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSButton CmdServersUndefined { get; set; }
@@ -157,7 +163,13 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSMenuItem MnuServersConnect { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSMenuItem MnuServersMore { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSMenuItem MnuServersRefresh { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSMenuItem MnuServersRename { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSMenuItem MnuServersUndefined { get; set; }
@@ -254,6 +266,16 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (MnuServersRename != null) {
+				MnuServersRename.Dispose ();
+				MnuServersRename = null;
+			}
+
+			if (MnuServersMore != null) {
+				MnuServersMore.Dispose ();
+				MnuServersMore = null;
+			}
+
 			if (CboKey != null) {
 				CboKey.Dispose ();
 				CboKey = null;
@@ -364,9 +386,19 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdServersConnect = null;
 			}
 
+			if (CmdServersMore != null) {
+				CmdServersMore.Dispose ();
+				CmdServersMore = null;
+			}
+
 			if (CmdServersRefresh != null) {
 				CmdServersRefresh.Dispose ();
 				CmdServersRefresh = null;
+			}
+
+			if (CmdServersRename != null) {
+				CmdServersRename.Dispose ();
+				CmdServersRename = null;
 			}
 
 			if (CmdServersUndefined != null) {

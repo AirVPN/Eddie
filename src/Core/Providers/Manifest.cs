@@ -336,7 +336,7 @@ namespace Eddie.Core.Providers
 					if (connection.Provider != this)
 						continue;
 
-					if (User == null) // cazzo
+					if (User == null)
 						connection.WarningAdd(Messages.ConnectionWarningLoginRequired, ConnectionInfoWarning.WarningType.Error);
 
 					if (mode.EntryIndex >= connection.IpsEntry.CountIPv4)

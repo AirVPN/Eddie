@@ -250,7 +250,6 @@ namespace Eddie.UI.Cocoa.Osx
 			};
 
 
-
 			// Advanced - DNS
 			TableDnsServers.DoubleClick += (object sender, EventArgs e) =>
 			{
@@ -624,6 +623,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck (ChkRouteRemoveDefaultGateway, s.GetBool("routes.remove_default"));
 			
 			TxtAdvancedOpenVpnPath.StringValue = s.Get ("tools.openvpn.path");
+            GuiUtils.SetCheck (ChkAdvancedProviders, s.GetBool("advanced.providers")); 
 
 			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
@@ -834,6 +834,7 @@ namespace Eddie.UI.Cocoa.Osx
 			s.SetBool ("routes.remove_default", GuiUtils.GetCheck(ChkRouteRemoveDefaultGateway));
 			
 			s.Set ("tools.openvpn.path", TxtAdvancedOpenVpnPath.StringValue);
+            s.SetBool ("advanced.providers", GuiUtils.GetCheck(ChkAdvancedProviders)); 
 
 			string manifestRefresh = GuiUtils.GetSelected(CboAdvancedManifestRefresh);
 			if (manifestRefresh == "Automatic") // Auto

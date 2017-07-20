@@ -24,6 +24,7 @@
                 <outlet property="ChkAdvancedCheckRoute" destination="ouA-M6-NDw" id="1tH-Ri-pah"/>
                 <outlet property="ChkAdvancedExpertMode" destination="xVq-43-prb" id="Rfu-uO-RXn"/>
                 <outlet property="ChkAdvancedPingerEnabled" destination="PlL-FU-bP0" id="YWu-FP-gGb"/>
+                <outlet property="ChkAdvancedProviders" destination="0YZ-qx-Mbe" id="NCy-PY-7K0"/>
                 <outlet property="ChkConnect" destination="xhO-Kv-elj" id="dHo-zH-ucX"/>
                 <outlet property="ChkDnsCheck" destination="VqV-KG-Dpk" id="u3e-5w-qRd"/>
                 <outlet property="ChkExitConfirm" destination="ZMV-bb-YYL" id="8OZ-IU-R4K"/>
@@ -63,6 +64,7 @@
                 <outlet property="CmdRouteEdit" destination="OjN-Zs-Oif" id="CAh-Ju-Db4"/>
                 <outlet property="CmdRouteRemove" destination="DQi-F5-OlE" id="nsA-g1-heD"/>
                 <outlet property="CmdSave" destination="PFc-X4-gP7" id="WmB-WK-5eF"/>
+                <outlet property="LblAdvancedProviders" destination="0Wk-VB-9WI" id="ybQ-9h-RR3"/>
                 <outlet property="LblDnsServers" destination="0g5-hp-4gz" id="kYZ-a6-qOf"/>
                 <outlet property="LblLockRoutingOutWarning" destination="xsz-F9-GYM" id="pcZ-0q-kwl"/>
                 <outlet property="LblLoggingHelp" destination="STr-CF-heX" id="jBF-M5-Ikp"/>
@@ -324,7 +326,7 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="Cib-7u-OjK">
                                                 <rect key="frame" x="1" y="0.0" width="515" height="220"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="15" headerView="4JJ-rc-bx7" id="1GA-Pm-iyx">
                                                         <rect key="frame" x="0.0" y="0.0" width="515" height="203"/>
@@ -1226,6 +1228,23 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
+                                        <button misplaced="YES" id="0YZ-qx-Mbe">
+                                            <rect key="frame" x="239" y="48" width="490" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Bpq-mc-ccl">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="smallSystem"/>
+                                            </buttonCell>
+                                        </button>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="0Wk-VB-9WI">
+                                            <rect key="frame" x="15" y="48" width="220" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Multi-providers support" id="Ajc-6B-noc">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                 </view>
                             </tabViewItem>

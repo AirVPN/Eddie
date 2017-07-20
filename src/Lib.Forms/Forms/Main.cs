@@ -1499,17 +1499,7 @@ namespace Eddie.Gui.Forms
             cboKey.Visible = ((logged == true) && (cboKey.Items.Count > 1));
 
 			cmdConnect.Enabled = Engine.Instance.CanConnect();
-			/* TODOMAC
-			if (logged)
-			{
-				cmdConnect.Enabled = Engine.Instance.CanConnect();					
-			}
-			else
-			{
-				cmdConnect.Enabled = false;
-			}
-			*/
-
+			
 			// Providers
 			cmdProviderAdd.Enabled = true;
 			cmdProviderRemove.Enabled = (lstProviders.SelectedItems.Count > 0);
