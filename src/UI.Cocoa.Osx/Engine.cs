@@ -193,6 +193,25 @@ namespace Eddie.UI.Cocoa.Osx
 			return result;
 		}
 
+        public override Credentials OnAskCredentials()
+        {
+            Credentials cred = null;
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+				{
+                    WindowCredentialsController dlg = new WindowCredentialsController();
+				    dlg.Window.ReleasedWhenClosed = true;
+				    NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+				    dlg.Window.Close();
+
+                    if (dlg.Credentials != null)
+                        cred = dlg.Credentials;
+				});
+			}
+            return cred;
+		}
+
 		public override void OnPostManifestUpdate ()
 		{
 			base.OnPostManifestUpdate ();

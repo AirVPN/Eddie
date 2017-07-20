@@ -50,6 +50,11 @@ namespace Eddie.Platforms
 			return SystemShell.ShellCmd("sw_vers -productVersion");
 		}
 
+        public override string GetVersion()
+        {
+            return m_version;
+        }
+
         public override void OnInit(bool cli)
         {
             base.OnInit(cli);
@@ -85,13 +90,6 @@ namespace Eddie.Platforms
 			return true;
 		}
 
-		public override string VersionDescription()
-		{
-			string o = base.VersionDescription();
-            o += " - " + m_version;
-			return o;
-		}
-
 		public override string DirSep
 		{
 			get
@@ -100,12 +98,18 @@ namespace Eddie.Platforms
 			}
 		}
 
-		public override void FileEnsureExecutablePermission(string path)
+		public override void FileEnsurePermission(string path, string mode)
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
-			SystemShell.ShellCmd("chmod +x \"" + SystemShell.EscapePath(path) + "\"");
+			// 'mode' not escaped, called hard-coded.
+			SystemShell.ShellCmd("chmod " + mode + " \"" + SystemShell.EscapePath(path) + "\"");
+		}
+
+		public override void FileEnsureExecutablePermission(string path)
+		{
+			FileEnsurePermission(path, "+x");
 		}
 
 		public override string GetExecutableReport(string path)
@@ -582,7 +586,7 @@ namespace Eddie.Platforms
 			return true;
 		}
 
-		public override bool OnDnsSwitchDo(string dns)
+        public override bool OnDnsSwitchDo(IpAddresses dns)
 		{
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
 
@@ -593,32 +597,27 @@ namespace Eddie.Platforms
 				{
 					string i2 = i.Trim();
 
-					string current = SystemShell.ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
+					string currentStr = SystemShell.ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
 
-					// v2
-					List<string> ips = new List<string>();
-					foreach(string line in current.Split('\n'))
+                    // v2
+                    IpAddresses current = new IpAddresses();
+					foreach(string line in currentStr.Split('\n'))
 					{
 						string ip = line.Trim();
-						if (IpAddress.IsIP(ip))
-							ips.Add(ip);
+						current.Add(ip);
 					}
 
-					if (ips.Count != 0)
-						current = String.Join(",", ips.ToArray());
-					else
-						current = "";
-					if (current != dns)
+					if (dns.Equals(current) == false)
 					{
 						// Switch
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current == "") ? "Automatic" : current), dns));
+                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
 
 						DnsSwitchEntry e = new DnsSwitchEntry();
 						e.Name = i2;
-						e.Dns = current;
+						e.Dns = current.Addresses;
 						m_listDnsSwitch.Add(e);
 
-						string dns2 = dns.Replace(",", "\" \"");
+						string dns2 = dns.Addresses.Replace(",", "\" \"");
 						SystemShell.ShellCmd("networksetup -setdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\" \"" + dns2 + "\""); // IJTF2 eh?
 					}
 				}

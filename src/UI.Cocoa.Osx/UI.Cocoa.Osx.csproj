@@ -184,6 +184,21 @@
     <Compile Include="WindowPreferencesIpController.cs" />
     <Compile Include="TableDnsServersController.cs" />
     <Compile Include="TableDnsServersDelegate.cs" />
+    <Compile Include="WindowCredentials.cs" />
+    <Compile Include="WindowCredentialsController.cs" />
+    <Compile Include="WindowCredentials.designer.cs">
+      <DependentUpon>WindowCredentials.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowConnection.cs" />
+    <Compile Include="WindowConnectionController.cs" />
+    <Compile Include="WindowConnection.designer.cs">
+      <DependentUpon>WindowConnection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowConnectionRename.cs" />
+    <Compile Include="WindowConnectionRenameController.cs" />
+    <Compile Include="WindowConnectionRename.designer.cs">
+      <DependentUpon>WindowConnectionRename.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -197,6 +212,9 @@
     <InterfaceDefinition Include="WindowPreferencesRoute.xib" />
     <InterfaceDefinition Include="WindowPreferencesEvent.xib" />
     <InterfaceDefinition Include="WindowPreferencesIp.xib" />
+    <InterfaceDefinition Include="WindowCredentials.xib" />
+    <InterfaceDefinition Include="WindowConnection.xib" />
+    <InterfaceDefinition Include="WindowConnectionRename.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />

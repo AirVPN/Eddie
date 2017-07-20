@@ -561,7 +561,7 @@ namespace Eddie.UI.Cocoa.Osx
 				foreach (TableProtocolsControllerItem itemProtocol in TableProtocolsController.Items) {
 					if ((itemProtocol.Protocol == protocol) &&
 					   (itemProtocol.Port == port) &&
-					   (itemProtocol.Entry == alternate)) {
+					   (itemProtocol.IP == alternate)) {
 						found = true;
 						TableProtocols.SelectRow (iRow, false);
 						TableProtocols.ScrollRowToVisible (iRow);
@@ -789,7 +789,7 @@ namespace Eddie.UI.Cocoa.Osx
 				TableProtocolsControllerItem itemProtocol = TableProtocolsController.Items [TableProtocols.SelectedRow];
 				s.Set("mode.protocol", itemProtocol.Protocol);
 				s.SetInt ("mode.port", itemProtocol.Port);
-				s.SetInt ("mode.alt", itemProtocol.Entry);
+				s.SetInt ("mode.alt", itemProtocol.IP);
 			} else {
 				s.Set ("mode.protocol", "AUTO");
 				s.SetInt ("mode.port", 443);

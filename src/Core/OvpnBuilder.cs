@@ -1,4 +1,4 @@
-﻿// <eddie_source_header>
+﻿﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -390,7 +390,7 @@ namespace Eddie.Core
 			string fileNameData = username + "\n" + password + "\n";
 
 			Platform.Instance.FileContentsWriteText(FilePasswordAuth.Path, fileNameData);
-			Platform.Instance.FileEnsurePermission(FilePasswordAuth.Path, "600");
+			Platform.Instance.FileEnsurePermission(FilePasswordAuth.Path, "644");
 
 			AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");
 		}
@@ -406,7 +406,7 @@ namespace Eddie.Core
                 RemoveDirective("block-outside-dns");
 
             // explicit-exit-notify works only with udp
-            if (GetOneDirectiveText("proto").ToLowerInvariant().StartsWith("udp") == false)
+            if (GetOneDirectiveText("proto").ToLowerInvariant().StartsWith("udp", StringComparison.InvariantCulture) == false)
                 RemoveDirective("explicit-exit-notify");
 
 			// OpenVPN < 2.4 allows 100 route directives max by default.

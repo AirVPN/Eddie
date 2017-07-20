@@ -482,7 +482,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 						LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
 						LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
-						TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpExit;
+						TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpsExit.ToString();
 						ImgConnectedCountry.Image = NSImage.ImageNamed ("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant () + ".png");
 					}
 					else
@@ -836,7 +836,7 @@ namespace Eddie.UI.Cocoa.Osx
 		void ConnectManual()
 		{
 			if (TableServers.SelectedRows.Count == 1) {
-				ServerInfo s = TableServersController.GetRelatedItem(TableServers.SelectedRow);
+				ConnectionInfo s = TableServersController.GetRelatedItem(TableServers.SelectedRow);
 				Engine.NextServer = s;
 				Connect ();
 			}
@@ -892,7 +892,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach(int i in TableServers.SelectedRows)
 			{
-				TableServersController.GetRelatedItem(i).UserList = ServerInfo.UserListType.WhiteList;
+				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.WhiteList;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
@@ -902,7 +902,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach(int i in TableServers.SelectedRows)
 			{
-				TableServersController.GetRelatedItem(i).UserList = ServerInfo.UserListType.BlackList;
+				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.BlackList;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
@@ -912,7 +912,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach(int i in TableServers.SelectedRows)
 			{
-				TableServersController.GetRelatedItem(i).UserList = ServerInfo.UserListType.None;
+				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.None;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();

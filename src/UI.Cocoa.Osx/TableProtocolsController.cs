@@ -29,9 +29,9 @@ namespace Eddie.UI.Cocoa.Osx
 	{
 		public string Protocol = "";
 		public int Port = 0;
-		public int Entry = 0;
-		public string Cipher;
-		public string Description;
+		public int IP = 0;
+		public string Description = "";
+        public string Specs = "";
 
 		public TableProtocolsControllerItem()
 		{
@@ -54,9 +54,9 @@ namespace Eddie.UI.Cocoa.Osx
 				TableProtocolsControllerItem item = new TableProtocolsControllerItem ();
 				item.Protocol = xmlMode.GetAttribute ("protocol").ToUpper ();
 				item.Port = Conversions.ToInt32 (xmlMode.GetAttribute ("port"), 443);
-				item.Entry = Conversions.ToInt32 (xmlMode.GetAttribute ("entry_index"), 0);
-				item.Cipher = xmlMode.GetAttribute ("cipher");
+				item.IP = Conversions.ToInt32 (xmlMode.GetAttribute ("entry_index"), 0);
 				item.Description = xmlMode.GetAttribute ("title");
+				item.Specs = xmlMode.GetAttribute("specs");
 				Items.Add (item);
 			}
 
@@ -86,14 +86,15 @@ namespace Eddie.UI.Cocoa.Osx
 			else if (tableColumn.Identifier == "Port") {
 				return new NSString (i.Port.ToString());
 			}
-			else if (tableColumn.Identifier == "Entry") {
-				return new NSString ((i.Entry==0) ? "Primary":"Alternative");
-			}
-			else if (tableColumn.Identifier == "Cipher") {
-				return new NSString (i.Cipher);
+			else if (tableColumn.Identifier == "IP") {
+                return new NSString (Conversions.ToString(i.IP + 1));
 			}
 			else if (tableColumn.Identifier == "Description") {
 				return new NSString (i.Description);
+			}
+			else if (tableColumn.Identifier == "Specs")
+			{
+				return new NSString(i.Specs);
 			}
 			else 
 				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));

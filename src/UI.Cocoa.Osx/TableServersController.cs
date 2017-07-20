@@ -28,7 +28,7 @@ namespace Eddie.UI.Cocoa.Osx
 	{
 		public NSTableView tableView;
 
-		public List<ServerInfo> Items = new List<ServerInfo>();
+        public List<ConnectionInfo> Items = new List<ConnectionInfo>();
 
 		public bool ShowAll = false;
 
@@ -57,7 +57,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void RefreshUI()
 		{
-			List<ServerInfo> selected = new List<ServerInfo> ();
+			List<ConnectionInfo> selected = new List<ConnectionInfo> ();
 			for (int r=0; r<Items.Count; r++) {
 				if (tableView.IsRowSelected (r))
 					selected.Add (Items [r]);
@@ -67,17 +67,17 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Items.Clear ();
 
-			Items = Engine.Instance.GetServers (ShowAll);
+			Items = Engine.Instance.GetConnections (ShowAll);
 
 			// Sorting
 			Items.Sort (
-				delegate(ServerInfo x, ServerInfo y) {
+				delegate(ConnectionInfo x, ConnectionInfo y) {
 
 				return x.CompareToEx (y, m_orderColumn, m_orderAscending);
 			});
 
 			int r2 = 0;
-			foreach (ServerInfo s in Items) {
+			foreach (ConnectionInfo s in Items) {
 				if (selected.Contains (s))
 					tableView.SelectRow (r2, true);
 				r2++;
@@ -88,7 +88,7 @@ namespace Eddie.UI.Cocoa.Osx
 			tableView.ReloadData ();
 		}
 
-		public ServerInfo GetRelatedItem(int i)
+        public ConnectionInfo GetRelatedItem(int i)
 		{
 			return Items [i];
 		}
@@ -102,12 +102,12 @@ namespace Eddie.UI.Cocoa.Osx
 		                                         NSTableColumn tableColumn, 
 		                                         int row)
 		{
-			ServerInfo s = Items [row];
+            ConnectionInfo s = Items [row];
 
 			if (tableColumn.Identifier == "List") {
-				if(s.UserList == ServerInfo.UserListType.WhiteList)
+				if(s.UserList == ConnectionInfo.UserListType.WhiteList)
 					return NSImage.ImageNamed("blacklist_0.png");
-				else if(s.UserList == ServerInfo.UserListType.BlackList)
+				else if(s.UserList == ConnectionInfo.UserListType.BlackList)
 					return NSImage.ImageNamed("blacklist_1.png");
 				else
 					return NSImage.ImageNamed("blacklist_2.png");
