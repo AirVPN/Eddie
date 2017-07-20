@@ -34,6 +34,8 @@ namespace Eddie.Core
 		public IpAddresses IpsExit = new IpAddresses();
 		public string CountryCode;
         public string Location;
+		public float Latitude = 0;
+		public float Longitude = 0;
         public Int64 ScoreBase = 0;
         public Int64 Bandwidth = 0;
         public Int64 BandwidthMax = 0;
@@ -375,6 +377,15 @@ namespace Eddie.Core
 				Provider.OnBuildOvpnDefaults(ovpn);
 
 				ovpn.AppendDirectives(OvpnDirectives, "Server level");
+
+				if(Path != "")
+				{
+					if(Platform.Instance.FileExists(Path))
+					{
+						string text = Platform.Instance.FileContentsReadText(Path);
+						ovpn.AppendDirectives(text, "Config file");
+					}
+				}
 			}
 
 			if (s.Get("openvpn.dev_node") != "")

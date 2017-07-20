@@ -134,13 +134,19 @@ namespace Eddie.Core
 				return "null";
 			else if (o is bool)
 			{
-				bool b = (bool) o;
+				bool b = (bool)o;
 				return (b ? "true" : "false");
 			}
 			else if (o is string[])
 				return string.Join(",", o as string[]);
+			else if (o is float)
+			{
+				float f = (float)o;
+				return f.ToString(CultureInfo.InvariantCulture);
+			}
 			else
 				return o.ToString();
+				
 		}
 
 		public static DateTime ToDateTime(Int64 unixTimeStamp)

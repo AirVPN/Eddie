@@ -325,8 +325,6 @@ namespace Eddie.Core
 
 			if(initResult == true)
 			{
-				// Software.Checking(); // ClodoTemp
-
 				Software.Log();
 
 				// Local Time in the past
@@ -354,6 +352,7 @@ namespace Eddie.Core
 				m_threadDiscover = new Threads.Discover();
 				m_threadManifest = new Threads.Manifest();
 
+				PostManifestUpdate();
 
 				bool autoStart = false;
 				if (ConsoleMode)
@@ -457,11 +456,9 @@ namespace Eddie.Core
 
 		public virtual bool OnInit2()
 		{		
-			Software.Checking(); // ClodoTemp
+			Software.Checking();
 
 			Start();
-
-			PostManifestUpdate();
 
 			LoggedUpdate();
 
@@ -782,8 +779,6 @@ namespace Eddie.Core
 		public virtual void OnSettingsChanged()
 		{
 			SaveSettings(); // 2.8
-
-			OnCheckConnections();
 
 			OnRefreshUi(RefreshUiMode.Full);
 
@@ -1172,6 +1167,8 @@ namespace Eddie.Core
 
 				OnCheckConnections();
 			}
+
+			m_threadDiscover.CheckNow();
 		}
 
 		public virtual void OnCheckConnections()
@@ -1583,24 +1580,24 @@ namespace Eddie.Core
 				m_threadSession.SendManagementCommand(command);
 		}
 
-		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, string title)
+		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters)
 		{
-			return FetchUrlXml(url, parameters, title, false, "");
+			return FetchUrlXml(url, parameters, false, "");
 		}
 
-		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
+		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string resolve)
 		{
-			string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, title, forceBypassProxy, resolve));
+			string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, forceBypassProxy, resolve));
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml(str);
 			return doc;
 		}
 
-		public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
+		public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string resolve)
 		{
 			Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
-
-			return curl.FetchUrlEx(url, parameters, title, forceBypassProxy, resolve);
+			
+			return curl.FetchUrlEx(url, parameters, forceBypassProxy, resolve);
 		}
 		
 		public int PingerInvalid()

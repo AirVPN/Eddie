@@ -261,17 +261,21 @@ namespace Eddie.Gui.Forms
                 m_notifyIcon.ContextMenuStrip = mnuMain;
             }
 
+			
+
             m_tabMain = new TabNavigator();
             m_tabMain.ImportTabControl(tabMain);
             if (m_tabMain.Pages.Count != 0)
             {
-                m_tabMain.Pages[0].Icon = "maintab_overview";
-                m_tabMain.Pages[1].Icon = "maintab_servers";
-                m_tabMain.Pages[2].Icon = "maintab_countries";
-                m_tabMain.Pages[3].Icon = "maintab_speed";
-                m_tabMain.Pages[4].Icon = "maintab_stats";
-                m_tabMain.Pages[5].Icon = "maintab_logs";
-                m_tabMain.TabsFont = Skin.FontBig;
+				m_tabMain.Pages[0].Icon = "maintab_overview";
+				m_tabMain.Pages[1].Icon = "maintab_providers";
+				m_tabMain.Pages[2].Icon = "maintab_servers";
+				m_tabMain.Pages[3].Icon = "maintab_countries";
+				m_tabMain.Pages[4].Icon = "maintab_speed";
+				m_tabMain.Pages[5].Icon = "maintab_stats";
+				m_tabMain.Pages[6].Icon = "maintab_logs";
+				
+				m_tabMain.TabsFont = Skin.FontBig;
                 m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
                 m_tabMain.TabSwitch += tabMain_TabSwitch;
                 this.Controls.Add(m_tabMain);
@@ -309,7 +313,18 @@ namespace Eddie.Gui.Forms
             m_cmdMainMenu.Click += cmdMenu_Click;
             Controls.Add(m_cmdMainMenu);
 
-            m_listViewServers = new ListViewServers();
+			// Providers
+			foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+			{
+				Controls.ListViewItemProvider itemProvider = new Controls.ListViewItemProvider();
+				itemProvider.Provider = provider;
+				itemProvider.Update();
+
+				lstProviders.Items.Add(itemProvider);
+			}
+			lstProviders.ResizeColumnsAuto();
+
+			m_listViewServers = new ListViewServers();
             m_listViewServers.ContextMenuStrip = mnuServers;
             m_listViewServers.Dock = DockStyle.Fill;
             m_listViewServers.ResizeColumnString(0, 20);
@@ -404,7 +419,9 @@ namespace Eddie.Gui.Forms
                 m_toolTip.Connect(this.cmdServersUndefined, Messages.TooltipServersUndefined);
                 m_toolTip.Connect(this.cmdServersBlackList, Messages.TooltipServersBlackList);
                 m_toolTip.Connect(this.cmdServersWhiteList, Messages.TooltipServersWhiteList);
-                m_toolTip.Connect(this.cmdAreasUndefined, Messages.TooltipAreasUndefined);
+				m_toolTip.Connect(this.cmdServersRename, Messages.TooltipServersRename);
+				m_toolTip.Connect(this.cmdServersMore, Messages.TooltipServersMore);
+				m_toolTip.Connect(this.cmdAreasUndefined, Messages.TooltipAreasUndefined);
                 m_toolTip.Connect(this.cmdAreasBlackList, Messages.TooltipAreasBlackList);
                 m_toolTip.Connect(this.cmdAreasWhiteList, Messages.TooltipAreasWhiteList);
                 m_toolTip.Connect(this.cmdLogsOpenVpnManagement, Messages.TooltipLogsOpenVpnManagement);
@@ -809,7 +826,85 @@ namespace Eddie.Gui.Forms
 
 			Engine.OnRefreshUi();
 		}
-		
+
+		private void lstProviders_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			EnabledUi();
+		}
+
+		private void lstProviders_DoubleClick(object sender, EventArgs e)
+		{
+			if (cmdProviderEdit.Enabled)
+				cmdProviderEdit_Click(sender, e);
+		}
+
+		private void cmdProviderAdd_Click(object sender, EventArgs e)
+		{
+			WindowProviderAdd dlg = new WindowProviderAdd();
+			if (dlg.ShowDialog() == DialogResult.OK)
+			{
+				Provider provider = Engine.Instance.ProvidersManager.AddProvider(dlg.Provider, null);
+				Engine.Instance.ProvidersManager.Refresh();
+
+				Controls.ListViewItemProvider itemProvider = new Controls.ListViewItemProvider();
+				itemProvider.Provider = provider;
+				itemProvider.Update();
+
+				lstProviders.Items.Add(itemProvider);
+
+				lstProviders.ResizeColumnsAuto();
+
+				EnabledUi();
+			}
+		}
+
+		private void cmdProviderRemove_Click(object sender, EventArgs e)
+		{
+			if (lstProviders.SelectedItems.Count > 0)
+			{
+				Controls.ListViewItemProvider item = lstProviders.SelectedItems[0] as Controls.ListViewItemProvider;
+
+				Engine.Instance.ProvidersManager.Remove(item.Provider);
+
+				lstProviders.Items.Remove(item);
+
+				Engine.Instance.ProvidersManager.Refresh();
+
+				EnabledUi();
+			}
+		}
+
+		private void cmdProviderEdit_Click(object sender, EventArgs e)
+		{
+			if (lstProviders.SelectedItems.Count != 1)
+				return;
+
+			Controls.ListViewItemProvider item = lstProviders.SelectedItems[0] as Controls.ListViewItemProvider;
+
+			Eddie.Gui.Form form = null;
+			if (item.Provider is Core.Providers.OpenVPN)
+			{
+				WindowProviderEditOpenVPN dlg = new WindowProviderEditOpenVPN();
+				form = dlg;
+				dlg.Provider = item.Provider as Core.Providers.OpenVPN;
+			}
+			else if (item.Provider is Core.Providers.Service)
+			{
+				WindowProviderEditManifest dlg = new WindowProviderEditManifest();
+				form = dlg;
+				dlg.Provider = item.Provider as Core.Providers.Service;
+			}
+
+			if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			{
+				item.Update();
+
+				Engine.Instance.ProvidersManager.Refresh();
+
+				EnabledUi();				
+			}
+		}
+
 		void m_listViewServers_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			ConnectManual();
@@ -874,13 +969,31 @@ namespace Eddie.Gui.Forms
             Engine.OnRefreshUi();
         }
 
-		private void mnuServersViewOVPN_Click(object sender, EventArgs e)
+		private void mnuServersMore_Click(object sender, EventArgs e)
 		{
-			if(m_listViewServers.SelectedItems.Count == 1)
+			if (m_listViewServers.SelectedItems.Count == 1)
 			{
 				ListViewItemServer item = m_listViewServers.SelectedItems[0] as ListViewItemServer;
-				string ovpn = item.Info.BuildOVPN(true).Get();
-				Engine.Instance.OnShowText(Messages.ConnectionsShowOVPN, ovpn);				
+				WindowConnection dlg = new WindowConnection();
+				dlg.Connection = item.Info;
+				dlg.ShowDialog();
+			}
+		}
+		
+		private void mnuServersRename_Click(object sender, EventArgs e)
+		{
+			if (m_listViewServers.SelectedItems.Count == 1)
+			{
+				ListViewItemServer item = m_listViewServers.SelectedItems[0] as ListViewItemServer;
+
+				WindowConnectionRename dlg = new WindowConnectionRename();
+				dlg.Body = item.Info.DisplayName;
+				if(dlg.ShowDialog(this) == DialogResult.OK)
+				{
+					item.Info.DisplayName = dlg.Body;
+					item.Info.Provider.OnChangeConnection(item.Info);
+					item.Update();
+				}
 			}
 		}
 
@@ -907,9 +1020,14 @@ namespace Eddie.Gui.Forms
 			mnuServersUndefined_Click(sender, e);
 		}
 
-		private void cmdServersViewOVPN_Click(object sender, EventArgs e)
+		private void cmdServersRename_Click(object sender, EventArgs e)
 		{
-			mnuServersViewOVPN_Click(sender, e);
+			mnuServersRename_Click(sender, e);
+		}
+		
+		private void cmdServersMore_Click(object sender, EventArgs e)
+		{
+			mnuServersMore_Click(sender, e);
 		}
 
 		private void cmdServersRefresh_Click(object sender, EventArgs e)
@@ -1055,7 +1173,7 @@ namespace Eddie.Gui.Forms
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
 			// ClodoTemp
-			byte[] temp = Engine.Instance.FetchUrlEx("http://freegeoip.net", null, "test", false, "");
+			byte[] temp = Engine.Instance.FetchUrlEx("http://freegeoip.net", null, false, "");
 			Engine.Instance.Logs.Log(LogType.Fatal, temp.Length.ToString());
 
 			LogsSupport();
@@ -1385,7 +1503,13 @@ namespace Eddie.Gui.Forms
 				cmdConnect.Enabled = false;
 			}
 
-            cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1));
+			// Providers
+			cmdProviderAdd.Enabled = true;
+			cmdProviderRemove.Enabled = (lstProviders.SelectedItems.Count > 0);
+			cmdProviderEdit.Enabled = (lstProviders.SelectedItems.Count == 1);
+
+			// Connections
+			cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1));
             mnuServersConnect.Enabled = cmdServersConnect.Enabled;
 
 			cmdServersWhiteList.Enabled = (m_listViewServers.SelectedItems.Count > 0);
@@ -1394,8 +1518,11 @@ namespace Eddie.Gui.Forms
 			mnuServersBlackList.Enabled = cmdServersBlackList.Enabled;
 			cmdServersUndefined.Enabled = cmdServersWhiteList.Enabled;
 			mnuServersUndefined.Enabled = cmdServersUndefined.Enabled;
-			cmdServersViewOVPN.Enabled = (m_listViewServers.SelectedItems.Count == 1);
-			mnuServersViewOVPN.Enabled = cmdServersViewOVPN.Enabled;
+			cmdServersMore.Enabled = (m_listViewServers.SelectedItems.Count == 1);
+			mnuServersMore.Enabled = cmdServersMore.Enabled;
+
+			cmdServersRename.Enabled = ((m_listViewServers.SelectedItems.Count == 1) && ((m_listViewServers.SelectedItems[0] as ListViewItemServer).Info.Provider is Core.Providers.OpenVPN));
+			mnuServersRename.Enabled = cmdServersRename.Enabled;
 
 			cmdAreasWhiteList.Enabled = (m_listViewAreas.SelectedItems.Count > 0);
 			mnuAreasWhiteList.Enabled = cmdAreasWhiteList.Enabled;
@@ -1422,6 +1549,8 @@ namespace Eddie.Gui.Forms
             bool networkCanEnabled = ( (Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.CanEnabled()) );
 			cmdLockedNetwork.Visible = networkCanEnabled;
 			imgLockedNetwork.Visible = networkCanEnabled;
+
+			m_tabMain.SetPageVisible(1, Engine.Storage.GetBool("advanced.providers"));
 		}
 
 		private delegate void ShowFrontMessageDelegate(string message);
@@ -1681,7 +1810,7 @@ namespace Eddie.Gui.Forms
 			else
 			{
 				Forms.WindowCredentials Dlg = new Forms.WindowCredentials();
-				if (Dlg.ShowDialog(this) == DialogResult.OK) // ClodoTemp if parent of MainForm, throw cross-thread-ui exception
+				if (Dlg.ShowDialog(this) == DialogResult.OK)
 					return Dlg.Credentials;
 				else
 					return null;
@@ -1817,6 +1946,8 @@ namespace Eddie.Gui.Forms
         private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
         {
             Engine.Instance.Storage.Set("key", cboKey.SelectedItem as string);
-        }		
+        }
+
+		
 	}
 }

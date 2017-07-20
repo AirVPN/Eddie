@@ -63,8 +63,8 @@ namespace Eddie.Core.Tools
             return MessagesFormatter.Format(Messages.ToolsCurlVersionNotSupported, Version, minVersionRequired);            
         }
 
-        public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, string title, bool forceBypassProxy, string resolve)
-        {
+		public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string resolve)
+		{
 			ExceptionIfRequired();
 
             ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");

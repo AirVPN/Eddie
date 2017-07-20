@@ -87,7 +87,8 @@ namespace Eddie.Gui.Forms
 			this.mnuServersBlackList = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuServersUndefined = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			this.mnuServersViewOVPN = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuServersRename = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuServersMore = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuServersRefresh = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreas = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -128,8 +129,19 @@ namespace Eddie.Gui.Forms
 			this.lblWait2 = new Eddie.Gui.Skin.Label();
 			this.lblWait1 = new Eddie.Gui.Skin.Label();
 			this.cmdCancel = new Eddie.Gui.Skin.Button();
+			this.tabProviders = new System.Windows.Forms.TabPage();
+			this.cmdProviderEdit = new Eddie.Gui.Skin.Button();
+			this.cmdProviderRemove = new Eddie.Gui.Skin.Button();
+			this.cmdProviderAdd = new Eddie.Gui.Skin.Button();
+			this.lstProviders = new Eddie.Gui.Skin.ListView();
+			this.colProviderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colProviderDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colProviderWebsite = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colProviderPath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.imgProviders = new System.Windows.Forms.ImageList(this.components);
 			this.tabServers = new Eddie.Gui.Skin.TabPage();
-			this.cmdServersViewOVPN = new Eddie.Gui.Skin.Button();
+			this.cmdServersMore = new Eddie.Gui.Skin.Button();
+			this.cmdServersRename = new Eddie.Gui.Skin.Button();
 			this.chkShowAll = new Eddie.Gui.Skin.CheckBox();
 			this.lblScoreType = new Eddie.Gui.Skin.Label();
 			this.pnlServers = new Eddie.Gui.Skin.Panel();
@@ -144,6 +156,7 @@ namespace Eddie.Gui.Forms
 			this.tabLogs = new Eddie.Gui.Skin.TabPage();
 			this.txtCommand = new System.Windows.Forms.TextBox();
 			this.lstLogs = new Eddie.Gui.Skin.ListView();
+			this.colProviderProvider = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
@@ -162,6 +175,7 @@ namespace Eddie.Gui.Forms
 			this.pnlConnected.SuspendLayout();
 			this.pnlWelcome.SuspendLayout();
 			this.pnlWaiting.SuspendLayout();
+			this.tabProviders.SuspendLayout();
 			this.tabServers.SuspendLayout();
 			this.tabCountries.SuspendLayout();
 			this.tabSpeed.SuspendLayout();
@@ -938,30 +952,31 @@ namespace Eddie.Gui.Forms
             this.mnuServersBlackList,
             this.mnuServersUndefined,
             this.toolStripSeparator4,
-            this.mnuServersViewOVPN,
+            this.mnuServersRename,
+            this.mnuServersMore,
             this.toolStripSeparator3,
             this.mnuServersRefresh});
 			this.mnuServers.Name = "mnuServers";
-			this.mnuServers.Size = new System.Drawing.Size(219, 200);
+			this.mnuServers.Size = new System.Drawing.Size(150, 204);
 			// 
 			// mnuServersConnect
 			// 
 			this.mnuServersConnect.Image = global::Eddie.Lib.Forms.Properties.Resources.connect;
 			this.mnuServersConnect.Name = "mnuServersConnect";
-			this.mnuServersConnect.Size = new System.Drawing.Size(218, 26);
+			this.mnuServersConnect.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersConnect.Text = "Connect now";
 			this.mnuServersConnect.Click += new System.EventHandler(this.mnuServersConnect_Click);
 			// 
 			// mnuServersSeparator1
 			// 
 			this.mnuServersSeparator1.Name = "mnuServersSeparator1";
-			this.mnuServersSeparator1.Size = new System.Drawing.Size(215, 6);
+			this.mnuServersSeparator1.Size = new System.Drawing.Size(146, 6);
 			// 
 			// mnuServersWhiteList
 			// 
 			this.mnuServersWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
 			this.mnuServersWhiteList.Name = "mnuServersWhiteList";
-			this.mnuServersWhiteList.Size = new System.Drawing.Size(218, 26);
+			this.mnuServersWhiteList.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersWhiteList.Text = "Whitelist";
 			this.mnuServersWhiteList.Click += new System.EventHandler(this.mnuServersWhitelist_Click);
 			// 
@@ -969,7 +984,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.mnuServersBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
 			this.mnuServersBlackList.Name = "mnuServersBlackList";
-			this.mnuServersBlackList.Size = new System.Drawing.Size(218, 26);
+			this.mnuServersBlackList.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersBlackList.Text = "Blacklist";
 			this.mnuServersBlackList.Click += new System.EventHandler(this.mnuServersBlacklist_Click);
 			// 
@@ -977,33 +992,41 @@ namespace Eddie.Gui.Forms
 			// 
 			this.mnuServersUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
 			this.mnuServersUndefined.Name = "mnuServersUndefined";
-			this.mnuServersUndefined.Size = new System.Drawing.Size(218, 26);
+			this.mnuServersUndefined.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersUndefined.Text = "Undefined";
 			this.mnuServersUndefined.Click += new System.EventHandler(this.mnuServersUndefined_Click);
 			// 
 			// toolStripSeparator4
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(215, 6);
+			this.toolStripSeparator4.Size = new System.Drawing.Size(146, 6);
 			// 
-			// mnuServersViewOVPN
+			// mnuServersRename
 			// 
-			this.mnuServersViewOVPN.Image = global::Eddie.Lib.Forms.Properties.Resources.openvpn;
-			this.mnuServersViewOVPN.Name = "mnuServersViewOVPN";
-			this.mnuServersViewOVPN.Size = new System.Drawing.Size(218, 26);
-			this.mnuServersViewOVPN.Text = "View OpenVPN Config File";
-			this.mnuServersViewOVPN.Click += new System.EventHandler(this.mnuServersViewOVPN_Click);
+			this.mnuServersRename.Image = global::Eddie.Lib.Forms.Properties.Resources.rename;
+			this.mnuServersRename.Name = "mnuServersRename";
+			this.mnuServersRename.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersRename.Text = "Rename";
+			this.mnuServersRename.Click += new System.EventHandler(this.mnuServersRename_Click);
+			// 
+			// mnuServersMore
+			// 
+			this.mnuServersMore.Image = global::Eddie.Lib.Forms.Properties.Resources.more;
+			this.mnuServersMore.Name = "mnuServersMore";
+			this.mnuServersMore.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersMore.Text = "More";
+			this.mnuServersMore.Click += new System.EventHandler(this.mnuServersMore_Click);
 			// 
 			// toolStripSeparator3
 			// 
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(215, 6);
+			this.toolStripSeparator3.Size = new System.Drawing.Size(146, 6);
 			// 
 			// mnuServersRefresh
 			// 
 			this.mnuServersRefresh.Image = global::Eddie.Lib.Forms.Properties.Resources.reload;
 			this.mnuServersRefresh.Name = "mnuServersRefresh";
-			this.mnuServersRefresh.Size = new System.Drawing.Size(218, 26);
+			this.mnuServersRefresh.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersRefresh.Text = "Refresh list";
 			this.mnuServersRefresh.Click += new System.EventHandler(this.mnuServersRefresh_Click);
 			// 
@@ -1047,6 +1070,7 @@ namespace Eddie.Gui.Forms
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabMain.Controls.Add(this.tabOverview);
+			this.tabMain.Controls.Add(this.tabProviders);
 			this.tabMain.Controls.Add(this.tabServers);
 			this.tabMain.Controls.Add(this.tabCountries);
 			this.tabMain.Controls.Add(this.tabSpeed);
@@ -1454,10 +1478,122 @@ namespace Eddie.Gui.Forms
 			this.cmdCancel.UseVisualStyleBackColor = true;
 			this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
 			// 
+			// tabProviders
+			// 
+			this.tabProviders.Controls.Add(this.cmdProviderEdit);
+			this.tabProviders.Controls.Add(this.cmdProviderRemove);
+			this.tabProviders.Controls.Add(this.cmdProviderAdd);
+			this.tabProviders.Controls.Add(this.lstProviders);
+			this.tabProviders.Location = new System.Drawing.Point(4, 22);
+			this.tabProviders.Name = "tabProviders";
+			this.tabProviders.Size = new System.Drawing.Size(730, 333);
+			this.tabProviders.TabIndex = 7;
+			this.tabProviders.Text = "Providers";
+			this.tabProviders.UseVisualStyleBackColor = true;
+			// 
+			// cmdProviderEdit
+			// 
+			this.cmdProviderEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdProviderEdit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdProviderEdit.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdProviderEdit.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdProviderEdit.FlatAppearance.BorderSize = 0;
+			this.cmdProviderEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdProviderEdit.Image = global::Eddie.Lib.Forms.Properties.Resources.edit;
+			this.cmdProviderEdit.Location = new System.Drawing.Point(695, 72);
+			this.cmdProviderEdit.Name = "cmdProviderEdit";
+			this.cmdProviderEdit.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderEdit.TabIndex = 50;
+			this.cmdProviderEdit.UseVisualStyleBackColor = true;
+			this.cmdProviderEdit.Click += new System.EventHandler(this.cmdProviderEdit_Click);
+			// 
+			// cmdProviderRemove
+			// 
+			this.cmdProviderRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdProviderRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdProviderRemove.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdProviderRemove.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdProviderRemove.FlatAppearance.BorderSize = 0;
+			this.cmdProviderRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdProviderRemove.Image = global::Eddie.Lib.Forms.Properties.Resources.delete;
+			this.cmdProviderRemove.Location = new System.Drawing.Point(695, 38);
+			this.cmdProviderRemove.Name = "cmdProviderRemove";
+			this.cmdProviderRemove.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderRemove.TabIndex = 49;
+			this.cmdProviderRemove.UseVisualStyleBackColor = true;
+			this.cmdProviderRemove.Click += new System.EventHandler(this.cmdProviderRemove_Click);
+			// 
+			// cmdProviderAdd
+			// 
+			this.cmdProviderAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdProviderAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdProviderAdd.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdProviderAdd.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdProviderAdd.FlatAppearance.BorderSize = 0;
+			this.cmdProviderAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdProviderAdd.Image = global::Eddie.Lib.Forms.Properties.Resources.add;
+			this.cmdProviderAdd.Location = new System.Drawing.Point(695, 4);
+			this.cmdProviderAdd.Name = "cmdProviderAdd";
+			this.cmdProviderAdd.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderAdd.TabIndex = 48;
+			this.cmdProviderAdd.UseVisualStyleBackColor = true;
+			this.cmdProviderAdd.Click += new System.EventHandler(this.cmdProviderAdd_Click);
+			// 
+			// lstProviders
+			// 
+			this.lstProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lstProviders.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colProviderName,
+            this.colProviderProvider,
+            this.colProviderDescription,
+            this.colProviderWebsite,
+            this.colProviderPath});
+			this.lstProviders.FullRowSelect = true;
+			this.lstProviders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.lstProviders.HideSelection = false;
+			this.lstProviders.LargeImageList = this.imgProviders;
+			this.lstProviders.Location = new System.Drawing.Point(4, 4);
+			this.lstProviders.MultiSelect = false;
+			this.lstProviders.Name = "lstProviders";
+			this.lstProviders.OwnerDraw = true;
+			this.lstProviders.Size = new System.Drawing.Size(687, 325);
+			this.lstProviders.SmallImageList = this.imgProviders;
+			this.lstProviders.TabIndex = 47;
+			this.lstProviders.UseCompatibleStateImageBehavior = false;
+			this.lstProviders.View = System.Windows.Forms.View.Details;
+			this.lstProviders.SelectedIndexChanged += new System.EventHandler(this.lstProviders_SelectedIndexChanged);
+			this.lstProviders.DoubleClick += new System.EventHandler(this.lstProviders_DoubleClick);
+			// 
+			// colProviderName
+			// 
+			this.colProviderName.Text = "Title";
+			// 
+			// colProviderDescription
+			// 
+			this.colProviderDescription.Text = "Provider Description";
+			// 
+			// colProviderWebsite
+			// 
+			this.colProviderWebsite.Text = "Website";
+			// 
+			// colProviderPath
+			// 
+			this.colProviderPath.Text = "Path";
+			// 
+			// imgProviders
+			// 
+			this.imgProviders.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgProviders.ImageStream")));
+			this.imgProviders.TransparentColor = System.Drawing.Color.Transparent;
+			this.imgProviders.Images.SetKeyName(0, "off");
+			this.imgProviders.Images.SetKeyName(1, "on");
+			// 
 			// tabServers
 			// 
 			this.tabServers.BackColor = System.Drawing.Color.Transparent;
-			this.tabServers.Controls.Add(this.cmdServersViewOVPN);
+			this.tabServers.Controls.Add(this.cmdServersMore);
+			this.tabServers.Controls.Add(this.cmdServersRename);
 			this.tabServers.Controls.Add(this.chkShowAll);
 			this.tabServers.Controls.Add(this.cmdServersRefresh);
 			this.tabServers.Controls.Add(this.lblScoreType);
@@ -1476,22 +1612,39 @@ namespace Eddie.Gui.Forms
 			this.tabServers.TabIndex = 0;
 			this.tabServers.Text = "Servers";
 			// 
-			// cmdServersViewOVPN
+			// cmdServersMore
 			// 
-			this.cmdServersViewOVPN.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdServersViewOVPN.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdServersViewOVPN.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdServersViewOVPN.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdServersViewOVPN.FlatAppearance.BorderSize = 0;
-			this.cmdServersViewOVPN.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersViewOVPN.Image = global::Eddie.Lib.Forms.Properties.Resources.openvpn;
-			this.cmdServersViewOVPN.Location = new System.Drawing.Point(695, 165);
-			this.cmdServersViewOVPN.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdServersViewOVPN.Name = "cmdServersViewOVPN";
-			this.cmdServersViewOVPN.Size = new System.Drawing.Size(28, 28);
-			this.cmdServersViewOVPN.TabIndex = 67;
-			this.cmdServersViewOVPN.UseVisualStyleBackColor = true;
-			this.cmdServersViewOVPN.Click += new System.EventHandler(this.cmdServersViewOVPN_Click);
+			this.cmdServersMore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersMore.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersMore.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersMore.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersMore.FlatAppearance.BorderSize = 0;
+			this.cmdServersMore.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersMore.Image = global::Eddie.Lib.Forms.Properties.Resources.more;
+			this.cmdServersMore.Location = new System.Drawing.Point(695, 185);
+			this.cmdServersMore.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersMore.Name = "cmdServersMore";
+			this.cmdServersMore.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersMore.TabIndex = 69;
+			this.cmdServersMore.UseVisualStyleBackColor = true;
+			this.cmdServersMore.Click += new System.EventHandler(this.cmdServersMore_Click);
+			// 
+			// cmdServersRename
+			// 
+			this.cmdServersRename.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdServersRename.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdServersRename.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdServersRename.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdServersRename.FlatAppearance.BorderSize = 0;
+			this.cmdServersRename.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdServersRename.Image = global::Eddie.Lib.Forms.Properties.Resources.rename;
+			this.cmdServersRename.Location = new System.Drawing.Point(695, 153);
+			this.cmdServersRename.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersRename.Name = "cmdServersRename";
+			this.cmdServersRename.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersRename.TabIndex = 68;
+			this.cmdServersRename.UseVisualStyleBackColor = true;
+			this.cmdServersRename.Click += new System.EventHandler(this.cmdServersRename_Click);
 			// 
 			// chkShowAll
 			// 
@@ -1687,6 +1840,10 @@ namespace Eddie.Gui.Forms
 			this.lstLogs.UseCompatibleStateImageBehavior = false;
 			this.lstLogs.View = System.Windows.Forms.View.Details;
 			// 
+			// colProviderProvider
+			// 
+			this.colProviderProvider.Text = "Provider";
+			// 
 			// Main
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1709,6 +1866,7 @@ namespace Eddie.Gui.Forms
 			this.pnlWelcome.ResumeLayout(false);
 			this.pnlWelcome.PerformLayout();
 			this.pnlWaiting.ResumeLayout(false);
+			this.tabProviders.ResumeLayout(false);
 			this.tabServers.ResumeLayout(false);
 			this.tabCountries.ResumeLayout(false);
 			this.tabSpeed.ResumeLayout(false);
@@ -1824,8 +1982,21 @@ namespace Eddie.Gui.Forms
         private Skin.Panel pnlServers;
         private Skin.Button cmdAreasWhiteList;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-		private System.Windows.Forms.ToolStripMenuItem mnuServersViewOVPN;
-		private Skin.Button cmdServersViewOVPN;
+		private System.Windows.Forms.ToolStripMenuItem mnuServersRename;
+		private Skin.Button cmdServersRename;
+		private System.Windows.Forms.ToolStripMenuItem mnuServersMore;
+		private Skin.Button cmdServersMore;
+		private System.Windows.Forms.TabPage tabProviders;
+		private Skin.Button cmdProviderEdit;
+		private Skin.Button cmdProviderRemove;
+		private Skin.Button cmdProviderAdd;
+		private Skin.ListView lstProviders;
+		private System.Windows.Forms.ColumnHeader colProviderName;
+		private System.Windows.Forms.ColumnHeader colProviderDescription;
+		private System.Windows.Forms.ColumnHeader colProviderWebsite;
+		private System.Windows.Forms.ColumnHeader colProviderPath;
+		private System.Windows.Forms.ImageList imgProviders;
+		private System.Windows.Forms.ColumnHeader colProviderProvider;
 	}
 }
 

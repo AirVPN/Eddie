@@ -47,8 +47,23 @@ namespace Eddie.Core
                 return m_lastRefreshDone;
             }
         }
-		
-        public void Init()
+
+		public int CountEnabled
+		{
+			get
+			{
+				int n = 0;
+				foreach(Provider provider in Providers)
+				{
+					if (provider.Enabled)
+						n++;
+				}
+				return n;
+			}
+		}
+
+
+		public void Init()
 		{
 			string path = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "/providers");
 
@@ -88,7 +103,7 @@ namespace Eddie.Core
                 {
                     if (p is Providers.OpenVPN)
                     {
-                        if ((p as Providers.OpenVPN).GetPathScan() == specialOvpnDirectory)
+                        if ((p as Providers.OpenVPN).Path == specialOvpnDirectory)
                         {
                             providerSpecialOpenVPN = p as Providers.OpenVPN;
                         }
@@ -122,10 +137,38 @@ namespace Eddie.Core
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
 
-            string title = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "title", "");
+            string code = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "code", "");
 
-            Definitions[title] = xmlDoc;
+            Definitions[code] = xmlDoc;
         }
+		
+		public XmlElement GetDataAddProviders()
+		{
+			XmlElement xmlData = Utils.XmlCreateElement("data");
+			
+			foreach (KeyValuePair<string, XmlDocument> providerDefinition in Definitions)
+			{
+				string code = providerDefinition.Key;
+				string providerClass = Utils.XmlGetAttributeString(providerDefinition.Value.DocumentElement, "class", "");
+				if(providerClass == "service") // Only one instance
+				{
+					if (ExistsProvider(code))
+						continue;
+				}
+
+				xmlData.AppendChild(xmlData.OwnerDocument.ImportNode(providerDefinition.Value.DocumentElement, true));
+			}
+
+			return xmlData;	
+		}
+
+		public bool ExistsProvider(string code)
+		{
+			foreach (Provider provider in Providers)
+				if (provider.Code == code)
+					return true;
+			return false;
+		}
 
         public Provider AddProvider(string providerCode, XmlElement xmlStorage)
         {
@@ -159,7 +202,7 @@ namespace Eddie.Core
 
                 m_providers.Add(provider);
 
-                if (provider.GetCode() == "AirVPN")
+                if (provider.Code == "AirVPN") // TOFIX
                     Engine.Instance.AirVPN = provider as Providers.Service;
             }
 
@@ -180,6 +223,11 @@ namespace Eddie.Core
             
             return false;
         }
+
+		public void Remove(Provider provider)
+		{
+			Providers.Remove(provider);
+		}
 
         public string Refresh()
         {

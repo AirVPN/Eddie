@@ -262,6 +262,11 @@ namespace Eddie.Platforms
 			return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
 		}
 
+		public override string GetDefaultOpenVpnConfigsPath()
+		{
+			return Conversions.ToString(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\OpenVPN", "config_dir", ""));
+		}
+
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{
 			path = "cmd.exe";

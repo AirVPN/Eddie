@@ -110,12 +110,12 @@ namespace Eddie.Core
         public static string PingerStatsNormal = "Invalid: {1}, Older check: {2}, Latest check: {3}"; 
 		public static string PingerStatsPending = "Disabled during VPN connection. Latest check: {1}";
 
-		public static string ConnectionWarningModeUnsupported = "connection mode not available"; // TOTRANSLATE
-		public static string ConnectionWarningNoEntryIPv4 = "no IPv4 entry available"; // TOTRANSLATE
-		public static string ConnectionWarningNoEntryIPv6 = "no IPv6 entry available"; // TOTRANSLATE
-		public static string ConnectionWarningNoExitIPv4 = "no IPv4 exit available"; // TOTRANSLATE
-		public static string ConnectionWarningNoExitIPv6 = "no IPv6 exit available"; // TOTRANSLATE
-		public static string ConnectionWarningOlderOpenVpnTlsCrypt = "tls-crypt not available on older openvpn"; // TOTRANSLATE
+		public static string ConnectionWarningModeUnsupported = "connection mode not available"; 
+		public static string ConnectionWarningNoEntryIPv4 = "no IPv4 entry available"; 
+		public static string ConnectionWarningNoEntryIPv6 = "no IPv6 entry available"; 
+		public static string ConnectionWarningNoExitIPv4 = "no IPv4 exit available"; 
+		public static string ConnectionWarningNoExitIPv6 = "no IPv6 exit available";
+		public static string ConnectionWarningOlderOpenVpnTlsCrypt = "tls-crypt not available on older openvpn";
 
 		public static string CheckingEnvironment = "Checking environment";
 		public static string CheckingProtocolUnknown = "Unknown protocol.";
@@ -145,7 +145,7 @@ namespace Eddie.Core
         public static string ConnectionCheckingDNSFailed = "Checking DNS failed.";
 		public static string ConnectionFlushDNS = "Flushing DNS";
 		public static string ConnectionConnected = "Connected.";
-		public static string ConnectionCredentials = "Checking credentials"; // TOTRANSLATE
+		public static string ConnectionCredentials = "Checking credentials";
 		public static string ConnectionConnecting = "Connecting to {1}";
 		public static string ConnectionDisconnecting = "Disconnecting";
 
@@ -209,7 +209,7 @@ namespace Eddie.Core
 		public static string ServersUsers = "Users";
 
         public static string ProvidersInvalid = "Invalid provider";
-        public static string ProvidersOpenVpnPathNotFound = "Path {1} not found for provider {2}";
+        public static string ProvidersOpenVpnPathNotFound = "Path '{1}' not found for provider '{2}'";
 
         public static string WindowsAboutTitle = "About";
 		public static string WindowsAboutVersion = "Version";
@@ -219,9 +219,9 @@ namespace Eddie.Core
 		public static string WindowsTosAccept = "Accept"; 
 		public static string WindowsTosReject = "Reject";
 		public static string WindowsLoginTitle = "Login";
-		public static string WindowsCredentialsRememberNo = "No"; // TOTRANSLATE
-		public static string WindowsCredentialsRememberRun = "Until closing app"; // TOTRANSLATE
-		public static string WindowsCredentialsRememberPermanent = "Permanent"; // TOTRANSLATE
+		public static string WindowsCredentialsRememberNo = "No";
+		public static string WindowsCredentialsRememberRun = "Until closing app"; 
+		public static string WindowsCredentialsRememberPermanent = "Permanent";
 		public static string WindowsFrontMessageTitle = "Important Message";
 		public static string WindowsFrontMessageAccept = "Ok";
 		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations";
@@ -244,10 +244,7 @@ namespace Eddie.Core
 		public static string WindowsSettingsOpenVpnDefault = "OpenVPN Default";
         public static string WindowsSettingsOpenVpnDirectivesDefaultSkip1 = "Append Custom directives";
         public static string WindowsSettingsOpenVpnDirectivesDefaultSkip2 = "Use only Custom directives, ignore Base, Provider and Server directives";
-        public static string WindowsSettingsLogsCannotOpenDirectory = "Cannot open logs directory {1}";
-		public static string WindowsSettingsProviderAddTitle = "Add provider"; // TOTRANSLATE
-		public static string WindowsSettingsProviderEditManifestTitle = "Edit provider"; // TOTRANSLATE
-		public static string WindowsSettingsProviderEditOpenVPNTitle = "Edit OpenVPN provider"; // TOTRANSLATE
+        public static string WindowsSettingsLogsCannotOpenDirectory = "Cannot open logs directory {1}";		
 		public static string WindowsSettingsProtocolRouteInAlways = "Always inside tunnel (must be supported)";
 		public static string WindowsSettingsProtocolRouteInOrOut = "Inside tunnel if supported, otherwise outside";
 		public static string WindowsSettingsProtocolRouteInOrBlock = "Inside tunnel if supported, otherwise blocked";
@@ -262,9 +259,14 @@ namespace Eddie.Core
 		public static string WindowsMainSpeedResolution5 = "Range: 30 days, Grid: 1 day, Step: 10 minutes";
 		public static string WindowsMainHide = "Hide Main Window"; 
 		public static string WindowsMainShow = "Show Main Window";
+		public static string WindowsProviderAddTitle = "Add provider";
+		public static string WindowsProviderEditManifestTitle = "Edit provider"; 
+		public static string WindowsProviderEditOpenVPNTitle = "Edit OpenVPN provider";
+		public static string WindowsProviderEditOpenVPNPathBrowse = "Select a path that contain *.ovpn files";
+		public static string WindowsConnectionTitle = "View connection"; 
+		public static string WindowsConnectionRenameTitle = "Rename connection"; 
 		public static string WindowsProfilesTitle = "Profiles";
 		public static string WindowsProfileTitle = "Profile";
-		public static string ConnectionsShowOVPN = "OpenVPN Config File"; // TOTRANSLATE
 		public static string LogsCopyClipboardDone = "Copy to clipboard done.";
 		public static string LogsSaveToFileDone = "Save to file done.";
 		public static string TooltipServersScoreType = "Choose whether you prefer highest speed (ex. file-sharing) or low-latency speed (ex. gaming)";
@@ -274,6 +276,8 @@ namespace Eddie.Core
 		public static string TooltipServersUndefined = "Clear the selected servers from whitelist and blacklist";
 		public static string TooltipServersBlackList = "Add the selected servers to blacklist. \r\nThe system will never connect to blacklisted servers.";
 		public static string TooltipServersWhiteList = "Add the selected server to whitelist.\r\nThe system will only connect to whitelisted servers.";
+		public static string TooltipServersRename = "Rename an OpenVPN connection";
+		public static string TooltipServersMore = "Show more information about the selected connection";
 		public static string TooltipAreasUndefined = "Clear the selected areas from whitelist and blacklist";
 		public static string TooltipAreasBlackList = "Add the selected areas to blacklist. \r\nThe system will never connect to servers in blacklisted areas.";
 		public static string TooltipAreasWhiteList = "Add the selected area to whitelist.\r\nThe system will only connect to servers in whitelisted areas.";

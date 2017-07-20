@@ -97,5 +97,10 @@ namespace Eddie.Gui.Forms
 		{
 			EnableIde();
 		}
+
+		private void txtPassword_TextChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
 	}
 }

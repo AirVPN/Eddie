@@ -30,17 +30,7 @@ namespace Eddie.Core
 
 		private Credentials m_runCredentials;		
 
-		public virtual string GetCode()
-		{
-			return "";
-		}
-
-		public virtual bool AllowMultipleInstance()
-		{
-			return false;
-		}
-
-        public virtual bool GetEnabledByDefault()
+		public virtual bool GetEnabledByDefault()
         {
             return true;
         }
@@ -57,7 +47,51 @@ namespace Eddie.Core
 			return "";
 		}
 
-        public virtual bool Enabled
+		public string Code
+		{
+			get
+			{
+				return Utils.XmlGetAttributeString(Definition, "code", "");
+			}
+		}
+
+		public string DefinitionTitle
+		{
+			get
+			{
+				return Utils.XmlGetAttributeString(Definition, "title", "");
+			}
+		}
+
+		public string DefinitionSubTitle
+		{
+			get
+			{
+				return Utils.XmlGetAttributeString(Definition, "subtitle", "");
+			}
+		}
+
+		public string DefinitionHref
+		{
+			get
+			{
+				return Utils.XmlGetAttributeString(Definition, "href", "");
+			}
+		}
+
+		public string ID
+		{
+			get
+			{
+				return Utils.XmlGetAttributeString(Storage.DocumentElement, "id", "");
+			}
+			set
+			{
+				Utils.XmlSetAttributeString(Storage.DocumentElement, "id", value);
+			}
+		}
+
+		public bool Enabled
         {
             get
             {
@@ -73,8 +107,15 @@ namespace Eddie.Core
         {
             get
             {
-                return Utils.XmlGetAttributeString(Storage.DocumentElement, "title", GetCode());                
+				string title = Utils.XmlGetAttributeString(Storage.DocumentElement, "title", "");
+				if (title == "")
+					title = Utils.XmlGetAttributeString(Definition, "title", "");
+				return title;
             }
+			set
+			{
+				Utils.XmlSetAttributeString(Storage.DocumentElement, "title", value);
+			}
         }
 
         public string TitleForDisplay
@@ -82,7 +123,7 @@ namespace Eddie.Core
             get
             {
                 // No title if is the only
-                if (Engine.Instance.ProvidersManager.Providers.Count == 1)
+                if (Engine.Instance.ProvidersManager.CountEnabled == 1)
                     return "";
 
                 string title = Title;
@@ -92,9 +133,33 @@ namespace Eddie.Core
             }
         }
 
-        public virtual string HashSHA256(string str)
+		public string AuthPassUsername
+		{
+			get
+			{
+				return Utils.XmlGetAttributeString(Storage.DocumentElement, "login", "");
+			}
+			set
+			{
+				Utils.XmlSetAttributeString(Storage.DocumentElement, "login", value);
+			}
+		}
+
+		public string AuthPassPassword
+		{
+			get
+			{
+				return Utils.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+			}
+			set
+			{
+				Utils.XmlSetAttributeString(Storage.DocumentElement, "password", value);
+			}
+		}
+
+		public virtual string HashSHA256(string str)
         {
-            return Utils.HashSHA256(GetCode() + "-" + Title + "-" + str);
+            return Utils.HashSHA256(ID + "-" + str);
         }
 
         public virtual string GetKeyValue(string key, string def)
@@ -137,8 +202,11 @@ namespace Eddie.Core
 			}
 			else
 			{				
-				Storage.AppendChild(Storage.CreateElement(GetCode()));				
-			}            
+				Storage.AppendChild(Storage.CreateElement(Code));				
+			}
+
+			if (ID == "")
+				ID = RandomGenerator.GetHash();
 		}
 
 		public virtual void OnBuildOvpnDefaults(OvpnBuilder ovpn)
@@ -180,6 +248,10 @@ namespace Eddie.Core
 		{			
 		}
 
+		public virtual void OnChangeConnection(ConnectionInfo connection)
+		{
+		}
+
 		public virtual bool IsLogged()
 		{
 			return false;
@@ -211,8 +283,8 @@ namespace Eddie.Core
 
 					if (username == "")
 					{
-						username = Utils.XmlGetAttributeString(Storage.DocumentElement, "login", "");
-						password = Utils.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+						username = AuthPassUsername;
+						password = AuthPassPassword;
 					}
 
 					if (username == "")
@@ -232,8 +304,8 @@ namespace Eddie.Core
 						}
 						else if (credentials.Remember == "permanent")
 						{
-							Utils.XmlSetAttributeString(Storage.DocumentElement, "login", username);
-							Utils.XmlSetAttributeString(Storage.DocumentElement, "password", password);
+							AuthPassUsername = username;
+							AuthPassPassword = password;
 						}
 					}					
 

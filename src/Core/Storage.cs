@@ -468,8 +468,9 @@ namespace Eddie.Core
 
             SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
             SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
-                        
-            SetDefaultBool("log.file.enabled", false, NotInMan);
+			SetDefaultInt("discover.interval", 60 * 60 * 24, NotInMan); // Delta between refresh discover data (country and other data) for OpenVPN connections.
+			
+			SetDefaultBool("log.file.enabled", false, NotInMan);
             SetDefault("log.file.encoding", "encoding", "utf-8", NotInMan);
             SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
 			SetDefaultBool("log.level.debug", false, NotInMan);
@@ -555,6 +556,7 @@ namespace Eddie.Core
 			SetDefaultInt("pinger.valid", 0, Messages.ManOptionAdvancedPingerValid);
 
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
+			SetDefaultBool("advanced.providers", false, NotInMan);
 			            
             SetDefaultBool("advanced.skip_privileges", false, NotInMan); // Skip 'root' detection.
             SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
@@ -718,7 +720,7 @@ namespace Eddie.Core
 
                 if(Engine.Instance.ProvidersManager.Providers.Count == 1)
                 {
-                    if (Engine.Instance.ProvidersManager.Providers[0].GetCode() == "AirVPN")
+                    if (Engine.Instance.ProvidersManager.Providers[0].Code == "AirVPN")
                     {
                         // Move providers->AirVPN to root.
                         XmlElement xmlAirVPN = Utils.XmlGetFirstElementByTagName(providersNode, "AirVPN");

@@ -35,12 +35,9 @@ namespace Eddie.Core.Providers
 
 		public List<ConnectionMode> Modes = new List<ConnectionMode>();
 
-		public override string GetCode()
-		{
-			return "AirVPN";
-		}
-        
-        public override void OnInit()
+		private Int64 m_lastFetchTime = 0;
+
+		public override void OnInit()
         {
             base.OnInit();
 
@@ -209,6 +206,7 @@ namespace Eddie.Core.Providers
 			{
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters["act"] = "manifest";
+				parameters["ts"] = Conversions.ToString(m_lastFetchTime);
 
 				XmlDocument xmlDoc = Fetch(Messages.ManifestUpdate, parameters);
 				lock (Storage)
@@ -221,6 +219,8 @@ namespace Eddie.Core.Providers
 
 					// Update with the local time
 					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
+
+					m_lastFetchTime = Utils.UnixTimeStamp();
 				}
 
 				return "";
@@ -481,8 +481,7 @@ namespace Eddie.Core.Providers
 
 			// 'POST' Edition - >= 2.9			
 			// Debug with an url direct to backend service client debugging page			            
-			url = "https://airvpn.org/services/client/indexn.php"; // ClodoTemp
-			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, "", false, "");
+			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, false, "");
 
 			// Decrypt answer
 			MemoryStream aesDecryptStream = new MemoryStream();

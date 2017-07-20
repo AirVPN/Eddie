@@ -112,13 +112,6 @@ namespace Eddie.Gui.Forms
 			this.chkSystemStart = new Eddie.Gui.Skin.CheckBox();
 			this.chkUiMinimizeTray = new Eddie.Gui.Skin.CheckBox();
 			this.cmdTos = new Eddie.Gui.Skin.Button();
-			this.tabProviders = new System.Windows.Forms.TabPage();
-			this.cmdProviderEdit = new Eddie.Gui.Skin.Button();
-			this.cmdProviderRemove = new Eddie.Gui.Skin.Button();
-			this.cmdProviderAdd = new Eddie.Gui.Skin.Button();
-			this.label8 = new Eddie.Gui.Skin.Label();
-			this.lstProviders = new Eddie.Gui.Skin.ListView();
-			this.colProviderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabProtocols = new Eddie.Gui.Skin.TabPage();
 			this.lnkProtocolsHelp2 = new Eddie.Gui.Skin.LinkLabel();
 			this.lnkProtocolsHelp1 = new Eddie.Gui.Skin.LinkLabel();
@@ -195,12 +188,13 @@ namespace Eddie.Gui.Forms
 			this.lblLogPath = new Eddie.Gui.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Gui.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
-			this.lblProtocolIPEntry = new Eddie.Gui.Skin.Label();
-			this.cboProtocolIPEntry = new Eddie.Gui.Skin.ComboBox();
-			this.lblProtocolIPv4Route = new Eddie.Gui.Skin.Label();
-			this.cboProtocolIPv4Route = new Eddie.Gui.Skin.ComboBox();
 			this.lblProtocolIPv6Route = new Eddie.Gui.Skin.Label();
 			this.cboProtocolIPv6Route = new Eddie.Gui.Skin.ComboBox();
+			this.lblProtocolIPv4Route = new Eddie.Gui.Skin.Label();
+			this.cboProtocolIPv4Route = new Eddie.Gui.Skin.ComboBox();
+			this.lblProtocolIPEntry = new Eddie.Gui.Skin.Label();
+			this.cboProtocolIPEntry = new Eddie.Gui.Skin.ComboBox();
+			this.chkAdvancedProviders = new Eddie.Gui.Skin.CheckBox();
 			tabAdvanced = new Eddie.Gui.Skin.TabPage();
 			tabDirectives = new Eddie.Gui.Skin.TabPage();
 			tabEvents = new Eddie.Gui.Skin.TabPage();
@@ -216,7 +210,6 @@ namespace Eddie.Gui.Forms
 			this.tabSettings.SuspendLayout();
 			this.tabGeneral.SuspendLayout();
 			this.pnlGeneralWindowsOnly.SuspendLayout();
-			this.tabProviders.SuspendLayout();
 			this.tabProtocols.SuspendLayout();
 			this.tabProxy.SuspendLayout();
 			this.tabRoutes.SuspendLayout();
@@ -229,6 +222,7 @@ namespace Eddie.Gui.Forms
 			// tabAdvanced
 			// 
 			tabAdvanced.BackColor = System.Drawing.Color.White;
+			tabAdvanced.Controls.Add(this.chkAdvancedProviders);
 			tabAdvanced.Controls.Add(this.lnkAdvancedHelp);
 			tabAdvanced.Controls.Add(this.lblOpenVpnRcvbuf);
 			tabAdvanced.Controls.Add(this.cboOpenVpnRcvbuf);
@@ -899,7 +893,6 @@ namespace Eddie.Gui.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabSettings.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tabSettings.Controls.Add(this.tabGeneral);
-			this.tabSettings.Controls.Add(this.tabProviders);
 			this.tabSettings.Controls.Add(this.tabProtocols);
 			this.tabSettings.Controls.Add(this.tabProxy);
 			this.tabSettings.Controls.Add(this.tabRoutes);
@@ -1219,100 +1212,6 @@ namespace Eddie.Gui.Forms
 			this.cmdTos.Text = "Terms of Service";
 			this.cmdTos.UseVisualStyleBackColor = true;
 			this.cmdTos.Click += new System.EventHandler(this.cmdTos_Click);
-			// 
-			// tabProviders
-			// 
-			this.tabProviders.Controls.Add(this.cmdProviderEdit);
-			this.tabProviders.Controls.Add(this.cmdProviderRemove);
-			this.tabProviders.Controls.Add(this.cmdProviderAdd);
-			this.tabProviders.Controls.Add(this.label8);
-			this.tabProviders.Controls.Add(this.lstProviders);
-			this.tabProviders.Location = new System.Drawing.Point(4, 24);
-			this.tabProviders.Name = "tabProviders";
-			this.tabProviders.Size = new System.Drawing.Size(673, 337);
-			this.tabProviders.TabIndex = 6;
-			this.tabProviders.Text = "Providers";
-			this.tabProviders.UseVisualStyleBackColor = true;
-			// 
-			// cmdProviderEdit
-			// 
-			this.cmdProviderEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdProviderEdit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdProviderEdit.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdProviderEdit.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdProviderEdit.FlatAppearance.BorderSize = 0;
-			this.cmdProviderEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProviderEdit.Image = global::Eddie.Lib.Forms.Properties.Resources.edit;
-			this.cmdProviderEdit.Location = new System.Drawing.Point(632, 103);
-			this.cmdProviderEdit.Name = "cmdProviderEdit";
-			this.cmdProviderEdit.Size = new System.Drawing.Size(28, 28);
-			this.cmdProviderEdit.TabIndex = 46;
-			this.cmdProviderEdit.UseVisualStyleBackColor = true;
-			// 
-			// cmdProviderRemove
-			// 
-			this.cmdProviderRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdProviderRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdProviderRemove.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdProviderRemove.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdProviderRemove.FlatAppearance.BorderSize = 0;
-			this.cmdProviderRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProviderRemove.Image = global::Eddie.Lib.Forms.Properties.Resources.delete;
-			this.cmdProviderRemove.Location = new System.Drawing.Point(632, 69);
-			this.cmdProviderRemove.Name = "cmdProviderRemove";
-			this.cmdProviderRemove.Size = new System.Drawing.Size(28, 28);
-			this.cmdProviderRemove.TabIndex = 45;
-			this.cmdProviderRemove.UseVisualStyleBackColor = true;
-			// 
-			// cmdProviderAdd
-			// 
-			this.cmdProviderAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdProviderAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdProviderAdd.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdProviderAdd.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdProviderAdd.FlatAppearance.BorderSize = 0;
-			this.cmdProviderAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProviderAdd.Image = global::Eddie.Lib.Forms.Properties.Resources.add;
-			this.cmdProviderAdd.Location = new System.Drawing.Point(632, 35);
-			this.cmdProviderAdd.Name = "cmdProviderAdd";
-			this.cmdProviderAdd.Size = new System.Drawing.Size(28, 28);
-			this.cmdProviderAdd.TabIndex = 44;
-			this.cmdProviderAdd.UseVisualStyleBackColor = true;
-			// 
-			// label8
-			// 
-			this.label8.BackColor = System.Drawing.Color.Transparent;
-			this.label8.ForeColor = System.Drawing.Color.Black;
-			this.label8.Location = new System.Drawing.Point(6, 10);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(654, 22);
-			this.label8.TabIndex = 43;
-			this.label8.Text = "Network routing rules about what destination must be in the VPN tunnel or not.";
-			// 
-			// lstProviders
-			// 
-			this.lstProviders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.lstProviders.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colProviderName});
-			this.lstProviders.ContextMenuStrip = this.mnuRoutes;
-			this.lstProviders.FullRowSelect = true;
-			this.lstProviders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-			this.lstProviders.HideSelection = false;
-			this.lstProviders.Location = new System.Drawing.Point(6, 35);
-			this.lstProviders.MultiSelect = false;
-			this.lstProviders.Name = "lstProviders";
-			this.lstProviders.OwnerDraw = true;
-			this.lstProviders.Size = new System.Drawing.Size(621, 264);
-			this.lstProviders.SmallImageList = this.imgRoutes;
-			this.lstProviders.TabIndex = 42;
-			this.lstProviders.UseCompatibleStateImageBehavior = false;
-			this.lstProviders.View = System.Windows.Forms.View.Details;
-			// 
-			// colProviderName
-			// 
-			this.colProviderName.Text = "Provider";
 			// 
 			// tabProtocols
 			// 
@@ -2248,28 +2147,28 @@ namespace Eddie.Gui.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
-			// lblProtocolIPEntry
+			// lblProtocolIPv6Route
 			// 
-			this.lblProtocolIPEntry.BackColor = System.Drawing.Color.Transparent;
-			this.lblProtocolIPEntry.ForeColor = System.Drawing.Color.Black;
-			this.lblProtocolIPEntry.Location = new System.Drawing.Point(18, 15);
-			this.lblProtocolIPEntry.Name = "lblProtocolIPEntry";
-			this.lblProtocolIPEntry.Size = new System.Drawing.Size(220, 21);
-			this.lblProtocolIPEntry.TabIndex = 91;
-			this.lblProtocolIPEntry.Text = "IP Protocol used for connection:";
-			this.lblProtocolIPEntry.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblProtocolIPv6Route.BackColor = System.Drawing.Color.Transparent;
+			this.lblProtocolIPv6Route.ForeColor = System.Drawing.Color.Black;
+			this.lblProtocolIPv6Route.Location = new System.Drawing.Point(18, 69);
+			this.lblProtocolIPv6Route.Name = "lblProtocolIPv6Route";
+			this.lblProtocolIPv6Route.Size = new System.Drawing.Size(220, 21);
+			this.lblProtocolIPv6Route.TabIndex = 95;
+			this.lblProtocolIPv6Route.Text = "Layer IPv6:";
+			this.lblProtocolIPv6Route.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
-			// cboProtocolIPEntry
+			// cboProtocolIPv6Route
 			// 
-			this.cboProtocolIPEntry.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboProtocolIPEntry.FormattingEnabled = true;
-			this.cboProtocolIPEntry.Items.AddRange(new object[] {
+			this.cboProtocolIPv6Route.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboProtocolIPv6Route.FormattingEnabled = true;
+			this.cboProtocolIPv6Route.Items.AddRange(new object[] {
             "None",
             "Disable"});
-			this.cboProtocolIPEntry.Location = new System.Drawing.Point(247, 15);
-			this.cboProtocolIPEntry.Name = "cboProtocolIPEntry";
-			this.cboProtocolIPEntry.Size = new System.Drawing.Size(133, 21);
-			this.cboProtocolIPEntry.TabIndex = 90;
+			this.cboProtocolIPv6Route.Location = new System.Drawing.Point(247, 69);
+			this.cboProtocolIPv6Route.Name = "cboProtocolIPv6Route";
+			this.cboProtocolIPv6Route.Size = new System.Drawing.Size(325, 21);
+			this.cboProtocolIPv6Route.TabIndex = 94;
 			// 
 			// lblProtocolIPv4Route
 			// 
@@ -2294,28 +2193,39 @@ namespace Eddie.Gui.Forms
 			this.cboProtocolIPv4Route.Size = new System.Drawing.Size(325, 21);
 			this.cboProtocolIPv4Route.TabIndex = 92;
 			// 
-			// lblProtocolIPv6Route
+			// lblProtocolIPEntry
 			// 
-			this.lblProtocolIPv6Route.BackColor = System.Drawing.Color.Transparent;
-			this.lblProtocolIPv6Route.ForeColor = System.Drawing.Color.Black;
-			this.lblProtocolIPv6Route.Location = new System.Drawing.Point(18, 69);
-			this.lblProtocolIPv6Route.Name = "lblProtocolIPv6Route";
-			this.lblProtocolIPv6Route.Size = new System.Drawing.Size(220, 21);
-			this.lblProtocolIPv6Route.TabIndex = 95;
-			this.lblProtocolIPv6Route.Text = "Layer IPv6:";
-			this.lblProtocolIPv6Route.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblProtocolIPEntry.BackColor = System.Drawing.Color.Transparent;
+			this.lblProtocolIPEntry.ForeColor = System.Drawing.Color.Black;
+			this.lblProtocolIPEntry.Location = new System.Drawing.Point(18, 15);
+			this.lblProtocolIPEntry.Name = "lblProtocolIPEntry";
+			this.lblProtocolIPEntry.Size = new System.Drawing.Size(220, 21);
+			this.lblProtocolIPEntry.TabIndex = 91;
+			this.lblProtocolIPEntry.Text = "IP Protocol used for connection:";
+			this.lblProtocolIPEntry.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
-			// cboProtocolIPv6Route
+			// cboProtocolIPEntry
 			// 
-			this.cboProtocolIPv6Route.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboProtocolIPv6Route.FormattingEnabled = true;
-			this.cboProtocolIPv6Route.Items.AddRange(new object[] {
+			this.cboProtocolIPEntry.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboProtocolIPEntry.FormattingEnabled = true;
+			this.cboProtocolIPEntry.Items.AddRange(new object[] {
             "None",
             "Disable"});
-			this.cboProtocolIPv6Route.Location = new System.Drawing.Point(247, 69);
-			this.cboProtocolIPv6Route.Name = "cboProtocolIPv6Route";
-			this.cboProtocolIPv6Route.Size = new System.Drawing.Size(325, 21);
-			this.cboProtocolIPv6Route.TabIndex = 94;
+			this.cboProtocolIPEntry.Location = new System.Drawing.Point(247, 15);
+			this.cboProtocolIPEntry.Name = "cboProtocolIPEntry";
+			this.cboProtocolIPEntry.Size = new System.Drawing.Size(133, 21);
+			this.cboProtocolIPEntry.TabIndex = 90;
+			// 
+			// chkAdvancedProviders
+			// 
+			this.chkAdvancedProviders.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedProviders.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedProviders.Location = new System.Drawing.Point(497, 261);
+			this.chkAdvancedProviders.Name = "chkAdvancedProviders";
+			this.chkAdvancedProviders.Size = new System.Drawing.Size(165, 19);
+			this.chkAdvancedProviders.TabIndex = 88;
+			this.chkAdvancedProviders.Text = "Multi-providers support";
+			this.chkAdvancedProviders.UseVisualStyleBackColor = false;
 			// 
 			// Settings
 			// 
@@ -2343,7 +2253,6 @@ namespace Eddie.Gui.Forms
 			this.tabGeneral.PerformLayout();
 			this.pnlGeneralWindowsOnly.ResumeLayout(false);
 			this.pnlGeneralWindowsOnly.PerformLayout();
-			this.tabProviders.ResumeLayout(false);
 			this.tabProtocols.ResumeLayout(false);
 			this.tabProxy.ResumeLayout(false);
 			this.tabProxy.PerformLayout();
@@ -2511,19 +2420,13 @@ namespace Eddie.Gui.Forms
 		private Skin.Label lblLockAllowDNS;
 		private Skin.CheckBox chkLockAllowDNS;
 		private System.Windows.Forms.ColumnHeader colProtocolsTech;
-		private System.Windows.Forms.TabPage tabProviders;
 		private System.Windows.Forms.TabPage tabExperimentals;
 		private Skin.Label lblProtocolIPEntry;
 		private Skin.ComboBox cboProtocolIPEntry;
-		private Skin.Button cmdProviderEdit;
-		private Skin.Button cmdProviderRemove;
-		private Skin.Button cmdProviderAdd;
-		private Skin.Label label8;
-		private Skin.ListView lstProviders;
-		private System.Windows.Forms.ColumnHeader colProviderName;
 		private Skin.Label lblProtocolIPv6Route;
 		private Skin.ComboBox cboProtocolIPv6Route;
 		private Skin.Label lblProtocolIPv4Route;
 		private Skin.ComboBox cboProtocolIPv4Route;
+		private Skin.CheckBox chkAdvancedProviders;
 	}
 }

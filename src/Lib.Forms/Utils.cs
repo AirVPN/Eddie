@@ -95,6 +95,19 @@ namespace Eddie.Gui
                 controlFix.Height = controlRef.Height;
         }
 
+		public static string DirectoryPicker(string description, string startPath)
+		{
+			FolderBrowserDialog dlg = new FolderBrowserDialog();
+			dlg.Description = description;
+			dlg.SelectedPath = startPath;
+			if (dlg.ShowDialog() == DialogResult.OK)
+			{
+				return dlg.SelectedPath;
+			}
+			else
+				return "";
+		}
+
         public static string FilePicker()
 		{
 			return FilePicker(Messages.FilterAllFiles);			

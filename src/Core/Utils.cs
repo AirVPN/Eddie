@@ -322,6 +322,15 @@ namespace Eddie.Core
 				return Conversions.ToInt64(nodeAttr.Value);
 		}
 
+		public static float XmlGetAttributeFloat(XmlNode node, string name, float def)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToFloat(nodeAttr.Value);
+		}
+
 		public static void XmlSetAttributeString(XmlElement node, string name, string val)
 		{
 			node.SetAttribute(name, val);
@@ -350,7 +359,12 @@ namespace Eddie.Core
 			node.SetAttribute(name, Conversions.ToString(val));
 		}
 
-        public static void XmlRenameTagName(XmlElement parent, string oldName, string newName)
+		public static void XmlSetAttributeFloat(XmlElement node, string name, float val)
+		{
+			node.SetAttribute(name, Conversions.ToString(val));
+		}
+
+		public static void XmlRenameTagName(XmlElement parent, string oldName, string newName)
         {
             foreach(XmlElement e in parent.GetElementsByTagName(oldName))
             {
@@ -370,7 +384,7 @@ namespace Eddie.Core
             XmlNode xmlClone = parentDestination.OwnerDocument.ImportNode(source, true);
             parentDestination.AppendChild(xmlClone);
         }
-
+		
         public static XmlElement XmlCreateElement(string name)
         {
             XmlDocument xmlDoc = new XmlDocument();

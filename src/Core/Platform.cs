@@ -439,6 +439,11 @@ namespace Eddie.Core
 			System.Diagnostics.Process.Start(url);
 		}
 
+		public virtual string GetDefaultOpenVpnConfigsPath()
+		{
+			return "";
+		}
+
 		// Avoid when possible, but for example under Windows sometime commands are not executable in file-system.
 		public virtual void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{

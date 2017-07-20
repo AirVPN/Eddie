@@ -73,6 +73,7 @@
 			this.txtPassword.PasswordChar = '*';
 			this.txtPassword.Size = new System.Drawing.Size(222, 20);
 			this.txtPassword.TabIndex = 58;
+			this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
 			// 
 			// txtUsername
 			// 
@@ -139,10 +140,12 @@
 			this.lblRemember.Text = "Remember:";
 			this.lblRemember.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
-			// Login
+			// WindowCredentials
 			// 
+			this.AcceptButton = this.cmdOk;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.CancelButton = this.cmdCancel;
 			this.ClientSize = new System.Drawing.Size(324, 155);
 			this.Controls.Add(this.lblRemember);
 			this.Controls.Add(this.cboRemember);
@@ -155,7 +158,7 @@
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.Name = "Login";
+			this.Name = "WindowCredentials";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Form1";
 			this.ResumeLayout(false);

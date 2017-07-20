@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<provider title="AirVPN" website="https://airvpn.org" class="service" fetch_mode="rsa4096+aes256">
+<provider code="AirVPN" title="AirVPN" subtitle="The air to breathe the real Internet." href="https://airvpn.org" class="service" fetch_mode="rsa4096+aes256">
   <manifest>
     <urls>
       <url address="http://54.93.175.114" />

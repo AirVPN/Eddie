@@ -111,8 +111,9 @@ namespace Eddie.Gui.Skin
             }
             g.Dispose();
 
-            if ((ImageIconResourcePrefix != "") && (Items.Count > 0))
-                minWidth += GetItemRect(0).Height*2;
+			//if ((ImageIconResourcePrefix != "") && (Items.Count > 0))
+			if( (ImageIconResourcePrefix != "") || (SmallImageList != null) )
+				minWidth += GetItemRect(0).Height*2;
             
             minWidth += Convert.ToInt32(minWidth * 0.2); // 20% margin
 

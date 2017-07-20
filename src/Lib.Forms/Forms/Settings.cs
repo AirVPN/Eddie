@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.Gui.Forms
@@ -35,7 +36,7 @@ namespace Eddie.Gui.Forms
         public bool m_modeSshEnabled = true;
         public bool m_modeSslEnabled = true;
 
-        public Settings()
+		public Settings()
         {
             OnPreInitializeComponent();
             InitializeComponent();
@@ -91,8 +92,8 @@ namespace Eddie.Gui.Forms
             base.OnLoad(e);
 
             CommonInit("Settings");
-            
-            BuildTreeTabs();
+
+			BuildTreeTabs();
 
             lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
 
@@ -125,9 +126,9 @@ namespace Eddie.Gui.Forms
             cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit0);
             cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit1);
             cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit2);
-
-            // Proxy
-            cboProxyMode.Items.Clear();
+			
+			// Proxy
+			cboProxyMode.Items.Clear();
             cboProxyMode.Items.Add("None");
             cboProxyMode.Items.Add("Http");
             cboProxyMode.Items.Add("Socks");
@@ -227,8 +228,8 @@ namespace Eddie.Gui.Forms
         }
 
         public void BuildTreeTabs()
-        {     
-            m_tabMain = new Gui.Controls.TabNavigator();
+        {
+			m_tabMain = new Gui.Controls.TabNavigator();
             m_tabMain.Font = Skin.FontNormal;
             m_tabMain.Top = 0;
             m_tabMain.Left = 0;
@@ -236,7 +237,9 @@ namespace Eddie.Gui.Forms
             m_tabMain.Width = ClientSize.Width;
             m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
             m_tabMain.ImportTabControl(tabSettings);
-            Controls.Add(m_tabMain);            
+            Controls.Add(m_tabMain);
+
+			m_tabMain.SetPageVisible(10, Constants.AlphaFeatures);
         }
         
         public void ReadOptions()
@@ -394,6 +397,7 @@ namespace Eddie.Gui.Forms
 				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
 
 			chkAdvancedPingerEnabled.Checked = s.GetBool("pinger.enabled");
+			chkAdvancedProviders.Checked = s.GetBool("advanced.providers");
 			chkRouteRemoveDefault.Checked = s.GetBool("routes.remove_default");
 			
 			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
@@ -682,6 +686,8 @@ namespace Eddie.Gui.Forms
 				s.Set("protocol.ipv6.route", "in-block");
 
 			s.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
+			s.SetBool("advanced.providers", chkAdvancedProviders.Checked);
+
 			s.SetBool("routes.remove_default", chkRouteRemoveDefault.Checked);
 						
 			s.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
@@ -845,7 +851,8 @@ namespace Eddie.Gui.Forms
             
             // Protocols
             lstProtocols.Enabled = (chkProtocolsAutomatic.Checked == false);
-            
+			
+			// Routes            
             cmdRouteAdd.Enabled = true;
             mnuRoutesAdd.Enabled = cmdRouteAdd.Enabled;
             cmdRouteRemove.Enabled = (lstRoutes.SelectedItems.Count > 0);
@@ -1022,8 +1029,8 @@ namespace Eddie.Gui.Forms
 				EnableIde();
             }
         }
-
-        private void mnuRoutesAdd_Click(object sender, EventArgs e)
+				
+		private void mnuRoutesAdd_Click(object sender, EventArgs e)
         {
             cmdRouteAdd_Click(sender, e);
         }
@@ -1037,14 +1044,14 @@ namespace Eddie.Gui.Forms
         {
             cmdRouteEdit_Click(sender, e);
         }
-
-        private void lstRoutes_DoubleClick(object sender, EventArgs e)
+		
+		private void lstRoutes_DoubleClick(object sender, EventArgs e)
         {
             if(cmdRouteEdit.Enabled)
                 cmdRouteEdit_Click(sender, e);
         }
 
-        private void lstRoutes_SelectedIndexChanged(object sender, EventArgs e)
+		private void lstRoutes_SelectedIndexChanged(object sender, EventArgs e)
         {
             EnableIde();
         }
@@ -1321,5 +1328,7 @@ namespace Eddie.Gui.Forms
                     Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
             }
         }
-    }
+
+		
+	}
 }

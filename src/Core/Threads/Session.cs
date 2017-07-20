@@ -992,7 +992,6 @@ namespace Eddie.Core.Threads
 					// Detect connection (OpenVPN >2.4)
 					if (Utils.RegExMatchOne(messageLower, "peer connection initiated with \\[af_inet6?\\]([0-9a-f\\.\\:]+?):(\\d+?)") != "")
 					{
-						//ClodoTemp Engine.Instance.ConnectedProtocol = m_ovpnStartup.Protocol;
 						if (m_ovpnStartup.Protocol == "SSH")
 						{
 							Engine.Instance.ConnectedEntryIP = m_ovpnStartup.Address;
@@ -1021,13 +1020,11 @@ namespace Eddie.Core.Threads
 					{
 						if (m_ovpnStartup.Protocol == "SSH")
 						{
-							//ClodoTemp Engine.Instance.ConnectedProtocol = "SSH";
 							Engine.Instance.ConnectedEntryIP = m_ovpnStartup.Address;
 							Engine.Instance.ConnectedPort = m_ovpnStartup.Port;
 						}
 						else if (m_ovpnStartup.Protocol == "SSL")
 						{
-							//ClodoTemp Engine.Instance.ConnectedProtocol = "SSL";
 							Engine.Instance.ConnectedEntryIP = m_ovpnStartup.Address;
 							Engine.Instance.ConnectedPort = m_ovpnStartup.Port;
 						}
@@ -1040,7 +1037,6 @@ namespace Eddie.Core.Threads
 							string[] parts = t.Split(':');
 							if (parts.Length == 2)
 							{
-								//ClodoTemp Engine.Instance.ConnectedProtocol = "TCP";
 								Engine.Instance.ConnectedEntryIP = parts[0];
 								Engine.Instance.ConnectedPort = Convert.ToInt32(parts[1]);
 							}
@@ -1056,7 +1052,6 @@ namespace Eddie.Core.Threads
 						string[] parts = t.Split(':');
 						if (parts.Length == 2)
 						{
-							//ClodoTemp Engine.Instance.ConnectedProtocol = "UDP";
 							Engine.Instance.ConnectedEntryIP = parts[0];
 							Engine.Instance.ConnectedPort = Convert.ToInt32(parts[1]);
 						}
@@ -1207,7 +1202,7 @@ namespace Eddie.Core.Threads
 											// 2.12
 											string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
 											string checkUrl = "https://" + checkDomain + "/check_tun/";
-											XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4());
+											XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, true, checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4());
 
 											string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
 
@@ -1254,7 +1249,7 @@ namespace Eddie.Core.Threads
 												// 2.12
 												string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
 												string checkUrl = "https://" + checkDomain + "/check_tun/";
-												XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.ConnectedEntryIP);
+												XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, true, checkDomain + ":" + Engine.ConnectedEntryIP);
 
 												Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
 												Engine.ConnectedClientTime = Utils.UnixTimeStamp();
@@ -1320,7 +1315,7 @@ namespace Eddie.Core.Threads
 											// 2.12
 											string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
 											string checkUrl = "https://" + checkDomain + "/check_dns/";
-											XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, Messages.ConnectionCheckingRoute, true, checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4());
+											XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, true, checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4());
 
 											string answer = xmlDoc.DocumentElement.Attributes["hash"].Value;
 
