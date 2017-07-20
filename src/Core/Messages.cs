@@ -116,6 +116,7 @@ namespace Eddie.Core
 		public static string ConnectionWarningNoExitIPv4 = "no IPv4 exit available"; 
 		public static string ConnectionWarningNoExitIPv6 = "no IPv6 exit available";
 		public static string ConnectionWarningOlderOpenVpnTlsCrypt = "tls-crypt not available on older openvpn";
+		public static string ConnectionWarningLoginRequired = "login required";
 
 		public static string CheckingEnvironment = "Checking environment";
 		public static string CheckingProtocolUnknown = "Unknown protocol.";

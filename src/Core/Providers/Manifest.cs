@@ -336,15 +336,13 @@ namespace Eddie.Core.Providers
 					if (connection.Provider != this)
 						continue;
 
+					if (User == null) // cazzo
+						connection.WarningAdd(Messages.ConnectionWarningLoginRequired, ConnectionInfoWarning.WarningType.Error);
+
 					if (mode.EntryIndex >= connection.IpsEntry.CountIPv4)
 						connection.WarningAdd(Messages.ConnectionWarningModeUnsupported, ConnectionInfoWarning.WarningType.Error);					
 				}
 			}
-		}
-
-		public override bool IsLogged()
-		{
-			return ((User != null) && (User.Attributes["login"] != null));			
 		}
 
 		public override string GetSshKey(string format)

@@ -357,13 +357,7 @@ namespace Eddie.Core
 				bool autoStart = false;
 				if (ConsoleMode)
 				{
-					Auth();
-					/* // 2.8
-					if (IsLogged())
-						autoStart = true;
-					else
-						CancelRequested = true;
-					*/
+					Auth();					
 				}
 
 				// Clodo: Try to remove: if not logged, no servers, fatal error and exit.
@@ -778,6 +772,8 @@ namespace Eddie.Core
 
 		public virtual void OnSettingsChanged()
 		{
+			OnCheckConnections();
+
 			SaveSettings(); // 2.8
 
 			OnRefreshUi(RefreshUiMode.Full);
@@ -1689,8 +1685,10 @@ namespace Eddie.Core
 					Logs.Log(LogType.InfoImportant, Messages.AuthorizeLoginDone);
 
 					AirVPN.Auth(xmlDoc.DocumentElement);
-
+					
 					LoggedUpdate();
+
+					OnCheckConnections();
 				}
 			}
 			catch (Exception e)
@@ -1711,6 +1709,8 @@ namespace Eddie.Core
 
 				AirVPN.DeAuth();
 
+				OnCheckConnections();
+
 				Logs.Log(LogType.InfoImportant, Messages.AuthorizeLogoutDone);
 
 				Engine.Instance.WaitMessageClear();
@@ -1726,6 +1726,17 @@ namespace Eddie.Core
 				DeAuth();
 				Auth();
 			}
+		}
+
+		public bool CanConnect()
+		{
+			lock(m_connections)
+			foreach (ConnectionInfo server in m_connections.Values)
+			{
+				if (server.CanConnect())
+					return true;
+			}
+			return false;
 		}
 
 		private void SessionStart()
@@ -2104,7 +2115,6 @@ namespace Eddie.Core
 			// Data sended in case of big event, like connect/disconnect.
 			XmlItem xml = new XmlItem("command");
 			xml.SetAttribute("action", "ui.info.status");
-			xml.SetAttributeBool("logged", IsLogged());
 			xml.SetAttributeBool("waiting", IsWaiting());
 			xml.SetAttribute("waiting.message", WaitMessage);
 			xml.SetAttributeBool("connected", IsConnected());

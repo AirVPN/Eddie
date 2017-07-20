@@ -158,7 +158,7 @@ namespace Eddie.Core
 				return false;
 			
 			return true;
-			}
+		}
 
 		public bool CanPing()
 		{

@@ -1436,6 +1436,10 @@ namespace Eddie.Gui.Forms
             if (m_listViewServers == null) // 2.11.4
                 return;
 
+			ConnectionInfo selectedConnection = null;
+			if (m_listViewServers.SelectedItems.Count == 1)
+				selectedConnection = (m_listViewServers.SelectedItems[0] as Controls.ListViewItemServer).Info;
+
             if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
 			{
 				mnuRestore.Visible = true;
@@ -1494,14 +1498,17 @@ namespace Eddie.Gui.Forms
             lblKey.Visible = ((logged == true) && (cboKey.Items.Count > 1));
             cboKey.Visible = ((logged == true) && (cboKey.Items.Count > 1));
 
-            if (logged)
+			cmdConnect.Enabled = Engine.Instance.CanConnect();
+			/* TODOMAC
+			if (logged)
 			{
-				cmdConnect.Enabled = true;					
+				cmdConnect.Enabled = Engine.Instance.CanConnect();					
 			}
 			else
 			{
 				cmdConnect.Enabled = false;
 			}
+			*/
 
 			// Providers
 			cmdProviderAdd.Enabled = true;
@@ -1509,8 +1516,9 @@ namespace Eddie.Gui.Forms
 			cmdProviderEdit.Enabled = (lstProviders.SelectedItems.Count == 1);
 
 			// Connections
-			cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1));
-            mnuServersConnect.Enabled = cmdServersConnect.Enabled;
+			//cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1)); // TODOMAC
+			cmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect())); // TODOMAC
+			mnuServersConnect.Enabled = cmdServersConnect.Enabled;
 
 			cmdServersWhiteList.Enabled = (m_listViewServers.SelectedItems.Count > 0);
 			mnuServersWhiteList.Enabled = cmdServersWhiteList.Enabled;

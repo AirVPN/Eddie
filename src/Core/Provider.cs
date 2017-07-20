@@ -252,11 +252,6 @@ namespace Eddie.Core
 		{
 		}
 
-		public virtual bool IsLogged()
-		{
-			return false;
-		}
-
 		public virtual void ClearCredentials()
 		{
 			m_runCredentials = null;
