@@ -45,7 +45,10 @@
                 <outlet property="LblConnectedServerName" destination="T8o-9L-CMg" id="Fu9-Ap-jJx"/>
                 <outlet property="LblDevice" destination="iGi-vh-Ki0" id="aeV-oR-cxC"/>
                 <outlet property="LblKey" destination="iGi-vh-Ki0" id="qyn-Vr-tjC"/>
+                <outlet property="LblLogin" destination="xU8-la-8r9" id="lQQ-Mm-fgt"/>
+                <outlet property="LblLoginIcon" destination="oCW-Zc-5TC" id="5N1-Zc-Fa6"/>
                 <outlet property="LblNetLockStatus" destination="Xs6-Xa-gux" id="34a-fk-9kg"/>
+                <outlet property="LblPassword" destination="Mwj-CH-RF1" id="TkW-Sl-CWS"/>
                 <outlet property="LblTopStatus" destination="2cT-SR-rTr" id="8Kx-JK-ijp"/>
                 <outlet property="LblWaiting1" destination="TxA-1y-Zx4" id="MBl-E8-jXk"/>
                 <outlet property="LblWaiting2" destination="rGP-dy-qN2" id="Cu7-96-5BM"/>

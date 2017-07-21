@@ -49,16 +49,21 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			this.tableView = tableView;
 
-			XmlNodeList xmlModes = Engine.Instance.AirVPN.Manifest.SelectNodes ("//modes/mode");
-			foreach (XmlElement xmlMode in xmlModes) {
-				TableProtocolsControllerItem item = new TableProtocolsControllerItem ();
-				item.Protocol = xmlMode.GetAttribute ("protocol").ToUpper ();
-				item.Port = Conversions.ToInt32 (xmlMode.GetAttribute ("port"), 443);
-				item.IP = Conversions.ToInt32 (xmlMode.GetAttribute ("entry_index"), 0);
-				item.Description = xmlMode.GetAttribute ("title");
-				item.Specs = xmlMode.GetAttribute("specs");
-				Items.Add (item);
-			}
+            if( (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null) )
+            {
+                foreach(ConnectionMode mode in Engine.Instance.AirVPN.Modes)
+                {
+                    if (mode.Available == false)
+                        continue;
+					TableProtocolsControllerItem item = new TableProtocolsControllerItem();
+                    item.Protocol = mode.Protocol;
+                    item.Port = mode.Port;
+                    item.IP = mode.EntryIndex;
+                    item.Description = mode.Title;
+                    item.Specs = mode.Specs;
+					Items.Add(item);
+                }
+            }
 
 			this.tableView.DataSource = this;
 

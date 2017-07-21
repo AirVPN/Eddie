@@ -30,5 +30,7 @@ namespace Eddie.UI.Cocoa.Osx
         }
 
         #endregion
+
+
     }
 }

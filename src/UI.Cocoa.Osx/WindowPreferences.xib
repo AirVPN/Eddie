@@ -54,6 +54,7 @@
                 <outlet property="CmdGeneralTos" destination="umI-pg-cJh" id="yEJ-FP-2qU"/>
                 <outlet property="CmdLockHelp" destination="5AI-c0-dFt" id="gSo-Do-D4r"/>
                 <outlet property="CmdLoggingOpen" destination="f0I-KF-UT2" id="vEZ-FH-N6a"/>
+                <outlet property="CmdOpenVpnDirectivesCustomPathBrowse" destination="Rj7-4s-0fb" id="5Ad-xD-aUL"/>
                 <outlet property="CmdOpenVpnDirectivesHelp" destination="ixV-Uh-vPo" id="Uau-N7-QkG"/>
                 <outlet property="CmdProtocolsHelp1" destination="M7S-Xd-x1D" id="PCW-jC-ai2"/>
                 <outlet property="CmdProtocolsHelp2" destination="g7d-sl-TUU" id="B9q-SX-k8I"/>
@@ -83,6 +84,7 @@
                 <outlet property="TxtLockAllowedIPS" destination="DHA-pR-pKS" id="hzN-4x-l01"/>
                 <outlet property="TxtLoggingComputedPath" destination="c9X-34-ftI" id="5cS-z6-JLg"/>
                 <outlet property="TxtLoggingPath" destination="XTE-TQ-fIh" id="pfa-S3-l3h"/>
+                <outlet property="TxtOpenVpnDirectivesCustomPath" destination="EXi-Ec-pGK" id="cAq-o6-lhd"/>
                 <outlet property="TxtProxyHost" destination="H8o-LB-562" id="E0U-ah-uI9"/>
                 <outlet property="TxtProxyLogin" destination="XX0-r6-vrR" id="Rs8-8r-Xby"/>
                 <outlet property="TxtProxyPassword" destination="kbr-od-lkG" id="TMh-an-VAu"/>
@@ -283,7 +285,7 @@
                                         </button>
                                         <button misplaced="YES" id="vu2-Pk-Cd3">
                                             <rect key="frame" x="484" y="74" width="58" height="18"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="IEC" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="fMB-NB-aUb">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="smallSystem"/>
@@ -362,7 +364,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Entry" width="20" minWidth="20" maxWidth="65" id="fLs-bo-pzB">
+                                                            <tableColumn identifier="IP" width="20" minWidth="20" maxWidth="65" id="fLs-bo-pzB">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="IP">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -388,7 +390,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="Cipher" width="80" minWidth="80" maxWidth="80" id="Aqq-4p-66m">
+                                                            <tableColumn identifier="Specs" width="80" minWidth="80" maxWidth="80" id="Aqq-4p-66m">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Specs">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1382,10 +1384,36 @@
                                                 </menu>
                                             </popUpButtonCell>
                                         </popUpButton>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="ryI-iP-76l">
-                                            <rect key="frame" x="12" y="11" width="170" height="41"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Use Ctrl+Enter for newline" id="ARP-Sn-phb">
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="ryI-iP-76l">
+                                            <rect key="frame" x="12" y="53" width="261" height="28"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Use Ctrl+Enter for newline" id="ARP-Sn-phb">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="EXi-Ec-pGK">
+                                            <rect key="frame" x="14" y="11" width="225" height="22"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="n9n-L4-5Tz">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <button verticalHuggingPriority="750" misplaced="YES" id="Rj7-4s-0fb">
+                                            <rect key="frame" x="236" y="5" width="41" height="32"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="push" bezelStyle="rounded" image="browse" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LwS-Kc-2J8">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="AdS-dg-KgN">
+                                            <rect key="frame" x="12" y="35" width="220" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="External Path:" id="bR1-dc-leD">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

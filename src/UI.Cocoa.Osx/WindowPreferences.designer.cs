@@ -154,6 +154,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton CmdLoggingOpen { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdOpenVpnDirectivesCustomPathBrowse { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdOpenVpnDirectivesHelp { get; set; }
 
 		[Outlet]
@@ -241,6 +244,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSTextField TxtLoggingPath { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField TxtOpenVpnDirectivesCustomPath { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextField TxtProxyHost { get; set; }
 
 		[Outlet]
@@ -260,6 +266,16 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (TxtOpenVpnDirectivesCustomPath != null) {
+				TxtOpenVpnDirectivesCustomPath.Dispose ();
+				TxtOpenVpnDirectivesCustomPath = null;
+			}
+
+			if (CmdOpenVpnDirectivesCustomPathBrowse != null) {
+				CmdOpenVpnDirectivesCustomPathBrowse.Dispose ();
+				CmdOpenVpnDirectivesCustomPathBrowse = null;
+			}
+
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
@@ -343,6 +359,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkAdvancedPingerEnabled != null) {
 				ChkAdvancedPingerEnabled.Dispose ();
 				ChkAdvancedPingerEnabled = null;
+			}
+
+			if (ChkAdvancedProviders != null) {
+				ChkAdvancedProviders.Dispose ();
+				ChkAdvancedProviders = null;
 			}
 
 			if (ChkConnect != null) {
@@ -540,6 +561,11 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdSave = null;
 			}
 
+			if (LblAdvancedProviders != null) {
+				LblAdvancedProviders.Dispose ();
+				LblAdvancedProviders = null;
+			}
+
 			if (LblDnsServers != null) {
 				LblDnsServers.Dispose ();
 				LblDnsServers = null;
@@ -613,16 +639,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtAdvancedOpenVpnPath != null) {
 				TxtAdvancedOpenVpnPath.Dispose ();
 				TxtAdvancedOpenVpnPath = null;
-			}
-
-			if (LblAdvancedProviders != null) {
-				LblAdvancedProviders.Dispose ();
-				LblAdvancedProviders = null;
-			}
-
-			if (ChkAdvancedProviders != null) {
-				ChkAdvancedProviders.Dispose ();
-				ChkAdvancedProviders = null;
 			}
 
 			if (TxtLockAllowedIPS != null) {

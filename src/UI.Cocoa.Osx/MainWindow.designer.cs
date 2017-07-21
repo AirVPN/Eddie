@@ -124,7 +124,16 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSTextField LblKey { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField LblLogin { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSImageView LblLoginIcon { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSImageView LblNetLockStatus { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField LblPassword { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField LblTopStatus { get; set; }
@@ -266,14 +275,19 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (MnuServersRename != null) {
-				MnuServersRename.Dispose ();
-				MnuServersRename = null;
+			if (LblLogin != null) {
+				LblLogin.Dispose ();
+				LblLogin = null;
 			}
 
-			if (MnuServersMore != null) {
-				MnuServersMore.Dispose ();
-				MnuServersMore = null;
+			if (LblPassword != null) {
+				LblPassword.Dispose ();
+				LblPassword = null;
+			}
+
+			if (LblLoginIcon != null) {
+				LblLoginIcon.Dispose ();
+				LblLoginIcon = null;
 			}
 
 			if (CboKey != null) {
@@ -526,9 +540,19 @@ namespace Eddie.UI.Cocoa.Osx
 				MnuServersConnect = null;
 			}
 
+			if (MnuServersMore != null) {
+				MnuServersMore.Dispose ();
+				MnuServersMore = null;
+			}
+
 			if (MnuServersRefresh != null) {
 				MnuServersRefresh.Dispose ();
 				MnuServersRefresh = null;
+			}
+
+			if (MnuServersRename != null) {
+				MnuServersRename.Dispose ();
+				MnuServersRename = null;
 			}
 
 			if (MnuServersUndefined != null) {

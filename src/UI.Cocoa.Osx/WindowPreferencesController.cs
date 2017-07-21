@@ -308,6 +308,10 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdOpenVpnDirectivesHelp.Activated += (object sender, EventArgs e) => {
 				Engine.Instance.Command ("ui.show.docs.directives");
 			};
+            CmdOpenVpnDirectivesCustomPathBrowse.Activated += (object sender, EventArgs e) =>
+			{
+                GuiUtils.SelectFile(this.Window, TxtOpenVpnDirectivesCustomPath);
+			};
 
 			// Advanced - Events
 
@@ -552,7 +556,7 @@ namespace Eddie.UI.Cocoa.Osx
 			// Protocols
 			String protocol = s.Get ("mode.protocol").ToUpperInvariant ();
 			int port = s.GetInt ("mode.port");
-			int alternate = s.GetInt ("mode.alt");
+			int entryIP = s.GetInt ("mode.alt");
 			if (protocol == "AUTO") {
 				GuiUtils.SetCheck (ChkProtocolsAutomatic, true);
 			} else {
@@ -562,7 +566,7 @@ namespace Eddie.UI.Cocoa.Osx
 				foreach (TableProtocolsControllerItem itemProtocol in TableProtocolsController.Items) {
 					if ((itemProtocol.Protocol == protocol) &&
 					   (itemProtocol.Port == port) &&
-					   (itemProtocol.IP == alternate)) {
+					   (itemProtocol.IP == entryIP)) {
 						found = true;
 						TableProtocols.SelectRow (iRow, false);
 						TableProtocols.ScrollRowToVisible (iRow);
@@ -722,6 +726,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetSelected(CboOpenVpnDirectivesSkipDefault, (s.GetBool("openvpn.skip_defaults") ? Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2 : Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip1));
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.Get ("openvpn.directives");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get ("openvpn.custom");
+            TxtOpenVpnDirectivesCustomPath.StringValue = s.Get("openvpn.directives.path"); 
 
 			// Advanced - Events
 			ReadOptionsEvent ("app.start", 0);
@@ -932,6 +937,7 @@ namespace Eddie.UI.Cocoa.Osx
 			s.SetBool ("openvpn.skip_defaults", GuiUtils.GetSelected (CboOpenVpnDirectivesSkipDefault) == Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2);
 			s.Set ("openvpn.directives", TxtAdvancedOpenVpnDirectivesDefault.StringValue);
 			s.Set ("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
+            s.Set("openvpn.directives.path", TxtOpenVpnDirectivesCustomPath.StringValue);
 
 			// Advanced - Events
 			SaveOptionsEvent ("app.start", 0);

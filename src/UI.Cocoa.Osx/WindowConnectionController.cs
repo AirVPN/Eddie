@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using Eddie.Lib.Common;
+using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
     public partial class WindowConnectionController : MonoMac.AppKit.NSWindowController
     {
+        public ConnectionInfo Connection;
+
         #region Constructors
 
         // Called when created from unmanaged code
@@ -45,5 +49,38 @@ namespace Eddie.UI.Cocoa.Osx
                 return (WindowConnection)base.Window;
             }
         }
+
+		public override void AwakeFromNib()
+		{
+			base.AwakeFromNib();
+
+			Window.Title = Constants.Name + " - " + Messages.WindowsConnectionTitle;
+
+            TxtOvpnGenerated.Value = Platform.Instance.NormalizeString(Connection.BuildOVPN(true).Get());
+            if(Connection.Path != "")
+            {
+                if(Platform.Instance.FileExists(Connection.Path))
+                {
+                    string original = Platform.Instance.FileContentsReadText(Connection.Path);
+                    TxtOvpnOriginal.Value = original;
+                }
+            }
+            else
+            {
+                TabMain.Remove(TabMain.Items[1]);
+            }
+
+			CmdOk.Activated += (object sender, EventArgs e) =>
+			{
+				Window.Close();
+				NSApplication.SharedApplication.StopModal();
+			};
+
+			CmdCancel.Activated += (object sender, EventArgs e) =>
+			{
+				Window.Close();
+				NSApplication.SharedApplication.StopModal();
+			};
+		}
     }
 }

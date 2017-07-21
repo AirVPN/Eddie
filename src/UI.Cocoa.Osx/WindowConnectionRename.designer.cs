@@ -1,16 +1,51 @@
-﻿
+// WARNING
+//
+// This file has been generated automatically by Visual Studio to store outlets and
+// actions made in the UI designer. If it is removed, they will be lost.
+// Manual changes to this file may not be handled correctly.
+//
+using MonoMac.Foundation;
+using System.CodeDom.Compiler;
+
 namespace Eddie.UI.Cocoa.Osx
 {
+	[Register ("WindowConnectionRenameController")]
+	partial class WindowConnectionRenameController
+	{
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdCancel { get; set; }
 
-    // Should subclass MonoMac.AppKit.NSWindow
-    [MonoMac.Foundation.Register("WindowConnectionRename")]
-    public partial class WindowConnectionRename
-    {
-    }
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdOk { get; set; }
 
-    // Should subclass MonoMac.AppKit.NSWindowController
-    [MonoMac.Foundation.Register("WindowConnectionRenameController")]
-    public partial class WindowConnectionRenameController
-    {
-    }
+		[Outlet]
+		MonoMac.AppKit.NSTextField TxtBody { get; set; }
+		
+		void ReleaseDesignerOutlets ()
+		{
+			if (TxtBody != null) {
+				TxtBody.Dispose ();
+				TxtBody = null;
+			}
+
+			if (CmdOk != null) {
+				CmdOk.Dispose ();
+				CmdOk = null;
+			}
+
+			if (CmdCancel != null) {
+				CmdCancel.Dispose ();
+				CmdCancel = null;
+			}
+		}
+	}
+
+	[Register ("WindowConnectionRename")]
+	partial class WindowConnectionRename
+	{
+		
+		void ReleaseDesignerOutlets ()
+		{
+		}
+	}
 }

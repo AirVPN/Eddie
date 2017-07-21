@@ -204,6 +204,16 @@ namespace Eddie.UI.Cocoa.Osx
 				ServersUndefinedList ();
 			};
 
+			CmdServersRename.Activated += (object sender, EventArgs e) =>
+			{
+				ServersRename();
+			};
+
+			CmdServersMore.Activated += (object sender, EventArgs e) =>
+			{
+				ServersMore();
+			};
+
 			CmdServersRefresh.Activated += (object sender, EventArgs e) => {
 				ServersRefresh ();
 			};
@@ -222,6 +232,16 @@ namespace Eddie.UI.Cocoa.Osx
 
 			MnuServersUndefined.Activated += (object sender, EventArgs e) => {
 				ServersUndefinedList ();
+			};
+
+			MnuServersRename.Activated += (object sender, EventArgs e) =>
+			{
+				ServersRename();
+			};
+
+			MnuServersMore.Activated += (object sender, EventArgs e) =>
+			{
+				ServersMore();
 			};
 
 			MnuServersRefresh.Activated += (object sender, EventArgs e) => {
@@ -360,7 +380,7 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					Disconnect();
 				}
-				else if (Engine.IsLogged())
+                else if (Engine.CanConnect())
 				{
 					Connect();
 				}
@@ -603,9 +623,52 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void EnabledUI()
 		{
-			bool logged = Engine.IsLogged ();
+            ConnectionInfo selectedConnection = null;
+            if (TableServers.SelectedRowCount == 1)
+            {
+                 selectedConnection = TableServersController.GetRelatedItem(TableServers.SelectedRow);
+            }
+
 			bool connected = Engine.IsConnected ();
 			bool waiting = Engine.IsWaiting ();
+
+
+            if(Engine.Instance.AirVPN != null)
+            {
+                LblLoginIcon.Hidden = false;
+				LblLogin.Hidden = false;
+				TxtLogin.Hidden = false;
+				LblPassword.Hidden = false;
+				TxtPassword.Hidden = false;
+				CmdLogin.Hidden = false;
+				ChkRemember.Hidden = false;
+
+                bool airvpnLogged = Engine.IsLogged();
+
+				if (airvpnLogged == false)
+					CmdLogin.Title = Messages.CommandLoginButton;
+				else
+					CmdLogin.Title = Messages.CommandLogout;
+
+				CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim() != "") && (TxtPassword.StringValue.Trim() != ""));
+
+				TxtLogin.Enabled = (airvpnLogged == false);
+				TxtPassword.Enabled = (airvpnLogged == false);
+				LblKey.Hidden = ((airvpnLogged == false) || (CboKey.ItemCount < 2));
+				CboKey.Hidden = LblKey.Hidden;
+            }
+            else
+            {
+                LblLoginIcon.Hidden = true;
+                LblLogin.Hidden = true;
+                TxtLogin.Hidden = true;
+                LblPassword.Hidden = true;
+                TxtPassword.Hidden = true;
+                CmdLogin.Hidden = true;
+                LblKey.Hidden = true;
+                CboKey.Hidden = true;
+                ChkRemember.Hidden = true;
+            }
 
 			MnuTrayRestore.Hidden = false;
 			/* // 2.8
@@ -614,12 +677,7 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				*/
 			MnuTrayRestore.Title = Messages.WindowsMainShow;
-
-			if (logged == false)
-				CmdLogin.Title = Messages.CommandLoginButton;
-			else
-				CmdLogin.Title = Messages.CommandLogout;
-
+            
 			if (waiting)
 			{
 				MnuTrayConnect.Title = Messages.CommandCancel;
@@ -629,7 +687,7 @@ namespace Eddie.UI.Cocoa.Osx
 				MnuTrayConnect.Enabled = true;
 				MnuTrayConnect.Title = Messages.CommandDisconnect;
 			}
-			else if (logged)
+            else if (Engine.Instance.CanConnect())
 			{
 				MnuTrayConnect.Enabled = true;
 				MnuTrayConnect.Title = Messages.CommandConnect;
@@ -640,16 +698,9 @@ namespace Eddie.UI.Cocoa.Osx
 				MnuTrayConnect.Title = Messages.CommandLoginMenu;
 			}
 
-			CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim () != "") && (TxtPassword.StringValue.Trim () != ""));
+			CmdConnect.Enabled = Engine.Instance.CanConnect();
 
-			TxtLogin.Enabled = (logged == false);
-			TxtPassword.Enabled = (logged == false);
-			LblKey.Hidden = ( (logged == false) || (CboKey.ItemCount < 2) );
-			CboKey.Hidden = LblKey.Hidden;
-
-            CmdConnect.Enabled = Engine.Instance.CanConnect();
-
-			CmdServersConnect.Enabled = ((logged) && (TableServers.SelectedRowCount == 1));
+			CmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect()));
 			CmdServersWhiteList.Enabled = (TableServers.SelectedRowCount > 0);
 			CmdServersBlackList.Enabled = CmdServersWhiteList.Enabled;
 			CmdServersUndefined.Enabled = CmdServersWhiteList.Enabled;
@@ -661,15 +712,7 @@ namespace Eddie.UI.Cocoa.Osx
             CmdServersMore.Enabled = (TableServers.SelectedRowCount == 1);
             MnuServersMore.Enabled = CmdServersMore.Enabled;
 
-            if(TableServers.SelectedRowCount == 1)
-            {
-                ConnectionInfo s = TableServersController.GetRelatedItem(TableServers.SelectedRow);
-                CmdServersRename.Enabled = (s.Provider is Core.Providers.OpenVPN);
-            }
-            else
-            {
-                CmdServersRename.Enabled = false;
-            }
+            CmdServersRename.Enabled = ( (selectedConnection != null) && (selectedConnection.Provider is Core.Providers.OpenVPN) );
             MnuServersRename.Enabled = CmdServersRename.Enabled;
 
 			CmdAreasWhiteList.Enabled = (TableAreas.SelectedRowCount > 0);
@@ -852,7 +895,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void Connect()
 		{
-			if((Engine.IsLogged() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
+			if((Engine.CanConnect() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
 			{
 				TabMain.SelectAt (0);
 				Engine.Connect ();
@@ -943,6 +986,42 @@ namespace Eddie.UI.Cocoa.Osx
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI ();
 		}
+
+        void ServersRename()
+        {
+			if (TableServers.SelectedRowCount != 1)
+				return;
+
+			foreach (int i in TableServers.SelectedRows)
+			{
+				ConnectionInfo connection = TableServersController.GetRelatedItem(i);
+
+				WindowConnectionRenameController w = new WindowConnectionRenameController();
+                w.Body = connection.DisplayName;
+				NSApplication.SharedApplication.RunModalForWindow(w.Window);
+                if(w.Body != "")
+                {
+                    connection.DisplayName = w.Body;
+                    connection.Provider.OnChangeConnection(connection);
+                    TableServersController.RefreshUI();
+                }
+			}
+        }
+
+        void ServersMore()
+        {
+            if (TableServers.SelectedRowCount != 1)
+                return;
+
+			foreach (int i in TableServers.SelectedRows)
+			{
+                ConnectionInfo connection = TableServersController.GetRelatedItem(i);
+
+                WindowConnectionController w = new WindowConnectionController();
+                w.Connection = connection;
+				NSApplication.SharedApplication.RunModalForWindow(w.Window);
+			}
+        }
 
 		void ServersRefresh()
 		{
