@@ -35,11 +35,16 @@ namespace Eddie.Core
 			return "Interface class";
 		}
 
+		public virtual string GetDescription()
+		{
+			return "";
+		}
+
 		public virtual bool GetSupport()
 		{
 			return true;
 		}
-
+		
 		public virtual bool IsDnsResolutionAvailable(string host)
 		{
 			return false;
@@ -100,6 +105,14 @@ namespace Eddie.Core
 
 		public virtual void OnRecoverySave(XmlElement root)
 		{
+		}
+
+		public string GetTitleForList()
+		{
+			string title = GetName();
+			if (GetDescription() != "")
+				title += " (" + GetDescription() + ")";
+			return title;
 		}
 
 		public IpAddresses GetAllIps(bool includeIpUsedByClient)

@@ -734,7 +734,9 @@ namespace Eddie.Core
 			}
 			else if (action == "ui.stats.pinger")
 			{
-				Core.Threads.Pinger.Instance.InvalidateAll();
+				m_threadPinger.InvalidateAll();
+				m_threadDiscover.InvalidateAll();
+
 				OnRefreshUi(Core.Engine.RefreshUiMode.Full);
 			}
 			else if (action == "ui.stats.manifestlastupdate")
@@ -1535,6 +1537,8 @@ namespace Eddie.Core
 
 		public void PostManifestUpdate()
 		{
+			LoggedUpdate(); // ClodoTemp. Start with AirVPN disabled, enable it, crash with a key='Default' without this. // TOFIX
+
 			OnPostManifestUpdate();
 
 			OnRefreshUi(Core.Engine.RefreshUiMode.Full);

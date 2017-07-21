@@ -25,7 +25,7 @@ using System.Xml;
 using Eddie.Core;
 using Microsoft.Win32;
 
-namespace Eddie.Platforms
+namespace Eddie.Platforms.Windows
 {
 	public class NetworkLockWfp : NetworkLockPlugin
 	{

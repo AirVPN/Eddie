@@ -39,6 +39,21 @@ namespace Eddie.Core.Threads
 			m_checkNow = true;
 		}
 
+		public void InvalidateAll()
+		{
+			Dictionary<string, ConnectionInfo> servers;
+
+			lock (Engine.Connections)
+				servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+
+			foreach (ConnectionInfo infoServer in servers.Values)
+			{
+				infoServer.LastDiscover = 0;
+			}
+
+			CheckNow();
+		}
+
         public override void OnRun()
         {
             Dictionary<string, ConnectionInfo> servers;
@@ -48,7 +63,7 @@ namespace Eddie.Core.Threads
 				m_checkNow = false;
 
 				lock (Engine.Connections)
-                        servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+					servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
 
                 int timeNow = Utils.UnixTimeStamp();
 

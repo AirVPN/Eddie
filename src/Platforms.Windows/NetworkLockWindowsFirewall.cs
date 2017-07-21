@@ -25,7 +25,7 @@ using System.Xml;
 using Eddie.Core;
 using Microsoft.Win32;
 
-namespace Eddie.Platforms
+namespace Eddie.Platforms.Windows
 {
 	public class NetworkLockWindowsFirewallProfile
 	{
@@ -179,6 +179,11 @@ namespace Eddie.Platforms
 			return "Windows Firewall";
 		}
 
+		public override string GetDescription()
+		{
+			return "Not recommended";
+		}
+
 		public override void Init()
 		{
 			base.Init();
@@ -248,6 +253,12 @@ namespace Eddie.Platforms
 			SystemShell.ShellCmd("netsh advfirewall set allprofiles settings inboundusernotification disable");
 
 			SystemShell.ShellCmd("netsh advfirewall firewall delete rule name=all");
+
+			// Windows Firewall don't work with logical path (a path that contain hardlink)
+			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - Program Eddie\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Platform.Instance.GetExecutablePath())) + "\" enable=yes");
+
+			// Adding rules are slow, so force at least curl
+			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - Program curl\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Software.GetTool("curl").Path)) + "\" enable=yes");
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
 			{
@@ -345,13 +356,36 @@ namespace Eddie.Platforms
 
 			m_lastestIpList = "";
 		}
-        
-        public override void OnUpdateIps()
+
+		public override void AllowProgram(string path, string name, string guid)
+		{
+			base.AllowProgram(path, name, guid);
+
+			if (path == Software.GetTool("curl").Path)
+				return;
+
+			// Windows Firewall don't work with logical path (a path that contain hardlink)
+			string physicalPath = Platform.Instance.FileGetPhysicalPath(path);
+
+			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - AllowProgram - " + guid + "\" dir=out action=allow program=\"" + SystemShell.EscapePath(physicalPath) + "\" enable=yes");
+		}
+
+		public override void DeallowProgram(string path, string name, string guid)
+		{
+			base.DeallowProgram(path, name, guid);
+
+			if (path == Software.GetTool("curl").Path)
+				return;
+
+			SystemShell.ShellCmd("netsh advfirewall firewall delete rule name=\"Eddie - Out - AllowProgram - " + guid + "\"");
+		}
+
+		public override void OnUpdateIps()
 		{
 			if (m_activated == false)
 				return;
 
-			IpAddresses ipsFirewalled = GetAllIps(true);
+			IpAddresses ipsFirewalled = GetAllIps(true); // ClodoTemp: can be 'false', but pinger don't work
 			string ipList = "";
 			foreach (IpAddress ip in ipsFirewalled.IPs)
 			{

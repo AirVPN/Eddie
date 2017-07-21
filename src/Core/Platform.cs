@@ -362,6 +362,12 @@ namespace Eddie.Core
 			return File.ReadAllBytes(path);
 		}
 
+		public virtual string FileGetPhysicalPath(string path)
+		{
+			// For example under Windows convert a path with hardlink under the physical real path.
+			return path;
+		}
+
 		public virtual bool FileImmutableGet(string path)
 		{
 			return false;
@@ -547,9 +553,8 @@ namespace Eddie.Core
 			Ping pingSender = new Ping();
 			PingOptions options = new PingOptions();
 
-			// Use the default Ttl value which is 128,
-			// but change the fragmentation behavior.
-			//options.DontFragment = true;
+			// Use the default TTL value which is 128, but change the fragmentation behavior.
+			// options.DontFragment = true;
 
 			// Create a buffer of 32 bytes of data to be transmitted.
 			byte[] buffer = RandomGenerator.GetBuffer(32);

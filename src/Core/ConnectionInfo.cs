@@ -143,9 +143,12 @@ namespace Eddie.Core
 
 		public bool HasWarningsErrors()
 		{
-			foreach (ConnectionInfoWarning warning in Warnings)
-				if (warning.Level == ConnectionInfoWarning.WarningType.Error)
-					return true;
+			lock (Warnings)
+			{
+				foreach (ConnectionInfoWarning warning in Warnings)
+					if (warning.Level == ConnectionInfoWarning.WarningType.Error)
+						return true;
+			}
 			return false;
 		}
 
@@ -182,25 +185,28 @@ namespace Eddie.Core
 
         public int Score()
         {
-			if (HasWarningsErrors())
-				return 99998;
-			else if (Warnings.Count>0)
-				return 99997;			
-            else if (Ping == -1)
-                return 99995;            
-            else
-            {
-				string scoreType = Engine.Instance.Storage.GetLower("servers.scoretype");
-                double ScoreB = ScoreBase;
+			lock (Warnings)
+			{
+				if (HasWarningsErrors())
+					return 99998;
+				else if (Warnings.Count > 0)
+					return 99997;
+				else if (Ping == -1)
+					return 99995;
+				else
+				{
+					string scoreType = Engine.Instance.Storage.GetLower("servers.scoretype");
+					double ScoreB = ScoreBase;
 
-                if (scoreType == "speed")
-					ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
-                else if(scoreType == "latency")
-                    ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor","500"));
+					if (scoreType == "speed")
+						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
+					else if (scoreType == "latency")
+						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor", "500"));
 
-                double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor","1000"));
-				return Conversions.ToInt32(Ping + Load() + ScoreB + PenalityB);
-            }
+					double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
+					return Conversions.ToInt32(Ping + Load() + ScoreB + PenalityB);
+				}
+			}
         }
 
 		public float ScorePerc()
@@ -224,17 +230,23 @@ namespace Eddie.Core
 			if(HasWarningsErrors())
 			{
 				string error = "";
-				foreach (ConnectionInfoWarning w in Warnings)
-					if(w.Level == ConnectionInfoWarning.WarningType.Error)
-						error += w.Message + ", ";
+				lock (Warnings)
+				{
+					foreach (ConnectionInfoWarning w in Warnings)
+						if (w.Level == ConnectionInfoWarning.WarningType.Error)
+							error += w.Message + ", ";
+				}
 				t += " (Closed: " + error.Trim(new char[] { ',', ' ' }) + ")";
 			}
 			else if(Warnings.Count>0)
 			{
 				string warning = "";
-				foreach (ConnectionInfoWarning w in Warnings)
-					if(w.Level == ConnectionInfoWarning.WarningType.Warning)
-						warning += w.Message + ", ";
+				lock (Warnings)
+				{
+					foreach (ConnectionInfoWarning w in Warnings)
+						if (w.Level == ConnectionInfoWarning.WarningType.Warning)
+							warning += w.Message + ", ";
+				}
 				t += " (Warning: " + warning.Trim(new char[] { ',', ' ' }) + ")";
 			}
 			
@@ -347,7 +359,10 @@ namespace Eddie.Core
 			ConnectionInfoWarning warning = new ConnectionInfoWarning();
 			warning.Message = message;
 			warning.Level = level;
-			Warnings.Add(warning);
+			lock (Warnings)
+			{
+				Warnings.Add(warning);
+			}
 		}
 
 		public OvpnBuilder BuildOVPN(bool preview)
@@ -517,7 +532,9 @@ namespace Eddie.Core
 				IpAddresses ipsCustomRoute = new IpAddresses(ipCustomRoute);
 
 				if (ipsCustomRoute.Count == 0)
-					Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));
+				{
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));					
+				}
 				else
 				{
 					string action = routeEntries[1];
@@ -529,14 +546,14 @@ namespace Eddie.Core
 						gateway = "vpn_gateway";
 					if ((routesDefault == "in") && (action == "out"))
 						gateway = "net_gateway";
-					
-					
-					if(gateway != "")
+
+
+					if (gateway != "")
 					{
 						foreach (IpAddress ip in ipsCustomRoute.IPs)
 						{
 							if (ip.IsV4)
-								ovpn.AppendDirective("route", ip.ToOpenVPN() + " " + gateway, Utils.StringSafe(notes));
+								ovpn.AppendDirective("route", ip.ToOpenVPN() + " " + gateway, (notes != "") ? Utils.StringSafe(notes) : ipCustomRoute);
 							// TOFIX IPv6
 							/*
 							else if(ipCustomRoute.IsV6)

@@ -33,9 +33,9 @@ using Eddie.Core;
 using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
 
-namespace Eddie.Platforms
+namespace Eddie.Platforms.Windows
 {
-	public class Windows : Platform
+	public class Windows : Platform // ClodoTemp: Rename to 'Platform', add namespace on other platforms
 	{
 		[DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int GetInterfaceMetric(int idx, string layer);
@@ -253,6 +253,14 @@ namespace Eddie.Platforms
 			{
 				return "\r\n";
 			}
+		}
+
+		public override string FileGetPhysicalPath(string path)
+		{
+			string native = Native.GetFinalPathName(path);
+			if (native.StartsWith("\\\\?\\"))
+				native = native.Substring(4);
+			return native;
 		}
 
 		public override string GetExecutablePathEx()
@@ -498,8 +506,8 @@ namespace Eddie.Platforms
 
 			if (IsVistaOrNewer()) // 2.10.1
 			{
-				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());
 				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWfp());
+				Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockWindowsFirewall());				
 			}
 		}
 

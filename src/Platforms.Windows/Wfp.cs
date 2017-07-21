@@ -33,7 +33,7 @@ using Eddie.Core;
 using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
 
-namespace Eddie.Platforms
+namespace Eddie.Platforms.Windows
 {
     public class Wfp
     {

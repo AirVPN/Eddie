@@ -145,7 +145,7 @@ namespace Eddie.Gui.Forms
 			cboLockMode.Items.Add("None");
 			cboLockMode.Items.Add("Automatic");
 			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
-				cboLockMode.Items.Add(lockPlugin.GetName());
+				cboLockMode.Items.Add(lockPlugin.GetTitleForList());
 			lblRoutesNetworkLockWarning.Text = Messages.WindowsSettingsRouteLockHelp;
 			lblLockRoutingOutWarning.Text = Messages.NetworkLockNotAvailableWithRouteOut;
 
@@ -496,7 +496,7 @@ namespace Eddie.Gui.Forms
 				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				{
 					if (lockPlugin.GetCode() == lockMode)
-						cboLockMode.Text = lockPlugin.GetName();
+						cboLockMode.Text = lockPlugin.GetTitleForList();
 				}
 			}
 			chkLockAllowPrivate.Checked = s.GetBool("netlock.allow_private");
@@ -789,7 +789,7 @@ namespace Eddie.Gui.Forms
 			{
 				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				{
-					if (lockPlugin.GetName() == lockMode)
+					if (lockPlugin.GetTitleForList() == lockMode)
 						s.Set("netlock.mode", lockPlugin.GetCode());
 				}
 			}

@@ -45,6 +45,11 @@ namespace Eddie.Core.NetworkLocks
 			return "Routing table";
 		}
 
+		public override string GetDescription()
+		{
+			return "Not supported yet";
+		}
+
 		public override void Activation()
 		{
 			base.Activation();

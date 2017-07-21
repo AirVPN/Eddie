@@ -1172,10 +1172,6 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-			// ClodoTemp
-			byte[] temp = Engine.Instance.FetchUrlEx("http://freegeoip.net", null, false, "");
-			Engine.Instance.Logs.Log(LogType.Fatal, temp.Length.ToString());
-
 			LogsSupport();
         }
 

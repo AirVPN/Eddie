@@ -44,10 +44,10 @@ namespace Eddie.UI.Windows
 				//Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 
-                Platform.Instance = new Eddie.Platforms.Windows();
+                Platform.Instance = new Eddie.Platforms.Windows.Windows();
 
 				CommandLine.InitSystem(Environment.CommandLine);
-								
+	
 				if (CommandLine.SystemEnvironment.Exists("cli"))
                 {
                     Core.Engine engine = new Core.Engine();
