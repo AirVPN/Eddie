@@ -287,12 +287,7 @@ namespace Eddie.Core.Providers
 		{
 			base.OnBuildConnections();
 
-            /*
-			if (IsLogged() == false)
-				return;
-            */
-
-			lock (Manifest)
+            lock (Manifest)
 			{
 				foreach (XmlNode nodeServer in Manifest.SelectNodes("//servers/server"))
 				{

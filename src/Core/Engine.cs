@@ -55,9 +55,7 @@ namespace Eddie.Core
 		private NetworkLockManager m_networkLockManager;
 		private WebServer m_webServer;
 		private TcpServer m_tcpServer;
-
-		public Providers.Service AirVPN; // TOFIX, for compatibility
-
+		
 		private Dictionary<string, ConnectionInfo> m_connections = new Dictionary<string, ConnectionInfo>();
 		private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
 		private bool m_serversInfoUpdated = false;
@@ -196,6 +194,19 @@ namespace Eddie.Core
 			get
 			{
 				return CommandLine.SystemEnvironment.Exists("development");
+			}
+		}
+
+		public Providers.Service AirVPN // TOFIX, for compatibility
+		{
+			get
+			{
+				foreach(Provider provider in ProvidersManager.Providers)
+				{
+					if ((provider.Enabled) && (provider.Code == "AirVPN"))
+						return provider as Providers.Service;
+				}
+				return null;
 			}
 		}
 
@@ -361,7 +372,7 @@ namespace Eddie.Core
 				}
 
 				// Clodo: Try to remove: if not logged, no servers, fatal error and exit.
-				if ((IsLogged()) && (Engine.Storage.GetBool("connect")))
+				if ((CanConnect()) && (Engine.Storage.GetBool("connect")))
 					autoStart = true;
 				if (autoStart)
 					Connect();
@@ -599,7 +610,7 @@ namespace Eddie.Core
 				{
 					Logs.Log(LogType.Info, Messages.ConsoleKeySwitch);
 					SwitchServer = true;
-					if ((Engine.IsLogged()) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
+					if ((Engine.CanConnect()) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
 						Connect();
 				}
 			}
@@ -1537,7 +1548,26 @@ namespace Eddie.Core
 			XmlDocument xmlDoc = new XmlDocument();
 			XmlElement xmlKeys = xmlDoc.CreateElement("keys");
 
-			if( (AirVPN != null) && (AirVPN.User != null) )
+			if ((AirVPN != null) && (AirVPN.User != null))
+			{
+				string key = Engine.Instance.Storage.Get("key");
+				string firstKey = "";
+				bool found = false;
+				foreach (XmlElement xmlKey in AirVPN.User.SelectNodes("keys/key"))
+				{
+					if(key == xmlKey.GetAttribute("name"))
+					{
+						found = true;
+						break;
+					}
+					if (firstKey == "")
+						firstKey = xmlKey.GetAttribute("name");
+				}
+				if(found == false)
+					Engine.Instance.Storage.Set("key", firstKey);
+			}
+
+			if ( (AirVPN != null) && (AirVPN.User != null) )
 			{
 				xmlDoc.AppendChild(xmlKeys);
 
@@ -1665,6 +1695,9 @@ namespace Eddie.Core
 
 		private void Auth()
 		{
+			if (AirVPN == null)
+				return;
+
 			Engine.Instance.WaitMessageSet(Messages.AuthorizeLogin, false);
 			Logs.Log(LogType.Info, Messages.AuthorizeLogin);
 
@@ -1689,6 +1722,8 @@ namespace Eddie.Core
 					LoggedUpdate();
 
 					OnCheckConnections();
+
+					OnRefreshUi(RefreshUiMode.Full);
 				}
 			}
 			catch (Exception e)
@@ -1703,6 +1738,9 @@ namespace Eddie.Core
 
 		private void DeAuth()
 		{
+			if (AirVPN == null)
+				return;
+
 			if (IsLogged())
 			{
 				Engine.Instance.WaitMessageSet(Messages.AuthorizeLogout, false);
@@ -1710,6 +1748,8 @@ namespace Eddie.Core
 				AirVPN.DeAuth();
 
 				OnCheckConnections();
+
+				OnRefreshUi(RefreshUiMode.Full);
 
 				Logs.Log(LogType.InfoImportant, Messages.AuthorizeLogoutDone);
 
@@ -2009,6 +2049,9 @@ namespace Eddie.Core
 				if (protocol == "UDP")
 					throw new Exception(Messages.CheckingProxyNoUdp);
 			}
+
+			if (Engine.Instance.Storage.GetBool("routes.remove_default"))
+				Logs.Log(LogType.Warning, Messages.DeprecatedRemoveDefaultGateway);			
 
 			return Platform.Instance.OnCheckEnvironment();
 		}

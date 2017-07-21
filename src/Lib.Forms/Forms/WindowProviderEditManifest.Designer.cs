@@ -69,12 +69,13 @@
 			// chkEnabled
 			// 
 			this.chkEnabled.AutoSize = true;
+			this.chkEnabled.BackColor = System.Drawing.Color.Transparent;
 			this.chkEnabled.Location = new System.Drawing.Point(12, 12);
 			this.chkEnabled.Name = "chkEnabled";
 			this.chkEnabled.Size = new System.Drawing.Size(65, 17);
 			this.chkEnabled.TabIndex = 6;
 			this.chkEnabled.Text = "Enabled";
-			this.chkEnabled.UseVisualStyleBackColor = true;
+			this.chkEnabled.UseVisualStyleBackColor = false;
 			// 
 			// lblTitle
 			// 

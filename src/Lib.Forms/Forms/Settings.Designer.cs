@@ -36,6 +36,7 @@ namespace Eddie.Gui.Forms
 			Eddie.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
 			Eddie.Gui.Skin.ColumnHeader columnHeader5;
+			this.chkAdvancedProviders = new Eddie.Gui.Skin.CheckBox();
 			this.lnkAdvancedHelp = new Eddie.Gui.Skin.LinkLabel();
 			this.lblOpenVpnRcvbuf = new Eddie.Gui.Skin.Label();
 			this.cboOpenVpnRcvbuf = new Eddie.Gui.Skin.ComboBox();
@@ -194,7 +195,9 @@ namespace Eddie.Gui.Forms
 			this.cboProtocolIPv4Route = new Eddie.Gui.Skin.ComboBox();
 			this.lblProtocolIPEntry = new Eddie.Gui.Skin.Label();
 			this.cboProtocolIPEntry = new Eddie.Gui.Skin.ComboBox();
-			this.chkAdvancedProviders = new Eddie.Gui.Skin.CheckBox();
+			this.cmdOpenVpnDirectivesCustomPathBrowse = new Eddie.Gui.Skin.Button();
+			this.txtOpenVpnDirectivesCustomPath = new Eddie.Gui.Skin.TextBox();
+			this.label8 = new Eddie.Gui.Skin.Label();
 			tabAdvanced = new Eddie.Gui.Skin.TabPage();
 			tabDirectives = new Eddie.Gui.Skin.TabPage();
 			tabEvents = new Eddie.Gui.Skin.TabPage();
@@ -250,6 +253,17 @@ namespace Eddie.Gui.Forms
 			tabAdvanced.Size = new System.Drawing.Size(673, 337);
 			tabAdvanced.TabIndex = 0;
 			tabAdvanced.Text = "Advanced";
+			// 
+			// chkAdvancedProviders
+			// 
+			this.chkAdvancedProviders.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedProviders.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedProviders.Location = new System.Drawing.Point(497, 261);
+			this.chkAdvancedProviders.Name = "chkAdvancedProviders";
+			this.chkAdvancedProviders.Size = new System.Drawing.Size(165, 19);
+			this.chkAdvancedProviders.TabIndex = 88;
+			this.chkAdvancedProviders.Text = "Multi-providers support";
+			this.chkAdvancedProviders.UseVisualStyleBackColor = false;
 			// 
 			// lnkAdvancedHelp
 			// 
@@ -598,6 +612,9 @@ namespace Eddie.Gui.Forms
 			// tabDirectives
 			// 
 			tabDirectives.BackColor = System.Drawing.Color.White;
+			tabDirectives.Controls.Add(this.cmdOpenVpnDirectivesCustomPathBrowse);
+			tabDirectives.Controls.Add(this.txtOpenVpnDirectivesCustomPath);
+			tabDirectives.Controls.Add(this.label8);
 			tabDirectives.Controls.Add(this.lnkOpenVpnDirectivesHelp);
 			tabDirectives.Controls.Add(this.cboOpenVpnDirectivesDefaultSkip);
 			tabDirectives.Controls.Add(this.label3);
@@ -682,8 +699,9 @@ namespace Eddie.Gui.Forms
 			// 
 			this.txtOpenVpnDirectivesCustom.AcceptsReturn = true;
 			this.txtOpenVpnDirectivesCustom.AcceptsTab = true;
-			this.txtOpenVpnDirectivesCustom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			this.txtOpenVpnDirectivesCustom.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtOpenVpnDirectivesCustom.Location = new System.Drawing.Point(13, 30);
 			this.txtOpenVpnDirectivesCustom.Multiline = true;
 			this.txtOpenVpnDirectivesCustom.Name = "txtOpenVpnDirectivesCustom";
@@ -2216,16 +2234,42 @@ namespace Eddie.Gui.Forms
 			this.cboProtocolIPEntry.Size = new System.Drawing.Size(133, 21);
 			this.cboProtocolIPEntry.TabIndex = 90;
 			// 
-			// chkAdvancedProviders
+			// cmdOpenVpnDirectivesCustomPathBrowse
 			// 
-			this.chkAdvancedProviders.BackColor = System.Drawing.Color.Transparent;
-			this.chkAdvancedProviders.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedProviders.Location = new System.Drawing.Point(497, 261);
-			this.chkAdvancedProviders.Name = "chkAdvancedProviders";
-			this.chkAdvancedProviders.Size = new System.Drawing.Size(165, 19);
-			this.chkAdvancedProviders.TabIndex = 88;
-			this.chkAdvancedProviders.Text = "Multi-providers support";
-			this.chkAdvancedProviders.UseVisualStyleBackColor = false;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdOpenVpnDirectivesCustomPathBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.FlatAppearance.BorderSize = 0;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.Image = global::Eddie.Lib.Forms.Properties.Resources.browse;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.Location = new System.Drawing.Point(295, 276);
+			this.cmdOpenVpnDirectivesCustomPathBrowse.Name = "cmdOpenVpnDirectivesCustomPathBrowse";
+			this.cmdOpenVpnDirectivesCustomPathBrowse.Size = new System.Drawing.Size(33, 20);
+			this.cmdOpenVpnDirectivesCustomPathBrowse.TabIndex = 91;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.UseVisualStyleBackColor = true;
+			this.cmdOpenVpnDirectivesCustomPathBrowse.Click += new System.EventHandler(this.cmdOpenVpnDirectivesCustomPathBrowse_Click);
+			// 
+			// txtOpenVpnDirectivesCustomPath
+			// 
+			this.txtOpenVpnDirectivesCustomPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtOpenVpnDirectivesCustomPath.Location = new System.Drawing.Point(115, 276);
+			this.txtOpenVpnDirectivesCustomPath.Name = "txtOpenVpnDirectivesCustomPath";
+			this.txtOpenVpnDirectivesCustomPath.Size = new System.Drawing.Size(174, 20);
+			this.txtOpenVpnDirectivesCustomPath.TabIndex = 90;
+			// 
+			// label8
+			// 
+			this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.label8.BackColor = System.Drawing.Color.Transparent;
+			this.label8.ForeColor = System.Drawing.Color.Black;
+			this.label8.Location = new System.Drawing.Point(13, 276);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(96, 20);
+			this.label8.TabIndex = 89;
+			this.label8.Text = "External Path:";
+			this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// Settings
 			// 
@@ -2428,5 +2472,8 @@ namespace Eddie.Gui.Forms
 		private Skin.Label lblProtocolIPv4Route;
 		private Skin.ComboBox cboProtocolIPv4Route;
 		private Skin.CheckBox chkAdvancedProviders;
+		private Skin.Button cmdOpenVpnDirectivesCustomPathBrowse;
+		private Skin.TextBox txtOpenVpnDirectivesCustomPath;
+		private Skin.Label label8;
 	}
 }

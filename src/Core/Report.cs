@@ -85,6 +85,7 @@ namespace Eddie.Core
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Yes : Messages.No);
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);
 
+			/*
 			string charsNotAllowed = Platform.Instance.CharsNotAllowedInPath.Length.ToString() + ":";
 			foreach(char c in Platform.Instance.CharsNotAllowedInPath)
 			{
@@ -93,7 +94,8 @@ namespace Eddie.Core
 				else
 					charsNotAllowed += c + ";";
 			}
-			Add("Chars not allowed in path", charsNotAllowed); // ClodoTemp
+			Add("Chars not allowed in path", charsNotAllowed);
+			*/
 		}
 
 		public void Environment()

@@ -200,10 +200,7 @@ namespace Eddie.Core
 
                 provider.OnLoad(xmlStorage);
 
-                m_providers.Add(provider);
-
-                if (provider.Code == "AirVPN") // TOFIX
-                    Engine.Instance.AirVPN = provider as Providers.Service;
+                m_providers.Add(provider);				
             }
 
             return provider;
@@ -226,7 +223,7 @@ namespace Eddie.Core
 
 		public void Remove(Provider provider)
 		{
-			Providers.Remove(provider);
+			Providers.Remove(provider);			
 		}
 
         public string Refresh()

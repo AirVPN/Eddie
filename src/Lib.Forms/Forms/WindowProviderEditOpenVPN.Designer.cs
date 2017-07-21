@@ -79,12 +79,13 @@
 			// chkEnabled
 			// 
 			this.chkEnabled.AutoSize = true;
+			this.chkEnabled.BackColor = System.Drawing.Color.Transparent;
 			this.chkEnabled.Location = new System.Drawing.Point(12, 12);
 			this.chkEnabled.Name = "chkEnabled";
 			this.chkEnabled.Size = new System.Drawing.Size(65, 17);
 			this.chkEnabled.TabIndex = 7;
 			this.chkEnabled.Text = "Enabled";
-			this.chkEnabled.UseVisualStyleBackColor = true;
+			this.chkEnabled.UseVisualStyleBackColor = false;
 			// 
 			// cmdPathBrowse
 			// 
@@ -208,6 +209,7 @@
 			// 
 			// label2
 			// 
+			this.label2.BackColor = System.Drawing.Color.Transparent;
 			this.label2.Location = new System.Drawing.Point(153, 190);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(279, 23);

@@ -68,6 +68,12 @@ namespace Eddie.Platforms
 			return OS.Platform == PlatformID.Win32NT && (OS.Version.Major > 6 || (OS.Version.Major == 6 && OS.Version.Minor >= 2));
 		}
 
+		public static bool IsWin10OrNewer()
+		{
+			OperatingSystem OS = Environment.OSVersion;
+			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 10);
+		}
+
 		[DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool IsWow64Process(
@@ -719,7 +725,7 @@ namespace Eddie.Platforms
 							skip = false;
 						if (guid == Engine.Instance.ConnectedVpnInterfaceId)
 							skip = false;
-						
+
 						if (skip == false)
 						{
 							bool ipEnabled = (bool)objMO["IPEnabled"];
@@ -729,7 +735,7 @@ namespace Eddie.Platforms
 							entry.Guid = guid;
 							entry.Description = objMO["Description"] as string;
 							entry.Dns = objMO["DNSServerSearchOrder"] as string[];
-							
+
 							entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
 
 							if (entry.Dns == null)
@@ -740,18 +746,48 @@ namespace Eddie.Platforms
 							if (entry.AutoDns == false) // Added 2.11
 							{
 								if (dns.Equals(new IpAddresses(entry.Dns)))
-									continue;								
+									continue;
 							}
 
-							//string descFrom = (entry.AutoDns ? "Automatic" : String.Join(",", detectedDns));
-							string descFrom = (entry.AutoDns ? "automatic":"manual") + " (" + String.Join(",", entry.Dns) + ")";
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns.Addresses));
+							bool done = false;
+							
+							// 2.13.3 : Win10 with ManagementObject & SetDNSServerSearchOrder sometime return errcode 84 "IP not enabled on adapter" if we try to set DNS on Tap in state "Network cable unplugged", typical in end of session.
+							if (IsWin10OrNewer())
+							{
+								NetworkInterface inet = GetNetworkInterfaceFromGuid(guid);
+								if(inet != null)
+								{
+									string interfaceName = inet.Name;
+									int i = 0;
+									foreach (IpAddress ip in dns.IPs)
+									{
+										if (ip.IsV6) // IPv6 TOFIX
+											continue;
 
-							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-							objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dns.AddressesToStringArray();
-							objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+										if (i == 0)
+											SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
+										else
+											SystemShell.ShellCmd("netsh interface ipv4 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
+										i++;
+									}
+									done = true;
+								}								
+							}
+							else
+							{
+								ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dns.AddressesToStringArray();
+								objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+								done = true;
+							}
 
-							m_listOldDns.Add(entry);
+							if (done)
+							{
+								m_listOldDns.Add(entry);
+
+								string descFrom = (entry.AutoDns ? "automatic" : "manual") + " (" + String.Join(",", entry.Dns) + ")";
+								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns.Addresses));
+							}							
 						}
 					}
 				}
@@ -1349,37 +1385,75 @@ namespace Eddie.Platforms
 		{
 			try
 			{
-				ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-				ManagementObjectCollection objMOC = objMC.GetInstances();
-
-				foreach (ManagementObject objMO in objMOC)
+				// 2.13.3 : Win10 with ManagementObject & SetDNSServerSearchOrder sometime return errcode 84 "IP not enabled on adapter" if we try to set DNS on Tap in state "Network cable unplugged", typical in end of session.
+				if (IsWin10OrNewer())
 				{
-					string guid = objMO["SettingID"] as string;
 					foreach (NetworkManagerDnsEntry entry in m_listOldDns)
 					{
-						if (entry.Guid == guid)
+						NetworkInterface inet = GetNetworkInterfaceFromGuid(entry.Guid);
+						if (inet != null)
 						{
-							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-							if (entry.AutoDns == false)
-							{
-								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
-							}
-							else
-							{
-								//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { };
-								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
-							}
-
-							objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+							string interfaceName = SystemShell.EscapeInsideQuote(inet.Name);
 
 							if (entry.AutoDns == true)
 							{
-								// Sometime, under Windows 10, the above method don't set it to automatic. So, registry write.
-								Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "");
+								SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + interfaceName + "\" source=dhcp register=primary validate=no");
+							}
+							else
+							{
+								int i = 0;
+								foreach (IpAddress ip in entry.Dns)
+								{
+									if (ip.IsV6) // IPv6 TOFIX
+										continue;
+
+									if (i == 0)
+										SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
+									else
+										SystemShell.ShellCmd("netsh interface ipv4 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
+									i++;
+								}
 							}
 
 							string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
 							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
+						}
+					}
+				}
+				else
+				{
+					ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
+					ManagementObjectCollection objMOC = objMC.GetInstances();
+
+					foreach (ManagementObject objMO in objMOC)
+					{
+						string guid = objMO["SettingID"] as string;
+						foreach (NetworkManagerDnsEntry entry in m_listOldDns)
+						{
+							if (entry.Guid == guid)
+							{
+								ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
+								if (entry.AutoDns == false)
+								{
+									objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
+								}
+								else
+								{
+									//objSetDNSServerSearchOrder["DNSServerSearchOrder"] = new string[] { };
+									objSetDNSServerSearchOrder["DNSServerSearchOrder"] = null;
+								}
+
+								objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
+
+								if (entry.AutoDns == true)
+								{
+									// Sometime, under Windows 10, the above method don't set it to automatic. So, registry write.
+									Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "");
+								}
+
+								string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
+								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
+							}
 						}
 					}
 				}
@@ -1390,7 +1464,18 @@ namespace Eddie.Platforms
 			}
 
 			m_listOldDns.Clear();
-		}		
+		}
+
+		private NetworkInterface GetNetworkInterfaceFromGuid(string guid)
+		{
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface i in interfaces)
+			{
+				if (i.Id == guid)
+					return i;
+			}
+			return null;
+		}
 	}
 
 	public class NetworkManagerDhcpEntry

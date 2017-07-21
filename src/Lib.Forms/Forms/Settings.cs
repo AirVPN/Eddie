@@ -280,7 +280,7 @@ namespace Eddie.Gui.Forms
             // Protocol
             String protocol = s.Get("mode.protocol").ToUpperInvariant();
             int port = s.GetInt("mode.port");
-            int entry = s.GetInt("mode.alt");			
+            int entryIP = s.GetInt("mode.alt");			
 			if (protocol == "AUTO")
             {
                 chkProtocolsAutomatic.Checked = true;
@@ -293,7 +293,7 @@ namespace Eddie.Gui.Forms
                 {
                     if( (itemProtocol.Mode.Protocol == protocol) &&
                         (itemProtocol.Mode.Port == port) &&
-                        (itemProtocol.Mode.EntryIndex == entry) )
+                        (itemProtocol.Mode.EntryIndex == entryIP) )
                     {
                         found = true;
                         itemProtocol.Selected = true;
@@ -511,11 +511,12 @@ namespace Eddie.Gui.Forms
 
             // Advanced - OVPN Directives
             cboOpenVpnDirectivesDefaultSkip.SelectedIndex = (s.GetBool("openvpn.skip_defaults") ? 1:0);
-            txtOpenVpnDirectivesBase.Text = s.Get("openvpn.directives");
+            txtOpenVpnDirectivesBase.Text = s.Get("openvpn.directives");			
             txtOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
-			
-            // Advanced - Events
-            ReadOptionsEvent("app.start", 0);
+			txtOpenVpnDirectivesCustomPath.Text = s.Get("openvpn.directives.path");
+
+			// Advanced - Events
+			ReadOptionsEvent("app.start", 0);
             ReadOptionsEvent("app.stop", 1);
 			ReadOptionsEvent("session.start", 2);
 			ReadOptionsEvent("session.stop", 3);
@@ -805,7 +806,8 @@ namespace Eddie.Gui.Forms
             // Advanced - OVPN Directives
             s.Set("openvpn.directives", txtOpenVpnDirectivesBase.Text);
             s.Set("openvpn.custom", txtOpenVpnDirectivesCustom.Text);
-            s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
+			s.Set("openvpn.directives.path", txtOpenVpnDirectivesCustomPath.Text);
+			s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
 
             // Advanced - Events
             SaveOptionsEvent("app.start", 0);
@@ -1056,7 +1058,14 @@ namespace Eddie.Gui.Forms
             EnableIde();
         }
 
-        private void cmdAdvancedEventsClear_Click(object sender, EventArgs e)
+		private void cmdOpenVpnDirectivesCustomPathBrowse_Click(object sender, EventArgs e)
+		{
+			string path = GuiUtils.FilePicker();
+			if (path != "")
+				txtOpenVpnDirectivesCustomPath.Text = path;
+		}
+
+		private void cmdAdvancedEventsClear_Click(object sender, EventArgs e)
         {
             if (lstAdvancedEvents.SelectedItems.Count != 1)
                 return;
@@ -1328,7 +1337,6 @@ namespace Eddie.Gui.Forms
                     Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
             }
         }
-
 		
 	}
 }

@@ -698,7 +698,7 @@ namespace Eddie.Gui.Forms
 			{
 				Disconnect();
 			}
-			else if (Engine.IsLogged())
+			else if (Engine.CanConnect())
 			{
 				Connect();
 			}
@@ -1315,7 +1315,7 @@ namespace Eddie.Gui.Forms
         {
             m_tabMain.SelectTab(0);
 
-			if ((Engine.IsLogged() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
+			if ((Engine.CanConnect() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
 				Engine.Connect();            
         }
 
@@ -1456,18 +1456,49 @@ namespace Eddie.Gui.Forms
                 mnuRestoreSep.Visible = false;
             }
 
-			// Welcome
-			bool logged = Engine.IsLogged();
+			// Welcome			
 			bool connected = Engine.IsConnected();
 			bool waiting = Engine.IsWaiting();
 
-			if (logged == false)
+			if(Engine.Instance.AirVPN != null) 
 			{
-				cmdLogin.Text = Messages.CommandLoginButton;				
+				lblLoginIcon.Visible = true;
+				lblLogin.Visible = true;
+				txtLogin.Visible = true;
+				lblPassword.Visible = true;
+				txtPassword.Visible = true;
+				cmdLogin.Visible = true;
+				chkRemember.Visible = true;
+
+				bool airvpnLogged = Engine.IsLogged();
+
+				if (airvpnLogged == false)
+				{
+					cmdLogin.Text = Messages.CommandLoginButton;
+				}
+				else
+				{
+					cmdLogin.Text = Messages.CommandLogout;
+				}
+
+				cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != ""));
+
+				txtLogin.Enabled = (airvpnLogged == false);
+				txtPassword.Enabled = (airvpnLogged == false);
+				lblKey.Visible = ((airvpnLogged == true) && (cboKey.Items.Count > 1));
+				cboKey.Visible = ((airvpnLogged == true) && (cboKey.Items.Count > 1));
 			}
 			else
 			{
-				cmdLogin.Text = Messages.CommandLogout;
+				lblLoginIcon.Visible = false;
+				lblLogin.Visible = false;
+				txtLogin.Visible = false;
+				lblPassword.Visible = false;
+				txtPassword.Visible = false;
+				cmdLogin.Visible = false;
+				lblKey.Visible = false;
+				cboKey.Visible = false;
+				chkRemember.Visible = false;
 			}
 
 			if (waiting)
@@ -1479,7 +1510,7 @@ namespace Eddie.Gui.Forms
 				mnuConnect.Enabled = true;
 				mnuConnect.Text = Messages.CommandDisconnect;
 			}
-			else if (logged)
+			else if (Engine.Instance.CanConnect())
 			{
 				mnuConnect.Enabled = true;
 				mnuConnect.Text = Messages.CommandConnect;
@@ -1491,12 +1522,7 @@ namespace Eddie.Gui.Forms
 			}
 
 
-            cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != "") );
-
-			txtLogin.Enabled = (logged == false);
-			txtPassword.Enabled = (logged == false);
-            lblKey.Visible = ((logged == true) && (cboKey.Items.Count > 1));
-            cboKey.Visible = ((logged == true) && (cboKey.Items.Count > 1));
+            
 
 			cmdConnect.Enabled = Engine.Instance.CanConnect();
 			
@@ -1506,8 +1532,7 @@ namespace Eddie.Gui.Forms
 			cmdProviderEdit.Enabled = (lstProviders.SelectedItems.Count == 1);
 
 			// Connections
-			//cmdServersConnect.Enabled = ( (Engine.IsLogged()) && (m_listViewServers.SelectedItems.Count == 1)); // TODOMAC
-			cmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect())); // TODOMAC
+			cmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect()));
 			mnuServersConnect.Enabled = cmdServersConnect.Enabled;
 
 			cmdServersWhiteList.Enabled = (m_listViewServers.SelectedItems.Count > 0);

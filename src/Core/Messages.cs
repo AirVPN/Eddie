@@ -47,6 +47,8 @@ namespace Eddie.Core
 		public static string ServerByNameNotFound = "Requested server '{1}' not found.";
         public static string KeyNotFound = "Key '{1}' not found.";
 		public static string FileNotFound = "File '{1}' not found.";
+		public static string FileErrorRead = "Error in file '{1}': {2}.";
+		public static string DeprecatedRemoveDefaultGateway = "The option 'Remove default gateway' will be deprecated soon.";
 		public static string WaitingLatencyTestsTitle = "Waiting for latency tests";
 		public static string WaitingLatencyTestsStep = "({1} to go)";
 		public static string ExchangeTryFailed = "{1}, {2}° try failed ({3})";
@@ -123,7 +125,7 @@ namespace Eddie.Core
 		public static string CheckingProxyHostMissing = "Specify a host in the proxy settings.";
 		public static string CheckingProxyPortWrong = "Invalid port in the proxy settings.";
 		public static string CheckingProxyNoUdp = "UDP is not allowed with a proxy.";
-		public static string CustomRouteInvalid = "Invalid custom route: {1}"; 
+		public static string CustomRouteInvalid = "Invalid or unresolved custom route: {1}"; 
 		public static string RetrievingManifest = "Retrieving manifest";
 		public static string SessionStart = "Session starting.";
 		public static string SessionStop = "Session terminated.";

@@ -364,14 +364,21 @@ namespace Eddie.Core
 				string directivesPath = Engine.Instance.Storage.Get("openvpn.directives.path");
 				if (directivesPath.Trim() != "")
 				{
-					if(Platform.Instance.FileExists(directivesPath))
+					try
 					{
-						string text = Platform.Instance.FileContentsReadText(directivesPath);
-						ovpn.AppendDirectives(text, "Client level");
+						if (Platform.Instance.FileExists(directivesPath))
+						{
+							string text = Platform.Instance.FileContentsReadText(directivesPath);
+							ovpn.AppendDirectives(text, "Client level");
+						}
+						else
+						{
+							Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FileNotFound, directivesPath));
+						}
 					}
-					else
+					catch (Exception ex)
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FileNotFound, directivesPath));
+						Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FileErrorRead, directivesPath, ex.Message));
 					}
 				}
 				Provider.OnBuildOvpnDefaults(ovpn);
