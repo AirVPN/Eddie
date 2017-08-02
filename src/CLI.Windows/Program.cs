@@ -29,7 +29,7 @@ namespace Eddie.CLI.Windows
 	{
 		static void Main(string[] args)
 		{
-			Platform.Instance = new Eddie.Platforms.Windows.Windows();
+			Platform.Instance = new Eddie.Platforms.Windows.Platform();
             
 			CommandLine.InitSystem(Environment.CommandLine);
 

@@ -23,7 +23,7 @@ using System.Text;
 using System.Xml;
 using Eddie.Core;
 
-namespace Eddie.Platforms
+namespace Eddie.Platforms.Linux
 {
 	public class NetworkLockIptables : NetworkLockPlugin
 	{

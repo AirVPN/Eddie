@@ -25,9 +25,9 @@ using Eddie.Core;
 using MonoMac.AppKit;
 using MonoMac.Foundation;
 
-namespace Eddie.Platforms
+namespace Eddie.Platforms.MacOS
 {
-	public class MacOS : Platform
+	public class Platform : Core.Platform
 	{
         private string m_version = "";
 		private string m_architecture = "";
@@ -36,7 +36,7 @@ namespace Eddie.Platforms
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
 		// Override
-		public MacOS()
+		public Platform()
 		{
 		}
 

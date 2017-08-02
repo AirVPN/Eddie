@@ -47,8 +47,9 @@ namespace Eddie.Core
 			Add("VpnConnectionStart", Messages.StatsVpnConnectionStart, "session");            
             Add("VpnTotalDownload", Messages.StatsVpnTotalDownload, "vpn");
 			Add("VpnTotalUpload", Messages.StatsVpnTotalUpload, "vpn");
-			Add("VpnIpEntry", Messages.StatsVpnIpEntry, "vpn");
-			Add("VpnIpExit", Messages.StatsVpnIpExit, "vpn");
+			Add("VpnEntryIP", Messages.StatsVpnEntryIP, "vpn");
+			Add("VpnExitIPv4", Messages.StatsVpnExitIPv4, "vpn");
+			Add("VpnExitIPv6", Messages.StatsVpnExitIPv6, "vpn");
 			Add("VpnProtocol", Messages.StatsVpnProtocol, "vpn");
 			Add("VpnPort", Messages.StatsVpnPort, "vpn");
 			Add("VpnRealIp", Messages.StatsVpnRealIp, "vpn");

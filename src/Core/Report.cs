@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
@@ -85,6 +86,11 @@ namespace Eddie.Core
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Yes : Messages.No);
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);
 
+			Add("Test HTTP", TestUrl("http://" + Constants.Domain + "/test/"));
+			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));
+
+			Add("Exit", Engine.Instance.DiscoverExit().ToString());
+
 			/*
 			string charsNotAllowed = Platform.Instance.CharsNotAllowedInPath.Length.ToString() + ":";
 			foreach(char c in Platform.Instance.CharsNotAllowedInPath)
@@ -96,6 +102,20 @@ namespace Eddie.Core
 			}
 			Add("Chars not allowed in path", charsNotAllowed);
 			*/
+		}
+
+		public string TestUrl(string url)
+		{
+			try
+			{
+				Tools.CurlResponse response = Engine.Instance.FetchUrlEx(url, null, false, "", "");
+				string str = System.Text.Encoding.ASCII.GetString(response.Buffer);
+				return response.ExitCode.ToString() + " - " + str;
+			}
+			catch(Exception ex)
+			{
+				return "Error:" + ex.Message;
+			}			
 		}
 
 		public void Environment()

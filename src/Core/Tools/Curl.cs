@@ -25,6 +25,20 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
+	public class CurlResponse
+	{
+		public int ExitCode = -1;
+		public byte[] Buffer = default(byte[]);
+
+		public string GetLineReport()
+		{
+			string t = "";
+			t += "ExitCode: " + ExitCode.ToString() + " - " + Buffer.LongLength.ToString() + " bytes: ";
+			t += System.Text.Encoding.ASCII.GetString(Buffer);
+			return t;
+		}
+	}
+
     public class Curl : Tool
     {
         public string minVersionRequired = "7.21.7";
@@ -63,8 +77,10 @@ namespace Eddie.Core.Tools
             return MessagesFormatter.Format(Messages.ToolsCurlVersionNotSupported, Version, minVersionRequired);            
         }
 
-		public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string resolve)
+		public CurlResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
 		{
+			CurlResponse response = new CurlResponse();
+
 			ExceptionIfRequired();
 
             ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");
@@ -147,10 +163,13 @@ namespace Eddie.Core.Tools
 
             if (dataParameters != "")
                 args += " --data \"" + dataParameters + "\"";
-            
-            string error = "";
-            byte[] output = default(byte[]);
-            int exitcode = -1;
+
+			if (ipLayer == "4")
+				args += " -4";
+			if (ipLayer == "6")
+				args += " -6";
+
+			string error = "";
             try
             {
                 /*
@@ -180,19 +199,18 @@ namespace Eddie.Core.Tools
                 {
                     //p.StandardOutput.BaseStream.CopyTo(memstream); // .Net 4 only
                     Utils.CopyStream(p.StandardOutput.BaseStream, memoryStream);
-                    output = memoryStream.ToArray();
+                    response.Buffer = memoryStream.ToArray();
                 }
                 
                 error = p.StandardError.ReadToEnd();
 
                 p.WaitForExit();
 
-                exitcode = p.ExitCode;
+                response.ExitCode = p.ExitCode;
             }
             catch (Exception e)
             {
                 error = e.Message;
-                output = default(byte[]);
             }
 
             programScope.End();
@@ -200,7 +218,7 @@ namespace Eddie.Core.Tools
             if (error != "")
                 throw new Exception(error.Trim());
 
-            return output;
+            return response;
         }
     }
 }

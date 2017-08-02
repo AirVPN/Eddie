@@ -98,6 +98,7 @@ namespace Eddie.Core
 		public OvpnBuilder ConnectedOVPN; // TOCLEAN?
 		public string ConnectedProtocol = "";
 		public IpAddress ConnectedEntryIP = "";
+		public IpAddresses ConnectedExitIP = new IpAddresses();
 		public int ConnectedPort = 0;
 		public Int64 ConnectedServerTime = 0;
 		public Int64 ConnectedClientTime = 0;
@@ -730,7 +731,7 @@ namespace Eddie.Core
 			}
 			else if (action == "ui.stats.systemreport")
 			{
-				OnShowText(Messages.StatsSystemReport, GetSupportReport());
+				Engine.GenerateSystemReport();
 			}
 			else if (action == "ui.stats.pinger")
 			{
@@ -924,6 +925,13 @@ namespace Eddie.Core
 			m_areasInfoUpdated = true;
 		}
 
+		public void GenerateSystemReport() // ClodoTemp end implementation
+		{
+			string text = GetSupportReport();
+			OnSystemReport("Start", "", false);
+			OnSystemReport("Done", text, true);
+		}
+
 		public void SetConnected(bool connected)
 		{
 			lock (this)
@@ -1089,6 +1097,11 @@ namespace Eddie.Core
 		public virtual Credentials OnAskCredentials()
 		{
 			return null;
+		}
+
+		public virtual void OnSystemReport(string step, string text, bool complete)
+		{
+			
 		}
 
 		public virtual void OnLoggedUpdate(XmlElement xmlKeys)
@@ -1284,11 +1297,15 @@ namespace Eddie.Core
 					Stats.UpdateValue("AccountLogin", Engine.Storage.Get("login"));
 					Stats.UpdateValue("AccountKey", Engine.Storage.Get("key"));
 
-					Stats.UpdateValue("VpnIpEntry", Engine.ConnectedEntryIP.ToString());
-					if(Engine.CurrentServer.IpsExit.Count != 0)
-						Stats.UpdateValue("VpnIpExit", Engine.CurrentServer.IpsExit.ToString());
+					Stats.UpdateValue("VpnEntryIP", Engine.ConnectedEntryIP.ToString());
+					if(Engine.ConnectedExitIP.CountIPv4 != 0)
+						Stats.UpdateValue("VpnExitIPv4", Engine.ConnectedExitIP.OnlyIPv4.ToString());
 					else
-						Stats.UpdateValue("VpnIpExit", Messages.NotAvailable);
+						Stats.UpdateValue("VpnExitIPv4", Messages.NotAvailable);
+					if (Engine.ConnectedExitIP.CountIPv6 != 0)
+						Stats.UpdateValue("VpnExitIPv6", Engine.ConnectedExitIP.OnlyIPv6.ToString());
+					else
+						Stats.UpdateValue("VpnExitIPv6", Messages.NotAvailable);
 					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
 					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
 					if (Engine.ConnectedRealIp != "")
@@ -1323,8 +1340,9 @@ namespace Eddie.Core
 					Stats.UpdateValue("AccountLogin", Messages.StatsNotConnected);
 					Stats.UpdateValue("AccountKey", Messages.StatsNotConnected);
 
-					Stats.UpdateValue("VpnIpEntry", Messages.StatsNotConnected);
-					Stats.UpdateValue("VpnIpExit", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnEntryIP", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnExitIPv4", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnExitIPv6", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnProtocol", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnPort", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnRealIp", Messages.StatsNotConnected);
@@ -1612,22 +1630,23 @@ namespace Eddie.Core
 
 		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters)
 		{
-			return FetchUrlXml(url, parameters, false, "");
+			return FetchUrlXml(url, parameters, false, "", "");
 		}
 
-		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string resolve)
+		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
 		{
-			string str = System.Text.Encoding.ASCII.GetString(FetchUrlEx(url, parameters, forceBypassProxy, resolve));
+			Tools.CurlResponse response = FetchUrlEx(url, parameters, forceBypassProxy, ipLayer, resolve);
+			string str = System.Text.Encoding.ASCII.GetString(response.Buffer);
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml(str);
 			return doc;
 		}
 
-		public byte[] FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string resolve)
+		public Tools.CurlResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
 		{
 			Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
 			
-			return curl.FetchUrlEx(url, parameters, forceBypassProxy, resolve);
+			return curl.FetchUrlEx(url, parameters, forceBypassProxy, ipLayer, resolve);
 		}
 		
 		public int PingerInvalid()
@@ -2066,6 +2085,11 @@ namespace Eddie.Core
 			return Platform.Instance.NormalizeString(report.ToString());			
 		}
 
+		public IpAddresses DiscoverExit()
+		{
+			return m_threadDiscover.DiscoverExit();
+		}
+
 		public void LogOpenvpnConfig()
 		{
 			string t = "-- Start OpenVPN config dump\n" + Engine.Instance.ConnectedOVPN + "\n-- End OpenVPN config dump";
@@ -2095,7 +2119,8 @@ namespace Eddie.Core
 				if (country != "")
 					serverName += " (" + country + ")";
 				text += serverName;
-				text += " - IP:" + CurrentServer.IpsExit.ToStringIPv4();
+				if(ConnectedExitIP.Count != 0)
+					text += " - IP:" + ConnectedExitIP.ToString();
 			}
 			return text;
 		}

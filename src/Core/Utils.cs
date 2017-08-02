@@ -706,10 +706,16 @@ namespace Eddie.Core
 
 		public static List<string> StringToList(string lines)
 		{
-			return StringToList(lines, "\n\r; ,");
+			return StringToList(lines, "\n\r; ,", true, true, true, true);
 		}
 
 		public static List<string> StringToList(string lines, string separators)
+		{
+			return StringToList(lines, separators, true, true, true, true);
+		}
+
+		/* // TOCLEAN, < 2.13.5
+		public static List<string> StringToList(string lines, string separators, bool checkQuote)
 		{
 			List<string> result = new List<string>();
 
@@ -723,6 +729,45 @@ namespace Eddie.Core
 
 			return result;
 		}		
+		*/
+
+		public static List<string> StringToList(string str, string separatorsStr, bool checkQuote, bool skipEmpty, bool skipComment, bool trimAuto)
+		{
+			char[] characters = str.ToCharArray();
+			char[] separators = separatorsStr.ToCharArray();
+			List<string> result = new List<string>();
+			string tempStr = "";
+			bool inQuote = false;
+			foreach (char ch in characters)
+			{
+				if (ch == '"')
+					inQuote = !inQuote;
+				
+				if ((inQuote == false) && (Array.IndexOf(separators, ch) > -1))
+				{
+					StringToListAddItem(ref result, tempStr, skipEmpty, skipComment, trimAuto);
+					tempStr = "";
+				}
+				else
+					tempStr += ch;
+			}
+			if(tempStr != "")
+			StringToListAddItem(ref result, tempStr, skipEmpty, skipComment, trimAuto);
+			return result;
+		}
+
+		private static void StringToListAddItem(ref List<string> result, string item, bool skipEmpty, bool skipComment, bool trimAuto)
+		{
+			string v = item;
+			if (trimAuto)
+				v = v.Trim();
+			if ((skipEmpty) && (v == ""))
+				return;
+			if ((skipComment) && (v.StartsWith("#")))
+				return;
+			result.Add(item);
+
+		}
 
 		public static List<string> GetNetworkGateways()
 		{

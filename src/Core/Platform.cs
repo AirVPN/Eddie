@@ -368,6 +368,21 @@ namespace Eddie.Core
 			return path;
 		}
 
+		public virtual string FileGetAbsolutePath(string path, string basePath)
+		{
+			if ((path.StartsWith("\"")) && (path.EndsWith("\"")))
+				path = path.Substring(1, path.Length - 2);
+			if (System.IO.Path.IsPathRooted(path))
+				return path;
+			else
+				return System.IO.Path.Combine(basePath, path);
+		}
+
+		public virtual string FileGetDirectoryPath(string path)
+		{
+			return new FileInfo(path).DirectoryName;
+		}
+
 		public virtual bool FileImmutableGet(string path)
 		{
 			return false;
@@ -421,7 +436,7 @@ namespace Eddie.Core
 			// Filename or path (absolute or relative) ?
 			return (v.IndexOf(DirSep) != -1);
 		}
-
+		
 		public virtual string GetApplicationPathEx()
 		{
 			//Assembly.GetExecutingAssembly().Location

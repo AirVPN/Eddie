@@ -39,6 +39,8 @@ namespace Eddie.Gui
         
         //public AutoResetEvent FormsReady = new AutoResetEvent(false);
         public AutoResetEvent InitDone = new AutoResetEvent(false);
+
+		private Forms.WindowReport WindowReport = null;
         
         public override bool OnInit()
         {
@@ -336,7 +338,20 @@ namespace Eddie.Gui
 			return null;			
 		}
 
-        public override void OnLoggedUpdate(XmlElement xmlKeys)
+		public override void OnSystemReport(string step, string text, bool complete)
+		{
+			base.OnSystemReport(step, text, complete);
+
+			if( (WindowReport == null) || (WindowReport.IsDisposed == true) )
+			{
+				WindowReport = new Forms.WindowReport();				
+			}
+
+			WindowReport.Visible = true;
+			WindowReport.SetStep(step, text, complete);
+		}
+
+		public override void OnLoggedUpdate(XmlElement xmlKeys)
         {
             base.OnLoggedUpdate(xmlKeys);
 

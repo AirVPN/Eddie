@@ -35,7 +35,7 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace Eddie.Platforms.Windows
 {
-	public class Windows : Platform // ClodoTemp: Rename to 'Platform', add namespace on other platforms
+	public class Platform : Core.Platform // ClodoTemp: Rename to 'Platform', add namespace on other platforms
 	{
 		[DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int GetInterfaceMetric(int idx, string layer);
@@ -110,7 +110,7 @@ namespace Eddie.Platforms.Windows
 		}
 		
 		// Override
-		public Windows()
+		public Platform()
 		{
 			/*
 #if EDDIENET20

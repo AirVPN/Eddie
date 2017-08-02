@@ -1609,7 +1609,7 @@ namespace Eddie.Gui.Forms
 		}
 
         private delegate void LoggedUpdateDelegate(XmlElement xmlKeys);
-        public void LoggedUpdate(XmlElement xmlKeys)
+        public void LoggedUpdate(XmlElement xmlKeys) // ClodoTemp: Engine.Thread vs UiStart, random, crash
         {
             if (this.InvokeRequired)
             {
@@ -1695,7 +1695,7 @@ namespace Eddie.Gui.Forms
 
 							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
 							lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
-							txtConnectedExitIp.Text = Engine.CurrentServer.IpsExit.ToString();
+							txtConnectedExitIp.Text = Engine.ConnectedExitIP.ToString();
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
 							if (imgCountries.Images.ContainsKey(iconFlagCode))
@@ -1885,15 +1885,7 @@ namespace Eddie.Gui.Forms
 
         private void LogsSupport()
         {
-            Application.UseWaitCursor = true;
-
-            string report = Engine.Instance.GetSupportReport();
-
-            Clipboard.SetText(report);
-
-            Application.UseWaitCursor = false;
-
-            Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);			
+            Engine.GenerateSystemReport();
 		}
 
 		private void LogsDoCopy(bool selectedOnly)

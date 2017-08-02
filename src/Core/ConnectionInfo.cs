@@ -406,6 +406,9 @@ namespace Eddie.Core
 					{
 						string text = Platform.Instance.FileContentsReadText(Path);
 						ovpn.AppendDirectives(text, "Config file");
+
+						string dirPath = Platform.Instance.FileGetDirectoryPath(Path);
+						ovpn.NormalizeRelativePath(dirPath);
 					}
 				}
 			}

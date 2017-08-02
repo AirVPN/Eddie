@@ -28,9 +28,9 @@ using Eddie.Lib.Common;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
 
-namespace Eddie.Platforms
+namespace Eddie.Platforms.Linux
 {
-    public class Linux : Platform
+    public class Platform : Core.Platform
     {
 		private string m_version = "";
 		private string m_architecture = "";
@@ -40,7 +40,7 @@ namespace Eddie.Platforms
 		private string m_fontMonoSpace;
 
         // Override
-        public Linux()
+        public Platform()
 		{			
         }
 

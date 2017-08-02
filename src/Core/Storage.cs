@@ -466,10 +466,11 @@ namespace Eddie.Core
 			SetDefault("areas.whitelist", "text", "", Messages.ManOptionAreasWhiteList);
 			SetDefault("areas.blacklist", "text", "", Messages.ManOptionAreasBlackList);
 
-            SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
+            SetDefault("discover.ip_webservice.list", "text", "https://eddie.website/api/xml/{ip};https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
             SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
 			SetDefaultInt("discover.interval", 60 * 60 * 24, NotInMan); // Delta between refresh discover data (country and other data) for OpenVPN connections.
-			
+			SetDefaultBool("discover.exit", true, NotInMan);
+
 			SetDefaultBool("log.file.enabled", false, NotInMan);
             SetDefault("log.file.encoding", "encoding", "utf-8", NotInMan);
             SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);

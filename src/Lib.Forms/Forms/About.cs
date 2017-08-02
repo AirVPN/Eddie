@@ -107,7 +107,7 @@ namespace Eddie.Gui.Forms
 
 		private void cmdSystemReport_Click(object sender, EventArgs e)
 		{
-			Engine.OnShowText(Messages.StatsSystemReport, Engine.GetSupportReport());
+			Engine.GenerateSystemReport();
 		}
 	}
 }

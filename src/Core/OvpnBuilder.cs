@@ -394,7 +394,40 @@ namespace Eddie.Core
 
 			AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");
 		}
-				
+
+		// Normalize path if relative
+		public void NormalizeRelativePath(string path)
+		{
+			// NB: Assume that path it's the first field of directive body.
+			NormalizeRelativePathDirective("ca", path);
+			NormalizeRelativePathDirective("cert", path);
+			NormalizeRelativePathDirective("key", path);
+			NormalizeRelativePathDirective("tls-auth", path);
+			NormalizeRelativePathDirective("tls-crypt", path);
+		}
+
+		public void NormalizeRelativePathDirective(string name, string basePath)
+		{			
+			List<Directive> list = GetDirectiveList(name);
+			if (list != null)
+			{
+				foreach (Directive d in list)
+				{
+					string body = d.Text;
+					List<string> fields = Utils.StringToList(body, " ");
+					if (fields.Count < 1)
+						return;
+					string path = fields[0];
+					fields.RemoveAt(0);
+					if ((path.StartsWith("\"")) && (path.EndsWith("\"")))
+						path = path.Substring(1, path.Length - 2);
+					path = Platform.Instance.FileGetAbsolutePath(path, basePath);
+					d.Text = "\"" + path.Replace("\\","\\\\") + "\" " + String.Join(" ", fields);
+					d.Text = d.Text.Trim();
+				}
+			}
+		}
+
 		// Apply some fixes
 		public void Normalize()
         {

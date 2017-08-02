@@ -473,22 +473,33 @@ namespace Eddie.Core.Providers
 			// byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
 
 			// 'POST' Edition - >= 2.9			
-			// Debug with an url direct to backend service client debugging page			            
-			byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, fetchParameters, false, "");
+			// Debug with an url direct to backend service client debugging page
+			url = "https://airvpn.org/services/client/err.php";
+			Tools.CurlResponse response = Engine.Instance.FetchUrlEx(url, fetchParameters, false, "", "");
+			byte[] fetchResponse = response.Buffer;
 
-			// Decrypt answer
-			MemoryStream aesDecryptStream = new MemoryStream();
-			ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor();
-			CryptoStream aesDecryptStream2 = new CryptoStream(aesDecryptStream, aesDecryptor, CryptoStreamMode.Write);
-			aesDecryptStream2.Write(fetchResponse, 0, fetchResponse.Length);
-			aesDecryptStream2.FlushFinalBlock();
-			byte[] fetchResponsePlain = aesDecryptStream.ToArray();
+			try
+			{
+				// Decrypt answer
+				MemoryStream aesDecryptStream = new MemoryStream();
+				ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor();
+				CryptoStream aesDecryptStream2 = new CryptoStream(aesDecryptStream, aesDecryptor, CryptoStreamMode.Write);
+				aesDecryptStream2.Write(fetchResponse, 0, fetchResponse.Length);
+				aesDecryptStream2.FlushFinalBlock();
+				byte[] fetchResponsePlain = aesDecryptStream.ToArray();
 
-			string finalData = System.Text.Encoding.UTF8.GetString(fetchResponsePlain);
+				string finalData = System.Text.Encoding.UTF8.GetString(fetchResponsePlain);
 
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(finalData);
-			return doc;
+				XmlDocument doc = new XmlDocument();
+				doc.LoadXml(finalData);
+				return doc;
+			}
+			catch(Exception ex)
+			{
+				// ClodoTemp, every fetch inside try/catch?
+				string message = ex.Message + " - " + response.GetLineReport();
+				throw new Exception(message);
+			}
 		}
 
 		public static XmlDocument FetchUrls(string title, string authPublicKey, List<string> urls, Dictionary<string, string> parameters)

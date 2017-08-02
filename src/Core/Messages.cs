@@ -147,6 +147,7 @@ namespace Eddie.Core
         public static string ConnectionCheckingTryDNSFail = "Checking DNS failed: {1}";
         public static string ConnectionCheckingDNSFailed = "Checking DNS failed.";
 		public static string ConnectionFlushDNS = "Flushing DNS";
+		public static string ConnectionDetectExit = "Detecting Exit IPs";
 		public static string ConnectionConnected = "Connected.";
 		public static string ConnectionCredentials = "Checking credentials";
 		public static string ConnectionConnecting = "Connecting to {1}";
@@ -221,6 +222,7 @@ namespace Eddie.Core
 		public static string WindowsTosCheck2 = "I HEREBY EXPLICITLY ACCEPT POINTS 8, 10, 11";
 		public static string WindowsTosAccept = "Accept"; 
 		public static string WindowsTosReject = "Reject";
+		public static string WindowsReportTitle = "System Report";
 		public static string WindowsLoginTitle = "Login";
 		public static string WindowsCredentialsRememberNo = "No";
 		public static string WindowsCredentialsRememberRun = "Until closing app"; 
@@ -330,8 +332,9 @@ namespace Eddie.Core
         public static string StatsSessionTotalUpload = "Session Total Upload";
         public static string StatsVpnTotalDownload = "VPN Total Download";
 		public static string StatsVpnTotalUpload = "VPN Total Upload";
-		public static string StatsVpnIpEntry = "IP Entry";
-		public static string StatsVpnIpExit = "IP Exit";
+		public static string StatsVpnEntryIP = "IP Entry";
+		public static string StatsVpnExitIPv4 = "IPv4 Exit";
+		public static string StatsVpnExitIPv6 = "IPv6 Exit";
 		public static string StatsVpnProtocol = "VPN Protocol";
 		public static string StatsVpnPort = "VPN Port";
 		public static string StatsVpnRealIp = "Real IP detected";

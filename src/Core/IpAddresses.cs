@@ -142,6 +142,36 @@ namespace Eddie.Core
 			}
 		}
 
+		public IpAddresses OnlyIPv4
+		{
+			get
+			{
+				IpAddresses r = new IpAddresses();
+				lock (IPs)
+				{
+					foreach (IpAddress ip in IPs)
+						if (ip.IsV4)
+							r.Add(ip);
+				}
+				return r;
+			}
+		}
+
+		public IpAddresses OnlyIPv6
+		{
+			get
+			{
+				IpAddresses r = new IpAddresses();
+				lock (IPs)
+				{
+					foreach (IpAddress ip in IPs)
+						if (ip.IsV6)
+							r.Add(ip);
+				}
+				return r;
+			}
+		}
+
 		public void Clear()
 		{
 			lock (IPs)

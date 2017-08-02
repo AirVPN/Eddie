@@ -96,76 +96,103 @@ namespace Eddie.Core.Threads
             }
         }
 
-        public void DiscoverIp(ConnectionInfo connection)
-        {			
+		public IpAddresses DiscoverExit()
+		{
+			IpAddresses result = new IpAddresses();
+
 			string[] methods = Engine.Instance.Storage.Get("discover.ip_webservice.list").Split(';');
-            bool onlyFirstResponse = Engine.Instance.Storage.GetBool("discover.ip_webservice.first");
-                        
-            foreach (string method in methods)
-            {
-                try
-                {
-                    if ((method.StartsWith("http://")) || (method.StartsWith("https://")))
-                    {
-                        // Fetch a webservice
+			bool onlyFirstResponse = Engine.Instance.Storage.GetBool("discover.ip_webservice.first");
 
-                        string url = method;
-                        url = url.Replace("{@ip}", connection.IpsEntry.ToStringFirstIPv4());
+			string[] layers = new string[] { "4", "6" };
 
-                        XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(url, null);
+			foreach (string layer in layers)
+			{
+				XmlDocument xmlDoc = DiscoverIpData("", layer);
+				if (xmlDoc != null)
+				{
+					string ip = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//ip") as XmlElement).ToLowerInvariant().Trim();
 
-                        if (xmlDoc.DocumentElement.HasChildNodes)
-                        {
-                            // Normalizations
-                            Utils.XmlRenameTagName(xmlDoc.DocumentElement, "CountryCode", "country_code");
-							Utils.XmlRenameTagName(xmlDoc.DocumentElement, "CityName", "city_name");
-							Utils.XmlRenameTagName(xmlDoc.DocumentElement, "Latitude", "latitude");
-							Utils.XmlRenameTagName(xmlDoc.DocumentElement, "Longitude", "longitude");
+					result.Add(ip);
+				}
+			}
 
-							// Node parsing
-							string countryCode = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//country_code") as XmlElement).ToLowerInvariant().Trim();
-                            if (CountriesManager.IsCountryCode(countryCode))
-                            {
-                                if(connection.CountryCode != countryCode)
-                                {
-									connection.CountryCode = countryCode;
-                                    Engine.Instance.MarkServersListUpdated();
-                                    Engine.Instance.MarkAreasListUpdated();
-                                }
-                            }
+			return result;
+		}
 
-							string cityName = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//city_name") as XmlElement).Trim();
-                            if (cityName == "N/A")
-                                cityName = "";
-							if (cityName != "")
-							{
-								connection.Location = cityName;
-								Engine.Instance.MarkServersListUpdated();
-							}
+		private void NormalizeServiceResponse(XmlDocument xmlDoc)
+		{
+			if (xmlDoc.DocumentElement.HasChildNodes)
+			{
+				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "CountryCode", "country_code");
+				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "CityName", "city_name");
+				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "Latitude", "latitude");
+				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "Longitude", "longitude");
+			}
+		}
 
-							float latitude = Conversions.ToFloat(Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//latitude") as XmlElement).Trim());
-							float longitude = Conversions.ToFloat(Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//longitude") as XmlElement).Trim());
-							if( (latitude != 0) && (longitude != 0) )
-							{
-								connection.Latitude = latitude;
-								connection.Longitude = longitude;
-								Engine.Instance.MarkServersListUpdated();
-							}
+		private XmlDocument DiscoverIpData(string ip, string layer)
+		{
+			string[] methods = Engine.Instance.Storage.Get("discover.ip_webservice.list").Split(';');
+			foreach (string method in methods)
+			{
+				try
+				{
+					if ((method.StartsWith("http://")) || (method.StartsWith("https://")))
+					{
+						string url = method;
+						url = url.Replace("{@ip}", ip);
 
-							if (onlyFirstResponse)
-                                break;
-                        }         
-                        else
-                        {
-                            Engine.Instance.Logs.Log(LogType.Verbose, "Discovery, unable to fetch " + url);
-                        }               
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
+						XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(url, null, false, layer, "");
 
+						NormalizeServiceResponse(xmlDoc);
+
+						if (xmlDoc.DocumentElement.HasChildNodes)
+							return xmlDoc;
+					}
+				}
+				catch (Exception)
+				{
+				}
+			}
+			return null;
+		}
+
+        public void DiscoverIp(ConnectionInfo connection)
+        {
+			XmlDocument xmlDoc = DiscoverIpData(connection.IpsEntry.ToStringFirstIPv4(), "");
+			if(xmlDoc != null)
+			{
+				// Node parsing
+				string countryCode = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//country_code") as XmlElement).ToLowerInvariant().Trim();
+				if (CountriesManager.IsCountryCode(countryCode))
+				{
+					if (connection.CountryCode != countryCode)
+					{
+						connection.CountryCode = countryCode;
+						Engine.Instance.MarkServersListUpdated();
+						Engine.Instance.MarkAreasListUpdated();
+					}
+				}
+
+				string cityName = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//city_name") as XmlElement).Trim();
+				if (cityName == "N/A")
+					cityName = "";
+				if (cityName != "")
+				{
+					connection.Location = cityName;
+					Engine.Instance.MarkServersListUpdated();
+				}
+
+				float latitude = Conversions.ToFloat(Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//latitude") as XmlElement).Trim());
+				float longitude = Conversions.ToFloat(Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//longitude") as XmlElement).Trim());
+				if ((latitude != 0) && (longitude != 0))
+				{
+					connection.Latitude = latitude;
+					connection.Longitude = longitude;
+					Engine.Instance.MarkServersListUpdated();
+				}
+			}
+			
 			connection.LastDiscover = Utils.UnixTimeStamp();
 
 			connection.Provider.OnChangeConnection(connection);

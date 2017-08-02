@@ -45,10 +45,10 @@
     <Compile Include="Native.cs" />
     <Compile Include="NetworkLockWfp.cs" />
     <Compile Include="NetworkLockWindowsFirewall.cs" />
+    <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WfpItem.cs" />
     <Compile Include="Wfp.cs" />
-    <Compile Include="Windows.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

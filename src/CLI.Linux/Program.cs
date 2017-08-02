@@ -26,7 +26,7 @@ namespace Eddie.CLI.Linux
 	{
 		static void Main(string[] args)
 		{
-            Platform.Instance = new Eddie.Platforms.Linux();
+            Platform.Instance = new Eddie.Platforms.Linux.Platform();
             CommandLine.InitSystem(Environment.CommandLine);
             
             Engine engine = new Engine();
