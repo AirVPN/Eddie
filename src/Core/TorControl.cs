@@ -219,12 +219,46 @@ namespace Eddie.Core
 					}
 				}
 
+                //MAKE EDDIE TOR BRIDGE-AWARE
+                //TESTED ON Windows 10 WITH ALL TYPES OF BRIGES
+                //SEEMS TO WORK
+                //DOES NOT ADD ANYTHING IF MEEK IS ON, SINCE IT'S TOO COMPLICATED
+                //AND PROBABLY WOULD REQUIRE ROUTING ALL AMAZON AND AZURE IPS OUTSIDE OF THE TUNNEL
+
+                //Get bridge IPs
+                Write(s, "getconf bridge\n");
+                Flush(s);
+                string bridges = Read(s);
+
+                if (bridges != "250 Bridge") //This means that a bridge is used by Tor
+                { 
+                    bridges = bridges.Replace("250 Bridge", "250-Bridge");
+
+                    if (bridges.IndexOf("meek") == -1) //Panic if we have meek enabled, don't yet know what to do :-(
+                    {
+
+                        string[] bridgeLines = bridges.Split('\n');
+                        foreach (string bridge in bridgeLines)
+                        {
+                            string bridgeIp = bridge.Split(' ')[1].Split(':')[0]; //Bridge IP
+                            if (!ips.Contains(bridgeIp))
+                            {
+                                Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlGuardIp, bridgeIp, "Bridge"));
+                                ips.Add(bridgeIp); //Add bridge as a Guard IP
+                            }
+                        }
+                    }
+                    else {
+                        Engine.Instance.Logs.Log(LogType.Warning, "Meek bridge found, so no bridges added, please remove it from the config");
+                    }
+                }
+
 				s.Close();
 
                 if (ips.Count == 0)
                 {
                     Engine.Instance.Logs.Log(LogType.Warning, Messages.TorControlNoIps);
-                    //throw new Exception(Messages.TorControlNoIps);                				
+                    //throw new Exception(Messages.TorControlNoIps);      //Why is this commented out???          				
                 }
 			}
 			catch (Exception e)
