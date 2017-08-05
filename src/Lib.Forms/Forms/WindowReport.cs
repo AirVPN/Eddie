@@ -20,8 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.Gui.Forms
@@ -55,7 +57,7 @@ namespace Eddie.Gui.Forms
 			txtBody.Text = "";
 		}
 
-		public void SetStep(string step, string text, bool completed)
+		public void SetStep(string step, string text, int perc)
 		{
 			txtBody.Text = text;			
 		}
@@ -72,12 +74,28 @@ namespace Eddie.Gui.Forms
 
 			Application.UseWaitCursor = false;
 
-			Engine.Instance.OnMessageInfo(Messages.LogsCopyClipboardDone);
+			MessageBox.Show(this, Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 
 		private void cmdSave_Click(object sender, EventArgs e)
 		{
+			string t = txtBody.Text;
 
+			SaveFileDialog sd = new SaveFileDialog();
+
+			sd.Filter = Messages.FilterTextFiles;
+
+			if (sd.ShowDialog() == DialogResult.OK)
+			{
+				using (StreamWriter sw = new StreamWriter(sd.FileName))
+				{					
+					sw.Write(t);
+					sw.Flush();
+					sw.Close();
+				}
+				
+				MessageBox.Show(this, Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
 		}
 
 		private void cmdOk_Click(object sender, EventArgs e)

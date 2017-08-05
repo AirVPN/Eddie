@@ -338,9 +338,9 @@ namespace Eddie.Gui
 			return null;			
 		}
 
-		public override void OnSystemReport(string step, string text, bool complete)
+		public override void OnSystemReport(string step, string text, int perc)
 		{
-			base.OnSystemReport(step, text, complete);
+			base.OnSystemReport(step, text, perc);
 
 			if( (WindowReport == null) || (WindowReport.IsDisposed == true) )
 			{
@@ -348,7 +348,7 @@ namespace Eddie.Gui
 			}
 
 			WindowReport.Visible = true;
-			WindowReport.SetStep(step, text, complete);
+			WindowReport.SetStep(step, text, perc);
 		}
 
 		public override void OnLoggedUpdate(XmlElement xmlKeys)

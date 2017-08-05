@@ -554,7 +554,10 @@ namespace Eddie.Gui.Forms
 				foreach (ListViewItem item in lstRoutes.Items)
 				{
 					if (IpAddress.IsIP(item.Text) == false)
+					{
 						hostNameUsed = true;
+						break;
+					}
 				}
 
 				if(hostNameUsed)

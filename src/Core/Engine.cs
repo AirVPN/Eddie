@@ -926,10 +926,13 @@ namespace Eddie.Core
 		}
 
 		public void GenerateSystemReport() // ClodoTemp end implementation
-		{
-			string text = GetSupportReport();
-			OnSystemReport("Start", "", false);
-			OnSystemReport("Done", text, true);
+		{	
+			OnSystemReport("Start", "", 0);
+
+			Report report = new Report();
+			string text = Platform.Instance.NormalizeString(report.ToString());
+
+			OnSystemReport("Done", text, 100);
 		}
 
 		public void SetConnected(bool connected)
@@ -1099,7 +1102,7 @@ namespace Eddie.Core
 			return null;
 		}
 
-		public virtual void OnSystemReport(string step, string text, bool complete)
+		public virtual void OnSystemReport(string step, string text, int perc)
 		{
 			
 		}
@@ -2071,12 +2074,6 @@ namespace Eddie.Core
 				Logs.Log(LogType.Warning, Messages.DeprecatedRemoveDefaultGateway);			
 
 			return Platform.Instance.OnCheckEnvironment();
-		}
-
-		public string GetSupportReport()
-		{
-			Report report = new Report();
-			return Platform.Instance.NormalizeString(report.ToString());			
 		}
 
 		public IpAddresses DiscoverExit()

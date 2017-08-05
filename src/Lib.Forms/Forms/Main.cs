@@ -1172,8 +1172,8 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-			LogsSupport();
-        }
+			Engine.GenerateSystemReport();
+		}
 
 		private void cmdLogsOpenVpnManagement_Click(object sender, EventArgs e)
 		{
@@ -1881,11 +1881,6 @@ namespace Eddie.Gui.Forms
 
 				return Platform.Instance.NormalizeString(buffer.ToString());
 			}
-		}
-
-        private void LogsSupport()
-        {
-            Engine.GenerateSystemReport();
 		}
 
 		private void LogsDoCopy(bool selectedOnly)
