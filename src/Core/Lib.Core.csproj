@@ -47,7 +47,9 @@
     <Compile Include="ConnectionInfoWarning.cs" />
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="ConnectionMode.cs" />
+    <Compile Include="HttpResponse.cs" />
     <Compile Include="IpAddresses.cs" />
+    <Compile Include="HttpRequest.cs" />
     <Compile Include="ReportItem.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="SystemShell.cs" />

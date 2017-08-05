@@ -548,6 +548,20 @@ namespace Eddie.Gui.Forms
 					return false;  
 			}
 
+			if (chkLockAllowDNS.Checked == false)
+			{
+				bool hostNameUsed = false;
+				foreach (ListViewItem item in lstRoutes.Items)
+				{
+					if (IpAddress.IsIP(item.Text) == false)
+						hostNameUsed = true;
+				}
+
+				if(hostNameUsed)
+					if(Engine.Instance.OnAskYesNo(Messages.WindowsSettingsRouteWithHostname) == false)
+						return false;
+			}
+
 			return true;
 		}
 

@@ -1627,28 +1627,22 @@ namespace Eddie.Core
 			if (m_threadSession != null)
 				m_threadSession.SendManagementCommand(command);
 		}
-
-		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters)
+		
+		public XmlDocument FetchUrlXml(HttpRequest request)
 		{
-			return FetchUrlXml(url, parameters, false, "", "");
-		}
-
-		public XmlDocument FetchUrlXml(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
-		{
-			Tools.CurlResponse response = FetchUrlEx(url, parameters, forceBypassProxy, ipLayer, resolve);
-			string str = System.Text.Encoding.ASCII.GetString(response.Buffer);
+			HttpResponse response = FetchUrl(request);
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(str);
+			doc.LoadXml(response.GetAscii());
 			return doc;
 		}
 
-		public Tools.CurlResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
+		public HttpResponse FetchUrl(HttpRequest request)
 		{
 			Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
-			
-			return curl.FetchUrlEx(url, parameters, forceBypassProxy, ipLayer, resolve);
+
+			return curl.Fetch(request);
 		}
-		
+
 		public int PingerInvalid()
 		{
 			return m_threadPinger.GetStats().Invalid;

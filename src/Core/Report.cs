@@ -108,9 +108,10 @@ namespace Eddie.Core
 		{
 			try
 			{
-				Tools.CurlResponse response = Engine.Instance.FetchUrlEx(url, null, false, "", "");
-				string str = System.Text.Encoding.ASCII.GetString(response.Buffer);
-				return response.ExitCode.ToString() + " - " + str;
+				HttpRequest request = new HttpRequest();
+				request.Url = url;
+				HttpResponse response = Engine.Instance.FetchUrl(request);
+				return response.GetLineReport();
 			}
 			catch(Exception ex)
 			{

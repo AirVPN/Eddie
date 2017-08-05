@@ -503,7 +503,7 @@ namespace Eddie.Core
 			SetDefault("netlock.mode", "text", "auto", Messages.ManOptionNetLockMode);
 			SetDefaultBool("netlock.allow_private", true, Messages.ManOptionNetLockAllowPrivate);
 			SetDefaultBool("netlock.allow_ping", true, Messages.ManOptionNetLockAllowPing);
-			SetDefaultBool("netlock.allow_dns", true, Messages.ManOptionNetLockAllowDNS);
+			SetDefaultBool("netlock.allow_dns", false, Messages.ManOptionNetLockAllowDNS);
 			SetDefault("netlock.allowed_ips", "text", "", Messages.ManOptionNetLockAllowedsIps); 
 
 			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIpV6);

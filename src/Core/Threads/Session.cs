@@ -1211,7 +1211,11 @@ namespace Eddie.Core.Threads
 											// 2.12
 											string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
 											string checkUrl = "https://" + checkDomain + "/check_tun/";
-											XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, true, "", checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4());
+											HttpRequest httpRequest = new HttpRequest();
+											httpRequest.Url = checkUrl;
+											httpRequest.BypassProxy = true;
+											httpRequest.ForceResolve = checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
+											XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
 
 											string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
 
@@ -1258,7 +1262,11 @@ namespace Eddie.Core.Threads
 												// 2.12
 												string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
 												string checkUrl = "https://" + checkDomain + "/check_tun/";
-												XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, true, "", checkDomain + ":" + Engine.ConnectedEntryIP);
+												HttpRequest httpRequest = new HttpRequest();
+												httpRequest.Url = checkUrl;
+												httpRequest.BypassProxy = true;
+												httpRequest.ForceResolve = checkDomain + ":" + Engine.ConnectedEntryIP;
+												XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
 
 												Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
 												Engine.ConnectedClientTime = Utils.UnixTimeStamp();
@@ -1324,7 +1332,11 @@ namespace Eddie.Core.Threads
 											// 2.12
 											string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
 											string checkUrl = "https://" + checkDomain + "/check_dns/";
-											XmlDocument xmlDoc = Engine.FetchUrlXml(checkUrl, null, true, "", checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4());
+											HttpRequest httpRequest = new HttpRequest();
+											httpRequest.Url = checkUrl;
+											httpRequest.BypassProxy = true;
+											httpRequest.ForceResolve = checkDomain + ":" + checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
+											XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
 
 											string answer = xmlDoc.DocumentElement.Attributes["hash"].Value;
 

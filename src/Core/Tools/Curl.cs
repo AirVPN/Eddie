@@ -25,21 +25,7 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-	public class CurlResponse
-	{
-		public int ExitCode = -1;
-		public byte[] Buffer = default(byte[]);
-
-		public string GetLineReport()
-		{
-			string t = "";
-			t += "ExitCode: " + ExitCode.ToString() + " - " + Buffer.LongLength.ToString() + " bytes: ";
-			t += System.Text.Encoding.ASCII.GetString(Buffer);
-			return t;
-		}
-	}
-
-    public class Curl : Tool
+	public class Curl : Tool
     {
         public string minVersionRequired = "7.21.7";
 
@@ -77,27 +63,38 @@ namespace Eddie.Core.Tools
             return MessagesFormatter.Format(Messages.ToolsCurlVersionNotSupported, Version, minVersionRequired);            
         }
 
-		public CurlResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
+		public HttpResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
 		{
-			CurlResponse response = new CurlResponse();
+			HttpRequest request = new HttpRequest();
+			request.Url = url;
+			request.Parameters = parameters;
+			request.BypassProxy = forceBypassProxy;
+			request.IpLayer = ipLayer;
+			request.ForceResolve = resolve;
+			return Fetch(request);
+		}
+
+		public HttpResponse Fetch(HttpRequest request)
+		{
+			HttpResponse response = new HttpResponse();
 
 			ExceptionIfRequired();
 
             ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");
 
             // Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
-            bool bypassProxy = forceBypassProxy;
+            bool bypassProxy = request.BypassProxy;
             if (bypassProxy == false)
                 bypassProxy = Engine.Instance.IsConnected();
 
             string dataParameters = "";
-            if (parameters != null)
+            if (request.Parameters.Count>0)
             {
-                foreach (string k in parameters.Keys)
+                foreach (string k in request.Parameters.Keys)
                 {
                     if (dataParameters != "")
                         dataParameters += "&";
-                    dataParameters += SystemShell.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(parameters[k]);
+                    dataParameters += SystemShell.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(request.Parameters[k]);
                 }
             }
 
@@ -150,7 +147,7 @@ namespace Eddie.Core.Tools
                 }
             }
 
-            args += " \"" + SystemShell.EscapeUrl(url) + "\"";
+            args += " \"" + SystemShell.EscapeUrl(request.Url) + "\"";
             args += " -sS"; // -s Silent mode, -S with errors
             args += " --max-time " + Engine.Instance.Storage.GetInt("tools.curl.max-time").ToString();
             
@@ -158,29 +155,22 @@ namespace Eddie.Core.Tools
             if (cacertTool.Available())
                 args += " --cacert \"" + SystemShell.EscapePath(cacertTool.Path) + "\"";
 
-            if (resolve != "")
-                args += " --resolve " + resolve;
+            if (request.ForceResolve != "")
+                args += " --resolve " + request.ForceResolve;
 
             if (dataParameters != "")
                 args += " --data \"" + dataParameters + "\"";
 
-			if (ipLayer == "4")
+			if (request.IpLayer == "4")
 				args += " -4";
-			if (ipLayer == "6")
+			if (request.IpLayer == "6")
 				args += " -6";
+
+			args += " -i";
 
 			string error = "";
             try
             {
-                /*
-                if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")))
-                {
-                    string message = "curl " + this.GetPath() + " " + args;
-                    message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
-                    Engine.Instance.Logs.Log(LogType.Verbose, message);
-                }
-                */
-
                 Process p = new Process();
 
                 p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
@@ -195,12 +185,61 @@ namespace Eddie.Core.Tools
 
                 p.Start();
 
-                using (var memoryStream = new System.IO.MemoryStream())
+				System.IO.MemoryStream StreamHeader = new System.IO.MemoryStream();
+				System.IO.MemoryStream StreamBody = new System.IO.MemoryStream();
+				
                 {
-                    //p.StandardOutput.BaseStream.CopyTo(memstream); // .Net 4 only
-                    Utils.CopyStream(p.StandardOutput.BaseStream, memoryStream);
-                    response.Buffer = memoryStream.ToArray();
-                }
+					System.IO.MemoryStream Stream = new System.IO.MemoryStream();
+					byte[] buffer = new byte[4096];
+					int read;
+					while ((read = p.StandardOutput.BaseStream.Read(buffer, 0, buffer.Length)) > 0)
+					{
+						Stream.Write(buffer, 0, read);
+					}
+
+					if (Stream.Length >= 4)
+					{
+						bool foundBody = false;
+						byte[] buffer2 = Stream.ToArray();
+						int i = 0;
+						for (; i < Stream.Length-4; i++)
+						{
+							if ((buffer2[i] == 13) && (buffer2[i + 1] == 10) && (buffer2[i + 2] == 13) && (buffer2[i + 3] == 10))
+							{	
+								StreamHeader.Write(buffer2, 0, i);
+								StreamBody.Write(buffer2, i + 4, (int)Stream.Length - i - 4);
+								foundBody = true;
+								break;
+							}
+						}
+
+						if(foundBody == false)
+							StreamHeader = Stream;
+					}
+					else
+					{
+						StreamHeader = Stream;
+					}
+					
+					response.BufferHeader = StreamHeader.ToArray();
+					response.BufferData = StreamBody.ToArray();
+
+					string headers = System.Text.Encoding.ASCII.GetString(response.BufferHeader);
+					string[] headersLines = headers.Split('\n');
+					for(int l=0;l<headersLines.Length;l++)
+					{
+						string line = headersLines[l];
+						if (l == 0)
+							response.StatusLine = line;
+						int posSep = line.IndexOf(":");
+						if (posSep != -1)
+						{
+							string k = line.Substring(0, posSep);
+							string v = line.Substring(posSep + 1);
+							response.Headers.Add(new KeyValuePair<string, string>(k.ToLowerInvariant().Trim(), v.Trim()));
+						}
+					}					
+				}
                 
                 error = p.StandardError.ReadToEnd();
 

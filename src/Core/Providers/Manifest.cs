@@ -464,22 +464,17 @@ namespace Eddie.Core.Providers
 			byte[] bytesParamD = aesCryptStream.ToArray();
 
 			// HTTP Fetch
-			System.Collections.Specialized.NameValueCollection fetchParameters = new System.Collections.Specialized.NameValueCollection();
-			fetchParameters["s"] = Utils.Base64Encode(bytesParamS);
-			fetchParameters["d"] = Utils.Base64Encode(bytesParamD);
+			HttpRequest request = new HttpRequest();
+			request.Url = url;
+			request.Parameters["s"] = Utils.Base64Encode(bytesParamS);
+			request.Parameters["d"] = Utils.Base64Encode(bytesParamD);
 
-			// 'GET' Edition - < 2.9			
-			// string url = "http://" + host + "?s=" + Uri.EscapeUriString(Base64Encode(bytesParamS)) + "&d=" + Uri.EscapeUriString(Base64Encode(bytesParamD));
-			// byte[] fetchResponse = Engine.Instance.FetchUrlEx(url, null, "", 1, Engine.Instance.IsConnected());
-
-			// 'POST' Edition - >= 2.9			
-			// Debug with an url direct to backend service client debugging page
-			url = "https://airvpn.org/services/client/err.php";
-			Tools.CurlResponse response = Engine.Instance.FetchUrlEx(url, fetchParameters, false, "", "");
-			byte[] fetchResponse = response.Buffer;
-
+			HttpResponse response = Engine.Instance.FetchUrl(request);
+			
 			try
 			{
+				byte[] fetchResponse = response.BufferData;
+
 				// Decrypt answer
 				MemoryStream aesDecryptStream = new MemoryStream();
 				ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor();
@@ -497,7 +492,11 @@ namespace Eddie.Core.Providers
 			catch(Exception ex)
 			{
 				// ClodoTemp, every fetch inside try/catch?
-				string message = ex.Message + " - " + response.GetLineReport();
+				string message = "";
+				if (response.GetHeader("location") != "")
+					message = MessagesFormatter.Format(Messages.ManifestFailedUnexpected302, response.GetHeader("location"));
+				else
+					message = ex.Message + " - " + response.GetLineReport();
 				throw new Exception(message);
 			}
 		}

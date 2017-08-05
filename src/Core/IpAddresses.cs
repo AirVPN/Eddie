@@ -224,22 +224,7 @@ namespace Eddie.Core
 					return ip.Address;
 			}
 			return "";
-		}
-
-		public string ToStringIPv4() // TOCLEAN
-		{
-			string result = "";
-			foreach (IpAddress ip in IPs)
-			{
-				if (ip.IsV4 == false)
-					continue;
-
-				if (result != "")
-					result += ", ";
-				result += ip.ToCIDR();
-			}
-			return result;
-		}
+		}		
 
 		public string Addresses
 		{

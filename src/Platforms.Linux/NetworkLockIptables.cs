@@ -113,7 +113,7 @@ namespace Eddie.Platforms.Linux
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
 			{
-				// IPv4 - Make sure that you can communicate within your own private networks
+				// IPv4 - Private networks
 				SystemShell.ShellCmd("iptables -A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
 				SystemShell.ShellCmd("iptables -A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");

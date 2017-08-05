@@ -140,11 +140,7 @@ namespace Eddie.Platforms.MacOS
 
 			pf += "# Drop everything that doesn't match a rule\n";			
 			pf += "block drop out all\n"; 
-
-			// TOCHECK: block drop above is also for ipv6?
-			// pf += "# Drop ipv6\n";
-			// pf += "block quick inet6\n";
-
+			
 			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
 			{
 				pf += "# Private networks\n";

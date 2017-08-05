@@ -142,7 +142,11 @@ namespace Eddie.Core.Threads
 						string url = method;
 						url = url.Replace("{@ip}", ip);
 
-						XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(url, null, false, layer, "");
+						HttpRequest httpRequest = new HttpRequest();
+						httpRequest.Url = url;
+						httpRequest.IpLayer = layer;
+
+						XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(httpRequest);
 
 						NormalizeServiceResponse(xmlDoc);
 

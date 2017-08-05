@@ -65,27 +65,10 @@ namespace Eddie.Core.Threads
 			RouteScope routeScope = null;
 			try
 			{
-				//bool alwaysRun = Engine.Instance.Storage.GetBool("pinger.always"); // 2.6
 				routeScope = new RouteScope(Server.IpsEntry.ToStringFirstIPv4());
 
                 Int64 result = Platform.Instance.Ping(Server.IpsEntry.ToStringFirstIPv4(), 3);
-                Pinger.Instance.PingResult(Server, result);
-                /*
-                                
-				// Ping
-				Ping pingSender = new Ping();
-				PingOptions options = new PingOptions();
-
-				// Use the default Ttl value which is 128,
-				// but change the fragmentation behavior.
-				//options.DontFragment = true;
-                
-				// Create a buffer of 32 bytes of data to be transmitted.								
-				byte[] buffer = RandomGenerator.GetBuffer(32);
-				int timeout = 2000;                
-				PingReply reply = pingSender.Send(Server.IpEntry, timeout, buffer, options);
-				Pinger.Instance.PingResult(Server, reply);
-                */
+                Pinger.Instance.PingResult(Server, result);                
 			}
 			catch (Exception)
 			{				

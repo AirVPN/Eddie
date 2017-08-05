@@ -86,6 +86,7 @@ namespace Eddie.Core
 		public static string ManifestDone = "Systems & servers data update completed";
 		public static string ManifestFailed = "Cannot retrieve systems & servers data. ({1})";
 		public static string ManifestFailedContinue = "Unable to retrieve systems & servers data. Continue anyway with the old data.";
+		public static string ManifestFailedUnexpected302 = "Unexpected redirect. Open manually '{1}' in your browser for more info.";
 		public static string CommandLineUnknownOption = "Unknown option in command-line: {1}";
 		public static string OptionsRead = "Reading options from {1}";
 		public static string OptionsNotFound = "Profile options not found, using defaults.";
@@ -241,6 +242,7 @@ namespace Eddie.Core
 		public static string WindowsSettingsRouteEditIp = "Specify an hostname or a single IP address (ex. 1.2.3.4) or CIDR range (ex. 1.2.3.4/24) or subnet range (ex. 1.2.3.4/255.255.255.128)";
 		public static string WindowsSettingsRouteInvalid = "Invalid IP address or range.";
 		public static string WindowsSettingsRouteOutEmptyList = "WARNING: not specified routes go outside the tunnel, but you did not specify any route. Continue?";
+		public static string WindowsSettingsRouteWithHostname = "WARNING: you used hostname in routes, but your DNS is not whitelisted in Network Lock. We reccomend to use only IP address or enable 'Network Lock > Allow DNS'. Continue anyway?";
 		public static string WindowsSettingsDnsCheck = "Check if the tunnel uses AirVPN DNS";
 		public static string WindowsSettingsDnsServers = "Leave empty to use DNS servers recommended by the VPN";
 		public static string WindowsSettingsIpTitle = "Preferences - IP Address";
