@@ -30,6 +30,7 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class MainWindowController : MonoMac.AppKit.NSWindowController
 	{
+		public TableProvidersController TableProvidersController;
 		public TableServersController TableServersController;
 		public TableAreasController TableAreasController;
 		public TableLogsController TableLogsController;
@@ -41,69 +42,72 @@ namespace Eddie.UI.Cocoa.Osx
 
 		private WindowAboutController windowAbout;
 		private WindowPreferencesController windowPreferences;
-        private NSTabViewItem TabProviders;
+		private NSTabViewItem TabProviders;
 
 		#region Constructors
 		// Called when created from unmanaged code
-		public MainWindowController (IntPtr handle) : base (handle)
+		public MainWindowController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public MainWindowController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public MainWindowController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Call to load from the XIB/NIB file
-		public MainWindowController () : base ("MainWindow")
+		public MainWindowController() : base("MainWindow")
 		{
-			Initialize ();
-		}	
+			Initialize();
+		}
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 		#endregion
 		//strongly typed window accessor
-		public new MainWindow Window {
-			get {
+		public new MainWindow Window
+		{
+			get
+			{
 				return (MainWindow)base.Window;
 			}
 		}
 
-		
+
 		public UI.Cocoa.Osx.Engine Engine
 		{
-			get {
+			get
+			{
 				return Core.Engine.Instance as UI.Cocoa.Osx.Engine;
 			}
 		}
-			
+
 		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
-			Window.Delegate = new MainWindowDelegate (this);
+			Window.Delegate = new MainWindowDelegate(this);
 
 			Window.AcceptsMouseMovedEvents = true;
 
-            TabProviders = TabMain.Items[1];
+			TabProviders = TabMain.Items[1];
 
-			CreateMenuBarIcon ();
+			CreateMenuBarIcon();
 
-			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off; 
+			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off;
 			ChkServersShowAll.State = NSCellStateValue.Off;
-			GuiUtils.SetCheck (ChkServersLockCurrent, Engine.Storage.GetBool ("servers.locklast"));
-			GuiUtils.SetSelected (CboServersScoringRule, Engine.Storage.Get ("servers.scoretype"));
+			GuiUtils.SetCheck(ChkServersLockCurrent, Engine.Storage.GetBool("servers.locklast"));
+			GuiUtils.SetSelected(CboServersScoringRule, Engine.Storage.Get("servers.scoretype"));
 
-			CboSpeedResolutions.RemoveAllItems ();
-			CboSpeedResolutions.AddItem (Messages.WindowsMainSpeedResolution1);
-			CboSpeedResolutions.AddItem (Messages.WindowsMainSpeedResolution2);
-			CboSpeedResolutions.AddItem (Messages.WindowsMainSpeedResolution3);
-			CboSpeedResolutions.AddItem (Messages.WindowsMainSpeedResolution4);
-			CboSpeedResolutions.AddItem (Messages.WindowsMainSpeedResolution5);
-			CboSpeedResolutions.SelectItem (0);
+			CboSpeedResolutions.RemoveAllItems();
+			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution1);
+			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution2);
+			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution3);
+			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution4);
+			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution5);
+			CboSpeedResolutions.SelectItem(0);
 
 			CmdConnect.Title = Messages.CommandConnect;
 			LblConnect.StringValue = Messages.CommandConnectSubtitle;
@@ -126,10 +130,11 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdLogsSave.ToolTip = Messages.TooltipLogsSave;
 			CmdLogsSupport.ToolTip = Messages.TooltipLogsSupport;
 
-			if (Engine.Storage.GetBool ("remember")) {
+			if (Engine.Storage.GetBool("remember"))
+			{
 				ChkRemember.State = NSCellStateValue.On;
-				TxtLogin.StringValue = Engine.Storage.Get ("login");
-				TxtPassword.StringValue = Engine.Storage.Get ("password");
+				TxtLogin.StringValue = Engine.Storage.Get("login");
+				TxtPassword.StringValue = Engine.Storage.Get("password");
 
 			}
 
@@ -137,26 +142,29 @@ namespace Eddie.UI.Cocoa.Osx
 
 			ChkRemember.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Storage.SetBool ("remember", ChkRemember.State == NSCellStateValue.On);
+				Engine.Storage.SetBool("remember", ChkRemember.State == NSCellStateValue.On);
 			};
 
 			CmdLogin.Activated += (object sender, EventArgs e) =>
 			{
-				if(Engine.IsLogged() == false)
+				if (Engine.IsLogged() == false)
 					Login();
 				else
 					Logout();
-			};	
+			};
 
-			TxtLogin.Activated += (object sender, EventArgs e) => {
+			TxtLogin.Activated += (object sender, EventArgs e) =>
+			{
 				EnabledUI();
 			};
 
-			TxtPassword.Activated += (object sender, EventArgs e) => {
+			TxtPassword.Activated += (object sender, EventArgs e) =>
+			{
 				EnabledUI();
 			};
 
-			CboKey.Activated += (object sender, EventArgs e) => {
+			CboKey.Activated += (object sender, EventArgs e) =>
+			{
 				Engine.Instance.Storage.Set("key", CboKey.SelectedItem.Title);
 			};
 
@@ -165,16 +173,19 @@ namespace Eddie.UI.Cocoa.Osx
 				Connect();
 			};
 
-			CmdDisconnect.Activated += (object sender, EventArgs e) => {
+			CmdDisconnect.Activated += (object sender, EventArgs e) =>
+			{
 				Disconnect();
 			};
 
-			CmdCancel.Activated += (object sender, EventArgs e) => {				
-				Disconnect ();
+			CmdCancel.Activated += (object sender, EventArgs e) =>
+			{
+				Disconnect();
 			};
 
-			CmdNetworkLock.Activated += (object sender, EventArgs e) => {
-				if(Engine.Instance.NetworkLockManager.IsActive())
+			CmdNetworkLock.Activated += (object sender, EventArgs e) =>
+			{
+				if (Engine.Instance.NetworkLockManager.IsActive())
 				{
 					NetworkLockDeactivation();
 				}
@@ -184,24 +195,52 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			};
 
-			TableServers.DoubleClick += (object sender, EventArgs e) => {
+			TableProvidersController = new TableProvidersController(this.TableProviders);
+			this.TableProviders.Delegate = new TableProvidersDelegate(this);
+
+			CmdProviderAdd.Activated += (object sender, EventArgs e) =>
+			{
+				ProviderAdd();
+			};
+
+			CmdProviderRemove.Activated += (object sender, EventArgs e) =>
+			{
+				ProviderRemove();
+			};
+
+			CmdProviderEdit.Activated += (object sender, EventArgs e) =>
+			{
+				ProviderEdit();
+			};
+
+			TableProviders.DoubleClick += (object sender, EventArgs e) =>
+			{
+				ProviderEdit();
+			};
+
+			TableServers.DoubleClick += (object sender, EventArgs e) =>
+			{
 				ConnectManual();
 			};
 
-			CmdServersConnect.Activated += (object sender, EventArgs e) => {
+			CmdServersConnect.Activated += (object sender, EventArgs e) =>
+			{
 				ConnectManual();
 			};
 
-			CmdServersWhiteList.Activated += (object sender, EventArgs e) => {
+			CmdServersWhiteList.Activated += (object sender, EventArgs e) =>
+			{
 				ServersWhiteList();
 			};
 
-			CmdServersBlackList.Activated += (object sender, EventArgs e) => {
+			CmdServersBlackList.Activated += (object sender, EventArgs e) =>
+			{
 				ServersBlackList();
 			};
 
-			CmdServersUndefined.Activated += (object sender, EventArgs e) => {
-				ServersUndefinedList ();
+			CmdServersUndefined.Activated += (object sender, EventArgs e) =>
+			{
+				ServersUndefinedList();
 			};
 
 			CmdServersRename.Activated += (object sender, EventArgs e) =>
@@ -214,24 +253,29 @@ namespace Eddie.UI.Cocoa.Osx
 				ServersMore();
 			};
 
-			CmdServersRefresh.Activated += (object sender, EventArgs e) => {
-				ServersRefresh ();
+			CmdServersRefresh.Activated += (object sender, EventArgs e) =>
+			{
+				ServersRefresh();
 			};
 
-			MnuServersConnect.Activated += (object sender, EventArgs e) => {
+			MnuServersConnect.Activated += (object sender, EventArgs e) =>
+			{
 				ConnectManual();
 			};
 
-			MnuServersWhitelist.Activated += (object sender, EventArgs e) => {
+			MnuServersWhitelist.Activated += (object sender, EventArgs e) =>
+			{
 				ServersWhiteList();
 			};
 
-			MnuServersBlacklist.Activated += (object sender, EventArgs e) => {
+			MnuServersBlacklist.Activated += (object sender, EventArgs e) =>
+			{
 				ServersBlackList();
 			};
 
-			MnuServersUndefined.Activated += (object sender, EventArgs e) => {
-				ServersUndefinedList ();
+			MnuServersUndefined.Activated += (object sender, EventArgs e) =>
+			{
+				ServersUndefinedList();
 			};
 
 			MnuServersRename.Activated += (object sender, EventArgs e) =>
@@ -244,35 +288,43 @@ namespace Eddie.UI.Cocoa.Osx
 				ServersMore();
 			};
 
-			MnuServersRefresh.Activated += (object sender, EventArgs e) => {
-				ServersRefresh ();
+			MnuServersRefresh.Activated += (object sender, EventArgs e) =>
+			{
+				ServersRefresh();
 			};
 
-			CmdAreasWhiteList.Activated += (object sender, EventArgs e) => {
+			CmdAreasWhiteList.Activated += (object sender, EventArgs e) =>
+			{
 				AreasWhiteList();
 			};
 
-			CmdAreasBlackList.Activated += (object sender, EventArgs e) => {
+			CmdAreasBlackList.Activated += (object sender, EventArgs e) =>
+			{
 				AreasBlackList();
 			};
 
-			CmdAreasUndefined.Activated += (object sender, EventArgs e) => {
-				AreasUndefinedList ();
+			CmdAreasUndefined.Activated += (object sender, EventArgs e) =>
+			{
+				AreasUndefinedList();
 			};
 
-			MnuAreasWhitelist.Activated += (object sender, EventArgs e) => {
+			MnuAreasWhitelist.Activated += (object sender, EventArgs e) =>
+			{
 				AreasWhiteList();
 			};
 
-			MnuAreasBlacklist.Activated += (object sender, EventArgs e) => {
+			MnuAreasBlacklist.Activated += (object sender, EventArgs e) =>
+			{
 				AreasBlackList();
 			};
 
-			MnuAreasUndefined.Activated += (object sender, EventArgs e) => {
-				AreasUndefinedList ();
+			MnuAreasUndefined.Activated += (object sender, EventArgs e) =>
+			{
+				AreasUndefinedList();
 			};
 
-			ChkServersShowAll.Activated += (object sender, EventArgs e) => {
+			ChkServersShowAll.Activated += (object sender, EventArgs e) =>
+			{
 				TableServersController.ShowAll = (ChkServersShowAll.State == NSCellStateValue.On);
 				TableServersController.RefreshUI();
 			};
@@ -290,76 +342,84 @@ namespace Eddie.UI.Cocoa.Osx
 			};
 			*/
 
-			ChkServersLockCurrent.Activated += (object sender, EventArgs e) => {
-				Engine.Storage.SetBool ("servers.locklast", ChkServersLockCurrent.State == NSCellStateValue.On);
+			ChkServersLockCurrent.Activated += (object sender, EventArgs e) =>
+			{
+				Engine.Storage.SetBool("servers.locklast", ChkServersLockCurrent.State == NSCellStateValue.On);
 			};
 
-			CboServersScoringRule.Activated += (object sender, EventArgs e) => {
-				Engine.Storage.Set ("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
+			CboServersScoringRule.Activated += (object sender, EventArgs e) =>
+			{
+				Engine.Storage.Set("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
 
-				RefreshUi (Engine.RefreshUiMode.Full);
+				RefreshUi(Engine.RefreshUiMode.Full);
 			};
 
-			CboSpeedResolutions.Activated += (object sender, EventArgs e) => {
+			CboSpeedResolutions.Activated += (object sender, EventArgs e) =>
+			{
 				(PnlChart as ChartView).Switch(CboSpeedResolutions.IndexOfItem(CboSpeedResolutions.SelectedItem));
 			};
-		
 
-			CmdLogsClean.Activated += (object sender, EventArgs e) => {
+
+			CmdLogsClean.Activated += (object sender, EventArgs e) =>
+			{
 				TableLogsController.Clear();
 			};
 
-			CmdLogsSave.Activated += (object sender, EventArgs e) => {
+			CmdLogsSave.Activated += (object sender, EventArgs e) =>
+			{
 				LogsDoSave(false);
 			};
 
-			CmdLogsCopy.Activated += (object sender, EventArgs e) => {
+			CmdLogsCopy.Activated += (object sender, EventArgs e) =>
+			{
 				LogsDoCopy(false);
 			};
 
 			CmdLogsSupport.Activated += (object sender, EventArgs e) =>
 			{
 				SupportReport();
-			};		
+			};
 
 			MnuLogsCopyAll.Activated += (object sender, EventArgs e) =>
 			{
 				LogsDoCopy(false);
-			};		
+			};
 
 			MnuLogsSaveAll.Activated += (object sender, EventArgs e) =>
 			{
 				LogsDoSave(false);
-			};			
+			};
 			MnuLogsCopySelected.Activated += (object sender, EventArgs e) =>
 			{
 				LogsDoCopy(true);
-			};			
+			};
 			MnuLogsSaveSelected.Activated += (object sender, EventArgs e) =>
 			{
 				LogsDoSave(true);
-			};			
+			};
 
-			CmdLogsOpenVpnManagement.Activated += (object sender, EventArgs e) => {
-				if(Engine.IsConnected())
+			CmdLogsOpenVpnManagement.Activated += (object sender, EventArgs e) =>
+			{
+				if (Engine.IsConnected())
 				{
 					WindowOpenVpnManagementCommandController w = new WindowOpenVpnManagementCommandController();
 					NSApplication.SharedApplication.RunModalForWindow(w.Window);
-					if(w.Command != "")
+					if (w.Command != "")
 						Core.UI.Actions.SendOpenVpnManagementCommand(w.Command);
 				}
 			};
-				
-			TableServersController = new TableServersController (this.TableServers);
-			this.TableServers.Delegate = new TableServersDelegate (this);
 
-			TableAreasController = new TableAreasController (this.TableAreas);
-			this.TableAreas.Delegate = new TableAreasDelegate (this);
+			TableServersController = new TableServersController(this.TableServers);
+			this.TableServers.Delegate = new TableServersDelegate(this);
 
-			TableLogsController = new TableLogsController (this.TableLogs);
-			TableStatsController = new TableStatsController (this.TableStats);
-		
-			TableStats.DoubleClick += (object sender, EventArgs e) => {
+			TableAreasController = new TableAreasController(this.TableAreas);
+			this.TableAreas.Delegate = new TableAreasDelegate(this);
+
+			TableLogsController = new TableLogsController(this.TableLogs);
+			TableStatsController = new TableStatsController(this.TableStats);
+
+			TableStats.DoubleClick += (object sender, EventArgs e) =>
+			{
 				TableStatsController.DoubleClickItem();
 			};
 
@@ -380,7 +440,7 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					Disconnect();
 				}
-                else if (Engine.CanConnect())
+				else if (Engine.CanConnect())
 				{
 					Connect();
 				}
@@ -420,13 +480,14 @@ namespace Eddie.UI.Cocoa.Osx
 				ShowSpeedTest();
 			};
 
-			MnuTrayRestore.Activated += (object sender, EventArgs e) => {
+			MnuTrayRestore.Activated += (object sender, EventArgs e) =>
+			{
 				/* // 2.8
 				if(Window.IsVisible)
 					Minimize();
 				else
 					*/
-					Restore(sender);
+				Restore(sender);
 			};
 
 			MnuTrayQuit.Activated += (object sender, EventArgs e) =>
@@ -438,54 +499,58 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdAreasBlackList.ToolTip = Messages.TooltipAreasBlackList;
 
 			Engine.MainWindow = this;
-			Engine.UiStart ();
+			Engine.UiStart();
 
-			Engine.OnRefreshUi ();
+			Engine.OnRefreshUi();
 
-			SettingsChanged ();
+			SettingsChanged();
 
-			RequestAttention ();
+			RequestAttention();
 		}
 
 		public bool Shutdown()
 		{
-			if (Engine.Instance.Storage.GetBool ("gui.exit_confirm") == true)
+			if (Engine.Instance.Storage.GetBool("gui.exit_confirm") == true)
 			{
-				bool result = GuiUtils.MessageYesNo (Messages.ExitConfirm);
-				if (result == false) {
+				bool result = GuiUtils.MessageYesNo(Messages.ExitConfirm);
+				if (result == false)
+				{
 					return false;
 				}
 			}
 			ShutdownConfirmed = true;
 			if (windowAbout != null)
-				windowAbout.Close ();
+				windowAbout.Close();
 			if (windowPreferences != null)
-				windowPreferences.Close ();
+				windowPreferences.Close();
 
-			Engine.Instance.RequestStop ();
+			Engine.Instance.RequestStop();
 			return true;
 		}
 
-		public void RefreshUi (Engine.RefreshUiMode mode)
+		public void RefreshUi(Engine.RefreshUiMode mode)
 		{
 			try
 			{
-				if ((mode == Engine.RefreshUiMode.MainMessage) || (mode == Engine.RefreshUiMode.Full)) {
+				if ((mode == Engine.RefreshUiMode.MainMessage) || (mode == Engine.RefreshUiMode.Full))
+				{
 
-					if (Engine.CurrentServer != null) {
+					if (Engine.CurrentServer != null)
+					{
 						ImgTopFlag.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
 					}
-					else {
-						ImgTopFlag.Image = NSImage.ImageNamed ("notconnected.png");
+					else
+					{
+						ImgTopFlag.Image = NSImage.ImageNamed("notconnected.png");
 					}
 
 					LblWaiting1.StringValue = Engine.WaitMessage;
 
-					if(Engine.IsWaiting())
+					if (Engine.IsWaiting())
 					{
 						ImgProgress.StartAnimation(this);
-						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_yellow.png");
-						MnuTrayStatus.Image = NSImage.ImageNamed ("status_yellow_16.png");
+						ImgTopPanel.Image = NSImage.ImageNamed("topbar_osx_yellow.png");
+						MnuTrayStatus.Image = NSImage.ImageNamed("status_yellow_16.png");
 						LblTopStatus.StringValue = Engine.WaitMessage;
 
 						TabOverview.SelectAt(1);
@@ -496,9 +561,9 @@ namespace Eddie.UI.Cocoa.Osx
 					}
 					else if (Engine.IsConnected())
 					{
-						ImgProgress.StopAnimation (this);
-						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_green.png");
-						MnuTrayStatus.Image = NSImage.ImageNamed ("status_green_16.png");
+						ImgProgress.StopAnimation(this);
+						ImgTopPanel.Image = NSImage.ImageNamed("topbar_osx_green.png");
+						MnuTrayStatus.Image = NSImage.ImageNamed("status_green_16.png");
 						LblTopStatus.StringValue = MessagesFormatter.Format(MessagesUi.TopBarConnected, Engine.CurrentServer.DisplayName);
 
 						TabOverview.SelectAt(2);
@@ -506,14 +571,14 @@ namespace Eddie.UI.Cocoa.Osx
 						LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
 						LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
 						TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpsExit.ToString();
-						ImgConnectedCountry.Image = NSImage.ImageNamed ("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant () + ".png");
+						ImgConnectedCountry.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
 					}
 					else
 					{
-						ImgProgress.StopAnimation (this);
-						ImgTopPanel.Image = NSImage.ImageNamed ("topbar_osx_red.png");
-						MnuTrayStatus.Image = NSImage.ImageNamed ("status_red_16.png");
-						if(Engine.Instance.NetworkLockManager.IsActive())
+						ImgProgress.StopAnimation(this);
+						ImgTopPanel.Image = NSImage.ImageNamed("topbar_osx_red.png");
+						MnuTrayStatus.Image = NSImage.ImageNamed("status_red_16.png");
+						if (Engine.Instance.NetworkLockManager.IsActive())
 							LblTopStatus.StringValue = MessagesUi.TopBarNotConnectedLocked;
 						else
 							LblTopStatus.StringValue = MessagesUi.TopBarNotConnectedExposed;
@@ -522,12 +587,12 @@ namespace Eddie.UI.Cocoa.Osx
 					}
 
 					// Icon update
-					if(StatusItem != null)
+					if (StatusItem != null)
 					{
 						//string colorMode = GuiUtils.InterfaceColorMode ();
-						string colorMode = Engine.Storage.Get ("gui.osx.style");
-				
-						if(Engine.IsConnected())
+						string colorMode = Engine.Storage.Get("gui.osx.style");
+
+						if (Engine.IsConnected())
 						{
 							StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_green.png");
 							//NSApplication.SharedApplication.DockTile. =  DateTime.Now.ToString ();
@@ -544,27 +609,32 @@ namespace Eddie.UI.Cocoa.Osx
 					EnabledUI();
 				}
 
-				if ((mode == Engine.RefreshUiMode.Log) || (mode == Engine.RefreshUiMode.Full)) {
+				if ((mode == Engine.RefreshUiMode.Log) || (mode == Engine.RefreshUiMode.Full))
+				{
 
-					lock (Engine.LogsPending) {
-						while (Engine.LogsPending.Count > 0) {
-							LogEntry l = Engine.LogsPending [0];
-							Engine.LogsPending.RemoveAt (0);
+					lock (Engine.LogsPending)
+					{
+						while (Engine.LogsPending.Count > 0)
+						{
+							LogEntry l = Engine.LogsPending[0];
+							Engine.LogsPending.RemoveAt(0);
 
-							Log (l);
+							Log(l);
 						}
 					}
 					LblWaiting2.StringValue = Engine.Logs.GetLogDetailTitle();
 				}
 
-				if ((mode == Engine.RefreshUiMode.Stats) || (mode == Engine.RefreshUiMode.Full)) {
-					if (Engine.IsConnected ()) {
-						TxtConnectedSince.StringValue = Engine.Stats.GetValue ("VpnConnectionStart");
+				if ((mode == Engine.RefreshUiMode.Stats) || (mode == Engine.RefreshUiMode.Full))
+				{
+					if (Engine.IsConnected())
+					{
+						TxtConnectedSince.StringValue = Engine.Stats.GetValue("VpnConnectionStart");
 
-						TxtConnectedDownload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastDownloadStep, true, false);
-						TxtConnectedUpload.StringValue = Core.Utils.FormatBytes (Engine.ConnectedLastUploadStep, true, false);
+						TxtConnectedDownload.StringValue = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
+						TxtConnectedUpload.StringValue = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
 
-						string msg = Engine.Instance.GetConnectedTrayText (true, true);
+						string msg = Engine.Instance.GetConnectedTrayText(true, true);
 						string tmsg = Constants.Name + " - " + msg;
 						this.Window.Title = tmsg;
 						MnuTrayStatus.Title = "> " + msg;
@@ -575,17 +645,19 @@ namespace Eddie.UI.Cocoa.Osx
 					}
 				}
 
-				if ((mode == Engine.RefreshUiMode.Full)) {
-					if(TableServersController != null)
-						TableServersController.RefreshUI ();
-					if(TableAreasController != null)
-						TableAreasController.RefreshUI ();
+				if ((mode == Engine.RefreshUiMode.Full))
+				{
+					if (TableServersController != null)
+						TableServersController.RefreshUI();
+					if (TableAreasController != null)
+						TableAreasController.RefreshUI();
 				}
-			 
+
 
 
 			}
-			catch(Exception) {
+			catch (Exception)
+			{
 				// TOFIX: OS X sometime throw an useless exception in closing phase
 			}
 		}
@@ -595,47 +667,49 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			string msg = l.Message;
 
-			TableLogsController.AddLog (l);
+			TableLogsController.AddLog(l);
 
-			if ((msg != "") && (l.Type != LogType.Verbose)) {
-				if(Engine.IsConnected() == false)
+			if ((msg != "") && (l.Type != LogType.Verbose))
+			{
+				if (Engine.IsConnected() == false)
 				{
 					Window.Title = Constants.Name + " - " + msg;
 					MnuTrayStatus.Title = "> " + msg;
 				}
 			}
 
-			if (l.Type >= LogType.InfoImportant) {
+			if (l.Type >= LogType.InfoImportant)
+			{
 				StatusItem.ToolTip = msg;
-				if(Engine.Instance.Storage.GetBool("gui.osx.sysbar.show_info"))
+				if (Engine.Instance.Storage.GetBool("gui.osx.sysbar.show_info"))
 					StatusItem.Title = msg;
 			}
 
 			if (l.Type >= LogType.InfoImportant)
-				Notification (msg, "");
+				Notification(msg, "");
 
 			if (l.Type >= LogType.InfoImportant)
-				RequestAttention ();
+				RequestAttention();
 
 			if (l.Type == LogType.Fatal)
-				GuiUtils.MessageBox (msg);
+				GuiUtils.MessageBox(msg);
 		}
 
 		public void EnabledUI()
 		{
-            ConnectionInfo selectedConnection = null;
-            if (TableServers.SelectedRowCount == 1)
-            {
-                 selectedConnection = TableServersController.GetRelatedItem(TableServers.SelectedRow);
-            }
+			ConnectionInfo selectedConnection = null;
+			if (TableServers.SelectedRowCount == 1)
+			{
+				selectedConnection = TableServersController.GetRelatedItem(TableServers.SelectedRow);
+			}
 
-			bool connected = Engine.IsConnected ();
-			bool waiting = Engine.IsWaiting ();
+			bool connected = Engine.IsConnected();
+			bool waiting = Engine.IsWaiting();
 
 
-            if(Engine.Instance.AirVPN != null)
-            {
-                LblLoginIcon.Hidden = false;
+			if (Engine.Instance.AirVPN != null)
+			{
+				LblLoginIcon.Hidden = false;
 				LblLogin.Hidden = false;
 				TxtLogin.Hidden = false;
 				LblPassword.Hidden = false;
@@ -643,7 +717,7 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdLogin.Hidden = false;
 				ChkRemember.Hidden = false;
 
-                bool airvpnLogged = Engine.IsLogged();
+				bool airvpnLogged = Engine.IsLogged();
 
 				if (airvpnLogged == false)
 					CmdLogin.Title = Messages.CommandLoginButton;
@@ -656,19 +730,19 @@ namespace Eddie.UI.Cocoa.Osx
 				TxtPassword.Enabled = (airvpnLogged == false);
 				LblKey.Hidden = ((airvpnLogged == false) || (CboKey.ItemCount < 2));
 				CboKey.Hidden = LblKey.Hidden;
-            }
-            else
-            {
-                LblLoginIcon.Hidden = true;
-                LblLogin.Hidden = true;
-                TxtLogin.Hidden = true;
-                LblPassword.Hidden = true;
-                TxtPassword.Hidden = true;
-                CmdLogin.Hidden = true;
-                LblKey.Hidden = true;
-                CboKey.Hidden = true;
-                ChkRemember.Hidden = true;
-            }
+			}
+			else
+			{
+				LblLoginIcon.Hidden = true;
+				LblLogin.Hidden = true;
+				TxtLogin.Hidden = true;
+				LblPassword.Hidden = true;
+				TxtPassword.Hidden = true;
+				CmdLogin.Hidden = true;
+				LblKey.Hidden = true;
+				CboKey.Hidden = true;
+				ChkRemember.Hidden = true;
+			}
 
 			MnuTrayRestore.Hidden = false;
 			/* // 2.8
@@ -677,7 +751,7 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				*/
 			MnuTrayRestore.Title = Messages.WindowsMainShow;
-            
+
 			if (waiting)
 			{
 				MnuTrayConnect.Title = Messages.CommandCancel;
@@ -687,7 +761,7 @@ namespace Eddie.UI.Cocoa.Osx
 				MnuTrayConnect.Enabled = true;
 				MnuTrayConnect.Title = Messages.CommandDisconnect;
 			}
-            else if (Engine.Instance.CanConnect())
+			else if (Engine.Instance.CanConnect())
 			{
 				MnuTrayConnect.Enabled = true;
 				MnuTrayConnect.Title = Messages.CommandConnect;
@@ -700,6 +774,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdConnect.Enabled = Engine.Instance.CanConnect();
 
+			CmdProviderAdd.Enabled = true;
+			CmdProviderRemove.Enabled = (TableProviders.SelectedRowCount > 0);
+			CmdProviderEdit.Enabled = (TableProviders.SelectedRowCount > 0);
+
 			CmdServersConnect.Enabled = ((selectedConnection != null) && (selectedConnection.CanConnect()));
 			CmdServersWhiteList.Enabled = (TableServers.SelectedRowCount > 0);
 			CmdServersBlackList.Enabled = CmdServersWhiteList.Enabled;
@@ -709,11 +787,11 @@ namespace Eddie.UI.Cocoa.Osx
 			MnuServersBlacklist.Enabled = CmdServersBlackList.Enabled;
 			MnuServersUndefined.Enabled = CmdServersUndefined.Enabled;
 
-            CmdServersMore.Enabled = (TableServers.SelectedRowCount == 1);
-            MnuServersMore.Enabled = CmdServersMore.Enabled;
+			CmdServersMore.Enabled = (TableServers.SelectedRowCount == 1);
+			MnuServersMore.Enabled = CmdServersMore.Enabled;
 
-            CmdServersRename.Enabled = ( (selectedConnection != null) && (selectedConnection.Provider is Core.Providers.OpenVPN) );
-            MnuServersRename.Enabled = CmdServersRename.Enabled;
+			CmdServersRename.Enabled = ((selectedConnection != null) && (selectedConnection.Provider is Core.Providers.OpenVPN));
+			MnuServersRename.Enabled = CmdServersRename.Enabled;
 
 			CmdAreasWhiteList.Enabled = (TableAreas.SelectedRowCount > 0);
 			CmdAreasBlackList.Enabled = CmdAreasWhiteList.Enabled;
@@ -725,39 +803,43 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdLogsOpenVpnManagement.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
 			CmdLogsOpenVpnManagement.Enabled = connected;
 
-			if (Engine.Instance.NetworkLockManager != null) {
-				CmdNetworkLock.Hidden = (Engine.Instance.NetworkLockManager.CanEnabled () == false);
+			if (Engine.Instance.NetworkLockManager != null)
+			{
+				CmdNetworkLock.Hidden = (Engine.Instance.NetworkLockManager.CanEnabled() == false);
 				ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
-				if (Engine.Instance.NetworkLockManager.IsActive ()) {
+				if (Engine.Instance.NetworkLockManager.IsActive())
+				{
 					CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
-					ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_on.png");
+					ImgNetworkLock.Image = NSImage.ImageNamed("netlock_on.png");
 
-					LblNetLockStatus.Image = NSImage.ImageNamed ("netlock_status_on.png");
+					LblNetLockStatus.Image = NSImage.ImageNamed("netlock_status_on.png");
 					LblNetLockStatus.ToolTip = Messages.NetworkLockStatusActive;
 
-				} else {
+				}
+				else
+				{
 					CmdNetworkLock.Title = Messages.NetworkLockButtonDeactive;
-					ImgNetworkLock.Image = NSImage.ImageNamed ("netlock_off.png");
-				
-					LblNetLockStatus.Image = NSImage.ImageNamed ("netlock_status_off.png");
+					ImgNetworkLock.Image = NSImage.ImageNamed("netlock_off.png");
+
+					LblNetLockStatus.Image = NSImage.ImageNamed("netlock_status_off.png");
 					LblNetLockStatus.ToolTip = Messages.NetworkLockStatusDeactive;
 				}
 			}
 
-            if(Engine.Instance.Storage.GetBool("advanced.providers"))
-            {
-                if (TabMain.Items[1] != TabProviders)
-                {
-                    TabMain.Insert(TabProviders, 1);
-                }
-            }
-            else
-            {
-                if (TabMain.Items[1] == TabProviders)
-                {
-                    TabMain.Remove(TabProviders);
-                }
-            }
+			if (Engine.Instance.Storage.GetBool("advanced.providers"))
+			{
+				if (TabMain.Items[1] != TabProviders)
+				{
+					TabMain.Insert(TabProviders, 1);
+				}
+			}
+			else
+			{
+				if (TabMain.Items[1] == TabProviders)
+				{
+					TabMain.Remove(TabProviders);
+				}
+			}
 		}
 
 		public void SettingsChanged()
@@ -786,10 +868,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void FrontMessage(string message)
 		{
-			WindowFrontMessageController w = new WindowFrontMessageController ();
-			(Engine.Instance as Engine).WindowsOpen.Add (w);
+			WindowFrontMessageController w = new WindowFrontMessageController();
+			(Engine.Instance as Engine).WindowsOpen.Add(w);
 			w.Message = message;
-			GuiUtils.ShowWindowWithFocus (w, this);
+			GuiUtils.ShowWindowWithFocus(w, this);
 		}
 
 		public void PostManifestUpdate()
@@ -800,29 +882,36 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void LoggedUpdate(XmlElement xmlKeys)
 		{
-			CboKey.RemoveAllItems ();
-			foreach (XmlElement xmlKey in xmlKeys.ChildNodes) {
-				string keyName = xmlKey.GetAttribute ("name");
+			CboKey.RemoveAllItems();
+			foreach (XmlElement xmlKey in xmlKeys.ChildNodes)
+			{
+				string keyName = xmlKey.GetAttribute("name");
 				CboKey.AddItem(keyName);
 			}
-			string currentKey = Engine.Instance.Storage.Get ("key");
-			int currentIndex = CboKey.IndexOfItem (currentKey);
-			if (currentIndex != -1) {
-				CboKey.SelectItem (currentIndex);
-			} else {
-				if (CboKey.ItemCount > 0) {
-					CboKey.SelectItem (0);
-					Engine.Instance.Storage.Set ("key", CboKey.ItemAtIndex(0).Title);
-				} else {
-					Engine.Instance.Storage.Set ("key", "");
+			string currentKey = Engine.Instance.Storage.Get("key");
+			int currentIndex = CboKey.IndexOfItem(currentKey);
+			if (currentIndex != -1)
+			{
+				CboKey.SelectItem(currentIndex);
+			}
+			else
+			{
+				if (CboKey.ItemCount > 0)
+				{
+					CboKey.SelectItem(0);
+					Engine.Instance.Storage.Set("key", CboKey.ItemAtIndex(0).Title);
+				}
+				else
+				{
+					Engine.Instance.Storage.Set("key", "");
 				}
 			}
-			
+
 		}
 
 		public void RequestAttention()
 		{
-			NSApplication.SharedApplication.RequestUserAttention (NSRequestUserAttentionType.InformationalRequest);
+			NSApplication.SharedApplication.RequestUserAttention(NSRequestUserAttentionType.InformationalRequest);
 
 
 		}
@@ -832,22 +921,25 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			string msg = Messages.NetworkLockWarning;
 
-			return (GuiUtils.MessageYesNo (msg));
+			return (GuiUtils.MessageYesNo(msg));
 		}
 
 		public void Notification(string title, string notes)
 		{
-			RequestAttention ();
+			RequestAttention();
 
-			if (Engine.Instance.Storage.GetBool ("gui.osx.notifications") == false)
+			if (Engine.Instance.Storage.GetBool("gui.osx.notifications") == false)
 				return;
 
 			// First we create our notification and customize as needed
 			NSUserNotification not = null;
 
-			try {
+			try
+			{
 				not = new NSUserNotification();
-			} catch {
+			}
+			catch
+			{
 				// This API was introduced in OS X Mountain Lion (10.8)
 				return;
 			}
@@ -866,12 +958,12 @@ namespace Eddie.UI.Cocoa.Osx
 			center.ScheduleNotification(not);
 		}
 
-		public void CreateMenuBarIcon ()
+		public void CreateMenuBarIcon()
 		{
 			StatusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(NSStatusItemLength.Variable);
 			//StatusItem.Menu = notifyMenu;
 			StatusItem.Menu = MnuTray;
-			StatusItem.Image = NSImage.ImageNamed ("menubar_light_red.png");
+			StatusItem.Image = NSImage.ImageNamed("menubar_light_red.png");
 			StatusItem.HighlightMode = true;
 		}
 
@@ -879,35 +971,36 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void Login()
 		{
-			Engine.Storage.Set ("login", TxtLogin.StringValue);
-			Engine.Storage.Set ("password", TxtPassword.StringValue);
+			Engine.Storage.Set("login", TxtLogin.StringValue);
+			Engine.Storage.Set("password", TxtPassword.StringValue);
 
-			if (TermsOfServiceCheck (false) == false)
+			if (TermsOfServiceCheck(false) == false)
 				return;
 
-			Engine.Login ();
+			Engine.Login();
 		}
 
 		void Logout()
 		{
-			Engine.Logout ();
+			Engine.Logout();
 		}
 
 		void Connect()
 		{
-			if((Engine.CanConnect() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
+			if ((Engine.CanConnect() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
 			{
-				TabMain.SelectAt (0);
-				Engine.Connect ();
+				TabMain.SelectAt(0);
+				Engine.Connect();
 			}
 		}
 
 		void ConnectManual()
 		{
-			if (TableServers.SelectedRows.Count == 1) {
+			if (TableServers.SelectedRows.Count == 1)
+			{
 				ConnectionInfo s = TableServersController.GetRelatedItem(TableServers.SelectedRow);
 				Engine.NextServer = s;
-				Connect ();
+				Connect();
 			}
 		}
 
@@ -916,79 +1009,145 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdCancel.Enabled = false;
 			MnuTrayConnect.Enabled = false;
 
-			Engine.Disconnect ();
+			Engine.Disconnect();
 		}
 
 		void NetworkLockActivation()
 		{
-			if(NetworkLockKnowledge())
+			if (NetworkLockKnowledge())
 			{
-				Engine.Instance.NetLockIn ();
+				Engine.Instance.NetLockIn();
 			}
 
 		}
 
 		void NetworkLockDeactivation()
 		{
-			Engine.NetLockOut ();
+			Engine.NetLockOut();
 		}
 
 		bool TermsOfServiceCheck(bool force)
 		{
 			bool show = force;
-			if(show == false)
-				show = (Engine.Storage.GetBool ("gui.tos") == false);
+			if (show == false)
+				show = (Engine.Storage.GetBool("gui.tos") == false);
 
-			if (show) {
-				WindowTosController tos = new WindowTosController ();
+			if (show)
+			{
+				WindowTosController tos = new WindowTosController();
 				tos.Window.ReleasedWhenClosed = true;
-				NSApplication.SharedApplication.RunModalForWindow (tos.Window);
-				tos.Window.Close ();
+				NSApplication.SharedApplication.RunModalForWindow(tos.Window);
+				tos.Window.Close();
 
-				if (tos.Accepted) {
-					Engine.Storage.SetBool ("gui.tos", true);
+				if (tos.Accepted)
+				{
+					Engine.Storage.SetBool("gui.tos", true);
 					return true;
-				} else {
+				}
+				else
+				{
 					return false;
 				}
-			} else {
+			}
+			else
+			{
 				return true;
 			}
 		}
 
+		void ProviderAdd()
+		{
+			WindowProviderAddController w = new WindowProviderAddController();
+			NSApplication.SharedApplication.RunModalForWindow(w.Window);
+			if (w.Provider != "")
+			{
+				GuiUtils.MessageBox(w.Provider);
+				Provider provider = Engine.Instance.ProvidersManager.AddProvider(w.Provider, null);
+				Engine.Instance.ProvidersManager.Refresh();
+
+				TableProvidersController.RefreshUI();
+				EnabledUI();
+			}
+		}
+
+		void ProviderRemove()
+		{
+			foreach (int i in TableProviders.SelectedRows)
+			{
+				Provider p = Engine.Instance.ProvidersManager.Providers[i];
+				Engine.Instance.ProvidersManager.Remove(p);
+			}
+
+			TableProvidersController.RefreshUI();
+			EnabledUI();
+		}
+
+		void ProviderEdit()
+		{
+			foreach (int i in TableProviders.SelectedRows)
+			{
+				bool updated = false;
+				Provider p = Engine.Instance.ProvidersManager.Providers[i];
+				if (p is Core.Providers.OpenVPN)
+				{
+					WindowProviderEditOpenVPNController w = new WindowProviderEditOpenVPNController();
+					w.Provider = p as Core.Providers.OpenVPN;
+					NSApplication.SharedApplication.RunModalForWindow(w.Window);
+					if (w.Provider != null)
+						updated = true;
+				}
+				else if (p is Core.Providers.Service)
+				{
+					WindowProviderEditManifestController w = new WindowProviderEditManifestController();
+					w.Provider = p as Core.Providers.Service;
+					NSApplication.SharedApplication.RunModalForWindow(w.Window);
+					if (w.Provider != null)
+						updated = true;
+				}
+
+				if (updated)
+				{
+					Engine.Instance.ProvidersManager.Refresh();
+
+					TableProvidersController.RefreshUI();
+					EnabledUI();
+				}
+				break; // Only one
+			}
+		}
 
 		void ServersWhiteList()
 		{
-			foreach(int i in TableServers.SelectedRows)
+			foreach (int i in TableServers.SelectedRows)
 			{
 				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.WhiteList;
 			}
 			Engine.UpdateSettings();
-			TableServersController.RefreshUI ();
+			TableServersController.RefreshUI();
 		}
 
 		void ServersBlackList()
 		{
-			foreach(int i in TableServers.SelectedRows)
+			foreach (int i in TableServers.SelectedRows)
 			{
 				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.BlackList;
 			}
 			Engine.UpdateSettings();
-			TableServersController.RefreshUI ();
+			TableServersController.RefreshUI();
 		}
 
 		void ServersUndefinedList()
 		{
-			foreach(int i in TableServers.SelectedRows)
+			foreach (int i in TableServers.SelectedRows)
 			{
 				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.None;
 			}
 			Engine.UpdateSettings();
-			TableServersController.RefreshUI ();
+			TableServersController.RefreshUI();
 		}
 
-        void ServersRename()
-        {
+		void ServersRename()
+		{
 			if (TableServers.SelectedRowCount != 1)
 				return;
 
@@ -997,31 +1156,31 @@ namespace Eddie.UI.Cocoa.Osx
 				ConnectionInfo connection = TableServersController.GetRelatedItem(i);
 
 				WindowConnectionRenameController w = new WindowConnectionRenameController();
-                w.Body = connection.DisplayName;
+				w.Body = connection.DisplayName;
 				NSApplication.SharedApplication.RunModalForWindow(w.Window);
-                if(w.Body != "")
-                {
-                    connection.DisplayName = w.Body;
-                    connection.Provider.OnChangeConnection(connection);
-                    TableServersController.RefreshUI();
-                }
+				if (w.Body != "")
+				{
+					connection.DisplayName = w.Body;
+					connection.Provider.OnChangeConnection(connection);
+					TableServersController.RefreshUI();
+				}
 			}
-        }
+		}
 
-        void ServersMore()
-        {
-            if (TableServers.SelectedRowCount != 1)
-                return;
+		void ServersMore()
+		{
+			if (TableServers.SelectedRowCount != 1)
+				return;
 
 			foreach (int i in TableServers.SelectedRows)
 			{
-                ConnectionInfo connection = TableServersController.GetRelatedItem(i);
+				ConnectionInfo connection = TableServersController.GetRelatedItem(i);
 
-                WindowConnectionController w = new WindowConnectionController();
-                w.Connection = connection;
+				WindowConnectionController w = new WindowConnectionController();
+				w.Connection = connection;
 				NSApplication.SharedApplication.RunModalForWindow(w.Window);
 			}
-        }
+		}
 
 		void ServersRefresh()
 		{
@@ -1033,122 +1192,120 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void AreasWhiteList()
 		{
-			foreach(int i in TableAreas.SelectedRows)
+			foreach (int i in TableAreas.SelectedRows)
 			{
 				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.WhiteList;
 			}
 			Engine.UpdateSettings();
-			TableServersController.RefreshUI ();
+			TableServersController.RefreshUI();
 		}
 
 		void AreasBlackList()
 		{
-			foreach(int i in TableAreas.SelectedRows)
+			foreach (int i in TableAreas.SelectedRows)
 			{
 				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.BlackList;
 			}
 			Engine.UpdateSettings();
-			TableAreasController.RefreshUI ();
+			TableAreasController.RefreshUI();
 		}
 
 		void AreasUndefinedList()
 		{
-			foreach(int i in TableAreas.SelectedRows)
+			foreach (int i in TableAreas.SelectedRows)
 			{
 				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.None;
 			}
 			Engine.UpdateSettings();
-			TableAreasController.RefreshUI ();
+			TableAreasController.RefreshUI();
 		}
 
 		void SupportReport()
 		{
-			string report = Engine.Instance.GetSupportReport();
-
-			string [] pboardTypes = new string[] { "NSStringPboardType" };
-			NSPasteboard.GeneralPasteboard.DeclareTypes (pboardTypes, null);
-			NSPasteboard.GeneralPasteboard.SetStringForType (report, pboardTypes [0]);
-			GuiUtils.MessageBox (Messages.LogsCopyClipboardDone);
+			Engine.Instance.GenerateSystemReport();
 		}
 
 		void LogsDoCopy(bool selectedOnly)
 		{
-			string t = TableLogsController.GetBody (selectedOnly);
-			if (t != "") {
-				string [] pboardTypes = new string[] { "NSStringPboardType" };
-				NSPasteboard.GeneralPasteboard.DeclareTypes (pboardTypes, null);
-				NSPasteboard.GeneralPasteboard.SetStringForType (t, pboardTypes [0]);
-				GuiUtils.MessageBox (Messages.LogsCopyClipboardDone);
+			string t = TableLogsController.GetBody(selectedOnly);
+			if (t != "")
+			{
+				string[] pboardTypes = new string[] { "NSStringPboardType" };
+				NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
+				NSPasteboard.GeneralPasteboard.SetStringForType(t, pboardTypes[0]);
+				GuiUtils.MessageBox(Messages.LogsCopyClipboardDone);
 			}
 		}
 
 		void LogsDoSave(bool selectedOnly)
 		{
-			string t = TableLogsController.GetBody (selectedOnly);
-			if (t.Trim () != "") {
+			string t = TableLogsController.GetBody(selectedOnly);
+			if (t.Trim() != "")
+			{
 				//string filename = "AirVPN_" + DateTime.Now.ToString ("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt"; // TOCLEAN
 				string filename = Engine.Logs.GetLogSuggestedFileName();
 
-				NSSavePanel panel = new NSSavePanel ();
+				NSSavePanel panel = new NSSavePanel();
 				panel.NameFieldStringValue = filename;
 				panel.CanCreateDirectories = true;
-				int result = panel.RunModal ();
-				if (result == 1) {
+				int result = panel.RunModal();
+				if (result == 1)
+				{
 					Platform.Instance.FileContentsWriteText(panel.Url.Path, t);
-			
-					GuiUtils.MessageBox (Messages.LogsSaveToFileDone);
+
+					GuiUtils.MessageBox(Messages.LogsSaveToFileDone);
 				}
 			}
 		}
 
 		public void ShowAbout()
 		{
-			if ( (windowAbout == null) || (windowAbout.Window.IsVisible == false) )
+			if ((windowAbout == null) || (windowAbout.Window.IsVisible == false))
 				windowAbout = new WindowAboutController();
-			GuiUtils.ShowWindowWithFocus (windowAbout, this);
+			GuiUtils.ShowWindowWithFocus(windowAbout, this);
 		}
 
 		public void ShowPreferences()
 		{
-			if ( (windowPreferences == null) || (windowPreferences.Window.IsVisible == false) )
+			if ((windowPreferences == null) || (windowPreferences.Window.IsVisible == false))
 				windowPreferences = new WindowPreferencesController();
-			GuiUtils.ShowWindowWithFocus (windowPreferences,this);
+			GuiUtils.ShowWindowWithFocus(windowPreferences, this);
 		}
 
 		public void ShowHome()
 		{
-			Engine.Instance.Command ("ui.show.website");
+			Engine.Instance.Command("ui.show.website");
 		}
 
 		public void ShowClientArea()
 		{
-			Engine.Instance.Command ("ui.show.clientarea");
+			Engine.Instance.Command("ui.show.clientarea");
 		}
 
 		public void ShowForwardingPorts()
 		{
-			Engine.Instance.Command ("ui.show.ports");
+			Engine.Instance.Command("ui.show.ports");
 		}
 
 		public void ShowSpeedTest()
 		{
-			Engine.Instance.Command ("ui.show.speedtest");
+			Engine.Instance.Command("ui.show.speedtest");
 		}
 
 		public void Minimize()
 		{
-			Window.Miniaturize (this);
-			EnabledUI ();
+			Window.Miniaturize(this);
+			EnabledUI();
 		}
 
 		public void Restore(object sender)
 		{
 
-			NSApplication.SharedApplication.ActivateIgnoringOtherApps (true);
+			NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
 
-			GuiUtils.ShowWindowWithFocus (this, this);
-			Window.MakeMainWindow ();
-			EnabledUI ();
+			GuiUtils.ShowWindowWithFocus(this, this);
+			Window.MakeMainWindow();
+			EnabledUI();
 			/*
 			ShowWindow (this);
 			Window.MakeMainWindow ();

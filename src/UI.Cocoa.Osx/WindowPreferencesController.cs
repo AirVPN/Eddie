@@ -328,10 +328,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			};
 
-            LblAdvancedProviders.Hidden = (!Constants.AlphaFeatures);
-            ChkAdvancedProviders.Hidden = (!Constants.AlphaFeatures);
-
-			ReadOptions ();
+            ReadOptions ();
 
 			EnableIde ();
 
@@ -746,6 +743,23 @@ namespace Eddie.UI.Cocoa.Osx
 				if (GuiUtils.MessageYesNo (Messages.WindowsSettingsRouteOutEmptyList) == false)
 					return false;
 			}
+
+            if (GuiUtils.GetCheck(ChkLockAllowDNS) == false)
+            {
+                bool hostNameUsed = false;
+                foreach (TableRoutingControllerItem item in TableRoutingController.Items)
+                {
+                    if (IpAddress.IsIP(item.Ip) == false)
+                    {
+                        hostNameUsed = true;
+                        break;
+                    }
+                }
+
+                if (hostNameUsed)
+                    if (Engine.Instance.OnAskYesNo(Messages.WindowsSettingsRouteWithHostname) == false)
+                        return false;
+            }
 
 			return true;
 		}

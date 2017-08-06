@@ -178,7 +178,8 @@ namespace Eddie.Core
 		//public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
 		public static string NetworkLockWindowsFirewallUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
 		public static string NetworkLockMacOSUnableToStart = "Unable to start PF Firewall.";
-		public static string NetworkLockLinuxUnexpectedAlreadyActive = "Unexpected already active iptables network lock";
+		public static string NetworkLockMacOSUnableToStartReason = "Unable to start PF Firewall ({1}).";
+        public static string NetworkLockLinuxUnexpectedAlreadyActive = "Unexpected already active iptables network lock";
         public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
 		public static string TorControlAuth = "Tor Control authentication method: {1}";

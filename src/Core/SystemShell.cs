@@ -133,8 +133,8 @@ namespace Eddie.Core
 				output = output.Trim();
 
 				bool log = ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
-				if (path == "ping") log = false; // Exception, to avoid a lots of log
-				if (path == "lsattr") log = false; // Exception, to avoid recursive issues
+				if (path.EndsWith("ping", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid a lots of log
+				if (path.EndsWith("lsattr", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid recursive issues
 
 				if (log)
 				{

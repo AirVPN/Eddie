@@ -212,6 +212,33 @@ namespace Eddie.UI.Cocoa.Osx
             return cred;
 		}
 
+        public override void OnSystemReport(string step, string text, int perc)
+        {
+            base.OnSystemReport(step, text, perc);
+
+            if(perc == 100)
+            {
+				WindowReportController dlg = new WindowReportController();
+				dlg.Window.ReleasedWhenClosed = true;
+                dlg.SetStep(step, text, perc);
+				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+				dlg.Window.Close();
+            }
+        }
+
+		public override void OnLoggedUpdate(XmlElement xmlKeys)
+		{
+			base.OnLoggedUpdate(xmlKeys);
+
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+					{
+						MainWindow.LoggedUpdate(xmlKeys);
+					});
+			}
+		}
+
 		public override void OnPostManifestUpdate ()
 		{
 			base.OnPostManifestUpdate ();
@@ -225,17 +252,6 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		public override void OnLoggedUpdate (XmlElement xmlKeys)
-		{
-			base.OnLoggedUpdate (xmlKeys);
-
-			if (MainWindow != null)
-			{
-				new NSObject().InvokeOnMainThread(() =>
-					{
-						MainWindow.LoggedUpdate(xmlKeys);
-					});
-			}
-		}
+		
 	}
 }

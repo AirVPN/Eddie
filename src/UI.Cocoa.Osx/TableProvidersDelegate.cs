@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -17,35 +17,28 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using Eddie.Lib.Common;
-using Eddie.Core;
+using MonoMac.AppKit;
 
-namespace Eddie.CLI.MacOS
+namespace Eddie.UI.Cocoa.Osx
 {
-	class Program
+	public class TableProvidersDelegate : NSTableViewDelegate
 	{
-		static void Main(string[] args)
+		MainWindowController m_main;
+
+		public TableProvidersDelegate (MainWindowController main)
 		{
-            Platform.Instance = new Eddie.Platforms.MacOS.Platform();
-
-			CommandLine.InitSystem(Environment.CommandLine);
-
-			Core.Engine engine = new Core.Engine();
-
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
-			if (engine.Initialization(true))
-			{
-				engine.ConsoleStart();
-			}
+			m_main = main;
 		}
 
-		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		public override void SelectionDidChange (MonoMac.Foundation.NSNotification notification)
 		{
-			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);			
+			m_main.EnabledUI ();
+		}
+
+		public override void MouseDownInHeaderOfTableColumn (NSTableView tableView, NSTableColumn tableColumn)
+		{
+			//m_main.TableProvidersController.SortByColumn (tableColumn.Identifier);
 		}
 	}
 }
+

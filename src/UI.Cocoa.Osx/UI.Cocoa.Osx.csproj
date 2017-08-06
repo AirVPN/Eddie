@@ -199,6 +199,28 @@
     <Compile Include="WindowConnectionRename.designer.cs">
       <DependentUpon>WindowConnectionRename.cs</DependentUpon>
     </Compile>
+    <Compile Include="TableProvidersController.cs" />
+    <Compile Include="WindowProviderAdd.cs" />
+    <Compile Include="WindowProviderAddController.cs" />
+    <Compile Include="WindowProviderAdd.designer.cs">
+      <DependentUpon>WindowProviderAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowProviderEditManifest.cs" />
+    <Compile Include="WindowProviderEditManifestController.cs" />
+    <Compile Include="WindowProviderEditManifest.designer.cs">
+      <DependentUpon>WindowProviderEditManifest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowProviderEditOpenVPN.cs" />
+    <Compile Include="WindowProviderEditOpenVPNController.cs" />
+    <Compile Include="WindowProviderEditOpenVPN.designer.cs">
+      <DependentUpon>WindowProviderEditOpenVPN.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowReport.cs" />
+    <Compile Include="WindowReportController.cs" />
+    <Compile Include="WindowReport.designer.cs">
+      <DependentUpon>WindowReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableProvidersDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -215,6 +237,10 @@
     <InterfaceDefinition Include="WindowCredentials.xib" />
     <InterfaceDefinition Include="WindowConnection.xib" />
     <InterfaceDefinition Include="WindowConnectionRename.xib" />
+    <InterfaceDefinition Include="WindowProviderAdd.xib" />
+    <InterfaceDefinition Include="WindowProviderEditManifest.xib" />
+    <InterfaceDefinition Include="WindowProviderEditOpenVPN.xib" />
+    <InterfaceDefinition Include="WindowReport.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />

@@ -9,27 +9,27 @@ using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowConnectionRenameController : MonoMac.AppKit.NSWindowController
+	public partial class WindowProviderEditManifestController : MonoMac.AppKit.NSWindowController
 	{
-		public string Body;
+		public Provider Provider;
 
 		#region Constructors
 
 		// Called when created from unmanaged code
-		public WindowConnectionRenameController(IntPtr handle) : base(handle)
+		public WindowProviderEditManifestController(IntPtr handle) : base(handle)
 		{
 			Initialize();
 		}
 
 		// Called when created directly from a XIB file
 		[Export("initWithCoder:")]
-		public WindowConnectionRenameController(NSCoder coder) : base(coder)
+		public WindowProviderEditManifestController(NSCoder coder) : base(coder)
 		{
 			Initialize();
 		}
 
 		// Call to load from the XIB/NIB file
-		public WindowConnectionRenameController() : base("WindowConnectionRename")
+		public WindowProviderEditManifestController() : base("WindowProviderEditManifest")
 		{
 			Initialize();
 		}
@@ -42,11 +42,11 @@ namespace Eddie.UI.Cocoa.Osx
 		#endregion
 
 		//strongly typed window accessor
-		public new WindowConnectionRename Window
+		public new WindowProviderEditManifest Window
 		{
 			get
 			{
-				return (WindowConnectionRename)base.Window;
+				return (WindowProviderEditManifest)base.Window;
 			}
 		}
 
@@ -54,13 +54,21 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsConnectionRenameTitle;
+			Window.Title = Constants.Name + " - " + Messages.WindowsProviderEditManifestTitle;
 
-			TxtBody.StringValue = Body;
+			LblTitle.Title = Provider.DefinitionTitle;
+			LblSubtitle.StringValue = Provider.DefinitionSubTitle;
+
+			GuiUtils.SetCheck(ChkEnabled, Provider.Enabled);
+
+			LblTitle.Activated += (object sender, EventArgs e) =>
+			{
+				Platform.Instance.OpenUrl(Provider.DefinitionHref);
+			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{
-				Body = TxtBody.StringValue;
+				Provider.Enabled = GuiUtils.GetCheck(ChkEnabled);
 
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();
@@ -68,7 +76,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdCancel.Activated += (object sender, EventArgs e) =>
 			{
-				Body = "";
+				Provider = null;
 
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();

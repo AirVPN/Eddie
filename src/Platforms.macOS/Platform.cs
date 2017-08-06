@@ -29,7 +29,7 @@ namespace Eddie.Platforms.MacOS
 {
 	public class Platform : Core.Platform
 	{
-        private string m_version = "";
+		private string m_version = "";
 		private string m_architecture = "";
 
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
@@ -50,21 +50,21 @@ namespace Eddie.Platforms.MacOS
 			return SystemShell.ShellCmd("sw_vers -productVersion");
 		}
 
-        public override string GetVersion()
-        {
-            return m_version;
-        }
+		public override string GetVersion()
+		{
+			return m_version;
+		}
 
-        public override void OnInit(bool cli)
-        {
-            base.OnInit(cli);
+		public override void OnInit(bool cli)
+		{
+			base.OnInit(cli);
 
-            if (cli)
-                NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
+			if (cli)
+				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
 
 			m_version = SystemShell.ShellCmd("uname -a").Trim();
 			m_architecture = NormalizeArchitecture(SystemShell.ShellCmd("uname -m").Trim());
-        }
+		}
 
 		public override string GetOsArchitecture()
 		{
@@ -81,7 +81,7 @@ namespace Eddie.Platforms.MacOS
 		{
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
 			string u = SystemShell.ShellCmd("whoami").ToLowerInvariant().Trim();
-            //return true; // Uncomment for debugging
+			//return true; // Uncomment for debugging
 			return (u == "root");
 		}
 
@@ -120,12 +120,12 @@ namespace Eddie.Platforms.MacOS
 		public override string GetExecutablePathEx()
 		{
 			string currentPath = System.Reflection.Assembly.GetEntryAssembly().Location;
-			if(new FileInfo(currentPath).Directory.Name == "MonoBundle")
+			if (new FileInfo(currentPath).Directory.Name == "MonoBundle")
 			{
 				// OSX Bundle detected, use the launcher executable
-				currentPath = currentPath.Replace("/MonoBundle/","/MacOS/").Replace(".exe","");
+				currentPath = currentPath.Replace("/MonoBundle/", "/MacOS/").Replace(".exe", "");
 			}
-			else if(Process.GetCurrentProcess().ProcessName.StartsWith("mono", StringComparison.InvariantCultureIgnoreCase))
+			else if (Process.GetCurrentProcess().ProcessName.StartsWith("mono", StringComparison.InvariantCultureIgnoreCase))
 			{
 				// mono <app>, Entry Assembly path it's ok
 			}
@@ -164,16 +164,16 @@ namespace Eddie.Platforms.MacOS
 			SystemShell.ShellCmd("discoveryutil mdnsflushcache"); // 2.11
 		}
 
-        public override void ShellCommandDirect(string command, out string path, out string[] arguments)
-        {
-            path = "/bin/sh";
-            arguments = new string[] { "-c", command };
-        }
+		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
+		{
+			path = "/bin/sh";
+			arguments = new string[] { "-c", command };
+		}
 
-        public override void ShellSync(string path, string[] arguments, out string stdout, out string stderr)
-        {
-            try
-            {
+		public override void ShellSync(string path, string[] arguments, out string stdout, out string stderr)
+		{
+			try
+			{
 				var pipeOut = new NSPipe();
 				var pipeErr = new NSPipe();
 
@@ -198,13 +198,13 @@ namespace Eddie.Platforms.MacOS
 				NSFileHandle fileErr = pipeErr.ReadHandle;
 				stderr = fileErr.ReadDataToEndOfFile().ToString();
 				fileErr.CloseFile();
-            }
-            catch(Exception ex)
-            {
-                stdout = "";
-                stderr = "Error: " + ex.Message;
-            }
-        }
+			}
+			catch (Exception ex)
+			{
+				stdout = "";
+				stderr = "Error: " + ex.Message;
+			}
+		}
 
 		public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
 		{
@@ -239,12 +239,12 @@ namespace Eddie.Platforms.MacOS
 		// Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
 		public override long Ping(string host, int timeoutSec)
 		{
-            // Note: Linux timeout is -w, OS X timeout is -t
-            /*
+			// Note: Linux timeout is -w, OS X timeout is -t
+			/*
             string args = "-c 1 -t " + SystemShell.EscapeInt(timeoutSec) + " -q -n " + SystemShell.EscapeHost(host);
             string result = Shell("/sbin/ping", args);
             */
-            /*
+			/*
             string result = "";
             try
             {
@@ -273,8 +273,8 @@ namespace Eddie.Platforms.MacOS
             }
             */
 
-            string result = SystemShell.Shell("/sbin/ping", new string[] { "-c 1", "-t " + SystemShell.EscapeInt(timeoutSec), "-q", "-n", SystemShell.EscapeHost((host)) });
-			
+			string result = SystemShell.Shell("/sbin/ping", new string[] { "-c 1", "-t " + SystemShell.EscapeInt(timeoutSec), "-q", "-n", SystemShell.EscapeHost((host)) });
+
 
 			// Note: Linux have mdev, OS X have stddev
 			string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
@@ -322,18 +322,18 @@ namespace Eddie.Platforms.MacOS
 
 		public override void RouteAdd(RouteEntry r)
 		{
-			base.RouteAdd (r);
+			base.RouteAdd(r);
 		}
 
 		public override void RouteRemove(RouteEntry r)
 		{
-			base.RouteRemove (r);
+			base.RouteRemove(r);
 		}
 
 		public override IpAddresses ResolveDNS(string host)
 		{
 			// Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
-            // Also, base methos with Dns.GetHostEntry sometime don't fetch AAAA IPv6 addresses.
+			// Also, base methos with Dns.GetHostEntry sometime don't fetch AAAA IPv6 addresses.
 
 			IpAddresses result = new IpAddresses();
 
@@ -353,20 +353,20 @@ namespace Eddie.Platforms.MacOS
 			return result;
 		}
 
-        public override IpAddresses DetectDNS()
-        {
-            IpAddresses list = new IpAddresses();
-            string[] interfaces = GetInterfaces();
-            foreach (string i in interfaces)
-            {
-                string i2 = i.Trim();
+		public override IpAddresses DetectDNS()
+		{
+			IpAddresses list = new IpAddresses();
+			string[] interfaces = GetInterfaces();
+			foreach (string i in interfaces)
+			{
+				string i2 = i.Trim();
 
-                string current = SystemShell.ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
+				string current = SystemShell.ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
 
-                list.Add(current);
-            }
-            return list;
-        }
+				list.Add(current);
+			}
+			return list;
+		}
 
 		public override List<RouteEntry> RouteList()
 		{
@@ -404,7 +404,7 @@ namespace Eddie.Platforms.MacOS
 					if (e.Address.Valid == false)
 						continue;
 					if (e.Gateway.Valid == false)
-						continue;					
+						continue;
 
 					entryList.Add(e);
 				}
@@ -413,19 +413,19 @@ namespace Eddie.Platforms.MacOS
 			return entryList;
 		}
 
-        public override void OnReport(Report report)
-        {
-            base.OnReport(report);
+		public override void OnReport(Report report)
+		{
+			base.OnReport(report);
 
-            report.Add("ifconfig", SystemShell.ShellCmd("ifconfig"));
-            report.Add("netstat /rnl", SystemShell.ShellCmd("netstat /rnl"));
-        }
+			report.Add("ifconfig", SystemShell.ShellCmd("ifconfig"));
+			report.Add("netstat /rnl", SystemShell.ShellCmd("netstat /rnl"));
+		}
 
 		public override Dictionary<int, string> GetProcessesList()
 		{
 			// We experience some crash under OSX with the base method.
-			
-			Dictionary<int, string> result = new Dictionary<int,string>();
+
+			Dictionary<int, string> result = new Dictionary<int, string>();
 			String resultS = SystemShell.ShellCmd("ps -eo pid,command");
 			string[] resultA = resultS.Split('\n');
 			foreach (string pS in resultA)
@@ -438,7 +438,7 @@ namespace Eddie.Platforms.MacOS
 					result[pid] = name;
 				}
 			}
-			
+
 			return result;
 		}
 
@@ -523,7 +523,7 @@ namespace Eddie.Platforms.MacOS
 					string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
 					string address = Utils.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
 
-					if( (mode == "") && (address != "") )
+					if ((mode == "") && (address != ""))
 						mode = "LinkLocal";
 
 					if (mode != "Off")
@@ -586,7 +586,7 @@ namespace Eddie.Platforms.MacOS
 			return true;
 		}
 
-        public override bool OnDnsSwitchDo(IpAddresses dns)
+		public override bool OnDnsSwitchDo(IpAddresses dns)
 		{
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
 
@@ -599,9 +599,9 @@ namespace Eddie.Platforms.MacOS
 
 					string currentStr = SystemShell.ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
 
-                    // v2
-                    IpAddresses current = new IpAddresses();
-					foreach(string line in currentStr.Split('\n'))
+					// v2
+					IpAddresses current = new IpAddresses();
+					foreach (string line in currentStr.Split('\n'))
 					{
 						string ip = line.Trim();
 						current.Add(ip);
@@ -610,7 +610,7 @@ namespace Eddie.Platforms.MacOS
 					if (dns.Equals(current) == false)
 					{
 						// Switch
-                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
 
 						DnsSwitchEntry e = new DnsSwitchEntry();
 						e.Name = i2;
@@ -622,7 +622,7 @@ namespace Eddie.Platforms.MacOS
 					}
 				}
 
-				Recovery.Save ();
+				Recovery.Save();
 			}
 
 			base.OnDnsSwitchDo(dns);
@@ -637,7 +637,7 @@ namespace Eddie.Platforms.MacOS
 				string v = e.Dns;
 				if (v == "")
 					v = "empty";
-				v = v.Replace (",", "\" \"");
+				v = v.Replace(",", "\" \"");
 
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 				SystemShell.ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\""); // IJTF2
@@ -645,7 +645,7 @@ namespace Eddie.Platforms.MacOS
 
 			m_listDnsSwitch.Clear();
 
-			Recovery.Save ();
+			Recovery.Save();
 
 			base.OnDnsSwitchRestore();
 

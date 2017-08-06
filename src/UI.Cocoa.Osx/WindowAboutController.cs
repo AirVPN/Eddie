@@ -98,7 +98,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdSystemReport.Activated += (object sender, EventArgs e) =>
 			{
-                Engine.Instance.OnShowText(Messages.StatsSystemReport, Engine.Instance.GetSupportReport());
+                Engine.Instance.GenerateSystemReport();
 			};
 		}
 	}

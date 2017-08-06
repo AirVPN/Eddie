@@ -73,6 +73,15 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton CmdNetworkLock { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton CmdProviderAdd { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdProviderEdit { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton CmdProviderRemove { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton CmdServersBlackList { get; set; }
 
 		[Outlet]
@@ -241,6 +250,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSTableView TableLogs { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTableView TableProviders { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTableView TableServers { get; set; }
 
 		[Outlet]
@@ -275,21 +287,6 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (LblLogin != null) {
-				LblLogin.Dispose ();
-				LblLogin = null;
-			}
-
-			if (LblPassword != null) {
-				LblPassword.Dispose ();
-				LblPassword = null;
-			}
-
-			if (LblLoginIcon != null) {
-				LblLoginIcon.Dispose ();
-				LblLoginIcon = null;
-			}
-
 			if (CboKey != null) {
 				CboKey.Dispose ();
 				CboKey = null;
@@ -475,9 +472,24 @@ namespace Eddie.UI.Cocoa.Osx
 				LblKey = null;
 			}
 
+			if (LblLogin != null) {
+				LblLogin.Dispose ();
+				LblLogin = null;
+			}
+
+			if (LblLoginIcon != null) {
+				LblLoginIcon.Dispose ();
+				LblLoginIcon = null;
+			}
+
 			if (LblNetLockStatus != null) {
 				LblNetLockStatus.Dispose ();
 				LblNetLockStatus = null;
+			}
+
+			if (LblPassword != null) {
+				LblPassword.Dispose ();
+				LblPassword = null;
 			}
 
 			if (LblTopStatus != null) {
@@ -708,6 +720,26 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtPassword != null) {
 				TxtPassword.Dispose ();
 				TxtPassword = null;
+			}
+
+			if (TableProviders != null) {
+				TableProviders.Dispose ();
+				TableProviders = null;
+			}
+
+			if (CmdProviderAdd != null) {
+				CmdProviderAdd.Dispose ();
+				CmdProviderAdd = null;
+			}
+
+			if (CmdProviderRemove != null) {
+				CmdProviderRemove.Dispose ();
+				CmdProviderRemove = null;
+			}
+
+			if (CmdProviderEdit != null) {
+				CmdProviderEdit.Dispose ();
+				CmdProviderEdit = null;
 			}
 		}
 	}
