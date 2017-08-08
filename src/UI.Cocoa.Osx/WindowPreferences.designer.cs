@@ -67,6 +67,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton ChkAdvancedProviders { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSButton ChkAdvancedSkipAlreadyRun { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSButton ChkConnect { get; set; }
 
 		[Outlet]
@@ -266,16 +269,6 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (TxtOpenVpnDirectivesCustomPath != null) {
-				TxtOpenVpnDirectivesCustomPath.Dispose ();
-				TxtOpenVpnDirectivesCustomPath = null;
-			}
-
-			if (CmdOpenVpnDirectivesCustomPathBrowse != null) {
-				CmdOpenVpnDirectivesCustomPathBrowse.Dispose ();
-				CmdOpenVpnDirectivesCustomPathBrowse = null;
-			}
-
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
@@ -379,6 +372,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkExitConfirm != null) {
 				ChkExitConfirm.Dispose ();
 				ChkExitConfirm = null;
+			}
+
+			if (ChkAdvancedSkipAlreadyRun != null) {
+				ChkAdvancedSkipAlreadyRun.Dispose ();
+				ChkAdvancedSkipAlreadyRun = null;
 			}
 
 			if (ChkGeneralOsxNotifications != null) {
@@ -509,6 +507,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdLoggingOpen != null) {
 				CmdLoggingOpen.Dispose ();
 				CmdLoggingOpen = null;
+			}
+
+			if (CmdOpenVpnDirectivesCustomPathBrowse != null) {
+				CmdOpenVpnDirectivesCustomPathBrowse.Dispose ();
+				CmdOpenVpnDirectivesCustomPathBrowse = null;
 			}
 
 			if (CmdOpenVpnDirectivesHelp != null) {
@@ -654,6 +657,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtLoggingPath != null) {
 				TxtLoggingPath.Dispose ();
 				TxtLoggingPath = null;
+			}
+
+			if (TxtOpenVpnDirectivesCustomPath != null) {
+				TxtOpenVpnDirectivesCustomPath.Dispose ();
+				TxtOpenVpnDirectivesCustomPath = null;
 			}
 
 			if (TxtProxyHost != null) {

@@ -25,6 +25,7 @@
                 <outlet property="ChkAdvancedExpertMode" destination="xVq-43-prb" id="Rfu-uO-RXn"/>
                 <outlet property="ChkAdvancedPingerEnabled" destination="PlL-FU-bP0" id="YWu-FP-gGb"/>
                 <outlet property="ChkAdvancedProviders" destination="0YZ-qx-Mbe" id="NCy-PY-7K0"/>
+                <outlet property="ChkAdvancedSkipAlreadyRun" destination="tdF-U4-K1y" id="jGd-iX-3jZ"/>
                 <outlet property="ChkConnect" destination="xhO-Kv-elj" id="dHo-zH-ucX"/>
                 <outlet property="ChkDnsCheck" destination="VqV-KG-Dpk" id="u3e-5w-qRd"/>
                 <outlet property="ChkExitConfirm" destination="ZMV-bb-YYL" id="8OZ-IU-R4K"/>
@@ -100,7 +101,7 @@
             <windowStyleMask key="styleMask" titled="YES" resizable="YES"/>
             <rect key="contentRect" x="131" y="74" width="804" height="400"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
-            <value key="minSize" type="size" width="606" height="354"/>
+            <value key="minSize" type="size" width="800" height="400"/>
             <view key="contentView" id="3">
                 <rect key="frame" x="0.0" y="0.0" width="804" height="400"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -1230,8 +1231,25 @@
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
-                                        <button misplaced="YES" id="0YZ-qx-Mbe">
+                                        <button misplaced="YES" id="tdF-U4-K1y">
                                             <rect key="frame" x="239" y="48" width="490" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="DU4-HV-6sx">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="smallSystem"/>
+                                            </buttonCell>
+                                        </button>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="IzK-AO-ieV">
+                                            <rect key="frame" x="15" y="48" width="220" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Skip processes checking:" id="QL3-nB-wAh">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <button misplaced="YES" id="0YZ-qx-Mbe">
+                                            <rect key="frame" x="239" y="25" width="490" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Bpq-mc-ccl">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1239,9 +1257,9 @@
                                             </buttonCell>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="0Wk-VB-9WI">
-                                            <rect key="frame" x="15" y="48" width="220" height="17"/>
+                                            <rect key="frame" x="15" y="25" width="220" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Multi-providers support" id="Ajc-6B-noc">
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Multi-providers support:" id="Ajc-6B-noc">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

@@ -570,7 +570,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 						LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
 						LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
-						TxtConnectedExitIp.StringValue = Engine.CurrentServer.IpsExit.ToString();
+						TxtConnectedExitIp.StringValue = Engine.ConnectedExitIP.ToString();
 						ImgConnectedCountry.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
 					}
 					else
@@ -1076,6 +1076,7 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				Provider p = Engine.Instance.ProvidersManager.Providers[i];
 				Engine.Instance.ProvidersManager.Remove(p);
+				Engine.Instance.ProvidersManager.Refresh();
 			}
 
 			TableProvidersController.RefreshUI();

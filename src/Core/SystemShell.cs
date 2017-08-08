@@ -134,6 +134,8 @@ namespace Eddie.Core
 
 				bool log = ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
 				if (path.EndsWith("ping", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
+				if (path.EndsWith("/host", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
+				if (path.EndsWith("/chmod", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
 				if (path.EndsWith("lsattr", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid recursive issues
 
 				if (log)

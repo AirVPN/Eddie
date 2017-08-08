@@ -48,7 +48,7 @@ namespace Eddie.Core.Threads
 		private TemporaryFile m_fileSshKey;
 		private TemporaryFile m_fileSslCrt;
 		private TemporaryFile m_fileSslConfig;
-		private TemporaryFile m_fileOvpn;		
+		private TemporaryFile m_fileOvpn;
 		private ProgramScope m_programScope = null;
 		private InterfaceScope m_interfaceScope = null;
 
@@ -72,7 +72,7 @@ namespace Eddie.Core.Threads
 
 			bool oneConnectionReached = false;
 
-			for (; CancelRequested == false; )
+			for (; CancelRequested == false;)
 			{
 				RouteScope routeScope = null;
 
@@ -107,7 +107,7 @@ namespace Eddie.Core.Threads
 					if ((Engine.NextServer == null) && (Pinger.Instance.GetEnabled()) && (Engine.PingerInvalid() != 0))
 					{
 						string lastWaitingMessage = "";
-						for (; ; )
+						for (;;)
 						{
 							if (CancelRequested)
 								break;
@@ -156,7 +156,7 @@ namespace Eddie.Core.Threads
 						Engine.Logs.Log(LogType.Fatal, "No server available.");
 						RequestStop();
 					}
-					
+
 					// Checking auth user status.
 					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
 					if (allowed)
@@ -223,7 +223,7 @@ namespace Eddie.Core.Threads
 						continue;
 
 					try
-					{	
+					{
 						m_ovpnStartup = Engine.CurrentServer.BuildOVPN(false);
 						Engine.WaitMessageSet(Messages.ConnectionCredentials, true);
 						if (Engine.CurrentServer.Provider.ApplyCredentials(m_ovpnStartup) == false)
@@ -235,10 +235,10 @@ namespace Eddie.Core.Threads
 						else
 						{
 							m_ovpnWithPush = m_ovpnStartup.Clone();
-							Engine.Instance.ConnectedOVPN = m_ovpnWithPush;							
+							Engine.Instance.ConnectedOVPN = m_ovpnWithPush;
 						}
 					}
-					catch(Exception e)
+					catch (Exception e)
 					{
 						Engine.Logs.Log(e);
 						allowed = false;
@@ -284,11 +284,11 @@ namespace Eddie.Core.Threads
 						// Phase 2: Waiting connection
 						// -----------------------------------
 
-						for (; ; )
+						for (;;)
 						{
 							if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited)) // 2.2
 								SetReset("ERROR");
-							if( (m_processProxy != null) && (m_processProxy.ReallyExited) ) // 2.2
+							if ((m_processProxy != null) && (m_processProxy.ReallyExited)) // 2.2
 								SetReset("ERROR");
 
 							if (Engine.IsConnected())
@@ -301,7 +301,7 @@ namespace Eddie.Core.Threads
 						}
 
 
-						if(m_reset == "")
+						if (m_reset == "")
 							oneConnectionReached = true;
 
 						// -----------------------------------
@@ -310,7 +310,7 @@ namespace Eddie.Core.Threads
 
 						if (m_reset == "")
 						{
-							for (; ; )
+							for (;;)
 							{
 								int timeNow = Utils.UnixTimeStamp();
 
@@ -330,7 +330,7 @@ namespace Eddie.Core.Threads
 
 										Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
 									}
-									else if(Platform.Instance.GetTunStatsMode() == "NetworkInterface")
+									else if (Platform.Instance.GetTunStatsMode() == "NetworkInterface")
 									{
 										if (m_interfaceTun != null)
 										{
@@ -423,7 +423,7 @@ namespace Eddie.Core.Threads
 
 						TimeDelta DeltaSigTerm = null;
 
-						for (; ; )
+						for (;;)
 						{
 							try
 							{
@@ -464,7 +464,7 @@ namespace Eddie.Core.Threads
 									else if (DeltaSigTerm.Elapsed(10000)) // Try a SIGTERM every 10 seconds
 										sendSignal = true;
 
-									if(sendSignal)
+									if (sendSignal)
 									{
 										SendManagementCommand("signal SIGTERM");
 										ProcessOpenVpnManagement();
@@ -527,7 +527,7 @@ namespace Eddie.Core.Threads
 						{
 							m_fileOvpn.Close();
 							m_fileOvpn = null;
-						}						
+						}
 						if (m_ovpnStartup != null)
 						{
 							m_ovpnStartup.Close();
@@ -709,7 +709,7 @@ namespace Eddie.Core.Threads
 				sslConfig += "foreground = yes\n"; // Without this, the process fork and it's exit can't be detected.
 				sslConfig += "pid = /tmp/" + RandomGenerator.GetHash() + ".pid\n"; // 2.2
 			}
-			if(Engine.Instance.Storage.Get("ssl.options") != "")
+			if (Engine.Instance.Storage.Get("ssl.options") != "")
 				sslConfig += "options = " + Engine.Instance.Storage.Get("ssl.options") + "\n";
 			sslConfig += "client = yes\n";
 			sslConfig += "debug = 6\n";
@@ -767,7 +767,7 @@ namespace Eddie.Core.Threads
 			string ovpnPath = m_fileOvpn.Path;
 			Platform.Instance.FileContentsWriteText(ovpnPath, m_ovpnStartup.Get());
 
-			if(m_processProxy == null)
+			if (m_processProxy == null)
 				m_programScope = new ProgramScope(Software.GetTool("openvpn").Path, "OpenVPN Tunnel");
 
 			m_processOpenVpn = new Process();
@@ -806,7 +806,7 @@ namespace Eddie.Core.Threads
 
 		void ProcessOpenVpnExited(object sender, EventArgs e)
 		{
-			if(m_reset == "")
+			if (m_reset == "")
 				SetReset("ERROR");
 		}
 
@@ -815,7 +815,7 @@ namespace Eddie.Core.Threads
 			// 2.11.8
 			if (level == "")
 				m_reset = "";
-			else if(m_reset == "")
+			else if (m_reset == "")
 				m_reset = level;
 
 			// 2.11.7 version, for reference
@@ -955,6 +955,15 @@ namespace Eddie.Core.Threads
 					if (messageLower.StartsWith("warning:"))
 						logType = LogType.Warning;
 
+					// Exception
+					if (Platform.Instance.GetCode() != "MacOS")
+					{
+						// unresolved issue, but don't want to warn users.
+						// Under OpenVPN provider, file hash.tmp.ppw for auth, any permission flags cause denied or this warning. // TOFIX
+						if ((messageLower.StartsWith("warning:")) && (messageLower.Contains("is group or others accessible")))
+							logType = LogType.Verbose;
+					}
+
 					if (messageLower.StartsWith("error:"))
 						logType = LogType.Error;
 
@@ -971,12 +980,12 @@ namespace Eddie.Core.Threads
 							log = false;
 					}
 
-					if(message.StartsWith("Options error:"))
+					if (message.StartsWith("Options error:"))
 					{
 						if (log)
 						{
 							List<string> matches = Utils.RegExMatchSingle(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in (.*?)\\:\\d+\\:(.*?)\\(.*\\)");
-							if( (matches != null) && (matches.Count == 2) )
+							if ((matches != null) && (matches.Count == 2))
 							{
 								string context = matches[0].Trim();
 								string unrecognizedOption = matches[1].Trim();
@@ -1007,7 +1016,7 @@ namespace Eddie.Core.Threads
 						else
 						{
 							string t = messageLower;
-							t = t.Replace("[nonblock]", "").Trim();							
+							t = t.Replace("[nonblock]", "").Trim();
 							List<string> fields = Utils.RegExMatchSingle(t, "\\[af_inet6?\\]([a-z90-9\\.\\:]+?):(\\d+?)$");
 							if (fields.Count == 2)
 							{
@@ -1132,7 +1141,7 @@ namespace Eddie.Core.Threads
 						m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 						m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
 						m_openVpnManagementSocket.SendTimeout = 5000;
-						m_openVpnManagementSocket.ReceiveTimeout = 5000;						
+						m_openVpnManagementSocket.ReceiveTimeout = 5000;
 					}
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
@@ -1140,10 +1149,10 @@ namespace Eddie.Core.Threads
 						Platform.Instance.OnInterfaceDo(Engine.Instance.ConnectedVpnInterfaceId);
 
 						IpAddresses dns = new IpAddresses(Engine.Instance.Storage.Get("dns.servers"));
-						if(dns.Count == 0)
+						if (dns.Count == 0)
 							dns = Engine.ConnectedOVPN.ExtractDns();
-						
-						if(dns.Count != 0)
+
+						if (dns.Count != 0)
 							Platform.Instance.OnDnsSwitchDo(dns);
 
 						if (Engine.Instance.Storage.GetBool("routes.remove_default"))
@@ -1157,7 +1166,7 @@ namespace Eddie.Core.Threads
 						if (Platform.Instance.WaitTunReady() == false)
 							SetReset("ERROR");
 
-						if(Engine.Instance.ConnectedExitIP.Count == 0)
+						if (Engine.Instance.ConnectedExitIP.Count == 0)
 						{
 							Engine.WaitMessageSet(Messages.ConnectionDetectExit, true);
 							Engine.Logs.Log(LogType.Verbose, Messages.ConnectionDetectExit);
@@ -1170,7 +1179,7 @@ namespace Eddie.Core.Threads
 						{
 							Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
 
-							if(Engine.CurrentServer.SupportCheck == false)
+							if (Engine.CurrentServer.SupportCheck == false)
 							{
 								Engine.Logs.Log(LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
 							}
@@ -1346,13 +1355,13 @@ namespace Eddie.Core.Threads
 											ok = true;
 											break;
 										}
-										catch(Exception e)
+										catch (Exception e)
 										{
 											Engine.Logs.Log(LogType.Verbose, e);
 										}
 									}
 
-									if( (m_reset == "") && (ok == false) )
+									if ((m_reset == "") && (ok == false))
 									{
 										Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingDNSFailed);
 										SetReset("ERROR");
@@ -1405,7 +1414,7 @@ namespace Eddie.Core.Threads
 
 						// Match interface - 2.11.10
 						List<string> matchInterface = Utils.RegExMatchSingle(message, "TAP-.*\\\\(.+?).tap");
-						if(matchInterface != null)
+						if (matchInterface != null)
 						{
 							Engine.ConnectedVpnInterfaceId = matchInterface[0];
 
@@ -1428,7 +1437,7 @@ namespace Eddie.Core.Threads
 						// Match name - 2.11.10
 						// Note: Windows allow [] chars in interface name, but OpenVPN use ] to close the name and don't escape it, so "\\sopened" it's required for lazy regex.
 						List<string> matchName = Utils.RegExMatchSingle(message, "TAP-.*\\sdevice\\s\\[(.*?)\\]\\sopened");
-						if(matchName != null)
+						if (matchName != null)
 						{
 							Engine.ConnectedVpnInterfaceName = matchName[0];
 						}
@@ -1481,11 +1490,11 @@ namespace Eddie.Core.Threads
 							{
 								if (directive == "PUSH_REPLY")
 									continue;
-								m_ovpnWithPush.AppendDirectives(directive, "Push");								
+								m_ovpnWithPush.AppendDirectives(directive, "Push");
 							}
 						}
 					}
-					
+
 					if (message.StartsWith("Warning:") && logType < LogType.Warning)
 						logType = LogType.Warning;
 
@@ -1596,7 +1605,8 @@ namespace Eddie.Core.Threads
 			if (write < 0)
 				write = 0; // Unexpected, ignore if it happens
 			Int64 deltaRead = read;
-			if (m_interfaceTunBytesLastRead != -1) {
+			if (m_interfaceTunBytesLastRead != -1)
+			{
 				deltaRead = read - m_interfaceTunBytesLastRead;
 				if (deltaRead < 0)
 					deltaRead = 0; // Unexpected, ignore if it happens
@@ -1605,7 +1615,8 @@ namespace Eddie.Core.Threads
 			Engine.ConnectedVpnStatsRead += deltaRead;
 
 			Int64 deltaWrite = write;
-			if (m_interfaceTunBytesLastWrite != -1) {
+			if (m_interfaceTunBytesLastWrite != -1)
+			{
 				deltaWrite = write - m_interfaceTunBytesLastWrite;
 				if (deltaWrite < 0)
 					deltaWrite = 0; // Unexpected, ignore if it happens
