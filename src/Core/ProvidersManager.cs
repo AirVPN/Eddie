@@ -93,7 +93,8 @@ namespace Eddie.Core
             if (Providers.Count == 0)
                 AddProvider("AirVPN", null);
 
-            // Hack Eddie 2.x
+			// Hack Eddie 2.x - Removed in 2.13.4
+			/*
             {
                 string specialOvpnDirectory = Engine.Instance.Storage.GetPath("ovpn");
 
@@ -128,8 +129,8 @@ namespace Eddie.Core
                         Utils.XmlSetAttributeString(providerSpecialOpenVPN.Storage.DocumentElement, "path", specialOvpnDirectory);
                     }
                 }
-
             }
+			*/
         }
 
         private void LoadDefinition(string xml)

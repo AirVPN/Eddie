@@ -894,14 +894,16 @@ namespace Eddie.Gui.Forms
 				form = dlg;
 				dlg.Provider = item.Provider as Core.Providers.Service;
 			}
-
-			if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (form != null)
 			{
-				item.Update();
+				if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				{
+					item.Update();
 
-				Engine.Instance.ProvidersManager.Refresh();
+					Engine.Instance.ProvidersManager.Refresh();
 
-				EnabledUi();				
+					EnabledUi();
+				}
 			}
 		}
 

@@ -397,7 +397,9 @@ namespace Eddie.Gui.Forms
 				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
 
 			chkAdvancedPingerEnabled.Checked = s.GetBool("pinger.enabled");
+			chkAdvancedSkipAlreadyRun.Checked = s.GetBool("advanced.skip_alreadyrun");
 			chkAdvancedProviders.Checked = s.GetBool("advanced.providers");
+			
 			chkRouteRemoveDefault.Checked = s.GetBool("routes.remove_default");
 			
 			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
@@ -704,6 +706,7 @@ namespace Eddie.Gui.Forms
 				s.Set("protocol.ipv6.route", "in-block");
 
 			s.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
+			s.SetBool("advanced.skip_alreadyrun", chkAdvancedSkipAlreadyRun.Checked);
 			s.SetBool("advanced.providers", chkAdvancedProviders.Checked);
 
 			s.SetBool("routes.remove_default", chkRouteRemoveDefault.Checked);

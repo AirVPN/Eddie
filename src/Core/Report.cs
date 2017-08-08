@@ -89,19 +89,11 @@ namespace Eddie.Core
 			Add("Test HTTP", TestUrl("http://" + Constants.Domain + "/test/"));
 			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));
 
-			Add("Exit", Engine.Instance.DiscoverExit().ToString());
-
 			/*
-			string charsNotAllowed = Platform.Instance.CharsNotAllowedInPath.Length.ToString() + ":";
-			foreach(char c in Platform.Instance.CharsNotAllowedInPath)
-			{
-				if (c < 32)
-					charsNotAllowed += "0x" + ((int)c).ToString() + ";";
-				else
-					charsNotAllowed += c + ";";
-			}
-			Add("Chars not allowed in path", charsNotAllowed);
-			*/
+			#if !EDDIENET20
+			Add("JsonTest", Newtonsoft.Json.JsonConvert.SerializeObject(new IpAddress("8.8.8.8")));
+			#endif
+			*/			
 		}
 
 		public string TestUrl(string url)
@@ -143,11 +135,7 @@ namespace Eddie.Core
 			Add("Command line arguments", "(" + Lib.Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Lib.Common.CommandLine.SystemEnvironment.GetFull());
 
 			Add("Detected DNS", Platform.Instance.DetectDNS().ToString());
-			/*
-			#if !EDDIENET20
-			Add("JsonTest", Newtonsoft.Json.JsonConvert.SerializeObject(new IpAddress("8.8.8.8")));
-			#endif
-			*/
+			//Add("Detected Exit", Engine.Instance.DiscoverExit().ToString());			
 		}
 
 		public void NetworkInterfaces()

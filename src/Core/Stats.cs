@@ -67,7 +67,6 @@ namespace Eddie.Core
 			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");
             Add("PathProfile", Messages.StatsSystemPathProfile, "system", "Open");
             Add("PathApp", Messages.StatsSystemPathApp, "system", "Open");
-            Add("SystemReport", Messages.StatsSystemReport, "system", "View");
             
             UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
             UpdateValue("PathApp", Platform.Instance.GetApplicationPath());

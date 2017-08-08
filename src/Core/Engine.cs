@@ -729,10 +729,6 @@ namespace Eddie.Core
 					OnShowText(Messages.StatsVpnGeneratedOVPN, ConnectedOVPN.Get());
 				}
 			}
-			else if (action == "ui.stats.systemreport")
-			{
-				Engine.GenerateSystemReport();
-			}
 			else if (action == "ui.stats.pinger")
 			{
 				m_threadPinger.InvalidateAll();
@@ -927,7 +923,7 @@ namespace Eddie.Core
 
 		public void GenerateSystemReport() // ClodoTemp end implementation
 		{	
-			OnSystemReport("Start", "", 0);
+			OnSystemReport("Start", "Please wait.", 0);
 
 			Report report = new Report();
 			string text = Platform.Instance.NormalizeString(report.ToString());

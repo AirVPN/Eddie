@@ -60,6 +60,8 @@ namespace Eddie.Gui.Forms
 		public void SetStep(string step, string text, int perc)
 		{
 			txtBody.Text = text;			
+			cmdCopyClipboard.Enabled = (perc == 100);
+			cmdSave.Enabled = (perc == 100);
 		}
 
         void CheckEnabled()
