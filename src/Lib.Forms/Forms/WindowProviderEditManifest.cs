@@ -45,7 +45,9 @@ namespace Eddie.Gui.Forms
         public override void OnApplySkin()
         {
             base.OnApplySkin();
-        }
+
+			lblTitle.Font = Skin.FontBig;
+		}
 
         protected override void OnLoad(EventArgs e)
 		{
@@ -69,8 +71,8 @@ namespace Eddie.Gui.Forms
         {
 			Provider.Enabled = chkEnabled.Checked;
 		}
-
-		private void lblTitle_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		
+		private void lblTitle_Click_1(object sender, EventArgs e)
 		{
 			Platform.Instance.OpenUrl(Provider.DefinitionHref);
 		}

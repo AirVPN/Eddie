@@ -29,13 +29,20 @@ using Eddie.Core;
 
 namespace Eddie.Core.Threads
 {
-    public class Manifest : Eddie.Core.Thread
+	public enum RefreshType
+	{
+		None = 0,
+		Refresh = 1,
+		RefreshInvalidate = 2,		
+	}
+
+	public class Manifest : Eddie.Core.Thread
     {
 		public static Manifest Instance;
 
         private string m_LastResult;
-		public bool ForceUpdate = false;
-		
+		public RefreshType Refresh = RefreshType.None;
+
 		public AutoResetEvent Updated = new AutoResetEvent(false);
 
 
@@ -61,7 +68,7 @@ namespace Eddie.Core.Threads
         {
 			for (; ; )
 			{
-				if ((ForceUpdate) || (Engine.ProvidersManager.NeedUpdate(true)))
+				if ((Refresh != RefreshType.None) || (Engine.ProvidersManager.NeedUpdate(true)))
 				{
 					m_LastResult = Engine.ProvidersManager.Refresh();
                     if (m_LastResult != "")
@@ -69,7 +76,10 @@ namespace Eddie.Core.Threads
 						//Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ManifestUpdate, m_LastResult)); // < 2.9, Warning
 						Engine.Instance.Logs.Log(LogType.Verbose, m_LastResult); // >= 2.9, Verbose
 					}
-					ForceUpdate = false;
+					if (Refresh == RefreshType.RefreshInvalidate)
+						Engine.Instance.InvalidateConnections();
+
+					Refresh = RefreshType.None;
 					Updated.Set();
 				}
 				
@@ -77,7 +87,7 @@ namespace Eddie.Core.Threads
 				{
 					Sleep(100);
 
-					if (ForceUpdate)
+					if (Refresh != RefreshType.None)
 						break;
 
 					if (CancelRequested)

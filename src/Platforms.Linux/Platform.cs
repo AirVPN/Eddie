@@ -246,15 +246,26 @@ namespace Eddie.Platforms.Linux
 
         public override void FlushDNS()
         {
-            // Too much issues to find a method available on all Linux platform.
-            /*
-            ShellCmd("/etc/rc.d/init.d/nscd restart");
-            if (Platform.Instance.FileExists("/usr/bin/systemctl"))
-                ShellCmd("systemctl restart nscd");
-            */
-        }
+			// Under Manjaro for example, restart nscd it's mandatory:
+			// - if you change /etc/resolv.conf for DNS queries, nscd will continue to use the old one if you have configured /etc/nsswitch.conf to use DNS for host lookups. In such a case, you need to restart nscd.			
+			if (SystemShell.ShellCmd("ps -ef | grep [n]scd").Trim() != "")
+			{
+				if (Platform.Instance.FileExists("/usr/bin/systemctl"))
+					SystemShell.ShellCmd("systemctl restart nscd");
+				else
+					SystemShell.ShellCmd("/etc/init.d/nscd restart");
+			}
 
-        protected override void OpenDirectoryInFileManagerEx(string path)
+			if (SystemShell.ShellCmd("ps -ef | grep [d]nsmasq").Trim() != "")
+			{
+				if (Platform.Instance.FileExists("/usr/bin/systemctl"))
+					SystemShell.ShellCmd("systemctl restart dnsmasq");
+				else
+					SystemShell.ShellCmd("/etc/init.d/dnsmasq restart");
+			}
+		}
+
+		protected override void OpenDirectoryInFileManagerEx(string path)
         {
             // TOFIX Don't work well on all distro
             string args = " - " + m_logname + " -c 'xdg-open \"" + SystemShell.EscapePath(path) + "\"'"; // IJTF2 // TOCHECK

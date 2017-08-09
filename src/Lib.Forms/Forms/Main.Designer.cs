@@ -52,8 +52,6 @@ namespace Eddie.Gui.Forms
 			this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuDevelopersUpdateManifest = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuDevelopersReset = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuTools = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuToolsPortForwarding = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuToolsNetworkMonitor = new System.Windows.Forms.ToolStripMenuItem();
@@ -135,6 +133,7 @@ namespace Eddie.Gui.Forms
 			this.cmdProviderAdd = new Eddie.Gui.Skin.Button();
 			this.lstProviders = new Eddie.Gui.Skin.ListView();
 			this.colProviderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colProviderProvider = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProviderDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProviderWebsite = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProviderPath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -156,7 +155,6 @@ namespace Eddie.Gui.Forms
 			this.tabLogs = new Eddie.Gui.Skin.TabPage();
 			this.txtCommand = new System.Windows.Forms.TextBox();
 			this.lstLogs = new Eddie.Gui.Skin.ListView();
-			this.colProviderProvider = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
@@ -261,7 +259,7 @@ namespace Eddie.Gui.Forms
             this.mnuRestoreSep,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(253, 340);
+			this.mnuMain.Size = new System.Drawing.Size(253, 362);
 			// 
 			// mnuStatus
 			// 
@@ -334,9 +332,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.mnuDevelopers.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuDevelopersManText,
-            this.mnuDevelopersManBBCode,
-            this.mnuDevelopersUpdateManifest,
-            this.mnuDevelopersReset});
+            this.mnuDevelopersManBBCode});
 			this.mnuDevelopers.Name = "mnuDevelopers";
 			this.mnuDevelopers.Size = new System.Drawing.Size(252, 26);
 			this.mnuDevelopers.Text = "&Developers";
@@ -354,20 +350,6 @@ namespace Eddie.Gui.Forms
 			this.mnuDevelopersManBBCode.Size = new System.Drawing.Size(192, 22);
 			this.mnuDevelopersManBBCode.Text = "Man - BBCode Format";
 			this.mnuDevelopersManBBCode.Click += new System.EventHandler(this.mnuDevelopersManBBCode_Click);
-			// 
-			// mnuDevelopersUpdateManifest
-			// 
-			this.mnuDevelopersUpdateManifest.Name = "mnuDevelopersUpdateManifest";
-			this.mnuDevelopersUpdateManifest.Size = new System.Drawing.Size(192, 22);
-			this.mnuDevelopersUpdateManifest.Text = "Update Manifest Now";
-			this.mnuDevelopersUpdateManifest.Click += new System.EventHandler(this.mnuDevelopersUpdateManifest_Click);
-			// 
-			// mnuDevelopersReset
-			// 
-			this.mnuDevelopersReset.Name = "mnuDevelopersReset";
-			this.mnuDevelopersReset.Size = new System.Drawing.Size(192, 22);
-			this.mnuDevelopersReset.Text = "Reset (pinger for now)";
-			this.mnuDevelopersReset.Click += new System.EventHandler(this.mnuDevelopersReset_Click);
 			// 
 			// mnuTools
 			// 
@@ -1570,6 +1552,10 @@ namespace Eddie.Gui.Forms
 			// 
 			this.colProviderName.Text = "Title";
 			// 
+			// colProviderProvider
+			// 
+			this.colProviderProvider.Text = "Provider";
+			// 
 			// colProviderDescription
 			// 
 			this.colProviderDescription.Text = "Provider Description";
@@ -1840,10 +1826,6 @@ namespace Eddie.Gui.Forms
 			this.lstLogs.UseCompatibleStateImageBehavior = false;
 			this.lstLogs.View = System.Windows.Forms.View.Details;
 			// 
-			// colProviderProvider
-			// 
-			this.colProviderProvider.Text = "Provider";
-			// 
 			// Main
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1892,7 +1874,6 @@ namespace Eddie.Gui.Forms
         private System.Windows.Forms.ToolStripMenuItem mnuAbout;
 		private System.Windows.Forms.ToolStripMenuItem mnuDevelopers;
         private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManText;
-        private System.Windows.Forms.ToolStripMenuItem mnuDevelopersUpdateManifest;		
 		private Skin.Panel pnlWelcome;
 		private Skin.Label lblPassword;
 		private Skin.Label lblLogin;
@@ -1967,7 +1948,6 @@ namespace Eddie.Gui.Forms
 		private System.Windows.Forms.ToolStripSeparator mnuSeparator3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private Skin.Button cmdLockedNetwork;
-		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersReset;
 		private Skin.Label lblConnectSubtitle;
 		private Skin.Button cmdServersRefresh;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;

@@ -44,8 +44,15 @@ namespace Eddie.Gui.Forms
 
         public override void OnApplySkin()
         {
-            base.OnApplySkin();			
-        }
+            base.OnApplySkin();
+
+			lblTitle.Font = Skin.FontBig;
+			GuiUtils.FixHeightVs(lblTitle2, txtTitle2);
+			GuiUtils.FixHeightVs(lblPath, txtPath);
+			GuiUtils.FixHeightVs(lblPath, cmdPathBrowse);
+			GuiUtils.FixHeightVs(lblAuthPassUsername, txtAuthPassUsername);
+			GuiUtils.FixHeightVs(lblAuthPassPassword, txtAuthPassPassword);
+		}
 
         protected override void OnLoad(EventArgs e)
 		{
@@ -56,7 +63,7 @@ namespace Eddie.Gui.Forms
 			lblSubtitle.Text = Provider.DefinitionSubTitle;
 
 			chkEnabled.Checked = Provider.Enabled;
-			txtTitle.Text = Provider.Title;
+			txtTitle2.Text = Provider.Title;
 			txtPath.Text = Provider.Path;
 
 			txtAuthPassUsername.Text = Provider.AuthPassUsername;
@@ -72,7 +79,7 @@ namespace Eddie.Gui.Forms
         private void cmdOk_Click(object sender, EventArgs e)
         {
 			Provider.Enabled = chkEnabled.Checked;
-			Provider.Title = txtTitle.Text;
+			Provider.Title = txtTitle2.Text;
 			Provider.Path = txtPath.Text;
 
 			Provider.AuthPassUsername = txtAuthPassUsername.Text;
@@ -83,10 +90,10 @@ namespace Eddie.Gui.Forms
 		{
 			string result = GuiUtils.DirectoryPicker(Messages.WindowsProviderEditOpenVPNPathBrowse, txtPath.Text);
 			if (result != "")
-				txtPath.Text = result;
+				txtPath.Text = result;				
 		}
 
-		private void lblTitle_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		private void lblTitle_Click(object sender, EventArgs e)
 		{
 			Platform.Instance.OpenUrl(Provider.DefinitionHref);
 		}

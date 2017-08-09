@@ -25,6 +25,28 @@ namespace Eddie.Core
 {
 	public class SystemShell
 	{
+		// Request
+		public string Path = "";
+		public List<string> Arguments = new List<string>();
+		public bool WaitEnd = true;
+		public bool NoDebugLog = false;
+
+		// Response
+		public string StdOut = "";
+		public string StdErr = "";
+
+		private static int m_id = 0;
+
+		public string Output
+		{
+			get
+			{
+				string output = StdOut + Platform.Instance.EndOfLineSep + StdErr;
+				output = output.Trim();
+				return output;
+			}
+		}
+
 		public static string EscapeAlphaNumeric(string value)
 		{
 			return Utils.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
@@ -120,48 +142,57 @@ namespace Eddie.Core
 
 		public static string Shell(string path, string[] arguments, bool waitEnd)
 		{
-			string stdout = "";
-			string stderr = "";
+			SystemShell s = new SystemShell();
+			s.Path = path;
+			s.Arguments.AddRange(arguments);
+			s.WaitEnd = waitEnd;
+			s.Run();
+			return s.Output;
+		}
 
-			if (waitEnd)
+		public void Run()
+		{
+			m_id++;
+			if (WaitEnd)
 			{
-				int startTime = Environment.TickCount;
-				Platform.Instance.ShellSync(path, arguments, out stdout, out stderr);
-				int endTime = Environment.TickCount;
-
-				string output = stdout + Platform.Instance.EndOfLineSep + stderr;
-				output = output.Trim();
-
-				bool log = ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
-				if (path.EndsWith("ping", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
-				if (path.EndsWith("/host", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
-				if (path.EndsWith("/chmod", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
-				if (path.EndsWith("lsattr", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid recursive issues
+				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
+				if (Path.EndsWith("ping", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
+				if (Path.EndsWith("/host", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
+				if (Path.EndsWith("/chmod", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
+				if (Path.EndsWith("lsattr", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid recursive issues
 
 				if (log)
 				{
-					int deltaTime = endTime - startTime;
-					string message = "Shell of '" + path + "'";
-					if (arguments.Length > 0)
+					string message = "Shell(" + m_id + ") of '" + Path + "'";
+					if (Arguments.Count > 0)
 					{
-						message += ", " + arguments.Length.ToString() + " args: ";
-						foreach (string arg in arguments)
+						message += ", " + Arguments.Count.ToString() + " args: ";
+						foreach (string arg in Arguments)
 						{
 							message += "'" + arg + "';";
 						}
 					}
-
-					message += ", done sync in " + deltaTime.ToString() + " ms, output: " + output;
 					message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
 
-				return output;
+				int startTime = Environment.TickCount;
+				Platform.Instance.ShellSync(Path, Arguments.ToArray(), out StdOut, out StdErr);
+				int endTime = Environment.TickCount;
+
+				if (log)
+				{
+					int deltaTime = endTime - startTime;
+					string message = "Shell(" + m_id + ") done in " + deltaTime.ToString() + " ms, out: " + StdOut;
+					if (StdErr != "")
+						message += ", err:" + StdErr;
+					message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
+					Engine.Instance.Logs.Log(LogType.Verbose, message);
+				}
 			}
 			else
 			{
-				Platform.Instance.ShellASync(path, arguments);
-				return "";
+				Platform.Instance.ShellASync(Path, Arguments.ToArray());
 			}
 		}
 	}

@@ -30,9 +30,9 @@
         {
 			this.cmdOk = new Eddie.Gui.Skin.Button();
 			this.cmdCancel = new Eddie.Gui.Skin.Button();
-			this.chkEnabled = new System.Windows.Forms.CheckBox();
-			this.lblTitle = new System.Windows.Forms.LinkLabel();
-			this.lblSubtitle = new System.Windows.Forms.Label();
+			this.chkEnabled = new Eddie.Gui.Skin.CheckBox();
+			this.lblTitle = new Eddie.Gui.Skin.LinkLabel();
+			this.lblSubtitle = new Eddie.Gui.Skin.Label();
 			this.SuspendLayout();
 			// 
 			// cmdOk
@@ -79,8 +79,12 @@
 			// 
 			// lblTitle
 			// 
+			this.lblTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblTitle.BackColor = System.Drawing.Color.Transparent;
+			this.lblTitle.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lblTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
 			this.lblTitle.Location = new System.Drawing.Point(116, 13);
 			this.lblTitle.Name = "lblTitle";
 			this.lblTitle.Size = new System.Drawing.Size(298, 29);
@@ -88,10 +92,12 @@
 			this.lblTitle.TabStop = true;
 			this.lblTitle.Text = "Title";
 			this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.lblTitle.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblTitle_LinkClicked);
+			this.lblTitle.Click += new System.EventHandler(this.lblTitle_Click_1);
 			// 
 			// lblSubtitle
 			// 
+			this.lblSubtitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblSubtitle.BackColor = System.Drawing.Color.Transparent;
 			this.lblSubtitle.Location = new System.Drawing.Point(12, 42);
 			this.lblSubtitle.Name = "lblSubtitle";
@@ -123,12 +129,17 @@
 
         }
 
-        #endregion
+		private void LblTitle_Click(object sender, System.EventArgs e)
+		{
+			throw new System.NotImplementedException();
+		}
 
-        private Skin.Button cmdOk;
+		#endregion
+
+		private Skin.Button cmdOk;
         private Skin.Button cmdCancel;
-		private System.Windows.Forms.CheckBox chkEnabled;
-		private System.Windows.Forms.LinkLabel lblTitle;
-		private System.Windows.Forms.Label lblSubtitle;
+		private Skin.CheckBox chkEnabled;
+		private Skin.LinkLabel lblTitle;
+		private Skin.Label lblSubtitle;
 	}
 }

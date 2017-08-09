@@ -42,7 +42,7 @@
 			// 
 			this.lblPassword.BackColor = System.Drawing.Color.Transparent;
 			this.lblPassword.ForeColor = System.Drawing.Color.Black;
-			this.lblPassword.Location = new System.Drawing.Point(11, 40);
+			this.lblPassword.Location = new System.Drawing.Point(11, 46);
 			this.lblPassword.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lblPassword.Name = "lblPassword";
 			this.lblPassword.Size = new System.Drawing.Size(76, 20);
@@ -67,7 +67,7 @@
 			this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txtPassword.Location = new System.Drawing.Point(91, 40);
+			this.txtPassword.Location = new System.Drawing.Point(91, 46);
 			this.txtPassword.Margin = new System.Windows.Forms.Padding(2);
 			this.txtPassword.Name = "txtPassword";
 			this.txtPassword.PasswordChar = '*';
@@ -94,7 +94,7 @@
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.cmdOk.FlatAppearance.BorderSize = 0;
 			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdOk.Location = new System.Drawing.Point(53, 109);
+			this.cmdOk.Location = new System.Drawing.Point(53, 128);
 			this.cmdOk.Name = "cmdOk";
 			this.cmdOk.Size = new System.Drawing.Size(106, 27);
 			this.cmdOk.TabIndex = 62;
@@ -110,7 +110,7 @@
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cmdCancel.FlatAppearance.BorderSize = 0;
 			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdCancel.Location = new System.Drawing.Point(166, 109);
+			this.cmdCancel.Location = new System.Drawing.Point(166, 128);
 			this.cmdCancel.Name = "cmdCancel";
 			this.cmdCancel.Size = new System.Drawing.Size(106, 27);
 			this.cmdCancel.TabIndex = 63;
@@ -123,7 +123,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.cboRemember.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboRemember.FormattingEnabled = true;
-			this.cboRemember.Location = new System.Drawing.Point(91, 65);
+			this.cboRemember.Location = new System.Drawing.Point(91, 76);
 			this.cboRemember.Name = "cboRemember";
 			this.cboRemember.Size = new System.Drawing.Size(221, 21);
 			this.cboRemember.TabIndex = 65;
@@ -132,7 +132,7 @@
 			// 
 			this.lblRemember.BackColor = System.Drawing.Color.Transparent;
 			this.lblRemember.ForeColor = System.Drawing.Color.Black;
-			this.lblRemember.Location = new System.Drawing.Point(12, 65);
+			this.lblRemember.Location = new System.Drawing.Point(12, 76);
 			this.lblRemember.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lblRemember.Name = "lblRemember";
 			this.lblRemember.Size = new System.Drawing.Size(76, 21);
@@ -146,7 +146,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdCancel;
-			this.ClientSize = new System.Drawing.Size(324, 155);
+			this.ClientSize = new System.Drawing.Size(324, 174);
 			this.Controls.Add(this.lblRemember);
 			this.Controls.Add(this.cboRemember);
 			this.Controls.Add(this.cmdOk);

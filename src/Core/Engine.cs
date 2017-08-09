@@ -731,14 +731,11 @@ namespace Eddie.Core
 			}
 			else if (action == "ui.stats.pinger")
 			{
-				m_threadPinger.InvalidateAll();
-				m_threadDiscover.InvalidateAll();
-
-				OnRefreshUi(Core.Engine.RefreshUiMode.Full);
+				InvalidateConnections();				
 			}
 			else if (action == "ui.stats.manifestlastupdate")
 			{
-				Core.Threads.Manifest.Instance.ForceUpdate = true;
+				RefreshConnections();
 			}
 			else if (action == "ui.stats.pathapp")
 			{
@@ -1276,7 +1273,7 @@ namespace Eddie.Core
 			{
 				string manifestLastUpdate = Utils.FormatTime(ProvidersManager.LastRefreshDone);
 				if (Core.Threads.Manifest.Instance != null)
-					if (Core.Threads.Manifest.Instance.ForceUpdate)
+					if (Core.Threads.Manifest.Instance.Refresh != Threads.RefreshType.None)
 						manifestLastUpdate += " (" + Messages.ManifestUpdateForce + ")";
 				Stats.UpdateValue("ManifestLastUpdate", manifestLastUpdate);
 
@@ -1545,9 +1542,29 @@ namespace Eddie.Core
 			return null;
 		}
 
+		public void RefreshConnections()
+		{
+			// Refresh each provider
+			Core.Threads.Manifest.Instance.Refresh = Threads.RefreshType.Refresh;
+		}
+
+		public void RefreshInvalidateConnections()
+		{
+			// Refresh each provider AND invalidate all ping and discovery info
+			Core.Threads.Manifest.Instance.Refresh = Threads.RefreshType.RefreshInvalidate;
+		}
+
+		public void InvalidateConnections()
+		{
+			m_threadPinger.InvalidateAll();
+			m_threadDiscover.InvalidateAll();
+
+			OnRefreshUi(Core.Engine.RefreshUiMode.Full);
+		}
+
 		public string WaitManifestUpdate()
 		{
-			m_threadManifest.ForceUpdate = true;
+			m_threadManifest.Refresh = Threads.RefreshType.Refresh;
 			m_threadManifest.Updated.WaitOne();
 			return m_threadManifest.GetLastResult();
 		}

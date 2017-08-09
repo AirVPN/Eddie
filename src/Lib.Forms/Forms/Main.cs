@@ -778,12 +778,7 @@ namespace Eddie.Gui.Forms
 			Dlg.ShowDialog();
 			*/			
 		}
-
-		private void mnuDevelopersUpdateManifest_Click(object sender, EventArgs e)
-		{
-			Core.Threads.Manifest.Instance.ForceUpdate = true;
-		}
-
+		
 		private void mnuDevelopersNetworkMonitor_Click(object sender, EventArgs e)
 		{
 			/*
@@ -1002,9 +997,9 @@ namespace Eddie.Gui.Forms
 		private void mnuServersRefresh_Click(object sender, EventArgs e)
 		{
 			mnuServersRefresh.Enabled = false;
-			cmdServersRefresh.Enabled = false;				
+			cmdServersRefresh.Enabled = false;
 
-			Core.Threads.Manifest.Instance.ForceUpdate = true;
+			Engine.Instance.RefreshInvalidateConnections();
 		}
 				
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
@@ -1174,7 +1169,7 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-			Engine.GenerateSystemReport();
+			Engine.GenerateSystemReport();			
 		}
 
 		private void cmdLogsOpenVpnManagement_Click(object sender, EventArgs e)

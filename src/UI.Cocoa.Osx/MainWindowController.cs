@@ -1188,7 +1188,7 @@ namespace Eddie.UI.Cocoa.Osx
 			MnuServersRefresh.Enabled = false;
 			CmdServersRefresh.Enabled = false;
 
-			Core.Threads.Manifest.Instance.ForceUpdate = true;
+			Engine.Instance.RefreshInvalidateConnections();
 		}
 
 		void AreasWhiteList()

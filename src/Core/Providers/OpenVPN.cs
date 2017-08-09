@@ -267,14 +267,14 @@ namespace Eddie.Core.Providers
         {
 			FileInfo file = new FileInfo(path);
 			string name = file.FullName;
-
-			name = name.Replace(Path, "").Trim();
-
+			
+			if(Path != "")
+				name = name.Replace(Path, "").Trim();
+			
 			name = Regex.Replace(name, ".tblk", "", RegexOptions.IgnoreCase); // TunnelBlick
 			name = Regex.Replace(name, ".ovpn", "", RegexOptions.IgnoreCase); // OpenVPN
 
 			name = name.Trim(" -\\/".ToCharArray());
-
 			return TitleForDisplay + name;
 
 			// Cleaning
