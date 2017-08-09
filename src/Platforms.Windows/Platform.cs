@@ -334,7 +334,7 @@ namespace Eddie.Platforms.Windows
 			string cmd = "route delete " + r.Address.Address + " mask " + r.Mask.Address + " " + r.Gateway.Address;
 			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
 		}
-
+		
 		public override IpAddresses DetectDNS()
 		{
 			IpAddresses list = new IpAddresses();

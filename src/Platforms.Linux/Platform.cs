@@ -366,17 +366,22 @@ namespace Eddie.Platforms.Linux
 			IpAddresses result = new IpAddresses();
 
 			// Note: CNAME record are automatically followed.
-			string hostout = SystemShell.ShellCmd("host -W 5 " + SystemShell.EscapeHost(host));
-			
-			foreach (string line in hostout.Split('\n'))
-			{
-				string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
-				if (ipv4 != "")
-					result.Add(ipv4.Trim());
+			SystemShell s = new SystemShell();
+			s.Path = "getent";
+			s.Arguments.Add("ahosts");
+			s.Arguments.Add(SystemShell.EscapeHost(host));
+			s.Run();
 
-				string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
-				if (ipv6 != "")
-					result.Add(ipv6.Trim());
+			string o = s.Output;
+			o = Utils.StringCleanSpace(o);
+			foreach (string line in o.Split('\n'))
+			{
+				string[] fields = line.Split(' ');
+				if (fields.Length < 2)
+					continue;
+				if (fields[1].Trim() != "STREAM")
+					continue;
+				result.Add(fields[0].Trim());
 			}
 			return result;
 		}
