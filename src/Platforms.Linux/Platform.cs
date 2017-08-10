@@ -135,22 +135,25 @@ namespace Eddie.Platforms.Linux
             if (FileExists(path) == false)
                 return false;
 
-			string result = SystemShell.Shell("lsattr","\"" + SystemShell.EscapePath(path) + "\"");
+			SystemShell s = new SystemShell();
+			s.Path = "lsattr";
+			s.Arguments.Add(SystemShell.EscapePath(path));
+			s.NoDebugLog = true;
 
-			/* // < 2.11.11
-            if (result.IndexOf(' ') != 16) 
-                return false;
-            if (result[4] == 'i')
-                return true;
-            */
+			if (s.Run())
+			{
+				string result = s.Output;
 
-			if (result.StartsWith("lsattr: ")) // Generic error
-                return false;
+				if (result.StartsWith("lsattr: ")) // Generic error
+					return false;
 
-            if (result.IndexOf(' ') != -1)
-                result = result.Substring(0, result.IndexOf(' '));
+				if (result.IndexOf(' ') != -1)
+					result = result.Substring(0, result.IndexOf(' '));
 
-            return (result.IndexOf("-i-") != -1);            
+				return (result.IndexOf("-i-") != -1);
+			}
+			else
+				return false;
         }
 
         public override void FileImmutableSet(string path, bool value)
@@ -166,9 +169,14 @@ namespace Eddie.Platforms.Linux
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
-			
+
 			// 'mode' not escaped, called hard-coded.
-			SystemShell.ShellCmd("chmod " + mode + " \"" + SystemShell.EscapePath(path) + "\"");
+			SystemShell s = new SystemShell();
+			s.Path = "chmod";
+			s.Arguments.Add(mode);
+			s.Arguments.Add(SystemShell.EscapePath(path));
+			s.NoDebugLog = true;
+			s.Run();
 		}
 
 		public override void FileEnsureExecutablePermission(string path)
@@ -303,13 +311,24 @@ namespace Eddie.Platforms.Linux
 
         public override long Ping(string host, int timeoutSec)
         {
-			string result = SystemShell.Shell("ping", "-c 1 -w " + timeoutSec.ToString() + " -q -n " + SystemShell.EscapeHost(host));
-            
-            string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
-            float iMS;
-            if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-                iMS = -1;
-            
+			SystemShell s = new SystemShell();
+			s.Path = "ping";
+			s.Arguments.Add("-c 1");
+			s.Arguments.Add("-w " + timeoutSec.ToString());
+			s.Arguments.Add("-q");
+			s.Arguments.Add("-n");
+			s.Arguments.Add(SystemShell.EscapeHost(host));
+			s.NoDebugLog = true;
+
+			float iMS = -1;
+			if (s.Run())
+			{
+				string result = s.Output;
+				string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
+				if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+					iMS = -1;
+			}
+			
             return (long) iMS;
         }
 		
@@ -370,6 +389,7 @@ namespace Eddie.Platforms.Linux
 			s.Path = "getent";
 			s.Arguments.Add("ahosts");
 			s.Arguments.Add(SystemShell.EscapeHost(host));
+			s.NoDebugLog = true;
 			s.Run();
 
 			string o = s.Output;

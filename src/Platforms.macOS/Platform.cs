@@ -80,7 +80,6 @@ namespace Eddie.Platforms.MacOS
 		public override bool IsAdmin()
 		{
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
-			//TOCLEAN string u = SystemShell.ShellCmd("whoami").ToLowerInvariant().Trim();
 			string u = SystemShell.Shell("/usr/bin/whoami", new string[] { }).ToLowerInvariant().Trim();
 			//return true; // Uncomment for debugging
 			return (u == "root");
@@ -105,8 +104,12 @@ namespace Eddie.Platforms.MacOS
 				return;
 
 			// 'mode' not escaped, called hard-coded.
-			// TOCLEAN <2.13.4 SystemShell.ShellCmd("chmod " + mode + " \"" + SystemShell.EscapePath(path) + "\"");
-			SystemShell.Shell("/bin/chmod", new string[] { mode, SystemShell.EscapePath(path) });
+			SystemShell s = new SystemShell();
+			s.Path = "/bin/chmod";
+			s.Arguments.Add(mode);
+			s.Arguments.Add(SystemShell.EscapePath(path));
+			s.NoDebugLog = true;
+			s.Run();
 		}
 
 		public override void FileEnsureExecutablePermission(string path)
@@ -273,14 +276,23 @@ namespace Eddie.Platforms.MacOS
             }
             */
 
-			string result = SystemShell.Shell("/sbin/ping", new string[] { "-c 1", "-t " + SystemShell.EscapeInt(timeoutSec), "-q", "-n", SystemShell.EscapeHost((host)) });
+			SystemShell s = new SystemShell();
+			s.Path = "/sbin/ping";
+			s.Arguments.Add("-c 1");
+			s.Arguments.Add("-t " + timeoutSec.ToString());
+			s.Arguments.Add("-q");
+			s.Arguments.Add("-n");
+			s.Arguments.Add(SystemShell.EscapeHost(host));
+			s.NoDebugLog = true;
 
-
-			// Note: Linux have mdev, OS X have stddev
-			string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
-			float iMS;
-			if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-				iMS = -1;
+			float iMS = -1;
+			if (s.Run())
+			{
+				// Note: Linux have mdev, OS X have stddev
+				string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
+				if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+					iMS = -1;
+			}
 
 			return (long)iMS;
 		}
@@ -333,24 +345,30 @@ namespace Eddie.Platforms.MacOS
 		public override IpAddresses ResolveDNS(string host)
 		{
 			// Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
-			// Also, base methos with Dns.GetHostEntry sometime don't fetch AAAA IPv6 addresses.
+			// Also, base methods with Dns.GetHostEntry sometime don't fetch AAAA IPv6 addresses.
 
 			IpAddresses result = new IpAddresses();
 
 			// Note: CNAME record are automatically followed.
-			// string hostout = SystemShell.ShellCmd("host -W 5 " + SystemShell.EscapeHost(host)); // TOCLEAN
-			string hostout = SystemShell.Shell("/usr/bin/host", new string[] { "-W 5", SystemShell.EscapeHost(host) });
-
-			foreach (string line in hostout.Split('\n'))
+			SystemShell s = new SystemShell();
+			s.Path = "/usr/bin/host";
+			s.Arguments.Add("-W 5");
+			s.Arguments.Add(SystemShell.EscapeHost(host));
+			if(s.Run())
 			{
-				string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
-				if (ipv4 != "")
-					result.Add(ipv4.Trim());
+				string hostout = s.Output;
+				foreach (string line in hostout.Split('\n'))
+				{
+					string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
+					if (ipv4 != "")
+						result.Add(ipv4.Trim());
 
-				string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
-				if (ipv6 != "")
-					result.Add(ipv6.Trim());
+					string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
+					if (ipv6 != "")
+						result.Add(ipv6.Trim());
+				}
 			}
+			
 			return result;
 		}
 
@@ -521,8 +539,7 @@ namespace Eddie.Platforms.MacOS
 				foreach (string i in interfaces)
 				{
 					string getInfo = SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-getinfo", SystemShell.EscapeInsideQuote(i) });
-					// TOCLEAN string getInfo = SystemShell.ShellCmd("networksetup -getinfo \"" + SystemShell.EscapeInsideQuote(i) + "\"");
-
+					
 					string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
 					string address = Utils.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
 
@@ -544,7 +561,6 @@ namespace Eddie.Platforms.MacOS
 						}
 						m_listIpV6Mode.Add(entry);
 
-						// TOCLEAN SystemShell.ShellCmd("networksetup -setv6off \"" + SystemShell.EscapeInsideQuote(i) + "\"");
 						SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6off", SystemShell.EscapeInsideQuote(i) });
 					}
 				}
@@ -563,22 +579,18 @@ namespace Eddie.Platforms.MacOS
 			{
 				if (entry.Mode == "Off")
 				{
-					// TOCLEAN SystemShell.ShellCmd("networksetup -setv6off \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
 					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6off", SystemShell.EscapeInsideQuote(entry.Interface) });
 				}
 				else if (entry.Mode == "Automatic")
 				{
-					//SystemShell.ShellCmd("networksetup -setv6automatic \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
 					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6automatic", SystemShell.EscapeInsideQuote(entry.Interface) });
 				}
 				else if (entry.Mode == "LinkLocal")
 				{
-					//SystemShell.ShellCmd("networksetup -setv6LinkLocal \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\"");
 					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6LinkLocal", SystemShell.EscapeInsideQuote(entry.Interface) });
 				}
 				else if (entry.Mode == "Manual")
 				{
-					//SystemShell.ShellCmd("networksetup -setv6manual \"" + SystemShell.EscapeInsideQuote(entry.Interface) + "\" " + entry.Address + " " + entry.PrefixLength + " " + entry.Router); // IJTF2 // TOCHECK
 					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6manual", SystemShell.EscapeInsideQuote(entry.Interface), entry.Address, entry.PrefixLength, entry.Router });
 				}
 
@@ -626,7 +638,6 @@ namespace Eddie.Platforms.MacOS
 						m_listDnsSwitch.Add(e);
 
 						string dns2 = dns.Addresses.Replace(",", "\" \"");
-						//SystemShell.ShellCmd("networksetup -setdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\" \"" + dns2 + "\""); // IJTF2 eh? // TOCLEAN
 						SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setdnsservers", SystemShell.EscapeInsideQuote(i2), dns2 });
 					}
 				}
@@ -649,7 +660,6 @@ namespace Eddie.Platforms.MacOS
 				v = v.Replace(",", "\" \"");
 
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
-				//SystemShell.ShellCmd("networksetup -setdnsservers \"" + e.Name + "\" \"" + v + "\""); // IJTF2 // TOCLEAN
 				SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setdnsservers", SystemShell.EscapeInsideQuote(e.Name), v });
 			}
 
@@ -679,8 +689,7 @@ namespace Eddie.Platforms.MacOS
 					continue;
 				result.Add(line.Trim());
 			}
-			// TOCLEAN string[] interfaces = SystemShell.ShellCmd("networksetup -listallnetworkservices | grep -v denotes").Split('\n');
-
+			
 			return result.ToArray();
 		}
 	}

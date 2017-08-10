@@ -1151,7 +1151,7 @@ namespace Eddie.Core
 					if (restart == false)
 						break;
 				}
-
+				
 				// White/black list
 				List<string> serversWhiteList = Storage.GetList("servers.whitelist");
 				List<string> serversBlackList = Storage.GetList("servers.blacklist");

@@ -150,17 +150,13 @@ namespace Eddie.Core
 			return s.Output;
 		}
 
-		public void Run()
+		public bool Run()
 		{
 			m_id++;
 			if (WaitEnd)
 			{
 				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
-				//if (Path.EndsWith("ping", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
-				if (Path.EndsWith("/host", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
-				if (Path.EndsWith("/chmod", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid useless log
-				if (Path.EndsWith("lsattr", StringComparison.InvariantCultureIgnoreCase)) log = false; // Exception, to avoid recursive issues
-
+				
 				if (log)
 				{
 					string message = "Shell(" + m_id + ") of '" + Path + "'";
@@ -183,9 +179,11 @@ namespace Eddie.Core
 				if (log)
 				{
 					int deltaTime = endTime - startTime;
-					string message = "Shell(" + m_id + ") done in " + deltaTime.ToString() + " ms, out: " + StdOut;
+					string message = "Shell(" + m_id + ") done in " + deltaTime.ToString() + " ms";
+					if (StdOut != "")
+						message += ", out: '" + StdOut + "'";
 					if (StdErr != "")
-						message += ", err:" + StdErr;
+						message += ", err: '" + StdErr + "'";
 					message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
@@ -194,6 +192,8 @@ namespace Eddie.Core
 			{
 				Platform.Instance.ShellASync(Path, Arguments.ToArray());
 			}
+
+			return true;
 		}
 	}
 }

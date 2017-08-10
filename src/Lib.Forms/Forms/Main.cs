@@ -305,7 +305,7 @@ namespace Eddie.Gui.Forms
             m_pnlCharts.Anchor = holSpeedChart.Anchor;
             holSpeedChart.Visible = false;
             if (m_tabMain.Pages.Count != 0)
-                m_tabMain.Pages[3].Controls.Add(m_pnlCharts);
+                m_tabMain.Pages[4].Controls.Add(m_pnlCharts);
 
             m_cmdMainMenu = new MenuButton();
             m_cmdMainMenu.Left = 0;

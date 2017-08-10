@@ -42,7 +42,7 @@ namespace Eddie.Core.Threads
 			else
 			{
 				return MessagesFormatter.Format(Messages.PingerStatsNormal, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
-			}			
+			}
 		}
 	}
 
@@ -67,11 +67,11 @@ namespace Eddie.Core.Threads
 			{
 				routeScope = new RouteScope(Server.IpsEntry.ToStringFirstIPv4());
 
-                Int64 result = Platform.Instance.Ping(Server.IpsEntry.ToStringFirstIPv4(), 3);
-                Pinger.Instance.PingResult(Server, result);                
+				Int64 result = Platform.Instance.Ping(Server.IpsEntry.ToStringFirstIPv4(), 3);
+				Pinger.Instance.PingResult(Server, result);
 			}
 			catch (Exception)
-			{				
+			{
 				Pinger.Instance.PingResult(Server, -1);
 			}
 			finally
@@ -91,7 +91,7 @@ namespace Eddie.Core.Threads
 	}
 
 	public class Pinger : Eddie.Core.Thread
-    {
+	{
 		public static Pinger Instance;
 
 		public List<PingerJob> Jobs = new List<PingerJob>();
@@ -101,11 +101,11 @@ namespace Eddie.Core.Threads
 			Instance = this;
 		}
 
-        public override ThreadPriority GetPriority()
-        {
+		public override ThreadPriority GetPriority()
+		{
 			//return ThreadPriority.Lowest;
 			return ThreadPriority.Normal;
-        }
+		}
 
 		public bool GetEnabled()
 		{
@@ -113,7 +113,7 @@ namespace Eddie.Core.Threads
 		}
 
 		public bool GetCanRun()
-		{			
+		{
 			bool canRun = true;
 			// bool alwaysRun = Engine.Instance.Storage.GetBool("pinger.always");
 			bool alwaysRun = false; // 2.6
@@ -124,7 +124,7 @@ namespace Eddie.Core.Threads
 				if (alwaysRun == false)
 					canRun = false;
 			}
-			else if (Engine.IsWaiting() && (Engine.WaitMessage.StartsWith(Messages.WaitingLatencyTestsTitle) == false) )
+			else if (Engine.IsWaiting() && (Engine.WaitMessage.StartsWith(Messages.WaitingLatencyTestsTitle) == false))
 				canRun = false;
 
 			return canRun;
@@ -154,114 +154,101 @@ namespace Eddie.Core.Threads
 			return delay;
 		}
 
-        public void InvalidateAll()
-        {
-            Dictionary<string, ConnectionInfo> servers;
-            lock (Engine.Connections)
-            {
-                servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
-            }
-            
-            foreach (ConnectionInfo infoServer in servers.Values)
-            {
-                infoServer.LastPingTest = 0;
-                infoServer.PingTests = 0;
-                infoServer.PingFailedConsecutive = 0;
-                infoServer.Ping = -1;
-                infoServer.LastPingResult = 0;
-                infoServer.LastPingSuccess = 0;
-            }
-        }
+		public void InvalidateAll()
+		{
+			lock (Engine.Connections)
+			{
+				foreach (ConnectionInfo infoServer in Engine.Connections.Values)
+					infoServer.InvalidatePingResults();
+			}
+		}
 
-        public override void OnRun()
-        {            
-            Dictionary<string, ConnectionInfo> servers;
+		public override void OnRun()
+		{
+			Dictionary<string, ConnectionInfo> servers;
 
-            for (; ; )
-            {
+			for (;;)
+			{
 				if (GetCanRun() == false)
-                {
-                    Sleep(1000);
-                }
-                else
-                {
+				{
+					Sleep(1000);
+				}
+				else
+				{
 					// Note: If Pinger is not enabled, works like all ping results is 0.						
-					bool enabled = GetEnabled();					
-					
+					bool enabled = GetEnabled();
+
 					int timeNow = Utils.UnixTimeStamp();
 					int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
 
 					lock (Engine.Connections)
-                        servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
-					
+						servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+
 					bool startOne = false;
 
-                    foreach (ConnectionInfo infoServer in servers.Values)
-                    {
+					foreach (ConnectionInfo infoServer in servers.Values)
+					{
 						if (GetCanRun() == false)
 							break;
 
-                        int delaySuccess = GetPingerDelaySuccess(infoServer);
-                        int delayRetry = GetPingerDelayRetry(infoServer);
+						int delaySuccess = GetPingerDelaySuccess(infoServer);
+						int delayRetry = GetPingerDelayRetry(infoServer);
 
-                        int delay = delaySuccess;
+						int delay = delaySuccess;
 						if (infoServer.PingFailedConsecutive > 0)
 							delay = delayRetry;
 
-						if(timeNow - infoServer.LastPingTest >= delay)								
+						if (timeNow - infoServer.LastPingTest >= delay)
 						{
-                            bool canPingServer = enabled;
-                            if (infoServer.CanPing() == false)
-                                canPingServer = false;                            
+							bool canPingServer = enabled;
+							if (infoServer.CanPing() == false)
+								canPingServer = false;
 
 							if (canPingServer)
 							{
 								if (Jobs.Count < jobsLimit)
 								{
 									infoServer.LastPingTest = timeNow;
-									
+
 									PingerJob job = new PingerJob();
 									job.Server = infoServer;
-									/*
-									lock (Jobs)
-									{
-										Jobs.Add(job);										
-									}
-									job.Start();
-									*/
-
+									
 									ThreadPool.QueueUserWorkItem(new WaitCallback(DoPing), job);
 									startOne = true;
 								}
 							}
 							else
 							{
-								infoServer.LastPingTest = timeNow;
-								infoServer.PingTests = 0;
-								infoServer.PingFailedConsecutive = 0;
-								infoServer.Ping = -1;
-								infoServer.LastPingResult = infoServer.LastPingTest;
-								infoServer.LastPingSuccess = infoServer.LastPingTest;
-                                Engine.Instance.MarkServersListUpdated();
+								if (infoServer.Ping != -1)
+								{
+									//infoServer.LastPingTest = timeNow; // <2.13.4
+									infoServer.LastPingTest = 0;
+									infoServer.PingTests = 0;
+									infoServer.PingFailedConsecutive = 0;
+									infoServer.Ping = -1;
+									infoServer.LastPingResult = infoServer.LastPingTest;
+									infoServer.LastPingSuccess = infoServer.LastPingTest;
+									Engine.Instance.MarkServersListUpdated();
+								}
 							}
 						}
-						
-                        if (CancelRequested)
-                            return;
-                    }
-					
+
+						if (CancelRequested)
+							return;
+					}
+
 					if (startOne)
 						Sleep(100); // Waiting for a queue slot
 					else
 						Sleep(1000); // Waiting for a ping need
-                }
-                                
-                if (CancelRequested)
-                    return;
+				}
 
-				
-            }
-        }
+				if (CancelRequested)
+					return;
+
+
+			}
+		}
 
 		private static void DoPing(object o)
 		{
@@ -272,14 +259,14 @@ namespace Eddie.Core.Threads
 		public void PingResult(ConnectionInfo infoServer, PingReply reply)
 		{
 			Int64 result = 0;
-						
+
 			if (reply.Status == IPStatus.Success)
 			{
 				result = reply.RoundtripTime;
 			}
 			else
-			{				
-				result = -1;                
+			{
+				result = -1;
 			}
 
 			PingResult(infoServer, result);
@@ -304,8 +291,8 @@ namespace Eddie.Core.Threads
 				else
 					infoServer.Ping = (infoServer.Ping + result) / 2;
 			}
-            Engine.Instance.MarkServersListUpdated();
-        }
+			Engine.Instance.MarkServersListUpdated();
+		}
 
 		void OnPingCompleted(object sender, PingCompletedEventArgs e)
 		{
@@ -317,18 +304,18 @@ namespace Eddie.Core.Threads
 		public PingerStats GetStats()
 		{
 			PingerStats stats = new PingerStats();
-            			
+
 			int timeNow = Utils.UnixTimeStamp();
 
 			int iTotal = 0;
-			
+
 			lock (Engine.Connections)
 			{
 				foreach (ConnectionInfo infoConnection in Engine.Connections.Values)
 				{
-                    int deltaValid = GetPingerDelayValid(infoConnection);
+					int deltaValid = GetPingerDelayValid(infoConnection);
 
-                    if ( (stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoConnection.LastPingResult) )
+					if ((stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoConnection.LastPingResult))
 						stats.OlderCheckDate = infoConnection.LastPingResult;
 
 					if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoConnection.LastPingResult))
@@ -336,7 +323,7 @@ namespace Eddie.Core.Threads
 
 					iTotal++;
 					if (timeNow - infoConnection.LastPingResult > deltaValid)
-						stats.Invalid++;						
+						stats.Invalid++;
 				}
 			}
 
@@ -349,5 +336,5 @@ namespace Eddie.Core.Threads
 		{
 			return GetStats().Valid;
 		}
-    }
+	}
 }

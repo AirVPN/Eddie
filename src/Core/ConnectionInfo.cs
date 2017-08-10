@@ -172,6 +172,16 @@ namespace Eddie.Core
 			return true;
 		}
 
+		public void InvalidatePingResults()
+		{
+			LastPingTest = 0;
+			PingTests = 0;
+			PingFailedConsecutive = 0;
+			Ping = -1;
+			LastPingResult = 0;
+			LastPingSuccess = 0;
+		}
+
 		public int Load()
         {
             if (BandwidthMax == 0)
