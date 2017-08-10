@@ -36,10 +36,10 @@ namespace Eddie.Platforms.Linux
 
 		public override string GetName()
 		{
-			return "Linux IPTables";
+			return "Linux iptables";
 		}
 
-		public override bool GetSupport()
+		public override bool GetSupportX() // ClodoTemp not used?
 		{
 			if (SystemShell.ShellCmd("iptables --version").IndexOf("iptables v") != 0)
 				return false;
@@ -71,114 +71,114 @@ namespace Eddie.Platforms.Linux
 			}
 
 			// IPv4 - Backup
-			SystemShell.ShellCmd("iptables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\"");
+			SystemShell.ShellCmdWithException("iptables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\"");
 
 			// IPv6 - Backup
-			SystemShell.ShellCmd("ip6tables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\"");
+			SystemShell.ShellCmdWithException("ip6tables-save >\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\"");
 
 			// IPv4 - Flush
-			SystemShell.ShellCmd("iptables -P INPUT ACCEPT");
-			SystemShell.ShellCmd("iptables -P FORWARD ACCEPT");
-			SystemShell.ShellCmd("iptables -P OUTPUT ACCEPT");
-			SystemShell.ShellCmd("iptables -t nat -F");
-			SystemShell.ShellCmd("iptables -t mangle -F");
-			SystemShell.ShellCmd("iptables -F");
-			SystemShell.ShellCmd("iptables -X");
+			SystemShell.ShellCmdWithException("iptables -P INPUT ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -P FORWARD ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -P OUTPUT ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -t nat -F");
+			SystemShell.ShellCmdWithException("iptables -t mangle -F");
+			SystemShell.ShellCmdWithException("iptables -F");
+			SystemShell.ShellCmdWithException("iptables -X");
 
 			// IPv6 - Flush
-			SystemShell.ShellCmd("ip6tables -P INPUT ACCEPT");
-			SystemShell.ShellCmd("ip6tables -P FORWARD ACCEPT");
-			SystemShell.ShellCmd("ip6tables -P OUTPUT ACCEPT");
-			SystemShell.ShellCmd("ip6tables -t nat -F");
-			SystemShell.ShellCmd("ip6tables -t mangle -F");
-			SystemShell.ShellCmd("ip6tables -F");
-			SystemShell.ShellCmd("ip6tables -X");
+			SystemShell.ShellCmdWithException("ip6tables -P INPUT ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -P FORWARD ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -P OUTPUT ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -t nat -F");
+			SystemShell.ShellCmdWithException("ip6tables -t mangle -F");
+			SystemShell.ShellCmdWithException("ip6tables -F");
+			SystemShell.ShellCmdWithException("ip6tables -X");
 
 			// IPv4 - Local
-			SystemShell.ShellCmd("iptables -A INPUT -i lo -j ACCEPT");
-			SystemShell.ShellCmd("iptables -A OUTPUT -o lo -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A INPUT -i lo -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A OUTPUT -o lo -j ACCEPT");
 
 			// IPv6 - Local
-			SystemShell.ShellCmd("ip6tables -A INPUT -i lo -j ACCEPT");
-			SystemShell.ShellCmd("ip6tables -A OUTPUT -o lo -j ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -A INPUT -i lo -j ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -A OUTPUT -o lo -j ACCEPT");
 
 			// IPv6 - Disable processing of any RH0 packet which could allow a ping-pong of packets
-			SystemShell.ShellCmd("ip6tables -A INPUT -m rt --rt-type 0 -j DROP");
-			SystemShell.ShellCmd("ip6tables -A OUTPUT -m rt --rt-type 0 -j DROP");
-			SystemShell.ShellCmd("ip6tables -A FORWARD -m rt --rt-type 0 -j DROP");
+			SystemShell.ShellCmdWithException("ip6tables -A INPUT -m rt --rt-type 0 -j DROP");
+			SystemShell.ShellCmdWithException("ip6tables -A OUTPUT -m rt --rt-type 0 -j DROP");
+			SystemShell.ShellCmdWithException("ip6tables -A FORWARD -m rt --rt-type 0 -j DROP");
 
 			// Make sure you can communicate with any DHCP server
-			SystemShell.ShellCmd("iptables -A OUTPUT -d 255.255.255.255 -j ACCEPT");
-			SystemShell.ShellCmd("iptables -A INPUT -s 255.255.255.255 -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A OUTPUT -d 255.255.255.255 -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A INPUT -s 255.255.255.255 -j ACCEPT");
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
 			{
 				// IPv4 - Private networks
-				SystemShell.ShellCmd("iptables -A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
 
 				// IPv4 - Multicast
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
 
 				// IPv4 - 239.255.255.250  Simple Service Discovery Protocol address
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
 
 				// IPv4 - 239.255.255.253  Service Location Protocol version 2 address
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
-				SystemShell.ShellCmd("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
 
 				// IPv6 - Allow Link-Local addresses
-				SystemShell.ShellCmd("ip6tables -A INPUT -s fe80::/10 -j ACCEPT");
-				SystemShell.ShellCmd("ip6tables -A OUTPUT -s fe80::/10 -j ACCEPT");
+				SystemShell.ShellCmdWithException("ip6tables -A INPUT -s fe80::/10 -j ACCEPT");
+				SystemShell.ShellCmdWithException("ip6tables -A OUTPUT -s fe80::/10 -j ACCEPT");
 
 				// IPv6 - Allow multicast
-				SystemShell.ShellCmd("ip6tables -A INPUT -d ff00::/8 -j ACCEPT");
-				SystemShell.ShellCmd("ip6tables -A OUTPUT -d ff00::/8 -j ACCEPT");
+				SystemShell.ShellCmdWithException("ip6tables -A INPUT -d ff00::/8 -j ACCEPT");
+				SystemShell.ShellCmdWithException("ip6tables -A OUTPUT -d ff00::/8 -j ACCEPT");
 			}
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 			{
 				// IPv4
-				SystemShell.ShellCmd("iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
+				SystemShell.ShellCmdWithException("iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
 
 				// IPv6
-				SystemShell.ShellCmd("ip6tables -A INPUT -p icmpv6 -j ACCEPT");
-				SystemShell.ShellCmd("ip6tables -A OUTPUT -p icmpv6 -j ACCEPT");
+				SystemShell.ShellCmdWithException("ip6tables -A INPUT -p icmpv6 -j ACCEPT");
+				SystemShell.ShellCmdWithException("ip6tables -A OUTPUT -p icmpv6 -j ACCEPT");
 			}
 
 			// IPv4 - Allow established sessions to receive traffic
-			SystemShell.ShellCmd("iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
 			// IPv6 - Allow established sessions to receive traffic
-			SystemShell.ShellCmd("ip6tables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
 
 			// IPv4 - Allow TUN
-			SystemShell.ShellCmd("iptables -A INPUT -i tun+ -j ACCEPT");
-			SystemShell.ShellCmd("iptables -A FORWARD -i tun+ -j ACCEPT");
-			SystemShell.ShellCmd("iptables -A OUTPUT -o tun+ -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A INPUT -i tun+ -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A FORWARD -i tun+ -j ACCEPT");
+			SystemShell.ShellCmdWithException("iptables -A OUTPUT -o tun+ -j ACCEPT");
 
 			// IPv6 - Allow TUN 
-			SystemShell.ShellCmd("ip6tables -A INPUT -i tun+ -j ACCEPT");
-			SystemShell.ShellCmd("ip6tables -A FORWARD -i tun+ -j ACCEPT");
-			SystemShell.ShellCmd("ip6tables -A OUTPUT -o tun+ -j ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -A INPUT -i tun+ -j ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -A FORWARD -i tun+ -j ACCEPT");
+			SystemShell.ShellCmdWithException("ip6tables -A OUTPUT -o tun+ -j ACCEPT");
 
 			// IPv4 - Block All
-			SystemShell.ShellCmd("iptables -A OUTPUT -j DROP");
-			SystemShell.ShellCmd("iptables -A INPUT -j DROP");
-			SystemShell.ShellCmd("iptables -A FORWARD -j DROP");
+			SystemShell.ShellCmdWithException("iptables -A OUTPUT -j DROP");
+			SystemShell.ShellCmdWithException("iptables -A INPUT -j DROP");
+			SystemShell.ShellCmdWithException("iptables -A FORWARD -j DROP");
 
 			// IPv6 - Block All
-			SystemShell.ShellCmd("ip6tables -A OUTPUT -j DROP");
-			SystemShell.ShellCmd("ip6tables -A INPUT -j DROP");
-			SystemShell.ShellCmd("ip6tables -A FORWARD -j DROP");
+			SystemShell.ShellCmdWithException("ip6tables -A OUTPUT -j DROP");
+			SystemShell.ShellCmdWithException("ip6tables -A INPUT -j DROP");
+			SystemShell.ShellCmdWithException("ip6tables -A FORWARD -j DROP");
 
 			OnUpdateIps();
 			
@@ -249,7 +249,7 @@ namespace Eddie.Platforms.Linux
 						cmd = "iptables -D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT";
 					else if(ip.IsV6)
 						cmd = "ip6tables -D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT";
-					SystemShell.ShellCmd(cmd);
+					SystemShell.ShellCmdWithException(cmd);
 				}
 			}
 
@@ -264,7 +264,7 @@ namespace Eddie.Platforms.Linux
 						cmd = "iptables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
 					else if(ip.IsV6)
 						cmd = "ip6tables -I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT";
-					SystemShell.ShellCmd(cmd);
+					SystemShell.ShellCmdWithException(cmd);
 				}
 			}
 

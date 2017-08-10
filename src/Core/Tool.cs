@@ -68,8 +68,8 @@ namespace Eddie.Core
 			string finalPath = GetPath();
 			if (finalPath != "")
 			{
-				string arguments = GetVersionArguments();
-				Version = SystemShell.Shell(finalPath, arguments).Trim();
+				string argument = GetVersionArgument();
+				Version = SystemShell.Shell1(finalPath, argument).Trim();
 				if ((Version.StartsWith("Error:")) || (Version == ""))
 					throw new Exception(Version);
 			}
@@ -89,7 +89,7 @@ namespace Eddie.Core
 			return Code;
 		}
 
-		public virtual string GetVersionArguments()
+		public virtual string GetVersionArgument()
 		{
 			return "";
 		}

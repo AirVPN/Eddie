@@ -43,7 +43,7 @@ namespace Eddie.Core.Tools
                 return base.GetFileName();
         }
 
-        public override string GetVersionArguments()
+        public override string GetVersionArgument()
         {
             return "-V";
         }

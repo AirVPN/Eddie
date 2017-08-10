@@ -29,6 +29,7 @@ namespace Eddie.Core
 		public string Path = "";
 		public List<string> Arguments = new List<string>();
 		public bool WaitEnd = true;
+		public bool ExceptionIfFail = false;
 		public bool NoDebugLog = false;
 
 		// Response
@@ -45,14 +46,6 @@ namespace Eddie.Core
 				string output = StdOut + Platform.Instance.EndOfLineSep + StdErr;
 				output = output.Trim();
 				return output;
-			}
-		}
-
-		public string DumpResponse
-		{
-			get
-			{
-				return "ExitCode: " + ExitCode.ToString() + ", Out:'" + StdOut + "', Err:'" + StdErr + "'";
 			}
 		}
 
@@ -113,15 +106,28 @@ namespace Eddie.Core
 		{
 			return (EscapeInsideQuote(value) == value);
 		}
-
+		
 		// Called for user events
 		public static void ShellUserEvent(string path, string arguments, bool waitEnd)
 		{
-			Shell(path, arguments, waitEnd);
+			List<string> args = Utils.StringToList(arguments, " ", true, true, false, false);
+			Shell(path, args.ToArray(), waitEnd);
 		}
 
 		// Avoid when possible
-		public static string ShellCmd(string command)
+		public static string ShellCmd(string command) // ClodoTemp
+		{
+			return ShellCmd(command, false);
+		}
+
+		// Avoid when possible
+		public static string ShellCmdWithException(string command) // ClodoTemp
+		{
+			return ShellCmd(command, true);
+		}
+
+		// Avoid when possible
+		public static string ShellCmd(string command, bool exceptionIfFail) // ClodoTemp
 		{
 			if (command == "")
 				return "";
@@ -131,12 +137,18 @@ namespace Eddie.Core
 
 			Platform.Instance.ShellCommandDirect(command, out path, out arguments);
 
-			return Shell(path, arguments, true);
+			SystemShell s = new SystemShell();
+			s.Path = path;
+			s.Arguments.AddRange(arguments);
+			s.WaitEnd = true;
+			s.ExceptionIfFail = exceptionIfFail;
+			s.Run();
+			return s.Output;
 		}
 
-		public static string Shell(string path, string arguments)
+		public static string Shell1(string path, string arg1)
 		{
-			return Shell(path, new string[] { arguments }, true);
+			return Shell(path, new string[] { arg1 }, true);
 		}
 
 		public static string Shell(string path, string[] arguments)
@@ -144,7 +156,7 @@ namespace Eddie.Core
 			return Shell(path, arguments, true);
 		}
 
-		public static string Shell(string path, string arguments, bool waitEnd)
+		public static string ShellX(string path, string arguments, bool waitEnd) // ClodoTemp
 		{
 			return Shell(path, new string[] { arguments }, waitEnd);
 		}
@@ -189,17 +201,25 @@ namespace Eddie.Core
 				{
 					int deltaTime = endTime - startTime;
 					string message = "Shell(" + m_id + ") done in " + deltaTime.ToString() + " ms";
+					message += ", exit: " + ExitCode.ToString();
 					if (StdOut != "")
 						message += ", out: '" + StdOut + "'";
 					if (StdErr != "")
 						message += ", err: '" + StdErr + "'";
-					message += ", exit: " + ExitCode.ToString();
 					message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
 
-				return true;
-				// return (ExitCode == 0); // ClodoTemp
+				if(ExceptionIfFail)
+				{
+					if (ExitCode != 0)
+						if (StdErr != "")
+							throw new Exception(StdErr);
+						else
+							throw new Exception(Messages.Failed);
+				}
+
+				return (ExitCode == 0);
 			}
 			else
 			{

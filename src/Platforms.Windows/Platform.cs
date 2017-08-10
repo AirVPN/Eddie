@@ -1237,7 +1237,7 @@ namespace Eddie.Platforms.Windows
 			if (driverPath == "")
 				throw new Exception(Messages.OsDriverInstallerNotAvailable);
 
-			SystemShell.Shell(driverPath, "/S");
+			SystemShell.Shell1(driverPath, "/S");
 
 			System.Threading.Thread.Sleep(3000);
 		}
@@ -1248,7 +1248,7 @@ namespace Eddie.Platforms.Windows
 			if (uninstallPath == "")
 				return;
 
-			SystemShell.Shell(uninstallPath, "/S");
+			SystemShell.Shell1(uninstallPath, "/S");
 
 			System.Threading.Thread.Sleep(3000);
 		}

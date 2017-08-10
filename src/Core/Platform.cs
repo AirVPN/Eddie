@@ -39,6 +39,7 @@ namespace Eddie.Core
 		protected string m_ExecutablePath = "";
 		protected string m_UserPath = "";
 		protected string m_CommonPath = "";
+		protected Dictionary<string, string> m_LocateExecutableCache = new Dictionary<string, string>();
 
 		public static bool IsUnix()
 		{
@@ -172,8 +173,7 @@ namespace Eddie.Core
 		}
 
 		public virtual void OnInit(bool cli)
-		{
-
+		{	
 		}
 
 		public virtual void OnDeInit()
@@ -254,6 +254,14 @@ namespace Eddie.Core
 			get
 			{
 				return "\n";
+			}
+		}
+
+		public virtual string EnvPathSep
+		{
+			get
+			{
+				return ";";
 			}
 		}
 
@@ -462,6 +470,35 @@ namespace Eddie.Core
 
 		public virtual string GetDefaultOpenVpnConfigsPath()
 		{
+			return "";
+		}
+
+		public virtual List<string> GetEnvironmentPaths()
+		{
+			string envPath = Environment.GetEnvironmentVariable("PATH");
+			List<string> paths = Utils.StringToList(envPath, EnvPathSep, true, true, true, true);
+			return paths;
+		}
+
+		public virtual string LocateExecutable(string name)
+		{
+			if (m_LocateExecutableCache.ContainsKey(name))
+				return m_LocateExecutableCache[name];
+			
+			return LocateExecutable(name, GetEnvironmentPaths());			
+		}
+
+		public virtual string LocateExecutable(string name, List<string> paths)
+		{
+			foreach (string path in paths)
+			{
+				string fullPath = NormalizePath(path + "/" + name);
+				if (FileExists(fullPath))
+				{
+					m_LocateExecutableCache[name] = fullPath;
+					return fullPath;
+				}			
+			}
 			return "";
 		}
 

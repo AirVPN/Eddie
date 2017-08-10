@@ -47,7 +47,7 @@ namespace Eddie.Core.Tools
                 return "stunnel";
         }
 
-        public override string GetVersionArguments()
+        public override string GetVersionArgument()
         {
             return "-version";
         }

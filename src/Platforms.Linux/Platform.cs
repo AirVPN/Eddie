@@ -81,18 +81,19 @@ namespace Eddie.Platforms.Linux
 				m_logname = Environment.UserName;
 
 			m_fontSystem = "";
-			if (Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
-			{
-				m_fontSystem = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface font-name").Trim('\'');
+			string gsettingsPath = LocateExecutable("gsettings"); // gnome
+			if (gsettingsPath != "")
+			{				
+				m_fontSystem = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
 				int posSize = m_fontSystem.LastIndexOf(" ");
 				if (posSize != -1)
-					m_fontSystem = m_fontSystem.Substring(0, posSize) + "," + m_fontSystem.Substring(posSize + 1);				
+					m_fontSystem = m_fontSystem.Substring(0, posSize) + "," + m_fontSystem.Substring(posSize + 1);			
 			}
 
 			m_fontMonoSpace = "";
-			if (Platform.Instance.FileExists("/usr/bin/gsettings")) // gnome
+			if (gsettingsPath != "")
 			{
-				m_fontMonoSpace = SystemShell.Shell("/usr/bin/gsettings", "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+				m_fontMonoSpace = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
 				int posSize = m_fontMonoSpace.LastIndexOf(" ");
 				if (posSize != -1)
 					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);				
@@ -127,7 +128,15 @@ namespace Eddie.Platforms.Linux
             }
         }
 
-        public override bool FileImmutableGet(string path)
+		public override string EnvPathSep
+		{
+			get
+			{
+				return ":";
+			}
+		}
+
+		public override bool FileImmutableGet(string path)
         {   
             // We don't find a better direct method in Mono/Posix without adding ioctl references
             // The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
@@ -220,6 +229,25 @@ namespace Eddie.Platforms.Linux
             return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
         }
 
+		public override string LocateExecutable(string name)
+		{
+			if (m_LocateExecutableCache.ContainsKey(name))
+				return m_LocateExecutableCache[name];
+
+			// On some system, for example OpenSuse, 'xdg-su' don't reflect the root path env-var,
+			// and for this reason a simple shell to 'sysctl' don't work.
+			List<string> paths = GetEnvironmentPaths();
+			if (paths.Contains("/sbin") == false)
+				paths.Add("/sbin");
+			if (paths.Contains("/usr/sbin") == false)
+				paths.Add("/usr/sbin");
+			if (paths.Contains("/usr/local/sbin") == false)
+				paths.Add("/usr/local/sbin");
+			if (paths.Contains("/root/bin") == false)
+				paths.Add("/root/sbin");			
+			return LocateExecutable(name, paths);
+		}
+
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{
 			path = "sh";
@@ -277,7 +305,7 @@ namespace Eddie.Platforms.Linux
         {
             // TOFIX Don't work well on all distro
             string args = " - " + m_logname + " -c 'xdg-open \"" + SystemShell.EscapePath(path) + "\"'"; // IJTF2 // TOCHECK
-            SystemShell.Shell("su", args, false);
+            SystemShell.ShellX("su", args, false);
         }
 
         public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
@@ -390,18 +418,19 @@ namespace Eddie.Platforms.Linux
 			s.Arguments.Add("ahosts");
 			s.Arguments.Add(SystemShell.EscapeHost(host));
 			s.NoDebugLog = true;
-			s.Run();
-
-			string o = s.Output;
-			o = Utils.StringCleanSpace(o);
-			foreach (string line in o.Split('\n'))
+			if (s.Run())
 			{
-				string[] fields = line.Split(' ');
-				if (fields.Length < 2)
-					continue;
-				if (fields[1].Trim() != "STREAM")
-					continue;
-				result.Add(fields[0].Trim());
+				string o = s.Output;
+				o = Utils.StringCleanSpace(o);
+				foreach (string line in o.Split('\n'))
+				{
+					string[] fields = line.Split(' ');
+					if (fields.Length < 2)
+						continue;
+					if (fields[1].Trim() != "STREAM")
+						continue;
+					result.Add(fields[0].Trim());
+				}
 			}
 			return result;
 		}
