@@ -473,7 +473,7 @@ namespace Eddie.Core
 			NotImplemented();
 		}
 
-		public virtual void ShellSync(string path, string[] arguments, out string stdout, out string stderr)
+		public virtual void ShellSync(string path, string[] arguments, out string stdout, out string stderr, out int exitCode)
 		{
 			try
 			{
@@ -491,13 +491,16 @@ namespace Eddie.Core
 
 				stdout = p.StandardOutput.ReadToEnd().Trim();
 				stderr = p.StandardError.ReadToEnd().Trim();
-
+				
 				p.WaitForExit();
+
+				exitCode = p.ExitCode;
 			}
 			catch(Exception ex)
 			{
 				stdout = "";
 				stderr = "Error: " + ex.Message;
+				exitCode = -1;
 			}
 		}
 

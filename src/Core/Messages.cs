@@ -39,6 +39,8 @@ namespace Eddie.Core
         public static string Unknown = "Unknown";
 		public static string Yes = "Yes";
 		public static string No = "No";
+		public static string Ok = "Ok";
+		public static string Failed = "Failed";
 		public static string StatsNotConnected = "Not connected.";
 		public static string DoubleClickToAction = "(double-click to {1})";
 		public static string ExitConfirm = "Do you really want to exit?";

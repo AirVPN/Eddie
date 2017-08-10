@@ -34,6 +34,7 @@ namespace Eddie.Core
 		// Response
 		public string StdOut = "";
 		public string StdErr = "";
+		public int ExitCode = -1;
 
 		private static int m_id = 0;
 
@@ -44,6 +45,14 @@ namespace Eddie.Core
 				string output = StdOut + Platform.Instance.EndOfLineSep + StdErr;
 				output = output.Trim();
 				return output;
+			}
+		}
+
+		public string DumpResponse
+		{
+			get
+			{
+				return "ExitCode: " + ExitCode.ToString() + ", Out:'" + StdOut + "', Err:'" + StdErr + "'";
 			}
 		}
 
@@ -173,7 +182,7 @@ namespace Eddie.Core
 				}
 
 				int startTime = Environment.TickCount;
-				Platform.Instance.ShellSync(Path, Arguments.ToArray(), out StdOut, out StdErr);
+				Platform.Instance.ShellSync(Path, Arguments.ToArray(), out StdOut, out StdErr, out ExitCode);
 				int endTime = Environment.TickCount;
 
 				if (log)
@@ -184,16 +193,21 @@ namespace Eddie.Core
 						message += ", out: '" + StdOut + "'";
 					if (StdErr != "")
 						message += ", err: '" + StdErr + "'";
+					message += ", exit: " + ExitCode.ToString();
 					message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
+
+				return true;
+				// return (ExitCode == 0); // ClodoTemp
 			}
 			else
 			{
 				Platform.Instance.ShellASync(Path, Arguments.ToArray());
+				return true;
 			}
 
-			return true;
+			
 		}
 	}
 }

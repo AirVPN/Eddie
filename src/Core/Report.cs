@@ -83,8 +83,8 @@ namespace Eddie.Core
 		public void Tests()
 		{
 			IpAddresses dns = new IpAddresses("dnstest.eddie.website");
-			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Yes : Messages.No);
-			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Yes : Messages.No);
+			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Ok : Messages.Failed);
+			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Ok : Messages.Failed);
 
 			Add("Test HTTP", TestUrl("http://" + Constants.Domain + "/test/"));
 			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));

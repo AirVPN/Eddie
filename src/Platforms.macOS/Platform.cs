@@ -175,7 +175,7 @@ namespace Eddie.Platforms.MacOS
 			arguments = new string[] { "-c", command };
 		}
 
-		public override void ShellSync(string path, string[] arguments, out string stdout, out string stderr)
+		public override void ShellSync(string path, string[] arguments, out string stdout, out string stderr, out int exitCode)
 		{
 			try
 			{
@@ -201,11 +201,14 @@ namespace Eddie.Platforms.MacOS
 				NSFileHandle fileErr = pipeErr.ReadHandle;
 				stderr = fileErr.ReadDataToEndOfFile().ToString();
 				fileErr.CloseFile();
+
+				exitCode = t.ExitCode;
 			}
 			catch (Exception ex)
 			{
 				stdout = "";
 				stderr = "Error: " + ex.Message;
+				exitCode = -1;
 			}
 		}
 
