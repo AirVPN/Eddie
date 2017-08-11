@@ -145,7 +145,12 @@ namespace Eddie.Core
 			s.Run();
 			return s.Output;
 		}
-		
+
+		public static string Shell0(string path)
+		{
+			return Shell(path, new string[] { }, true);
+		}
+
 		public static string Shell1(string path, string arg1)
 		{
 			return Shell(path, new string[] { arg1 }, true);

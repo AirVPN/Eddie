@@ -47,7 +47,11 @@ namespace Eddie.Platforms.MacOS
 
 		public override string GetName()
 		{
-			return SystemShell.ShellCmd("sw_vers -productVersion");
+			string swversPath = LocateExecutable("sw_vers");
+			if (swversPath != "")
+				return SystemShell.Shell1(swversPath, "-productVersion");
+			else
+				return "Unknown (no sw_vers)";
 		}
 
 		public override string GetVersion()
@@ -111,13 +115,17 @@ namespace Eddie.Platforms.MacOS
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return;
 
-			// 'mode' not escaped, called hard-coded.
-			SystemShell s = new SystemShell();
-			s.Path = "/bin/chmod";
-			s.Arguments.Add(mode);
-			s.Arguments.Add(SystemShell.EscapePath(path));
-			s.NoDebugLog = true;
-			s.Run();
+			string chmodPath = LocateExecutable("chmod");
+			if (chmodPath != "")
+			{
+				// 'mode' not escaped, called hard-coded.
+				SystemShell s = new SystemShell();
+				s.Path = chmodPath;
+				s.Arguments.Add(mode);
+				s.Arguments.Add(SystemShell.EscapePath(path));
+				s.NoDebugLog = true;
+				s.Run();
+			}
 		}
 
 		public override void FileEnsureExecutablePermission(string path)
@@ -127,7 +135,11 @@ namespace Eddie.Platforms.MacOS
 
 		public override string GetExecutableReport(string path)
 		{
-			return SystemShell.ShellCmd("otool -L \"" + SystemShell.EscapePath(path) + "\"");
+			string otoolPath = LocateExecutable("otool");
+			if (otoolPath != "")
+				return SystemShell.Shell1(otoolPath, "-L \"" + SystemShell.EscapePath(path) + "\"");
+			else
+				return "'otool' " + Messages.NotFound;
 		}
 
 		public override string GetExecutablePathEx()
@@ -263,59 +275,31 @@ namespace Eddie.Platforms.MacOS
 		// Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
 		public override long Ping(string host, int timeoutSec)
 		{
-			// Note: Linux timeout is -w, OS X timeout is -t
-			/*
-            string args = "-c 1 -t " + SystemShell.EscapeInt(timeoutSec) + " -q -n " + SystemShell.EscapeHost(host);
-            string result = Shell("/sbin/ping", args);
-            */
-			/*
-            string result = "";
-            try
-            {
-				var pipeOut = new NSPipe();
-
-				var t = new NSTask();
-                //t.LaunchPath = "/sbin/ping";
-                //t.Arguments = new string[] { "-c 1 -t " + SystemShell.EscapeInt(timeoutSec) + " -q -n " + SystemShell.EscapeHost(host) };
-
-                t.LaunchPath = "/bin/sh";
-                t.Arguments = new string[] { "-c", "/sbin/ping -c 1 -t " + SystemShell.EscapeInt(timeoutSec) + " -q -n " + SystemShell.EscapeHost(host) };
-				t.StandardOutput = pipeOut;
-
-				t.Launch();
-				t.WaitUntilExit();
-				//t.Release();
-				t.Dispose();
-
-                NSFileHandle f = pipeOut.ReadHandle;
-                result = f.ReadDataToEndOfFile().ToString();
-                f.CloseFile();
-            }
-            catch(Exception e)
-            {
-                Engine.Instance.Logs.Log(e);
-            }
-            */
-
-			SystemShell s = new SystemShell();
-			s.Path = "/sbin/ping";
-			s.Arguments.Add("-c 1");
-			s.Arguments.Add("-t " + timeoutSec.ToString());
-			s.Arguments.Add("-q");
-			s.Arguments.Add("-n");
-			s.Arguments.Add(SystemShell.EscapeHost(host));
-			s.NoDebugLog = true;
-
+			// Note: Linux timeout is -w, OS X timeout is -t			
 			float iMS = -1;
-			if (s.Run())
-			{
-				// Note: Linux have mdev, OS X have stddev
-				string result = s.Output;
-				string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
-				if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-					iMS = -1;
-			}
 
+			string pingPath = LocateExecutable("ping");
+			if (pingPath != "")
+			{
+				SystemShell s = new SystemShell();
+				s.Path = pingPath;
+				s.Arguments.Add("-c 1");
+				s.Arguments.Add("-t " + timeoutSec.ToString());
+				s.Arguments.Add("-q");
+				s.Arguments.Add("-n");
+				s.Arguments.Add(SystemShell.EscapeHost(host));
+				s.NoDebugLog = true;
+
+				if (s.Run())
+				{
+					// Note: Linux have mdev, OS X have stddev
+					string result = s.Output;
+					string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
+					if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+						iMS = -1;
+				}
+			}
+				
 			return (long)iMS;
 		}
 
@@ -371,26 +355,30 @@ namespace Eddie.Platforms.MacOS
 
 			IpAddresses result = new IpAddresses();
 
-			// Note: CNAME record are automatically followed.
-			SystemShell s = new SystemShell();
-			s.Path = "/usr/bin/host";
-			s.Arguments.Add("-W 5");
-			s.Arguments.Add(SystemShell.EscapeHost(host));
-			s.NoDebugLog = true;
-			if (s.Run())
+			string hostPath = LocateExecutable("host");
+			if (hostPath != "")
 			{
-				string hostout = s.Output;
-				foreach (string line in hostout.Split('\n'))
+				// Note: CNAME record are automatically followed.
+				SystemShell s = new SystemShell();
+				s.Path = "/usr/bin/host";
+				s.Arguments.Add("-W 5");
+				s.Arguments.Add(SystemShell.EscapeHost(host));
+				s.NoDebugLog = true;
+				if (s.Run())
 				{
-					string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
-					if (ipv4 != "")
-						result.Add(ipv4.Trim());
+					string hostout = s.Output;
+					foreach (string line in hostout.Split('\n'))
+					{
+						string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
+						if (ipv4 != "")
+							result.Add(ipv4.Trim());
 
-					string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
-					if (ipv6 != "")
-						result.Add(ipv6.Trim());
+						string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
+						if (ipv6 != "")
+							result.Add(ipv6.Trim());
+					}
 				}
-			}
+			}	
 
 			return result;
 		}
@@ -398,16 +386,21 @@ namespace Eddie.Platforms.MacOS
 		public override IpAddresses DetectDNS()
 		{
 			IpAddresses list = new IpAddresses();
-			string[] interfaces = GetInterfaces();
-			foreach (string i in interfaces)
+
+			string networksetupPath = LocateExecutable("networksetup");
+			if(networksetupPath != "")
 			{
-				string i2 = i.Trim();
+				string[] interfaces = GetInterfaces();
+				foreach (string i in interfaces)
+				{
+					string i2 = i.Trim();
 
-				//string current = SystemShell.ShellCmd("networksetup -getdnsservers \"" + SystemShell.EscapeInsideQuote(i2) + "\"");
-				string current = SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-getdnsservers", SystemShell.EscapeInsideQuote(i2) });
+					string current = SystemShell.Shell(networksetupPath, new string[] { "-getdnsservers", SystemShell.EscapeInsideQuote(i2) });
 
-				list.Add(current);
+					list.Add(current);
+				}
 			}
+			
 			return list;
 		}
 
@@ -415,41 +408,45 @@ namespace Eddie.Platforms.MacOS
 		{
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
-			string result = SystemShell.ShellCmd("netstat -rnl");
-
-			string[] lines = result.Split('\n');
-			foreach (string line in lines)
+			string netstatPath = LocateExecutable("netstat");
+			if(netstatPath != "")
 			{
-				if (line == "Routing tables")
-					continue;
-				if (line == "Internet:")
-					continue;
-				if (line == "Internet6:")
-					continue;
+				string result = SystemShell.Shell1(netstatPath, "-rnl");
 
-				string[] fields = Utils.StringCleanSpace(line).Split(' ');
-
-				if (fields.Length == 8)
+				string[] lines = result.Split('\n');
+				foreach (string line in lines)
 				{
-					if (fields[0] == "Destination")
+					if (line == "Routing tables")
+						continue;
+					if (line == "Internet:")
+						continue;
+					if (line == "Internet6:")
 						continue;
 
-					RouteEntry e = new RouteEntry();
-					e.Address = fields[0];
-					e.Gateway = fields[1];
-					e.Flags = fields[2];
-					// Refs
-					// Use
-					// Mtu
-					e.Interface = fields[6];
-					// Expire
+					string[] fields = Utils.StringCleanSpace(line).Split(' ');
 
-					if (e.Address.Valid == false)
-						continue;
-					if (e.Gateway.Valid == false)
-						continue;
+					if (fields.Length == 8)
+					{
+						if (fields[0] == "Destination")
+							continue;
 
-					entryList.Add(e);
+						RouteEntry e = new RouteEntry();
+						e.Address = fields[0];
+						e.Gateway = fields[1];
+						e.Flags = fields[2];
+						// Refs
+						// Use
+						// Mtu
+						e.Interface = fields[6];
+						// Expire
+
+						if (e.Address.Valid == false)
+							continue;
+						if (e.Gateway.Valid == false)
+							continue;
+
+						entryList.Add(e);
+					}
 				}
 			}
 
@@ -460,25 +457,30 @@ namespace Eddie.Platforms.MacOS
 		{
 			base.OnReport(report);
 
-			report.Add("ifconfig", SystemShell.ShellCmd("ifconfig"));
-			report.Add("netstat /rnl", SystemShell.ShellCmd("netstat /rnl"));
+			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemShell.Shell0(LocateExecutable("ifconfig")) : "'ifconfig' " + Messages.NotFound);
+			report.Add("netstat /rnl", (LocateExecutable("netstat") != "") ? SystemShell.Shell1(LocateExecutable("netstat"), "/rnl") : "'netstat' " + Messages.NotFound);
+
+			report.Add("pazzo", GetExecutableReport(GetExecutablePathEx()));
 		}
 
 		public override Dictionary<int, string> GetProcessesList()
 		{
 			// We experience some crash under OSX with the base method.
-
 			Dictionary<int, string> result = new Dictionary<int, string>();
-			String resultS = SystemShell.ShellCmd("ps -eo pid,command");
-			string[] resultA = resultS.Split('\n');
-			foreach (string pS in resultA)
+			string psPath = LocateExecutable("ps");
+			if (psPath != "")
 			{
-				int posS = pS.IndexOf(' ');
-				if (posS != -1)
+				string resultS = SystemShell.Shell2(psPath, "-eo", "pid,command");
+				string[] resultA = resultS.Split('\n');
+				foreach (string pS in resultA)
 				{
-					int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
-					string name = pS.Substring(posS).Trim();
-					result[pid] = name;
+					int posS = pS.IndexOf(' ');
+					if (posS != -1)
+					{
+						int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
+						string name = pS.Substring(posS).Trim();
+						result[pid] = name;
+					}
 				}
 			}
 
@@ -487,7 +489,35 @@ namespace Eddie.Platforms.MacOS
 
 		public override bool OnCheckEnvironmentApp()
 		{
-			return true;
+			bool fatal = false;
+			string networksetupPath = LocateExecutable("networksetup");
+			if (networksetupPath == "")
+			{
+				Engine.Instance.Logs.Log(LogType.Error, "'networksetup' " + Messages.NotFound);
+				fatal = true;
+			}
+			
+			string pfctlPath = LocateExecutable("pfctl");
+			if (pfctlPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'pfctl' " + Messages.NotFound);
+
+			string hostPath = LocateExecutable("host");
+			if (hostPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'host' " + Messages.NotFound);
+
+			string chmodPath = LocateExecutable("chmod");
+			if (chmodPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'chmod' " + Messages.NotFound);
+
+			string pingPath = LocateExecutable("ping");
+			if (pingPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'ping' " + Messages.NotFound);
+
+			string psPath = LocateExecutable("ps");
+			if (psPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + Messages.NotFound);
+
+			return (fatal == false);
 		}
 
 		public override bool OnCheckEnvironmentSession()

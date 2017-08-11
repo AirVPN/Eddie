@@ -213,7 +213,11 @@ namespace Eddie.Platforms.Linux
 
 		public override string GetExecutableReport(string path)
 		{
-			return SystemShell.ShellCmd("ldd \"" + SystemShell.EscapePath(path) + "\"");
+			string lddPath = LocateExecutable("ldd");
+			if (lddPath != "")
+				return SystemShell.Shell1(lddPath, SystemShell.EscapePath(path));
+			else
+				return "'ldd' " + Messages.NotFound;
 		}
 
 		public override string GetExecutablePathEx()
@@ -584,27 +588,31 @@ namespace Eddie.Platforms.Linux
 		{
 			string dnsScriptPath = Software.FindResource("update-resolv-conf");
 			if (dnsScriptPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "update-resolv-conf " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'update-resolv-conf' " + Messages.NotFound);
 			
 			string lsattrPath = LocateExecutable("lsattr");
 			if(lsattrPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "lsattr " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'lsattr' " + Messages.NotFound);
 
 			string chattrPath = LocateExecutable("chattr");
 			if (chattrPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "chattr " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'chattr' " + Messages.NotFound);
 
 			string chmodPath = LocateExecutable("chmod");
 			if (chmodPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "chmod " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'chmod' " + Messages.NotFound);
 
 			string pingPath = LocateExecutable("ping");
 			if (pingPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "ping " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'ping' " + Messages.NotFound);
 
 			string getentPath = LocateExecutable("getent");
 			if (getentPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "getent " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'getent' " + Messages.NotFound);
+
+			string psPath = LocateExecutable("ps");
+			if (psPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + Messages.NotFound);
 
 			return true;
 		}

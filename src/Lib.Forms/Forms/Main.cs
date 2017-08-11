@@ -1169,7 +1169,53 @@ namespace Eddie.Gui.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-			Engine.GenerateSystemReport();			
+			// pazzo
+			Engine.GenerateSystemReport();	
+
+			Engine.Instance.Logs.LogDebug(Environment.GetEnvironmentVariable("PATH"));
+
+			Engine.Instance.Logs.LogDebug(Platform.Instance.LocateExecutable("iptables"));
+
+			Engine.Instance.Logs.LogDebug(Platform.Instance.LocateExecutable("ping.exe"));
+			Engine.Instance.Logs.LogDebug(Platform.Instance.LocateExecutable("ping.exe"));
+
+			Engine.Instance.Logs.LogDebug(SystemShell.ShellCmd("sysctl net.ipv6.conf.all.disable_ipv6"));
+
+			Engine.Instance.Logs.LogDebug(SystemShell.Shell1(Platform.Instance.LocateExecutable("sysctl"), "net.ipv6.conf.all.disable_ipv6"));
+
+			{
+				SystemShell s = new SystemShell();
+				s.Path = "ping";
+				s.Arguments.Add("8.8.8.8");
+				s.Arguments.Add("-c 1");
+				s.Run();
+			}
+
+			{
+				SystemShell s = new SystemShell();
+				s.Path = "ping";
+				s.Run();
+			}
+
+			{
+				SystemShell s = new SystemShell();
+				s.Path = "ls";
+				s.Run();
+			}
+
+			{
+				SystemShell.ShellCmd("echo $PATH");				
+			}
+
+			{
+				SystemShell.ShellCmd("which iptables");
+			}
+
+			{
+				SystemShell s = new SystemShell();
+				s.Path = "iptables-save";
+				s.Run();
+			}
 		}
 
 		private void cmdLogsOpenVpnManagement_Click(object sender, EventArgs e)
