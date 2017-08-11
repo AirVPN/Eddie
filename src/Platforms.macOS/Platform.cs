@@ -98,6 +98,14 @@ namespace Eddie.Platforms.MacOS
 			}
 		}
 
+		public override string EnvPathSep
+		{
+			get
+			{
+				return ":";
+			}
+		}
+
 		public override void FileEnsurePermission(string path, string mode)
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
@@ -160,13 +168,23 @@ namespace Eddie.Platforms.MacOS
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
 
-			// 10.9
-			SystemShell.ShellCmd("dscacheutil -flushcache");
-			SystemShell.ShellCmd("killall -HUP mDNSResponder");
+			// 10.5 - 10.6
+			string dscacheutilPath = LocateExecutable("dscacheutil");
+			if (dscacheutilPath != "")
+				SystemShell.Shell1(dscacheutilPath, "-flushcache");
 
-			// 10.10
-			SystemShell.ShellCmd("discoveryutil udnsflushcaches");
-			SystemShell.ShellCmd("discoveryutil mdnsflushcache"); // 2.11
+			// 10.7 - 10.8 - 10.9 - 10.10.4 - 10.11 - Sierra 10.12.0
+			string killallPath = LocateExecutable("killall");
+			if (killallPath != "")
+				SystemShell.Shell2(killallPath, "-HUP", "mDNSResponder");
+
+			// 10.10.0 - 10.10.3
+			string discoveryutilPath = LocateExecutable("discoveryutil");
+			if (discoveryutilPath != "")
+			{
+				SystemShell.Shell1(discoveryutilPath, "udnsflushcaches");
+				SystemShell.Shell1(discoveryutilPath, "mdnsflushcache");
+			}
 		}
 
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
@@ -202,7 +220,7 @@ namespace Eddie.Platforms.MacOS
 				stderr = fileErr.ReadDataToEndOfFile().ToString();
 				fileErr.CloseFile();
 
-				exitCode = t.ExitCode;
+				exitCode = t.TerminationStatus;
 			}
 			catch (Exception ex)
 			{
@@ -292,6 +310,7 @@ namespace Eddie.Platforms.MacOS
 			if (s.Run())
 			{
 				// Note: Linux have mdev, OS X have stddev
+				string result = s.Output;
 				string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
 				if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
 					iMS = -1;
@@ -357,7 +376,8 @@ namespace Eddie.Platforms.MacOS
 			s.Path = "/usr/bin/host";
 			s.Arguments.Add("-W 5");
 			s.Arguments.Add(SystemShell.EscapeHost(host));
-			if(s.Run())
+			s.NoDebugLog = true;
+			if (s.Run())
 			{
 				string hostout = s.Output;
 				foreach (string line in hostout.Split('\n'))
@@ -371,7 +391,7 @@ namespace Eddie.Platforms.MacOS
 						result.Add(ipv6.Trim());
 				}
 			}
-			
+
 			return result;
 		}
 
@@ -465,7 +485,12 @@ namespace Eddie.Platforms.MacOS
 			return result;
 		}
 
-		public override bool OnCheckEnvironment()
+		public override bool OnCheckEnvironmentApp()
+		{
+			return true;
+		}
+
+		public override bool OnCheckEnvironmentSession()
 		{
 			return true;
 		}
@@ -542,7 +567,7 @@ namespace Eddie.Platforms.MacOS
 				foreach (string i in interfaces)
 				{
 					string getInfo = SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-getinfo", SystemShell.EscapeInsideQuote(i) });
-					
+
 					string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
 					string address = Utils.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
 
@@ -692,7 +717,7 @@ namespace Eddie.Platforms.MacOS
 					continue;
 				result.Add(line.Trim());
 			}
-			
+
 			return result.ToArray();
 		}
 	}

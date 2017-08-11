@@ -835,15 +835,6 @@ namespace Eddie.UI.Cocoa.Osx
 			s.Set("ui.unit", uiUnit);
 			s.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
 
-			/*
-			string interfaceStyle = GuiUtils.GetSelected (CboGeneralOsxInterfaceStyle);
-			//string currentInterfaceStyle = GuiUtils.InterfaceColorMode ();
-			if(interfaceStyle == "Dark")
-				Platform.Instance.ShellCmd ("defaults write -g AppleInterfaceStyle Dark");
-			else 
-				Platform.Instance.ShellCmd ("defaults remove -g AppleInterfaceStyle");
-			*/
-
 			// Protocols
 			if (GuiUtils.GetCheck(ChkProtocolsAutomatic))
 			{

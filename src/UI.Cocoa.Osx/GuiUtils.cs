@@ -35,7 +35,7 @@ namespace Eddie.UI.Cocoa.Osx
 		}
 		public static void SetSelected(NSPopUpButton control, string value)
 		{
-			control.SelectItem (value);
+			control.SelectItem(value);
 		}
 
 		public static string GetSelected(NSPopUpButton control)
@@ -55,18 +55,23 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public static void SelectFile(NSWindow window, NSTextField field)
 		{
-			NSOpenPanel openPanel = new NSOpenPanel ();
-			openPanel.BeginSheet (window, (i) => {
+			NSOpenPanel openPanel = new NSOpenPanel();
+			openPanel.BeginSheet(window, (i) =>
+			{
 
-				try {
-					if (openPanel.Url != null) {
+				try
+				{
+					if (openPanel.Url != null)
+					{
 						string path = openPanel.Url.Path;
 
-						if (!string.IsNullOrEmpty (path))
+						if (!string.IsNullOrEmpty(path))
 							field.StringValue = path;
 					}
-				} finally {
-					openPanel.Dispose ();
+				}
+				finally
+				{
+					openPanel.Dispose();
 				}
 
 
@@ -76,7 +81,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public static void MessageBox(string message)
 		{
-			MessageBox (message, "");
+			MessageBox(message, "");
 		}
 
 		public static void MessageBox(string message, string title)
@@ -89,7 +94,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public static bool MessageYesNo(string message)
 		{
-			return MessageYesNo (message, "");
+			return MessageYesNo(message, "");
 		}
 
 		public static bool MessageYesNo(string message, string title)
@@ -97,8 +102,8 @@ namespace Eddie.UI.Cocoa.Osx
 			NSAlert alert = new NSAlert();
 			alert.MessageText = title;
 			alert.InformativeText = message;
-			alert.AddButton ("Yes");
-			alert.AddButton ("No");
+			alert.AddButton("Yes");
+			alert.AddButton("No");
 			int r = alert.RunModal();
 
 			if (r == 1000)
@@ -107,24 +112,12 @@ namespace Eddie.UI.Cocoa.Osx
 			return false;
 		}
 
-		/*
-		public static string InterfaceColorMode()
-		{
-			//string colorMode = NSUserDefaults.StandardUserDefaults.StringForKey ("AppleInterfaceStyle");
-			string colorMode = Platform.Instance.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null");
-			if (colorMode == "Dark")
-				return "Dark";
-			else
-				return "Light";
-		}
-		*/
-
 		public static void ShowWindowWithFocus(MonoMac.AppKit.NSWindowController w, MonoMac.AppKit.NSWindowController parent)
 		{
-			w.ShowWindow (parent);
-			w.Window.Deminiaturize (parent);
-			w.Window.MakeKeyAndOrderFront (parent);
-			w.Window.MakeMainWindow ();
+			w.ShowWindow(parent);
+			w.Window.Deminiaturize(parent);
+			w.Window.MakeKeyAndOrderFront(parent);
+			w.Window.MakeMainWindow();
 		}
 	}
 }
