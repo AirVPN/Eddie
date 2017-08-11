@@ -339,17 +339,13 @@ namespace Eddie.Core
 			{
 				Software.Log();
 
-				// Local Time in the past
-				if (DateTime.UtcNow < Constants.dateForPastChecking)
-					Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
-
+				CheckEnvironmentApp();
+				
 				Platform.Instance.OnRecovery();
 
 				Recovery.Load();
 
 				RunEventCommand("app.start");
-
-				Platform.Instance.OnAppStart();
 
 				if (Engine.Storage.GetLower("netlock.mode") != "none")
 				{
@@ -1820,7 +1816,7 @@ namespace Eddie.Core
 
 				Engine.Instance.WaitMessageSet(Messages.CheckingEnvironment, true);
 
-				if (CheckEnvironment() == false)
+				if (CheckEnvironmentSession() == false)
 				{
 					WaitMessageClear();
 				}
@@ -2035,7 +2031,16 @@ namespace Eddie.Core
 			}
 		}
 
-		public bool CheckEnvironment()
+		public bool CheckEnvironmentApp()
+		{
+			// Local Time in the past
+			if (DateTime.UtcNow < Constants.dateForPastChecking)
+				Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
+
+			return Platform.Instance.OnCheckEnvironmentApp();
+		}
+
+		public bool CheckEnvironmentSession()
 		{
 			Software.ExceptionForRequired();
 			
@@ -2086,7 +2091,7 @@ namespace Eddie.Core
 			if (Engine.Instance.Storage.GetBool("routes.remove_default"))
 				Logs.Log(LogType.Warning, Messages.DeprecatedRemoveDefaultGateway);			
 
-			return Platform.Instance.OnCheckEnvironment();
+			return Platform.Instance.OnCheckEnvironmentSession();
 		}
 
 		public IpAddresses DiscoverExit()

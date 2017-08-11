@@ -583,21 +583,7 @@ namespace Eddie.Core
 		{
 			Process.Start(path);
 		}
-
-		/*
-		public virtual int Ping(string host, int timeout)
-		{
-			string result = ShellCmd("ping " + host + " -n 1");
-
-			string sMS = Utils.ExtractBetween(result, "Maximum = ", "ms,");
-			int iMS;
-			if (int.TryParse(sMS, out iMS))
-				return iMS;
-			else
-				return -1;
-		}
-		*/
-
+		
 		public virtual bool SearchTool(string name, string relativePath, ref string path, ref string location)
 		{
 			return false;
@@ -752,11 +738,12 @@ namespace Eddie.Core
 		{
 		}
 
-		public virtual void OnAppStart()
+		public virtual bool OnCheckEnvironmentApp()
 		{
+			return true;
 		}
 
-		public virtual bool OnCheckEnvironment()
+		public virtual bool OnCheckEnvironmentSession()
 		{
 			return true;
 		}

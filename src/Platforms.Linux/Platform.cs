@@ -137,29 +137,35 @@ namespace Eddie.Platforms.Linux
 		}
 
 		public override bool FileImmutableGet(string path)
-        {   
-            // We don't find a better direct method in Mono/Posix without adding ioctl references
-            // The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
-                     
-            if (FileExists(path) == false)
-                return false;
+        {
+			// We don't find a better direct method in Mono/Posix without adding ioctl references
+			// The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
 
-			SystemShell s = new SystemShell();
-			s.Path = "lsattr";
-			s.Arguments.Add(SystemShell.EscapePath(path));
-			s.NoDebugLog = true;
+			if ((path == "") || (FileExists(path) == false))
+				return false;
 
-			if (s.Run())
+			string lsattrPath = LocateExecutable("lsattr");
+			if (lsattrPath != "")
 			{
-				string result = s.Output;
+				SystemShell s = new SystemShell();
+				s.Path = lsattrPath;
+				s.Arguments.Add(SystemShell.EscapePath(path));
+				s.NoDebugLog = true;
 
-				if (result.StartsWith("lsattr: ")) // Generic error
+				if (s.Run())
+				{
+					string result = s.Output;
+
+					if (result.StartsWith("lsattr: ")) // Generic error
+						return false;
+
+					if (result.IndexOf(' ') != -1)
+						result = result.Substring(0, result.IndexOf(' '));
+
+					return (result.IndexOf("-i-") != -1);
+				}
+				else
 					return false;
-
-				if (result.IndexOf(' ') != -1)
-					result = result.Substring(0, result.IndexOf(' '));
-
-				return (result.IndexOf("-i-") != -1);
 			}
 			else
 				return false;
@@ -167,25 +173,37 @@ namespace Eddie.Platforms.Linux
 
         public override void FileImmutableSet(string path, bool value)
         {
-            if (FileExists(path))
+			if ((path == "") || (FileExists(path) == false))
+				return;
+
+			string chattrPath = LocateExecutable("chattr");
+			if(chattrPath != "")
             {
                 string flag = (value ? "+i" : "-i");
-				SystemShell.ShellCmd("chattr " + flag + " \"" + SystemShell.EscapePath(path) + "\"");
-            }
+				SystemShell s = new SystemShell();
+				s.Path = chattrPath;
+				s.Arguments.Add(flag);
+				s.Arguments.Add(SystemShell.EscapePath(path));
+				s.Run();
+			}
         }
 
 		public override void FileEnsurePermission(string path, string mode)
 		{
-			if ((path == "") || (Platform.Instance.FileExists(path) == false))
+			if ((path == "") || (FileExists(path) == false))
 				return;
 
-			// 'mode' not escaped, called hard-coded.
-			SystemShell s = new SystemShell();
-			s.Path = "chmod";
-			s.Arguments.Add(mode);
-			s.Arguments.Add(SystemShell.EscapePath(path));
-			s.NoDebugLog = true;
-			s.Run();
+			string chmodPath = LocateExecutable("chmod");
+			if (chmodPath != "")
+			{
+				// 'mode' not escaped, called hard-coded.
+				SystemShell s = new SystemShell();
+				s.Path = chmodPath;
+				s.Arguments.Add(mode);
+				s.Arguments.Add(SystemShell.EscapePath(path));
+				s.NoDebugLog = true;
+				s.Run();
+			}
 		}
 
 		public override void FileEnsureExecutablePermission(string path)
@@ -282,22 +300,28 @@ namespace Eddie.Platforms.Linux
 
         public override void FlushDNS()
         {
-			// Under Manjaro for example, restart nscd it's mandatory:
-			// - if you change /etc/resolv.conf for DNS queries, nscd will continue to use the old one if you have configured /etc/nsswitch.conf to use DNS for host lookups. In such a case, you need to restart nscd.			
-			if (SystemShell.ShellCmd("ps -ef | grep [n]scd").Trim() != "")
-			{
-				if (Platform.Instance.FileExists("/usr/bin/systemctl"))
-					SystemShell.ShellCmd("systemctl restart nscd");
-				else
-					SystemShell.ShellCmd("/etc/init.d/nscd restart");
-			}
+			string psPath = LocateExecutable("ps");
+			if (psPath != "")
+			{			
+				// Under Manjaro for example, restart nscd it's mandatory:
+				// - if you change /etc/resolv.conf for DNS queries, nscd will continue to use the old one if you have configured /etc/nsswitch.conf to use DNS for host lookups. In such a case, you need to restart nscd.			
+				if (SystemShell.ShellCmd("ps -ef | grep [n]scd").Trim() != "")
+				{
+					string systemctlPath = LocateExecutable("systemctl");
+					if (systemctlPath != "")
+						SystemShell.Shell2(systemctlPath, "restart", "nscd");
+					else
+						SystemShell.ShellCmd("/etc/init.d/nscd restart");
+				}
 
-			if (SystemShell.ShellCmd("ps -ef | grep [d]nsmasq").Trim() != "")
-			{
-				if (Platform.Instance.FileExists("/usr/bin/systemctl"))
-					SystemShell.ShellCmd("systemctl restart dnsmasq");
-				else
-					SystemShell.ShellCmd("/etc/init.d/dnsmasq restart");
+				if (SystemShell.ShellCmd("ps -ef | grep [d]nsmasq").Trim() != "")
+				{
+					string systemctlPath = LocateExecutable("systemctl");
+					if (systemctlPath != "")
+						SystemShell.Shell2(systemctlPath, "restart", "dnsmasq");
+					else
+						SystemShell.ShellCmd("/etc/init.d/dnsmasq restart");
+				}
 			}
 		}
 
@@ -339,22 +363,27 @@ namespace Eddie.Platforms.Linux
 
         public override long Ping(string host, int timeoutSec)
         {
-			SystemShell s = new SystemShell();
-			s.Path = "ping";
-			s.Arguments.Add("-c 1");
-			s.Arguments.Add("-w " + timeoutSec.ToString());
-			s.Arguments.Add("-q");
-			s.Arguments.Add("-n");
-			s.Arguments.Add(SystemShell.EscapeHost(host));
-			s.NoDebugLog = true;
-
 			float iMS = -1;
-			if (s.Run())
+
+			string pingPath = LocateExecutable("ping");
+			if (pingPath != "")
 			{
-				string result = s.Output;
-				string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
-				if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-					iMS = -1;
+				SystemShell s = new SystemShell();
+				s.Path = pingPath;
+				s.Arguments.Add("-c 1");
+				s.Arguments.Add("-w " + timeoutSec.ToString());
+				s.Arguments.Add("-q");
+				s.Arguments.Add("-n");
+				s.Arguments.Add(SystemShell.EscapeHost(host));
+				s.NoDebugLog = true;
+				
+				if (s.Run())
+				{
+					string result = s.Output;
+					string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
+					if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+						iMS = -1;
+				}
 			}
 			
             return (long) iMS;
@@ -412,24 +441,28 @@ namespace Eddie.Platforms.Linux
 		{
 			IpAddresses result = new IpAddresses();
 
-			// Note: CNAME record are automatically followed.
-			SystemShell s = new SystemShell();
-			s.Path = "getent";
-			s.Arguments.Add("ahosts");
-			s.Arguments.Add(SystemShell.EscapeHost(host));
-			s.NoDebugLog = true;
-			if (s.Run())
+			string getentPath = LocateExecutable("getent");
+			if (getentPath != "")
 			{
-				string o = s.Output;
-				o = Utils.StringCleanSpace(o);
-				foreach (string line in o.Split('\n'))
+				// Note: CNAME record are automatically followed.
+				SystemShell s = new SystemShell();
+				s.Path = getentPath;
+				s.Arguments.Add("ahosts");
+				s.Arguments.Add(SystemShell.EscapeHost(host));
+				s.NoDebugLog = true;
+				if (s.Run())
 				{
-					string[] fields = line.Split(' ');
-					if (fields.Length < 2)
-						continue;
-					if (fields[1].Trim() != "STREAM")
-						continue;
-					result.Add(fields[0].Trim());
+					string o = s.Output;
+					o = Utils.StringCleanSpace(o);
+					foreach (string line in o.Split('\n'))
+					{
+						string[] fields = line.Split(' ');
+						if (fields.Length < 2)
+							continue;
+						if (fields[1].Trim() != "STREAM")
+							continue;
+						result.Add(fields[0].Trim());
+					}
 				}
 			}
 			return result;
@@ -499,41 +532,34 @@ namespace Eddie.Platforms.Linux
 
 			report.Add("UID", Conversions.ToString(m_uid));
 			report.Add("LogName", m_logname);
-			report.Add("ip addr show", SystemShell.ShellCmd("ip addr show"));
-			report.Add("ip link show", SystemShell.ShellCmd("ip link show"));
-			report.Add("ip route show", SystemShell.ShellCmd("ip route show"));
+			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "show") : "'ip' " + Messages.NotFound);
+			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "link") : "'ip' " + Messages.NotFound);
+			report.Add("ip route show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "route") : "'ip' " + Messages.NotFound);						
 		}
 		
 		public override Dictionary<int, string> GetProcessesList()
-		{
+		{	
 			Dictionary<int, string> result = new Dictionary<int, string>();
-			String resultS = SystemShell.ShellCmd("ps -eo pid,command");
-			string[] resultA = resultS.Split('\n');
-			foreach (string pS in resultA)
+			string psPath = LocateExecutable("ps");
+			if (psPath != "")
 			{
-				int posS = pS.IndexOf(' ');
-				if (posS != -1)
+				string resultS = SystemShell.Shell2(psPath, "-eo", "pid,command");
+				string[] resultA = resultS.Split('\n');
+				foreach (string pS in resultA)
 				{
-					int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
-					string name = pS.Substring(posS).Trim();
-					result[pid] = name;
+					int posS = pS.IndexOf(' ');
+					if (posS != -1)
+					{
+						int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
+						string name = pS.Substring(posS).Trim();
+						result[pid] = name;
+					}
 				}
 			}
 
 			return result;
 		}
-
-		public override void OnAppStart()
-		{
-			base.OnAppStart();
-
-			string dnsScriptPath = Software.FindResource("update-resolv-conf");
-			if (dnsScriptPath == "")
-			{
-				Engine.Instance.Logs.Log(LogType.Error, "update-resolv-conf " + Messages.NotFound);
-			}
-		}
-
+		
 		public override void OnBuildOvpn(OvpnBuilder ovpn)
 		{
 			base.OnBuildOvpn(ovpn);
@@ -554,7 +580,36 @@ namespace Eddie.Platforms.Linux
             ovpn.AppendDirective("route-delay", "5", ""); // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
-		public override bool OnCheckEnvironment()
+		public override bool OnCheckEnvironmentApp()
+		{
+			string dnsScriptPath = Software.FindResource("update-resolv-conf");
+			if (dnsScriptPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "update-resolv-conf " + Messages.NotFound);
+			
+			string lsattrPath = LocateExecutable("lsattr");
+			if(lsattrPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "lsattr " + Messages.NotFound);
+
+			string chattrPath = LocateExecutable("chattr");
+			if (chattrPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "chattr " + Messages.NotFound);
+
+			string chmodPath = LocateExecutable("chmod");
+			if (chmodPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "chmod " + Messages.NotFound);
+
+			string pingPath = LocateExecutable("ping");
+			if (pingPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "ping " + Messages.NotFound);
+
+			string getentPath = LocateExecutable("getent");
+			if (getentPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "getent " + Messages.NotFound);
+
+			return true;
+		}
+
+		public override bool OnCheckEnvironmentSession()
 		{
 			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
