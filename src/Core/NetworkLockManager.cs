@@ -42,8 +42,11 @@ namespace Eddie.Core
 		public void AddPlugin(NetworkLockPlugin plugin)
 		{
 			//Engine.Instance.Storage.SetDefaultBool("advanced.netlock." + plugin.GetCode() + ".enabled", true, "");
-			plugin.Init();
-			Modes.Add(plugin);
+			if (plugin.GetSupport())
+			{
+				plugin.Init();
+				Modes.Add(plugin);
+			}
 		}
 
 		public bool IsActive()
@@ -85,10 +88,13 @@ namespace Eddie.Core
 				{   
 					foreach (NetworkLockPlugin plugin in Modes)
 					{
-                        if (requestedMode == plugin.GetCode())
-                        {
-							nextCurrent = plugin;
-							break;
+						if (plugin.GetSupport())
+						{
+							if (requestedMode == plugin.GetCode())
+							{
+								nextCurrent = plugin;
+								break;
+							}
 						}
 					}
 				}

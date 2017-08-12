@@ -70,12 +70,12 @@ namespace Eddie.UI.Windows
                         engine.FormMain = new Gui.Forms.Main();
 
                         engine.UiStart();
-
+						
                         // Application.Run(engine.FormMain); // Removed in 2.11.9
 
                         engine.FormMain.LoadPhase();
 
-                        m_context = new ApplicationContext();                        
+						m_context = new ApplicationContext();                        
                     }
                 }
             }

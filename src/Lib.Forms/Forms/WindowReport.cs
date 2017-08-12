@@ -32,7 +32,9 @@ namespace Eddie.Gui.Forms
     {
 		public string Body = "";
 
-        public WindowReport()
+		private Controls.ToolTip m_toolTip;
+
+		public WindowReport()
         {
             OnPreInitializeComponent();
             InitializeComponent();
@@ -54,14 +56,31 @@ namespace Eddie.Gui.Forms
 
 			CheckEnabled();
 
+			if (Platform.IsWindows())
+			{
+				// TOFIX: Under Mono crash...
+				m_toolTip = new Controls.ToolTip();
+				Controls.Add(m_toolTip);
+				m_toolTip.BringToFront();
+
+				m_toolTip.Connect(this.cmdCopyClipboard, Messages.TooltipLogsCopy);
+				m_toolTip.Connect(this.cmdSave, Messages.TooltipLogsSave);
+			}
+
 			txtBody.Text = "";
+			pgrStep.Minimum = 0;
+			pgrStep.Maximum = 100;
 		}
 
 		public void SetStep(string step, string text, int perc)
 		{
+			lblStep.Text = step;			
+			pgrStep.Value = perc;
 			txtBody.Text = text;			
 			cmdCopyClipboard.Enabled = (perc == 100);
 			cmdSave.Enabled = (perc == 100);
+
+			Application.DoEvents(); // For refresh Mono-Linux
 		}
 
         void CheckEnabled()

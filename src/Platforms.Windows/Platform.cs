@@ -642,8 +642,6 @@ namespace Eddie.Platforms.Windows
 
 		public override bool OnDnsSwitchDo(IpAddresses dns)
 		{
-			//TOCLEAN string[] dnsArray = dns.Split(',');
-
 			if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))                
 			{
 				// Order is important! IPv6 block use weight 3000, DNS-Lock 2000, WFP 1000. All within a parent filter of max priority.

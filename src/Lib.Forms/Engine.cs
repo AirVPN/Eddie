@@ -156,7 +156,7 @@ namespace Eddie.Gui
                     command2 = command2.Trim(); // 2.11.11
 					bool waitEnd = false;
 					
-					if (Platform.Instance.FileExists("/usr/bin/kdesudo"))
+					if (Platform.Instance.LocateExecutable("kdesudo") != "")
 					{
 						command = "kdesudo";
 						arguments = "";
@@ -167,7 +167,7 @@ namespace Eddie.Gui
 						//arguments += " \"" + command2 + "\"";
 						arguments += " \"" + command2 + "\"";
 					}
-					else if (Platform.Instance.FileExists("/usr/bin/kdesu"))
+					else if (Platform.Instance.LocateExecutable("kdesu") != "")
 					{
 						command = "kdesu";
 						arguments = "";
@@ -190,7 +190,7 @@ namespace Eddie.Gui
 					}
 					else 
 					*/
-                    else if (Platform.Instance.FileExists("/usr/bin/gksu"))
+                    else if (Platform.Instance.LocateExecutable("gksu") != "")
 					{
 						command = "gksu";
 						arguments = "";
@@ -198,7 +198,7 @@ namespace Eddie.Gui
 						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
 						arguments += " \"" + command2 + "\"";
 					}
-					else if (Platform.Instance.FileExists("/usr/bin/xdg-su")) // OpenSUSE
+					else if (Platform.Instance.LocateExecutable("xdg-su") != "") // OpenSUSE
 					{
 						command = "xdg-su";
 						arguments = "";
@@ -206,7 +206,7 @@ namespace Eddie.Gui
 						arguments += " -c "; // The command
 						arguments += " \"" + command2 + "\"";
 					}
-					else if (Platform.Instance.FileExists("/usr/bin/beesu")) // Fedora
+					else if (Platform.Instance.LocateExecutable("beesu") != "") // Fedora
 					{
 						command = "beesu";
 						arguments = "";

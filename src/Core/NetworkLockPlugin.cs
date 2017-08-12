@@ -40,7 +40,7 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public virtual bool GetSupportX() // ClodoTemp: Not used?
+		public virtual bool GetSupport()
 		{
 			return true;
 		}

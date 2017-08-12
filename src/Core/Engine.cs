@@ -334,8 +334,11 @@ namespace Eddie.Core
 		public override void OnRun()
 		{
 			bool initResult = OnInit();
+			
+			// Not the best, but under Mono/Linux allow showing the 'Starting...' that give a feedback of running.
+			System.Threading.Thread.Sleep(1000);
 
-			if(initResult == true)
+			if (initResult == true)
 			{
 				Software.Log();
 
@@ -916,12 +919,8 @@ namespace Eddie.Core
 
 		public void GenerateSystemReport() // ClodoTemp end implementation
 		{	
-			OnSystemReport("Start", "Please wait.", 0);
-
 			Report report = new Report();
-			string text = Platform.Instance.NormalizeString(report.ToString());
-
-			OnSystemReport("Done", text, 100);
+			report.Start();			
 		}
 
 		public void SetConnected(bool connected)
@@ -960,7 +959,7 @@ namespace Eddie.Core
 		}
 
 		public void WaitMessageSet(string message, bool allowCancel)
-		{
+		{			
 			if (message != "")
 			{
 				if (m_connected)

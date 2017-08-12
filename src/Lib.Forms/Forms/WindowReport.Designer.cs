@@ -32,6 +32,8 @@ namespace Eddie.Gui.Forms
 			this.cmdCopyClipboard = new Eddie.Gui.Skin.Button();
 			this.cmdSave = new Eddie.Gui.Skin.Button();
 			this.cmdOk = new Eddie.Gui.Skin.Button();
+			this.pgrStep = new System.Windows.Forms.ProgressBar();
+			this.lblStep = new Eddie.Gui.Skin.Label();
 			this.SuspendLayout();
 			// 
 			// txtBody
@@ -47,8 +49,8 @@ namespace Eddie.Gui.Forms
 			this.txtBody.Name = "txtBody";
 			this.txtBody.ReadOnly = true;
 			this.txtBody.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.txtBody.Size = new System.Drawing.Size(737, 400);
-			this.txtBody.TabIndex = 5;
+			this.txtBody.Size = new System.Drawing.Size(737, 386);
+			this.txtBody.TabIndex = 4;
 			// 
 			// cmdCopyClipboard
 			// 
@@ -63,7 +65,7 @@ namespace Eddie.Gui.Forms
 			this.cmdCopyClipboard.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdCopyClipboard.Name = "cmdCopyClipboard";
 			this.cmdCopyClipboard.Size = new System.Drawing.Size(28, 28);
-			this.cmdCopyClipboard.TabIndex = 49;
+			this.cmdCopyClipboard.TabIndex = 2;
 			this.cmdCopyClipboard.UseVisualStyleBackColor = true;
 			this.cmdCopyClipboard.Click += new System.EventHandler(this.cmdCopyClipboard_Click);
 			// 
@@ -80,7 +82,7 @@ namespace Eddie.Gui.Forms
 			this.cmdSave.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdSave.Name = "cmdSave";
 			this.cmdSave.Size = new System.Drawing.Size(28, 28);
-			this.cmdSave.TabIndex = 48;
+			this.cmdSave.TabIndex = 3;
 			this.cmdSave.UseVisualStyleBackColor = true;
 			this.cmdSave.Click += new System.EventHandler(this.cmdSave_Click);
 			// 
@@ -98,10 +100,31 @@ namespace Eddie.Gui.Forms
 			this.cmdOk.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdOk.Name = "cmdOk";
 			this.cmdOk.Size = new System.Drawing.Size(160, 30);
-			this.cmdOk.TabIndex = 50;
+			this.cmdOk.TabIndex = 1;
 			this.cmdOk.Text = "Close";
 			this.cmdOk.UseVisualStyleBackColor = true;
 			this.cmdOk.Click += new System.EventHandler(this.cmdOk_Click);
+			// 
+			// pgrStep
+			// 
+			this.pgrStep.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.pgrStep.Location = new System.Drawing.Point(557, 392);
+			this.pgrStep.Name = "pgrStep";
+			this.pgrStep.Size = new System.Drawing.Size(186, 23);
+			this.pgrStep.TabIndex = 51;
+			// 
+			// lblStep
+			// 
+			this.lblStep.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lblStep.BackColor = System.Drawing.Color.Transparent;
+			this.lblStep.ForeColor = System.Drawing.Color.Black;
+			this.lblStep.Location = new System.Drawing.Point(6, 392);
+			this.lblStep.Name = "lblStep";
+			this.lblStep.Size = new System.Drawing.Size(545, 23);
+			this.lblStep.TabIndex = 52;
+			this.lblStep.Text = "Starting...";
+			this.lblStep.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// WindowReport
 			// 
@@ -110,6 +133,8 @@ namespace Eddie.Gui.Forms
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdOk;
 			this.ClientSize = new System.Drawing.Size(784, 461);
+			this.Controls.Add(this.lblStep);
+			this.Controls.Add(this.pgrStep);
 			this.Controls.Add(this.cmdOk);
 			this.Controls.Add(this.cmdCopyClipboard);
 			this.Controls.Add(this.cmdSave);
@@ -128,5 +153,7 @@ namespace Eddie.Gui.Forms
 		private Skin.Button cmdCopyClipboard;
 		private Skin.Button cmdSave;
 		private Skin.Button cmdOk;
+		private System.Windows.Forms.ProgressBar pgrStep;
+		private Skin.Label lblStep;
 	}
 }

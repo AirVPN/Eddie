@@ -703,24 +703,7 @@ namespace Eddie.Core
 		{
 			return StringToList(lines, separators, true, true, true, true);
 		}
-
-		/* // TOCLEAN, < 2.13.5
-		public static List<string> StringToList(string lines, string separators, bool checkQuote)
-		{
-			List<string> result = new List<string>();
-
-			string[] items = lines.Split(separators.ToCharArray());
-			foreach (string item in items)
-            {
-				string itemT = item.Trim();
-				if (itemT != "")
-					result.Add(itemT);
-			}
-
-			return result;
-		}		
-		*/
-
+		
 		public static List<string> StringToList(string str, string separatorsStr, bool checkQuote, bool skipEmpty, bool skipComment, bool trimAuto)
 		{
 			char[] characters = str.ToCharArray();

@@ -31,31 +31,45 @@ namespace Eddie.Core
 
 		public Report()
 		{
-			Build();
 		}
 
 		public void Add(string name, string data)
 		{
 			ReportItem item = new ReportItem();
 			item.Name = name;
-			item.Data = data;
+			if (data == null)
+				item.Data = "(null)";
+			else
+				item.Data = data;
 			Items.Add(item);
 		}
 
-		public void Build()
+		public void Start()
 		{
+			Engine.Instance.OnSystemReport(Messages.ReportStepCollectEnvironmentInfo, Messages.PleaseWait, 0);
+
 			Environment();
+
+			Engine.Instance.OnSystemReport(Messages.ReportStepTests, ToString(), 10);
 
 			Tests();
 
-			Add("Important options not at defaults", Engine.Instance.Storage.GetReportForSupport());
+			Engine.Instance.OnSystemReport(Messages.ReportStepLogs, ToString(), 50);
 
-			Add("Logs", Engine.Instance.Logs.ToString());
-				
+			Add(Messages.ReportOptions, Engine.Instance.Storage.GetReportForSupport());
+
+			Add(Messages.ReportLogs, Engine.Instance.Logs.ToString());
+
+			Engine.Instance.OnSystemReport(Messages.ReportStepLogs, ToString(), 60);
+
 			NetworkInterfaces();
 			DefaultGateways();
 
+			Engine.Instance.OnSystemReport(Messages.ReportStepPlatform, ToString(), 70);
+
 			Platform.Instance.OnReport(this);
+
+			Engine.Instance.OnSystemReport(Messages.ReportStepDone, ToString(), 100);
 		}
 
 		public override string ToString()
@@ -77,7 +91,7 @@ namespace Eddie.Core
 				lastMultiline = item.IsMultiline;
 			}
 
-			return result.Trim();
+			return Platform.Instance.NormalizeString(result.Trim());
 		}
 
 		public void Tests()

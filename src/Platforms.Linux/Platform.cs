@@ -66,17 +66,17 @@ namespace Eddie.Platforms.Linux
 		{
 			base.OnInit(cli);
 
-			m_version = SystemShell.ShellCmd("uname -a").Trim();
-			m_architecture = NormalizeArchitecture(SystemShell.ShellCmd("uname -m").Trim());
+			m_version = SystemShell.Shell1(LocateExecutable("uname"), "-a");
+			m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"),"-m").Trim());
 			m_uid = 9999;
-			UInt32.TryParse(SystemShell.ShellCmd("id -u"), out m_uid);
+			UInt32.TryParse(SystemShell.Shell1(LocateExecutable("id"),"-u"), out m_uid);
 
 			// Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
 			// Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
 			// Manjaro, same as Ubuntu
-			m_logname = SystemShell.ShellCmd("echo $SUDO_USER").Trim(); // IJTF2 // TOCHECK
+			m_logname = Environment.GetEnvironmentVariable("SUDO_USER").Trim();
 			if (m_logname == "")
-				m_logname = SystemShell.ShellCmd("logname");
+				m_logname = SystemShell.Shell0(LocateExecutable("logname"));
 			if (m_logname.Contains("no login name"))
 				m_logname = Environment.UserName;
 
@@ -235,7 +235,7 @@ namespace Eddie.Platforms.Linux
 				output = builder.ToString();
             */
             int pid = Process.GetCurrentProcess().Id;
-            string output = SystemShell.ShellCmd("readlink /proc/" + pid.ToString() + "/exe");
+            string output = SystemShell.Shell1(LocateExecutable("readlink"), "/proc/" + pid.ToString() + "/exe");
 
             if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
 			{
@@ -264,9 +264,9 @@ namespace Eddie.Platforms.Linux
 			if (paths.Contains("/usr/sbin") == false)
 				paths.Add("/usr/sbin");
 			if (paths.Contains("/usr/local/sbin") == false)
-				paths.Add("/usr/local/sbin");
+				paths.Add("/usr/local/sbin");			
 			if (paths.Contains("/root/bin") == false)
-				paths.Add("/root/sbin");			
+				paths.Add("/root/bin");			
 			return LocateExecutable(name, paths);
 		}
 
@@ -304,28 +304,52 @@ namespace Eddie.Platforms.Linux
 
         public override void FlushDNS()
         {
-			string psPath = LocateExecutable("ps");
-			if (psPath != "")
-			{			
-				// Under Manjaro for example, restart nscd it's mandatory:
-				// - if you change /etc/resolv.conf for DNS queries, nscd will continue to use the old one if you have configured /etc/nsswitch.conf to use DNS for host lookups. In such a case, you need to restart nscd.			
-				if (SystemShell.ShellCmd("ps -ef | grep [n]scd").Trim() != "")
+			string servicePath = LocateExecutable("service");
+			if(servicePath != "")
+			{
+				Dictionary<string, string> services = new Dictionary<string, string>();
+				string list = SystemShell.Shell1(servicePath, "--status-all");
+				list = Utils.StringCleanSpace(list);
+				foreach(string line in list.Split('\n'))
 				{
-					string systemctlPath = LocateExecutable("systemctl");
-					if (systemctlPath != "")
-						SystemShell.Shell2(systemctlPath, "restart", "nscd");
-					else
-						SystemShell.ShellCmd("/etc/init.d/nscd restart");
+					if (line.Contains(" running "))
+					{
+						int pos = line.IndexOf(".service");
+						if (pos != -1)
+						{
+							string name = line.Substring(0, pos).Trim();
+							services[name] = name;
+						}
+					}
 				}
 
-				if (SystemShell.ShellCmd("ps -ef | grep [d]nsmasq").Trim() != "")
-				{
-					string systemctlPath = LocateExecutable("systemctl");
-					if (systemctlPath != "")
-						SystemShell.Shell2(systemctlPath, "restart", "dnsmasq");
-					else
-						SystemShell.ShellCmd("/etc/init.d/dnsmasq restart");
-				}
+				if(services.ContainsKey("nscd"))
+					SystemShell.Shell2(servicePath, "nscd", "restart");
+				if (services.ContainsKey("dnsmasq"))
+					SystemShell.Shell2(servicePath, "dnsmasq", "restart");
+				if (services.ContainsKey("named"))
+					SystemShell.Shell2(servicePath, "named", "restart");
+				if (services.ContainsKey("bind9"))
+					SystemShell.Shell2(servicePath, "bind9", "restart");
+			}
+			else
+			{
+				if (FileExists("/etc/init.d/nscd"))
+					SystemShell.Shell1("/etc/init.d/nscd", "restart");
+				if (FileExists("/etc/init.d/dnsmasq"))
+					SystemShell.Shell1("/etc/init.d/dnsmasq", "restart");
+				if (FileExists("/etc/init.d/named"))
+					SystemShell.Shell1("/etc/init.d/named", "restart");
+				if (FileExists("/etc/init.d/bind9"))
+					SystemShell.Shell1("/etc/init.d/bind9", "restart");
+			}
+
+			// On some system, for example Fedora, nscd caches are saved to disk,
+			// located in /var/db/nscd, and not flushed with a simple restart. 
+			string nscdPath = LocateExecutable("nscd");
+			if(nscdPath != "")
+			{
+				SystemShell.Shell1(nscdPath, "--invalidate=hosts");
 			}
 		}
 
@@ -338,18 +362,10 @@ namespace Eddie.Platforms.Linux
 
         public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
         {
-            string pathBin = "/usr/bin/" + name;
-            if (Platform.Instance.FileExists(pathBin))
+			string pathBin = LocateExecutable(name);
+			if(pathBin != "")
             {
                 path = pathBin;
-                location = "system";
-                return true;
-            }
-
-            string pathSBin = "/usr/sbin/" + name;
-            if (Platform.Instance.FileExists(pathSBin))
-            {
-                path = pathSBin;
                 location = "system";
                 return true;
             }
@@ -495,35 +511,39 @@ namespace Eddie.Platforms.Linux
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
-			string result = SystemShell.ShellCmd("route -n -ee");
-
-			string[] lines = result.Split('\n');
-			foreach (string line in lines)
+			string routePath = LocateExecutable("route");
+			if(routePath != "")
 			{
-				string[] fields = Utils.StringCleanSpace(line).Split(' ');
+				string result = SystemShell.Shell2(routePath, "-n","-ee");
 
-				if (fields.Length == 11)
+				string[] lines = result.Split('\n');
+				foreach (string line in lines)
 				{
-					RouteEntry e = new RouteEntry();
-					e.Address = fields[0];
-					e.Gateway = fields[1];
-					e.Mask = fields[2];
-					e.Flags = fields[3].ToUpperInvariant();
-					e.Metrics = fields[4];
-					// Ref, Use ignored
-					e.Interface = fields[7];
-					e.Mss = fields[8];
-					e.Window = fields[9];
-					e.Irtt = fields[10];
-					
-					if (e.Address.Valid == false)
-						continue;
-					if (e.Gateway.Valid == false)
-						continue;
-					if (e.Mask.Valid == false)
-						continue;
+					string[] fields = Utils.StringCleanSpace(line).Split(' ');
 
-					entryList.Add(e);
+					if (fields.Length == 11)
+					{
+						RouteEntry e = new RouteEntry();
+						e.Address = fields[0];
+						e.Gateway = fields[1];
+						e.Mask = fields[2];
+						e.Flags = fields[3].ToUpperInvariant();
+						e.Metrics = fields[4];
+						// Ref, Use ignored
+						e.Interface = fields[7];
+						e.Mss = fields[8];
+						e.Window = fields[9];
+						e.Irtt = fields[10];
+
+						if (e.Address.Valid == false)
+							continue;
+						if (e.Gateway.Valid == false)
+							continue;
+						if (e.Mask.Valid == false)
+							continue;
+
+						entryList.Add(e);
+					}
 				}
 			}
 
@@ -537,8 +557,8 @@ namespace Eddie.Platforms.Linux
 			report.Add("UID", Conversions.ToString(m_uid));
 			report.Add("LogName", m_logname);
 			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "show") : "'ip' " + Messages.NotFound);
-			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "link") : "'ip' " + Messages.NotFound);
-			report.Add("ip route show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "route") : "'ip' " + Messages.NotFound);						
+			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "link", "show") : "'ip' " + Messages.NotFound);
+			report.Add("ip route show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "route", "show") : "'ip' " + Messages.NotFound);			
 		}
 		
 		public override Dictionary<int, string> GetProcessesList()
@@ -614,6 +634,14 @@ namespace Eddie.Platforms.Linux
 			if (psPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + Messages.NotFound);
 
+			string ipPath = LocateExecutable("ip");
+			if (ipPath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'ip' " + Messages.NotFound);
+
+			string routePath = LocateExecutable("route");
+			if (routePath == "")
+				Engine.Instance.Logs.Log(LogType.Error, "'route' " + Messages.NotFound);
+
 			return true;
 		}
 
@@ -621,8 +649,13 @@ namespace Eddie.Platforms.Linux
 		{
 			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
 			{
-				string sysctlName = "sysctl net.ipv6.conf.all.disable_ipv6";
-				string ipV6 = SystemShell.ShellCmd(sysctlName).Replace(sysctlName, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
+				string keyname = "net.ipv6.conf.all.disable_ipv6";
+				string ipV6 = "";
+				string sysctlPath = LocateExecutable("sysctl");
+				if(sysctlPath != "")
+				{
+					ipV6 = SystemShell.Shell1(sysctlPath, keyname).Replace(keyname, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
+				}
 
 				if (ipV6 == "0")
 				{
@@ -800,12 +833,6 @@ namespace Eddie.Platforms.Linux
 			{
 				// 2.10.1
 				current = "rename";
-                /*
-				if (Platform.Instance.FileExists("/sbin/resolvconf"))
-					current = "resolvconf";
-				else
-					current = "rename";
-				*/
             }
 
             // Fallback

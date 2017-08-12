@@ -259,7 +259,7 @@ namespace Eddie.Gui.Forms
             this.mnuRestoreSep,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(253, 362);
+			this.mnuMain.Size = new System.Drawing.Size(253, 340);
 			// 
 			// mnuStatus
 			// 
@@ -1064,6 +1064,7 @@ namespace Eddie.Gui.Forms
 			this.tabMain.SelectedIndex = 0;
 			this.tabMain.Size = new System.Drawing.Size(738, 359);
 			this.tabMain.TabIndex = 21;
+			this.tabMain.Visible = false;
 			// 
 			// tabOverview
 			// 
@@ -1097,6 +1098,7 @@ namespace Eddie.Gui.Forms
 			this.pnlConnected.Name = "pnlConnected";
 			this.pnlConnected.Size = new System.Drawing.Size(470, 218);
 			this.pnlConnected.TabIndex = 66;
+			this.pnlConnected.Visible = false;
 			// 
 			// txtConnectedExitIp
 			// 
@@ -1254,6 +1256,7 @@ namespace Eddie.Gui.Forms
 			this.pnlWelcome.Name = "pnlWelcome";
 			this.pnlWelcome.Size = new System.Drawing.Size(470, 217);
 			this.pnlWelcome.TabIndex = 53;
+			this.pnlWelcome.Visible = false;
 			// 
 			// cboKey
 			// 
@@ -1422,6 +1425,7 @@ namespace Eddie.Gui.Forms
 			this.pnlWaiting.Name = "pnlWaiting";
 			this.pnlWaiting.Size = new System.Drawing.Size(246, 73);
 			this.pnlWaiting.TabIndex = 65;
+			this.pnlWaiting.Visible = false;
 			// 
 			// lblWait2
 			// 
