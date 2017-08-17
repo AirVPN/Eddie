@@ -22,15 +22,16 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSButton CmdSave { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField LblStep { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSProgressIndicator PgrStep { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextView TxtBody { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (TxtBody != null) {
-				TxtBody.Dispose ();
-				TxtBody = null;
-			}
-
 			if (CmdClose != null) {
 				CmdClose.Dispose ();
 				CmdClose = null;
@@ -44,6 +45,21 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdSave != null) {
 				CmdSave.Dispose ();
 				CmdSave = null;
+			}
+
+			if (TxtBody != null) {
+				TxtBody.Dispose ();
+				TxtBody = null;
+			}
+
+			if (LblStep != null) {
+				LblStep.Dispose ();
+				LblStep = null;
+			}
+
+			if (PgrStep != null) {
+				PgrStep.Dispose ();
+				PgrStep = null;
 			}
 		}
 	}

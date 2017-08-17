@@ -11,12 +11,14 @@
                 <outlet property="CmdClose" destination="C9K-to-p2a" id="M0n-2k-VP9"/>
                 <outlet property="CmdCopyClipboard" destination="VhJ-lN-9ou" id="0ab-li-xfN"/>
                 <outlet property="CmdSave" destination="FPf-sw-oKq" id="lCa-z1-rSk"/>
+                <outlet property="LblStep" destination="XPM-ky-5II" id="9S7-fy-RC8"/>
+                <outlet property="PgrStep" destination="ycO-qC-xIZ" id="JkM-g9-RRb"/>
                 <outlet property="TxtBody" destination="dA3-Pz-6Be" id="wed-tQ-ni1"/>
                 <outlet property="window" destination="2" id="6"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="WindowReport">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="131" y="74" width="800" height="500"/>
@@ -34,18 +36,18 @@
                         </buttonCell>
                     </button>
                     <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="ov5-Mo-bji">
-                        <rect key="frame" x="20" y="61" width="725" height="419"/>
+                        <rect key="frame" x="20" y="72" width="725" height="408"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="ggV-Wy-ONm">
-                            <rect key="frame" x="1" y="1" width="708" height="417"/>
+                            <rect key="frame" x="1" y="1" width="708" height="406"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="dA3-Pz-6Be">
-                                    <rect key="frame" x="0.0" y="0.0" width="708" height="417"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="708" height="406"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="708" height="417"/>
-                                    <size key="maxSize" width="708" height="10000000"/>
+                                    <size key="minSize" width="708" height="406"/>
+                                    <size key="maxSize" width="725" height="10000000"/>
                                     <attributedString key="textStorage">
                                         <fragment content="123">
                                             <attributes>
@@ -64,7 +66,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="qEO-Pp-yec">
-                            <rect key="frame" x="709" y="1" width="15" height="417"/>
+                            <rect key="frame" x="709" y="1" width="15" height="406"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
@@ -84,9 +86,22 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
+                    <progressIndicator wantsLayer="YES" misplaced="YES" maxValue="100" style="bar" id="ycO-qC-xIZ">
+                        <rect key="frame" x="605" y="45" width="140" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    </progressIndicator>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="NO" id="XPM-ky-5II">
+                        <rect key="frame" x="20" y="47" width="581" height="15"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Label" usesSingleLineMode="YES" id="1lN-TO-iJ1">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="130.5" y="212"/>
+            <point key="canvasLocation" x="130" y="212"/>
         </window>
     </objects>
     <resources>

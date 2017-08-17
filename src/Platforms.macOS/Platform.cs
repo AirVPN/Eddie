@@ -137,7 +137,7 @@ namespace Eddie.Platforms.MacOS
 		{
 			string otoolPath = LocateExecutable("otool");
 			if (otoolPath != "")
-				return SystemShell.Shell1(otoolPath, "-L \"" + SystemShell.EscapePath(path) + "\"");
+				return SystemShell.Shell2(otoolPath, "-L", SystemShell.EscapePath(path));
 			else
 				return "'otool' " + Messages.NotFound;
 		}
@@ -299,7 +299,7 @@ namespace Eddie.Platforms.MacOS
 						iMS = -1;
 				}
 			}
-				
+
 			return (long)iMS;
 		}
 
@@ -378,7 +378,7 @@ namespace Eddie.Platforms.MacOS
 							result.Add(ipv6.Trim());
 					}
 				}
-			}	
+			}
 
 			return result;
 		}
@@ -388,7 +388,7 @@ namespace Eddie.Platforms.MacOS
 			IpAddresses list = new IpAddresses();
 
 			string networksetupPath = LocateExecutable("networksetup");
-			if(networksetupPath != "")
+			if (networksetupPath != "")
 			{
 				string[] interfaces = GetInterfaces();
 				foreach (string i in interfaces)
@@ -400,7 +400,7 @@ namespace Eddie.Platforms.MacOS
 					list.Add(current);
 				}
 			}
-			
+
 			return list;
 		}
 
@@ -409,7 +409,7 @@ namespace Eddie.Platforms.MacOS
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
 			string netstatPath = LocateExecutable("netstat");
-			if(netstatPath != "")
+			if (netstatPath != "")
 			{
 				string result = SystemShell.Shell1(netstatPath, "-rnl");
 
@@ -460,7 +460,6 @@ namespace Eddie.Platforms.MacOS
 			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemShell.Shell0(LocateExecutable("ifconfig")) : "'ifconfig' " + Messages.NotFound);
 			report.Add("netstat /rnl", (LocateExecutable("netstat") != "") ? SystemShell.Shell1(LocateExecutable("netstat"), "/rnl") : "'netstat' " + Messages.NotFound);
 
-			report.Add("pazzo", GetExecutableReport(GetExecutablePathEx()));
 		}
 
 		public override Dictionary<int, string> GetProcessesList()
@@ -496,7 +495,7 @@ namespace Eddie.Platforms.MacOS
 				Engine.Instance.Logs.Log(LogType.Error, "'networksetup' " + Messages.NotFound);
 				fatal = true;
 			}
-			
+
 			string pfctlPath = LocateExecutable("pfctl");
 			if (pfctlPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'pfctl' " + Messages.NotFound);

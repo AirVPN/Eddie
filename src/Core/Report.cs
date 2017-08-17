@@ -91,7 +91,7 @@ namespace Eddie.Core
 				lastMultiline = item.IsMultiline;
 			}
 
-			return Platform.Instance.NormalizeString(result.Trim());
+			return Platform.Instance.NormalizeString(result.Trim() + "\n");
 		}
 
 		public void Tests()
@@ -107,7 +107,7 @@ namespace Eddie.Core
 			#if !EDDIENET20
 			Add("JsonTest", Newtonsoft.Json.JsonConvert.SerializeObject(new IpAddress("8.8.8.8")));
 			#endif
-			*/			
+			*/
 		}
 
 		public string TestUrl(string url)
@@ -119,10 +119,10 @@ namespace Eddie.Core
 				HttpResponse response = Engine.Instance.FetchUrl(request);
 				return response.GetLineReport();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return "Error:" + ex.Message;
-			}			
+			}
 		}
 
 		public void Environment()

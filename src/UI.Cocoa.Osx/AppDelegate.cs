@@ -21,6 +21,7 @@ using System.Drawing;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 using MonoMac.ObjCRuntime;
+using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -29,55 +30,62 @@ namespace Eddie.UI.Cocoa.Osx
 		MainWindowController mainWindowController;
 
 
-		public AppDelegate ()
+		public AppDelegate()
 		{
 		}
 
 
-		public override bool ApplicationShouldTerminateAfterLastWindowClosed (NSApplication sender)
+		public override bool ApplicationShouldTerminateAfterLastWindowClosed(NSApplication sender)
 		{
 			return false; // 2.8
 		}
 
-		public override void FinishedLaunching (NSObject notification)
+		public override void FinishedLaunching(NSObject notification)
 		{
-			Engine.Instance.TerminateEvent += delegate() {
-				new NSObject ().InvokeOnMainThread (() => {
+			Engine.Instance.TerminateEvent += delegate ()
+			{
+				new NSObject().InvokeOnMainThread(() =>
+				{
 					//NSApplication.SharedApplication.ReplyToApplicationShouldTerminate (true);
-					NSApplication.SharedApplication.Terminate(new NSObject ());
+					NSApplication.SharedApplication.Terminate(new NSObject());
 				});
 			};
 
-			UpdateInterfaceStyle ();
+			UpdateInterfaceStyle();
 
-			mainWindowController = new MainWindowController ();
+			mainWindowController = new MainWindowController();
 
 			bool startVisible = Engine.Instance.Storage.GetBool("gui.osx.visible");
-			if (startVisible) {
-				mainWindowController.Window.MakeKeyAndOrderFront (this);
-			} else {
+			if (startVisible)
+			{
+				mainWindowController.Window.MakeKeyAndOrderFront(this);
+			}
+			else
+			{
 				mainWindowController.Window.IsVisible = false;
 			}
-			NSApplication.SharedApplication.ActivateIgnoringOtherApps (true);
+			NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
 
-			NSProcessInfo.ProcessInfo.DisableSuddenTermination (); // Already disabled by default
+			NSProcessInfo.ProcessInfo.DisableSuddenTermination(); // Already disabled by default
 
-			MenuEvents ();
+			MenuEvents();
 
 		}
 
 
-		public override NSApplicationTerminateReply ApplicationShouldTerminate (NSApplication sender)
+		public override NSApplicationTerminateReply ApplicationShouldTerminate(NSApplication sender)
 		{
 			if (Engine.Instance.Terminated == false)
 			{
 				if (mainWindowController.ShutdownConfirmed)
 					return NSApplicationTerminateReply.Later;
-				else if(mainWindowController.Shutdown() == false)
+				else if (mainWindowController.Shutdown() == false)
 					return NSApplicationTerminateReply.Cancel;
 				else
 					return NSApplicationTerminateReply.Later;
-			} else {
+			}
+			else
+			{
 				return NSApplicationTerminateReply.Now;
 			}
 		}
@@ -87,15 +95,27 @@ namespace Eddie.UI.Cocoa.Osx
 			// AppleInterfaceStyle is user-level settings.
 			// Setting the 'Dark mode' in preferences, don't change the interface style of the ROOT user, and AirVPN client run as root.
 			// We detect the settings when this software relaunch itself, and here we update accordly the settings of the current (ROOT) user.
-			string rootColorMode = Core.SystemShell.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null").ToString ().ToLowerInvariant ();
-			if (rootColorMode == "")
-				rootColorMode = "light";
-			string argsColorMode = Engine.Instance.Storage.Get ("gui.osx.style");
-			if (rootColorMode != argsColorMode) {
-				if(argsColorMode == "dark")
-					Core.SystemShell.ShellCmd ("defaults write -g AppleInterfaceStyle Dark");
-				else 
-					Core.SystemShell.ShellCmd ("defaults remove -g AppleInterfaceStyle");
+			string defaultsPath = Core.Platform.Instance.LocateExecutable("defaults");
+			if (defaultsPath != "")
+			{
+				// If 'white', return error in StdErr and empty in StdOut.
+				SystemShell s = new SystemShell();
+				s.Path = defaultsPath;
+				s.Arguments.Add("read");
+				s.Arguments.Add("-g");
+				s.Arguments.Add("AppleInterfaceStyle");
+				s.Run();
+				string rootColorMode = s.StdOut.Trim().ToLowerInvariant();
+				if (rootColorMode == "")
+					rootColorMode = "light";
+				string argsColorMode = Engine.Instance.Storage.Get("gui.osx.style");
+				if (rootColorMode != argsColorMode)
+				{
+					if (argsColorMode == "dark")
+						Core.SystemShell.Shell(defaultsPath, new string[] { "write", "-g", "AppleInterfaceStyle", "Dark" });
+					else
+						Core.SystemShell.Shell(defaultsPath, new string[] { "remove", "-g", "AppleInterfaceStyle" });
+				}
 			}
 		}
 
@@ -131,7 +151,8 @@ namespace Eddie.UI.Cocoa.Osx
 				mainWindowController.ShowSpeedTest();
 			};
 
-			MnuMainQuit.Activated += (object sender, EventArgs e) => {
+			MnuMainQuit.Activated += (object sender, EventArgs e) =>
+			{
 				mainWindowController.Shutdown();
 			};
 		}

@@ -34,37 +34,52 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public List<MonoMac.AppKit.NSWindowController> WindowsOpen = new List<MonoMac.AppKit.NSWindowController>();
 
+		private WindowReportController m_windowReport;
 
-		public Engine ()
+		public Engine()
 		{
 		}
 
-		public override bool OnInit ()
+		public override bool OnInit()
 		{
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			return base.OnInit ();
+			return base.OnInit();
 		}
 
-		public override void OnDeInit2 ()
+		public override void OnDeInit2()
 		{
-			base.OnDeInit2 ();
+			base.OnDeInit2();
 
-			if (MainWindow != null) {
-				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.Close ();
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+				{
+					MainWindow.Close();
 					MainWindow = null; // 2.10.2
 				});
 			}
 		}
 
-		public override bool OnNoRoot ()
+		public override bool OnNoRoot()
 		{
 			string path = Platform.Instance.GetExecutablePath();
-			List<string> args = CommandLine.SystemEnvironment.GetFullArray ();
-            string colorMode = Core.SystemShell.ShellCmd ("defaults read -g AppleInterfaceStyle 2>/dev/null");
-			if(colorMode == "Dark")
-				args.Add("gui.osx.style=\"dark\"");
+			List<string> args = CommandLine.SystemEnvironment.GetFullArray();
+			string defaultsPath = Core.Platform.Instance.LocateExecutable("defaults");
+			if (defaultsPath != "")
+			{
+				// If 'white', return error in StdErr and empty in StdOut.
+				SystemShell s = new SystemShell();
+				s.Path = defaultsPath;
+				s.Arguments.Add("read");
+				s.Arguments.Add("-g");
+				s.Arguments.Add("AppleInterfaceStyle");
+				s.Run();
+				string colorMode = s.StdOut.Trim().ToLowerInvariant();
+				if (colorMode == "dark")
+					args.Add("gui.osx.style=\"dark\"");
+			}
+
 			RootLauncher.LaunchExternalTool(path, args.ToArray());
 			return true;
 		}
@@ -77,68 +92,77 @@ namespace Eddie.UI.Cocoa.Osx
 
 
 
-		public override void OnRefreshUi (RefreshUiMode mode)
+		public override void OnRefreshUi(RefreshUiMode mode)
 		{
-			base.OnRefreshUi (mode);
-
-			if (MainWindow != null) {
-				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.RefreshUi (mode);
-				});
-			}
-		}
-
-		public override void OnStatsChange (StatsEntry entry)
-		{
-			base.OnStatsChange (entry);
+			base.OnRefreshUi(mode);
 
 			if (MainWindow != null)
-			if (MainWindow.TableStatsController != null) {
-				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.TableStatsController.RefreshUI ();
+			{
+				new NSObject().InvokeOnMainThread(() =>
+				{
+					MainWindow.RefreshUi(mode);
 				});
 			}
 		}
 
-		public override void OnSettingsChanged ()
+		public override void OnStatsChange(StatsEntry entry)
 		{
-			if (MainWindow != null) {
-				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.SettingsChanged ();
+			base.OnStatsChange(entry);
+
+			if (MainWindow != null)
+				if (MainWindow.TableStatsController != null)
+				{
+					new NSObject().InvokeOnMainThread(() =>
+					{
+						MainWindow.TableStatsController.RefreshUI();
+					});
+				}
+		}
+
+		public override void OnSettingsChanged()
+		{
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+				{
+					MainWindow.SettingsChanged();
 				});
 			}
 
-			base.OnSettingsChanged ();
+			base.OnSettingsChanged();
 		}
-		
-		public override void OnLog (LogEntry l)
-		{
-			base.OnLog (l);
 
-			lock (LogsPending) {
-				LogsPending.Add (l);
+		public override void OnLog(LogEntry l)
+		{
+			base.OnLog(l);
+
+			lock (LogsPending)
+			{
+				LogsPending.Add(l);
 			}
 
-			OnRefreshUi (RefreshUiMode.Log);
+			OnRefreshUi(RefreshUiMode.Log);
 
 
 		}
 
 
-		public override void OnFrontMessage (string message)
+		public override void OnFrontMessage(string message)
 		{
-			base.OnFrontMessage (message);
+			base.OnFrontMessage(message);
 
-			if (MainWindow != null) {
-				new NSObject ().InvokeOnMainThread (() => {
-					MainWindow.FrontMessage (message);
+			if (MainWindow != null)
+			{
+				new NSObject().InvokeOnMainThread(() =>
+				{
+					MainWindow.FrontMessage(message);
 				});
 			}
 		}
 
-		public override void OnMessageInfo (string message)
+		public override void OnMessageInfo(string message)
 		{
-			base.OnMessageInfo (message);
+			base.OnMessageInfo(message);
 
 			if (MainWindow != null)
 			{
@@ -149,9 +173,9 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		public override void OnMessageError (string message)
+		public override void OnMessageError(string message)
 		{
-			base.OnMessageError (message);
+			base.OnMessageError(message);
 
 			if (MainWindow != null)
 			{
@@ -168,11 +192,11 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				new NSObject().InvokeOnMainThread(() =>
 					{
-						WindowTextViewerController textViewer = new WindowTextViewerController ();
-						WindowsOpen.Add (textViewer);
+						WindowTextViewerController textViewer = new WindowTextViewerController();
+						WindowsOpen.Add(textViewer);
 						textViewer.Title = title;
 						textViewer.Body = data;
-						textViewer.ShowWindow (MainWindow.Window);
+						textViewer.ShowWindow(MainWindow.Window);
 					});
 			}
 
@@ -186,45 +210,45 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				new NSObject().InvokeOnMainThread(() =>
 				{
-						result = GuiUtils.MessageYesNo(message);
+					result = GuiUtils.MessageYesNo(message);
 				});
 			}
-			
+
 			return result;
 		}
 
-        public override Credentials OnAskCredentials()
-        {
-            Credentials cred = null;
+		public override Credentials OnAskCredentials()
+		{
+			Credentials cred = null;
 			if (MainWindow != null)
 			{
 				new NSObject().InvokeOnMainThread(() =>
 				{
-                    WindowCredentialsController dlg = new WindowCredentialsController();
-				    dlg.Window.ReleasedWhenClosed = true;
-				    NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
-				    dlg.Window.Close();
+					WindowCredentialsController dlg = new WindowCredentialsController();
+					dlg.Window.ReleasedWhenClosed = true;
+					NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
+					dlg.Window.Close();
 
-                    if (dlg.Credentials != null)
-                        cred = dlg.Credentials;
+					if (dlg.Credentials != null)
+						cred = dlg.Credentials;
 				});
 			}
-            return cred;
+			return cred;
 		}
 
-        public override void OnSystemReport(string step, string text, int perc)
-        {
-            base.OnSystemReport(step, text, perc);
+		public override void OnSystemReport(string step, string text, int perc)
+		{
+			base.OnSystemReport(step, text, perc);
 
-            if(perc == 100)
-            {
-				WindowReportController dlg = new WindowReportController();
-				dlg.Window.ReleasedWhenClosed = true;
-                dlg.SetStep(step, text, perc);
-				NSApplication.SharedApplication.RunModalForWindow(dlg.Window);
-				dlg.Window.Close();
-            }
-        }
+			if ((m_windowReport == null) || (m_windowReport.Window.IsVisible == false))
+			{
+				m_windowReport = new WindowReportController();
+				GuiUtils.ShowWindowWithFocus(m_windowReport, this.MainWindow);
+			}
+
+			if (m_windowReport != null)
+				m_windowReport.SetStep(step, text, perc);
+		}
 
 		public override void OnLoggedUpdate(XmlElement xmlKeys)
 		{
@@ -239,9 +263,9 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		public override void OnPostManifestUpdate ()
+		public override void OnPostManifestUpdate()
 		{
-			base.OnPostManifestUpdate ();
+			base.OnPostManifestUpdate();
 
 			if (MainWindow != null)
 			{
@@ -252,6 +276,6 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		
+
 	}
 }

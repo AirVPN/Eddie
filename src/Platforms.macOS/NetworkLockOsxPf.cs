@@ -42,8 +42,10 @@ namespace Eddie.Platforms.MacOS
 			return "OS X - PF";
 		}
 
-		public override bool GetSupportX()
+		public override bool GetSupport()
 		{
+			if (Platform.Instance.LocateExecutable("pfctl") == "")
+				return false;
 			if (Platform.Instance.FileExists("/etc/pf.conf") == false)
 				return false;
 
@@ -61,34 +63,43 @@ namespace Eddie.Platforms.MacOS
 		{
 			base.Activation();
 
-			if (m_pfctlPath == "")
-				throw new Exception("pfctl " + Messages.NotFound);
+			try
+			{
+				if (m_pfctlPath == "")
+					throw new Exception("pfctl " + Messages.NotFound);
 
-			m_prevActive = false;
-			string report = SystemShell.Shell1(m_pfctlPath, "-si");
-			if (report.IndexOf("denied") != -1)
-				throw new Exception("Permission denied.");
-			else if (report.IndexOf("Status: Enabled") != -1)
-				m_prevActive = true;
-			else if (report.IndexOf("Status: Disabled") != -1)
 				m_prevActive = false;
-			else
-				throw new Exception("Unexpected PF Firewall status");
+				string report = SystemShell.Shell1(m_pfctlPath, "-si").ToLowerInvariant();
+				if (report.IndexOf("denied") != -1)
+					throw new Exception("Permission denied.");
+				else if (report.IndexOf("status: enabled") != -1)
+					m_prevActive = true;
+				else if (report.IndexOf("status: disabled") != -1)
+					m_prevActive = false;
+				else
+					throw new Exception("Unexpected PF Firewall status");
 
-			if (m_prevActive == false)
-			{
-				string reportActivation = SystemShell.Shell1(m_pfctlPath, "-e");
-				if (reportActivation.IndexOf("pf enabled") == -1)
-					throw new Exception("Unexpected PF Firewall activation failure");
+				if (m_prevActive == false)
+				{
+					string reportActivation = SystemShell.Shell1(m_pfctlPath, "-e").ToLowerInvariant();
+					if (reportActivation.IndexOf("pf enabled") == -1)
+						throw new Exception("Unexpected PF Firewall activation failure");
+				}
+				m_filePfConf = new TemporaryFile("pf.conf");
+
+				OnUpdateIps();
+
+				if (m_prevActive == false)
+				{
+					SystemShell.Shell1(m_pfctlPath, "-e");
+				}
 			}
-			m_filePfConf = new TemporaryFile("pf.conf");
-
-			OnUpdateIps();
-
-			if (m_prevActive == false)
+			catch (Exception ex)
 			{
-				SystemShell.Shell1(m_pfctlPath, "-e");
+				Deactivation();
+				throw new Exception(ex.Message);
 			}
+
 		}
 
 		public override void Deactivation()
@@ -96,7 +107,12 @@ namespace Eddie.Platforms.MacOS
 			base.Deactivation();
 
 			// Restore system rules
-			SystemShell.Shell2(m_pfctlPath, "-v", "-f \"/etc/pf.conf\"");
+			SystemShell s = new SystemShell();
+			s.Path = m_pfctlPath;
+			s.Arguments.Add("-v");
+			s.Arguments.Add("-f");
+			s.Arguments.Add(SystemShell.EscapePath("/etc/pf.conf"));
+			s.Run();
 
 			if (m_filePfConf != null)
 			{
@@ -177,7 +193,6 @@ namespace Eddie.Platforms.MacOS
 				pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";
 
 				// TOFIX: IPv6 missing
-				/*
 				pf += "# IPv6 - Allow Link-Local addresses\n";
 				pf += "pass out quick inet6 from fe80::/10 to fe80::/10\n";
 				pf += "pass in quick inet6 from fe80::/10 to fe80::/10\n";
@@ -185,7 +200,6 @@ namespace Eddie.Platforms.MacOS
 				pf += "# IPv6 - Allow Link-Local addresses\n";
 				pf += "pass out quick inet6 from ff00::/8 to ff00::/8\n";
 				pf += "pass in quick inet6 from ff00::/8 to ff00::/8\n";
-				*/
 			}
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
@@ -212,9 +226,13 @@ namespace Eddie.Platforms.MacOS
 				SystemShell s = new SystemShell();
 				s.Path = m_pfctlPath;
 				s.Arguments.Add("-v");
-				s.Arguments.Add("-f \"" + SystemShell.EscapePath(m_filePfConf.Path) + "\"");
+				s.Arguments.Add("-f");
+				s.Arguments.Add(SystemShell.EscapePath(m_filePfConf.Path));
 				if (s.Run() == false)
 					throw new Exception(Messages.NetworkLockMacOSUnableToStart);
+				if (s.StdErr.Contains("rules not loaded"))
+					throw new Exception(Messages.NetworkLockMacOSUnableToStart);
+
 			}
 		}
 

@@ -121,6 +121,9 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdServersUndefined.ToolTip = Messages.TooltipServersUndefined;
 			CmdServersBlackList.ToolTip = Messages.TooltipServersBlackList;
 			CmdServersWhiteList.ToolTip = Messages.TooltipServersWhiteList;
+			CmdServersRename.ToolTip = Messages.TooltipServersRename;
+			CmdServersMore.ToolTip = Messages.TooltipServersMore;
+			CmdServersRefresh.ToolTip = Messages.TooltipServersRefresh;
 			CmdAreasUndefined.ToolTip = Messages.TooltipAreasUndefined;
 			CmdAreasBlackList.ToolTip = Messages.TooltipAreasBlackList;
 			CmdAreasWhiteList.ToolTip = Messages.TooltipAreasWhiteList;
