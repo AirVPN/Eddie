@@ -605,8 +605,6 @@ namespace Eddie.Platforms.MacOS
 
 					if (mode != "Off")
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Disabled, i));
-
 						IpV6ModeEntry entry = new IpV6ModeEntry();
 						entry.Interface = i;
 						entry.Mode = mode;
@@ -619,6 +617,8 @@ namespace Eddie.Platforms.MacOS
 						m_listIpV6Mode.Add(entry);
 
 						SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6off", SystemShell.EscapeInsideQuote(i) });
+
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Disabled, i));
 					}
 				}
 
@@ -681,14 +681,12 @@ namespace Eddie.Platforms.MacOS
 					foreach (string line in currentStr.Split('\n'))
 					{
 						string ip = line.Trim();
-						current.Add(ip);
+						if(IpAddress.IsIP(ip))
+							current.Add(ip);
 					}
 
 					if (dns.Equals(current) == false)
 					{
-						// Switch
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
-
 						DnsSwitchEntry e = new DnsSwitchEntry();
 						e.Name = i2;
 						e.Dns = current.Addresses;
@@ -696,6 +694,8 @@ namespace Eddie.Platforms.MacOS
 
 						string dns2 = dns.Addresses.Replace(",", "\" \"");
 						SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setdnsservers", SystemShell.EscapeInsideQuote(i2), dns2 });
+
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
 					}
 				}
 
@@ -715,9 +715,9 @@ namespace Eddie.Platforms.MacOS
 				if (v == "")
 					v = "empty";
 				v = v.Replace(",", "\" \"");
-
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+								
 				SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setdnsservers", SystemShell.EscapeInsideQuote(e.Name), v });
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 			}
 
 			m_listDnsSwitch.Clear();

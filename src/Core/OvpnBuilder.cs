@@ -422,7 +422,7 @@ namespace Eddie.Core
 					if ((path.StartsWith("\"")) && (path.EndsWith("\"")))
 						path = path.Substring(1, path.Length - 2);
 					path = Platform.Instance.FileGetAbsolutePath(path, basePath);
-					d.Text = "\"" + path.Replace("\\","\\\\") + "\" " + String.Join(" ", fields);
+					d.Text = "\"" + path.Replace("\\","\\\\") + "\" " + String.Join(" ", fields.ToArray());
 					d.Text = d.Text.Trim();
 				}
 			}

@@ -62,7 +62,7 @@ namespace Eddie.Lib.Core.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-        ///&lt;provider title=&quot;AirVPN&quot; website=&quot;https://airvpn.org&quot; class=&quot;service&quot; fetch_mode=&quot;rsa4096+aes256&quot;&gt;
+        ///&lt;provider code=&quot;AirVPN&quot; title=&quot;AirVPN&quot; subtitle=&quot;The air to breathe the real Internet.&quot; href=&quot;https://airvpn.org&quot; class=&quot;service&quot; fetch_mode=&quot;rsa4096+aes256&quot;&gt;
         ///  &lt;manifest&gt;
         ///    &lt;urls&gt;
         ///      &lt;url address=&quot;http://54.93.175.114&quot; /&gt;
@@ -73,7 +73,7 @@ namespace Eddie.Lib.Core.Properties {
         ///    &lt;rsa&gt;
         ///      &lt;RSAParameters&gt;
         ///        &lt;Exponent&gt;AQAB&lt;/Exponent&gt;
-        ///        &lt;Modulus&gt;wuQXz7eZeEBwaaRsVK8iEHpueXoKyQzW8sr8qMUkZIcKtKv5iseXMrTbcGYGp [rest of string was truncated]&quot;;.
+        ///        &lt;Modulus&gt;w [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AirVPN {
             get {
@@ -132,7 +132,7 @@ namespace Eddie.Lib.Core.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-        ///&lt;provider title=&quot;OpenVPN&quot; website=&quot;https://openvpn.net/&quot; class=&quot;openvpn&quot;&gt;
+        ///&lt;provider code=&quot;OpenVPN&quot; title=&quot;Generic OpenVPN provider&quot; subtitle=&quot;If you have a folder with .ovpn files&quot; href=&quot;https://openvpn.net&quot; class=&quot;openvpn&quot;&gt;
         ///&lt;/provider&gt;.
         /// </summary>
         internal static string OpenVPN {
