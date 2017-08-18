@@ -1329,7 +1329,7 @@ namespace Eddie.Core.Threads
 											// Query a inexistent domain with the hash
 											string dnsQuery = service.GetKeyValue("check_dns_query", "");
 											string dnsHost = dnsQuery.Replace("{hash}", hash);
-											IpAddresses result = Platform.Instance.ResolveDNS(dnsHost);
+											IpAddresses result = DnsManager.ResolveDNS(dnsHost, true);
 
 											// Check if the server has received the above DNS query
 

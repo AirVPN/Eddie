@@ -652,7 +652,9 @@ namespace Eddie.Core
 
 		public virtual void FlushDNS()
 		{
-			NotImplemented();
+			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
+
+			DnsManager.Invalidate();
 		}
 
 		public virtual void RouteAdd(RouteEntry r)

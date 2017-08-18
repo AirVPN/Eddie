@@ -689,7 +689,7 @@ namespace Eddie.Gui.Forms
 			this.cboScoreType.Name = "cboScoreType";
 			this.cboScoreType.Size = new System.Drawing.Size(100, 21);
 			this.cboScoreType.TabIndex = 49;
-			this.cboScoreType.SelectedIndexChanged += new System.EventHandler(this.cboScoreType_SelectedIndexChanged);
+			this.cboScoreType.SelectionChangeCommitted += new System.EventHandler(this.cboScoreType_SelectionChangeCommitted);
 			// 
 			// chkLockLast
 			// 

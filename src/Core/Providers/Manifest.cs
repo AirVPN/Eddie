@@ -491,7 +491,6 @@ namespace Eddie.Core.Providers
 			}
 			catch(Exception ex)
 			{
-				// ClodoTemp, every fetch inside try/catch?
 				string message = "";
 				if (response.GetHeader("location") != "")
 					message = MessagesFormatter.Format(Messages.ManifestFailedUnexpected302, response.GetHeader("location"));

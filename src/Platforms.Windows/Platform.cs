@@ -299,8 +299,8 @@ namespace Eddie.Platforms.Windows
 
 		public override void FlushDNS()
 		{
-			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
-
+			base.FlushDNS();
+			
 			// <2.11.8
 			//ShellCmd("ipconfig /flushdns");
 

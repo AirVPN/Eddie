@@ -91,12 +91,12 @@ namespace Eddie.Core
 				lastMultiline = item.IsMultiline;
 			}
 
-			return Platform.Instance.NormalizeString(result.Trim() + "\n");
+			return Platform.Instance.NormalizeString(result.Trim());
 		}
 
 		public void Tests()
 		{
-			IpAddresses dns = new IpAddresses("dnstest.eddie.website");
+			IpAddresses dns = DnsManager.ResolveDNS("dnstest.eddie.website", true);
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Ok : Messages.Failed);
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Ok : Messages.Failed);
 
@@ -107,7 +107,7 @@ namespace Eddie.Core
 			#if !EDDIENET20
 			Add("JsonTest", Newtonsoft.Json.JsonConvert.SerializeObject(new IpAddress("8.8.8.8")));
 			#endif
-			*/
+			*/			
 		}
 
 		public string TestUrl(string url)
@@ -119,10 +119,10 @@ namespace Eddie.Core
 				HttpResponse response = Engine.Instance.FetchUrl(request);
 				return response.GetLineReport();
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return "Error:" + ex.Message;
-			}
+			}			
 		}
 
 		public void Environment()
@@ -147,6 +147,20 @@ namespace Eddie.Core
 			Add("Application path", Platform.Instance.GetApplicationPath());
 			Add("Executable path", Platform.Instance.GetExecutablePath());
 			Add("Command line arguments", "(" + Lib.Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Lib.Common.CommandLine.SystemEnvironment.GetFull());
+			
+			{
+				string nl = Messages.No;
+				if(Engine.Instance.NetworkLockManager.IsActive())
+					nl = Messages.Yes + ", " + Engine.Instance.NetworkLockManager.GetActive().GetName();
+				Add("Network Lock Active", nl);
+			}
+
+			{
+				string cn = Messages.No;
+				if (Engine.Instance.IsConnected())
+					cn = Messages.Yes + ", " + Engine.Instance.Stats.Get("ServerName");
+				Add("Connected to VPN", cn);
+			}
 
 			Add("Detected DNS", Platform.Instance.DetectDNS().ToString());
 			//Add("Detected Exit", Engine.Instance.DiscoverExit().ToString());			

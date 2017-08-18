@@ -1126,8 +1126,8 @@ namespace Eddie.Gui.Forms
             if (mnuServers.Visible)
                 mnuServers.Close();
         }
-
-        private void cboScoreType_SelectedIndexChanged(object sender, EventArgs e)
+		
+		private void cboScoreType_SelectionChangeCommitted(object sender, EventArgs e)
 		{
 			Engine.Storage.Set("servers.scoretype", cboScoreType.Text);
 
@@ -1608,7 +1608,7 @@ namespace Eddie.Gui.Forms
 		}
 
         private delegate void LoggedUpdateDelegate(XmlElement xmlKeys);
-        public void LoggedUpdate(XmlElement xmlKeys) // ClodoTemp: Engine.Thread vs UiStart, random, crash
+        public void LoggedUpdate(XmlElement xmlKeys)
         {
             if (this.InvokeRequired)
             {
@@ -1666,7 +1666,12 @@ namespace Eddie.Gui.Forms
 				if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
 					return;
 
-				Application.DoEvents(); // For refresh Mono-Linux
+				// For refresh Mono-Linux
+				if(Platform.Instance.IsLinuxSystem())
+				{
+					Application.DoEvents();
+					Refresh();
+				}
 
 				// lock (Engine) // TOCLEAN 2.9
 				{

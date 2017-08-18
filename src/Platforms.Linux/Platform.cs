@@ -74,11 +74,17 @@ namespace Eddie.Platforms.Linux
 			// Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
 			// Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
 			// Manjaro, same as Ubuntu
-			m_logname = Environment.GetEnvironmentVariable("SUDO_USER").Trim();
+			m_logname = Environment.GetEnvironmentVariable("SUDO_USER");
+			if (m_logname == null)
+				m_logname = "";
+			else
+				m_logname = m_logname.Trim();			
 			if (m_logname == "")
 				m_logname = SystemShell.Shell0(LocateExecutable("logname"));
 			if (m_logname.Contains("no login name"))
 				m_logname = Environment.UserName;
+			if (m_logname == null)
+				m_logname = "";
 
 			m_fontSystem = "";
 			string gsettingsPath = LocateExecutable("gsettings"); // gnome
@@ -304,6 +310,8 @@ namespace Eddie.Platforms.Linux
 
         public override void FlushDNS()
         {
+			base.FlushDNS();
+			
 			string servicePath = LocateExecutable("service");
 			if(servicePath != "")
 			{

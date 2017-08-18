@@ -113,21 +113,8 @@ namespace Eddie.Core
 			List<string> args = Utils.StringToList(arguments, " ", true, true, false, false);
 			Shell(path, args.ToArray(), waitEnd);
 		}
-
-		// Avoid when possible
-		public static string ShellCmd(string command) // ClodoTemp
-		{
-			return ShellCmd(command, false);
-		}
-
-		// Avoid when possible
-		public static string ShellCmdWithException(string command) // ClodoTemp
-		{
-			return ShellCmd(command, true);
-		}
-
-		// Avoid when possible
-		public static string ShellCmd(string command, bool exceptionIfFail) // ClodoTemp
+				
+		public static string ShellCmd(string command) // TOCLEAN, Avoid when possible
 		{
 			if (command == "")
 				return "";
@@ -141,7 +128,7 @@ namespace Eddie.Core
 			s.Path = path;
 			s.Arguments.AddRange(arguments);
 			s.WaitEnd = true;
-			s.ExceptionIfFail = exceptionIfFail;
+			s.ExceptionIfFail = false;
 			s.Run();
 			return s.Output;
 		}

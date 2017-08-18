@@ -178,8 +178,8 @@ namespace Eddie.Platforms.MacOS
 
 		public override void FlushDNS()
 		{
-			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
-
+			base.FlushDNS();
+			
 			// 10.5 - 10.6
 			string dscacheutilPath = LocateExecutable("dscacheutil");
 			if (dscacheutilPath != "")

@@ -340,6 +340,7 @@ namespace Eddie.Core
 
 			if (initResult == true)
 			{
+				Software.Checking();
 				Software.Log();
 
 				CheckEnvironmentApp();
@@ -446,9 +447,10 @@ namespace Eddie.Core
 					}
 				}
 
-				Logs.Log(LogType.Verbose, "Data path: " + Storage.DataPath);
-				Logs.Log(LogType.Verbose, "Application path: " + Platform.Instance.GetApplicationPath());
-				Logs.Log(LogType.Verbose, "Executable path: " + Platform.Instance.GetExecutablePath());
+				// 2.13.4 // TOCLEAN, useless, already in stats tab.
+				//Logs.Log(LogType.Verbose, "Data path: " + Storage.DataPath);
+				//Logs.Log(LogType.Verbose, "Application path: " + Platform.Instance.GetApplicationPath());
+				//Logs.Log(LogType.Verbose, "Executable path: " + Platform.Instance.GetExecutablePath());
 				Logs.Log(LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 
 				if (Storage.Get("profile") != "AirVPN.xml")
@@ -461,11 +463,11 @@ namespace Eddie.Core
 
 		public virtual bool OnInit2()
 		{		
-			Software.Checking();
+			//Software.Checking(); // TOCLEAN, moved in 2.13.4
 
 			Start();
 
-			LoggedUpdate();
+			//LoggedUpdate(); // TOCLEAN, removed in 2.13.4
 
 			return true;
 		}
@@ -475,7 +477,6 @@ namespace Eddie.Core
 			SessionStop();
 
 			WaitMessageSet(Messages.AppExiting, false);
-			//Engine.Log(Engine.LogType.InfoImportant, Messages.AppExiting);
 
 			if (m_threadManifest != null)
 				m_threadManifest.RequestStopSync();
@@ -917,7 +918,7 @@ namespace Eddie.Core
 			m_areasInfoUpdated = true;
 		}
 
-		public void GenerateSystemReport() // ClodoTemp end implementation
+		public void GenerateSystemReport()
 		{	
 			Report report = new Report();
 			report.Start();			
@@ -1237,7 +1238,6 @@ namespace Eddie.Core
 						TimeSpan TS = DT2 - DT1;
 						string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToShortDateString() + " " + DT1.ToLocalTime().ToShortTimeString());
 						Stats.UpdateValue("VpnConnectionStart", TSText);
-
 					}
 
 					Stats.UpdateValue("SessionTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedSessionStatsRead, false, true));

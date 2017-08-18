@@ -500,6 +500,7 @@ namespace Eddie.Core
 			SetDefault("dns.mode", "text", "auto", Messages.ManOptionDnsMode);
 			SetDefault("dns.servers", "text", "", Messages.ManOptionDnsServers);
 			SetDefaultBool("dns.check", true, Messages.ManOptionDnsCheck);
+			SetDefaultInt("dns.cache.ttl", 3600, NotInMan);
 
 			SetDefault("netlock.mode", "text", "auto", Messages.ManOptionNetLockMode);
 			SetDefaultBool("netlock.allow_private", true, Messages.ManOptionNetLockAllowPrivate);

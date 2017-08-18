@@ -54,6 +54,11 @@ namespace Eddie.Core
 			return m_current != null;
 		}
 
+		public NetworkLockPlugin GetActive()
+		{
+			return m_current;
+		}
+
 		public bool CanEnabled()
 		{
 			if (IsActive()) // This because if is active, the button need anyway to be showed to deactivated it.
@@ -108,6 +113,9 @@ namespace Eddie.Core
 					string message = Messages.NetworkLockActivation + " - " + nextCurrent.GetName();
 					Engine.Instance.WaitMessageSet(message, false);
 					Engine.Instance.Logs.Log(LogType.InfoImportant, message);
+
+					// This is not useless: resolve hostnames (available later as cache) before a possible lock of DNS server.
+					IpAddresses ips = nextCurrent.GetAllIps(true);
 
 					nextCurrent.Activation();
 

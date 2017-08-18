@@ -78,7 +78,7 @@ namespace Eddie.Core
 					else
 					{
 						// Resolve
-						Add(Platform.Instance.ResolveDNS(line.Trim()));
+						Add(DnsManager.ResolveDNS(line.Trim()));
 					}
 				}
 			}

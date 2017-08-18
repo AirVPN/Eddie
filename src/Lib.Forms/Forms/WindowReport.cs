@@ -80,7 +80,9 @@ namespace Eddie.Gui.Forms
 			cmdCopyClipboard.Enabled = (perc == 100);
 			cmdSave.Enabled = (perc == 100);
 
-			Application.DoEvents(); // For refresh Mono-Linux
+			// For refresh, especially Mono-Linux
+			Application.DoEvents();
+			Refresh();			
 		}
 
         void CheckEnabled()

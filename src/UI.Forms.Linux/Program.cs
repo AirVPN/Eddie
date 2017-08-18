@@ -40,8 +40,8 @@ namespace Eddie.UI.Linux
                 Application.SetCompatibleTextRenderingDefault(false);
 
                 Platform.Instance = new Eddie.Platforms.Linux.Platform();
-                
-                CommandLine.InitSystem(Environment.CommandLine);
+
+				CommandLine.InitSystem(Environment.CommandLine);
 
                 if (CommandLine.SystemEnvironment.Exists("cli"))
                 {
@@ -76,6 +76,7 @@ namespace Eddie.UI.Linux
             }
             catch (Exception e)
             {
+				Console.WriteLine(e.StackTrace);
                 MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
