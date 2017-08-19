@@ -200,17 +200,7 @@ namespace Deploy
 						foreach (string format in new string[] { "portable", "installer" })
 						{
 							foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })							
-							{
-								// cazzo
-								if (os == "windows-10")
-									continue;
-								if (ui == "cli")
-									continue;
-								if (arch == "x86")
-									continue;
-								if (format == "installer")
-									continue;
-
+							{	
 								int netFramework = 4;
 								if (os == "windows-7")
 									netFramework = 2;
@@ -1188,20 +1178,27 @@ namespace Deploy
 
 				if ((File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)))
 				{
-					string cmd = "";
-					cmd += PathBaseTools + "/windows/signtool.exe";
-					cmd += " sign";
-					cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
-					cmd += " /f " + pathPfx; // Pfx
-					cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
-					cmd += " /d \"" + title + "\""; // Title
-					cmd += " \"" + path + "\""; // File
-					string output = Shell(cmd);
+					for (int t = 0; ; t++)
+					{
+						string cmd = "";
+						cmd += PathBaseTools + "/windows/signtool.exe";
+						cmd += " sign";
+						cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
+						cmd += " /f " + pathPfx; // Pfx
+						cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
+						cmd += " /d \"" + title + "\""; // Title
+						cmd += " \"" + path + "\""; // File
+						string output = Shell(cmd);
 
-					Log("Windows Signing file: \"" + path + "\": " + output);
+						Log("Windows Signing file: \"" + path + "\": " + output);
 
-					if (output.Contains("Error"))
-						Errors++;
+						if (output.Contains("Error"))
+						{
+							Log("Failed to sign file with windows, try " + t.ToString() + ". Retry.");
+						}
+						else
+							break;
+					}
 				}
 				else
 				{
