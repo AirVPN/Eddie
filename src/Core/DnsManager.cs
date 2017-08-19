@@ -23,7 +23,7 @@ using System.Text;
 using Eddie.Lib.Common;
 
 namespace Eddie.Core
-{	
+{
 	public class DnsManager
 	{
 		private static Dictionary<string, DnsManagerEntry> m_cache = new Dictionary<string, DnsManagerEntry>();
@@ -32,7 +32,7 @@ namespace Eddie.Core
 		{
 			return ResolveDNS(host, false);
 		}
-		
+
 		// Note: If cache is expired, but new query don't return IPs, old cache it's returned.
 		public static IpAddresses ResolveDNS(string host, bool nocache)
 		{
@@ -55,8 +55,8 @@ namespace Eddie.Core
 					ttl = Engine.Instance.Storage.GetInt("dns.cache.ttl");
 				if (delay >= ttl)
 				{
-					IpAddresses result = Platform.Instance.ResolveDNS(host);					
-					if(result.Count != 0)
+					IpAddresses result = Platform.Instance.ResolveDNS(host);
+					if (result.Count != 0)
 					{
 						entry.Response = result;
 						entry.TimeStamp = now;
@@ -70,7 +70,7 @@ namespace Eddie.Core
 				return entry.Response;
 			}
 		}
-				
+
 		public static void Invalidate()
 		{
 			lock (m_cache)

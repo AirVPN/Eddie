@@ -192,7 +192,6 @@ namespace Eddie.Platforms.MacOS
 				pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
 				pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";
 
-				// TOFIX: IPv6 missing
 				pf += "# IPv6 - Allow Link-Local addresses\n";
 				pf += "pass out quick inet6 from fe80::/10 to fe80::/10\n";
 				pf += "pass in quick inet6 from fe80::/10 to fe80::/10\n";
