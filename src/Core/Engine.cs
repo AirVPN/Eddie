@@ -1659,7 +1659,7 @@ namespace Eddie.Core
 			return m_threadPinger.GetStats().Invalid;
 		}
 
-		public Threads.PingerStats PingerStats()
+		public PingerStats PingerStats()
 		{
 			return m_threadPinger.GetStats();
 		}

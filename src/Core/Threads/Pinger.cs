@@ -26,70 +26,6 @@ using Eddie.Core;
 
 namespace Eddie.Core.Threads
 {
-	public class PingerStats
-	{
-		public int Invalid = 0;
-		public long OlderCheckDate = 0;
-		public long LatestCheckDate = 0;
-		public bool Valid = false;
-
-		public override string ToString()
-		{
-			if (Engine.Instance.IsConnected())
-			{
-				return MessagesFormatter.Format(Messages.PingerStatsPending, Utils.FormatTime(LatestCheckDate));
-			}
-			else
-			{
-				return MessagesFormatter.Format(Messages.PingerStatsNormal, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
-			}
-		}
-	}
-
-	public class PingerJob
-	{
-		//public System.Threading.Thread T;
-		public ConnectionInfo Server;
-
-		/*
-		public void Start()
-		{
-			T = new System.Threading.Thread(new ThreadStart(this.Run));
-			T.Priority = ThreadPriority.Lowest;
-			T.Start();
-		}
-		*/
-
-		public void Run()
-		{
-			RouteScope routeScope = null;
-			try
-			{
-				routeScope = new RouteScope(Server.IpsEntry.ToStringFirstIPv4());
-
-				Int64 result = Platform.Instance.Ping(Server.IpsEntry.ToStringFirstIPv4(), 3);
-				Pinger.Instance.PingResult(Server, result);
-			}
-			catch (Exception)
-			{
-				Pinger.Instance.PingResult(Server, -1);
-			}
-			finally
-			{
-				if (routeScope != null)
-				{
-					routeScope.End();
-				}
-
-				lock (Pinger.Instance.Jobs)
-				{
-					Pinger.Instance.Jobs.Remove(this);
-				}
-			}
-
-		}
-	}
-
 	public class Pinger : Eddie.Core.Thread
 	{
 		public static Pinger Instance;
@@ -187,10 +123,10 @@ namespace Eddie.Core.Threads
 					bool startOne = false;
 
 					foreach (ConnectionInfo infoServer in servers.Values)
-					{
+					{						
 						if (GetCanRun() == false)
 							break;
-
+						
 						int delaySuccess = GetPingerDelaySuccess(infoServer);
 						int delayRetry = GetPingerDelayRetry(infoServer);
 
@@ -322,7 +258,7 @@ namespace Eddie.Core.Threads
 						stats.LatestCheckDate = infoConnection.LastPingResult;
 
 					iTotal++;
-					if (timeNow - infoConnection.LastPingResult > deltaValid)
+					if( (infoConnection.CanPing()) && (timeNow - infoConnection.LastPingResult > deltaValid) )
 						stats.Invalid++;
 				}
 			}

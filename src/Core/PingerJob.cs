@@ -19,23 +19,51 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Eddie.Core.Threads;
 
-namespace Eddie.Lib.Common
+namespace Eddie.Core
 {
-    public static class Constants
-    {
-		public static string Name = "Eddie";
-        public static string NameCompatibility = "AirVPN";
-        public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
-        public static int VersionInt = 240;
-		public static string VersionDesc = "2.13.5";
-        public static bool AlphaFeatures = false;
-		public static string Domain = "eddie.website";
-		public static string WebSite = "https://airvpn.org";
-        public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
-        public static string WindowsDriverVersion = "9.21.2";
-        public static string WindowsXpDriverVersion = "9.9.2";
-        public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
-        public static int DefaultTcpPort = 11111;
-    }
+	public class PingerJob
+	{
+		//public System.Threading.Thread T;
+		public ConnectionInfo Server;
+
+		/*
+		public void Start()
+		{
+			T = new System.Threading.Thread(new ThreadStart(this.Run));
+			T.Priority = ThreadPriority.Lowest;
+			T.Start();
+		}
+		*/
+
+		public void Run()
+		{
+			RouteScope routeScope = null;
+			try
+			{
+				routeScope = new RouteScope(Server.IpsEntry.ToStringFirstIPv4());
+
+				Int64 result = Platform.Instance.Ping(Server.IpsEntry.ToStringFirstIPv4(), 3);
+				Pinger.Instance.PingResult(Server, result);
+			}
+			catch (Exception)
+			{
+				Pinger.Instance.PingResult(Server, -1);
+			}
+			finally
+			{
+				if (routeScope != null)
+				{
+					routeScope.End();
+				}
+
+				lock (Pinger.Instance.Jobs)
+				{
+					Pinger.Instance.Jobs.Remove(this);
+				}
+			}
+
+		}
+	}
 }

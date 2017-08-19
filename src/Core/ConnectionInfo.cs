@@ -49,6 +49,7 @@ namespace Eddie.Core
 		public string Path = ""; // External .ovpn config file
 
 		public List<ConnectionInfoWarning> Warnings = new List<ConnectionInfoWarning>();
+		//public Int64 LastPingCheck = 0;
 		public Int64 PingTests = 0;
         public Int64 PingFailedConsecutive = 0;
         public Int64 Ping = -1;
@@ -485,17 +486,101 @@ namespace Eddie.Core
 				ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
 			}
 
-			string routesDefault = s.Get("routes.default");
+			if(Lib.Common.Constants.AlphaFeatures)
+			{			
+				if (Software.GetTool("openvpn").VersionAboveOrEqual("2.4"))
+				{
+					// IP Layer routes
 
-			/* // ClodoTemp
-			if (routesDefault == "in")
-			{
-				ovpn.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");
-				ovpn.AppendDirective("redirect-gateway", "ipv6 def1 bypass-dhcp", "");
-				ovpn.AppendDirective("redirect-gateway", "ipv6 !ipv4 def1 bypass-dhcp", "");
+					ovpn.AppendDirective("pull-filter", "ignore \"redirect-gateway\"", "Forced at client side");
+
+					bool ipv4In = true;
+					bool ipv6In = true;
+
+					if (s.GetLower("protocol.ipv4.route") == "in-always")
+					{
+						ipv4In = true;
+					}
+					else if (s.GetLower("protocol.ipv4.route") == "in-out")
+					{
+						if (SupportIPv4)
+							ipv4In = true;
+						else
+							ipv4In = false;
+					}
+					else if (s.GetLower("protocol.ipv4.route") == "in-block")
+					{
+						if (SupportIPv4)
+							ipv4In = true;
+						else
+							ipv4In = false; // Out, but doesn't matter, will be blocked.
+					}
+					else if (s.GetLower("protocol.ipv4.route") == "out")
+					{
+						ipv4In = false;
+					}
+					else if (s.GetLower("protocol.ipv4.route") == "block")
+					{
+						ipv4In = false; // Out, but doesn't matter, will be blocked.
+					}
+
+					if (s.GetLower("protocol.ipv6.route") == "in-always")
+					{
+						ipv6In = true;
+					}
+					else if (s.GetLower("protocol.ipv6.route") == "in-out")
+					{
+						if (SupportIPv4)
+							ipv6In = true;
+						else
+							ipv6In = false;
+					}
+					else if (s.GetLower("protocol.ipv6.route") == "in-block")
+					{
+						if (SupportIPv6)
+							ipv6In = true;
+						else
+							ipv6In = false; // Out, but doesn't matter, will be blocked.
+					}
+					else if (s.GetLower("protocol.ipv6.route") == "out")
+					{
+						ipv6In = false;
+					}
+					else if (s.GetLower("protocol.ipv6.route") == "block")
+					{
+						ipv6In = false; // Out, but doesn't matter, will be blocked.
+					}
+
+					if ((ipv4In == false) && (ipv6In == false))
+					{
+						// no redirect-gateway
+					}
+					else if ((ipv4In == true) && (ipv6In == false))
+					{
+						ovpn.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");
+					}
+					else if ((ipv4In == false) && (ipv6In == true))
+					{
+						ovpn.AppendDirective("redirect-gateway", "ipv6 !ipv4 def1 bypass-dhcp", "");
+					}
+					else
+					{
+						ovpn.AppendDirective("redirect-gateway", "ipv6 def1 bypass-dhcp", "");
+						
+					}
+				}
+				else
+				{
+					// ClodoTemp: If <2.4 ? Ipv6 are anyway non managed well.
+				}
 			}
-			*/
+			else
+			{
 
+			}
+
+			string routesDefault = s.Get("routes.default");
+			
 			if (routesDefault == "out")
 			{
 				if (Software.GetTool("openvpn").VersionAboveOrEqual("2.4"))

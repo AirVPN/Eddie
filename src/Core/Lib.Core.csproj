@@ -52,6 +52,8 @@
     <Compile Include="IpAddresses.cs" />
     <Compile Include="HttpRequest.cs" />
     <Compile Include="DnsManager.cs" />
+    <Compile Include="PingerJob.cs" />
+    <Compile Include="PingerStats.cs" />
     <Compile Include="ReportItem.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="SystemShell.cs" />

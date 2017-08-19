@@ -554,6 +554,23 @@ namespace Eddie.Core.Providers
 			throw new Exception(firstError);
 		}
 
+		public ConnectionMode GetModeAuto()
+		{
+			string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
+
+			foreach (ConnectionMode mode in Modes)
+			{
+				if (mode.Available == false)
+					continue;
+				if ((proxyMode != "none") && (mode.Protocol != "TCP"))
+					continue;
+
+				return mode;
+			}
+
+			return null;
+		}
+
 		public ConnectionMode GetMode()
 		{
 			String protocol = Engine.Instance.Storage.Get("mode.protocol").ToUpperInvariant();
@@ -562,17 +579,7 @@ namespace Eddie.Core.Providers
 
 			if (protocol == "AUTO")
 			{
-				string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
-
-				foreach (ConnectionMode mode in Modes)
-				{
-					if (mode.Available == false)
-						continue;
-					if ((proxyMode != "none") && (mode.Protocol != "TCP"))
-						continue;
-
-					return mode;
-				}				
+				return GetModeAuto();
 			}
 			else
 			{
@@ -585,7 +592,7 @@ namespace Eddie.Core.Providers
 				}
 			}
 
-			return null;
+			return GetModeAuto();
 		}
     }
 }
