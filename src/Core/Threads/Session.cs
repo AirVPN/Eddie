@@ -1344,6 +1344,10 @@ namespace Eddie.Core.Threads
 											HttpRequest httpRequest = new HttpRequest();
 											httpRequest.Url = checkUrl;
 											httpRequest.BypassProxy = true;
+											if (result.CountIPv6 != 0) // Note: Use the same IP layer of the dns-result
+												httpRequest.IpLayer = "6";
+											else
+												httpRequest.IpLayer = "4";
 											httpRequest.ForceResolve = checkDomain + ":" + checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
 											XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
 

@@ -94,7 +94,7 @@ namespace Eddie.Gui
 				FormMain.Close();
 			else
 				base.OnExit();
-		}
+		}		
 
         public override void OnDeInit2()
         {
@@ -129,126 +129,7 @@ namespace Eddie.Gui
 
             return null;
         }
-
-        public override bool OnNoRoot()
-		{
-			if (ConsoleMode == false) // GUI Only
-			{
-				if (Platform.Instance.IsWindowsSystem())
-				{
-					// Never occur, root granted by Windows Manifest
-					return false;
-				}
-				else if (Platform.Instance.IsLinuxSystem())
-				{
-					string command = "";
-					string arguments = "";
-
-
-					string command2 = "";
-					string executablePath = Platform.Instance.GetExecutablePath();
-					string cmdline = CommandLine.SystemEnvironment.GetFull();
-					if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
-						command2 += "mono ";						
-					command2 += Platform.Instance.GetExecutablePath();
-					command2 += " ";
-					command2 += cmdline;
-                    command2 = command2.Trim(); // 2.11.11
-					bool waitEnd = false;
-					
-					if (Platform.Instance.LocateExecutable("kdesudo") != "")
-					{
-						command = "kdesudo";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -d"; // Don't show commandline
-						arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " -c "; // The command
-						//arguments += " \"" + command2 + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-					else if (Platform.Instance.LocateExecutable("kdesu") != "")
-					{
-						command = "kdesu";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -d"; // Don't show commandline
-						//arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " -c "; // The command
-						//arguments += " \"" + command2 + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-                    /*
-					 * Under Debian, gksudo don't work, gksu work...
-					if (Platform.Instance.FileExists("/usr/bin/gksudo"))
-					{
-						command = "gksudo";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-					else 
-					*/
-                    else if (Platform.Instance.LocateExecutable("gksu") != "")
-					{
-						command = "gksu";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-					else if (Platform.Instance.LocateExecutable("xdg-su") != "") // OpenSUSE
-					{
-						command = "xdg-su";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -c "; // The command
-						arguments += " \"" + command2 + "\"";
-					}
-					else if (Platform.Instance.LocateExecutable("beesu") != "") // Fedora
-					{
-						command = "beesu";
-						arguments = "";
-						arguments += " " + command2 + "";
-					}
-                    /*
-					else if (Platform.Instance.FileExists("/usr/bin/pkexec"))
-					{
-						// Different behiavour on different platforms
-						command = "pkexec";
-						arguments = "";
-						arguments = " env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY";
-						arguments += " " + command2 + "";
-
-						// For this bug: https://lists.ubuntu.com/archives/foundations-bugs/2012-July/100103.html
-						// We need to keep alive the current process, otherwise 'Refusing to render service to dead parents.'.
-						waitEnd = true;
-
-						// Still don't work.
-					}
-					*/
-
-                    if (command != "")
-					{
-                        Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
-
-                        //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
-
-                        SystemShell.ShellX(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
-                    }
-					else
-					{
-                        Logs.Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);						
-					}
-
-					return true;
-				}
-			}
-			
-			return false;
-		}
-        
+		
         public override void OnRefreshUi(RefreshUiMode mode)
         {
 			base.OnRefreshUi(mode);
@@ -348,6 +229,8 @@ namespace Eddie.Gui
 			}
 
 			WindowReport.Visible = true;
+			WindowReport.Activate();
+			WindowReport.Focus();			
 			WindowReport.SetStep(step, text, perc);
 		}
 

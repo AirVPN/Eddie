@@ -42,6 +42,19 @@ namespace Eddie.Platforms.Windows
 		[return: MarshalAs(UnmanagedType.Bool)]
 		static extern bool CloseHandle(IntPtr hObject);
 
+		[DllImport("Kernel32")]
+		public static extern bool SetConsoleCtrlHandler(ConsoleCtrlHandlerRoutine Handler, bool Add);
+		public delegate bool ConsoleCtrlHandlerRoutine(CtrlTypes CtrlType);		
+		// An enumerated type for the control messages sent to the handler routine.
+		public enum CtrlTypes
+		{
+			CTRL_C_EVENT = 0,
+			CTRL_BREAK_EVENT,
+			CTRL_CLOSE_EVENT,
+			CTRL_LOGOFF_EVENT = 5,
+			CTRL_SHUTDOWN_EVENT
+		}
+
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		public static extern IntPtr CreateFile(
 				[MarshalAs(UnmanagedType.LPTStr)] string filename,

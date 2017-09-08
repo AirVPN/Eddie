@@ -1,4 +1,4 @@
-﻿// <eddie_source_header>
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -18,24 +18,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
+using System.Windows.Forms;
+using Eddie.Core;
 
-namespace Eddie.Lib.Common
+namespace Eddie.Gui.Controls
 {
-    public static class Constants
+    public class ListViewItemOption : ListViewItem
     {
-		public static string Name = "Eddie";
-        public static string NameCompatibility = "AirVPN";
-        public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
-        public static int VersionInt = 241;
-		public static string VersionDesc = "2.13.6";
-        public static bool AlphaFeatures = false;
-		public static string Domain = "eddie.website";
-		public static string WebSite = "https://airvpn.org";
-        public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
-        public static string WindowsDriverVersion = "9.21.2";
-        public static string WindowsXpDriverVersion = "9.9.2";
-        public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
-        public static int DefaultTcpPort = 11111;
+		public Option Option;
+
+        
     }
 }

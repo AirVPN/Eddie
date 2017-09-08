@@ -96,10 +96,17 @@ namespace Eddie.Core
 			o += Date.ToString("yyyy.MM.dd HH:mm:ss");
 			o += " - ";
 
-			foreach (string line in Message.Split('\n'))
+			string[] lines = Message.Split('\n');
+			for(int l=0; l<lines.Length;l++)			
 			{
+				string line = lines[l];
 				if (line.Trim() != "")
-					result += o + line.Replace("\r","").Trim() + "\n";
+				{
+					result += o;
+					if (l != 0)
+						result += "    ";
+					result += line.Replace("\r", "").Trim() + "\n";
+				}
 			}
 
 			return result.Trim();

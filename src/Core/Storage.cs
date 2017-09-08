@@ -157,28 +157,26 @@ namespace Eddie.Core
 
             string o = "\n";
             o += "[sh]NAME[/sh]\n";
-            o += "\t" + Messages.ManName.Replace("\n", "\n\t");
+            o += "\t" + Messages.ManName.Replace("\n", "[br]");
             o += "\n\n[sh]SYNOPSIS[/sh]\n";
-            o += "\t" + Messages.ManSynopsis.Replace("\n", "\n\t");
+            o += "\t" + Messages.ManSynopsis.Replace("\n", "[br]");
             o += "\n\n[sh]DESCRIPTION[/sh]\n";
-            o += "\t" + Messages.ManDescription.Replace("\n", "\n\t");
+            o += "\t" + Messages.ManDescription.Replace("\n", "[br]");
             o += "\n\n[sh]OPTIONS[/sh]\n";
-            o += "\t" + Messages.ManHeaderOption1.Replace("\n", "\n\t");
-            o += "\t" + Messages.ManHeaderOption2.Replace("\n", "\n\t");
-            o += "\t" + Messages.ManHeaderOption3.Replace("\n", "\n\t");
-            o += "\t" + Messages.ManHeaderOption4.Replace("\n", "\n\t");
+            o += "\t" + Messages.ManHeaderOption1.Replace("\n", "[br]");
+            o += "\t" + Messages.ManHeaderOption2.Replace("\n", "[br]");
+			o += "\t" + Messages.ManHeaderOption3.Replace("\n", "[br]");
+            o += "\t" + Messages.ManHeaderOption4.Replace("\n", "[br]");
             o += "\t[options_list]" + body.Replace("\n", "\n\t") + "[/options_list]";
             o += "\n\n[sh]COPYRIGHT[/sh]\n";
-            o += "\t" + Messages.ManCopyright.Replace("\n", "\n\t\t");
+            o += "\t" + Messages.ManCopyright.Replace("\n", "[br]");
             o += "\n";
 
             if (format == "man")
             {
                 // Escape dot that can go at beginning of line
                 o = o.Replace("].", "]\\[char46]");
-
-                o = o.Replace("\n", "");
-
+				
                 // Header
                 o = ".\\\"" + Messages.ManHeaderComment + "\n.TH airvpn 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\"" + o;                
 
@@ -194,8 +192,9 @@ namespace Eddie.Core
                 o = o.Replace("[/options_list]", "\n");
                 o = o.Replace("[i]", "\n.B ");
                 o = o.Replace("[/i]", "\n");
-                
-                o = o.Replace("\t", "");
+				o = o.Replace("[br]", "\n.PP ");
+
+				o = o.Replace("\t", "");
 
                 // Normalization to avoid man layout break/issue
                 for (;;)
@@ -203,9 +202,9 @@ namespace Eddie.Core
                     string orig = o;
 
                     // Remove empty line
-                    o = o.Replace("\n\n", " ");
+                    o = o.Replace("\n\n", "\n");
                     // Remove space
-                    o = o.Replace("\n ", "\n");
+                    o = o.Replace(" \n", "\n");
                     // Remove space
                     o = o.Replace("\n ", "\n");
 
@@ -227,6 +226,7 @@ namespace Eddie.Core
                 o = o.Replace("[/option_block]", "[/*]");
                 o = o.Replace("[options_list]", "[list]");
                 o = o.Replace("[/options_list]", "[/list]");
+				o = o.Replace("[br]", "\n");
             }
             else if (format == "html")
             {
@@ -234,13 +234,14 @@ namespace Eddie.Core
                 o = o.Replace("[/sh]", "</h3>");
                 o = System.Text.RegularExpressions.Regex.Replace(o, "\\[link\\](.*?)\\[/link\\]", "<a href='$1'>$1</a>");                
                 o = o.Replace("[option_code]", "<b>");
-                o = o.Replace("[/option_code]", "</b>");
+                o = o.Replace("[/option_code]", "</b> - ");
                 o = o.Replace("[option_block]", "<li>");
                 o = o.Replace("[/option_block]", "</li>");
                 o = o.Replace("[options_list]", "<ul>");
                 o = o.Replace("[/options_list]", "</ul>");
                 o = o.Replace("[i]", "<i>");
                 o = o.Replace("[/i]", "</i>");
+				o = o.Replace("[br]", "<br>");
             }
             else
             {
@@ -257,7 +258,8 @@ namespace Eddie.Core
                 o = o.Replace("[/options_list]", "");
                 o = o.Replace("[i]", "'");
                 o = o.Replace("[/i]", "'");
-            }
+				o = o.Replace("[br]", "\n\t");
+			}
             
             return Platform.Instance.NormalizeString(o);
         }
@@ -450,7 +452,7 @@ namespace Eddie.Core
             SetDefaultBool("connect", false, Messages.ManOptionConnect);
 			SetDefaultBool("netlock", false, Messages.ManOptionNetLock);
 
-            SetDefault("console.mode", "choice:batch,keys,backend,tcp", "keys", NotInMan);
+            SetDefault("console.mode", "choice:none,batch,keys,backend,tcp", "keys", NotInMan);
             SetDefault("console.control.path", "text", "", NotInMan);
 
             SetDefault("profile", "text","AirVPN.xml", Messages.ManOptionProfile); // Not in Settings
@@ -519,7 +521,7 @@ namespace Eddie.Core
 			SetDefault("tools.ssl.path", "path_file", "", Messages.ManOptionToolsSslPath);
 			SetDefault("tools.curl.path", "path_file", "", Messages.ManOptionToolsCurlPath);
 
-            SetDefaultInt("tools.curl.max-time", 10, NotInMan);
+            SetDefaultInt("tools.curl.max-time", 30, NotInMan);
 
             SetDefault("openvpn.custom", "text", "", Messages.ManOptionOpenVpnCustom);
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);            
@@ -649,7 +651,12 @@ namespace Eddie.Core
             Options["password"].DontUserReset = true;
             Options["remember"].DontUserReset = true;
             Options["key"].DontUserReset = true;
-        }
+
+			// Exceptions
+			// TOFIX: Some users report a stuck in 'Checking environment' phase on macOS only, Eddie 2.13.4 and above.
+			if (Platform.Instance.GetCode() == "MacOS")
+				Options["advanced.skip_alreadyrun"].Default = "True";			
+		}
 
         public void EnsureDefaultsEvent(string name)
         {

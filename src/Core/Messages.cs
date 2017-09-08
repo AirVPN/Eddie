@@ -187,12 +187,13 @@ namespace Eddie.Core
 		public static string NetworkLockNotAvailableWithRouteOut = "You set the default routing outside the tunnel,\nincompatible with Network Lock feature"; 
 
 		public static string NetworkLockUnexpectedAlreadyActive = "Unexpected already active network lock";
-		//public static string NetworkLockUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
 		public static string NetworkLockWindowsFirewallUnableToStartService = "Unable to start Windows Firewall service. Try to switch it from 'Disabled' to 'Manual'.";
 		public static string NetworkLockMacOSUnableToStart = "Unable to start PF Firewall.";
 		public static string NetworkLockMacOSUnableToStartReason = "Unable to start PF Firewall ({1}).";
         public static string NetworkLockLinuxUnexpectedAlreadyActive = "Unexpected already active iptables network lock";
-        public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
+		public static string NetworkLockLinuxIPv6NotAvailable = "Network lock not enabled on IPv6 layer. It seem disabled system-wide."; // TOTRANSLATE
+
+		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
 		public static string TorControlAuth = "Tor Control authentication method: {1}";
 		public static string TorControlGuardIp = "Tor Control Guard IP detected: {1} ({2})";
@@ -238,6 +239,7 @@ namespace Eddie.Core
 		public static string WindowsTosReject = "Reject";
 		public static string WindowsReportTitle = "System Report";
 		public static string WindowsLoginTitle = "Login";
+		public static string WindowsManTitle = "Man"; // TOTRANSLATE
 		public static string WindowsCredentialsRememberNo = "No";
 		public static string WindowsCredentialsRememberRun = "Until closing app"; 
 		public static string WindowsCredentialsRememberPermanent = "Permanent";
@@ -451,7 +453,7 @@ namespace Eddie.Core
         public static string ManOptionWebUiAddress = "Web-interface bind address. Leave empty for all interfaces, localhost or specify an IP address.";
         public static string ManOptionWebUiPort = "Web-interface port.";
 
-        public static string ManOptionAdvancedExpert = "Activate some expert information and features.\n- Allows sending commands to OpenVPN Management Interface via Logs window.\n- Show verbose logs message in main windows";		
+        public static string ManOptionAdvancedExpert = "Activate some expert information and features; allows sending commands to OpenVPN Management Interface via Logs window; show verbose logs message in main windows";		
 		public static string ManOptionAdvancedCheckRoute = "If [i]True[/i] send a request to the server, that check it come from within the tunnel, and reply with an acknowledgement.";		
 		public static string ManOptionAdvancedPingerEnabled = "If [i]True[/i] the software pings servers to determine latency score. Pings are not performed during VPN connection.";
 		public static string ManOptionAdvancedPingerDelay = "Ping each server every [i]X[/i] seconds. If [i]0[/i], the recommended values are used.";

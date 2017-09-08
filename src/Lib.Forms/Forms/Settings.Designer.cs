@@ -36,6 +36,9 @@ namespace Eddie.Gui.Forms
 			Eddie.Gui.Skin.ColumnHeader columnHeader2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
 			Eddie.Gui.Skin.ColumnHeader columnHeader5;
+			this.chkAdvancedSkipAlreadyRun = new Eddie.Gui.Skin.CheckBox();
+			this.label11 = new Eddie.Gui.Skin.Label();
+			this.lblAdvancedSkipAlreadyRun = new Eddie.Gui.Skin.Label();
 			this.chkAdvancedProviders = new Eddie.Gui.Skin.CheckBox();
 			this.lnkAdvancedHelp = new Eddie.Gui.Skin.LinkLabel();
 			this.lblOpenVpnRcvbuf = new Eddie.Gui.Skin.Label();
@@ -198,9 +201,6 @@ namespace Eddie.Gui.Forms
 			this.cboProtocolIPv4Route = new Eddie.Gui.Skin.ComboBox();
 			this.lblProtocolIPEntry = new Eddie.Gui.Skin.Label();
 			this.cboProtocolIPEntry = new Eddie.Gui.Skin.ComboBox();
-			this.label9 = new Eddie.Gui.Skin.Label();
-			this.label11 = new Eddie.Gui.Skin.Label();
-			this.chkAdvancedSkipAlreadyRun = new Eddie.Gui.Skin.CheckBox();
 			tabAdvanced = new Eddie.Gui.Skin.TabPage();
 			tabDirectives = new Eddie.Gui.Skin.TabPage();
 			tabEvents = new Eddie.Gui.Skin.TabPage();
@@ -230,7 +230,7 @@ namespace Eddie.Gui.Forms
 			tabAdvanced.BackColor = System.Drawing.Color.White;
 			tabAdvanced.Controls.Add(this.chkAdvancedSkipAlreadyRun);
 			tabAdvanced.Controls.Add(this.label11);
-			tabAdvanced.Controls.Add(this.label9);
+			tabAdvanced.Controls.Add(this.lblAdvancedSkipAlreadyRun);
 			tabAdvanced.Controls.Add(this.chkAdvancedProviders);
 			tabAdvanced.Controls.Add(this.lnkAdvancedHelp);
 			tabAdvanced.Controls.Add(this.lblOpenVpnRcvbuf);
@@ -259,6 +259,38 @@ namespace Eddie.Gui.Forms
 			tabAdvanced.Size = new System.Drawing.Size(673, 387);
 			tabAdvanced.TabIndex = 0;
 			tabAdvanced.Text = "Advanced";
+			// 
+			// chkAdvancedSkipAlreadyRun
+			// 
+			this.chkAdvancedSkipAlreadyRun.BackColor = System.Drawing.Color.Transparent;
+			this.chkAdvancedSkipAlreadyRun.ForeColor = System.Drawing.Color.Black;
+			this.chkAdvancedSkipAlreadyRun.Location = new System.Drawing.Point(246, 290);
+			this.chkAdvancedSkipAlreadyRun.Name = "chkAdvancedSkipAlreadyRun";
+			this.chkAdvancedSkipAlreadyRun.Size = new System.Drawing.Size(165, 19);
+			this.chkAdvancedSkipAlreadyRun.TabIndex = 91;
+			this.chkAdvancedSkipAlreadyRun.UseVisualStyleBackColor = false;
+			// 
+			// label11
+			// 
+			this.label11.BackColor = System.Drawing.Color.Transparent;
+			this.label11.ForeColor = System.Drawing.Color.Black;
+			this.label11.Location = new System.Drawing.Point(14, 318);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(220, 21);
+			this.label11.TabIndex = 90;
+			this.label11.Text = "Multi-providers support:";
+			this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lblAdvancedSkipAlreadyRun
+			// 
+			this.lblAdvancedSkipAlreadyRun.BackColor = System.Drawing.Color.Transparent;
+			this.lblAdvancedSkipAlreadyRun.ForeColor = System.Drawing.Color.Black;
+			this.lblAdvancedSkipAlreadyRun.Location = new System.Drawing.Point(14, 288);
+			this.lblAdvancedSkipAlreadyRun.Name = "lblAdvancedSkipAlreadyRun";
+			this.lblAdvancedSkipAlreadyRun.Size = new System.Drawing.Size(220, 21);
+			this.lblAdvancedSkipAlreadyRun.TabIndex = 89;
+			this.lblAdvancedSkipAlreadyRun.Text = "Skip processes checking:";
+			this.lblAdvancedSkipAlreadyRun.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// chkAdvancedProviders
 			// 
@@ -629,7 +661,7 @@ namespace Eddie.Gui.Forms
 			tabDirectives.Location = new System.Drawing.Point(4, 24);
 			tabDirectives.Name = "tabDirectives";
 			tabDirectives.Padding = new System.Windows.Forms.Padding(3);
-			tabDirectives.Size = new System.Drawing.Size(673, 337);
+			tabDirectives.Size = new System.Drawing.Size(673, 387);
 			tabDirectives.TabIndex = 1;
 			tabDirectives.Text = "OVPN directives";
 			// 
@@ -760,7 +792,7 @@ namespace Eddie.Gui.Forms
 			tabEvents.Controls.Add(this.label1);
 			tabEvents.Location = new System.Drawing.Point(4, 24);
 			tabEvents.Name = "tabEvents";
-			tabEvents.Size = new System.Drawing.Size(673, 337);
+			tabEvents.Size = new System.Drawing.Size(673, 387);
 			tabEvents.TabIndex = 2;
 			tabEvents.Text = "Events";
 			// 
@@ -1396,7 +1428,7 @@ namespace Eddie.Gui.Forms
 			this.tabProxy.Location = new System.Drawing.Point(4, 24);
 			this.tabProxy.Name = "tabProxy";
 			this.tabProxy.Padding = new System.Windows.Forms.Padding(3);
-			this.tabProxy.Size = new System.Drawing.Size(673, 337);
+			this.tabProxy.Size = new System.Drawing.Size(673, 387);
 			this.tabProxy.TabIndex = 1;
 			this.tabProxy.Text = "Proxy / Tor";
 			// 
@@ -1633,7 +1665,7 @@ namespace Eddie.Gui.Forms
 			this.tabRoutes.Controls.Add(this.lstRoutes);
 			this.tabRoutes.Location = new System.Drawing.Point(4, 24);
 			this.tabRoutes.Name = "tabRoutes";
-			this.tabRoutes.Size = new System.Drawing.Size(673, 337);
+			this.tabRoutes.Size = new System.Drawing.Size(673, 387);
 			this.tabRoutes.TabIndex = 5;
 			this.tabRoutes.Text = "Routes";
 			// 
@@ -1785,7 +1817,7 @@ namespace Eddie.Gui.Forms
 			this.tabDNS.Location = new System.Drawing.Point(4, 24);
 			this.tabDNS.Name = "tabDNS";
 			this.tabDNS.Padding = new System.Windows.Forms.Padding(3);
-			this.tabDNS.Size = new System.Drawing.Size(673, 337);
+			this.tabDNS.Size = new System.Drawing.Size(673, 387);
 			this.tabDNS.TabIndex = 5;
 			this.tabDNS.Text = "DNS";
 			this.tabDNS.UseVisualStyleBackColor = true;
@@ -1946,7 +1978,7 @@ namespace Eddie.Gui.Forms
 			this.tabNetworkLock.Controls.Add(this.cboLockMode);
 			this.tabNetworkLock.Location = new System.Drawing.Point(4, 24);
 			this.tabNetworkLock.Name = "tabNetworkLock";
-			this.tabNetworkLock.Size = new System.Drawing.Size(673, 337);
+			this.tabNetworkLock.Size = new System.Drawing.Size(673, 387);
 			this.tabNetworkLock.TabIndex = 4;
 			this.tabNetworkLock.Text = "Network lock";
 			this.tabNetworkLock.UseVisualStyleBackColor = true;
@@ -2101,7 +2133,7 @@ namespace Eddie.Gui.Forms
 			this.tabLogging.Controls.Add(this.chkLoggingEnabled);
 			this.tabLogging.Location = new System.Drawing.Point(4, 24);
 			this.tabLogging.Name = "tabLogging";
-			this.tabLogging.Size = new System.Drawing.Size(673, 337);
+			this.tabLogging.Size = new System.Drawing.Size(673, 387);
 			this.tabLogging.TabIndex = 3;
 			this.tabLogging.Text = "Logging";
 			this.tabLogging.UseVisualStyleBackColor = true;
@@ -2202,7 +2234,7 @@ namespace Eddie.Gui.Forms
 			this.tabExperimentals.Controls.Add(this.cboProtocolIPEntry);
 			this.tabExperimentals.Location = new System.Drawing.Point(4, 24);
 			this.tabExperimentals.Name = "tabExperimentals";
-			this.tabExperimentals.Size = new System.Drawing.Size(673, 337);
+			this.tabExperimentals.Size = new System.Drawing.Size(673, 387);
 			this.tabExperimentals.TabIndex = 7;
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
@@ -2275,38 +2307,6 @@ namespace Eddie.Gui.Forms
 			this.cboProtocolIPEntry.Name = "cboProtocolIPEntry";
 			this.cboProtocolIPEntry.Size = new System.Drawing.Size(133, 21);
 			this.cboProtocolIPEntry.TabIndex = 90;
-			// 
-			// label9
-			// 
-			this.label9.BackColor = System.Drawing.Color.Transparent;
-			this.label9.ForeColor = System.Drawing.Color.Black;
-			this.label9.Location = new System.Drawing.Point(14, 288);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(220, 21);
-			this.label9.TabIndex = 89;
-			this.label9.Text = "Skip processes checking:";
-			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// label11
-			// 
-			this.label11.BackColor = System.Drawing.Color.Transparent;
-			this.label11.ForeColor = System.Drawing.Color.Black;
-			this.label11.Location = new System.Drawing.Point(14, 318);
-			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(220, 21);
-			this.label11.TabIndex = 90;
-			this.label11.Text = "Multi-providers support:";
-			this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkAdvancedSkipAlreadyRun
-			// 
-			this.chkAdvancedSkipAlreadyRun.BackColor = System.Drawing.Color.Transparent;
-			this.chkAdvancedSkipAlreadyRun.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedSkipAlreadyRun.Location = new System.Drawing.Point(246, 290);
-			this.chkAdvancedSkipAlreadyRun.Name = "chkAdvancedSkipAlreadyRun";
-			this.chkAdvancedSkipAlreadyRun.Size = new System.Drawing.Size(165, 19);
-			this.chkAdvancedSkipAlreadyRun.TabIndex = 91;
-			this.chkAdvancedSkipAlreadyRun.UseVisualStyleBackColor = false;
 			// 
 			// Settings
 			// 
@@ -2514,6 +2514,6 @@ namespace Eddie.Gui.Forms
 		private Skin.Label label8;
 		private Skin.CheckBox chkAdvancedSkipAlreadyRun;
 		private Skin.Label label11;
-		private Skin.Label label9;
+		private Skin.Label lblAdvancedSkipAlreadyRun;
 	}
 }

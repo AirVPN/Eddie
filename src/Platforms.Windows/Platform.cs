@@ -48,7 +48,8 @@ namespace Eddie.Platforms.Windows
 		private string m_oldMetricInterface = "";
 		private int m_oldMetricIPv4 = -1; 
 		private int m_oldMetricIPv6 = -1; 
-		private Mutex m_mutexSingleInstance = null; 
+		private Mutex m_mutexSingleInstance = null;
+		private Native.ConsoleCtrlHandlerRoutine m_consoleCtrlHandlerRoutine;
 
 		public static bool IsVistaOrNewer()
 		{
@@ -129,7 +130,15 @@ namespace Eddie.Platforms.Windows
 		{
 			return Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", "").ToString();
 		}
-		
+
+		public override void OnInit(bool cli)
+		{
+			base.OnInit(cli);
+
+			m_consoleCtrlHandlerRoutine = new Native.ConsoleCtrlHandlerRoutine(ConsoleCtrlCheck); // Avoid Garbage Collector
+			Native.SetConsoleCtrlHandler(m_consoleCtrlHandlerRoutine, true);
+		}
+
 		public override void OnDeInit()
 		{
 			base.OnDeInit();
@@ -279,6 +288,32 @@ namespace Eddie.Platforms.Windows
 		public override string GetDefaultOpenVpnConfigsPath()
 		{
 			return Conversions.ToString(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\OpenVPN", "config_dir", ""));
+		}
+		
+		private bool ConsoleCtrlCheck(Native.CtrlTypes ctrlType)
+		{
+			switch (ctrlType)
+			{
+				case Native.CtrlTypes.CTRL_C_EVENT:
+					Engine.Instance.OnSignal("C");
+					break;
+				case Native.CtrlTypes.CTRL_BREAK_EVENT:
+					Engine.Instance.OnSignal("BREAK");
+					break;
+				case Native.CtrlTypes.CTRL_CLOSE_EVENT:
+					Engine.Instance.OnSignal("CLOSE");
+					break;
+				case Native.CtrlTypes.CTRL_LOGOFF_EVENT:
+					Engine.Instance.OnSignal("LOGOFF");
+					break;
+				case Native.CtrlTypes.CTRL_SHUTDOWN_EVENT:
+					Engine.Instance.OnSignal("SHUTDOWN");					
+					break;
+				default:
+					break;
+			}
+
+			return true;
 		}
 
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)

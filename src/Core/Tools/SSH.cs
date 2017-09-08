@@ -35,9 +35,10 @@ namespace Eddie.Core.Tools
 
         public override string GetFileName()
         {
+			// TOFIX: Microsoft it's working on a ssh.exe (on GitHub, PowerShell). To be tested, to remove plink.exe dependencies.
             if (Platform.Instance.IsWindowsSystem())
             {
-                return "plink.exe";
+				return "plink.exe";
             }
             else
                 return base.GetFileName();

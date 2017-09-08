@@ -28,13 +28,9 @@ using Eddie.Core;
 
 namespace Eddie.Gui.Forms
 {
-    public partial class WindowReport : Eddie.Gui.Form
+    public partial class WindowMan : Eddie.Gui.Form
     {
-		public string Body = "";
-
-		private Controls.ToolTip m_toolTip;
-
-		public WindowReport()
+		public WindowMan()
         {
             OnPreInitializeComponent();
             InitializeComponent();
@@ -45,31 +41,33 @@ namespace Eddie.Gui.Forms
 		{
 			base.OnApplySkin();
 
-			txtBody.Font = Skin.FontMono;
+			//txtBody.Font = Skin.FontMono;
 		}
 
 		protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            CommonInit(Messages.WindowsReportTitle);
+            CommonInit(Messages.WindowsManTitle);
 
 			CheckEnabled();
 
-			if (Platform.IsWindows())
+			foreach (Option option in Engine.Instance.Storage.Options.Values)
 			{
-				// TOFIX: Under Mono crash...
-				m_toolTip = new Controls.ToolTip();
-				Controls.Add(m_toolTip);
-				m_toolTip.BringToFront();
-
-				m_toolTip.Connect(this.cmdCopyClipboard, Messages.TooltipLogsCopy);
-				m_toolTip.Connect(this.cmdSave, Messages.TooltipLogsSave);
+				Controls.ListViewItemOption item = new Controls.ListViewItemOption();
+				item.Text = option.Code;
+				item.SubItems.Add(option.Man);
+				item.SubItems.Add(option.Default);
+				item.SubItems.Add(option.Value);
+				item.BackColor = Color.Red;
+				lstOptions.Items.Add(item);
 			}
 
+			/*
 			txtBody.Text = "";
 			pgrStep.Minimum = 0;
 			pgrStep.Maximum = 100;
+			*/
 		}
 
 		public void SetStep(string step, string text, int perc)
@@ -82,9 +80,7 @@ namespace Eddie.Gui.Forms
 
 			// For refresh, especially Mono-Linux
 			Invalidate();
-			Update();
-			Refresh();
-			Application.DoEvents();
+			Refresh();			
 		}
 
         void CheckEnabled()

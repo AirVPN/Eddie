@@ -27,6 +27,7 @@ using System.Xml;
 using Eddie.Lib.Common;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
+using Mono.Unix;
 
 namespace Eddie.Platforms.Linux
 {
@@ -39,8 +40,15 @@ namespace Eddie.Platforms.Linux
 		private string m_fontSystem;
 		private string m_fontMonoSpace;
 
-        // Override
-        public Platform()
+		private UnixSignal[] m_signals = new UnixSignal[] {
+			new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
+			new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
+			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR1),
+			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR2),
+		};
+
+		// Override
+		public Platform()
 		{			
         }
 
@@ -104,8 +112,31 @@ namespace Eddie.Platforms.Linux
 				if (posSize != -1)
 					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);				
 			}
-		}
 
+			System.Threading.Thread signalThread = new System.Threading.Thread(delegate () 
+			{
+				for (;;)
+				{
+					if (Engine.Instance.CancelRequested)
+						break;
+
+					int index = UnixSignal.WaitAny(m_signals, 1000);
+					if (index < m_signals.Length)
+					{
+						Mono.Unix.Native.Signum signal = m_signals[index].Signum;
+						if (signal == Mono.Unix.Native.Signum.SIGTERM)
+							Engine.Instance.OnSignal("SIGTERM");
+						else if (signal == Mono.Unix.Native.Signum.SIGINT)
+							Engine.Instance.OnSignal("SIGINT");
+						else if (signal == Mono.Unix.Native.Signum.SIGUSR1)
+							Engine.Instance.OnSignal("SIGUSR1");
+						else if (signal == Mono.Unix.Native.Signum.SIGUSR2)
+							Engine.Instance.OnSignal("SIGUSR2");
+					}					
+				}
+			});
+		}
+		
 		public override string GetOsArchitecture()
 		{
 			return m_architecture;
@@ -274,6 +305,28 @@ namespace Eddie.Platforms.Linux
 			if (paths.Contains("/root/bin") == false)
 				paths.Add("/root/bin");			
 			return LocateExecutable(name, paths);
+		}
+
+		public override string WaitSignal() // TOFIX, not called
+		{
+			Console.WriteLine("Wait signal");
+
+			// Wait for a signal to be delivered					
+			int index = UnixSignal.WaitAny(m_signals, 1000);
+
+			Console.WriteLine("Signal received:" + index.ToString());
+
+			Mono.Unix.Native.Signum signal = m_signals[index].Signum;
+			if (signal == Mono.Unix.Native.Signum.SIGTERM)
+				return "SIGTERM";
+			else if (signal == Mono.Unix.Native.Signum.SIGINT)
+				return "SIGINT";
+			else if (signal == Mono.Unix.Native.Signum.SIGUSR1)
+				return "SIGUSR1";
+
+			Console.WriteLine("Signal received2:" + index.ToString());
+
+			return "";
 		}
 
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
@@ -519,10 +572,16 @@ namespace Eddie.Platforms.Linux
 		{	
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
+			// TOFIX: "route" not available on recent Linux systems.
+			// Need to be adapted to "ip". But it's used only for "Remove default gateway" feature, useless for a lots of reason, deprecated soon.
 			string routePath = LocateExecutable("route");
-			if(routePath != "")
+			if (routePath == "")
 			{
-				string result = SystemShell.Shell2(routePath, "-n","-ee");
+				Engine.Instance.Logs.Log(LogType.Error, "'route' " + Messages.NotFound);
+			}
+			else
+			{
+				string result = SystemShell.Shell2(routePath, "-n", "-ee");
 
 				string[] lines = result.Split('\n');
 				foreach (string line in lines)
@@ -568,7 +627,112 @@ namespace Eddie.Platforms.Linux
 			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "link", "show") : "'ip' " + Messages.NotFound);
 			report.Add("ip route show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "route", "show") : "'ip' " + Messages.NotFound);			
 		}
-		
+
+		public override bool RestartAsRoot()
+		{
+			string command = "";
+			string arguments = "";
+
+
+			string command2 = "";
+			string executablePath = Platform.Instance.GetExecutablePath();
+			string cmdline = CommandLine.SystemEnvironment.GetFull();
+			if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
+				command2 += "mono ";
+			command2 += Platform.Instance.GetExecutablePath();
+			command2 += " ";
+			command2 += cmdline;			
+			command2 += " console.mode=none"; // 2.13.6, otherwise CancelKeyPress (mono bug?) and stdout fill the non-root non-blocked terminal.
+			command2 = command2.Trim(); // 2.11.11
+			bool waitEnd = false;
+
+			if (LocateExecutable("kdesudo") != "")
+			{
+				command = "kdesudo";
+				arguments = "";
+				arguments += " -u root"; // Administrative privileges
+				arguments += " -d"; // Don't show commandline
+				arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+				arguments += " -c "; // The command
+									 //arguments += " \"" + command2 + "\"";
+				arguments += " \"" + command2 + "\"";
+			}
+			else if (LocateExecutable("kdesu") != "")
+			{
+				command = "kdesu";
+				arguments = "";
+				arguments += " -u root"; // Administrative privileges
+				arguments += " -d"; // Don't show commandline
+									//arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+				arguments += " -c "; // The command
+									 //arguments += " \"" + command2 + "\"";
+				arguments += " \"" + command2 + "\"";
+			}
+			/*
+			 * Under Debian, gksudo don't work, gksu work...
+			if (Platform.Instance.FileExists("/usr/bin/gksudo"))
+			{
+				command = "gksudo";
+				arguments = "";
+				arguments += " -u root"; // Administrative privileges
+				arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+				arguments += " \"" + command2 + "\"";
+			}
+			else 
+			*/
+			else if (LocateExecutable("gksu") != "")
+			{
+				command = "gksu";
+				arguments = "";
+				arguments += " -u root"; // Administrative privileges
+				arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
+				arguments += " \"" + command2 + "\"";
+			}
+			else if (LocateExecutable("xdg-su") != "") // OpenSUSE
+			{
+				command = "xdg-su";
+				arguments = "";
+				arguments += " -u root"; // Administrative privileges
+				arguments += " -c "; // The command
+				arguments += " \"" + command2 + "\"";
+			}
+			else if (LocateExecutable("beesu") != "") // Fedora
+			{
+				command = "beesu";
+				arguments = "";
+				arguments += " " + command2 + "";
+			}
+			/*
+			else if (Platform.Instance.FileExists("/usr/bin/pkexec"))
+			{
+				// Different behiavour on different platforms
+				command = "pkexec";
+				arguments = "";
+				arguments = " env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY";
+				arguments += " " + command2 + "";
+
+				// For this bug: https://lists.ubuntu.com/archives/foundations-bugs/2012-July/100103.html
+				// We need to keep alive the current process, otherwise 'Refusing to render service to dead parents.'.
+				waitEnd = true;
+
+				// Still don't work.
+			}
+			*/
+
+			if (command != "")
+			{
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
+				
+				SystemShell.ShellX(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
+			}
+			else
+			{
+				Engine.Instance.Logs.Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);
+			}
+
+			return true;
+		}
+
 		public override Dictionary<int, string> GetProcessesList()
 		{	
 			Dictionary<int, string> result = new Dictionary<int, string>();
@@ -646,6 +810,7 @@ namespace Eddie.Platforms.Linux
 			if (ipPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'ip' " + Messages.NotFound);
 
+			/* // Used only by "Remove default gateway" */
 			string routePath = LocateExecutable("route");
 			if (routePath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'route' " + Messages.NotFound);

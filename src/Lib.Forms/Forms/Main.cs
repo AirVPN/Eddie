@@ -595,8 +595,11 @@ namespace Eddie.Gui.Forms
 
             if (Engine.Storage.GetBool("gui.exit_confirm") == true)
             {
-                if(Engine.Instance.OnAskYesNo(Messages.ExitConfirm) != true)
-                    return;
+				if (Engine.Instance.OnAskYesNo(Messages.ExitConfirm) != true)
+				{
+					Engine.OnExitRejected();
+					return;
+				}
             }
 			
 			Gui.Engine engine = Engine.Instance as Gui.Engine;
@@ -1669,7 +1672,8 @@ namespace Eddie.Gui.Forms
 				// For refresh Mono-Linux
 				if(Platform.Instance.IsLinuxSystem())
 				{
-					Application.DoEvents();
+					Invalidate();
+					Update();
 					Refresh();
 				}
 

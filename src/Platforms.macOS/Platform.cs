@@ -35,6 +35,13 @@ namespace Eddie.Platforms.MacOS
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
+		private UnixSignal[] m_signals = new UnixSignal[] {
+			new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
+			new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
+			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR1),
+			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR2),
+		};
+
 		// Override
 		public Platform()
 		{
@@ -68,6 +75,29 @@ namespace Eddie.Platforms.MacOS
 
 			m_version = SystemShell.Shell("/usr/bin/uname", new string[] { "-a" }).Trim();
 			m_architecture = NormalizeArchitecture(SystemShell.Shell("/usr/bin/uname", new string[] { "-m" }).Trim());
+
+			System.Threading.Thread signalThread = new System.Threading.Thread(delegate ()
+			{
+				for (;;)
+				{
+					if (Engine.Instance.CancelRequested)
+						break;
+
+					int index = UnixSignal.WaitAny(m_signals, 1000);
+					if (index < m_signals.Length)
+					{
+						Mono.Unix.Native.Signum signal = m_signals[index].Signum;
+						if (signal == Mono.Unix.Native.Signum.SIGTERM)
+							Engine.Instance.OnSignal("SIGTERM");
+						else if (signal == Mono.Unix.Native.Signum.SIGINT)
+							Engine.Instance.OnSignal("SIGINT");
+						else if (signal == Mono.Unix.Native.Signum.SIGUSR1)
+							Engine.Instance.OnSignal("SIGUSR1");
+						else if (signal == Mono.Unix.Native.Signum.SIGUSR2)
+							Engine.Instance.OnSignal("SIGUSR2");
+					}
+				}
+			});
 		}
 
 		public override string GetOsArchitecture()

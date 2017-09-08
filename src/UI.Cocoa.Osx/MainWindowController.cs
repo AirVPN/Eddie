@@ -518,6 +518,7 @@ namespace Eddie.UI.Cocoa.Osx
 				bool result = GuiUtils.MessageYesNo(Messages.ExitConfirm);
 				if (result == false)
 				{
+					Engine.Instance.OnExitRejected();
 					return false;
 				}
 			}

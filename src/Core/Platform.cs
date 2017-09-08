@@ -502,6 +502,11 @@ namespace Eddie.Core
 			return "";
 		}
 
+		public virtual string WaitSignal()
+		{
+			return "unsupported";
+		}
+
 		// Avoid when possible, but for example under Windows sometime commands are not executable in file-system.
 		public virtual void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{
@@ -698,6 +703,11 @@ namespace Eddie.Core
 		{
 			NotImplemented();
 			return null;
+		}
+
+		public virtual bool RestartAsRoot()
+		{
+			return false;
 		}
 
 		public virtual Dictionary<int, string> GetProcessesList()

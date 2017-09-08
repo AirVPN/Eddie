@@ -28,7 +28,8 @@ namespace Eddie.Platforms.Linux
 	public class NetworkLockIptables : NetworkLockPlugin
 	{
 		private IpAddresses m_currentList = new IpAddresses();
-		private bool FatalIPv6 = false; // ClodoTemp
+		private bool m_supportIPv4 = true;
+		private bool m_supportIPv6 = true;
 
 		public override string GetCode()
 		{
@@ -74,6 +75,7 @@ namespace Eddie.Platforms.Linux
 		{
 			SystemShell s = new SystemShell();
 			s.Path = Platform.Instance.LocateExecutable(exe);
+			args = "--wait " + args; // 2.13.6
 			if(args != "")
 				s.Arguments.Add(args); // Exception: all arguments as one, it works.
 			if(fatal)
@@ -94,115 +96,184 @@ namespace Eddie.Platforms.Linux
 				if ((Platform.Instance.FileExists(rulesBackupSessionV4)) || (Platform.Instance.FileExists(rulesBackupSessionV6)))
 					throw new Exception(Messages.NetworkLockLinuxUnexpectedAlreadyActive);
 
-				// IPv4 - Backup
-				Platform.Instance.FileContentsWriteText(rulesBackupSessionV4, DoIptablesShell("iptables-save",""));
+				// IPv4 assumed, if not available, will throw a fatal exception.
+
+				// IPv6 Test
+				{
+					SystemShell s = new SystemShell();
+					s.Path = Platform.Instance.LocateExecutable("ip6tables");
+					s.Arguments.Add("-L");
+					m_supportIPv6 = s.Run();
+
+					if (m_supportIPv6 == false)
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.NetworkLockLinuxIPv6NotAvailable);
+				}
+
+
+				if (m_supportIPv4)
+				{
+					// IPv4 - Backup
+					Platform.Instance.FileContentsWriteText(rulesBackupSessionV4, DoIptablesShell("iptables-save", ""));
+				}				
 				
-				// IPv6 - Backup
-				Platform.Instance.FileContentsWriteText(rulesBackupSessionV6, DoIptablesShell("ip6tables-save","", FatalIPv6));
+				if(m_supportIPv6)
+				{
+					// IPv6 - Backup
+					Platform.Instance.FileContentsWriteText(rulesBackupSessionV6, DoIptablesShell("ip6tables-save", ""));
+				}
 				
-				// IPv4 - Flush
-				DoIptablesShell("iptables", "-P INPUT ACCEPT");
-				DoIptablesShell("iptables", "-P FORWARD ACCEPT");
-				DoIptablesShell("iptables", "-P OUTPUT ACCEPT");
-				DoIptablesShell("iptables", "-t nat -F", false);
-				DoIptablesShell("iptables", "-t mangle -F", false);
-				DoIptablesShell("iptables", "-F");
-				DoIptablesShell("iptables", "-X");
+				if (m_supportIPv4)
+				{
+					// IPv4 - Flush
+					DoIptablesShell("iptables", "-P INPUT ACCEPT");
+					DoIptablesShell("iptables", "-P FORWARD ACCEPT");
+					DoIptablesShell("iptables", "-P OUTPUT ACCEPT");
+					DoIptablesShell("iptables", "-t nat -F", false);
+					DoIptablesShell("iptables", "-t mangle -F", false);
+					DoIptablesShell("iptables", "-F");
+					DoIptablesShell("iptables", "-X");
+				}
 
-				// IPv6 - Flush
-				DoIptablesShell("ip6tables", "-P INPUT ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-P FORWARD ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-P OUTPUT ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-t nat -F", false);
-				DoIptablesShell("ip6tables", "-t mangle -F", false);
-				DoIptablesShell("ip6tables", "-F", FatalIPv6);
-				DoIptablesShell("ip6tables", "-X", FatalIPv6);
-
-				// IPv4 - Local
-				DoIptablesShell("iptables", "-A INPUT -i lo -j ACCEPT");
-				DoIptablesShell("iptables", "-A OUTPUT -o lo -j ACCEPT");
-
-				// IPv6 - Local
-				DoIptablesShell("ip6tables", "-A INPUT -i lo -j ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-A OUTPUT -o lo -j ACCEPT", FatalIPv6);
-
-				// IPv6 - Disable processing of any RH0 packet which could allow a ping-pong of packets
-				DoIptablesShell("ip6tables", "-A INPUT -m rt --rt-type 0 -j DROP", FatalIPv6);
-				DoIptablesShell("ip6tables", "-A OUTPUT -m rt --rt-type 0 -j DROP", FatalIPv6);
-				DoIptablesShell("ip6tables", "-A FORWARD -m rt --rt-type 0 -j DROP", FatalIPv6);
-
-				// Make sure you can communicate with any DHCP server
-				DoIptablesShell("iptables", "-A OUTPUT -d 255.255.255.255 -j ACCEPT");
-				DoIptablesShell("iptables", "-A INPUT -s 255.255.255.255 -j ACCEPT");
+				if (m_supportIPv6)
+				{
+					// IPv6 - Flush
+					DoIptablesShell("ip6tables", "-P INPUT ACCEPT");
+					DoIptablesShell("ip6tables", "-P FORWARD ACCEPT");
+					DoIptablesShell("ip6tables", "-P OUTPUT ACCEPT");
+					DoIptablesShell("ip6tables", "-t nat -F", false);
+					DoIptablesShell("ip6tables", "-t mangle -F", false);
+					DoIptablesShell("ip6tables", "-F");
+					DoIptablesShell("ip6tables", "-X");
+				}
+								
+				if (m_supportIPv4)
+				{
+					// IPv4 - Local
+					DoIptablesShell("iptables", "-A INPUT -i lo -j ACCEPT");
+					DoIptablesShell("iptables", "-A OUTPUT -o lo -j ACCEPT");
+				}
+								
+				if (m_supportIPv6)
+				{
+					// IPv6 - Local
+					DoIptablesShell("ip6tables", "-A INPUT -i lo -j ACCEPT");
+					DoIptablesShell("ip6tables", "-A OUTPUT -o lo -j ACCEPT");
+				}
+								
+				if (m_supportIPv6)
+				{
+					// IPv6 - Disable processing of any RH0 packet which could allow a ping-pong of packets
+					DoIptablesShell("ip6tables", "-A INPUT -m rt --rt-type 0 -j DROP");
+					DoIptablesShell("ip6tables", "-A OUTPUT -m rt --rt-type 0 -j DROP");
+					DoIptablesShell("ip6tables", "-A FORWARD -m rt --rt-type 0 -j DROP");
+				}
+				
+				if (m_supportIPv4)
+				{
+					// IPv4 - Make sure you can communicate with any DHCP server
+					DoIptablesShell("iptables", "-A OUTPUT -d 255.255.255.255 -j ACCEPT");
+					DoIptablesShell("iptables", "-A INPUT -s 255.255.255.255 -j ACCEPT");
+				}
 
 				if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
 				{
-					// IPv4 - Private networks
-					DoIptablesShell("iptables", "-A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
-					DoIptablesShell("iptables", "-A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
-					DoIptablesShell("iptables", "-A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
+					if (m_supportIPv4)
+					{
+						// IPv4 - Private networks
+						DoIptablesShell("iptables", "-A INPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT");
+						DoIptablesShell("iptables", "-A INPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT");
+						DoIptablesShell("iptables", "-A INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT");
 
-					// IPv4 - Multicast
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+						// IPv4 - Multicast
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 224.0.0.0/24 -j ACCEPT");
 
-					// IPv4 - 239.255.255.250  Simple Service Discovery Protocol address
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+						// IPv4 - 239.255.255.250  Simple Service Discovery Protocol address
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.250/32 -j ACCEPT");
 
-					// IPv4 - 239.255.255.253  Service Location Protocol version 2 address
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
-					DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+						// IPv4 - 239.255.255.253  Service Location Protocol version 2 address
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -s 192.168.0.0/16 -d 239.255.255.253/32 -j ACCEPT");
+					}
 
-					// IPv6 - Allow Link-Local addresses
-					DoIptablesShell("ip6tables", "-A INPUT -s fe80::/10 -j ACCEPT", FatalIPv6);
-					DoIptablesShell("ip6tables", "-A OUTPUT -s fe80::/10 -j ACCEPT", FatalIPv6);
+					if (m_supportIPv6)
+					{
+						// IPv6 - Allow Link-Local addresses
+						DoIptablesShell("ip6tables", "-A INPUT -s fe80::/10 -j ACCEPT");
+						DoIptablesShell("ip6tables", "-A OUTPUT -s fe80::/10 -j ACCEPT");
 
-					// IPv6 - Allow multicast
-					DoIptablesShell("ip6tables", "-A INPUT -d ff00::/8 -j ACCEPT", FatalIPv6);
-					DoIptablesShell("ip6tables", "-A OUTPUT -d ff00::/8 -j ACCEPT", FatalIPv6);
+						// IPv6 - Allow multicast
+						DoIptablesShell("ip6tables", "-A INPUT -d ff00::/8 -j ACCEPT");
+						DoIptablesShell("ip6tables", "-A OUTPUT -d ff00::/8 -j ACCEPT");
+					}						
 				}
 
 				if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 				{
-					// IPv4
-					DoIptablesShell("iptables", "-A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
+					if (m_supportIPv4)
+					{ 
+						// IPv4
+						DoIptablesShell("iptables", "-A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
+					}
 
-					// IPv6
-					DoIptablesShell("ip6tables", "-A INPUT -p icmpv6 -j ACCEPT", FatalIPv6);
-					DoIptablesShell("ip6tables", "-A OUTPUT -p icmpv6 -j ACCEPT", FatalIPv6);
+					if (m_supportIPv6)
+					{
+						// IPv6
+						DoIptablesShell("ip6tables", "-A INPUT -p icmpv6 -j ACCEPT");
+						DoIptablesShell("ip6tables", "-A OUTPUT -p icmpv6 -j ACCEPT");
+					}						
 				}
 
-				// IPv4 - Allow established sessions to receive traffic
-				DoIptablesShell("iptables", "-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
-				// IPv6 - Allow established sessions to receive traffic
-				DoIptablesShell("ip6tables", "-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT", FatalIPv6);
+				if (m_supportIPv4)
+				{
+					// IPv4 - Allow established sessions to receive traffic
+					DoIptablesShell("iptables", "-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
+				}
 
-				// IPv4 - Allow TUN
-				DoIptablesShell("iptables", "-A INPUT -i tun+ -j ACCEPT");
-				DoIptablesShell("iptables", "-A FORWARD -i tun+ -j ACCEPT");
-				DoIptablesShell("iptables", "-A OUTPUT -o tun+ -j ACCEPT");
+				if (m_supportIPv6)
+				{
+					// IPv6 - Allow established sessions to receive traffic
+					DoIptablesShell("ip6tables", "-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT");
+				}
 
-				// IPv6 - Allow TUN 
-				DoIptablesShell("ip6tables", "-A INPUT -i tun+ -j ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-A FORWARD -i tun+ -j ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-A OUTPUT -o tun+ -j ACCEPT", FatalIPv6);
+				if (m_supportIPv4)
+				{
+					// IPv4 - Allow TUN
+					DoIptablesShell("iptables", "-A INPUT -i tun+ -j ACCEPT");
+					DoIptablesShell("iptables", "-A FORWARD -i tun+ -j ACCEPT");
+					DoIptablesShell("iptables", "-A OUTPUT -o tun+ -j ACCEPT");
+				}
 
-				// IPv4 - Block All
-				DoIptablesShell("iptables", "-A OUTPUT -j DROP");
-				DoIptablesShell("iptables", "-A INPUT -j DROP");
-				DoIptablesShell("iptables", "-A FORWARD -j DROP");
+				if (m_supportIPv6)
+				{
+					// IPv6 - Allow TUN 
+					DoIptablesShell("ip6tables", "-A INPUT -i tun+ -j ACCEPT");
+					DoIptablesShell("ip6tables", "-A FORWARD -i tun+ -j ACCEPT");
+					DoIptablesShell("ip6tables", "-A OUTPUT -o tun+ -j ACCEPT");
+				}
 
-				// IPv6 - Block All
-				DoIptablesShell("ip6tables", "-A OUTPUT -j DROP", FatalIPv6);
-				DoIptablesShell("ip6tables", "-A INPUT -j DROP", FatalIPv6);
-				DoIptablesShell("ip6tables", "-A FORWARD -j DROP", FatalIPv6);
+				if (m_supportIPv4)
+				{
+					// IPv4 - Block All
+					DoIptablesShell("iptables", "-A OUTPUT -j DROP");
+					DoIptablesShell("iptables", "-A INPUT -j DROP");
+					DoIptablesShell("iptables", "-A FORWARD -j DROP");
+				}
+
+				if (m_supportIPv6)
+				{
+					// IPv6 - Block All
+					DoIptablesShell("ip6tables", "-A OUTPUT -j DROP");
+					DoIptablesShell("ip6tables", "-A INPUT -j DROP");
+					DoIptablesShell("ip6tables", "-A FORWARD -j DROP");
+				}
 
 				OnUpdateIps();
 			}
@@ -243,13 +314,13 @@ namespace Eddie.Platforms.Linux
 			if (Platform.Instance.FileExists(rulesBackupSessionV6))
 			{
 				// Restore
-				DoIptablesShell("ip6tables", "-P INPUT ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-P FORWARD ACCEPT", FatalIPv6);
-				DoIptablesShell("ip6tables", "-P OUTPUT ACCEPT", FatalIPv6);
+				DoIptablesShell("ip6tables", "-P INPUT ACCEPT");
+				DoIptablesShell("ip6tables", "-P FORWARD ACCEPT");
+				DoIptablesShell("ip6tables", "-P OUTPUT ACCEPT");
 				DoIptablesShell("ip6tables", "-t nat -F", false);
 				DoIptablesShell("ip6tables", "-t mangle -F", false);
-				DoIptablesShell("ip6tables", "-F", FatalIPv6);
-				DoIptablesShell("ip6tables", "-X", FatalIPv6);
+				DoIptablesShell("ip6tables", "-F");
+				DoIptablesShell("ip6tables", "-X");
 
 				// Restore backup - Exception: ShellCmd because ip6tables-restore accept only stdin
 				SystemShell.ShellCmd(Platform.Instance.LocateExecutable("ip6tables-restore") + " <\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\""); 
@@ -273,10 +344,16 @@ namespace Eddie.Platforms.Linux
 				if(ipsFirewalled.Contains(ip) == false)
 				{
 					// Remove
-					if(ip.IsV4)
-						DoIptablesShell("iptables", "-D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT");
-					else if(ip.IsV6)
-						DoIptablesShell("ip6tables", "-D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT", FatalIPv6);
+					if (ip.IsV4)
+					{
+						if (m_supportIPv4)
+							DoIptablesShell("iptables", "-D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT");
+					}
+					else if (ip.IsV6)
+					{
+						if (m_supportIPv6)
+							DoIptablesShell("ip6tables", "-D OUTPUT -d " + ip.ToCIDR() + " -j ACCEPT");
+					}
 				}
 			}
 
@@ -286,10 +363,16 @@ namespace Eddie.Platforms.Linux
 				if (m_currentList.Contains(ip) == false)
 				{
 					// Add
-					if(ip.IsV4)
-						DoIptablesShell("iptables", "-I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT");
-					else if(ip.IsV6)
-						DoIptablesShell("ip6tables", "-I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT", FatalIPv6);
+					if (ip.IsV4)
+					{
+						if (m_supportIPv4)
+							DoIptablesShell("iptables", "-I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT");
+					}
+					else if (ip.IsV6)
+					{
+						if (m_supportIPv6)
+							DoIptablesShell("ip6tables", "-I OUTPUT 1 -d " + ip.ToCIDR() + " -j ACCEPT");
+					}
 				}
 			}
 

@@ -226,8 +226,6 @@ namespace Eddie.Core
 
 			m_logsManager = new LogsManager();
 
-			Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
-
 			m_storage = new Core.Storage();
 
 			if (cli)
@@ -259,12 +257,21 @@ namespace Eddie.Core
 			{
 				if (Platform.Instance.IsAdmin() == false)
 				{
-					if (OnNoRoot() == false)
+					if (ConsoleMode)
+					{
+						Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);						
+					}
+					else if (Platform.Instance.RestartAsRoot() == false)
+					{
 						Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);
+					}
 
 					return false;
 				}
 			}
+
+			if (Storage.Get("console.mode") == "keys")
+				Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
 			CountriesManager.Init();
 
@@ -517,12 +524,6 @@ namespace Eddie.Core
 
 			if (m_tcpServer != null)
 				m_tcpServer.Stop();
-		}
-
-		public virtual bool OnNoRoot()
-		{
-			// Return true if managed differently
-			return false;
 		}
 
 		public virtual void OnWork()
@@ -812,6 +813,17 @@ namespace Eddie.Core
 			RequestStop();
 		}
 
+		public virtual void OnSignal(string signal)
+		{
+			Engine.Instance.Logs.Log(LogType.Verbose, "Received signal " + signal);
+			OnExit();
+		}
+
+		public virtual void OnExitRejected()
+		{
+			m_breakRequests = 0;
+		}
+
 		private void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
 		{
 			m_breakRequests++;
@@ -838,7 +850,8 @@ namespace Eddie.Core
 				return false;
 			}
 
-			Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelp);
+			if (Storage.Get("console.mode") == "keys")
+				Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelp);
 
 			if(Storage.GetBool("connect") == false)
 				Engine.Instance.Logs.Log(LogType.Info, Messages.ConsoleKeyboardHelpNoConnect);
