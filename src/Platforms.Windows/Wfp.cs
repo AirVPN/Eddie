@@ -187,7 +187,7 @@ namespace Eddie.Platforms.Windows
                 {
                     XmlElement xmlClone = xml.CloneNode(true) as XmlElement;
                     xmlClone.SetAttribute("layer", layer);                    
-                    string xmlStr = xmlClone.OuterXml;
+                    string xmlStr = xmlClone.OuterXml;					
 					
                     UInt64 id1 = LibPocketFirewallAddRule(xmlStr);
 

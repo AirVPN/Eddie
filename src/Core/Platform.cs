@@ -405,12 +405,14 @@ namespace Eddie.Core
 
 		}
 
-		public virtual void FileEnsureExecutablePermission(string path)
+		public virtual bool FileEnsureExecutablePermission(string path)
 		{
+			return false;
 		}
 
-		public virtual void FileEnsurePermission(string path, string mode)
+		public virtual bool FileEnsurePermission(string path, string mode)
 		{
+			return false;
 		}
 
 		public virtual bool HasAccessToWrite(string path)
@@ -721,7 +723,7 @@ namespace Eddie.Core
 				try
 				{
 					//result[p.Id] = p.ProcessName.ToLowerInvariant();
-					if ((p.MainModule != null) && (p.MainModule.FileName != null))
+					if ( (p.HasExited == false) && (p.MainModule != null) && (p.MainModule.FileName != null))
 						result[p.Id] = p.MainModule.FileName;
 				}
 				catch

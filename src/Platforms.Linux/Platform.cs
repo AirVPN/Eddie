@@ -40,13 +40,6 @@ namespace Eddie.Platforms.Linux
 		private string m_fontSystem;
 		private string m_fontMonoSpace;
 
-		private UnixSignal[] m_signals = new UnixSignal[] {
-			new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
-			new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
-			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR1),
-			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR2),
-		};
-
 		// Override
 		public Platform()
 		{			
@@ -113,28 +106,23 @@ namespace Eddie.Platforms.Linux
 					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);				
 			}
 
-			System.Threading.Thread signalThread = new System.Threading.Thread(delegate () 
-			{
-				for (;;)
-				{
-					if (Engine.Instance.CancelRequested)
-						break;
+			Native.eddie_signal((int)Native.Signum.SIGINT, SignalCallback);
+			Native.eddie_signal((int)Native.Signum.SIGTERM, SignalCallback);
+			Native.eddie_signal((int)Native.Signum.SIGUSR1, SignalCallback);
+			Native.eddie_signal((int)Native.Signum.SIGUSR2, SignalCallback);
+		}
 
-					int index = UnixSignal.WaitAny(m_signals, 1000);
-					if (index < m_signals.Length)
-					{
-						Mono.Unix.Native.Signum signal = m_signals[index].Signum;
-						if (signal == Mono.Unix.Native.Signum.SIGTERM)
-							Engine.Instance.OnSignal("SIGTERM");
-						else if (signal == Mono.Unix.Native.Signum.SIGINT)
-							Engine.Instance.OnSignal("SIGINT");
-						else if (signal == Mono.Unix.Native.Signum.SIGUSR1)
-							Engine.Instance.OnSignal("SIGUSR1");
-						else if (signal == Mono.Unix.Native.Signum.SIGUSR2)
-							Engine.Instance.OnSignal("SIGUSR2");
-					}					
-				}
-			});
+		private static void SignalCallback(int signum)
+		{
+			Native.Signum sig = (Native.Signum) signum;
+			if (sig == Native.Signum.SIGINT)
+				Engine.Instance.OnSignal("SIGINT");
+			else if (sig == Native.Signum.SIGTERM)
+				Engine.Instance.OnSignal("SIGTERM");
+			else if (sig == Native.Signum.SIGUSR1)
+				Engine.Instance.OnSignal("SIGUSR1");
+			else if (sig == Native.Signum.SIGUSR2)
+				Engine.Instance.OnSignal("SIGUSR2");
 		}
 		
 		public override string GetOsArchitecture()
@@ -181,6 +169,9 @@ namespace Eddie.Platforms.Linux
 			if ((path == "") || (FileExists(path) == false))
 				return false;
 
+			int result = Native.eddie_file_get_immutable(path);
+			return (result == 1);
+			/* // TOCLEAN
 			string lsattrPath = LocateExecutable("lsattr");
 			if (lsattrPath != "")
 			{
@@ -206,6 +197,7 @@ namespace Eddie.Platforms.Linux
 			}
 			else
 				return false;
+			*/
         }
 
         public override void FileImmutableSet(string path, bool value)
@@ -213,6 +205,12 @@ namespace Eddie.Platforms.Linux
 			if ((path == "") || (FileExists(path) == false))
 				return;
 
+			if (FileImmutableGet(path) == value)
+				return;
+
+			Engine.Instance.Logs.LogDebug("eddie_file_set_immutable:" + value.ToString());
+			Native.eddie_file_set_immutable(path, value ? 1 : 0);
+			/* // TOCLEAN
 			string chattrPath = LocateExecutable("chattr");
 			if(chattrPath != "")
             {
@@ -223,13 +221,15 @@ namespace Eddie.Platforms.Linux
 				s.Arguments.Add(SystemShell.EscapePath(path));
 				s.Run();
 			}
+			*/
         }
 
-		public override void FileEnsurePermission(string path, string mode)
+		public override bool FileEnsurePermission(string path, string mode)
 		{
 			if ((path == "") || (FileExists(path) == false))
-				return;
+				return false;
 
+			/* // TOCLEAN
 			string chmodPath = LocateExecutable("chmod");
 			if (chmodPath != "")
 			{
@@ -241,11 +241,62 @@ namespace Eddie.Platforms.Linux
 				s.NoDebugLog = true;
 				s.Run();
 			}
+			*/
+			int result = Native.eddie_file_get_mode(path);
+			if (result == -1)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect permissions on '" + path + "'.");
+				return false;
+			}
+			int newResult = 0;
+			if (mode == "600")
+				newResult = (int) Native.FileMode.Mode0600;
+			else if (mode == "644")
+				newResult = (int)Native.FileMode.Mode0644;
+			
+			if(newResult == 0)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "Unexpected permission '" + mode + "'");
+				return false;
+			}
+
+			if (newResult != result)
+			{
+				result = Native.eddie_file_set_mode(path, newResult);
+				if (result == -1)
+				{
+					Engine.Instance.Logs.Log(LogType.Warning, "Failed to set permissions on '" + path + "'.");
+					return false;
+				}
+			}
+
+			return true;
 		}
 
-		public override void FileEnsureExecutablePermission(string path)
+		public override bool FileEnsureExecutablePermission(string path)
 		{
-			FileEnsurePermission(path, "+x");
+			int result = Native.eddie_file_get_mode(path);
+			if (result == -1)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect if '" + path + "' is executable");
+				return false;
+			}
+			
+			int newResult = result | 73; // +x :<> (S_IXUSR | S_IXGRP | S_IXOTH) 
+
+			if (newResult != result)
+			{
+				result = Native.eddie_file_set_mode(path, newResult);
+				if (result == -1)
+				{
+					Engine.Instance.Logs.Log(LogType.Warning, "Failed to mark '" + path + "' as executable");
+					return false;
+				}
+			}
+
+			return true;
+
+			// FileEnsurePermission(path, "+x"); // TOCLEAN
 		}
 
 		public override string GetExecutableReport(string path)
@@ -306,29 +357,7 @@ namespace Eddie.Platforms.Linux
 				paths.Add("/root/bin");			
 			return LocateExecutable(name, paths);
 		}
-
-		public override string WaitSignal() // TOFIX, not called
-		{
-			Console.WriteLine("Wait signal");
-
-			// Wait for a signal to be delivered					
-			int index = UnixSignal.WaitAny(m_signals, 1000);
-
-			Console.WriteLine("Signal received:" + index.ToString());
-
-			Mono.Unix.Native.Signum signal = m_signals[index].Signum;
-			if (signal == Mono.Unix.Native.Signum.SIGTERM)
-				return "SIGTERM";
-			else if (signal == Mono.Unix.Native.Signum.SIGINT)
-				return "SIGINT";
-			else if (signal == Mono.Unix.Native.Signum.SIGUSR1)
-				return "SIGUSR1";
-
-			Console.WriteLine("Signal received2:" + index.ToString());
-
-			return "";
-		}
-
+		
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{
 			path = "sh";
@@ -621,6 +650,8 @@ namespace Eddie.Platforms.Linux
 		{
 			base.OnReport(report);
 
+			report.Add("TestDll", Native.eddie_linux_get_3().ToString()); // ClodoTemp
+
 			report.Add("UID", Conversions.ToString(m_uid));
 			report.Add("LogName", m_logname);
 			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "show") : "'ip' " + Messages.NotFound);
@@ -781,7 +812,8 @@ namespace Eddie.Platforms.Linux
 			string dnsScriptPath = Software.FindResource("update-resolv-conf");
 			if (dnsScriptPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'update-resolv-conf' " + Messages.NotFound);
-			
+
+			/* // TOCLEAN
 			string lsattrPath = LocateExecutable("lsattr");
 			if(lsattrPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'lsattr' " + Messages.NotFound);
@@ -793,6 +825,7 @@ namespace Eddie.Platforms.Linux
 			string chmodPath = LocateExecutable("chmod");
 			if (chmodPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'chmod' " + Messages.NotFound);
+			*/
 
 			string pingPath = LocateExecutable("ping");
 			if (pingPath == "")
@@ -811,9 +844,11 @@ namespace Eddie.Platforms.Linux
 				Engine.Instance.Logs.Log(LogType.Error, "'ip' " + Messages.NotFound);
 
 			/* // Used only by "Remove default gateway" */
+			/*
 			string routePath = LocateExecutable("route");
 			if (routePath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'route' " + Messages.NotFound);
+			*/
 
 			return true;
 		}

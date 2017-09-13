@@ -815,7 +815,8 @@ namespace Eddie.Core
 
 		public virtual void OnSignal(string signal)
 		{
-			Engine.Instance.Logs.Log(LogType.Verbose, "Received signal " + signal);
+			Engine.Instance.Logs.Log(LogType.Fatal, "Received signal " + signal); // ClodoTemp
+			m_breakRequests++;
 			OnExit();
 		}
 
@@ -870,6 +871,17 @@ namespace Eddie.Core
 			{
 				OnExit();
 			}
+		}
+
+		public bool AskExitConfirm()
+		{
+			if (m_breakRequests > 0)
+				return false;
+
+			if (Engine.Storage.GetBool("gui.exit_confirm") == true)
+				return true;
+
+			return false;
 		}
 
 		public void Connect()

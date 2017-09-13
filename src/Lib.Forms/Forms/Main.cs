@@ -593,14 +593,14 @@ namespace Eddie.Gui.Forms
 
 			e.Cancel = true;
 
-            if (Engine.Storage.GetBool("gui.exit_confirm") == true)
-            {
+			if(Engine.AskExitConfirm())
+			{
 				if (Engine.Instance.OnAskYesNo(Messages.ExitConfirm) != true)
 				{
 					Engine.OnExitRejected();
 					return;
 				}
-            }
+			}
 			
 			Gui.Engine engine = Engine.Instance as Gui.Engine;
 

@@ -73,42 +73,7 @@ namespace Eddie.Platforms.Windows
 		{
 			OperatingSystem OS = Environment.OSVersion;
 			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 10);
-		}
-
-		[DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		private static extern bool IsWow64Process(
-			[In] IntPtr hProcess,
-			[Out] out bool wow64Process
-		);
-
-		public static bool InternalCheckIsWow64()
-		{
-			if ((Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor >= 1) ||
-				Environment.OSVersion.Version.Major >= 6)
-			{
-				using (System.Diagnostics.Process p = System.Diagnostics.Process.GetCurrentProcess())
-				{
-					bool retVal;
-					try
-					{
-						if (!IsWow64Process(p.Handle, out retVal))
-						{
-							return false;
-						}
-					}
-					catch (Exception)
-					{
-						return false;
-					}
-					return retVal;
-				}
-			}
-			else
-			{
-				return false;
-			}
-		}
+		}		
 		
 		// Override
 		public Platform()
@@ -159,7 +124,7 @@ namespace Eddie.Platforms.Windows
 		{
 			if (GetArchitecture() == "x64")
 				return "x64";
-			if (InternalCheckIsWow64())
+			if (Native.InternalCheckIsWow64())
 				return "x64";
 			return "x86";
 		}
