@@ -31,21 +31,21 @@ using Mono.Unix;
 
 namespace Eddie.Platforms.Linux
 {
-    public class Platform : Core.Platform
-    {
+	public class Platform : Core.Platform
+	{
 		private string m_version = "";
 		private string m_architecture = "";
-        private UInt32 m_uid;
-        private string m_logname;
+		private UInt32 m_uid;
+		private string m_logname;
 		private string m_fontSystem;
 		private string m_fontMonoSpace;
 
 		// Override
 		public Platform()
-		{			
-        }
+		{
+		}
 
-        public override string GetCode()
+		public override string GetCode()
 		{
 			return "Linux";
 		}
@@ -53,7 +53,7 @@ namespace Eddie.Platforms.Linux
 		public override string GetName()
 		{
 			if (Platform.Instance.FileExists("/etc/issue"))
-				return FileContentsReadText("/etc/issue").Replace("\n","").Replace("\r"," - ").Trim();
+				return FileContentsReadText("/etc/issue").Replace("\n", "").Replace("\r", " - ").Trim();
 			else
 				return base.GetName();
 		}
@@ -68,9 +68,9 @@ namespace Eddie.Platforms.Linux
 			base.OnInit(cli);
 
 			m_version = SystemShell.Shell1(LocateExecutable("uname"), "-a");
-			m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"),"-m").Trim());
+			m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"), "-m").Trim());
 			m_uid = 9999;
-			UInt32.TryParse(SystemShell.Shell1(LocateExecutable("id"),"-u"), out m_uid);
+			UInt32.TryParse(SystemShell.Shell1(LocateExecutable("id"), "-u"), out m_uid);
 
 			// Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
 			// Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
@@ -79,7 +79,7 @@ namespace Eddie.Platforms.Linux
 			if (m_logname == null)
 				m_logname = "";
 			else
-				m_logname = m_logname.Trim();			
+				m_logname = m_logname.Trim();
 			if (m_logname == "")
 				m_logname = SystemShell.Shell0(LocateExecutable("logname"));
 			if (m_logname.Contains("no login name"))
@@ -90,11 +90,11 @@ namespace Eddie.Platforms.Linux
 			m_fontSystem = "";
 			string gsettingsPath = LocateExecutable("gsettings"); // gnome
 			if (gsettingsPath != "")
-			{				
+			{
 				m_fontSystem = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
 				int posSize = m_fontSystem.LastIndexOf(" ");
 				if (posSize != -1)
-					m_fontSystem = m_fontSystem.Substring(0, posSize) + "," + m_fontSystem.Substring(posSize + 1);			
+					m_fontSystem = m_fontSystem.Substring(0, posSize) + "," + m_fontSystem.Substring(posSize + 1);
 			}
 
 			m_fontMonoSpace = "";
@@ -103,7 +103,7 @@ namespace Eddie.Platforms.Linux
 				m_fontMonoSpace = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
 				int posSize = m_fontMonoSpace.LastIndexOf(" ");
 				if (posSize != -1)
-					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);				
+					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);
 			}
 
 			Native.eddie_signal((int)Native.Signum.SIGINT, SignalCallback);
@@ -114,7 +114,7 @@ namespace Eddie.Platforms.Linux
 
 		private static void SignalCallback(int signum)
 		{
-			Native.Signum sig = (Native.Signum) signum;
+			Native.Signum sig = (Native.Signum)signum;
 			if (sig == Native.Signum.SIGINT)
 				Engine.Instance.OnSignal("SIGINT");
 			else if (sig == Native.Signum.SIGTERM)
@@ -124,16 +124,16 @@ namespace Eddie.Platforms.Linux
 			else if (sig == Native.Signum.SIGUSR2)
 				Engine.Instance.OnSignal("SIGUSR2");
 		}
-		
+
 		public override string GetOsArchitecture()
 		{
 			return m_architecture;
 		}
 
-        public override bool IsAdmin()
-        {
-            return (m_uid == 0);
-        }
+		public override bool IsAdmin()
+		{
+			return (m_uid == 0);
+		}
 
 		public override bool IsUnixSystem()
 		{
@@ -141,17 +141,17 @@ namespace Eddie.Platforms.Linux
 		}
 
 		public override void OpenUrl(string url)
-        {
-            System.Diagnostics.Process.Start("xdg-open", url);
-        }
+		{
+			System.Diagnostics.Process.Start("xdg-open", url);
+		}
 
-        public override string DirSep
-        {
-            get
-            {
-                return "/";
-            }
-        }
+		public override string DirSep
+		{
+			get
+			{
+				return "/";
+			}
+		}
 
 		public override string EnvPathSep
 		{
@@ -162,7 +162,7 @@ namespace Eddie.Platforms.Linux
 		}
 
 		public override bool FileImmutableGet(string path)
-        {
+		{
 			// We don't find a better direct method in Mono/Posix without adding ioctl references
 			// The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
 
@@ -198,10 +198,10 @@ namespace Eddie.Platforms.Linux
 			else
 				return false;
 			*/
-        }
+		}
 
-        public override void FileImmutableSet(string path, bool value)
-        {
+		public override void FileImmutableSet(string path, bool value)
+		{
 			if ((path == "") || (FileExists(path) == false))
 				return;
 
@@ -222,7 +222,7 @@ namespace Eddie.Platforms.Linux
 				s.Run();
 			}
 			*/
-        }
+		}
 
 		public override bool FileEnsurePermission(string path, string mode)
 		{
@@ -250,11 +250,11 @@ namespace Eddie.Platforms.Linux
 			}
 			int newResult = 0;
 			if (mode == "600")
-				newResult = (int) Native.FileMode.Mode0600;
+				newResult = (int)Native.FileMode.Mode0600;
 			else if (mode == "644")
 				newResult = (int)Native.FileMode.Mode0644;
-			
-			if(newResult == 0)
+
+			if (newResult == 0)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "Unexpected permission '" + mode + "'");
 				return false;
@@ -275,13 +275,16 @@ namespace Eddie.Platforms.Linux
 
 		public override bool FileEnsureExecutablePermission(string path)
 		{
+			if ((path == "") || (FileExists(path) == false))
+				return false;
+
 			int result = Native.eddie_file_get_mode(path);
 			if (result == -1)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect if '" + path + "' is executable");
 				return false;
 			}
-			
+
 			int newResult = result | 73; // +x :<> (S_IXUSR | S_IXGRP | S_IXOTH) 
 
 			if (newResult != result)
@@ -310,22 +313,22 @@ namespace Eddie.Platforms.Linux
 
 		public override string GetExecutablePathEx()
 		{
-            // We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
+			// We use this because querying .Net Assembly (what the base class do) doesn't work within Mkbundle.
 
-            // TOFIX: Linux and OS X version are different, merge. Probably OS X it's more a clean approach.
+			// TOFIX: Linux and OS X version are different, merge. Probably OS X it's more a clean approach.
 
-            // Removed in 2.11 to avoid dependencies with libMonoPosixHelper.so
-            // Useless, still required, but at least it's an external requirement.
-            /*
+			// Removed in 2.11 to avoid dependencies with libMonoPosixHelper.so
+			// Useless, still required, but at least it's an external requirement.
+			/*
 			string output = "";
 			StringBuilder builder = new StringBuilder(8192);
 			if (Syscall.readlink("/proc/self/exe", builder) >= 0)
 				output = builder.ToString();
             */
-            int pid = Process.GetCurrentProcess().Id;
-            string output = SystemShell.Shell1(LocateExecutable("readlink"), "/proc/" + pid.ToString() + "/exe");
+			int pid = Process.GetCurrentProcess().Id;
+			string output = SystemShell.Shell1(LocateExecutable("readlink"), "/proc/" + pid.ToString() + "/exe");
 
-            if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
+			if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
 			{
 				// Exception: Assembly directly load by Mono
 				output = base.GetExecutablePathEx();
@@ -334,10 +337,10 @@ namespace Eddie.Platforms.Linux
 			return output;
 		}
 
-        public override string GetUserPathEx()
-        {
-            return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
-        }
+		public override string GetUserPathEx()
+		{
+			return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
+		}
 
 		public override string LocateExecutable(string name)
 		{
@@ -352,12 +355,12 @@ namespace Eddie.Platforms.Linux
 			if (paths.Contains("/usr/sbin") == false)
 				paths.Add("/usr/sbin");
 			if (paths.Contains("/usr/local/sbin") == false)
-				paths.Add("/usr/local/sbin");			
+				paths.Add("/usr/local/sbin");
 			if (paths.Contains("/root/bin") == false)
-				paths.Add("/root/bin");			
+				paths.Add("/root/bin");
 			return LocateExecutable(name, paths);
 		}
-		
+
 		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
 		{
 			path = "sh";
@@ -375,32 +378,32 @@ namespace Eddie.Platforms.Linux
 		}
 
 		public override string GetSystemFont()
-        {
+		{
 			if (m_fontSystem != "")
 				return m_fontSystem;
-			else                
+			else
 				return base.GetSystemFont();
-        }
+		}
 
-        public override string GetSystemFontMonospace()
-        {
+		public override string GetSystemFontMonospace()
+		{
 			if (m_fontMonoSpace != "")
 				return m_fontMonoSpace;
 			else
 				return base.GetSystemFontMonospace();
-        }
+		}
 
-        public override void FlushDNS()
-        {
+		public override void FlushDNS()
+		{
 			base.FlushDNS();
-			
+
 			string servicePath = LocateExecutable("service");
-			if(servicePath != "")
+			if (servicePath != "")
 			{
 				Dictionary<string, string> services = new Dictionary<string, string>();
 				string list = SystemShell.Shell1(servicePath, "--status-all");
 				list = Utils.StringCleanSpace(list);
-				foreach(string line in list.Split('\n'))
+				foreach (string line in list.Split('\n'))
 				{
 					if (line.Contains(" running "))
 					{
@@ -413,7 +416,7 @@ namespace Eddie.Platforms.Linux
 					}
 				}
 
-				if(services.ContainsKey("nscd"))
+				if (services.ContainsKey("nscd"))
 					SystemShell.Shell2(servicePath, "nscd", "restart");
 				if (services.ContainsKey("dnsmasq"))
 					SystemShell.Shell2(servicePath, "dnsmasq", "restart");
@@ -437,68 +440,73 @@ namespace Eddie.Platforms.Linux
 			// On some system, for example Fedora, nscd caches are saved to disk,
 			// located in /var/db/nscd, and not flushed with a simple restart. 
 			string nscdPath = LocateExecutable("nscd");
-			if(nscdPath != "")
+			if (nscdPath != "")
 			{
 				SystemShell.Shell1(nscdPath, "--invalidate=hosts");
 			}
 		}
 
 		protected override void OpenDirectoryInFileManagerEx(string path)
-        {
-            // TOFIX Don't work well on all distro
-            string args = " - " + m_logname + " -c 'xdg-open \"" + SystemShell.EscapePath(path) + "\"'"; // IJTF2 // TOCHECK
-            SystemShell.ShellX("su", args, false);
-        }
+		{
+			// TOFIX Don't work well on all distro
+			string args = " - " + m_logname + " -c 'xdg-open \"" + SystemShell.EscapePath(path) + "\"'"; // IJTF2 // TOCHECK
+			SystemShell.ShellX("su", args, false);
+		}
 
-        public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
-        {
+		public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
+		{
 			string pathBin = LocateExecutable(name);
-			if(pathBin != "")
-            {
-                path = pathBin;
-                location = "system";
-                return true;
-            }
-
-            string pathShare = "/usr/share/" + Lib.Common.Constants.NameCompatibility + "/" + name;
-            if (Platform.Instance.FileExists(pathShare))
-            {
-                path = pathShare;
-                location = "system";
-                return true;
-            }
-
-            return base.SearchTool(name, relativePath, ref path, ref location);
-        }
-
-        public override long Ping(string host, int timeoutSec)
-        {
-			float iMS = -1;
-
-			string pingPath = LocateExecutable("ping");
-			if (pingPath != "")
+			if (pathBin != "")
 			{
-				SystemShell s = new SystemShell();
-				s.Path = pingPath;
-				s.Arguments.Add("-c 1");
-				s.Arguments.Add("-w " + timeoutSec.ToString());
-				s.Arguments.Add("-q");
-				s.Arguments.Add("-n");
-				s.Arguments.Add(SystemShell.EscapeHost(host));
-				s.NoDebugLog = true;
-				
-				if (s.Run())
-				{
-					string result = s.Output;
-					string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
-					if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-						iMS = -1;
-				}
+				path = pathBin;
+				location = "system";
+				return true;
 			}
-			
-            return (long) iMS;
-        }
-		
+
+			string pathShare = "/usr/share/" + Lib.Common.Constants.NameCompatibility + "/" + name;
+			if (Platform.Instance.FileExists(pathShare))
+			{
+				path = pathShare;
+				location = "system";
+				return true;
+			}
+
+			return base.SearchTool(name, relativePath, ref path, ref location);
+		}
+
+		public override long Ping(string host, int timeoutSec)
+		{
+			return Native.eddie_ip_ping(host, timeoutSec * 1000);
+			/* < 2.13.6 // TOCLEAN
+			{
+				float iMS = -1;
+
+				string pingPath = LocateExecutable("ping");
+				if (pingPath != "")
+				{
+					SystemShell s = new SystemShell();
+					s.Path = pingPath;	
+					s.Arguments.Add("-c 1");
+					s.Arguments.Add("-w " + timeoutSec.ToString());
+					s.Arguments.Add("-q");
+					s.Arguments.Add("-n");
+					s.Arguments.Add(SystemShell.EscapeHost(host));
+					s.NoDebugLog = true;
+
+					if (s.Run())
+					{
+						string result = s.Output;
+						string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
+						if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+							iMS = -1;
+					}
+				}
+
+				return (long)iMS;
+			}
+			*/
+		}
+
 		public override void RouteAdd(RouteEntry r)
 		{
 			string cmd = "route add";
@@ -506,11 +514,11 @@ namespace Eddie.Platforms.Linux
 			cmd += " -net " + r.Address.Address;
 			cmd += " netmask " + r.Mask.Address;
 			cmd += " gw " + r.Gateway.Address;
-			if(r.Metrics != "")
+			if (r.Metrics != "")
 				cmd += " metric " + r.Metrics;
-			if( (r.Mss != "") && (r.Mss != "0") )
+			if ((r.Mss != "") && (r.Mss != "0"))
 				cmd += " mss " + r.Mss;
-			if( (r.Window != "") && (r.Window != "0") ) 
+			if ((r.Window != "") && (r.Window != "0"))
 				cmd += " window " + r.Window;
 			if (r.Irtt != "")
 				cmd += " irtt " + r.Irtt;
@@ -524,28 +532,28 @@ namespace Eddie.Platforms.Linux
 			if (r.Flags.Contains("R"))
 				cmd += " reinstate";
 
-			if(r.Interface != "")
+			if (r.Interface != "")
 				cmd += " dev " + r.Interface;
 
 			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
-        }
-        
+		}
+
 		public override void RouteRemove(RouteEntry r)
 		{
 			string cmd = "route del";
 
 			cmd += " -net " + r.Address.Address;
 			cmd += " gw " + r.Gateway.Address;
-			cmd += " netmask " + r.Mask.Address;			
+			cmd += " netmask " + r.Mask.Address;
 			/*
 			if(r.Metrics != "")
 				cmd += " metric " + r.Metrics;			
 			*/
-			if(r.Interface != "")
+			if (r.Interface != "")
 				cmd += " dev " + r.Interface;
 
 			SystemShell.ShellCmd(cmd); // IJTF2 // TOCHECK
-        }
+		}
 
 		public override IpAddresses ResolveDNS(string host)
 		{
@@ -598,7 +606,7 @@ namespace Eddie.Platforms.Linux
 		}
 
 		public override List<RouteEntry> RouteList()
-		{	
+		{
 			List<RouteEntry> entryList = new List<RouteEntry>();
 
 			// TOFIX: "route" not available on recent Linux systems.
@@ -656,7 +664,7 @@ namespace Eddie.Platforms.Linux
 			report.Add("LogName", m_logname);
 			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "show") : "'ip' " + Messages.NotFound);
 			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "link", "show") : "'ip' " + Messages.NotFound);
-			report.Add("ip route show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "route", "show") : "'ip' " + Messages.NotFound);			
+			report.Add("ip route show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "route", "show") : "'ip' " + Messages.NotFound);
 		}
 
 		public override bool RestartAsRoot()
@@ -672,7 +680,7 @@ namespace Eddie.Platforms.Linux
 				command2 += "mono ";
 			command2 += Platform.Instance.GetExecutablePath();
 			command2 += " ";
-			command2 += cmdline;			
+			command2 += cmdline;
 			command2 += " console.mode=none"; // 2.13.6, otherwise CancelKeyPress (mono bug?) and stdout fill the non-root non-blocked terminal.
 			command2 = command2.Trim(); // 2.11.11
 			bool waitEnd = false;
@@ -753,7 +761,7 @@ namespace Eddie.Platforms.Linux
 			if (command != "")
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
-				
+
 				SystemShell.ShellX(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
 			}
 			else
@@ -765,7 +773,7 @@ namespace Eddie.Platforms.Linux
 		}
 
 		public override Dictionary<int, string> GetProcessesList()
-		{	
+		{
 			Dictionary<int, string> result = new Dictionary<int, string>();
 			string psPath = LocateExecutable("ps");
 			if (psPath != "")
@@ -786,25 +794,25 @@ namespace Eddie.Platforms.Linux
 
 			return result;
 		}
-		
+
 		public override void OnBuildOvpn(OvpnBuilder ovpn)
 		{
 			base.OnBuildOvpn(ovpn);
-            
-            if (GetDnsSwitchMode() == "resolvconf")
-            {
-                string dnsScriptPath = Software.FindResource("update-resolv-conf");
-                if (dnsScriptPath != "")
-                {
-                    FileEnsureExecutablePermission(dnsScriptPath);
-                    Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsResolvConfScript);
-                    ovpn.AppendDirective("script-security", "2", "");
-                    ovpn.AppendDirective("up", dnsScriptPath, "");
-                    ovpn.AppendDirective("down", dnsScriptPath, "");
-                }
-            }
 
-            ovpn.AppendDirective("route-delay", "5", ""); // 2.8, to resolve some issue on some distro, ex. Fedora 21
+			if (GetDnsSwitchMode() == "resolvconf")
+			{
+				string dnsScriptPath = Software.FindResource("update-resolv-conf");
+				if (dnsScriptPath != "")
+				{
+					FileEnsureExecutablePermission(dnsScriptPath);
+					Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsResolvConfScript);
+					ovpn.AppendDirective("script-security", "2", "");
+					ovpn.AppendDirective("up", dnsScriptPath, "");
+					ovpn.AppendDirective("down", dnsScriptPath, "");
+				}
+			}
+
+			ovpn.AppendDirective("route-delay", "5", ""); // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
 		public override bool OnCheckEnvironmentApp()
@@ -824,12 +832,12 @@ namespace Eddie.Platforms.Linux
 
 			string chmodPath = LocateExecutable("chmod");
 			if (chmodPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'chmod' " + Messages.NotFound);
-			*/
+				Engine.Instance.Logs.Log(LogType.Error, "'chmod' " + Messages.NotFound);			
 
 			string pingPath = LocateExecutable("ping");
 			if (pingPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'ping' " + Messages.NotFound);
+			*/
 
 			string getentPath = LocateExecutable("getent");
 			if (getentPath == "")
@@ -860,11 +868,9 @@ namespace Eddie.Platforms.Linux
 				string keyname = "net.ipv6.conf.all.disable_ipv6";
 				string ipV6 = "";
 				string sysctlPath = LocateExecutable("sysctl");
-				if(sysctlPath != "")
-				{
+				if (sysctlPath != "")
 					ipV6 = SystemShell.Shell1(sysctlPath, keyname).Replace(keyname, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
-				}
-
+				
 				if (ipV6 == "0")
 				{
 					if (Engine.Instance.OnAskYesNo(Messages.IpV6Warning))
@@ -889,96 +895,96 @@ namespace Eddie.Platforms.Linux
 			return true;
 		}
 
-        public override bool OnCheckSingleInstance()
-        {
-            try
-            {
-                int currentId = Process.GetCurrentProcess().Id;
-                string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
-                if (File.Exists(path) == false)
-                {                    
-                }
-                else
-                {
-                    int otherId;
-                    if(int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
-                    {
-                        string procFile = "/proc/" + otherId.ToString() + "/cmdline";
-                        if(File.Exists(procFile))
-                        {
-                            return false;
-                        }
-                    }
-                }
+		public override bool OnCheckSingleInstance()
+		{
+			try
+			{
+				int currentId = Process.GetCurrentProcess().Id;
+				string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
+				if (File.Exists(path) == false)
+				{
+				}
+				else
+				{
+					int otherId;
+					if (int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
+					{
+						string procFile = "/proc/" + otherId.ToString() + "/cmdline";
+						if (File.Exists(procFile))
+						{
+							return false;
+						}
+					}
+				}
 
-                Platform.Instance.FileContentsWriteText(path, currentId.ToString());
+				Platform.Instance.FileContentsWriteText(path, currentId.ToString());
 
-                return true;
-            }
-            catch(Exception e)
-            {
-                Engine.Instance.Logs.Log(e);
-                return true;
-            }
-        }
+				return true;
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Logs.Log(e);
+				return true;
+			}
+		}
 
-        public override void OnCheckSingleInstanceClear()
-        {
-            try
-            {
-                int currentId = Process.GetCurrentProcess().Id;
-                string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
-                if (File.Exists(path))
-                {
-                    int otherId;
-                    if (int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
-                    {
-                        if (otherId == currentId)
-                            Platform.Instance.FileDelete(path);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Engine.Instance.Logs.Log(e);
-            }
-        }
+		public override void OnCheckSingleInstanceClear()
+		{
+			try
+			{
+				int currentId = Process.GetCurrentProcess().Id;
+				string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
+				if (File.Exists(path))
+				{
+					int otherId;
+					if (int.TryParse(Platform.Instance.FileContentsReadText(path), out otherId))
+					{
+						if (otherId == currentId)
+							Platform.Instance.FileDelete(path);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Logs.Log(e);
+			}
+		}
 
-        public override void OnNetworkLockManagerInit()
+		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
 
 			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockIptables());
 		}
 
-        public override string OnNetworkLockRecommendedMode()
-        {
-            return "linux_iptables";
-        }
+		public override string OnNetworkLockRecommendedMode()
+		{
+			return "linux_iptables";
+		}
 
-        public override bool OnDnsSwitchDo(IpAddresses dns)
+		public override bool OnDnsSwitchDo(IpAddresses dns)
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
-                if (FileExists("/etc/resolv.conf.eddie") == false)
+				if (FileExists("/etc/resolv.conf.eddie") == false)
 				{
-                    if (FileExists("/etc/resolv.conf"))
-                    {
-                        Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameBackup);
-                        FileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie");
-                    }
+					if (FileExists("/etc/resolv.conf"))
+					{
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameBackup);
+						FileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie");
+					}
 				}
 
-                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameDone);
 
 				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
 
-				foreach(IpAddress dnsSingle in dns.IPs)
+				foreach (IpAddress dnsSingle in dns.IPs)
 					text += "nameserver " + dnsSingle.Address + "\n";
 
-                FileContentsWriteText("/etc/resolv.conf", text);
+				FileContentsWriteText("/etc/resolv.conf", text);
 				Platform.Instance.FileEnsurePermission("/etc/resolv.conf", "644");
-            }
+			}
 
 			base.OnDnsSwitchDo(dns);
 
@@ -990,13 +996,13 @@ namespace Eddie.Platforms.Linux
 			// Cleaning rename method if pending
 			if (FileExists("/etc/resolv.conf.eddie") == true)
 			{
-                if (FileExists("/etc/resolv.conf"))
-                    FileDelete("/etc/resolv.conf");
-                
-                Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameRestored);
+				if (FileExists("/etc/resolv.conf"))
+					FileDelete("/etc/resolv.conf");
+
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsRenameRestored);
 
 				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");
-            }
+			}
 
 			base.OnDnsSwitchRestore();
 
@@ -1024,13 +1030,13 @@ namespace Eddie.Platforms.Linux
 		}
 
 		public override void InstallDriver()
-		{			
+		{
 		}
 
 		public override void UnInstallDriver()
 		{
 		}
-        
+
 
 
 		public string GetDnsSwitchMode()
@@ -1041,36 +1047,36 @@ namespace Eddie.Platforms.Linux
 			{
 				// 2.10.1
 				current = "rename";
-            }
+			}
 
-            // Fallback
-            if ( (current == "resolvconv") && (Software.FindResource("update-resolv-conf") == "") )
+			// Fallback
+			if ((current == "resolvconv") && (Software.FindResource("update-resolv-conf") == ""))
 				current = "rename";
 
 			if ((current == "resolvconv") && (Platform.Instance.FileExists("/sbin/resolvconf") == false))
 				current = "rename";
 
 
-			return current;			
+			return current;
 		}
 
-        public bool DetectLinuxHostNameIssue()
-        {
-            // https://bugzilla.xamarin.com/show_bug.cgi?id=42249
-            // If hostname can't be resolved (missing entry in /etc/hosts), Mono::Ping throw an exception.
-            // Never really called, because in >2.11.4 we use a shell for pinging under Linux.
-            try
-            {
-                foreach (IPAddress addr in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
-                {
+		public bool DetectLinuxHostNameIssue()
+		{
+			// https://bugzilla.xamarin.com/show_bug.cgi?id=42249
+			// If hostname can't be resolved (missing entry in /etc/hosts), Mono::Ping throw an exception.
+			// Never really called, because in >2.11.4 we use a shell for pinging under Linux.
+			try
+			{
+				foreach (IPAddress addr in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+				{
 
-                }
-                return false;
-            }
-            catch (Exception)
-            {
-                return true;
-            }
-        }        
-    }
+				}
+				return false;
+			}
+			catch (Exception)
+			{
+				return true;
+			}
+		}
+	}
 }

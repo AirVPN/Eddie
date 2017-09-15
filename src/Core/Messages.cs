@@ -95,6 +95,8 @@ namespace Eddie.Core
 		public static string OptionsNotFound = "Profile options not found, using defaults.";
 		public static string OptionsUnknown = "Skipped unknown option '{1}'";
 		public static string OptionsReverted = "Sorry, an error occurred during loading options. Options reverted to default.";
+		public static string OptionsWriteFailed = "An error occurred during writing options in path '{1}': {2}";
+		
 		public static string AdminRequiredStop = "You need root access for this program (to alter routing table)";
 		public static string AdminRequiredRestart = "Restarting with admin privileges";
 		public static string AdminRequiredRestartFailed = "You need root access for this program (to alter routing table) and a program to obtain administrative privileges was NOT found.\nTry to install packages like 'gksu' or 'kdesudo' or 'xdg-su' or 'beesu' (Fedora)";

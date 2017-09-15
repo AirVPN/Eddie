@@ -1136,7 +1136,7 @@ namespace Eddie.Gui.Forms
 
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
-            Engine.Instance.OnMessageInfo(Messages.OsDriverUninstallDone);
+            ShowMessageInfo(Messages.OsDriverUninstallDone);
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
@@ -1152,7 +1152,7 @@ namespace Eddie.Gui.Forms
 		private void cmdProxyTorTest_Click(object sender, EventArgs e)
 		{
             string t = TorControl.Test(txtProxyHost.Text, Conversions.ToInt32(txtProxyTorControlPort.Text), txtProxyTorControlPassword.Text);
-            Engine.Instance.OnMessageInfo(t);
+            ShowMessageInfo(t);
 		}
 
 		private void optModeAutomatic_CheckedChanged(object sender, EventArgs e)
@@ -1344,7 +1344,7 @@ namespace Eddie.Gui.Forms
             {
                 Engine.Instance.Storage.ResetAll(false);
                 ReadOptions();
-                Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
+                ShowMessageInfo(Messages.ResetSettingsDone);
             }
         }
 
@@ -1354,7 +1354,7 @@ namespace Eddie.Gui.Forms
             foreach (string path in paths)
             {
                 if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
-                    Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+					ShowMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
             }
         }
 		

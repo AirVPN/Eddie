@@ -259,6 +259,16 @@ namespace Eddie.Gui
             G.DrawString(Text, Font, Brush, Rect, Format);
         }
 
+		public void ShowMessageInfo(string message)
+		{
+			MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
+
+		public void ShowMessageError(string message)
+		{
+			MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+
 		public static void DrawImage(Graphics g, Image i, Rectangle r)
 		{
             g.DrawImage(i, r);

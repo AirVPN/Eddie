@@ -55,7 +55,7 @@ namespace Eddie.Platforms.Linux
 				return false;
 			if (Platform.Instance.LocateExecutable("ip6tables-restore") == "")
 				return false;
-			
+
 			return true;
 		}
 
@@ -65,7 +65,7 @@ namespace Eddie.Platforms.Linux
 				ipVersion = "";
 			return Storage.DataPath + Platform.Instance.DirSep + "ip" + ipVersion + "tables.dat";
 		}
-		
+
 		public string DoIptablesShell(string exe, string args)
 		{
 			return DoIptablesShell(exe, args, true);
@@ -76,9 +76,9 @@ namespace Eddie.Platforms.Linux
 			SystemShell s = new SystemShell();
 			s.Path = Platform.Instance.LocateExecutable(exe);
 			args = "--wait " + args; // 2.13.6
-			if(args != "")
+			if (args != "")
 				s.Arguments.Add(args); // Exception: all arguments as one, it works.
-			if(fatal)
+			if (fatal)
 				s.ExceptionIfFail = true;
 			s.Run();
 			return s.StdOut;
@@ -89,7 +89,7 @@ namespace Eddie.Platforms.Linux
 			base.Activation();
 
 			string rulesBackupSessionV4 = GetBackupPath("4");
-            string rulesBackupSessionV6 = GetBackupPath("6");
+			string rulesBackupSessionV6 = GetBackupPath("6");
 
 			try
 			{
@@ -114,14 +114,14 @@ namespace Eddie.Platforms.Linux
 				{
 					// IPv4 - Backup
 					Platform.Instance.FileContentsWriteText(rulesBackupSessionV4, DoIptablesShell("iptables-save", ""));
-				}				
-				
-				if(m_supportIPv6)
+				}
+
+				if (m_supportIPv6)
 				{
 					// IPv6 - Backup
 					Platform.Instance.FileContentsWriteText(rulesBackupSessionV6, DoIptablesShell("ip6tables-save", ""));
 				}
-				
+
 				if (m_supportIPv4)
 				{
 					// IPv4 - Flush
@@ -145,21 +145,21 @@ namespace Eddie.Platforms.Linux
 					DoIptablesShell("ip6tables", "-F");
 					DoIptablesShell("ip6tables", "-X");
 				}
-								
+
 				if (m_supportIPv4)
 				{
 					// IPv4 - Local
 					DoIptablesShell("iptables", "-A INPUT -i lo -j ACCEPT");
 					DoIptablesShell("iptables", "-A OUTPUT -o lo -j ACCEPT");
 				}
-								
+
 				if (m_supportIPv6)
 				{
 					// IPv6 - Local
 					DoIptablesShell("ip6tables", "-A INPUT -i lo -j ACCEPT");
 					DoIptablesShell("ip6tables", "-A OUTPUT -o lo -j ACCEPT");
 				}
-								
+
 				if (m_supportIPv6)
 				{
 					// IPv6 - Disable processing of any RH0 packet which could allow a ping-pong of packets
@@ -167,7 +167,7 @@ namespace Eddie.Platforms.Linux
 					DoIptablesShell("ip6tables", "-A OUTPUT -m rt --rt-type 0 -j DROP");
 					DoIptablesShell("ip6tables", "-A FORWARD -m rt --rt-type 0 -j DROP");
 				}
-				
+
 				if (m_supportIPv4)
 				{
 					// IPv4 - Make sure you can communicate with any DHCP server
@@ -212,13 +212,13 @@ namespace Eddie.Platforms.Linux
 						// IPv6 - Allow multicast
 						DoIptablesShell("ip6tables", "-A INPUT -d ff00::/8 -j ACCEPT");
 						DoIptablesShell("ip6tables", "-A OUTPUT -d ff00::/8 -j ACCEPT");
-					}						
+					}
 				}
 
 				if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
 				{
 					if (m_supportIPv4)
-					{ 
+					{
 						// IPv4
 						DoIptablesShell("iptables", "-A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
 					}
@@ -228,7 +228,7 @@ namespace Eddie.Platforms.Linux
 						// IPv6
 						DoIptablesShell("ip6tables", "-A INPUT -p icmpv6 -j ACCEPT");
 						DoIptablesShell("ip6tables", "-A OUTPUT -p icmpv6 -j ACCEPT");
-					}						
+					}
 				}
 
 				if (m_supportIPv4)
@@ -277,11 +277,11 @@ namespace Eddie.Platforms.Linux
 
 				OnUpdateIps();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Deactivation();
 				throw new Exception(ex.Message);
-			}			
+			}
 		}
 
 		public override void Deactivation()
@@ -296,16 +296,16 @@ namespace Eddie.Platforms.Linux
 				// Flush
 				DoIptablesShell("iptables", "-P INPUT ACCEPT");
 				DoIptablesShell("iptables", "-P FORWARD ACCEPT");
-				DoIptablesShell("iptables", "-P OUTPUT ACCEPT");				
+				DoIptablesShell("iptables", "-P OUTPUT ACCEPT");
 				DoIptablesShell("iptables", "-t nat -F", false);
 				DoIptablesShell("iptables", "-t mangle -F", false);
 				DoIptablesShell("iptables", "-F");
 				DoIptablesShell("iptables", "-X");
 
 				// Restore backup - Exception: ShellCmd because ip6tables-restore accept only stdin
-				SystemShell.ShellCmd(Platform.Instance.LocateExecutable("iptables-restore") + " <\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\""); 
+				SystemShell.ShellCmd(Platform.Instance.LocateExecutable("iptables-restore") + " <\"" + SystemShell.EscapePath(rulesBackupSessionV4) + "\"");
 
-                Platform.Instance.FileDelete(rulesBackupSessionV4);
+				Platform.Instance.FileDelete(rulesBackupSessionV4);
 			}
 
 			// IPv6
@@ -323,7 +323,7 @@ namespace Eddie.Platforms.Linux
 				DoIptablesShell("ip6tables", "-X");
 
 				// Restore backup - Exception: ShellCmd because ip6tables-restore accept only stdin
-				SystemShell.ShellCmd(Platform.Instance.LocateExecutable("ip6tables-restore") + " <\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\""); 
+				SystemShell.ShellCmd(Platform.Instance.LocateExecutable("ip6tables-restore") + " <\"" + SystemShell.EscapePath(rulesBackupSessionV6) + "\"");
 
 				Platform.Instance.FileDelete(rulesBackupSessionV6);
 			}
@@ -341,7 +341,7 @@ namespace Eddie.Platforms.Linux
 			// Remove IP not present in the new list
 			foreach (IpAddress ip in m_currentList.IPs)
 			{
-				if(ipsFirewalled.Contains(ip) == false)
+				if (ipsFirewalled.Contains(ip) == false)
 				{
 					// Remove
 					if (ip.IsV4)
@@ -377,6 +377,6 @@ namespace Eddie.Platforms.Linux
 			}
 
 			m_currentList = ipsFirewalled;
-		}		
+		}
 	}
 }

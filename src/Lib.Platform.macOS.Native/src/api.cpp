@@ -20,8 +20,8 @@
 #include "api.h"
 
 #include <arpa/inet.h>
-#include <linux/fs.h>
 #include <mutex>
+#include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 #include <signal.h>
 #include <stdio.h>
@@ -83,6 +83,17 @@ static uint16_t eddie_generate_icmp_id()
     mutex_lock lock(g_eddie_ping_cs);
     return g_eddie_ping_id++;
 }
+    
+static int eddie_file_get_flags(const char *filename)
+{
+    struct stat s;
+    EDDIE_ZEROMEMORY(&s, sizeof(struct stat));
+    
+    if(stat(filename, &s) == -1)
+        return -1;
+    
+    return (int) s.st_flags;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -109,43 +120,27 @@ int eddie_file_set_mode_str(const char *filename, const char *mode)
 
 int eddie_file_get_immutable(const char *filename)
 {
-    FILE *fp;
-    if((fp = fopen(filename, "r")) == NULL)
+    int result = eddie_file_get_flags(filename);
+    if(result == -1)
         return -1;
-
-    int result = -1;
-
-    int attr = 0;
-    if(ioctl(fileno(fp), FS_IOC_GETFLAGS, &attr) != -1)
-        result = (attr & FS_IMMUTABLE_FL) == FS_IMMUTABLE_FL;
-
-    fclose(fp);
-
-    return result;
+    
+    return (result & SF_IMMUTABLE) == SF_IMMUTABLE;
 }
 
 int eddie_file_set_immutable(const char *filename, int flag)
 {
-    FILE *fp;
-    if((fp = fopen(filename, "r")) == NULL)
+    // sudo chflags schg /path/to/file
+    // sudo chflags noschg /path/to/file
+    
+    int result = eddie_file_get_flags(filename);
+    if(result == -1)
         return -1;
-
-    int fd = fileno(fp);
-
-    int result = -1;
-
-    int attr = 0;
-    if(ioctl(fd, FS_IOC_GETFLAGS, &attr) != -1)
-    {
-        attr = flag ? (attr | FS_IMMUTABLE_FL) : (attr & ~FS_IMMUTABLE_FL);
-
-        if(ioctl(fd, FS_IOC_SETFLAGS, &attr) != -1)
-            result = 0;
-    }
-
-    fclose(fp);
-
-    return result;
+    
+    result = flag ? (result | SF_IMMUTABLE) : (result & ~SF_IMMUTABLE);
+    if(chflags(filename, result) == -1)
+        return -1;
+    
+    return 0;
 }
 
 int eddie_ip_ping(const char *address, int timeout)
@@ -175,12 +170,12 @@ int eddie_ip_ping(const char *address, int timeout)
     request_address.sin_port = 0;
     request_address.sin_addr.s_addr = inet_addr(address);   // The result is already in network byte order
 
-    struct icmphdr request_header;
-    EDDIE_ZEROMEMORY(&request_header, sizeof(struct icmphdr));
-    request_header.un.echo.id = htons(request_id);        // Creates a random ID for the echo request
-    request_header.un.echo.sequence = 0;
-    request_header.type = ICMP_ECHO;
-    request_header.checksum = eddie_ip_checksum((const uint16_t *) (&request_header), sizeof(struct icmphdr));
+    struct icmp request_header;
+    EDDIE_ZEROMEMORY(&request_header, sizeof(struct icmp));
+    request_header.icmp_hun.ih_idseq.icd_id = htons(request_id);        // Creates a random ID for the echo request
+    request_header.icmp_hun.ih_idseq.icd_seq = 0;
+    request_header.icmp_type = ICMP_ECHO;
+    request_header.icmp_cksum = eddie_ip_checksum((const uint16_t *) (&request_header), sizeof(struct icmp));
 
     char response_buffer[EDDIE_PING_BUFFER_SIZE];
 
@@ -192,7 +187,7 @@ int eddie_ip_ping(const char *address, int timeout)
     double start_time = eddie_get_time();
 
     // Sends the echo request to the destination address
-    if(sendto(sock, &request_header, sizeof(struct icmphdr), 0, (struct sockaddr *) &request_address, sizeof(request_address)) > 0)
+    if(sendto(sock, &request_header, sizeof(struct icmp), 0, (struct sockaddr *) &request_address, sizeof(request_address)) > 0)
     {
         struct timeval receive_timeout;
         int available_timeout = timeout;
@@ -220,12 +215,12 @@ int eddie_ip_ping(const char *address, int timeout)
                 continue;
 
             result = recvfrom(sock, response_buffer, EDDIE_PING_BUFFER_SIZE, 0, NULL, NULL);
-            if(result < (int)(sizeof(struct iphdr) + sizeof(struct icmphdr)))
+            if(result < (int)(sizeof(struct ip) + sizeof(struct icmp)))
                 continue;
 
-            struct icmphdr *response_header = (struct icmphdr *)(response_buffer + sizeof(struct iphdr));
+            struct icmp *response_header = (struct icmp *)(response_buffer + sizeof(struct ip));
             // Check that we got a reply for our echo request
-            if((response_header->type == ICMP_ECHOREPLY) && (ntohs(response_header->un.echo.id) == request_id))
+            if((response_header->icmp_type == ICMP_ECHOREPLY) && (ntohs(response_header->icmp_hun.ih_idseq.icd_id) == request_id))
             {
                 // Got it, save the elapsed milliseconds
                 retval = delta;

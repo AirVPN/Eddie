@@ -110,8 +110,8 @@ namespace Eddie.Core
         {
             if (Platform.Instance.HasAccessToWrite(path) == false)
             {
-                if(log == true)
-                    Engine.Instance.Logs.Log(LogType.Info, "Unable to write in path '" + path + "'");
+                if(log == true) // ClodoTemp2 linux non cozza qui
+					Engine.Instance.Logs.Log(LogType.Info, "Unable to write in path '" + path + "'");
                 return false;
             }
             return true;
@@ -684,72 +684,79 @@ namespace Eddie.Core
 			
             lock (this)
             {
-                XmlDocument xmlDoc = new XmlDocument();
-                XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+				try
+				{
+					XmlDocument xmlDoc = new XmlDocument();
+					XmlDeclaration xmlDeclaration = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
 
-                XmlElement rootNode = xmlDoc.CreateElement("eddie");
-                xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
+					XmlElement rootNode = xmlDoc.CreateElement("eddie");
+					xmlDoc.InsertBefore(xmlDeclaration, xmlDoc.DocumentElement);
 
-                XmlElement optionsNode = xmlDoc.CreateElement("options");
-                rootNode.AppendChild(optionsNode);
+					XmlElement optionsNode = xmlDoc.CreateElement("options");
+					rootNode.AppendChild(optionsNode);
 
-                xmlDoc.AppendChild(rootNode);
+					xmlDoc.AppendChild(rootNode);
 
-                foreach (Option option in Options.Values)
-                {
-                    bool skip = false;
+					foreach (Option option in Options.Values)
+					{
+						bool skip = false;
 
-                    if ((remember == false) && (option.Code == "login"))
-                        skip = true;
-                    if ((remember == false) && (option.Code == "password"))
-                        skip = true;
+						if ((remember == false) && (option.Code == "login"))
+							skip = true;
+						if ((remember == false) && (option.Code == "password"))
+							skip = true;
 
-                    if (option.CommandLineOnly)
-                        skip = true;
+						if (option.CommandLineOnly)
+							skip = true;
 
-                    if ((option.Value == "") || (option.Value == option.Default))
-                        skip = true;
+						if ((option.Value == "") || (option.Value == option.Default))
+							skip = true;
 
-                    if (skip == false)
-                    {
-                        XmlElement itemNode = xmlDoc.CreateElement("option");
-                        itemNode.SetAttribute("name", option.Code);
-                        itemNode.SetAttribute("value", option.Value);
-                        optionsNode.AppendChild(itemNode);
-                    }
-                }
+						if (skip == false)
+						{
+							XmlElement itemNode = xmlDoc.CreateElement("option");
+							itemNode.SetAttribute("name", option.Code);
+							itemNode.SetAttribute("value", option.Value);
+							optionsNode.AppendChild(itemNode);
+						}
+					}
 
 
-                XmlElement providersNode = xmlDoc.CreateElement("providers");
-                rootNode.AppendChild(providersNode);
-                foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
-                {
-                    XmlNode providerNode = xmlDoc.ImportNode(provider.Storage.DocumentElement, true);
-                    providersNode.AppendChild(providerNode);
-                }
+					XmlElement providersNode = xmlDoc.CreateElement("providers");
+					rootNode.AppendChild(providersNode);
+					foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+					{
+						XmlNode providerNode = xmlDoc.ImportNode(provider.Storage.DocumentElement, true);
+						providersNode.AppendChild(providerNode);
+					}
 
-                if(Engine.Instance.ProvidersManager.Providers.Count == 1)
-                {
-                    if (Engine.Instance.ProvidersManager.Providers[0].Code == "AirVPN")
-                    {
-                        // Move providers->AirVPN to root.
-                        XmlElement xmlAirVPN = Utils.XmlGetFirstElementByTagName(providersNode, "AirVPN");
-                        if (xmlAirVPN != null)
-                        {
-                            foreach (XmlElement xmlChild in xmlAirVPN.ChildNodes)
-                                Utils.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
-                            providersNode.RemoveChild(xmlAirVPN);
-                        }
-                        if (providersNode.ChildNodes.Count == 0)
-                            providersNode.ParentNode.RemoveChild(providersNode);
-                    }
-                }                
+					if (Engine.Instance.ProvidersManager.Providers.Count == 1)
+					{
+						if (Engine.Instance.ProvidersManager.Providers[0].Code == "AirVPN")
+						{
+							// Move providers->AirVPN to root.
+							XmlElement xmlAirVPN = Utils.XmlGetFirstElementByTagName(providersNode, "AirVPN");
+							if (xmlAirVPN != null)
+							{
+								foreach (XmlElement xmlChild in xmlAirVPN.ChildNodes)
+									Utils.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
+								providersNode.RemoveChild(xmlAirVPN);
+							}
+							if (providersNode.ChildNodes.Count == 0)
+								providersNode.ParentNode.RemoveChild(providersNode);
+						}
+					}
 
-                xmlDoc.Save(path);
-            }
+					xmlDoc.Save(path);
 
-			Platform.Instance.FileEnsurePermission(path, "600");
-        }
+					Platform.Instance.FileEnsurePermission(path, "600");
+				}
+				catch (Exception ex)
+				{
+					Engine.Instance.Logs.Log(LogType.Fatal, MessagesFormatter.Format(Messages.OptionsWriteFailed, path, ex.Message));
+				}
+			}
+		}
 
         public void Load()
         {

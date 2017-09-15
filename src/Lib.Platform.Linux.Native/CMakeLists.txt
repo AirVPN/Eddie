@@ -1,6 +1,9 @@
 # Minimum version for CMake
 cmake_minimum_required(VERSION 2.6)
 
+# Enable C++11
+add_definitions("-std=c++11")
+
 # Project's name
 project(Lib.Platform.Linux.Native)
 
@@ -12,8 +15,10 @@ file(GLOB SOURCES "src/*.cpp")
 # Create a shared library
 add_library(Lib.Platform.Linux.Native SHARED ${SOURCES})
 
+# Static link C/C++ runtime (could be invoked in LINK_FLAGS too)
+target_link_libraries(Lib.Platform.Linux.Native -static-libgcc -static-libstdc++)
+
 # Remove the "lib" prefix from the shared library filename
 #set_target_properties(Lib.Platform.Linux.Native PROPERTIES PREFIX "" COMPILE_FLAGS "${CMAKE_BUILD_ARCHITECTURE}" LINK_FLAGS "${CMAKE_BUILD_ARCHITECTURE}")
 
-#set_target_properties(Lib.Platform.Linux.Native PROPERTIES COMPILE_FLAGS "${CMAKE_BUILD_ARCHITECTURE}" LINK_FLAGS "${CMAKE_BUILD_ARCHITECTURE}")
-set_target_properties(Lib.Platform.Linux.Native PROPERTIES COMPILE_FLAGS "${CMAKE_BUILD_ARCHITECTURE}" LINK_FLAGS "${CMAKE_BUILD_ARCHITECTURE} -static-libgcc -static-libstdc++")
+set_target_properties(Lib.Platform.Linux.Native PROPERTIES COMPILE_FLAGS "${CMAKE_BUILD_ARCHITECTURE}" LINK_FLAGS "${CMAKE_BUILD_ARCHITECTURE}")

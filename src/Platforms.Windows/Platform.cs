@@ -490,7 +490,7 @@ namespace Eddie.Platforms.Windows
 			}
 			*/
 		}
-		
+
 		public override bool OnCheckSingleInstance()
 		{
 			m_mutexSingleInstance = new Mutex(false, "Global\\" + "b57887e0-65d0-4d18-b57f-106de6e0f1b6");            

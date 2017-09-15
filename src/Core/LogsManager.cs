@@ -41,35 +41,40 @@ namespace Eddie.Core
 			Log(LogType.Error, e);
 		}
 
-		public void Log(LogType Type, Exception e)
+		public void Log(LogType type, Exception e)
 		{
 			string msg = e.Message;
 			if (Engine.Instance.DevelopmentEnvironment)
 				msg += " - Stack: " + e.StackTrace.ToString();
-			Log(Type, msg, 1000, e);
+			Log(type, msg, 1000, e);
 		}
 
-		public void LogDebug(string Message)
+		public void LogDebug(string message)
 		{
-			Log(LogType.Verbose, Message, 1000, null);
+			Log(LogType.Verbose, message, 1000, null);
 		}
 
-		public void Log(LogType Type, string Message)
+		public void LogFatal(string message)
 		{
-			Log(Type, Message, 1000, null);
+			Log(LogType.Fatal, message, 1000, null);
 		}
 
-		public void Log(LogType Type, string Message, int BalloonTime)
+		public void Log(LogType type, string message)
 		{
-			Log(Type, Message, BalloonTime, null);
+			Log(type, message, 1000, null);
 		}
 
-		public void Log(LogType Type, string Message, int BalloonTime, Exception e)
+		public void Log(LogType type, string message, int balloonTime)
+		{
+			Log(type, message, balloonTime, null);
+		}
+
+		public void Log(LogType type, string message, int balloonTime, Exception e)
 		{
             // Avoid repetition
-            if( (Type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.repeat") == false) )
+            if( (type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.repeat") == false) )
             {
-                string logRepetitionNormalized = Message;
+                string logRepetitionNormalized = message;
                 logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
                 if (logRepetitionNormalized == m_logLast)
                 {
@@ -90,9 +95,9 @@ namespace Eddie.Core
             }
 
 			LogEntry l = new LogEntry();
-			l.Type = Type;
-			l.Message = Message;
-			l.BalloonTime = BalloonTime;
+			l.Type = type;
+			l.Message = message;
+			l.BalloonTime = balloonTime;
 			l.Exception = e;
 
 			if (l.Type > LogType.Realtime)

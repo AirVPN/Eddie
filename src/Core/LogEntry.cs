@@ -24,24 +24,34 @@ using Eddie.Lib.Common;
 
 namespace Eddie.Core
 {
-    public class LogEntry
-    {
-        public DateTime Date = DateTime.Now;
-        public LogType Type;
-        public string Message;
-        public int BalloonTime = 1000;
+	public class LogEntry
+	{
+		public DateTime Date = DateTime.Now;
+		public LogType Type;
+		public string Message;
+		public int BalloonTime = 1000;
 		public Exception Exception;
 
-        public void WriteXML(XmlItem item)
+		public void WriteXML(XmlItem item)
 		{
-            item.SetAttributeInt64("timestamp", Conversions.ToUnixTime(Date));
-            item.SetAttribute("level", GetTypeString());
-            item.SetAttribute("message", Message);			
+			item.SetAttributeInt64("timestamp", Conversions.ToUnixTime(Date));
+			item.SetAttribute("level", GetTypeString());
+			item.SetAttribute("message", Message);
 		}
-                
+
 		public string GetMessageForList()
 		{
-			return Message.Replace("\r", "").Replace("\n", " | ");			
+			return Message.Replace("\r", "").Replace("\n", " | ");
+		}
+
+		public string GetMessageForStatus()
+		{
+			string t = Message;
+			if (t.IndexOf("\n") != -1)
+				t = t.Substring(0, t.IndexOf("\n")).Trim();
+			if (t.Length > 128)
+				t = t.Substring(0, 128) + "...";
+			return t.Trim();
 		}
 
 		public string GetDateForList()
@@ -49,13 +59,13 @@ namespace Eddie.Core
 			return Date.ToShortDateString() + " - " + Date.ToShortTimeString();
 		}
 
-        public static string GetDateForListSample()
-        {
-            // Used to compute an estimation of Grid cell size
-            return DateTime.UtcNow.ToShortDateString() + " - " + DateTime.UtcNow.ToShortTimeString();
-        }
+		public static string GetDateForListSample()
+		{
+			// Used to compute an estimation of Grid cell size
+			return DateTime.UtcNow.ToShortDateString() + " - " + DateTime.UtcNow.ToShortTimeString();
+		}
 
-        public string GetTypeChar()
+		public string GetTypeChar()
 		{
 			switch (Type)
 			{
@@ -97,7 +107,7 @@ namespace Eddie.Core
 			o += " - ";
 
 			string[] lines = Message.Split('\n');
-			for(int l=0; l<lines.Length;l++)			
+			for (int l = 0; l < lines.Length; l++)
 			{
 				string line = lines[l];
 				if (line.Trim() != "")
@@ -111,6 +121,6 @@ namespace Eddie.Core
 
 			return result.Trim();
 		}
-    }
+	}
 
 }
