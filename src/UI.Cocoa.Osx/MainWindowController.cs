@@ -380,11 +380,6 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdLogsSupport.Activated += (object sender, EventArgs e) =>
 			{
-				// cazzo
-				long r = Core.Platform.Instance.Ping("8.8.8.8", 5);
-
-				Engine.Instance.Logs.LogDebug(r.ToString());
-
 				SupportReport();
 			};
 

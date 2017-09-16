@@ -144,6 +144,26 @@ namespace Eddie.Platforms.MacOS
 			}
 		}
 
+		public override bool FileImmutableGet(string path)
+		{
+			if ((path == "") || (FileExists(path) == false))
+				return false;
+
+			int result = Native.eddie_file_get_immutable(path);
+			return (result == 1);
+		}
+
+		public override void FileImmutableSet(string path, bool value)
+		{
+			if ((path == "") || (FileExists(path) == false))
+				return;
+
+			if (FileImmutableGet(path) == value)
+				return;
+
+			Native.eddie_file_set_immutable(path, value ? 1 : 0);
+		}
+
 		public override bool FileEnsurePermission(string path, string mode)
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
@@ -177,20 +197,6 @@ namespace Eddie.Platforms.MacOS
 				}
 			}
 
-			/* // TOCLEAN
-			string chmodPath = LocateExecutable("chmod");
-			if (chmodPath != "")
-			{
-				// 'mode' not escaped, called hard-coded.
-				SystemShell s = new SystemShell();
-				s.Path = chmodPath;
-				s.Arguments.Add(mode);
-				s.Arguments.Add(SystemShell.EscapePath(path));
-				s.NoDebugLog = true;
-				s.Run();
-			}
-			*/
-
 			return true;
 		}
 
@@ -219,8 +225,6 @@ namespace Eddie.Platforms.MacOS
 			}
 
 			return true;
-
-			// TOCLEAN return FileEnsurePermission(path, "+x");
 		}
 
 		public override string GetExecutableReport(string path)
