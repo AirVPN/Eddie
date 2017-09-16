@@ -133,7 +133,7 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					Engine.Instance.Storage.ResetAll(false);
 					ReadOptions();
-					Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
+					GuiUtils.MessageBoxInfo(Messages.ResetSettingsDone);
 				}
 			};
 
@@ -192,7 +192,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdProxyTorTest.Activated += (object sender, EventArgs e) =>
 			{
 				string result = TorControl.Test(TxtProxyHost.StringValue, Conversions.ToInt32(TxtProxyTorControlPort.StringValue), TxtProxyTorControlPassword.StringValue);
-				GuiUtils.MessageBox(result);
+				GuiUtils.MessageBoxInfo(result);
 			};
 
 			// Routes
@@ -321,7 +321,7 @@ namespace Eddie.UI.Cocoa.Osx
 				foreach (string path in paths)
 				{
 					if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
-						Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+						GuiUtils.MessageBoxError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
 				}
 			};
 

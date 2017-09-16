@@ -157,7 +157,6 @@
     </Compile>
     <Compile Include="TableAreasDelegate.cs" />
     <Compile Include="TableServersDelegate.cs" />
-    <Compile Include="RootLauncher.cs" />
     <Compile Include="MainWindowDelegate.cs" />
     <Compile Include="GuiUtils.cs" />
     <Compile Include="ChartView.cs" />
@@ -671,5 +670,11 @@
     <EmbeddedResource Include="Resources\License.txt" />
     <EmbeddedResource Include="Resources\OpenVPN.xml" />
     <EmbeddedResource Include="Resources\AirVPN.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <NativeReference Include="..\..\deploy\macos_x64\libLib.Platform.macOS.Native.dylib">
+      <Kind>Dynamic</Kind>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
   </ItemGroup>
 </Project>

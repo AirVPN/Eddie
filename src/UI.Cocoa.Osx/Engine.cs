@@ -61,29 +61,6 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		public override bool OnNoRoot()
-		{
-			string path = Platform.Instance.GetExecutablePath();
-			List<string> args = CommandLine.SystemEnvironment.GetFullArray();
-			string defaultsPath = Core.Platform.Instance.LocateExecutable("defaults");
-			if (defaultsPath != "")
-			{
-				// If 'white', return error in StdErr and empty in StdOut.
-				SystemShell s = new SystemShell();
-				s.Path = defaultsPath;
-				s.Arguments.Add("read");
-				s.Arguments.Add("-g");
-				s.Arguments.Add("AppleInterfaceStyle");
-				s.Run();
-				string colorMode = s.StdOut.Trim().ToLowerInvariant();
-				if (colorMode == "dark")
-					args.Add("gui.osx.style=\"dark\"");
-			}
-
-			RootLauncher.LaunchExternalTool(path, args.ToArray());
-			return true;
-		}
-
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			Exception ex = (Exception)e.ExceptionObject;
@@ -142,8 +119,6 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 
 			OnRefreshUi(RefreshUiMode.Log);
-
-
 		}
 
 
@@ -160,32 +135,6 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		public override void OnMessageInfo(string message)
-		{
-			base.OnMessageInfo(message);
-
-			if (MainWindow != null)
-			{
-				new NSObject().InvokeOnMainThread(() =>
-					{
-						GuiUtils.MessageBox(message);
-					});
-			}
-		}
-
-		public override void OnMessageError(string message)
-		{
-			base.OnMessageError(message);
-
-			if (MainWindow != null)
-			{
-				new NSObject().InvokeOnMainThread(() =>
-					{
-						GuiUtils.MessageBox(message);
-					});
-			}
-		}
-
 		public override void OnShowText(string title, string data)
 		{
 			if (MainWindow != null)
@@ -199,7 +148,6 @@ namespace Eddie.UI.Cocoa.Osx
 						textViewer.ShowWindow(MainWindow.Window);
 					});
 			}
-
 		}
 
 		public override bool OnAskYesNo(string message)
@@ -240,14 +188,20 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.OnSystemReport(step, text, perc);
 
-			if ((m_windowReport == null) || (m_windowReport.Window.IsVisible == false))
+			if (MainWindow != null)
 			{
-				m_windowReport = new WindowReportController();
-				GuiUtils.ShowWindowWithFocus(m_windowReport, this.MainWindow);
-			}
+				new NSObject().InvokeOnMainThread(() =>
+				{
+					if ((m_windowReport == null) || (m_windowReport.Window.IsVisible == false))
+					{
+						m_windowReport = new WindowReportController();
+						GuiUtils.ShowWindowWithFocus(m_windowReport, this.MainWindow);
+					}
 
-			if (m_windowReport != null)
-				m_windowReport.SetStep(step, text, perc);
+					if (m_windowReport != null)
+						m_windowReport.SetStep(step, text, perc);
+				});
+			}
 		}
 
 		public override void OnLoggedUpdate(XmlElement xmlKeys)

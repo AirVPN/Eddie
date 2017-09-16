@@ -79,7 +79,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 		}
 
-		public static void MessageBox(string message)
+		public static void MessageBoxInfo(string message)
+		{
+			MessageBox(message, "");
+		}
+
+		public static void MessageBoxError(string message)
 		{
 			MessageBox(message, "");
 		}

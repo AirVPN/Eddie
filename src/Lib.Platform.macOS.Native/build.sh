@@ -21,5 +21,5 @@ BuildConfig()
 }
 
 #BuildConfig ./build/x64/debug -m64 Debug ../../../../bin/x86/Debug/
-BuildConfig ./build/x64/release -m64 Release ../../../../../deploy/macos_x64/
+BuildConfig ./build/x86/release -m32 Release ../../../../../deploy/macos_x64/
 

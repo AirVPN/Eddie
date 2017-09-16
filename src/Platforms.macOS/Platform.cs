@@ -22,8 +22,10 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Lib.Common;
 using MonoMac.AppKit;
 using MonoMac.Foundation;
+using Mono.Unix;
 
 namespace Eddie.Platforms.MacOS
 {
@@ -84,6 +86,7 @@ namespace Eddie.Platforms.MacOS
 						break;
 
 					int index = UnixSignal.WaitAny(m_signals, 1000);
+
 					if (index < m_signals.Length)
 					{
 						Mono.Unix.Native.Signum signal = m_signals[index].Signum;
@@ -98,6 +101,7 @@ namespace Eddie.Platforms.MacOS
 					}
 				}
 			});
+			signalThread.Start();
 		}
 
 		public override string GetOsArchitecture()
@@ -140,11 +144,40 @@ namespace Eddie.Platforms.MacOS
 			}
 		}
 
-		public override void FileEnsurePermission(string path, string mode)
+		public override bool FileEnsurePermission(string path, string mode)
 		{
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
-				return;
+				return false;
 
+			int result = Native.eddie_file_get_mode(path);
+			if (result == -1)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect permissions on '" + path + "'.");
+				return false;
+			}
+			int newResult = 0;
+			if (mode == "600")
+				newResult = (int)Native.FileMode.Mode0600;
+			else if (mode == "644")
+				newResult = (int)Native.FileMode.Mode0644;
+
+			if (newResult == 0)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "Unexpected permission '" + mode + "'");
+				return false;
+			}
+
+			if (newResult != result)
+			{
+				result = Native.eddie_file_set_mode(path, newResult);
+				if (result == -1)
+				{
+					Engine.Instance.Logs.Log(LogType.Warning, "Failed to set permissions on '" + path + "'.");
+					return false;
+				}
+			}
+
+			/* // TOCLEAN
 			string chmodPath = LocateExecutable("chmod");
 			if (chmodPath != "")
 			{
@@ -156,11 +189,38 @@ namespace Eddie.Platforms.MacOS
 				s.NoDebugLog = true;
 				s.Run();
 			}
+			*/
+
+			return true;
 		}
 
-		public override void FileEnsureExecutablePermission(string path)
+		public override bool FileEnsureExecutablePermission(string path)
 		{
-			FileEnsurePermission(path, "+x");
+			if ((path == "") || (FileExists(path) == false))
+				return false;
+
+			int result = Native.eddie_file_get_mode(path);
+			if (result == -1)
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect if '" + path + "' is executable");
+				return false;
+			}
+
+			int newResult = result | 73; // +x :<> (S_IXUSR | S_IXGRP | S_IXOTH) 
+
+			if (newResult != result)
+			{
+				result = Native.eddie_file_set_mode(path, newResult);
+				if (result == -1)
+				{
+					Engine.Instance.Logs.Log(LogType.Warning, "Failed to mark '" + path + "' as executable");
+					return false;
+				}
+			}
+
+			return true;
+
+			// TOCLEAN return FileEnsurePermission(path, "+x");
 		}
 
 		public override string GetExecutableReport(string path)
@@ -209,7 +269,7 @@ namespace Eddie.Platforms.MacOS
 		public override void FlushDNS()
 		{
 			base.FlushDNS();
-			
+
 			// 10.5 - 10.6
 			string dscacheutilPath = LocateExecutable("dscacheutil");
 			if (dscacheutilPath != "")
@@ -305,6 +365,8 @@ namespace Eddie.Platforms.MacOS
 		// Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
 		public override long Ping(string host, int timeoutSec)
 		{
+			return Native.eddie_ip_ping(host, timeoutSec * 1000);
+			/* < 2.13.6 // TOCLEAN
 			// Note: Linux timeout is -w, OS X timeout is -t			
 			float iMS = -1;
 
@@ -331,6 +393,7 @@ namespace Eddie.Platforms.MacOS
 			}
 
 			return (long)iMS;
+			*/
 		}
 
 		public override string GetSystemFont()
@@ -481,6 +544,29 @@ namespace Eddie.Platforms.MacOS
 			}
 
 			return entryList;
+		}
+
+		public override bool RestartAsRoot()
+		{
+			string path = Platform.Instance.GetExecutablePath();
+			List<string> args = CommandLine.SystemEnvironment.GetFullArray();
+			string defaultsPath = Core.Platform.Instance.LocateExecutable("defaults");
+			if (defaultsPath != "")
+			{
+				// If 'white', return error in StdErr and empty in StdOut.
+				SystemShell s = new SystemShell();
+				s.Path = defaultsPath;
+				s.Arguments.Add("read");
+				s.Arguments.Add("-g");
+				s.Arguments.Add("AppleInterfaceStyle");
+				s.Run();
+				string colorMode = s.StdOut.Trim().ToLowerInvariant();
+				if (colorMode == "dark")
+					args.Add("gui.osx.style=\"dark\"");
+			}
+
+			RootLauncher.LaunchExternalTool(path, args.ToArray());
+			return true;
 		}
 
 		public override void OnReport(Report report)
@@ -711,7 +797,7 @@ namespace Eddie.Platforms.MacOS
 					foreach (string line in currentStr.Split('\n'))
 					{
 						string ip = line.Trim();
-						if(IpAddress.IsIP(ip))
+						if (IpAddress.IsIP(ip))
 							current.Add(ip);
 					}
 
@@ -722,8 +808,16 @@ namespace Eddie.Platforms.MacOS
 						e.Dns = current.Addresses;
 						m_listDnsSwitch.Add(e);
 
-						string dns2 = dns.Addresses.Replace(",", "\" \"");
-						SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setdnsservers", SystemShell.EscapeInsideQuote(i2), dns2 });
+						SystemShell s = new SystemShell();
+						s.Path = LocateExecutable("networksetup");
+						s.Arguments.Add("-setdnsservers");
+						s.Arguments.Add(SystemShell.EscapeInsideQuote(i2));
+						if (dns.IPs.Count == 0)
+							s.Arguments.Add("empty");
+						else
+							foreach (IpAddress ip in dns.IPs)
+								s.Arguments.Add(ip.Address);
+						s.Run();
 
 						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
 					}
@@ -741,12 +835,28 @@ namespace Eddie.Platforms.MacOS
 		{
 			foreach (DnsSwitchEntry e in m_listDnsSwitch)
 			{
+				/*
 				string v = e.Dns;
 				if (v == "")
 					v = "empty";
 				v = v.Replace(",", "\" \"");
 								
 				SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setdnsservers", SystemShell.EscapeInsideQuote(e.Name), v });
+				*/
+				IpAddresses dns = new IpAddresses();
+				dns.Add(e.Dns);
+
+				SystemShell s = new SystemShell();
+				s.Path = LocateExecutable("networksetup");
+				s.Arguments.Add("-setdnsservers");
+				s.Arguments.Add(SystemShell.EscapeInsideQuote(e.Name));
+				if (dns.Count == 0)
+					s.Arguments.Add("empty");
+				else
+					foreach (IpAddress ip in dns.IPs)
+						s.Arguments.Add(ip.Address);
+				s.Run();
+
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 			}
 

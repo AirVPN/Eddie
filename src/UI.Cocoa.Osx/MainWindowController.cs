@@ -380,6 +380,11 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdLogsSupport.Activated += (object sender, EventArgs e) =>
 			{
+				// cazzo
+				long r = Core.Platform.Instance.Ping("8.8.8.8", 5);
+
+				Engine.Instance.Logs.LogDebug(r.ToString());
+
 				SupportReport();
 			};
 
@@ -513,7 +518,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public bool Shutdown()
 		{
-			if (Engine.Instance.Storage.GetBool("gui.exit_confirm") == true)
+			if (Engine.AskExitConfirm())
 			{
 				bool result = GuiUtils.MessageYesNo(Messages.ExitConfirm);
 				if (result == false)
@@ -678,7 +683,7 @@ namespace Eddie.UI.Cocoa.Osx
 				if (Engine.IsConnected() == false)
 				{
 					Window.Title = Constants.Name + " - " + msg;
-					MnuTrayStatus.Title = "> " + msg;
+					MnuTrayStatus.Title = "> " + l.GetMessageForStatus();
 				}
 			}
 
@@ -696,7 +701,7 @@ namespace Eddie.UI.Cocoa.Osx
 				RequestAttention();
 
 			if (l.Type == LogType.Fatal)
-				GuiUtils.MessageBox(msg);
+				GuiUtils.MessageBoxInfo(msg);
 		}
 
 		public void EnabledUI()
@@ -1065,7 +1070,6 @@ namespace Eddie.UI.Cocoa.Osx
 			NSApplication.SharedApplication.RunModalForWindow(w.Window);
 			if (w.Provider != "")
 			{
-				GuiUtils.MessageBox(w.Provider);
 				Provider provider = Engine.Instance.ProvidersManager.AddProvider(w.Provider, null);
 				Engine.Instance.ProvidersManager.Refresh();
 
@@ -1238,7 +1242,7 @@ namespace Eddie.UI.Cocoa.Osx
 				string[] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
 				NSPasteboard.GeneralPasteboard.SetStringForType(t, pboardTypes[0]);
-				GuiUtils.MessageBox(Messages.LogsCopyClipboardDone);
+				GuiUtils.MessageBoxInfo(Messages.LogsCopyClipboardDone);
 			}
 		}
 
@@ -1258,7 +1262,7 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					Platform.Instance.FileContentsWriteText(panel.Url.Path, t);
 
-					GuiUtils.MessageBox(Messages.LogsSaveToFileDone);
+					GuiUtils.MessageBoxInfo(Messages.LogsSaveToFileDone);
 				}
 			}
 		}

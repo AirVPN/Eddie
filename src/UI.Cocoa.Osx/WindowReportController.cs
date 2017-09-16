@@ -67,7 +67,7 @@ namespace Eddie.UI.Cocoa.Osx
 				string[] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
 				NSPasteboard.GeneralPasteboard.SetStringForType(t, pboardTypes[0]);
-				GuiUtils.MessageBox(Messages.LogsCopyClipboardDone);
+				GuiUtils.MessageBoxInfo(Messages.LogsCopyClipboardDone);
 			};
 
 			CmdSave.Activated += (object sender, EventArgs e) =>
@@ -81,7 +81,7 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					Platform.Instance.FileContentsWriteText(panel.Url.Path, t);
 
-					GuiUtils.MessageBox(Messages.LogsSaveToFileDone);
+					GuiUtils.MessageBoxInfo(Messages.LogsSaveToFileDone);
 				}
 			};
 

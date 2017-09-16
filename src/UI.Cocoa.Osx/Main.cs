@@ -29,13 +29,13 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	class MainClass
 	{
-        
 
-		static void Main (string[] args)
+
+		static void Main(string[] args)
 		{
-            NSApplication.Init();
+			NSApplication.Init();
 
-            Core.Platform.Instance = new Eddie.Platforms.MacOS.Platform();
+			Core.Platform.Instance = new Eddie.Platforms.MacOS.Platform();
 
 			CommandLine.InitSystem(Environment.CommandLine);
 
@@ -47,26 +47,30 @@ namespace Eddie.UI.Cocoa.Osx
 			Core.ResourcesFiles.LoadString(Assembly.GetEntryAssembly(), "AirVPN.xml", "AirVPN.xml");
 			Core.ResourcesFiles.LoadString(Assembly.GetEntryAssembly(), "OpenVPN.xml", "OpenVPN.xml");
 
-			Core.ResourcesFiles.Count ();
+			Core.ResourcesFiles.Count();
 
-			if (CommandLine.SystemEnvironment.Exists ("cli")) {
-				Core.Engine engine = new Core.Engine ();
+			if (CommandLine.SystemEnvironment.Exists("cli"))
+			{
+				Core.Engine engine = new Core.Engine();
 
-				if (engine.Initialization (true)) {
-					engine.ConsoleStart ();
-					engine.Join ();
+				if (engine.Initialization(true))
+				{
+					engine.ConsoleStart();
+					engine.Join();
 				}
 
-			} else {
-				Engine engine = new Engine ();
+			}
+			else
+			{
+				Engine engine = new Engine();
 
-				if (engine.Initialization (false) == false)
+				if (engine.Initialization(false) == false)
 					return;
 
-				
-				NSApplication.Main (args);
+
+				NSApplication.Main(args);
 			}
 		}
 	}
-}	
+}
 
