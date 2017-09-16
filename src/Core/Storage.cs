@@ -49,18 +49,19 @@ namespace Eddie.Core
 			string pathUser = Platform.Instance.GetUserPath();
 
 			// Compute data path
-			{
-				if (m_pathData == "home")
-					m_pathData = Platform.Instance.GetUserPath();
-				else if (m_pathData == "program")
-					m_pathData = Platform.Instance.GetApplicationPath();
-				else if (m_pathData == "") // Detect
-				{
-					if (Platform.Instance.HasAccessToWrite(pathApp))
-						m_pathData = pathApp;
-					else
-						m_pathData = pathUser;
-				}
+			if (m_pathData == "")
+				m_pathData = Platform.Instance.GetDefaultDataPath();
+
+			if (m_pathData == "home")
+				m_pathData = Platform.Instance.GetUserPath();
+			else if (m_pathData == "program")
+				m_pathData = Platform.Instance.GetApplicationPath();
+			else if (m_pathData == "") // Detect
+			{					
+				if (Platform.Instance.HasAccessToWrite(pathApp))
+					m_pathData = pathApp;
+				else
+					m_pathData = pathUser;
 			}
 
 			// Compute profile
