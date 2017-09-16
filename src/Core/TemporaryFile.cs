@@ -34,7 +34,7 @@ namespace Eddie.Core
 		public TemporaryFile(string group, string extension)
 		{
             Group = group;
-            Path = Storage.DataPath + Platform.Instance.DirSep + RandomGenerator.GetHash() + ".tmp." + extension;
+            Path = Engine.Instance.Storage.GetPathInData(RandomGenerator.GetHash() + ".tmp." + extension);
             TemporaryFiles.Add(this);
 		}
 

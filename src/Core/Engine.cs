@@ -233,16 +233,19 @@ namespace Eddie.Core
 				if (Storage.GetBool("version"))
 				{
 					Console.WriteLine(Constants.Name + " - version " + Constants.VersionDesc);
+					RequestStop();
 					return false;
 				}
 				else if (Storage.GetBool("version.short"))
 				{
 					Console.WriteLine(Lib.Common.Constants.VersionDesc);
+					RequestStop();
 					return false;
 				}
 				else if (Storage.GetBool("help"))
 				{
 					Engine.Instance.Logs.Log(LogType.Info, Storage.GetMan(Storage.Get("help.format")));
+					RequestStop();
 					return false;
 				}
 			}
@@ -266,6 +269,7 @@ namespace Eddie.Core
 						Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);
 					}
 
+					RequestStop();
 					return false;
 				}
 			}
@@ -316,6 +320,7 @@ namespace Eddie.Core
 				if (Platform.Instance.OnCheckSingleInstance() == false)
 				{
 					Logs.Log(LogType.Fatal, Messages.OsInstanceAlreadyRunning);
+					RequestStop();
 					return false;
 				}
 			}
@@ -1808,9 +1813,9 @@ namespace Eddie.Core
 				Logs.Log(LogType.InfoImportant, Messages.AuthorizeLogoutDone);
 
 				Engine.Instance.WaitMessageClear();
-			}
 
-			SaveSettings(); // 2.8
+				SaveSettings(); // 2.8
+			}
 		}
 
 		public void ReAuth()
@@ -2058,6 +2063,9 @@ namespace Eddie.Core
 
 		public bool CheckEnvironmentApp()
 		{
+			if(Platform.Instance.HasAccessToWrite(Storage.GetDataPath()) == false)
+				Engine.Instance.Logs.Log(LogType.Fatal, "Unable to write in path '" + Storage.GetDataPath() + "'");
+
 			// Local Time in the past
 			if (DateTime.UtcNow < Constants.dateForPastChecking)
 				Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
@@ -2068,6 +2076,9 @@ namespace Eddie.Core
 		public bool CheckEnvironmentSession()
 		{
 			Software.ExceptionForRequired();
+
+			if (Platform.Instance.HasAccessToWrite(Storage.GetDataPath()) == false)
+				throw new Exception("Unable to write in path '" + Storage.GetDataPath() + "'");
 
 			string protocol = Storage.Get("mode.protocol").ToUpperInvariant();
 

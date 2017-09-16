@@ -66,10 +66,12 @@ namespace Eddie.Core
 			Add("Pinger", Messages.StatsPinger, "system", "Update"); 
 			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");
             Add("PathProfile", Messages.StatsSystemPathProfile, "system", "Open");
-            Add("PathApp", Messages.StatsSystemPathApp, "system", "Open");
+			Add("PathData", Messages.StatsSystemPathData, "system", "Open");
+			Add("PathApp", Messages.StatsSystemPathApp, "system", "Open");
             
             UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
-            UpdateValue("PathApp", Platform.Instance.GetApplicationPath());
+			UpdateValue("PathData", Engine.Instance.Storage.GetDataPath());
+			UpdateValue("PathApp", Platform.Instance.GetApplicationPath());
         }
 
 		public void Add(string key, string caption, string icon)

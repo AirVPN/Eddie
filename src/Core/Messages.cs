@@ -369,7 +369,8 @@ namespace Eddie.Core
 		public static string StatsPinger = "Pinger stats";
 		public static string StatsSystemTimeServerDifference = "Server Time Difference";
         public static string StatsSystemPathProfile = "Profile path";
-        public static string StatsSystemPathApp = "Application path";
+		public static string StatsSystemPathData = "Data path";
+		public static string StatsSystemPathApp = "Application path";
         public static string StatsSystemReport = "System Report";
 
 

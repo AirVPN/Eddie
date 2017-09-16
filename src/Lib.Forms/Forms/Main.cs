@@ -1575,6 +1575,7 @@ namespace Eddie.Gui.Forms
 			m_tabMain.SetPageVisible(1, Engine.Storage.GetBool("advanced.providers"));
 		}
 
+		/*
 		// ClodoTemp2 OnCommand
 		private delegate XmlItem OnCommandDelegate(XmlItem xml, bool ignoreIfNotExists);
 		public XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
@@ -1582,13 +1583,14 @@ namespace Eddie.Gui.Forms
 			if (this.InvokeRequired)
 			{
 				OnCommandDelegate inv = new OnCommandDelegate(this.OnCommand);
-				return this.Invoke(inv, new object[] { message }) as XmlItem;
+				return this.Invoke(inv, new object[] { xml, ignoreIfNotExists }) as XmlItem;
 			}
 			else
 			{
 				return MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
 			}
 		}
+		*/
 
 		// Force when need to update icons, force refresh etc.		
 		private delegate void OnRefreshUiDelegate(Engine.RefreshUiMode mode);

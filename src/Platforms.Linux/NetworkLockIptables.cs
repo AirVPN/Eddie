@@ -30,6 +30,7 @@ namespace Eddie.Platforms.Linux
 		private IpAddresses m_currentList = new IpAddresses();
 		private bool m_supportIPv4 = true;
 		private bool m_supportIPv6 = true;
+		private string m_iptablesVersion = "";
 
 		public override string GetCode()
 		{
@@ -63,7 +64,7 @@ namespace Eddie.Platforms.Linux
 		{
 			if (ipVersion == "4") // For compatibility with Eddie<2.9
 				ipVersion = "";
-			return Storage.DataPath + Platform.Instance.DirSep + "ip" + ipVersion + "tables.dat";
+			return Engine.Instance.Storage.GetPathInData("ip" + ipVersion + "tables.dat");
 		}
 
 		public string DoIptablesShell(string exe, string args)
@@ -75,13 +76,27 @@ namespace Eddie.Platforms.Linux
 		{
 			SystemShell s = new SystemShell();
 			s.Path = Platform.Instance.LocateExecutable(exe);
-			args = "--wait " + args; // 2.13.6
+			if (Utils.CompareVersions(m_iptablesVersion, "1.4.21") >= 0)
+			{
+				// 2.13.6 - The version 1.4.21 is generic Debian8. I don't find in official
+				// changelogs https://www.netfilter.org/projects/iptables/downloads.html
+				// the correct version. For sure don't exists in 1.4.14 of Debian7.
+				args = "--wait " + args; 
+			}
 			if (args != "")
 				s.Arguments.Add(args); // Exception: all arguments as one, it works.
 			if (fatal)
 				s.ExceptionIfFail = true;
 			s.Run();
 			return s.StdOut;
+		}
+
+		public override void Init()
+		{
+			base.Init();
+
+			m_iptablesVersion = SystemShell.Shell1(Platform.Instance.LocateExecutable("iptables"), "--version");
+			m_iptablesVersion = m_iptablesVersion.Replace("iptables v", "");
 		}
 
 		public override void Activation()

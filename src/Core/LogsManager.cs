@@ -176,7 +176,7 @@ namespace Eddie.Core
 				{
 					if (System.IO.Path.IsPathRooted(path) == false)
 					{
-						logPath = Storage.DataPath + "/" + logPath;
+						logPath = Engine.Instance.Storage.GetDataPath() + "/" + logPath;
 					}
 					logPath = Platform.Instance.NormalizePath(logPath).Trim();
 					if (logPath != "")

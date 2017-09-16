@@ -80,14 +80,22 @@ namespace Eddie.Core
             if (group == "")
             {
                 // Cleaning old zombie temporary files
-                string[] files = Directory.GetFiles(Storage.DataPath);
-                foreach (string file in files)
-                {
-                    if (file.IndexOf(".tmp.") != -1)
-                    {
-                        Destroy(file);
-                    }
-                }
+				try
+				{
+					string[] files = Directory.GetFiles(Engine.Instance.Storage.GetDataPath());
+					foreach (string file in files)
+					{
+						if (file.IndexOf(".tmp.") != -1)
+						{
+							Destroy(file);
+						}
+					}
+				}
+				catch
+				{
+					// Maybe not writable.
+				}
+                
             }
 		}
 	}

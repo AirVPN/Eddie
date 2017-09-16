@@ -34,7 +34,7 @@ namespace Eddie.Core
 
 		public static string RecoveryPath()
 		{
-			return Engine.Instance.Storage.GetPath("Recovery.xml");
+			return Engine.Instance.Storage.GetPathInData("Recovery.xml");
 		}
 
 		public static void Save()

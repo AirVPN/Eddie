@@ -143,7 +143,7 @@ namespace Eddie.Core
 			Add("curl", Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")");
 
 			Add("Profile path", Engine.Instance.Storage.GetProfilePath());
-			Add("Data path", Storage.DataPath);
+			Add("Data path", Engine.Instance.Storage.GetDataPath());
 			Add("Application path", Platform.Instance.GetApplicationPath());
 			Add("Executable path", Platform.Instance.GetExecutablePath());
 			Add("Command line arguments", "(" + Lib.Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Lib.Common.CommandLine.SystemEnvironment.GetFull());

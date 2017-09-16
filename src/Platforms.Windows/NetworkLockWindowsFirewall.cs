@@ -220,11 +220,11 @@ namespace Eddie.Platforms.Windows
 
 			// If 'winfirewall_rules_original.airvpn' doesn't exists, create it. It's a general backup of the first time.
 			// We create this kind of file in Windows System directory, because it's system critical data, and to allow it to survive between re-installation of the software.
-			string rulesBackupFirstTime = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_original.wfw";
+			string rulesBackupFirstTime = Engine.Instance.Storage.GetPathInData("winfirewall_rules_original.wfw");
 			if (Platform.Instance.FileExists(rulesBackupFirstTime) == false)
 				SystemShell.ShellCmd("netsh advfirewall export \"" + SystemShell.EscapePath(rulesBackupFirstTime) + "\""); 
 
-            string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
+            string rulesBackupSession = Engine.Instance.Storage.GetPathInData("winfirewall_rules_backup.wfw");
 			if (Platform.Instance.FileExists(rulesBackupSession))
                 Platform.Instance.FileDelete(rulesBackupSession);
 			SystemShell.ShellCmd("netsh advfirewall export \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
@@ -307,7 +307,7 @@ namespace Eddie.Platforms.Windows
 
             // >2.9.1 edition
             {
-                string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewall_rules_backup.wfw";
+                string rulesBackupSession = Engine.Instance.Storage.GetPathInData("winfirewall_rules_backup.wfw");
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
 					SystemShell.ShellCmd("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
@@ -317,7 +317,7 @@ namespace Eddie.Platforms.Windows
 
 			// Old <2.8 edition
 			{
-				string rulesBackupSession = Storage.DataPath + Platform.Instance.DirSep + "winfirewallrules.wfw";
+				string rulesBackupSession = Engine.Instance.Storage.GetPathInData("winfirewallrules.wfw");
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
 					SystemShell.ShellCmd("netsh advfirewall import \"" + SystemShell.EscapePath(rulesBackupSession) + "\""); 
