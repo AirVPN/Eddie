@@ -163,15 +163,14 @@ namespace Eddie.Platforms.Linux
 
 		public override bool FileImmutableGet(string path)
 		{
-			// We don't find a better direct method in Mono/Posix without adding ioctl references
-			// The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
-
 			if ((path == "") || (FileExists(path) == false))
 				return false;
 
 			int result = Native.eddie_file_get_immutable(path);
 			return (result == 1);
 			/* // TOCLEAN
+			// We don't find a better direct method in Mono/Posix without adding ioctl references
+			// The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
 			string lsattrPath = LocateExecutable("lsattr");
 			if (lsattrPath != "")
 			{
@@ -208,8 +207,8 @@ namespace Eddie.Platforms.Linux
 			if (FileImmutableGet(path) == value)
 				return;
 
-			Engine.Instance.Logs.LogDebug("eddie_file_set_immutable:" + value.ToString());
 			Native.eddie_file_set_immutable(path, value ? 1 : 0);
+
 			/* // TOCLEAN
 			string chattrPath = LocateExecutable("chattr");
 			if(chattrPath != "")

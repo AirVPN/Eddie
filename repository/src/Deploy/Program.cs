@@ -403,6 +403,7 @@ namespace Deploy
 
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+						Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");						
 
 						RemoveFile(pathTemp + "/libgdiplus.so.0");
 						RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -480,6 +481,7 @@ namespace Deploy
 						}
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+						Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
 
 						CreateDirectory(pathTemp + "/" + fileName);
 						MoveAll(pathTemp, pathTemp + "/" + fileName);
@@ -537,6 +539,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
+						Shell("chmod 744 \"" + pathTemp + "/usr/lib/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 
@@ -595,6 +598,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
+						Shell("chmod 744 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
@@ -638,9 +642,7 @@ namespace Deploy
 					}
 				}
 				else if (platform == "macos")
-				{
-
-
+				{				
 					if (format == "portable")
 					{
 						if (ui == "cli")
@@ -696,12 +698,14 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-                            Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
+							Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
+							Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
 
 							SignFile(platform, format, pathTemp + "/eddie-cli"); // WARNING: Currently 2017-03-10 , signing don't work for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
 							SignFile(platform, format, pathTemp + "/openvpn");
 							SignFile(platform, format, pathTemp + "/stunnel");
-                            SignFile(platform, format, pathTemp + "/libxammac.dylib");
+							SignFile(platform, format, pathTemp + "/libLib.Platform.macOS.Native.dylib");
+							SignFile(platform, format, pathTemp + "/libxammac.dylib");
 
 							CreateDirectory(pathTemp + "/" + fileName);
 							MoveAll(pathTemp, pathTemp + "/" + fileName);
@@ -737,6 +741,7 @@ namespace Deploy
 							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/Eddie");
 							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/openvpn");
 							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
 							SignFile(platform, format, pathTemp + "/Eddie.app");
 
 							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
@@ -773,6 +778,7 @@ namespace Deploy
 							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/Eddie");
 							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/openvpn");
 							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
 							SignFile(platform, format, pathTemp + "/Applications/Eddie.app");
 
 							string command2 = "pkgbuild";
@@ -832,6 +838,7 @@ namespace Deploy
 							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/Eddie");
 							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/openvpn");
 							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/stunnel");
+							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
 							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app");
 
 							Log("Detach DMG");
@@ -863,11 +870,13 @@ namespace Deploy
 
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-                            Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
+							Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
+							Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
 
 							SignFile(platform, format, pathTemp + "/openvpn");
 							SignFile(platform, format, pathTemp + "/stunnel");
-                            SignFile(platform, format, pathTemp + "/libxammac.dylib");
+							SignFile(platform, format, pathTemp + "/libLib.Platform.macOS.Native.dylib");
+							SignFile(platform, format, pathTemp + "/libxammac.dylib");
 
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
