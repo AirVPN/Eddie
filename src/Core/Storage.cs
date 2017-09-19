@@ -129,20 +129,7 @@ namespace Eddie.Core
 				return m_options;
 			}
 		}
-
-		/* // TOCLEAN
-		public static bool TestDataPath(string path, bool log)
-		{
-			if (Platform.Instance.HasAccessToWrite(path) == false)
-			{
-				if (log == true) // ClodoTemp2 linux non cozza qui
-					Engine.Instance.Logs.Log(LogType.Info, "Unable to write in path '" + path + "'");
-				return false;
-			}
-			return true;
-		}
-		*/
-
+		
 		public string GetReportForSupport()
 		{
 			string result = "";
@@ -515,6 +502,7 @@ namespace Eddie.Core
 			SetDefaultInt("mode.alt", 0, Messages.ManOptionModeAlt);
 
 			SetDefault("proxy.mode", "text", "None", Messages.ManOptionProxyMode);
+			SetDefault("proxy.when", "choice:always/web/openvpn/none", "always", NotInMan);
 			SetDefault("proxy.host", "ip", "127.0.0.1", Messages.ManOptionProxyHost);
 			SetDefaultInt("proxy.port", 8080, Messages.ManOptionProxyPort);
 			SetDefault("proxy.auth", "text", "None", Messages.ManOptionProxyAuth);

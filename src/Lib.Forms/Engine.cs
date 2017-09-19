@@ -108,19 +108,18 @@ namespace Eddie.Gui
 
 			if (action == "ui.show.preferences")
 			{
-				Forms.Settings Dlg = new Forms.Settings();
-				Dlg.ShowDialog();
-
-				FormMain.EnabledUi();
+				if (FormMain != null)
+					FormMain.OnShowPreferences();
 			}
 			else if (action == "ui.show.about")
 			{
-				Forms.About dlg = new Forms.About();
-				dlg.ShowDialog();
+				if (FormMain != null)
+					FormMain.OnShowAbout();
 			}
 			else if (action == "ui.show.menu")
 			{
-				FormMain.ShowMenu();
+				if (FormMain != null)
+					FormMain.OnShowMenu();
 			}
 			else
 				return base.OnCommand(xml, ignoreIfNotExists);
@@ -173,25 +172,7 @@ namespace Eddie.Gui
 			if (FormMain != null)
 				FormMain.OnFrontMessage(message);
 		}
-
-		/* ClodoTemp2
-		public override void OnMessageInfo(string message)
-		{
-			base.OnMessageInfo(message);
-
-			if (FormMain != null)
-				FormMain.OnMessageInfo(message);
-		}
-
-		public override void OnMessageError(string message)
-		{
-			base.OnMessageError(message);
-
-			if (FormMain != null)
-				FormMain.OnMessageError(message);
-		}
-		*/
-
+		
 		public override void OnShowText(string title, string data)
 		{
 			base.OnShowText(title, data);

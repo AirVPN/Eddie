@@ -55,7 +55,8 @@ namespace Eddie.Gui.Forms
             mnuRoutes.Font = Skin.FontNormal;
 
             GuiUtils.FixHeightVs(cboProxyMode, lblProxyType);
-            GuiUtils.FixHeightVs(txtProxyHost, lblProxyHost);
+			GuiUtils.FixHeightVs(cboProxyWhen, lblProxyWhen);
+			GuiUtils.FixHeightVs(txtProxyHost, lblProxyHost);
             GuiUtils.FixHeightVs(txtProxyPort, lblProxyPort);
             GuiUtils.FixHeightVs(cboProxyAuthentication, lblProxyAuthentication);
             GuiUtils.FixHeightVs(txtProxyLogin, lblProxyLogin);
@@ -133,9 +134,14 @@ namespace Eddie.Gui.Forms
             cboProxyMode.Items.Add("Http");
             cboProxyMode.Items.Add("Socks");
             cboProxyMode.Items.Add("Tor");
+			cboProxyWhen.Items.Clear();
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenAlways);
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenWeb);
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenOpenVPN);
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenNone);
 
-            // Routes
-            lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
+			// Routes
+			lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
             lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
             lstRoutes.ResizeColumnMax(2);
             cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("in"));
@@ -310,7 +316,17 @@ namespace Eddie.Gui.Forms
 
             // Proxy
             cboProxyMode.Text = s.Get("proxy.mode");
-            txtProxyHost.Text = s.Get("proxy.host");
+			if (s.Get("proxy.when") == "always")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenAlways;
+			else if (s.Get("proxy.when") == "web")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenWeb;
+			else if (s.Get("proxy.when") == "openvpn")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenOpenVPN;
+			else if (s.Get("proxy.when") == "none")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenNone;
+			else
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenAlways;
+			txtProxyHost.Text = s.Get("proxy.host");
             txtProxyPort.Text = s.Get("proxy.port");
             cboProxyAuthentication.Text = s.Get("proxy.auth");
             txtProxyLogin.Text = s.Get("proxy.login");
@@ -633,7 +649,17 @@ namespace Eddie.Gui.Forms
             
 			// Proxy
             s.Set("proxy.mode", cboProxyMode.Text);
-            s.Set("proxy.host", txtProxyHost.Text);
+			if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenAlways)
+				s.Set("proxy.when", "always");
+			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenWeb)
+				s.Set("proxy.when", "web");
+			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenOpenVPN)
+				s.Set("proxy.when", "openvpn");
+			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenNone)
+				s.Set("proxy.when", "none");
+			else
+				s.Set("proxy.when", "always");
+			s.Set("proxy.host", txtProxyHost.Text);
             s.Set("proxy.port", txtProxyPort.Text);
             s.Set("proxy.auth", cboProxyAuthentication.Text);
             s.Set("proxy.login", txtProxyLogin.Text);
@@ -884,7 +910,9 @@ namespace Eddie.Gui.Forms
 
             // Proxy
             bool proxy = (cboProxyMode.Text != "None");
-            bool tor = (cboProxyMode.Text == "Tor");            
+            bool tor = (cboProxyMode.Text == "Tor");
+			lblProxyWhen.Enabled = proxy;
+			cboProxyWhen.Enabled = proxy;
             txtProxyHost.Enabled = proxy;
             lblProxyHost.Enabled = txtProxyHost.Enabled;            
             txtProxyPort.Enabled = proxy;

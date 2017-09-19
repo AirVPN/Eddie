@@ -55,6 +55,13 @@ namespace Eddie.Platforms.Windows
 			CTRL_SHUTDOWN_EVENT
 		}
 
+		[DllImport("kernel32.dll")]
+		internal static extern bool GenerateConsoleCtrlEvent(uint dwCtrlEvent, uint dwProcessGroupId);
+		[DllImport("kernel32.dll", SetLastError = true)]
+		internal static extern bool AttachConsole(uint dwProcessId);
+		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+		internal static extern bool FreeConsole();
+
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		public static extern IntPtr CreateFile(
 				[MarshalAs(UnmanagedType.LPTStr)] string filename,

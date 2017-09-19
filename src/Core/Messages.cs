@@ -28,8 +28,9 @@ namespace Eddie.Core
         // Start Messages
         public static string AppStarting = "Starting";
         public static string AppShutdownStart = "Shutdown in progress"; 
-        public static string AppShutdownComplete = "Shutdown complete"; 
-        public static string NotImplemented = "Not yet implemented. Contact our support staff.";
+        public static string AppShutdownComplete = "Shutdown complete";
+		public static string ReceivedOsSignal = "Received signal {1}";
+		public static string NotImplemented = "Not yet implemented. Contact our support staff.";
         public static string UnhandledException = "Unexpected error. Please contact our support staff.";
 		public static string Available = "Available";
 		public static string NotAvailable = "Not available";
@@ -146,6 +147,9 @@ namespace Eddie.Core
 		public static string SessionStop = "Session terminated.";
 		public static string SessionCancel = "Cancel requested.";
 		public static string SessionFailed = "Failed to start.";
+		public static string KillWithManagement = "Sending management termination signal";
+		public static string KillWithSoft = "Sending soft termination signal";
+		public static string KillWithHard = "Sending hard termination signal";
 		public static string ConnectionStop = "Connection terminated.";
 		public static string RenewingTls = "Renewing TLS key";
         public static string DirectiveError = "Unrecognized directive or missing parameter: {1}";
@@ -231,8 +235,10 @@ namespace Eddie.Core
 
         public static string ProvidersInvalid = "Invalid provider";
         public static string ProvidersOpenVpnPathNotFound = "Path '{1}' not found for provider '{2}'";
+		public static string ProvidersOpenVpnErrorProfile = "Cannot read configuration file '{1}' for provider '{2}': {3}";
 
-        public static string WindowsAboutTitle = "About";
+
+		public static string WindowsAboutTitle = "About";
 		public static string WindowsAboutVersion = "Version";
 		public static string WindowsTosTitle = "Terms of Service";
 		public static string WindowsTosCheck1 = "I have read and I accept the Terms of Service ";
@@ -251,7 +257,11 @@ namespace Eddie.Core
 		public static string WindowsSettingsTitle = "Preferences";
         public static string WindowsSettingsUiUnit0 = "Bits for speed, bytes for volume";
         public static string WindowsSettingsUiUnit1 = "Always bytes";
-        public static string WindowsSettingsUiUnit2 = "Always bits";        
+        public static string WindowsSettingsUiUnit2 = "Always bits";
+		public static string WindowsSettingsProxyWhenAlways = "Always";
+		public static string WindowsSettingsProxyWhenWeb = "Only for web requests";
+		public static string WindowsSettingsProxyWhenOpenVPN = "Only for OpenVPN";
+		public static string WindowsSettingsProxyWhenNone = "Never";
 		public static string WindowsSettingsRouteTitle = "Preferences - Route";
 		public static string WindowsSettingsEventTitle = "Preferences - Event";
 		public static string WindowsSettingsLoggingHelp = "Use %d, %m, %y or %w for day, month, year or day of week. Useful for log rotation.\nRelative to data path. For multiple logs with different paths, separe it with a semicolon ;\n\nAdvanced example:\nlogs/single.log;logs/months/eddie_%d.log;logs/week/eddie_%w.log";

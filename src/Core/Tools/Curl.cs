@@ -26,13 +26,13 @@ using Eddie.Core;
 namespace Eddie.Core.Tools
 {
 	public class Curl : Tool
-    {
-        public string minVersionRequired = "7.21.7";
+	{
+		public string minVersionRequired = "7.21.7";
 
-        public override void OnNormalizeVersion()
-        {
-            Version = Utils.RegExMatchOne(Version, "^curl\\s(.*?)\\s");            
-        }
+		public override void OnNormalizeVersion()
+		{
+			Version = Utils.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
+		}
 
 		public override void ExceptionIfRequired()
 		{
@@ -44,24 +44,24 @@ namespace Eddie.Core.Tools
 		}
 
 		public override string GetFileName()
-        {
-            if (Platform.Instance.IsWindowsSystem())
-            {
-                return "curl.exe";
-            }
-            else
-                return base.GetFileName();
-        }
+		{
+			if (Platform.Instance.IsWindowsSystem())
+			{
+				return "curl.exe";
+			}
+			else
+				return base.GetFileName();
+		}
 
-        public override string GetVersionArgument()
-        {
-            return "--version";
-        }
+		public override string GetVersionArgument()
+		{
+			return "--version";
+		}
 
-        public string GetRequiredVersionMessage()
-        {
-            return MessagesFormatter.Format(Messages.ToolsCurlVersionNotSupported, Version, minVersionRequired);            
-        }
+		public string GetRequiredVersionMessage()
+		{
+			return MessagesFormatter.Format(Messages.ToolsCurlVersionNotSupported, Version, minVersionRequired);
+		}
 
 		public HttpResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
 		{
@@ -80,86 +80,90 @@ namespace Eddie.Core.Tools
 
 			ExceptionIfRequired();
 
-            ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");
+			ProgramScope programScope = new ProgramScope(this.GetPath(), "curl");
 
-            // Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
-            bool bypassProxy = request.BypassProxy;
-            if (bypassProxy == false)
-                bypassProxy = Engine.Instance.IsConnected();
+			// Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
+			bool bypassProxy = request.BypassProxy;
+			if (bypassProxy == false)
+				bypassProxy = Engine.Instance.IsConnected();
 
-            string dataParameters = "";
-            if (request.Parameters.Count>0)
-            {
-                foreach (string k in request.Parameters.Keys)
-                {
-                    if (dataParameters != "")
-                        dataParameters += "&";
-                    dataParameters += SystemShell.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(request.Parameters[k]);
-                }
-            }
+			string dataParameters = "";
+			if (request.Parameters.Count > 0)
+			{
+				foreach (string k in request.Parameters.Keys)
+				{
+					if (dataParameters != "")
+						dataParameters += "&";
+					dataParameters += SystemShell.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(request.Parameters[k]);
+				}
+			}
 
-            string args = "";
-            if (bypassProxy == false)
-            {
-                string proxyMode = Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant();
-                string proxyHost = Engine.Instance.Storage.Get("proxy.host");
-                int proxyPort = Engine.Instance.Storage.GetInt("proxy.port");
-                string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
-                string proxyLogin = Engine.Instance.Storage.Get("proxy.login");
-                string proxyPassword = Engine.Instance.Storage.Get("proxy.password");
+			string args = "";
+			if (bypassProxy == false)
+			{
+				string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
+				string proxyWhen = Engine.Instance.Storage.GetLower("proxy.when");
+				string proxyHost = Engine.Instance.Storage.Get("proxy.host");
+				int proxyPort = Engine.Instance.Storage.GetInt("proxy.port");
+				string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
+				string proxyLogin = Engine.Instance.Storage.Get("proxy.login");
+				string proxyPassword = Engine.Instance.Storage.Get("proxy.password");
 
-                if (proxyMode == "detect")
-                    throw new Exception(Messages.ProxyDetectDeprecated);
+				if ((proxyWhen == "none") || (proxyWhen == "openvpn"))
+					proxyMode = "none";
 
-                if (proxyMode == "tor")
-                {
-                    proxyMode = "socks";
-                    proxyAuth = "none";
-                    proxyLogin = "";
-                    proxyPassword = "";
-                }
+				if (proxyMode == "detect")
+					throw new Exception(Messages.ProxyDetectDeprecated);
 
-                if (proxyMode == "http")
-                {
-                    args += " --proxy http://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
-                }
-                else if (proxyMode == "socks")
-                {
-                    // curl support different types of proxy. OpenVPN not, only socks5. So, it's useless to support other kind of proxy here.
-                    args += " --proxy socks5://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
-                }
+				if (proxyMode == "tor")
+				{
+					proxyMode = "socks";
+					proxyAuth = "none";
+					proxyLogin = "";
+					proxyPassword = "";
+				}
 
-                if( (proxyMode != "none") && (proxyAuth != "none") )
-                {
-                    if (proxyAuth == "basic")
-                        args += " --proxy-basic";
-                    else if (proxyAuth == "ntlm")
-                        args += " --proxy-ntlm";
+				if (proxyMode == "http")
+				{
+					args += " --proxy http://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
+				}
+				else if (proxyMode == "socks")
+				{
+					// curl support different types of proxy. OpenVPN not, only socks5. So, it's useless to support other kind of proxy here.
+					args += " --proxy socks5://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
+				}
 
-                    if (SystemShell.EscapeInsideQuoteAcceptable(proxyLogin) == false)
-                        throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Login"));
+				if ((proxyMode != "none") && (proxyAuth != "none"))
+				{
+					if (proxyAuth == "basic")
+						args += " --proxy-basic";
+					else if (proxyAuth == "ntlm")
+						args += " --proxy-ntlm";
 
-                    if (SystemShell.EscapeInsideQuoteAcceptable(proxyPassword) == false)
-                        throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Password"));
+					if (SystemShell.EscapeInsideQuoteAcceptable(proxyLogin) == false)
+						throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Login"));
 
-                    if ((proxyLogin != "") && (proxyPassword != ""))
-                        args += " --proxy-user \"" + SystemShell.EscapeInsideQuote(proxyLogin) + "\":\"" + SystemShell.EscapeInsideQuote(proxyPassword) + "\"";
-                }
-            }
+					if (SystemShell.EscapeInsideQuoteAcceptable(proxyPassword) == false)
+						throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Password"));
 
-            args += " \"" + SystemShell.EscapeUrl(request.Url) + "\"";
-            args += " -sS"; // -s Silent mode, -S with errors
-            args += " --max-time " + Engine.Instance.Storage.GetInt("tools.curl.max-time").ToString();
-            
-            Tool cacertTool = Software.GetTool("cacert.pem");
-            if (cacertTool.Available())
-                args += " --cacert \"" + SystemShell.EscapePath(cacertTool.Path) + "\"";
+					if ((proxyLogin != "") && (proxyPassword != ""))
+						args += " --proxy-user \"" + SystemShell.EscapeInsideQuote(proxyLogin) + "\":\"" + SystemShell.EscapeInsideQuote(proxyPassword) + "\"";
+				}
+			}
 
-            if (request.ForceResolve != "")
-                args += " --resolve " + request.ForceResolve;
+			args += " \"" + SystemShell.EscapeUrl(request.Url) + "\"";
+			args += " -sS"; // -s Silent mode, -S with errors
+			args += " --max-time " + Engine.Instance.Storage.GetInt("tools.curl.max-time").ToString();
 
-            if (dataParameters != "")
-                args += " --data \"" + dataParameters + "\"";
+			Tool cacertTool = Software.GetTool("cacert.pem");
+			if (cacertTool.Available())
+				args += " --cacert \"" + SystemShell.EscapePath(cacertTool.Path) + "\"";
+
+			if (request.ForceResolve != "")
+				args += " --resolve " + request.ForceResolve;
+
+			if (dataParameters != "")
+				args += " --data \"" + dataParameters + "\"";
 
 			if (request.IpLayer == "4")
 				args += " -4";
@@ -169,26 +173,26 @@ namespace Eddie.Core.Tools
 			args += " -i";
 
 			string error = "";
-            try
-            {
-                Process p = new Process();
+			try
+			{
+				Process p = new Process();
 
-                p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
-                p.StartInfo.Arguments = args;
-                p.StartInfo.WorkingDirectory = "";
+				p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
+				p.StartInfo.Arguments = args;
+				p.StartInfo.WorkingDirectory = "";
 
 				p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.RedirectStandardError = true;
+				p.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.RedirectStandardOutput = true;
+				p.StartInfo.RedirectStandardError = true;
 
-                p.Start();
+				p.Start();
 
 				System.IO.MemoryStream StreamHeader = new System.IO.MemoryStream();
 				System.IO.MemoryStream StreamBody = new System.IO.MemoryStream();
-				
-                {
+
+				{
 					System.IO.MemoryStream Stream = new System.IO.MemoryStream();
 					byte[] buffer = new byte[4096];
 					int read;
@@ -202,10 +206,10 @@ namespace Eddie.Core.Tools
 						bool foundBody = false;
 						byte[] buffer2 = Stream.ToArray();
 						int i = 0;
-						for (; i < Stream.Length-4; i++)
+						for (; i < Stream.Length - 4; i++)
 						{
 							if ((buffer2[i] == 13) && (buffer2[i + 1] == 10) && (buffer2[i + 2] == 13) && (buffer2[i + 3] == 10))
-							{	
+							{
 								StreamHeader.Write(buffer2, 0, i);
 								StreamBody.Write(buffer2, i + 4, (int)Stream.Length - i - 4);
 								foundBody = true;
@@ -213,20 +217,20 @@ namespace Eddie.Core.Tools
 							}
 						}
 
-						if(foundBody == false)
+						if (foundBody == false)
 							StreamHeader = Stream;
 					}
 					else
 					{
 						StreamHeader = Stream;
 					}
-					
+
 					response.BufferHeader = StreamHeader.ToArray();
 					response.BufferData = StreamBody.ToArray();
 
 					string headers = System.Text.Encoding.ASCII.GetString(response.BufferHeader);
 					string[] headersLines = headers.Split('\n');
-					for(int l=0;l<headersLines.Length;l++)
+					for (int l = 0; l < headersLines.Length; l++)
 					{
 						string line = headersLines[l];
 						if (l == 0)
@@ -238,26 +242,26 @@ namespace Eddie.Core.Tools
 							string v = line.Substring(posSep + 1);
 							response.Headers.Add(new KeyValuePair<string, string>(k.ToLowerInvariant().Trim(), v.Trim()));
 						}
-					}					
+					}
 				}
-                
-                error = p.StandardError.ReadToEnd();
 
-                p.WaitForExit();
+				error = p.StandardError.ReadToEnd();
 
-                response.ExitCode = p.ExitCode;
-            }
-            catch (Exception e)
-            {
-                error = e.Message;
-            }
+				p.WaitForExit();
 
-            programScope.End();
+				response.ExitCode = p.ExitCode;
+			}
+			catch (Exception e)
+			{
+				error = e.Message;
+			}
 
-            if (error != "")
-                throw new Exception(error.Trim());
+			programScope.End();
 
-            return response;
-        }
-    }
+			if (error != "")
+				throw new Exception(error.Trim());
+
+			return response;
+		}
+	}
 }

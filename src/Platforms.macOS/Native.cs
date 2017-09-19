@@ -17,18 +17,18 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.IO;
+//using System.Collections.Generic;
+//using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Xml;
-using Eddie.Core;
+//using System.Text;
+//using System.Xml;
+//using Eddie.Core;
 
-namespace Eddie.Platforms.Linux
+namespace Eddie.Platforms.MacOS
 {
 	public static class Native
 	{
-		public const string NativeLibName = "Lib.Platform.Linux.Native.so";
+		public const string NativeLibName = "libLib.Platform.macOS.Native";
 
 		public enum FileMode
 		{
@@ -75,6 +75,7 @@ namespace Eddie.Platforms.Linux
 			SIGUNUSED = 31
 		}
 
+		/*
 		public static string dlerrorMessage()
 		{
 			IntPtr error = dlerror();
@@ -92,6 +93,7 @@ namespace Eddie.Platforms.Linux
 
 		[DllImport("libdl.so")]
 		public static extern IntPtr dlsym(IntPtr handle, string symbol);
+		*/
 
 		[DllImport(NativeLibName)]
 		public static extern int eddie_linux_get_3();

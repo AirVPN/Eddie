@@ -40,6 +40,8 @@ EDDIE_LINUX_NATIVE_EXPORT int eddie_ip_ping(const char *address, int timeout);
 
 typedef void (* eddie_sighandler_t)(int);
 EDDIE_LINUX_NATIVE_EXPORT void eddie_signal(int signum, eddie_sighandler_t handler);
+    
+EDDIE_LINUX_NATIVE_EXPORT int eddie_kill(int pid, int sig);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

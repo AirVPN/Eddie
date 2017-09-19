@@ -42,9 +42,13 @@ namespace Eddie.Core
 			RouteScope routeScope = null;
 			try
 			{
-				routeScope = new RouteScope(Server.IpsEntry.ToStringFirstIPv4());
-
-				Int64 result = Platform.Instance.Ping(Server.IpsEntry.ToStringFirstIPv4(), 3);
+				IpAddress ip = Server.IpsEntry.OnlyIPv4.First;
+				if (Server.DisplayName == "Castor") // ClodoTemp
+					ip = Server.IpsEntry.OnlyIPv6.First;				
+				if( (ip == null) || (ip.Valid == false) )
+					throw new Exception("Invalid ip");
+				routeScope = new RouteScope(ip.ToString());
+				Int64 result = Platform.Instance.Ping(ip, 3);
 				Pinger.Instance.PingResult(Server, result);
 			}
 			catch (Exception)

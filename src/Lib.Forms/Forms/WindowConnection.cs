@@ -80,8 +80,7 @@ namespace Eddie.Gui.Forms
 			{
 				m_tabMain.Pages.RemoveAt(1);
 			}
-			//Engine.Instance.OnShowText(Messages.ConnectionsShowOVPN, ovpn);
-
+			
 			EnableIde();
 		}
         

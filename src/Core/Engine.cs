@@ -820,7 +820,7 @@ namespace Eddie.Core
 
 		public virtual void OnSignal(string signal)
 		{
-			Engine.Instance.Logs.Log(LogType.Fatal, "Received signal " + signal); // ClodoTemp
+			Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ReceivedOsSignal, signal));
 			m_breakRequests++;
 			OnExit();
 		}
@@ -1098,16 +1098,7 @@ namespace Eddie.Core
 		{
 			Logs.Log(LogType.Warning, message);
 		}
-		/* ClodoTemp2
-		public virtual void OnMessageInfo(string message)
-		{
-		}
-
-		public virtual void OnMessageError(string message)
-		{
-		}
-		*/
-
+		
 		public virtual void OnShowText(string title, string data)
 		{
 		}
@@ -2111,7 +2102,7 @@ namespace Eddie.Core
 				}
 			}
 
-			if (Storage.Get("proxy.mode") != "None")
+			if( (Storage.GetLower("proxy.mode") != "none") && (Storage.GetLower("proxy.when") != "none") )
 			{
 				string proxyHost = Storage.Get("proxy.host").Trim();
 				int proxyPort = Storage.GetInt("proxy.port");

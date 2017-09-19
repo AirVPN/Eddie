@@ -287,6 +287,35 @@ namespace Eddie.Platforms.Windows
 			arguments = new string[] { "/c", command };
 		}
 
+		public override bool ProcessKillSoft(Core.Process process)
+		{
+			bool result = false;
+
+			if (process != null)
+			{
+				if (Native.AttachConsole((uint)process.Id))
+				{
+					Native.SetConsoleCtrlHandler(null, true);
+
+					try
+					{
+						if (Native.GenerateConsoleCtrlEvent((uint) Native.CtrlTypes.CTRL_C_EVENT, 0))
+						{
+							process.WaitForExit();
+							result = true;
+						}
+					}
+					finally
+					{
+						Native.FreeConsole();
+						Native.SetConsoleCtrlHandler(null, false);
+					}
+				}
+			}
+
+			return result;
+		}
+
 		public override int GetRecommendedRcvBufDirective()
 		{
 			return 256 * 1024;

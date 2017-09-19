@@ -596,8 +596,11 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual Int64 Ping(string host, int timeoutSec)
+		public virtual Int64 Ping(IpAddress host, int timeoutSec)
 		{
+			if ((host == null) || (host.Valid == false))
+				return -1;
+
 			Ping pingSender = new Ping();
 			PingOptions options = new PingOptions();
 
@@ -607,12 +610,17 @@ namespace Eddie.Core
 			// Create a buffer of 32 bytes of data to be transmitted.
 			byte[] buffer = RandomGenerator.GetBuffer(32);
 			int timeout = timeoutSec * 1000;
-			PingReply reply = pingSender.Send(host, timeout, buffer, options);
+			PingReply reply = pingSender.Send(host.ToString(), timeout, buffer, options);
 
 			if (reply.Status == IPStatus.Success)
 				return reply.RoundtripTime;
 			else
 				return -1;
+		}
+
+		public virtual bool ProcessKillSoft(Process process)
+		{
+			return false;
 		}
 
 		public virtual int GetRecommendedSndBufDirective()

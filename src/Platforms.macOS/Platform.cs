@@ -260,6 +260,12 @@ namespace Eddie.Platforms.MacOS
 			return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
 		}
 
+		public override bool ProcessKillSoft(Process process)
+		{
+			Engine.Instance.Logs.LogDebug("test kill " + process.Id.ToString()); // ClodoTemp2
+			return (Native.eddie_kill(process.Id, (int)Native.Signum.SIGTERM) == 0);
+		}
+
 		public override int GetRecommendedRcvBufDirective()
 		{
 			return 256 * 1024;
@@ -367,9 +373,12 @@ namespace Eddie.Platforms.MacOS
 		}
 
 		// Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
-		public override long Ping(string host, int timeoutSec)
+		public override long Ping(IpAddress host, int timeoutSec)
 		{
-			return Native.eddie_ip_ping(host, timeoutSec * 1000);
+			if ((host == null) || (host.Valid == false))
+				return -1;
+
+			return Native.eddie_ip_ping(host.ToString(), timeoutSec * 1000);
 			/* < 2.13.6 // TOCLEAN
 			// Note: Linux timeout is -w, OS X timeout is -t			
 			float iMS = -1;

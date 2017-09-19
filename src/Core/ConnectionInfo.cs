@@ -443,6 +443,9 @@ namespace Eddie.Core
 			string proxyDirectiveArgs = "";
 
 			string proxyMode = s.GetLower("proxy.mode");
+			string proxyWhen = s.GetLower("proxy.when");
+			if ((proxyWhen == "none") || (proxyWhen == "web"))
+				proxyMode = "none";
 			if (proxyMode == "tor")
 			{
 				proxyDirectiveName = "socks-proxy";

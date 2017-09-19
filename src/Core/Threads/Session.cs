@@ -421,12 +421,16 @@ namespace Eddie.Core.Threads
 						// Phase 5 - Waiting disconnection
 						// -----------------------------------
 
-						TimeDelta DeltaSigTerm = null;
+
+						int lastSignalTime = 0;
+						string lastSignalType = "none";
 
 						for (;;)
 						{
 							try
 							{
+								int now = Utils.UnixTimeStamp();
+
 								// As explained here: http://stanislavs.org/stopping-command-line-applications-programatically-with-ctrl-c-events-from-net/
 								// there isn't any .Net/Mono clean method to send a signal term to a Windows console-only application. So a brutal Kill is performed when there isn't any alternative.
 								// TODO: Maybe optimized under Linux.
@@ -443,33 +447,61 @@ namespace Eddie.Core.Threads
 								if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited == false))
 								{
 									if ((m_openVpnManagementSocket == null) || (m_openVpnManagementSocket.Connected == false))
-										m_processOpenVpn.Kill();
+									{
+										if (now - lastSignalTime >= 10)
+										{
+											lastSignalTime = now;
+
+											if ((lastSignalType == "none") || (lastSignalType == "management"))
+											{
+												lastSignalType = "soft";
+												Engine.Instance.Logs.Log(LogType.Verbose, Messages.KillWithSoft);
+												Platform.Instance.ProcessKillSoft(m_processOpenVpn);
+											}
+											else if( (lastSignalType == "soft") || (lastSignalType == "hard") )
+											{
+												lastSignalType = "hard";
+												Engine.Instance.Logs.Log(LogType.Verbose, Messages.KillWithHard);
+												m_processOpenVpn.Kill();
+											}
+										}
+									}
 								}
 
 								// Proxy (SSH/SSL) process
 								if ((m_processProxy != null) && (m_processOpenVpn != null) && (m_processProxy.ReallyExited == false) && (m_processOpenVpn.ReallyExited == true))
 								{
-									m_processProxy.Kill();
-								}
+									if (now - lastSignalTime >= 10)
+									{
+										lastSignalTime = now;
 
+										if ((lastSignalType == "none") || (lastSignalType == "management"))
+										{
+											lastSignalType = "soft";
+											Engine.Instance.Logs.Log(LogType.Verbose, Messages.KillWithSoft);
+											Platform.Instance.ProcessKillSoft(m_processProxy);
+										}
+										else if ((lastSignalType == "soft") || (lastSignalType == "hard"))
+										{
+											lastSignalType = "hard";
+											Engine.Instance.Logs.Log(LogType.Verbose, Messages.KillWithHard);
+											m_processProxy.Kill();
+										}
+									}
+								}
+								
 								// Start a clean disconnection
 								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.ReallyExited == false) && (m_openVpnManagementSocket.Connected))
 								{
-									bool sendSignal = false;
-									if (DeltaSigTerm == null)
+									if(now-lastSignalTime >= 10)
 									{
-										DeltaSigTerm = new TimeDelta();
-										sendSignal = true;
-									}
-									else if (DeltaSigTerm.Elapsed(10000)) // Try a SIGTERM every 10 seconds
-										sendSignal = true;
-
-									if (sendSignal)
-									{
+										lastSignalTime = now;
+										lastSignalType = "management";
+										Engine.Instance.Logs.Log(LogType.Verbose, Messages.KillWithManagement);
 										SendManagementCommand("signal SIGTERM");
 										ProcessOpenVpnManagement();
-									}
-								}
+									}									
+								}								
 							}
 							catch (Exception e)
 							{
@@ -822,17 +854,26 @@ namespace Eddie.Core.Threads
 			//m_reset = level;
 		}
 
-		public void SendManagementCommand(string Cmd)
+		public bool InReset
 		{
-			if (Cmd == "k1")
+			get
 			{
-				m_openVpnManagementSocket.Close();
+				return (m_reset != "");
 			}
-			else if (Cmd == "k2")
+		}
+
+		public void SendManagementCommand(string cmd)
+		{
+			if (cmd == "k1")
+			{
+				if(m_openVpnManagementSocket != null)
+					m_openVpnManagementSocket.Close();
+			}
+			else if (cmd == "k2")
 			{
 				m_processOpenVpn.Kill();
 			}
-			else if (Cmd == "k3")
+			else if (cmd == "k3")
 			{
 				m_processProxy.Kill();
 			}
@@ -845,7 +886,7 @@ namespace Eddie.Core.Threads
 
 			lock (this)
 			{
-				m_openVpnManagementCommands.Add(Cmd);
+				m_openVpnManagementCommands.Add(cmd);
 			}
 		}
 
@@ -954,6 +995,8 @@ namespace Eddie.Core.Threads
 
 					if (messageLower.StartsWith("warning:"))
 						logType = LogType.Warning;
+					if (messageLower.StartsWith("warn:"))
+						logType = LogType.Warning;
 
 					// Exception
 					if (Platform.Instance.GetCode() != "MacOS")
@@ -980,6 +1023,14 @@ namespace Eddie.Core.Threads
 							log = false;
 					}
 
+					// Ignore, useless
+					if (message.Contains("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
+						log = false;
+
+					// Ignore, caused by Windows method GenerateConsoleCtrlEvent to soft-kill
+					if (message.Contains("win_trigger_event: WriteConsoleInput: The handle is invalid."))
+						log = false;
+
 					if (message.StartsWith("Options error:"))
 					{
 						if (log)
@@ -998,6 +1049,72 @@ namespace Eddie.Core.Threads
 								}
 							}
 						}
+					}
+					
+					if (message.StartsWith("Control Channel: "))
+					{
+						Engine.Instance.ConnectedControlChannel = message.Substring("Control Channel: ".Length);
+					}
+
+					if (message.IndexOf("Connection reset, restarting") != -1)
+					{
+						SetReset("ERROR");
+					}
+
+					if (message.IndexOf("Exiting due to fatal error") != -1)
+					{
+						SetReset("ERROR");
+					}
+
+					if (message.IndexOf("SIGTERM[soft,ping-exit]") != -1) // 2.2
+					{
+						SetReset("ERROR");
+					}
+
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						SetReset("ERROR");
+					}
+
+					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
+					{
+						SetReset("ERROR");
+					}
+
+					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received");
+					if (matchSigReceived.Success)
+					{
+						SetReset("ERROR");
+					}
+
+					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
+					{
+						Engine.Logs.Log(LogType.Verbose, Messages.AutoPortSwitch);
+
+						Engine.Storage.SetInt("openvpn.management_port", Engine.Storage.GetInt("openvpn.management_port") + 1);
+
+						SetReset("RETRY");
+					}
+
+					if (message.IndexOf("AUTH_FAILED") != -1)
+					{
+						Engine.Instance.CurrentServer.Provider.OnAuthFailed();
+
+						SetReset("AUTH_FAILED");
+					}
+
+					if (message.IndexOf("MANAGEMENT: TCP Socket listening on") != -1)
+					{
+					}
+
+					if (message.IndexOf("TLS: tls_process: killed expiring key") != -1)
+					{
+						Engine.Logs.Log(LogType.Info, Messages.RenewingTls);
+					}
+
+					if (message.IndexOf("Initialization Sequence Completed With Errors") != -1)
+					{
+						SetReset("ERROR");
 					}
 
 					// Detect connection (OpenVPN >2.4)
@@ -1068,355 +1185,23 @@ namespace Eddie.Core.Threads
 						}
 					}
 
-					if (message.StartsWith("Control Channel: "))
+					if (Utils.RegExMatchOne(messageLower, "^management: tcp socket listening on \\[af_inet6?\\]([0-9a-f\\.\\:]+?)$") != "")
 					{
-						Engine.Instance.ConnectedControlChannel = message.Substring("Control Channel: ".Length);
-					}
-
-					if (message.IndexOf("Connection reset, restarting") != -1)
-					{
-						SetReset("ERROR");
-					}
-
-					if (message.IndexOf("Exiting due to fatal error") != -1)
-					{
-						SetReset("ERROR");
-					}
-
-					if (message.IndexOf("SIGTERM[soft,ping-exit]") != -1) // 2.2
-					{
-						SetReset("ERROR");
-					}
-
-					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
-					{
-						SetReset("ERROR");
-					}
-
-					if (message.IndexOf("SIGUSR1[soft,tls-error] received, process restarting") != -1)
-					{
-						SetReset("ERROR");
-					}
-
-					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received");
-					if (matchSigReceived.Success)
-					{
-						SetReset("ERROR");
-					}
-
-					if (message.IndexOf("MANAGEMENT: Socket bind failed on local address") != -1)
-					{
-						Engine.Logs.Log(LogType.Verbose, Messages.AutoPortSwitch);
-
-						Engine.Storage.SetInt("openvpn.management_port", Engine.Storage.GetInt("openvpn.management_port") + 1);
-
-						SetReset("RETRY");
-					}
-
-					if (message.IndexOf("AUTH_FAILED") != -1)
-					{
-						Engine.Instance.CurrentServer.Provider.OnAuthFailed();
-
-						SetReset("AUTH_FAILED");
-					}
-
-					if (message.IndexOf("MANAGEMENT: TCP Socket listening on") != -1)
-					{
-					}
-
-					if (message.IndexOf("TLS: tls_process: killed expiring key") != -1)
-					{
-						Engine.Logs.Log(LogType.Info, Messages.RenewingTls);
-					}
-
-					if (message.IndexOf("Initialization Sequence Completed With Errors") != -1)
-					{
-						SetReset("ERROR");
+						ConnectManagementSocket();
 					}
 
 					if (message.IndexOf("Initialization Sequence Completed") != -1)
 					{
-						Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
-
-						m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-						m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
-						m_openVpnManagementSocket.SendTimeout = 5000;
-						m_openVpnManagementSocket.ReceiveTimeout = 5000;
+						ConnectedStep();
 					}
 
 					if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
-					{
-						Platform.Instance.OnInterfaceDo(Engine.Instance.ConnectedVpnInterfaceId);
-
-						IpAddresses dns = new IpAddresses(Engine.Instance.Storage.Get("dns.servers"));
-						if (dns.Count == 0)
-							dns = Engine.ConnectedOVPN.ExtractDns();
-
-						if (dns.Count != 0)
-							Platform.Instance.OnDnsSwitchDo(dns);
-
-						if (Engine.Instance.Storage.GetBool("routes.remove_default"))
-							Platform.Instance.OnRouteDefaultRemoveDo();
-
-						Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
-
-						Platform.Instance.FlushDNS();
-
-						// 2.4: Sometime (only under Windows) Interface is not really ready...
-						if (Platform.Instance.WaitTunReady() == false)
-							SetReset("ERROR");
-
-						if (Engine.Instance.ConnectedExitIP.Count == 0)
-						{
-							Engine.WaitMessageSet(Messages.ConnectionDetectExit, true);
-							Engine.Logs.Log(LogType.Verbose, Messages.ConnectionDetectExit);
-							Engine.Instance.ConnectedExitIP.Add(Engine.Instance.DiscoverExit());
-						}
-
-						Engine.Instance.NetworkLockManager.OnVpnEstablished();
-
-						if (Engine.CurrentServer.Provider is Providers.Service)
-						{
-							Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
-
-							if (Engine.CurrentServer.SupportCheck == false)
-							{
-								Engine.Logs.Log(LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
-							}
-							else
-							{
-								if ((m_reset == "") && (service.CheckTunnel))
-								{
-									Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
-
-									bool ok = false;
-									int nTry = 3;
-									if (Engine.Instance.Storage.GetBool("windows.workarounds"))
-										nTry = 10;
-
-									for (int t = 0; t < nTry; t++)
-									{
-										if (m_reset != "")
-											break;
-
-										if (t == 0)
-											Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingRoute);
-										else
-										{
-											Engine.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ConnectionCheckingTryRoute, (t + 1).ToString()));
-											System.Threading.Thread.Sleep(t * 1000);
-										}
-
-										try
-										{
-											// <2.11
-											// string checkUrl = "https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "") + "/check_tun/";
-
-											// 2.11
-											// string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
-											// string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
-											// XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute, true);
-
-											// 2.12
-											string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
-											string checkUrl = "https://" + checkDomain + "/check_tun/";
-											HttpRequest httpRequest = new HttpRequest();
-											httpRequest.Url = checkUrl;
-											httpRequest.BypassProxy = true;
-											httpRequest.ForceResolve = checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
-											XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
-
-											string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
-
-											if (Engine.ConnectedOVPN.ExtractVpnIPs().ContainsAddress(answer) == false)
-												throw new Exception(MessagesFormatter.Format(Messages.ConnectionCheckingTryRouteFail, answer));
-
-											Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-											Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-
-											ok = true;
-											break;
-										}
-										catch (Exception e)
-										{
-											Engine.Logs.Log(LogType.Verbose, e);
-										}
-									}
-
-									if ((m_reset == "") && (ok == false))
-									{
-										Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingRouteFailed);
-										SetReset("ERROR");
-									}
-
-									if (m_reset == "")
-									{
-										// Real IP are detected with a request over the server entry IP.
-										// Normally this is routed by openvpn outside the tunnel.
-										// But if a proxy is active, don't work.
-										if (Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant() != "none")
-										{
-											Engine.ConnectedRealIp = Messages.NotAvailable;
-											Engine.ConnectedServerTime = 0;
-										}
-										else
-										{
-											try
-											{
-												// 2.11
-												// string checkUrl = "https://" + Engine.ConnectedEntryIP + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
-												// string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
-												// XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute2, true);
-
-												// 2.12
-												string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
-												string checkUrl = "https://" + checkDomain + "/check_tun/";
-												HttpRequest httpRequest = new HttpRequest();
-												httpRequest.Url = checkUrl;
-												httpRequest.BypassProxy = true;
-												httpRequest.ForceResolve = checkDomain + ":" + Engine.ConnectedEntryIP;
-												XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
-
-												Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-												Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-
-												Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
-											}
-											catch (Exception e)
-											{
-												Engine.Logs.Log(e);
-
-												Engine.ConnectedRealIp = Messages.NotAvailable;
-												Engine.ConnectedServerTime = 0;
-											}
-										}
-									}
-								}
-								else
-								{
-									Engine.ConnectedRealIp = "";
-									Engine.ConnectedServerTime = 0;
-								}
-
-								// DNS test
-								if ((m_reset == "") && (service.CheckDns) && (Engine.Storage.Get("dns.servers") == ""))
-								{
-									Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
-
-									bool ok = false;
-									int nTry = 3;
-									if (Engine.Instance.Storage.GetBool("windows.workarounds"))
-										nTry = 10;
-
-									for (int t = 0; t < nTry; t++)
-									{
-										if (m_reset != "")
-											break;
-
-										if (t == 0)
-											Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingDNS);
-										else
-										{
-											Engine.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ConnectionCheckingTryDNS, (t + 1).ToString()));
-											System.Threading.Thread.Sleep(t * 1000);
-										}
-
-										try
-										{
-											string hash = Utils.GetRandomToken();
-											string randomIp = RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255);
-
-											// Query a inexistent domain with the hash
-											string dnsQuery = service.GetKeyValue("check_dns_query", "");
-											string dnsHost = dnsQuery.Replace("{hash}", hash);
-											IpAddresses result = DnsManager.ResolveDNS(dnsHost, true);
-
-											// Check if the server has received the above DNS query
-
-											// 2.11
-											// string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_dns/";
-											// string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
-											// XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingDNS, true);
-
-											// 2.12
-											string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
-											string checkUrl = "https://" + checkDomain + "/check_dns/";
-											HttpRequest httpRequest = new HttpRequest();
-											httpRequest.Url = checkUrl;
-											httpRequest.BypassProxy = true;
-											if (result.CountIPv6 != 0) // Note: Use the same IP layer of the dns-result
-												httpRequest.IpLayer = "6";
-											else
-												httpRequest.IpLayer = "4";
-											httpRequest.ForceResolve = checkDomain + ":" + checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
-											XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
-
-											string answer = xmlDoc.DocumentElement.Attributes["hash"].Value;
-
-											if (hash != answer)
-												throw new Exception(MessagesFormatter.Format(Messages.ConnectionCheckingTryDNSFail, answer));
-
-											ok = true;
-											break;
-										}
-										catch (Exception e)
-										{
-											Engine.Logs.Log(LogType.Verbose, e);
-										}
-									}
-
-									if ((m_reset == "") && (ok == false))
-									{
-										Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingDNSFailed);
-										SetReset("ERROR");
-									}
-								}
-							}
-						}
-
-
-
-						if (m_reset == "")
-						{
-							Engine.RunEventCommand("vpn.up");
-
-							Engine.Logs.Log(LogType.InfoImportant, Messages.ConnectionConnected);
-							Engine.SetConnected(true);
-
-							if (Engine.Instance.Storage.GetBool("advanced.testonly"))
-								Engine.RequestStop();
-						}
+					{						
 					}
 
 					// Windows
 					if (Platform.Instance.IsUnixSystem() == false)
 					{
-						// Old 2.11.9
-						/*
-						List<string> match = Utils.RegExMatchSingle(message, "TAP-.*? device \\[(.*?)\\] opened: \\\\\\\\\\.\\\\Global\\\\(.*?).tap");
-						if (match != null)
-						{
-							Engine.ConnectedVpnInterfaceName = match[0];
-							Engine.ConnectedVpnInterfaceId = match[1];
-
-							m_interfaceScope = new InterfaceScope(Engine.ConnectedVpnInterfaceId);
-
-							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-							foreach (NetworkInterface adapter in interfaces)
-							{
-								if (adapter.Id == Engine.ConnectedVpnInterfaceId)
-								{
-									m_interfaceTun = adapter;
-									InterfaceTunBytesReadInitial = -1;
-									InterfaceTunBytesWriteInitial = -1;
-									InterfaceTunBytesLastRead = -1;
-									InterfaceTunBytesLastWrite = -1;
-								}
-							}
-						}
-						*/
-
-						// Match interface - 2.11.10
 						List<string> matchInterface = Utils.RegExMatchSingle(message, "TAP-.*\\\\(.+?).tap");
 						if (matchInterface != null)
 						{
@@ -1484,7 +1269,8 @@ namespace Eddie.Core.Threads
 							m_interfaceTunBytesLastWrite = -1;
 						}
 					}
-
+										
+					//if(InReset == false)
 					{
 						string pushDirectivesLine = Utils.RegExMatchOne(message, "PUSH: Received control message: '(.*?)'");
 						if (pushDirectivesLine != "")
@@ -1499,8 +1285,13 @@ namespace Eddie.Core.Threads
 						}
 					}
 
+					// Removed in 2.13.6 // TOCLEAN
+					/*
 					if (message.StartsWith("Warning:") && logType < LogType.Warning)
 						logType = LogType.Warning;
+					*/
+
+					// End
 
 					if (log)
 						Engine.Logs.Log(logType, source + " > " + message);
@@ -1553,6 +1344,264 @@ namespace Eddie.Core.Threads
 				Engine.Logs.Log(LogType.Warning, ex);
 
 				SetReset("ERROR");
+			}
+		}
+
+		public void ConnectManagementSocket()
+		{
+			return; // ClodoTemp2
+			if (m_openVpnManagementSocket == null)
+			{
+				Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
+
+				m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+				m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
+				m_openVpnManagementSocket.SendTimeout = 5000;
+				m_openVpnManagementSocket.ReceiveTimeout = 5000;
+			}
+		}
+
+		public void ConnectedStep()
+		{
+			Platform.Instance.OnInterfaceDo(Engine.Instance.ConnectedVpnInterfaceId);
+
+			IpAddresses dns = new IpAddresses(Engine.Instance.Storage.Get("dns.servers"));
+			if (dns.Count == 0)
+				dns = Engine.ConnectedOVPN.ExtractDns();
+
+			if (dns.Count != 0)
+				Platform.Instance.OnDnsSwitchDo(dns);
+
+			if (Engine.Instance.Storage.GetBool("routes.remove_default"))
+				Platform.Instance.OnRouteDefaultRemoveDo();
+
+			Engine.WaitMessageSet(Messages.ConnectionFlushDNS, true);
+
+			Platform.Instance.FlushDNS();
+
+			// 2.4: Sometime (only under Windows) Interface is not really ready...
+			if (Platform.Instance.WaitTunReady() == false)
+				SetReset("ERROR");
+
+			if (Engine.Instance.ConnectedExitIP.Count == 0)
+			{
+				Engine.WaitMessageSet(Messages.ConnectionDetectExit, true);
+				Engine.Logs.Log(LogType.Verbose, Messages.ConnectionDetectExit);
+				Engine.Instance.ConnectedExitIP.Add(Engine.Instance.DiscoverExit());
+			}
+
+			Engine.Instance.NetworkLockManager.OnVpnEstablished();
+
+			if (Engine.CurrentServer.Provider is Providers.Service)
+			{
+				Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
+
+				if (Engine.CurrentServer.SupportCheck == false)
+				{
+					Engine.Logs.Log(LogType.Warning, Messages.ConnectionCheckingRouteNotAvailable);
+				}
+				else
+				{
+					if ((m_reset == "") && (service.CheckTunnel))
+					{
+						Engine.WaitMessageSet(Messages.ConnectionCheckingRoute, true);
+
+						bool ok = false;
+						int nTry = 3;
+						if (Engine.Instance.Storage.GetBool("windows.workarounds"))
+							nTry = 10;
+
+						for (int t = 0; t < nTry; t++)
+						{
+							if (m_reset != "")
+								break;
+
+							if (t == 0)
+								Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingRoute);
+							else
+							{
+								Engine.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ConnectionCheckingTryRoute, (t + 1).ToString()));
+								System.Threading.Thread.Sleep(t * 1000);
+							}
+
+							try
+							{
+								// <2.11
+								// string checkUrl = "https://" + Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "") + "/check_tun/";
+
+								// 2.11
+								// string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+								// string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+								// XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute, true);
+
+								// 2.12
+								string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+								string checkUrl = "https://" + checkDomain + "/check_tun/";
+								HttpRequest httpRequest = new HttpRequest();
+								httpRequest.Url = checkUrl;
+								httpRequest.BypassProxy = true;
+								httpRequest.ForceResolve = checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
+								XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
+
+								string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
+
+								if (Engine.ConnectedOVPN.ExtractVpnIPs().ContainsAddress(answer) == false)
+									throw new Exception(MessagesFormatter.Format(Messages.ConnectionCheckingTryRouteFail, answer));
+
+								Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+								Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+								ok = true;
+								break;
+							}
+							catch (Exception e)
+							{
+								Engine.Logs.Log(LogType.Verbose, e);
+							}
+						}
+
+						if ((m_reset == "") && (ok == false))
+						{
+							Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingRouteFailed);
+							SetReset("ERROR");
+						}
+
+						if (m_reset == "")
+						{
+							// Real IP are detected with a request over the server entry IP.
+							// Normally this is routed by openvpn outside the tunnel.
+							// But if a proxy is active, don't work.
+							if ((Engine.Instance.ConnectedOVPN.ExistsDirective("socks-proxy")) ||
+								(Engine.Instance.ConnectedOVPN.ExistsDirective("http-proxy"))
+							  )
+							{
+								Engine.ConnectedRealIp = Messages.NotAvailable;
+								Engine.ConnectedServerTime = 0;
+							}
+							else
+							{
+								try
+								{
+									// 2.11
+									// string checkUrl = "https://" + Engine.ConnectedEntryIP + ":" + service.GetKeyValue("check_port", "89") + "/check_tun/";
+									// string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
+									// XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingRoute2, true);
+
+									// 2.12
+									string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "." + service.GetKeyValue("check_domain", "");
+									string checkUrl = "https://" + checkDomain + "/check_tun/";
+									HttpRequest httpRequest = new HttpRequest();
+									httpRequest.Url = checkUrl;
+									httpRequest.BypassProxy = true;
+									httpRequest.ForceResolve = checkDomain + ":" + Engine.ConnectedEntryIP;
+									XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
+
+									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
+									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
+
+									Engine.ConnectedRealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
+								}
+								catch (Exception e)
+								{
+									Engine.Logs.Log(e);
+
+									Engine.ConnectedRealIp = Messages.NotAvailable;
+									Engine.ConnectedServerTime = 0;
+								}
+							}
+						}
+					}
+					else
+					{
+						Engine.ConnectedRealIp = "";
+						Engine.ConnectedServerTime = 0;
+					}
+
+					// DNS test
+					if ((m_reset == "") && (service.CheckDns) && (Engine.Storage.Get("dns.servers") == ""))
+					{
+						Engine.WaitMessageSet(Messages.ConnectionCheckingDNS, true);
+
+						bool ok = false;
+						int nTry = 3;
+						if (Engine.Instance.Storage.GetBool("windows.workarounds"))
+							nTry = 10;
+
+						for (int t = 0; t < nTry; t++)
+						{
+							if (m_reset != "")
+								break;
+
+							if (t == 0)
+								Engine.Logs.Log(LogType.Info, Messages.ConnectionCheckingDNS);
+							else
+							{
+								Engine.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ConnectionCheckingTryDNS, (t + 1).ToString()));
+								System.Threading.Thread.Sleep(t * 1000);
+							}
+
+							try
+							{
+								string hash = Utils.GetRandomToken();
+								string randomIp = RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255);
+
+								// Query a inexistent domain with the hash
+								string dnsQuery = service.GetKeyValue("check_dns_query", "");
+								string dnsHost = dnsQuery.Replace("{hash}", hash);
+								IpAddresses result = DnsManager.ResolveDNS(dnsHost, true);
+
+								// Check if the server has received the above DNS query
+
+								// 2.11
+								// string checkUrl = "https://" + Engine.CurrentServer.IpExit + ":" + service.GetKeyValue("check_port", "89") + "/check_dns/";
+								// string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+								// XmlDocument xmlDoc = Engine.XmlFromUrl(checkUrl, checkDomain, null, Messages.ConnectionCheckingDNS, true);
+
+								// 2.12
+								string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
+								string checkUrl = "https://" + checkDomain + "/check_dns/";
+								HttpRequest httpRequest = new HttpRequest();
+								httpRequest.Url = checkUrl;
+								httpRequest.BypassProxy = true;
+								if (result.CountIPv6 != 0) // Note: Use the same IP layer of the dns-result
+									httpRequest.IpLayer = "6";
+								else
+									httpRequest.IpLayer = "4";
+								httpRequest.ForceResolve = checkDomain + ":" + checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
+								XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
+
+								string answer = xmlDoc.DocumentElement.Attributes["hash"].Value;
+
+								if (hash != answer)
+									throw new Exception(MessagesFormatter.Format(Messages.ConnectionCheckingTryDNSFail, answer));
+
+								ok = true;
+								break;
+							}
+							catch (Exception e)
+							{
+								Engine.Logs.Log(LogType.Verbose, e);
+							}
+						}
+
+						if ((m_reset == "") && (ok == false))
+						{
+							Engine.Logs.Log(LogType.Error, Messages.ConnectionCheckingDNSFailed);
+							SetReset("ERROR");
+						}
+					}
+				}
+			}
+			
+			if (m_reset == "")
+			{
+				Engine.RunEventCommand("vpn.up");
+
+				Engine.Logs.Log(LogType.InfoImportant, Messages.ConnectionConnected);
+				Engine.SetConnected(true);
+
+				if (Engine.Instance.Storage.GetBool("advanced.testonly"))
+					Engine.RequestStop();
 			}
 		}
 

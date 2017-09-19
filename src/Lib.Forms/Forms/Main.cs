@@ -1195,6 +1195,22 @@ namespace Eddie.Gui.Forms
 			m_pnlCharts.Switch(cboSpeedResolution.SelectedIndex);
 		}
 
+		private void txtCommand_KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.KeyValue == 13)
+			{
+				string command = txtCommand.Text;
+				txtCommand.Text = "";
+
+				Engine.Instance.Command(command, false);
+			}
+		}
+
+		private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			Engine.Instance.Storage.Set("key", cboKey.SelectedItem as string);
+		}
+
 		#endregion
 
 		public bool MinimizeInTray()
@@ -1575,23 +1591,6 @@ namespace Eddie.Gui.Forms
 			m_tabMain.SetPageVisible(1, Engine.Storage.GetBool("advanced.providers"));
 		}
 
-		/*
-		// ClodoTemp2 OnCommand
-		private delegate XmlItem OnCommandDelegate(XmlItem xml, bool ignoreIfNotExists);
-		public XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
-		{
-			if (this.InvokeRequired)
-			{
-				OnCommandDelegate inv = new OnCommandDelegate(this.OnCommand);
-				return this.Invoke(inv, new object[] { xml, ignoreIfNotExists }) as XmlItem;
-			}
-			else
-			{
-				return MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
-			}
-		}
-		*/
-
 		// Force when need to update icons, force refresh etc.		
 		private delegate void OnRefreshUiDelegate(Engine.RefreshUiMode mode);
 		public void OnRefreshUi(Engine.RefreshUiMode mode)
@@ -1773,8 +1772,6 @@ namespace Eddie.Gui.Forms
 			}
 		}
 
-		// ClodoTemp2 OnLog
-
 		private delegate void OnFrontMessageDelegate(string message);
 		public void OnFrontMessage(string message)
 		{
@@ -1946,8 +1943,54 @@ namespace Eddie.Gui.Forms
 			}
 		}
 
+		private delegate void OnShowPreferencesDelegate();
+		public void OnShowPreferences()
+		{
+			if (this.InvokeRequired)
+			{
+				OnShowPreferencesDelegate inv = new OnShowPreferencesDelegate(this.OnShowPreferences);
 
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				Forms.Settings Dlg = new Forms.Settings();
+				Dlg.ShowDialog();
 
+				EnabledUi();
+			}
+		}
+
+		private delegate void OnShowAboutDelegate();
+		public void OnShowAbout()
+		{
+			if (this.InvokeRequired)
+			{
+				OnShowAboutDelegate inv = new OnShowAboutDelegate(this.OnShowAbout);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				Forms.About dlg = new Forms.About();
+				dlg.ShowDialog();
+			}
+		}
+
+		private delegate void OnShowMenuDelegate();
+		public void OnShowMenu()
+		{
+			if (this.InvokeRequired)
+			{
+				OnShowMenuDelegate inv = new OnShowMenuDelegate(this.OnShowMenu);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				ShowMenu();
+			}
+		}
 
 
 
@@ -2054,21 +2097,7 @@ namespace Eddie.Gui.Forms
 			Engine.NetLockOut();
 		}
 
-		private void txtCommand_KeyUp(object sender, KeyEventArgs e)
-		{
-			if (e.KeyValue == 13)
-			{
-				string command = txtCommand.Text;
-				txtCommand.Text = "";
-
-				Engine.Instance.Command(command, false);
-			}
-		}
-
-		private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			Engine.Instance.Storage.Set("key", cboKey.SelectedItem as string);
-		}
+		
 
 
 	}

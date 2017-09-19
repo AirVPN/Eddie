@@ -148,6 +148,40 @@ int eddie_ip_ping(const char *address, int timeout)
     if(address == NULL)
         return -1;
 
+    // Looks for ':' char instead of '.' for compatibility with the notation "::a.b.c.d"
+    bool isv6 = strchr(address, ':') != NULL;
+    
+    struct sockaddr_in request_address4;
+    EDDIE_ZEROMEMORY(&request_address4, sizeof(struct sockaddr_in));
+    
+    struct sockaddr_in6 request_address6;
+    EDDIE_ZEROMEMORY(&request_address6, sizeof(struct sockaddr_in6));
+    
+    struct sockaddr *request_address = NULL;
+    socklen_t request_address_len = 0;
+    
+    if(isv6)
+    {
+        request_address6.sin6_family = AF_INET6;
+        request_address6.sin6_port = 0;
+        if(inet_pton(AF_INET6, address, &request_address6.sin6_addr) <= 0)  // The result is already in network byte order
+            return -1;
+        
+        request_address = (struct sockaddr *) &request_address6;
+        request_address_len = sizeof(request_address6);
+    }
+    else
+    {
+        request_address4.sin_family = AF_INET;
+        request_address4.sin_port = 0;
+        request_address4.sin_addr.s_addr = inet_addr(address);   // The result is already in network byte order
+        if(request_address4.sin_addr.s_addr == INADDR_NONE)
+            return -1;
+        
+        request_address = (struct sockaddr *) &request_address4;
+        request_address_len = sizeof(request_address4);
+    }
+    
     // Allocate a raw ICMP socket (requires root)
     int sock = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP);
     if(sock < 0)
@@ -163,12 +197,6 @@ int eddie_ip_ping(const char *address, int timeout)
     }
 
     uint16_t request_id = eddie_generate_icmp_id();
-
-    struct sockaddr_in request_address;
-    EDDIE_ZEROMEMORY(&request_address, sizeof(struct sockaddr_in));
-    request_address.sin_family = AF_INET;
-    request_address.sin_port = 0;
-    request_address.sin_addr.s_addr = inet_addr(address);   // The result is already in network byte order
 
     struct icmp request_header;
     EDDIE_ZEROMEMORY(&request_header, sizeof(struct icmp));
@@ -187,7 +215,7 @@ int eddie_ip_ping(const char *address, int timeout)
     double start_time = eddie_get_time();
 
     // Sends the echo request to the destination address
-    if(sendto(sock, &request_header, sizeof(struct icmp), 0, (struct sockaddr *) &request_address, sizeof(request_address)) > 0)
+    if(sendto(sock, &request_header, sizeof(struct icmp), 0, request_address, request_address_len) > 0)
     {
         struct timeval receive_timeout;
         int available_timeout = timeout;
@@ -204,6 +232,8 @@ int eddie_ip_ping(const char *address, int timeout)
 
             // Wait for a response
             int result = select(sock + 1, &read_set, NULL, NULL, &receive_timeout);
+            if(result == -1)
+                break;   // If we got a socket error avoid looping uselessy
 
             int delta = (int) (eddie_get_time() - start_time);
             if(delta < timeout)
@@ -239,6 +269,11 @@ int eddie_ip_ping(const char *address, int timeout)
 void eddie_signal(int signum, eddie_sighandler_t handler)
 {
     signal(signum, handler);
+}
+    
+int eddie_kill(int pid, int sig)
+{
+    return kill((pid_t) pid, sig);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

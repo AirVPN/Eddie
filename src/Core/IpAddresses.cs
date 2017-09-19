@@ -172,6 +172,16 @@ namespace Eddie.Core
 			}
 		}
 
+		public IpAddress First
+		{
+			get
+			{
+				if (Count == 0)
+					return null;
+				return IPs[0];
+			}
+		}
+		
 		public void Clear()
 		{
 			lock (IPs)

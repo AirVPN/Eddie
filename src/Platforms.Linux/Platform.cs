@@ -366,6 +366,11 @@ namespace Eddie.Platforms.Linux
 			arguments = new string[] { "-c", "'" + command + "'" };
 		}
 
+		public override bool ProcessKillSoft(Process process)
+		{
+			return (Native.eddie_kill(process.Id, (int)Native.Signum.SIGTERM) == 0);
+		}
+
 		public override int GetRecommendedRcvBufDirective()
 		{
 			return base.GetRecommendedRcvBufDirective();
@@ -473,9 +478,12 @@ namespace Eddie.Platforms.Linux
 			return base.SearchTool(name, relativePath, ref path, ref location);
 		}
 
-		public override long Ping(string host, int timeoutSec)
+		public override long Ping(IpAddress host, int timeoutSec)
 		{
-			return Native.eddie_ip_ping(host, timeoutSec * 1000);
+			if ((host == null) || (host.Valid == false))
+				return -1;
+
+			return Native.eddie_ip_ping(host.ToString(), timeoutSec * 1000);
 			/* < 2.13.6 // TOCLEAN
 			{
 				float iMS = -1;
@@ -656,8 +664,6 @@ namespace Eddie.Platforms.Linux
 		public override void OnReport(Report report)
 		{
 			base.OnReport(report);
-
-			report.Add("TestDll", Native.eddie_linux_get_3().ToString()); // ClodoTemp
 
 			report.Add("UID", Conversions.ToString(m_uid));
 			report.Add("LogName", m_logname);

@@ -201,6 +201,8 @@ namespace Eddie.Gui.Forms
 			this.cboProtocolIPv4Route = new Eddie.Gui.Skin.ComboBox();
 			this.lblProtocolIPEntry = new Eddie.Gui.Skin.Label();
 			this.cboProtocolIPEntry = new Eddie.Gui.Skin.ComboBox();
+			this.lblProxyWhen = new Eddie.Gui.Skin.Label();
+			this.cboProxyWhen = new Eddie.Gui.Skin.ComboBox();
 			tabAdvanced = new Eddie.Gui.Skin.TabPage();
 			tabDirectives = new Eddie.Gui.Skin.TabPage();
 			tabEvents = new Eddie.Gui.Skin.TabPage();
@@ -1405,6 +1407,8 @@ namespace Eddie.Gui.Forms
 			// tabProxy
 			// 
 			this.tabProxy.BackColor = System.Drawing.Color.White;
+			this.tabProxy.Controls.Add(this.lblProxyWhen);
+			this.tabProxy.Controls.Add(this.cboProxyWhen);
 			this.tabProxy.Controls.Add(this.lnkProxyTorHelp);
 			this.tabProxy.Controls.Add(this.txtProxyTorControlPassword);
 			this.tabProxy.Controls.Add(this.lblProxyTorControlPassword);
@@ -1450,7 +1454,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// txtProxyTorControlPassword
 			// 
-			this.txtProxyTorControlPassword.Location = new System.Drawing.Point(200, 241);
+			this.txtProxyTorControlPassword.Location = new System.Drawing.Point(200, 268);
 			this.txtProxyTorControlPassword.Name = "txtProxyTorControlPassword";
 			this.txtProxyTorControlPassword.Size = new System.Drawing.Size(180, 20);
 			this.txtProxyTorControlPassword.TabIndex = 73;
@@ -1459,7 +1463,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblProxyTorControlPassword.BackColor = System.Drawing.Color.Transparent;
 			this.lblProxyTorControlPassword.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyTorControlPassword.Location = new System.Drawing.Point(14, 241);
+			this.lblProxyTorControlPassword.Location = new System.Drawing.Point(14, 268);
 			this.lblProxyTorControlPassword.Name = "lblProxyTorControlPassword";
 			this.lblProxyTorControlPassword.Size = new System.Drawing.Size(180, 20);
 			this.lblProxyTorControlPassword.TabIndex = 72;
@@ -1473,7 +1477,7 @@ namespace Eddie.Gui.Forms
 			this.cmdProxyTorTest.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdProxyTorTest.FlatAppearance.BorderSize = 0;
 			this.cmdProxyTorTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProxyTorTest.Location = new System.Drawing.Point(200, 271);
+			this.cmdProxyTorTest.Location = new System.Drawing.Point(200, 298);
 			this.cmdProxyTorTest.Name = "cmdProxyTorTest";
 			this.cmdProxyTorTest.Size = new System.Drawing.Size(180, 22);
 			this.cmdProxyTorTest.TabIndex = 71;
@@ -1483,7 +1487,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// txtProxyTorControlPort
 			// 
-			this.txtProxyTorControlPort.Location = new System.Drawing.Point(200, 211);
+			this.txtProxyTorControlPort.Location = new System.Drawing.Point(200, 238);
 			this.txtProxyTorControlPort.Name = "txtProxyTorControlPort";
 			this.txtProxyTorControlPort.Size = new System.Drawing.Size(180, 20);
 			this.txtProxyTorControlPort.TabIndex = 70;
@@ -1492,7 +1496,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblProxyTorControlPort.BackColor = System.Drawing.Color.Transparent;
 			this.lblProxyTorControlPort.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyTorControlPort.Location = new System.Drawing.Point(14, 211);
+			this.lblProxyTorControlPort.Location = new System.Drawing.Point(14, 238);
 			this.lblProxyTorControlPort.Name = "lblProxyTorControlPort";
 			this.lblProxyTorControlPort.Size = new System.Drawing.Size(180, 20);
 			this.lblProxyTorControlPort.TabIndex = 69;
@@ -1532,7 +1536,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblProxyAuthentication.BackColor = System.Drawing.Color.Transparent;
 			this.lblProxyAuthentication.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyAuthentication.Location = new System.Drawing.Point(11, 114);
+			this.lblProxyAuthentication.Location = new System.Drawing.Point(11, 141);
 			this.lblProxyAuthentication.Name = "lblProxyAuthentication";
 			this.lblProxyAuthentication.Size = new System.Drawing.Size(183, 21);
 			this.lblProxyAuthentication.TabIndex = 43;
@@ -1547,7 +1551,7 @@ namespace Eddie.Gui.Forms
             "None",
             "Basic",
             "NTLM"});
-			this.cboProxyAuthentication.Location = new System.Drawing.Point(200, 114);
+			this.cboProxyAuthentication.Location = new System.Drawing.Point(200, 141);
 			this.cboProxyAuthentication.Name = "cboProxyAuthentication";
 			this.cboProxyAuthentication.Size = new System.Drawing.Size(180, 21);
 			this.cboProxyAuthentication.TabIndex = 42;
@@ -1555,7 +1559,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// txtProxyPassword
 			// 
-			this.txtProxyPassword.Location = new System.Drawing.Point(200, 174);
+			this.txtProxyPassword.Location = new System.Drawing.Point(200, 201);
 			this.txtProxyPassword.Name = "txtProxyPassword";
 			this.txtProxyPassword.Size = new System.Drawing.Size(180, 20);
 			this.txtProxyPassword.TabIndex = 41;
@@ -1564,7 +1568,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblProxyPassword.BackColor = System.Drawing.Color.Transparent;
 			this.lblProxyPassword.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyPassword.Location = new System.Drawing.Point(14, 174);
+			this.lblProxyPassword.Location = new System.Drawing.Point(14, 201);
 			this.lblProxyPassword.Name = "lblProxyPassword";
 			this.lblProxyPassword.Size = new System.Drawing.Size(180, 20);
 			this.lblProxyPassword.TabIndex = 40;
@@ -1573,7 +1577,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// txtProxyLogin
 			// 
-			this.txtProxyLogin.Location = new System.Drawing.Point(200, 144);
+			this.txtProxyLogin.Location = new System.Drawing.Point(200, 171);
 			this.txtProxyLogin.Name = "txtProxyLogin";
 			this.txtProxyLogin.Size = new System.Drawing.Size(180, 20);
 			this.txtProxyLogin.TabIndex = 39;
@@ -1582,7 +1586,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblProxyLogin.BackColor = System.Drawing.Color.Transparent;
 			this.lblProxyLogin.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyLogin.Location = new System.Drawing.Point(14, 144);
+			this.lblProxyLogin.Location = new System.Drawing.Point(14, 171);
 			this.lblProxyLogin.Name = "lblProxyLogin";
 			this.lblProxyLogin.Size = new System.Drawing.Size(180, 20);
 			this.lblProxyLogin.TabIndex = 38;
@@ -1618,7 +1622,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// txtProxyPort
 			// 
-			this.txtProxyPort.Location = new System.Drawing.Point(200, 77);
+			this.txtProxyPort.Location = new System.Drawing.Point(200, 104);
 			this.txtProxyPort.Name = "txtProxyPort";
 			this.txtProxyPort.Size = new System.Drawing.Size(180, 20);
 			this.txtProxyPort.TabIndex = 35;
@@ -1627,7 +1631,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblProxyPort.BackColor = System.Drawing.Color.Transparent;
 			this.lblProxyPort.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyPort.Location = new System.Drawing.Point(14, 77);
+			this.lblProxyPort.Location = new System.Drawing.Point(14, 104);
 			this.lblProxyPort.Name = "lblProxyPort";
 			this.lblProxyPort.Size = new System.Drawing.Size(180, 20);
 			this.lblProxyPort.TabIndex = 34;
@@ -1636,7 +1640,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// txtProxyHost
 			// 
-			this.txtProxyHost.Location = new System.Drawing.Point(200, 48);
+			this.txtProxyHost.Location = new System.Drawing.Point(200, 75);
 			this.txtProxyHost.Name = "txtProxyHost";
 			this.txtProxyHost.Size = new System.Drawing.Size(180, 20);
 			this.txtProxyHost.TabIndex = 33;
@@ -1645,7 +1649,7 @@ namespace Eddie.Gui.Forms
 			// 
 			this.lblProxyHost.BackColor = System.Drawing.Color.Transparent;
 			this.lblProxyHost.ForeColor = System.Drawing.Color.Black;
-			this.lblProxyHost.Location = new System.Drawing.Point(14, 48);
+			this.lblProxyHost.Location = new System.Drawing.Point(14, 75);
 			this.lblProxyHost.Name = "lblProxyHost";
 			this.lblProxyHost.Size = new System.Drawing.Size(180, 20);
 			this.lblProxyHost.TabIndex = 32;
@@ -2308,6 +2312,26 @@ namespace Eddie.Gui.Forms
 			this.cboProtocolIPEntry.Size = new System.Drawing.Size(133, 21);
 			this.cboProtocolIPEntry.TabIndex = 90;
 			// 
+			// lblProxyWhen
+			// 
+			this.lblProxyWhen.BackColor = System.Drawing.Color.Transparent;
+			this.lblProxyWhen.ForeColor = System.Drawing.Color.Black;
+			this.lblProxyWhen.Location = new System.Drawing.Point(11, 45);
+			this.lblProxyWhen.Name = "lblProxyWhen";
+			this.lblProxyWhen.Size = new System.Drawing.Size(183, 21);
+			this.lblProxyWhen.TabIndex = 76;
+			this.lblProxyWhen.Text = "When:";
+			this.lblProxyWhen.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboProxyWhen
+			// 
+			this.cboProxyWhen.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboProxyWhen.FormattingEnabled = true;
+			this.cboProxyWhen.Location = new System.Drawing.Point(200, 45);
+			this.cboProxyWhen.Name = "cboProxyWhen";
+			this.cboProxyWhen.Size = new System.Drawing.Size(180, 21);
+			this.cboProxyWhen.TabIndex = 75;
+			// 
 			// Settings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -2515,5 +2539,7 @@ namespace Eddie.Gui.Forms
 		private Skin.CheckBox chkAdvancedSkipAlreadyRun;
 		private Skin.Label label11;
 		private Skin.Label lblAdvancedSkipAlreadyRun;
+		private Skin.Label lblProxyWhen;
+		private Skin.ComboBox cboProxyWhen;
 	}
 }

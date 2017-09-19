@@ -539,9 +539,10 @@ namespace Eddie.Core.Providers
 				{
 					string info = e.Message;
 					string proxyMode = Engine.Instance.Storage.Get("proxy.mode").ToLowerInvariant();
+					string proxyWhen = Engine.Instance.Storage.Get("proxy.when").ToLowerInvariant();
 					string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
 					if (proxyMode != "none")
-						info += " - with '" + proxyMode + "' proxy and '" + proxyAuth + "' auth";
+						info += " - with '" + proxyMode + "' (" + proxyWhen + ") proxy and '" + proxyAuth + "' auth";
 
 					if (Engine.Instance.Storage.GetBool("advanced.expert"))
 						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
