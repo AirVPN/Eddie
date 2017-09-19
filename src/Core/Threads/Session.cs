@@ -566,7 +566,10 @@ namespace Eddie.Core.Threads
 							m_ovpnStartup = null;
 							m_ovpnWithPush = null;
 						}
+
 						Engine.Instance.ConnectedOVPN = null;
+
+						m_openVpnManagementSocket = null;
 					}
 
 
