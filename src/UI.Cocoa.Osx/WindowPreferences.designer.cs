@@ -46,6 +46,9 @@ namespace Eddie.UI.Cocoa.Osx
 		MonoMac.AppKit.NSPopUpButton CboProxyType { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSPopUpButton CboProxyWhen { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSPopUpButton CboRoutesOtherwise { get; set; }
 
 		[Outlet]
@@ -324,6 +327,11 @@ namespace Eddie.UI.Cocoa.Osx
 				CboProxyType = null;
 			}
 
+			if (CboProxyWhen != null) {
+				CboProxyWhen.Dispose ();
+				CboProxyWhen = null;
+			}
+
 			if (CboRoutesOtherwise != null) {
 				CboRoutesOtherwise.Dispose ();
 				CboRoutesOtherwise = null;
@@ -359,6 +367,11 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkAdvancedProviders = null;
 			}
 
+			if (ChkAdvancedSkipAlreadyRun != null) {
+				ChkAdvancedSkipAlreadyRun.Dispose ();
+				ChkAdvancedSkipAlreadyRun = null;
+			}
+
 			if (ChkConnect != null) {
 				ChkConnect.Dispose ();
 				ChkConnect = null;
@@ -372,11 +385,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkExitConfirm != null) {
 				ChkExitConfirm.Dispose ();
 				ChkExitConfirm = null;
-			}
-
-			if (ChkAdvancedSkipAlreadyRun != null) {
-				ChkAdvancedSkipAlreadyRun.Dispose ();
-				ChkAdvancedSkipAlreadyRun = null;
 			}
 
 			if (ChkGeneralOsxNotifications != null) {

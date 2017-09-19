@@ -167,10 +167,14 @@ namespace Eddie.UI.Cocoa.Osx
 			// Proxy
 			CboProxyType.RemoveAllItems();
 			CboProxyType.AddItem("None");
-			CboProxyType.AddItem("Detect");
 			CboProxyType.AddItem("Http");
 			CboProxyType.AddItem("Socks");
 			CboProxyType.AddItem("Tor");
+			CboProxyWhen.RemoveAllItems();
+			CboProxyWhen.AddItem(Messages.WindowsSettingsProxyWhenAlways);
+			CboProxyWhen.AddItem(Messages.WindowsSettingsProxyWhenWeb);
+			CboProxyWhen.AddItem(Messages.WindowsSettingsProxyWhenOpenVPN);
+			CboProxyWhen.AddItem(Messages.WindowsSettingsProxyWhenNone);
 
 			CmdProxyTorHelp.Activated += (object sender, EventArgs e) =>
 			{
@@ -617,6 +621,16 @@ namespace Eddie.UI.Cocoa.Osx
 			// Proxy
 
 			GuiUtils.SetSelected(CboProxyType, s.Get("proxy.mode"));
+			if (s.Get("proxy.when") == "always")
+				GuiUtils.SetSelected(CboProxyWhen, Messages.WindowsSettingsProxyWhenAlways);
+			else if (s.Get("proxy.when") == "web")
+				GuiUtils.SetSelected(CboProxyWhen, Messages.WindowsSettingsProxyWhenWeb);
+			else if (s.Get("proxy.when") == "openvpn")
+				GuiUtils.SetSelected(CboProxyWhen, Messages.WindowsSettingsProxyWhenOpenVPN);
+			else if (s.Get("proxy.when") == "none")
+				GuiUtils.SetSelected(CboProxyWhen, Messages.WindowsSettingsProxyWhenNone);
+			else
+				GuiUtils.SetSelected(CboProxyWhen, Messages.WindowsSettingsProxyWhenAlways);
 			TxtProxyHost.StringValue = s.Get("proxy.host");
 			TxtProxyPort.StringValue = s.Get("proxy.port");
 			GuiUtils.SetSelected(CboProxyAuthentication, s.Get("proxy.auth"));
@@ -860,6 +874,18 @@ namespace Eddie.UI.Cocoa.Osx
 			// Proxy
 
 			s.Set("proxy.mode", GuiUtils.GetSelected(CboProxyType));
+
+			if (GuiUtils.GetSelected(CboProxyWhen) == Messages.WindowsSettingsProxyWhenAlways)
+				s.Set("proxy.when", "always");
+			else if (GuiUtils.GetSelected(CboProxyWhen) == Messages.WindowsSettingsProxyWhenWeb)
+				s.Set("proxy.when", "web");
+			else if (GuiUtils.GetSelected(CboProxyWhen) == Messages.WindowsSettingsProxyWhenOpenVPN)
+				s.Set("proxy.when", "openvpn");
+			else if (GuiUtils.GetSelected(CboProxyWhen) == Messages.WindowsSettingsProxyWhenNone)
+				s.Set("proxy.when", "none");
+			else
+				s.Set("proxy.when", "always");
+
 			s.Set("proxy.host", TxtProxyHost.StringValue);
 			s.SetInt("proxy.port", Conversions.ToInt32(TxtProxyPort.StringValue));
 			s.Set("proxy.auth", GuiUtils.GetSelected(CboProxyAuthentication));
@@ -1023,6 +1049,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			TxtProxyHost.Enabled = proxy;
 			TxtProxyPort.Enabled = proxy;
+			CboProxyWhen.Enabled = proxy;
 			CboProxyAuthentication.Enabled = (proxy && !tor);
 			TxtProxyLogin.Enabled = ((proxy) && (!tor) && (GuiUtils.GetSelected(CboProxyAuthentication) != "None"));
 			TxtProxyPassword.Enabled = TxtProxyLogin.Enabled;
