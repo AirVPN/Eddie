@@ -1022,11 +1022,7 @@ namespace Eddie.Core.Threads
 						   )
 							log = false;
 					}
-
-					// Ignore, useless
-					if (message.Contains("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
-						log = false;
-
+					
 					// Ignore, caused by Windows method GenerateConsoleCtrlEvent to soft-kill
 					if (message.Contains("win_trigger_event: WriteConsoleInput: The handle is invalid."))
 						log = false;
@@ -1348,8 +1344,7 @@ namespace Eddie.Core.Threads
 		}
 
 		public void ConnectManagementSocket()
-		{
-			return; // ClodoTemp2
+		{			
 			if (m_openVpnManagementSocket == null)
 			{
 				Engine.Logs.Log(LogType.Verbose, Messages.ConnectionStartManagement);
@@ -1607,6 +1602,10 @@ namespace Eddie.Core.Threads
 
 		public void ProcessOutputManagement(string source, string message)
 		{
+			// Ignore, useless			
+			if (message.Contains("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
+				return;
+
 			string[] lines = message.Split('\n');
 			for (int i = 0; i < lines.Length; i++)
 			{

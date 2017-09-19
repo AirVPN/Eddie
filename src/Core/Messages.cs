@@ -154,7 +154,7 @@ namespace Eddie.Core
 		public static string RenewingTls = "Renewing TLS key";
         public static string DirectiveError = "Unrecognized directive or missing parameter: {1}";
 
-        public static string ConnectionStartManagement = "Starting Management Interface";
+        public static string ConnectionStartManagement = "Connection to OpenVPN Management Interface";
 		public static string ConnectionCheckingRoute = "Checking route";
         public static string ConnectionCheckingTryRoute = "Checking route ({1}° try)";
         public static string ConnectionCheckingTryRouteFail = "Checking route failed: {1}";

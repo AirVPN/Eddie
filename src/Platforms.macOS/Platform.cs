@@ -262,7 +262,6 @@ namespace Eddie.Platforms.MacOS
 
 		public override bool ProcessKillSoft(Process process)
 		{
-			Engine.Instance.Logs.LogDebug("test kill " + process.Id.ToString()); // ClodoTemp2
 			return (Native.eddie_kill(process.Id, (int)Native.Signum.SIGTERM) == 0);
 		}
 
