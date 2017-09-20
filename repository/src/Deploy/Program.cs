@@ -539,7 +539,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
-						Shell("chmod 744 \"" + pathTemp + "/usr/lib/AirVPN/libLib.Platform.Linux.Native.so\"");
+						Shell("chmod 755 \"" + pathTemp + "/usr/lib/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 
