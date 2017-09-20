@@ -43,8 +43,10 @@ namespace Eddie.Core
 			try
 			{
 				IpAddress ip = Server.IpsEntry.OnlyIPv4.First;
+				/*
 				if (Server.DisplayName == "Castor") // ClodoTemp
 					ip = Server.IpsEntry.OnlyIPv6.First;				
+				*/
 				if( (ip == null) || (ip.Valid == false) )
 					throw new Exception("Invalid ip");
 				routeScope = new RouteScope(ip.ToString());

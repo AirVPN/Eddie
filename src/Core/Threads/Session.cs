@@ -919,8 +919,7 @@ namespace Eddie.Core.Threads
 				string message = e.Data.ToString();
 
 				lock (m_logEvents)
-					m_logEvents.Add(new SessionLogEvent("SSH", message));
-				//ProcessOutput("SSH", message); // ClodoTemp2
+					m_logEvents.Add(new SessionLogEvent("SSH", message));				
 			}
 		}
 
@@ -936,7 +935,6 @@ namespace Eddie.Core.Threads
 
 				lock (m_logEvents)
 					m_logEvents.Add(new SessionLogEvent("SSL", message));
-				//ProcessOutput("SSL", message); // ClodoTemp2
 			}
 		}
 
@@ -952,7 +950,6 @@ namespace Eddie.Core.Threads
 
 				lock (m_logEvents)
 					m_logEvents.Add(new SessionLogEvent("OpenVPN", message));
-				//ProcessOutput("OpenVPN", message); // ClodoTemp2
 			}
 		}
 

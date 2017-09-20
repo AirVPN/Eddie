@@ -330,8 +330,6 @@ namespace Eddie.Platforms.Windows
 		{
 			base.FlushDNS();
 
-			return; // ClodoTemp2
-
 			// <2.11.8
 			//ShellCmd("ipconfig /flushdns");
 
