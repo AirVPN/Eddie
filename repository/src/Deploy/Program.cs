@@ -224,12 +224,12 @@ namespace Deploy
 				else
 					arch = "x86";
 
-				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
-				ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
-				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
-				ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));
+				//ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
+				//ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
+				//ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
+				//ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));
 				ListPackages.Add(new Package("linux", arch, "ui", false, 4, "debian"));
-				ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));
+				//ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));
 			}
 
 			if (SO == "macos") {
@@ -598,7 +598,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
-						Shell("chmod 744 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/libLib.Platform.Linux.Native.so\"");
+						Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
