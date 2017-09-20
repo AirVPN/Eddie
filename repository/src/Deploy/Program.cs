@@ -403,7 +403,7 @@ namespace Deploy
 
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-						Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");						
+						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");						
 
 						RemoveFile(pathTemp + "/libgdiplus.so.0");
 						RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -481,7 +481,7 @@ namespace Deploy
 						}
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-						Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
+						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
 
 						CreateDirectory(pathTemp + "/" + fileName);
 						MoveAll(pathTemp, pathTemp + "/" + fileName);
@@ -539,7 +539,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
-						Shell("chmod 755 \"" + pathTemp + "/usr/lib/AirVPN/libLib.Platform.Linux.Native.so\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 
@@ -598,7 +598,7 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
-						Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/libLib.Platform.Linux.Native.so\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
@@ -698,7 +698,7 @@ namespace Deploy
 							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-							Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
+							Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
 							Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
 
 							SignFile(platform, format, pathTemp + "/eddie-cli"); // WARNING: Currently 2017-03-10 , signing don't work for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
@@ -870,8 +870,8 @@ namespace Deploy
 
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-							Shell("chmod 755 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
-							Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
+							Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
+							Shell("chmod 644 \"" + pathTemp + "/libxammac.dylib\"");
 
 							SignFile(platform, format, pathTemp + "/openvpn");
 							SignFile(platform, format, pathTemp + "/stunnel");
