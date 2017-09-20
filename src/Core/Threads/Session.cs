@@ -33,6 +33,18 @@ using Eddie.Core;
 
 namespace Eddie.Core.Threads
 {
+	public class SessionLogEvent
+	{
+		public string Source;
+		public string Message;
+
+		public SessionLogEvent(string source, string message)
+		{
+			Source = source;
+			Message = message;
+		}
+	}
+
 	public class Session : Eddie.Core.Thread
 	{
 		private Process m_processOpenVpn;
@@ -43,6 +55,7 @@ namespace Eddie.Core.Threads
 		private List<string> m_openVpnManagementStatisticsLines = new List<string>();
 
 		private string m_reset = "";
+		private List<SessionLogEvent> m_logEvents = new List<SessionLogEvent>();
 		private NetworkInterface m_interfaceTun;
 		private int m_timeLastStatus = 0;
 		private TemporaryFile m_fileSshKey;
@@ -297,6 +310,8 @@ namespace Eddie.Core.Threads
 							if (m_reset != "")
 								break;
 
+							ProcessLogsEvents();
+
 							Sleep(waitingSleep);
 						}
 
@@ -316,6 +331,8 @@ namespace Eddie.Core.Threads
 
 								if (Engine.IsConnected() == false)
 									throw new Exception("Unexpected.");
+
+								ProcessLogsEvents();
 
 								ProcessOpenVpnManagement();
 
@@ -570,9 +587,10 @@ namespace Eddie.Core.Threads
 						Engine.Instance.ConnectedOVPN = null;
 
 						m_openVpnManagementSocket = null;
+
+						lock(m_logEvents)
+							m_logEvents.Clear(); 
 					}
-
-
 
 				}
 				catch (Exception e)
@@ -900,7 +918,9 @@ namespace Eddie.Core.Threads
 			{
 				string message = e.Data.ToString();
 
-				ProcessOutput("SSH", message);
+				lock (m_logEvents)
+					m_logEvents.Add(new SessionLogEvent("SSH", message));
+				//ProcessOutput("SSH", message); // ClodoTemp2
 			}
 		}
 
@@ -914,7 +934,9 @@ namespace Eddie.Core.Threads
 				// Remove STunnel timestamp
 				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\d{4}\\.\\d{2}\\.\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+LOG\\d{1}\\[\\d{0,6}:\\d{0,60}\\]:\\s+", "");
 
-				ProcessOutput("SSL", message);
+				lock (m_logEvents)
+					m_logEvents.Add(new SessionLogEvent("SSL", message));
+				//ProcessOutput("SSL", message); // ClodoTemp2
 			}
 		}
 
@@ -928,7 +950,9 @@ namespace Eddie.Core.Threads
 				// Remove OpenVPN timestamp
 				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
 
-				ProcessOutput("OpenVPN", message);
+				lock (m_logEvents)
+					m_logEvents.Add(new SessionLogEvent("OpenVPN", message));
+				//ProcessOutput("OpenVPN", message); // ClodoTemp2
 			}
 		}
 
@@ -966,7 +990,7 @@ namespace Eddie.Core.Threads
 
 						string data = Encoding.ASCII.GetString(buf, 0, bytes);
 
-						ProcessOutput("Management", data);
+						ProcessLogEvent("Management", data);
 					}
 				}
 			}
@@ -978,11 +1002,25 @@ namespace Eddie.Core.Threads
 			}
 		}
 
-		void ProcessOutput(string source, string message)
+		void ProcessLogsEvents()
 		{
-			// Try to match lower/insensitive case when possible.
-			string messageLower = message.ToLowerInvariant();
+			lock (m_logEvents)
+			{
+				foreach (SessionLogEvent logEvent in m_logEvents)
+					ProcessLogEvent(logEvent);
+				m_logEvents.Clear();
+			}
+		}
 
+		void ProcessLogEvent(SessionLogEvent logEvent)
+		{
+			ProcessLogEvent(logEvent.Source, logEvent.Message);
+		}
+
+		void ProcessLogEvent(string source, string message)
+		{
+			string messageLower = message.ToLowerInvariant(); // Try to match lower/insensitive case when possible.
+			
 			if (messageLower.Trim() == "") // 2.10.1
 				return;
 

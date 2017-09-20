@@ -329,7 +329,9 @@ namespace Eddie.Platforms.Windows
 		public override void FlushDNS()
 		{
 			base.FlushDNS();
-			
+
+			return; // ClodoTemp2
+
 			// <2.11.8
 			//ShellCmd("ipconfig /flushdns");
 
