@@ -21,3 +21,4 @@ BuildConfig()
 
 #BuildConfig ./build/x64/debug Debug ../../../../bin/x86/Debug/
 BuildConfig ./build/x64/release Release ../../../../../deploy/linux_armhf/
+strip -S --strip-unneeded -o ../../deploy/linux_armhf/libLib.Platform.Linux.Native.so ../../deploy/linux_armhf/libLib.Platform.Linux.Native.so

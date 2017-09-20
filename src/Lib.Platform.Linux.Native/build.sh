@@ -24,3 +24,14 @@ BuildConfig ./build/x64/debug -m64 Debug ../../../../bin/x64/Debug/
 BuildConfig ./build/x64/release -m64 Release ../../../../bin/x64/Release/
 BuildConfig ./build/x86/debug -m32 Debug ../../../../bin/x86/Debug/
 BuildConfig ./build/x86/release -m32 Release ../../../../bin/x86/Release/
+
+#BuildConfig ./build/x64/debug -m64 Debug ../../../../bin/x64/Debug/
+
+BuildConfig ./build/x64/release -m64 Release ../../../../../deploy/linux_x64/
+strip -S --strip-unneeded -o ../../deploy/linux_x64/libLib.Platform.Linux.Native.so ../../deploy/linux_x64/libLib.Platform.Linux.Native.so
+
+#BuildConfig ./build/x86/debug -m32 Debug ../../../../bin/x86/Debug/
+
+BuildConfig ./build/x86/release -m32 Release ../../../../../deploy/linux_x86/
+strip -S --strip-unneeded -o ../../deploy/linux_x86/libLib.Platform.Linux.Native.so ../../deploy/linux_x86/libLib.Platform.Linux.Native.so
+
