@@ -10,9 +10,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Forms", "Lib.Forms\Lib.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI.Windows", "CLI.Windows\CLI.Windows.csproj", "{B46C9D88-4E10-4D81-BFF1-FDB43AF9FF30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Linux", "Platforms.Linux\Platforms.Linux.csproj", "{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Platform.Linux", "Lib.Platform.Linux\Lib.Platform.Linux.csproj", "{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platforms.Windows", "Platforms.Windows\Platforms.Windows.csproj", "{9A04CC37-5629-4914-B49F-7AA435464843}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Platform.Windows", "Lib.Platform.Windows\Lib.Platform.Windows.csproj", "{9A04CC37-5629-4914-B49F-7AA435464843}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI.Linux", "CLI.Linux\CLI.Linux.csproj", "{DF88A2FB-FE04-4D64-A482-18B6186E4494}"
 EndProject

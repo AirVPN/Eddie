@@ -66,8 +66,6 @@ namespace Eddie.Core.Providers
 		{
 			string pathScan = Path;
 
-			int timeStart = Utils.UnixTimeStamp();
-
 			List<ConnectionInfo> connections = new List<ConnectionInfo>();
 
 			// Scan directory
@@ -104,8 +102,6 @@ namespace Eddie.Core.Providers
 			{
 				nodeProfile.Attributes.RemoveNamedItem("checked");
 			}
-
-			int timeDelta = Utils.UnixTimeStamp() - timeStart;
 
 			return "";
 		}
@@ -242,7 +238,7 @@ namespace Eddie.Core.Providers
 
 						OvpnBuilder ovpnBuilder = new OvpnBuilder();
 						ovpnBuilder.AppendDirectives(ovpnOriginal, "Original");
-						string ovpnNormalized = ovpnBuilder.Get();
+						//string ovpnNormalized = ovpnBuilder.Get();
 
 						foreach(OvpnBuilder.Directive remoteDirective in ovpnBuilder.GetDirectiveList("remote"))
 						{

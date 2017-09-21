@@ -53,5 +53,11 @@ namespace Eddie.Core
                 // Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");                
             }
 		}
+
+		public void Dump()
+		{
+			int tickElapsed = Environment.TickCount - m_tickStart;
+			Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");
+		}
 	}
 }

@@ -62,7 +62,7 @@ namespace Eddie.Core
 		private bool m_areasInfoUpdated = false;
 		private List<string> m_frontMessages = new List<string>();
 		private int m_breakRequests = 0;
-		private TimeDelta m_tickDeltaUiRefreshQuick = new TimeDelta();
+		//private TimeDelta m_tickDeltaUiRefreshQuick = new TimeDelta();
 		private TimeDelta m_tickDeltaUiRefreshFull = new TimeDelta();
 
 		public enum ActionService

@@ -1576,7 +1576,7 @@ namespace Eddie.Core.Threads
 							try
 							{
 								string hash = Utils.GetRandomToken();
-								string randomIp = RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255);
+								//string randomIp = RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255) + "." + RandomGenerator.GetInt(1, 255);
 
 								// Query a inexistent domain with the hash
 								string dnsQuery = service.GetKeyValue("check_dns_query", "");
