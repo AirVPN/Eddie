@@ -102,7 +102,7 @@
       <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
       <Name>Lib.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Platforms.Windows\Platforms.Windows.csproj">
+    <ProjectReference Include="..\Lib.Platform.Windows\Lib.Platform.Windows.csproj">
       <Project>{9A04CC37-5629-4914-B49F-7AA435464843}</Project>
       <Name>Platforms.Windows</Name>
     </ProjectReference>

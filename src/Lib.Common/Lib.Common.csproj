@@ -7,7 +7,7 @@
     <ProjectGuid>{9731FF8C-703E-4132-9427-5B410CF8E382}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Eddie.Lib.Common</RootNamespace>
+    <RootNamespace>Eddie.Common</RootNamespace>
     <AssemblyName>Lib.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

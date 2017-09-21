@@ -19,7 +19,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Eddie.Platforms.MacOS
+namespace Eddie.Platform.MacOS
 {
 	public static class RootLauncher
 	{

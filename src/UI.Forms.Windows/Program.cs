@@ -44,7 +44,7 @@ namespace Eddie.UI.Windows
 				//Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 
-                Platform.Instance = new Eddie.Platforms.Windows.Platform();
+                Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
 
 				CommandLine.InitSystem(Environment.CommandLine);
 

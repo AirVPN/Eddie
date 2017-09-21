@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9A04CC37-5629-4914-B49F-7AA435464843}</ProjectGuid>
+    <ProjectGuid>{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Eddie.Platforms.Windows</RootNamespace>
-    <AssemblyName>Platforms.Windows</AssemblyName>
+    <RootNamespace>Eddie.Platform.Linux</RootNamespace>
+    <AssemblyName>Lib.Platform.Linux</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -32,23 +32,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Win32.TaskScheduler, Version=2.1.1.28248, Culture=neutral, PublicKeyToken=0d013ddd5178a2ae, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\dependencies\WinTaskScheduler\v2.0\Microsoft.Win32.TaskScheduler.dll</HintPath>
+    <Reference Include="Mono.Posix">
+      <HintPath>C:\Program Files (x86)\Mono\lib\Mono.Posix\Mono.Posix.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Native.cs" />
-    <Compile Include="NetworkLockWfp.cs" />
-    <Compile Include="NetworkLockWindowsFirewall.cs" />
+    <Compile Include="NetworkLockIptables.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WfpItem.cs" />
-    <Compile Include="Wfp.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Lib.Core.csproj">

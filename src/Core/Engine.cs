@@ -217,11 +217,11 @@ namespace Eddie.Core
 
 			if (ResourcesFiles.Count() == 0)
 			{
-				ResourcesFiles.SetString("AirVPN.xml", Lib.Core.Properties.Resources.AirVPN); // TOCLEAN with Eddie3
-				ResourcesFiles.SetString("OpenVPN.xml", Lib.Core.Properties.Resources.OpenVPN); // TOCLEAN with Eddie3
-				ResourcesFiles.SetString("license.txt", Lib.Core.Properties.Resources.License);
-				ResourcesFiles.SetString("thirdparty.txt", Lib.Core.Properties.Resources.ThirdParty);
-				ResourcesFiles.SetString("tos.txt", Lib.Core.Properties.Resources.TOS); // TOCLEAN
+				ResourcesFiles.SetString("AirVPN.xml", Core.Properties.Resources.AirVPN); // TOCLEAN with Eddie3
+				ResourcesFiles.SetString("OpenVPN.xml", Core.Properties.Resources.OpenVPN); // TOCLEAN with Eddie3
+				ResourcesFiles.SetString("license.txt", Core.Properties.Resources.License);
+				ResourcesFiles.SetString("thirdparty.txt", Core.Properties.Resources.ThirdParty);
+				ResourcesFiles.SetString("tos.txt", Core.Properties.Resources.TOS); // TOCLEAN
 			}
 
 			m_logsManager = new LogsManager();

@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 //using System.Xml;
 //using Eddie.Core;
 
-namespace Eddie.Platforms.MacOS
+namespace Eddie.Platform.MacOS
 {
 	public static class Native
 	{

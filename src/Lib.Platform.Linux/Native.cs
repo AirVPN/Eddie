@@ -24,7 +24,7 @@ using System.Text;
 using System.Xml;
 using Eddie.Core;
 
-namespace Eddie.Platforms.Linux
+namespace Eddie.Platform.Linux
 {
 	public static class Native
 	{

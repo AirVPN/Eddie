@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{DF88A2FB-FE04-4D64-A482-18B6186E4494}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CLI.Linux</RootNamespace>
+    <RootNamespace>Eddie.CLI.Linux</RootNamespace>
     <AssemblyName>CLI.Linux</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
@@ -74,7 +74,7 @@
       <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
       <Name>Lib.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Platforms.Linux\Platforms.Linux.csproj">
+    <ProjectReference Include="..\Lib.Platform.Linux\Lib.Platform.Linux.csproj">
       <Project>{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}</Project>
       <Name>Platforms.Linux</Name>
     </ProjectReference>

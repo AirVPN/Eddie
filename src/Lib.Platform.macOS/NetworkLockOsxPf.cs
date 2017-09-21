@@ -23,7 +23,7 @@ using System.Text;
 using System.Xml;
 using Eddie.Core;
 
-namespace Eddie.Platforms.MacOS
+namespace Eddie.Platform.MacOS
 {
 	public class NetworkLockOsxPf : NetworkLockPlugin
 	{

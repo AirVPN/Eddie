@@ -27,7 +27,7 @@ using MonoMac.AppKit;
 using MonoMac.Foundation;
 using Mono.Unix;
 
-namespace Eddie.Platforms.MacOS
+namespace Eddie.Platform.MacOS
 {
 	public class Platform : Core.Platform
 	{

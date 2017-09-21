@@ -39,7 +39,7 @@ namespace Eddie.UI.Linux
                 //Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                Platform.Instance = new Eddie.Platforms.Linux.Platform();
+                Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
 
 				CommandLine.InitSystem(Environment.CommandLine);
 

@@ -29,7 +29,7 @@ using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
 using Mono.Unix;
 
-namespace Eddie.Platforms.Linux
+namespace Eddie.Platform.Linux
 {
 	public class Platform : Core.Platform
 	{
