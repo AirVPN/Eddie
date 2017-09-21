@@ -252,7 +252,11 @@ namespace Eddie.Platform.Windows
 
 		public override string GetDefaultOpenVpnConfigsPath()
 		{
-			return Conversions.ToString(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\OpenVPN", "config_dir", ""));
+			object v = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\OpenVPN", "config_dir", "");
+			if (v == null)
+				return "";
+			else
+				return Conversions.ToString(v);
 		}
 		
 		private bool ConsoleCtrlCheck(Native.CtrlTypes ctrlType)
