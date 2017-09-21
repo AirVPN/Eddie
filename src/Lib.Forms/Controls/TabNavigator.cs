@@ -24,9 +24,8 @@ using System.Threading;
 using System.Windows.Forms;
 using Eddie.Core;
 using Eddie.Core.UI;
-using Eddie.Gui.Forms; // Temp
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {	
     public class TabNavigatorPage : System.Windows.Forms.Control
     {

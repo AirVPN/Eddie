@@ -26,9 +26,9 @@ using System.Xml;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class Settings : Eddie.Gui.Form
+    public partial class Settings : Eddie.Forms.Form
     {
         private Controls.TabNavigator m_tabMain;
 
@@ -235,7 +235,7 @@ namespace Eddie.Gui.Forms
 
         public void BuildTreeTabs()
         {
-			m_tabMain = new Gui.Controls.TabNavigator();
+			m_tabMain = new Eddie.Forms.Controls.TabNavigator();
             m_tabMain.Font = Skin.FontNormal;
             m_tabMain.Top = 0;
             m_tabMain.Left = 0;

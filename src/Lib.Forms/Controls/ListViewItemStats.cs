@@ -23,7 +23,7 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {
     public class ListViewItemStats : ListViewItem
     {

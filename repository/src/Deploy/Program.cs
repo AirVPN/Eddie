@@ -319,12 +319,12 @@ namespace Deploy
 					if(ui == "ui")
 					{
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-						CopyFile(pathRelease, "UI.Forms.Windows.exe", pathTemp, "AirVPN.exe"); // TODO Eddie3: "Eddie-UI.exe"
-						CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "CLI.exe"); // TODO Eddie3: "Eddie-CLI.exe"
+						CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "AirVPN.exe"); // TODO Eddie3: "Eddie-UI.exe"
+						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "CLI.exe"); // TODO Eddie3: "Eddie-CLI.exe"
 					}
 					else if(ui == "cli")
 					{
-						CopyFile(pathRelease, "CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
+						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
 					}
 
 					SignPath(platform, format, pathTemp);
@@ -398,13 +398,13 @@ namespace Deploy
 
 						if (ui == "cli")
 						{
-							CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
+							CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
 						}
 						else if(ui == "ui")
 						{
 							CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-							CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
-							CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
+							CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "AirVPN.exe");
+							CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "CLI.exe");
 						}
 
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
@@ -442,7 +442,7 @@ namespace Deploy
 						}
 						else if (ui == "ui")
 						{
-							command += " \"" + pathRelease + "/UI.Forms.Linux.exe\"";
+							command += " \"" + pathRelease + "/App.Forms.Linux.exe\"";
 							command += " \"" + pathRelease + "/Lib.Forms.dll\"";
 						}
 
@@ -512,8 +512,8 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
-						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
-						CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
+						CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "AirVPN.exe");
+						CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "CLI.exe");
 
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".deb");
 
@@ -583,8 +583,8 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);						
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
-						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
-						CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
+						CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "AirVPN.exe");
+						CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "CLI.exe");
 
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".rpm");
 
@@ -736,7 +736,7 @@ namespace Deploy
 						else if (ui == "ui")
 						{
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/App.Cocoa.macOS/bin/");
 
 							CreateDirectory(pathTemp + "/Eddie.app");
 							CopyDirectory(pathRelease + "Eddie.app", pathTemp + "/Eddie.app");
@@ -773,7 +773,7 @@ namespace Deploy
 						if (ui == "ui")
 						{
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/App.Cocoa.macOS/bin/");
 
 							CreateDirectory(pathTemp + "/Applications/Eddie.app");
 							CopyDirectory(pathRelease + "Eddie.app", pathTemp + "/Applications/Eddie.app");
@@ -825,7 +825,7 @@ namespace Deploy
 						if (ui == "ui")
 						{
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-							pathRelease = pathRelease.Replace("/src/bin/", "/src/UI.Cocoa.Osx/bin/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/App.Cocoa.macOS/bin/");
 
 							Log("Extract DMG base");
 							Shell("tar -jxvf " + "\"" + PathBaseResources + "/macos/diskbase.dmg.tar.bz2\" -C \"" + pathTemp + "\"");
@@ -880,7 +880,7 @@ namespace Deploy
 							//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
 							CopyFile(pathRelease, "XamMac.dll", pathTemp);
 							CopyFile(pathRelease, "libxammac.dylib", pathTemp);
-							CopyFile(pathRelease, "CLI.MacOS.exe", pathTemp, "Eddie-CLI.exe");
+							CopyFile(pathRelease, "App.CLI.macOS.exe", pathTemp, "Eddie-CLI.exe");
 
 							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 

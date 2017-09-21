@@ -21,9 +21,9 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Eddie.Lib.Common;
 using Eddie.Core;
-using Eddie.Gui;
+using Eddie.Forms;
 
-namespace Eddie.UI.Linux
+namespace Eddie.Forms.Linux
 {
 	static class Program
 	{
@@ -56,13 +56,13 @@ namespace Eddie.UI.Linux
                 {
                     GuiUtils.Init();
 
-                    Gui.Engine engine = new Gui.Engine();
+                    Eddie.Forms.Engine engine = new Eddie.Forms.Engine();
 
                     engine.TerminateEvent += Engine_TerminateEvent;
                     
                     if (engine.Initialization(false))
                     {
-                        engine.FormMain = new Gui.Forms.Main();
+                        engine.FormMain = new Eddie.Forms.Forms.Main();
 
                         engine.UiStart();
 

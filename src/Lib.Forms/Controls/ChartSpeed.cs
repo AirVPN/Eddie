@@ -24,9 +24,9 @@ using System.Threading;
 using System.Windows.Forms;
 using Eddie.Core;
 using Eddie.Core.UI;
-using Eddie.Gui.Forms; // Temp
+//TOCLEAN using Eddie.Forms.Forms; // Temp
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {	
     public class ChartSpeed : System.Windows.Forms.Control
     {

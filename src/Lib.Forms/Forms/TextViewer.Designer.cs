@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class TextViewer
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.txtData = new Eddie.Gui.Skin.TextBox();
+            this.txtData = new Eddie.Forms.Skin.TextBox();
             this.SuspendLayout();
             // 
             // txtData

@@ -24,9 +24,9 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class WindowConnection : Eddie.Gui.Form
+    public partial class WindowConnection : Eddie.Forms.Form
     {
 		public ConnectionInfo Connection;
 
@@ -57,7 +57,7 @@ namespace Eddie.Gui.Forms
 			base.OnLoad(e);
 			CommonInit(Messages.WindowsConnectionTitle);
 
-			m_tabMain = new Gui.Controls.TabNavigator();
+			m_tabMain = new Eddie.Forms.Controls.TabNavigator();
 			m_tabMain.Font = Skin.FontNormal;
 			m_tabMain.Top = 0;
 			m_tabMain.Left = 0;

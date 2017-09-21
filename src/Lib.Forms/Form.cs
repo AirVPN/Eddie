@@ -24,17 +24,17 @@ using System.Text;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
-namespace Eddie.Gui
+namespace Eddie.Forms
 {
     public class Form : System.Windows.Forms.Form
     {
-        public static Skin.SkinReference Skin = new Gui.Skin.SkinReference();
+        public static Skin.SkinReference Skin = new Eddie.Forms.Skin.SkinReference();
 
-        public static Gui.Engine Engine
+        public static Eddie.Forms.Engine Engine
         {
             get
             {
-				return Engine.Instance as Gui.Engine;
+				return Engine.Instance as Eddie.Forms.Engine;
             }
         }
 
@@ -42,7 +42,7 @@ namespace Eddie.Gui
         {
             if (Skin.Name != name)
             {
-                Gui.Skin.SkinReference.Load(name);
+				Eddie.Forms.Skin.SkinReference.Load(name);
                 return true;
             }
             else
@@ -57,7 +57,7 @@ namespace Eddie.Gui
 
             Text = TitleText;
 						
-			Icon = global::Eddie.Lib.Forms.Properties.Resources.icon1;
+			Icon = global::Eddie.Forms.Properties.Resources.icon1;
 
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
 

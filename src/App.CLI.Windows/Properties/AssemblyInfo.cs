@@ -9,7 +9,7 @@ using System.Resources;
 [assembly: AssemblyTitle("Eddie - Windows CLI")]
 [assembly: AssemblyDescription("Eddie - Windows Command Line Interface")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("https://airvpn.org")]
+[assembly: AssemblyCompany("https://eddie.website")]
 [assembly: AssemblyProduct("Eddie - Windows CLI")]
 [assembly: AssemblyCopyright("Copyright ©  2011 - 2017")]
 [assembly: AssemblyTrademark("")]

@@ -1,4 +1,4 @@
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
     partial class Main
     {
@@ -61,21 +61,21 @@ namespace Eddie.Gui.Forms
 			this.mnuRestoreSep = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
 			this.imgCountries = new System.Windows.Forms.ImageList(this.components);
-			this.cmdServersRefresh = new Eddie.Gui.Skin.Button();
-			this.cboScoreType = new Eddie.Gui.Skin.ComboBox();
-			this.chkLockLast = new Eddie.Gui.Skin.CheckBox();
-			this.cmdServersUndefined = new Eddie.Gui.Skin.Button();
-			this.cmdServersBlackList = new Eddie.Gui.Skin.Button();
-			this.cmdServersWhiteList = new Eddie.Gui.Skin.Button();
-			this.cmdServersConnect = new Eddie.Gui.Skin.Button();
-			this.cmdLogsSupport = new Eddie.Gui.Skin.Button();
-			this.cmdLogsOpenVpnManagement = new Eddie.Gui.Skin.Button();
-			this.cmdLogsClean = new Eddie.Gui.Skin.Button();
-			this.cmdLogsCopy = new Eddie.Gui.Skin.Button();
-			this.cmdLogsSave = new Eddie.Gui.Skin.Button();
-			this.cmdAreasUndefined = new Eddie.Gui.Skin.Button();
-			this.cmdAreasBlackList = new Eddie.Gui.Skin.Button();
-			this.cmdAreasWhiteList = new Eddie.Gui.Skin.Button();
+			this.cmdServersRefresh = new Eddie.Forms.Skin.Button();
+			this.cboScoreType = new Eddie.Forms.Skin.ComboBox();
+			this.chkLockLast = new Eddie.Forms.Skin.CheckBox();
+			this.cmdServersUndefined = new Eddie.Forms.Skin.Button();
+			this.cmdServersBlackList = new Eddie.Forms.Skin.Button();
+			this.cmdServersWhiteList = new Eddie.Forms.Skin.Button();
+			this.cmdServersConnect = new Eddie.Forms.Skin.Button();
+			this.cmdLogsSupport = new Eddie.Forms.Skin.Button();
+			this.cmdLogsOpenVpnManagement = new Eddie.Forms.Skin.Button();
+			this.cmdLogsClean = new Eddie.Forms.Skin.Button();
+			this.cmdLogsCopy = new Eddie.Forms.Skin.Button();
+			this.cmdLogsSave = new Eddie.Forms.Skin.Button();
+			this.cmdAreasUndefined = new Eddie.Forms.Skin.Button();
+			this.cmdAreasBlackList = new Eddie.Forms.Skin.Button();
+			this.cmdAreasWhiteList = new Eddie.Forms.Skin.Button();
 			this.mnuLogsContext = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuServers = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -93,68 +93,68 @@ namespace Eddie.Gui.Forms
 			this.mnuAreasWhiteList = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreasBlackList = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAreasUndefined = new System.Windows.Forms.ToolStripMenuItem();
-			this.tabMain = new Eddie.Gui.Skin.TabControl();
-			this.tabOverview = new Eddie.Gui.Skin.TabPage();
-			this.pnlConnected = new Eddie.Gui.Skin.Panel();
-			this.txtConnectedExitIp = new Eddie.Gui.Skin.Label();
-			this.lblConnectedExitIp = new Eddie.Gui.Skin.Label();
-			this.lblConnectedUpload = new Eddie.Gui.Skin.Label();
+			this.tabMain = new Eddie.Forms.Skin.TabControl();
+			this.tabOverview = new Eddie.Forms.Skin.TabPage();
+			this.pnlConnected = new Eddie.Forms.Skin.Panel();
+			this.txtConnectedExitIp = new Eddie.Forms.Skin.Label();
+			this.lblConnectedExitIp = new Eddie.Forms.Skin.Label();
+			this.lblConnectedUpload = new Eddie.Forms.Skin.Label();
 			this.txtConnectedUpload = new System.Windows.Forms.Label();
 			this.txtConnectedDownload = new System.Windows.Forms.Label();
-			this.lblConnectedDownload = new Eddie.Gui.Skin.Label();
-			this.txtConnectedSince = new Eddie.Gui.Skin.Label();
-			this.lblConnectedSince = new Eddie.Gui.Skin.Label();
-			this.cmdDisconnect = new Eddie.Gui.Skin.Button();
-			this.lblConnectedLocation = new Eddie.Gui.Skin.Label();
-			this.lblConnectedTo = new Eddie.Gui.Skin.Label();
-			this.lblConnectedServerName = new Eddie.Gui.Skin.Label();
-			this.lblConnectedCountry = new Eddie.Gui.Skin.Label();
-			this.pnlWelcome = new Eddie.Gui.Skin.Panel();
+			this.lblConnectedDownload = new Eddie.Forms.Skin.Label();
+			this.txtConnectedSince = new Eddie.Forms.Skin.Label();
+			this.lblConnectedSince = new Eddie.Forms.Skin.Label();
+			this.cmdDisconnect = new Eddie.Forms.Skin.Button();
+			this.lblConnectedLocation = new Eddie.Forms.Skin.Label();
+			this.lblConnectedTo = new Eddie.Forms.Skin.Label();
+			this.lblConnectedServerName = new Eddie.Forms.Skin.Label();
+			this.lblConnectedCountry = new Eddie.Forms.Skin.Label();
+			this.pnlWelcome = new Eddie.Forms.Skin.Panel();
 			this.cboKey = new System.Windows.Forms.ComboBox();
-			this.lblKey = new Eddie.Gui.Skin.Label();
-			this.lblConnectSubtitle = new Eddie.Gui.Skin.Label();
-			this.cmdLockedNetwork = new Eddie.Gui.Skin.Button();
+			this.lblKey = new Eddie.Forms.Skin.Label();
+			this.lblConnectSubtitle = new Eddie.Forms.Skin.Label();
+			this.cmdLockedNetwork = new Eddie.Forms.Skin.Button();
 			this.lblLoginIcon = new System.Windows.Forms.Label();
-			this.imgLockedNetwork = new Eddie.Gui.Skin.Label();
-			this.cmdLogin = new Eddie.Gui.Skin.Button();
-			this.lblPassword = new Eddie.Gui.Skin.Label();
-			this.lblLogin = new Eddie.Gui.Skin.Label();
-			this.cmdConnect = new Eddie.Gui.Skin.Button();
-			this.chkRemember = new Eddie.Gui.Skin.CheckBox();
-			this.txtPassword = new Eddie.Gui.Skin.TextBox();
-			this.txtLogin = new Eddie.Gui.Skin.TextBox();
-			this.pnlWaiting = new Eddie.Gui.Skin.Panel();
-			this.lblWait2 = new Eddie.Gui.Skin.Label();
-			this.lblWait1 = new Eddie.Gui.Skin.Label();
-			this.cmdCancel = new Eddie.Gui.Skin.Button();
+			this.imgLockedNetwork = new Eddie.Forms.Skin.Label();
+			this.cmdLogin = new Eddie.Forms.Skin.Button();
+			this.lblPassword = new Eddie.Forms.Skin.Label();
+			this.lblLogin = new Eddie.Forms.Skin.Label();
+			this.cmdConnect = new Eddie.Forms.Skin.Button();
+			this.chkRemember = new Eddie.Forms.Skin.CheckBox();
+			this.txtPassword = new Eddie.Forms.Skin.TextBox();
+			this.txtLogin = new Eddie.Forms.Skin.TextBox();
+			this.pnlWaiting = new Eddie.Forms.Skin.Panel();
+			this.lblWait2 = new Eddie.Forms.Skin.Label();
+			this.lblWait1 = new Eddie.Forms.Skin.Label();
+			this.cmdCancel = new Eddie.Forms.Skin.Button();
 			this.tabProviders = new System.Windows.Forms.TabPage();
-			this.cmdProviderEdit = new Eddie.Gui.Skin.Button();
-			this.cmdProviderRemove = new Eddie.Gui.Skin.Button();
-			this.cmdProviderAdd = new Eddie.Gui.Skin.Button();
-			this.lstProviders = new Eddie.Gui.Skin.ListView();
+			this.cmdProviderEdit = new Eddie.Forms.Skin.Button();
+			this.cmdProviderRemove = new Eddie.Forms.Skin.Button();
+			this.cmdProviderAdd = new Eddie.Forms.Skin.Button();
+			this.lstProviders = new Eddie.Forms.Skin.ListView();
 			this.colProviderName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProviderProvider = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProviderDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProviderWebsite = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProviderPath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.imgProviders = new System.Windows.Forms.ImageList(this.components);
-			this.tabServers = new Eddie.Gui.Skin.TabPage();
-			this.cmdServersMore = new Eddie.Gui.Skin.Button();
-			this.cmdServersRename = new Eddie.Gui.Skin.Button();
-			this.chkShowAll = new Eddie.Gui.Skin.CheckBox();
-			this.lblScoreType = new Eddie.Gui.Skin.Label();
-			this.pnlServers = new Eddie.Gui.Skin.Panel();
-			this.tabCountries = new Eddie.Gui.Skin.TabPage();
-			this.pnlAreas = new Eddie.Gui.Skin.Panel();
-			this.tabSpeed = new Eddie.Gui.Skin.TabPage();
-			this.lblSpeedResolution = new Eddie.Gui.Skin.Label();
+			this.tabServers = new Eddie.Forms.Skin.TabPage();
+			this.cmdServersMore = new Eddie.Forms.Skin.Button();
+			this.cmdServersRename = new Eddie.Forms.Skin.Button();
+			this.chkShowAll = new Eddie.Forms.Skin.CheckBox();
+			this.lblScoreType = new Eddie.Forms.Skin.Label();
+			this.pnlServers = new Eddie.Forms.Skin.Panel();
+			this.tabCountries = new Eddie.Forms.Skin.TabPage();
+			this.pnlAreas = new Eddie.Forms.Skin.Panel();
+			this.tabSpeed = new Eddie.Forms.Skin.TabPage();
+			this.lblSpeedResolution = new Eddie.Forms.Skin.Label();
 			this.holSpeedChart = new System.Windows.Forms.Label();
-			this.cboSpeedResolution = new Eddie.Gui.Skin.ComboBox();
-			this.tabStats = new Eddie.Gui.Skin.TabPage();
-			this.lstStats = new Eddie.Gui.Skin.ListView();
-			this.tabLogs = new Eddie.Gui.Skin.TabPage();
+			this.cboSpeedResolution = new Eddie.Forms.Skin.ComboBox();
+			this.tabStats = new Eddie.Forms.Skin.TabPage();
+			this.lstStats = new Eddie.Forms.Skin.ListView();
+			this.tabLogs = new Eddie.Forms.Skin.TabPage();
 			this.txtCommand = new System.Windows.Forms.TextBox();
-			this.lstLogs = new Eddie.Gui.Skin.ListView();
+			this.lstLogs = new Eddie.Forms.Skin.ListView();
 			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
@@ -183,7 +183,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuContextCopyAll
 			// 
-			mnuContextCopyAll.Image = global::Eddie.Lib.Forms.Properties.Resources.copy;
+			mnuContextCopyAll.Image = global::Eddie.Forms.Properties.Resources.copy;
 			mnuContextCopyAll.Name = "mnuContextCopyAll";
 			mnuContextCopyAll.Size = new System.Drawing.Size(246, 26);
 			mnuContextCopyAll.Text = "Copy all lines to clipboard";
@@ -191,7 +191,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuContextSaveAll
 			// 
-			mnuContextSaveAll.Image = global::Eddie.Lib.Forms.Properties.Resources.save;
+			mnuContextSaveAll.Image = global::Eddie.Forms.Properties.Resources.save;
 			mnuContextSaveAll.Name = "mnuContextSaveAll";
 			mnuContextSaveAll.Size = new System.Drawing.Size(246, 26);
 			mnuContextSaveAll.Text = "Save all lines to file";
@@ -199,7 +199,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuContextCopySelected
 			// 
-			mnuContextCopySelected.Image = global::Eddie.Lib.Forms.Properties.Resources.copy;
+			mnuContextCopySelected.Image = global::Eddie.Forms.Properties.Resources.copy;
 			mnuContextCopySelected.Name = "mnuContextCopySelected";
 			mnuContextCopySelected.Size = new System.Drawing.Size(246, 26);
 			mnuContextCopySelected.Text = "Copy selected lines to clipboard";
@@ -207,7 +207,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuContextSaveSelected
 			// 
-			mnuContextSaveSelected.Image = global::Eddie.Lib.Forms.Properties.Resources.save;
+			mnuContextSaveSelected.Image = global::Eddie.Forms.Properties.Resources.save;
 			mnuContextSaveSelected.Name = "mnuContextSaveSelected";
 			mnuContextSaveSelected.Size = new System.Drawing.Size(246, 26);
 			mnuContextSaveSelected.Text = "Save selected lines to file";
@@ -264,7 +264,7 @@ namespace Eddie.Gui.Forms
 			// mnuStatus
 			// 
 			this.mnuStatus.ForeColor = System.Drawing.SystemColors.GradientActiveCaption;
-			this.mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_yellow;
+			this.mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_yellow;
 			this.mnuStatus.Name = "mnuStatus";
 			this.mnuStatus.Size = new System.Drawing.Size(252, 26);
 			this.mnuStatus.Text = "TODO - Status readonly text";
@@ -272,7 +272,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuConnect
 			// 
-			this.mnuConnect.Image = global::Eddie.Lib.Forms.Properties.Resources.connect;
+			this.mnuConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
 			this.mnuConnect.Name = "mnuConnect";
 			this.mnuConnect.Size = new System.Drawing.Size(252, 26);
 			this.mnuConnect.Text = "TODO - Connect to o Disconnect";
@@ -285,7 +285,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuHomePage
 			// 
-			this.mnuHomePage.Image = global::Eddie.Lib.Forms.Properties.Resources.home;
+			this.mnuHomePage.Image = global::Eddie.Forms.Properties.Resources.home;
 			this.mnuHomePage.Name = "mnuHomePage";
 			this.mnuHomePage.Size = new System.Drawing.Size(252, 26);
 			this.mnuHomePage.Text = "AirVPN Web Site";
@@ -293,7 +293,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuUser
 			// 
-			this.mnuUser.Image = global::Eddie.Lib.Forms.Properties.Resources.stats;
+			this.mnuUser.Image = global::Eddie.Forms.Properties.Resources.stats;
 			this.mnuUser.Name = "mnuUser";
 			this.mnuUser.Size = new System.Drawing.Size(252, 26);
 			this.mnuUser.Text = "Your &details and statistics (Web)";
@@ -301,7 +301,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuPorts
 			// 
-			this.mnuPorts.Image = global::Eddie.Lib.Forms.Properties.Resources.ports;
+			this.mnuPorts.Image = global::Eddie.Forms.Properties.Resources.ports;
 			this.mnuPorts.Name = "mnuPorts";
 			this.mnuPorts.Size = new System.Drawing.Size(252, 26);
 			this.mnuPorts.Text = "Forwarding &Ports (Web)";
@@ -309,7 +309,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuSpeedTest
 			// 
-			this.mnuSpeedTest.Image = global::Eddie.Lib.Forms.Properties.Resources.speed;
+			this.mnuSpeedTest.Image = global::Eddie.Forms.Properties.Resources.speed;
 			this.mnuSpeedTest.Name = "mnuSpeedTest";
 			this.mnuSpeedTest.Size = new System.Drawing.Size(252, 26);
 			this.mnuSpeedTest.Text = "Speed Test (Web)";
@@ -322,7 +322,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuSettings
 			// 
-			this.mnuSettings.Image = global::Eddie.Lib.Forms.Properties.Resources.settings;
+			this.mnuSettings.Image = global::Eddie.Forms.Properties.Resources.settings;
 			this.mnuSettings.Name = "mnuSettings";
 			this.mnuSettings.Size = new System.Drawing.Size(252, 26);
 			this.mnuSettings.Text = "&Preferences";
@@ -376,7 +376,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuAbout
 			// 
-			this.mnuAbout.Image = global::Eddie.Lib.Forms.Properties.Resources.about;
+			this.mnuAbout.Image = global::Eddie.Forms.Properties.Resources.about;
 			this.mnuAbout.Name = "mnuAbout";
 			this.mnuAbout.Size = new System.Drawing.Size(252, 26);
 			this.mnuAbout.Text = "&About";
@@ -389,7 +389,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuRestore
 			// 
-			this.mnuRestore.Image = global::Eddie.Lib.Forms.Properties.Resources.restore;
+			this.mnuRestore.Image = global::Eddie.Forms.Properties.Resources.restore;
 			this.mnuRestore.Name = "mnuRestore";
 			this.mnuRestore.Size = new System.Drawing.Size(252, 26);
 			this.mnuRestore.Text = "&Restore";
@@ -402,7 +402,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuExit
 			// 
-			this.mnuExit.Image = global::Eddie.Lib.Forms.Properties.Resources.exit;
+			this.mnuExit.Image = global::Eddie.Forms.Properties.Resources.exit;
 			this.mnuExit.Name = "mnuExit";
 			this.mnuExit.Size = new System.Drawing.Size(252, 26);
 			this.mnuExit.Text = "E&xit";
@@ -667,7 +667,7 @@ namespace Eddie.Gui.Forms
 			this.cmdServersRefresh.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersRefresh.FlatAppearance.BorderSize = 0;
 			this.cmdServersRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersRefresh.Image = global::Eddie.Lib.Forms.Properties.Resources.reload;
+			this.cmdServersRefresh.Image = global::Eddie.Forms.Properties.Resources.reload;
 			this.cmdServersRefresh.Location = new System.Drawing.Point(695, 295);
 			this.cmdServersRefresh.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdServersRefresh.Name = "cmdServersRefresh";
@@ -711,7 +711,7 @@ namespace Eddie.Gui.Forms
 			this.cmdServersUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersUndefined.FlatAppearance.BorderSize = 0;
 			this.cmdServersUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
+			this.cmdServersUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
 			this.cmdServersUndefined.Location = new System.Drawing.Point(695, 110);
 			this.cmdServersUndefined.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdServersUndefined.Name = "cmdServersUndefined";
@@ -728,7 +728,7 @@ namespace Eddie.Gui.Forms
 			this.cmdServersBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersBlackList.FlatAppearance.BorderSize = 0;
 			this.cmdServersBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
+			this.cmdServersBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
 			this.cmdServersBlackList.Location = new System.Drawing.Point(695, 78);
 			this.cmdServersBlackList.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdServersBlackList.Name = "cmdServersBlackList";
@@ -745,7 +745,7 @@ namespace Eddie.Gui.Forms
 			this.cmdServersWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersWhiteList.FlatAppearance.BorderSize = 0;
 			this.cmdServersWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
+			this.cmdServersWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
 			this.cmdServersWhiteList.Location = new System.Drawing.Point(695, 46);
 			this.cmdServersWhiteList.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdServersWhiteList.Name = "cmdServersWhiteList";
@@ -762,7 +762,7 @@ namespace Eddie.Gui.Forms
 			this.cmdServersConnect.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersConnect.FlatAppearance.BorderSize = 0;
 			this.cmdServersConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersConnect.Image = global::Eddie.Lib.Forms.Properties.Resources.connect;
+			this.cmdServersConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
 			this.cmdServersConnect.Location = new System.Drawing.Point(695, 4);
 			this.cmdServersConnect.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdServersConnect.Name = "cmdServersConnect";
@@ -779,7 +779,7 @@ namespace Eddie.Gui.Forms
 			this.cmdLogsSupport.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdLogsSupport.FlatAppearance.BorderSize = 0;
 			this.cmdLogsSupport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsSupport.Image = global::Eddie.Lib.Forms.Properties.Resources.support;
+			this.cmdLogsSupport.Image = global::Eddie.Forms.Properties.Resources.support;
 			this.cmdLogsSupport.Location = new System.Drawing.Point(695, 119);
 			this.cmdLogsSupport.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdLogsSupport.Name = "cmdLogsSupport";
@@ -796,7 +796,7 @@ namespace Eddie.Gui.Forms
 			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderSize = 0;
 			this.cmdLogsOpenVpnManagement.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsOpenVpnManagement.Image = global::Eddie.Lib.Forms.Properties.Resources.execute;
+			this.cmdLogsOpenVpnManagement.Image = global::Eddie.Forms.Properties.Resources.execute;
 			this.cmdLogsOpenVpnManagement.Location = new System.Drawing.Point(694, 298);
 			this.cmdLogsOpenVpnManagement.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdLogsOpenVpnManagement.Name = "cmdLogsOpenVpnManagement";
@@ -813,7 +813,7 @@ namespace Eddie.Gui.Forms
 			this.cmdLogsClean.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdLogsClean.FlatAppearance.BorderSize = 0;
 			this.cmdLogsClean.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsClean.Image = global::Eddie.Lib.Forms.Properties.Resources.clear;
+			this.cmdLogsClean.Image = global::Eddie.Forms.Properties.Resources.clear;
 			this.cmdLogsClean.Location = new System.Drawing.Point(695, 4);
 			this.cmdLogsClean.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdLogsClean.Name = "cmdLogsClean";
@@ -830,7 +830,7 @@ namespace Eddie.Gui.Forms
 			this.cmdLogsCopy.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdLogsCopy.FlatAppearance.BorderSize = 0;
 			this.cmdLogsCopy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsCopy.Image = global::Eddie.Lib.Forms.Properties.Resources.copy;
+			this.cmdLogsCopy.Image = global::Eddie.Forms.Properties.Resources.copy;
 			this.cmdLogsCopy.Location = new System.Drawing.Point(695, 36);
 			this.cmdLogsCopy.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdLogsCopy.Name = "cmdLogsCopy";
@@ -847,7 +847,7 @@ namespace Eddie.Gui.Forms
 			this.cmdLogsSave.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdLogsSave.FlatAppearance.BorderSize = 0;
 			this.cmdLogsSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsSave.Image = global::Eddie.Lib.Forms.Properties.Resources.save;
+			this.cmdLogsSave.Image = global::Eddie.Forms.Properties.Resources.save;
 			this.cmdLogsSave.Location = new System.Drawing.Point(695, 68);
 			this.cmdLogsSave.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdLogsSave.Name = "cmdLogsSave";
@@ -864,7 +864,7 @@ namespace Eddie.Gui.Forms
 			this.cmdAreasUndefined.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdAreasUndefined.FlatAppearance.BorderSize = 0;
 			this.cmdAreasUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
+			this.cmdAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
 			this.cmdAreasUndefined.Location = new System.Drawing.Point(695, 68);
 			this.cmdAreasUndefined.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdAreasUndefined.Name = "cmdAreasUndefined";
@@ -881,7 +881,7 @@ namespace Eddie.Gui.Forms
 			this.cmdAreasBlackList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdAreasBlackList.FlatAppearance.BorderSize = 0;
 			this.cmdAreasBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
+			this.cmdAreasBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
 			this.cmdAreasBlackList.Location = new System.Drawing.Point(695, 36);
 			this.cmdAreasBlackList.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdAreasBlackList.Name = "cmdAreasBlackList";
@@ -898,7 +898,7 @@ namespace Eddie.Gui.Forms
 			this.cmdAreasWhiteList.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdAreasWhiteList.FlatAppearance.BorderSize = 0;
 			this.cmdAreasWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAreasWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
+			this.cmdAreasWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
 			this.cmdAreasWhiteList.Location = new System.Drawing.Point(695, 4);
 			this.cmdAreasWhiteList.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdAreasWhiteList.Name = "cmdAreasWhiteList";
@@ -943,7 +943,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuServersConnect
 			// 
-			this.mnuServersConnect.Image = global::Eddie.Lib.Forms.Properties.Resources.connect;
+			this.mnuServersConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
 			this.mnuServersConnect.Name = "mnuServersConnect";
 			this.mnuServersConnect.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersConnect.Text = "Connect now";
@@ -956,7 +956,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuServersWhiteList
 			// 
-			this.mnuServersWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
+			this.mnuServersWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
 			this.mnuServersWhiteList.Name = "mnuServersWhiteList";
 			this.mnuServersWhiteList.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersWhiteList.Text = "Whitelist";
@@ -964,7 +964,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuServersBlackList
 			// 
-			this.mnuServersBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
+			this.mnuServersBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
 			this.mnuServersBlackList.Name = "mnuServersBlackList";
 			this.mnuServersBlackList.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersBlackList.Text = "Blacklist";
@@ -972,7 +972,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuServersUndefined
 			// 
-			this.mnuServersUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
+			this.mnuServersUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
 			this.mnuServersUndefined.Name = "mnuServersUndefined";
 			this.mnuServersUndefined.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersUndefined.Text = "Undefined";
@@ -985,7 +985,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuServersRename
 			// 
-			this.mnuServersRename.Image = global::Eddie.Lib.Forms.Properties.Resources.rename;
+			this.mnuServersRename.Image = global::Eddie.Forms.Properties.Resources.rename;
 			this.mnuServersRename.Name = "mnuServersRename";
 			this.mnuServersRename.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersRename.Text = "Rename";
@@ -993,7 +993,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuServersMore
 			// 
-			this.mnuServersMore.Image = global::Eddie.Lib.Forms.Properties.Resources.more;
+			this.mnuServersMore.Image = global::Eddie.Forms.Properties.Resources.more;
 			this.mnuServersMore.Name = "mnuServersMore";
 			this.mnuServersMore.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersMore.Text = "More";
@@ -1006,7 +1006,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuServersRefresh
 			// 
-			this.mnuServersRefresh.Image = global::Eddie.Lib.Forms.Properties.Resources.reload;
+			this.mnuServersRefresh.Image = global::Eddie.Forms.Properties.Resources.reload;
 			this.mnuServersRefresh.Name = "mnuServersRefresh";
 			this.mnuServersRefresh.Size = new System.Drawing.Size(149, 26);
 			this.mnuServersRefresh.Text = "Refresh list";
@@ -1024,7 +1024,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuAreasWhiteList
 			// 
-			this.mnuAreasWhiteList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_0;
+			this.mnuAreasWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
 			this.mnuAreasWhiteList.Name = "mnuAreasWhiteList";
 			this.mnuAreasWhiteList.Size = new System.Drawing.Size(133, 26);
 			this.mnuAreasWhiteList.Text = "Whitelist";
@@ -1032,7 +1032,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuAreasBlackList
 			// 
-			this.mnuAreasBlackList.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
+			this.mnuAreasBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
 			this.mnuAreasBlackList.Name = "mnuAreasBlackList";
 			this.mnuAreasBlackList.Size = new System.Drawing.Size(133, 26);
 			this.mnuAreasBlackList.Text = "Blacklist";
@@ -1040,7 +1040,7 @@ namespace Eddie.Gui.Forms
 			// 
 			// mnuAreasUndefined
 			// 
-			this.mnuAreasUndefined.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_2;
+			this.mnuAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
 			this.mnuAreasUndefined.Name = "mnuAreasUndefined";
 			this.mnuAreasUndefined.Size = new System.Drawing.Size(133, 26);
 			this.mnuAreasUndefined.Text = "Undefined";
@@ -1228,7 +1228,7 @@ namespace Eddie.Gui.Forms
 			// lblConnectedCountry
 			// 
 			this.lblConnectedCountry.BackColor = System.Drawing.Color.Transparent;
-			this.lblConnectedCountry.Image = global::Eddie.Lib.Forms.Properties.Resources.blacklist_1;
+			this.lblConnectedCountry.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
 			this.lblConnectedCountry.Location = new System.Drawing.Point(135, 13);
 			this.lblConnectedCountry.Name = "lblConnectedCountry";
 			this.lblConnectedCountry.Size = new System.Drawing.Size(22, 20);
@@ -1308,7 +1308,7 @@ namespace Eddie.Gui.Forms
 			// lblLoginIcon
 			// 
 			this.lblLoginIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.lblLoginIcon.Image = global::Eddie.Lib.Forms.Properties.Resources.login;
+			this.lblLoginIcon.Image = global::Eddie.Forms.Properties.Resources.login;
 			this.lblLoginIcon.Location = new System.Drawing.Point(15, 4);
 			this.lblLoginIcon.Name = "lblLoginIcon";
 			this.lblLoginIcon.Size = new System.Drawing.Size(70, 77);
@@ -1485,7 +1485,7 @@ namespace Eddie.Gui.Forms
 			this.cmdProviderEdit.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdProviderEdit.FlatAppearance.BorderSize = 0;
 			this.cmdProviderEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProviderEdit.Image = global::Eddie.Lib.Forms.Properties.Resources.edit;
+			this.cmdProviderEdit.Image = global::Eddie.Forms.Properties.Resources.edit;
 			this.cmdProviderEdit.Location = new System.Drawing.Point(695, 72);
 			this.cmdProviderEdit.Name = "cmdProviderEdit";
 			this.cmdProviderEdit.Size = new System.Drawing.Size(28, 28);
@@ -1501,7 +1501,7 @@ namespace Eddie.Gui.Forms
 			this.cmdProviderRemove.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdProviderRemove.FlatAppearance.BorderSize = 0;
 			this.cmdProviderRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProviderRemove.Image = global::Eddie.Lib.Forms.Properties.Resources.delete;
+			this.cmdProviderRemove.Image = global::Eddie.Forms.Properties.Resources.delete;
 			this.cmdProviderRemove.Location = new System.Drawing.Point(695, 38);
 			this.cmdProviderRemove.Name = "cmdProviderRemove";
 			this.cmdProviderRemove.Size = new System.Drawing.Size(28, 28);
@@ -1517,7 +1517,7 @@ namespace Eddie.Gui.Forms
 			this.cmdProviderAdd.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdProviderAdd.FlatAppearance.BorderSize = 0;
 			this.cmdProviderAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProviderAdd.Image = global::Eddie.Lib.Forms.Properties.Resources.add;
+			this.cmdProviderAdd.Image = global::Eddie.Forms.Properties.Resources.add;
 			this.cmdProviderAdd.Location = new System.Drawing.Point(695, 4);
 			this.cmdProviderAdd.Name = "cmdProviderAdd";
 			this.cmdProviderAdd.Size = new System.Drawing.Size(28, 28);
@@ -1610,7 +1610,7 @@ namespace Eddie.Gui.Forms
 			this.cmdServersMore.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersMore.FlatAppearance.BorderSize = 0;
 			this.cmdServersMore.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersMore.Image = global::Eddie.Lib.Forms.Properties.Resources.more;
+			this.cmdServersMore.Image = global::Eddie.Forms.Properties.Resources.more;
 			this.cmdServersMore.Location = new System.Drawing.Point(695, 185);
 			this.cmdServersMore.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdServersMore.Name = "cmdServersMore";
@@ -1627,7 +1627,7 @@ namespace Eddie.Gui.Forms
 			this.cmdServersRename.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdServersRename.FlatAppearance.BorderSize = 0;
 			this.cmdServersRename.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdServersRename.Image = global::Eddie.Lib.Forms.Properties.Resources.rename;
+			this.cmdServersRename.Image = global::Eddie.Forms.Properties.Resources.rename;
 			this.cmdServersRename.Location = new System.Drawing.Point(695, 153);
 			this.cmdServersRename.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdServersRename.Name = "cmdServersRename";

@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Eddie.CLI.Windows</RootNamespace>
-    <AssemblyName>CLI.Windows</AssemblyName>
+    <AssemblyName>App.CLI.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -94,7 +94,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Lib.Core.csproj">
+    <ProjectReference Include="..\Lib.Core\Lib.Core.csproj">
       <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
       <Name>Lib.Core</Name>
     </ProjectReference>

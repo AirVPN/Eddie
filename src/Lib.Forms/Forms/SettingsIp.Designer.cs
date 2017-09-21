@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
 	partial class SettingsIp
     {
@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.cmdOk = new Eddie.Gui.Skin.Button();
-            this.cmdCancel = new Eddie.Gui.Skin.Button();
-            this.txtIP = new Eddie.Gui.Skin.TextBox();
-            this.lblIP = new Eddie.Gui.Skin.Label();
+            this.cmdOk = new Eddie.Forms.Skin.Button();
+            this.cmdCancel = new Eddie.Forms.Skin.Button();
+            this.txtIP = new Eddie.Forms.Skin.TextBox();
+            this.lblIP = new Eddie.Forms.Skin.Label();
             this.SuspendLayout();
             // 
             // cmdOk

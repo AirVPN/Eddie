@@ -28,7 +28,7 @@ using Eddie.Core;
 
 //using ExceptionReporting;
 
-namespace Eddie.Gui
+namespace Eddie.Forms
 {
 	public class Engine : Eddie.Core.Engine
 	{

@@ -9,7 +9,7 @@ using System.Resources;
 [assembly: AssemblyTitle("Eddie - Core Library")]
 [assembly: AssemblyDescription("Main library")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("https://airvpn.org")]
+[assembly: AssemblyCompany("https://eddie.website")]
 [assembly: AssemblyProduct("Eddie - Core Library")]
 [assembly: AssemblyCopyright("Copyright ©  2011-2017")]
 [assembly: AssemblyTrademark("")]

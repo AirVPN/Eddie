@@ -26,9 +26,9 @@ using System.Windows.Forms;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class About : Eddie.Gui.Form
+    public partial class About : Eddie.Forms.Form
     {
         public About()
         {

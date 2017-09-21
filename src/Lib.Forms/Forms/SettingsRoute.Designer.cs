@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class SettingsRoute
     {
@@ -28,15 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.lblHostHelp = new Eddie.Gui.Skin.Label();
-			this.cboAction = new Eddie.Gui.Skin.ComboBox();
-			this.cmdOk = new Eddie.Gui.Skin.Button();
-			this.lblAction = new Eddie.Gui.Skin.Label();
-			this.txtNotes = new Eddie.Gui.Skin.TextBox();
-			this.lblNotes = new Eddie.Gui.Skin.Label();
-			this.cmdCancel = new Eddie.Gui.Skin.Button();
-			this.txtHost = new Eddie.Gui.Skin.TextBox();
-			this.lblHost = new Eddie.Gui.Skin.Label();
+			this.lblHostHelp = new Eddie.Forms.Skin.Label();
+			this.cboAction = new Eddie.Forms.Skin.ComboBox();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
+			this.lblAction = new Eddie.Forms.Skin.Label();
+			this.txtNotes = new Eddie.Forms.Skin.TextBox();
+			this.lblNotes = new Eddie.Forms.Skin.Label();
+			this.cmdCancel = new Eddie.Forms.Skin.Button();
+			this.txtHost = new Eddie.Forms.Skin.TextBox();
+			this.lblHost = new Eddie.Forms.Skin.Label();
 			this.SuspendLayout();
 			// 
 			// lblHostHelp

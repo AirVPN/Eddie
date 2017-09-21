@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
-namespace Eddie.Gui.Skin
+namespace Eddie.Forms.Skin
 {
     /// <summary>
     /// Summary description for TabControl.

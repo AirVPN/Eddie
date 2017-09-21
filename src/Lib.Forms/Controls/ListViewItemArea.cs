@@ -23,7 +23,7 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {
     public class ListViewItemArea : ListViewItem
     {
@@ -33,7 +33,7 @@ namespace Eddie.Gui.Controls
         {
             get
             {
-				return Engine.Instance as Gui.Engine;
+				return Engine.Instance as Eddie.Forms.Engine;
             }
         }
 

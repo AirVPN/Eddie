@@ -23,7 +23,7 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {
     public class ListViewServers : Skin.ListView
     {
@@ -81,8 +81,8 @@ namespace Eddie.Gui.Controls
 			columnHeader6.Width = 50;
 			columnHeader6.TextAlign = HorizontalAlignment.Center;
 
-            ImageListIcon = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
-            ImageListState = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            ImageListIcon = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
+            ImageListState = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
             //SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
             //LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 

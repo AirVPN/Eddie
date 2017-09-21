@@ -24,7 +24,7 @@ using System.Windows.Forms;
 using System.Text;
 using Eddie.Core;
 
-namespace Eddie.Gui
+namespace Eddie.Forms
 {
     public class GuiUtils
     {
@@ -80,7 +80,7 @@ namespace Eddie.Gui
                 return ImageResourceCache[name];
             else
             {						
-                Bitmap i = (Bitmap) global::Eddie.Lib.Forms.Properties.Resources.ResourceManager.GetObject(name);
+                Bitmap i = (Bitmap) global::Eddie.Forms.Properties.Resources.ResourceManager.GetObject(name);
                 ImageResourceCache[name] = i;
                 return i;
             }

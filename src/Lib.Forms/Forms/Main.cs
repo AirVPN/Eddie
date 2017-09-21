@@ -31,11 +31,11 @@ using System.Windows.Forms;
 using System.Xml;
 using Eddie.Lib.Common;
 using Eddie.Core;
-using Eddie.Gui.Controls;
+using Eddie.Forms.Controls;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-	public partial class Main : Eddie.Gui.Form
+	public partial class Main : Eddie.Forms.Form
 	{
 		private Controls.ToolTip m_toolTip;
 		private Controls.TabNavigator m_tabMain;
@@ -63,7 +63,7 @@ namespace Eddie.Gui.Forms
 
 		public Main()
 		{
-			Gui.Skin.SkinReference.Load(Engine.Instance.Storage.Get("gui.skin"));
+			Eddie.Forms.Skin.SkinReference.Load(Engine.Instance.Storage.Get("gui.skin"));
 
 			OnPreInitializeComponent();
 			InitializeComponent();
@@ -565,11 +565,11 @@ namespace Eddie.Gui.Forms
 				Image iconNetLock = null;
 				if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 				{
-					iconNetLock = Lib.Forms.Properties.Resources.netlock_status_on;
+					iconNetLock = Eddie.Forms.Properties.Resources.netlock_status_on;
 				}
 				else
 				{
-					iconNetLock = Lib.Forms.Properties.Resources.netlock_status_off;
+					iconNetLock = Eddie.Forms.Properties.Resources.netlock_status_off;
 				}
 				DrawImageContain(e.Graphics, iconNetLock, rectNetLock, 20);
 
@@ -603,7 +603,7 @@ namespace Eddie.Gui.Forms
 				}
 			}
 
-			Gui.Engine engine = Engine.Instance as Gui.Engine;
+			Eddie.Forms.Engine engine = Engine.Instance as Eddie.Forms.Engine;
 
 			if (engine.FormMain != null)
 			{
@@ -882,7 +882,7 @@ namespace Eddie.Gui.Forms
 
 			Controls.ListViewItemProvider item = lstProviders.SelectedItems[0] as Controls.ListViewItemProvider;
 
-			Eddie.Gui.Form form = null;
+			Eddie.Forms.Form form = null;
 			if (item.Provider is Core.Providers.OpenVPN)
 			{
 				WindowProviderEditOpenVPN dlg = new WindowProviderEditOpenVPN();
@@ -1338,7 +1338,7 @@ namespace Eddie.Gui.Forms
 		{
 			if (m_listViewServers.SelectedItems.Count == 1)
 			{
-				Eddie.Gui.Controls.ListViewItemServer listViewItem = m_listViewServers.SelectedItems[0] as Eddie.Gui.Controls.ListViewItemServer;
+				Eddie.Forms.Controls.ListViewItemServer listViewItem = m_listViewServers.SelectedItems[0] as Eddie.Forms.Controls.ListViewItemServer;
 
 				if (listViewItem.Info.CanConnect())
 				{
@@ -1576,12 +1576,12 @@ namespace Eddie.Gui.Forms
 			if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
-				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_on;
+				imgLockedNetwork.Image = Eddie.Forms.Properties.Resources.netlock_on;
 			}
 			else
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonDeactive;
-				imgLockedNetwork.Image = Lib.Forms.Properties.Resources.netlock_off;
+				imgLockedNetwork.Image = Eddie.Forms.Properties.Resources.netlock_off;
 			}
 
 			bool networkCanEnabled = ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.CanEnabled()));
@@ -1638,7 +1638,7 @@ namespace Eddie.Gui.Forms
 							cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
 							mnuConnect.Enabled = cmdCancel.Enabled;
 
-							mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_yellow;
+							mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_yellow;
 
 						}
 						else if (Engine.IsConnected())
@@ -1660,7 +1660,7 @@ namespace Eddie.Gui.Forms
 							else
 								lblConnectedCountry.Image = null;
 
-							mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_green;
+							mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_green;
 						}
 						else
 						{
@@ -1668,7 +1668,7 @@ namespace Eddie.Gui.Forms
 							pnlWaiting.Visible = false;
 							pnlConnected.Visible = false;
 
-							mnuStatus.Image = global::Eddie.Lib.Forms.Properties.Resources.status_red;
+							mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_red;
 						}
 
 						// Icon                    
@@ -1678,11 +1678,11 @@ namespace Eddie.Gui.Forms
 							//if(pageView == PageView.Stats)
 							if (Engine.IsConnected())
 							{
-								icon = global::Eddie.Lib.Forms.Properties.Resources.icon1;
+								icon = global::Eddie.Forms.Properties.Resources.icon1;
 							}
 							else
 							{
-								icon = global::Eddie.Lib.Forms.Properties.Resources.icon_gray1;
+								icon = global::Eddie.Forms.Properties.Resources.icon_gray1;
 							}
 
 							if (this.Icon != icon)
@@ -1784,7 +1784,7 @@ namespace Eddie.Gui.Forms
 			}
 			else
 			{
-				Gui.Forms.FrontMessage dlg = new Forms.FrontMessage();
+				Eddie.Forms.Forms.FrontMessage dlg = new Forms.FrontMessage();
 				dlg.Message = message;
 				dlg.Show();
 				dlg.Activate();

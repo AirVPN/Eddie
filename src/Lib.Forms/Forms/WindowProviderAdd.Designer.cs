@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class WindowProviderAdd
 	{
@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.cboProvider = new Eddie.Gui.Skin.ComboBox();
-			this.cmdOk = new Eddie.Gui.Skin.Button();
-			this.lblProvider = new Eddie.Gui.Skin.Label();
-			this.cmdCancel = new Eddie.Gui.Skin.Button();
+			this.cboProvider = new Eddie.Forms.Skin.ComboBox();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
+			this.lblProvider = new Eddie.Forms.Skin.Label();
+			this.cmdCancel = new Eddie.Forms.Skin.Button();
 			this.SuspendLayout();
 			// 
 			// cboProvider

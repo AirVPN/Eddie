@@ -23,7 +23,7 @@ using System.Drawing.Imaging;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {
     public class ProgressInfinite : System.Windows.Forms.Label
     {

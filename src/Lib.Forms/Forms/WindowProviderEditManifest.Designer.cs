@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class WindowProviderEditManifest
 	{
@@ -28,11 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.cmdOk = new Eddie.Gui.Skin.Button();
-			this.cmdCancel = new Eddie.Gui.Skin.Button();
-			this.chkEnabled = new Eddie.Gui.Skin.CheckBox();
-			this.lblTitle = new Eddie.Gui.Skin.LinkLabel();
-			this.lblSubtitle = new Eddie.Gui.Skin.Label();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
+			this.cmdCancel = new Eddie.Forms.Skin.Button();
+			this.chkEnabled = new Eddie.Forms.Skin.CheckBox();
+			this.lblTitle = new Eddie.Forms.Skin.LinkLabel();
+			this.lblSubtitle = new Eddie.Forms.Skin.Label();
 			this.SuspendLayout();
 			// 
 			// cmdOk

@@ -22,7 +22,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Eddie.Gui.Skin
+namespace Eddie.Forms.Skin
 {
     public class SplitContainer : System.Windows.Forms.SplitContainer
     {

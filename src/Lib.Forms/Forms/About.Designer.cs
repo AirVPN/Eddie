@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class About
     {
@@ -28,21 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.lblVersion = new Eddie.Gui.Skin.Label();
-			this.cmdClose = new Eddie.Gui.Skin.Button();
-			this.lblLibraries = new Eddie.Gui.Skin.Label();
-			this.lnkLibraries = new Eddie.Gui.Skin.LinkLabel();
-			this.lblLicense = new Eddie.Gui.Skin.Label();
-			this.lnkLicense = new Eddie.Gui.Skin.LinkLabel();
-			this.lblSources = new Eddie.Gui.Skin.Label();
-			this.lnkSources = new Eddie.Gui.Skin.LinkLabel();
-			this.lblManual = new Eddie.Gui.Skin.Label();
-			this.lblWebsite = new Eddie.Gui.Skin.Label();
-			this.lnkManual = new Eddie.Gui.Skin.LinkLabel();
-			this.lnkWebsite = new Eddie.Gui.Skin.LinkLabel();
-			this.lblTitle = new Eddie.Gui.Skin.Label();
-			this.lblDeveloped = new Eddie.Gui.Skin.Label();
-			this.cmdSystemReport = new Eddie.Gui.Skin.Button();
+			this.lblVersion = new Eddie.Forms.Skin.Label();
+			this.cmdClose = new Eddie.Forms.Skin.Button();
+			this.lblLibraries = new Eddie.Forms.Skin.Label();
+			this.lnkLibraries = new Eddie.Forms.Skin.LinkLabel();
+			this.lblLicense = new Eddie.Forms.Skin.Label();
+			this.lnkLicense = new Eddie.Forms.Skin.LinkLabel();
+			this.lblSources = new Eddie.Forms.Skin.Label();
+			this.lnkSources = new Eddie.Forms.Skin.LinkLabel();
+			this.lblManual = new Eddie.Forms.Skin.Label();
+			this.lblWebsite = new Eddie.Forms.Skin.Label();
+			this.lnkManual = new Eddie.Forms.Skin.LinkLabel();
+			this.lnkWebsite = new Eddie.Forms.Skin.LinkLabel();
+			this.lblTitle = new Eddie.Forms.Skin.Label();
+			this.lblDeveloped = new Eddie.Forms.Skin.Label();
+			this.cmdSystemReport = new Eddie.Forms.Skin.Button();
 			this.SuspendLayout();
 			// 
 			// lblVersion

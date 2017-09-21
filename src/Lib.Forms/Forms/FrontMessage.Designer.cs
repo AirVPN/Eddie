@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
 	partial class FrontMessage
 	{
@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.cmdClose = new Eddie.Gui.Skin.Button();
+            this.cmdClose = new Eddie.Forms.Skin.Button();
             this.lnkWebsite = new System.Windows.Forms.LinkLabel();
             this.lblMessage = new System.Windows.Forms.Label();
             this.SuspendLayout();

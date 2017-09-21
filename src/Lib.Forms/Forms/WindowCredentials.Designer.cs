@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class WindowCredentials
 	{
@@ -28,14 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.lblPassword = new Eddie.Gui.Skin.Label();
-			this.lblUsername = new Eddie.Gui.Skin.Label();
-			this.txtPassword = new Eddie.Gui.Skin.TextBox();
-			this.txtUsername = new Eddie.Gui.Skin.TextBox();
-			this.cmdOk = new Eddie.Gui.Skin.Button();
-			this.cmdCancel = new Eddie.Gui.Skin.Button();
-			this.cboRemember = new Eddie.Gui.Skin.ComboBox();
-			this.lblRemember = new Eddie.Gui.Skin.Label();
+			this.lblPassword = new Eddie.Forms.Skin.Label();
+			this.lblUsername = new Eddie.Forms.Skin.Label();
+			this.txtPassword = new Eddie.Forms.Skin.TextBox();
+			this.txtUsername = new Eddie.Forms.Skin.TextBox();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
+			this.cmdCancel = new Eddie.Forms.Skin.Button();
+			this.cboRemember = new Eddie.Forms.Skin.ComboBox();
+			this.lblRemember = new Eddie.Forms.Skin.Label();
 			this.SuspendLayout();
 			// 
 			// lblPassword

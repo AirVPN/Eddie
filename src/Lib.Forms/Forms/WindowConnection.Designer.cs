@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class WindowConnection
 	{
@@ -28,11 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.tabMain = new Eddie.Gui.Skin.TabControl();
+			this.tabMain = new Eddie.Forms.Skin.TabControl();
 			this.tabOvpnGenerated = new System.Windows.Forms.TabPage();
-			this.txtOvpnGenerated = new Eddie.Gui.Skin.TextBox();
+			this.txtOvpnGenerated = new Eddie.Forms.Skin.TextBox();
 			this.tabOvpnOriginal = new System.Windows.Forms.TabPage();
-			this.txtOvpnOriginal = new Eddie.Gui.Skin.TextBox();
+			this.txtOvpnOriginal = new Eddie.Forms.Skin.TextBox();
 			this.tabMain.SuspendLayout();
 			this.tabOvpnGenerated.SuspendLayout();
 			this.tabOvpnOriginal.SuspendLayout();

@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class WindowProviderEditOpenVPN
 	{
@@ -28,21 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.cmdOk = new Eddie.Gui.Skin.Button();
-			this.cmdCancel = new Eddie.Gui.Skin.Button();
-			this.chkEnabled = new Eddie.Gui.Skin.CheckBox();
-			this.cmdPathBrowse = new Eddie.Gui.Skin.Button();
-			this.txtPath = new Eddie.Gui.Skin.TextBox();
-			this.lblPath = new Eddie.Gui.Skin.Label();
-			this.txtTitle2 = new Eddie.Gui.Skin.TextBox();
-			this.lblTitle2 = new Eddie.Gui.Skin.Label();
-			this.lblSubtitle = new Eddie.Gui.Skin.Label();
-			this.lblTitle = new Eddie.Gui.Skin.LinkLabel();
-			this.lblAuthPassPassword = new Eddie.Gui.Skin.Label();
-			this.lblAuthPassUsername = new Eddie.Gui.Skin.Label();
-			this.txtAuthPassPassword = new Eddie.Gui.Skin.TextBox();
-			this.txtAuthPassUsername = new Eddie.Gui.Skin.TextBox();
-			this.label2 = new Eddie.Gui.Skin.Label();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
+			this.cmdCancel = new Eddie.Forms.Skin.Button();
+			this.chkEnabled = new Eddie.Forms.Skin.CheckBox();
+			this.cmdPathBrowse = new Eddie.Forms.Skin.Button();
+			this.txtPath = new Eddie.Forms.Skin.TextBox();
+			this.lblPath = new Eddie.Forms.Skin.Label();
+			this.txtTitle2 = new Eddie.Forms.Skin.TextBox();
+			this.lblTitle2 = new Eddie.Forms.Skin.Label();
+			this.lblSubtitle = new Eddie.Forms.Skin.Label();
+			this.lblTitle = new Eddie.Forms.Skin.LinkLabel();
+			this.lblAuthPassPassword = new Eddie.Forms.Skin.Label();
+			this.lblAuthPassUsername = new Eddie.Forms.Skin.Label();
+			this.txtAuthPassPassword = new Eddie.Forms.Skin.TextBox();
+			this.txtAuthPassUsername = new Eddie.Forms.Skin.TextBox();
+			this.label2 = new Eddie.Forms.Skin.Label();
 			this.SuspendLayout();
 			// 
 			// cmdOk
@@ -95,7 +95,7 @@
 			this.cmdPathBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdPathBrowse.FlatAppearance.BorderSize = 0;
 			this.cmdPathBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdPathBrowse.Image = global::Eddie.Lib.Forms.Properties.Resources.browse;
+			this.cmdPathBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
 			this.cmdPathBrowse.Location = new System.Drawing.Point(438, 102);
 			this.cmdPathBrowse.Name = "cmdPathBrowse";
 			this.cmdPathBrowse.Size = new System.Drawing.Size(33, 20);

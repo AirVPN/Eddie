@@ -25,9 +25,9 @@ using System.Windows.Forms;
 using System.Xml;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class WindowProviderAdd : Eddie.Gui.Form
+    public partial class WindowProviderAdd : Eddie.Forms.Form
     {
         public String Provider;
 

@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Eddie - Common Library")]
 [assembly: AssemblyDescription("Common library")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("https://airvpn.org")]
+[assembly: AssemblyCompany("https://eddie.website")]
 [assembly: AssemblyProduct("Eddie - Common Library")]
 [assembly: AssemblyCopyright("Copyright ©  2011-2017")]
 [assembly: AssemblyTrademark("")]

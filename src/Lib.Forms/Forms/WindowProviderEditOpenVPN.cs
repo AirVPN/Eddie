@@ -24,9 +24,9 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class WindowProviderEditOpenVPN : Eddie.Gui.Form
+    public partial class WindowProviderEditOpenVPN : Eddie.Forms.Form
     {
 		public Core.Providers.OpenVPN Provider;
 

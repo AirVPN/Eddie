@@ -23,7 +23,7 @@ using System.Drawing.Imaging;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Eddie.Gui.Skin
+namespace Eddie.Forms.Skin
 {
     public class Button : System.Windows.Forms.Button
     {

@@ -1,4 +1,4 @@
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
     partial class WindowMan
 	{
@@ -28,15 +28,15 @@ namespace Eddie.Gui.Forms
         /// </summary>
         private void InitializeComponent()
         {
-			this.txtBody = new Eddie.Gui.Skin.TextBox();
-			this.cmdCopyClipboard = new Eddie.Gui.Skin.Button();
-			this.cmdSave = new Eddie.Gui.Skin.Button();
-			this.cmdOk = new Eddie.Gui.Skin.Button();
+			this.txtBody = new Eddie.Forms.Skin.TextBox();
+			this.cmdCopyClipboard = new Eddie.Forms.Skin.Button();
+			this.cmdSave = new Eddie.Forms.Skin.Button();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
 			this.pgrStep = new System.Windows.Forms.ProgressBar();
-			this.lblStep = new Eddie.Gui.Skin.Label();
-			this.lstOptions = new Eddie.Gui.Skin.ListView();
-			this.colOptionName = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
-			this.colOptionDesc = ((Eddie.Gui.Skin.ColumnHeader)(new Eddie.Gui.Skin.ColumnHeader()));
+			this.lblStep = new Eddie.Forms.Skin.Label();
+			this.lstOptions = new Eddie.Forms.Skin.ListView();
+			this.colOptionName = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
+			this.colOptionDesc = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colOptionDefault = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colOptionValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.SuspendLayout();
@@ -65,7 +65,7 @@ namespace Eddie.Gui.Forms
 			this.cmdCopyClipboard.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdCopyClipboard.FlatAppearance.BorderSize = 0;
 			this.cmdCopyClipboard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdCopyClipboard.Image = global::Eddie.Lib.Forms.Properties.Resources.copy;
+			this.cmdCopyClipboard.Image = global::Eddie.Forms.Properties.Resources.copy;
 			this.cmdCopyClipboard.Location = new System.Drawing.Point(748, 11);
 			this.cmdCopyClipboard.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdCopyClipboard.Name = "cmdCopyClipboard";
@@ -82,7 +82,7 @@ namespace Eddie.Gui.Forms
 			this.cmdSave.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdSave.FlatAppearance.BorderSize = 0;
 			this.cmdSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdSave.Image = global::Eddie.Lib.Forms.Properties.Resources.save;
+			this.cmdSave.Image = global::Eddie.Forms.Properties.Resources.save;
 			this.cmdSave.Location = new System.Drawing.Point(748, 43);
 			this.cmdSave.Margin = new System.Windows.Forms.Padding(2);
 			this.cmdSave.Name = "cmdSave";

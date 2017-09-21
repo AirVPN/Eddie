@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class WindowConnectionRename
 	{
@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.cmdOk = new Eddie.Gui.Skin.Button();
-			this.cmdCancel = new Eddie.Gui.Skin.Button();
-			this.txtText = new Eddie.Gui.Skin.TextBox();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
+			this.cmdCancel = new Eddie.Forms.Skin.Button();
+			this.txtText = new Eddie.Forms.Skin.TextBox();
 			this.SuspendLayout();
 			// 
 			// cmdOk

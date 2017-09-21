@@ -24,9 +24,9 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class OpenVpnManagementCommand : Eddie.Gui.Form
+    public partial class OpenVpnManagementCommand : Eddie.Forms.Form
     {
         public String Command;
         
