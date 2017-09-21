@@ -21,4 +21,4 @@ target_link_libraries(Lib.Platform.Linux.Native -static-libgcc -static-libstdc++
 # Remove the "lib" prefix from the shared library filename
 #set_target_properties(Lib.Platform.Linux.Native PROPERTIES PREFIX "" COMPILE_FLAGS "${CMAKE_BUILD_ARCHITECTURE}" LINK_FLAGS "${CMAKE_BUILD_ARCHITECTURE}")
 
-set_target_properties(Lib.Platform.Linux.Native PROPERTIES COMPILE_FLAGS "${CMAKE_BUILD_ARCHITECTURE} -fstack-protector -Werror=format-security" LINK_FLAGS "${CMAKE_BUILD_ARCHITECTURE} -Wl -z relro")
+set_target_properties(Lib.Platform.Linux.Native PROPERTIES COMPILE_FLAGS "${CMAKE_BUILD_ARCHITECTURE} -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2" LINK_FLAGS "${CMAKE_BUILD_ARCHITECTURE} -z relro")

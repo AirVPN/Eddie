@@ -303,7 +303,7 @@ namespace Deploy
 					CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 					//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);					
 					CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-					CopyFile(pathRelease, "Platforms.Windows.dll", pathTemp);
+					CopyFile(pathRelease, "Lib.Platform.Windows.dll", pathTemp);
 
 					if(ui == "ui")
 					{
@@ -383,7 +383,7 @@ namespace Deploy
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
 
 						if (ui == "cli")
 						{
@@ -436,7 +436,7 @@ namespace Deploy
 						command += " \"" + pathRelease + "/Lib.Core.dll\"";
 						//command += " \"" + pathRelease + "/Newtonsoft.Json.dll\"";
 						command += " \"" + pathRelease + "/Lib.Common.dll\"";
-						command += " \"" + pathRelease + "/Platforms.Linux.dll\"";
+						command += " \"" + pathRelease + "/Lib.Platform.Linux.dll\"";
 
 						// TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
 						// Otherwise, we need to have two different WinForms project (Windows AND Linux)
@@ -496,7 +496,7 @@ namespace Deploy
 						//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);						
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
 						CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
@@ -538,7 +538,7 @@ namespace Deploy
 						//Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Newtonsoft.Json.dll\"");						
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Platforms.Linux.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Platform.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
@@ -565,7 +565,7 @@ namespace Deploy
 						//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);						
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-						CopyFile(pathRelease, "Platforms.Linux.dll", pathTemp);
+						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "UI.Forms.Linux.exe", pathTemp, "AirVPN.exe");
 						CopyFile(pathRelease, "CLI.Linux.exe", pathTemp, "CLI.exe");
 
@@ -597,7 +597,7 @@ namespace Deploy
 						//Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Newtonsoft.Json.dll\"");						
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Common.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Platforms.Linux.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Platform.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/libLib.Platform.Linux.Native.so\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
@@ -683,7 +683,7 @@ namespace Deploy
 								cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
 								cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
 								//cmd += " \"" + pathRelease + "/Newtonsoft.Json.dll\"";
-								cmd += " \"" + pathRelease + "/Platforms.macOS.dll\"";								
+								cmd += " \"" + pathRelease + "/Lib.Platform.macOS.dll\"";								
 								cmd += " \"" + pathRelease + "/XamMac.dll\"";
 								cmd += " -z";
 								cmd += " --static";
@@ -857,7 +857,7 @@ namespace Deploy
 
 							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-							CopyFile(pathRelease, "Platforms.macOS.dll", pathTemp);
+							CopyFile(pathRelease, "Lib.Platform.macOS.dll", pathTemp);
 							//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
 							CopyFile(pathRelease, "XamMac.dll", pathTemp);
 							CopyFile(pathRelease, "libxammac.dylib", pathTemp);
