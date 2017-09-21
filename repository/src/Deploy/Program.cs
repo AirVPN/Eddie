@@ -132,6 +132,17 @@ namespace Deploy
 
 			if (SO == "linux")
 			{
+				int uid = 9999;
+				int.TryParse(Shell("id -u"), out uid);
+				if (uid != 0)
+				{
+					Console.WriteLine("Sorry, must be run as root, because need to chown to root:root on some file for example Debian docs.");
+					return;
+				}
+			}
+
+			if (SO == "linux")
+			{
 				if (Shell("tar --version").IndexOf("GNU tar") == -1)
 				{
 					Console.WriteLine("tar required.");
@@ -411,6 +422,8 @@ namespace Deploy
 						CreateDirectory(pathTemp + "/" + fileName);
 						MoveAll(pathTemp, pathTemp + "/" + fileName);
 
+						Shell("chown -R root:root " + pathTemp);
+
 						// TAR.GZ
 						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
 						Shell(command2);
@@ -486,6 +499,8 @@ namespace Deploy
 						CreateDirectory(pathTemp + "/" + fileName);
 						MoveAll(pathTemp, pathTemp + "/" + fileName);
 
+						Shell("chown -R root:root " + pathTemp);
+
 						// TAR.GZ
 						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
 						Shell(command2);
@@ -546,6 +561,8 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/copyright\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
 
+						Shell("chown -R root:root " + pathTemp);
+
 						string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
 						Log(command);
 						Shell(command);
@@ -602,6 +619,8 @@ namespace Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/cacert.pem\"");
+
+						Shell("chown -R root:root " + pathTemp);
 
 						string command = "rpmbuild";
 						if(IsOfficial())
