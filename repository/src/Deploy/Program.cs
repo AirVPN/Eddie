@@ -438,7 +438,7 @@ namespace Deploy
 
 						if (ui == "cli")
 						{
-							command += " \"" + pathRelease + "/CLI.Linux.exe\"";
+							command += " \"" + pathRelease + "/App.CLI.Linux.exe\"";
 						}
 						else if (ui == "ui")
 						{
@@ -638,8 +638,7 @@ namespace Deploy
 							}
 							else
 							{
-								Log("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
-								Errors++;
+								LogError("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
 							}
 						}
 						command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
@@ -650,8 +649,7 @@ namespace Deploy
 						{
 							if (output.Contains("signing failed"))
 							{
-								Log("RPM fail: " + output);
-								Errors++;
+								LogError("RPM fail: " + output);
 							}
 							else
 								Log(output);
@@ -667,7 +665,7 @@ namespace Deploy
 						if (ui == "cli")
 						{
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.MacOS/bin/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/App.CLI.macOS/bin/");
 
 							//CopyFile(pathRelease, "eddie-cli", pathTemp, "eddie-cli");
 
@@ -698,7 +696,7 @@ namespace Deploy
 								// WARNING: Currently 2017-03-10 , cannot be signed for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
 								cmd += "mkbundle";
 								cmd += " --sdk /Library/Frameworks/Mono.framework/Versions/Current";
-								cmd += " \"" + pathRelease + "/CLI.MacOS.exe\"";
+								cmd += " \"" + pathRelease + "/App.CLI.macOS.exe\"";
 								cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
 								cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
 								//cmd += " \"" + pathRelease + "/Newtonsoft.Json.dll\"";
@@ -872,7 +870,7 @@ namespace Deploy
 						if (ui == "cli")
 						{
 							pathRelease = pathRelease.Replace("/x64/Release/", "/Release/");
-							pathRelease = pathRelease.Replace("/src/bin/", "/src/CLI.MacOS/bin/");
+							pathRelease = pathRelease.Replace("/src/bin/", "/src/App.CLI.macOS/bin/");
 
 							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
@@ -919,7 +917,7 @@ namespace Deploy
 			if (SO == "windows")
 			{
 				Log("Generating manual files");
-				string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/CLI.Windows.exe").FullName;
+				string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/App.CLI.Windows.exe").FullName;
 				WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help.format=html"));
 				WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help.format=bbc"));
 				WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help.format=text"));
@@ -972,8 +970,7 @@ namespace Deploy
 
 			if(File.Exists(pathCompiler) == false)
 			{
-				Log("Compiler expected in " + pathCompiler + " but not found, build skipped.");
-				Errors++;
+				LogError("Compiler expected in " + pathCompiler + " but not found, build skipped.");
 				return false;
 			}
 
@@ -1013,9 +1010,8 @@ namespace Deploy
 			}
 			else
 			{
-				Log("Compilation errors, build skipped. Dump compilation report.");
+				LogError("Compilation errors, build skipped. Dump compilation report.");
 				Log(o);
-				Errors++;
 				return false;
 			}
 		}
@@ -1234,8 +1230,7 @@ namespace Deploy
 				}
 				else
 				{
-					Log("Missing PFX or password for Windows signatures. (" + pathPfx + " , " + pathPfxPwd + ")");
-					Errors++;
+					LogError("Missing PFX or password for Windows signatures. (" + pathPfx + " , " + pathPfxPwd + ")");
 				}
 			}
 			else if(platform == "linux")
@@ -1251,16 +1246,14 @@ namespace Deploy
 						string output = Shell(cmd);
 						if (output.Contains("Signed deb ") == false)
 						{
-							Log("Signing .deb failed: " + output);
-							Errors++;
+							LogError("Signing .deb failed: " + output);
 						}
 						else
 							Log(output);
 					}
 					else
 					{
-						Log("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
-						Errors++;
+						LogError("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
 					}
 				}
 			}
@@ -1398,6 +1391,12 @@ namespace Deploy
 					final += line + "\n";
 			}
 			return final;
+		}
+
+		static void LogError(string message)
+		{
+			Log("Error: " + message);
+			Errors++;
 		}
 
 		static void Log(string message)
