@@ -100,7 +100,6 @@
     <Compile Include="UI\Charts.cs" />
     <Compile Include="Conversions.cs" />
     <Compile Include="UI\Actions.cs" />
-    <Compile Include="UI\Colors.cs" />
     <Compile Include="RandomGenerator.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="StatsEntry.cs" />
