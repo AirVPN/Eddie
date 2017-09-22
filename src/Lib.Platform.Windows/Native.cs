@@ -133,5 +133,44 @@ namespace Eddie.Platform.Windows
 				return false;
 			}
 		}
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern void LibPocketFirewallInit(string name);
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool LibPocketFirewallStart(string xml);
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool LibPocketFirewallStop();
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern UInt64 LibPocketFirewallAddRule(string xml);
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool LibPocketFirewallRemoveRule(UInt64 id);
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern bool LibPocketFirewallRemoveRuleDirect(UInt64 id);
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern IntPtr LibPocketFirewallGetLastError();
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern UInt32 LibPocketFirewallGetLastErrorCode();
+
+		public static string LibPocketFirewallGetLastError2()
+		{
+			IntPtr result = LibPocketFirewallGetLastError();
+			string s = Marshal.PtrToStringAnsi(result);
+			UInt32 code = LibPocketFirewallGetLastErrorCode();
+			if (code != 0)
+				s += " (0x" + code.ToString("x") + ")";
+			return s;
+		}
+
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern int GetInterfaceMetric(int idx, string layer);
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern int SetInterfaceMetric(int idx, string layer, int value);
 	}
 }

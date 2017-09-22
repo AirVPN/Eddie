@@ -37,11 +37,6 @@ namespace Eddie.Platform.Windows
 {
 	public class Platform : Core.Platform
 	{
-		[DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int GetInterfaceMetric(int idx, string layer);
-		[DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetInterfaceMetric(int idx, string layer, int value);
-
 		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private object m_oldIpV6 = null;
@@ -917,9 +912,9 @@ namespace Eddie.Platform.Windows
 			int interfaceMetricIPv6Current = -1;
 
 			if (interfaceMetricIPv4Idx != -1)
-				interfaceMetricIPv4Current = GetInterfaceMetric(interfaceMetricIPv4Idx, "ipv4");
+				interfaceMetricIPv4Current = Native.GetInterfaceMetric(interfaceMetricIPv4Idx, "ipv4");
 			if (interfaceMetricIPv6Idx != -1)
-				interfaceMetricIPv6Current = GetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6");
+				interfaceMetricIPv6Current = Native.GetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6");
 
 			if ( (interfaceMetricIPv4Current != -1) && (interfaceMetricIPv4Current != interfaceMetricIPv4Value) )
 			{
@@ -928,7 +923,7 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricSwitch, interfaceMetricIPv4Name, fromStr, toStr, "IPv4"));
 				m_oldMetricInterface = id;
 				m_oldMetricIPv4 = interfaceMetricIPv4Current;
-				SetInterfaceMetric(interfaceMetricIPv4Idx, "ipv4", interfaceMetricIPv4Value);
+				Native.SetInterfaceMetric(interfaceMetricIPv4Idx, "ipv4", interfaceMetricIPv4Value);
 
 				Recovery.Save();
 			}
@@ -940,7 +935,7 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricSwitch, interfaceMetricIPv6Name, fromStr, toStr, "IPv6"));
 				m_oldMetricInterface = id;
 				m_oldMetricIPv6 = interfaceMetricIPv6Current;
-				SetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6", interfaceMetricIPv6Value);
+				Native.SetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6", interfaceMetricIPv6Value);
 
 				Recovery.Save();
 			}
@@ -960,13 +955,13 @@ namespace Eddie.Platform.Windows
 						if(m_oldMetricIPv4 != -1)
 						{
 							int idx = adapter.GetIPProperties().GetIPv4Properties().Index;
-							int current = GetInterfaceMetric(idx, "ipv4");
+							int current = Native.GetInterfaceMetric(idx, "ipv4");
 							if (current != m_oldMetricIPv4)
 							{
 								string fromStr = (current == 0) ? "Automatic" : current.ToString();
 								string toStr = (m_oldMetricIPv4 == 0) ? "Automatic" : m_oldMetricIPv4.ToString();
 								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv4"));
-								SetInterfaceMetric(idx, "ipv4", m_oldMetricIPv4);
+								Native.SetInterfaceMetric(idx, "ipv4", m_oldMetricIPv4);
 							}
 							m_oldMetricIPv4 = -1;
 						}
@@ -974,13 +969,13 @@ namespace Eddie.Platform.Windows
 						if (m_oldMetricIPv6 != -1)
 						{
 							int idx = adapter.GetIPProperties().GetIPv6Properties().Index;
-							int current = GetInterfaceMetric(idx, "ipv6");
+							int current = Native.GetInterfaceMetric(idx, "ipv6");
 							if (current != m_oldMetricIPv6)
 							{
 								string fromStr = (current == 0) ? "Automatic" : current.ToString();
 								string toStr = (m_oldMetricIPv6 == 0) ? "Automatic" : m_oldMetricIPv6.ToString();
 								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv6"));
-								SetInterfaceMetric(idx, "ipv6", m_oldMetricIPv6);
+								Native.SetInterfaceMetric(idx, "ipv6", m_oldMetricIPv6);
 							}
 							m_oldMetricIPv6 = -1;
 						}

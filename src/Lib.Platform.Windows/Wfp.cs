@@ -35,290 +35,256 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace Eddie.Platform.Windows
 {
-    public class Wfp
-    {
-        private static Dictionary<string, WfpItem> Items = new Dictionary<string, WfpItem>();
+	public class Wfp
+	{
+		private static Dictionary<string, WfpItem> Items = new Dictionary<string, WfpItem>();
+		
+		public static string GetName()
+		{
+			return Constants.Name + "-" + Constants.AppID;
+		}
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void LibPocketFirewallInit(string name);
+		public static bool GetDynamicMode()
+		{
+			return Engine.Instance.Storage.GetBool("windows.wfp.dynamic");
+		}
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool LibPocketFirewallStart(string xml);
+		public static void Start()
+		{
+			Native.LibPocketFirewallInit(GetName());
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool LibPocketFirewallStop();
+			XmlDocument xmlStart = new XmlDocument();
+			XmlElement xmlInfo = xmlStart.CreateElement("firewall");
+			xmlInfo.SetAttribute("description", Constants.Name);
+			xmlInfo.SetAttribute("weight", "max");
+			xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern UInt64 LibPocketFirewallAddRule(string xml);
+			if (Native.LibPocketFirewallStart(xmlInfo.OuterXml) == false)
+				throw new Exception(MessagesFormatter.Format(Messages.WfpStartFail, Native.LibPocketFirewallGetLastError2()));
+		}
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool LibPocketFirewallRemoveRule(UInt64 id);
+		public static void Stop()
+		{
+			Native.LibPocketFirewallStop();
+		}
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool LibPocketFirewallRemoveRuleDirect(UInt64 id);
+		public static bool RemoveItem(string code)
+		{
+			if (Items.ContainsKey(code) == false)
+				return false;
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr LibPocketFirewallGetLastError();
+			WfpItem item = Items[code];
 
-        [DllImport("Platforms.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern UInt32 LibPocketFirewallGetLastErrorCode();
+			return RemoveItem(item);
+		}
 
-        public static string LibPocketFirewallGetLastError2()
-        {
-            IntPtr result = LibPocketFirewallGetLastError();
-            string s = Marshal.PtrToStringAnsi(result);
-            UInt32 code = LibPocketFirewallGetLastErrorCode();
-            if (code != 0)
-                s += " (0x" + code.ToString("x") + ")";
-            return s;
-        }
+		public static bool RemoveItem(WfpItem item)
+		{
+			lock (Items)
+			{
+				if (Items.ContainsValue(item) == false)
+					throw new Exception("Windows WFP, unexpected: Rule '" + item.Code + "' not exists");
 
-        public static string GetName()
-        {
-            return Constants.Name + "-" + Constants.AppID;
-        }
+				foreach (UInt64 id in item.FirewallIds)
+				{
+					bool result = RemoveItemId(id);
+					if (result == false)
+						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleRemoveFail, Native.LibPocketFirewallGetLastError2()));
+				}
 
-        public static bool GetDynamicMode()
-        {
-            return Engine.Instance.Storage.GetBool("windows.wfp.dynamic");            
-        }
+				Items.Remove(item.Code);
 
-        public static void Start()
-        {
-            LibPocketFirewallInit(GetName());
+				if (Items.Count == 0)
+				{
 
-            XmlDocument xmlStart = new XmlDocument();
-            XmlElement xmlInfo = xmlStart.CreateElement("firewall");
-            xmlInfo.SetAttribute("description", Constants.Name);
-            xmlInfo.SetAttribute("weight", "max");
-            xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");            
+				}
+			}
 
-            if (LibPocketFirewallStart(xmlInfo.OuterXml) == false)
-                throw new Exception(MessagesFormatter.Format(Messages.WfpStartFail, LibPocketFirewallGetLastError2()));
-        }
+			return true;
+		}
 
-        public static void Stop()
-        {
-            LibPocketFirewallStop();
-        }
+		public static bool RemoveItemId(ulong id)
+		{
+			return Native.LibPocketFirewallRemoveRule(id);
+		}
 
-        public static bool RemoveItem(string code)
-        {
-            if (Items.ContainsKey(code) == false)
-                return false;
+		public static WfpItem AddItem(string code, XmlElement xml)
+		{
+			lock (Items)
+			{
+				if (Items.ContainsKey(code))
+					throw new Exception("Windows WFP, unexpected: Rule '" + code + "' already exists");
 
-            WfpItem item = Items[code];
+				WfpItem item = new WfpItem();
+				item.Code = code;
 
-            return RemoveItem(item);
-        }
+				List<string> layers = new List<string>();
 
-        public static bool RemoveItem(WfpItem item)
-        {
-            lock(Items)
-            {
-                if (Items.ContainsValue(item) == false)
-                    throw new Exception("Windows WFP, unexpected: Rule '" + item.Code + "' not exists");
+				if (xml.GetAttribute("layer") == "all")
+				{
+					layers.Add("ale_auth_recv_accept_v4");
+					layers.Add("ale_auth_recv_accept_v6");
+					layers.Add("ale_auth_connect_v4");
+					layers.Add("ale_auth_connect_v6");
+					layers.Add("ale_flow_established_v4");
+					layers.Add("ale_flow_established_v6");
+				}
+				else if (xml.GetAttribute("layer") == "ipv4")
+				{
+					layers.Add("ale_auth_recv_accept_v4");
+					layers.Add("ale_auth_connect_v4");
+					layers.Add("ale_flow_established_v4");
+				}
+				else if (xml.GetAttribute("layer") == "ipv6")
+				{
+					layers.Add("ale_auth_recv_accept_v6");
+					layers.Add("ale_auth_connect_v6");
+					layers.Add("ale_flow_established_v6");
+				}
+				else
+					layers.Add(xml.GetAttribute("layer"));
 
-                foreach (UInt64 id in item.FirewallIds)
-                {
-                    bool result = RemoveItemId(id);
-                    if (result == false)
-                        throw new Exception(MessagesFormatter.Format(Messages.WfpRuleRemoveFail, LibPocketFirewallGetLastError2()));
-                }
+				if (xml.HasAttribute("weight") == false)
+				{
+					xml.SetAttribute("weight", "1000");
+				}
 
-                Items.Remove(item.Code);
+				foreach (string layer in layers)
+				{
+					XmlElement xmlClone = xml.CloneNode(true) as XmlElement;
+					xmlClone.SetAttribute("layer", layer);
+					string xmlStr = xmlClone.OuterXml;
 
-                if (Items.Count == 0)
-                {
-                    
-                }
-            }
+					UInt64 id1 = Native.LibPocketFirewallAddRule(xmlStr);
 
-            return true;
-        }
+					if (id1 == 0)
+					{
+						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleAddFail, Native.LibPocketFirewallGetLastError2(), xmlStr));
+					}
+					else
+					{
+						// Only used for debugging WFP issue with rules in some system
+						// Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.WfpRuleAddSuccess, xmlStr));
+						item.FirewallIds.Add(id1);
+					}
+				}
 
-        public static bool RemoveItemId(ulong id)
-        {
-            return LibPocketFirewallRemoveRule(id);
-        }
+				Items[item.Code] = item;
 
-        public static WfpItem AddItem(string code, XmlElement xml)
-        {
-            lock(Items)
-            {
-                if (Items.ContainsKey(code))
-                    throw new Exception("Windows WFP, unexpected: Rule '" + code + "' already exists");
+				return item;
+			}
+		}
 
-                WfpItem item = new WfpItem();
-                item.Code = code;
+		public static XmlElement CreateItemAllowAddress(string title, IpAddress range)
+		{
+			string address = range.Address;
+			string mask = range.Mask;
 
-                List<string> layers = new List<string>();
+			XmlDocument xmlDocRule = new XmlDocument();
+			XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+			xmlRule.SetAttribute("name", title);
+			if (range.IsV4)
+				xmlRule.SetAttribute("layer", "ipv4");
+			else if (range.IsV6)
+				xmlRule.SetAttribute("layer", "ipv6");
+			xmlRule.SetAttribute("action", "permit");
+			XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+			xmlRule.AppendChild(XmlIf1);
+			XmlIf1.SetAttribute("field", "ip_remote_address");
+			XmlIf1.SetAttribute("match", "equal");
+			XmlIf1.SetAttribute("address", address);
+			XmlIf1.SetAttribute("mask", mask);
 
-                if (xml.GetAttribute("layer") == "all")
-                {
-                    layers.Add("ale_auth_recv_accept_v4");
-                    layers.Add("ale_auth_recv_accept_v6");
-                    layers.Add("ale_auth_connect_v4");
-                    layers.Add("ale_auth_connect_v6");
-                    layers.Add("ale_flow_established_v4");
-                    layers.Add("ale_flow_established_v6");
-                }
-                else if (xml.GetAttribute("layer") == "ipv4")
-                {
-                    layers.Add("ale_auth_recv_accept_v4");
-                    layers.Add("ale_auth_connect_v4");
-                    layers.Add("ale_flow_established_v4");
-                }
-                else if (xml.GetAttribute("layer") == "ipv6")
-                {
-                    layers.Add("ale_auth_recv_accept_v6");
-                    layers.Add("ale_auth_connect_v6");
-                    layers.Add("ale_flow_established_v6");
-                }
-                else
-                    layers.Add(xml.GetAttribute("layer"));
+			return xmlRule;
+		}
 
-                if (xml.HasAttribute("weight") == false)
-                {
-                    xml.SetAttribute("weight", "1000");
-                }
+		public static XmlElement CreateItemAllowProgram(string title, string path)
+		{
+			XmlDocument xmlDocRule = new XmlDocument();
+			XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+			xmlRule.SetAttribute("name", title);
+			xmlRule.SetAttribute("layer", "all");
+			xmlRule.SetAttribute("action", "permit");
+			XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+			xmlRule.AppendChild(XmlIf1);
+			XmlIf1.SetAttribute("field", "ale_app_id");
+			XmlIf1.SetAttribute("match", "equal");
+			XmlIf1.SetAttribute("path", path);
 
-                foreach (string layer in layers)
-                {
-                    XmlElement xmlClone = xml.CloneNode(true) as XmlElement;
-                    xmlClone.SetAttribute("layer", layer);                    
-                    string xmlStr = xmlClone.OuterXml;					
-					
-                    UInt64 id1 = LibPocketFirewallAddRule(xmlStr);
+			return xmlRule;
+		}
 
-                    if (id1 == 0)
-                    {
-                        throw new Exception(MessagesFormatter.Format(Messages.WfpRuleAddFail, LibPocketFirewallGetLastError2(), xmlStr));
-                    }
-                    else
-                    {
-                        // Only used for debugging WFP issue with rules in some system
-                        // Engine.Instance.Logs.Log(LogType.Verbose, Messages.Format(Messages.WfpRuleAddSuccess, xmlStr));
-                        item.FirewallIds.Add(id1);
-                    }
-                }
+		public static XmlElement CreateItemAllowInterface(string title, string id, string layers)
+		{
+			XmlDocument xmlDocRule = new XmlDocument();
+			XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+			xmlRule.SetAttribute("name", title);
+			xmlRule.SetAttribute("layer", layers);
+			xmlRule.SetAttribute("action", "permit");
+			XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+			xmlRule.AppendChild(XmlIf1);
+			XmlIf1.SetAttribute("field", "ip_local_interface");
+			XmlIf1.SetAttribute("match", "equal");
+			XmlIf1.SetAttribute("interface", id);
 
-                Items[item.Code] = item;
+			return xmlRule;
+		}
 
-                return item;
-            }            
-        }
+		public static bool ClearPendingRules()
+		{
+			bool found = false;
+			try
+			{
+				string wfpName = GetName();
+				string path = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".xml";
 
-        public static XmlElement CreateItemAllowAddress(string title, IpAddress range)
-        {
-            string address = range.Address;
-            string mask = range.Mask;
+				System.Diagnostics.Process p = new System.Diagnostics.Process();
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.CreateNoWindow = true;
+				p.StartInfo.RedirectStandardOutput = true;
+				p.StartInfo.FileName = "NetSh.exe";
+				p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
+				p.StartInfo.WorkingDirectory = Path.GetTempPath();
+				p.Start();
+				p.StandardOutput.ReadToEnd();
+				p.WaitForExit();
 
-            XmlDocument xmlDocRule = new XmlDocument();
-            XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-            xmlRule.SetAttribute("name", title);
-            if(range.IsV4)
-                xmlRule.SetAttribute("layer", "ipv4");
-            else if(range.IsV6)
-                xmlRule.SetAttribute("layer", "ipv6");
-            xmlRule.SetAttribute("action", "permit");            
-            XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-            xmlRule.AppendChild(XmlIf1);
-            XmlIf1.SetAttribute("field", "ip_remote_address");
-            XmlIf1.SetAttribute("match", "equal");
-            XmlIf1.SetAttribute("address", address);
-            XmlIf1.SetAttribute("mask", mask);
+				if (File.Exists(path))
+				{
+					System.Xml.XmlDocument xmlDoc = new XmlDocument();
+					xmlDoc.Load(path);
+					foreach (XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
+					{
+						foreach (XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
+						{
+							foreach (XmlElement xmlName in xmlItem.SelectNodes("displayData/name"))
+							{
+								string name = xmlName.InnerText;
+								if (name == wfpName)
+								{
+									foreach (XmlNode xmlFilterId in xmlItem.GetElementsByTagName("filterId"))
+									{
+										ulong id;
+										if (ulong.TryParse(xmlFilterId.InnerText, out id))
+										{
+											Native.LibPocketFirewallRemoveRuleDirect(id);
+											found = true;
+										}
+									}
+								}
+							}
+						}
+					}
 
-            return xmlRule;
-        }
+					Platform.Instance.FileDelete(path);
+				}
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Logs.Log(e);
+			}
 
-        public static XmlElement CreateItemAllowProgram(string title, string path)
-        {
-            XmlDocument xmlDocRule = new XmlDocument();
-            XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-            xmlRule.SetAttribute("name", title);
-            xmlRule.SetAttribute("layer", "all");
-            xmlRule.SetAttribute("action", "permit");            
-            XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-            xmlRule.AppendChild(XmlIf1);
-            XmlIf1.SetAttribute("field", "ale_app_id");
-            XmlIf1.SetAttribute("match", "equal");
-            XmlIf1.SetAttribute("path", path);
-
-            return xmlRule;
-        }
-
-        public static XmlElement CreateItemAllowInterface(string title, string id, string layers)
-        {
-            XmlDocument xmlDocRule = new XmlDocument();
-            XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-            xmlRule.SetAttribute("name", title);
-            xmlRule.SetAttribute("layer", layers);
-            xmlRule.SetAttribute("action", "permit");            
-            XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-            xmlRule.AppendChild(XmlIf1);
-            XmlIf1.SetAttribute("field", "ip_local_interface");
-            XmlIf1.SetAttribute("match", "equal");
-            XmlIf1.SetAttribute("interface", id);
-
-            return xmlRule;
-        }
-
-        public static bool ClearPendingRules()
-        {
-            bool found = false;
-            try
-            {                
-                string wfpName = GetName();
-                string path = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".xml";
-
-                System.Diagnostics.Process p = new System.Diagnostics.Process();
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.FileName = "NetSh.exe";
-                p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
-                p.StartInfo.WorkingDirectory = Path.GetTempPath();
-                p.Start();
-                p.StandardOutput.ReadToEnd();
-                p.WaitForExit();
-
-                if (File.Exists(path))
-                {
-                    System.Xml.XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.Load(path);
-                    foreach (XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
-                    {
-                        foreach (XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
-                        {
-                            foreach (XmlElement xmlName in xmlItem.SelectNodes("displayData/name"))
-                            {
-                                string name = xmlName.InnerText;
-                                if (name == wfpName)
-                                {
-                                    foreach (XmlNode xmlFilterId in xmlItem.GetElementsByTagName("filterId"))
-                                    {
-                                        ulong id;
-                                        if (ulong.TryParse(xmlFilterId.InnerText, out id))
-                                        {
-                                            LibPocketFirewallRemoveRuleDirect(id);
-                                            found = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Platform.Instance.FileDelete(path);
-                }
-            }
-            catch(Exception e)
-            {
-                Engine.Instance.Logs.Log(e);
-            }
-
-            return found;
-        }
-    }
+			return found;
+		}
+	}
 }

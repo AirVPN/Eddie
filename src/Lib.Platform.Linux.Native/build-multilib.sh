@@ -20,10 +20,9 @@ BuildConfig()
 	cd "$ROOTDIR"
 }
 
-BuildConfig ./build/x64/debug -m64 Debug ../../../../bin/x64/Debug/
-BuildConfig ./build/x64/release -m64 Release ../../../../bin/x64/Release/
-BuildConfig ./build/x86/debug -m32 Debug ../../../../bin/x86/Debug/
-BuildConfig ./build/x86/release -m32 Release ../../../../bin/x86/Release/
+#export DEB_CPPFLAGS_SET="-D_FORTIFY_SOURCE=2" 
+#export DEB_CFLAGS_SET="-g -O2 -fstack-protector -Wformat -Werror=format-security" 
+#export DEB_LDFLAGS_SET="-Wl,-z,relro"
 
 #BuildConfig ./build/x64/debug -m64 Debug ../../../../bin/x64/Debug/
 
@@ -34,4 +33,5 @@ strip -S --strip-unneeded -o ../../deploy/linux_x64/libLib.Platform.Linux.Native
 
 BuildConfig ./build/x86/release -m32 Release ../../../../../deploy/linux_x86/
 strip -S --strip-unneeded -o ../../deploy/linux_x86/libLib.Platform.Linux.Native.so ../../deploy/linux_x86/libLib.Platform.Linux.Native.so
+
 
