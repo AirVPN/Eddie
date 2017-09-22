@@ -63,7 +63,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			LblTitle.Activated += (object sender, EventArgs e) =>
 			{
-				Platform.Instance.OpenUrl(Provider.DefinitionHref);
+				Core.Platform.Instance.OpenUrl(Provider.DefinitionHref);
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>

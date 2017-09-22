@@ -8,8 +8,8 @@
     <ProjectGuid>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</ProjectGuid>
     <ProjectTypeGuids>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>Platforms.macOS</RootNamespace>
-    <AssemblyName>Platforms.macOS</AssemblyName>
+    <RootNamespace>Eddie.Platform.macOS</RootNamespace>
+    <AssemblyName>Lib.Platform.macOS</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ReleaseVersion>2.13</ReleaseVersion>
@@ -51,8 +51,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
-    <Reference Include="XamMac" />
     <Reference Include="Mono.Posix" />
+    <Reference Include="XamMac, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

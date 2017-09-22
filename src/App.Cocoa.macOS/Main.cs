@@ -35,7 +35,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			NSApplication.Init();
 
-			Core.Platform.Instance = new Eddie.Platforms.MacOS.Platform();
+			Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
 
 			CommandLine.InitSystem(Environment.CommandLine);
 

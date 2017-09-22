@@ -79,7 +79,7 @@ namespace Eddie.UI.Cocoa.Osx
 				int result = panel.RunModal();
 				if (result == 1)
 				{
-					Platform.Instance.FileContentsWriteText(panel.Url.Path, t);
+					Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t);
 
 					GuiUtils.MessageBoxInfo(Messages.LogsSaveToFileDone);
 				}

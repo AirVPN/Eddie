@@ -8,7 +8,7 @@
     <ProjectGuid>{8A54C394-4DE9-4512-9A04-701049176953}</ProjectGuid>
     <ProjectTypeGuids>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Eddie.UI.Cocoa.Osx</RootNamespace>
+    <RootNamespace>Eddie.Cocoa.macOS</RootNamespace>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <ReleaseVersion>2.13</ReleaseVersion>
@@ -661,7 +661,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Platforms.macOS\Platforms.macOS.csproj">
       <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
-      <Name>Platforms.macOS</Name>
+      <Name>Lib.Platform.macOS</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

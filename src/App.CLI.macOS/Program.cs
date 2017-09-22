@@ -29,7 +29,10 @@ namespace Eddie.CLI.MacOS
 	{
 		static void Main(string[] args)
 		{
-            Platform.Instance = new Eddie.Platforms.MacOS.Platform();
+			Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
+
+			Console.WriteLine(Core.Platform.Instance.Ping("8.8.8.8", 5).ToString());
+			return; // pazzo
 
 			CommandLine.InitSystem(Environment.CommandLine);
 
@@ -45,7 +48,7 @@ namespace Eddie.CLI.MacOS
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);			
+			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);
 		}
 	}
 }

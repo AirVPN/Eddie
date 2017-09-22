@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CLI.MacOS</RootNamespace>
-    <AssemblyName>CLI.MacOS</AssemblyName>
+    <RootNamespace>Eddie.CLI.macOS</RootNamespace>
+    <AssemblyName>App.CLI.macOS</AssemblyName>
     <ReleaseVersion>2.13</ReleaseVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -36,7 +36,12 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>cp /Library/Frameworks/Xamarin.Mac.framework/Versions/3.4.0.36/lib/libxammac.dylib ${TargetDir}</command>
+          <command>find /Library/Frameworks/Xamarin.Mac.framework/Versions -name libxammac.dylib -exec cp {} ${TargetDir} \;</command>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp ${ProjectDir}/../../deploy/macos_x64/*.dylib ${TargetDir}</command>
+          <externalConsole>True</externalConsole>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -60,7 +65,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Platforms.macOS\Platforms.macOS.csproj">
       <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
-      <Name>Platforms.macOS</Name>
+      <Name>Lib.Platform.macOS</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

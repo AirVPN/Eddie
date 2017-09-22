@@ -31,7 +31,7 @@ namespace Eddie.UI.Cocoa.Osx
 		private List<LogEntry> m_items = new List<LogEntry>();
 		//private Engine m_engine;
 
-		public TableLogsController (NSTableView tableView)
+		public TableLogsController(NSTableView tableView)
 		{
 			this.tableView = tableView;
 
@@ -43,71 +43,77 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void AddLog(LogEntry l)
 		{
-			m_items.Add (l);
-			if (m_items.Count >= Engine.Instance.Storage.GetInt ("gui.log_limit"))
-				m_items.RemoveAt (0);
-			RefreshUI ();
+			m_items.Add(l);
+			if (m_items.Count >= Engine.Instance.Storage.GetInt("gui.log_limit"))
+				m_items.RemoveAt(0);
+			RefreshUI();
 		}
 
 		public void Clear()
 		{
-			m_items.Clear ();
-			RefreshUI ();
+			m_items.Clear();
+			RefreshUI();
 		}
 
 		public string GetBody(bool selectedOnly)
 		{
-			System.Text.StringBuilder buffer = new System.Text.StringBuilder ();
+			System.Text.StringBuilder buffer = new System.Text.StringBuilder();
 
-			lock(m_items)
+			lock (m_items)
 			{
 				int i = 0;
-				foreach (LogEntry l in m_items) {
+				foreach (LogEntry l in m_items)
+				{
 					bool skip = false;
 
-					if (selectedOnly) {
-						if (tableView.IsRowSelected (i) == false)
+					if (selectedOnly)
+					{
+						if (tableView.IsRowSelected(i) == false)
 							skip = true;
 					}
 
-					if (skip == false) {
-						buffer.Append (l.GetStringLines () + "\n");
+					if (skip == false)
+					{
+						buffer.Append(l.GetStringLines() + "\n");
 					}
 
 					i++;
 				}
 			}
 
-			return Platform.Instance.NormalizeString(buffer.ToString());
+			return Core.Platform.Instance.NormalizeString(buffer.ToString());
 		}
 
 		public void RefreshUI()
 		{
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
 
-		public override int GetRowCount (NSTableView tableView)
+		public override int GetRowCount(NSTableView tableView)
 		{
 			return m_items.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 int row)
 		{
-			LogEntry e = m_items [row];
+			LogEntry e = m_items[row];
 
-			if (tableColumn.Identifier == "Icon") {
+			if (tableColumn.Identifier == "Icon")
+			{
 				return NSImage.ImageNamed("log_" + e.Type.ToString().ToLowerInvariant() + ".png");
 			}
-			else if (tableColumn.Identifier == "Date") {
-				return new NSString (e.GetDateForList());
+			else if (tableColumn.Identifier == "Date")
+			{
+				return new NSString(e.GetDateForList());
 			}
-			else if (tableColumn.Identifier == "Message") {
-				return new NSString (e.GetMessageForList());
+			else if (tableColumn.Identifier == "Message")
+			{
+				return new NSString(e.GetMessageForList());
 			}
-			else 
-				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));
+			else
+				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));
 		}
 
 	}

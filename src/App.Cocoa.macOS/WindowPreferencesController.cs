@@ -324,7 +324,7 @@ namespace Eddie.UI.Cocoa.Osx
 				List<string> paths = Engine.Instance.Logs.ParseLogFilePath(TxtLoggingPath.StringValue);
 				foreach (string path in paths)
 				{
-					if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
+					if (Core.Platform.Instance.OpenDirectoryInFileManager(path) == false)
 						GuiUtils.MessageBoxError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
 				}
 			};
