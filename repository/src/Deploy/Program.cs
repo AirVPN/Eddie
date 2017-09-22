@@ -292,7 +292,7 @@ namespace Deploy
 				}
 				else
 				{
-					if (Compile(archCompile, requiredNetFramework) == false)
+					if (Compile(SO, archCompile, requiredNetFramework) == false)
 					{
 						continue;
 					}
@@ -956,7 +956,7 @@ namespace Deploy
 			return Program.Arguments.Contains("official");
 		}
 
-		static bool Compile(string architecture, int netFramework)
+		static bool Compile(string so, string architecture, int netFramework)
 		{
 			Log("Compilation, Architecture: " + architecture + ", NetFramework: " + netFramework.ToString());
 
@@ -977,8 +977,12 @@ namespace Deploy
 				return false;
 			}
 
-			string pathProject = PathBase + "/src/Eddie_VS2015.sln";
-
+			string pathProject = "";
+			if(so == "windows")
+				pathProject = PathBase + "/src/Eddie2_VS2017_Windows.sln";
+			else if(so == "linux")
+				pathProject = PathBase + "/src/Eddie2_VS2017_Linux.sln";
+			
 			/*
 			if(netFramework == 2)
 			{
@@ -990,7 +994,7 @@ namespace Deploy
 				WriteTextFile(pathProject, sln);
 			}
 			*/
-			
+
 			string arguments = "/p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework.ToString() + ".0\" /t:Rebuild \"" + pathProject + "\"";
 
 			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
