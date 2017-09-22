@@ -284,6 +284,11 @@ namespace Eddie.Core
 			return p;
 		}
 
+		public virtual bool NativeTest()
+		{
+			return true;
+		}
+
 		public virtual bool FileExists(string path)
 		{
 			if (path == "")

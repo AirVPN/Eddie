@@ -224,6 +224,11 @@ namespace Eddie.Platform.Windows
 			}
 		}
 
+		public override bool NativeTest()
+		{
+			return (Native.eddie_test_native() == 3);
+		}
+
 		public override string FileGetPhysicalPath(string path)
 		{
 			string native = Native.GetFinalPathName(path);

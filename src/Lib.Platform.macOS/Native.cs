@@ -96,7 +96,7 @@ namespace Eddie.Platform.MacOS
 		*/
 
 		[DllImport(NativeLibName)]
-		public static extern int eddie_linux_get_3();
+		public static extern int eddie_test_native();
 
 		[DllImport(NativeLibName)]
 		public static extern int eddie_file_get_mode(string pathname);

@@ -215,6 +215,12 @@ namespace Eddie.Core
 		{
 			Platform.Instance.OnInit(cli);
 
+			if (Platform.Instance.NativeTest() == false)
+			{
+				Console.WriteLine("Unable to initialize native library.");
+				return false;
+			}
+
 			if (ResourcesFiles.Count() == 0)
 			{
 				ResourcesFiles.SetString("AirVPN.xml", Core.Properties.Resources.AirVPN); // TOCLEAN with Eddie3
@@ -260,7 +266,7 @@ namespace Eddie.Core
 			{
 				if (Platform.Instance.IsAdmin() == false)
 				{
-					if (ConsoleMode)
+					if (cli)
 					{
 						Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);
 					}

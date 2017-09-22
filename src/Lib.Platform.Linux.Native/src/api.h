@@ -27,6 +27,8 @@ extern "C" {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+EDDIE_LINUX_NATIVE_EXPORT int eddie_test_native();
+	
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_get_mode(const char *filename);
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_set_mode(const char *filename, int mode);
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_set_mode_str(const char *filename, const char *mode);

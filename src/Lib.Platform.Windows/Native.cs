@@ -169,6 +169,8 @@ namespace Eddie.Platform.Windows
 		}
 
 		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern int eddie_test_native();
+		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
 		public static extern int GetInterfaceMetric(int idx, string layer);
 		[DllImport("Lib.Platform.Windows.Native.dll", CallingConvention = CallingConvention.Cdecl)]
 		public static extern int SetInterfaceMetric(int idx, string layer, int value);

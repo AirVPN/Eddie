@@ -161,6 +161,11 @@ namespace Eddie.Platform.Linux
 			}
 		}
 
+		public override bool NativeTest()
+		{
+			return (Native.eddie_test_native() == 3);
+		}
+
 		public override bool FileImmutableGet(string path)
 		{
 			if ((path == "") || (FileExists(path) == false))

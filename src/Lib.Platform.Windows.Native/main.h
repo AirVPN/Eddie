@@ -38,6 +38,8 @@
 // Utils
 // ----------------------
 
+extern "C" { __declspec(dllexport) int eddie_test_native(); }
+
 extern "C" { __declspec(dllexport) int GetInterfaceMetric(int index, const char* layer); }
 extern "C" { __declspec(dllexport) int SetInterfaceMetric(int index, const char* layer, int value); }
 

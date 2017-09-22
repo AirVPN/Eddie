@@ -39,6 +39,11 @@
 Utils
 *******************************************************************************/
 
+int eddie_test_native()
+{
+	return 3;
+}
+
 int GetInterfaceMetric(int index, const char* layer)
 {
 	std::string layerS = layer;
