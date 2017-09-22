@@ -31,9 +31,6 @@ namespace Eddie.CLI.MacOS
 		{
 			Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
 
-			Console.WriteLine(Core.Platform.Instance.Ping("8.8.8.8", 5).ToString());
-			return; // pazzo
-
 			CommandLine.InitSystem(Environment.CommandLine);
 
 			Core.Engine engine = new Core.Engine();
