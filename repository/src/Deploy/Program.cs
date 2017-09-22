@@ -235,12 +235,12 @@ namespace Deploy
 				else
 					arch = "x86";
 
-				//ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
-				//ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
-				//ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
-				//ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));
+				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "mono"));
+				ListPackages.Add(new Package("linux", arch, "cli", true, 4, "mono"));
+				ListPackages.Add(new Package("linux", arch, "ui", true, 4, "portable"));
+				ListPackages.Add(new Package("linux", arch, "cli", true, 4, "portable"));
 				ListPackages.Add(new Package("linux", arch, "ui", false, 4, "debian"));
-				//ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));
+				ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));
 			}
 
 			if (SO == "macos") {
