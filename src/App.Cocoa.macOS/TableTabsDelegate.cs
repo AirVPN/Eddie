@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -17,7 +17,10 @@
 // </eddie_source_header>
 
 using System;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -26,26 +29,29 @@ namespace Eddie.UI.Cocoa.Osx
 		NSTableView m_tableView;
 		NSTabView m_tabView;
 
-		public TableTabsDelegate (NSTableView tableView, NSTabView tabView)
+		public TableTabsDelegate(NSTableView tableView, NSTabView tabView)
 		{
 			m_tableView = tableView;
 			m_tabView = tabView;
 
-			SelectionChange ();
+			SelectionChange();
 		}
 
-		public override void SelectionDidChange (MonoMac.Foundation.NSNotification notification)
+		public override void SelectionDidChange(Foundation.NSNotification notification)
 		{
-			SelectionChange ();
+			SelectionChange();
 		}
 
 		void SelectionChange()
 		{
-			if (m_tableView.SelectedRow == -1) {
-				m_tableView.SelectRow (0, false);
-				m_tabView.SelectAt (0);
-			} else {
-				m_tabView.SelectAt (m_tableView.SelectedRow);
+			if (m_tableView.SelectedRow == -1)
+			{
+				m_tableView.SelectRow(0, false);
+				m_tabView.SelectAt(0);
+			}
+			else
+			{
+				m_tabView.SelectAt(m_tableView.SelectedRow);
 			}
 		}
 	}

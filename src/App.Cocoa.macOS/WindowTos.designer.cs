@@ -1,10 +1,10 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Xamarin Studio to store outlets and
 // actions made in the Xcode designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoMac.Foundation;
+using Foundation;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -12,19 +12,19 @@ namespace Eddie.UI.Cocoa.Osx
 	partial class WindowTosController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkTos1 { get; set; }
+		AppKit.NSButton ChkTos1 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkTos2 { get; set; }
+		AppKit.NSButton ChkTos2 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAccept { get; set; }
+		AppKit.NSButton CmdAccept { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdCancel { get; set; }
+		AppKit.NSButton CmdCancel { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextView TxtTos { get; set; }
+		AppKit.NSTextView TxtTos { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{

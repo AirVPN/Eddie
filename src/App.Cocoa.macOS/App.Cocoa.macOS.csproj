@@ -3,17 +3,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{8A54C394-4DE9-4512-9A04-701049176953}</ProjectGuid>
-    <ProjectTypeGuids>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
     <RootNamespace>Eddie.Cocoa.macOS</RootNamespace>
+    <AssemblyName>Eddie</AssemblyName>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.13</ReleaseVersion>
-    <AssemblyName>Eddie</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ReleaseVersion>2.13</ReleaseVersion>    
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <UseXamMacFullFramework>true</UseXamMacFullFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,17 +23,14 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
-    <ConsolePause>false</ConsolePause>
-    <UseSGen>true</UseSGen>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
     <EnableCodeSigning>false</EnableCodeSigning>
+    <CodeSigningKey>Mac Developer</CodeSigningKey>
     <CreatePackage>false</CreatePackage>
-    <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
-    <Commandlineparameters>profile=/Users/Clodo/AirVPN.xml</Commandlineparameters>
-    <LinkMode>Full</LinkMode>
+    <EnablePackageSigning>false</EnablePackageSigning>
+    <IncludeMonoRuntime>false</IncludeMonoRuntime>
+    <UseSGen>true</UseSGen>
+    <UseRefCounting>true</UseRefCounting>
+    <PlatformTarget>x86</PlatformTarget>
     <CustomCommands>
       <CustomCommands>
         <Command>
@@ -44,23 +41,21 @@
         </Command>
       </CustomCommands>
     </CustomCommands>
-    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
-    <TlsProvider>Default</TlsProvider>
+    <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType></DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
-    <LinkMode>Full</LinkMode>
-    <UseSGen>false</UseSGen>
-    <IncludeMonoRuntime>true</IncludeMonoRuntime>
-    <CreatePackage>false</CreatePackage>
-    <CodeSigningKey>Developer ID Application: Fabrizio Carimati (SQ9X79YUY3)</CodeSigningKey>
     <EnableCodeSigning>false</EnableCodeSigning>
+    <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
-    <PackageSigningKey>Developer ID Installer: Fabrizio Carimati (SQ9X79YUY3)</PackageSigningKey>
+    <IncludeMonoRuntime>true</IncludeMonoRuntime>
+    <UseSGen>true</UseSGen>
+    <UseRefCounting>true</UseRefCounting>
+    <LinkMode>None</LinkMode>
     <CustomCommands>
       <CustomCommands>
         <Command>
@@ -71,181 +66,26 @@
         </Command>
       </CustomCommands>
     </CustomCommands>
-    <Externalconsole>true</Externalconsole>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
-    <TlsProvider>Legacy</TlsProvider>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
-    <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\x86\AppStore</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <ConsolePause>false</ConsolePause>
-    <LinkMode>Full</LinkMode>
-    <UseSGen>false</UseSGen>
-    <IncludeMonoRuntime>true</IncludeMonoRuntime>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeSigningKey>Mac Developer</CodeSigningKey>
     <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
-    <CreatePackage>true</CreatePackage>
-    <CodeSigningKey>3rd Party Mac Developer Application</CodeSigningKey>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <EnablePackageSigning>true</EnablePackageSigning>
-    <I18n>
-    </I18n>
-    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
-    <TlsProvider>Default</TlsProvider>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="XamMac" />
+    <Reference Include="Xamarin.Mac" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow.cs" />
-    <Compile Include="MainWindowController.cs" />
-    <Compile Include="MainWindow.designer.cs">
-      <DependentUpon>MainWindow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Main.cs" />
-    <Compile Include="AppDelegate.cs" />
-    <Compile Include="AppDelegate.designer.cs">
-      <DependentUpon>AppDelegate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TableLogsController.cs" />
-    <Compile Include="WindowAbout.cs" />
-    <Compile Include="WindowAboutController.cs" />
-    <Compile Include="WindowAbout.designer.cs">
-      <DependentUpon>WindowAbout.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowPreferences.cs" />
-    <Compile Include="WindowPreferencesController.cs" />
-    <Compile Include="WindowPreferences.designer.cs">
-      <DependentUpon>WindowPreferences.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Engine.cs" />
-    <Compile Include="WindowTos.cs" />
-    <Compile Include="WindowTosController.cs" />
-    <Compile Include="WindowTos.designer.cs">
-      <DependentUpon>WindowTos.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowFrontMessage.cs" />
-    <Compile Include="WindowFrontMessageController.cs" />
-    <Compile Include="WindowFrontMessage.designer.cs">
-      <DependentUpon>WindowFrontMessage.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowTextViewer.cs" />
-    <Compile Include="WindowTextViewerController.cs" />
-    <Compile Include="WindowTextViewer.designer.cs">
-      <DependentUpon>WindowTextViewer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TableStatsController.cs" />
-    <Compile Include="TableServersController.cs" />
-    <Compile Include="TableAreasController.cs" />
-    <Compile Include="WindowOpenVpnManagementCommand.cs" />
-    <Compile Include="WindowOpenVpnManagementCommandController.cs" />
-    <Compile Include="WindowOpenVpnManagementCommand.designer.cs">
-      <DependentUpon>WindowOpenVpnManagementCommand.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TableAreasDelegate.cs" />
-    <Compile Include="TableServersDelegate.cs" />
-    <Compile Include="MainWindowDelegate.cs" />
-    <Compile Include="GuiUtils.cs" />
-    <Compile Include="ChartView.cs" />
-    <Compile Include="WindowPreferencesRoute.cs" />
-    <Compile Include="WindowPreferencesRouteController.cs" />
-    <Compile Include="WindowPreferencesRoute.designer.cs">
-      <DependentUpon>WindowPreferencesRoute.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowPreferencesEvent.cs" />
-    <Compile Include="WindowPreferencesEventController.cs" />
-    <Compile Include="WindowPreferencesEvent.designer.cs">
-      <DependentUpon>WindowPreferencesEvent.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TableTabsController.cs" />
-    <Compile Include="TableTabsDelegate.cs" />
-    <Compile Include="TableProtocolsController.cs" />
-    <Compile Include="TableProtocolsDelegate.cs" />
-    <Compile Include="TableAdvancedEventsController.cs" />
-    <Compile Include="TableRoutingController.cs" />
-    <Compile Include="TableRoutingDelegate.cs" />
-    <Compile Include="TableAdvancedEventsDelegate.cs" />
-    <Compile Include="WindowPreferencesIp.cs" />
-    <Compile Include="WindowPreferencesIp.designer.cs" />
-    <Compile Include="WindowPreferencesIpController.cs" />
-    <Compile Include="TableDnsServersController.cs" />
-    <Compile Include="TableDnsServersDelegate.cs" />
-    <Compile Include="WindowCredentials.cs" />
-    <Compile Include="WindowCredentialsController.cs" />
-    <Compile Include="WindowCredentials.designer.cs">
-      <DependentUpon>WindowCredentials.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowConnection.cs" />
-    <Compile Include="WindowConnectionController.cs" />
-    <Compile Include="WindowConnection.designer.cs">
-      <DependentUpon>WindowConnection.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowConnectionRename.cs" />
-    <Compile Include="WindowConnectionRenameController.cs" />
-    <Compile Include="WindowConnectionRename.designer.cs">
-      <DependentUpon>WindowConnectionRename.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TableProvidersController.cs" />
-    <Compile Include="WindowProviderAdd.cs" />
-    <Compile Include="WindowProviderAddController.cs" />
-    <Compile Include="WindowProviderAdd.designer.cs">
-      <DependentUpon>WindowProviderAdd.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowProviderEditManifest.cs" />
-    <Compile Include="WindowProviderEditManifestController.cs" />
-    <Compile Include="WindowProviderEditManifest.designer.cs">
-      <DependentUpon>WindowProviderEditManifest.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowProviderEditOpenVPN.cs" />
-    <Compile Include="WindowProviderEditOpenVPNController.cs" />
-    <Compile Include="WindowProviderEditOpenVPN.designer.cs">
-      <DependentUpon>WindowProviderEditOpenVPN.cs</DependentUpon>
-    </Compile>
-    <Compile Include="WindowReport.cs" />
-    <Compile Include="WindowReportController.cs" />
-    <Compile Include="WindowReport.designer.cs">
-      <DependentUpon>WindowReport.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TableProvidersDelegate.cs" />
+    <EmbeddedResource Include="Resources\ThirdParty.txt" />
+    <EmbeddedResource Include="Resources\TOS.txt" />
+    <EmbeddedResource Include="Resources\License.txt" />
+    <EmbeddedResource Include="Resources\OpenVPN.xml" />
+    <EmbeddedResource Include="Resources\AirVPN.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <InterfaceDefinition Include="MainWindow.xib" />
-    <InterfaceDefinition Include="MainMenu.xib" />
-    <InterfaceDefinition Include="WindowAbout.xib" />
-    <InterfaceDefinition Include="WindowPreferences.xib" />
-    <InterfaceDefinition Include="WindowTos.xib" />
-    <InterfaceDefinition Include="WindowFrontMessage.xib" />
-    <InterfaceDefinition Include="WindowTextViewer.xib" />
-    <InterfaceDefinition Include="WindowOpenVpnManagementCommand.xib" />
-    <InterfaceDefinition Include="WindowPreferencesRoute.xib" />
-    <InterfaceDefinition Include="WindowPreferencesEvent.xib" />
-    <InterfaceDefinition Include="WindowPreferencesIp.xib" />
-    <InterfaceDefinition Include="WindowCredentials.xib" />
-    <InterfaceDefinition Include="WindowConnection.xib" />
-    <InterfaceDefinition Include="WindowConnectionRename.xib" />
-    <InterfaceDefinition Include="WindowProviderAdd.xib" />
-    <InterfaceDefinition Include="WindowProviderEditManifest.xib" />
-    <InterfaceDefinition Include="WindowProviderEditOpenVPN.xib" />
-    <InterfaceDefinition Include="WindowReport.xib" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Info.plist" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\v0.0\Xamarin.Mac.targets" />
   <ItemGroup>
     <BundleResource Include="Resources\icon.icns" />
     <BundleResource Include="Resources\about_logo.png" />
@@ -651,25 +491,158 @@
     <BundleResource Include="Resources\rename.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Lib.Core.csproj">
-      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
-      <Name>Lib.Core</Name>
-    </ProjectReference>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MainWindow.cs" />
+    <Compile Include="MainWindowController.cs" />
+    <Compile Include="MainWindow.designer.cs">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main.cs" />
+    <Compile Include="AppDelegate.cs" />
+    <Compile Include="AppDelegate.designer.cs">
+      <DependentUpon>AppDelegate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableLogsController.cs" />
+    <Compile Include="WindowAbout.cs" />
+    <Compile Include="WindowAboutController.cs" />
+    <Compile Include="WindowAbout.designer.cs">
+      <DependentUpon>WindowAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowPreferences.cs" />
+    <Compile Include="WindowPreferencesController.cs" />
+    <Compile Include="WindowPreferences.designer.cs">
+      <DependentUpon>WindowPreferences.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Engine.cs" />
+    <Compile Include="WindowTos.cs" />
+    <Compile Include="WindowTosController.cs" />
+    <Compile Include="WindowTos.designer.cs">
+      <DependentUpon>WindowTos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowFrontMessage.cs" />
+    <Compile Include="WindowFrontMessageController.cs" />
+    <Compile Include="WindowFrontMessage.designer.cs">
+      <DependentUpon>WindowFrontMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowTextViewer.cs" />
+    <Compile Include="WindowTextViewerController.cs" />
+    <Compile Include="WindowTextViewer.designer.cs">
+      <DependentUpon>WindowTextViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableStatsController.cs" />
+    <Compile Include="TableServersController.cs" />
+    <Compile Include="TableAreasController.cs" />
+    <Compile Include="WindowOpenVpnManagementCommand.cs" />
+    <Compile Include="WindowOpenVpnManagementCommandController.cs" />
+    <Compile Include="WindowOpenVpnManagementCommand.designer.cs">
+      <DependentUpon>WindowOpenVpnManagementCommand.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableAreasDelegate.cs" />
+    <Compile Include="TableServersDelegate.cs" />
+    <Compile Include="MainWindowDelegate.cs" />
+    <Compile Include="GuiUtils.cs" />
+    <Compile Include="ChartView.cs" />
+    <Compile Include="WindowPreferencesRoute.cs" />
+    <Compile Include="WindowPreferencesRouteController.cs" />
+    <Compile Include="WindowPreferencesRoute.designer.cs">
+      <DependentUpon>WindowPreferencesRoute.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowPreferencesEvent.cs" />
+    <Compile Include="WindowPreferencesEventController.cs" />
+    <Compile Include="WindowPreferencesEvent.designer.cs">
+      <DependentUpon>WindowPreferencesEvent.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableTabsController.cs" />
+    <Compile Include="TableTabsDelegate.cs" />
+    <Compile Include="TableProtocolsController.cs" />
+    <Compile Include="TableProtocolsDelegate.cs" />
+    <Compile Include="TableAdvancedEventsController.cs" />
+    <Compile Include="TableRoutingController.cs" />
+    <Compile Include="TableRoutingDelegate.cs" />
+    <Compile Include="TableAdvancedEventsDelegate.cs" />
+    <Compile Include="WindowPreferencesIp.cs" />
+    <Compile Include="WindowPreferencesIp.designer.cs" />
+    <Compile Include="WindowPreferencesIpController.cs" />
+    <Compile Include="TableDnsServersController.cs" />
+    <Compile Include="TableDnsServersDelegate.cs" />
+    <Compile Include="WindowCredentials.cs" />
+    <Compile Include="WindowCredentialsController.cs" />
+    <Compile Include="WindowCredentials.designer.cs">
+      <DependentUpon>WindowCredentials.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowConnection.cs" />
+    <Compile Include="WindowConnectionController.cs" />
+    <Compile Include="WindowConnection.designer.cs">
+      <DependentUpon>WindowConnection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowConnectionRename.cs" />
+    <Compile Include="WindowConnectionRenameController.cs" />
+    <Compile Include="WindowConnectionRename.designer.cs">
+      <DependentUpon>WindowConnectionRename.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableProvidersController.cs" />
+    <Compile Include="WindowProviderAdd.cs" />
+    <Compile Include="WindowProviderAddController.cs" />
+    <Compile Include="WindowProviderAdd.designer.cs">
+      <DependentUpon>WindowProviderAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowProviderEditManifest.cs" />
+    <Compile Include="WindowProviderEditManifestController.cs" />
+    <Compile Include="WindowProviderEditManifest.designer.cs">
+      <DependentUpon>WindowProviderEditManifest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowProviderEditOpenVPN.cs" />
+    <Compile Include="WindowProviderEditOpenVPNController.cs" />
+    <Compile Include="WindowProviderEditOpenVPN.designer.cs">
+      <DependentUpon>WindowProviderEditOpenVPN.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowReport.cs" />
+    <Compile Include="WindowReportController.cs" />
+    <Compile Include="WindowReport.designer.cs">
+      <DependentUpon>WindowReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TableProvidersDelegate.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Include="MainWindow.xib" />
+    <InterfaceDefinition Include="MainMenu.xib" />
+    <InterfaceDefinition Include="WindowAbout.xib" />
+    <InterfaceDefinition Include="WindowPreferences.xib" />
+    <InterfaceDefinition Include="WindowTos.xib" />
+    <InterfaceDefinition Include="WindowFrontMessage.xib" />
+    <InterfaceDefinition Include="WindowTextViewer.xib" />
+    <InterfaceDefinition Include="WindowOpenVpnManagementCommand.xib" />
+    <InterfaceDefinition Include="WindowPreferencesRoute.xib" />
+    <InterfaceDefinition Include="WindowPreferencesEvent.xib" />
+    <InterfaceDefinition Include="WindowPreferencesIp.xib" />
+    <InterfaceDefinition Include="WindowCredentials.xib" />
+    <InterfaceDefinition Include="WindowConnection.xib" />
+    <InterfaceDefinition Include="WindowConnectionRename.xib" />
+    <InterfaceDefinition Include="WindowProviderAdd.xib" />
+    <InterfaceDefinition Include="WindowProviderEditManifest.xib" />
+    <InterfaceDefinition Include="WindowProviderEditOpenVPN.xib" />
+    <InterfaceDefinition Include="WindowReport.xib" />
+    <InterfaceDefinition Include="Main.storyboard" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Entitlements.plist" />
+    <None Include="Info.plist" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
       <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
       <Name>Lib.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Platforms.macOS\Platforms.macOS.csproj">
+    <ProjectReference Include="..\Lib.Core\Lib.Core.csproj">
+      <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
+      <Name>Lib.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Lib.Platform.macOS\Lib.Platform.macOS.csproj">
       <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
       <Name>Lib.Platform.macOS</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\ThirdParty.txt" />
-    <EmbeddedResource Include="Resources\TOS.txt" />
-    <EmbeddedResource Include="Resources\License.txt" />
-    <EmbeddedResource Include="Resources\OpenVPN.xml" />
-    <EmbeddedResource Include="Resources\AirVPN.xml" />
   </ItemGroup>
   <ItemGroup>
     <NativeReference Include="..\..\deploy\macos_x64\libLib.Platform.macOS.Native.dylib">
@@ -677,4 +650,5 @@
       <SmartLink>False</SmartLink>
     </NativeReference>
   </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

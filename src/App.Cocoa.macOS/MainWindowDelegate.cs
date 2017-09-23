@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -17,7 +17,7 @@
 // </eddie_source_header>
 
 using System;
-using MonoMac.AppKit;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -31,7 +31,7 @@ namespace Eddie.UI.Cocoa.Osx
 			m_main = main;
 		}
 
-		public override bool WindowShouldClose (MonoMac.Foundation.NSObject sender)
+		public override bool WindowShouldClose (Foundation.NSObject sender)
 		{
 			return true; // 2.8, in previous versions closing the main window will close the App
 			/*
@@ -40,7 +40,7 @@ namespace Eddie.UI.Cocoa.Osx
 			*/
 		}
 
-		public override void DidMiniaturize (MonoMac.Foundation.NSNotification notification)
+		public override void DidMiniaturize (Foundation.NSNotification notification)
 		{
 			m_main.EnabledUI ();
 		}

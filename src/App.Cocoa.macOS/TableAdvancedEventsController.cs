@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -18,13 +18,13 @@
 
 using System;
 using System.Collections.Generic;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public class TableAdvancedEventsControllerItem 
+	public class TableAdvancedEventsControllerItem
 	{
 		public string Title = "";
 		public string Filename = "";
@@ -43,7 +43,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public List<TableAdvancedEventsControllerItem> Items = new List<TableAdvancedEventsControllerItem>();
 
-		public TableAdvancedEventsController (NSTableView tableView)
+		public TableAdvancedEventsController(NSTableView tableView)
 		{
 			this.tableView = tableView;
 
@@ -61,41 +61,47 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void RefreshUI()
 		{
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
 
-		public override int GetRowCount (NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return Items.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 nint row)
 		{
-			TableAdvancedEventsControllerItem i = Items [row];
+			TableAdvancedEventsControllerItem i = Items[(int)row];
 
-			if (tableColumn.Identifier == "Event") {
-				return new NSString (i.Title);
+			if (tableColumn.Identifier == "Event")
+			{
+				return new NSString(i.Title);
 			}
-			else if (tableColumn.Identifier == "FileName") {
-				return new NSString (i.Filename);
+			else if (tableColumn.Identifier == "FileName")
+			{
+				return new NSString(i.Filename);
 			}
-			else if (tableColumn.Identifier == "Arguments") {
-				return new NSString (i.Arguments);
+			else if (tableColumn.Identifier == "Arguments")
+			{
+				return new NSString(i.Arguments);
 			}
-			else if (tableColumn.Identifier == "WaitEnd") {
-				if ((i.Filename.Trim () != "") || (i.Arguments.Trim () != "")) {
+			else if (tableColumn.Identifier == "WaitEnd")
+			{
+				if ((i.Filename.Trim() != "") || (i.Arguments.Trim() != ""))
+				{
 					if (i.WaitEnd)
-						return NSImage.ImageNamed ("status_green_16.png");
+						return NSImage.ImageNamed("status_green_16.png");
 					else
-						return NSImage.ImageNamed ("status_red_16.png");
-				} else
-					return NSImage.ImageNamed ("status_unknown.png");
+						return NSImage.ImageNamed("status_red_16.png");
+				}
+				else
+					return NSImage.ImageNamed("status_unknown.png");
 			}
 
-			else 
-				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));
+			else
+				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));
 		}
 
 	}

@@ -2,14 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowConnectionController : MonoMac.AppKit.NSWindowController
+	public partial class WindowConnectionController : AppKit.NSWindowController
 	{
 		public ConnectionInfo Connection;
 

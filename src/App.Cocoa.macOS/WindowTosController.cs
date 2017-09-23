@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,42 +19,46 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowTosController : MonoMac.AppKit.NSWindowController
+	public partial class WindowTosController : AppKit.NSWindowController
 	{
 		public bool Accepted = false;
 
 		#region Constructors
 		// Called when created from unmanaged code
-		public WindowTosController (IntPtr handle) : base (handle)
+		public WindowTosController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowTosController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowTosController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Call to load from the XIB/NIB file
-		public WindowTosController () : base ("WindowTos")
+		public WindowTosController() : base("WindowTos")
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 		#endregion
 		//strongly typed window accessor
-		public new WindowTos Window {
-			get {
+		public new WindowTos Window
+		{
+			get
+			{
 				return (WindowTos)base.Window;
 			}
 		}
@@ -62,32 +66,32 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
 			Accepted = false;
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsTosTitle;
 
-			TxtTos.Value = Core.UI.Actions.GetTos ();
+			TxtTos.Value = Core.UI.Actions.GetTos();
 			ChkTos1.Title = Messages.WindowsTosCheck1;
 			ChkTos2.Title = Messages.WindowsTosCheck2;
 			CmdAccept.Title = Messages.WindowsTosAccept;
 			CmdCancel.StringValue = Messages.WindowsTosReject;
 
-			bool tosAccepted = Engine.Instance.Storage.GetBool ("gui.tos");
+			bool tosAccepted = Engine.Instance.Storage.GetBool("gui.tos");
 			ChkTos1.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);
 			ChkTos2.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);
 
 			CmdAccept.Activated += (object sender, EventArgs e) =>
 			{
 				Accepted = true;
-				Window.Close ();
+				Window.Close();
 				NSApplication.SharedApplication.StopModal();
 			};
 
 			CmdCancel.Activated += (object sender, EventArgs e) =>
 			{
-				Window.Close ();
+				Window.Close();
 				NSApplication.SharedApplication.StopModal();
 			};
 		}

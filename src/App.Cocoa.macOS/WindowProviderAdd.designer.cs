@@ -1,10 +1,10 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoMac.Foundation;
+using Foundation;
 using System.CodeDom.Compiler;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -13,13 +13,13 @@ namespace Eddie.UI.Cocoa.Osx
 	partial class WindowProviderAddController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboProvider { get; set; }
+		AppKit.NSPopUpButton CboProvider { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdCancel { get; set; }
+		AppKit.NSButton CmdCancel { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdOk { get; set; }
+		AppKit.NSButton CmdOk { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{

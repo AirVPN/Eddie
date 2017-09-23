@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,62 +19,66 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowTextViewerController : MonoMac.AppKit.NSWindowController
+	public partial class WindowTextViewerController : AppKit.NSWindowController
 	{
 		public string Title;
 		public string Body;
 
 		#region Constructors
 		// Called when created from unmanaged code
-		public WindowTextViewerController (IntPtr handle) : base (handle)
+		public WindowTextViewerController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowTextViewerController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowTextViewerController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Call to load from the XIB/NIB file
-		public WindowTextViewerController () : base ("WindowTextViewer")
+		public WindowTextViewerController() : base("WindowTextViewer")
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 		#endregion
 		//strongly typed window accessor
-		public new WindowTextViewer Window {
-			get {
+		public new WindowTextViewer Window
+		{
+			get
+			{
 				return (WindowTextViewer)base.Window;
 			}
 		}
 
 		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
 			Window.Title = Constants.Name + " - " + Title;
 			TxtBody2.Value = Body;
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{
-				Window.Close ();
+				Window.Close();
 			};
 		}
 
-		public override void Close ()
+		public override void Close()
 		{
-			base.Close ();
+			base.Close();
 		}
 	}
 }

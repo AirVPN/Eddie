@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,48 +19,52 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowFrontMessageController : MonoMac.AppKit.NSWindowController
+	public partial class WindowFrontMessageController : AppKit.NSWindowController
 	{
 		public string Message;
 
 		#region Constructors
 		// Called when created from unmanaged code
-		public WindowFrontMessageController (IntPtr handle) : base (handle)
+		public WindowFrontMessageController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowFrontMessageController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowFrontMessageController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Call to load from the XIB/NIB file
-		public WindowFrontMessageController () : base ("WindowFrontMessage")
+		public WindowFrontMessageController() : base("WindowFrontMessage")
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 		#endregion
 		//strongly typed window accessor
-		public new WindowFrontMessage Window {
-			get {
+		public new WindowFrontMessage Window
+		{
+			get
+			{
 				return (WindowFrontMessage)base.Window;
 			}
 		}
 
 		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
 			Window.Title = Constants.Name + " - " + Core.Messages.WindowsFrontMessageTitle;
 
@@ -70,12 +74,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdClose.Activated += (object sender, EventArgs e) =>
 			{
-				Window.Close ();
+				Window.Close();
 			};
 
 			CmdMore.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command ("ui.show.website");
+				Engine.Instance.Command("ui.show.website");
 			};
 		}
 	}

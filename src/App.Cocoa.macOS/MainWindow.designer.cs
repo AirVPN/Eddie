@@ -1,10 +1,10 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoMac.Foundation;
+using Foundation;
 using System.CodeDom.Compiler;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -13,277 +13,277 @@ namespace Eddie.UI.Cocoa.Osx
 	partial class MainWindowController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboKey { get; set; }
+		AppKit.NSPopUpButton CboKey { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboServersScoringRule { get; set; }
+		AppKit.NSPopUpButton CboServersScoringRule { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboSpeedResolutions { get; set; }
+		AppKit.NSPopUpButton CboSpeedResolutions { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkLockedMode { get; set; }
+		AppKit.NSButton ChkLockedMode { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkRemember { get; set; }
+		AppKit.NSButton ChkRemember { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkServersLockCurrent { get; set; }
+		AppKit.NSButton ChkServersLockCurrent { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkServersShowAll { get; set; }
+		AppKit.NSButton ChkServersShowAll { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAreasBlackList { get; set; }
+		AppKit.NSButton CmdAreasBlackList { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAreasUndefined { get; set; }
+		AppKit.NSButton CmdAreasUndefined { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAreasWhiteList { get; set; }
+		AppKit.NSButton CmdAreasWhiteList { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdCancel { get; set; }
+		AppKit.NSButton CmdCancel { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdConnect { get; set; }
+		AppKit.NSButton CmdConnect { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdDisconnect { get; set; }
+		AppKit.NSButton CmdDisconnect { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLogin { get; set; }
+		AppKit.NSButton CmdLogin { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLogsClean { get; set; }
+		AppKit.NSButton CmdLogsClean { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLogsCopy { get; set; }
+		AppKit.NSButton CmdLogsCopy { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLogsOpenVpnManagement { get; set; }
+		AppKit.NSButton CmdLogsOpenVpnManagement { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLogsSave { get; set; }
+		AppKit.NSButton CmdLogsSave { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLogsSupport { get; set; }
+		AppKit.NSButton CmdLogsSupport { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdNetworkLock { get; set; }
+		AppKit.NSButton CmdNetworkLock { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdProviderAdd { get; set; }
+		AppKit.NSButton CmdProviderAdd { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdProviderEdit { get; set; }
+		AppKit.NSButton CmdProviderEdit { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdProviderRemove { get; set; }
+		AppKit.NSButton CmdProviderRemove { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdServersBlackList { get; set; }
+		AppKit.NSButton CmdServersBlackList { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdServersConnect { get; set; }
+		AppKit.NSButton CmdServersConnect { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdServersMore { get; set; }
+		AppKit.NSButton CmdServersMore { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdServersRefresh { get; set; }
+		AppKit.NSButton CmdServersRefresh { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdServersRename { get; set; }
+		AppKit.NSButton CmdServersRename { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdServersUndefined { get; set; }
+		AppKit.NSButton CmdServersUndefined { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdServersWhiteList { get; set; }
+		AppKit.NSButton CmdServersWhiteList { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSImageView ImgConnectedCountry { get; set; }
+		AppKit.NSImageView ImgConnectedCountry { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSImageView ImgNetworkLock { get; set; }
+		AppKit.NSImageView ImgNetworkLock { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSProgressIndicator ImgProgress { get; set; }
+		AppKit.NSProgressIndicator ImgProgress { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSImageView ImgTopFlag { get; set; }
+		AppKit.NSImageView ImgTopFlag { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSImageView ImgTopPanel { get; set; }
+		AppKit.NSImageView ImgTopPanel { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblConnect { get; set; }
+		AppKit.NSTextField LblConnect { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblConnectedLocation { get; set; }
+		AppKit.NSTextField LblConnectedLocation { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblConnectedServerName { get; set; }
+		AppKit.NSTextField LblConnectedServerName { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblDevice { get; set; }
+		AppKit.NSTextField LblDevice { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblKey { get; set; }
+		AppKit.NSTextField LblKey { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblLogin { get; set; }
+		AppKit.NSTextField LblLogin { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSImageView LblLoginIcon { get; set; }
+		AppKit.NSImageView LblLoginIcon { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSImageView LblNetLockStatus { get; set; }
+		AppKit.NSImageView LblNetLockStatus { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblPassword { get; set; }
+		AppKit.NSTextField LblPassword { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblTopStatus { get; set; }
+		AppKit.NSTextField LblTopStatus { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblWaiting1 { get; set; }
+		AppKit.NSTextField LblWaiting1 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblWaiting2 { get; set; }
+		AppKit.NSTextField LblWaiting2 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuAreasBlacklist { get; set; }
+		AppKit.NSMenuItem MnuAreasBlacklist { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuAreasUndefined { get; set; }
+		AppKit.NSMenuItem MnuAreasUndefined { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuAreasWhitelist { get; set; }
+		AppKit.NSMenuItem MnuAreasWhitelist { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuLogsCopyAll { get; set; }
+		AppKit.NSMenuItem MnuLogsCopyAll { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuLogsCopySelected { get; set; }
+		AppKit.NSMenuItem MnuLogsCopySelected { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuLogsSaveAll { get; set; }
+		AppKit.NSMenuItem MnuLogsSaveAll { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuLogsSaveSelected { get; set; }
+		AppKit.NSMenuItem MnuLogsSaveSelected { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuServersBlacklist { get; set; }
+		AppKit.NSMenuItem MnuServersBlacklist { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuServersConnect { get; set; }
+		AppKit.NSMenuItem MnuServersConnect { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuServersMore { get; set; }
+		AppKit.NSMenuItem MnuServersMore { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuServersRefresh { get; set; }
+		AppKit.NSMenuItem MnuServersRefresh { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuServersRename { get; set; }
+		AppKit.NSMenuItem MnuServersRename { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuServersUndefined { get; set; }
+		AppKit.NSMenuItem MnuServersUndefined { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuServersWhitelist { get; set; }
+		AppKit.NSMenuItem MnuServersWhitelist { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenu MnuTray { get; set; }
+		AppKit.NSMenu MnuTray { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayAbout { get; set; }
+		AppKit.NSMenuItem MnuTrayAbout { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayClientArea { get; set; }
+		AppKit.NSMenuItem MnuTrayClientArea { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayConnect { get; set; }
+		AppKit.NSMenuItem MnuTrayConnect { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayForwardingPorts { get; set; }
+		AppKit.NSMenuItem MnuTrayForwardingPorts { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayHome { get; set; }
+		AppKit.NSMenuItem MnuTrayHome { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayPreferences { get; set; }
+		AppKit.NSMenuItem MnuTrayPreferences { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayQuit { get; set; }
+		AppKit.NSMenuItem MnuTrayQuit { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayRestore { get; set; }
+		AppKit.NSMenuItem MnuTrayRestore { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTraySpeedTest { get; set; }
+		AppKit.NSMenuItem MnuTraySpeedTest { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuTrayStatus { get; set; }
+		AppKit.NSMenuItem MnuTrayStatus { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSBox PanelConnected { get; set; }
+		AppKit.NSBox PanelConnected { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSBox PanelWaiting { get; set; }
+		AppKit.NSBox PanelWaiting { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSBox PanelWelcome { get; set; }
+		AppKit.NSBox PanelWelcome { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSView PnlChart { get; set; }
+		AppKit.NSView PnlChart { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenu ServersContextMenu { get; set; }
+		AppKit.NSMenu ServersContextMenu { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableAreas { get; set; }
+		AppKit.NSTableView TableAreas { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableLogs { get; set; }
+		AppKit.NSTableView TableLogs { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableProviders { get; set; }
+		AppKit.NSTableView TableProviders { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableServers { get; set; }
+		AppKit.NSTableView TableServers { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableStats { get; set; }
+		AppKit.NSTableView TableStats { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTabView TabMain { get; set; }
+		AppKit.NSTabView TabMain { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTabView TabOverview { get; set; }
+		AppKit.NSTabView TabOverview { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtCommand { get; set; }
+		AppKit.NSTextField TxtCommand { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtConnectedDownload { get; set; }
+		AppKit.NSTextField TxtConnectedDownload { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtConnectedExitIp { get; set; }
+		AppKit.NSTextField TxtConnectedExitIp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtConnectedSince { get; set; }
+		AppKit.NSTextField TxtConnectedSince { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtConnectedUpload { get; set; }
+		AppKit.NSTextField TxtConnectedUpload { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtLogin { get; set; }
+		AppKit.NSTextField TxtLogin { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSSecureTextField TxtPassword { get; set; }
+		AppKit.NSSecureTextField TxtPassword { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{

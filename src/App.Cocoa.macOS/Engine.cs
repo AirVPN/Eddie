@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -20,8 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
@@ -32,7 +32,7 @@ namespace Eddie.UI.Cocoa.Osx
 		public MainWindowController MainWindow;
 		public List<LogEntry> LogsPending = new List<LogEntry>();
 
-		public List<MonoMac.AppKit.NSWindowController> WindowsOpen = new List<MonoMac.AppKit.NSWindowController>();
+		public List<AppKit.NSWindowController> WindowsOpen = new List<AppKit.NSWindowController>();
 
 		private WindowReportController m_windowReport;
 

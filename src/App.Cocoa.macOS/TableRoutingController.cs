@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -18,8 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -38,7 +38,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public List<TableRoutingControllerItem> Items = new List<TableRoutingControllerItem>();
 
-		public TableRoutingController (NSTableView tableView)
+		public TableRoutingController(NSTableView tableView)
 		{
 			this.tableView = tableView;
 
@@ -48,37 +48,41 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void RefreshUI()
 		{
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
 
-		public override int GetRowCount (NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return Items.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 nint row)
 		{
-			TableRoutingControllerItem i = Items [row];
+			TableRoutingControllerItem i = Items[(int)row];
 
-			if (tableColumn.Identifier == "Icon") {
+			if (tableColumn.Identifier == "Icon")
+			{
 				if (i.Icon == "in")
-					return NSImage.ImageNamed ("routes_in.png");
+					return NSImage.ImageNamed("routes_in.png");
 				else
-					return NSImage.ImageNamed ("routes_out.png");
+					return NSImage.ImageNamed("routes_out.png");
 			}
-			else if (tableColumn.Identifier == "Ip") {
-				return new NSString (i.Ip);
+			else if (tableColumn.Identifier == "Ip")
+			{
+				return new NSString(i.Ip);
 			}
-			else if (tableColumn.Identifier == "Action") {
-				return new NSString (WindowPreferencesController.RouteDirectionToDescription(i.Action));
+			else if (tableColumn.Identifier == "Action")
+			{
+				return new NSString(WindowPreferencesController.RouteDirectionToDescription(i.Action));
 			}
-			else if (tableColumn.Identifier == "Notes") {
-				return new NSString (i.Notes);
+			else if (tableColumn.Identifier == "Notes")
+			{
+				return new NSString(i.Notes);
 			}
-			else 
-				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));
+			else
+				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));
 		}
 
 	}

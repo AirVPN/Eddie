@@ -1,10 +1,10 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoMac.Foundation;
+using Foundation;
 using System.CodeDom.Compiler;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -13,262 +13,262 @@ namespace Eddie.UI.Cocoa.Osx
 	partial class WindowPreferencesController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
+		AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboDnsSwitchMode { get; set; }
+		AppKit.NSPopUpButton CboDnsSwitchMode { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboGeneralOsxInterfaceStyle { get; set; }
+		AppKit.NSPopUpButton CboGeneralOsxInterfaceStyle { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboIpV6 { get; set; }
+		AppKit.NSPopUpButton CboIpV6 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboLockMode { get; set; }
+		AppKit.NSPopUpButton CboLockMode { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CboOpenVpnDirectivesHelp { get; set; }
+		AppKit.NSButton CboOpenVpnDirectivesHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboOpenVpnDirectivesSkipDefault { get; set; }
+		AppKit.NSPopUpButton CboOpenVpnDirectivesSkipDefault { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboOpenVpnRcvBuf { get; set; }
+		AppKit.NSPopUpButton CboOpenVpnRcvBuf { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboOpenVpnSndBuf { get; set; }
+		AppKit.NSPopUpButton CboOpenVpnSndBuf { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboProxyAuthentication { get; set; }
+		AppKit.NSPopUpButton CboProxyAuthentication { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboProxyType { get; set; }
+		AppKit.NSPopUpButton CboProxyType { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboProxyWhen { get; set; }
+		AppKit.NSPopUpButton CboProxyWhen { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboRoutesOtherwise { get; set; }
+		AppKit.NSPopUpButton CboRoutesOtherwise { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSPopUpButton CboUiUnit { get; set; }
+		AppKit.NSPopUpButton CboUiUnit { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkAdvancedCheckRoute { get; set; }
+		AppKit.NSButton ChkAdvancedCheckRoute { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkAdvancedExpertMode { get; set; }
+		AppKit.NSButton ChkAdvancedExpertMode { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkAdvancedNetworkLocking { get; set; }
+		AppKit.NSButton ChkAdvancedNetworkLocking { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkAdvancedPingerEnabled { get; set; }
+		AppKit.NSButton ChkAdvancedPingerEnabled { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkAdvancedProviders { get; set; }
+		AppKit.NSButton ChkAdvancedProviders { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkAdvancedSkipAlreadyRun { get; set; }
+		AppKit.NSButton ChkAdvancedSkipAlreadyRun { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkConnect { get; set; }
+		AppKit.NSButton ChkConnect { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkDnsCheck { get; set; }
+		AppKit.NSButton ChkDnsCheck { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkExitConfirm { get; set; }
+		AppKit.NSButton ChkExitConfirm { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkGeneralOsxNotifications { get; set; }
+		AppKit.NSButton ChkGeneralOsxNotifications { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkGeneralOsxVisible { get; set; }
+		AppKit.NSButton ChkGeneralOsxVisible { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkGeneralStartLast { get; set; }
+		AppKit.NSButton ChkGeneralStartLast { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkLockAllowDNS { get; set; }
+		AppKit.NSButton ChkLockAllowDNS { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkLockAllowPing { get; set; }
+		AppKit.NSButton ChkLockAllowPing { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkLockAllowPrivate { get; set; }
+		AppKit.NSButton ChkLockAllowPrivate { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkLoggingEnabled { get; set; }
+		AppKit.NSButton ChkLoggingEnabled { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkLogLevelDebug { get; set; }
+		AppKit.NSButton ChkLogLevelDebug { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkNetLock { get; set; }
+		AppKit.NSButton ChkNetLock { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkProtocolsAutomatic { get; set; }
+		AppKit.NSButton ChkProtocolsAutomatic { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
+		AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkUiIEC { get; set; }
+		AppKit.NSButton ChkUiIEC { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkUiSystemBarShowInfo { get; set; }
+		AppKit.NSButton ChkUiSystemBarShowInfo { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkUiSystemBarShowServer { get; set; }
+		AppKit.NSButton ChkUiSystemBarShowServer { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton ChkUiSystemBarShowSpeed { get; set; }
+		AppKit.NSButton ChkUiSystemBarShowSpeed { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAdvancedEventsClear { get; set; }
+		AppKit.NSButton CmdAdvancedEventsClear { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAdvancedEventsEdit { get; set; }
+		AppKit.NSButton CmdAdvancedEventsEdit { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAdvancedHelp { get; set; }
+		AppKit.NSButton CmdAdvancedHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdAdvancedOpenVpnPath { get; set; }
+		AppKit.NSButton CmdAdvancedOpenVpnPath { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdCancel { get; set; }
+		AppKit.NSButton CmdCancel { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdDnsAdd { get; set; }
+		AppKit.NSButton CmdDnsAdd { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdDnsEdit { get; set; }
+		AppKit.NSButton CmdDnsEdit { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdDnsRemove { get; set; }
+		AppKit.NSButton CmdDnsRemove { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdGeneralTos { get; set; }
+		AppKit.NSButton CmdGeneralTos { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLockHelp { get; set; }
+		AppKit.NSButton CmdLockHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdLoggingOpen { get; set; }
+		AppKit.NSButton CmdLoggingOpen { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdOpenVpnDirectivesCustomPathBrowse { get; set; }
+		AppKit.NSButton CmdOpenVpnDirectivesCustomPathBrowse { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdOpenVpnDirectivesHelp { get; set; }
+		AppKit.NSButton CmdOpenVpnDirectivesHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdProtocolsHelp1 { get; set; }
+		AppKit.NSButton CmdProtocolsHelp1 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdProtocolsHelp2 { get; set; }
+		AppKit.NSButton CmdProtocolsHelp2 { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdProxyTorHelp { get; set; }
+		AppKit.NSButton CmdProxyTorHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdProxyTorTest { get; set; }
+		AppKit.NSButton CmdProxyTorTest { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdResetToDefault { get; set; }
+		AppKit.NSButton CmdResetToDefault { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdRouteAdd { get; set; }
+		AppKit.NSButton CmdRouteAdd { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdRouteEdit { get; set; }
+		AppKit.NSButton CmdRouteEdit { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdRouteRemove { get; set; }
+		AppKit.NSButton CmdRouteRemove { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdSave { get; set; }
+		AppKit.NSButton CmdSave { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblAdvancedProviders { get; set; }
+		AppKit.NSTextField LblAdvancedProviders { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblDnsServers { get; set; }
+		AppKit.NSTextField LblDnsServers { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblLockRoutingOutWarning { get; set; }
+		AppKit.NSTextField LblLockRoutingOutWarning { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblLoggingHelp { get; set; }
+		AppKit.NSTextField LblLoggingHelp { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblOpenVpnRcvBuf { get; set; }
+		AppKit.NSTextField LblOpenVpnRcvBuf { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblOpenVpnSndBuf { get; set; }
+		AppKit.NSTextField LblOpenVpnSndBuf { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField LblRoutesNetworkLockWarning { get; set; }
+		AppKit.NSTextField LblRoutesNetworkLockWarning { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableAdvancedEvents { get; set; }
+		AppKit.NSTableView TableAdvancedEvents { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableDnsServers { get; set; }
+		AppKit.NSTableView TableDnsServers { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableProtocols { get; set; }
+		AppKit.NSTableView TableProtocols { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableRoutes { get; set; }
+		AppKit.NSTableView TableRoutes { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTableView TableTabs { get; set; }
+		AppKit.NSTableView TableTabs { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTabView TabMain { get; set; }
+		AppKit.NSTabView TabMain { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtAdvancedOpenVpnDirectivesCustom { get; set; }
+		AppKit.NSTextField TxtAdvancedOpenVpnDirectivesCustom { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtAdvancedOpenVpnDirectivesDefault { get; set; }
+		AppKit.NSTextField TxtAdvancedOpenVpnDirectivesDefault { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtAdvancedOpenVpnPath { get; set; }
+		AppKit.NSTextField TxtAdvancedOpenVpnPath { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtLockAllowedIPS { get; set; }
+		AppKit.NSTextField TxtLockAllowedIPS { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtLoggingComputedPath { get; set; }
+		AppKit.NSTextField TxtLoggingComputedPath { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtLoggingPath { get; set; }
+		AppKit.NSTextField TxtLoggingPath { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtOpenVpnDirectivesCustomPath { get; set; }
+		AppKit.NSTextField TxtOpenVpnDirectivesCustomPath { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtProxyHost { get; set; }
+		AppKit.NSTextField TxtProxyHost { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtProxyLogin { get; set; }
+		AppKit.NSTextField TxtProxyLogin { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtProxyPassword { get; set; }
+		AppKit.NSTextField TxtProxyPassword { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtProxyPort { get; set; }
+		AppKit.NSTextField TxtProxyPort { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtProxyTorControlPassword { get; set; }
+		AppKit.NSTextField TxtProxyTorControlPassword { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtProxyTorControlPort { get; set; }
+		AppKit.NSTextField TxtProxyTorControlPort { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{

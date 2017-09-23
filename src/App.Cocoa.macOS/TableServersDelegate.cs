@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -17,7 +17,10 @@
 // </eddie_source_header>
 
 using System;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -25,22 +28,22 @@ namespace Eddie.UI.Cocoa.Osx
 	{
 		MainWindowController m_main;
 
-		public TableServersDelegate (MainWindowController main)
+		public TableServersDelegate(MainWindowController main)
 		{
 			m_main = main;
 		}
 
-		public override void SelectionDidChange (MonoMac.Foundation.NSNotification notification)
+		public override void SelectionDidChange(Foundation.NSNotification notification)
 		{
-			m_main.EnabledUI ();
+			m_main.EnabledUI();
 		}
 
-		public override void MouseDownInHeaderOfTableColumn (NSTableView tableView, NSTableColumn tableColumn)
+		public override void MouseDownInHeaderOfTableColumn(NSTableView tableView, NSTableColumn tableColumn)
 		{
-			m_main.TableServersController.SortByColumn (tableColumn.Identifier);
+			m_main.TableServersController.SortByColumn(tableColumn.Identifier);
 		}
 		/*
-		public override void WillDisplayCell (NSTableView tableView, MonoMac.Foundation.NSObject cell, NSTableColumn tableColumn, int row)
+		public override void WillDisplayCell (NSTableView tableView, Foundation.NSObject cell, NSTableColumn tableColumn, int row)
 		{
 			if (tableColumn.Identifier == "Load") {
 				NSTextFieldCell c = cell as NSTextFieldCell;

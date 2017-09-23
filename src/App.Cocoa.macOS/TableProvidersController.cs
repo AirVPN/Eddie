@@ -18,8 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -43,10 +43,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void DoubleClickItem()
 		{
-			int i = tableView.SelectedRow;
+			nint i = tableView.SelectedRow;
 			if ((i >= 0) && (i < Engine.Instance.Stats.List.Count))
 			{
-				StatsEntry e = Engine.Instance.Stats.List[tableView.SelectedRow];
+				StatsEntry e = Engine.Instance.Stats.List[(int)tableView.SelectedRow];
 
 				Engine.Instance.Command("ui.stats." + e.Key, true);
 				/*
@@ -72,16 +72,16 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		public override int GetRowCount(NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return Engine.Instance.ProvidersManager.Providers.Count;
 		}
 
 		public override NSObject GetObjectValue(NSTableView tableView,
 												 NSTableColumn tableColumn,
-												 int row)
+												 nint row)
 		{
-			Provider p = Engine.Instance.ProvidersManager.Providers[row];
+			Provider p = Engine.Instance.ProvidersManager.Providers[(int)row];
 
 			if (tableColumn.Identifier == "Enabled")
 			{

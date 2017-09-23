@@ -77,14 +77,14 @@ namespace Deploy
 			Log("Arguments allowed: 'verbose' (show more logs), 'official' (signing files)");
 
 			Arguments = new List<string>();
-			foreach(string arg in args)
+			foreach (string arg in args)
 			{
 				string a = arg.ToLowerInvariant().Trim();
 				Log("Argument detected: " + a);
 				Arguments.Add(a);
 			}
 
-			if(IsVerbose())
+			if (IsVerbose())
 			{
 				Log("PlatformOS: " + Environment.OSVersion.Platform.ToString());
 				Log("VersionString: " + Environment.OSVersion.VersionString.ToString());
@@ -94,12 +94,14 @@ namespace Deploy
 			   Detect Platform
 			------------------------------- */
 
-			if (Environment.OSVersion.VersionString.IndexOf ("Windows") != -1)
+			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
 				SO = "windows";
-			else if ((Environment.OSVersion.Platform.ToString () == "Unix") && (Shell("uname") == "Darwin") ) {
+			else if ((Environment.OSVersion.Platform.ToString() == "Unix") && (Shell("uname") == "Darwin"))
+			{
 				SO = "macos";
 			}
-			else if (Environment.OSVersion.Platform.ToString () == "Unix") {
+			else if (Environment.OSVersion.Platform.ToString() == "Unix")
+			{
 				SO = "linux";
 			}
 			else
@@ -210,8 +212,8 @@ namespace Deploy
 					{
 						foreach (string format in new string[] { "portable", "installer" })
 						{
-							foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })							
-							{	
+							foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })
+							{
 								int netFramework = 4;
 								if (os == "windows-7")
 									netFramework = 2;
@@ -230,7 +232,7 @@ namespace Deploy
 
 				if (arch == "x86_64")
 					arch = "x64";
-				else if(arch == "armv7l")
+				else if (arch == "armv7l")
 					arch = "armhf";
 				else
 					arch = "x86";
@@ -243,7 +245,8 @@ namespace Deploy
 				ListPackages.Add(new Package("linux", arch, "ui", false, 4, "rpm"));
 			}
 
-			if (SO == "macos") {
+			if (SO == "macos")
+			{
 				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "portable"));
 				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "installer"));
 				ListPackages.Add(new Package("macos", "x64", "ui", true, 4, "disk"));
@@ -302,7 +305,7 @@ namespace Deploy
 
 				CreateDirectory(pathTemp);
 
-				CreateDirectory (PathBaseRepository, false);
+				CreateDirectory(PathBaseRepository, false);
 
 				// Warning: subdir 'providers' and 'webui' are skipped only because CopyAll don't copy directory yet.
 				CopyAll(pathCommon, pathTemp);
@@ -316,13 +319,13 @@ namespace Deploy
 					CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 					CopyFile(pathRelease, "Lib.Platform.Windows.dll", pathTemp);
 
-					if(ui == "ui")
+					if (ui == "ui")
 					{
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "AirVPN.exe"); // TODO Eddie3: "Eddie-UI.exe"
 						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "CLI.exe"); // TODO Eddie3: "Eddie-CLI.exe"
 					}
-					else if(ui == "cli")
+					else if (ui == "cli")
 					{
 						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
 					}
@@ -345,11 +348,11 @@ namespace Deploy
 					{
 						string nsis = "";
 
-						if(ui == "ui")
+						if (ui == "ui")
 						{
 							nsis = ReadTextFile(PathBaseResources + "/nsis/Eddie-UI.nsi");
 						}
-						else if(ui == "cli")
+						else if (ui == "cli")
 						{
 
 						}
@@ -400,7 +403,7 @@ namespace Deploy
 						{
 							CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
 						}
-						else if(ui == "ui")
+						else if (ui == "ui")
 						{
 							CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 							CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "AirVPN.exe");
@@ -414,7 +417,7 @@ namespace Deploy
 
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");						
+						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
 
 						RemoveFile(pathTemp + "/libgdiplus.so.0");
 						RemoveFile(pathTemp + "/libMonoPosixHelper.so");
@@ -428,7 +431,7 @@ namespace Deploy
 						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
 						Shell(command2);
 					}
-					else if( (format == "portable") && (AvailableMkBundle) )
+					else if ((format == "portable") && (AvailableMkBundle))
 					{
 						//CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
 						//CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
@@ -466,11 +469,11 @@ namespace Deploy
 						command += " --machine-config /etc/mono/4.0/machine.config";
 						command += " -z";
 
-						if(ui == "cli")
+						if (ui == "cli")
 						{
 							command += " -o \"" + pathTemp + "/eddie-cli\"";
 						}
-						else if(ui == "ui")
+						else if (ui == "ui")
 						{
 							command += " -o \"" + pathTemp + "/airvpn\"";
 						}
@@ -505,7 +508,7 @@ namespace Deploy
 						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
 						Shell(command2);
 					}
-					else if( (format == "debian") && (AvailableDpkg) )
+					else if ((format == "debian") && (AvailableDpkg))
 					{
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);						
@@ -523,7 +526,7 @@ namespace Deploy
 
 						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString3);
 						string debianArchitecture = "unknown";
-						if(arch == "x86")
+						if (arch == "x86")
 							debianArchitecture = "i386"; // any-i386? not accepted by reprepro
 						else if (arch == "x64")
 							debianArchitecture = "amd64"; // any-amd64?
@@ -572,7 +575,7 @@ namespace Deploy
 
 						SignFile(platform, format, pathFinal);
 					}
-					else if( (format == "rpm") && (AvailableRPM) )
+					else if ((format == "rpm") && (AvailableRPM))
 					{
 						string libSubPath = "lib";
 						if (arch == "x64")
@@ -580,7 +583,7 @@ namespace Deploy
 
 						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 						//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);						
+						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
 						CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "AirVPN.exe");
@@ -623,7 +626,7 @@ namespace Deploy
 						Shell("chown -R root:root " + pathTemp);
 
 						string command = "rpmbuild";
-						if(IsOfficial())
+						if (IsOfficial())
 						{
 							string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
 							if (File.Exists(pathPassphrase))
@@ -659,7 +662,7 @@ namespace Deploy
 					}
 				}
 				else if (platform == "macos")
-				{				
+				{
 					if (format == "portable")
 					{
 						if (ui == "cli")
@@ -700,8 +703,8 @@ namespace Deploy
 								cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
 								cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
 								//cmd += " \"" + pathRelease + "/Newtonsoft.Json.dll\"";
-								cmd += " \"" + pathRelease + "/Lib.Platform.macOS.dll\"";								
-								cmd += " \"" + pathRelease + "/XamMac.dll\"";
+								cmd += " \"" + pathRelease + "/Lib.Platform.macOS.dll\"";
+								cmd += " \"" + pathRelease + "/Xamarin.Mac.dll\"";
 								cmd += " -z";
 								cmd += " --static";
 								cmd += " --deps";
@@ -710,7 +713,7 @@ namespace Deploy
 								Shell(cmd);
 							}
 
-                            CopyFile(pathRelease, "libxammac.dylib", pathTemp);
+							CopyFile(pathRelease, "libxammac.dylib", pathTemp);
 
 							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
 							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
@@ -876,7 +879,7 @@ namespace Deploy
 							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Platform.macOS.dll", pathTemp);
 							//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
-							CopyFile(pathRelease, "XamMac.dll", pathTemp);
+							CopyFile(pathRelease, "Xamarin.Mac.dll", pathTemp);
 							CopyFile(pathRelease, "libxammac.dylib", pathTemp);
 							CopyFile(pathRelease, "App.CLI.macOS.exe", pathTemp, "Eddie-CLI.exe");
 
@@ -933,7 +936,7 @@ namespace Deploy
 
 			if (SO == "linux")
 			{
-				if(IsOfficial())
+				if (IsOfficial())
 				{
 					Console.WriteLine("If running from a developing VM, maybe need:");
 					Console.WriteLine("cp files/eddie* /media/sf_airvpn-client/repository/files/");
@@ -968,18 +971,18 @@ namespace Deploy
 				pathCompiler = "/usr/bin/xbuild";
 			}
 
-			if(File.Exists(pathCompiler) == false)
+			if (File.Exists(pathCompiler) == false)
 			{
 				LogError("Compiler expected in " + pathCompiler + " but not found, build skipped.");
 				return false;
 			}
 
 			string pathProject = "";
-			if(so == "windows")
+			if (so == "windows")
 				pathProject = PathBase + "/src/Eddie2_VS2017_Windows.sln";
-			else if(so == "linux")
+			else if (so == "linux")
 				pathProject = PathBase + "/src/Eddie2_VS2017_Linux.sln";
-			
+
 			/*
 			if(netFramework == 2)
 			{
@@ -996,7 +999,7 @@ namespace Deploy
 
 			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
 			{
-				if(netFramework == 2)
+				if (netFramework == 2)
 				{
 					arguments += " /p:DefineConstants=\"EDDIENET20\"";
 				}
@@ -1129,10 +1132,10 @@ namespace Deploy
 
 		static string Shell(string command)
 		{
-			if(IsVerbose())
+			if (IsVerbose())
 				Console.WriteLine("Shell: " + command);
 
-			if(SO == "windows")
+			if (SO == "windows")
 				return Shell("cmd.exe", String.Format("/c {0}", command));
 			else
 				return Shell("sh", String.Format("-c '{0}'", command));
@@ -1147,10 +1150,10 @@ namespace Deploy
 
 		static string Shell(string filename, string arguments)
 		{
-			if(IsVerbose())
+			if (IsVerbose())
 				Console.WriteLine("Shell, filename: " + filename + ", arguments: " + arguments);
 			string output = ShellPlatformIndipendent(filename, arguments, "", true, false);
-			if((IsVerbose()) && (output.Trim() != "") )
+			if ((IsVerbose()) && (output.Trim() != ""))
 				Console.WriteLine("Output: " + output);
 			return output;
 		}
@@ -1233,9 +1236,9 @@ namespace Deploy
 					LogError("Missing PFX or password for Windows signatures. (" + pathPfx + " , " + pathPfxPwd + ")");
 				}
 			}
-			else if(platform == "linux")
+			else if (platform == "linux")
 			{
-				if(format == "debian")
+				if (format == "debian")
 				{
 					string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
 					if (File.Exists(pathPassphrase))
@@ -1304,7 +1307,7 @@ namespace Deploy
 		static void CopyAll(string from, string to)
 		{
 			string[] files = Directory.GetFiles(from);
-			
+
 			foreach (string file in files)
 			{
 				FileInfo fi = new FileInfo(file);
@@ -1385,7 +1388,7 @@ namespace Deploy
 		public static string StringRemoveLineWith(string str, string find)
 		{
 			string final = "";
-			foreach(string line in str.Split('\n'))
+			foreach (string line in str.Split('\n'))
 			{
 				if (line.IndexOf(find) == -1)
 					final += line + "\n";

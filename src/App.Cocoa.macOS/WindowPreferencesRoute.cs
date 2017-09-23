@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,30 +19,32 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowPreferencesRoute : MonoMac.AppKit.NSWindow
+	public partial class WindowPreferencesRoute : AppKit.NSWindow
 	{
 		#region Constructors
 
 		// Called when created from unmanaged code
-		public WindowPreferencesRoute (IntPtr handle) : base (handle)
+		public WindowPreferencesRoute(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowPreferencesRoute (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowPreferencesRoute(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 

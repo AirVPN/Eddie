@@ -29,11 +29,11 @@ namespace Eddie.CLI.MacOS
 	{
 		static void Main(string[] args)
 		{
-			Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
+			Eddie.Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
 
 			CommandLine.InitSystem(Environment.CommandLine);
 
-			Core.Engine engine = new Core.Engine();
+			Eddie.Core.Engine engine = new Core.Engine();
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
@@ -45,7 +45,7 @@ namespace Eddie.CLI.MacOS
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);
+			Eddie.Core.Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);
 		}
 	}
 }

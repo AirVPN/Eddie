@@ -1,10 +1,10 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Xamarin Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoMac.Foundation;
+using Foundation;
 using System.CodeDom.Compiler;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -13,25 +13,25 @@ namespace Eddie.UI.Cocoa.Osx
 	partial class AppDelegate
 	{
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainAbout { get; set; }
+		AppKit.NSMenuItem MnuMainAbout { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainClientArea { get; set; }
+		AppKit.NSMenuItem MnuMainClientArea { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainForwardingPorts { get; set; }
+		AppKit.NSMenuItem MnuMainForwardingPorts { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainHome { get; set; }
+		AppKit.NSMenuItem MnuMainHome { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainPreferences { get; set; }
+		AppKit.NSMenuItem MnuMainPreferences { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainQuit { get; set; }
+		AppKit.NSMenuItem MnuMainQuit { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSMenuItem MnuMainSpeedTest { get; set; }
+		AppKit.NSMenuItem MnuMainSpeedTest { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{

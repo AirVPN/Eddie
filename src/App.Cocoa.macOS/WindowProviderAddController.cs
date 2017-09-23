@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowProviderAddController : MonoMac.AppKit.NSWindowController
+	public partial class WindowProviderAddController : AppKit.NSWindowController
 	{
 		public string Provider;
 
@@ -74,7 +74,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{
-				Provider = m_choices[CboProvider.IndexOfSelectedItem];
+				Provider = m_choices[(int)CboProvider.IndexOfSelectedItem];
 
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();

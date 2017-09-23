@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -17,7 +17,7 @@
 // </eddie_source_header>
 
 using System;
-using MonoMac.AppKit;
+using AppKit;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -30,7 +30,7 @@ namespace Eddie.UI.Cocoa.Osx
 			m_main = main;
 		}
 
-		public override void SelectionDidChange (MonoMac.Foundation.NSNotification notification)
+		public override void SelectionDidChange (Foundation.NSNotification notification)
 		{
 			m_main.EnabledUI ();
 		}

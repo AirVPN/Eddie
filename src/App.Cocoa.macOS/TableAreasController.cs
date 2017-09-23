@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -18,8 +18,10 @@
 
 using System;
 using System.Collections.Generic;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -33,7 +35,7 @@ namespace Eddie.UI.Cocoa.Osx
 		private bool m_orderAscending = false;
 		private string m_orderColumn = "";
 
-		public TableAreasController (NSTableView tableView)
+		public TableAreasController(NSTableView tableView)
 		{
 			this.tableView = tableView;
 
@@ -45,84 +47,102 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			string oldOrderColumn = m_orderColumn;
 			m_orderColumn = col;
-			if(oldOrderColumn == m_orderColumn)
+			if (oldOrderColumn == m_orderColumn)
 			{
 				m_orderAscending = !m_orderAscending;
 			}
 
-			RefreshUI ();
+			RefreshUI();
 		}
 
 		public void RefreshUI()
 		{
-			List<AreaInfo> selected = new List<AreaInfo> ();
-			for (int r=0; r<Items.Count; r++) {
-				if (tableView.IsRowSelected (r))
-					selected.Add (Items [r]);
+			List<AreaInfo> selected = new List<AreaInfo>();
+			for (int r = 0; r < Items.Count; r++)
+			{
+				if (tableView.IsRowSelected(r))
+					selected.Add(Items[r]);
 			}
 
-			tableView.DeselectAll (this);
+			tableView.DeselectAll(this);
 
-			Items.Clear ();
-			lock (Engine.Instance.Areas) {
+			Items.Clear();
+			lock (Engine.Instance.Areas)
+			{
 				foreach (AreaInfo a in Engine.Instance.Areas.Values)
-					Items.Add (a);
+					Items.Add(a);
 			}
 
 			// Sorting
-			Items.Sort (
-				delegate(AreaInfo x, AreaInfo y) {
+			Items.Sort(
+				delegate (AreaInfo x, AreaInfo y)
+				{
 
-				return x.CompareToEx (y, m_orderColumn, m_orderAscending);
-			});
+					return x.CompareToEx(y, m_orderColumn, m_orderAscending);
+				});
 
 			int r2 = 0;
-			foreach (AreaInfo a in Items) {
-				if (selected.Contains (a))
-					tableView.SelectRow (r2, true);
+			foreach (AreaInfo a in Items)
+			{
+				if (selected.Contains(a))
+					tableView.SelectRow(r2, true);
 				r2++;
 			}
 
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
 
 		public AreaInfo GetRelatedItem(int i)
 		{
-			return Items [i];
+			return Items[i];
 		}
 
-		public override int GetRowCount (NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return Items.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 nint row)
 		{
-			AreaInfo a = Items[row];
+			AreaInfo a = Items[(int)row];
 
-			if (tableColumn.Identifier == "List") {
-				if(a.UserList == AreaInfo.UserListType.WhiteList)
+			if (tableColumn.Identifier == "List")
+			{
+				if (a.UserList == AreaInfo.UserListType.WhiteList)
 					return NSImage.ImageNamed("blacklist_0.png");
-				else if(a.UserList == AreaInfo.UserListType.BlackList)
+				else if (a.UserList == AreaInfo.UserListType.BlackList)
 					return NSImage.ImageNamed("blacklist_1.png");
 				else
 					return NSImage.ImageNamed("blacklist_2.png");
-			} else if (tableColumn.Identifier == "Flag") {
+			}
+			else if (tableColumn.Identifier == "Flag")
+			{
 				return NSImage.ImageNamed("flag_" + a.Code.ToLowerInvariant() + ".png");
-			} else if (tableColumn.Identifier == "Name") {
-				return new NSString (a.Name);
-			} else if (tableColumn.Identifier == "Servers") {
-				return new NSString (a.Servers.ToString());
-			} else if (tableColumn.Identifier == "LoadIcon") {
-				return NSImage.ImageNamed("status_" + a.GetLoadColorForList().ToLowerInvariant() + ".png");				
-			} else if (tableColumn.Identifier == "Load") {
-				return new NSString (a.GetLoadForList());
-			} else if (tableColumn.Identifier == "Users") {
-				return new NSString (a.Users.ToString());
-			} else 
-				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));
+			}
+			else if (tableColumn.Identifier == "Name")
+			{
+				return new NSString(a.Name);
+			}
+			else if (tableColumn.Identifier == "Servers")
+			{
+				return new NSString(a.Servers.ToString());
+			}
+			else if (tableColumn.Identifier == "LoadIcon")
+			{
+				return NSImage.ImageNamed("status_" + a.GetLoadColorForList().ToLowerInvariant() + ".png");
+			}
+			else if (tableColumn.Identifier == "Load")
+			{
+				return new NSString(a.GetLoadForList());
+			}
+			else if (tableColumn.Identifier == "Users")
+			{
+				return new NSString(a.Users.ToString());
+			}
+			else
+				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));
 		}
 
 	}

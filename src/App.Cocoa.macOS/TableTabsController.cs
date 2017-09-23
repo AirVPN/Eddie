@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,8 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -30,12 +30,12 @@ namespace Eddie.UI.Cocoa.Osx
 		public NSTableView tableView;
 		public NSTabView tabView;
 
-		public TableTabsController (NSTableView tableView, NSTabView tabView)
+		public TableTabsController(NSTableView tableView, NSTabView tabView)
 		{
 			this.tableView = tableView;
 			this.tabView = tabView;
 
-			tableView.Delegate = new TableTabsDelegate (tableView, tabView);
+			tableView.Delegate = new TableTabsDelegate(tableView, tabView);
 
 			this.tableView.DataSource = this;
 
@@ -43,17 +43,17 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void RefreshUI()
 		{
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
 
-		public override int GetRowCount (NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return tabView.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 nint row)
 		{
 			return new NSString(tabView.Items[row].Label);
 		}

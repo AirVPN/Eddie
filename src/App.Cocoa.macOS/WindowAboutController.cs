@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,47 +19,51 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowAboutController : MonoMac.AppKit.NSWindowController
+	public partial class WindowAboutController : AppKit.NSWindowController
 	{
 		#region Constructors
 		// Called when created from unmanaged code
-		public WindowAboutController (IntPtr handle) : base (handle)
+		public WindowAboutController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowAboutController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowAboutController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Call to load from the XIB/NIB file
-		public WindowAboutController () : base ("WindowAbout")
+		public WindowAboutController() : base("WindowAbout")
 		{
-			Initialize ();
+			Initialize();
 		}
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 		#endregion
 		//strongly typed window accessor
-		public new WindowAbout Window {
-			get {
+		public new WindowAbout Window
+		{
+			get
+			{
 				return (WindowAbout)base.Window;
 			}
 		}
 
 		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
 
@@ -67,27 +71,27 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command ("ui.show.website");
+				Engine.Instance.Command("ui.show.website");
 			};
 
 			CmdSoftware.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command ("ui.show.docs.general");
+				Engine.Instance.Command("ui.show.docs.general");
 			};
 
 			CmdSources.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command ("ui.show.sources");
+				Engine.Instance.Command("ui.show.sources");
 			};
 
 			CmdLicense.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command ("ui.show.license");
+				Engine.Instance.Command("ui.show.license");
 			};
 
 			CmdLibraries.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command ("ui.show.libraries");
+				Engine.Instance.Command("ui.show.libraries");
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
@@ -98,7 +102,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdSystemReport.Activated += (object sender, EventArgs e) =>
 			{
-                Engine.Instance.GenerateSystemReport();
+				Engine.Instance.GenerateSystemReport();
 			};
 		}
 	}

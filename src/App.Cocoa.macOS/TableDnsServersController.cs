@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -18,8 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -31,7 +31,7 @@ namespace Eddie.UI.Cocoa.Osx
 		private List<string> m_items = new List<string>();
 		//private Engine m_engine;
 
-		public TableDnsServersController (NSTableView tableView)
+		public TableDnsServersController(NSTableView tableView)
 		{
 			this.tableView = tableView;
 
@@ -43,23 +43,23 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void Add(string ip)
 		{
-			m_items.Add (ip);
-			RefreshUI ();
+			m_items.Add(ip);
+			RefreshUI();
 		}
 
 		public void RemoveAt(int i)
 		{
-			m_items.RemoveAt (i);
+			m_items.RemoveAt(i);
 		}
 
 		public string Get(int i)
 		{
-			return m_items [i];
+			return m_items[i];
 		}
 
 		public void Set(int i, string ip)
 		{
-			m_items [i] = ip;
+			m_items[i] = ip;
 		}
 
 		public int GetCount()
@@ -69,31 +69,32 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void Clear()
 		{
-			m_items.Clear ();
-			RefreshUI ();
+			m_items.Clear();
+			RefreshUI();
 		}
 
 		public void RefreshUI()
 		{
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
-			
-		public override int GetRowCount (NSTableView tableView)
+
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return m_items.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 nint row)
 		{
-			string e = m_items [row];
+			string e = m_items[(int)row];
 
-			if (tableColumn.Identifier == "IP") {
-				return new NSString (e);
+			if (tableColumn.Identifier == "IP")
+			{
+				return new NSString(e);
 			}
-			else 
-				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));
+			else
+				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));
 		}
 
 	}

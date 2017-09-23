@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -18,8 +18,10 @@
 
 using System;
 using System.Collections.Generic;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -28,7 +30,7 @@ namespace Eddie.UI.Cocoa.Osx
 	{
 		public NSTableView tableView;
 
-		public TableStatsController (NSTableView tableView)
+		public TableStatsController(NSTableView tableView)
 		{
 			this.tableView = tableView;
 
@@ -38,41 +40,45 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void RefreshUI()
 		{
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
 
 		public void DoubleClickItem()
 		{
-			int i = tableView.SelectedRow;
-			if ((i >= 0) && (i < Engine.Instance.Stats.List.Count)) {
-				StatsEntry e = Engine.Instance.Stats.List [tableView.SelectedRow];
+			nint i = tableView.SelectedRow;
+			if ((i >= 0) && (i < Engine.Instance.Stats.List.Count))
+			{
+				StatsEntry e = Engine.Instance.Stats.List[(int)tableView.SelectedRow];
 
 				Engine.Instance.Command("ui.stats." + e.Key, true);
 			}
 		}
 
-		public override int GetRowCount (NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return Engine.Instance.Stats.List.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 nint row)
 		{
-			StatsEntry e = Engine.Instance.Stats.List [row];
+			StatsEntry e = Engine.Instance.Stats.List[(int)row];
 
-			if (tableColumn.Identifier == "Icon") {
+			if (tableColumn.Identifier == "Icon")
+			{
 				return NSImage.ImageNamed("stats_" + e.Icon.ToLowerInvariant() + ".png");
 			}
-			else if (tableColumn.Identifier == "Key") {
-				return new NSString (e.Caption);
+			else if (tableColumn.Identifier == "Key")
+			{
+				return new NSString(e.Caption);
 			}
-			else if (tableColumn.Identifier == "Value") {
-				return new NSString (e.Text);
+			else if (tableColumn.Identifier == "Value")
+			{
+				return new NSString(e.Text);
 			}
-			else 
-				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));
+			else
+				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));
 		}
 
 	}

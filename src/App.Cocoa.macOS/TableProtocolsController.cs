@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,19 +19,19 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public class TableProtocolsControllerItem 
+	public class TableProtocolsControllerItem
 	{
 		public string Protocol = "";
 		public int Port = 0;
 		public int IP = 0;
 		public string Description = "";
-        public string Specs = "";
+		public string Specs = "";
 
 		public TableProtocolsControllerItem()
 		{
@@ -45,25 +45,25 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public List<TableProtocolsControllerItem> Items = new List<TableProtocolsControllerItem>();
 
-		public TableProtocolsController (NSTableView tableView)
+		public TableProtocolsController(NSTableView tableView)
 		{
 			this.tableView = tableView;
 
-            if( (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null) )
-            {
-                foreach(ConnectionMode mode in Engine.Instance.AirVPN.Modes)
-                {
-                    if (mode.Available == false)
-                        continue;
+			if ((Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null))
+			{
+				foreach (ConnectionMode mode in Engine.Instance.AirVPN.Modes)
+				{
+					if (mode.Available == false)
+						continue;
 					TableProtocolsControllerItem item = new TableProtocolsControllerItem();
-                    item.Protocol = mode.Protocol;
-                    item.Port = mode.Port;
-                    item.IP = mode.EntryIndex;
-                    item.Description = mode.Title;
-                    item.Specs = mode.Specs;
+					item.Protocol = mode.Protocol;
+					item.Port = mode.Port;
+					item.IP = mode.EntryIndex;
+					item.Description = mode.Title;
+					item.Specs = mode.Specs;
 					Items.Add(item);
-                }
-            }
+				}
+			}
 
 			this.tableView.DataSource = this;
 
@@ -71,38 +71,42 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void RefreshUI()
 		{
-			tableView.ReloadData ();
+			tableView.ReloadData();
 		}
 
-		public override int GetRowCount (NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return Items.Count;
 		}
 
-		public override NSObject GetObjectValue (NSTableView tableView, 
-		                                         NSTableColumn tableColumn, 
-		                                         int row)
+		public override NSObject GetObjectValue(NSTableView tableView,
+												 NSTableColumn tableColumn,
+												 nint row)
 		{
-			TableProtocolsControllerItem i = Items [row];
+			TableProtocolsControllerItem i = Items[(int)row];
 
-			if (tableColumn.Identifier == "Protocol") {
-				return new NSString (i.Protocol.ToUpperInvariant());
+			if (tableColumn.Identifier == "Protocol")
+			{
+				return new NSString(i.Protocol.ToUpperInvariant());
 			}
-			else if (tableColumn.Identifier == "Port") {
-				return new NSString (i.Port.ToString());
+			else if (tableColumn.Identifier == "Port")
+			{
+				return new NSString(i.Port.ToString());
 			}
-			else if (tableColumn.Identifier == "IP") {
-                return new NSString (Conversions.ToString(i.IP + 1));
+			else if (tableColumn.Identifier == "IP")
+			{
+				return new NSString(Conversions.ToString(i.IP + 1));
 			}
-			else if (tableColumn.Identifier == "Description") {
-				return new NSString (i.Description);
+			else if (tableColumn.Identifier == "Description")
+			{
+				return new NSString(i.Description);
 			}
 			else if (tableColumn.Identifier == "Specs")
 			{
 				return new NSString(i.Specs);
 			}
-			else 
-				throw new NotImplementedException (string.Format ("{0} is not recognized", tableColumn.Identifier));
+			else
+				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));
 		}
 
 	}

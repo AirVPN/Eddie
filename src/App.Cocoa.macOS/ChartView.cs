@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -17,10 +17,12 @@
 // </eddie_source_header>
 
 using System;
-using System.Drawing;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
-using MonoMac.CoreGraphics;
+//using System.Drawing;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
+using CoreGraphics;
 using Eddie.Core;
 using Eddie.Core.UI;
 
@@ -29,18 +31,19 @@ namespace Eddie.UI.Cocoa.Osx
 	[Register("ChartView")]
 	public class ChartView : NSView
 	{
-		private NSColor m_colorBackground;
-		private NSColor m_colorGrid;
-		private NSColor m_colorAxis;
-		private NSColor m_colorMouse;
-		private NSColor m_colorDownloadGraph;
-		private NSColor m_colorDownloadLine;
-		private NSColor m_colorUploadGraph;
-		private NSColor m_colorUploadLine;
-		//private NSColor m_colorLegendText;
-		private NSColor m_colorDownloadText;
-		private NSColor m_colorUploadText;
-		private NSFont m_font;
+		private CGColor m_colorBackground;
+		private CGColor m_colorGrid;
+		private CGColor m_colorAxis;
+		private CGColor m_colorMouse;
+		private CGColor m_colorDownloadGraph;
+		private CGColor m_colorDownloadLine;
+		private CGColor m_colorUploadGraph;
+		private CGColor m_colorUploadLine;
+		//private CGColor m_colorLegendText;
+		private CGColor m_colorDownloadText;
+		private CGColor m_colorUploadText;
+		private CGColor m_colorWhite;
+		private CoreText.CTFont m_font;
 
 		private int m_chartIndex = 0;
 		private Chart m_chart;
@@ -48,56 +51,66 @@ namespace Eddie.UI.Cocoa.Osx
 		private int m_legendDY = 0; // 15
 		private int m_marginTopY = 15;
 
-		private float m_chartDX;
-		private float m_chartDY;
-		private float m_chartStartX;
-		private float m_chartStartY;
+		private nfloat m_chartDX;
+		private nfloat m_chartDY;
+		private nfloat m_chartStartX;
+		private nfloat m_chartStartY;
 
-		public ChartView ()
+		public ChartView()
 		{
 			this.AcceptsTouchEvents = true;
 		}
 
-		public ChartView (IntPtr handle) : base (handle)
+		public ChartView(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
 
-		private void Initialize ()
+		private void Initialize()
 		{
 			NeedsDisplay = true;
 		}
 
-		public override bool AcceptsFirstResponder ()
+		public override bool AcceptsFirstResponder()
 		{
 			//return base.AcceptsFirstResponder ();
 			return true;
 		}
-			
-		public override void MouseMoved (NSEvent theEvent)
+
+		public override void MouseMoved(NSEvent theEvent)
 		{
-			base.MouseMoved (theEvent);
+			base.MouseMoved(theEvent);
 
 			NeedsDisplay = true;
 		}
 
-		public override void AwakeFromNib ()
+		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
-			m_colorBackground = GuiUtils.ConvertColor(Colors.LightChartBackground);
-			m_colorGrid = GuiUtils.ConvertColor(Colors.LightChartGrid);
-			m_colorAxis = GuiUtils.ConvertColor (Colors.LightChartAxis);
-			m_colorMouse = GuiUtils.ConvertColor(Colors.LightChartMouse);
-			m_colorDownloadGraph = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
-			m_colorDownloadLine = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
-			m_colorUploadGraph = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
-			m_colorUploadLine = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
-			//m_colorLegendText = GuiUtils.ConvertColor(Colors.LightChartLegend);
-			m_colorDownloadText = GuiUtils.ConvertColor(Colors.LightChartLineDownload);
-			m_colorUploadText = GuiUtils.ConvertColor(Colors.LightChartLineUpload);
+			CGColor LightChartBackground = ColorFromArgb(248, 248, 248);
+			CGColor LightChartGrid = ColorFromArgb(211, 211, 211);
+			CGColor LightChartAxis = ColorFromArgb(128, 128, 128);
+			CGColor LightChartMouse = ColorFromArgb(32, 92, 166);
+			CGColor LightChartLegend = ColorFromArgb(64, 145, 255);
+			CGColor LightChartLineDownload = ColorFromArgb(38, 22, 255);
+			CGColor LightChartLineUpload = ColorFromArgb(0, 90, 0);
+			CGColor LightChartWhite = ColorFromArgb(255, 255, 255);
 
-			m_font = NSFont.FromFontName ("Menlo", 10);
+			m_colorBackground = LightChartBackground;
+			m_colorGrid = LightChartGrid;
+			m_colorAxis = LightChartAxis;
+			m_colorMouse = LightChartMouse;
+			m_colorDownloadGraph = LightChartLineDownload;
+			m_colorDownloadLine = LightChartLineDownload;
+			m_colorUploadGraph = LightChartLineUpload;
+			m_colorUploadLine = LightChartLineUpload;
+			//m_colorLegendText = LightChartLegend;
+			m_colorDownloadText = LightChartLineDownload;
+			m_colorUploadText = LightChartLineUpload;
+			m_colorWhite = LightChartWhite;
+
+			m_font = new CoreText.CTFont("Menlo", 10);
 
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
@@ -105,17 +118,28 @@ namespace Eddie.UI.Cocoa.Osx
 
 		}
 
+		CGColor ColorFromArgb(int r, int g, int b)
+		{
+			nfloat fR = r;
+			nfloat fG = g;
+			nfloat fB = b;
+			fR = fR / 256;
+			fG = fG / 256;
+			fB = fB / 256;
+			return new CGColor(fR, fG, fB);
+		}
 
 		void Charts_UpdateEvent()
 		{
-			new NSObject ().InvokeOnMainThread (() => {
+			new NSObject().InvokeOnMainThread(() =>
+			{
 				NeedsDisplay = true;
 			});
 		}
 
 		public string ValToDesc(Int64 v)
 		{
-			return Utils.FormatBytes (v, true, true);
+			return Utils.FormatBytes(v, true, true);
 		}
 
 		public void Switch(int chartIndex)
@@ -130,101 +154,132 @@ namespace Eddie.UI.Cocoa.Osx
 
 		}
 
-		private Rectangle ChartRectangle(float x, float y, float w, float h)
+		private CGRect ChartRectangle(nfloat x, nfloat y, nfloat w, nfloat h)
 		{
-			return new Rectangle(Conversions.ToInt32(x), Conversions.ToInt32(y), Conversions.ToInt32(w), Conversions.ToInt32(h));
+			return new CGRect(Conversions.ToInt32(x), Conversions.ToInt32(y), Conversions.ToInt32(w), Conversions.ToInt32(h));
 		}
 
-		private Point ChartPoint(float x, float y)
+		private CGPoint ChartPoint(nfloat x, nfloat y)
 		{
-			return new Point(Conversions.ToInt32(x), Conversions.ToInt32(y));
+			return new CGPoint(Conversions.ToInt32(x), Conversions.ToInt32(y));
 		}
 
-		private PointF Invert(PointF p)
+		private CGPoint Invert(CGPoint p)
 		{
-			p.Y = Bounds.Height - p.Y;
+			p.Y = (float)Bounds.Height - p.Y;
 			return p;
 		}
 
-		private RectangleF Invert(RectangleF r)
+		private CGRect Invert(CGRect r)
 		{
-			r.Y = Bounds.Height - r.Y - r.Height;
+			r.Y = (float)Bounds.Height - r.Y - r.Height;
 			return r;
 		}
 
-		private void DrawLine(NSColor color, float x1, float y1, float x2, float y2)
+		private void DrawLine(CGContext context, CGColor color, nfloat x1, nfloat y1, nfloat x2, nfloat y2)
 		{
-			DrawLine(color, new PointF(x1,y1), new PointF(x2,y2));
+			DrawLine(context, color, new CGPoint(x1, y1), new CGPoint(x2, y2));
 		}
 
-		private void DrawLine(NSColor color, PointF p1, PointF p2)
+		private void DrawLine(CGContext context, CGColor color, CGPoint p1, CGPoint p2)
 		{
-			color.Set();
-			NSBezierPath.StrokeLine (Invert(p1), Invert(p2));
+			context.SetStrokeColor(color);
+			//color.Set();
+			NSBezierPath.StrokeLine(Invert(p1), Invert(p2));
 		}
 
-		private void DrawStringOutline(string text, NSColor color, RectangleF rect, int align)
+
+		private void DrawStringOutline(CGContext context, string text, CGColor color, CGRect rect, int align)
 		{
-			NSString nsString = new NSString (text);
+			NSString nsString = new NSString(text);
 
 			int halign = align % 3;
 			int valign = align / 3;
-
-
-			var objectsText = new object[] { m_font, color };
-			var keysText = new object[] { NSAttributedString.FontAttributeName, NSAttributedString.ForegroundColorAttributeName };
+			/*
+			var attributesText = new NSAttributedString("Outline",
+									new CoreText.CTStringAttributes()
+									{
+										ForegroundColor = color,
+										Font = m_font
+									});
+			var attributesOutline = new NSAttributedString("Outline",
+										new CoreText.CTStringAttributes()
+										{
+											ForegroundColor = m_colorWhite,
+											Font = m_font
+										});
+										*/
+			var objectsText = new object[] { m_font, NSColor.FromCGColor(color) };
+			var keysText = new object[] { "NSFont", "NSColor" };
 			var attributesText = NSDictionary.FromObjectsAndKeys(objectsText, keysText);
-
 			var objectsOutline = new object[] { m_font, NSColor.White };
-			var keysOutline = new object[] { NSAttributedString.FontAttributeName, NSAttributedString.ForegroundColorAttributeName };
+			var keysOutline = new object[] { "NSFont", "NSColor" };
 			var attributesOutline = NSDictionary.FromObjectsAndKeys(objectsOutline, keysOutline);
 
-
-			SizeF size = nsString.StringSize (attributesText);
-
-			if (halign == 0) {
-			} else if (halign == 1) {
+			CGSize size = nsString.StringSize(attributesText);
+			if (halign == 0)
+			{
+			}
+			else if (halign == 1)
+			{
 				rect.X = (rect.Left + rect.Right) / 2 - size.Width / 2;
-			} else if (halign == 2) {
+			}
+			else if (halign == 2)
+			{
 				rect.X = rect.Right - size.Width;
 			}
 			rect.Width = size.Width;
 
-			if (valign == 0) {
-			} else if (valign == 1) {
+			if (valign == 0)
+			{
+			}
+			else if (valign == 1)
+			{
 				rect.Y = (rect.Top + rect.Bottom) / 2 - size.Height / 2;
-			} else if (valign == 2) {
+			}
+			else if (valign == 2)
+			{
 				rect.Y = rect.Bottom - size.Height;
 			}
 			rect.Height = size.Height;
 
-			NSColor.Black.Set ();
-			for (int ox = -1; ox <= 1; ox++) {
-				for (int oy = -1; oy <= 1; oy++) {
-					RectangleF rectString = rect;
-					rectString.Offset (new PointF (ox, oy));
-					nsString.DrawString (Invert (rectString), attributesOutline);
+			NSColor.Black.Set();
+			for (int ox = -1; ox <= 1; ox++)
+			{
+				for (int oy = -1; oy <= 1; oy++)
+				{
+					CGRect rectString = rect;
+					rectString.Offset(new CGPoint(ox, oy));
+					nsString.DrawString(Invert(rectString), attributesOutline);
 				}
 			}
+
 			nsString.DrawString(Invert(rect), attributesText);
+			//nsString.DrawString(Invert(rect), null);
+			/*
+			using (var textLine = new CoreText.CTLine(attributesText))
+			{
+				textLine.Draw(context);
+			}
+			*/
+
 		}
-			
-		public override void DrawRect (System.Drawing.RectangleF dirtyRect)
+
+		public override void DrawRect(CGRect dirtyRect)
 		{
 			var context = NSGraphicsContext.CurrentContext.GraphicsPort;
 
 			// Engine.Instance.Stats.Charts.Hit (RandomGenerator.GetInt (1024, 1024 * 1024), RandomGenerator.GetInt (1024, 1024 * 1024)); // Debugging
 
-			context.SetFillColor (m_colorBackground.CGColor);
-			context.FillRect (dirtyRect);
+			context.SetFillColor(m_colorBackground);
+			context.FillRect(dirtyRect);
 
-			NSColor.Gray.Set ();
-			NSBezierPath.StrokeRect (Bounds);
+			NSColor.Gray.Set();
+			NSBezierPath.StrokeRect(Bounds);
 
 
-			float DX = this.Bounds.Size.Width;
-			float DY = this.Bounds.Size.Height;
-
+			nfloat DX = this.Bounds.Size.Width;
+			nfloat DY = this.Bounds.Size.Height;
 
 			m_chartDX = DX;
 			m_chartDY = DY - m_legendDY;
@@ -238,20 +293,20 @@ namespace Eddie.UI.Cocoa.Osx
 			else if (maxY > 1000000000000)
 				maxY = 1000000000000;
 
-			Point lastPointDown = new Point(-1, -1);
-			Point lastPointUp = new Point(-1, -1);
+			CGPoint lastPointDown = new CGPoint(-1, -1);
+			CGPoint lastPointUp = new CGPoint(-1, -1);
 
-			float stepX = (m_chartDX - 0) / m_chart.Resolution;
+			nfloat stepX = (m_chartDX - 0) / m_chart.Resolution;
 
 			// Grid lines				
 			for (int g = 0; g < m_chart.Grid; g++)
 			{
-				float x = ((m_chartDX - 0) / m_chart.Grid) * g;
-				DrawLine(m_colorGrid, m_chartStartX + x, 0, m_chartStartX + x, m_chartStartY);
+				nfloat x = ((m_chartDX - 0) / m_chart.Grid) * g;
+				DrawLine(context, m_colorGrid, m_chartStartX + x, 0, m_chartStartX + x, m_chartStartY);
 			}
 
 			// Axis line
-			DrawLine(m_colorAxis, 0, m_chartStartY, m_chartDX, m_chartStartY);
+			DrawLine(context, m_colorAxis, 0, m_chartStartY, m_chartDX, m_chartStartY);
 
 			// Legend
 			/*
@@ -280,18 +335,19 @@ namespace Eddie.UI.Cocoa.Osx
 				if (p >= m_chart.Resolution)
 					p -= m_chart.Resolution;
 
-				float downY = ((m_chart.Download[p]) * (m_chartDY - m_marginTopY)) / maxY;
-				float upY = ((m_chart.Upload[p]) * (m_chartDY - m_marginTopY)) / maxY;
+				nfloat downY = ((m_chart.Download[p]) * (m_chartDY - m_marginTopY)) / maxY;
+				nfloat upY = ((m_chart.Upload[p]) * (m_chartDY - m_marginTopY)) / maxY;
 
-				Point pointDown = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - downY);
-				Point pointUp = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - upY);
+				CGPoint pointDown = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - downY);
+				CGPoint pointUp = ChartPoint(m_chartStartX + stepX * i, m_chartStartY - upY);
 
 				//e.Graphics.DrawLine(Pens.Green, new Point(0,0), point);
 
 				if (lastPointDown.X != -1)
 				{
-					DrawLine(m_colorDownloadGraph, lastPointDown, pointDown);
-					DrawLine(m_colorUploadGraph, lastPointUp, pointUp);
+					DrawLine(context, m_colorDownloadGraph, lastPointDown, pointDown);
+					DrawLine(context, m_colorUploadGraph, lastPointUp, pointUp);
+
 				}
 
 				lastPointDown = pointDown;
@@ -299,57 +355,58 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 
 			// Download line
-			float downCurY = 0;
+			nfloat downCurY = 0;
 			{
 				long v = m_chart.GetLastDownload();
 				downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
-				DrawLine(m_colorDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
-				DrawStringOutline(Messages.ChartDownload + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX-10, m_chartStartY - downCurY), 8);
+				DrawLine(context, m_colorDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
+				DrawStringOutline(context, Messages.ChartDownload + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - downCurY), 8);
 			}
 
 			// Upload line
 			{
 				long v = m_chart.GetLastUpload();
-				float y = ((v) * (m_chartDY - m_marginTopY)) / maxY;
-				float dly = 0;
+				nfloat y = ((v) * (m_chartDY - m_marginTopY)) / maxY;
+				nfloat dly = 0;
 				if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
-				DrawLine(m_colorUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
-				DrawStringOutline(Messages.ChartUpload + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX-10, m_chartStartY - y - dly), 8);
+				DrawLine(context, m_colorUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
+				DrawStringOutline(context, Messages.ChartUpload + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - y - dly), 8);
 
 			}
 
 			// Mouse lines
 			{
-				PointF mp = Window.MouseLocationOutsideOfEventStream;
+				CGPoint mp = Window.MouseLocationOutsideOfEventStream;
 				mp.X -= this.Frame.Left;
 				mp.Y -= this.Frame.Top;
 				//mp = ParentWindow.ConvertPointToView (mp, this);
 
-				mp = Invert (mp);
+				mp = Invert(mp);
 
 				//mp = Window.ConvertScreenToBase (mp);
 
 				if ((mp.X > 0) && (mp.Y < m_chartDX) && (mp.Y > 0) && (mp.Y < m_chartDY))
 				{
-					DrawLine(m_colorMouse, 0, mp.Y, m_chartDX, mp.Y);
-					DrawLine(m_colorMouse, mp.X, 0, mp.X, m_chartDY);
+					DrawLine(context, m_colorMouse, 0, mp.Y, m_chartDX, mp.Y);
+					DrawLine(context, m_colorMouse, mp.X, 0, mp.X, m_chartDY);
 
-					float i = (m_chartDX - (mp.X - m_chartStartX)) / stepX;
+					nfloat i = (m_chartDX - (mp.X - m_chartStartX)) / stepX;
 
 					int t = Conversions.ToInt32(i * m_chart.TimeStep);
 
 					//float y = mp.Y * maxY / (chartDY - m_marginTopY);
-					float y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
+					nfloat y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
 
 					String label = ValToDesc(Conversions.ToInt64(y)) + ", " + Utils.FormatSeconds(t) + " ago";
 
 					int formatAlign = 6;
-					RectangleF rect = new RectangleF();
-					if(DX - mp.X > DX / 2)
-						//if (mp.X < DX - 200)
+
+					CGRect rect = new CGRect();
+					if (DX - mp.X > DX / 2)
+					//if (mp.X < DX - 200)
 					{
 						if (DY - mp.Y > DY / 2)
-							//if (mp.Y < 20)
+						//if (mp.Y < 20)
 						{
 							formatAlign = 0;
 							rect.X = mp.X + 5;
@@ -369,7 +426,7 @@ namespace Eddie.UI.Cocoa.Osx
 					else
 					{
 						if (DY - mp.Y > DY / 2)
-							//if (mp.Y < 40)
+						//if (mp.Y < 40)
 						{
 							formatAlign = 2;
 							rect.X = 0;
@@ -388,7 +445,7 @@ namespace Eddie.UI.Cocoa.Osx
 						}
 					}
 
-					DrawStringOutline(label, m_colorMouse, rect, formatAlign);
+					DrawStringOutline(context, label, m_colorMouse, rect, formatAlign);
 				}
 			}
 

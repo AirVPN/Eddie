@@ -2,14 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowProviderEditOpenVPNController : MonoMac.AppKit.NSWindowController
+	public partial class WindowProviderEditOpenVPNController : AppKit.NSWindowController
 	{
 		public Core.Providers.OpenVPN Provider;
 

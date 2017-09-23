@@ -21,14 +21,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class MainWindowController : MonoMac.AppKit.NSWindowController
+	public partial class MainWindowController : AppKit.NSWindowController
 	{
 		public TableProvidersController TableProvidersController;
 		public TableServersController TableServersController;
@@ -359,7 +359,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CboSpeedResolutions.Activated += (object sender, EventArgs e) =>
 			{
-				(PnlChart as ChartView).Switch(CboSpeedResolutions.IndexOfItem(CboSpeedResolutions.SelectedItem));
+				(PnlChart as ChartView).Switch((int)CboSpeedResolutions.IndexOfItem(CboSpeedResolutions.SelectedItem));
 			};
 
 
@@ -704,7 +704,7 @@ namespace Eddie.UI.Cocoa.Osx
 			ConnectionInfo selectedConnection = null;
 			if (TableServers.SelectedRowCount == 1)
 			{
-				selectedConnection = TableServersController.GetRelatedItem(TableServers.SelectedRow);
+				selectedConnection = TableServersController.GetRelatedItem((int)TableServers.SelectedRow);
 			}
 
 			bool connected = Engine.IsConnected();
@@ -893,7 +893,7 @@ namespace Eddie.UI.Cocoa.Osx
 				CboKey.AddItem(keyName);
 			}
 			string currentKey = Engine.Instance.Storage.Get("key");
-			int currentIndex = CboKey.IndexOfItem(currentKey);
+			int currentIndex = (int)CboKey.IndexOfItem(currentKey);
 			if (currentIndex != -1)
 			{
 				CboKey.SelectItem(currentIndex);
@@ -950,7 +950,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			not.Title = title;
 			not.InformativeText = notes;
-			not.DeliveryDate = DateTime.Now;
+			not.DeliveryDate = NSDate.Now;
 			not.SoundName = NSUserNotification.NSUserNotificationDefaultSoundName;
 
 			// We get the Default notification Center
@@ -1002,7 +1002,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			if (TableServers.SelectedRows.Count == 1)
 			{
-				ConnectionInfo s = TableServersController.GetRelatedItem(TableServers.SelectedRow);
+				ConnectionInfo s = TableServersController.GetRelatedItem((int)TableServers.SelectedRow);
 				Engine.NextServer = s;
 				Connect();
 			}
@@ -1065,7 +1065,7 @@ namespace Eddie.UI.Cocoa.Osx
 			NSApplication.SharedApplication.RunModalForWindow(w.Window);
 			if (w.Provider != "")
 			{
-				Provider provider = Engine.Instance.ProvidersManager.AddProvider(w.Provider, null);
+				Engine.Instance.ProvidersManager.AddProvider(w.Provider, null);
 				Engine.Instance.ProvidersManager.Refresh();
 
 				TableProvidersController.RefreshUI();
@@ -1252,7 +1252,7 @@ namespace Eddie.UI.Cocoa.Osx
 				NSSavePanel panel = new NSSavePanel();
 				panel.NameFieldStringValue = filename;
 				panel.CanCreateDirectories = true;
-				int result = panel.RunModal();
+				nint result = panel.RunModal();
 				if (result == 1)
 				{
 					Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t);

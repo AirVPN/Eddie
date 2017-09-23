@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -19,14 +19,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowPreferencesController : MonoMac.AppKit.NSWindowController
+	public partial class WindowPreferencesController : AppKit.NSWindowController
 	{
 		private TableTabsController TableTabsController;
 		private TableProtocolsController TableProtocolsController;
@@ -413,10 +415,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void RouteEdit()
 		{
-			int i = TableRoutes.SelectedRow;
+			nint i = TableRoutes.SelectedRow;
 			if (i != -1)
 			{
-				TableRoutingControllerItem item = TableRoutingController.Items[i];
+				TableRoutingControllerItem item = TableRoutingController.Items[(int)i];
 
 				WindowPreferencesRouteController.Item = item;
 				WindowPreferencesRouteController dlg = new WindowPreferencesRouteController();
@@ -431,10 +433,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void RouteRemove()
 		{
-			int i = TableRoutes.SelectedRow;
+			nint i = TableRoutes.SelectedRow;
 			if (i != -1)
 			{
-				TableRoutingController.Items.RemoveAt(i);
+				TableRoutingController.Items.RemoveAt((int)i);
 				TableRoutingController.RefreshUI();
 				this.EnableIde();
 			}
@@ -459,10 +461,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void DnsServersRemove()
 		{
-			int i = TableDnsServers.SelectedRow;
+			nint i = TableDnsServers.SelectedRow;
 			if (i != -1)
 			{
-				TableDnsServersController.RemoveAt(i);
+				TableDnsServersController.RemoveAt((int)i);
 				TableDnsServersController.RefreshUI();
 				this.EnableIde();
 			}
@@ -470,10 +472,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void DnsServersEdit()
 		{
-			int i = TableDnsServers.SelectedRow;
+			nint i = TableDnsServers.SelectedRow;
 			if (i != -1)
 			{
-				string dns = TableDnsServersController.Get(i);
+				string dns = TableDnsServersController.Get((int)i);
 
 				WindowPreferencesIpController.Ip = dns;
 				WindowPreferencesIpController dlg = new WindowPreferencesIpController();
@@ -483,7 +485,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 				if (dlg.Accepted)
 				{
-					TableDnsServersController.Set(i, WindowPreferencesIpController.Ip);
+					TableDnsServersController.Set((int)i, WindowPreferencesIpController.Ip);
 					TableDnsServersController.RefreshUI();
 				}
 
@@ -493,9 +495,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void AdvancedEventEdit()
 		{
-			int index = TableAdvancedEvents.SelectedRow;
+			nint index = TableAdvancedEvents.SelectedRow;
 
-			WindowPreferencesEventController.Item = TableAdvancedEventsController.Items[index];
+			WindowPreferencesEventController.Item = TableAdvancedEventsController.Items[(int)index];
 			WindowPreferencesEventController dlg = new WindowPreferencesEventController();
 			dlg.Window.ReleasedWhenClosed = true;
 
@@ -508,12 +510,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void AdvancedEventClear()
 		{
-			int index = TableAdvancedEvents.SelectedRow;
+			nint index = TableAdvancedEvents.SelectedRow;
 			if (index != -1)
 			{
-				TableAdvancedEventsController.Items[index].Filename = "";
-				TableAdvancedEventsController.Items[index].Arguments = "";
-				TableAdvancedEventsController.Items[index].WaitEnd = true;
+				TableAdvancedEventsController.Items[(int)index].Filename = "";
+				TableAdvancedEventsController.Items[(int)index].Arguments = "";
+				TableAdvancedEventsController.Items[(int)index].WaitEnd = true;
 				TableAdvancedEventsController.RefreshUI();
 			}
 			TableAdvancedEventsController.RefreshUI();
@@ -858,7 +860,7 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 			else if (TableProtocols.SelectedRowCount == 1)
 			{
-				TableProtocolsControllerItem itemProtocol = TableProtocolsController.Items[TableProtocols.SelectedRow];
+				TableProtocolsControllerItem itemProtocol = TableProtocolsController.Items[(int)TableProtocols.SelectedRow];
 				s.Set("mode.protocol", itemProtocol.Protocol);
 				s.SetInt("mode.port", itemProtocol.Port);
 				s.SetInt("mode.alt", itemProtocol.IP);

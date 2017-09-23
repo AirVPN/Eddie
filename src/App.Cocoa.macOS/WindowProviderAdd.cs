@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-    public partial class WindowProviderAdd : MonoMac.AppKit.NSWindow
+    public partial class WindowProviderAdd : AppKit.NSWindow
     {
         #region Constructors
 

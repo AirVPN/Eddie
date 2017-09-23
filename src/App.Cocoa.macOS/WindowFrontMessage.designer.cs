@@ -1,49 +1,55 @@
-// WARNING
+﻿// WARNING
 //
 // This file has been generated automatically by Xamarin Studio to store outlets and
 // actions made in the Xcode designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-using MonoMac.Foundation;
+//using Foundation;
+//using AppKit;
+using Foundation;
+using AppKit;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	[Register ("WindowFrontMessageController")]
+	[Register("WindowFrontMessageController")]
 	partial class WindowFrontMessageController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdClose { get; set; }
+		AppKit.NSButton CmdClose { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSButton CmdMore { get; set; }
+		AppKit.NSButton CmdMore { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSTextField TxtMessage { get; set; }
-		
-		void ReleaseDesignerOutlets ()
+		AppKit.NSTextField TxtMessage { get; set; }
+
+		void ReleaseDesignerOutlets()
 		{
-			if (CmdClose != null) {
-				CmdClose.Dispose ();
+			if (CmdClose != null)
+			{
+				CmdClose.Dispose();
 				CmdClose = null;
 			}
 
-			if (CmdMore != null) {
-				CmdMore.Dispose ();
+			if (CmdMore != null)
+			{
+				CmdMore.Dispose();
 				CmdMore = null;
 			}
 
-			if (TxtMessage != null) {
-				TxtMessage.Dispose ();
+			if (TxtMessage != null)
+			{
+				TxtMessage.Dispose();
 				TxtMessage = null;
 			}
 		}
 	}
 
-	[Register ("WindowFrontMessage")]
+	[Register("WindowFrontMessage")]
 	partial class WindowFrontMessage
 	{
-		
-		void ReleaseDesignerOutlets ()
+
+		void ReleaseDesignerOutlets()
 		{
 		}
 	}

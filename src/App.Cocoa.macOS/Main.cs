@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -17,11 +17,11 @@
 // </eddie_source_header>
 
 using System;
-using System.Drawing;
+//using System.Drawing;
 using System.Reflection;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
-using MonoMac.ObjCRuntime;
+using Foundation;
+using AppKit;
+using ObjCRuntime;
 using Eddie.Lib.Common;
 using Eddie.Core;
 

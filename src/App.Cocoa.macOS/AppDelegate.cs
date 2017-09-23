@@ -17,10 +17,10 @@
 // </eddie_source_header>
 
 using System;
-using System.Drawing;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
-using MonoMac.ObjCRuntime;
+//using System.Drawing;
+using Foundation;
+using AppKit;
+using ObjCRuntime;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -40,7 +40,8 @@ namespace Eddie.UI.Cocoa.Osx
 			return false; // 2.8
 		}
 
-		public override void FinishedLaunching(NSObject notification)
+
+		public override void DidFinishLaunching(NSNotification notification)
 		{
 			Engine.Instance.TerminateEvent += delegate ()
 			{

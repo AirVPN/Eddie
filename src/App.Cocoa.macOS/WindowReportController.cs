@@ -2,14 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
-	public partial class WindowReportController : MonoMac.AppKit.NSWindowController
+	public partial class WindowReportController : AppKit.NSWindowController
 	{
 		#region Constructors
 
@@ -76,7 +76,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 				NSSavePanel panel = new NSSavePanel();
 				panel.CanCreateDirectories = true;
-				int result = panel.RunModal();
+				nint result = panel.RunModal();
 				if (result == 1)
 				{
 					Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t);

@@ -23,9 +23,13 @@ using System.Text;
 using System.Xml;
 using Eddie.Core;
 using Eddie.Lib.Common;
-using MonoMac.AppKit;
-using MonoMac.Foundation;
-using Mono.Unix;
+
+using AppKit;
+using Foundation;
+
+//using AppKit;
+//using Foundation;
+//using Mono.Unix;
 
 namespace Eddie.Platform.MacOS
 {
@@ -37,12 +41,14 @@ namespace Eddie.Platform.MacOS
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
+		/*
 		private UnixSignal[] m_signals = new UnixSignal[] {
 			new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
 			new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
 			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR1),
 			new UnixSignal (Mono.Unix.Native.Signum.SIGUSR2),
 		};
+		*/
 
 		// Override
 		public Platform()
@@ -78,6 +84,13 @@ namespace Eddie.Platform.MacOS
 			m_version = SystemShell.Shell("/usr/bin/uname", new string[] { "-a" }).Trim();
 			m_architecture = NormalizeArchitecture(SystemShell.Shell("/usr/bin/uname", new string[] { "-m" }).Trim());
 
+
+			Native.eddie_signal((int)Native.Signum.SIGINT, SignalCallback);
+			Native.eddie_signal((int)Native.Signum.SIGTERM, SignalCallback);
+			Native.eddie_signal((int)Native.Signum.SIGUSR1, SignalCallback);
+			Native.eddie_signal((int)Native.Signum.SIGUSR2, SignalCallback);
+
+			/*
 			System.Threading.Thread signalThread = new System.Threading.Thread(delegate ()
 			{
 				for (;;)
@@ -102,6 +115,22 @@ namespace Eddie.Platform.MacOS
 				}
 			});
 			signalThread.Start();
+			*/
+
+
+		}
+
+		private static void SignalCallback(int signum)
+		{
+			Native.Signum sig = (Native.Signum)signum;
+			if (sig == Native.Signum.SIGINT)
+				Engine.Instance.OnSignal("SIGINT");
+			else if (sig == Native.Signum.SIGTERM)
+				Engine.Instance.OnSignal("SIGTERM");
+			else if (sig == Native.Signum.SIGUSR1)
+				Engine.Instance.OnSignal("SIGUSR1");
+			else if (sig == Native.Signum.SIGUSR2)
+				Engine.Instance.OnSignal("SIGUSR2");
 		}
 
 		public override string GetOsArchitecture()

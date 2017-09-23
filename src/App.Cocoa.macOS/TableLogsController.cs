@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org )
 //
@@ -18,8 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -89,16 +89,16 @@ namespace Eddie.UI.Cocoa.Osx
 			tableView.ReloadData();
 		}
 
-		public override int GetRowCount(NSTableView tableView)
+		public override nint GetRowCount(NSTableView tableView)
 		{
 			return m_items.Count;
 		}
 
 		public override NSObject GetObjectValue(NSTableView tableView,
 												 NSTableColumn tableColumn,
-												 int row)
+												 nint row)
 		{
-			LogEntry e = m_items[row];
+			LogEntry e = m_items[(int)row];
 
 			if (tableColumn.Identifier == "Icon")
 			{

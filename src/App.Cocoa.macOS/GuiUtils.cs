@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -20,19 +20,25 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using MonoMac.Foundation;
-using MonoMac.AppKit;
+using Foundation;
+using AppKit;
+using CoreGraphics;
 using Eddie.Core;
-
 
 namespace Eddie.UI.Cocoa.Osx
 {
 	public static class GuiUtils
 	{
-		public static NSColor ConvertColor(System.Drawing.Color c)
+		/*
+		public static NSColor ConvertNSColor(System.Drawing.Color c)
 		{
 			return NSColor.FromSrgb(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f);
 		}
+		public static CGColor ConvertCGColor(System.Drawing.Color c)
+		{
+			return new CGColor(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f);
+		}
+		*/
 		public static void SetSelected(NSPopUpButton control, string value)
 		{
 			control.SelectItem(value);
@@ -109,7 +115,7 @@ namespace Eddie.UI.Cocoa.Osx
 			alert.InformativeText = message;
 			alert.AddButton("Yes");
 			alert.AddButton("No");
-			int r = alert.RunModal();
+			nint r = alert.RunModal();
 
 			if (r == 1000)
 				return true;
@@ -117,7 +123,7 @@ namespace Eddie.UI.Cocoa.Osx
 			return false;
 		}
 
-		public static void ShowWindowWithFocus(MonoMac.AppKit.NSWindowController w, MonoMac.AppKit.NSWindowController parent)
+		public static void ShowWindowWithFocus(AppKit.NSWindowController w, AppKit.NSWindowController parent)
 		{
 			w.ShowWindow(parent);
 			w.Window.Deminiaturize(parent);
