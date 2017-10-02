@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Eddie.Gui.Skin
+namespace Eddie.Forms.Skin
 {
     public class Panel : System.Windows.Forms.Panel
     {

@@ -28,34 +28,30 @@ using Eddie.Core;
 
 //using ExceptionReporting;
 
-namespace Eddie.Gui
+namespace Eddie.Forms
 {
 	public class Engine : Eddie.Core.Engine
-    {
+	{
 		// We have a list of logs, because we process it only when the form are available.
-        public List<LogEntry> LogEntries = new List<LogEntry>();
+		public List<LogEntry> LogEntries = new List<LogEntry>();
 
-        public Forms.Main FormMain;
-        
-        //public AutoResetEvent FormsReady = new AutoResetEvent(false);
-        public AutoResetEvent InitDone = new AutoResetEvent(false);
-        
-        public override bool OnInit()
-        {
-			// Engine.Log(Core.Engine.LogType.Verbose, "Old Data: " + Application.UserAppDataPath);
-            
-            Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
+		public Forms.Main FormMain;
+
+		//public AutoResetEvent FormsReady = new AutoResetEvent(false);
+		public AutoResetEvent InitDone = new AutoResetEvent(false);
+
+		public override bool OnInit()
+		{
+			Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
 			Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
 			// Add the event handler for handling non-UI thread exceptions to the event. 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			// System.Threading.Thread.Sleep(1000);
+			bool result = base.OnInit();
 
-            bool result = base.OnInit();
-            
-            return result;
-        }
+			return result;
+		}
 
 		public override void OnUnhandledException(Exception e)
 		{
@@ -89,7 +85,7 @@ namespace Eddie.Gui
 			Exception ex = (Exception)e.ExceptionObject;
 			Engine.OnUnhandledException(ex);
 		}
-        
+
 		public override void OnExit()
 		{
 			if (FormMain != null)
@@ -98,256 +94,130 @@ namespace Eddie.Gui
 				base.OnExit();
 		}
 
-        public override void OnDeInit2()
-        {
-            base.OnDeInit2();
-
-            if(FormMain != null)
-                FormMain.DeInit();
-        }
-
-        public override XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
-        {
-            string action = xml.GetAttribute("action").ToLowerInvariant();
-
-            if(action == "ui.show.preferences")
-            {
-                Forms.Settings Dlg = new Forms.Settings();
-                Dlg.ShowDialog();
-
-                FormMain.EnabledUi();
-            }            
-            else if (action == "ui.show.about")
-            {
-                Forms.About dlg = new Forms.About();
-                dlg.ShowDialog();
-            }
-            else if (action == "ui.show.menu")
-            {
-                FormMain.ShowMenu();
-            }
-            else
-                return base.OnCommand(xml, ignoreIfNotExists);
-
-            return null;
-        }
-
-        public override bool OnNoRoot()
+		public override void OnDeInit2()
 		{
-			if (ConsoleMode == false) // GUI Only
-			{
-				if (Platform.Instance.IsWindowsSystem())
-				{
-					// Never occur, root granted by Windows Manifest
-					return false;
-				}
-				else if (Platform.Instance.IsLinuxSystem())
-				{
-					string command = "";
-					string arguments = "";
+			base.OnDeInit2();
 
-
-					string command2 = "";
-					string executablePath = Platform.Instance.GetExecutablePath();
-					string cmdline = CommandLine.SystemEnvironment.GetFull();
-					if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
-						command2 += "mono ";						
-					command2 += Platform.Instance.GetExecutablePath();
-					command2 += " ";
-					command2 += cmdline;
-                    command2 = command2.Trim(); // 2.11.11
-					bool waitEnd = false;
-					
-					if (Platform.Instance.FileExists("/usr/bin/kdesudo"))
-					{
-						command = "kdesudo";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -d"; // Don't show commandline
-						arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " -c "; // The command
-						//arguments += " \"" + command2 + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-					else if (Platform.Instance.FileExists("/usr/bin/kdesu"))
-					{
-						command = "kdesu";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -d"; // Don't show commandline
-						//arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " -c "; // The command
-						//arguments += " \"" + command2 + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-                    /*
-					 * Under Debian, gksudo don't work, gksu work...
-					if (Platform.Instance.FileExists("/usr/bin/gksudo"))
-					{
-						command = "gksudo";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-					else 
-					*/
-                    else if (Platform.Instance.FileExists("/usr/bin/gksu"))
-					{
-						command = "gksu";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-						arguments += " \"" + command2 + "\"";
-					}
-					else if (Platform.Instance.FileExists("/usr/bin/xdg-su")) // OpenSUSE
-					{
-						command = "xdg-su";
-						arguments = "";
-						arguments += " -u root"; // Administrative privileges
-						arguments += " -c "; // The command
-						arguments += " \"" + command2 + "\"";
-					}
-					else if (Platform.Instance.FileExists("/usr/bin/beesu")) // Fedora
-					{
-						command = "beesu";
-						arguments = "";
-						arguments += " " + command2 + "";
-					}
-                    /*
-					else if (Platform.Instance.FileExists("/usr/bin/pkexec"))
-					{
-						// Different behiavour on different platforms
-						command = "pkexec";
-						arguments = "";
-						arguments = " env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY";
-						arguments += " " + command2 + "";
-
-						// For this bug: https://lists.ubuntu.com/archives/foundations-bugs/2012-July/100103.html
-						// We need to keep alive the current process, otherwise 'Refusing to render service to dead parents.'.
-						waitEnd = true;
-
-						// Still don't work.
-					}
-					*/
-
-                    if (command != "")
-					{
-                        Logs.Log(LogType.Verbose, Messages.AdminRequiredRestart);
-
-                        //Logs.Log(LogType.Verbose, "Command:'" + command + "', Args:'" + arguments + "'");
-
-                        Platform.Instance.Shell(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
-                    }
-					else
-					{
-                        Logs.Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);						
-					}
-
-					return true;
-				}
-			}
-			
-			return false;
+			if (FormMain != null)
+				FormMain.DeInit();
 		}
-        
-        public override void OnRefreshUi(RefreshUiMode mode)
-        {
+
+		public override XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
+		{
+			string action = xml.GetAttribute("action").ToLowerInvariant();
+
+			if (action == "ui.show.preferences")
+			{
+				if (FormMain != null)
+					FormMain.OnShowPreferences();
+			}
+			else if (action == "ui.show.about")
+			{
+				if (FormMain != null)
+					FormMain.OnShowAbout();
+			}
+			else if (action == "ui.show.menu")
+			{
+				if (FormMain != null)
+					FormMain.OnShowMenu();
+			}
+			else
+				return base.OnCommand(xml, ignoreIfNotExists);
+
+			return null;
+		}
+
+		public override void OnRefreshUi(RefreshUiMode mode)
+		{
 			base.OnRefreshUi(mode);
 
-			if(Engine.Storage.GetBool("cli") == false)
+			if (Engine.Storage.GetBool("cli") == false)
 				if (FormMain != null)
-					FormMain.RefreshUi(mode);            
-        }
+					FormMain.OnRefreshUi(mode);
+		}
 
 		public override void OnStatsChange(StatsEntry entry)
 		{
 			if (FormMain != null)
-				FormMain.StatsChange(entry);
+				FormMain.OnStatsChange(entry);
 		}
-		
-        public override void OnLog(LogEntry l)
-        {
-            base.OnLog(l);
-            
-            if ( (Engine.Storage == null) || (Engine.Storage.GetBool("cli") == false) )
+
+		public override void OnLog(LogEntry l)
+		{
+			base.OnLog(l);
+
+			if ((Engine.Storage == null) || (Engine.Storage.GetBool("cli") == false))
 			{
-                lock (LogEntries)
+				lock (LogEntries)
 				{
 					LogEntries.Add(l);
-                }
+				}
 				if (FormMain != null)
-					FormMain.RefreshUi(RefreshUiMode.Log);
-            
-                if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
+					FormMain.OnRefreshUi(RefreshUiMode.Log);
+
+				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
 				{
-                    if (l.Type == LogType.Fatal)
+					if (l.Type == LogType.Fatal)
 					{
-                        MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
 			}
-        }
+		}
 
 		public override void OnFrontMessage(string message)
 		{
 			base.OnFrontMessage(message);
 
 			if (FormMain != null)
-				FormMain.ShowFrontMessage(message);
+				FormMain.OnFrontMessage(message);
+		}
+		
+		public override void OnShowText(string title, string data)
+		{
+			base.OnShowText(title, data);
+
+			if (FormMain != null)
+				FormMain.OnShowText(title, data);
 		}
 
-        public override void OnMessageInfo(string message)
-        {
-            base.OnMessageInfo(message);
-
-            if (FormMain != null)
-            {
-                MessageBox.Show(FormMain, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        public override void OnMessageError(string message)
-        {
-            base.OnMessageError(message);
-
-            if (FormMain != null)
-                MessageBox.Show(FormMain, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        public override void OnShowText(string title, string data)
-        {
-            base.OnShowText(title, data);
-
-            Forms.TextViewer Dlg = new Forms.TextViewer();
-            Dlg.Title = title;
-            Dlg.Body = data;
-            Dlg.ShowDialog();
-        }
-
-        public override bool OnAskYesNo(string message)
+		public override bool OnAskYesNo(string message)
 		{
 			if (FormMain != null)
-				return MessageBox.Show(message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
-			else
-				return true;
+				return FormMain.OnAskYesNo(message);
+			return false;
 		}
 
-        public override void OnLoggedUpdate(XmlElement xmlKeys)
-        {
-            base.OnLoggedUpdate(xmlKeys);
+		public override Credentials OnAskCredentials()
+		{
+			if (FormMain != null)
+				return FormMain.OnAskCredentials();
+			return null;
+		}
 
-            if (FormMain != null)
-                FormMain.LoggedUpdate(xmlKeys);
-        }
+		public override void OnSystemReport(string step, string text, int perc)
+		{
+			base.OnSystemReport(step, text, perc);
 
-        public override void OnPostManifestUpdate()
+			if (FormMain != null)
+				FormMain.OnSystemReport(step, text, perc);
+		}
+
+		public override void OnLoggedUpdate(XmlElement xmlKeys)
+		{
+			base.OnLoggedUpdate(xmlKeys);
+
+			if (FormMain != null)
+				FormMain.OnLoggedUpdate(xmlKeys);
+		}
+
+		public override void OnPostManifestUpdate()
 		{
 			base.OnPostManifestUpdate();
 
 			if (FormMain != null)
-				FormMain.PostManifestUpdate();
+				FormMain.OnPostManifestUpdate();
 		}
 
-    }
+	}
 }

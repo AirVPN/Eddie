@@ -24,9 +24,9 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class SettingsRoute : Eddie.Gui.Form
+    public partial class SettingsRoute : Eddie.Forms.Form
     {
         public String Ip;        
         public String Action;
@@ -74,16 +74,17 @@ namespace Eddie.Gui.Forms
         
 		private void EnableIde()
 		{
-			if (new IpAddressRange(txtHost.Text).Valid == false)
+			IpAddresses ip = new IpAddresses(txtHost.Text);
+			if(ip.Count == 0)
 			{
 				lblHostHelp.Text = Platform.Instance.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
 				cmdOk.Enabled = false;
 			}
 			else
 			{
-				lblHostHelp.Text = Messages.WindowsSettingsRouteEditIp;
+				lblHostHelp.Text = ip.ToString() + "\n" + Messages.WindowsSettingsRouteEditIp;
 				cmdOk.Enabled = true;
-			}
+			}			
 		}
 
         private void cmdOk_Click(object sender, EventArgs e)
@@ -92,10 +93,10 @@ namespace Eddie.Gui.Forms
 			Action = Settings.RouteDescriptionToDirection(cboAction.Text);
 			Notes = txtNotes.Text;			
         }
-
-		private void txtHost_TextChanged(object sender, EventArgs e)
+		
+		private void txtHost_Leave(object sender, EventArgs e)
 		{
 			EnableIde();
 		}
-    }
+	}
 }

@@ -1,4 +1,4 @@
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
     partial class Tos
     {
@@ -28,12 +28,12 @@ namespace Eddie.Gui.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.txtTos = new Eddie.Gui.Skin.TextBox();
-            this.panel1 = new Eddie.Gui.Skin.Panel();
-            this.chkAccept2 = new Eddie.Gui.Skin.CheckBox();
-            this.chkAccept1 = new Eddie.Gui.Skin.CheckBox();
-            this.cmdCancel = new Eddie.Gui.Skin.Button();
-            this.cmdOk = new Eddie.Gui.Skin.Button();
+            this.txtTos = new Eddie.Forms.Skin.TextBox();
+            this.panel1 = new Eddie.Forms.Skin.Panel();
+            this.chkAccept2 = new Eddie.Forms.Skin.CheckBox();
+            this.chkAccept1 = new Eddie.Forms.Skin.CheckBox();
+            this.cmdCancel = new Eddie.Forms.Skin.Button();
+            this.cmdOk = new Eddie.Forms.Skin.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 

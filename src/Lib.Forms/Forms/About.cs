@@ -26,9 +26,9 @@ using System.Windows.Forms;
 using Eddie.Lib.Common;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class About : Eddie.Gui.Form
+    public partial class About : Eddie.Forms.Form
     {
         public About()
         {
@@ -104,5 +104,10 @@ namespace Eddie.Gui.Forms
         {
             Engine.Command("ui.show.libraries");
         }
-    }
+
+		private void cmdSystemReport_Click(object sender, EventArgs e)
+		{
+			Engine.GenerateSystemReport();
+		}
+	}
 }

@@ -23,7 +23,7 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {
     public class ListViewServers : Skin.ListView
     {
@@ -81,8 +81,8 @@ namespace Eddie.Gui.Controls
 			columnHeader6.Width = 50;
 			columnHeader6.TextAlign = HorizontalAlignment.Center;
 
-            ImageListIcon = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
-            ImageListState = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+            ImageListIcon = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
+            ImageListState = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
             //SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
             //LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 
@@ -131,18 +131,16 @@ namespace Eddie.Gui.Controls
 			{
 				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
 
-				//int score = Convert.ToInt32(e.SubItem.Text);
 				float part = listItemServer.Info.ScorePerc();
-
 
 				Image imageN = GuiUtils.GetResourceImage("stars_n");
 				Image imageH = GuiUtils.GetResourceImage("stars_h");
-                				
+				
 				Rectangle sourceH = new Rectangle(0, 0, Convert.ToInt32(Convert.ToDouble(imageH.Width) * part), imageH.Height);
-                
-                Form.DrawImageContain(e.Graphics, imageN, e.Bounds, 0);                
-                Form.DrawImageContain(e.Graphics, imageH, e.Bounds, 0, sourceH);
-            }
+
+				Form.DrawImageContain(e.Graphics, imageN, e.Bounds, 0);                
+				Form.DrawImageContain(e.Graphics, imageH, e.Bounds, 0, sourceH);
+			}
 			else if (e.ColumnIndex == 4)
 			{
 				Controls.ListViewItemServer listItemServer = e.Item as Controls.ListViewItemServer;
@@ -262,19 +260,19 @@ namespace Eddie.Gui.Controls
 			{
                 //SuspendLayout();
 
-                List<ServerInfo> serversList;
-				lock (Engine.Instance.Servers)
+                List<ConnectionInfo> serversList;
+				lock (Engine.Instance.Connections)
 				{
-					serversList = Engine.Instance.GetServers(ShowAll);
+					serversList = Engine.Instance.GetConnections(ShowAll);
 				}
 
-                Dictionary<string, ServerInfo> servers = new Dictionary<string, ServerInfo>();
-                foreach (ServerInfo infoServer in serversList)
+                Dictionary<string, ConnectionInfo> servers = new Dictionary<string, ConnectionInfo>();
+                foreach (ConnectionInfo infoServer in serversList)
                 {
                     servers[infoServer.Code] = infoServer;
                 }
 
-                foreach (ServerInfo infoServer in servers.Values)
+                foreach (ConnectionInfo infoServer in servers.Values)
 				{
 					if (ItemsServers.ContainsKey(infoServer.Code) == false)
 					{

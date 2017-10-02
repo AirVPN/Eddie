@@ -22,7 +22,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Eddie.Gui.Skin
+namespace Eddie.Forms.Skin
 {
     public class Label : System.Windows.Forms.Label
     {

@@ -22,7 +22,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Eddie.Gui.Skin
+namespace Eddie.Forms.Skin
 {
     public class ListView : System.Windows.Forms.ListView
     {
@@ -91,7 +91,7 @@ namespace Eddie.Gui.Skin
 
             Graphics g = this.CreateGraphics();
 
-            int minWidth = GuiUtils.GetFontSize(g, Font, Columns[column].Text).Width;
+            int minWidth = GuiUtils.GetFontSize(g, Font, Columns[column].Text).Width + 10;
 
             foreach (ListViewItem item in Items)
             {
@@ -111,8 +111,9 @@ namespace Eddie.Gui.Skin
             }
             g.Dispose();
 
-            if ((ImageIconResourcePrefix != "") && (Items.Count > 0))
-                minWidth += GetItemRect(0).Height*2;
+			//if ((ImageIconResourcePrefix != "") && (Items.Count > 0))
+			if( (ImageIconResourcePrefix != "") || (SmallImageList != null) )
+				minWidth += GetItemRect(0).Height*2;
             
             minWidth += Convert.ToInt32(minWidth * 0.2); // 20% margin
 

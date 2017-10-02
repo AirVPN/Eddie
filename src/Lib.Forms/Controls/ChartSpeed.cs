@@ -24,12 +24,20 @@ using System.Threading;
 using System.Windows.Forms;
 using Eddie.Core;
 using Eddie.Core.UI;
-using Eddie.Gui.Forms; // Temp
+//TOCLEAN using Eddie.Forms.Forms; // Temp
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {	
     public class ChartSpeed : System.Windows.Forms.Control
     {
+		public static Color ColorsLightChartBackground = Color.FromArgb(248, 248, 248);
+		public static Color ColorsLightChartGrid = Color.FromArgb(211, 211, 211);
+		public static Color ColorsLightChartAxis = Color.FromArgb(128, 128, 128);
+		public static Color ColorsLightChartMouse = Color.FromArgb(32, 92, 166);
+		public static Color ColorsLightChartLegend = Color.FromArgb(64, 145, 255);
+		public static Color ColorsLightChartLineDownload = Color.FromArgb(38, 22, 255);
+		public static Color ColorsLightChartLineUpload = Color.FromArgb(0, 90, 0);
+
 		private int m_chartIndex = 0;
 		private Chart m_chart;
 
@@ -62,16 +70,16 @@ namespace Eddie.Gui.Controls
 		        
         public ChartSpeed()
         {
-			m_penGrid = new Pen(Colors.LightChartGrid, 1);
-			m_penMouse = new Pen(Colors.LightChartMouse, 1);
-			m_brushMouse = new SolidBrush(Colors.LightChartMouse);
-			m_penDownloadGraph = new Pen(Colors.LightChartLineDownload, 1);
-			m_penDownloadLine = new Pen(Colors.LightChartLineDownload, 1);
-			m_penUploadGraph = new Pen(Colors.LightChartLineUpload, 1);
-			m_penUploadLine = new Pen(Colors.LightChartLineUpload, 1);
+			m_penGrid = new Pen(ColorsLightChartGrid, 1);
+			m_penMouse = new Pen(ColorsLightChartMouse, 1);
+			m_brushMouse = new SolidBrush(ColorsLightChartMouse);
+			m_penDownloadGraph = new Pen(ColorsLightChartLineDownload, 1);
+			m_penDownloadLine = new Pen(ColorsLightChartLineDownload, 1);
+			m_penUploadGraph = new Pen(ColorsLightChartLineUpload, 1);
+			m_penUploadLine = new Pen(ColorsLightChartLineUpload, 1);
 			//m_brushLegendText = new SolidBrush(Colors.LightChartLegend);
-			m_brushDownloadText = new SolidBrush(Colors.LightChartLineDownload);
-			m_brushUploadText = new SolidBrush(Colors.LightChartLineUpload);
+			m_brushDownloadText = new SolidBrush(ColorsLightChartLineDownload);
+			m_brushUploadText = new SolidBrush(ColorsLightChartLineUpload);
 						
             FontLabel = new Font("Small Fonts", 7);
 						

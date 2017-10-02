@@ -23,17 +23,17 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {
     public class ListViewItemServer : ListViewItem
     {
-        public ServerInfo Info;
+        public ConnectionInfo Info;
 
         public Engine Engine
         {
             get
             {
-				return Engine.Instance as Gui.Engine;
+				return Engine.Instance as Eddie.Forms.Engine;
             }
         }
                 
@@ -79,12 +79,12 @@ namespace Eddie.Gui.Controls
             int stateImageIndex = 2;
             switch (Info.UserList)
             {
-                case ServerInfo.UserListType.WhiteList:
+                case ConnectionInfo.UserListType.WhiteList:
                     {
                         foreColor = Color.DarkGreen;
                         stateImageIndex = 0;
                     } break;
-                case ServerInfo.UserListType.BlackList:
+                case ConnectionInfo.UserListType.BlackList:
                     {
                         foreColor = Color.DarkRed;
                         stateImageIndex = 1;

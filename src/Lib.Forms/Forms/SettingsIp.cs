@@ -24,9 +24,9 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class SettingsIp : Eddie.Gui.Form
+    public partial class SettingsIp : Eddie.Forms.Form
     {
         public String Ip;
 

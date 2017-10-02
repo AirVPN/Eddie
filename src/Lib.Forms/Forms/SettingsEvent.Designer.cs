@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
 	partial class SettingsEvent
     {
@@ -28,15 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.cmdOk = new Eddie.Gui.Skin.Button();
-            this.txtArguments = new Eddie.Gui.Skin.TextBox();
-            this.lblArguments = new Eddie.Gui.Skin.Label();
-            this.cmdCancel = new Eddie.Gui.Skin.Button();
-            this.txtFileName = new Eddie.Gui.Skin.TextBox();
-            this.lblFileName = new Eddie.Gui.Skin.Label();
-            this.chkWaitEnd = new Eddie.Gui.Skin.CheckBox();
-            this.cmdExeBrowse = new Eddie.Gui.Skin.Button();
-            this.lblWaitEnd = new Eddie.Gui.Skin.Label();
+            this.cmdOk = new Eddie.Forms.Skin.Button();
+            this.txtArguments = new Eddie.Forms.Skin.TextBox();
+            this.lblArguments = new Eddie.Forms.Skin.Label();
+            this.cmdCancel = new Eddie.Forms.Skin.Button();
+            this.txtFileName = new Eddie.Forms.Skin.TextBox();
+            this.lblFileName = new Eddie.Forms.Skin.Label();
+            this.chkWaitEnd = new Eddie.Forms.Skin.CheckBox();
+            this.cmdExeBrowse = new Eddie.Forms.Skin.Button();
+            this.lblWaitEnd = new Eddie.Forms.Skin.Label();
             this.SuspendLayout();
             // 
             // cmdOk
@@ -130,7 +130,7 @@
             this.cmdExeBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.cmdExeBrowse.FlatAppearance.BorderSize = 0;
             this.cmdExeBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmdExeBrowse.Image = global::Eddie.Lib.Forms.Properties.Resources.browse;
+            this.cmdExeBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
             this.cmdExeBrowse.Location = new System.Drawing.Point(482, 17);
             this.cmdExeBrowse.Name = "cmdExeBrowse";
             this.cmdExeBrowse.Size = new System.Drawing.Size(35, 20);

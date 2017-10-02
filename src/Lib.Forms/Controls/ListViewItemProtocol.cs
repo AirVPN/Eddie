@@ -23,12 +23,10 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {
     public class ListViewItemProtocol : ListViewItem
     {
-        public string Protocol;
-        public int Port;
-        public int Entry;        
-    }
+		public ConnectionMode Mode;		
+	}
 }

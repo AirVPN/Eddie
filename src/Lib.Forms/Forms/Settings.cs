@@ -23,11 +23,12 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using Eddie.Lib.Common;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class Settings : Eddie.Gui.Form
+    public partial class Settings : Eddie.Forms.Form
     {
         private Controls.TabNavigator m_tabMain;
 
@@ -35,7 +36,7 @@ namespace Eddie.Gui.Forms
         public bool m_modeSshEnabled = true;
         public bool m_modeSslEnabled = true;
 
-        public Settings()
+		public Settings()
         {
             OnPreInitializeComponent();
             InitializeComponent();
@@ -54,7 +55,8 @@ namespace Eddie.Gui.Forms
             mnuRoutes.Font = Skin.FontNormal;
 
             GuiUtils.FixHeightVs(cboProxyMode, lblProxyType);
-            GuiUtils.FixHeightVs(txtProxyHost, lblProxyHost);
+			GuiUtils.FixHeightVs(cboProxyWhen, lblProxyWhen);
+			GuiUtils.FixHeightVs(txtProxyHost, lblProxyHost);
             GuiUtils.FixHeightVs(txtProxyPort, lblProxyPort);
             GuiUtils.FixHeightVs(cboProxyAuthentication, lblProxyAuthentication);
             GuiUtils.FixHeightVs(txtProxyLogin, lblProxyLogin);
@@ -72,7 +74,10 @@ namespace Eddie.Gui.Forms
             GuiUtils.FixHeightVs(chkExpert, lblExpert);
             GuiUtils.FixHeightVs(chkAdvancedCheckRoute, lblAdvancedCheckRoute);
             GuiUtils.FixHeightVs(cboIpV6, lblIpV6);
-            GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
+			GuiUtils.FixHeightVs(cboProtocolIPEntry, lblProtocolIPEntry);
+			GuiUtils.FixHeightVs(cboProtocolIPv4Route, lblProtocolIPv4Route);
+			GuiUtils.FixHeightVs(cboProtocolIPv6Route, lblProtocolIPv6Route);
+			GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
             GuiUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);
             GuiUtils.FixHeightVs(chkRouteRemoveDefault, lblRouteRemoveDefault);
             GuiUtils.FixHeightVs(cboOpenVpnRcvbuf, lblOpenVpnRcvbuf);
@@ -88,8 +93,8 @@ namespace Eddie.Gui.Forms
             base.OnLoad(e);
 
             CommonInit("Settings");
-            
-            BuildTreeTabs();
+
+			BuildTreeTabs();
 
             lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
 
@@ -99,45 +104,44 @@ namespace Eddie.Gui.Forms
 
             if( (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null) )
             {
-                XmlNodeList xmlModes = Engine.Instance.AirVPN.Manifest.SelectNodes("//modes/mode");
-                foreach (XmlElement xmlMode in xmlModes)
-                {
-                    Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
-                    itemMode.Protocol = xmlMode.GetAttribute("protocol").ToUpperInvariant();
-                    itemMode.Port = Conversions.ToInt32(xmlMode.GetAttribute("port"), 443);
-                    itemMode.Entry = Conversions.ToInt32(xmlMode.GetAttribute("entry_index"),0);
-                    while (itemMode.SubItems.Count < 5)
-                        itemMode.SubItems.Add("");
-
-                    itemMode.SubItems[0].Text = itemMode.Protocol;
-                    itemMode.SubItems[1].Text = itemMode.Port.ToString();
-                    if (itemMode.Entry == 0)
-                        itemMode.SubItems[2].Text = "Primary";
-                    else if (itemMode.Entry == 1)
-                        itemMode.SubItems[2].Text = "Alternative";
-                    else
-                        itemMode.SubItems[2].Text = "Alternative " + xmlMode.GetAttribute("entry_index");
-                    itemMode.SubItems[3].Text = xmlMode.GetAttribute("title");
-                    lstProtocols.Items.Add(itemMode);
-                }
-                lstProtocols.ResizeColumnsAuto();
-            }
+				foreach(ConnectionMode mode in Engine.Instance.AirVPN.Modes)
+				{
+					if (mode.Available == false)
+						continue;
+					Controls.ListViewItemProtocol itemMode = new Controls.ListViewItemProtocol();
+					itemMode.Mode = mode;
+					while (itemMode.SubItems.Count < 6)
+						itemMode.SubItems.Add("");
+					itemMode.SubItems[0].Text = mode.Protocol;
+					itemMode.SubItems[1].Text = Conversions.ToString(mode.Port);
+					itemMode.SubItems[2].Text = Conversions.ToString(mode.EntryIndex + 1);
+					itemMode.SubItems[3].Text = mode.Title;
+					itemMode.SubItems[4].Text = mode.Specs;
+					lstProtocols.Items.Add(itemMode);
+				}				
+				lstProtocols.ResizeColumnsAuto();
+			}
 
             // UI
             cboUiUnit.Items.Clear();
             cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit0);
             cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit1);
             cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit2);
-
-            // Proxy
-            cboProxyMode.Items.Clear();
+			
+			// Proxy
+			cboProxyMode.Items.Clear();
             cboProxyMode.Items.Add("None");
             cboProxyMode.Items.Add("Http");
             cboProxyMode.Items.Add("Socks");
             cboProxyMode.Items.Add("Tor");
+			cboProxyWhen.Items.Clear();
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenAlways);
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenWeb);
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenOpenVPN);
+			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenNone);
 
-            // Routes
-            lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
+			// Routes
+			lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
             lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
             lstRoutes.ResizeColumnMax(2);
             cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("in"));
@@ -147,7 +151,7 @@ namespace Eddie.Gui.Forms
 			cboLockMode.Items.Add("None");
 			cboLockMode.Items.Add("Automatic");
 			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
-				cboLockMode.Items.Add(lockPlugin.GetName());
+				cboLockMode.Items.Add(lockPlugin.GetTitleForList());
 			lblRoutesNetworkLockWarning.Text = Messages.WindowsSettingsRouteLockHelp;
 			lblLockRoutingOutWarning.Text = Messages.NetworkLockNotAvailableWithRouteOut;
 
@@ -183,6 +187,26 @@ namespace Eddie.Gui.Forms
 			cboOpenVpnSndbuf.Items.Add("256 KB");
 			cboOpenVpnSndbuf.Items.Add("512 KB");
 
+			cboProtocolIPEntry.Items.Clear();
+			cboProtocolIPEntry.Items.Add("IPv6, IPv4");
+			cboProtocolIPEntry.Items.Add("IPv4, IPv6");
+			cboProtocolIPEntry.Items.Add("IPv6 only");
+			cboProtocolIPEntry.Items.Add("IPv4 only");
+
+			cboProtocolIPv4Route.Items.Clear();
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteInAlways);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrOut);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrBlock);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteOut);
+			cboProtocolIPv4Route.Items.Add(Messages.WindowsSettingsProtocolRouteBlock);
+
+			cboProtocolIPv6Route.Items.Clear();
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteInAlways);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrOut);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteInOrBlock);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteOut);
+			cboProtocolIPv6Route.Items.Add(Messages.WindowsSettingsProtocolRouteBlock);
+
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
@@ -210,8 +234,8 @@ namespace Eddie.Gui.Forms
         }
 
         public void BuildTreeTabs()
-        {     
-            m_tabMain = new Gui.Controls.TabNavigator();
+        {
+			m_tabMain = new Eddie.Forms.Controls.TabNavigator();
             m_tabMain.Font = Skin.FontNormal;
             m_tabMain.Top = 0;
             m_tabMain.Left = 0;
@@ -219,7 +243,9 @@ namespace Eddie.Gui.Forms
             m_tabMain.Width = ClientSize.Width;
             m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
             m_tabMain.ImportTabControl(tabSettings);
-            Controls.Add(m_tabMain);            
+            Controls.Add(m_tabMain);
+
+			m_tabMain.SetPageVisible(10, Constants.AlphaFeatures);
         }
         
         public void ReadOptions()
@@ -260,7 +286,7 @@ namespace Eddie.Gui.Forms
             // Protocol
             String protocol = s.Get("mode.protocol").ToUpperInvariant();
             int port = s.GetInt("mode.port");
-            int alternate = s.GetInt("mode.alt");			
+            int entryIP = s.GetInt("mode.alt");			
 			if (protocol == "AUTO")
             {
                 chkProtocolsAutomatic.Checked = true;
@@ -271,9 +297,9 @@ namespace Eddie.Gui.Forms
 
                 foreach(Controls.ListViewItemProtocol itemProtocol in lstProtocols.Items)
                 {
-                    if( (itemProtocol.Protocol == protocol) &&
-                        (itemProtocol.Port == port) &&
-                        (itemProtocol.Entry == alternate) )
+                    if( (itemProtocol.Mode.Protocol == protocol) &&
+                        (itemProtocol.Mode.Port == port) &&
+                        (itemProtocol.Mode.EntryIndex == entryIP) )
                     {
                         found = true;
                         itemProtocol.Selected = true;
@@ -290,7 +316,17 @@ namespace Eddie.Gui.Forms
 
             // Proxy
             cboProxyMode.Text = s.Get("proxy.mode");
-            txtProxyHost.Text = s.Get("proxy.host");
+			if (s.Get("proxy.when") == "always")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenAlways;
+			else if (s.Get("proxy.when") == "web")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenWeb;
+			else if (s.Get("proxy.when") == "openvpn")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenOpenVPN;
+			else if (s.Get("proxy.when") == "none")
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenNone;
+			else
+				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenAlways;
+			txtProxyHost.Text = s.Get("proxy.host");
             txtProxyPort.Text = s.Get("proxy.port");
             cboProxyAuthentication.Text = s.Get("proxy.auth");
             txtProxyLogin.Text = s.Get("proxy.login");
@@ -336,8 +372,50 @@ namespace Eddie.Gui.Forms
 			else
 				cboIpV6.Text = "None";
 
-			
+			string protocolIpEntry = s.Get("protocol.ip.entry");
+			if (protocolIpEntry == "ipv6-ipv4")
+				cboProtocolIPEntry.Text = "IPv6, IPv4";
+			else if (protocolIpEntry == "ipv4-ipv6")
+				cboProtocolIPEntry.Text = "IPv4, IPv6";
+			else if (protocolIpEntry == "ipv6-only")
+				cboProtocolIPEntry.Text = "IPv6 only";
+			else if (protocolIpEntry == "ipv4-only")
+				cboProtocolIPEntry.Text = "IPv4 only";
+			else
+				cboProtocolIPEntry.Text = "IPv6, IPv4";
+
+			string protocolIPv4Route = s.Get("protocol.ipv4.route");
+			if (protocolIPv4Route == "in-always")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInAlways;
+			else if (protocolIPv4Route == "in-out")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInOrOut;
+			else if (protocolIPv4Route == "in-block")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+			else if (protocolIPv4Route == "out")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteOut;
+			else if (protocolIPv4Route == "block")
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteBlock;
+			else
+				cboProtocolIPv4Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+
+			string protocolIPv6Route = s.Get("protocol.ipv6.route");
+			if (protocolIPv6Route == "in-always")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInAlways;
+			else if (protocolIPv6Route == "in-out")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrOut;
+			else if (protocolIPv6Route == "in-block")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+			else if (protocolIPv6Route == "out")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteOut;
+			else if (protocolIPv6Route == "block")
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteBlock;
+			else
+				cboProtocolIPv6Route.Text = Messages.WindowsSettingsProtocolRouteInOrBlock;
+
 			chkAdvancedPingerEnabled.Checked = s.GetBool("pinger.enabled");
+			chkAdvancedSkipAlreadyRun.Checked = s.GetBool("advanced.skip_alreadyrun");
+			chkAdvancedProviders.Checked = s.GetBool("advanced.providers");
+			
 			chkRouteRemoveDefault.Checked = s.GetBool("routes.remove_default");
 			
 			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
@@ -436,11 +514,12 @@ namespace Eddie.Gui.Forms
 				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				{
 					if (lockPlugin.GetCode() == lockMode)
-						cboLockMode.Text = lockPlugin.GetName();
+						cboLockMode.Text = lockPlugin.GetTitleForList();
 				}
 			}
 			chkLockAllowPrivate.Checked = s.GetBool("netlock.allow_private");
 			chkLockAllowPing.Checked = s.GetBool("netlock.allow_ping");
+			chkLockAllowDNS.Checked = s.GetBool("netlock.allow_dns");
 			txtLockAllowedIPS.Text = s.Get("netlock.allowed_ips");
 
 			// Advanced - Logging
@@ -450,11 +529,12 @@ namespace Eddie.Gui.Forms
 
             // Advanced - OVPN Directives
             cboOpenVpnDirectivesDefaultSkip.SelectedIndex = (s.GetBool("openvpn.skip_defaults") ? 1:0);
-            txtOpenVpnDirectivesBase.Text = s.Get("openvpn.directives");
+            txtOpenVpnDirectivesBase.Text = s.Get("openvpn.directives");			
             txtOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
-			
-            // Advanced - Events
-            ReadOptionsEvent("app.start", 0);
+			txtOpenVpnDirectivesCustomPath.Text = s.Get("openvpn.directives.path");
+
+			// Advanced - Events
+			ReadOptionsEvent("app.start", 0);
             ReadOptionsEvent("app.stop", 1);
 			ReadOptionsEvent("session.start", 2);
 			ReadOptionsEvent("session.stop", 3);
@@ -484,6 +564,23 @@ namespace Eddie.Gui.Forms
 			{
                 if(Engine.Instance.OnAskYesNo(Messages.WindowsSettingsRouteOutEmptyList) == false)
 					return false;  
+			}
+
+			if (chkLockAllowDNS.Checked == false)
+			{
+				bool hostNameUsed = false;
+				foreach (ListViewItem item in lstRoutes.Items)
+				{
+					if (IpAddress.IsIP(item.Text) == false)
+					{
+						hostNameUsed = true;
+						break;
+					}
+				}
+
+				if(hostNameUsed)
+					if(Engine.Instance.OnAskYesNo(Messages.WindowsSettingsRouteWithHostname) == false)
+						return false;
 			}
 
 			return true;
@@ -539,9 +636,9 @@ namespace Eddie.Gui.Forms
             {
                 Controls.ListViewItemProtocol item = lstProtocols.SelectedItems[0] as Controls.ListViewItemProtocol;
 
-                s.Set("mode.protocol", item.Protocol);
-                s.SetInt("mode.port", item.Port);
-                s.SetInt("mode.alt", item.Entry);
+                s.Set("mode.protocol", item.Mode.Protocol);
+                s.SetInt("mode.port", item.Mode.Port);
+                s.SetInt("mode.alt", item.Mode.EntryIndex);
             }
             else
             {
@@ -552,7 +649,17 @@ namespace Eddie.Gui.Forms
             
 			// Proxy
             s.Set("proxy.mode", cboProxyMode.Text);
-            s.Set("proxy.host", txtProxyHost.Text);
+			if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenAlways)
+				s.Set("proxy.when", "always");
+			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenWeb)
+				s.Set("proxy.when", "web");
+			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenOpenVPN)
+				s.Set("proxy.when", "openvpn");
+			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenNone)
+				s.Set("proxy.when", "none");
+			else
+				s.Set("proxy.when", "always");
+			s.Set("proxy.host", txtProxyHost.Text);
             s.Set("proxy.port", txtProxyPort.Text);
             s.Set("proxy.auth", cboProxyAuthentication.Text);
             s.Set("proxy.login", txtProxyLogin.Text);
@@ -583,8 +690,51 @@ namespace Eddie.Gui.Forms
 				s.Set("ipv6.mode", "disable");
 			else
 				s.Set("ipv6.mode", "none");
-			
+
+			string protocolIpEntry = cboProtocolIPEntry.Text;
+			if (protocolIpEntry == "IPv6, IPv4")
+				s.Set("protocol.ip.entry", "ipv6-ipv4");
+			else if (protocolIpEntry == "IPv4, IPv6")
+				s.Set("protocol.ip.entry", "ipv4-ipv6");
+			else if (protocolIpEntry == "IPv6 only")
+				s.Set("protocol.ip.entry", "ipv6-only");
+			else if (protocolIpEntry == "IPv4 only")
+				s.Set("protocol.ip.entry", "ipv4-only");
+			else 
+				s.Set("protocol.ip.entry", "ipv6-ipv4");
+
+			string protocolIPv4Route = cboProtocolIPv4Route.Text;
+			if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteInAlways)
+				s.Set("protocol.ipv4.route", "in-always");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteInOrOut)
+				s.Set("protocol.ipv4.route", "in-out");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteInOrBlock)
+				s.Set("protocol.ipv4.route", "in-block");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteOut)
+				s.Set("protocol.ipv4.route", "out");
+			else if (protocolIPv4Route == Messages.WindowsSettingsProtocolRouteBlock)
+				s.Set("protocol.ipv4.route", "block");
+			else
+				s.Set("protocol.ipv4.route", "in-block");
+
+			string protocolIPv6Route = cboProtocolIPv6Route.Text;
+			if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteInAlways)
+				s.Set("protocol.ipv6.route", "in-always");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteInOrOut)
+				s.Set("protocol.ipv6.route", "in-out");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteInOrBlock)
+				s.Set("protocol.ipv6.route", "in-block");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteOut)
+				s.Set("protocol.ipv6.route", "out");
+			else if (protocolIPv6Route == Messages.WindowsSettingsProtocolRouteBlock)
+				s.Set("protocol.ipv6.route", "block");
+			else
+				s.Set("protocol.ipv6.route", "in-block");
+
 			s.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
+			s.SetBool("advanced.skip_alreadyrun", chkAdvancedSkipAlreadyRun.Checked);
+			s.SetBool("advanced.providers", chkAdvancedProviders.Checked);
+
 			s.SetBool("routes.remove_default", chkRouteRemoveDefault.Checked);
 						
 			s.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
@@ -685,12 +835,13 @@ namespace Eddie.Gui.Forms
 			{
 				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				{
-					if (lockPlugin.GetName() == lockMode)
+					if (lockPlugin.GetTitleForList() == lockMode)
 						s.Set("netlock.mode", lockPlugin.GetCode());
 				}
 			}
 			s.SetBool("netlock.allow_private", chkLockAllowPrivate.Checked);
 			s.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
+			s.SetBool("netlock.allow_dns", chkLockAllowDNS.Checked);
 			s.Set("netlock.allowed_ips", txtLockAllowedIPS.Text);
 
 			// Advanced - Logging
@@ -701,7 +852,8 @@ namespace Eddie.Gui.Forms
             // Advanced - OVPN Directives
             s.Set("openvpn.directives", txtOpenVpnDirectivesBase.Text);
             s.Set("openvpn.custom", txtOpenVpnDirectivesCustom.Text);
-            s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
+			s.Set("openvpn.directives.path", txtOpenVpnDirectivesCustomPath.Text);
+			s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
 
             // Advanced - Events
             SaveOptionsEvent("app.start", 0);
@@ -747,7 +899,8 @@ namespace Eddie.Gui.Forms
             
             // Protocols
             lstProtocols.Enabled = (chkProtocolsAutomatic.Checked == false);
-            
+			
+			// Routes            
             cmdRouteAdd.Enabled = true;
             mnuRoutesAdd.Enabled = cmdRouteAdd.Enabled;
             cmdRouteRemove.Enabled = (lstRoutes.SelectedItems.Count > 0);
@@ -757,7 +910,9 @@ namespace Eddie.Gui.Forms
 
             // Proxy
             bool proxy = (cboProxyMode.Text != "None");
-            bool tor = (cboProxyMode.Text == "Tor");            
+            bool tor = (cboProxyMode.Text == "Tor");
+			lblProxyWhen.Enabled = proxy;
+			cboProxyWhen.Enabled = proxy;
             txtProxyHost.Enabled = proxy;
             lblProxyHost.Enabled = txtProxyHost.Enabled;            
             txtProxyPort.Enabled = proxy;
@@ -924,8 +1079,8 @@ namespace Eddie.Gui.Forms
 				EnableIde();
             }
         }
-
-        private void mnuRoutesAdd_Click(object sender, EventArgs e)
+				
+		private void mnuRoutesAdd_Click(object sender, EventArgs e)
         {
             cmdRouteAdd_Click(sender, e);
         }
@@ -939,19 +1094,26 @@ namespace Eddie.Gui.Forms
         {
             cmdRouteEdit_Click(sender, e);
         }
-
-        private void lstRoutes_DoubleClick(object sender, EventArgs e)
+		
+		private void lstRoutes_DoubleClick(object sender, EventArgs e)
         {
             if(cmdRouteEdit.Enabled)
                 cmdRouteEdit_Click(sender, e);
         }
 
-        private void lstRoutes_SelectedIndexChanged(object sender, EventArgs e)
+		private void lstRoutes_SelectedIndexChanged(object sender, EventArgs e)
         {
             EnableIde();
         }
 
-        private void cmdAdvancedEventsClear_Click(object sender, EventArgs e)
+		private void cmdOpenVpnDirectivesCustomPathBrowse_Click(object sender, EventArgs e)
+		{
+			string path = GuiUtils.FilePicker();
+			if (path != "")
+				txtOpenVpnDirectivesCustomPath.Text = path;
+		}
+
+		private void cmdAdvancedEventsClear_Click(object sender, EventArgs e)
         {
             if (lstAdvancedEvents.SelectedItems.Count != 1)
                 return;
@@ -1002,7 +1164,7 @@ namespace Eddie.Gui.Forms
 
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
-            Engine.Instance.OnMessageInfo(Messages.OsDriverUninstallDone);
+            ShowMessageInfo(Messages.OsDriverUninstallDone);
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
@@ -1018,7 +1180,7 @@ namespace Eddie.Gui.Forms
 		private void cmdProxyTorTest_Click(object sender, EventArgs e)
 		{
             string t = TorControl.Test(txtProxyHost.Text, Conversions.ToInt32(txtProxyTorControlPort.Text), txtProxyTorControlPassword.Text);
-            Engine.Instance.OnMessageInfo(t);
+            ShowMessageInfo(t);
 		}
 
 		private void optModeAutomatic_CheckedChanged(object sender, EventArgs e)
@@ -1210,7 +1372,7 @@ namespace Eddie.Gui.Forms
             {
                 Engine.Instance.Storage.ResetAll(false);
                 ReadOptions();
-                Engine.Instance.OnMessageInfo(Messages.ResetSettingsDone);
+                ShowMessageInfo(Messages.ResetSettingsDone);
             }
         }
 
@@ -1220,8 +1382,9 @@ namespace Eddie.Gui.Forms
             foreach (string path in paths)
             {
                 if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
-                    Engine.Instance.OnMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+					ShowMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
             }
         }
-    }
+		
+	}
 }

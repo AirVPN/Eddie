@@ -1,4 +1,4 @@
-﻿namespace Eddie.Gui.Forms
+﻿namespace Eddie.Forms.Forms
 {
 	partial class OpenVpnManagementCommand
     {
@@ -28,11 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lnkHelp = new Eddie.Gui.Skin.LinkLabel();
-            this.cmdOk = new Eddie.Gui.Skin.Button();
-            this.cmdCancel = new Eddie.Gui.Skin.Button();
-            this.txtCommand = new Eddie.Gui.Skin.TextBox();
-            this.lblCommand = new Eddie.Gui.Skin.Label();
+            this.lnkHelp = new Eddie.Forms.Skin.LinkLabel();
+            this.cmdOk = new Eddie.Forms.Skin.Button();
+            this.cmdCancel = new Eddie.Forms.Skin.Button();
+            this.txtCommand = new Eddie.Forms.Skin.TextBox();
+            this.lblCommand = new Eddie.Forms.Skin.Label();
             this.SuspendLayout();
             // 
             // lnkHelp

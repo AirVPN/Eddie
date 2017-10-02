@@ -24,13 +24,13 @@ using System.Threading;
 using System.Windows.Forms;
 using Eddie.Core;
 using Eddie.Core.UI;
-using Eddie.Gui.Forms; // Temp
 
-namespace Eddie.Gui.Controls
+namespace Eddie.Forms.Controls
 {	
     public class TabNavigatorPage : System.Windows.Forms.Control
     {
         public string Icon = "";
+		public bool TabVisible = true;
         
         public TabNavigatorPage()
         {
@@ -153,9 +153,12 @@ namespace Eddie.Gui.Controls
             Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab.tabs.background"), ClientRectangle);
             Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab.page.background"), GetPageRect());
             Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
-
+						
             for (int t=0;t< GetTabCount(); t++)
             {
+				if (Pages[t].TabVisible == false)
+					continue;
+
                 Rectangle r = GetItemRect(t);
 
                 string colorName = "normal";
@@ -200,7 +203,10 @@ namespace Eddie.Gui.Controls
             int iHoverItem = -1;
             for (int t = 0; t < GetTabCount(); t++)
             {
-                Rectangle r = GetItemRect(t);
+				if (Pages[t].TabVisible == false)
+					continue;
+
+				Rectangle r = GetItemRect(t);
 
                 if (r.Contains(e.Location))
                 { 
@@ -235,6 +241,9 @@ namespace Eddie.Gui.Controls
 
             foreach (TabNavigatorPage tabPage in Pages)
             {
+				if (tabPage.TabVisible == false)
+					continue;
+
                 Size tabSize = GuiUtils.GetFontSize(g, GetTabsFont(), tabPage.Text);
                 if (navDx == -1)
                     navDx = tabSize.Width;
@@ -323,15 +332,42 @@ namespace Eddie.Gui.Controls
             int iDy = m_heightItem;
 
             int startY = 0;
-            startY = ClientRectangle.Height / 2 - m_heightItem * Pages.Count / 2;
+            startY = ClientRectangle.Height / 2 - m_heightItem * GetPagesVisibileCount() / 2;
 
-            int x = 0;
-            if (index != m_selectedItem)
-                x += m_insetNotSelected;
-            else
-                x += m_insetSelected;
+			int iVisIndex = 0;
+			for(int i=0;i<index;i++)
+			{
+				if (Pages[i].TabVisible)
+					iVisIndex++;
+			}
 
-            return new Rectangle(x, startY + index * iDy, iDx-x, iDy);
-        }
+			int x = 0;
+			if (index != m_selectedItem)
+				x += m_insetNotSelected;
+			else
+				x += m_insetSelected;
+
+			return new Rectangle(x, startY + iVisIndex * iDy, iDx-x, iDy);
+		}
+
+		public void SetPageVisible(int index, bool v)
+		{
+			if(Pages[index].TabVisible != v)
+			{
+				Pages[index].TabVisible = v;
+				ComputeSizes();
+			}
+		}
+
+		private int GetPagesVisibileCount()
+		{
+			int n = 0;
+			foreach (TabNavigatorPage tabPage in Pages)
+			{
+				if (tabPage.TabVisible)
+					n++;
+			}
+			return n;
+		}
     }
 }

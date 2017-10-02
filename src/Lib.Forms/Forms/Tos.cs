@@ -24,9 +24,9 @@ using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
 
-namespace Eddie.Gui.Forms
+namespace Eddie.Forms.Forms
 {
-    public partial class Tos : Eddie.Gui.Form
+    public partial class Tos : Eddie.Forms.Form
     {
         public Tos()
         {

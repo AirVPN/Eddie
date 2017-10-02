@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C0357E13-B013-40C5-B511-865A27BC2A47}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Eddie.Lib.Forms</RootNamespace>
+    <RootNamespace>Eddie.Forms</RootNamespace>
     <AssemblyName>Lib.Forms</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,7 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ListViewItemProvider.cs" />
     <Compile Include="Controls\ListViewItemProtocol.cs" />
+    <Compile Include="Controls\ListViewItemOption.cs" />
     <Compile Include="Controls\Tooltip.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -70,6 +72,36 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Form.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowMan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowMan.Designer.cs">
+      <DependentUpon>WindowMan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowReport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowReport.Designer.cs">
+      <DependentUpon>WindowReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowConnectionRename.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowConnectionRename.Designer.cs">
+      <DependentUpon>WindowConnectionRename.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowConnection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowConnection.Designer.cs">
+      <DependentUpon>WindowConnection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowCredentials.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowCredentials.Designer.cs">
+      <DependentUpon>WindowCredentials.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\About.cs">
       <SubType>Form</SubType>
@@ -112,6 +144,24 @@
     </Compile>
     <Compile Include="Forms\SettingsEvent.Designer.cs">
       <DependentUpon>SettingsEvent.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowProviderEditOpenVPN.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowProviderEditOpenVPN.Designer.cs">
+      <DependentUpon>WindowProviderEditOpenVPN.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowProviderEditManifest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowProviderEditManifest.Designer.cs">
+      <DependentUpon>WindowProviderEditManifest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowProviderAdd.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowProviderAdd.Designer.cs">
+      <DependentUpon>WindowProviderAdd.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\SettingsRoute.cs">
       <SubType>Form</SubType>
@@ -184,6 +234,23 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\WindowMan.resx">
+      <DependentUpon>WindowMan.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowReport.resx">
+      <DependentUpon>WindowReport.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowConnectionRename.resx">
+      <DependentUpon>WindowConnectionRename.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowConnection.resx">
+      <DependentUpon>WindowConnection.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowCredentials.resx">
+      <DependentUpon>WindowCredentials.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
@@ -204,6 +271,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SettingsEvent.resx">
       <DependentUpon>SettingsEvent.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowProviderEditOpenVPN.resx">
+      <DependentUpon>WindowProviderEditOpenVPN.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowProviderEditManifest.resx">
+      <DependentUpon>WindowProviderEditManifest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowProviderAdd.resx">
+      <DependentUpon>WindowProviderAdd.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SettingsRoute.resx">
       <DependentUpon>SettingsRoute.cs</DependentUpon>
@@ -269,6 +345,7 @@
     <None Include="res\maintab_servers.png" />
     <None Include="res\maintab_speed.png" />
     <None Include="res\maintab_stats.png" />
+    <None Include="res\maintab_providers.png" />
     <Content Include="res\main_d_bg.png" />
     <Content Include="res\main_l_bg.png" />
     <Content Include="res\menu_hover.png" />
@@ -278,6 +355,8 @@
     <None Include="res\netlock_status_off.png" />
     <None Include="res\netlock_status_on.png" />
     <None Include="res\open_path.png" />
+    <None Include="res\openvpn.png" />
+    <None Include="res\more.png" />
     <Content Include="res\ports.png" />
     <Content Include="res\progress.gif" />
     <None Include="res\progress01.png" />
@@ -291,6 +370,7 @@
     <None Include="res\progress09.png" />
     <None Include="res\progress10.png" />
     <Content Include="res\reload.png" />
+    <None Include="res\rename.png" />
     <Content Include="res\restore.png" />
     <Content Include="res\routes_in.png" />
     <Content Include="res\routes_out.png" />
@@ -335,7 +415,7 @@
     <Folder Include="Skin\Skins\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Lib.Core.csproj">
+    <ProjectReference Include="..\Lib.Core\Lib.Core.csproj">
       <Project>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</Project>
       <Name>Lib.Core</Name>
     </ProjectReference>

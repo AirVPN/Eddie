@@ -24,9 +24,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Core.UI;
 
-namespace Eddie.Gui.Skin
+namespace Eddie.Forms.Skin
 {
     public class SkinReference
     {
@@ -50,7 +49,7 @@ namespace Eddie.Gui.Skin
 
         public static void Load(string name)
         {
-            LoadXml(name, Lib.Forms.Properties.Resources.skins);            
+            LoadXml(name, Eddie.Forms.Properties.Resources.skins);            
         }
 
         public static void LoadXml(string name, string xml)

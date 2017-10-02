@@ -1,0 +1,166 @@
+// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+//
+// Eddie is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Eddie is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+
+namespace Eddie.Core
+{
+    public static class Conversions
+    {
+        public static Int32 ToInt32(object v, int def)
+        {
+            try
+            {
+                if( (v is String) && (v.ToString() == "") )
+                    return def;
+                return Convert.ToInt32(v, CultureInfo.InvariantCulture);
+            }
+            catch (Exception ex)
+            {
+                Debug.Trace(ex);
+                return def;
+            }
+        }
+
+		public static Int32 ToInt32(string v)
+		{
+			Int32 vo;
+			if (Int32.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out vo))
+				return vo;
+			else
+				return 0;
+		}
+
+		public static Int32 ToInt32(float v)
+		{
+			return Convert.ToInt32(v, CultureInfo.InvariantCulture);
+		}
+
+		public static Int32 ToInt32(double v)
+		{
+			return Convert.ToInt32(v, CultureInfo.InvariantCulture);
+		}
+
+		public static Int64 ToInt64(string v)
+		{
+			Int64 vo;
+			if (Int64.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out vo))
+				return vo;
+			else
+				return 0;
+		}
+
+		public static Int64 ToInt64(object v)
+		{
+			try
+			{
+				if ((v is String) && (v.ToString() == ""))
+					return 0;
+				return Convert.ToInt64(v, CultureInfo.InvariantCulture);
+			}
+			catch (Exception ex)
+			{
+				Debug.Trace(ex);
+				return 0;
+			}
+		}
+
+		public static Int64 ToInt64(float v)
+		{
+			return Convert.ToInt64(v, CultureInfo.InvariantCulture);
+		}
+
+		public static Int64 ToInt64(double v)
+		{
+			return Convert.ToInt64(v, CultureInfo.InvariantCulture);
+		}
+
+		public static UInt32 ToUInt32(object v, UInt32 def)
+		{
+			try
+			{
+				if ((v is String) && (v.ToString() == ""))
+					return def;
+				return Convert.ToUInt32(v, CultureInfo.InvariantCulture);
+			}
+			catch (Exception ex)
+			{
+				Debug.Trace(ex);
+				return def;
+			}
+		}
+
+        public static float ToFloat(string v)
+        {
+            float vo;
+            if (float.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out vo))
+                return vo;
+            else
+                return 0;
+        }
+
+		public static bool ToBool(string v)
+		{
+			if (v == "1")
+				return true;
+			if (v.ToLowerInvariant() == "true")
+				return true;
+			if (v.ToLowerInvariant() == "yes")
+				return true;
+			return false;
+		}
+
+		public static string ToString(object o)
+		{
+			if (o == null)
+				return "null";
+			else if (o is bool)
+			{
+				bool b = (bool)o;
+				return (b ? "true" : "false");
+			}
+			else if (o is string[])
+				return string.Join(",", o as string[]);
+			else if (o is float)
+			{
+				float f = (float)o;
+				return f.ToString(CultureInfo.InvariantCulture);
+			}
+			else
+				return o.ToString();
+				
+		}
+
+		public static DateTime ToDateTime(Int64 unixTimeStamp)
+		{
+			// Unix timestamp is seconds past epoch
+			System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+			dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
+			return dtDateTime;
+		}
+
+		public static int ToUnixTime(DateTime dt)
+		{
+			return Convert.ToInt32((dt - new DateTime(1970, 1, 1)).TotalSeconds, CultureInfo.InvariantCulture);
+		}
+
+    }
+}
