@@ -1,2 +1,2 @@
 #!/bin/bash
-mono src/Deploy/bin/Release/Deploy.exe "$@"
+mono $(dirname "$0")/src/Deploy/bin/Release/Deploy.exe "$@"

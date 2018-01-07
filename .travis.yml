@@ -1,0 +1,11 @@
+sudo: required
+dist: trusty
+
+os: linux
+language: generic
+
+services:
+  - docker
+
+script:
+  - sudo docker run  -v `pwd`:/Eddie:rw centos:7 /bin/bash -c "yum install yum-utils epel-release -y && rpm --import 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF' && yum-config-manager --add-repo http://download.mono-project.com/repo/centos7-alpha/ && yum install zlib-devel mono-devel dpkg rpm-build -y && /Eddie/repository/build_linux.sh"
