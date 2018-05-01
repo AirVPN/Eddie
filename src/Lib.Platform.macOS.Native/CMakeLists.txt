@@ -1,6 +1,8 @@
 # Minimum version for CMake
 cmake_minimum_required(VERSION 2.6)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+
 # Enable C++11
 add_definitions("-std=c++11")
 

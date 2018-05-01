@@ -20,69 +20,70 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
 	public class ConnectionInfo : IComparable<ConnectionInfo>
-    {
-        public Provider Provider;        
-        
-        public string Code; // Unique name across providers
-        public string DisplayName; // Display name
-        public string ProviderName; // Provider name;
+	{
+		public Provider Provider;
+
+		public string Code; // Unique name across providers
+		public string DisplayName; // Display name
+		public string ProviderName; // Provider name;
 		public IpAddresses IpsEntry = new IpAddresses();
 		public IpAddresses IpsExit = new IpAddresses();
 		public string CountryCode;
-        public string Location;
-		public float Latitude = 0;
-		public float Longitude = 0;
-        public Int64 ScoreBase = 0;
-        public Int64 Bandwidth = 0;
-        public Int64 BandwidthMax = 0;
-        public Int64 Users = 0;
+		public string Location;
+		public double Latitude = 0;
+		public double Longitude = 0;
+		public Int64 ScoreBase = 0;
+		public Int64 Bandwidth = 0;
+		public Int64 BandwidthMax = 0;
+		public Int64 Users = 0;
 		public string WarningOpen;
 		public string WarningClosed;
 		public bool SupportIPv4 = false;
 		public bool SupportIPv6 = false;
 		public bool SupportCheck = true;
 		public string OvpnDirectives;
-		public string Path = ""; // External .ovpn config file
+		public string Path = ""; // External .ovpn config file		
 
 		public List<ConnectionInfoWarning> Warnings = new List<ConnectionInfoWarning>();
 		//public Int64 LastPingCheck = 0;
 		public Int64 PingTests = 0;
-        public Int64 PingFailedConsecutive = 0;
-        public Int64 Ping = -1;
-        public Int64 LastPingTest = 0;
+		public Int64 PingFailedConsecutive = 0;
+		public Int64 Ping = -1;
+		public Int64 LastPingTest = 0;
 		public Int64 LastPingResult = 0;
 		public Int64 LastPingSuccess = 0;
 
-        public bool NeedDiscover = false; // If true, are updated regulary by Discover thread.
-        public Int64 LastDiscover = 0;
+		public bool NeedDiscover = false; // If true, are updated regulary by Discover thread.
+		public Int64 LastDiscover = 0;
 
-        public int Penality = 0;
-		
+		public int Penality = 0;
+
 		public enum UserListType
-        {
-            None = 0,
-            WhiteList = 1,
-            BlackList = 2
-        }
+		{
+			None = 0,
+			WhiteList = 1,
+			BlackList = 2
+		}
 
-        public UserListType UserList = UserListType.None;
-        
-        public bool Deleted = false;
+		public UserListType UserList = UserListType.None;
 
-        public ConnectionInfo()
-        {
-        }
+		public bool Deleted = false;
 
-        public int CompareTo(ConnectionInfo other) // Used by Engine.GetServers to order based on Score
-        {            
-            return Score().CompareTo(other.Score());
-        }
-        
-        public int CompareToEx(ConnectionInfo other, string field, bool ascending)
+		public ConnectionInfo()
+		{
+		}
+
+		public int CompareTo(ConnectionInfo other) // Used by Engine.GetServers to order based on Score
+		{
+			return Score().CompareTo(other.Score());
+		}
+
+		public int CompareToEx(ConnectionInfo other, string field, bool ascending)
 		{
 			int returnVal = 0;
 			if (field == "Name")
@@ -91,7 +92,7 @@ namespace Eddie.Core
 			{
 				int v1 = this.Score();
 				int v2 = other.Score();
-				returnVal = v1.CompareTo(v2);						
+				returnVal = v1.CompareTo(v2);
 			}
 			else if (field == "Location")
 			{
@@ -109,21 +110,21 @@ namespace Eddie.Core
 			}
 			else if (field == "Load")
 			{
-                int v1 = 0;
-                if (this.BandwidthMax != 0)
-                {
-                    Int64 bwCur1 = 2 * (this.Bandwidth * 8) / (1000 * 1000);
-                    Int64 bwMax1 = this.BandwidthMax;
-                    v1 = Convert.ToInt32((bwCur1 * 100) / bwMax1);
-                }
+				int v1 = 0;
+				if (this.BandwidthMax != 0)
+				{
+					Int64 bwCur1 = 2 * (this.Bandwidth * 8) / (1000 * 1000);
+					Int64 bwMax1 = this.BandwidthMax;
+					v1 = Convert.ToInt32((bwCur1 * 100) / bwMax1);
+				}
 
-                int v2 = 0;
-                if (other.BandwidthMax != 0)
-                {
-                    Int64 bwCur2 = 2 * (other.Bandwidth * 8) / (1000 * 1000);
-                    Int64 bwMax2 = other.BandwidthMax;
-                    v2 = Convert.ToInt32((bwCur2 * 100) / bwMax2);
-                }
+				int v2 = 0;
+				if (other.BandwidthMax != 0)
+				{
+					Int64 bwCur2 = 2 * (other.Bandwidth * 8) / (1000 * 1000);
+					Int64 bwMax2 = other.BandwidthMax;
+					v2 = Convert.ToInt32((bwCur2 * 100) / bwMax2);
+				}
 
 				returnVal = v1.CompareTo(v2);
 			}
@@ -136,11 +137,11 @@ namespace Eddie.Core
 				returnVal = this.DisplayName.CompareTo(other.DisplayName);
 
 			// Invert the value returned by String.Compare.
-			if(ascending == false)
+			if (ascending == false)
 				returnVal *= -1;
-		
+
 			return returnVal;
-		}        
+		}
 
 		public bool HasWarningsErrors()
 		{
@@ -157,10 +158,10 @@ namespace Eddie.Core
 		{
 			if (Engine.Instance.Storage.GetBool("connections.allow_anyway"))
 				return true;
-			
+
 			if (HasWarningsErrors())
 				return false;
-			
+
 			return true;
 		}
 
@@ -168,7 +169,7 @@ namespace Eddie.Core
 		{
 			if (IpsEntry.Count == 0)
 				return false;
-			if(HasWarningsErrors())
+			if (HasWarningsErrors())
 				return false;
 			return true;
 		}
@@ -184,18 +185,18 @@ namespace Eddie.Core
 		}
 
 		public int Load()
-        {
-            if (BandwidthMax == 0)
-                return 100;
+		{
+			if (BandwidthMax == 0)
+				return 100;
 
-            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
-            Int64 bwMax = BandwidthMax;
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwMax = BandwidthMax;
 
 			return Conversions.ToInt32((bwCur * 100) / bwMax);
-        }
+		}
 
-        public int Score()
-        {
+		public int Score()
+		{
 			lock (Warnings)
 			{
 				if (HasWarningsErrors())
@@ -218,7 +219,7 @@ namespace Eddie.Core
 					return Conversions.ToInt32(Ping + Load() + ScoreB + PenalityB);
 				}
 			}
-        }
+		}
 
 		public float ScorePerc()
 		{
@@ -238,7 +239,7 @@ namespace Eddie.Core
 		{
 			string t = DisplayName;
 
-			if(HasWarningsErrors())
+			if (HasWarningsErrors())
 			{
 				string error = "";
 				lock (Warnings)
@@ -247,9 +248,9 @@ namespace Eddie.Core
 						if (w.Level == ConnectionInfoWarning.WarningType.Error)
 							error += w.Message + ", ";
 				}
-				t += " (Closed: " + error.Trim(new char[] { ',', ' ' }) + ")";
+				t += " (NA: " + error.Trim(new char[] { ',', ' ' }) + ")";
 			}
-			else if(Warnings.Count>0)
+			else if (Warnings.Count > 0)
 			{
 				string warning = "";
 				lock (Warnings)
@@ -260,31 +261,31 @@ namespace Eddie.Core
 				}
 				t += " (Warning: " + warning.Trim(new char[] { ',', ' ' }) + ")";
 			}
-			
+
 			return t;
 		}
 
-        public string GetNameWithLocation()
-        {
-            string country = CountriesManager.GetNameFromCode(CountryCode);
-            string result = DisplayName;
-            if ((country != "") || (Location != ""))
-            {
-                result += " (";
-                if (country != "")
-                    result += country;
-                if (Location != "")
-                {
-                    if (country != "")
-                        result += ", ";
-                    result += Location;
-                }
-                result += ")";
-            }
-            return result;
-        }
+		public string GetNameWithLocation()
+		{
+			string country = CountriesManager.GetNameFromCode(CountryCode);
+			string result = DisplayName;
+			if ((country != "") || (Location != ""))
+			{
+				result += " (";
+				if (country != "")
+					result += country;
+				if (Location != "")
+				{
+					if (country != "")
+						result += ", ";
+					result += Location;
+				}
+				result += ")";
+			}
+			return result;
+		}
 
-        public string GetLatencyForList()
+		public string GetLatencyForList()
 		{
 			String text = "";
 			if (Ping != -1)
@@ -297,32 +298,32 @@ namespace Eddie.Core
 		public string GetLocationForList()
 		{
 			string result = Location;
-            if (result != "")
-                result += " - ";
-            result += CountriesManager.GetNameFromCode(CountryCode);
-            return result;
-        }
+			if (result != "")
+				result += " - ";
+			result += CountriesManager.GetNameFromCode(CountryCode);
+			return result;
+		}
 
-        public string GetLocationForOrdering()
-        {
-            string result = CountriesManager.GetNameFromCode(CountryCode) + " - " + Location;
-            return result;
-        }
-
-        public string GetUsersForList()
+		public string GetLocationForOrdering()
 		{
-            if (Users == -1)
-                return "-";
-            else 
-			    return Users.ToString();
+			string result = CountriesManager.GetNameFromCode(CountryCode) + " - " + Location;
+			return result;
+		}
+
+		public string GetUsersForList()
+		{
+			if (Users == -1)
+				return "-";
+			else
+				return Users.ToString();
 		}
 
 		public string GetLoadForList()
 		{
-            if (BandwidthMax == 0)
-                return "-";
+			if (BandwidthMax == 0)
+				return "-";
 
-            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -336,23 +337,23 @@ namespace Eddie.Core
 
 		public float GetLoadPercForList()
 		{
-            if (BandwidthMax == 0)
-                return 0;
+			if (BandwidthMax == 0)
+				return 0;
 
-            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
-			
+
 			return p;
 		}
 
 		public string GetLoadColorForList()
 		{
-            if (BandwidthMax == 0)
-                return "yellow";
+			if (BandwidthMax == 0)
+				return "yellow";
 
-            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -376,13 +377,18 @@ namespace Eddie.Core
 			}
 		}
 
-		public OvpnBuilder BuildOVPN(bool preview)
+		public ConnectionActive BuildConnectionActive(bool preview)
 		{
 			// If preview, no physical additional files are created.
 
+			ConnectionActive connectionActive = new ConnectionActive();
+
 			Storage s = Engine.Instance.Storage;
 
-			OvpnBuilder ovpn = new OvpnBuilder();
+			connectionActive.OpenVpnProfileStartup = new OvpnBuilder();
+			OvpnBuilder ovpn = connectionActive.OpenVpnProfileStartup;
+
+			ovpn.AppendDirective("setenv", "IV_GUI_VER " + Constants.Name + Constants.VersionDesc, "Client level");
 
 			if (s.GetBool("openvpn.skip_defaults") == false)
 			{
@@ -411,9 +417,9 @@ namespace Eddie.Core
 
 				ovpn.AppendDirectives(OvpnDirectives, "Server level");
 
-				if(Path != "")
+				if (Path != "")
 				{
-					if(Platform.Instance.FileExists(Path))
+					if (Platform.Instance.FileExists(Path))
 					{
 						string text = Platform.Instance.FileContentsReadText(Path);
 						ovpn.AppendDirectives(text, "Config file");
@@ -426,6 +432,17 @@ namespace Eddie.Core
 
 			if (s.Get("openvpn.dev_node") != "")
 				ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"), "");
+
+			if (s.Get("network.entry.iface") != "")
+			{
+				ovpn.AppendDirective("local", s.Get("network.entry.iface"), "");
+				ovpn.RemoveDirective("nobind");
+			}
+			else
+			{
+				ovpn.RemoveDirective("local");
+				ovpn.AppendDirective("nobind", "", "");
+			}
 
 			int rcvbuf = s.GetInt("openvpn.rcvbuf");
 			if (rcvbuf == -2) rcvbuf = Platform.Instance.GetRecommendedRcvBufDirective();
@@ -469,156 +486,173 @@ namespace Eddie.Core
 					if (s.Get("proxy.auth") != "None")
 					{
 						string fileNameAuthOvpn = "";
-						if(preview)
+						if (preview)
 						{
 							fileNameAuthOvpn = "dummy.ppw";
 						}
 						else
 						{
-							ovpn.FileProxyAuth = new TemporaryFile("ppw");
-							fileNameAuthOvpn = ovpn.FileProxyAuth.Path.Replace("\\", "\\\\"); // 2.6, Escaping for Windows
+							connectionActive.ProxyAuthFile = new TemporaryFile("ppw");
+							fileNameAuthOvpn = connectionActive.ProxyAuthFile.Path;
 							string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
-							Platform.Instance.FileContentsWriteText(ovpn.FileProxyAuth.Path, fileNameData);
-							Platform.Instance.FileEnsurePermission(ovpn.FileProxyAuth.Path, "600");
+							Platform.Instance.FileContentsWriteText(connectionActive.ProxyAuthFile.Path, fileNameData);
+							Platform.Instance.FileEnsurePermission(connectionActive.ProxyAuthFile.Path, "600");
+                            Platform.Instance.FileEnsureOwner(connectionActive.ProxyAuthFile.Path);
 
-						}						
-						proxyDirectiveArgs += " \"" + fileNameAuthOvpn + "\" " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
+						}
+						proxyDirectiveArgs += " " + ovpn.EncodePath(fileNameAuthOvpn) + " " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
 					}
 				}
 
 				ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
 			}
 
-			if(Lib.Common.Constants.AlphaFeatures)
-			{			
+			if (Common.Constants.FeatureIPv6ControlOptions)
+			{
+				if (s.GetLower("network.ipv4.mode") == "in")
+				{
+					connectionActive.TunnelIPv4 = true;
+				}
+				else if (s.GetLower("network.ipv4.mode") == "in-out")
+				{
+					if (SupportIPv4)
+						connectionActive.TunnelIPv4 = true;
+					else
+						connectionActive.TunnelIPv4 = false;
+				}
+				else if (s.GetLower("network.ipv4.mode") == "in-block")
+				{
+					if (SupportIPv4)
+						connectionActive.TunnelIPv4 = true;
+					else
+						connectionActive.TunnelIPv4 = false; // Out, but doesn't matter, will be blocked.
+				}
+				else if (s.GetLower("network.ipv4.mode") == "out")
+				{
+					connectionActive.TunnelIPv4 = false;
+				}
+				else if (s.GetLower("network.ipv4.mode") == "block")
+				{
+					connectionActive.TunnelIPv4 = false; // Out, but doesn't matter, will be blocked.
+				}
+
+				if (Platform.Instance.GetNetworkIPv6Mode() == "in")
+				{
+					connectionActive.TunnelIPv6 = true;
+				}
+				else if (Platform.Instance.GetNetworkIPv6Mode() == "in-out")
+				{
+					if (SupportIPv6)
+						connectionActive.TunnelIPv6 = true;
+					else
+						connectionActive.TunnelIPv6 = false;
+				}
+				else if (Platform.Instance.GetNetworkIPv6Mode() == "in-block")
+				{
+					if (SupportIPv6)
+						connectionActive.TunnelIPv6 = true;
+					else
+						connectionActive.TunnelIPv6 = false;
+				}
+				else if (Platform.Instance.GetNetworkIPv6Mode() == "out")
+				{
+					connectionActive.TunnelIPv6 = false;
+				}
+				else if (Platform.Instance.GetNetworkIPv6Mode() == "block")
+				{
+					connectionActive.TunnelIPv6 = false;
+				}
+
 				if (Software.GetTool("openvpn").VersionAboveOrEqual("2.4"))
 				{
-					// IP Layer routes
-
+					ovpn.RemoveDirective("redirect-gateway"); // Remove if exists
 					ovpn.AppendDirective("pull-filter", "ignore \"redirect-gateway\"", "Forced at client side");
 
-					bool ipv4In = true;
-					bool ipv6In = true;
-
-					if (s.GetLower("protocol.ipv4.route") == "in-always")
+					if(connectionActive.TunnelIPv6 == false)
 					{
-						ipv4In = true;
-					}
-					else if (s.GetLower("protocol.ipv4.route") == "in-out")
-					{
-						if (SupportIPv4)
-							ipv4In = true;
-						else
-							ipv4In = false;
-					}
-					else if (s.GetLower("protocol.ipv4.route") == "in-block")
-					{
-						if (SupportIPv4)
-							ipv4In = true;
-						else
-							ipv4In = false; // Out, but doesn't matter, will be blocked.
-					}
-					else if (s.GetLower("protocol.ipv4.route") == "out")
-					{
-						ipv4In = false;
-					}
-					else if (s.GetLower("protocol.ipv4.route") == "block")
-					{
-						ipv4In = false; // Out, but doesn't matter, will be blocked.
+						ovpn.AppendDirective("pull-filter", "ignore \"dhcp-option DNS6\"", "Client side");
+						ovpn.AppendDirective("pull-filter", "ignore \"tun-ipv6\"", "Client side");
+						ovpn.AppendDirective("pull-filter", "ignore \"ifconfig-ipv6\"", "Client side");
 					}
 
-					if (s.GetLower("protocol.ipv6.route") == "in-always")
-					{
-						ipv6In = true;
-					}
-					else if (s.GetLower("protocol.ipv6.route") == "in-out")
-					{
-						if (SupportIPv4)
-							ipv6In = true;
-						else
-							ipv6In = false;
-					}
-					else if (s.GetLower("protocol.ipv6.route") == "in-block")
-					{
-						if (SupportIPv6)
-							ipv6In = true;
-						else
-							ipv6In = false; // Out, but doesn't matter, will be blocked.
-					}
-					else if (s.GetLower("protocol.ipv6.route") == "out")
-					{
-						ipv6In = false;
-					}
-					else if (s.GetLower("protocol.ipv6.route") == "block")
-					{
-						ipv6In = false; // Out, but doesn't matter, will be blocked.
-					}
-
-					if ((ipv4In == false) && (ipv6In == false))
+					if ((connectionActive.TunnelIPv4 == false) && (connectionActive.TunnelIPv6 == false))
 					{
 						// no redirect-gateway
 					}
-					else if ((ipv4In == true) && (ipv6In == false))
+					else if ((connectionActive.TunnelIPv4 == true) && (connectionActive.TunnelIPv6 == false))
 					{
 						ovpn.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");
+						
 					}
-					else if ((ipv4In == false) && (ipv6In == true))
+					else if ((connectionActive.TunnelIPv4 == false) && (connectionActive.TunnelIPv6 == true))
 					{
 						ovpn.AppendDirective("redirect-gateway", "ipv6 !ipv4 def1 bypass-dhcp", "");
 					}
 					else
 					{
 						ovpn.AppendDirective("redirect-gateway", "ipv6 def1 bypass-dhcp", "");
-						
 					}
 				}
 				else
 				{
-					// ClodoTemp: If <2.4 ? Ipv6 are anyway non managed well.
+					// OpenVPN <2.4, IPv6 not supported, IPv4 required.
+					if (connectionActive.TunnelIPv4)
+					{
+						ovpn.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");
+					}
+					else
+					{
+						ovpn.AppendDirective("route-nopull", "", "For Routes Out");
+
+						// 2.9, this is used by Linux resolv-conf DNS method. Need because route-nopull also filter pushed dhcp-option.
+						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN <2.4.
+						ovpn.AppendDirective("dhcp-option", "DNS " + Common.Constants.DnsVpn, "");
+					}
 				}
 			}
 			else
 			{
+				string routesDefault = s.Get("routes.default");
 
+				connectionActive.TunnelIPv4 = (routesDefault == "in");
+				connectionActive.TunnelIPv6 = (routesDefault == "in");
+
+				if (routesDefault == "out")
+				{
+					if (Software.GetTool("openvpn").VersionAboveOrEqual("2.4"))
+					{
+						ovpn.RemoveDirective("redirect-gateway"); // Remove if exists
+						ovpn.AppendDirective("pull-filter", "ignore \"redirect-gateway\"", "For Routes Out");
+					}
+					else // Compatibility <2.4
+					{
+						ovpn.AppendDirective("route-nopull", "", "For Routes Out");
+
+						// For DNS
+						// < 2.9. route directive useless, and DNS are forced manually in every supported platform. // TOCLEAN
+						/*
+						ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
+						ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
+						*/
+
+						// 2.9, this is used by Linux resolv-conf DNS method. Need because route-nopull also filter pushed dhcp-option.
+						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN <2.4.
+						ovpn.AppendDirective("dhcp-option", "DNS " + Common.Constants.DnsVpn, "");
+					}
+				}
 			}
 
-			string routesDefault = s.Get("routes.default");
-			
-			if (routesDefault == "out")
+			// For Checking
+			foreach (IpAddress ip in IpsExit.IPs)
 			{
-				if (Software.GetTool("openvpn").VersionAboveOrEqual("2.4"))
-				{
-					ovpn.RemoveDirective("redirect-gateway"); // Remove if exists
-					ovpn.AppendDirective("pull-filter", "ignore \"redirect-gateway\"", "For Routes Out");
-				}
-				else // Compatibility <2.4
-				{
-					ovpn.AppendDirective("route-nopull", "", "For Routes Out");
-
-					// For DNS
-					// < 2.9. route directive useless, and DNS are forced manually in every supported platform. // TOCLEAN
-					/*
-					ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
-					ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-					*/
-
-					// 2.9, Can be removed when resolv-conf method it's not binded anymore in up/down ovpn directive // TOFIX
-					ovpn.AppendDirective("dhcp-option", "DNS " + Lib.Common.Constants.DnsVpn, "");
-				}				
-
-				// For Checking
-				foreach(IpAddress ip in IpsExit.IPs)
-				{
-					if(ip.IsV4) // TOFIX IPv6
-						ovpn.AppendDirective("route", ip.ToOpenVPN() + " vpn_gateway", "For Checking Route");
-				}
+				connectionActive.AddRoute(ip, "vpn_gateway", "For Checking Route");
 			}
 
 			string routes = s.Get("routes.custom");
@@ -634,76 +668,91 @@ namespace Eddie.Core
 
 				if (ipsCustomRoute.Count == 0)
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));					
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));
 				}
 				else
 				{
 					string action = routeEntries[1];
 					string notes = routeEntries[2];
 
-					string gateway = "";
-
-					if ((routesDefault == "out") && (action == "in"))
-						gateway = "vpn_gateway";
-					if ((routesDefault == "in") && (action == "out"))
-						gateway = "net_gateway";
-
-
-					if (gateway != "")
+					foreach (IpAddress ip in ipsCustomRoute.IPs)
 					{
-						foreach (IpAddress ip in ipsCustomRoute.IPs)
-						{
-							if (ip.IsV4)
-								ovpn.AppendDirective("route", ip.ToOpenVPN() + " " + gateway, (notes != "") ? Utils.StringSafe(notes) : ipCustomRoute);
-							// TOFIX IPv6
-							/*
-							else if(ipCustomRoute.IsV6)
-								ovpn.AppendDirective("route-ipv6", ipCustomRoute.ToOpenVPN() + " " + gateway + "_ipv6", Utils.StringSafe(notes));
-							*/
-						}
+						bool layerIn = false;
+						if (ip.IsV4)
+							layerIn = connectionActive.TunnelIPv4;
+						else if (ip.IsV6)
+							layerIn = connectionActive.TunnelIPv6;
+						string gateway = "";
+						if ((layerIn == false) && (action == "in"))
+							gateway = "vpn_gateway";
+						if ((layerIn == true) && (action == "out"))
+							gateway = "net_gateway";
+						if (gateway != "")
+							connectionActive.AddRoute(ip, gateway, (notes != "") ? UtilsString.StringSafe(notes) : ipCustomRoute);
 					}
 				}
 			}
 
-			if (routesDefault == "in")
+			if (proxyMode == "tor")
 			{
-				if (proxyMode == "tor")
+				if (preview == false)
 				{
-					IpAddresses torNodeIps = TorControl.GetGuardIps();
-					foreach (IpAddress torNodeIp in torNodeIps.IPs)
-					{
-						if (torNodeIp.IsV4)
-							ovpn.AppendDirective("route", torNodeIp.ToOpenVPN() + " net_gateway", "Tor Circuit");
-						// TOFIX IPv6
-						/*
-						else if(torNodeIp.IsV6)
-							ovpn.AppendDirective("route-ipv6", torNodeIp.ToOpenVPN() + " net_gateway_ipv6", "Tor Circuit");
-						*/
-					}
+					TorControl.SendNEWNYM();
+				}
+				IpAddresses torNodeIps = TorControl.GetGuardIps((preview == false));
+				foreach (IpAddress torNodeIp in torNodeIps.IPs)
+				{
+					if (((connectionActive.TunnelIPv4) && (torNodeIp.IsV4)) ||
+						((connectionActive.TunnelIPv6) && (torNodeIp.IsV6)))
+						connectionActive.AddRoute(torNodeIp, "net_gateway", "Tor Guard");
 				}
 			}
+			
+			{
+				string managementPasswordFile = "dummy.ppw";
+				if(preview == false)
+				{
+					connectionActive.ManagementPassword = RandomGenerator.GetHash();
+					connectionActive.ManagementPasswordFile = new TemporaryFile("ppw");
+					managementPasswordFile = connectionActive.ManagementPasswordFile.Path;
+                    Platform.Instance.FileContentsWriteText(managementPasswordFile, connectionActive.ManagementPassword);
+                    Platform.Instance.FileEnsurePermission(managementPasswordFile, "600");
+                    Platform.Instance.FileEnsureOwner(managementPasswordFile);
+				}
 
-			ovpn.AppendDirective("management", "127.0.0.1 " + Engine.Instance.Storage.Get("openvpn.management_port"), "");
+				ovpn.AppendDirective("management", "127.0.0.1 " + Engine.Instance.Storage.Get("openvpn.management_port") + " " + ovpn.EncodePath(managementPasswordFile), "");
+			}
 
-			ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
+			// TOCLEAN - Moved bottom in 2.14.0
+			// ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
 
 			// Experimental - Allow identification as Public Network in Windows. Advanced Option?
 			// ovpn.Append("route-metric 512");
 			// ovpn.Append("route 0.0.0.0 0.0.0.0");
-			
-			Provider.OnBuildOvpn(this, ovpn);
 
-			Provider.OnBuildOvpnAuth(ovpn);
+			Provider.OnBuildConnectionActive(this, connectionActive);
+
+			Provider.OnBuildConnectionActiveAuth(connectionActive);
 
 			Platform.Instance.OnBuildOvpn(ovpn);
 
+			ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
+
+			foreach (ConnectionActiveRoute route in connectionActive.Routes)
+			{
+				if ((route.Address.IsV6) || (Constants.FeatureAlwaysBypassOpenvpnRoute))
+				{
+				}
+				else
+				{
+					// We never find a better method to manage IPv6 route via OpenVPN, at least <2.4.4
+					ovpn.AppendDirective("route", route.Address.ToOpenVPN() + " " + route.Gateway, UtilsString.StringSafe(route.Notes));
+				}
+			}
+
 			ovpn.Normalize();
 
-			string ovpnText = ovpn.Get();
-
-			Provider.OnBuildOvpnPost(ref ovpnText);
-
-			return ovpn;
+			return connectionActive;
 		}
-    }
+	}
 }

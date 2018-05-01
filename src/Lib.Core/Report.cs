@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -62,10 +62,9 @@ namespace Eddie.Core
 
 			Engine.Instance.OnSystemReport(Messages.ReportStepLogs, ToString(), 60);
 
-			NetworkInterfaces();
-			DefaultGateways();
-
 			Engine.Instance.OnSystemReport(Messages.ReportStepPlatform, ToString(), 70);
+
+			NetworkInfo();
 
 			Platform.Instance.OnReport(this);
 
@@ -95,19 +94,17 @@ namespace Eddie.Core
 		}
 
 		public void Tests()
-		{
+		{		
 			IpAddresses dns = DnsManager.ResolveDNS("dnstest.eddie.website", true);
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Ok : Messages.Failed);
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Ok : Messages.Failed);
 
-			Add("Test HTTP", TestUrl("http://" + Constants.Domain + "/test/"));
-			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));
+			Add("Test Ping IPv4", Platform.Instance.Ping(dns.OnlyIPv4.First, 5000).ToString() + " ms");
+			Add("Test Ping IPv6", Platform.Instance.Ping(dns.OnlyIPv6.First, 5000).ToString() + " ms");
 
-			/*
-			#if !EDDIENET20
-			Add("JsonTest", Newtonsoft.Json.JsonConvert.SerializeObject(new IpAddress("8.8.8.8")));
-			#endif
-			*/			
+			Add("Test HTTP IPv4", TestUrl("http://" + "ipv4." + Constants.Domain + "/test/"));
+			Add("Test HTTP IPv6", TestUrl("http://" + "ipv6." + Constants.Domain + "/test/"));
+			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));		
 		}
 
 		public string TestUrl(string url)
@@ -117,24 +114,27 @@ namespace Eddie.Core
 				HttpRequest request = new HttpRequest();
 				request.Url = url;
 				HttpResponse response = Engine.Instance.FetchUrl(request);
-				return response.GetLineReport();
+				if (response.GetBodyAscii().Trim() == "Success.")
+					return Messages.Ok;
+				else
+					return Messages.Failed + " - " + response.GetLineReport();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return "Error:" + ex.Message;
-			}			
+			}
 		}
 
 		public void Environment()
 		{
-			Add("Eddie version", Lib.Common.Constants.VersionDesc);
+			Add("Eddie version", Common.Constants.VersionDesc);
 			Add("Eddie OS build", Platform.Instance.GetSystemCode());
 			Add("Eddie architecture", Platform.Instance.GetArchitecture());
 			Add("OS type", Platform.Instance.GetCode());
 			Add("OS name", Platform.Instance.GetName());
 			Add("OS version", Platform.Instance.GetVersion());
 			Add("OS architecture", Platform.Instance.GetOsArchitecture());
-			Add("Mono /.Net Framework", Platform.Instance.GetMonoVersion());
+			Add("Mono /.Net Framework", Platform.Instance.GetNetFrameworkVersion());
 
 			Add("OpenVPN driver", Software.OpenVpnDriver);
 			Add("OpenVPN", Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")");
@@ -146,11 +146,11 @@ namespace Eddie.Core
 			Add("Data path", Engine.Instance.Storage.GetDataPath());
 			Add("Application path", Platform.Instance.GetApplicationPath());
 			Add("Executable path", Platform.Instance.GetExecutablePath());
-			Add("Command line arguments", "(" + Lib.Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Lib.Common.CommandLine.SystemEnvironment.GetFull());
-			
+			Add("Command line arguments", "(" + Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Common.CommandLine.SystemEnvironment.GetFull());
+
 			{
 				string nl = Messages.No;
-				if(Engine.Instance.NetworkLockManager.IsActive())
+				if (Engine.Instance.NetworkLockManager.IsActive())
 					nl = Messages.Yes + ", " + Engine.Instance.NetworkLockManager.GetActive().GetName();
 				Add("Network Lock Active", nl);
 			}
@@ -158,58 +158,17 @@ namespace Eddie.Core
 			{
 				string cn = Messages.No;
 				if (Engine.Instance.IsConnected())
-					cn = Messages.Yes + ", " + Engine.Instance.Stats.Get("ServerName");
+					cn = Messages.Yes + ", " + Engine.Instance.Stats.Get("ServerName").Text;
 				Add("Connected to VPN", cn);
 			}
 
 			Add("Detected DNS", Platform.Instance.DetectDNS().ToString());
-			//Add("Detected Exit", Engine.Instance.DiscoverExit().ToString());			
+			//Add("Detected Exit", Engine.Instance.DiscoverExit().ToString());
 		}
 
-		public void NetworkInterfaces()
+		public void NetworkInfo()
 		{
-			string t = "";
-			try
-			{
-				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-				foreach (NetworkInterface adapter in interfaces)
-				{
-					t += "Network Interface: " + adapter.Name + " (" + adapter.Description + ", ID:" + adapter.Id.ToString() + ") - " + adapter.NetworkInterfaceType.ToString() + " - " + adapter.OperationalStatus.ToString();
-					//t += " - Down:" + adapter.GetIPv4Statistics().BytesReceived.ToString();
-					//t += " - Up:" + adapter.GetIPv4Statistics().BytesSent.ToString();
-					t += "\n";
-				}
-			}
-			catch (Exception)
-			{
-				t += "Unable to fetch network interfaces.\n";
-			}
-
-			Add("Network Interfaces", t);
-		}
-
-		public void DefaultGateways()
-		{
-			string t = "";
-			List<string> gatewaysList = new List<string>();
-			foreach (NetworkInterface f in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				if (f.OperationalStatus == OperationalStatus.Up)
-				{
-					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
-					{
-						string ip = d.Address.ToString();
-						if ((IpAddress.IsIP(ip)) && (ip != "0.0.0.0") && (gatewaysList.Contains(ip) == false))
-						{
-							//gatewaysList.Add(ip);
-
-							t += ip + ", " + f.Description + "\n";
-						}
-					}
-				}
-			}
-
-			Add("Default gateways", t);
+			Add("Network Interfaces and Routes", Engine.Instance.JsonNetworkInfo().ToTextPretty());
 		}
 	}
 }

@@ -25,33 +25,33 @@ namespace Eddie.Core
 {
 	public class PerformanceScope
 	{
-        private string m_name;
-        private int m_tickStart = 0;
+		private string m_name;
+		private int m_tickStart = 0;
 
 		public PerformanceScope(string name)
-		{            
+		{
 			Start(name);
 		}
-				
+
 		~PerformanceScope()
 		{
 			End();
 		}
 
-        public void Start(string name)
+		public void Start(string name)
 		{
-            m_name = name;
-            m_tickStart = Environment.TickCount;
-        }
+			m_name = name;
+			m_tickStart = Environment.TickCount;
+		}
 
 		public void End()
 		{
-            if (m_tickStart != 0)
-            {
-                int tickElapsed = Environment.TickCount - m_tickStart;
-                m_tickStart = 0;
-                // Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");                
-            }
+			if (m_tickStart != 0)
+			{
+				int tickElapsed = Environment.TickCount - m_tickStart;
+				m_tickStart = 0;
+				Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");
+			}
 		}
 
 		public void Dump()

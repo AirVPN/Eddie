@@ -156,8 +156,10 @@ namespace Eddie.Forms.Skin
                     fontSize = userBaseSize.ToString(CultureInfo.InvariantCulture) + "pt";
                 else if (fontSize == "big")
                     fontSize = (userBaseSize * 1.25).ToString(CultureInfo.InvariantCulture) + "pt";
+				else if (fontSize == "small")
+					fontSize = (userBaseSize / 1.25).ToString(CultureInfo.InvariantCulture) + "pt";
 
-                string name2 = fontName + "," + fontSize;
+				string name2 = fontName + "," + fontSize;
                 
                 FontConverter fontConverter = new FontConverter();
                 Font f = fontConverter.ConvertFromInvariantString(name2) as Font;

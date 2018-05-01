@@ -23,7 +23,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Forms.Forms
@@ -68,6 +68,16 @@ namespace Eddie.Forms.Forms
 			pgrStep.Minimum = 0;
 			pgrStep.Maximum = 100;
 			*/
+
+			pnlProviders.Controls.Add(new Controls.Provider());
+			pnlProviders.Controls.Add(new Controls.Provider());
+			pnlProviders.Controls.Add(new Controls.Provider());
+			pnlProviders.Controls.Add(new Controls.Provider());
+			pnlProviders.Controls.Add(new Controls.Provider());
+			pnlProviders.Controls.Add(new Controls.Provider());
+			pnlProviders.Controls.Add(new Controls.Provider());
+
+			pnlProviders.Controls[1].Top = pnlProviders.Controls[0].Height;
 		}
 
 		public void SetStep(string step, string text, int perc)
@@ -91,7 +101,7 @@ namespace Eddie.Forms.Forms
 		{
 			Application.UseWaitCursor = true;
 
-			Clipboard.SetText(txtBody.Text);
+			GuiUtils.ClipboardSetText(txtBody.Text);
 
 			Application.UseWaitCursor = false;
 
@@ -102,20 +112,21 @@ namespace Eddie.Forms.Forms
 		{
 			string t = txtBody.Text;
 
-			SaveFileDialog sd = new SaveFileDialog();
-
-			sd.Filter = Messages.FilterTextFiles;
-
-			if (sd.ShowDialog() == DialogResult.OK)
+			using(SaveFileDialog sd = new SaveFileDialog())
 			{
-				using (StreamWriter sw = new StreamWriter(sd.FileName))
-				{					
-					sw.Write(t);
-					sw.Flush();
-					sw.Close();
+				sd.Filter = Messages.FilterTextFiles;
+
+				if(sd.ShowDialog() == DialogResult.OK)
+				{
+					using(StreamWriter sw = new StreamWriter(sd.FileName))
+					{
+						sw.Write(t);
+						sw.Flush();
+						//sw.Close();	// because of "using"
+					}
+
+					MessageBox.Show(this, Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
-				
-				MessageBox.Show(this, Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 		}
 

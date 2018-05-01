@@ -27,8 +27,8 @@ extern "C" {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EDDIE_LINUX_NATIVE_EXPORT int eddie_test_native();
-	
+EDDIE_LINUX_NATIVE_EXPORT int eddie_init();
+
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_get_mode(const char *filename);
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_set_mode(const char *filename, int mode);
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_set_mode_str(const char *filename, const char *mode);
@@ -36,6 +36,8 @@ EDDIE_LINUX_NATIVE_EXPORT int eddie_file_set_mode_str(const char *filename, cons
 // Returns -1 in case of error and 0 or 1 for the flag value
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_get_immutable(const char *filename);
 EDDIE_LINUX_NATIVE_EXPORT int eddie_file_set_immutable(const char *filename, int flag);
+
+EDDIE_LINUX_NATIVE_EXPORT int eddie_pipe_write(const char *filename, const char *data);
 
 // Ping the specified IP address (no host resolution) with the specified timeout in milliseconds (returns -1 in case of error or the elapsed milliseconds)
 EDDIE_LINUX_NATIVE_EXPORT int eddie_ip_ping(const char *address, int timeout);

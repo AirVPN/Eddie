@@ -27,9 +27,9 @@ using Eddie.Core.UI;
 //TOCLEAN using Eddie.Forms.Forms; // Temp
 
 namespace Eddie.Forms.Controls
-{	
-    public class ChartSpeed : System.Windows.Forms.Control
-    {
+{
+	public class ChartSpeed : System.Windows.Forms.Control
+	{
 		public static Color ColorsLightChartBackground = Color.FromArgb(248, 248, 248);
 		public static Color ColorsLightChartGrid = Color.FromArgb(211, 211, 211);
 		public static Color ColorsLightChartAxis = Color.FromArgb(128, 128, 128);
@@ -51,9 +51,9 @@ namespace Eddie.Forms.Controls
 		//private Brush m_brushLegendText;
 		private Brush m_brushDownloadText;
 		private Brush m_brushUploadText;
-		
+
 		private Font FontLabel;
-        private StringFormat formatTopCenter;		
+		private StringFormat formatTopCenter;
 		private StringFormat formatRight;
 		private StringFormat formatBottomRight;
 		private StringFormat formatBottomLeft;
@@ -67,9 +67,9 @@ namespace Eddie.Forms.Controls
 		private float m_chartDY;
 		private float m_chartStartX;
 		private float m_chartStartY;
-		        
-        public ChartSpeed()
-        {
+
+		public ChartSpeed()
+		{
 			m_penGrid = new Pen(ColorsLightChartGrid, 1);
 			m_penMouse = new Pen(ColorsLightChartMouse, 1);
 			m_brushMouse = new SolidBrush(ColorsLightChartMouse);
@@ -80,9 +80,9 @@ namespace Eddie.Forms.Controls
 			//m_brushLegendText = new SolidBrush(Colors.LightChartLegend);
 			m_brushDownloadText = new SolidBrush(ColorsLightChartLineDownload);
 			m_brushUploadText = new SolidBrush(ColorsLightChartLineUpload);
-						
-            FontLabel = new Font("Small Fonts", 7);
-						
+
+			FontLabel = new Font("Small Fonts", 7);
+
 			formatRight = new StringFormat();
 			formatRight.Alignment = StringAlignment.Far;
 			formatRight.LineAlignment = StringAlignment.Center;
@@ -101,29 +101,29 @@ namespace Eddie.Forms.Controls
 			formatTopCenter = new StringFormat();
 			formatTopCenter.Alignment = StringAlignment.Center;
 			formatTopCenter.LineAlignment = StringAlignment.Near;
-			
+
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
-			
+
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
 
-			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);			
-        }
-		
-		void Charts_UpdateEvent()
+			Engine.Instance.Stats.Charts.UpdateEvent += new Core.UI.Charts.UpdateHandler(Charts_UpdateEvent);
+		}
+
+		void Charts_UpdateEvent(object sender, EventArgs e)
 		{
 			Invalidate();
 		}
 
 		public string ValToDesc(Int64 v)
 		{
-            string r = Utils.FormatBytes(v, true, true);            
-            return r;
-        }
-		
+			string r = UtilsString.FormatBytes(v, true, true);
+			return r;
+		}
+
 		public void Switch(int chartIndex)
 		{
 			m_chartIndex = chartIndex;
-			if( (m_chartIndex<0) || (m_chartIndex >= Engine.Instance.Stats.Charts.ChartsList.Count) )
+			if ((m_chartIndex < 0) || (m_chartIndex >= Engine.Instance.Stats.Charts.ChartsList.Count))
 				m_chartIndex = 0;
 
 			m_chart = Engine.Instance.Stats.Charts.ChartsList[m_chartIndex];
@@ -140,7 +140,7 @@ namespace Eddie.Forms.Controls
 		{
 			return new Point(Conversions.ToInt32(x), Conversions.ToInt32(y));
 		}
-		
+
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
@@ -152,13 +152,13 @@ namespace Eddie.Forms.Controls
 		{
 			//base.OnPaintBackground(pevent);			
 		}
-				
-        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
-        {
+
+		protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+		{
 			//base.OnPaint(e);            
 			Form.Skin.GraphicsCommon(e.Graphics);
 
-            try
+			try
 			{
 				int DX = this.ClientRectangle.Width;
 				int DY = this.ClientRectangle.Height;
@@ -176,8 +176,8 @@ namespace Eddie.Forms.Controls
 				if (maxY <= 0)
 					maxY = 4096;
 				else if (maxY > 1000000000000)
-					maxY = 1000000000000;					
-				
+					maxY = 1000000000000;
+
 				Point lastPointDown = new Point(-1, -1);
 				Point lastPointUp = new Point(-1, -1);
 
@@ -273,7 +273,7 @@ namespace Eddie.Forms.Controls
 						//float y = mp.Y * maxY / (chartDY - m_marginTopY);
 						float y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
 
-						String label = ValToDesc(Conversions.ToInt64(y)) + ", " + Utils.FormatSeconds(t) + " ago";
+						String label = ValToDesc(Conversions.ToInt64(y)) + ", " + UtilsString.FormatSeconds(t) + " ago";
 
 						StringFormat formatAlign = formatBottomLeft;
 						Rectangle rect = new Rectangle();
@@ -325,18 +325,17 @@ namespace Eddie.Forms.Controls
 				}
 
 			}
-            catch (Exception ex)
-            {
-                Debug.Trace(ex);
-            }
-        }
+			catch
+			{
+			}
+		}
 
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            this.ResumeLayout(false);
+		private void InitializeComponent()
+		{
+			this.SuspendLayout();
+			this.ResumeLayout(false);
 
-        }
-        
-    }
+		}
+
+	}
 }

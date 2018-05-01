@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+  <string-array name="preference_ovpn3_tls_version_min_labels">
+    <item>Disabled</item>
+    <item>Default</item>
+    <item>TLS 1.0</item>
+    <item>TLS 1.1</item>
+    <item>TLS 1.2</item>
+  </string-array>
+  <string-array name="preference_ovpn3_tls_version_min_values">
+    <item>disabled</item>
+    <item>default</item>
+    <item>tls_1_0</item>
+    <item>tls_1_1</item>
+    <item>tls_1_2</item>
+  </string-array>
+
+  <string-array name="preference_ovpn3_protocol_labels">
+    <item>Default</item>
+    <item>Adaptive</item>
+    <item>TCP</item>
+    <item>UDP</item>
+  </string-array>
+  <string-array name="preference_ovpn3_protocol_values">
+    <item></item>
+    <item>adaptive</item>
+    <item>tcp</item>
+    <item>udp</item>
+  </string-array>
+
+  <string-array name="preference_ovpn3_ipv6_labels">
+    <item>Default</item>
+    <item>Request</item>
+    <item>Disable</item>
+  </string-array>
+  <string-array name="preference_ovpn3_ipv6_values">
+    <item></item>
+    <item>yes</item>
+    <item>no</item>
+  </string-array>
+
+  <string-array name="preference_ovpn3_timeout_labels">
+    <item>10 seconds</item>
+    <item>30 seconds</item>
+    <item>1 minute</item>
+		<item>2 minutes</item>
+		<item>Infinite</item>
+  </string-array>
+  <string-array name="preference_ovpn3_timeout_values">
+    <item>10</item>
+    <item>30</item>
+    <item>60</item>
+    <item>120</item>
+    <item>0</item>
+  </string-array>
+
+  <string-array name="preference_ovpn3_compression_mode_labels">
+    <item>Disable</item>
+    <item>Enable</item>
+    <item>Downlink only</item>
+  </string-array>
+  <string-array name="preference_ovpn3_compression_mode_values">
+    <item>no</item>
+    <item>yes</item>
+    <item>asym</item>
+  </string-array>
+
+  <string-array name="preference_ovpn3_default_key_direction_labels">
+    <item>Bidirectional</item>
+    <item>Normal</item>
+    <item>Inverse</item>
+  </string-array>
+  <string-array name="preference_ovpn3_default_key_direction_values">
+    <item>-1</item>
+    <item>0</item>
+    <item>1</item>
+  </string-array>
+
+  <string-array name="preference_system_applications_filter_type_labels">
+    <item>None</item>
+    <item>Whitelist</item>
+    <item>Blacklist</item>
+  </string-array>
+  <string-array name="preference_system_applications_filter_type_values">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+  </string-array>
+
+</resources>

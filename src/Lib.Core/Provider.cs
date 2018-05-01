@@ -51,7 +51,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return Utils.XmlGetAttributeString(Definition, "code", "");
+				return UtilsXml.XmlGetAttributeString(Definition, "code", "");
 			}
 		}
 
@@ -59,7 +59,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return Utils.XmlGetAttributeString(Definition, "title", "");
+				return UtilsXml.XmlGetAttributeString(Definition, "title", "");
 			}
 		}
 
@@ -67,7 +67,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return Utils.XmlGetAttributeString(Definition, "subtitle", "");
+				return UtilsXml.XmlGetAttributeString(Definition, "subtitle", "");
 			}
 		}
 
@@ -75,7 +75,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return Utils.XmlGetAttributeString(Definition, "href", "");
+				return UtilsXml.XmlGetAttributeString(Definition, "href", "");
 			}
 		}
 
@@ -83,11 +83,11 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return Utils.XmlGetAttributeString(Storage.DocumentElement, "id", "");
+				return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "id", "");
 			}
 			set
 			{
-				Utils.XmlSetAttributeString(Storage.DocumentElement, "id", value);
+				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "id", value);
 			}
 		}
 
@@ -95,11 +95,11 @@ namespace Eddie.Core
         {
             get
             {
-                return Utils.XmlGetAttributeBool(Storage.DocumentElement, "enabled", GetEnabledByDefault());                
+                return UtilsXml.XmlGetAttributeBool(Storage.DocumentElement, "enabled", GetEnabledByDefault());                
             }
             set
             {
-                Utils.XmlSetAttributeBool(Storage.DocumentElement, "enabled", value);
+                UtilsXml.XmlSetAttributeBool(Storage.DocumentElement, "enabled", value);
             }
         }
 
@@ -107,14 +107,14 @@ namespace Eddie.Core
         {
             get
             {
-				string title = Utils.XmlGetAttributeString(Storage.DocumentElement, "title", "");
+				string title = UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "title", "");
 				if (title == "")
-					title = Utils.XmlGetAttributeString(Definition, "title", "");
+					title = UtilsXml.XmlGetAttributeString(Definition, "title", "");
 				return title;
             }
 			set
 			{
-				Utils.XmlSetAttributeString(Storage.DocumentElement, "title", value);
+				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "title", value);
 			}
         }
 
@@ -137,11 +137,11 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return Utils.XmlGetAttributeString(Storage.DocumentElement, "login", "");
+				return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "login", "");
 			}
 			set
 			{
-				Utils.XmlSetAttributeString(Storage.DocumentElement, "login", value);
+				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "login", value);
 			}
 		}
 
@@ -149,17 +149,17 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return Utils.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+				return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "password", "");
 			}
 			set
 			{
-				Utils.XmlSetAttributeString(Storage.DocumentElement, "password", value);
+				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "password", value);
 			}
 		}
 
 		public virtual string HashSHA256(string str)
         {
-            return Utils.HashSHA256(ID + "-" + str);
+            return UtilsCore.HashSHA256(ID + "-" + str);
         }
 
         public virtual string GetKeyValue(string key, string def)
@@ -208,24 +208,19 @@ namespace Eddie.Core
 			if (ID == "")
 				ID = RandomGenerator.GetHash();
 		}
-
+		
 		public virtual void OnBuildOvpnDefaults(OvpnBuilder ovpn)
 		{
 
 		}
 
-        public virtual void OnBuildOvpn(ConnectionInfo connection, OvpnBuilder ovpn)
+        public virtual void OnBuildConnectionActive(ConnectionInfo connection, ConnectionActive connectionActive)
         {
         }
 
-        public virtual void OnBuildOvpnAuth(OvpnBuilder ovpn)
+        public virtual void OnBuildConnectionActiveAuth(ConnectionActive connectionActive)
 		{
 
-		}
-
-		public virtual void OnBuildOvpnPost(ref string ovpn)
-		{
-			
 		}
 
 		public virtual void OnAuthFailed()
@@ -255,17 +250,17 @@ namespace Eddie.Core
 		public virtual void ClearCredentials()
 		{
 			m_runCredentials = null;
-			Utils.XmlSetAttributeString(Storage.DocumentElement, "login", "");
-			Utils.XmlSetAttributeString(Storage.DocumentElement, "password", "");
+			UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "login", "");
+			UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "password", "");
 		}
 
-		public virtual bool ApplyCredentials(OvpnBuilder ovpn)
+		public virtual bool ApplyCredentials(ConnectionActive connectionActive)
 		{
-			if(ovpn.ExistsDirective("auth-user-pass"))
+			if(connectionActive.OpenVpnProfileStartup.ExistsDirective("auth-user-pass"))
 			{
-				if(ovpn.GetOneDirectiveText("auth-user-pass") == "") // If empty
+				if(connectionActive.OpenVpnProfileStartup.GetOneDirectiveText("auth-user-pass") == "") // If empty
 				{
-					ovpn.RemoveDirective("auth-user-pass");
+					connectionActive.OpenVpnProfileStartup.RemoveDirective("auth-user-pass");
 
 					string username = "";
 					string password = "";
@@ -302,9 +297,9 @@ namespace Eddie.Core
 							AuthPassUsername = username;
 							AuthPassPassword = password;
 						}
-					}					
+					}
 
-					ovpn.SetAuthUserPass(username, password);
+					connectionActive.SetAuthUserPass(username, password);
 				}
 			}
 
@@ -314,13 +309,13 @@ namespace Eddie.Core
 		// Used for directive auth-user-pass
 		public virtual string GetUsername()
         {
-            return Utils.XmlGetAttributeString(Storage.DocumentElement, "login", "");
+            return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "login", "");
         }
 
         // Used for directive auth-user-pass
         public virtual string GetPassword()
         {
-            return Utils.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+            return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "password", "");
         }
 
         public virtual string GetSshKey(string format)

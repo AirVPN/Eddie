@@ -129,7 +129,7 @@ namespace Eddie.UI.Cocoa.Osx
 			return new CGColor(fR, fG, fB);
 		}
 
-		void Charts_UpdateEvent()
+		void Charts_UpdateEvent(object sender, EventArgs e)
 		{
 			new NSObject().InvokeOnMainThread(() =>
 			{
@@ -139,7 +139,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public string ValToDesc(Int64 v)
 		{
-			return Utils.FormatBytes(v, true, true);
+			return UtilsString.FormatBytes(v, true, true);
 		}
 
 		public void Switch(int chartIndex)
@@ -397,7 +397,7 @@ namespace Eddie.UI.Cocoa.Osx
 					//float y = mp.Y * maxY / (chartDY - m_marginTopY);
 					nfloat y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
 
-					String label = ValToDesc(Conversions.ToInt64(y)) + ", " + Utils.FormatSeconds(t) + " ago";
+					String label = ValToDesc(Conversions.ToInt64(y)) + ", " + UtilsString.FormatSeconds(t) + " ago";
 
 					int formatAlign = 6;
 

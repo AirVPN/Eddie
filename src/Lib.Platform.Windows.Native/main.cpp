@@ -39,12 +39,12 @@
 Utils
 *******************************************************************************/
 
-int eddie_test_native()
+int eddie_init()
 {
-	return 3;
+	return 0;
 }
 
-int GetInterfaceMetric(int index, const char* layer)
+int eddie_get_interface_metric(int index, const char* layer)
 {
 	std::string layerS = layer;
 	DWORD err = 0;
@@ -69,7 +69,7 @@ int GetInterfaceMetric(int index, const char* layer)
 		return -1;
 }
 
-int SetInterfaceMetric(int index, const char* layer, int value)
+int eddie_set_interface_metric(int index, const char* layer, int value)
 {
 	std::string layerS = layer;
 	DWORD err = 0;
@@ -206,7 +206,7 @@ DWORD UnbindInterface()
 	return dwFwAPiRetCode;
 }
 
-void LibPocketFirewallInit(const char* name)
+void eddie_wfp_init(const char* name)
 {
 	try
 	{
@@ -227,7 +227,7 @@ void LibPocketFirewallInit(const char* name)
 	}
 }
 
-BOOL LibPocketFirewallStart(const char* xml)
+BOOL eddie_wfp_start(const char* xml)
 {
 	BOOL bStarted = FALSE;
 	std::string description;
@@ -328,7 +328,7 @@ LRESULT __stdcall HookCallback(int nCode, WPARAM wParam, LPARAM lParam)
 	return CallNextHookEx(_hook, nCode, wParam, lParam);
 }
 
-BOOL LibPocketFirewallStop()
+BOOL eddie_wfp_stop()
 {
 	BOOL bStopped = FALSE;
 	try
@@ -386,7 +386,7 @@ struct RuleData
 };
 
 
-UINT64 LibPocketFirewallAddRule(const char* xml)
+UINT64 eddie_wfp_rule_add(const char* xml)
 {
 	DWORD dwFwAPiRetCode = ERROR_BAD_COMMAND;
 	UINT64 filterId = 0;
@@ -932,7 +932,7 @@ UINT64 LibPocketFirewallAddRule(const char* xml)
 	return filterId;
 }
 
-BOOL LibPocketFirewallRemoveRule(const UINT64 id)
+BOOL eddie_wfp_rule_remove(const UINT64 id)
 {
 	for (unsigned int i = 0; i < filterids.size(); i++)
 	{
@@ -940,7 +940,7 @@ BOOL LibPocketFirewallRemoveRule(const UINT64 id)
 		{
 			filterids.erase(filterids.begin() + i);
 
-			return LibPocketFirewallRemoveRuleDirect(id);
+			return eddie_wfp_rule_remove_direct(id);
 		}
 	}
 
@@ -949,7 +949,7 @@ BOOL LibPocketFirewallRemoveRule(const UINT64 id)
 	return FALSE;
 }
 
-BOOL LibPocketFirewallRemoveRuleDirect(const UINT64 id)
+BOOL eddie_wfp_rule_remove_direct(const UINT64 id)
 {
 	lastErrorCode = ::FwpmFilterDeleteById0(m_hEngineHandle, id);
 
@@ -964,12 +964,12 @@ BOOL LibPocketFirewallRemoveRuleDirect(const UINT64 id)
 	return TRUE;
 }
 
-const char* LibPocketFirewallGetLastError()
+const char* eddie_wfp_get_last_error()
 {
 	return lastError.c_str();
 }
 
-DWORD LibPocketFirewallGetLastErrorCode()
+DWORD eddie_wfp_get_last_error_code()
 {
 	return lastErrorCode;
 }

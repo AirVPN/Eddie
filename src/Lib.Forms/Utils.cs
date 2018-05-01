@@ -97,15 +97,17 @@ namespace Eddie.Forms
 
 		public static string DirectoryPicker(string description, string startPath)
 		{
-			FolderBrowserDialog dlg = new FolderBrowserDialog();
-			dlg.Description = description;
-			dlg.SelectedPath = startPath;
-			if (dlg.ShowDialog() == DialogResult.OK)
+			using(FolderBrowserDialog dlg = new FolderBrowserDialog())
 			{
-				return dlg.SelectedPath;
+				dlg.Description = description;
+				dlg.SelectedPath = startPath;
+				if(dlg.ShowDialog() == DialogResult.OK)
+				{
+					return dlg.SelectedPath;
+				}
+				else
+					return "";
 			}
-			else
-				return "";
 		}
 
         public static string FilePicker()
@@ -115,15 +117,25 @@ namespace Eddie.Forms
 
 		public static string FilePicker(string filter)
 		{
-			OpenFileDialog sd = new OpenFileDialog();
-			sd.Filter = filter;
-			if (sd.ShowDialog() == DialogResult.OK)
+			using(OpenFileDialog sd = new OpenFileDialog())
 			{
-				return sd.FileName;
+				sd.Filter = filter;
+				if(sd.ShowDialog() == DialogResult.OK)
+					return sd.FileName;
+				else
+					return "";
+			}						
+		}
+
+		public static void ClipboardSetText(string t)
+		{
+			try
+			{
+				Clipboard.SetText(t);
 			}
-			else
+			catch(Exception e)
 			{
-				return "";
+				Engine.Instance.Logs.Log(e);
 			}
 		}
 

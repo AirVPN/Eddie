@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -73,8 +73,7 @@ namespace Eddie.Core
             AddTool("openvpn", "hash", new Tools.OpenVPN());
             AddTool("ssh", "hash", new Tools.SSH());
             AddTool("ssl", "hash", new Tools.SSL());
-            AddTool("curl", "hash", new Tools.Curl());
-            AddTool("cacert.pem", "hash", new Tools.File("cacert.pem", true));
+            AddTool("curl", "hash", new Tools.Curl());            
             if (Platform.IsUnix())
             {
                 AddTool("update-resolv-conf", "hash", new Tools.File("update-resolv-conf"));
@@ -99,7 +98,7 @@ namespace Eddie.Core
 		{
 			if(OpenVpnDriver != "")
 			{
-				Engine.Instance.Logs.Log(LogType.Info, "OpenVPN Driver - " + OpenVpnDriver);
+				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN Driver - " + OpenVpnDriver);
 			}
 			else
 			{
@@ -108,7 +107,7 @@ namespace Eddie.Core
 
             if (GetTool("openvpn").Available())
             {
-				Engine.Instance.Logs.Log(LogType.Info, "OpenVPN - Version: " + GetTool("openvpn").Version + " (" + GetTool("openvpn").Path + ")");
+				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN - Version: " + GetTool("openvpn").Version + " (" + GetTool("openvpn").Path + ")");
 			}
 			else
 			{
@@ -117,7 +116,7 @@ namespace Eddie.Core
 
             if (GetTool("ssh").Available())
             {
-				Engine.Instance.Logs.Log(LogType.Info, "SSH - Version: " + GetTool("ssh").Version + " (" + GetTool("ssh").Path + ")");
+				Engine.Instance.Logs.Log(LogType.Verbose, "SSH - Version: " + GetTool("ssh").Version + " (" + GetTool("ssh").Path + ")");
 			}
 			else
 			{
@@ -126,7 +125,7 @@ namespace Eddie.Core
 
             if (GetTool("ssl").Available())
             {
-				Engine.Instance.Logs.Log(LogType.Info, "SSL - Version: " + GetTool("ssl").Version + " (" + GetTool("ssl").Path + ")");
+				Engine.Instance.Logs.Log(LogType.Verbose, "SSL - Version: " + GetTool("ssl").Version + " (" + GetTool("ssl").Path + ")");
 			}
 			else
 			{
@@ -135,16 +134,17 @@ namespace Eddie.Core
 
             if (GetTool("curl").Available())
             {
-                Engine.Instance.Logs.Log(LogType.Info, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
+                Engine.Instance.Logs.Log(LogType.Verbose, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
             }
             else
             {
                 Engine.Instance.Logs.Log(LogType.Warning, "curl - " + Messages.NotAvailable);
             }
 
-            if (GetTool("cacert.pem").Available())
+			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
+			if (pathCacert != "")
             {
-                Engine.Instance.Logs.Log(LogType.Info, "Certification Authorities: " + GetTool("cacert.pem").Path);
+                Engine.Instance.Logs.Log(LogType.Verbose, "Certification Authorities: " + pathCacert);
             }
             else
             {

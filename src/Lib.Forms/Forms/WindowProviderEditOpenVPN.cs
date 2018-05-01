@@ -66,9 +66,12 @@ namespace Eddie.Forms.Forms
 			txtTitle2.Text = Provider.Title;
 			txtPath.Text = Provider.Path;
 
+			chkSupportIPv6.Text = Messages.WindowsProviderEditOpenVPNSupportIPv6;
+			chkSupportIPv6.Checked = Provider.SupportIPv6;
+
 			txtAuthPassUsername.Text = Provider.AuthPassUsername;
 			txtAuthPassPassword.Text = Provider.AuthPassPassword;
-
+			
 			EnableIde();
 		}
         
@@ -81,6 +84,7 @@ namespace Eddie.Forms.Forms
 			Provider.Enabled = chkEnabled.Checked;
 			Provider.Title = txtTitle2.Text;
 			Provider.Path = txtPath.Text;
+			Provider.SupportIPv6 = chkSupportIPv6.Checked;
 
 			Provider.AuthPassUsername = txtAuthPassUsername.Text;
 			Provider.AuthPassPassword = txtAuthPassPassword.Text;

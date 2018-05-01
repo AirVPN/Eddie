@@ -50,17 +50,32 @@ namespace Eddie.Core
 
 		public static void LoadString(Assembly assembly, string name, string resource)
 		{
-			if (Exists(name))
+			if(Exists(name))
 				return;
 
 			string[] names = assembly.GetManifestResourceNames();
-			foreach (string currentName in names)
+			foreach(string currentName in names)
 			{
-				if (currentName.EndsWith (resource)) {
-					Stream s = assembly.GetManifestResourceStream (currentName);
-					StreamReader sr = new StreamReader (s);
-					SetString (name, sr.ReadToEnd ());
-					return;
+				if(currentName.EndsWith (resource))
+				{
+					Stream s = null;
+					StreamReader sr = null;
+
+					try
+					{
+						s = assembly.GetManifestResourceStream(currentName);
+						sr = new StreamReader(s);
+						SetString(name, sr.ReadToEnd());
+
+						return;
+					}
+					finally
+					{
+						if(sr != null)
+							sr.Dispose();
+						else if(s != null)
+							s.Dispose();
+					}
 				}
 			}
 

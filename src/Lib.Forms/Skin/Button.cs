@@ -25,66 +25,68 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class Button : System.Windows.Forms.Button
-    {
+	public class Button : System.Windows.Forms.Button
+	{
 		private bool m_hover = false;
 
-        public Button()
-        {            
-        }
+		public int ImageInflatePerc = 30;
+		public Image ImageHover = null;
+		public bool DrawBorder = true;
 
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
+		public Button()
+		{
+		}
+
+		protected override void OnCreateControl()
+		{
+			base.OnCreateControl();
 
 			BackgroundImage = null;
-            BackgroundImageLayout = ImageLayout.Stretch;
-            Cursor = Cursors.Hand;
+			BackgroundImageLayout = ImageLayout.Stretch;
+			Cursor = Cursors.Hand;
 
-            FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            FlatAppearance.BorderSize = 0;            
-        }
-				
-        new public bool Enabled
-        {
-            get
-            {
-                return base.Enabled;
-            }
-            set
-            {
-                base.Enabled = value;
-				Invalidate();        
-            }
-        }
+			FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			FlatAppearance.BorderSize = 0;
+		}
 
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
+		new public bool Enabled
+		{
+			get
+			{
+				return base.Enabled;
+			}
+			set
+			{
+				base.Enabled = value;
+				Invalidate();
+			}
+		}
+
+		protected override void OnMouseEnter(EventArgs e)
+		{
+			base.OnMouseEnter(e);
 
 			if (m_hover == false)
 			{
 				m_hover = true;
 				Invalidate();
-			}            
-        }
+			}
+		}
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			base.OnMouseLeave(e);
 
 			if (m_hover == true)
 			{
 				m_hover = false;
 				Invalidate();
-			}            
-        }
+			}
+		}
 
-        protected override void OnPaint(PaintEventArgs pevent)
-        {
-            //base.OnPaint(pevent);
-			
-            Rectangle r = ClientRectangle;
+		protected override void OnPaint(PaintEventArgs pevent)
+		{
+			Rectangle r = ClientRectangle;
 
 			Image imageBackground = null;
 			ImageAttributes imageAttributes = null;
@@ -102,7 +104,7 @@ namespace Eddie.Forms.Skin
 				ColorMatrix imageColorMatrix = new ColorMatrix();
 				imageAttributes = new ImageAttributes();
 				imageColorMatrix.Matrix33 = 0.2f;
-				imageAttributes.SetColorMatrix(imageColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);    
+				imageAttributes.SetColorMatrix(imageColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 			}
 
 			pevent.Graphics.DrawImage(imageBackground, r);
@@ -117,10 +119,13 @@ namespace Eddie.Forms.Skin
 			}
 			else if (Text == "")
 			{
-                Form.DrawImageContain(pevent.Graphics, Image, r, 30);                
-            }
+				Image mainImage = Image;
+				if ((ImageHover != null) && (m_hover))
+					mainImage = ImageHover;
+				Form.DrawImageContain(pevent.Graphics, mainImage, r, ImageInflatePerc);
+			}
 			else
-			{	
+			{
 				/*
 				 * Not yet used
 				SizeF sText = pevent.Graphics.MeasureString(Text, Font);
@@ -130,9 +135,15 @@ namespace Eddie.Forms.Skin
 				*/
 			}
 
-			r.Width--;
-			r.Height--;
-			pevent.Graphics.DrawRectangle(Pens.Gray, r);			
-        }
-    }
+			if (DrawBorder)
+			{
+				r.Width--;
+				r.Height--;
+				pevent.Graphics.DrawRectangle(Pens.Gray, r);
+			}
+
+			if (imageAttributes != null)
+				imageAttributes.Dispose();
+		}
+	}
 }

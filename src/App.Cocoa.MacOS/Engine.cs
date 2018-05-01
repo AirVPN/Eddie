@@ -22,7 +22,7 @@ using System.Reflection;
 using System.Xml;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -96,6 +96,17 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 		}
 
+		public override void OnProviderManifestFailed(Provider provider)
+		{
+			base.OnProviderManifestFailed(provider);
+
+			if (MainWindow != null)
+				new NSObject().InvokeOnMainThread(() =>
+				{
+					MainWindow.ProviderManifestFailed(provider);
+				});
+		}
+
 		public override void OnSettingsChanged()
 		{
 			if (MainWindow != null)
@@ -121,6 +132,49 @@ namespace Eddie.UI.Cocoa.Osx
 			OnRefreshUi(RefreshUiMode.Log);
 		}
 
+		public override Json OnCommand(Json data)
+		{
+			string cmd = data["command"].Value as string;
+
+			if (cmd == "ui.notification")
+			{
+				if (MainWindow != null)
+				{
+					new NSObject().InvokeOnMainThread(() =>
+					{
+						MainWindow.ShowNotification(data["message"].Value as string);
+					});
+				}
+			}
+			else if (cmd == "ui.color")
+			{
+				if (MainWindow != null)
+				{
+					new NSObject().InvokeOnMainThread(() =>
+					{
+						MainWindow.SetColor(data["color"].Value as string);
+					});
+				}
+			}
+			else if (cmd == "ui.status")
+			{
+				if (MainWindow != null)
+				{
+					string textFull = data["full"].Value as string;
+					string textShort = textFull;
+					if (data.HasKey("short"))
+						textShort = data["short"].Value as string;
+
+					new NSObject().InvokeOnMainThread(() =>
+					{
+						MainWindow.SetStatus(textFull, textShort);
+					});
+				}
+			}
+
+			return base.OnCommand(data);
+		}
+
 
 		public override void OnFrontMessage(string message)
 		{
@@ -141,15 +195,11 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				new NSObject().InvokeOnMainThread(() =>
 					{
-						WindowTextViewerController textViewer = new WindowTextViewerController();
-						WindowsOpen.Add(textViewer);
-						textViewer.Title = title;
-						textViewer.Body = data;
-						textViewer.ShowWindow(MainWindow.Window);
+						MainWindow.ShowText(MainWindow.Window, title, data);
 					});
 			}
 		}
-
+        /*// TOCLEAN
 		public override bool OnAskYesNo(string message)
 		{
 			bool result = false;
@@ -164,6 +214,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			return result;
 		}
+		*/
 
 		public override Credentials OnAskCredentials()
 		{

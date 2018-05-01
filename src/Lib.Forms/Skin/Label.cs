@@ -24,36 +24,47 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class Label : System.Windows.Forms.Label
-    {
-        public Label()
-        {
-			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);			
-        }
-		
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            StringFormat sf = new StringFormat();
-            
-            Int32 lNum =  (Int32)Math.Log((Double)this.TextAlign, 2);
-            sf.LineAlignment = (StringAlignment)(lNum / 4);
-            sf.Alignment = (StringAlignment)(lNum % 4);
+	public class Label : System.Windows.Forms.Label
+	{
+		public Label()
+		{
+			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+		}
 
-            Rectangle R = ClientRectangle;
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			if (DesignMode)
+				e.Graphics.FillRectangle(Brushes.LightGray, ClientRectangle);
 
-            Brush FB = Form.Skin.ForeBrush;
-            if (Enabled == false)
-                FB = Form.Skin.ForeDisabledBrush;
-            			
-            if (Image != null)
-            {
+			StringFormat sf = GuiUtils.StringFormatCenterMiddle;
+			switch (this.TextAlign)
+			{
+				case ContentAlignment.TopLeft: sf = GuiUtils.StringFormatLeftTop; break;
+				case ContentAlignment.TopCenter: sf = GuiUtils.StringFormatCenterTop; break;
+				case ContentAlignment.TopRight: sf = GuiUtils.StringFormatRightTop; break;
+				case ContentAlignment.MiddleLeft: sf = GuiUtils.StringFormatLeftMiddle; break;
+				case ContentAlignment.MiddleCenter: sf = GuiUtils.StringFormatCenterMiddle; break;
+				case ContentAlignment.MiddleRight: sf = GuiUtils.StringFormatRightMiddle; break;
+				case ContentAlignment.BottomLeft: sf = GuiUtils.StringFormatLeftBottom; break;
+				case ContentAlignment.BottomCenter: sf = GuiUtils.StringFormatCenterBottom; break;
+				case ContentAlignment.BottomRight: sf = GuiUtils.StringFormatRightBottom; break;
+			}
+
+			Rectangle R = ClientRectangle;
+
+			Brush FB = Form.Skin.ForeBrush;
+			if (Enabled == false)
+				FB = Form.Skin.ForeDisabledBrush;
+
+			if (Image != null)
+			{
 				if (ImageAlign == ContentAlignment.TopLeft)
 					e.Graphics.DrawImageUnscaled(Image, new Point(2, 2));
 				else
-					e.Graphics.DrawImage(Image, R);				
-            }
+					e.Graphics.DrawImage(Image, R);
+			}
 
 			Form.DrawString(e.Graphics, Text, Font, FB, ClientRectangle, sf);
-        }
-    }
+		}
+	}
 }

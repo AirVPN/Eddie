@@ -44,7 +44,7 @@ namespace Eddie.Core
 		{
 			return true;
 		}
-		
+
 		public virtual bool IsDnsResolutionAvailable(string host)
 		{
 			return false;
@@ -115,15 +115,15 @@ namespace Eddie.Core
 			return title;
 		}
 
-		public IpAddresses GetAllIps(bool includeIpUsedByClient)
+		public IpAddresses GetIpsWhiteListOutgoing(bool includeIpUsedByClient)
 		{
 			IpAddresses result = new IpAddresses();
 
 			// Custom
 			{
 				string list = Engine.Instance.Storage.Get("netlock.allowed_ips");
-				list = list.Replace("\u2028", ","); // OS X Hack  // TOCLEAN
-				List<string> hosts = Utils.StringToList(list);
+				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
+				List<string> hosts = UtilsString.StringToList(list);
 				foreach (string host in hosts)
 				{
 					string host2 = host;
@@ -164,7 +164,7 @@ namespace Eddie.Core
 				// Providers
 				foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
 				{
-					result.Add(provider.GetNetworkLockAllowedIps());					
+					result.Add(provider.GetNetworkLockAllowedIps());
 				}
 
 				// Servers
@@ -174,7 +174,7 @@ namespace Eddie.Core
 
 					foreach (ConnectionInfo infoServer in servers.Values)
 					{
-						result.Add(infoServer.IpsEntry);						
+						result.Add(infoServer.IpsEntry);
 					}
 				}
 			}

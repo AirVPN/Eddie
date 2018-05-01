@@ -22,7 +22,7 @@ using System.Reflection;
 using Foundation;
 using AppKit;
 using ObjCRuntime;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -67,10 +67,11 @@ namespace Eddie.UI.Cocoa.Osx
 				if (engine.Initialization(false) == false)
 					return;
 
-
 				NSApplication.Main(args);
 			}
 		}
+
+
 	}
 }
 

@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -36,75 +36,83 @@ namespace Eddie.UI.Cocoa.Osx
 		#region Constructors
 
 		// Called when created from unmanaged code
-		public WindowPreferencesIpController (IntPtr handle) : base (handle)
+		public WindowPreferencesIpController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowPreferencesIpController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowPreferencesIpController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Call to load from the XIB/NIB file
-		public WindowPreferencesIpController () : base ("WindowPreferencesIp")
+		public WindowPreferencesIpController() : base("WindowPreferencesIp")
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 
 		#endregion
 
 		//strongly typed window accessor
-		public new WindowPreferencesIp Window {
-			get {
+		public new WindowPreferencesIp Window
+		{
+			get
+			{
 				return (WindowPreferencesIp)base.Window;
 			}
 		}
 
-		public override void AwakeFromNib ()
+		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsIpTitle;
-		
 
-			TxtIP.Changed += (object sender, EventArgs e) => {
+
+			TxtIP.Changed += (object sender, EventArgs e) =>
+			{
 				EnableIde();
 			};
-			CmdOk.Activated += (object sender, EventArgs e) => {
+			CmdOk.Activated += (object sender, EventArgs e) =>
+			{
 
 				Accepted = true;
 				Ip = TxtIP.StringValue;
 
-				Window.Close ();
-				NSApplication.SharedApplication.StopModal ();
+				Window.Close();
+				NSApplication.SharedApplication.StopModal();
 			};
 
-			CmdCancel.Activated += (object sender, EventArgs e) => {
+			CmdCancel.Activated += (object sender, EventArgs e) =>
+			{
 
 				Accepted = false;
 
-				Window.Close ();
-				NSApplication.SharedApplication.StopModal ();
+				Window.Close();
+				NSApplication.SharedApplication.StopModal();
 			};
 
 			TxtIP.StringValue = Ip;
 
-			EnableIde ();
+			EnableIde();
 		}
 
 		public void EnableIde()
 		{
-			if (new IpAddress (TxtIP.StringValue).Valid == false) {
+			if (new IpAddress(TxtIP.StringValue).Valid == false)
+			{
 				CmdOk.Enabled = false;
-			} else {
+			}
+			else
+			{
 				CmdOk.Enabled = true;
 			}
 

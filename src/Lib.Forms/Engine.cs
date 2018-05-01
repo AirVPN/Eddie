@@ -23,7 +23,7 @@ using System.Threading;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 //using ExceptionReporting;
@@ -102,31 +102,33 @@ namespace Eddie.Forms
 				FormMain.DeInit();
 		}
 
-		public override XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
+		public override Json OnCommand(Json data)
 		{
-			string action = xml.GetAttribute("action").ToLowerInvariant();
+			string command = data["command"].Value as string;
 
-			if (action == "ui.show.preferences")
+			if (command == "test2")
+			{
+				Forms.WindowMan w = new Forms.WindowMan(); // ClodoTemp
+				w.ShowDialog();
+			}			
+			else if (command == "ui.color")
 			{
 				if (FormMain != null)
-					FormMain.OnShowPreferences();
+					FormMain.SetColor(data["color"].Value as string);
 			}
-			else if (action == "ui.show.about")
+			else if(command == "ui.status")
 			{
+				string textFull = data["full"].Value as string;
+				string textShort = textFull;
+				if (data.HasKey("short"))
+					textShort = data["short"].Value as string;
 				if (FormMain != null)
-					FormMain.OnShowAbout();
+					FormMain.SetStatus(textFull, textShort);
 			}
-			else if (action == "ui.show.menu")
-			{
-				if (FormMain != null)
-					FormMain.OnShowMenu();
-			}
-			else
-				return base.OnCommand(xml, ignoreIfNotExists);
 
-			return null;
+			return base.OnCommand(data);
 		}
-
+		
 		public override void OnRefreshUi(RefreshUiMode mode)
 		{
 			base.OnRefreshUi(mode);
@@ -140,6 +142,12 @@ namespace Eddie.Forms
 		{
 			if (FormMain != null)
 				FormMain.OnStatsChange(entry);
+		}
+
+		public override void OnProviderManifestFailed(Provider provider)
+		{
+			if (FormMain != null)
+				FormMain.OnProviderManifestFailed(provider);
 		}
 
 		public override void OnLog(LogEntry l)
@@ -181,12 +189,14 @@ namespace Eddie.Forms
 				FormMain.OnShowText(title, data);
 		}
 
+		/* // TOCLEAN
 		public override bool OnAskYesNo(string message)
 		{
 			if (FormMain != null)
-				return FormMain.OnAskYesNo(message);
+				return FormMain.AskYesNo(message);
 			return false;
 		}
+		*/
 
 		public override Credentials OnAskCredentials()
 		{
@@ -219,5 +229,23 @@ namespace Eddie.Forms
 				FormMain.OnPostManifestUpdate();
 		}
 
+		public virtual void OnChangeMainFormVisibility(bool vis)
+		{
+			
+		}
+
+		public virtual bool AllowMinimizeInTray()
+		{
+			if (Engine.Storage != null)
+			{
+				if (Engine.Storage.GetBool("gui.tray_minimized") == false)
+				{
+					return false;
+				}
+			}
+			if (FormMain != null)
+				return FormMain.AllowMinimizeInTray ();
+			return false;
+		}
 	}
 }

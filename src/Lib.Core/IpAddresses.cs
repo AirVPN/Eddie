@@ -181,13 +181,36 @@ namespace Eddie.Core
 				return IPs[0];
 			}
 		}
-		
+
+		public IpAddress FirstPreferIPv4
+		{
+			get
+			{				
+				IpAddresses list = OnlyIPv4;
+				if (list.Count > 0)
+					return list.First;
+				list = OnlyIPv6;
+				if (list.Count > 0)
+					return list.First;
+				return null;
+			}
+		}
+
+
 		public void Clear()
 		{
 			lock (IPs)
 			{
 				IPs.Clear();
 			}
+		}
+
+		public IpAddresses Clone()
+		{
+			IpAddresses n = new IpAddresses();
+			foreach (IpAddress ip in IPs)
+				n.Add(ip.Clone());
+			return n;
 		}
 
 		public IpAddress GetV4ByIndex(int index)

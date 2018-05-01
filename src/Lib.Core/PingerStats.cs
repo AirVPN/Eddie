@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -33,11 +34,11 @@ namespace Eddie.Core
 		{
 			if (Engine.Instance.IsConnected())
 			{
-				return MessagesFormatter.Format(Messages.PingerStatsPending, Utils.FormatTime(LatestCheckDate));
+				return MessagesFormatter.Format(Messages.PingerStatsPending, UtilsString.FormatTime(LatestCheckDate));
 			}
 			else
 			{
-				return MessagesFormatter.Format(Messages.PingerStatsNormal, Invalid.ToString(), Utils.FormatTime(OlderCheckDate), Utils.FormatTime(LatestCheckDate));
+				return MessagesFormatter.Format(Messages.PingerStatsNormal, Invalid.ToString(), UtilsString.FormatTime(OlderCheckDate), UtilsString.FormatTime(LatestCheckDate));
 			}
 		}
 	}

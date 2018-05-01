@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 using Eddie.Forms;
 
@@ -30,68 +30,69 @@ namespace Eddie.Forms.Linux
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
+		/// 
+
+		private static Eddie.Forms.Engine m_engine;
+		private static ApplicationContext m_context;
 
 		[STAThread]
 		static void Main()
 		{
-            try
-            {
-                //Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
+			try
+			{
+				//Application.EnableVisualStyles();
+				System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
-                Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
-
+				Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
 				CommandLine.InitSystem(Environment.CommandLine);
 
-                if (CommandLine.SystemEnvironment.Exists("cli"))
-                {
-                    Core.Engine engine = new Core.Engine();
+				if (CommandLine.SystemEnvironment.Exists("cli"))
+				{
+					Core.Engine engine = new Core.Engine();
 
-                    if (engine.Initialization(true))
-                    {
-                        engine.ConsoleStart();
-                    }
-                }
-                else
-                {
-                    GuiUtils.Init();
+					if (engine.Initialization(true))
+					{
+						engine.ConsoleStart();
+					}
+				}
+				else
+				{
+					GuiUtils.Init();
 
-                    Eddie.Forms.Engine engine = new Eddie.Forms.Engine();
+					m_engine = new Eddie.Forms.Linux.Engine();
 
-                    engine.TerminateEvent += Engine_TerminateEvent;
-                    
-                    if (engine.Initialization(false))
-                    {
-                        engine.FormMain = new Eddie.Forms.Forms.Main();
+					m_engine.TerminateEvent += Engine_TerminateEvent;
 
-                        engine.UiStart();
+					if (m_engine.Initialization(false))
+					{
+						m_engine.FormMain = new Eddie.Forms.Forms.Main();
 
-                        // Application.Run(engine.FormMain); // Removed in 2.11.9
+						m_engine.UiStart();
 
-                        engine.FormMain.LoadPhase();
+						// Application.Run(engine.FormMain); // Removed in 2.11.9
 
-                        m_context = new ApplicationContext();                        
-                    }
-                }
-            }
-            catch (Exception e)
-            {
+						m_engine.FormMain.LoadPhase();
+
+						m_context = new ApplicationContext();
+					}
+				}
+			}
+			catch (Exception e)
+			{
 				Console.WriteLine(e.StackTrace);
-                MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+				MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled
 			if (m_context != null)
-				Application.Run(m_context);
+				System.Windows.Forms.Application.Run(m_context);
 		}
 
-        static ApplicationContext m_context;
+		private static void Engine_TerminateEvent()
+		{
+			m_context.ExitThread();
 
-        private static void Engine_TerminateEvent()
-        {
-            m_context.ExitThread();
-
-            Application.Exit();
-        }
-    }
+			System.Windows.Forms.Application.Exit();
+		}
+	}
 }

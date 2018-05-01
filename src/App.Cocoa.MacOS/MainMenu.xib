@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -27,16 +27,13 @@
                             <menuItem isSeparatorItem="YES" id="d6z-Ua-jbI">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="AirVPN Website (Web)" image="home_16" id="cFT-nx-MzJ" userLabel="Menu Item - Website">
+                            <menuItem title="Website (Web)" image="home_16" id="cFT-nx-MzJ" userLabel="Menu Item - Website">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem title="Your details and statistics (Web)" image="stats_16" id="KZI-Bi-OUe" userLabel="Menu Item - Client Area">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem title="Forwarding Ports (Web)" image="ports_16" id="YT6-gP-yWE" userLabel="Menu Item - Forwarding Ports">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                            </menuItem>
-                            <menuItem title="Speed Test (Web)" image="speed_16" id="DQk-oh-Ot8" userLabel="Menu Item - Speed Test">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="143">
@@ -110,7 +107,6 @@
                 <outlet property="MnuMainHome" destination="cFT-nx-MzJ" id="k32-Bx-AxL"/>
                 <outlet property="MnuMainPreferences" destination="129" id="g41-6b-wZh"/>
                 <outlet property="MnuMainQuit" destination="136" id="u7D-PZ-Mct"/>
-                <outlet property="MnuMainSpeedTest" destination="DQk-oh-Ot8" id="FND-nA-VbF"/>
             </connections>
         </customObject>
     </objects>
@@ -120,7 +116,6 @@
         <image name="home_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="ports_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="settings_16" width="16.225351333618164" height="16.225351333618164"/>
-        <image name="speed_16" width="16.225351333618164" height="16.225351333618164"/>
         <image name="stats_16" width="16.225351333618164" height="16.225351333618164"/>
     </resources>
 </document>

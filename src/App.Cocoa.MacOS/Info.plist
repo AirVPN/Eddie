@@ -17,7 +17,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.eddie.client</string>
+	<string>com.eddie.macos</string>
 	<key>CFBundleDisplayName</key>
 	<string>Eddie</string>
 	<key>NSSupportsSuddenTermination</key>
@@ -53,6 +53,6 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>GPL3 - Copyright © AirVPN Team</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.13</string>
+	<string>2.14</string>
 </dict>
 </plist>

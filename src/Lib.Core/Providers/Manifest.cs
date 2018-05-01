@@ -24,12 +24,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core.Providers
 {
 	public class Service : Core.Provider
-    {		
+	{
 		public XmlNode Manifest;
 		public XmlNode User;
 
@@ -38,23 +38,23 @@ namespace Eddie.Core.Providers
 		private Int64 m_lastFetchTime = 0;
 
 		public override void OnInit()
-        {
-            base.OnInit();
+		{
+			base.OnInit();
 
 #if (EDDIE3)
             Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".dns.check", true, Messages.ManOptionServicesDnsCheck);
             Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".tunnel.check", true, Messages.ManOptionServicesTunnelCheck);
 #endif
-        }
+		}
 
-        public override void OnLoad(XmlElement xmlStorage)
+		public override void OnLoad(XmlElement xmlStorage)
 		{
 			base.OnLoad(xmlStorage);
 
-            CompatibilityManager.FixProviderStorage(Storage);
+			CompatibilityManager.FixProviderStorage(Storage);
 
 			Manifest = Storage.DocumentElement.SelectSingleNode("manifest");
-            
+
 			if (Manifest == null)
 			{
 				XmlNode nodeDefinitionDefaultManifest = Definition.SelectSingleNode("manifest");
@@ -75,130 +75,146 @@ namespace Eddie.Core.Providers
 			ovpn.AppendDirectives(Manifest.Attributes["openvpn_directives"].Value.Replace("\t", "").Trim(), "Provider level");
 		}
 
-        public override void OnBuildOvpn(ConnectionInfo connection, OvpnBuilder ovpn)
-        {
-            base.OnBuildOvpn(connection, ovpn);
+		public override void OnBuildConnectionActive(ConnectionInfo connection, ConnectionActive connectionActive)
+		{
+			base.OnBuildConnectionActive(connection, connectionActive);
 
+			OvpnBuilder ovpn = connectionActive.OpenVpnProfileStartup;
 			ConnectionMode mode = GetMode();
 
-            int proxyPort = 0;
-
-            if (mode.Protocol == "SSH")
-            {
-                proxyPort = Engine.Instance.Storage.GetInt("ssh.port");
-                if (proxyPort == 0)
-                    proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-            }
-            else if (mode.Protocol == "SSL")
-            {
-                proxyPort = Engine.Instance.Storage.GetInt("ssl.port");
-                if (proxyPort == 0)
-                    proxyPort = RandomGenerator.GetInt(1024, 64 * 1024);
-            }
-            else
-            {
-                proxyPort = 0;
-            }
+			if (mode.Protocol == "SSH")
+			{
+				connectionActive.SshLocalPort = Engine.Instance.Storage.GetInt("ssh.port");
+				connectionActive.SshRemotePort = mode.Port;
+				connectionActive.SshPortDestination = mode.SshPortDestination;
+				if (connectionActive.SshLocalPort == 0)
+					connectionActive.SshLocalPort = RandomGenerator.GetInt(1024, 64 * 1024);
+			}
+			else if (mode.Protocol == "SSL")
+			{
+				connectionActive.SslLocalPort = Engine.Instance.Storage.GetInt("ssl.port");
+				connectionActive.SslRemotePort = mode.Port;
+				if (connectionActive.SslLocalPort == 0)
+					connectionActive.SslLocalPort = RandomGenerator.GetInt(1024, 64 * 1024);
+			}
 
 			{
 				string modeDirectives = mode.Directives;
 				string paramUserTA = "";
+				string paramUserTlsCrypt = "";
 				if (User != null)
-					paramUserTA = Utils.XmlGetAttributeString(User, "ta", "");
+				{
+					paramUserTA = UtilsXml.XmlGetAttributeString(User, "ta", "");
+					paramUserTlsCrypt = UtilsXml.XmlGetAttributeString(User, "tls_crypt", "");
+				}
 				modeDirectives = modeDirectives.Replace("{@user-ta}", paramUserTA);
+				modeDirectives = modeDirectives.Replace("{@user-tlscrypt}", paramUserTlsCrypt);
 				ovpn.AppendDirectives(modeDirectives, "Mode level");
 			}
 
 			// Pick the IP
-			IpAddress ip = null; 
-			string protocolEntry = Engine.Instance.Storage.Get("protocol.ip.entry");
-			if (protocolEntry == "ipv6-ipv4")
+			IpAddress ip = null;
+			string entryIpLayer = Engine.Instance.Storage.Get("network.entry.iplayer");
+			if (entryIpLayer == "ipv6-ipv4")
 			{
 				ip = connection.IpsEntry.GetV6ByIndex(mode.EntryIndex);
 				if (ip == null)
 					ip = connection.IpsEntry.GetV4ByIndex(mode.EntryIndex);
 			}
-			else if (protocolEntry == "ipv4-ipv6")
+			else if (entryIpLayer == "ipv4-ipv6")
 			{
 				ip = connection.IpsEntry.GetV4ByIndex(mode.EntryIndex);
 				if (ip == null)
 					ip = connection.IpsEntry.GetV6ByIndex(mode.EntryIndex);
 			}
-			else if (protocolEntry == "ipv6-only")
+			else if (entryIpLayer == "ipv6-only")
 				ip = connection.IpsEntry.GetV6ByIndex(mode.EntryIndex);
-			else if (protocolEntry == "ipv4-only")
+			else if (entryIpLayer == "ipv4-only")
 				ip = connection.IpsEntry.GetV4ByIndex(mode.EntryIndex);
 
 			if (ip != null)
 			{
-				if (mode.Protocol == "SSH")
-					ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-				else if (mode.Protocol == "SSL")
-					ovpn.AppendDirective("remote", "127.0.0.1 " + Conversions.ToString(proxyPort), "");
-				else
-					ovpn.AppendDirective("remote", ip.AddressQ + " " + mode.Port.ToString(), "");
+				IpAddress remoteAddress = ip.Clone();
+				int remotePort = mode.Port;
 
-				string routesDefault = Engine.Instance.Storage.Get("routes.default");
-				if (routesDefault == "in")
+				if (mode.Protocol == "SSH")
 				{
-					if ((mode.Protocol == "SSH") || (mode.Protocol == "SSL"))
+					remoteAddress = "127.0.0.1";
+					remotePort = connectionActive.SshLocalPort;
+				}
+				else if (mode.Protocol == "SSL")
+				{
+					remoteAddress = "127.0.0.1";
+					remotePort = connectionActive.SslLocalPort;
+				}
+				
+				ovpn.AppendDirective("remote", remoteAddress.Address + " " + remotePort.ToString(), "");
+
+				// Adjust the protocol
+				OvpnBuilder.Directive dProto = ovpn.GetOneDirective("proto");
+				if (dProto != null)
+				{
+					dProto.Text = dProto.Text.ToLowerInvariant();
+					if (dProto.Text == "tcp")
 					{
-						ovpn.AppendDirective("route", ip.ToOpenVPN() + " net_gateway", "VPN Entry IP"); // ClodoIPv6 // ToFix
+						if (remoteAddress.IsV6)
+							dProto.Text = "tcp6";
+					}
+					else if (dProto.Text == "udp")
+					{
+						if (remoteAddress.IsV6)
+							dProto.Text = "udp6";
 					}
 				}
+
+				if ((mode.Protocol == "SSH") || (mode.Protocol == "SSL"))
+				{
+					if (Constants.FeatureIPv6ControlOptions)
+					{
+						if( ((ip.IsV4) && (connectionActive.TunnelIPv4)) ||
+							((ip.IsV6) && (connectionActive.TunnelIPv6)) )
+							connectionActive.AddRoute(ip, "net_gateway", "VPN Entry IP");
+					}
+					else
+					{
+						string routesDefault = Engine.Instance.Storage.Get("routes.default");
+						if (routesDefault == "in")
+						{
+							connectionActive.AddRoute(ip, "net_gateway", "VPN Entry IP");
+						}
+					}
+				}	
 			}
-            
-            ovpn.Protocol = mode.Protocol; // TOCLEAN
-            ovpn.Address = ip;
-            ovpn.Port = mode.Port;
-            ovpn.ProxyPort = proxyPort;
-        }
 
-        public override void OnBuildOvpnAuth(OvpnBuilder ovpn)
+			connectionActive.Protocol = mode.Protocol;
+			if (ip != null)
+				connectionActive.Address = ip.Clone();
+		}
+
+		public override void OnBuildConnectionActiveAuth(ConnectionActive connectionActive)
 		{
-			base.OnBuildOvpnAuth(ovpn);
+			base.OnBuildConnectionActiveAuth(connectionActive);
 
-            string key = Engine.Instance.Storage.Get("key");
+			string key = Engine.Instance.Storage.Get("key");
 
-            XmlNode nodeUser = User;            
-			if(nodeUser != null)
+			XmlNode nodeUser = User;
+			if (nodeUser != null)
 			{
-				ovpn.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
+				connectionActive.OpenVpnProfileStartup.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
 				XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
 				if (xmlKey == null)
 					throw new Exception(MessagesFormatter.Format(Messages.KeyNotFound, key));
-				ovpn.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
-				ovpn.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");
-			}		
-		}
-
-		public override void OnBuildOvpnPost(ref string ovpn)
-		{
-			base.OnBuildOvpnPost(ref ovpn);
-
-			// Custom replacement, useful to final adjustment of generated OVPN by server-side rules.
-			// Never used yet, available for urgent maintenance.
-			int iCustomReplaces = 0;
-			for (; ; )
-			{
-				if (Manifest.Attributes["openvpn_replace" + iCustomReplaces.ToString() + "_pattern"] == null)
-					break;
-
-				string pattern = Manifest.Attributes["openvpn_replace" + iCustomReplaces.ToString() + "_pattern"].Value;
-				string replacement = Manifest.Attributes["openvpn_replace" + iCustomReplaces.ToString() + "_replacement"].Value;
-
-				ovpn = Regex.Replace(ovpn, pattern, replacement);
-
-				iCustomReplaces++;
+				connectionActive.OpenVpnProfileStartup.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
+				connectionActive.OpenVpnProfileStartup.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");
 			}
 		}
 
-        public override void OnAuthFailed()
-        {
-            Engine.Instance.Logs.Log(LogType.Warning, Messages.AirVpnAuthFailed);
-        }
+		public override void OnAuthFailed()
+		{
+			Engine.Instance.Logs.Log(LogType.Warning, Messages.AirVpnAuthFailed);
+		}
 
-        public override string Refresh()
+		public override string Refresh()
 		{
 			base.Refresh();
 
@@ -211,16 +227,16 @@ namespace Eddie.Core.Providers
 				XmlDocument xmlDoc = Fetch(Messages.ManifestUpdate, parameters);
 				lock (Storage)
 				{
-					if(Manifest != null)
+					if (Manifest != null)
 						Storage.DocumentElement.RemoveChild(Manifest);
 
 					Manifest = Storage.ImportNode(xmlDoc.DocumentElement, true);
 					Storage.DocumentElement.AppendChild(Manifest);
 
 					// Update with the local time
-					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
+					Manifest.Attributes["time"].Value = UtilsCore.UnixTimeStamp().ToString();
 
-					m_lastFetchTime = Utils.UnixTimeStamp();
+					m_lastFetchTime = UtilsCore.UnixTimeStamp();
 				}
 
 				return "";
@@ -231,34 +247,33 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-        public override IpAddresses GetNetworkLockAllowedIps()
-        {
+		public override IpAddresses GetNetworkLockAllowedIps()
+		{
 			IpAddresses result = base.GetNetworkLockAllowedIps();
 
-            // Hosts
-            XmlNodeList nodesUrls = Storage.DocumentElement.SelectNodes("//urls/url");
-            foreach (XmlNode nodeUrl in nodesUrls)
-            {
-                string url = nodeUrl.Attributes["address"].Value;
-                string host = Utils.HostFromUrl(url);                
-                result.Add(host);
-            }
+			List<string> urls = GetBootstrapUrls();
+			foreach(string url in urls)
+			{
+				string host = UtilsCore.HostFromUrl(url);
+				if (host != "")
+					result.Add(host);
+			}			
 
-            return result;
-        }
+			return result;
+		}
 
-        public override string GetFrontMessage()
-        {
-            if (Manifest.Attributes["front_message"] != null)
-            {
-                string msg = Manifest.Attributes["front_message"].Value;
-                return msg;
-            }
+		public override string GetFrontMessage()
+		{
+			if (Manifest.Attributes["front_message"] != null)
+			{
+				string msg = Manifest.Attributes["front_message"].Value;
+				return msg;
+			}
 
-            return base.GetFrontMessage();
-        }
+			return base.GetFrontMessage();
+		}
 
-        public void Auth(XmlNode node)
+		public void Auth(XmlNode node)
 		{
 			lock (Storage)
 			{
@@ -287,31 +302,31 @@ namespace Eddie.Core.Providers
 		{
 			base.OnBuildConnections();
 
-            lock (Manifest)
+			lock (Manifest)
 			{
 				foreach (XmlNode nodeServer in Manifest.SelectNodes("//servers/server"))
 				{
-                    string code = Utils.HashSHA256(nodeServer.Attributes["name"].Value);
+					string code = UtilsCore.HashSHA256(nodeServer.Attributes["name"].Value);
 
 					ConnectionInfo infoServer = Engine.Instance.GetConnectionInfo(code, this);
 
-                    // Update info
-                    infoServer.DisplayName = TitleForDisplay + nodeServer.Attributes["name"].Value;
-                    infoServer.ProviderName = nodeServer.Attributes["name"].Value;
-					infoServer.IpsEntry.Set(Utils.XmlGetAttributeString(nodeServer, "ips_entry", ""));
-					infoServer.IpsExit.Set(Utils.XmlGetAttributeString(nodeServer, "ips_exit", ""));
-					infoServer.CountryCode = Utils.XmlGetAttributeString(nodeServer, "country_code", "");
-					infoServer.Location = Utils.XmlGetAttributeString(nodeServer, "location", "");
-					infoServer.ScoreBase = Utils.XmlGetAttributeInt64(nodeServer, "scorebase", 0);
-					infoServer.Bandwidth = Utils.XmlGetAttributeInt64(nodeServer, "bw", 0);
-					infoServer.BandwidthMax = Utils.XmlGetAttributeInt64(nodeServer, "bw_max", 1);
-					infoServer.Users = Utils.XmlGetAttributeInt64(nodeServer, "users", 0);
-					infoServer.WarningOpen = Utils.XmlGetAttributeString(nodeServer, "warning_open", "");
-					infoServer.WarningClosed = Utils.XmlGetAttributeString(nodeServer, "warning_closed", "");
-					infoServer.SupportIPv4 = Utils.XmlGetAttributeBool(nodeServer, "support_ipv4", false);
-					infoServer.SupportIPv6 = Utils.XmlGetAttributeBool(nodeServer, "support_ipv6", false);
-					infoServer.SupportCheck = Utils.XmlGetAttributeBool(nodeServer, "support_check", false);
-                    infoServer.OvpnDirectives = Utils.XmlGetAttributeString(nodeServer, "openvpn_directives", "");					
+					// Update info
+					infoServer.DisplayName = TitleForDisplay + nodeServer.Attributes["name"].Value;
+					infoServer.ProviderName = nodeServer.Attributes["name"].Value;
+					infoServer.IpsEntry.Set(UtilsXml.XmlGetAttributeString(nodeServer, "ips_entry", ""));
+					infoServer.IpsExit.Set(UtilsXml.XmlGetAttributeString(nodeServer, "ips_exit", ""));
+					infoServer.CountryCode = UtilsXml.XmlGetAttributeString(nodeServer, "country_code", "");
+					infoServer.Location = UtilsXml.XmlGetAttributeString(nodeServer, "location", "");
+					infoServer.ScoreBase = UtilsXml.XmlGetAttributeInt64(nodeServer, "scorebase", 0);
+					infoServer.Bandwidth = UtilsXml.XmlGetAttributeInt64(nodeServer, "bw", 0);
+					infoServer.BandwidthMax = UtilsXml.XmlGetAttributeInt64(nodeServer, "bw_max", 1);
+					infoServer.Users = UtilsXml.XmlGetAttributeInt64(nodeServer, "users", 0);
+					infoServer.WarningOpen = UtilsXml.XmlGetAttributeString(nodeServer, "warning_open", "");
+					infoServer.WarningClosed = UtilsXml.XmlGetAttributeString(nodeServer, "warning_closed", "");
+					infoServer.SupportIPv4 = UtilsXml.XmlGetAttributeBool(nodeServer, "support_ipv4", false);
+					infoServer.SupportIPv6 = UtilsXml.XmlGetAttributeBool(nodeServer, "support_ipv6", false);
+					infoServer.SupportCheck = UtilsXml.XmlGetAttributeBool(nodeServer, "support_check", false);
+					infoServer.OvpnDirectives = UtilsXml.XmlGetAttributeString(nodeServer, "openvpn_directives", "");
 				}
 			}
 
@@ -324,9 +339,9 @@ namespace Eddie.Core.Providers
 
 			ConnectionMode mode = GetMode();
 
-			lock(Engine.Instance.Connections)
+			lock (Engine.Instance.Connections)
 			{
-				foreach(ConnectionInfo connection in Engine.Instance.Connections.Values)
+				foreach (ConnectionInfo connection in Engine.Instance.Connections.Values)
 				{
 					if (connection.Provider != this)
 						continue;
@@ -335,52 +350,52 @@ namespace Eddie.Core.Providers
 						connection.WarningAdd(Messages.ConnectionWarningLoginRequired, ConnectionInfoWarning.WarningType.Error);
 
 					if (mode.EntryIndex >= connection.IpsEntry.CountIPv4)
-						connection.WarningAdd(Messages.ConnectionWarningModeUnsupported, ConnectionInfoWarning.WarningType.Error);					
+						connection.WarningAdd(Messages.ConnectionWarningModeUnsupported, ConnectionInfoWarning.WarningType.Error);
 				}
 			}
 		}
 
 		public override string GetSshKey(string format)
 		{
-			return Utils.XmlGetAttributeString(User, "ssh_" + format, "");
+			return UtilsXml.XmlGetAttributeString(User, "ssh_" + format, "");
 		}
 
 		public override string GetSslCrt()
 		{
-			return Utils.XmlGetAttributeString(User, "ssl_crt", "");
+			return UtilsXml.XmlGetAttributeString(User, "ssl_crt", "");
 		}
 
-        public bool SupportConnect
-        {
-            get
-            {
-                return true;
-            }
-        }
+		public bool SupportConnect
+		{
+			get
+			{
+				return true;
+			}
+		}
 
-        public bool CheckDns
-        {
-            get
-            {
+		public bool CheckDns
+		{
+			get
+			{
 #if (EDDIE3)
                 return Engine.Instance.Storage.GetBool("providers." + GetCode() + ".dns.check");
 #else
-                return Engine.Instance.Storage.GetBool("dns.check");
+				return Engine.Instance.Storage.GetBool("dns.check");
 #endif
-            }
-        }
+			}
+		}
 
-        public bool CheckTunnel
-        {
-            get
-            {
+		public bool CheckTunnel
+		{
+			get
+			{
 #if (EDDIE3)
                 return Engine.Instance.Storage.GetBool("providers." + GetCode() + ".tunnel.check");
 #else
-                return Engine.Instance.Storage.GetBool("advanced.check.route");
+				return Engine.Instance.Storage.GetBool("advanced.check.route");
 #endif
-            }
-        }
+			}
+		}
 
 		public void RefreshModes()
 		{
@@ -397,22 +412,39 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-        public XmlDocument Fetch(string title, Dictionary<string, string> parameters)
+		public List<string> GetBootstrapUrls()
 		{
 			List<string> urls = new List<string>();
 
+			// Manual Urls
+			foreach (string url in Engine.Instance.Storage.Get("bootstrap.urls").Split(';'))
+			{
+				string sUrl = url.Trim();
+				string host = UtilsCore.HostFromUrl(url);
+				if (host != "")
+					urls.Add(sUrl);
+			}
+
+			// Manifest Urls
 			if (Manifest != null)
 			{
-                XmlNodeList nodesUrls = Manifest.SelectNodes("//urls/url");
+				XmlNodeList nodesUrls = Manifest.SelectNodes("//urls/url");
 				foreach (XmlNode nodeUrl in nodesUrls)
 				{
 					urls.Add(nodeUrl.Attributes["address"].Value);
 				}
 			}
-            
+
+			return urls;
+		}
+
+		public XmlDocument Fetch(string title, Dictionary<string, string> parameters)
+		{
+			List<string> urls = GetBootstrapUrls();
+
 			string authPublicKey = Manifest.SelectSingleNode("rsa").InnerXml;
 
-            return FetchUrls(title, authPublicKey, urls, parameters);            
+			return FetchUrls(title, authPublicKey, urls, parameters);
 		}
 
 		// This is the only method about exchange data between this software and AirVPN infrastructure.
@@ -424,79 +456,121 @@ namespace Eddie.Core.Providers
 		public static XmlDocument FetchUrl(string authPublicKey, string url, Dictionary<string, string> parameters)
 		{
 			// AES				
-			RijndaelManaged rijAlg = new RijndaelManaged();
-			rijAlg.KeySize = 256;
-			rijAlg.GenerateKey();
-			rijAlg.GenerateIV();
-
-			// Generate S
-
-			// Bug workaround: Xamarin 6.1.2 macOS throw an 'Default constructor not found for type System.Diagnostics.FilterElement' error.
-			// in 'new System.Xml.Serialization.XmlSerializer', so i avoid that.
-			/*
-            StringReader sr = new System.IO.StringReader(authPublicKey);
-			System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
-			RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
-            */
-			RSAParameters publicKey = new RSAParameters();
-			XmlDocument docAuthPublicKey = new XmlDocument();
-			docAuthPublicKey.LoadXml(authPublicKey);
-			publicKey.Modulus = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Modulus"].InnerText);
-			publicKey.Exponent = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Exponent"].InnerText);
-
-			RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
-			csp.ImportParameters(publicKey);
-
-			Dictionary<string, byte[]> assocParamS = new Dictionary<string, byte[]>();
-			assocParamS["key"] = rijAlg.Key;
-			assocParamS["iv"] = rijAlg.IV;
-
-			byte[] bytesParamS = csp.Encrypt(Utils.AssocToUtf8Bytes(assocParamS), false);
-
-			// Generate D
-
-			byte[] aesDataIn = Utils.AssocToUtf8Bytes(parameters);
-			MemoryStream aesCryptStream = new MemoryStream();
-			ICryptoTransform aesEncryptor = rijAlg.CreateEncryptor();
-			CryptoStream aesCryptStream2 = new CryptoStream(aesCryptStream, aesEncryptor, CryptoStreamMode.Write);
-			aesCryptStream2.Write(aesDataIn, 0, aesDataIn.Length);
-			aesCryptStream2.FlushFinalBlock();
-			byte[] bytesParamD = aesCryptStream.ToArray();
-
-			// HTTP Fetch
-			HttpRequest request = new HttpRequest();
-			request.Url = url;
-			request.Parameters["s"] = Utils.Base64Encode(bytesParamS);
-			request.Parameters["d"] = Utils.Base64Encode(bytesParamD);
-
-			HttpResponse response = Engine.Instance.FetchUrl(request);
-			
-			try
+			using (RijndaelManaged rijAlg = new RijndaelManaged())
 			{
-				byte[] fetchResponse = response.BufferData;
+				rijAlg.KeySize = 256;
+				rijAlg.GenerateKey();
+				rijAlg.GenerateIV();
 
-				// Decrypt answer
-				MemoryStream aesDecryptStream = new MemoryStream();
-				ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor();
-				CryptoStream aesDecryptStream2 = new CryptoStream(aesDecryptStream, aesDecryptor, CryptoStreamMode.Write);
-				aesDecryptStream2.Write(fetchResponse, 0, fetchResponse.Length);
-				aesDecryptStream2.FlushFinalBlock();
-				byte[] fetchResponsePlain = aesDecryptStream.ToArray();
+				// Generate S
 
-				string finalData = System.Text.Encoding.UTF8.GetString(fetchResponsePlain);
+				// Bug workaround: Xamarin 6.1.2 macOS throw an 'Default constructor not found for type System.Diagnostics.FilterElement' error.
+				// in 'new System.Xml.Serialization.XmlSerializer', so i avoid that.
+				/*
+				StringReader sr = new System.IO.StringReader(authPublicKey);
+				System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
+				RSAParameters publicKey = (RSAParameters)xs.Deserialize(sr);
+				*/
+				RSAParameters publicKey = new RSAParameters();
+				XmlDocument docAuthPublicKey = new XmlDocument();
+				docAuthPublicKey.LoadXml(authPublicKey);
+				publicKey.Modulus = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Modulus"].InnerText);
+				publicKey.Exponent = Convert.FromBase64String(docAuthPublicKey.DocumentElement["Exponent"].InnerText);
 
-				XmlDocument doc = new XmlDocument();
-				doc.LoadXml(finalData);
-				return doc;
-			}
-			catch(Exception ex)
-			{
-				string message = "";
-				if (response.GetHeader("location") != "")
-					message = MessagesFormatter.Format(Messages.ManifestFailedUnexpected302, response.GetHeader("location"));
-				else
-					message = ex.Message + " - " + response.GetLineReport();
-				throw new Exception(message);
+				Dictionary<string, byte[]> assocParamS = new Dictionary<string, byte[]>();
+				assocParamS["key"] = rijAlg.Key;
+				assocParamS["iv"] = rijAlg.IV;
+
+				byte[] bytesParamS = null;
+				using (RSACryptoServiceProvider csp = new RSACryptoServiceProvider())
+				{
+					csp.ImportParameters(publicKey);
+					bytesParamS = csp.Encrypt(UtilsCore.AssocToUtf8Bytes(assocParamS), false);
+				}
+
+				// Generate D
+
+				byte[] aesDataIn = UtilsCore.AssocToUtf8Bytes(parameters);
+				byte[] bytesParamD = null;
+
+				{
+					MemoryStream aesCryptStream = null;
+					CryptoStream aesCryptStream2 = null;
+
+					try
+					{
+						aesCryptStream = new MemoryStream();
+						using (ICryptoTransform aesEncryptor = rijAlg.CreateEncryptor())
+						{
+							aesCryptStream2 = new CryptoStream(aesCryptStream, aesEncryptor, CryptoStreamMode.Write);
+							aesCryptStream2.Write(aesDataIn, 0, aesDataIn.Length);
+							aesCryptStream2.FlushFinalBlock();
+
+							bytesParamD = aesCryptStream.ToArray();
+						}
+					}
+					finally
+					{
+						if (aesCryptStream2 != null)
+							aesCryptStream2.Dispose();
+						else if (aesCryptStream != null)
+							aesCryptStream.Dispose();
+					}
+				}
+
+				// HTTP Fetch
+				HttpRequest request = new HttpRequest();
+				request.Url = url;
+				request.Parameters["s"] = UtilsString.Base64Encode(bytesParamS);
+				request.Parameters["d"] = UtilsString.Base64Encode(bytesParamD);
+
+				HttpResponse response = Engine.Instance.FetchUrl(request);
+
+				try
+				{
+					byte[] fetchResponse = response.BufferData;
+					byte[] fetchResponsePlain = null;
+
+					MemoryStream aesDecryptStream = null;
+					CryptoStream aesDecryptStream2 = null;
+
+					// Decrypt answer
+
+					try
+					{
+						aesDecryptStream = new MemoryStream();
+						using (ICryptoTransform aesDecryptor = rijAlg.CreateDecryptor())
+						{
+							aesDecryptStream2 = new CryptoStream(aesDecryptStream, aesDecryptor, CryptoStreamMode.Write);
+							aesDecryptStream2.Write(fetchResponse, 0, fetchResponse.Length);
+							aesDecryptStream2.FlushFinalBlock();
+
+							fetchResponsePlain = aesDecryptStream.ToArray();
+						}
+					}
+					finally
+					{
+						if (aesDecryptStream2 != null)
+							aesDecryptStream2.Dispose();
+						else if (aesDecryptStream != null)
+							aesDecryptStream.Dispose();
+					}
+
+					string finalData = System.Text.Encoding.UTF8.GetString(fetchResponsePlain);
+
+					XmlDocument doc = new XmlDocument();
+					doc.LoadXml(finalData);
+					return doc;
+				}
+				catch (Exception ex)
+				{
+					string message = "";
+					if (response.GetHeader("location") != "")
+						message = MessagesFormatter.Format(Messages.ManifestFailedUnexpected302, response.GetHeader("location"));
+					else
+						message = ex.Message + " - " + response.GetLineReport();
+					throw new Exception(message);
+				}
 			}
 		}
 
@@ -511,7 +585,7 @@ namespace Eddie.Core.Providers
 			int hostN = 0;
 			foreach (string url in urls)
 			{
-				string host = Utils.HostFromUrl(url);
+				string host = UtilsCore.HostFromUrl(url);
 
 				hostN++;
 				if (IpAddress.IsIP(host) == false)
@@ -595,5 +669,5 @@ namespace Eddie.Core.Providers
 
 			return GetModeAuto();
 		}
-    }
+	}
 }

@@ -8,11 +8,12 @@
     <ProjectGuid>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</ProjectGuid>
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>Eddie.Platform.macOS</RootNamespace>
+    <RootNamespace>Lib.Platform.MacOS</RootNamespace>
     <AssemblyName>Lib.Platform.macOS</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <ReleaseVersion>2.13</ReleaseVersion>
+    <ReleaseVersion>2.14</ReleaseVersion>
+    <UseXamMacFullFramework>true</UseXamMacFullFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,9 +52,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Drawing" />
     <Reference Include="Mono.Posix" />
-    <Reference Include="Xamarin.Mac" />
+    <Reference Include="Xamarin.Mac">
+      <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\4.0.0.214\lib\reference\full\Xamarin.Mac.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -63,7 +65,7 @@
     <Compile Include="NetworkLockOsxPf.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="RootLauncher.cs" />
-    <Compile Include="Native.cs" />
+    <Compile Include="NativeMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lib.Core\Lib.Core.csproj">
@@ -74,6 +76,12 @@
       <Project>{9731FF8C-703E-4132-9427-5B410CF8E382}</Project>
       <Name>Lib.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <NativeReference Include="..\..\deploy\macos_x64\libLib.Platform.macOS.Native.dylib">
+      <Kind>Dynamic</Kind>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

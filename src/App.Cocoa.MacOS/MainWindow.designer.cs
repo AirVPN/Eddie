@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -58,6 +58,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton CmdLogsClean { get; set; }
 
 		[Outlet]
+		AppKit.NSButton CmdLogsCommand { get; set; }
+
+		[Outlet]
 		AppKit.NSButton CmdLogsCopy { get; set; }
 
 		[Outlet]
@@ -68,6 +71,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSButton CmdLogsSupport { get; set; }
+
+		[Outlet]
+		AppKit.NSButton CmdMainMenu { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdNetworkLock { get; set; }
@@ -146,6 +152,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSTextField LblTopStatus { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField LblVersion { get; set; }
 
 		[Outlet]
 		AppKit.NSTextField LblWaiting1 { get; set; }
@@ -362,6 +371,16 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdLogsClean = null;
 			}
 
+			if (CmdMainMenu != null) {
+				CmdMainMenu.Dispose ();
+				CmdMainMenu = null;
+			}
+
+			if (CmdLogsCommand != null) {
+				CmdLogsCommand.Dispose ();
+				CmdLogsCommand = null;
+			}
+
 			if (CmdLogsCopy != null) {
 				CmdLogsCopy.Dispose ();
 				CmdLogsCopy = null;
@@ -385,6 +404,21 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdNetworkLock != null) {
 				CmdNetworkLock.Dispose ();
 				CmdNetworkLock = null;
+			}
+
+			if (CmdProviderAdd != null) {
+				CmdProviderAdd.Dispose ();
+				CmdProviderAdd = null;
+			}
+
+			if (CmdProviderEdit != null) {
+				CmdProviderEdit.Dispose ();
+				CmdProviderEdit = null;
+			}
+
+			if (CmdProviderRemove != null) {
+				CmdProviderRemove.Dispose ();
+				CmdProviderRemove = null;
 			}
 
 			if (CmdServersBlackList != null) {
@@ -495,6 +529,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (LblTopStatus != null) {
 				LblTopStatus.Dispose ();
 				LblTopStatus = null;
+			}
+
+			if (LblVersion != null) {
+				LblVersion.Dispose ();
+				LblVersion = null;
 			}
 
 			if (LblWaiting1 != null) {
@@ -667,6 +706,11 @@ namespace Eddie.UI.Cocoa.Osx
 				TableLogs = null;
 			}
 
+			if (TableProviders != null) {
+				TableProviders.Dispose ();
+				TableProviders = null;
+			}
+
 			if (TableServers != null) {
 				TableServers.Dispose ();
 				TableServers = null;
@@ -720,26 +764,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtPassword != null) {
 				TxtPassword.Dispose ();
 				TxtPassword = null;
-			}
-
-			if (TableProviders != null) {
-				TableProviders.Dispose ();
-				TableProviders = null;
-			}
-
-			if (CmdProviderAdd != null) {
-				CmdProviderAdd.Dispose ();
-				CmdProviderAdd = null;
-			}
-
-			if (CmdProviderRemove != null) {
-				CmdProviderRemove.Dispose ();
-				CmdProviderRemove = null;
-			}
-
-			if (CmdProviderEdit != null) {
-				CmdProviderEdit.Dispose ();
-				CmdProviderEdit = null;
 			}
 		}
 	}

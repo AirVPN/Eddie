@@ -6,11 +6,11 @@
     <ProjectGuid>{8A54C394-4DE9-4512-9A04-701049176953}</ProjectGuid>
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Eddie.Cocoa.macOS</RootNamespace>
+    <RootNamespace>App.Cocoa.MacOS</RootNamespace>
     <AssemblyName>Eddie</AssemblyName>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.13</ReleaseVersion>    
+    <ReleaseVersion>2.14</ReleaseVersion>    
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
@@ -73,8 +73,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Xamarin.Mac" />
     <Reference Include="System.Xml" />
+    <Reference Include="Xamarin.Mac">
+      <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\4.0.0.214\lib\reference\full\Xamarin.Mac.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -489,6 +491,7 @@
     <BundleResource Include="Resources\more.png" />
     <BundleResource Include="Resources\rename_16.png" />
     <BundleResource Include="Resources\rename.png" />
+    <BundleResource Include="Resources\command.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -534,11 +537,6 @@
     <Compile Include="TableStatsController.cs" />
     <Compile Include="TableServersController.cs" />
     <Compile Include="TableAreasController.cs" />
-    <Compile Include="WindowOpenVpnManagementCommand.cs" />
-    <Compile Include="WindowOpenVpnManagementCommandController.cs" />
-    <Compile Include="WindowOpenVpnManagementCommand.designer.cs">
-      <DependentUpon>WindowOpenVpnManagementCommand.cs</DependentUpon>
-    </Compile>
     <Compile Include="TableAreasDelegate.cs" />
     <Compile Include="TableServersDelegate.cs" />
     <Compile Include="MainWindowDelegate.cs" />
@@ -604,6 +602,22 @@
       <DependentUpon>WindowReport.cs</DependentUpon>
     </Compile>
     <Compile Include="TableProvidersDelegate.cs" />
+    <Compile Include="WindowCommand.cs" />
+    <Compile Include="WindowCommand.designer.cs">
+      <DependentUpon>WindowCommand.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowCommandController.cs" />
+    <Compile Include="WindowCommandController.designer.cs">
+      <DependentUpon>WindowCommandController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowProviderNoBootstrap.cs" />
+    <Compile Include="WindowProviderNoBootstrap.designer.cs">
+      <DependentUpon>WindowProviderNoBootstrap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowProviderNoBootstrapController.cs" />
+    <Compile Include="WindowProviderNoBootstrapController.designer.cs">
+      <DependentUpon>WindowProviderNoBootstrapController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -613,7 +627,6 @@
     <InterfaceDefinition Include="WindowTos.xib" />
     <InterfaceDefinition Include="WindowFrontMessage.xib" />
     <InterfaceDefinition Include="WindowTextViewer.xib" />
-    <InterfaceDefinition Include="WindowOpenVpnManagementCommand.xib" />
     <InterfaceDefinition Include="WindowPreferencesRoute.xib" />
     <InterfaceDefinition Include="WindowPreferencesEvent.xib" />
     <InterfaceDefinition Include="WindowPreferencesIp.xib" />
@@ -624,11 +637,13 @@
     <InterfaceDefinition Include="WindowProviderEditManifest.xib" />
     <InterfaceDefinition Include="WindowProviderEditOpenVPN.xib" />
     <InterfaceDefinition Include="WindowReport.xib" />
-    <InterfaceDefinition Include="Main.storyboard" />
+    <InterfaceDefinition Include="WindowCommand.xib" />
+    <InterfaceDefinition Include="WindowProviderNoBootstrap.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
+    <None Include="Main.storyboard" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lib.Common\Lib.Common.csproj">
@@ -641,7 +656,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Lib.Platform.macOS\Lib.Platform.macOS.csproj">
       <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
-      <Name>Lib.Platform.macOS</Name>
+      <Name>Lib.Platform.MacOS</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

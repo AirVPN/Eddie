@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using System.Text;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -29,29 +29,11 @@ namespace Eddie.Core
 		public DateTime Date = DateTime.Now;
 		public LogType Type;
 		public string Message;
-		public int BalloonTime = 1000;
 		public Exception Exception;
-
-		public void WriteXML(XmlItem item)
-		{
-			item.SetAttributeInt64("timestamp", Conversions.ToUnixTime(Date));
-			item.SetAttribute("level", GetTypeString());
-			item.SetAttribute("message", Message);
-		}
 
 		public string GetMessageForList()
 		{
 			return Message.Replace("\r", "").Replace("\n", " | ");
-		}
-
-		public string GetMessageForStatus()
-		{
-			string t = Message;
-			if (t.IndexOf("\n") != -1)
-				t = t.Substring(0, t.IndexOf("\n")).Trim();
-			if (t.Length > 128)
-				t = t.Substring(0, 128) + "...";
-			return t.Trim();
 		}
 
 		public string GetDateForList()

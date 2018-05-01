@@ -32,8 +32,8 @@ namespace Eddie.Core.Tools
             if (Version == "")
                 return;
 
-            string ver = Utils.ExtractBetween(Version, "OpenVPN ", " ");
-            string libs = Utils.ExtractBetween(Version, "library versions:", "\n").Trim();
+            string ver = UtilsString.ExtractBetween(Version, "OpenVPN ", " ");
+            string libs = UtilsString.ExtractBetween(Version, "library versions:", "\n").Trim();
             Version = ver + " - " + libs;
         }
 

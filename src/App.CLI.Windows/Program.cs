@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.CLI.Windows
@@ -30,7 +30,7 @@ namespace Eddie.CLI.Windows
 		static void Main(string[] args)
 		{
 			Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
-            
+
 			CommandLine.InitSystem(Environment.CommandLine);
 
 			Core.Engine engine = new Core.Engine();
@@ -39,13 +39,13 @@ namespace Eddie.CLI.Windows
 
 			if (engine.Initialization(true))
 			{
-                engine.ConsoleStart();
+				engine.ConsoleStart();
 			}
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);			
+			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);
 		}
 	}
 }

@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Eddie.CLI.macOS</RootNamespace>
     <AssemblyName>App.CLI.macOS</AssemblyName>
-    <ReleaseVersion>2.13</ReleaseVersion>
+    <ReleaseVersion>2.14</ReleaseVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -68,7 +68,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Lib.Platform.macOS\Lib.Platform.macOS.csproj">
       <Project>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</Project>
-      <Name>Lib.Platform.macOS</Name>
+      <Name>Lib.Platform.MacOS</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />

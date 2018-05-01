@@ -19,8 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -36,6 +35,34 @@ namespace Eddie.Core
 		public delegate void LogEventHandler(LogEntry e);
 		public event LogEventHandler LogEvent;
 
+#if EDDIENET4
+		private void DispatchLog(LogEntry entry)
+		{
+			IApplication app = IApplication.Instance;
+			if(app == null)
+				return;
+
+			Eddie.Common.Log.LogLevel convertedLevel = Eddie.Common.Log.LogLevel.debug;
+			switch(entry.Type)
+			{
+			case LogType.Info:
+			case LogType.InfoImportant:
+											convertedLevel = Eddie.Common.Log.LogLevel.info;
+											break;
+
+			case LogType.Warning:			convertedLevel = Eddie.Common.Log.LogLevel.warning;
+											break;
+
+			case LogType.Error:				convertedLevel = Eddie.Common.Log.LogLevel.error;
+											break;
+
+			case LogType.Fatal:				convertedLevel = Eddie.Common.Log.LogLevel.fatal;
+											break;
+			}
+
+			app.Logs.Log(convertedLevel, entry.Message);
+		}
+#endif
 		public void Log(Exception e)
 		{
 			Log(LogType.Error, e);
@@ -44,32 +71,37 @@ namespace Eddie.Core
 		public void Log(LogType type, Exception e)
 		{
 			string msg = e.Message;
-			if (Engine.Instance.DevelopmentEnvironment)
+			if( (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")) )
 				msg += " - Stack: " + e.StackTrace.ToString();
-			Log(type, msg, 1000, e);
+			Log(type, msg, e);
 		}
 
-		public void LogDebug(string message)
+		public void LogWarning(string message)
 		{
-			Log(LogType.Verbose, message, 1000, null);
+			Log(LogType.Warning, message, null);
+		}
+
+		public void LogVerbose(string message)
+		{
+			Log(LogType.Verbose, message, null);
+		}
+
+		public void LogVerbose(Json json)
+		{
+			LogVerbose(json.ToJsonPretty());
 		}
 
 		public void LogFatal(string message)
 		{
-			Log(LogType.Fatal, message, 1000, null);
+			Log(LogType.Fatal, message, null);
 		}
 
 		public void Log(LogType type, string message)
 		{
-			Log(type, message, 1000, null);
+			Log(type, message, null);
 		}
-
-		public void Log(LogType type, string message, int balloonTime)
-		{
-			Log(type, message, balloonTime, null);
-		}
-
-		public void Log(LogType type, string message, int balloonTime, Exception e)
+		
+		public void Log(LogType type, string message, Exception e)
 		{
             // Avoid repetition
             if( (type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.repeat") == false) )
@@ -97,7 +129,6 @@ namespace Eddie.Core
 			LogEntry l = new LogEntry();
 			l.Type = type;
 			l.Message = message;
-			l.BalloonTime = balloonTime;
 			l.Exception = e;
 
 			if (l.Type > LogType.Realtime)
@@ -106,7 +137,9 @@ namespace Eddie.Core
 				m_logDotCount += 1;
 				m_logDotCount = m_logDotCount % 10;
 			}
-
+#if EDDIENET4
+			DispatchLog(l);
+#endif           
 			lock (Entries)
 			{
 				Entries.Add(l);

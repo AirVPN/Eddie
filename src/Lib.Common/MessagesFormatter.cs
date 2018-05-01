@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Eddie.Core
+namespace Eddie.Common
 {
     public static class MessagesFormatter
     {        

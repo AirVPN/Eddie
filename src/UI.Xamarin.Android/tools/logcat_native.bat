@@ -1,0 +1,1 @@
+adb logcat -s Eddie.Android.Native

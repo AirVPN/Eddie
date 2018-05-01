@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -38,7 +39,7 @@ namespace Eddie.Core
 			{
 				OnUpdatePath();
 				OnUpdateVersion();
-				OnNormalizeVersion();
+				OnNormalizeVersion();				
 			}
 			catch (Exception e)
 			{
@@ -118,12 +119,12 @@ namespace Eddie.Core
 
 		public bool VersionUnder(string v)
 		{
-			return (Utils.CompareVersions(Version, v) == -1);
+			return (UtilsCore.CompareVersions(Version, v) == -1);
 		}
 
 		public bool VersionAboveOrEqual(string v)
 		{
-			return (Utils.CompareVersions(Version, v) >= 0);
+			return (UtilsCore.CompareVersions(Version, v) >= 0);
 		}
 
 		public string ComputeHash()
@@ -162,20 +163,22 @@ namespace Eddie.Core
 			string customPathOption = "tools." + Code + ".path";
 			if (Engine.Instance.Storage.Exists(customPathOption))
 			{
-				string path = Platform.Instance.NormalizePath(Engine.Instance.Storage.Get(customPathOption));
-				if (Platform.Instance.FileExists(path))
+				string path = Engine.Instance.Storage.Get(customPathOption).Trim();
+				if (path != "")
 				{
-					Path = path;
-					Location = "custom";
-					return;
+					path = Platform.Instance.NormalizePath(path);
+					if (Platform.Instance.FileExists(path))
+					{
+						Path = path;
+						Location = "custom";
+						return;
+					}
 				}
 			}
 
-
-
-			// Common path
+			// Tools path
 			{
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "/" + filename);
+				string path = Platform.Instance.NormalizePath(Engine.Instance.GetPathTools() + "/" + filename);
 				if (Platform.Instance.FileExists(path))
 				{
 					Path = path;
@@ -183,19 +186,7 @@ namespace Eddie.Core
 					return;
 				}
 			}
-
-			// Development file structure
-			if (Engine.Instance.DevelopmentEnvironment)
-			{
-				string path = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "/../deploy/" + Platform.Instance.GetSystemCode() + "/" + filename);
-				if (Platform.Instance.FileExists(path))
-				{
-					Path = path;
-					Location = "bundle";
-					return;
-				}
-			}
-
+			
 			// System
 			List<string> names = new List<string>();
 			if (filename == "stunnel")
@@ -208,8 +199,13 @@ namespace Eddie.Core
 
 			foreach (string fileNameAlt in names)
 			{
-				if (Platform.Instance.SearchTool(fileNameAlt, Platform.Instance.GetApplicationPath(), ref Path, ref Location))
+				string pathBin = Platform.Instance.LocateExecutable(fileNameAlt);
+				if (pathBin != "")
+				{
+					Path = pathBin;
+					Location = "system";
 					break;
+				}
 			}
 		}
 	}

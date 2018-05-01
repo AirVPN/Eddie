@@ -18,7 +18,7 @@
 
 using System;
 using Eddie.Core;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.CLI.Linux
 {
@@ -26,22 +26,22 @@ namespace Eddie.CLI.Linux
 	{
 		static void Main(string[] args)
 		{
-            Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
-            CommandLine.InitSystem(Environment.CommandLine);
-            
-            Engine engine = new Engine();
+			Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
+			CommandLine.InitSystem(Environment.CommandLine);
+
+			Engine engine = new Engine();
 
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-            if (engine.Initialization(true))
+			if (engine.Initialization(true))
 			{
-                engine.ConsoleStart();                
-            }
+				engine.ConsoleStart();
+			}
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);			
+			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);
 		}
 	}
 }

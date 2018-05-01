@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -36,54 +36,59 @@ namespace Eddie.UI.Cocoa.Osx
 		#region Constructors
 
 		// Called when created from unmanaged code
-		public WindowPreferencesRouteController (IntPtr handle) : base (handle)
+		public WindowPreferencesRouteController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowPreferencesRouteController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowPreferencesRouteController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Call to load from the XIB/NIB file
-		public WindowPreferencesRouteController () : base ("WindowPreferencesRoute")
+		public WindowPreferencesRouteController() : base("WindowPreferencesRoute")
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 
 		#endregion
 
 		//strongly typed window accessor
-		public new WindowPreferencesRoute Window {
-			get {
+		public new WindowPreferencesRoute Window
+		{
+			get
+			{
 				return (WindowPreferencesRoute)base.Window;
 			}
 		}
 
-		public override void AwakeFromNib ()
+		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
+			base.AwakeFromNib();
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsRouteTitle;
-		
+
 			LblHelp.StringValue = Messages.WindowsSettingsRouteTitle;
 
-			CboAction.RemoveAllItems ();
-			CboAction.AddItem (WindowPreferencesController.RouteDirectionToDescription ("in"));
-			CboAction.AddItem (WindowPreferencesController.RouteDirectionToDescription ("out"));
+			CboAction.RemoveAllItems();
+			CboAction.AddItem(WindowPreferencesController.RouteDirectionToDescription("none"));
+			CboAction.AddItem(WindowPreferencesController.RouteDirectionToDescription("in"));
+			CboAction.AddItem(WindowPreferencesController.RouteDirectionToDescription("out"));
 
-			TxtIP.Changed += (object sender, EventArgs e) => {
+			TxtIP.Changed += (object sender, EventArgs e) =>
+			{
 				EnableIde();
 			};
-			CmdOk.Activated += (object sender, EventArgs e) => {
+			CmdOk.Activated += (object sender, EventArgs e) =>
+			{
 
 				Accepted = true;
 				Item.Ip = TxtIP.StringValue;
@@ -91,33 +96,37 @@ namespace Eddie.UI.Cocoa.Osx
 				Item.Icon = Item.Action;
 				Item.Notes = TxtNotes.StringValue;
 
-				Window.Close ();
-				NSApplication.SharedApplication.StopModal ();
+				Window.Close();
+				NSApplication.SharedApplication.StopModal();
 			};
 
-			CmdCancel.Activated += (object sender, EventArgs e) => {
+			CmdCancel.Activated += (object sender, EventArgs e) =>
+			{
 
 				Accepted = false;
 
-				Window.Close ();
-				NSApplication.SharedApplication.StopModal ();
+				Window.Close();
+				NSApplication.SharedApplication.StopModal();
 			};
 
 			TxtIP.StringValue = Item.Ip;
-			GuiUtils.SetSelected (CboAction, WindowPreferencesController.RouteDirectionToDescription (Item.Action));
+			GuiUtils.SetSelected(CboAction, WindowPreferencesController.RouteDirectionToDescription(Item.Action));
 			TxtNotes.StringValue = Item.Notes;
 
-			EnableIde ();
+			EnableIde();
 		}
 
 		public void EnableIde()
 		{
-            IpAddresses ip = new IpAddresses(TxtIP.StringValue);
-            if (ip.Count == 0) {
+			IpAddresses ip = new IpAddresses(TxtIP.StringValue);
+			if (ip.Count == 0)
+			{
 				LblHelp.StringValue = Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp;
 				CmdOk.Enabled = false;
-			} else {
-                LblHelp.StringValue = ip.ToString() + "\n" + Messages.WindowsSettingsRouteEditIp;
+			}
+			else
+			{
+				LblHelp.StringValue = ip.ToString() + "\n" + Messages.WindowsSettingsRouteEditIp;
 				CmdOk.Enabled = true;
 			}
 

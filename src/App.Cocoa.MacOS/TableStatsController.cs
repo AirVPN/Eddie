@@ -50,7 +50,7 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				StatsEntry e = Engine.Instance.Stats.List[(int)tableView.SelectedRow];
 
-				Engine.Instance.Command("ui.stats." + e.Key, true);
+				Core.UI.App.OpenStats(e.Key.ToLowerInvariant());
 			}
 		}
 

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>  
+  <style name="EddieTheme" parent="@android:style/Theme.Material.Light">
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:colorPrimary">#FF3C91FC</item>
+  </style>
+
+  <style name="EddieTheme.Light" parent="EddieTheme">
+    <!--
+    <item name="android:textColorPrimary">@color/white</item>
+    -->
+    <item name="android:windowBackground">@color/white</item>
+  </style>
+</resources>

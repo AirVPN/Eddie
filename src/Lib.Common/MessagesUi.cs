@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Eddie.Lib.Common
+namespace Eddie.Common
 {
     // Here messages used by UI
     public static class MessagesUi

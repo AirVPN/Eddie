@@ -21,202 +21,195 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Eddie.Lib.Common
+namespace Eddie.Common
 {
-    public class CommandLine
-    {
-        public static CommandLine SystemEnvironment;
+	public class CommandLine
+	{
+		public static CommandLine SystemEnvironment;
 
-        public static void InitSystem(string line)
-        {
-            SystemEnvironment = new CommandLine(line, true, false);
-        }
+		public static void InitSystem(string line)
+		{
+			SystemEnvironment = new CommandLine(line, true, false);
+		}
 
-        public Dictionary<string, string> Params = new Dictionary<string, string>();
+		public Dictionary<string, string> Params = new Dictionary<string, string>();
 
-        // ------------
-        // Costructors
-        // ------------
+		// ------------
+		// Costructors
+		// ------------
 
-        public CommandLine()
-        {
-        }
+		public CommandLine()
+		{
+		}
 
-        public CommandLine(string line, bool ignoreFirst, bool firstIsAction)
-        {
-            Params = ParseCommandLine(line, ignoreFirst, firstIsAction);
-        }
+		public CommandLine(string line, bool ignoreFirst, bool firstIsAction)
+		{
+			Params = ParseCommandLine(line, ignoreFirst, firstIsAction);
+		}
 
-        public CommandLine(CommandLine commandLine)
-        {
-            foreach (KeyValuePair<string, string> item in Params)
-                Params[item.Key] = item.Value;
-        }
+		public CommandLine(CommandLine commandLine)
+		{
+			foreach (KeyValuePair<string, string> item in Params)
+				Params[item.Key] = item.Value;
+		}
 
-        public CommandLine(string action, string key1, string val1)
-        {
-            Set("action", action);
-            Set(key1, val1);
-        }
+		public CommandLine(string action, string key1, string val1)
+		{
+			Set("action", action);
+			Set(key1, val1);
+		}
 
-        public CommandLine(string action, string key1, string val1, string key2, string val2)
-        {
-            Set("action", action);
-            Set(key1, val1);
-            Set(key2, val2);
-        }
+		public CommandLine(string action, string key1, string val1, string key2, string val2)
+		{
+			Set("action", action);
+			Set(key1, val1);
+			Set(key2, val2);
+		}
 
-        // ------------
-        // Import / Export
-        // ------------
+		// ------------
+		// Import / Export
+		// ------------
 
-        public string GetFull()
-        {
-            string o = "";
-            foreach (KeyValuePair<string, string> item in Params)
-                o += item.Key + "=\"" + item.Value + "\" ";
-            return o.Trim();
-        }
+		public string GetFull()
+		{
+			string o = "";
+			foreach (KeyValuePair<string, string> item in Params)
+				o += item.Key + "=\"" + item.Value + "\" ";
+			return o.Trim();
+		}
 
-        public List<string> GetFullArray()
-        {
-            List<string> result = new List<string>();
-            foreach (KeyValuePair<string, string> item in Params)
-                result.Add(item.Key + "=\"" + item.Value + "\"");
-            return result;
-        }
+		public List<string> GetFullArray()
+		{
+			List<string> result = new List<string>();
+			foreach (KeyValuePair<string, string> item in Params)
+				result.Add(item.Key + "=\"" + item.Value + "\"");
+			return result;
+		}
 
-        public override string ToString()
-        {
-            return GetFull();
-        }
+		public override string ToString()
+		{
+			return GetFull();
+		}
+		
+		// ------------
+		// Management
+		// ------------
 
-        /*
-        public void WriteXML(XmlElement xmlElement)
-        {
-            foreach (KeyValuePair<string, string> item in Params)
-                xmlElement.SetAttribute(item.Key, item.Value);
-        }
+		public bool Exists(string name)
+		{
+			return Params.ContainsKey(name);
+		}
 
-        public XmlElement ToXml()
-        {
-            XmlElement xmlElement = Utils.XmlCreateElement("command");
-            WriteXML(xmlElement);
-            return xmlElement;
-        }        
+		public void Set(string name, string value)
+		{
+			Params[name] = value;
+		}
 
-        public string ToXmlString()
-        {
-            return ToXml().OuterXml;
-        }
-        */
+		public string Get(string name, string def)
+		{
+			if (Exists(name))
+				return Params[name];
+			else
+				return def;
+		}
 
-        // ------------
-        // Management
-        // ------------
+		public string Get(string name)
+		{
+			return Get(name, "");
+		}
 
-        public bool Exists(string name)
-        {
-            return Params.ContainsKey(name);
-        }
+		public void Set(string name, int value)
+		{
+			Set(name, value.ToString());
+		}
 
-        public void Set(string name, string value)
-        {
-            Params[name] = value;
-        }
+		public void SetPos(int pos, string name)
+		{
+			int p = 0;
+			foreach (KeyValuePair<string, string> item in Params)
+			{
+				if (p == pos)
+				{
+					Params.Remove(item.Key);
+					Params[name] = item.Key;
+					break;
+				}
+				p++;
+			}
+		}
 
-        public string Get(string name, string def)
-        {
-            if (Exists(name))
-                return Params[name];
-            else
-                return def;
-        }
+		// ------------
+		// Misc
+		// ------------
 
-        public string Get(string name)
-        {
-            return Get(name, "");
-        }
+		private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst, bool firstIsAction)
+		{
+			Dictionary<string, string> result = new Dictionary<string, string>();
 
-        public void Set(string name, int value)
-        {
-            Set(name, value.ToString());
-        }
+			string regexSpliter = @"(?<=^(?:[^""]*""[^""]*"")*[^""]*) ";
 
-        public void SetPos(int pos, string name)
-        {
-            int p = 0;
-            foreach (KeyValuePair<string, string> item in Params)
-            {
-                if (p == pos)
-                {
-                    Params.Remove(item.Key);
-                    Params[name] = item.Key;
-                    break;
-                }
-                p++;
-            }
-        }
+			string[] substrings = System.Text.RegularExpressions.Regex.Split(l, regexSpliter);
 
-        // ------------
-        // Misc
-        // ------------
-
-        private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst, bool firstIsAction)
-        {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-
-            string regexSpliter = @"(?<=^(?:[^""]*""[^""]*"")*[^""]*) ";
-
-            string[] substrings = System.Text.RegularExpressions.Regex.Split(l, regexSpliter);
-
-            int i = 0;
-            foreach (string ssub in substrings)
-            {
-                // IgnoreFirst, typical to ignore the executable if the argument is a command-line.
-                i++;
-                if ((i == 1) && (ignoreFirst))
-                    continue;
+			int i = 0;
+			foreach (string ssub in substrings)
+			{
+				// IgnoreFirst, typical to ignore the executable if the argument is a command-line.
+				i++;
+				if ((i == 1) && (ignoreFirst))
+					continue;
 
 
-                string k = "";
-                string v = "";
-                int posE = ssub.IndexOf('=');
-                if (posE == -1)
-                {
-                    k = ssub;
-                    v = "";
-                }
-                else
-                {
-                    k = ssub.Substring(0, posE);
-                    v = ssub.Substring(posE + 1);
-                }
+				string k = "";
+				string v = "";
+				int posE = ssub.IndexOf('=');
+				if (posE == -1)
+				{
+					k = ssub;
+					v = "";
+				}
+				else
+				{
+					k = ssub.Substring(0, posE);
+					v = ssub.Substring(posE + 1);
+				}
 
-                string trimCharsK = " /\\-.\"'\n\r\t";
-                string trimCharsV = " -.\"'\n\r\t";
-                k = k.Trim(trimCharsK.ToCharArray());
-                v = v.Trim(trimCharsV.ToCharArray());
+				// Removed in 2.14.0
+				//string trimCharsK = " /\\-.\"'\n\r\t";
+				//string trimCharsV = " -.\"'\n\r\t";
+				//k = k.Trim(trimCharsK.ToCharArray());
+				//v = v.Trim(trimCharsV.ToCharArray());
 
-                if ((i == 1) && (firstIsAction) && (v == ""))
-                {
-                    v = k;
-                    k = "action";
-                }
+				// Added in 2.14.0
+				k = k.Trim().TrimStart(" /-".ToCharArray());
+				v = v.Trim();
+				if ((k.StartsWith("\"")) && (k.EndsWith("\"")))
+					k = k.Substring(1, k.Length - 2);
+				if ((k.StartsWith("'")) && (k.EndsWith("'")))
+					k = k.Substring(1, k.Length - 2);
+				if ((v.StartsWith("\"")) && (v.EndsWith("\"")))
+					v = v.Substring(1, v.Length - 2);
+				if ((v.StartsWith("'")) && (v.EndsWith("'")))
+					v = v.Substring(1, v.Length - 2);
 
-                if (v == "") // For example, "... -help ..." is equivalent of "... -help=True ..."
-                    v = "True";
+				if ((i == 1) && (firstIsAction) && (v == ""))
+				{
+					v = k;
+					k = "action";
+				}
 
-                if (k != "")
-                {
-                    result[k] = v;
-                }
-            }
+				if (v == "") // For example, "... -help ..." is equivalent of "... -help=True ..."
+					v = "True";
 
-            return result;
+				if (k != "")
+				{
+					result[k] = v;
+				}
+			}
+
+			return result;
 
 
-        }
+		}
 
-    }
+	}
 }

@@ -22,10 +22,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-
-/*
- * Official data from ISO 3166-1
- * */
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -73,7 +70,12 @@ namespace Eddie.Core
 			{
 				if (Engine.Instance.AirVPN != null)
 				{
-					if (Utils.XmlGetAttributeString(Engine.Instance.AirVPN.User, "ssl_crt", "") == "")
+					if (UtilsXml.XmlGetAttributeString(Engine.Instance.AirVPN.User, "ssl_crt", "") == "")
+					{
+						Engine.Instance.ReAuth();
+					}
+
+					if (UtilsXml.XmlGetAttributeString(Engine.Instance.AirVPN.User, "tls_crypt", "") == "")
 					{
 						Engine.Instance.ReAuth();
 					}
@@ -193,6 +195,22 @@ namespace Eddie.Core
 			{
 				name = "tools.curl.path";
 			}
+			else if (name == "gui.windows.notifications")
+			{
+				name = "gui.notifications";
+			}
+			else if (name == "gui.osx.notifications")
+			{
+				name = "gui.notifications";
+			}
+			else if (name == "gui.windows.start_minimized")
+			{
+				name = "gui.start_minimized";
+			}
+			else if (name == "gui.windows.tray")
+			{
+				name = "gui.tray_minimized";
+			}
 
 #if (EDDIE3)
             if (name == "dns.check") // < 3.0
@@ -220,7 +238,40 @@ namespace Eddie.Core
 					e.DocumentElement.RemoveChild(manifest);
 				}
 			}
+		}
 
+		public static string FixOldProfile(string originalPath)
+		{
+			FileInfo originalFile = new FileInfo(originalPath);
+			string newPath = "";
+			if (originalFile.Name == "AirVPN.xml")
+				newPath = originalFile.DirectoryName + "/default.json";
+			else
+				newPath = originalFile.DirectoryName + "/" + originalFile.Name.Replace(".xml", ".json");
+
+			XmlDocument xmlDoc = new XmlDocument();
+			xmlDoc.Load(originalPath);
+
+			// Fix
+			{
+				XmlNodeList xmlList = xmlDoc.DocumentElement.GetElementsByTagName("providers");
+				if (xmlList.Count == 1)
+				{
+					XmlElement xmlProviders = xmlList[0] as XmlElement;
+
+					foreach (XmlElement xmlProvider in xmlProviders.ChildNodes)
+					{
+						xmlProvider.SetAttribute("type", xmlProvider.Name);
+						xmlProvider.SetAttribute("json-convert-name", "provider");						
+					}
+				}
+			}
+			/*
+			Json j = Conversions.ToJson(xmlDoc.DocumentElement);
+			Platform.Instance.FileContentsWriteText(newPath, j.ToJsonPretty());
+			*/
+
+			return newPath;
 		}
 	}
 }

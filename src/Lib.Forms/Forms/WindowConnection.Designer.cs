@@ -33,6 +33,7 @@
 			this.txtOvpnGenerated = new Eddie.Forms.Skin.TextBox();
 			this.tabOvpnOriginal = new System.Windows.Forms.TabPage();
 			this.txtOvpnOriginal = new Eddie.Forms.Skin.TextBox();
+			this.cmdOk = new Eddie.Forms.Skin.Button();
 			this.tabMain.SuspendLayout();
 			this.tabOvpnGenerated.SuspendLayout();
 			this.tabOvpnOriginal.SuspendLayout();
@@ -40,13 +41,15 @@
 			// 
 			// tabMain
 			// 
+			this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabMain.Controls.Add(this.tabOvpnGenerated);
 			this.tabMain.Controls.Add(this.tabOvpnOriginal);
-			this.tabMain.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabMain.Location = new System.Drawing.Point(0, 0);
 			this.tabMain.Name = "tabMain";
 			this.tabMain.SelectedIndex = 0;
-			this.tabMain.Size = new System.Drawing.Size(567, 414);
+			this.tabMain.Size = new System.Drawing.Size(567, 364);
 			this.tabMain.TabIndex = 0;
 			// 
 			// tabOvpnGenerated
@@ -54,7 +57,7 @@
 			this.tabOvpnGenerated.Controls.Add(this.txtOvpnGenerated);
 			this.tabOvpnGenerated.Location = new System.Drawing.Point(4, 22);
 			this.tabOvpnGenerated.Name = "tabOvpnGenerated";
-			this.tabOvpnGenerated.Size = new System.Drawing.Size(559, 388);
+			this.tabOvpnGenerated.Size = new System.Drawing.Size(559, 338);
 			this.tabOvpnGenerated.TabIndex = 0;
 			this.tabOvpnGenerated.Text = "OpenVPN Eddie";
 			this.tabOvpnGenerated.UseVisualStyleBackColor = true;
@@ -69,7 +72,7 @@
 			this.txtOvpnGenerated.Name = "txtOvpnGenerated";
 			this.txtOvpnGenerated.ReadOnly = true;
 			this.txtOvpnGenerated.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtOvpnGenerated.Size = new System.Drawing.Size(544, 373);
+			this.txtOvpnGenerated.Size = new System.Drawing.Size(544, 323);
 			this.txtOvpnGenerated.TabIndex = 0;
 			this.txtOvpnGenerated.WordWrap = false;
 			// 
@@ -97,11 +100,32 @@
 			this.txtOvpnOriginal.TabIndex = 1;
 			this.txtOvpnOriginal.WordWrap = false;
 			// 
+			// cmdOk
+			// 
+			this.cmdOk.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.cmdOk.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdOk.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
+			this.cmdOk.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdOk.FlatAppearance.BorderSize = 0;
+			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdOk.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.cmdOk.Location = new System.Drawing.Point(204, 371);
+			this.cmdOk.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdOk.Name = "cmdOk";
+			this.cmdOk.Size = new System.Drawing.Size(160, 30);
+			this.cmdOk.TabIndex = 3;
+			this.cmdOk.Text = "Close";
+			this.cmdOk.UseVisualStyleBackColor = true;
+			// 
 			// WindowConnection
 			// 
+			this.AcceptButton = this.cmdOk;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.CancelButton = this.cmdOk;
 			this.ClientSize = new System.Drawing.Size(567, 414);
+			this.Controls.Add(this.cmdOk);
 			this.Controls.Add(this.tabMain);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
@@ -125,5 +149,6 @@
 		private System.Windows.Forms.TabPage tabOvpnOriginal;
 		private Skin.TextBox txtOvpnGenerated;
 		private Skin.TextBox txtOvpnOriginal;
+		private Skin.Button cmdOk;
 	}
 }

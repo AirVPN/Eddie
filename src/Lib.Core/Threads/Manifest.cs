@@ -33,45 +33,44 @@ namespace Eddie.Core.Threads
 	{
 		None = 0,
 		Refresh = 1,
-		RefreshInvalidate = 2,		
+		RefreshInvalidate = 2,
 	}
 
 	public class Manifest : Eddie.Core.Thread
-    {
+	{
 		public static Manifest Instance;
 
-        private string m_LastResult;
+		private string m_LastResult;
 		public RefreshType Refresh = RefreshType.None;
 
-		public AutoResetEvent Updated = new AutoResetEvent(false);
-
+		public AutoResetEvent Updated = new AutoResetEvent(false); // ClodoTemp Disposable issue
 
 		public Manifest()
 		{
 			Instance = this;
 		}
 
-        public string GetLastResult()
-        {
-            lock(this)
-            {
-                return m_LastResult;
-            }
-        }
+		public string GetLastResult()
+		{
+			lock (this)
+			{
+				return m_LastResult;
+			}
+		}
 
-        public override ThreadPriority GetPriority()
-        {
-            return ThreadPriority.Lowest;
-        }
+		public override ThreadPriority GetPriority()
+		{
+			return ThreadPriority.Lowest;
+		}
 
-        public override void OnRun()
-        {
-			for (; ; )
+		public override void OnRun()
+		{
+			for (;;)
 			{
 				if ((Refresh != RefreshType.None) || (Engine.ProvidersManager.NeedUpdate(true)))
 				{
 					m_LastResult = Engine.ProvidersManager.Refresh();
-                    if (m_LastResult != "")
+					if (m_LastResult != "")
 					{
 						//Engine.Instance.Log(Engine.LogType.Warning, Messages.Format(Messages.ManifestUpdate, m_LastResult)); // < 2.9, Warning
 						Engine.Instance.Logs.Log(LogType.Verbose, m_LastResult); // >= 2.9, Verbose
@@ -82,21 +81,27 @@ namespace Eddie.Core.Threads
 					Refresh = RefreshType.None;
 					Updated.Set();
 				}
-				
+
 				for (int i = 0; i < 600; i++) // Every minute
 				{
 					Sleep(100);
+										
+					if (CancelRequested)
+						return;
 
 					if (Refresh != RefreshType.None)
 						break;
-
-					if (CancelRequested)
-						return;
 				}
 			}
-            
-        }
-                
-        
-    }
+
+		}
+
+		public override void OnStop()
+		{
+			base.OnStop();
+
+			// Cast as IDisposable to avoid compilation errors on .net2
+			(Updated as IDisposable).Dispose();
+		}
+	}
 }

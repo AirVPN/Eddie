@@ -23,87 +23,87 @@ using System.Drawing;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class About : Eddie.Forms.Form
-    {
-        public About()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+	public partial class About : Eddie.Forms.Form
+	{
+		public About()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
-            lblTitle.Font = Skin.FontBig;
-            lblVersion.Font = Skin.FontBig;
+			lblTitle.Font = Skin.FontBig;
+			lblVersion.Font = Skin.FontBig;
 
-            lblVersion.ForeColor = Color.White;
-        }
+			lblVersion.ForeColor = Color.White;
+		}
 
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
 
-            CommonInit(Messages.WindowsAboutTitle);
+			CommonInit(Messages.WindowsAboutTitle);
 
+			lnkWebsite.Text = Core.UI.App.Manifest["links"]["help"]["website"].Value as string;
+			lnkManual.Text = Core.UI.App.Manifest["links"]["help"]["general"].Value as string;
+			lnkSources.Text = Core.UI.App.Manifest["links"]["github"].Value as string;
 			lblVersion.Text = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
+		}
 
-			//txtLicense.Text = Core.UI.Actions.GetAboutLicense();
-			//txtThirdParty.Text = Core.UI.Actions.GetAboutThirdParty();
-        }
-                
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			base.OnPaint(e);
 
-            Skin.GraphicsCommon(e.Graphics);
+			Skin.GraphicsCommon(e.Graphics);
 
-            //Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88 + 2)); // +50 and +2 to avoid GDI+ problem
-            Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 80)); // +50 and +2 to avoid GDI+ problem
-            Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 304, 80));
-        }
-        
+			//Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88 + 2)); // +50 and +2 to avoid GDI+ problem
+			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 80)); // +50 and +2 to avoid GDI+ problem
+			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 304, 80));
+		}
+
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)
 		{
-            Engine.Instance.Command("ui.show.website");
-        }
+			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+		}
 
 		private void lnkManual_LinkClicked(object sender, EventArgs e)
 		{
-            Engine.Instance.Command("ui.show.docs.general");
-        }
+			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["general"].Value as string);
+		}
 
 		private void lnkSources_LinkClicked(object sender, EventArgs e)
 		{
-            Engine.Instance.Command("ui.show.sources");
-        }
+			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["github"].Value as string);
+		}
 
 		private void cmdClose_Click(object sender, EventArgs e)
 		{
 			Close();
 		}
 
-        private void lnkLicense_LinkClicked(object sender, EventArgs e)
-        {
-            Engine.Command("ui.show.license");
-        }
+		private void lnkLicense_LinkClicked(object sender, EventArgs e)
+		{
+			Engine.FormMain.ShowText(this, "License", Core.UI.App.Manifest["about"]["license"].Value as string);
+		}
 
-        private void lnkLibraries_LinkClicked(object sender, EventArgs e)
-        {
-            Engine.Command("ui.show.libraries");
-        }
+		private void lnkLibraries_LinkClicked(object sender, EventArgs e)
+		{
+			Engine.FormMain.ShowText(this, "Libraries and Tools", Core.UI.App.Manifest["about"]["libraries"].Value as string);
+		}
 
 		private void cmdSystemReport_Click(object sender, EventArgs e)
 		{

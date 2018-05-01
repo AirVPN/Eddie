@@ -23,25 +23,24 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
 	public class Storage
 	{
-		// TOCLEAN public static string DataPath = "";
 		public static bool Simulate = false; // If true, connections not really maded. Useful only during development of UI.
 
 		public XmlElement Providers;
 
-		private Dictionary<string, Option> m_options = new Dictionary<string, Option>();		
+		private Dictionary<string, Option> m_options = new Dictionary<string, Option>();
 		private string m_pathProfile = "";
 		private string m_pathData = "";
 
 		public Storage()
 		{
 			EnsureDefaults();
-						
+
 			m_pathProfile = Get("profile");
 			m_pathData = Get("path");
 
@@ -57,7 +56,7 @@ namespace Eddie.Core
 			else if (m_pathData == "program")
 				m_pathData = Platform.Instance.GetApplicationPath();
 			else if (m_pathData == "") // Detect
-			{					
+			{
 				if (Platform.Instance.HasAccessToWrite(pathApp))
 					m_pathData = pathApp;
 				else
@@ -68,8 +67,8 @@ namespace Eddie.Core
 			if (Platform.Instance.IsPath(m_pathProfile))
 			{
 				// Is a path
-				FileInfo fi = new FileInfo(Platform.Instance.NormalizePath(m_pathProfile));				
-				if(Get("path") == "")
+				FileInfo fi = new FileInfo(Platform.Instance.NormalizePath(m_pathProfile));
+				if (Get("path") == "")
 					m_pathData = fi.DirectoryName;
 				m_pathProfile = fi.FullName;
 			}
@@ -77,49 +76,6 @@ namespace Eddie.Core
 			{
 				m_pathProfile = m_pathData + Platform.Instance.DirSep + m_pathProfile;
 			}
-			
-			
-			/* // TOCLEAN, < 2.13.6
-			if (path == "")
-				path = Platform.Instance.GetDefaultDataPath();
-
-			if (Platform.Instance.IsPath(profile))
-			{
-				// Is a path
-				FileInfo fi = new FileInfo(Platform.Instance.NormalizePath(profile));
-				DataPath = fi.DirectoryName;
-				profile = fi.Name;
-				CommandLine.SystemEnvironment.Set("profile", profile);
-
-				if (TestDataPath(DataPath, true) == false)
-					DataPath = "";
-			}
-
-			if (DataPath == "")
-			{
-				if (path == "home")
-					path = Platform.Instance.GetUserPath();
-				else if (path == "program")
-					path = Platform.Instance.GetApplicationPath();
-
-				if (path != "")
-				{
-					DataPath = path;
-					if (TestDataPath(DataPath, true) == false)
-						DataPath = "";
-				}
-			}
-
-			if (DataPath == "")
-			{
-				DataPath = Platform.Instance.GetApplicationPath();
-				if (Platform.Instance.HasAccessToWrite(DataPath) == false)
-					DataPath = "";
-			}
-
-			if (DataPath == "")
-				DataPath = Platform.Instance.GetUserPath();
-			*/
 		}
 
 		public Dictionary<string, Option> Options
@@ -129,7 +85,7 @@ namespace Eddie.Core
 				return m_options;
 			}
 		}
-		
+
 		public string GetReportForSupport()
 		{
 			string result = "";
@@ -386,6 +342,26 @@ namespace Eddie.Core
 			Set(name, val.ToString(CultureInfo.InvariantCulture));
 		}
 
+		public bool Set(string name, object val)
+		{
+			string s = Conversions.ToString(val);
+			if (Get(name) == s)
+				return false;
+			if (Options[name].Type == "text")
+				Set(name, s);			
+			else if (Options[name].Type.StartsWith("choice:"))
+				Set(name, s);
+			else if (Options[name].Type.StartsWith("path_file"))
+				Set(name, s);
+			else if (Options[name].Type == "bool")
+				Set(name, Conversions.ToBool(s).ToString(CultureInfo.InvariantCulture));
+			else if (Options[name].Type == "int")
+				Set(name, Conversions.ToInt32(s).ToString(CultureInfo.InvariantCulture));
+			else if (Options[name].Type == "float")
+				Set(name, Conversions.ToFloat(s).ToString(CultureInfo.InvariantCulture));
+			return true;
+		}
+
 		public void SetList(string name, List<string> val)
 		{
 			Set(name, String.Join(",", val.ToArray()));
@@ -457,8 +433,8 @@ namespace Eddie.Core
 			SetDefaultBool("cli", false, Messages.ManOptionCli);
 			SetDefaultBool("version", false, NotInMan);
 			SetDefaultBool("version.short", false, NotInMan);
-			SetDefaultBool("development", false, NotInMan); // If in development file structure
 			SetDefaultBool("help", false, Messages.ManOptionHelp);
+			SetDefaultBool("test.cli-su", false, NotInMan); // ClodoTemp, only for testing
 			SetDefault("help.format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
 			SetDefaultBool("batch", false, NotInMan); // Don't lock interface, exit when connection is closed.            
 			SetDefault("login", "text", "", Messages.ManOptionLogin);
@@ -469,11 +445,12 @@ namespace Eddie.Core
 			SetDefaultBool("connect", false, Messages.ManOptionConnect);
 			SetDefaultBool("netlock", false, Messages.ManOptionNetLock);
 
-			SetDefault("console.mode", "choice:none,batch,keys,backend,tcp", "keys", NotInMan);
-			SetDefault("console.control.path", "text", "", NotInMan);
+			SetDefault("console.mode", "choice:none,batch,keys", "keys", NotInMan);
 
 			SetDefault("profile", "text", "AirVPN.xml", Messages.ManOptionProfile); // Not in Settings
 			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
+			SetDefault("path.resources", "text", "res/", NotInMan); // Relative to executable
+			SetDefault("path.tools", "text", "", NotInMan); // Relative to executable
 
 			SetDefault("servers.last", "text", "", NotInMan, false);
 			SetDefault("servers.whitelist", "text", "", Messages.ManOptionServersWhiteList);
@@ -485,8 +462,7 @@ namespace Eddie.Core
 			SetDefault("areas.whitelist", "text", "", Messages.ManOptionAreasWhiteList);
 			SetDefault("areas.blacklist", "text", "", Messages.ManOptionAreasBlackList);
 
-			//SetDefault("discover.ip_webservice.list", "text", "https://eddie.website/api/xml/{ip};https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
-			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/xml/{@ip};https://freegeoip.net/xml/{@ip};http://ip-api.com/xml/{@ip}", NotInMan);
+			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/json/{@ip};https://freegeoip.net/json/{@ip};http://ip-api.com/json/{@ip}", NotInMan);
 			SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
 			SetDefaultInt("discover.interval", 60 * 60 * 24, NotInMan); // Delta between refresh discover data (country and other data) for OpenVPN connections.
 			SetDefaultBool("discover.exit", true, NotInMan);
@@ -526,20 +502,23 @@ namespace Eddie.Core
 			SetDefaultBool("netlock.allow_private", true, Messages.ManOptionNetLockAllowPrivate);
 			SetDefaultBool("netlock.allow_ping", true, Messages.ManOptionNetLockAllowPing);
 			SetDefaultBool("netlock.allow_dns", false, Messages.ManOptionNetLockAllowDNS);
+			SetDefault("netlock.incoming", "choice:allow,block", "block", NotInMan);
+			SetDefault("netlock.outgoing", "choice:allow,block", "block", NotInMan);
 			SetDefault("netlock.allowed_ips", "text", "", Messages.ManOptionNetLockAllowedsIps);
 
-			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIpV6);
+			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIPv6);
 
-			SetDefault("protocol.ip.entry", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
-			SetDefault("protocol.ipv4.route", "choice:in-always,in-out,in-block,out,block", "in-block", NotInMan);
-			SetDefault("protocol.ipv6.route", "choice:in-always,in-out,in-block,out,block", "in-block", NotInMan);
+			SetDefault("network.entry.iface", "text", "", NotInMan);
+			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
+			SetDefault("network.ipv4.mode", "choice:in,in-out,in-block,out,block", "in", NotInMan);
+			SetDefault("network.ipv6.mode", "choice:in,in-out,in-block,out,block", "in-block", NotInMan);
 
 			SetDefault("tools.openvpn.path", "path_file", "", Messages.ManOptionToolsOpenVpnPath);
 			SetDefault("tools.ssh.path", "path_file", "", Messages.ManOptionToolsSshPath);
 			SetDefault("tools.ssl.path", "path_file", "", Messages.ManOptionToolsSslPath);
 			SetDefault("tools.curl.path", "path_file", "", Messages.ManOptionToolsCurlPath);
 
-			SetDefaultInt("tools.curl.max-time", 30, NotInMan);
+			SetDefaultInt("tools.curl.max-time", 20, NotInMan);
 
 			SetDefault("openvpn.custom", "text", "", Messages.ManOptionOpenVpnCustom);
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);
@@ -558,15 +537,6 @@ namespace Eddie.Core
 
 			SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
 
-			bool webui = (WebServer.GetPath() != ""); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
-			SetDefaultBool("webui.enabled", webui, NotInMan); // Messages.ManOptionWebUiEnabled
-			SetDefault("webui.ip", "text", "localhost", NotInMan); // Messages.ManOptionWebUiAddress
-			SetDefaultInt("webui.port", 4649, NotInMan); // Messages.ManOptionWebUiPort
-
-			SetDefaultBool("tcpserver.enabled", webui, NotInMan);
-			SetDefault("tcpserver.ip", "text", "localhost", NotInMan);
-			SetDefaultInt("tcpserver.port", Constants.DefaultTcpPort, NotInMan);
-
 			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);
 			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
 
@@ -581,13 +551,14 @@ namespace Eddie.Core
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 			SetDefaultBool("advanced.providers", false, NotInMan);
 
+			SetDefault("bootstrap.urls", "text", "", NotInMan); // ClodoTemp: move to provider level
+
 			SetDefaultBool("advanced.skip_privileges", false, NotInMan); // Skip 'root' detection.
 			SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.
 			SetDefaultBool("connections.allow_anyway", false, NotInMan); // Allow connection even if in 'Not available' status.
 			SetDefaultBool("advanced.testonly", false, NotInMan); // Disconnect when connection occur.
-
-
+			
 			EnsureDefaultsEvent("app.start");
 			EnsureDefaultsEvent("app.stop");
 			EnsureDefaultsEvent("session.start");
@@ -603,18 +574,23 @@ namespace Eddie.Core
 			SetDefaultBool("windows.dhcp_disable", false, Messages.ManOptionWindowsDhcpDisable);
 			SetDefaultBool("windows.wfp.enable", true, Messages.ManOptionWindowsWfp);
 			SetDefaultBool("windows.wfp.dynamic", false, Messages.ManOptionWindowsWfpDynamic);
-			SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well
+			//SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well // Removed in 2.14, in W10 require reboot
 			SetDefaultBool("windows.dns.force_all_interfaces", false, Messages.ManOptionWindowsDnsForceAllInterfaces); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
 			SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
 			SetDefaultInt("windows.metrics.tap.ipv4", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultInt("windows.metrics.tap.ipv6", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
+			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
 
 			// General UI
 			SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
 			SetDefaultBool("ui.iec", false, Messages.ManOptionUiIEC);
 
-			// GUI only            
+			// GUI only
+			SetDefaultBool("gui.start_minimized", false, NotInMan);
+			SetDefaultBool("gui.tray_show", true, NotInMan);
+			SetDefaultBool("gui.tray_minimized", true, NotInMan);
+			SetDefaultBool("gui.notifications", true, NotInMan);
 			SetDefaultBool("gui.exit_confirm", true, NotInMan, false);
 			SetDefault("gui.skin", "text", "Light", NotInMan, false);
 			SetDefaultBool("gui.tos", false, NotInMan, false);
@@ -626,22 +602,14 @@ namespace Eddie.Core
 			SetDefault("gui.list.areas", "text", "", NotInMan, false);
 			SetDefault("gui.list.logs", "text", "", NotInMan, false);
 
-			// GUI - Windows only
-			SetDefaultBool("gui.windows.start_minimized", false, NotInMan);
-			SetDefaultBool("gui.windows.tray", true, NotInMan);
-			SetDefaultBool("gui.windows.notifications", true, NotInMan);
-
-			// GUI - OSX Only
-			SetDefaultBool("gui.osx.notifications", false, NotInMan);
+			// UI - OSX Only
 			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			SetDefaultBool("gui.osx.visible", false, NotInMan);
 			SetDefault("gui.osx.style", "text", "light", NotInMan);
 			SetDefaultBool("gui.osx.sysbar.show_info", false, NotInMan);
-			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInMan);
+			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInMan); // Menu Status, Window Title, Tray Tooltip
 			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInMan);
 
-			// TODO: we need to test params with space in different linux platform, with focus on escaping gksu/kdesu shell to obtain elevated privileges
-			SetDefault("paramtest", "text", "", NotInMan, false);
 
 
 
@@ -753,11 +721,11 @@ namespace Eddie.Core
 						if (Engine.Instance.ProvidersManager.Providers[0].Code == "AirVPN")
 						{
 							// Move providers->AirVPN to root.
-							XmlElement xmlAirVPN = Utils.XmlGetFirstElementByTagName(providersNode, "AirVPN");
+							XmlElement xmlAirVPN = UtilsXml.XmlGetFirstElementByTagName(providersNode, "AirVPN");
 							if (xmlAirVPN != null)
 							{
 								foreach (XmlElement xmlChild in xmlAirVPN.ChildNodes)
-									Utils.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
+									UtilsXml.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
 								providersNode.RemoveChild(xmlAirVPN);
 							}
 							if (providersNode.ChildNodes.Count == 0)
@@ -799,11 +767,12 @@ namespace Eddie.Core
 						return;
 					}
 
+					// CompatibilityManager.FixOldProfile(path); // ClodoTemp
 					xmlDoc.Load(path);
 
 					ResetAll(true);
 
-					Providers = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "providers");
+					Providers = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "providers");
 					if (Providers == null)
 						Providers = xmlDoc.CreateElement("providers");
 
@@ -824,15 +793,15 @@ namespace Eddie.Core
 						Set(item.Key, item.Value);
 
 					// For compatibility <3
-					XmlElement xmlManifest = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
+					XmlElement xmlManifest = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
 					if (xmlManifest != null)
 					{
 						XmlElement providerAirVpn = xmlDoc.CreateElement("AirVPN");
 						Providers.AppendChild(providerAirVpn);
 
-						Utils.XmlCopyElement(xmlManifest, providerAirVpn);
+						UtilsXml.XmlCopyElement(xmlManifest, providerAirVpn);
 
-						XmlElement xmlUser = Utils.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
+						XmlElement xmlUser = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
 						if (xmlUser != null) // Compatibility with old manifest < 2.11
 						{
 							XmlElement oldKeyFormat = xmlUser.SelectSingleNode("keys/key[@id='default']") as XmlElement;
@@ -842,13 +811,12 @@ namespace Eddie.Core
 							}
 						}
 						if (xmlUser != null)
-							Utils.XmlCopyElement(xmlUser, providerAirVpn);
+							UtilsXml.XmlCopyElement(xmlUser, providerAirVpn);
 					}
 				}
 				catch (Exception ex)
 				{
-					Debug.Trace(ex);
-					Engine.Instance.Logs.Log(LogType.Fatal, Messages.OptionsReverted);
+					Engine.Instance.Logs.Log(LogType.Fatal, MessagesFormatter.Format(Messages.OptionsReverted, ex.Message));
 					ResetAll(true);
 				}
 			}

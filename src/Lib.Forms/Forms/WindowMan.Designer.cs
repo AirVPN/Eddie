@@ -39,6 +39,7 @@ namespace Eddie.Forms.Forms
 			this.colOptionDesc = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colOptionDefault = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colOptionValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.pnlProviders = new Eddie.Forms.Skin.Panel();
 			this.SuspendLayout();
 			// 
 			// txtBody
@@ -144,11 +145,11 @@ namespace Eddie.Forms.Forms
 			this.lstOptions.FullRowSelect = true;
 			this.lstOptions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstOptions.HideSelection = false;
-			this.lstOptions.Location = new System.Drawing.Point(67, 201);
+			this.lstOptions.Location = new System.Drawing.Point(583, 201);
 			this.lstOptions.MultiSelect = false;
 			this.lstOptions.Name = "lstOptions";
 			this.lstOptions.OwnerDraw = true;
-			this.lstOptions.Size = new System.Drawing.Size(650, 175);
+			this.lstOptions.Size = new System.Drawing.Size(134, 175);
 			this.lstOptions.TabIndex = 70;
 			this.lstOptions.UseCompatibleStateImageBehavior = false;
 			this.lstOptions.View = System.Windows.Forms.View.Details;
@@ -169,6 +170,14 @@ namespace Eddie.Forms.Forms
 			// 
 			this.colOptionValue.Text = "Value";
 			// 
+			// pnlProviders
+			// 
+			this.pnlProviders.AutoScroll = true;
+			this.pnlProviders.Location = new System.Drawing.Point(120, 216);
+			this.pnlProviders.Name = "pnlProviders";
+			this.pnlProviders.Size = new System.Drawing.Size(365, 173);
+			this.pnlProviders.TabIndex = 71;
+			// 
 			// WindowMan
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -176,6 +185,7 @@ namespace Eddie.Forms.Forms
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdOk;
 			this.ClientSize = new System.Drawing.Size(784, 461);
+			this.Controls.Add(this.pnlProviders);
 			this.Controls.Add(this.lstOptions);
 			this.Controls.Add(this.lblStep);
 			this.Controls.Add(this.pgrStep);
@@ -204,5 +214,6 @@ namespace Eddie.Forms.Forms
 		private Skin.ColumnHeader colOptionDesc;
 		private System.Windows.Forms.ColumnHeader colOptionDefault;
 		private System.Windows.Forms.ColumnHeader colOptionValue;
+		private Skin.Panel pnlProviders;
 	}
 }

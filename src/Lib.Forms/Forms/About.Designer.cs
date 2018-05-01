@@ -262,8 +262,10 @@
 			// 
 			// About
 			// 
+			this.AcceptButton = this.cmdClose;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.CancelButton = this.cmdClose;
 			this.ClientSize = new System.Drawing.Size(787, 468);
 			this.Controls.Add(this.cmdSystemReport);
 			this.Controls.Add(this.lblDeveloped);

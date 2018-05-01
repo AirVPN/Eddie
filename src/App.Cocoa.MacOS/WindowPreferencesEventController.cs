@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -35,69 +35,74 @@ namespace Eddie.UI.Cocoa.Osx
 		#region Constructors
 
 		// Called when created from unmanaged code
-		public WindowPreferencesEventController (IntPtr handle) : base (handle)
+		public WindowPreferencesEventController(IntPtr handle) : base(handle)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Called when created directly from a XIB file
-		[Export ("initWithCoder:")]
-		public WindowPreferencesEventController (NSCoder coder) : base (coder)
+		[Export("initWithCoder:")]
+		public WindowPreferencesEventController(NSCoder coder) : base(coder)
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Call to load from the XIB/NIB file
-		public WindowPreferencesEventController () : base ("WindowPreferencesEvent")
+		public WindowPreferencesEventController() : base("WindowPreferencesEvent")
 		{
-			Initialize ();
+			Initialize();
 		}
-		
+
 		// Shared initialization code
-		void Initialize ()
+		void Initialize()
 		{
 		}
 
 		#endregion
 
 		//strongly typed window accessor
-		public new WindowPreferencesEvent Window {
-			get {
+		public new WindowPreferencesEvent Window
+		{
+			get
+			{
 				return (WindowPreferencesEvent)base.Window;
 			}
 		}
 
-		public override void AwakeFromNib ()
+		public override void AwakeFromNib()
 		{
-			base.AwakeFromNib ();
-		
+			base.AwakeFromNib();
+
 			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsEventTitle;
 
 			TxtFilename.StringValue = Item.Filename;
 			TxtArguments.StringValue = Item.Arguments;
-			GuiUtils.SetCheck (ChkWaitEnd, Item.WaitEnd);
+			GuiUtils.SetCheck(ChkWaitEnd, Item.WaitEnd);
 
-			CmdSave.Activated += (object sender, EventArgs e) => {
-			
+			CmdSave.Activated += (object sender, EventArgs e) =>
+			{
+
 				Accepted = true;
 
 				Item.Filename = TxtFilename.StringValue;
 				Item.Arguments = TxtArguments.StringValue;
 				Item.WaitEnd = GuiUtils.GetCheck(ChkWaitEnd);
 
-				Window.Close ();
+				Window.Close();
 				NSApplication.SharedApplication.StopModal();
 			};
 
-			CmdCancel.Activated += (object sender, EventArgs e) => {
+			CmdCancel.Activated += (object sender, EventArgs e) =>
+			{
 
 				Accepted = false;
 
-				Window.Close ();
+				Window.Close();
 				NSApplication.SharedApplication.StopModal();
 			};
 
-			CmdBrowse.Activated += (object sender, EventArgs e) => {
+			CmdBrowse.Activated += (object sender, EventArgs e) =>
+			{
 				GuiUtils.SelectFile(this.Window, TxtFilename);
 			};
 		}

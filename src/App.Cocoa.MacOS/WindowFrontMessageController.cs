@@ -23,7 +23,7 @@ using System.Linq;
 //using AppKit;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.UI.Cocoa.Osx
 {
@@ -79,7 +79,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdMore.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command("ui.show.website");
+				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
 			};
 		}
 	}

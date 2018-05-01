@@ -22,6 +22,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Core.Tools
 {
@@ -31,7 +32,7 @@ namespace Eddie.Core.Tools
 
 		public override void OnNormalizeVersion()
 		{
-			Version = Utils.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
+			Version = UtilsString.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
 		}
 
 		public override void ExceptionIfRequired()
@@ -39,7 +40,7 @@ namespace Eddie.Core.Tools
 			if (Available() == false)
 				throw new Exception(Messages.ToolsCurlRequired);
 
-			if (Utils.CompareVersions(Version, minVersionRequired) == -1)
+			if (UtilsCore.CompareVersions(Version, minVersionRequired) == -1)
 				throw new Exception(GetRequiredVersionMessage());
 		}
 
@@ -155,9 +156,9 @@ namespace Eddie.Core.Tools
 			args += " -sS"; // -s Silent mode, -S with errors
 			args += " --max-time " + Engine.Instance.Storage.GetInt("tools.curl.max-time").ToString();
 
-			Tool cacertTool = Software.GetTool("cacert.pem");
-			if (cacertTool.Available())
-				args += " --cacert \"" + SystemShell.EscapePath(cacertTool.Path) + "\"";
+			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
+			if(pathCacert != "")
+				args += " --cacert \"" + SystemShell.EscapePath(pathCacert) + "\"";
 
 			if (request.ForceResolve != "")
 				args += " --resolve " + request.ForceResolve;
@@ -175,81 +176,86 @@ namespace Eddie.Core.Tools
 			string error = "";
 			try
 			{
-				Process p = new Process();
-
-				p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
-				p.StartInfo.Arguments = args;
-				p.StartInfo.WorkingDirectory = "";
-
-				p.StartInfo.CreateNoWindow = true;
-				p.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-				p.StartInfo.UseShellExecute = false;
-				p.StartInfo.RedirectStandardOutput = true;
-				p.StartInfo.RedirectStandardError = true;
-
-				p.Start();
-
-				System.IO.MemoryStream StreamHeader = new System.IO.MemoryStream();
-				System.IO.MemoryStream StreamBody = new System.IO.MemoryStream();
-
+				using(Process p = new Process())
 				{
-					System.IO.MemoryStream Stream = new System.IO.MemoryStream();
-					byte[] buffer = new byte[4096];
-					int read;
-					while ((read = p.StandardOutput.BaseStream.Read(buffer, 0, buffer.Length)) > 0)
-					{
-						Stream.Write(buffer, 0, read);
-					}
+					p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
+					p.StartInfo.Arguments = args;
+					p.StartInfo.WorkingDirectory = "";
 
-					if (Stream.Length >= 4)
+					p.StartInfo.CreateNoWindow = true;
+					p.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+					p.StartInfo.UseShellExecute = false;
+					p.StartInfo.RedirectStandardOutput = true;
+					p.StartInfo.RedirectStandardError = true;
+
+					p.Start();
+					
 					{
-						bool foundBody = false;
-						byte[] buffer2 = Stream.ToArray();
-						int i = 0;
-						for (; i < Stream.Length - 4; i++)
+						using(System.IO.MemoryStream Stream = new System.IO.MemoryStream())
 						{
-							if ((buffer2[i] == 13) && (buffer2[i + 1] == 10) && (buffer2[i + 2] == 13) && (buffer2[i + 3] == 10))
+							using(System.IO.MemoryStream StreamHeader = new System.IO.MemoryStream())
 							{
-								StreamHeader.Write(buffer2, 0, i);
-								StreamBody.Write(buffer2, i + 4, (int)Stream.Length - i - 4);
-								foundBody = true;
-								break;
+								using(System.IO.MemoryStream StreamBody = new System.IO.MemoryStream())
+								{
+									byte[] buffer = new byte[4096];
+									int read;
+									while((read = p.StandardOutput.BaseStream.Read(buffer, 0, buffer.Length)) > 0)
+									{
+										Stream.Write(buffer, 0, read);
+									}
+
+									if(Stream.Length >= 4)
+									{
+										byte[] buffer2 = Stream.ToArray();
+										int i = 0;
+										for(; i < Stream.Length - 4; i++)
+										{
+											if((buffer2[i] == 13) && (buffer2[i + 1] == 10) && (buffer2[i + 2] == 13) && (buffer2[i + 3] == 10))
+											{
+												StreamHeader.Write(buffer2, 0, i);
+												StreamBody.Write(buffer2, i + 4, (int)Stream.Length - i - 4);
+												break;
+											}
+										}
+
+										if(StreamHeader.Length == 0)
+											StreamHeader.Write(buffer2, 0, (int)Stream.Length);
+									}
+									else
+									{
+										StreamHeader.Write(Stream.ToArray(), 0, (int)Stream.Length);
+									}
+
+									response.BufferHeader = StreamHeader.ToArray();
+									response.BufferData = StreamBody.ToArray();
+								}								
+							}							
+
+							string headers = System.Text.Encoding.ASCII.GetString(response.BufferHeader);
+							string[] headersLines = headers.Split('\n');
+							for(int l = 0; l < headersLines.Length; l++)
+							{
+								string line = headersLines[l];
+								if(l == 0)
+									response.StatusLine = line;
+								int posSep = line.IndexOf(":");
+								if(posSep != -1)
+								{
+									string k = line.Substring(0, posSep);
+									string v = line.Substring(posSep + 1);
+									response.Headers.Add(new KeyValuePair<string, string>(k.ToLowerInvariant().Trim(), v.Trim()));
+								}
 							}
-						}
 
-						if (foundBody == false)
-							StreamHeader = Stream;
-					}
-					else
-					{
-						StreamHeader = Stream;
-					}
-
-					response.BufferHeader = StreamHeader.ToArray();
-					response.BufferData = StreamBody.ToArray();
-
-					string headers = System.Text.Encoding.ASCII.GetString(response.BufferHeader);
-					string[] headersLines = headers.Split('\n');
-					for (int l = 0; l < headersLines.Length; l++)
-					{
-						string line = headersLines[l];
-						if (l == 0)
-							response.StatusLine = line;
-						int posSep = line.IndexOf(":");
-						if (posSep != -1)
-						{
-							string k = line.Substring(0, posSep);
-							string v = line.Substring(posSep + 1);
-							response.Headers.Add(new KeyValuePair<string, string>(k.ToLowerInvariant().Trim(), v.Trim()));
 						}
 					}
+
+					error = p.StandardError.ReadToEnd();
+
+					p.WaitForExit();
+
+					response.ExitCode = p.ExitCode;
 				}
-
-				error = p.StandardError.ReadToEnd();
-
-				p.WaitForExit();
-
-				response.ExitCode = p.ExitCode;
 			}
 			catch (Exception e)
 			{

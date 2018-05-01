@@ -24,9 +24,9 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class TabPage : System.Windows.Forms.TabPage
-    {
-        /*
+	public class TabPage : System.Windows.Forms.TabPage
+	{
+		/*
         public TabPage()
         {
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
@@ -44,6 +44,6 @@ namespace Eddie.Forms.Skin
             // Without this, under Linux it call the parent drawing, showing glitch.
             Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("tab_l_bg"), ClientRectangle);
         } 
-        */        
-    }
+        */
+	}
 }

@@ -5,5 +5,11 @@
 		<host address="54.246.124.152" />
 		<host address="54.225.156.17" />
 		<host address="95.211.138.143" />
-	</hosts>  <skins>    <skin name="Default">          </skin>  </skins>
+	</hosts>
+  <skins>
+    <skin name="Default">
+      
+    </skin>
+  </skins>
+
 </manifest>

@@ -39,7 +39,7 @@ namespace Eddie.Platform.MacOS
 
 		public override string GetName()
 		{
-			return "OS X - PF";
+			return "macOS - PF";
 		}
 
 		public override bool GetSupport()
@@ -154,7 +154,7 @@ namespace Eddie.Platform.MacOS
 			pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
 			if (m_connected)
 			{
-				pf += "set skip on { lo0 " + Engine.Instance.ConnectedVpnInterfaceId + " }\n";
+				pf += "set skip on { lo0 " + Engine.Instance.ConnectionActive.InterfaceId + " }\n";
 			}
 			else
 			{
@@ -164,8 +164,15 @@ namespace Eddie.Platform.MacOS
 			pf += "# Scrub\n";
 			pf += "scrub in all\n"; // 2.9
 
-			pf += "# Drop everything that doesn't match a rule\n";
-			pf += "block out all\n";
+			pf += "# General rule\n";
+			if (Engine.Instance.Storage.Get("netlock.incoming") == "allow")
+				pf += "pass in all\n";
+			else
+				pf += "block in all\n";
+			if (Engine.Instance.Storage.Get("netlock.outgoing") == "allow")
+				pf += "pass out all\n";
+			else
+				pf += "block out all\n";
 
 			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
 			{
@@ -205,12 +212,15 @@ namespace Eddie.Platform.MacOS
 			{
 				pf += "# Allow ICMP\n";
 				pf += "pass quick proto icmp\n"; // 2.9
-				pf += "pass in quick proto icmp6 all\n"; // 2.13.2
+
+				// Old macOS throw "unknown protocol icmp6". We don't known from when, so use icmp6 if High Sierra and above.
+				if (UtilsCore.CompareVersions(Platform.Instance.GetName(), "10.13") >= 0)
+					pf += "pass quick proto icmp6 all\n"; // 2.14.0
 			}
 
-			IpAddresses ips = GetAllIps(true);
-			pf += "# AirVPN IP (Auth and VPN)\n";
-			foreach (IpAddress ip in ips.IPs)
+			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+			pf += "# Specific ranges\n";
+			foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
 			{
 				if (ip.IsV4)
 					pf += "pass out quick inet from any to " + ip.ToCIDR() + "\n";
@@ -220,7 +230,7 @@ namespace Eddie.Platform.MacOS
 
 			if (Platform.Instance.FileContentsWriteText(m_filePfConf.Path, pf))
 			{
-				Engine.Instance.Logs.Log(LogType.Verbose, "OS X - PF rules updated, reloading");
+				Engine.Instance.Logs.Log(LogType.Verbose, "macOS - PF rules updated, reloading");
 
 				SystemShell s = new SystemShell();
 				s.Path = m_pfctlPath;

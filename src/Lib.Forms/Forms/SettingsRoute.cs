@@ -62,6 +62,7 @@ namespace Eddie.Forms.Forms
 
 			lblHostHelp.Text = Messages.WindowsSettingsRouteEditIp;
 
+			cboAction.Items.Add(Settings.RouteDirectionToDescription("none"));
 			cboAction.Items.Add(Settings.RouteDirectionToDescription("in"));
 			cboAction.Items.Add(Settings.RouteDirectionToDescription("out"));
 

@@ -14,40 +14,63 @@
     <TargetFrameworkProfile />
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ReleaseVersion>2.13</ReleaseVersion>
+    <ReleaseVersion>2.14</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EDDIENET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>..\..\tools\ruleset\idisposable.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;EDDIENET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="collections\MultiDictionary.cs" />
+    <Compile Include="collections\MultiOrderedDictionary.cs" />
+    <Compile Include="collections\OrderedSet.cs" />
     <Compile Include="CommandLine.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Converter.cs" />
+    <Compile Include="crypto\CryptManager.cs" />
+    <Compile Include="IApplication.cs" />
+    <Compile Include="io\TempFile.cs" />
+    <Compile Include="IRunnable.cs" />
+    <Compile Include="IService.cs" />
+    <Compile Include="json\Json.cs" />
+    <Compile Include="log\LogEntry.cs" />
+    <Compile Include="log\LogLevel.cs" />
+    <Compile Include="log\LogsManager.cs" />
     <Compile Include="MessagesUi.cs" />
     <Compile Include="MessagesFormatter.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CommonUtils.cs" />
-    <Compile Include="XmlItem.cs" />
+    <Compile Include="tasks\ITasksListener.cs" />
+    <Compile Include="tasks\ITasksManager.cs" />
+    <Compile Include="tasks\TaskEx.cs" />
+    <Compile Include="tasks\TasksManager.cs" />
+    <Compile Include="threading\DataLocker.cs" />
+    <Compile Include="threading\ThreadsGroup.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="validators\ArgumentVerifier.cs" />
+    <Compile Include="validators\NullVerifier.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

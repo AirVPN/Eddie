@@ -73,11 +73,32 @@ namespace Eddie.Core.Properties {
         ///    &lt;rsa&gt;
         ///      &lt;RSAParameters&gt;
         ///        &lt;Exponent&gt;AQAB&lt;/Exponent&gt;
-        ///        &lt;Modulus&gt;w [rest of string was truncated]&quot;;.
+        ///        &lt;Modulus&gt;wuQXz7eZeEBwa [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AirVPN {
             get {
                 return ResourceManager.GetString("AirVPN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///	&quot;links&quot;: {
+        ///		&quot;github&quot;: &quot;https://github.com/AirVPN/Eddie&quot;,
+        ///		&quot;license&quot;: &quot;http://www.gnu.org/licenses/gpl.html&quot;,
+        ///		&quot;help&quot;: {
+        ///			&quot;website&quot;: &quot;https://eddie.website/&quot;,
+        ///			&quot;general&quot;: &quot;https://eddie.website/docs/&quot;,
+        ///			&quot;netlock&quot;: &quot;https://eddie.website/docs/netlock/&quot;,
+        ///			&quot;advanced&quot;: &quot;https://eddie.website/docs/advanced/&quot;,
+        ///			&quot;directives&quot;: &quot;https://eddie.website/docs/directives/&quot;,
+        ///			&quot;protocols&quot;: &quot;https://eddie.website/docs/protocols/&quot;,
+        ///			&quot;udp_vs_tcp&quot;: &quot;https://eddie.website/docs/udp_vs_tcp/&quot;,
+        ///			&quot;to [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string data {
+            get {
+                return ResourceManager.GetString("data", resourceCulture);
             }
         }
         
@@ -105,7 +126,7 @@ namespace Eddie.Core.Properties {
         ///software and other kinds of works.
         ///
         ///  The licenses for most software and other practical works are designed
-        ///to take  [rest of string was truncated]&quot;;.
+        ///to take away your fre [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string License {
             get {
@@ -121,7 +142,13 @@ namespace Eddie.Core.Properties {
         ///		&lt;host address=&quot;54.246.124.152&quot; /&gt;
         ///		&lt;host address=&quot;54.225.156.17&quot; /&gt;
         ///		&lt;host address=&quot;95.211.138.143&quot; /&gt;
-        ///	&lt;/hosts&gt;        ///  &lt;skins&gt;        ///    &lt;skin name=&quot;Default&quot;&gt;        ///              ///    &lt;/skin&gt;        ///  &lt;/skins&gt;        ///
+        ///	&lt;/hosts&gt;
+        ///  &lt;skins&gt;
+        ///    &lt;skin name=&quot;Default&quot;&gt;
+        ///      
+        ///    &lt;/skin&gt;
+        ///  &lt;/skins&gt;
+        ///
         ///&lt;/manifest&gt;.
         /// </summary>
         internal static string Manifest {
@@ -162,7 +189,8 @@ namespace Eddie.Core.Properties {
         ///	http://openvpn.net/
         ///
         ///License: GNU General Public License (GPL v2+)
-        ///--------------------------------------------- [rest of string was truncated]&quot;;.
+        ///------------------------------------------------------------
+        ///stun [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ThirdParty {
             get {
@@ -178,7 +206,7 @@ namespace Eddie.Core.Properties {
         ///
         ///a) AirVPN is operated by Air. Please refer to Privacy Notice for contact details.
         ///
-        ///b) AirVPN is [rest of string was truncated]&quot;;.
+        ///b) AirVPN is a priv [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TOS {
             get {

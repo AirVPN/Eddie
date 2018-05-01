@@ -44,6 +44,11 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			m_main.EnabledUI ();
 		}
+
+        public override void DidDeminiaturize(Foundation.NSNotification notification)
+        {
+            m_main.EnabledUI();
+        }
 	}
 }
 

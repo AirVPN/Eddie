@@ -62,8 +62,8 @@ namespace Eddie.Forms.Forms
 
 		private void lnkWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Engine.Instance.Command("ui.show.website");
-        }
+			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+		}
 
 		private void cmdClose_Click(object sender, EventArgs e)
 		{

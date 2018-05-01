@@ -38,10 +38,10 @@
 // Utils
 // ----------------------
 
-extern "C" { __declspec(dllexport) int eddie_test_native(); }
+extern "C" { __declspec(dllexport) int eddie_init(); }
 
-extern "C" { __declspec(dllexport) int GetInterfaceMetric(int index, const char* layer); }
-extern "C" { __declspec(dllexport) int SetInterfaceMetric(int index, const char* layer, int value); }
+extern "C" { __declspec(dllexport) int eddie_get_interface_metric(int index, const char* layer); }
+extern "C" { __declspec(dllexport) int eddie_set_interface_metric(int index, const char* layer, int value); }
 
 // ----------------------
 // WFP
@@ -66,17 +66,17 @@ UINT64 zeroInterface = 0;
 // Firewall engine handle.
 HANDLE m_hEngineHandle;
 
-extern "C" { __declspec(dllexport) void LibPocketFirewallInit(const char* name); }
+extern "C" { __declspec(dllexport) void eddie_wfp_init(const char* name); }
 
-extern "C" { __declspec(dllexport) BOOL LibPocketFirewallStart(const char* xml); }
-extern "C" { __declspec(dllexport) BOOL LibPocketFirewallStop(); }
+extern "C" { __declspec(dllexport) BOOL eddie_wfp_start(const char* xml); }
+extern "C" { __declspec(dllexport) BOOL eddie_wfp_stop(); }
 
-extern "C" { __declspec(dllexport) UINT64 LibPocketFirewallAddRule(const char* xml); }
-extern "C" { __declspec(dllexport) BOOL LibPocketFirewallRemoveRule(const UINT64 id); }
-extern "C" { __declspec(dllexport) BOOL LibPocketFirewallRemoveRuleDirect(const UINT64 id); }
+extern "C" { __declspec(dllexport) UINT64 eddie_wfp_rule_add(const char* xml); }
+extern "C" { __declspec(dllexport) BOOL eddie_wfp_rule_remove(const UINT64 id); }
+extern "C" { __declspec(dllexport) BOOL eddie_wfp_rule_remove_direct(const UINT64 id); }
 
-extern "C" { __declspec(dllexport) const char* LibPocketFirewallGetLastError(); }
-extern "C" { __declspec(dllexport) DWORD LibPocketFirewallGetLastErrorCode(); }
+extern "C" { __declspec(dllexport) const char* eddie_wfp_get_last_error(); }
+extern "C" { __declspec(dllexport) DWORD eddie_wfp_get_last_error_code(); }
 
 
 #endif

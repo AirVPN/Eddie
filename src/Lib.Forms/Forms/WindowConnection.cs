@@ -31,6 +31,7 @@ namespace Eddie.Forms.Forms
 		public ConnectionInfo Connection;
 
 		private Controls.TabNavigator m_tabMain;
+		private ConnectionActive m_connectionActive;
 
 		public WindowConnection()
         {
@@ -67,7 +68,9 @@ namespace Eddie.Forms.Forms
 			m_tabMain.ImportTabControl(tabMain);
 			Controls.Add(m_tabMain);
 
-			txtOvpnGenerated.Text = Platform.Instance.NormalizeString(Connection.BuildOVPN(true).Get());
+			m_connectionActive = Connection.BuildConnectionActive(true);
+
+			txtOvpnGenerated.Text = Platform.Instance.NormalizeString(m_connectionActive.OpenVpnProfileStartup.Get());
 			if(Connection.Path != "")
 			{
 				if(Platform.Instance.FileExists(Connection.Path))

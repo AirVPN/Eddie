@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -31,13 +31,6 @@ namespace Eddie.Core
 		public string Value = "";
         public string Clickable = "";
 		public bool Listed = false; // Not really used
-
-        public void WriteXML(XmlItem item)
-        {
-            item.SetAttribute("key", Key);
-            item.SetAttribute("value", Value);
-            item.SetAttribute("text", Text);
-        }
 
         public string Text
         {

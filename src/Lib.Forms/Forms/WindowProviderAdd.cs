@@ -61,10 +61,10 @@ namespace Eddie.Forms.Forms
 
 			foreach(XmlElement xmlProvider in xmlData.ChildNodes)
 			{
-				string code = Utils.XmlGetAttributeString(xmlProvider, "code", "");
-				string t = Utils.XmlGetAttributeString(xmlProvider, "title", "");
-				t += " - " + Utils.XmlGetAttributeString(xmlProvider, "subtitle", "");
-				t += " - " + Utils.XmlGetAttributeString(xmlProvider, "href", "");
+				string code = UtilsXml.XmlGetAttributeString(xmlProvider, "code", "");
+				string t = UtilsXml.XmlGetAttributeString(xmlProvider, "title", "");
+				t += " - " + UtilsXml.XmlGetAttributeString(xmlProvider, "subtitle", "");
+				t += " - " + UtilsXml.XmlGetAttributeString(xmlProvider, "href", "");
 				cboProvider.Items.Add(t);
 				m_choices.Add(code);
 			}

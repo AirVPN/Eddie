@@ -43,6 +43,8 @@
 			this.txtAuthPassPassword = new Eddie.Forms.Skin.TextBox();
 			this.txtAuthPassUsername = new Eddie.Forms.Skin.TextBox();
 			this.label2 = new Eddie.Forms.Skin.Label();
+			this.chkSupportIPv6 = new Eddie.Forms.Skin.CheckBox();
+			this.lblSupportIPv6 = new Eddie.Forms.Skin.Label();
 			this.SuspendLayout();
 			// 
 			// cmdOk
@@ -53,7 +55,7 @@
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.cmdOk.FlatAppearance.BorderSize = 0;
 			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdOk.Location = new System.Drawing.Point(134, 251);
+			this.cmdOk.Location = new System.Drawing.Point(134, 337);
 			this.cmdOk.Name = "cmdOk";
 			this.cmdOk.Size = new System.Drawing.Size(106, 27);
 			this.cmdOk.TabIndex = 4;
@@ -69,7 +71,7 @@
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cmdCancel.FlatAppearance.BorderSize = 0;
 			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdCancel.Location = new System.Drawing.Point(247, 251);
+			this.cmdCancel.Location = new System.Drawing.Point(247, 337);
 			this.cmdCancel.Name = "cmdCancel";
 			this.cmdCancel.Size = new System.Drawing.Size(106, 27);
 			this.cmdCancel.TabIndex = 5;
@@ -176,10 +178,10 @@
 			// 
 			this.lblAuthPassPassword.BackColor = System.Drawing.Color.Transparent;
 			this.lblAuthPassPassword.ForeColor = System.Drawing.Color.Black;
-			this.lblAuthPassPassword.Location = new System.Drawing.Point(15, 170);
+			this.lblAuthPassPassword.Location = new System.Drawing.Point(11, 170);
 			this.lblAuthPassPassword.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lblAuthPassPassword.Name = "lblAuthPassPassword";
-			this.lblAuthPassPassword.Size = new System.Drawing.Size(134, 20);
+			this.lblAuthPassPassword.Size = new System.Drawing.Size(138, 20);
 			this.lblAuthPassPassword.TabIndex = 71;
 			this.lblAuthPassPassword.Text = "Password:";
 			this.lblAuthPassPassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -230,13 +232,35 @@
 			this.label2.Text = "Credentials are checked during connection.";
 			this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
+			// chkSupportIPv6
+			// 
+			this.chkSupportIPv6.Location = new System.Drawing.Point(153, 263);
+			this.chkSupportIPv6.Name = "chkSupportIPv6";
+			this.chkSupportIPv6.Size = new System.Drawing.Size(318, 24);
+			this.chkSupportIPv6.TabIndex = 73;
+			this.chkSupportIPv6.UseVisualStyleBackColor = true;
+			// 
+			// lblSupportIPv6
+			// 
+			this.lblSupportIPv6.BackColor = System.Drawing.Color.Transparent;
+			this.lblSupportIPv6.ForeColor = System.Drawing.Color.Black;
+			this.lblSupportIPv6.Location = new System.Drawing.Point(12, 264);
+			this.lblSupportIPv6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblSupportIPv6.Name = "lblSupportIPv6";
+			this.lblSupportIPv6.Size = new System.Drawing.Size(138, 20);
+			this.lblSupportIPv6.TabIndex = 74;
+			this.lblSupportIPv6.Text = "Support IPv6:";
+			this.lblSupportIPv6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
 			// WindowProviderEditOpenVPN
 			// 
 			this.AcceptButton = this.cmdOk;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdCancel;
-			this.ClientSize = new System.Drawing.Size(490, 290);
+			this.ClientSize = new System.Drawing.Size(490, 376);
+			this.Controls.Add(this.lblSupportIPv6);
+			this.Controls.Add(this.chkSupportIPv6);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.lblAuthPassPassword);
 			this.Controls.Add(this.lblAuthPassUsername);
@@ -280,5 +304,7 @@
 		private Skin.TextBox txtAuthPassPassword;
 		private Skin.TextBox txtAuthPassUsername;
 		private Skin.Label label2;
+		private Skin.CheckBox chkSupportIPv6;
+		private Skin.Label lblSupportIPv6;
 	}
 }

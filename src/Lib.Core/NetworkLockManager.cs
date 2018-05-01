@@ -30,7 +30,7 @@ namespace Eddie.Core
 		private NetworkLockPlugin m_current = null;
 
 		public NetworkLockManager()
-		{			
+		{
 		}
 
 		public void Init()
@@ -63,15 +63,26 @@ namespace Eddie.Core
 		{
 			if (IsActive()) // This because if is active, the button need anyway to be showed to deactivated it.
 				return true;
- 
+
 			if (Modes.Count == 0) // 2.10.1
 				return false;
 
 			if (Engine.Instance.Storage.GetLower("netlock.mode") == "none")
 				return false;
 
-			if (Engine.Instance.Storage.GetLower("routes.default") == "out")
-				return false;
+			if (Common.Constants.FeatureIPv6ControlOptions)
+			{
+				if (Engine.Instance.Storage.GetLower("network.ipv4.mode") == "out")
+					return false;
+
+				if (Platform.Instance.GetNetworkIPv6Mode() == "out")
+					return false;
+			}
+			else
+			{
+				if (Engine.Instance.Storage.GetLower("routes.default") == "out")
+					return false;
+			}
 
 			return true;
 		}
@@ -84,13 +95,13 @@ namespace Eddie.Core
 					throw new Exception(Messages.NetworkLockUnexpectedAlreadyActive);
 
 				NetworkLockPlugin nextCurrent = null;
-                
-                string requestedMode = Engine.Instance.Storage.GetLower("netlock.mode");
-                if (requestedMode == "auto")
-                    requestedMode = Platform.Instance.OnNetworkLockRecommendedMode();
+
+				string requestedMode = Engine.Instance.Storage.GetLower("netlock.mode");
+				if (requestedMode == "auto")
+					requestedMode = Platform.Instance.OnNetworkLockRecommendedMode();
 
 				if (requestedMode != "none")
-				{   
+				{
 					foreach (NetworkLockPlugin plugin in Modes)
 					{
 						if (plugin.GetSupport())
@@ -115,12 +126,12 @@ namespace Eddie.Core
 					Engine.Instance.Logs.Log(LogType.InfoImportant, message);
 
 					// This is not useless: resolve hostnames (available later as cache) before a possible lock of DNS server.
-					IpAddresses ips = nextCurrent.GetAllIps(true);
+					nextCurrent.GetIpsWhiteListOutgoing(true);
 
 					nextCurrent.Activation();
 
 					m_current = nextCurrent;
-				}                
+				}
 			}
 			catch (Exception e)
 			{
@@ -220,7 +231,7 @@ namespace Eddie.Core
 				if (m_current != null)
 					throw new Exception(Messages.NetworkLockRecoveryWhenActive);
 
-				XmlElement node = Utils.XmlGetFirstElementByTagName(root, "netlock");
+				XmlElement node = UtilsXml.XmlGetFirstElementByTagName(root, "netlock");
 				if (node != null)
 				{
 					string code = node.GetAttribute("mode");
@@ -254,12 +265,12 @@ namespace Eddie.Core
 			{
 				if (m_current != null)
 				{
-					XmlElement node = (XmlElement) root.AppendChild(root.OwnerDocument.CreateElement("netlock"));
+					XmlElement node = (XmlElement)root.AppendChild(root.OwnerDocument.CreateElement("netlock"));
 
 					node.SetAttribute("mode", m_current.GetCode());
 
 					m_current.OnRecoverySave(node);
-				}				
+				}
 			}
 			catch (Exception e)
 			{
@@ -279,28 +290,28 @@ namespace Eddie.Core
 				m_current.DeallowIP(ip);
 		}
 
-        public virtual void AllowProgram(string path, string name, string guid)
-        {
-            if (m_current != null)
-                m_current.AllowProgram(path, name, guid);
-        }
+		public virtual void AllowProgram(string path, string name, string guid)
+		{
+			if (m_current != null)
+				m_current.AllowProgram(path, name, guid);
+		}
 
-        public virtual void DeallowProgram(string path, string name, string guid)
-        {
-            if (m_current != null)
-                m_current.DeallowProgram(path, name, guid);
-        }
+		public virtual void DeallowProgram(string path, string name, string guid)
+		{
+			if (m_current != null)
+				m_current.DeallowProgram(path, name, guid);
+		}
 
-        public virtual void AllowInterface(string id)
-        {
-            if (m_current != null)
-                m_current.AllowInterface(id);
-        }
+		public virtual void AllowInterface(string id)
+		{
+			if (m_current != null)
+				m_current.AllowInterface(id);
+		}
 
-        public virtual void DeallowInterface(string id)
-        {
-            if (m_current != null)
-                m_current.DeallowInterface(id);
-        }
-    }
+		public virtual void DeallowInterface(string id)
+		{
+			if (m_current != null)
+				m_current.DeallowInterface(id);
+		}
+	}
 }

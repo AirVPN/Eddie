@@ -21,12 +21,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Web;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -34,14 +36,16 @@ namespace Eddie.Core
 	{
 		public static Engine Instance;
 
+		public Json Manifest;
+
 		public bool ConsoleMode = false;
 
 		public bool Terminated = false;
+
+		public delegate void CommandHandler(Json data);
+		public event CommandHandler CommandEvent;
 		public delegate void TerminateHandler();
 		public event TerminateHandler TerminateEvent;
-
-		public delegate void CommandEventHandler(XmlItem data);
-		public event CommandEventHandler CommandEvent;
 
 		private Threads.Pinger m_threadPinger;
 		private Threads.Penalities m_threadPenalities;
@@ -53,8 +57,6 @@ namespace Eddie.Core
 		private ProvidersManager m_providersManager;
 		private LogsManager m_logsManager;
 		private NetworkLockManager m_networkLockManager;
-		private WebServer m_webServer;
-		private TcpServer m_tcpServer;
 
 		private Dictionary<string, ConnectionInfo> m_connections = new Dictionary<string, ConnectionInfo>();
 		private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
@@ -94,24 +96,12 @@ namespace Eddie.Core
 		public ConnectionInfo NextServer;
 		public bool SwitchServer;
 
-		public DateTime ConnectedSince = DateTime.MinValue;
-		public OvpnBuilder ConnectedOVPN; // TOCLEAN?
-		public string ConnectedProtocol = "";
-		public IpAddress ConnectedEntryIP = "";
-		public IpAddresses ConnectedExitIP = new IpAddresses();
-		public int ConnectedPort = 0;
-		public Int64 ConnectedServerTime = 0;
-		public Int64 ConnectedClientTime = 0;
-		public string ConnectedRealIp = "";
-		public string ConnectedControlChannel = "";
-		public string ConnectedVpnInterfaceName = "";
-		public string ConnectedVpnInterfaceId = "";
-		public Int64 ConnectedVpnStatsRead = 0;
-		public Int64 ConnectedVpnStatsWrite = 0;
-		public Int64 ConnectedSessionStatsRead = 0;
-		public Int64 ConnectedSessionStatsWrite = 0;
-		public Int64 ConnectedLastDownloadStep = -1;
-		public Int64 ConnectedLastUploadStep = -1;
+		public ConnectionActive ConnectionActive;
+
+		public DateTime SessionStatsStart = DateTime.MinValue;
+		public Int64 SessionStatsRead = 0;
+		public Int64 SessionStatsWrite = 0;
+
 
 		public Engine() : base(false)
 		{
@@ -158,22 +148,6 @@ namespace Eddie.Core
 			}
 		}
 
-		public WebServer WebServer
-		{
-			get
-			{
-				return m_webServer;
-			}
-		}
-
-		public TcpServer TcpServer
-		{
-			get
-			{
-				return m_tcpServer;
-			}
-		}
-
 		public Dictionary<string, ConnectionInfo> Connections
 		{
 			get
@@ -190,11 +164,14 @@ namespace Eddie.Core
 			}
 		}
 
-		public bool DevelopmentEnvironment
+		public bool DebugModeX
 		{
 			get
 			{
-				return CommandLine.SystemEnvironment.Exists("development");
+				if (Storage != null)
+					return Storage.GetBool("log.level.debug");
+				else
+					return false;
 			}
 		}
 
@@ -215,7 +192,7 @@ namespace Eddie.Core
 		{
 			Platform.Instance.OnInit(cli);
 
-			if (Platform.Instance.NativeTest() == false)
+			if (Platform.Instance.NativeInit() == false)
 			{
 				Console.WriteLine("Unable to initialize native library.");
 				return false;
@@ -244,7 +221,7 @@ namespace Eddie.Core
 				}
 				else if (Storage.GetBool("version.short"))
 				{
-					Console.WriteLine(Lib.Common.Constants.VersionDesc);
+					Console.WriteLine(Common.Constants.VersionDesc);
 					RequestStop();
 					return false;
 				}
@@ -254,29 +231,38 @@ namespace Eddie.Core
 					RequestStop();
 					return false;
 				}
+				else if (Storage.GetBool("test.cli-su"))
+				{
+					if (Platform.Instance.IsAdmin())
+						Console.WriteLine("SU yes");
+					else
+						Console.WriteLine("SU no");
+					Console.WriteLine("; Args:" + CommandLine.SystemEnvironment.GetFull());
+					return false;
+				}
 			}
 
-			Logs.Log(LogType.Info, "Eddie version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net Framework: " + Platform.Instance.GetMonoVersion());
-
-			if (DevelopmentEnvironment)
-				Logs.Log(LogType.Info, "Development environment.");
-
+			Logs.Log(LogType.Verbose, "Eddie version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
+			
 			// This is before the Storage.Load, because non-root can't read option (chmod)
 			if (Storage.GetBool("advanced.skip_privileges") == false)
 			{
-				if (Platform.Instance.IsAdmin() == false)
+				if (Platform.Instance.IsAdminRequired())
 				{
-					if (cli)
+					if (Platform.Instance.IsAdmin() == false)
 					{
-						Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);
-					}
-					else if (Platform.Instance.RestartAsRoot() == false)
-					{
-						Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);
-					}
+						if (cli)
+						{
+							Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);
+						}
+						else if (Platform.Instance.RestartAsRoot() == false)
+						{
+							Logs.Log(LogType.Fatal, Messages.AdminRequiredStop);
+						}
 
-					RequestStop();
-					return false;
+						RequestStop();
+						return false;
+					}
 				}
 			}
 
@@ -291,35 +277,10 @@ namespace Eddie.Core
 
 			m_storage.Load();
 
-			if (Storage.GetBool("tcpserver.enabled") == true)
-			{
-				m_tcpServer = new TcpServer();
-				m_tcpServer.Start();
-
-				/*
-				string pathControl = Storage.Get("console.control.path");
-				if (pathControl != "")
-				{
-					Platform.Instance.FileContentsWriteText(pathControl, Storage.Get("tcpserver.port"));
-
-					m_tcpServer.SignalConnection.WaitOne(); // Clodo, TOCHECK; CTRL+C stop it?
-				}
-				*/
-
-				if (Storage.Get("console.mode") == "tcp")
-				{
-					// Start requested by an UI, wait it.
-					m_tcpServer.SignalConnection.WaitOne(); // Clodo, TOCHECK; CTRL+C stop it?
-				}
-			}
-
 			m_providersManager.Load();
 
 			if (Storage.GetBool("cli"))
 				ConsoleMode = true;
-
-			if (Storage.Get("paramtest") != "") // Look comment in storage.cs
-				Logs.Log(LogType.Warning, "Param test:-" + Storage.Get("paramtest") + "-");
 
 			if (Storage.GetBool("os.single_instance") == true)
 			{
@@ -333,16 +294,8 @@ namespace Eddie.Core
 
 			m_stats = new Core.Stats();
 
-			if ((WebServer.GetPath() != "") && (Storage.GetBool("webui.enabled") == true))
-			{
-				m_webServer = new WebServer();
-				m_webServer.Start();
-			}
-
 			m_networkLockManager = new NetworkLockManager();
 			m_networkLockManager.Init();
-
-			CompatibilityManager.Init();
 
 			Platform.Instance.OnStart();
 
@@ -353,6 +306,8 @@ namespace Eddie.Core
 		{
 			bool initResult = OnInit();
 
+			GenerateManifest();
+
 			// Not the best, but under Mono/Linux allow showing the 'Starting...' that give a feedback of running.
 			System.Threading.Thread.Sleep(1000);
 
@@ -360,6 +315,10 @@ namespace Eddie.Core
 			{
 				Software.Checking();
 				Software.Log();
+
+				CompatibilityManager.Init();
+
+				RaiseManifest();
 
 				CheckEnvironmentApp();
 
@@ -396,9 +355,9 @@ namespace Eddie.Core
 				if (autoStart)
 					Connect();
 				else
-					Logs.Log(LogType.InfoImportant, Messages.Ready);
+					Logs.Log(LogType.Info, Messages.Ready);
 
-				for (;;)
+				for (; ; )
 				{
 					OnWork();
 
@@ -409,7 +368,7 @@ namespace Eddie.Core
 							try
 							{
 								// try/catch because throw an exception if stdin is redirected.
-								// May in future we can use Console.IsInputRedirected, but require .Net 4.5
+								// May in future we can use Console.IsInputRedirected, but require .Net 4.5								
 								if (Console.KeyAvailable)
 								{
 									ConsoleKeyInfo key = Console.ReadKey();
@@ -433,8 +392,6 @@ namespace Eddie.Core
 
 			RunEventCommand("app.stop");
 
-			Command("shutdown.done"); // Clodo, new Eddie3
-
 			OnDeInit2();
 
 			Logs.Log(LogType.Verbose, Messages.AppShutdownComplete);
@@ -451,7 +408,7 @@ namespace Eddie.Core
 				foreach (string commandLineParamKey in CommandLine.SystemEnvironment.Params.Keys)
 				{
 					// 2.10.1
-					// OS X sometime pass as command-line arguments a 'psn_0_16920610' or similar. Ignore it.
+					// macOS sometime pass as command-line arguments a 'psn_0_16920610' or similar. Ignore it.
 					if (commandLineParamKey.StartsWith("psn_"))
 						continue;
 
@@ -465,10 +422,6 @@ namespace Eddie.Core
 					}
 				}
 
-				// 2.13.4 // TOCLEAN, useless, already in stats tab.
-				//Logs.Log(LogType.Verbose, "Data path: " + Storage.DataPath);
-				//Logs.Log(LogType.Verbose, "Application path: " + Platform.Instance.GetApplicationPath());
-				//Logs.Log(LogType.Verbose, "Executable path: " + Platform.Instance.GetExecutablePath());
 				Logs.Log(LogType.Verbose, "Command line arguments (" + CommandLine.SystemEnvironment.Params.Count.ToString() + "): " + CommandLine.SystemEnvironment.GetFull());
 
 				if (Storage.Get("profile") != "AirVPN.xml")
@@ -529,12 +482,6 @@ namespace Eddie.Core
 					DeAuth();
 				}
 			}
-
-			if (m_webServer != null)
-				m_webServer.Stop();
-
-			if (m_tcpServer != null)
-				m_tcpServer.Stop();
 		}
 
 		public virtual void OnWork()
@@ -636,157 +583,49 @@ namespace Eddie.Core
 			OnExit();
 		}
 
-		public virtual XmlItem OnCommand(XmlItem xml, bool ignoreIfNotExists)
+		public virtual Json OnCommand(Json data)
 		{
-			XmlItem ret = new XmlItem();
+			UI.App.Command(data);
 
-			string action = xml.GetAttribute("action").ToLowerInvariant();
-			if (action == "exit")
+			string command = data["command"].Value as string;
+
+			if (command == "exit")
 			{
 				OnExit();
 			}
-			else if (action == "openvpn")
+			else if (command == "openvpn_management")
 			{
-				SendManagementCommand(xml.GetAttribute("command"));
+				bool result = false;
+				if (m_threadSession != null)
+					result = m_threadSession.SendManagementCommand(data["management_command"].Value as string);
+				if (result == false)
+					Engine.Instance.Logs.Log(LogType.Warning, Messages.OpenVpnManagementCommandFail);
 			}
-			else if (action == "ui.show.text")
+			else if (command == "tor_control")
 			{
-				OnShowText(xml.GetAttribute("title", ""), xml.GetAttribute("body", ""));
-			}
-			else if (action == "ui.show.url")
-			{
-				Platform.Instance.OpenUrl(xml.GetAttribute("url"));
-			}
-			else if (action == "ui.get.license") // Eddie3
-			{
-				ret.SetAttribute("body", ResourcesFiles.GetString("license.txt"));
-			}
-			else if (action == "ui.show.license")
-			{
-				XmlItem xml2 = new XmlItem("command");
-				xml2.SetAttribute("action", "ui.show.text");
-				xml2.SetAttribute("title", "License");
-				xml2.SetAttribute("body", ResourcesFiles.GetString("license.txt"));
-				Command(xml2);
-			}
-			else if (action == "ui.show.libraries")
-			{
-				XmlItem xml2 = new XmlItem("command");
-				xml2.SetAttribute("action", "ui.show.text");
-				xml2.SetAttribute("title", "Libraries and Tools");
-				xml2.SetAttribute("body", ResourcesFiles.GetString("thirdparty.txt"));
-				Command(xml2);
-			}
-			else if (action == "ui.show.website")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "");
-			}
-			else if (action == "ui.show.ports")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "ports/");
-			}
-			else if (action == "ui.show.speedtest")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "speedtest/");
-			}
-			else if (action == "ui.show.clientarea")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "client/");
-			}
-			else if (action == "ui.show.docs.general")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "software/");
-			}
-			else if (action == "ui.show.docs.protocols")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_protocols/");
-			}
-			else if (action == "ui.show.docs.udp_vs_tcp")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/udp_vs_tcp/");
-			}
-			else if (action == "ui.show.docs.tor")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "tor/");
-			}
-			else if (action == "ui.show.docs.advanced")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_advanced/");
-			}
-			else if (action == "ui.show.docs.directives")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_directives/");
-			}
-			else if (action == "ui.show.docs.lock")
-			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + "faq/software_lock/");
-			}
-			else if (action == "ui.show.sources")
-			{
-				string url = "https://github.com/AirVPN/airvpn-client";
-				Platform.Instance.OpenUrl(url);
-			}
-			else if (action == "ui.show.gpl")
-			{
-				Platform.Instance.OpenUrl("http://www.gnu.org/licenses/gpl.html");
-			}
-			else if (action == "ui.show.openvpn.management")
-			{
-				Platform.Instance.OpenUrl("http://openvpn.net/index.php/open-source/documentation/miscellaneous/79-management-interface.html");
-			}
-			else if (action == "ui.stats.vpngeneratedovpn")
-			{
-				if ((IsConnected()) && (ConnectedOVPN != null))
+				string result = TorControl.SendCommand(data["control_command"].Value as string);
+				foreach (string line in result.Split('\n'))
 				{
-					OnShowText(Messages.StatsVpnGeneratedOVPN, ConnectedOVPN.Get());
+					string l = line.Trim();
+					if (l != "")
+						Engine.Instance.Logs.Log(LogType.Verbose, l);
 				}
 			}
-			else if (action == "ui.stats.pinger")
+			else if (command == "set_option")
 			{
-				InvalidateConnections();
-			}
-			else if (action == "ui.stats.manifestlastupdate")
-			{
-				RefreshConnections();
-			}
-			else if (action == "ui.stats.pathapp")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Stats.Get("PathApp").Value);
-			}
-			else if (action == "ui.stats.pathprofile")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Stats.Get("PathProfile").Value);
-			}
-			else if (action == "providers.add.airvpn")
-			{
-				Engine.Instance.ProvidersManager.AddProvider("AirVPN", null);
-			}
-			else if (action == "providers.add.openvpn")
-			{
-				Engine.Instance.ProvidersManager.AddProvider("OpenVPN", null);
-			}
-			else if (action == "testlog")
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, "Test Log " + Utils.GetRandomToken());
-			}
-			else if (action == "ui.hello")
-			{
-				Engine.Instance.Command("ui.show.ready");
-			}
-			else if (action == "ui.start")
-			{
-				UiSendStartInfo();
-				UiSendOsInfo();
-				UiSendStatusInfo();
-				UiSendQuickInfo();
-			}
-			else
-			{
-				if (ignoreIfNotExists == false)
-					throw new Exception(MessagesFormatter.Format(Messages.CommandUnknown, xml.ToString()));
+				string name = data["name"].Value as string;
+				string value = data["value"].Value as string;
+
+				if (Storage.Set(name, data["value"].Value))
+				{
+					if (name == "tools.openvpn.path")
+					{
+						Software.Checking();
+					}
+				}
 			}
 
-			return ret;
+			return null;
 		}
 
 		public virtual void OnSettingsChanged()
@@ -806,14 +645,10 @@ namespace Eddie.Core
 			RunEventCommand("session.start");
 
 			Platform.Instance.OnSessionStart();
-
-			Platform.Instance.OnIpV6Do();
 		}
 
 		public virtual void OnSessionStop()
 		{
-			Platform.Instance.OnIpV6Restore();
-
 			Platform.Instance.OnSessionStop();
 
 			RunEventCommand("session.stop");
@@ -882,6 +717,41 @@ namespace Eddie.Core
 			{
 				OnExit();
 			}
+		}
+
+		public string GetPathResources()
+		{
+			string pathResources = "";
+			if (Storage != null)
+				pathResources = Storage.Get("path.resources");
+			if (pathResources == "")
+				pathResources = Platform.Instance.GetApplicationPath();
+			else
+				pathResources = Platform.Instance.FileGetAbsolutePath(pathResources, Platform.Instance.GetApplicationPath());
+			pathResources = Platform.Instance.FileGetPhysicalPath(pathResources);
+			return pathResources;
+		}
+
+		public string GetPathTools()
+		{
+			string pathTools = "";
+			if (Storage != null)
+				pathTools = Storage.Get("path.tools");
+			if (pathTools == "")
+				pathTools = Platform.Instance.GetApplicationPath();
+			else
+				pathTools = Platform.Instance.FileGetAbsolutePath(pathTools, Platform.Instance.GetApplicationPath());
+			pathTools = Platform.Instance.FileGetPhysicalPath(pathTools);
+			return pathTools;
+		}
+
+		public string LocateResource(string relativePath)
+		{
+			string pathResource = Platform.Instance.NormalizePath(GetPathResources() + "/" + relativePath);
+			if (File.Exists(pathResource))
+				return pathResource;
+			else
+				return Platform.Instance.LocateResource(relativePath);
 		}
 
 		public bool AskExitConfirm()
@@ -968,24 +838,24 @@ namespace Eddie.Core
 				{
 					// OnConnected
 					m_connected = true;
-					ConnectedSince = DateTime.UtcNow;
 
 					WaitMessageClear();
 
 					OnRefreshUi(RefreshUiMode.Full);
+
+					RaiseColor();
 				}
 
 				if ((connected == false) && (m_connected == true))
 				{
 					// OnDisconnected
 					m_connected = false;
-					ConnectedSince = DateTime.MinValue;
-					ConnectedLastDownloadStep = 0;
-					ConnectedLastUploadStep = 0;
 
 					Engine.NetworkLockManager.OnVpnDisconnected();
 
 					OnRefreshUi(RefreshUiMode.Full);
+
+					RaiseColor();
 				}
 			}
 		}
@@ -1009,6 +879,8 @@ namespace Eddie.Core
 				m_waitCancel = allowCancel;
 
 				OnRefreshUi(RefreshUiMode.MainMessage);
+
+				RaiseColor();
 			}
 		}
 
@@ -1061,6 +933,23 @@ namespace Eddie.Core
 				return;
 			}
 
+			if (l.Type >= LogType.InfoImportant)
+			{
+				if (Storage.GetBool("gui.notifications"))
+				{
+					Json j = new Json();
+					j["command"].Value = "ui.notification";
+					j["level"].Value = l.GetTypeString();
+					j["message"].Value = l.Message;
+					Command(j);
+				}
+			}
+
+			if (l.Type >= LogType.Info)
+			{
+				RaiseStatus(l.Message);
+			}
+
 			if (l.Type != LogType.Realtime)
 			{
 				string lines = l.GetStringLines().Trim();
@@ -1104,15 +993,17 @@ namespace Eddie.Core
 		{
 			Logs.Log(LogType.Warning, message);
 		}
-		
+
 		public virtual void OnShowText(string title, string data)
 		{
 		}
 
+		/* // TOCLEAN
 		public virtual bool OnAskYesNo(string message)
 		{
 			return true;
 		}
+		*/
 
 		public virtual Credentials OnAskCredentials()
 		{
@@ -1159,7 +1050,7 @@ namespace Eddie.Core
 					}
 				}
 
-				for (;;)
+				for (; ; )
 				{
 					bool restart = false;
 					foreach (ConnectionInfo infoServer in m_connections.Values)
@@ -1215,37 +1106,42 @@ namespace Eddie.Core
 
 		public virtual void OnCheckConnections()
 		{
-			lock (m_connections)
+			Dictionary<string, ConnectionInfo> connections;
+			lock (Engine.Connections)
+				connections = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+
+			foreach (ConnectionInfo connection in connections.Values)
 			{
-				foreach (ConnectionInfo connection in m_connections.Values)
+				connection.Warnings.Clear();
+				if (connection.WarningOpen != "")
+					connection.WarningAdd(connection.WarningOpen, ConnectionInfoWarning.WarningType.Warning);
+				if (connection.WarningClosed != "")
+					connection.WarningAdd(connection.WarningClosed, ConnectionInfoWarning.WarningType.Error);
+
+				if ((Engine.Instance.Storage.Get("network.entry.iplayer") == "ipv6-only") && (connection.IpsEntry.CountIPv6 == 0))
+					connection.WarningAdd(Messages.ConnectionWarningNoEntryIPv6, ConnectionInfoWarning.WarningType.Error);
+				if ((Engine.Instance.Storage.Get("network.entry.iplayer") == "ipv4-only") && (connection.IpsEntry.CountIPv4 == 0))
+					connection.WarningAdd(Messages.ConnectionWarningNoEntryIPv4, ConnectionInfoWarning.WarningType.Error);
+				if ((Engine.Instance.Storage.Get("network.ipv4.mode") == "in") && (connection.SupportIPv4 == false))
+					connection.WarningAdd(Messages.ConnectionWarningNoExitIPv4, ConnectionInfoWarning.WarningType.Error);
+				if ((Platform.Instance.GetNetworkIPv6Mode() == "in") && (connection.SupportIPv6 == false))
+					connection.WarningAdd(Messages.ConnectionWarningNoExitIPv6, ConnectionInfoWarning.WarningType.Error);
+
+				ConnectionActive connectionActive = connection.BuildConnectionActive(true);
+
+				if (connectionActive.OpenVpnProfileStartup != null)
 				{
-					connection.Warnings.Clear();
-					if (connection.WarningOpen != "")
-						connection.WarningAdd(connection.WarningOpen, ConnectionInfoWarning.WarningType.Warning);
-					if (connection.WarningClosed != "")
-						connection.WarningAdd(connection.WarningClosed, ConnectionInfoWarning.WarningType.Error);
-
-					if ((Engine.Instance.Storage.Get("protocol.ip.entry") == "ipv6-only") && (connection.IpsEntry.CountIPv6 == 0))
-						connection.WarningAdd(Messages.ConnectionWarningNoEntryIPv6, ConnectionInfoWarning.WarningType.Error);
-					if ((Engine.Instance.Storage.Get("protocol.ip.entry") == "ipv4-only") && (connection.IpsEntry.CountIPv4 == 0))
-						connection.WarningAdd(Messages.ConnectionWarningNoEntryIPv4, ConnectionInfoWarning.WarningType.Error);
-					if ((Engine.Instance.Storage.Get("protocol.ipv4.route") == "in-always") && (connection.SupportIPv4 == false))
-						connection.WarningAdd(Messages.ConnectionWarningNoExitIPv4, ConnectionInfoWarning.WarningType.Error);
-					if ((Engine.Instance.Storage.Get("protocol.ipv6.route") == "in-always") && (connection.SupportIPv6 == false))
-						connection.WarningAdd(Messages.ConnectionWarningNoExitIPv6, ConnectionInfoWarning.WarningType.Error);
-
-					OvpnBuilder ovpn = connection.BuildOVPN(true);
-
-					if (ovpn != null)
-						if ((ovpn.ExistsDirective("<tls-crypt>")) && (Software.GetTool("openvpn").VersionUnder("2.4")))
-							connection.WarningAdd(Messages.ConnectionWarningOlderOpenVpnTlsCrypt, ConnectionInfoWarning.WarningType.Error);
+					if ((connectionActive.OpenVpnProfileStartup.ExistsDirective("<tls-crypt>")) && (Software.GetTool("openvpn").VersionUnder("2.4")))
+						connection.WarningAdd(Messages.ConnectionWarningOlderOpenVpnTlsCrypt, ConnectionInfoWarning.WarningType.Error);
+					if ((connectionActive.OpenVpnProfileStartup.ExistsDirective("tls-crypt")) && (Software.GetTool("openvpn").VersionUnder("2.4")))
+						connection.WarningAdd(Messages.ConnectionWarningOlderOpenVpnTlsCrypt, ConnectionInfoWarning.WarningType.Error);
 				}
+			}
 
-				foreach (Provider provider in ProvidersManager.Providers)
-				{
-					if (provider.Enabled)
-						provider.OnCheckConnections();
-				}
+			foreach (Provider provider in ProvidersManager.Providers)
+			{
+				if (provider.Enabled)
+					provider.OnCheckConnections();
 			}
 		}
 
@@ -1261,40 +1157,47 @@ namespace Eddie.Core
 				if (Engine.IsConnected())
 				{
 					{
-						DateTime DT1 = Engine.Instance.ConnectedSince;
+						DateTime DT1 = Engine.ConnectionActive.TimeStart;
 						DateTime DT2 = DateTime.UtcNow;
 						TimeSpan TS = DT2 - DT1;
 						string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToShortDateString() + " " + DT1.ToLocalTime().ToShortTimeString());
-						Stats.UpdateValue("VpnConnectionStart", TSText);
+						Stats.UpdateValue("VpnStart", TSText);
 					}
 
-					Stats.UpdateValue("SessionTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedSessionStatsRead, false, true));
-					Stats.UpdateValue("SessionTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedSessionStatsWrite, false, true));
+					Stats.UpdateValue("VpnTotalDownload", UtilsString.FormatBytes(Engine.ConnectionActive.BytesRead, false, true));
+					Stats.UpdateValue("VpnTotalUpload", UtilsString.FormatBytes(Engine.ConnectionActive.BytesWrite, false, true));
 
-					Stats.UpdateValue("VpnTotalDownload", Core.Utils.FormatBytes(Engine.ConnectedVpnStatsRead, false, true));
-					Stats.UpdateValue("VpnTotalUpload", Core.Utils.FormatBytes(Engine.ConnectedVpnStatsWrite, false, true));
+					Stats.UpdateValue("VpnSpeedDownload", UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, true));
+					Stats.UpdateValue("VpnSpeedUpload", UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, true));
 
-					Stats.UpdateValue("VpnSpeedDownload", Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, true));
-					Stats.UpdateValue("VpnSpeedUpload", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, true));
+					{
+						DateTime DT1 = Engine.Instance.SessionStatsStart;
+						DateTime DT2 = DateTime.UtcNow;
+						TimeSpan TS = DT2 - DT1;
+						string TSText = string.Format("{0:00}:{1:00}:{2:00} - {3}", (int)TS.TotalHours, TS.Minutes, TS.Seconds, DT1.ToLocalTime().ToShortDateString() + " " + DT1.ToLocalTime().ToShortTimeString());
+						Stats.UpdateValue("SessionStart", TSText);
+					}
+
+					Stats.UpdateValue("SessionTotalDownload", UtilsString.FormatBytes(Engine.SessionStatsRead, false, true));
+					Stats.UpdateValue("SessionTotalUpload", UtilsString.FormatBytes(Engine.SessionStatsWrite, false, true));
 				}
 				else
 				{
-					Stats.UpdateValue("VpnConnectionStart", Messages.StatsNotConnected);
-
-					Stats.UpdateValue("SessionTotalDownload", Messages.StatsNotConnected);
-					Stats.UpdateValue("SessionTotalUpload", Messages.StatsNotConnected);
-
+					Stats.UpdateValue("VpnStart", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnTotalDownload", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnTotalUpload", Messages.StatsNotConnected);
-
 					Stats.UpdateValue("VpnSpeedDownload", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnSpeedUpload", Messages.StatsNotConnected);
+
+					Stats.UpdateValue("SessionStart", Messages.StatsNotConnected);
+					Stats.UpdateValue("SessionTotalDownload", Messages.StatsNotConnected);
+					Stats.UpdateValue("SessionTotalUpload", Messages.StatsNotConnected);
 				}
 			}
 
 			if (mode == Core.Engine.RefreshUiMode.Full)
 			{
-				string manifestLastUpdate = Utils.FormatTime(ProvidersManager.LastRefreshDone);
+				string manifestLastUpdate = UtilsString.FormatTime(ProvidersManager.LastRefreshDone);
 				if (Core.Threads.Manifest.Instance != null)
 					if (Core.Threads.Manifest.Instance.Refresh != Threads.RefreshType.None)
 						manifestLastUpdate += " (" + Messages.ManifestUpdateForce + ")";
@@ -1303,6 +1206,11 @@ namespace Eddie.Core
 				if (m_threadPinger != null)
 				{
 					Stats.UpdateValue("Pinger", PingerStats().ToString());
+				}
+
+				if (m_threadDiscover != null)
+				{
+					Stats.UpdateValue("Discovery", m_threadDiscover.GetStatsString().ToString());
 				}
 
 				if (Engine.IsConnected())
@@ -1316,33 +1224,34 @@ namespace Eddie.Core
 					Stats.UpdateValue("AccountLogin", Engine.Storage.Get("login"));
 					Stats.UpdateValue("AccountKey", Engine.Storage.Get("key"));
 
-					Stats.UpdateValue("VpnEntryIP", Engine.ConnectedEntryIP.ToString());
-					if (Engine.ConnectedExitIP.CountIPv4 != 0)
-						Stats.UpdateValue("VpnExitIPv4", Engine.ConnectedExitIP.OnlyIPv4.ToString());
+					Stats.UpdateValue("VpnEntryIP", Engine.ConnectionActive.EntryIP.ToString());
+					if (Engine.ConnectionActive.ExitIPs.CountIPv4 != 0)
+						Stats.UpdateValue("VpnExitIPv4", Engine.ConnectionActive.ExitIPs.OnlyIPv4.ToString());
 					else
 						Stats.UpdateValue("VpnExitIPv4", Messages.NotAvailable);
-					if (Engine.ConnectedExitIP.CountIPv6 != 0)
-						Stats.UpdateValue("VpnExitIPv6", Engine.ConnectedExitIP.OnlyIPv6.ToString());
+					if (Engine.ConnectionActive.ExitIPs.CountIPv6 != 0)
+						Stats.UpdateValue("VpnExitIPv6", Engine.ConnectionActive.ExitIPs.OnlyIPv6.ToString());
 					else
 						Stats.UpdateValue("VpnExitIPv6", Messages.NotAvailable);
-					Stats.UpdateValue("VpnProtocol", Engine.ConnectedProtocol);
-					Stats.UpdateValue("VpnPort", Engine.ConnectedPort.ToString());
-					if (Engine.ConnectedRealIp != "")
-						Stats.UpdateValue("VpnRealIp", Engine.ConnectedRealIp);
+					Stats.UpdateValue("VpnProtocol", Engine.ConnectionActive.Protocol);
+					Stats.UpdateValue("VpnPort", Engine.ConnectionActive.Port.ToString());
+					if (Engine.ConnectionActive.RealIp != "")
+						Stats.UpdateValue("VpnRealIp", Engine.ConnectionActive.RealIp);
 					else if (Engine.CurrentServer.SupportCheck)
 						Stats.UpdateValue("VpnRealIp", Messages.CheckingRequired);
 					else
 						Stats.UpdateValue("VpnRealIp", Messages.NotAvailable);
-					Stats.UpdateValue("VpnIp", Engine.ConnectedOVPN.ExtractVpnIPs().ToString());
-					Stats.UpdateValue("VpnDns", Engine.ConnectedOVPN.ExtractDns().ToString());
-					Stats.UpdateValue("VpnInterface", Engine.ConnectedVpnInterfaceName);
-					Stats.UpdateValue("VpnGateway", Engine.ConnectedOVPN.ExtractGateway().ToString());
-					Stats.UpdateValue("VpnCipher", Engine.ConnectedOVPN.ExtractCipher());
-					Stats.UpdateValue("VpnControlChannel", Engine.ConnectedControlChannel);
+					Stats.UpdateValue("VpnIp", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractVpnIPs().ToString());
+					Stats.UpdateValue("VpnDns", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractDns().ToString());
+					Stats.UpdateValue("VpnInterface", Engine.ConnectionActive.InterfaceName);
+					Stats.UpdateValue("VpnGateway", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractGateway().ToString());
+					Stats.UpdateValue("VpnCipher", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractCipher());
+					Stats.UpdateValue("VpnControlChannel", Engine.ConnectionActive.ControlChannel);
 					Stats.UpdateValue("VpnGeneratedOVPN", "");
+					Stats.UpdateValue("VpnGeneratedOVPNPush", "");
 
-					if (Engine.ConnectedServerTime != 0)
-						Stats.UpdateValue("SystemTimeServerDifference", (Engine.ConnectedServerTime - Engine.ConnectedClientTime).ToString() + " seconds");
+					if (Engine.ConnectionActive.TimeServer != 0)
+						Stats.UpdateValue("SystemTimeServerDifference", (Engine.ConnectionActive.TimeServer - Engine.ConnectionActive.TimeClient).ToString() + " seconds");
 					else if (Engine.CurrentServer.SupportCheck)
 						Stats.UpdateValue("SystemTimeServerDifference", Messages.CheckingRequired);
 					else
@@ -1372,6 +1281,7 @@ namespace Eddie.Core
 					Stats.UpdateValue("VpnCipher", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnControlChannel", Messages.StatsNotConnected);
 					Stats.UpdateValue("VpnGeneratedOVPN", Messages.StatsNotConnected);
+					Stats.UpdateValue("VpnGeneratedOVPNPush", Messages.StatsNotConnected);
 					Stats.UpdateValue("SystemTimeServerDifference", Messages.StatsNotConnected);
 				}
 			}
@@ -1394,6 +1304,11 @@ namespace Eddie.Core
 
 		public virtual void OnStatsChange(StatsEntry entry)
 		{
+		}
+
+		public virtual void OnProviderManifestFailed(Provider provider)
+		{
+
 		}
 
 		public virtual void OnUnhandledException(Exception e)
@@ -1577,10 +1492,20 @@ namespace Eddie.Core
 			Core.Threads.Manifest.Instance.Refresh = Threads.RefreshType.RefreshInvalidate;
 		}
 
-		public void InvalidateConnections()
+		public void InvalidatePinger()
 		{
 			m_threadPinger.InvalidateAll();
+		}
+
+		public void InvalidateDiscovery()
+		{
 			m_threadDiscover.InvalidateAll();
+		}
+
+		public void InvalidateConnections()
+		{
+			InvalidatePinger();
+			InvalidateDiscovery();
 
 			OnRefreshUi(Core.Engine.RefreshUiMode.Full);
 		}
@@ -1661,17 +1586,11 @@ namespace Eddie.Core
 			}
 		}
 
-		public void SendManagementCommand(string command)
-		{
-			if (m_threadSession != null)
-				m_threadSession.SendManagementCommand(command);
-		}
-
 		public XmlDocument FetchUrlXml(HttpRequest request)
 		{
 			HttpResponse response = FetchUrl(request);
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(response.GetAscii());
+			doc.LoadXml(response.GetBodyAscii());
 			return doc;
 		}
 
@@ -1711,36 +1630,17 @@ namespace Eddie.Core
 			if (Storage.Get("login") == "")
 				return false;
 
-			//return ( (AirVPN.User != null) && (AirVPN.User.Attributes["login"] != null) );
 			return true;
 		}
 
-		public void Command(string cmd)
-		{
-			Command(cmd, true);
-		}
-
-		public XmlItem Command(string cmd, bool ignoreIfNotExists)
-		{
-			return Command(new XmlItem(cmd), ignoreIfNotExists);
-		}
-
-		public XmlItem Command(XmlItem xml)
-		{
-			return Command(xml, true);
-		}
-
-		public XmlItem Command(XmlItem xml, bool ignoreIfNotExists)
+		public Json Command(Json data)
 		{
 			try
 			{
-				if ((Engine.Storage != null) && (Engine.Storage.Get("console.mode") == "backend"))
-					Console.WriteLine(xml.ToString());
-
 				if (CommandEvent != null)
-					CommandEvent(xml);
+					CommandEvent(data);
 
-				return OnCommand(xml, ignoreIfNotExists);
+				return OnCommand(data);
 			}
 			catch (Exception e)
 			{
@@ -1763,7 +1663,7 @@ namespace Eddie.Core
 			try
 			{
 				XmlDocument xmlDoc = AirVPN.Fetch(Messages.AuthorizeLogin, parameters);
-				string userMessage = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+				string userMessage = UtilsXml.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
 
 				if (userMessage != "")
 				{
@@ -1826,12 +1726,17 @@ namespace Eddie.Core
 
 		public bool CanConnect()
 		{
-			lock (m_connections)
-				foreach (ConnectionInfo server in m_connections.Values)
-				{
-					if (server.CanConnect())
-						return true;
-				}
+			Dictionary<string, ConnectionInfo> connections;
+
+			lock (Engine.Connections)
+				connections = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+
+			foreach (ConnectionInfo server in connections.Values)
+			{
+				if (server.CanConnect())
+					return true;
+			}
+
 			return false;
 		}
 
@@ -1994,7 +1899,7 @@ namespace Eddie.Core
 					infoArea.Servers++;
 				}
 
-				for (;;)
+				for (; ; )
 				{
 					bool restart = false;
 					foreach (AreaInfo infoArea in m_areas.Values)
@@ -2060,7 +1965,7 @@ namespace Eddie.Core
 
 		public bool CheckEnvironmentApp()
 		{
-			if(Platform.Instance.HasAccessToWrite(Storage.GetDataPath()) == false)
+			if (Platform.Instance.HasAccessToWrite(Storage.GetDataPath()) == false)
 				Engine.Instance.Logs.Log(LogType.Fatal, "Unable to write in path '" + Storage.GetDataPath() + "'");
 
 			// Local Time in the past
@@ -2108,7 +2013,7 @@ namespace Eddie.Core
 				}
 			}
 
-			if( (Storage.GetLower("proxy.mode") != "none") && (Storage.GetLower("proxy.when") != "none") )
+			if ((Storage.GetLower("proxy.mode") != "none") && (Storage.GetLower("proxy.when") != "none"))
 			{
 				string proxyHost = Storage.Get("proxy.host").Trim();
 				int proxyPort = Storage.GetInt("proxy.port");
@@ -2124,6 +2029,9 @@ namespace Eddie.Core
 			if (Engine.Instance.Storage.GetBool("routes.remove_default"))
 				Logs.Log(LogType.Warning, Messages.DeprecatedRemoveDefaultGateway);
 
+			if (Engine.Instance.Storage.Get("network.ipv4.mode") == "block")
+				throw new Exception(Messages.CheckingIPv4BlockNotYetImplemented);
+
 			return Platform.Instance.OnCheckEnvironmentSession();
 		}
 
@@ -2132,69 +2040,209 @@ namespace Eddie.Core
 			return m_threadDiscover.DiscoverExit();
 		}
 
+		public IpAddress GetDefaultGatewayIPv4()
+		{
+			if (Manifest["network_info"].Json.HasKey("ipv4-default-gateway"))
+			{
+				return new IpAddress(Manifest["network_info"]["ipv4-default-gateway"].Value as string);
+			}
+			else
+				return null;
+		}
+
+		public IpAddress GetDefaultGatewayIPv6()
+		{
+			if (Manifest["network_info"].Json.HasKey("ipv6-default-gateway"))
+			{
+				return new IpAddress(Manifest["network_info"]["ipv6-default-gateway"].Value as string);
+			}
+			else
+				return null;
+		}
+
+		public string GetDefaultInterfaceIPv4()
+		{
+			if (Manifest["network_info"].Json.HasKey("ipv4-default-interface"))
+				return Manifest["network_info"]["ipv4-default-interface"].Value as string;
+			else
+				return "";
+		}
+
+		public string GetDefaultInterfaceIPv6()
+		{
+			if (Manifest["network_info"].Json.HasKey("ipv6-default-interface"))
+				return Manifest["network_info"]["ipv6-default-interface"].Value as string;
+			else
+				return "";
+		}
+
 		public void LogOpenvpnConfig()
 		{
-			string t = "-- Start OpenVPN config dump\n" + Engine.Instance.ConnectedOVPN + "\n-- End OpenVPN config dump";
+			string t = "-- Start OpenVPN config dump\n" + Engine.Instance.ConnectionActive.OpenVpnProfileWithPush + "\n-- End OpenVPN config dump";
 			t = Regex.Replace(t, "<ca>(.*?)</ca>", "<ca>omissis</ca>", RegexOptions.Singleline);
 			t = Regex.Replace(t, "<key>(.*?)</key>", "<key>omissis</key>", RegexOptions.Singleline);
 			t = Regex.Replace(t, "<cert>(.*?)</cert>", "<cert>omissis</cert>", RegexOptions.Singleline);
 			t = Regex.Replace(t, "<tls-auth>(.*?)</tls-auth>", "<tls-auth>omissis</tls-auth>", RegexOptions.Singleline);
-			t = Regex.Replace(t, "<tls-crypt>(.*?)</tls-crypt>", "<tls-auth>omissis</tls-auth>", RegexOptions.Singleline);
+			t = Regex.Replace(t, "<tls-crypt>(.*?)</tls-crypt>", "<tls-crypt>omissis</tls-crypt>", RegexOptions.Singleline);
 			Engine.Logs.Log(LogType.Verbose, t);
 		}
 
-		public string GetConnectedTrayText(bool speed, bool server)
+		public void GenerateManifest()
 		{
-			if (CurrentServer == null)
-				return "";
+			// Data static
+			Manifest = Json.Parse(Properties.Resources.data);
 
-			string text = "";
+			Json jAbout = new Json();
+			Manifest["about"].Value = jAbout;
+			jAbout["license"].Value = Properties.Resources.License;
+			jAbout["libraries"].Value = Properties.Resources.ThirdParty;
 
-			if (speed)
+			Json jOs = new Json();
+			Manifest["os"].Value = jOs;
+			jOs["code"].Value = Platform.Instance.GetSystemCode();
+			jOs["name"].Value = Platform.Instance.GetName();
+			jOs["mono"].Value = Platform.Instance.GetNetFrameworkVersion();
+
+			Json jVersion = new Json();
+			Manifest["version"].Value = jVersion;
+			jVersion["text"].Value = Constants.VersionDesc;
+			jVersion["int"].Value = Constants.VersionInt;
+			jVersion["tap_windows"].Value = Constants.WindowsDriverVersion;
+			jVersion["tap_windows_xp"].Value = Constants.WindowsXpDriverVersion;
+
+			Manifest["network_info"].Value = JsonNetworkInfo();
+		}
+
+		public void RaiseManifest()
+		{
+			Json j = Manifest.Clone();
+			j["command"].Value = "ui.manifest";
+			Command(j);
+		}
+
+		public Json GenerateStatus(string logMessage)
+		{
+			// "full" is the text for window title.
+			// "short" is the text for the menu status and tray / sysbar. If omissis, use "full".
+			// Users can control the "short" behiavour, because it's invasive (big) in macOS.
+
+			// TOFIX: "gui.osx.sysbar" are only for macOS, but can be for any platform. Rename need.
+
+			string textFull = "";
+			string textShort = "";
+
+			Json j = new Json();
+			if (logMessage != "")
 			{
-				text += "D:" + Core.Utils.FormatBytes(ConnectedLastDownloadStep, true, false) + " U:" + Core.Utils.FormatBytes(ConnectedLastUploadStep, true, false);
+				// Log message
+				textFull = logMessage;
+				textShort = logMessage;
+
+				if (Platform.Instance.GetCode() == "MacOS")
+					if (Storage.GetBool("gui.osx.sysbar.show_info") == false)
+						textShort = "";
 			}
-			if (server)
+			else
 			{
-				if (text != "")
-					text += " - ";
-				string serverName = CurrentServer.DisplayName;
+				// Connection info
+				if (CurrentServer == null)
+					return null;
+				if (ConnectionActive == null)
+					return null;
+
+				bool showShortSpeed = Storage.GetBool("gui.osx.sysbar.show_speed");
+				bool showShortServer = Storage.GetBool("gui.osx.sysbar.show_server");
+
+				if (Platform.Instance.GetCode() != "MacOS")
+				{
+					showShortSpeed = true;
+					showShortServer = true;
+				}
+
+				string speedText = MessagesFormatter.Format(Messages.StatusConnectedSpeed, UtilsString.FormatBytes(ConnectionActive.BytesLastDownloadStep, true, false), UtilsString.FormatBytes(ConnectionActive.BytesLastUploadStep, true, false));
+				string serverText = CurrentServer.DisplayName;
 				string country = CountriesManager.GetNameFromCode(CurrentServer.CountryCode);
 				if (country != "")
-					serverName += " (" + country + ")";
-				text += serverName;
-				if (ConnectedExitIP.Count != 0)
-					text += " - IP:" + ConnectedExitIP.ToString();
+					serverText += " (" + country + ")";
+				if (ConnectionActive.ExitIPs.Count != 0)
+					serverText += " - IP:" + ConnectionActive.ExitIPs.ToString();
+				textFull = speedText + " - " + serverText;
+				textShort = "";
+
+				if (showShortSpeed)
+					textShort += speedText;
+
+				if (showShortServer)
+				{
+					if (textShort != "")
+						textShort += " - ";
+					textShort += serverText;
+				}
 			}
-			return text;
+
+			j["full"].Value = textFull;
+			if (textShort != textFull)
+				j["short"].Value = textShort;
+
+			return j;
 		}
 
-		public void UiSendStartInfo()
+		public void RaiseStatus() // When connected
 		{
-			// Data sended at connection, never changed
-			XmlItem xml = new XmlItem("command");
-			xml.SetAttribute("action", "ui.info.start");
-
-			xml.SetAttribute("eddie.version.text", Constants.VersionDesc);
-			xml.SetAttributeInt("eddie.version.int", Constants.VersionInt);
-			xml.SetAttributeBool("eddie.development", DevelopmentEnvironment);
-			xml.SetAttribute("mono.version", Platform.Instance.GetMonoVersion());
-			xml.SetAttribute("os.code", Platform.Instance.GetSystemCode());
-			xml.SetAttribute("os.name", Platform.Instance.GetName());
-
-			//XmlItem xmlOptions = xml.CreateChild("options");
-
-			Command(xml);
+			RaiseStatus("");
 		}
 
-		public void UiSendOsInfo()
+		public void RaiseStatus(string logMessage)
 		{
-			// Data sended at connection, never changed, at least until options changes.
+			Json j = GenerateStatus(logMessage);
+			if (j == null)
+				return;
+			j["command"].Value = "ui.status";
+			Engine.Instance.Command(j);
+		}
+
+		public Json GenerateColor()
+		{
+			Json j = new Json();
+			if (IsConnected())
+			{
+				j["color"].Value = "green";
+			}
+			else if (IsWaiting())
+			{
+				j["color"].Value = "yellow";
+			}
+			else
+			{
+				j["color"].Value = "red";
+			}
+			return j;
+		}
+
+		public void RaiseColor()
+		{
+			Json j = GenerateColor();
+			j["command"].Value = "ui.color";
+			Engine.Instance.Command(j);
+		}
+
+		public Json GenerateOsInfo()
+		{
+			// Data sended at start, rarely changes
+			Json j = new Json();
+
+			j["network_info"].Value = JsonNetworkInfo();
+
+			Json jProvidersDefinition = new Json();
+			j["providers_definitions"].Value = jProvidersDefinition;
+
+
+			return j;
+
+			/*
 			XmlItem xml = new XmlItem("command");
 			xml.SetAttribute("action", "ui.info.os");
-
-			xml.SetAttribute("eddie.windows.tap.driver", Constants.WindowsDriverVersion);
-			xml.SetAttribute("eddie.windows-xp.tap.driver", Constants.WindowsXpDriverVersion);
+			
 			xml.SetAttribute("tools.tap-driver.version", Software.OpenVpnDriver);
 			xml.SetAttribute("tools.curl.version", Software.GetTool("curl").Version);
 			xml.SetAttribute("tools.curl.path", Software.GetTool("curl").Path);
@@ -2204,8 +2252,168 @@ namespace Eddie.Core
 			xml.SetAttribute("tools.ssh.path", Software.GetTool("ssh").Path);
 			xml.SetAttribute("tools.ssl.version", Software.GetTool("ssl").Version);
 			xml.SetAttribute("tools.ssl.path", Software.GetTool("ssl").Path);
-
 			Command(xml);
+			*/
+		}
+
+		public Json JsonNetworkInfo()
+		{
+			Json jRouteList = JsonRouteList();
+
+			Json jNetworkInfo = new Json();
+
+			jNetworkInfo["support_ipv4"].Value = true; // Default, if unable to detect after
+			jNetworkInfo["support_ipv6"].Value = true; // Default, if unable to detect after
+
+			jNetworkInfo["routes"].Value = jRouteList;
+
+			Json jNetworkInterfaces = new Json();
+			jNetworkInfo["interfaces"].Value = jNetworkInterfaces;
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				Json jNetworkInterface = new Json();
+				jNetworkInterfaces.Append(jNetworkInterface);
+				jNetworkInterface["friendly"].Value = adapter.Name;
+				jNetworkInterface["id"].Value = adapter.Id.ToString();
+				jNetworkInterface["name"].Value = adapter.Name;
+				jNetworkInterface["description"].Value = adapter.Description;
+				jNetworkInterface["type"].Value = adapter.NetworkInterfaceType.ToString();
+				jNetworkInterface["status"].Value = adapter.OperationalStatus.ToString();
+				jNetworkInterface["bytes_received"].Value = adapter.GetIPv4Statistics().BytesReceived.ToString();
+				jNetworkInterface["bytes_sent"].Value = adapter.GetIPv4Statistics().BytesSent.ToString();
+				try
+				{
+					adapter.GetIPProperties().GetIPv4Properties();
+					jNetworkInterface["support_ipv4"].Value = true;
+				}
+				catch
+				{
+					jNetworkInterface["support_ipv4"].Value = false;
+				}
+				try
+				{
+					adapter.GetIPProperties().GetIPv6Properties();
+					jNetworkInterface["support_ipv6"].Value = true;
+				}
+				catch
+				{
+					jNetworkInterface["support_ipv6"].Value = false;
+				}
+
+
+				Json jNetworkInterfaceIps = new Json();
+				jNetworkInterfaceIps.EnsureArray();
+				jNetworkInterface["ips"].Value = jNetworkInterfaceIps;
+				foreach (UnicastIPAddressInformation ip2 in adapter.GetIPProperties().UnicastAddresses)
+				{
+					string sIp = ip2.Address.ToString();
+					IpAddress ip = new IpAddress(sIp);
+					if (ip.Valid)
+						jNetworkInterfaceIps.Append(ip.Address);
+				}
+
+				IpAddresses gateways = new IpAddresses();
+				IpAddresses gatewaysForDefault = new IpAddresses();
+
+				// Gateways, step 1: detect by routes
+				foreach (Json jRoute in jRouteList.GetArray())
+				{
+					if (jRoute.HasKey("interface") == false)
+						continue;
+					if (jRoute["interface"].Value as string != jNetworkInterface["id"].Value as string)
+						continue;
+					if (jRoute.HasKey("gateway") == false)
+						continue;
+					if ((jRoute["gateway"].Value as string).StartsWith("link"))
+						continue;
+					IpAddress gateway = jRoute["gateway"].Value as string;
+					if (gateway.Valid)
+					{
+						gateways.Add(gateway);
+
+						if (adapter.OperationalStatus == OperationalStatus.Up)
+							if (adapter.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+								gatewaysForDefault.Add(gateway);
+					}
+				}
+
+				// Gateways, step 2: detect by .Net/Mono
+				if (adapter.OperationalStatus == OperationalStatus.Up)
+				{
+					foreach (GatewayIPAddressInformation d in adapter.GetIPProperties().GatewayAddresses)
+					{
+						string sIp = d.Address.ToString();
+						IpAddress ip = new IpAddress(sIp);
+						if (ip.Valid)
+						{
+							gateways.Add(ip);
+
+							if (adapter.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+								gatewaysForDefault.Add(ip);
+						}
+					}
+				}
+
+				// Gateways, Step 3: set and detect default
+				Json jNetworkInterfaceGateways = new Json();
+				jNetworkInterfaceGateways.EnsureArray();
+				jNetworkInterface["gateways"].Value = jNetworkInterfaceGateways;
+				foreach (IpAddress gateway in gateways.IPs)
+				{
+					jNetworkInterfaceGateways.Append(gateway.Address);
+				}
+
+				// Gateways, Step 4: set default
+				foreach (IpAddress gateway in gatewaysForDefault.IPs)
+				{
+					if (gateway.IsV4)
+					{
+						if (jNetworkInfo.HasKey("ipv4-default-gateway") == false)
+						{
+							jNetworkInfo["ipv4-default-gateway"].Value = gateway.Address;
+							jNetworkInfo["ipv4-default-interface"].Value = jNetworkInterface["id"].Value;
+						}
+					}
+					else if (gateway.IsV6)
+					{
+						if (jNetworkInfo.HasKey("ipv6-default-gateway") == false)
+						{
+							jNetworkInfo["ipv6-default-gateway"].Value = gateway.Address;
+							jNetworkInfo["ipv6-default-interface"].Value = jNetworkInterface["id"].Value;
+						}
+					}
+				}
+
+				// If can be used for bind
+				jNetworkInterface["bind"].Value = false;
+				//if(adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+				if (jNetworkInterfaceIps.GetArray().Count > 0)
+				{
+					if (adapter.IsReceiveOnly == false)
+					{
+						jNetworkInterface["bind"].Value = true;
+					}
+				}
+			}
+			Platform.Instance.OnJsonNetworkInfo(jNetworkInfo);
+			return jNetworkInfo;
+		}
+
+		public Json JsonRouteList()
+		{
+			Json jRouteList = new Json();
+			jRouteList.EnsureArray();
+
+			Platform.Instance.OnJsonRouteList(jRouteList);
+			return jRouteList;
+		}
+
+		public void RaiseOsInfo()
+		{
+			Json j = GenerateOsInfo();
+			j["command"].Value = "os.info";
+			Command(j);
 		}
 
 		public void UiSendQuickInfo()
@@ -2220,14 +2428,13 @@ namespace Eddie.Core
 			xml.SetAttributeInt64("stats.vpn.upload.bytes", Engine.ConnectedLastUploadStep);
 			xml.SetAttribute("stats.vpn.upload.text", Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false));
 
-			xml.SetAttribute("status.text", Engine.Instance.GetConnectedTrayText(true, true));
-
 			Command(xml);
 			*/
 		}
 
 		public void UiSendStatusInfo()
 		{
+			/*
 			// Data sended in case of big event, like connect/disconnect.
 			XmlItem xml = new XmlItem("command");
 			xml.SetAttribute("action", "ui.info.status");
@@ -2241,6 +2448,7 @@ namespace Eddie.Core
 				xml.SetAttribute("server.display-name", CurrentServer.DisplayName);
 			}
 			Command(xml);
+			*/
 		}
 	}
 }

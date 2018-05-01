@@ -16,8 +16,8 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#ifndef EDDIE_LINUX_NATIVE_TYPES_H
-#define EDDIE_LINUX_NATIVE_TYPES_H
+#ifndef EDDIE_MACOS_NATIVE_TYPES_H
+#define EDDIE_MACOS_NATIVE_TYPES_H
 
 #include <stdint.h>
 
@@ -36,4 +36,4 @@ typedef e_uint8			e_byte;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif // EDDIE_LINUX_NATIVE_TYPES_H
+#endif // EDDIE_MACOS_NATIVE_TYPES_H

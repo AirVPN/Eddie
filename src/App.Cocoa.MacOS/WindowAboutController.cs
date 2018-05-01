@@ -23,7 +23,7 @@ using System.Linq;
 //using AppKit;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -67,31 +67,36 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
 
+			CmdHomePage.Title = Core.UI.App.Manifest["links"]["help"]["website"].Value as string;
+			CmdSoftware.Title = Core.UI.App.Manifest["links"]["help"]["general"].Value as string;
+			CmdSources.Title = Core.UI.App.Manifest["links"]["github"].Value as string;
 			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
+
+			// Core.UI.App.Manifest["links"]["help"]["website"].Value as string;
 
 			CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command("ui.show.website");
+				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
 			};
 
 			CmdSoftware.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command("ui.show.docs.general");
+				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["general"].Value as string);
 			};
 
 			CmdSources.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command("ui.show.sources");
+				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["github"].Value as string);
 			};
 
 			CmdLicense.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command("ui.show.license");
+				(Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "License", Core.UI.App.Manifest["about"]["license"].Value as string);
 			};
 
 			CmdLibraries.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Command("ui.show.libraries");
+				(Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "Libraries and Tools", Core.UI.App.Manifest["about"]["libraries"].Value as string);
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>

@@ -25,48 +25,48 @@ namespace Eddie.Core
 {
 	public class RouteScope
 	{
-        private string m_guid;
-        private IpAddress m_address;
+		private string m_guid;
+		private IpAddress m_address;
 
 		public RouteScope(IpAddress address)
 		{
 			Start(address);
 		}
-				
+
 		~RouteScope()
 		{
 			End();
 		}
 
-        public string Guid
-        {
-            get
-            {
-                if (m_guid == "")
-                    m_guid = Utils.GetRandomToken();
-                return m_guid;
-            }
-        }
+		public string Guid
+		{
+			get
+			{
+				if (m_guid == "")
+					m_guid = UtilsCore.GetRandomToken();
+				return m_guid;
+			}
+		}
 
-        public void Start(IpAddress address)
+		public void Start(IpAddress address)
 		{
 			if (address.Valid)
 			{
 				m_address = address;
 				if (Engine.Instance.NetworkLockManager != null)
-					Engine.Instance.NetworkLockManager.AllowIP(m_address);				
+					Engine.Instance.NetworkLockManager.AllowIP(m_address);
 			}
-            else
-            {
-            }
+			else
+			{
+			}
 		}
 
 		public void End()
 		{
-			if( (m_address != null) && (m_address.Valid) ) // Only one time			
+			if ((m_address != null) && (m_address.Valid)) // Only one time			
 			{
 				if (Engine.Instance.NetworkLockManager != null)
-					Engine.Instance.NetworkLockManager.DeallowIP(m_address);				
+					Engine.Instance.NetworkLockManager.DeallowIP(m_address);
 				m_address.Clear();
 			}
 		}

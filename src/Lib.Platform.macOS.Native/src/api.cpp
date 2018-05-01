@@ -20,12 +20,15 @@
 #include "api.h"
 
 #include <arpa/inet.h>
+#include <memory>
 #include <mutex>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
+#include <netinet/icmp6.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -97,9 +100,298 @@ static int eddie_file_get_flags(const char *filename)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int eddie_test_native()
+class IPinger
 {
-    return 3;
+// Construction
+protected:
+    IPinger(const std::string &address, int timeout) : m_address(address),
+                                                       m_timeout(timeout),
+                                                       m_socket(-1)
+    {
+        EDDIE_ZEROMEMORY(m_responseBuffer, EDDIE_PING_BUFFER_SIZE);
+    }
+        
+public:
+    virtual ~IPinger()
+    {
+        if(m_socket != -1)
+        {
+            close(m_socket);
+            m_socket = -1;
+        }
+    }
+        
+// Attributes
+public:
+    inline const std::string & getAddress() const { return m_address; }
+        
+// Operations
+public:
+    int ping()
+    {
+        if(init() == false)
+            return -1;
+            
+        u_int16_t requestID = eddie_generate_icmp_id();
+        if(createRequest(requestID) == false)
+            return -1;
+            
+        return sendRequest(requestID);
+    }
+        
+private:
+    int sendRequest(u_int16_t requestID)
+    {
+        fd_set read_set;
+        EDDIE_ZEROMEMORY(&read_set, sizeof(read_set));
+            
+        double start_time = eddie_get_time();
+            
+        // Sends the echo request to the destination address
+        if(sendto(m_socket, getRequestData(), getRequestSize(), 0, getAddressData(), (socklen_t) getAddressSize()) <= 0)
+            return -1;
+            
+        struct timeval receive_timeout;
+        int available_timeout = m_timeout;
+            
+        for(;;)
+        {
+            if(available_timeout == 0)
+                return -1;
+                
+            // Read set and receive_timeout must be reset at each loop
+            FD_SET(m_socket, &read_set);
+            receive_timeout.tv_sec = available_timeout / 1000;
+            receive_timeout.tv_usec = (available_timeout % 1000) * 1000;
+                
+            // Wait for a response
+            int result = select(m_socket + 1, &read_set, NULL, NULL, &receive_timeout);
+            if(result == -1)
+                return -1;   // If we got a socket error avoid looping uselessy
+                
+            int delta = (int) (eddie_get_time() - start_time);
+            if(delta < m_timeout)
+                available_timeout = m_timeout - delta;
+            else
+                available_timeout = 0;
+                
+            if(result <= 0)
+                continue;
+                
+            EDDIE_ZEROMEMORY(m_responseBuffer, EDDIE_PING_BUFFER_SIZE);
+            result = (int) recvfrom(m_socket, m_responseBuffer, EDDIE_PING_BUFFER_SIZE, 0, NULL, NULL);
+            if(result == -1)
+                return -1;
+                
+            if(parseResponse(requestID, m_responseBuffer, result))
+                // Got it, save the elapsed milliseconds
+                return delta;
+                
+            // Here we got an ICMP packet of different type (i.e.: ICMP_DEST_UNREACH) or a response to another ICMP request (just ignore it and wait again until the timeout)
+        }
+            
+        return -1;
+    }
+        
+// Interface
+protected:
+    virtual const struct sockaddr * getAddressData() const = 0;
+    virtual size_t getAddressSize() const = 0;
+        
+    virtual const void * getRequestData() const = 0;
+    virtual size_t getRequestSize() const = 0;
+        
+    virtual bool init() = 0;
+    virtual bool createRequest(u_int16_t requestID) = 0;
+    virtual bool parseResponse(u_int16_t requestID, const char *data, size_t size) = 0;
+        
+protected:
+    std::string m_address;
+    int m_timeout;
+    int m_socket;
+        
+private:
+    char m_responseBuffer[EDDIE_PING_BUFFER_SIZE];
+};
+    
+class PingerV4 : public IPinger
+{
+// Construction
+public:
+    PingerV4(const std::string &address, int timeout) : IPinger(address, timeout)
+    {
+        EDDIE_ZEROMEMORY(&m_requestAddress, sizeof(struct sockaddr_in));
+        EDDIE_ZEROMEMORY(&m_requestHeader, sizeof(struct icmp));
+    }
+        
+    virtual ~PingerV4()
+    {
+            
+    }
+        
+// IPinger interface
+public:
+    virtual const struct sockaddr * getAddressData() const override
+    {
+        return (const struct sockaddr *) &m_requestAddress;
+    }
+        
+    virtual size_t getAddressSize() const override
+    {
+        return sizeof(m_requestAddress);
+    }
+        
+    virtual const void * getRequestData() const override
+    {
+        return &m_requestHeader;
+    }
+        
+    virtual size_t getRequestSize() const override
+    {
+        return sizeof(m_requestHeader);
+    }
+        
+    virtual bool init() override
+    {
+        m_socket = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP);
+        if(m_socket < 0)
+            return false;
+            
+        int hdrincl = 0;
+        if(setsockopt(m_socket, IPPROTO_IP, IP_HDRINCL, &hdrincl, sizeof(hdrincl)) == -1)
+            return false;
+            
+        m_requestAddress.sin_family = AF_INET;
+        m_requestAddress.sin_port = 0;
+        m_requestAddress.sin_addr.s_addr = inet_addr(getAddress().c_str());   // The result is already in network byte order
+        if(m_requestAddress.sin_addr.s_addr == INADDR_NONE)
+            return -1;
+            
+        return true;
+    }
+        
+    virtual bool createRequest(u_int16_t requestID) override
+    {
+        EDDIE_ZEROMEMORY(&m_requestHeader, sizeof(struct icmp));
+        m_requestHeader.icmp_hun.ih_idseq.icd_id = htons(requestID);        // Creates a random ID for the echo request
+        m_requestHeader.icmp_hun.ih_idseq.icd_seq = 0;
+        m_requestHeader.icmp_type = ICMP_ECHO;
+        m_requestHeader.icmp_cksum = eddie_ip_checksum((const uint16_t *) (&m_requestHeader), sizeof(struct icmp));
+            
+        return true;
+    }
+        
+    virtual bool parseResponse(u_int16_t requestID, const char *data, size_t size) override
+    {
+        if(size < (sizeof(struct ip) + sizeof(struct icmp)))
+            return false;
+            
+        struct icmp *response_header = (struct icmp *)(data + sizeof(struct ip));
+        // Check that we got a reply for our echo request
+        return ((response_header->icmp_type == ICMP_ECHOREPLY) && (ntohs(response_header->icmp_hun.ih_idseq.icd_id) == requestID));
+    }
+        
+private:
+    struct sockaddr_in m_requestAddress;
+    struct icmp m_requestHeader;
+};
+    
+class PingerV6 : public IPinger
+{
+// Construction
+public:
+    PingerV6(const std::string &address, int timeout) : IPinger(address, timeout)
+    {
+        EDDIE_ZEROMEMORY(&m_requestAddress, sizeof(struct sockaddr_in6));
+        EDDIE_ZEROMEMORY(&m_requestHeader, sizeof(struct icmp6_hdr));
+    }
+        
+    virtual ~PingerV6()
+    {
+            
+    }
+        
+// IPinger interface
+public:
+    virtual const struct sockaddr * getAddressData() const override
+    {
+        return (const struct sockaddr *) &m_requestAddress;
+    }
+        
+    virtual size_t getAddressSize() const override
+    {
+        return sizeof(m_requestAddress);
+    }
+        
+    virtual const void * getRequestData() const override
+    {
+        return &m_requestHeader;
+    }
+        
+    virtual size_t getRequestSize() const override
+    {
+        return sizeof(m_requestHeader);
+    }
+        
+    virtual bool init() override
+    {
+        m_socket = socket(PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
+        if(m_socket < 0)
+            return false;
+            
+        // It doesn't work on MacOS
+        //int hdrincl = 0;
+        //if(setsockopt(m_socket, IPPROTO_IPV6, IP_HDRINCL, &hdrincl, sizeof(hdrincl)) == -1)
+        //return false;
+            
+        m_requestAddress.sin6_family = AF_INET6;
+        m_requestAddress.sin6_port = 0;
+        return inet_pton(AF_INET6, getAddress().c_str(), &m_requestAddress.sin6_addr) > 0;
+    }
+        
+    virtual bool createRequest(u_int16_t requestID) override
+    {
+        EDDIE_ZEROMEMORY(&m_requestHeader, sizeof(struct icmp6_hdr));
+        m_requestHeader.icmp6_id = htons(requestID);
+        m_requestHeader.icmp6_seq = 0;
+        m_requestHeader.icmp6_type = ICMP6_ECHO_REQUEST;
+        m_requestHeader.icmp6_code = 0;
+        m_requestHeader.icmp6_cksum = eddie_ip_checksum((const uint16_t *) (&m_requestHeader), sizeof(struct icmp6_hdr));
+            
+        return true;
+    }
+        
+    virtual bool parseResponse(u_int16_t requestID, const char *data, size_t size) override
+    {
+        /*
+        if(size < (sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr)))
+            return false;
+             
+        struct icmp6_hdr *response_header = (struct icmp6_hdr *)(data + sizeof(struct ip6_hdr));
+        // Check that we got a reply for our echo request
+        return ((response_header->icmp6_type == ICMP6_ECHO_REPLY) && (ntohs(response_header->icmp6_id) == requestID));
+        */
+            
+        // TODO: here the buffer doesn't seem to include the ip6_hdr while in ipv4 is included (is there an issue with IP_HDRINCL?)
+            
+        if(size < sizeof(struct icmp6_hdr))
+            return false;
+            
+        struct icmp6_hdr *response_header = (struct icmp6_hdr *)(data);
+        // Check that we got a reply for our echo request
+        return ((response_header->icmp6_type == ICMP6_ECHO_REPLY) && (ntohs(response_header->icmp6_id) == requestID));
+    }
+        
+private:
+    struct sockaddr_in6 m_requestAddress;
+    struct icmp6_hdr m_requestHeader;
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+int eddie_init()
+{
+	return 0;
 }
 
 int eddie_file_get_mode(const char *filename)
@@ -147,7 +439,7 @@ int eddie_file_set_immutable(const char *filename, int flag)
     
     return 0;
 }
-
+/*
 int eddie_ip_ping(const char *address, int timeout)
 {
     if(address == NULL)
@@ -270,7 +562,25 @@ int eddie_ip_ping(const char *address, int timeout)
 
     return retval;
 }
-
+*/
+    
+    int eddie_ip_ping(const char *address, int timeout)
+    {
+        if(address == NULL)
+            return -1;
+        
+        // Looks for ':' char instead of '.' for compatibility with the notation "::a.b.c.d"
+        bool isv6 = strchr(address, ':') != NULL;
+        
+        std::unique_ptr<IPinger> pinger;
+        if(isv6)
+            pinger.reset(new PingerV6(address, timeout));
+        else
+            pinger.reset(new PingerV4(address, timeout));
+        
+        return pinger->ping();
+    }
+    
 void eddie_signal(int signum, eddie_sighandler_t handler)
 {
     signal(signum, handler);

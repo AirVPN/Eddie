@@ -29,7 +29,7 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using System.Xml;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 using Eddie.Forms.Controls;
 
@@ -39,10 +39,12 @@ namespace Eddie.Forms.Forms
 	{
 		private Controls.ToolTip m_toolTip;
 		private Controls.TabNavigator m_tabMain;
+		private Skin.Button m_cmdAbout;
+		private Skin.Button m_cmdPreferences;
 		private Controls.ChartSpeed m_pnlCharts;
 		private Controls.MenuButton m_cmdMainMenu;
 		private Controls.ProgressInfinite m_imgProgressInfinite;
-		private System.Windows.Forms.NotifyIcon m_notifyIcon;
+		private System.Windows.Forms.NotifyIcon m_windowsNotifyIcon;
 		private Forms.WindowReport m_windowReport = null;
 
 		private ListViewServers m_listViewServers;
@@ -51,15 +53,25 @@ namespace Eddie.Forms.Forms
 		private Dictionary<string, ListViewItemStats> m_statsItems = new Dictionary<string, ListViewItemStats>();
 
 		private int m_windowMinimumWidth = 700;
-		private int m_windowMinimumHeight = 300;
+		private int m_windowMinimumHeight = 370;
 		private int m_windowDefaultWidth = 800;
-		private int m_windowDefaultHeight = 400;
+		private int m_windowDefaultHeight = 450;
 		private bool m_lockCoordUpdate = false;
 		private int m_topHeaderHeight = 30;
 
 		private bool m_formReady = false;
 		private bool m_closing = false;
 		private bool m_windowStateSetByShortcut = false;
+
+		private Icon m_iconNormal;
+		private Icon m_iconGray;
+		private Bitmap m_bitmapNetlockStatusOff;
+		private Bitmap m_bitmapNetlockStatusOn;
+		private Bitmap m_bitmapStatusGreen;
+		private Bitmap m_bitmapStatusYellow;
+		private Bitmap m_bitmapStatusRed;
+		private Bitmap m_bitmapNetlockOn;
+		private Bitmap m_bitmapNetlockOff;
 
 		public Main()
 		{
@@ -68,6 +80,16 @@ namespace Eddie.Forms.Forms
 			OnPreInitializeComponent();
 			InitializeComponent();
 			OnInitializeComponent();
+
+			m_iconNormal = Eddie.Forms.Properties.Resources.icon1;
+			m_iconGray = Eddie.Forms.Properties.Resources.icon_gray1;
+			m_bitmapNetlockStatusOff = Eddie.Forms.Properties.Resources.netlock_status_off;
+			m_bitmapNetlockStatusOn = Eddie.Forms.Properties.Resources.netlock_status_on;
+			m_bitmapStatusGreen = Eddie.Forms.Properties.Resources.status_green;
+			m_bitmapStatusYellow = Eddie.Forms.Properties.Resources.status_yellow;
+			m_bitmapStatusRed = Eddie.Forms.Properties.Resources.status_red;
+			m_bitmapNetlockOn = Eddie.Forms.Properties.Resources.netlock_on;
+			m_bitmapNetlockOff = Eddie.Forms.Properties.Resources.netlock_off;
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
 		}
@@ -83,10 +105,10 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				if (m_notifyIcon != null)
+				if (m_windowsNotifyIcon != null)
 				{
-					m_notifyIcon.Dispose();
-					m_notifyIcon = null;
+					m_windowsNotifyIcon.Dispose();
+					m_windowsNotifyIcon = null;
 				}
 
 				//DoDispose();
@@ -249,22 +271,25 @@ namespace Eddie.Forms.Forms
 
 			CommonInit("");
 
-			if (Platform.Instance.IsTraySupported())
-			{
-				m_notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-				m_notifyIcon.Icon = this.Icon;
-				m_notifyIcon.Text = Constants.Name;
-				m_notifyIcon.Visible = true;
-				m_notifyIcon.BalloonTipTitle = Constants.Name;
+			Icon = m_iconGray;
 
-				m_notifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
-				//m_notifyIcon.Click += new EventHandler(notifyIcon_Click);				
-				m_notifyIcon.ContextMenuStrip = mnuMain;
+			if (Platform.Instance.IsWindowsSystem())
+			{
+				m_windowsNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+				m_windowsNotifyIcon.Icon = m_iconGray;
+				m_windowsNotifyIcon.Text = Constants.Name;
+				m_windowsNotifyIcon.Visible = Engine.Instance.Storage.GetBool("gui.tray_show");
+				m_windowsNotifyIcon.BalloonTipTitle = Constants.Name;
+
+				m_windowsNotifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
+				//m_windowNotifyIcon.Click += new EventHandler(notifyIcon_Click);				
+				m_windowsNotifyIcon.ContextMenuStrip = mnuMain;
 			}
 
 
 
 			m_tabMain = new TabNavigator();
+			m_tabMain.TitleRightBottom = Constants.VersionDesc;
 			m_tabMain.ImportTabControl(tabMain);
 			if (m_tabMain.Pages.Count != 0)
 			{
@@ -280,14 +305,42 @@ namespace Eddie.Forms.Forms
 				m_tabMain.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
 				m_tabMain.TabSwitch += tabMain_TabSwitch;
 				this.Controls.Add(m_tabMain);
+
+				m_cmdAbout = new Eddie.Forms.Skin.Button();
+				m_cmdAbout.Name = "cmdAbout";
+				m_cmdAbout.BackColor = Form.Skin.GetColor("color.tab.normal.background");
+				m_cmdAbout.BackgroundImageLayout = ImageLayout.Stretch;
+				m_cmdAbout.FlatStyle = FlatStyle.Flat;
+				m_cmdAbout.Left = m_tabMain.GetTabsRect().Width / 2 - 40;
+				m_cmdAbout.Top = m_tabMain.Height - 60;
+				m_cmdAbout.Width = 32;
+				m_cmdAbout.Height = 32;
+				m_cmdAbout.Image = global::Eddie.Forms.Properties.Resources.tab_about;
+				m_cmdAbout.ImageHover = global::Eddie.Forms.Properties.Resources.tab_about_hover;
+				m_cmdAbout.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+				m_cmdAbout.Click += mnuAbout_Click;
+				m_cmdAbout.ImageInflatePerc = 0;
+				m_cmdAbout.DrawBorder = false;
+				m_tabMain.Controls.Add(m_cmdAbout);
+
+				m_cmdPreferences = new Eddie.Forms.Skin.Button();
+				m_cmdPreferences.Name = "cmdPreferences";
+				m_cmdPreferences.BackColor = Color.FromArgb(112, 184, 253);
+				m_cmdPreferences.Left = m_tabMain.GetTabsRect().Width / 2 + 40;
+				m_cmdPreferences.Top = m_tabMain.Height - 60;
+				m_cmdPreferences.Width = 32;
+				m_cmdPreferences.Height = 32;
+				m_cmdPreferences.Image = global::Eddie.Forms.Properties.Resources.tab_preferences;
+				m_cmdPreferences.ImageHover = global::Eddie.Forms.Properties.Resources.tab_preferences_hover;
+				m_cmdPreferences.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+				m_cmdPreferences.Click += mnuSettings_Click;
+				m_cmdPreferences.ImageInflatePerc = 0;
+				m_cmdPreferences.DrawBorder = false;
+				m_tabMain.Controls.Add(m_cmdPreferences);
 			}
 
 			m_imgProgressInfinite = new ProgressInfinite();
 			this.pnlWaiting.Controls.Add(m_imgProgressInfinite);
-
-			// Controls initialization
-			mnuDevelopers.Visible = Engine.Instance.DevelopmentEnvironment;
-			mnuTools.Visible = Engine.Instance.DevelopmentEnvironment;
 
 			chkRemember.BackColor = Color.Transparent;
 
@@ -309,14 +362,16 @@ namespace Eddie.Forms.Forms
 			if (m_tabMain.Pages.Count != 0)
 				m_tabMain.Pages[4].Controls.Add(m_pnlCharts);
 
+
 			m_cmdMainMenu = new MenuButton();
 			m_cmdMainMenu.Left = 0;
 			m_cmdMainMenu.Top = 0;
 			m_cmdMainMenu.Click += cmdMenu_Click;
 			Controls.Add(m_cmdMainMenu);
 
+
 			// Providers
-			foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+			foreach (Core.Provider provider in Engine.Instance.ProvidersManager.Providers)
 			{
 				Controls.ListViewItemProvider itemProvider = new Controls.ListViewItemProvider();
 				itemProvider.Provider = provider;
@@ -368,14 +423,14 @@ namespace Eddie.Forms.Forms
 			//ApplySkin();
 
 			bool forceMinimized = false;
-			if (Engine.Storage.GetBool("gui.windows.start_minimized"))
+			if (Engine.Storage.GetBool("gui.start_minimized"))
 				forceMinimized = true;
 			if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Minimized))
 				forceMinimized = true;
 			bool forceMaximized = false;
 			if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Maximized))
 				forceMaximized = true;
-			SetFormLayout(Engine.Storage.Get("gui.window.main"), forceMinimized, forceMaximized, MinimizeInTray(), new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+			SetFormLayout(Engine.Storage.Get("gui.window.main"), forceMinimized, forceMaximized, Engine.AllowMinimizeInTray(), new Size(m_windowDefaultWidth, m_windowDefaultHeight));
 			m_listViewServers.SetUserPrefs(Engine.Storage.Get("gui.list.servers"));
 			m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
 			lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
@@ -427,7 +482,7 @@ namespace Eddie.Forms.Forms
 				m_toolTip.Connect(this.cmdAreasUndefined, Messages.TooltipAreasUndefined);
 				m_toolTip.Connect(this.cmdAreasBlackList, Messages.TooltipAreasBlackList);
 				m_toolTip.Connect(this.cmdAreasWhiteList, Messages.TooltipAreasWhiteList);
-				m_toolTip.Connect(this.cmdLogsOpenVpnManagement, Messages.TooltipLogsOpenVpnManagement);
+				m_toolTip.Connect(this.cmdLogsCommand, Messages.TooltipLogsCommand);
 				m_toolTip.Connect(this.cmdLogsClean, Messages.TooltipLogsClean);
 				m_toolTip.Connect(this.cmdLogsCopy, Messages.TooltipLogsCopy);
 				m_toolTip.Connect(this.cmdLogsSave, Messages.TooltipLogsSave);
@@ -447,6 +502,8 @@ namespace Eddie.Forms.Forms
 			m_lockCoordUpdate = false;
 
 			Resizing();
+
+			VisibilityChange();
 
 			// base.OnLoad(e); // Removed in 2.11.9
 
@@ -479,17 +536,47 @@ namespace Eddie.Forms.Forms
 
 			if (e.Control && e.KeyCode == Keys.M)
 			{
-				Engine.Instance.Command("ui.show.menu");
+				OnShowMenu();
 			}
 
 			if (e.Control && e.KeyCode == Keys.A)
 			{
-				Engine.Instance.Command("ui.show.about");
+				OnShowAbout();
 			}
 
 			if (e.Control && e.KeyCode == Keys.P)
 			{
-				Engine.Instance.Command("ui.show.preferences");
+				OnShowPreferences();
+			}
+
+			if (e.Control && e.Alt && e.KeyCode == Keys.O)
+			{
+				m_tabMain.SelectTab("overview");
+			}
+
+			if (e.Control && e.Alt && e.KeyCode == Keys.S)
+			{
+				m_tabMain.SelectTab("servers");
+			}
+
+			if (e.Control && e.Alt && e.KeyCode == Keys.C)
+			{
+				m_tabMain.SelectTab("countries");
+			}
+
+			if (e.Control && e.Alt && e.KeyCode == Keys.V)
+			{
+				m_tabMain.SelectTab("speed");
+			}
+
+			if (e.Control && e.Alt && e.KeyCode == Keys.I)
+			{
+				m_tabMain.SelectTab("stats");
+			}
+
+			if (e.Control && e.Alt && e.KeyCode == Keys.L)
+			{
+				m_tabMain.SelectTab("logs");
 			}
 		}
 
@@ -516,8 +603,10 @@ namespace Eddie.Forms.Forms
 				int iconHeight = m_topHeaderHeight;
 				int iconDistance = 3;
 
-				Rectangle rectHeader = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width, m_topHeaderHeight);
-				Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - iconDistance - iconHeight, m_topHeaderHeight);
+				//Rectangle rectHeader = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width, m_topHeaderHeight);
+				//Rectangle rectHeaderText = new Rectangle(m_cmdMainMenu.Width, 0, ClientSize.Width - m_cmdMainMenu.Width - iconDistance - iconHeight, m_topHeaderHeight);
+				Rectangle rectHeader = new Rectangle(0, 0, ClientSize.Width, m_topHeaderHeight);
+				Rectangle rectHeaderText = new Rectangle(0, 0, ClientSize.Width - iconDistance - iconHeight, m_topHeaderHeight);
 
 				Form.DrawImage(e.Graphics, Skin.MainBackImage, new Rectangle(0, 0, ClientSize.Width, m_topHeaderHeight));
 
@@ -565,11 +654,11 @@ namespace Eddie.Forms.Forms
 				Image iconNetLock = null;
 				if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 				{
-					iconNetLock = Eddie.Forms.Properties.Resources.netlock_status_on;
+					iconNetLock = m_bitmapNetlockStatusOn;
 				}
 				else
 				{
-					iconNetLock = Eddie.Forms.Properties.Resources.netlock_status_off;
+					iconNetLock = m_bitmapNetlockStatusOff;
 				}
 				DrawImageContain(e.Graphics, iconNetLock, rectNetLock, 20);
 
@@ -581,9 +670,8 @@ namespace Eddie.Forms.Forms
 
 				DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_shadow"), rectHeader);
 			}
-			catch (Exception ex)
+			catch
 			{
-				Core.Debug.Trace(ex);
 			}
 		}
 
@@ -596,7 +684,7 @@ namespace Eddie.Forms.Forms
 
 			if (Engine.AskExitConfirm())
 			{
-				if (Engine.Instance.OnAskYesNo(Messages.ExitConfirm) != true)
+				if (AskYesNo(Messages.ExitConfirm) != true)
 				{
 					Engine.OnExitRejected();
 					return;
@@ -622,13 +710,18 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnResize(e);
 
-			if (MinimizeInTray())
+			if ((FormWindowState.Minimized == WindowState) && (Engine.AllowMinimizeInTray()) && (ShowInTaskbar))
 			{
-				if (FormWindowState.Minimized == WindowState)
-				{
-					Hide();
-					EnabledUi();
-				}
+				ShowInTaskbar = false;
+				Hide();
+				EnabledUi();
+
+				VisibilityChange();
+			}
+			else
+			{
+				if (ShowInTaskbar == false)
+					ShowInTaskbar = true;
 			}
 
 			Resizing();
@@ -638,7 +731,7 @@ namespace Eddie.Forms.Forms
 
 		void notifyIcon_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Command("ui.show.menu");
+			OnShowMenu();
 		}
 
 		void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -648,70 +741,47 @@ namespace Eddie.Forms.Forms
 
 		private void mnuAbout_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Command("ui.show.about");
+			OnShowAbout();
 		}
 
 		private void mnuRestore_Click(object sender, EventArgs e)
 		{
-			if (this.Visible == false)
-				Restore();
-			else
-				this.WindowState = FormWindowState.Minimized;
+			OnMenuRestore();
 		}
 
 		private void mnuExit_Click(object sender, EventArgs e)
 		{
-			Close();
+			OnMenuExit();
 		}
 
 		private void mnuPorts_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Command("ui.show.ports");
+			Core.UI.App.OpenUrl("https://airvpn.org/ports/");
 		}
 
 		private void mnuUser_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Command("ui.show.clientarea");
-		}
-
-		private void mnuSpeedTest_Click(object sender, EventArgs e)
-		{
-			Engine.Instance.Command("ui.show.speedtest");
+			Core.UI.App.OpenUrl("https://airvpn.org/client/");
 		}
 
 		private void mnuHomePage_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Command("ui.show.website");
+			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
 		}
 
 		private void mnuSettings_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Command("ui.show.preferences");
+			OnShowPreferences();
 		}
 
 		private void mnuStatus_Click(object sender, EventArgs e)
 		{
-			Restore();
+			OnMenuStatus();
 		}
 
 		private void mnuConnect_Click(object sender, EventArgs e)
 		{
-			if (Engine.IsWaiting())
-			{
-				Disconnect();
-			}
-			else if (Engine.IsConnected())
-			{
-				Disconnect();
-			}
-			else if (Engine.CanConnect())
-			{
-				Connect();
-			}
-			else
-			{
-				Restore();
-			}
+			OnMenuConnect();
 		}
 
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
@@ -766,7 +836,7 @@ namespace Eddie.Forms.Forms
 
 		private void cmdMenu_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Command("ui.show.menu");
+			OnShowMenu();
 		}
 
 		private void mnuToolsPortForwarding_Click(object sender, EventArgs e)
@@ -844,7 +914,7 @@ namespace Eddie.Forms.Forms
 			WindowProviderAdd dlg = new WindowProviderAdd();
 			if (dlg.ShowDialog() == DialogResult.OK)
 			{
-				Provider provider = Engine.Instance.ProvidersManager.AddProvider(dlg.Provider, null);
+				Core.Provider provider = Engine.Instance.ProvidersManager.AddProvider(dlg.Provider, null);
 				Engine.Instance.ProvidersManager.Refresh();
 
 				Controls.ListViewItemProvider itemProvider = new Controls.ListViewItemProvider();
@@ -1119,7 +1189,7 @@ namespace Eddie.Forms.Forms
 
 			ListViewItemStats item = lstStats.SelectedItems[0] as ListViewItemStats;
 
-			Engine.Instance.Command("ui.stats." + item.Entry.Key, true);
+			Core.UI.App.OpenStats(item.Entry.Key.ToLowerInvariant());
 		}
 
 		private void tabMain_TabSwitch()
@@ -1178,32 +1248,18 @@ namespace Eddie.Forms.Forms
 			Engine.GenerateSystemReport();
 		}
 
-		private void cmdLogsOpenVpnManagement_Click(object sender, EventArgs e)
+		private void cmdLogsCommand_Click(object sender, EventArgs e)
 		{
-			if (Engine.IsConnected())
+			WindowCommand Dlg = new WindowCommand();
+			if (Dlg.ShowDialog() == DialogResult.OK)
 			{
-				OpenVpnManagementCommand Dlg = new OpenVpnManagementCommand();
-				if (Dlg.ShowDialog() == DialogResult.OK)
-				{
-					Core.UI.Actions.SendOpenVpnManagementCommand(Dlg.Command);
-				}
+				Core.UI.App.RunCommandString(Dlg.Command);
 			}
 		}
 
 		private void cboSpeedResolution_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			m_pnlCharts.Switch(cboSpeedResolution.SelectedIndex);
-		}
-
-		private void txtCommand_KeyUp(object sender, KeyEventArgs e)
-		{
-			if (e.KeyValue == 13)
-			{
-				string command = txtCommand.Text;
-				txtCommand.Text = "";
-
-				Engine.Instance.Command(command, false);
-			}
 		}
 
 		private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
@@ -1213,17 +1269,30 @@ namespace Eddie.Forms.Forms
 
 		#endregion
 
-		public bool MinimizeInTray()
+		public bool AllowMinimizeInTray()
 		{
-			if (Engine.Storage != null)
+			return (m_windowsNotifyIcon != null);
+		}
+
+		public void VisibilityChange()
+		{
+			(Engine.Instance as Eddie.Forms.Engine).OnChangeMainFormVisibility(this.Visible);
+
+			if (Engine.Storage.GetBool("gui.tray_minimized"))
 			{
-				if (Engine.Storage.GetBool("gui.windows.tray"))
-				{
-					if (Platform.Instance.IsTraySupported())
-						return true;
-				}
+				mnuRestore.Visible = true;
+				mnuRestoreSep.Visible = true;
+
+				if (this.Visible)
+					mnuRestore.Text = Messages.WindowsMainHide;
+				else
+					mnuRestore.Text = Messages.WindowsMainShow;
 			}
-			return false;
+			else
+			{
+				mnuRestore.Visible = false;
+				mnuRestoreSep.Visible = false;
+			}
 		}
 
 		public void Resizing()
@@ -1248,8 +1317,12 @@ namespace Eddie.Forms.Forms
 			m_tabMain.Width = this.ClientSize.Width;
 			m_tabMain.Height = this.ClientSize.Height - m_topHeaderHeight;
 
-			m_cmdMainMenu.Width = m_topHeaderHeight * 150 / 30;
-			m_cmdMainMenu.Height = m_topHeaderHeight;
+			if (m_cmdMainMenu != null)
+			{
+				//m_cmdMainMenu.Width = m_topHeaderHeight * 150 / 30;
+				m_cmdMainMenu.Width = m_topHeaderHeight;
+				m_cmdMainMenu.Height = m_topHeaderHeight;
+			}
 
 			Size tabPageRectangle = m_tabMain.GetPageRect().Size;
 
@@ -1293,6 +1366,8 @@ namespace Eddie.Forms.Forms
 			WindowState = FormWindowState.Normal;
 			Activate();
 			EnabledUi();
+
+			VisibilityChange();
 		}
 
 		public void ShowMenu()
@@ -1352,7 +1427,6 @@ namespace Eddie.Forms.Forms
 		public void Disconnect()
 		{
 			cmdCancel.Enabled = false;
-			mnuConnect.Enabled = false;
 
 			Engine.Disconnect();
 		}
@@ -1394,54 +1468,131 @@ namespace Eddie.Forms.Forms
 							lstLogs.Items.RemoveAt(0);
 					}
 
-					if ((Msg != "") && (l.Type != LogType.Verbose))
-					{
-						String ShortMsg = Msg;
-						if (ShortMsg.Length > 40)
-							ShortMsg = ShortMsg.Substring(0, 40) + "...";
-
-						string notifyText = Constants.Name + " - " + ShortMsg;
-
-						if (l.Type >= LogType.InfoImportant)
-						{
-							Text = Constants.Name + " - " + Msg;
-						}
-
-						//if(Engine.IsConnected() == false)
-						{
-							//Text = Constants.Name + " - " + Msg;
-
-							mnuStatus.Text = "> " + l.GetMessageForStatus();
-
-							if (m_notifyIcon != null)
-							{
-								m_notifyIcon.Text = notifyText;
-								m_notifyIcon.BalloonTipText = Msg;
-								if (Engine.Storage.GetBool("gui.windows.notifications"))
-								{
-									if (l.Type >= LogType.InfoImportant)
-									{
-										if (l.Type == LogType.Warning)
-											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
-										else if (l.Type == LogType.Error)
-											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-										else if (l.Type == LogType.Fatal)
-											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-										else
-											m_notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-										m_notifyIcon.ShowBalloonTip(l.BalloonTime);
-									}
-								}
-							}
-						}
-					}
-
 					if (l.Type == LogType.Fatal)
 					{
 						MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
+				}
+			}
+		}
 
+		private delegate void SetStatusDelegate(string textFull, string textShort);
+		public void SetStatus(string textFull, string textShort)
+		{
+			if (this.InvokeRequired)
+			{
+				SetStatusDelegate inv = new SetStatusDelegate(this.SetStatus);
 
+				this.BeginInvoke(inv, new object[] { textFull, textShort });
+			}
+			else
+			{
+				Text = Constants.Name + " - " + textFull;
+
+				{
+					string t = textFull;
+					if (t.IndexOf("\n") != -1)
+						t = t.Substring(0, t.IndexOf("\n")).Trim();
+					if (t.Length > 128)
+						t = t.Substring(0, 128) + "...";
+					mnuStatus.Text = "> " + t.Trim();
+				}
+
+				if (m_windowsNotifyIcon != null)
+				{
+					String tooltipText = textShort;
+					if (tooltipText.Length > 120)
+						tooltipText = tooltipText.Substring(0, 120) + "...";
+					GuiUtils.SetNotifyIconText(m_windowsNotifyIcon, tooltipText);
+				}
+			}
+		}
+
+		private delegate void SetColorDelegate(string color);
+		public void SetColor(string color)
+		{
+			if (this.InvokeRequired)
+			{
+				SetColorDelegate inv = new SetColorDelegate(this.SetColor);
+
+				this.BeginInvoke(inv, new object[] { color });
+			}
+			else
+			{
+				Icon icon = m_iconGray;
+				if (color == "green")
+				{
+					mnuStatus.Image = m_bitmapStatusGreen;
+					icon = m_iconNormal;
+					mnuConnect.Text = Messages.CommandDisconnect;
+				}
+				else if (color == "yellow")
+				{
+					mnuStatus.Image = m_bitmapStatusYellow;
+					mnuConnect.Text = Messages.CommandCancel;
+				}
+				else
+				{
+					mnuStatus.Image = m_bitmapStatusRed;
+					mnuConnect.Text = Messages.CommandConnect;
+				}
+
+				if (this.Icon != icon)
+				{
+					this.Icon = icon;
+					if (m_windowsNotifyIcon != null)
+						m_windowsNotifyIcon.Icon = icon;
+				}
+			}
+		}
+
+		private delegate void ShowWindowsNotificationDelegate(string level, string message);
+		public void ShowWindowsNotification(string level, string message)
+		{
+			if (this.InvokeRequired)
+			{
+				ShowWindowsNotificationDelegate inv = new ShowWindowsNotificationDelegate(this.ShowWindowsNotification);
+
+				this.BeginInvoke(inv, new object[] { level, message });
+			}
+			else
+			{
+				if (m_windowsNotifyIcon == null)
+					return;
+
+				if (level == "warning")
+					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+				else if (level == "error")
+					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+				else if (level == "fatal")
+					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+				else
+					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+				m_windowsNotifyIcon.BalloonTipText = message;
+				m_windowsNotifyIcon.ShowBalloonTip(1000);
+			}
+		}
+
+		private delegate void SwitchIconDelegate(string type);
+		public void SwitchIcon(string type)
+		{
+			if (this.InvokeRequired)
+			{
+				SwitchIconDelegate inv = new SwitchIconDelegate(this.SwitchIcon);
+
+				this.BeginInvoke(inv, new object[] { type });
+			}
+			else
+			{
+				Icon icon = m_iconGray;
+				if (type == "connected")
+					icon = m_iconNormal;
+
+				if (this.Icon != icon)
+				{
+					this.Icon = icon;
+					if (m_windowsNotifyIcon != null)
+						m_windowsNotifyIcon.Icon = icon;
 				}
 			}
 		}
@@ -1451,25 +1602,19 @@ namespace Eddie.Forms.Forms
 			if (m_listViewServers == null) // 2.11.4
 				return;
 
+			// Main Menu
+			mnuAbout.Enabled = (Core.UI.App.Manifest != null);
+			mnuSettings.Enabled = (Core.UI.App.Manifest != null);
+			mnuHomePage.Enabled = (Core.UI.App.Manifest != null);
+			mnuUser.Enabled = (Core.UI.App.Manifest != null);
+			mnuPorts.Enabled = (Core.UI.App.Manifest != null);
+
+			m_cmdAbout.Enabled = (Core.UI.App.Manifest != null);
+			m_cmdPreferences.Enabled = (Core.UI.App.Manifest != null);
+
 			ConnectionInfo selectedConnection = null;
 			if (m_listViewServers.SelectedItems.Count == 1)
 				selectedConnection = (m_listViewServers.SelectedItems[0] as Controls.ListViewItemServer).Info;
-
-			if ((Engine.Storage.GetBool("gui.windows.tray")) && (Platform.Instance.IsTraySupported()))
-			{
-				mnuRestore.Visible = true;
-				mnuRestoreSep.Visible = true;
-
-				if (this.Visible)
-					mnuRestore.Text = Messages.WindowsMainHide;
-				else
-					mnuRestore.Text = Messages.WindowsMainShow;
-			}
-			else
-			{
-				mnuRestore.Visible = false;
-				mnuRestoreSep.Visible = false;
-			}
 
 			// Welcome			
 			bool connected = Engine.IsConnected();
@@ -1516,29 +1661,6 @@ namespace Eddie.Forms.Forms
 				chkRemember.Visible = false;
 			}
 
-			if (waiting)
-			{
-				mnuConnect.Text = Messages.CommandCancel;
-			}
-			else if (connected)
-			{
-				mnuConnect.Enabled = true;
-				mnuConnect.Text = Messages.CommandDisconnect;
-			}
-			else if (Engine.Instance.CanConnect())
-			{
-				mnuConnect.Enabled = true;
-				mnuConnect.Text = Messages.CommandConnect;
-			}
-			else
-			{
-				mnuConnect.Enabled = true;
-				mnuConnect.Text = Messages.CommandLoginMenu;
-			}
-
-
-
-
 			cmdConnect.Enabled = Engine.Instance.CanConnect();
 
 			// Providers
@@ -1569,19 +1691,17 @@ namespace Eddie.Forms.Forms
 			cmdAreasUndefined.Enabled = cmdAreasWhiteList.Enabled;
 			mnuAreasUndefined.Enabled = cmdAreasUndefined.Enabled;
 
-			mnuSpeedTest.Enabled = connected;
-			cmdLogsOpenVpnManagement.Visible = Engine.Storage.GetBool("advanced.expert");
-			cmdLogsOpenVpnManagement.Enabled = Engine.IsConnected();
+			cmdLogsCommand.Visible = Engine.Storage.GetBool("advanced.expert");
 
 			if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
-				imgLockedNetwork.Image = Eddie.Forms.Properties.Resources.netlock_on;
+				imgLockedNetwork.Image = m_bitmapNetlockOn;
 			}
 			else
 			{
 				cmdLockedNetwork.Text = Messages.NetworkLockButtonDeactive;
-				imgLockedNetwork.Image = Eddie.Forms.Properties.Resources.netlock_off;
+				imgLockedNetwork.Image = m_bitmapNetlockOff;
 			}
 
 			bool networkCanEnabled = ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.CanEnabled()));
@@ -1635,11 +1755,6 @@ namespace Eddie.Forms.Forms
 							pnlWaiting.Visible = true;
 							pnlConnected.Visible = false;
 							cmdCancel.Visible = Engine.IsWaitingCancelAllowed();
-							cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
-							mnuConnect.Enabled = cmdCancel.Enabled;
-
-							mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_yellow;
-
 						}
 						else if (Engine.IsConnected())
 						{
@@ -1649,7 +1764,7 @@ namespace Eddie.Forms.Forms
 
 							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
 							lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
-							txtConnectedExitIp.Text = Engine.ConnectedExitIP.ToString();
+							txtConnectedExitIp.Text = Engine.ConnectionActive.ExitIPs.ToString();
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
 							if (imgCountries.Images.ContainsKey(iconFlagCode))
@@ -1659,39 +1774,16 @@ namespace Eddie.Forms.Forms
 							}
 							else
 								lblConnectedCountry.Image = null;
-
-							mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_green;
 						}
 						else
 						{
 							pnlWelcome.Visible = true;
 							pnlWaiting.Visible = false;
 							pnlConnected.Visible = false;
-
-							mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_red;
 						}
 
-						// Icon                    
-						{
-							Icon icon;
-
-							//if(pageView == PageView.Stats)
-							if (Engine.IsConnected())
-							{
-								icon = global::Eddie.Forms.Properties.Resources.icon1;
-							}
-							else
-							{
-								icon = global::Eddie.Forms.Properties.Resources.icon_gray1;
-							}
-
-							if (this.Icon != icon)
-							{
-								this.Icon = icon;
-								if (m_notifyIcon != null)
-									m_notifyIcon.Icon = icon;
-							}
-						}
+						cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+						mnuConnect.Enabled = cmdCancel.Enabled;
 
 						// Repaint
 						Invalidate();
@@ -1722,22 +1814,10 @@ namespace Eddie.Forms.Forms
 					{
 						if (Engine.IsConnected())
 						{
-							txtConnectedSince.Text = Engine.Stats.GetValue("VpnConnectionStart");
+							txtConnectedSince.Text = Engine.Stats.GetValue("VpnStart");
 
-							txtConnectedDownload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastDownloadStep, true, false);
-							txtConnectedUpload.Text = Core.Utils.FormatBytes(Engine.ConnectedLastUploadStep, true, false);
-
-							string notifyText = Engine.Instance.GetConnectedTrayText(true, true);
-							string notifyText2 = Constants.Name + " - " + notifyText;
-							Text = notifyText2;
-							mnuStatus.Text = "> " + notifyText;
-							if (m_notifyIcon != null)
-							{
-								string tooltipText = notifyText2.Replace(" - ", "\n");
-								if (tooltipText.Length > 127)
-									tooltipText = tooltipText.Substring(0, 127);
-								GuiUtils.SetNotifyIconText(m_notifyIcon, tooltipText);
-							}
+							txtConnectedDownload.Text = UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
+							txtConnectedUpload.Text = UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
 						}
 					}
 
@@ -1769,6 +1849,22 @@ namespace Eddie.Forms.Forms
 						item.SubItems.Add("");
 					item.SubItems[1].Text = entry.Text;
 				}
+			}
+		}
+
+		private delegate void OnProviderManifestFailedDelegate(Eddie.Core.Provider provider);
+		public void OnProviderManifestFailed(Eddie.Core.Provider provider)
+		{
+			if (this.InvokeRequired)
+			{
+				OnProviderManifestFailedDelegate inv = new OnProviderManifestFailedDelegate(this.OnProviderManifestFailed);
+				this.BeginInvoke(inv, new object[] { provider });
+			}
+			else
+			{
+				WindowProviderNoBootstrap dlg = new WindowProviderNoBootstrap();
+				dlg.Provider = provider as Core.Providers.Service;
+				dlg.ShowDialog();
 			}
 		}
 
@@ -1829,19 +1925,24 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				Forms.TextViewer Dlg = new Forms.TextViewer();
-				Dlg.Title = title;
-				Dlg.Body = data;
-				Dlg.ShowDialog(this);
+				ShowText(this, title, data);
 			}
 		}
 
-		private delegate bool OnAskYesNoDelegate(string message);
-		public bool OnAskYesNo(string message)
+		public void ShowText(Form parent, string title, string data)
+		{
+			Forms.TextViewer Dlg = new Forms.TextViewer();
+			Dlg.Title = title;
+			Dlg.Body = data;
+			Dlg.ShowDialog(parent);
+		}
+
+		private delegate bool AskYesNoDelegate(string message);
+		public bool AskYesNo(string message)
 		{
 			if (this.InvokeRequired)
 			{
-				OnAskYesNoDelegate inv = new OnAskYesNoDelegate(this.OnAskYesNo);
+				AskYesNoDelegate inv = new AskYesNoDelegate(this.AskYesNo);
 				return (bool)this.Invoke(inv, new object[] { message });
 			}
 			else
@@ -1943,9 +2044,90 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
+		private delegate void OnMenuStatusDelegate();
+		public void OnMenuStatus()
+		{
+			if (this.InvokeRequired)
+			{
+				OnMenuStatusDelegate inv = new OnMenuStatusDelegate(this.OnMenuStatus);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				Restore();
+			}
+		}
+
+		private delegate void OnMenuConnectDelegate();
+		public void OnMenuConnect()
+		{
+			if (this.InvokeRequired)
+			{
+				OnMenuConnectDelegate inv = new OnMenuConnectDelegate(this.OnMenuConnect);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				if (Engine.IsWaiting())
+				{
+					Disconnect();
+				}
+				else if (Engine.IsConnected())
+				{
+					Disconnect();
+				}
+				else if (Engine.CanConnect())
+				{
+					Connect();
+				}
+				else
+				{
+					Restore();
+				}
+			}
+		}
+
+		private delegate void OnMenuRestoreDelegate();
+		public void OnMenuRestore()
+		{
+			if (this.InvokeRequired)
+			{
+				OnMenuRestoreDelegate inv = new OnMenuRestoreDelegate(this.OnMenuRestore);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				if (this.Visible == false)
+					Restore();
+				else
+					this.WindowState = FormWindowState.Minimized;
+			}
+		}
+
+		private delegate void OnMenuExitDelegate();
+		public void OnMenuExit()
+		{
+			if (this.InvokeRequired)
+			{
+				OnMenuExitDelegate inv = new OnMenuExitDelegate(this.OnMenuExit);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				Close();
+			}
+		}
+
 		private delegate void OnShowPreferencesDelegate();
 		public void OnShowPreferences()
 		{
+			if (Core.UI.App.Manifest == null)
+				return;
+
 			if (this.InvokeRequired)
 			{
 				OnShowPreferencesDelegate inv = new OnShowPreferencesDelegate(this.OnShowPreferences);
@@ -1955,7 +2137,7 @@ namespace Eddie.Forms.Forms
 			else
 			{
 				Forms.Settings Dlg = new Forms.Settings();
-				Dlg.ShowDialog();
+				Dlg.ShowDialog(this);
 
 				EnabledUi();
 			}
@@ -1964,6 +2146,9 @@ namespace Eddie.Forms.Forms
 		private delegate void OnShowAboutDelegate();
 		public void OnShowAbout()
 		{
+			if (Core.UI.App.Manifest == null)
+				return;
+
 			if (this.InvokeRequired)
 			{
 				OnShowAboutDelegate inv = new OnShowAboutDelegate(this.OnShowAbout);
@@ -1973,7 +2158,7 @@ namespace Eddie.Forms.Forms
 			else
 			{
 				Forms.About dlg = new Forms.About();
-				dlg.ShowDialog();
+				dlg.ShowDialog(this);
 			}
 		}
 
@@ -2047,7 +2232,7 @@ namespace Eddie.Forms.Forms
 			String t = LogsGetBody(selectedOnly);
 			if (t.Trim() != "")
 			{
-				Clipboard.SetText(t);
+				GuiUtils.ClipboardSetText(t);
 
 				ShowMessageInfo(Messages.LogsCopyClipboardDone);
 			}
@@ -2058,21 +2243,22 @@ namespace Eddie.Forms.Forms
 			String t = LogsGetBody(selectedOnly);
 			if (t.Trim() != "")
 			{
-				SaveFileDialog sd = new SaveFileDialog();
-
-				sd.FileName = Engine.Logs.GetLogSuggestedFileName();
-				sd.Filter = Messages.FilterTextFiles;
-
-				if (sd.ShowDialog() == DialogResult.OK)
+				using (SaveFileDialog sd = new SaveFileDialog())
 				{
-					using (StreamWriter sw = new StreamWriter(sd.FileName))
-					{
-						sw.Write(t);
-						sw.Flush();
-						sw.Close();
-					}
+					sd.FileName = Engine.Logs.GetLogSuggestedFileName();
+					sd.Filter = Messages.FilterTextFiles;
 
-					ShowMessageInfo(Messages.LogsSaveToFileDone);
+					if (sd.ShowDialog() == DialogResult.OK)
+					{
+						using (StreamWriter sw = new StreamWriter(sd.FileName))
+						{
+							sw.Write(t);
+							sw.Flush();
+							//sw.Close();	// because of "using"
+						}
+
+						ShowMessageInfo(Messages.LogsSaveToFileDone);
+					}
 				}
 			}
 		}
@@ -2081,7 +2267,7 @@ namespace Eddie.Forms.Forms
 		{
 			string Msg = Messages.NetworkLockWarning;
 
-			return Engine.Instance.OnAskYesNo(Msg);
+			return AskYesNo(Msg);
 		}
 
 		public void NetworkLockActivation()
@@ -2096,9 +2282,5 @@ namespace Eddie.Forms.Forms
 		{
 			Engine.NetLockOut();
 		}
-
-		
-
-
 	}
 }

@@ -45,9 +45,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblHostHelp.BackColor = System.Drawing.Color.Transparent;
 			this.lblHostHelp.ForeColor = System.Drawing.Color.Black;
-			this.lblHostHelp.Location = new System.Drawing.Point(95, 49);
+			this.lblHostHelp.Location = new System.Drawing.Point(143, 49);
 			this.lblHostHelp.Name = "lblHostHelp";
-			this.lblHostHelp.Size = new System.Drawing.Size(307, 74);
+			this.lblHostHelp.Size = new System.Drawing.Size(352, 74);
 			this.lblHostHelp.TabIndex = 46;
 			this.lblHostHelp.Text = "Help";
 			this.lblHostHelp.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -58,9 +58,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.cboAction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboAction.FormattingEnabled = true;
-			this.cboAction.Location = new System.Drawing.Point(95, 134);
+			this.cboAction.Location = new System.Drawing.Point(143, 134);
 			this.cboAction.Name = "cboAction";
-			this.cboAction.Size = new System.Drawing.Size(307, 21);
+			this.cboAction.Size = new System.Drawing.Size(352, 21);
 			this.cboAction.TabIndex = 2;
 			// 
 			// cmdOk
@@ -71,7 +71,7 @@
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.cmdOk.FlatAppearance.BorderSize = 0;
 			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdOk.Location = new System.Drawing.Point(102, 204);
+			this.cmdOk.Location = new System.Drawing.Point(148, 251);
 			this.cmdOk.Name = "cmdOk";
 			this.cmdOk.Size = new System.Drawing.Size(106, 27);
 			this.cmdOk.TabIndex = 4;
@@ -85,9 +85,9 @@
 			this.lblAction.ForeColor = System.Drawing.Color.Black;
 			this.lblAction.Location = new System.Drawing.Point(12, 134);
 			this.lblAction.Name = "lblAction";
-			this.lblAction.Size = new System.Drawing.Size(78, 21);
+			this.lblAction.Size = new System.Drawing.Size(125, 21);
 			this.lblAction.TabIndex = 45;
-			this.lblAction.Text = "Action:";
+			this.lblAction.Text = "When connected:";
 			this.lblAction.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// txtNotes
@@ -95,10 +95,10 @@
 			this.txtNotes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtNotes.Location = new System.Drawing.Point(95, 164);
+			this.txtNotes.Location = new System.Drawing.Point(143, 164);
 			this.txtNotes.Multiline = true;
 			this.txtNotes.Name = "txtNotes";
-			this.txtNotes.Size = new System.Drawing.Size(307, 20);
+			this.txtNotes.Size = new System.Drawing.Size(352, 67);
 			this.txtNotes.TabIndex = 3;
 			// 
 			// lblNotes
@@ -107,7 +107,7 @@
 			this.lblNotes.ForeColor = System.Drawing.Color.Black;
 			this.lblNotes.Location = new System.Drawing.Point(12, 164);
 			this.lblNotes.Name = "lblNotes";
-			this.lblNotes.Size = new System.Drawing.Size(78, 20);
+			this.lblNotes.Size = new System.Drawing.Size(125, 20);
 			this.lblNotes.TabIndex = 42;
 			this.lblNotes.Text = "Notes:";
 			this.lblNotes.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -120,7 +120,7 @@
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cmdCancel.FlatAppearance.BorderSize = 0;
 			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdCancel.Location = new System.Drawing.Point(215, 204);
+			this.cmdCancel.Location = new System.Drawing.Point(261, 251);
 			this.cmdCancel.Name = "cmdCancel";
 			this.cmdCancel.Size = new System.Drawing.Size(106, 27);
 			this.cmdCancel.TabIndex = 5;
@@ -131,9 +131,9 @@
 			// 
 			this.txtHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtHost.Location = new System.Drawing.Point(95, 18);
+			this.txtHost.Location = new System.Drawing.Point(143, 18);
 			this.txtHost.Name = "txtHost";
-			this.txtHost.Size = new System.Drawing.Size(307, 20);
+			this.txtHost.Size = new System.Drawing.Size(352, 20);
 			this.txtHost.TabIndex = 1;
 			this.txtHost.Leave += new System.EventHandler(this.txtHost_Leave);
 			// 
@@ -141,18 +141,20 @@
 			// 
 			this.lblHost.BackColor = System.Drawing.Color.Transparent;
 			this.lblHost.ForeColor = System.Drawing.Color.Black;
-			this.lblHost.Location = new System.Drawing.Point(15, 18);
+			this.lblHost.Location = new System.Drawing.Point(12, 18);
 			this.lblHost.Name = "lblHost";
-			this.lblHost.Size = new System.Drawing.Size(75, 20);
+			this.lblHost.Size = new System.Drawing.Size(125, 20);
 			this.lblHost.TabIndex = 40;
-			this.lblHost.Text = "IP / Host:";
+			this.lblHost.Text = "IP / Host / Range:";
 			this.lblHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// SettingsRoute
 			// 
+			this.AcceptButton = this.cmdOk;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(426, 243);
+			this.CancelButton = this.cmdCancel;
+			this.ClientSize = new System.Drawing.Size(519, 290);
 			this.Controls.Add(this.lblHostHelp);
 			this.Controls.Add(this.cboAction);
 			this.Controls.Add(this.cmdOk);

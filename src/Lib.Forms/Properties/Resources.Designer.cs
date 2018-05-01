@@ -19,7 +19,7 @@ namespace Eddie.Forms.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -206,6 +206,16 @@ namespace Eddie.Forms.Properties {
         internal static System.Drawing.Bitmap clear {
             get {
                 object obj = ResourceManager.GetObject("clear", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap command {
+            get {
+                object obj = ResourceManager.GetObject("command", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -861,7 +871,7 @@ namespace Eddie.Forms.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;        ///&lt;skins&gt;        ///  &lt;Light&gt;        ///    &lt;!--&lt;font.normal&gt;MS Sans Serif, 8.25pt&lt;/font.normal&gt;--&gt;        ///    &lt;font.normal&gt;System, normal&lt;/font.normal&gt;        ///    &lt;font.big&gt;System, big&lt;/font.big&gt;        ///    &lt;font.monospace.normal&gt;SystemMonospace, normal&lt;/font.monospace.normal&gt;        ///    &lt;font.monospace.big&gt;SystemMonospace, big&lt;/font.monospace.big&gt;        ///    &lt;!--        ///    &lt;font.normal&gt;Verdana, 16pt&lt;/font.normal&gt;        ///    &lt;font.big&gt;Verdana, 22pt&lt;/font.big&gt;        ///    &lt;font.monospace&gt;Consolas, 16pt&lt;/font.monospace&gt;            ///    --&gt;        ///    &lt;color.fo [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;        ///&lt;skins&gt;        ///	&lt;Light&gt;        ///		&lt;!--&lt;font.normal&gt;MS Sans Serif, 8.25pt&lt;/font.normal&gt;--&gt;        ///		&lt;font.normal&gt;System, normal&lt;/font.normal&gt;        ///		&lt;font.big&gt;System, big&lt;/font.big&gt;        ///		&lt;font.small&gt;System, small&lt;/font.small&gt;        ///		&lt;font.monospace.normal&gt;SystemMonospace, normal&lt;/font.monospace.normal&gt;        ///		&lt;font.monospace.big&gt;SystemMonospace, big&lt;/font.monospace.big&gt;		        ///		&lt;color.form.background&gt;#eeeeee&lt;/color.form.background&gt;        ///		&lt;color.foreground&gt;#000000&lt;/color.foreground&gt;        ///		&lt;color.background&gt;#ffffff&lt;/color [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string skins {
             get {
@@ -1012,6 +1022,26 @@ namespace Eddie.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap tab_about {
+            get {
+                object obj = ResourceManager.GetObject("tab_about", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap tab_about_hover {
+            get {
+                object obj = ResourceManager.GetObject("tab_about_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap tab_l_bg {
             get {
                 object obj = ResourceManager.GetObject("tab_l_bg", resourceCulture);
@@ -1045,6 +1075,26 @@ namespace Eddie.Forms.Properties {
         internal static System.Drawing.Bitmap tab_n {
             get {
                 object obj = ResourceManager.GetObject("tab_n", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap tab_preferences {
+            get {
+                object obj = ResourceManager.GetObject("tab_preferences", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap tab_preferences_hover {
+            get {
+                object obj = ResourceManager.GetObject("tab_preferences_hover", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

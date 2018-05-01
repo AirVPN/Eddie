@@ -31,6 +31,7 @@ namespace Eddie.Core
 		public bool WaitEnd = true;
 		public bool ExceptionIfFail = false;
 		public bool NoDebugLog = false;
+		public bool RunAsNormalUser = false;
 
 		// Response
 		public string StdOut = "";
@@ -51,7 +52,7 @@ namespace Eddie.Core
 
 		public static string EscapeAlphaNumeric(string value)
 		{
-			return Utils.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+			return UtilsString.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 		}
 
 		public static string EscapeInt(int value)
@@ -59,10 +60,16 @@ namespace Eddie.Core
 			return value.ToString(CultureInfo.InvariantCulture);
 		}
 
+		public static string EscapeInt(string value)
+		{
+			int v = Conversions.ToInt32(value);
+			return v.ToString(CultureInfo.InvariantCulture);
+		}
+
 		public static string EscapeHost(string value)
 		{
 			// Note: RFC 952 with _ exception.
-			return Utils.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_");
+			return UtilsString.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_");
 		}
 
 		public static string EscapeUrl(string value)
@@ -106,15 +113,20 @@ namespace Eddie.Core
 		{
 			return (EscapeInsideQuote(value) == value);
 		}
-		
+
 		// Called for user events
 		public static void ShellUserEvent(string path, string arguments, bool waitEnd)
 		{
-			List<string> args = Utils.StringToList(arguments, " ", true, true, false, false);
+			List<string> args = UtilsString.StringToList(arguments, " ", true, true, false, false);
 			Shell(path, args.ToArray(), waitEnd);
 		}
-				
-		public static string ShellCmd(string command) // TOCLEAN, Avoid when possible
+
+		public static string ShellCmd(string command)
+		{
+			return ShellCmd (command, false);
+		}
+
+		public static string ShellCmd(string command, bool noLog) // TOCLEAN, Avoid when possible
 		{
 			if (command == "")
 				return "";
@@ -128,6 +140,7 @@ namespace Eddie.Core
 			s.Path = path;
 			s.Arguments.AddRange(arguments);
 			s.WaitEnd = true;
+			s.NoDebugLog = noLog;
 			s.ExceptionIfFail = false;
 			s.Run();
 			return s.Output;
@@ -146,6 +159,11 @@ namespace Eddie.Core
 		public static string Shell2(string path, string arg1, string arg2)
 		{
 			return Shell(path, new string[] { arg1, arg2 }, true);
+		}
+
+		public static string Shell3(string path, string arg1, string arg2, string arg3)
+		{
+			return Shell(path, new string[] { arg1, arg2, arg3 }, true);
 		}
 
 		public static string Shell(string path, string[] arguments)
@@ -171,27 +189,33 @@ namespace Eddie.Core
 		public bool Run()
 		{
 			m_id++;
+
+			string path = Path;
+			string[] args = Arguments.ToArray ();
+			if (RunAsNormalUser)
+				Platform.Instance.ShellAdaptNormalUser (ref path, ref args);
+			
 			if (WaitEnd)
 			{
 				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
-				
+
 				if (log)
 				{
-					string message = "Shell(" + m_id + ") of '" + Path + "'";
+					string message = "Shell(" + m_id + ") of '" + path + "'";
 					if (Arguments.Count > 0)
 					{
 						message += ", " + Arguments.Count.ToString() + " args: ";
-						foreach (string arg in Arguments)
+						foreach (string arg in args)
 						{
 							message += "'" + arg + "';";
 						}
 					}
-					message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
+					message = UtilsString.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
 
 				int startTime = Environment.TickCount;
-				Platform.Instance.ShellSync(Path, Arguments.ToArray(), out StdOut, out StdErr, out ExitCode);
+				Platform.Instance.ShellSync(path, args, out StdOut, out StdErr, out ExitCode);
 				int endTime = Environment.TickCount;
 
 				if (log)
@@ -203,11 +227,11 @@ namespace Eddie.Core
 						message += ", out: '" + StdOut + "'";
 					if (StdErr != "")
 						message += ", err: '" + StdErr + "'";
-					message = Utils.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
+					message = UtilsString.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
 
-				if(ExceptionIfFail)
+				if (ExceptionIfFail)
 				{
 					if (ExitCode != 0)
 						if (StdErr != "")
@@ -220,11 +244,11 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Platform.Instance.ShellASync(Path, Arguments.ToArray());
+				Platform.Instance.ShellASync(path, args);
 				return true;
 			}
 
-			
+
 		}
 	}
 }

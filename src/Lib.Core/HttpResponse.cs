@@ -30,9 +30,14 @@ namespace Eddie.Core
 		public List<KeyValuePair<string, string>> Headers = new List<KeyValuePair<string, string>>();
 		public int ExitCode = -1;
 
-		public string GetAscii()
+		public string GetBodyAscii()
 		{
 			return System.Text.Encoding.ASCII.GetString(BufferData);
+		}
+
+		public string GetBody()
+		{
+			return System.Text.Encoding.UTF8.GetString(BufferData);
 		}
 
 		public string GetHeader(string k)

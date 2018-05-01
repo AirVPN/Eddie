@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -25,7 +25,22 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSPopUpButton CboIpV6 { get; set; }
 
 		[Outlet]
+		AppKit.NSPopUpButton CboLockIncoming { get; set; }
+
+		[Outlet]
 		AppKit.NSPopUpButton CboLockMode { get; set; }
+
+		[Outlet]
+		AppKit.NSPopUpButton CboLockOutgoing { get; set; }
+
+		[Outlet]
+		AppKit.NSPopUpButton CboNetworkEntryInterface { get; set; }
+
+		[Outlet]
+		AppKit.NSPopUpButton CboNetworkIPv4Mode { get; set; }
+
+		[Outlet]
+		AppKit.NSPopUpButton CboNetworkIPv6Mode { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CboOpenVpnDirectivesHelp { get; set; }
@@ -38,6 +53,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSPopUpButton CboOpenVpnSndBuf { get; set; }
+
+		[Outlet]
+		AppKit.NSPopUpButton CboProtocolIPEntry { get; set; }
 
 		[Outlet]
 		AppKit.NSPopUpButton CboProxyAuthentication { get; set; }
@@ -199,10 +217,19 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTextField LblDnsServers { get; set; }
 
 		[Outlet]
+		AppKit.NSTextField LblIPv6 { get; set; }
+
+		[Outlet]
 		AppKit.NSTextField LblLockRoutingOutWarning { get; set; }
 
 		[Outlet]
 		AppKit.NSTextField LblLoggingHelp { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField LblNetworkIPv4Mode { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField LblNetworkIPv6Mode { get; set; }
 
 		[Outlet]
 		AppKit.NSTextField LblOpenVpnRcvBuf { get; set; }
@@ -212,6 +239,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSTextField LblRoutesNetworkLockWarning { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField LblRoutesOtherwise { get; set; }
 
 		[Outlet]
 		AppKit.NSTableView TableAdvancedEvents { get; set; }
@@ -292,9 +322,29 @@ namespace Eddie.UI.Cocoa.Osx
 				CboIpV6 = null;
 			}
 
+			if (LblIPv6 != null) {
+				LblIPv6.Dispose ();
+				LblIPv6 = null;
+			}
+
+			if (CboLockIncoming != null) {
+				CboLockIncoming.Dispose ();
+				CboLockIncoming = null;
+			}
+
 			if (CboLockMode != null) {
 				CboLockMode.Dispose ();
 				CboLockMode = null;
+			}
+
+			if (CboLockOutgoing != null) {
+				CboLockOutgoing.Dispose ();
+				CboLockOutgoing = null;
+			}
+
+			if (CboNetworkEntryInterface != null) {
+				CboNetworkEntryInterface.Dispose ();
+				CboNetworkEntryInterface = null;
 			}
 
 			if (CboOpenVpnDirectivesHelp != null) {
@@ -317,6 +367,11 @@ namespace Eddie.UI.Cocoa.Osx
 				CboOpenVpnSndBuf = null;
 			}
 
+			if (CboProtocolIPEntry != null) {
+				CboProtocolIPEntry.Dispose ();
+				CboProtocolIPEntry = null;
+			}
+
 			if (CboProxyAuthentication != null) {
 				CboProxyAuthentication.Dispose ();
 				CboProxyAuthentication = null;
@@ -327,9 +382,34 @@ namespace Eddie.UI.Cocoa.Osx
 				CboProxyType = null;
 			}
 
+			if (LblNetworkIPv4Mode != null) {
+				LblNetworkIPv4Mode.Dispose ();
+				LblNetworkIPv4Mode = null;
+			}
+
+			if (LblNetworkIPv6Mode != null) {
+				LblNetworkIPv6Mode.Dispose ();
+				LblNetworkIPv6Mode = null;
+			}
+
+			if (CboNetworkIPv4Mode != null) {
+				CboNetworkIPv4Mode.Dispose ();
+				CboNetworkIPv4Mode = null;
+			}
+
+			if (CboNetworkIPv6Mode != null) {
+				CboNetworkIPv6Mode.Dispose ();
+				CboNetworkIPv6Mode = null;
+			}
+
 			if (CboProxyWhen != null) {
 				CboProxyWhen.Dispose ();
 				CboProxyWhen = null;
+			}
+
+			if (LblRoutesOtherwise != null) {
+				LblRoutesOtherwise.Dispose ();
+				LblRoutesOtherwise = null;
 			}
 
 			if (CboRoutesOtherwise != null) {

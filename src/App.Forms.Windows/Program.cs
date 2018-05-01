@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Text;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 using Eddie.Forms;
 
@@ -33,73 +33,82 @@ namespace Eddie.Forms.Windows
 		/// </summary>
 		/// 
 
+		private static Eddie.Forms.Engine m_engine;
+		private static ApplicationContext m_context;
+
 		[STAThread]
 		static void Main()
-        {
-            try
-            {
+		{
+			try
+			{
 				if (Environment.OSVersion.Version.Major >= 6)
-                    SetProcessDPIAware();
+					NativeMethods.SetProcessDPIAware();
 
 				//Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 
-                Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
+				Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
 
 				CommandLine.InitSystem(Environment.CommandLine);
-
+				
 				if (CommandLine.SystemEnvironment.Exists("cli"))
-                {
-                    Core.Engine engine = new Core.Engine();
+				{
+					Core.Engine engine = new Core.Engine();
 
-                    if (engine.Initialization(true))
-                    {
-                        engine.ConsoleStart();
-                    }
-                }
-                else
-                {
-                    GuiUtils.Init();
+					if (engine.Initialization(true))
+					{
+						engine.ConsoleStart();
+					}
+				}
+				else
+				{
+					GuiUtils.Init();
 
-					Eddie.Forms.Engine engine = new Eddie.Forms.Engine();
+					m_engine = new Eddie.Forms.Engine();
 
-                    engine.TerminateEvent += Engine_TerminateEvent;
+					m_engine.CommandEvent += Engine_CommandEvent;
+					m_engine.TerminateEvent += Engine_TerminateEvent;
 
-                    if (engine.Initialization(false))
-                    {
-                        engine.FormMain = new Eddie.Forms.Forms.Main();
+					if (m_engine.Initialization(false))
+					{
+						m_engine.FormMain = new Eddie.Forms.Forms.Main();
 
-                        engine.UiStart();
+						m_engine.UiStart();
 
 						// Application.Run(engine.FormMain); // Removed in 2.11.9
 
-						engine.FormMain.LoadPhase();
+						m_engine.FormMain.LoadPhase();
 
-						m_context = new ApplicationContext();                        
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+						m_context = new ApplicationContext();
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled
 			if (m_context != null)
 				Application.Run(m_context);
 		}
 
-        static ApplicationContext m_context;
+		private static void Engine_CommandEvent(Json data)
+		{
+			string cmd = data["command"].Value as string;
 
-        private static void Engine_TerminateEvent()
-        {
-            m_context.ExitThread();
+			if (cmd == "ui.notification")
+			{
+				if (m_engine.FormMain != null)
+					m_engine.FormMain.ShowWindowsNotification(data["level"].Value as string, data["message"].Value as string);
+			}
+		}
 
-            //Application.Exit(); // Removed in 2.12, otherwise lock Core thread. Still required in Linux edition.
-        }
+		private static void Engine_TerminateEvent()
+		{
+			m_context.ExitThread();
 
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern bool SetProcessDPIAware();
-
-    }
+			//Application.Exit(); // Removed in 2.12, otherwise lock Core thread. Still required in Linux edition.
+		}
+	}
 }

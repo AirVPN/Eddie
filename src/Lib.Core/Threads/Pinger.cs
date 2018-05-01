@@ -101,7 +101,7 @@ namespace Eddie.Core.Threads
 
 		public override void OnRun()
 		{
-			Dictionary<string, ConnectionInfo> servers;
+			Dictionary<string, ConnectionInfo> connections; // TOCHECK Berserker
 
 			for (;;)
 			{
@@ -114,40 +114,40 @@ namespace Eddie.Core.Threads
 					// Note: If Pinger is not enabled, works like all ping results is 0.						
 					bool enabled = GetEnabled();
 
-					int timeNow = Utils.UnixTimeStamp();
+					int timeNow = UtilsCore.UnixTimeStamp();
 					int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
 
 					lock (Engine.Connections)
-						servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+						connections = new Dictionary<string, ConnectionInfo>(Engine.Connections);
 
 					bool startOne = false;
 
-					foreach (ConnectionInfo infoServer in servers.Values)
+					foreach (ConnectionInfo connectionInfo in connections.Values)
 					{						
 						if (GetCanRun() == false)
 							break;
 						
-						int delaySuccess = GetPingerDelaySuccess(infoServer);
-						int delayRetry = GetPingerDelayRetry(infoServer);
+						int delaySuccess = GetPingerDelaySuccess(connectionInfo);
+						int delayRetry = GetPingerDelayRetry(connectionInfo);
 
 						int delay = delaySuccess;
-						if (infoServer.PingFailedConsecutive > 0)
+						if (connectionInfo.PingFailedConsecutive > 0)
 							delay = delayRetry;
 
-						if (timeNow - infoServer.LastPingTest >= delay)
+						if (timeNow - connectionInfo.LastPingTest >= delay)
 						{
 							bool canPingServer = enabled;
-							if (infoServer.CanPing() == false)
+							if (connectionInfo.CanPing() == false)
 								canPingServer = false;
 
 							if (canPingServer)
 							{
 								if (Jobs.Count < jobsLimit)
 								{
-									infoServer.LastPingTest = timeNow;
+									connectionInfo.LastPingTest = timeNow;
 
 									PingerJob job = new PingerJob();
-									job.Server = infoServer;
+									job.Server = connectionInfo;
 									
 									ThreadPool.QueueUserWorkItem(new WaitCallback(DoPing), job);
 									startOne = true;
@@ -155,15 +155,15 @@ namespace Eddie.Core.Threads
 							}
 							else
 							{
-								if (infoServer.Ping != -1)
+								if (connectionInfo.Ping != -1)
 								{
-									//infoServer.LastPingTest = timeNow; // <2.13.4
-									infoServer.LastPingTest = 0;
-									infoServer.PingTests = 0;
-									infoServer.PingFailedConsecutive = 0;
-									infoServer.Ping = -1;
-									infoServer.LastPingResult = infoServer.LastPingTest;
-									infoServer.LastPingSuccess = infoServer.LastPingTest;
+									//connectionInfo.LastPingTest = timeNow; // <2.13.4
+									connectionInfo.LastPingTest = 0;
+									connectionInfo.PingTests = 0;
+									connectionInfo.PingFailedConsecutive = 0;
+									connectionInfo.Ping = -1;
+									connectionInfo.LastPingResult = connectionInfo.LastPingTest;
+									connectionInfo.LastPingSuccess = connectionInfo.LastPingTest;
 									Engine.Instance.MarkServersListUpdated();
 								}
 							}
@@ -211,7 +211,7 @@ namespace Eddie.Core.Threads
 		public void PingResult(ConnectionInfo infoServer, Int64 result)
 		{
 			infoServer.PingTests++;
-			infoServer.LastPingResult = Utils.UnixTimeStamp();
+			infoServer.LastPingResult = UtilsCore.UnixTimeStamp();
 			if (result == -1)
 			{
 				infoServer.PingFailedConsecutive++;
@@ -241,7 +241,7 @@ namespace Eddie.Core.Threads
 		{
 			PingerStats stats = new PingerStats();
 
-			int timeNow = Utils.UnixTimeStamp();
+			int timeNow = UtilsCore.UnixTimeStamp();
 
 			int iTotal = 0;
 

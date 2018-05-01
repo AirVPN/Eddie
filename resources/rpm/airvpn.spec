@@ -7,7 +7,7 @@ Summary: AirVPN - VPN service based on OpenVPN
 Packager: AirVPN Team <info@airvpn.org>
 URL: https://airvpn.org
 Group: net
-Requires: mono-core mono-winforms openvpn curl libgdiplus-devel
+Requires: mono-core mono-winforms openvpn curl libgdiplus-devel notify-send
 AutoReqProv: no
 
 %define _rpmdir ../
@@ -25,6 +25,8 @@ in defence of net neutrality, privacy and against censorship.
 "/usr/share/pixmaps/AirVPN.png"
 "/usr/share/man/man8/airvpn.8.gz"
 "/usr/share/AirVPN/cacert.pem"
+"/usr/share/AirVPN/icon.png"
+"/usr/share/AirVPN/icon_gray.png"
 "/usr/bin/airvpn"
 %dir "/usr/{@lib}/AirVPN/"
 "/usr/{@lib}/AirVPN/Lib.Core.dll"
@@ -35,4 +37,5 @@ in defence of net neutrality, privacy and against censorship.
 "/usr/{@lib}/AirVPN/update-resolv-conf"
 "/usr/{@lib}/AirVPN/AirVPN.exe"
 "/usr/{@lib}/AirVPN/CLI.exe"
+"/usr/{@lib}/AirVPN/eddie_tray"
 "/usr/{@lib}/AirVPN/stunnel"

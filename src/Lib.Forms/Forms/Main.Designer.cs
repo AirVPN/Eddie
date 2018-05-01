@@ -46,15 +46,8 @@ namespace Eddie.Forms.Forms
 			this.mnuHomePage = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuUser = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuPorts = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuSpeedTest = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuDevelopers = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuDevelopersManText = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuDevelopersManBBCode = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuTools = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuToolsPortForwarding = new System.Windows.Forms.ToolStripMenuItem();
-			this.mnuToolsNetworkMonitor = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAbout = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuRestore = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,7 +62,6 @@ namespace Eddie.Forms.Forms
 			this.cmdServersWhiteList = new Eddie.Forms.Skin.Button();
 			this.cmdServersConnect = new Eddie.Forms.Skin.Button();
 			this.cmdLogsSupport = new Eddie.Forms.Skin.Button();
-			this.cmdLogsOpenVpnManagement = new Eddie.Forms.Skin.Button();
 			this.cmdLogsClean = new Eddie.Forms.Skin.Button();
 			this.cmdLogsCopy = new Eddie.Forms.Skin.Button();
 			this.cmdLogsSave = new Eddie.Forms.Skin.Button();
@@ -153,7 +145,7 @@ namespace Eddie.Forms.Forms
 			this.tabStats = new Eddie.Forms.Skin.TabPage();
 			this.lstStats = new Eddie.Forms.Skin.ListView();
 			this.tabLogs = new Eddie.Forms.Skin.TabPage();
-			this.txtCommand = new System.Windows.Forms.TextBox();
+			this.cmdLogsCommand = new Eddie.Forms.Skin.Button();
 			this.lstLogs = new Eddie.Forms.Skin.ListView();
 			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
@@ -248,54 +240,49 @@ namespace Eddie.Forms.Forms
             this.mnuHomePage,
             this.mnuUser,
             this.mnuPorts,
-            this.mnuSpeedTest,
             this.mnuSeparator1,
             this.mnuSettings,
-            this.mnuDevelopers,
-            this.mnuTools,
             this.mnuAbout,
             this.toolStripSeparator2,
             this.mnuRestore,
             this.mnuRestoreSep,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(253, 340);
+			this.mnuMain.Size = new System.Drawing.Size(246, 262);
 			// 
 			// mnuStatus
 			// 
 			this.mnuStatus.ForeColor = System.Drawing.SystemColors.GradientActiveCaption;
 			this.mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_yellow;
 			this.mnuStatus.Name = "mnuStatus";
-			this.mnuStatus.Size = new System.Drawing.Size(252, 26);
-			this.mnuStatus.Text = "TODO - Status readonly text";
+			this.mnuStatus.Size = new System.Drawing.Size(245, 26);
 			this.mnuStatus.Click += new System.EventHandler(this.mnuStatus_Click);
 			// 
 			// mnuConnect
 			// 
 			this.mnuConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
 			this.mnuConnect.Name = "mnuConnect";
-			this.mnuConnect.Size = new System.Drawing.Size(252, 26);
-			this.mnuConnect.Text = "TODO - Connect to o Disconnect";
+			this.mnuConnect.Size = new System.Drawing.Size(245, 26);
 			this.mnuConnect.Click += new System.EventHandler(this.mnuConnect_Click);
 			// 
 			// mnuSeparator3
 			// 
 			this.mnuSeparator3.Name = "mnuSeparator3";
-			this.mnuSeparator3.Size = new System.Drawing.Size(249, 6);
+			this.mnuSeparator3.Size = new System.Drawing.Size(242, 6);
 			// 
 			// mnuHomePage
 			// 
 			this.mnuHomePage.Image = global::Eddie.Forms.Properties.Resources.home;
 			this.mnuHomePage.Name = "mnuHomePage";
-			this.mnuHomePage.Size = new System.Drawing.Size(252, 26);
-			this.mnuHomePage.Text = "AirVPN Web Site";
+			this.mnuHomePage.Size = new System.Drawing.Size(245, 26);
+			this.mnuHomePage.Text = "Website";
 			this.mnuHomePage.Click += new System.EventHandler(this.mnuHomePage_Click);
 			// 
 			// mnuUser
 			// 
 			this.mnuUser.Image = global::Eddie.Forms.Properties.Resources.stats;
 			this.mnuUser.Name = "mnuUser";
-			this.mnuUser.Size = new System.Drawing.Size(252, 26);
+			this.mnuUser.Size = new System.Drawing.Size(245, 26);
 			this.mnuUser.Text = "Your &details and statistics (Web)";
 			this.mnuUser.Click += new System.EventHandler(this.mnuUser_Click);
 			// 
@@ -303,108 +290,54 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuPorts.Image = global::Eddie.Forms.Properties.Resources.ports;
 			this.mnuPorts.Name = "mnuPorts";
-			this.mnuPorts.Size = new System.Drawing.Size(252, 26);
+			this.mnuPorts.Size = new System.Drawing.Size(245, 26);
 			this.mnuPorts.Text = "Forwarding &Ports (Web)";
 			this.mnuPorts.Click += new System.EventHandler(this.mnuPorts_Click);
-			// 
-			// mnuSpeedTest
-			// 
-			this.mnuSpeedTest.Image = global::Eddie.Forms.Properties.Resources.speed;
-			this.mnuSpeedTest.Name = "mnuSpeedTest";
-			this.mnuSpeedTest.Size = new System.Drawing.Size(252, 26);
-			this.mnuSpeedTest.Text = "Speed Test (Web)";
-			this.mnuSpeedTest.Click += new System.EventHandler(this.mnuSpeedTest_Click);
 			// 
 			// mnuSeparator1
 			// 
 			this.mnuSeparator1.Name = "mnuSeparator1";
-			this.mnuSeparator1.Size = new System.Drawing.Size(249, 6);
+			this.mnuSeparator1.Size = new System.Drawing.Size(242, 6);
 			// 
 			// mnuSettings
 			// 
 			this.mnuSettings.Image = global::Eddie.Forms.Properties.Resources.settings;
 			this.mnuSettings.Name = "mnuSettings";
-			this.mnuSettings.Size = new System.Drawing.Size(252, 26);
+			this.mnuSettings.Size = new System.Drawing.Size(245, 26);
 			this.mnuSettings.Text = "&Preferences";
 			this.mnuSettings.Click += new System.EventHandler(this.mnuSettings_Click);
-			// 
-			// mnuDevelopers
-			// 
-			this.mnuDevelopers.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuDevelopersManText,
-            this.mnuDevelopersManBBCode});
-			this.mnuDevelopers.Name = "mnuDevelopers";
-			this.mnuDevelopers.Size = new System.Drawing.Size(252, 26);
-			this.mnuDevelopers.Text = "&Developers";
-			// 
-			// mnuDevelopersManText
-			// 
-			this.mnuDevelopersManText.Name = "mnuDevelopersManText";
-			this.mnuDevelopersManText.Size = new System.Drawing.Size(192, 22);
-			this.mnuDevelopersManText.Text = "Man - Text Format";
-			this.mnuDevelopersManText.Click += new System.EventHandler(this.mnuDevelopersManText_Click);
-			// 
-			// mnuDevelopersManBBCode
-			// 
-			this.mnuDevelopersManBBCode.Name = "mnuDevelopersManBBCode";
-			this.mnuDevelopersManBBCode.Size = new System.Drawing.Size(192, 22);
-			this.mnuDevelopersManBBCode.Text = "Man - BBCode Format";
-			this.mnuDevelopersManBBCode.Click += new System.EventHandler(this.mnuDevelopersManBBCode_Click);
-			// 
-			// mnuTools
-			// 
-			this.mnuTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuToolsPortForwarding,
-            this.mnuToolsNetworkMonitor});
-			this.mnuTools.Name = "mnuTools";
-			this.mnuTools.Size = new System.Drawing.Size(252, 26);
-			this.mnuTools.Text = "&Tools";
-			// 
-			// mnuToolsPortForwarding
-			// 
-			this.mnuToolsPortForwarding.Name = "mnuToolsPortForwarding";
-			this.mnuToolsPortForwarding.Size = new System.Drawing.Size(193, 22);
-			this.mnuToolsPortForwarding.Text = "Port Forwarding Tester";
-			this.mnuToolsPortForwarding.Click += new System.EventHandler(this.mnuToolsPortForwarding_Click);
-			// 
-			// mnuToolsNetworkMonitor
-			// 
-			this.mnuToolsNetworkMonitor.Name = "mnuToolsNetworkMonitor";
-			this.mnuToolsNetworkMonitor.Size = new System.Drawing.Size(193, 22);
-			this.mnuToolsNetworkMonitor.Text = "Network Monitor";
-			this.mnuToolsNetworkMonitor.Click += new System.EventHandler(this.mnuToolsNetworkMonitor_Click);
 			// 
 			// mnuAbout
 			// 
 			this.mnuAbout.Image = global::Eddie.Forms.Properties.Resources.about;
 			this.mnuAbout.Name = "mnuAbout";
-			this.mnuAbout.Size = new System.Drawing.Size(252, 26);
+			this.mnuAbout.Size = new System.Drawing.Size(245, 26);
 			this.mnuAbout.Text = "&About";
 			this.mnuAbout.Click += new System.EventHandler(this.mnuAbout_Click);
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(249, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(242, 6);
 			// 
 			// mnuRestore
 			// 
 			this.mnuRestore.Image = global::Eddie.Forms.Properties.Resources.restore;
 			this.mnuRestore.Name = "mnuRestore";
-			this.mnuRestore.Size = new System.Drawing.Size(252, 26);
+			this.mnuRestore.Size = new System.Drawing.Size(245, 26);
 			this.mnuRestore.Text = "&Restore";
 			this.mnuRestore.Click += new System.EventHandler(this.mnuRestore_Click);
 			// 
 			// mnuRestoreSep
 			// 
 			this.mnuRestoreSep.Name = "mnuRestoreSep";
-			this.mnuRestoreSep.Size = new System.Drawing.Size(249, 6);
+			this.mnuRestoreSep.Size = new System.Drawing.Size(242, 6);
 			// 
 			// mnuExit
 			// 
 			this.mnuExit.Image = global::Eddie.Forms.Properties.Resources.exit;
 			this.mnuExit.Name = "mnuExit";
-			this.mnuExit.Size = new System.Drawing.Size(252, 26);
+			this.mnuExit.Size = new System.Drawing.Size(245, 26);
 			this.mnuExit.Text = "E&xit";
 			this.mnuExit.Click += new System.EventHandler(this.mnuExit_Click);
 			// 
@@ -788,23 +721,6 @@ namespace Eddie.Forms.Forms
 			this.cmdLogsSupport.UseVisualStyleBackColor = true;
 			this.cmdLogsSupport.Click += new System.EventHandler(this.cmdLogsSupport_Click);
 			// 
-			// cmdLogsOpenVpnManagement
-			// 
-			this.cmdLogsOpenVpnManagement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdLogsOpenVpnManagement.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdLogsOpenVpnManagement.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdLogsOpenVpnManagement.FlatAppearance.BorderSize = 0;
-			this.cmdLogsOpenVpnManagement.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdLogsOpenVpnManagement.Image = global::Eddie.Forms.Properties.Resources.execute;
-			this.cmdLogsOpenVpnManagement.Location = new System.Drawing.Point(694, 298);
-			this.cmdLogsOpenVpnManagement.Margin = new System.Windows.Forms.Padding(2);
-			this.cmdLogsOpenVpnManagement.Name = "cmdLogsOpenVpnManagement";
-			this.cmdLogsOpenVpnManagement.Size = new System.Drawing.Size(28, 28);
-			this.cmdLogsOpenVpnManagement.TabIndex = 50;
-			this.cmdLogsOpenVpnManagement.UseVisualStyleBackColor = true;
-			this.cmdLogsOpenVpnManagement.Click += new System.EventHandler(this.cmdLogsOpenVpnManagement_Click);
-			// 
 			// cmdLogsClean
 			// 
 			this.cmdLogsClean.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -1094,7 +1010,7 @@ namespace Eddie.Forms.Forms
 			this.pnlConnected.Controls.Add(this.lblConnectedTo);
 			this.pnlConnected.Controls.Add(this.lblConnectedServerName);
 			this.pnlConnected.Controls.Add(this.lblConnectedCountry);
-			this.pnlConnected.Location = new System.Drawing.Point(162, 12);
+			this.pnlConnected.Location = new System.Drawing.Point(382, 261);
 			this.pnlConnected.Name = "pnlConnected";
 			this.pnlConnected.Size = new System.Drawing.Size(470, 218);
 			this.pnlConnected.TabIndex = 66;
@@ -1261,7 +1177,7 @@ namespace Eddie.Forms.Forms
 			// cboKey
 			// 
 			this.cboKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboKey.Location = new System.Drawing.Point(169, 80);
+			this.cboKey.Location = new System.Drawing.Point(169, 86);
 			this.cboKey.Name = "cboKey";
 			this.cboKey.Size = new System.Drawing.Size(190, 21);
 			this.cboKey.TabIndex = 75;
@@ -1271,7 +1187,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblKey.BackColor = System.Drawing.Color.Transparent;
 			this.lblKey.ForeColor = System.Drawing.Color.Black;
-			this.lblKey.Location = new System.Drawing.Point(89, 82);
+			this.lblKey.Location = new System.Drawing.Point(89, 88);
 			this.lblKey.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lblKey.Name = "lblKey";
 			this.lblKey.Size = new System.Drawing.Size(76, 20);
@@ -1386,7 +1302,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkRemember.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkRemember.AutoSize = true;
-			this.chkRemember.Location = new System.Drawing.Point(282, 57);
+			this.chkRemember.Location = new System.Drawing.Point(282, 60);
 			this.chkRemember.Margin = new System.Windows.Forms.Padding(2);
 			this.chkRemember.Name = "chkRemember";
 			this.chkRemember.Size = new System.Drawing.Size(77, 17);
@@ -1781,9 +1697,8 @@ namespace Eddie.Forms.Forms
 			// tabLogs
 			// 
 			this.tabLogs.BackColor = System.Drawing.Color.Transparent;
-			this.tabLogs.Controls.Add(this.txtCommand);
+			this.tabLogs.Controls.Add(this.cmdLogsCommand);
 			this.tabLogs.Controls.Add(this.cmdLogsSupport);
-			this.tabLogs.Controls.Add(this.cmdLogsOpenVpnManagement);
 			this.tabLogs.Controls.Add(this.lstLogs);
 			this.tabLogs.Controls.Add(this.cmdLogsClean);
 			this.tabLogs.Controls.Add(this.cmdLogsCopy);
@@ -1795,15 +1710,22 @@ namespace Eddie.Forms.Forms
 			this.tabLogs.TabIndex = 3;
 			this.tabLogs.Text = "Logs";
 			// 
-			// txtCommand
+			// cmdLogsCommand
 			// 
-			this.txtCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtCommand.Location = new System.Drawing.Point(4, 305);
-			this.txtCommand.Name = "txtCommand";
-			this.txtCommand.Size = new System.Drawing.Size(687, 20);
-			this.txtCommand.TabIndex = 52;
-			this.txtCommand.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtCommand_KeyUp);
+			this.cmdLogsCommand.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdLogsCommand.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdLogsCommand.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdLogsCommand.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdLogsCommand.FlatAppearance.BorderSize = 0;
+			this.cmdLogsCommand.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdLogsCommand.Image = global::Eddie.Forms.Properties.Resources.command;
+			this.cmdLogsCommand.Location = new System.Drawing.Point(695, 300);
+			this.cmdLogsCommand.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsCommand.Name = "cmdLogsCommand";
+			this.cmdLogsCommand.Size = new System.Drawing.Size(28, 28);
+			this.cmdLogsCommand.TabIndex = 53;
+			this.cmdLogsCommand.UseVisualStyleBackColor = true;
+			this.cmdLogsCommand.Click += new System.EventHandler(this.cmdLogsCommand_Click);
 			// 
 			// lstLogs
 			// 
@@ -1825,7 +1747,7 @@ namespace Eddie.Forms.Forms
 			this.lstLogs.Name = "lstLogs";
 			this.lstLogs.OwnerDraw = true;
 			this.lstLogs.ShowItemToolTips = true;
-			this.lstLogs.Size = new System.Drawing.Size(687, 298);
+			this.lstLogs.Size = new System.Drawing.Size(687, 324);
 			this.lstLogs.TabIndex = 49;
 			this.lstLogs.UseCompatibleStateImageBehavior = false;
 			this.lstLogs.View = System.Windows.Forms.View.Details;
@@ -1838,7 +1760,6 @@ namespace Eddie.Forms.Forms
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
 			this.ClientSize = new System.Drawing.Size(738, 359);
 			this.Controls.Add(this.tabMain);
-			this.DoubleBuffered = true;
 			this.Margin = new System.Windows.Forms.Padding(2);
 			this.Name = "Main";
 			this.Text = "AirVPN";
@@ -1858,7 +1779,6 @@ namespace Eddie.Forms.Forms
 			this.tabSpeed.ResumeLayout(false);
 			this.tabStats.ResumeLayout(false);
 			this.tabLogs.ResumeLayout(false);
-			this.tabLogs.PerformLayout();
 			this.ResumeLayout(false);
 
         }
@@ -1873,11 +1793,8 @@ namespace Eddie.Forms.Forms
         private System.Windows.Forms.ToolStripSeparator mnuSeparator1;
         private System.Windows.Forms.ToolStripMenuItem mnuPorts;
         private System.Windows.Forms.ToolStripMenuItem mnuUser;
-		private System.Windows.Forms.ToolStripMenuItem mnuSpeedTest;
         public System.Windows.Forms.ImageList imgCountries;
         private System.Windows.Forms.ToolStripMenuItem mnuAbout;
-		private System.Windows.Forms.ToolStripMenuItem mnuDevelopers;
-        private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManText;
 		private Skin.Panel pnlWelcome;
 		private Skin.Label lblPassword;
 		private Skin.Label lblLogin;
@@ -1886,9 +1803,6 @@ namespace Eddie.Forms.Forms
 		public Skin.TextBox txtLogin;
 		private Skin.Button cmdCancel;
 		private Skin.Button cmdConnect;
-		private System.Windows.Forms.ToolStripMenuItem mnuTools;
-		private System.Windows.Forms.ToolStripMenuItem mnuToolsPortForwarding;
-		private System.Windows.Forms.ToolStripMenuItem mnuToolsNetworkMonitor;
 		private Skin.TabControl tabMain;
 		private Skin.TabPage tabServers;
 		private Skin.ComboBox cboScoreType;
@@ -1901,7 +1815,6 @@ namespace Eddie.Forms.Forms
 		private Skin.TabPage tabStats;
 		private Skin.ListView lstStats;
 		private Skin.TabPage tabLogs;
-		private Skin.Button cmdLogsOpenVpnManagement;
 		private Skin.ListView lstLogs;
 		private Skin.Button cmdLogsClean;
 		private Skin.Button cmdLogsCopy;
@@ -1944,7 +1857,6 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblConnectedServerName;
 		private Skin.Label lblConnectedCountry;
 		private Skin.Label imgLockedNetwork;
-		private System.Windows.Forms.ToolStripMenuItem mnuDevelopersManBBCode;
 		private System.Windows.Forms.Label lblLoginIcon;
 		private System.Windows.Forms.ToolStripMenuItem mnuStatus;
 		private System.Windows.Forms.ToolStripMenuItem mnuConnect;
@@ -1956,7 +1868,6 @@ namespace Eddie.Forms.Forms
 		private Skin.Button cmdServersRefresh;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem mnuServersRefresh;
-		private System.Windows.Forms.TextBox txtCommand;
         private System.Windows.Forms.ComboBox cboKey;
         private Skin.Label lblKey;
         private Skin.TabPage tabCountries;
@@ -1981,6 +1892,7 @@ namespace Eddie.Forms.Forms
 		private System.Windows.Forms.ColumnHeader colProviderPath;
 		private System.Windows.Forms.ImageList imgProviders;
 		private System.Windows.Forms.ColumnHeader colProviderProvider;
+		private Skin.Button cmdLogsCommand;
 	}
 }
 

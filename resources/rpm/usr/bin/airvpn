@@ -1,3 +1,3 @@
 #!/bin/bash
-mono /usr/{@lib}/AirVPN/AirVPN.exe --path=$HOME/.airvpn "$@"
+mono /usr/{@lib}/AirVPN/AirVPN.exe --path=$HOME/.airvpn --path.resources=/usr/share/AirVPN "$@"
 

@@ -258,18 +258,13 @@
 
 Section "Uninstall"
 
-	; Cancellazione files & directories
-	; Non usare assolutamente  "RMDir "$INSTDIR" /R", se installo il software in C:\ e lo disinstallo piallerebbe tutto C:\ !!!
-	; RMDir "$INSTDIR"
-	
 	{@files_delete}
 		
 	; Cancellazione files di installazione
 	Delete "$INSTDIR\Uninstall.exe"	
 			
 	;Delete empty program directories
-	;Qui c'è questo loop e non un semplice  "RMDir "$INSTDIR"" perchè se uno specifica C:\Programmi\Foo\AirVPN, il setup
-	;deve rimuovere anche la directory Foo se non ci sono altre sottodirectory diverse da AirVPN.
+	;Loop because if someone specify C:\Program Files\Foo\Eddie, also Foo need to be removed if empty.
 	StrCpy $MUI_TEMP "$INSTDIR"
 	
 	programDeleteLoop:
@@ -284,12 +279,11 @@ Section "Uninstall"
 		
 	programDeleteLoopDone:  
 	
-	; Rimozione dal menù di start
+	; Delete from Start Menu
     
 	!insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
 	
 	Delete "$SMPROGRAMS\$MUI_TEMP\AirVPN.lnk"
-	Delete "$SMPROGRAMS\$MUI_TEMP\Osiris Home page.lnk"
 	Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall.lnk"
 	
 	

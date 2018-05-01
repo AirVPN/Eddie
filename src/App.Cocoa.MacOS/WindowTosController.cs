@@ -23,7 +23,7 @@ using System.Linq;
 //using AppKit;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -72,7 +72,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsTosTitle;
 
-			TxtTos.Value = Core.UI.Actions.GetTos();
+			TxtTos.Value = Core.UI.App.GetTos();
 			ChkTos1.Title = Messages.WindowsTosCheck1;
 			ChkTos2.Title = Messages.WindowsTosCheck2;
 			CmdAccept.Title = Messages.WindowsTosAccept;

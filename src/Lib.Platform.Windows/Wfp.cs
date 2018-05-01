@@ -28,7 +28,7 @@ using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using System.Threading;
-using Eddie.Lib.Common;
+using Eddie.Common;
 using Eddie.Core;
 using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
@@ -51,7 +51,7 @@ namespace Eddie.Platform.Windows
 
 		public static void Start()
 		{
-			Native.LibPocketFirewallInit(GetName());
+			NativeMethods.WfpInit(GetName());
 
 			XmlDocument xmlStart = new XmlDocument();
 			XmlElement xmlInfo = xmlStart.CreateElement("firewall");
@@ -59,13 +59,13 @@ namespace Eddie.Platform.Windows
 			xmlInfo.SetAttribute("weight", "max");
 			xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");
 
-			if (Native.LibPocketFirewallStart(xmlInfo.OuterXml) == false)
-				throw new Exception(MessagesFormatter.Format(Messages.WfpStartFail, Native.LibPocketFirewallGetLastError2()));
+			if (NativeMethods.WfpStart(xmlInfo.OuterXml) == false)
+				throw new Exception(MessagesFormatter.Format(Messages.WfpStartFail, NativeMethods.WfpGetLastError()));
 		}
 
 		public static void Stop()
 		{
-			Native.LibPocketFirewallStop();
+			NativeMethods.WfpStop();
 		}
 
 		public static bool RemoveItem(string code)
@@ -89,7 +89,7 @@ namespace Eddie.Platform.Windows
 				{
 					bool result = RemoveItemId(id);
 					if (result == false)
-						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleRemoveFail, Native.LibPocketFirewallGetLastError2()));
+						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleRemoveFail, NativeMethods.WfpGetLastError()));
 				}
 
 				Items.Remove(item.Code);
@@ -105,7 +105,7 @@ namespace Eddie.Platform.Windows
 
 		public static bool RemoveItemId(ulong id)
 		{
-			return Native.LibPocketFirewallRemoveRule(id);
+			return NativeMethods.WfpRuleRemove(id);
 		}
 
 		public static WfpItem AddItem(string code, XmlElement xml)
@@ -129,6 +129,16 @@ namespace Eddie.Platform.Windows
 					layers.Add("ale_flow_established_v4");
 					layers.Add("ale_flow_established_v6");
 				}
+				else if (xml.GetAttribute("layer") == "all-in")
+				{
+					layers.Add("ale_auth_recv_accept_v4");
+					layers.Add("ale_auth_recv_accept_v6");					
+				}
+				else if (xml.GetAttribute("layer") == "all-out")
+				{
+					layers.Add("ale_auth_connect_v4");
+					layers.Add("ale_auth_connect_v6");
+				}
 				else if (xml.GetAttribute("layer") == "ipv4")
 				{
 					layers.Add("ale_auth_recv_accept_v4");
@@ -140,6 +150,22 @@ namespace Eddie.Platform.Windows
 					layers.Add("ale_auth_recv_accept_v6");
 					layers.Add("ale_auth_connect_v6");
 					layers.Add("ale_flow_established_v6");
+				}
+				else if (xml.GetAttribute("layer") == "ipv4-in")
+				{
+					layers.Add("ale_auth_recv_accept_v4");					
+				}
+				else if (xml.GetAttribute("layer") == "ipv6-in")
+				{
+					layers.Add("ale_auth_recv_accept_v6");					
+				}
+				else if (xml.GetAttribute("layer") == "ipv4-out")
+				{
+					layers.Add("ale_auth_connect_v4");
+				}
+				else if (xml.GetAttribute("layer") == "ipv6-out")
+				{
+					layers.Add("ale_auth_connect_v6");
 				}
 				else
 					layers.Add(xml.GetAttribute("layer"));
@@ -155,11 +181,11 @@ namespace Eddie.Platform.Windows
 					xmlClone.SetAttribute("layer", layer);
 					string xmlStr = xmlClone.OuterXml;
 
-					UInt64 id1 = Native.LibPocketFirewallAddRule(xmlStr);
+					UInt64 id1 = NativeMethods.WfpRuleAdd(xmlStr);
 
 					if (id1 == 0)
 					{
-						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleAddFail, Native.LibPocketFirewallGetLastError2(), xmlStr));
+						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleAddFail, NativeMethods.WfpGetLastError(), xmlStr));
 					}
 					else
 					{
@@ -238,21 +264,23 @@ namespace Eddie.Platform.Windows
 				string wfpName = GetName();
 				string path = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".xml";
 
-				System.Diagnostics.Process p = new System.Diagnostics.Process();
-				p.StartInfo.UseShellExecute = false;
-				p.StartInfo.CreateNoWindow = true;
-				p.StartInfo.RedirectStandardOutput = true;
-				p.StartInfo.FileName = "NetSh.exe";
-				p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
-				p.StartInfo.WorkingDirectory = Path.GetTempPath();
-				p.Start();
-				p.StandardOutput.ReadToEnd();
-				p.WaitForExit();
+				using(System.Diagnostics.Process p = new System.Diagnostics.Process())
+				{
+					p.StartInfo.UseShellExecute = false;
+					p.StartInfo.CreateNoWindow = true;
+					p.StartInfo.RedirectStandardOutput = true;
+					p.StartInfo.FileName = "NetSh.exe";
+					p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
+					p.StartInfo.WorkingDirectory = Path.GetTempPath();
+					p.Start();
+					p.StandardOutput.ReadToEnd();
+					p.WaitForExit();
+				}
 
 				if (File.Exists(path))
 				{
 					System.Xml.XmlDocument xmlDoc = new XmlDocument();
-					xmlDoc.Load(path);
+					xmlDoc.Load(path);					
 					foreach (XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
 					{
 						foreach (XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
@@ -267,13 +295,13 @@ namespace Eddie.Platform.Windows
 										ulong id;
 										if (ulong.TryParse(xmlFilterId.InnerText, out id))
 										{
-											Native.LibPocketFirewallRemoveRuleDirect(id);
+											NativeMethods.WfpRuleRemoveDirect(id);
 											found = true;
 										}
 									}
 								}
 							}
-						}
+						}						
 					}
 
 					Platform.Instance.FileDelete(path);

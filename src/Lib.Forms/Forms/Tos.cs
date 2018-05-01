@@ -41,7 +41,7 @@ namespace Eddie.Forms.Forms
 
             CommonInit(Messages.WindowsTosTitle);
 
-			txtTos.Text = Core.UI.Actions.GetTos();
+			txtTos.Text = Core.UI.App.GetTos();
 			chkAccept1.Text = Messages.WindowsTosCheck1;
 			chkAccept2.Text = Messages.WindowsTosCheck2;
 			cmdOk.Text = Messages.WindowsTosAccept;

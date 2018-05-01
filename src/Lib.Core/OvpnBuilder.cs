@@ -1,4 +1,4 @@
-﻿﻿// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -34,30 +34,6 @@ namespace Eddie.Core
 		}
 
 		public Dictionary<string, List<Directive>> Directives = new Dictionary<string, List<Directive>>();
-				
-		public TemporaryFile FilePasswordAuth;
-		public TemporaryFile FileProxyAuth;
-
-		// Special values. This values can vary based on ovpn connection, but in some circumstances (SSH, SSL) need to be fixed before the connection.
-		private string m_protocol = "";
-		public IpAddress Address;
-		public int Port = 0;
-		public int ProxyPort = 0; // Port need to be used by SSH/SSL 
-
-		public string Protocol
-		{
-			get
-			{
-				if (m_protocol != "")
-					return m_protocol;
-				else
-					return GetOneDirectiveText("proto").ToUpperInvariant();
-			}
-			set
-			{
-				m_protocol = value;
-			}
-		}
 
 		public bool IsMultipleDirective(string name)
 		{
@@ -70,7 +46,7 @@ namespace Eddie.Core
 				(name == "plugin") ||
 				(name == "x509-track") ||
 				(name == "http-proxy-option") ||
-				(name == "pull-filter") ||				
+				(name == "pull-filter") ||
 				(name == "ignore-unknown-option")
 			  )
 				return true;
@@ -78,37 +54,37 @@ namespace Eddie.Core
 			return false;
 		}
 
-        public static int DirectiveOrder(string name)
-        {
-            // Some directive, for example 'max-routes', must be before the other 'route' directives.
-            // Some ordering it's only for readability.
+		public static int DirectiveOrder(string name)
+		{
+			// Some directive, for example 'max-routes', must be before the other 'route' directives.
+			// Some ordering it's only for readability.
 
-            if (name == "dev")
-                return 0;
-            else if (name == "proto")
-                return 1;
-            else if (name == "remote")
-                return 2;
-            else if (name == "max-routes")
-                return 100;
-            else if (name == "ca")
-                return 10000;
-            else if (name == "cert")
-                return 10001;
-            else if (name == "key")
-                return 10001;
-            else if (name.StartsWith("<"))
-                return 10010;
-            else
-                return 1000;
-        }
+			if (name == "dev")
+				return 0;
+			else if (name == "proto")
+				return 1;
+			else if (name == "remote")
+				return 2;
+			else if (name == "max-routes")
+				return 100;
+			else if (name == "ca")
+				return 10000;
+			else if (name == "cert")
+				return 10001;
+			else if (name == "key")
+				return 10001;
+			else if (name.StartsWith("<"))
+				return 10010;
+			else
+				return 1000;
+		}
 
-        public static int CompareDirectiveOrder(string d1, string d2)
-        {
-            int w1 = DirectiveOrder(d1);
-            int w2 = DirectiveOrder(d2);
-            return w1.CompareTo(w2);
-        }
+		public static int CompareDirectiveOrder(string d1, string d2)
+		{
+			int w1 = DirectiveOrder(d1);
+			int w2 = DirectiveOrder(d2);
+			return w1.CompareTo(w2);
+		}
 
 		public OvpnBuilder Clone()
 		{
@@ -116,7 +92,7 @@ namespace Eddie.Core
 			OvpnBuilder n = new OvpnBuilder();
 			foreach (KeyValuePair<string, List<Directive>> kp in Directives)
 			{
-				foreach(Directive d in kp.Value)
+				foreach (Directive d in kp.Value)
 				{
 					n.AppendDirective(kp.Key, d.Text, d.Comment);
 				}
@@ -124,40 +100,43 @@ namespace Eddie.Core
 			return n;
 		}
 
-        public string Get()
+		public string Get()
 		{
 			string result = "";
 
 			DateTime now = DateTime.UtcNow;
 
 			result += "# " + Engine.Instance.GenerateFileHeader() + " - " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC\n";
-			
-            // Obtain directive key list
-            List<string> directives = new List<string>();
-            foreach (KeyValuePair<string, List<Directive>> kp in Directives)
-            {
-                directives.Add(kp.Key);
-            }
 
-            // Sorting
-            directives.Sort(CompareDirectiveOrder);
-
-            foreach (string directiveKey in directives)                
+			// Obtain directive key list
+			List<string> directives = new List<string>();
+			foreach (KeyValuePair<string, List<Directive>> kp in Directives)
 			{
-                List<Directive> directivesKey = Directives[directiveKey];
+				directives.Add(kp.Key);
+			}
+
+			// Sorting
+			directives.Sort(CompareDirectiveOrder);
+
+			foreach (string directiveKey in directives)
+			{
+				List<Directive> directivesKey = Directives[directiveKey];
 				foreach (Directive value in directivesKey)
 				{
-                    if (directiveKey.StartsWith("<"))
-                    {
-                        result += directiveKey + "\n" + value.Text.Trim() + "\n" + directiveKey.Replace("<", "</");
-                    }
-                    else
-                    {
-                        result += directiveKey + " " + value.Text.Trim();
-                    }
-                    if(value.Comment != "")
-                        result += " # " + value.Comment;
-                    result += "\n";
+					if (directiveKey.StartsWith("<"))
+					{
+						result += directiveKey + "\n" + value.Text.Trim() + "\n" + directiveKey.Replace("<", "</");
+					}
+					else
+					{
+						if (value.Text.Trim() != "")
+							result += directiveKey + " " + value.Text.Trim();
+						else
+							result += directiveKey;
+					}
+					if (value.Comment != "")
+						result += " # " + value.Comment;
+					result += "\n";
 				}
 			}
 
@@ -177,9 +156,9 @@ namespace Eddie.Core
 			}
 
 			// Exception: If start with -, remove.
-			if(name.StartsWith("-"))
+			if (name.StartsWith("-"))
 			{
-				if(Directives.ContainsKey(name.Substring(1)))
+				if (Directives.ContainsKey(name.Substring(1)))
 					Directives.Remove(name.Substring(1));
 			}
 			else
@@ -191,10 +170,10 @@ namespace Eddie.Core
 			}
 		}
 
-        public bool ExistsDirective(string name)
-        {
-            return Directives.ContainsKey(name);
-        }
+		public bool ExistsDirective(string name)
+		{
+			return Directives.ContainsKey(name);
+		}
 
 		public void RemoveDirective(string name)
 		{
@@ -210,6 +189,15 @@ namespace Eddie.Core
 				return Directives[name];
 		}
 
+		public Directive GetOneDirective(string name)
+		{
+			if (Directives.ContainsKey(name) == false)
+				return null;
+			if (Directives[name].Count == 0)
+				return null;
+			return Directives[name][0];
+		}
+
 		public string GetOneDirectiveText(string name)
 		{
 			if (Directives.ContainsKey(name) == false)
@@ -219,20 +207,21 @@ namespace Eddie.Core
 			return Directives[name][0].Text;
 		}
 
-        public void AppendDirectives(string directives, string comment)
+		public void AppendDirectives(string directives, string comment)
 		{
 			string text = directives;
 
 			// Cleaning			
-			text = "\n" + directives.Replace("\r","\n") + "\n";
-						
+			text = "\n" + directives.Replace("\r", "\n") + "\n";
+
 			for (; ; )
 			{
 				string originalText = text;
-				
+
 				text = text.Replace("\n\n", "\n");
 				text = text.Replace("  ", " ");
 				text = text.Replace("\t", " ");
+				text = text.Replace("\u2028", "\n"); // macOS Hack  // TOCLEAN
 
 				int posComment1 = text.IndexOf("#");
 				if (posComment1 != -1)
@@ -241,12 +230,14 @@ namespace Eddie.Core
 					text = text.Substring(0, posComment1) + text.Substring(posEndOfLine);
 				}
 
+				/* Removed in 2.14.3
 				int posComment2 = text.IndexOf("\n;");
 				if (posComment2 != -1)
 				{
 					int posEndOfLine = text.IndexOf("\n", posComment2);
 					text = text.Substring(0, posComment2) + text.Substring(posEndOfLine);
 				}
+				*/
 
 				if (text == originalText)
 					break;
@@ -271,13 +262,43 @@ namespace Eddie.Core
 					directiveName = text.Substring(0, posEndStartTag + 1);
 					string endTag = directiveName.Replace("<", "</");
 					int posEndTag = text.IndexOf(endTag);
-					if(posEndTag == -1)
+					if (posEndTag == -1)
 						throw new Exception("Syntax error"); // TOTRANSLATE
 					directiveBody = text.Substring(posEndStartTag + 1, posEndTag - posEndStartTag - 1);
 					text = text.Substring(posEndTag + endTag.Length);
 				}
 				else
 				{
+					int posEndLine = text.IndexOf("\n");
+
+					// v2
+					string textL = "";
+					if (posEndLine == -1)
+					{
+						textL = text;
+						text = "";
+					}
+					else
+					{
+						textL = text.Substring(0, posEndLine);
+						text = text.Substring(posEndLine + 1);
+					}
+
+					if (textL.StartsWith(";"))
+						continue;
+
+					int posSpace = textL.IndexOf(" ");
+					if (posSpace == -1)
+					{
+						directiveName = textL;
+						directiveBody = "";
+					}
+					else
+					{
+						directiveName = textL.Substring(0, posSpace);
+						directiveBody = textL.Substring(posSpace + 1);
+					}
+					/*
 					int posSpace = text.IndexOf(" ");
 					int posEndLine = text.IndexOf("\n");
 					if (posSpace == -1)
@@ -307,6 +328,7 @@ namespace Eddie.Core
 							text = text.Substring(posEndLine);
 						}
 					}
+					*/
 				}
 
 				AppendDirective(directiveName.Trim(), directiveBody.Trim(), comment);
@@ -336,33 +358,33 @@ namespace Eddie.Core
 		{
 			IpAddresses result = new IpAddresses();
 			List<Directive> directives = GetDirectiveList("dhcp-option");
-			if(directives != null)
+			if (directives != null)
 			{
-				foreach(Directive d in directives)
+				foreach (Directive d in directives)
 				{
 					string[] fields = d.Text.Split(' ');
 					if (fields.Length != 2)
 						continue;
-					if (fields[0] == "DNS") 
+					if (fields[0] == "DNS")
 						result.Add(fields[1]);
 					if (fields[0] == "DNS6")
-						result.Add(fields[1]);					
+						result.Add(fields[1]);
 				}
 			}
-			
+
 			return result;
 		}
 
 		public IpAddresses ExtractGateway()
 		{
 			IpAddresses result = new IpAddresses();
-			if(ExistsDirective("route-gateway"))
+			if (ExistsDirective("route-gateway"))
 			{
 				string ip = GetOneDirectiveText("route-gateway");
-				result.Add(ip);				
+				result.Add(ip);
 			}
 
-			if(ExistsDirective("ifconfig-ipv6"))
+			if (ExistsDirective("ifconfig-ipv6"))
 			{
 				string[] fields = GetOneDirectiveText("ifconfig-ipv6").Split(' ');
 				if (fields.Length == 2)
@@ -376,45 +398,36 @@ namespace Eddie.Core
 		{
 			return GetOneDirectiveText("cipher");
 		}
-
-		public void SetAuthUserPass(string username, string password)
-		{
-			if(FilePasswordAuth != null)
-			{
-				FilePasswordAuth.Close();
-				FilePasswordAuth = null;
-			}
-
-			FilePasswordAuth = new TemporaryFile("ppw");
-			string fileNameAuthOvpn = FilePasswordAuth.Path.Replace("\\", "\\\\");
-			string fileNameData = username + "\n" + password + "\n";
-
-			Platform.Instance.FileContentsWriteText(FilePasswordAuth.Path, fileNameData);
-			// Platform.Instance.FileEnsurePermission(FilePasswordAuth.Path, "644"); // TOFIX, macOS with custom .ovpn throw a warning about file permissions
-
-			AppendDirective("auth-user-pass", "\"" + fileNameAuthOvpn + "\"", "Auth");
-		}
-
+		
 		// Normalize path if relative
 		public void NormalizeRelativePath(string path)
 		{
 			// NB: Assume that path it's the first field of directive body.
+			NormalizeRelativePathDirective("auth-user-pass", path);
 			NormalizeRelativePathDirective("ca", path);
 			NormalizeRelativePathDirective("cert", path);
+			NormalizeRelativePathDirective("crl-verify", path);
+			NormalizeRelativePathDirective("dh", path);
+			NormalizeRelativePathDirective("extra-certs", path);
+			NormalizeRelativePathDirective("http-proxy-user-pass", path);
 			NormalizeRelativePathDirective("key", path);
+			NormalizeRelativePathDirective("pkcs12", path);
+			NormalizeRelativePathDirective("secret", path);
 			NormalizeRelativePathDirective("tls-auth", path);
 			NormalizeRelativePathDirective("tls-crypt", path);
 		}
 
 		public void NormalizeRelativePathDirective(string name, string basePath)
-		{			
+		{
 			List<Directive> list = GetDirectiveList(name);
 			if (list != null)
 			{
 				foreach (Directive d in list)
 				{
-					string body = d.Text;
-					List<string> fields = Utils.StringToList(body, " ");
+					string body = d.Text.Trim();
+					if (body == "")
+						continue;
+					List<string> fields = UtilsString.StringToList(body, " ");
 					if (fields.Count < 1)
 						return;
 					string path = fields[0];
@@ -422,7 +435,7 @@ namespace Eddie.Core
 					if ((path.StartsWith("\"")) && (path.EndsWith("\"")))
 						path = path.Substring(1, path.Length - 2);
 					path = Platform.Instance.FileGetAbsolutePath(path, basePath);
-					d.Text = "\"" + path.Replace("\\","\\\\") + "\" " + String.Join(" ", fields.ToArray());
+					d.Text = EncodePath(path) + " " + String.Join(" ", fields.ToArray());
 					d.Text = d.Text.Trim();
 				}
 			}
@@ -430,21 +443,28 @@ namespace Eddie.Core
 
 		// Apply some fixes
 		public void Normalize()
-        {
-            // TOOPTIMIZE: Currently Eddie don't work well with verb>3
-            AppendDirective("verb", "3", "");
+		{
+			// TOOPTIMIZE: Currently Eddie don't work well with verb>3
+			AppendDirective("verb", "3", "");
 
-            // Eddie have it's own Lock DNS (based on WFP, same as block-outside-dns)
-            if (ExistsDirective("block-outside-dns"))
-                RemoveDirective("block-outside-dns");
+			// Eddie have it's own Lock DNS (based on WFP, same as block-outside-dns)
+			if (ExistsDirective("block-outside-dns"))
+				RemoveDirective("block-outside-dns");
 
-            // explicit-exit-notify works only with udp
-            if (GetOneDirectiveText("proto").ToLowerInvariant().StartsWith("udp", StringComparison.InvariantCulture) == false)
-                RemoveDirective("explicit-exit-notify");
+			// explicit-exit-notify works only with udp
+			if (GetOneDirectiveText("proto").ToLowerInvariant().StartsWith("udp", StringComparison.InvariantCulture) == false)
+				RemoveDirective("explicit-exit-notify");
+
+			// If exists "keepalive", don't use any ping-* directives
+			if (ExistsDirective("keepalive"))
+			{
+				RemoveDirective("ping");
+				RemoveDirective("ping-exit");
+				RemoveDirective("ping-restart");
+			}
 
 			// OpenVPN < 2.4 allows 100 route directives max by default.
 			// Since Eddie can't know here how many routes are pulled from an OpenVPN server, it uses some tolerance. In any case manual setting is possible.
-
 			if (Software.GetTool("openvpn").VersionUnder("2.4")) // max-routes is deprecated in 2.4
 			{
 				if (ExistsDirective("max-routes") == false) // Only if not manually specified
@@ -459,21 +479,13 @@ namespace Eddie.Core
 					}
 				}
 			}
-        }
+		}
 
-		public void Close()
+		// Utils
+		public string EncodePath(string path)
 		{
-			if(FilePasswordAuth != null)
-			{
-				FilePasswordAuth.Close();
-				FilePasswordAuth = null;
-			}
-
-			if (FileProxyAuth != null)
-			{
-				FileProxyAuth.Close();
-				FileProxyAuth = null;
-			}
+			path = path.Replace("\\", "\\\\"); // Escaping for Windows
+			return "\"" + path + "\"";
 		}
 	}
 }

@@ -22,14 +22,12 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
+// If errors occur here, probably Xamarin update cause trouble. Remove Xamarin.Mac reference and re-add by browsing to path
+// /Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/Xamarin.Mac.dll
 using AppKit;
 using Foundation;
-
-//using AppKit;
-//using Foundation;
-//using Mono.Unix;
 
 namespace Eddie.Platform.MacOS
 {
@@ -84,52 +82,22 @@ namespace Eddie.Platform.MacOS
 			m_version = SystemShell.Shell("/usr/bin/uname", new string[] { "-a" }).Trim();
 			m_architecture = NormalizeArchitecture(SystemShell.Shell("/usr/bin/uname", new string[] { "-m" }).Trim());
 
-
-			Native.eddie_signal((int)Native.Signum.SIGINT, SignalCallback);
-			Native.eddie_signal((int)Native.Signum.SIGTERM, SignalCallback);
-			Native.eddie_signal((int)Native.Signum.SIGUSR1, SignalCallback);
-			Native.eddie_signal((int)Native.Signum.SIGUSR2, SignalCallback);
-
-			/*
-			System.Threading.Thread signalThread = new System.Threading.Thread(delegate ()
-			{
-				for (;;)
-				{
-					if (Engine.Instance.CancelRequested)
-						break;
-
-					int index = UnixSignal.WaitAny(m_signals, 1000);
-
-					if (index < m_signals.Length)
-					{
-						Mono.Unix.Native.Signum signal = m_signals[index].Signum;
-						if (signal == Mono.Unix.Native.Signum.SIGTERM)
-							Engine.Instance.OnSignal("SIGTERM");
-						else if (signal == Mono.Unix.Native.Signum.SIGINT)
-							Engine.Instance.OnSignal("SIGINT");
-						else if (signal == Mono.Unix.Native.Signum.SIGUSR1)
-							Engine.Instance.OnSignal("SIGUSR1");
-						else if (signal == Mono.Unix.Native.Signum.SIGUSR2)
-							Engine.Instance.OnSignal("SIGUSR2");
-					}
-				}
-			});
-			signalThread.Start();
-			*/
-
-
+			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
+			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
+			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
+			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
 		}
 
 		private static void SignalCallback(int signum)
 		{
-			Native.Signum sig = (Native.Signum)signum;
-			if (sig == Native.Signum.SIGINT)
+			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
+			if (sig == NativeMethods.Signum.SIGINT)
 				Engine.Instance.OnSignal("SIGINT");
-			else if (sig == Native.Signum.SIGTERM)
+			else if (sig == NativeMethods.Signum.SIGTERM)
 				Engine.Instance.OnSignal("SIGTERM");
-			else if (sig == Native.Signum.SIGUSR1)
+			else if (sig == NativeMethods.Signum.SIGUSR1)
 				Engine.Instance.OnSignal("SIGUSR1");
-			else if (sig == Native.Signum.SIGUSR2)
+			else if (sig == NativeMethods.Signum.SIGUSR2)
 				Engine.Instance.OnSignal("SIGUSR2");
 		}
 
@@ -147,7 +115,7 @@ namespace Eddie.Platform.MacOS
 		public override bool IsAdmin()
 		{
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
-			string u = SystemShell.Shell("/usr/bin/whoami", new string[] { }).ToLowerInvariant().Trim();
+			string u = SystemShell.Shell(LocateExecutable("whoami"), new string[] { }).ToLowerInvariant().Trim();
 			//return true; // Uncomment for debugging
 			return (u == "root");
 		}
@@ -173,9 +141,9 @@ namespace Eddie.Platform.MacOS
 			}
 		}
 
-		public override bool NativeTest()
+		public override bool NativeInit()
 		{
-			return (Native.eddie_test_native() == 3);
+			return (NativeMethods.eddie_init() == 0);
 		}
 
 		public override bool FileImmutableGet(string path)
@@ -183,7 +151,7 @@ namespace Eddie.Platform.MacOS
 			if ((path == "") || (FileExists(path) == false))
 				return false;
 
-			int result = Native.eddie_file_get_immutable(path);
+			int result = NativeMethods.eddie_file_get_immutable(path);
 			return (result == 1);
 		}
 
@@ -195,7 +163,7 @@ namespace Eddie.Platform.MacOS
 			if (FileImmutableGet(path) == value)
 				return;
 
-			Native.eddie_file_set_immutable(path, value ? 1 : 0);
+			NativeMethods.eddie_file_set_immutable(path, value ? 1 : 0);
 		}
 
 		public override bool FileEnsurePermission(string path, string mode)
@@ -203,7 +171,7 @@ namespace Eddie.Platform.MacOS
 			if ((path == "") || (Platform.Instance.FileExists(path) == false))
 				return false;
 
-			int result = Native.eddie_file_get_mode(path);
+			int result = NativeMethods.eddie_file_get_mode(path);
 			if (result == -1)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect permissions on '" + path + "'.");
@@ -211,9 +179,9 @@ namespace Eddie.Platform.MacOS
 			}
 			int newResult = 0;
 			if (mode == "600")
-				newResult = (int)Native.FileMode.Mode0600;
+				newResult = (int)NativeMethods.FileMode.Mode0600;
 			else if (mode == "644")
-				newResult = (int)Native.FileMode.Mode0644;
+				newResult = (int)NativeMethods.FileMode.Mode0644;
 
 			if (newResult == 0)
 			{
@@ -223,7 +191,7 @@ namespace Eddie.Platform.MacOS
 
 			if (newResult != result)
 			{
-				result = Native.eddie_file_set_mode(path, newResult);
+				result = NativeMethods.eddie_file_set_mode(path, newResult);
 				if (result == -1)
 				{
 					Engine.Instance.Logs.Log(LogType.Warning, "Failed to set permissions on '" + path + "'.");
@@ -234,12 +202,18 @@ namespace Eddie.Platform.MacOS
 			return true;
 		}
 
+		public override bool FileEnsureOwner(string path)
+		{
+            SystemShell.ShellCmd("chown \"" + Environment.GetEnvironmentVariable("USER") + "\" \"" + path + "\""); 
+            return true;
+		}
+
 		public override bool FileEnsureExecutablePermission(string path)
 		{
 			if ((path == "") || (FileExists(path) == false))
 				return false;
 
-			int result = Native.eddie_file_get_mode(path);
+			int result = NativeMethods.eddie_file_get_mode(path);
 			if (result == -1)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, "Failed to detect if '" + path + "' is executable");
@@ -250,7 +224,7 @@ namespace Eddie.Platform.MacOS
 
 			if (newResult != result)
 			{
-				result = Native.eddie_file_set_mode(path, newResult);
+				result = NativeMethods.eddie_file_set_mode(path, newResult);
 				if (result == -1)
 				{
 					Engine.Instance.Logs.Log(LogType.Warning, "Failed to mark '" + path + "' as executable");
@@ -296,7 +270,7 @@ namespace Eddie.Platform.MacOS
 
 		public override bool ProcessKillSoft(Process process)
 		{
-			return (Native.eddie_kill(process.Id, (int)Native.Signum.SIGTERM) == 0);
+			return (NativeMethods.eddie_kill(process.Id, (int)NativeMethods.Signum.SIGTERM) == 0);
 		}
 
 		public override int GetRecommendedRcvBufDirective()
@@ -375,71 +349,21 @@ namespace Eddie.Platform.MacOS
 			}
 		}
 
-		public override bool SearchTool(string name, string relativePath, ref string path, ref string location)
+		public override string LocateResource(string relativePath)
 		{
-			string pathBin = "/usr/bin/" + name;
-			if (Platform.Instance.FileExists(pathBin))
-			{
-				path = pathBin;
-				location = "system";
-				return true;
-			}
-
-			string pathSBin = "/usr/sbin/" + name;
-			if (Platform.Instance.FileExists(pathSBin))
-			{
-				path = pathSBin;
-				location = "system";
-				return true;
-			}
-
-			// Look in application bundle resources
-			string resPath = NormalizePath(relativePath) + "/../Resources/" + name;
+			string resPath = NormalizePath(GetApplicationPath() + "/../Resources/" + relativePath);
 			if (File.Exists(resPath))
-			{
-				path = resPath;
-				location = "bundle";
-				return true;
-			}
+				return resPath;
 
-			return base.SearchTool(name, relativePath, ref path, ref location);
+			return base.LocateResource(relativePath);
 		}
 
-		// Encounter Mono issue about the .Net method on OS X, similar to Mono issue under Linux. Use shell instead, like Linux
 		public override long Ping(IpAddress host, int timeoutSec)
 		{
 			if ((host == null) || (host.Valid == false))
 				return -1;
 
-			return Native.eddie_ip_ping(host.ToString(), timeoutSec * 1000);
-			/* < 2.13.6 // TOCLEAN
-			// Note: Linux timeout is -w, OS X timeout is -t			
-			float iMS = -1;
-
-			string pingPath = LocateExecutable("ping");
-			if (pingPath != "")
-			{
-				SystemShell s = new SystemShell();
-				s.Path = pingPath;
-				s.Arguments.Add("-c 1");
-				s.Arguments.Add("-t " + timeoutSec.ToString());
-				s.Arguments.Add("-q");
-				s.Arguments.Add("-n");
-				s.Arguments.Add(SystemShell.EscapeHost(host));
-				s.NoDebugLog = true;
-
-				if (s.Run())
-				{
-					// Note: Linux have mdev, OS X have stddev
-					string result = s.Output;
-					string sMS = Utils.ExtractBetween(result, "min/avg/max/stddev = ", "/");
-					if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
-						iMS = -1;
-				}
-			}
-
-			return (long)iMS;
-			*/
+			return NativeMethods.eddie_ip_ping(host.ToString(), timeoutSec * 1000);
 		}
 
 		public override string GetSystemFont()
@@ -477,14 +401,77 @@ namespace Eddie.Platform.MacOS
 		{
 		}
 
-		public override void RouteAdd(RouteEntry r)
+		public override bool RouteAdd(Json jRoute)
 		{
-			base.RouteAdd(r);
+			IpAddress ip = jRoute["address"].Value as string;
+			if (ip.Valid == false)
+				return false;
+			IpAddress gateway = jRoute["gateway"].Value as string;
+			if (gateway.Valid == false)
+				return false;
+
+			SystemShell s = new SystemShell();
+			s.Path = LocateExecutable("route");
+			s.Arguments.Add("-n");
+			s.Arguments.Add("add");
+			if (ip.IsV6)
+				s.Arguments.Add("-inet6");
+			s.Arguments.Add(ip.ToCIDR());
+			s.Arguments.Add(gateway.Address);
+			s.ExceptionIfFail = true;
+			s.Run();
+
+			string result = s.StdErr.Trim();
+			if (result == "")
+			{
+				return base.RouteAdd(jRoute);
+			}
+			else
+			{
+				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteAddFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
+				return false;
+			}
 		}
 
-		public override void RouteRemove(RouteEntry r)
+		public override bool RouteRemove(Json jRoute)
 		{
-			base.RouteRemove(r);
+			IpAddress ip = jRoute["address"].Value as string;
+			if (ip.Valid == false)
+				return false;
+			IpAddress gateway = jRoute["gateway"].Value as string;
+			if (gateway.Valid == false)
+				return false;
+
+			SystemShell s = new SystemShell();
+			s.Path = LocateExecutable("route");
+			s.Arguments.Add("-n");
+			s.Arguments.Add("delete");
+			if (ip.IsV6)
+				s.Arguments.Add("-inet6");
+			s.Arguments.Add(ip.ToCIDR());
+			s.Arguments.Add(gateway.Address);
+			s.ExceptionIfFail = true;
+			s.Run();
+
+			string result = s.StdErr.Trim();
+			if (result == "")
+			{
+				return base.RouteRemove(jRoute);
+			}
+			else
+			{
+				// Remember: Route deletion can occur in a second moment (for example a Recovery phase).
+
+				// Still accepted: The device are not available anymore, so the route are already deleted.
+
+				// Still accepted: Already deleted.
+				if (result.ToLowerInvariant().Contains("not in table"))
+					return base.RouteRemove(jRoute);
+
+				// Unexpected/unknown error.
+				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteDelFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
+				return false;
+			}
 		}
 
 		public override IpAddresses ResolveDNS(string host)
@@ -508,11 +495,11 @@ namespace Eddie.Platform.MacOS
 					string hostout = s.Output;
 					foreach (string line in hostout.Split('\n'))
 					{
-						string ipv4 = Utils.RegExMatchOne(line, "^.*? has address (.*?)$");
+						string ipv4 = UtilsString.RegExMatchOne(line, "^.*? has address (.*?)$");
 						if (ipv4 != "")
 							result.Add(ipv4.Trim());
 
-						string ipv6 = Utils.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
+						string ipv6 = UtilsString.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
 						if (ipv6 != "")
 							result.Add(ipv6.Trim());
 					}
@@ -543,55 +530,6 @@ namespace Eddie.Platform.MacOS
 			return list;
 		}
 
-		public override List<RouteEntry> RouteList()
-		{
-			List<RouteEntry> entryList = new List<RouteEntry>();
-
-			string netstatPath = LocateExecutable("netstat");
-			if (netstatPath != "")
-			{
-				string result = SystemShell.Shell1(netstatPath, "-rnl");
-
-				string[] lines = result.Split('\n');
-				foreach (string line in lines)
-				{
-					if (line == "Routing tables")
-						continue;
-					if (line == "Internet:")
-						continue;
-					if (line == "Internet6:")
-						continue;
-
-					string[] fields = Utils.StringCleanSpace(line).Split(' ');
-
-					if (fields.Length == 8)
-					{
-						if (fields[0] == "Destination")
-							continue;
-
-						RouteEntry e = new RouteEntry();
-						e.Address = fields[0];
-						e.Gateway = fields[1];
-						e.Flags = fields[2];
-						// Refs
-						// Use
-						// Mtu
-						e.Interface = fields[6];
-						// Expire
-
-						if (e.Address.Valid == false)
-							continue;
-						if (e.Gateway.Valid == false)
-							continue;
-
-						entryList.Add(e);
-					}
-				}
-			}
-
-			return entryList;
-		}
-
 		public override bool RestartAsRoot()
 		{
 			string path = Platform.Instance.GetExecutablePath();
@@ -620,7 +558,6 @@ namespace Eddie.Platform.MacOS
 			base.OnReport(report);
 
 			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemShell.Shell0(LocateExecutable("ifconfig")) : "'ifconfig' " + Messages.NotFound);
-			report.Add("netstat /rnl", (LocateExecutable("netstat") != "") ? SystemShell.Shell1(LocateExecutable("netstat"), "/rnl") : "'netstat' " + Messages.NotFound);
 
 		}
 
@@ -666,15 +603,7 @@ namespace Eddie.Platform.MacOS
 			if (hostPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'host' " + Messages.NotFound);
 
-			string chmodPath = LocateExecutable("chmod");
-			if (chmodPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'chmod' " + Messages.NotFound);
-
-			string pingPath = LocateExecutable("ping");
-			if (pingPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'ping' " + Messages.NotFound);
-
-			string psPath = LocateExecutable("ps");
+            string psPath = LocateExecutable("ps");
 			if (psPath == "")
 				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + Messages.NotFound);
 
@@ -700,7 +629,7 @@ namespace Eddie.Platform.MacOS
 
 		public override void OnRecoveryLoad(XmlElement root)
 		{
-			XmlElement nodeDns = Utils.XmlGetFirstElementByTagName(root, "DnsSwitch");
+			XmlElement nodeDns = UtilsXml.XmlGetFirstElementByTagName(root, "DnsSwitch");
 			if (nodeDns != null)
 			{
 				foreach (XmlElement nodeEntry in nodeDns.ChildNodes)
@@ -711,7 +640,7 @@ namespace Eddie.Platform.MacOS
 				}
 			}
 
-			XmlElement nodeIpV6 = Utils.XmlGetFirstElementByTagName(root, "IpV6");
+			XmlElement nodeIpV6 = UtilsXml.XmlGetFirstElementByTagName(root, "IpV6");
 			if (nodeIpV6 != null)
 			{
 				foreach (XmlElement nodeEntry in nodeIpV6.ChildNodes)
@@ -727,6 +656,8 @@ namespace Eddie.Platform.MacOS
 
 		public override void OnRecoverySave(XmlElement root)
 		{
+			base.OnRecoverySave(root);
+
 			XmlDocument doc = root.OwnerDocument;
 
 			if (m_listDnsSwitch.Count != 0)
@@ -750,49 +681,46 @@ namespace Eddie.Platform.MacOS
 			}
 		}
 
-		public override bool OnIpV6Do()
+		public override bool OnIPv6Block()
 		{
-			if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
+			string[] interfaces = GetInterfaces();
+			foreach (string i in interfaces)
 			{
-				string[] interfaces = GetInterfaces();
-				foreach (string i in interfaces)
+				string getInfo = SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-getinfo", SystemShell.EscapeInsideQuote(i) });
+
+				string mode = UtilsString.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
+				string address = UtilsString.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
+
+				if ((mode == "") && (address != ""))
+					mode = "LinkLocal";
+
+				if (mode != "Off")
 				{
-					string getInfo = SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-getinfo", SystemShell.EscapeInsideQuote(i) });
-
-					string mode = Utils.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
-					string address = Utils.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
-
-					if ((mode == "") && (address != ""))
-						mode = "LinkLocal";
-
-					if (mode != "Off")
+					IpV6ModeEntry entry = new IpV6ModeEntry();
+					entry.Interface = i;
+					entry.Mode = mode;
+					entry.Address = address;
+					if (mode == "Manual")
 					{
-						IpV6ModeEntry entry = new IpV6ModeEntry();
-						entry.Interface = i;
-						entry.Mode = mode;
-						entry.Address = address;
-						if (mode == "Manual")
-						{
-							entry.Router = Utils.RegExMatchOne(getInfo, "^IPv6 IP Router: (.*?)$");
-							entry.PrefixLength = Utils.RegExMatchOne(getInfo, "^IPv6 Prefix Length: (.*?)$");
-						}
-						m_listIpV6Mode.Add(entry);
-
-						SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6off", SystemShell.EscapeInsideQuote(i) });
-
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Disabled, i));
+						entry.Router = UtilsString.RegExMatchOne(getInfo, "^IPv6 IP Router: (.*?)$");
+						entry.PrefixLength = UtilsString.RegExMatchOne(getInfo, "^IPv6 Prefix Length: (.*?)$");
 					}
-				}
+					m_listIpV6Mode.Add(entry);
 
-				Recovery.Save();
+					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6off", SystemShell.EscapeInsideQuote(i) });
+
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterIPv6Disabled, i));
+				}
 			}
 
-			base.OnIpV6Do();
+			Recovery.Save();
+
+			base.OnIPv6Block();
 
 			return true;
 		}
 
-		public override bool OnIpV6Restore()
+		public override bool OnIPv6Restore()
 		{
 			foreach (IpV6ModeEntry entry in m_listIpV6Mode)
 			{
@@ -813,19 +741,19 @@ namespace Eddie.Platform.MacOS
 					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6manual", SystemShell.EscapeInsideQuote(entry.Interface), entry.Address, entry.PrefixLength, entry.Router });
 				}
 
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterIpV6Restored, entry.Interface));
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterIPv6Restored, entry.Interface));
 			}
 
 			m_listIpV6Mode.Clear();
 
 			Recovery.Save();
 
-			base.OnIpV6Restore();
+			base.OnIPv6Restore();
 
 			return true;
 		}
 
-		public override bool OnDnsSwitchDo(IpAddresses dns)
+		public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
 		{
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
 
@@ -865,14 +793,14 @@ namespace Eddie.Platform.MacOS
 								s.Arguments.Add(ip.Address);
 						s.Run();
 
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
+						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
 					}
 				}
 
 				Recovery.Save();
 			}
 
-			base.OnDnsSwitchDo(dns);
+			base.OnDnsSwitchDo(connectionActive, dns);
 
 			return true;
 		}
@@ -903,7 +831,7 @@ namespace Eddie.Platform.MacOS
 						s.Arguments.Add(ip.Address);
 				s.Run();
 
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 			}
 
 			m_listDnsSwitch.Clear();
@@ -921,7 +849,112 @@ namespace Eddie.Platform.MacOS
 			return "OpenVpnManagement";
 		}
 
-		public string[] GetInterfaces()
+		public override void OnJsonNetworkInfo(Json jNetworkInfo)
+		{
+			// Step1: Set IPv6 support to true by default.
+			// From base virtual, always 'false'. Missing Mono implementation? 
+			// After for interfaces listed by 'networksetup -listallhardwareports' we detect specific support.
+			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
+			{
+				jNetworkInterface["support_ipv6"].Value = true;
+			}
+
+			// Step2: Query 'networksetup -listallhardwareports' to obtain a more accurate device friendly names.
+			string networksetupPath = LocateExecutable("networksetup");
+			if (networksetupPath != "")
+			{
+				string nsOutput = SystemShell.Shell1(networksetupPath, "-listallhardwareports");
+				string lastName = "";
+				foreach (string line in nsOutput.Split('\n'))
+				{
+					if (line.StartsWith("Hardware Port: ", StringComparison.InvariantCulture))
+						lastName = line.Substring(15).Trim();
+					if (line.StartsWith("Device:", StringComparison.InvariantCulture))
+					{
+						string deviceId = line.Substring(7).Trim();
+						foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
+						{
+							if (jNetworkInterface["id"].Value as string == deviceId)
+							{
+								// Set friendly name
+								jNetworkInterface["friendly"].Value = lastName;
+
+								// Detect IPv6 support
+								string getInfo = SystemShell.Shell(LocateExecutable("networksetup"), new string[] { "-getinfo", SystemShell.EscapeInsideQuote(lastName) });
+
+								string mode = UtilsString.RegExMatchOne(getInfo, "^IPv6: (.*?)$").Trim();
+
+								if (mode == "Off")
+									jNetworkInterface["support_ipv6"].Value = false;
+								else
+									jNetworkInterface["support_ipv6"].Value = true;
+
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		public override void OnJsonRouteList(Json jRoutesList)
+		{
+			base.OnJsonRouteList(jRoutesList);
+
+			string netstatPath = LocateExecutable("netstat");
+			if (netstatPath != "")
+			{
+				string result = SystemShell.Shell1(netstatPath, "-rnl");
+
+				string[] lines = result.Split('\n');
+				foreach (string line in lines)
+				{
+					if (line == "Routing tables")
+						continue;
+					if (line == "Internet:")
+						continue;
+					if (line == "Internet6:")
+						continue;
+
+					string[] fields = UtilsString.StringCleanSpace(line).Split(' ');
+
+					if ((fields.Length > 0) && (fields[0].ToLowerInvariant().Trim() == "destination"))
+						continue;
+
+					if (fields.Length >= 7)
+					{
+						Json jRoute = new Json();
+						IpAddress address = new IpAddress();
+						if (fields[0].ToLowerInvariant().Trim() == "default")
+						{
+							IpAddress gateway = new IpAddress(fields[1]);
+							if (gateway.Valid == false)
+								continue;
+							if (gateway.IsV4)
+								address = IpAddress.DefaultIPv4;
+							else if (gateway.IsV6)
+								address = IpAddress.DefaultIPv6;
+						}
+						else
+							address.Parse(fields[0]);
+						if (address.Valid == false)
+							continue;
+						jRoute["address"].Value = address.ToCIDR();
+						jRoute["gateway"].Value = fields[1];
+						jRoute["flags"].Value = fields[2];
+						jRoute["refs"].Value = fields[3];
+						jRoute["use"].Value = fields[4];
+						jRoute["mtu"].Value = fields[5];
+						jRoute["interface"].Value = fields[6];
+						if (fields.Length > 7)
+							jRoute["expire"].Value = fields[7];
+						jRoutesList.Append(jRoute);
+					}
+				}
+			}
+		}
+
+		public string[] GetInterfaces() // TOCLEAN can be removed.
 		{
 			List<string> result = new List<string>();
 			foreach (string line in SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-listallnetworkservices" }).Split('\n'))
@@ -944,14 +977,14 @@ namespace Eddie.Platform.MacOS
 
 		public void ReadXML(XmlElement node)
 		{
-			Name = Utils.XmlGetAttributeString(node, "name", "");
-			Dns = Utils.XmlGetAttributeString(node, "dns", "");
+			Name = UtilsXml.XmlGetAttributeString(node, "name", "");
+			Dns = UtilsXml.XmlGetAttributeString(node, "dns", "");
 		}
 
 		public void WriteXML(XmlElement node)
 		{
-			Utils.XmlSetAttributeString(node, "name", Name);
-			Utils.XmlSetAttributeString(node, "dns", Dns);
+			UtilsXml.XmlSetAttributeString(node, "name", Name);
+			UtilsXml.XmlSetAttributeString(node, "dns", Dns);
 		}
 	}
 
@@ -965,20 +998,20 @@ namespace Eddie.Platform.MacOS
 
 		public void ReadXML(XmlElement node)
 		{
-			Interface = Utils.XmlGetAttributeString(node, "interface", "");
-			Mode = Utils.XmlGetAttributeString(node, "mode", "");
-			Address = Utils.XmlGetAttributeString(node, "address", "");
-			Router = Utils.XmlGetAttributeString(node, "router", "");
-			PrefixLength = Utils.XmlGetAttributeString(node, "prefix_length", "");
+			Interface = UtilsXml.XmlGetAttributeString(node, "interface", "");
+			Mode = UtilsXml.XmlGetAttributeString(node, "mode", "");
+			Address = UtilsXml.XmlGetAttributeString(node, "address", "");
+			Router = UtilsXml.XmlGetAttributeString(node, "router", "");
+			PrefixLength = UtilsXml.XmlGetAttributeString(node, "prefix_length", "");
 		}
 
 		public void WriteXML(XmlElement node)
 		{
-			Utils.XmlSetAttributeString(node, "interface", Interface);
-			Utils.XmlSetAttributeString(node, "mode", Mode);
-			Utils.XmlSetAttributeString(node, "address", Address);
-			Utils.XmlSetAttributeString(node, "router", Router);
-			Utils.XmlSetAttributeString(node, "prefix_length", PrefixLength);
+			UtilsXml.XmlSetAttributeString(node, "interface", Interface);
+			UtilsXml.XmlSetAttributeString(node, "mode", Mode);
+			UtilsXml.XmlSetAttributeString(node, "address", Address);
+			UtilsXml.XmlSetAttributeString(node, "router", Router);
+			UtilsXml.XmlSetAttributeString(node, "prefix_length", PrefixLength);
 		}
 	}
 }

@@ -23,86 +23,91 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class Thread
-    {
-        public volatile bool CancelRequested = false;
-        protected System.Threading.Thread m_Thread;
+	public class Thread
+	{
+		public volatile bool CancelRequested = false;
+		protected System.Threading.Thread m_Thread;
 
-        public Thread() : this(true)
-        {
-        }
+		public Thread() : this(true)
+		{
+		}
 
-        public Thread(bool start)
-        {
-            m_Thread = new System.Threading.Thread(this.DoRun);
-            if(NeedApartmentState())
-                m_Thread.SetApartmentState(ApartmentState.STA);  
-            m_Thread.Priority = GetPriority();
-            if(start)
-                m_Thread.Start();        
-        }
+		public Thread(bool start)
+		{
+			m_Thread = new System.Threading.Thread(this.DoRun);
+			if (NeedApartmentState())
+				m_Thread.SetApartmentState(ApartmentState.STA);
+			m_Thread.Priority = GetPriority();
+			if (start)
+				m_Thread.Start();
+		}
 
-        public static Core.Engine Engine
-        {
-            get
-            {
-                return Engine.Instance;
-            }
-        }
+		public static Core.Engine Engine
+		{
+			get
+			{
+				return Engine.Instance;
+			}
+		}
 
-        public virtual void Start()
-        {
-            m_Thread.Start();
-        }
+		public virtual void Start()
+		{
+			m_Thread.Start();
+		}
 
 		public virtual void Join()
 		{
-			m_Thread.Join ();
+			m_Thread.Join();
 		}
 
-        public virtual void Abort()
-        {
-            m_Thread.Abort();
-        }
-                
-        public virtual void RequestStop()
-        {
-            CancelRequested = true;
-        }
+		public virtual void Abort()
+		{
+			m_Thread.Abort();
+		}
 
-        public void RequestStopSync()
-        {
-            RequestStop();
-            m_Thread.Join();
-        }
+		public virtual void RequestStop()
+		{
+			CancelRequested = true;
+		}
 
-        public void Sleep(int msec)
-        {
-            System.Threading.Thread.Sleep(msec);
-        }
+		public void RequestStopSync()
+		{
+			RequestStop();
+			m_Thread.Join();
+		}
 
-        public void DoRun()
-        {
-            OnRun();
-        }
+		public void Sleep(int msec)
+		{
+			System.Threading.Thread.Sleep(msec);
+		}
+
+		public void DoRun()
+		{
+			OnRun();
+			OnStop();
+		}
 
 		public bool IsAlive()
 		{
 			return m_Thread.IsAlive;
 		}
 
-        public virtual ThreadPriority GetPriority()
-        {
-            return ThreadPriority.Normal;
-        }
+		public virtual ThreadPriority GetPriority()
+		{
+			return ThreadPriority.Normal;
+		}
 
-        public virtual bool NeedApartmentState()
-        {
-            return false;
-        }
+		public virtual bool NeedApartmentState()
+		{
+			return false;
+		}
 
-        public virtual void OnRun()
-        {
-        }
-    }
+		public virtual void OnRun()
+		{
+		}
+
+		public virtual void OnStop()
+		{
+		}
+	}
 }

@@ -25,8 +25,8 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Controls
 {
-    public class ListViewAreas : Skin.ListView
-    {
+	public class ListViewAreas : Skin.ListView
+	{
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
@@ -47,10 +47,10 @@ namespace Eddie.Forms.Controls
 
 			MultiSelect = true;
 			Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            columnHeader1,
-            columnHeader2,
-            columnHeader3,
-            columnHeader4});
+			columnHeader1,
+			columnHeader2,
+			columnHeader3,
+			columnHeader4});
 
 			Name = "lstAreas";
 			UseCompatibleStateImageBehavior = false;
@@ -69,9 +69,9 @@ namespace Eddie.Forms.Controls
 			columnHeader4.Width = 60;
 			columnHeader4.TextAlign = HorizontalAlignment.Center;
 
-            ImageListIcon = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
-            ImageListState = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
-            //SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
+			ImageListIcon = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
+			ImageListState = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
+			//SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 			//LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 
 			Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -87,28 +87,28 @@ namespace Eddie.Forms.Controls
 			UpdateList();
 		}
 
-        public override bool GetDrawSubItemFull(int columnIndex)
-        {
-            if (columnIndex == 2)
-                return false;
-            else
-                return true;
-        }
-
-        public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+		public override bool GetDrawSubItemFull(int columnIndex)
 		{
-            base.OnListViewDrawSubItem(sender, e);
+			if (columnIndex == 2)
+				return false;
+			else
+				return true;
+		}
 
-            if (Visible == false)
-                return;
+		public override void OnListViewDrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+		{
+			base.OnListViewDrawSubItem(sender, e);
 
-            if (e.ColumnIndex == 2)
-            {
-                Controls.ListViewItemArea listItemServer = e.Item as Controls.ListViewItemArea;
+			if (Visible == false)
+				return;
+
+			if (e.ColumnIndex == 2)
+			{
+				Controls.ListViewItemArea listItemServer = e.Item as Controls.ListViewItemArea;
 
 				Rectangle R1 = e.Bounds;
 				R1.Inflate(-2, -2);
-				
+
 				String label = listItemServer.Info.GetLoadForList();
 				float p = listItemServer.Info.GetLoadPercForList();
 				string color = listItemServer.Info.GetLoadColorForList();
@@ -127,8 +127,8 @@ namespace Eddie.Forms.Controls
 
 				R1.Height -= 1;
 				//e.Graphics.DrawRectangle(m_loadPen, R1);
-				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);                                
-			}            
+				e.Graphics.DrawString(label, e.Item.Font, Form.Skin.ForeBrush, R1, GuiUtils.StringFormatCenterMiddle);
+			}
 		}
 
 		public override int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
@@ -189,9 +189,9 @@ namespace Eddie.Forms.Controls
 
 		public void UpdateList()
 		{
-            //SuspendLayout();
+			//SuspendLayout();
 
-            Dictionary<string, AreaInfo> areas = new Dictionary<string, AreaInfo>();
+			Dictionary<string, AreaInfo> areas = new Dictionary<string, AreaInfo>();
 			lock (Engine.Instance.Areas)
 			{
 				foreach (AreaInfo infoArea in Engine.Instance.Areas.Values)
@@ -199,7 +199,7 @@ namespace Eddie.Forms.Controls
 			}
 
 			foreach (AreaInfo infoArea in areas.Values)
-            {                
+			{
 				if (ItemsAreas.ContainsKey(infoArea.Code) == false)
 				{
 					Controls.ListViewItemArea listItemArea = new Controls.ListViewItemArea();
@@ -215,49 +215,49 @@ namespace Eddie.Forms.Controls
 					listItemArea.Update();
 				}
 			}
-            
-            List<ListViewItemArea> itemsToRemove = new List<ListViewItemArea>();
 
-            foreach (ListViewItemArea viewItem in ItemsAreas.Values)
-            {
-                if (areas.ContainsKey(viewItem.Info.Code) == false)
-                {
-                    itemsToRemove.Add(viewItem);
-                }
-            }
+			List<ListViewItemArea> itemsToRemove = new List<ListViewItemArea>();
 
-            if (itemsToRemove.Count > 0)
-            {
-                if (Platform.IsWindows())
-                {
-                    foreach (ListViewItemArea viewItem in itemsToRemove)
-                    {
-                        Items.Remove(viewItem);
-                        ItemsAreas.Remove(viewItem.Info.Name);
-                    }
-                }
-                else
-                {
-                    
-                    // Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
-                    // Reproduce the crash by whitelist some server and switch "Show all" continuosly.
-                    List<ListViewItemArea> items = new List<ListViewItemArea>();
-                    foreach (ListViewItemArea itemCurrent in Items)
-                    {
-                        if (itemsToRemove.Contains(itemCurrent) == false)
-                            items.Add(itemCurrent);
-                    }
-                    Items.Clear();
-                    ItemsAreas.Clear();
-                    foreach (ListViewItemArea itemCurrent in items)
-                    {
-                        ItemsAreas.Add(itemCurrent.Info.Name, itemCurrent);
-                        Items.Add(itemCurrent);
-                    }
-                }
-            }
+			foreach (ListViewItemArea viewItem in ItemsAreas.Values)
+			{
+				if (areas.ContainsKey(viewItem.Info.Code) == false)
+				{
+					itemsToRemove.Add(viewItem);
+				}
+			}
 
-            //ResumeLayout();
-        }        
-    }
+			if (itemsToRemove.Count > 0)
+			{
+				if (Platform.IsWindows())
+				{
+					foreach (ListViewItemArea viewItem in itemsToRemove)
+					{
+						Items.Remove(viewItem);
+						ItemsAreas.Remove(viewItem.Info.Name);
+					}
+				}
+				else
+				{
+
+					// Mono workaround to avoid a crash, like this: http://sourceforge.net/p/keepass/bugs/1314/
+					// Reproduce the crash by whitelist some server and switch "Show all" continuosly.
+					List<ListViewItemArea> items = new List<ListViewItemArea>();
+					foreach (ListViewItemArea itemCurrent in Items)
+					{
+						if (itemsToRemove.Contains(itemCurrent) == false)
+							items.Add(itemCurrent);
+					}
+					Items.Clear();
+					ItemsAreas.Clear();
+					foreach (ListViewItemArea itemCurrent in items)
+					{
+						ItemsAreas.Add(itemCurrent.Info.Name, itemCurrent);
+						Items.Add(itemCurrent);
+					}
+				}
+			}
+
+			//ResumeLayout();
+		}
+	}
 }

@@ -22,6 +22,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Eddie.Common;
 
 namespace Eddie.Core.Providers
 {
@@ -54,12 +55,12 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-		public override void OnBuildOvpn(ConnectionInfo connection, OvpnBuilder ovpn)
+		public override void OnBuildConnectionActive(ConnectionInfo connection, ConnectionActive connectionActive)
 		{
-			base.OnBuildOvpn(connection, ovpn);
+			base.OnBuildConnectionActive(connection, connectionActive);
 
-			if (ovpn.ExistsDirective("auth-retry"))
-				ovpn.AppendDirective("auth-retry", "none", "");
+			if (connectionActive.OpenVpnProfileStartup.ExistsDirective("auth-retry"))
+				connectionActive.OpenVpnProfileStartup.AppendDirective("auth-retry", "none", "");
 		}
 
 		public override string Refresh()
@@ -114,19 +115,19 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlElement nodeProfile in Profiles.ChildNodes)
 				{
-					string code = HashSHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
+					string code = HashSHA256(UtilsXml.XmlGetAttributeString(nodeProfile, "path", ""));
 
 					ConnectionInfo infoConnection = Engine.Instance.GetConnectionInfo(code, this);
 
-					infoConnection.DisplayName = Utils.XmlGetAttributeString(nodeProfile, "name", "");
+					infoConnection.DisplayName = UtilsXml.XmlGetAttributeString(nodeProfile, "name", "");
 					infoConnection.ProviderName = code;
 					infoConnection.IpsEntry.Clear();
-					infoConnection.IpsEntry.Add(Utils.XmlGetAttributeString(nodeProfile, "remote", ""));
+					infoConnection.IpsEntry.Add(UtilsXml.XmlGetAttributeString(nodeProfile, "remote", ""));
 					infoConnection.IpsExit.Clear();
-					infoConnection.CountryCode = Utils.XmlGetAttributeString(nodeProfile, "country", "");
-					infoConnection.Location = Utils.XmlGetAttributeString(nodeProfile, "location", "");
-					infoConnection.Latitude = Utils.XmlGetAttributeFloat(nodeProfile, "latitude", 0);
-					infoConnection.Longitude = Utils.XmlGetAttributeFloat(nodeProfile, "longitude", 0);
+					infoConnection.CountryCode = UtilsXml.XmlGetAttributeString(nodeProfile, "country", "");
+					infoConnection.Location = UtilsXml.XmlGetAttributeString(nodeProfile, "location", "");
+					infoConnection.Latitude = UtilsXml.XmlGetAttributeFloat(nodeProfile, "latitude", 0);
+					infoConnection.Longitude = UtilsXml.XmlGetAttributeFloat(nodeProfile, "longitude", 0);
 					infoConnection.ScoreBase = 0;
 					infoConnection.Bandwidth = 0;
 					infoConnection.BandwidthMax = 0;
@@ -135,14 +136,14 @@ namespace Eddie.Core.Providers
 					infoConnection.WarningClosed = "";
 					infoConnection.SupportCheck = false;
 					infoConnection.SupportIPv4 = (infoConnection.IpsEntry.CountIPv4 != 0); // This is a supposition
-					infoConnection.SupportIPv6 = (infoConnection.IpsEntry.CountIPv6 != 0); // This is a supposition
-					infoConnection.OvpnDirectives = Utils.XmlGetAttributeString(nodeProfile, "openvpn_directives", "");
-					infoConnection.Path = Utils.XmlGetAttributeString(nodeProfile, "path", "");
+					infoConnection.SupportIPv6 = SupportIPv6;
+					infoConnection.OvpnDirectives = UtilsXml.XmlGetAttributeString(nodeProfile, "openvpn_directives", "");
+					infoConnection.Path = UtilsXml.XmlGetAttributeString(nodeProfile, "path", "");
 
 					if (infoConnection.DisplayName == "")
 						infoConnection.DisplayName = ComputeFriendlyNameFromPath(infoConnection.Path);
 
-					infoConnection.LastDiscover = Utils.XmlGetAttributeInt64(nodeProfile, "last-discover", 0);
+					infoConnection.LastDiscover = UtilsXml.XmlGetAttributeInt64(nodeProfile, "last-discover", 0);
 					infoConnection.NeedDiscover = true;
 				}
 			}
@@ -158,21 +159,21 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlElement nodeProfile in Profiles.ChildNodes)
 				{
-					string subCode = HashSHA256(Utils.XmlGetAttributeString(nodeProfile, "path", ""));
+					string subCode = HashSHA256(UtilsXml.XmlGetAttributeString(nodeProfile, "path", ""));
 
 					if (code == subCode)
 					{
-						Utils.XmlSetAttributeString(nodeProfile, "country", connection.CountryCode);
-						Utils.XmlSetAttributeString(nodeProfile, "location", connection.Location);
-						Utils.XmlSetAttributeFloat(nodeProfile, "latitude", connection.Latitude);
-						Utils.XmlSetAttributeFloat(nodeProfile, "longitude", connection.Longitude);
-						Utils.XmlSetAttributeInt64(nodeProfile, "last-discover", connection.LastDiscover);
+						UtilsXml.XmlSetAttributeString(nodeProfile, "country", connection.CountryCode);
+						UtilsXml.XmlSetAttributeString(nodeProfile, "location", connection.Location);
+						UtilsXml.XmlSetAttributeDouble(nodeProfile, "latitude", connection.Latitude);
+						UtilsXml.XmlSetAttributeDouble(nodeProfile, "longitude", connection.Longitude);
+						UtilsXml.XmlSetAttributeInt64(nodeProfile, "last-discover", connection.LastDiscover);
 
 						string autoName = ComputeFriendlyNameFromPath(connection.Path);
 						if (autoName == connection.DisplayName)
-							Utils.XmlSetAttributeString(nodeProfile, "name", ""); // Don't save, will be automatic
+							UtilsXml.XmlSetAttributeString(nodeProfile, "name", ""); // Don't save, will be automatic
 						else
-							Utils.XmlSetAttributeString(nodeProfile, "name", connection.DisplayName);
+							UtilsXml.XmlSetAttributeString(nodeProfile, "name", connection.DisplayName);
 					}
 				}
 			}
@@ -182,7 +183,7 @@ namespace Eddie.Core.Providers
 		{
 			get
 			{
-				string path = Utils.XmlGetAttributeString(Storage.DocumentElement, "path", "").Trim();
+				string path = UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "path", "").Trim();
 				//c:\Program Files\OpenVPN\config\
 				if (path == "")
 					path = Platform.Instance.GetDefaultOpenVpnConfigsPath();
@@ -190,7 +191,19 @@ namespace Eddie.Core.Providers
 			}
 			set
 			{
-				Utils.XmlSetAttributeString(Storage.DocumentElement, "path", value);
+				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "path", value);
+			}
+		}
+
+		public bool SupportIPv6
+		{
+			get
+			{
+				return UtilsXml.XmlGetAttributeBool(Storage.DocumentElement, "support_ipv6", false);				
+			}
+			set
+			{
+				UtilsXml.XmlSetAttributeBool(Storage.DocumentElement, "support_ipv6", value);
 			}
 		}
 
@@ -213,7 +226,7 @@ namespace Eddie.Core.Providers
 					XmlElement nodeProfile = null;
 					foreach (XmlElement nodeFind in Profiles.ChildNodes)
 					{
-						string pathFind = Utils.XmlGetAttributeString(nodeFind, "path", "");
+						string pathFind = UtilsXml.XmlGetAttributeString(nodeFind, "path", "");
 						if (pathFind == fileInfo.FullName)
 						{
 							nodeProfile = nodeFind;
@@ -222,7 +235,7 @@ namespace Eddie.Core.Providers
 					}
 
 					// Skip if is already checked					
-					if ((nodeProfile != null) && (Utils.XmlGetAttributeString(nodeProfile, "checked", "") != ""))
+					if ((nodeProfile != null) && (UtilsXml.XmlGetAttributeString(nodeProfile, "checked", "") != ""))
 						continue;
 
 					if (Platform.Instance.FileExists(filePath) == false)
@@ -256,11 +269,11 @@ namespace Eddie.Core.Providers
 							nodeProfile = Profiles.OwnerDocument.CreateElement("profile");
 							Profiles.AppendChild(nodeProfile);
 						}
-												
-						Utils.XmlSetAttributeString(nodeProfile, "remote", hosts);
-						Utils.XmlSetAttributeString(nodeProfile, "path", file.FullName);
 
-						Utils.XmlSetAttributeString(nodeProfile, "checked", "1");
+						UtilsXml.XmlSetAttributeString(nodeProfile, "remote", hosts);
+						UtilsXml.XmlSetAttributeString(nodeProfile, "path", file.FullName);
+
+						UtilsXml.XmlSetAttributeString(nodeProfile, "checked", "1");
 					}
 					catch (System.Exception e)
 					{

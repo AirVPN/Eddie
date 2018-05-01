@@ -23,7 +23,7 @@ using System.Linq;
 //using AppKit;
 using Foundation;
 using AppKit;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.UI.Cocoa.Osx
 {

@@ -24,36 +24,36 @@ using System.Xml;
 
 namespace Eddie.Core
 {
-    public class ProvidersManager
-    {
-        private Dictionary<string, XmlDocument> Definitions = new Dictionary<string, XmlDocument>();
-        private List<Provider> m_providers = new List<Provider>();
+	public class ProvidersManager
+	{
+		private Dictionary<string, XmlDocument> Definitions = new Dictionary<string, XmlDocument>();
+		private List<Provider> m_providers = new List<Provider>();
 
-        private Int64 m_lastRefreshTry = 0;
-        private Int64 m_lastRefreshDone = 0;
+		private Int64 m_lastRefreshTry = 0;
+		private Int64 m_lastRefreshDone = 0;
 
-        public List<Provider> Providers
-        {
-            get
-            {
-                return m_providers;
-            }
-        }
+		public List<Provider> Providers
+		{
+			get
+			{
+				return m_providers;
+			}
+		}
 
-        public Int64 LastRefreshDone
-        {
-            get
-            {
-                return m_lastRefreshDone;
-            }
-        }
+		public Int64 LastRefreshDone
+		{
+			get
+			{
+				return m_lastRefreshDone;
+			}
+		}
 
 		public int CountEnabled
 		{
 			get
 			{
 				int n = 0;
-				foreach(Provider provider in Providers)
+				foreach (Provider provider in Providers)
 				{
 					if (provider.Enabled)
 						n++;
@@ -65,33 +65,33 @@ namespace Eddie.Core
 
 		public void Init()
 		{
-			string path = Platform.Instance.NormalizePath(Platform.Instance.GetCommonPath() + "/providers");
+			string path = Platform.Instance.NormalizePath(Engine.Instance.GetPathResources() + "/providers");
 
-            if (Platform.Instance.DirectoryExists(path) == false) // TOCLEAN, Compatibility <3.0
-            {
-                LoadDefinition(ResourcesFiles.GetString("AirVPN.xml"));
-                LoadDefinition(ResourcesFiles.GetString("OpenVPN.xml"));
-                return;
-            }            
+			if (Platform.Instance.DirectoryExists(path) == false) // TOCLEAN, Compatibility <3.0
+			{
+				LoadDefinition(ResourcesFiles.GetString("AirVPN.xml"));
+				LoadDefinition(ResourcesFiles.GetString("OpenVPN.xml"));
+				return;
+			}
 
-            FileInfo[] files = new System.IO.DirectoryInfo(path).GetFiles("*.xml");
-            foreach(FileInfo fi in files)
-            {
-                string xml = Platform.Instance.FileContentsReadText(fi.FullName);
-                LoadDefinition(xml);                
-            }
+			FileInfo[] files = new System.IO.DirectoryInfo(path).GetFiles("*.xml");
+			foreach (FileInfo fi in files)
+			{
+				string xml = Platform.Instance.FileContentsReadText(fi.FullName);
+				LoadDefinition(xml);
+			}
 		}
 
-        public void Load()
-        {
-            foreach (XmlElement xmlProvider in Engine.Instance.Storage.Providers)
-            {
-                string providerCode = xmlProvider.Name;
-                AddProvider(providerCode, xmlProvider);
-            }
+		public void Load()
+		{
+			foreach (XmlElement xmlProvider in Engine.Instance.Storage.Providers)
+			{
+				string providerCode = xmlProvider.Name;
+				AddProvider(providerCode, xmlProvider);
+			}
 
-            if (Providers.Count == 0)
-                AddProvider("AirVPN", null);
+			if (Providers.Count == 0)
+				AddProvider("AirVPN", null);
 
 			// Hack Eddie 2.x - Removed in 2.13.4
 			/*
@@ -131,27 +131,27 @@ namespace Eddie.Core
                 }
             }
 			*/
-        }
+		}
 
-        private void LoadDefinition(string xml)
-        {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
+		private void LoadDefinition(string xml)
+		{
+			XmlDocument xmlDoc = new XmlDocument();
+			xmlDoc.LoadXml(xml);
 
-            string code = Utils.XmlGetAttributeString(xmlDoc.DocumentElement, "code", "");
+			string code = UtilsXml.XmlGetAttributeString(xmlDoc.DocumentElement, "code", "");
 
-            Definitions[code] = xmlDoc;
-        }
-		
+			Definitions[code] = xmlDoc;
+		}
+
 		public XmlElement GetDataAddProviders()
 		{
-			XmlElement xmlData = Utils.XmlCreateElement("data");
-			
+			XmlElement xmlData = UtilsXml.XmlCreateElement("data");
+
 			foreach (KeyValuePair<string, XmlDocument> providerDefinition in Definitions)
 			{
 				string code = providerDefinition.Key;
-				string providerClass = Utils.XmlGetAttributeString(providerDefinition.Value.DocumentElement, "class", "");
-				if(providerClass == "service") // Only one instance
+				string providerClass = UtilsXml.XmlGetAttributeString(providerDefinition.Value.DocumentElement, "class", "");
+				if (providerClass == "service") // Only one instance
 				{
 					if (ExistsProvider(code))
 						continue;
@@ -160,7 +160,7 @@ namespace Eddie.Core
 				xmlData.AppendChild(xmlData.OwnerDocument.ImportNode(providerDefinition.Value.DocumentElement, true));
 			}
 
-			return xmlData;	
+			return xmlData;
 		}
 
 		public bool ExistsProvider(string code)
@@ -171,87 +171,98 @@ namespace Eddie.Core
 			return false;
 		}
 
-        public Provider AddProvider(string providerCode, XmlElement xmlStorage)
-        {
-            if (Definitions.ContainsKey(providerCode) == false)
-                return null;
+		public Provider AddProvider(string providerCode, XmlElement xmlStorage)
+		{
+			if (Definitions.ContainsKey(providerCode) == false)
+				return null;
 
-            XmlDocument xmlDefiniton = Definitions[providerCode];
-            
-            string providerClass = Utils.XmlGetAttributeString(xmlDefiniton.DocumentElement, "class", "");
+			XmlDocument xmlDefiniton = Definitions[providerCode];
 
-            Provider provider = null;
+			string providerClass = UtilsXml.XmlGetAttributeString(xmlDefiniton.DocumentElement, "class", "");
 
-            if (providerClass == "service")
-            {
-                provider = new Providers.Service();
-            }
-            else if (providerClass == "openvpn")
-            {
-                provider = new Providers.OpenVPN();
-            }
-            else
-                return null;
+			Provider provider = null;
 
-            if (provider != null)
-            {
-                provider.Definition = xmlDefiniton.DocumentElement;
+			if (providerClass == "service")
+			{
+				provider = new Providers.Service();
+			}
+			else if (providerClass == "openvpn")
+			{
+				provider = new Providers.OpenVPN();
+			}
+			else
+				return null;
 
-                provider.OnInit();
+			if (provider != null)
+			{
+				provider.Definition = xmlDefiniton.DocumentElement;
 
-                provider.OnLoad(xmlStorage);
+				provider.OnInit();
 
-                m_providers.Add(provider);				
-            }
+				provider.OnLoad(xmlStorage);
 
-            return provider;
-        }
+				m_providers.Add(provider);
+			}
 
-        public bool NeedUpdate(bool recommended)
-        {
-            Int64 refreshInterval = Engine.Instance.Storage.GetInt("advanced.manifest.refresh");
-            if (refreshInterval == 0)
-                return false;
+			return provider;
+		}
 
-            if (refreshInterval < 0)
-                refreshInterval = 10; // Default
-            
-            if (m_lastRefreshTry + 60 * refreshInterval < Utils.UnixTimeStamp())
-                return true;
-            
-            return false;
-        }
+		public bool NeedUpdate(bool recommended)
+		{
+			Int64 refreshInterval = Engine.Instance.Storage.GetInt("advanced.manifest.refresh");
+			if (refreshInterval == 0)
+				return false;
+
+			if (refreshInterval < 0)
+				refreshInterval = 10; // Default
+
+			if (m_lastRefreshTry + 60 * refreshInterval < UtilsCore.UnixTimeStamp())
+				return true;
+
+			return false;
+		}
 
 		public void Remove(Provider provider)
 		{
-			Providers.Remove(provider);			
+			Providers.Remove(provider);
 		}
 
-        public string Refresh()
-        {
-            m_lastRefreshTry = Utils.UnixTimeStamp();
+		public string Refresh()
+		{
+			m_lastRefreshTry = UtilsCore.UnixTimeStamp();
 
-            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestUpdate);
+			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestUpdate);
 
-            // TOOPTIMIZE: Stop at first error
-            foreach (Provider provider in Providers)
-            {
-                if (provider.Enabled)
-                {
-                    string result = provider.Refresh();
-                    if (result != "")
-                        return result;
-                }
-            }
+			string globalResult = "";
 
-            Engine.Instance.PostManifestUpdate();
+			// TOOPTIMIZE: Stop at first error
+			foreach (Provider provider in Providers)
+			{
+				if (provider.Enabled)
+				{
+					string result = provider.Refresh();
+					if (result != "")
+					{
+						if (Engine.Instance.ConnectionActive != null) // Note: only if not connected, otherwise misunderstanding.
+							Engine.Instance.OnProviderManifestFailed(provider);
+						if (globalResult != "")
+							globalResult += "; ";
+						globalResult += result;
+					}
+				}
+			}
 
-            Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestDone);
+			Engine.Instance.PostManifestUpdate();
 
-            m_lastRefreshDone = Utils.UnixTimeStamp();
+			if (globalResult == "")
+			{
+				Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestDone);
 
-            return "";
-        }
+				m_lastRefreshDone = UtilsCore.UnixTimeStamp();
+			}
 
-    }
+			return globalResult;
+		}
+
+	}
 }

@@ -27,7 +27,7 @@ namespace Eddie.Forms.Controls
 {
     public class ListViewItemProvider : ListViewItem
     {
-		public Provider Provider;	
+		public Core.Provider Provider;	
 		
 		public void Update()
 		{
@@ -38,7 +38,7 @@ namespace Eddie.Forms.Controls
 				ImageKey = "on";
 			else
 				ImageKey = "off";
-			
+
 			SubItems.Add(Provider.DefinitionTitle);
 			SubItems.Add(Provider.DefinitionSubTitle);
 			SubItems.Add(Provider.DefinitionHref);

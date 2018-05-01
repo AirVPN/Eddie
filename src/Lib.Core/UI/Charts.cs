@@ -27,7 +27,7 @@ namespace Eddie.Core.UI
 	{
 		public List<Chart> ChartsList = new List<Chart>();
 
-		public delegate void UpdateHandler();
+		public delegate void UpdateHandler(object sender, EventArgs e);
 		public event UpdateHandler UpdateEvent;
 
 		public bool CancelRequested = false;
@@ -43,7 +43,7 @@ namespace Eddie.Core.UI
 				
 		public void Hit(long d, long u)
 		{
-			int ts = Utils.UnixTimeStamp();
+			int ts = UtilsCore.UnixTimeStamp();
 			lock (this)
 			{
 				foreach (Chart c in ChartsList)
@@ -53,7 +53,7 @@ namespace Eddie.Core.UI
 			}
 					
 			if(UpdateEvent != null)
-				UpdateEvent();			
+				UpdateEvent(this, null);			
 		}
 	}
 }

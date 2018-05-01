@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <dimen name="large_padding">14.0dip</dimen>
+  <dimen name="medium_padding">10.0dip</dimen>
+  <dimen name="small_padding">6.0dip</dimen>
+  <dimen name="tiny_padding">2.0dip</dimen>
+
+  <dimen name="large_margin">14dip</dimen>
+  <dimen name="medium_margin">10.0dip</dimen>
+  <dimen name="small_margin">6.0dip</dimen>
+  <dimen name="tiny_margin">2.0dip</dimen>
+
+  <dimen name="verylarge_text">24.0dip</dimen>
+  <dimen name="large_text">22.0dip</dimen>
+  <dimen name="medium_text">18.0dip</dimen>
+  <dimen name="small_text">14.0dip</dimen>
+  <dimen name="verysmall_text">10.0dip</dimen>
+  <dimen name="tiny_text">8.0dip</dimen>
+
+  <dimen name="very_small_icon_size">12dip</dimen>
+  <dimen name="small_icon_size">24dip</dimen>
+  <dimen name="icon_size">42dip</dimen>
+  <dimen name="half_icon_size">21dip</dimen>
+  <dimen name="min_button_width">80dip</dimen>
+
+</resources>

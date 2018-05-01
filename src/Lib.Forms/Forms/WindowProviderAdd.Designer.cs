@@ -89,8 +89,10 @@
 			// 
 			// WindowProviderAdd
 			// 
+			this.AcceptButton = this.cmdOk;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.CancelButton = this.cmdCancel;
 			this.ClientSize = new System.Drawing.Size(652, 94);
 			this.Controls.Add(this.cboProvider);
 			this.Controls.Add(this.cmdOk);

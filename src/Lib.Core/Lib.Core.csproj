@@ -13,23 +13,24 @@
     <TargetFrameworkProfile />
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ReleaseVersion>2.13</ReleaseVersion>
+    <ReleaseVersion>2.14</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EDDIENET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;EDDIENET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -38,14 +39,19 @@
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
+    <Compile Include="ConnectionActive.cs" />
+    <Compile Include="ConnectionActiveRoute.cs" />
     <Compile Include="ConnectionInfoWarning.cs" />
     <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="CoreApplication.cs" />
     <Compile Include="ConnectionMode.cs" />
     <Compile Include="DnsManagerEntry.cs" />
     <Compile Include="HttpResponse.cs" />
@@ -63,7 +69,6 @@
     <Compile Include="Tools\SSH.cs" />
     <Compile Include="Tools\OpenVPN.cs" />
     <Compile Include="Tools\File.cs" />
-    <Compile Include="TcpServer.cs" />
     <Compile Include="CompatibilityManager.cs" />
     <Compile Include="CountriesManager.cs" />
     <Compile Include="InterfaceScope.cs" />
@@ -84,22 +89,17 @@
     <Compile Include="IpAddress.cs" />
     <Compile Include="NetworkLockManager.cs" />
     <Compile Include="NetworkLockPlugin.cs" />
-    <Compile Include="NetworkLocks\RoutingTable.cs" />
     <Compile Include="RouteScope.cs" />
-    <Compile Include="RouteEntry.cs" />
-    <Compile Include="Debug.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Process.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ResourcesFiles.cs" />
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
+    <Compile Include="UI\App.cs" />
     <Compile Include="UI\Chart.cs" />
     <Compile Include="UI\Charts.cs" />
     <Compile Include="Conversions.cs" />
-    <Compile Include="UI\Actions.cs" />
     <Compile Include="RandomGenerator.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="StatsEntry.cs" />
@@ -122,8 +122,9 @@
     <Compile Include="Threads\Penalities.cs" />
     <Compile Include="Threads\Pinger.cs" />
     <Compile Include="TimeDelta.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="WebServer.cs" />
+    <Compile Include="UtilsString.cs" />
+    <Compile Include="UtilsCore.cs" />
+    <Compile Include="UtilsXml.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -151,6 +152,8 @@
     <None Include="Resources\manifest.xml" />
     <None Include="Resources\AirVPN.xml" />
     <None Include="Resources\OpenVPN.xml" />
+    <None Include="Resources\data.txt" />
+    <None Include="Resources\providers.txt" />
     <Content Include="_Readme.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +162,7 @@
       <Name>Lib.Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -124,32 +124,32 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			MnuMainAbout.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowAbout();
+				if (Core.UI.App.Manifest != null)
+					mainWindowController.ShowAbout();
 			};
 
 			MnuMainPreferences.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowPreferences();
+				if (Core.UI.App.Manifest != null)
+					mainWindowController.ShowPreferences();
 			};
 
 			MnuMainHome.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowHome();
+				if (Core.UI.App.Manifest != null)
+					mainWindowController.ShowHome();
 			};
 
 			MnuMainClientArea.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowClientArea();
+				if (Core.UI.App.Manifest != null)
+					mainWindowController.ShowClientArea();
 			};
 
 			MnuMainForwardingPorts.Activated += (object sender, EventArgs e) =>
 			{
-				mainWindowController.ShowForwardingPorts();
-			};
-
-			MnuMainSpeedTest.Activated += (object sender, EventArgs e) =>
-			{
-				mainWindowController.ShowSpeedTest();
+				if (Core.UI.App.Manifest != null)
+					mainWindowController.ShowForwardingPorts();
 			};
 
 			MnuMainQuit.Activated += (object sender, EventArgs e) =>

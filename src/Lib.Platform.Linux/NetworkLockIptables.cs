@@ -27,7 +27,7 @@ namespace Eddie.Platform.Linux
 {
 	public class NetworkLockIptables : NetworkLockPlugin
 	{
-		private IpAddresses m_currentList = new IpAddresses();
+		private IpAddresses m_ipsWhiteListOutgoing = new IpAddresses();
 		private bool m_supportIPv4 = true;
 		private bool m_supportIPv6 = true;
 		private string m_iptablesVersion = "";
@@ -74,21 +74,54 @@ namespace Eddie.Platform.Linux
 
 		public string DoIptablesShell(string exe, string args, bool fatal)
 		{
-			SystemShell s = new SystemShell();
-			s.Path = Platform.Instance.LocateExecutable(exe);
-			if (Utils.CompareVersions(m_iptablesVersion, "1.4.21") >= 0)
+			lock (this)
 			{
-				// 2.13.6 - The version 1.4.21 is generic Debian8. I don't find in official
-				// changelogs https://www.netfilter.org/projects/iptables/downloads.html
-				// the correct version. For sure don't exists in 1.4.14 of Debian7.
-				args = "--wait " + args; 
+				// 2.14.0
+				/*
+				SystemShell s = new SystemShell();
+				s.Path = Platform.Instance.LocateExecutable(exe);				
+				if (UtilsCore.CompareVersions(m_iptablesVersion, "1.4.21") >= 0)
+				{
+					// 2.13.6 - The version 1.4.21 is generic Debian8. I don't find in official
+					// changelogs https://www.netfilter.org/projects/iptables/downloads.html
+					// the correct version. For sure don't exists in 1.4.14 of Debian7.
+					args = "--wait " + args;
+				}				
+				if (args != "")
+					s.Arguments.Add(args); // Exception: all arguments as one, it works.
+				if (fatal)
+					s.ExceptionIfFail = true;
+				s.Run();				
+				return s.StdOut;
+				*/
+
+				// 2.14.1: Previous version use --wait if iptables >1.4.21. But there are issues about distro, even in the latest Debian unstable (2018).
+				int nTry = 10;
+				string lastestOutput = "";
+				for (int iTry = 0; iTry < 10; iTry++)
+				{
+					SystemShell s = new SystemShell();
+					s.Path = Platform.Instance.LocateExecutable(exe);
+					if (args != "")
+						s.Arguments.Add(args); // Exception: all arguments as one, it works.
+					if ((fatal) && (iTry == nTry - 1))
+						s.ExceptionIfFail = true;
+					s.Run();
+					if (s.StdErr.ToLowerInvariant().Contains("temporarily unavailable")) // Older Debian (iptables without --wait)
+					{
+						System.Threading.Thread.Sleep(500);
+						continue;
+					}
+					if (s.StdErr.ToLowerInvariant().Contains("xtables lock")) // Newest Debian (iptables with --wait but not automatic)
+					{
+						System.Threading.Thread.Sleep(500);
+						continue;
+					}
+					lastestOutput = s.StdOut;
+					return lastestOutput;
+				}
+				return lastestOutput;
 			}
-			if (args != "")
-				s.Arguments.Add(args); // Exception: all arguments as one, it works.
-			if (fatal)
-				s.ExceptionIfFail = true;
-			s.Run();
-			return s.StdOut;
 		}
 
 		public override void Init()
@@ -172,6 +205,8 @@ namespace Eddie.Platform.Linux
 				{
 					// IPv6 - Local
 					DoIptablesShell("ip6tables", "-A INPUT -i lo -j ACCEPT");
+					// Reject traffic to localhost that does not originate from lo0.
+					DoIptablesShell("ip6tables", "-A INPUT ! -i lo -s ::1/128 -j REJECT"); // 2.14.0
 					DoIptablesShell("ip6tables", "-A OUTPUT -o lo -j ACCEPT");
 				}
 
@@ -181,6 +216,15 @@ namespace Eddie.Platform.Linux
 					DoIptablesShell("ip6tables", "-A INPUT -m rt --rt-type 0 -j DROP");
 					DoIptablesShell("ip6tables", "-A OUTPUT -m rt --rt-type 0 -j DROP");
 					DoIptablesShell("ip6tables", "-A FORWARD -m rt --rt-type 0 -j DROP");
+				}
+
+				if (m_supportIPv6) // 2.14.0
+				{
+					// IPv6 - Rules which are required for your IPv6 address to be properly allocated
+					DoIptablesShell("ip6tables", "-A INPUT -p icmpv6 --icmpv6-type router-advertisement -m hl --hl-eq 255 -j ACCEPT");
+					DoIptablesShell("ip6tables", "-A INPUT -p icmpv6 --icmpv6-type neighbor-solicitation -m hl --hl-eq 255 -j ACCEPT");
+					DoIptablesShell("ip6tables", "-A INPUT -p icmpv6 --icmpv6-type neighbor-advertisement -m hl --hl-eq 255 -j ACCEPT");
+					DoIptablesShell("ip6tables", "-A INPUT -p icmpv6 --icmpv6-type redirect -m hl --hl-eq 255 -j ACCEPT");
 				}
 
 				if (m_supportIPv4)
@@ -236,6 +280,7 @@ namespace Eddie.Platform.Linux
 					{
 						// IPv4
 						DoIptablesShell("iptables", "-A INPUT -p icmp --icmp-type echo-request -j ACCEPT");
+						DoIptablesShell("iptables", "-A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT"); // 2.14.0
 					}
 
 					if (m_supportIPv6)
@@ -276,18 +321,30 @@ namespace Eddie.Platform.Linux
 
 				if (m_supportIPv4)
 				{
-					// IPv4 - Block All
-					DoIptablesShell("iptables", "-A OUTPUT -j DROP");
-					DoIptablesShell("iptables", "-A INPUT -j DROP");
+					// IPv4 - General rule
 					DoIptablesShell("iptables", "-A FORWARD -j DROP");
+					if (Engine.Instance.Storage.Get("netlock.incoming") == "allow")
+						DoIptablesShell("iptables", "-A INPUT -j ACCEPT");
+					else
+						DoIptablesShell("iptables", "-A INPUT -j DROP");
+					if (Engine.Instance.Storage.Get("netlock.outgoing") == "allow")
+						DoIptablesShell("iptables", "-A OUTPUT -j ACCEPT");
+					else
+						DoIptablesShell("iptables", "-A OUTPUT -j DROP");
 				}
 
 				if (m_supportIPv6)
 				{
-					// IPv6 - Block All
-					DoIptablesShell("ip6tables", "-A OUTPUT -j DROP");
-					DoIptablesShell("ip6tables", "-A INPUT -j DROP");
+					// IPv6 - General rule
 					DoIptablesShell("ip6tables", "-A FORWARD -j DROP");
+					if (Engine.Instance.Storage.Get("netlock.incoming") == "allow")
+						DoIptablesShell("ip6tables", "-A INPUT -j ACCEPT");
+					else
+						DoIptablesShell("ip6tables", "-A INPUT -j DROP");
+					if (Engine.Instance.Storage.Get("netlock.outgoing") == "allow")
+						DoIptablesShell("ip6tables", "-A OUTPUT -j ACCEPT");
+					else
+						DoIptablesShell("ip6tables", "-A OUTPUT -j DROP");
 				}
 
 				OnUpdateIps();
@@ -344,19 +401,19 @@ namespace Eddie.Platform.Linux
 			}
 
 			// IPS
-			m_currentList.Clear();
+			m_ipsWhiteListOutgoing.Clear();
 		}
 
 		public override void OnUpdateIps()
 		{
 			base.OnUpdateIps();
 
-			IpAddresses ipsFirewalled = GetAllIps(true);
+			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
 
 			// Remove IP not present in the new list
-			foreach (IpAddress ip in m_currentList.IPs)
+			foreach (IpAddress ip in m_ipsWhiteListOutgoing.IPs)
 			{
-				if (ipsFirewalled.Contains(ip) == false)
+				if (ipsWhiteListOutgoing.Contains(ip) == false)
 				{
 					// Remove
 					if (ip.IsV4)
@@ -373,9 +430,9 @@ namespace Eddie.Platform.Linux
 			}
 
 			// Add IP
-			foreach (IpAddress ip in ipsFirewalled.IPs)
+			foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
 			{
-				if (m_currentList.Contains(ip) == false)
+				if (m_ipsWhiteListOutgoing.Contains(ip) == false)
 				{
 					// Add
 					if (ip.IsV4)
@@ -391,7 +448,7 @@ namespace Eddie.Platform.Linux
 				}
 			}
 
-			m_currentList = ipsFirewalled;
+			m_ipsWhiteListOutgoing = ipsWhiteListOutgoing;
 		}
 	}
 }

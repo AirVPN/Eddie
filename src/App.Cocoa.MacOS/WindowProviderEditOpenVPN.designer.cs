@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -14,6 +14,9 @@ namespace Eddie.UI.Cocoa.Osx
 	{
 		[Outlet]
 		AppKit.NSButton ChkEnabled { get; set; }
+
+		[Outlet]
+		AppKit.NSButton ChkSupportIPv6 { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdCancel { get; set; }
@@ -74,14 +77,9 @@ namespace Eddie.UI.Cocoa.Osx
 				LblTitle = null;
 			}
 
-			if (TxtPath != null) {
-				TxtPath.Dispose ();
-				TxtPath = null;
-			}
-
-			if (TxtTitle != null) {
-				TxtTitle.Dispose ();
-				TxtTitle = null;
+			if (TxtAuthPassPassword != null) {
+				TxtAuthPassPassword.Dispose ();
+				TxtAuthPassPassword = null;
 			}
 
 			if (TxtAuthPassUsername != null) {
@@ -89,9 +87,19 @@ namespace Eddie.UI.Cocoa.Osx
 				TxtAuthPassUsername = null;
 			}
 
-			if (TxtAuthPassPassword != null) {
-				TxtAuthPassPassword.Dispose ();
-				TxtAuthPassPassword = null;
+			if (TxtPath != null) {
+				TxtPath.Dispose ();
+				TxtPath = null;
+			}
+
+			if (ChkSupportIPv6 != null) {
+				ChkSupportIPv6.Dispose ();
+				ChkSupportIPv6 = null;
+			}
+
+			if (TxtTitle != null) {
+				TxtTitle.Dispose ();
+				TxtTitle = null;
 			}
 		}
 	}

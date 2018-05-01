@@ -34,10 +34,24 @@ namespace Eddie.Core
 
 		public static byte[] GetBuffer(int length)
 		{
-			RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-			byte[] output = new byte[length];
-			rng.GetBytes(output);
-			return output;
+			RNGCryptoServiceProvider rng = null;
+
+			try
+			{
+				rng = new RNGCryptoServiceProvider();
+
+				byte[] output = new byte[length];
+				rng.GetBytes(output);
+				return output;
+			}
+			finally
+			{
+#if !EDDIENET2
+				// RNGCryptoServiceProvider doesn't implement the IDisposable interface
+				if(rng != null)					
+					rng.Dispose();
+#endif
+			}
 		}
 
 		public static string GetHash()

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+  <string name="preference_category_advanced">Advanced</string>
+  <string name="preference_category_authentication">Authentication</string>
+  <string name="preference_category_dns">DNS</string>
+  <string name="preference_category_proxy">Proxy</string>
+  <string name="preference_category_system">System</string>
+  <string name="preference_category_vpn">VPN</string>
+
+  <string name="preference_ovpn3_autologin_sessions_summary">Autologin sessions</string>
+  <string name="preference_ovpn3_autologin_sessions_title">Autologin sessions</string>
+  <string name="preference_ovpn3_compression_mode_summary">Change the compression mode</string>
+  <string name="preference_ovpn3_compression_mode_title">Compression</string>
+  <string name="preference_ovpn3_custom_directives_title">Custom directives</string>
+  <string name="preference_ovpn3_custom_directives_summary">Define custom OpenVPN directives that will be added to a profile</string>                    
+  <string name="preference_ovpn3_disable_client_cert_summary">Disable client cert</string>
+  <string name="preference_ovpn3_disable_client_cert_title">Disable client cert</string>
+  <string name="preference_ovpn3_force_aes_cbc_ciphersuites_summary">Force AES/CBC ciphers</string>
+  <string name="preference_ovpn3_force_aes_cbc_ciphersuites_title">Force AES/CBC ciphers</string>
+  <string name="preference_ovpn3_ipv6_summary">Change the IPV6 support</string>
+  <string name="preference_ovpn3_ipv6_title">IPV6</string>
+  <string name="preference_ovpn3_protocol_summary">Change the transport protocol</string>
+  <string name="preference_ovpn3_protocol_title">Transport protocol</string>
+  <string name="preference_ovpn3_proxy_allow_cleartext_auth_summary">Allow cleartext auth</string>
+  <string name="preference_ovpn3_proxy_allow_cleartext_auth_title">Allow cleartext auth</string>
+  <string name="preference_ovpn3_proxy_host_summary">Proxy host</string>
+  <string name="preference_ovpn3_proxy_host_title">Proxy host</string>
+  <string name="preference_ovpn3_proxy_password_summary">Proxy password</string>
+  <string name="preference_ovpn3_proxy_password_title">Proxy password (if required)</string>
+  <string name="preference_ovpn3_proxy_port_summary">Proxy port</string>
+  <string name="preference_ovpn3_proxy_port_title">Proxy port</string>
+  <string name="preference_ovpn3_proxy_username_summary">Proxy username</string>
+  <string name="preference_ovpn3_proxy_username_title">Proxy username (if required)</string>
+  <string name="preference_ovpn3_ssl_debug_level_summary">Change the SSL debug level</string>
+  <string name="preference_ovpn3_ssl_debug_level_title">SSL debug level</string>
+  <string name="preference_ovpn3_synchronous_dns_lookup_summary">Force DNS requests to be synchronous</string>
+  <string name="preference_ovpn3_synchronous_dns_lookup_title">Synchronous DNS lookup</string>
+  <string name="preference_ovpn3_timeout_summary">Change the connection timeout</string>
+  <string name="preference_ovpn3_timeout_title">Connection timeout</string>
+  <string name="preference_ovpn3_tls_cert_profile_summary">TLS cert profile</string>
+  <string name="preference_ovpn3_tls_cert_profile_title">TLS cert profile</string>
+  <string name="preference_ovpn3_tls_version_min_summary">Define the minimum TLS version</string>
+  <string name="preference_ovpn3_tls_version_min_title">Minimum TLS version</string>
+  <string name="preference_ovpn3_tun_persist_summary">TUN persist</string>
+  <string name="preference_ovpn3_tun_persist_title">TUN persist</string>
+  <string name="preference_ovpn3_private_key_password_summary">Private key password</string>
+  <string name="preference_ovpn3_private_key_password_title">Private key password</string>
+  <string name="preference_ovpn3_default_key_direction_summary">Key direction</string>
+  <string name="preference_ovpn3_default_key_direction_title">Key direction</string>
+
+  <string name="preference_ovpn3_username_summary">Username (if required)</string>
+  <string name="preference_ovpn3_username_title">Username</string>
+  <string name="preference_ovpn3_password_summary">Password</string>
+  <string name="preference_ovpn3_password_title">Password (if required)</string>
+
+  <string name="preference_system_applications_filter_summary">Defines the packages names of the applications that will be whitelisted or blacklisted (use \',\' as separator)</string>
+  <string name="preference_system_applications_filter_title">Applications list</string>
+  <string name="preference_system_applications_filter_type_summary">Applications filter</string>
+  <string name="preference_system_applications_filter_type_title">Allows to whitelist or blackslist some applications</string>
+  <string name="preference_system_battery_saver_summary">Pause the VPN while the screen is blocked</string>
+  <string name="preference_system_battery_saver_title">Save battery</string>
+  <string name="preference_system_dns_override_enable_summary">Enable or disable the default DNS behaviour of the VPN</string>
+  <string name="preference_system_dns_override_enable_title">Override VPN DNS</string>  
+  <string name="preference_system_dns_forced_summary">Ignores the VPN directives and force the use of the specified DNS (use \',\' as separator)</string>
+  <string name="preference_system_dns_forced_title">DNS forced</string>  
+  <string name="preference_system_dns_alternative_summary">If the VPN doesn\'t define any DNS, this option will be used (use \',\' as separator)</string>
+  <string name="preference_system_dns_alternative_title">DNS alternative</string>
+  <string name="preference_system_last_profile_restore_title">Restore last profile at boot</string>
+  <string name="preference_system_last_profile_restore_summary">Automatically restore the last VPN profile at boot if not stopped</string>
+  <string name="preference_system_mtu_forced_summary">Force the specified MTU value</string>
+  <string name="preference_system_mtu_forced_title">MTU</string>
+  <string name="preference_system_proxy_enable_summary">Enable or disable proxy</string>
+  <string name="preference_system_proxy_enable_title">Enable proxy</string>
+  <string name="preference_system_show_notification_summary">Show or hide the notification icon while the service is running</string>
+  <string name="preference_system_show_notification_title">Show notification</string>
+
+</resources>

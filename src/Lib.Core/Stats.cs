@@ -19,12 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Lib.Common;
+using Eddie.Common;
 
 namespace Eddie.Core
 {
-    public class Stats
-    {
+	public class Stats
+	{
 		public Dictionary<string, StatsEntry> Dict = new Dictionary<string, StatsEntry>();
 		public List<StatsEntry> List = new List<StatsEntry>();
 
@@ -44,8 +44,8 @@ namespace Eddie.Core
 			Add("AccountKey", Messages.StatsKey, "session");
 			Add("VpnSpeedDownload", Messages.StatsVpnSpeedDownload, "session");
 			Add("VpnSpeedUpload", Messages.StatsVpnSpeedUpload, "session");
-			Add("VpnConnectionStart", Messages.StatsVpnConnectionStart, "session");            
-            Add("VpnTotalDownload", Messages.StatsVpnTotalDownload, "vpn");
+			Add("VpnStart", Messages.StatsVpnStart, "session");
+			Add("VpnTotalDownload", Messages.StatsVpnTotalDownload, "vpn");
 			Add("VpnTotalUpload", Messages.StatsVpnTotalUpload, "vpn");
 			Add("VpnEntryIP", Messages.StatsVpnEntryIP, "vpn");
 			Add("VpnExitIPv4", Messages.StatsVpnExitIPv4, "vpn");
@@ -60,19 +60,22 @@ namespace Eddie.Core
 			Add("VpnCipher", Messages.StatsVpnCipher, "vpn");
 			Add("VpnControlChannel", Messages.StatsVpnControlChannel, "vpn");
 			Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", "view");
+			Add("VpnGeneratedOVPNPush", Messages.StatsVpnGeneratedOVPNPush, "vpn", "view");
+			Add("SessionStart", Messages.StatsSessionStart, "session");
 			Add("SessionTotalDownload", Messages.StatsSessionTotalDownload, "session");
-            Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");            
+			Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");
 			Add("ManifestLastUpdate", Messages.StatsManifestLastUpdate, "system", "Update");
-			Add("Pinger", Messages.StatsPinger, "system", "Update"); 
+			Add("Discovery", Messages.StatsDiscovery, "system", "Update");
+			Add("Pinger", Messages.StatsPinger, "system", "Update");
 			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");
-            Add("PathProfile", Messages.StatsSystemPathProfile, "system", "Open");
+			Add("PathProfile", Messages.StatsSystemPathProfile, "system", "Open");
 			Add("PathData", Messages.StatsSystemPathData, "system", "Open");
 			Add("PathApp", Messages.StatsSystemPathApp, "system", "Open");
-            
-            UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
+
+			UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
 			UpdateValue("PathData", Engine.Instance.Storage.GetDataPath());
 			UpdateValue("PathApp", Platform.Instance.GetApplicationPath());
-        }
+		}
 
 		public void Add(string key, string caption, string icon)
 		{
@@ -85,7 +88,7 @@ namespace Eddie.Core
 			entry.Key = key;
 			entry.Caption = caption;
 			entry.Icon = icon;
-            entry.Clickable = clickable;
+			entry.Clickable = clickable;
 			Dict[key] = entry;
 			List.Add(entry);
 		}
@@ -106,12 +109,7 @@ namespace Eddie.Core
 			{
 				entry.Value = newValue;
 
-                XmlItem xml = new XmlItem("command");
-                xml.SetAttribute("action", "ui.stats.change");
-                entry.WriteXML(xml);
-                Engine.Instance.Command(xml);
-
-                Engine.Instance.OnStatsChange(entry);
+				Engine.Instance.OnStatsChange(entry);
 			}
 		}
 
@@ -119,5 +117,5 @@ namespace Eddie.Core
 		{
 			return Get(key).Value;
 		}
-    }
+	}
 }

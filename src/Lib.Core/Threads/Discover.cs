@@ -20,23 +20,46 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Text;
-using System.Xml;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Core.Threads
 {
 	public class Discover : Eddie.Core.Thread
-    {
+	{
 		private bool m_checkNow = false;
 
-        public override ThreadPriority GetPriority()
-        {
-            return ThreadPriority.Lowest;
-        }
+		public override ThreadPriority GetPriority()
+		{
+			return ThreadPriority.Lowest;
+		}
 
 		public void CheckNow()
 		{
 			m_checkNow = true;
+		}
+
+		public string GetStatsString()
+		{
+			Dictionary<string, ConnectionInfo> servers;
+			lock (Engine.Connections)
+				servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
+
+			int timeNow = UtilsCore.UnixTimeStamp();
+			int interval = Engine.Instance.Storage.GetInt("discover.interval");
+			int nTotal = 0;
+			int nPending = 0;
+
+			foreach (ConnectionInfo infoServer in servers.Values)
+			{
+				if (infoServer.NeedDiscover)
+				{
+					nTotal++;
+					if (timeNow - infoServer.LastDiscover >= interval)
+						nPending++;
+				}
+			}
+			return nPending + " pending / " + nTotal;
 		}
 
 		public void InvalidateAll()
@@ -54,63 +77,60 @@ namespace Eddie.Core.Threads
 			CheckNow();
 		}
 
-        public override void OnRun()
-        {
-            Dictionary<string, ConnectionInfo> servers;
+		public override void OnRun()
+		{
+			Dictionary<string, ConnectionInfo> servers;
 
-            for (; ; )
-            {
+			for (;;)
+			{
 				m_checkNow = false;
 
 				lock (Engine.Connections)
 					servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
 
-                int timeNow = Utils.UnixTimeStamp();
+				int timeNow = UtilsCore.UnixTimeStamp();
 
-                int interval = Engine.Instance.Storage.GetInt("discover.interval");
+				int interval = Engine.Instance.Storage.GetInt("discover.interval");
 
 				foreach (ConnectionInfo infoServer in servers.Values)
-                {
-                    if (infoServer.NeedDiscover)
-                    {
-                        if (timeNow - infoServer.LastDiscover >= interval)
-                        {
-                            DiscoverIp(infoServer);
-                        }
-                    }
+				{
+					if (CancelRequested)
+						return;
 
-                    if (CancelRequested)
-                        return;                    
-                }
+					if (infoServer.NeedDiscover)
+					{
+						if (timeNow - infoServer.LastDiscover >= interval)
+						{
+							DiscoverIp(infoServer);
+						}
+					}
+				}
 
-                for(int i=0;i<600;i++) // Every minute
-                {
-                    Sleep(100);
+				for (int i = 0; i < 600; i++) // Every minute
+				{
+					Sleep(100);
+
+					if (CancelRequested)
+						return;
 
 					if (m_checkNow)
 						break;
-
-                    if (CancelRequested)
-                        return;
-                }
-            }
-        }
+				}
+			}
+		}
 
 		public IpAddresses DiscoverExit()
 		{
 			IpAddresses result = new IpAddresses();
 
-			string[] methods = Engine.Instance.Storage.Get("discover.ip_webservice.list").Split(';');
-			bool onlyFirstResponse = Engine.Instance.Storage.GetBool("discover.ip_webservice.first");
-
 			string[] layers = new string[] { "4", "6" };
 
 			foreach (string layer in layers)
 			{
-				XmlDocument xmlDoc = DiscoverIpData("", layer);
-				if (xmlDoc != null)
+				Json jDoc = DiscoverIpData("", layer);
+				if ((jDoc != null) && (jDoc.HasKey("ip")))
 				{
-					string ip = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//ip") as XmlElement).ToLowerInvariant().Trim();
+					string ip = (jDoc["ip"].Value as string).Trim().ToLowerInvariant();
 
 					result.Add(ip);
 				}
@@ -119,18 +139,25 @@ namespace Eddie.Core.Threads
 			return result;
 		}
 
-		private void NormalizeServiceResponse(XmlDocument xmlDoc)
+		private void NormalizeServiceResponse(Json jDoc)
 		{
-			if (xmlDoc.DocumentElement.HasChildNodes)
-			{
-				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "CountryCode", "country_code");
-				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "CityName", "city_name");
-				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "Latitude", "latitude");
-				Utils.XmlRenameTagName(xmlDoc.DocumentElement, "Longitude", "longitude");
-			}
+			if (jDoc.HasKey("countryCode"))
+				jDoc.RenameKey("countryCode", "country_code");
+			if (jDoc.HasKey("CountryCode"))
+				jDoc.RenameKey("CountryCode", "country_code");
+			if (jDoc.HasKey("CityName"))
+				jDoc.RenameKey("CityName", "city_name");
+			if (jDoc.HasKey("City"))
+				jDoc.RenameKey("City", "city_name");
+			if (jDoc.HasKey("city"))
+				jDoc.RenameKey("city", "city_name");
+			if (jDoc.HasKey("Latitude"))
+				jDoc.RenameKey("Latitude", "latitude");
+			if (jDoc.HasKey("Longitude"))
+				jDoc.RenameKey("Longitude", "longitude");
 		}
 
-		private XmlDocument DiscoverIpData(string ip, string layer)
+		private Json DiscoverIpData(string ip, string layer)
 		{
 			string[] methods = Engine.Instance.Storage.Get("discover.ip_webservice.list").Split(';');
 			foreach (string method in methods)
@@ -146,12 +173,12 @@ namespace Eddie.Core.Threads
 						httpRequest.Url = url;
 						httpRequest.IpLayer = layer;
 
-						XmlDocument xmlDoc = Engine.Instance.FetchUrlXml(httpRequest);
+						string json = Engine.Instance.FetchUrl(httpRequest).GetBody();
+						Json jDoc = Json.Parse(json);
 
-						NormalizeServiceResponse(xmlDoc);
+						NormalizeServiceResponse(jDoc);
 
-						if (xmlDoc.DocumentElement.HasChildNodes)
-							return xmlDoc;
+						return jDoc;
 					}
 				}
 				catch (Exception)
@@ -161,45 +188,56 @@ namespace Eddie.Core.Threads
 			return null;
 		}
 
-        public void DiscoverIp(ConnectionInfo connection)
-        {
-			XmlDocument xmlDoc = DiscoverIpData(connection.IpsEntry.ToStringFirstIPv4(), "");
-			if(xmlDoc != null)
+		public void DiscoverIp(ConnectionInfo connection)
+		{
+			IpAddress ip = connection.IpsEntry.FirstPreferIPv4;
+			if (ip != null)
 			{
-				// Node parsing
-				string countryCode = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//country_code") as XmlElement).ToLowerInvariant().Trim();
-				if (CountriesManager.IsCountryCode(countryCode))
+				Json jDoc = DiscoverIpData(ip.Address, "");
+				if (jDoc != null)
 				{
-					if (connection.CountryCode != countryCode)
+					// Node parsing
+					if (jDoc.HasKey("country_code"))
 					{
-						connection.CountryCode = countryCode;
+						string countryCode = Conversions.ToString(jDoc["country_code"].Value).Trim().ToLowerInvariant();
+						if (CountriesManager.IsCountryCode(countryCode))
+						{
+							if (connection.CountryCode != countryCode)
+							{
+								connection.CountryCode = countryCode;
+								Engine.Instance.MarkServersListUpdated();
+								Engine.Instance.MarkAreasListUpdated();
+							}
+						}
+					}
+
+					if (jDoc.HasKey("city_name"))
+					{
+						string cityName = Conversions.ToString(jDoc["city_name"].Value).Trim();
+						if (cityName == "N/A")
+							cityName = "";
+						if (cityName != "")
+						{
+							connection.Location = cityName;
+							Engine.Instance.MarkServersListUpdated();
+						}
+					}
+
+					if ((jDoc.HasKey("latitude")) && (jDoc.HasKey("longitude")))
+					{
+						double latitude = Conversions.ToDouble(jDoc["latitude"].Value);
+						double longitude = Conversions.ToDouble(jDoc["longitude"].Value);
+
+						connection.Latitude = latitude;
+						connection.Longitude = longitude;
 						Engine.Instance.MarkServersListUpdated();
-						Engine.Instance.MarkAreasListUpdated();
 					}
 				}
-
-				string cityName = Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//city_name") as XmlElement).Trim();
-				if (cityName == "N/A")
-					cityName = "";
-				if (cityName != "")
-				{
-					connection.Location = cityName;
-					Engine.Instance.MarkServersListUpdated();
-				}
-
-				float latitude = Conversions.ToFloat(Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//latitude") as XmlElement).Trim());
-				float longitude = Conversions.ToFloat(Utils.XmlGetBody(xmlDoc.DocumentElement.SelectSingleNode(".//longitude") as XmlElement).Trim());
-				if ((latitude != 0) && (longitude != 0))
-				{
-					connection.Latitude = latitude;
-					connection.Longitude = longitude;
-					Engine.Instance.MarkServersListUpdated();
-				}
 			}
-			
-			connection.LastDiscover = Utils.UnixTimeStamp();
+
+			connection.LastDiscover = UtilsCore.UnixTimeStamp();
 
 			connection.Provider.OnChangeConnection(connection);
 		}
-    }
+	}
 }
