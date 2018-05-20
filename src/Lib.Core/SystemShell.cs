@@ -193,7 +193,10 @@ namespace Eddie.Core
 			string path = Path;
 			string[] args = Arguments.ToArray ();
 			if (RunAsNormalUser)
-				Platform.Instance.ShellAdaptNormalUser (ref path, ref args);
+			{
+				if (Platform.Instance.ShellAdaptNormalUser(ref path, ref args) == false)
+					return false;
+			}	
 			
 			if (WaitEnd)
 			{

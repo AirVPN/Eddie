@@ -47,7 +47,8 @@ namespace Eddie.Core
 				(name == "x509-track") ||
 				(name == "http-proxy-option") ||
 				(name == "pull-filter") ||
-				(name == "ignore-unknown-option")
+				(name == "ignore-unknown-option") ||
+				(name == "setenv")
 			  )
 				return true;
 

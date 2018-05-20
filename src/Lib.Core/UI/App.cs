@@ -64,48 +64,18 @@ namespace Eddie.Core.UI
 				TorControl.SendNEWNYM();
 			else if (cmd == "ip.exit")
 				Engine.Instance.Logs.LogVerbose(Engine.Instance.DiscoverExit().ToString());
-			else if (cmd == "test.cli-su") // ClodoTemp
+			else if (cmd == "test.cli-su")
 				Engine.Instance.Logs.LogVerbose(TestRunCliAsRoot());
-			else if (cmd == "test.log.info") // ClodoTemp
+			else if (cmd == "test.log.info")
 				Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo");
-			else if (cmd == "test.log.infoimportant") // ClodoTemp
+			else if (cmd == "test.log.infoimportant")
 				Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo Important");
-			else if (cmd == "test.log.warning") // ClodoTemp
+			else if (cmd == "test.log.warning")
 				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning");
-			else if (cmd == "test.log.error") // ClodoTemp
+			else if (cmd == "test.log.error")
 				Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
-			else if (cmd == "test.log.fatal") // ClodoTemp
-				Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
-			else if (cmd == "test.route.add") // ClodoTemp
-			{
-				ConnectionActiveRoute route = new ConnectionActiveRoute();
-				route.Address = data["address"].Value as string;
-				route.Gateway = data["gateway"].Value as string;
-				route.Add(null);
-			}
-			else if (cmd == "test.route.remove") // ClodoTemp
-			{
-				ConnectionActiveRoute route = new ConnectionActiveRoute();
-				route.Address = data["address"].Value as string;
-				route.Gateway = data["gateway"].Value as string;
-				route.Remove(null);
-			}
-			else if (cmd == "test.route.default-remove.do")
-			{
-				Platform.Instance.OnRouteDefaultRemoveDo();
-			}
-			else if (cmd == "test.route.default-remove.restore")
-			{
-				Platform.Instance.OnRouteDefaultRemoveRestore();
-			}
-			else if (cmd == "test.ipv6.block")
-			{
-				Platform.Instance.OnIPv6Block();
-			}
-			else if (cmd == "test.ipv6.restore")
-			{
-				Platform.Instance.OnIPv6Restore();
-			}
+			else if (cmd == "test.log.fatal")
+				Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");			
 
 			return null;
 		}

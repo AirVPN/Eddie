@@ -1007,13 +1007,15 @@ namespace Eddie.Forms.Forms
             this.mnuRoutesRemove,
             this.mnuRoutesEdit});
 			this.mnuRoutes.Name = "mnuServers";
-			this.mnuRoutes.Size = new System.Drawing.Size(122, 82);
+			this.mnuRoutes.Size = new System.Drawing.Size(157, 104);
 			// 
 			// mnuRoutesAdd
 			// 
+			this.mnuRoutesAdd.BackColor = System.Drawing.SystemColors.Control;
+			this.mnuRoutesAdd.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuRoutesAdd.Image = global::Eddie.Forms.Properties.Resources.add;
 			this.mnuRoutesAdd.Name = "mnuRoutesAdd";
-			this.mnuRoutesAdd.Size = new System.Drawing.Size(121, 26);
+			this.mnuRoutesAdd.Size = new System.Drawing.Size(156, 26);
 			this.mnuRoutesAdd.Text = "Add";
 			this.mnuRoutesAdd.Click += new System.EventHandler(this.mnuRoutesAdd_Click);
 			// 
@@ -1021,7 +1023,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuRoutesRemove.Image = global::Eddie.Forms.Properties.Resources.delete;
 			this.mnuRoutesRemove.Name = "mnuRoutesRemove";
-			this.mnuRoutesRemove.Size = new System.Drawing.Size(121, 26);
+			this.mnuRoutesRemove.Size = new System.Drawing.Size(156, 26);
 			this.mnuRoutesRemove.Text = "Remove";
 			this.mnuRoutesRemove.Click += new System.EventHandler(this.mnuRoutesRemove_Click);
 			// 
@@ -1029,7 +1031,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuRoutesEdit.Image = global::Eddie.Forms.Properties.Resources.edit;
 			this.mnuRoutesEdit.Name = "mnuRoutesEdit";
-			this.mnuRoutesEdit.Size = new System.Drawing.Size(121, 26);
+			this.mnuRoutesEdit.Size = new System.Drawing.Size(156, 26);
 			this.mnuRoutesEdit.Text = "Edit";
 			this.mnuRoutesEdit.Click += new System.EventHandler(this.mnuRoutesEdit_Click);
 			// 
@@ -1520,6 +1522,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// chkProtocolsAutomatic
 			// 
+			this.chkProtocolsAutomatic.ForeColor = System.Drawing.Color.Black;
 			this.chkProtocolsAutomatic.Location = new System.Drawing.Point(13, 14);
 			this.chkProtocolsAutomatic.Name = "chkProtocolsAutomatic";
 			this.chkProtocolsAutomatic.Size = new System.Drawing.Size(650, 22);

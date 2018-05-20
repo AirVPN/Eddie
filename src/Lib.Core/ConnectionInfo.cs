@@ -536,29 +536,29 @@ namespace Eddie.Core
 					connectionActive.TunnelIPv4 = false; // Out, but doesn't matter, will be blocked.
 				}
 
-				if (Platform.Instance.GetNetworkIPv6Mode() == "in")
+				if (Engine.Instance.GetNetworkIPv6Mode() == "in")
 				{
 					connectionActive.TunnelIPv6 = true;
 				}
-				else if (Platform.Instance.GetNetworkIPv6Mode() == "in-out")
+				else if (Engine.Instance.GetNetworkIPv6Mode() == "in-out")
 				{
 					if (SupportIPv6)
 						connectionActive.TunnelIPv6 = true;
 					else
 						connectionActive.TunnelIPv6 = false;
 				}
-				else if (Platform.Instance.GetNetworkIPv6Mode() == "in-block")
+				else if (Engine.Instance.GetNetworkIPv6Mode() == "in-block")
 				{
 					if (SupportIPv6)
 						connectionActive.TunnelIPv6 = true;
 					else
 						connectionActive.TunnelIPv6 = false;
 				}
-				else if (Platform.Instance.GetNetworkIPv6Mode() == "out")
+				else if (Engine.Instance.GetNetworkIPv6Mode() == "out")
 				{
 					connectionActive.TunnelIPv6 = false;
 				}
-				else if (Platform.Instance.GetNetworkIPv6Mode() == "block")
+				else if (Engine.Instance.GetNetworkIPv6Mode() == "block")
 				{
 					connectionActive.TunnelIPv6 = false;
 				}

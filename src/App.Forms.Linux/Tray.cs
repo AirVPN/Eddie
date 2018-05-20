@@ -10,32 +10,38 @@ namespace Eddie.Forms.Linux
 	{			
 		string m_pathWrite = "";
 
+		// Sometime eddie_tray can't start (issue with GTK, X11/Wayland permission etc).
+		// But there is a loop to recover them if start but crash/killed.
+		// So we mark when a real start is occured.
+		bool m_oneStart = false;
+
 		public Tray ()
 		{
 		}
 
 		public bool IsStarted()
 		{
-			return (m_pathWrite != "");
+			return ( (m_pathWrite != "") && (m_oneStart) );
 		}
 
 		public void SendCommand(string cmd)
 		{
 			if(IsStarted() == false)
 				return;
-
+							
 			// Mono treats FIFOs as if they are seekable (it's a bug), even though they aren't.
-			Platform.Linux.NativeMethods.PipeWrite (m_pathWrite, cmd + "\n");
+			Platform.Linux.NativeMethods.PipeWrite (m_pathWrite, cmd + "\n");			
 		}
 
 		public override void OnRun ()
 		{
 			for (;;) {
+				
 				//string controlReadPath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_r.tmp");
 				//string controlWritePath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_w.tmp");
 				string controlReadPath = Path.GetTempPath() + "eddie_tray_r.tmp";
 				string controlWritePath = Path.GetTempPath() + "eddie_tray_w.tmp";
-
+								
 				string pathRes = Core.Engine.Instance.GetPathResources();
 				string pathExe = Core.Engine.Instance.GetPathTools() + "/eddie_tray";
 
@@ -65,6 +71,9 @@ namespace Eddie.Forms.Linux
 
 				processTray.Start ();
 
+				if (processTray.HasExited) // If can't start, for example missing appindicator library.
+					break;
+
 				// Wait until control file is ready
 				for (;;) {
 					if (CancelRequested)
@@ -83,9 +92,12 @@ namespace Eddie.Forms.Linux
 					for (;;) {
 						using (StreamReader streamRead = new StreamReader (controlWritePath)) {
 							string cmd = streamRead.ReadLine ();
-
-							if(cmd == null) // Closed
+							
+							if (cmd == null) // Closed
 								break;
+
+							if(m_oneStart == false)
+								m_oneStart = true;
 
 							Eddie.Forms.Engine engine = Eddie.Core.Engine.Instance as Eddie.Forms.Engine;					
 							if (engine.FormMain != null) {
@@ -109,6 +121,13 @@ namespace Eddie.Forms.Linux
 				catch {					
 				}
 
+				m_pathWrite = "";
+
+				if (m_oneStart == false)
+				{
+					Eddie.Core.Engine.Instance.Logs.LogVerbose("Unable to initialize the tray icon.");
+					break;
+				}
 
 				if (this.CancelRequested)
 					break;

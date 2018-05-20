@@ -23,6 +23,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Common;
 using Microsoft.Win32;
 
 namespace Eddie.Platform.Windows
@@ -176,10 +177,15 @@ namespace Eddie.Platform.Windows
 		{
 			base.AllowInterface(id);
 
-			AddRule("netlock_allow_interface_" + id + "_ipv4", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv4", id, "ipv4"));
+			Json jInfo = Engine.Instance.FindNetworkInterfaceInfo(id);
 
-			// Remember: May fail at WFP side with a "Unknown interface" because network interface with IPv6 disabled have Ipv6IfIndex == 0.
-			AddRule("netlock_allow_interface_" + id + "_ipv6", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv6", id, "ipv6"));
+			// Remember: Fail at WFP side with a "Unknown interface" if the network interface have IPv4 or IPv6 disabled (Ipv6IfIndex == 0).
+
+			if ((jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value)))
+				AddRule("netlock_allow_interface_" + id + "_ipv4", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv4", id, "ipv4"));
+							
+			if ((jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value)))
+				AddRule("netlock_allow_interface_" + id + "_ipv6", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv6", id, "ipv6"));
 		}
 
 		public override void DeallowInterface(string id)

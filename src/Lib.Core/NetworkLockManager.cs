@@ -75,7 +75,7 @@ namespace Eddie.Core
 				if (Engine.Instance.Storage.GetLower("network.ipv4.mode") == "out")
 					return false;
 
-				if (Platform.Instance.GetNetworkIPv6Mode() == "out")
+				if (Engine.Instance.Storage.GetLower("network.ipv6.mode") == "out")
 					return false;
 			}
 			else

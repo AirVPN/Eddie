@@ -147,7 +147,7 @@ namespace Eddie.Core
 				o = o.Replace("].", "]\\[char46]");
 
 				// Header
-				o = ".\\\"" + Messages.ManHeaderComment + "\n.TH airvpn 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\"" + o;
+				o = ".\\\"" + Messages.ManHeaderComment + "\n.TH eddie-ui 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\"" + o;
 
 				o = o.Replace("[sh]", "\n.SH ");
 				o = o.Replace("[/sh]", "\n");
@@ -451,6 +451,7 @@ namespace Eddie.Core
 			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
 			SetDefault("path.resources", "text", "res/", NotInMan); // Relative to executable
 			SetDefault("path.tools", "text", "", NotInMan); // Relative to executable
+			SetDefault("path.exec", "text", "", NotInMan); // Original execution file
 
 			SetDefault("servers.last", "text", "", NotInMan, false);
 			SetDefault("servers.whitelist", "text", "", Messages.ManOptionServersWhiteList);
@@ -582,6 +583,9 @@ namespace Eddie.Core
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
 
+			// Linux only
+			SetDefaultBool("linux.xhost", false, NotInMan);
+
 			// General UI
 			SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
 			SetDefaultBool("ui.iec", false, Messages.ManOptionUiIEC);
@@ -610,7 +614,7 @@ namespace Eddie.Core
 			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInMan); // Menu Status, Window Title, Tray Tooltip
 			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInMan);
 
-
+			
 
 
 			// Command-line only

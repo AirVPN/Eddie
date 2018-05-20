@@ -338,6 +338,7 @@
     <None Include="Resources\tab_preferences.png" />
     <None Include="Resources\tab_about_hover.png" />
     <None Include="Resources\tab_preferences_hover.png" />
+    <None Include="about_airvpn.png" />
     <Content Include="res\about.png" />
     <Content Include="res\about_header_bg.png" />
     <Content Include="res\about_logo.png" />

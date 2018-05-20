@@ -90,7 +90,7 @@ namespace Eddie.Common
 		{
 			return GetFull();
 		}
-		
+
 		// ------------
 		// Management
 		// ------------
@@ -138,11 +138,119 @@ namespace Eddie.Common
 			}
 		}
 
+		public string GetFullForDebug() // TOCLEAN
+		{
+			string o = "";
+			foreach (KeyValuePair<string, string> item in Params)
+				o += "k:#" + item.Key + "#v:#" + item.Value + "#; ";
+			return o.Trim();
+		}
+
+		public string ParseCompatibilityTest(string l, bool ignoreFirst, bool firstIsAction) // TOCLEAN
+		{
+			Params = ParseCommandLineOld(l, ignoreFirst, firstIsAction);
+			string f1 = GetFullForDebug();
+			int n1 = Params.Count;
+			Params = ParseCommandLine(l, ignoreFirst, firstIsAction);
+			string f2 = GetFullForDebug();
+			int n2 = Params.Count;
+
+			string x = "CmdLine:" + l + "\nResult :";
+			if (f1 == f2)
+				x += "OK;" + f1;
+			else
+				x += "NO;\nOld(" + n1.ToString() + "):" + f1 + "\n!=\nNew(" + n2.ToString() + "):" + f2;
+
+			x += "\n\n";
+			return x;
+		}
+
 		// ------------
 		// Misc
 		// ------------
 
 		private static Dictionary<string, string> ParseCommandLine(string l, bool ignoreFirst, bool firstIsAction)
+		{
+			Dictionary<string, string> result = new Dictionary<string, string>();
+
+			char currentQuoteChar = ' ';
+			int nParams = 0;
+			string current = "";
+			for (int pC = 0; pC < l.Length + 1; pC++)
+			{
+				bool add = false;
+
+				if (pC == l.Length)
+					add = true;
+				else
+				{
+					char ch = l[pC];
+
+					if ((ch == ' ') && (currentQuoteChar == ' '))
+						add = true;
+					else
+					{
+						bool chIsQuote = false;
+						if ((ch == '\'') || (ch == '\"'))
+							chIsQuote = true;
+
+						if ((chIsQuote) && (pC > 0) && (l[pC - 1] == '\\'))
+							chIsQuote = false;
+
+						if ((chIsQuote) && (ch == currentQuoteChar))
+							currentQuoteChar = ' ';
+						else if ((chIsQuote) && (currentQuoteChar == ' '))
+							currentQuoteChar = ch;
+						else
+						{
+							current += ch;
+						}
+					}
+				}
+
+				if (add)
+				{
+					if (current.Trim() != "")
+					{
+						string k = "";
+						string v = "";
+
+						if ((firstIsAction) && (nParams == 0))
+						{
+							result.Add("action", current.Trim());
+						}
+						else if ((ignoreFirst == false) || (nParams > 0))
+						{
+							int posEq = current.IndexOf("=");
+							if (posEq != -1)
+							{
+								k = current.Substring(0, posEq);
+								v = current.Substring(posEq + 1);
+							}
+							else
+							{
+								k = current;
+								v = "True";
+							}
+
+							k = k.Trim().TrimStart(" /-".ToCharArray());
+							v = v.Trim();
+
+							if (k != "")
+								result[k] = v;
+						}
+
+						nParams++;
+					}
+
+					current = "";
+				}
+			}
+
+			return result;
+		}
+
+		private static Dictionary<string, string> ParseCommandLineOld(string l, bool ignoreFirst, bool firstIsAction) // TOCLEAN
 		{
 			Dictionary<string, string> result = new Dictionary<string, string>();
 

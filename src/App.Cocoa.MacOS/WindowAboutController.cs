@@ -72,7 +72,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdSources.Title = Core.UI.App.Manifest["links"]["github"].Value as string;
 			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
 
-			// Core.UI.App.Manifest["links"]["help"]["website"].Value as string;
+            LblThanks.StringValue = MessagesFormatter.Format(Messages.WindowsAboutThanks, String.Join(", ", Constants.Thanks.Split(';')));
 
 			CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
@@ -88,6 +88,11 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["github"].Value as string);
 			};
+
+            CmdAirVPN.Activated += (object sender, EventArgs e) =>
+            {
+                Core.UI.App.OpenUrl("https://airvpn.org");
+            };
 
 			CmdLicense.Activated += (object sender, EventArgs e) =>
 			{

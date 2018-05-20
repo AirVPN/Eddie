@@ -73,6 +73,16 @@ namespace Eddie.Forms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap about_airvpn {
+            get {
+                object obj = ResourceManager.GetObject("about_airvpn", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap about_header_bg {
             get {
                 object obj = ResourceManager.GetObject("about_header_bg", resourceCulture);

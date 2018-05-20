@@ -60,6 +60,15 @@ namespace Eddie.Core
 			return Convert.ToInt32(v, CultureInfo.InvariantCulture);
 		}
 
+		public static UInt32 ToUInt32(string v)
+		{
+			UInt32 vo;
+			if (UInt32.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out vo))
+				return vo;
+			else
+				return 0;
+		}
+
 		public static Int64 ToInt64(string v)
 		{
 			Int64 vo;

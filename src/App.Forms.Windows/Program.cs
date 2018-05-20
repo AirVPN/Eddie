@@ -35,7 +35,7 @@ namespace Eddie.Forms.Windows
 
 		private static Eddie.Forms.Engine m_engine;
 		private static ApplicationContext m_context;
-
+				
 		[STAThread]
 		static void Main()
 		{

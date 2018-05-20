@@ -366,40 +366,50 @@ namespace Eddie.Platform.Windows
 			if (gateway.Valid == false)
 				return false;
 
-			NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
+			try
+			{
+				NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
 
-			string cmd = "";
-			if (ip.IsV4)
-			{
-				cmd += "route add " + ip.Address + " mask " + ip.Mask + " " + gateway.Address;
-				int interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
-				cmd += " if " + SystemShell.EscapeInt(interfaceIdx);
-				/*
-				 * Metric param are ignored or misinterpreted. http://serverfault.com/questions/238695/how-can-i-set-the-metric-of-a-manually-added-route-on-windows
-				if(r.Metrics != "")
-					cmd += " metric " + r.Metrics;
-				*/
-			}
-			else if (ip.IsV6)
-			{
-				cmd = "netsh interface ipv6 add route";
-				cmd += " prefix=\"" + SystemShell.EscapeInsideQuote(ip.ToCIDR(true)) + "\"";
-				int interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-				cmd += " interface=\"" + SystemShell.EscapeInt(interfaceIdx) + "\"";
-				cmd += " nexthop=\"" + SystemShell.EscapeInsideQuote(gateway.Address) + "\"";
-				if (jRoute.HasKey("metric"))
-					cmd += " metric=" + SystemShell.EscapeInt(jRoute["metric"].Value as string);
-			}
+				if (networkInterface == null)
+					throw new Exception(Messages.NetworkInterfaceNotAvailable);
 
-			string result = SystemShell.ShellCmd(cmd);
-			result = result.Trim().Trim(new char[] { '!', '.' });
-			if (result.ToLowerInvariant() == "ok")
-			{
-				return base.RouteAdd(jRoute);
+				string cmd = "";
+				if (ip.IsV4)
+				{
+					cmd += "route add " + ip.Address + " mask " + ip.Mask + " " + gateway.Address;
+					int interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
+					cmd += " if " + SystemShell.EscapeInt(interfaceIdx);
+					/*
+					 * Metric param are ignored or misinterpreted. http://serverfault.com/questions/238695/how-can-i-set-the-metric-of-a-manually-added-route-on-windows
+					if(r.Metrics != "")
+						cmd += " metric " + r.Metrics;
+					*/
+				}
+				else if (ip.IsV6)
+				{
+					cmd = "netsh interface ipv6 add route";
+					cmd += " prefix=\"" + SystemShell.EscapeInsideQuote(ip.ToCIDR(true)) + "\"";
+					int interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
+					cmd += " interface=\"" + SystemShell.EscapeInt(interfaceIdx) + "\"";
+					cmd += " nexthop=\"" + SystemShell.EscapeInsideQuote(gateway.Address) + "\"";
+					if (jRoute.HasKey("metric"))
+						cmd += " metric=" + SystemShell.EscapeInt(jRoute["metric"].Value as string);
+				}
+
+				string result = SystemShell.ShellCmd(cmd);
+				result = result.Trim().Trim(new char[] { '!', '.' });
+				if (result.ToLowerInvariant() == "ok")
+				{
+					return base.RouteAdd(jRoute);
+				}
+				else
+				{
+					throw new Exception(result);
+				}
 			}
-			else
+			catch(Exception e)
 			{
-				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteAddFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
+				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteAddFailed, ip.ToCIDR(), gateway.ToCIDR(), e.Message));
 				return false;
 			}
 		}
@@ -413,44 +423,54 @@ namespace Eddie.Platform.Windows
 			if (gateway.Valid == false)
 				return false;
 
-			NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
+			try
+			{
+				NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
 
-			string cmd = "";
-			if (ip.IsV4)
-			{
-				cmd = "route delete " + ip.Address + " mask " + ip.Mask + " " + gateway.Address;
-				int interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
-				cmd += " if " + SystemShell.EscapeInt(interfaceIdx);
-			}
-			else if (ip.IsV6)
-			{
-				cmd = "netsh interface ipv6 del route";
-				cmd += " prefix=\"" + SystemShell.EscapeInsideQuote(ip.ToCIDR(true)) + "\"";
-				int interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-				cmd += " interface=\"" + SystemShell.EscapeInt(interfaceIdx) + "\"";
-				cmd += " nexthop=\"" + SystemShell.EscapeInsideQuote(gateway.Address) + "\"";
-			}
+				if (networkInterface == null)
+					throw new Exception(Messages.NetworkInterfaceNotAvailable);
 
-			string result = SystemShell.ShellCmd(cmd);
-			result = result.Trim().Trim(new char[] { '!', '.' });
-			if (result.ToLowerInvariant() == "ok")
-			{
-				return base.RouteRemove(jRoute);
-			}
-			else
-			{
-				// Remember: Route deletion can occur in a second moment (for example a Recovery phase).
+				string cmd = "";
+				if (ip.IsV4)
+				{
+					cmd = "route delete " + ip.Address + " mask " + ip.Mask + " " + gateway.Address;
+					int interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
+					cmd += " if " + SystemShell.EscapeInt(interfaceIdx);
+				}
+				else if (ip.IsV6)
+				{
+					cmd = "netsh interface ipv6 del route";
+					cmd += " prefix=\"" + SystemShell.EscapeInsideQuote(ip.ToCIDR(true)) + "\"";
+					int interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
+					cmd += " interface=\"" + SystemShell.EscapeInt(interfaceIdx) + "\"";
+					cmd += " nexthop=\"" + SystemShell.EscapeInsideQuote(gateway.Address) + "\"";
+				}
 
-				// Still accepted: The device are not available anymore, so the route are already deleted.
-				if (result.ToLowerInvariant().Contains("the system cannot find the file specified"))
+				string result = SystemShell.ShellCmd(cmd);
+				result = result.Trim().Trim(new char[] { '!', '.' });
+				if (result.ToLowerInvariant() == "ok")
+				{
 					return base.RouteRemove(jRoute);
+				}
+				else
+				{
+					// Remember: Route deletion can occur in a second moment (for example a Recovery phase).
 
-				// Still accepted: Already deleted.
-				if (result.ToLowerInvariant().Contains("element not found."))
-					return base.RouteRemove(jRoute);
+					// Still accepted: The device are not available anymore, so the route are already deleted.
+					if (result.ToLowerInvariant().Contains("the system cannot find the file specified"))
+						return base.RouteRemove(jRoute);
 
-				// Unexpected/unknown error.
-				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteDelFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
+					// Still accepted: Already deleted.
+					if (result.ToLowerInvariant().Contains("element not found."))
+						return base.RouteRemove(jRoute);
+
+					// Unexpected/unknown error.
+					throw new Exception(result);
+				}
+			}
+			catch(Exception e)
+			{
+				Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.RouteDelFailed, ip.ToCIDR(), gateway.ToCIDR(), e.Message));
 				return false;
 			}
 		}
@@ -478,24 +498,7 @@ namespace Eddie.Platform.Windows
 
 			return list;
 		}
-
-		public override bool GetIPv6Available()
-		{
-			bool available = true;
-			{
-				// Based on: http://support.microsoft.com/kb/929852
-				// Based on: https://www.wincert.net/networking/ipv6-breaking-down-the-disabledcomponents-registry-value/
-				object reg = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
-				UInt32 v = Conversions.ToUInt32(reg, 0);
-
-				if ((v & (1 << 0)) != 0) // Bit 0 controls ALL of the IPv6 tunnel interfaces. If 1 is disabled
-					available = false;
-				if ((v & (1 << 4)) != 0) // Bit 4 controls IPv6 for non-tunnel interfaces. If 1 is disabled
-					available = false;				
-			}
-			return available;
-		}
-
+		
 		public override bool WaitTunReady()
 		{
 			int tickStart = Environment.TickCount;
@@ -565,15 +568,7 @@ namespace Eddie.Platform.Windows
 			else
 				return true;
 		}
-
-		public override bool OnCheckEnvironmentApp()
-		{
-			if ((GetIPv6Available() == false) && (Engine.Instance.Storage.GetLower("network.ipv6.mode") != "block"))
-				Engine.Instance.Logs.LogWarning(Messages.IPv6NotSupportedByOS);
-			
-			return base.OnCheckEnvironmentApp();
-		}
-
+		
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -1907,11 +1902,19 @@ namespace Eddie.Platform.Windows
 
 		private bool OsSupportIPv6()
 		{
-			object v = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
-			if (Conversions.ToUInt32(v, 0) == 0) // 0 is the Windows default if the key doesn't exist.
-				v = 0;
+			bool available = true;
 
-			return (Conversions.ToUInt32(v, 0) == 0);
+			// Based on: http://support.microsoft.com/kb/929852
+			// Based on: https://www.wincert.net/networking/ipv6-breaking-down-the-disabledcomponents-registry-value/
+			object reg = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
+			UInt32 v = Conversions.ToUInt32(reg, 0);
+
+			if ((v & (1 << 0)) != 0) // Bit 0 controls ALL of the IPv6 tunnel interfaces. If 1 is disabled
+				available = false;
+			if ((v & (1 << 4)) != 0) // Bit 4 controls IPv6 for non-tunnel interfaces. If 1 is disabled
+				available = false;				
+			
+			return available;
 		}
 
 		private NetworkInterface GetNetworkInterfaceFromGuid(string guid)

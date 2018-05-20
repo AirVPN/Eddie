@@ -317,17 +317,17 @@ namespace Eddie.Core
 				Software.Log();
 
 				CompatibilityManager.Init();
-
+				
 				RaiseManifest();
-
+				
 				CheckEnvironmentApp();
-
+				
 				Platform.Instance.OnRecovery();
-
+				
 				Recovery.Load();
-
+				
 				RunEventCommand("app.start");
-
+				
 				if (Engine.Storage.GetLower("netlock.mode") != "none")
 				{
 					if (Engine.Storage.GetBool("netlock")) // 2.8
@@ -340,7 +340,7 @@ namespace Eddie.Core
 				m_threadPenalities = new Threads.Penalities();
 				m_threadDiscover = new Threads.Discover();
 				m_threadManifest = new Threads.Manifest();
-
+				
 				PostManifestUpdate();
 
 				bool autoStart = false;
@@ -485,7 +485,7 @@ namespace Eddie.Core
 		}
 
 		public virtual void OnWork()
-		{
+		{			
 			ActionService currentAction = ActionService.None;
 
 			lock (m_actionsList)
@@ -553,7 +553,7 @@ namespace Eddie.Core
 					RecomputeAreas();
 				}
 			}
-
+			
 			Sleep(100);
 		}
 
@@ -1124,7 +1124,7 @@ namespace Eddie.Core
 					connection.WarningAdd(Messages.ConnectionWarningNoEntryIPv4, ConnectionInfoWarning.WarningType.Error);
 				if ((Engine.Instance.Storage.Get("network.ipv4.mode") == "in") && (connection.SupportIPv4 == false))
 					connection.WarningAdd(Messages.ConnectionWarningNoExitIPv4, ConnectionInfoWarning.WarningType.Error);
-				if ((Platform.Instance.GetNetworkIPv6Mode() == "in") && (connection.SupportIPv6 == false))
+				if ((Engine.Instance.GetNetworkIPv6Mode() == "in") && (connection.SupportIPv6 == false))
 					connection.WarningAdd(Messages.ConnectionWarningNoExitIPv6, ConnectionInfoWarning.WarningType.Error);
 
 				ConnectionActive connectionActive = connection.BuildConnectionActive(true);
@@ -1636,11 +1636,11 @@ namespace Eddie.Core
 		public Json Command(Json data)
 		{
 			try
-			{
+			{				
 				if (CommandEvent != null)
-					CommandEvent(data);
-
-				return OnCommand(data);
+					CommandEvent(data);				
+				Json result = OnCommand(data);				
+				return result;
 			}
 			catch (Exception e)
 			{
@@ -1967,7 +1967,7 @@ namespace Eddie.Core
 		{
 			if (Platform.Instance.HasAccessToWrite(Storage.GetDataPath()) == false)
 				Engine.Instance.Logs.Log(LogType.Fatal, "Unable to write in path '" + Storage.GetDataPath() + "'");
-
+				
 			// Local Time in the past
 			if (DateTime.UtcNow < Constants.dateForPastChecking)
 				Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
@@ -2076,6 +2076,30 @@ namespace Eddie.Core
 				return "";
 		}
 
+		public string GetNetworkIPv6Mode()
+		{
+			string mode = Engine.Instance.Storage.GetLower("network.ipv6.mode");			
+			lock (Engine.Instance.Manifest)
+			{
+				bool support = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
+				if (support == false)
+					mode = "block";
+			}
+			
+			return mode;
+		}
+
+		public Json FindNetworkInterfaceInfo(string id)
+		{
+			foreach (Json jNetworkInterface in Manifest["network_info"]["interfaces"].Json.GetArray())
+			{
+				if (jNetworkInterface["id"].Value as string == id)
+					return jNetworkInterface;
+			}
+
+			return null;
+		}
+
 		public void LogOpenvpnConfig()
 		{
 			string t = "-- Start OpenVPN config dump\n" + Engine.Instance.ConnectionActive.OpenVpnProfileWithPush + "\n-- End OpenVPN config dump";
@@ -2092,25 +2116,28 @@ namespace Eddie.Core
 			// Data static
 			Manifest = Json.Parse(Properties.Resources.data);
 
-			Json jAbout = new Json();
-			Manifest["about"].Value = jAbout;
-			jAbout["license"].Value = Properties.Resources.License;
-			jAbout["libraries"].Value = Properties.Resources.ThirdParty;
+			lock(Manifest)
+			{ 
+				Json jAbout = new Json();
+				Manifest["about"].Value = jAbout;
+				jAbout["license"].Value = Properties.Resources.License;
+				jAbout["libraries"].Value = Properties.Resources.ThirdParty;
 
-			Json jOs = new Json();
-			Manifest["os"].Value = jOs;
-			jOs["code"].Value = Platform.Instance.GetSystemCode();
-			jOs["name"].Value = Platform.Instance.GetName();
-			jOs["mono"].Value = Platform.Instance.GetNetFrameworkVersion();
+				Json jOs = new Json();
+				Manifest["os"].Value = jOs;
+				jOs["code"].Value = Platform.Instance.GetSystemCode();
+				jOs["name"].Value = Platform.Instance.GetName();
+				jOs["mono"].Value = Platform.Instance.GetNetFrameworkVersion();
 
-			Json jVersion = new Json();
-			Manifest["version"].Value = jVersion;
-			jVersion["text"].Value = Constants.VersionDesc;
-			jVersion["int"].Value = Constants.VersionInt;
-			jVersion["tap_windows"].Value = Constants.WindowsDriverVersion;
-			jVersion["tap_windows_xp"].Value = Constants.WindowsXpDriverVersion;
+				Json jVersion = new Json();
+				Manifest["version"].Value = jVersion;
+				jVersion["text"].Value = Constants.VersionDesc;
+				jVersion["int"].Value = Constants.VersionInt;
+				jVersion["tap_windows"].Value = Constants.WindowsDriverVersion;
+				jVersion["tap_windows_xp"].Value = Constants.WindowsXpDriverVersion;
 
-			Manifest["network_info"].Value = JsonNetworkInfo();
+				Manifest["network_info"].Value = JsonNetworkInfo();
+			}
 		}
 
 		public void RaiseManifest()

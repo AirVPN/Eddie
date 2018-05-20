@@ -46,7 +46,8 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnApplySkin();
 
-			lblTitle.Font = Skin.FontBig;
+			lblDeveloped.Font = Skin.FontBig;
+			
 			lblVersion.Font = Skin.FontBig;
 
 			lblVersion.ForeColor = Color.White;
@@ -62,6 +63,8 @@ namespace Eddie.Forms.Forms
 			lnkManual.Text = Core.UI.App.Manifest["links"]["help"]["general"].Value as string;
 			lnkSources.Text = Core.UI.App.Manifest["links"]["github"].Value as string;
 			lblVersion.Text = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
+			
+			lblThanks.Text = MessagesFormatter.Format(Messages.WindowsAboutThanks, String.Join(", ", Constants.Thanks.Split(';')));
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -71,8 +74,8 @@ namespace Eddie.Forms.Forms
 			Skin.GraphicsCommon(e.Graphics);
 
 			//Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88 + 2)); // +50 and +2 to avoid GDI+ problem
-			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 80)); // +50 and +2 to avoid GDI+ problem
-			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 304, 80));
+			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_header_bg"), new Rectangle(0, 0, ClientSize.Width + 50, 88)); // +50 and +2 to avoid GDI+ problem
+			Form.DrawImage(e.Graphics, GuiUtils.GetResourceImage("about_logo"), new Rectangle(0, 0, 392, 88));
 		}
 
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)
@@ -108,6 +111,11 @@ namespace Eddie.Forms.Forms
 		private void cmdSystemReport_Click(object sender, EventArgs e)
 		{
 			Engine.GenerateSystemReport();
+		}
+
+		private void lnkAirVPN_Click(object sender, EventArgs e)
+		{
+			Core.UI.App.OpenUrl("https://airvpn.org");
 		}
 	}
 }

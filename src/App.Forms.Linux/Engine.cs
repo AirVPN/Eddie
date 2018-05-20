@@ -41,7 +41,7 @@ namespace Eddie.Forms.Linux
 		{
 			bool result = base.OnInit2 ();
 
-			if(Eddie.Core.Engine.Instance.Storage.GetBool("gui.tray_show"))
+			if( (Eddie.Core.Engine.Instance.Storage.GetBool("gui.tray_show")) && (Eddie.Core.Platform.Instance.CanShellAsNormalUser()) )
 				m_tray = new Tray ();
 		
 			return result;
@@ -51,8 +51,8 @@ namespace Eddie.Forms.Linux
 		{
 			if (m_tray != null) {
 				m_tray.CancelRequested = true;
-				m_tray.SendCommand ("action.exit");
-				m_tray.Join ();
+				m_tray.SendCommand ("action.exit");				
+				m_tray.Join ();				
 				m_tray = null;
 			}
 			
@@ -61,34 +61,41 @@ namespace Eddie.Forms.Linux
 
 		public override Json OnCommand (Json data)
 		{
-			string cmd = data ["command"].Value as string;
+			string cmd = data["command"].Value as string;
 
 			base.OnCommand (data);
-
-			if (cmd == "ui.notification") {
-				string pathNotifySend = Core.Platform.Instance.LocateExecutable ("notify-send");
-				if (pathNotifySend != "") {
-					SystemShell s = new SystemShell ();
-					s.Path = pathNotifySend;
-					s.Arguments.Add ("--urgency=low");
-					s.Arguments.Add ("--expire-time=2000");
-					if (data ["level"].Value as string == "infoimportant")
-						s.Arguments.Add ("--icon=dialog-information");
-					else if (data ["level"].Value as string == "warning")
-						s.Arguments.Add ("--icon=dialog-warning");
-					else if (data ["level"].Value as string == "error")
-						s.Arguments.Add ("--icon=dialog-error");
-					else
-						s.Arguments.Add ("--icon=dialog-information");
-					s.Arguments.Add ("\"" + SystemShell.EscapeInsideQuote (Constants.Name) + "\"");
-					string message = SystemShell.EscapeInsideQuote (data ["message"].Value as string);
-					message = message.Trim ('-'); // Hack, bad notify-send args parse of quoted string
-					s.Arguments.Add ("\"" + message + "\"");
-					s.RunAsNormalUser = true;
-					s.WaitEnd = false;
-					s.Run ();
+			
+			if (cmd == "ui.notification") 
+			{				
+				if (Eddie.Core.Platform.Instance.CanShellAsNormalUser())
+				{					
+					string pathNotifySend = Core.Platform.Instance.LocateExecutable("notify-send");
+					if (pathNotifySend != "")
+					{
+						SystemShell s = new SystemShell();
+						s.Path = pathNotifySend;
+						s.Arguments.Add("--urgency=low");
+						s.Arguments.Add("--expire-time=2000");
+						if (data["level"].Value as string == "infoimportant")
+							s.Arguments.Add("--icon=dialog-information");
+						else if (data["level"].Value as string == "warning")
+							s.Arguments.Add("--icon=dialog-warning");
+						else if (data["level"].Value as string == "error")
+							s.Arguments.Add("--icon=dialog-error");
+						else
+							s.Arguments.Add("--icon=dialog-information");
+						s.Arguments.Add("\"" + SystemShell.EscapeInsideQuote(Constants.Name) + "\"");
+						string message = SystemShell.EscapeInsideQuote(data["message"].Value as string);
+						message = message.Trim('-'); // Hack, bad notify-send args parse of quoted string
+						s.Arguments.Add("\"" + message + "\"");
+						s.RunAsNormalUser = true;
+						s.WaitEnd = false;
+						s.Run();						
+					}
 				}
-			} else if (cmd == "ui.color") {
+			} 
+			else if (cmd == "ui.color") 
+			{
 				string color = data ["color"].Value as string;
 				if (m_tray != null) {
 					if (color == "green") {
@@ -105,7 +112,7 @@ namespace Eddie.Forms.Linux
 							m_tray.SendCommand ("menu.connect.text:" + Messages.CommandConnect);
 						}
 					}
-				}
+				}				
 			} else if (cmd == "ui.status") {
 				string full = data ["full"].Value as string;
 				if (m_tray != null) {

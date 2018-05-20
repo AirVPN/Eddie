@@ -313,6 +313,21 @@ namespace Eddie.Forms.Skin
                 //c2.UpdateBackground();
             }
 
+			if (c is System.Windows.Forms.ContextMenuStrip)
+			{
+				System.Windows.Forms.ContextMenuStrip c2 = c as System.Windows.Forms.ContextMenuStrip;
+				foreach (System.Windows.Forms.ToolStripItem i in c2.Items)
+				{
+					if (Platform.IsUnix())
+					{
+						// Fix Mono colors issue (for example Arch with dark theme)						
+						if (i.ForeColor == SystemColors.ControlText)
+							i.ForeColor = Color.Black;
+						if (i.BackColor == SystemColors.Control)
+							i.BackColor = Color.White;						
+					}
+				}
+			}
 
             foreach (Control sc in c.Controls)
             {

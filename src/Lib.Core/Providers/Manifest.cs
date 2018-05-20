@@ -147,7 +147,7 @@ namespace Eddie.Core.Providers
 					remoteAddress = "127.0.0.1";
 					remotePort = connectionActive.SslLocalPort;
 				}
-				
+
 				ovpn.AppendDirective("remote", remoteAddress.Address + " " + remotePort.ToString(), "");
 
 				// Adjust the protocol
@@ -171,8 +171,8 @@ namespace Eddie.Core.Providers
 				{
 					if (Constants.FeatureIPv6ControlOptions)
 					{
-						if( ((ip.IsV4) && (connectionActive.TunnelIPv4)) ||
-							((ip.IsV6) && (connectionActive.TunnelIPv6)) )
+						if (((ip.IsV4) && (connectionActive.TunnelIPv4)) ||
+							((ip.IsV6) && (connectionActive.TunnelIPv6)))
 							connectionActive.AddRoute(ip, "net_gateway", "VPN Entry IP");
 					}
 					else
@@ -183,7 +183,7 @@ namespace Eddie.Core.Providers
 							connectionActive.AddRoute(ip, "net_gateway", "VPN Entry IP");
 						}
 					}
-				}	
+				}
 			}
 
 			connectionActive.Protocol = mode.Protocol;
@@ -252,12 +252,12 @@ namespace Eddie.Core.Providers
 			IpAddresses result = base.GetNetworkLockAllowedIps();
 
 			List<string> urls = GetBootstrapUrls();
-			foreach(string url in urls)
+			foreach (string url in urls)
 			{
 				string host = UtilsCore.HostFromUrl(url);
 				if (host != "")
 					result.Add(host);
-			}			
+			}
 
 			return result;
 		}

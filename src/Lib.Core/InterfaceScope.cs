@@ -25,33 +25,33 @@ namespace Eddie.Core
 {
 	public class InterfaceScope
 	{
-        private string m_id;		
+		private string m_id;
 
 		public InterfaceScope(string id)
 		{
 			Start(id);
 		}
-				
+
 		~InterfaceScope()
 		{
 			End();
 		}
-        
+
 		public void Start(string id)
 		{
 			m_id = id;
 			if (Engine.Instance.NetworkLockManager != null)
-				Engine.Instance.NetworkLockManager.AllowInterface(m_id);							
+				Engine.Instance.NetworkLockManager.AllowInterface(m_id);
 		}
 
 		public void End()
 		{
-            if(m_id != "")
-            { 
-			    if (Engine.Instance.NetworkLockManager != null)
-				    Engine.Instance.NetworkLockManager.DeallowInterface(m_id);
-                m_id = "";
-            }
-        }
+			if (m_id != "")
+			{
+				if (Engine.Instance.NetworkLockManager != null)
+					Engine.Instance.NetworkLockManager.DeallowInterface(m_id);
+				m_id = "";
+			}
+		}
 	}
 }

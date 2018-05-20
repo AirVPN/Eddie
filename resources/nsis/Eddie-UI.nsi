@@ -15,7 +15,7 @@
 	SetCompressor /SOLID /FINAL lzma  
 			
 	;Name and file
-	Name "AirVPN"
+	Name "Eddie - OpenVPN UI"
 	OutFile "{@out}"
 	
 	; Adds an XP manifest to the installer
@@ -219,20 +219,30 @@
 		SectionIn RO
 		SetOutPath "$INSTDIR"
 		
+		;Compatibility Clean
+		Delete "$SMPROGRAMS\$STARTMENU_FOLDER\AirVPN.lnk"
+		Delete "$INSTDIR\CLI.exe"
+		Delete "$INSTDIR\AirVPN.exe"
+		Delete "$INSTDIR\ssleay32.dll"
+		Delete "$INSTDIR\libeay32.dll"
+		
 		; Basic (required) Eddie files...
 		{@files_add}
+		
+		; Restore base path
+		SetOutPath "$INSTDIR"
 		
 		;Store installation folder
 		WriteRegStr HKLM "Software\AirVPN" "" $INSTDIR
 		
 		; Write the uninstall keys for Windows
-		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "DisplayName" "AirVPN"
+		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "DisplayName" "Eddie - OpenVPN UI"
 		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "UninstallString" '"$INSTDIR\uninstall.exe"'
-		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "URLInfoAbout" "https://airvpn.org"
-		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "HelpLink" "https://airvpn.org"
+		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "URLInfoAbout" "https://eddie.website"
+		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "HelpLink" "https://eddie.website"
 		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "Publisher" "AirVPN - https://airvpn.org"
 		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "RegCompany" "AirVPN - https://airvpn.org"
-		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "DisplayIcon" '"$INSTDIR\AirVPN.exe"'		 
+		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "DisplayIcon" '"$INSTDIR\Eddie-UI.exe"'		 
 		WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "SupportUpgrade" "yes"
 		WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "NoModify" 1
 		WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AirVPN" "NoRepair" 1
@@ -244,9 +254,14 @@
 		
 		;Create shortcuts
 		CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\AirVPN.lnk" "$INSTDIR\AirVPN.exe" -path=home
+		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Eddie-UI.lnk" "$INSTDIR\Eddie-UI.exe" -path=home
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://airvpn.org"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+		
+		
+		
+		
+		
 		
 		!insertmacro MUI_STARTMENU_WRITE_END
 		
@@ -283,7 +298,7 @@ Section "Uninstall"
     
 	!insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
 	
-	Delete "$SMPROGRAMS\$MUI_TEMP\AirVPN.lnk"
+	Delete "$SMPROGRAMS\$MUI_TEMP\Eddie-UI.lnk"
 	Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall.lnk"
 	
 	

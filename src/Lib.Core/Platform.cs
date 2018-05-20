@@ -280,12 +280,22 @@ namespace Eddie.Core
 
 		public virtual void FileDelete(string path)
 		{
+			FileDelete(path, false);
+		}
+
+		public virtual void FileDelete(string path, bool skipImmutableCheck)
+		{
 			if (File.Exists(path) == false)
 				return;
 
-			if (FileImmutableGet(path))
+			// TOFIX
+			// skipImmutableCheck exists for pending bug: FileImmutableGet lock forever if the file is pipe.
+			if (skipImmutableCheck == false)
 			{
-				FileImmutableSet(path, false);
+				if (FileImmutableGet(path))
+				{
+					FileImmutableSet(path, false);
+				}
 			}
 
 			File.Delete(path);
@@ -507,8 +517,15 @@ namespace Eddie.Core
 		}
 
 		// TOCLEAN - Workaround Eddie2, to remove with Eddie3
-		public virtual void ShellAdaptNormalUser(ref string path, ref string[] arguments)
+		public virtual bool CanShellAsNormalUser()
 		{
+			return true;
+		}
+
+		// TOCLEAN - Workaround Eddie2, to remove with Eddie3
+		public virtual bool ShellAdaptNormalUser(ref string path, ref string[] arguments)
+		{
+			return true;
 		}
 
 		public virtual void ShellSync(string path, string[] arguments, out string stdout, out string stderr, out int exitCode)
@@ -524,14 +541,14 @@ namespace Eddie.Core
 					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 					p.StartInfo.UseShellExecute = false;
 					p.StartInfo.RedirectStandardOutput = true;
-					p.StartInfo.RedirectStandardError = true;
+					p.StartInfo.RedirectStandardError = true;					
 					p.Start();
 					
 					stdout = p.StandardOutput.ReadToEnd().Trim();
 					stderr = p.StandardError.ReadToEnd().Trim();
 
 					p.WaitForExit();
-
+					
 					exitCode = p.ExitCode;
 				}
 			}
@@ -544,7 +561,7 @@ namespace Eddie.Core
 		}
 
 		public virtual void ShellASync(string path, string[] arguments)
-		{
+		{			
 			try
 			{
 				using (Process p = new Process())
@@ -555,7 +572,7 @@ namespace Eddie.Core
 					p.StartInfo.CreateNoWindow = true;
 					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 					p.Start();
-				}
+				}				
 			}
 			catch (Exception ex)
 			{
@@ -804,20 +821,7 @@ namespace Eddie.Core
 		{
 			return new IpAddresses();
 		}
-
-		public virtual bool GetIPv6Available()
-		{
-			return true;
-		}
-
-		public virtual string GetNetworkIPv6Mode()
-		{
-			string mode = Engine.Instance.Storage.GetLower("network.ipv6.mode");
-			if (GetIPv6Available() == false)
-				mode = "block";
-			return mode;
-		}
-
+		
 		public virtual bool WaitTunReady()
 		{
 			return true;

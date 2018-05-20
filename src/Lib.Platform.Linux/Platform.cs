@@ -27,7 +27,7 @@ using System.Xml;
 using Eddie.Common;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
-using Mono.Unix;
+// using Mono.Unix; // Removed in 2.14.4
 
 namespace Eddie.Platform.Linux
 {
@@ -35,12 +35,15 @@ namespace Eddie.Platform.Linux
 	{
 		private string m_version = "";
 		private string m_architecture = "";
-		private UInt32 m_uid;
-		private string m_logname;
+		private UInt32 m_uid;		
 		private string m_fontSystem;
 		private string m_fontMonoSpace;
 		private string m_monoVersion = "2-generic";
-		private bool m_displayNormalUser = false;
+
+		private UInt32 m_userId = 0;
+		private string m_userName = "";
+
+		private string m_sudoPath = "";
 
 		// Override
 		public Platform()
@@ -91,21 +94,43 @@ namespace Eddie.Platform.Linux
 			m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"), "-m").Trim());
 			m_uid = 9999;
 			UInt32.TryParse(SystemShell.Shell1(LocateExecutable("id"), "-u"), out m_uid);
+			
+			m_sudoPath = LocateExecutable("sudo");
 
-			// Debian, Environment.UserName == 'root', $SUDO_USER == '', $LOGNAME == 'root', whoami == 'root', logname == 'myuser'
-			// Ubuntu, Environment.UserName == 'root', $SUDO_USER == 'myuser', $LOGNAME == 'root', whoami == 'root', logname == 'no login name'
-			// Manjaro, same as Ubuntu
-			m_logname = Environment.GetEnvironmentVariable("SUDO_USER");
-			if (m_logname == null)
-				m_logname = "";
-			else
-				m_logname = m_logname.Trim();
-			if (m_logname == "")
-				m_logname = SystemShell.Shell0(LocateExecutable("logname"));
-			if (m_logname.Contains("no login name"))
-				m_logname = Environment.UserName;
-			if (m_logname == null)
-				m_logname = "";
+			// Obtain user ID and Name. Almost the same methods used by synaptic package manager GUI.
+			{
+				if (Environment.GetEnvironmentVariable("PKEXEC_UID") != null)
+				{
+					m_userId = Conversions.ToUInt32(Environment.GetEnvironmentVariable("PKEXEC_UID"));
+				}
+				else if (Environment.GetEnvironmentVariable("SUDO_UID") != null)
+				{
+					m_userId = Conversions.ToUInt32(Environment.GetEnvironmentVariable("SUDO_UID"));
+				}
+				else if (Environment.GetEnvironmentVariable("SUDO_USER") != null)
+				{
+					m_userName = Environment.GetEnvironmentVariable("SUDO_USER");
+				}
+				else if (Environment.GetEnvironmentVariable("USER") != null)
+				{
+					m_userName = Environment.GetEnvironmentVariable("USER");
+				}
+
+				if( (m_userName == "") && (m_userId != 0) )
+				{
+					m_userName = SystemShell.Shell2(LocateExecutable("getent"), "passwd", m_userId.ToString());
+					if (m_userName.IndexOf(":") != -1)
+						m_userName = m_userName.Substring(0, m_userName.IndexOf(":"));
+				}
+
+				m_userName = UtilsString.StringPruneCharsNotIn(m_userName, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-");
+
+				if (m_userName == "root")
+					m_userName = "";
+
+				if ((m_userName != "") && (m_userId == 0))
+					m_userId = Conversions.ToUInt32("id -u " + m_userName);
+			}
 
 			m_fontSystem = "";
 			string gsettingsPath = LocateExecutable("gsettings"); // gnome
@@ -125,8 +150,6 @@ namespace Eddie.Platform.Linux
 				if (posSize != -1)
 					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);
 			}
-
-			m_displayNormalUser = SystemShell.Shell1(LocateExecutable("sh"), "- " + m_logname + " -c 'env'").ToLowerInvariant().Contains("display=");
 
 			NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
 			NativeMethods.Signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
@@ -154,10 +177,7 @@ namespace Eddie.Platform.Linux
 
 		public override bool IsAdmin()
 		{
-			// return true; // Decomment for debugging
-			if (CommandLine.SystemEnvironment.Get("memtest", "") != "")
-				return true;
-
+			// return true; // Decomment for debugging			
 			return (m_uid == 0);
 		}
 
@@ -168,6 +188,9 @@ namespace Eddie.Platform.Linux
 
 		public override void OpenUrl(string url)
 		{
+			if (CanShellAsNormalUser() == false)
+				return;
+
 			SystemShell s = new SystemShell();
 			s.Path = LocateExecutable("xdg-open");
 			s.Arguments.Add(url);
@@ -402,19 +425,64 @@ namespace Eddie.Platform.Linux
 			arguments = new string[] { "-c", "'" + command + "'" };
 		}
 
-		public override void ShellAdaptNormalUser(ref string path, ref string[] arguments)
+		public override bool CanShellAsNormalUser()
 		{
-			// 2.14.3: su - username don't work in all tested cases...			
-			if (m_displayNormalUser == false)
-			{
-				Engine.Instance.Logs.LogVerbose("No display for shell as normal user.");
-				return;
-			}
+			if( (m_userName != "") && (m_sudoPath != "") )
+				return true;
 
-			string a = " - " + m_logname + " -c '" + path + " " + String.Join(" ", arguments) + "'";
+			return false;
+		}
 
+		public override bool ShellAdaptNormalUser(ref string path, ref string[] arguments)
+		{
+			if (IsAdmin() == false) // Still not Admin
+				return false;
+
+			if (CanShellAsNormalUser() == false)
+				return false;
+
+
+			//arguments = new string[] { "-u " + m_userName, path + " " + String.Join(" ", arguments) };
+
+			// DBUS_SESSION_BUS_ADDRESS is required only for notify-send. 
+			// Debian7 don't work with it. Arch works anyway without it, Debian>7 and Fedora not.
+			string busPath = "/run/user/" + m_userId.ToString() + "/bus";
+			if(Platform.Instance.FileExists(busPath))
+				arguments = new string[] { "-u " + m_userName, "DBUS_SESSION_BUS_ADDRESS=unix:path=" + busPath, path + " " + String.Join(" ", arguments) };
+			else
+				arguments = new string[] { "-u " + m_userName, path + " " + String.Join(" ", arguments) };
+
+			path = m_sudoPath;
+
+			// 2.14.3
+			/*
+			string a = " - " + m_userName + " -c '" + path + " " + String.Join(" ", arguments) + "'";
 			path = "su";
 			arguments = new string[] { a };
+			*/
+			
+			return true;
+		}
+
+		public override void ShellASync(string path, string[] arguments)
+		{
+			try
+			{
+				using (System.Diagnostics.Process p = new System.Diagnostics.Process())
+				{
+					p.StartInfo.FileName = path;
+					p.StartInfo.Arguments = String.Join(" ", arguments);
+					p.StartInfo.WorkingDirectory = "";
+					p.StartInfo.CreateNoWindow = true;
+					p.StartInfo.UseShellExecute = false;
+					p.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+					p.Start();
+				}
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(ex);
+			}
 		}
 
 		public override bool ProcessKillSoft(Process process)
@@ -503,7 +571,9 @@ namespace Eddie.Platform.Linux
 
 		protected override void OpenDirectoryInFileManagerEx(string path)
 		{
-			// TOFIX Don't work well on all distro
+			if (CanShellAsNormalUser() == false)
+				return;
+
 			SystemShell s = new SystemShell();
 			s.Path = LocateExecutable("xdg-open");
 			s.Arguments.Add(SystemShell.EscapePath(path));
@@ -690,7 +760,7 @@ namespace Eddie.Platform.Linux
 			base.OnReport(report);
 
 			report.Add("UID", Conversions.ToString(m_uid));
-			report.Add("LogName", m_logname);
+			report.Add("Run as normal user", CanShellAsNormalUser() + "; ID:" + m_userId.ToString() + "; Name:" + m_userName.ToString());
 			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "show") : "'ip' " + Messages.NotFound);
 			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "link", "show") : "'ip' " + Messages.NotFound);
 			report.Add("ip -4 route show", (LocateExecutable("ip") != "") ? SystemShell.Shell3(LocateExecutable("ip"), "-4", "route", "show") : "'ip' " + Messages.NotFound);
@@ -702,6 +772,10 @@ namespace Eddie.Platform.Linux
 			string method = "";
 			string command = "";
 			string arguments = "";
+			string preCommand = "";
+			string preArguments = "";
+			string postCommand = "";
+			string postArguments = "";
 
 			bool isWayland = false;
 
@@ -724,6 +798,7 @@ namespace Eddie.Platform.Linux
 			string command2 = "";
 			string executablePath = Platform.Instance.GetExecutablePath();
 			string cmdline = CommandLine.SystemEnvironment.GetFull();
+			
 			if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
 				command2 += "mono ";
 			command2 += Platform.Instance.GetExecutablePath();
@@ -732,8 +807,41 @@ namespace Eddie.Platform.Linux
 			command2 += " console.mode=none"; // 2.13.6, otherwise CancelKeyPress (mono bug?) and stdout fill the non-root non-blocked terminal.
 			command2 = command2.Trim(); // 2.11.11
 			bool waitEnd = false;
+			
+			if ( (LocateExecutable("pkexec") != "") && (Platform.Instance.FileExists("/usr/share/polkit-1/actions/com.eddie.linux.ui.policy")) )
+			{
+				method = "pkexec-policy";
 
-			if ((isX) && (LocateExecutable("kdesudo") != ""))
+				/*
+				command = "sh";
+				arguments = " -c 'pkexec /usr/bin/eddie-ui " + cmdline + " console.mode=none" + " " + Engine.Instance.Storage.Get("pktest") + "'";
+				*/
+				
+				command = LocateExecutable("pkexec");
+				string exe = Engine.Instance.Storage.Get("path.exec");
+				if (exe == "")
+					exe = Platform.Instance.GetExecutablePath();
+				arguments = exe + " " + cmdline + " console.mode=none";
+				
+				// Without this, don't work on Debian9
+				// It is not allowed to run pkexec in the background by fork and exec and then terminating the parent. 
+				// The process becomes an orphan and belongs to init (ppid == 1).
+				waitEnd = true;
+								
+				if(Engine.Instance.Storage.GetBool("linux.xhost"))
+				{
+					string xhost = LocateExecutable("xhost");					
+					if (xhost != "")
+					{
+						preCommand = xhost;
+						preArguments = "+SI:localuser:root";
+
+						postCommand = xhost;
+						postArguments = "-SI:localuser:root";
+					}					
+				}
+			}
+			else if ((isX) && (LocateExecutable("kdesudo") != ""))
 			{
 				method = "kdesudo";
 				command = LocateExecutable("kdesudo");
@@ -805,8 +913,14 @@ namespace Eddie.Platform.Linux
 			if (command != "")
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.AdminRequiredRestart, method));
-
+				
+				if (preCommand != "")
+					Engine.Instance.Logs.Log(LogType.Verbose, SystemShell.ShellX(preCommand.Trim(), preArguments.Trim(), true)); // IJTF2
+				
 				SystemShell.ShellX(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
+
+				if (postCommand != "")
+					Engine.Instance.Logs.Log(LogType.Verbose, SystemShell.ShellX(postCommand.Trim(), postArguments.Trim(), true)); // IJTF2				
 			}
 			else
 			{

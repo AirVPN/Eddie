@@ -492,6 +492,7 @@
     <BundleResource Include="Resources\rename_16.png" />
     <BundleResource Include="Resources\rename.png" />
     <BundleResource Include="Resources\command.png" />
+    <BundleResource Include="Resources\about_airvpn.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

@@ -203,11 +203,11 @@ namespace Eddie.Deploy
 			if (SO == "windows")
 			{
 				foreach (string arch in new string[] { "x64", "x86" })
-				{
+				{					
 					foreach (string ui in new string[] { "cli", "ui" })
-					{
+					{						
 						foreach (string format in new string[] { "portable", "installer" })
-						{
+						{							
 							foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })
 							{								
 								string netFramework = "4.0";
@@ -239,7 +239,8 @@ namespace Eddie.Deploy
 				ListPackages.Add(new Package("linux", arch, "cli", true, "4.0", "portable"));
 				ListPackages.Add(new Package("linux", arch, "ui", true, "4.0", "portable"));
 				ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "debian"));
-				ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "rpm"));
+				ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "opensuse"));
+				ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "fedora"));
 				//ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "aur"));
 			}
 
@@ -316,10 +317,13 @@ namespace Eddie.Deploy
 						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Platform.Windows.dll", pathTemp);
 						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-						CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "AirVPN.exe"); // TODO Eddie3: "Eddie-UI.exe"
+						if (format == "portable")
+							CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "Eddie-UI.exe");
+						else
+							CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "Eddie-UI.exe"); // TODO Eddie3: "Eddie-UI.exe"
 
 						pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Windows/bin/" + archCompile + "/Release").FullName;
-						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "CLI.exe"); // TODO Eddie3: "Eddie-CLI.exe"
+						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
 					}
 					else if (ui == "cli")
 					{
@@ -433,6 +437,9 @@ namespace Eddie.Deploy
 							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
 							CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
+
+							CopyFile(PathBaseResources + "/linux_portable/", "eddie-cli.sh", pathTemp, "eddie-cli");
+							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
 						}
 						else if (ui == "ui")
 						{
@@ -440,7 +447,7 @@ namespace Eddie.Deploy
 							CopyAll(pathCommon, pathTemp + "/res");
 
 							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
-
+							
 							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
 							CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
@@ -448,6 +455,9 @@ namespace Eddie.Deploy
 							CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "Eddie-UI.exe");
 
 							CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
+
+							CopyFile(PathBaseResources + "/linux_portable/", "eddie-ui.sh", pathTemp, "eddie-ui");
+							Shell("chmod 755 \"" + pathTemp + "/eddie-ui\"");
 						}
 
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
@@ -584,7 +594,7 @@ namespace Eddie.Deploy
 						}
 						else
 						{
-							Shell("chmod 755 \"" + pathTemp + "/airvpn\"");
+							Shell("chmod 755 \"" + pathTemp + "/eddie-ui\"");
 						}
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
@@ -607,16 +617,16 @@ namespace Eddie.Deploy
 						
 						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".deb");
 
-						CreateDirectory(pathTemp + "/usr/lib/AirVPN");
+						CreateDirectory(pathTemp + "/usr/lib/eddie-ui");
 
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/lib/AirVPN");
-						CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/lib/AirVPN");
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/lib/AirVPN");
-						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/lib/AirVPN");
-						CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/lib/AirVPN", "AirVPN.exe");
-						CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/lib/AirVPN", "CLI.exe");
+						CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/lib/eddie-ui");
+						CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/lib/eddie-ui");
+						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/lib/eddie-ui");
+						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/lib/eddie-ui");
+						CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/lib/eddie-ui", "Eddie-UI.exe");
+						//CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/lib/eddie", "Eddie-CLI.exe");
 
-						CopyAll(pathDeploy, pathTemp + "/usr/lib/AirVPN");
+						CopyAll(pathDeploy, pathTemp + "/usr/lib/eddie-ui");
 						CopyDirectory(PathBaseResources + "/" + format, pathTemp);
 
 						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString3);
@@ -629,36 +639,37 @@ namespace Eddie.Deploy
 							debianArchitecture = "armhf"; // any-armhf
 						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
 
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/openvpn");
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel");
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/libgdiplus.so.0");
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/libMonoPosixHelper.so");
-						RemoveFile(pathTemp + "/usr/lib/AirVPN/libappindicator.so.1");						
+						RemoveFile(pathTemp + "/usr/lib/eddie-ui/openvpn");
+						RemoveFile(pathTemp + "/usr/lib/eddie-ui/stunnel");
+						RemoveFile(pathTemp + "/usr/lib/eddie-ui/libgdiplus.so.0");
+						RemoveFile(pathTemp + "/usr/lib/eddie-ui/libMonoPosixHelper.so");
+						RemoveFile(pathTemp + "/usr/lib/eddie-ui/libappindicator.so.1");						
 
 						Shell("chmod 755 -R \"" + pathTemp + "\"");
 
-						CreateDirectory(pathTemp + "/usr/share/AirVPN");
-						CopyAll(pathCommon, pathTemp + "/usr/share/AirVPN");
+						CreateDirectory(pathTemp + "/usr/share/eddie-ui");
+						CopyAll(pathCommon, pathTemp + "/usr/share/eddie-ui");
 
-						WriteTextFile(pathTemp + "/usr/share/doc/airvpn/changelog", FetchUrl(Constants.ChangeLogUrl));
-						Shell("gzip -n -9 \"" + pathTemp + "/usr/share/doc/airvpn/changelog\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/changelog.gz\"");
+						WriteTextFile(pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian", FetchUrl(Constants.ChangeLogUrl));
+						Shell("gzip -n -9 \"" + pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian.gz\"");
 
-						WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/lib/AirVPN/AirVPN.exe\" -cli -help -help.format=man"));
-						Shell("gzip -n -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
+						WriteTextFile(pathTemp + "/usr/share/man/man8/eddie-ui.8", Shell("mono \"" + pathTemp + "/usr/lib/eddie-ui/Eddie-UI.exe\" -cli -help -help.format=man"));
+						Shell("gzip -n -9 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8.gz\"");
 
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Core.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Common.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Forms.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/Lib.Platform.Linux.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/AirVPN/libLib.Platform.Linux.Native.so\"");
-						Shell("chmod 755 \"" + pathTemp + "/usr/lib/AirVPN/eddie_tray\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Core.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Common.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Forms.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Platform.Linux.dll\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/libLib.Platform.Linux.Native.so\"");
+						Shell("chmod 755 \"" + pathTemp + "/usr/lib/eddie-ui/eddie_tray\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/eddie-ui.png\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/eddie-ui.desktop\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/polkit-1/actions/com.eddie.linux.ui.policy\"");
 
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/airvpn/copyright\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/*\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/eddie-ui/copyright\"");
+						Shell("chmod 644 " + pathTemp + "/usr/share/eddie-ui/*"); // Note: wildchar don't works if quoted
 
 						Shell("chown -R root:root " + pathTemp);
 
@@ -671,94 +682,97 @@ namespace Eddie.Deploy
 
 						SignFile(platform, format, pathFinal);
 					}
-					else if ((format == "rpm") && (AvailableRPM))
+					else if(AvailableRPM)
 					{
-						string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
-
-						string libSubPath = "lib";
-						if (arch == "x64")
-							libSubPath = "lib64";
-
-						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".rpm");
-
-						CreateDirectory(pathTemp + "/usr/" + libSubPath + "/AirVPN");
-
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/" + libSubPath + "/AirVPN");
-						CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/" + libSubPath + "/AirVPN");
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/" + libSubPath + "/AirVPN");
-						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/" + libSubPath + "/AirVPN");
-						CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/" + libSubPath + "/AirVPN", "AirVPN.exe");
-						CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/" + libSubPath + "/AirVPN", "CLI.exe");
-						
-						CopyAll(pathDeploy, pathTemp + "/usr/" + libSubPath + "/AirVPN");
-						CopyDirectory(PathBaseResources + "/rpm", pathTemp);
-
-						ReplaceInFile(pathTemp + "/airvpn.spec", "{@version}", versionString3);
-						ReplaceInFile(pathTemp + "/airvpn.spec", "{@lib}", libSubPath);
-
-						ReplaceInFile(pathTemp + "/usr/bin/airvpn", "{@lib}", libSubPath);
-
-						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/openvpn");
-						//RemoveFile(pathTemp + "/usr/lib/AirVPN/stunnel"); // OpenSUSE (RPM) don't have stunnel in stable repo
-						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libgdiplus.so.0");
-						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libMonoPosixHelper.so");
-						RemoveFile(pathTemp + "/usr/" + libSubPath + "/AirVPN/libappindicator.so.1");						
-
-						CreateDirectory(pathTemp + "/usr/share/AirVPN");
-						CopyAll(pathCommon, pathTemp + "/usr/share/AirVPN");
-
-						WriteTextFile(pathTemp + "/usr/share/man/man8/airvpn.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/AirVPN.exe\" -cli -help -help.format=man"));
-						Shell("gzip -n -9 \"" + pathTemp + "/usr/share/man/man8/airvpn.8\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/airvpn.8.gz\"");
-
-						Shell("chmod 755 -R \"" + pathTemp + "\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Core.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Common.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Forms.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/Lib.Platform.Linux.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/libLib.Platform.Linux.Native.so\"");
-						Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/AirVPN/eddie_tray\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/AirVPN.png\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/AirVPN.desktop\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/AirVPN/*\"");
-
-						Shell("chown -R root:root " + pathTemp);
-
-						string command = "rpmbuild";
-						if (IsOfficial())
+						if( (format == "opensuse") || (format == "fedora") )
 						{
-							string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
-							if (File.Exists(pathPassphrase))
-							{
-								command += " -sign";
+							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
 
-								// I don't yet find a working method to automate it.
-								//string passphrase = File.ReadAllText(pathPassphrase);
-								//command = "echo " + passphrase + " | setsid " + command;
+							string libSubPath = "lib";
+							if (arch == "x64")
+								libSubPath = "lib64";
 
-								Log("Enter AirVPN Staff signing password for RPM build");
-							}
-							else
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".rpm");
+
+							CreateDirectory(pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+
+							CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+							CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+							CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+							CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+							CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/" + libSubPath + "/eddie-ui", "Eddie-UI.exe");
+							//CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/" + libSubPath + "/AirVPN", "Eddie-CLI.exe");
+
+							CopyAll(pathDeploy, pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+							CopyDirectory(PathBaseResources + "/" + format, pathTemp);
+
+							ReplaceInFile(pathTemp + "/eddie-ui.spec", "{@version}", versionString3);
+							ReplaceInFile(pathTemp + "/eddie-ui.spec", "{@lib}", libSubPath);
+
+							ReplaceInFile(pathTemp + "/usr/bin/eddie-ui", "{@lib}", libSubPath);
+
+							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/openvpn");
+							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/stunnel");
+							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libgdiplus.so.0");
+							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libMonoPosixHelper.so");
+							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libappindicator.so.1");
+
+							CreateDirectory(pathTemp + "/usr/share/eddie-ui");
+							CopyAll(pathCommon, pathTemp + "/usr/share/eddie-ui");
+
+							WriteTextFile(pathTemp + "/usr/share/man/man8/eddie-ui.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Eddie-UI.exe\" -cli -help -help.format=man"));
+							Shell("gzip -n -9 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8.gz\"");
+
+							Shell("chmod 755 -R \"" + pathTemp + "\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Core.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Common.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Forms.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Platform.Linux.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/libLib.Platform.Linux.Native.so\"");
+							Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/eddie_tray\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/eddie-ui.png\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/eddie-ui.desktop\"");
+							Shell("chmod 644 " + pathTemp + "/usr/share/eddie-ui/*"); // Note: wildchar don't works if quoted
+
+							Shell("chown -R root:root " + pathTemp);
+
+							string command = "rpmbuild";
+							if (IsOfficial())
 							{
-								LogError("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
+								string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
+								if (File.Exists(pathPassphrase))
+								{
+									command += " -sign";
+
+									// I don't yet find a working method to automate it.
+									//string passphrase = File.ReadAllText(pathPassphrase);
+									//command = "echo " + passphrase + " | setsid " + command;
+
+									Log("Enter AirVPN Staff signing password for RPM build");
+								}
+								else
+								{
+									LogError("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
+								}
 							}
+							command += " -bb \"" + pathTemp + "/eddie-ui.spec\" --buildroot \"" + pathTemp + "\"";
+
+							Log("RPM Build");
+							string output = Shell(command);
+							if (IsOfficial())
+							{
+								if (output.Contains("signing failed"))
+								{
+									LogError("RPM fail: " + output);
+								}
+								else
+									Log(output);
+							}
+
+							Shell("mv ../*.rpm " + pathFinal);
 						}
-						command += " -bb \"" + pathTemp + "/airvpn.spec\" --buildroot \"" + pathTemp + "\"";
-
-						Log("RPM Build");
-						string output = Shell(command);
-						if (IsOfficial())
-						{
-							if (output.Contains("signing failed"))
-							{
-								LogError("RPM fail: " + output);
-							}
-							else
-								Log(output);
-						}
-
-						Shell("mv ../*.rpm " + pathFinal);
-					}
+					}					
 					else if ((format == "aur") && (AvailableAUR))
 					{
 						
@@ -1295,7 +1309,7 @@ namespace Eddie.Deploy
 				string pathPfx = NormalizePath(PathBaseSigning + "/eddie.pfx");
 				string pathPfxPwd = NormalizePath(PathBaseSigning + "/eddie.pfx.pwd");
 
-				string title = "Eddie - AirVPN Client";
+				string title = "Eddie - OpenVPN UI";
 
 				if ((File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)))
 				{

@@ -210,6 +210,11 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnApplySkin();
 
+			Skin.Apply(mnuMain);
+			Skin.Apply(mnuServers);
+			Skin.Apply(mnuAreas);
+			Skin.Apply(mnuLogsContext);
+
 			cmdLogin.Font = Skin.FontBig;
 			cmdConnect.Font = Skin.FontBig;
 			cmdLockedNetwork.Font = Skin.FontBig;

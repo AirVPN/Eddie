@@ -243,7 +243,7 @@ namespace Eddie.Core
 					string result = provider.Refresh();
 					if (result != "")
 					{
-						if (Engine.Instance.ConnectionActive != null) // Note: only if not connected, otherwise misunderstanding.
+						if (Engine.Instance.ConnectionActive == null) // Note: only if not connected, otherwise misunderstanding.
 							Engine.Instance.OnProviderManifestFailed(provider);
 						if (globalResult != "")
 							globalResult += "; ";

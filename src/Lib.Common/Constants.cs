@@ -27,8 +27,9 @@ namespace Eddie.Common
 		public static string Name = "Eddie";
 		public static string NameCompatibility = "AirVPN";
 		public static string AppID = "ed8efc06d5263733167fbbed49230843397c3701";
-		public static int VersionInt = 245;
-		public static string VersionDesc = "2.14.3";
+		public static string Thanks = "Clodo;PJ;Berserker;zhang888;LZ1;giganerd;Uncle Hunto;go558a83nk;sheivoko;NaDre;pfSense_fan;x0wllaar";
+		public static int VersionInt = 246;
+		public static string VersionDesc = "2.14.4";
 		public static bool AlphaFeatures = false;
 		public static bool FeatureIPv6ControlOptions = true;
 		public static bool FeatureAlwaysBypassOpenvpnRoute = true; // Default for Eddie 2.14

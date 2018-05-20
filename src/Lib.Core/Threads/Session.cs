@@ -223,7 +223,12 @@ namespace Eddie.Core.Threads
 					if (CancelRequested)
 						continue;
 
-
+					if(Engine.CurrentServer.SupportIPv6)
+					{
+						bool osSupport = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
+						if( (osSupport == false) && (Engine.Instance.Storage.GetLower("network.ipv6.mode") != "block"))
+							Engine.Instance.Logs.LogWarning(Messages.IPv6NotSupportedByOS);
+					}						
 
 					try
 					{
@@ -252,7 +257,7 @@ namespace Eddie.Core.Threads
 					{
 						if (Common.Constants.FeatureIPv6ControlOptions)
 						{
-							if (Platform.Instance.GetNetworkIPv6Mode() == "block")
+							if (Engine.Instance.GetNetworkIPv6Mode() == "block")
 								m_connectionActive.BlockedIPv6 = true;
 						}
 						else
@@ -261,7 +266,7 @@ namespace Eddie.Core.Threads
 								m_connectionActive.BlockedIPv6 = true;
 						}
 
-						if ((Engine.CurrentServer.SupportIPv6 == false) && (Platform.Instance.GetNetworkIPv6Mode() == "in-block"))
+						if ((Engine.CurrentServer.SupportIPv6 == false) && (Engine.Instance.GetNetworkIPv6Mode() == "in-block"))
 							m_connectionActive.BlockedIPv6 = true;
 
 						if (m_connectionActive.BlockedIPv6)
@@ -643,7 +648,7 @@ namespace Eddie.Core.Threads
 					// Warning: Avoid to reach this catch: unpredicable status of running processes.
 					Engine.SetConnected(false);
 
-					Engine.Logs.Log(LogType.Warning, e);
+					Engine.Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.FatalUnexpected, e.Message + " - " + e.StackTrace));
 				}
 
 				if (routeScope != null)
@@ -1071,7 +1076,7 @@ namespace Eddie.Core.Threads
 					bool log = true;
 					LogType logType = LogType.Verbose;
 
-					if(m_connectionActive.OvpnFile != null)
+					if( (m_connectionActive != null) && (m_connectionActive.OvpnFile != null) )
 					{
 						// First feedback from OpenVPN process. We can remove temporary files.
 						m_connectionActive.CleanAfterStart();
@@ -1112,9 +1117,23 @@ namespace Eddie.Core.Threads
 							log = false;
 					}
 
+					// Useless
+					if (message.Contains("Use —help for more information."))
+						log = false;
+
 					// Ignore, caused by Windows method GenerateConsoleCtrlEvent to soft-kill
 					if (message.Contains("win_trigger_event: WriteConsoleInput: The handle is invalid."))
 						log = false;
+
+					// Eddie delete any ovpn/crt/key/pwd files after the reading by OpenVPN.
+					// If a connection drop, it's not OpenVPN that need to retry the connection, must performed by Eddie.
+					// But unfortunately there isn't any method in OpenVPN to avoid the behiavour of SIGHUP (process restarting).
+					// Neither the directive 'single-session'.
+					// Anyway, when happen, OpenVPN can't find the .ovpn config, so effectively stop and Eddie will perform the retry.
+					if ( (message.StartsWith("Options error:")) && (message.Contains("Error opening configuration file")) )
+					{
+						log = false;
+					}
 
 					if (message.StartsWith("Options error:"))
 					{
@@ -1291,21 +1310,8 @@ namespace Eddie.Core.Threads
 						if (matchInterface != null)
 						{
 							m_connectionActive.InterfaceId = matchInterface[0];
-
-							m_interfaceScope = new InterfaceScope(m_connectionActive.InterfaceId);
-
-							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-							foreach (NetworkInterface adapter in interfaces)
-							{
-								if (adapter.Id == m_connectionActive.InterfaceId)
-								{
-									m_interfaceTun = adapter;
-									m_interfaceTunBytesReadInitial = -1;
-									m_interfaceTunBytesWriteInitial = -1;
-									m_interfaceTunBytesLastRead = -1;
-									m_interfaceTunBytesLastWrite = -1;
-								}
-							}
+							
+							CheckTunNetworkInterface();							
 						}
 
 						// Match name - 2.11.10
@@ -1325,19 +1331,7 @@ namespace Eddie.Core.Threads
 						{
 							m_connectionActive.InterfaceName = match.Groups[1].Value;
 							m_connectionActive.InterfaceId = match.Groups[1].Value;
-
-							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-							foreach (NetworkInterface adapter in interfaces)
-							{
-								if (adapter.Id == m_connectionActive.InterfaceId)
-								{
-									m_interfaceTun = adapter;
-									m_interfaceTunBytesReadInitial = -1;
-									m_interfaceTunBytesWriteInitial = -1;
-									m_interfaceTunBytesLastRead = -1;
-									m_interfaceTunBytesLastWrite = -1;
-								}
-							}
+							CheckTunNetworkInterface();
 						}
 					}
 
@@ -1348,10 +1342,7 @@ namespace Eddie.Core.Threads
 						{
 							m_connectionActive.InterfaceName = match.Groups[1].Value;
 							m_connectionActive.InterfaceId = match.Groups[1].Value;
-
-							m_interfaceTun = null; // Not used under OSX, see Platforms.Osx.GetTunStatsMode comment
-							m_interfaceTunBytesLastRead = -1;
-							m_interfaceTunBytesLastWrite = -1;
+							CheckTunNetworkInterface();							
 						}
 					}
 
@@ -1477,6 +1468,31 @@ namespace Eddie.Core.Threads
 				m_openVpnManagementSocket.ReceiveTimeout = 5000;
 
 				SendManagementCommand(m_connectionActive.ManagementPassword);
+			}
+		}
+
+		public void CheckTunNetworkInterface()
+		{
+			m_interfaceScope = new InterfaceScope(m_connectionActive.InterfaceId);
+
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				if (adapter.Id == m_connectionActive.InterfaceId)
+				{
+					m_interfaceTun = adapter;
+					m_interfaceTunBytesReadInitial = -1;
+					m_interfaceTunBytesWriteInitial = -1;
+					m_interfaceTunBytesLastRead = -1;
+					m_interfaceTunBytesLastWrite = -1;
+
+					Json jInfo = Engine.Instance.FindNetworkInterfaceInfo(m_connectionActive.InterfaceId);
+
+					if ((m_connectionActive.TunnelIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
+						Engine.Instance.Logs.LogWarning(Messages.IPv4NotSupportedByNetworkAdapter);
+					if ((m_connectionActive.TunnelIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
+						Engine.Instance.Logs.LogWarning(Messages.IPv6NotSupportedByNetworkAdapter);
+				}
 			}
 		}
 

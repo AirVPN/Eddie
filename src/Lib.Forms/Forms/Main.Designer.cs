@@ -248,7 +248,7 @@ namespace Eddie.Forms.Forms
             this.mnuRestoreSep,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(246, 262);
+			this.mnuMain.Size = new System.Drawing.Size(246, 284);
 			// 
 			// mnuStatus
 			// 
@@ -260,6 +260,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// mnuConnect
 			// 
+			this.mnuConnect.ForeColor = System.Drawing.Color.Black;
 			this.mnuConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
 			this.mnuConnect.Name = "mnuConnect";
 			this.mnuConnect.Size = new System.Drawing.Size(245, 26);
@@ -272,6 +273,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// mnuHomePage
 			// 
+			this.mnuHomePage.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuHomePage.Image = global::Eddie.Forms.Properties.Resources.home;
 			this.mnuHomePage.Name = "mnuHomePage";
 			this.mnuHomePage.Size = new System.Drawing.Size(245, 26);
@@ -280,6 +282,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// mnuUser
 			// 
+			this.mnuUser.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuUser.Image = global::Eddie.Forms.Properties.Resources.stats;
 			this.mnuUser.Name = "mnuUser";
 			this.mnuUser.Size = new System.Drawing.Size(245, 26);
@@ -288,6 +291,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// mnuPorts
 			// 
+			this.mnuPorts.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuPorts.Image = global::Eddie.Forms.Properties.Resources.ports;
 			this.mnuPorts.Name = "mnuPorts";
 			this.mnuPorts.Size = new System.Drawing.Size(245, 26);
@@ -301,6 +305,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// mnuSettings
 			// 
+			this.mnuSettings.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuSettings.Image = global::Eddie.Forms.Properties.Resources.settings;
 			this.mnuSettings.Name = "mnuSettings";
 			this.mnuSettings.Size = new System.Drawing.Size(245, 26);
@@ -309,6 +314,7 @@ namespace Eddie.Forms.Forms
 			// 
 			// mnuAbout
 			// 
+			this.mnuAbout.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuAbout.Image = global::Eddie.Forms.Properties.Resources.about;
 			this.mnuAbout.Name = "mnuAbout";
 			this.mnuAbout.Size = new System.Drawing.Size(245, 26);

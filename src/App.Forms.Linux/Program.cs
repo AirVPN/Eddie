@@ -45,7 +45,7 @@ namespace Eddie.Forms.Linux
 
 				Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
 				CommandLine.InitSystem(Environment.CommandLine);
-
+				
 				if (CommandLine.SystemEnvironment.Exists("cli"))
 				{
 					Core.Engine engine = new Core.Engine();

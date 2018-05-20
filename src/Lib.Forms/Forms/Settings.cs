@@ -54,6 +54,8 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnApplySkin();
 
+			Skin.Apply(mnuRoutes);
+
 			mnuRoutes.Font = Skin.FontNormal;
 
 			GuiUtils.FixHeightVs(cboProxyMode, lblProxyType);

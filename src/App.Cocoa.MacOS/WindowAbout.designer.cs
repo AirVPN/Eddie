@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -12,6 +12,9 @@ namespace Eddie.UI.Cocoa.Osx
 	[Register ("WindowAboutController")]
 	partial class WindowAboutController
 	{
+		[Outlet]
+		AppKit.NSButton CmdAirVPN { get; set; }
+
 		[Outlet]
 		AppKit.NSButton CmdHomePage { get; set; }
 
@@ -32,6 +35,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSButton CmdSystemReport { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField LblThanks { get; set; }
 
 		[Outlet]
 		AppKit.NSTextFieldCell TxtVersion { get; set; }
@@ -73,9 +79,19 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdSystemReport = null;
 			}
 
+			if (LblThanks != null) {
+				LblThanks.Dispose ();
+				LblThanks = null;
+			}
+
 			if (TxtVersion != null) {
 				TxtVersion.Dispose ();
 				TxtVersion = null;
+			}
+
+			if (CmdAirVPN != null) {
+				CmdAirVPN.Dispose ();
+				CmdAirVPN = null;
 			}
 		}
 	}
