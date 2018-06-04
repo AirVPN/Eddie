@@ -585,6 +585,7 @@ namespace Eddie.Core
 
 			// Linux only
 			SetDefaultBool("linux.xhost", false, NotInMan);
+			SetDefaultBool("linux.dbus", false, NotInMan);
 
 			// General UI
 			SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);

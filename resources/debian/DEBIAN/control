@@ -5,13 +5,13 @@ Maintainer: Eddie <maintainer@eddie.website>
 Priority: optional
 Architecture: {@architecture}
 Installed-Size: 8192
-Depends: libc6 (>= 2.3.2), libappindicator1, libnotify-bin, mono-runtime, mono-utils, libmono-system-core4.0-cil, libmono-system-windows-forms4.0-cil, openvpn, stunnel4, curl
+Depends: libc6 (>= 2.3.2), sudo, libappindicator1, libnotify-bin, mono-runtime, mono-utils, libmono-system-core4.0-cil, libmono-system-windows-forms4.0-cil, openvpn, stunnel4, curl
 Break: airvpn (<< 2.14.4)
 Replaces: airvpn (<< 2.14.4)
 Bugs: https://eddie.website/support/
 Homepage: https://eddie.website/
 Description: Eddie - OpenVPN UI
  OpenVPN UI with additional user-friendly features
- Open-Source, GPL3, Developed by AirVPN
+ Open-Source, GPLv3, Developed by AirVPN
 
 

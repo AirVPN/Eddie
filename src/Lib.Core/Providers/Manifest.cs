@@ -420,9 +420,14 @@ namespace Eddie.Core.Providers
 			foreach (string url in Engine.Instance.Storage.Get("bootstrap.urls").Split(';'))
 			{
 				string sUrl = url.Trim();
-				string host = UtilsCore.HostFromUrl(url);
-				if (host != "")
-					urls.Add(sUrl);
+				if (sUrl != "")
+				{
+					if (IpAddress.IsIP(sUrl))
+						sUrl = "http://" + sUrl;
+					string host = UtilsCore.HostFromUrl(sUrl);
+					if (host != "")
+						urls.Add(sUrl);
+				}
 			}
 
 			// Manifest Urls

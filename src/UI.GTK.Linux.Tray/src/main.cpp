@@ -76,8 +76,8 @@ Icon embedding:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define TRAY_ICON_FILE_NORMAL       "/icon.png"
-#define TRAY_ICON_FILE_GRAY         "/icon_gray.png"
+#define TRAY_ICON_FILE_NORMAL       "/tray.png"
+#define TRAY_ICON_FILE_GRAY         "/tray_gray.png"
 
 #define MENU_ITEM_DATA_ID           "id"
 #define MENU_ITEM_TIMEOUT_SEC       2                      // If a command is not processed within this value, the app will exit

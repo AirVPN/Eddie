@@ -22,5 +22,5 @@ BuildConfig()
 }
 
 BuildConfig ./build/x86/release -m32 Release
-strip -S --strip-unneeded -o ../../deploy/linux_x86/eddie_tray ./build/x86/release/eddie_tray
+strip -S --strip-unneeded -o ../../deploy/linux_x86/eddie-tray ./build/x86/release/eddie_tray
 

@@ -441,14 +441,18 @@ namespace Eddie.Platform.Linux
 			if (CanShellAsNormalUser() == false)
 				return false;
 
-
 			//arguments = new string[] { "-u " + m_userName, path + " " + String.Join(" ", arguments) };
 
 			// DBUS_SESSION_BUS_ADDRESS is required only for notify-send. 
 			// Debian7 don't work with it. Arch works anyway without it, Debian>7 and Fedora not.
+			string dbusSessionBusAddress = Engine.Instance.Storage.Get("linux.dbus");
+			if( (dbusSessionBusAddress == "") && (Platform.Instance.FileExists("/run/user/" + m_userId.ToString() + "/bus")) )
+			{
+				dbusSessionBusAddress = "unix:path=/run/user/" + m_userId.ToString() + "/bus";
+			}
 			string busPath = "/run/user/" + m_userId.ToString() + "/bus";
-			if(Platform.Instance.FileExists(busPath))
-				arguments = new string[] { "-u " + m_userName, "DBUS_SESSION_BUS_ADDRESS=unix:path=" + busPath, path + " " + String.Join(" ", arguments) };
+			if(dbusSessionBusAddress != "")
+				arguments = new string[] { "-u " + m_userName, "DBUS_SESSION_BUS_ADDRESS=" + dbusSessionBusAddress, path + " " + String.Join(" ", arguments) };
 			else
 				arguments = new string[] { "-u " + m_userName, path + " " + String.Join(" ", arguments) };
 
@@ -797,18 +801,24 @@ namespace Eddie.Platform.Linux
 
 			string command2 = "";
 			string executablePath = Platform.Instance.GetExecutablePath();
-			string cmdline = CommandLine.SystemEnvironment.GetFull();
 			
+			string args = CommandLine.SystemEnvironment.GetFull();
+			args += " console.mode=none"; // 2.13.6, otherwise CancelKeyPress (mono bug?) and stdout fill the non-root non-blocked terminal.
+			{
+				string dbusSessionBusAddress = Environment.GetEnvironmentVariable("DBUS_SESSION_BUS_ADDRESS");
+				if (dbusSessionBusAddress != null)
+					args += " linux.dbus=\"" + dbusSessionBusAddress + "\"";
+			}
+
 			if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
 				command2 += "mono ";
 			command2 += Platform.Instance.GetExecutablePath();
 			command2 += " ";
-			command2 += cmdline;
-			command2 += " console.mode=none"; // 2.13.6, otherwise CancelKeyPress (mono bug?) and stdout fill the non-root non-blocked terminal.
+			command2 += args;
 			command2 = command2.Trim(); // 2.11.11
 			bool waitEnd = false;
 			
-			if ( (LocateExecutable("pkexec") != "") && (Platform.Instance.FileExists("/usr/share/polkit-1/actions/com.eddie.linux.ui.policy")) )
+			if ( (LocateExecutable("pkexec") != "") && (Platform.Instance.FileExists("/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy")) )
 			{
 				method = "pkexec-policy";
 
@@ -821,7 +831,7 @@ namespace Eddie.Platform.Linux
 				string exe = Engine.Instance.Storage.Get("path.exec");
 				if (exe == "")
 					exe = Platform.Instance.GetExecutablePath();
-				arguments = exe + " " + cmdline + " console.mode=none";
+				arguments = exe + " " + args;
 				
 				// Without this, don't work on Debian9
 				// It is not allowed to run pkexec in the background by fork and exec and then terminating the parent. 

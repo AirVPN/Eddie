@@ -874,7 +874,7 @@ namespace Eddie.Forms.Forms
 			Forms.TextViewer Dlg = new TextViewer();
 			Dlg.Title = "Man";
 			Dlg.Body = Engine.Instance.Storage.GetMan("text");
-			Dlg.ShowDialog();
+			Dlg.ShowDialog(this);
 		}
 
 		private void mnuDevelopersManBBCode_Click(object sender, EventArgs e)
@@ -882,7 +882,7 @@ namespace Eddie.Forms.Forms
 			Forms.TextViewer Dlg = new TextViewer();
 			Dlg.Title = "Man";
 			Dlg.Body = Engine.Instance.Storage.GetMan("bbc");
-			Dlg.ShowDialog();
+			Dlg.ShowDialog(this);
 		}
 
 		private void mnuDevelopersReset_Click(object sender, EventArgs e)
@@ -917,7 +917,7 @@ namespace Eddie.Forms.Forms
 		private void cmdProviderAdd_Click(object sender, EventArgs e)
 		{
 			WindowProviderAdd dlg = new WindowProviderAdd();
-			if (dlg.ShowDialog() == DialogResult.OK)
+			if (dlg.ShowDialog(this) == DialogResult.OK)
 			{
 				Core.Provider provider = Engine.Instance.ProvidersManager.AddProvider(dlg.Provider, null);
 				Engine.Instance.ProvidersManager.Refresh();
@@ -972,7 +972,7 @@ namespace Eddie.Forms.Forms
 			}
 			if (form != null)
 			{
-				if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				if (form.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
 					item.Update();
 
@@ -1054,7 +1054,7 @@ namespace Eddie.Forms.Forms
 				ListViewItemServer item = m_listViewServers.SelectedItems[0] as ListViewItemServer;
 				WindowConnection dlg = new WindowConnection();
 				dlg.Connection = item.Info;
-				dlg.ShowDialog();
+				dlg.ShowDialog(this);
 			}
 		}
 
@@ -1256,7 +1256,7 @@ namespace Eddie.Forms.Forms
 		private void cmdLogsCommand_Click(object sender, EventArgs e)
 		{
 			WindowCommand Dlg = new WindowCommand();
-			if (Dlg.ShowDialog() == DialogResult.OK)
+			if (Dlg.ShowDialog(this) == DialogResult.OK)
 			{
 				Core.UI.App.RunCommandString(Dlg.Command);
 			}
@@ -1869,7 +1869,7 @@ namespace Eddie.Forms.Forms
 			{
 				WindowProviderNoBootstrap dlg = new WindowProviderNoBootstrap();
 				dlg.Provider = provider as Core.Providers.Service;
-				dlg.ShowDialog();
+				dlg.ShowDialog(this);
 			}
 		}
 
@@ -2194,7 +2194,7 @@ namespace Eddie.Forms.Forms
 			if (show)
 			{
 				Forms.Tos Dlg = new Forms.Tos();
-				if (Dlg.ShowDialog() == DialogResult.OK)
+				if (Dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					Engine.Storage.SetBool("gui.tos", true);
 					return true;
@@ -2253,7 +2253,7 @@ namespace Eddie.Forms.Forms
 					sd.FileName = Engine.Logs.GetLogSuggestedFileName();
 					sd.Filter = Messages.FilterTextFiles;
 
-					if (sd.ShowDialog() == DialogResult.OK)
+					if (sd.ShowDialog(this) == DialogResult.OK)
 					{
 						using (StreamWriter sw = new StreamWriter(sd.FileName))
 						{

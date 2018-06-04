@@ -43,7 +43,7 @@ namespace Eddie.Forms.Linux
 				string controlWritePath = Path.GetTempPath() + "eddie_tray_w.tmp";
 								
 				string pathRes = Core.Engine.Instance.GetPathResources();
-				string pathExe = Core.Engine.Instance.GetPathTools() + "/eddie_tray";
+				string pathExe = Core.Engine.Instance.GetPathTools() + "/eddie-tray";
 
 				if (Core.Platform.Instance.FileExists(pathExe) == false)
 					return;

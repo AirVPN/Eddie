@@ -427,7 +427,7 @@ namespace Eddie.Deploy
 							CopyAll(pathDeploy, pathTemp);
 							CopyAll(pathCommon, pathTemp + "/res");
 
-							RemoveFile(pathTemp + "/eddie_tray");
+							RemoveFile(pathTemp + "/eddie-tray");
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libappindicator.so.1");
 							
@@ -467,7 +467,7 @@ namespace Eddie.Deploy
 
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-						Shell("chmod 755 \"" + pathTemp + "/eddie_tray\"");
+						Shell("chmod 755 \"" + pathTemp + "/eddie-tray\"");
 						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
 
 						RemoveFile(pathTemp + "/libgdiplus.so.0");
@@ -491,7 +491,7 @@ namespace Eddie.Deploy
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 						if (ui == "cli")
 						{
-							RemoveFile(pathTemp + "/eddie_tray");
+							RemoveFile(pathTemp + "/eddie-tray");
 							RemoveFile(pathTemp + "/libgdiplus.so.0");
 							RemoveFile(pathTemp + "/libappindicator.so.1");
 						}
@@ -599,7 +599,7 @@ namespace Eddie.Deploy
 						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
 						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
 						if (ui == "ui")
-							Shell("chmod 755 \"" + pathTemp + "/eddie_tray\"");
+							Shell("chmod 755 \"" + pathTemp + "/eddie-tray\"");
 						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
 
 						CreateDirectory(pathTemp + "/" + fileName);
@@ -663,10 +663,10 @@ namespace Eddie.Deploy
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Forms.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Platform.Linux.dll\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/libLib.Platform.Linux.Native.so\"");
-						Shell("chmod 755 \"" + pathTemp + "/usr/lib/eddie-ui/eddie_tray\"");
+						Shell("chmod 755 \"" + pathTemp + "/usr/lib/eddie-ui/eddie-tray\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/eddie-ui.png\"");
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/eddie-ui.desktop\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/polkit-1/actions/com.eddie.linux.ui.policy\"");
+						Shell("chmod 644 \"" + pathTemp + "/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy\"");
 
 						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/eddie-ui/copyright\"");
 						Shell("chmod 644 " + pathTemp + "/usr/share/eddie-ui/*"); // Note: wildchar don't works if quoted
@@ -730,9 +730,10 @@ namespace Eddie.Deploy
 							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Forms.dll\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Platform.Linux.dll\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/libLib.Platform.Linux.Native.so\"");
-							Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/eddie_tray\"");
+							Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/eddie-tray\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/eddie-ui.png\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/eddie-ui.desktop\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy\"");
 							Shell("chmod 644 " + pathTemp + "/usr/share/eddie-ui/*"); // Note: wildchar don't works if quoted
 
 							Shell("chown -R root:root " + pathTemp);
@@ -913,7 +914,7 @@ namespace Eddie.Deploy
 							SignFile(platform, format, pathTemp + "/Applications/Eddie.app");
 
 							string command2 = "pkgbuild";
-							command2 += " --identifier com.eddie.client";
+							command2 += " --identifier org.airvpn.eddie.ui";
 							command2 += " --version " + versionString3;
 							command2 += " --root \"" + pathTemp + "\"";
 							//command2 += " --component \"" + pathRelease + "Eddie.app\"";

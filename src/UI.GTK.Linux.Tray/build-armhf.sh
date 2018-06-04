@@ -21,6 +21,6 @@ BuildConfig()
 }
 
 BuildConfig ./build/armhf/release Release
-strip -S --strip-unneeded -o ../../deploy/linux_armhf/eddie_tray ./build/armhf/release/eddie_tray
+strip -S --strip-unneeded -o ../../deploy/linux_armhf/eddie-tray ./build/armhf/release/eddie_tray
 
 

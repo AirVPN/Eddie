@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Eddie.MenuPage">
@@ -24,7 +24,7 @@
 			</StackLayout>
 
             <StackLayout Orientation="Vertical" VerticalOptions="End">
-				<Label x:Name="m_version" HorizontalTextAlignment="End" Text="Version 1.0.9" />
+				<Label x:Name="m_version" HorizontalTextAlignment="End" Text="Version 1.0 beta 11" />
 				<Image x:Name="m_developedBy" Source="menu_bottom.png" HeightRequest="60" Aspect="AspectFit"/>
 			</StackLayout>
         </StackLayout>
