@@ -883,8 +883,7 @@ namespace Eddie.Platform.Windows
 							m_listOldDns.Add(entry);
 							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsWindowsNetworkAdapterDnsDone, "IPv4", entry.Description, (entry.Dns.OnlyIPv4.Count == 0 ? "automatic" : "manual" + " (" + entry.Dns.OnlyIPv4.ToString() + ")"), dns.OnlyIPv4.ToString()));
 						}
-
-						// IPv6
+												
 						IpAddresses dnsIPv6 = new IpAddresses(jNetworkInterface["dns6"].Value as string);
 						if (dnsIPv6.OnlyIPv6.Equals(dns.OnlyIPv6) == false)
 						{
@@ -1337,6 +1336,8 @@ namespace Eddie.Platform.Windows
 					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
 
 					string result = versionInfo.ProductVersion;
+					if(result == null)
+						throw new Exception(MessagesFormatter.Format(Messages.OsDriverNoVersion, sysPath));
 					if (result.IndexOf(" ") != -1)
 						result = result.Substring(0, result.IndexOf(" "));
 
@@ -1483,6 +1484,7 @@ namespace Eddie.Platform.Windows
 
 				jNetworkInterface["dns4"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
 				jNetworkInterface["dns6"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
+				jNetworkInterface["dns6"].Value = null;
 			}
 
 			jNetworkInfo["support_ipv4"].Value = OsSupportIPv4();

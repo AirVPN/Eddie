@@ -202,10 +202,11 @@ namespace Eddie.Core.Providers
 			{
 				connectionActive.OpenVpnProfileStartup.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
 				XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
-				if (xmlKey == null)
-					throw new Exception(MessagesFormatter.Format(Messages.KeyNotFound, key));
-				connectionActive.OpenVpnProfileStartup.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
-				connectionActive.OpenVpnProfileStartup.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");
+				if (xmlKey != null)
+				{
+					connectionActive.OpenVpnProfileStartup.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");
+					connectionActive.OpenVpnProfileStartup.AppendDirective("<key>", xmlKey.Attributes["key"].Value, "");
+				}
 			}
 		}
 

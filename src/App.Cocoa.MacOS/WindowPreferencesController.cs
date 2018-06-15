@@ -655,6 +655,8 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				GuiUtils.SetSelected(CboUiUnit, Messages.WindowsSettingsUiUnit0);
 			GuiUtils.SetCheck(ChkUiIEC, s.GetBool("ui.iec"));
+            GuiUtils.SetCheck(ChkUiSkipProviderManifestFailed, s.GetBool("ui.skip.provider.manifest.failed"));
+
 			/*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
 			if (interfaceMode == "Dark")
@@ -991,6 +993,7 @@ namespace Eddie.UI.Cocoa.Osx
 				uiUnit = "bits";
 			s.Set("ui.unit", uiUnit);
 			s.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
+            s.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkUiSkipProviderManifestFailed));
 
 			// Protocols
 

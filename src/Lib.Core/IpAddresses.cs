@@ -64,6 +64,9 @@ namespace Eddie.Core
 
 		public void Add(string v)
 		{
+			if (v == null)
+				return;
+
 			v = v.Replace(",", "\n");
 			string[] lines = v.Split('\n');
 			foreach(string line in lines)

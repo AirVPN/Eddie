@@ -244,7 +244,11 @@ namespace Eddie.Core
 					if (result != "")
 					{
 						if (Engine.Instance.ConnectionActive == null) // Note: only if not connected, otherwise misunderstanding.
-							Engine.Instance.OnProviderManifestFailed(provider);
+						{
+							if (Engine.Instance.Storage.GetBool("ui.skip.provider.manifest.failed") == false)
+								Engine.Instance.OnProviderManifestFailed(provider);
+						}
+							
 						if (globalResult != "")
 							globalResult += "; ";
 						globalResult += result;

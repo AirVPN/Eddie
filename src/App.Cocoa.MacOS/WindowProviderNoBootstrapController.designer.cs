@@ -13,6 +13,9 @@ namespace Eddie.UI.Cocoa.Osx
 	partial class WindowProviderNoBootstrapController
 	{
 		[Outlet]
+		AppKit.NSButton ChkDontShowAgain { get; set; }
+
+		[Outlet]
 		AppKit.NSButton CmdCancel { get; set; }
 
 		[Outlet]
@@ -26,9 +29,9 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (LblBody != null) {
-				LblBody.Dispose ();
-				LblBody = null;
+			if (CmdCancel != null) {
+				CmdCancel.Dispose ();
+				CmdCancel = null;
 			}
 
 			if (CmdOk != null) {
@@ -36,14 +39,19 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdOk = null;
 			}
 
-			if (CmdCancel != null) {
-				CmdCancel.Dispose ();
-				CmdCancel = null;
+			if (LblBody != null) {
+				LblBody.Dispose ();
+				LblBody = null;
 			}
 
 			if (TxtManualUrls != null) {
 				TxtManualUrls.Dispose ();
 				TxtManualUrls = null;
+			}
+
+			if (ChkDontShowAgain != null) {
+				ChkDontShowAgain.Dispose ();
+				ChkDontShowAgain = null;
 			}
 		}
 	}

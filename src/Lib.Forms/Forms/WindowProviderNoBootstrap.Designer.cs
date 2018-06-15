@@ -33,6 +33,7 @@
 			this.txtManualUrls = new Eddie.Forms.Skin.TextBox();
 			this.lblBody = new Eddie.Forms.Skin.Label();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
+			this.chkDontShowAgain = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -44,7 +45,7 @@
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.cmdOk.FlatAppearance.BorderSize = 0;
 			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdOk.Location = new System.Drawing.Point(201, 182);
+			this.cmdOk.Location = new System.Drawing.Point(201, 204);
 			this.cmdOk.Name = "cmdOk";
 			this.cmdOk.Size = new System.Drawing.Size(106, 27);
 			this.cmdOk.TabIndex = 4;
@@ -60,18 +61,19 @@
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cmdCancel.FlatAppearance.BorderSize = 0;
 			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdCancel.Location = new System.Drawing.Point(314, 182);
+			this.cmdCancel.Location = new System.Drawing.Point(314, 204);
 			this.cmdCancel.Name = "cmdCancel";
 			this.cmdCancel.Size = new System.Drawing.Size(106, 27);
 			this.cmdCancel.TabIndex = 5;
 			this.cmdCancel.Text = "Cancel";
 			this.cmdCancel.UseVisualStyleBackColor = true;
+			this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
 			// 
 			// txtManualUrls
 			// 
 			this.txtManualUrls.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtManualUrls.Location = new System.Drawing.Point(110, 147);
+			this.txtManualUrls.Location = new System.Drawing.Point(110, 152);
 			this.txtManualUrls.Name = "txtManualUrls";
 			this.txtManualUrls.Size = new System.Drawing.Size(502, 20);
 			this.txtManualUrls.TabIndex = 6;
@@ -85,7 +87,7 @@
 			this.lblBody.ForeColor = System.Drawing.Color.Black;
 			this.lblBody.Location = new System.Drawing.Point(107, 9);
 			this.lblBody.Name = "lblBody";
-			this.lblBody.Size = new System.Drawing.Size(505, 135);
+			this.lblBody.Size = new System.Drawing.Size(505, 139);
 			this.lblBody.TabIndex = 65;
 			this.lblBody.Text = "Title:";
 			this.lblBody.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -100,13 +102,26 @@
 			this.pictureBox1.TabIndex = 66;
 			this.pictureBox1.TabStop = false;
 			// 
+			// chkDontShowAgain
+			// 
+			this.chkDontShowAgain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.chkDontShowAgain.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.chkDontShowAgain.Location = new System.Drawing.Point(349, 176);
+			this.chkDontShowAgain.Name = "chkDontShowAgain";
+			this.chkDontShowAgain.Size = new System.Drawing.Size(263, 22);
+			this.chkDontShowAgain.TabIndex = 67;
+			this.chkDontShowAgain.Text = "Don\'t show this message again";
+			this.chkDontShowAgain.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.chkDontShowAgain.UseVisualStyleBackColor = true;
+			// 
 			// WindowProviderNoBootstrap
 			// 
 			this.AcceptButton = this.cmdOk;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdCancel;
-			this.ClientSize = new System.Drawing.Size(624, 221);
+			this.ClientSize = new System.Drawing.Size(624, 243);
+			this.Controls.Add(this.chkDontShowAgain);
 			this.Controls.Add(this.pictureBox1);
 			this.Controls.Add(this.lblBody);
 			this.Controls.Add(this.txtManualUrls);
@@ -136,5 +151,6 @@
 		private Skin.TextBox txtManualUrls;
 		private Skin.Label lblBody;
 		private System.Windows.Forms.PictureBox pictureBox1;
+		private System.Windows.Forms.CheckBox chkDontShowAgain;
 	}
 }

@@ -324,11 +324,11 @@ namespace Eddie.Forms.Forms
 			chkConnect.Checked = s.GetBool("connect");
 			chkNetLock.Checked = s.GetBool("netlock");
 			chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
-			chkExitConfirm.Checked = s.GetBool("gui.exit_confirm");
+			chkUiExitConfirm.Checked = s.GetBool("gui.exit_confirm");
 			chkOsSingleInstance.Checked = s.GetBool("os.single_instance");
 
 			// Ui
-			chkSystemNotifications.Checked = s.GetBool("gui.notifications");
+			chkUiSystemNotifications.Checked = s.GetBool("gui.notifications");
 			string uiUnit = s.Get("ui.unit");
 			if (uiUnit == "bytes")
 				cboUiUnit.SelectedIndex = 1;
@@ -351,6 +351,8 @@ namespace Eddie.Forms.Forms
 			chkUiStartMinimized.Checked = s.GetBool("gui.start_minimized");
 			chkUiTrayShow.Checked = s.GetBool("gui.tray_show");
 			chkUiTrayMinimized.Checked = s.GetBool("gui.tray_minimized");
+
+			chkUiSkipProviderManifestFailed.Checked = s.GetBool("ui.skip.provider.manifest.failed");
 
 			// Protocol
 			String protocol = s.Get("mode.protocol").ToUpperInvariant();
@@ -694,11 +696,11 @@ namespace Eddie.Forms.Forms
 			s.SetBool("connect", chkConnect.Checked);
 			s.SetBool("netlock", chkNetLock.Checked);
 			s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
-			s.SetBool("gui.exit_confirm", chkExitConfirm.Checked);
+			s.SetBool("gui.exit_confirm", chkUiExitConfirm.Checked);
 			s.SetBool("os.single_instance", chkOsSingleInstance.Checked);
 
 			// Ui
-			s.SetBool("gui.notifications", chkSystemNotifications.Checked);
+			s.SetBool("gui.notifications", chkUiSystemNotifications.Checked);
 			string uiUnit = "";
 			if (cboUiUnit.SelectedIndex == 1)
 				uiUnit = "bytes";
@@ -721,6 +723,8 @@ namespace Eddie.Forms.Forms
 			s.SetBool("gui.start_minimized", chkUiStartMinimized.Checked);
 			s.SetBool("gui.tray_show", chkUiTrayShow.Checked);
 			s.SetBool("gui.tray_minimized", chkUiTrayShow.Checked && chkUiTrayMinimized.Checked);
+
+			s.SetBool("ui.skip.provider.manifest.failed", chkUiSkipProviderManifestFailed.Checked);
 
 			// Protocols
 			if (lstProtocols.Items.Count == 0) // Occur if AirVPN provider is disabled

@@ -53,6 +53,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{
+                Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkDontShowAgain));
 				Engine.Instance.Storage.Set("bootstrap.urls", TxtManualUrls.StringValue);
 				Engine.Instance.RefreshInvalidateConnections();
 
@@ -62,6 +63,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdCancel.Activated += (object sender, EventArgs e) =>
 			{
+                Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkDontShowAgain));
+
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();
 			};

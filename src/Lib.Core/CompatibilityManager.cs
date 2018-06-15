@@ -240,6 +240,16 @@ namespace Eddie.Core
 			}
 		}
 
+		// Rename AirVPN.xml (if exists) to Default.xml
+		public static void FixOldProfilePath(string newPath)
+		{
+			if (Platform.Instance.FileExists(newPath))
+				return;
+
+			if (Platform.Instance.FileExists(newPath.Replace("default.xml","AirVPN.xml")))
+				Platform.Instance.FileMove(newPath.Replace("default.xml", "AirVPN.xml"), newPath);			
+		}
+
 		public static string FixOldProfile(string originalPath)
 		{
 			FileInfo originalFile = new FileInfo(originalPath);

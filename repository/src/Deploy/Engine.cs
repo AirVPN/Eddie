@@ -208,12 +208,14 @@ namespace Eddie.Deploy
 					{						
 						foreach (string format in new string[] { "portable", "installer" })
 						{							
-							foreach (string os in new string[] { "windows-10", "windows-7", "windows-xp" })
+							foreach (string os in new string[] { "windows-10", "windows-7", "windows-vista", "windows-xp" })
 							{								
 								string netFramework = "4.0";
 								if( (os == "windows-7") && (IsEddie3() == false) )
 									netFramework = "2.0";
-								if( (os == "windows-xp") && (IsEddie3() == false))
+								if ((os == "windows-vista") && (IsEddie3() == false))
+									netFramework = "2.0";
+								if ( (os == "windows-xp") && (IsEddie3() == false))
 									netFramework = "2.0";
 
 								ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));

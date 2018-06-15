@@ -446,11 +446,9 @@ namespace Eddie.Platform.Linux
 			// DBUS_SESSION_BUS_ADDRESS is required only for notify-send. 
 			// Debian7 don't work with it. Arch works anyway without it, Debian>7 and Fedora not.
 			string dbusSessionBusAddress = Engine.Instance.Storage.Get("linux.dbus");
-			if( (dbusSessionBusAddress == "") && (Platform.Instance.FileExists("/run/user/" + m_userId.ToString() + "/bus")) )
-			{
+			if ( (dbusSessionBusAddress == "") && (Platform.Instance.FileExists("/run/user/" + m_userId.ToString() + "/bus")) )
 				dbusSessionBusAddress = "unix:path=/run/user/" + m_userId.ToString() + "/bus";
-			}
-			string busPath = "/run/user/" + m_userId.ToString() + "/bus";
+			
 			if(dbusSessionBusAddress != "")
 				arguments = new string[] { "-u " + m_userName, "DBUS_SESSION_BUS_ADDRESS=" + dbusSessionBusAddress, path + " " + String.Join(" ", arguments) };
 			else

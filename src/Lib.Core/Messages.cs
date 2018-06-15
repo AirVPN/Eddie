@@ -85,6 +85,7 @@ namespace Eddie.Core
 		public static string OsDriverNeedUpgrade = "Tunnel driver will be upgraded, from {1} to {2}.";
 		public static string OsDriverNotAvailable = "Not available - Will be installed at next connection.";
 		public static string OsDriverNoPath = "Unable to find driver path '{1}'";
+		public static string OsDriverNoVersion = "Unable to find driver version of path '{1}'";
 		public static string OsDriverNoRegPath = "Unable to find driver registry path";
 		public static string BundleExecutableError = "Unexpected bundle executable error {1} ({2}). Dumping report.";
 		public static string ManifestUpdate = "Updating systems & servers data ...";

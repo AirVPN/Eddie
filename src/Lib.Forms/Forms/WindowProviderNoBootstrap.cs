@@ -62,11 +62,17 @@ namespace Eddie.Forms.Forms
 		{
 
 		}
-
+		
 		private void cmdOk_Click(object sender, EventArgs e)
 		{
+			Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);
 			Engine.Instance.Storage.Set("bootstrap.urls", txtManualUrls.Text);
 			Engine.Instance.RefreshInvalidateConnections();
+		}
+
+		private void cmdCancel_Click(object sender, EventArgs e)
+		{
+			Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);
 		}
 	}
 }

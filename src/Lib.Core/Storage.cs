@@ -447,7 +447,7 @@ namespace Eddie.Core
 
 			SetDefault("console.mode", "choice:none,batch,keys", "keys", NotInMan);
 
-			SetDefault("profile", "text", "AirVPN.xml", Messages.ManOptionProfile); // Not in Settings
+			SetDefault("profile", "text", "default.xml", Messages.ManOptionProfile); // Not in Settings
 			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
 			SetDefault("path.resources", "text", "res/", NotInMan); // Relative to executable
 			SetDefault("path.tools", "text", "", NotInMan); // Relative to executable
@@ -585,11 +585,12 @@ namespace Eddie.Core
 
 			// Linux only
 			SetDefaultBool("linux.xhost", false, NotInMan);
-			SetDefaultBool("linux.dbus", false, NotInMan);
+			SetDefault("linux.dbus", "text", "", NotInMan);
 
 			// General UI
 			SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
 			SetDefaultBool("ui.iec", false, Messages.ManOptionUiIEC);
+			SetDefaultBool("ui.skip.provider.manifest.failed", false, NotInMan);
 
 			// GUI only
 			SetDefaultBool("gui.start_minimized", false, NotInMan);
@@ -763,6 +764,8 @@ namespace Eddie.Core
 						return;
 
 					string path = GetProfilePath();
+
+					CompatibilityManager.FixOldProfilePath(path); // 2.15
 
 					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OptionsRead, path));
 

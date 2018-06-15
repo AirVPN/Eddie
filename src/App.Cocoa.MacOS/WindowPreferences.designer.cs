@@ -136,6 +136,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkUiIEC { get; set; }
 
 		[Outlet]
+		AppKit.NSButton ChkUiSkipProviderManifestFailed { get; set; }
+
+		[Outlet]
 		AppKit.NSButton ChkUiSystemBarShowInfo { get; set; }
 
 		[Outlet]
@@ -322,11 +325,6 @@ namespace Eddie.UI.Cocoa.Osx
 				CboIpV6 = null;
 			}
 
-			if (LblIPv6 != null) {
-				LblIPv6.Dispose ();
-				LblIPv6 = null;
-			}
-
 			if (CboLockIncoming != null) {
 				CboLockIncoming.Dispose ();
 				CboLockIncoming = null;
@@ -347,6 +345,16 @@ namespace Eddie.UI.Cocoa.Osx
 				CboNetworkEntryInterface = null;
 			}
 
+			if (CboNetworkIPv4Mode != null) {
+				CboNetworkIPv4Mode.Dispose ();
+				CboNetworkIPv4Mode = null;
+			}
+
+			if (CboNetworkIPv6Mode != null) {
+				CboNetworkIPv6Mode.Dispose ();
+				CboNetworkIPv6Mode = null;
+			}
+
 			if (CboOpenVpnDirectivesHelp != null) {
 				CboOpenVpnDirectivesHelp.Dispose ();
 				CboOpenVpnDirectivesHelp = null;
@@ -355,6 +363,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CboOpenVpnDirectivesSkipDefault != null) {
 				CboOpenVpnDirectivesSkipDefault.Dispose ();
 				CboOpenVpnDirectivesSkipDefault = null;
+			}
+
+			if (ChkUiSkipProviderManifestFailed != null) {
+				ChkUiSkipProviderManifestFailed.Dispose ();
+				ChkUiSkipProviderManifestFailed = null;
 			}
 
 			if (CboOpenVpnRcvBuf != null) {
@@ -382,34 +395,9 @@ namespace Eddie.UI.Cocoa.Osx
 				CboProxyType = null;
 			}
 
-			if (LblNetworkIPv4Mode != null) {
-				LblNetworkIPv4Mode.Dispose ();
-				LblNetworkIPv4Mode = null;
-			}
-
-			if (LblNetworkIPv6Mode != null) {
-				LblNetworkIPv6Mode.Dispose ();
-				LblNetworkIPv6Mode = null;
-			}
-
-			if (CboNetworkIPv4Mode != null) {
-				CboNetworkIPv4Mode.Dispose ();
-				CboNetworkIPv4Mode = null;
-			}
-
-			if (CboNetworkIPv6Mode != null) {
-				CboNetworkIPv6Mode.Dispose ();
-				CboNetworkIPv6Mode = null;
-			}
-
 			if (CboProxyWhen != null) {
 				CboProxyWhen.Dispose ();
 				CboProxyWhen = null;
-			}
-
-			if (LblRoutesOtherwise != null) {
-				LblRoutesOtherwise.Dispose ();
-				LblRoutesOtherwise = null;
 			}
 
 			if (CboRoutesOtherwise != null) {
@@ -662,6 +650,11 @@ namespace Eddie.UI.Cocoa.Osx
 				LblDnsServers = null;
 			}
 
+			if (LblIPv6 != null) {
+				LblIPv6.Dispose ();
+				LblIPv6 = null;
+			}
+
 			if (LblLockRoutingOutWarning != null) {
 				LblLockRoutingOutWarning.Dispose ();
 				LblLockRoutingOutWarning = null;
@@ -670,6 +663,16 @@ namespace Eddie.UI.Cocoa.Osx
 			if (LblLoggingHelp != null) {
 				LblLoggingHelp.Dispose ();
 				LblLoggingHelp = null;
+			}
+
+			if (LblNetworkIPv4Mode != null) {
+				LblNetworkIPv4Mode.Dispose ();
+				LblNetworkIPv4Mode = null;
+			}
+
+			if (LblNetworkIPv6Mode != null) {
+				LblNetworkIPv6Mode.Dispose ();
+				LblNetworkIPv6Mode = null;
 			}
 
 			if (LblOpenVpnRcvBuf != null) {
@@ -685,6 +688,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (LblRoutesNetworkLockWarning != null) {
 				LblRoutesNetworkLockWarning.Dispose ();
 				LblRoutesNetworkLockWarning = null;
+			}
+
+			if (LblRoutesOtherwise != null) {
+				LblRoutesOtherwise.Dispose ();
+				LblRoutesOtherwise = null;
 			}
 
 			if (TableAdvancedEvents != null) {

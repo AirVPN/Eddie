@@ -104,33 +104,19 @@ namespace Eddie.Forms.Forms
 			this.tabSettings = new Eddie.Forms.Skin.TabControl();
 			this.tabGeneral = new Eddie.Forms.Skin.TabPage();
 			this.chkSystemStart = new Eddie.Forms.Skin.CheckBox();
-			this.label16 = new Eddie.Forms.Skin.Label();
-			this.chkUiStartMinimized = new Eddie.Forms.Skin.CheckBox();
-			this.lblUiTrayMinimized = new Eddie.Forms.Skin.Label();
-			this.chkUiTrayMinimized = new Eddie.Forms.Skin.CheckBox();
-			this.lblUiTrayShow = new Eddie.Forms.Skin.Label();
-			this.chkUiTrayShow = new Eddie.Forms.Skin.CheckBox();
 			this.label13 = new Eddie.Forms.Skin.Label();
 			this.chkOsSingleInstance = new Eddie.Forms.Skin.CheckBox();
-			this.label9 = new Eddie.Forms.Skin.Label();
-			this.chkUiIEC = new Eddie.Forms.Skin.CheckBox();
 			this.cmdResetToDefault = new Eddie.Forms.Skin.Button();
-			this.chkSystemNotifications = new Eddie.Forms.Skin.CheckBox();
 			this.lblConnect = new Eddie.Forms.Skin.Label();
 			this.lblNetLock = new Eddie.Forms.Skin.Label();
 			this.chkConnect = new Eddie.Forms.Skin.CheckBox();
 			this.lblGeneralStartLast = new Eddie.Forms.Skin.Label();
 			this.chkNetLock = new Eddie.Forms.Skin.CheckBox();
 			this.chkGeneralStartLast = new Eddie.Forms.Skin.CheckBox();
-			this.label7 = new Eddie.Forms.Skin.Label();
-			this.chkUiFontGeneral = new Eddie.Forms.Skin.CheckBox();
-			this.label5 = new Eddie.Forms.Skin.Label();
-			this.chkExitConfirm = new Eddie.Forms.Skin.CheckBox();
-			this.label4 = new Eddie.Forms.Skin.Label();
-			this.cboUiUnit = new Eddie.Forms.Skin.ComboBox();
-			this.cmdUiFontGeneral = new Eddie.Forms.Skin.Button();
-			this.lblUiFontGeneral = new Eddie.Forms.Skin.Label();
 			this.cmdTos = new Eddie.Forms.Skin.Button();
+			this.tabUI = new Eddie.Forms.Skin.TabPage();
+			this.lblUiSkipProviderManifestFailed = new Eddie.Forms.Skin.Label();
+			this.chkUiSkipProviderManifestFailed = new Eddie.Forms.Skin.CheckBox();
 			this.tabProtocols = new Eddie.Forms.Skin.TabPage();
 			this.lblProtocolsAvailable = new Eddie.Forms.Skin.Label();
 			this.lnkProtocolsHelp2 = new Eddie.Forms.Skin.LinkLabel();
@@ -221,6 +207,23 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
+			this.lblUiStartMinimized = new Eddie.Forms.Skin.Label();
+			this.chkUiStartMinimized = new Eddie.Forms.Skin.CheckBox();
+			this.lblUiTrayMinimized = new Eddie.Forms.Skin.Label();
+			this.chkUiTrayMinimized = new Eddie.Forms.Skin.CheckBox();
+			this.lblUiTrayShow = new Eddie.Forms.Skin.Label();
+			this.chkUiTrayShow = new Eddie.Forms.Skin.CheckBox();
+			this.lblUiSystemNotifications = new Eddie.Forms.Skin.Label();
+			this.chkUiIEC = new Eddie.Forms.Skin.CheckBox();
+			this.chkUiSystemNotifications = new Eddie.Forms.Skin.CheckBox();
+			this.chkUiFontGeneralTitle = new Eddie.Forms.Skin.Label();
+			this.chkUiFontGeneral = new Eddie.Forms.Skin.CheckBox();
+			this.lblUiExitConfirm = new Eddie.Forms.Skin.Label();
+			this.chkUiExitConfirm = new Eddie.Forms.Skin.CheckBox();
+			this.lblUiUnit = new Eddie.Forms.Skin.Label();
+			this.cboUiUnit = new Eddie.Forms.Skin.ComboBox();
+			this.cmdUiFontGeneral = new Eddie.Forms.Skin.Button();
+			this.lblUiFontGeneral = new Eddie.Forms.Skin.Label();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -236,6 +239,7 @@ namespace Eddie.Forms.Forms
 			this.pnlCommands.SuspendLayout();
 			this.tabSettings.SuspendLayout();
 			this.tabGeneral.SuspendLayout();
+			this.tabUI.SuspendLayout();
 			this.tabProtocols.SuspendLayout();
 			this.tabProxy.SuspendLayout();
 			this.tabRoutes.SuspendLayout();
@@ -1007,7 +1011,7 @@ namespace Eddie.Forms.Forms
             this.mnuRoutesRemove,
             this.mnuRoutesEdit});
 			this.mnuRoutes.Name = "mnuServers";
-			this.mnuRoutes.Size = new System.Drawing.Size(157, 104);
+			this.mnuRoutes.Size = new System.Drawing.Size(122, 82);
 			// 
 			// mnuRoutesAdd
 			// 
@@ -1015,7 +1019,7 @@ namespace Eddie.Forms.Forms
 			this.mnuRoutesAdd.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuRoutesAdd.Image = global::Eddie.Forms.Properties.Resources.add;
 			this.mnuRoutesAdd.Name = "mnuRoutesAdd";
-			this.mnuRoutesAdd.Size = new System.Drawing.Size(156, 26);
+			this.mnuRoutesAdd.Size = new System.Drawing.Size(121, 26);
 			this.mnuRoutesAdd.Text = "Add";
 			this.mnuRoutesAdd.Click += new System.EventHandler(this.mnuRoutesAdd_Click);
 			// 
@@ -1023,7 +1027,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuRoutesRemove.Image = global::Eddie.Forms.Properties.Resources.delete;
 			this.mnuRoutesRemove.Name = "mnuRoutesRemove";
-			this.mnuRoutesRemove.Size = new System.Drawing.Size(156, 26);
+			this.mnuRoutesRemove.Size = new System.Drawing.Size(121, 26);
 			this.mnuRoutesRemove.Text = "Remove";
 			this.mnuRoutesRemove.Click += new System.EventHandler(this.mnuRoutesRemove_Click);
 			// 
@@ -1031,7 +1035,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuRoutesEdit.Image = global::Eddie.Forms.Properties.Resources.edit;
 			this.mnuRoutesEdit.Name = "mnuRoutesEdit";
-			this.mnuRoutesEdit.Size = new System.Drawing.Size(156, 26);
+			this.mnuRoutesEdit.Size = new System.Drawing.Size(121, 26);
 			this.mnuRoutesEdit.Text = "Edit";
 			this.mnuRoutesEdit.Click += new System.EventHandler(this.mnuRoutesEdit_Click);
 			// 
@@ -1091,6 +1095,7 @@ namespace Eddie.Forms.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabSettings.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tabSettings.Controls.Add(this.tabGeneral);
+			this.tabSettings.Controls.Add(this.tabUI);
 			this.tabSettings.Controls.Add(this.tabProtocols);
 			this.tabSettings.Controls.Add(this.tabProxy);
 			this.tabSettings.Controls.Add(this.tabRoutes);
@@ -1113,32 +1118,15 @@ namespace Eddie.Forms.Forms
 			// 
 			this.tabGeneral.BackColor = System.Drawing.Color.White;
 			this.tabGeneral.Controls.Add(this.chkSystemStart);
-			this.tabGeneral.Controls.Add(this.label16);
-			this.tabGeneral.Controls.Add(this.chkUiStartMinimized);
-			this.tabGeneral.Controls.Add(this.lblUiTrayMinimized);
-			this.tabGeneral.Controls.Add(this.chkUiTrayMinimized);
-			this.tabGeneral.Controls.Add(this.lblUiTrayShow);
-			this.tabGeneral.Controls.Add(this.chkUiTrayShow);
 			this.tabGeneral.Controls.Add(this.label13);
 			this.tabGeneral.Controls.Add(this.chkOsSingleInstance);
-			this.tabGeneral.Controls.Add(this.label9);
-			this.tabGeneral.Controls.Add(this.chkUiIEC);
 			this.tabGeneral.Controls.Add(this.cmdResetToDefault);
-			this.tabGeneral.Controls.Add(this.chkSystemNotifications);
 			this.tabGeneral.Controls.Add(this.lblConnect);
 			this.tabGeneral.Controls.Add(this.lblNetLock);
 			this.tabGeneral.Controls.Add(this.chkConnect);
 			this.tabGeneral.Controls.Add(this.lblGeneralStartLast);
 			this.tabGeneral.Controls.Add(this.chkNetLock);
 			this.tabGeneral.Controls.Add(this.chkGeneralStartLast);
-			this.tabGeneral.Controls.Add(this.label7);
-			this.tabGeneral.Controls.Add(this.chkUiFontGeneral);
-			this.tabGeneral.Controls.Add(this.label5);
-			this.tabGeneral.Controls.Add(this.chkExitConfirm);
-			this.tabGeneral.Controls.Add(this.label4);
-			this.tabGeneral.Controls.Add(this.cboUiUnit);
-			this.tabGeneral.Controls.Add(this.cmdUiFontGeneral);
-			this.tabGeneral.Controls.Add(this.lblUiFontGeneral);
 			this.tabGeneral.Controls.Add(this.cmdTos);
 			this.tabGeneral.Location = new System.Drawing.Point(4, 24);
 			this.tabGeneral.Name = "tabGeneral";
@@ -1157,70 +1145,6 @@ namespace Eddie.Forms.Forms
 			this.chkSystemStart.TabIndex = 31;
 			this.chkSystemStart.Text = "Start with Windows";
 			this.chkSystemStart.UseVisualStyleBackColor = false;
-			// 
-			// label16
-			// 
-			this.label16.BackColor = System.Drawing.Color.Transparent;
-			this.label16.ForeColor = System.Drawing.Color.Black;
-			this.label16.Location = new System.Drawing.Point(17, 316);
-			this.label16.Name = "label16";
-			this.label16.Size = new System.Drawing.Size(265, 23);
-			this.label16.TabIndex = 96;
-			this.label16.Text = "Start minimized:";
-			this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkUiStartMinimized
-			// 
-			this.chkUiStartMinimized.BackColor = System.Drawing.Color.Transparent;
-			this.chkUiStartMinimized.ForeColor = System.Drawing.Color.Black;
-			this.chkUiStartMinimized.Location = new System.Drawing.Point(288, 316);
-			this.chkUiStartMinimized.Name = "chkUiStartMinimized";
-			this.chkUiStartMinimized.Size = new System.Drawing.Size(28, 23);
-			this.chkUiStartMinimized.TabIndex = 95;
-			this.chkUiStartMinimized.UseVisualStyleBackColor = false;
-			// 
-			// lblUiTrayMinimized
-			// 
-			this.lblUiTrayMinimized.BackColor = System.Drawing.Color.Transparent;
-			this.lblUiTrayMinimized.ForeColor = System.Drawing.Color.Black;
-			this.lblUiTrayMinimized.Location = new System.Drawing.Point(322, 283);
-			this.lblUiTrayMinimized.Name = "lblUiTrayMinimized";
-			this.lblUiTrayMinimized.Size = new System.Drawing.Size(176, 23);
-			this.lblUiTrayMinimized.TabIndex = 94;
-			this.lblUiTrayMinimized.Text = "Minimize in Tray:";
-			this.lblUiTrayMinimized.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkUiTrayMinimized
-			// 
-			this.chkUiTrayMinimized.BackColor = System.Drawing.Color.Transparent;
-			this.chkUiTrayMinimized.ForeColor = System.Drawing.Color.Black;
-			this.chkUiTrayMinimized.Location = new System.Drawing.Point(504, 284);
-			this.chkUiTrayMinimized.Name = "chkUiTrayMinimized";
-			this.chkUiTrayMinimized.Size = new System.Drawing.Size(28, 23);
-			this.chkUiTrayMinimized.TabIndex = 93;
-			this.chkUiTrayMinimized.UseVisualStyleBackColor = false;
-			// 
-			// lblUiTrayShow
-			// 
-			this.lblUiTrayShow.BackColor = System.Drawing.Color.Transparent;
-			this.lblUiTrayShow.ForeColor = System.Drawing.Color.Black;
-			this.lblUiTrayShow.Location = new System.Drawing.Point(17, 283);
-			this.lblUiTrayShow.Name = "lblUiTrayShow";
-			this.lblUiTrayShow.Size = new System.Drawing.Size(265, 23);
-			this.lblUiTrayShow.TabIndex = 92;
-			this.lblUiTrayShow.Text = "Show Tray Icon:";
-			this.lblUiTrayShow.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkUiTrayShow
-			// 
-			this.chkUiTrayShow.BackColor = System.Drawing.Color.Transparent;
-			this.chkUiTrayShow.ForeColor = System.Drawing.Color.Black;
-			this.chkUiTrayShow.Location = new System.Drawing.Point(288, 283);
-			this.chkUiTrayShow.Name = "chkUiTrayShow";
-			this.chkUiTrayShow.Size = new System.Drawing.Size(28, 23);
-			this.chkUiTrayShow.TabIndex = 91;
-			this.chkUiTrayShow.UseVisualStyleBackColor = false;
-			this.chkUiTrayShow.CheckedChanged += new System.EventHandler(this.chkUiTrayShow_CheckedChanged);
 			// 
 			// label13
 			// 
@@ -1243,29 +1167,6 @@ namespace Eddie.Forms.Forms
 			this.chkOsSingleInstance.TabIndex = 41;
 			this.chkOsSingleInstance.UseVisualStyleBackColor = false;
 			// 
-			// label9
-			// 
-			this.label9.BackColor = System.Drawing.Color.Transparent;
-			this.label9.ForeColor = System.Drawing.Color.Black;
-			this.label9.Location = new System.Drawing.Point(17, 161);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(265, 23);
-			this.label9.TabIndex = 89;
-			this.label9.Text = "System notifications:";
-			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkUiIEC
-			// 
-			this.chkUiIEC.AutoSize = true;
-			this.chkUiIEC.BackColor = System.Drawing.Color.Transparent;
-			this.chkUiIEC.ForeColor = System.Drawing.Color.Black;
-			this.chkUiIEC.Location = new System.Drawing.Point(562, 194);
-			this.chkUiIEC.Name = "chkUiIEC";
-			this.chkUiIEC.Size = new System.Drawing.Size(43, 17);
-			this.chkUiIEC.TabIndex = 43;
-			this.chkUiIEC.Text = "IEC";
-			this.chkUiIEC.UseVisualStyleBackColor = false;
-			// 
 			// cmdResetToDefault
 			// 
 			this.cmdResetToDefault.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1281,16 +1182,6 @@ namespace Eddie.Forms.Forms
 			this.cmdResetToDefault.Text = "Reset to default settings";
 			this.cmdResetToDefault.UseVisualStyleBackColor = true;
 			this.cmdResetToDefault.Click += new System.EventHandler(this.cmdResetToDefault_Click);
-			// 
-			// chkSystemNotifications
-			// 
-			this.chkSystemNotifications.BackColor = System.Drawing.Color.Transparent;
-			this.chkSystemNotifications.ForeColor = System.Drawing.Color.Black;
-			this.chkSystemNotifications.Location = new System.Drawing.Point(288, 161);
-			this.chkSystemNotifications.Name = "chkSystemNotifications";
-			this.chkSystemNotifications.Size = new System.Drawing.Size(121, 23);
-			this.chkSystemNotifications.TabIndex = 40;
-			this.chkSystemNotifications.UseVisualStyleBackColor = false;
 			// 
 			// lblConnect
 			// 
@@ -1355,100 +1246,6 @@ namespace Eddie.Forms.Forms
 			this.chkGeneralStartLast.TabIndex = 86;
 			this.chkGeneralStartLast.UseVisualStyleBackColor = false;
 			// 
-			// label7
-			// 
-			this.label7.BackColor = System.Drawing.Color.Transparent;
-			this.label7.ForeColor = System.Drawing.Color.Black;
-			this.label7.Location = new System.Drawing.Point(17, 251);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(265, 23);
-			this.label7.TabIndex = 85;
-			this.label7.Text = "UI Main Font:";
-			this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkUiFontGeneral
-			// 
-			this.chkUiFontGeneral.BackColor = System.Drawing.Color.Transparent;
-			this.chkUiFontGeneral.ForeColor = System.Drawing.Color.Black;
-			this.chkUiFontGeneral.Location = new System.Drawing.Point(288, 251);
-			this.chkUiFontGeneral.Name = "chkUiFontGeneral";
-			this.chkUiFontGeneral.Size = new System.Drawing.Size(28, 23);
-			this.chkUiFontGeneral.TabIndex = 84;
-			this.chkUiFontGeneral.UseVisualStyleBackColor = false;
-			// 
-			// label5
-			// 
-			this.label5.BackColor = System.Drawing.Color.Transparent;
-			this.label5.ForeColor = System.Drawing.Color.Black;
-			this.label5.Location = new System.Drawing.Point(17, 221);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(265, 23);
-			this.label5.TabIndex = 83;
-			this.label5.Text = "Exit confirmation prompt:";
-			this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkExitConfirm
-			// 
-			this.chkExitConfirm.BackColor = System.Drawing.Color.Transparent;
-			this.chkExitConfirm.ForeColor = System.Drawing.Color.Black;
-			this.chkExitConfirm.Location = new System.Drawing.Point(288, 221);
-			this.chkExitConfirm.Name = "chkExitConfirm";
-			this.chkExitConfirm.Size = new System.Drawing.Size(133, 23);
-			this.chkExitConfirm.TabIndex = 82;
-			this.chkExitConfirm.UseVisualStyleBackColor = false;
-			// 
-			// label4
-			// 
-			this.label4.BackColor = System.Drawing.Color.Transparent;
-			this.label4.ForeColor = System.Drawing.Color.Black;
-			this.label4.Location = new System.Drawing.Point(17, 190);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(265, 23);
-			this.label4.TabIndex = 77;
-			this.label4.Text = "Data units:";
-			this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// cboUiUnit
-			// 
-			this.cboUiUnit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboUiUnit.FormattingEnabled = true;
-			this.cboUiUnit.Items.AddRange(new object[] {
-            "Disabled",
-            "Automatic",
-            "Resolvconf (Linux only)",
-            "Renaming (Linux only)"});
-			this.cboUiUnit.Location = new System.Drawing.Point(288, 191);
-			this.cboUiUnit.Name = "cboUiUnit";
-			this.cboUiUnit.Size = new System.Drawing.Size(268, 21);
-			this.cboUiUnit.TabIndex = 76;
-			// 
-			// cmdUiFontGeneral
-			// 
-			this.cmdUiFontGeneral.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdUiFontGeneral.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdUiFontGeneral.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdUiFontGeneral.FlatAppearance.BorderSize = 0;
-			this.cmdUiFontGeneral.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdUiFontGeneral.Location = new System.Drawing.Point(562, 251);
-			this.cmdUiFontGeneral.Name = "cmdUiFontGeneral";
-			this.cmdUiFontGeneral.Size = new System.Drawing.Size(34, 23);
-			this.cmdUiFontGeneral.TabIndex = 70;
-			this.cmdUiFontGeneral.Text = "...";
-			this.cmdUiFontGeneral.UseVisualStyleBackColor = true;
-			this.cmdUiFontGeneral.Click += new System.EventHandler(this.cmdUiFontGeneral_Click);
-			// 
-			// lblUiFontGeneral
-			// 
-			this.lblUiFontGeneral.BackColor = System.Drawing.Color.Transparent;
-			this.lblUiFontGeneral.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.lblUiFontGeneral.ForeColor = System.Drawing.Color.Black;
-			this.lblUiFontGeneral.Location = new System.Drawing.Point(322, 251);
-			this.lblUiFontGeneral.Name = "lblUiFontGeneral";
-			this.lblUiFontGeneral.Size = new System.Drawing.Size(234, 23);
-			this.lblUiFontGeneral.TabIndex = 69;
-			this.lblUiFontGeneral.Text = "Default";
-			this.lblUiFontGeneral.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			// 
 			// cmdTos
 			// 
 			this.cmdTos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -1464,6 +1261,55 @@ namespace Eddie.Forms.Forms
 			this.cmdTos.Text = "Terms of Service";
 			this.cmdTos.UseVisualStyleBackColor = true;
 			this.cmdTos.Click += new System.EventHandler(this.cmdTos_Click);
+			// 
+			// tabUI
+			// 
+			this.tabUI.BackColor = System.Drawing.Color.White;
+			this.tabUI.Controls.Add(this.lblUiStartMinimized);
+			this.tabUI.Controls.Add(this.chkUiStartMinimized);
+			this.tabUI.Controls.Add(this.lblUiTrayMinimized);
+			this.tabUI.Controls.Add(this.chkUiTrayMinimized);
+			this.tabUI.Controls.Add(this.lblUiTrayShow);
+			this.tabUI.Controls.Add(this.chkUiTrayShow);
+			this.tabUI.Controls.Add(this.lblUiSystemNotifications);
+			this.tabUI.Controls.Add(this.chkUiIEC);
+			this.tabUI.Controls.Add(this.chkUiSystemNotifications);
+			this.tabUI.Controls.Add(this.chkUiFontGeneralTitle);
+			this.tabUI.Controls.Add(this.chkUiFontGeneral);
+			this.tabUI.Controls.Add(this.lblUiExitConfirm);
+			this.tabUI.Controls.Add(this.chkUiExitConfirm);
+			this.tabUI.Controls.Add(this.lblUiUnit);
+			this.tabUI.Controls.Add(this.cboUiUnit);
+			this.tabUI.Controls.Add(this.cmdUiFontGeneral);
+			this.tabUI.Controls.Add(this.lblUiFontGeneral);
+			this.tabUI.Controls.Add(this.lblUiSkipProviderManifestFailed);
+			this.tabUI.Controls.Add(this.chkUiSkipProviderManifestFailed);
+			this.tabUI.Location = new System.Drawing.Point(4, 24);
+			this.tabUI.Name = "tabUI";
+			this.tabUI.Size = new System.Drawing.Size(673, 414);
+			this.tabUI.TabIndex = 3;
+			this.tabUI.Text = "UI";
+			// 
+			// lblUiSkipProviderManifestFailed
+			// 
+			this.lblUiSkipProviderManifestFailed.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiSkipProviderManifestFailed.ForeColor = System.Drawing.Color.Black;
+			this.lblUiSkipProviderManifestFailed.Location = new System.Drawing.Point(17, 198);
+			this.lblUiSkipProviderManifestFailed.Name = "lblUiSkipProviderManifestFailed";
+			this.lblUiSkipProviderManifestFailed.Size = new System.Drawing.Size(265, 23);
+			this.lblUiSkipProviderManifestFailed.TabIndex = 87;
+			this.lblUiSkipProviderManifestFailed.Text = "Don\'t show bootstrap failure window:";
+			this.lblUiSkipProviderManifestFailed.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiSkipProviderManifestFailed
+			// 
+			this.chkUiSkipProviderManifestFailed.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiSkipProviderManifestFailed.ForeColor = System.Drawing.Color.Black;
+			this.chkUiSkipProviderManifestFailed.Location = new System.Drawing.Point(288, 198);
+			this.chkUiSkipProviderManifestFailed.Name = "chkUiSkipProviderManifestFailed";
+			this.chkUiSkipProviderManifestFailed.Size = new System.Drawing.Size(28, 23);
+			this.chkUiSkipProviderManifestFailed.TabIndex = 86;
+			this.chkUiSkipProviderManifestFailed.UseVisualStyleBackColor = false;
 			// 
 			// tabProtocols
 			// 
@@ -2556,6 +2402,195 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
+			// lblUiStartMinimized
+			// 
+			this.lblUiStartMinimized.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiStartMinimized.ForeColor = System.Drawing.Color.Black;
+			this.lblUiStartMinimized.Location = new System.Drawing.Point(17, 168);
+			this.lblUiStartMinimized.Name = "lblUiStartMinimized";
+			this.lblUiStartMinimized.Size = new System.Drawing.Size(265, 23);
+			this.lblUiStartMinimized.TabIndex = 113;
+			this.lblUiStartMinimized.Text = "Start minimized:";
+			this.lblUiStartMinimized.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiStartMinimized
+			// 
+			this.chkUiStartMinimized.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiStartMinimized.ForeColor = System.Drawing.Color.Black;
+			this.chkUiStartMinimized.Location = new System.Drawing.Point(288, 168);
+			this.chkUiStartMinimized.Name = "chkUiStartMinimized";
+			this.chkUiStartMinimized.Size = new System.Drawing.Size(28, 23);
+			this.chkUiStartMinimized.TabIndex = 112;
+			this.chkUiStartMinimized.UseVisualStyleBackColor = false;
+			// 
+			// lblUiTrayMinimized
+			// 
+			this.lblUiTrayMinimized.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiTrayMinimized.ForeColor = System.Drawing.Color.Black;
+			this.lblUiTrayMinimized.Location = new System.Drawing.Point(322, 138);
+			this.lblUiTrayMinimized.Name = "lblUiTrayMinimized";
+			this.lblUiTrayMinimized.Size = new System.Drawing.Size(176, 23);
+			this.lblUiTrayMinimized.TabIndex = 111;
+			this.lblUiTrayMinimized.Text = "Minimize in Tray:";
+			this.lblUiTrayMinimized.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiTrayMinimized
+			// 
+			this.chkUiTrayMinimized.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiTrayMinimized.ForeColor = System.Drawing.Color.Black;
+			this.chkUiTrayMinimized.Location = new System.Drawing.Point(504, 139);
+			this.chkUiTrayMinimized.Name = "chkUiTrayMinimized";
+			this.chkUiTrayMinimized.Size = new System.Drawing.Size(28, 23);
+			this.chkUiTrayMinimized.TabIndex = 110;
+			this.chkUiTrayMinimized.UseVisualStyleBackColor = false;
+			// 
+			// lblUiTrayShow
+			// 
+			this.lblUiTrayShow.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiTrayShow.ForeColor = System.Drawing.Color.Black;
+			this.lblUiTrayShow.Location = new System.Drawing.Point(17, 138);
+			this.lblUiTrayShow.Name = "lblUiTrayShow";
+			this.lblUiTrayShow.Size = new System.Drawing.Size(265, 23);
+			this.lblUiTrayShow.TabIndex = 109;
+			this.lblUiTrayShow.Text = "Show Tray Icon:";
+			this.lblUiTrayShow.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiTrayShow
+			// 
+			this.chkUiTrayShow.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiTrayShow.ForeColor = System.Drawing.Color.Black;
+			this.chkUiTrayShow.Location = new System.Drawing.Point(288, 138);
+			this.chkUiTrayShow.Name = "chkUiTrayShow";
+			this.chkUiTrayShow.Size = new System.Drawing.Size(28, 23);
+			this.chkUiTrayShow.TabIndex = 108;
+			this.chkUiTrayShow.UseVisualStyleBackColor = false;
+			// 
+			// lblUiSystemNotifications
+			// 
+			this.lblUiSystemNotifications.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiSystemNotifications.ForeColor = System.Drawing.Color.Black;
+			this.lblUiSystemNotifications.Location = new System.Drawing.Point(17, 18);
+			this.lblUiSystemNotifications.Name = "lblUiSystemNotifications";
+			this.lblUiSystemNotifications.Size = new System.Drawing.Size(265, 23);
+			this.lblUiSystemNotifications.TabIndex = 107;
+			this.lblUiSystemNotifications.Text = "System notifications:";
+			this.lblUiSystemNotifications.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiIEC
+			// 
+			this.chkUiIEC.AutoSize = true;
+			this.chkUiIEC.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiIEC.ForeColor = System.Drawing.Color.Black;
+			this.chkUiIEC.Location = new System.Drawing.Point(562, 52);
+			this.chkUiIEC.Name = "chkUiIEC";
+			this.chkUiIEC.Size = new System.Drawing.Size(43, 17);
+			this.chkUiIEC.TabIndex = 98;
+			this.chkUiIEC.Text = "IEC";
+			this.chkUiIEC.UseVisualStyleBackColor = false;
+			// 
+			// chkUiSystemNotifications
+			// 
+			this.chkUiSystemNotifications.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiSystemNotifications.ForeColor = System.Drawing.Color.Black;
+			this.chkUiSystemNotifications.Location = new System.Drawing.Point(288, 18);
+			this.chkUiSystemNotifications.Name = "chkUiSystemNotifications";
+			this.chkUiSystemNotifications.Size = new System.Drawing.Size(121, 23);
+			this.chkUiSystemNotifications.TabIndex = 97;
+			this.chkUiSystemNotifications.UseVisualStyleBackColor = false;
+			// 
+			// chkUiFontGeneralTitle
+			// 
+			this.chkUiFontGeneralTitle.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiFontGeneralTitle.ForeColor = System.Drawing.Color.Black;
+			this.chkUiFontGeneralTitle.Location = new System.Drawing.Point(17, 108);
+			this.chkUiFontGeneralTitle.Name = "chkUiFontGeneralTitle";
+			this.chkUiFontGeneralTitle.Size = new System.Drawing.Size(265, 23);
+			this.chkUiFontGeneralTitle.TabIndex = 106;
+			this.chkUiFontGeneralTitle.Text = "UI Main Font:";
+			this.chkUiFontGeneralTitle.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiFontGeneral
+			// 
+			this.chkUiFontGeneral.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiFontGeneral.ForeColor = System.Drawing.Color.Black;
+			this.chkUiFontGeneral.Location = new System.Drawing.Point(288, 108);
+			this.chkUiFontGeneral.Name = "chkUiFontGeneral";
+			this.chkUiFontGeneral.Size = new System.Drawing.Size(28, 23);
+			this.chkUiFontGeneral.TabIndex = 105;
+			this.chkUiFontGeneral.UseVisualStyleBackColor = false;
+			// 
+			// lblUiExitConfirm
+			// 
+			this.lblUiExitConfirm.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiExitConfirm.ForeColor = System.Drawing.Color.Black;
+			this.lblUiExitConfirm.Location = new System.Drawing.Point(17, 78);
+			this.lblUiExitConfirm.Name = "lblUiExitConfirm";
+			this.lblUiExitConfirm.Size = new System.Drawing.Size(265, 23);
+			this.lblUiExitConfirm.TabIndex = 104;
+			this.lblUiExitConfirm.Text = "Exit confirmation prompt:";
+			this.lblUiExitConfirm.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiExitConfirm
+			// 
+			this.chkUiExitConfirm.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiExitConfirm.ForeColor = System.Drawing.Color.Black;
+			this.chkUiExitConfirm.Location = new System.Drawing.Point(288, 78);
+			this.chkUiExitConfirm.Name = "chkUiExitConfirm";
+			this.chkUiExitConfirm.Size = new System.Drawing.Size(133, 23);
+			this.chkUiExitConfirm.TabIndex = 103;
+			this.chkUiExitConfirm.UseVisualStyleBackColor = false;
+			// 
+			// lblUiUnit
+			// 
+			this.lblUiUnit.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiUnit.ForeColor = System.Drawing.Color.Black;
+			this.lblUiUnit.Location = new System.Drawing.Point(17, 48);
+			this.lblUiUnit.Name = "lblUiUnit";
+			this.lblUiUnit.Size = new System.Drawing.Size(265, 23);
+			this.lblUiUnit.TabIndex = 102;
+			this.lblUiUnit.Text = "Data units:";
+			this.lblUiUnit.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboUiUnit
+			// 
+			this.cboUiUnit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboUiUnit.FormattingEnabled = true;
+			this.cboUiUnit.Items.AddRange(new object[] {
+            "Disabled",
+            "Automatic",
+            "Resolvconf (Linux only)",
+            "Renaming (Linux only)"});
+			this.cboUiUnit.Location = new System.Drawing.Point(288, 49);
+			this.cboUiUnit.Name = "cboUiUnit";
+			this.cboUiUnit.Size = new System.Drawing.Size(268, 21);
+			this.cboUiUnit.TabIndex = 101;
+			// 
+			// cmdUiFontGeneral
+			// 
+			this.cmdUiFontGeneral.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdUiFontGeneral.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdUiFontGeneral.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdUiFontGeneral.FlatAppearance.BorderSize = 0;
+			this.cmdUiFontGeneral.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdUiFontGeneral.Location = new System.Drawing.Point(562, 108);
+			this.cmdUiFontGeneral.Name = "cmdUiFontGeneral";
+			this.cmdUiFontGeneral.Size = new System.Drawing.Size(34, 23);
+			this.cmdUiFontGeneral.TabIndex = 100;
+			this.cmdUiFontGeneral.Text = "...";
+			this.cmdUiFontGeneral.UseVisualStyleBackColor = true;
+			// 
+			// lblUiFontGeneral
+			// 
+			this.lblUiFontGeneral.BackColor = System.Drawing.Color.Transparent;
+			this.lblUiFontGeneral.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.lblUiFontGeneral.ForeColor = System.Drawing.Color.Black;
+			this.lblUiFontGeneral.Location = new System.Drawing.Point(322, 108);
+			this.lblUiFontGeneral.Name = "lblUiFontGeneral";
+			this.lblUiFontGeneral.Size = new System.Drawing.Size(234, 23);
+			this.lblUiFontGeneral.TabIndex = 99;
+			this.lblUiFontGeneral.Text = "Default";
+			this.lblUiFontGeneral.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
 			// Settings
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -2582,7 +2617,8 @@ namespace Eddie.Forms.Forms
 			this.pnlCommands.ResumeLayout(false);
 			this.tabSettings.ResumeLayout(false);
 			this.tabGeneral.ResumeLayout(false);
-			this.tabGeneral.PerformLayout();
+			this.tabUI.ResumeLayout(false);
+			this.tabUI.PerformLayout();
 			this.tabProtocols.ResumeLayout(false);
 			this.tabProxy.ResumeLayout(false);
 			this.tabProxy.PerformLayout();
@@ -2636,7 +2672,8 @@ namespace Eddie.Forms.Forms
 		private System.Windows.Forms.ToolStripMenuItem mnuRoutesEdit;
         private Skin.TabControl tabSettings;
         private Skin.TabPage tabGeneral;
-        private Skin.TabPage tabProtocols;
+		private Skin.TabPage tabUI;
+		private Skin.TabPage tabProtocols;
         private Skin.TabPage tabProxy;
         private Skin.TabPage tabRoutes;
         private Skin.Button cmdExeBrowse;
@@ -2693,7 +2730,6 @@ namespace Eddie.Forms.Forms
 		private Skin.ListView lstDnsServers;
 		private Skin.CheckBox chkLogLevelDebug;
 		private Skin.CheckBox chkWindowsDisableDriverUpgrade;
-		private Skin.CheckBox chkSystemNotifications;
         private Skin.ListView lstProtocols;
         private Skin.ColumnHeader colProtocolsDescription;
         private Skin.ColumnHeader colProtocolsProtocol;
@@ -2703,8 +2739,6 @@ namespace Eddie.Forms.Forms
         private Skin.LinkLabel lnkProtocolsHelp1;
         private System.Windows.Forms.CheckBox chkProtocolsAutomatic;
         private Skin.CheckBox chkWindowsDebugWorkaround;
-        private Skin.Label lblUiFontGeneral;
-        private Skin.Button cmdUiFontGeneral;
         private Skin.TextBox txtProxyTorControlPassword;
         private Skin.Label lblProxyTorControlPassword;
         private Skin.Button cmdProxyTorTest;
@@ -2721,12 +2755,6 @@ namespace Eddie.Forms.Forms
         private Skin.CheckBox chkWindowsIPv6DisableAtOs;
         private Skin.LinkLabel lnkOpenVpnDirectivesHelp;
         private Skin.CheckBox chkOsSingleInstance;
-        private Skin.Label label5;
-        private Skin.CheckBox chkExitConfirm;
-        private Skin.Label label4;
-        private Skin.ComboBox cboUiUnit;
-        private Skin.Label label7;
-        private Skin.CheckBox chkUiFontGeneral;
         private Skin.Label lblConnect;
         private Skin.Label lblNetLock;
         private Skin.CheckBox chkConnect;
@@ -2734,7 +2762,6 @@ namespace Eddie.Forms.Forms
         private Skin.CheckBox chkNetLock;
         private Skin.CheckBox chkGeneralStartLast;
         private Skin.Button cmdResetToDefault;
-        private Skin.CheckBox chkUiIEC;
         private Skin.Button cmdLoggingOpen;
 		private Skin.Label lblLockAllowDNS;
 		private Skin.CheckBox chkLockAllowDNS;
@@ -2750,7 +2777,6 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblProxyWhen;
 		private Skin.ComboBox cboProxyWhen;
 		private Skin.Label lblProtocolsAvailable;
-		private Skin.Label label9;
 		private Skin.Label label13;
 		private Skin.TabPage tabNetworking;
 		private Skin.Label lblNetworkEntryInterface;
@@ -2767,12 +2793,6 @@ namespace Eddie.Forms.Forms
 		private Skin.ComboBox cboLockOutgoing;
 		private Skin.Label lblLockIncoming;
 		private Skin.ComboBox cboLockIncoming;
-		private Skin.Label lblUiTrayShow;
-		private Skin.CheckBox chkUiTrayShow;
-		private Skin.Label label16;
-		private Skin.CheckBox chkUiStartMinimized;
-		private Skin.Label lblUiTrayMinimized;
-		private Skin.CheckBox chkUiTrayMinimized;
 		private System.Windows.Forms.GroupBox pnlDnsWindowsOnly;
 		private Skin.CheckBox chkDnsIgnoreDNS6;
 		private Skin.CheckBox chkDnsEnsureLock;
@@ -2784,5 +2804,24 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblDnsIgnoreDNS6;
 		private Skin.Label lblDnsEnsureLock;
 		private Skin.Label lblDnsForceAllInterfaces;
+		private Skin.Label lblUiSkipProviderManifestFailed;
+		private Skin.CheckBox chkUiSkipProviderManifestFailed;
+		private Skin.Label lblUiStartMinimized;
+		private Skin.CheckBox chkUiStartMinimized;
+		private Skin.Label lblUiTrayMinimized;
+		private Skin.CheckBox chkUiTrayMinimized;
+		private Skin.Label lblUiTrayShow;
+		private Skin.CheckBox chkUiTrayShow;
+		private Skin.Label lblUiSystemNotifications;
+		private Skin.CheckBox chkUiIEC;
+		private Skin.CheckBox chkUiSystemNotifications;
+		private Skin.Label chkUiFontGeneralTitle;
+		private Skin.CheckBox chkUiFontGeneral;
+		private Skin.Label lblUiExitConfirm;
+		private Skin.CheckBox chkUiExitConfirm;
+		private Skin.Label lblUiUnit;
+		private Skin.ComboBox cboUiUnit;
+		private Skin.Button cmdUiFontGeneral;
+		private Skin.Label lblUiFontGeneral;
 	}
 }

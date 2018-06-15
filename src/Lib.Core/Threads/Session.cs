@@ -1842,7 +1842,7 @@ namespace Eddie.Core.Threads
 			// Ignore, useless			
 			if (message.Contains("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
 				return;
-			if (message.StartsWith("ENTER PASSWORD:SUCCESS"))
+			if (message.StartsWith("ENTER PASSWORD:"))
 				return;
 
 			string[] lines = message.Split('\n');

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
         <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="WindowProviderNoBootstrapController">
             <connections>
+                <outlet property="ChkDontShowAgain" destination="SYH-Rg-Qrh" id="BAF-6b-z6g"/>
                 <outlet property="CmdCancel" destination="fJn-Eh-fgK" id="VLx-cx-7Hi"/>
                 <outlet property="CmdOk" destination="xNO-1s-MRs" id="koh-Jq-G4s"/>
                 <outlet property="LblBody" destination="FhE-Uy-nQv" id="D98-33-tiM"/>
@@ -17,13 +18,13 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="WindowProviderNoBootstrap">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <rect key="contentRect" x="131" y="74" width="606" height="255"/>
+            <rect key="contentRect" x="131" y="74" width="606" height="266"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" misplaced="YES" id="3">
-                <rect key="frame" x="0.0" y="0.0" width="606" height="255"/>
+                <rect key="frame" x="0.0" y="0.0" width="606" height="266"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <box autoresizesSubviews="NO" misplaced="YES" borderType="line" title="Box" titlePosition="noTitle" id="eRg-a4-JCs">
@@ -56,7 +57,7 @@ Gw
                         </view>
                     </box>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="FhE-Uy-nQv">
-                        <rect key="frame" x="129" y="114" width="459" height="121"/>
+                        <rect key="frame" x="129" y="123" width="459" height="123"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="Eqp-WZ-Gg8">
                             <font key="font" metaFont="system"/>
@@ -65,12 +66,12 @@ Gw
                         </textFieldCell>
                     </textField>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" id="ppr-nf-Lcx">
-                        <rect key="frame" x="20" y="129" width="103" height="106"/>
+                        <rect key="frame" x="20" y="140" width="103" height="106"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="log_error" id="ZgS-3Y-k6v"/>
                     </imageView>
                     <textField verticalHuggingPriority="750" misplaced="YES" id="Ymh-FB-RbF">
-                        <rect key="frame" x="20" y="83" width="566" height="22"/>
+                        <rect key="frame" x="20" y="93" width="566" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" drawsBackground="YES" id="NtQ-Je-EPh">
                             <font key="font" metaFont="system"/>
@@ -78,9 +79,17 @@ Gw
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="SYH-Rg-Qrh">
+                        <rect key="frame" x="410" y="69" width="178" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="check" title="Don't show this message again" bezelStyle="regularSquare" imagePosition="right" alignment="right" state="on" inset="2" id="aZW-4B-xzN">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="132" y="111.5"/>
+            <point key="canvasLocation" x="132" y="117"/>
         </window>
     </objects>
     <resources>
