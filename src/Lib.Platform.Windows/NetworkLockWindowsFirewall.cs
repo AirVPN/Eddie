@@ -428,9 +428,9 @@ namespace Eddie.Platform.Windows
 			if (currentIpsWhiteListOutgoing != m_lastestIpsWhiteListOutgoing)
 			{
 				if (m_lastestIpsWhiteListOutgoing != "")
-					SystemShell.ShellCmd("netsh advfirewall firewall set rule name=\"Eddie - Out - Allow IPs\" dir=out new action=allow remoteip=\"" + m_lastestIpsWhiteListOutgoing + "\"");
+					SystemShell.ShellCmd("netsh advfirewall firewall set rule name=\"Eddie - Out - Allow IPs\" dir=out new action=allow remoteip=\"" + currentIpsWhiteListOutgoing + "\"");
 				else
-					SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - Allow IPs\" dir=out action=allow remoteip=\"" + m_lastestIpsWhiteListOutgoing + "\"");
+					SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - Allow IPs\" dir=out action=allow remoteip=\"" + currentIpsWhiteListOutgoing + "\"");
 
 				m_lastestIpsWhiteListOutgoing = currentIpsWhiteListOutgoing;
 			}
