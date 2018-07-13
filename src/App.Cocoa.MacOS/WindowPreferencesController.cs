@@ -774,6 +774,7 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboNetworkIPv4Mode, Messages.WindowsSettingsNetworkIpModeBlock);
 			else
 				GuiUtils.SetSelected(CboNetworkIPv4Mode, Messages.WindowsSettingsNetworkIpModeInOrBlock);
+            GuiUtils.SetCheck(ChkNetworkIPv4AutoSwitch, s.GetBool("network.ipv4.autoswitch"));
 
 			string networkIPv6Mode = s.Get("network.ipv6.mode");
 			if (networkIPv6Mode == "in")
@@ -788,6 +789,7 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboNetworkIPv6Mode, Messages.WindowsSettingsNetworkIpModeBlock);
 			else
 				GuiUtils.SetSelected(CboNetworkIPv6Mode, Messages.WindowsSettingsNetworkIpModeInOrBlock);
+            GuiUtils.SetCheck(ChkNetworkIPv6AutoSwitch, s.GetBool("network.ipv6.autoswitch"));
 
 			string networkEntryIpLayer = s.Get("network.entry.iplayer");
 			if (networkEntryIpLayer == "ipv6-ipv4")
@@ -1085,6 +1087,7 @@ namespace Eddie.UI.Cocoa.Osx
 				s.Set("network.ipv4.mode", "block");
 			else
 				s.Set("network.ipv4.mode", "in");
+            s.SetBool("network.ipv4.autoswitch", GuiUtils.GetCheck(ChkNetworkIPv4AutoSwitch));
 
 			string networkIPv6Mode = GuiUtils.GetSelected(CboNetworkIPv6Mode);
 			if (networkIPv6Mode == Messages.WindowsSettingsNetworkIpModeInAlways)
@@ -1099,6 +1102,7 @@ namespace Eddie.UI.Cocoa.Osx
 				s.Set("network.ipv6.mode", "block");
 			else
 				s.Set("network.ipv6.mode", "in-block");
+            s.SetBool("network.ipv6.autoswitch", GuiUtils.GetCheck(ChkNetworkIPv6AutoSwitch));
 
 			string networkEntryIpLayer = GuiUtils.GetSelected(CboProtocolIPEntry);
 			if (networkEntryIpLayer == "IPv6, IPv4")

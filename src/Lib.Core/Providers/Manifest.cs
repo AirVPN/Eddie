@@ -201,7 +201,7 @@ namespace Eddie.Core.Providers
 			if (nodeUser != null)
 			{
 				connectionActive.OpenVpnProfileStartup.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
-				XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name='" + key + "']") as XmlElement;
+				XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name=\"" + key.Replace("\"","") + "\"]") as XmlElement;
 				if (xmlKey != null)
 				{
 					connectionActive.OpenVpnProfileStartup.AppendDirective("<cert>", xmlKey.Attributes["crt"].Value, "");

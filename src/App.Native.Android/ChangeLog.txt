@@ -1,0 +1,97 @@
+Changelog 1.0 beta 1 (VC 1) - Release date: 30 June 2018 by ProMIND
+
+* Native android libraries, common for com.eddie.android and org.airvpn.eddie. Updated project tree to the latest source files of open source projects for which libeddie and libovpn3 depend on, specifically:
+
+    - asio
+    - boost 1.67.0
+    - breakpad
+    - lz4
+    - lzo
+    - openvpn3
+
+* compilation of libeddie and libopvpn3 for the following architectures:
+
+    - arm64-v8a (missing in com.eddie.android)
+    - armeabi-v7a
+    - x86
+
+* added support for arm64-v8a in com.eddie.com
+
+* org.airvpn.eddie. The project is partially based on com.eddie.android sources and classes. Some of them have been adapted and/or fixed, some used "as is", some other discarded in favor of a complete rewrite of the same service or activity in order to fully comply to Android native development (although in regard of Visual Studio, C# and Mono). In particular, org.airvpn.eddie development has been and mainly focused on Xamarin.Forms complete removal from the former project, removal of obsolete Android preferences/setting classes in favor of valid and supported level classes; this also included the complete removal of Xam.Plugins.Settings in favor of standard Android's SharedPrefs schema.
+
+    - Support for arm64-v8a, armeabi-v7a and x86 architectures
+    - Correction of grammar and orthographic errors in English language strings and texts
+    - Removal of hard coded interactive strings in favor of Android's localization standard
+    - Revamped user interface and appearance complying to Android's ergonomics, look-and-feel and user interaction
+    - Added a file chooser for openvpn profile selection to be imported into the app. Full support to URI and device's available sources
+    - Display of profile's basic information
+    - Improved error and information communication to the user by means of standard dialog boxes
+    - Formal and basic control of selected profile in order to avoid openvpn errors
+    - Complete rewrite of openvpn profile and custom directives management. Custom directives are now correctly inserted before the beginning of profile's markup directives therefore avoiding openvpn's connection errors
+    - Complete rewrite of About activity, including screen orientation and size change in order to make sure the selected link is not reset to the initial page. Added support to "pinch zoom".
+    - Complete rewrite of AirVPN Website activity. Added support to "pinch zoom", screen orientation and size change.
+    - Complete rewrite of Log activity. It now shows event's date and level
+    - Complete rewrite of Settings (preferences) Activity complying to Android's ergonomics, look and feel as well as by using standard Android's SharedPrefs
+    - Support for "input data types" in Settings activity. Control of field validity in regard of formal and allowed values
+    - Added/changed some options in order to comply and support new functions and settings
+    - The option "save battery" has been changed to a more clear and understandable "pause VPN when the screen is off"
+    - Complete rewrite of PackageChooser (in part based on com.eddie.android's PackagesPicker, properly corrected and fixed) for blacklist and whitelist packages selection
+
+
+Changelog 1.0 beta 2 (VC 2) - Release date: 06 July 2018 by ProMIND
+
+Miscellaneous:
+
+- [Morvotron] Added Spanish localization files
+- [pj] Added Italian localization files
+- [ProMIND] Fixed some incompatibilities in NavigatorView layouts in order to better support different devices/Api levels. This should also avoid startup crashes detected in 1.0 beta 1
+- [ProMIND] Revised mono package versions and support. This should improve stability in certain devices/Api levels as well as avoiding startup crashes detected in 1.0 beta 1
+
+
+AndroidManifest.xml
+
+- [ProMIND] Removed unneeded MANAGE_DOCUMENTS permission
+
+
+MainActivity.cs
+
+- [ProMIND] OnActivityResult(): Added a log warning for unhandled and unexpected requestCode
+
+
+LogActivity.cs
+
+- [ProMIND] Log timestamps (date/time) are now shown in local time format. Exported log timestamps are in UTC time.
+
+
+SupportTools.cs
+
+- [ProMIND] GetOpenVPNProfile(Android.Net.Uri profileUri): Profile size limit in now set to 200kb. This prevents ANR in case of huge binary files parsing
+- [ProMIND] ConfirmationDialog(string message): confirmation message now has "yes" and "no" buttons instead of "ok" and "cancel"
+
+
+Changelog 1.0 beta 3 (VC 3) - Release date: 10 July 2018 by ProMIND
+
+LogActivity.cs
+
+- [ProMIND] Replaced the WebView with a ListView. This fixes the noticeable app's lag at activity's startup caused by WebView inflation.
+
+log_activity_layout.xml
+
+- [ProMIND] Replaced WebView with a ListView
+
+log_activity_listitem.xml
+
+- [ProMIND] New file. Describes the log item used for LogActivity's ListView
+
+SupportTools.cs
+
+- [ProMIND] Changed constructor. It now requires a Context.
+
+VpnManager.cs
+
+- [ProMIND] SendMessage(Message msg, Bundle payload): in case m_serviceMessenger is null, it now shows a more understandable and useful message to the user
+
+strings.xml
+
+- [ProMIND] Added conn_cannot_start_vpnservice
+

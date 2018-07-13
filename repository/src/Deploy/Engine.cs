@@ -194,853 +194,863 @@ namespace Eddie.Deploy
 
 			Pause();
 
-			/* -------------------------------
-			   Build packages list
-			------------------------------- */
-
-			List<Package> ListPackages = new List<Package>();
-
-			if (SO == "windows")
+			if (IsSigning())
 			{
-				foreach (string arch in new string[] { "x64", "x86" })
-				{					
-					foreach (string ui in new string[] { "cli", "ui" })
-					{						
-						foreach (string format in new string[] { "portable", "installer" })
-						{							
-							foreach (string os in new string[] { "windows-10", "windows-7", "windows-vista", "windows-xp" })
-							{								
-								string netFramework = "4.0";
-								if( (os == "windows-7") && (IsEddie3() == false) )
-									netFramework = "2.0";
-								if ((os == "windows-vista") && (IsEddie3() == false))
-									netFramework = "2.0";
-								if ( (os == "windows-xp") && (IsEddie3() == false))
-									netFramework = "2.0";
+				string[] dirs = Directory.GetDirectories(PathBaseDeploy, SO + "*");
+				foreach(string dir in dirs)
+				{
+					SignPath(SO, "", dir);
+				}
+			}
+			else
+			{
+				/* -------------------------------
+				   Build packages list
+				------------------------------- */
 
-								ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
+				List<Package> ListPackages = new List<Package>();
+
+				if (SO == "windows")
+				{
+					foreach (string arch in new string[] { "x64", "x86" })
+					{
+						foreach (string ui in new string[] { "cli", "ui" })
+						{
+							foreach (string format in new string[] { "portable", "installer" })
+							{
+								foreach (string os in new string[] { "windows-10", "windows-7", "windows-vista", "windows-xp" })
+								{
+									string netFramework = "4.0";
+									if ((os == "windows-7") && (IsEddie3() == false))
+										netFramework = "2.0";
+									if ((os == "windows-vista") && (IsEddie3() == false))
+										netFramework = "2.0";
+									if ((os == "windows-xp") && (IsEddie3() == false))
+										netFramework = "2.0";
+
+									ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
+								}
 							}
 						}
 					}
 				}
-			}
 
-			if (SO == "linux")
-			{
-				string arch = Shell("uname -m");
+				if (SO == "linux")
+				{
+					string arch = Shell("uname -m");
 
-				if (arch == "x86_64")
-					arch = "x64";
-				else if (arch == "armv7l")
-					arch = "armhf";
-				else
-					arch = "x86";
+					if (arch == "x86_64")
+						arch = "x64";
+					else if (arch == "armv7l")
+						arch = "armhf";
+					else
+						arch = "x86";
 
-				ListPackages.Add(new Package("linux", arch, "cli", true, "4.0", "mono"));
-				ListPackages.Add(new Package("linux", arch, "ui", true, "4.0", "mono"));
-				ListPackages.Add(new Package("linux", arch, "cli", true, "4.0", "portable"));
-				ListPackages.Add(new Package("linux", arch, "ui", true, "4.0", "portable"));
-				ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "debian"));
-				ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "opensuse"));
-				ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "fedora"));
-				//ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "aur"));
-			}
+					ListPackages.Add(new Package("linux", arch, "cli", true, "4.0", "mono"));
+					ListPackages.Add(new Package("linux", arch, "ui", true, "4.0", "mono"));
+					ListPackages.Add(new Package("linux", arch, "cli", true, "4.0", "portable"));
+					ListPackages.Add(new Package("linux", arch, "ui", true, "4.0", "portable"));
+					ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "debian"));
+					ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "opensuse"));
+					ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "fedora"));
+					//ListPackages.Add(new Package("linux", arch, "ui", false, "4.0", "aur"));
+				}
 
-			if (SO == "macos")
-			{
-				ListPackages.Add(new Package("macos", "x64", "cli", true, "4.0", "mono"));
-				ListPackages.Add(new Package("macos", "x64", "cli", true, "4.0", "portable"));
-				ListPackages.Add(new Package("macos", "x64", "ui", true, "4.0", "portable"));
-				ListPackages.Add(new Package("macos", "x64", "ui", true, "4.0", "installer"));
-				ListPackages.Add(new Package("macos", "x64", "ui", true, "4.0", "disk"));
-			}
-
-			if (SO == "linux")
-				PathBaseTemp = "/tmp/eddie_deploy";
-
-			foreach (Package package in ListPackages)
-			{
-				string platform = package.Platform;
-				string arch = package.Architecture;
-				string archCompile = package.ArchitectureCompile;
-				string ui = package.UI;
-				string requiredNetFramework = package.NetFramework;
-				string format = package.Format;
-
-				string archiveName = "eddie-" + ui + "_" + versionString3 + "_" + platform + "_" + arch + "_" + format;
-				string fileName = archiveName;
-				string pathCommon = PathBaseCommon;
-				string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
-				string pathTemp = PathBaseTemp + "/" + archiveName;
-				//string pathRelease = PathBaseRelease + "/" + archCompile + "/Release/";
-
-				// Exceptions
-				if (platform == "windows-10") // Windows_10 use the same common files of Windows
-					pathDeploy = pathDeploy.Replace("windows-10", "windows");
-				if (platform == "windows-7") // Windows_7 use the same common files of Windows
-					pathDeploy = pathDeploy.Replace("windows-7", "windows");
-
-				// Start
-				Log("------------------------------");
-				Log("Building '" + archiveName + "'");
-
-				bool skipCompile = false;
 				if (SO == "macos")
-					skipCompile = true;
-
-				if (skipCompile)
 				{
-					Log("Expected already compiled binaries for this platform.");
-				}
-				else
-				{
-					if (Compile(SO, archCompile, requiredNetFramework) == false)
-					{
-						continue;
-					}
+					ListPackages.Add(new Package("macos", "x64", "cli", true, "4.0", "mono"));
+					ListPackages.Add(new Package("macos", "x64", "cli", true, "4.0", "portable"));
+					ListPackages.Add(new Package("macos", "x64", "ui", true, "4.0", "portable"));
+					ListPackages.Add(new Package("macos", "x64", "ui", true, "4.0", "installer"));
+					ListPackages.Add(new Package("macos", "x64", "ui", true, "4.0", "disk"));
 				}
 
-				Log("Packaging files");
+				if (SO == "linux")
+					PathBaseTemp = "/tmp/eddie_deploy";
 
-				CreateDirectory(pathTemp);
-
-				CreateDirectory(PathBaseRepository, false);
-
-				if (platform.StartsWith("windows"))
+				foreach (Package package in ListPackages)
 				{
-					if (ui == "ui")
+					string platform = package.Platform;
+					string arch = package.Architecture;
+					string archCompile = package.ArchitectureCompile;
+					string ui = package.UI;
+					string requiredNetFramework = package.NetFramework;
+					string format = package.Format;
+
+					string archiveName = "eddie-" + ui + "_" + versionString3 + "_" + platform + "_" + arch + "_" + format;
+					string fileName = archiveName;
+					string pathCommon = PathBaseCommon;
+					string pathDeploy = PathBaseDeploy + "/" + platform + "_" + arch;
+					string pathTemp = PathBaseTemp + "/" + archiveName;
+					//string pathRelease = PathBaseRelease + "/" + archCompile + "/Release/";
+
+					// Exceptions
+					if (platform == "windows-10") // Windows_10 use the same common files of Windows
+						pathDeploy = pathDeploy.Replace("windows-10", "windows");
+					if (platform == "windows-7") // Windows_7 use the same common files of Windows
+						pathDeploy = pathDeploy.Replace("windows-7", "windows");
+
+					// Start
+					Log("------------------------------");
+					Log("Building '" + archiveName + "'");
+
+					bool skipCompile = false;
+					if (SO == "macos")
+						skipCompile = true;
+
+					if (skipCompile)
 					{
-						CopyAll(pathDeploy, pathTemp);
-						CopyAll(pathCommon, pathTemp + "/res");
-
-						string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Windows/bin/" + archCompile + "/Release").FullName;
-
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Platform.Windows.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-						if (format == "portable")
-							CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "Eddie-UI.exe");
-						else
-							CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "Eddie-UI.exe"); // TODO Eddie3: "Eddie-UI.exe"
-
-						pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Windows/bin/" + archCompile + "/Release").FullName;
-						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
+						Log("Expected already compiled binaries for this platform.");
 					}
-					else if (ui == "cli")
+					else
 					{
-						CopyAll(pathDeploy, pathTemp);
-						CopyAll(pathCommon, pathTemp + "/res");
-
-						string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Windows/bin/" + archCompile + "/Release").FullName;
-
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-						CopyFile(pathRelease, "Lib.Platform.Windows.dll", pathTemp);
-						CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
+						if (Compile(SO, archCompile, requiredNetFramework) == false)
+						{
+							continue;
+						}
 					}
 
-					SignPath(platform, format, pathTemp);
+					Log("Packaging files");
 
-					if (format == "portable")
+					CreateDirectory(pathTemp);
+
+					CreateDirectory(PathBaseRepository, false);
+
+					if (platform.StartsWith("windows"))
 					{
-						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".zip");
-
-						if (File.Exists(pathFinal))
-							File.Delete(pathFinal);
-
-						// ZIP
-						string command = PathBaseTools + "/windows/7za.exe a -mx9 -tzip";
-						command += " \"" + pathFinal + "\" \"" + pathTemp;
-						Shell(command);
-					}
-					else if (format == "installer")
-					{
-						string nsis = "";
-
 						if (ui == "ui")
 						{
-							nsis = ReadTextFile(PathBaseResources + "/nsis/Eddie-UI.nsi");
+							CopyAll(pathDeploy, pathTemp);
+							CopyAll(pathCommon, pathTemp + "/res");
+
+							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Windows/bin/" + archCompile + "/Release").FullName;
+
+							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+							CopyFile(pathRelease, "Lib.Platform.Windows.dll", pathTemp);
+							CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+							if (format == "portable")
+								CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "Eddie-UI.exe");
+							else
+								CopyFile(pathRelease, "App.Forms.Windows.exe", pathTemp, "Eddie-UI.exe"); // TODO Eddie3: "Eddie-UI.exe"
+
+							pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Windows/bin/" + archCompile + "/Release").FullName;
+							CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
 						}
 						else if (ui == "cli")
 						{
+							CopyAll(pathDeploy, pathTemp);
+							CopyAll(pathCommon, pathTemp + "/res");
 
+							string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Windows/bin/" + archCompile + "/Release").FullName;
+
+							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+							CopyFile(pathRelease, "Lib.Platform.Windows.dll", pathTemp);
+							CopyFile(pathRelease, "App.CLI.Windows.exe", pathTemp, "Eddie-CLI.exe");
 						}
 
-						if (nsis != "")
+						SignPath(platform, format, pathTemp);
+
+						if (format == "portable")
 						{
-							string pathExe = NormalizePath(PathBaseRepository + "/" + fileName + ".exe");
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".zip");
 
-							nsis = nsis.Replace("{@resources}", NormalizePath(PathBaseResources + "/nsis"));
-							nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
-							nsis = nsis.Replace("{@out}", pathExe);
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
 
-							List<string> filesList = GetFilesRecursive(pathTemp);
+							// ZIP
+							string command = PathBaseTools + "/windows/7za.exe a -mx9 -tzip";
+							command += " \"" + pathFinal + "\" \"" + pathTemp;
+							Shell(command);
+						}
+						else if (format == "installer")
+						{
+							string nsis = "";
 
-							string filesAdd = "";
-							string filesDelete = "";
-							string filesAddLastPath = "";
-							List<string> pathsToDelete = new List<string>();
-							foreach (string filePath in filesList)
+							if (ui == "ui")
 							{
-								string name = filePath.Substring(pathTemp.Length + 1);
+								nsis = ReadTextFile(PathBaseResources + "/nsis/Eddie-UI.nsi");
+							}
+							else if (ui == "cli")
+							{
 
-								FileInfo fi = new FileInfo(filePath);
+							}
 
-								if (fi.Directory.FullName != filesAddLastPath)
+							if (nsis != "")
+							{
+								string pathExe = NormalizePath(PathBaseRepository + "/" + fileName + ".exe");
+
+								nsis = nsis.Replace("{@resources}", NormalizePath(PathBaseResources + "/nsis"));
+								nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
+								nsis = nsis.Replace("{@out}", pathExe);
+
+								List<string> filesList = GetFilesRecursive(pathTemp);
+
+								string filesAdd = "";
+								string filesDelete = "";
+								string filesAddLastPath = "";
+								List<string> pathsToDelete = new List<string>();
+								foreach (string filePath in filesList)
 								{
-									filesAddLastPath = fi.Directory.FullName;
-									string pathName = "$INSTDIR" + filesAddLastPath.Substring(pathTemp.Length);
-									filesAdd += "SetOutPath \"" + pathName + "\"\r\n";
-									if (pathName != "$INSTDIR")
-										pathsToDelete.Add(pathName);
+									string name = filePath.Substring(pathTemp.Length + 1);
+
+									FileInfo fi = new FileInfo(filePath);
+
+									if (fi.Directory.FullName != filesAddLastPath)
+									{
+										filesAddLastPath = fi.Directory.FullName;
+										string pathName = "$INSTDIR" + filesAddLastPath.Substring(pathTemp.Length);
+										filesAdd += "SetOutPath \"" + pathName + "\"\r\n";
+										if (pathName != "$INSTDIR")
+											pathsToDelete.Add(pathName);
+									}
+
+									filesAdd += "File \"" + name + "\"\r\n";
+									filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
 								}
 
-								filesAdd += "File \"" + name + "\"\r\n";
-								filesDelete += "Delete \"$INSTDIR\\" + name + "\"\r\n";
-							}
+								foreach (string pathToDelete in pathsToDelete)
+								{
+									filesDelete += "RMDIR \"" + pathToDelete + "\"\r\n";
+								}
 
-							foreach (string pathToDelete in pathsToDelete)
+								nsis = nsis.Replace("{@files_add}", filesAdd);
+								nsis = nsis.Replace("{@files_delete}", filesDelete);
+
+								if (arch == "x64")
+									nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
+
+								WriteTextFile(pathTemp + "/Eddie.nsi", nsis);
+
+								//Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+								Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+
+								SignFile(platform, format, pathExe);
+							}
+						}
+					}
+					else if (platform == "linux")
+					{
+						if (format == "mono")
+						{
+							if (ui == "cli")
 							{
-								filesDelete += "RMDIR \"" + pathToDelete + "\"\r\n";
+								CopyAll(pathDeploy, pathTemp);
+								CopyAll(pathCommon, pathTemp + "/res");
+
+								RemoveFile(pathTemp + "/eddie-tray");
+								RemoveFile(pathTemp + "/libgdiplus.so.0");
+								RemoveFile(pathTemp + "/libappindicator.so.1");
+
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName;
+
+								CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+								CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+								CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
+								CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
+
+								CopyFile(PathBaseResources + "/linux_portable/", "eddie-cli.sh", pathTemp, "eddie-cli");
+								Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
+							}
+							else if (ui == "ui")
+							{
+								CopyAll(pathDeploy, pathTemp);
+								CopyAll(pathCommon, pathTemp + "/res");
+
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
+
+								CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+								CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+								CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
+								CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
+								CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "Eddie-UI.exe");
+
+								CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
+
+								CopyFile(PathBaseResources + "/linux_portable/", "eddie-ui.sh", pathTemp, "eddie-ui");
+								Shell("chmod 755 \"" + pathTemp + "/eddie-ui\"");
 							}
 
-							nsis = nsis.Replace("{@files_add}", filesAdd);
-							nsis = nsis.Replace("{@files_delete}", filesDelete);
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
 
-							if (arch == "x64")
-								nsis = nsis.Replace("$PROGRAMFILES", "$PROGRAMFILES64");
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
 
-							WriteTextFile(pathTemp + "/Eddie.nsi", nsis);
+							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+							Shell("chmod 755 \"" + pathTemp + "/eddie-tray\"");
+							Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
 
-							//Shell("c:\\Program Files (x86)\\NSIS\\makensisw.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
-							Shell("c:\\Program Files (x86)\\NSIS\\makensis.exe", "\"" + NormalizePath(pathTemp + "/Eddie.nsi") + "\"");
+							RemoveFile(pathTemp + "/libgdiplus.so.0");
+							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
+							RemoveFile(pathTemp + "/libappindicator.so.1");
 
-							SignFile(platform, format, pathExe);
+							CreateDirectory(pathTemp + "/" + fileName);
+							MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+							Shell("chown -R root:root " + pathTemp);
+
+							// TAR.GZ
+							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+							Shell(command2);
 						}
-					}
-				}
-				else if (platform == "linux")
-				{
-					if (format == "mono")
-					{
-						if (ui == "cli")
+						else if ((format == "portable") && (AvailableMkBundle))
 						{
 							CopyAll(pathDeploy, pathTemp);
 							CopyAll(pathCommon, pathTemp + "/res");
 
-							RemoveFile(pathTemp + "/eddie-tray");
-							RemoveFile(pathTemp + "/libgdiplus.so.0");
-							RemoveFile(pathTemp + "/libappindicator.so.1");
-							
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName;
+							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+							if (ui == "cli")
+							{
+								RemoveFile(pathTemp + "/eddie-tray");
+								RemoveFile(pathTemp + "/libgdiplus.so.0");
+								RemoveFile(pathTemp + "/libappindicator.so.1");
+							}
 
-							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-							CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
-							CopyFile(pathRelease, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
+							//CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
+							//CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
 
-							CopyFile(PathBaseResources + "/linux_portable/", "eddie-cli.sh", pathTemp, "eddie-cli");
-							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
-						}
-						else if (ui == "ui")
-						{
-							CopyAll(pathDeploy, pathTemp);
-							CopyAll(pathCommon, pathTemp + "/res");
+							// mkbundle
 
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
-							
-							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-							CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp);
-							CopyFile(pathRelease, "Lib.Forms.dll", pathTemp);
-							CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp, "Eddie-UI.exe");
 
-							CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp, "Eddie-CLI.exe");
-
-							CopyFile(PathBaseResources + "/linux_portable/", "eddie-ui.sh", pathTemp, "eddie-ui");
-							Shell("chmod 755 \"" + pathTemp + "/eddie-ui\"");
-						}
-
-						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
-
-						if (File.Exists(pathFinal))
-							File.Delete(pathFinal);
-
-						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
-						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-						Shell("chmod 755 \"" + pathTemp + "/eddie-tray\"");
-						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
-
-						RemoveFile(pathTemp + "/libgdiplus.so.0");
-						RemoveFile(pathTemp + "/libMonoPosixHelper.so");
-						RemoveFile(pathTemp + "/libappindicator.so.1");
-
-						CreateDirectory(pathTemp + "/" + fileName);
-						MoveAll(pathTemp, pathTemp + "/" + fileName);
-
-						Shell("chown -R root:root " + pathTemp);
-
-						// TAR.GZ
-						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
-						Shell(command2);
-					}
-					else if ((format == "portable") && (AvailableMkBundle))
-					{
-						CopyAll(pathDeploy, pathTemp);
-						CopyAll(pathCommon, pathTemp + "/res");
-
-						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-						if (ui == "cli")
-						{
-							RemoveFile(pathTemp + "/eddie-tray");
-							RemoveFile(pathTemp + "/libgdiplus.so.0");
-							RemoveFile(pathTemp + "/libappindicator.so.1");
-						}
-
-						//CopyFile(PathBaseResources + "/linux_portable/eddie.config", pathTemp + "/eddie.config");
-						//CopyFile(pathBaseResources + "/linux_portable/eddie.machine.config", pathTemp + "/eddie.machine.config");
-
-						// mkbundle
-
-						
-						// 4.0 version
-						/*
-						string command = "mkbundle ";
-						command += " --deps";
-						command += " --keeptemp";
-						command += " --static";
-						command += " --config \"" + PathBaseResources + "/linux_portable/eddie.config\"";
-						command += " --machine-config /etc/mono/4.0/machine.config";
-						command += " -z";
-						*/
-
-						// 4.5 version
-						string command = "";
-						
-						if (ui == "cli")
-						{
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName;
-
-							command = "cd \"" + pathRelease + "\" && mkbundle";
-
-							command += " \"" + pathRelease + "/App.CLI.Linux.exe\"";
-							command += " \"" + pathRelease + "/Lib.Core.dll\"";
-							command += " \"" + pathRelease + "/Lib.Common.dll\"";
-							command += " \"" + pathRelease + "/Lib.Platform.Linux.dll\"";
-						}
-						else if (ui == "ui")
-						{
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
-
-							command = "cd \"" + pathRelease + "\" && mkbundle";
-
-							command += " \"" + pathRelease + "/App.Forms.Linux.exe\"";
-							command += " \"" + pathRelease + "/Lib.Forms.dll\"";
-							command += " \"" + pathRelease + "/Lib.Core.dll\"";
-							command += " \"" + pathRelease + "/Lib.Common.dll\"";
-							command += " \"" + pathRelease + "/Lib.Platform.Linux.dll\"";
-						}
-
-						if (MonoVersion.StartsWith("5."))
-						{
-							// Debian 8/9 with Mono 5.x.
-							// Don't work for pending bug in mkbundle: https://bugzilla.xamarin.com/show_bug.cgi?id=51650
-							command += " --i18n all";
-							command += " -L /usr/lib/mono/4.5";
-							command += " --keeptemp";
-							command += " --static";
-							command += " --config \"" + PathBaseResources + "/linux_portable/eddie.config\"";
-							command += " --machine-config /etc/mono/4.5/machine.config";
-							command += " -z";
-						}
-						else
-						{
+							// 4.0 version
+							/*
+							string command = "mkbundle ";
 							command += " --deps";
 							command += " --keeptemp";
 							command += " --static";
 							command += " --config \"" + PathBaseResources + "/linux_portable/eddie.config\"";
 							command += " --machine-config /etc/mono/4.0/machine.config";
 							command += " -z";
+							*/
+
+							// 4.5 version
+							string command = "";
+
+							if (ui == "cli")
+							{
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName;
+
+								command = "cd \"" + pathRelease + "\" && mkbundle";
+
+								command += " \"" + pathRelease + "/App.CLI.Linux.exe\"";
+								command += " \"" + pathRelease + "/Lib.Core.dll\"";
+								command += " \"" + pathRelease + "/Lib.Common.dll\"";
+								command += " \"" + pathRelease + "/Lib.Platform.Linux.dll\"";
+							}
+							else if (ui == "ui")
+							{
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
+
+								command = "cd \"" + pathRelease + "\" && mkbundle";
+
+								command += " \"" + pathRelease + "/App.Forms.Linux.exe\"";
+								command += " \"" + pathRelease + "/Lib.Forms.dll\"";
+								command += " \"" + pathRelease + "/Lib.Core.dll\"";
+								command += " \"" + pathRelease + "/Lib.Common.dll\"";
+								command += " \"" + pathRelease + "/Lib.Platform.Linux.dll\"";
+							}
+
+							if (MonoVersion.StartsWith("5."))
+							{
+								// Debian 8/9 with Mono 5.x.
+								// Don't work for pending bug in mkbundle: https://bugzilla.xamarin.com/show_bug.cgi?id=51650
+								command += " --i18n all";
+								command += " -L /usr/lib/mono/4.5";
+								command += " --keeptemp";
+								command += " --static";
+								command += " --config \"" + PathBaseResources + "/linux_portable/eddie.config\"";
+								command += " --machine-config /etc/mono/4.5/machine.config";
+								command += " -z";
+							}
+							else
+							{
+								command += " --deps";
+								command += " --keeptemp";
+								command += " --static";
+								command += " --config \"" + PathBaseResources + "/linux_portable/eddie.config\"";
+								command += " --machine-config /etc/mono/4.0/machine.config";
+								command += " -z";
+							}
+
+
+							// TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
+							// Otherwise, we need to have two different WinForms project (Windows AND Linux)
+							//command += " \"" + pathRelease + "/Windows.dll\"";
+							//command += " \"" + pathRelease + "/Microsoft.Win32.TaskScheduler.dll\"";
+
+
+
+							if (ui == "cli")
+							{
+								command += " -o \"" + pathTemp + "/eddie-cli\"";
+							}
+							else if (ui == "ui")
+							{
+								command += " -o \"" + pathTemp + "/eddie-ui\"";
+							}
+
+							Shell(command);
+
+							//RemoveFile(pathTemp + "/eddie.config");
+
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+
+							if (File.Exists(pathFinal))
+								File.Delete(pathFinal);
+
+							if (ui == "cli")
+							{
+								Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
+							}
+							else
+							{
+								Shell("chmod 755 \"" + pathTemp + "/eddie-ui\"");
+							}
+							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+							if (ui == "ui")
+								Shell("chmod 755 \"" + pathTemp + "/eddie-tray\"");
+							Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
+
+							CreateDirectory(pathTemp + "/" + fileName);
+							MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+							Shell("chown -R root:root " + pathTemp);
+
+							// TAR.GZ
+							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+							Shell(command2);
 						}
-						
-
-						// TOOPTIMIZE: This can be avoided, but mkbundle don't support specific exclude, we need to list manually all depencencies and avoid --deps
-						// Otherwise, we need to have two different WinForms project (Windows AND Linux)
-						//command += " \"" + pathRelease + "/Windows.dll\"";
-						//command += " \"" + pathRelease + "/Microsoft.Win32.TaskScheduler.dll\"";
-
-
-
-						if (ui == "cli")
-						{
-							command += " -o \"" + pathTemp + "/eddie-cli\"";
-						}
-						else if (ui == "ui")
-						{
-							command += " -o \"" + pathTemp + "/eddie-ui\"";
-						}
-
-						Shell(command);
-
-						//RemoveFile(pathTemp + "/eddie.config");
-
-						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
-
-						if (File.Exists(pathFinal))
-							File.Delete(pathFinal);
-
-						if (ui == "cli")
-						{
-							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
-						}
-						else
-						{
-							Shell("chmod 755 \"" + pathTemp + "/eddie-ui\"");
-						}
-						Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
-						Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-						if (ui == "ui")
-							Shell("chmod 755 \"" + pathTemp + "/eddie-tray\"");
-						Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.Linux.Native.so\"");
-
-						CreateDirectory(pathTemp + "/" + fileName);
-						MoveAll(pathTemp, pathTemp + "/" + fileName);
-
-						Shell("chown -R root:root " + pathTemp);
-
-						// TAR.GZ
-						string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
-						Shell(command2);
-					}
-					else if ((format == "debian") && (AvailableDpkg))
-					{
-						string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
-						
-						string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".deb");
-
-						CreateDirectory(pathTemp + "/usr/lib/eddie-ui");
-
-						CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/lib/eddie-ui");
-						CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/lib/eddie-ui");
-						CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/lib/eddie-ui");
-						CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/lib/eddie-ui");
-						CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/lib/eddie-ui", "Eddie-UI.exe");
-						//CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/lib/eddie", "Eddie-CLI.exe");
-
-						CopyAll(pathDeploy, pathTemp + "/usr/lib/eddie-ui");
-						CopyDirectory(PathBaseResources + "/" + format, pathTemp);
-
-						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString3);
-						string debianArchitecture = "unknown";
-						if (arch == "x86")
-							debianArchitecture = "i386"; // any-i386? not accepted by reprepro
-						else if (arch == "x64")
-							debianArchitecture = "amd64"; // any-amd64?
-						else if (arch == "armhf")
-							debianArchitecture = "armhf"; // any-armhf
-						ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
-
-						RemoveFile(pathTemp + "/usr/lib/eddie-ui/openvpn");
-						RemoveFile(pathTemp + "/usr/lib/eddie-ui/stunnel");
-						RemoveFile(pathTemp + "/usr/lib/eddie-ui/libgdiplus.so.0");
-						RemoveFile(pathTemp + "/usr/lib/eddie-ui/libMonoPosixHelper.so");
-						RemoveFile(pathTemp + "/usr/lib/eddie-ui/libappindicator.so.1");						
-
-						Shell("chmod 755 -R \"" + pathTemp + "\"");
-
-						CreateDirectory(pathTemp + "/usr/share/eddie-ui");
-						CopyAll(pathCommon, pathTemp + "/usr/share/eddie-ui");
-
-						WriteTextFile(pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian", FetchUrl(Constants.ChangeLogUrl));
-						Shell("gzip -n -9 \"" + pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian.gz\"");
-
-						WriteTextFile(pathTemp + "/usr/share/man/man8/eddie-ui.8", Shell("mono \"" + pathTemp + "/usr/lib/eddie-ui/Eddie-UI.exe\" -cli -help -help.format=man"));
-						Shell("gzip -n -9 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8.gz\"");
-
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Core.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Common.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Forms.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Platform.Linux.dll\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/libLib.Platform.Linux.Native.so\"");
-						Shell("chmod 755 \"" + pathTemp + "/usr/lib/eddie-ui/eddie-tray\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/eddie-ui.png\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/eddie-ui.desktop\"");
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy\"");
-
-						Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/eddie-ui/copyright\"");
-						Shell("chmod 644 " + pathTemp + "/usr/share/eddie-ui/*"); // Note: wildchar don't works if quoted
-
-						Shell("chown -R root:root " + pathTemp);
-
-						string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
-						Log(command);
-						Shell(command);
-
-						Log("Lintian report:");
-						Log(Shell("lintian \"" + pathFinal + "\""));
-
-						SignFile(platform, format, pathFinal);
-					}
-					else if(AvailableRPM)
-					{
-						if( (format == "opensuse") || (format == "fedora") )
+						else if ((format == "debian") && (AvailableDpkg))
 						{
 							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
 
-							string libSubPath = "lib";
-							if (arch == "x64")
-								libSubPath = "lib64";
+							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".deb");
 
-							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".rpm");
+							CreateDirectory(pathTemp + "/usr/lib/eddie-ui");
 
-							CreateDirectory(pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+							CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/lib/eddie-ui");
+							CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/lib/eddie-ui");
+							CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/lib/eddie-ui");
+							CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/lib/eddie-ui");
+							CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/lib/eddie-ui", "Eddie-UI.exe");
+							//CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/lib/eddie", "Eddie-CLI.exe");
 
-							CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
-							CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
-							CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
-							CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
-							CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/" + libSubPath + "/eddie-ui", "Eddie-UI.exe");
-							//CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/" + libSubPath + "/AirVPN", "Eddie-CLI.exe");
-
-							CopyAll(pathDeploy, pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+							CopyAll(pathDeploy, pathTemp + "/usr/lib/eddie-ui");
 							CopyDirectory(PathBaseResources + "/" + format, pathTemp);
 
-							ReplaceInFile(pathTemp + "/eddie-ui.spec", "{@version}", versionString3);
-							ReplaceInFile(pathTemp + "/eddie-ui.spec", "{@lib}", libSubPath);
+							ReplaceInFile(pathTemp + "/DEBIAN/control", "{@version}", versionString3);
+							string debianArchitecture = "unknown";
+							if (arch == "x86")
+								debianArchitecture = "i386"; // any-i386? not accepted by reprepro
+							else if (arch == "x64")
+								debianArchitecture = "amd64"; // any-amd64?
+							else if (arch == "armhf")
+								debianArchitecture = "armhf"; // any-armhf
+							ReplaceInFile(pathTemp + "/DEBIAN/control", "{@architecture}", debianArchitecture);
 
-							ReplaceInFile(pathTemp + "/usr/bin/eddie-ui", "{@lib}", libSubPath);
+							RemoveFile(pathTemp + "/usr/lib/eddie-ui/openvpn");
+							RemoveFile(pathTemp + "/usr/lib/eddie-ui/stunnel");
+							RemoveFile(pathTemp + "/usr/lib/eddie-ui/libgdiplus.so.0");
+							RemoveFile(pathTemp + "/usr/lib/eddie-ui/libMonoPosixHelper.so");
+							RemoveFile(pathTemp + "/usr/lib/eddie-ui/libappindicator.so.1");
 
-							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/openvpn");
-							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/stunnel");
-							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libgdiplus.so.0");
-							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libMonoPosixHelper.so");
-							RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libappindicator.so.1");
+							Shell("chmod 755 -R \"" + pathTemp + "\"");
 
 							CreateDirectory(pathTemp + "/usr/share/eddie-ui");
 							CopyAll(pathCommon, pathTemp + "/usr/share/eddie-ui");
 
-							WriteTextFile(pathTemp + "/usr/share/man/man8/eddie-ui.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Eddie-UI.exe\" -cli -help -help.format=man"));
+							WriteTextFile(pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian", FetchUrl(Constants.ChangeLogUrl));
+							Shell("gzip -n -9 \"" + pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/eddie-ui/changelog.Debian.gz\"");
+
+							WriteTextFile(pathTemp + "/usr/share/man/man8/eddie-ui.8", Shell("mono \"" + pathTemp + "/usr/lib/eddie-ui/Eddie-UI.exe\" -cli -help -help.format=man"));
 							Shell("gzip -n -9 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8.gz\"");
 
-							Shell("chmod 755 -R \"" + pathTemp + "\"");
-							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Core.dll\"");
-							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Common.dll\"");
-							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Forms.dll\"");
-							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Platform.Linux.dll\"");
-							Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/libLib.Platform.Linux.Native.so\"");
-							Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/eddie-tray\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Core.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Common.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Forms.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/Lib.Platform.Linux.dll\"");
+							Shell("chmod 644 \"" + pathTemp + "/usr/lib/eddie-ui/libLib.Platform.Linux.Native.so\"");
+							Shell("chmod 755 \"" + pathTemp + "/usr/lib/eddie-ui/eddie-tray\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/eddie-ui.png\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/eddie-ui.desktop\"");
 							Shell("chmod 644 \"" + pathTemp + "/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy\"");
+
+							Shell("chmod 644 \"" + pathTemp + "/usr/share/doc/eddie-ui/copyright\"");
 							Shell("chmod 644 " + pathTemp + "/usr/share/eddie-ui/*"); // Note: wildchar don't works if quoted
 
 							Shell("chown -R root:root " + pathTemp);
 
-							string command = "rpmbuild";
-							if (IsOfficial())
-							{
-								string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
-								if (File.Exists(pathPassphrase))
-								{
-									command += " -sign";
+							string command = "dpkg -b \"" + pathTemp + "\" \"" + pathFinal + "\"";
+							Log(command);
+							Shell(command);
 
-									// I don't yet find a working method to automate it.
-									//string passphrase = File.ReadAllText(pathPassphrase);
-									//command = "echo " + passphrase + " | setsid " + command;
+							Log("Lintian report:");
+							Log(Shell("lintian \"" + pathFinal + "\""));
 
-									Log("Enter AirVPN Staff signing password for RPM build");
-								}
-								else
-								{
-									LogError("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
-								}
-							}
-							command += " -bb \"" + pathTemp + "/eddie-ui.spec\" --buildroot \"" + pathTemp + "\"";
-
-							Log("RPM Build");
-							string output = Shell(command);
-							if (IsOfficial())
-							{
-								if (output.Contains("signing failed"))
-								{
-									LogError("RPM fail: " + output);
-								}
-								else
-									Log(output);
-							}
-
-							Shell("mv ../*.rpm " + pathFinal);
+							SignFile(platform, format, pathFinal);
 						}
-					}					
-					else if ((format == "aur") && (AvailableAUR))
-					{
-						
+						else if (AvailableRPM)
+						{
+							if ((format == "opensuse") || (format == "fedora"))
+							{
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.Forms.Linux/bin/" + archCompile + "/Release").FullName;
+
+								string libSubPath = "lib";
+								if (arch == "x64")
+									libSubPath = "lib64";
+
+								string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".rpm");
+
+								CreateDirectory(pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+
+								CopyFile(pathRelease, "Lib.Core.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+								CopyFile(pathRelease, "Lib.Common.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+								CopyFile(pathRelease, "Lib.Forms.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+								CopyFile(pathRelease, "Lib.Platform.Linux.dll", pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+								CopyFile(pathRelease, "App.Forms.Linux.exe", pathTemp + "/usr/" + libSubPath + "/eddie-ui", "Eddie-UI.exe");
+								//CopyFile(new DirectoryInfo(PathBase + "/src/App.CLI.Linux/bin/" + archCompile + "/Release").FullName, "App.CLI.Linux.exe", pathTemp + "/usr/" + libSubPath + "/AirVPN", "Eddie-CLI.exe");
+
+								CopyAll(pathDeploy, pathTemp + "/usr/" + libSubPath + "/eddie-ui");
+								CopyDirectory(PathBaseResources + "/" + format, pathTemp);
+
+								ReplaceInFile(pathTemp + "/eddie-ui.spec", "{@version}", versionString3);
+								ReplaceInFile(pathTemp + "/eddie-ui.spec", "{@lib}", libSubPath);
+
+								ReplaceInFile(pathTemp + "/usr/bin/eddie-ui", "{@lib}", libSubPath);
+
+								RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/openvpn");
+								RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/stunnel");
+								RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libgdiplus.so.0");
+								RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libMonoPosixHelper.so");
+								RemoveFile(pathTemp + "/usr/" + libSubPath + "/eddie-ui/libappindicator.so.1");
+
+								CreateDirectory(pathTemp + "/usr/share/eddie-ui");
+								CopyAll(pathCommon, pathTemp + "/usr/share/eddie-ui");
+
+								WriteTextFile(pathTemp + "/usr/share/man/man8/eddie-ui.8", Shell("mono \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Eddie-UI.exe\" -cli -help -help.format=man"));
+								Shell("gzip -n -9 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/share/man/man8/eddie-ui.8.gz\"");
+
+								Shell("chmod 755 -R \"" + pathTemp + "\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Core.dll\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Common.dll\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Forms.dll\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/Lib.Platform.Linux.dll\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/libLib.Platform.Linux.Native.so\"");
+								Shell("chmod 755 \"" + pathTemp + "/usr/" + libSubPath + "/eddie-ui/eddie-tray\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/share/pixmaps/eddie-ui.png\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/share/applications/eddie-ui.desktop\"");
+								Shell("chmod 644 \"" + pathTemp + "/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy\"");
+								Shell("chmod 644 " + pathTemp + "/usr/share/eddie-ui/*"); // Note: wildchar don't works if quoted
+
+								Shell("chown -R root:root " + pathTemp);
+
+								string command = "rpmbuild";
+								if (IsOfficial())
+								{
+									string pathPassphrase = NormalizePath(PathBaseSigning + "/gpg.passphrase");
+									if (File.Exists(pathPassphrase))
+									{
+										command += " -sign";
+
+										// I don't yet find a working method to automate it.
+										//string passphrase = File.ReadAllText(pathPassphrase);
+										//command = "echo " + passphrase + " | setsid " + command;
+
+										Log("Enter AirVPN Staff signing password for RPM build");
+									}
+									else
+									{
+										LogError("Missing passphrase file for automatic build. (" + pathPassphrase + ")");
+									}
+								}
+								command += " -bb \"" + pathTemp + "/eddie-ui.spec\" --buildroot \"" + pathTemp + "\"";
+
+								Log("RPM Build");
+								string output = Shell(command);
+								if (IsOfficial())
+								{
+									if (output.Contains("signing failed"))
+									{
+										LogError("RPM fail: " + output);
+									}
+									else
+										Log(output);
+								}
+
+								Shell("mv ../*.rpm " + pathFinal);
+							}
+						}
+						else if ((format == "aur") && (AvailableAUR))
+						{
+
+						}
 					}
+					else if (platform == "macos")
+					{
+						if (format == "portable")
+						{
+							if (ui == "cli")
+							{
+								CopyAll(pathDeploy, pathTemp);
+								CopyAll(pathCommon, pathTemp + "/res");
+
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.MacOS/bin/" + archCompile + "/Release").FullName;
+								pathRelease = pathRelease.Replace("/x64/Release", "/Release");
+
+								//CopyFile(pathRelease, "eddie-cli", pathTemp, "eddie-cli");
+
+								string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+
+								if (File.Exists(pathFinal))
+									File.Delete(pathFinal);
+
+								{
+									// Tested with Xamarin Studio 6.1.2 build 44, Mono 4.6.2, macOS Sierra 10.12.1
+
+									string cmd = "";
+
+									// Ensure it can find pkg-config:
+									cmd += "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib/pkgconfig:/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig;";
+
+									// Force 32bit build and manually set some clang linker properties:
+									cmd += "export AS=\"as -arch i386\";";
+									cmd += "export CC=\"cc -arch i386 -lobjc -liconv -framework CoreFoundation -I /Library/Frameworks/Mono.framework/Versions/Current/include/mono-2.0/\";";
+
+									// Force 64bit build and manually set some clang linker properties:
+									// export AS="as -arch x86_64"
+									// export CC="cc -arch x86_64 -lobjc -liconv -framework CoreFoundation -I /Library/Frameworks/Mono.framework/Versions/Current/include/mono-2.0/"
+
+									// Other ensure it can find pig-config
+									cmd += "export PATH=/Library/Frameworks/Mono.framework/Versions/Current/bin/:$PATH;";
+
+									// WARNING: Currently 2017-03-10 , cannot be signed for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
+									cmd += "mkbundle";
+									cmd += " --sdk /Library/Frameworks/Mono.framework/Versions/Current";
+									cmd += " \"" + pathRelease + "/App.CLI.macOS.exe\"";
+									cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
+									cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
+									cmd += " \"" + pathRelease + "/Lib.Platform.macOS.dll\"";
+									cmd += " \"" + pathRelease + "/Xamarin.Mac.dll\"";
+									cmd += " -z";
+									cmd += " --static";
+									cmd += " --deps";
+									cmd += " -o \"" + pathTemp + "/eddie-cli\"";
+
+									Shell(cmd);
+								}
+
+								CopyFile(pathRelease, "libxammac.dylib", pathTemp);
+
+								Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
+								Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+								Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+								Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
+								Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
+
+								SignFile(platform, format, pathTemp + "/eddie-cli"); // WARNING: Currently 2017-03-10 , signing don't work for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
+								SignFile(platform, format, pathTemp + "/openvpn");
+								SignFile(platform, format, pathTemp + "/stunnel");
+								SignFile(platform, format, pathTemp + "/libLib.Platform.macOS.Native.dylib");
+								SignFile(platform, format, pathTemp + "/libxammac.dylib");
+
+								CreateDirectory(pathTemp + "/" + fileName);
+								MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+								// TAR.GZ
+								string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+								Shell(command2);
+							}
+							else if (ui == "ui")
+							{
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.Cocoa.MacOS/bin/" + archCompile + "/Release").FullName;
+								pathRelease = pathRelease.Replace("/x64/Release", "/Release");
+
+								CreateDirectory(pathTemp + "/Eddie.app");
+								CopyDirectory(pathRelease + "/Eddie.app", pathTemp + "/Eddie.app");
+
+								// TAR.GZ
+								string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+
+								if (File.Exists(pathFinal))
+									File.Delete(pathFinal);
+
+								CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/Eddie.app/Contents/Info.plist");
+								ReplaceInFile(pathTemp + "/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
+
+								CopyAll(pathDeploy, pathTemp + "/Eddie.app/Contents/MacOS");
+								CopyAll(pathCommon, pathTemp + "/Eddie.app/Contents/Resources");
+
+								SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/Eddie");
+								SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/openvpn");
+								SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/stunnel");
+								SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
+								SignFile(platform, format, pathTemp + "/Eddie.app");
+
+								string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
+								Shell(command2);
+							}
+
+						}
+						else if (format == "installer")
+						{
+							if (ui == "ui")
+							{
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.Cocoa.MacOS/bin/" + archCompile + "/Release").FullName;
+								pathRelease = pathRelease.Replace("/x64/Release", "/Release");
+
+								CreateDirectory(pathTemp + "/Applications/Eddie.app");
+								CopyDirectory(pathRelease + "/Eddie.app", pathTemp + "/Applications/Eddie.app");
+
+								// TAR.GZ
+								string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
+
+								if (File.Exists(pathFinal))
+									File.Delete(pathFinal);
+
+								CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/Applications/Eddie.app/Contents/Info.plist");
+								ReplaceInFile(pathTemp + "/Applications/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
+
+								CopyAll(pathDeploy, pathTemp + "/Applications/Eddie.app/Contents/MacOS");
+								CopyAll(pathCommon, pathTemp + "/Applications/Eddie.app/Contents/Resources");
+
+								SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/Eddie");
+								SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/openvpn");
+								SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/stunnel");
+								SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
+								SignFile(platform, format, pathTemp + "/Applications/Eddie.app");
+
+								string command2 = "pkgbuild";
+								command2 += " --identifier org.airvpn.eddie.ui";
+								command2 += " --version " + versionString3;
+								command2 += " --root \"" + pathTemp + "\"";
+								//command2 += " --component \"" + pathRelease + "Eddie.app\"";
+
+								string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
+								if (File.Exists(pathSignString))
+								{
+									string appleSign = ReadTextFile(pathSignString).Trim();
+									command2 += " --sign \"" + appleSign + "\"";
+									command2 += " --timestamp";
+								}
+								command2 += " \"" + pathFinal + "\"";
+								Log("pkgbuild command: " + command2);
+								Log(Shell(command2));
+
+								//SignFile(platform, format, pathFinal);
+							}
+						}
+						else if (format == "disk")
+						{
+							if (ui == "ui")
+							{
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.Cocoa.MacOS/bin/" + archCompile + "/Release").FullName;
+								pathRelease = pathRelease.Replace("/x64/Release", "/Release");
+
+								Log("Extract DMG base");
+								Shell("tar -jxvf " + "\"" + PathBaseResources + "/macos/diskbase.dmg.tar.bz2\" -C \"" + pathTemp + "\"");
+								Log("Resize DMG");
+								Shell("hdiutil resize -size 200m '" + pathTemp + "/diskbase.dmg" + "'");
+								Log("Attach DMG");
+								Shell("hdiutil attach '" + pathTemp + "/diskbase.dmg" + "' -mountpoint '" + pathTemp + "/DiskBuild'");
+								Log("Fill DMG");
+
+								CreateDirectory(pathTemp + "/DiskBuild/Eddie.app");
+								CopyDirectory(pathRelease + "/Eddie.app", pathTemp + "/DiskBuild/Eddie.app");
+
+								// TAR.GZ
+								string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".dmg");
+
+								if (File.Exists(pathFinal))
+									File.Delete(pathFinal);
+
+								CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/DiskBuild/Eddie.app/Contents/Info.plist");
+								ReplaceInFile(pathTemp + "/DiskBuild/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
+
+								CopyAll(pathDeploy, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS");
+								CopyAll(pathCommon, pathTemp + "/DiskBuild/Eddie.app/Contents/Resources");
+
+								SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/Eddie");
+								SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/openvpn");
+								SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/stunnel");
+								SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
+								SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app");
+
+								Log("Detach DMG");
+								Shell("hdiutil detach \"" + pathTemp + "/DiskBuild" + "\"");
+								Log("Compress DMG");
+								Shell("hdiutil convert \"" + pathTemp + "/diskbase.dmg" + "\" -format UDCO -imagekey zlib-level=9 -o \"" + pathFinal + "\"");
+
+							}
+						}
+						else if (format == "mono")
+						{
+							if (ui == "cli")
+							{
+								CopyAll(pathDeploy, pathTemp);
+								CopyAll(pathCommon, pathTemp + "/res");
+
+								string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.MacOS/bin/" + archCompile + "/Release").FullName;
+								pathRelease = pathRelease.Replace("/x64/Release", "/Release");
+
+								CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
+								CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
+								CopyFile(pathRelease, "Lib.Platform.macOS.dll", pathTemp);
+								//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
+								CopyFile(pathRelease, "Xamarin.Mac.dll", pathTemp);
+								CopyFile(pathRelease, "libxammac.dylib", pathTemp);
+								CopyFile(pathRelease, "App.CLI.macOS.exe", pathTemp, "Eddie-CLI.exe");
+
+								string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
+
+								if (File.Exists(pathFinal))
+									File.Delete(pathFinal);
+
+								Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
+								Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
+								Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
+								Shell("chmod 644 \"" + pathTemp + "/libxammac.dylib\"");
+
+								SignFile(platform, format, pathTemp + "/openvpn");
+								SignFile(platform, format, pathTemp + "/stunnel");
+								SignFile(platform, format, pathTemp + "/libLib.Platform.macOS.Native.dylib");
+								SignFile(platform, format, pathTemp + "/libxammac.dylib");
+
+								RemoveFile(pathTemp + "/libgdiplus.so.0");
+								RemoveFile(pathTemp + "/libMonoPosixHelper.so");
+
+								CreateDirectory(pathTemp + "/" + fileName);
+								MoveAll(pathTemp, pathTemp + "/" + fileName);
+
+								// TAR.GZ
+								string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
+								Shell(command2);
+							}
+						}
+					}
+
 				}
-				else if (platform == "macos")
+
+				/* -------------------------------
+					Generate Man pages
+				------------------------------- */
+
+				if (SO == "windows")
 				{
-					if (format == "portable")
-					{
-						if (ui == "cli")
-						{
-							CopyAll(pathDeploy, pathTemp);
-							CopyAll(pathCommon, pathTemp + "/res");
-
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.MacOS/bin/" + archCompile + "/Release").FullName;
-							pathRelease = pathRelease.Replace("/x64/Release", "/Release");
-
-							//CopyFile(pathRelease, "eddie-cli", pathTemp, "eddie-cli");
-
-							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
-
-							if (File.Exists(pathFinal))
-								File.Delete(pathFinal);
-
-							{
-								// Tested with Xamarin Studio 6.1.2 build 44, Mono 4.6.2, macOS Sierra 10.12.1
-
-								string cmd = "";
-
-								// Ensure it can find pkg-config:
-								cmd += "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib/pkgconfig:/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig;";
-
-								// Force 32bit build and manually set some clang linker properties:
-								cmd += "export AS=\"as -arch i386\";";
-								cmd += "export CC=\"cc -arch i386 -lobjc -liconv -framework CoreFoundation -I /Library/Frameworks/Mono.framework/Versions/Current/include/mono-2.0/\";";
-
-								// Force 64bit build and manually set some clang linker properties:
-								// export AS="as -arch x86_64"
-								// export CC="cc -arch x86_64 -lobjc -liconv -framework CoreFoundation -I /Library/Frameworks/Mono.framework/Versions/Current/include/mono-2.0/"
-
-								// Other ensure it can find pig-config
-								cmd += "export PATH=/Library/Frameworks/Mono.framework/Versions/Current/bin/:$PATH;";
-
-								// WARNING: Currently 2017-03-10 , cannot be signed for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
-								cmd += "mkbundle";
-								cmd += " --sdk /Library/Frameworks/Mono.framework/Versions/Current";
-								cmd += " \"" + pathRelease + "/App.CLI.macOS.exe\"";
-								cmd += " \"" + pathRelease + "/Lib.Common.dll\"";
-								cmd += " \"" + pathRelease + "/Lib.Core.dll\"";
-								cmd += " \"" + pathRelease + "/Lib.Platform.macOS.dll\"";
-								cmd += " \"" + pathRelease + "/Xamarin.Mac.dll\"";
-								cmd += " -z";
-								cmd += " --static";
-								cmd += " --deps";
-								cmd += " -o \"" + pathTemp + "/eddie-cli\"";
-
-								Shell(cmd);
-							}
-
-							CopyFile(pathRelease, "libxammac.dylib", pathTemp);
-
-							Shell("chmod 755 \"" + pathTemp + "/eddie-cli\"");
-							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
-							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-							Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
-							Shell("chmod 755 \"" + pathTemp + "/libxammac.dylib\"");
-
-							SignFile(platform, format, pathTemp + "/eddie-cli"); // WARNING: Currently 2017-03-10 , signing don't work for this bug: https://bugzilla.xamarin.com/show_bug.cgi?id=52443
-							SignFile(platform, format, pathTemp + "/openvpn");
-							SignFile(platform, format, pathTemp + "/stunnel");
-							SignFile(platform, format, pathTemp + "/libLib.Platform.macOS.Native.dylib");
-							SignFile(platform, format, pathTemp + "/libxammac.dylib");
-
-							CreateDirectory(pathTemp + "/" + fileName);
-							MoveAll(pathTemp, pathTemp + "/" + fileName);
-
-							// TAR.GZ
-							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
-							Shell(command2);
-						}
-						else if (ui == "ui")
-						{
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Cocoa.MacOS/bin/" + archCompile + "/Release").FullName;
-							pathRelease = pathRelease.Replace("/x64/Release", "/Release");
-
-							CreateDirectory(pathTemp + "/Eddie.app");
-							CopyDirectory(pathRelease + "/Eddie.app", pathTemp + "/Eddie.app");
-
-							// TAR.GZ
-							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
-
-							if (File.Exists(pathFinal))
-								File.Delete(pathFinal);
-
-							CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/Eddie.app/Contents/Info.plist");
-							ReplaceInFile(pathTemp + "/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
-
-							CopyAll(pathDeploy, pathTemp + "/Eddie.app/Contents/MacOS");
-							CopyAll(pathCommon, pathTemp + "/Eddie.app/Contents/Resources");
-
-							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/Eddie");
-							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/openvpn");
-							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MacOS/stunnel");
-							SignFile(platform, format, pathTemp + "/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
-							SignFile(platform, format, pathTemp + "/Eddie.app");
-
-							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + " Eddie.app";
-							Shell(command2);
-						}
-
-					}
-					else if (format == "installer")
-					{
-						if (ui == "ui")
-						{
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Cocoa.MacOS/bin/" + archCompile + "/Release").FullName;
-							pathRelease = pathRelease.Replace("/x64/Release", "/Release");
-
-							CreateDirectory(pathTemp + "/Applications/Eddie.app");
-							CopyDirectory(pathRelease + "/Eddie.app", pathTemp + "/Applications/Eddie.app");
-
-							// TAR.GZ
-							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".pkg");
-
-							if (File.Exists(pathFinal))
-								File.Delete(pathFinal);
-
-							CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/Applications/Eddie.app/Contents/Info.plist");
-							ReplaceInFile(pathTemp + "/Applications/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
-
-							CopyAll(pathDeploy, pathTemp + "/Applications/Eddie.app/Contents/MacOS");
-							CopyAll(pathCommon, pathTemp + "/Applications/Eddie.app/Contents/Resources");
-														
-							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/Eddie");
-							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/openvpn");
-							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MacOS/stunnel");
-							SignFile(platform, format, pathTemp + "/Applications/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
-							SignFile(platform, format, pathTemp + "/Applications/Eddie.app");
-
-							string command2 = "pkgbuild";
-							command2 += " --identifier org.airvpn.eddie.ui";
-							command2 += " --version " + versionString3;
-							command2 += " --root \"" + pathTemp + "\"";
-							//command2 += " --component \"" + pathRelease + "Eddie.app\"";
-
-							string pathSignString = NormalizePath(PathBaseSigning + "/apple-dev-id.txt");
-							if (File.Exists(pathSignString))
-							{
-								string appleSign = ReadTextFile(pathSignString).Trim();
-								command2 += " --sign \"" + appleSign + "\"";
-								command2 += " --timestamp";
-							}
-							command2 += " \"" + pathFinal + "\"";
-							Log("pkgbuild command: " + command2);
-							Log(Shell(command2));
-
-							//SignFile(platform, format, pathFinal);
-						}
-					}
-					else if (format == "disk")
-					{
-						if (ui == "ui")
-						{
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.Cocoa.MacOS/bin/" + archCompile + "/Release").FullName;
-							pathRelease = pathRelease.Replace("/x64/Release", "/Release");
-
-							Log("Extract DMG base");
-							Shell("tar -jxvf " + "\"" + PathBaseResources + "/macos/diskbase.dmg.tar.bz2\" -C \"" + pathTemp + "\"");
-							Log("Resize DMG");
-							Shell("hdiutil resize -size 200m '" + pathTemp + "/diskbase.dmg" + "'");
-							Log("Attach DMG");
-							Shell("hdiutil attach '" + pathTemp + "/diskbase.dmg" + "' -mountpoint '" + pathTemp + "/DiskBuild'");
-							Log("Fill DMG");
-
-							CreateDirectory(pathTemp + "/DiskBuild/Eddie.app");
-							CopyDirectory(pathRelease + "/Eddie.app", pathTemp + "/DiskBuild/Eddie.app");
-
-							// TAR.GZ
-							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".dmg");
-
-							if (File.Exists(pathFinal))
-								File.Delete(pathFinal);
-
-							CopyFile(PathBaseResources + "/macos/Info.plist", pathTemp + "/DiskBuild/Eddie.app/Contents/Info.plist");
-							ReplaceInFile(pathTemp + "/DiskBuild/Eddie.app/Contents/Info.plist", "{@version}", versionString3);
-
-							CopyAll(pathDeploy, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS");
-							CopyAll(pathCommon, pathTemp + "/DiskBuild/Eddie.app/Contents/Resources");
-														
-							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/Eddie");
-							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/openvpn");
-							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MacOS/stunnel");
-							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib");
-							SignFile(platform, format, pathTemp + "/DiskBuild/Eddie.app");
-
-							Log("Detach DMG");
-							Shell("hdiutil detach \"" + pathTemp + "/DiskBuild" + "\"");
-							Log("Compress DMG");
-							Shell("hdiutil convert \"" + pathTemp + "/diskbase.dmg" + "\" -format UDCO -imagekey zlib-level=9 -o \"" + pathFinal + "\"");
-
-						}
-					}
-					else if (format == "mono")
-					{
-						if (ui == "cli")
-						{
-							CopyAll(pathDeploy, pathTemp);
-							CopyAll(pathCommon, pathTemp + "/res");
-
-							string pathRelease = new DirectoryInfo(PathBase + "/src/App.CLI.MacOS/bin/" + archCompile + "/Release").FullName;
-							pathRelease = pathRelease.Replace("/x64/Release", "/Release");
-
-							CopyFile(pathRelease, "Lib.Core.dll", pathTemp);
-							CopyFile(pathRelease, "Lib.Common.dll", pathTemp);
-							CopyFile(pathRelease, "Lib.Platform.macOS.dll", pathTemp);
-							//CopyFile(pathRelease, "Newtonsoft.Json.dll", pathTemp);
-							CopyFile(pathRelease, "Xamarin.Mac.dll", pathTemp);
-							CopyFile(pathRelease, "libxammac.dylib", pathTemp);
-							CopyFile(pathRelease, "App.CLI.macOS.exe", pathTemp, "Eddie-CLI.exe");
-
-							string pathFinal = NormalizePath(PathBaseRepository + "/" + fileName + ".tar.gz");
-
-							if (File.Exists(pathFinal))
-								File.Delete(pathFinal);
-
-							Shell("chmod 755 \"" + pathTemp + "/openvpn\"");
-							Shell("chmod 755 \"" + pathTemp + "/stunnel\"");
-							Shell("chmod 644 \"" + pathTemp + "/libLib.Platform.macOS.Native.dylib\"");
-							Shell("chmod 644 \"" + pathTemp + "/libxammac.dylib\"");
-
-							SignFile(platform, format, pathTemp + "/openvpn");
-							SignFile(platform, format, pathTemp + "/stunnel");
-							SignFile(platform, format, pathTemp + "/libLib.Platform.macOS.Native.dylib");
-							SignFile(platform, format, pathTemp + "/libxammac.dylib");
-
-							RemoveFile(pathTemp + "/libgdiplus.so.0");
-							RemoveFile(pathTemp + "/libMonoPosixHelper.so");
-
-							CreateDirectory(pathTemp + "/" + fileName);
-							MoveAll(pathTemp, pathTemp + "/" + fileName);
-
-							// TAR.GZ
-							string command2 = "cd \"" + pathTemp + "\" && tar cvfz \"" + pathFinal + "\" " + "*";
-							Shell(command2);
-						}
-					}
+					Log("Generating manual files");
+					string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/App.CLI.Windows.exe").FullName;
+					WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help.format=html"));
+					WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help.format=bbc"));
+					WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help.format=text"));
+					WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help.format=man"));
 				}
-
 			}
-
-			/* -------------------------------
-				Generate Man pages
-			------------------------------- */
-
-			if (SO == "windows")
-			{
-				Log("Generating manual files");
-				string pathExe = new FileInfo(PathBase + "/src/bin/x64/Release/App.CLI.Windows.exe").FullName;
-				WriteTextFile(PathBaseRepository + "/manual.html", Shell(pathExe + " -help -help.format=html"));
-				WriteTextFile(PathBaseRepository + "/manual.bb", Shell(pathExe + " -help -help.format=bbc"));
-				WriteTextFile(PathBaseRepository + "/manual.txt", Shell(pathExe + " -help -help.format=text"));
-				WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help.format=man"));
-			}
-
-
+			
 			Log("------------------------------");
 			if (Errors == 0)
 				Log("Done");
@@ -1069,10 +1079,15 @@ namespace Eddie.Deploy
 		{
 			return Engine.Arguments.Contains("verbose");
 		}
+		
+		static bool IsSigning()
+		{
+			return Engine.Arguments.Contains("signing");
+		}
 
 		static bool IsOfficial()
 		{
-			return Engine.Arguments.Contains("official");
+			return ((Engine.Arguments.Contains("official")) || (IsSigning()));
 		}
 
 		static bool Compile(string so, string architecture, string netFramework)
@@ -1270,7 +1285,7 @@ namespace Eddie.Deploy
 
 		static void SignPath(string platform, string format, string path)
 		{
-			if (Engine.Arguments.Contains("official") == false)
+			if (IsOfficial() == false)
 				return;
 
 			Log("Signing path: " + path);
@@ -1290,7 +1305,7 @@ namespace Eddie.Deploy
 
 		static void SignFile(string platform, string format, string path)
 		{
-			if (Engine.Arguments.Contains("official") == false)
+			if (IsOfficial() == false)
 				return;
 
 			if (platform == "macos")
@@ -1317,25 +1332,40 @@ namespace Eddie.Deploy
 				if ((File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)))
 				{
 					for (int t = 0; ; t++)
-					{
-						string cmd = "";
-						cmd += PathBaseTools + "/windows/signtool.exe";
-						cmd += " sign";
-						cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
-						cmd += " /f " + pathPfx; // Pfx
-						cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
-						cmd += " /d \"" + title + "\""; // Title
-						cmd += " \"" + path + "\""; // File
-						string output = Shell(cmd);
-
-						Log("Windows Signing file: \"" + path + "\": " + output);
-
-						if (output.Contains("Error"))
+					{						
 						{
-							Log("Failed to sign file with windows, try " + t.ToString() + ". Retry.");
+							string cmd = "";
+							cmd += PathBaseTools + "/windows/signtool.exe";
+							cmd += " verify";
+							cmd += " /pa";
+							cmd += " \"" + path + "\""; // File
+							string output = Shell(cmd);
+
+							bool valid = (output.IndexOf("Successfully verified: " + path) != -1);
+							if (valid)
+								break;
 						}
-						else
-							break;
+
+						{
+							string cmd = "";
+							cmd += PathBaseTools + "/windows/signtool.exe";
+							cmd += " sign";
+							cmd += " /p " + File.ReadAllText(pathPfxPwd); // Password
+							cmd += " /f " + pathPfx; // Pfx
+							cmd += " /t " + Constants.WindowsSigningTimestampUrl; // Timestamp
+							cmd += " /d \"" + title + "\""; // Title
+							cmd += " \"" + path + "\""; // File
+							string output = Shell(cmd);
+
+							Log("Windows Signing file: \"" + path + "\": " + output);
+
+							if (output.Contains("Error"))
+							{
+								Log("Failed to sign file with windows, try " + t.ToString() + ". Retry.");
+							}
+							else
+								break;
+						}
 					}
 				}
 				else

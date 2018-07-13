@@ -128,17 +128,18 @@ namespace Eddie.Core
 				ProxyAuthFile.Close();
 				ProxyAuthFile = null;
 			}
-
-			if (PasswordAuthFile != null)
-			{
-				PasswordAuthFile.Close();
-				PasswordAuthFile = null;
-			}
 		}
 
 		public void Close()
 		{
-			CleanAfterStart();			
+			CleanAfterStart();
+
+            // Here because reneg keys require it, and we can't know when OpenVPN need it.
+            if (PasswordAuthFile != null)
+            {
+                PasswordAuthFile.Close();
+                PasswordAuthFile = null;
+            }
 		}
 
 		public void SetAuthUserPass(string username, string password)

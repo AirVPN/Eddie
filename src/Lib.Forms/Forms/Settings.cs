@@ -313,7 +313,7 @@ namespace Eddie.Forms.Forms
 			m_tabMain.ImportTabControl(tabSettings);
 			Controls.Add(m_tabMain);
 
-			m_tabMain.SetPageVisible(11, Constants.AlphaFeatures);
+			m_tabMain.SetPageVisible(12, Constants.AlphaFeatures);
 		}
 
 		public void ReadOptions()
@@ -474,6 +474,7 @@ namespace Eddie.Forms.Forms
 				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeBlock;
 			else
 				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrBlock;
+			chkNetworkIPv4AutoSwitch.Checked = s.GetBool("network.ipv4.autoswitch");			
 
 			string networkIPv6Mode = s.Get("network.ipv6.mode");
 			if (networkIPv6Mode == "in")
@@ -488,6 +489,7 @@ namespace Eddie.Forms.Forms
 				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeBlock;
 			else
 				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrBlock;
+			chkNetworkIPv6AutoSwitch.Checked = s.GetBool("network.ipv6.autoswitch");
 
 			string networkEntryIpLayer = s.Get("network.entry.iplayer");
 			if (networkEntryIpLayer == "ipv6-ipv4")
@@ -828,6 +830,7 @@ namespace Eddie.Forms.Forms
 				s.Set("network.ipv4.mode", "block");
 			else
 				s.Set("network.ipv4.mode", "in");
+			s.SetBool("network.ipv4.autoswitch", chkNetworkIPv4AutoSwitch.Checked);
 
 			string networkIPv6Mode = cboNetworkIPv6Mode.Text;
 			if (networkIPv6Mode == Messages.WindowsSettingsNetworkIpModeInAlways)
@@ -842,6 +845,7 @@ namespace Eddie.Forms.Forms
 				s.Set("network.ipv6.mode", "block");
 			else
 				s.Set("network.ipv6.mode", "in-block");
+			s.SetBool("network.ipv6.autoswitch", chkNetworkIPv6AutoSwitch.Checked);
 
 			string networkEntryIpLayer = cboNetworkEntryIpLayer.Text;
 			if (networkEntryIpLayer == "IPv6, IPv4")

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF0000</color>
+    <color name="background">#ffb3daff</color>
+    <color name="appBar">#ff51aafe</color>
+    <color name="notificationColor">#ff44a0fc</color>
+
+    <color name="settingsCategory">#ff009688</color>
+
+    <color name="black">#ff000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="green">#ff85bc0f</color>
+    <color name="red">#ffdd1212</color>    
+    <color name="blue">#ff4040ee</color>
+    <color name="gray">#ff929292</color>
+    <color name="hyperlink">#ff4040ee</color>    
+    <color name="toolbar">#ff6f6f6f</color>
+        
+    <color name="background_tab_pressed">#6633B5E5</color>
+    <color name="emphasis">#31b6e7</color>
+    <color name="bg_gray">#cecbce</color>
+    
+    <color name="transparent">#00000000</color>
+    
+    <color name="light_grey">#1A000000</color>
+    <color name="dark_grey">#FF666666</color>
+    
+    <drawable name="overlay_black">#aa000000</drawable>        
+    <drawable name="overlay_dark_grey">#FF666666</drawable>    
+</resources>

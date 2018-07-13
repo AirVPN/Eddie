@@ -127,6 +127,12 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkNetLock { get; set; }
 
 		[Outlet]
+		AppKit.NSButton ChkNetworkIPv4AutoSwitch { get; set; }
+
+		[Outlet]
+		AppKit.NSButton ChkNetworkIPv6AutoSwitch { get; set; }
+
+		[Outlet]
 		AppKit.NSButton ChkProtocolsAutomatic { get; set; }
 
 		[Outlet]
@@ -350,9 +356,19 @@ namespace Eddie.UI.Cocoa.Osx
 				CboNetworkIPv4Mode = null;
 			}
 
+			if (ChkNetworkIPv4AutoSwitch != null) {
+				ChkNetworkIPv4AutoSwitch.Dispose ();
+				ChkNetworkIPv4AutoSwitch = null;
+			}
+
 			if (CboNetworkIPv6Mode != null) {
 				CboNetworkIPv6Mode.Dispose ();
 				CboNetworkIPv6Mode = null;
+			}
+
+			if (ChkNetworkIPv6AutoSwitch != null) {
+				ChkNetworkIPv6AutoSwitch.Dispose ();
+				ChkNetworkIPv6AutoSwitch = null;
 			}
 
 			if (CboOpenVpnDirectivesHelp != null) {
@@ -363,11 +379,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CboOpenVpnDirectivesSkipDefault != null) {
 				CboOpenVpnDirectivesSkipDefault.Dispose ();
 				CboOpenVpnDirectivesSkipDefault = null;
-			}
-
-			if (ChkUiSkipProviderManifestFailed != null) {
-				ChkUiSkipProviderManifestFailed.Dispose ();
-				ChkUiSkipProviderManifestFailed = null;
 			}
 
 			if (CboOpenVpnRcvBuf != null) {
@@ -513,6 +524,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkUiIEC != null) {
 				ChkUiIEC.Dispose ();
 				ChkUiIEC = null;
+			}
+
+			if (ChkUiSkipProviderManifestFailed != null) {
+				ChkUiSkipProviderManifestFailed.Dispose ();
+				ChkUiSkipProviderManifestFailed = null;
 			}
 
 			if (ChkUiSystemBarShowInfo != null) {

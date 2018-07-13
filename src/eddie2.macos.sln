@@ -73,6 +73,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = UI.Cocoa.Osx\UI.Cocoa.Osx.csproj
-		version = 2.15
+		version = 2.16
 	EndGlobalSection
 EndGlobal

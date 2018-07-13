@@ -1590,7 +1590,7 @@ namespace Eddie.Core
 		{
 			HttpResponse response = FetchUrl(request);
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(response.GetBodyAscii());
+			doc.LoadXml(response.GetBodyAscii().Trim());
 			return doc;
 		}
 

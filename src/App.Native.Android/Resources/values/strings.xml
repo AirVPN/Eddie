@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string name="app_name">Eddie - OpenVPN GUI</string>
+    <string name="navigation_drawer_open">Open drawer</string>
+    <string name="navigation_drawer_close">Close drawer</string>
+
+    <string name="menu_select_profile_cap">Select OpenVPN Profile</string>
+    <string name="menu_log_cap">Log</string>
+    <string name="menu_settings_cap">Settings</string>
+    <string name="menu_about_cap">About</string>
+    <string name="menu_website_cap">Website</string>
+
+    <!-- connection layout -->
+
+    <string name="conn_profile_cap">Profile:</string>
+    <string name="conn_no_profile">&lt;Select a valid OpenVPN profile&gt;</string>
+    <string name="conn_select_profile_btn_cap">Select</string>
+    <string name="conn_select_profile_cap">Select a valid OpenVPN profile</string>
+    <string name="conn_server_cap">Server:</string>
+    <string name="conn_port_cap">Port:</string>
+    <string name="conn_protocol_cap">Protocol:</string>
+    <string name="conn_connect_profile">Connect</string>
+    <string name="conn_disconnect_profile">Disconnect</string>
+    <string name="conn_status_cap">Status:</string>
+    <string name="conn_status_connected">Connected</string>
+    <string name="conn_status_unknown">Unknown</string>
+    <string name="conn_disconnect_first">You are connected to server {0}. Please disconnect before loading a new profile.</string>
+    <string name="conn_error_cap">Error:</string>
+    <string name="conn_status_disconnected">Not connected</string>
+    <string name="conn_status_initialize">Initializing connection</string>
+    <string name="conn_profile_not_found">Profile not found</string>
+    <string name="conn_profile_is_invalid">Invalid OpenVPN Profile</string>
+    <string name="conn_profile_no_permission">This app does not have permission to access files and documents</string>
+    <string name="conn_no_profile_selected">Please select an OpenVPN file first</string>
+    <string name="conn_cannot_start_vpnservice">Cannot start the VPN Service. This usually happens when you have multiple VPN apps installed on your device. To fix it you can do the following:\n\n- Open Android settings\n- Select \"Network &amp; Internet\"\n- Select \""VPN\"\n- Select the VPN app\'s settings\n- Select \"Forget VPN\"</string>
+    <string name="connection_success">Successfully connected to server {0}</string>
+    <string name="connection_error">Cannot connect to server</string>
+    <string name="connection_disconnected">Disconnected from server {0}</string>
+    
+    <!-- VPNService -->
+
+    <string name="notification_title">Eddie - OpenVPN GUI</string>
+    <string name="notification_text">Connected to server</string>
+
+    <!-- about layout -->
+
+    <string name="about_title">About Eddie</string>
+
+    <!-- log layout -->
+
+    <string name="log_title">Eddie Log</string>
+    <string name="log_subject">Eddie Log created on {0} UTC</string>
+    <string name="log_share_with">Share with...</string>
+
+    <!-- VPN status -->
+
+    <string name="vpn_status_not_connected">Not connected</string>
+    <string name="vpn_status_disconnecting">Disconnecting from server</string>
+    <string name="vpn_status_connecting">Connecting to server</string>
+    <string name="vpn_status_connected">Connected to server</string>
+
+    <!-- settings activity -->
+
+    <string name="settings_title">Eddie - Settings</string>
+    <string name="settings_changed">Settings have changed. They will take effect in the next connection. Please consider disconnecting from server and reconnect.</string>
+    <string name="settings_pause_vpn_when_screen_is_off_warning">Warning: applications running in background may not work as expected when this option is enabled</string>
+    <string name="settings_show_notification_warning">Warning: Android may suddenly stop VPN connection when this option is disabled</string>
+    <string name="settings_ip_address_warning">Please enter a valid IP address</string>
+    <string name="settings_ip_port_warning">Port number must be between 1 and 65535</string>
+    <string name="settings_value_warning">Please enter a valid value</string>
+    <string name="settings_application_filter_type_change_warning">Warning: changing filter type clears the current application list. Do you want to change the filter type?</string>
+    <string name="settings_application_whitelist_title">Select Applications to be Whitelisted</string>
+    <string name="settings_application_blacklist_title">Select Applications to be Blacklisted</string>
+    <string name="settings_reset_to_default_button">Reset to Default Options</string>
+    <string name="settings_reset_to_default">Do you really want to reset to default options?</string>
+    <string name="settings_reset_to_default_done">All settings have been reset to default options</string>
+
+    <string name="settings_category_advanced">Advanced</string>
+    <string name="settings_category_authentication">Authentication</string>
+    <string name="settings_category_dns">DNS</string>
+    <string name="settings_category_proxy">Proxy</string>
+    <string name="settings_category_system">System</string>
+    <string name="settings_category_vpn">VPN</string>
+
+    <string name="settings_ovpn3_autologin_sessions_title">Autologin sessions</string>
+    <string name="settings_ovpn3_autologin_sessions_summary">Autologin sessions</string>
+    <string name="settings_ovpn3_compression_mode_title">Compression</string>
+    <string name="settings_ovpn3_compression_mode_summary">Set compression mode</string>
+    <string name="settings_ovpn3_custom_directives_title">Custom directives</string>
+    <string name="settings_ovpn3_custom_directives_summary">Custom OpenVPN directives to be added to the profile. Directives must be entered in separate lines. Use \'return\' key at the end of each directive to start a new line.</string>
+    <string name="settings_ovpn3_disable_client_cert_title">Disable client certificate</string>
+    <string name="settings_ovpn3_disable_client_cert_summary"></string>
+    <string name="settings_ovpn3_force_aes_cbc_ciphersuites_title">Use AES/CBC ciphers</string>
+    <string name="settings_ovpn3_force_aes_cbc_ciphersuites_summary"></string>
+    <string name="settings_ovpn3_ipv6_title">IPv6</string>
+    <string name="settings_ovpn3_ipv6_summary">Enable/disable IPv6 support</string>
+    <string name="settings_ovpn3_protocol_title">Transport protocol</string>
+    <string name="settings_ovpn3_protocol_summary"></string>
+    <string name="settings_ovpn3_proxy_allow_cleartext_auth_title">Allow cleartext authentication</string>
+    <string name="settings_ovpn3_proxy_allow_cleartext_auth_summary"></string>
+    <string name="settings_ovpn3_proxy_host_title">Proxy host</string>
+    <string name="settings_ovpn3_proxy_host_summary"></string>
+    <string name="settings_ovpn3_proxy_username_title">Proxy username</string>
+    <string name="settings_ovpn3_proxy_username_summary"></string>
+    <string name="settings_ovpn3_proxy_password_title">Proxy password</string>
+    <string name="settings_ovpn3_proxy_password_summary"></string>
+    <string name="settings_ovpn3_proxy_port_title">Proxy port</string>
+    <string name="settings_ovpn3_proxy_port_summary"></string>
+    <string name="settings_ovpn3_ssl_debug_level_title">SSL debug level</string>
+    <string name="settings_ovpn3_ssl_debug_level_summary"></string>
+    <string name="settings_ovpn3_synchronous_dns_lookup_title">Synchronous DNS lookup</string>
+    <string name="settings_ovpn3_synchronous_dns_lookup_summary">Force DNS requests to synchronous mode</string>
+    <string name="settings_ovpn3_timeout_title">Connection timeout</string>
+    <string name="settings_ovpn3_timeout_summary"></string>
+    <string name="settings_ovpn3_tls_cert_profile_title">TLS cert profile</string>
+    <string name="settings_ovpn3_tls_cert_profile_summary"></string>
+    <string name="settings_ovpn3_tls_min_version_title">Minimum TLS version</string>
+    <string name="settings_ovpn3_tls_min_version_summary"></string>
+    <string name="settings_ovpn3_tun_persist_title">TUN persist</string>
+    <string name="settings_ovpn3_tun_persist_summary"></string>
+    <string name="settings_ovpn3_private_key_password_title">Private key password</string>
+    <string name="settings_ovpn3_private_key_password_summary"></string>
+    <string name="settings_ovpn3_default_key_direction_title">Key direction</string>
+    <string name="settings_ovpn3_default_key_direction_summary"></string>
+
+    <string name="settings_ovpn3_username_title">Username</string>
+    <string name="settings_ovpn3_username_summary"></string>
+    <string name="settings_ovpn3_password_title">Password</string>
+    <string name="settings_ovpn3_password_summary"></string>
+
+    <string name="settings_system_application_whitelist_title">Applications to be Whitelisted</string>
+    <string name="settings_system_application_blacklist_title">Applications to be Blacklisted</string>
+    <string name="settings_system_application_filter_summary">Choose packages and applications to be whitelisted or blacklisted according to filter</string>
+    <string name="settings_system_application_filter_type_title">Application filter type</string>
+    <string name="settings_system_application_filter_type_summary">Set the application filter type. (Whitelist or blacklist)</string>
+    <string name="settings_system_pause_vpn_when_screen_is_off_title">Pause VPN when the screen is off</string>
+    <string name="settings_system_pause_vpn_when_screen_is_off_summary">Pause VPN when the screen is off. When this option is enabled, no traffic will be generated by the VPN when the screen is off. This also saves battery when the screen is off.</string>
+    <string name="settings_system_dns_override_enable_title">Override VPN DNS</string>  
+    <string name="settings_system_dns_override_enable_summary">Override default VPN DNS with custom DNS settings</string>
+    <string name="settings_system_dns_custom_title">Custom DNS</string>  
+    <string name="settings_system_dns_custom_summary">Ignore VPN directives and use custom DNS. Use \',\' (comma) as a separator</string>
+    <string name="settings_system_dns_alternative_title">Alternative DNS</string>
+    <string name="settings_system_dns_alternative_summary">In case VPN does not define any DNS, use this alternative DNS instead. Use \',\' (comma) as a separator</string>
+    <string name="settings_system_restore_last_profile_title">Restore last profile at boot</string>
+    <string name="settings_system_restore_last_profile_summary">Restore and reconnect the last active and connected VPN profile when the device is powered on, restarted or rebooted</string>
+    <string name="settings_system_custom_mtu_title">MTU</string>
+    <string name="settings_system_custom_mtu_summary">Set a custom MTU value</string>
+    <string name="settings_system_proxy_enable_title">Enable proxy</string>
+    <string name="settings_system_proxy_enable_summary"></string>
+    <string name="settings_system_show_notification_title">Show notification</string>
+    <string name="settings_system_show_notification_summary">Show or hide a notification icon when connection is active</string>
+
+    <!-- miscellaneous -->
+    
+    <string name="eddie">Eddie</string>
+    <string name="airvpn">AirVPN</string>
+    <string name="eddie_url">https://eddie.website</string>
+    <string name="local_about_page">file:///android_asset/about.html</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+</resources>

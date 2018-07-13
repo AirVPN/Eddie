@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_height="50dp"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="0dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:background="@color/appBar"
+        android:gravity="center_vertical|center">
+        <TextView
+            android:id="@+id/chooser_title"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:gravity="left"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_weight="1"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/white" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <ListView
+            android:id="@+id/packages_picker_applications"
+            android:scrollbars="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+</LinearLayout>

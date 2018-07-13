@@ -229,7 +229,9 @@ namespace Eddie.Core
 		public static string TcpServerNoBindAddress = "Unable to start TCP server: Address {1} mismatch";
 		public static string IPv6NotSupportedByOS = "The server supports IPv6, but IPv6 is disabled at OS level. You need to re-enable it manually (reboot is required) or disable this warning by setting Preferences > Networking > Layer IPv6: Block.";
 		public static string IPv4NotSupportedByNetworkAdapter = "The server supports IPv4, but IPv4 is disabled at Network Adapter level. You need to re-enable it manually or disable this warning by setting Preferences > Networking > Layer IPv4: Block.";
+		public static string IPv4NotSupportedByNetworkAdapterAutoSwitch = "'Preferences > Networking > Layer IPv4' automatically switched to 'Block'.";
 		public static string IPv6NotSupportedByNetworkAdapter = "The server supports IPv6, but IPv6 is disabled at Network Adapter level. You need to re-enable it manually or disable this warning by setting Preferences > Networking > Layer IPv6: Block.";
+		public static string IPv6NotSupportedByNetworkAdapterAutoSwitch = "'Preferences > Networking > Layer IPv6' automatically switched to 'Block'.";
 
 		public static string RecoveryDetected = "Recovery. Unexpected crash?";
 

@@ -513,6 +513,8 @@ namespace Eddie.Core
 			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
 			SetDefault("network.ipv4.mode", "choice:in,in-out,in-block,out,block", "in", NotInMan);
 			SetDefault("network.ipv6.mode", "choice:in,in-out,in-block,out,block", "in-block", NotInMan);
+			SetDefaultBool("network.ipv4.autoswitch", false, NotInMan);
+			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
 
 			SetDefault("tools.openvpn.path", "path_file", "", Messages.ManOptionToolsOpenVpnPath);
 			SetDefault("tools.ssh.path", "path_file", "", Messages.ManOptionToolsSshPath);

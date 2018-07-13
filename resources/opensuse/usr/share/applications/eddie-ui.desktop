@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Eddie - OpenVPN UI
-Comment=OpenVPN UI with additional user-friendly features
+Name=Eddie - OpenVPN GUI
+Comment=OpenVPN GUI with additional user-friendly features
 Exec=/usr/bin/eddie-ui
 Icon=/usr/share/pixmaps/eddie-ui.png
 Terminal=false

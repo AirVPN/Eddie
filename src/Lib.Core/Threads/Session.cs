@@ -227,8 +227,15 @@ namespace Eddie.Core.Threads
 					{
 						bool osSupport = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
 						if( (osSupport == false) && (Engine.Instance.Storage.GetLower("network.ipv6.mode") != "block"))
+						{
 							Engine.Instance.Logs.LogWarning(Messages.IPv6NotSupportedByOS);
-					}						
+							if ((Engine.Instance.Storage.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv6.mode") != "block"))
+							{
+								Engine.Instance.Logs.LogWarning(Messages.IPv6NotSupportedByNetworkAdapterAutoSwitch);
+								Engine.Instance.Storage.Set("network.ipv6.mode", "block");
+							}
+						}	
+					}
 
 					try
 					{
@@ -253,28 +260,28 @@ namespace Eddie.Core.Threads
 						SetReset("ERROR");
 					}
 
-					// Need IPv6 block?
-					{
-						if (Common.Constants.FeatureIPv6ControlOptions)
-						{
-							if (Engine.Instance.GetNetworkIPv6Mode() == "block")
-								m_connectionActive.BlockedIPv6 = true;
-						}
-						else
-						{
-							if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
-								m_connectionActive.BlockedIPv6 = true;
-						}
-
-						if ((Engine.CurrentServer.SupportIPv6 == false) && (Engine.Instance.GetNetworkIPv6Mode() == "in-block"))
-							m_connectionActive.BlockedIPv6 = true;
-
-						if (m_connectionActive.BlockedIPv6)
-							Platform.Instance.OnIPv6Block();
-					}
-
 					if (allowed)
 					{
+						// Need IPv6 block?
+						{
+							if (Common.Constants.FeatureIPv6ControlOptions)
+							{
+								if (Engine.Instance.GetNetworkIPv6Mode() == "block")
+									m_connectionActive.BlockedIPv6 = true;
+							}
+							else
+							{
+								if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
+									m_connectionActive.BlockedIPv6 = true;
+							}
+
+							if ((Engine.CurrentServer.SupportIPv6 == false) && (Engine.Instance.GetNetworkIPv6Mode() == "in-block"))
+								m_connectionActive.BlockedIPv6 = true;
+
+							if (m_connectionActive.BlockedIPv6)
+								Platform.Instance.OnIPv6Block();
+						}
+
 						m_connectionActive.ExitIPs.Add(Engine.CurrentServer.IpsExit.Clone());
 
 						sessionLastServer = Engine.CurrentServer.Code;
@@ -1489,9 +1496,23 @@ namespace Eddie.Core.Threads
 					Json jInfo = Engine.Instance.FindNetworkInterfaceInfo(m_connectionActive.InterfaceId);
 
 					if ((m_connectionActive.TunnelIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
+					{
 						Engine.Instance.Logs.LogWarning(Messages.IPv4NotSupportedByNetworkAdapter);
+						if( (Engine.Instance.Storage.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv4.mode") != "block") )
+						{
+							Engine.Instance.Logs.LogWarning(Messages.IPv4NotSupportedByNetworkAdapterAutoSwitch);
+							Engine.Instance.Storage.Set("network.ipv4.mode", "block");
+						}
+					}
 					if ((m_connectionActive.TunnelIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
+					{
 						Engine.Instance.Logs.LogWarning(Messages.IPv6NotSupportedByNetworkAdapter);
+						if ((Engine.Instance.Storage.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv6.mode") != "block"))
+						{
+							Engine.Instance.Logs.LogWarning(Messages.IPv6NotSupportedByNetworkAdapterAutoSwitch);
+							Engine.Instance.Storage.Set("network.ipv6.mode", "block");
+						}
+					}
 				}
 			}
 		}

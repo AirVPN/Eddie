@@ -85,6 +85,36 @@ namespace Eddie.UI.Cocoa.Osx
 
 		}
 
+        public static void SelectPath(NSWindow window, NSTextField field)
+        {
+            NSOpenPanel openPanel = new NSOpenPanel();
+            openPanel.CanChooseFiles = false;
+            openPanel.CanChooseDirectories = true;
+            openPanel.AllowsMultipleSelection = false;
+            openPanel.ResolvesAliases = true;
+            openPanel.BeginSheet(window, (i) =>
+            {
+
+                try
+                {
+                    if (openPanel.Url != null)
+                    {
+                        string path = openPanel.Url.Path;
+
+                        if (!string.IsNullOrEmpty(path))
+                            field.StringValue = path;
+                    }
+                }
+                finally
+                {
+                    openPanel.Dispose();
+                }
+
+
+            });
+
+        }
+
 		public static void MessageBoxInfo(string message)
 		{
 			MessageBox(message, "");

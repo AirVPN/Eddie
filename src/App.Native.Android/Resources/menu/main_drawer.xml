@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:showIn="navigation_view">
+
+    <group android:id="@+id/info"
+           android:checkableBehavior="none">
+
+        <item
+            android:id="@+id/nav_select_profile"
+            android:icon="@android:drawable/ic_input_add"
+            android:title="@string/menu_select_profile_cap"/>
+
+        <item
+            android:id="@+id/nav_log"
+            android:icon="@android:drawable/ic_menu_edit"
+            android:title="@string/menu_log_cap"/>
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="@string/menu_settings_cap"/>
+
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@android:drawable/ic_menu_info_details"
+            android:title="@string/menu_about_cap"/>
+
+        <item
+            android:id="@+id/nav_website"
+            android:icon="@android:drawable/ic_menu_compass"
+			android:paddingLeft="1dp"
+            android:title="@string/menu_website_cap"/>
+
+    </group>
+
+
+</menu>

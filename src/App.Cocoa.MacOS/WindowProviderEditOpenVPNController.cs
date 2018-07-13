@@ -93,7 +93,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdPathBrowse.Activated += (object sender, EventArgs e) =>
 			{
-				GuiUtils.SelectFile(this.Window, TxtPath);
+				GuiUtils.SelectPath(this.Window, TxtPath);
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
