@@ -152,12 +152,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdProtocolsHelp1.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["protocols"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["protocols"].Value as string);
 			};
 
 			CmdProtocolsHelp2.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["udp_vs_tcp"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["udp_vs_tcp"].Value as string);
 			};
 
 			ChkProtocolsAutomatic.Activated += (object sender, EventArgs e) =>
@@ -182,7 +182,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdProxyTorHelp.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["tor"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["tor"].Value as string);
 			};
 			CboProxyType.Activated += (object sender, EventArgs e) =>
 			{
@@ -321,7 +321,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdLockHelp.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["netlock"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["netlock"].Value as string);
 			};
 			CboLockMode.RemoveAllItems();
 			CboLockMode.AddItem("None");
@@ -344,7 +344,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdAdvancedHelp.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["advanced"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["advanced"].Value as string);
 			};
 
 			CboIpV6.RemoveAllItems();
@@ -386,7 +386,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CboOpenVpnDirectivesSkipDefault.AddItem(Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2);
 			CmdOpenVpnDirectivesHelp.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["directives"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["directives"].Value as string);
 			};
 			CmdOpenVpnDirectivesCustomPathBrowse.Activated += (object sender, EventArgs e) =>
 			{

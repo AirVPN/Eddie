@@ -52,7 +52,7 @@ namespace Eddie.Forms.Forms
 
         private void Form1_Load(object sender, EventArgs e)
         {
-			txtData.Text = Platform.Instance.NormalizeString(Body);
+			txtData.Text = GuiUtils.NormalizeString(Body);
 
             CommonInit(Title);
         }        

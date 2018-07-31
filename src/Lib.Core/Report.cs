@@ -44,31 +44,51 @@ namespace Eddie.Core
 			Items.Add(item);
 		}
 
-		public void Start()
+		public void Start(UiClient client)
 		{
-			Engine.Instance.OnSystemReport(Messages.ReportStepCollectEnvironmentInfo, Messages.PleaseWait, 0);
-
+			Json jReport = new Json();
+			jReport["command"].Value = "system.report.progress";
+			jReport["step"].Value = Messages.ReportStepCollectEnvironmentInfo;
+			jReport["body"].Value = Messages.PleaseWait;
+			jReport["perc"].Value = 0;
+			client.OnReceive(jReport);			
+			
 			Environment();
 
-			Engine.Instance.OnSystemReport(Messages.ReportStepTests, ToString(), 10);
-
+			jReport["step"].Value = Messages.ReportStepTests;
+			jReport["body"].Value = ToString();
+			jReport["perc"].Value = 10;
+			client.OnReceive(jReport);
+			
 			Tests();
 
-			Engine.Instance.OnSystemReport(Messages.ReportStepLogs, ToString(), 50);
-
+			jReport["step"].Value = Messages.ReportStepLogs;
+			jReport["body"].Value = ToString();
+			jReport["perc"].Value = 50;
+			client.OnReceive(jReport);
+			
 			Add(Messages.ReportOptions, Engine.Instance.Storage.GetReportForSupport());
 
 			Add(Messages.ReportLogs, Engine.Instance.Logs.ToString());
 
-			Engine.Instance.OnSystemReport(Messages.ReportStepLogs, ToString(), 60);
-
-			Engine.Instance.OnSystemReport(Messages.ReportStepPlatform, ToString(), 70);
-
+			jReport["step"].Value = Messages.ReportStepLogs;
+			jReport["body"].Value = ToString();
+			jReport["perc"].Value = 60;
+			client.OnReceive(jReport);
+			
+			jReport["step"].Value = Messages.ReportStepPlatform;
+			jReport["body"].Value = ToString();
+			jReport["perc"].Value = 70;
+			client.OnReceive(jReport);
+			
 			NetworkInfo();
 
 			Platform.Instance.OnReport(this);
 
-			Engine.Instance.OnSystemReport(Messages.ReportStepDone, ToString(), 100);
+			jReport["step"].Value = Messages.ReportStepDone;
+			jReport["body"].Value = ToString();
+			jReport["perc"].Value = 100;
+			client.OnReceive(jReport);
 		}
 
 		public override string ToString()

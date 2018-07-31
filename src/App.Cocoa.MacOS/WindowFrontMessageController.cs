@@ -66,11 +66,11 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Core.Messages.WindowsFrontMessageTitle;
+			Window.Title = Constants.Name + " - " + Messages.WindowsFrontMessageTitle;
 
 			TxtMessage.StringValue = Message;
-			CmdClose.Title = Core.Messages.WindowsFrontMessageAccept;
-			CmdMore.Title = Core.Messages.WindowsFrontMessageMore;
+			CmdClose.Title = Messages.WindowsFrontMessageAccept;
+			CmdMore.Title = Messages.WindowsFrontMessageMore;
 
 			CmdClose.Activated += (object sender, EventArgs e) =>
 			{
@@ -79,7 +79,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdMore.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
 			};
 		}
 	}

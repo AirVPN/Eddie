@@ -53,6 +53,7 @@
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="CoreApplication.cs" />
     <Compile Include="ConnectionMode.cs" />
+    <Compile Include="CountriesManager.cs" />
     <Compile Include="DnsManagerEntry.cs" />
     <Compile Include="HttpResponse.cs" />
     <Compile Include="IpAddresses.cs" />
@@ -70,7 +71,6 @@
     <Compile Include="Tools\OpenVPN.cs" />
     <Compile Include="Tools\File.cs" />
     <Compile Include="CompatibilityManager.cs" />
-    <Compile Include="CountriesManager.cs" />
     <Compile Include="InterfaceScope.cs" />
     <Compile Include="LogsManager.cs" />
     <Compile Include="LogType.cs" />
@@ -96,14 +96,13 @@
     <Compile Include="ResourcesFiles.cs" />
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
+    <Compile Include="UiManager.cs" />
     <Compile Include="UI\App.cs" />
     <Compile Include="UI\Chart.cs" />
     <Compile Include="UI\Charts.cs" />
-    <Compile Include="Conversions.cs" />
     <Compile Include="RandomGenerator.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="StatsEntry.cs" />
-    <Compile Include="Messages.cs" />
     <Compile Include="Recovery.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="LogEntry.cs" />

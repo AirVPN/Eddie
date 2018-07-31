@@ -202,6 +202,11 @@ namespace Eddie.Core
 			return (IsUnixSystem() == false);
 		}
 
+		public virtual void OpenUrl(string url)
+		{
+			System.Diagnostics.Process.Start(url);
+		}
+
 		public virtual bool GetAutoStart()
 		{
 			return false;
@@ -324,7 +329,7 @@ namespace Eddie.Core
 			return File.ReadAllText(path);
 		}
 
-		public virtual bool FileContentsWriteText(string path, string contents)
+		public virtual bool FileContentsWriteText(string path, string contents, Encoding encoding)
 		{
 			bool immutable = false;
 			if (FileExists(path))
@@ -336,7 +341,7 @@ namespace Eddie.Core
 				if (immutable)
 					FileImmutableSet(path, false);
 			}
-			File.WriteAllText(path, contents);
+			File.WriteAllText(path, contents, encoding);
 			if (immutable)
 				FileImmutableSet(path, true);
 			return true;
@@ -401,6 +406,12 @@ namespace Eddie.Core
 			return false;
 		}
 
+		public virtual bool FileEnsureRootOnly(string path)
+		{
+			// Used only under Windows, for ssh.exe key file.
+			return false;
+		}
+
 		public virtual bool FileEnsurePermission(string path, string mode)
 		{
 			return false;
@@ -462,11 +473,6 @@ namespace Eddie.Core
 		{
 			NotImplemented();
 			return "";
-		}
-
-		public virtual void OpenUrl(string url)
-		{
-			System.Diagnostics.Process.Start(url);
 		}
 
 		public virtual string GetDefaultOpenVpnConfigsPath()
@@ -648,39 +654,7 @@ namespace Eddie.Core
 		{
 			return -1;
 		}
-
-		public virtual string GetSystemFont()
-		{
-			return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
-		}
-
-		public virtual string GetSystemFontMonospace()
-		{
-			string fontName = "";
-			if (IsFontInstalled("Consolas"))
-				fontName = "Consolas";
-			else if (IsFontInstalled("Monospace"))
-				fontName = "Monospace";
-			else if (IsFontInstalled("DejaVu Sans Mono"))
-				fontName = "DejaVu Sans Mono";
-			else if (IsFontInstalled("Courier New"))
-				fontName = "Courier New";
-			else
-				fontName = SystemFonts.MenuFont.Name;
-			return fontName + "," + SystemFonts.MenuFont.Size;
-		}
-
-		public virtual bool IsFontInstalled(string fontName)
-		{
-			using (var testFont = new Font(fontName, 8))
-			{
-				return 0 == string.Compare(
-				  fontName,
-				  testFont.Name,
-				  StringComparison.InvariantCultureIgnoreCase);
-			}
-		}
-
+		
 		public virtual void FlushDNS()
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);

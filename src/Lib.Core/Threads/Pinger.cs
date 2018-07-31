@@ -23,6 +23,7 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using System.Text;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Core.Threads
 {

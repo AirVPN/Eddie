@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string-array name="settings_ovpn3_tls_min_version_labels">
+        <item>Désactivé</item>
+        <item>Défaut</item>
+        <item>TLS 1.0</item>
+        <item>TLS 1.1</item>
+        <item>TLS 1.2</item>
+    </string-array>
+    
+    <string-array name="settings_ovpn3_protocol_labels">
+        <item>Défaut</item>
+        <item>Adaptatif</item>
+        <item>TCP</item>
+        <item>UDP</item>
+    </string-array>
+
+    <string-array name="settings_ovpn3_ipv6_labels">
+        <item>Défaut</item>
+        <item>Requête</item>
+        <item>Désactiver</item>
+    </string-array>
+
+    <string-array name="settings_ovpn3_timeout_labels">
+        <item>10 secondes</item>
+        <item>30 secondes</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>Infini</item>
+    </string-array>
+    
+    <string-array name="settings_ovpn3_compression_mode_labels">
+        <item>Désactiver</item>
+        <item>Activer</item>
+        <item>Downlink uniquement</item>
+    </string-array>
+    
+    <string-array name="settings_ovpn3_Défaut_key_direction_labels">
+        <item>Bidirectionnel</item>
+        <item>Normal</item>
+        <item>Inverse</item>
+    </string-array>
+    
+    <string-array name="settings_system_application_filter_type_labels">
+        <item>Aucun</item>
+        <item>Liste blanche</item>
+        <item>Liste noire</item>
+    </string-array>
+
+</resources>

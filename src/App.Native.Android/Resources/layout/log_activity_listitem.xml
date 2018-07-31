@@ -16,6 +16,6 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:singleLine="false"
-        android:maxLines="20"
+        android:maxLines="200"
         android:textSize="@dimen/medium_text" />
 </LinearLayout>

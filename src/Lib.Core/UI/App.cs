@@ -22,98 +22,11 @@ using System.Text;
 using Eddie.Common;
 using System.Diagnostics;
 
-namespace Eddie.Core.UI
+namespace Eddie.Core.UI // ClodoTemp2 - remove?
 {
-	// Eddie2 Application Helper
+	// Eddie2 Application Helper 
 	public class App
 	{
-		public static Json Manifest;
-
-		public static Json Command(Json data)
-		{
-			string cmd = data["command"].Value as string;
-			if (cmd == "ui.manifest")
-				Manifest = data;
-			else if (cmd == "ui.stats.pathprofile")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathProfile").Value);
-			}
-			else if (cmd == "ui.stats.pathdata")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathData").Value);
-			}
-			else if (cmd == "ui.stats.pathapp")
-			{
-				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathApp").Value);
-			}
-			else if (cmd == "man")
-			{
-				string format = "text";
-				if (data.HasKey("format"))
-					format = data["format"].Value as string;
-				string body = Engine.Instance.Storage.GetMan(format);
-				Engine.Instance.OnShowText("man", body);
-			}
-			else if (cmd == "ui.show.manifest")
-				Engine.Instance.OnShowText("ui.show.manifest", Manifest.ToJsonPretty());
-			else if (cmd == "ui.show.os.info")
-				Engine.Instance.OnShowText("ui.show.os.info", Engine.Instance.GenerateOsInfo().ToJsonPretty());
-			else if (cmd == "tor.guard")
-				Engine.Instance.Logs.LogVerbose("Tor Guard IPs:" + TorControl.GetGuardIps(true).ToString());
-			else if (cmd == "tor.NEWNYM")
-				TorControl.SendNEWNYM();
-			else if (cmd == "ip.exit")
-				Engine.Instance.Logs.LogVerbose(Engine.Instance.DiscoverExit().ToString());
-			else if (cmd == "test.cli-su")
-				Engine.Instance.Logs.LogVerbose(TestRunCliAsRoot());
-			else if (cmd == "test.log.info")
-				Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo");
-			else if (cmd == "test.log.infoimportant")
-				Engine.Instance.Logs.Log(LogType.InfoImportant, "Test log\nInfo Important");
-			else if (cmd == "test.log.warning")
-				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning");
-			else if (cmd == "test.log.error")
-				Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
-			else if (cmd == "test.log.fatal")
-				Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");			
-
-			return null;
-		}
-
-		public static void RunCommandString(string command)
-		{
-			command = command.Trim();
-
-			Engine.Instance.Logs.Log(LogType.Verbose, "Running command: " + command);
-
-			Json j = new Json();
-
-			if (command.StartsWith("openvpn "))
-			{
-				string openvpnManagementCommand = command.Substring(8).Trim();
-
-				j["command"].Value = "openvpn_management";
-				j["management_command"].Value = openvpnManagementCommand;
-			}
-			else if (command.StartsWith("tor "))
-			{
-				string torControlCommand = command.Substring(4).Trim();
-
-				j["command"].Value = "tor_control";
-				j["control_command"].Value = torControlCommand;
-			}
-			else
-			{
-				CommandLine cmd = new CommandLine(command, false, true);
-				j["command"].Value = cmd.Get("action", "");
-				foreach (KeyValuePair<string, string> kp in cmd.Params)
-					if (kp.Key != "action")
-						j[kp.Key].Value = kp.Value;
-			}
-
-			Engine.Instance.Command(j);
-		}
-
 		public static void OpenStats(string key)
 		{
 			if (key == "vpngeneratedovpn")
@@ -161,12 +74,7 @@ namespace Eddie.Core.UI
 		{
 			return ResourcesFiles.GetString("tos.txt");
 		}
-
-		public static void OpenUrl(string url)
-		{
-			Platform.Instance.OpenUrl(url);
-		}
-
+		
 		public static string TestRunCliAsRoot()
 		{
 			if (Platform.Instance.GetCode() == "Windows")

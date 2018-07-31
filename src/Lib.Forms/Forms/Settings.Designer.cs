@@ -228,6 +228,7 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
+			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -425,6 +426,7 @@ namespace Eddie.Forms.Forms
 			// pnlAdvancedGeneralWindowsOnly
 			// 
 			this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsIPv6DisableAtOs);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
@@ -453,7 +455,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkWindowsIPv6DisableAtOs.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsIPv6DisableAtOs.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsIPv6DisableAtOs.Location = new System.Drawing.Point(16, 105);
+			this.chkWindowsIPv6DisableAtOs.Location = new System.Drawing.Point(16, 134);
 			this.chkWindowsIPv6DisableAtOs.Name = "chkWindowsIPv6DisableAtOs";
 			this.chkWindowsIPv6DisableAtOs.Size = new System.Drawing.Size(237, 22);
 			this.chkWindowsIPv6DisableAtOs.TabIndex = 87;
@@ -1456,6 +1458,7 @@ namespace Eddie.Forms.Forms
 			this.chkUiFontGeneral.Size = new System.Drawing.Size(28, 23);
 			this.chkUiFontGeneral.TabIndex = 105;
 			this.chkUiFontGeneral.UseVisualStyleBackColor = false;
+			this.chkUiFontGeneral.CheckedChanged += new System.EventHandler(this.chkUiFontGeneral_CheckedChanged_1);
 			// 
 			// lblUiExitConfirm
 			// 
@@ -1516,6 +1519,7 @@ namespace Eddie.Forms.Forms
 			this.cmdUiFontGeneral.TabIndex = 100;
 			this.cmdUiFontGeneral.Text = "...";
 			this.cmdUiFontGeneral.UseVisualStyleBackColor = true;
+			this.cmdUiFontGeneral.Click += new System.EventHandler(this.cmdUiFontGeneral_Click);
 			// 
 			// lblUiFontGeneral
 			// 
@@ -1537,7 +1541,7 @@ namespace Eddie.Forms.Forms
 			this.lblUiSkipProviderManifestFailed.Name = "lblUiSkipProviderManifestFailed";
 			this.lblUiSkipProviderManifestFailed.Size = new System.Drawing.Size(265, 23);
 			this.lblUiSkipProviderManifestFailed.TabIndex = 87;
-			this.lblUiSkipProviderManifestFailed.Text = "Don\'t show bootstrap failure window:";
+			this.lblUiSkipProviderManifestFailed.Text = "Hide bootstrap failure window:";
 			this.lblUiSkipProviderManifestFailed.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// chkUiSkipProviderManifestFailed
@@ -2641,6 +2645,17 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
+			// chkWindowsSshPlinkForce
+			// 
+			this.chkWindowsSshPlinkForce.BackColor = System.Drawing.Color.Transparent;
+			this.chkWindowsSshPlinkForce.ForeColor = System.Drawing.Color.Black;
+			this.chkWindowsSshPlinkForce.Location = new System.Drawing.Point(16, 105);
+			this.chkWindowsSshPlinkForce.Name = "chkWindowsSshPlinkForce";
+			this.chkWindowsSshPlinkForce.Size = new System.Drawing.Size(237, 22);
+			this.chkWindowsSshPlinkForce.TabIndex = 88;
+			this.chkWindowsSshPlinkForce.Text = "Force usage of bundled plink.exe";
+			this.chkWindowsSshPlinkForce.UseVisualStyleBackColor = false;
+			// 
 			// Settings
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -2877,5 +2892,6 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkNetworkIPv6AutoSwitch;
 		private Skin.Label lblNetworkIPv4AutoSwitch;
 		private Skin.CheckBox chkNetworkIPv4AutoSwitch;
+		private Skin.CheckBox chkWindowsSshPlinkForce;
 	}
 }

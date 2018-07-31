@@ -59,9 +59,9 @@ namespace Eddie.Forms.Forms
 
 			CommonInit(Messages.WindowsAboutTitle);
 
-			lnkWebsite.Text = Core.UI.App.Manifest["links"]["help"]["website"].Value as string;
-			lnkManual.Text = Core.UI.App.Manifest["links"]["help"]["general"].Value as string;
-			lnkSources.Text = Core.UI.App.Manifest["links"]["github"].Value as string;
+			lnkWebsite.Text = UiClient.Instance.Data["links"]["help"]["website"].Value as string;
+			lnkManual.Text = UiClient.Instance.Data["links"]["help"]["general"].Value as string;
+			lnkSources.Text = UiClient.Instance.Data["links"]["github"].Value as string;
 			lblVersion.Text = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
 			
 			lblThanks.Text = MessagesFormatter.Format(Messages.WindowsAboutThanks, String.Join(", ", Constants.Thanks.Split(';')));
@@ -80,17 +80,17 @@ namespace Eddie.Forms.Forms
 
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
 		}
 
 		private void lnkManual_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["general"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["general"].Value as string);
 		}
 
 		private void lnkSources_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["github"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["github"].Value as string);
 		}
 
 		private void cmdClose_Click(object sender, EventArgs e)
@@ -100,22 +100,22 @@ namespace Eddie.Forms.Forms
 
 		private void lnkLicense_LinkClicked(object sender, EventArgs e)
 		{
-			Engine.FormMain.ShowText(this, "License", Core.UI.App.Manifest["about"]["license"].Value as string);
+			Engine.FormMain.ShowText(this, "License", UiClient.Instance.Data["about"]["license"].Value as string);
 		}
 
 		private void lnkLibraries_LinkClicked(object sender, EventArgs e)
 		{
-			Engine.FormMain.ShowText(this, "Libraries and Tools", Core.UI.App.Manifest["about"]["libraries"].Value as string);
+			Engine.FormMain.ShowText(this, "Libraries and Tools", UiClient.Instance.Data["about"]["libraries"].Value as string);
 		}
 
 		private void cmdSystemReport_Click(object sender, EventArgs e)
 		{
-			Engine.GenerateSystemReport();
+			UiClient.Instance.Command("system.report.start");
 		}
 
 		private void lnkAirVPN_Click(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl("https://airvpn.org");
+			GuiUtils.OpenUrl("https://airvpn.org");
 		}
 	}
 }

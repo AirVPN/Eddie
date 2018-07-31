@@ -26,6 +26,7 @@ using Android.OS;
 using Android.Text;
 using Android.Views;
 using Android.Widget;
+using Android.Provider;
 
 namespace Eddie.NativeAndroidApp
 {
@@ -67,7 +68,9 @@ namespace Eddie.NativeAndroidApp
         private LinearLayout llVpnUsername = null;
         private LinearLayout llVpnPassword = null;
         private LinearLayout llPauseVpnWhenScreenIsOff = null;
-        private LinearLayout llShowNotification = null;
+        private LinearLayout llPersistentNotification = null;
+        private LinearLayout llNotificationSound = null;
+        private LinearLayout llNotificationChannel = null;
         private LinearLayout llRestoreLastProfile = null;
         private LinearLayout llApplicationFilterType = null;
         private LinearLayout llApplicationFilter = null;
@@ -92,7 +95,8 @@ namespace Eddie.NativeAndroidApp
         private Switch swVpnTunPersist = null;
         private Switch swDnsOverride = null;
         private Switch swPauseVpnWhenScreeIsOff = null;
-        private Switch swShowNotification = null;
+        private Switch swPersistentNotification = null;
+        private Switch swNotificationSound = null;
         private Switch swRestoreLastProfile = null;
         private Switch swProxyEnable = null;
         private Switch swProxyAllowClearTextAuth = null;
@@ -139,7 +143,9 @@ namespace Eddie.NativeAndroidApp
             llVpnUsername = FindViewById<LinearLayout>(Resource.Id.setting_ovpn3_username);
             llVpnPassword = FindViewById<LinearLayout>(Resource.Id.setting_ovpn3_password);
             llPauseVpnWhenScreenIsOff = FindViewById<LinearLayout>(Resource.Id.setting_pause_vpn_when_screen_is_off);
-            llShowNotification = FindViewById<LinearLayout>(Resource.Id.setting_show_notification);
+            llPersistentNotification = FindViewById<LinearLayout>(Resource.Id.setting_persistent_notification);
+            llNotificationSound = FindViewById<LinearLayout>(Resource.Id.setting_notification_sound);
+            llNotificationChannel = FindViewById<LinearLayout>(Resource.Id.setting_notification_channel);
             llRestoreLastProfile = FindViewById<LinearLayout>(Resource.Id.setting_restore_last_profile);
             llApplicationFilterType = FindViewById<LinearLayout>(Resource.Id.setting_application_filter_type);
             llApplicationFilter = FindViewById<LinearLayout>(Resource.Id.setting_application_filter);
@@ -164,7 +170,8 @@ namespace Eddie.NativeAndroidApp
             swVpnTunPersist = FindViewById<Switch>(Resource.Id.switch_ovpn3_tun_persist);
             swDnsOverride = FindViewById<Switch>(Resource.Id.switch_dns_override);
             swPauseVpnWhenScreeIsOff = FindViewById<Switch>(Resource.Id.switch_pause_vpn_when_screen_is_off);
-            swShowNotification = FindViewById<Switch>(Resource.Id.switch_show_notification);
+            swPersistentNotification = FindViewById<Switch>(Resource.Id.switch_persistent_notification);
+            swNotificationSound = FindViewById<Switch>(Resource.Id.switch_notification_sound);
             swRestoreLastProfile = FindViewById<Switch>(Resource.Id.switch_restore_last_profile);
             swProxyEnable = FindViewById<Switch>(Resource.Id.switch_proxy_enable);
             swProxyAllowClearTextAuth = FindViewById<Switch>(Resource.Id.switch_proxy_allow_cleartext_auth);
@@ -176,6 +183,26 @@ namespace Eddie.NativeAndroidApp
             btnResetOptions = FindViewById<Button>(Resource.Id.btn_reset_settings);
 
             txtApplicationFilterTitle = FindViewById<TextView>(Resource.Id.settings_application_filter_title);
+
+            if(Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.O)
+            {
+                llNotificationSound.Visibility = ViewStates.Visible;
+
+                llNotificationChannel.Visibility = ViewStates.Gone;
+            }
+            else
+            {
+                string channelId = Resources.GetString(Resource.String.notification_channel_id);
+                NotificationManager notificationManager = (NotificationManager)GetSystemService(Context.NotificationService);
+                NotificationChannel notificationChannel = notificationManager.GetNotificationChannel(channelId);
+
+                llNotificationSound.Visibility = ViewStates.Gone;
+
+                if(notificationChannel != null)
+                    llNotificationChannel.Visibility = ViewStates.Visible;
+                else
+                    llNotificationChannel.Visibility = ViewStates.Gone;
+            }
 
             llVpnMinimumTLSVersion.Click += delegate
             {
@@ -237,9 +264,19 @@ namespace Eddie.NativeAndroidApp
                 SelectPauseVpnWhenScreenIsOff();
             };
             
-            llShowNotification.Click += delegate
+            llPersistentNotification.Click += delegate
             {
-                SelectShowNotification();
+                SelectPersistentNotification();
+            };
+
+            llNotificationSound.Click += delegate
+            {
+                SelectNotificationSound();
+            };
+
+            llNotificationChannel.Click += delegate
+            {
+                SelectNotificationChannel();
             };
             
             llRestoreLastProfile.Click += delegate
@@ -378,7 +415,8 @@ namespace Eddie.NativeAndroidApp
             swVpnTunPersist.Checked = settingsManager.Ovpn3TunPersist;
             swDnsOverride.Checked = settingsManager.SystemDNSOverrideEnable;
             swPauseVpnWhenScreeIsOff.Checked = settingsManager.SystemPauseVpnWhenScreenIsOff;
-            swShowNotification.Checked = settingsManager.SystemShowNotification;
+            swPersistentNotification.Checked = settingsManager.SystemPersistentNotification;
+            swNotificationSound.Checked = settingsManager.SystemNotificationSound;
             swRestoreLastProfile.Checked = settingsManager.SystemRestoreLastProfile;
             swProxyEnable.Checked = settingsManager.SystemProxyEnable;
             swProxyAllowClearTextAuth.Checked = settingsManager.Ovpn3ProxyAllowCleartextAuth;
@@ -482,6 +520,9 @@ namespace Eddie.NativeAndroidApp
             
             swVpnTunPersist.Checked = settingsManager.Ovpn3TunPersist;
             
+            if(!settingsManager.Ovpn3TunPersist)
+                supportTools.InfoDialog(Resource.String.settings_tun_persist_warning);
+
             settingsResult = Result.Ok;
         }
 
@@ -592,16 +633,36 @@ namespace Eddie.NativeAndroidApp
             settingsResult = Result.Ok;
         }
 
-        private void SelectShowNotification()
+        private void SelectPersistentNotification()
         {
-            settingsManager.SystemShowNotification = !settingsManager.SystemShowNotification;
+            settingsManager.SystemPersistentNotification = !settingsManager.SystemPersistentNotification;
             
-            swShowNotification.Checked = settingsManager.SystemShowNotification;
+            swPersistentNotification.Checked = settingsManager.SystemPersistentNotification;
             
-            if(!settingsManager.SystemShowNotification)
-                supportTools.InfoDialog(Resource.String.settings_show_notification_warning);
+            if(!settingsManager.SystemPersistentNotification)
+                supportTools.InfoDialog(Resource.String.settings_persistent_notification_warning);
             
             settingsResult = Result.Ok;
+        }
+
+        private void SelectNotificationSound()
+        {
+            settingsManager.SystemNotificationSound = !settingsManager.SystemNotificationSound;
+            
+            swNotificationSound.Checked = settingsManager.SystemNotificationSound;
+        }
+
+        private void SelectNotificationChannel()
+        {
+            string channelId = Resources.GetString(Resource.String.notification_channel_id);
+
+            Intent channelSettingsIntent = new Intent(Settings.ActionChannelNotificationSettings);
+            
+            channelSettingsIntent.PutExtra(Settings.ExtraAppPackage, PackageName);
+            channelSettingsIntent.PutExtra(Settings.ExtraChannelId, channelId);
+            channelSettingsIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.NewTask);
+
+            StartActivity(channelSettingsIntent);
         }
 
         private void SelectRestoreLastProfile()
@@ -1264,7 +1325,8 @@ namespace Eddie.NativeAndroidApp
                 settingsManager.SystemDNSCustom = SettingsManager.SYSTEM_OPTION_DNS_CUSTOM_DEFAULT;
                 settingsManager.SystemDNSAlternative = SettingsManager.SYSTEM_OPTION_DNS_ALTERNATIVE_DEFAULT;
                 settingsManager.SystemProxyEnable = SettingsManager.SYSTEM_OPTION_PROXY_ENABLE_DEFAULT;
-                settingsManager.SystemShowNotification = SettingsManager.SYSTEM_OPTION_SHOW_NOTIFICATION_DEFAULT;
+                settingsManager.SystemPersistentNotification = SettingsManager.SYSTEM_OPTION_PERSISTENT_NOTIFICATION_DEFAULT;
+                settingsManager.SystemNotificationSound = SettingsManager.SYSTEM_OPTION_NOTIFICATION_SOUND_DEFAULT;
                 settingsManager.SystemCustomMTU = SettingsManager.SYSTEM_CUSTOM_MTU_DEFAULT;
                 settingsManager.SystemApplicationFilterType = SettingsManager.SYSTEM_OPTION_APPLICATION_FILTER_TYPE_DEFAULT;
                 settingsManager.SystemApplicationFilter = SettingsManager.SYSTEM_OPTION_APPLICATION_FILTER_DEFAULT;

@@ -51,7 +51,8 @@ namespace Eddie.NativeAndroidApp
 			try
 			{
 				DoUpdate();
-				Service.HandleThreadStopped();
+				
+                Service.HandleThreadStopped();
 			}
 			catch(Exception e)
 			{

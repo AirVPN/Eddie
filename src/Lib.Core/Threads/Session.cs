@@ -727,6 +727,9 @@ namespace Eddie.Core.Threads
 
 		private void StartSshProcess()
 		{
+			string sshToolPath = Software.GetTool("ssh").Path;
+			bool isPlink = (sshToolPath.ToLowerInvariant().EndsWith("plink.exe"));
+
 			Providers.Service service = Engine.CurrentServer.Provider as Providers.Service;
 			if (service == null) // Unexpected
 				return;
@@ -734,15 +737,15 @@ namespace Eddie.Core.Threads
 			if (m_processProxy != null) // Unexpected
 				return;
 
-			string fileKeyExtension = "";
-			if (Platform.Instance.IsUnixSystem())
-				fileKeyExtension = "key";
-			else
+			string fileKeyExtension = "key";			
+			if(isPlink)
 				fileKeyExtension = "ppk";
 
-
 			m_fileSshKey = new TemporaryFile(fileKeyExtension);
-			Platform.Instance.FileContentsWriteText(m_fileSshKey.Path, UtilsXml.XmlGetAttributeString(service.User, "ssh_" + fileKeyExtension, ""));
+			Platform.Instance.FileContentsWriteText(m_fileSshKey.Path, UtilsXml.XmlGetAttributeString(service.User, "ssh_" + fileKeyExtension, ""), Encoding.ASCII);
+
+			if (Platform.Instance.IsWindowsSystem())
+				Platform.Instance.FileEnsureRootOnly(m_fileSshKey.Path);
 
 			if (Platform.Instance.IsUnixSystem())
 			{
@@ -763,7 +766,7 @@ namespace Eddie.Core.Threads
 			arguments += ":" + Conversions.ToString(m_connectionActive.SshPortDestination);
 			arguments += " sshtunnel@" + m_connectionActive.Address;
 
-			if (Platform.Instance.IsUnixSystem())
+			if (isPlink == false)
 				arguments += " -p"; // ssh use -p
 			else
 				arguments += " -P"; // plink use -P
@@ -776,7 +779,7 @@ namespace Eddie.Core.Threads
 			m_programScope = new ProgramScope(Software.GetTool("ssh").Path, "SSH Tunnel");
 
 			m_processProxy = new Process();
-			m_processProxy.StartInfo.FileName = Software.GetTool("ssh").Path;
+			m_processProxy.StartInfo.FileName = sshToolPath;
 			m_processProxy.StartInfo.Arguments = arguments;
 			m_processProxy.StartInfo.WorkingDirectory = UtilsCore.GetTempPath();
 
@@ -814,7 +817,7 @@ namespace Eddie.Core.Threads
 				return;
 
 			m_fileSslCrt = new TemporaryFile("crt");
-			Platform.Instance.FileContentsWriteText(m_fileSslCrt.Path, UtilsXml.XmlGetAttributeString(service.User, "ssl_crt", ""));
+			Platform.Instance.FileContentsWriteText(m_fileSslCrt.Path, UtilsXml.XmlGetAttributeString(service.User, "ssl_crt", ""), Encoding.ASCII);
 
 			m_fileSslConfig = new TemporaryFile("ssl");
 
@@ -823,8 +826,8 @@ namespace Eddie.Core.Threads
 			if (Platform.Instance.IsUnixSystem())
 			{
 				//sslConfig += "output = /dev/stdout\n"; // With this, with new stunnel 5.01, we have duplicated output dump.
-				sslConfig += "foreground = yes\n"; // Without this, the process fork and it's exit can't be detected.
-												   //sslConfig += "pid = /tmp/" + RandomGenerator.GetHash() + ".pid\n"; // 2.2
+				sslConfig += "foreground = yes\n";	// Without this, the process fork and it's exit can't be detected.
+				//sslConfig += "pid = /tmp/" + RandomGenerator.GetHash() + ".pid\n"; // 2.2
 			}
 			if (Engine.Instance.Storage.Get("ssl.options") != "")
 				sslConfig += "options = " + Engine.Instance.Storage.Get("ssl.options") + "\n";
@@ -842,13 +845,13 @@ namespace Eddie.Core.Threads
 			sslConfig += "\n";
 
 			string sslConfigPath = m_fileSslConfig.Path;
-			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig);
+			Platform.Instance.FileContentsWriteText(sslConfigPath, sslConfig, Encoding.UTF8);
 
 			m_programScope = new ProgramScope(Software.GetTool("ssl").Path, "SSL Tunnel");
 
 			m_processProxy = new Process();
-			m_processProxy.StartInfo.FileName = Software.GetTool("ssl").Path;
-			m_processProxy.StartInfo.Arguments = "\"" + sslConfigPath + "\"";
+			m_processProxy.StartInfo.FileName = Software.GetTool("ssl").Path;			
+			m_processProxy.StartInfo.Arguments = "\"" + Encoding.Default.GetString(Encoding.UTF8.GetBytes(sslConfigPath)) + "\""; // encoding workaround, stunnel expect utf8
 			m_processProxy.StartInfo.WorkingDirectory = UtilsCore.GetTempPath();
 
 			m_processProxy.StartInfo.Verb = "run";
@@ -968,7 +971,7 @@ namespace Eddie.Core.Threads
 				string message = e.Data.ToString();
 
 				lock (m_logEvents)
-					m_logEvents.Add(new SessionLogEvent("SSH", message));
+					AddLogEvent("SSH", message);
 			}
 		}
 
@@ -983,7 +986,7 @@ namespace Eddie.Core.Threads
 				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\d{4}\\.\\d{2}\\.\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+LOG\\d{1}\\[\\d{0,6}:\\d{0,60}\\]:\\s+", "");
 
 				lock (m_logEvents)
-					m_logEvents.Add(new SessionLogEvent("SSL", message));
+					AddLogEvent("SSL", message);
 			}
 		}
 
@@ -998,7 +1001,7 @@ namespace Eddie.Core.Threads
 				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
 
 				lock (m_logEvents)
-					m_logEvents.Add(new SessionLogEvent("OpenVPN", message));
+					AddLogEvent("OpenVPN", message);
 			}
 		}
 
@@ -1042,7 +1045,7 @@ namespace Eddie.Core.Threads
 
 						string data = Encoding.ASCII.GetString(buf, 0, bytes);
 
-						ProcessLogEvent("Management", data);
+						AddLogEvent("Management", data);
 					}
 				}
 			}
@@ -1051,6 +1054,16 @@ namespace Eddie.Core.Threads
 				Engine.Logs.Log(LogType.Warning, ex);
 
 				SetReset("ERROR");
+			}
+		}
+
+		void AddLogEvent(string source, string message)
+		{
+			string[] lines = message.Split('\n');
+			foreach (string line in lines)
+			{
+				if(line.Trim() != "")
+					m_logEvents.Add(new SessionLogEvent(source, line.Trim()));
 			}
 		}
 
@@ -1787,7 +1800,8 @@ namespace Eddie.Core.Threads
 
 							try
 							{
-								string hash = UtilsCore.GetRandomToken();
+								// Don't use a real hash, it's too long.
+								string hash = RandomGenerator.GetRandomToken();
 
 								// Query a inexistent domain with the hash
 								string dnsQuery = service.GetKeyValue("check_dns_query", "");

@@ -22,9 +22,11 @@
     <string name="conn_protocol_cap">Protocol:</string>
     <string name="conn_connect_profile">Connect</string>
     <string name="conn_disconnect_profile">Disconnect</string>
-    <string name="conn_status_cap">Status:</string>
-    <string name="conn_status_connected">Connected</string>
+    <string name="conn_vpn_status_cap">VPN Status:</string>
+    <string name="conn_network_status_cap">Network Status:</string>
+    <string name="conn_status_connected">Connected to {0}</string>
     <string name="conn_status_unknown">Unknown</string>
+    <string name="conn_status_not_available">Not available</string>
     <string name="conn_disconnect_first">You are connected to server {0}. Please disconnect before loading a new profile.</string>
     <string name="conn_error_cap">Error:</string>
     <string name="conn_status_disconnected">Not connected</string>
@@ -34,14 +36,18 @@
     <string name="conn_profile_no_permission">This app does not have permission to access files and documents</string>
     <string name="conn_no_profile_selected">Please select an OpenVPN file first</string>
     <string name="conn_cannot_start_vpnservice">Cannot start the VPN Service. This usually happens when you have multiple VPN apps installed on your device. To fix it you can do the following:\n\n- Open Android settings\n- Select \"Network &amp; Internet\"\n- Select \""VPN\"\n- Select the VPN app\'s settings\n- Select \"Forget VPN\"</string>
-    <string name="connection_success">Successfully connected to server {0}</string>
+    <string name="connection_success">Successfully connected to server {0} ({1} network)</string>
     <string name="connection_error">Cannot connect to server</string>
     <string name="connection_disconnected">Disconnected from server {0}</string>
+    <string name="connection_paused">VPN has been paused because of network status</string>
+    <string name="connection_vpn_formal_warning">A VPN error has occurred. VPN has been locked and will not be resumed until you start a new connection. Please see log for more information</string>
+    <string name="connection_vpn_error">A VPN fatal error has occurred. Eddie will try to lock the VPN in order to prevent worse conditions. In this particular case, the lock is not guaranteed to work therefore traffic and data leak may happen. Please see log for more information</string>
     
     <!-- VPNService -->
 
     <string name="notification_title">Eddie - OpenVPN GUI</string>
-    <string name="notification_text">Connected to server</string>
+    <string name="notification_text">Connected to server {0}</string>
+    <string name="notification_network">({0} network)</string>
 
     <!-- about layout -->
 
@@ -59,13 +65,16 @@
     <string name="vpn_status_disconnecting">Disconnecting from server</string>
     <string name="vpn_status_connecting">Connecting to server</string>
     <string name="vpn_status_connected">Connected to server</string>
+    <string name="vpn_status_paused">Paused</string>
+    <string name="vpn_status_locked">Locked</string>
 
     <!-- settings activity -->
 
     <string name="settings_title">Eddie - Settings</string>
     <string name="settings_changed">Settings have changed. They will take effect in the next connection. Please consider disconnecting from server and reconnect.</string>
     <string name="settings_pause_vpn_when_screen_is_off_warning">Warning: applications running in background may not work as expected when this option is enabled</string>
-    <string name="settings_show_notification_warning">Warning: Android may suddenly stop VPN connection when this option is disabled</string>
+    <string name="settings_persistent_notification_warning">Warning: Android may suddenly stop VPN connection when this option is disabled</string>
+    <string name="settings_tun_persist_warning">Warning: Traffic and data leak prevention out of the VPN tunnel will be severely compromised when \"Persistent Tunnel\" option is disabled</string>
     <string name="settings_ip_address_warning">Please enter a valid IP address</string>
     <string name="settings_ip_port_warning">Port number must be between 1 and 65535</string>
     <string name="settings_value_warning">Please enter a valid value</string>
@@ -117,7 +126,7 @@
     <string name="settings_ovpn3_tls_cert_profile_summary"></string>
     <string name="settings_ovpn3_tls_min_version_title">Minimum TLS version</string>
     <string name="settings_ovpn3_tls_min_version_summary"></string>
-    <string name="settings_ovpn3_tun_persist_title">TUN persist</string>
+    <string name="settings_ovpn3_tun_persist_title">Persistent Tunnel</string>
     <string name="settings_ovpn3_tun_persist_summary"></string>
     <string name="settings_ovpn3_private_key_password_title">Private key password</string>
     <string name="settings_ovpn3_private_key_password_summary"></string>
@@ -148,8 +157,12 @@
     <string name="settings_system_custom_mtu_summary">Set a custom MTU value</string>
     <string name="settings_system_proxy_enable_title">Enable proxy</string>
     <string name="settings_system_proxy_enable_summary"></string>
-    <string name="settings_system_show_notification_title">Show notification</string>
-    <string name="settings_system_show_notification_summary">Show or hide a notification icon when connection is active</string>
+    <string name="settings_system_persistent_notification_title">Persistent notification</string>
+    <string name="settings_system_persistent_notification_summary">Use persistent Android notification when the connection is active. Android may suddenly stop VPN connection when this option is disabled.</string>
+    <string name="settings_system_notification_sound_title">Notification sound</string>
+    <string name="settings_system_notification_sound_summary">Emit a sound when a notification is issued</string>
+    <string name="settings_system_notification_channel_title">Notification settings</string>
+    <string name="settings_system_notification_channel_summary"></string>
 
     <!-- miscellaneous -->
     
@@ -157,9 +170,16 @@
     <string name="airvpn">AirVPN</string>
     <string name="eddie_url">https://eddie.website</string>
     <string name="local_about_page">file:///android_asset/about.html</string>
+    <string name="console_command_title">Eddie Console Command</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="send">Send</string>
+    <string name="notification_channel_name">Eddie Notifications</string>
+
+    <!-- Notification settings (same for all languages) -->
+
+    <string name="notification_channel_id">Eddie_Notification_Channel</string>
 
 </resources>

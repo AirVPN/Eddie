@@ -22,7 +22,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
@@ -62,7 +62,7 @@ namespace Eddie.Forms.Forms
 
 		private void lnkWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
 		}
 
 		private void cmdClose_Click(object sender, EventArgs e)

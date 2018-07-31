@@ -28,7 +28,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie_tray ${TargetDir}" />
+        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
@@ -45,7 +45,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie_tray ${TargetDir}" />
+        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
@@ -72,7 +72,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie_tray ${TargetDir}" />
+        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
@@ -97,7 +97,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie_tray ${TargetDir}" />
+        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
@@ -118,6 +118,7 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UiClient.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

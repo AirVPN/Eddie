@@ -29,6 +29,7 @@ using Android.Database;
 using Android.OS;
 using Android.Provider;
 using Java.IO;
+using Java.Util;
 
 namespace Eddie.NativeAndroidApp
 {
@@ -115,14 +116,18 @@ namespace Eddie.NativeAndroidApp
     
                     if(item[0] == "remote")
                     {
-                        result.Add("server", item[1]);
-                        result.Add("port", item[2]);
+                        if(result.ContainsKey("server") == false)
+                            result.Add("server", item[1]);
+
+                        if(result.ContainsKey("port") == false)
+                            result.Add("port", item[2]);
     
                         validItems++;
                     }
                     else if(item[0] == "proto")
                     {
-                        result.Add("protocol", item[1]);
+                        if(result.ContainsKey("protocol") == false)
+                            result.Add("protocol", item[1]);
     
                         validItems++;
                     }
@@ -311,7 +316,5 @@ namespace Eddie.NativeAndroidApp
 
             return details;
         }
-
-
     }
 }

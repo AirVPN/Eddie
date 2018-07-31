@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
@@ -99,7 +100,7 @@ namespace Eddie.Forms.Forms
 
 		private void lblTitle_Click(object sender, EventArgs e)
 		{
-			Platform.Instance.OpenUrl(Provider.DefinitionHref);
+			GuiUtils.OpenUrl(Provider.DefinitionHref);
 		}
 	}
 }

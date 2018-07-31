@@ -15,9 +15,11 @@
     <color name="red">#ffdd1212</color>    
     <color name="blue">#ff4040ee</color>
     <color name="gray">#ff929292</color>
+    <color name="gray25">#ff404040</color>
+    <color name="gray50">#ff808080</color>
     <color name="hyperlink">#ff4040ee</color>    
     <color name="toolbar">#ff6f6f6f</color>
-        
+
     <color name="background_tab_pressed">#6633B5E5</color>
     <color name="emphasis">#31b6e7</color>
     <color name="bg_gray">#cecbce</color>

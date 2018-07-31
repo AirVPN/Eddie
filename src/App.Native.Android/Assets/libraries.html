@@ -156,11 +156,15 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
 			display:block;
 			font-size:0.6em;
 		}
+		.center
+		{
+			text-align:center;
+		}
 	</style>
 </head>
 <body>
 
-<h2>OpenVPN <a class='homelink' href='http://openvpn.net/'>http://openvpn.net/</a></h2>
+<h2>OpenVPN <a class='homelink' href='https://openvpn.net/'>https://openvpn.net/</a></h2>
 
 <div class='licensebody'>
 <p>
@@ -170,178 +174,35 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License version 2 as published by the Free Software Foundation.
 </p>
 <p>
-	For the latest version of OpenVPN, go to: <a href='http://openvpn.net/'>http://openvpn.net/</a>
+	For the latest version of OpenVPN, go to: <a href='https://openvpn.net/'>https://openvpn.net/</a>
 </p>
 <p>
 	License: <a href='https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html'>GNU General Public License (GPL v2+)</a>
 </p>
 </div>
 
-<h2>OpenSSL <a class='homelink' href='https://www.openssl.org/'>https://www.openssl.org/</a></h2>
+<h2>mbed TLS <a class='homelink' href='https://tls.mbed.org'>https://tls.mbed.org</a></h2>
 <div class='licensebody'>
+	<p>mbed TLS is primarily available under the Apache 2.0 open source license. A GPL-licensed version is also available if you have different needs.</p>
 	<p>
-		LICENSE ISSUES
-	</p>
-	<p>
-		The OpenSSL toolkit stays under a double license, i.e. both the conditions of
-		the OpenSSL License and the original SSLeay license apply to the toolkit.
-		See below for the actual license texts.
-	</p>
-
-	<h3>OpenSSL License</h3>
-	<p>
-		Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
-	</p>
-	<p>
-		Redistribution and use in source and binary forms, with or without
-		modification, are permitted provided that the following conditions
-		are met:
-		<ol>
-			<li>
-				Redistributions of source code must retain the above copyright
-				notice, this list of conditions and the following disclaimer. 
-			</li>
-			<li>
-				Redistributions in binary form must reproduce the above copyright
-				notice, this list of conditions and the following disclaimer in
-				the documentation and/or other materials provided with the
-				distribution.
-			</li>
-			<li>
-				All advertising materials mentioning features or use of this
-				software must display the following acknowledgment:
-				"This product includes software developed by the OpenSSL Project
-				for use in the OpenSSL Toolkit. (http://www.openssl.org/)"
-			</li>
-			<li>
-				The names "OpenSSL Toolkit" and "OpenSSL Project" must not be used to
-				endorse or promote products derived from this software without
-				prior written permission. For written permission, please contact
-				openssl-core@openssl.org.
-			</li>
-			<li>
-				Products derived from this software may not be called "OpenSSL"
-				nor may "OpenSSL" appear in their names without prior written
-				permission of the OpenSSL Project.
-			</li>
-			<li>
-				Redistributions of any form whatsoever must retain the following
-				acknowledgment:
-				"This product includes software developed by the OpenSSL Project
-				for use in the OpenSSL Toolkit (http://www.openssl.org/)"
-			</li>
-		</ol>			
-	</p>
-	<p>
-		THIS SOFTWARE IS PROVIDED BY THE OpenSSL PROJECT ``AS IS'' AND ANY
-		EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-		IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-		PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
-		ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-		SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-		NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-		HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-		STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-		ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-		OF THE POSSIBILITY OF SUCH DAMAGE.
-	</p>
-	<p>
-		This product includes cryptographic software written by Eric Young
-		(eay@cryptsoft.com).  This product includes software written by Tim
-		Hudson (tjh@cryptsoft.com).
-	</p>
-	
-	<h3>Original SSLeay License</h3>
-	<p>
-		Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
-		All rights reserved.
-	</p>
-	<p>
-		This package is an SSL implementation written
-		by Eric Young (eay@cryptsoft.com).
-		The implementation was written so as to conform with Netscapes SSL.
-	</p>
-	<p>
-		This library is free for commercial and non-commercial use as long as
-		the following conditions are aheared to.  The following conditions
-		apply to all code found in this distribution, be it the RC4, RSA,
-		lhash, DES, etc., code; not just the SSL code.  The SSL documentation
-		included with this distribution is covered by the same copyright terms
-		except that the holder is Tim Hudson (tjh@cryptsoft.com).
-	</p>	
-	<p>
-		Copyright remains Eric Young's, and as such any Copyright notices in
-		the code are not to be removed.
-		If this package is used in a product, Eric Young should be given attribution
-		as the author of the parts of the library used.
-		This can be in the form of a textual message at program startup or
-		in documentation (online or textual) provided with the package.
-	</p>
-	<p>
-		Redistribution and use in source and binary forms, with or without
-		modification, are permitted provided that the following conditions
-		are met:
-		<ol>
-			<li>
-				Redistributions of source code must retain the copyright
-				notice, this list of conditions and the following disclaimer.
-			</li>
-			<li>
-				Redistributions in binary form must reproduce the above copyright
-				notice, this list of conditions and the following disclaimer in the
-				documentation and/or other materials provided with the distribution.
-			</li>
-			<li>
-				All advertising materials mentioning features or use of this software
-				must display the following acknowledgement:
-				"This product includes cryptographic software written by
-				Eric Young (eay@cryptsoft.com)"
-				The word 'cryptographic' can be left out if the rouines from the library
-				being used are not cryptographic related :-).
-			</li>
-			<li>
-				If you include any Windows specific code (or a derivative thereof) from 
-				the apps directory (application code) you must include an acknowledgement:
-				"This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
-			</li>
-		</ol>
-	</p>
-	<p>
-		THIS SOFTWARE IS PROVIDED BY ERIC YOUNG ``AS IS'' AND
-		ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-		IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-		ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-		FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-		DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-		OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-		HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-		LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-		OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-		SUCH DAMAGE.
-	</p>
-	<p>
-		The licence and distribution terms for any publically available version or
-		derivative of this code cannot be changed.  i.e. this code cannot simply be
-		copied and put under another distribution licence
-		[including the GNU Public Licence.]
+		License: <a href='https://www.apache.org/licenses/LICENSE-2.0'>Apache 2.0 License</a>
 	</p>
 </div>
 
 <h2>LZO <a class='homelink' href='https://www.oberhumer.com/opensource/lzo/'>https://www.oberhumer.com/opensource/lzo/</a></h2>
 <div class='licensebody'>
 	<p>
-		License: <a href='http://www.oberhumer.com/opensource/gpl.html'>GNU General Public License (GPL v2+)</a>
+		License: <a href='https://www.oberhumer.com/opensource/gpl.html'>GNU General Public License (GPL v2+)</a>
 	</p>
 </div>
 
-<h2>LZ4 <a class='homelink' href='http://www.lz4.org'>http://www.lz4.org</a></h2>
+<h2>LZ4 <a class='homelink' href='https://www.lz4.org'>https://www.lz4.org</a></h2>
 <div class='licensebody'>
 	<p>
 		Copyright (C) 2011-2013, Yann Collet.		
 	</p>
 	<p>
-		BSD 2-Clause License (<a href='http://www.opensource.org/licenses/bsd-license.php'>http://www.opensource.org/licenses/bsd-license.php</a>)		
+		BSD 2-Clause License (<a href='https://www.opensource.org/licenses/bsd-license.php'>https://www.opensource.org/licenses/bsd-license.php</a>)		
 	</p>
 	<p>
 		Redistribution and use in source and binary forms, with or without
@@ -376,13 +237,13 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
 	<p>
 		You can contact the author at :
 		<ul>
-			<li><a href='http://code.google.com/p/lz4/'>LZ4 source repository</a></li>
+			<li><a href='https://code.google.com/p/lz4/'>LZ4 source repository</a></li>
 			<li><a href='https://groups.google.com/forum/#!forum/lz4c'>LZ4 public forum</a></li>
 		</ul>
 	</p>
 </div>
 
-<h2>Boost Software License <a class='homelink' href='http://www.boost.org/'>http://www.boost.org/</a></h2>
+<h2>Boost Software License <a class='homelink' href='https://www.boost.org/'>https://www.boost.org/</a></h2>
 <div class='licensebody'>
 	<p>
 		Version 1.0 - August 17th, 2003

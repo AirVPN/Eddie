@@ -33,8 +33,7 @@ namespace Eddie.Forms.Windows
 		/// </summary>
 		/// 
 
-		private static Eddie.Forms.Engine m_engine;
-		private static ApplicationContext m_context;
+		private static Eddie.Forms.UiClient m_client;
 				
 		[STAThread]
 		static void Main()
@@ -43,6 +42,7 @@ namespace Eddie.Forms.Windows
 			{
 				if (Environment.OSVersion.Version.Major >= 6)
 					NativeMethods.SetProcessDPIAware();
+
 
 				//Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
@@ -62,25 +62,8 @@ namespace Eddie.Forms.Windows
 				}
 				else
 				{
-					GuiUtils.Init();
-
-					m_engine = new Eddie.Forms.Engine();
-
-					m_engine.CommandEvent += Engine_CommandEvent;
-					m_engine.TerminateEvent += Engine_TerminateEvent;
-
-					if (m_engine.Initialization(false))
-					{
-						m_engine.FormMain = new Eddie.Forms.Forms.Main();
-
-						m_engine.UiStart();
-
-						// Application.Run(engine.FormMain); // Removed in 2.11.9
-
-						m_engine.FormMain.LoadPhase();
-
-						m_context = new ApplicationContext();
-					}
+					m_client = new Eddie.Forms.UiClient();
+					m_client.Init();
 				}
 			}
 			catch (Exception e)
@@ -89,26 +72,8 @@ namespace Eddie.Forms.Windows
 			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled
-			if (m_context != null)
-				Application.Run(m_context);
-		}
-
-		private static void Engine_CommandEvent(Json data)
-		{
-			string cmd = data["command"].Value as string;
-
-			if (cmd == "ui.notification")
-			{
-				if (m_engine.FormMain != null)
-					m_engine.FormMain.ShowWindowsNotification(data["level"].Value as string, data["message"].Value as string);
-			}
-		}
-
-		private static void Engine_TerminateEvent()
-		{
-			m_context.ExitThread();
-
-			//Application.Exit(); // Removed in 2.12, otherwise lock Core thread. Still required in Linux edition.
+			if ((m_client != null) && (m_client.AppContext != null))
+				Application.Run(m_client.AppContext);
 		}
 	}
 }

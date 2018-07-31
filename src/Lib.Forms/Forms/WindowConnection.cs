@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
@@ -70,7 +71,7 @@ namespace Eddie.Forms.Forms
 
 			m_connectionActive = Connection.BuildConnectionActive(true);
 
-			txtOvpnGenerated.Text = Platform.Instance.NormalizeString(m_connectionActive.OpenVpnProfileStartup.Get());
+			txtOvpnGenerated.Text = GuiUtils.NormalizeString(m_connectionActive.OpenVpnProfileStartup.Get());
 			if(Connection.Path != "")
 			{
 				if(Platform.Instance.FileExists(Connection.Path))

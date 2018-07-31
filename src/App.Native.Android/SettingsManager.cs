@@ -125,8 +125,11 @@ namespace Eddie.NativeAndroidApp
         public const string SYSTEM_OPTION_PROXY_ENABLE = "system_proxy_enable";
         public static readonly bool SYSTEM_OPTION_PROXY_ENABLE_DEFAULT = false;
 
-        public const string SYSTEM_OPTION_SHOW_NOTIFICATION = "system_show_notification";
-        public static readonly bool SYSTEM_OPTION_SHOW_NOTIFICATION_DEFAULT = true;
+        public const string SYSTEM_OPTION_PERSISTENT_NOTIFICATION = "system_persistent_notification";
+        public static readonly bool SYSTEM_OPTION_PERSISTENT_NOTIFICATION_DEFAULT = true;
+
+        public const string SYSTEM_OPTION_NOTIFICATION_SOUND = "system_notification_sound";
+        public static readonly bool SYSTEM_OPTION_NOTIFICATION_SOUND_DEFAULT = true;
 
         public const string SYSTEM_CUSTOM_MTU = "system_forced_mtu";
         public static readonly string SYSTEM_CUSTOM_MTU_DEFAULT = "";
@@ -154,7 +157,7 @@ namespace Eddie.NativeAndroidApp
         public const string SYSTEM_OPTION_LAST_PROFILE_INFO = "system_last_profile_info";
 
         public const string SYSTEM_OPTION_PAUSE_VPN_WHEN_SCREEN_IS_OFF = "system_pause_vpn_when_screen_is_off";
-        public static readonly bool SYSTEM_OPTION_PAUSE_VPN_WHEN_SCREEN_IS_OFF_DEFAULT = false;
+        public static readonly bool SYSTEM_OPTION_PAUSE_VPN_WHEN_SCREEN_IS_OFF_DEFAULT = true;
 
         public const char DEFAULT_SPLIT_SEPARATOR = ',';
 
@@ -639,16 +642,30 @@ namespace Eddie.NativeAndroidApp
             }
         }       
 
-        public bool SystemShowNotification
+        public bool SystemPersistentNotification
         {
             get
             {
-                return GetBool(SYSTEM_OPTION_SHOW_NOTIFICATION, SYSTEM_OPTION_SHOW_NOTIFICATION_DEFAULT);
+                return GetBool(SYSTEM_OPTION_PERSISTENT_NOTIFICATION, SYSTEM_OPTION_PERSISTENT_NOTIFICATION_DEFAULT);
             }
 
             set
             {
-                SaveBool(SYSTEM_OPTION_SHOW_NOTIFICATION, value);
+                SaveBool(SYSTEM_OPTION_PERSISTENT_NOTIFICATION, value);
+            }
+        }
+
+
+        public bool SystemNotificationSound
+        {
+            get
+            {
+                return GetBool(SYSTEM_OPTION_NOTIFICATION_SOUND, SYSTEM_OPTION_NOTIFICATION_SOUND_DEFAULT);
+            }
+
+            set
+            {
+                SaveBool(SYSTEM_OPTION_NOTIFICATION_SOUND, value);
             }
         }
 

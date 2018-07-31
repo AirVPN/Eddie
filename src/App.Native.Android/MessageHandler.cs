@@ -33,9 +33,13 @@ namespace Eddie.NativeAndroidApp
 
 		public override void HandleMessage(Message msg)
 		{
+            if(msg == null)
+                return;
+
 			base.HandleMessage(msg);
 
-			m_handler.OnMessage(msg);
+			if(m_handler != null)
+                m_handler.OnMessage(msg);
 		}
 	}
 }

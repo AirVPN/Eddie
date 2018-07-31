@@ -56,7 +56,22 @@ namespace Eddie.Core
 
 		public static string GetHash()
 		{
-			return BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLower();
+			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLower();
+			return h;
 		}
-    }
+		
+		// Used only by compose check-dns hostname. Because a GetHash() it's too long.
+		public static string GetRandomToken()
+		{
+			StringBuilder builder = new StringBuilder();
+			char ch;
+			for (int i = 0; i < 32; i++)
+			{
+				ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * m_randomSeed.NextDouble() + 65)));
+				builder.Append(ch);
+			}
+
+			return builder.ToString().ToLowerInvariant();
+		}
+	}
 }

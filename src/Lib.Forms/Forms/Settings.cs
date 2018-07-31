@@ -110,10 +110,10 @@ namespace Eddie.Forms.Forms
 
 			lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
 
-			chkSystemStart.Visible = Platform.Instance.IsWindowsSystem();
-			pnlAdvancedGeneralWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
-			pnlDnsWindowsOnly.Visible = Platform.Instance.IsWindowsSystem();
-			chkWindowsDebugWorkaround.Visible = Platform.Instance.IsWindowsSystem();
+			chkSystemStart.Visible = GuiUtils.IsWindows();
+			pnlAdvancedGeneralWindowsOnly.Visible = GuiUtils.IsWindows();
+			pnlDnsWindowsOnly.Visible = GuiUtils.IsWindows();
+			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
 
 			int nNotAvailable = 0;
 			if ((Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null))
@@ -578,6 +578,7 @@ namespace Eddie.Forms.Forms
 			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
 			// chkWindowsIPv6DisableAtOs.Checked = s.GetBool("windows.ipv6.os_disable"); // Removed in 2.14, in W10 require reboot
 			chkWindowsDebugWorkaround.Checked = s.GetBool("windows.workarounds");
+			chkWindowsSshPlinkForce.Checked = s.GetBool("windows.ssh.plink.force");
 
 			txtExePath.Text = s.Get("tools.openvpn.path");
 
@@ -932,6 +933,7 @@ namespace Eddie.Forms.Forms
 			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
 			//s.SetBool("windows.ipv6.os_disable", chkWindowsIPv6DisableAtOs.Checked); // Removed in 2.14, in W10 require reboot
 			s.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
+			s.SetBool("windows.ssh.plink.force", chkWindowsSshPlinkForce.Checked);
 
 			SetOption("tools.openvpn.path", txtExePath.Text);
 
@@ -1019,15 +1021,15 @@ namespace Eddie.Forms.Forms
 				s.SetBool("event." + name + ".waitend", (lstAdvancedEvents.Items[index].SubItems[3].Text != "No"));
 			}
 		}
-
+				
 		public void SetOption(string name, object value)
 		{
 			Json jCommand = new Json();
 			jCommand["command"].Value = "set_option";
 			jCommand["name"].Value = name;
 			jCommand["value"].Value = value;
-			Engine.Instance.Command(jCommand);
-		}
+			UiClient.Instance.Command(jCommand);
+		}		
 
 		public void RefreshLogPreview()
 		{
@@ -1146,32 +1148,32 @@ namespace Eddie.Forms.Forms
 
 		private void lnkProtocolsHelp1_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["protocols"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["protocols"].Value as string);
 		}
 
 		private void lnkProtocolsHelp2_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["udp_vs_tcp"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["udp_vs_tcp"].Value as string);
 		}
 
 		private void lnkProxyTorHelp_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["tor"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["tor"].Value as string);
 		}
 
 		private void lnkLockHelp_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["netlock"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["netlock"].Value as string);
 		}
 
 		private void lnkAdvancedHelp_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["advanced"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["advanced"].Value as string);
 		}
 
 		private void lnkOpenVpnDirectivesHelp_Click(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["directives"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["directives"].Value as string);
 		}
 
 		private void cmdRouteAdd_Click(object sender, EventArgs e)
@@ -1489,7 +1491,7 @@ namespace Eddie.Forms.Forms
 		private void UpdateUiFontGeneral()
 		{
 			if (chkUiFontGeneral.Checked == false)
-				lblUiFontGeneral.Text = Platform.Instance.GetSystemFont();
+				lblUiFontGeneral.Text = GuiUtils.GetSystemFont();
 		}
 
 		private void chkUiFontGeneral_CheckedChanged(object sender, EventArgs e)
@@ -1536,6 +1538,11 @@ namespace Eddie.Forms.Forms
 		}
 
 		private void chkUiTrayShow_CheckedChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void chkUiFontGeneral_CheckedChanged_1(object sender, EventArgs e)
 		{
 			EnableIde();
 		}

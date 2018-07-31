@@ -413,7 +413,7 @@ namespace Eddie.UI.Cocoa.Osx
 				WindowCommandController w = new WindowCommandController();
 				NSApplication.SharedApplication.RunModalForWindow(w.Window);
 				if (w.Command != "")
-					Core.UI.App.RunCommandString(w.Command);
+                    UiClient.Instance.Command(w.Command);
 			};
 
 			TableServersController = new TableServersController(this.TableServers);
@@ -504,6 +504,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdAreasBlackList.ToolTip = Messages.TooltipAreasBlackList;
 
 			Engine.MainWindow = this;
+            UiClient.Instance.MainWindow = this;
 			Engine.UiStart();
 
 			Engine.OnRefreshUi();
@@ -1200,7 +1201,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void SupportReport()
 		{
-			Engine.Instance.GenerateSystemReport();
+            UiClient.Instance.Command("system.report.start");
 		}
 
 		void LogsDoCopy(bool selectedOnly)
@@ -1229,7 +1230,7 @@ namespace Eddie.UI.Cocoa.Osx
 				nint result = panel.RunModal();
 				if (result == 1)
 				{
-					Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t);
+					Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t, System.Text.Encoding.UTF8);
 
 					GuiUtils.MessageBoxInfo(Messages.LogsSaveToFileDone);
 				}
@@ -1252,17 +1253,17 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void ShowHome()
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+            GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
 		}
 
 		public void ShowClientArea()
 		{
-			Core.UI.App.OpenUrl("https://airvpn.org/client/");
+            GuiUtils.OpenUrl("https://airvpn.org/client/");
 		}
 
 		public void ShowForwardingPorts()
 		{
-			Core.UI.App.OpenUrl("https://airvpn.org/ports/");
+            GuiUtils.OpenUrl("https://airvpn.org/ports/");
 		}
 
 		public void ShowText(NSWindow parent, string title, string data)

@@ -42,8 +42,6 @@ namespace Eddie.Core
 
 		public bool Terminated = false;
 
-		public delegate void CommandHandler(Json data);
-		public event CommandHandler CommandEvent;
 		public delegate void TerminateHandler();
 		public event TerminateHandler TerminateEvent;
 
@@ -52,11 +50,13 @@ namespace Eddie.Core
 		private Threads.Discover m_threadDiscover;
 		private Threads.Manifest m_threadManifest;
 		private Threads.Session m_threadSession;
+		private UiManager m_uiManager;
 		private Storage m_storage;
 		private Stats m_stats;
 		private ProvidersManager m_providersManager;
 		private LogsManager m_logsManager;
 		private NetworkLockManager m_networkLockManager;
+		
 
 		private Dictionary<string, ConnectionInfo> m_connections = new Dictionary<string, ConnectionInfo>();
 		private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
@@ -107,6 +107,14 @@ namespace Eddie.Core
 		{
 			Instance = this;
 		}
+		public UiManager UiManager
+		{
+			get
+			{
+				return m_uiManager;
+			}
+		}
+
 
 		public Storage Storage
 		{
@@ -206,6 +214,8 @@ namespace Eddie.Core
 				ResourcesFiles.SetString("thirdparty.txt", Core.Properties.Resources.ThirdParty);
 				ResourcesFiles.SetString("tos.txt", Core.Properties.Resources.TOS); // TOCLEAN
 			}
+
+			m_uiManager = new UiManager();
 
 			m_logsManager = new LogsManager();
 
@@ -375,8 +385,9 @@ namespace Eddie.Core
 									OnConsoleKey(key);
 								}
 							}
-							catch
+							catch(Exception e)
 							{
+								Console.WriteLine("Console error: " + e.Message);
 							}
 						}
 					}
@@ -583,51 +594,6 @@ namespace Eddie.Core
 			OnExit();
 		}
 
-		public virtual Json OnCommand(Json data)
-		{
-			UI.App.Command(data);
-
-			string command = data["command"].Value as string;
-
-			if (command == "exit")
-			{
-				OnExit();
-			}
-			else if (command == "openvpn_management")
-			{
-				bool result = false;
-				if (m_threadSession != null)
-					result = m_threadSession.SendManagementCommand(data["management_command"].Value as string);
-				if (result == false)
-					Engine.Instance.Logs.Log(LogType.Warning, Messages.OpenVpnManagementCommandFail);
-			}
-			else if (command == "tor_control")
-			{
-				string result = TorControl.SendCommand(data["control_command"].Value as string);
-				foreach (string line in result.Split('\n'))
-				{
-					string l = line.Trim();
-					if (l != "")
-						Engine.Instance.Logs.Log(LogType.Verbose, l);
-				}
-			}
-			else if (command == "set_option")
-			{
-				string name = data["name"].Value as string;
-				string value = data["value"].Value as string;
-
-				if (Storage.Set(name, data["value"].Value))
-				{
-					if (name == "tools.openvpn.path")
-					{
-						Software.Checking();
-					}
-				}
-			}
-
-			return null;
-		}
-
 		public virtual void OnSettingsChanged()
 		{
 			OnCheckConnections();
@@ -824,10 +790,12 @@ namespace Eddie.Core
 			m_areasInfoUpdated = true;
 		}
 
-		public void GenerateSystemReport()
+		public bool SendManagementCommand(string cmd)
 		{
-			Report report = new Report();
-			report.Start();
+			if (m_threadSession != null)
+				return m_threadSession.SendManagementCommand(cmd);
+			else
+				return false;
 		}
 
 		public void SetConnected(bool connected)
@@ -941,7 +909,7 @@ namespace Eddie.Core
 					j["command"].Value = "ui.notification";
 					j["level"].Value = l.GetTypeString();
 					j["message"].Value = l.Message;
-					Command(j);
+					UiManager.Broadcast(j);
 				}
 			}
 
@@ -1008,11 +976,6 @@ namespace Eddie.Core
 		public virtual Credentials OnAskCredentials()
 		{
 			return null;
-		}
-
-		public virtual void OnSystemReport(string step, string text, int perc)
-		{
-
 		}
 
 		public virtual void OnLoggedUpdate(XmlElement xmlKeys)
@@ -1632,23 +1595,7 @@ namespace Eddie.Core
 
 			return true;
 		}
-
-		public Json Command(Json data)
-		{
-			try
-			{				
-				if (CommandEvent != null)
-					CommandEvent(data);				
-				Json result = OnCommand(data);				
-				return result;
-			}
-			catch (Exception e)
-			{
-				Logs.Log(LogType.Error, e);
-				return null;
-			}
-		}
-
+				
 		private void Auth()
 		{
 			if (AirVPN == null)
@@ -2144,7 +2091,7 @@ namespace Eddie.Core
 		{
 			Json j = Manifest.Clone();
 			j["command"].Value = "ui.manifest";
-			Command(j);
+			UiManager.Broadcast(j);
 		}
 
 		public Json GenerateStatus(string logMessage)
@@ -2225,7 +2172,7 @@ namespace Eddie.Core
 			if (j == null)
 				return;
 			j["command"].Value = "ui.status";
-			Engine.Instance.Command(j);
+			UiManager.Broadcast(j);
 		}
 
 		public Json GenerateColor()
@@ -2250,7 +2197,7 @@ namespace Eddie.Core
 		{
 			Json j = GenerateColor();
 			j["command"].Value = "ui.color";
-			Engine.Instance.Command(j);
+			UiManager.Broadcast(j);
 		}
 
 		public Json GenerateOsInfo()
@@ -2440,7 +2387,7 @@ namespace Eddie.Core
 		{
 			Json j = GenerateOsInfo();
 			j["command"].Value = "os.info";
-			Command(j);
+			UiManager.Broadcast(j);
 		}
 
 		public void UiSendQuickInfo()

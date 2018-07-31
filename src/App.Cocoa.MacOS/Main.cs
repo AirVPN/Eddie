@@ -62,10 +62,10 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 			else
 			{
-				Engine engine = new Engine();
-
-				if (engine.Initialization(false) == false)
-					return;
+				
+                UiClient client = new UiClient();
+                if(client.Init() == false)
+                    return;
 
 				NSApplication.Main(args);
 			}

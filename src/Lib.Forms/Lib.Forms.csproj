@@ -89,6 +89,7 @@
     <Compile Include="Controls\Provider.Designer.cs">
       <DependentUpon>Provider.cs</DependentUpon>
     </Compile>
+    <Compile Include="UiClient.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Form.cs">
       <SubType>Form</SubType>
@@ -254,7 +255,7 @@
     <Compile Include="Skin\ToolTip.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Utils.cs" />
+    <Compile Include="GuiUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Controls\Connection.resx">

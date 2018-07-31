@@ -278,7 +278,7 @@ namespace Eddie.Forms.Forms
 
 			Icon = m_iconGray;
 
-			if (Platform.Instance.IsWindowsSystem())
+			if (GuiUtils.IsWindows())
 			{
 				m_windowsNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
 				m_windowsNotifyIcon.Icon = m_iconGray;
@@ -315,8 +315,7 @@ namespace Eddie.Forms.Forms
 				m_cmdAbout.Name = "cmdAbout";
 				m_cmdAbout.BackColor = Form.Skin.GetColor("color.tab.normal.background");
 				m_cmdAbout.BackgroundImageLayout = ImageLayout.Stretch;
-				m_cmdAbout.FlatStyle = FlatStyle.Flat;
-				m_cmdAbout.Left = m_tabMain.GetTabsRect().Width / 2 - 40;
+				m_cmdAbout.FlatStyle = FlatStyle.Flat;				
 				m_cmdAbout.Top = m_tabMain.Height - 60;
 				m_cmdAbout.Width = 32;
 				m_cmdAbout.Height = 32;
@@ -330,8 +329,7 @@ namespace Eddie.Forms.Forms
 
 				m_cmdPreferences = new Eddie.Forms.Skin.Button();
 				m_cmdPreferences.Name = "cmdPreferences";
-				m_cmdPreferences.BackColor = Color.FromArgb(112, 184, 253);
-				m_cmdPreferences.Left = m_tabMain.GetTabsRect().Width / 2 + 40;
+				m_cmdPreferences.BackColor = Color.FromArgb(112, 184, 253);				
 				m_cmdPreferences.Top = m_tabMain.Height - 60;
 				m_cmdPreferences.Width = 32;
 				m_cmdPreferences.Height = 32;
@@ -761,17 +759,17 @@ namespace Eddie.Forms.Forms
 
 		private void mnuPorts_Click(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl("https://airvpn.org/ports/");
+			GuiUtils.OpenUrl("https://airvpn.org/ports/");
 		}
 
 		private void mnuUser_Click(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl("https://airvpn.org/client/");
+			GuiUtils.OpenUrl("https://airvpn.org/client/");
 		}
 
 		private void mnuHomePage_Click(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
 		}
 
 		private void mnuSettings_Click(object sender, EventArgs e)
@@ -1000,7 +998,7 @@ namespace Eddie.Forms.Forms
 
 		private void DeselectServersListItem()
 		{
-			if (Platform.Instance.IsWindowsSystem() == false)
+			if (GuiUtils.IsWindows() == false)
 			{
 				// To avoid a Mono ListView crash, reproducible by whitelisting servers
 				foreach (ListViewItemServer item in m_listViewServers.Items)
@@ -1250,7 +1248,7 @@ namespace Eddie.Forms.Forms
 
 		private void cmdLogsSupport_Click(object sender, EventArgs e)
 		{
-			Engine.GenerateSystemReport();
+			UiClient.Instance.Command("system.report.start");
 		}
 
 		private void cmdLogsCommand_Click(object sender, EventArgs e)
@@ -1258,7 +1256,10 @@ namespace Eddie.Forms.Forms
 			WindowCommand Dlg = new WindowCommand();
 			if (Dlg.ShowDialog(this) == DialogResult.OK)
 			{
-				Core.UI.App.RunCommandString(Dlg.Command);
+				Engine.Instance.Logs.Log(LogType.Verbose, "Running command: " + Dlg.Command);
+				Json result = UiClient.Instance.Command(Dlg.Command);
+				if(result != null)
+					Engine.Instance.Logs.Log(LogType.Verbose, "Running command: " + Dlg.Command + ", result: " + result.ToJsonPretty());
 			}
 		}
 
@@ -1361,6 +1362,9 @@ namespace Eddie.Forms.Forms
 			lblWait2.Top = imgProgressTop + imgProgressSize.Height + 10;
 			lblWait2.Width = tabPageRectangle.Width;
 			lblWait2.Height = tabPageRectangle.Height - lblWait2.Top - 10 - cmdCancel.Height - 20;
+
+			m_cmdAbout.Left = m_tabMain.GetTabsRect().Width / 2 - 20 - m_cmdAbout.Width;
+			m_cmdPreferences.Left = m_tabMain.GetTabsRect().Width / 2 + 20;
 
 			Invalidate();
 		}
@@ -1608,14 +1612,14 @@ namespace Eddie.Forms.Forms
 				return;
 
 			// Main Menu
-			mnuAbout.Enabled = (Core.UI.App.Manifest != null);
-			mnuSettings.Enabled = (Core.UI.App.Manifest != null);
-			mnuHomePage.Enabled = (Core.UI.App.Manifest != null);
-			mnuUser.Enabled = (Core.UI.App.Manifest != null);
-			mnuPorts.Enabled = (Core.UI.App.Manifest != null);
+			mnuAbout.Enabled = (UiClient.Instance.Data != null);
+			mnuSettings.Enabled = (UiClient.Instance.Data != null);
+			mnuHomePage.Enabled = (UiClient.Instance.Data != null);
+			mnuUser.Enabled = (UiClient.Instance.Data != null);
+			mnuPorts.Enabled = (UiClient.Instance.Data != null);
 
-			m_cmdAbout.Enabled = (Core.UI.App.Manifest != null);
-			m_cmdPreferences.Enabled = (Core.UI.App.Manifest != null);
+			m_cmdAbout.Enabled = (UiClient.Instance.Data != null);
+			m_cmdPreferences.Enabled = (UiClient.Instance.Data != null);
 
 			ConnectionInfo selectedConnection = null;
 			if (m_listViewServers.SelectedItems.Count == 1)
@@ -1739,7 +1743,7 @@ namespace Eddie.Forms.Forms
 					return;
 
 				// For refresh Mono-Linux
-				if (Platform.Instance.IsLinuxSystem())
+				if (GuiUtils.IsUnix())
 				{
 					Invalidate();
 					Update();
@@ -1988,7 +1992,7 @@ namespace Eddie.Forms.Forms
 				{
 					m_windowReport = new Forms.WindowReport();
 				}
-
+								
 				m_windowReport.Visible = true;
 				m_windowReport.Activate();
 				m_windowReport.Focus();
@@ -2130,7 +2134,7 @@ namespace Eddie.Forms.Forms
 		private delegate void OnShowPreferencesDelegate();
 		public void OnShowPreferences()
 		{
-			if (Core.UI.App.Manifest == null)
+			if (UiClient.Instance.Data == null)
 				return;
 
 			if (this.InvokeRequired)
@@ -2145,13 +2149,14 @@ namespace Eddie.Forms.Forms
 				Dlg.ShowDialog(this);
 
 				EnabledUi();
+				Resizing();
 			}
 		}
 
 		private delegate void OnShowAboutDelegate();
 		public void OnShowAbout()
 		{
-			if (Core.UI.App.Manifest == null)
+			if (UiClient.Instance.Data == null)
 				return;
 
 			if (this.InvokeRequired)
@@ -2228,7 +2233,7 @@ namespace Eddie.Forms.Forms
 					}
 				}
 
-				return Platform.Instance.NormalizeString(buffer.ToString());
+				return GuiUtils.NormalizeString(buffer.ToString());
 			}
 		}
 

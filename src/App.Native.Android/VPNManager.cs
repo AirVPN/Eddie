@@ -31,10 +31,13 @@ namespace Eddie.NativeAndroidApp
     {
         public enum Status
         {
-            NotConnected,
-            Disconnecting,
-            Connecting,
-            Connected
+            UNKNOWN,
+            NOT_CONNECTED,
+            DISCONNECTING,
+            CONNECTING,
+            CONNECTED,
+            PAUSED,
+            LOCKED
         }
 
         public static int DescriptionResource(Status s)
@@ -43,27 +46,39 @@ namespace Eddie.NativeAndroidApp
             
             switch(s)
             {
-                case VPN.Status.NotConnected:
+                case VPN.Status.NOT_CONNECTED:
                 {
                     res = Resource.String.vpn_status_not_connected;
                 }
                 break;
 
-                case VPN.Status.Disconnecting:
+                case VPN.Status.DISCONNECTING:
                 {
                     res = Resource.String.vpn_status_disconnecting;
                 }
                 break;
 
-                case VPN.Status.Connecting:
+                case VPN.Status.CONNECTING:
                 {
                     res = Resource.String.vpn_status_connecting;
                 }
                 break;
 
-                case VPN.Status.Connected:
+                case VPN.Status.CONNECTED:
                 {
                     res = Resource.String.vpn_status_connected;
+                }
+                break;
+
+                case VPN.Status.PAUSED:
+                {
+                    res = Resource.String.vpn_status_paused;
+                }
+                break;
+
+                case VPN.Status.LOCKED:
+                {
+                    res = Resource.String.vpn_status_locked;
                 }
                 break;
                 
@@ -80,12 +95,13 @@ namespace Eddie.NativeAndroidApp
         public delegate void OnStatusChanged(bool ready, Status status, string error);       
     }   
 
-    	// BindService requires to inherit from Java.LangVPN..Object
+    // BindService requires to inherit from Java.LangVPN.Object
+
 	public class VPNManager : Java.Lang.Object, IServiceConnection, IMessageHandler
 	{
 		public const int VPN_REQUEST_CODE = 123;
 
-		private VPN.Status m_status = VPN.Status.NotConnected;
+		private VPN.Status m_status = VPN.Status.NOT_CONNECTED;
 		private string m_lastError = "";
 		private Context m_context = null;
 		public event VPN.OnStatusChanged StatusChanged;
@@ -189,82 +205,6 @@ namespace Eddie.NativeAndroidApp
 				OnStatusChanged(null, null, e.Message);
 			}			
 		}
-		/*
-		private bool UpdateService(VPN.Status status)
-		{
-			lock(m_dataSync)
-			{
-				if(m_status == status)
-					return true;
-
-				switch(m_status)
-				{
-				case VPN.Status.Starting:
-				case VPN.Status.Stopping:
-													return false;
-				}
-
-				bool done = false;				
-				switch(status)
-				{
-				case VPN.Status.Started:		done = PrepareStart();
-													break;
-
-				case VPN.Status.Stopped:		done = PrepareStop();
-													break;
-				}
-
-				return done;
-			}
-		}
-		
-
-		private bool PrepareStart()
-		{
-			if(m_status != VPN.Status.Stopped)
-				return false;
-
-			OnStatusChanged(VPN.Status.Starting);
-
-			m_tasksManager.Add((CancellationToken c) =>
-			{
-				m_cancelRequest = c;
-				OnStart();				
-			});
-
-			return true;
-		}
-		
-		private bool PrepareStop()
-		{
-			if(m_status != VPN.Status.Started)
-				return false;
-
-			OnStatusChanged(VPN.Status.Stopping);
-
-			m_tasksManager.Add((CancellationToken c) =>
-			{
-				m_cancelRequest = c;
-				OnStop();				
-			});			
-
-			return true;
-		}
-		*/
-		/*
-		private void OnStart()
-		{
-			// The first time Android requires a confirmation from the user to start the VPN service			
-
-			//Intent confirmIntent = VPNService.Prepare(m_context.ApplicationContext);
-			//if(confirmIntent != null)
-			//	m_context.StartActivityForResult(confirmIntent, VPN_REQUEST_CODE);
-			//else
-			//	HandleActivityResult(VPN_REQUEST_CODE, Result.Ok, null);
-
-			//SendStartMessage();
-		}
-		*/
 		
         public void HandleActivityResult(int requestCode, Result resultCode, Intent data)
 		{
@@ -293,21 +233,6 @@ namespace Eddie.NativeAndroidApp
 			return new Intent(m_context, typeof(VPNService));
 		}
 
-		/*
-		private void OnStop()
-		{
-			try
-			{
-				SendStopMessage();
-				OnStatusChanged(Status.Stopped);
-			}
-			catch(Exception e)
-			{
-				OnStatusChanged(Status.Stopped, e.Message);
-			}			
-		}
-		*/
-			
 		private void OnStatusChanged(bool? ready, VPN.Status ? status = null, string error = "")
 		{
 			lock(m_dataSync)
@@ -356,13 +281,6 @@ namespace Eddie.NativeAndroidApp
 			m_context.StartService(CreateServiceIntent());
 
 			SendMessage(Message.Obtain(null, VPNService.MSG_START), CreateProfileBundle());
-			
-			/*
-			Message message = Message.Obtain ();
-			Bundle b = new Bundle ();
-			b.PutString ("InputText", "text from client");
-			message.Data = b;
-			*/
 		}
 
 		private Bundle CreateProfileBundle()
@@ -506,10 +424,10 @@ namespace Eddie.NativeAndroidApp
 
 		public void OnMessage(Message msg)
 		{
-			//LogsManager.Instance.Debug("VPNManager.OnMessage(What={0})", msg.What);
-
             if(msg == null)
                 return;
+
+            // LogsManager.Instance.Debug("VPNManager.OnMessage(What={0})", msg.What);
 
 			switch(msg.What)
 			{

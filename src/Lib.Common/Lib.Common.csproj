@@ -48,6 +48,7 @@
     <Compile Include="collections\OrderedSet.cs" />
     <Compile Include="CommandLine.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Conversions.cs" />
     <Compile Include="Converter.cs" />
     <Compile Include="crypto\CryptManager.cs" />
     <Compile Include="IApplication.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="log\LogEntry.cs" />
     <Compile Include="log\LogLevel.cs" />
     <Compile Include="log\LogsManager.cs" />
+    <Compile Include="Messages.cs" />
     <Compile Include="MessagesUi.cs" />
     <Compile Include="MessagesFormatter.cs" />
     <Compile Include="Options.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="tasks\TasksManager.cs" />
     <Compile Include="threading\DataLocker.cs" />
     <Compile Include="threading\ThreadsGroup.cs" />
+    <Compile Include="UiClient.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="validators\ArgumentVerifier.cs" />
     <Compile Include="validators\NullVerifier.cs" />

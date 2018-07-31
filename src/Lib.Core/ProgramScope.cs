@@ -44,7 +44,7 @@ namespace Eddie.Core
             get
             {
                 if (m_guid == "")
-                    m_guid = UtilsCore.GetRandomToken();
+                    m_guid = RandomGenerator.GetHash();
                 return m_guid;
             }
         }

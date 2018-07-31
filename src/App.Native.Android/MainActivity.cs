@@ -35,7 +35,7 @@ using Eddie.Common.Log;
 namespace Eddie.NativeAndroidApp
 {
     [Activity (Label = "Eddie - OpenVPN GUI", Icon = "@drawable/icon", Theme="@style/AppTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
-    public class MainActivity : AppCompatActivity
+    public class MainActivity : AppCompatActivity, INetworkStatusReceiverListener
 	{
         private const int ACTIVITY_RESULT_FILE_CHOOSER = 1000;
         private const int ACTIVITY_RESULT_SETTINGS = 1001;
@@ -44,18 +44,19 @@ namespace Eddie.NativeAndroidApp
         private SettingsManager settingsManager = new SettingsManager();
 
 		private VPNManager vpnManager = null;
-        private VPN.Status currentConnectionStatus = VPN.Status.NotConnected;
+        private VPN.Status currentConnectionStatus = VPN.Status.NOT_CONNECTED;
         private Toolbar toolbar = null;
         private DrawerLayout drawer = null;
         private ActionBarDrawerToggle drawerToggle = null;
         private NavigationView navigationView = null;
         private Button btnSelectProfile = null, btnConnectProfile = null, btnDisconnectProfile = null;
         private TextView txtProfileFileName = null, txtServerName = null, txtServerPort = null, txtServerProtocol = null;
-        private TextView txtConnectionStatus = null, txtConnectionError = null;
+        private TextView txtVpnStatus = null, txtNetworkStatus = null, txtConnectionError = null;
         private LinearLayout llServerInfo = null, llConnectionError = null;
         private Uri profileUri = null;
         private string profileData = "";
         private Dictionary<string, string> profileInfo = null;
+        private NetworkStatusReceiver networkStatusReceiver = null;
 
 		protected override void OnCreate(Bundle bundle)
 		{
@@ -64,6 +65,12 @@ namespace Eddie.NativeAndroidApp
             SetContentView(Resource.Layout.main_activity_layout);
 
             supportTools = new SupportTools(this);
+
+            networkStatusReceiver = new NetworkStatusReceiver();
+            networkStatusReceiver.AddListener(this);
+            this.RegisterReceiver(networkStatusReceiver, new IntentFilter(Android.Net.ConnectivityManager.ConnectivityAction));
+
+            NetworkStatusReceiver.Status type = NetworkStatusReceiver.GetNetworkStatus();
 
             toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
@@ -111,8 +118,11 @@ namespace Eddie.NativeAndroidApp
                 OnStopConnection();
             };
 
-            txtConnectionStatus = FindViewById<TextView>(Resource.Id.connection_status);
-            txtConnectionStatus.Text = Resources.GetString(Resource.String.conn_status_disconnected);
+            txtVpnStatus = FindViewById<TextView>(Resource.Id.vpn_connection_status);
+            txtVpnStatus.Text = Resources.GetString(Resource.String.conn_status_disconnected);
+
+            txtNetworkStatus = FindViewById<TextView>(Resource.Id.network_connection_status);
+            txtNetworkStatus.Text = Resources.GetString(Resource.String.conn_status_disconnected);
 
             llConnectionError = FindViewById<LinearLayout>(Resource.Id.connection_error_layout);
 
@@ -154,7 +164,7 @@ namespace Eddie.NativeAndroidApp
                 {
                     if(resultCode == Result.Ok)
                     {
-                        if(currentConnectionStatus == VPN.Status.Connected)
+                        if(currentConnectionStatus == VPN.Status.CONNECTED)
                             supportTools.InfoDialog(Resource.String.settings_changed);
                     }
                 }
@@ -287,6 +297,15 @@ namespace Eddie.NativeAndroidApp
 				vpnManager.HandleActivityStop();
 		}
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+    
+            networkStatusReceiver.RemoveListener(this);
+    
+            this.UnregisterReceiver(networkStatusReceiver);
+        }
+
         protected void OnNavigationViewItemSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             drawer.CloseDrawers();
@@ -343,7 +362,7 @@ namespace Eddie.NativeAndroidApp
 
         protected void OnClickSelectProfileButton()
         {
-            if(currentConnectionStatus == VPN.Status.Connected)
+            if(currentConnectionStatus == VPN.Status.CONNECTED)
             {
                 supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.conn_disconnect_first), profileInfo["server"]));
 
@@ -352,8 +371,8 @@ namespace Eddie.NativeAndroidApp
 
             Intent fileChooserIntent = new Intent();
 
-            fileChooserIntent.SetType("*/*");
             fileChooserIntent.SetAction(Intent.ActionGetContent);
+            fileChooserIntent.SetType("*/*");
 
             StartActivityForResult(Intent.CreateChooser(fileChooserIntent, Resources.GetString(Resource.String.conn_select_profile_cap)), ACTIVITY_RESULT_FILE_CHOOSER);
         }
@@ -418,13 +437,13 @@ namespace Eddie.NativeAndroidApp
         private void UpdateConnectionStatus(bool ready, VPN.Status status, string error)
         {
             if(ready)
-                txtConnectionStatus.Text = Resources.GetString(VPN.DescriptionResource(status));
+                txtVpnStatus.Text = Resources.GetString(VPN.DescriptionResource(status));
             else
-                txtConnectionStatus.Text = Resources.GetString(Resource.String.conn_status_initialize);
+                txtVpnStatus.Text = Resources.GetString(Resource.String.conn_status_initialize);
 
-            btnConnectProfile.Enabled = ready && (status == VPN.Status.NotConnected);
+            btnConnectProfile.Enabled = ready && (status == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
 
-            btnDisconnectProfile.Enabled = (status == VPN.Status.Connecting) || (status == VPN.Status.Connected);
+            btnDisconnectProfile.Enabled = (status == VPN.Status.CONNECTING) || (status == VPN.Status.CONNECTED) || (status == VPN.Status.PAUSED) || (status == VPN.Status.LOCKED);
 
             if(currentConnectionStatus != status)
             {
@@ -432,19 +451,27 @@ namespace Eddie.NativeAndroidApp
                 
                 switch(status)
                 {
-                    case VPN.Status.Connected:
+                    case VPN.Status.CONNECTED:
                     {
-                        supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.connection_success), profileInfo["server"]));
+                        supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.connection_success), profileInfo["server"], NetworkStatusReceiver.GetNetworkDescription()));
 
                         settingsManager.SystemLastProfileIsConnected = true;
                     }
                     break;
 
-                    case VPN.Status.NotConnected:
+                    case VPN.Status.NOT_CONNECTED:
                     {
                         supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.connection_disconnected), profileInfo["server"]));
 
                         settingsManager.SystemLastProfileIsConnected = false;
+                    }
+                    break;
+
+                    case VPN.Status.PAUSED:
+                    {
+                        supportTools.InfoDialog(Resources.GetString(Resource.String.connection_paused));
+
+                        settingsManager.SystemLastProfileIsConnected = true;
                     }
                     break;
 
@@ -488,6 +515,71 @@ namespace Eddie.NativeAndroidApp
                 llConnectionError.Visibility = ViewStates.Gone;
                 txtConnectionError.Text = "";
             }
+        }
+        
+        // NetworkStatusReceiver
+        
+        public void OnNetworkStatusNotAvailable()
+        {
+            if(txtNetworkStatus != null)
+                txtNetworkStatus.Text = Resources.GetString(Resource.String.conn_status_not_available);
+                        
+            if(btnConnectProfile != null)
+                btnConnectProfile.Enabled = (currentConnectionStatus == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
+        }
+
+        public void OnNetworkStatusConnected()
+        {
+            if(txtNetworkStatus != null)
+                txtNetworkStatus.Text = string.Format(Resources.GetString(Resource.String.conn_status_connected), NetworkStatusReceiver.GetNetworkDescription());
+            
+            if(btnConnectProfile != null)
+                btnConnectProfile.Enabled = (currentConnectionStatus == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
+        }
+    
+        public void OnNetworkStatusIsConnecting()
+        {
+            if(txtNetworkStatus != null)
+                txtNetworkStatus.Text = Resources.GetString(Resource.String.conn_status_not_available);
+            
+            if(btnConnectProfile != null)
+                btnConnectProfile.Enabled = (currentConnectionStatus == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
+        }
+    
+        public void OnNetworkStatusIsDisonnecting()
+        {
+            if(txtNetworkStatus != null)
+                txtNetworkStatus.Text = Resources.GetString(Resource.String.conn_status_not_available);
+            
+            if(btnConnectProfile != null)
+                btnConnectProfile.Enabled = (currentConnectionStatus == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
+        }
+    
+        public void OnNetworkStatusSuspended()
+        {
+            if(txtNetworkStatus != null)
+                txtNetworkStatus.Text = Resources.GetString(Resource.String.conn_status_not_available);
+            
+            if(btnConnectProfile != null)
+                btnConnectProfile.Enabled = (currentConnectionStatus == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
+        }
+    
+        public void OnNetworkStatusNotConnected()
+        {
+            if(txtNetworkStatus != null)
+                txtNetworkStatus.Text = Resources.GetString(Resource.String.conn_status_disconnected);
+            
+            if(btnConnectProfile != null)
+                btnConnectProfile.Enabled = (currentConnectionStatus == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
+        }
+    
+        public void OnNetworkTypeChanged()
+        {
+            if(txtNetworkStatus != null)
+                txtNetworkStatus.Text = Resources.GetString(Resource.String.conn_status_disconnected);
+            
+            if(btnConnectProfile != null)
+                btnConnectProfile.Enabled = (currentConnectionStatus == VPN.Status.NOT_CONNECTED) && NetworkStatusReceiver.IsNetworkConnected();
         }
     }
 }

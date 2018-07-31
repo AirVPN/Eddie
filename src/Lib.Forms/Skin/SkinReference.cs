@@ -122,7 +122,7 @@ namespace Eddie.Forms.Skin
                 double userBaseSize = Engine.Instance.Storage.GetFloat("gui.font.normal.size");
                 if (userBaseSize == 0)
                 {
-                    string systemFont = Core.Platform.Instance.GetSystemFont();
+                    string systemFont = GuiUtils.GetSystemFont();
                     int posSize = systemFont.IndexOf(",");
 
                     string strSize = systemFont.Substring(posSize + 1);
@@ -141,11 +141,11 @@ namespace Eddie.Forms.Skin
                         if(Engine.Instance.Storage.Get("gui.font.normal.name") != "")
                             systemFont = Engine.Instance.Storage.Get("gui.font.normal.name");
                         else
-                            systemFont = Core.Platform.Instance.GetSystemFont();
+                            systemFont = GuiUtils.GetSystemFont();
                     }
                         
                     else if (fontName == "SystemMonospace")
-                            systemFont = Core.Platform.Instance.GetSystemFontMonospace();
+                            systemFont = GuiUtils.GetSystemFontMonospace();
                     int posSize = systemFont.IndexOf(",");
                     if (posSize != -1)
                         systemFont = systemFont.Substring(0, posSize);

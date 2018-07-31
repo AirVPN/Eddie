@@ -153,6 +153,11 @@ namespace Eddie.UI.Cocoa.Osx
 			return false;
 		}
 
+        public static void OpenUrl(string url)
+        {
+            System.Diagnostics.Process.Start(url);
+        }
+
 		public static void ShowWindowWithFocus(AppKit.NSWindowController w, AppKit.NSWindowController parent)
 		{
 			w.ShowWindow(parent);

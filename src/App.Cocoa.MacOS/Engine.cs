@@ -34,7 +34,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public List<AppKit.NSWindowController> WindowsOpen = new List<AppKit.NSWindowController>();
 
-		private WindowReportController m_windowReport;
+		//private WindowReportController m_windowReport;
 
 		public Engine()
 		{
@@ -132,50 +132,6 @@ namespace Eddie.UI.Cocoa.Osx
 			OnRefreshUi(RefreshUiMode.Log);
 		}
 
-		public override Json OnCommand(Json data)
-		{
-			string cmd = data["command"].Value as string;
-
-			if (cmd == "ui.notification")
-			{
-				if (MainWindow != null)
-				{
-					new NSObject().InvokeOnMainThread(() =>
-					{
-						MainWindow.ShowNotification(data["message"].Value as string);
-					});
-				}
-			}
-			else if (cmd == "ui.color")
-			{
-				if (MainWindow != null)
-				{
-					new NSObject().InvokeOnMainThread(() =>
-					{
-						MainWindow.SetColor(data["color"].Value as string);
-					});
-				}
-			}
-			else if (cmd == "ui.status")
-			{
-				if (MainWindow != null)
-				{
-					string textFull = data["full"].Value as string;
-					string textShort = textFull;
-					if (data.HasKey("short"))
-						textShort = data["short"].Value as string;
-
-					new NSObject().InvokeOnMainThread(() =>
-					{
-						MainWindow.SetStatus(textFull, textShort);
-					});
-				}
-			}
-
-			return base.OnCommand(data);
-		}
-
-
 		public override void OnFrontMessage(string message)
 		{
 			base.OnFrontMessage(message);
@@ -233,26 +189,6 @@ namespace Eddie.UI.Cocoa.Osx
 				});
 			}
 			return cred;
-		}
-
-		public override void OnSystemReport(string step, string text, int perc)
-		{
-			base.OnSystemReport(step, text, perc);
-
-			if (MainWindow != null)
-			{
-				new NSObject().InvokeOnMainThread(() =>
-				{
-					if ((m_windowReport == null) || (m_windowReport.Window.IsVisible == false))
-					{
-						m_windowReport = new WindowReportController();
-						GuiUtils.ShowWindowWithFocus(m_windowReport, this.MainWindow);
-					}
-
-					if (m_windowReport != null)
-						m_windowReport.SetStep(step, text, perc);
-				});
-			}
 		}
 
 		public override void OnLoggedUpdate(XmlElement xmlKeys)

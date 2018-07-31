@@ -40,14 +40,53 @@ namespace Eddie.NativeAndroidApp
 
 		public enum EventType
 		{
-			message = 0,
-			warning = 1,
-			error = 2
+            FATAL_ERROR = -4,
+            ERROR = -3,
+            FORMAL_WARNING = -2,
+            MESSAGE = -1,
+            DISCONNECTED = 0,
+            CONNECTED,
+            RECONNECTING,
+            AUTH_PENDING,
+            RESOLVE,
+            WAIT,
+            WAIT_PROXY,
+            CONNECTING,
+            GET_CONFIG,
+            ASSIGN_IP,
+            ADD_ROUTES,
+            ECHO_OPT,
+            INFO,
+            WARN,
+            PAUSE,
+            RESUME,
+            RELAY,
+            UNSUPPORTED_FEATURE,
+            TRANSPORT_ERROR,
+            TUN_ERROR,
+            CLIENT_RESTART,
+            AUTH_FAILED,
+            CERT_VERIFY_FAIL,
+            TLS_VERSION_MIN,
+            CLIENT_HALT,
+            CLIENT_SETUP,
+            CONNECTION_TIMEOUT,
+            INACTIVE_TIMEOUT,
+            DYNAMIC_CHALLENGE,
+            PROXY_NEED_CREDS,
+            PROXY_ERROR,
+            TUN_SETUP_FAILED,
+            TUN_IFACE_CREATE,
+            TUN_IFACE_DISABLED,
+            EPKI_ERROR,
+            EPKI_INVALID_ALIAS,
+            RELAY_ERROR,
+            N_TYPES
 		}
 
 		public struct ovpn3_event
 		{
-			public int type;
+			public NativeMethods.EventType type;
             [MarshalAs(UnmanagedType.LPStr)]
             public string name;      
             [MarshalAs(UnmanagedType.LPStr)]

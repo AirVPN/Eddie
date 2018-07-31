@@ -366,18 +366,6 @@ namespace Eddie.Platform.MacOS
 			return NativeMethods.eddie_ip_ping(host.ToString(), timeoutSec * 1000);
 		}
 
-		public override string GetSystemFont()
-		{
-			// Crash with Xamarin 6.1.2
-			return "";
-		}
-
-		public override string GetSystemFontMonospace()
-		{
-			// Crash with Xamarin 6.1.2
-			return "";
-		}
-
 		public override string GetDriverAvailable()
 		{
 			return "Expected";

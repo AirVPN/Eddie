@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Eddie.Core
+namespace Eddie.Common
 {
 	// Here messages used only by Core
 	public static class Messages
@@ -364,7 +364,7 @@ namespace Eddie.Core
 
 		public static string ScoreUnknown = "NC";
 
-		public static string ConsoleHelp = "Run the program with login & password of your AirVPN account. For example:\nairvpn -cli -login=mynick -password=mypassword\n\nSee https://airvpn.org/software/ for more information, or run with -help for inline manual.";
+		public static string ConsoleHelp = "Run the program with login & password of your AirVPN account. For example:\neddie-ui -cli -login=mynick -password=mypassword\n\nSee https://eddie.website/ for more information, or run with -help for inline manual.";
 
 		public static string ToolsCurlRequired = "curl is required.";
 		public static string ToolsCurlVersionNotSupported = "curl version {1} installed in your system is too old. Version {2} or higher required. Please upgrade.";

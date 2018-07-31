@@ -25,6 +25,7 @@ using AppKit;
 using CoreGraphics;
 using Eddie.Core;
 using Eddie.Core.UI;
+using Eddie.Common;
 
 namespace Eddie.UI.Cocoa.Osx
 {

@@ -40,9 +40,17 @@ namespace Eddie.NativeAndroidApp
 
 		private CancellationToken m_cancellationToken;
 		
-		private bool m_clientPaused = false;
+		private VPN.Status vpnClientStatus = VPN.Status.UNKNOWN;
 
         private SettingsManager settingsManager = new SettingsManager();
+
+        public enum VPNAction
+        {
+            PAUSE = 1,
+            RESUME,
+            LOCK,
+            NETWORK_TYPE_CHANGED
+        }
 
 		public OpenVPNTunnel(VPNService service)
 		{
@@ -131,16 +139,129 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnEvent(ref NativeMethods.ovpn3_event oe)
 		{
-			LogsManager.Instance.Debug("OnEvent(type={0}, name={1}, info={2}, data={3})", oe.type, oe.name, oe.info, oe.data.ToString());
-		
 			try
-			{
-				OnEventImpl(ref oe);
-			}
-			catch(Exception e)
-			{
-				LogsManager.Instance.Error("OnEvent", e);
-			}			
+            {
+                switch(oe.type)
+                {
+                    case NativeMethods.EventType.MESSAGE:
+                    case NativeMethods.EventType.INFO:
+                    {
+                        LogsManager.Instance.Info("{0}: {1}", oe.name, oe.info);
+                    }
+                    break;
+
+                    case NativeMethods.EventType.WARN:
+                    {
+                        LogsManager.Instance.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
+                    }
+                    break;
+
+                    case NativeMethods.EventType.ERROR:
+                    case NativeMethods.EventType.FATAL_ERROR:
+                    {
+                        if(IgnoredError(oe.name))
+                        {
+                            LogsManager.Instance.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
+                        }
+                        else
+                        {
+                            // It seems OpenVPN is having BIG troubles with the connection
+                            // In order to prevent worse conditions, try to lock the VPN (in case it is possible)
+    
+                            LogsManager.Instance.Error("OpenVPN3 Fatal Error {0}: {1}", oe.name, oe.info);
+                            
+                            NetworkStatusChanged(VPNAction.LOCK);
+    
+                            m_service.DoChangeStatus(VPN.Status.LOCKED);
+    
+                            AlertNotification(m_service.Resources.GetString(Resource.String.connection_vpn_error));
+                        }
+                    }
+                    break;
+                    
+                    case NativeMethods.EventType.FORMAL_WARNING:
+                    {
+                        if(IgnoredError(oe.name))
+                        {
+                            LogsManager.Instance.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
+                        }
+                        else
+                        {
+                            // It seems OpenVPN is having troubles with the connection
+                            // In order to prevent worse conditions, lock the VPN
+    
+                            LogsManager.Instance.Error("OpenVPN3 {0}: {1}", oe.name, oe.info);
+                            
+                            NetworkStatusChanged(VPNAction.LOCK);
+    
+                            m_service.DoChangeStatus(VPN.Status.LOCKED);
+    
+                            AlertNotification(m_service.Resources.GetString(Resource.String.connection_vpn_formal_warning));
+                        }
+                    }
+                    break;
+
+                    case NativeMethods.EventType.TUN_ERROR:
+                    case NativeMethods.EventType.CLIENT_RESTART:
+                    case NativeMethods.EventType.AUTH_FAILED:
+                    case NativeMethods.EventType.CERT_VERIFY_FAIL:
+                    case NativeMethods.EventType.TLS_VERSION_MIN:
+                    case NativeMethods.EventType.CLIENT_HALT:
+                    case NativeMethods.EventType.CLIENT_SETUP:
+                    case NativeMethods.EventType.CONNECTION_TIMEOUT:
+                    case NativeMethods.EventType.INACTIVE_TIMEOUT:
+                    case NativeMethods.EventType.DYNAMIC_CHALLENGE:
+                    case NativeMethods.EventType.PROXY_NEED_CREDS:
+                    case NativeMethods.EventType.PROXY_ERROR:
+                    case NativeMethods.EventType.TUN_SETUP_FAILED:
+                    case NativeMethods.EventType.TUN_IFACE_CREATE:
+                    case NativeMethods.EventType.TUN_IFACE_DISABLED:
+                    case NativeMethods.EventType.EPKI_ERROR:
+                    case NativeMethods.EventType.EPKI_INVALID_ALIAS:
+                    {
+                        // These OpenVPN events may cause a fatal error
+                        // In order to prevent worse conditions, lock the VPN
+
+                        LogsManager.Instance.Error("OpenVPN {0}: {1}", oe.name, oe.info);
+                        
+                        NetworkStatusChanged(VPNAction.LOCK);
+
+                        m_service.DoChangeStatus(VPN.Status.LOCKED);
+
+                        AlertNotification(m_service.Resources.GetString(Resource.String.connection_vpn_formal_warning));
+                    }
+                    break;
+
+                    case NativeMethods.EventType.CONNECTED:
+                    {
+                        if(oe.data.ToInt64() != 0)
+                        {
+                            NativeMethods.ovpn3_connection_data connectionData = Marshal.PtrToStructure<NativeMethods.ovpn3_connection_data>(oe.data);
+
+                            LogsManager.Instance.Info("CONNECTED: defined={0}, user={1}, serverHost={2}, serverPort={3}, serverProto={4}, serverIp={5}, vpnIp4={6}, vpnIp6={7}, gw4={8}, gw6={9}, clientIp={10}, tunName={11}", connectionData.defined, connectionData.user, connectionData.serverHost, connectionData.serverPort, connectionData.serverProto, connectionData.serverIp, connectionData.vpnIp4, connectionData.vpnIp6, connectionData.gw4, connectionData.gw6, connectionData.clientIp, connectionData.tunName);
+                        }
+                    }
+                    break;
+
+                    case NativeMethods.EventType.TRANSPORT_ERROR:
+                    case NativeMethods.EventType.RELAY_ERROR:
+                    case NativeMethods.EventType.DISCONNECTED:
+                    {
+                        LogsManager.Instance.Warning("OpenVPN {0} - {1}: {2}", oe.type, oe.name, oe.info);
+                    }
+                    break;
+
+                    default:
+                    {
+                        LogsManager.Instance.Debug("OpenVPN Event: type={0}, name={1}, info={2}, data={3}", oe.type, oe.name, oe.info, oe.data.ToString());
+                    }
+                    break;
+                }
+            }
+            catch(Exception e)
+            {
+                LogsManager.Instance.Error("OnEvent", e);
+            }           
 		}
 
 		private string GetEventContent(ref NativeMethods.ovpn3_event oe)
@@ -153,15 +274,6 @@ namespace Eddie.NativeAndroidApp
 
 			return name + ": " + info;			
 		}
-	
-		private void OnEventImpl(ref NativeMethods.ovpn3_event oe)
-		{
-			if(oe.name != "CONNECTED" || (oe.data.ToInt64() == 0))
-				return;
-
-			NativeMethods.ovpn3_connection_data connectionData = Marshal.PtrToStructure<NativeMethods.ovpn3_connection_data>(oe.data);
-			LogsManager.Instance.Debug("CONNECTED: defined={0}, user={1}, serverHost={2}, serverPort={3}, serverProto={4}, serverIp={5}, vpnIp4={6}, vpnIp6={7}, gw4={8}, gw6={9}, clientIp={10}, tunName={11}", connectionData.defined, connectionData.user, connectionData.serverHost, connectionData.serverPort, connectionData.serverProto, connectionData.serverIp, connectionData.vpnIp4, connectionData.vpnIp6, connectionData.gw4, connectionData.gw6, connectionData.clientIp, connectionData.tunName);			
-		}		
 
 		private int OnSocketProtectImpl(int socket)
 		{
@@ -252,47 +364,142 @@ namespace Eddie.NativeAndroidApp
 			return NativeMethods.ERROR;			
 		}
 
-		public void HandleScreenChanged(bool active)
+		public VPN.Status HandleScreenChanged(bool active)
 		{
+            if(vpnClientStatus == VPN.Status.LOCKED)
+                return vpnClientStatus;
+
 			lock(m_clientSync)
 			{
 				if(m_client == null)
-					return;
+					return vpnClientStatus;
 
 				if(active)
 				{
-					if(m_clientPaused)
+					if(vpnClientStatus == VPN.Status.PAUSED)
 					{
-						m_clientPaused = false;
-
-						LogsManager.Instance.Debug("Client has been paused, trying resume VPN...");
+						LogsManager.Instance.Info("Screen is now on, trying to resume VPN");
 
 						if(m_client.Resume())
-							LogsManager.Instance.Debug("Client resumed");
+                        {
+							LogsManager.Instance.Info("VPN resumed");
+                            
+                            vpnClientStatus = VPN.Status.CONNECTED;
+                        }
 						else
-							LogsManager.Instance.Error("Client resume failed");						
+                        {
+							LogsManager.Instance.Error("VPN resume failed");
+                            
+                            vpnClientStatus = VPN.Status.UNKNOWN;
+                        }
 					}
 				}
 				else
 				{
 					if(settingsManager.SystemPauseVpnWhenScreenIsOff)
 					{
-                        LogsManager.Instance.Debug("Battery saver is on, trying to pause VPN...");
+                        LogsManager.Instance.Info("Screen is now off, trying to pause VPN");
 
 						if(m_client.Pause("screen_off"))
 						{
-                            m_clientPaused = true;
-
-                            LogsManager.Instance.Debug("Client paused");
+                            LogsManager.Instance.Info("VPN paused");
+                            
+                            vpnClientStatus = VPN.Status.PAUSED;
 						}
 						else
 						{
-                            LogsManager.Instance.Debug("Client pause failed");
+                            LogsManager.Instance.Error("VPN pause failed");
+
+                            vpnClientStatus = VPN.Status.NOT_CONNECTED;
 						}
 					}
 				}
 			}
+            
+            UpdateNotification(vpnClientStatus);
+
+            return vpnClientStatus;
 		}
+
+        public VPN.Status NetworkStatusChanged(VPNAction action)
+        {
+            if(vpnClientStatus == VPN.Status.LOCKED)
+                return vpnClientStatus;
+
+            lock(m_clientSync)
+            {
+                if(m_client == null)
+                    return vpnClientStatus;
+
+                switch(action)
+                {
+                    case VPNAction.RESUME:
+                    {
+                        if(vpnClientStatus == VPN.Status.PAUSED)
+                        {
+                            LogsManager.Instance.Info("Network is now connected, trying to resume VPN");
+    
+                            if(m_client.Resume())
+                            {
+                                LogsManager.Instance.Info("VPN resumed");
+                                
+                                vpnClientStatus = VPN.Status.CONNECTED;
+                            }
+                            else
+                            {
+                                LogsManager.Instance.Error("VPN resume failed");                     
+                                
+                                vpnClientStatus = VPN.Status.UNKNOWN;
+                            }
+                        }
+                    }
+                    break;
+
+                    case VPNAction.PAUSE:
+                    case VPNAction.NETWORK_TYPE_CHANGED:
+                    {
+                        LogsManager.Instance.Info("Network status has changed, trying to pause VPN");
+    
+                        if(m_client.Pause("network_status"))
+                        {
+                            LogsManager.Instance.Info("VPN paused");
+                            
+                            vpnClientStatus = VPN.Status.PAUSED;
+                        }
+                        else
+                        {
+                            LogsManager.Instance.Error("VPN pause failed");
+                            
+                            vpnClientStatus = VPN.Status.NOT_CONNECTED;
+                        }
+                    }
+                    break;
+
+                    case VPNAction.LOCK:
+                    {
+                        LogsManager.Instance.Info("VPN error detected. Locking VPN");
+    
+                        if(m_client.Pause("VPN_lock"))
+                        {
+                            LogsManager.Instance.Info("VPN locked");
+                            
+                            vpnClientStatus = VPN.Status.LOCKED;
+                        }
+                        else
+                        {
+                            LogsManager.Instance.Error("VPN locking failed");
+
+                            vpnClientStatus = VPN.Status.NOT_CONNECTED;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            UpdateNotification(vpnClientStatus);
+
+            return vpnClientStatus;
+        }
 
 		private int OnTunBuilderAddAddressImpl(string address, int prefix_length, string gateway, /*bool*/ int ipv6, /*bool*/ int net30)
 		{
@@ -901,6 +1108,7 @@ namespace Eddie.NativeAndroidApp
 			try
 			{
 				DoRun();
+
 				Service.HandleThreadStopped();
 			}
 			catch(Exception e)
@@ -968,5 +1176,79 @@ namespace Eddie.NativeAndroidApp
 				}
 			}			
 		}
+
+        private void AlertNotification(string message)
+        {
+            if(message.Equals(""))
+                return;
+
+            m_service.AlertNotification(message);
+        }
+
+        private void UpdateNotification(VPN.Status status)
+        {
+            string text, server = "";
+
+            if(status != VPN.Status.CONNECTED && status != VPN.Status.PAUSED && status != VPN.Status.LOCKED)
+                return;
+
+            Dictionary<string, string> pData = settingsManager.SystemLastProfileInfo;
+                
+            if(pData.Count > 0 && pData.ContainsKey("server"))
+                server = pData["server"];
+
+            text = String.Format(m_service.Resources.GetString(Resource.String.notification_text), server);
+            
+            if(!NetworkStatusReceiver.GetNetworkDescription().Equals(""))
+                text += " " + String.Format(m_service.Resources.GetString(Resource.String.notification_network), NetworkStatusReceiver.GetNetworkDescription());
+
+            if(status == VPN.Status.PAUSED)
+                text += " (" + m_service.Resources.GetString(Resource.String.vpn_status_paused) + ")";
+                
+            if(status == VPN.Status.LOCKED)
+                text += " (" + m_service.Resources.GetString(Resource.String.vpn_status_locked) + ")";
+
+            m_service.UpdateNotification(text);
+        }
+        
+        private void ResumeVPNAfterSeconds(int seconds)
+        {
+            LogsManager.Instance.Info("VPN will be resumed in {0} seconds", seconds);
+
+            System.Timers.Timer timer = new System.Timers.Timer();
+
+            timer.Elapsed += (sender, args) =>
+            {
+                LogsManager.Instance.Info("Trying to resume VPN");
+
+                NetworkStatusChanged(VPNAction.RESUME);
+                
+                timer.Enabled = false;
+            };
+
+            timer.Interval = seconds * 1000;
+            timer.Enabled = true;
+        }
+        
+        private bool IgnoredError(string s)
+        {
+            bool ignoreWarning = false;
+            string[] ignoredKeys = new string[]{ "NETWORK_RECV_ERROR",
+                                                 "PKTID_INVALID",
+                                                 "PKTID_BACKTRACK",
+                                                 "PKTID_EXPIRE",
+                                                 "PKTID_REPLAY",
+                                                 "PKTID_TIME_BACKTRACK",
+                                                 "TRANSPORT_ERROR"
+                                               };
+
+            for(int i = 0; i < ignoredKeys.Length && ignoreWarning == false; i++)
+            {
+                if(s.Equals(ignoredKeys[i]))
+                    ignoreWarning = true;
+            }
+
+            return ignoreWarning;
+        }
 	}
 }

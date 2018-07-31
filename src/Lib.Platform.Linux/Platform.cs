@@ -35,9 +35,7 @@ namespace Eddie.Platform.Linux
 	{
 		private string m_version = "";
 		private string m_architecture = "";
-		private UInt32 m_uid;		
-		private string m_fontSystem;
-		private string m_fontMonoSpace;
+		private UInt32 m_uid;				
 		private string m_monoVersion = "2-generic";
 
 		private UInt32 m_userId = 0;
@@ -130,25 +128,6 @@ namespace Eddie.Platform.Linux
 
 				if ((m_userName != "") && (m_userId == 0))
 					m_userId = Conversions.ToUInt32("id -u " + m_userName);
-			}
-
-			m_fontSystem = "";
-			string gsettingsPath = LocateExecutable("gsettings"); // gnome
-			if (gsettingsPath != "")
-			{
-				m_fontSystem = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
-				int posSize = m_fontSystem.LastIndexOf(" ");
-				if (posSize != -1)
-					m_fontSystem = m_fontSystem.Substring(0, posSize) + "," + m_fontSystem.Substring(posSize + 1);
-			}
-
-			m_fontMonoSpace = "";
-			if (gsettingsPath != "")
-			{
-				m_fontMonoSpace = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
-				int posSize = m_fontMonoSpace.LastIndexOf(" ");
-				if (posSize != -1)
-					m_fontMonoSpace = m_fontMonoSpace.Substring(0, posSize) + "," + m_fontMonoSpace.Substring(posSize + 1);
 			}
 
 			NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
@@ -500,22 +479,6 @@ namespace Eddie.Platform.Linux
 		public override int GetRecommendedSndBufDirective()
 		{
 			return base.GetRecommendedSndBufDirective();
-		}
-
-		public override string GetSystemFont()
-		{
-			if (m_fontSystem != "")
-				return m_fontSystem;
-			else
-				return base.GetSystemFont();
-		}
-
-		public override string GetSystemFontMonospace()
-		{
-			if (m_fontMonoSpace != "")
-				return m_fontMonoSpace;
-			else
-				return base.GetSystemFontMonospace();
 		}
 
 		public override void FlushDNS()
@@ -1093,7 +1056,7 @@ namespace Eddie.Platform.Linux
 					}
 				}
 
-				Platform.Instance.FileContentsWriteText(path, currentId.ToString());
+				Platform.Instance.FileContentsWriteText(path, currentId.ToString(), Encoding.ASCII);
 
 				return true;
 			}
@@ -1158,7 +1121,7 @@ namespace Eddie.Platform.Linux
 				foreach (IpAddress dnsSingle in dns.IPs)
 					text += "nameserver " + dnsSingle.Address + "\n";
 
-				FileContentsWriteText("/etc/resolv.conf", text);
+				FileContentsWriteText("/etc/resolv.conf", text, Encoding.ASCII);
 				Platform.Instance.FileEnsurePermission("/etc/resolv.conf", "644");
 			}
 

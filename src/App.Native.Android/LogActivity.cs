@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using Android.Text;
 using Android.Views;
@@ -39,6 +40,7 @@ namespace Eddie.NativeAndroidApp
         private List<string> logEntry = null;
         private ListView listLogView = null;
         private ImageButton btnShare = null;
+        private ImageButton btnCommand = null;
         private long unixEpochTime = 0; // Unix rules forever. unixEpochTime is the beginning of everything. Dennis Ritchie, Ken Thompson and Brian Kernighan started the new and long lasting era of real and amazing computing. If computers, operating systems and mobile devices are what they are today, it certainly, clearly, unequivocally and undoubtedly is thanks to them all. Unix and C concepts are the foundation of everything and of modern computing. This is a fact, this is history. Long live Unix and C! [ProMIND]
         private LogListAdapter logListAdapter = null;
 
@@ -66,6 +68,13 @@ namespace Eddie.NativeAndroidApp
                 m_inflater = LayoutInflater.From(activity);
             }
 
+            public void DataSet(List<string> entryList)
+            {
+                logEntry = entryList;
+                
+                NotifyDataSetChanged();
+            }
+            
             public override int Count
             {
                 get
@@ -117,15 +126,16 @@ namespace Eddie.NativeAndroidApp
 
             listLogView = FindViewById<ListView>(Resource.Id.log);
 
-            logEntry = GetCurrentLog(FormatType.HTML, LogTime.LOCAL);
+            unixEpochTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).Ticks / TimeSpan.TicksPerSecond;
 
-            logListAdapter = new LogListAdapter(this, logEntry);
-            
-            listLogView.Adapter = logListAdapter;
+            btnCommand = FindViewById<ImageButton>(Resource.Id.btn_command);
+
+            btnCommand.Click += delegate
+            {
+                ConsoleCommand();
+            };
 
             btnShare = FindViewById<ImageButton>(Resource.Id.btn_share);
-
-            unixEpochTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).Ticks / TimeSpan.TicksPerSecond;
 
             btnShare.Click += delegate
             {
@@ -146,6 +156,22 @@ namespace Eddie.NativeAndroidApp
 
                 logSubject = string.Format(Resources.GetString(Resource.String.log_subject), dateFormatter.Format(logCurrenTimeZone));
 
+                logText = logSubject + "\n\nEddie for Android ";
+
+                try
+                {
+                    string pkgName = Application.Context.ApplicationContext.PackageManager.GetPackageInfo(Application.Context.ApplicationContext.PackageName, 0).VersionName;
+                    int pkgVersionCode = Application.Context.ApplicationContext.PackageManager.GetPackageInfo(Application.Context.ApplicationContext.PackageName, 0).VersionCode;
+
+                    logText += string.Format("{0} Version Code {1}", pkgName, pkgVersionCode);
+                }
+                catch
+                {
+                    logText += "n.d.";
+                }
+
+                logText += "\n\n";
+
                 exportLog = GetCurrentLog(FormatType.PLAIN_TEXT, LogTime.UTC);
 
                 foreach(string entry in exportLog)
@@ -160,6 +186,12 @@ namespace Eddie.NativeAndroidApp
                 
                 StartActivity(Intent.CreateChooser(shareIntent, Resources.GetString(Resource.String.log_share_with)));
             };
+
+            logEntry = GetCurrentLog(FormatType.HTML, LogTime.LOCAL);
+
+            logListAdapter = new LogListAdapter(this, logEntry);
+            
+            listLogView.Adapter = logListAdapter;
         }
         
         private List<string> GetCurrentLog(FormatType formatType = FormatType.HTML, LogTime logTime = LogTime.UTC)
@@ -178,9 +210,13 @@ namespace Eddie.NativeAndroidApp
 
             if(logTime == LogTime.UTC)
                 dateFormatter.TimeZone = Java.Util.TimeZone.GetTimeZone("GMT");
+            else
+                dateFormatter.TimeZone = Java.Util.TimeZone.Default;
 
             using(DataLocker<List<LogEntry>> entries = LogsManager.Instance.Entries)
             {
+                string logMsg;
+
                 logItem = new List<string>();
 
                 foreach(LogEntry entry in entries.Data)
@@ -235,7 +271,9 @@ namespace Eddie.NativeAndroidApp
                                 break;
                             }
                             
-                            log += "'>"  + entry.Level + "</font>]: " + entry.Message;
+                            logMsg = entry.Message.Replace("\n", "<br>");
+
+                            log += "'>"  + entry.Level + "</font>]: " + logMsg;
                         }
                         break;
 
@@ -257,6 +295,75 @@ namespace Eddie.NativeAndroidApp
             }
             
             return logItem;
+        }
+        
+        void ConsoleCommand()
+        {
+            AlertDialog commandDialog = null;
+            Button btnSend = null;
+            Button btnCancel = null;
+
+            Handler dialogHandler = new Handler(m => { throw new Java.Lang.RuntimeException(); });
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+    
+            View content = LayoutInflater.From(this).Inflate(Resource.Layout.edit_option_dialog, null);
+
+            EditText edtKey = content.FindViewById<EditText>(Resource.Id.key);
+
+            edtKey.Text = "";
+
+            btnSend = content.FindViewById<Button>(Resource.Id.btn_ok);
+            btnCancel = content.FindViewById<Button>(Resource.Id.btn_cancel);
+
+            btnSend.Text = Resources.GetString(Resource.String.send);
+
+            btnSend.Enabled = true;
+            btnCancel.Enabled = true;
+
+            btnSend.Click += delegate
+            {
+                string commandResult = SendConsoleCommand(edtKey.Text);
+                
+                if(!commandResult.Equals(""))
+                {
+                    LogsManager.Instance.Debug(commandResult);
+                    
+                    logEntry = GetCurrentLog(FormatType.HTML, LogTime.LOCAL);
+    
+                    logListAdapter.DataSet(logEntry);
+                }
+
+                commandDialog.Dismiss();
+
+                dialogHandler.SendMessage(dialogHandler.ObtainMessage());
+            };
+
+            btnCancel.Click += delegate
+            {
+                commandDialog.Dismiss();
+
+                dialogHandler.SendMessage(dialogHandler.ObtainMessage());
+            };
+
+            dialogBuilder.SetTitle(Resources.GetString(Resource.String.console_command_title));
+            dialogBuilder.SetView(content);
+
+            commandDialog = dialogBuilder.Create();
+            commandDialog.Show();
+            
+            try
+            {
+                Looper.Loop();
+            }
+            catch(Java.Lang.RuntimeException)
+            {
+            }
+        }
+        
+        string SendConsoleCommand(string cmd)
+        {
+            return "";
         }
     }
 }

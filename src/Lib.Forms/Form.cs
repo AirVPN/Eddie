@@ -22,7 +22,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Text;
 using Eddie.Common;
-using Eddie.Core;
 
 namespace Eddie.Forms
 {

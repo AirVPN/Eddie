@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
@@ -41,7 +42,7 @@ namespace Eddie.Forms.Forms
 
             CommonInit(Messages.WindowsTosTitle);
 
-			txtTos.Text = Platform.Instance.NormalizeString(Core.UI.App.GetTos());
+			txtTos.Text = GuiUtils.NormalizeString(Core.UI.App.GetTos());
 			chkAccept1.Text = Messages.WindowsTosCheck1;
 			chkAccept2.Text = Messages.WindowsTosCheck2;
 			cmdOk.Text = Messages.WindowsTosAccept;

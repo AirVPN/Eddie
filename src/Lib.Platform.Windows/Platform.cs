@@ -136,7 +136,7 @@ namespace Eddie.Platform.Windows
 
 			return isElevated;
 		}
-
+		
 		public override bool GetAutoStart()
 		{
 			TaskService ts = null;
@@ -244,6 +244,20 @@ namespace Eddie.Platform.Windows
 			if (native.StartsWith("UNC\\"))
 				native = "\\" + native.Substring(3);
 			return native;
+		}
+
+		public override bool FileEnsureRootOnly(string path)
+		{	
+			// Required for ssh.exe
+
+			// Remove Inheritance
+			SystemShell.ShellCmd("icacls \"" + SystemShell.EscapePath(path) + "\" /c /t /inheritance:d");
+
+			// Remove Users permissions. 
+			// TOFIX: Can be better, parse permissions and remove != owner.
+			SystemShell.ShellCmd("icacls \"" + SystemShell.EscapePath(path) + "\"  /c /t /remove \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\"");
+
+			return true;
 		}
 
 		public override string GetExecutablePathEx()

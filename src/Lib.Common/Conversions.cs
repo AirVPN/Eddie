@@ -23,7 +23,7 @@ using System.Text;
 using System.Xml;
 using Eddie.Common;
 
-namespace Eddie.Core
+namespace Eddie.Common
 {
 	public static class Conversions
 	{

@@ -25,28 +25,43 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-    public class SSH : Tool
-    {
-        public override void OnNormalizeVersion()
-        {
-            if (Platform.Instance.IsWindowsSystem())
-                Version = Version.Replace(": Release", "").Trim();
-        }
+	public class SSH : Tool
+	{
+		public override void OnNormalizeVersion()
+		{
+			if (Platform.Instance.IsWindowsSystem())
+				Version = Version.Replace(": Release", "").Trim();
+		}
 
-        public override string GetFileName()
-        {
-			// TOFIX: Microsoft it's working on a ssh.exe (on GitHub, PowerShell). To be tested, to remove plink.exe dependencies.
-            if (Platform.Instance.IsWindowsSystem())
-            {
+		public override string GetFileName()
+		{
+			if(Platform.Instance.IsWindowsSystem())
+			{
+				if (Engine.Instance.Storage.GetBool("windows.ssh.plink.force"))
+					return "plink.exe";
+				else
+				{
+					string path = Platform.Instance.LocateExecutable("ssh.exe");
+					if (path != "")
+						return "ssh.exe";
+					else
+						return "plink.exe";
+				}
+			}
+			else
+				return base.GetFileName();
+			/*
+			if ((Platform.Instance.IsWindowsSystem()) && )
 				return "plink.exe";
-            }
-            else
-                return base.GetFileName();
-        }
+			else
+			*/
+			// TOFIX: Microsoft it's working on a ssh.exe (on GitHub, PowerShell). To be tested, to remove plink.exe dependencies.
 
-        public override string GetVersionArgument()
-        {
-            return "-V";
-        }
-    }
+		}
+
+		public override string GetVersionArgument()
+		{
+			return "-V";
+		}
+	}
 }

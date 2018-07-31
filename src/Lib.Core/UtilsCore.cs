@@ -37,30 +37,7 @@ namespace Eddie.Core
 		{
 			return Path.GetTempPath();
 		}
-
-		public static string GetTempFileName(bool full)
-		{
-			string hash = Guid.NewGuid().ToString();
-			string path = hash + ".tmp";
-			if (full)
-				path = GetTempPath() + path;
-			return path;
-		}
-
-		public static string GetRandomToken()
-		{
-			Random random = new Random((int)DateTime.Now.Ticks);
-			StringBuilder builder = new StringBuilder();
-			char ch;
-			for (int i = 0; i < 32; i++)
-			{
-				ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
-				builder.Append(ch);
-			}
-
-			return builder.ToString().ToLowerInvariant();
-		}
-
+		
 		public static string HashSHA256(string password)
 		{
 			using (System.Security.Cryptography.SHA256Managed crypt = new System.Security.Cryptography.SHA256Managed())

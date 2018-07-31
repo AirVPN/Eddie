@@ -19,13 +19,15 @@
     <string name="conn_select_profile_btn_cap">Seleziona</string>
     <string name="conn_select_profile_cap">Seleziona un profilo OpenVPN valido</string>
     <string name="conn_server_cap">Server:</string>
-    <string name="conn_port_cap">Port:</string>
+    <string name="conn_port_cap">Porta:</string>
     <string name="conn_protocol_cap">Protocollo:</string>
     <string name="conn_connect_profile">Connetti</string>
     <string name="conn_disconnect_profile">Disconnetti</string>
-    <string name="conn_status_cap">Stato:</string>
-    <string name="conn_status_connected">Connesso</string>
+    <string name="conn_vpn_status_cap">Stato VPN:</string>
+    <string name="conn_network_status_cap">Stato Rete:</string>
+    <string name="conn_status_connected">Connesso a {0}</string>
     <string name="conn_status_unknown">Sconosciuto</string>
+    <string name="conn_status_not_available">Non disponibile</string>
     <string name="conn_disconnect_first">Sei attualmente connesso al server {0}. Per favore disconnettiti prima di caricare un nuovo profilo.</string>
     <string name="conn_error_cap">Errore:</string>
     <string name="conn_status_disconnected">Non connesso</string>
@@ -35,14 +37,18 @@
     <string name="conn_profile_no_permission">Questa app non ha il permesso di accedere a file e documenti</string>
     <string name="conn_no_profile_selected">Per favore selezionare un file OpenVPN</string>
     <string name="conn_cannot_start_vpnservice">Errore durante l\'avvio del Servizio VPN. Questo solitamente accade quando nel dispositivo sono installate diverse app VPN. Per risolvere il problema eseguire queste operazioni:\n\n- Aprire le impostazioni di Android\n- Selezionare \"Rete e Internet\"\n- Selezionare \""VPN\"\n- Selezionare le impostazioni della app VPN\n- Selezionare \"Rimuovi VPN\"</string>
-    <string name="connection_success">Connesso con successo al server {0}</string>
+    <string name="connection_success">Connesso con successo al server {0} (Rete {1})</string>
     <string name="connection_error">Impossibile connettersi al server</string>
     <string name="connection_disconnected">Disconnesso dal server {0}</string>
-    
+    <string name="connection_paused">La VPN è stata messa in pausa a causa dello stato della rete</string>
+    <string name="connection_vpn_formal_warning">Si è verificato un errore nella VPN. La VPN è stata bloccata e non sarà ripristinata fino a quando non sarà avviata una nuova connessione. Si prega di consultare il log per ulteriori informazioni</string>
+    <string name="connection_vpn_error">Si è verificato un errore irreversibile nella VPN. Eddie proverà a bloccare la VPN così da evitare condizioni peggiori. In questo caso particolare, il blocco potrebbe non funzionare e pertanto si potrebbe verificare la fuoriuscita di dati e traffico. Si prega di consultare il log per ulteriori informazioni</string>
+
     <!-- VPNService -->
 
     <string name="notification_title">Eddie - OpenVPN GUI</string>
-    <string name="notification_text">Connesso al server</string>
+    <string name="notification_text">Connesso al server {0}</string>
+    <string name="notification_network">(Rete {0})</string>
 
     <!-- about layout -->
 
@@ -56,17 +62,19 @@
 
     <!-- VPN status -->
 
-    <string name="vpn_status_not_connected">Non connesso</string>
-    <string name="vpn_status_disconnecting">Disconnesso dal server</string>
+    <string name="vpn_status_not_connected">Non connessa</string>
+    <string name="vpn_status_disconnecting">Disconnessa dal server</string>
     <string name="vpn_status_connecting">Connessione al server in corso</string>
-    <string name="vpn_status_connected">Connesso al server</string>
+    <string name="vpn_status_connected">Connessa al server</string>
+    <string name="vpn_status_paused">In pausa</string>
 
     <!-- settings activity -->
 
-    <string name="settings_title">Eddie - Settings</string>
-    <string name="settings_changed">La configurazione è cambiata e avrà effetto alla prossima connessione. Per cortesia considera di disconnetterti dal server e riconnetterti.</string>
+    <string name="settings_title">Eddie - Impostazioni</string>
+    <string name="settings_changed">Le impostazioni sono cambiate e avranno effetto dalla prossima connessione. Per cortesia considera di disconnetterti dal server e riconnetterti.</string>
     <string name="settings_pause_vpn_when_screen_is_off_warning">Attenzione: le applicazioni che girano in background potrebbero funzionare in modo anomalo quando questa opzione è abilitata.</string>
-    <string name="settings_show_notification_warning">Attenzione: Android può interrompere improvvisamente la connessione VPN quando questa opzione è disabilitata</string>
+    <string name="settings_persistent_notification_warning">Attenzione: Android può interrompere improvvisamente la connessione VPN quando questa opzione è disabilitata</string>
+    <string name="settings_tun_persist_warning">Attenzione: La prevenzione della perdita di traffico e dati dal tunnel VPN sarà gravemente compromessa quando l\'opzione \"Tunnel persistente\" è disabilitata</string>
     <string name="settings_ip_address_warning">Per favore inserisci un indirizzo IP valido</string>
     <string name="settings_ip_port_warning">Il numero di porta deve essere compreso fra 1 e 65535</string>
     <string name="settings_value_warning">Per favore inserisci un dato valido</string>
@@ -118,7 +126,7 @@
     <string name="settings_ovpn3_tls_cert_profile_summary"></string>
     <string name="settings_ovpn3_tls_min_version_title">Versione minima TLS</string>
     <string name="settings_ovpn3_tls_min_version_summary"></string>
-    <string name="settings_ovpn3_tun_persist_title">TUN persist</string>
+    <string name="settings_ovpn3_tun_persist_title">Tunnel persistente</string>
     <string name="settings_ovpn3_tun_persist_summary"></string>
     <string name="settings_ovpn3_private_key_password_title">Password per la chiave privata</string>
     <string name="settings_ovpn3_private_key_password_summary"></string>
@@ -149,8 +157,12 @@
     <string name="settings_system_custom_mtu_summary">Imposta un valore MTU personalizzato</string>
     <string name="settings_system_proxy_enable_title">Abilita il proxy</string>
     <string name="settings_system_proxy_enable_summary"></string>
-    <string name="settings_system_show_notification_title">Mostra notifiche</string>
-    <string name="settings_system_show_notification_summary">Mostra o nascondi l\'icona di notifica quando la connessione è attiva</string>
+    <string name="settings_system_persistent_notification_title">Notifica persistente</string>
+    <string name="settings_system_persistent_notification_summary">Usa la notifica Android persistente quando la connessione è attiva. Android può interrompere improvvisamente la connessione VPN quando questa opzione è disabilitata.</string>
+    <string name="settings_system_notification_sound_title">Suono di notifica</string>
+    <string name="settings_system_notification_sound_summary">Emette un suono in occasione delle notifiche</string>
+    <string name="settings_system_notification_channel_title">Impostazioni delle notifiche</string>
+    <string name="settings_system_notification_channel_summary"></string>
 
     <!-- miscellaneous -->
     
@@ -162,5 +174,7 @@
     <string name="cancel">Annulla</string>
     <string name="yes">Sì</string>
     <string name="no">No</string>
+    <string name="send">Invia</string>
+    <string name="notification_channel_name">Notifiche di Eddie</string>
 
 </resources>

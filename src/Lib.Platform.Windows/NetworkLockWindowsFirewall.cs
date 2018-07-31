@@ -23,6 +23,8 @@ using System.ServiceProcess;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Common;
+
 using Microsoft.Win32;
 
 namespace Eddie.Platform.Windows

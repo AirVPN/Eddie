@@ -584,6 +584,7 @@ namespace Eddie.Core
 			SetDefaultInt("windows.metrics.tap.ipv6", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
+			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
 
 			// Linux only
 			SetDefaultBool("linux.xhost", false, NotInMan);

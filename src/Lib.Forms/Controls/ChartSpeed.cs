@@ -24,7 +24,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Eddie.Core;
 using Eddie.Core.UI;
-//TOCLEAN using Eddie.Forms.Forms; // Temp
+using Eddie.Common;
 
 namespace Eddie.Forms.Controls
 {

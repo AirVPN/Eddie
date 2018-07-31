@@ -26,12 +26,14 @@ using System.Threading;
 using Eddie.Common.Tasks;
 using System.Collections.Generic;
 using Eddie.Common.Log;
+using Android.Support.V4.App;
+using Android.Provider;
 
 namespace Eddie.NativeAndroidApp
 {
 	[Service(Name="org.airvpn.eddie.VPNService", Permission="android.permission.BIND_VPN_SERVICE")]
 	[IntentFilter(new[] { global::Android.Net.VpnService.ServiceInterface })]
-	public class VPNService : global::Android.Net.VpnService, IMessageHandler
+	public class VPNService : global::Android.Net.VpnService, IMessageHandler, INetworkStatusReceiverListener
 	{
 		public const int SERVICE_RUNNING_NOTIFICATION_ID = 10000;
 		public const string PARAM_START = "START";
@@ -50,9 +52,11 @@ namespace Eddie.NativeAndroidApp
 		public const string MSG_STATUS_BUNDLE_LAST_ERROR = "LAST_ERROR";
 
 		private object m_dataSync = new object();
-		private VPN.Status m_status = VPN.Status.NotConnected;
+		private VPN.Status m_status = VPN.Status.NOT_CONNECTED;
 		private string m_lastError = "";
-		private Notification m_notification = null;
+
+		private NotificationCompat.Builder notification = null;
+        private int alertNotificationId = 2000;
 
 		private Messenger m_serviceMessenger = null;
 		private TasksManager m_tasksManager = null;
@@ -66,6 +70,7 @@ namespace Eddie.NativeAndroidApp
 
 		private ScreenReceiver m_screenReceiver = null;
         private SettingsManager settingsManager = new SettingsManager();
+        private NetworkStatusReceiver networkStatusReceiver = null;
 
 		private class ScreenReceiver : BroadcastReceiver
 		{
@@ -157,6 +162,11 @@ namespace Eddie.NativeAndroidApp
 
 		private string LastError
 		{
+            get
+            {
+                return m_lastError;
+            }
+
 			set
 			{
 				lock(m_dataSync)
@@ -171,14 +181,23 @@ namespace Eddie.NativeAndroidApp
 			base.OnCreate();
 
 			Init();
+
+            networkStatusReceiver = new NetworkStatusReceiver();
+            networkStatusReceiver.AddListener(this);
+            this.RegisterReceiver(networkStatusReceiver, new IntentFilter(Android.Net.ConnectivityManager.ConnectivityAction));
 		}
 	
 		public override void OnDestroy()
 		{
 			UpdateService(false);
-			Cleanup();
+			
+            Cleanup();
 
 			base.OnDestroy();
+
+            networkStatusReceiver.RemoveListener(this);
+    
+            this.UnregisterReceiver(networkStatusReceiver);
 		}
 
 		public override void OnRevoke()
@@ -194,7 +213,10 @@ namespace Eddie.NativeAndroidApp
 
 		public void OnMessage(Message msg)
 		{
-			//LogsManager.Instance.Debug("ServiceHandler.OnMessage");
+            if(msg == null)
+                return;
+
+			// LogsManager.Instance.Debug("VPNService.OnMessage");
 
 			switch(msg.What)
 			{
@@ -256,7 +278,8 @@ namespace Eddie.NativeAndroidApp
                         if(current.JniIdentityHashCode == client.JniIdentityHashCode)
 						{
 							m_serviceClients.RemoveAt(m_serviceClients.IndexOf(current));
-							break;
+							
+                            break;
 						}
 					}
 				}
@@ -267,12 +290,12 @@ namespace Eddie.NativeAndroidApp
 		{
 			lock(m_dataSync)
 			{
-				bool running = (m_status == VPN.Status.Connected) || (m_status == VPN.Status.Connecting);
+				bool running = (m_status == VPN.Status.CONNECTED) || (m_status == VPN.Status.CONNECTING) || (m_status == VPN.Status.PAUSED) || (m_status == VPN.Status.LOCKED);
 				
                 if(running == run)
 					return true;
 
-				if(m_status == VPN.Status.Disconnecting)
+				if(m_status == VPN.Status.DISCONNECTING)
 					return false;	// Do not allow start requests while stopping
 
 				// Must be under m_dataSync to ensure "m_status" synchronization
@@ -303,13 +326,42 @@ namespace Eddie.NativeAndroidApp
 			try
 			{
 				if(m_tunnel != null)
-					m_tunnel.HandleScreenChanged(active);
+                {
+					VPN.Status status;
+
+                    status = m_tunnel.HandleScreenChanged(active);
+
+                    if(status != VPN.Status.UNKNOWN)
+                        DoChangeStatus(status);
+                }
 			}
 			catch(Exception e)
 			{
 				LogsManager.Instance.Error("OnScreenChanged", e);
 			}			
 		}
+
+        private void NetworkStatusChanged(OpenVPNTunnel.VPNAction action)
+        {
+            LogsManager.Instance.Debug(string.Format("VPNService.NetworkStatusChanged: action='{0}'", action));
+
+            try
+            {
+                if(m_tunnel != null)
+                {
+                    VPN.Status status;
+
+                    status = m_tunnel.NetworkStatusChanged(action);
+
+                    if(status != VPN.Status.UNKNOWN)
+                        DoChangeStatus(status);
+                }
+            }
+            catch(Exception e)
+            {
+                LogsManager.Instance.Error("NetworkStatusChanged", e);
+            }           
+        }
 
 		private void EnsureReceivers()
 		{
@@ -340,12 +392,13 @@ namespace Eddie.NativeAndroidApp
 
 		public void HandleThreadStarted()
 		{
-			DoChangeStatus(VPN.Status.Connected);
+			DoChangeStatus(VPN.Status.CONNECTED);
 
 			lock(m_threadsSync)
 			{
 				DoStartForeground();
-				OnServiceStarted();
+				
+                OnServiceStarted();
 			}			
 		}		
 
@@ -378,10 +431,14 @@ namespace Eddie.NativeAndroidApp
 		private void DoStopService()
 		{
 			CleanupTunnel();
-			DoStopForeground();
-			StopSelf();
-			DoChangeStatus(VPN.Status.NotConnected);
-			OnServiceStopped();
+			
+            DoStopForeground();
+			
+            StopSelf();
+			
+            DoChangeStatus(VPN.Status.NOT_CONNECTED);
+			
+            OnServiceStopped();
 		}
 
 		private void CleanupTunnel()
@@ -401,7 +458,7 @@ namespace Eddie.NativeAndroidApp
 			}			
 		}
 
-		private void DoChangeStatus(VPN.Status status)
+		public void DoChangeStatus(VPN.Status status)
 		{
 			string lastError = "";
 
@@ -411,7 +468,9 @@ namespace Eddie.NativeAndroidApp
 					return;
 
 				m_status = status;
-				lastError = m_lastError;
+				
+                if(lastError.Equals(""))
+                    lastError = m_lastError;
 			}
 
 			DispatchMessage(CreateStatusMessage(status, lastError));
@@ -450,7 +509,7 @@ namespace Eddie.NativeAndroidApp
 		{
 			LastError = "";
 			
-            DoChangeStatus(VPN.Status.Connecting);
+            DoChangeStatus(VPN.Status.CONNECTING);
 
 			m_tasksManager.Add((CancellationToken c) =>
 			{
@@ -481,7 +540,7 @@ namespace Eddie.NativeAndroidApp
 	
 		private void DoStop()
 		{
-			DoChangeStatus(VPN.Status.Disconnecting);
+			DoChangeStatus(VPN.Status.DISCONNECTING);
 
 			m_tasksManager.Add((CancellationToken c) =>
 			{
@@ -550,25 +609,136 @@ namespace Eddie.NativeAndroidApp
 
 		private void DoStartForeground()
 		{
-			if(settingsManager.SystemShowNotification && (m_notification == null))
+			if(settingsManager.SystemPersistentNotification && (notification == null))
 			{
+                string text, server = "";
                 Dictionary<string, string> pData = settingsManager.SystemLastProfileInfo;
-                string nText = Resources.GetString(Resource.String.notification_text);
-                
-                nText += " " + pData["server"];
 
-                m_notification = new Notification.Builder(this)
-							.SetContentTitle(Resources.GetString(Resource.String.notification_title))
-							.SetContentText(nText)
+                string channelId = Resources.GetString(Resource.String.notification_channel_id);
+                string channelName = Resources.GetString(Resource.String.notification_channel_name);
+
+                if(Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+                {
+                    NotificationManager notificationManager = (NotificationManager)GetSystemService(Context.NotificationService);
+
+                    NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationImportance.High);
+
+                    notificationManager.CreateNotificationChannel(notificationChannel);
+                }
+
+                if(pData.Count > 0 && pData.ContainsKey("server"))
+                    server = pData["server"];
+
+                text = String.Format(Resources.GetString(Resource.String.notification_text), server);
+                
+                if(!NetworkStatusReceiver.GetNetworkDescription().Equals(""))
+                    text += " " + String.Format(Resources.GetString(Resource.String.notification_network), NetworkStatusReceiver.GetNetworkDescription());
+
+                notification = new NotificationCompat.Builder(this);
+                
+				notification.SetContentTitle(Resources.GetString(Resource.String.notification_title))
+                            .SetStyle(new NotificationCompat.BigTextStyle().BigText(text))
+                            .SetContentText(text)
 							.SetSmallIcon(Resource.Drawable.notification_icon)
                             .SetColor(Resource.Color.notificationColor)
 							.SetContentIntent(BuildMainActivityIntent())
-							.SetOngoing(true)
-							.Build();
+                            .SetChannelId(channelId)
+                            .SetPriority(NotificationCompat.PriorityHigh)
+                            .SetOngoing(true);
 
-                StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, m_notification);
+                if(Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.O)
+                {
+                    if(settingsManager.SystemNotificationSound)
+                        notification.SetSound(Settings.System.DefaultNotificationUri);
+                    else
+                        notification.SetSound(Android.Net.Uri.Parse("android.resource://" +  ApplicationContext.PackageName + "/" + Resource.Raw.silence));
+                }
+    
+                StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification.Build());
 			}			
 		}
+
+        public void UpdateNotification(string text)
+        {
+            if(settingsManager.SystemPersistentNotification && notification != null && !text.Equals(""))
+            {
+                string channelId = Resources.GetString(Resource.String.notification_channel_id);
+                string channelName = Resources.GetString(Resource.String.notification_channel_name);
+
+                NotificationManager notificationManager = (NotificationManager)GetSystemService(Context.NotificationService);
+    
+                if(Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+                {
+                    NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationImportance.High);
+                    
+                    notificationManager.CreateNotificationChannel(notificationChannel);
+                }
+    
+                notification = new NotificationCompat.Builder(this);
+                
+                notification.SetContentTitle(Resources.GetString(Resource.String.notification_title))
+                            .SetStyle(new NotificationCompat.BigTextStyle().BigText(text))
+                            .SetContentText(text)
+                            .SetSmallIcon(Resource.Drawable.notification_icon)
+                            .SetColor(Resource.Color.notificationColor)
+                            .SetContentIntent(BuildMainActivityIntent())
+                            .SetChannelId(channelId)
+                            .SetPriority(NotificationCompat.PriorityHigh)
+                            .SetOngoing(true);
+
+                if(Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.O)
+                {
+                    if(settingsManager.SystemNotificationSound)
+                        notification.SetSound(Settings.System.DefaultNotificationUri);
+                    else
+                        notification.SetSound(Android.Net.Uri.Parse("android.resource://" +  ApplicationContext.PackageName + "/" + Resource.Raw.silence));
+                }
+                
+                notificationManager.Notify(SERVICE_RUNNING_NOTIFICATION_ID, notification.Build());
+            }
+        }
+
+        public void AlertNotification(string message)
+        {
+            if(message.Equals(""))
+                return;
+
+            string channelId = Resources.GetString(Resource.String.notification_channel_id);
+            string channelName = Resources.GetString(Resource.String.notification_channel_name);
+
+            NotificationManager notificationManager = (NotificationManager)GetSystemService(Context.NotificationService);
+
+            if(Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+            {
+                NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationImportance.High);
+
+                notificationManager.CreateNotificationChannel(notificationChannel);
+            }
+
+            NotificationCompat.Builder alertNotification = new NotificationCompat.Builder(this, channelId);
+            
+            alertNotification.SetContentTitle(Resources.GetString(Resource.String.notification_title))
+                             .SetSmallIcon(Resource.Drawable.notification_icon)
+                             .SetColor(Resource.Color.notificationColor)
+                             .SetStyle(new NotificationCompat.BigTextStyle().BigText(message))
+                             .SetContentText(message)
+                             .SetContentIntent(BuildMainActivityIntent())
+                             .SetChannelId(channelId)
+                             .SetPriority(NotificationCompat.PriorityHigh)
+                             .SetAutoCancel(true);
+
+            if(Build.VERSION.SdkInt < Android.OS.BuildVersionCodes.O)
+            {
+                if(settingsManager.SystemNotificationSound)
+                    notification.SetSound(Settings.System.DefaultNotificationUri);
+                else
+                    notification.SetSound(Android.Net.Uri.Parse("android.resource://" +  ApplicationContext.PackageName + "/" + Resource.Raw.silence));
+            }
+
+            notificationManager.Notify(alertNotificationId, alertNotification.Build());
+
+            alertNotificationId++;
+        }
 
 		private PendingIntent BuildMainActivityIntent()
 		{
@@ -581,14 +751,78 @@ namespace Eddie.NativeAndroidApp
 
 		private void DoStopForeground()
 		{
-			if(m_notification != null)
+			if(notification != null)
 			{
 				StopForeground(true);
 
-				m_notification.Dispose();
+				notification.Dispose();
 				
-                m_notification = null;
+                notification = null;
 			}			
 		}
+        
+        // NetworkStatusReceiver
+        
+        public void OnNetworkStatusNotAvailable()
+        {
+            LogsManager.Instance.Info("Network is not available");
+
+            NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
+        }
+
+        public void OnNetworkStatusConnected()
+        {
+            string text, server = "";
+            Dictionary<string, string> pData = settingsManager.SystemLastProfileInfo;
+
+            LogsManager.Instance.Info("Network is connected to {0}", NetworkStatusReceiver.GetNetworkDescription());
+
+            NetworkStatusChanged(OpenVPNTunnel.VPNAction.RESUME);
+
+            if(pData.Count > 0 && pData.ContainsKey("server"))
+                server = pData["server"];
+
+            text = String.Format(Resources.GetString(Resource.String.notification_text), server);
+            
+            if(!NetworkStatusReceiver.GetNetworkDescription().Equals(""))
+                text += " " + String.Format(Resources.GetString(Resource.String.notification_network), NetworkStatusReceiver.GetNetworkDescription());
+
+            UpdateNotification(text);
+        }
+    
+        public void OnNetworkStatusIsConnecting()
+        {
+            LogsManager.Instance.Info("Network is connecting");
+
+            NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
+        }
+    
+        public void OnNetworkStatusIsDisonnecting()
+        {
+            LogsManager.Instance.Info("Network is disconnecting");
+
+            NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
+        }
+    
+        public void OnNetworkStatusSuspended()
+        {
+            LogsManager.Instance.Info("Network is suspended");
+
+            NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
+        }
+    
+        public void OnNetworkStatusNotConnected()
+        {
+            LogsManager.Instance.Info("Network is not connected");
+
+            NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
+        }
+    
+        public void OnNetworkTypeChanged()
+        {
+            LogsManager.Instance.Info("Network type has changed to {0}", NetworkStatusReceiver.GetNetworkDescription());
+
+            NetworkStatusChanged(OpenVPNTunnel.VPNAction.NETWORK_TYPE_CHANGED);
+        }
 	}
 }

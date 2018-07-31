@@ -40,7 +40,7 @@ namespace Eddie.Forms.Skin
         }
         public int Compare(object x, object y)
         {
-            ListViewItem i1 = x as ListViewItem;
+			ListViewItem i1 = x as ListViewItem;
             ListViewItem i2 = y as ListViewItem;
 
             ListView lv = i1.ListView as ListView;

@@ -495,7 +495,7 @@ namespace Eddie.Core
 							connectionActive.ProxyAuthFile = new TemporaryFile("ppw");
 							fileNameAuthOvpn = connectionActive.ProxyAuthFile.Path;
 							string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
-							Platform.Instance.FileContentsWriteText(connectionActive.ProxyAuthFile.Path, fileNameData);
+							Platform.Instance.FileContentsWriteText(connectionActive.ProxyAuthFile.Path, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
 							Platform.Instance.FileEnsurePermission(connectionActive.ProxyAuthFile.Path, "600");
                             Platform.Instance.FileEnsureOwner(connectionActive.ProxyAuthFile.Path);
 
@@ -715,7 +715,7 @@ namespace Eddie.Core
 					connectionActive.ManagementPassword = RandomGenerator.GetHash();
 					connectionActive.ManagementPasswordFile = new TemporaryFile("ppw");
 					managementPasswordFile = connectionActive.ManagementPasswordFile.Path;
-                    Platform.Instance.FileContentsWriteText(managementPasswordFile, connectionActive.ManagementPassword);
+                    Platform.Instance.FileContentsWriteText(managementPasswordFile, connectionActive.ManagementPassword, Encoding.ASCII); // UTF8 not recognized by OpenVPN
                     Platform.Instance.FileEnsurePermission(managementPasswordFile, "600");
                     Platform.Instance.FileEnsureOwner(managementPasswordFile);
 				}

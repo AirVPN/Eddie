@@ -621,6 +621,7 @@
     <Compile Include="WindowProviderNoBootstrapController.designer.cs">
       <DependentUpon>WindowProviderNoBootstrapController.cs</DependentUpon>
     </Compile>
+    <Compile Include="UiClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />

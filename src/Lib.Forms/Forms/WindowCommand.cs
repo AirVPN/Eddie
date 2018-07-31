@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
@@ -55,7 +56,7 @@ namespace Eddie.Forms.Forms
 
 		private void lnkHelp_LinkClicked(object sender, EventArgs e)
 		{
-			Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["openvpn-management"].Value as string);
+			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["openvpn-management"].Value as string);
 		}
 	}
 }

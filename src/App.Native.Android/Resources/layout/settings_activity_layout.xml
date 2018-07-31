@@ -242,7 +242,7 @@
                     android:clickable="false" />
             </LinearLayout>
             <LinearLayout
-                android:id="@+id/setting_show_notification"
+                android:id="@+id/setting_persistent_notification"
                 style="@style/SettingLayout"
                 android:orientation="horizontal">
                 <LinearLayout
@@ -253,19 +253,58 @@
                     android:gravity="center_vertical|left">
                     <TextView
                         style="@style/SettingTitle"
-                        android:text="@string/settings_system_show_notification_title" />
+                        android:text="@string/settings_system_persistent_notification_title" />
                     <TextView
                         style="@style/SettingSummary"
-                        android:text="@string/settings_system_show_notification_summary" />
+                        android:text="@string/settings_system_persistent_notification_summary" />
                 </LinearLayout>
                 <Switch
-                    android:id="@+id/switch_show_notification"
+                    android:id="@+id/switch_persistent_notification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="left"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
                     android:clickable="false" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/setting_notification_sound"
+                style="@style/SettingLayout"
+                android:visibility="gone"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical|left">
+                    <TextView
+                        style="@style/SettingTitle"
+                        android:text="@string/settings_system_notification_sound_title" />
+                    <TextView
+                        style="@style/SettingSummary"
+                        android:text="@string/settings_system_notification_sound_summary" />
+                </LinearLayout>
+                <Switch
+                    android:id="@+id/switch_notification_sound"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:clickable="false" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/setting_notification_channel"
+                style="@style/SettingLayout"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/SettingTitle"
+                    android:text="@string/settings_system_notification_channel_title" />
+                <TextView
+                    style="@style/SettingSummary"
+                    android:text="@string/settings_system_notification_channel_summary" />
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/setting_restore_last_profile"

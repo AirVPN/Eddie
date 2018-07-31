@@ -22,6 +22,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Platform.MacOS
 {
@@ -228,7 +229,7 @@ namespace Eddie.Platform.MacOS
 					pf += "pass out quick inet6 from any to " + ip.ToCIDR() + "\n";
 			}
 
-			if (Platform.Instance.FileContentsWriteText(m_filePfConf.Path, pf))
+			if (Platform.Instance.FileContentsWriteText(m_filePfConf.Path, pf, Encoding.ASCII))
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "macOS - PF rules updated, reloading");
 

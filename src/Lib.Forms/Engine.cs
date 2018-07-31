@@ -35,7 +35,7 @@ namespace Eddie.Forms
 		// We have a list of logs, because we process it only when the form are available.
 		public List<LogEntry> LogEntries = new List<LogEntry>();
 
-		public Forms.Main FormMain;
+		public Forms.Main FormMain; // ClodoTemp2 - remove?
 
 		//public AutoResetEvent FormsReady = new AutoResetEvent(false);
 		public AutoResetEvent InitDone = new AutoResetEvent(false);
@@ -102,33 +102,6 @@ namespace Eddie.Forms
 				FormMain.DeInit();
 		}
 
-		public override Json OnCommand(Json data)
-		{
-			string command = data["command"].Value as string;
-
-			if (command == "test2")
-			{
-				Forms.WindowMan w = new Forms.WindowMan(); // ClodoTemp
-				w.ShowDialog();
-			}			
-			else if (command == "ui.color")
-			{
-				if (FormMain != null)
-					FormMain.SetColor(data["color"].Value as string);
-			}
-			else if(command == "ui.status")
-			{
-				string textFull = data["full"].Value as string;
-				string textShort = textFull;
-				if (data.HasKey("short"))
-					textShort = data["short"].Value as string;
-				if (FormMain != null)
-					FormMain.SetStatus(textFull, textShort);
-			}
-
-			return base.OnCommand(data);
-		}
-		
 		public override void OnRefreshUi(RefreshUiMode mode)
 		{
 			base.OnRefreshUi(mode);
@@ -203,14 +176,6 @@ namespace Eddie.Forms
 			if (FormMain != null)
 				return FormMain.OnAskCredentials();
 			return null;
-		}
-
-		public override void OnSystemReport(string step, string text, int perc)
-		{
-			base.OnSystemReport(step, text, perc);
-
-			if (FormMain != null)
-				FormMain.OnSystemReport(step, text, perc);
 		}
 
 		public override void OnLoggedUpdate(XmlElement xmlKeys)

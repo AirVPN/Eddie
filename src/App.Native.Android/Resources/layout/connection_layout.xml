@@ -26,12 +26,12 @@
                 <ImageView
                     android:src="@drawable/eddie_airvpn_left"
                     android:layout_width="wrap_content"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0.5" />
                 <ImageView
                     android:src="@drawable/eddie_airvpn_right"
                     android:layout_width="wrap_content"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0.5" />
             </LinearLayout>
             <LinearLayout
@@ -51,14 +51,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="5dp"
                     android:layout_gravity="left"
-                    android:textColor="@color/black"
+                    android:textColor="@color/gray25"
                     android:textSize="18dp" />
                 <TextView
                     android:id="@+id/profile_filename"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
-                    android:textColor="@color/black"
+                    android:textColor="@color/gray50"
                     android:textSize="18dp"
                     android:layout_weight="1"
                     android:maxLines="12" />
@@ -100,7 +100,7 @@
                         android:layout_rowWeight="1"
                         android:layout_margin="2dp"
                         android:textSize="18dp"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@color/gray25" />
                     <TextView
                         android:id="@+id/profile_server"
                         android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                         android:layout_rowWeight="1"
                         android:layout_margin="2dp"
                         android:textSize="18dp"
-                        android:textColor="@android:color/black"
+                        android:textColor="@color/gray50"
                         android:maxLines="12" />
                     <TextView
                         android:id="@+id/profile_port_cap"
@@ -122,7 +122,7 @@
                         android:layout_rowWeight="1"
                         android:layout_margin="2dp"
                         android:textSize="18dp"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@color/gray25" />
                     <TextView
                         android:id="@+id/profile_port"
                         android:layout_height="wrap_content"
@@ -132,7 +132,7 @@
                         android:layout_rowWeight="1"
                         android:layout_margin="2dp"
                         android:textSize="18dp"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@color/gray50" />
                     <TextView
                         android:id="@+id/profile_protocol_cap"
                         android:text="@string/conn_protocol_cap"
@@ -143,7 +143,7 @@
                         android:layout_rowWeight="1"
                         android:layout_margin="2dp"
                         android:textSize="18dp"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@color/gray25" />
                     <TextView
                         android:id="@+id/profile_protocol"
                         android:layout_height="wrap_content"
@@ -153,7 +153,7 @@
                         android:layout_rowWeight="1"
                         android:layout_margin="2dp"
                         android:textSize="18dp"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@color/gray50" />
                 </GridLayout>
                 <LinearLayout
                     android:orientation="horizontal"
@@ -188,12 +188,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp">
                     <TextView
-                        android:id="@+id/status_cap"
-                        android:text="@string/conn_status_cap"
+                        android:id="@+id/network_status_cap"
+                        android:text="@string/conn_network_status_cap"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
@@ -201,11 +200,38 @@
                         android:textColor="@color/blue"
                         android:textSize="18dp" />
                     <TextView
-                        android:id="@+id/connection_status"
+                        android:id="@+id/network_connection_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
-                        android:textColor="@color/black"
+                        android:textColor="@color/gray50"
+                        android:textSize="18dp"
+                        android:layout_weight="1"
+                        android:maxLines="12" />
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+                    <TextView
+                        android:id="@+id/vpn_status_cap"
+                        android:text="@string/conn_vpn_status_cap"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:layout_gravity="left"
+                        android:textColor="@color/blue"
+                        android:textSize="18dp" />
+                    <TextView
+                        android:id="@+id/vpn_connection_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:textColor="@color/gray50"
                         android:textSize="18dp"
                         android:layout_weight="1"
                         android:maxLines="12" />

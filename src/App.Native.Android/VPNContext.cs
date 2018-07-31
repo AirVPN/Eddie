@@ -19,6 +19,7 @@
 // 20 June 2018 - author: promind - initial release. Based on revised code from com.eddie.android. (a tribute to the 1859 Perugia uprising occurred on 20 June 1859 and in memory of those brave inhabitants who fought for the liberty of Perugia)
 
 using Android.OS;
+using Android.Util;
 using Eddie.Common.Log;
 using System;
 using System.Collections.Generic;
@@ -44,8 +45,10 @@ namespace Eddie.NativeAndroidApp
 			m_builder.SetConfigureIntent(service.CreateConfigIntent());
 
 			InitDNS();
-			InitMTU();
-			InitApplications();
+			
+            InitMTU();
+			
+            InitApplications();
 		}
 
 		~VPNContext()
@@ -150,7 +153,8 @@ namespace Eddie.NativeAndroidApp
 		public ParcelFileDescriptor Establish()
 		{
 			EnsureRoutes();
-			EnsureDNS();
+			
+            EnsureDNS();
 
 			if(m_builder == null)
 				throw new Exception("internal error (m_builder is null)");
@@ -159,7 +163,8 @@ namespace Eddie.NativeAndroidApp
 				throw new Exception("internal error (m_fileDescriptor already initialized)");
 
 			m_fileDescriptor = m_builder.Establish();
-			return m_fileDescriptor;
+
+            return m_fileDescriptor;
 		}
 
 		public void Dispose()

@@ -334,6 +334,9 @@ namespace Eddie.Forms.Skin
 
 		public virtual void OnListViewColumnClick(object sender, ColumnClickEventArgs e)
 		{
+			if (HeaderStyle == System.Windows.Forms.ColumnHeaderStyle.Nonclickable) // Mono workaround
+				return;
+			
 			if (e.Column == m_sortColumn)
 			{
 				// Determine what the last sort order was and change it.

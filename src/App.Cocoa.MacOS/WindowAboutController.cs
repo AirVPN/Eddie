@@ -67,41 +67,41 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
 
-			CmdHomePage.Title = Core.UI.App.Manifest["links"]["help"]["website"].Value as string;
-			CmdSoftware.Title = Core.UI.App.Manifest["links"]["help"]["general"].Value as string;
-			CmdSources.Title = Core.UI.App.Manifest["links"]["github"].Value as string;
+            CmdHomePage.Title = UiClient.Instance.Data["links"]["help"]["website"].Value as string;
+            CmdSoftware.Title = UiClient.Instance.Data["links"]["help"]["general"].Value as string;
+            CmdSources.Title = UiClient.Instance.Data["links"]["github"].Value as string;
 			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
 
             LblThanks.StringValue = MessagesFormatter.Format(Messages.WindowsAboutThanks, String.Join(", ", Constants.Thanks.Split(';')));
 
 			CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["website"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
 			};
 
 			CmdSoftware.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["general"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["general"].Value as string);
 			};
 
 			CmdSources.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["github"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["github"].Value as string);
 			};
 
             CmdAirVPN.Activated += (object sender, EventArgs e) =>
             {
-                Core.UI.App.OpenUrl("https://airvpn.org");
+                GuiUtils.OpenUrl("https://airvpn.org");
             };
 
 			CmdLicense.Activated += (object sender, EventArgs e) =>
 			{
-				(Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "License", Core.UI.App.Manifest["about"]["license"].Value as string);
+                (Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "License", UiClient.Instance.Data["about"]["license"].Value as string);
 			};
 
 			CmdLibraries.Activated += (object sender, EventArgs e) =>
 			{
-				(Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "Libraries and Tools", Core.UI.App.Manifest["about"]["libraries"].Value as string);
+                (Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "Libraries and Tools", UiClient.Instance.Data["about"]["libraries"].Value as string);
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
@@ -112,7 +112,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdSystemReport.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.GenerateSystemReport();
+                UiClient.Instance.Command("system.report.start");
 			};
 		}
 	}

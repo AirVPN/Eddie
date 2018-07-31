@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
@@ -78,7 +79,7 @@ namespace Eddie.Forms.Forms
 			IpAddresses ip = new IpAddresses(txtHost.Text);
 			if(ip.Count == 0)
 			{
-				lblHostHelp.Text = Platform.Instance.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
+				lblHostHelp.Text = GuiUtils.NormalizeString(Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp);
 				cmdOk.Enabled = false;
 			}
 			else

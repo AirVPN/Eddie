@@ -66,7 +66,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			LnkHelp.Activated += (object sender, EventArgs e) =>
 			{
-				Core.UI.App.OpenUrl(Core.UI.App.Manifest["links"]["help"]["openvpn-management"].Value as string);
+                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["openvpn-management"].Value as string);
 			};
 		}
 

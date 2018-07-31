@@ -110,7 +110,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {6BF01164-23C3-431A-8EE1-D511749A6BAD}
+		SolutionGuid = {A31F9451-4A97-415A-82FB-4D233B4B278F}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
@@ -118,6 +118,6 @@ Global
 		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
 		$0.VersionControlPolicy = $2
 		$0.StandardHeader = $3
-		version = 1.0 beta 3
+		version = 1.0 RC 2
 	EndGlobalSection
 EndGlobal

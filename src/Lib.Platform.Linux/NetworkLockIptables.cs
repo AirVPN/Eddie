@@ -22,6 +22,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
+using Eddie.Common;
 
 namespace Eddie.Platform.Linux
 {
@@ -161,13 +162,13 @@ namespace Eddie.Platform.Linux
 				if (m_supportIPv4)
 				{
 					// IPv4 - Backup
-					Platform.Instance.FileContentsWriteText(rulesBackupSessionV4, DoIptablesShell("iptables-save", ""));
+					Platform.Instance.FileContentsWriteText(rulesBackupSessionV4, DoIptablesShell("iptables-save", ""), Encoding.ASCII);
 				}
 
 				if (m_supportIPv6)
 				{
 					// IPv6 - Backup
-					Platform.Instance.FileContentsWriteText(rulesBackupSessionV6, DoIptablesShell("ip6tables-save", ""));
+					Platform.Instance.FileContentsWriteText(rulesBackupSessionV6, DoIptablesShell("ip6tables-save", ""), Encoding.ASCII);
 				}
 
 				if (m_supportIPv4)

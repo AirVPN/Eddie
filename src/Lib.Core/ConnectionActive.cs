@@ -105,7 +105,7 @@ namespace Eddie.Core
 		{
 			OvpnFile = new TemporaryFile("ovpn");
 
-			Platform.Instance.FileContentsWriteText(OvpnFile.Path, OpenVpnProfileStartup.Get());
+			Platform.Instance.FileContentsWriteText(OvpnFile.Path, OpenVpnProfileStartup.Get(), Encoding.UTF8);
 			Platform.Instance.FileEnsurePermission(OvpnFile.Path, "600");
 		}
 
@@ -154,7 +154,7 @@ namespace Eddie.Core
 			string fileNameAuthOvpn = PasswordAuthFile.Path;
 			string fileNameData = username + "\n" + password + "\n";
 
-            Platform.Instance.FileContentsWriteText(fileNameAuthOvpn, fileNameData);
+            Platform.Instance.FileContentsWriteText(fileNameAuthOvpn, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
             Platform.Instance.FileEnsurePermission(fileNameAuthOvpn, "600");
             Platform.Instance.FileEnsureOwner(fileNameAuthOvpn);
 

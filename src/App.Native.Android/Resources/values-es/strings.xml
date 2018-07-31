@@ -23,9 +23,11 @@
     <string name="conn_protocol_cap">Protocolo:</string>
     <string name="conn_connect_profile">Conectar</string>
     <string name="conn_disconnect_profile">Desconectar</string>
-    <string name="conn_status_cap">Estado:</string>
-    <string name="conn_status_connected">Conectado</string>
+    <string name="conn_vpn_status_cap">Estado VPN:</string>
+    <string name="conn_network_status_cap">Estado Red:</string>
+    <string name="conn_status_connected">Conectado a {0}</string>
     <string name="conn_status_unknown">Desconocido</string>
+    <string name="conn_status_not_available">No disponible</string>
     <string name="conn_disconnect_first">Se ha conectado al servidor {0}. Por favor desconéctese antes de cargar un nuevo perfil.</string>
     <string name="conn_error_cap">Error:</string>
     <string name="conn_status_disconnected">No conectado</string>
@@ -35,14 +37,18 @@
     <string name="conn_profile_no_permission">Esta app no tiene los permisos para acceder a los archivos y documentos.</string>
     <string name="conn_no_profile_selected">Por favor seleccione un archivo de OpenVPN primero.</string>
     <string name="conn_cannot_start_vpnservice">No se puede iniciar el servicio de VPN. Esto generalmente ocurre cuando tienes múltiples aplicaciones VPN instaladas en tu dispositivo. Para solucionarlo, puede hacer lo siguiente:\n\n- Abrir configuración de Android\n- Seleccionar \"Red e Internet\"\n- Seleccionar \"VPN\"\n- Seleccionar la configuración de la aplicación VPN\n- Seleccionar \"Borrar VPN\"</string>
-    <string name="connection_success">Conectado con éxito al servidor {0}</string>
+    <string name="connection_success">Conectado con éxito al servidor {0} (Red {1})</string>
     <string name="connection_error">No se puede conectar al servidor</string>
     <string name="connection_disconnected">Desconectado del servidor {0}</string>
-    
+    <string name="connection_paused">La VPN se ha detenido debido al estado de la red</string>
+    <string name="connection_vpn_formal_warning">Se ha producido un error de VPN. La VPN se ha bloqueado y no se reanudará hasta que inicie una nueva conexión. Por favor, vea el registro para más información</string>
+    <string name="connection_vpn_error">Se ha producido un error fatal de VPN. Eddie intentará bloquear la VPN para evitar peores condiciones. En este caso particular, no se garantiza que el bloqueo funcione, por lo tanto, puede producirse una fuga de datos y tráfico. Por favor, ver log para más información</string>
+
     <!-- VPNService -->
 
     <string name="notification_title">Eddie  - OpenVPN GUI</string>
-    <string name="notification_text">Conectado al servidor</string>
+    <string name="notification_text">Conectado al servidor {0}</string>
+    <string name="notification_network">(Red {0})</string>
 
     <!-- about layout -->
 
@@ -60,13 +66,16 @@
     <string name="vpn_status_disconnecting">Desconectando del servidor</string>
     <string name="vpn_status_connecting">Conectando al servidor</string>
     <string name="vpn_status_connected">Conectado al servidor</string>
+    <string name="vpn_status_paused">Pausado</string>
+    <string name="vpn_status_locked">Bloqueado</string>
 
     <!-- settings activity -->
 
     <string name="settings_title">Eddie - Ajustes</string>
     <string name="settings_changed">Los ajustes han cambiado. Se reflejarán en la próxima conexión. Por favor considere desconectarse del servidor y volver a conectarse.</string>
     <string name="settings_pause_vpn_when_screen_is_off_warning">Alerta: las aplicaciones ejecutándose en segundo plano podrían no funcionar como esperado si se activa esta opción.</string>
-    <string name="settings_show_notification_warning">Alerta: Android podría detener la conexión VPN repentinamente cuando esta opción esté activa.</string>
+    <string name="settings_persistent_notification_warning">Alerta: Android podría detener la conexión VPN repentinamente cuando esta opción está deshabilitada</string>
+    <string name="settings_tun_persist_warning">Alerta: La prevención de fugas de tráfico y datos fuera del túnel VPN se verá gravemente comprometida cuando la opción \"Túnel persistente\" esté desactivada</string>
     <string name="settings_ip_address_warning">Por favor ingrese una dirección IP válida</string>
     <string name="settings_ip_port_warning">El número de puerto debe comprenderse entre 1 y 65535</string>
     <string name="settings_value_warning">Por favor ingrese un valor válido</string>
@@ -118,7 +127,7 @@
     <string name="settings_ovpn3_tls_cert_profile_summary"></string>
     <string name="settings_ovpn3_tls_min_version_title">Versión mínima de TLS</string>
     <string name="settings_ovpn3_tls_min_version_summary"></string>
-    <string name="settings_ovpn3_tun_persist_title">Persistencia TUN</string>
+    <string name="settings_ovpn3_tun_persist_title">Túnel persistente</string>
     <string name="settings_ovpn3_tun_persist_summary"></string>
     <string name="settings_ovpn3_private_key_password_title">Contraseña clave privada</string>
     <string name="settings_ovpn3_private_key_password_summary"></string>
@@ -149,8 +158,12 @@
     <string name="settings_system_custom_mtu_summary">Establecer un valor MTU propio</string>
     <string name="settings_system_proxy_enable_title">Activar proxy</string>
     <string name="settings_system_proxy_enable_summary"></string>
-    <string name="settings_system_show_notification_title">Mostrar notificación</string>
-    <string name="settings_system_show_notification_summary">Mostrar o esconder un ícono de notificación cuando la conexión está activa</string>
+    <string name="settings_system_persistent_notification_title">Notificación persistente</string>
+    <string name="settings_system_persistent_notification_summary">Utilizar la notificación persistente de Android cuando la conexión está activa. Android podría detener la conexión VPN repentinamente cuando esta opción está deshabilitada.</string>
+    <string name="settings_system_notification_sound_title">Sonido de notificación</string>
+    <string name="settings_system_notification_sound_summary">Emite un sonido cuando se emite una notificación</string>
+    <string name="settings_system_notification_channel_title">Configuración de las notificaciones</string>
+    <string name="settings_system_notification_channel_summary"></string>
 
     <!-- miscellaneous -->
     
@@ -162,5 +175,7 @@
     <string name="cancel">Cancelar</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
+    <string name="send">Enviar</string>
+    <string name="notification_channel_name">Notificaciónes de Eddie</string>
 
 </resources>

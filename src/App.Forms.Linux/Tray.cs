@@ -5,7 +5,7 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Linux
 {
-	// Tray is a separate process, because otherwise there are conflict between GTK version used by WinForms/Mono.
+	// X Tray is a separate process, because otherwise there are conflict between GTK version used by WinForms/Mono.
 	public class Tray: Eddie.Core.Thread
 	{			
 		string m_pathWrite = "";
