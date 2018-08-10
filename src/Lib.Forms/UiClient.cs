@@ -65,7 +65,7 @@ namespace Eddie.Forms
 		}
 
 		private void Engine_TerminateEvent()
-		{
+		{			
 			AppContext.ExitThread();
 
 			if (GuiUtils.IsUnix ()) {

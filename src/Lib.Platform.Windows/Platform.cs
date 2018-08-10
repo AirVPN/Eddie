@@ -315,7 +315,17 @@ namespace Eddie.Platform.Windows
 		}
 
 		public override bool ProcessKillSoft(Core.Process process)
-		{
+		{			
+			/* >=2.16.3
+			StandardInput.Close() or StandardInput.WriteLine("\x3") don't work. CloseMainWindow seem the best solution for now.
+			*/
+			process.CloseMainWindow();
+			return true;
+
+			// The below method was used <=2.16.2, but cause a crash with SSL/SSH tunnel at exit, 
+			// a generic 'The parameter is incorrect.' in GC Finalizer.
+			/*
+
 			bool result = false;
 
 			if (process != null)
@@ -341,6 +351,7 @@ namespace Eddie.Platform.Windows
 			}
 
 			return result;
+			*/
 		}
 
 		public override int GetRecommendedRcvBufDirective()

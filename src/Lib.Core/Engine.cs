@@ -56,7 +56,8 @@ namespace Eddie.Core
 		private ProvidersManager m_providersManager;
 		private LogsManager m_logsManager;
 		private NetworkLockManager m_networkLockManager;
-		
+		private WebServer m_webServer;
+
 
 		private Dictionary<string, ConnectionInfo> m_connections = new Dictionary<string, ConnectionInfo>();
 		private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
@@ -153,6 +154,14 @@ namespace Eddie.Core
 			get
 			{
 				return m_networkLockManager;
+			}
+		}
+
+		public WebServer WebServer
+		{
+			get
+			{
+				return m_webServer;
 			}
 		}
 
@@ -253,7 +262,7 @@ namespace Eddie.Core
 			}
 
 			Logs.Log(LogType.Verbose, "Eddie version: " + Constants.VersionDesc + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
-			
+
 			// This is before the Storage.Load, because non-root can't read option (chmod)
 			if (Storage.GetBool("advanced.skip_privileges") == false)
 			{
@@ -304,6 +313,12 @@ namespace Eddie.Core
 
 			m_stats = new Core.Stats();
 
+			if ((Storage.GetBool("webui.enabled") == true) && (WebServer.GetPath() != ""))
+			{
+				m_webServer = new WebServer();
+				m_webServer.Start();
+			}
+
 			m_networkLockManager = new NetworkLockManager();
 			m_networkLockManager.Init();
 
@@ -327,17 +342,17 @@ namespace Eddie.Core
 				Software.Log();
 
 				CompatibilityManager.Init();
-				
+
 				RaiseManifest();
-				
+
 				CheckEnvironmentApp();
-				
+
 				Platform.Instance.OnRecovery();
-				
+
 				Recovery.Load();
-				
+
 				RunEventCommand("app.start");
-				
+
 				if (Engine.Storage.GetLower("netlock.mode") != "none")
 				{
 					if (Engine.Storage.GetBool("netlock")) // 2.8
@@ -350,7 +365,7 @@ namespace Eddie.Core
 				m_threadPenalities = new Threads.Penalities();
 				m_threadDiscover = new Threads.Discover();
 				m_threadManifest = new Threads.Manifest();
-				
+
 				PostManifestUpdate();
 
 				bool autoStart = false;
@@ -385,7 +400,7 @@ namespace Eddie.Core
 									OnConsoleKey(key);
 								}
 							}
-							catch(Exception e)
+							catch (Exception e)
 							{
 								Console.WriteLine("Console error: " + e.Message);
 							}
@@ -493,10 +508,13 @@ namespace Eddie.Core
 					DeAuth();
 				}
 			}
+
+			if (m_webServer != null)
+				m_webServer.Stop();
 		}
 
 		public virtual void OnWork()
-		{			
+		{
 			ActionService currentAction = ActionService.None;
 
 			lock (m_actionsList)
@@ -564,7 +582,7 @@ namespace Eddie.Core
 					RecomputeAreas();
 				}
 			}
-			
+
 			Sleep(100);
 		}
 
@@ -714,7 +732,7 @@ namespace Eddie.Core
 		public string LocateResource(string relativePath)
 		{
 			string pathResource = Platform.Instance.NormalizePath(GetPathResources() + "/" + relativePath);
-			if (File.Exists(pathResource))
+			if ((File.Exists(pathResource)) || (Directory.Exists(pathResource)))
 				return pathResource;
 			else
 				return Platform.Instance.LocateResource(relativePath);
@@ -1293,6 +1311,13 @@ namespace Eddie.Core
 				ignore = true;
 			}
 
+			// TOFIX: 2.16.2, unknown why happen
+			if (e.Message.Trim() == "The parameter is incorrect.")
+				ignore = true;
+
+			if (Terminated)
+				ignore = true;
+
 			if (ignore == false)
 				Logs.Log(LogType.Fatal, Messages.UnhandledException + " - " + e.Message + " - " + e.StackTrace.ToString());
 		}
@@ -1595,7 +1620,7 @@ namespace Eddie.Core
 
 			return true;
 		}
-				
+
 		private void Auth()
 		{
 			if (AirVPN == null)
@@ -1914,7 +1939,7 @@ namespace Eddie.Core
 		{
 			if (Platform.Instance.HasAccessToWrite(Storage.GetDataPath()) == false)
 				Engine.Instance.Logs.Log(LogType.Fatal, "Unable to write in path '" + Storage.GetDataPath() + "'");
-				
+
 			// Local Time in the past
 			if (DateTime.UtcNow < Constants.dateForPastChecking)
 				Engine.Instance.Logs.Log(LogType.Fatal, Messages.WarningLocalTimeInPast);
@@ -2025,14 +2050,14 @@ namespace Eddie.Core
 
 		public string GetNetworkIPv6Mode()
 		{
-			string mode = Engine.Instance.Storage.GetLower("network.ipv6.mode");			
+			string mode = Engine.Instance.Storage.GetLower("network.ipv6.mode");
 			lock (Engine.Instance.Manifest)
 			{
 				bool support = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
 				if (support == false)
 					mode = "block";
 			}
-			
+
 			return mode;
 		}
 
@@ -2063,8 +2088,8 @@ namespace Eddie.Core
 			// Data static
 			Manifest = Json.Parse(Properties.Resources.data);
 
-			lock(Manifest)
-			{ 
+			lock (Manifest)
+			{
 				Json jAbout = new Json();
 				Manifest["about"].Value = jAbout;
 				jAbout["license"].Value = Properties.Resources.License;
@@ -2301,15 +2326,25 @@ namespace Eddie.Core
 						continue;
 					if ((jRoute["gateway"].Value as string).StartsWith("link"))
 						continue;
-					IpAddress gateway = jRoute["gateway"].Value as string;
-					if (gateway.Valid)
-					{
-						gateways.Add(gateway);
 
-						if (adapter.OperationalStatus == OperationalStatus.Up)
-							if (adapter.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-								gatewaysForDefault.Add(gateway);
-					}
+					IpAddress gateway = jRoute["gateway"].Value as string;
+
+					if (gateway.Valid == false)
+						continue;
+
+					if (gateway.IsInAddrAny)
+						continue;
+
+					gateways.Add(gateway);
+
+					if (adapter.OperationalStatus != OperationalStatus.Up)
+						continue;
+
+					List<string> skipList = new List<string>(Engine.Instance.Storage.Get("network.gateways.default_skip_types").Split(';'));
+					if (skipList.Contains(adapter.NetworkInterfaceType.ToString()))
+						continue;
+
+					gatewaysForDefault.Add(gateway);
 				}
 
 				// Gateways, step 2: detect by .Net/Mono
@@ -2318,14 +2353,21 @@ namespace Eddie.Core
 					foreach (GatewayIPAddressInformation d in adapter.GetIPProperties().GatewayAddresses)
 					{
 						string sIp = d.Address.ToString();
-						IpAddress ip = new IpAddress(sIp);
-						if (ip.Valid)
-						{
-							gateways.Add(ip);
+						IpAddress gateway = new IpAddress(sIp);
 
-							if (adapter.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-								gatewaysForDefault.Add(ip);
-						}
+						if (gateway.Valid == false)
+							continue;
+
+						if (gateway.IsInAddrAny)
+							continue;
+
+						gateways.Add(gateway);
+
+						List<string> skipList = new List<string>(Engine.Instance.Storage.Get("network.gateways.default_skip_types").Split(';'));
+						if (skipList.Contains(adapter.NetworkInterfaceType.ToString()))
+							continue;
+
+						gatewaysForDefault.Add(gateway);
 					}
 				}
 

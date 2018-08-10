@@ -488,6 +488,7 @@ namespace Eddie.Core
 			SetDefaultInt("proxy.tor.control.port", 9151, Messages.ManOptionProxyTorControlPort);
 			SetDefaultBool("proxy.tor.control.auth", true, Messages.ManOptionProxyTorControlAuth);
 			SetDefault("proxy.tor.control.cookie-path", "", "", NotInMan);
+			SetDefault("proxy.tor.path", "", "", NotInMan);
 			SetDefault("proxy.tor.control.password", "password", "", Messages.ManOptionProxyTorControlPassword);
 
 			SetDefault("routes.default", "choice:in,out", "in", Messages.ManOptionRoutesDefault);
@@ -515,6 +516,7 @@ namespace Eddie.Core
 			SetDefault("network.ipv6.mode", "choice:in,in-out,in-block,out,block", "in-block", NotInMan);
 			SetDefaultBool("network.ipv4.autoswitch", false, NotInMan);
 			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
+			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
 
 			SetDefault("tools.openvpn.path", "path_file", "", Messages.ManOptionToolsOpenVpnPath);
 			SetDefault("tools.ssh.path", "path_file", "", Messages.ManOptionToolsSshPath);
@@ -522,6 +524,10 @@ namespace Eddie.Core
 			SetDefault("tools.curl.path", "path_file", "", Messages.ManOptionToolsCurlPath);
 
 			SetDefaultInt("tools.curl.max-time", 20, NotInMan);
+
+			SetDefaultBool("webui.enabled", false, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
+			SetDefault("webui.ip", "text", "localhost", NotInMan); // Messages.ManOptionWebUiAddress
+			SetDefaultInt("webui.port", 4649, NotInMan); // Messages.ManOptionWebUiPort
 
 			SetDefault("openvpn.custom", "text", "", Messages.ManOptionOpenVpnCustom);
 			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);

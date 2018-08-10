@@ -32,7 +32,7 @@ namespace Eddie.Platform.Windows
 	{
 		private Dictionary<string, WfpItem> m_rules = new Dictionary<string, WfpItem>();
 		private string m_lastestIpsWhiteListOutgoing = "";
-
+		
 		public override string GetCode()
 		{
 			return "windows_wfp";
@@ -74,6 +74,15 @@ namespace Eddie.Platform.Windows
 
 			// Allow Eddie / OpenVPN / Stunnel / Plink
 			AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie", Platform.Instance.GetExecutablePath()));
+
+			if (Engine.Instance.Storage.GetLower("proxy.mode") == "tor")
+			{
+				string path = TorControl.GetTorExecutablePath();
+				if(path != "")
+				{
+					AddRule("netlock_allow_tor", Wfp.CreateItemAllowProgram("NetLock - Allow Tor", path));
+				}				
+			}
 
 			// Allow loopback
 			{

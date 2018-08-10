@@ -463,8 +463,9 @@ namespace Eddie.Core.Threads
 
 						if (Storage.Simulate)
 						{
-							if (m_processOpenVpn.ReallyExited == false)
-								m_processOpenVpn.Kill();
+							if(m_processOpenVpn != null)
+								if (m_processOpenVpn.ReallyExited == false)
+									m_processOpenVpn.Kill();
 						}
 
 						// 2.14.0
@@ -604,6 +605,18 @@ namespace Eddie.Core.Threads
 
 						Platform.Instance.OnInterfaceRestore();
 
+						if (m_processOpenVpn != null)
+						{
+							m_processOpenVpn.Dispose();
+							m_processOpenVpn = null;
+						}
+
+						if (m_processProxy != null)
+						{
+							m_processProxy.Dispose();
+							m_processProxy = null;
+						}
+
 						// Closing temporary files
 						if (m_fileSshKey != null)
 						{
@@ -628,17 +641,7 @@ namespace Eddie.Core.Threads
 
 						Engine.Instance.ConnectionActive = null;
 
-						if (m_processOpenVpn != null)
-						{
-							m_processOpenVpn.Dispose();
-							m_processOpenVpn = null;
-						}
-
-						if (m_processProxy != null)
-						{
-							m_processProxy.Dispose();
-							m_processProxy = null;
-						}
+						
 
 						if (m_openVpnManagementSocket != null)
 						{
@@ -791,9 +794,9 @@ namespace Eddie.Core.Threads
 			m_processProxy.StartInfo.RedirectStandardError = true;
 			m_processProxy.StartInfo.RedirectStandardOutput = true;
 
-			m_processProxy.ErrorDataReceived += new DataReceivedEventHandler(ProcessSshOutputDataReceived);
-			m_processProxy.OutputDataReceived += new DataReceivedEventHandler(ProcessSshOutputDataReceived);
-			m_processProxy.Exited += new EventHandler(ProcessSshExited);
+			m_processProxy.ErrorDataReceived += ProcessSshOutputDataReceived;
+			m_processProxy.OutputDataReceived += ProcessSshOutputDataReceived;
+			m_processProxy.Exited += ProcessSshExited;
 
 			m_processProxy.Start();
 
@@ -862,9 +865,9 @@ namespace Eddie.Core.Threads
 			m_processProxy.StartInfo.RedirectStandardError = true;
 			m_processProxy.StartInfo.RedirectStandardOutput = true;
 
-			m_processProxy.ErrorDataReceived += new DataReceivedEventHandler(ProcessSslOutputDataReceived);
-			m_processProxy.OutputDataReceived += new DataReceivedEventHandler(ProcessSslOutputDataReceived);
-			m_processProxy.Exited += new EventHandler(ProcessSslExited);
+			m_processProxy.ErrorDataReceived += ProcessSslOutputDataReceived;
+			m_processProxy.OutputDataReceived += ProcessSslOutputDataReceived;
+			m_processProxy.Exited += ProcessSslExited;
 
 			m_processProxy.Start();
 
@@ -915,11 +918,11 @@ namespace Eddie.Core.Threads
 			m_processOpenVpn.OutputDataReceived += new DataReceivedEventHandler(ProcessOpenVpnOutputDataReceived);
 			m_processOpenVpn.ErrorDataReceived += new DataReceivedEventHandler(ProcessOpenVpnOutputDataReceived);
 			m_processOpenVpn.Exited += new EventHandler(ProcessOpenVpnExited);
-
+			
 			m_processOpenVpn.Start();
 
 			m_processOpenVpn.BeginOutputReadLine();
-			m_processOpenVpn.BeginErrorReadLine();			
+			m_processOpenVpn.BeginErrorReadLine();
 		}
 
 		void ProcessOpenVpnExited(object sender, EventArgs e)
@@ -1878,6 +1881,8 @@ namespace Eddie.Core.Threads
 			if (message.Contains("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
 				return;
 			if (message.StartsWith("ENTER PASSWORD:"))
+				return;
+			if (message.StartsWith("SUCCESS: password is correct"))
 				return;
 
 			string[] lines = message.Split('\n');

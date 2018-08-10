@@ -267,6 +267,15 @@ namespace Eddie.Platform.Windows
 			// Windows Firewall don't work with logical path (a path that contain hardlink)
 			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - Program Eddie\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Platform.Instance.GetExecutablePath())) + "\" enable=yes");
 
+			if (Engine.Instance.Storage.GetLower("proxy.mode") == "tor")
+			{
+				string path = TorControl.GetTorExecutablePath();
+				if (path != "")
+				{
+					SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - Program Tor\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(path)) + "\" enable=yes");
+				}
+			}
+
 			// Adding rules are slow, so force at least curl
 			SystemShell.ShellCmd("netsh advfirewall firewall add rule name=\"Eddie - Out - Program curl\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Software.GetTool("curl").Path)) + "\" enable=yes");
 

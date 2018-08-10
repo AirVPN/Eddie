@@ -98,7 +98,7 @@ namespace Eddie.Deploy
 			PathBaseSigning = new DirectoryInfo(PathBase + "/repository/signing").FullName;
 
 			string versionString3 = ExtractBetween(ReadTextFile(PathBase + "/src/Lib.Common/Constants.cs"), "public static string VersionDesc = \"", "\"");
-			
+
 			/* --------------------------------------------------------------
 			   Checking environment, required
 			-------------------------------------------------------------- */
@@ -134,7 +134,7 @@ namespace Eddie.Deploy
 					return;
 				}
 
-				if( (IsOfficial()) && (Shell("which dpkg-sig").Trim() == "") )
+				if ((IsOfficial()) && (Shell("which dpkg-sig").Trim() == ""))
 				{
 					Console.WriteLine("dpkg-sig required.");
 					return;
@@ -197,7 +197,7 @@ namespace Eddie.Deploy
 			if (IsSigning())
 			{
 				string[] dirs = Directory.GetDirectories(PathBaseDeploy, SO + "*");
-				foreach(string dir in dirs)
+				foreach (string dir in dirs)
 				{
 					SignPath(SO, "", dir);
 				}
@@ -214,10 +214,10 @@ namespace Eddie.Deploy
 				{
 					foreach (string arch in new string[] { "x64", "x86" })
 					{
-						foreach (string ui in new string[] { "cli", "ui" })
-						{
+						foreach (string ui in new string[] { "ui", "cli" })
+						{							
 							foreach (string format in new string[] { "portable", "installer" })
-							{
+							{								
 								foreach (string os in new string[] { "windows-10", "windows-7", "windows-vista", "windows-xp" })
 								{
 									string netFramework = "4.0";
@@ -1050,7 +1050,7 @@ namespace Eddie.Deploy
 					WriteTextFile(PathBaseRepository + "/manual.man", Shell(pathExe + " -help -help.format=man"));
 				}
 			}
-			
+
 			Log("------------------------------");
 			if (Errors == 0)
 				Log("Done");
@@ -1079,7 +1079,7 @@ namespace Eddie.Deploy
 		{
 			return Engine.Arguments.Contains("verbose");
 		}
-		
+
 		static bool IsSigning()
 		{
 			return Engine.Arguments.Contains("signing");
@@ -1097,7 +1097,7 @@ namespace Eddie.Deploy
 			string pathCompiler = "";
 			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
 			{
-				pathCompiler = "c:\\Program Files (x86)\\MSBuild\\14.0\\Bin\\msbuild.exe";
+				pathCompiler = "c:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\msbuild.exe";
 			}
 			else
 			{
@@ -1116,7 +1116,7 @@ namespace Eddie.Deploy
 			else if (so == "linux")
 				pathProject = PathBase + "/src/eddie2.linux.sln";
 
-			string arguments = "/p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework + "\" /t:Rebuild \"" + pathProject + "\"";
+			string arguments = " /property:CodeAnalysisRuleSet=\"" + PathBase + "/tools/ruleset/norules.ruleset\"  /p:Configuration=Release /p:Platform=" + architecture + " /p:TargetFrameworkVersion=\"v" + netFramework + "\" /t:Rebuild \"" + pathProject + "\"";
 
 			if (Environment.OSVersion.VersionString.IndexOf("Windows") != -1)
 			{
@@ -1332,7 +1332,7 @@ namespace Eddie.Deploy
 				if ((File.Exists(pathPfx)) && (File.Exists(pathPfxPwd)))
 				{
 					for (int t = 0; ; t++)
-					{						
+					{
 						{
 							string cmd = "";
 							cmd += PathBaseTools + "/windows/signtool.exe";
@@ -1464,6 +1464,8 @@ namespace Eddie.Deploy
 				if (di.Name == "providers")
 					continue;
 				if (di.Name == "ui")
+					continue;
+				if (di.Name == "webui")
 					continue;
 
 				Directory.CreateDirectory(to + "/" + di.Name);

@@ -31,6 +31,23 @@ namespace Eddie.Core
 		public static IpAddresses m_lastGuardIps;
 		public static Int64 m_lastGuardTime;
 
+		public static string GetTorExecutablePath()
+		{
+			string customPath = Engine.Instance.Storage.Get("proxy.tor.path");
+			if (customPath != "")
+			{
+				if (Platform.Instance.FileExists(customPath))
+					return customPath;
+			}
+
+			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");
+			if (processes.Length > 0)
+			{
+				return processes[0].MainModule.FileName;
+			}
+			return "";
+		}
+
 		public static string GetControlAuthCookiePath()
 		{
 			string cookieCustomPath = Engine.Instance.Storage.Get("proxy.tor.control.cookie-path");
@@ -40,11 +57,11 @@ namespace Eddie.Core
 					return cookieCustomPath;
 			}
 
-			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");
-			if (processes.Length > 0)
+			string executablePath = GetTorExecutablePath();
+			if (executablePath != "")
 			{
 				// Tor Browser Bundle, Unix and Windows at 10/16/2014				
-				string path1 = Platform.Instance.NormalizePath(new FileInfo(processes[0].MainModule.FileName).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");
+				string path1 = Platform.Instance.NormalizePath(new FileInfo(executablePath).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");
 				if (Platform.Instance.FileExists(path1))
 					return path1;
 

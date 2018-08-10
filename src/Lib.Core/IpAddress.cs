@@ -87,7 +87,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public bool IsDefault
+		public bool IsInAddrAny
 		{
 			get
 			{
@@ -96,6 +96,12 @@ namespace Eddie.Core
 					return true;
 				if (cidr == DefaultIPv6.ToCIDR())
 					return true;
+
+				if (Address == DefaultIPv4.Address)
+					return true;
+				if (Address == DefaultIPv6.Address)
+					return true;
+
 				return false;
 			}
 		}

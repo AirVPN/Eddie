@@ -953,7 +953,7 @@ namespace Eddie.Core
 			foreach (Json jRoute in jRoutes.GetArray())
 			{
 				IpAddress address = new IpAddress(jRoute["address"].Value as string);
-				if (address.IsDefault)
+				if (address.IsInAddrAny)
 				{
 					if (RouteRemove(jRoute))
 						m_routesDefaultGateway.Add(jRoute);
