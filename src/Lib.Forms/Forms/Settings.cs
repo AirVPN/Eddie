@@ -84,6 +84,7 @@ namespace Eddie.Forms.Forms
 			GuiUtils.FixHeightVs(cboLockOutgoing, lblLockOutgoing);
 
 			GuiUtils.FixHeightVs(chkLockAllowPrivate, lblLockAllowPrivate);
+			GuiUtils.FixHeightVs(chkLockAllowDHCP, lblLockAllowDHCP);
 			GuiUtils.FixHeightVs(chkLockAllowPing, lblLockAllowPing);
 			GuiUtils.FixHeightVs(chkLockAllowDNS, lblLockAllowDNS);
 
@@ -92,6 +93,7 @@ namespace Eddie.Forms.Forms
 			GuiUtils.FixHeightVs(cboIpV6, lblIpV6);
 
 			GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
+			GuiUtils.FixHeightVs(cboAdvancedUpdaterChannel, lblAdvancedUpdaterChannel);
 			GuiUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);			
 			
 			GuiUtils.FixHeightVs(txtExePath, lblExePath);
@@ -253,6 +255,11 @@ namespace Eddie.Forms.Forms
 				}
 			}
 
+			cboAdvancedUpdaterChannel.Items.Clear();
+			cboAdvancedUpdaterChannel.Items.Add("Stable");
+			cboAdvancedUpdaterChannel.Items.Add("Beta");
+			cboAdvancedUpdaterChannel.Items.Add("None");
+
 			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
@@ -289,6 +296,9 @@ namespace Eddie.Forms.Forms
 			RefreshLogPreview();
 
 			EnableIde();
+
+			if (Platform.IsUnix())
+				MinimumSize = new Size(1020, 530);
 
 			m_onLoadCompleted = true;
 		}
@@ -594,11 +604,16 @@ namespace Eddie.Forms.Forms
 			else
 				cboAdvancedManifestRefresh.SelectedIndex = 0;
 
-			
+			string updaterChannel = s.Get("updater.channel");
+			if (updaterChannel == "stable")
+				cboAdvancedUpdaterChannel.Text = "Stable";
+			else if (updaterChannel == "beta")
+				cboAdvancedUpdaterChannel.Text = "Beta";
+			else if (updaterChannel == "none")
+				cboAdvancedUpdaterChannel.Text = "None";
+			else
+				cboAdvancedUpdaterChannel.Text = "Stable";
 
-			
-					
-			
 
 			// Advanced - Lock
 			string lockMode = s.Get("netlock.mode");
@@ -622,6 +637,7 @@ namespace Eddie.Forms.Forms
 			if (lockOutgoing == "allow")
 				cboLockOutgoing.Text = "Allow";
 			chkLockAllowPrivate.Checked = s.GetBool("netlock.allow_private");
+			chkLockAllowDHCP.Checked = s.GetBool("netlock.allow_dhcp");
 			chkLockAllowPing.Checked = s.GetBool("netlock.allow_ping");
 			chkLockAllowDNS.Checked = s.GetBool("netlock.allow_dns");
 			txtLockAllowedIPS.Text = s.Get("netlock.allowed_ips");
@@ -948,7 +964,17 @@ namespace Eddie.Forms.Forms
 				s.SetInt("advanced.manifest.refresh", 10);
 			else if (manifestRefreshIndex == 4) // One hour
 				s.SetInt("advanced.manifest.refresh", 60);
-				
+
+			string updaterChannel = cboAdvancedUpdaterChannel.Text;
+			if (updaterChannel == "Stable")
+				s.Set("updater.channel", "stable");
+			else if (updaterChannel == "Beta")
+				s.Set("updater.channel", "beta");
+			else if (updaterChannel == "None")
+				s.Set("updater.channel", "none");
+			else
+				s.Set("updater.channel", "stable");
+
 			// Advanced - Lock
 			string lockMode = cboLockMode.Text;
 			s.Set("netlock.mode", "none");
@@ -973,6 +999,7 @@ namespace Eddie.Forms.Forms
 			else
 				s.Set("netlock.outgoing", "block");
 			s.SetBool("netlock.allow_private", chkLockAllowPrivate.Checked);
+			s.SetBool("netlock.allow_dhcp", chkLockAllowDHCP.Checked);
 			s.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
 			s.SetBool("netlock.allow_dns", chkLockAllowDNS.Checked);
 			s.Set("netlock.allowed_ips", txtLockAllowedIPS.Text);

@@ -21,14 +21,14 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="WindowProviderNoBootstrap">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <rect key="contentRect" x="131" y="74" width="606" height="266"/>
+            <rect key="contentRect" x="131" y="74" width="660" height="357"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" misplaced="YES" id="3">
-                <rect key="frame" x="0.0" y="0.0" width="606" height="266"/>
+                <rect key="frame" x="0.0" y="0.0" width="660" height="357"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <box autoresizesSubviews="NO" misplaced="YES" borderType="line" title="Box" titlePosition="noTitle" id="eRg-a4-JCs">
-                        <rect key="frame" x="128" y="16" width="351" height="47"/>
+                        <rect key="frame" x="158" y="16" width="351" height="47"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <view key="contentView" id="cYs-DK-azv">
                             <rect key="frame" x="1" y="1" width="349" height="45"/>
@@ -57,7 +57,7 @@ Gw
                         </view>
                     </box>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="FhE-Uy-nQv">
-                        <rect key="frame" x="129" y="123" width="459" height="123"/>
+                        <rect key="frame" x="129" y="123" width="513" height="214"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="Eqp-WZ-Gg8">
                             <font key="font" metaFont="system"/>
@@ -66,12 +66,12 @@ Gw
                         </textFieldCell>
                     </textField>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" id="ppr-nf-Lcx">
-                        <rect key="frame" x="20" y="140" width="103" height="106"/>
+                        <rect key="frame" x="20" y="231" width="103" height="106"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="log_error" id="ZgS-3Y-k6v"/>
                     </imageView>
                     <textField verticalHuggingPriority="750" misplaced="YES" id="Ymh-FB-RbF">
-                        <rect key="frame" x="20" y="93" width="566" height="22"/>
+                        <rect key="frame" x="20" y="93" width="620" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" drawsBackground="YES" id="NtQ-Je-EPh">
                             <font key="font" metaFont="system"/>
@@ -80,7 +80,7 @@ Gw
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" misplaced="YES" id="SYH-Rg-Qrh">
-                        <rect key="frame" x="410" y="69" width="178" height="18"/>
+                        <rect key="frame" x="158" y="69" width="484" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Don't show this message again" bezelStyle="regularSquare" imagePosition="right" alignment="right" state="on" inset="2" id="aZW-4B-xzN">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -89,7 +89,7 @@ Gw
                     </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="132" y="117"/>
+            <point key="canvasLocation" x="159" y="162.5"/>
         </window>
     </objects>
     <resources>

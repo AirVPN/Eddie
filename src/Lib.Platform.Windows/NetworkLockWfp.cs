@@ -127,7 +127,8 @@ namespace Eddie.Platform.Windows
 				AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddress("239.255.255.253/255.255.255.255")));
 			}
 
-			// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'.
+			// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'. // Note 2018: don't occur in Win10?
+			if (Engine.Instance.Storage.GetBool("netlock.allow_dhcp") == true)
 			{
 				XmlDocument xmlDocRule = new XmlDocument();
 				XmlElement xmlRule = xmlDocRule.CreateElement("rule");

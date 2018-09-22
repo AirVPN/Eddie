@@ -155,12 +155,14 @@ namespace Eddie.Forms.Controls
 			Form.FillRectangle(e.Graphics, Form.Skin.GetBrush("color.tab.page.background"), GetPageRect());
 			Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
 
+			/*
 			if (TitleRightBottom != "")
 			{
 				Rectangle r = GetTabsRect();
-				r.Offset(-2, -2);
-				Form.DrawString(e.Graphics, TitleRightBottom, Form.Skin.GetFont("font.small"), Form.Skin.GetBrush("color.tab.tabs.titlerightbottom"), r, GuiUtils.StringFormatRightBottom);
+				r.Offset(-10, -30);
+				Form.DrawString(e.Graphics, TitleRightBottom, Form.Skin.GetFont("font.normal"), Form.Skin.GetBrush("color.tab.tabs.titlerightbottom"), r, GuiUtils.StringFormatRightBottom);
 			}
+			*/
 
 			for (int t = 0; t < GetTabCount(); t++)
 			{

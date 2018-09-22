@@ -133,6 +133,11 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
 			else if (cmd == "test.log.fatal")
 				Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
+            else if (cmd == "test.netlock.update")
+            {
+                if (Engine.Instance.NetworkLockManager != null)
+                    Engine.Instance.NetworkLockManager.OnUpdateIps();
+            }
 
 			return null;
 		}

@@ -21,7 +21,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -88,6 +87,18 @@
     </Compile>
     <Compile Include="Controls\Provider.Designer.cs">
       <DependentUpon>Provider.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowSplash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowSplash.Designer.cs">
+      <DependentUpon>WindowSplash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowUnlock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowUnlock.Designer.cs">
+      <DependentUpon>WindowUnlock.cs</DependentUpon>
     </Compile>
     <Compile Include="UiClient.cs" />
     <Compile Include="Engine.cs" />
@@ -270,6 +281,12 @@
     <EmbeddedResource Include="Forms\WindowCommand.resx">
       <DependentUpon>WindowCommand.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowSplash.resx">
+      <DependentUpon>WindowSplash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowUnlock.resx">
+      <DependentUpon>WindowUnlock.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\WindowMan.resx">
       <DependentUpon>WindowMan.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -339,6 +356,9 @@
     <None Include="Resources\tab_preferences.png" />
     <None Include="Resources\tab_about_hover.png" />
     <None Include="Resources\tab_preferences_hover.png" />
+    <None Include="Resources\tab_updater.png" />
+    <None Include="Resources\tab_updater_hover.png" />
+    <None Include="Resources\splash.png" />
     <Content Include="res\about.png" />
     <Content Include="res\about_header_bg.png" />
     <Content Include="res\about_logo.png" />

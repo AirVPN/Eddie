@@ -54,10 +54,10 @@
 			this.lblVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblVersion.BackColor = System.Drawing.Color.Transparent;
 			this.lblVersion.ForeColor = System.Drawing.Color.White;
-			this.lblVersion.Location = new System.Drawing.Point(504, 52);
-			this.lblVersion.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblVersion.Location = new System.Drawing.Point(756, 50);
+			this.lblVersion.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblVersion.Name = "lblVersion";
-			this.lblVersion.Size = new System.Drawing.Size(264, 26);
+			this.lblVersion.Size = new System.Drawing.Size(396, 39);
 			this.lblVersion.TabIndex = 58;
 			this.lblVersion.Text = "v2.0";
 			this.lblVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -71,10 +71,10 @@
 			this.cmdClose.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdClose.FlatAppearance.BorderSize = 0;
 			this.cmdClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdClose.Location = new System.Drawing.Point(568, 390);
-			this.cmdClose.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdClose.Location = new System.Drawing.Point(852, 585);
+			this.cmdClose.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.cmdClose.Name = "cmdClose";
-			this.cmdClose.Size = new System.Drawing.Size(200, 37);
+			this.cmdClose.Size = new System.Drawing.Size(300, 56);
 			this.cmdClose.TabIndex = 0;
 			this.cmdClose.Text = "Close";
 			this.cmdClose.UseVisualStyleBackColor = true;
@@ -84,10 +84,10 @@
 			// 
 			this.lblLibraries.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblLibraries.BackColor = System.Drawing.Color.Transparent;
-			this.lblLibraries.Location = new System.Drawing.Point(306, 263);
-			this.lblLibraries.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblLibraries.Location = new System.Drawing.Point(459, 394);
+			this.lblLibraries.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblLibraries.Name = "lblLibraries";
-			this.lblLibraries.Size = new System.Drawing.Size(169, 28);
+			this.lblLibraries.Size = new System.Drawing.Size(254, 42);
 			this.lblLibraries.TabIndex = 69;
 			this.lblLibraries.Text = "Libraries and tools:";
 			this.lblLibraries.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -98,10 +98,10 @@
 			this.lnkLibraries.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
 			this.lnkLibraries.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkLibraries.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
-			this.lnkLibraries.Location = new System.Drawing.Point(483, 263);
-			this.lnkLibraries.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lnkLibraries.Location = new System.Drawing.Point(724, 394);
+			this.lnkLibraries.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lnkLibraries.Name = "lnkLibraries";
-			this.lnkLibraries.Size = new System.Drawing.Size(288, 28);
+			this.lnkLibraries.Size = new System.Drawing.Size(432, 42);
 			this.lnkLibraries.TabIndex = 68;
 			this.lnkLibraries.TabStop = true;
 			this.lnkLibraries.Text = "OpenVPN, stunnel, TunTap OS X, LZO";
@@ -112,10 +112,10 @@
 			// 
 			this.lblLicense.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblLicense.BackColor = System.Drawing.Color.Transparent;
-			this.lblLicense.Location = new System.Drawing.Point(306, 226);
-			this.lblLicense.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblLicense.Location = new System.Drawing.Point(459, 339);
+			this.lblLicense.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblLicense.Name = "lblLicense";
-			this.lblLicense.Size = new System.Drawing.Size(169, 28);
+			this.lblLicense.Size = new System.Drawing.Size(254, 42);
 			this.lblLicense.TabIndex = 67;
 			this.lblLicense.Text = "License:";
 			this.lblLicense.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -126,10 +126,10 @@
 			this.lnkLicense.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
 			this.lnkLicense.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkLicense.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
-			this.lnkLicense.Location = new System.Drawing.Point(483, 226);
-			this.lnkLicense.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lnkLicense.Location = new System.Drawing.Point(724, 339);
+			this.lnkLicense.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lnkLicense.Name = "lnkLicense";
-			this.lnkLicense.Size = new System.Drawing.Size(288, 28);
+			this.lnkLicense.Size = new System.Drawing.Size(432, 42);
 			this.lnkLicense.TabIndex = 66;
 			this.lnkLicense.TabStop = true;
 			this.lnkLicense.Text = "GNU General Public License v3";
@@ -140,10 +140,10 @@
 			// 
 			this.lblSources.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblSources.BackColor = System.Drawing.Color.Transparent;
-			this.lblSources.Location = new System.Drawing.Point(306, 189);
-			this.lblSources.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblSources.Location = new System.Drawing.Point(459, 284);
+			this.lblSources.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblSources.Name = "lblSources";
-			this.lblSources.Size = new System.Drawing.Size(169, 28);
+			this.lblSources.Size = new System.Drawing.Size(254, 42);
 			this.lblSources.TabIndex = 65;
 			this.lblSources.Text = "Sources:";
 			this.lblSources.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -154,10 +154,10 @@
 			this.lnkSources.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
 			this.lnkSources.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkSources.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
-			this.lnkSources.Location = new System.Drawing.Point(483, 189);
-			this.lnkSources.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lnkSources.Location = new System.Drawing.Point(724, 284);
+			this.lnkSources.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lnkSources.Name = "lnkSources";
-			this.lnkSources.Size = new System.Drawing.Size(288, 28);
+			this.lnkSources.Size = new System.Drawing.Size(432, 42);
 			this.lnkSources.TabIndex = 64;
 			this.lnkSources.TabStop = true;
 			this.lnkSources.Text = "https://github.com/AirVPN/Eddie";
@@ -168,10 +168,10 @@
 			// 
 			this.lblManual.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblManual.BackColor = System.Drawing.Color.Transparent;
-			this.lblManual.Location = new System.Drawing.Point(306, 152);
-			this.lblManual.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblManual.Location = new System.Drawing.Point(459, 228);
+			this.lblManual.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblManual.Name = "lblManual";
-			this.lblManual.Size = new System.Drawing.Size(169, 28);
+			this.lblManual.Size = new System.Drawing.Size(254, 42);
 			this.lblManual.TabIndex = 63;
 			this.lblManual.Text = "Manual:";
 			this.lblManual.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -180,10 +180,10 @@
 			// 
 			this.lblWebsite.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblWebsite.BackColor = System.Drawing.Color.Transparent;
-			this.lblWebsite.Location = new System.Drawing.Point(306, 115);
-			this.lblWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblWebsite.Location = new System.Drawing.Point(459, 172);
+			this.lblWebsite.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblWebsite.Name = "lblWebsite";
-			this.lblWebsite.Size = new System.Drawing.Size(169, 28);
+			this.lblWebsite.Size = new System.Drawing.Size(254, 42);
 			this.lblWebsite.TabIndex = 62;
 			this.lblWebsite.Text = "Website: ";
 			this.lblWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -194,10 +194,10 @@
 			this.lnkManual.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
 			this.lnkManual.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkManual.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
-			this.lnkManual.Location = new System.Drawing.Point(483, 152);
-			this.lnkManual.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lnkManual.Location = new System.Drawing.Point(724, 228);
+			this.lnkManual.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lnkManual.Name = "lnkManual";
-			this.lnkManual.Size = new System.Drawing.Size(288, 28);
+			this.lnkManual.Size = new System.Drawing.Size(432, 42);
 			this.lnkManual.TabIndex = 61;
 			this.lnkManual.TabStop = true;
 			this.lnkManual.Text = "https://eddie.website/docs";
@@ -210,10 +210,10 @@
 			this.lnkWebsite.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
 			this.lnkWebsite.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkWebsite.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
-			this.lnkWebsite.Location = new System.Drawing.Point(483, 115);
-			this.lnkWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lnkWebsite.Location = new System.Drawing.Point(724, 172);
+			this.lnkWebsite.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lnkWebsite.Name = "lnkWebsite";
-			this.lnkWebsite.Size = new System.Drawing.Size(288, 28);
+			this.lnkWebsite.Size = new System.Drawing.Size(432, 42);
 			this.lnkWebsite.TabIndex = 60;
 			this.lnkWebsite.TabStop = true;
 			this.lnkWebsite.Text = "https://eddie.website";
@@ -224,10 +224,10 @@
 			// 
 			this.lblDeveloped.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblDeveloped.BackColor = System.Drawing.Color.Transparent;
-			this.lblDeveloped.Location = new System.Drawing.Point(13, 86);
-			this.lblDeveloped.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblDeveloped.Location = new System.Drawing.Point(20, 129);
+			this.lblDeveloped.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblDeveloped.Name = "lblDeveloped";
-			this.lblDeveloped.Size = new System.Drawing.Size(278, 31);
+			this.lblDeveloped.Size = new System.Drawing.Size(417, 46);
 			this.lblDeveloped.TabIndex = 72;
 			this.lblDeveloped.Text = "Developed by:";
 			this.lblDeveloped.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -241,10 +241,10 @@
 			this.cmdSystemReport.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdSystemReport.FlatAppearance.BorderSize = 0;
 			this.cmdSystemReport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdSystemReport.Location = new System.Drawing.Point(482, 299);
-			this.cmdSystemReport.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdSystemReport.Location = new System.Drawing.Point(723, 448);
+			this.cmdSystemReport.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.cmdSystemReport.Name = "cmdSystemReport";
-			this.cmdSystemReport.Size = new System.Drawing.Size(289, 24);
+			this.cmdSystemReport.Size = new System.Drawing.Size(434, 36);
 			this.cmdSystemReport.TabIndex = 73;
 			this.cmdSystemReport.Text = "System Report";
 			this.cmdSystemReport.UseVisualStyleBackColor = true;
@@ -256,9 +256,10 @@
 			this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
 			this.pictureBox1.BackgroundImage = global::Eddie.Forms.Properties.Resources.about_airvpn;
 			this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-			this.pictureBox1.Location = new System.Drawing.Point(13, 115);
+			this.pictureBox1.Location = new System.Drawing.Point(20, 172);
+			this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.pictureBox1.Name = "pictureBox1";
-			this.pictureBox1.Size = new System.Drawing.Size(278, 147);
+			this.pictureBox1.Size = new System.Drawing.Size(417, 220);
 			this.pictureBox1.TabIndex = 74;
 			this.pictureBox1.TabStop = false;
 			// 
@@ -268,10 +269,10 @@
 			this.lnkAirVPN.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(188)))), ((int)(((byte)(253)))));
 			this.lnkAirVPN.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.lnkAirVPN.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(70)))), ((int)(((byte)(141)))));
-			this.lnkAirVPN.Location = new System.Drawing.Point(13, 262);
-			this.lnkAirVPN.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lnkAirVPN.Location = new System.Drawing.Point(20, 393);
+			this.lnkAirVPN.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lnkAirVPN.Name = "lnkAirVPN";
-			this.lnkAirVPN.Size = new System.Drawing.Size(278, 28);
+			this.lnkAirVPN.Size = new System.Drawing.Size(417, 42);
 			this.lnkAirVPN.TabIndex = 77;
 			this.lnkAirVPN.TabStop = true;
 			this.lnkAirVPN.Text = "https://airvpn.org";
@@ -283,9 +284,10 @@
 			this.lblThanks.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.lblThanks.BackColor = System.Drawing.Color.Transparent;
 			this.lblThanks.ForeColor = System.Drawing.Color.Black;
-			this.lblThanks.Location = new System.Drawing.Point(16, 299);
+			this.lblThanks.Location = new System.Drawing.Point(24, 448);
+			this.lblThanks.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblThanks.Name = "lblThanks";
-			this.lblThanks.Size = new System.Drawing.Size(275, 128);
+			this.lblThanks.Size = new System.Drawing.Size(412, 192);
 			this.lblThanks.TabIndex = 78;
 			this.lblThanks.Text = resources.GetString("lblThanks.Text");
 			this.lblThanks.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -293,10 +295,10 @@
 			// About
 			// 
 			this.AcceptButton = this.cmdClose;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdClose;
-			this.ClientSize = new System.Drawing.Size(784, 440);
+			this.ClientSize = new System.Drawing.Size(1176, 660);
 			this.Controls.Add(this.lblThanks);
 			this.Controls.Add(this.lnkAirVPN);
 			this.Controls.Add(this.pictureBox1);
@@ -314,7 +316,7 @@
 			this.Controls.Add(this.lnkWebsite);
 			this.Controls.Add(this.lblVersion);
 			this.Controls.Add(this.cmdClose);
-			this.Margin = new System.Windows.Forms.Padding(4);
+			this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.MinimizeBox = false;
 			this.Name = "About";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

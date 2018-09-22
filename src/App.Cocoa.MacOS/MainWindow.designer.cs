@@ -109,6 +109,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton CmdServersWhiteList { get; set; }
 
 		[Outlet]
+		AppKit.NSButton CmdUpdater { get; set; }
+
+		[Outlet]
 		AppKit.NSImageView ImgConnectedCountry { get; set; }
 
 		[Outlet]
@@ -236,6 +239,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSMenuItem MnuTrayStatus { get; set; }
+
+		[Outlet]
+		AppKit.NSMenuItem MnuTrayUpdate { get; set; }
 
 		[Outlet]
 		AppKit.NSBox PanelConnected { get; set; }
@@ -371,11 +377,6 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdLogsClean = null;
 			}
 
-			if (CmdMainMenu != null) {
-				CmdMainMenu.Dispose ();
-				CmdMainMenu = null;
-			}
-
 			if (CmdLogsCommand != null) {
 				CmdLogsCommand.Dispose ();
 				CmdLogsCommand = null;
@@ -399,6 +400,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdLogsSupport != null) {
 				CmdLogsSupport.Dispose ();
 				CmdLogsSupport = null;
+			}
+
+			if (CmdMainMenu != null) {
+				CmdMainMenu.Dispose ();
+				CmdMainMenu = null;
 			}
 
 			if (CmdNetworkLock != null) {
@@ -671,6 +677,11 @@ namespace Eddie.UI.Cocoa.Osx
 				MnuTrayStatus = null;
 			}
 
+			if (MnuTrayUpdate != null) {
+				MnuTrayUpdate.Dispose ();
+				MnuTrayUpdate = null;
+			}
+
 			if (PanelConnected != null) {
 				PanelConnected.Dispose ();
 				PanelConnected = null;
@@ -764,6 +775,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtPassword != null) {
 				TxtPassword.Dispose ();
 				TxtPassword = null;
+			}
+
+			if (CmdUpdater != null) {
+				CmdUpdater.Dispose ();
+				CmdUpdater = null;
 			}
 		}
 	}

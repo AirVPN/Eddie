@@ -20,26 +20,21 @@
 
 using System;
 using Android.OS;
-using Eddie.Common.Tasks;
-using System.Threading;
 using System.Runtime.InteropServices;
-using Eddie.Common.Log;
 using System.Collections.Generic;
 
 namespace Eddie.NativeAndroidApp
 {
 	public class OpenVPNTunnel : IVPNTunnel
 	{
-		private VPNService m_service = null;
-		private OpenVPNClient m_client = null;
-		private NativeMethods.ovpn3_client m_clientInterface;
-		private object m_clientSync = new object();
+		private VPNService vpnService = null;
+		private OpenVPNClient openVPNClient = null;
+		private NativeMethods.ovpn3_client openVPNClientInterface;
+		private object clientSync = new object();
 
 		private Stack<VPNContext> m_contexts = new Stack<VPNContext>();
-		private object m_contextsSync = new object();
+		private object contextsSync = new object();
 
-		private CancellationToken m_cancellationToken;
-		
 		private VPN.Status vpnClientStatus = VPN.Status.UNKNOWN;
 
         private SettingsManager settingsManager = new SettingsManager();
@@ -54,55 +49,54 @@ namespace Eddie.NativeAndroidApp
 
 		public OpenVPNTunnel(VPNService service)
 		{
-			m_service = service;
+			vpnService = service;
+
+            EddieLogger.Init(vpnService);
 
 			// NOTE: do NOT propagate any exception from the following callbacks since they are invoked from C++ code and could cause memory leaks or crashes
 
-			m_clientInterface = new NativeMethods.ovpn3_client();
-			m_clientInterface.socket_protect += OnSocketProtect;
-			m_clientInterface.on_event += OnEvent;
-			m_clientInterface.tun_builder_new += OnTunBuilderNew;
-			m_clientInterface.tun_builder_set_layer += OnTunBuilderSetLayer;
-			m_clientInterface.tun_builder_set_remote_address += OnTunBuilderSetRemoteAddress;
-			m_clientInterface.tun_builder_add_address += OnTunBuilderAddAddress;
-			m_clientInterface.tun_builder_set_route_metric_default += OnTunBuilderSetRouteMetricDefault;
-			m_clientInterface.tun_builder_reroute_gw += OnTunBuildeRerouteGW;
-			m_clientInterface.tun_builder_add_route += OnTunBuilderAddRoute;
-			m_clientInterface.tun_builder_exclude_route += OnTunBuilderExcludeRoute;
-			m_clientInterface.tun_builder_add_dns_server += OnTunBuilderAddDNSServer;
-			m_clientInterface.tun_builder_add_search_domain += OnTunBuilderAddSearchDomain;
-			m_clientInterface.tun_builder_set_mtu += OnTunBuilderSetMTU;
-			m_clientInterface.tun_builder_set_session_name += OnTunBuilderSetSessionName;
-			m_clientInterface.tun_builder_add_proxy_bypass += OnTunBuilderAddProxyBypass;
-			m_clientInterface.tun_builder_set_proxy_auto_config_url += OnTunBuilderSetProxyAutoConfigUrl;
-			m_clientInterface.tun_builder_set_proxy_http += OnTunBuilderSetProxyHttp;
-			m_clientInterface.tun_builder_set_proxy_https += OnTunBuilderSetProxyHttps;
-			m_clientInterface.tun_builder_add_wins_server += OnTunBuilderAddWinsServer;
-			m_clientInterface.tun_builder_set_block_ipv6 += OnTunBuilderSetBlockIPV6;
-			m_clientInterface.tun_builder_set_adapter_domain_suffix += OnTunBuilderSetAdapterDomainSuffix;
-			m_clientInterface.tun_builder_establish += OnTunBuilderEstablish;
-			m_clientInterface.tun_builder_persist += OnTunBuilderPersist;
-			m_clientInterface.tun_builder_establish_lite += OnTunBuilderEstablishLite;
-			m_clientInterface.tun_builder_teardown += OnTunBuilderTeardown;
-			m_clientInterface.connect_attach += OnConnectAttach;
-			m_clientInterface.connect_pre_run += OnConnectPreRun;
-			m_clientInterface.connect_run += OnConnectRun;
-			m_clientInterface.connect_session_stop += OnConnectSessionStop;
+			openVPNClientInterface = new NativeMethods.ovpn3_client();
+			openVPNClientInterface.socket_protect += OnSocketProtect;
+			openVPNClientInterface.on_event += OnEvent;
+			openVPNClientInterface.tun_builder_new += OnTunBuilderNew;
+			openVPNClientInterface.tun_builder_set_layer += OnTunBuilderSetLayer;
+			openVPNClientInterface.tun_builder_set_remote_address += OnTunBuilderSetRemoteAddress;
+			openVPNClientInterface.tun_builder_add_address += OnTunBuilderAddAddress;
+			openVPNClientInterface.tun_builder_set_route_metric_default += OnTunBuilderSetRouteMetricDefault;
+			openVPNClientInterface.tun_builder_reroute_gw += OnTunBuildeRerouteGW;
+			openVPNClientInterface.tun_builder_add_route += OnTunBuilderAddRoute;
+			openVPNClientInterface.tun_builder_exclude_route += OnTunBuilderExcludeRoute;
+			openVPNClientInterface.tun_builder_add_dns_server += OnTunBuilderAddDNSServer;
+			openVPNClientInterface.tun_builder_add_search_domain += OnTunBuilderAddSearchDomain;
+			openVPNClientInterface.tun_builder_set_mtu += OnTunBuilderSetMTU;
+			openVPNClientInterface.tun_builder_set_session_name += OnTunBuilderSetSessionName;
+			openVPNClientInterface.tun_builder_add_proxy_bypass += OnTunBuilderAddProxyBypass;
+			openVPNClientInterface.tun_builder_set_proxy_auto_config_url += OnTunBuilderSetProxyAutoConfigUrl;
+			openVPNClientInterface.tun_builder_set_proxy_http += OnTunBuilderSetProxyHttp;
+			openVPNClientInterface.tun_builder_set_proxy_https += OnTunBuilderSetProxyHttps;
+			openVPNClientInterface.tun_builder_add_wins_server += OnTunBuilderAddWinsServer;
+			openVPNClientInterface.tun_builder_set_block_ipv6 += OnTunBuilderSetBlockIPV6;
+			openVPNClientInterface.tun_builder_set_adapter_domain_suffix += OnTunBuilderSetAdapterDomainSuffix;
+			openVPNClientInterface.tun_builder_establish += OnTunBuilderEstablish;
+			openVPNClientInterface.tun_builder_persist += OnTunBuilderPersist;
+			openVPNClientInterface.tun_builder_establish_lite += OnTunBuilderEstablishLite;
+			openVPNClientInterface.tun_builder_teardown += OnTunBuilderTeardown;
+			openVPNClientInterface.connect_attach += OnConnectAttach;
+			openVPNClientInterface.connect_pre_run += OnConnectPreRun;
+			openVPNClientInterface.connect_run += OnConnectRun;
+			openVPNClientInterface.connect_session_stop += OnConnectSessionStop;
 		}
+
+        ~OpenVPNTunnel()
+        {
+            openVPNClient.Destroy();
+        }
 
 		public VPNService Service
 		{
 			get
 			{
-				return m_service;
-			}
-		}
-
-		public TasksManager TasksManager
-		{
-			get
-			{
-				return m_service.TasksManager;
+				return vpnService;
 			}
 		}
 
@@ -110,10 +104,11 @@ namespace Eddie.NativeAndroidApp
 		{
 			get
 			{
-				lock(m_contextsSync)
+				lock(contextsSync)
 				{
 					VPNContext context = null;
-					if(!m_contexts.TryPeek(out context))
+
+                    if(!m_contexts.TryPeek(out context))
 						throw new Exception("internal error (cannot get a valid context)");
 
 					return context;
@@ -123,7 +118,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnSocketProtect(int socket)
 		{
-			LogsManager.Instance.Debug("OnSocketProtect(socket={0})", socket);			
+			EddieLogger.Debug("OnSocketProtect(socket={0})", socket);			
 
 			try
 			{
@@ -131,13 +126,13 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnSocketProtect", e);
+				EddieLogger.Error("OnSocketProtect", e);
 			}
 
 			return NativeMethods.ERROR;			
 		}
 
-		private void OnEvent(ref NativeMethods.ovpn3_event oe)
+		private void OnEvent(ref NativeMethods.EddieLibraryEvent oe)
 		{
 			try
             {
@@ -146,13 +141,13 @@ namespace Eddie.NativeAndroidApp
                     case NativeMethods.EventType.MESSAGE:
                     case NativeMethods.EventType.INFO:
                     {
-                        LogsManager.Instance.Info("{0}: {1}", oe.name, oe.info);
+                        EddieLogger.Info("{0}: {1}", oe.name, oe.info);
                     }
                     break;
 
                     case NativeMethods.EventType.WARN:
                     {
-                        LogsManager.Instance.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
+                        EddieLogger.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
                     }
                     break;
 
@@ -161,20 +156,20 @@ namespace Eddie.NativeAndroidApp
                     {
                         if(IgnoredError(oe.name))
                         {
-                            LogsManager.Instance.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
+                            EddieLogger.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
                         }
                         else
                         {
                             // It seems OpenVPN is having BIG troubles with the connection
                             // In order to prevent worse conditions, try to lock the VPN (in case it is possible)
     
-                            LogsManager.Instance.Error("OpenVPN3 Fatal Error {0}: {1}", oe.name, oe.info);
+                            EddieLogger.Error("OpenVPN3 Fatal Error {0}: {1}", oe.name, oe.info);
                             
                             NetworkStatusChanged(VPNAction.LOCK);
     
-                            m_service.DoChangeStatus(VPN.Status.LOCKED);
+                            vpnService.DoChangeStatus(VPN.Status.LOCKED);
     
-                            AlertNotification(m_service.Resources.GetString(Resource.String.connection_vpn_error));
+                            AlertNotification(vpnService.Resources.GetString(Resource.String.connection_vpn_error));
                         }
                     }
                     break;
@@ -183,20 +178,20 @@ namespace Eddie.NativeAndroidApp
                     {
                         if(IgnoredError(oe.name))
                         {
-                            LogsManager.Instance.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
+                            EddieLogger.Warning("OpenVPN {0}: {1}", oe.name, oe.info);
                         }
                         else
                         {
                             // It seems OpenVPN is having troubles with the connection
                             // In order to prevent worse conditions, lock the VPN
     
-                            LogsManager.Instance.Error("OpenVPN3 {0}: {1}", oe.name, oe.info);
+                            EddieLogger.Error("OpenVPN3 {0}: {1}", oe.name, oe.info);
                             
                             NetworkStatusChanged(VPNAction.LOCK);
     
-                            m_service.DoChangeStatus(VPN.Status.LOCKED);
+                            vpnService.DoChangeStatus(VPN.Status.LOCKED);
     
-                            AlertNotification(m_service.Resources.GetString(Resource.String.connection_vpn_formal_warning));
+                            AlertNotification(vpnService.Resources.GetString(Resource.String.connection_vpn_formal_warning));
                         }
                     }
                     break;
@@ -222,13 +217,13 @@ namespace Eddie.NativeAndroidApp
                         // These OpenVPN events may cause a fatal error
                         // In order to prevent worse conditions, lock the VPN
 
-                        LogsManager.Instance.Error("OpenVPN {0}: {1}", oe.name, oe.info);
+                        EddieLogger.Error("OpenVPN {0}: {1}", oe.name, oe.info);
                         
                         NetworkStatusChanged(VPNAction.LOCK);
 
-                        m_service.DoChangeStatus(VPN.Status.LOCKED);
+                        vpnService.DoChangeStatus(VPN.Status.LOCKED);
 
-                        AlertNotification(m_service.Resources.GetString(Resource.String.connection_vpn_formal_warning));
+                        AlertNotification(vpnService.Resources.GetString(Resource.String.connection_vpn_formal_warning));
                     }
                     break;
 
@@ -238,7 +233,7 @@ namespace Eddie.NativeAndroidApp
                         {
                             NativeMethods.ovpn3_connection_data connectionData = Marshal.PtrToStructure<NativeMethods.ovpn3_connection_data>(oe.data);
 
-                            LogsManager.Instance.Info("CONNECTED: defined={0}, user={1}, serverHost={2}, serverPort={3}, serverProto={4}, serverIp={5}, vpnIp4={6}, vpnIp6={7}, gw4={8}, gw6={9}, clientIp={10}, tunName={11}", connectionData.defined, connectionData.user, connectionData.serverHost, connectionData.serverPort, connectionData.serverProto, connectionData.serverIp, connectionData.vpnIp4, connectionData.vpnIp6, connectionData.gw4, connectionData.gw6, connectionData.clientIp, connectionData.tunName);
+                            EddieLogger.Info("CONNECTED: defined={0}, user={1}, serverHost={2}, serverPort={3}, serverProto={4}, serverIp={5}, vpnIp4={6}, vpnIp6={7}, gw4={8}, gw6={9}, clientIp={10}, tunName={11}", connectionData.defined, connectionData.user, connectionData.serverHost, connectionData.serverPort, connectionData.serverProto, connectionData.serverIp, connectionData.vpnIp4, connectionData.vpnIp6, connectionData.gw4, connectionData.gw6, connectionData.clientIp, connectionData.tunName);
                         }
                     }
                     break;
@@ -247,24 +242,24 @@ namespace Eddie.NativeAndroidApp
                     case NativeMethods.EventType.RELAY_ERROR:
                     case NativeMethods.EventType.DISCONNECTED:
                     {
-                        LogsManager.Instance.Warning("OpenVPN {0} - {1}: {2}", oe.type, oe.name, oe.info);
+                        EddieLogger.Warning("OpenVPN {0} - {1}: {2}", oe.type, oe.name, oe.info);
                     }
                     break;
 
                     default:
                     {
-                        LogsManager.Instance.Debug("OpenVPN Event: type={0}, name={1}, info={2}, data={3}", oe.type, oe.name, oe.info, oe.data.ToString());
+                        EddieLogger.Debug("OpenVPN Event: type={0}, name={1}, info={2}, data={3}", oe.type, oe.name, oe.info, oe.data.ToString());
                     }
                     break;
                 }
             }
             catch(Exception e)
             {
-                LogsManager.Instance.Error("OnEvent", e);
+                EddieLogger.Error("OnEvent", e);
             }           
 		}
 
-		private string GetEventContent(ref NativeMethods.ovpn3_event oe)
+		private string GetEventContent(ref NativeMethods.EddieLibraryEvent oe)
 		{
 			string name = oe.name;
 			string info = oe.info;
@@ -282,7 +277,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderNew()
 		{			
-			LogsManager.Instance.Debug("OnTunBuilderNew()");
+			EddieLogger.Debug("OnTunBuilderNew()");
 
 			try
 			{
@@ -290,7 +285,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderNew", e);
+				EddieLogger.Error("OnTunBuilderNew", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -298,7 +293,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderNewImpl()
 		{
-			lock(m_contextsSync)
+			lock(contextsSync)
 			{
 				m_contexts.Push(new VPNContext(Service));
 			}
@@ -308,7 +303,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetLayer(int layer)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetLayer(layer={0})", layer);
+			EddieLogger.Debug("OnTunBuilderSetLayer(layer={0})", layer);
 
 			try
 			{
@@ -316,7 +311,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetLayer", e);
+				EddieLogger.Error("OnTunBuilderSetLayer", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -329,7 +324,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetRemoteAddress(string address, /*bool*/ int ipv6)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetRemoteAddress(address={0}, ipv6={1})", address, ipv6);
+			EddieLogger.Debug("OnTunBuilderSetRemoteAddress(address={0}, ipv6={1})", address, ipv6);
 			
 			try
 			{
@@ -337,7 +332,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetRemoteAddress", e);
+				EddieLogger.Error("OnTunBuilderSetRemoteAddress", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -350,7 +345,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderAddAddress(string address, int prefix_length, string gateway, /*bool*/ int ipv6, /*bool*/ int net30)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderAddAddress(address={0}, prefix_length={1}, gateway={2}, ipv6={3}, net30={4})", address, prefix_length, gateway, ipv6, net30);
+			EddieLogger.Debug("OnTunBuilderAddAddress(address={0}, prefix_length={1}, gateway={2}, ipv6={3}, net30={4})", address, prefix_length, gateway, ipv6, net30);
 
 			try
 			{
@@ -358,7 +353,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderAddAddress", e);
+				EddieLogger.Error("OnTunBuilderAddAddress", e);
 			}
 
 			return NativeMethods.ERROR;			
@@ -369,26 +364,28 @@ namespace Eddie.NativeAndroidApp
             if(vpnClientStatus == VPN.Status.LOCKED)
                 return vpnClientStatus;
 
-			lock(m_clientSync)
+			lock(clientSync)
 			{
-				if(m_client == null)
+				if(openVPNClient == null)
 					return vpnClientStatus;
 
 				if(active)
 				{
 					if(vpnClientStatus == VPN.Status.PAUSED)
 					{
-						LogsManager.Instance.Info("Screen is now on, trying to resume VPN");
+						EddieLogger.Info("Screen is now on, trying to resume VPN");
 
-						if(m_client.Resume())
+                        NativeMethods.EddieLibraryResult result = openVPNClient.Resume();
+                        
+						if(result.code == NativeMethods.ResultCode.SUCCESS)
                         {
-							LogsManager.Instance.Info("VPN resumed");
+							EddieLogger.Info("Successfully resumed VPN");
                             
                             vpnClientStatus = VPN.Status.CONNECTED;
                         }
 						else
                         {
-							LogsManager.Instance.Error("VPN resume failed");
+							EddieLogger.Error(string.Format("Failed to resume VPN. {0}", result.description));
                             
                             vpnClientStatus = VPN.Status.UNKNOWN;
                         }
@@ -398,17 +395,19 @@ namespace Eddie.NativeAndroidApp
 				{
 					if(settingsManager.SystemPauseVpnWhenScreenIsOff)
 					{
-                        LogsManager.Instance.Info("Screen is now off, trying to pause VPN");
+                        EddieLogger.Info("Screen is now off, trying to pause VPN");
+                        
+                        NativeMethods.EddieLibraryResult result = openVPNClient.Pause("Screen is off");
 
-						if(m_client.Pause("screen_off"))
+						if(result.code == NativeMethods.ResultCode.SUCCESS)
 						{
-                            LogsManager.Instance.Info("VPN paused");
+                            EddieLogger.Info("Successfully paused VPN");
                             
                             vpnClientStatus = VPN.Status.PAUSED;
 						}
 						else
 						{
-                            LogsManager.Instance.Error("VPN pause failed");
+                            EddieLogger.Error(string.Format("Failed to pause VPN. {0}", result.description));
 
                             vpnClientStatus = VPN.Status.NOT_CONNECTED;
 						}
@@ -426,9 +425,9 @@ namespace Eddie.NativeAndroidApp
             if(vpnClientStatus == VPN.Status.LOCKED)
                 return vpnClientStatus;
 
-            lock(m_clientSync)
+            lock(clientSync)
             {
-                if(m_client == null)
+                if(openVPNClient == null)
                     return vpnClientStatus;
 
                 switch(action)
@@ -437,17 +436,19 @@ namespace Eddie.NativeAndroidApp
                     {
                         if(vpnClientStatus == VPN.Status.PAUSED)
                         {
-                            LogsManager.Instance.Info("Network is now connected, trying to resume VPN");
+                            EddieLogger.Info("Network is now connected, trying to resume VPN");
     
-                            if(m_client.Resume())
+                            NativeMethods.EddieLibraryResult result = openVPNClient.Resume();
+                            
+                            if(result.code == NativeMethods.ResultCode.SUCCESS)
                             {
-                                LogsManager.Instance.Info("VPN resumed");
+                                EddieLogger.Info("Successfully resumed VPN");
                                 
                                 vpnClientStatus = VPN.Status.CONNECTED;
                             }
                             else
                             {
-                                LogsManager.Instance.Error("VPN resume failed");                     
+                                EddieLogger.Error(string.Format("Failed to resume VPN. {0}", result.description));
                                 
                                 vpnClientStatus = VPN.Status.UNKNOWN;
                             }
@@ -458,17 +459,19 @@ namespace Eddie.NativeAndroidApp
                     case VPNAction.PAUSE:
                     case VPNAction.NETWORK_TYPE_CHANGED:
                     {
-                        LogsManager.Instance.Info("Network status has changed, trying to pause VPN");
-    
-                        if(m_client.Pause("network_status"))
+                        EddieLogger.Info("Network status has changed, trying to pause VPN");
+
+                        NativeMethods.EddieLibraryResult result = openVPNClient.Pause("Network status changed");
+
+                        if(result.code == NativeMethods.ResultCode.SUCCESS)
                         {
-                            LogsManager.Instance.Info("VPN paused");
+                            EddieLogger.Info("Successfully paused VPN");
                             
                             vpnClientStatus = VPN.Status.PAUSED;
                         }
                         else
                         {
-                            LogsManager.Instance.Error("VPN pause failed");
+                            EddieLogger.Error(string.Format("Failed to pause VPN. {0}", result.description));
                             
                             vpnClientStatus = VPN.Status.NOT_CONNECTED;
                         }
@@ -477,17 +480,19 @@ namespace Eddie.NativeAndroidApp
 
                     case VPNAction.LOCK:
                     {
-                        LogsManager.Instance.Info("VPN error detected. Locking VPN");
+                        EddieLogger.Info("VPN error detected. Locking VPN");
     
-                        if(m_client.Pause("VPN_lock"))
+                        NativeMethods.EddieLibraryResult result = openVPNClient.Pause("Lock VPN");
+
+                        if(result.code == NativeMethods.ResultCode.SUCCESS)
                         {
-                            LogsManager.Instance.Info("VPN locked");
+                            EddieLogger.Info("Successfully locked VPN");
                             
                             vpnClientStatus = VPN.Status.LOCKED;
                         }
                         else
                         {
-                            LogsManager.Instance.Error("VPN locking failed");
+                            EddieLogger.Error(string.Format("Failed to lock VPN. {0}", result.description));
 
                             vpnClientStatus = VPN.Status.NOT_CONNECTED;
                         }
@@ -510,7 +515,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetRouteMetricDefault(int metric)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetRouteMetricDefault(metric={0})", metric);
+			EddieLogger.Debug("OnTunBuilderSetRouteMetricDefault(metric={0})", metric);
 
 			try
 			{
@@ -518,7 +523,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetRouteMetricDefault", e);
+				EddieLogger.Error("OnTunBuilderSetRouteMetricDefault", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -531,7 +536,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuildeRerouteGW(/*bool*/ int ipv4, /*bool*/ int ipv6, int flags)
 		{
-			LogsManager.Instance.Debug("OnTunBuildeRerouteGW(ipv4={0}, ipv6={1}, flags={2})", ipv4, ipv6, flags);
+			EddieLogger.Debug("OnTunBuildeRerouteGW(ipv4={0}, ipv6={1}, flags={2})", ipv4, ipv6, flags);
 
 			try
 			{
@@ -539,7 +544,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuildeRerouteGW", e);
+				EddieLogger.Error("OnTunBuildeRerouteGW", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -552,7 +557,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderAddRoute(string address, int prefix_length, int metric, /*bool*/ int ipv6)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderAddRoute(address={0}, prefix_length={1}, metric={2}, ipv6={3})", address, prefix_length, metric, ipv6);
+			EddieLogger.Debug("OnTunBuilderAddRoute(address={0}, prefix_length={1}, metric={2}, ipv6={3})", address, prefix_length, metric, ipv6);
 
 			try
 			{
@@ -560,7 +565,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderAddRoute", e);
+				EddieLogger.Error("OnTunBuilderAddRoute", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -575,7 +580,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderExcludeRoute(string address, int prefix_length, int metric, /*bool*/ int ipv6)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderExcludeRoute(address={0}, prefix_length={1}, metric={2}, ipv6={3})", address, prefix_length, metric, ipv6);
+			EddieLogger.Debug("OnTunBuilderExcludeRoute(address={0}, prefix_length={1}, metric={2}, ipv6={3})", address, prefix_length, metric, ipv6);
 
 			try
 			{
@@ -583,7 +588,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderExcludeRoute", e);
+				EddieLogger.Error("OnTunBuilderExcludeRoute", e);
 			}
 
 			return NativeMethods.ERROR;			
@@ -596,7 +601,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderAddDNSServer(string address, /*bool*/ int ipv6)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderAddDNSServer(address={0}, ipv6={1})", address, ipv6);
+			EddieLogger.Debug("OnTunBuilderAddDNSServer(address={0}, ipv6={1})", address, ipv6);
 
 			try
 			{
@@ -606,7 +611,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderAddDNSServer", e);
+				EddieLogger.Error("OnTunBuilderAddDNSServer", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -614,7 +619,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderAddSearchDomain(string domain)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderAddSearchDomain(domain={0})", domain);
+			EddieLogger.Debug("OnTunBuilderAddSearchDomain(domain={0})", domain);
 
 			try
 			{
@@ -622,7 +627,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderAddSearchDomain", e);
+				EddieLogger.Error("OnTunBuilderAddSearchDomain", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -637,7 +642,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetMTU(int mtu)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetMTU(mtu={0})", mtu);
+			EddieLogger.Debug("OnTunBuilderSetMTU(mtu={0})", mtu);
 
 			try
 			{
@@ -647,7 +652,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetMTU", e);
+				EddieLogger.Error("OnTunBuilderSetMTU", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -655,7 +660,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetSessionName(string name)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetSessionName(name={0})", name);
+			EddieLogger.Debug("OnTunBuilderSetSessionName(name={0})", name);
 
 			try
 			{
@@ -663,7 +668,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetSessionName", e);
+				EddieLogger.Error("OnTunBuilderSetSessionName", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -678,7 +683,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderAddProxyBypass(string bypass_host)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderAddProxyBypass(bypass_host={0})", bypass_host);
+			EddieLogger.Debug("OnTunBuilderAddProxyBypass(bypass_host={0})", bypass_host);
 
 			try
 			{
@@ -686,7 +691,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderAddProxyBypass", e);
+				EddieLogger.Error("OnTunBuilderAddProxyBypass", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -699,7 +704,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetProxyAutoConfigUrl(string url)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetProxyAutoConfigUrl(url={0})", url);
+			EddieLogger.Debug("OnTunBuilderSetProxyAutoConfigUrl(url={0})", url);
 
 			try
 			{
@@ -707,7 +712,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetProxyAutoConfigUrl", e);
+				EddieLogger.Error("OnTunBuilderSetProxyAutoConfigUrl", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -720,7 +725,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetProxyHttp(string host, int port)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetProxyHttp(host={0}, port={1})", host, port);
+			EddieLogger.Debug("OnTunBuilderSetProxyHttp(host={0}, port={1})", host, port);
 
 			try
 			{
@@ -728,7 +733,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetProxyHttp", e);
+				EddieLogger.Error("OnTunBuilderSetProxyHttp", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -741,7 +746,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetProxyHttps(string host, int port)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetProxyHttps(host={0}, port={1})", host, port);
+			EddieLogger.Debug("OnTunBuilderSetProxyHttps(host={0}, port={1})", host, port);
 
 			try
 			{
@@ -749,7 +754,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetProxyHttps", e);
+				EddieLogger.Error("OnTunBuilderSetProxyHttps", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -762,7 +767,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderAddWinsServer(string address)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderAddWinsServer(address={0})", address);
+			EddieLogger.Debug("OnTunBuilderAddWinsServer(address={0})", address);
 
 			try
 			{
@@ -770,7 +775,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderAddWinsServer", e);
+				EddieLogger.Error("OnTunBuilderAddWinsServer", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -783,7 +788,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetBlockIPV6(/*bool*/ int block_ipv6)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetBlockIPV6(block_ipv6={0})", block_ipv6);
+			EddieLogger.Debug("OnTunBuilderSetBlockIPV6(block_ipv6={0})", block_ipv6);
 
 			try
 			{
@@ -793,7 +798,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetBlockIPV6", e);
+				EddieLogger.Error("OnTunBuilderSetBlockIPV6", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -801,7 +806,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderSetAdapterDomainSuffix(string name)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderSetAdapterDomainSuffix(name={0})", name);
+			EddieLogger.Debug("OnTunBuilderSetAdapterDomainSuffix(name={0})", name);
 
 			try
 			{
@@ -809,7 +814,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderSetAdapterDomainSuffix", e);
+				EddieLogger.Error("OnTunBuilderSetAdapterDomainSuffix", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -822,7 +827,7 @@ namespace Eddie.NativeAndroidApp
 
 		private int OnTunBuilderEstablish()
 		{
-			LogsManager.Instance.Debug("OnTunBuilderEstablish");
+			EddieLogger.Debug("OnTunBuilderEstablish");
 
 			try
 			{
@@ -830,7 +835,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderEstablish", e);
+				EddieLogger.Error("OnTunBuilderEstablish", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -850,16 +855,18 @@ namespace Eddie.NativeAndroidApp
 		 
 		private void RunDispatcher()
 		{
+        /*
 			TasksManager.Add((CancellationToken c) =>
 			{
 				OpenVPNDispatcher dispatcher = new OpenVPNDispatcher(this, m_cancellationToken);
-				dispatcher.Run();
-			});
+
+                dispatcher.Run();
+			}); */
 		}
-		
+
 		private int OnTunBuilderPersist()
 		{
-			LogsManager.Instance.Debug("OnTunBuilderPersist");
+			EddieLogger.Debug("OnTunBuilderPersist");
 
 			try
 			{
@@ -867,7 +874,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderPersist", e);
+				EddieLogger.Error("OnTunBuilderPersist", e);
 			}
 
 			return NativeMethods.ERROR;
@@ -880,7 +887,7 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnTunBuilderEstablishLite()
 		{
-			LogsManager.Instance.Debug("OnTunBuilderEstablishLite");
+			EddieLogger.Debug("OnTunBuilderEstablishLite");
 
 			try
 			{
@@ -888,7 +895,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderEstablishLite", e);
+				EddieLogger.Error("OnTunBuilderEstablishLite", e);
 			}			
 		}
 
@@ -899,7 +906,7 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnTunBuilderTeardown(/*bool*/ int disconnect)
 		{
-			LogsManager.Instance.Debug("OnTunBuilderTeardown(disconnect={0})", disconnect);
+			EddieLogger.Debug("OnTunBuilderTeardown(disconnect={0})", disconnect);
 			
 			try
 			{
@@ -907,7 +914,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnTunBuilderTeardown", e);
+				EddieLogger.Error("OnTunBuilderTeardown", e);
 			}			
 		}
 
@@ -918,7 +925,7 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnConnectAttach()
 		{
-			LogsManager.Instance.Debug("OnConnectAttach");
+			EddieLogger.Debug("OnConnectAttach");
 			
 			try
 			{
@@ -926,7 +933,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnConnectAttach", e);
+				EddieLogger.Error("OnConnectAttach", e);
 			}			
 		}
 
@@ -937,7 +944,7 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnConnectPreRun()
 		{
-			LogsManager.Instance.Debug("OnConnectPreRun");
+			EddieLogger.Debug("OnConnectPreRun");
 			
 			try
 			{
@@ -945,7 +952,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnConnectPreRun", e);
+				EddieLogger.Error("OnConnectPreRun", e);
 			}			
 		}
 
@@ -956,7 +963,7 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnConnectRun()
 		{
-			LogsManager.Instance.Debug("OnConnectRun");
+			EddieLogger.Debug("OnConnectRun");
 
 			try
 			{
@@ -964,7 +971,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnConnectRun", e);
+				EddieLogger.Error("OnConnectRun", e);
 			}			
 		}
 
@@ -975,7 +982,7 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnConnectSessionStop()
 		{
-			LogsManager.Instance.Debug("OnConnectSessionStop");
+			EddieLogger.Debug("OnConnectSessionStop");
 
 			try
 			{
@@ -983,38 +990,53 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnConnectSessionStop", e);
+				EddieLogger.Error("OnConnectSessionStop", e);
 			}			
 		}
 
 		private void OnConnectSessionStopImpl()
 		{
-
 		}
 
 		public void Init()
 		{
-			lock(m_clientSync)
+			lock(clientSync)
 			{
-				if(m_client != null)
+				if(openVPNClient != null)
 					throw new Exception("client already initialized");
 
-				m_client = OpenVPNClient.Create(ref m_clientInterface);
-				if(m_client == null)
+				openVPNClient = OpenVPNClient.Create(ref openVPNClientInterface);
+				
+                if(openVPNClient == null)
 					throw new Exception("client creation failed");
 			}			
 		}
 
 		public NativeMethods.ovpn3_transport_stats GetTransportStats()
 		{
-			lock(m_clientSync)
+			lock(clientSync)
 			{
-				if(m_client == null)
-					throw new Exception("client not initialized");
+                if(openVPNClient == null)
+                {
+                    string errMsg = "OpenVPNTunnel::GetTransportStats(): OpenVPN client is not initialized";
+                    
+                    EddieLogger.Error(errMsg);
+                
+                    throw new Exception(errMsg);
+                }
 	
 				NativeMethods.ovpn3_transport_stats stats = new NativeMethods.ovpn3_transport_stats();				
-				if(!m_client.GetTransportStats(ref stats))
-					throw new Exception("failed to get transport stats");
+				
+                NativeMethods.EddieLibraryResult result = openVPNClient.GetTransportStats(ref stats);
+                
+                if(result.code != NativeMethods.ResultCode.SUCCESS)
+                {
+                    string errMsg = string.Format("OpenVPNTunnel::GetTransportStats(): Failed to get OpenVPN transport stats. {0}", result.description);
+                    
+                    EddieLogger.Error(errMsg);
+                    
+                    throw new Exception(errMsg);
+                }
 				
 				return stats;
 			}
@@ -1032,20 +1054,38 @@ namespace Eddie.NativeAndroidApp
 
 		private void LoadProfile(string profile, bool isString)
 		{
-			lock(m_clientSync)
+            NativeMethods.EddieLibraryResult result;
+			
+            lock(clientSync)
 			{
-				if(m_client == null)
+				if(openVPNClient == null)
 					throw new Exception("client not initialized");
 
 				if(isString)
 				{
-					if(!m_client.LoadProfileString(profile))
-						throw new Exception(String.Format("failed to load profile string '{0}'", profile));
+                    result = openVPNClient.LoadProfileString(profile);
+
+                    if(result.code != NativeMethods.ResultCode.SUCCESS)
+                    {
+                        string errMsg = string.Format("OpenVPNTunnel::LoadProfile(): Failed to load profile string. {0}", result.description);
+                        
+                        EddieLogger.Error(errMsg);
+                        
+                        throw new Exception(errMsg);
+                    }
 				}
 				else
 				{
-					if(!m_client.LoadProfileFile(profile))
-						throw new Exception(String.Format("failed to load profile file '{0}'", profile));
+                    result = openVPNClient.LoadProfileFile(profile);
+
+					if(result.code != NativeMethods.ResultCode.SUCCESS)
+                    {
+                        string errMsg = string.Format("OpenVPNTunnel::LoadProfile(): Failed to load profile file. {0}", result.description);
+                        
+                        EddieLogger.Error(errMsg);
+                        
+                        throw new Exception(errMsg);
+                    }
 				}				
 			}
 		}
@@ -1062,15 +1102,23 @@ namespace Eddie.NativeAndroidApp
 
 		private void DoSetOption(string option, string value)
 		{
-			if(!m_client.SetOption(option, value))
-				throw new Exception(String.Format("failed to set option '{0}' with value '{1}'", option, value));
+            NativeMethods.EddieLibraryResult result = openVPNClient.SetOption(option, value);
+
+            if(result.code != NativeMethods.ResultCode.SUCCESS)
+            {
+                string errMsg = String.Format("OpenVPNTunnel::DoSetOption(): Failed to set option '{0}' with value '{1}'. {2}", option, value, result.description);
+                
+                EddieLogger.Error(errMsg);
+                
+                throw new Exception(errMsg);
+            }
 		}
 
 		public void BindOptions()
 		{
-			lock(m_clientSync)
+			lock(clientSync)
 			{
-				if(m_client == null)
+				if(openVPNClient == null)
 					throw new Exception("client not initialized");
 
                 DoSetOption(SettingsManager.OVPN3_OPTION_TLS_MIN_VERSION_NATIVE, settingsManager.Ovpn3TLSMinVersion);
@@ -1101,15 +1149,11 @@ namespace Eddie.NativeAndroidApp
 			}
 		}
 
-		public void Run(CancellationToken c)
+		public void Run()
 		{
-			m_cancellationToken = c;
-
 			try
 			{
 				DoRun();
-
-				Service.HandleThreadStopped();
 			}
 			catch(Exception e)
 			{
@@ -1121,40 +1165,70 @@ namespace Eddie.NativeAndroidApp
 		{
 			OpenVPNClient client = null;
 
-			lock(m_clientSync)
+			lock(clientSync)
 			{
-				if(m_client == null)
-					throw new Exception("client not initialized");
+				if(openVPNClient == null)
+                {
+                    string errMsg = "OpenVPNTunnel::DoRun(): OpenVPN client is not initialized";
+                    
+                    EddieLogger.Error(errMsg);
+                
+					throw new Exception(errMsg);
+                }
 
-				client = m_client;
+				client = openVPNClient;
 
 				// Do NOT call m_client.Start under m_clientSync'lock	
 			}
 
 			// Dispatcher must be instantiated before starting to allow handling stop requests from outside while the client isn't started yet
-			RunDispatcher();
 
-			if(!client.Start())
-				throw new Exception("client start failed");
+            // RunDispatcher();
+
+            NativeMethods.EddieLibraryResult result = client.Start();
+            
+			if(result.code != NativeMethods.ResultCode.SUCCESS)
+            {
+                string errMsg = string.Format("OpenVPNTunnel::DoRun(): Failed to start OpenVPN client. {0}", result.description);
+                
+                EddieLogger.Error(errMsg);
+                
+				throw new Exception(errMsg);
+            }
 		}
 
 		public void Cleanup()
 		{
 			OpenVPNClient client = null;
 
-			lock(m_clientSync)
+			lock(clientSync)
 			{
-				if(m_client == null)
-					throw new Exception("client not initialized");
+                if(openVPNClient == null)
+                {
+                    string errMsg = "OpenVPNTunnel::Cleanup(): OpenVPN client is not initialized";
+                    
+                    EddieLogger.Error(errMsg);
+                
+                    throw new Exception(errMsg);
+                }
 
-				client = m_client;
-				m_client = null;
+				client = openVPNClient;
+				
+                openVPNClient = null;
 			}
 
 			try
 			{
-				if(!client.Stop())
-					throw new Exception("client stop failed");
+                NativeMethods.EddieLibraryResult result = client.Stop();
+
+                if(result.code != NativeMethods.ResultCode.SUCCESS)
+                {
+                    string errMsg = string.Format("OpenVPNTunnel::Cleanup(): Failed to stop OpenVPN client. {0}", result.description);
+                    
+                    EddieLogger.Error(errMsg);
+                    
+                    throw new Exception(errMsg);
+                }
 			}
 			finally
 			{
@@ -1164,13 +1238,13 @@ namespace Eddie.NativeAndroidApp
 
 		private void ClearContexts()
 		{
-			LogsManager.Instance.Debug("ClearContexts");
+			EddieLogger.Debug("ClearContexts");
 
-			lock(m_contextsSync)
+			lock(contextsSync)
 			{
 				while(m_contexts.Count > 0)
 				{
-					LogsManager.Instance.Debug("Disposing context");
+					EddieLogger.Debug("Disposing context");
 
 					SupportTools.SafeDispose(m_contexts.Pop());
 				}
@@ -1182,7 +1256,7 @@ namespace Eddie.NativeAndroidApp
             if(message.Equals(""))
                 return;
 
-            m_service.AlertNotification(message);
+            vpnService.AlertNotification(message);
         }
 
         private void UpdateNotification(VPN.Status status)
@@ -1197,29 +1271,29 @@ namespace Eddie.NativeAndroidApp
             if(pData.Count > 0 && pData.ContainsKey("server"))
                 server = pData["server"];
 
-            text = String.Format(m_service.Resources.GetString(Resource.String.notification_text), server);
+            text = String.Format(vpnService.Resources.GetString(Resource.String.notification_text), server);
             
             if(!NetworkStatusReceiver.GetNetworkDescription().Equals(""))
-                text += " " + String.Format(m_service.Resources.GetString(Resource.String.notification_network), NetworkStatusReceiver.GetNetworkDescription());
+                text += " " + String.Format(vpnService.Resources.GetString(Resource.String.notification_network), NetworkStatusReceiver.GetNetworkDescription());
 
             if(status == VPN.Status.PAUSED)
-                text += " (" + m_service.Resources.GetString(Resource.String.vpn_status_paused) + ")";
+                text += " (" + vpnService.Resources.GetString(Resource.String.vpn_status_paused) + ")";
                 
             if(status == VPN.Status.LOCKED)
-                text += " (" + m_service.Resources.GetString(Resource.String.vpn_status_locked) + ")";
+                text += " (" + vpnService.Resources.GetString(Resource.String.vpn_status_locked) + ")";
 
-            m_service.UpdateNotification(text);
+            vpnService.UpdateNotification(text);
         }
         
         private void ResumeVPNAfterSeconds(int seconds)
         {
-            LogsManager.Instance.Info("VPN will be resumed in {0} seconds", seconds);
+            EddieLogger.Info("VPN will be resumed in {0} seconds", seconds);
 
             System.Timers.Timer timer = new System.Timers.Timer();
 
             timer.Elapsed += (sender, args) =>
             {
-                LogsManager.Instance.Info("Trying to resume VPN");
+                EddieLogger.Info("Trying to resume VPN");
 
                 NetworkStatusChanged(VPNAction.RESUME);
                 

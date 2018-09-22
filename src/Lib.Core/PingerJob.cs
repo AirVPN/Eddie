@@ -47,11 +47,11 @@ namespace Eddie.Core
 					throw new Exception("Invalid ip");
 				routeScope = new RouteScope(ip.ToString());
 				Int64 result = Platform.Instance.Ping(ip, 3);
-				Pinger.Instance.PingResult(Server, result);
+				Engine.Instance.JobsManager.Latency.PingResult(Server, result);
 			}
 			catch (Exception)
 			{
-				Pinger.Instance.PingResult(Server, -1);
+				Engine.Instance.JobsManager.Latency.PingResult(Server, -1);
 			}
 			finally
 			{
@@ -60,9 +60,9 @@ namespace Eddie.Core
 					routeScope.End();
 				}
 
-				lock (Pinger.Instance.Jobs)
+				lock (Engine.Instance.JobsManager.Latency.Jobs)
 				{
-					Pinger.Instance.Jobs.Remove(this);
+					Engine.Instance.JobsManager.Latency.Jobs.Remove(this);
 				}
 			}
 

@@ -255,6 +255,9 @@ namespace Eddie.Forms.Skin
 		{
 			e.DrawDefault = false;
 
+			if (e.Item.ListView == null)
+				return;
+
 			Form.Skin.GraphicsCommon(e.Graphics);
 
 			DrawSubItemBackground(e);
@@ -287,9 +290,9 @@ namespace Eddie.Forms.Skin
 				Image imageIcon = GuiUtils.GetResourceImage(ImageIconResourcePrefix + e.Item.ImageKey);
 				if ((imageIcon == null) && (ImageListIcon != null) && (ImageListIcon.Images.ContainsKey(e.Item.ImageKey)))
 					imageIcon = ImageListIcon.Images[e.Item.ImageKey];
-				else if ((imageIcon == null) && (e.Item.ListView.LargeImageList != null) && (e.Item.ListView.LargeImageList.Images.ContainsKey(e.Item.ImageKey)))
+				else if ((imageIcon == null) && (e.Item.ListView != null) && (e.Item.ListView.LargeImageList != null) && (e.Item.ListView.LargeImageList.Images.ContainsKey(e.Item.ImageKey)))
 					imageIcon = e.Item.ListView.LargeImageList.Images[e.Item.ImageKey];
-				else if ((imageIcon == null) && (e.Item.ListView.SmallImageList != null) && (e.Item.ListView.SmallImageList.Images.ContainsKey(e.Item.ImageKey)))
+				else if ((imageIcon == null) && (e.Item.ListView != null) && (e.Item.ListView.SmallImageList != null) && (e.Item.ListView.SmallImageList.Images.ContainsKey(e.Item.ImageKey)))
 					imageIcon = e.Item.ListView.SmallImageList.Images[e.Item.ImageKey];
 				if (imageIcon != null)
 				{

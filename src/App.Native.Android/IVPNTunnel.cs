@@ -18,14 +18,12 @@
 //
 // 20 June 2018 - author: promind - initial release. Based on revised code from com.eddie.android. (a tribute to the 1859 Perugia uprising occurred on 20 June 1859 and in memory of those brave inhabitants who fought for the liberty of Perugia)
 
-using System.Threading;
-
 namespace Eddie
 {
     public interface IVPNTunnel
     {
 		void Init();
-		void Run(CancellationToken c);
+		void Run();
 		void Cleanup();		
 	}
 }

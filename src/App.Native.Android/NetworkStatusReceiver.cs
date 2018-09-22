@@ -16,12 +16,11 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 //
-// 19 July 2018 - author: promind - initial release.
+// 19 July 2018 - author: ProMIND - initial release.
 
 using System.Collections.Generic;
 using Android.Content;
 using Android.Net;
-using Eddie.Common.Log;
 
 namespace Eddie.NativeAndroidApp
 {
@@ -63,60 +62,60 @@ namespace Eddie.NativeAndroidApp
     
             NetworkInfo networkInfo = manager.ActiveNetworkInfo;
 
-            if(networkInfo == null)
-                return;
-
-            NetworkInfo.State connectionStatus = networkInfo.GetState();
-
-            if(connectionStatus == NetworkInfo.State.Connected)
+            if(networkInfo != null)
             {
-                NetworkStatus = Status.CONNECTED;
+                NetworkInfo.State connectionStatus = networkInfo.GetState();
     
-                NetworkType = networkInfo.Type;
-    
-                NetworkDescription = networkInfo.TypeName;
+                if(connectionStatus == NetworkInfo.State.Connected)
+                {
+                    NetworkStatus = Status.CONNECTED;
+        
+                    NetworkType = networkInfo.Type;
+        
+                    NetworkDescription = networkInfo.TypeName;
+                }
+                else if(connectionStatus == NetworkInfo.State.Disconnected)
+                {
+                    NetworkStatus = Status.NOT_CONNECTED;
+        
+                    NetworkType = ConnectivityType.Dummy;
+        
+                    NetworkDescription = "";
+                }
+                else if(connectionStatus == NetworkInfo.State.Connecting)
+                {
+                    NetworkStatus = Status.IS_CONNECTING;
+        
+                    NetworkType = ConnectivityType.Dummy;
+        
+                    NetworkDescription = "";
+                }
+                else if(connectionStatus == NetworkInfo.State.Disconnecting)
+                {
+                    NetworkStatus = Status.IS_DISCONNECTING;
+        
+                    NetworkType = ConnectivityType.Dummy;
+        
+                    NetworkDescription = "";
+                }
+                else if(connectionStatus == NetworkInfo.State.Suspended)
+                {
+                    NetworkStatus = Status.SUSPENDED;
+        
+                    NetworkType = ConnectivityType.Dummy;
+        
+                    NetworkDescription = "";
+                }
+                else if(connectionStatus == NetworkInfo.State.Unknown)
+                {
+                    NetworkStatus = Status.UNKNOWN;
+        
+                    NetworkType = ConnectivityType.Dummy;
+        
+                    NetworkDescription = "";
+                }
             }
-            else if(connectionStatus == NetworkInfo.State.Disconnected)
-            {
-                NetworkStatus = Status.NOT_CONNECTED;
-    
-                NetworkType = ConnectivityType.Dummy;
-    
-                NetworkDescription = "";
-            }
-            else if(connectionStatus == NetworkInfo.State.Connecting)
-            {
-                NetworkStatus = Status.IS_CONNECTING;
-    
-                NetworkType = ConnectivityType.Dummy;
-    
-                NetworkDescription = "";
-            }
-            else if(connectionStatus == NetworkInfo.State.Disconnecting)
-            {
-                NetworkStatus = Status.IS_DISCONNECTING;
-    
-                NetworkType = ConnectivityType.Dummy;
-    
-                NetworkDescription = "";
-            }
-            else if(connectionStatus == NetworkInfo.State.Suspended)
-            {
-                NetworkStatus = Status.SUSPENDED;
-    
-                NetworkType = ConnectivityType.Dummy;
-    
-                NetworkDescription = "";
-            }
-            else if(connectionStatus == NetworkInfo.State.Unknown)
-            {
-                NetworkStatus = Status.UNKNOWN;
-    
-                NetworkType = ConnectivityType.Dummy;
-    
-                NetworkDescription = "";
-            }
-            else if(intent.GetBooleanExtra(ConnectivityManager.ExtraNoConnectivity, false))
+            else
             {
                 NetworkStatus = Status.NOT_AVAILABLE;
     

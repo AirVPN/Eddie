@@ -82,10 +82,15 @@ namespace Eddie.Forms
 
 		protected override void OnPaintBackground(PaintEventArgs e)
 		{
-			e.Graphics.FillRectangle(Skin.GetBrush("color.form.background"), ClientRectangle);
-			Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
+			if (this.BackgroundImage != null)
+				base.OnPaintBackground(e);
+			else
+			{
+				e.Graphics.FillRectangle(Skin.GetBrush("color.form.background"), ClientRectangle);
+				Form.DrawImageOpt(e.Graphics, GuiUtils.GetResourceImage("form"), ClientRectangle);
 
-			//base.OnPaintBackground(e);
+				//base.OnPaintBackground(e);
+			}
 		}
 
 		public void ResetSkinCache()

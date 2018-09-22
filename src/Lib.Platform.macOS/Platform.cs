@@ -501,6 +501,7 @@ namespace Eddie.Platform.MacOS
 		{
 			IpAddresses list = new IpAddresses();
 
+			// Method1: Don't return DHCP DNS
 			string networksetupPath = LocateExecutable("networksetup");
 			if (networksetupPath != "")
 			{
@@ -511,7 +512,43 @@ namespace Eddie.Platform.MacOS
 
 					string current = SystemShell.Shell(networksetupPath, new string[] { "-getdnsservers", SystemShell.EscapeInsideQuote(i2) });
 
-					list.Add(current);
+                    foreach(string line in current.Split('\n'))
+                    {
+                        string field = line.Trim();
+                        list.Add(field);
+                    }
+					
+				}
+			}
+
+			// Method2 - More info about DHCP DNS
+			string scutilPath = LocateExecutable("scutil");
+			if(scutilPath != "")
+			{
+				string scutilOut = SystemShell.Shell1(scutilPath, "--dns");
+				List<List<string>> result = UtilsString.RegExMatchMulti(scutilOut.Replace(" ", ""), "nameserver\\[[0-9]+\\]:([0-9:\\.]+)");
+				foreach (List<string> match in result)
+				{
+					foreach (string field in match)
+					{
+						list.Add(field);
+					}
+				}
+			}
+
+			// Method3 - Compatibility
+			if (FileExists("/etc/resolv.conf"))
+			{
+				string o = FileContentsReadText("/etc/resolv.conf");
+				foreach (string line in o.Split('\n'))
+				{
+					if (line.Trim().StartsWith("#"))
+						continue;
+					if (line.Trim().StartsWith("nameserver"))
+					{
+						string field = line.Substring(11).Trim();
+						list.Add(field);
+					}
 				}
 			}
 

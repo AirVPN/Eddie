@@ -22,70 +22,67 @@ namespace Eddie.NativeAndroidApp
 {
 	public class OpenVPNClient
 	{
-		private int m_handle;
-
-		private OpenVPNClient(int handle)
+		private OpenVPNClient()
 		{
-			m_handle = handle;
 		}
 
 		public static OpenVPNClient Create(ref NativeMethods.ovpn3_client ci)
 		{
-			int handle = NativeMethods.OVPN3.ClientCreate(ref ci);
-			return NativeMethods.Succeeded(handle) ? new OpenVPNClient(handle) : null;
-		}
-	
-		public int Handle
-		{
-			get
-			{
-				return m_handle;
-			}
+			NativeMethods.EddieLibraryResult result = NativeMethods.EddieLibrary.CreateClient(ref ci);
+
+            if(result.code == NativeMethods.ResultCode.SUCCESS)
+                return new OpenVPNClient();
+            else
+            {
+                EddieLogger.Error("Eddie Library: Failed to create a new OpenVPN Client. {0}", result.description);
+
+                return null;
+            }
 		}
 
-		public bool GetTransportStats(ref NativeMethods.ovpn3_transport_stats stats)
+		public NativeMethods.EddieLibraryResult GetTransportStats(ref NativeMethods.ovpn3_transport_stats stats)
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientGetTransportStats(Handle, ref stats));			
+			return NativeMethods.EddieLibrary.GetClientTransportStats(ref stats);
 		}
 
-		public bool LoadProfileFile(string filename)
+		public NativeMethods.EddieLibraryResult LoadProfileFile(string filename)
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientLoadProfileFile(Handle, filename));
+			return NativeMethods.EddieLibrary.LoadProfileToClient(filename);
 		}
 
-		public bool LoadProfileString(string str)
+		public NativeMethods.EddieLibraryResult LoadProfileString(string str)
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientLoadProfileString(Handle, str));
+			return NativeMethods.EddieLibrary.LoadStringProfileToClient(str);
 		}
 
-		public bool SetOption(string option, string value)
+		public NativeMethods.EddieLibraryResult SetOption(string option, string value)
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientSetOption(Handle, option, value));
+			return NativeMethods.EddieLibrary.SetClientOption(option, value);
 		}
 
-		public bool Start()
+		public NativeMethods.EddieLibraryResult Start()
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientStart(Handle));
+			return NativeMethods.EddieLibrary.StartClient();
 		}
 
-		public bool Stop()
+		public NativeMethods.EddieLibraryResult Stop()
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientStop(Handle));
+			return NativeMethods.EddieLibrary.StopClient();
 		}
 
-		public bool Pause(string reason)
+		public NativeMethods.EddieLibraryResult Pause(string reason)
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientPause(Handle, reason));
+			return NativeMethods.EddieLibrary.PauseClient(reason);
 		}
 
-		public bool Resume()
+		public NativeMethods.EddieLibraryResult Resume()
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientResume(Handle));
+			return NativeMethods.EddieLibrary.ResumeClient();
 		}
 		
-		public bool Destroy()
+		public NativeMethods.EddieLibraryResult Destroy()
 		{
-			return NativeMethods.Succeeded(NativeMethods.OVPN3.ClientDestroy(Handle));
+			return NativeMethods.EddieLibrary.DisposeClient();
 		}
 	}
 }

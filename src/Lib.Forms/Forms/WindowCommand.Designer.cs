@@ -47,7 +47,7 @@
 			this.lnkHelp.Size = new System.Drawing.Size(512, 25);
 			this.lnkHelp.TabIndex = 41;
 			this.lnkHelp.TabStop = true;
-			this.lnkHelp.Text = "Click here for more informations about OpenVPN Management Interface";
+			this.lnkHelp.Text = "Click here for more information about OpenVPN Management Interface";
 			this.lnkHelp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.lnkHelp.Click += new System.EventHandler(this.lnkHelp_LinkClicked);
 			// 

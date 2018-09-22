@@ -18,7 +18,6 @@
 //
 // 20 June 2018 - author: promind - initial release. Based on revised code from com.eddie.android. (a tribute to the 1859 Perugia uprising occurred on 20 June 1859 and in memory of those brave inhabitants who fought for the liberty of Perugia)
 
-using Eddie.Common.Log;
 using System;
 using System.Threading;
 
@@ -51,8 +50,8 @@ namespace Eddie.NativeAndroidApp
 			try
 			{
 				DoUpdate();
-				
-                Service.HandleThreadStopped();
+
+                // Service.HandleThreadStopped();
 			}
 			catch(Exception e)
 			{
@@ -76,17 +75,18 @@ namespace Eddie.NativeAndroidApp
 		*/	
 		private void DoUpdate()
 		{
-			LogsManager.Instance.Debug("DoUpdate - Begin");
+			EddieLogger.Debug("DoUpdate - Begin");
 
 			while(!m_cancellationToken.IsCancellationRequested)
 			{
 				SupportTools.Sleep(THREAD_DELAY);
 
 				NativeMethods.ovpn3_transport_stats stats = m_tunnel.GetTransportStats();
-				//	LogsManager.Instance.Debug("Tunnel stats: bytes_in={0}, bytes_out={1}, packets_in={2}, packets_out={3}, last_packet_received={4}", stats.bytes_in, stats.bytes_out, stats.packets_in, stats.packets_out, stats.last_packet_received);
+
+                // EddieLogger.Debug("Tunnel stats: bytes_in={0}, bytes_out={1}, packets_in={2}, packets_out={3}, last_packet_received={4}", stats.bytes_in, stats.bytes_out, stats.packets_in, stats.packets_out, stats.last_packet_received);
 			}
 
-			LogsManager.Instance.Debug("DoUpdate - End");
+			EddieLogger.Debug("DoUpdate - End");
 
 			/*
 			FileInputStream channelIn = null;
@@ -127,17 +127,17 @@ namespace Eddie.NativeAndroidApp
 						loop = false;					
 				}
 		
-				LogsManager.Instance.Debug("ExchangeData2");
+				EddieLogger.Debug("ExchangeData2");
 
 				taskIn.Cancel();
 				taskIn.Wait();
 
-				LogsManager.Instance.Debug("ExchangeData3");
+				EddieLogger.Debug("ExchangeData3");
 
 				taskOut.Cancel();
 				taskOut.Wait();
 
-				LogsManager.Instance.Debug("ExchangeData4");
+				EddieLogger.Debug("ExchangeData4");
 
 				if(Utils.Empty(inError) == false)
 					throw new Exception(inError);
@@ -154,7 +154,7 @@ namespace Eddie.NativeAndroidApp
 				Utils.SafeDispose(tunnelOut);				
 			}
 	
-			LogsManager.Instance.Debug("ExchangeData5");
+			EddieLogger.Debug("ExchangeData5");
 			*/
 
 		}
@@ -163,7 +163,7 @@ namespace Eddie.NativeAndroidApp
 		{
 			error = null;
 
-			LogsManager.Instance.Debug("ReadPackets start");
+			EddieLogger.Debug("ReadPackets start");
 
 			try
 			{
@@ -171,11 +171,11 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("ReadPackets exception: {0}", e.Message);
+				EddieLogger.Error("ReadPackets exception: {0}", e.Message);
 				error = e.Message;
 			}
 
-			LogsManager.Instance.Debug("ReadPackets end");
+			EddieLogger.Debug("ReadPackets end");
 		}
 	
 		private void ReadPacketsImpl(InputStream channelIn, OutputStream tunnelOut, CancellationToken c, ref string error)
@@ -184,13 +184,13 @@ namespace Eddie.NativeAndroidApp
 			
 			while(!c.IsCancellationRequested)
 			{
-				LogsManager.Instance.Debug("channelIn.Read BEGIN");
+				EddieLogger.Debug("channelIn.Read BEGIN");
 				int length = channelIn.Read(packet);
-				LogsManager.Instance.Debug("channelIn.Read END");
+				EddieLogger.Debug("channelIn.Read END");
 
 				if(length > 0)
 				{
-					LogsManager.Instance.Debug("channelIn.Read({0})", length);
+					EddieLogger.Debug("channelIn.Read({0})", length);
 
 					tunnelOut.Write(packet, 0, length);					
 				}
@@ -203,7 +203,7 @@ namespace Eddie.NativeAndroidApp
 				{
 					// TODO: temp
 					Utils.Sleep(1000);
-					LogsManager.Instance.Debug("channelIn.Read SLEEP");
+					EddieLogger.Debug("channelIn.Read SLEEP");
 				}
 			}
 		}
@@ -212,7 +212,7 @@ namespace Eddie.NativeAndroidApp
 		{
 			error = null;
 
-			LogsManager.Instance.Debug("WritePackets start");
+			EddieLogger.Debug("WritePackets start");
 
 			try
 			{
@@ -220,11 +220,11 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("WritePackets exception: {0}", e.Message);
+				EddieLogger.Error("WritePackets exception: {0}", e.Message);
 				error = e.Message;
 			}
 
-			LogsManager.Instance.Debug("WritePackets end");
+			EddieLogger.Debug("WritePackets end");
 		}
 	
 		private void WritePacketsImpl(InputStream tunnelIn, OutputStream channelOut, CancellationToken c, ref string error)
@@ -233,13 +233,13 @@ namespace Eddie.NativeAndroidApp
 
 			while(!c.IsCancellationRequested)
 			{
-				LogsManager.Instance.Debug("tunnelIn.Read BEGIN");
+				EddieLogger.Debug("tunnelIn.Read BEGIN");
 				int length = tunnelIn.Read(packet);
-				LogsManager.Instance.Debug("tunnelIn.Read BEGIN");
+				EddieLogger.Debug("tunnelIn.Read BEGIN");
 
 				if(length > 0)
 				{
-					LogsManager.Instance.Debug("tunnelIn.Read({0})", length);
+					EddieLogger.Debug("tunnelIn.Read({0})", length);
 
 					channelOut.Write(packet, 0, length);
 				}
@@ -252,7 +252,7 @@ namespace Eddie.NativeAndroidApp
 				{
 					// TODO: temp
 					Utils.Sleep(1000);
-					LogsManager.Instance.Debug("tunnelIn.Read SLEEP");
+					EddieLogger.Debug("tunnelIn.Read SLEEP");
 				}
 			}
 		}

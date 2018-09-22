@@ -49,13 +49,13 @@ namespace Eddie.Forms.Windows
 				Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
 
 				CommandLine.InitSystem(Environment.CommandLine);
-				
+
 				if (CommandLine.SystemEnvironment.Exists("cli"))
 				{
 					Core.Engine engine = new Core.Engine();
 
 					if (engine.Initialization(true))
-					{
+					{						
 						engine.ConsoleStart();
 					}
 				}

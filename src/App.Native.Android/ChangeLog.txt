@@ -1,4 +1,64 @@
-Changelog 1.0 RC 2 (VC 5) - Release date: 
+Changelog 1.0 RC 4 (VC 7) - Release date: 29 August 2018 by ProMIND
+
+- [ProMIND] Changed and revised overall threading management
+
+SupportTools.cs
+
+- [ProMIND] Added StartThread() method
+
+VPNService.cs
+
+- [ProMIND] Changed invocation of VPN start and stop
+
+LogActivity.cs
+
+- [ProMIND] Implemented ViewHolder in GetView (hopefully making the ListView faster)
+- [ProMIND] ListView's adapter now requires a List<ISpanned> object (hopefully making ListView's GetView faster)
+
+PackageChooserActivity.cs
+
+- [ProMIND] implemented ViewHolder in GetView (hopefully making the ListView faster)
+
+
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
+Changelog 1.0 RC 3 (VC 6) - Release date: 17 August 2018 by ProMIND
+
+MainActivity.cs
+
+- [ProMIND] UpdateConnectionStatus: Added Dictionary's keys check
+- [ProMIND] SaveCurrentProfile: Added Dictionary's keys check
+- [ProMIND] SelectOpenVPNProfile: Added Dictionary's keys check
+- [ProMIND] OnNavigationViewItemSelected: Added "ViewMode" extras to LogActivity Intent
+
+Native Library libeddie
+
+- [ProMIND] it now creates a single instance of the client. Removed client map and multiple instance of clients, changed API accordingly.
+- [ProMIND] Changed API (level 4). All API functions now return a qualified result EddieLibraryResult
+- [ProMIND] Better memory management and cleanup
+
+NativeMethods.cs
+
+- [ProMIND] Changed interface of native methods in order to comply to libeddie 1.2 API 4
+
+SettingsManager.cs
+
+- [ProMIND] SystemApplicationFilterList: It now correctly returns an empty list in case of empty filter
+
+LogActivity.cs
+
+- [ProMIND] added ViewMode enum to select LogActivity widget usage between ListView and WebView
+
+VPNService.cs
+
+- [ProMIND] Duplicate notification prevention (if any)
+
+
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
+Changelog 1.0 RC 2 (VC 5) - Release date: 26 July 2018 by ProMIND
 
 strings.xml
 

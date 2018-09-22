@@ -119,6 +119,11 @@ namespace Eddie.Core
 			return "Unknown";
 		}
 
+		public virtual string GetCodeInstaller()
+		{
+			return GetCode();
+		}
+
 		public virtual string GetName()
 		{
 			return "Unknown";
@@ -629,14 +634,21 @@ namespace Eddie.Core
 				// options.DontFragment = true;
 
 				// Create a buffer of 32 bytes of data to be transmitted.
-				byte[] buffer = RandomGenerator.GetBuffer(32);
-				int timeout = timeoutSec * 1000;
-				PingReply reply = pingSender.Send(host.ToString(), timeout, buffer, options);
+				try
+				{
+					byte[] buffer = RandomGenerator.GetBuffer(32);
+					int timeout = timeoutSec * 1000;
+					PingReply reply = pingSender.Send(host.ToString(), timeout, buffer, options);
 
-				if (reply.Status == IPStatus.Success)
-					return reply.RoundtripTime;
-				else
+					if (reply.Status == IPStatus.Success)
+						return reply.RoundtripTime;
+					else
+						return -1;
+				}
+				catch
+				{
 					return -1;
+				}
 			}
 		}
 
@@ -891,7 +903,7 @@ namespace Eddie.Core
 				{
 					Json jRoute = new Json();
 					UtilsXml.XmlToJson(nodeRoute, jRoute);
-					m_routes.Add(jRoute);
+					// m_routes.Add(jRoute); // Removed in 2.17.1
 
 					if (jRoute["type"].Value as string == "added")
 						RouteRemove(jRoute);

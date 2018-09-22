@@ -45,16 +45,13 @@ namespace Eddie.Core
 		public delegate void TerminateHandler();
 		public event TerminateHandler TerminateEvent;
 
-		private Threads.Pinger m_threadPinger;
-		private Threads.Penalities m_threadPenalities;
-		private Threads.Discover m_threadDiscover;
-		private Threads.Manifest m_threadManifest;
 		private Threads.Session m_threadSession;
 		private UiManager m_uiManager;
 		private Storage m_storage;
 		private Stats m_stats;
 		private ProvidersManager m_providersManager;
 		private LogsManager m_logsManager;
+		private JobsManager m_jobsManager;
 		private NetworkLockManager m_networkLockManager;
 		private WebServer m_webServer;
 
@@ -63,7 +60,6 @@ namespace Eddie.Core
 		private Dictionary<string, AreaInfo> m_areas = new Dictionary<string, AreaInfo>();
 		private bool m_serversInfoUpdated = false;
 		private bool m_areasInfoUpdated = false;
-		private List<string> m_frontMessages = new List<string>();
 		private int m_breakRequests = 0;
 		//private TimeDelta m_tickDeltaUiRefreshQuick = new TimeDelta();
 		private TimeDelta m_tickDeltaUiRefreshFull = new TimeDelta();
@@ -149,6 +145,14 @@ namespace Eddie.Core
 			}
 		}
 
+		public JobsManager JobsManager
+		{
+			get
+			{
+				return m_jobsManager;
+			}
+		}
+
 		public NetworkLockManager NetworkLockManager
 		{
 			get
@@ -180,18 +184,7 @@ namespace Eddie.Core
 				return m_areas;
 			}
 		}
-
-		public bool DebugModeX
-		{
-			get
-			{
-				if (Storage != null)
-					return Storage.GetBool("log.level.debug");
-				else
-					return false;
-			}
-		}
-
+		
 		public Providers.Service AirVPN // TOFIX, for compatibility
 		{
 			get
@@ -227,6 +220,8 @@ namespace Eddie.Core
 			m_uiManager = new UiManager();
 
 			m_logsManager = new LogsManager();
+
+			m_jobsManager = new JobsManager();
 
 			m_storage = new Core.Storage();
 
@@ -295,7 +290,7 @@ namespace Eddie.Core
 			m_providersManager.Init();
 
 			m_storage.Load();
-
+			
 			m_providersManager.Load();
 
 			if (Storage.GetBool("cli"))
@@ -330,7 +325,7 @@ namespace Eddie.Core
 		public override void OnRun()
 		{
 			bool initResult = OnInit();
-
+			
 			GenerateManifest();
 
 			// Not the best, but under Mono/Linux allow showing the 'Starting...' that give a feedback of running.
@@ -361,11 +356,6 @@ namespace Eddie.Core
 
 				WaitMessageClear();
 
-				m_threadPinger = new Threads.Pinger();
-				m_threadPenalities = new Threads.Penalities();
-				m_threadDiscover = new Threads.Discover();
-				m_threadManifest = new Threads.Manifest();
-
 				PostManifestUpdate();
 
 				bool autoStart = false;
@@ -385,6 +375,8 @@ namespace Eddie.Core
 				for (; ; )
 				{
 					OnWork();
+
+					m_jobsManager.Check();
 
 					if (ConsoleMode)
 					{
@@ -475,18 +467,8 @@ namespace Eddie.Core
 
 			WaitMessageSet(Messages.AppExiting, false);
 
-			if (m_threadManifest != null)
-				m_threadManifest.RequestStopSync();
-
-			if (m_threadPenalities != null)
-				m_threadPenalities.RequestStopSync();
-
-			if (m_threadDiscover != null)
-				m_threadDiscover.RequestStopSync();
-
-			if (m_threadPinger != null)
-				m_threadPinger.RequestStopSync();
-
+			m_jobsManager.RequestStopSync();
+						
 			m_networkLockManager.Deactivation(true);
 			m_networkLockManager = null;
 
@@ -984,13 +966,6 @@ namespace Eddie.Core
 		{
 		}
 
-		/* // TOCLEAN
-		public virtual bool OnAskYesNo(string message)
-		{
-			return true;
-		}
-		*/
-
 		public virtual Credentials OnAskCredentials()
 		{
 			return null;
@@ -1003,34 +978,24 @@ namespace Eddie.Core
 
 		public virtual void OnPostManifestUpdate()
 		{
-			foreach (Provider provider in ProvidersManager.Providers)
-			{
-				if (provider.Enabled)
-				{
-					string msg = provider.GetFrontMessage();
-					if ((msg != "") && (m_frontMessages.Contains(msg) == false))
-					{
-						OnFrontMessage(msg);
-						m_frontMessages.Add(msg);
-					}
-				}
-			}
-
 			lock (m_connections)
 			{
 				foreach (ConnectionInfo infoServer in m_connections.Values)
 				{
 					infoServer.Deleted = true;
 				}
+			}
 
-				foreach (Provider provider in ProvidersManager.Providers)
+			foreach (Provider provider in ProvidersManager.Providers)
+			{
+				if (provider.Enabled)
 				{
-					if (provider.Enabled)
-					{
-						provider.OnBuildConnections();
-					}
+					provider.OnBuildConnections();
 				}
+			}
 
+			lock (m_connections)
+			{
 				for (; ; )
 				{
 					bool restart = false;
@@ -1076,13 +1041,14 @@ namespace Eddie.Core
 					else
 						infoConnection.UserList = ConnectionInfo.UserListType.None;
 				}
-
-				RecomputeAreas();
-
-				OnCheckConnections();
 			}
 
-			m_threadDiscover.CheckNow();
+			RecomputeAreas();
+
+			OnCheckConnections();
+
+			if (m_jobsManager.Discover != null)
+				m_jobsManager.Discover.CheckNow();
 		}
 
 		public virtual void OnCheckConnections()
@@ -1178,20 +1144,14 @@ namespace Eddie.Core
 
 			if (mode == Core.Engine.RefreshUiMode.Full)
 			{
-				string manifestLastUpdate = UtilsString.FormatTime(ProvidersManager.LastRefreshDone);
-				if (Core.Threads.Manifest.Instance != null)
-					if (Core.Threads.Manifest.Instance.Refresh != Threads.RefreshType.None)
-						manifestLastUpdate += " (" + Messages.ManifestUpdateForce + ")";
-				Stats.UpdateValue("ManifestLastUpdate", manifestLastUpdate);
-
-				if (m_threadPinger != null)
+				if (m_jobsManager.Latency != null)
 				{
 					Stats.UpdateValue("Pinger", PingerStats().ToString());
 				}
 
-				if (m_threadDiscover != null)
+				if (m_jobsManager.Discover != null)
 				{
-					Stats.UpdateValue("Discovery", m_threadDiscover.GetStatsString().ToString());
+					Stats.UpdateValue("Discovery", m_jobsManager.Discover.GetStatsString().ToString());
 				}
 
 				if (Engine.IsConnected())
@@ -1333,11 +1293,14 @@ namespace Eddie.Core
 				infoConnection = m_connections[code];
 			if (infoConnection == null)
 			{
-				// Create
+				// Create				
 				infoConnection = new ConnectionInfo();
 				infoConnection.Provider = provider;
 				infoConnection.Code = code;
-				m_connections[code] = infoConnection;
+				lock (m_connections)
+				{
+					m_connections[code] = infoConnection;
+				}
 			}
 			infoConnection.Deleted = false;
 			return infoConnection;
@@ -1468,26 +1431,27 @@ namespace Eddie.Core
 			return null;
 		}
 
-		public void RefreshConnections()
+		public void RefreshProvidersX() // Never used
 		{
 			// Refresh each provider
-			Core.Threads.Manifest.Instance.Refresh = Threads.RefreshType.Refresh;
+			JobsManager.ProvidersRefresh.CheckNow();
 		}
 
-		public void RefreshInvalidateConnections()
+		public void RefreshProvidersInvalidateConnections() 
 		{
 			// Refresh each provider AND invalidate all ping and discovery info
-			Core.Threads.Manifest.Instance.Refresh = Threads.RefreshType.RefreshInvalidate;
+			ProvidersManager.InvalidateWithNextRefresh = true;
+			JobsManager.ProvidersRefresh.CheckNow();
 		}
 
 		public void InvalidatePinger()
 		{
-			m_threadPinger.InvalidateAll();
+			m_jobsManager.Latency.InvalidateAll();
 		}
 
 		public void InvalidateDiscovery()
 		{
-			m_threadDiscover.InvalidateAll();
+			m_jobsManager.Discover.InvalidateAll();
 		}
 
 		public void InvalidateConnections()
@@ -1496,13 +1460,6 @@ namespace Eddie.Core
 			InvalidateDiscovery();
 
 			OnRefreshUi(Core.Engine.RefreshUiMode.Full);
-		}
-
-		public string WaitManifestUpdate()
-		{
-			m_threadManifest.Refresh = Threads.RefreshType.Refresh;
-			m_threadManifest.Updated.WaitOne();
-			return m_threadManifest.GetLastResult();
 		}
 
 		public void PostManifestUpdate()
@@ -1591,12 +1548,12 @@ namespace Eddie.Core
 
 		public int PingerInvalid()
 		{
-			return m_threadPinger.GetStats().Invalid;
+			return m_jobsManager.Latency.GetStats().Invalid;
 		}
 
 		public PingerStats PingerStats()
 		{
-			return m_threadPinger.GetStats();
+			return m_jobsManager.Latency.GetStats();
 		}
 
 		public string GenerateFileHeader()
@@ -1748,34 +1705,8 @@ namespace Eddie.Core
 
 					if (m_threadSession != null)
 						throw new Exception("Daemon already running.");
-
-					if (ProvidersManager.NeedUpdate(true))
-					{
-						Engine.Instance.WaitMessageSet(Messages.RetrievingManifest, true);
-						Logs.Log(LogType.Info, Messages.RetrievingManifest);
-
-						string result = Engine.WaitManifestUpdate();
-
-						if (result != "")
-						{
-							if (ProvidersManager.NeedUpdate(false))
-							{
-								throw new Exception(result);
-							}
-							else
-							{
-								Logs.Log(LogType.Warning, Messages.ManifestFailedContinue);
-							}
-						}
-					}
-
+					
 					OnSessionStart();
-
-					if (NextServer == null)
-					{
-						if (Engine.Storage.GetBool("servers.startlast"))
-							NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
-					}
 
 					m_threadSession = new Threads.Session();
 				}
@@ -1834,41 +1765,44 @@ namespace Eddie.Core
 				List<string> areasWhiteList = Storage.GetList("areas.whitelist");
 				List<string> areasBlackList = Storage.GetList("areas.blacklist");
 
-				foreach (ConnectionInfo server in m_connections.Values)
+				lock(m_connections)
 				{
-					string countryCode = server.CountryCode;
-
-					AreaInfo infoArea = null;
-					if (m_areas.ContainsKey(countryCode))
+					foreach (ConnectionInfo server in m_connections.Values)
 					{
-						infoArea = m_areas[countryCode];
-						infoArea.Deleted = false;
-					}
+						string countryCode = server.CountryCode;
 
-					if (infoArea == null)
-					{
-						// Create
-						infoArea = new AreaInfo();
-						infoArea.Code = countryCode;
-						infoArea.Name = CountriesManager.GetNameFromCode(countryCode);
-						infoArea.Deleted = false;
-						m_areas[countryCode] = infoArea;
-					}
+						AreaInfo infoArea = null;
+						if (m_areas.ContainsKey(countryCode))
+						{
+							infoArea = m_areas[countryCode];
+							infoArea.Deleted = false;
+						}
 
-					if (server.BandwidthMax != 0)
-					{
-						infoArea.Bandwidth += server.Bandwidth;
-						infoArea.BandwidthMax += server.BandwidthMax;
-					}
+						if (infoArea == null)
+						{
+							// Create
+							infoArea = new AreaInfo();
+							infoArea.Code = countryCode;
+							infoArea.Name = CountriesManager.GetNameFromCode(countryCode);
+							infoArea.Deleted = false;
+							m_areas[countryCode] = infoArea;
+						}
 
-					if (server.Users >= 0)
-					{
-						if (infoArea.Users == -1)
-							infoArea.Users = 0;
-						infoArea.Users += server.Users;
-					}
+						if (server.BandwidthMax != 0)
+						{
+							infoArea.Bandwidth += server.Bandwidth;
+							infoArea.BandwidthMax += server.BandwidthMax;
+						}
 
-					infoArea.Servers++;
+						if (server.Users >= 0)
+						{
+							if (infoArea.Users == -1)
+								infoArea.Users = 0;
+							infoArea.Users += server.Users;
+						}
+
+						infoArea.Servers++;
+					}
 				}
 
 				for (; ; )
@@ -2009,7 +1943,7 @@ namespace Eddie.Core
 
 		public IpAddresses DiscoverExit()
 		{
-			return m_threadDiscover.DiscoverExit();
+			return m_jobsManager.Discover.DiscoverExit();
 		}
 
 		public IpAddress GetDefaultGatewayIPv4()
@@ -2101,7 +2035,7 @@ namespace Eddie.Core
 				jOs["name"].Value = Platform.Instance.GetName();
 				jOs["mono"].Value = Platform.Instance.GetNetFrameworkVersion();
 
-				Json jVersion = new Json();
+				Json jVersion = new Json();				
 				Manifest["version"].Value = jVersion;
 				jVersion["text"].Value = Constants.VersionDesc;
 				jVersion["int"].Value = Constants.VersionInt;

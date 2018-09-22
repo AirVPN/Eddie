@@ -33,16 +33,16 @@ namespace Eddie.Core
 		public string ProviderName; // Provider name;
 		public IpAddresses IpsEntry = new IpAddresses();
 		public IpAddresses IpsExit = new IpAddresses();
-		public string CountryCode;
-		public string Location;
+		public string CountryCode = "";
+		public string Location = "";
 		public double Latitude = 0;
 		public double Longitude = 0;
 		public Int64 ScoreBase = 0;
 		public Int64 Bandwidth = 0;
 		public Int64 BandwidthMax = 0;
 		public Int64 Users = 0;
-		public string WarningOpen;
-		public string WarningClosed;
+		public string WarningOpen = "";
+		public string WarningClosed = "";
 		public bool SupportIPv4 = false;
 		public bool SupportIPv6 = false;
 		public bool SupportCheck = true;
@@ -596,6 +596,9 @@ namespace Eddie.Core
 				else
 				{
 					// OpenVPN <2.4, IPv6 not supported, IPv4 required.
+					connectionActive.TunnelIPv4 = true;
+					connectionActive.TunnelIPv6 = false;
+
 					if (connectionActive.TunnelIPv4)
 					{
 						ovpn.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");

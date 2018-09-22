@@ -24,7 +24,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -59,8 +58,16 @@
     <Compile Include="IpAddresses.cs" />
     <Compile Include="HttpRequest.cs" />
     <Compile Include="DnsManager.cs" />
+    <Compile Include="JobsManager.cs" />
+    <Compile Include="Jobs\Penalities.cs" />
+    <Compile Include="Jobs\Discover.cs" />
+    <Compile Include="Jobs\Latency.cs" />
+    <Compile Include="Jobs\ProvidersRefresh.cs" />
+    <Compile Include="Jobs\Updater.cs" />
+    <Compile Include="LanguageManager.cs" />
     <Compile Include="PingerJob.cs" />
     <Compile Include="PingerStats.cs" />
+    <Compile Include="Job.cs" />
     <Compile Include="ReportItem.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="SystemShell.cs" />
@@ -83,7 +90,6 @@
     <Compile Include="Providers\OpenVPN.cs" />
     <Compile Include="RemoteAccess.cs" />
     <Compile Include="PerformanceScope.cs" />
-    <Compile Include="Threads\Discover.cs" />
     <Compile Include="Tool.cs" />
     <Compile Include="TorControl.cs" />
     <Compile Include="IpAddress.cs" />
@@ -116,10 +122,7 @@
     <Compile Include="Software.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="Thread.cs" />
-    <Compile Include="Threads\Manifest.cs" />
     <Compile Include="Threads\Session.cs" />
-    <Compile Include="Threads\Penalities.cs" />
-    <Compile Include="Threads\Pinger.cs" />
     <Compile Include="TimeDelta.cs" />
     <Compile Include="UtilsString.cs" />
     <Compile Include="UtilsCore.cs" />

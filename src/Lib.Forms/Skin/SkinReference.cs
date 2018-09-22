@@ -27,291 +27,293 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Skin
 {
-    public class SkinReference
-    {
-        private static XmlElement m_xmlSkin;
+	public class SkinReference
+	{
+		private static XmlElement m_xmlSkin;
 
-        private static Dictionary<string, Font> GdiCacheFonts = new Dictionary<string, Font>();  
-        private static Dictionary<string, Brush> GdiCacheBrushes = new Dictionary<string, Brush>();  
-        private static Dictionary<string, Pen> GdiCachePens = new Dictionary<string, Pen>();  
-        private static Dictionary<string, Color> GdiCacheColors = new Dictionary<string, Color>();          
-               
-        public string Name
-        {
-            get
-            {
-                if (m_xmlSkin == null)
-                    return "None";
-                else
-                    return m_xmlSkin.Name;
-            }
-        }
+		private static Dictionary<string, Font> GdiCacheFonts = new Dictionary<string, Font>();
+		private static Dictionary<string, Brush> GdiCacheBrushes = new Dictionary<string, Brush>();
+		private static Dictionary<string, Pen> GdiCachePens = new Dictionary<string, Pen>();
+		private static Dictionary<string, Color> GdiCacheColors = new Dictionary<string, Color>();
 
-        public static void Load(string name)
-        {
-            LoadXml(name, Eddie.Forms.Properties.Resources.skins);            
-        }
+		public string Name
+		{
+			get
+			{
+				if (m_xmlSkin == null)
+					return "None";
+				else
+					return m_xmlSkin.Name;
+			}
+		}
 
-        public static void LoadXml(string name, string xml)
-        {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
-            m_xmlSkin = xmlDoc.DocumentElement.SelectSingleNode(name) as XmlElement;
-        }
+		public static void Load(string name)
+		{
+			LoadXml(name, Eddie.Forms.Properties.Resources.skins);
+		}
 
-        public string GetStyle()
-        {
-            string style = m_xmlSkin.GetAttribute("style");
-            return style;
-        }
+		public static void LoadXml(string name, string xml)
+		{
+			XmlDocument xmlDoc = new XmlDocument();
+			xmlDoc.LoadXml(xml);
+			m_xmlSkin = xmlDoc.DocumentElement.SelectSingleNode(name) as XmlElement;
+		}
 
-        public string GetItem(string name)
-        {
-            if(m_xmlSkin == null) // Designer
-            {                
-                Load("Light");
-                //LoadXml("Light", DesignerSkin);
-            }
-            XmlElement xmlElement = m_xmlSkin.SelectSingleNode(name) as XmlElement;
-            return xmlElement.InnerText;
-        }
+		public string GetStyle()
+		{
+			string style = m_xmlSkin.GetAttribute("style");
+			return style;
+		}
 
-        public Font GetFont(string name)
-        {
-            string value = GetItem(name);
-            return GetFontEx(value);
-        }
+		public string GetItem(string name)
+		{
+			if (m_xmlSkin == null) // Designer
+			{
+				Load("Light");
+				//LoadXml("Light", DesignerSkin);
+			}
+			XmlElement xmlElement = m_xmlSkin.SelectSingleNode(name) as XmlElement;
+			return xmlElement.InnerText;
+		}
 
-        public Brush GetBrush(string name)
-        {            
-            string value = GetItem(name);            
-            return GetBrushEx(value);
-        }
+		public Font GetFont(string name)
+		{
+			string value = GetItem(name);
+			return GetFontEx(value);
+		}
 
-        public Pen GetPen(string name)
-        {
-            string value = GetItem(name);
-            return GetPenEx(value);
-        }
+		public Brush GetBrush(string name)
+		{
+			string value = GetItem(name);
+			return GetBrushEx(value);
+		}
 
-        public Color GetColor(string name)
-        {
-            string value = GetItem(name);
-            return GetColorEx(value);
-        }
-        
-        public void ClearFontCache()
-        {
-            GdiCacheFonts.Clear();
-        }
+		public Pen GetPen(string name)
+		{
+			string value = GetItem(name);
+			return GetPenEx(value);
+		}
 
-        public Font GetFontEx(string name) 
-        {
-            if (GdiCacheFonts.ContainsKey(name))
-                return GdiCacheFonts[name];
-            else
-            {
-                string fontName = name;
-                string fontSize = "";
-                if (name.IndexOf(',') != -1)
-                {
-                    fontName = name.Substring(0, name.IndexOf(',')).Trim();
-                    fontSize = name.Substring(name.IndexOf(',') + 1).Trim();
-                }
+		public Color GetColor(string name)
+		{
+			string value = GetItem(name);
+			return GetColorEx(value);
+		}
 
-                double userBaseSize = Engine.Instance.Storage.GetFloat("gui.font.normal.size");
-                if (userBaseSize == 0)
-                {
-                    string systemFont = GuiUtils.GetSystemFont();
-                    int posSize = systemFont.IndexOf(",");
+		public void ClearFontCache()
+		{
+			GdiCacheFonts.Clear();
+		}
 
-                    string strSize = systemFont.Substring(posSize + 1);
-                    if (posSize != -1)
-                        double.TryParse(strSize, out userBaseSize);
+		public Font GetFontEx(string name)
+		{
+			if (GdiCacheFonts.ContainsKey(name))
+				return GdiCacheFonts[name];
+			else
+			{
+				string fontName = name;
+				string fontSize = "";
+				if (name.IndexOf(',') != -1)
+				{
+					fontName = name.Substring(0, name.IndexOf(',')).Trim();
+					fontSize = name.Substring(name.IndexOf(',') + 1).Trim();
+				}
 
-                    if (userBaseSize == 0)
-                        userBaseSize = 10;
-                }
-                    
-                if ((fontName == "System") || (fontName == "SystemMonospace"))
-                {
-                    string systemFont = "";
-                    if (fontName == "System")
-                    {
-                        if(Engine.Instance.Storage.Get("gui.font.normal.name") != "")
-                            systemFont = Engine.Instance.Storage.Get("gui.font.normal.name");
-                        else
-                            systemFont = GuiUtils.GetSystemFont();
-                    }
-                        
-                    else if (fontName == "SystemMonospace")
-                            systemFont = GuiUtils.GetSystemFontMonospace();
-                    int posSize = systemFont.IndexOf(",");
-                    if (posSize != -1)
-                        systemFont = systemFont.Substring(0, posSize);
-                    fontName = systemFont;
-                }
-                
-                if (fontSize == "normal")
-                    fontSize = userBaseSize.ToString(CultureInfo.InvariantCulture) + "pt";
-                else if (fontSize == "big")
-                    fontSize = (userBaseSize * 1.25).ToString(CultureInfo.InvariantCulture) + "pt";
+				double userBaseSize = 0;
+				if ((Engine.Instance != null) && (Engine.Instance.Storage != null))
+					userBaseSize = Engine.Instance.Storage.GetFloat("gui.font.normal.size");
+				if (userBaseSize == 0)
+				{
+					string systemFont = GuiUtils.GetSystemFont();
+					int posSize = systemFont.IndexOf(",");
+
+					string strSize = systemFont.Substring(posSize + 1);
+					if (posSize != -1)
+						double.TryParse(strSize, out userBaseSize);
+
+					if (userBaseSize == 0)
+						userBaseSize = 10;
+				}
+
+				if ((fontName == "System") || (fontName == "SystemMonospace"))
+				{
+					string systemFont = "";
+					if (fontName == "System")
+					{
+						if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.Get("gui.font.normal.name") != ""))
+							systemFont = Engine.Instance.Storage.Get("gui.font.normal.name");
+						else
+							systemFont = GuiUtils.GetSystemFont();
+					}
+
+					else if (fontName == "SystemMonospace")
+						systemFont = GuiUtils.GetSystemFontMonospace();
+					int posSize = systemFont.IndexOf(",");
+					if (posSize != -1)
+						systemFont = systemFont.Substring(0, posSize);
+					fontName = systemFont;
+				}
+
+				if (fontSize == "normal")
+					fontSize = userBaseSize.ToString(CultureInfo.InvariantCulture) + "pt";
+				else if (fontSize == "big")
+					fontSize = (userBaseSize * 1.25).ToString(CultureInfo.InvariantCulture) + "pt";
 				else if (fontSize == "small")
 					fontSize = (userBaseSize / 1.25).ToString(CultureInfo.InvariantCulture) + "pt";
 
 				string name2 = fontName + "," + fontSize;
-                
-                FontConverter fontConverter = new FontConverter();
-                Font f = fontConverter.ConvertFromInvariantString(name2) as Font;
-                GdiCacheFonts[name] = f;
 
-                return f;
-            }
-        }
+				FontConverter fontConverter = new FontConverter();
+				Font f = fontConverter.ConvertFromInvariantString(name2) as Font;
+				GdiCacheFonts[name] = f;
 
-        
-
-        public Brush GetBrushEx(string value) 
-        {
-            if (GdiCacheBrushes.ContainsKey(value))
-                return GdiCacheBrushes[value];
-            else
-            {
-                Brush b = null;
-                b = new SolidBrush(GetColorEx(value));
-                GdiCacheBrushes[value] = b;
-                return b;
-            }
-        }
-
-        public Pen GetPenEx(string value) 
-        {
-            if (GdiCachePens.ContainsKey(value))
-                return GdiCachePens[value];
-            else
-            {
-                Pen p = new Pen(GetColorEx(value));
-                GdiCachePens[value] = p;
-                return p;
-            }
-        }
-
-        public Color GetColorEx(string value) 
-        {
-            if (GdiCacheColors.ContainsKey(value))
-                return GdiCacheColors[value];
-            else
-            {
-                Color c = System.Drawing.ColorTranslator.FromHtml(value);
-                GdiCacheColors[value] = c;
-                return c;
-            }
-        }
+				return f;
+			}
+		}
 
 
-        public virtual void Apply(Control c)
-        {
-            c.Font = FontNormal;
-            
-            if (c is Skin.CheckBox)
-            {
-                Skin.CheckBox c2 = c as Skin.CheckBox;
 
-                c2.BackColor = Color.Transparent;
-                c2.ForeColor = ForeColor;
+		public Brush GetBrushEx(string value)
+		{
+			if (GdiCacheBrushes.ContainsKey(value))
+				return GdiCacheBrushes[value];
+			else
+			{
+				Brush b = null;
+				b = new SolidBrush(GetColorEx(value));
+				GdiCacheBrushes[value] = b;
+				return b;
+			}
+		}
 
-                if (GetStyle() == "flat")
-                    c2.FlatStyle = FlatStyle.Flat;
-                else
-                    c2.FlatStyle = FlatStyle.Standard;
-            }
+		public Pen GetPenEx(string value)
+		{
+			if (GdiCachePens.ContainsKey(value))
+				return GdiCachePens[value];
+			else
+			{
+				Pen p = new Pen(GetColorEx(value));
+				GdiCachePens[value] = p;
+				return p;
+			}
+		}
 
-            if (c is Skin.ComboBox)
-            {
-                Skin.ComboBox c2 = c as Skin.ComboBox;
-
-                c2.BackColor = BackColor;
-                c2.ForeColor = ForeColor;
-                                
-                if (GetStyle() == "flat")
-                    c2.FlatStyle = FlatStyle.Flat;
-                else
-                    c2.FlatStyle = FlatStyle.Standard;
-            }
-
-            if (c is Skin.TextBox)
-            {
-                Skin.TextBox c2 = c as Skin.TextBox;
-
-                if(c2.ReadOnly)
-                    c2.BackColor = ReadOnlyBackColor;
-                else
-                    c2.BackColor = BackColor;
-                c2.ForeColor = ForeColor;
+		public Color GetColorEx(string value)
+		{
+			if (GdiCacheColors.ContainsKey(value))
+				return GdiCacheColors[value];
+			else
+			{
+				Color c = System.Drawing.ColorTranslator.FromHtml(value);
+				GdiCacheColors[value] = c;
+				return c;
+			}
+		}
 
 
-                if (GetStyle() == "flat")
-                    c2.BorderStyle = BorderStyle.FixedSingle;
-                else
-                    c2.BorderStyle = BorderStyle.Fixed3D;
-            }
+		public virtual void Apply(Control c)
+		{
+			c.Font = FontNormal;
 
-            if (c is Skin.Label)
-            {	
-            }
-
-            if (c is Skin.RadioButton)
-            {
-                Skin.RadioButton c2 = c as Skin.RadioButton;
-
-                c2.BackColor = Color.Transparent;
-                c2.ForeColor = ForeColor;
-
-                if (GetStyle() == "flat")
-                    c2.FlatStyle = FlatStyle.Flat;
-                else
-                    c2.FlatStyle = FlatStyle.Standard;
-            }
-
-            if (c is Skin.LinkLabel)
-            {
-                Skin.LinkLabel c2 = c as Skin.LinkLabel;
-
-                c2.BackColor = Color.Transparent;
-                c2.ForeColor = HyperLinkForeColor;
-                //c2.ActiveLinkColor = HyperLinkColor;
-                //c2.LinkColor = HyperLinkColor;                
-                //c2.VisitedLinkColor = HyperLinkColor;                
-            }
-
-            if (c is Skin.TabPage)
-            {
-                Skin.TabPage c2 = c as Skin.TabPage;
+			if (c is Skin.CheckBox)
+			{
+				Skin.CheckBox c2 = c as Skin.CheckBox;
 
 				c2.BackColor = Color.Transparent;
-            }
+				c2.ForeColor = ForeColor;
 
-            if (c is Skin.ListView)
-            {
-                Skin.ListView c2 = c as Skin.ListView;
+				if (GetStyle() == "flat")
+					c2.FlatStyle = FlatStyle.Flat;
+				else
+					c2.FlatStyle = FlatStyle.Standard;
+			}
 
-                c2.BackColor = BackColor;
-                c2.ForeColor = ForeColor;
+			if (c is Skin.ComboBox)
+			{
+				Skin.ComboBox c2 = c as Skin.ComboBox;
 
-                if (GetStyle() == "flat")
-                    c2.BorderStyle = BorderStyle.FixedSingle;
-                else
-                    c2.BorderStyle = BorderStyle.Fixed3D;                
-            }
+				c2.BackColor = BackColor;
+				c2.ForeColor = ForeColor;
 
-            if (c is Skin.Button)
-            {
-                Skin.Button c2 = c as Skin.Button;
+				if (GetStyle() == "flat")
+					c2.FlatStyle = FlatStyle.Flat;
+				else
+					c2.FlatStyle = FlatStyle.Standard;
+			}
 
-                c2.ForeColor = ForeColor;
+			if (c is Skin.TextBox)
+			{
+				Skin.TextBox c2 = c as Skin.TextBox;
 
-                //c2.UpdateBackground();
-            }
+				if (c2.ReadOnly)
+					c2.BackColor = ReadOnlyBackColor;
+				else
+					c2.BackColor = BackColor;
+				c2.ForeColor = ForeColor;
+
+
+				if (GetStyle() == "flat")
+					c2.BorderStyle = BorderStyle.FixedSingle;
+				else
+					c2.BorderStyle = BorderStyle.Fixed3D;
+			}
+
+			if (c is Skin.Label)
+			{
+			}
+
+			if (c is Skin.RadioButton)
+			{
+				Skin.RadioButton c2 = c as Skin.RadioButton;
+
+				c2.BackColor = Color.Transparent;
+				c2.ForeColor = ForeColor;
+
+				if (GetStyle() == "flat")
+					c2.FlatStyle = FlatStyle.Flat;
+				else
+					c2.FlatStyle = FlatStyle.Standard;
+			}
+
+			if (c is Skin.LinkLabel)
+			{
+				Skin.LinkLabel c2 = c as Skin.LinkLabel;
+
+				c2.BackColor = Color.Transparent;
+				c2.ForeColor = HyperLinkForeColor;
+				//c2.ActiveLinkColor = HyperLinkColor;
+				//c2.LinkColor = HyperLinkColor;                
+				//c2.VisitedLinkColor = HyperLinkColor;                
+			}
+
+			if (c is Skin.TabPage)
+			{
+				Skin.TabPage c2 = c as Skin.TabPage;
+
+				c2.BackColor = Color.Transparent;
+			}
+
+			if (c is Skin.ListView)
+			{
+				Skin.ListView c2 = c as Skin.ListView;
+
+				c2.BackColor = BackColor;
+				c2.ForeColor = ForeColor;
+
+				if (GetStyle() == "flat")
+					c2.BorderStyle = BorderStyle.FixedSingle;
+				else
+					c2.BorderStyle = BorderStyle.Fixed3D;
+			}
+
+			if (c is Skin.Button)
+			{
+				Skin.Button c2 = c as Skin.Button;
+
+				c2.ForeColor = ForeColor;
+
+				//c2.UpdateBackground();
+			}
 
 			if (c is System.Windows.Forms.ContextMenuStrip)
 			{
@@ -324,112 +326,112 @@ namespace Eddie.Forms.Skin
 						if (i.ForeColor == SystemColors.ControlText)
 							i.ForeColor = Color.Black;
 						if (i.BackColor == SystemColors.Control)
-							i.BackColor = Color.White;						
+							i.BackColor = Color.White;
 					}
 				}
 			}
 
-            foreach (Control sc in c.Controls)
-            {
-                Apply(sc);
-            }
+			foreach (Control sc in c.Controls)
+			{
+				Apply(sc);
+			}
 
-            c.Invalidate();
-        }
+			c.Invalidate();
+		}
 
-        public virtual Color ForeColor
-        {
-            get
-            {
-                return GetColor("color.foreground");
-            }
-        }
-        		
-        public virtual Color BackColor
-        {
-            get
-            {
-                return GetColor("color.background");
-            }
-        }
-
-        public virtual Color ReadOnlyBackColor
-        {
-            get
-            {
-                return GetColor("color.readonly.background");
-            }
-        }
-
-        public virtual Color HyperLinkForeColor
-        {
-            get
-            {
-                return GetColor("color.hyperlink.normal.foreground");
-            }
-        }
-
-        public virtual Color HyperLinkHoverForeColor
-        {
-            get
-            {
-                return GetColor("color.hyperlink.hover.foreground");
-            }
-        }
-
-        public virtual Color HyperLinkBackColor
-        {
-            get
-            {
-                return GetColor("color.hyperlink.normal.background");
-            }
-        }
-
-        public virtual Color HyperLinkHoverBackColor
-        {
-            get
-            {
-                return GetColor("color.hyperlink.hover.background");
-            }
-        }
-
-        public virtual Brush ForeBrush
-        {
-            get
-            {
-                return GetBrush("color.foreground");
-            }
-        }
-
-        public virtual Brush BackDisabledBrush
-        {
-            get
-            {
-                return GetBrush("color.disabled.background");
-            }
-        }
-
-        public virtual Brush ForeDisabledBrush
+		public virtual Color ForeColor
 		{
 			get
 			{
-                return GetBrush("color.disabled.foreground");				
+				return GetColor("color.foreground");
 			}
 		}
 
-        public virtual Brush ListViewDisabledBackBrush
-        {
-            get
-            {
-                return GetBrush("color.grid.disabled.background");
-            }
-        }
-
-        public virtual Brush ListViewNormalBackBrush
+		public virtual Color BackColor
 		{
 			get
 			{
-                return GetBrush("color.grid.item1.background");
+				return GetColor("color.background");
+			}
+		}
+
+		public virtual Color ReadOnlyBackColor
+		{
+			get
+			{
+				return GetColor("color.readonly.background");
+			}
+		}
+
+		public virtual Color HyperLinkForeColor
+		{
+			get
+			{
+				return GetColor("color.hyperlink.normal.foreground");
+			}
+		}
+
+		public virtual Color HyperLinkHoverForeColor
+		{
+			get
+			{
+				return GetColor("color.hyperlink.hover.foreground");
+			}
+		}
+
+		public virtual Color HyperLinkBackColor
+		{
+			get
+			{
+				return GetColor("color.hyperlink.normal.background");
+			}
+		}
+
+		public virtual Color HyperLinkHoverBackColor
+		{
+			get
+			{
+				return GetColor("color.hyperlink.hover.background");
+			}
+		}
+
+		public virtual Brush ForeBrush
+		{
+			get
+			{
+				return GetBrush("color.foreground");
+			}
+		}
+
+		public virtual Brush BackDisabledBrush
+		{
+			get
+			{
+				return GetBrush("color.disabled.background");
+			}
+		}
+
+		public virtual Brush ForeDisabledBrush
+		{
+			get
+			{
+				return GetBrush("color.disabled.foreground");
+			}
+		}
+
+		public virtual Brush ListViewDisabledBackBrush
+		{
+			get
+			{
+				return GetBrush("color.grid.disabled.background");
+			}
+		}
+
+		public virtual Brush ListViewNormalBackBrush
+		{
+			get
+			{
+				return GetBrush("color.grid.item1.background");
 			}
 		}
 
@@ -437,15 +439,15 @@ namespace Eddie.Forms.Skin
 		{
 			get
 			{
-                return GetBrush("color.grid.item2.background");
-            }
+				return GetBrush("color.grid.item2.background");
+			}
 		}
 
 		public virtual Brush ListViewSelectedBackBrush
 		{
 			get
 			{
-                return GetBrush("color.grid.selected.background");
+				return GetBrush("color.grid.selected.background");
 			}
 		}
 
@@ -453,7 +455,7 @@ namespace Eddie.Forms.Skin
 		{
 			get
 			{
-                return GetBrush("color.grid.focus.background");
+				return GetBrush("color.grid.focus.background");
 			}
 		}
 
@@ -465,96 +467,96 @@ namespace Eddie.Forms.Skin
 			}
 		}
 
-        public virtual Image FormBackgroundImage
-        {
-            get
-            {
+		public virtual Image FormBackgroundImage
+		{
+			get
+			{
 				return GuiUtils.GetResourceImage("form_l_bg");
-            }
-        }
+			}
+		}
 
-        public virtual Image ButtonNormalImage
-        {
-            get
-            {
+		public virtual Image ButtonNormalImage
+		{
+			get
+			{
 				return GuiUtils.GetResourceImage("btn_l_n");
-            }
-        }
+			}
+		}
 
-        public virtual Image ButtonHoverImage
-        {
-            get
-            {
+		public virtual Image ButtonHoverImage
+		{
+			get
+			{
 				return GuiUtils.GetResourceImage("btn_l_h");
-            }
-        }
+			}
+		}
 
-        public virtual Image ButtonDisabledImage
-        {
-            get
-            {
+		public virtual Image ButtonDisabledImage
+		{
+			get
+			{
 				return GuiUtils.GetResourceImage("btn_l_d");
-            }
-        }
+			}
+		}
 
-        public virtual Image MainBackImage
-        {
-            get
-            {
+		public virtual Image MainBackImage
+		{
+			get
+			{
 				return GuiUtils.GetResourceImage("main_l_bg");
-            }
-        }
+			}
+		}
 
-        public virtual Font FontNormal
-        {
-            get
-            {
-                return GetFont("font.normal");                
-            }
-        }
+		public virtual Font FontNormal
+		{
+			get
+			{
+				return GetFont("font.normal");
+			}
+		}
 
-        public virtual Font FontBig
-        {
-            get
-            {
-                return GetFont("font.big");
-            }
-        }
+		public virtual Font FontBig
+		{
+			get
+			{
+				return GetFont("font.big");
+			}
+		}
 
-        public virtual Font FontMono
-        {
-            get
-            {
-                return GetFont("font.monospace.normal");
-            }
-        }
+		public virtual Font FontMono
+		{
+			get
+			{
+				return GetFont("font.monospace.normal");
+			}
+		}
 
-        public virtual Font FontMonoBig
-        {
-            get
-            {
-                return GetFont("font.monospace.big");
-            }
-        }
+		public virtual Font FontMonoBig
+		{
+			get
+			{
+				return GetFont("font.monospace.big");
+			}
+		}
 
-        public virtual Size MenuImageSize
-        {
-            get
-            {
-                int s = GetFont("font.normal").Height;
-                if (s < 16)
-                    s = 16;
+		public virtual Size MenuImageSize
+		{
+			get
+			{
+				int s = GetFont("font.normal").Height;
+				if (s < 16)
+					s = 16;
 
-                return new Size(s, s);
-            }
-        }
+				return new Size(s, s);
+			}
+		}
 
-        public virtual void GraphicsCommon(Graphics g)
-        {
-            if(g.PixelOffsetMode != System.Drawing.Drawing2D.PixelOffsetMode.Half)
+		public virtual void GraphicsCommon(Graphics g)
+		{
+			if (g.PixelOffsetMode != System.Drawing.Drawing2D.PixelOffsetMode.Half)
 				g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 			if (g.InterpolationMode != System.Drawing.Drawing2D.InterpolationMode.Default)
-				g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;			                        
-        }
-    }
+				g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+		}
+	}
 }

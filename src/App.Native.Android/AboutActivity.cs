@@ -23,7 +23,6 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Net;
 using Android.OS;
-using Android.Views;
 using Android.Webkit;
 using Android.Widget;
 
@@ -100,6 +99,11 @@ namespace Eddie.NativeAndroidApp
 
             llMainLayout.AddView(webView);
         }
+
+        public override void OnBackPressed()
+        {
+            Finish();
+        }
     }
   
     internal class EddieWebViewClient : WebViewClient  
@@ -113,18 +117,33 @@ namespace Eddie.NativeAndroidApp
 
         // We need to use the deprecated ShouldOverrideUrlLoading interface in order to comply to the minimum API 22 requirement
 
-        public override bool ShouldOverrideUrlLoading(WebView webView, string url)  
+        public override bool ShouldOverrideUrlLoading(WebView view, string url)  
         {
-            Uri uri = null;
-
-            if(appContext == null || webView == null || url.Equals(""))
+            if(appContext == null || view == null || url.Equals(""))
                 return false;
 
-            uri = Uri.Parse(url);
+            LoadUri(view, url);
+
+            return true;
+        }  
+
+        public override bool ShouldOverrideUrlLoading(WebView view, IWebResourceRequest request)  
+        {
+            if(appContext == null || view == null || request == null)
+                return false;
+
+            LoadUri(view, request.Url.ToString());
+
+            return true;
+        }
+
+        private void LoadUri(WebView view, string url)
+        {
+            Uri uri = Uri.Parse(url);
 
             if(uri.Scheme.Equals("file"))
             {
-                webView.LoadUrl(url);
+                view.LoadUrl(url);
             }
             else
             {
@@ -132,12 +151,8 @@ namespace Eddie.NativeAndroidApp
 
                 browserIntent.SetData(uri);
                 
-                browserIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.NewTask);
-
                 appContext.StartActivity(browserIntent);
             }
-
-            return true;
-        }  
+        }
     }
 }

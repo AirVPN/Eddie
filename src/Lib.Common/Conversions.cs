@@ -196,6 +196,11 @@ namespace Eddie.Common
 			return Convert.ToInt32((dt - new DateTime(1970, 1, 1)).TotalSeconds, CultureInfo.InvariantCulture);
 		}
 
+		public static Int64 ToUnixTimeMs(DateTime dt)
+		{
+			return Convert.ToInt64((dt - new DateTime(1970, 1, 1)).TotalMilliseconds, CultureInfo.InvariantCulture);
+		}
+
 		public static Json ToJson(XmlElement xml)
 		{
 			/*

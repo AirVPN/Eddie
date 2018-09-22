@@ -28,6 +28,7 @@ using Android.Content;
 using Android.Database;
 using Android.OS;
 using Android.Provider;
+using Android.Runtime;
 using Java.IO;
 using Java.Util;
 
@@ -48,7 +49,7 @@ namespace Eddie.NativeAndroidApp
             Dictionary<string, string> result = new Dictionary<string, string>();
             System.IO.Stream inputStream = null;
             StreamReader reader = null;
-            string line = "", profile = "";
+            string line = "", profile = "", fileName = "";
             string[] item = null;
             int MAX_FILE_SIZE = 200000;
             int validItems = 0;
@@ -61,7 +62,11 @@ namespace Eddie.NativeAndroidApp
                 if(uriCursor != null)
                 {
                     if(uriCursor.MoveToFirst())
+                    {
                         fileSize = uriCursor.GetLong(uriCursor.GetColumnIndex(OpenableColumns.Size));
+                        
+                        fileName = uriCursor.GetString(uriCursor.GetColumnIndex(OpenableColumns.DisplayName));
+                    }    
                     else
                         fileSize = 0;
                 }
@@ -118,17 +123,23 @@ namespace Eddie.NativeAndroidApp
                     {
                         if(result.ContainsKey("server") == false)
                             result.Add("server", item[1]);
-
+                        else
+                            result.Add("server", "???");
+                        
                         if(result.ContainsKey("port") == false)
                             result.Add("port", item[2]);
-    
+                        else
+                            result.Add("port", "???");
+
                         validItems++;
                     }
                     else if(item[0] == "proto")
                     {
                         if(result.ContainsKey("protocol") == false)
                             result.Add("protocol", item[1]);
-    
+                        else
+                            result.Add("protocol", "???");
+
                         validItems++;
                     }
                 }
@@ -142,11 +153,8 @@ namespace Eddie.NativeAndroidApp
 
             if(validItems == 2)
             {
-				//result.Add("name", profileUri.Path.Substring(profileUri.Path.LastIndexOf('/') + 1));
-				string name = GetRealPathFromURI(appContext, profileUri);
-				result.Add("name", name.Substring(name.LastIndexOf('/') + 1));
-
-				result.Add("profile", profile);
+                result.Add("name", fileName);
+                result.Add("profile", profile);
                 result.Add("status", "ok");
             }
             else
@@ -156,8 +164,8 @@ namespace Eddie.NativeAndroidApp
 
             return result;
         }
-		
-		public void InfoDialog(int resource)
+
+        public void InfoDialog(int resource)
         {
             InfoDialog(appContext.Resources.GetString(resource));
         }
@@ -319,155 +327,72 @@ namespace Eddie.NativeAndroidApp
 
             return details;
         }
+        
+        public void HandleUncaughtException(object sender, RaiseThrowableEventArgs args)
+        {
+            string logText = "";
+            string path = Android.OS.Environment.ExternalStorageDirectory + Java.IO.File.Separator + "Download";
+            string filename = Path.Combine(path, "EddieCrashLog.txt");
 
-		/* Fabry */
-		/**
- * Get a file path from a Uri. This will get the the path for Storage Access
- * Framework Documents, as well as the _data field for the MediaStore and
- * other file-based ContentProviders.
- *
- * @param context The context.
- * @param uri The Uri to query.
- * @author paulburke
- */
-		public static string GetRealPathFromURI(Context context, Android.Net.Uri uri)
-		{
+            if(!Directory.Exists(path))
+                Directory.CreateDirectory(path);
 
-			bool isKitKat = Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Kitkat;
+            logText = "Eddie Crash Log on " + DateTime.Now.ToString("dd MMM yyyy HH:mm:ss") + "\n\n";
+            logText += "Eddie for Android ";
 
-			// DocumentProvider
-			if (isKitKat && Android.Provider.DocumentsContract.IsDocumentUri(context, uri))
-			{
-				// ExternalStorageProvider
-				if (isExternalStorageDocument(uri))
-				{
-					string docId = Android.Provider.DocumentsContract.GetDocumentId(uri);
-					string[] split = docId.Split(':');
-					string type = split[0];
+            try
+            {
+                string pkgName = Application.Context.ApplicationContext.PackageManager.GetPackageInfo(Application.Context.ApplicationContext.PackageName, 0).VersionName;
+                int pkgVersionCode = Application.Context.ApplicationContext.PackageManager.GetPackageInfo(Application.Context.ApplicationContext.PackageName, 0).VersionCode;
 
-					if ("primary".Equals(type, StringComparison.OrdinalIgnoreCase))
-					{
-						return Android.OS.Environment.ExternalStorageDirectory + "/" + split[1];
-					}
+                logText += string.Format("{0} Version Code {1}", pkgName, pkgVersionCode);
+            }
+            catch
+            {
+                logText += "n.d.";
+            }
 
-					// TODO handle non-primary volumes
-				}
-				// DownloadsProvider
-				else if (isDownloadsDocument(uri))
-				{
+            logText += "\n\n" + args.Exception.ToString() + "\n\n\n";
 
-					string id = Android.Provider.DocumentsContract.GetDocumentId(uri);
-					Android.Net.Uri contentUri = ContentUris.WithAppendedId(Android.Net.Uri.Parse("content://downloads/public_downloads"), Convert.ToInt64(id));
+            try
+            {
+                using(StreamWriter streamWriter = new StreamWriter(filename, true))
+                {
+                    streamWriter.WriteLine(logText);
+    
+                    streamWriter.Close();
+                }
+            }
+            catch
+            {
+            }
+            
+            if(appContext.GetType() == typeof(Activity))
+                (appContext as Activity).FinishAffinity();
 
-					return getDataColumn(context, contentUri, null, null);
-				}
-				// MediaProvider
-				else if (isMediaDocument(uri))
-				{
-					string docId = Android.Provider.DocumentsContract.GetDocumentId(uri);
-					string[] split = docId.Split(':');
-					string type = split[0];
+            Java.Lang.JavaSystem.Exit(0);
+        }
+        
+        public static Java.Lang.Thread StartThread(Java.Lang.Runnable runnable)
+        {
+            if(runnable == null)
+                return null;
 
-					Android.Net.Uri contentUri = null;
-					if ("image".Equals(type))
-					{
-						contentUri = Android.Provider.MediaStore.Images.Media.ExternalContentUri;
-					}
-					else if ("video".Equals(type))
-					{
-						contentUri = Android.Provider.MediaStore.Video.Media.ExternalContentUri;
-					}
-					else if ("audio".Equals(type))
-					{
-						contentUri = Android.Provider.MediaStore.Audio.Media.ExternalContentUri;
-					}
+            Java.Lang.Thread thread = new Java.Lang.Thread(runnable);
 
-					string selection = "_id=?";
-					string[] selectionArgs = new string[] {
-					split[1]
-			};
+            if(thread != null)
+            {
+                try
+                {
+                    thread.Start();
+                }
+                catch(Java.Lang.IllegalThreadStateException)
+                {
+                    thread = null;
+                }
+            }
 
-					return getDataColumn(context, contentUri, selection, selectionArgs);
-				}
-			}
-			// MediaStore (and general)
-			else if ("content".Equals(uri.Scheme, StringComparison.OrdinalIgnoreCase))
-			{
-				return getDataColumn(context, uri, null, null);
-			}
-			// File
-			else if ("file".Equals(uri.Scheme, StringComparison.OrdinalIgnoreCase))
-			{
-				return uri.Path;
-			}
-
-			return null;
-		}
-
-		/**
-         * Get the value of the data column for this Uri. This is useful for
-         * MediaStore Uris, and other file-based ContentProviders.
-         *
-         * @param context The context.
-         * @param uri The Uri to query.
-         * @param selection (Optional) Filter used in the query.
-         * @param selectionArgs (Optional) Selection arguments used in the query.
-         * @return The value of the _data column, which is typically a file path.
-         */
-		public static String getDataColumn(Context context, Android.Net.Uri uri, String selection,
-				String[] selectionArgs)
-		{
-
-			Android.Database.ICursor cursor = null;
-			string column = "_data";
-			string[] projection = {
-				column
-			};
-
-			try
-			{
-				cursor = context.ContentResolver.Query(uri, projection, selection, selectionArgs,
-						null);
-				if (cursor != null && cursor.MoveToFirst())
-				{
-					int column_index = cursor.GetColumnIndexOrThrow(column);
-					return cursor.GetString(column_index);
-				}
-			}
-			finally
-			{
-				if (cursor != null)
-					cursor.Close();
-			}
-			return null;
-		}
-
-
-		/**
-         * @param uri The Uri to check.
-         * @return Whether the Uri authority is ExternalStorageProvider.
-         */
-		public static bool isExternalStorageDocument(Android.Net.Uri uri)
-		{
-			return "com.android.externalstorage.documents".Equals(uri.Authority);
-		}
-
-		/**
-         * @param uri The Uri to check.
-         * @return Whether the Uri authority is DownloadsProvider.
-         */
-		public static bool isDownloadsDocument(Android.Net.Uri uri)
-		{
-			return "com.android.providers.downloads.documents".Equals(uri.Authority);
-		}
-
-		/**
-         * @param uri The Uri to check.
-         * @return Whether the Uri authority is MediaProvider.
-         */
-		public static bool isMediaDocument(Android.Net.Uri uri)
-		{
-			return "com.android.providers.media.documents".Equals(uri.Authority);
-		}
-	}
+            return thread;
+        }
+    }
 }

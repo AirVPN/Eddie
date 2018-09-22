@@ -73,7 +73,7 @@ namespace Eddie.Core
 				{
 					try
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, Messages.RecoveryDetected);
+						Engine.Instance.Logs.Log(LogType.Verbose, Messages.RecoveryDetected);
 
 						XmlDocument doc = new XmlDocument();
 

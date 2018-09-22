@@ -82,6 +82,11 @@ namespace Eddie.Core
 			return Conversions.ToUnixTime(DateTime.UtcNow);
 		}
 
+		public static Int64 UnixTimeStampMs()
+		{
+			return Conversions.ToUnixTimeMs(DateTime.UtcNow);
+		}
+
 		public static string HostFromUrl(string url)
 		{
 			try

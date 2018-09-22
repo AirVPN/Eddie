@@ -96,7 +96,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CreateMenuBarIcon();
 
-			LblVersion.StringValue = Constants.VersionDesc;
+			LblVersion.StringValue = "Version " + Constants.VersionDesc;
+            CmdUpdater.Hidden = true;
+            MnuTrayUpdate.Hidden = true;
 
 			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off;
 			ChkServersShowAll.State = NSCellStateValue.Off;
@@ -150,7 +152,12 @@ namespace Eddie.UI.Cocoa.Osx
                 MnuTray.PopUpMenu(MnuTrayStatus, p, null);
             };
 
-			ChkRemember.Activated += (object sender, EventArgs e) =>
+            CmdUpdater.Activated += (object sender, EventArgs e) =>
+            {
+                Core.Platform.Instance.OpenUrl(Constants.WebSite + "/" + Core.Platform.Instance.GetCode().ToLowerInvariant() + "/");
+            };
+
+            ChkRemember.Activated += (object sender, EventArgs e) =>
 			{
 				Engine.Storage.SetBool("remember", ChkRemember.State == NSCellStateValue.On);
 			};
@@ -720,6 +727,16 @@ namespace Eddie.UI.Cocoa.Osx
             MnuTrayStatus.Title = "> " + textFull;
 		}
 
+        public void ShowUpdater()
+        {
+            CmdUpdater.Hidden = false;
+            MnuTrayUpdate.Hidden = false;
+
+            CoreGraphics.CGSize s = LblVersion.Frame.Size;
+            s.Width -= CmdUpdater.Frame.Width;
+            LblVersion.SetFrameSize(s);
+        }
+
 		public void EnabledUI()
 		{
 			ConnectionInfo selectedConnection = null;
@@ -845,9 +862,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void ProviderManifestFailed(Provider provider)
 		{
-			WindowProviderNoBootstrapController w = new WindowProviderNoBootstrapController();
-			w.Provider = provider;
-			NSApplication.SharedApplication.RunModalForWindow(w.Window);
+            if(WindowProviderNoBootstrapController.Singleton == null)
+            {
+                WindowProviderNoBootstrapController w = new WindowProviderNoBootstrapController();
+                w.Provider = provider;
+                NSApplication.SharedApplication.RunModalForWindow(w.Window);
+            }
 		}
 
 		public void SettingsChanged()
@@ -1041,7 +1061,7 @@ namespace Eddie.UI.Cocoa.Osx
 			if (w.Provider != "")
 			{
 				Engine.Instance.ProvidersManager.AddProvider(w.Provider, null);
-				Engine.Instance.ProvidersManager.Refresh();
+                Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
 
 				TableProvidersController.RefreshUI();
 				EnabledUI();
@@ -1054,8 +1074,8 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				Provider p = Engine.Instance.ProvidersManager.Providers[i];
 				Engine.Instance.ProvidersManager.Remove(p);
-				Engine.Instance.ProvidersManager.Refresh();
-			}
+                Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
+            }
 
 			TableProvidersController.RefreshUI();
 			EnabledUI();
@@ -1086,9 +1106,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 				if (updated)
 				{
-					Engine.Instance.ProvidersManager.Refresh();
+                    Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
 
-					TableProvidersController.RefreshUI();
+                    TableProvidersController.RefreshUI();
 					EnabledUI();
 				}
 				break; // Only one
@@ -1166,7 +1186,7 @@ namespace Eddie.UI.Cocoa.Osx
 			MnuServersRefresh.Enabled = false;
 			CmdServersRefresh.Enabled = false;
 
-			Engine.Instance.RefreshInvalidateConnections();
+			Engine.Instance.RefreshProvidersInvalidateConnections();
 		}
 
 		void AreasWhiteList()

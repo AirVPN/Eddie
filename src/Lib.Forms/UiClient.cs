@@ -39,6 +39,18 @@ namespace Eddie.Forms
 		{
 			base.Init();
 
+			// ClodoTemp
+			/*
+			Forms.WindowSplash splash = new Forms.WindowSplash();
+			splash.Visible = true;
+
+			for (int i = 0; i < 100; i++)
+			{
+				splash.SetStatus(i.ToString());
+				Thread.Sleep(10);
+			}
+			*/
+
 			GuiUtils.Init();
 
 			Instance = this;
@@ -49,7 +61,7 @@ namespace Eddie.Forms
 
 			if (Engine.Initialization(false) == false)
 				return false;
-							
+
 			FormMain = new Eddie.Forms.Forms.Main();
 			Engine.FormMain = FormMain; // ClodoTemp2 - remove?
 
@@ -60,6 +72,12 @@ namespace Eddie.Forms
 			FormMain.LoadPhase();
 
 			AppContext = new ApplicationContext();
+
+
+			// ClodoTemp
+			/*
+			splash.RequestClose();
+			*/
 
 			return true;
 		}
@@ -117,6 +135,10 @@ namespace Eddie.Forms
 					textShort = data["short"].Value as string;
 				if (FormMain != null)
 					FormMain.SetStatus(textFull, textShort);
+			}
+			else if (cmd == "ui.updater.available")
+			{
+				FormMain.ShowUpdater();
 			}
 			else if (cmd == "system.report.progress")
 			{

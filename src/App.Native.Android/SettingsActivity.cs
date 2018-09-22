@@ -385,8 +385,6 @@ namespace Eddie.NativeAndroidApp
         public override void OnBackPressed()
         {
             SetResult(settingsResult, null);
-            
-            base.OnBackPressed();
 
             Finish();
         }
@@ -658,11 +656,14 @@ namespace Eddie.NativeAndroidApp
 
             Intent channelSettingsIntent = new Intent(Settings.ActionChannelNotificationSettings);
             
-            channelSettingsIntent.PutExtra(Settings.ExtraAppPackage, PackageName);
-            channelSettingsIntent.PutExtra(Settings.ExtraChannelId, channelId);
-            channelSettingsIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.NewTask);
-
-            StartActivity(channelSettingsIntent);
+            if(channelSettingsIntent != null)
+            {
+                channelSettingsIntent.PutExtra(Settings.ExtraAppPackage, PackageName);
+                channelSettingsIntent.PutExtra(Settings.ExtraChannelId, channelId);
+                channelSettingsIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.NewTask);
+    
+                StartActivity(channelSettingsIntent);
+            }
         }
 
         private void SelectRestoreLastProfile()
@@ -725,8 +726,6 @@ namespace Eddie.NativeAndroidApp
                 title = Resources.GetString(Resource.String.settings_application_blacklist_title);
 
             packageChooserIntent.PutExtra(PackageChooserActivity.CHOOSER_TITLE, title);
-
-            packageChooserIntent.SetFlags(ActivityFlags.SingleTop);
 
             StartActivityForResult(packageChooserIntent, ACTIVITY_RESULT_PACKAGE_CHOOSER);
         }
@@ -958,7 +957,7 @@ namespace Eddie.NativeAndroidApp
 
             dialogReturnStringValue = selectedValue;
 
-            dialogHandler = new Handler(m => { throw new Java.Lang.RuntimeException(); });
+            dialogHandler = new Handler(m => { throw new TimeoutException(); });
             
             dialogBuilder = new AlertDialog.Builder(this);
             
@@ -991,7 +990,7 @@ namespace Eddie.NativeAndroidApp
             {
                 Looper.Loop();
             }
-            catch(Java.Lang.RuntimeException)
+            catch(TimeoutException)
             {
             }
 

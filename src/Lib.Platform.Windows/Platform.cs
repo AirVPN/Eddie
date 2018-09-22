@@ -46,6 +46,12 @@ namespace Eddie.Platform.Windows
 		private Mutex m_mutexSingleInstance = null;
 		private NativeMethods.ConsoleCtrlHandlerRoutine m_consoleCtrlHandlerRoutine;
 
+		public static bool IsXpOrNewer()
+		{
+			OperatingSystem OS = Environment.OSVersion;
+			return (OS.Platform == PlatformID.Win32NT) && (OS.Version.Major >= 5);
+		}
+
 		public static bool IsVistaOrNewer()
 		{
 			OperatingSystem OS = Environment.OSVersion;
@@ -86,6 +92,20 @@ namespace Eddie.Platform.Windows
 			return "Windows";
 		}
 
+		public override string GetCodeInstaller()
+		{
+			if (IsWin10OrNewer())
+				return "Windows-10";
+			else if (IsWin7OrNewer())
+				return "Windows-7";
+			else if (IsVistaOrNewer())
+				return "Windows-Vista";
+			else if (IsXpOrNewer())
+				return "Windows-XP";
+			else
+				return GetCode();
+		}
+
 		public override string GetName()
 		{
 			return Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", "").ToString();
@@ -104,7 +124,7 @@ namespace Eddie.Platform.Windows
 			base.OnDeInit();
 
 			if (IsVistaOrNewer())
-				Wfp.Stop();
+				Wfp.Stop();			
 		}
 
 		public override void OnStart()
@@ -1953,6 +1973,11 @@ namespace Eddie.Platform.Windows
 					return i;
 			}
 			return null;
+		}
+
+		private static void SystemEvents_SessionEnding(object sender, Microsoft.Win32.SessionEndingEventArgs e)
+		{
+			
 		}
 	}
 

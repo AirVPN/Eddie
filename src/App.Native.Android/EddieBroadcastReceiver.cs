@@ -21,8 +21,6 @@
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Eddie.Common.Log;
-using Eddie.Common.Tasks;
 using System;
 
 namespace Eddie.NativeAndroidApp
@@ -33,14 +31,15 @@ namespace Eddie.NativeAndroidApp
 	[IntentFilter(new[] { global::Android.Content.Intent.ActionBootCompleted })]
 	public class EddieBroadcastReceiver : BroadcastReceiver
 	{
-		private TasksManager m_tasksManager = new TasksManager();
         private SettingsManager settingsManager = new SettingsManager();
 
 		public override void OnReceive(Context context, Intent intent)
 		{
 			string action = intent.Action;
 
-			LogsManager.Instance.Debug(string.Format("EddieBroadcastReceiver.OnReceive (action='{0}')", action));
+            EddieLogger.Init(context);
+
+			EddieLogger.Debug(string.Format("EddieBroadcastReceiver.OnReceive (action='{0}')", action));
 
 			if(action == global::Android.Content.Intent.ActionBootCompleted)
 			{
@@ -48,31 +47,31 @@ namespace Eddie.NativeAndroidApp
 			}
 			else
 			{
-                LogsManager.Instance.Error(string.Format("Unhandled action '{0}' received in EventsReceiver", action));
+                EddieLogger.Error(string.Format("Unhandled action '{0}' received in EventsReceiver", action));
 			}
 		}
 
 		private void TryRestoreLastProfile(Context context)
 		{
-			LogsManager.Instance.Debug("EddieBroadcastReceiver.TryRestoreLastProfile");
+			EddieLogger.Debug("EddieBroadcastReceiver.TryRestoreLastProfile");
 
 			if(VPNService.Prepare(context.ApplicationContext) != null)
 			{
-				LogsManager.Instance.Debug("VPNService.Prepare requires confirmation");
+				EddieLogger.Debug("VPNService.Prepare requires confirmation");
 				
                 return;
 			}
 
             if(!settingsManager.SystemRestoreLastProfile)
             {
-                LogsManager.Instance.Debug("EddieBroadcastReceiver: SystemRestoreLastProfile disabled");
+                EddieLogger.Debug("EddieBroadcastReceiver: SystemRestoreLastProfile disabled");
                 
                 return;
             }
 
             if(!settingsManager.SystemLastProfileIsConnected)
             {
-                LogsManager.Instance.Debug("EddieBroadcastReceiver: SystemLastProfileIsConnected false");
+                EddieLogger.Debug("EddieBroadcastReceiver: SystemLastProfileIsConnected false");
                 
                 return;
             }
@@ -80,11 +79,11 @@ namespace Eddie.NativeAndroidApp
 			string lastProfile = settingsManager.SystemLastProfile;
 			if(SupportTools.Empty(lastProfile))
 			{
-				LogsManager.Instance.Debug("EddieBroadcastReceiver: lastProfile is empty");
+				EddieLogger.Debug("EddieBroadcastReceiver: lastProfile is empty");
 				return;
 			}
 
-			LogsManager.Instance.Debug("EddieBroadcastReceiver: restoring last profile");
+			EddieLogger.Debug("EddieBroadcastReceiver: restoring last profile");
 
 			try
 			{
@@ -99,7 +98,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("TryRestoreLastProfile", e);
+				EddieLogger.Error("TryRestoreLastProfile", e);
 			}
 		}		
 	}

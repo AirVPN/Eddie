@@ -29,7 +29,9 @@ namespace Eddie.Core
 		public XmlElement Definition;
 		public XmlDocument Storage;
 
-		private Credentials m_runCredentials;		
+		protected Credentials m_runCredentials;
+
+		protected int m_lastTryRefresh = 0;
 
 		public virtual bool GetEnabledByDefault()
         {
@@ -104,7 +106,19 @@ namespace Eddie.Core
             }
         }
 
-        public string Title
+		public int RefreshInterval
+		{
+			get
+			{
+				return UtilsXml.XmlGetAttributeInt(Storage.DocumentElement, "refresh_interval", -1);
+			}
+			set
+			{
+				UtilsXml.XmlSetAttributeInt(Storage.DocumentElement, "refresh_interval", -1);
+			}
+		}
+
+		public string Title
         {
             get
             {
@@ -231,8 +245,14 @@ namespace Eddie.Core
 			ClearCredentials();
         }
 
-		public virtual string Refresh()
+		public virtual bool GetNeedRefresh()
 		{
+			return false;
+		}
+
+		public virtual string OnRefresh()
+		{
+			m_lastTryRefresh = UtilsCore.UnixTimeStamp();
 			return "";
 		}
 

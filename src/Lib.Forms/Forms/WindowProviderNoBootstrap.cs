@@ -29,10 +29,14 @@ namespace Eddie.Forms.Forms
 {
 	public partial class WindowProviderNoBootstrap : Eddie.Forms.Form
 	{
+		public static WindowProviderNoBootstrap Singleton;
+
 		public Core.Providers.Service Provider;
 
 		public WindowProviderNoBootstrap()
 		{
+			Singleton = this;
+
 			OnPreInitializeComponent();
 			InitializeComponent();
 			OnInitializeComponent();
@@ -59,6 +63,13 @@ namespace Eddie.Forms.Forms
 			EnableIde();
 		}
 
+		protected override void OnClosed(EventArgs e)
+		{
+			base.OnClosed(e);
+
+			Singleton = null;
+		}
+
 		private void EnableIde()
 		{
 
@@ -68,7 +79,7 @@ namespace Eddie.Forms.Forms
 		{
 			Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);
 			Engine.Instance.Storage.Set("bootstrap.urls", txtManualUrls.Text);
-			Engine.Instance.RefreshInvalidateConnections();
+			Engine.Instance.RefreshProvidersInvalidateConnections();
 		}
 
 		private void cmdCancel_Click(object sender, EventArgs e)

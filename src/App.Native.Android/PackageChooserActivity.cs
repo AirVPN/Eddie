@@ -22,7 +22,6 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Widget;
-using Eddie.Common.Log;
 using System.Collections.Generic;
 using Android.Views;
 using Android.Graphics.Drawables;
@@ -37,8 +36,8 @@ namespace Eddie.NativeAndroidApp
 		public const string PARAM_PACKAGES = "PACKAGES";
         public const string CHOOSER_TITLE = "TITLE";
 			
-		private List<ApplicationItem> m_applications = new List<ApplicationItem>();
-		private ApplicationsListAdapter m_applicationsAdapter = null;
+		private List<ApplicationItem> applicationList = new List<ApplicationItem>();
+		private ApplicationsListAdapter applicationListAdapter = null;
 	
         private ListView applicationsListView = null;
         private TextView txtTitle = null;
@@ -76,29 +75,53 @@ namespace Eddie.NativeAndroidApp
 			}
 		}
 
-		private class ApplicationsListAdapter : BaseAdapter
+		private class ApplicationsListAdapter : BaseAdapter<ApplicationItem>
 		{
-			private PackageChooserActivity m_activity = null;
-			private LayoutInflater m_inflater = null;
+            private Activity activity = null;
+            private List<ApplicationItem> appItems = null;
 
-			public ApplicationsListAdapter(PackageChooserActivity activity)
+            private class ListViewHolder : Java.Lang.Object
+            {
+                public ImageView itemIcon { get; set; }
+                public CheckBox itemCheckbox { get; set; }
+                public TextView itemTitle { get; set; }
+                public TextView itemDescription { get; set; }
+            }
+
+			public ApplicationsListAdapter(Activity a, List<ApplicationItem> items)
 			{
-				m_activity = activity;
-				m_inflater = LayoutInflater.From(activity);
+                activity = a;
+
+				appItems = items;
 			}
 
-			public override int Count
-			{
-				get
-				{
-					return m_activity.m_applications != null ? m_activity.m_applications.Count : 0;
-				}
-			}
+            public void DataSet(List<ApplicationItem> appList)
+            {
+                appItems = appList;
+                
+                NotifyDataSetChanged();
+            }
 
-			public override Java.Lang.Object GetItem(int position)
-			{
-				return m_activity.m_applications[position];
-			}
+            public override int Count
+            {
+                get
+                {
+                    int entries = 0;
+                    
+                    if(appItems != null)
+                        entries = appItems.Count;
+                        
+                    return entries;
+                }
+            }
+
+            public override ApplicationItem this[int position]
+            {
+                get
+                {
+                    return appItems[position];
+                }
+            }
 
 			public override long GetItemId(int position)
 			{
@@ -107,29 +130,36 @@ namespace Eddie.NativeAndroidApp
 	
 			public override View GetView(int position, View convertView, ViewGroup parent)
 			{
-				ApplicationItem item = GetItem(position) as ApplicationItem;
-				
-                if(item == null)
-					return null;
+                ApplicationItem item = appItems[position];
 
-				if(convertView == null)
-					convertView = m_inflater.Inflate(Resource.Layout.package_chooser_item, null);
+                ListViewHolder listViewHolder = null;
+ 
+                if(convertView != null) 
+                    listViewHolder = convertView.Tag as ListViewHolder;
+  
+                if(listViewHolder == null)
+                {
+                    listViewHolder = new ListViewHolder();
 
-				convertView.Visibility = ViewStates.Visible;
+                    convertView = activity.LayoutInflater.Inflate(Resource.Layout.package_chooser_item, null);
 
-				ImageView itemIcon = convertView.FindViewById<ImageView>(Resource.Id.packages_picker_item_icon);
-				itemIcon.SetImageDrawable(item.Icon);
+                    listViewHolder.itemIcon = convertView.FindViewById<ImageView>(Resource.Id.packages_picker_item_icon);
+                    listViewHolder.itemCheckbox = convertView.FindViewById<CheckBox>(Resource.Id.packages_picker_item_selection);
+                    listViewHolder.itemTitle = convertView.FindViewById<TextView>(Resource.Id.packages_picker_item_title);
+                    listViewHolder.itemDescription = convertView.FindViewById<TextView>(Resource.Id.packages_picker_item_description);
+    
+                    convertView.Tag = listViewHolder;
+				}
 
-				CheckBox itemCheckbox = convertView.FindViewById<CheckBox>(Resource.Id.packages_picker_item_selection);
-				itemCheckbox.Checked = item.Selected;
-                itemCheckbox.Clickable = false;
-                itemCheckbox.Selected = false;
+				listViewHolder.itemIcon.SetImageDrawable(item.Icon);
 
-				TextView itemTitle = convertView.FindViewById<TextView>(Resource.Id.packages_picker_item_title);
-				itemTitle.Text = item.Title;
+				listViewHolder.itemCheckbox.Checked = item.Selected;
+                listViewHolder.itemCheckbox.Clickable = false;
+                listViewHolder.itemCheckbox.Selected = false;
 
-				TextView itemDescription = convertView.FindViewById<TextView>(Resource.Id.packages_picker_item_description);
-				itemDescription.Text = item.Description;
+				listViewHolder.itemTitle.Text = item.Title;
+
+				listViewHolder.itemDescription.Text = item.Description;
 
 				return convertView;	      		
 			}			
@@ -139,7 +169,7 @@ namespace Eddie.NativeAndroidApp
 		{
 			base.OnCreate(savedInstanceState);
 
-			LogsManager.Instance.Debug("OnCreate6");
+            EddieLogger.Init(this);
 
             title = Intent.GetStringExtra(CHOOSER_TITLE);
 
@@ -151,11 +181,9 @@ namespace Eddie.NativeAndroidApp
         public override void OnBackPressed()
         {
             Intent resultIntent = new Intent(this, typeof(PackageChooserActivity));
-            resultIntent.PutExtra(PARAM_PACKAGES, GenerateSelectedApplications());
+            resultIntent.PutExtra(PARAM_PACKAGES, GetSelectedApplicationList());
 
             SetResult(Result.Ok, resultIntent);
-
-            base.OnBackPressed();
 
             Finish();
         }
@@ -169,24 +197,24 @@ namespace Eddie.NativeAndroidApp
 
             txtTitle.Text = title;
 
-			m_applicationsAdapter = new ApplicationsListAdapter(this);
+			applicationListAdapter = new ApplicationsListAdapter(this, applicationList);
 			
-            applicationsListView.Adapter = m_applicationsAdapter;
+            applicationsListView.Adapter = applicationListAdapter;
 
             applicationsListView.ItemClick += (object sender, ItemClickEventArgs e) =>
             {
-                m_applications[e.Position].Selected = !m_applications[e.Position].Selected;
+                applicationList[e.Position].Selected = !applicationList[e.Position].Selected;
 
-                if(m_applicationsAdapter != null)
-                    m_applicationsAdapter.NotifyDataSetChanged();
+                if(applicationListAdapter != null)
+                    applicationListAdapter.NotifyDataSetChanged();
             };
 		}
 		
-		private string GenerateSelectedApplications()
+		private string GetSelectedApplicationList()
 		{
 			string selectedApplications = "";
 
-			foreach(ApplicationItem app in m_applications)
+			foreach(ApplicationItem app in applicationList)
 			{
 				if(app.Selected)
 				{
@@ -209,7 +237,7 @@ namespace Eddie.NativeAndroidApp
             foreach(string item in valArray)
                 selectedPackages.Add(item);
 
-			m_applications.Clear();
+			applicationList.Clear();
 
             IList<ApplicationInfo> applications = base.PackageManager.GetInstalledApplications(global::Android.Content.PM.PackageInfoFlags.MetaData);
 			
@@ -225,13 +253,13 @@ namespace Eddie.NativeAndroidApp
 				}
 				catch(System.Exception e)
 				{
-					LogsManager.Instance.Error(e);
+					EddieLogger.Error(e);
 				}
 
-				m_applications.Add(item);
+				applicationList.Add(item);
 			}
 	
-			m_applications.Sort((a, b) => a.Title.CompareTo(b.Title));
+			applicationList.Sort((a, b) => a.Title.CompareTo(b.Title));
 		}
 	}
 }

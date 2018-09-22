@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Native.Android", "App.Native.Android\App.Native.Android.csproj", "{BF332786-9C31-4BD3-A866-D8D034474A8B}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Lib.Mobile\Lib.Mobile.projitems*{613fa79a-4a7b-41f7-af14-a5e2c7f91e14}*SharedItemsImports = 4
+		Lib.Mobile\Lib.Mobile.projitems*{ac2be46c-5d49-44f0-85f6-2fbfce6c7f8c}*SharedItemsImports = 13
+		Lib.Mobile\Lib.Mobile.projitems*{bf332786-9c31-4bd3-a866-d8d034474a8b}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
 		Ad-Hoc|ARM = Ad-Hoc|ARM
@@ -109,15 +114,12 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A31F9451-4A97-415A-82FB-4D233B4B278F}
-	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
 		$0.VersionControlPolicy = $2
 		$0.StandardHeader = $3
-		version = 1.0 RC 2
+		version = 1.0 RC 4
 	EndGlobalSection
 EndGlobal

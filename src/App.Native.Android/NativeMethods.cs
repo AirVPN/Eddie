@@ -38,7 +38,30 @@ namespace Eddie.NativeAndroidApp
 			return result < 0;
 		}
 
-		public enum EventType
+        public enum ResultCode
+        {
+            ERROR = -1,
+            SUCCESS,
+            EXCEPTION_ERROR,
+            OPENVPN_NOT_INITIALIZED,
+            OPENVPN_ALREADY_INITIALIZED,
+            BREAKPAD_INITIALIZATION_ERROR,
+            OPENVPN_POINTER_IS_NULL,
+            FAILED_TO_CREATE_OPENVPN_CLIENT,
+            OPENVPN_TRANSPORT_STATS_POINTER_IS_NULL,
+            PROFILE_FILENAME_IS_NULL,
+            PROFILE_STRING_IS_NULL,
+            OPENVPN_OPTION_NAME_IS_NULL,
+            OPENVPN_OPTION_VALUE_IS_NULL,
+            OPENVPN_UNKNOWN_OPTION,
+            OPENVPN_PROFILE_IS_EMPTY,
+            OPENVPN_PROFILE_ERROR,
+            OPENVPN_CONFIG_EVAL_ERROR,
+            OPENVPN_CREDS_ERROR,
+            OPENVPN_CONNECTION_ERROR
+        }
+
+        public enum EventType
 		{
             FATAL_ERROR = -4,
             ERROR = -3,
@@ -84,13 +107,24 @@ namespace Eddie.NativeAndroidApp
             N_TYPES
 		}
 
-		public struct ovpn3_event
+        public struct EddieLibraryResult
+        {
+            public NativeMethods.ResultCode code;
+            
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string description;
+        }
+
+		public struct EddieLibraryEvent
 		{
 			public NativeMethods.EventType type;
+            
             [MarshalAs(UnmanagedType.LPStr)]
             public string name;      
+            
             [MarshalAs(UnmanagedType.LPStr)]
             public string info;
+            
             [MarshalAs(UnmanagedType.LPStruct)]
             public IntPtr data;
 		}
@@ -98,27 +132,38 @@ namespace Eddie.NativeAndroidApp
 		public struct ovpn3_connection_data
 		{
 			public int defined;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string user;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string serverHost;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string serverPort;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string serverProto;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string serverIp;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string vpnIp4;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string vpnIp6;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string gw4;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string gw6;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string clientIp;
-			[MarshalAs(UnmanagedType.LPStr)]
+			
+            [MarshalAs(UnmanagedType.LPStr)]
 			public string tunName;
 		}
 
@@ -133,64 +178,92 @@ namespace Eddie.NativeAndroidApp
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int socket_protect_ptr(int socket);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void on_event_ptr(ref ovpn3_event e);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void on_event_ptr(ref EddieLibraryEvent e);
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_new_ptr();
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_layer_ptr(int layer);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_remote_address_ptr([MarshalAs(UnmanagedType.LPStr)] string address, int ipv6);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_add_address_ptr([MarshalAs(UnmanagedType.LPStr)] string address, int prefix_length, [MarshalAs(UnmanagedType.LPStr)] string gateway, int ipv6, int net30);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_route_metric_default_ptr(int metric);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_reroute_gw_ptr(int ipv4, int ipv6, int flags);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_add_route_ptr([MarshalAs(UnmanagedType.LPStr)] string address, int prefix_length, int metric, int ipv6);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_exclude_route_ptr([MarshalAs(UnmanagedType.LPStr)] string address, int prefix_length, int metric, int ipv6);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_add_dns_server_ptr([MarshalAs(UnmanagedType.LPStr)] string address, int ipv6);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_add_search_domain_ptr([MarshalAs(UnmanagedType.LPStr)] string domain);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_mtu_ptr(int mtu);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_session_name_ptr([MarshalAs(UnmanagedType.LPStr)] string name);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_add_proxy_bypass_ptr([MarshalAs(UnmanagedType.LPStr)] string bypass_host);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_proxy_auto_config_url_ptr([MarshalAs(UnmanagedType.LPStr)] string url);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_proxy_http_ptr([MarshalAs(UnmanagedType.LPStr)] string host, int port);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_proxy_https_ptr([MarshalAs(UnmanagedType.LPStr)] string host, int port);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_add_wins_server_ptr([MarshalAs(UnmanagedType.LPStr)] string address);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_block_ipv6_ptr(int block_ipv6);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_set_adapter_domain_suffix_ptr([MarshalAs(UnmanagedType.LPStr)] string name);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_establish_ptr();
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int tun_builder_persist_ptr();
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void tun_builder_establish_lite_ptr();
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void tun_builder_teardown_ptr(int disconnect);
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void connect_attach_ptr();
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void connect_pre_run_ptr();
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void connect_run_ptr();
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate void connect_session_stop_ptr();
 		
-		public struct ovpn3_client
+        public struct ovpn3_client
 		{
 			public socket_protect_ptr socket_protect;
 			public on_event_ptr on_event;
@@ -225,99 +298,167 @@ namespace Eddie.NativeAndroidApp
 
 		public const string EddieLibName = "eddie";		
 
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_version();
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_init();
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_cleanup();		
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_create(ref ovpn3_client ci);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_destroy(int client);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_start(int client);		
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_stop(int client);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_pause(int client, [MarshalAs(UnmanagedType.LPStr)] string reason);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_resume(int client);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_get_transport_stats(int client, ref ovpn3_transport_stats stats);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_load_profile_file(int client, [MarshalAs(UnmanagedType.LPStr)] string filename);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_load_profile_string(int client, [MarshalAs(UnmanagedType.LPStr)] string str);
-		[DllImport(EddieLibName)]
-		private static extern int ovpn3_client_set_option(int client, [MarshalAs(UnmanagedType.LPStr)] string option, [MarshalAs(UnmanagedType.LPStr)] string value);
+        [DllImport(EddieLibName)]
+        private static extern IntPtr Name();
+        
+        [DllImport(EddieLibName)]
+        private static extern IntPtr Version();
+        
+        [DllImport(EddieLibName)]
+        private static extern IntPtr QualifiedName();
+        
+        [DllImport(EddieLibName)]
+        private static extern IntPtr ReleaseDate();
+		
+        [DllImport(EddieLibName)]
+		private static extern int ApiLevel();
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult InitOpenVPN();
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult CleanUpOpenVPN();		
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult CreateOpenVPNClient(ref ovpn3_client ci);
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult DisposeOpenVPNClient();
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult StartOpenVPNClient();
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult StopOpenVPNClient();
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult PauseOpenVPNClient([MarshalAs(UnmanagedType.LPStr)] string reason);
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult ResumeOpenVPNClient();
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult GetOpenVPNClientTransportStatus(ref ovpn3_transport_stats stats);
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult LoadProfileToOpenVPNClient([MarshalAs(UnmanagedType.LPStr)] string filename);
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult LoadStringProfileToOpenVPNClient([MarshalAs(UnmanagedType.LPStr)] string str);
+		
+        [DllImport(EddieLibName)]
+		private static extern EddieLibraryResult SetOpenVPNClientOption([MarshalAs(UnmanagedType.LPStr)] string option, [MarshalAs(UnmanagedType.LPStr)] string value);
 
-		public static class OVPN3
+		public static class EddieLibrary
 		{
-			public static int Version()
+            public static string LibraryName()
+            {
+                return CharStarToString(Name());
+            }
+
+            public static string LibraryVersion()
+            {
+                return CharStarToString(Version());
+            }
+
+            public static string LibraryQualifiedName()
+            {
+                return CharStarToString(QualifiedName());
+            }
+
+            public static string LibraryReleaseDate()
+            {
+                return CharStarToString(ReleaseDate());
+            }
+
+            public static int LibraryApiLevel()
+            {
+                return ApiLevel();
+            }
+
+			public static EddieLibraryResult Init()
 			{
-				return ovpn3_version();
+				return InitOpenVPN();
 			}
 
-			public static int Init()
+			public static EddieLibraryResult Cleanup()
 			{
-				return ovpn3_init();
-			}
-
-			public static int Cleanup()
-			{
-				return ovpn3_cleanup();
+				return CleanUpOpenVPN();
 			}		
 		
-			public static int ClientCreate(ref ovpn3_client ci)
+			public static EddieLibraryResult CreateClient(ref ovpn3_client ci)
 			{
-				return ovpn3_client_create(ref ci);
+				return CreateOpenVPNClient(ref ci);
 			}
 
-			public static int ClientDestroy(int client)
+			public static EddieLibraryResult DisposeClient()
 			{
-				return ovpn3_client_destroy(client);
+				return DisposeOpenVPNClient();
 			}			
 
-			public static int ClientStart(int client)
+			public static EddieLibraryResult StartClient()
 			{
-				return ovpn3_client_start(client);
+				return StartOpenVPNClient();
 			}
 
-			public static int ClientStop(int client)
+			public static EddieLibraryResult StopClient()
 			{
-				return ovpn3_client_stop(client);
+				return StopOpenVPNClient();
 			}
 
-			public static int ClientPause(int client, string reason)
+			public static EddieLibraryResult PauseClient(string reason)
 			{
-				return ovpn3_client_pause(client, reason);
+				return PauseOpenVPNClient(reason);
 			}
 
-			public static int ClientResume(int client)
+			public static EddieLibraryResult ResumeClient()
 			{
-				return ovpn3_client_resume(client);
+				return ResumeOpenVPNClient();
 			}
 			
-			public static int ClientGetTransportStats(int client, ref ovpn3_transport_stats stats)
+			public static EddieLibraryResult GetClientTransportStats(ref ovpn3_transport_stats stats)
 			{
-				return ovpn3_client_get_transport_stats(client, ref stats);
+				return GetOpenVPNClientTransportStatus(ref stats);
 			}
 
-			public static int ClientLoadProfileFile(int client, string filename)
+			public static EddieLibraryResult LoadProfileToClient(string filename)
 			{
-				return ovpn3_client_load_profile_file(client, filename);
+				return LoadProfileToOpenVPNClient(filename);
 			}
 
-			public static int ClientLoadProfileString(int client, string str)
+			public static EddieLibraryResult LoadStringProfileToClient(string str)
 			{
-				return ovpn3_client_load_profile_string(client, str);
+				return LoadStringProfileToOpenVPNClient(str);
 			}
 
-			public static int ClientSetOption(int client, string option, string value)
+			public static EddieLibraryResult SetClientOption(string option, string value)
 			{
-				return ovpn3_client_set_option(client, option, value);
+				return SetOpenVPNClientOption(option, value);
 			}
+            
+            private static string CharStarToString(IntPtr charStarPointer)
+            {
+                byte[] charStarLen = null;
+                int charLength = 0;
+                string convertedString = "";
+
+                if(charStarPointer == IntPtr.Zero)
+                    return convertedString;
+
+                while(System.Runtime.InteropServices.Marshal.ReadByte(charStarPointer, charLength) != 0)
+                    charLength++;
+
+                if(charLength > 0)
+                {                
+                    charStarLen = new byte[charLength];
+                    
+                    System.Runtime.InteropServices.Marshal.Copy(charStarPointer, charStarLen, 0, charLength);
+                
+                    convertedString = System.Text.Encoding.UTF8.GetString(charStarLen);
+                }
+                
+                return convertedString;
+            }
 		}
 	}
 }

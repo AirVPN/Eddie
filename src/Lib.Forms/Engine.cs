@@ -162,15 +162,6 @@ namespace Eddie.Forms
 				FormMain.OnShowText(title, data);
 		}
 
-		/* // TOCLEAN
-		public override bool OnAskYesNo(string message)
-		{
-			if (FormMain != null)
-				return FormMain.AskYesNo(message);
-			return false;
-		}
-		*/
-
 		public override Credentials OnAskCredentials()
 		{
 			if (FormMain != null)

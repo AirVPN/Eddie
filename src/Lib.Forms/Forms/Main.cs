@@ -41,6 +41,8 @@ namespace Eddie.Forms.Forms
 		private Controls.TabNavigator m_tabMain;
 		private Skin.Button m_cmdAbout;
 		private Skin.Button m_cmdPreferences;
+		private Skin.Label m_lblVersion;
+		private Skin.LinkLabel m_cmdUpdater;
 		private Controls.ChartSpeed m_pnlCharts;
 		private Controls.MenuButton m_cmdMainMenu;
 		private Controls.ProgressInfinite m_imgProgressInfinite;
@@ -291,7 +293,7 @@ namespace Eddie.Forms.Forms
 				m_windowsNotifyIcon.ContextMenuStrip = mnuMain;
 			}
 
-
+			mnuUpdater.Visible = false;
 
 			m_tabMain = new TabNavigator();
 			m_tabMain.TitleRightBottom = Constants.VersionDesc;
@@ -316,7 +318,7 @@ namespace Eddie.Forms.Forms
 				m_cmdAbout.BackColor = Form.Skin.GetColor("color.tab.normal.background");
 				m_cmdAbout.BackgroundImageLayout = ImageLayout.Stretch;
 				m_cmdAbout.FlatStyle = FlatStyle.Flat;				
-				m_cmdAbout.Top = m_tabMain.Height - 60;
+				m_cmdAbout.Top = m_tabMain.Height - 100;
 				m_cmdAbout.Width = 32;
 				m_cmdAbout.Height = 32;
 				m_cmdAbout.Image = global::Eddie.Forms.Properties.Resources.tab_about;
@@ -330,7 +332,7 @@ namespace Eddie.Forms.Forms
 				m_cmdPreferences = new Eddie.Forms.Skin.Button();
 				m_cmdPreferences.Name = "cmdPreferences";
 				m_cmdPreferences.BackColor = Color.FromArgb(112, 184, 253);				
-				m_cmdPreferences.Top = m_tabMain.Height - 60;
+				m_cmdPreferences.Top = m_tabMain.Height - 100;
 				m_cmdPreferences.Width = 32;
 				m_cmdPreferences.Height = 32;
 				m_cmdPreferences.Image = global::Eddie.Forms.Properties.Resources.tab_preferences;
@@ -340,6 +342,32 @@ namespace Eddie.Forms.Forms
 				m_cmdPreferences.ImageInflatePerc = 0;
 				m_cmdPreferences.DrawBorder = false;
 				m_tabMain.Controls.Add(m_cmdPreferences);
+
+				m_lblVersion = new Skin.Label();
+				m_lblVersion.Left = 10;
+				m_lblVersion.BackColor = Color.Transparent;
+				m_lblVersion.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+				m_lblVersion.Height = 24;
+				m_lblVersion.Text = "Version " + Common.Constants.VersionDesc;
+				m_lblVersion.TextAlign = ContentAlignment.MiddleCenter;
+				m_lblVersion.Click += mnuAbout_Click;
+				m_tabMain.Controls.Add(m_lblVersion);
+
+				m_cmdUpdater = new Eddie.Forms.Skin.LinkLabel();
+				m_cmdUpdater.Name = "cmdUpdater";
+				m_cmdUpdater.BackColor = Color.FromArgb(112, 184, 253);
+				m_cmdUpdater.Text = "Update available";
+				m_cmdUpdater.Left = 10;				
+				m_cmdUpdater.Height = 24;
+				m_cmdUpdater.TextAlign = ContentAlignment.MiddleCenter;
+				//m_cmdUpdater.Image = global::Eddie.Forms.Properties.Resources.tab_updater;
+				//m_cmdUpdater.ImageHover = global::Eddie.Forms.Properties.Resources.tab_updater_hover;
+				m_cmdUpdater.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+				m_cmdUpdater.Click += mnuUpdater_Click;
+				//m_cmdUpdater.ImageInflatePerc = 0;
+				//m_cmdUpdater.DrawBorder = false;
+				m_cmdUpdater.Visible = false;
+				m_tabMain.Controls.Add(m_cmdUpdater);
 			}
 
 			m_imgProgressInfinite = new ProgressInfinite();
@@ -491,6 +519,9 @@ namespace Eddie.Forms.Forms
 				m_toolTip.Connect(this.cmdLogsSave, Messages.TooltipLogsSave);
 				m_toolTip.Connect(this.cmdLogsSupport, Messages.TooltipLogsSupport);
 
+				m_toolTip.Connect(this.m_cmdAbout, Messages.TooltipAbout);
+				m_toolTip.Connect(this.m_cmdPreferences, Messages.TooltipPreferences);
+				
 				Controls.SetChildIndex(m_toolTip, 0);
 			}
 
@@ -715,7 +746,8 @@ namespace Eddie.Forms.Forms
 
 			if ((FormWindowState.Minimized == WindowState) && (Engine.AllowMinimizeInTray()) && (ShowInTaskbar))
 			{
-				ShowInTaskbar = false;
+				if (GuiUtils.IsUnix() == false)
+					ShowInTaskbar = false; // This cause a glitch in Mono, Ubuntu 18.04, when minimized the main window.
 				Hide();
 				EnabledUi();
 
@@ -775,6 +807,11 @@ namespace Eddie.Forms.Forms
 		private void mnuSettings_Click(object sender, EventArgs e)
 		{
 			OnShowPreferences();
+		}
+
+		private void mnuUpdater_Click(object sender, EventArgs e)
+		{
+			OnUpdater();
 		}
 
 		private void mnuStatus_Click(object sender, EventArgs e)
@@ -918,7 +955,7 @@ namespace Eddie.Forms.Forms
 			if (dlg.ShowDialog(this) == DialogResult.OK)
 			{
 				Core.Provider provider = Engine.Instance.ProvidersManager.AddProvider(dlg.Provider, null);
-				Engine.Instance.ProvidersManager.Refresh();
+				Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
 
 				Controls.ListViewItemProvider itemProvider = new Controls.ListViewItemProvider();
 				itemProvider.Provider = provider;
@@ -942,7 +979,7 @@ namespace Eddie.Forms.Forms
 
 				lstProviders.Items.Remove(item);
 
-				Engine.Instance.ProvidersManager.Refresh();
+				Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
 
 				EnabledUi();
 			}
@@ -974,7 +1011,7 @@ namespace Eddie.Forms.Forms
 				{
 					item.Update();
 
-					Engine.Instance.ProvidersManager.Refresh();
+					Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
 
 					EnabledUi();
 				}
@@ -1078,7 +1115,7 @@ namespace Eddie.Forms.Forms
 			mnuServersRefresh.Enabled = false;
 			cmdServersRefresh.Enabled = false;
 
-			Engine.Instance.RefreshInvalidateConnections();
+			Engine.Instance.RefreshProvidersInvalidateConnections();
 		}
 
 		private void cmdServersWhiteList_Click(object sender, EventArgs e)
@@ -1365,6 +1402,10 @@ namespace Eddie.Forms.Forms
 
 			m_cmdAbout.Left = m_tabMain.GetTabsRect().Width / 2 - 20 - m_cmdAbout.Width;
 			m_cmdPreferences.Left = m_tabMain.GetTabsRect().Width / 2 + 20;
+			m_lblVersion.Width = m_tabMain.GetTabsRect().Width - 20;
+			m_lblVersion.Top = m_tabMain.Height - 54;
+			m_cmdUpdater.Width = m_tabMain.GetTabsRect().Width - 20;
+			m_cmdUpdater.Top = m_tabMain.Height - 30;
 
 			Invalidate();
 		}
@@ -1603,6 +1644,22 @@ namespace Eddie.Forms.Forms
 					if (m_windowsNotifyIcon != null)
 						m_windowsNotifyIcon.Icon = icon;
 				}
+			}
+		}
+
+		private delegate void ShowUpdaterDelegate();
+		public void ShowUpdater()
+		{
+			if (this.InvokeRequired)
+			{
+				ShowUpdaterDelegate inv = new ShowUpdaterDelegate(this.ShowUpdater);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				mnuUpdater.Visible = true;
+				m_cmdUpdater.Visible = true;
 			}
 		}
 
@@ -1871,9 +1928,12 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				WindowProviderNoBootstrap dlg = new WindowProviderNoBootstrap();
-				dlg.Provider = provider as Core.Providers.Service;
-				dlg.ShowDialog(this);
+				if (WindowProviderNoBootstrap.Singleton == null)
+				{
+					WindowProviderNoBootstrap dlg = new WindowProviderNoBootstrap();
+					dlg.Provider = provider as Core.Providers.Service;
+					dlg.ShowDialog(this);
+				}
 			}
 		}
 
@@ -2150,6 +2210,24 @@ namespace Eddie.Forms.Forms
 
 				EnabledUi();
 				Resizing();
+			}
+		}
+
+		private delegate void OnUpdaterDelegate();
+		public void OnUpdater()
+		{
+			if (UiClient.Instance.Data == null)
+				return;
+
+			if (this.InvokeRequired)
+			{
+				OnUpdaterDelegate inv = new OnUpdaterDelegate(this.OnUpdater);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				Platform.Instance.OpenUrl(Constants.WebSite + "/" + Platform.Instance.GetCode().ToLowerInvariant() + "/");
 			}
 		}
 

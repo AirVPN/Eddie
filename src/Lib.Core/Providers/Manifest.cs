@@ -36,6 +36,7 @@ namespace Eddie.Core.Providers
 		public List<ConnectionMode> Modes = new List<ConnectionMode>();
 
 		private Int64 m_lastFetchTime = 0;
+		private List<string> m_frontMessages = new List<string>();
 
 		public override void OnInit()
 		{
@@ -44,7 +45,7 @@ namespace Eddie.Core.Providers
 #if (EDDIE3)
             Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".dns.check", true, Messages.ManOptionServicesDnsCheck);
             Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".tunnel.check", true, Messages.ManOptionServicesTunnelCheck);
-#endif
+#endif			
 		}
 
 		public override void OnLoad(XmlElement xmlStorage)
@@ -215,17 +216,45 @@ namespace Eddie.Core.Providers
 			Engine.Instance.Logs.Log(LogType.Warning, Messages.AirVpnAuthFailed);
 		}
 
-		public override string Refresh()
+		public override bool GetNeedRefresh()
 		{
-			base.Refresh();
+			int minInterval = RefreshInterval;
+			{
+				// Temp until option migration
+				minInterval = Engine.Instance.Storage.GetInt("advanced.manifest.refresh");
+				if (minInterval == 0)
+					return false;
+				if (minInterval != -1)
+					minInterval *= 60;
+			}
+			if ((Manifest != null) && (minInterval == -1)) // Pick server recommended
+			{
+				minInterval = UtilsXml.XmlGetAttributeInt(Manifest, "next_update", -1);
+				if (minInterval != -1)
+					minInterval *= 60;
+			}
+
+			if (minInterval == -1)
+				minInterval = 60 * 60 * 24;
+			if (m_lastTryRefresh + minInterval > UtilsCore.UnixTimeStamp())
+				return false;
+
+			return true;
+		}
+
+		public override string OnRefresh()
+		{
+			base.OnRefresh();
+
+			// Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshStart, Title));
 
 			try
 			{
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters["act"] = "manifest";
 				parameters["ts"] = Conversions.ToString(m_lastFetchTime);
-
-				XmlDocument xmlDoc = Fetch(Messages.ManifestUpdate, parameters);
+								
+				XmlDocument xmlDoc = Fetch(MessagesFormatter.Format(Messages.ProviderRefreshStart, Title), parameters);
 				lock (Storage)
 				{
 					if (Manifest != null)
@@ -240,11 +269,22 @@ namespace Eddie.Core.Providers
 					m_lastFetchTime = UtilsCore.UnixTimeStamp();
 				}
 
+				Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshDone, Title));
+
+				string msg = GetFrontMessage();
+				if ((msg != "") && (m_frontMessages.Contains(msg) == false))
+				{
+					Engine.Instance.OnFrontMessage(msg);
+					m_frontMessages.Add(msg);
+				}
+
 				return "";
 			}
 			catch (Exception e)
 			{
-				return MessagesFormatter.Format(Messages.ManifestFailed, e.Message);
+				Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshFail, Title, e.Message));
+
+				return MessagesFormatter.Format(Messages.ProviderRefreshFail, Title, e.Message);
 			}
 		}
 
@@ -459,7 +499,7 @@ namespace Eddie.Core.Providers
 		// 'S' is the AES 256 bit one-time session key, crypted with a RSA 4096 public-key.
 		// 'D' is the data from the client to our server, crypted with the AES.
 		// The server answer is XML decrypted with the same AES session.
-		public static XmlDocument FetchUrl(string authPublicKey, string url, Dictionary<string, string> parameters)
+		public XmlDocument FetchUrl(string authPublicKey, string url, Dictionary<string, string> parameters)
 		{
 			// AES				
 			using (RijndaelManaged rijAlg = new RijndaelManaged())
@@ -572,7 +612,7 @@ namespace Eddie.Core.Providers
 				{
 					string message = "";
 					if (response.GetHeader("location") != "")
-						message = MessagesFormatter.Format(Messages.ManifestFailedUnexpected302, response.GetHeader("location"));
+						message = MessagesFormatter.Format(Messages.ProviderRefreshFailUnexpected302, Title, response.GetHeader("location"));
 					else
 						message = ex.Message + " - " + response.GetLineReport();
 					throw new Exception(message);
@@ -580,7 +620,7 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-		public static XmlDocument FetchUrls(string title, string authPublicKey, List<string> urls, Dictionary<string, string> parameters)
+		public XmlDocument FetchUrls(string title, string authPublicKey, List<string> urls, Dictionary<string, string> parameters)
 		{
 			parameters["login"] = Engine.Instance.Storage.Get("login");
 			parameters["password"] = Engine.Instance.Storage.Get("password");

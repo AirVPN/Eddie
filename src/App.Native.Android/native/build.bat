@@ -1,1 +1,0 @@
-ndk-build NDK_LIBS_OUT="../libs"

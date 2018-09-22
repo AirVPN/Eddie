@@ -52,10 +52,6 @@ namespace Eddie.Core.UI // ClodoTemp2 - remove?
 			{
 				Engine.Instance.InvalidateDiscovery();
 			}
-			else if (key == "manifestlastupdate")
-			{
-				Engine.Instance.RefreshConnections();
-			}
 			else if (key == "pathapp")
 			{
 				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathApp").Value);

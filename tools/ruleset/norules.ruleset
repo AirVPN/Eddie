@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?> 
+<!--                                   
+Problem: warning MSB3884 
+  Visual Studio 2015 includes references to MinimumRecommendedRules.ruleset in .csproj files. 
+  MSBuild 10 cannot find this reference and generates warning MSB3884. 
+
+Solution: Create NoRules.ruleset [this file] and pass it to MSBuild in a command switch.  Need to pass full path name to MSBuild. 
+Example: MSBuild /property:CodeAnalysisRuleSet="$Workspace\NoRules.ruleset" 
+
+References: 
+  https://msdn.microsoft.com/en-us/library/dd264949.aspx 
+  https://msdn.microsoft.com/en-us/library/ms164311.aspx 
+-->      
+<RuleSet Name="NoRules" Description="This rule set contains no rules." ToolsVersion="14.0"> 
+</RuleSet>     

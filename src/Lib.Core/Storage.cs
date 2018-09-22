@@ -445,6 +445,8 @@ namespace Eddie.Core
 			SetDefaultBool("connect", false, Messages.ManOptionConnect);
 			SetDefaultBool("netlock", false, Messages.ManOptionNetLock);
 
+			SetDefault("updater.channel", "choice:stable,beta,internal,none", "stable", NotInMan);
+
 			SetDefault("console.mode", "choice:none,batch,keys", "keys", NotInMan);
 
 			SetDefault("profile", "text", "default.xml", Messages.ManOptionProfile); // Not in Settings
@@ -502,6 +504,7 @@ namespace Eddie.Core
 
 			SetDefault("netlock.mode", "text", "auto", Messages.ManOptionNetLockMode);
 			SetDefaultBool("netlock.allow_private", true, Messages.ManOptionNetLockAllowPrivate);
+			SetDefaultBool("netlock.allow_dhcp", true, Messages.ManOptionNetLockAllowDHCP); // Win only
 			SetDefaultBool("netlock.allow_ping", true, Messages.ManOptionNetLockAllowPing);
 			SetDefaultBool("netlock.allow_dns", false, Messages.ManOptionNetLockAllowDNS);
 			SetDefault("netlock.incoming", "choice:allow,block", "block", NotInMan);
@@ -535,6 +538,7 @@ namespace Eddie.Core
 			SetDefaultInt("openvpn.rcvbuf", -2, Messages.ManOptionOpenVpnRcvBuf); // 2.11
 			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);
 			SetDefault("openvpn.directives.path", "path_file", "", NotInMan);
+			SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
 
 			// Not in Settings
@@ -595,6 +599,7 @@ namespace Eddie.Core
 			// Linux only
 			SetDefaultBool("linux.xhost", false, NotInMan);
 			SetDefault("linux.dbus", "text", "", NotInMan);
+			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9", NotInMan);
 
 			// General UI
 			SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);

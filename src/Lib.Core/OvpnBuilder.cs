@@ -27,6 +27,8 @@ namespace Eddie.Core
 {
 	public class OvpnBuilder
 	{
+		public static string AllowedCharsInDirectiveName = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_<>";
+
 		public class Directive
 		{
 			public string Text = "";
@@ -49,6 +51,28 @@ namespace Eddie.Core
 				(name == "pull-filter") ||
 				(name == "ignore-unknown-option") ||
 				(name == "setenv")
+			  )
+				return true;
+
+			return false;
+		}
+
+		public bool IsGroupAllowScriptSecurity(string name)
+		{
+			if (
+			    (name == "script-security") || 
+				(name == "plugin") ||
+				(name == "up") ||
+				(name == "down") ||
+				(name == "client-connect") ||
+				(name == "client-disconnect") ||
+				(name == "learn-address") ||
+				(name == "auth-user-pass-verify") ||
+				(name == "tls-verify") ||
+				(name == "ipchange") ||
+				(name == "iproute") ||
+				(name == "route-up") ||
+				(name == "route-pre-down")
 			  )
 				return true;
 
@@ -146,17 +170,9 @@ namespace Eddie.Core
 
 		public void AppendDirective(string name, string body, string comment)
 		{
-			if (IsMultipleDirective(name))
-			{
-				if (Directives.ContainsKey(name) == false)
-					Directives[name] = new List<Directive>();
-			}
-			else
-			{
-				Directives[name] = new List<Directive>();
-			}
+			name = UtilsString.StringPruneCharsNotIn(name.Trim(), AllowedCharsInDirectiveName);
 
-			// Exception: If start with -, remove.
+			// Eddie-special: If start with -, remove.
 			if (name.StartsWith("-"))
 			{
 				if (Directives.ContainsKey(name.Substring(1)))
@@ -164,6 +180,20 @@ namespace Eddie.Core
 			}
 			else
 			{
+				if (IsMultipleDirective(name))
+				{
+					if (Directives.ContainsKey(name) == false)
+						Directives[name] = new List<Directive>();
+				}
+				else
+				{
+					Directives[name] = new List<Directive>();
+				}
+
+				if (Engine.Instance.Storage.GetBool("openvpn.allow.script-security") == false)
+					if (IsGroupAllowScriptSecurity(name))
+						return;
+				
 				Directive d = new Directive();
 				d.Text = body.Trim();
 				d.Comment = comment.Trim();
@@ -288,6 +318,7 @@ namespace Eddie.Core
 					if (textL.StartsWith(";"))
 						continue;
 
+					// Presume there isn't any directive name with two or more words.
 					int posSpace = textL.IndexOf(" ");
 					if (posSpace == -1)
 					{

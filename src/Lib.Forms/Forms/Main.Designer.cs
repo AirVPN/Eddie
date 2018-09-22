@@ -147,6 +147,7 @@ namespace Eddie.Forms.Forms
 			this.tabLogs = new Eddie.Forms.Skin.TabPage();
 			this.cmdLogsCommand = new Eddie.Forms.Skin.Button();
 			this.lstLogs = new Eddie.Forms.Skin.ListView();
+			this.mnuUpdater = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
@@ -177,7 +178,7 @@ namespace Eddie.Forms.Forms
 			// 
 			mnuContextCopyAll.Image = global::Eddie.Forms.Properties.Resources.copy;
 			mnuContextCopyAll.Name = "mnuContextCopyAll";
-			mnuContextCopyAll.Size = new System.Drawing.Size(246, 26);
+			mnuContextCopyAll.Size = new System.Drawing.Size(341, 30);
 			mnuContextCopyAll.Text = "Copy all lines to clipboard";
 			mnuContextCopyAll.Click += new System.EventHandler(this.mnuContextCopyAll_Click);
 			// 
@@ -185,7 +186,7 @@ namespace Eddie.Forms.Forms
 			// 
 			mnuContextSaveAll.Image = global::Eddie.Forms.Properties.Resources.save;
 			mnuContextSaveAll.Name = "mnuContextSaveAll";
-			mnuContextSaveAll.Size = new System.Drawing.Size(246, 26);
+			mnuContextSaveAll.Size = new System.Drawing.Size(341, 30);
 			mnuContextSaveAll.Text = "Save all lines to file";
 			mnuContextSaveAll.Click += new System.EventHandler(this.mnuContextSaveAll_Click);
 			// 
@@ -193,7 +194,7 @@ namespace Eddie.Forms.Forms
 			// 
 			mnuContextCopySelected.Image = global::Eddie.Forms.Properties.Resources.copy;
 			mnuContextCopySelected.Name = "mnuContextCopySelected";
-			mnuContextCopySelected.Size = new System.Drawing.Size(246, 26);
+			mnuContextCopySelected.Size = new System.Drawing.Size(341, 30);
 			mnuContextCopySelected.Text = "Copy selected lines to clipboard";
 			mnuContextCopySelected.Click += new System.EventHandler(this.mnuContextCopySelected_Click);
 			// 
@@ -201,7 +202,7 @@ namespace Eddie.Forms.Forms
 			// 
 			mnuContextSaveSelected.Image = global::Eddie.Forms.Properties.Resources.save;
 			mnuContextSaveSelected.Name = "mnuContextSaveSelected";
-			mnuContextSaveSelected.Size = new System.Drawing.Size(246, 26);
+			mnuContextSaveSelected.Size = new System.Drawing.Size(341, 30);
 			mnuContextSaveSelected.Text = "Save selected lines to file";
 			mnuContextSaveSelected.Click += new System.EventHandler(this.mnuContextSaveSelected_Click);
 			// 
@@ -242,20 +243,21 @@ namespace Eddie.Forms.Forms
             this.mnuPorts,
             this.mnuSeparator1,
             this.mnuSettings,
+            this.mnuUpdater,
             this.mnuAbout,
             this.toolStripSeparator2,
             this.mnuRestore,
             this.mnuRestoreSep,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(246, 284);
+			this.mnuMain.Size = new System.Drawing.Size(338, 361);
 			// 
 			// mnuStatus
 			// 
 			this.mnuStatus.ForeColor = System.Drawing.SystemColors.GradientActiveCaption;
 			this.mnuStatus.Image = global::Eddie.Forms.Properties.Resources.status_yellow;
 			this.mnuStatus.Name = "mnuStatus";
-			this.mnuStatus.Size = new System.Drawing.Size(245, 26);
+			this.mnuStatus.Size = new System.Drawing.Size(337, 30);
 			this.mnuStatus.Click += new System.EventHandler(this.mnuStatus_Click);
 			// 
 			// mnuConnect
@@ -263,20 +265,20 @@ namespace Eddie.Forms.Forms
 			this.mnuConnect.ForeColor = System.Drawing.Color.Black;
 			this.mnuConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
 			this.mnuConnect.Name = "mnuConnect";
-			this.mnuConnect.Size = new System.Drawing.Size(245, 26);
+			this.mnuConnect.Size = new System.Drawing.Size(337, 30);
 			this.mnuConnect.Click += new System.EventHandler(this.mnuConnect_Click);
 			// 
 			// mnuSeparator3
 			// 
 			this.mnuSeparator3.Name = "mnuSeparator3";
-			this.mnuSeparator3.Size = new System.Drawing.Size(242, 6);
+			this.mnuSeparator3.Size = new System.Drawing.Size(334, 6);
 			// 
 			// mnuHomePage
 			// 
 			this.mnuHomePage.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuHomePage.Image = global::Eddie.Forms.Properties.Resources.home;
 			this.mnuHomePage.Name = "mnuHomePage";
-			this.mnuHomePage.Size = new System.Drawing.Size(245, 26);
+			this.mnuHomePage.Size = new System.Drawing.Size(337, 30);
 			this.mnuHomePage.Text = "Website";
 			this.mnuHomePage.Click += new System.EventHandler(this.mnuHomePage_Click);
 			// 
@@ -285,7 +287,7 @@ namespace Eddie.Forms.Forms
 			this.mnuUser.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuUser.Image = global::Eddie.Forms.Properties.Resources.stats;
 			this.mnuUser.Name = "mnuUser";
-			this.mnuUser.Size = new System.Drawing.Size(245, 26);
+			this.mnuUser.Size = new System.Drawing.Size(337, 30);
 			this.mnuUser.Text = "Your &details and statistics (Web)";
 			this.mnuUser.Click += new System.EventHandler(this.mnuUser_Click);
 			// 
@@ -294,21 +296,21 @@ namespace Eddie.Forms.Forms
 			this.mnuPorts.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuPorts.Image = global::Eddie.Forms.Properties.Resources.ports;
 			this.mnuPorts.Name = "mnuPorts";
-			this.mnuPorts.Size = new System.Drawing.Size(245, 26);
+			this.mnuPorts.Size = new System.Drawing.Size(337, 30);
 			this.mnuPorts.Text = "Forwarding &Ports (Web)";
 			this.mnuPorts.Click += new System.EventHandler(this.mnuPorts_Click);
 			// 
 			// mnuSeparator1
 			// 
 			this.mnuSeparator1.Name = "mnuSeparator1";
-			this.mnuSeparator1.Size = new System.Drawing.Size(242, 6);
+			this.mnuSeparator1.Size = new System.Drawing.Size(334, 6);
 			// 
 			// mnuSettings
 			// 
 			this.mnuSettings.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuSettings.Image = global::Eddie.Forms.Properties.Resources.settings;
 			this.mnuSettings.Name = "mnuSettings";
-			this.mnuSettings.Size = new System.Drawing.Size(245, 26);
+			this.mnuSettings.Size = new System.Drawing.Size(337, 30);
 			this.mnuSettings.Text = "&Preferences";
 			this.mnuSettings.Click += new System.EventHandler(this.mnuSettings_Click);
 			// 
@@ -317,33 +319,33 @@ namespace Eddie.Forms.Forms
 			this.mnuAbout.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuAbout.Image = global::Eddie.Forms.Properties.Resources.about;
 			this.mnuAbout.Name = "mnuAbout";
-			this.mnuAbout.Size = new System.Drawing.Size(245, 26);
+			this.mnuAbout.Size = new System.Drawing.Size(337, 30);
 			this.mnuAbout.Text = "&About";
 			this.mnuAbout.Click += new System.EventHandler(this.mnuAbout_Click);
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(242, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(334, 6);
 			// 
 			// mnuRestore
 			// 
 			this.mnuRestore.Image = global::Eddie.Forms.Properties.Resources.restore;
 			this.mnuRestore.Name = "mnuRestore";
-			this.mnuRestore.Size = new System.Drawing.Size(245, 26);
+			this.mnuRestore.Size = new System.Drawing.Size(337, 30);
 			this.mnuRestore.Text = "&Restore";
 			this.mnuRestore.Click += new System.EventHandler(this.mnuRestore_Click);
 			// 
 			// mnuRestoreSep
 			// 
 			this.mnuRestoreSep.Name = "mnuRestoreSep";
-			this.mnuRestoreSep.Size = new System.Drawing.Size(242, 6);
+			this.mnuRestoreSep.Size = new System.Drawing.Size(334, 6);
 			// 
 			// mnuExit
 			// 
 			this.mnuExit.Image = global::Eddie.Forms.Properties.Resources.exit;
 			this.mnuExit.Name = "mnuExit";
-			this.mnuExit.Size = new System.Drawing.Size(245, 26);
+			this.mnuExit.Size = new System.Drawing.Size(337, 30);
 			this.mnuExit.Text = "E&xit";
 			this.mnuExit.Click += new System.EventHandler(this.mnuExit_Click);
 			// 
@@ -607,10 +609,9 @@ namespace Eddie.Forms.Forms
 			this.cmdServersRefresh.FlatAppearance.BorderSize = 0;
 			this.cmdServersRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdServersRefresh.Image = global::Eddie.Forms.Properties.Resources.reload;
-			this.cmdServersRefresh.Location = new System.Drawing.Point(695, 295);
-			this.cmdServersRefresh.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersRefresh.Location = new System.Drawing.Point(1042, 442);
 			this.cmdServersRefresh.Name = "cmdServersRefresh";
-			this.cmdServersRefresh.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersRefresh.Size = new System.Drawing.Size(42, 42);
 			this.cmdServersRefresh.TabIndex = 66;
 			this.cmdServersRefresh.UseVisualStyleBackColor = true;
 			this.cmdServersRefresh.Click += new System.EventHandler(this.cmdServersRefresh_Click);
@@ -623,20 +624,19 @@ namespace Eddie.Forms.Forms
 			this.cboScoreType.Items.AddRange(new object[] {
             "Speed",
             "Latency"});
-			this.cboScoreType.Location = new System.Drawing.Point(427, 303);
-			this.cboScoreType.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.cboScoreType.Location = new System.Drawing.Point(640, 454);
+			this.cboScoreType.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
 			this.cboScoreType.Name = "cboScoreType";
-			this.cboScoreType.Size = new System.Drawing.Size(100, 21);
+			this.cboScoreType.Size = new System.Drawing.Size(148, 28);
 			this.cboScoreType.TabIndex = 49;
 			this.cboScoreType.SelectionChangeCommitted += new System.EventHandler(this.cboScoreType_SelectionChangeCommitted);
 			// 
 			// chkLockLast
 			// 
 			this.chkLockLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.chkLockLast.Location = new System.Drawing.Point(544, 303);
-			this.chkLockLast.Margin = new System.Windows.Forms.Padding(2);
+			this.chkLockLast.Location = new System.Drawing.Point(816, 454);
 			this.chkLockLast.Name = "chkLockLast";
-			this.chkLockLast.Size = new System.Drawing.Size(139, 21);
+			this.chkLockLast.Size = new System.Drawing.Size(208, 32);
 			this.chkLockLast.TabIndex = 46;
 			this.chkLockLast.Text = "Lock Current";
 			this.chkLockLast.UseVisualStyleBackColor = true;
@@ -651,10 +651,9 @@ namespace Eddie.Forms.Forms
 			this.cmdServersUndefined.FlatAppearance.BorderSize = 0;
 			this.cmdServersUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdServersUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
-			this.cmdServersUndefined.Location = new System.Drawing.Point(695, 110);
-			this.cmdServersUndefined.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersUndefined.Location = new System.Drawing.Point(1042, 165);
 			this.cmdServersUndefined.Name = "cmdServersUndefined";
-			this.cmdServersUndefined.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersUndefined.Size = new System.Drawing.Size(42, 42);
 			this.cmdServersUndefined.TabIndex = 45;
 			this.cmdServersUndefined.UseVisualStyleBackColor = true;
 			this.cmdServersUndefined.Click += new System.EventHandler(this.cmdServersUndefined_Click);
@@ -668,10 +667,9 @@ namespace Eddie.Forms.Forms
 			this.cmdServersBlackList.FlatAppearance.BorderSize = 0;
 			this.cmdServersBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdServersBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.cmdServersBlackList.Location = new System.Drawing.Point(695, 78);
-			this.cmdServersBlackList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersBlackList.Location = new System.Drawing.Point(1042, 117);
 			this.cmdServersBlackList.Name = "cmdServersBlackList";
-			this.cmdServersBlackList.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersBlackList.Size = new System.Drawing.Size(42, 42);
 			this.cmdServersBlackList.TabIndex = 44;
 			this.cmdServersBlackList.UseVisualStyleBackColor = true;
 			this.cmdServersBlackList.Click += new System.EventHandler(this.cmdServersBlackList_Click);
@@ -685,10 +683,9 @@ namespace Eddie.Forms.Forms
 			this.cmdServersWhiteList.FlatAppearance.BorderSize = 0;
 			this.cmdServersWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdServersWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
-			this.cmdServersWhiteList.Location = new System.Drawing.Point(695, 46);
-			this.cmdServersWhiteList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersWhiteList.Location = new System.Drawing.Point(1042, 69);
 			this.cmdServersWhiteList.Name = "cmdServersWhiteList";
-			this.cmdServersWhiteList.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersWhiteList.Size = new System.Drawing.Size(42, 42);
 			this.cmdServersWhiteList.TabIndex = 43;
 			this.cmdServersWhiteList.UseVisualStyleBackColor = true;
 			this.cmdServersWhiteList.Click += new System.EventHandler(this.cmdServersWhiteList_Click);
@@ -702,10 +699,9 @@ namespace Eddie.Forms.Forms
 			this.cmdServersConnect.FlatAppearance.BorderSize = 0;
 			this.cmdServersConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdServersConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
-			this.cmdServersConnect.Location = new System.Drawing.Point(695, 4);
-			this.cmdServersConnect.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersConnect.Location = new System.Drawing.Point(1042, 6);
 			this.cmdServersConnect.Name = "cmdServersConnect";
-			this.cmdServersConnect.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersConnect.Size = new System.Drawing.Size(42, 42);
 			this.cmdServersConnect.TabIndex = 42;
 			this.cmdServersConnect.UseVisualStyleBackColor = true;
 			this.cmdServersConnect.Click += new System.EventHandler(this.cmdServersConnect_Click);
@@ -719,10 +715,9 @@ namespace Eddie.Forms.Forms
 			this.cmdLogsSupport.FlatAppearance.BorderSize = 0;
 			this.cmdLogsSupport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogsSupport.Image = global::Eddie.Forms.Properties.Resources.support;
-			this.cmdLogsSupport.Location = new System.Drawing.Point(695, 119);
-			this.cmdLogsSupport.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsSupport.Location = new System.Drawing.Point(1042, 178);
 			this.cmdLogsSupport.Name = "cmdLogsSupport";
-			this.cmdLogsSupport.Size = new System.Drawing.Size(28, 28);
+			this.cmdLogsSupport.Size = new System.Drawing.Size(42, 42);
 			this.cmdLogsSupport.TabIndex = 51;
 			this.cmdLogsSupport.UseVisualStyleBackColor = true;
 			this.cmdLogsSupport.Click += new System.EventHandler(this.cmdLogsSupport_Click);
@@ -736,10 +731,9 @@ namespace Eddie.Forms.Forms
 			this.cmdLogsClean.FlatAppearance.BorderSize = 0;
 			this.cmdLogsClean.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogsClean.Image = global::Eddie.Forms.Properties.Resources.clear;
-			this.cmdLogsClean.Location = new System.Drawing.Point(695, 4);
-			this.cmdLogsClean.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsClean.Location = new System.Drawing.Point(1042, 6);
 			this.cmdLogsClean.Name = "cmdLogsClean";
-			this.cmdLogsClean.Size = new System.Drawing.Size(28, 28);
+			this.cmdLogsClean.Size = new System.Drawing.Size(42, 42);
 			this.cmdLogsClean.TabIndex = 48;
 			this.cmdLogsClean.UseVisualStyleBackColor = true;
 			this.cmdLogsClean.Click += new System.EventHandler(this.cmdLogsClean_Click);
@@ -753,10 +747,9 @@ namespace Eddie.Forms.Forms
 			this.cmdLogsCopy.FlatAppearance.BorderSize = 0;
 			this.cmdLogsCopy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogsCopy.Image = global::Eddie.Forms.Properties.Resources.copy;
-			this.cmdLogsCopy.Location = new System.Drawing.Point(695, 36);
-			this.cmdLogsCopy.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsCopy.Location = new System.Drawing.Point(1042, 54);
 			this.cmdLogsCopy.Name = "cmdLogsCopy";
-			this.cmdLogsCopy.Size = new System.Drawing.Size(28, 28);
+			this.cmdLogsCopy.Size = new System.Drawing.Size(42, 42);
 			this.cmdLogsCopy.TabIndex = 47;
 			this.cmdLogsCopy.UseVisualStyleBackColor = true;
 			this.cmdLogsCopy.Click += new System.EventHandler(this.cmdLogsCopy_Click);
@@ -770,10 +763,9 @@ namespace Eddie.Forms.Forms
 			this.cmdLogsSave.FlatAppearance.BorderSize = 0;
 			this.cmdLogsSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogsSave.Image = global::Eddie.Forms.Properties.Resources.save;
-			this.cmdLogsSave.Location = new System.Drawing.Point(695, 68);
-			this.cmdLogsSave.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsSave.Location = new System.Drawing.Point(1042, 102);
 			this.cmdLogsSave.Name = "cmdLogsSave";
-			this.cmdLogsSave.Size = new System.Drawing.Size(28, 28);
+			this.cmdLogsSave.Size = new System.Drawing.Size(42, 42);
 			this.cmdLogsSave.TabIndex = 46;
 			this.cmdLogsSave.UseVisualStyleBackColor = true;
 			this.cmdLogsSave.Click += new System.EventHandler(this.cmdLogsSave_Click);
@@ -787,10 +779,9 @@ namespace Eddie.Forms.Forms
 			this.cmdAreasUndefined.FlatAppearance.BorderSize = 0;
 			this.cmdAreasUndefined.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
-			this.cmdAreasUndefined.Location = new System.Drawing.Point(695, 68);
-			this.cmdAreasUndefined.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdAreasUndefined.Location = new System.Drawing.Point(1042, 102);
 			this.cmdAreasUndefined.Name = "cmdAreasUndefined";
-			this.cmdAreasUndefined.Size = new System.Drawing.Size(28, 28);
+			this.cmdAreasUndefined.Size = new System.Drawing.Size(42, 42);
 			this.cmdAreasUndefined.TabIndex = 52;
 			this.cmdAreasUndefined.UseVisualStyleBackColor = true;
 			this.cmdAreasUndefined.Click += new System.EventHandler(this.cmdAreasUndefined_Click);
@@ -804,10 +795,9 @@ namespace Eddie.Forms.Forms
 			this.cmdAreasBlackList.FlatAppearance.BorderSize = 0;
 			this.cmdAreasBlackList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdAreasBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.cmdAreasBlackList.Location = new System.Drawing.Point(695, 36);
-			this.cmdAreasBlackList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdAreasBlackList.Location = new System.Drawing.Point(1042, 54);
 			this.cmdAreasBlackList.Name = "cmdAreasBlackList";
-			this.cmdAreasBlackList.Size = new System.Drawing.Size(28, 28);
+			this.cmdAreasBlackList.Size = new System.Drawing.Size(42, 42);
 			this.cmdAreasBlackList.TabIndex = 51;
 			this.cmdAreasBlackList.UseVisualStyleBackColor = true;
 			this.cmdAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
@@ -821,10 +811,9 @@ namespace Eddie.Forms.Forms
 			this.cmdAreasWhiteList.FlatAppearance.BorderSize = 0;
 			this.cmdAreasWhiteList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdAreasWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
-			this.cmdAreasWhiteList.Location = new System.Drawing.Point(695, 4);
-			this.cmdAreasWhiteList.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdAreasWhiteList.Location = new System.Drawing.Point(1042, 6);
 			this.cmdAreasWhiteList.Name = "cmdAreasWhiteList";
-			this.cmdAreasWhiteList.Size = new System.Drawing.Size(28, 28);
+			this.cmdAreasWhiteList.Size = new System.Drawing.Size(42, 42);
 			this.cmdAreasWhiteList.TabIndex = 61;
 			this.cmdAreasWhiteList.UseVisualStyleBackColor = true;
 			this.cmdAreasWhiteList.Click += new System.EventHandler(this.cmdAreasWhiteList_Click);
@@ -839,12 +828,12 @@ namespace Eddie.Forms.Forms
             mnuContextCopySelected,
             mnuContextSaveSelected});
 			this.mnuLogsContext.Name = "mnuContext";
-			this.mnuLogsContext.Size = new System.Drawing.Size(247, 114);
+			this.mnuLogsContext.Size = new System.Drawing.Size(342, 130);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(243, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(338, 6);
 			// 
 			// mnuServers
 			// 
@@ -861,26 +850,26 @@ namespace Eddie.Forms.Forms
             this.toolStripSeparator3,
             this.mnuServersRefresh});
 			this.mnuServers.Name = "mnuServers";
-			this.mnuServers.Size = new System.Drawing.Size(150, 204);
+			this.mnuServers.Size = new System.Drawing.Size(193, 232);
 			// 
 			// mnuServersConnect
 			// 
 			this.mnuServersConnect.Image = global::Eddie.Forms.Properties.Resources.connect;
 			this.mnuServersConnect.Name = "mnuServersConnect";
-			this.mnuServersConnect.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersConnect.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersConnect.Text = "Connect now";
 			this.mnuServersConnect.Click += new System.EventHandler(this.mnuServersConnect_Click);
 			// 
 			// mnuServersSeparator1
 			// 
 			this.mnuServersSeparator1.Name = "mnuServersSeparator1";
-			this.mnuServersSeparator1.Size = new System.Drawing.Size(146, 6);
+			this.mnuServersSeparator1.Size = new System.Drawing.Size(189, 6);
 			// 
 			// mnuServersWhiteList
 			// 
 			this.mnuServersWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
 			this.mnuServersWhiteList.Name = "mnuServersWhiteList";
-			this.mnuServersWhiteList.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersWhiteList.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersWhiteList.Text = "Whitelist";
 			this.mnuServersWhiteList.Click += new System.EventHandler(this.mnuServersWhitelist_Click);
 			// 
@@ -888,7 +877,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuServersBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
 			this.mnuServersBlackList.Name = "mnuServersBlackList";
-			this.mnuServersBlackList.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersBlackList.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersBlackList.Text = "Blacklist";
 			this.mnuServersBlackList.Click += new System.EventHandler(this.mnuServersBlacklist_Click);
 			// 
@@ -896,20 +885,20 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuServersUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
 			this.mnuServersUndefined.Name = "mnuServersUndefined";
-			this.mnuServersUndefined.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersUndefined.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersUndefined.Text = "Undefined";
 			this.mnuServersUndefined.Click += new System.EventHandler(this.mnuServersUndefined_Click);
 			// 
 			// toolStripSeparator4
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(146, 6);
+			this.toolStripSeparator4.Size = new System.Drawing.Size(189, 6);
 			// 
 			// mnuServersRename
 			// 
 			this.mnuServersRename.Image = global::Eddie.Forms.Properties.Resources.rename;
 			this.mnuServersRename.Name = "mnuServersRename";
-			this.mnuServersRename.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersRename.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersRename.Text = "Rename";
 			this.mnuServersRename.Click += new System.EventHandler(this.mnuServersRename_Click);
 			// 
@@ -917,20 +906,20 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuServersMore.Image = global::Eddie.Forms.Properties.Resources.more;
 			this.mnuServersMore.Name = "mnuServersMore";
-			this.mnuServersMore.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersMore.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersMore.Text = "More";
 			this.mnuServersMore.Click += new System.EventHandler(this.mnuServersMore_Click);
 			// 
 			// toolStripSeparator3
 			// 
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(146, 6);
+			this.toolStripSeparator3.Size = new System.Drawing.Size(189, 6);
 			// 
 			// mnuServersRefresh
 			// 
 			this.mnuServersRefresh.Image = global::Eddie.Forms.Properties.Resources.reload;
 			this.mnuServersRefresh.Name = "mnuServersRefresh";
-			this.mnuServersRefresh.Size = new System.Drawing.Size(149, 26);
+			this.mnuServersRefresh.Size = new System.Drawing.Size(192, 30);
 			this.mnuServersRefresh.Text = "Refresh list";
 			this.mnuServersRefresh.Click += new System.EventHandler(this.mnuServersRefresh_Click);
 			// 
@@ -942,13 +931,13 @@ namespace Eddie.Forms.Forms
             this.mnuAreasBlackList,
             this.mnuAreasUndefined});
 			this.mnuAreas.Name = "mnuAreas";
-			this.mnuAreas.Size = new System.Drawing.Size(134, 82);
+			this.mnuAreas.Size = new System.Drawing.Size(171, 94);
 			// 
 			// mnuAreasWhiteList
 			// 
 			this.mnuAreasWhiteList.Image = global::Eddie.Forms.Properties.Resources.blacklist_0;
 			this.mnuAreasWhiteList.Name = "mnuAreasWhiteList";
-			this.mnuAreasWhiteList.Size = new System.Drawing.Size(133, 26);
+			this.mnuAreasWhiteList.Size = new System.Drawing.Size(170, 30);
 			this.mnuAreasWhiteList.Text = "Whitelist";
 			this.mnuAreasWhiteList.Click += new System.EventHandler(this.mnuAreasWhiteList_Click);
 			// 
@@ -956,7 +945,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuAreasBlackList.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
 			this.mnuAreasBlackList.Name = "mnuAreasBlackList";
-			this.mnuAreasBlackList.Size = new System.Drawing.Size(133, 26);
+			this.mnuAreasBlackList.Size = new System.Drawing.Size(170, 30);
 			this.mnuAreasBlackList.Text = "Blacklist";
 			this.mnuAreasBlackList.Click += new System.EventHandler(this.cmdAreasBlackList_Click);
 			// 
@@ -964,7 +953,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuAreasUndefined.Image = global::Eddie.Forms.Properties.Resources.blacklist_2;
 			this.mnuAreasUndefined.Name = "mnuAreasUndefined";
-			this.mnuAreasUndefined.Size = new System.Drawing.Size(133, 26);
+			this.mnuAreasUndefined.Size = new System.Drawing.Size(170, 30);
 			this.mnuAreasUndefined.Text = "Undefined";
 			this.mnuAreasUndefined.Click += new System.EventHandler(this.mnuAreasUndefined_Click);
 			// 
@@ -984,7 +973,7 @@ namespace Eddie.Forms.Forms
 			this.tabMain.Margin = new System.Windows.Forms.Padding(0);
 			this.tabMain.Name = "tabMain";
 			this.tabMain.SelectedIndex = 0;
-			this.tabMain.Size = new System.Drawing.Size(738, 359);
+			this.tabMain.Size = new System.Drawing.Size(1107, 538);
 			this.tabMain.TabIndex = 21;
 			this.tabMain.Visible = false;
 			// 
@@ -993,9 +982,10 @@ namespace Eddie.Forms.Forms
 			this.tabOverview.Controls.Add(this.pnlConnected);
 			this.tabOverview.Controls.Add(this.pnlWelcome);
 			this.tabOverview.Controls.Add(this.pnlWaiting);
-			this.tabOverview.Location = new System.Drawing.Point(4, 22);
+			this.tabOverview.Location = new System.Drawing.Point(4, 29);
+			this.tabOverview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.tabOverview.Name = "tabOverview";
-			this.tabOverview.Size = new System.Drawing.Size(730, 333);
+			this.tabOverview.Size = new System.Drawing.Size(1099, 505);
 			this.tabOverview.TabIndex = 4;
 			this.tabOverview.Text = "Overview";
 			this.tabOverview.UseVisualStyleBackColor = true;
@@ -1016,35 +1006,39 @@ namespace Eddie.Forms.Forms
 			this.pnlConnected.Controls.Add(this.lblConnectedTo);
 			this.pnlConnected.Controls.Add(this.lblConnectedServerName);
 			this.pnlConnected.Controls.Add(this.lblConnectedCountry);
-			this.pnlConnected.Location = new System.Drawing.Point(382, 261);
+			this.pnlConnected.Location = new System.Drawing.Point(573, 392);
+			this.pnlConnected.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.pnlConnected.Name = "pnlConnected";
-			this.pnlConnected.Size = new System.Drawing.Size(470, 218);
+			this.pnlConnected.Size = new System.Drawing.Size(705, 327);
 			this.pnlConnected.TabIndex = 66;
 			this.pnlConnected.Visible = false;
 			// 
 			// txtConnectedExitIp
 			// 
-			this.txtConnectedExitIp.Location = new System.Drawing.Point(166, 120);
+			this.txtConnectedExitIp.Location = new System.Drawing.Point(249, 180);
+			this.txtConnectedExitIp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedExitIp.Name = "txtConnectedExitIp";
-			this.txtConnectedExitIp.Size = new System.Drawing.Size(288, 24);
+			this.txtConnectedExitIp.Size = new System.Drawing.Size(432, 36);
 			this.txtConnectedExitIp.TabIndex = 69;
 			this.txtConnectedExitIp.Text = "1.2.3.4";
 			this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// lblConnectedExitIp
 			// 
-			this.lblConnectedExitIp.Location = new System.Drawing.Point(19, 120);
+			this.lblConnectedExitIp.Location = new System.Drawing.Point(28, 180);
+			this.lblConnectedExitIp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedExitIp.Name = "lblConnectedExitIp";
-			this.lblConnectedExitIp.Size = new System.Drawing.Size(138, 24);
+			this.lblConnectedExitIp.Size = new System.Drawing.Size(207, 36);
 			this.lblConnectedExitIp.TabIndex = 68;
 			this.lblConnectedExitIp.Text = "Public Exit IP:";
 			this.lblConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblConnectedUpload
 			// 
-			this.lblConnectedUpload.Location = new System.Drawing.Point(240, 73);
+			this.lblConnectedUpload.Location = new System.Drawing.Point(360, 110);
+			this.lblConnectedUpload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedUpload.Name = "lblConnectedUpload";
-			this.lblConnectedUpload.Size = new System.Drawing.Size(65, 20);
+			this.lblConnectedUpload.Size = new System.Drawing.Size(98, 30);
 			this.lblConnectedUpload.TabIndex = 65;
 			this.lblConnectedUpload.Text = "Upload:";
 			this.lblConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1054,9 +1048,10 @@ namespace Eddie.Forms.Forms
 			this.txtConnectedUpload.BackColor = System.Drawing.Color.White;
 			this.txtConnectedUpload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtConnectedUpload.ForeColor = System.Drawing.Color.ForestGreen;
-			this.txtConnectedUpload.Location = new System.Drawing.Point(308, 67);
+			this.txtConnectedUpload.Location = new System.Drawing.Point(462, 100);
+			this.txtConnectedUpload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedUpload.Name = "txtConnectedUpload";
-			this.txtConnectedUpload.Size = new System.Drawing.Size(144, 40);
+			this.txtConnectedUpload.Size = new System.Drawing.Size(216, 60);
 			this.txtConnectedUpload.TabIndex = 67;
 			this.txtConnectedUpload.Text = "14332 kb/s";
 			this.txtConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1066,36 +1061,40 @@ namespace Eddie.Forms.Forms
 			this.txtConnectedDownload.BackColor = System.Drawing.Color.White;
 			this.txtConnectedDownload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtConnectedDownload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(91)))), ((int)(((byte)(157)))), ((int)(((byte)(255)))));
-			this.txtConnectedDownload.Location = new System.Drawing.Point(90, 67);
+			this.txtConnectedDownload.Location = new System.Drawing.Point(135, 100);
+			this.txtConnectedDownload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedDownload.Name = "txtConnectedDownload";
-			this.txtConnectedDownload.Size = new System.Drawing.Size(144, 40);
+			this.txtConnectedDownload.Size = new System.Drawing.Size(216, 60);
 			this.txtConnectedDownload.TabIndex = 65;
 			this.txtConnectedDownload.Text = "14332 kb/s";
 			this.txtConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// lblConnectedDownload
 			// 
-			this.lblConnectedDownload.Location = new System.Drawing.Point(13, 75);
+			this.lblConnectedDownload.Location = new System.Drawing.Point(20, 112);
+			this.lblConnectedDownload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedDownload.Name = "lblConnectedDownload";
-			this.lblConnectedDownload.Size = new System.Drawing.Size(74, 20);
+			this.lblConnectedDownload.Size = new System.Drawing.Size(111, 30);
 			this.lblConnectedDownload.TabIndex = 64;
 			this.lblConnectedDownload.Text = "Download:";
 			this.lblConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// txtConnectedSince
 			// 
-			this.txtConnectedSince.Location = new System.Drawing.Point(166, 148);
+			this.txtConnectedSince.Location = new System.Drawing.Point(249, 222);
+			this.txtConnectedSince.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedSince.Name = "txtConnectedSince";
-			this.txtConnectedSince.Size = new System.Drawing.Size(288, 24);
+			this.txtConnectedSince.Size = new System.Drawing.Size(432, 36);
 			this.txtConnectedSince.TabIndex = 63;
 			this.txtConnectedSince.Text = "VPN Time";
 			this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// lblConnectedSince
 			// 
-			this.lblConnectedSince.Location = new System.Drawing.Point(16, 148);
+			this.lblConnectedSince.Location = new System.Drawing.Point(24, 222);
+			this.lblConnectedSince.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedSince.Name = "lblConnectedSince";
-			this.lblConnectedSince.Size = new System.Drawing.Size(141, 24);
+			this.lblConnectedSince.Size = new System.Drawing.Size(212, 36);
 			this.lblConnectedSince.TabIndex = 62;
 			this.lblConnectedSince.Text = "Connection time:";
 			this.lblConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1108,10 +1107,10 @@ namespace Eddie.Forms.Forms
 			this.cmdDisconnect.FlatAppearance.BorderSize = 0;
 			this.cmdDisconnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdDisconnect.ImageKey = "enter";
-			this.cmdDisconnect.Location = new System.Drawing.Point(16, 179);
+			this.cmdDisconnect.Location = new System.Drawing.Point(24, 268);
 			this.cmdDisconnect.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdDisconnect.Name = "cmdDisconnect";
-			this.cmdDisconnect.Size = new System.Drawing.Size(438, 34);
+			this.cmdDisconnect.Size = new System.Drawing.Size(657, 51);
 			this.cmdDisconnect.TabIndex = 61;
 			this.cmdDisconnect.Text = "Disconnect";
 			this.cmdDisconnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1120,18 +1119,20 @@ namespace Eddie.Forms.Forms
 			// 
 			// lblConnectedLocation
 			// 
-			this.lblConnectedLocation.Location = new System.Drawing.Point(166, 42);
+			this.lblConnectedLocation.Location = new System.Drawing.Point(249, 63);
+			this.lblConnectedLocation.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedLocation.Name = "lblConnectedLocation";
-			this.lblConnectedLocation.Size = new System.Drawing.Size(284, 26);
+			this.lblConnectedLocation.Size = new System.Drawing.Size(426, 39);
 			this.lblConnectedLocation.TabIndex = 3;
 			this.lblConnectedLocation.Text = "Location";
 			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// lblConnectedTo
 			// 
-			this.lblConnectedTo.Location = new System.Drawing.Point(10, 9);
+			this.lblConnectedTo.Location = new System.Drawing.Point(15, 14);
+			this.lblConnectedTo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedTo.Name = "lblConnectedTo";
-			this.lblConnectedTo.Size = new System.Drawing.Size(106, 30);
+			this.lblConnectedTo.Size = new System.Drawing.Size(159, 45);
 			this.lblConnectedTo.TabIndex = 2;
 			this.lblConnectedTo.Text = "Connected to:";
 			this.lblConnectedTo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1140,9 +1141,10 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblConnectedServerName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
 			this.lblConnectedServerName.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblConnectedServerName.Location = new System.Drawing.Point(164, 9);
+			this.lblConnectedServerName.Location = new System.Drawing.Point(246, 14);
+			this.lblConnectedServerName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedServerName.Name = "lblConnectedServerName";
-			this.lblConnectedServerName.Size = new System.Drawing.Size(289, 30);
+			this.lblConnectedServerName.Size = new System.Drawing.Size(434, 45);
 			this.lblConnectedServerName.TabIndex = 1;
 			this.lblConnectedServerName.Text = "Server Name";
 			this.lblConnectedServerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1151,9 +1153,10 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblConnectedCountry.BackColor = System.Drawing.Color.Transparent;
 			this.lblConnectedCountry.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.lblConnectedCountry.Location = new System.Drawing.Point(135, 13);
+			this.lblConnectedCountry.Location = new System.Drawing.Point(202, 20);
+			this.lblConnectedCountry.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedCountry.Name = "lblConnectedCountry";
-			this.lblConnectedCountry.Size = new System.Drawing.Size(22, 20);
+			this.lblConnectedCountry.Size = new System.Drawing.Size(33, 30);
 			this.lblConnectedCountry.TabIndex = 0;
 			this.lblConnectedCountry.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
@@ -1173,19 +1176,19 @@ namespace Eddie.Forms.Forms
 			this.pnlWelcome.Controls.Add(this.chkRemember);
 			this.pnlWelcome.Controls.Add(this.txtPassword);
 			this.pnlWelcome.Controls.Add(this.txtLogin);
-			this.pnlWelcome.Location = new System.Drawing.Point(16, 28);
-			this.pnlWelcome.Margin = new System.Windows.Forms.Padding(2);
+			this.pnlWelcome.Location = new System.Drawing.Point(24, 42);
 			this.pnlWelcome.Name = "pnlWelcome";
-			this.pnlWelcome.Size = new System.Drawing.Size(470, 217);
+			this.pnlWelcome.Size = new System.Drawing.Size(705, 326);
 			this.pnlWelcome.TabIndex = 53;
 			this.pnlWelcome.Visible = false;
 			// 
 			// cboKey
 			// 
 			this.cboKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboKey.Location = new System.Drawing.Point(169, 86);
+			this.cboKey.Location = new System.Drawing.Point(254, 129);
+			this.cboKey.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.cboKey.Name = "cboKey";
-			this.cboKey.Size = new System.Drawing.Size(190, 21);
+			this.cboKey.Size = new System.Drawing.Size(283, 28);
 			this.cboKey.TabIndex = 75;
 			this.cboKey.SelectedIndexChanged += new System.EventHandler(this.cboKey_SelectedIndexChanged);
 			// 
@@ -1193,19 +1196,19 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblKey.BackColor = System.Drawing.Color.Transparent;
 			this.lblKey.ForeColor = System.Drawing.Color.Black;
-			this.lblKey.Location = new System.Drawing.Point(89, 88);
-			this.lblKey.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblKey.Location = new System.Drawing.Point(134, 132);
 			this.lblKey.Name = "lblKey";
-			this.lblKey.Size = new System.Drawing.Size(76, 20);
+			this.lblKey.Size = new System.Drawing.Size(114, 30);
 			this.lblKey.TabIndex = 74;
 			this.lblKey.Text = "Device:";
 			this.lblKey.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblConnectSubtitle
 			// 
-			this.lblConnectSubtitle.Location = new System.Drawing.Point(17, 153);
+			this.lblConnectSubtitle.Location = new System.Drawing.Point(26, 230);
+			this.lblConnectSubtitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectSubtitle.Name = "lblConnectSubtitle";
-			this.lblConnectSubtitle.Size = new System.Drawing.Size(433, 18);
+			this.lblConnectSubtitle.Size = new System.Drawing.Size(650, 27);
 			this.lblConnectSubtitle.TabIndex = 73;
 			this.lblConnectSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
@@ -1217,10 +1220,10 @@ namespace Eddie.Forms.Forms
 			this.cmdLockedNetwork.FlatAppearance.BorderSize = 0;
 			this.cmdLockedNetwork.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLockedNetwork.ImageKey = "enter";
-			this.cmdLockedNetwork.Location = new System.Drawing.Point(62, 179);
+			this.cmdLockedNetwork.Location = new System.Drawing.Point(93, 268);
 			this.cmdLockedNetwork.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdLockedNetwork.Name = "cmdLockedNetwork";
-			this.cmdLockedNetwork.Size = new System.Drawing.Size(388, 34);
+			this.cmdLockedNetwork.Size = new System.Drawing.Size(582, 51);
 			this.cmdLockedNetwork.TabIndex = 71;
 			this.cmdLockedNetwork.Text = "Enter";
 			this.cmdLockedNetwork.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1231,16 +1234,18 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblLoginIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.lblLoginIcon.Image = global::Eddie.Forms.Properties.Resources.login;
-			this.lblLoginIcon.Location = new System.Drawing.Point(15, 4);
+			this.lblLoginIcon.Location = new System.Drawing.Point(22, 6);
+			this.lblLoginIcon.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLoginIcon.Name = "lblLoginIcon";
-			this.lblLoginIcon.Size = new System.Drawing.Size(70, 77);
+			this.lblLoginIcon.Size = new System.Drawing.Size(105, 116);
 			this.lblLoginIcon.TabIndex = 70;
 			// 
 			// imgLockedNetwork
 			// 
-			this.imgLockedNetwork.Location = new System.Drawing.Point(17, 176);
+			this.imgLockedNetwork.Location = new System.Drawing.Point(26, 264);
+			this.imgLockedNetwork.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.imgLockedNetwork.Name = "imgLockedNetwork";
-			this.imgLockedNetwork.Size = new System.Drawing.Size(41, 38);
+			this.imgLockedNetwork.Size = new System.Drawing.Size(62, 57);
 			this.imgLockedNetwork.TabIndex = 63;
 			this.imgLockedNetwork.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
@@ -1252,10 +1257,10 @@ namespace Eddie.Forms.Forms
 			this.cmdLogin.FlatAppearance.BorderSize = 0;
 			this.cmdLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogin.ImageKey = "enter";
-			this.cmdLogin.Location = new System.Drawing.Point(366, 2);
+			this.cmdLogin.Location = new System.Drawing.Point(549, 3);
 			this.cmdLogin.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdLogin.Name = "cmdLogin";
-			this.cmdLogin.Size = new System.Drawing.Size(84, 48);
+			this.cmdLogin.Size = new System.Drawing.Size(126, 72);
 			this.cmdLogin.TabIndex = 61;
 			this.cmdLogin.Text = "Login";
 			this.cmdLogin.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1266,10 +1271,9 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblPassword.BackColor = System.Drawing.Color.Transparent;
 			this.lblPassword.ForeColor = System.Drawing.Color.Black;
-			this.lblPassword.Location = new System.Drawing.Point(89, 30);
-			this.lblPassword.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblPassword.Location = new System.Drawing.Point(134, 45);
 			this.lblPassword.Name = "lblPassword";
-			this.lblPassword.Size = new System.Drawing.Size(76, 20);
+			this.lblPassword.Size = new System.Drawing.Size(114, 30);
 			this.lblPassword.TabIndex = 56;
 			this.lblPassword.Text = "Password:";
 			this.lblPassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1278,10 +1282,9 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblLogin.BackColor = System.Drawing.Color.Transparent;
 			this.lblLogin.ForeColor = System.Drawing.Color.Black;
-			this.lblLogin.Location = new System.Drawing.Point(89, 2);
-			this.lblLogin.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblLogin.Location = new System.Drawing.Point(134, 3);
 			this.lblLogin.Name = "lblLogin";
-			this.lblLogin.Size = new System.Drawing.Size(76, 20);
+			this.lblLogin.Size = new System.Drawing.Size(114, 30);
 			this.lblLogin.TabIndex = 55;
 			this.lblLogin.Text = "Login:";
 			this.lblLogin.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1294,10 +1297,10 @@ namespace Eddie.Forms.Forms
 			this.cmdConnect.FlatAppearance.BorderSize = 0;
 			this.cmdConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdConnect.ImageKey = "enter";
-			this.cmdConnect.Location = new System.Drawing.Point(17, 116);
+			this.cmdConnect.Location = new System.Drawing.Point(26, 174);
 			this.cmdConnect.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdConnect.Name = "cmdConnect";
-			this.cmdConnect.Size = new System.Drawing.Size(433, 34);
+			this.cmdConnect.Size = new System.Drawing.Size(650, 51);
 			this.cmdConnect.TabIndex = 60;
 			this.cmdConnect.Text = "Enter";
 			this.cmdConnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1308,10 +1311,9 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkRemember.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkRemember.AutoSize = true;
-			this.chkRemember.Location = new System.Drawing.Point(282, 60);
-			this.chkRemember.Margin = new System.Windows.Forms.Padding(2);
+			this.chkRemember.Location = new System.Drawing.Point(425, 90);
 			this.chkRemember.Name = "chkRemember";
-			this.chkRemember.Size = new System.Drawing.Size(77, 17);
+			this.chkRemember.Size = new System.Drawing.Size(114, 24);
 			this.chkRemember.TabIndex = 52;
 			this.chkRemember.Text = "Remember";
 			this.chkRemember.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1320,20 +1322,18 @@ namespace Eddie.Forms.Forms
 			// txtPassword
 			// 
 			this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txtPassword.Location = new System.Drawing.Point(169, 30);
-			this.txtPassword.Margin = new System.Windows.Forms.Padding(2);
+			this.txtPassword.Location = new System.Drawing.Point(254, 45);
 			this.txtPassword.Name = "txtPassword";
 			this.txtPassword.PasswordChar = '*';
-			this.txtPassword.Size = new System.Drawing.Size(190, 20);
+			this.txtPassword.Size = new System.Drawing.Size(284, 26);
 			this.txtPassword.TabIndex = 51;
 			this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
 			// 
 			// txtLogin
 			// 
-			this.txtLogin.Location = new System.Drawing.Point(169, 2);
-			this.txtLogin.Margin = new System.Windows.Forms.Padding(2);
+			this.txtLogin.Location = new System.Drawing.Point(254, 3);
 			this.txtLogin.Name = "txtLogin";
-			this.txtLogin.Size = new System.Drawing.Size(190, 20);
+			this.txtLogin.Size = new System.Drawing.Size(283, 26);
 			this.txtLogin.TabIndex = 50;
 			this.txtLogin.TextChanged += new System.EventHandler(this.txtLogin_TextChanged);
 			// 
@@ -1343,26 +1343,29 @@ namespace Eddie.Forms.Forms
 			this.pnlWaiting.Controls.Add(this.lblWait2);
 			this.pnlWaiting.Controls.Add(this.lblWait1);
 			this.pnlWaiting.Controls.Add(this.cmdCancel);
-			this.pnlWaiting.Location = new System.Drawing.Point(74, 221);
+			this.pnlWaiting.Location = new System.Drawing.Point(111, 332);
+			this.pnlWaiting.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.pnlWaiting.Name = "pnlWaiting";
-			this.pnlWaiting.Size = new System.Drawing.Size(246, 73);
+			this.pnlWaiting.Size = new System.Drawing.Size(369, 110);
 			this.pnlWaiting.TabIndex = 65;
 			this.pnlWaiting.Visible = false;
 			// 
 			// lblWait2
 			// 
 			this.lblWait2.BackColor = System.Drawing.Color.Transparent;
-			this.lblWait2.Location = new System.Drawing.Point(15, 40);
+			this.lblWait2.Location = new System.Drawing.Point(22, 60);
+			this.lblWait2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblWait2.Name = "lblWait2";
-			this.lblWait2.Size = new System.Drawing.Size(169, 21);
+			this.lblWait2.Size = new System.Drawing.Size(254, 32);
 			this.lblWait2.TabIndex = 64;
 			this.lblWait2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// lblWait1
 			// 
-			this.lblWait1.Location = new System.Drawing.Point(3, 0);
+			this.lblWait1.Location = new System.Drawing.Point(4, 0);
+			this.lblWait1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblWait1.Name = "lblWait1";
-			this.lblWait1.Size = new System.Drawing.Size(79, 25);
+			this.lblWait1.Size = new System.Drawing.Size(118, 38);
 			this.lblWait1.TabIndex = 63;
 			this.lblWait1.Text = "label1";
 			this.lblWait1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -1376,10 +1379,9 @@ namespace Eddie.Forms.Forms
 			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.cmdCancel.ImageKey = "enter";
-			this.cmdCancel.Location = new System.Drawing.Point(88, 28);
-			this.cmdCancel.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdCancel.Location = new System.Drawing.Point(132, 42);
 			this.cmdCancel.Name = "cmdCancel";
-			this.cmdCancel.Size = new System.Drawing.Size(74, 34);
+			this.cmdCancel.Size = new System.Drawing.Size(111, 51);
 			this.cmdCancel.TabIndex = 61;
 			this.cmdCancel.Text = "Cancel";
 			this.cmdCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1392,9 +1394,10 @@ namespace Eddie.Forms.Forms
 			this.tabProviders.Controls.Add(this.cmdProviderRemove);
 			this.tabProviders.Controls.Add(this.cmdProviderAdd);
 			this.tabProviders.Controls.Add(this.lstProviders);
-			this.tabProviders.Location = new System.Drawing.Point(4, 22);
+			this.tabProviders.Location = new System.Drawing.Point(4, 29);
+			this.tabProviders.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.tabProviders.Name = "tabProviders";
-			this.tabProviders.Size = new System.Drawing.Size(730, 333);
+			this.tabProviders.Size = new System.Drawing.Size(1099, 505);
 			this.tabProviders.TabIndex = 7;
 			this.tabProviders.Text = "Providers";
 			this.tabProviders.UseVisualStyleBackColor = true;
@@ -1408,9 +1411,10 @@ namespace Eddie.Forms.Forms
 			this.cmdProviderEdit.FlatAppearance.BorderSize = 0;
 			this.cmdProviderEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdProviderEdit.Image = global::Eddie.Forms.Properties.Resources.edit;
-			this.cmdProviderEdit.Location = new System.Drawing.Point(695, 72);
+			this.cmdProviderEdit.Location = new System.Drawing.Point(1042, 108);
+			this.cmdProviderEdit.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.cmdProviderEdit.Name = "cmdProviderEdit";
-			this.cmdProviderEdit.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderEdit.Size = new System.Drawing.Size(42, 42);
 			this.cmdProviderEdit.TabIndex = 50;
 			this.cmdProviderEdit.UseVisualStyleBackColor = true;
 			this.cmdProviderEdit.Click += new System.EventHandler(this.cmdProviderEdit_Click);
@@ -1424,9 +1428,10 @@ namespace Eddie.Forms.Forms
 			this.cmdProviderRemove.FlatAppearance.BorderSize = 0;
 			this.cmdProviderRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdProviderRemove.Image = global::Eddie.Forms.Properties.Resources.delete;
-			this.cmdProviderRemove.Location = new System.Drawing.Point(695, 38);
+			this.cmdProviderRemove.Location = new System.Drawing.Point(1042, 57);
+			this.cmdProviderRemove.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.cmdProviderRemove.Name = "cmdProviderRemove";
-			this.cmdProviderRemove.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderRemove.Size = new System.Drawing.Size(42, 42);
 			this.cmdProviderRemove.TabIndex = 49;
 			this.cmdProviderRemove.UseVisualStyleBackColor = true;
 			this.cmdProviderRemove.Click += new System.EventHandler(this.cmdProviderRemove_Click);
@@ -1440,9 +1445,10 @@ namespace Eddie.Forms.Forms
 			this.cmdProviderAdd.FlatAppearance.BorderSize = 0;
 			this.cmdProviderAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdProviderAdd.Image = global::Eddie.Forms.Properties.Resources.add;
-			this.cmdProviderAdd.Location = new System.Drawing.Point(695, 4);
+			this.cmdProviderAdd.Location = new System.Drawing.Point(1042, 6);
+			this.cmdProviderAdd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.cmdProviderAdd.Name = "cmdProviderAdd";
-			this.cmdProviderAdd.Size = new System.Drawing.Size(28, 28);
+			this.cmdProviderAdd.Size = new System.Drawing.Size(42, 42);
 			this.cmdProviderAdd.TabIndex = 48;
 			this.cmdProviderAdd.UseVisualStyleBackColor = true;
 			this.cmdProviderAdd.Click += new System.EventHandler(this.cmdProviderAdd_Click);
@@ -1462,11 +1468,12 @@ namespace Eddie.Forms.Forms
 			this.lstProviders.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstProviders.HideSelection = false;
 			this.lstProviders.LargeImageList = this.imgProviders;
-			this.lstProviders.Location = new System.Drawing.Point(4, 4);
+			this.lstProviders.Location = new System.Drawing.Point(6, 6);
+			this.lstProviders.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.lstProviders.MultiSelect = false;
 			this.lstProviders.Name = "lstProviders";
 			this.lstProviders.OwnerDraw = true;
-			this.lstProviders.Size = new System.Drawing.Size(687, 325);
+			this.lstProviders.Size = new System.Drawing.Size(1028, 486);
 			this.lstProviders.SmallImageList = this.imgProviders;
 			this.lstProviders.TabIndex = 47;
 			this.lstProviders.UseCompatibleStateImageBehavior = false;
@@ -1516,11 +1523,10 @@ namespace Eddie.Forms.Forms
 			this.tabServers.Controls.Add(this.cmdServersBlackList);
 			this.tabServers.Controls.Add(this.cmdServersWhiteList);
 			this.tabServers.Controls.Add(this.cmdServersConnect);
-			this.tabServers.Location = new System.Drawing.Point(4, 22);
-			this.tabServers.Margin = new System.Windows.Forms.Padding(2);
+			this.tabServers.Location = new System.Drawing.Point(4, 29);
 			this.tabServers.Name = "tabServers";
-			this.tabServers.Padding = new System.Windows.Forms.Padding(2);
-			this.tabServers.Size = new System.Drawing.Size(730, 333);
+			this.tabServers.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			this.tabServers.Size = new System.Drawing.Size(1099, 505);
 			this.tabServers.TabIndex = 0;
 			this.tabServers.Text = "Servers";
 			// 
@@ -1533,10 +1539,9 @@ namespace Eddie.Forms.Forms
 			this.cmdServersMore.FlatAppearance.BorderSize = 0;
 			this.cmdServersMore.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdServersMore.Image = global::Eddie.Forms.Properties.Resources.more;
-			this.cmdServersMore.Location = new System.Drawing.Point(695, 185);
-			this.cmdServersMore.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersMore.Location = new System.Drawing.Point(1042, 278);
 			this.cmdServersMore.Name = "cmdServersMore";
-			this.cmdServersMore.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersMore.Size = new System.Drawing.Size(42, 42);
 			this.cmdServersMore.TabIndex = 69;
 			this.cmdServersMore.UseVisualStyleBackColor = true;
 			this.cmdServersMore.Click += new System.EventHandler(this.cmdServersMore_Click);
@@ -1550,10 +1555,9 @@ namespace Eddie.Forms.Forms
 			this.cmdServersRename.FlatAppearance.BorderSize = 0;
 			this.cmdServersRename.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdServersRename.Image = global::Eddie.Forms.Properties.Resources.rename;
-			this.cmdServersRename.Location = new System.Drawing.Point(695, 153);
-			this.cmdServersRename.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdServersRename.Location = new System.Drawing.Point(1042, 230);
 			this.cmdServersRename.Name = "cmdServersRename";
-			this.cmdServersRename.Size = new System.Drawing.Size(28, 28);
+			this.cmdServersRename.Size = new System.Drawing.Size(42, 42);
 			this.cmdServersRename.TabIndex = 68;
 			this.cmdServersRename.UseVisualStyleBackColor = true;
 			this.cmdServersRename.Click += new System.EventHandler(this.cmdServersRename_Click);
@@ -1561,10 +1565,9 @@ namespace Eddie.Forms.Forms
 			// chkShowAll
 			// 
 			this.chkShowAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.chkShowAll.Location = new System.Drawing.Point(4, 304);
-			this.chkShowAll.Margin = new System.Windows.Forms.Padding(2);
+			this.chkShowAll.Location = new System.Drawing.Point(6, 456);
 			this.chkShowAll.Name = "chkShowAll";
-			this.chkShowAll.Size = new System.Drawing.Size(132, 25);
+			this.chkShowAll.Size = new System.Drawing.Size(198, 38);
 			this.chkShowAll.TabIndex = 7;
 			this.chkShowAll.Text = "Show All";
 			this.chkShowAll.UseVisualStyleBackColor = true;
@@ -1573,9 +1576,10 @@ namespace Eddie.Forms.Forms
 			// lblScoreType
 			// 
 			this.lblScoreType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblScoreType.Location = new System.Drawing.Point(252, 304);
+			this.lblScoreType.Location = new System.Drawing.Point(378, 456);
+			this.lblScoreType.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblScoreType.Name = "lblScoreType";
-			this.lblScoreType.Size = new System.Drawing.Size(169, 21);
+			this.lblScoreType.Size = new System.Drawing.Size(254, 32);
 			this.lblScoreType.TabIndex = 65;
 			this.lblScoreType.Text = "Scoring Rule:";
 			this.lblScoreType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1586,10 +1590,10 @@ namespace Eddie.Forms.Forms
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlServers.BackColor = System.Drawing.Color.Maroon;
-			this.pnlServers.Location = new System.Drawing.Point(4, 4);
+			this.pnlServers.Location = new System.Drawing.Point(6, 6);
 			this.pnlServers.Margin = new System.Windows.Forms.Padding(0);
 			this.pnlServers.Name = "pnlServers";
-			this.pnlServers.Size = new System.Drawing.Size(686, 293);
+			this.pnlServers.Size = new System.Drawing.Size(1029, 440);
 			this.pnlServers.TabIndex = 47;
 			// 
 			// tabCountries
@@ -1598,9 +1602,10 @@ namespace Eddie.Forms.Forms
 			this.tabCountries.Controls.Add(this.pnlAreas);
 			this.tabCountries.Controls.Add(this.cmdAreasUndefined);
 			this.tabCountries.Controls.Add(this.cmdAreasBlackList);
-			this.tabCountries.Location = new System.Drawing.Point(4, 22);
+			this.tabCountries.Location = new System.Drawing.Point(4, 29);
+			this.tabCountries.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.tabCountries.Name = "tabCountries";
-			this.tabCountries.Size = new System.Drawing.Size(730, 333);
+			this.tabCountries.Size = new System.Drawing.Size(1099, 505);
 			this.tabCountries.TabIndex = 6;
 			this.tabCountries.Text = "Countries";
 			this.tabCountries.UseVisualStyleBackColor = true;
@@ -1611,10 +1616,10 @@ namespace Eddie.Forms.Forms
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlAreas.BackColor = System.Drawing.Color.Maroon;
-			this.pnlAreas.Location = new System.Drawing.Point(4, 4);
+			this.pnlAreas.Location = new System.Drawing.Point(6, 6);
 			this.pnlAreas.Margin = new System.Windows.Forms.Padding(0);
 			this.pnlAreas.Name = "pnlAreas";
-			this.pnlAreas.Size = new System.Drawing.Size(686, 325);
+			this.pnlAreas.Size = new System.Drawing.Size(1029, 488);
 			this.pnlAreas.TabIndex = 60;
 			// 
 			// tabSpeed
@@ -1622,9 +1627,10 @@ namespace Eddie.Forms.Forms
 			this.tabSpeed.Controls.Add(this.lblSpeedResolution);
 			this.tabSpeed.Controls.Add(this.holSpeedChart);
 			this.tabSpeed.Controls.Add(this.cboSpeedResolution);
-			this.tabSpeed.Location = new System.Drawing.Point(4, 22);
+			this.tabSpeed.Location = new System.Drawing.Point(4, 29);
+			this.tabSpeed.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.tabSpeed.Name = "tabSpeed";
-			this.tabSpeed.Size = new System.Drawing.Size(730, 333);
+			this.tabSpeed.Size = new System.Drawing.Size(1099, 505);
 			this.tabSpeed.TabIndex = 5;
 			this.tabSpeed.Text = "Speed";
 			this.tabSpeed.UseVisualStyleBackColor = true;
@@ -1632,9 +1638,10 @@ namespace Eddie.Forms.Forms
 			// lblSpeedResolution
 			// 
 			this.lblSpeedResolution.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.lblSpeedResolution.Location = new System.Drawing.Point(3, 304);
+			this.lblSpeedResolution.Location = new System.Drawing.Point(4, 456);
+			this.lblSpeedResolution.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblSpeedResolution.Name = "lblSpeedResolution";
-			this.lblSpeedResolution.Size = new System.Drawing.Size(150, 21);
+			this.lblSpeedResolution.Size = new System.Drawing.Size(225, 32);
 			this.lblSpeedResolution.TabIndex = 65;
 			this.lblSpeedResolution.Text = "Resolution:";
 			this.lblSpeedResolution.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1645,10 +1652,10 @@ namespace Eddie.Forms.Forms
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.holSpeedChart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-			this.holSpeedChart.Location = new System.Drawing.Point(2, 2);
+			this.holSpeedChart.Location = new System.Drawing.Point(3, 3);
 			this.holSpeedChart.Margin = new System.Windows.Forms.Padding(0);
 			this.holSpeedChart.Name = "holSpeedChart";
-			this.holSpeedChart.Size = new System.Drawing.Size(724, 298);
+			this.holSpeedChart.Size = new System.Drawing.Size(1086, 447);
 			this.holSpeedChart.TabIndex = 51;
 			this.holSpeedChart.Text = "Speed Chart";
 			this.holSpeedChart.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1659,10 +1666,10 @@ namespace Eddie.Forms.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.cboSpeedResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboSpeedResolution.FormattingEnabled = true;
-			this.cboSpeedResolution.Location = new System.Drawing.Point(159, 304);
-			this.cboSpeedResolution.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.cboSpeedResolution.Location = new System.Drawing.Point(238, 456);
+			this.cboSpeedResolution.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
 			this.cboSpeedResolution.Name = "cboSpeedResolution";
-			this.cboSpeedResolution.Size = new System.Drawing.Size(567, 21);
+			this.cboSpeedResolution.Size = new System.Drawing.Size(848, 28);
 			this.cboSpeedResolution.TabIndex = 50;
 			this.cboSpeedResolution.SelectedIndexChanged += new System.EventHandler(this.cboSpeedResolution_SelectedIndexChanged);
 			// 
@@ -1670,10 +1677,9 @@ namespace Eddie.Forms.Forms
 			// 
 			this.tabStats.BackColor = System.Drawing.Color.Transparent;
 			this.tabStats.Controls.Add(this.lstStats);
-			this.tabStats.Location = new System.Drawing.Point(4, 22);
-			this.tabStats.Margin = new System.Windows.Forms.Padding(2);
+			this.tabStats.Location = new System.Drawing.Point(4, 29);
 			this.tabStats.Name = "tabStats";
-			this.tabStats.Size = new System.Drawing.Size(730, 333);
+			this.tabStats.Size = new System.Drawing.Size(1099, 505);
 			this.tabStats.TabIndex = 2;
 			this.tabStats.Text = "Stats";
 			// 
@@ -1688,13 +1694,13 @@ namespace Eddie.Forms.Forms
 			this.lstStats.FullRowSelect = true;
 			this.lstStats.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.lstStats.HideSelection = false;
-			this.lstStats.Location = new System.Drawing.Point(4, 4);
+			this.lstStats.Location = new System.Drawing.Point(6, 6);
 			this.lstStats.Margin = new System.Windows.Forms.Padding(0);
 			this.lstStats.MultiSelect = false;
 			this.lstStats.Name = "lstStats";
 			this.lstStats.OwnerDraw = true;
 			this.lstStats.ShowItemToolTips = true;
-			this.lstStats.Size = new System.Drawing.Size(721, 326);
+			this.lstStats.Size = new System.Drawing.Size(1080, 487);
 			this.lstStats.TabIndex = 1;
 			this.lstStats.UseCompatibleStateImageBehavior = false;
 			this.lstStats.View = System.Windows.Forms.View.Details;
@@ -1709,10 +1715,10 @@ namespace Eddie.Forms.Forms
 			this.tabLogs.Controls.Add(this.cmdLogsClean);
 			this.tabLogs.Controls.Add(this.cmdLogsCopy);
 			this.tabLogs.Controls.Add(this.cmdLogsSave);
-			this.tabLogs.Location = new System.Drawing.Point(4, 22);
-			this.tabLogs.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.tabLogs.Location = new System.Drawing.Point(4, 29);
+			this.tabLogs.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
 			this.tabLogs.Name = "tabLogs";
-			this.tabLogs.Size = new System.Drawing.Size(730, 333);
+			this.tabLogs.Size = new System.Drawing.Size(1099, 505);
 			this.tabLogs.TabIndex = 3;
 			this.tabLogs.Text = "Logs";
 			// 
@@ -1725,10 +1731,9 @@ namespace Eddie.Forms.Forms
 			this.cmdLogsCommand.FlatAppearance.BorderSize = 0;
 			this.cmdLogsCommand.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogsCommand.Image = global::Eddie.Forms.Properties.Resources.command;
-			this.cmdLogsCommand.Location = new System.Drawing.Point(695, 300);
-			this.cmdLogsCommand.Margin = new System.Windows.Forms.Padding(2);
+			this.cmdLogsCommand.Location = new System.Drawing.Point(1042, 450);
 			this.cmdLogsCommand.Name = "cmdLogsCommand";
-			this.cmdLogsCommand.Size = new System.Drawing.Size(28, 28);
+			this.cmdLogsCommand.Size = new System.Drawing.Size(42, 42);
 			this.cmdLogsCommand.TabIndex = 53;
 			this.cmdLogsCommand.UseVisualStyleBackColor = true;
 			this.cmdLogsCommand.Click += new System.EventHandler(this.cmdLogsCommand_Click);
@@ -1748,25 +1753,31 @@ namespace Eddie.Forms.Forms
 			this.lstLogs.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.lstLogs.HideSelection = false;
 			this.lstLogs.LabelWrap = false;
-			this.lstLogs.Location = new System.Drawing.Point(4, 4);
+			this.lstLogs.Location = new System.Drawing.Point(6, 6);
 			this.lstLogs.Margin = new System.Windows.Forms.Padding(0);
 			this.lstLogs.Name = "lstLogs";
 			this.lstLogs.OwnerDraw = true;
 			this.lstLogs.ShowItemToolTips = true;
-			this.lstLogs.Size = new System.Drawing.Size(687, 324);
+			this.lstLogs.Size = new System.Drawing.Size(1028, 484);
 			this.lstLogs.TabIndex = 49;
 			this.lstLogs.UseCompatibleStateImageBehavior = false;
 			this.lstLogs.View = System.Windows.Forms.View.Details;
 			// 
+			// mnuUpdater
+			// 
+			this.mnuUpdater.Name = "mnuUpdater";
+			this.mnuUpdater.Size = new System.Drawing.Size(337, 30);
+			this.mnuUpdater.Text = "&Update";
+			this.mnuUpdater.Click += new System.EventHandler(this.mnuUpdater_Click);
+			// 
 			// Main
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.BackColor = System.Drawing.Color.Fuchsia;
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-			this.ClientSize = new System.Drawing.Size(738, 359);
+			this.ClientSize = new System.Drawing.Size(1107, 538);
 			this.Controls.Add(this.tabMain);
-			this.Margin = new System.Windows.Forms.Padding(2);
 			this.Name = "Main";
 			this.Text = "AirVPN";
 			this.mnuMain.ResumeLayout(false);
@@ -1899,6 +1910,7 @@ namespace Eddie.Forms.Forms
 		private System.Windows.Forms.ImageList imgProviders;
 		private System.Windows.Forms.ColumnHeader colProviderProvider;
 		private Skin.Button cmdLogsCommand;
+		private System.Windows.Forms.ToolStripMenuItem mnuUpdater;
 	}
 }
 

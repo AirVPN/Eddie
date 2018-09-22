@@ -21,10 +21,6 @@
 using System;
 using Android.App;
 using Android.Runtime;
-using Eddie.Common.Tasks;
-using Android.Widget;
-using Android.Content;
-using Eddie.Common.Log;
 
 namespace Eddie.NativeAndroidApp
 {
@@ -33,21 +29,10 @@ namespace Eddie.NativeAndroidApp
 	{
 		public static string LOG_TAG = "Eddie.Android";
 
-		private TasksManager m_tasksManager = new TasksManager();
-		private static object m_logSync = new object();
 		private bool m_initialized = false;
 
 		public AndroidApplication(IntPtr handle, JniHandleOwnership transfer) : base(handle,transfer)
         {
-			
-		}
-
-		public TasksManager TasksManager
-		{
-			get
-			{
-				return m_tasksManager;
-			}
 		}
 
 		public bool Initialized
@@ -62,21 +47,25 @@ namespace Eddie.NativeAndroidApp
 		{
 			base.OnCreate();
 
-			LogsManager.Instance.AddHandler(OnLogEvent);
-
 			if(!m_initialized)
 			{
-				int ovpn3Version = NativeMethods.OVPN3.Version();
+                EddieLogger.Init(this);
 
-				int result = NativeMethods.OVPN3.Init();
-				if(NativeMethods.Succeeded(result))
+                EddieLogger.Info("Initializing eddie library");
+                EddieLogger.Info("{0} - {1}", NativeMethods.EddieLibrary.LibraryQualifiedName(), NativeMethods.EddieLibrary.LibraryReleaseDate());
+                EddieLogger.Info("Eddie Library API level {0}", NativeMethods.EddieLibrary.LibraryApiLevel());
+
+				NativeMethods.EddieLibraryResult result = NativeMethods.EddieLibrary.Init();
+
+                if(result.code == NativeMethods.ResultCode.SUCCESS)
 				{
 					m_initialized = true;
-					LogsManager.Instance.Debug("NativeMethods.OVPN3.Init succeeded (version={0})", ovpn3Version);
+					
+                    EddieLogger.Info("Eddie Library: OpenVPN initialization succeeded");
 				}					
 				else
 				{
-					LogsManager.Instance.Error("NativeMethods.OVPN3.Init failed with code '{0}' (version={1})", result, ovpn3Version);
+					EddieLogger.Error("Eddie Library: OpenVPN initialization failed. {0}", result.description);
 				}					
 			}				
 		}
@@ -87,36 +76,18 @@ namespace Eddie.NativeAndroidApp
 			{
 				m_initialized = false;
 
-				int result = NativeMethods.OVPN3.Cleanup();
-				if(!NativeMethods.Succeeded(result))
-					LogsManager.Instance.Error("NativeMethods.OVPN3.Cleanup failed with code '{0}'", result);
-			}
+				NativeMethods.EddieLibraryResult result = NativeMethods.EddieLibrary.Cleanup();
+				
+                if(result.code != NativeMethods.ResultCode.SUCCESS)
+					EddieLogger.Error("Eddie Library: OpenVPN cleanup failed. {0}", result.description);
 
-			LogsManager.Instance.RemoveHandler(OnLogEvent);
+                result = NativeMethods.EddieLibrary.DisposeClient();
+                
+                if(result.code != NativeMethods.ResultCode.SUCCESS)
+                    EddieLogger.Error("Eddie Library: Failed to dispose OpenVPN client. '{0}'", result.description);
+			}
 
 			base.OnTerminate();
-		}
-
-		public static void ShowPopup(Context context, string message, ToastLength length = ToastLength.Long)
-		{
-			Toast.MakeText(context, message, length).Show();
-		}
-
-		private void OnLogEvent(LogEntry e)
-		{
-			string message = e.Message;
-
-			switch(e.Level)
-			{
-			case LogLevel.error:	global::Android.Util.Log.Error(LOG_TAG, message);
-									break;
-
-			case LogLevel.warning:	global::Android.Util.Log.Warn(LOG_TAG, message);
-									break;
-
-			default:				global::Android.Util.Log.Debug(LOG_TAG, message);
-									break;
-			}
 		}
 	}
 }

@@ -138,8 +138,8 @@
     <string name="settings_ovpn3_password_title">Password</string>
     <string name="settings_ovpn3_password_summary"></string>
 
-    <string name="settings_system_application_whitelist_title">Applicationi da inserire nella Whitelist</string>
-    <string name="settings_system_application_blacklist_title">Applicationi da inserire nella Blacklist</string>
+    <string name="settings_system_application_whitelist_title">Applicazioni da inserire nella Whitelist</string>
+    <string name="settings_system_application_blacklist_title">Applicazioni da inserire nella Blacklist</string>
     <string name="settings_system_application_filter_summary">Scegli le applicazioni e i pacchetti da inserire nella Whitelist o Blacklist in accordo al tipo di filtro.</string>
     <string name="settings_system_application_filter_type_title">Tipo di filtro delle applicazioni</string>
     <string name="settings_system_application_filter_type_summary">Seleziona il tipo di filtro delle applicazioni. (Whitelist o Blacklist)</string>

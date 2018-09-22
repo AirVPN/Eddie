@@ -358,6 +358,11 @@ namespace Eddie.UI.Cocoa.Osx
 			CboAdvancedManifestRefresh.AddItem("Every ten minute");
 			CboAdvancedManifestRefresh.AddItem("Every one hour");
 
+            CboAdvancedUpdaterChannel.RemoveAllItems();
+            CboAdvancedUpdaterChannel.AddItem("Stable");
+            CboAdvancedUpdaterChannel.AddItem("Beta");
+            CboAdvancedUpdaterChannel.AddItem("None");
+
 			CmdAdvancedOpenVpnPath.Activated += (object sender, EventArgs e) =>
 			{
 				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
@@ -916,8 +921,18 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				GuiUtils.SetSelected(CboAdvancedManifestRefresh, "Automatic");
 
-			// Logging
-			GuiUtils.SetCheck(ChkLoggingEnabled, s.GetBool("log.file.enabled"));
+            string updaterChannel = s.Get("updater.channel");
+            if (updaterChannel == "stable")
+                GuiUtils.SetSelected(CboAdvancedUpdaterChannel, "Stable");
+            else if(updaterChannel == "beta")
+                GuiUtils.SetSelected(CboAdvancedUpdaterChannel, "Beta");
+            else if(updaterChannel == "none")
+                GuiUtils.SetSelected(CboAdvancedUpdaterChannel, "None");
+            else
+                GuiUtils.SetSelected(CboAdvancedUpdaterChannel, "Stable");
+
+            // Logging
+            GuiUtils.SetCheck(ChkLoggingEnabled, s.GetBool("log.file.enabled"));
 			GuiUtils.SetCheck(ChkLogLevelDebug, s.GetBool("log.level.debug"));
 			TxtLoggingPath.StringValue = s.Get("log.file.path");
 
@@ -1231,8 +1246,18 @@ namespace Eddie.UI.Cocoa.Osx
 			else if (manifestRefresh == "Every one hour") // One hour
 				s.SetInt("advanced.manifest.refresh", 60);
 
-			// Logging
-			s.SetBool("log.file.enabled", GuiUtils.GetCheck(ChkLoggingEnabled));
+            string updaterChannel = GuiUtils.GetSelected(CboAdvancedUpdaterChannel);
+            if (updaterChannel == "Stable")
+                s.Set("updater.channel", "stable");
+            else if(updaterChannel == "Beta")
+                s.Set("updater.channel", "beta");
+            else if(updaterChannel == "None")
+                s.Set("updater.channel", "none");
+            else
+                s.Set("updater.channel", "stable");
+
+            // Logging
+            s.SetBool("log.file.enabled", GuiUtils.GetCheck(ChkLoggingEnabled));
 			s.SetBool("log.level.debug", GuiUtils.GetCheck(ChkLogLevelDebug));
 			s.Set("log.file.path", TxtLoggingPath.StringValue);
 

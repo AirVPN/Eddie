@@ -104,8 +104,33 @@ namespace Eddie.Core.Threads
 					// Phase 1: Initialization and start
 					// -----------------------------------
 
+					if (Engine.NextServer == null)
+					{
+						if (Engine.Storage.GetBool("servers.startlast"))
+							Engine.NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
+					}
+					
+					// The first refresh of providers must be completed
+					if (Engine.ProvidersManager.LastRefreshDone == 0)
+					{
+						Engine.Instance.WaitMessageSet(Messages.ProvidersWait, true);
+						Engine.Logs.Log(LogType.Verbose, Messages.ProvidersWait);
+						for (; ; )
+						{
+							if (CancelRequested)
+								break;
 
-					if ((Engine.NextServer == null) && (Pinger.Instance.GetEnabled()) && (Engine.PingerInvalid() != 0))
+							if (Engine.ProvidersManager.LastRefreshDone != 0)
+								break;
+
+							Sleep(100);
+						}
+					}
+
+					if (CancelRequested)
+						continue;
+
+					if ((Engine.NextServer == null) && (Engine.Instance.JobsManager.Latency.GetEnabled()) && (Engine.PingerInvalid() != 0))
 					{
 						string lastWaitingMessage = "";
 						for (; ; )

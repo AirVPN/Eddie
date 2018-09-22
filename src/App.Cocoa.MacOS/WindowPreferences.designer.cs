@@ -16,6 +16,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSPopUpButton CboAdvancedManifestRefresh { get; set; }
 
 		[Outlet]
+		AppKit.NSPopUpButton CboAdvancedUpdaterChannel { get; set; }
+
+		[Outlet]
 		AppKit.NSPopUpButton CboDnsSwitchMode { get; set; }
 
 		[Outlet]
@@ -356,19 +359,9 @@ namespace Eddie.UI.Cocoa.Osx
 				CboNetworkIPv4Mode = null;
 			}
 
-			if (ChkNetworkIPv4AutoSwitch != null) {
-				ChkNetworkIPv4AutoSwitch.Dispose ();
-				ChkNetworkIPv4AutoSwitch = null;
-			}
-
 			if (CboNetworkIPv6Mode != null) {
 				CboNetworkIPv6Mode.Dispose ();
 				CboNetworkIPv6Mode = null;
-			}
-
-			if (ChkNetworkIPv6AutoSwitch != null) {
-				ChkNetworkIPv6AutoSwitch.Dispose ();
-				ChkNetworkIPv6AutoSwitch = null;
 			}
 
 			if (CboOpenVpnDirectivesHelp != null) {
@@ -441,6 +434,11 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkAdvancedPingerEnabled = null;
 			}
 
+			if (CboAdvancedUpdaterChannel != null) {
+				CboAdvancedUpdaterChannel.Dispose ();
+				CboAdvancedUpdaterChannel = null;
+			}
+
 			if (ChkAdvancedProviders != null) {
 				ChkAdvancedProviders.Dispose ();
 				ChkAdvancedProviders = null;
@@ -509,6 +507,16 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkNetLock != null) {
 				ChkNetLock.Dispose ();
 				ChkNetLock = null;
+			}
+
+			if (ChkNetworkIPv4AutoSwitch != null) {
+				ChkNetworkIPv4AutoSwitch.Dispose ();
+				ChkNetworkIPv4AutoSwitch = null;
+			}
+
+			if (ChkNetworkIPv6AutoSwitch != null) {
+				ChkNetworkIPv6AutoSwitch.Dispose ();
+				ChkNetworkIPv6AutoSwitch = null;
 			}
 
 			if (ChkProtocolsAutomatic != null) {

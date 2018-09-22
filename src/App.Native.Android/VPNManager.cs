@@ -23,7 +23,6 @@ using System;
 using Android.App;
 using Android.OS;
 using System.Collections.Generic;
-using Eddie.Common.Log;
 
 namespace Eddie.NativeAndroidApp
 {
@@ -118,6 +117,8 @@ namespace Eddie.NativeAndroidApp
 		{
 			m_context = context;
 
+            EddieLogger.Init(context);
+
             supportTools = new SupportTools(m_context);
 		}
 
@@ -184,7 +185,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error(e);
+				EddieLogger.Error(e);
 
 				OnStatusChanged(null, null, e.Message);
 			}
@@ -200,7 +201,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error(e);
+				EddieLogger.Error(e);
 
 				OnStatusChanged(null, null, e.Message);
 			}			
@@ -339,7 +340,7 @@ namespace Eddie.NativeAndroidApp
             {
                 supportTools.InfoDialog(string.Format(m_context.Resources.GetString(Resource.String.conn_cannot_start_vpnservice)));
                 
-                LogsManager.Instance.Error("VPNManager::SendMessage: {0}", "m_serviceMessenger == null");
+                EddieLogger.Error("VPNManager::SendMessage: {0}", "m_serviceMessenger == null");
 
                 return;
             }
@@ -372,7 +373,7 @@ namespace Eddie.NativeAndroidApp
                 if(activity != null)
 					activity.StartActivityForResult(confirmIntent, VPN_REQUEST_CODE);
 				else
-					LogsManager.Instance.Error("Failed to cast context to Activity");
+					EddieLogger.Error("Failed to cast context to Activity");
 			}
 			else
 			{
@@ -427,7 +428,7 @@ namespace Eddie.NativeAndroidApp
             if(msg == null)
                 return;
 
-            // LogsManager.Instance.Debug("VPNManager.OnMessage(What={0})", msg.What);
+            // EddieLogger.Debug("VPNManager.OnMessage(What={0})", msg.What);
 
 			switch(msg.What)
 			{

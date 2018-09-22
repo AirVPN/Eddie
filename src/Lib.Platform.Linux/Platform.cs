@@ -35,7 +35,8 @@ namespace Eddie.Platform.Linux
 	{
 		private string m_version = "";
 		private string m_architecture = "";
-		private UInt32 m_uid;				
+		private UInt32 m_uid;
+		private int m_pidSystemD = 0;
 		private string m_monoVersion = "2-generic";
 
 		private UInt32 m_userId = 0;
@@ -80,7 +81,7 @@ namespace Eddie.Platform.Linux
 		}
 
 		public override string GetNetFrameworkVersion()
-		{			
+		{
 			return m_monoVersion + "; Framework: " + System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
 
@@ -92,7 +93,8 @@ namespace Eddie.Platform.Linux
 			m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"), "-m").Trim());
 			m_uid = 9999;
 			UInt32.TryParse(SystemShell.Shell1(LocateExecutable("id"), "-u"), out m_uid);
-			
+			int.TryParse(SystemShell.Shell1(LocateExecutable("pidof"), "systemd"), out m_pidSystemD);
+
 			m_sudoPath = LocateExecutable("sudo");
 
 			// Obtain user ID and Name. Almost the same methods used by synaptic package manager GUI.
@@ -114,7 +116,7 @@ namespace Eddie.Platform.Linux
 					m_userName = Environment.GetEnvironmentVariable("USER");
 				}
 
-				if( (m_userName == "") && (m_userId != 0) )
+				if ((m_userName == "") && (m_userId != 0))
 				{
 					m_userName = SystemShell.Shell2(LocateExecutable("getent"), "passwd", m_userId.ToString());
 					if (m_userName.IndexOf(":") != -1)
@@ -406,7 +408,7 @@ namespace Eddie.Platform.Linux
 
 		public override bool CanShellAsNormalUser()
 		{
-			if( (m_userName != "") && (m_sudoPath != "") )
+			if ((m_userName != "") && (m_sudoPath != ""))
 				return true;
 
 			return false;
@@ -425,10 +427,10 @@ namespace Eddie.Platform.Linux
 			// DBUS_SESSION_BUS_ADDRESS is required only for notify-send. 
 			// Debian7 don't work with it. Arch works anyway without it, Debian>7 and Fedora not.
 			string dbusSessionBusAddress = Engine.Instance.Storage.Get("linux.dbus");
-			if ( (dbusSessionBusAddress == "") && (Platform.Instance.FileExists("/run/user/" + m_userId.ToString() + "/bus")) )
+			if ((dbusSessionBusAddress == "") && (Platform.Instance.FileExists("/run/user/" + m_userId.ToString() + "/bus")))
 				dbusSessionBusAddress = "unix:path=/run/user/" + m_userId.ToString() + "/bus";
-			
-			if(dbusSessionBusAddress != "")
+
+			if (dbusSessionBusAddress != "")
 				arguments = new string[] { "-u " + m_userName, "DBUS_SESSION_BUS_ADDRESS=" + dbusSessionBusAddress, path + " " + String.Join(" ", arguments) };
 			else
 				arguments = new string[] { "-u " + m_userName, path + " " + String.Join(" ", arguments) };
@@ -441,7 +443,7 @@ namespace Eddie.Platform.Linux
 			path = "su";
 			arguments = new string[] { a };
 			*/
-			
+
 			return true;
 		}
 
@@ -485,46 +487,42 @@ namespace Eddie.Platform.Linux
 		{
 			base.FlushDNS();
 
-			string servicePath = LocateExecutable("service");
-			if (servicePath != "")
+			List<string> services = new List<string>();
+			List<string> restarted = new List<string>();
+			foreach (string service in Engine.Instance.Storage.Get("linux.dns.services").Split(';'))
+				if (service.Trim() != "")
+					services.Add(service.Trim());
+
+			if (m_pidSystemD != 0)
 			{
-				Dictionary<string, string> services = new Dictionary<string, string>();
-				string list = SystemShell.Shell1(servicePath, "--status-all");
-				list = UtilsString.StringCleanSpace(list);
-				foreach (string line in list.Split('\n'))
+				string servicePath = LocateExecutable("service");
+				string systemctlPath = LocateExecutable("systemctl");
+				if ((servicePath != "") && (systemctlPath != ""))
 				{
-					if (line.Contains(" running "))
+					string[] lines = SystemShell.Shell2(systemctlPath, "list-units", "--no-pager").Split('\n');
+					foreach (string line in lines)
 					{
-						int pos = line.IndexOf(".service");
-						if (pos != -1)
+						foreach (string service in services)
 						{
-							string name = line.Substring(0, pos).Trim();
-							services[name] = name;
+							if ((restarted.Contains(service) == false) && (line.StartsWith(service + ".service")) && (line.Contains(" running ")))
+							{
+								SystemShell.Shell2(servicePath, service, "restart");
+								restarted.Add(service);
+							}
 						}
 					}
 				}
-
-				if (services.ContainsKey("nscd"))
-					SystemShell.Shell2(servicePath, "nscd", "restart");
-				if (services.ContainsKey("dnsmasq"))
-					SystemShell.Shell2(servicePath, "dnsmasq", "restart");
-				if (services.ContainsKey("named"))
-					SystemShell.Shell2(servicePath, "named", "restart");
-				if (services.ContainsKey("bind9"))
-					SystemShell.Shell2(servicePath, "bind9", "restart");
 			}
-			else
+
+			// Fallback
 			{
-				if (FileExists("/etc/init.d/nscd"))
-					SystemShell.Shell1("/etc/init.d/nscd", "restart");
-				if (FileExists("/etc/init.d/dnsmasq"))
-					SystemShell.Shell1("/etc/init.d/dnsmasq", "restart");
-				if (FileExists("/etc/init.d/named"))
-					SystemShell.Shell1("/etc/init.d/named", "restart");
-				if (FileExists("/etc/init.d/bind9"))
-					SystemShell.Shell1("/etc/init.d/bind9", "restart");
+				foreach (string service in services)
+					if (restarted.Contains(service) == false)
+						if (FileExists("/etc/init.d/" + service))
+							SystemShell.Shell1("/etc/init.d/" + service, "restart");
 			}
 
+			// Special case
 			// On some system, for example Fedora, nscd caches are saved to disk,
 			// located in /var/db/nscd, and not flushed with a simple restart. 
 			string nscdPath = LocateExecutable("nscd");
@@ -762,7 +760,7 @@ namespace Eddie.Platform.Linux
 
 			string command2 = "";
 			string executablePath = Platform.Instance.GetExecutablePath();
-			
+
 			string args = CommandLine.SystemEnvironment.GetFull();
 			args += " console.mode=none"; // 2.13.6, otherwise CancelKeyPress (mono bug?) and stdout fill the non-root non-blocked terminal.
 			{
@@ -778,8 +776,8 @@ namespace Eddie.Platform.Linux
 			command2 += args;
 			command2 = command2.Trim(); // 2.11.11
 			bool waitEnd = false;
-			
-			if ( (LocateExecutable("pkexec") != "") && (Platform.Instance.FileExists("/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy")) )
+
+			if ((LocateExecutable("pkexec") != "") && (Platform.Instance.FileExists("/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy")))
 			{
 				method = "pkexec-policy";
 
@@ -787,21 +785,21 @@ namespace Eddie.Platform.Linux
 				command = "sh";
 				arguments = " -c 'pkexec /usr/bin/eddie-ui " + cmdline + " console.mode=none" + " " + Engine.Instance.Storage.Get("pktest") + "'";
 				*/
-				
+
 				command = LocateExecutable("pkexec");
 				string exe = Engine.Instance.Storage.Get("path.exec");
 				if (exe == "")
 					exe = Platform.Instance.GetExecutablePath();
 				arguments = exe + " " + args;
-				
+
 				// Without this, don't work on Debian9
 				// It is not allowed to run pkexec in the background by fork and exec and then terminating the parent. 
 				// The process becomes an orphan and belongs to init (ppid == 1).
 				waitEnd = true;
-								
-				if(Engine.Instance.Storage.GetBool("linux.xhost"))
+
+				if (Engine.Instance.Storage.GetBool("linux.xhost"))
 				{
-					string xhost = LocateExecutable("xhost");					
+					string xhost = LocateExecutable("xhost");
 					if (xhost != "")
 					{
 						preCommand = xhost;
@@ -809,7 +807,7 @@ namespace Eddie.Platform.Linux
 
 						postCommand = xhost;
 						postArguments = "-SI:localuser:root";
-					}					
+					}
 				}
 			}
 			else if ((isX) && (LocateExecutable("kdesudo") != ""))
@@ -884,10 +882,10 @@ namespace Eddie.Platform.Linux
 			if (command != "")
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.AdminRequiredRestart, method));
-				
+
 				if (preCommand != "")
 					Engine.Instance.Logs.Log(LogType.Verbose, SystemShell.ShellX(preCommand.Trim(), preArguments.Trim(), true)); // IJTF2
-				
+
 				SystemShell.ShellX(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
 
 				if (postCommand != "")
@@ -1294,6 +1292,6 @@ namespace Eddie.Platform.Linux
 				return FileContentsReadText(path);
 			else
 				return "";
-		}		
+		}
 	}
 }

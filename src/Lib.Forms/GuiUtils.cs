@@ -41,8 +41,8 @@ namespace Eddie.Forms
 		public static StringFormat StringFormatCenterBottom;
 		public static StringFormat StringFormatRightBottom;
 
-		private static string m_unixFontSystem;
-		private static string m_unixFontMonoSpace;
+		private static string m_unixFontSystem = "";
+		private static string m_unixFontMonoSpace = "";
 
 		public static bool IsWindows()
 		{

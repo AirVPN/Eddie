@@ -22,10 +22,7 @@ using System;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using System.Threading;
-using Eddie.Common.Tasks;
 using System.Collections.Generic;
-using Eddie.Common.Log;
 using Android.Support.V4.App;
 using Android.Provider;
 
@@ -41,66 +38,59 @@ namespace Eddie.NativeAndroidApp
 		public const string PARAM_PROFILE = "PROFILE";
 
 		public const string EXTRA_RUN_ARGS = "RUN_ARGS";
+        public const string MSG_STATUS_BUNDLE_LAST_ERROR = "LAST_ERROR";
 
-		public const int MSG_BIND = 0;
-		public const int MSG_BIND_ARG_REMOVE = 0;
-		public const int MSG_BIND_ARG_ADD = 1;
-
+        public const int MSG_BIND = 0;
 		public const int MSG_START = 1;
 		public const int MSG_STOP = 2;
-		public const int MSG_STATUS = 3;		
-		public const string MSG_STATUS_BUNDLE_LAST_ERROR = "LAST_ERROR";
+		public const int MSG_STATUS = 3;
 
-		private object m_dataSync = new object();
-		private VPN.Status m_status = VPN.Status.NOT_CONNECTED;
-		private string m_lastError = "";
+        public const int MSG_BIND_ARG_REMOVE = 0;
+        public const int MSG_BIND_ARG_ADD = 1;
+
+        public const int THREAD_MAX_JOIN_TIME = 8000;  // 8 seconds
+
+		private object dataSync = new object();
+		private VPN.Status vpnStatus = VPN.Status.NOT_CONNECTED;
+		private string vpnLastError = "";
+        private string currentNotificationText = "";
 
 		private NotificationCompat.Builder notification = null;
         private int alertNotificationId = 2000;
 
-		private Messenger m_serviceMessenger = null;
-		private TasksManager m_tasksManager = null;
-		private TaskEx m_vpnTask = null;
-		private object m_vpnTaskSync = new object();
-		private OpenVPNTunnel m_tunnel = null;
-		private object m_threadsSync = new object();
+		private Messenger serviceMessenger = null;
+		private Java.Lang.Thread vpnThread = null;
+		private OpenVPNTunnel vpnTunnel = null;
 
-		private List<Messenger> m_serviceClients = new List<Messenger>();
-		private object m_clientsSync = new object();
+        private Messenger clientMessenger = null;
 
-		private ScreenReceiver m_screenReceiver = null;
+		private ScreenReceiver screenReceiver = null;
         private SettingsManager settingsManager = new SettingsManager();
         private NetworkStatusReceiver networkStatusReceiver = null;
 
 		private class ScreenReceiver : BroadcastReceiver
 		{
-			private VPNService m_service = null;
+			private VPNService vpnService = null;
 
 			public ScreenReceiver(VPNService service)
 			{
-				m_service = service;
+				vpnService = service;
+                
+                EddieLogger.Init(service);
 			}
 
 			public override void OnReceive(Context context, Intent intent)
 			{
 				string action = intent.Action;
 
-				LogsManager.Instance.Debug(string.Format("ScreenReceiver.OnReceive (action='{0}')", action));
+				EddieLogger.Debug(string.Format("ScreenReceiver.OnReceive (action='{0}')", action));
 
 				if(action == global::Android.Content.Intent.ActionScreenOn)
-                    m_service.OnScreenChanged(true);
+                    vpnService.OnScreenChanged(true);
 				else if(action == global::Android.Content.Intent.ActionScreenOff)
-                    m_service.OnScreenChanged(false);
+                    vpnService.OnScreenChanged(false);
 				else
-                    LogsManager.Instance.Error(string.Format("Unhandled action '{0}' received in ScreenReceiver", action));				
-			}
-		}
-
-		public TasksManager TasksManager
-		{
-			get
-			{
-				return m_tasksManager;
+                    EddieLogger.Error(string.Format("Unhandled action '{0}' received in ScreenReceiver", action));				
 			}
 		}
 		
@@ -114,20 +104,20 @@ namespace Eddie.NativeAndroidApp
 			{
 				if(intent.GetBooleanExtra(PARAM_START, false))
 				{
-					LogsManager.Instance.Debug("VPNService.OnStartCommand: START");
+					EddieLogger.Debug("VPNService.OnStartCommand: START");
 				
 					run = true;
 				}					
 				else if(intent.GetBooleanExtra(PARAM_STOP, false))
 				{
-					LogsManager.Instance.Debug("VPNService.OnStartCommand: STOP");
+					EddieLogger.Debug("VPNService.OnStartCommand: STOP");
 
 					run = false;					
 				}					
 			}
 			else
 			{
-				LogsManager.Instance.Debug("VPNService.OnStartCommand (no intent)");
+				EddieLogger.Debug("VPNService.OnStartCommand (no intent)");
 			}
 		
 			if(run != null)
@@ -138,25 +128,21 @@ namespace Eddie.NativeAndroidApp
 
 		public override IBinder OnBind(Intent intent)
 		{
-			return m_serviceMessenger != null ? m_serviceMessenger.Binder : null;
+			return serviceMessenger != null ? serviceMessenger.Binder : null;
 		}
 
 		private void Init()
 		{
-			m_serviceMessenger = new Messenger(new MessageHandler(this));
-			
-            m_tasksManager = (Application as AndroidApplication).TasksManager;			
+			serviceMessenger = new Messenger(new MessageHandler(this));
 		}
 
 		private void Cleanup()
 		{
-			m_tasksManager = null;
-
-			if(m_serviceMessenger != null)
+			if(serviceMessenger != null)
 			{
-				m_serviceMessenger.Dispose();
+				serviceMessenger.Dispose();
 				
-                m_serviceMessenger = null;
+                serviceMessenger = null;
 			}			
 		}
 
@@ -164,14 +150,14 @@ namespace Eddie.NativeAndroidApp
 		{
             get
             {
-                return m_lastError;
+                return vpnLastError;
             }
 
 			set
 			{
-				lock(m_dataSync)
+				lock(dataSync)
 				{
-					m_lastError = value;
+					vpnLastError = value;
 				}
 			}
 		}
@@ -179,6 +165,8 @@ namespace Eddie.NativeAndroidApp
 		public override void OnCreate()
 		{
 			base.OnCreate();
+
+            EddieLogger.Init(this);
 
 			Init();
 
@@ -202,7 +190,7 @@ namespace Eddie.NativeAndroidApp
 
 		public override void OnRevoke()
 		{
-			LogsManager.Instance.Error("VPNService.OnRevoke");
+			EddieLogger.Error("VPNService.OnRevoke");
 
 			// Another VPN may have started here or Android is shutting down the VPN: by now there is no way to "block" the operation and the service must be stopped gracefully
 
@@ -216,13 +204,14 @@ namespace Eddie.NativeAndroidApp
             if(msg == null)
                 return;
 
-			// LogsManager.Instance.Debug("VPNService.OnMessage");
-
 			switch(msg.What)
 			{
     			case VPNService.MSG_BIND:
                 {
-                	UpdateClients(msg.ReplyTo, msg.Arg1 == MSG_BIND_ARG_ADD ? true : false);
+                    if(msg.Arg1 == MSG_BIND_ARG_ADD)
+                        clientMessenger = msg.ReplyTo;
+                    else
+                        clientMessenger = null;
                 }
     			break;
     
@@ -244,61 +233,30 @@ namespace Eddie.NativeAndroidApp
 				VPN.Status status;
 				string lastError;
 
-				lock(m_dataSync)
+				lock(dataSync)
 				{
-					status = m_status;
-					lastError = m_lastError;
+					status = vpnStatus;
+					
+                    lastError = vpnLastError;
 				}
 
 				SendMessage(msg.ReplyTo, CreateStatusMessage(status, lastError));
 			}				
 		}
 
-		private void UpdateClients(Messenger client, bool add)
-		{
-			if(client == null)
-				return;
-
-			lock(m_clientsSync)
-			{
-				if(add)
-				{
-					m_serviceClients.Add(client);
-				}
-				else
-				{
-					// Do NOT compare Messenger by reference (JniIdentityHashCode must be used)
-
-					List<Messenger>.Enumerator iterator = m_serviceClients.GetEnumerator();
-					
-                    while(iterator.MoveNext())
-					{
-						Messenger current = iterator.Current;
-						
-                        if(current.JniIdentityHashCode == client.JniIdentityHashCode)
-						{
-							m_serviceClients.RemoveAt(m_serviceClients.IndexOf(current));
-							
-                            break;
-						}
-					}
-				}
-			}
-		}
-
 		private bool UpdateService(bool run, Bundle data = null)
 		{
-			lock(m_dataSync)
+			lock(dataSync)
 			{
-				bool running = (m_status == VPN.Status.CONNECTED) || (m_status == VPN.Status.CONNECTING) || (m_status == VPN.Status.PAUSED) || (m_status == VPN.Status.LOCKED);
+				bool running = (vpnStatus == VPN.Status.CONNECTED) || (vpnStatus == VPN.Status.CONNECTING) || (vpnStatus == VPN.Status.PAUSED) || (vpnStatus == VPN.Status.LOCKED);
 				
                 if(running == run)
 					return true;
 
-				if(m_status == VPN.Status.DISCONNECTING)
+				if(vpnStatus == VPN.Status.DISCONNECTING)
 					return false;	// Do not allow start requests while stopping
 
-				// Must be under m_dataSync to ensure "m_status" synchronization
+				// Must be under dataSync to ensure "m_status" synchronization
 				
                 if(run)
 					DoStart(data);
@@ -321,15 +279,15 @@ namespace Eddie.NativeAndroidApp
 
 		private void OnScreenChanged(bool active)
 		{
-			LogsManager.Instance.Debug(string.Format("VPNService.OnScreenChanged: active='{0}'", active));
+			EddieLogger.Debug(string.Format("VPNService.OnScreenChanged: active='{0}'", active));
 
 			try
 			{
-				if(m_tunnel != null)
+				if(vpnTunnel != null)
                 {
 					VPN.Status status;
 
-                    status = m_tunnel.HandleScreenChanged(active);
+                    status = vpnTunnel.HandleScreenChanged(active);
 
                     if(status != VPN.Status.UNKNOWN)
                         DoChangeStatus(status);
@@ -337,21 +295,21 @@ namespace Eddie.NativeAndroidApp
 			}
 			catch(Exception e)
 			{
-				LogsManager.Instance.Error("OnScreenChanged", e);
+				EddieLogger.Error("OnScreenChanged", e);
 			}			
 		}
 
         private void NetworkStatusChanged(OpenVPNTunnel.VPNAction action)
         {
-            LogsManager.Instance.Debug(string.Format("VPNService.NetworkStatusChanged: action='{0}'", action));
+            EddieLogger.Debug(string.Format("VPNService.NetworkStatusChanged: action='{0}'", action));
 
             try
             {
-                if(m_tunnel != null)
+                if(vpnTunnel != null)
                 {
                     VPN.Status status;
 
-                    status = m_tunnel.NetworkStatusChanged(action);
+                    status = vpnTunnel.NetworkStatusChanged(action);
 
                     if(status != VPN.Status.UNKNOWN)
                         DoChangeStatus(status);
@@ -359,13 +317,13 @@ namespace Eddie.NativeAndroidApp
             }
             catch(Exception e)
             {
-                LogsManager.Instance.Error("NetworkStatusChanged", e);
+                EddieLogger.Error("NetworkStatusChanged", e);
             }           
         }
 
 		private void EnsureReceivers()
 		{
-			if(m_screenReceiver != null)
+			if(screenReceiver != null)
 				return;
 
 			IntentFilter intentFilter = new IntentFilter();
@@ -373,20 +331,20 @@ namespace Eddie.NativeAndroidApp
             intentFilter.AddAction(Intent.ActionScreenOn);
 			intentFilter.AddAction(Intent.ActionScreenOff);
 			
-            m_screenReceiver = new ScreenReceiver(this);
+            screenReceiver = new ScreenReceiver(this);
 			
-            RegisterReceiver(m_screenReceiver, intentFilter);
+            RegisterReceiver(screenReceiver, intentFilter);
 		}
 
 		private void CleanupReceivers()
 		{
-			if(m_screenReceiver != null)
+			if(screenReceiver != null)
 			{
-				UnregisterReceiver(m_screenReceiver);
+				UnregisterReceiver(screenReceiver);
 
-				SupportTools.SafeDispose(m_screenReceiver);
+				SupportTools.SafeDispose(screenReceiver);
 
-                m_screenReceiver = null;
+                screenReceiver = null;
 			}
 		}
 
@@ -394,40 +352,20 @@ namespace Eddie.NativeAndroidApp
 		{
 			DoChangeStatus(VPN.Status.CONNECTED);
 
-			lock(m_threadsSync)
-			{
-				DoStartForeground();
-				
-                OnServiceStarted();
-			}			
+			DoStartForeground();
+			
+            OnServiceStarted();
 		}		
 
 		public void HandleThreadException(Exception e)
 		{
-			LogsManager.Instance.Error(e);
+			EddieLogger.Error(e);
 			
             LastError = e.Message;
 
-			HandleThreadStopped();
+            DoStop();
 		}
 	
-		public void HandleThreadStopped()
-		{
-			// OnThreadStopped MUST be called from a separated thread since the current one (the caller) could otherwise wait for himself to exit (because of DoStopVPN's call)
-
-			m_tasksManager.Add((CancellationToken c) => OnThreadStopped());
-		}
-
-		private void OnThreadStopped()
-		{
-			lock(m_threadsSync)
-			{				
-				DoStopService();
-			}
-		
-			DoStopVPN();					
-		}
-
 		private void DoStopService()
 		{
 			CleanupTunnel();
@@ -445,8 +383,8 @@ namespace Eddie.NativeAndroidApp
 		{
 			try
 			{
-				if(m_tunnel != null)
-					m_tunnel.Cleanup();
+				if(vpnTunnel != null)
+					vpnTunnel.Cleanup();
 			}
 			catch(Exception e)
 			{
@@ -454,7 +392,7 @@ namespace Eddie.NativeAndroidApp
 			}
 			finally
 			{
-				m_tunnel = null;
+				vpnTunnel = null;
 			}			
 		}
 
@@ -462,18 +400,19 @@ namespace Eddie.NativeAndroidApp
 		{
 			string lastError = "";
 
-			lock(m_dataSync)
+			lock(dataSync)
 			{
-				if(m_status == status)
+				if(vpnStatus == status)
 					return;
 
-				m_status = status;
+				vpnStatus = status;
 				
-                if(lastError.Equals(""))
-                    lastError = m_lastError;
+                if(vpnLastError.Equals(""))
+                    lastError = vpnLastError;
 			}
 
-			DispatchMessage(CreateStatusMessage(status, lastError));
+            if(clientMessenger != null)
+                SendMessage(clientMessenger, CreateStatusMessage(status, lastError));
 		}
 
 		private Message CreateStatusMessage(VPN.Status status, string lastError)
@@ -483,21 +422,6 @@ namespace Eddie.NativeAndroidApp
             message.Data.PutString(MSG_STATUS_BUNDLE_LAST_ERROR, lastError);
 			
             return message;
-		}
-
-		private void DispatchMessage(Message message)
-		{
-			Messenger[] clients = null;
-
-			lock(m_clientsSync)
-			{
-				clients = m_serviceClients.ToArray();
-			}			
-
-			foreach(Messenger client in clients)
-			{
-				SendMessage(client, message);
-			}
 		}
 
 		private void SendMessage(Messenger client, Message message)
@@ -511,43 +435,51 @@ namespace Eddie.NativeAndroidApp
 			
             DoChangeStatus(VPN.Status.CONNECTING);
 
-			m_tasksManager.Add((CancellationToken c) =>
+			if((Application as AndroidApplication).Initialized)
 			{
-				lock(m_threadsSync)
+				try
 				{
-					if((Application as AndroidApplication).Initialized)
-					{
-						try
-						{
-							DoStartTunnel(data);
-						}
-						catch(Exception e)
-						{
-							LastError = "Tunnel start failed: " + e.Message;
-							
-                            DoStopService();
-						}					
-					}
-					else
-					{
-						LastError = "Initialization failed";
-						
-                        DoStopService();
-					}
+					TunnelSetup(data);
 				}
-			});
+				catch(Exception e)
+				{
+					LastError = "Tunnel start failed: " + e.Message;
+					
+                    DoStopService();
+				}					
+
+                Java.Lang.Thread newVpnTask = SupportTools.StartThread(new Java.Lang.Runnable(() =>
+                {
+                    EddieLogger.Info("Starting VPN thread");
+
+                    vpnTunnel.Run();
+                }));
+
+                if(newVpnTask != null)        
+                    vpnThread = newVpnTask;
+			}
+			else
+			{
+				LastError = "Initialization failed";
+				
+                DoStopService();
+			}
 		}
-	
+
 		private void DoStop()
 		{
 			DoChangeStatus(VPN.Status.DISCONNECTING);
 
-			m_tasksManager.Add((CancellationToken c) =>
+			SupportTools.StartThread(new Java.Lang.Runnable(() =>
 			{
-				DoStopVPN();
-			});
+                DoStopService();
+
+                currentNotificationText = "";
+
+				WaitForVpnThreadToFinish();
+			}));
 		}
-		
+
 		public PendingIntent CreateConfigIntent()
 		{
 			Intent configIntent = new Intent(this, typeof(SettingsActivity));
@@ -558,54 +490,49 @@ namespace Eddie.NativeAndroidApp
             return PendingIntent.GetActivity(this, 0, configIntent, 0);
 		}
 
-		private void DoStartTunnel(Bundle data)
+		private void TunnelSetup(Bundle data)
 		{
-			if(m_tunnel != null)
+			if(vpnTunnel != null)
 				throw new Exception("internal error (m_tunnel already initialized)");
 
 			if(data == null)
 				throw new Exception("internal error (data bundle is null)");
 
-			m_tunnel = new OpenVPNTunnel(this);
-			m_tunnel.Init();
+			vpnTunnel = new OpenVPNTunnel(this);
+			
+            vpnTunnel.Init();
 		
 			string profile = data.GetString(PARAM_PROFILE, "");
 			
             if(profile.Length == 0)
 				throw new Exception("no profile defined");
 
-			m_tunnel.LoadProfileString(profile);
-			m_tunnel.BindOptions();
-
-			TaskEx vpnTask = m_tasksManager.Add((CancellationToken c) =>
-			{
-				m_tunnel.Run(c);
-			});
+			vpnTunnel.LoadProfileString(profile);
 			
-            lock(m_vpnTaskSync)
-			{
-				m_vpnTask = vpnTask;
-			}
+            vpnTunnel.BindOptions();
 		}
 
-		private void DoStopVPN()
-		{
-			lock(m_vpnTaskSync)
-			{
-				if(m_vpnTask != null)
-				{
-					try
-					{
-						m_vpnTask.Cancel();
-						m_vpnTask.Wait();
-					}
-					finally
-					{
-						m_vpnTask = null;
-					}									
-				}
-			}			
-		}
+        private void WaitForVpnThreadToFinish()
+        {
+            if(vpnThread == null)
+                return;
+
+            try
+            {
+                vpnThread.Join(THREAD_MAX_JOIN_TIME);
+            }
+            catch(Java.Lang.InterruptedException)
+            {
+                EddieLogger.Error("VPNService.WaitVpnThreadToFinish(): VPN thread has been interrupted");
+            }
+            finally
+            {
+                if(vpnThread.IsAlive)
+                    EddieLogger.Error("VPNService.WaitVpnThreadToFinish(): VPN thread did not end");
+                else
+                    EddieLogger.Info("VPN thread execution has completed");
+            }
+        }
 
 		private void DoStartForeground()
 		{
@@ -655,12 +582,14 @@ namespace Eddie.NativeAndroidApp
                 }
     
                 StartForeground(SERVICE_RUNNING_NOTIFICATION_ID, notification.Build());
+                
+                currentNotificationText = text;
 			}			
 		}
 
         public void UpdateNotification(string text)
         {
-            if(settingsManager.SystemPersistentNotification && notification != null && !text.Equals(""))
+            if(settingsManager.SystemPersistentNotification && notification != null && !text.Equals("") && !text.Equals(currentNotificationText))
             {
                 string channelId = Resources.GetString(Resource.String.notification_channel_id);
                 string channelName = Resources.GetString(Resource.String.notification_channel_name);
@@ -695,12 +624,14 @@ namespace Eddie.NativeAndroidApp
                 }
                 
                 notificationManager.Notify(SERVICE_RUNNING_NOTIFICATION_ID, notification.Build());
+                
+                currentNotificationText = text;
             }
         }
 
         public void AlertNotification(string message)
         {
-            if(message.Equals(""))
+            if(message.Equals("") && !message.Equals(currentNotificationText))
                 return;
 
             string channelId = Resources.GetString(Resource.String.notification_channel_id);
@@ -738,6 +669,8 @@ namespace Eddie.NativeAndroidApp
             notificationManager.Notify(alertNotificationId, alertNotification.Build());
 
             alertNotificationId++;
+            
+            currentNotificationText = message;
         }
 
 		private PendingIntent BuildMainActivityIntent()
@@ -765,7 +698,7 @@ namespace Eddie.NativeAndroidApp
         
         public void OnNetworkStatusNotAvailable()
         {
-            LogsManager.Instance.Info("Network is not available");
+            EddieLogger.Info("Network is not available");
 
             NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
         }
@@ -775,7 +708,7 @@ namespace Eddie.NativeAndroidApp
             string text, server = "";
             Dictionary<string, string> pData = settingsManager.SystemLastProfileInfo;
 
-            LogsManager.Instance.Info("Network is connected to {0}", NetworkStatusReceiver.GetNetworkDescription());
+            EddieLogger.Info("Network is connected to {0}", NetworkStatusReceiver.GetNetworkDescription());
 
             NetworkStatusChanged(OpenVPNTunnel.VPNAction.RESUME);
 
@@ -792,35 +725,35 @@ namespace Eddie.NativeAndroidApp
     
         public void OnNetworkStatusIsConnecting()
         {
-            LogsManager.Instance.Info("Network is connecting");
+            EddieLogger.Info("Network is connecting");
 
             NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
         }
     
         public void OnNetworkStatusIsDisonnecting()
         {
-            LogsManager.Instance.Info("Network is disconnecting");
+            EddieLogger.Info("Network is disconnecting");
 
             NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
         }
     
         public void OnNetworkStatusSuspended()
         {
-            LogsManager.Instance.Info("Network is suspended");
+            EddieLogger.Info("Network is suspended");
 
             NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
         }
     
         public void OnNetworkStatusNotConnected()
         {
-            LogsManager.Instance.Info("Network is not connected");
+            EddieLogger.Info("Network is not connected");
 
             NetworkStatusChanged(OpenVPNTunnel.VPNAction.PAUSE);
         }
     
         public void OnNetworkTypeChanged()
         {
-            LogsManager.Instance.Info("Network type has changed to {0}", NetworkStatusReceiver.GetNetworkDescription());
+            EddieLogger.Info("Network type has changed to {0}", NetworkStatusReceiver.GetNetworkDescription());
 
             NetworkStatusChanged(OpenVPNTunnel.VPNAction.NETWORK_TYPE_CHANGED);
         }

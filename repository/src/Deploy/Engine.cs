@@ -220,14 +220,16 @@ namespace Eddie.Deploy
 							{								
 								foreach (string os in new string[] { "windows-10", "windows-7", "windows-vista", "windows-xp" })
 								{
-									string netFramework = "4.0";
+									string netFramework = "4.0";									
+									/* 2.17.1
 									if ((os == "windows-7") && (IsEddie3() == false))
-										netFramework = "2.0";
+										netFramework = "3.5";
 									if ((os == "windows-vista") && (IsEddie3() == false))
-										netFramework = "2.0";
+										netFramework = "4.0";
 									if ((os == "windows-xp") && (IsEddie3() == false))
-										netFramework = "2.0";
-
+										netFramework = "4.0";
+									*/
+									
 									ListPackages.Add(new Package(os, arch, ui, true, netFramework, format));
 								}
 							}
@@ -1139,7 +1141,7 @@ namespace Eddie.Deploy
 
 			string o = Shell(pathCompiler, arguments);
 
-			if (o.IndexOf("0 Error(s)", StringComparison.InvariantCulture) != -1)
+			if (o.IndexOf(" 0 Error(s)", StringComparison.InvariantCulture) != -1)
 			{
 				return true;
 			}

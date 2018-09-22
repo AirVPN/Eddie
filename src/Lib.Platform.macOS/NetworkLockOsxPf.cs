@@ -150,7 +150,7 @@ namespace Eddie.Platform.MacOS
 			pf += "# " + Engine.Instance.GenerateFileHeader() + "\n";
 
 			pf += "# Block policy, RST for quickly notice\n";
-			pf += "set block-policy return\n"; // 2.9
+			pf += "set block-policy return\n"; // 2.9 
 
 			pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
 			if (m_connected)

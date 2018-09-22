@@ -63,9 +63,24 @@ namespace Eddie.Core.Providers
 				connectionActive.OpenVpnProfileStartup.AppendDirective("auth-retry", "none", "");
 		}
 
-		public override string Refresh()
+		public override bool GetNeedRefresh()
 		{
+			int minInterval = RefreshInterval;
+			if (minInterval == -1)
+				minInterval = 60 * 60 * 24;
+			if (m_lastTryRefresh + minInterval > UtilsCore.UnixTimeStamp())
+				return false;
+
+			return true;
+		}
+
+		public override string OnRefresh()
+		{
+			base.OnRefresh();
+
 			string pathScan = Path;
+
+			// Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshStart, Title));
 
 			List<ConnectionInfo> connections = new List<ConnectionInfo>();
 
@@ -103,6 +118,8 @@ namespace Eddie.Core.Providers
 			{
 				nodeProfile.Attributes.RemoveNamedItem("checked");
 			}
+
+			Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshDone, Title));
 
 			return "";
 		}

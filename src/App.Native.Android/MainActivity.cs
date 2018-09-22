@@ -30,7 +30,7 @@ using Android.Support.V4.Widget;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 using Android.Net;
 using System.Collections.Generic;
-using Eddie.Common.Log;
+using Android.Runtime;
 
 namespace Eddie.NativeAndroidApp
 {
@@ -66,11 +66,11 @@ namespace Eddie.NativeAndroidApp
 
             supportTools = new SupportTools(this);
 
+            EddieLogger.Init(this);
+
             networkStatusReceiver = new NetworkStatusReceiver();
             networkStatusReceiver.AddListener(this);
             this.RegisterReceiver(networkStatusReceiver, new IntentFilter(Android.Net.ConnectivityManager.ConnectivityAction));
-
-            NetworkStatusReceiver.Status type = NetworkStatusReceiver.GetNetworkStatus();
 
             toolbar = FindViewById<Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
@@ -179,7 +179,7 @@ namespace Eddie.NativeAndroidApp
                 
                 default:
                 {
-                    LogsManager.Instance.Warning("MainActivity::OnActivityResult: unhandled requestCode {0}, resultCode {1}", requestCode, resultCode, new string[0]);
+                    EddieLogger.Warning("MainActivity::OnActivityResult: unhandled requestCode {0}, resultCode {1}", requestCode, resultCode, new string[0]);
                 }
                 break;
             }
@@ -241,11 +241,25 @@ namespace Eddie.NativeAndroidApp
                 {
                     profileData = profileInfo["profile"];
 
-                    txtServerName.Text = profileInfo["server"];
-                    txtServerPort.Text = profileInfo["port"];
-                    txtServerProtocol.Text = profileInfo["protocol"];
+                    if(profileInfo.ContainsKey("name") == true)
+                        txtProfileFileName.Text = profileInfo["name"];
+                    else
+                        txtProfileFileName.Text = "???";
+                    
+                    if(profileInfo.ContainsKey("server") == true)
+                        txtServerName.Text = profileInfo["server"];
+                    else
+                        txtServerName.Text = "???";
 
-                    txtProfileFileName.Text = profileInfo["name"];
+                    if(profileInfo.ContainsKey("port") == true)
+                        txtServerPort.Text = profileInfo["port"];
+                    else
+                        txtServerPort.Text = "???";
+
+                    if(profileInfo.ContainsKey("protocol") == true)
+                        txtServerProtocol.Text = profileInfo["protocol"];
+                    else
+                        txtServerProtocol.Text = "???";
 
                     llServerInfo.Visibility = ViewStates.Visible;
 
@@ -256,14 +270,17 @@ namespace Eddie.NativeAndroidApp
                 {
                     int errMsg = 0;
                     
-                    if(profileInfo["status"].Equals("not_found"))
-                        errMsg = Resource.String.conn_profile_not_found;
-                    else if(profileInfo["status"].Equals("invalid"))
-                        errMsg = Resource.String.conn_profile_is_invalid;
-                    else if(profileInfo["status"].Equals("no_permission"))
-                        errMsg = Resource.String.conn_profile_no_permission;
+                    if(profileInfo.ContainsKey("status") == true)
+                    {
+                        if(profileInfo["status"].Equals("not_found"))
+                            errMsg = Resource.String.conn_profile_not_found;
+                        else if(profileInfo["status"].Equals("invalid"))
+                            errMsg = Resource.String.conn_profile_is_invalid;
+                        else if(profileInfo["status"].Equals("no_permission"))
+                            errMsg = Resource.String.conn_profile_no_permission;
 
-                    supportTools.InfoDialog(errMsg);
+                        supportTools.InfoDialog(errMsg);
+                    }
                     
                     profileData = "";
                     
@@ -304,6 +321,8 @@ namespace Eddie.NativeAndroidApp
             networkStatusReceiver.RemoveListener(this);
     
             this.UnregisterReceiver(networkStatusReceiver);
+            
+            AndroidEnvironment.UnhandledExceptionRaiser -= supportTools.HandleUncaughtException;
         }
 
         protected void OnNavigationViewItemSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
@@ -322,7 +341,7 @@ namespace Eddie.NativeAndroidApp
                 {
                     Intent logActivityIntent = new Intent(ApplicationContext, typeof(LogActivity));
                     
-                    logActivityIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                    logActivityIntent.PutExtra("ViewMode", (int)LogActivity.ViewMode.ListView);
 
                     StartActivity(logActivityIntent);
                 }
@@ -332,8 +351,6 @@ namespace Eddie.NativeAndroidApp
                 {
                     Intent settingsActivityIntent = new Intent(ApplicationContext, typeof(SettingsActivity));
                     
-                    settingsActivityIntent.SetFlags(ActivityFlags.SingleTop);
-
                     StartActivityForResult(settingsActivityIntent, ACTIVITY_RESULT_SETTINGS);
                 }
                 break;
@@ -342,8 +359,6 @@ namespace Eddie.NativeAndroidApp
                 {
                     Intent aboutActivityIntent = new Intent(ApplicationContext, typeof(AboutActivity));
                     
-                    aboutActivityIntent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.NewTask);
-
                     StartActivity(aboutActivityIntent);
                 }
                 break;
@@ -453,7 +468,8 @@ namespace Eddie.NativeAndroidApp
                 {
                     case VPN.Status.CONNECTED:
                     {
-                        supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.connection_success), profileInfo["server"], NetworkStatusReceiver.GetNetworkDescription()));
+                        if(profileInfo.ContainsKey("server") == true)
+                            supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.connection_success), profileInfo["server"], NetworkStatusReceiver.GetNetworkDescription()));
 
                         settingsManager.SystemLastProfileIsConnected = true;
                     }
@@ -461,7 +477,8 @@ namespace Eddie.NativeAndroidApp
 
                     case VPN.Status.NOT_CONNECTED:
                     {
-                        supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.connection_disconnected), profileInfo["server"]));
+                        if(profileInfo.ContainsKey("server") == true)
+                            supportTools.InfoDialog(string.Format(Resources.GetString(Resource.String.connection_disconnected), profileInfo["server"]));
 
                         settingsManager.SystemLastProfileIsConnected = false;
                     }
@@ -495,11 +512,26 @@ namespace Eddie.NativeAndroidApp
 
             settingsManager.SystemLastProfile = profileData;
 
-            pData.Add("name", profileInfo["name"]);
-            pData.Add("server", profileInfo["server"]);
-            pData.Add("port", profileInfo["port"]);
-            pData.Add("protocol", profileInfo["protocol"]);
-            
+            if(profileInfo.ContainsKey("name") == true)
+                pData.Add("name", profileInfo["name"]);
+            else
+                pData.Add("name", "???");
+
+            if(profileInfo.ContainsKey("server") == true)
+                pData.Add("server", profileInfo["server"]);
+            else
+                pData.Add("server", "???");
+
+            if(profileInfo.ContainsKey("port") == true)
+                pData.Add("port", profileInfo["port"]);
+            else
+                pData.Add("port", "???");
+
+            if(profileInfo.ContainsKey("protocol") == true)
+                pData.Add("protocol", profileInfo["protocol"]);
+            else
+                pData.Add("protocol", "???");
+
             settingsManager.SystemLastProfileInfo = pData;
         }
 
@@ -518,7 +550,7 @@ namespace Eddie.NativeAndroidApp
         }
         
         // NetworkStatusReceiver
-        
+
         public void OnNetworkStatusNotAvailable()
         {
             if(txtNetworkStatus != null)

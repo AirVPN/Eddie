@@ -27,7 +27,8 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class WindowProviderNoBootstrapController : NSWindowController
 	{
-		public Provider Provider;
+        public static WindowProviderNoBootstrapController Singleton = null;
+        public Provider Provider;
 
 		public WindowProviderNoBootstrapController(IntPtr handle) : base(handle)
 		{
@@ -40,6 +41,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public WindowProviderNoBootstrapController() : base("WindowProviderNoBootstrap")
 		{
+            Singleton = this;
 		}
 
 		public override void AwakeFromNib()
@@ -48,6 +50,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Window.Title = Constants.Name + " - " + Messages.WindowsProviderNoBootstrapTitle;
 
+            GuiUtils.SetCheck(ChkDontShowAgain, false);
 			LblBody.StringValue = Common.MessagesFormatter.Format(Messages.WindowsProviderNoBootstrapBody, Provider.Title);
 			TxtManualUrls.StringValue = Engine.Instance.Storage.Get("bootstrap.urls");
 
@@ -55,10 +58,11 @@ namespace Eddie.UI.Cocoa.Osx
 			{
                 Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkDontShowAgain));
 				Engine.Instance.Storage.Set("bootstrap.urls", TxtManualUrls.StringValue);
-				Engine.Instance.RefreshInvalidateConnections();
+				Engine.Instance.RefreshProvidersInvalidateConnections();
 
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();
+                Singleton = null;
 			};
 
 			CmdCancel.Activated += (object sender, EventArgs e) =>
@@ -67,7 +71,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();
-			};
+                Singleton = null;
+            };
 		}
 
 		public new WindowProviderNoBootstrap Window

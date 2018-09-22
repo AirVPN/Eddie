@@ -749,10 +749,13 @@ namespace Eddie.NativeAndroidApp
 
                 prefVal = GetString(SYSTEM_OPTION_APPLICATION_FILTER, SYSTEM_OPTION_APPLICATION_FILTER_DEFAULT);
 
-                valArray = prefVal.Split(DEFAULT_SPLIT_SEPARATOR);
-
-                foreach(string item in valArray)
-                    list.Add(item);
+                if(!prefVal.Equals(""))
+                {
+                    valArray = prefVal.Split(DEFAULT_SPLIT_SEPARATOR);
+    
+                    foreach(string item in valArray)
+                        list.Add(item);
+                }
 
                 return list;
             }

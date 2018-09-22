@@ -97,6 +97,13 @@ namespace Eddie.UI.Cocoa.Osx
                     });
                 }
             }
+            else if (cmd == "ui.updater.available")
+            {
+                new NSObject().InvokeOnMainThread(() =>
+                {
+                    MainWindow.ShowUpdater();
+                });
+            }
             else if (cmd == "system.report.progress")
             {
                 string step = data["step"].Value as string;

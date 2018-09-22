@@ -10,6 +10,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="WindowPreferencesController">
             <connections>
                 <outlet property="CboAdvancedManifestRefresh" destination="ll2-5F-oSu" id="itO-mT-9gS"/>
+                <outlet property="CboAdvancedUpdaterChannel" destination="568-E0-EJ8" id="pqd-x0-2J3"/>
                 <outlet property="CboDnsSwitchMode" destination="hxb-i3-foN" id="6o8-81-kLq"/>
                 <outlet property="CboIpV6" destination="ygm-BR-rTG" id="w0w-aA-YPg"/>
                 <outlet property="CboLockIncoming" destination="cL8-Bc-6u4" id="qyF-da-DTh"/>
@@ -1364,8 +1365,8 @@
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
                                         </button>
-                                        <button id="PlL-FU-bP0">
-                                            <rect key="frame" x="239" y="235" width="490" height="18"/>
+                                        <button misplaced="YES" id="PlL-FU-bP0">
+                                            <rect key="frame" x="239" y="201" width="490" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Ii-hC-oPu">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1470,8 +1471,8 @@
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
                                         </button>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="Ybz-3Z-dSq">
-                                            <rect key="frame" x="15" y="235" width="220" height="17"/>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="Ybz-3Z-dSq">
+                                            <rect key="frame" x="15" y="201" width="220" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Enable latency tests:" id="DtS-z9-i2J">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -1521,6 +1522,29 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="mCd-nb-BlU">
+                                            <rect key="frame" x="15" y="232" width="220" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Update channel:" id="W0F-dw-1Vv">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <popUpButton verticalHuggingPriority="750" misplaced="YES" id="568-E0-EJ8">
+                                            <rect key="frame" x="239" y="228" width="191" height="26"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <popUpButtonCell key="cell" type="push" title="Disabled" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="fOf-ix-JAW">
+                                                <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <menu key="menu" title="OtherViews" id="Ms7-HD-XjM">
+                                                    <items>
+                                                        <menuItem title="Disabled" state="on" id="CvZ-By-J4h"/>
+                                                        <menuItem title="Automatic" id="245-Yh-Z8K"/>
+                                                    </items>
+                                                </menu>
+                                            </popUpButtonCell>
+                                        </popUpButton>
                                     </subviews>
                                 </view>
                             </tabViewItem>

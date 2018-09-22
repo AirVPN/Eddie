@@ -39,6 +39,7 @@
                 <outlet property="CmdServersRename" destination="i0R-O4-nuU" id="6oo-Wd-6pM"/>
                 <outlet property="CmdServersUndefined" destination="0dd-OC-eGN" id="vwc-ne-5QU"/>
                 <outlet property="CmdServersWhiteList" destination="6GG-GT-Cy4" id="2aL-ue-mdi"/>
+                <outlet property="CmdUpdater" destination="Xye-Sa-FcZ" id="MRD-qN-qqt"/>
                 <outlet property="ImgConnectedCountry" destination="Ozh-Vi-DHT" id="tUG-DG-1lf"/>
                 <outlet property="ImgNetworkLock" destination="ons-kJ-mAk" id="c1g-C0-TMb"/>
                 <outlet property="ImgProgress" destination="gMg-Qv-4ge" id="9qz-23-17r"/>
@@ -81,6 +82,7 @@
                 <outlet property="MnuTrayQuit" destination="cQb-RC-8hT" id="HW2-mc-nwm"/>
                 <outlet property="MnuTrayRestore" destination="ACK-P9-tRH" id="5l6-vI-qol"/>
                 <outlet property="MnuTrayStatus" destination="9x6-QD-kVV" id="vGL-bx-XVj"/>
+                <outlet property="MnuTrayUpdate" destination="7Xl-Gf-DqX" id="1tP-Bm-xgr"/>
                 <outlet property="PnlChart" destination="c6A-XF-Xk5" id="qln-Bu-YhO"/>
                 <outlet property="ServersContextMenu" destination="PCV-hz-Nwr" id="gNd-gA-7lp"/>
                 <outlet property="TabMain" destination="mHk-Xp-9aS" id="UuD-Zz-34L"/>
@@ -441,14 +443,22 @@
                                             </tabViewItems>
                                         </tabView>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="KQJ-fY-w9r">
-                                            <rect key="frame" x="426" y="-3" width="161" height="17"/>
+                                            <rect key="frame" x="15" y="-1" width="558" height="16"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="WJe-rg-76r">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="scrollBarColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <button verticalHuggingPriority="750" misplaced="YES" id="Xye-Sa-FcZ">
+                                            <rect key="frame" x="494" y="-1" width="94" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="inline" title="Update available" bezelStyle="inline" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Am5-Qs-5mF">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="miniSystem"/>
+                                            </buttonCell>
+                                        </button>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -1243,6 +1253,7 @@
                     </button>
                 </subviews>
             </view>
+            <point key="canvasLocation" x="131" y="162"/>
         </window>
         <menu title="Servers" autoenablesItems="NO" id="PCV-hz-Nwr">
             <items>
@@ -1322,6 +1333,9 @@
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="uzk-V8-qmR"/>
                 <menuItem title="Preferences" image="settings_16" id="8tg-nT-XJV">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
+                <menuItem title="Update" image="settings_16" id="7Xl-Gf-DqX">
                     <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
                 <menuItem title="About" image="about_16" id="83q-TJ-BhH">

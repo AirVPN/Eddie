@@ -234,7 +234,7 @@ namespace Eddie.Forms.Controls
 					foreach (ListViewItemArea viewItem in itemsToRemove)
 					{
 						Items.Remove(viewItem);
-						ItemsAreas.Remove(viewItem.Info.Name);
+						ItemsAreas.Remove(viewItem.Info.Code);
 					}
 				}
 				else
@@ -252,7 +252,7 @@ namespace Eddie.Forms.Controls
 					ItemsAreas.Clear();
 					foreach (ListViewItemArea itemCurrent in items)
 					{
-						ItemsAreas.Add(itemCurrent.Info.Name, itemCurrent);
+						ItemsAreas.Add(itemCurrent.Info.Code, itemCurrent);
 						Items.Add(itemCurrent);
 					}
 				}

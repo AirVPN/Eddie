@@ -129,13 +129,13 @@ namespace Eddie.Core
 					if (path == "")
 						throw new Exception(Messages.TorControlNoPath);
 
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Cookie, from " + path));
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Cookie, from " + path, GetTorExecutablePath()));
 
 					password = Platform.Instance.FileContentsReadBytes(path);
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Password"));
+					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Password", GetTorExecutablePath()));
 				}
 			}
 
@@ -175,7 +175,7 @@ namespace Eddie.Core
 						result = result.Replace("250-", "").Trim();
 						result = result.Replace("250 OK", "");
 						result = result.Replace("version=", "");
-						result = Messages.TorControlTest + result.Trim();
+						result = MessagesFormatter.Format(Messages.TorControlTest, result.Trim(), GetTorExecutablePath());
 					}
 				}
 			}

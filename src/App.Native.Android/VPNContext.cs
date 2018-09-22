@@ -19,8 +19,6 @@
 // 20 June 2018 - author: promind - initial release. Based on revised code from com.eddie.android. (a tribute to the 1859 Perugia uprising occurred on 20 June 1859 and in memory of those brave inhabitants who fought for the liberty of Perugia)
 
 using Android.OS;
-using Android.Util;
-using Eddie.Common.Log;
 using System;
 using System.Collections.Generic;
 
@@ -28,21 +26,23 @@ namespace Eddie.NativeAndroidApp
 {
 	public class VPNContext : IDisposable
 	{
-		private VPNService.Builder m_builder = null;		
-		private ParcelFileDescriptor m_fileDescriptor = null;
+		private VPNService.Builder vpnServiceBuilder = null;		
+		private ParcelFileDescriptor fileDescriptor = null;
         private SettingsManager settingsManager = new SettingsManager();
 
-		private bool m_blockIPV4 = false;
-		private bool m_blockIPV6 = false;
-		private bool m_customDNS = false;
-		private bool m_hasDNS = false;
-		private bool m_forceMTU = false;
+		private bool blockIPV4 = false;
+		private bool blockIPV6 = false;
+		private bool customDNS = false;
+		private bool hasDNS = false;
+		private bool forceMTU = false;
 
 		public VPNContext(VPNService service)
 		{
-			m_builder = new VPNService.Builder(service);
+			vpnServiceBuilder = new VPNService.Builder(service);
 
-			m_builder.SetConfigureIntent(service.CreateConfigIntent());
+			vpnServiceBuilder.SetConfigureIntent(service.CreateConfigIntent());
+
+            EddieLogger.Init(service);
 
 			InitDNS();
 			
@@ -60,7 +60,7 @@ namespace Eddie.NativeAndroidApp
 		{
 			get
 			{
-				return m_builder;
+				return vpnServiceBuilder;
 			}
 		}
 
@@ -76,7 +76,7 @@ namespace Eddie.NativeAndroidApp
                 if(dnsCustom.Count == 0)
     				return;
     
-    			m_customDNS = true;
+    			customDNS = true;
     
     			foreach(string dns in dnsCustom)
     			{
@@ -84,7 +84,7 @@ namespace Eddie.NativeAndroidApp
     			}
             }
             else
-                m_customDNS = false;
+                customDNS = false;
 		}
 
 		private void InitMTU()
@@ -100,8 +100,8 @@ namespace Eddie.NativeAndroidApp
 				
                 if(mtu > 0)
 				{
-					m_builder.SetMtu(mtu);
-					m_forceMTU = true;
+					vpnServiceBuilder.SetMtu(mtu);
+					forceMTU = true;
 				}
 			}
 			catch(Exception e)
@@ -128,9 +128,9 @@ namespace Eddie.NativeAndroidApp
 
 				foreach(string app in applicationsList)
 				{
-					LogsManager.Instance.Debug(string.Format("Application '{0}' will be added to allowed list (inside tunnel)", app));
+					EddieLogger.Debug(string.Format("Adding '{0}' to whitelisted applications. Traffic and data will be encapsuleted inside the tunnel.", app));
 					
-                    m_builder.AddAllowedApplication(app);
+                    vpnServiceBuilder.AddAllowedApplication(app);
 				}					
 			}
 			else if(filterType == SettingsManager.SYSTEM_OPTION_APPLICATION_FILTER_TYPE_BLACKLIST)
@@ -139,14 +139,14 @@ namespace Eddie.NativeAndroidApp
 
 				foreach(string app in applicationsList)
 				{
-					LogsManager.Instance.Debug(string.Format("Application '{0}' will be added to disallowed list (outside tunnel)", app));
+					EddieLogger.Debug(string.Format("Adding '{0}' to blacklisted applications. Traffic and data will be outside of the tunnel control.", app));
 					
-                    m_builder.AddDisallowedApplication(app);
+                    vpnServiceBuilder.AddDisallowedApplication(app);
 				}					
 			}
 			else
 			{
-				throw new Exception(string.Format("unknown application's filter type '{0}'", filterType));
+				throw new Exception(string.Format("Unknown application's filter type '{0}'", filterType));
 			}
 		}
 		
@@ -156,15 +156,15 @@ namespace Eddie.NativeAndroidApp
 			
             EnsureDNS();
 
-			if(m_builder == null)
-				throw new Exception("internal error (m_builder is null)");
+			if(vpnServiceBuilder == null)
+				throw new Exception("Internal error (vpnServiceBuilder is null)");
 
-			if(m_fileDescriptor != null)
-				throw new Exception("internal error (m_fileDescriptor already initialized)");
+			if(fileDescriptor != null)
+				throw new Exception("Internal error (fileDescriptor already initialized)");
 
-			m_fileDescriptor = m_builder.Establish();
+			fileDescriptor = vpnServiceBuilder.Establish();
 
-            return m_fileDescriptor;
+            return fileDescriptor;
 		}
 
 		public void Dispose()
@@ -182,11 +182,11 @@ namespace Eddie.NativeAndroidApp
 
 		private void Cleanup()
 		{
-			SupportTools.SafeClose(m_fileDescriptor);
-			m_fileDescriptor = null;
+			SupportTools.SafeClose(fileDescriptor);
+			fileDescriptor = null;
 
-			SupportTools.SafeDispose(m_builder);
-			m_builder = null;
+			SupportTools.SafeDispose(vpnServiceBuilder);
+			vpnServiceBuilder = null;
 		}
 
 		private void EnsureDNS()
@@ -194,7 +194,7 @@ namespace Eddie.NativeAndroidApp
 			if(!settingsManager.SystemDNSOverrideEnable)
 				return;
 
-			if(m_hasDNS)
+			if(hasDNS)
 				return;     // At least one DNS has been added, do not check for alternative
 
 			if(settingsManager.SystemDNSOverrideEnable)
@@ -210,18 +210,18 @@ namespace Eddie.NativeAndroidApp
 
 		private void EnsureRoutes()
 		{
-			if(m_blockIPV4 == false)
+			if(blockIPV4 == false)
 			{
-				m_builder.AllowFamily(global::Android.Systems.OsConstants.AfInet);
+				vpnServiceBuilder.AllowFamily(global::Android.Systems.OsConstants.AfInet);
 				// Routes all IPV4 traffic inside the tunnel
-				m_builder.AddRoute("0.0.0.0", 0);
+				vpnServiceBuilder.AddRoute("0.0.0.0", 0);
 			}
 
-			if(m_blockIPV6 == false)
+			if(blockIPV6 == false)
 			{
-				m_builder.AllowFamily(global::Android.Systems.OsConstants.AfInet6);
+				vpnServiceBuilder.AllowFamily(global::Android.Systems.OsConstants.AfInet6);
 				// Routes all IPV6 traffic inside the tunnel
-				m_builder.AddRoute("::", 0);
+				vpnServiceBuilder.AddRoute("::", 0);
 			}
 		}
 
@@ -230,33 +230,33 @@ namespace Eddie.NativeAndroidApp
 			address = address.Trim();
 			
             if(SupportTools.Empty(address))
-				throw new Exception("invalid DNS server");
+				throw new Exception("Invalid DNS server");
 
-			LogsManager.Instance.Debug("Adding DNS server '{0}'", address);
+			EddieLogger.Debug("Adding DNS server '{0}'", address);
 
-			m_builder.AddDnsServer(address);
-			m_hasDNS = true;
+			vpnServiceBuilder.AddDnsServer(address);
+			hasDNS = true;
 		}
 
 		public void AddDNSServer(string address, int ipv6)
 		{
-			if(m_customDNS)
-				LogsManager.Instance.Debug("DNS forced (address '{0}' will be skipped)", address);
+			if(customDNS)
+				EddieLogger.Debug("DNS forced (address '{0}' will be skipped)", address);
 			else
 				DoAddDNS(address);			
 		}
 
 		public void SetBlockIPV6(bool block)
 		{
-			m_blockIPV6 = block;			
+			blockIPV6 = block;			
 		}
 
 		public void SetMTU(int mtu)
 		{
-			if(m_forceMTU)
-				LogsManager.Instance.Debug("MTU forced (value '{0}' will be skipped)", mtu);
+			if(forceMTU)
+				EddieLogger.Debug("MTU forced (value '{0}' will be skipped)", mtu);
 			else
-				m_builder.SetMtu(mtu);
+				vpnServiceBuilder.SetMtu(mtu);
 		}
 	}
 }

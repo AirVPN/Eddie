@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using Eddie.Common;
 
@@ -27,10 +28,11 @@ namespace Eddie.Core
 {
 	public class ProvidersManager
 	{
+		public bool InvalidateWithNextRefresh = false;
+
 		private Dictionary<string, XmlDocument> Definitions = new Dictionary<string, XmlDocument>();
 		private List<Provider> m_providers = new List<Provider>();
 
-		private Int64 m_lastRefreshTry = 0;
 		private Int64 m_lastRefreshDone = 0;
 
 		public List<Provider> Providers
@@ -40,7 +42,7 @@ namespace Eddie.Core
 				return m_providers;
 			}
 		}
-
+		
 		public Int64 LastRefreshDone
 		{
 			get
@@ -48,7 +50,7 @@ namespace Eddie.Core
 				return m_lastRefreshDone;
 			}
 		}
-
+		
 		public int CountEnabled
 		{
 			get
@@ -207,66 +209,45 @@ namespace Eddie.Core
 
 			return provider;
 		}
-
-		public bool NeedUpdate(bool recommended)
-		{
-			Int64 refreshInterval = Engine.Instance.Storage.GetInt("advanced.manifest.refresh");
-			if (refreshInterval == 0)
-				return false;
-
-			if (refreshInterval < 0)
-				refreshInterval = 10; // Default
-
-			if (m_lastRefreshTry + 60 * refreshInterval < UtilsCore.UnixTimeStamp())
-				return true;
-
-			return false;
-		}
-
+		
 		public void Remove(Provider provider)
 		{
 			Providers.Remove(provider);
 		}
 
-		public string Refresh()
+		public void DoRefresh(bool force)
 		{
-			m_lastRefreshTry = UtilsCore.UnixTimeStamp();
-
-			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestUpdate);
-
-			string globalResult = "";
-
-			// TOOPTIMIZE: Stop at first error
+			bool postRefreshRecompute = force;
 			foreach (Provider provider in Providers)
 			{
 				if (provider.Enabled)
 				{
-					string result = provider.Refresh();
-					if (result != "")
+					if( (force) || (provider.GetNeedRefresh()) )
 					{
-						if (Engine.Instance.ConnectionActive == null) // Note: only if not connected, otherwise misunderstanding.
+						postRefreshRecompute = true;
+						string result = provider.OnRefresh();
+						if (result != "")
 						{
-							if (Engine.Instance.Storage.GetBool("ui.skip.provider.manifest.failed") == false)
-								Engine.Instance.OnProviderManifestFailed(provider);
-						}
-							
-						if (globalResult != "")
-							globalResult += "; ";
-						globalResult += result;
+							if (Engine.Instance.ConnectionActive == null) // Note: only if not connected, otherwise misunderstanding.
+							{
+								if (Engine.Instance.Storage.GetBool("ui.skip.provider.manifest.failed") == false)
+									Engine.Instance.OnProviderManifestFailed(provider);
+							}
+						}							
 					}
 				}
 			}
+			
+			if(postRefreshRecompute)
+				Engine.Instance.PostManifestUpdate();
 
-			Engine.Instance.PostManifestUpdate();
+			m_lastRefreshDone = UtilsCore.UnixTimeStamp();
 
-			if (globalResult == "")
+			if(InvalidateWithNextRefresh)
 			{
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.ManifestDone);
-
-				m_lastRefreshDone = UtilsCore.UnixTimeStamp();
+				InvalidateWithNextRefresh = false;
+				Engine.Instance.InvalidateConnections();
 			}
-
-			return globalResult;
 		}
 
 	}

@@ -25,7 +25,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,6 +49,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Conversions.cs" />
     <Compile Include="Converter.cs" />
+    <Compile Include="crypto\AESThenHMAC.cs" />
     <Compile Include="crypto\CryptManager.cs" />
     <Compile Include="IApplication.cs" />
     <Compile Include="io\TempFile.cs" />
@@ -71,6 +71,7 @@
     <Compile Include="threading\DataLocker.cs" />
     <Compile Include="threading\ThreadsGroup.cs" />
     <Compile Include="UiClient.cs" />
+    <Compile Include="Unzip.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="validators\ArgumentVerifier.cs" />
     <Compile Include="validators\NullVerifier.cs" />

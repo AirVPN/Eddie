@@ -23,7 +23,7 @@ using System.Text;
 namespace Eddie.Common
 {
     public static class MessagesFormatter
-    {        
+    {
         public static string Format(string format, string param1)
 		{
 			return format.Replace("{1}", param1);

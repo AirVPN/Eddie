@@ -119,12 +119,20 @@ namespace Eddie.Core
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Ok : Messages.Failed);
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Ok : Messages.Failed);
 
+			/* Changed in 2.17.1
 			Add("Test Ping IPv4", Platform.Instance.Ping(dns.OnlyIPv4.First, 5000).ToString() + " ms");
 			Add("Test Ping IPv6", Platform.Instance.Ping(dns.OnlyIPv6.First, 5000).ToString() + " ms");
 
 			Add("Test HTTP IPv4", TestUrl("http://" + "ipv4." + Constants.Domain + "/test/"));
 			Add("Test HTTP IPv6", TestUrl("http://" + "ipv6." + Constants.Domain + "/test/"));
 			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));		
+			*/
+			Add("Test Ping IPv4", Platform.Instance.Ping(new IpAddress(Constants.WebSiteIPv4), 5000).ToString() + " ms");
+			Add("Test Ping IPv6", Platform.Instance.Ping(new IpAddress(Constants.WebSiteIPv6), 5000).ToString() + " ms");
+
+			Add("Test HTTP IPv4", TestUrl("http://" + Constants.WebSiteIPv4 + "/test/"));
+			Add("Test HTTP IPv6", TestUrl("http://[" + Constants.WebSiteIPv6 + "]/test/"));
+			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));
 		}
 
 		public string TestUrl(string url)

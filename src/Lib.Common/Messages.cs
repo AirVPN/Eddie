@@ -88,11 +88,11 @@ namespace Eddie.Common
 		public static string OsDriverNoVersion = "Unable to find driver version of path '{1}'";
 		public static string OsDriverNoRegPath = "Unable to find driver registry path";
 		public static string BundleExecutableError = "Unexpected bundle executable error {1} ({2}). Dumping report.";
-		public static string ManifestUpdate = "Updating systems & servers data ...";
-		public static string ManifestDone = "Systems & servers data update completed";
-		public static string ManifestFailed = "Cannot retrieve systems & servers data. ({1})";
-		public static string ManifestFailedContinue = "Unable to retrieve systems & servers data. Continue anyway with the old data.";
-		public static string ManifestFailedUnexpected302 = "Unexpected redirect. Open manually '{1}' in your browser for more info.";
+		public static string ProvidersWait = "Collect information about providers ...";
+		public static string ProviderRefreshStart = "Collect information about {1} ...";
+		public static string ProviderRefreshDone = "Collect information about {1} completed";
+		public static string ProviderRefreshFail = "Cannot retrieve information about {1}: {2}";
+		public static string ProviderRefreshFailUnexpected302 = "Unexpected redirect about {1}. Open manually '{2}' in your browser for more info.";
 		public static string CommandLineUnknownOption = "Unknown option in command-line: {1}";
 		public static string OptionsRead = "Reading options from {1}";
 		public static string OptionsNotFound = "Profile options not found, using defaults.";
@@ -149,7 +149,6 @@ namespace Eddie.Common
 		public static string CheckingProxyNoUdp = "UDP is not allowed with a proxy.";
 		public static string CheckingIPv4BlockNotYetImplemented = "IPv4 block not yet implemented.";
 		public static string CustomRouteInvalid = "Invalid or unresolved custom route: {1}";
-		public static string RetrievingManifest = "Retrieving manifest";
 		public static string SessionStart = "Session starting.";
 		public static string SessionStop = "Session terminated.";
 		public static string SessionCancel = "Cancel requested.";
@@ -217,13 +216,13 @@ namespace Eddie.Common
 
 		public static string NetworkLockWindowsFirewallBackupFailed = "Backup of current rules failed.";
 
-		public static string TorControlAuth = "Tor Control authentication method: {1}";
+		public static string TorControlAuth = "Tor Control authentication method: {1}; Tor Path: {2}";
 		public static string TorControlGuardIps = "Tor Control Guard IP detected: {1}";
 		public static string TorControlMeekUnsupported = "Tor, meek bridge found, unsupported yet. Please remove it from the config";
 		public static string TorControlNoPath = "Unable to find your Tor path.";
 		public static string TorControlNoIps = "Unable to find IP address of Tor first node of an established circuit.";
 		public static string TorControlException = "Unable to communicate with Tor ({1}). Is Tor up and running?";
-		public static string TorControlTest = "Successful test. Tor Version: ";
+		public static string TorControlTest = "Successful test. Tor Version: {1}\nTor Path: {2}";
 		public static string TorControlNEWNYM = "Sending request for a new circuit to Tor";
 
 		public static string TcpServerNoBindAddress = "Unable to start TCP server: Address {1} mismatch";
@@ -275,7 +274,7 @@ namespace Eddie.Common
 		public static string WindowsCredentialsRememberPermanent = "Permanent";
 		public static string WindowsFrontMessageTitle = "Important Message";
 		public static string WindowsFrontMessageAccept = "Ok";
-		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more informations";
+		public static string WindowsFrontMessageMore = "Look at https://airvpn.org for more information";
 		public static string WindowsSettingsTitle = "Preferences";
 		public static string WindowsSettingsUiUnit0 = "Bits for speed, bytes for volume";
 		public static string WindowsSettingsUiUnit1 = "Always bytes";
@@ -328,6 +327,7 @@ namespace Eddie.Common
 		public static string WindowsProviderNoBootstrapBody = "Unable to contact provider {1} to obtain bootstrap information.\nPlease check your Internet connection.\n\nIf you are behind a restrictive firewall, please try to open a ticket for help.\n\nIf the support team provides custom bootstrap URLs, please enter them below.";
 		public static string WindowsProfilesTitle = "Profiles";
 		public static string WindowsProfileTitle = "Profile";
+		public static string WindowsUnlockTitle = "Unlock";
 		public static string LogsCopyClipboardDone = "Copy to clipboard done.";
 		public static string LogsSaveToFileDone = "Save to file done.";
 		public static string TooltipServersScoreType = "Choose whether you prefer highest speed (ex. file-sharing) or low-latency speed (ex. gaming)";
@@ -348,6 +348,9 @@ namespace Eddie.Common
 		public static string TooltipLogsCopy = "Copy to clipboard";
 		public static string TooltipLogsSave = "Save to file";
 		public static string TooltipLogsSupport = "Log system information and copy to clipboard. Useful for support requests";
+		public static string TooltipAbout = "About";
+		public static string TooltipPreferences = "Preferences";
+		public static string TooltipUpdater = "Update available";
 		public static string CommandLoginButton = "Login";
 		public static string CommandLogout = "Logout";
 		public static string CommandConnect = "Connect to a recommended server";
@@ -402,8 +405,7 @@ namespace Eddie.Common
 		public static string StatsVpnCipher = "VPN Cipher";
 		public static string StatsVpnControlChannel = "VPN Control Channel";
 		public static string StatsVpnGeneratedOVPN = "VPN OpenVPN Config";
-		public static string StatsVpnGeneratedOVPNPush = "VPN OpenVPN Config with pushes";
-		public static string StatsManifestLastUpdate = "Latest Manifest Update";
+		public static string StatsVpnGeneratedOVPNPush = "VPN OpenVPN Config with pushes";		
 		public static string StatsDiscovery = "Discovery stats";
 		public static string StatsPinger = "Pinger stats";
 		public static string StatsSystemTimeServerDifference = "Server Time Difference";
@@ -469,6 +471,7 @@ namespace Eddie.Common
 
 		public static string ManOptionNetLockMode = "Network Lock mode. Can be [i]None[/i], [i]Auto[/i] or a method name.";
 		public static string ManOptionNetLockAllowPrivate = "Allow private network in Network Lock mode.";
+		public static string ManOptionNetLockAllowDHCP = "Allow DHCP in Network Lock mode (UDP port 67/68).";
 		public static string ManOptionNetLockAllowPing = "Allow ping (ICMP) in Network Lock mode.";
 		public static string ManOptionNetLockAllowDNS = "Allow detected DNS servers in Network Lock mode.";
 		public static string ManOptionNetLockAllowedsIps = "List (comma-separated) of IP or range allowed in Network Lock mode.";
