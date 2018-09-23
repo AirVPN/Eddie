@@ -364,14 +364,15 @@ namespace Eddie.Core
 					Auth();
 				}
 
+				Logs.Log(LogType.Info, Messages.Ready);
+				UiManager.Broadcast("ui.ready");
+
 				// Clodo: Try to remove: if not logged, no servers, fatal error and exit.
 				if ((CanConnect()) && (Engine.Storage.GetBool("connect")))
 					autoStart = true;
 				if (autoStart)
 					Connect();
-				else
-					Logs.Log(LogType.Info, Messages.Ready);
-
+				
 				for (; ; )
 				{
 					OnWork();

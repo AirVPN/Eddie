@@ -28,7 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+			this.components = new System.ComponentModel.Container();
+			this.tmrTimer = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
+			// 
+			// tmrTimer
+			// 
+			this.tmrTimer.Interval = 1000;
+			this.tmrTimer.Tick += new System.EventHandler(this.tmrTimer_Tick);
 			// 
 			// WindowSplash
 			// 
@@ -43,12 +50,17 @@
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "WindowSplash";
+			this.Opacity = 0.9D;
+			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.TopMost = true;
 			this.ResumeLayout(false);
 
         }
 
 		#endregion
+
+		private System.Windows.Forms.Timer tmrTimer;
 	}
 }

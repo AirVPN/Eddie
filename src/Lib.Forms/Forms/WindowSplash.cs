@@ -76,21 +76,45 @@ namespace Eddie.Forms.Forms
 			Form.DrawString(e.Graphics, Body, Font, Brushes.White, r, m_sf);
 		}		
 
+		private delegate void SetStatusDelegate(string t);
 		public void SetStatus(string t)
 		{
-			Body = t;
-			Refresh();
-			Invalidate();
+			if (this.InvokeRequired)
+			{
+				SetStatusDelegate inv = new SetStatusDelegate(this.SetStatus);
+
+				this.BeginInvoke(inv, new object[] { t });
+			}
+			else
+			{
+				Body = t;
+				Refresh();
+				Invalidate();
+			}
 		}
 
+		private delegate void RequestCloseDelegate();
 		public void RequestClose()
 		{
-			Close();
-		}
+			if (this.InvokeRequired)
+			{
+				RequestCloseDelegate inv = new RequestCloseDelegate(this.RequestClose);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				tmrTimer.Enabled = true;
+			}
+		}		
         
 		private void EnableIde()
 		{			
 		}
 
+		private void tmrTimer_Tick(object sender, EventArgs e)
+		{
+			Close();
+		}
 	}
 }

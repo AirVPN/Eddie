@@ -141,5 +141,13 @@ namespace Eddie.Core
 
 			return null;
 		}
-    }
+
+		// Helper
+		public void Broadcast(string command)
+		{
+			Json j = new Json();
+			j["command"].Value = command;
+			Broadcast(j);
+		}
+	}
 }

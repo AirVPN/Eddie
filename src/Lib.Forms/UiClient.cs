@@ -35,18 +35,18 @@ namespace Eddie.Forms
 		public ApplicationContext AppContext;
 		public Eddie.Forms.Engine Engine;
 
+		private Forms.WindowSplash m_splash = new Forms.WindowSplash();
+
 		public override bool Init()
 		{
 			base.Init();
 
-			// ClodoTemp
 			/*
-			Forms.WindowSplash splash = new Forms.WindowSplash();
-			splash.Visible = true;
+			m_splash.Visible = true;
 
 			for (int i = 0; i < 100; i++)
 			{
-				splash.SetStatus(i.ToString());
+				m_splash.SetStatus(i.ToString());
 				Thread.Sleep(10);
 			}
 			*/
@@ -72,13 +72,7 @@ namespace Eddie.Forms
 			FormMain.LoadPhase();
 
 			AppContext = new ApplicationContext();
-
-
-			// ClodoTemp
-			/*
-			splash.RequestClose();
-			*/
-
+			
 			return true;
 		}
 
@@ -117,6 +111,10 @@ namespace Eddie.Forms
 				Forms.WindowMan w = new Forms.WindowMan(); // ClodoTemp
 				w.ShowDialog();
 			}
+			else if (cmd == "ui.ready")
+			{
+				//m_splash.RequestClose();
+			}
 			else if (cmd == "ui.notification")
 			{
 				if (FormMain != null)
@@ -135,6 +133,9 @@ namespace Eddie.Forms
 					textShort = data["short"].Value as string;
 				if (FormMain != null)
 					FormMain.SetStatus(textFull, textShort);
+
+				if (m_splash.Visible)
+					m_splash.SetStatus(textShort);
 			}
 			else if (cmd == "ui.updater.available")
 			{

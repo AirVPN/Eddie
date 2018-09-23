@@ -45,40 +45,48 @@ namespace Eddie.Core.Jobs
 				m_lastVersionNotification = Constants.VersionDesc;
 
 			string channel = Engine.Instance.Storage.Get("updater.channel");
-			
-			HttpRequest request = new HttpRequest();
-			request.Url = Constants.WebSite + "/download/";
-			request.Url += "?mode=info";
-			request.Url += "&platform=" + Platform.Instance.GetCodeInstaller();
-			request.Url += "&arch=" + Platform.Instance.GetArchitecture();
-			request.Url += "&ui=" + "ui";
-			request.Url += "&format=updater";
-			request.Url += "&version=" + channel;
-			HttpResponse response = Engine.Instance.FetchUrl(request);
 
-			Json j = null;
-			if(Json.TryParse(response.GetBody(),out j))
+			try
 			{
-				string latestVersion = j["version"].Value as string;
+				HttpRequest request = new HttpRequest();
+				request.Url = Constants.WebSite + "/download/";
+				request.Url += "?mode=info";
+				request.Url += "&platform=" + Platform.Instance.GetCodeInstaller();
+				request.Url += "&arch=" + Platform.Instance.GetArchitecture();
+				request.Url += "&ui=" + "ui";
+				request.Url += "&format=updater";
+				request.Url += "&version=" + channel;
+				HttpResponse response = Engine.Instance.FetchUrl(request);
 
-				int compare = UtilsCore.CompareVersions(m_lastVersionNotification, latestVersion);
-				
-				if(compare == -1)
+				Json j = null;
+				if (Json.TryParse(response.GetBody(), out j))
 				{
-					Json jUpdaterAvailable = new Json();
-					jUpdaterAvailable["command"].Value = "ui.updater.available";
+					string latestVersion = j["version"].Value as string;
 
-					Engine.Instance.UiManager.Broadcast(jUpdaterAvailable);					
+					int compare = UtilsCore.CompareVersions(m_lastVersionNotification, latestVersion);
+
+					if (compare == -1)
+					{
+						Json jUpdaterAvailable = new Json();
+						jUpdaterAvailable["command"].Value = "ui.updater.available";
+
+						Engine.Instance.UiManager.Broadcast(jUpdaterAvailable);
+					}
+
+					m_lastVersionNotification = latestVersion;
+
+					m_timeEvery = 60 * 60 * 24 * 1000;
 				}
-
-				m_lastVersionNotification = latestVersion;
-
-				m_timeEvery = 60*60*24*1000;
+				else
+				{
+					// Error, retry later
+					m_timeEvery = 60 * 60 * 3 * 1000;
+				}
 			}
-			else
+			catch
 			{
 				// Error, retry later
-				m_timeEvery = 60*60*3*1000;
+				m_timeEvery = 60 * 60 * 3 * 1000;
 			}
 		}
 	}
