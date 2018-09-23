@@ -10,7 +10,7 @@
     <AssemblyName>Eddie</AssemblyName>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.16</ReleaseVersion>    
+    <ReleaseVersion>2.17</ReleaseVersion>    
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
