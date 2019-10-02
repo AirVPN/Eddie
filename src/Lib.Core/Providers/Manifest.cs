@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,9 +43,9 @@ namespace Eddie.Core.Providers
 			base.OnInit();
 
 #if (EDDIE3)
-            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".dns.check", true, Messages.ManOptionServicesDnsCheck);
-            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".tunnel.check", true, Messages.ManOptionServicesTunnelCheck);
-#endif			
+            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".dns.check", true, LanguageManager.GetText("ManOptionServicesDnsCheck"));
+            Engine.Instance.Storage.SetDefaultBool("providers." + GetCode() + ".tunnel.check", true, LanguageManager.GetText("ManOptionServicesTunnelCheck"));
+#endif
 		}
 
 		public override void OnLoad(XmlElement xmlStorage)
@@ -60,7 +60,7 @@ namespace Eddie.Core.Providers
 			{
 				XmlNode nodeDefinitionDefaultManifest = Definition.SelectSingleNode("manifest");
 				if (nodeDefinitionDefaultManifest == null)
-					throw new Exception(Messages.ProvidersInvalid);
+					throw new Exception(LanguageManager.GetText("ProvidersInvalid"));
 
 				Manifest = Storage.ImportNode(nodeDefinitionDefaultManifest, true);
 				Storage.DocumentElement.AppendChild(Manifest);
@@ -199,7 +199,7 @@ namespace Eddie.Core.Providers
 			string key = Engine.Instance.Storage.Get("key");
 
 			XmlNode nodeUser = User;
-			if (nodeUser != null)
+			if( (nodeUser != null) && (nodeUser.Attributes["ca"] != null) )
 			{
 				connectionActive.OpenVpnProfileStartup.AppendDirective("<ca>", nodeUser.Attributes["ca"].Value, "");
 				XmlElement xmlKey = nodeUser.SelectSingleNode("keys/key[@name=\"" + key.Replace("\"","") + "\"]") as XmlElement;
@@ -213,7 +213,7 @@ namespace Eddie.Core.Providers
 
 		public override void OnAuthFailed()
 		{
-			Engine.Instance.Logs.Log(LogType.Warning, Messages.AirVpnAuthFailed);
+			Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("AirVpnAuthFailed"));
 		}
 
 		public override bool GetNeedRefresh()
@@ -246,7 +246,7 @@ namespace Eddie.Core.Providers
 		{
 			base.OnRefresh();
 
-			// Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshStart, Title));
+			// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshStart, Title));
 
 			try
 			{
@@ -254,7 +254,7 @@ namespace Eddie.Core.Providers
 				parameters["act"] = "manifest";
 				parameters["ts"] = Conversions.ToString(m_lastFetchTime);
 								
-				XmlDocument xmlDoc = Fetch(MessagesFormatter.Format(Messages.ProviderRefreshStart, Title), parameters);
+				XmlDocument xmlDoc = Fetch(LanguageManager.GetText("ProviderRefreshStart", Title), parameters);
 				lock (Storage)
 				{
 					if (Manifest != null)
@@ -269,28 +269,46 @@ namespace Eddie.Core.Providers
 					m_lastFetchTime = UtilsCore.UnixTimeStamp();
 				}
 
-				Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshDone, Title));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshDone", Title));
 
-				string msg = GetFrontMessage();
-				if ((msg != "") && (m_frontMessages.Contains(msg) == false))
+				// Show important messages
+				foreach (XmlElement xmlMessage in Manifest.SelectNodes("messages/message"))
 				{
-					Engine.Instance.OnFrontMessage(msg);
-					m_frontMessages.Add(msg);
-				}
+					if ((xmlMessage.HasAttribute("from_time")) && (UtilsCore.UnixTimeStamp() < Conversions.ToInt64(xmlMessage.GetAttribute("from_time"))))
+						continue;
+					if ((xmlMessage.HasAttribute("to_time")) && (UtilsCore.UnixTimeStamp() > Conversions.ToInt64(xmlMessage.GetAttribute("to_time"))))
+						continue;
+
+					Json jMessage = new Json();
+					jMessage["text"].Value = xmlMessage.GetAttribute("text");
+					jMessage["url"].Value = xmlMessage.GetAttribute("url");
+					jMessage["link"].Value = xmlMessage.GetAttribute("link");
+					jMessage["html"].Value = xmlMessage.GetAttribute("html");
+
+					string text = jMessage["text"].Value as string;
+					if (m_frontMessages.Contains(text) == false)
+					{
+						Json jCommand = new Json();
+						jCommand["command"].Value = "ui.frontmessage";
+						jCommand["message"].Value = jMessage;
+						Engine.Instance.UiManager.Broadcast(jCommand);
+						m_frontMessages.Add(text);
+					}
+				}				
 
 				return "";
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.ProviderRefreshFail, Title, e.Message));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshFail", Title, e.Message));
 
-				return MessagesFormatter.Format(Messages.ProviderRefreshFail, Title, e.Message);
+				return LanguageManager.GetText("ProviderRefreshFail", Title, e.Message);
 			}
 		}
 
-		public override IpAddresses GetNetworkLockAllowedIps()
+		public override IpAddresses GetNetworkLockWhiteListOutgoingIPs()
 		{
-			IpAddresses result = base.GetNetworkLockAllowedIps();
+			IpAddresses result = base.GetNetworkLockWhiteListOutgoingIPs();
 
 			List<string> urls = GetBootstrapUrls();
 			foreach (string url in urls)
@@ -302,18 +320,7 @@ namespace Eddie.Core.Providers
 
 			return result;
 		}
-
-		public override string GetFrontMessage()
-		{
-			if (Manifest.Attributes["front_message"] != null)
-			{
-				string msg = Manifest.Attributes["front_message"].Value;
-				return msg;
-			}
-
-			return base.GetFrontMessage();
-		}
-
+		
 		public void Auth(XmlNode node)
 		{
 			lock (Storage)
@@ -323,6 +330,22 @@ namespace Eddie.Core.Providers
 
 				User = Storage.ImportNode(node, true);
 				Storage.DocumentElement.AppendChild(User);
+								
+				string key = Engine.Instance.Storage.Get("key");
+				string firstKey = "";
+				bool found = false;
+				foreach (XmlElement xmlKey in User.SelectNodes("keys/key"))
+				{
+					if (key == xmlKey.GetAttribute("name"))
+					{
+						found = true;
+						break;
+					}
+					if (firstKey == "")
+						firstKey = xmlKey.GetAttribute("name");
+				}
+				if (found == false)
+					Engine.Instance.Storage.Set("key", firstKey);
 			}
 		}
 
@@ -349,25 +372,32 @@ namespace Eddie.Core.Providers
 				{
 					string code = UtilsCore.HashSHA256(nodeServer.Attributes["name"].Value);
 
+					string group = UtilsXml.XmlGetAttributeString(nodeServer, "group", "");
+
+					XmlNode nodeServerGroup = Manifest.SelectSingleNode("//servers_groups/servers_group[@group=\"" + group + "\"]");
+
 					ConnectionInfo infoServer = Engine.Instance.GetConnectionInfo(code, this);
 
 					// Update info
 					infoServer.DisplayName = TitleForDisplay + nodeServer.Attributes["name"].Value;
 					infoServer.ProviderName = nodeServer.Attributes["name"].Value;
-					infoServer.IpsEntry.Set(UtilsXml.XmlGetAttributeString(nodeServer, "ips_entry", ""));
-					infoServer.IpsExit.Set(UtilsXml.XmlGetAttributeString(nodeServer, "ips_exit", ""));
-					infoServer.CountryCode = UtilsXml.XmlGetAttributeString(nodeServer, "country_code", "");
-					infoServer.Location = UtilsXml.XmlGetAttributeString(nodeServer, "location", "");
-					infoServer.ScoreBase = UtilsXml.XmlGetAttributeInt64(nodeServer, "scorebase", 0);
-					infoServer.Bandwidth = UtilsXml.XmlGetAttributeInt64(nodeServer, "bw", 0);
-					infoServer.BandwidthMax = UtilsXml.XmlGetAttributeInt64(nodeServer, "bw_max", 1);
-					infoServer.Users = UtilsXml.XmlGetAttributeInt64(nodeServer, "users", 0);
-					infoServer.WarningOpen = UtilsXml.XmlGetAttributeString(nodeServer, "warning_open", "");
-					infoServer.WarningClosed = UtilsXml.XmlGetAttributeString(nodeServer, "warning_closed", "");
-					infoServer.SupportIPv4 = UtilsXml.XmlGetAttributeBool(nodeServer, "support_ipv4", false);
-					infoServer.SupportIPv6 = UtilsXml.XmlGetAttributeBool(nodeServer, "support_ipv6", false);
-					infoServer.SupportCheck = UtilsXml.XmlGetAttributeBool(nodeServer, "support_check", false);
-					infoServer.OvpnDirectives = UtilsXml.XmlGetAttributeString(nodeServer, "openvpn_directives", "");
+					infoServer.IpsEntry.Set(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ips_entry", ""));
+					infoServer.IpsExit.Set(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ips_exit", ""));
+					infoServer.CountryCode = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "country_code", "");
+					infoServer.Location = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "location", "");
+					infoServer.ScoreBase = XmlGetServerAttributeInt64(nodeServer, nodeServerGroup, "scorebase", 0);
+					infoServer.Bandwidth = XmlGetServerAttributeInt64(nodeServer, nodeServerGroup, "bw", 0);
+					infoServer.BandwidthMax = XmlGetServerAttributeInt64(nodeServer, nodeServerGroup, "bw_max", 1);
+					infoServer.Users = XmlGetServerAttributeInt64(nodeServer, nodeServerGroup, "users", 0);
+					infoServer.WarningOpen = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "warning_open", "");
+					infoServer.WarningClosed = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "warning_closed", "");
+					infoServer.SupportIPv4 = XmlGetServerAttributeBool(nodeServer, nodeServerGroup, "support_ipv4", false);
+					infoServer.SupportIPv6 = XmlGetServerAttributeBool(nodeServer, nodeServerGroup, "support_ipv6", false);
+					infoServer.SupportCheck = XmlGetServerAttributeBool(nodeServer, nodeServerGroup, "support_check", false);
+					infoServer.OvpnDirectives = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "openvpn_directives", "");
+					infoServer.CiphersTls = UtilsString.StringToList(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_tls", ""), ":");
+					infoServer.CiphersTlsSuites = UtilsString.StringToList(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_tlssuites", ""), ":");
+					infoServer.CiphersData = UtilsString.StringToList(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_data", ""), ":");
 				}
 			}
 
@@ -388,10 +418,10 @@ namespace Eddie.Core.Providers
 						continue;
 
 					if (User == null)
-						connection.WarningAdd(Messages.ConnectionWarningLoginRequired, ConnectionInfoWarning.WarningType.Error);
+						connection.WarningAdd(LanguageManager.GetText("ConnectionWarningLoginRequired"), ConnectionInfoWarning.WarningType.Error);
 
 					if (mode.EntryIndex >= connection.IpsEntry.CountIPv4)
-						connection.WarningAdd(Messages.ConnectionWarningModeUnsupported, ConnectionInfoWarning.WarningType.Error);
+						connection.WarningAdd(LanguageManager.GetText("ConnectionWarningModeUnsupported"), ConnectionInfoWarning.WarningType.Error);
 				}
 			}
 		}
@@ -563,7 +593,7 @@ namespace Eddie.Core.Providers
 							aesCryptStream.Dispose();
 					}
 				}
-
+								
 				// HTTP Fetch
 				HttpRequest request = new HttpRequest();
 				request.Url = url;
@@ -612,7 +642,7 @@ namespace Eddie.Core.Providers
 				{
 					string message = "";
 					if (response.GetHeader("location") != "")
-						message = MessagesFormatter.Format(Messages.ProviderRefreshFailUnexpected302, Title, response.GetHeader("location"));
+						message = LanguageManager.GetText("ProviderRefreshFailUnexpected302", Title, response.GetHeader("location"));
 					else
 						message = ex.Message + " - " + response.GetLineReport();
 					throw new Exception(message);
@@ -665,7 +695,7 @@ namespace Eddie.Core.Providers
 						info += " - with '" + proxyMode + "' (" + proxyWhen + ") proxy and '" + proxyAuth + "' auth";
 
 					if (Engine.Instance.Storage.GetBool("advanced.expert"))
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.ExchangeTryFailed, title, hostN.ToString(), info));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ExchangeTryFailed", title, hostN.ToString(), info));
 
 					if (firstError == "")
 						firstError = info;
@@ -714,6 +744,43 @@ namespace Eddie.Core.Providers
 			}
 
 			return GetModeAuto();
+		}
+
+		public static XmlNode XmlGetServerAttribute(XmlNode nodeServer, XmlNode nodeGroup, string name)
+		{
+			if (nodeServer == null)
+				return null;
+			XmlNode nodeAttr = nodeServer.Attributes[name];
+			if( (nodeAttr == null) && (nodeGroup != null) )
+				nodeAttr = nodeGroup.Attributes[name];
+			return nodeAttr;
+		}
+
+		public static string XmlGetServerAttributeString(XmlNode nodeServer, XmlNode nodeGroup, string name, string def)
+		{
+			XmlNode nodeAttr = XmlGetServerAttribute(nodeServer, nodeGroup, name);
+			if (nodeAttr == null)
+				return def;
+			else
+				return nodeAttr.Value;
+		}
+
+		public static Int64 XmlGetServerAttributeInt64(XmlNode nodeServer, XmlNode nodeGroup, string name, Int64 def)
+		{
+			XmlNode nodeAttr = XmlGetServerAttribute(nodeServer, nodeGroup, name);
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToInt64(nodeAttr.Value);
+		}
+
+		public static bool XmlGetServerAttributeBool(XmlNode nodeServer, XmlNode nodeGroup, string name, bool def)
+		{
+			XmlNode nodeAttr = XmlGetServerAttribute(nodeServer, nodeGroup, name);
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToBool(nodeAttr.Value);
 		}
 	}
 }

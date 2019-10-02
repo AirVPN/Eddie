@@ -70,13 +70,19 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Accepted = false;
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsTosTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsTosTitle");
 
-			TxtTos.Value = Core.UI.App.GetTos();
-			ChkTos1.Title = Messages.WindowsTosCheck1;
-			ChkTos2.Title = Messages.WindowsTosCheck2;
-			CmdAccept.Title = Messages.WindowsTosAccept;
-			CmdCancel.StringValue = Messages.WindowsTosReject;
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdAccept);
+
+            // TOCLEAN
+            /*
+            TxtTos.Value = Core.UI.App.GetTos();
+            */
+			ChkTos1.Title = LanguageManager.GetText("WindowsTosCheck1");
+			ChkTos2.Title = LanguageManager.GetText("WindowsTosCheck2");
+			CmdAccept.Title = LanguageManager.GetText("WindowsTosAccept");
+			CmdCancel.StringValue = LanguageManager.GetText("WindowsTosReject");
 
 			bool tosAccepted = Engine.Instance.Storage.GetBool("gui.tos");
 			ChkTos1.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);

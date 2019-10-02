@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,25 +27,12 @@ namespace Eddie.Core
     public class Software
     {		
 		public static string OpenVpnDriver = "";
-        /*
-		public static string OpenVpnPath = "";
-		public static string OpenVpnVersion = "";
-
-		public static string SshPath = "";
-		public static string SshVersion = "";
-		public static string SslPath = "";
-		public static string SslVersion = "";
-
-		public static string CurlVersion = "";
-		public static string CurlPath = "";
-        */
-
+        
         public static Dictionary<string, Tool> Tools = new Dictionary<string, Tool>();
         
-        public static void AddTool(string code, string hash, Tool t)
+        public static void AddTool(string code, Tool t)
         {
             t.Code = code;
-            t.Hash = hash;
             Tools[code] = t;
         }
 
@@ -68,20 +55,20 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Warning, e);
 				OpenVpnDriver = "";
 			}
-
-            // Tools
-            AddTool("openvpn", "hash", new Tools.OpenVPN());
-            AddTool("ssh", "hash", new Tools.SSH());
-            AddTool("ssl", "hash", new Tools.SSL());
-            AddTool("curl", "hash", new Tools.Curl());            
+			
+			// Tools
+			AddTool("openvpn", new Tools.OpenVPN());
+            AddTool("ssh", new Tools.SSH());
+            AddTool("ssl", new Tools.SSL());
+            AddTool("curl", new Tools.Curl());            
             if (Platform.IsUnix())
             {
-                AddTool("update-resolv-conf", "hash", new Tools.File("update-resolv-conf"));
+                AddTool("update-resolv-conf", new Tools.File("update-resolv-conf"));
             }
             if (Platform.IsWindows())
             {
-                AddTool("tap-windows", "hash", new Tools.File("tap-windows.exe"));
-                AddTool("tap-windows-xp", "hash", new Tools.File("tap-windows-xp.exe"));
+				AddTool("tap-windows", new Tools.File("tap-windows.exe"));
+                AddTool("tap-windows-xp", new Tools.File("tap-windows-xp.exe"));
             }
 
             foreach (Tool tool in Tools.Values)
@@ -102,7 +89,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN Driver - " + Messages.OsDriverNotAvailable);
+				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN Driver - " + LanguageManager.GetText("OsDriverNotAvailable"));
 			}
 
             if (GetTool("openvpn").Available())
@@ -111,7 +98,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN - " + LanguageManager.GetText("NotAvailable"));
 			}
 
             if (GetTool("ssh").Available())
@@ -120,7 +107,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Warning, "SSH - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Warning, "SSH - " + LanguageManager.GetText("NotAvailable"));
 			}
 
             if (GetTool("ssl").Available())
@@ -129,7 +116,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Warning, "SSL - " + Messages.NotAvailable);
+				Engine.Instance.Logs.Log(LogType.Warning, "SSL - " + LanguageManager.GetText("NotAvailable"));
 			}
 
             if (GetTool("curl").Available())
@@ -138,8 +125,9 @@ namespace Eddie.Core
             }
             else
             {
-                Engine.Instance.Logs.Log(LogType.Warning, "curl - " + Messages.NotAvailable);
-            }
+                Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText("NotAvailable"));
+
+			}
 
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
 			if (pathCacert != "")
@@ -148,8 +136,9 @@ namespace Eddie.Core
             }
             else
             {
-                Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + Messages.NotAvailable);
-            }
+                Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + LanguageManager.GetText("NotAvailable"));
+
+			}
         }        
 
         public static string FindResource(string tool)

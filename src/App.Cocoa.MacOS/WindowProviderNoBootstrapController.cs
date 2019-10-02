@@ -48,10 +48,13 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsProviderNoBootstrapTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsProviderNoBootstrapTitle");
+
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
 
             GuiUtils.SetCheck(ChkDontShowAgain, false);
-			LblBody.StringValue = Common.MessagesFormatter.Format(Messages.WindowsProviderNoBootstrapBody, Provider.Title);
+			LblBody.StringValue = LanguageManager.GetText("WindowsProviderNoBootstrapBody", Provider.Title);
 			TxtManualUrls.StringValue = Engine.Instance.Storage.Get("bootstrap.urls");
 
 			CmdOk.Activated += (object sender, EventArgs e) =>

@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ namespace Eddie.Forms.Forms
         {
             base.OnLoad(e);
 
-            CommonInit(Messages.WindowsReportTitle);
+            CommonInit(LanguageManager.GetText("WindowsReportTitle"));
 
 			CheckEnabled();
 
@@ -63,8 +63,8 @@ namespace Eddie.Forms.Forms
 				Controls.Add(m_toolTip);
 				m_toolTip.BringToFront();
 
-				m_toolTip.Connect(this.cmdCopyClipboard, Messages.TooltipLogsCopy);
-				m_toolTip.Connect(this.cmdSave, Messages.TooltipLogsSave);
+				m_toolTip.Connect(this.cmdCopyClipboard, LanguageManager.GetText("TooltipLogsCopy"));
+				m_toolTip.Connect(this.cmdSave, LanguageManager.GetText("TooltipLogsSave"));
 			}
 
 			txtBody.Text = "";
@@ -99,7 +99,7 @@ namespace Eddie.Forms.Forms
 
 			Application.UseWaitCursor = false;
 
-			MessageBox.Show(this, Messages.LogsCopyClipboardDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			ShowMessageInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
 		}
 
 		private void cmdSave_Click(object sender, EventArgs e)
@@ -108,9 +108,9 @@ namespace Eddie.Forms.Forms
 
 			using(SaveFileDialog sd = new SaveFileDialog())
 			{
-				sd.Filter = Messages.FilterTextFiles;
+				sd.Filter = LanguageManager.GetText("FilterTextFiles");
 
-				if(sd.ShowDialog() == DialogResult.OK)
+				if (sd.ShowDialog() == DialogResult.OK)
 				{
 					using(StreamWriter sw = new StreamWriter(sd.FileName))
 					{
@@ -119,7 +119,7 @@ namespace Eddie.Forms.Forms
 						//sw.Close();	// because of "using"
 					}
 
-					MessageBox.Show(this, Messages.LogsSaveToFileDone, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+					ShowMessageInfo(LanguageManager.GetText("LogsSaveToFileDone"));
 				}
 			}
 		}

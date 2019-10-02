@@ -65,16 +65,18 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsAboutTitle;
+            Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsAboutTitle");
+
+            GuiUtils.SetButtonDefault(Window, CmdOk);
 
             CmdHomePage.Title = UiClient.Instance.Data["links"]["help"]["website"].Value as string;
             CmdSoftware.Title = UiClient.Instance.Data["links"]["help"]["general"].Value as string;
             CmdSources.Title = UiClient.Instance.Data["links"]["github"].Value as string;
-			TxtVersion.StringValue = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
+            TxtVersion.StringValue = LanguageManager.GetText("WindowsAboutVersion", Constants.VersionDesc);
 
-            LblThanks.StringValue = MessagesFormatter.Format(Messages.WindowsAboutThanks, String.Join(", ", Constants.Thanks.Split(';')));
+            LblThanks.StringValue = LanguageManager.GetText("WindowsAboutThanks", Constants.Thanks);
 
-			CmdHomePage.Activated += (object sender, EventArgs e) =>
+            CmdHomePage.Activated += (object sender, EventArgs e) =>
 			{
                 GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
 			};
@@ -96,12 +98,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdLicense.Activated += (object sender, EventArgs e) =>
 			{
-                (Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "License", UiClient.Instance.Data["about"]["license"].Value as string);
+                UiClient.Instance.MainWindow.ShowText(Window, "License", UiClient.Instance.Data["about"]["license"].Value as string);
 			};
 
 			CmdLibraries.Activated += (object sender, EventArgs e) =>
 			{
-                (Engine.Instance as UI.Cocoa.Osx.Engine).MainWindow.ShowText(Window, "Libraries and Tools", UiClient.Instance.Data["about"]["libraries"].Value as string);
+                UiClient.Instance.MainWindow.ShowText(Window, "Libraries and Tools", UiClient.Instance.Data["about"]["libraries"].Value as string);
 			};
 
 			CmdOk.Activated += (object sender, EventArgs e) =>

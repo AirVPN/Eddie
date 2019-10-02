@@ -106,9 +106,9 @@ namespace Eddie.Platform.MacOS
 		public static extern int eddie_file_get_immutable(string filename);
 
 		[DllImport(NativeLibName)]
-		public static extern int eddie_file_set_immutable(string filename, int flag);
+        public static extern bool eddie_file_get_runasroot(string filename);
 
-		[DllImport(NativeLibName)]
+        [DllImport(NativeLibName)]
 		public static extern int eddie_ip_ping(string address, int timeout);
 
 		public delegate void eddie_sighandler(int signum);

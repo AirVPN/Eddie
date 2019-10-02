@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProjectGuid>{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -13,29 +13,51 @@
     <TargetFrameworkProfile />
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ReleaseVersion>2.17</ReleaseVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;EDDIENET4</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;EDDIENET4</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EDDIENET4</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;EDDIENET4</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EDDIENET4</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;EDDIENET4</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -43,6 +65,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+    <Reference Include="mscorlib">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\System.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
@@ -50,10 +78,15 @@
     <Compile Include="ConnectionActiveRoute.cs" />
     <Compile Include="ConnectionInfoWarning.cs" />
     <Compile Include="ConnectionInfo.cs" />
-    <Compile Include="CoreApplication.cs" />
     <Compile Include="ConnectionMode.cs" />
+    <Compile Include="ConsoleEdition\Engine.cs" />
+    <Compile Include="ConsoleEdition\UiClient.cs" />
     <Compile Include="CountriesManager.cs" />
+    <Compile Include="CryptManager.cs" />
     <Compile Include="DnsManagerEntry.cs" />
+    <Compile Include="ElevatedProcessSocket.cs" />
+    <Compile Include="EngineCommandLine.cs" />
+    <Compile Include="ElevatedProcess.cs" />
     <Compile Include="HttpResponse.cs" />
     <Compile Include="IpAddresses.cs" />
     <Compile Include="HttpRequest.cs" />
@@ -65,6 +98,8 @@
     <Compile Include="Jobs\ProvidersRefresh.cs" />
     <Compile Include="Jobs\Updater.cs" />
     <Compile Include="LanguageManager.cs" />
+    <Compile Include="ShellExternalManager.cs" />
+    <Compile Include="OpenVpnProcess.cs" />
     <Compile Include="PingerJob.cs" />
     <Compile Include="PingerStats.cs" />
     <Compile Include="Job.cs" />
@@ -127,6 +162,7 @@
     <Compile Include="UtilsString.cs" />
     <Compile Include="UtilsCore.cs" />
     <Compile Include="UtilsXml.cs" />
+    <Compile Include="WebServerClient.cs" />
     <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -152,11 +188,9 @@
     <None Include="Resources\TOS.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\manifest.xml" />
     <None Include="Resources\AirVPN.xml" />
     <None Include="Resources\OpenVPN.xml" />
     <None Include="Resources\data.txt" />
-    <None Include="Resources\providers.txt" />
     <Content Include="_Readme.txt" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -102,6 +102,15 @@ namespace Eddie.Common
 			return Convert.ToInt64(v, CultureInfo.InvariantCulture);
 		}
 
+		public static UInt64 ToUInt64(string v)
+		{
+			UInt64 vo;
+			if (UInt64.TryParse(v, NumberStyles.Integer, CultureInfo.InvariantCulture, out vo))
+				return vo;
+			else
+				return 0;
+		}
+
 		public static UInt32 ToUInt32(object v, UInt32 def)
 		{
 			try
@@ -199,6 +208,17 @@ namespace Eddie.Common
 		public static Int64 ToUnixTimeMs(DateTime dt)
 		{
 			return Convert.ToInt64((dt - new DateTime(1970, 1, 1)).TotalMilliseconds, CultureInfo.InvariantCulture);
+		}
+
+        public static string StringToBase64(string s)
+		{
+			var bytes = System.Text.Encoding.UTF8.GetBytes(s);
+            return System.Convert.ToBase64String(bytes);
+		}
+
+        public static string Base64ToString(string s)
+		{
+			return System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(s));
 		}
 
 		public static Json ToJson(XmlElement xml)

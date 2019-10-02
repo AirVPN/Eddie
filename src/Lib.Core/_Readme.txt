@@ -12,15 +12,7 @@ TOTEST: Need a detailed test
 TOCONTINUE: Under implementation
 
 ------------------------------------
-Solutions
-------------------------------------
-
-Eddie_VS2015.sln - Solution for Visual Studio 2015. Windows builds.
-Eddie_MonoDevelop.sln - Solution for Mono Develop. Linux builds. Package required: monodevelop, libwebkit-cil-dev. Remember to run monodevelop as root to debug.
-Eddie_Cocoa.sln - Solution for Xamarin under OS X. OS X builds.
-
-------------------------------------
-Windows development - VS2010
+Windows development
 ------------------------------------
 
 - warning CS1607: Assembly generation -- Referenced assembly 'mscorlib.dll' targets a different processor

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,12 +28,42 @@ namespace Eddie.Core
 {
 	public class CompatibilityManager
 	{
-		public static void Init()
+		public static void Profiles(string pathApp, string pathData)
+        {
+            if (Engine.Instance.Elevated != null)
+            {
+                string owner = Environment.UserName;
+
+                ElevatedProcess.Command command = new ElevatedProcess.Command();
+                command.Parameters["command"] = "compatibility-profiles";
+                command.Parameters["path-app"] = pathApp;
+                command.Parameters["path-data"] = pathData;
+                command.Parameters["owner"] = owner;
+                command.DoSync();
+            }
+        }
+
+        public static void WindowsRemoveTask()
+		{
+			ElevatedProcess.Command command = new ElevatedProcess.Command();
+			command.Parameters["command"] = "compatibility-remove-task";
+			command.DoSync();
+		}
+
+		public static string AdaptProfileNameOption(string name)
+		{
+			// Eddie <2.17 use an old .xml format. If anyone use "profile=my.xml", it will adapted to "profile=my.profile"
+			if (name.EndsWith(".xml.profile"))
+				name = name.Replace(".xml.", ".");
+			return name;
+		}
+
+		public static void AfterProfile()
 		{
 			if (Platform.IsWindows())
 			{
 				// < 2.9 - Old Windows Firewall original backup rules path
-				string oldPathRulesBackupFirstTime = Engine.Instance.Storage.GetPathInData("winfirewallrulesorig.wfw");
+				string oldPathRulesBackupFirstTime = Engine.Instance.GetPathInData("winfirewallrulesorig.wfw");
 				string newPathRulesBackupFirstTime = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
 				if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
 				{
@@ -43,7 +73,7 @@ namespace Eddie.Core
 						Platform.Instance.FileMove(oldPathRulesBackupFirstTime, newPathRulesBackupFirstTime);
 				}
 
-				string oldPathRulesBackupSession = Engine.Instance.Storage.GetPathInData("winfirewallrules.wfw");
+				string oldPathRulesBackupSession = Engine.Instance.GetPathInData("winfirewallrules.wfw");
 				string newPathRulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_backup.airvpn";
 				if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
 				{
@@ -62,7 +92,7 @@ namespace Eddie.Core
 
 				// A bug in old experimental 2.11 cause the set of immutable flag in rare cases.
 				if (Platform.Instance.FileImmutableGet("/etc/resolv.conf"))
-					Platform.Instance.FileImmutableSet("/etc/resolv.conf", false);
+					Platform.Instance.FileImmutableSet("/etc/resolv.conf", false);            
 			}
 
 			// < 2.9 - New certificate for SSL connections
@@ -211,6 +241,14 @@ namespace Eddie.Core
 			{
 				name = "gui.tray_minimized";
 			}
+			else if (name == "netlock.allowed_ips")
+			{
+				name = "netlock.whitelist.outgoing.ips";
+			}		
+            else if (name == "gui.tos")
+            {
+                name = "";
+            }
 
 #if (EDDIE3)
             if (name == "dns.check") // < 3.0
@@ -222,7 +260,7 @@ namespace Eddie.Core
                 name = "providers.AirVPN.tunnel.check";
             }
 #endif
-		}
+        }
 
 		public static void FixProviderStorage(XmlDocument e)
 		{
@@ -244,10 +282,17 @@ namespace Eddie.Core
 		public static void FixOldProfilePath(string newPath)
 		{
 			if (Platform.Instance.FileExists(newPath))
-				return;
+				return;			
 
-			if (Platform.Instance.FileExists(newPath.Replace("default.xml","AirVPN.xml")))
-				Platform.Instance.FileMove(newPath.Replace("default.xml", "AirVPN.xml"), newPath);			
+			if( (newPath.EndsWith("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile","AirVPN.xml"))) )
+				Platform.Instance.FileMove(newPath.Replace("default.profile", "AirVPN.xml"), newPath.Replace("default.profile", "default.xml"));
+
+			if ((newPath.EndsWith("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile", "default.xml"))))
+			{				
+				byte[] content = Platform.Instance.FileContentsReadBytes(newPath.Replace("default.profile", "default.xml"));
+				Platform.Instance.FileContentsWriteBytes(newPath, Storage.EncodeFormat("v2n", RandomGenerator.GetRandomId64(), content, Constants.PasswordIfEmpty));
+				Platform.Instance.FileDelete(newPath.Replace("default.profile", "default.xml"));
+			}
 		}
 
 		public static string FixOldProfile(string originalPath)

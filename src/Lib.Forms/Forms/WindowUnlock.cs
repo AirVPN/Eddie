@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,44 +27,65 @@ using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowUnlock : Eddie.Forms.Form
-    {
-        public String Body;                
+	public partial class WindowUnlock : Eddie.Forms.Form
+	{
+		public bool AuthFailed = false;
+		public string Body = "";
 
-        public WindowUnlock()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		public WindowUnlock()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();			
-        }
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
+		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			CommonInit(Messages.WindowsUnlockTitle);
+			CommonInit(LanguageManager.GetText("WindowsUnlockTitle"));
 
-			txtText.Text = Body;
-            
-            EnableIde();
+			if (AuthFailed)
+			{
+				lblMessage.Text = LanguageManager.GetText("WindowsUnlockFailedAuth");
+				lblMessage.ForeColor = Color.Red;
+			}
+			else
+			{
+				lblMessage.Text = LanguageManager.GetText("WindowsUnlockFirstAuth");
+				lblMessage.ForeColor = Color.Black;
+			}
+
+			EnableIde();
 		}
-        
+
 		private void EnableIde()
-		{			
+		{
+			cmdOk.Enabled = (txtText.Text != "");
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {
-			Body = txtText.Text;		
-        }		
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
+			Body = txtText.Text;
+		}
+
+		private void cmdCancel_Click(object sender, EventArgs e)
+		{
+			Body = "";
+		}
+
+		private void txtText_TextChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
 	}
 }

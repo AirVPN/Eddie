@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,17 +32,17 @@ namespace Eddie.Core
 
 		public static void Add(TemporaryFile file)
 		{
-            m_files.Add(file);
+			m_files.Add(file);
 		}
 
 		public static void Remove(TemporaryFile file)
 		{
-			if(Destroy(file.Path))
+			if (Destroy(file.Path))
 				m_files.Remove(file);
 		}
 
 		private static bool Destroy(string path)
-		{			
+		{
 			try
 			{
 				Platform.Instance.FileDelete(path);
@@ -55,34 +55,34 @@ namespace Eddie.Core
 			return true;
 		}
 
-        public static void Clean()
-        {
-            Clean("");
-        }
+		public static void Clean()
+		{
+			Clean("");
+		}
 
-        private static void Clean(string group)
-		{            
-            List<TemporaryFile> filesToRemove = new List<TemporaryFile>();
+		private static void Clean(string group)
+		{
+			List<TemporaryFile> filesToRemove = new List<TemporaryFile>();
 			foreach (TemporaryFile file in m_files)
 			{
-                if (file.Group == group)
-                    filesToRemove.Add(file);                    
-                else if(group == "")
-                    filesToRemove.Add(file);                
-            }
+				if (file.Group == group)
+					filesToRemove.Add(file);
+				else if (group == "")
+					filesToRemove.Add(file);
+			}
 
-            foreach(TemporaryFile file in filesToRemove)
-            {
-                m_files.Remove(file);
-                Remove(file);
-            }
+			foreach (TemporaryFile file in filesToRemove)
+			{
+				m_files.Remove(file);
+				Remove(file);
+			}
 
-            if (group == "")
-            {
-                // Cleaning old zombie temporary files
+			if ((group == "") && (Engine.Instance.GetDataPath() != ""))
+			{
+				// Cleaning old zombie temporary files
 				try
 				{
-					string[] files = Directory.GetFiles(Engine.Instance.Storage.GetDataPath());
+					string[] files = Directory.GetFiles(Engine.Instance.GetDataPath());
 					foreach (string file in files)
 					{
 						if (file.IndexOf(".tmp.") != -1)
@@ -95,8 +95,8 @@ namespace Eddie.Core
 				{
 					// Maybe not writable.
 				}
-                
-            }
+
+			}
 		}
 	}
 }

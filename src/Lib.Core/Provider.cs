@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ namespace Eddie.Core
             return true;
         }
 
-		public virtual IpAddresses GetNetworkLockAllowedIps()
+		public virtual IpAddresses GetNetworkLockWhiteListOutgoingIPs()
 		{
 			IpAddresses list = new IpAddresses();
 
@@ -183,19 +183,22 @@ namespace Eddie.Core
 
             if (Storage != null)
             {
-                if (Storage.DocumentElement != null)
+                lock(Storage)
                 {
-                    if (Storage.DocumentElement.Attributes[key] != null)
+                    if (Storage.DocumentElement != null)
                     {
-                        return Storage.DocumentElement.Attributes[key].Value;
-                    }
-
-                    XmlElement manifest = Storage.DocumentElement.SelectSingleNode("manifest") as XmlElement;
-                    if (manifest != null)
-                    {
-                        if (manifest.Attributes[key] != null)
+                        if (Storage.DocumentElement.Attributes[key] != null)
                         {
-                            return manifest.Attributes[key].Value;
+                            return Storage.DocumentElement.Attributes[key].Value;
+                        }
+
+                        XmlElement manifest = Storage.DocumentElement.SelectSingleNode("manifest") as XmlElement;
+                        if (manifest != null)
+                        {
+                            if (manifest.Attributes[key] != null)
+                            {
+                                return manifest.Attributes[key].Value;
+                            }
                         }
                     }
                 }
@@ -240,7 +243,7 @@ namespace Eddie.Core
 
 		public virtual void OnAuthFailed()
         {
-            Engine.Instance.Logs.Log(LogType.Fatal, Messages.AuthFailed);
+            Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("AuthFailed"));
 
 			ClearCredentials();
         }

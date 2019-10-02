@@ -73,9 +73,12 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsEventTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsSettingsEventTitle");
 
-			TxtFilename.StringValue = Item.Filename;
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdSave);
+
+            TxtFilename.StringValue = Item.Filename;
 			TxtArguments.StringValue = Item.Arguments;
 			GuiUtils.SetCheck(ChkWaitEnd, Item.WaitEnd);
 

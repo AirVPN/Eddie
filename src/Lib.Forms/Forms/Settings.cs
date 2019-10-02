@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,6 +58,10 @@ namespace Eddie.Forms.Forms
 
 			mnuRoutes.Font = Skin.FontNormal;
 
+			GuiUtils.FixHeightVs(cboStorageMode, lblStorageMode);
+			GuiUtils.FixHeightVs(txtStoragePassword, lblStoragePassword);
+			GuiUtils.FixHeightVs(txtStoragePasswordConfirm, lblStoragePasswordConfirm);
+
 			GuiUtils.FixHeightVs(cboProxyMode, lblProxyType);
 			GuiUtils.FixHeightVs(cboProxyWhen, lblProxyWhen);
 			GuiUtils.FixHeightVs(txtProxyHost, lblProxyHost);
@@ -77,8 +81,7 @@ namespace Eddie.Forms.Forms
 			GuiUtils.FixHeightVs(cboNetworkEntryInterface, lblNetworkEntryInterface);
 			GuiUtils.FixHeightVs(cboOpenVpnRcvbuf, lblOpenVpnRcvbuf);
 			GuiUtils.FixHeightVs(cboOpenVpnSndbuf, lblOpenVpnSndbuf);
-			GuiUtils.FixHeightVs(chkRouteRemoveDefault, lblRouteRemoveDefault);
-
+			
 			GuiUtils.FixHeightVs(cboLockMode, lblLockMode);
 			GuiUtils.FixHeightVs(cboLockIncoming, lblLockIncoming);
 			GuiUtils.FixHeightVs(cboLockOutgoing, lblLockOutgoing);
@@ -110,13 +113,29 @@ namespace Eddie.Forms.Forms
 
 			BuildTreeTabs();
 
-			lblLoggingHelp.Text = Messages.WindowsSettingsLoggingHelp;
+			lblLoggingHelp.Text = LanguageManager.GetText("WindowsSettingsLoggingHelp");
+
+			// General
 
 			chkSystemStart.Visible = GuiUtils.IsWindows();
+			chkSystemService.Visible = Platform.Instance.AllowService();
+			lblSystemService.Text = Platform.Instance.AllowServiceUserDescription();
 			pnlAdvancedGeneralWindowsOnly.Visible = GuiUtils.IsWindows();
 			pnlDnsWindowsOnly.Visible = GuiUtils.IsWindows();
 			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
 
+			cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModeNone"));			
+			cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModePassword"));
+			if (Platform.Instance.OsCredentialSystemName() != "")
+				cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModeOs", Platform.Instance.OsCredentialSystemName()));
+
+			// UI
+			cboUiUnit.Items.Clear();
+			cboUiUnit.Items.Add(LanguageManager.GetText("WindowsSettingsUiUnit0"));
+			cboUiUnit.Items.Add(LanguageManager.GetText("WindowsSettingsUiUnit1"));
+			cboUiUnit.Items.Add(LanguageManager.GetText("WindowsSettingsUiUnit2"));
+
+			// Protocols
 			int nNotAvailable = 0;
 			if ((Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.Manifest != null))
 			{
@@ -140,23 +159,17 @@ namespace Eddie.Forms.Forms
 				}
 				lstProtocols.ResizeColumnsAuto();
 			}
-			
+
 			if (nNotAvailable != 0)
 			{
 				lblProtocolsAvailable.Visible = true;
-				lblProtocolsAvailable.Text = MessagesFormatter.Format(Messages.WindowsSettingsSomeProtocolsUnavailable, nNotAvailable.ToString());
+				lblProtocolsAvailable.Text = LanguageManager.GetText("WindowsSettingsSomeProtocolsUnavailable", nNotAvailable.ToString());
 			}
 			else
 			{
 				lblProtocolsAvailable.Visible = false;
 				lblProtocolsAvailable.Text = "";
 			}
-			
-			// UI
-			cboUiUnit.Items.Clear();
-			cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit0);
-			cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit1);
-			cboUiUnit.Items.Add(Messages.WindowsSettingsUiUnit2);
 
 			// Proxy
 			cboProxyMode.Items.Clear();
@@ -165,10 +178,10 @@ namespace Eddie.Forms.Forms
 			cboProxyMode.Items.Add("Socks");
 			cboProxyMode.Items.Add("Tor");
 			cboProxyWhen.Items.Clear();
-			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenAlways);
-			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenWeb);
-			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenOpenVPN);
-			cboProxyWhen.Items.Add(Messages.WindowsSettingsProxyWhenNone);
+			cboProxyWhen.Items.Add(LanguageManager.GetText("WindowsSettingsProxyWhenAlways"));
+			cboProxyWhen.Items.Add(LanguageManager.GetText("WindowsSettingsProxyWhenWeb"));
+			cboProxyWhen.Items.Add(LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"));
+			cboProxyWhen.Items.Add(LanguageManager.GetText("WindowsSettingsProxyWhenNone"));
 
 			// Routes
 			lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
@@ -182,8 +195,8 @@ namespace Eddie.Forms.Forms
 			cboLockMode.Items.Add("Automatic");
 			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				cboLockMode.Items.Add(lockPlugin.GetTitleForList());
-			lblRoutesNetworkLockWarning.Text = Messages.WindowsSettingsRouteLockHelp;
-			lblLockRoutingOutWarning.Text = Messages.NetworkLockNotAvailableWithRouteOut;
+			lblRoutesNetworkLockWarning.Text = LanguageManager.GetText("WindowsSettingsRouteLockHelp");
+			lblLockRoutingOutWarning.Text = LanguageManager.GetText("NetworkLockNotAvailableWithRouteOut");
 
 			lstAdvancedEvents.Items.Add(new ListViewItem("App Start"));
 			lstAdvancedEvents.Items.Add(new ListViewItem("App End"));
@@ -194,11 +207,11 @@ namespace Eddie.Forms.Forms
 			lstAdvancedEvents.Items.Add(new ListViewItem("VPN Down"));
 			lstAdvancedEvents.ResizeColumnsAuto();
 
-			lblOpenVpnRcvbuf.Text = Messages.WindowsSettingsOpenVpnRcvBuf + ":";
-			lblOpenVpnSndbuf.Text = Messages.WindowsSettingsOpenVpnSndBuf + ":";
+			lblOpenVpnRcvbuf.Text = LanguageManager.GetText("WindowsSettingsOpenVpnRcvBuf") + ":";
+			lblOpenVpnSndbuf.Text = LanguageManager.GetText("WindowsSettingsOpenVpnSndBuf") + ":";
 			cboOpenVpnRcvbuf.Items.Clear();
-			cboOpenVpnRcvbuf.Items.Add(Messages.Automatic);
-			cboOpenVpnRcvbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
+			cboOpenVpnRcvbuf.Items.Add(LanguageManager.GetText("Automatic"));
+			cboOpenVpnRcvbuf.Items.Add(LanguageManager.GetText("WindowsSettingsOpenVpnDefault"));
 			cboOpenVpnRcvbuf.Items.Add("8 KB");
 			cboOpenVpnRcvbuf.Items.Add("16 KB");
 			cboOpenVpnRcvbuf.Items.Add("32 KB");
@@ -207,8 +220,8 @@ namespace Eddie.Forms.Forms
 			cboOpenVpnRcvbuf.Items.Add("256 KB");
 			cboOpenVpnRcvbuf.Items.Add("512 KB");
 			cboOpenVpnSndbuf.Items.Clear();
-			cboOpenVpnSndbuf.Items.Add(Messages.Automatic);
-			cboOpenVpnSndbuf.Items.Add(Messages.WindowsSettingsOpenVpnDefault);
+			cboOpenVpnSndbuf.Items.Add(LanguageManager.GetText("Automatic"));
+			cboOpenVpnSndbuf.Items.Add(LanguageManager.GetText("WindowsSettingsOpenVpnDefault"));
 			cboOpenVpnSndbuf.Items.Add("8 KB");
 			cboOpenVpnSndbuf.Items.Add("16 KB");
 			cboOpenVpnSndbuf.Items.Add("32 KB");
@@ -224,18 +237,18 @@ namespace Eddie.Forms.Forms
 			cboNetworkEntryIpLayer.Items.Add("IPv4 only");
 
 			cboNetworkIPv4Mode.Items.Clear();
-			cboNetworkIPv4Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeInAlways);
-			cboNetworkIPv4Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeInOrOut);
-			cboNetworkIPv4Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeInOrBlock);
-			cboNetworkIPv4Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeOut);
-			cboNetworkIPv4Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeBlock);
+			cboNetworkIPv4Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
+			cboNetworkIPv4Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"));
+			cboNetworkIPv4Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
+			cboNetworkIPv4Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"));
+			cboNetworkIPv4Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
 
 			cboNetworkIPv6Mode.Items.Clear();
-			cboNetworkIPv6Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeInAlways);
-			cboNetworkIPv6Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeInOrOut);
-			cboNetworkIPv6Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeInOrBlock);
-			cboNetworkIPv6Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeOut);
-			cboNetworkIPv6Mode.Items.Add(Messages.WindowsSettingsNetworkIpModeBlock);
+			cboNetworkIPv6Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
+			cboNetworkIPv6Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"));
+			cboNetworkIPv6Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
+			cboNetworkIPv6Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"));
+			cboNetworkIPv6Mode.Items.Add(LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
 
 			cboNetworkEntryInterface.Items.Clear();
 			m_mapNetworkEntryIFace[""] = "Automatic";
@@ -265,10 +278,10 @@ namespace Eddie.Forms.Forms
 
 			// OVPN directives
 			cboOpenVpnDirectivesDefaultSkip.Items.Clear();
-			cboOpenVpnDirectivesDefaultSkip.Items.Add(Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip1);
-			cboOpenVpnDirectivesDefaultSkip.Items.Add(Messages.WindowsSettingsOpenVpnDirectivesDefaultSkip2);
+			cboOpenVpnDirectivesDefaultSkip.Items.Add(LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip1"));
+			cboOpenVpnDirectivesDefaultSkip.Items.Add(LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2"));
 
-			if(Constants.FeatureIPv6ControlOptions)
+			if (Constants.FeatureIPv6ControlOptions)
 			{
 				lblNetworkIPv4Mode.Visible = true;
 				lblNetworkIPv6Mode.Visible = true;
@@ -291,6 +304,15 @@ namespace Eddie.Forms.Forms
 				lblRoutesOtherwise.Visible = true;
 			}
 
+			// Disabled in this version
+			lblShellExternal.Visible = false;
+			chkShellExternalRecommended.Visible = false;
+			cmdShellExternalClear.Visible = false;
+			cmdShellExternalView.Visible = false;
+			chkOpenVpnDirectivesAllowScriptSecurity.Visible = false;
+
+			// Init
+
 			ReadOptions();
 
 			RefreshLogPreview();
@@ -307,8 +329,8 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnClosed(e);
 
-			Engine.FormMain.ResetSkinCache();
-			Engine.FormMain.ApplySkin();
+			UiClient.Instance.MainWindow.ResetSkinCache();
+			UiClient.Instance.MainWindow.ApplySkin();
 		}
 
 		public void BuildTreeTabs()
@@ -331,11 +353,27 @@ namespace Eddie.Forms.Forms
 			Storage s = Engine.Instance.Storage;
 
 			// General            
+			chkSystemStart.Checked = Platform.Instance.GetAutoStart();
+			chkSystemService.Checked = Platform.Instance.GetService();
 			chkConnect.Checked = s.GetBool("connect");
 			chkNetLock.Checked = s.GetBool("netlock");
 			chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
 			chkUiExitConfirm.Checked = s.GetBool("gui.exit_confirm");
 			chkOsSingleInstance.Checked = s.GetBool("os.single_instance");
+
+			if (s.SaveFormat == "v2n")
+				cboStorageMode.SelectedIndex = 0;
+			else if (s.SaveFormat == "v2p")
+				cboStorageMode.SelectedIndex = 1;
+			else if( (s.SaveFormat == "v2s") && (Platform.Instance.OsCredentialSystemName() != "") )
+				cboStorageMode.SelectedIndex = 2;
+			else
+				cboStorageMode.SelectedIndex = 0;
+			if (s.SaveFormat == "v2p")
+			{
+				txtStoragePassword.Text = s.SavePassword;
+				txtStoragePasswordConfirm.Text = s.SavePassword;
+			}
 
 			// Ui
 			chkUiSystemNotifications.Checked = s.GetBool("gui.notifications");
@@ -398,15 +436,15 @@ namespace Eddie.Forms.Forms
 			// Proxy
 			cboProxyMode.Text = s.Get("proxy.mode");
 			if (s.Get("proxy.when") == "always")
-				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenAlways;
+				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenAlways");
 			else if (s.Get("proxy.when") == "web")
-				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenWeb;
+				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenWeb");
 			else if (s.Get("proxy.when") == "openvpn")
-				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenOpenVPN;
+				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN");
 			else if (s.Get("proxy.when") == "none")
-				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenNone;
+				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenNone");
 			else
-				cboProxyWhen.Text = Messages.WindowsSettingsProxyWhenAlways;
+				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenAlways");
 			txtProxyHost.Text = s.Get("proxy.host");
 			txtProxyPort.Text = s.Get("proxy.port");
 			cboProxyAuthentication.Text = s.Get("proxy.auth");
@@ -448,10 +486,12 @@ namespace Eddie.Forms.Forms
 				cboDnsSwitchMode.Text = "Disabled";
 			else if (dnsMode == "auto")
 				cboDnsSwitchMode.Text = "Automatic";
+            /* TOCLEAN
 			else if (dnsMode == "resolvconf")
 				cboDnsSwitchMode.Text = "Resolvconf (Linux only)";
 			else if (dnsMode == "rename")
 				cboDnsSwitchMode.Text = "Renaming (Linux only)";
+			*/               
 			else
 				cboDnsSwitchMode.Text = "Automatic";
 
@@ -473,32 +513,32 @@ namespace Eddie.Forms.Forms
 
 			string networkIPv4Mode = s.Get("network.ipv4.mode");
 			if (networkIPv4Mode == "in")
-				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeInAlways;
+				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways");
 			else if (networkIPv4Mode == "in-out")
-				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrOut;
+				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut");
 			else if (networkIPv4Mode == "in-block")
-				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrBlock;
+				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock");
 			else if (networkIPv4Mode == "out")
-				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeOut;
+				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeOut");
 			else if (networkIPv4Mode == "block")
-				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeBlock;
+				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock");
 			else
-				cboNetworkIPv4Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrBlock;
+				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock");
 			chkNetworkIPv4AutoSwitch.Checked = s.GetBool("network.ipv4.autoswitch");			
 
 			string networkIPv6Mode = s.Get("network.ipv6.mode");
 			if (networkIPv6Mode == "in")
-				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeInAlways;
+				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways");
 			else if (networkIPv6Mode == "in-out")
-				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrOut;
+				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut");
 			else if (networkIPv6Mode == "in-block")
-				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrBlock;
+				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock");
 			else if (networkIPv6Mode == "out")
-				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeOut;
+				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeOut");
 			else if (networkIPv6Mode == "block")
-				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeBlock;
+				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock");
 			else
-				cboNetworkIPv6Mode.Text = Messages.WindowsSettingsNetworkIpModeInOrBlock;
+				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock");
 			chkNetworkIPv6AutoSwitch.Checked = s.GetBool("network.ipv6.autoswitch");
 
 			string networkEntryIpLayer = s.Get("network.entry.iplayer");
@@ -565,8 +605,6 @@ namespace Eddie.Forms.Forms
 			else if (openVpnRcvBuf == 1024 * 512)
 				cboOpenVpnRcvbuf.SelectedIndex = 8;
 
-			chkRouteRemoveDefault.Checked = s.GetBool("routes.remove_default");
-
 			// Advanced - General
 			chkExpert.Checked = s.GetBool("advanced.expert");
 			chkAdvancedCheckRoute.Checked = s.GetBool("advanced.check.route");
@@ -584,9 +622,7 @@ namespace Eddie.Forms.Forms
 			chkAdvancedProviders.Checked = s.GetBool("advanced.providers");
 
 			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
-			chkWindowsDhcpSwitch.Checked = s.GetBool("windows.dhcp_disable");
 			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
-			// chkWindowsIPv6DisableAtOs.Checked = s.GetBool("windows.ipv6.os_disable"); // Removed in 2.14, in W10 require reboot
 			chkWindowsDebugWorkaround.Checked = s.GetBool("windows.workarounds");
 			chkWindowsSshPlinkForce.Checked = s.GetBool("windows.ssh.plink.force");
 
@@ -640,7 +676,8 @@ namespace Eddie.Forms.Forms
 			chkLockAllowDHCP.Checked = s.GetBool("netlock.allow_dhcp");
 			chkLockAllowPing.Checked = s.GetBool("netlock.allow_ping");
 			chkLockAllowDNS.Checked = s.GetBool("netlock.allow_dns");
-			txtLockAllowedIPS.Text = s.Get("netlock.allowed_ips");
+			txtLockWhiteListIncomingIPs.Text = s.Get("netlock.whitelist.incoming.ips");
+			txtLockWhiteListOutgoingIPs.Text = s.Get("netlock.whitelist.outgoing.ips");
 
 			// Advanced - Logging
 			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
@@ -652,6 +689,7 @@ namespace Eddie.Forms.Forms
 			txtOpenVpnDirectivesBase.Text = s.Get("openvpn.directives");
 			txtOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
 			txtOpenVpnDirectivesCustomPath.Text = s.Get("openvpn.directives.path");
+			//chkOpenVpnDirectivesAllowScriptSecurity.Checked = s.GetBool("openvpn.allow.script-security");
 
 			// Advanced - Events
 			ReadOptionsEvent("app.start", 0);
@@ -661,8 +699,7 @@ namespace Eddie.Forms.Forms
 			ReadOptionsEvent("vpn.pre", 4);
 			ReadOptionsEvent("vpn.up", 5);
 			ReadOptionsEvent("vpn.down", 6);
-
-			chkSystemStart.Checked = Platform.Instance.GetAutoStart();
+			chkShellExternalRecommended.Checked = s.GetBool("external.rules.recommended");
 		}
 
 		public void ReadOptionsEvent(string name, int index)
@@ -680,9 +717,18 @@ namespace Eddie.Forms.Forms
 
 		public bool Check()
 		{
+			if (cboStorageMode.SelectedIndex == 1)
+			{
+				if( (txtStoragePassword.Text.Trim() == "") || (txtStoragePassword.Text != txtStoragePasswordConfirm.Text) )
+				{
+					UiClient.Instance.MainWindow.ShowMessageError(LanguageManager.GetText("WindowsSettingsStoragePasswordMismatch"));
+					return false;
+				}
+			}
+			
 			if ((RouteDescriptionToDirection(cboRoutesOtherwise.Text) == "out") && (lstRoutes.Items.Count == 0))
 			{
-				if (Engine.FormMain.AskYesNo(Messages.WindowsSettingsRouteOutEmptyList) == false)
+				if (UiClient.Instance.MainWindow.AskYesNo(LanguageManager.GetText("WindowsSettingsRouteOutEmptyList")) == false)
 					return false;
 			}
 
@@ -699,7 +745,7 @@ namespace Eddie.Forms.Forms
 				}
 
 				if (hostNameUsed)
-					if (Engine.FormMain.AskYesNo(Messages.WindowsSettingsRouteWithHostname) == false)
+					if (UiClient.Instance.MainWindow.AskYesNo(LanguageManager.GetText("WindowsSettingsRouteWithHostname")) == false)
 						return false;
 			}
 
@@ -710,13 +756,29 @@ namespace Eddie.Forms.Forms
 		{
 			Storage s = Engine.Instance.Storage;
 
-
 			// General            
+			Platform.Instance.SetAutoStart(chkSystemStart.Checked);
+			Platform.Instance.SetService(chkSystemService.Checked, false);
 			s.SetBool("connect", chkConnect.Checked);
 			s.SetBool("netlock", chkNetLock.Checked);
 			s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
 			s.SetBool("gui.exit_confirm", chkUiExitConfirm.Checked);
 			s.SetBool("os.single_instance", chkOsSingleInstance.Checked);
+
+			if(cboStorageMode.SelectedIndex == 0)
+			{
+				s.SaveFormat = "v2n";
+			}
+			else if (cboStorageMode.SelectedIndex == 1)
+			{
+				s.SaveFormat = "v2p";
+				s.SavePassword = txtStoragePassword.Text;
+			}
+			else if (cboStorageMode.SelectedIndex == 2)
+			{
+				s.SaveFormat = "v2s";
+				s.SavePassword = s.LoadPassword;
+			}				
 
 			// Ui
 			s.SetBool("gui.notifications", chkUiSystemNotifications.Checked);
@@ -772,13 +834,13 @@ namespace Eddie.Forms.Forms
 
 			// Proxy
 			s.Set("proxy.mode", cboProxyMode.Text);
-			if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenAlways)
+			if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenAlways"))
 				s.Set("proxy.when", "always");
-			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenWeb)
+			else if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenWeb"))
 				s.Set("proxy.when", "web");
-			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenOpenVPN)
+			else if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"))
 				s.Set("proxy.when", "openvpn");
-			else if (cboProxyWhen.Text == Messages.WindowsSettingsProxyWhenNone)
+			else if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenNone"))
 				s.Set("proxy.when", "none");
 			else
 				s.Set("proxy.when", "always");
@@ -811,10 +873,12 @@ namespace Eddie.Forms.Forms
 				s.Set("dns.mode", "none");
 			else if (dnsMode == "Automatic")
 				s.Set("dns.mode", "auto");
+            /* TOCLEAN
 			else if (dnsMode == "Resolvconf (Linux only)")
 				s.Set("dns.mode", "resolvconf");
 			else if (dnsMode == "Renaming (Linux only)")
 				s.Set("dns.mode", "rename");
+			*/               
 			else
 				s.Set("dns.mode", "auto");
 
@@ -835,30 +899,30 @@ namespace Eddie.Forms.Forms
 
 			// Networking
 			string networkIPv4Mode = cboNetworkIPv4Mode.Text;
-			if (networkIPv4Mode == Messages.WindowsSettingsNetworkIpModeInAlways)
+			if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
 				s.Set("network.ipv4.mode", "in");
-			else if (networkIPv4Mode == Messages.WindowsSettingsNetworkIpModeInOrOut)
+			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
 				s.Set("network.ipv4.mode", "in-out");
-			else if (networkIPv4Mode == Messages.WindowsSettingsNetworkIpModeInOrBlock)
+			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
 				s.Set("network.ipv4.mode", "in-block");
-			else if (networkIPv4Mode == Messages.WindowsSettingsNetworkIpModeOut)
+			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
 				s.Set("network.ipv4.mode", "out");
-			else if (networkIPv4Mode == Messages.WindowsSettingsNetworkIpModeBlock)
+			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
 				s.Set("network.ipv4.mode", "block");
 			else
 				s.Set("network.ipv4.mode", "in");
 			s.SetBool("network.ipv4.autoswitch", chkNetworkIPv4AutoSwitch.Checked);
 
 			string networkIPv6Mode = cboNetworkIPv6Mode.Text;
-			if (networkIPv6Mode == Messages.WindowsSettingsNetworkIpModeInAlways)
+			if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
 				s.Set("network.ipv6.mode", "in");
-			else if (networkIPv6Mode == Messages.WindowsSettingsNetworkIpModeInOrOut)
+			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
 				s.Set("network.ipv6.mode", "in-out");
-			else if (networkIPv6Mode == Messages.WindowsSettingsNetworkIpModeInOrBlock)
+			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
 				s.Set("network.ipv6.mode", "in-block");
-			else if (networkIPv6Mode == Messages.WindowsSettingsNetworkIpModeOut)
+			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
 				s.Set("network.ipv6.mode", "out");
-			else if (networkIPv6Mode == Messages.WindowsSettingsNetworkIpModeBlock)
+			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
 				s.Set("network.ipv6.mode", "block");
 			else
 				s.Set("network.ipv6.mode", "in-block");
@@ -926,8 +990,6 @@ namespace Eddie.Forms.Forms
 			else if (openVpnRcvBufIndex == 8)
 				s.SetInt("openvpn.rcvbuf", 1024 * 512);
 
-			s.SetBool("routes.remove_default", chkRouteRemoveDefault.Checked);
-
 			// Advanced - General
 			s.SetBool("advanced.expert", chkExpert.Checked);
 			s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
@@ -945,9 +1007,7 @@ namespace Eddie.Forms.Forms
 			s.SetBool("advanced.providers", chkAdvancedProviders.Checked);
 			
 			s.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
-			s.SetBool("windows.dhcp_disable", chkWindowsDhcpSwitch.Checked);
 			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
-			//s.SetBool("windows.ipv6.os_disable", chkWindowsIPv6DisableAtOs.Checked); // Removed in 2.14, in W10 require reboot
 			s.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
 			s.SetBool("windows.ssh.plink.force", chkWindowsSshPlinkForce.Checked);
 
@@ -1002,7 +1062,8 @@ namespace Eddie.Forms.Forms
 			s.SetBool("netlock.allow_dhcp", chkLockAllowDHCP.Checked);
 			s.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
 			s.SetBool("netlock.allow_dns", chkLockAllowDNS.Checked);
-			s.Set("netlock.allowed_ips", txtLockAllowedIPS.Text);
+			s.Set("netlock.whitelist.incoming.ips", txtLockWhiteListIncomingIPs.Text);
+			s.Set("netlock.whitelist.outgoing.ips", txtLockWhiteListOutgoingIPs.Text);
 
 			// Advanced - Networking
 
@@ -1016,6 +1077,7 @@ namespace Eddie.Forms.Forms
 			s.Set("openvpn.custom", txtOpenVpnDirectivesCustom.Text);
 			s.Set("openvpn.directives.path", txtOpenVpnDirectivesCustomPath.Text);
 			s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
+			//s.SetBool("openvpn.allow.script-security", chkOpenVpnDirectivesAllowScriptSecurity.Checked);
 
 			// Advanced - Events
 			SaveOptionsEvent("app.start", 0);
@@ -1025,9 +1087,8 @@ namespace Eddie.Forms.Forms
 			SaveOptionsEvent("vpn.pre", 4);
 			SaveOptionsEvent("vpn.up", 5);
 			SaveOptionsEvent("vpn.down", 6);
-
-			Platform.Instance.SetAutoStart(chkSystemStart.Checked);
-
+			s.SetBool("external.rules.recommended", chkShellExternalRecommended.Checked);
+			
 			Engine.OnSettingsChanged();
 		}
 
@@ -1065,6 +1126,12 @@ namespace Eddie.Forms.Forms
 
 		public void EnableIde()
 		{
+			// General
+			txtStoragePassword.Enabled = (cboStorageMode.SelectedIndex == 1);
+			txtStoragePasswordConfirm.Enabled = (cboStorageMode.SelectedIndex == 1);
+			txtStoragePassword.ReadOnly = (txtStoragePassword.Enabled == false);
+			txtStoragePasswordConfirm.ReadOnly = (txtStoragePasswordConfirm.Enabled == false);
+
 			// Ui
 			cmdUiFontGeneral.Enabled = chkUiFontGeneral.Checked;
 			chkUiTrayMinimized.Enabled = chkUiTrayShow.Checked;
@@ -1152,11 +1219,6 @@ namespace Eddie.Forms.Forms
 				DialogResult = System.Windows.Forms.DialogResult.OK;
 				Close();
 			}
-		}
-
-		private void cmdTos_Click(object sender, EventArgs e)
-		{
-			Engine.FormMain.TermsOfServiceCheck(true);
 		}
 
 		private void cboProxyMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -1340,7 +1402,7 @@ namespace Eddie.Forms.Forms
 
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
 
-			ShowMessageInfo(Messages.OsDriverUninstallDone);
+			ShowMessageInfo(LanguageManager.GetText("OsDriverUninstallDone"));
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
@@ -1509,7 +1571,7 @@ namespace Eddie.Forms.Forms
 			{
 				if (chkNetLock.Checked)
 				{
-					if (Engine.FormMain.NetworkLockKnowledge() == false)
+					if (UiClient.Instance.MainWindow.NetworkLockKnowledge() == false)
 						chkNetLock.Checked = false;
 				}
 			}
@@ -1546,11 +1608,11 @@ namespace Eddie.Forms.Forms
 
 		private void cmdResetToDefault_Click(object sender, EventArgs e)
 		{
-			if (Engine.FormMain.AskYesNo(Messages.ResetSettingsConfirm))
+			if (UiClient.Instance.MainWindow.AskYesNo(LanguageManager.GetText("ResetSettingsConfirm")))
 			{
 				Engine.Instance.Storage.ResetAll(false);
 				ReadOptions();
-				ShowMessageInfo(Messages.ResetSettingsDone);
+				ShowMessageInfo(LanguageManager.GetText("ResetSettingsDone"));
 			}
 		}
 
@@ -1560,7 +1622,7 @@ namespace Eddie.Forms.Forms
 			foreach (string path in paths)
 			{
 				if (Platform.Instance.OpenDirectoryInFileManager(path) == false)
-					ShowMessageError(MessagesFormatter.Format(Messages.WindowsSettingsLogsCannotOpenDirectory, path));
+					ShowMessageError(LanguageManager.GetText("WindowsSettingsLogsCannotOpenDirectory", path));
 			}
 		}
 
@@ -1572,6 +1634,23 @@ namespace Eddie.Forms.Forms
 		private void chkUiFontGeneral_CheckedChanged_1(object sender, EventArgs e)
 		{
 			EnableIde();
+		}
+
+		private void cboStorageMode_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			EnableIde();
+		}
+
+		private void cmdShellExternalView_Click(object sender, EventArgs e)
+		{
+			Json rules = Engine.Instance.Storage.GetJson("external.rules");
+			Engine.Instance.OnShowText("Rules", rules.ToJsonPretty());
+		}
+
+		private void cmdShellExternalClear_Click(object sender, EventArgs e)
+		{
+			Engine.Instance.Storage.Set("external.rules", Engine.Instance.Storage.Options["external.rules"].Default);
+			ShowMessageInfo("Done.");
 		}
 	}
 }

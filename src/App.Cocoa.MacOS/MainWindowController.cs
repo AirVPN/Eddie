@@ -44,9 +44,11 @@ namespace Eddie.UI.Cocoa.Osx
 		private WindowPreferencesController windowPreferences;
 		private NSTabViewItem TabProviders;
 
-		#region Constructors
-		// Called when created from unmanaged code
-		public MainWindowController(IntPtr handle) : base(handle)
+        private string m_mainActionCommand = "";
+
+        #region Constructors
+        // Called when created from unmanaged code
+        public MainWindowController(IntPtr handle) : base(handle)
 		{
 			Initialize();
 		}
@@ -106,36 +108,36 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetSelected(CboServersScoringRule, Engine.Storage.Get("servers.scoretype"));
 
 			CboSpeedResolutions.RemoveAllItems();
-			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution1);
-			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution2);
-			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution3);
-			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution4);
-			CboSpeedResolutions.AddItem(Messages.WindowsMainSpeedResolution5);
+			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution1"));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution2"));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution3"));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution4"));
+			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution5"));
 			CboSpeedResolutions.SelectItem(0);
 
-			CmdConnect.Title = Messages.CommandConnect;
-			LblConnect.StringValue = Messages.CommandConnectSubtitle;
-			CmdDisconnect.Title = Messages.CommandDisconnect;
-			CmdCancel.Title = Messages.CommandCancel;
+			CmdConnect.Title = LanguageManager.GetText("CommandConnect");
+			LblConnect.StringValue = LanguageManager.GetText("CommandConnectSubtitle");
+			CmdDisconnect.Title = LanguageManager.GetText("CommandDisconnect");
+			CmdCancel.Title = LanguageManager.GetText("CommandCancel");
 
-			CboServersScoringRule.ToolTip = Messages.TooltipServersScoreType;
-			ChkServersLockCurrent.ToolTip = Messages.TooltipServersLockCurrent;
-			ChkServersShowAll.ToolTip = Messages.TooltipServersShowAll;
-			CmdServersConnect.ToolTip = Messages.TooltipServersConnect;
-			CmdServersUndefined.ToolTip = Messages.TooltipServersUndefined;
-			CmdServersBlackList.ToolTip = Messages.TooltipServersBlackList;
-			CmdServersWhiteList.ToolTip = Messages.TooltipServersWhiteList;
-			CmdServersRename.ToolTip = Messages.TooltipServersRename;
-			CmdServersMore.ToolTip = Messages.TooltipServersMore;
-			CmdServersRefresh.ToolTip = Messages.TooltipServersRefresh;
-			CmdAreasUndefined.ToolTip = Messages.TooltipAreasUndefined;
-			CmdAreasBlackList.ToolTip = Messages.TooltipAreasBlackList;
-			CmdAreasWhiteList.ToolTip = Messages.TooltipAreasWhiteList;
-			CmdLogsCommand.ToolTip = Messages.TooltipLogsCommand;
-			CmdLogsClean.ToolTip = Messages.TooltipLogsClean;
-			CmdLogsCopy.ToolTip = Messages.TooltipLogsCopy;
-			CmdLogsSave.ToolTip = Messages.TooltipLogsSave;
-			CmdLogsSupport.ToolTip = Messages.TooltipLogsSupport;
+			CboServersScoringRule.ToolTip = LanguageManager.GetText("TooltipServersScoreType");
+			ChkServersLockCurrent.ToolTip = LanguageManager.GetText("TooltipServersLockCurrent");
+			ChkServersShowAll.ToolTip = LanguageManager.GetText("TooltipServersShowAll");
+			CmdServersConnect.ToolTip = LanguageManager.GetText("TooltipServersConnect");
+			CmdServersUndefined.ToolTip = LanguageManager.GetText("TooltipServersUndefined");
+			CmdServersBlackList.ToolTip = LanguageManager.GetText("TooltipServersBlackList");
+			CmdServersWhiteList.ToolTip = LanguageManager.GetText("TooltipServersWhiteList");
+			CmdServersRename.ToolTip = LanguageManager.GetText("TooltipServersRename");
+			CmdServersMore.ToolTip = LanguageManager.GetText("TooltipServersMore");
+			CmdServersRefresh.ToolTip = LanguageManager.GetText("TooltipServersRefresh");
+			CmdAreasUndefined.ToolTip = LanguageManager.GetText("TooltipAreasUndefined");
+			CmdAreasBlackList.ToolTip = LanguageManager.GetText("TooltipAreasBlackList");
+			CmdAreasWhiteList.ToolTip = LanguageManager.GetText("TooltipAreasWhiteList");
+			CmdLogsCommand.ToolTip = LanguageManager.GetText("TooltipLogsCommand");
+			CmdLogsClean.ToolTip = LanguageManager.GetText("TooltipLogsClean");
+			CmdLogsCopy.ToolTip = LanguageManager.GetText("TooltipLogsCopy");
+			CmdLogsSave.ToolTip = LanguageManager.GetText("TooltipLogsSave");
+			CmdLogsSupport.ToolTip = LanguageManager.GetText("TooltipLogsSupport");
 
 			if (Engine.Storage.GetBool("remember"))
 			{
@@ -144,7 +146,7 @@ namespace Eddie.UI.Cocoa.Osx
 				TxtPassword.StringValue = Engine.Storage.Get("password");
 
 			}
-
+            
             CmdMainMenu.Activated += (object sender, EventArgs e) =>
             {
                 CoreGraphics.CGPoint p = new CoreGraphics.CGPoint(this.Window.Frame.Left + 10, this.Window.Frame.Bottom - 40);
@@ -182,7 +184,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CboKey.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Instance.Storage.Set("key", CboKey.SelectedItem.Title);
+                if(Engine.Instance.Storage.Get("key") != CboKey.SelectedItem.Title)
+				    Engine.Instance.Storage.Set("key", CboKey.SelectedItem.Title);
 			};
 
 			CmdConnect.Activated += (object sender, EventArgs e) =>
@@ -446,22 +449,10 @@ namespace Eddie.UI.Cocoa.Osx
 
 			MnuTrayConnect.Activated += (object sender, EventArgs e) =>
 			{
-				if (Engine.IsWaiting())
-				{
-					Disconnect();
-				}
-				else if (Engine.IsConnected())
-				{
-					Disconnect();
-				}
-				else if (Engine.CanConnect())
-				{
-					Connect();
-				}
-				else
-				{
-					Restore(sender);
-				}
+                if (m_mainActionCommand == "")
+                    Restore(sender);
+                else
+                    UiClient.Instance.Command(m_mainActionCommand);
 			};
 
 			MnuTrayAbout.Activated += (object sender, EventArgs e) =>
@@ -507,12 +498,8 @@ namespace Eddie.UI.Cocoa.Osx
 				Shutdown();
 			};
 
-			CboServersScoringRule.ToolTip = Messages.TooltipServersScoreType;
-			CmdAreasBlackList.ToolTip = Messages.TooltipAreasBlackList;
-
-			Engine.MainWindow = this;
-            UiClient.Instance.MainWindow = this;
-			Engine.UiStart();
+			CboServersScoringRule.ToolTip = LanguageManager.GetText("TooltipServersScoreType");
+			CmdAreasBlackList.ToolTip = LanguageManager.GetText("TooltipAreasBlackList");
 
 			Engine.OnRefreshUi();
 
@@ -521,11 +508,16 @@ namespace Eddie.UI.Cocoa.Osx
 			RequestAttention();
 		}
 
-		public bool Shutdown()
+        private void Window_WillClose(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Shutdown()
 		{
 			if (Engine.AskExitConfirm())
 			{
-				bool result = GuiUtils.MessageYesNo(Messages.ExitConfirm);
+				bool result = GuiUtils.MessageYesNo(LanguageManager.GetText("ExitConfirm"));
 				if (result == false)
 				{
 					Engine.Instance.OnExitRejected();
@@ -542,7 +534,7 @@ namespace Eddie.UI.Cocoa.Osx
 			return true;
 		}
 
-		public void RefreshUi(Engine.RefreshUiMode mode)
+        public void RefreshUi(Engine.RefreshUiMode mode)
 		{
 			try
 			{
@@ -578,9 +570,10 @@ namespace Eddie.UI.Cocoa.Osx
 						ImgProgress.StopAnimation(this);
 						ImgTopPanel.Image = NSImage.ImageNamed("topbar_osx_green.png");
 						MnuTrayStatus.Image = NSImage.ImageNamed("status_green_16.png");
-						LblTopStatus.StringValue = MessagesFormatter.Format(MessagesUi.TopBarConnected, Engine.CurrentServer.DisplayName);
+						LblTopStatus.StringValue = LanguageManager.GetText("TopBarConnected", Engine.CurrentServer.DisplayName);
 
-						TabOverview.SelectAt(2);
+
+                        TabOverview.SelectAt(2);
 
 						LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
 						LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
@@ -593,14 +586,12 @@ namespace Eddie.UI.Cocoa.Osx
 						ImgTopPanel.Image = NSImage.ImageNamed("topbar_osx_red.png");
 						MnuTrayStatus.Image = NSImage.ImageNamed("status_red_16.png");
 						if (Engine.Instance.NetworkLockManager.IsActive())
-							LblTopStatus.StringValue = MessagesUi.TopBarNotConnectedLocked;
+                            LblTopStatus.StringValue = LanguageManager.GetText("TopBarNotConnectedLocked");
 						else
-							LblTopStatus.StringValue = MessagesUi.TopBarNotConnectedExposed;
+                            LblTopStatus.StringValue = LanguageManager.GetText("TopBarNotConnectedExposed");
 
 						TabOverview.SelectAt(0);
 					}
-
-					EnabledUI();
 				}
 
 				if ((mode == Engine.RefreshUiMode.Log) || (mode == Engine.RefreshUiMode.Full))
@@ -625,8 +616,8 @@ namespace Eddie.UI.Cocoa.Osx
 					{
 						TxtConnectedSince.StringValue = Engine.Stats.GetValue("VpnStart");
 
-						TxtConnectedDownload.StringValue = UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
-						TxtConnectedUpload.StringValue = UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
+                        TxtConnectedDownload.StringValue = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
+                        TxtConnectedUpload.StringValue = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
 					}
 				}
 
@@ -636,42 +627,86 @@ namespace Eddie.UI.Cocoa.Osx
 						TableServersController.RefreshUI();
 					if (TableAreasController != null)
 						TableAreasController.RefreshUI();
-				}
+
+                    CboKey.RemoveAllItems();
+                    if( (Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null) )
+                    {
+                        foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
+                        {
+                            string keyName = xmlKey.GetAttribute("name");
+                            CboKey.AddItem(keyName);
+                        }
+                        string currentKey = Engine.Instance.Storage.Get("key");
+                        int currentIndex = (int)CboKey.IndexOfItem(currentKey);
+                        if (currentIndex != -1)
+                        {
+                            CboKey.SelectItem(currentIndex);
+                        }
+                    }
+                }
+
+                if ((mode == Engine.RefreshUiMode.MainMessage) || (mode == Engine.RefreshUiMode.Full))
+                {
+                    EnabledUI();
+                }
 
 
-
-			}
+            }
 			catch (Exception)
 			{
 				// TOFIX: macOS sometime throw an useless exception in closing phase
 			}
 		}
 
-		public void SetColor(string color)
-		{
-			string colorMode = Engine.Storage.Get("gui.osx.style");
+        public string GetMacColorMode() // Must return 'light' or 'dark'
+        {
+            try
+            {
+                //string colorMode = Engine.Instance.StartCommandLine.Get("gui.osx.style", "light");
+                string colorMode = NSUserDefaults.StandardUserDefaults.StringForKey("AppleInterfaceStyle").ToString();
+                if (colorMode.ToLowerInvariant() == "dark")
+                    return "dark";
+            }
+            catch
+            {
+            }
 
-			if (color == "green")
+            return "light";
+        }
+
+        public void SetMainStatus(string appIcon, string appColor, string mainIcon, string mainActionCommand, string mainActionText)
+        {
+            string colorMode = GetMacColorMode();
+
+            if(appIcon == "normal")
+                NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
+            else
+                NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
+
+            if (appColor == "green")
 			{
 				StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_green.png");
-				NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon.png");
-				MnuTrayConnect.Title = Messages.CommandDisconnect;
+				MnuTrayConnect.Title = LanguageManager.GetText("CommandDisconnect");
 			}
-			else if (color == "yellow")
+			else if (appColor == "yellow")
 			{
 				StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_yellow.png");
-				NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
-				MnuTrayConnect.Title = Messages.CommandCancel;
+				
+				MnuTrayConnect.Title = LanguageManager.GetText("CommandCancel");
 			}
-			else if (color == "red")
+			else if (appColor == "red")
 			{
 				StatusItem.Image = NSImage.ImageNamed("menubar_" + colorMode.ToLowerInvariant() + "_red.png");
-				NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
-				MnuTrayConnect.Title = Messages.CommandConnect;
+				MnuTrayConnect.Title = LanguageManager.GetText("CommandConnect");
 			}
+
+            MnuTrayConnect.Title = mainActionText;
+            MnuTrayConnect.Enabled = (mainActionCommand != "");
+
+            m_mainActionCommand = mainActionCommand;
 		}
 
-		public void ShowNotification(string title)
+		public void ShowNotification(string title, string level)
 		{
 			RequestAttention();
 
@@ -693,9 +728,11 @@ namespace Eddie.UI.Cocoa.Osx
 
 			//not.Title = title;
 			//not.InformativeText = Eddie.Common.Constants.Name;
-			not.InformativeText = title;
+            not.Title = Eddie.Common.Constants.Name + " " + Eddie.Common.Constants.VersionDesc;
+            not.InformativeText = title;
 			not.DeliveryDate = NSDate.Now;
 			not.SoundName = NSUserNotification.NSUserNotificationDefaultSoundName;
+            not.ContentImage = NSImage.ImageNamed("log_" + level.ToLowerInvariant() + ".png");
 
 			// We get the Default notification Center
 			NSUserNotificationCenter center = NSUserNotificationCenter.DefaultUserNotificationCenter;
@@ -714,16 +751,24 @@ namespace Eddie.UI.Cocoa.Osx
 
 			if (l.Type >= LogType.InfoImportant)
 				RequestAttention();
-
-			if (l.Type == LogType.Fatal)
-				GuiUtils.MessageBoxError(msg);
 		}
+
+        public void MessageError(string message)
+        {
+            new NSObject().InvokeOnMainThread(() =>
+            {
+                GuiUtils.MessageBoxError(message);
+            });
+        }
 
 		public void SetStatus(string textFull, string textShort)
 		{
-			StatusItem.ToolTip = textFull;
-			StatusItem.Title = textShort;
-			Window.Title = Constants.Name + " - " + textFull;
+            if (StatusItem == null)
+                return;
+
+            StatusItem.ToolTip = textFull;
+            StatusItem.Title = textShort;
+            Window.Title = Constants.Name + " - " + textFull;
             MnuTrayStatus.Title = "> " + textFull;
 		}
 
@@ -737,6 +782,14 @@ namespace Eddie.UI.Cocoa.Osx
             LblVersion.SetFrameSize(s);
         }
 
+        public void ChangeVisibility(bool vis)
+        {
+            if (vis)
+                MnuTrayRestore.Title = LanguageManager.GetText("WindowsMainHide");
+            else
+                MnuTrayRestore.Title = LanguageManager.GetText("WindowsMainShow");
+        }
+
 		public void EnabledUI()
 		{
 			ConnectionInfo selectedConnection = null;
@@ -747,7 +800,6 @@ namespace Eddie.UI.Cocoa.Osx
 
 			bool connected = Engine.IsConnected();
 			bool waiting = Engine.IsWaiting();
-
 
 			if (Engine.Instance.AirVPN != null)
 			{
@@ -762,9 +814,9 @@ namespace Eddie.UI.Cocoa.Osx
 				bool airvpnLogged = Engine.IsLogged();
 
 				if (airvpnLogged == false)
-					CmdLogin.Title = Messages.CommandLoginButton;
+					CmdLogin.Title = LanguageManager.GetText("CommandLoginButton");
 				else
-					CmdLogin.Title = Messages.CommandLogout;
+					CmdLogin.Title = LanguageManager.GetText("CommandLogout");
 
 				CmdLogin.Enabled = ((waiting == false) && (connected == false) && (TxtLogin.StringValue.Trim() != "") && (TxtPassword.StringValue.Trim() != ""));
 
@@ -786,10 +838,7 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkRemember.Hidden = true;
 			}
 
-			if (this.Window.IsVisible)
-                MnuTrayRestore.Title = Messages.WindowsMainHide;
-            else
-                MnuTrayRestore.Title = Messages.WindowsMainShow;
+            ChangeVisibility(this.Window.IsVisible);
 
 			CmdConnect.Enabled = Engine.Instance.CanConnect();
 
@@ -827,20 +876,20 @@ namespace Eddie.UI.Cocoa.Osx
 				ImgNetworkLock.Hidden = CmdNetworkLock.Hidden;
 				if (Engine.Instance.NetworkLockManager.IsActive())
 				{
-					CmdNetworkLock.Title = Messages.NetworkLockButtonActive;
+					CmdNetworkLock.Title = LanguageManager.GetText("NetworkLockButtonActive");
 					ImgNetworkLock.Image = NSImage.ImageNamed("netlock_on.png");
 
 					LblNetLockStatus.Image = NSImage.ImageNamed("netlock_status_on.png");
-					LblNetLockStatus.ToolTip = Messages.NetworkLockStatusActive;
+					LblNetLockStatus.ToolTip = LanguageManager.GetText("NetworkLockStatusActive");
 
 				}
 				else
 				{
-					CmdNetworkLock.Title = Messages.NetworkLockButtonDeactive;
+					CmdNetworkLock.Title = LanguageManager.GetText("NetworkLockButtonDeactive");
 					ImgNetworkLock.Image = NSImage.ImageNamed("netlock_off.png");
 
 					LblNetLockStatus.Image = NSImage.ImageNamed("netlock_status_off.png");
-					LblNetLockStatus.ToolTip = Messages.NetworkLockStatusDeactive;
+					LblNetLockStatus.ToolTip = LanguageManager.GetText("NetworkLockStatusDeactive");
 				}
 			}
 
@@ -872,33 +921,14 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void SettingsChanged()
 		{
-			// Commented in 2.8, see this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
-			/*
-			bool showInDock = Engine.Storage.GetBool ("gui.osx.dock");
-			if (showInDock)
-				SwitchToRegular ();
-			else
-				SwitchToAccessory ();
-			*/
+			// Commented in 2.8, see this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/			
 		}
 
-		/*
-		public void SwitchToRegular()
-		{
-			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
-		}
-
-		public void SwitchToAccessory()
-		{
-			NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Accessory;
-		}
-		*/
-
-		public void FrontMessage(string message)
+		public void FrontMessage(Json jMessage)
 		{
 			WindowFrontMessageController w = new WindowFrontMessageController();
 			(Engine.Instance as Engine).WindowsOpen.Add(w);
-			w.Message = message;
+			w.Message = jMessage;
 			GuiUtils.ShowWindowWithFocus(w, this);
 		}
 
@@ -908,46 +938,14 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdServersRefresh.Enabled = true;
 		}
 
-		public void LoggedUpdate(XmlElement xmlKeys)
-		{
-			CboKey.RemoveAllItems();
-			foreach (XmlElement xmlKey in xmlKeys.ChildNodes)
-			{
-				string keyName = xmlKey.GetAttribute("name");
-				CboKey.AddItem(keyName);
-			}
-			string currentKey = Engine.Instance.Storage.Get("key");
-			int currentIndex = (int)CboKey.IndexOfItem(currentKey);
-			if (currentIndex != -1)
-			{
-				CboKey.SelectItem(currentIndex);
-			}
-			else
-			{
-				if (CboKey.ItemCount > 0)
-				{
-					CboKey.SelectItem(0);
-					Engine.Instance.Storage.Set("key", CboKey.ItemAtIndex(0).Title);
-				}
-				else
-				{
-					Engine.Instance.Storage.Set("key", "");
-				}
-			}
-
-		}
-
 		public void RequestAttention()
 		{
 			NSApplication.SharedApplication.RequestUserAttention(NSRequestUserAttentionType.InformationalRequest);
-
-
 		}
-
 
 		public bool NetworkLockKnowledge()
 		{
-			string msg = Messages.NetworkLockWarning;
+			string msg = LanguageManager.GetText("NetworkLockWarning");
 
 			return (GuiUtils.MessageYesNo(msg));
 		}
@@ -960,18 +958,13 @@ namespace Eddie.UI.Cocoa.Osx
 			StatusItem.Image = NSImage.ImageNamed("menubar_light_red.png");
 			StatusItem.HighlightMode = true;
 
-			NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
+            NSApplication.SharedApplication.ApplicationIconImage = NSImage.ImageNamed("icon_gray.png");
 		}
 
-
-
-		void Login()
+        void Login()
 		{
 			Engine.Storage.Set("login", TxtLogin.StringValue);
 			Engine.Storage.Set("password", TxtPassword.StringValue);
-
-			if (TermsOfServiceCheck(false) == false)
-				return;
 
 			Engine.Login();
 		}
@@ -983,11 +976,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void Connect()
 		{
-			if ((Engine.CanConnect() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
-			{
-				TabMain.SelectAt(0);
-				Engine.Connect();
-			}
+			Engine.Connect();			
 		}
 
 		void ConnectManual()
@@ -998,7 +987,8 @@ namespace Eddie.UI.Cocoa.Osx
 				if (s.CanConnect())
 				{
 					Engine.NextServer = s;
-					Connect();
+                    TabMain.SelectAt(0);
+                    Connect();
 				}
 			}
 		}
@@ -1023,35 +1013,6 @@ namespace Eddie.UI.Cocoa.Osx
 		void NetworkLockDeactivation()
 		{
 			Engine.NetLockOut();
-		}
-
-		bool TermsOfServiceCheck(bool force)
-		{
-			bool show = force;
-			if (show == false)
-				show = (Engine.Storage.GetBool("gui.tos") == false);
-
-			if (show)
-			{
-				WindowTosController tos = new WindowTosController();
-				tos.Window.ReleasedWhenClosed = true;
-				NSApplication.SharedApplication.RunModalForWindow(tos.Window);
-				tos.Window.Close();
-
-				if (tos.Accepted)
-				{
-					Engine.Storage.SetBool("gui.tos", true);
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return true;
-			}
 		}
 
 		void ProviderAdd()
@@ -1232,7 +1193,7 @@ namespace Eddie.UI.Cocoa.Osx
 				string[] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
 				NSPasteboard.GeneralPasteboard.SetStringForType(t, pboardTypes[0]);
-				GuiUtils.MessageBoxInfo(Messages.LogsCopyClipboardDone);
+				GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
 			}
 		}
 
@@ -1252,14 +1213,14 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t, System.Text.Encoding.UTF8);
 
-					GuiUtils.MessageBoxInfo(Messages.LogsSaveToFileDone);
+					GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsSaveToFileDone"));
 				}
 			}
 		}
 
 		public void ShowAbout()
 		{
-			if ((windowAbout == null) || (windowAbout.Window.IsVisible == false))
+            if ((windowAbout == null) || (windowAbout.Window.IsVisible == false))
 				windowAbout = new WindowAboutController();
 			GuiUtils.ShowWindowWithFocus(windowAbout, this);
 		}
@@ -1303,20 +1264,11 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public void Restore(object sender)
 		{
-
 			NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
 
 			GuiUtils.ShowWindowWithFocus(this, this);
 			Window.MakeMainWindow();
 			EnabledUI();
-			/*
-			ShowWindow (this);
-			Window.MakeMainWindow ();
-			Window.Deminiaturize (this);
-			EnabledUI ();
-			Window.MakeKeyAndOrderFront (this);
-			*/
-
 		}
 	}
 }

@@ -24,12 +24,13 @@ using System.Linq;
 using Foundation;
 using AppKit;
 using Eddie.Common;
+using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class WindowFrontMessageController : AppKit.NSWindowController
 	{
-		public string Message;
+		public Json Message;
 
 		#region Constructors
 		// Called when created from unmanaged code
@@ -66,11 +67,21 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsFrontMessageTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsFrontMessageTitle");
 
-			TxtMessage.StringValue = Message;
-			CmdClose.Title = Messages.WindowsFrontMessageAccept;
-			CmdMore.Title = Messages.WindowsFrontMessageMore;
+			GuiUtils.SetButtonDefault(Window, CmdClose);
+
+            TxtMessage.StringValue = Message["text"].Value as string;
+			CmdClose.Title = LanguageManager.GetText("WindowsFrontMessageAccept");			
+
+			if (Message.HasKey("link"))
+            {
+                CmdMore.Title = Message["link"].Value as string;
+            }
+            else
+            {
+                CmdMore.Hidden = true;
+            }
 
 			CmdClose.Activated += (object sender, EventArgs e) =>
 			{
@@ -79,7 +90,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CmdMore.Activated += (object sender, EventArgs e) =>
 			{
-                GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
+                //GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
+                GuiUtils.OpenUrl(Message["url"].Value as string);
 			};
 		}
 	}

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,15 +31,15 @@ using System.Threading;
 using Eddie.Common;
 using Eddie.Core;
 using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
+//using Microsoft.Win32.TaskScheduler;
+using System.ServiceProcess;
 
 namespace Eddie.Platform.Windows
 {
 	public class Platform : Core.Platform
 	{
-		private List<NetworkManagerDhcpEntry> m_listOldDhcp = new List<NetworkManagerDhcpEntry>();
-		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
-		private object m_oldIPv6 = null;
+		private string ServiceName = "Eddie Elevation Service";
+		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();		
 		private string m_oldMetricInterface = "";
 		private int m_oldMetricIPv4 = -1;
 		private int m_oldMetricIPv6 = -1;
@@ -79,12 +79,6 @@ namespace Eddie.Platform.Windows
 		// Override
 		public Platform()
 		{
-			/*
-#if EDDIENET20
-			// Look the comment in TrustCertificatePolicy.cs
-			TrustCertificatePolicy.Activate();
-#endif
-			*/
 		}
 
 		public override string GetCode()
@@ -108,12 +102,13 @@ namespace Eddie.Platform.Windows
 
 		public override string GetName()
 		{
-			return Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", "").ToString();
+			string name = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName", "").ToString();
+			return name;
 		}
 
-		public override void OnInit(bool cli)
+		public override void OnInit()
 		{
-			base.OnInit(cli);
+			base.OnInit();
 
 			m_consoleCtrlHandlerRoutine = new NativeMethods.ConsoleCtrlHandlerRoutine(ConsoleCtrlCheck); // Avoid Garbage Collector
 			NativeMethods.SetConsoleCtrlHandler(m_consoleCtrlHandlerRoutine, true);
@@ -124,7 +119,7 @@ namespace Eddie.Platform.Windows
 			base.OnDeInit();
 
 			if (IsVistaOrNewer())
-				Wfp.Stop();			
+				Wfp.Stop();
 		}
 
 		public override void OnStart()
@@ -144,11 +139,18 @@ namespace Eddie.Platform.Windows
 			return "x86";
 		}
 
+		public override ElevatedProcess StartElevated()
+		{
+			Elevated e = new Elevated();
+			e.Start();
+
+			m_elevated = e;
+
+			return e;
+		}
+
 		public override bool IsAdmin()
 		{
-			//return true; // Manifest ensure that
-
-			// 2.10.1
 			bool isElevated;
 			WindowsIdentity identity = WindowsIdentity.GetCurrent();
 			WindowsPrincipal principal = new WindowsPrincipal(identity);
@@ -156,9 +158,164 @@ namespace Eddie.Platform.Windows
 
 			return isElevated;
 		}
-		
+
+		protected override string GetElevatedHelperPathImpl()
+		{
+			string path = AppDomain.CurrentDomain.BaseDirectory + "Eddie-CLI-Elevated.exe";
+			return FileGetPhysicalPath(path);
+		}
+
+		public override bool CheckElevatedSocketAllowed(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
+		{
+			int bufferSize = 0;
+
+			// Getting the size of TCP table, that is returned in 'bufferSize' variable. 
+			uint result = NativeMethods.GetExtendedTcpTable(IntPtr.Zero, ref bufferSize, true, NativeMethods.AF_INET, NativeMethods.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL);
+
+			// Allocating memory from the unmanaged memory of the process by using the 
+			// specified number of bytes in 'bufferSize' variable. 
+			IntPtr tcpTableRecordsPtr = Marshal.AllocHGlobal(bufferSize);
+
+			try
+			{
+				// The size of the table returned in 'bufferSize' variable in previous 
+				// call must be used in this subsequent call to 'GetExtendedTcpTable' 
+				// function in order to successfully retrieve the table. 
+				result = NativeMethods.GetExtendedTcpTable(tcpTableRecordsPtr, ref bufferSize, true, NativeMethods.AF_INET, NativeMethods.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL);
+
+				// Non-zero value represent the function 'GetExtendedTcpTable' failed, 
+				// hence empty list is returned to the caller function. 
+				if (result != 0)
+					return false;
+
+				// Marshals data from an unmanaged block of memory to a newly allocated 
+				// managed object 'tcpRecordsTable' of type 'MIB_TCPTABLE_OWNER_PID' 
+				// to get number of entries of the specified TCP table structure. 
+				NativeMethods.MIB_TCPTABLE_OWNER_PID tcpRecordsTable = (NativeMethods.MIB_TCPTABLE_OWNER_PID)
+										Marshal.PtrToStructure(tcpTableRecordsPtr,
+										typeof(NativeMethods.MIB_TCPTABLE_OWNER_PID));
+				IntPtr tableRowPtr = (IntPtr)((long)tcpTableRecordsPtr +
+										Marshal.SizeOf(tcpRecordsTable.dwNumEntries));
+
+				// Reading and parsing the TCP records one by one from the table and 
+				// storing them in a list of 'TcpProcessRecord' structure type objects. 
+				for (int row = 0; row < tcpRecordsTable.dwNumEntries; row++)
+				{
+					NativeMethods.MIB_TCPROW_OWNER_PID tcpRow = (NativeMethods.MIB_TCPROW_OWNER_PID)Marshal.
+						PtrToStructure(tableRowPtr, typeof(NativeMethods.MIB_TCPROW_OWNER_PID));
+
+					System.Net.IPAddress localAddr = new System.Net.IPAddress(tcpRow.localAddr);
+					System.Net.IPAddress remoteAddr = new System.Net.IPAddress(tcpRow.remoteAddr);
+					UInt16 localPort = BitConverter.ToUInt16(new byte[2] { tcpRow.localPort[1], tcpRow.localPort[0] }, 0);
+					UInt16 remotePort = BitConverter.ToUInt16(new byte[2] { tcpRow.remotePort[1], tcpRow.remotePort[0] }, 0);
+					
+					if ((localEndpoint.Address.ToString() == localAddr.ToString()) &&
+						(localEndpoint.Port == localPort) &&
+						(remoteEndpoint.Address.ToString() == remoteAddr.ToString()) &&
+						(remoteEndpoint.Port == remotePort))
+					{
+						int pid = tcpRow.owningPid;
+
+						System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(pid);
+
+						return CheckElevatedProcessAllowed(process);
+					}
+
+					tableRowPtr = (IntPtr)((long)tableRowPtr + Marshal.SizeOf(tcpRow));
+				}
+			}
+			catch (OutOfMemoryException)
+			{
+				return false;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+			finally
+			{
+				Marshal.FreeHGlobal(tcpTableRecordsPtr);
+			}
+
+			return false;
+		}
+
+		public override bool CheckElevatedProcessAllowed(System.Diagnostics.Process process)
+		{
+			string remotePath = "";
+			try
+			{
+				remotePath = process.MainModule.FileName;
+			}
+			catch
+			{
+				// Security step: 
+				// Standard access path of an elevated process throw Access Denied.
+				// QueryFullProcessImageName workaround require Vista, and don't work anyway with Windows Service.
+				// In general, if MainModule.FileName fail, it's elevated so trusted.
+				return true;
+			}
+
+			return CheckElevatedProcessAllowed(remotePath);
+		}
+
+		public override bool CheckElevatedProcessAllowed(string remotePath)
+		{
+			// Security step: if not root, exit
+			{
+				// Never found a Win good solution that work even if spot-launched or service edition.
+				// If spot-launched, WTSQuerySessionInformationW return the current user.
+				// If spot-launched or service, GetTokenInformation don't work in any case without elevation.
+			}
+
+			bool match = false;
+
+			string localPath = System.Reflection.Assembly.GetEntryAssembly().Location;
+			
+			// Security step: check match signature
+			try
+			{
+				System.Security.Cryptography.X509Certificates.X509Certificate c1 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(localPath);
+				System.Security.Cryptography.X509Certificates.X509Certificate c2 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(remotePath);
+
+				match = (
+					(c1.Issuer == c2.Issuer) &&
+					(c1.Subject == c2.Subject) &&
+					(c1.GetCertHashString() == c2.GetCertHashString()) &&
+					(c1.GetEffectiveDateString() == c2.GetEffectiveDateString()) &&
+					(c1.GetPublicKeyString() == c2.GetPublicKeyString()) &&
+					(c1.GetRawCertDataString() == c2.GetRawCertDataString()) &&
+					(c1.GetSerialNumberString() == c2.GetSerialNumberString())
+				);
+			}
+			catch
+			{
+			}
+
+#if DEBUG
+			// Never official deploy debug edition
+			match = true;
+#endif
+
+			return match;
+		}
+
 		public override bool GetAutoStart()
 		{
+			try
+			{
+				RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+				if (registryKey.GetValue("Eddie") == null)
+					return false;
+				else
+					return true;
+			}
+			catch
+			{
+				return false;
+			}
+			/* <2.17.3
 			TaskService ts = null;
 			try
 			{
@@ -177,9 +334,32 @@ namespace Eddie.Platform.Windows
 			}
 
 			return false;
+			*/
 		}
+
 		public override bool SetAutoStart(bool value)
 		{
+			try
+			{
+				RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+				if (value)
+				{
+					registryKey.SetValue("Eddie", GetExecutablePath());
+					return true;
+				}
+				else
+				{
+					registryKey.DeleteValue("Eddie", false);
+					return true;
+				}
+			}
+			catch
+			{
+				return false;
+			}
+				
+			/* <2.17.3			
 			TaskService ts = null;
 			try
 			{
@@ -188,11 +368,15 @@ namespace Eddie.Platform.Windows
 				{
 					if (ts.RootFolder.Tasks.Exists("AirVPN"))
 						ts.RootFolder.DeleteTask("AirVPN");
+					if (ts.RootFolder.Tasks.Exists("Eddie"))
+						ts.RootFolder.DeleteTask("Eddie");
 				}
 				else
 				{
 					if (ts.RootFolder.Tasks.Exists("AirVPN"))
 						ts.RootFolder.DeleteTask("AirVPN");
+					if (ts.RootFolder.Tasks.Exists("Eddie"))
+						ts.RootFolder.DeleteTask("Eddie");
 
 					// Create a new task definition and assign properties
 					TaskDefinition td = ts.NewTask();
@@ -205,7 +389,7 @@ namespace Eddie.Platform.Windows
 					td.Settings.DeleteExpiredTaskAfter = TimeSpan.Zero;
 					td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
 
-					td.RegistrationInfo.Description = "AirVPN Client";
+					td.RegistrationInfo.Description = "Eddie - OpenVPN Client";
 					td.Triggers.Add(new LogonTrigger());
 					string command = "\"" + GetExecutablePath() + "\"";
 					string arguments = "";
@@ -214,7 +398,7 @@ namespace Eddie.Platform.Windows
 					td.Actions.Add(new ExecAction(command, (arguments == "") ? null : arguments, null));
 
 					// Register the task in the root folder
-					ts.RootFolder.RegisterTaskDefinition(@"AirVPN", td);
+					ts.RootFolder.RegisterTaskDefinition(@"Eddie", td);
 				}
 			}
 			catch (NotV1SupportedException)
@@ -228,6 +412,63 @@ namespace Eddie.Platform.Windows
 			}
 
 			return true;
+			*/
+		}
+
+		public override bool AllowService()
+		{
+			return true;
+		}
+
+		public override string AllowServiceUserDescription()
+		{
+			return "If checked, install a Windows Service";
+		}
+
+		protected override bool GetServiceImpl()
+		{
+			ServiceController[] services = ServiceController.GetServices();
+			foreach(ServiceController service in services)
+			{
+				if (service.ServiceName == ServiceName)
+					return true;
+			}
+			return false;
+		}
+
+		protected override bool SetServiceImpl(bool value)
+		{
+			if (GetServiceImpl() == value)
+				return true;
+
+			try
+			{
+				ProcessStartInfo processStart = new ProcessStartInfo();
+				processStart.FileName = GetElevatedHelperPath();
+				processStart.Arguments = "";
+				processStart.Verb = "runas";
+				processStart.CreateNoWindow = true;
+				processStart.UseShellExecute = true;
+				if (value)
+				{
+					processStart.Arguments = "service-install";
+					System.Diagnostics.Process p = System.Diagnostics.Process.Start(processStart);
+					p.WaitForExit();
+					return (GetService() == true);
+				}
+				else
+				{
+					processStart.Arguments = "service-uninstall";
+					System.Diagnostics.Process p = System.Diagnostics.Process.Start(processStart);
+					p.WaitForExit();
+					return (GetService() == false);
+				}
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(ex);
+				return false;
+			}
 		}
 
 		public override string NormalizeString(string val)
@@ -266,16 +507,19 @@ namespace Eddie.Platform.Windows
 			return native;
 		}
 
-		public override bool FileEnsureRootOnly(string path)
-		{	
-			// Required for ssh.exe
-
+		public override bool FileEnsureCurrentUserOnly(string path)
+		{
 			// Remove Inheritance
-			SystemShell.ShellCmd("icacls \"" + SystemShell.EscapePath(path) + "\" /c /t /inheritance:d");
+			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /inheritance:d");
 
-			// Remove Users permissions. 
-			// TOFIX: Can be better, parse permissions and remove != owner.
-			SystemShell.ShellCmd("icacls \"" + SystemShell.EscapePath(path) + "\"  /c /t /remove \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\"");
+			// Set Ownership to Owner
+			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /grant \"" + SystemShell.EscapeInsideQuote(Environment.UserName) + "\":F");
+
+			// Remove Authenticated Users
+			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /remove:g *S-1-5-11");
+
+			// Remove other groups
+			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /remove Administrator \"BUILTIN\\Administrators\" \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\" BUILTIN Everyone System Users");
 
 			return true;
 		}
@@ -288,9 +532,9 @@ namespace Eddie.Platform.Windows
 			return path;
 		}
 
-		public override string GetUserPathEx()
+		protected override string GetUserPathEx()
 		{
-			return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AirVPN";
+			return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\Eddie";
 		}
 
 		public override string GetDefaultOpenVpnConfigsPath()
@@ -328,19 +572,14 @@ namespace Eddie.Platform.Windows
 			return true;
 		}
 
-		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
-		{
-			path = "cmd.exe";
-			arguments = new string[] { "/c", command };
-		}
-
 		public override bool ProcessKillSoft(Core.Process process)
-		{			
+		{
+			process.CloseMainWindow();
+			return true;
+
 			/* >=2.16.3
 			StandardInput.Close() or StandardInput.WriteLine("\x3") don't work. CloseMainWindow seem the best solution for now.
 			*/
-			process.CloseMainWindow();
-			return true;
 
 			// The below method was used <=2.16.2, but cause a crash with SSL/SSH tunnel at exit, 
 			// a generic 'The parameter is incorrect.' in GC Finalizer.
@@ -387,19 +626,10 @@ namespace Eddie.Platform.Windows
 		public override void FlushDNS()
 		{
 			base.FlushDNS();
-
-			// <2.11.8
-			//ShellCmd("ipconfig /flushdns");
-
-			// 2.11.10
-			if (Engine.Instance.Storage.GetBool("windows.workarounds"))
-			{
-				SystemShell.ShellCmd("net stop dnscache");
-				SystemShell.ShellCmd("net start dnscache");
-			}
-
-			SystemShell.ShellCmd("ipconfig /flushdns");
-			SystemShell.ShellCmd("ipconfig /registerdns");
+			
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "full", (Engine.Instance.Storage.GetBool("windows.workarounds") ? "1" : "0"));
+			
+			SystemShell.Shell1(LocateExecutable("ipconfig.exe"), "/flushdns");
 		}
 
 		public override bool RouteAdd(Json jRoute)
@@ -416,45 +646,30 @@ namespace Eddie.Platform.Windows
 				NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
 
 				if (networkInterface == null)
-					throw new Exception(Messages.NetworkInterfaceNotAvailable);
+					throw new Exception(LanguageManager.GetText("NetworkInterfaceNotAvailable"));
 
-				string cmd = "";
+				int interfaceIdx = 0;
 				if (ip.IsV4)
-				{
-					cmd += "route add " + ip.Address + " mask " + ip.Mask + " " + gateway.Address;
-					int interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
-					cmd += " if " + SystemShell.EscapeInt(interfaceIdx);
-					/*
-					 * Metric param are ignored or misinterpreted. http://serverfault.com/questions/238695/how-can-i-set-the-metric-of-a-manually-added-route-on-windows
-					if(r.Metrics != "")
-						cmd += " metric " + r.Metrics;
-					*/
-				}
-				else if (ip.IsV6)
-				{
-					cmd = "netsh interface ipv6 add route";
-					cmd += " prefix=\"" + SystemShell.EscapeInsideQuote(ip.ToCIDR(true)) + "\"";
-					int interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-					cmd += " interface=\"" + SystemShell.EscapeInt(interfaceIdx) + "\"";
-					cmd += " nexthop=\"" + SystemShell.EscapeInsideQuote(gateway.Address) + "\"";
-					if (jRoute.HasKey("metric"))
-						cmd += " metric=" + SystemShell.EscapeInt(jRoute["metric"].Value as string);
-				}
-
-				string result = SystemShell.ShellCmd(cmd);
-				result = result.Trim().Trim(new char[] { '!', '.' });
-				if (result.ToLowerInvariant() == "ok")
-				{
-					return base.RouteAdd(jRoute);
-				}
+					interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
 				else
-				{
-					throw new Exception(result);
-				}
+					interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
+				ElevatedProcess.Command c = new ElevatedProcess.Command();
+				c.Parameters["command"] = "route";
+				c.Parameters["action"] = "add";
+				c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
+				c.Parameters["cidr"] = ip.ToCIDR(true);
+				c.Parameters["address"] = ip.Address;
+				c.Parameters["mask"] = ip.Mask;
+				c.Parameters["gateway"] = gateway.Address;
+				c.Parameters["iface"] = interfaceIdx.ToString();
+				if (jRoute.HasKey("metric"))
+					c.Parameters["metric"] = jRoute["metric"].Value as string;
+				Engine.Instance.Elevated.DoCommandSync(c);
+				return base.RouteAdd(jRoute);				
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
-				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteAddFailed, ip.ToCIDR(), gateway.ToCIDR(), e.Message));
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(), gateway.ToCIDR(), e.Message));
 				return false;
 			}
 		}
@@ -473,49 +688,30 @@ namespace Eddie.Platform.Windows
 				NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
 
 				if (networkInterface == null)
-					throw new Exception(Messages.NetworkInterfaceNotAvailable);
+					throw new Exception(LanguageManager.GetText("NetworkInterfaceNotAvailable"));
 
-				string cmd = "";
+				int interfaceIdx = 0;
 				if (ip.IsV4)
-				{
-					cmd = "route delete " + ip.Address + " mask " + ip.Mask + " " + gateway.Address;
-					int interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
-					cmd += " if " + SystemShell.EscapeInt(interfaceIdx);
-				}
-				else if (ip.IsV6)
-				{
-					cmd = "netsh interface ipv6 del route";
-					cmd += " prefix=\"" + SystemShell.EscapeInsideQuote(ip.ToCIDR(true)) + "\"";
-					int interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-					cmd += " interface=\"" + SystemShell.EscapeInt(interfaceIdx) + "\"";
-					cmd += " nexthop=\"" + SystemShell.EscapeInsideQuote(gateway.Address) + "\"";
-				}
-
-				string result = SystemShell.ShellCmd(cmd);
-				result = result.Trim().Trim(new char[] { '!', '.' });
-				if (result.ToLowerInvariant() == "ok")
-				{
-					return base.RouteRemove(jRoute);
-				}
+					interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
 				else
-				{
-					// Remember: Route deletion can occur in a second moment (for example a Recovery phase).
-
-					// Still accepted: The device are not available anymore, so the route are already deleted.
-					if (result.ToLowerInvariant().Contains("the system cannot find the file specified"))
-						return base.RouteRemove(jRoute);
-
-					// Still accepted: Already deleted.
-					if (result.ToLowerInvariant().Contains("element not found."))
-						return base.RouteRemove(jRoute);
-
-					// Unexpected/unknown error.
-					throw new Exception(result);
-				}
+					interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
+				ElevatedProcess.Command c = new ElevatedProcess.Command();
+				c.Parameters["command"] = "route";
+				c.Parameters["action"] = "remove";
+				c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
+				c.Parameters["cidr"] = ip.ToCIDR(true);
+				c.Parameters["address"] = ip.Address;
+				c.Parameters["mask"] = ip.Mask;
+				c.Parameters["gateway"] = gateway.Address;
+				c.Parameters["iface"] = interfaceIdx.ToString();
+				if (jRoute.HasKey("metric"))
+					c.Parameters["metric"] = jRoute["metric"].Value as string;
+				Engine.Instance.Elevated.DoCommandSync(c);
+				return base.RouteRemove(jRoute);
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
-				Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.RouteDelFailed, ip.ToCIDR(), gateway.ToCIDR(), e.Message));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelFailed", ip.ToCIDR(), gateway.ToCIDR(), e.Message));
 				return false;
 			}
 		}
@@ -543,7 +739,7 @@ namespace Eddie.Platform.Windows
 
 			return list;
 		}
-		
+
 		public override bool WaitTunReady()
 		{
 			int tickStart = Environment.TickCount;
@@ -581,28 +777,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.OnReport(report);
 
-			report.Add("ipconfig /all", SystemShell.ShellCmd("ipconfig /all"));
-			//report.Add("route print", SystemShell.ShellCmd("route print"));
-
-			/* // Too much data, generally useless
-			t += "\n-- NetworkAdapterConfiguration\n";
-
-			ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-			ManagementObjectCollection objMOC = objMC.GetInstances();
-
-			foreach (ManagementObject objMO in objMOC)
-			{	
-				t += "\n";
-				t += "Network Adapter: " + Conversions.ToString(objMO.Properties["Caption"].Value) + "\n";
-				t += "DNS: " + Conversions.ToString(objMO.Properties["DNSServerSearchOrder"].Value) + "\n";
-				
-				t += "Details:\n";
-				foreach (PropertyData prop in objMO.Properties)
-				{
-					t += "\t" + prop.Name + ": " + Conversions.ToString(prop.Value) + "\n";					
-				}				
-			}
-			*/
+			report.Add("ipconfig /all", SystemShell.Shell1(Platform.Instance.LocateExecutable("ipconfig.exe"), "/all"));
 		}
 
 		public override bool OnCheckSingleInstance()
@@ -613,7 +788,14 @@ namespace Eddie.Platform.Windows
 			else
 				return true;
 		}
-		
+
+		public override void OnElevated()
+		{
+			base.OnElevated();
+
+			CompatibilityManager.WindowsRemoveTask();
+		}
+
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -638,19 +820,15 @@ namespace Eddie.Platform.Windows
 
 		public override void OnSessionStart()
 		{
-			// https://airvpn.org/topic/11162-airvpn-client-advanced-features/ -> Switch DHCP to Static			
-			if (Engine.Instance.Storage.GetBool("windows.dhcp_disable"))
-				SwitchToStaticDo();
-
 			// FlushDNS(); // Removed in 2.11.10
+
+
 
 			Recovery.Save();
 		}
 
 		public override void OnSessionStop()
 		{
-			SwitchToStaticRestore();
-
 			// FlushDNS(); // Moved in 2.13.3 in ::session.cs, but only if a connection occur.
 
 			Recovery.Save();
@@ -685,56 +863,10 @@ namespace Eddie.Platform.Windows
 					Wfp.AddItem("ipv6_allow_loopback", xmlRule);
 				}
 
-				// <2.12.1
-				/*
-				XmlDocument xmlDocRule = new XmlDocument();
-				XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-				xmlRule.SetAttribute("name", "IPv6 - Block");
-				xmlRule.SetAttribute("layer", "ipv6");
-				xmlRule.SetAttribute("action", "block");
-				xmlRule.SetAttribute("weight", "3000"); 
-				XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-				xmlRule.AppendChild(XmlIf1);
-				XmlIf1.SetAttribute("field", "ip_local_interface");
-				XmlIf1.SetAttribute("match", "not_equal");
-				XmlIf1.SetAttribute("interface", "loopback");
-				Wfp.AddItem("ipv6_block_all", xmlRule);
-				*/
-
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.IPv6DisabledWpf);
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("IPv6DisabledWpf"));
 			}
-
-			// Removed in 2.14, in W10 require reboot
-			/*
-			if (Engine.Instance.Storage.GetBool("windows.ipv6.os_disable"))
-			{
-				// Based on: http://support.microsoft.com/kb/929852
-				// Based on: https://www.wincert.net/networking/ipv6-breaking-down-the-disabledcomponents-registry-value/
-				object reg = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", "");
-				UInt32 v = Conversions.ToUInt32(reg, 0);
-				bool available = true;
-				if ((v & (1 << 0)) != 0) // Bit 0 controls ALL of the IPv6 tunnel interfaces. If 1 is disabled
-					available = false;
-				if ((v & (1 << 4)) != 0) // Bit 4 controls IPv6 for non-tunnel interfaces. If 1 is disabled
-					available = false;
-
-				if(available == false)
-				{
-					m_oldIPv6 = null;
-				}
-				else
-				{
-					m_oldIPv6 = v;
-
-					UInt32 newValue = 17;
-					Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", newValue, RegistryValueKind.DWord);
-
-					Engine.Instance.Logs.Log(LogType.Verbose, Messages.IPv6DisabledOs);
-
-					Recovery.Save();
-				}
-			}
-			*/
+			else
+				throw new Exception("Unexpected IPv6 block requested");
 
 			base.OnIPv6Block();
 
@@ -743,16 +875,8 @@ namespace Eddie.Platform.Windows
 
 		public override bool OnIPv6Restore()
 		{
-			if (m_oldIPv6 != null)
-			{
-				Registry.SetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP6\\Parameters", "DisabledComponents", m_oldIPv6, RegistryValueKind.DWord);
-				m_oldIPv6 = null;
-
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.IPv6RestoredOs);
-			}
-
 			if ((Wfp.RemoveItem("ipv6_block_all")) && (Wfp.RemoveItem("ipv6_allow_loopback")))
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.IPv6RestoredWpf);
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("IPv6RestoredWpf"));
 
 			base.OnIPv6Restore();
 
@@ -846,7 +970,7 @@ namespace Eddie.Platform.Windows
 				}
 
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockActivatedWpf);
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("DnsLockActivatedWpf"));
 			}
 
 			string mode = Engine.Instance.Storage.GetLower("dns.mode");
@@ -873,29 +997,6 @@ namespace Eddie.Platform.Windows
 
 					if (skip == false)
 					{
-						/*
-						NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
-
-						entry.Guid = id;
-						entry.Description = interfaceName;
-						entry.Dns.Add(jNetworkInterface["dns4"].Value as string);
-						entry.Dns.Add(jNetworkInterface["dns6"].Value as string);
-
-						if (entry.Dns.Equals(dns))
-							continue;
-						*/
-
-						// TOCLEAN
-						//entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
-
-						/*
-						if (entry.AutoDns == false) // Added 2.11
-						{
-							if (dns.Equals(dnsStatic))
-								continue;
-						}
-						*/
-
 						// IPv4
 						IpAddresses dnsIPv4 = new IpAddresses(jNetworkInterface["dns4"].Value as string);
 						if (dnsIPv4.OnlyIPv4.Equals(dns.OnlyIPv4) == false)
@@ -908,7 +1009,7 @@ namespace Eddie.Platform.Windows
 
 							if (dns.OnlyIPv4.Count == 0)
 							{
-								SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
 							}
 
 							int nIPv4 = 0;
@@ -916,19 +1017,19 @@ namespace Eddie.Platform.Windows
 							{
 								if (nIPv4 == 0)
 								{
-									SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
+									ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
 								}
 								else
 								{
-									SystemShell.ShellCmd("netsh interface ipv4 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
+									ShellToNetsh("interface ipv4 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
 								}
 								nIPv4++;
 							}
 
 							m_listOldDns.Add(entry);
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsWindowsNetworkAdapterDnsDone, "IPv4", entry.Description, (entry.Dns.OnlyIPv4.Count == 0 ? "automatic" : "manual" + " (" + entry.Dns.OnlyIPv4.ToString() + ")"), dns.OnlyIPv4.ToString()));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsDone", "IPv4", entry.Description, (entry.Dns.OnlyIPv4.Count == 0 ? "automatic" : "manual" + " (" + entry.Dns.OnlyIPv4.ToString() + ")"), dns.OnlyIPv4.ToString()));
 						}
-												
+
 						IpAddresses dnsIPv6 = new IpAddresses(jNetworkInterface["dns6"].Value as string);
 						if (dnsIPv6.OnlyIPv6.Equals(dns.OnlyIPv6) == false)
 						{
@@ -940,7 +1041,7 @@ namespace Eddie.Platform.Windows
 
 							if (dns.OnlyIPv6.Count == 0)
 							{
-								SystemShell.ShellCmd("netsh interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
 							}
 
 							int nIPv6 = 0;
@@ -948,125 +1049,20 @@ namespace Eddie.Platform.Windows
 							{
 								if (nIPv6 == 0)
 								{
-									SystemShell.ShellCmd("netsh interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
+									ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
 								}
 								else
 								{
-									SystemShell.ShellCmd("netsh interface ipv6 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
+									ShellToNetsh("interface ipv6 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
 								}
 								nIPv6++;
 							}
 
 							m_listOldDns.Add(entry);
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsWindowsNetworkAdapterDnsDone, "IPv6", entry.Description, (entry.Dns.OnlyIPv6.Count == 0 ? "automatic" : "manual" + " (" + entry.Dns.OnlyIPv6.ToString() + ")"), dns.OnlyIPv6.ToString()));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsDone", "IPv6", entry.Description, (entry.Dns.OnlyIPv6.Count == 0 ? "automatic" : "manual" + " (" + entry.Dns.OnlyIPv6.ToString() + ")"), dns.OnlyIPv6.ToString()));
 						}
 					}
 				}
-
-				/* <2.14.0
-				try
-				{
-					ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-					ManagementObjectCollection objMOC = objMC.GetInstances();
-
-					foreach (ManagementObject objMO in objMOC)
-					{
-						string guid = objMO["SettingID"] as string;
-
-						bool skip = true;
-
-						if((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces")) )
-							skip = false;
-						if( (Engine.Instance.ConnectionActive != null) && (guid == Engine.Instance.ConnectionActive.InterfaceId) )
-							skip = false;
-
-						if (skip == false)
-						{
-							bool ipEnabled = (bool)objMO["IPEnabled"];
-
-							NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
-
-							entry.Guid = guid;
-							entry.Description = objMO["Description"] as string;
-							entry.Dns = objMO["DNSServerSearchOrder"] as string[];
-
-							entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
-
-							if (entry.Dns == null)
-							{
-								continue;
-							}
-
-							if (entry.AutoDns == false) // Added 2.11
-							{
-								if (dns.Equals(new IpAddresses(entry.Dns)))
-									continue;
-							}
-
-							bool done = false;
-							
-							// 2.13.3 : Win10 with ManagementObject & SetDNSServerSearchOrder sometime return errcode 84 "IP not enabled on adapter" if we try to set DNS on Tap in state "Network cable unplugged", typical in end of session.
-							if (IsWin10OrNewer())
-							{
-								NetworkInterface inet = GetNetworkInterfaceFromGuid(guid);
-								if(inet != null)
-								{
-									string interfaceName = inet.Name;									
-									int nIPv4 = 0;
-									int nIPv6 = 0;
-									foreach (IpAddress ip in dns.IPs)
-									{
-										if (ip.IsV4)
-										{
-											if(nIPv4 == 0)
-											{
-												SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
-											}
-											else
-											{
-												SystemShell.ShellCmd("netsh interface ipv4 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
-											}
-											nIPv4++;
-										} else if(ip.IsV6)
-										{
-											if (nIPv6 == 0)
-											{
-												SystemShell.ShellCmd("netsh interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
-											}
-											else
-											{
-												SystemShell.ShellCmd("netsh interface ipv6 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
-											}
-											nIPv6++;
-										}
-									}
-									done = true;
-								}
-							}
-							else
-							{
-								ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = dns.AddressesToStringArray();
-								objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
-								done = true;
-							}
-
-							if (done)
-							{
-								m_listOldDns.Add(entry);
-
-								string descFrom = (entry.AutoDns ? "automatic" : "manual") + " (" + String.Join(",", entry.Dns) + ")";
-								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsDone, entry.Description, descFrom, dns.Addresses));
-							}							
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					Engine.Instance.Logs.Log(e);
-				}
-				*/
-
 
 				Recovery.Save();
 			}
@@ -1085,7 +1081,7 @@ namespace Eddie.Platform.Windows
 			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_permit_tap");
 			DnsPermitExists = DnsPermitExists | Wfp.RemoveItem("dns_block_all");
 			if (DnsPermitExists)
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.DnsLockDeactivatedWpf);
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("DnsLockDeactivatedWpf"));
 
 			base.OnDnsSwitchRestore();
 
@@ -1158,11 +1154,11 @@ namespace Eddie.Platform.Windows
 			{
 				string fromStr = (interfaceMetricIPv4Current == 0) ? "Automatic" : interfaceMetricIPv4Current.ToString();
 				string toStr = (interfaceMetricIPv4Value == 0) ? "Automatic" : interfaceMetricIPv4Value.ToString();
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricSwitch, interfaceMetricIPv4Name, fromStr, toStr, "IPv4"));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterMetricSwitch", interfaceMetricIPv4Name, fromStr, toStr, "IPv4"));
 				m_oldMetricInterface = id;
 				m_oldMetricIPv4 = interfaceMetricIPv4Current;
-				NativeMethods.SetInterfaceMetric(interfaceMetricIPv4Idx, "ipv4", interfaceMetricIPv4Value);
-
+				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv4Idx.ToString(), "layer", "ipv4", "value", interfaceMetricIPv4Value.ToString());
+				
 				Recovery.Save();
 			}
 
@@ -1170,10 +1166,10 @@ namespace Eddie.Platform.Windows
 			{
 				string fromStr = (interfaceMetricIPv6Current == 0) ? "Automatic" : interfaceMetricIPv6Current.ToString();
 				string toStr = (interfaceMetricIPv6Value == 0) ? "Automatic" : interfaceMetricIPv6Value.ToString();
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricSwitch, interfaceMetricIPv6Name, fromStr, toStr, "IPv6"));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterMetricSwitch", interfaceMetricIPv6Name, fromStr, toStr, "IPv6"));
 				m_oldMetricInterface = id;
 				m_oldMetricIPv6 = interfaceMetricIPv6Current;
-				NativeMethods.SetInterfaceMetric(interfaceMetricIPv6Idx, "ipv6", interfaceMetricIPv6Value);
+				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv6Idx.ToString(), "layer", "ipv6", "value", interfaceMetricIPv6Value.ToString());				
 
 				Recovery.Save();
 			}
@@ -1198,8 +1194,8 @@ namespace Eddie.Platform.Windows
 							{
 								string fromStr = (current == 0) ? "Automatic" : current.ToString();
 								string toStr = (m_oldMetricIPv4 == 0) ? "Automatic" : m_oldMetricIPv4.ToString();
-								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv4"));
-								NativeMethods.SetInterfaceMetric(idx, "ipv4", m_oldMetricIPv4);
+								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterMetricRestore", adapter.Name, fromStr, toStr, "IPv4"));
+								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv4", "value", m_oldMetricIPv4.ToString());								
 							}
 							m_oldMetricIPv4 = -1;
 						}
@@ -1212,8 +1208,8 @@ namespace Eddie.Platform.Windows
 							{
 								string fromStr = (current == 0) ? "Automatic" : current.ToString();
 								string toStr = (m_oldMetricIPv6 == 0) ? "Automatic" : m_oldMetricIPv6.ToString();
-								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterMetricRestore, adapter.Name, fromStr, toStr, "IPv6"));
-								NativeMethods.SetInterfaceMetric(idx, "ipv6", m_oldMetricIPv6);
+								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterMetricRestore", adapter.Name, fromStr, toStr, "IPv6"));
+								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv6", "value", m_oldMetricIPv6.ToString());								
 							}
 							m_oldMetricIPv6 = -1;
 						}
@@ -1237,28 +1233,17 @@ namespace Eddie.Platform.Windows
 			}
 		}
 
-		public override void OnRecovery()
+		public override void OnRecoveryAlways()
 		{
-			base.OnRecovery();
+			base.OnRecoveryAlways();
 
 			if (IsWin7OrNewer()) // 2.12.2
 				if (Wfp.ClearPendingRules())
-					Engine.Instance.Logs.Log(LogType.Warning, Messages.WfpRecovery);
+					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("WfpRecovery"));
 		}
 
 		public override void OnRecoveryLoad(XmlElement root)
 		{
-			XmlElement nodeDhcp = UtilsXml.XmlGetFirstElementByTagName(root, "DhcpSwitch");
-			if (nodeDhcp != null)
-			{
-				foreach (XmlElement nodeEntry in nodeDhcp.ChildNodes)
-				{
-					NetworkManagerDhcpEntry entry = new NetworkManagerDhcpEntry();
-					entry.ReadXML(nodeEntry);
-					m_listOldDhcp.Add(entry);
-				}
-			}
-
 			XmlElement nodeDns = UtilsXml.XmlGetFirstElementByTagName(root, "DnsSwitch");
 			if (nodeDns != null)
 			{
@@ -1269,20 +1254,13 @@ namespace Eddie.Platform.Windows
 					m_listOldDns.Add(entry);
 				}
 			}
-
-			if (UtilsXml.XmlExistsAttribute(root, "IPv6"))
-			{
-				m_oldIPv6 = Conversions.ToUInt32(UtilsXml.XmlGetAttributeInt64(root, "IPv6", 0), 0);
-			}
-
+			
 			if (UtilsXml.XmlExistsAttribute(root, "interface-metric-id"))
 			{
 				m_oldMetricInterface = UtilsXml.XmlGetAttributeString(root, "interface-metric-id", "");
 				m_oldMetricIPv4 = UtilsXml.XmlGetAttributeInt(root, "interface-metric-ipv4", -1);
 				m_oldMetricIPv6 = UtilsXml.XmlGetAttributeInt(root, "interface-metric-ipv6", -1);
 			}
-
-			SwitchToStaticRestore();
 
 			base.OnRecoveryLoad(root);
 		}
@@ -1293,16 +1271,6 @@ namespace Eddie.Platform.Windows
 
 			XmlDocument doc = root.OwnerDocument;
 
-			if (m_listOldDhcp.Count != 0)
-			{
-				XmlElement nodeDhcp = (XmlElement)root.AppendChild(doc.CreateElement("DhcpSwitch"));
-				foreach (NetworkManagerDhcpEntry entry in m_listOldDhcp)
-				{
-					XmlElement nodeEntry = nodeDhcp.AppendChild(doc.CreateElement("entry")) as XmlElement;
-					entry.WriteXML(nodeEntry);
-				}
-			}
-
 			if (m_listOldDns.Count != 0)
 			{
 				XmlElement nodeDns = (XmlElement)root.AppendChild(doc.CreateElement("DnsSwitch"));
@@ -1312,10 +1280,7 @@ namespace Eddie.Platform.Windows
 					entry.WriteXML(nodeEntry);
 				}
 			}
-
-			if (m_oldIPv6 != null)
-				UtilsXml.XmlSetAttributeInt64(root, "IPv6", Conversions.ToInt64(m_oldIPv6));
-
+			
 			if (m_oldMetricInterface != "")
 			{
 				UtilsXml.XmlSetAttributeString(root, "interface-metric-id", m_oldMetricInterface);
@@ -1374,15 +1339,15 @@ namespace Eddie.Platform.Windows
 
 					if (Platform.Instance.FileExists(sysPath) == false)
 					{
-						throw new Exception(MessagesFormatter.Format(Messages.OsDriverNoPath, sysPath));
+						throw new Exception(LanguageManager.GetText("OsDriverNoPath", sysPath));
 					}
 
 					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
 					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
 
 					string result = versionInfo.ProductVersion;
-					if(result == null)
-						throw new Exception(MessagesFormatter.Format(Messages.OsDriverNoVersion, sysPath));
+					if (result == null)
+						throw new Exception(LanguageManager.GetText("OsDriverNoVersion", sysPath));
 					if (result.IndexOf(" ") != -1)
 						result = result.Substring(0, result.IndexOf(" "));
 
@@ -1390,7 +1355,7 @@ namespace Eddie.Platform.Windows
 				}
 				else
 				{
-					throw new Exception(Messages.OsDriverNoRegPath);
+					throw new Exception(LanguageManager.GetText("OsDriverNoRegPath"));
 				}
 
 				/* // Not a realtime solution
@@ -1439,7 +1404,7 @@ namespace Eddie.Platform.Windows
 			// Remember: uninstalling OpenVPN doesn't remove tap0901.sys, so finding an adapter is mandatory.
 			if (result == "")
 			{
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsDriverNoAdapterFound);
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsDriverNoAdapterFound"));
 				return "";
 			}
 
@@ -1447,7 +1412,7 @@ namespace Eddie.Platform.Windows
 
 			if (version == "")
 			{
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsDriverNoVersionFound);
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsDriverNoVersionFound"));
 				return "";
 			}
 
@@ -1462,7 +1427,7 @@ namespace Eddie.Platform.Windows
 
 			if (needReinstall)
 			{
-				Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.OsDriverNeedUpgrade, version, bundleVersion));
+				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OsDriverNeedUpgrade", version, bundleVersion));
 				return "";
 			}
 
@@ -1501,9 +1466,9 @@ namespace Eddie.Platform.Windows
 			string driverPath = GetDriverInstallerPath();
 
 			if (driverPath == "")
-				throw new Exception(Messages.OsDriverInstallerNotAvailable);
+				throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable"));
 
-			SystemShell.Shell1(driverPath, "/S");
+			SystemShell.ShellUserEvent(driverPath, "/S", true);
 
 			System.Threading.Thread.Sleep(3000);
 		}
@@ -1514,7 +1479,7 @@ namespace Eddie.Platform.Windows
 			if (uninstallPath == "")
 				return;
 
-			SystemShell.Shell1(uninstallPath, "/S");
+			SystemShell.ShellUserEvent(uninstallPath, "/S", true);
 
 			System.Threading.Thread.Sleep(3000);
 		}
@@ -1576,10 +1541,11 @@ namespace Eddie.Platform.Windows
 			// IPv4
 			if (true)
 			{
-				string cmd = "route -4 PRINT";
+				string result = "";
 				if (IsVistaOrNewer() == false) // XP
-					cmd = "route PRINT";
-				string result = SystemShell.ShellCmd(cmd);
+					result = SystemShell.Shell1(LocateExecutable("route.exe"), "PRINT");
+				else
+					result = SystemShell.Shell2(LocateExecutable("route.exe"), "-4", "PRINT");
 
 				string[] lines = result.Split('\n');
 				foreach (string line in lines)
@@ -1609,8 +1575,11 @@ namespace Eddie.Platform.Windows
 			// IPv6
 			if (IsVistaOrNewer())
 			{
-				string cmd = "route -6 PRINT";
-				string result = SystemShell.ShellCmd(cmd);
+				string result = "";
+				if (IsVistaOrNewer() == false) // XP
+					result = SystemShell.Shell1(LocateExecutable("route.exe"), "PRINT");
+				else
+					result = SystemShell.Shell2(LocateExecutable("route.exe"), "-6", "PRINT");
 
 				result = result.Replace("\r\n     ", ""); // To avoid parse issue when route print the gateway on a new line.
 
@@ -1640,6 +1609,88 @@ namespace Eddie.Platform.Windows
 			}
 		}
 
+		public override string OsCredentialSystemName()
+		{
+			// Not used for the moment. Are saved as Admin and not viewer by normal user, will become an issue with new Helper under development.
+			if (IsAdmin())
+				return "";
+			else
+				return "Windows Credential";
+		}
+
+		public override string OsCredentialSystemRead(string name)
+		{
+			return CredentialManager.Read(Constants.Name, name);
+		}
+
+		public override bool OsCredentialSystemWrite(string name, string password)
+		{
+			return CredentialManager.Write(Constants.Name, name, password);
+		}
+
+		public override bool OsCredentialSystemDelete(string name)
+		{
+			return CredentialManager.Delete(Constants.Name, name);
+		}
+
+		public override string FileGetSignedId(string path)
+		{
+			// Note 2018-10-24
+			// Never found a snippet of code C# or C++ to avoid the fallback shell, required in some digital signature.
+
+			// A
+			// System.Security.Cryptography.X509Certificates.X509Certificate2 x509 = new System.Security.Cryptography.X509Certificates.X509Certificate2(System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(path));
+			// if (x509.Verify() == false)
+			// return false for tap-windows.exe signed by OpenVPN, and in any case don't work with catalog-based signatures like %system32%\route.exe.
+
+			// This crash: https://code.msdn.microsoft.com/windowsdesktop/WinVerifyTrust-signature-a95ab1f6
+			// This crash: https://social.technet.microsoft.com/Forums/en-US/cf474fc3-c081-4e30-80c0-edae3f675378/howto-verify-the-digital-signature-of-a-file?forum=windowsdevelopment
+
+			// sigcheck pass x509 signature verification, so we don't need GetTrustedPaths().
+
+
+			// openvpn.exe:         x509.Verify() true, AuthenticodeTools.IsTrusted() true, sigcheck true.
+			// tap-windows.exe:     
+			// %system32/route.exe:  
+
+			try
+			{
+				// First try Authenticode
+				System.Security.Cryptography.X509Certificates.X509Certificate2 x509 = new System.Security.Cryptography.X509Certificates.X509Certificate2(System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(path));
+
+				bool x509verify = x509.Verify();
+				bool acodeVerify = AuthenticodeTools.IsTrusted(path);
+
+				if ((x509verify) && (acodeVerify))
+				{
+					return "Subject: " + x509.Subject + " - Issuer: " + x509.Issuer;
+				}
+			}
+			catch
+			{
+			}
+
+			// Fallback
+			string sigcheckPath = Engine.Instance.GetPathTools() + "\\sigcheck.exe";
+			string[] sigcheck = SystemShell.Shell3(sigcheckPath, "-c", "-nobanner", "\"" + SystemShell.EscapePath(path) + "\"").Split('\n');
+
+			List<string> list = UtilsString.StringToList(sigcheck[1], ",", true, false, false, true);
+
+			if (list[1].Trim('"') == "Signed")
+				return "Publisher: " + list[3].Trim('"') + " - Company: " + list[4].Trim('"');
+
+			return "No: Not signed or invalid.";
+		}
+
+		/*
+		public override List<string> GetTrustedPaths()
+		{
+			List<string> list = base.GetTrustedPaths();
+			list.Add(Environment.SystemDirectory);
+			return list;
+		}
+		*/
+
 		// Specific
 		public bool IsWindows8()
 		{
@@ -1656,127 +1707,15 @@ namespace Eddie.Platform.Windows
 			{
 				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.HackInterfaceUpDone, adapter.Name));
-					SystemShell.ShellCmd("netsh interface set interface \"" + SystemShell.EscapeInsideQuote(adapter.Name) + "\" ENABLED"); // IJTF2 // TOCHECK
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("HackInterfaceUpDone", adapter.Name));
+
+					Engine.Instance.Elevated.DoCommandSync("windows-workaround-interface-up", "name", adapter.Name);					
 				}
 			}
 		}
-
-		/*
-		private void WaitUntilEnabled(ManagementObject objMOC)
-		{		
-			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
-			{
-				if (objMOC["SettingID"] as string == adapter.Id)
-				{
-					OperationalStatus status = adapter.OperationalStatus;
-					if (status == OperationalStatus.Up)
-					{
-						// TODO: It's always up...
-					}
-				}
-			}
-		}
-		*/
-
-		private bool SwitchToStaticDo()
-		{
-			try
-			{
-				ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-				ManagementObjectCollection objMOC = objMC.GetInstances();
-
-				foreach (ManagementObject objMO in objMOC)
-				{
-					if (!((bool)objMO["IPEnabled"]))
-						continue;
-					if (!((bool)objMO["DHCPEnabled"]))
-						continue;
-
-					NetworkManagerDhcpEntry entry = new NetworkManagerDhcpEntry();
-
-					entry.Guid = objMO["SettingID"] as string;
-					entry.Description = objMO["Description"] as string;
-					entry.IpAddress = (objMO["IPAddress"] as string[]);
-					entry.SubnetMask = (objMO["IPSubnet"] as string[]);
-					entry.Dns = objMO["DNSServerSearchOrder"] as string[];
-					entry.Gateway = objMO["DefaultIPGateway"] as string[];
-
-					entry.AutoDns = ((Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + entry.Guid, "NameServer", "") as string) == "");
-
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDhcpDone, entry.Description));
-
-					ManagementBaseObject objEnableStatic = objMO.GetMethodParameters("EnableStatic");
-					//objNewIP["IPAddress"] = new string[] { ipAddress };
-					//objNewIP["SubnetMask"] = new string[] { subnetMask };
-					objEnableStatic["IPAddress"] = new string[] { entry.IpAddress[0] };
-					objEnableStatic["SubnetMask"] = new string[] { entry.SubnetMask[0] };
-					objMO.InvokeMethod("EnableStatic", objEnableStatic, null);
-
-					ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-					objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
-					objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
-
-					ManagementBaseObject objSetGateways = objMO.GetMethodParameters("SetGateways");
-					objSetGateways["DefaultIPGateway"] = new string[] { entry.Gateway[0] };
-					objMO.InvokeMethod("SetGateways", objSetGateways, null);
-
-					m_listOldDhcp.Add(entry);
-
-					// TOOPTIMIZE: Need to wait until the interface return UP...
-					//WaitUntilEnabled(objMO); // Checking the OperationalStatus changes are not effective.
-					System.Threading.Thread.Sleep(3000);
-				}
-
-				return true;
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(e);
-				return false;
-			}
-		}
-
-		private void SwitchToStaticRestore()
-		{
-			try
-			{
-				ManagementClass objMC = new ManagementClass("Win32_NetworkAdapterConfiguration");
-				ManagementObjectCollection objMOC = objMC.GetInstances();
-
-				foreach (ManagementObject objMO in objMOC)
-				{
-					string guid = objMO["SettingID"] as string;
-					foreach (NetworkManagerDhcpEntry entry in m_listOldDhcp)
-					{
-						if (entry.Guid == guid)
-						{
-							ManagementBaseObject objEnableDHCP = objMO.GetMethodParameters("EnableDHCP");
-							objMO.InvokeMethod("EnableDHCP", objEnableDHCP, null);
-
-							ManagementBaseObject objSetDNSServerSearchOrder = objMO.GetMethodParameters("SetDNSServerSearchOrder");
-							if (entry.AutoDns == false)
-							{
-								objSetDNSServerSearchOrder["DNSServerSearchOrder"] = entry.Dns;
-							}
-							objMO.InvokeMethod("SetDNSServerSearchOrder", objSetDNSServerSearchOrder, null);
-
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDhcpRestored, entry.Description));
-						}
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(e);
-			}
-
-			m_listOldDhcp.Clear();
-		}
-
+		
 		private void DnsForceRestore()
-		{
+		{			
 			try
 			{
 				// 2.13.3 : Win10 with ManagementObject & SetDNSServerSearchOrder sometime return errcode 84 "IP not enabled on adapter" if we try to set DNS on Tap in state "Network cable unplugged", typical in end of session.
@@ -1792,7 +1731,7 @@ namespace Eddie.Platform.Windows
 						{
 							if (entry.Dns.OnlyIPv4.Count == 0)
 							{
-								SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
 							}
 
 							int nIPv4 = 0;
@@ -1800,16 +1739,16 @@ namespace Eddie.Platform.Windows
 							{
 								if (nIPv4 == 0)
 								{
-									SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
+									ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
 								}
 								else
 								{
-									SystemShell.ShellCmd("netsh interface ipv4 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
+									ShellToNetsh("interface ipv4 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
 								}
 								nIPv4++;
 							}
 
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsWindowsNetworkAdapterDnsRestored, "IPv4", entry.Description, (entry.Dns.OnlyIPv4.Count == 0 ? "automatic" : entry.Dns.OnlyIPv4.ToString())));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsRestored", "IPv4", entry.Description, (entry.Dns.OnlyIPv4.Count == 0 ? "automatic" : entry.Dns.OnlyIPv4.ToString())));
 						}
 
 						// IPv6
@@ -1817,7 +1756,7 @@ namespace Eddie.Platform.Windows
 						{
 							if (entry.Dns.OnlyIPv6.Count == 0)
 							{
-								SystemShell.ShellCmd("netsh interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
 							}
 
 							int nIPv6 = 0;
@@ -1825,16 +1764,16 @@ namespace Eddie.Platform.Windows
 							{
 								if (nIPv6 == 0)
 								{
-									SystemShell.ShellCmd("netsh interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
+									ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
 								}
 								else
 								{
-									SystemShell.ShellCmd("netsh interface ipv6 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
+									ShellToNetsh("interface ipv6 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
 								}
 								nIPv6++;
 							}
 
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsWindowsNetworkAdapterDnsRestored, "IPv6", entry.Description, (entry.Dns.OnlyIPv6.Count == 0 ? "automatic" : entry.Dns.OnlyIPv6.ToString())));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsWindowsNetworkAdapterDnsRestored", "IPv6", entry.Description, (entry.Dns.OnlyIPv6.Count == 0 ? "automatic" : entry.Dns.OnlyIPv6.ToString())));
 						}
 					}
 				}
@@ -1852,7 +1791,7 @@ namespace Eddie.Platform.Windows
 
 							if (entry.AutoDns == true)
 							{
-								SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + interfaceName + "\" source=dhcp register=primary validate=no");								
+								SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=dhcp register=primary validate=no");								
 							}
 							else
 							{
@@ -1864,22 +1803,22 @@ namespace Eddie.Platform.Windows
 									{
 										if(nIPv4 == 0)
 										{
-											SystemShell.ShellCmd("netsh interface ipv4 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
+											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
 										}
 										else
 										{
-											SystemShell.ShellCmd("netsh interface ipv4 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
+											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
 										}
 										nIPv4++;
 									} else if(ip.IsV6)
 									{
 										if (nIPv6 == 0)
 										{
-											SystemShell.ShellCmd("netsh interface ipv6 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
+											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
 										}
 										else
 										{
-											SystemShell.ShellCmd("netsh interface ipv6 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
+											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
 										}
 										nIPv6++;
 									}
@@ -1887,7 +1826,7 @@ namespace Eddie.Platform.Windows
 							}
 
 							string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
-							Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterDnsRestored, entry.Description, descTo));
 						}
 					}
 				}
@@ -1923,7 +1862,7 @@ namespace Eddie.Platform.Windows
 								}
 
 								string descTo = (entry.AutoDns ? "automatic" : String.Join(",", entry.Dns));
-								Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.NetworkAdapterDnsRestored, entry.Description, descTo));
+								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterDnsRestored, entry.Description, descTo));
 							}
 						}
 					}
@@ -1936,6 +1875,12 @@ namespace Eddie.Platform.Windows
 			}
 
 			m_listOldDns.Clear();
+		}
+
+		// Temp, until we convert every netsh.exe to single commands // TOFIX
+		private void ShellToNetsh(string args)
+		{
+			Engine.Instance.Elevated.DoCommandSync("netsh", "args", args);			
 		}
 
 		private bool OsSupportIPv4()
@@ -1959,8 +1904,8 @@ namespace Eddie.Platform.Windows
 			if ((v & (1 << 0)) != 0) // Bit 0 controls ALL of the IPv6 tunnel interfaces. If 1 is disabled
 				available = false;
 			if ((v & (1 << 4)) != 0) // Bit 4 controls IPv6 for non-tunnel interfaces. If 1 is disabled
-				available = false;				
-			
+				available = false;
+
 			return available;
 		}
 
@@ -1977,41 +1922,7 @@ namespace Eddie.Platform.Windows
 
 		private static void SystemEvents_SessionEnding(object sender, Microsoft.Win32.SessionEndingEventArgs e)
 		{
-			
-		}
-	}
 
-	public class NetworkManagerDhcpEntry
-	{
-		//public ManagementObject Obj;
-		public string Description;
-		public string[] IpAddress;
-		public string[] SubnetMask;
-		public string[] Dns;
-		public string[] Gateway;
-		public string Guid;
-		public bool AutoDns;
-
-		public void ReadXML(XmlElement node)
-		{
-			Description = UtilsXml.XmlGetAttributeString(node, "description", "");
-			IpAddress = UtilsXml.XmlGetAttributeStringArray(node, "ip_address");
-			SubnetMask = UtilsXml.XmlGetAttributeStringArray(node, "subnet_mask");
-			Dns = UtilsXml.XmlGetAttributeStringArray(node, "dns");
-			Gateway = UtilsXml.XmlGetAttributeStringArray(node, "gateway");
-			Guid = UtilsXml.XmlGetAttributeString(node, "guid", "");
-			AutoDns = UtilsXml.XmlGetAttributeBool(node, "auto_def", false);
-		}
-
-		public void WriteXML(XmlElement node)
-		{
-			UtilsXml.XmlSetAttributeString(node, "description", Description);
-			UtilsXml.XmlSetAttributeStringArray(node, "ip_address", IpAddress);
-			UtilsXml.XmlSetAttributeStringArray(node, "subnet_mask", SubnetMask);
-			UtilsXml.XmlSetAttributeStringArray(node, "dns", Dns);
-			UtilsXml.XmlSetAttributeStringArray(node, "gateway", Gateway);
-			UtilsXml.XmlSetAttributeString(node, "guid", Guid);
-			UtilsXml.XmlSetAttributeBool(node, "auto_dns", AutoDns);
 		}
 	}
 

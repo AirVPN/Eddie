@@ -1,16 +1,12 @@
 ------------------------------------------------------------
 OpenVPN -- A Secure tunneling daemon
 
-
-
-Copyright (C) 2002-2010 OpenVPN Technologies, Inc. 
+Copyright (C) 2002-2018 OpenVPN Technologies, Inc. 
 This program is free software;
 
 you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2
 as published by the Free Software Foundation.
-
-
 
 For the latest version of OpenVPN, 
 go to:
@@ -21,19 +17,13 @@ License: GNU General Public License (GPL v2+)
 ------------------------------------------------------------
 stunnel
 
-The stunnel program is designed to work as an SSL encryption
-     
-wrapper between remote client and local (inetd-startable) or
-     
-remote servers. The goal is to facilitate SSL encryption and
-     
+The stunnel program is designed to work as an SSL encryption     
+wrapper between remote client and local (inetd-startable) or     
+remote servers. The goal is to facilitate SSL encryption and     
 authentication for non-SSL-aware programs.
-
      
-stunnel can be used to add  SSL  functionality  to  commonly
-     
-used  inetd  daemons  like  POP-2,  POP-3  and  IMAP servers
-     
+stunnel can be used to add  SSL  functionality  to  commonly     
+used  inetd  daemons  like  POP-2,  POP-3  and  IMAP servers     
 without any changes in the programs' code.
 
 https://www.stunnel.org/
@@ -51,3 +41,8 @@ TUNTAP -- Virtual network interfaces for Mac OS X
 http://tuntaposx.sourceforge.net/
 
 License: BSD License
+------------------------------------------------------------
+Boost 
+
+License: Boost Software License, Version 1.0. https://www.boost.org/LICENSE_1_0.txt
+------------------------------------------------------------

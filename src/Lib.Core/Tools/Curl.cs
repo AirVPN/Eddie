@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ namespace Eddie.Core.Tools
 		public override void ExceptionIfRequired()
 		{
 			if (Available() == false)
-				throw new Exception(Messages.ToolsCurlRequired);
+				throw new Exception(LanguageManager.GetText("ToolsCurlRequired"));
 
 			if (UtilsCore.CompareVersions(Version, minVersionRequired) == -1)
 				throw new Exception(GetRequiredVersionMessage());
@@ -61,7 +61,7 @@ namespace Eddie.Core.Tools
 
 		public string GetRequiredVersionMessage()
 		{
-			return MessagesFormatter.Format(Messages.ToolsCurlVersionNotSupported, Version, minVersionRequired);
+			return LanguageManager.GetText("ToolsCurlVersionNotSupported", Version, minVersionRequired);
 		}
 
 		public HttpResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
@@ -114,7 +114,7 @@ namespace Eddie.Core.Tools
 					proxyMode = "none";
 
 				if (proxyMode == "detect")
-					throw new Exception(Messages.ProxyDetectDeprecated);
+					throw new Exception(LanguageManager.GetText("ProxyDetectDeprecated"));
 
 				if (proxyMode == "tor")
 				{
@@ -142,10 +142,10 @@ namespace Eddie.Core.Tools
 						args += " --proxy-ntlm";
 
 					if (SystemShell.EscapeInsideQuoteAcceptable(proxyLogin) == false)
-						throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Login"));
+						throw new Exception(LanguageManager.GetText("UnacceptableCharacters", "Proxy Login"));
 
 					if (SystemShell.EscapeInsideQuoteAcceptable(proxyPassword) == false)
-						throw new Exception(MessagesFormatter.Format(Messages.UnacceptableCharacters, "Proxy Password"));
+						throw new Exception(LanguageManager.GetText("UnacceptableCharacters", "Proxy Password"));
 
 					if ((proxyLogin != "") && (proxyPassword != ""))
 						args += " --proxy-user \"" + SystemShell.EscapeInsideQuote(proxyLogin) + "\":\"" + SystemShell.EscapeInsideQuote(proxyPassword) + "\"";

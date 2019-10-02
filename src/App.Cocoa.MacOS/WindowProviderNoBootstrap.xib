@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
-        <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -27,37 +26,8 @@
                 <rect key="frame" x="0.0" y="0.0" width="660" height="357"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <box autoresizesSubviews="NO" misplaced="YES" borderType="line" title="Box" titlePosition="noTitle" id="eRg-a4-JCs">
-                        <rect key="frame" x="158" y="16" width="351" height="47"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <view key="contentView" id="cYs-DK-azv">
-                            <rect key="frame" x="1" y="1" width="349" height="45"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <button verticalHuggingPriority="750" id="xNO-1s-MRs">
-                                    <rect key="frame" x="12" y="7" width="162" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ici-sO-Glh">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                                <button verticalHuggingPriority="750" id="fJn-Eh-fgK">
-                                    <rect key="frame" x="174" y="7" width="162" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="IYY-GJ-OUF">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                        <string key="keyEquivalent" base64-UTF8="YES">
-Gw
-</string>
-                                    </buttonCell>
-                                </button>
-                            </subviews>
-                        </view>
-                    </box>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="FhE-Uy-nQv">
-                        <rect key="frame" x="129" y="123" width="513" height="214"/>
+                        <rect key="frame" x="129" y="132" width="513" height="214"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="Eqp-WZ-Gg8">
                             <font key="font" metaFont="system"/>
@@ -71,7 +41,7 @@ Gw
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="log_error" id="ZgS-3Y-k6v"/>
                     </imageView>
                     <textField verticalHuggingPriority="750" misplaced="YES" id="Ymh-FB-RbF">
-                        <rect key="frame" x="20" y="93" width="620" height="22"/>
+                        <rect key="frame" x="20" y="102" width="620" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" drawsBackground="YES" id="NtQ-Je-EPh">
                             <font key="font" metaFont="system"/>
@@ -80,11 +50,30 @@ Gw
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" misplaced="YES" id="SYH-Rg-Qrh">
-                        <rect key="frame" x="158" y="69" width="484" height="18"/>
+                        <rect key="frame" x="158" y="78" width="484" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Don't show this message again" bezelStyle="regularSquare" imagePosition="right" alignment="right" state="on" inset="2" id="aZW-4B-xzN">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="xNO-1s-MRs">
+                        <rect key="frame" x="526" y="22" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ici-sO-Glh">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="fJn-Eh-fgK">
+                        <rect key="frame" x="406" y="22" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="IYY-GJ-OUF">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
                         </buttonCell>
                     </button>
                 </subviews>

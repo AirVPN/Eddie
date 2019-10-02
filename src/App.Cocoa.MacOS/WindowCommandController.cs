@@ -46,7 +46,10 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsCommandTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsCommandTitle");
+
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{

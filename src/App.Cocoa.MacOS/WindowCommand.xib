@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
-        <capability name="box content view" minToolsVersion="7.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -20,43 +19,14 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="Eddie - Command" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" animationBehavior="default" id="2" customClass="WindowCommand">
             <windowStyleMask key="styleMask" titled="YES" resizable="YES"/>
-            <rect key="contentRect" x="131" y="74" width="508" height="188"/>
+            <rect key="contentRect" x="131" y="74" width="508" height="164"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
-            <view key="contentView" id="3">
-                <rect key="frame" x="0.0" y="0.0" width="508" height="188"/>
+            <view key="contentView" misplaced="YES" id="3">
+                <rect key="frame" x="0.0" y="0.0" width="508" height="164"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <box autoresizesSubviews="NO" misplaced="YES" borderType="line" title="Box" titlePosition="noTitle" id="CTE-lI-xYD">
-                        <rect key="frame" x="78" y="16" width="350" height="47"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <view key="contentView" id="Bc0-lx-KbH">
-                            <rect key="frame" x="1" y="1" width="348" height="45"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <button verticalHuggingPriority="750" id="z5R-No-USQ">
-                                    <rect key="frame" x="12" y="7" width="162" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WEd-gG-EPk">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                                <button verticalHuggingPriority="750" id="FqX-5r-WGj">
-                                    <rect key="frame" x="174" y="7" width="162" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KwA-8g-NpA">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                        <string key="keyEquivalent" base64-UTF8="YES">
-Gw
-</string>
-                                    </buttonCell>
-                                </button>
-                            </subviews>
-                        </view>
-                    </box>
                     <textField verticalHuggingPriority="750" misplaced="YES" id="23W-sN-bqi">
-                        <rect key="frame" x="20" y="146" width="468" height="22"/>
+                        <rect key="frame" x="20" y="122" width="468" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="FBs-ha-X6T">
                             <font key="font" size="13" name="Monaco"/>
@@ -65,7 +35,7 @@ Gw
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" allowsCharacterPickerTouchBarItem="YES" id="14J-bH-YWo">
-                        <rect key="frame" x="18" y="121" width="472" height="17"/>
+                        <rect key="frame" x="18" y="97" width="472" height="17"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="For OpenVPN Management Interface, use &quot;openvpn &lt;management command&gt;&quot;." id="efs-xr-ZgN">
                             <font key="font" metaFont="smallSystem"/>
@@ -73,16 +43,36 @@ Gw
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="z5R-No-USQ">
+                        <rect key="frame" x="374" y="13" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Run" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WEd-gG-EPk">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                     <button verticalHuggingPriority="750" misplaced="YES" id="EcX-cg-sPK">
-                        <rect key="frame" x="53" y="90" width="403" height="25"/>
+                        <rect key="frame" x="53" y="58" width="403" height="25"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="bevel" title="More informations about OpenVPN Management Interface" bezelStyle="regularSquare" image="tip" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="yhu-4g-wkJ">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="FqX-5r-WGj">
+                        <rect key="frame" x="254" y="13" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KwA-8g-NpA">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                    </button>
                 </subviews>
             </view>
+            <point key="canvasLocation" x="131" y="149"/>
         </window>
     </objects>
     <resources>

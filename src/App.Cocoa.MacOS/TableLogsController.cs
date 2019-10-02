@@ -44,7 +44,7 @@ namespace Eddie.UI.Cocoa.Osx
 		public void AddLog(LogEntry l)
 		{
 			m_items.Add(l);
-			if (m_items.Count >= Engine.Instance.Storage.GetInt("gui.log_limit"))
+			if (m_items.Count >= Engine.Instance.Storage.GetInt("log.limit"))
 				m_items.RemoveAt(0);
 			RefreshUI();
 		}
@@ -110,7 +110,8 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 			else if (tableColumn.Identifier == "Message")
 			{
-				return new NSString(e.GetMessageForList());
+                string line = e.Message.Replace("\r", "").Replace("\n", " | ");
+				return new NSString(line);
 			}
 			else
 				throw new NotImplementedException(string.Format("{0} is not recognized", tableColumn.Identifier));

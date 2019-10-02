@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -111,9 +111,9 @@ namespace Eddie.Forms.Skin
 			}
 			g.Dispose();
 
-			//if ((ImageIconResourcePrefix != "") && (Items.Count > 0))
-			if ((ImageIconResourcePrefix != "") || (SmallImageList != null))
-				minWidth += GetItemRect(0).Height * 2;
+			if(Items.Count>0)
+				if ((ImageIconResourcePrefix != "") || (SmallImageList != null))
+					minWidth += GetItemRect(0).Height * 2;
 
 			minWidth += Convert.ToInt32(minWidth * 0.2); // 20% margin
 
@@ -125,7 +125,7 @@ namespace Eddie.Forms.Skin
 			if (m_supportResizeColumn == false)
 				return;
 
-			Columns[column].Width = 3000;
+			Columns[column].Width = 6000;
 		}
 
 		public void ResizeColumnString(int column, int charsLen)
@@ -315,7 +315,7 @@ namespace Eddie.Forms.Skin
 				r.X += TextSpace;
 				r.Width -= TextSpace;
 
-				Form.DrawString(e.Graphics, e.Item.Text, e.Item.Font, Form.Skin.ForeBrush, r, GuiUtils.StringFormatLeftMiddle);
+				Form.DrawString(e.Graphics, e.Item.Text, e.Item.Font, Form.Skin.ForeBrush, r, GuiUtils.StringFormatLeftMiddleNoWrap);
 
 			}
 			else
@@ -326,11 +326,11 @@ namespace Eddie.Forms.Skin
 				r.X += TextSpace;
 				r.Width -= TextSpace;
 
-				StringFormat stringFormat = GuiUtils.StringFormatLeftMiddle;
+				StringFormat stringFormat = GuiUtils.StringFormatLeftMiddleNoWrap;
 				if (e.Item.ListView.Columns[e.ColumnIndex].TextAlign == HorizontalAlignment.Center)
-					stringFormat = GuiUtils.StringFormatCenterMiddle;
+					stringFormat = GuiUtils.StringFormatCenterMiddleNoWrap;
 				else if (e.Item.ListView.Columns[e.ColumnIndex].TextAlign == HorizontalAlignment.Right)
-					stringFormat = GuiUtils.StringFormatRightMiddle;
+					stringFormat = GuiUtils.StringFormatRightMiddleNoWrap;
 				Form.DrawString(e.Graphics, e.Item.SubItems[e.ColumnIndex].Text, e.Item.Font, Form.Skin.ForeBrush, r, stringFormat);
 			}
 		}

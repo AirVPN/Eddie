@@ -59,7 +59,19 @@ namespace Eddie.UI.Cocoa.Osx
 			button.State = val ? NSCellStateValue.On : NSCellStateValue.Off;
 		}
 
-		public static void SelectFile(NSWindow window, NSTextField field)
+        public static void SetButtonCancel(NSWindow w, NSButton button)
+        {
+        }
+
+        public static void SetButtonDefault(NSWindow w, NSButton button)
+        {
+            button.BezelStyle = NSBezelStyle.Rounded;
+            button.KeyEquivalent = @"\r";
+            button.Highlighted = true;
+            w.DefaultButtonCell = button.Cell;
+        }
+
+        public static void SelectFile(NSWindow window, NSTextField field)
 		{
 			NSOpenPanel openPanel = new NSOpenPanel();
 			openPanel.BeginSheet(window, (i) =>
@@ -117,21 +129,21 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public static void MessageBoxInfo(string message)
 		{
-			MessageBox(message, "");
-		}
+            NSAlert alert = new NSAlert();
+            alert.AlertStyle = NSAlertStyle.Informational;
+            alert.MessageText = Common.Constants.Name;
+            alert.InformativeText = message;
+            alert.RunModal();
+        }
 
 		public static void MessageBoxError(string message)
 		{
-			MessageBox(message, "");
-		}
-
-		public static void MessageBox(string message, string title)
-		{
-			NSAlert alert = new NSAlert();
-			alert.MessageText = title;
-			alert.InformativeText = message;
-			alert.RunModal();
-		}
+            NSAlert alert = new NSAlert();
+            alert.AlertStyle = NSAlertStyle.Critical;
+            alert.MessageText = Common.Constants.Name;
+            alert.InformativeText = message;
+            alert.RunModal();
+        }
 
 		public static bool MessageYesNo(string message)
 		{

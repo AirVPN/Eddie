@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,34 +35,6 @@ namespace Eddie.Core
 		public delegate void LogEventHandler(LogEntry e);
 		public event LogEventHandler LogEvent;
 
-#if EDDIENET4
-		private void DispatchLog(LogEntry entry)
-		{
-			IApplication app = IApplication.Instance;
-			if(app == null)
-				return;
-
-			Eddie.Common.Log.LogLevel convertedLevel = Eddie.Common.Log.LogLevel.debug;
-			switch(entry.Type)
-			{
-			case LogType.Info:
-			case LogType.InfoImportant:
-											convertedLevel = Eddie.Common.Log.LogLevel.info;
-											break;
-
-			case LogType.Warning:			convertedLevel = Eddie.Common.Log.LogLevel.warning;
-											break;
-
-			case LogType.Error:				convertedLevel = Eddie.Common.Log.LogLevel.error;
-											break;
-
-			case LogType.Fatal:				convertedLevel = Eddie.Common.Log.LogLevel.fatal;
-											break;
-			}
-
-			app.Logs.Log(convertedLevel, entry.Message);
-		}
-#endif
 		public void Log(Exception e)
 		{
 			Log(LogType.Error, e);
@@ -86,14 +58,25 @@ namespace Eddie.Core
 			Log(LogType.Verbose, message, null);
 		}
 
-		public void LogVerbose(Json json)
+		public void LogDebug(string message)
 		{
-			LogVerbose(json.ToJsonPretty());
+			long ts = UtilsCore.UnixTimeStampMs ();
+			LogVerbose(ts.ToString() + ":" + message);
+		}
+
+		public void LogDebug(Json json)
+		{
+			LogDebug(json.ToJsonPretty());
 		}
 
 		public void LogFatal(string message)
 		{
 			Log(LogType.Fatal, message, null);
+		}
+
+		public void LogFatal(Exception ex)
+		{
+			Log(LogType.Fatal, ex.Message, ex);
 		}
 
 		public void Log(LogType type, string message)
@@ -121,7 +104,7 @@ namespace Eddie.Core
 
                     if (oldCount != 0)
                     {
-                        Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.LogsLineRepetitionSummary, oldCount.ToString()));
+                        Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("LogsLineRepetitionSummary", oldCount.ToString()));
                     }                    
                 }
             }
@@ -137,20 +120,22 @@ namespace Eddie.Core
 				m_logDotCount += 1;
 				m_logDotCount = m_logDotCount % 10;
 			}
-#if EDDIENET4
-			DispatchLog(l);
-#endif           
+
 			lock (Entries)
 			{
 				Entries.Add(l);
-				if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Entries.Count >= Engine.Instance.Storage.GetInt("gui.log_limit")))
+				if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Entries.Count >= Engine.Instance.Storage.GetInt("log.limit")))
 					Entries.RemoveAt(0);
 			}
 
 			if(LogEvent != null)
 				LogEvent(l);
-				
+							
 			Engine.Instance.OnLog(l);
+
+			Json j = l.GetJson();
+			j["command"].Value = "log";
+			Engine.Instance.UiManager.Broadcast(j);
 		}
 
 		public string GetLogDetailTitle()
@@ -187,6 +172,18 @@ namespace Eddie.Core
 			return result;
 		}
 
+		public Json GetJson()
+		{
+			Json j = new Json();
+			j.EnsureArray();
+			lock(Entries)
+			{
+				foreach (LogEntry entry in Entries)
+					j.Append(entry.GetJson());
+			}			
+			return j;
+		}
+
 		public List<string> ParseLogFilePath(string paths)
 		{
 			string logPaths = paths;
@@ -209,7 +206,7 @@ namespace Eddie.Core
 				{
 					if (System.IO.Path.IsPathRooted(path) == false)
 					{
-						logPath = Engine.Instance.Storage.GetDataPath() + "/" + logPath;
+						logPath = Engine.Instance.GetDataPath() + "/" + logPath;
 					}
 					logPath = Platform.Instance.NormalizePath(logPath).Trim();
 					if (logPath != "")

@@ -39,8 +39,14 @@ namespace Eddie.UI.Cocoa.Osx
 			return false;
 			*/
 		}
-
-		public override void DidMiniaturize (Foundation.NSNotification notification)
+        
+        public override void WillClose(Foundation.NSNotification notification)
+        {
+            m_main.ChangeVisibility(false);
+        }
+        
+        
+        public override void DidMiniaturize (Foundation.NSNotification notification)
 		{
 			m_main.EnabledUI ();
 		}

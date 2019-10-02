@@ -73,6 +73,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSPopUpButton CboRoutesOtherwise { get; set; }
 
 		[Outlet]
+		AppKit.NSPopUpButton CboStorageMode { get; set; }
+
+		[Outlet]
 		AppKit.NSPopUpButton CboUiUnit { get; set; }
 
 		[Outlet]
@@ -136,10 +139,22 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkNetworkIPv6AutoSwitch { get; set; }
 
 		[Outlet]
+		AppKit.NSButton ChkOpenVpnDirectivesAllowScriptSecurity { get; set; }
+
+		[Outlet]
 		AppKit.NSButton ChkProtocolsAutomatic { get; set; }
 
 		[Outlet]
 		AppKit.NSButton ChkRouteRemoveDefaultGateway { get; set; }
+
+		[Outlet]
+		AppKit.NSButton ChkShellExternalRecommended { get; set; }
+
+		[Outlet]
+		AppKit.NSButton ChkSystemService { get; set; }
+
+		[Outlet]
+		AppKit.NSButton ChkSystemStart { get; set; }
 
 		[Outlet]
 		AppKit.NSButton ChkUiIEC { get; set; }
@@ -223,6 +238,12 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton CmdSave { get; set; }
 
 		[Outlet]
+		AppKit.NSButton CmdShellExternalClear { get; set; }
+
+		[Outlet]
+		AppKit.NSButton CmdShellExternalView { get; set; }
+
+		[Outlet]
 		AppKit.NSTextField LblAdvancedProviders { get; set; }
 
 		[Outlet]
@@ -256,6 +277,15 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTextField LblRoutesOtherwise { get; set; }
 
 		[Outlet]
+		AppKit.NSTextField LblShellExternal { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField LblSystemService { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField LblSystemStart { get; set; }
+
+		[Outlet]
 		AppKit.NSTableView TableAdvancedEvents { get; set; }
 
 		[Outlet]
@@ -283,7 +313,10 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTextField TxtAdvancedOpenVpnPath { get; set; }
 
 		[Outlet]
-		AppKit.NSTextField TxtLockAllowedIPS { get; set; }
+		AppKit.NSTextField TxtLockWhiteListIncomingIPs { get; set; }
+
+		[Outlet]
+		AppKit.NSTextField TxtLockWhiteListOutgoingIPs { get; set; }
 
 		[Outlet]
 		AppKit.NSTextField TxtLoggingComputedPath { get; set; }
@@ -311,12 +344,23 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSTextField TxtProxyTorControlPort { get; set; }
+
+		[Outlet]
+		AppKit.NSSecureTextField TxtStoragePassword { get; set; }
+
+		[Outlet]
+		AppKit.NSSecureTextField TxtStoragePasswordConfirm { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
+			}
+
+			if (CboAdvancedUpdaterChannel != null) {
+				CboAdvancedUpdaterChannel.Dispose ();
+				CboAdvancedUpdaterChannel = null;
 			}
 
 			if (CboDnsSwitchMode != null) {
@@ -409,6 +453,11 @@ namespace Eddie.UI.Cocoa.Osx
 				CboRoutesOtherwise = null;
 			}
 
+			if (CboStorageMode != null) {
+				CboStorageMode.Dispose ();
+				CboStorageMode = null;
+			}
+
 			if (CboUiUnit != null) {
 				CboUiUnit.Dispose ();
 				CboUiUnit = null;
@@ -432,11 +481,6 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkAdvancedPingerEnabled != null) {
 				ChkAdvancedPingerEnabled.Dispose ();
 				ChkAdvancedPingerEnabled = null;
-			}
-
-			if (CboAdvancedUpdaterChannel != null) {
-				CboAdvancedUpdaterChannel.Dispose ();
-				CboAdvancedUpdaterChannel = null;
 			}
 
 			if (ChkAdvancedProviders != null) {
@@ -519,6 +563,11 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkNetworkIPv6AutoSwitch = null;
 			}
 
+			if (ChkOpenVpnDirectivesAllowScriptSecurity != null) {
+				ChkOpenVpnDirectivesAllowScriptSecurity.Dispose ();
+				ChkOpenVpnDirectivesAllowScriptSecurity = null;
+			}
+
 			if (ChkProtocolsAutomatic != null) {
 				ChkProtocolsAutomatic.Dispose ();
 				ChkProtocolsAutomatic = null;
@@ -527,6 +576,21 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkRouteRemoveDefaultGateway != null) {
 				ChkRouteRemoveDefaultGateway.Dispose ();
 				ChkRouteRemoveDefaultGateway = null;
+			}
+
+			if (ChkShellExternalRecommended != null) {
+				ChkShellExternalRecommended.Dispose ();
+				ChkShellExternalRecommended = null;
+			}
+
+			if (ChkSystemService != null) {
+				ChkSystemService.Dispose ();
+				ChkSystemService = null;
+			}
+
+			if (ChkSystemStart != null) {
+				ChkSystemStart.Dispose ();
+				ChkSystemStart = null;
 			}
 
 			if (ChkUiIEC != null) {
@@ -664,6 +728,16 @@ namespace Eddie.UI.Cocoa.Osx
 				CmdSave = null;
 			}
 
+			if (CmdShellExternalClear != null) {
+				CmdShellExternalClear.Dispose ();
+				CmdShellExternalClear = null;
+			}
+
+			if (CmdShellExternalView != null) {
+				CmdShellExternalView.Dispose ();
+				CmdShellExternalView = null;
+			}
+
 			if (LblAdvancedProviders != null) {
 				LblAdvancedProviders.Dispose ();
 				LblAdvancedProviders = null;
@@ -719,6 +793,21 @@ namespace Eddie.UI.Cocoa.Osx
 				LblRoutesOtherwise = null;
 			}
 
+			if (LblShellExternal != null) {
+				LblShellExternal.Dispose ();
+				LblShellExternal = null;
+			}
+
+			if (LblSystemService != null) {
+				LblSystemService.Dispose ();
+				LblSystemService = null;
+			}
+
+			if (LblSystemStart != null) {
+				LblSystemStart.Dispose ();
+				LblSystemStart = null;
+			}
+
 			if (TableAdvancedEvents != null) {
 				TableAdvancedEvents.Dispose ();
 				TableAdvancedEvents = null;
@@ -764,9 +853,14 @@ namespace Eddie.UI.Cocoa.Osx
 				TxtAdvancedOpenVpnPath = null;
 			}
 
-			if (TxtLockAllowedIPS != null) {
-				TxtLockAllowedIPS.Dispose ();
-				TxtLockAllowedIPS = null;
+			if (TxtLockWhiteListIncomingIPs != null) {
+				TxtLockWhiteListIncomingIPs.Dispose ();
+				TxtLockWhiteListIncomingIPs = null;
+			}
+
+			if (TxtLockWhiteListOutgoingIPs != null) {
+				TxtLockWhiteListOutgoingIPs.Dispose ();
+				TxtLockWhiteListOutgoingIPs = null;
 			}
 
 			if (TxtLoggingComputedPath != null) {
@@ -812,6 +906,16 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtProxyTorControlPort != null) {
 				TxtProxyTorControlPort.Dispose ();
 				TxtProxyTorControlPort = null;
+			}
+
+			if (TxtStoragePassword != null) {
+				TxtStoragePassword.Dispose ();
+				TxtStoragePassword = null;
+			}
+
+			if (TxtStoragePasswordConfirm != null) {
+				TxtStoragePasswordConfirm.Dispose ();
+				TxtStoragePasswordConfirm = null;
 			}
 		}
 	}

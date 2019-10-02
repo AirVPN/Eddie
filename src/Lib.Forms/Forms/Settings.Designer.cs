@@ -53,10 +53,8 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
-			this.chkWindowsIPv6DisableAtOs = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDebugWorkaround = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsTapUp = new Eddie.Forms.Skin.CheckBox();
-			this.chkWindowsDhcpSwitch = new Eddie.Forms.Skin.CheckBox();
 			this.cmdAdvancedUninstallDriver = new Eddie.Forms.Skin.Button();
 			this.chkAdvancedPingerEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.cmdExeBrowse = new Eddie.Forms.Skin.Button();
@@ -64,6 +62,7 @@ namespace Eddie.Forms.Forms
 			this.lblExePath = new Eddie.Forms.Skin.Label();
 			this.chkAdvancedCheckRoute = new Eddie.Forms.Skin.CheckBox();
 			this.chkExpert = new Eddie.Forms.Skin.CheckBox();
+			this.chkOpenVpnDirectivesAllowScriptSecurity = new Eddie.Forms.Skin.CheckBox();
 			this.cmdOpenVpnDirectivesCustomPathBrowse = new Eddie.Forms.Skin.Button();
 			this.txtOpenVpnDirectivesCustomPath = new Eddie.Forms.Skin.TextBox();
 			this.label8 = new Eddie.Forms.Skin.Label();
@@ -73,6 +72,10 @@ namespace Eddie.Forms.Forms
 			this.label2 = new Eddie.Forms.Skin.Label();
 			this.txtOpenVpnDirectivesBase = new Eddie.Forms.Skin.TextBox();
 			this.txtOpenVpnDirectivesCustom = new Eddie.Forms.Skin.TextBox();
+			this.chkShellExternalRecommended = new Eddie.Forms.Skin.CheckBox();
+			this.cmdShellExternalClear = new Eddie.Forms.Skin.Button();
+			this.cmdShellExternalView = new Eddie.Forms.Skin.Button();
+			this.lblShellExternal = new Eddie.Forms.Skin.Label();
 			this.cmdAdvancedEventsEdit = new Eddie.Forms.Skin.Button();
 			this.cmdAdvancedEventsClear = new Eddie.Forms.Skin.Button();
 			this.lstAdvancedEvents = new Eddie.Forms.Skin.ListView();
@@ -91,8 +94,6 @@ namespace Eddie.Forms.Forms
 			this.cboNetworkIPv4Mode = new Eddie.Forms.Skin.ComboBox();
 			this.lblNetworkEntryInterface = new Eddie.Forms.Skin.Label();
 			this.cboNetworkEntryInterface = new Eddie.Forms.Skin.ComboBox();
-			this.lblRouteRemoveDefault = new Eddie.Forms.Skin.Label();
-			this.chkRouteRemoveDefault = new Eddie.Forms.Skin.CheckBox();
 			this.lblOpenVpnRcvbuf = new Eddie.Forms.Skin.Label();
 			this.cboOpenVpnRcvbuf = new Eddie.Forms.Skin.ComboBox();
 			this.lblOpenVpnSndbuf = new Eddie.Forms.Skin.Label();
@@ -110,6 +111,16 @@ namespace Eddie.Forms.Forms
 			this.cmdOk = new Eddie.Forms.Skin.Button();
 			this.tabSettings = new Eddie.Forms.Skin.TabControl();
 			this.tabGeneral = new Eddie.Forms.Skin.TabPage();
+			this.txtStoragePasswordConfirm = new Eddie.Forms.Skin.TextBox();
+			this.lblStoragePasswordConfirm = new Eddie.Forms.Skin.Label();
+			this.lblStoragePassword = new Eddie.Forms.Skin.Label();
+			this.lblSystemService = new Eddie.Forms.Skin.Label();
+			this.chkSystemService = new Eddie.Forms.Skin.CheckBox();
+			this.lblStorageBrowser = new Eddie.Forms.Skin.Label();
+			this.chkStorageBrowser = new Eddie.Forms.Skin.CheckBox();
+			this.txtStoragePassword = new Eddie.Forms.Skin.TextBox();
+			this.lblStorageMode = new Eddie.Forms.Skin.Label();
+			this.cboStorageMode = new Eddie.Forms.Skin.ComboBox();
 			this.chkSystemStart = new Eddie.Forms.Skin.CheckBox();
 			this.label13 = new Eddie.Forms.Skin.Label();
 			this.chkOsSingleInstance = new Eddie.Forms.Skin.CheckBox();
@@ -120,7 +131,6 @@ namespace Eddie.Forms.Forms
 			this.lblGeneralStartLast = new Eddie.Forms.Skin.Label();
 			this.chkNetLock = new Eddie.Forms.Skin.CheckBox();
 			this.chkGeneralStartLast = new Eddie.Forms.Skin.CheckBox();
-			this.cmdTos = new Eddie.Forms.Skin.Button();
 			this.tabUI = new Eddie.Forms.Skin.TabPage();
 			this.lblUiStartMinimized = new Eddie.Forms.Skin.Label();
 			this.chkUiStartMinimized = new Eddie.Forms.Skin.CheckBox();
@@ -206,6 +216,8 @@ namespace Eddie.Forms.Forms
 			this.cboDnsSwitchMode = new Eddie.Forms.Skin.ComboBox();
 			this.chkDnsCheck = new Eddie.Forms.Skin.CheckBox();
 			this.tabNetworkLock = new Eddie.Forms.Skin.TabPage();
+			this.lblLockWhiteListOutgoingIPs = new Eddie.Forms.Skin.Label();
+			this.txtLockWhiteListOutgoingIPs = new Eddie.Forms.Skin.TextBox();
 			this.lblLockAllowDHCP = new Eddie.Forms.Skin.Label();
 			this.chkLockAllowDHCP = new Eddie.Forms.Skin.CheckBox();
 			this.lblLockOutgoing = new Eddie.Forms.Skin.Label();
@@ -220,8 +232,8 @@ namespace Eddie.Forms.Forms
 			this.chkLockAllowPing = new Eddie.Forms.Skin.CheckBox();
 			this.chkLockAllowPrivate = new Eddie.Forms.Skin.CheckBox();
 			this.lblLockRoutingOutWarning = new Eddie.Forms.Skin.Label();
-			this.lblLockAllowedIPS = new Eddie.Forms.Skin.Label();
-			this.txtLockAllowedIPS = new Eddie.Forms.Skin.TextBox();
+			this.lblLockWhiteListIncomingIPs = new Eddie.Forms.Skin.Label();
+			this.txtLockWhiteListIncomingIPs = new Eddie.Forms.Skin.TextBox();
 			this.lblLockMode = new Eddie.Forms.Skin.Label();
 			this.cboLockMode = new Eddie.Forms.Skin.ComboBox();
 			this.tabLogging = new Eddie.Forms.Skin.TabPage();
@@ -475,10 +487,8 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsIPv6DisableAtOs);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsTapUp);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDhcpSwitch);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriver);
 			this.pnlAdvancedGeneralWindowsOnly.Location = new System.Drawing.Point(604, 16);
 			this.pnlAdvancedGeneralWindowsOnly.Margin = new System.Windows.Forms.Padding(4);
@@ -513,19 +523,6 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsDisableDriverUpgrade.Text = "Disable driver upgrade";
 			this.chkWindowsDisableDriverUpgrade.UseVisualStyleBackColor = false;
 			// 
-			// chkWindowsIPv6DisableAtOs
-			// 
-			this.chkWindowsIPv6DisableAtOs.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsIPv6DisableAtOs.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsIPv6DisableAtOs.Location = new System.Drawing.Point(24, 201);
-			this.chkWindowsIPv6DisableAtOs.Margin = new System.Windows.Forms.Padding(4);
-			this.chkWindowsIPv6DisableAtOs.Name = "chkWindowsIPv6DisableAtOs";
-			this.chkWindowsIPv6DisableAtOs.Size = new System.Drawing.Size(356, 33);
-			this.chkWindowsIPv6DisableAtOs.TabIndex = 87;
-			this.chkWindowsIPv6DisableAtOs.Text = "X - Disable IPv6 at OS level if requested";
-			this.chkWindowsIPv6DisableAtOs.UseVisualStyleBackColor = false;
-			this.chkWindowsIPv6DisableAtOs.Visible = false;
-			// 
 			// chkWindowsDebugWorkaround
 			// 
 			this.chkWindowsDebugWorkaround.BackColor = System.Drawing.Color.Transparent;
@@ -549,18 +546,6 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsTapUp.TabIndex = 55;
 			this.chkWindowsTapUp.Text = "Force TAP interface UP";
 			this.chkWindowsTapUp.UseVisualStyleBackColor = false;
-			// 
-			// chkWindowsDhcpSwitch
-			// 
-			this.chkWindowsDhcpSwitch.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsDhcpSwitch.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDhcpSwitch.Location = new System.Drawing.Point(24, 74);
-			this.chkWindowsDhcpSwitch.Margin = new System.Windows.Forms.Padding(4);
-			this.chkWindowsDhcpSwitch.Name = "chkWindowsDhcpSwitch";
-			this.chkWindowsDhcpSwitch.Size = new System.Drawing.Size(356, 33);
-			this.chkWindowsDhcpSwitch.TabIndex = 64;
-			this.chkWindowsDhcpSwitch.Text = "Switch DHCP to Static";
-			this.chkWindowsDhcpSwitch.UseVisualStyleBackColor = false;
 			// 
 			// cmdAdvancedUninstallDriver
 			// 
@@ -591,13 +576,14 @@ namespace Eddie.Forms.Forms
 			// 
 			// cmdExeBrowse
 			// 
+			this.cmdExeBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.cmdExeBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.cmdExeBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.cmdExeBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdExeBrowse.FlatAppearance.BorderSize = 0;
 			this.cmdExeBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdExeBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
-			this.cmdExeBrowse.Location = new System.Drawing.Point(639, 432);
+			this.cmdExeBrowse.Location = new System.Drawing.Point(942, 432);
 			this.cmdExeBrowse.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdExeBrowse.Name = "cmdExeBrowse";
 			this.cmdExeBrowse.Size = new System.Drawing.Size(50, 30);
@@ -607,10 +593,12 @@ namespace Eddie.Forms.Forms
 			// 
 			// txtExePath
 			// 
+			this.txtExePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.txtExePath.Location = new System.Drawing.Point(369, 432);
 			this.txtExePath.Margin = new System.Windows.Forms.Padding(4);
 			this.txtExePath.Name = "txtExePath";
-			this.txtExePath.Size = new System.Drawing.Size(259, 26);
+			this.txtExePath.Size = new System.Drawing.Size(565, 26);
 			this.txtExePath.TabIndex = 59;
 			// 
 			// lblExePath
@@ -650,6 +638,7 @@ namespace Eddie.Forms.Forms
 			// tabDirectives
 			// 
 			tabDirectives.BackColor = System.Drawing.Color.White;
+			tabDirectives.Controls.Add(this.chkOpenVpnDirectivesAllowScriptSecurity);
 			tabDirectives.Controls.Add(this.cmdOpenVpnDirectivesCustomPathBrowse);
 			tabDirectives.Controls.Add(this.txtOpenVpnDirectivesCustomPath);
 			tabDirectives.Controls.Add(this.label8);
@@ -666,6 +655,19 @@ namespace Eddie.Forms.Forms
 			tabDirectives.Size = new System.Drawing.Size(1014, 635);
 			tabDirectives.TabIndex = 1;
 			tabDirectives.Text = "OVPN directives";
+			// 
+			// chkOpenVpnDirectivesAllowScriptSecurity
+			// 
+			this.chkOpenVpnDirectivesAllowScriptSecurity.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.chkOpenVpnDirectivesAllowScriptSecurity.BackColor = System.Drawing.Color.Transparent;
+			this.chkOpenVpnDirectivesAllowScriptSecurity.ForeColor = System.Drawing.Color.Black;
+			this.chkOpenVpnDirectivesAllowScriptSecurity.Location = new System.Drawing.Point(568, 530);
+			this.chkOpenVpnDirectivesAllowScriptSecurity.Margin = new System.Windows.Forms.Padding(4);
+			this.chkOpenVpnDirectivesAllowScriptSecurity.Name = "chkOpenVpnDirectivesAllowScriptSecurity";
+			this.chkOpenVpnDirectivesAllowScriptSecurity.Size = new System.Drawing.Size(425, 31);
+			this.chkOpenVpnDirectivesAllowScriptSecurity.TabIndex = 92;
+			this.chkOpenVpnDirectivesAllowScriptSecurity.Text = "Allow script-security directives";
+			this.chkOpenVpnDirectivesAllowScriptSecurity.UseVisualStyleBackColor = false;
 			// 
 			// cmdOpenVpnDirectivesCustomPathBrowse
 			// 
@@ -688,10 +690,10 @@ namespace Eddie.Forms.Forms
 			// 
 			this.txtOpenVpnDirectivesCustomPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtOpenVpnDirectivesCustomPath.Location = new System.Drawing.Point(172, 531);
+			this.txtOpenVpnDirectivesCustomPath.Location = new System.Drawing.Point(192, 531);
 			this.txtOpenVpnDirectivesCustomPath.Margin = new System.Windows.Forms.Padding(4);
 			this.txtOpenVpnDirectivesCustomPath.Name = "txtOpenVpnDirectivesCustomPath";
-			this.txtOpenVpnDirectivesCustomPath.Size = new System.Drawing.Size(259, 26);
+			this.txtOpenVpnDirectivesCustomPath.Size = new System.Drawing.Size(239, 26);
 			this.txtOpenVpnDirectivesCustomPath.TabIndex = 90;
 			// 
 			// label8
@@ -702,7 +704,7 @@ namespace Eddie.Forms.Forms
 			this.label8.Location = new System.Drawing.Point(20, 531);
 			this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(144, 30);
+			this.label8.Size = new System.Drawing.Size(164, 30);
 			this.label8.TabIndex = 89;
 			this.label8.Text = "External Path:";
 			this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -734,7 +736,7 @@ namespace Eddie.Forms.Forms
             "Automatic",
             "Resolvconf (Linux only)",
             "Renaming (Linux only)"});
-			this.cboOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(501, 536);
+			this.cboOpenVpnDirectivesDefaultSkip.Location = new System.Drawing.Point(501, 480);
 			this.cboOpenVpnDirectivesDefaultSkip.Margin = new System.Windows.Forms.Padding(4);
 			this.cboOpenVpnDirectivesDefaultSkip.Name = "cboOpenVpnDirectivesDefaultSkip";
 			this.cboOpenVpnDirectivesDefaultSkip.Size = new System.Drawing.Size(492, 28);
@@ -776,7 +778,7 @@ namespace Eddie.Forms.Forms
 			this.txtOpenVpnDirectivesBase.Multiline = true;
 			this.txtOpenVpnDirectivesBase.Name = "txtOpenVpnDirectivesBase";
 			this.txtOpenVpnDirectivesBase.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtOpenVpnDirectivesBase.Size = new System.Drawing.Size(492, 480);
+			this.txtOpenVpnDirectivesBase.Size = new System.Drawing.Size(492, 427);
 			this.txtOpenVpnDirectivesBase.TabIndex = 58;
 			// 
 			// txtOpenVpnDirectivesCustom
@@ -791,12 +793,16 @@ namespace Eddie.Forms.Forms
 			this.txtOpenVpnDirectivesCustom.Multiline = true;
 			this.txtOpenVpnDirectivesCustom.Name = "txtOpenVpnDirectivesCustom";
 			this.txtOpenVpnDirectivesCustom.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtOpenVpnDirectivesCustom.Size = new System.Drawing.Size(470, 475);
+			this.txtOpenVpnDirectivesCustom.Size = new System.Drawing.Size(470, 427);
 			this.txtOpenVpnDirectivesCustom.TabIndex = 57;
 			// 
 			// tabEvents
 			// 
 			tabEvents.BackColor = System.Drawing.Color.White;
+			tabEvents.Controls.Add(this.chkShellExternalRecommended);
+			tabEvents.Controls.Add(this.cmdShellExternalClear);
+			tabEvents.Controls.Add(this.cmdShellExternalView);
+			tabEvents.Controls.Add(this.lblShellExternal);
 			tabEvents.Controls.Add(this.cmdAdvancedEventsEdit);
 			tabEvents.Controls.Add(this.cmdAdvancedEventsClear);
 			tabEvents.Controls.Add(this.lstAdvancedEvents);
@@ -807,6 +813,66 @@ namespace Eddie.Forms.Forms
 			tabEvents.Size = new System.Drawing.Size(1014, 635);
 			tabEvents.TabIndex = 2;
 			tabEvents.Text = "Events";
+			// 
+			// chkShellExternalRecommended
+			// 
+			this.chkShellExternalRecommended.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.chkShellExternalRecommended.BackColor = System.Drawing.Color.Transparent;
+			this.chkShellExternalRecommended.ForeColor = System.Drawing.Color.Black;
+			this.chkShellExternalRecommended.Location = new System.Drawing.Point(15, 566);
+			this.chkShellExternalRecommended.Margin = new System.Windows.Forms.Padding(4);
+			this.chkShellExternalRecommended.Name = "chkShellExternalRecommended";
+			this.chkShellExternalRecommended.Size = new System.Drawing.Size(356, 33);
+			this.chkShellExternalRecommended.TabIndex = 72;
+			this.chkShellExternalRecommended.Text = "Use recommended in bundle";
+			this.chkShellExternalRecommended.UseVisualStyleBackColor = false;
+			// 
+			// cmdShellExternalClear
+			// 
+			this.cmdShellExternalClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.cmdShellExternalClear.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdShellExternalClear.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdShellExternalClear.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdShellExternalClear.FlatAppearance.BorderSize = 0;
+			this.cmdShellExternalClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdShellExternalClear.Location = new System.Drawing.Point(789, 561);
+			this.cmdShellExternalClear.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdShellExternalClear.Name = "cmdShellExternalClear";
+			this.cmdShellExternalClear.Size = new System.Drawing.Size(150, 40);
+			this.cmdShellExternalClear.TabIndex = 71;
+			this.cmdShellExternalClear.Text = "Clear";
+			this.cmdShellExternalClear.UseVisualStyleBackColor = true;
+			this.cmdShellExternalClear.Click += new System.EventHandler(this.cmdShellExternalClear_Click);
+			// 
+			// cmdShellExternalView
+			// 
+			this.cmdShellExternalView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.cmdShellExternalView.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdShellExternalView.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdShellExternalView.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdShellExternalView.FlatAppearance.BorderSize = 0;
+			this.cmdShellExternalView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdShellExternalView.Location = new System.Drawing.Point(379, 561);
+			this.cmdShellExternalView.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdShellExternalView.Name = "cmdShellExternalView";
+			this.cmdShellExternalView.Size = new System.Drawing.Size(402, 40);
+			this.cmdShellExternalView.TabIndex = 70;
+			this.cmdShellExternalView.Text = "View accepted rules";
+			this.cmdShellExternalView.UseVisualStyleBackColor = true;
+			this.cmdShellExternalView.Click += new System.EventHandler(this.cmdShellExternalView_Click);
+			// 
+			// lblShellExternal
+			// 
+			this.lblShellExternal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.lblShellExternal.BackColor = System.Drawing.Color.Transparent;
+			this.lblShellExternal.ForeColor = System.Drawing.Color.Black;
+			this.lblShellExternal.Location = new System.Drawing.Point(11, 522);
+			this.lblShellExternal.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblShellExternal.Name = "lblShellExternal";
+			this.lblShellExternal.Size = new System.Drawing.Size(492, 30);
+			this.lblShellExternal.TabIndex = 68;
+			this.lblShellExternal.Text = "External program whitelist:";
+			this.lblShellExternal.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
 			// 
 			// cmdAdvancedEventsEdit
 			// 
@@ -860,7 +926,7 @@ namespace Eddie.Forms.Forms
 			this.lstAdvancedEvents.MultiSelect = false;
 			this.lstAdvancedEvents.Name = "lstAdvancedEvents";
 			this.lstAdvancedEvents.OwnerDraw = true;
-			this.lstAdvancedEvents.Size = new System.Drawing.Size(924, 547);
+			this.lstAdvancedEvents.Size = new System.Drawing.Size(924, 463);
 			this.lstAdvancedEvents.SmallImageList = this.imgRoutes;
 			this.lstAdvancedEvents.TabIndex = 57;
 			this.lstAdvancedEvents.UseCompatibleStateImageBehavior = false;
@@ -923,8 +989,6 @@ namespace Eddie.Forms.Forms
 			this.tabNetworking.Controls.Add(this.cboNetworkIPv4Mode);
 			this.tabNetworking.Controls.Add(this.lblNetworkEntryInterface);
 			this.tabNetworking.Controls.Add(this.cboNetworkEntryInterface);
-			this.tabNetworking.Controls.Add(this.lblRouteRemoveDefault);
-			this.tabNetworking.Controls.Add(this.chkRouteRemoveDefault);
 			this.tabNetworking.Controls.Add(this.lblOpenVpnRcvbuf);
 			this.tabNetworking.Controls.Add(this.cboOpenVpnRcvbuf);
 			this.tabNetworking.Controls.Add(this.lblOpenVpnSndbuf);
@@ -1060,29 +1124,6 @@ namespace Eddie.Forms.Forms
 			this.cboNetworkEntryInterface.Name = "cboNetworkEntryInterface";
 			this.cboNetworkEntryInterface.Size = new System.Drawing.Size(484, 28);
 			this.cboNetworkEntryInterface.TabIndex = 102;
-			// 
-			// lblRouteRemoveDefault
-			// 
-			this.lblRouteRemoveDefault.BackColor = System.Drawing.Color.Transparent;
-			this.lblRouteRemoveDefault.ForeColor = System.Drawing.Color.Black;
-			this.lblRouteRemoveDefault.Location = new System.Drawing.Point(28, 462);
-			this.lblRouteRemoveDefault.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblRouteRemoveDefault.Name = "lblRouteRemoveDefault";
-			this.lblRouteRemoveDefault.Size = new System.Drawing.Size(421, 33);
-			this.lblRouteRemoveDefault.TabIndex = 101;
-			this.lblRouteRemoveDefault.Text = "Remove the gateway route:";
-			this.lblRouteRemoveDefault.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// chkRouteRemoveDefault
-			// 
-			this.chkRouteRemoveDefault.BackColor = System.Drawing.Color.Transparent;
-			this.chkRouteRemoveDefault.ForeColor = System.Drawing.Color.Black;
-			this.chkRouteRemoveDefault.Location = new System.Drawing.Point(462, 462);
-			this.chkRouteRemoveDefault.Margin = new System.Windows.Forms.Padding(4);
-			this.chkRouteRemoveDefault.Name = "chkRouteRemoveDefault";
-			this.chkRouteRemoveDefault.Size = new System.Drawing.Size(201, 38);
-			this.chkRouteRemoveDefault.TabIndex = 100;
-			this.chkRouteRemoveDefault.UseVisualStyleBackColor = false;
 			// 
 			// lblOpenVpnRcvbuf
 			// 
@@ -1280,6 +1321,16 @@ namespace Eddie.Forms.Forms
 			// tabGeneral
 			// 
 			this.tabGeneral.BackColor = System.Drawing.Color.White;
+			this.tabGeneral.Controls.Add(this.txtStoragePasswordConfirm);
+			this.tabGeneral.Controls.Add(this.lblStoragePasswordConfirm);
+			this.tabGeneral.Controls.Add(this.lblStoragePassword);
+			this.tabGeneral.Controls.Add(this.lblSystemService);
+			this.tabGeneral.Controls.Add(this.chkSystemService);
+			this.tabGeneral.Controls.Add(this.lblStorageBrowser);
+			this.tabGeneral.Controls.Add(this.chkStorageBrowser);
+			this.tabGeneral.Controls.Add(this.txtStoragePassword);
+			this.tabGeneral.Controls.Add(this.lblStorageMode);
+			this.tabGeneral.Controls.Add(this.cboStorageMode);
 			this.tabGeneral.Controls.Add(this.chkSystemStart);
 			this.tabGeneral.Controls.Add(this.label13);
 			this.tabGeneral.Controls.Add(this.chkOsSingleInstance);
@@ -1289,8 +1340,7 @@ namespace Eddie.Forms.Forms
 			this.tabGeneral.Controls.Add(this.chkConnect);
 			this.tabGeneral.Controls.Add(this.lblGeneralStartLast);
 			this.tabGeneral.Controls.Add(this.chkNetLock);
-			this.tabGeneral.Controls.Add(this.chkGeneralStartLast);
-			this.tabGeneral.Controls.Add(this.cmdTos);
+			this.tabGeneral.Controls.Add(this.chkGeneralStartLast);			
 			this.tabGeneral.Location = new System.Drawing.Point(4, 24);
 			this.tabGeneral.Margin = new System.Windows.Forms.Padding(4);
 			this.tabGeneral.Name = "tabGeneral";
@@ -1298,17 +1348,133 @@ namespace Eddie.Forms.Forms
 			this.tabGeneral.TabIndex = 0;
 			this.tabGeneral.Text = "General";
 			// 
+			// txtStoragePasswordConfirm
+			// 
+			this.txtStoragePasswordConfirm.Location = new System.Drawing.Point(597, 370);
+			this.txtStoragePasswordConfirm.Margin = new System.Windows.Forms.Padding(4);
+			this.txtStoragePasswordConfirm.Name = "txtStoragePasswordConfirm";
+			this.txtStoragePasswordConfirm.Size = new System.Drawing.Size(378, 26);
+			this.txtStoragePasswordConfirm.TabIndex = 112;
+			this.txtStoragePasswordConfirm.UseSystemPasswordChar = true;
+			// 
+			// lblStoragePasswordConfirm
+			// 
+			this.lblStoragePasswordConfirm.BackColor = System.Drawing.Color.Transparent;
+			this.lblStoragePasswordConfirm.ForeColor = System.Drawing.Color.Black;
+			this.lblStoragePasswordConfirm.Location = new System.Drawing.Point(428, 366);
+			this.lblStoragePasswordConfirm.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblStoragePasswordConfirm.Name = "lblStoragePasswordConfirm";
+			this.lblStoragePasswordConfirm.Size = new System.Drawing.Size(161, 34);
+			this.lblStoragePasswordConfirm.TabIndex = 111;
+			this.lblStoragePasswordConfirm.Text = "Confirm:";
+			this.lblStoragePasswordConfirm.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lblStoragePassword
+			// 
+			this.lblStoragePassword.BackColor = System.Drawing.Color.Transparent;
+			this.lblStoragePassword.ForeColor = System.Drawing.Color.Black;
+			this.lblStoragePassword.Location = new System.Drawing.Point(428, 321);
+			this.lblStoragePassword.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblStoragePassword.Name = "lblStoragePassword";
+			this.lblStoragePassword.Size = new System.Drawing.Size(161, 34);
+			this.lblStoragePassword.TabIndex = 110;
+			this.lblStoragePassword.Text = "Password:";
+			this.lblStoragePassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// lblSystemService
+			// 
+			this.lblSystemService.BackColor = System.Drawing.Color.Transparent;
+			this.lblSystemService.ForeColor = System.Drawing.Color.Black;
+			this.lblSystemService.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+			this.lblSystemService.Location = new System.Drawing.Point(587, 133);
+			this.lblSystemService.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblSystemService.Name = "lblSystemService";
+			this.lblSystemService.Size = new System.Drawing.Size(388, 89);
+			this.lblSystemService.TabIndex = 109;
+			this.lblSystemService.Text = "Type:";
+			this.lblSystemService.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkSystemService
+			// 
+			this.chkSystemService.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.chkSystemService.BackColor = System.Drawing.Color.Transparent;
+			this.chkSystemService.ForeColor = System.Drawing.Color.Black;
+			this.chkSystemService.Location = new System.Drawing.Point(591, 87);
+			this.chkSystemService.Margin = new System.Windows.Forms.Padding(4);
+			this.chkSystemService.Name = "chkSystemService";
+			this.chkSystemService.Size = new System.Drawing.Size(384, 46);
+			this.chkSystemService.TabIndex = 108;
+			this.chkSystemService.Text = "Don\'t ask elevation every run";
+			this.chkSystemService.UseVisualStyleBackColor = false;
+			// 
+			// lblStorageBrowser
+			// 
+			this.lblStorageBrowser.BackColor = System.Drawing.Color.Transparent;
+			this.lblStorageBrowser.ForeColor = System.Drawing.Color.Black;
+			this.lblStorageBrowser.Location = new System.Drawing.Point(26, 450);
+			this.lblStorageBrowser.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblStorageBrowser.Name = "lblStorageBrowser";
+			this.lblStorageBrowser.Size = new System.Drawing.Size(398, 34);
+			this.lblStorageBrowser.TabIndex = 107;
+			this.lblStorageBrowser.Text = "Show profiles at startup:";
+			this.lblStorageBrowser.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblStorageBrowser.Visible = false;
+			// 
+			// chkStorageBrowser
+			// 
+			this.chkStorageBrowser.BackColor = System.Drawing.Color.Transparent;
+			this.chkStorageBrowser.ForeColor = System.Drawing.Color.Black;
+			this.chkStorageBrowser.Location = new System.Drawing.Point(432, 450);
+			this.chkStorageBrowser.Margin = new System.Windows.Forms.Padding(4);
+			this.chkStorageBrowser.Name = "chkStorageBrowser";
+			this.chkStorageBrowser.Size = new System.Drawing.Size(147, 34);
+			this.chkStorageBrowser.TabIndex = 106;
+			this.chkStorageBrowser.UseVisualStyleBackColor = false;
+			this.chkStorageBrowser.Visible = false;
+			// 
+			// txtStoragePassword
+			// 
+			this.txtStoragePassword.Location = new System.Drawing.Point(597, 325);
+			this.txtStoragePassword.Margin = new System.Windows.Forms.Padding(4);
+			this.txtStoragePassword.Name = "txtStoragePassword";
+			this.txtStoragePassword.Size = new System.Drawing.Size(378, 26);
+			this.txtStoragePassword.TabIndex = 105;
+			this.txtStoragePassword.UseSystemPasswordChar = true;
+			// 
+			// lblStorageMode
+			// 
+			this.lblStorageMode.BackColor = System.Drawing.Color.Transparent;
+			this.lblStorageMode.ForeColor = System.Drawing.Color.Black;
+			this.lblStorageMode.Location = new System.Drawing.Point(26, 277);
+			this.lblStorageMode.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblStorageMode.Name = "lblStorageMode";
+			this.lblStorageMode.Size = new System.Drawing.Size(398, 34);
+			this.lblStorageMode.TabIndex = 104;
+			this.lblStorageMode.Text = "Profile data protection:";
+			this.lblStorageMode.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// cboStorageMode
+			// 
+			this.cboStorageMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboStorageMode.FormattingEnabled = true;
+			this.cboStorageMode.Location = new System.Drawing.Point(432, 281);
+			this.cboStorageMode.Margin = new System.Windows.Forms.Padding(4);
+			this.cboStorageMode.Name = "cboStorageMode";
+			this.cboStorageMode.Size = new System.Drawing.Size(421, 28);
+			this.cboStorageMode.TabIndex = 103;
+			this.cboStorageMode.SelectedIndexChanged += new System.EventHandler(this.cboStorageMode_SelectedIndexChanged);
+			// 
 			// chkSystemStart
 			// 
 			this.chkSystemStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkSystemStart.BackColor = System.Drawing.Color.Transparent;
 			this.chkSystemStart.ForeColor = System.Drawing.Color.Black;
-			this.chkSystemStart.Location = new System.Drawing.Point(714, 33);
+			this.chkSystemStart.Location = new System.Drawing.Point(591, 33);
 			this.chkSystemStart.Margin = new System.Windows.Forms.Padding(4);
 			this.chkSystemStart.Name = "chkSystemStart";
-			this.chkSystemStart.Size = new System.Drawing.Size(261, 46);
+			this.chkSystemStart.Size = new System.Drawing.Size(384, 46);
 			this.chkSystemStart.TabIndex = 31;
-			this.chkSystemStart.Text = "Start with Windows";
+			this.chkSystemStart.Text = "Start with System";
 			this.chkSystemStart.UseVisualStyleBackColor = false;
 			// 
 			// label13
@@ -1419,23 +1585,6 @@ namespace Eddie.Forms.Forms
 			this.chkGeneralStartLast.Size = new System.Drawing.Size(42, 34);
 			this.chkGeneralStartLast.TabIndex = 86;
 			this.chkGeneralStartLast.UseVisualStyleBackColor = false;
-			// 
-			// cmdTos
-			// 
-			this.cmdTos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdTos.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdTos.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdTos.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdTos.FlatAppearance.BorderSize = 0;
-			this.cmdTos.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdTos.Location = new System.Drawing.Point(654, 549);
-			this.cmdTos.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdTos.Name = "cmdTos";
-			this.cmdTos.Size = new System.Drawing.Size(321, 45);
-			this.cmdTos.TabIndex = 38;
-			this.cmdTos.Text = "Terms of Service";
-			this.cmdTos.UseVisualStyleBackColor = true;
-			this.cmdTos.Click += new System.EventHandler(this.cmdTos_Click);
 			// 
 			// tabUI
 			// 
@@ -2508,9 +2657,7 @@ namespace Eddie.Forms.Forms
 			this.cboDnsSwitchMode.FormattingEnabled = true;
 			this.cboDnsSwitchMode.Items.AddRange(new object[] {
             "Disabled",
-            "Automatic",
-            "Resolvconf (Linux only)",
-            "Renaming (Linux only)"});
+            "Automatic"});
 			this.cboDnsSwitchMode.Location = new System.Drawing.Point(396, 28);
 			this.cboDnsSwitchMode.Margin = new System.Windows.Forms.Padding(4);
 			this.cboDnsSwitchMode.Name = "cboDnsSwitchMode";
@@ -2530,6 +2677,8 @@ namespace Eddie.Forms.Forms
 			// 
 			// tabNetworkLock
 			// 
+			this.tabNetworkLock.Controls.Add(this.lblLockWhiteListOutgoingIPs);
+			this.tabNetworkLock.Controls.Add(this.txtLockWhiteListOutgoingIPs);
 			this.tabNetworkLock.Controls.Add(this.lblLockAllowDHCP);
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowDHCP);
 			this.tabNetworkLock.Controls.Add(this.lblLockOutgoing);
@@ -2544,8 +2693,8 @@ namespace Eddie.Forms.Forms
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowPing);
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowPrivate);
 			this.tabNetworkLock.Controls.Add(this.lblLockRoutingOutWarning);
-			this.tabNetworkLock.Controls.Add(this.lblLockAllowedIPS);
-			this.tabNetworkLock.Controls.Add(this.txtLockAllowedIPS);
+			this.tabNetworkLock.Controls.Add(this.lblLockWhiteListIncomingIPs);
+			this.tabNetworkLock.Controls.Add(this.txtLockWhiteListIncomingIPs);
 			this.tabNetworkLock.Controls.Add(this.lblLockMode);
 			this.tabNetworkLock.Controls.Add(this.cboLockMode);
 			this.tabNetworkLock.Location = new System.Drawing.Point(4, 24);
@@ -2555,6 +2704,32 @@ namespace Eddie.Forms.Forms
 			this.tabNetworkLock.TabIndex = 4;
 			this.tabNetworkLock.Text = "Network lock";
 			this.tabNetworkLock.UseVisualStyleBackColor = true;
+			// 
+			// lblLockWhiteListOutgoingIPs
+			// 
+			this.lblLockWhiteListOutgoingIPs.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockWhiteListOutgoingIPs.ForeColor = System.Drawing.Color.Black;
+			this.lblLockWhiteListOutgoingIPs.Location = new System.Drawing.Point(418, 388);
+			this.lblLockWhiteListOutgoingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblLockWhiteListOutgoingIPs.Name = "lblLockWhiteListOutgoingIPs";
+			this.lblLockWhiteListOutgoingIPs.Size = new System.Drawing.Size(262, 38);
+			this.lblLockWhiteListOutgoingIPs.TabIndex = 107;
+			this.lblLockWhiteListOutgoingIPs.Text = "IPs allowed for outgoing:";
+			this.lblLockWhiteListOutgoingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// txtLockWhiteListOutgoingIPs
+			// 
+			this.txtLockWhiteListOutgoingIPs.AcceptsReturn = true;
+			this.txtLockWhiteListOutgoingIPs.AcceptsTab = true;
+			this.txtLockWhiteListOutgoingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+			this.txtLockWhiteListOutgoingIPs.Location = new System.Drawing.Point(421, 427);
+			this.txtLockWhiteListOutgoingIPs.Margin = new System.Windows.Forms.Padding(4);
+			this.txtLockWhiteListOutgoingIPs.Multiline = true;
+			this.txtLockWhiteListOutgoingIPs.Name = "txtLockWhiteListOutgoingIPs";
+			this.txtLockWhiteListOutgoingIPs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtLockWhiteListOutgoingIPs.Size = new System.Drawing.Size(386, 141);
+			this.txtLockWhiteListOutgoingIPs.TabIndex = 106;
 			// 
 			// lblLockAllowDHCP
 			// 
@@ -2731,32 +2906,31 @@ namespace Eddie.Forms.Forms
 			this.lblLockRoutingOutWarning.TabIndex = 78;
 			this.lblLockRoutingOutWarning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
-			// lblLockAllowedIPS
+			// lblLockWhiteListIncomingIPs
 			// 
-			this.lblLockAllowedIPS.BackColor = System.Drawing.Color.Transparent;
-			this.lblLockAllowedIPS.ForeColor = System.Drawing.Color.Black;
-			this.lblLockAllowedIPS.Location = new System.Drawing.Point(21, 388);
-			this.lblLockAllowedIPS.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblLockAllowedIPS.Name = "lblLockAllowedIPS";
-			this.lblLockAllowedIPS.Size = new System.Drawing.Size(262, 38);
-			this.lblLockAllowedIPS.TabIndex = 76;
-			this.lblLockAllowedIPS.Text = "Addresses allowed:";
-			this.lblLockAllowedIPS.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblLockWhiteListIncomingIPs.BackColor = System.Drawing.Color.Transparent;
+			this.lblLockWhiteListIncomingIPs.ForeColor = System.Drawing.Color.Black;
+			this.lblLockWhiteListIncomingIPs.Location = new System.Drawing.Point(21, 388);
+			this.lblLockWhiteListIncomingIPs.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblLockWhiteListIncomingIPs.Name = "lblLockWhiteListIncomingIPs";
+			this.lblLockWhiteListIncomingIPs.Size = new System.Drawing.Size(262, 38);
+			this.lblLockWhiteListIncomingIPs.TabIndex = 76;
+			this.lblLockWhiteListIncomingIPs.Text = "IPs allowed for incoming:";
+			this.lblLockWhiteListIncomingIPs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
-			// txtLockAllowedIPS
+			// txtLockWhiteListIncomingIPs
 			// 
-			this.txtLockAllowedIPS.AcceptsReturn = true;
-			this.txtLockAllowedIPS.AcceptsTab = true;
-			this.txtLockAllowedIPS.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtLockAllowedIPS.Location = new System.Drawing.Point(291, 390);
-			this.txtLockAllowedIPS.Margin = new System.Windows.Forms.Padding(4);
-			this.txtLockAllowedIPS.Multiline = true;
-			this.txtLockAllowedIPS.Name = "txtLockAllowedIPS";
-			this.txtLockAllowedIPS.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtLockAllowedIPS.Size = new System.Drawing.Size(386, 178);
-			this.txtLockAllowedIPS.TabIndex = 75;
+			this.txtLockWhiteListIncomingIPs.AcceptsReturn = true;
+			this.txtLockWhiteListIncomingIPs.AcceptsTab = true;
+			this.txtLockWhiteListIncomingIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+			this.txtLockWhiteListIncomingIPs.Location = new System.Drawing.Point(24, 427);
+			this.txtLockWhiteListIncomingIPs.Margin = new System.Windows.Forms.Padding(4);
+			this.txtLockWhiteListIncomingIPs.Multiline = true;
+			this.txtLockWhiteListIncomingIPs.Name = "txtLockWhiteListIncomingIPs";
+			this.txtLockWhiteListIncomingIPs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtLockWhiteListIncomingIPs.Size = new System.Drawing.Size(386, 141);
+			this.txtLockWhiteListIncomingIPs.TabIndex = 75;
 			// 
 			// lblLockMode
 			// 
@@ -2925,6 +3099,7 @@ namespace Eddie.Forms.Forms
 			this.pnlCommands.ResumeLayout(false);
 			this.tabSettings.ResumeLayout(false);
 			this.tabGeneral.ResumeLayout(false);
+			this.tabGeneral.PerformLayout();
 			this.tabUI.ResumeLayout(false);
 			this.tabUI.PerformLayout();
 			this.tabProtocols.ResumeLayout(false);
@@ -2957,8 +3132,7 @@ namespace Eddie.Forms.Forms
         private Skin.TextBox txtProxyPassword;
         private Skin.Label lblProxyPassword;
         private Skin.TextBox txtProxyLogin;
-		private Skin.Label lblProxyLogin;
-        private Skin.Button cmdTos;
+		private Skin.Label lblProxyLogin;        
         private Skin.Label label6;
         private Skin.ComboBox cboRoutesOtherwise;
         private Skin.Label lblRoutesOtherwise;
@@ -3000,7 +3174,6 @@ namespace Eddie.Forms.Forms
         private Skin.Label label2;
         private Skin.ColumnHeader columnHeader3;
         private Skin.ColumnHeader columnHeader4;
-		private Skin.CheckBox chkWindowsDhcpSwitch;
 		private Skin.Button cmdAdvancedUninstallDriver;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
 		private System.Windows.Forms.GroupBox pnlAdvancedGeneralWindowsOnly;
@@ -3011,8 +3184,8 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblLogPath;
 		private Skin.CheckBox chkLoggingEnabled;
 		private Skin.TabPage tabNetworkLock;
-		private Skin.Label lblLockAllowedIPS;
-		private Skin.TextBox txtLockAllowedIPS;
+		private Skin.Label lblLockWhiteListIncomingIPs;
+		private Skin.TextBox txtLockWhiteListIncomingIPs;
 		private Skin.Label lblLockMode;
 		private Skin.ComboBox cboLockMode;
 		private Skin.Label lblLockRoutingOutWarning;
@@ -3060,7 +3233,6 @@ namespace Eddie.Forms.Forms
         private Skin.ComboBox cboOpenVpnDirectivesDefaultSkip;
         private Skin.Label lblLockAllowPing;
         private Skin.Label lblLockAllowPrivate;
-        private Skin.CheckBox chkWindowsIPv6DisableAtOs;
         private Skin.LinkLabel lnkOpenVpnDirectivesHelp;
         private Skin.CheckBox chkOsSingleInstance;
         private Skin.Label lblConnect;
@@ -3089,8 +3261,6 @@ namespace Eddie.Forms.Forms
 		private Skin.TabPage tabNetworking;
 		private Skin.Label lblNetworkEntryInterface;
 		private Skin.ComboBox cboNetworkEntryInterface;
-		private Skin.Label lblRouteRemoveDefault;
-		private Skin.CheckBox chkRouteRemoveDefault;
 		private Skin.Label lblOpenVpnRcvbuf;
 		private Skin.ComboBox cboOpenVpnRcvbuf;
 		private Skin.Label lblOpenVpnSndbuf;
@@ -3140,5 +3310,22 @@ namespace Eddie.Forms.Forms
 		private Skin.ComboBox cboAdvancedUpdaterChannel;
 		private Skin.Label lblLockAllowDHCP;
 		private Skin.CheckBox chkLockAllowDHCP;
+		private Skin.CheckBox chkOpenVpnDirectivesAllowScriptSecurity;
+		private Skin.Label lblStorageBrowser;
+		private Skin.CheckBox chkStorageBrowser;
+		private Skin.TextBox txtStoragePassword;
+		private Skin.Label lblStorageMode;
+		private Skin.ComboBox cboStorageMode;
+		private Skin.Button cmdShellExternalClear;
+		private Skin.Button cmdShellExternalView;
+		private Skin.Label lblShellExternal;
+		private Skin.CheckBox chkShellExternalRecommended;
+		private Skin.Label lblLockWhiteListOutgoingIPs;
+		private Skin.TextBox txtLockWhiteListOutgoingIPs;
+		private Skin.CheckBox chkSystemService;
+		private Skin.Label lblSystemService;
+		private Skin.TextBox txtStoragePasswordConfirm;
+		private Skin.Label lblStoragePasswordConfirm;
+		private Skin.Label lblStoragePassword;
 	}
 }

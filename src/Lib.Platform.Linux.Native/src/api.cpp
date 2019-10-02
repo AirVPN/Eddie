@@ -420,6 +420,7 @@ int eddie_file_get_immutable(const char *filename)
     return result;
 }
 
+/*
 int eddie_file_set_immutable(const char *filename, int flag)
 {
     FILE *fp;
@@ -443,6 +444,21 @@ int eddie_file_set_immutable(const char *filename, int flag)
 
     return result;
 }
+*/
+
+bool eddie_file_get_runasroot(const char *filename)
+{
+	struct stat s;
+	memset(&s, 0, sizeof(struct stat));
+
+    if(stat(filename, &s) == -1)
+        return false;
+
+    bool ownedByRoot = (s.st_uid == 0);
+    bool haveSetUID = (s.st_mode & S_ISUID);
+
+    return (ownedByRoot && haveSetUID);
+}
 
 int eddie_pipe_write(const char *filename, const char *data)
 {
@@ -450,7 +466,7 @@ int eddie_pipe_write(const char *filename, const char *data)
 
 	if(data != NULL)
 	{
-		size_t size = strlen(data);
+		ssize_t size = strlen(data);
 		if(size > 0)
 		{
 			int f = open(filename, O_WRONLY);

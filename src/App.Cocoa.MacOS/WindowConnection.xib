@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
-        <capability name="box content view" minToolsVersion="7.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -28,27 +27,27 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <tabView misplaced="YES" id="0S4-wm-6oD">
-                        <rect key="frame" x="13" y="59" width="580" height="391"/>
+                        <rect key="frame" x="13" y="51" width="580" height="399"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="OpenVPN Eddie" identifier="1" id="SLw-gJ-Kcd">
                                 <view key="view" id="EPN-yW-lxt">
-                                    <rect key="frame" x="10" y="33" width="560" height="345"/>
+                                    <rect key="frame" x="10" y="33" width="560" height="353"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="MIh-U5-WoV">
-                                            <rect key="frame" x="-3" y="-3" width="566" height="345"/>
+                                            <rect key="frame" x="-3" y="-3" width="566" height="353"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="4ds-RA-KJF">
-                                                <rect key="frame" x="1" y="1" width="549" height="343"/>
+                                                <rect key="frame" x="1" y="1" width="549" height="351"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textView editable="NO" importsGraphics="NO" richText="NO" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ppU-36-sPg">
-                                                        <rect key="frame" x="0.0" y="0.0" width="549" height="343"/>
+                                                    <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ppU-36-sPg">
+                                                        <rect key="frame" x="0.0" y="0.0" width="549" height="351"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="549" height="343"/>
+                                                        <size key="minSize" width="549" height="351"/>
                                                         <size key="maxSize" width="566" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     </textView>
@@ -60,7 +59,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="ub2-Oc-HaN">
-                                                <rect key="frame" x="550" y="1" width="15" height="343"/>
+                                                <rect key="frame" x="550" y="1" width="15" height="351"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
@@ -69,21 +68,21 @@
                             </tabViewItem>
                             <tabViewItem label="OpenVPN Original" identifier="2" id="3fW-bu-ufP">
                                 <view key="view" id="9oo-qx-HdH">
-                                    <rect key="frame" x="10" y="33" width="560" height="345"/>
+                                    <rect key="frame" x="10" y="33" width="560" height="353"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="Ulo-i2-Kc9">
-                                            <rect key="frame" x="-3" y="7" width="566" height="345"/>
+                                            <rect key="frame" x="-3" y="7" width="566" height="353"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="5Yk-Kn-Otb">
-                                                <rect key="frame" x="1" y="1" width="549" height="343"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <rect key="frame" x="1" y="1" width="549" height="351"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
-                                                    <textView editable="NO" importsGraphics="NO" richText="NO" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ZEY-PS-RYc">
-                                                        <rect key="frame" x="0.0" y="0.0" width="549" height="343"/>
+                                                    <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ZEY-PS-RYc">
+                                                        <rect key="frame" x="0.0" y="0.0" width="549" height="351"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="549" height="343"/>
+                                                        <size key="minSize" width="549" height="351"/>
                                                         <size key="maxSize" width="566" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     </textView>
@@ -95,7 +94,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="qOL-HC-pPw">
-                                                <rect key="frame" x="550" y="1" width="15" height="343"/>
+                                                <rect key="frame" x="550" y="1" width="15" height="351"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
@@ -104,35 +103,25 @@
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
-                    <box autoresizesSubviews="NO" misplaced="YES" borderType="line" title="Box" titlePosition="noTitle" id="TA8-7z-9ig">
-                        <rect key="frame" x="128" y="16" width="350" height="47"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <view key="contentView" id="mwh-N5-xcI">
-                            <rect key="frame" x="1" y="1" width="348" height="45"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <button verticalHuggingPriority="750" id="jaj-EG-MR4">
-                                    <rect key="frame" x="12" y="7" width="162" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="r1u-pS-cBB">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                </button>
-                                <button verticalHuggingPriority="750" id="PdB-N1-dQC">
-                                    <rect key="frame" x="174" y="7" width="162" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TyI-7i-YwB">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                        <string key="keyEquivalent" base64-UTF8="YES">
+                    <button verticalHuggingPriority="750" misplaced="YES" id="jaj-EG-MR4">
+                        <rect key="frame" x="472" y="13" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="r1u-pS-cBB">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="PdB-N1-dQC">
+                        <rect key="frame" x="352" y="13" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TyI-7i-YwB">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
 Gw
 </string>
-                                    </buttonCell>
-                                </button>
-                            </subviews>
-                        </view>
-                    </box>
+                        </buttonCell>
+                    </button>
                 </subviews>
             </view>
             <point key="canvasLocation" x="132" y="209"/>

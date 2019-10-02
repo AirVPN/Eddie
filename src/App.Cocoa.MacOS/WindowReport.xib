@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -28,25 +28,25 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" misplaced="YES" id="C9K-to-p2a">
-                        <rect key="frame" x="319" y="13" width="162" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <rect key="frame" x="631" y="13" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="vR1-C1-jEG">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
                     <scrollView misplaced="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="ov5-Mo-bji">
-                        <rect key="frame" x="20" y="72" width="725" height="408"/>
+                        <rect key="frame" x="20" y="61" width="725" height="419"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="ggV-Wy-ONm">
-                            <rect key="frame" x="1" y="1" width="708" height="406"/>
+                            <rect key="frame" x="1" y="1" width="708" height="417"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="dA3-Pz-6Be">
-                                    <rect key="frame" x="0.0" y="0.0" width="708" height="406"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="708" height="417"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <size key="minSize" width="708" height="406"/>
+                                    <size key="minSize" width="708" height="417"/>
                                     <size key="maxSize" width="725" height="10000000"/>
                                     <attributedString key="textStorage">
                                         <fragment content="123">
@@ -66,7 +66,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="qEO-Pp-yec">
-                            <rect key="frame" x="709" y="1" width="15" height="406"/>
+                            <rect key="frame" x="709" y="1" width="15" height="417"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
@@ -87,11 +87,11 @@
                         </buttonCell>
                     </button>
                     <progressIndicator wantsLayer="YES" misplaced="YES" maxValue="100" style="bar" id="ycO-qC-xIZ">
-                        <rect key="frame" x="605" y="45" width="140" height="20"/>
+                        <rect key="frame" x="446" y="19" width="140" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                     </progressIndicator>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="XPM-ky-5II">
-                        <rect key="frame" x="20" y="47" width="581" height="15"/>
+                        <rect key="frame" x="18" y="22" width="422" height="15"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Label" usesSingleLineMode="YES" id="1lN-TO-iJ1">
                             <font key="font" metaFont="smallSystem"/>

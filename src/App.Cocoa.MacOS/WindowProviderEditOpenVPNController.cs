@@ -71,16 +71,19 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsProviderEditOpenVPNTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsProviderEditOpenVPNTitle");
 
-			LblTitle.Title = Provider.DefinitionTitle;
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
+
+            LblTitle.Title = Provider.DefinitionTitle;
 			LblSubtitle.StringValue = Provider.DefinitionSubTitle;
 
 			GuiUtils.SetCheck(ChkEnabled, Provider.Enabled);
 			TxtTitle.StringValue = Provider.Title;
 			TxtPath.StringValue = Provider.Path;
 
-			ChkSupportIPv6.Title = Messages.WindowsProviderEditOpenVPNSupportIPv6;
+			ChkSupportIPv6.Title = LanguageManager.GetText("WindowsProviderEditOpenVPNSupportIPv6");
 			GuiUtils.SetCheck(ChkSupportIPv6, Provider.SupportIPv6);
 
 			TxtAuthPassUsername.StringValue = Provider.AuthPassUsername;

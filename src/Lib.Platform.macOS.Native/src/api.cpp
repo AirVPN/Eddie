@@ -424,6 +424,7 @@ int eddie_file_get_immutable(const char *filename)
     return (result & SF_IMMUTABLE) == SF_IMMUTABLE;
 }
 
+/*
 int eddie_file_set_immutable(const char *filename, int flag)
 {
     // sudo chflags schg /path/to/file
@@ -439,6 +440,22 @@ int eddie_file_set_immutable(const char *filename, int flag)
     
     return 0;
 }
+*/
+
+bool eddie_file_get_runasroot(const char *filename)
+{
+    struct stat s;
+    memset(&s, 0, sizeof(struct stat));
+
+    if(stat(filename, &s) == -1)
+        return false;
+
+    bool ownedByRoot = (s.st_uid == 0);
+    bool haveSetUID = (s.st_mode & S_ISUID);
+
+    return (ownedByRoot && haveSetUID);
+}
+
 /*
 int eddie_ip_ping(const char *address, int timeout)
 {

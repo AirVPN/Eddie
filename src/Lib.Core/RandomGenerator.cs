@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -55,6 +55,18 @@ namespace Eddie.Core
 		}
 
 		public static string GetHash()
+		{
+			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLower();
+			return h;
+		}
+
+		public static string GetRandomPassword()
+		{
+			return GetHash();
+		}
+
+		// Used for profile ID, must be always 32 chars for compatibility (v2*)
+		public static string GetRandomId64()
 		{
 			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLower();
 			return h;

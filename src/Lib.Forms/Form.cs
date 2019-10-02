@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,9 +25,17 @@ using Eddie.Common;
 
 namespace Eddie.Forms
 {
-	public class Form : System.Windows.Forms.Form
-	{
-		public static Skin.SkinReference Skin = new Eddie.Forms.Skin.SkinReference();
+    public class Form : System.Windows.Forms.Form
+    {
+        public static Skin.SkinReference Skin = new Eddie.Forms.Skin.SkinReference();
+
+        public Form()
+        {
+            if (Core.Platform.Instance.IsLinuxSystem())
+            {
+                this.HandleCreated += (sender, ex) => Mono.XWindowManagers.SetWmClass(Constants.Name, Constants.Name, this.Handle);
+            }
+        }
 
 		public static Eddie.Forms.Engine Engine
 		{
@@ -50,11 +58,10 @@ namespace Eddie.Forms
 
 		public void CommonInit(string Title)
 		{
-			String TitleText = Constants.Name;
 			if (Title != "")
-				TitleText = TitleText + " - " + Title;
-
-			Text = TitleText;
+			{
+				Text = Constants.Name + " - " + Title;
+			}
 
 			Icon = global::Eddie.Forms.Properties.Resources.icon1;
 
@@ -78,7 +85,7 @@ namespace Eddie.Forms
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-		}
+        }
 
 		protected override void OnPaintBackground(PaintEventArgs e)
 		{
@@ -200,7 +207,7 @@ namespace Eddie.Forms
 
 			if (state == "m")
 			{
-				if (minimizeInTray)
+				if( (Engine.Instance as Eddie.Forms.Engine).AllowMinimizeInTray() )
 				{
 					this.Visible = false;
 				}
@@ -265,12 +272,17 @@ namespace Eddie.Forms
 
 		public void ShowMessageInfo(string message)
 		{
-			MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			GuiUtils.MessageBoxInfo(this, message);
 		}
 
 		public void ShowMessageError(string message)
 		{
-			MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			GuiUtils.MessageBoxError(this, message);
+		}
+
+		public bool ShowMessageAskYesNo(string message)
+		{
+			return GuiUtils.MessageBoxAskYesNo(this, message);
 		}
 
 		public static void DrawImage(Graphics g, Image i, Rectangle r)

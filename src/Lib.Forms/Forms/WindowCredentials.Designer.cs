@@ -42,10 +42,9 @@
 			// 
 			this.lblPassword.BackColor = System.Drawing.Color.Transparent;
 			this.lblPassword.ForeColor = System.Drawing.Color.Black;
-			this.lblPassword.Location = new System.Drawing.Point(11, 46);
-			this.lblPassword.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblPassword.Location = new System.Drawing.Point(16, 69);
 			this.lblPassword.Name = "lblPassword";
-			this.lblPassword.Size = new System.Drawing.Size(76, 20);
+			this.lblPassword.Size = new System.Drawing.Size(114, 30);
 			this.lblPassword.TabIndex = 61;
 			this.lblPassword.Text = "Password:";
 			this.lblPassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -54,10 +53,9 @@
 			// 
 			this.lblUsername.BackColor = System.Drawing.Color.Transparent;
 			this.lblUsername.ForeColor = System.Drawing.Color.Black;
-			this.lblUsername.Location = new System.Drawing.Point(11, 16);
-			this.lblUsername.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblUsername.Location = new System.Drawing.Point(16, 24);
 			this.lblUsername.Name = "lblUsername";
-			this.lblUsername.Size = new System.Drawing.Size(76, 20);
+			this.lblUsername.Size = new System.Drawing.Size(114, 30);
 			this.lblUsername.TabIndex = 60;
 			this.lblUsername.Text = "Username:";
 			this.lblUsername.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -66,12 +64,10 @@
 			// 
 			this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txtPassword.Location = new System.Drawing.Point(91, 46);
-			this.txtPassword.Margin = new System.Windows.Forms.Padding(2);
+			this.txtPassword.Location = new System.Drawing.Point(136, 69);
 			this.txtPassword.Name = "txtPassword";
 			this.txtPassword.PasswordChar = '*';
-			this.txtPassword.Size = new System.Drawing.Size(222, 20);
+			this.txtPassword.Size = new System.Drawing.Size(332, 26);
 			this.txtPassword.TabIndex = 58;
 			this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
 			// 
@@ -79,10 +75,9 @@
 			// 
 			this.txtUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtUsername.Location = new System.Drawing.Point(91, 16);
-			this.txtUsername.Margin = new System.Windows.Forms.Padding(2);
+			this.txtUsername.Location = new System.Drawing.Point(136, 24);
 			this.txtUsername.Name = "txtUsername";
-			this.txtUsername.Size = new System.Drawing.Size(222, 20);
+			this.txtUsername.Size = new System.Drawing.Size(331, 26);
 			this.txtUsername.TabIndex = 57;
 			this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
 			// 
@@ -94,9 +89,10 @@
 			this.cmdOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.cmdOk.FlatAppearance.BorderSize = 0;
 			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdOk.Location = new System.Drawing.Point(53, 128);
+			this.cmdOk.Location = new System.Drawing.Point(80, 192);
+			this.cmdOk.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.cmdOk.Name = "cmdOk";
-			this.cmdOk.Size = new System.Drawing.Size(106, 27);
+			this.cmdOk.Size = new System.Drawing.Size(159, 40);
 			this.cmdOk.TabIndex = 62;
 			this.cmdOk.Text = "Login";
 			this.cmdOk.UseVisualStyleBackColor = true;
@@ -110,9 +106,10 @@
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.cmdCancel.FlatAppearance.BorderSize = 0;
 			this.cmdCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdCancel.Location = new System.Drawing.Point(166, 128);
+			this.cmdCancel.Location = new System.Drawing.Point(249, 192);
+			this.cmdCancel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.cmdCancel.Name = "cmdCancel";
-			this.cmdCancel.Size = new System.Drawing.Size(106, 27);
+			this.cmdCancel.Size = new System.Drawing.Size(159, 40);
 			this.cmdCancel.TabIndex = 63;
 			this.cmdCancel.Text = "Cancel";
 			this.cmdCancel.UseVisualStyleBackColor = true;
@@ -123,19 +120,19 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.cboRemember.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboRemember.FormattingEnabled = true;
-			this.cboRemember.Location = new System.Drawing.Point(91, 76);
+			this.cboRemember.Location = new System.Drawing.Point(136, 114);
+			this.cboRemember.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.cboRemember.Name = "cboRemember";
-			this.cboRemember.Size = new System.Drawing.Size(221, 21);
+			this.cboRemember.Size = new System.Drawing.Size(330, 28);
 			this.cboRemember.TabIndex = 65;
 			// 
 			// lblRemember
 			// 
 			this.lblRemember.BackColor = System.Drawing.Color.Transparent;
 			this.lblRemember.ForeColor = System.Drawing.Color.Black;
-			this.lblRemember.Location = new System.Drawing.Point(12, 76);
-			this.lblRemember.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblRemember.Location = new System.Drawing.Point(18, 114);
 			this.lblRemember.Name = "lblRemember";
-			this.lblRemember.Size = new System.Drawing.Size(76, 21);
+			this.lblRemember.Size = new System.Drawing.Size(114, 32);
 			this.lblRemember.TabIndex = 66;
 			this.lblRemember.Text = "Remember:";
 			this.lblRemember.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -143,10 +140,10 @@
 			// WindowCredentials
 			// 
 			this.AcceptButton = this.cmdOk;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdCancel;
-			this.ClientSize = new System.Drawing.Size(324, 174);
+			this.ClientSize = new System.Drawing.Size(486, 261);
 			this.Controls.Add(this.lblRemember);
 			this.Controls.Add(this.cboRemember);
 			this.Controls.Add(this.cmdOk);
@@ -155,7 +152,7 @@
 			this.Controls.Add(this.lblUsername);
 			this.Controls.Add(this.txtPassword);
 			this.Controls.Add(this.txtUsername);
-			this.Margin = new System.Windows.Forms.Padding(4);
+			this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "WindowCredentials";

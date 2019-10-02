@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ namespace Eddie.Core
 				return 10001;
 			else if (name == "key")
 				return 10001;
-			else if (name.StartsWith("<"))
+			else if (name.StartsWith("<", StringComparison.InvariantCulture))
 				return 10010;
 			else
 				return 1000;
@@ -148,7 +148,7 @@ namespace Eddie.Core
 				List<Directive> directivesKey = Directives[directiveKey];
 				foreach (Directive value in directivesKey)
 				{
-					if (directiveKey.StartsWith("<"))
+					if (directiveKey.StartsWith("<", StringComparison.InvariantCulture))
 					{
 						result += directiveKey + "\n" + value.Text.Trim() + "\n" + directiveKey.Replace("<", "</");
 					}
@@ -159,8 +159,10 @@ namespace Eddie.Core
 						else
 							result += directiveKey;
 					}
-					if (value.Comment != "")
-						result += " # " + value.Comment;
+
+                    if((Software.GetTool("openvpn") as Tools.OpenVPN).IsAirSpecialBuild() == false) // Known OpenVPN 3.3 bug: don't trim # comments
+					    if (value.Comment != "")
+						    result += " # " + value.Comment;
 					result += "\n";
 				}
 			}
@@ -170,10 +172,15 @@ namespace Eddie.Core
 
 		public void AppendDirective(string name, string body, string comment)
 		{
+			AppendDirective(name, body, comment, false);
+		}
+
+		public void AppendDirective(string name, string body, string comment, bool force)
+		{
 			name = UtilsString.StringPruneCharsNotIn(name.Trim(), AllowedCharsInDirectiveName);
 
 			// Eddie-special: If start with -, remove.
-			if (name.StartsWith("-"))
+			if (name.StartsWith("-", StringComparison.InvariantCultureIgnoreCase))
 			{
 				if (Directives.ContainsKey(name.Substring(1)))
 					Directives.Remove(name.Substring(1));
@@ -190,9 +197,10 @@ namespace Eddie.Core
 					Directives[name] = new List<Directive>();
 				}
 
-				if (Engine.Instance.Storage.GetBool("openvpn.allow.script-security") == false)
-					if (IsGroupAllowScriptSecurity(name))
-						return;
+				if(force == false)
+					//if (Engine.Instance.Storage.GetBool("openvpn.allow.script-security") == false)
+						if (IsGroupAllowScriptSecurity(name))
+							return;
 				
 				Directive d = new Directive();
 				d.Text = body.Trim();
@@ -254,10 +262,10 @@ namespace Eddie.Core
 				text = text.Replace("\t", " ");
 				text = text.Replace("\u2028", "\n"); // macOS Hack  // TOCLEAN
 
-				int posComment1 = text.IndexOf("#");
+				int posComment1 = text.IndexOf("#", StringComparison.InvariantCulture);
 				if (posComment1 != -1)
 				{
-					int posEndOfLine = text.IndexOf("\n", posComment1);
+					int posEndOfLine = text.IndexOf("\n", posComment1, StringComparison.InvariantCulture);
 					text = text.Substring(0, posComment1) + text.Substring(posEndOfLine);
 				}
 
@@ -292,7 +300,7 @@ namespace Eddie.Core
 
 					directiveName = text.Substring(0, posEndStartTag + 1);
 					string endTag = directiveName.Replace("<", "</");
-					int posEndTag = text.IndexOf(endTag);
+					int posEndTag = text.IndexOf(endTag, StringComparison.InvariantCulture);
 					if (posEndTag == -1)
 						throw new Exception("Syntax error"); // TOTRANSLATE
 					directiveBody = text.Substring(posEndStartTag + 1, posEndTag - posEndStartTag - 1);
@@ -300,7 +308,7 @@ namespace Eddie.Core
 				}
 				else
 				{
-					int posEndLine = text.IndexOf("\n");
+					int posEndLine = text.IndexOf("\n", StringComparison.InvariantCulture);
 
 					// v2
 					string textL = "";
@@ -315,11 +323,11 @@ namespace Eddie.Core
 						text = text.Substring(posEndLine + 1);
 					}
 
-					if (textL.StartsWith(";"))
+					if (textL.StartsWith(";", StringComparison.InvariantCulture))
 						continue;
 
 					// Presume there isn't any directive name with two or more words.
-					int posSpace = textL.IndexOf(" ");
+					int posSpace = textL.IndexOf(" ", StringComparison.InvariantCulture);
 					if (posSpace == -1)
 					{
 						directiveName = textL;
@@ -464,7 +472,7 @@ namespace Eddie.Core
 						return;
 					string path = fields[0];
 					fields.RemoveAt(0);
-					if ((path.StartsWith("\"")) && (path.EndsWith("\"")))
+					if ((path.StartsWith("\"", StringComparison.InvariantCulture)) && (path.EndsWith("\"", StringComparison.InvariantCulture)))
 						path = path.Substring(1, path.Length - 2);
 					path = Platform.Instance.FileGetAbsolutePath(path, basePath);
 					d.Text = EncodePath(path) + " " + String.Join(" ", fields.ToArray());

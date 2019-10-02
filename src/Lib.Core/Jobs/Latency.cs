@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,20 +49,17 @@ namespace Eddie.Core.Jobs
 			}
 			else
 			{
-				Dictionary<string, ConnectionInfo> connections;
+				List<ConnectionInfo> connections = GetConnectionsToPing();
 
 				// Note: If Pinger is not enabled, works like all ping results is 0.						
 				bool enabled = GetEnabled();
 
 				int timeNow = UtilsCore.UnixTimeStamp();
 				int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
-
-				lock (Engine.Instance.Connections)
-					connections = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
-
+								
 				bool startOne = false;
 
-				foreach (ConnectionInfo connectionInfo in connections.Values)
+				foreach (ConnectionInfo connectionInfo in connections)
 				{
 					if (GetCanRun() == false)
 						break;
@@ -88,6 +85,8 @@ namespace Eddie.Core.Jobs
 
 								PingerJob job = new PingerJob();
 								job.Server = connectionInfo;
+								lock (Jobs)
+									Jobs.Add(job);
 
 								ThreadPool.QueueUserWorkItem(new WaitCallback(DoPing), job);
 								startOne = true;
@@ -117,6 +116,14 @@ namespace Eddie.Core.Jobs
 					m_timeEvery = 100;
 				else
 					m_timeEvery = 1000;
+										
+				for(; ;)
+				{
+					lock (Jobs)
+						if (Jobs.Count == 0)
+							break;
+					Sleep(100);
+				}
 			}
 		}
 
@@ -134,7 +141,7 @@ namespace Eddie.Core.Jobs
 			{
 				canRun = false;
 			}
-			else if (Engine.Instance.IsWaiting() && (Engine.Instance.WaitMessage.StartsWith(Messages.WaitingLatencyTestsTitle) == false))
+			else if (Engine.Instance.IsWaiting() && (Engine.Instance.WaitMessage.StartsWith(LanguageManager.GetText("WaitingLatencyTestsTitle")) == false))
 				canRun = false;
 
 			return canRun;
@@ -232,24 +239,23 @@ namespace Eddie.Core.Jobs
 
 			int iTotal = 0;
 
-			lock (Engine.Instance.Connections)
+			List<ConnectionInfo> connections = GetConnectionsToPing();
+
+			foreach (ConnectionInfo infoConnection in connections)
 			{
-				foreach (ConnectionInfo infoConnection in Engine.Instance.Connections.Values)
-				{
-					int deltaValid = GetPingerDelayValid(infoConnection);
+				int deltaValid = GetPingerDelayValid(infoConnection);
 
-					if ((stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoConnection.LastPingResult))
-						stats.OlderCheckDate = infoConnection.LastPingResult;
+				if ((stats.OlderCheckDate == 0) || (stats.OlderCheckDate > infoConnection.LastPingResult))
+					stats.OlderCheckDate = infoConnection.LastPingResult;
 
-					if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoConnection.LastPingResult))
-						stats.LatestCheckDate = infoConnection.LastPingResult;
+				if ((stats.LatestCheckDate == 0) || (stats.LatestCheckDate < infoConnection.LastPingResult))
+					stats.LatestCheckDate = infoConnection.LastPingResult;
 
-					iTotal++;
-					if ((infoConnection.CanPing()) && (timeNow - infoConnection.LastPingResult > deltaValid))
-						stats.Invalid++;
-				}
+				iTotal++;
+				if ((infoConnection.CanPing()) && (timeNow - infoConnection.LastPingResult > deltaValid))
+					stats.Invalid++;
 			}
-
+			
 			stats.Valid = (stats.Invalid == 0);
 
 			return stats;
@@ -258,6 +264,13 @@ namespace Eddie.Core.Jobs
 		public bool GetValid()
 		{
 			return GetStats().Valid;
+		}
+
+		public List<ConnectionInfo> GetConnectionsToPing()
+		{
+			// Old: Engine.Instance.Connections.Values
+			List<ConnectionInfo> connections = Engine.Instance.GetConnections(false);
+			return connections;
 		}
 	}
 }

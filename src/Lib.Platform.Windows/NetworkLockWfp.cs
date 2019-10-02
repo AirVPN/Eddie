@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ namespace Eddie.Platform.Windows
 	public class NetworkLockWfp : NetworkLockPlugin
 	{
 		private Dictionary<string, WfpItem> m_rules = new Dictionary<string, WfpItem>();
+		private string m_lastestIpsWhiteListIncoming = "";
 		private string m_lastestIpsWhiteListOutgoing = "";
 		
 		public override string GetCode()
@@ -52,112 +53,130 @@ namespace Eddie.Platform.Windows
 		{
 			base.Activation();
 
-			// Block All
-			if(Engine.Instance.Storage.Get("netlock.incoming") == "block")
+			try
 			{
-				XmlDocument xmlDocRule = new XmlDocument();
-				XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-				xmlRule.SetAttribute("name", "NetLock - In - Block All");
-				xmlRule.SetAttribute("layer", "all-in");
-				xmlRule.SetAttribute("action", "block");
-				AddRule("netlock_in_block_all", xmlRule);
-			}
-			if (Engine.Instance.Storage.Get("netlock.outgoing") == "block")
-			{
-				XmlDocument xmlDocRule = new XmlDocument();
-				XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-				xmlRule.SetAttribute("name", "NetLock - Out - Block All");
-				xmlRule.SetAttribute("layer", "all-out");
-				xmlRule.SetAttribute("action", "block");
-				AddRule("netlock_out_block_all", xmlRule);
-			}
-
-			// Allow Eddie / OpenVPN / Stunnel / Plink
-			AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie", Platform.Instance.GetExecutablePath()));
-
-			if (Engine.Instance.Storage.GetLower("proxy.mode") == "tor")
-			{
-				string path = TorControl.GetTorExecutablePath();
-				if(path != "")
-				{
-					AddRule("netlock_allow_tor", Wfp.CreateItemAllowProgram("NetLock - Allow Tor", path));
-				}				
-			}
-
-			// Allow loopback
-			{
-				XmlDocument xmlDocRule = new XmlDocument();
-				XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-				xmlRule.SetAttribute("name", "NetLock - Allow loopback");
-				xmlRule.SetAttribute("layer", "all");
-				xmlRule.SetAttribute("action", "permit");
-				XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-				xmlRule.AppendChild(XmlIf1);
-				XmlIf1.SetAttribute("field", "ip_local_interface");
-				XmlIf1.SetAttribute("match", "equal");
-				XmlIf1.SetAttribute("interface", "loopback");
-				AddRule("netlock_allow_loopback", xmlRule);
-			}
-
-			if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
-			{
-				// Allow ICMP
+				// Block All
+				if (Engine.Instance.Storage.Get("netlock.incoming") == "block")
 				{
 					XmlDocument xmlDocRule = new XmlDocument();
 					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-					xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
+					xmlRule.SetAttribute("name", "NetLock - In - Block All");
+					xmlRule.SetAttribute("layer", "all-in");
+					xmlRule.SetAttribute("action", "block");
+					XmlElement XmlIf1 = xmlDocRule.CreateElement("if"); // Allow Elevated
+					xmlRule.AppendChild(XmlIf1);
+					XmlIf1.SetAttribute("field", "ip_local_interface");
+					XmlIf1.SetAttribute("match", "not_equal");
+					XmlIf1.SetAttribute("interface", "loopback");
+					AddRule("netlock_in_block_all", xmlRule);
+				}
+				if (Engine.Instance.Storage.Get("netlock.outgoing") == "block")
+				{
+					XmlDocument xmlDocRule = new XmlDocument();
+					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+					xmlRule.SetAttribute("name", "NetLock - Out - Block All");
+					xmlRule.SetAttribute("layer", "all-out");
+					xmlRule.SetAttribute("action", "block");
+					XmlElement XmlIf1 = xmlDocRule.CreateElement("if"); // Allow Elevated
+					xmlRule.AppendChild(XmlIf1);
+					XmlIf1.SetAttribute("field", "ip_local_interface");
+					XmlIf1.SetAttribute("match", "not_equal");
+					XmlIf1.SetAttribute("interface", "loopback");
+					AddRule("netlock_out_block_all", xmlRule);
+				}
+
+				// Allow loopback
+				{
+					XmlDocument xmlDocRule = new XmlDocument();
+					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+					xmlRule.SetAttribute("name", "NetLock - Allow loopback");
 					xmlRule.SetAttribute("layer", "all");
 					xmlRule.SetAttribute("action", "permit");
 					XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
 					xmlRule.AppendChild(XmlIf1);
+					XmlIf1.SetAttribute("field", "ip_local_interface");
+					XmlIf1.SetAttribute("match", "equal");
+					XmlIf1.SetAttribute("interface", "loopback");
+					AddRule("netlock_allow_loopback", xmlRule);
+				}
+
+				// Allow Eddie / OpenVPN / Stunnel / Plink
+				AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie", Platform.Instance.GetExecutablePath()));
+
+				if (Engine.Instance.Storage.GetLower("proxy.mode") == "tor")
+				{
+					string path = TorControl.GetTorExecutablePath();
+					if (path != "")
+					{
+						AddRule("netlock_allow_tor", Wfp.CreateItemAllowProgram("NetLock - Allow Tor", path));
+					}
+				}
+
+				if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
+				{
+					// Allow ICMP
+					{
+						XmlDocument xmlDocRule = new XmlDocument();
+						XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+						xmlRule.SetAttribute("name", "NetLock - Allow ICMP");
+						xmlRule.SetAttribute("layer", "all");
+						xmlRule.SetAttribute("action", "permit");
+						XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+						xmlRule.AppendChild(XmlIf1);
+						XmlIf1.SetAttribute("field", "ip_protocol");
+						XmlIf1.SetAttribute("match", "equal");
+						XmlIf1.SetAttribute("protocol", "icmp");
+						AddRule("netlock_allow_icmp", xmlRule);
+					}
+				}
+
+				if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
+				{
+					AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddress("192.168.0.0/255.255.0.0")));
+					AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddress("172.16.0.0/255.240.0.0")));
+					AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", new IpAddress("10.0.0.0/255.0.0.0")));
+					AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", new IpAddress("224.0.0.0/255.255.255.0")));
+					AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", new IpAddress("239.255.255.250/255.255.255.255")));
+					AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddress("239.255.255.253/255.255.255.255")));
+				}
+
+				// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'. // Note 2018: don't occur in Win10?
+				if (Engine.Instance.Storage.GetBool("netlock.allow_dhcp") == true)
+				{
+					XmlDocument xmlDocRule = new XmlDocument();
+					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
+					xmlRule.SetAttribute("name", "NetLock - Allow DHCP");
+					xmlRule.SetAttribute("layer", "all");
+					xmlRule.SetAttribute("action", "permit");
+
+					XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf1);
 					XmlIf1.SetAttribute("field", "ip_protocol");
 					XmlIf1.SetAttribute("match", "equal");
-					XmlIf1.SetAttribute("protocol", "icmp");
-					AddRule("netlock_allow_icmp", xmlRule);
+					XmlIf1.SetAttribute("protocol", "udp");
+
+					XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf2);
+					XmlIf2.SetAttribute("field", "ip_local_port");
+					XmlIf2.SetAttribute("match", "equal");
+					XmlIf2.SetAttribute("port", "68");
+
+					XmlElement XmlIf3 = xmlDocRule.CreateElement("if");
+					xmlRule.AppendChild(XmlIf3);
+					XmlIf3.SetAttribute("field", "ip_remote_port");
+					XmlIf3.SetAttribute("match", "equal");
+					XmlIf3.SetAttribute("port", "67");
+
+					AddRule("netlock_allow_dhcp", xmlRule);
 				}
-			}
 
-			if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
+				OnUpdateIps();
+			}
+			catch (Exception ex)
 			{
-				AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddress("192.168.0.0/255.255.0.0")));
-				AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddress("172.16.0.0/255.240.0.0")));
-				AddRule("netlock_allow_ipv4_local3", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 3 - IPv4", new IpAddress("10.0.0.0/255.0.0.0")));
-				AddRule("netlock_allow_ipv4_multicast", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Multicast - IPv4", new IpAddress("224.0.0.0/255.255.255.0")));
-				AddRule("netlock_allow_ipv4_ssdp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Simple Service Discovery Protocol address", new IpAddress("239.255.255.250/255.255.255.255")));
-				AddRule("netlock_allow_ipv4_slp", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Service Location Protocol", new IpAddress("239.255.255.253/255.255.255.255")));
+				Deactivation();
+				throw new Exception(ex.Message);
 			}
-
-			// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'. // Note 2018: don't occur in Win10?
-			if (Engine.Instance.Storage.GetBool("netlock.allow_dhcp") == true)
-			{
-				XmlDocument xmlDocRule = new XmlDocument();
-				XmlElement xmlRule = xmlDocRule.CreateElement("rule");
-				xmlRule.SetAttribute("name", "NetLock - Allow DHCP");
-				xmlRule.SetAttribute("layer", "all");
-				xmlRule.SetAttribute("action", "permit");
-
-				XmlElement XmlIf1 = xmlDocRule.CreateElement("if");
-				xmlRule.AppendChild(XmlIf1);
-				XmlIf1.SetAttribute("field", "ip_protocol");
-				XmlIf1.SetAttribute("match", "equal");
-				XmlIf1.SetAttribute("protocol", "udp");
-
-				XmlElement XmlIf2 = xmlDocRule.CreateElement("if");
-				xmlRule.AppendChild(XmlIf2);
-				XmlIf2.SetAttribute("field", "ip_local_port");
-				XmlIf2.SetAttribute("match", "equal");
-				XmlIf2.SetAttribute("port", "68");
-
-				XmlElement XmlIf3 = xmlDocRule.CreateElement("if");
-				xmlRule.AppendChild(XmlIf3);
-				XmlIf3.SetAttribute("field", "ip_remote_port");
-				XmlIf3.SetAttribute("match", "equal");
-				XmlIf3.SetAttribute("port", "67");
-
-				AddRule("netlock_allow_dhcp", xmlRule);
-			}
-
-			OnUpdateIps();
 		}
 
 		public override void Deactivation()
@@ -166,6 +185,7 @@ namespace Eddie.Platform.Windows
 
 			RemoveAllRules();
 
+			m_lastestIpsWhiteListIncoming = "";
 			m_lastestIpsWhiteListOutgoing = "";
 		}
 
@@ -210,22 +230,26 @@ namespace Eddie.Platform.Windows
 		{
 			base.OnUpdateIps();
 
-			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(false); // Don't need full ip, because the client it's allowed as program.			
-			string currentIpsWhiteListOutgoing = ipsWhiteListOutgoing.ToString();
+			// TOFIX: Crash with a lots of IPs, simulate with GetIpsWhiteListOutgoing(true)
 
-			if (currentIpsWhiteListOutgoing != m_lastestIpsWhiteListOutgoing)
+			IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
+			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(false); // Don't need full ip, because the client it's allowed as program.
+
+			string currentIpsWhiteListIncoming = ipsWhiteListIncoming.ToString();
+			
+			if (currentIpsWhiteListIncoming != m_lastestIpsWhiteListIncoming)
 			{
-				if (ExistsRule("netlock_allow_ips_v4"))
-					RemoveRule("netlock_allow_ips_v4");
-				if (ExistsRule("netlock_allow_ips_v6"))
-					RemoveRule("netlock_allow_ips_v6");
+				if (ExistsRule("netlock_allow_incoming_ips_v4"))
+					RemoveRule("netlock_allow_incoming_ips_v4");
+				if (ExistsRule("netlock_allow_incoming_ips_v6"))
+					RemoveRule("netlock_allow_incoming_ips_v6");
 
-				m_lastestIpsWhiteListOutgoing = currentIpsWhiteListOutgoing;
+				m_lastestIpsWhiteListIncoming = currentIpsWhiteListIncoming;
 
-				XmlElement xmlRuleV4 = null;
-				XmlElement xmlRuleV6 = null;
+				XmlElement xmlRuleIncomingV4 = null;
+				XmlElement xmlRuleIncomingV6 = null;
 
-				foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+				foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
 				{
 					XmlElement XmlIf = null;
 
@@ -233,29 +257,29 @@ namespace Eddie.Platform.Windows
 					{
 						if (ip.IsV4)
 						{
-							if (xmlRuleV4 == null)
+							if (xmlRuleIncomingV4 == null)
 							{
-								XmlDocument xmlDocRuleV4 = new XmlDocument();
-								xmlRuleV4 = xmlDocRuleV4.CreateElement("rule");
-								xmlRuleV4.SetAttribute("name", "NetLock - Allow IP - IPv4");
-								xmlRuleV4.SetAttribute("layer", "ipv4");
-								xmlRuleV4.SetAttribute("action", "permit");
+								XmlDocument xmlDocRuleIncomingV4 = new XmlDocument();
+								xmlRuleIncomingV4 = xmlDocRuleIncomingV4.CreateElement("rule");
+								xmlRuleIncomingV4.SetAttribute("name", "NetLock - Allow IP - Incoming - IPv4");
+								xmlRuleIncomingV4.SetAttribute("layer", "ipv4");
+								xmlRuleIncomingV4.SetAttribute("action", "permit");
 							}
-							XmlIf = xmlRuleV4.OwnerDocument.CreateElement("if");
-							xmlRuleV4.AppendChild(XmlIf); // bugfix 2.11.9
+							XmlIf = xmlRuleIncomingV4.OwnerDocument.CreateElement("if");
+							xmlRuleIncomingV4.AppendChild(XmlIf);
 						}
 						else if (ip.IsV6)
 						{
-							if (xmlRuleV6 == null)
+							if (xmlRuleIncomingV6 == null)
 							{
-								XmlDocument xmlDocRuleV6 = new XmlDocument();
-								xmlRuleV6 = xmlDocRuleV6.CreateElement("rule");
-								xmlRuleV6.SetAttribute("name", "NetLock - Allow IP - IPv6");
-								xmlRuleV6.SetAttribute("layer", "ipv6");
-								xmlRuleV6.SetAttribute("action", "permit");
+								XmlDocument xmlDocRuleIncomingV6 = new XmlDocument();
+								xmlRuleIncomingV6 = xmlDocRuleIncomingV6.CreateElement("rule");
+								xmlRuleIncomingV6.SetAttribute("name", "NetLock - Allow IP - Incoming - IPv6");
+								xmlRuleIncomingV6.SetAttribute("layer", "ipv6");
+								xmlRuleIncomingV6.SetAttribute("action", "permit");
 							}
-							XmlIf = xmlRuleV6.OwnerDocument.CreateElement("if");
-							xmlRuleV6.AppendChild(XmlIf); // bugfix 2.11.9
+							XmlIf = xmlRuleIncomingV6.OwnerDocument.CreateElement("if");
+							xmlRuleIncomingV6.AppendChild(XmlIf);
 						}
 					}
 
@@ -268,10 +292,72 @@ namespace Eddie.Platform.Windows
 					}
 				}
 
-				if (xmlRuleV4 != null)
-					AddRule("netlock_allow_ips_v4", xmlRuleV4);
-				if (xmlRuleV6 != null)
-					AddRule("netlock_allow_ips_v6", xmlRuleV6);
+				if (xmlRuleIncomingV4 != null)
+					AddRule("netlock_allow_incoming_ips_v4", xmlRuleIncomingV4);
+				if (xmlRuleIncomingV6 != null)
+					AddRule("netlock_allow_incoming_ips_v6", xmlRuleIncomingV6);
+			}			
+
+			string currentIpsWhiteListOutgoing = ipsWhiteListOutgoing.ToString();
+			if (currentIpsWhiteListOutgoing != m_lastestIpsWhiteListOutgoing)
+			{
+				if (ExistsRule("netlock_allow_outgoing_ips_v4"))
+					RemoveRule("netlock_allow_outgoing_ips_v4");
+				if (ExistsRule("netlock_allow_outgoing_ips_v6"))
+					RemoveRule("netlock_allow_outgoing_ips_v6");
+
+				m_lastestIpsWhiteListOutgoing = currentIpsWhiteListOutgoing;
+
+				XmlElement xmlRuleOutgoingV4 = null;
+				XmlElement xmlRuleOutgoingV6 = null;
+
+				foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+				{
+					XmlElement XmlIf = null;
+
+					if (ip.Valid)
+					{
+						if (ip.IsV4)
+						{
+							if (xmlRuleOutgoingV4 == null)
+							{
+								XmlDocument xmlDocRuleOutgoingV4 = new XmlDocument();
+								xmlRuleOutgoingV4 = xmlDocRuleOutgoingV4.CreateElement("rule");
+								xmlRuleOutgoingV4.SetAttribute("name", "NetLock - Allow IP - Outgoing - IPv4");
+								xmlRuleOutgoingV4.SetAttribute("layer", "ipv4-out");
+								xmlRuleOutgoingV4.SetAttribute("action", "permit");
+							}
+							XmlIf = xmlRuleOutgoingV4.OwnerDocument.CreateElement("if");
+							xmlRuleOutgoingV4.AppendChild(XmlIf);
+						}
+						else if (ip.IsV6)
+						{
+							if (xmlRuleOutgoingV6 == null)
+							{
+								XmlDocument xmlDocRuleOutgoingV6 = new XmlDocument();
+								xmlRuleOutgoingV6 = xmlDocRuleOutgoingV6.CreateElement("rule");
+								xmlRuleOutgoingV6.SetAttribute("name", "NetLock - Allow IP - Outgoing - IPv6");
+								xmlRuleOutgoingV6.SetAttribute("layer", "ipv6-out");
+								xmlRuleOutgoingV6.SetAttribute("action", "permit");
+							}
+							XmlIf = xmlRuleOutgoingV6.OwnerDocument.CreateElement("if");
+							xmlRuleOutgoingV6.AppendChild(XmlIf);
+						}
+					}
+
+					if (XmlIf != null)
+					{
+						XmlIf.SetAttribute("field", "ip_remote_address");
+						XmlIf.SetAttribute("match", "equal");
+						XmlIf.SetAttribute("address", ip.Address);
+						XmlIf.SetAttribute("mask", ip.Mask);
+					}
+				}
+
+				if (xmlRuleOutgoingV4 != null)
+					AddRule("netlock_allow_outgoing_ips_v4", xmlRuleOutgoingV4);
+				if (xmlRuleOutgoingV6 != null)
+					AddRule("netlock_allow_outgoing_ips_v6", xmlRuleOutgoingV6);
 			}
 		}
 

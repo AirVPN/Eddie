@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,8 +31,7 @@ namespace Eddie.Core
 		public string Path = ""; // TOFIX: must be private, use GetPath everywhere
 		public string Version = "";
 		public string Location = "missing";
-		public string Hash = "";
-
+		
 		public void UpdatePath()
 		{
 			try
@@ -43,7 +42,7 @@ namespace Eddie.Core
 			}
 			catch (Exception e)
 			{
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.BundleExecutableError, Code, Path));
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("BundleExecutableError", Code, Path));
 				Engine.Instance.Logs.Log(LogType.Verbose, e.Message);
 				Engine.Instance.Logs.Log(LogType.Verbose, Platform.Instance.GetExecutableReport(Path));
 
@@ -125,32 +124,6 @@ namespace Eddie.Core
 		public bool VersionAboveOrEqual(string v)
 		{
 			return (UtilsCore.CompareVersions(Version, v) >= 0);
-		}
-
-		public string ComputeHash()
-		{
-			if (Path == "")
-				return "";
-
-			// TOFIX: No SHA512CryptoServiceProvider in .Net 2.0
-			return "";
-			/*
-			try
-			{
-				HashAlgorithm algo = new SHA512CryptoServiceProvider();
-
-				using (var fs = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-				{
-					var hash = algo.ComputeHash(fs);
-					return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-				}
-			}
-			catch(Exception e)
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, e);
-				return "";
-			}
-			*/
 		}
 
 		public void FindResource(string filename)

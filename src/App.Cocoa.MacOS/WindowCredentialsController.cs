@@ -71,13 +71,16 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsLoginTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsLoginTitle");
 
-			CboRemember.RemoveAllItems();
-			CboRemember.AddItem(Messages.WindowsCredentialsRememberNo);
-			CboRemember.AddItem(Messages.WindowsCredentialsRememberRun);
-			CboRemember.AddItem(Messages.WindowsCredentialsRememberPermanent);
-			GuiUtils.SetSelected(CboRemember, Messages.WindowsCredentialsRememberRun);
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdLogin);
+
+            CboRemember.RemoveAllItems();
+			CboRemember.AddItem(LanguageManager.GetText("WindowsCredentialsRememberNo"));
+			CboRemember.AddItem(LanguageManager.GetText("WindowsCredentialsRememberRun"));
+			CboRemember.AddItem(LanguageManager.GetText("WindowsCredentialsRememberPermanent"));
+			GuiUtils.SetSelected(CboRemember, LanguageManager.GetText("WindowsCredentialsRememberRun"));
 
 			TxtUsername.Changed += (object sender, EventArgs e) =>
 			{
@@ -94,11 +97,11 @@ namespace Eddie.UI.Cocoa.Osx
 				Credentials.Username = TxtUsername.StringValue;
 				Credentials.Password = TxtPassword.StringValue;
 				string rememberText = GuiUtils.GetSelected(CboRemember);
-				if (rememberText == Messages.WindowsCredentialsRememberNo)
+				if (rememberText == LanguageManager.GetText("WindowsCredentialsRememberNo"))
 					Credentials.Remember = "no";
-				else if (rememberText == Messages.WindowsCredentialsRememberRun)
+				else if (rememberText == LanguageManager.GetText("WindowsCredentialsRememberRun"))
 					Credentials.Remember = "run";
-				else if (rememberText == Messages.WindowsCredentialsRememberPermanent)
+				else if (rememberText == LanguageManager.GetText("WindowsCredentialsRememberPermanent"))
 					Credentials.Remember = "permanent";
 				else
 					Credentials.Remember = "no";

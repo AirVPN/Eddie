@@ -28,7 +28,6 @@ namespace Eddie.Platform.MacOS
 {
 	public class NetworkLockOsxPf : NetworkLockPlugin
 	{
-		private TemporaryFile m_filePfConf;
 		private bool m_prevActive = false;
 		private bool m_connected = false;
 		private string m_pfctlPath = "";
@@ -64,36 +63,17 @@ namespace Eddie.Platform.MacOS
 		{
 			base.Activation();
 
-			try
+            try
 			{
-				if (m_pfctlPath == "")
-					throw new Exception("pfctl " + Messages.NotFound);
+                string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-activate");
+                if (result == "activated")
+                    m_prevActive = false;
+                else if (result == "active")
+                    m_prevActive = true;
+                else
+                    throw new Exception("Unexpected PF Firewall activation");
 
-				m_prevActive = false;
-				string report = SystemShell.Shell1(m_pfctlPath, "-si").ToLowerInvariant();
-				if (report.IndexOf("denied") != -1)
-					throw new Exception("Permission denied.");
-				else if (report.IndexOf("status: enabled") != -1)
-					m_prevActive = true;
-				else if (report.IndexOf("status: disabled") != -1)
-					m_prevActive = false;
-				else
-					throw new Exception("Unexpected PF Firewall status");
-
-				if (m_prevActive == false)
-				{
-					string reportActivation = SystemShell.Shell1(m_pfctlPath, "-e").ToLowerInvariant();
-					if (reportActivation.IndexOf("pf enabled") == -1)
-						throw new Exception("Unexpected PF Firewall activation failure");
-				}
-				m_filePfConf = new TemporaryFile("pf.conf");
-
-				OnUpdateIps();
-
-				if (m_prevActive == false)
-				{
-					SystemShell.Shell1(m_pfctlPath, "-e");
-				}
+                OnUpdateIps();                
 			}
 			catch (Exception ex)
 			{
@@ -107,27 +87,9 @@ namespace Eddie.Platform.MacOS
 		{
 			base.Deactivation();
 
-			// Restore system rules
-			SystemShell s = new SystemShell();
-			s.Path = m_pfctlPath;
-			s.Arguments.Add("-v");
-			s.Arguments.Add("-f");
-			s.Arguments.Add(SystemShell.EscapePath("/etc/pf.conf"));
-			s.Run();
-
-			if (m_filePfConf != null)
-			{
-				m_filePfConf.Close();
-				m_filePfConf = null;
-			}
-
-			if (m_prevActive)
-			{
-			}
-			else
-			{
-				SystemShell.Shell1(m_pfctlPath, "-d");
-			}
+            string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-deactivate", "prev", (m_prevActive ? "enabled":"disabled"));
+            if (result != "")
+                throw new Exception("Unexpected result: " + result);            
 		}
 
 		public override void AllowIP(IpAddress ip)
@@ -144,106 +106,12 @@ namespace Eddie.Platform.MacOS
 		{
 			base.OnUpdateIps();
 
-			// Remember: Rules must be in order: options, normalization, queueing, translation, filtering
+            string pfConfig = BuildPfConfig();
 
-			string pf = "";
-			pf += "# " + Engine.Instance.GenerateFileHeader() + "\n";
-
-			pf += "# Block policy, RST for quickly notice\n";
-			pf += "set block-policy return\n"; // 2.9 
-
-			pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
-			if (m_connected)
-			{
-				pf += "set skip on { lo0 " + Engine.Instance.ConnectionActive.InterfaceId + " }\n";
-			}
-			else
-			{
-				pf += "set skip on { lo0 }\n";
-			}
-
-			pf += "# Scrub\n";
-			pf += "scrub in all\n"; // 2.9
-
-			pf += "# General rule\n";
-			if (Engine.Instance.Storage.Get("netlock.incoming") == "allow")
-				pf += "pass in all\n";
-			else
-				pf += "block in all\n";
-			if (Engine.Instance.Storage.Get("netlock.outgoing") == "allow")
-				pf += "pass out all\n";
-			else
-				pf += "block out all\n";
-
-			if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
-			{
-				pf += "# IPv4 - Private networks\n";
-				pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
-				pf += "pass in quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
-				pf += "pass out quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
-				pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
-				pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
-				pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
-
-				pf += "# IPv4 - Multicast\n";
-				pf += "pass out quick inet from 192.168.0.0/16 to 224.0.0.0/24\n";
-				pf += "pass out quick inet from 172.16.0.0/12 to 224.0.0.0/24\n";
-				pf += "pass out quick inet from 10.0.0.0/8 to 224.0.0.0/24\n";
-
-				pf += "# IPv4 - Simple Service Discovery Protocol address\n";
-				pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.250/32\n";
-				pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.250/32\n";
-				pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.250/32\n";
-
-				pf += "# IPv4 - Service Location Protocol version 2 address\n";
-				pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.253/32\n";
-				pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
-				pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";
-
-				pf += "# IPv6 - Allow Link-Local addresses\n";
-				pf += "pass out quick inet6 from fe80::/10 to fe80::/10\n";
-				pf += "pass in quick inet6 from fe80::/10 to fe80::/10\n";
-
-				pf += "# IPv6 - Allow Link-Local addresses\n";
-				pf += "pass out quick inet6 from ff00::/8 to ff00::/8\n";
-				pf += "pass in quick inet6 from ff00::/8 to ff00::/8\n";
-			}
-
-			if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
-			{
-				pf += "# Allow ICMP\n";
-				pf += "pass quick proto icmp\n"; // 2.9
-
-				// Old macOS throw "unknown protocol icmp6". We don't known from when, so use icmp6 if High Sierra and above.
-				if (UtilsCore.CompareVersions(Platform.Instance.GetName(), "10.13") >= 0)
-					pf += "pass quick proto icmp6 all\n"; // 2.14.0
-			}
-
-			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
-			pf += "# Specific ranges\n";
-			foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
-			{
-				if (ip.IsV4)
-					pf += "pass out quick inet from any to " + ip.ToCIDR() + "\n";
-				else if (ip.IsV6)
-					pf += "pass out quick inet6 from any to " + ip.ToCIDR() + "\n";
-			}
-
-			if (Platform.Instance.FileContentsWriteText(m_filePfConf.Path, pf, Encoding.ASCII))
-			{
-				Engine.Instance.Logs.Log(LogType.Verbose, "macOS - PF rules updated, reloading");
-
-				SystemShell s = new SystemShell();
-				s.Path = m_pfctlPath;
-				s.Arguments.Add("-v");
-				s.Arguments.Add("-f");
-				s.Arguments.Add(SystemShell.EscapePath(m_filePfConf.Path));
-				if (s.Run() == false)
-					throw new Exception(Messages.NetworkLockMacOSUnableToStart);
-				if (s.StdErr.Contains("rules not loaded"))
-					throw new Exception(Messages.NetworkLockMacOSUnableToStart);
-
-			}
+            // Engine.Instance.Logs.Log(LogType.Verbose, "macOS - PF rules updated, reloading");
+            string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-update","config", pfConfig);
+            if (result != "")
+                throw new Exception("Unexpected result: " + result);
 		}
 
 		public override void OnVpnEstablished()
@@ -275,5 +143,105 @@ namespace Eddie.Platform.MacOS
 
 			root.SetAttribute("prev_active", m_prevActive ? "1" : "0");
 		}
+
+        public string BuildPfConfig()
+        {
+            // Remember: Rules must be in order: options, normalization, queueing, translation, filtering
+
+            string pf = "";
+            pf += "# " + Engine.Instance.GenerateFileHeader() + "\n";
+
+            pf += "# Block policy, RST for quickly notice\n";
+            pf += "set block-policy return\n"; // 2.9 
+
+            pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
+            if (m_connected)
+            {
+                pf += "set skip on { lo0 " + Engine.Instance.ConnectionActive.InterfaceId + " }\n";
+            }
+            else
+            {
+                pf += "set skip on { lo0 }\n";
+            }
+
+            pf += "# Scrub\n";
+            pf += "scrub in all\n"; // 2.9
+
+            pf += "# General rule\n";
+            if (Engine.Instance.Storage.Get("netlock.incoming") == "allow")
+                pf += "pass in all\n";
+            else
+                pf += "block in all\n";
+            if (Engine.Instance.Storage.Get("netlock.outgoing") == "allow")
+                pf += "pass out all\n";
+            else
+                pf += "block out all\n";
+
+            if (Engine.Instance.Storage.GetBool("netlock.allow_private"))
+            {
+                pf += "# IPv4 - Private networks\n";
+                pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
+                pf += "pass in quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
+                pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
+                pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
+
+                pf += "# IPv4 - Multicast\n";
+                pf += "pass out quick inet from 192.168.0.0/16 to 224.0.0.0/24\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 224.0.0.0/24\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 224.0.0.0/24\n";
+
+                pf += "# IPv4 - Simple Service Discovery Protocol address\n";
+                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.250/32\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.250/32\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.250/32\n";
+
+                pf += "# IPv4 - Service Location Protocol version 2 address\n";
+                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.253/32\n";
+                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
+                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";
+
+                pf += "# IPv6 - Allow Link-Local addresses\n";
+                pf += "pass out quick inet6 from fe80::/10 to fe80::/10\n";
+                pf += "pass in quick inet6 from fe80::/10 to fe80::/10\n";
+
+                pf += "# IPv6 - Allow Link-Local addresses\n";
+                pf += "pass out quick inet6 from ff00::/8 to ff00::/8\n";
+                pf += "pass in quick inet6 from ff00::/8 to ff00::/8\n";
+            }
+
+            if (Engine.Instance.Storage.GetBool("netlock.allow_ping"))
+            {
+                pf += "# Allow ICMP\n";
+                pf += "pass quick proto icmp\n"; // 2.9
+
+                // Old macOS throw "unknown protocol icmp6". We don't known from when, so use icmp6 if High Sierra and above.
+                if (UtilsCore.CompareVersions(Platform.Instance.GetName(), "10.13") >= 0)
+                    pf += "pass quick proto icmp6 all\n"; // 2.14.0
+            }
+
+            IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
+            pf += "# Specific ranges - incoming\n";
+            foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+            {
+                if (ip.IsV4)
+                    pf += "pass in quick inet from " + ip.ToCIDR() + " to any\n";
+                else if (ip.IsV6)
+                    pf += "pass in quick inet6 from " + ip.ToCIDR() + " to any\n";
+            }
+
+            IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+            pf += "# Specific ranges - outgoing\n";
+            foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+            {
+                if (ip.IsV4)
+                    pf += "pass out quick inet from any to " + ip.ToCIDR() + "\n";
+                else if (ip.IsV6)
+                    pf += "pass out quick inet6 from any to " + ip.ToCIDR() + "\n";
+            }
+
+            return pf;
+        }
 	}
 }

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,55 +30,51 @@ namespace Eddie.Forms
 	public class UiClient : Eddie.Common.UiClient
 	{
 		public static UiClient Instance;
-		public Eddie.Forms.Forms.Main FormMain;
+		public Forms.Main MainWindow;
+		public Forms.WindowSplash SplashWindow;
 
 		public ApplicationContext AppContext;
 		public Eddie.Forms.Engine Engine;
 
-		private Forms.WindowSplash m_splash = new Forms.WindowSplash();
-
-		public override bool Init()
+		public override bool Init(string environmentCommandLine)
 		{
-			base.Init();
-
-			/*
-			m_splash.Visible = true;
-
-			for (int i = 0; i < 100; i++)
-			{
-				m_splash.SetStatus(i.ToString());
-				Thread.Sleep(10);
-			}
-			*/
-
-			GuiUtils.Init();
-
 			Instance = this;
 
-			if(Engine == null)
-				Engine = new Eddie.Forms.Engine();
-			Engine.TerminateEvent += Engine_TerminateEvent;
-
-			if (Engine.Initialization(false) == false)
-				return false;
-
-			FormMain = new Eddie.Forms.Forms.Main();
-			Engine.FormMain = FormMain; // ClodoTemp2 - remove?
-
-			Engine.Instance.UiManager.Add(this);
-
-			Engine.UiStart();
-
-			FormMain.LoadPhase();
-
 			AppContext = new ApplicationContext();
-			
+
+			base.Init(environmentCommandLine);         
+            
+			GuiUtils.Init();
+
+			SplashWindow = new Forms.WindowSplash();
+			SplashWindow.Show();
+                     
+			if(Engine == null)
+				Engine = new Eddie.Forms.Engine(environmentCommandLine);
+			Engine.TerminateEvent += Engine_TerminateEvent;
+			Engine.UiManager.Add(this);
+   
+			Engine.Start();
+
 			return true;
 		}
 
+		public void OnUnhandledException(string source, Exception e)
+		{
+			if (Engine != null)
+				Engine.OnUnhandledException(source, e);
+		}
+
 		private void Engine_TerminateEvent()
-		{			
-			AppContext.ExitThread();
+		{
+			if (SplashWindow != null)
+				SplashWindow.RequestClose();
+
+			if (MainWindow != null)
+				MainWindow.RequestClose();
+
+			if (AppContext != null)
+			    AppContext.ExitThread();
 
 			if (GuiUtils.IsUnix ()) {
 				System.Windows.Forms.Application.Exit();
@@ -91,39 +87,66 @@ namespace Eddie.Forms
 			string cmd = data["command"].Value as string;
 			if (cmd == "ui.show.manifest")
 			{
-				FormMain.OnShowText("Json Data", Data.ToJsonPretty());
+				MainWindow.OnShowText("Json Data", Data.ToJsonPretty());
 				return null;
 			}
 			else
-				return Engine.UiManager.OnCommand(data, this);
+				return Engine.UiManager.SendCommand(data, this);
 		}
 
 		public override void OnReceive(Json data)
 		{
-			base.OnReceive(data);
-
-			// Engine.Instance.Logs.LogVerbose("OnReceive:" + data.ToJson()); // TOCLEAN
+			base.OnReceive(data);            
 
 			string cmd = data["command"].Value as string;
 
-			if (cmd == "test2")
+            if (cmd == "test2")
 			{
 				Forms.WindowMan w = new Forms.WindowMan(); // ClodoTemp
 				w.ShowDialog();
 			}
-			else if (cmd == "ui.ready")
+			else if (cmd == "log")
 			{
-				//m_splash.RequestClose();
+				if (data["type"].Value as string == "fatal")
+				{
+					if (SplashWindow != null)
+						SplashWindow.OnMessageError(data["message"].Value as string);
+					else if (MainWindow != null)
+						MainWindow.OnMessageError(data["message"].Value as string);
+					else
+						GuiUtils.MessageBoxError(null, data["message"].Value as string);
+				}	
+			}
+			else if (cmd == "init.step")
+			{
+				if(SplashWindow != null)
+					SplashWindow.SetStatus(data["message"].Value as string);
+			}
+			else if (cmd == "engine.ui")
+			{
+				Form.Skin.ClearFontCache(); // Splash loaded before options
+
+				SplashWindow.RequestMain();
+			}
+			else if (cmd == "ui.restarted")
+			{
+				// Hide Splash when waiting elevated subprocess 
+				SplashWindow.RequestClose();
 			}
 			else if (cmd == "ui.notification")
 			{
-				if (FormMain != null)
-					FormMain.ShowWindowsNotification(data["level"].Value as string, data["message"].Value as string);
+				if (MainWindow != null)
+					MainWindow.ShowWindowsNotification(data["level"].Value as string, data["message"].Value as string);
 			}
-			else if (cmd == "ui.color")
+			else if (cmd == "ui.main-status")
 			{
-				if (FormMain != null)
-					FormMain.SetColor(data["color"].Value as string);
+				string appIcon = data["app_icon"].Value as string;
+				string appColor = data["app_color"].Value as string;
+				string actionIcon = data["action_icon"].Value as string;
+				string actionCommand = data["action_command"].Value as string;
+				string actionText = data["action_text"].Value as string;
+				if (MainWindow != null)
+					MainWindow.SetMainStatus(appIcon, appColor, actionIcon, actionCommand, actionText);
 			}
 			else if (cmd == "ui.status")
 			{
@@ -131,15 +154,17 @@ namespace Eddie.Forms
 				string textShort = textFull;
 				if (data.HasKey("short"))
 					textShort = data["short"].Value as string;
-				if (FormMain != null)
-					FormMain.SetStatus(textFull, textShort);
-
-				if (m_splash.Visible)
-					m_splash.SetStatus(textShort);
+				if (MainWindow != null)
+					MainWindow.SetStatus(textFull, textShort);
 			}
 			else if (cmd == "ui.updater.available")
 			{
-				FormMain.ShowUpdater();
+				MainWindow.ShowUpdater();
+			}
+			else if (cmd == "ui.frontmessage")
+			{
+				if (UiClient.Instance.MainWindow != null)
+					UiClient.Instance.MainWindow.OnFrontMessage(data["message"].Value as Json);
 			}
 			else if (cmd == "system.report.progress")
 			{
@@ -147,8 +172,8 @@ namespace Eddie.Forms
 				string text = data["body"].Value as string;
 				int perc = Conversions.ToInt32(data["perc"].Value, 0);
 
-				if (FormMain != null)
-					FormMain.OnSystemReport(step, text, perc);
+				if (MainWindow != null)
+					MainWindow.OnSystemReport(step, text, perc);
 			}
 		}
 	}

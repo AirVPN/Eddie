@@ -73,9 +73,12 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsConnectionTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsConnectionTitle");
 
-			m_connectionActive = Connection.BuildConnectionActive(true);
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
+
+            m_connectionActive = Connection.BuildConnectionActive(true);
 
 			TxtOvpnGenerated.Value = Core.Platform.Instance.NormalizeString(m_connectionActive.OpenVpnProfileStartup.Get());
 			if (Connection.Path != "")

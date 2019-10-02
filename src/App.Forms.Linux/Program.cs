@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Forms;
 using Eddie.Common;
 using Eddie.Core;
@@ -42,23 +43,22 @@ namespace Eddie.Forms.Linux
 				//Application.EnableVisualStyles();
 				System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
+				Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
+				//Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException); // Mono Not Supported
+				AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+
 				Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
-				CommandLine.InitSystem(Environment.CommandLine);
 
-				if (CommandLine.SystemEnvironment.Exists("cli"))
+				if (new CommandLine(Environment.CommandLine, true, false).Exists("cli")) // TOFIX, not need anymore when every OS have a CLI executable.
 				{
-					Core.Engine engine = new Core.Engine();
-
-					if (engine.Initialization(true))
-					{
-						engine.ConsoleStart();
-					}
+					Core.ConsoleEdition.UiClient client = new Core.ConsoleEdition.UiClient();
+					client.Init(Environment.CommandLine);
 				}
 				else
 				{
 					m_client = new UiClient();
-					m_client.Engine = new Engine();
-					m_client.Init();
+					m_client.Engine = new Engine(Environment.CommandLine);
+					m_client.Init(Environment.CommandLine);
 				}
 			}
 			catch (Exception e)
@@ -71,13 +71,20 @@ namespace Eddie.Forms.Linux
 			if( (m_client != null) && (m_client.AppContext != null) )
 				System.Windows.Forms.Application.Run(m_client.AppContext);
 		}
-		/*
-		private static void Engine_TerminateEvent()
-		{
-			m_context.ExitThread();
 
-			System.Windows.Forms.Application.Exit();
+		public static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
+		{
+			if(m_client != null)
+				m_client.OnUnhandledException("ApplicationThread", e.Exception);
 		}
-		*/
+
+		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+			if (m_client != null)
+			{
+				Exception ex = (Exception)e.ExceptionObject;
+				m_client.OnUnhandledException("CurrentDomain", ex);
+			}
+		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,10 +28,9 @@ using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using System.Threading;
+using Microsoft.Win32;
 using Eddie.Common;
 using Eddie.Core;
-using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
 
 namespace Eddie.Platform.Windows
 {
@@ -51,21 +50,25 @@ namespace Eddie.Platform.Windows
 
 		public static void Start()
 		{
-			NativeMethods.WfpInit(GetName());
-
+			Engine.Instance.Elevated.DoCommandSync("wfp","action","init", "name", GetName());
+			
 			XmlDocument xmlStart = new XmlDocument();
 			XmlElement xmlInfo = xmlStart.CreateElement("firewall");
 			xmlInfo.SetAttribute("description", Constants.Name);
 			xmlInfo.SetAttribute("weight", "max");
 			xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");
 
-			if (NativeMethods.WfpStart(xmlInfo.OuterXml) == false)
-				throw new Exception(MessagesFormatter.Format(Messages.WfpStartFail, NativeMethods.WfpGetLastError()));
+			if (Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp","action","start", "xml", xmlInfo.OuterXml)) == false)
+			{
+				string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp","action", "last-error");
+				throw new Exception(LanguageManager.GetText("WfpStartFail", wfpLastError));
+			}				
 		}
 
 		public static void Stop()
 		{
-			NativeMethods.WfpStop();
+			if(Engine.Instance.Elevated != null) // May have failed the elevation
+				Engine.Instance.Elevated.DoCommandSync("wfp","action","stop");			
 		}
 
 		public static bool RemoveItem(string code)
@@ -89,7 +92,11 @@ namespace Eddie.Platform.Windows
 				{
 					bool result = RemoveItemId(id);
 					if (result == false)
-						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleRemoveFail, NativeMethods.WfpGetLastError()));
+					{
+						string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
+						throw new Exception(LanguageManager.GetText("WfpRuleRemoveFail", wfpLastError));						
+					}
+						
 				}
 
 				Items.Remove(item.Code);
@@ -104,8 +111,8 @@ namespace Eddie.Platform.Windows
 		}
 
 		public static bool RemoveItemId(ulong id)
-		{
-			return NativeMethods.WfpRuleRemove(id);
+		{			
+			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp","action","rule-remove","id", id.ToString()));			
 		}
 
 		public static WfpItem AddItem(string code, XmlElement xml)
@@ -181,11 +188,12 @@ namespace Eddie.Platform.Windows
 					xmlClone.SetAttribute("layer", layer);
 					string xmlStr = xmlClone.OuterXml;
 
-					UInt64 id1 = NativeMethods.WfpRuleAdd(xmlStr);
+					UInt64 id1 = Conversions.ToUInt64(Engine.Instance.Elevated.DoCommandSync("wfp","action","rule-add", "xml", xmlStr));					
 
 					if (id1 == 0)
 					{
-						throw new Exception(MessagesFormatter.Format(Messages.WfpRuleAddFail, NativeMethods.WfpGetLastError(), xmlStr));
+						string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
+						throw new Exception(LanguageManager.GetText("WfpRuleAddFail", wfpLastError));						
 					}
 					else
 					{
@@ -258,61 +266,7 @@ namespace Eddie.Platform.Windows
 
 		public static bool ClearPendingRules()
 		{
-			bool found = false;
-			try
-			{
-				string wfpName = GetName();
-				string path = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".xml";
-
-				using(System.Diagnostics.Process p = new System.Diagnostics.Process())
-				{
-					p.StartInfo.UseShellExecute = false;
-					p.StartInfo.CreateNoWindow = true;
-					p.StartInfo.RedirectStandardOutput = true;
-					p.StartInfo.FileName = "NetSh.exe";
-					p.StartInfo.Arguments = "WFP Show Filters file=\"" + path + "\"";
-					p.StartInfo.WorkingDirectory = Path.GetTempPath();
-					p.Start();
-					p.StandardOutput.ReadToEnd();
-					p.WaitForExit();
-				}
-
-				if (File.Exists(path))
-				{
-					System.Xml.XmlDocument xmlDoc = new XmlDocument();
-					xmlDoc.Load(path);					
-					foreach (XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
-					{
-						foreach (XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
-						{
-							foreach (XmlElement xmlName in xmlItem.SelectNodes("displayData/name"))
-							{
-								string name = xmlName.InnerText;
-								if (name == wfpName)
-								{
-									foreach (XmlNode xmlFilterId in xmlItem.GetElementsByTagName("filterId"))
-									{
-										ulong id;
-										if (ulong.TryParse(xmlFilterId.InnerText, out id))
-										{
-											NativeMethods.WfpRuleRemoveDirect(id);
-											found = true;
-										}
-									}
-								}
-							}
-						}						
-					}
-
-					Platform.Instance.FileDelete(path);
-				}
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(e);
-			}
-
-			return found;
+			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp","action","pending-remove", "name", GetName()));
 		}
 	}
 }

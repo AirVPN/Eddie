@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,12 +23,13 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using Eddie.Common;
+using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
     public partial class FrontMessage : Eddie.Forms.Form
 	{
-		public string Message;
+		public Json Message;
 
 		public FrontMessage()
 		{
@@ -53,16 +54,25 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnLoad(e);
 
-			lblMessage.Text = Message;
-			cmdClose.Text = Messages.WindowsFrontMessageAccept;
-			lnkWebsite.Text = Messages.WindowsFrontMessageMore;
+			lblMessage.Text = Message["text"].Value as string;
+			if(Message.HasKey("link"))
+			{
+				lnkWebsite.Text = Message["link"].Value as string;
+			}
+			else
+			{
+				lnkWebsite.Visible = false;
+			}
+			cmdClose.Text = LanguageManager.GetText("WindowsFrontMessageAccept");
 
-			CommonInit(Messages.WindowsFrontMessageTitle);
+			CommonInit(LanguageManager.GetText("WindowsFrontMessageTitle"));
 		}
 
-		private void lnkWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		private void lnkWebsite_LinkClicked(object sender, EventArgs e)
 		{
-			GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["website"].Value as string);
+            //GuiUtils.OpenUrl(Message["url"].Value as string);
+            lnkWebsite.Left = 10;
+            lnkWebsite.Width = this.Width - 20;
 		}
 
 		private void cmdClose_Click(object sender, EventArgs e)

@@ -41,6 +41,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.BackColor = System.Drawing.Color.Black;
 			this.BackgroundImage = global::Eddie.Forms.Properties.Resources.splash;
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.ClientSize = new System.Drawing.Size(578, 178);
@@ -54,7 +55,6 @@
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.TopMost = true;
 			this.ResumeLayout(false);
 
         }

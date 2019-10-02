@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -65,25 +65,25 @@ namespace Eddie.Forms.Controls
 			View = System.Windows.Forms.View.Details;
 
 
-			columnHeader1.Text = Messages.ServersName;
+			columnHeader1.Text = LanguageManager.GetText("ServersName");
 			columnHeader1.Width = 110;
-			columnHeader2.Text = Messages.ServersScore;
+			columnHeader2.Text = LanguageManager.GetText("ServersScore");
 			columnHeader2.Width = 66;
 			columnHeader2.TextAlign = HorizontalAlignment.Center;
-			columnHeader3.Text = Messages.ServersLocation;
+			columnHeader3.Text = LanguageManager.GetText("ServersLocation");
 			columnHeader3.Width = 200;
-			columnHeader4.Text = Messages.ServersLatency;
+			columnHeader4.Text = LanguageManager.GetText("ServersLatency");
 			columnHeader4.Width = 60;
 			columnHeader4.TextAlign = HorizontalAlignment.Center;
-			columnHeader5.Text = Messages.ServersLoad;
+			columnHeader5.Text = LanguageManager.GetText("ServersLoad");
 			columnHeader5.Width = 160;
 			columnHeader5.TextAlign = HorizontalAlignment.Center;
-			columnHeader6.Text = Messages.ServersUsers;
+			columnHeader6.Text = LanguageManager.GetText("ServersUsers");
 			columnHeader6.Width = 50;
 			columnHeader6.TextAlign = HorizontalAlignment.Center;
 
-			ImageListIcon = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
-			ImageListState = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
+			ImageListIcon = UiClient.Instance.MainWindow.imgCountries;
+			ImageListState = UiClient.Instance.MainWindow.imgCountries;
 			//SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 			//LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 

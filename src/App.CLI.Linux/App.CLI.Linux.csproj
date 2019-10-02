@@ -26,7 +26,10 @@
     <CodeAnalysisRuleSet>..\..\tools\ruleset\idisposable.ruleset</CodeAnalysisRuleSet>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -41,7 +44,10 @@
     <Prefer32Bit>false</Prefer32Bit>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -54,13 +60,16 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>    
+    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
     <Prefer32Bit>false</Prefer32Bit>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -69,17 +78,26 @@
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>    
+    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="mscorlib">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\System.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

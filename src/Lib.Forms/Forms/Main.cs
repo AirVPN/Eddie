@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -54,15 +54,14 @@ namespace Eddie.Forms.Forms
 
 		private Dictionary<string, ListViewItemStats> m_statsItems = new Dictionary<string, ListViewItemStats>();
 
-		private int m_windowMinimumWidth = 700;
-		private int m_windowMinimumHeight = 370;
-		private int m_windowDefaultWidth = 800;
-		private int m_windowDefaultHeight = 450;
+		private int m_windowMinimumWidth = 1000;
+		private int m_windowMinimumHeight = 550;
+		private int m_windowDefaultWidth = 1000;
+		private int m_windowDefaultHeight = 550;
 		private bool m_lockCoordUpdate = false;
 		private int m_topHeaderHeight = 30;
 
-		private bool m_formReady = false;
-		private bool m_closing = false;
+		private bool m_formReady = false;		
 		private bool m_windowStateSetByShortcut = false;
 
 		private Icon m_iconNormal;
@@ -75,9 +74,11 @@ namespace Eddie.Forms.Forms
 		private Bitmap m_bitmapNetlockOn;
 		private Bitmap m_bitmapNetlockOff;
 
+		private string m_mainActionCommand;
+
 		public Main()
 		{
-			Eddie.Forms.Skin.SkinReference.Load(Engine.Instance.Storage.Get("gui.skin"));
+			Eddie.Forms.Skin.SkinReference.Load("Light");
 
 			OnPreInitializeComponent();
 			InitializeComponent();
@@ -95,99 +96,7 @@ namespace Eddie.Forms.Forms
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
 		}
-
-		private delegate void DeInitDelegate();
-		public void DeInit()
-		{
-			if (this.InvokeRequired)
-			{
-				DeInitDelegate inv = new DeInitDelegate(this.DeInit);
-
-				this.Invoke(inv, new object[] { });
-			}
-			else
-			{
-				if (m_windowsNotifyIcon != null)
-				{
-					m_windowsNotifyIcon.Dispose();
-					m_windowsNotifyIcon = null;
-				}
-
-				//DoDispose();
-
-				m_closing = true;
-				Close();
-			}
-		}
-
-		/*
-		private void DoDispose()
-		{
-			// Workaround experiment for Mono bug.
-			// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=742774
-			// Mono bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=727651
-
-			DoDispose(lstLogs.ContextMenuStrip);
-			lstLogs.ContextMenuStrip = null;
-
-			DoDispose(m_listViewServers.ContextMenuStrip);
-			m_listViewServers.ContextMenuStrip = null;
-
-			DoDispose(m_listViewAreas.ContextMenuStrip);
-			m_listViewAreas.ContextMenuStrip = null;
-
-			DoDispose(this.ContextMenuStrip);
-			this.ContextMenuStrip = null;
-
-			DoDispose(this.mnuStatus);
-			DoDispose(this.mnuConnect);
-			DoDispose(this.mnuHomePage);
-			DoDispose(this.mnuUser);
-			DoDispose(this.mnuPorts);
-			DoDispose(this.mnuSpeedTest);
-			DoDispose(this.mnuSettings);
-			DoDispose(this.mnuDevelopers);
-			DoDispose(this.mnuDevelopersManText);
-			DoDispose(this.mnuDevelopersManBBCode);
-			DoDispose(this.mnuDevelopersUpdateManifest);
-			DoDispose(this.mnuDevelopersDefaultManifest);
-			DoDispose(this.mnuDevelopersReset);
-			DoDispose(this.mnuTools);
-			DoDispose(this.mnuToolsPortForwarding);
-			DoDispose(this.mnuToolsNetworkMonitor);
-			DoDispose(this.mnuAbout);
-			DoDispose(this.mnuRestore);
-			DoDispose(this.mnuExit);
-			DoDispose(this.mnuStatus);
-			DoDispose(this.mnuConnect);
-			DoDispose(this.mnuHomePage);
-			DoDispose(this.mnuUser);
-			DoDispose(this.mnuPorts);
-			DoDispose(this.mnuSpeedTest);
-			DoDispose(this.mnuSettings);
-			DoDispose(this.mnuDevelopers);
-			DoDispose(this.mnuDevelopersManText);
-			DoDispose(this.mnuDevelopersManBBCode);
-			DoDispose(this.mnuDevelopersUpdateManifest);
-			DoDispose(this.mnuDevelopersDefaultManifest);
-			DoDispose(this.mnuDevelopersReset);
-			DoDispose(this.mnuTools);
-			DoDispose(this.mnuToolsPortForwarding);
-			DoDispose(this.mnuToolsNetworkMonitor);
-			DoDispose(this.mnuAbout);
-			DoDispose(this.mnuRestore);
-			DoDispose(this.mnuExit);
-			DoDispose(this.mnuServersConnect);
-			DoDispose(this.mnuServersWhiteList);
-			DoDispose(this.mnuServersBlackList);
-			DoDispose(this.mnuServersUndefined);
-			DoDispose(this.mnuAreasWhiteList);
-			DoDispose(this.mnuAreasBlackList);
-			DoDispose(this.mnuAreasUndefined);
-			DoDispose(this.mnuServersRefresh);
-		}
-		*/
-
+				
 		private void DoDispose(IDisposable o)
 		{
 			if (o != null)
@@ -262,13 +171,13 @@ namespace Eddie.Forms.Forms
 		}
 
 		public void LoadPhase()
-		{
+		{			
 			m_lockCoordUpdate = true;
 
 			SetStyle(ControlStyles.SupportsTransparentBackColor, true);
 			MinimumSize = new Size(m_windowMinimumWidth, m_windowMinimumHeight);
 
-			KeyPreview = true;  // 2.10.1
+			KeyPreview = true;  // 2.10.1			
 
 			m_formReady = false;
 
@@ -296,7 +205,7 @@ namespace Eddie.Forms.Forms
 			mnuUpdater.Visible = false;
 
 			m_tabMain = new TabNavigator();
-			m_tabMain.TitleRightBottom = Constants.VersionDesc;
+			m_tabMain.TitleRightBottom = Constants.VersionShow;
 			m_tabMain.ImportTabControl(tabMain);
 			if (m_tabMain.Pages.Count != 0)
 			{
@@ -348,7 +257,7 @@ namespace Eddie.Forms.Forms
 				m_lblVersion.BackColor = Color.Transparent;
 				m_lblVersion.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
 				m_lblVersion.Height = 24;
-				m_lblVersion.Text = "Version " + Common.Constants.VersionDesc;
+				m_lblVersion.Text = "Version " + Common.Constants.VersionShow;
 				m_lblVersion.TextAlign = ContentAlignment.MiddleCenter;
 				m_lblVersion.Click += mnuAbout_Click;
 				m_tabMain.Controls.Add(m_lblVersion);
@@ -482,46 +391,47 @@ namespace Eddie.Forms.Forms
 			lstStats.ResizeColumnAuto(0);
 
 			cboSpeedResolution.Items.Clear();
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution1);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution2);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution3);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution4);
-			cboSpeedResolution.Items.Add(Messages.WindowsMainSpeedResolution5);
+			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution1"));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution2"));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution3"));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution4"));
+			cboSpeedResolution.Items.Add(LanguageManager.GetText("WindowsMainSpeedResolution5"));
 			cboSpeedResolution.SelectedIndex = 0;
 
 			// Tooltips
-			cmdConnect.Text = Messages.CommandConnect;
-			lblConnectSubtitle.Text = Messages.CommandConnectSubtitle;
-			cmdDisconnect.Text = Messages.CommandDisconnect;
-			cmdCancel.Text = Messages.CommandCancel;
+			cmdConnect.Text = LanguageManager.GetText("CommandConnect");
+			lblConnectSubtitle.Text = LanguageManager.GetText("CommandConnectSubtitle");
+			cmdDisconnect.Text = LanguageManager.GetText("CommandDisconnect");
+			cmdCancel.Text = LanguageManager.GetText("CommandCancel");
 
 			if (m_toolTip != null)
 			{
-				m_toolTip.Connect(this.cboScoreType, Messages.TooltipServersScoreType);
-				m_toolTip.Connect(this.chkLockLast, Messages.TooltipServersLockCurrent);
-				m_toolTip.Connect(this.chkShowAll, Messages.TooltipServersShowAll);
-				m_toolTip.Connect(this.cboScoreType, Messages.TooltipServersScoreType);
-				m_toolTip.Connect(this.chkLockLast, Messages.TooltipServersLockCurrent);
-				m_toolTip.Connect(this.chkShowAll, Messages.TooltipServersShowAll);
-				m_toolTip.Connect(this.cmdServersConnect, Messages.TooltipServersConnect);
-				m_toolTip.Connect(this.cmdServersUndefined, Messages.TooltipServersUndefined);
-				m_toolTip.Connect(this.cmdServersBlackList, Messages.TooltipServersBlackList);
-				m_toolTip.Connect(this.cmdServersWhiteList, Messages.TooltipServersWhiteList);
-				m_toolTip.Connect(this.cmdServersRename, Messages.TooltipServersRename);
-				m_toolTip.Connect(this.cmdServersMore, Messages.TooltipServersMore);
-				m_toolTip.Connect(this.cmdServersRefresh, Messages.TooltipServersRefresh);
-				m_toolTip.Connect(this.cmdAreasUndefined, Messages.TooltipAreasUndefined);
-				m_toolTip.Connect(this.cmdAreasBlackList, Messages.TooltipAreasBlackList);
-				m_toolTip.Connect(this.cmdAreasWhiteList, Messages.TooltipAreasWhiteList);
-				m_toolTip.Connect(this.cmdLogsCommand, Messages.TooltipLogsCommand);
-				m_toolTip.Connect(this.cmdLogsClean, Messages.TooltipLogsClean);
-				m_toolTip.Connect(this.cmdLogsCopy, Messages.TooltipLogsCopy);
-				m_toolTip.Connect(this.cmdLogsSave, Messages.TooltipLogsSave);
-				m_toolTip.Connect(this.cmdLogsSupport, Messages.TooltipLogsSupport);
+				m_toolTip.Connect(this.cboScoreType, LanguageManager.GetText("TooltipServersScoreType"));
+				m_toolTip.Connect(this.chkLockLast, LanguageManager.GetText("TooltipServersLockCurrent"));
+				m_toolTip.Connect(this.chkShowAll, LanguageManager.GetText("TooltipServersShowAll"));
+				m_toolTip.Connect(this.cboScoreType, LanguageManager.GetText("TooltipServersScoreType"));
+				m_toolTip.Connect(this.chkLockLast, LanguageManager.GetText("TooltipServersLockCurrent"));
+				m_toolTip.Connect(this.chkShowAll, LanguageManager.GetText("TooltipServersShowAll"));
+				m_toolTip.Connect(this.cmdServersConnect, LanguageManager.GetText("TooltipServersConnect"));
+				m_toolTip.Connect(this.cmdServersUndefined, LanguageManager.GetText("TooltipServersUndefined"));
+				m_toolTip.Connect(this.cmdServersBlackList, LanguageManager.GetText("TooltipServersBlackList"));
+				m_toolTip.Connect(this.cmdServersWhiteList, LanguageManager.GetText("TooltipServersWhiteList"));
+				m_toolTip.Connect(this.cmdServersRename, LanguageManager.GetText("TooltipServersRename"));
+				m_toolTip.Connect(this.cmdServersMore, LanguageManager.GetText("TooltipServersMore"));
+				m_toolTip.Connect(this.cmdServersRefresh, LanguageManager.GetText("TooltipServersRefresh"));
+				m_toolTip.Connect(this.cmdAreasUndefined, LanguageManager.GetText("TooltipAreasUndefined"));
+				m_toolTip.Connect(this.cmdAreasBlackList, LanguageManager.GetText("TooltipAreasBlackList"));
+				m_toolTip.Connect(this.cmdAreasWhiteList, LanguageManager.GetText("TooltipAreasWhiteList"));
+				m_toolTip.Connect(this.cmdLogsCommand, LanguageManager.GetText("TooltipLogsCommand"));
+				m_toolTip.Connect(this.cmdLogsClean, LanguageManager.GetText("TooltipLogsClean"));
+				m_toolTip.Connect(this.cmdLogsCopy, LanguageManager.GetText("TooltipLogsCopy"));
+				m_toolTip.Connect(this.cmdLogsSave, LanguageManager.GetText("TooltipLogsSave"));
+				m_toolTip.Connect(this.cmdLogsSupport, LanguageManager.GetText("TooltipLogsSupport"));
 
-				m_toolTip.Connect(this.m_cmdAbout, Messages.TooltipAbout);
-				m_toolTip.Connect(this.m_cmdPreferences, Messages.TooltipPreferences);
-				
+				m_toolTip.Connect(this.m_cmdAbout, LanguageManager.GetText("TooltipAbout"));
+				m_toolTip.Connect(this.m_cmdPreferences, LanguageManager.GetText("TooltipPreferences"));
+
+
 				Controls.SetChildIndex(m_toolTip, 0);
 			}
 
@@ -536,8 +446,6 @@ namespace Eddie.Forms.Forms
 			m_lockCoordUpdate = false;
 
 			Resizing();
-
-			VisibilityChange();
 
 			// base.OnLoad(e); // Removed in 2.11.9
 
@@ -669,18 +577,18 @@ namespace Eddie.Forms.Forms
 
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_green"), rectHeader);
 
-					Form.DrawStringOutline(e.Graphics, MessagesFormatter.Format(MessagesUi.TopBarConnected, serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+					Form.DrawStringOutline(e.Graphics, LanguageManager.GetText("TopBarConnected", serverName), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 				}
 				else
 				{
 					DrawImage(e.Graphics, GuiUtils.GetResourceImage("topbar_red"), rectHeader);
 					if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 					{
-						Form.DrawStringOutline(e.Graphics, MessagesUi.TopBarNotConnectedLocked, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, LanguageManager.GetText("TopBarNotConnectedLocked"), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 					else
 					{
-						Form.DrawStringOutline(e.Graphics, MessagesUi.TopBarNotConnectedExposed, Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
+						Form.DrawStringOutline(e.Graphics, LanguageManager.GetText("TopBarNotConnectedExposed"), Skin.FontBig, Skin.ForeBrush, rectHeaderText, GuiUtils.StringFormatRightMiddle);
 					}
 				}
 
@@ -709,16 +617,27 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
+		protected override void OnClosed(EventArgs e)
+		{		
+			if (m_windowsNotifyIcon != null)
+			{
+				m_windowsNotifyIcon.Dispose();
+				m_windowsNotifyIcon = null;
+			}
+
+			base.OnClosed(e);
+		}
+
 		protected override void OnClosing(CancelEventArgs e)
 		{
-			if (m_closing)
+			if (UiClient.Instance.Engine.Terminated)
 				return;
 
 			e.Cancel = true;
 
 			if (Engine.AskExitConfirm())
 			{
-				if (AskYesNo(Messages.ExitConfirm) != true)
+				if (AskYesNo(LanguageManager.GetText("ExitConfirm")) != true)
 				{
 					Engine.OnExitRejected();
 					return;
@@ -727,9 +646,9 @@ namespace Eddie.Forms.Forms
 
 			Eddie.Forms.Engine engine = Engine.Instance as Eddie.Forms.Engine;
 
-			if (engine.FormMain != null)
+			if (UiClient.Instance.MainWindow != null)
 			{
-				engine.Storage.Set("gui.window.main", engine.FormMain.GetFormLayout());
+				engine.Storage.Set("gui.window.main", UiClient.Instance.MainWindow.GetFormLayout());
 				engine.Storage.Set("gui.list.servers", m_listViewServers.GetUserPrefs());
 				engine.Storage.Set("gui.list.areas", m_listViewAreas.GetUserPrefs());
 				engine.Storage.Set("gui.list.logs", lstLogs.GetUserPrefs());
@@ -744,22 +663,10 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnResize(e);
 
-			if ((FormWindowState.Minimized == WindowState) && (Engine.AllowMinimizeInTray()) && (ShowInTaskbar))
-			{
-				if (GuiUtils.IsUnix() == false)
-					ShowInTaskbar = false; // This cause a glitch in Mono, Ubuntu 18.04, when minimized the main window.
-				Hide();
-				EnabledUi();
-
-				VisibilityChange();
-			}
-			else
-			{
-				if (ShowInTaskbar == false)
-					ShowInTaskbar = true;
-			}
-
 			Resizing();
+
+			if ((WindowState == FormWindowState.Minimized) && (Engine.Storage.GetBool("gui.tray_minimized")))
+				WinHide();
 		}
 
 		#region UI Controls Events
@@ -771,11 +678,11 @@ namespace Eddie.Forms.Forms
 
 		void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			Restore();
+			WinRestore();
 		}
 
 		private void mnuAbout_Click(object sender, EventArgs e)
-		{
+		{			
 			OnShowAbout();
 		}
 
@@ -826,7 +733,8 @@ namespace Eddie.Forms.Forms
 
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
-			Engine.Storage.SetBool("remember", chkRemember.Checked);
+			if(m_formReady)
+				Engine.Storage.SetBool("remember", chkRemember.Checked);
 		}
 
 		private void cmdLogin_Click(object sender, EventArgs e)
@@ -878,31 +786,6 @@ namespace Eddie.Forms.Forms
 		{
 			OnShowMenu();
 		}
-
-		private void mnuToolsPortForwarding_Click(object sender, EventArgs e)
-		{
-			/*
-			Forms.PortForwarding Dlg = new PortForwarding();
-			Dlg.ShowDialog();
-			*/
-		}
-
-		private void mnuToolsNetworkMonitor_Click(object sender, EventArgs e)
-		{
-			/*
-			Forms.NetworkMonitor Dlg = new NetworkMonitor();
-			Dlg.ShowDialog();
-			*/
-		}
-
-		private void mnuDevelopersNetworkMonitor_Click(object sender, EventArgs e)
-		{
-			/*
-			 * NetworkMonitor dlg = new NetworkMonitor();
-			dlg.Show();
-			*/
-		}
-
 
 		private void mnuDevelopersManText_Click(object sender, EventArgs e)
 		{
@@ -1295,8 +1178,13 @@ namespace Eddie.Forms.Forms
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "Running command: " + Dlg.Command);
 				Json result = UiClient.Instance.Command(Dlg.Command);
-				if(result != null)
-					Engine.Instance.Logs.Log(LogType.Verbose, "Running command: " + Dlg.Command + ", result: " + result.ToJsonPretty());
+				if (result != null)
+				{
+					if ((result.HasKey("layout")) && (result["layout"].Value as string == "text")) // ClodoTemp check macOS
+						OnShowText(result["title"].Value as string, result["body"].Value as string);
+					else
+						OnShowText("Result", result.ToJsonPretty());
+				}
 			}
 		}
 
@@ -1307,35 +1195,37 @@ namespace Eddie.Forms.Forms
 
 		private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			Engine.Instance.Storage.Set("key", cboKey.SelectedItem as string);
+			string key = cboKey.SelectedItem as string;
+			if (Engine.Instance.Storage.Get("key") != key)
+				Engine.Instance.Storage.Set("key", key);
 		}
 
-		#endregion
+        #endregion
 
-		public bool AllowMinimizeInTray()
+        public void OnChangeMainFormVisibility(bool vis)
+        {
+            if (Engine.Storage.GetBool("gui.tray_show"))
+            {
+                mnuRestore.Visible = true;
+                mnuRestoreSep.Visible = true;
+
+                if (this.Visible)
+                    mnuRestore.Text = LanguageManager.GetText("WindowsMainHide");
+                else
+                    mnuRestore.Text = LanguageManager.GetText("WindowsMainShow");
+            }
+            else
+            {
+                mnuRestore.Visible = false;
+                mnuRestoreSep.Visible = false;
+            }
+
+            EnabledUi();
+        }
+
+        public bool AllowMinimizeInTray()
 		{
 			return (m_windowsNotifyIcon != null);
-		}
-
-		public void VisibilityChange()
-		{
-			(Engine.Instance as Eddie.Forms.Engine).OnChangeMainFormVisibility(this.Visible);
-
-			if (Engine.Storage.GetBool("gui.tray_minimized"))
-			{
-				mnuRestore.Visible = true;
-				mnuRestoreSep.Visible = true;
-
-				if (this.Visible)
-					mnuRestore.Text = Messages.WindowsMainHide;
-				else
-					mnuRestore.Text = Messages.WindowsMainShow;
-			}
-			else
-			{
-				mnuRestore.Visible = false;
-				mnuRestoreSep.Visible = false;
-			}
 		}
 
 		public void Resizing()
@@ -1349,9 +1239,11 @@ namespace Eddie.Forms.Forms
 			if (Engine.Storage == null)
 				return;
 
-			Graphics g = this.CreateGraphics();
+            (Engine.Instance as Eddie.Forms.Engine).OnChangeMainFormVisibility(this.Visible);
 
-			m_topHeaderHeight = GuiUtils.GetFontSize(g, Skin.FontBig, MessagesUi.TopBarNotConnectedExposed).Height;
+            Graphics g = this.CreateGraphics();
+
+			m_topHeaderHeight = GuiUtils.GetFontSize(g, Skin.FontBig, LanguageManager.GetText("TopBarNotConnectedExposed")).Height;
 			if (m_topHeaderHeight < 30)
 				m_topHeaderHeight = 30;
 
@@ -1410,38 +1302,50 @@ namespace Eddie.Forms.Forms
 			Invalidate();
 		}
 
-		public void Restore()
-		{
-			Show();
-			WindowState = FormWindowState.Normal;
-			Activate();
-			EnabledUi();
+        public void WinInvertVis()
+        {
+            if (this.Visible == false)
+                WinRestore();
+            else
+                WinHide();
+        }
 
-			VisibilityChange();
+        public void WinRestore()
+		{
+            ShowInTaskbar = true;
+
+            Show();
+            WindowState = FormWindowState.Normal;
+            Activate();
+
+            EnabledUi();
+            Resizing();
 		}
 
-		public void ShowMenu()
-		{
-			Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
-			mnuMain.Show(p);
-			/*
-            if (mnuMain.Visible)
-                mnuMain.Close();
+        public void WinHide()
+        {
+            if ((Engine.Instance as Eddie.Forms.Engine).AllowMinimizeInTray() == false)
+                this.WindowState = FormWindowState.Minimized; // Never occur
             else
             {
-                Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
-                mnuMain.Show(p);
-            } 
-			*/
+                ShowInTaskbar = false;
+                Hide();
+
+                EnabledUi();
+                Resizing();
+            }
+        }
+
+        public void ShowMenu()
+		{
+			Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
+			mnuMain.Show(p);			
 		}
 
 		public void Login()
 		{
 			Engine.Storage.Set("login", txtLogin.Text);
 			Engine.Storage.Set("password", txtPassword.Text);
-
-			if (TermsOfServiceCheck(false) == false)
-				return;
 
 			Engine.Login();
 		}
@@ -1453,10 +1357,7 @@ namespace Eddie.Forms.Forms
 
 		public void Connect()
 		{
-			m_tabMain.SelectTab(0);
-
-			if ((Engine.CanConnect() == true) && (Engine.IsConnected() == false) && (Engine.IsWaiting() == false))
-				Engine.Connect();
+			Engine.Connect();
 		}
 
 		public void ConnectManual()
@@ -1468,6 +1369,8 @@ namespace Eddie.Forms.Forms
 				if (listViewItem.Info.CanConnect())
 				{
 					Engine.NextServer = listViewItem.Info;
+
+					m_tabMain.SelectTab(0);
 
 					Connect();
 				}
@@ -1490,7 +1393,6 @@ namespace Eddie.Forms.Forms
 		{
 			if (this.InvokeRequired)
 			{
-
 				LogDelegate inv = new LogDelegate(this.Log);
 
 				this.BeginInvoke(inv, new object[] { l });
@@ -1503,26 +1405,65 @@ namespace Eddie.Forms.Forms
 
 					if (l.Type > LogType.Realtime)
 					{
-						ListViewItemLog Item = new ListViewItemLog();
-						Item.ImageKey = l.Type.ToString().ToLowerInvariant();
-						Item.Text = "";
-						Item.SubItems.Add(l.GetDateForList());
-						Item.SubItems.Add(l.GetMessageForList());
-						Item.ToolTipText = l.Message;
-						Item.Info = l;
+						string messageOnOneLine = l.Message.Replace("\r", "").Replace("\n", " | ");
+                        try
+                        {
+                            ListViewItemLog Item = new ListViewItemLog();
+                            Item.ImageKey = l.Type.ToString().ToLowerInvariant();
+                            Item.Text = "";
+                            Item.SubItems.Add(l.GetDateForList());
+                            Item.SubItems.Add(messageOnOneLine);
+                            Item.ToolTipText = l.Message;
+                            Item.TextEdition = l.GetStringLines();
 
-						lstLogs.Items.Add(Item);
-						Item.EnsureVisible();
+                            lstLogs.Items.Add(Item);
+                            Item.EnsureVisible();
 
-						if (lstLogs.Items.Count >= Engine.Storage.GetInt("gui.log_limit"))
-							lstLogs.Items.RemoveAt(0);
+                            if (lstLogs.Items.Count >= Engine.Storage.GetInt("log.limit"))
+                                lstLogs.Items.RemoveAt(0);
+                        }
+                        catch
+                        {
+                        }
 					}
 
-					if (l.Type == LogType.Fatal)
+					if (Engine.IsWaiting())
 					{
-						MessageBox.Show(this, Msg, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						lblWait2.Text = Engine.Logs.GetLogDetailTitle();
 					}
 				}
+			}
+		}
+
+		private delegate void RequestShowDelegate();
+		public void RequestShow()
+		{			
+			if (this.InvokeRequired)
+			{
+				RequestShowDelegate inv = new RequestShowDelegate(this.RequestShow);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				LoadPhase();
+
+				UiClient.Instance.SplashWindow.RequestCloseForReady();
+			}
+		}
+
+		private delegate void RequestCloseDelegate();
+		public void RequestClose()
+		{
+            if (this.InvokeRequired)
+			{
+				RequestCloseDelegate inv = new RequestCloseDelegate(this.RequestClose);
+
+				this.BeginInvoke(inv, new object[] { });
+			}
+			else
+			{
+				Close();
 			}
 		}
 
@@ -1558,34 +1499,36 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
-		private delegate void SetColorDelegate(string color);
-		public void SetColor(string color)
+		private delegate void SetMainStatusDelegate(string appIcon, string appColor, string mainIcon, string mainActionCommand, string mainActionText);
+		public void SetMainStatus(string appIcon, string appColor, string mainIcon, string mainActionCommand, string mainActionText)
 		{
 			if (this.InvokeRequired)
 			{
-				SetColorDelegate inv = new SetColorDelegate(this.SetColor);
+				SetMainStatusDelegate inv = new SetMainStatusDelegate(this.SetMainStatus);
 
-				this.BeginInvoke(inv, new object[] { color });
+				this.BeginInvoke(inv, new object[] { appIcon, appColor, mainIcon, mainActionCommand, mainActionText });
 			}
 			else
 			{
 				Icon icon = m_iconGray;
-				if (color == "green")
+				if (appColor == "green")
 				{
 					mnuStatus.Image = m_bitmapStatusGreen;
 					icon = m_iconNormal;
-					mnuConnect.Text = Messages.CommandDisconnect;
 				}
-				else if (color == "yellow")
+				else if (appColor == "yellow")
 				{
 					mnuStatus.Image = m_bitmapStatusYellow;
-					mnuConnect.Text = Messages.CommandCancel;
 				}
 				else
 				{
 					mnuStatus.Image = m_bitmapStatusRed;
-					mnuConnect.Text = Messages.CommandConnect;
 				}
+
+				mnuConnect.Text = mainActionText;
+				mnuConnect.Enabled = (mainActionCommand != "");
+
+				m_mainActionCommand = mainActionCommand;
 
 				if (this.Icon != icon)
 				{
@@ -1700,11 +1643,11 @@ namespace Eddie.Forms.Forms
 
 				if (airvpnLogged == false)
 				{
-					cmdLogin.Text = Messages.CommandLoginButton;
+					cmdLogin.Text = LanguageManager.GetText("CommandLoginButton");
 				}
 				else
 				{
-					cmdLogin.Text = Messages.CommandLogout;
+					cmdLogin.Text = LanguageManager.GetText("CommandLogout");
 				}
 
 				cmdLogin.Enabled = ((waiting == false) && (connected == false) && (txtLogin.Text.Trim() != "") && (txtPassword.Text.Trim() != ""));
@@ -1761,12 +1704,12 @@ namespace Eddie.Forms.Forms
 
 			if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 			{
-				cmdLockedNetwork.Text = Messages.NetworkLockButtonActive;
+				cmdLockedNetwork.Text = LanguageManager.GetText("NetworkLockButtonActive");
 				imgLockedNetwork.Image = m_bitmapNetlockOn;
 			}
 			else
 			{
-				cmdLockedNetwork.Text = Messages.NetworkLockButtonDeactive;
+				cmdLockedNetwork.Text = LanguageManager.GetText("NetworkLockButtonDeactive");
 				imgLockedNetwork.Image = m_bitmapNetlockOff;
 			}
 
@@ -1830,7 +1773,7 @@ namespace Eddie.Forms.Forms
 
 							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
 							lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
-							txtConnectedExitIp.Text = Engine.ConnectionActive.ExitIPs.ToString();
+							txtConnectedExitIp.Text = Engine.ConnectionActive.ExitIPs.ToString().Replace(", ","\n");
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
 							if (imgCountries.Images.ContainsKey(iconFlagCode))
@@ -1848,15 +1791,14 @@ namespace Eddie.Forms.Forms
 							pnlConnected.Visible = false;
 						}
 
-						cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
-						mnuConnect.Enabled = cmdCancel.Enabled;
+						cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);						
 
 						// Repaint
 						Invalidate();
 
 						EnabledUi();
 					}
-
+										
 					if ((mode == Core.Engine.RefreshUiMode.Log) || (mode == Core.Engine.RefreshUiMode.Full))
 					{
 						lock (Engine.LogEntries)
@@ -1869,12 +1811,7 @@ namespace Eddie.Forms.Forms
 								Log(l);
 							}
 						}
-
-						if (Engine.IsWaiting())
-						{
-							lblWait2.Text = Engine.Logs.GetLogDetailTitle();
-						}
-					}
+					}					
 
 					if ((mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
 					{
@@ -1882,8 +1819,8 @@ namespace Eddie.Forms.Forms
 						{
 							txtConnectedSince.Text = Engine.Stats.GetValue("VpnStart");
 
-							txtConnectedDownload.Text = UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
-							txtConnectedUpload.Text = UtilsString.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
+							txtConnectedDownload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
+							txtConnectedUpload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
 						}
 					}
 
@@ -1891,10 +1828,63 @@ namespace Eddie.Forms.Forms
 					{
 						m_listViewServers.UpdateList();
 						m_listViewAreas.UpdateList();
+
+						// Keys list
+                        /* TOCLEAN, old version
+						cboKey.Items.Clear();
+						if( (Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null) )
+						{
+							foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
+							{
+								string name = xmlKey.GetAttribute("name");
+								cboKey.Items.Add(name);
+							}
+
+							if (cboKey.Items.Contains(Engine.Instance.Storage.Get("key")) == true)
+							{
+								cboKey.SelectedItem = Engine.Instance.Storage.Get("key");
+							}
+						}
+						*/
+
+                        List<string> keysAdd = new List<string>();
+                        List<string> keysRemove = new List<string>();
+                        foreach (string k in cboKey.Items)
+                            keysRemove.Add(k);
+
+                        if ((Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null))
+                        {
+                            foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
+                            {
+                                string name = xmlKey.GetAttribute("name");
+                                keysRemove.Remove(name);
+                                if (cboKey.Items.Contains(name) == false)
+                                    keysAdd.Add(name);
+                            }
+                        }
+
+                        foreach (string k in keysRemove)
+                            cboKey.Items.Remove(k);
+
+                        foreach (string k in keysAdd)
+                            cboKey.Items.Add(k);
+
+                        string currentKey = Engine.Instance.Storage.Get("key");
+                        if(currentKey != null)
+                        {
+                            if ((cboKey.Items.Contains(currentKey) == true) && ((cboKey.SelectedItem as string) != currentKey))
+                            {
+                                cboKey.SelectedItem = currentKey;
+                            }
+                        }
+
+                    }
+
+					if ((mode == Core.Engine.RefreshUiMode.MainMessage) || (mode == Core.Engine.RefreshUiMode.Full))
+					{
+						EnabledUi();
 					}
 				}
-
-
 			}
 		}
 
@@ -1937,20 +1927,20 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
-		private delegate void OnFrontMessageDelegate(string message);
-		public void OnFrontMessage(string message)
+		private delegate void OnFrontMessageDelegate(Json jMessage);
+		public void OnFrontMessage(Json jMessage)
 		{
 			if (this.InvokeRequired)
 			{
 				OnFrontMessageDelegate inv = new OnFrontMessageDelegate(this.OnFrontMessage);
 
 				//this.Invoke(inv, new object[] { mode });
-				this.BeginInvoke(inv, new object[] { message });
+				this.BeginInvoke(inv, new object[] { jMessage });
 			}
 			else
 			{
 				Eddie.Forms.Forms.FrontMessage dlg = new Forms.FrontMessage();
-				dlg.Message = message;
+				dlg.Message = jMessage;
 				dlg.Show();
 				dlg.Activate();
 			}
@@ -1966,7 +1956,7 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				ShowMessageInfo(message);
 			}
 		}
 
@@ -1980,7 +1970,7 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				ShowMessageError(message);
 			}
 		}
 
@@ -2016,7 +2006,7 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				return MessageBox.Show(this, message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+				return ShowMessageAskYesNo(message);
 			}
 		}
 
@@ -2060,43 +2050,6 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
-		private delegate void OnLoggedUpdateDelegate(XmlElement xmlKeys);
-		public void OnLoggedUpdate(XmlElement xmlKeys)
-		{
-			if (this.InvokeRequired)
-			{
-				OnLoggedUpdateDelegate inv = new OnLoggedUpdateDelegate(this.OnLoggedUpdate);
-
-				this.BeginInvoke(inv, new object[] { xmlKeys });
-			}
-			else
-			{
-				cboKey.Items.Clear();
-				foreach (XmlElement xmlKey in xmlKeys.ChildNodes)
-				{
-					cboKey.Items.Add(xmlKey.GetAttribute("name"));
-				}
-
-				if (cboKey.Items.Contains(Engine.Instance.Storage.Get("key")) == true)
-				{
-					cboKey.SelectedItem = Engine.Instance.Storage.Get("key");
-				}
-				else
-				{
-					if (cboKey.Items.Count > 0)
-					{
-						cboKey.SelectedIndex = 0;
-						Engine.Instance.Storage.Set("key", cboKey.Items[0] as string);
-					}
-					else
-					{
-						Engine.Instance.Storage.Set("key", "");
-					}
-				}
-
-			}
-		}
-
 		private delegate void OnPostManifestUpdateDelegate();
 		public void OnPostManifestUpdate()
 		{
@@ -2124,7 +2077,7 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				Restore();
+				OnMenuRestore();
 			}
 		}
 
@@ -2139,22 +2092,10 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				if (Engine.IsWaiting())
-				{
-					Disconnect();
-				}
-				else if (Engine.IsConnected())
-				{
-					Disconnect();
-				}
-				else if (Engine.CanConnect())
-				{
-					Connect();
-				}
+				if (m_mainActionCommand == "")
+					OnMenuRestore();
 				else
-				{
-					Restore();
-				}
+					UiClient.Instance.Command(m_mainActionCommand);					
 			}
 		}
 
@@ -2169,10 +2110,7 @@ namespace Eddie.Forms.Forms
 			}
 			else
 			{
-				if (this.Visible == false)
-					Restore();
-				else
-					this.WindowState = FormWindowState.Minimized;
+                WinInvertVis();
 			}
 		}
 
@@ -2264,35 +2202,7 @@ namespace Eddie.Forms.Forms
 				ShowMenu();
 			}
 		}
-
-
-
-
-		public bool TermsOfServiceCheck(bool force)
-		{
-			bool show = force;
-			if (show == false)
-				show = (Engine.Storage.GetBool("gui.tos") == false);
-
-			if (show)
-			{
-				Forms.Tos Dlg = new Forms.Tos();
-				if (Dlg.ShowDialog(this) == DialogResult.OK)
-				{
-					Engine.Storage.SetBool("gui.tos", true);
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return true;
-			}
-		}
-
+		
 		private String LogsGetBody(bool selectedOnly)
 		{
 			lock (this)
@@ -2307,7 +2217,7 @@ namespace Eddie.Forms.Forms
 
 					if (skip == false)
 					{
-						buffer.Append((lstLogs.Items[i] as ListViewItemLog).Info.GetStringLines() + "\n");
+						buffer.Append((lstLogs.Items[i] as ListViewItemLog).TextEdition + "\n");
 					}
 				}
 
@@ -2322,8 +2232,8 @@ namespace Eddie.Forms.Forms
 			{
 				GuiUtils.ClipboardSetText(t);
 
-				ShowMessageInfo(Messages.LogsCopyClipboardDone);
-			}
+				ShowMessageInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
+			}			
 		}
 
 		private void LogsDoSave(bool selectedOnly)
@@ -2334,7 +2244,7 @@ namespace Eddie.Forms.Forms
 				using (SaveFileDialog sd = new SaveFileDialog())
 				{
 					sd.FileName = Engine.Logs.GetLogSuggestedFileName();
-					sd.Filter = Messages.FilterTextFiles;
+					sd.Filter = LanguageManager.GetText("FilterTextFiles");
 
 					if (sd.ShowDialog(this) == DialogResult.OK)
 					{
@@ -2345,7 +2255,7 @@ namespace Eddie.Forms.Forms
 							//sw.Close();	// because of "using"
 						}
 
-						ShowMessageInfo(Messages.LogsSaveToFileDone);
+						ShowMessageInfo(LanguageManager.GetText("LogsSaveToFileDone"));
 					}
 				}
 			}
@@ -2353,7 +2263,7 @@ namespace Eddie.Forms.Forms
 
 		public bool NetworkLockKnowledge()
 		{
-			string Msg = Messages.NetworkLockWarning;
+			string Msg = LanguageManager.GetText("NetworkLockWarning");
 
 			return AskYesNo(Msg);
 		}

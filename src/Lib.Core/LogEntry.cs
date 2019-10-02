@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,25 +26,26 @@ namespace Eddie.Core
 {
 	public class LogEntry
 	{
-		public DateTime Date = DateTime.Now;
+		public string Id = "";
+		public DateTime Date = DateTime.UtcNow;
 		public LogType Type;
 		public string Message;
 		public Exception Exception;
 
-		public string GetMessageForList()
+		public LogEntry()
 		{
-			return Message.Replace("\r", "").Replace("\n", " | ");
+			Id = RandomGenerator.GetHash();
 		}
-
+		
 		public string GetDateForList()
 		{
-			return Date.ToShortDateString() + " - " + Date.ToShortTimeString();
+			return LanguageManager.FormatDateShort(Date.ToLocalTime());
 		}
 
 		public static string GetDateForListSample()
 		{
 			// Used to compute an estimation of Grid cell size
-			return DateTime.UtcNow.ToShortDateString() + " - " + DateTime.UtcNow.ToShortTimeString();
+			return LanguageManager.FormatDateShort(DateTime.UtcNow);
 		}
 
 		public string GetTypeChar()
@@ -85,7 +86,7 @@ namespace Eddie.Core
 
 			o += GetTypeChar();
 			o += " ";
-			o += Date.ToString("yyyy.MM.dd HH:mm:ss");
+			o += Date.ToLocalTime().ToString("yyyy.MM.dd HH:mm:ss");
 			o += " - ";
 
 			string[] lines = Message.Split('\n');
@@ -102,6 +103,16 @@ namespace Eddie.Core
 			}
 
 			return result.Trim();
+		}
+
+		public Json GetJson()
+		{
+			Json j = new Json();
+			j["id"].Value = Id;
+			j["time"].Value = Conversions.ToUnixTimeMs(Date);
+			j["type"].Value = Type.ToString().ToLowerInvariant();
+			j["message"].Value = Message;
+			return j;
 		}
 	}
 

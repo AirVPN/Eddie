@@ -71,9 +71,12 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsProviderEditManifestTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsProviderEditManifestTitle");
 
-			LblTitle.Title = Provider.DefinitionTitle;
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
+
+            LblTitle.Title = Provider.DefinitionTitle;
 			LblSubtitle.StringValue = Provider.DefinitionSubTitle;
 
 			GuiUtils.SetCheck(ChkEnabled, Provider.Enabled);

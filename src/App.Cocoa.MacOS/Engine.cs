@@ -29,24 +29,18 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	public class Engine : Eddie.Core.Engine
 	{
-		public MainWindowController MainWindow;
+		//public MainWindowController MainWindow;
 		public List<LogEntry> LogsPending = new List<LogEntry>();
 
 		public List<AppKit.NSWindowController> WindowsOpen = new List<AppKit.NSWindowController>();
 
 		//private WindowReportController m_windowReport;
 
-		public Engine()
+        public Engine(string environmentCommandLine) : base(environmentCommandLine)
 		{
 		}
 
-		public override bool OnInit()
-		{
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
-			return base.OnInit();
-		}
-
+        /*
 		public override void OnDeInit2()
 		{
 			base.OnDeInit2();
@@ -60,24 +54,46 @@ namespace Eddie.UI.Cocoa.Osx
 				});
 			}
 		}
+		*/
 
-		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        public override string OnAskProfilePassword(bool authFailed)
+        {
+            return UiClient.Instance.SplashWindow.AskUnlockPassword(authFailed);
+        }
+
+		public override bool OnAskYesNo(string message)
 		{
-			Exception ex = (Exception)e.ExceptionObject;
-			Engine.OnUnhandledException(ex);
+			bool answer = false;
+			new NSObject().InvokeOnMainThread(() =>
+			{
+				answer = GuiUtils.MessageYesNo(message);
+			});
+			return answer;
 		}
 
 
+		public override Json OnAskShellExternalPermission(Json data)
+        {
+            Json answer = null;
+            new NSObject().InvokeOnMainThread(() =>
+            {
+                WindowShellExternalPermissionController w = new WindowShellExternalPermissionController();
+                w.Data = data;
+                NSApplication.SharedApplication.RunModalForWindow(w.Window);
+                answer = w.Answer;
+            });
+            return answer;
+        }
 
-		public override void OnRefreshUi(RefreshUiMode mode)
+        public override void OnRefreshUi(RefreshUiMode mode)
 		{
 			base.OnRefreshUi(mode);
 
-			if (MainWindow != null)
+            if (UiClient.Instance.MainWindow != null)
 			{
 				new NSObject().InvokeOnMainThread(() =>
 				{
-					MainWindow.RefreshUi(mode);
+                    UiClient.Instance.MainWindow.RefreshUi(mode);
 				});
 			}
 		}
@@ -86,12 +102,12 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.OnStatsChange(entry);
 
-			if (MainWindow != null)
-				if (MainWindow.TableStatsController != null)
+			if (UiClient.Instance.MainWindow != null)
+				if (UiClient.Instance.MainWindow.TableStatsController != null)
 				{
 					new NSObject().InvokeOnMainThread(() =>
 					{
-						MainWindow.TableStatsController.RefreshUI();
+                        UiClient.Instance.MainWindow.TableStatsController.RefreshUI();
 					});
 				}
 		}
@@ -100,20 +116,20 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.OnProviderManifestFailed(provider);
 
-			if (MainWindow != null)
+			if (UiClient.Instance.MainWindow != null)
 				new NSObject().InvokeOnMainThread(() =>
 				{
-					MainWindow.ProviderManifestFailed(provider);
+                    UiClient.Instance.MainWindow.ProviderManifestFailed(provider);
 				});
 		}
 
 		public override void OnSettingsChanged()
 		{
-			if (MainWindow != null)
+			if (UiClient.Instance.MainWindow != null)
 			{
 				new NSObject().InvokeOnMainThread(() =>
 				{
-					MainWindow.SettingsChanged();
+                    UiClient.Instance.MainWindow.SettingsChanged();
 				});
 			}
 
@@ -131,51 +147,22 @@ namespace Eddie.UI.Cocoa.Osx
 
 			OnRefreshUi(RefreshUiMode.Log);
 		}
-
-		public override void OnFrontMessage(string message)
-		{
-			base.OnFrontMessage(message);
-
-			if (MainWindow != null)
-			{
-				new NSObject().InvokeOnMainThread(() =>
-				{
-					MainWindow.FrontMessage(message);
-				});
-			}
-		}
-
+		
 		public override void OnShowText(string title, string data)
 		{
-			if (MainWindow != null)
+			if (UiClient.Instance.MainWindow != null)
 			{
 				new NSObject().InvokeOnMainThread(() =>
 					{
-						MainWindow.ShowText(MainWindow.Window, title, data);
+                        UiClient.Instance.MainWindow.ShowText(UiClient.Instance.MainWindow.Window, title, data);
 					});
 			}
 		}
-        /*// TOCLEAN
-		public override bool OnAskYesNo(string message)
-		{
-			bool result = false;
-
-			if (MainWindow != null)
-			{
-				new NSObject().InvokeOnMainThread(() =>
-				{
-					result = GuiUtils.MessageYesNo(message);
-				});
-			}
-
-			return result;
-		}
-		*/
 
 		public override Credentials OnAskCredentials()
 		{
 			Credentials cred = null;
-			if (MainWindow != null)
+			if (UiClient.Instance.MainWindow != null)
 			{
 				new NSObject().InvokeOnMainThread(() =>
 				{
@@ -191,28 +178,15 @@ namespace Eddie.UI.Cocoa.Osx
 			return cred;
 		}
 
-		public override void OnLoggedUpdate(XmlElement xmlKeys)
-		{
-			base.OnLoggedUpdate(xmlKeys);
-
-			if (MainWindow != null)
-			{
-				new NSObject().InvokeOnMainThread(() =>
-					{
-						MainWindow.LoggedUpdate(xmlKeys);
-					});
-			}
-		}
-
 		public override void OnPostManifestUpdate()
 		{
 			base.OnPostManifestUpdate();
 
-			if (MainWindow != null)
+			if (UiClient.Instance.MainWindow != null)
 			{
 				new NSObject().InvokeOnMainThread(() =>
 					{
-						MainWindow.PostManifestUpdate();
+                        UiClient.Instance.MainWindow.PostManifestUpdate();
 					});
 			}
 		}

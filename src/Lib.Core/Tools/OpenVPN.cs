@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,15 +33,23 @@ namespace Eddie.Core.Tools
             if (Version == "")
                 return;
 
-            string ver = UtilsString.ExtractBetween(Version, "OpenVPN ", " ");
-            string libs = UtilsString.ExtractBetween(Version, "library versions:", "\n").Trim();
-            Version = ver + " - " + libs;
+            // Exception: beta-testing
+            if(Version.StartsWith("OpenVPN AirVPN", StringComparison.InvariantCulture))
+            {
+                Version = UtilsString.RegExMatchOne(Version, "^OpenVPN core (.+?)$");
+            }
+            else
+            {
+                string ver = UtilsString.ExtractBetween(Version, "OpenVPN ", " ");
+                string libs = UtilsString.ExtractBetween(Version, "library versions:", "\n").Trim();
+                Version = ver + " - " + libs;
+            }
         }
 
 		public override void ExceptionIfRequired()
 		{
 			if (Available() == false)
-				throw new Exception("OpenVPN " + Messages.NotFound);
+				throw new Exception("OpenVPN " + LanguageManager.GetText("NotFound"));
 		}
 
 		public override string GetFileName()
@@ -57,6 +65,11 @@ namespace Eddie.Core.Tools
         public override string GetVersionArgument()
         {
             return "--version";
+        }
+
+        public bool IsAirSpecialBuild()
+        {
+            return Version.Contains("AirVPN");
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ namespace Eddie.Core
 		public List<string> Arguments = new List<string>();
 		public bool WaitEnd = true;
 		public bool ExceptionIfFail = false;
-		public bool NoDebugLog = false;
-		public bool RunAsNormalUser = false;
+		public bool NoDebugLog = false; // Used only under linux
+		public string AutoWriteStdin = "";
 
 		// Response
 		public string StdOut = "";
@@ -115,91 +115,64 @@ namespace Eddie.Core
 			return (EscapeInsideQuote(value) == value);
 		}
 
-		// Called for user events
-		public static void ShellUserEvent(string path, string arguments, bool waitEnd)
+		// Called for user events or special UI interaction
+		public static bool ShellUserEvent(string filename, string arguments, bool waitEnd)
 		{
+			/* <2.17.3
 			List<string> args = UtilsString.StringToList(arguments, " ", true, true, false, false);
 			Shell(path, args.ToArray(), waitEnd);
-		}
+			*/
 
-		public static string ShellCmd(string command)
-		{
-			return ShellCmd (command, false);
-		}
+			if (ShellExternalManager.CheckAllow(filename) == false)
+				return false;
 
-		public static string ShellCmd(string command, bool noLog) // TOCLEAN, Avoid when possible
-		{
-			if (command == "")
-				return "";
-
-			string path;
-			string[] arguments;
-
-			Platform.Instance.ShellCommandDirect(command, out path, out arguments);
-
-			SystemShell s = new SystemShell();
-			s.Path = path;
-			s.Arguments.AddRange(arguments);
-			s.WaitEnd = true;
-			s.NoDebugLog = noLog;
-			s.ExceptionIfFail = false;
-			s.Run();
-			return s.Output;
+			return Platform.Instance.ShellExecuteCore(filename, arguments, waitEnd);
 		}
 
 		public static string Shell0(string path)
 		{
-			return Shell(path, new string[] { }, true);
+			return Shell(path, new string[] { });
 		}
 
 		public static string Shell1(string path, string arg1)
 		{
-			return Shell(path, new string[] { arg1 }, true);
+			return Shell(path, new string[] { arg1 });
 		}
 
 		public static string Shell2(string path, string arg1, string arg2)
 		{
-			return Shell(path, new string[] { arg1, arg2 }, true);
+			return Shell(path, new string[] { arg1, arg2 });
 		}
 
 		public static string Shell3(string path, string arg1, string arg2, string arg3)
 		{
-			return Shell(path, new string[] { arg1, arg2, arg3 }, true);
+			return Shell(path, new string[] { arg1, arg2, arg3 });
 		}
 
 		public static string Shell(string path, string[] arguments)
 		{
-			return Shell(path, arguments, true);
-		}
-
-		public static string ShellX(string path, string arguments, bool waitEnd) // ClodoTemp
-		{
-			return Shell(path, new string[] { arguments }, waitEnd);
-		}
-
-		public static string Shell(string path, string[] arguments, bool waitEnd)
-		{
 			SystemShell s = new SystemShell();
 			s.Path = path;
 			s.Arguments.AddRange(arguments);
-			s.WaitEnd = waitEnd;
 			s.Run();
 			return s.Output;
 		}
-
+		
 		public bool Run()
 		{
 			m_id++;
 
+			if (Path == "")
+				return false;
+
+			if (ShellExternalManager.CheckAllow(Path) == false)
+				return false;
+
+
 			string path = Path;
-			string[] args = Arguments.ToArray ();
-			if (RunAsNormalUser)
-			{
-				if (Platform.Instance.ShellAdaptNormalUser(ref path, ref args) == false)
-					return false;
-			}	
-			
-			if (WaitEnd)
+			string[] args = Arguments.ToArray();
+
+            if (WaitEnd)
 			{
 				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
 
@@ -219,7 +192,9 @@ namespace Eddie.Core
 				}
 
 				int startTime = Environment.TickCount;
-				Platform.Instance.ShellSync(path, args, out StdOut, out StdErr, out ExitCode);
+
+                Platform.Instance.ShellSyncCore(path, args, AutoWriteStdin, out StdOut, out StdErr, out ExitCode);
+				
 				int endTime = Environment.TickCount;
 
 				if (log)
@@ -241,18 +216,16 @@ namespace Eddie.Core
 						if (StdErr != "")
 							throw new Exception(StdErr);
 						else
-							throw new Exception(Messages.Failed);
+							throw new Exception(LanguageManager.GetText("Failed"));
 				}
 
 				return (ExitCode == 0);
 			}
 			else
 			{
-				Platform.Instance.ShellASync(path, args);
+				Platform.Instance.ShellASyncCore(path, args);
 				return true;
 			}
-
-
 		}
 	}
 }

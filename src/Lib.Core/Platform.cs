@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,7 +40,8 @@ namespace Eddie.Core
 		protected Dictionary<string, string> m_LocateExecutableCache = new Dictionary<string, string>();
 
 		protected List<Json> m_routes = new List<Json>();
-		protected List<Json> m_routesDefaultGateway = new List<Json>();
+		
+		protected ElevatedProcess m_elevated = null;
 
 		public static bool IsUnix()
 		{
@@ -49,7 +50,7 @@ namespace Eddie.Core
 
 		public static bool IsWindows()
 		{
-			return (Environment.OSVersion.VersionString.IndexOf("Windows") != -1);
+			return (Environment.OSVersion.VersionString.IndexOf("Windows", StringComparison.InvariantCulture) != -1);
 		}
 
 		private static bool IsLinux()
@@ -153,7 +154,7 @@ namespace Eddie.Core
 			return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
 
-		public virtual void OnInit(bool cli)
+		public virtual void OnInit()
 		{
 		}
 
@@ -182,11 +183,6 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public virtual bool IsAdminRequired()
-		{
-			return true;
-		}
-
 		public virtual bool IsAdmin()
 		{
 			return false;
@@ -207,9 +203,32 @@ namespace Eddie.Core
 			return (IsUnixSystem() == false);
 		}
 
-		public virtual void OpenUrl(string url)
+		public virtual string GetElevatedHelperPath()
 		{
-			System.Diagnostics.Process.Start(url);
+			string path = GetElevatedHelperPathImpl();
+			if (CheckElevatedProcessAllowed(path) == false)
+				throw new Exception("Elevated executable invalid");
+			return path;
+		}
+
+		protected virtual string GetElevatedHelperPathImpl()
+		{
+			return "";
+		}
+
+		public virtual bool CheckElevatedSocketAllowed(System.Net.IPEndPoint localEndpoint, System.Net.IPEndPoint remoteEndpoint)
+		{
+			return false;
+		}
+
+		public virtual bool CheckElevatedProcessAllowed(System.Diagnostics.Process process)
+		{
+			return false;
+		}
+
+		public virtual bool CheckElevatedProcessAllowed(string remotePath)
+		{
+			return false;
 		}
 
 		public virtual bool GetAutoStart()
@@ -218,6 +237,53 @@ namespace Eddie.Core
 		}
 
 		public virtual bool SetAutoStart(bool value)
+		{
+			return false;
+		}
+
+		public virtual bool AllowService()
+		{
+			return false;
+		}
+
+		public virtual string AllowServiceUserDescription()
+		{
+			return "";
+		}
+
+		public virtual bool GetService()
+		{
+			if( (Elevated != null) && (Elevated.ServiceEdition) )
+			{
+				if (Elevated.ServiceUninstallAtEnd)
+					return false;
+				else
+					return true;
+			}
+			else
+				return GetServiceImpl();
+		}
+
+		public virtual bool SetService(bool value, bool direct)
+		{
+			if(direct)
+				return SetServiceImpl(value);
+
+			if ((Elevated != null) && (Elevated.ServiceEdition))
+			{
+				Elevated.ServiceUninstallAtEnd = !value;
+				return value;
+			}
+			else
+				return SetServiceImpl(value);
+		}
+
+		protected virtual bool GetServiceImpl()
+		{
+			return false;
+		}
+
+		protected virtual bool SetServiceImpl(bool value)
 		{
 			return false;
 		}
@@ -288,6 +354,11 @@ namespace Eddie.Core
 			return (Directory.Exists(path));
 		}
 
+		public virtual void DirectoryEnsure(string path)
+		{
+			Directory.CreateDirectory(path);
+		}
+
 		public virtual void FileDelete(string path)
 		{
 			FileDelete(path, false);
@@ -333,7 +404,7 @@ namespace Eddie.Core
 		{
 			return File.ReadAllText(path);
 		}
-
+         
 		public virtual bool FileContentsWriteText(string path, string contents, Encoding encoding)
 		{
 			bool immutable = false;
@@ -371,6 +442,11 @@ namespace Eddie.Core
 			return File.ReadAllBytes(path);
 		}
 
+		public virtual void FileContentsWriteBytes(string path, byte[] contents)
+		{
+			File.WriteAllBytes(path, contents);
+		}
+
 		public virtual string FileGetPhysicalPath(string path)
 		{
 			// For example under Windows convert a path with hardlink under the physical real path.
@@ -379,7 +455,7 @@ namespace Eddie.Core
 
 		public virtual string FileGetAbsolutePath(string path, string basePath)
 		{
-			if ((path.StartsWith("\"")) && (path.EndsWith("\"")))
+			if ((path.StartsWith("\"", StringComparison.InvariantCulture)) && (path.EndsWith("\"", StringComparison.InvariantCulture)))
 				path = path.Substring(1, path.Length - 2);
 			if (System.IO.Path.IsPathRooted(path))
 				return path;
@@ -401,19 +477,14 @@ namespace Eddie.Core
 		{
 		}
 
-		public virtual void FilePermissionsSet(string path, int mod)
-		{
-
-		}
-
 		public virtual bool FileEnsureExecutablePermission(string path)
 		{
 			return false;
 		}
 
-		public virtual bool FileEnsureRootOnly(string path)
+		public virtual bool FileEnsureCurrentUserOnly(string path)
 		{
-			// Used only under Windows, for ssh.exe key file.
+			// Used only under Windows, for ssh.exe key file.			
 			return false;
 		}
 
@@ -422,13 +493,10 @@ namespace Eddie.Core
 			return false;
 		}
 
-        public virtual bool FileEnsureOwner(string path)
-        {
-            // Under macOS, a file (for example a .ppw) is created with owner:root. If chmod 600, OpenVPN throw "Permission denied", but not if owned by a normal user.
-            // Behiavour never occur under Linux.
-            // So, this function is implemented only under macOS and set the owner of the path to the logged user.
-            return false;
-        }
+        public virtual bool FileRunAsRoot(string path)
+		{
+			return false;
+		}
 
 		public virtual bool HasAccessToWrite(string path)
 		{
@@ -459,7 +527,7 @@ namespace Eddie.Core
 		public virtual bool IsPath(string v)
 		{
 			// Filename or path (absolute or relative) ?
-			return (v.IndexOf(DirSep) != -1);
+			return (v.IndexOf(DirSep, StringComparison.InvariantCulture) != -1);
 		}
 
 		public virtual string GetApplicationPathEx()
@@ -474,7 +542,7 @@ namespace Eddie.Core
 			return System.Reflection.Assembly.GetEntryAssembly().Location;
 		}
 
-		public virtual string GetUserPathEx()
+		protected virtual string GetUserPathEx()
 		{
 			NotImplemented();
 			return "";
@@ -514,32 +582,29 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public virtual string WaitSignal()
-		{
-			return "unsupported";
-		}
+        public virtual int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
+        {
+            return 0;
+        }
 
-		// Avoid when possible, but for example under Windows sometime commands are not executable in file-system.
-		public virtual void ShellCommandDirect(string command, out string path, out string[] arguments)
-		{
-			path = "";
-			arguments = new string[] { };
-			NotImplemented();
-		}
+        public virtual bool RunProcessAsRoot(string path, string[] arguments, bool consoleMode)
+        {
+            int pid = StartProcessAsRoot(path, arguments, consoleMode);
+            if (pid == -1) // Special case, macOS for example
+            {
+                System.Threading.Thread.Sleep(1000);
+                return true;
+            }
+            else
+            {
+                System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(pid);
+                process.WaitForExit();
+                return (process.ExitCode == 0);
+            }
+        }
 
-		// TOCLEAN - Workaround Eddie2, to remove with Eddie3
-		public virtual bool CanShellAsNormalUser()
-		{
-			return true;
-		}
-
-		// TOCLEAN - Workaround Eddie2, to remove with Eddie3
-		public virtual bool ShellAdaptNormalUser(ref string path, ref string[] arguments)
-		{
-			return true;
-		}
-
-		public virtual void ShellSync(string path, string[] arguments, out string stdout, out string stderr, out int exitCode)
+        // Must be called only by SystemShell
+        public virtual void ShellSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
 		{
 			try
 			{
@@ -552,12 +617,20 @@ namespace Eddie.Core
 					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 					p.StartInfo.UseShellExecute = false;
 					p.StartInfo.RedirectStandardOutput = true;
-					p.StartInfo.RedirectStandardError = true;					
+					p.StartInfo.RedirectStandardError = true;
+					if (autoWriteStdin != "")
+						p.StartInfo.RedirectStandardInput = true;					
 					p.Start();
+
+					if (autoWriteStdin != "")
+					{
+						p.StandardInput.Write(autoWriteStdin);
+						p.StandardInput.Close();
+					}
 					
 					stdout = p.StandardOutput.ReadToEnd().Trim();
 					stderr = p.StandardError.ReadToEnd().Trim();
-
+                    
 					p.WaitForExit();
 					
 					exitCode = p.ExitCode;
@@ -571,7 +644,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public virtual void ShellASync(string path, string[] arguments)
+		public virtual void ShellASyncCore(string path, string[] arguments)
 		{			
 			try
 			{
@@ -590,8 +663,37 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(ex);
 			}
 		}
+		
+		// Must be called only by SystemShell
+		// Special direct mode for user events and direct UI shell.
+		// Under Windows use ShellExecute, that show UAC (other shell types above doesn't).
+		public virtual bool ShellExecuteCore(string filename, string arguments, bool waitEnd)
+		{
+			try
+			{
+				System.Diagnostics.Process p = System.Diagnostics.Process.Start(filename, arguments);
+				if(waitEnd)
+					p.WaitForExit();
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.Log(ex);
+				return false;
+			}
+		}
 
-		public virtual bool OpenDirectoryInFileManager(string path)
+        public virtual void OpenUrl(string url)
+        {
+            System.Diagnostics.Process.Start(url);
+        }
+
+		public virtual void OpenFolder(string path)
+		{
+			System.Diagnostics.Process.Start(path);
+		}
+
+        public virtual bool OpenDirectoryInFileManager(string path)
 		{
 			try
 			{
@@ -600,7 +702,7 @@ namespace Eddie.Core
 					dirPath = Path.GetDirectoryName(dirPath);
 				if (DirectoryExists(dirPath))
 				{
-					OpenDirectoryInFileManagerEx(dirPath);
+					OpenFolder(dirPath);
 					return true;
 				}
 				return false;
@@ -611,12 +713,7 @@ namespace Eddie.Core
 			}
 		}
 
-		protected virtual void OpenDirectoryInFileManagerEx(string path)
-		{
-			Process.Start(path);
-		}
-
-		public virtual string LocateResource(string relativePath)
+        public virtual string LocateResource(string relativePath)
 		{
 			return "";
 		}
@@ -669,7 +766,7 @@ namespace Eddie.Core
 		
 		public virtual void FlushDNS()
 		{
-			Engine.Instance.Logs.Log(LogType.Verbose, Messages.ConnectionFlushDNS);
+			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionFlushDNS"));
 
 			DnsManager.Invalidate();
 		}
@@ -686,7 +783,7 @@ namespace Eddie.Core
 						 (jRouteC["gateway"].Value as string == jRoute["gateway"].Value as string) &&
 						 (jRouteC["type"].Value as string == "removed"))
 					{
-						Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.RouteAddRemoved, new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddRemoved", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
 						m_routes.RemoveAt(i);
 						known = true;
 						break;
@@ -695,7 +792,7 @@ namespace Eddie.Core
 
 				if (known == false)
 				{
-					Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.RouteAddNew, new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
+					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddNew", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
 					jRoute["type"].Value = "added";
 					m_routes.Add(jRoute);
 				}
@@ -718,7 +815,7 @@ namespace Eddie.Core
 						 (jRouteC["gateway"].Value as string == jRoute["gateway"].Value as string) &&
 						 (jRouteC["type"].Value as string == "added"))
 					{
-						Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.RouteDelAdded, new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelAdded", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
 						m_routes.RemoveAt(i);
 						known = true;
 						break;
@@ -727,7 +824,7 @@ namespace Eddie.Core
 
 				if (known == false)
 				{
-					Engine.Instance.Logs.LogVerbose(MessagesFormatter.Format(Messages.RouteDelExist, new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
+					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelExist", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
 					jRoute["type"].Value = "removed";
 					m_routes.Add(jRoute);
 				}
@@ -757,48 +854,48 @@ namespace Eddie.Core
 				 * 2.14: For the moment is useless this fallback, because the CheckDNS still works (probably parallel DNS)
 				 * Search WSANO_RECOVERY in session.cs for more notes.
 				 */
-				/*
-			   if( (e is System.Net.Sockets.SocketException) && ((e as System.Net.Sockets.SocketException).ErrorCode == 11003)) // WSANO_RECOVERY
-			   {
-				   try
-				   {
-					   SystemShell s = new SystemShell();
-					   s.Path = LocateExecutable("nslookup.exe");
-					   s.Arguments.Add(SystemShell.EscapeHost(host));
-					   s.NoDebugLog = true;
-					   s.Run();
+		/*
+	   if( (e is System.Net.Sockets.SocketException) && ((e as System.Net.Sockets.SocketException).ErrorCode == 11003)) // WSANO_RECOVERY
+	   {
+		   try
+		   {
+			   SystemShell s = new SystemShell();
+			   s.Path = LocateExecutable("nslookup.exe");
+			   s.Arguments.Add(SystemShell.EscapeHost(host));
+			   s.NoDebugLogTemp = true;
+			   s.Run();
 
-					   if (s.StdOut.StartsWith("DNS request timed out") == false)
+			   if (s.StdOut.StartsWith("DNS request timed out") == false)
+			   {
+				   int posAnswer = s.StdOut.IndexOf("\r\n\r\n");
+				   if (posAnswer != -1)
+				   {
+					   // Cleanup. Cannot find a better alternative: when WSANO_RECOVERY occur
+					   // Dns.GetHostEntry fail, also C getaddrinfo fail, only nslookup.exe works.
+					   string d = s.StdOut.Substring(posAnswer + host.Length);
+					   d = d.Replace("Name:", "");
+					   d = d.Replace("Aliases:", "");
+					   d = d.Replace("Address:", "");
+					   d = d.Replace("Addresses:", "");
+					   d = d.Replace("\t", " ");
+					   d = d.Replace("\r", " ");
+					   d = d.Replace("\n", " ");
+					   d = UtilsString.StringCleanSpace(d);
+					   foreach (string ip in d.Split(' '))
 					   {
-						   int posAnswer = s.StdOut.IndexOf("\r\n\r\n");
-						   if (posAnswer != -1)
-						   {
-							   // Cleanup. Cannot find a better alternative: when WSANO_RECOVERY occur
-							   // Dns.GetHostEntry fail, also C getaddrinfo fail, only nslookup.exe works.
-							   string d = s.StdOut.Substring(posAnswer + host.Length);
-							   d = d.Replace("Name:", "");
-							   d = d.Replace("Aliases:", "");
-							   d = d.Replace("Address:", "");
-							   d = d.Replace("Addresses:", "");
-							   d = d.Replace("\t", " ");
-							   d = d.Replace("\r", " ");
-							   d = d.Replace("\n", " ");
-							   d = UtilsString.StringCleanSpace(d);
-							   foreach (string ip in d.Split(' '))
-							   {
-								   if (IpAddress.IsIP(ip))
-									   result.Add(ip);
-							   }
-						   }
+						   if (IpAddress.IsIP(ip))
+							   result.Add(ip);
 					   }
 				   }
-				   catch (Exception)
-				   {
+			   }
+		   }
+		   catch (Exception)
+		   {
 
-				   }
-			   }				
-			   */
-			}
+		   }
+	   }				
+	   */
+	}
 
 			return result;
 		}
@@ -812,15 +909,10 @@ namespace Eddie.Core
 		{
 			return true;
 		}
-		
-		public virtual bool RestartAsRoot()
-		{
-			return false;
-		}
 
-		public virtual Dictionary<int, string> GetProcessesList()
+        public virtual Dictionary<string, string> GetProcessesList()
 		{
-			Dictionary<int, string> result = new Dictionary<int, string>();
+			Dictionary<string, string> result = new Dictionary<string, string>();
 
 			System.Diagnostics.Process[] processlist = Process.GetProcesses();
 
@@ -828,9 +920,9 @@ namespace Eddie.Core
 			{
 				try
 				{
-					//result[p.Id] = p.ProcessName.ToLowerInvariant();
-					if ((p.HasExited == false) && (p.MainModule != null) && (p.MainModule.FileName != null))
-						result[p.Id] = p.MainModule.FileName;
+                    //result[p.Id] = p.ProcessName.ToLowerInvariant();
+                    if ((p.HasExited == false) && (p.MainModule != null) && (p.MainModule.FileName != null))
+                        result[p.Id.ToString()] = p.MainModule.FileName;
 				}
 				catch
 				{
@@ -864,11 +956,20 @@ namespace Eddie.Core
 		}
 
 		public virtual bool OnCheckEnvironmentSession()
-		{
+		{			
 			return true;
 		}
 
-		public virtual void OnNetworkLockManagerInit()
+		public virtual void OnElevated()
+		{
+		}
+
+        public virtual bool NeedExecuteOutsideAppPath(string exePath)
+        {
+            return false;
+        }
+
+        public virtual void OnNetworkLockManagerInit()
 		{
 		}
 
@@ -890,7 +991,7 @@ namespace Eddie.Core
 		}
 
 		// This is called every time, the OnRecoveryLoad only if Recovery.xml exists
-		public virtual void OnRecovery()
+		public virtual void OnRecoveryAlways()
 		{
 		}
 
@@ -912,7 +1013,7 @@ namespace Eddie.Core
 				}
 			}
 
-			OnRouteDefaultRemoveRestore();
+			//OnRouteDefaultRemoveRestore();
 			OnDnsSwitchRestore();
 			OnInterfaceRestore();
 			OnIPv6Restore();
@@ -935,7 +1036,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public virtual void OnBuildOvpn(OvpnBuilder ovpn)
+        public virtual void OnBuildOvpn(OvpnBuilder ovpn)
 		{
 		}
 
@@ -959,36 +1060,9 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public virtual bool OnRouteDefaultRemoveDo()
-		{
-			Json jRoutes = Engine.Instance.JsonRouteList();
-			foreach (Json jRoute in jRoutes.GetArray())
-			{
-				IpAddress address = new IpAddress(jRoute["address"].Value as string);
-				if (address.IsInAddrAny)
-				{
-					if (RouteRemove(jRoute))
-						m_routesDefaultGateway.Add(jRoute);
-				}
-			}
-
-			return true;
-		}
-
-		public virtual bool OnRouteDefaultRemoveRestore()
-		{
-			foreach (Json jRoute in m_routesDefaultGateway)
-			{
-				RouteAdd(jRoute);
-			}
-			m_routesDefaultGateway.Clear();
-
-			return true;
-		}
-
 		public virtual bool OnIPv6Block()
 		{
-			return true;
+            return true;
 		}
 
 		public virtual bool OnIPv6Restore()
@@ -998,7 +1072,7 @@ namespace Eddie.Core
 
 		public virtual string GetDriverAvailable()
 		{
-			return Messages.NotImplemented;
+			return LanguageManager.GetText("NotImplemented");
 		}
 
 		public virtual bool CanInstallDriver()
@@ -1025,6 +1099,55 @@ namespace Eddie.Core
 
 		public virtual void OnJsonRouteList(Json jRoutesList)
 		{
+		}
+
+		public virtual bool OsCredentialSystemDefault()
+		{
+			return true;
+		}
+		
+		public virtual string OsCredentialSystemName()
+		{
+			return "";
+		}
+
+		public virtual string OsCredentialSystemRead(string name)
+		{
+			return "";
+		}
+
+		public virtual bool OsCredentialSystemWrite(string name, string password)
+		{
+            return false;
+		}
+
+		public virtual bool OsCredentialSystemDelete(string name)
+		{
+            return false;
+		}
+
+		public virtual string FileGetSignedId(string path)
+		{
+			return "No: Unknown";			
+		}
+
+		public virtual List<string> GetTrustedPaths()
+		{
+			List<string> result = new List<string>();
+			return result;
+		}
+
+		public virtual ElevatedProcess Elevated
+		{
+			get
+			{
+				return m_elevated;
+			}
+		}
+
+		public virtual ElevatedProcess StartElevated()
+		{
+			return null;
 		}
 	}
 }

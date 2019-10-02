@@ -68,7 +68,10 @@ namespace Eddie.UI.Cocoa.Osx
 			base.AwakeFromNib();
 
 			Window.Title = Constants.Name + " - " + Title;
-			TxtBody2.Value = Body;
+
+            GuiUtils.SetButtonDefault(Window, CmdOk);
+
+            TxtBody2.Value = Body;
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{

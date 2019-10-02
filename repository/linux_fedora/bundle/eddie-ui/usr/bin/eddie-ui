@@ -1,0 +1,3 @@
+#!/bin/bash
+mono /usr/lib/eddie-ui/eddie-ui.exe --path.resources=/usr/share/eddie-ui --path.exec="$0" "$@"
+ 

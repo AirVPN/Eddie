@@ -74,11 +74,15 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsRouteTitle;
+            Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsSettingsRouteTitle");
 
-			LblHelp.StringValue = Messages.WindowsSettingsRouteTitle;
+            GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
 
-			CboAction.RemoveAllItems();
+            LblHelp.StringValue = LanguageManager.GetText("WindowsSettingsRouteTitle");
+
+
+            CboAction.RemoveAllItems();
 			CboAction.AddItem(WindowPreferencesController.RouteDirectionToDescription("none"));
 			CboAction.AddItem(WindowPreferencesController.RouteDirectionToDescription("in"));
 			CboAction.AddItem(WindowPreferencesController.RouteDirectionToDescription("out"));
@@ -121,12 +125,12 @@ namespace Eddie.UI.Cocoa.Osx
 			IpAddresses ip = new IpAddresses(TxtIP.StringValue);
 			if (ip.Count == 0)
 			{
-				LblHelp.StringValue = Messages.WindowsSettingsRouteInvalid + "\n" + Messages.WindowsSettingsRouteEditIp;
+				LblHelp.StringValue = LanguageManager.GetText("WindowsSettingsRouteInvalid") + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp");
 				CmdOk.Enabled = false;
 			}
 			else
 			{
-				LblHelp.StringValue = ip.ToString() + "\n" + Messages.WindowsSettingsRouteEditIp;
+				LblHelp.StringValue = ip.ToString() + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp");
 				CmdOk.Enabled = true;
 			}
 

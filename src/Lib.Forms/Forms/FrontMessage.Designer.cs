@@ -29,7 +29,7 @@
 		private void InitializeComponent()
 		{
 			this.cmdClose = new Eddie.Forms.Skin.Button();
-			this.lnkWebsite = new System.Windows.Forms.LinkLabel();
+			this.lnkWebsite = new Eddie.Forms.Skin.LinkLabel();
 			this.lblMessage = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
@@ -42,10 +42,10 @@
 			this.cmdClose.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdClose.FlatAppearance.BorderSize = 0;
 			this.cmdClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdClose.Location = new System.Drawing.Point(252, 242);
-			this.cmdClose.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdClose.Location = new System.Drawing.Point(378, 363);
+			this.cmdClose.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.cmdClose.Name = "cmdClose";
-			this.cmdClose.Size = new System.Drawing.Size(200, 37);
+			this.cmdClose.Size = new System.Drawing.Size(300, 56);
 			this.cmdClose.TabIndex = 1;
 			this.cmdClose.Text = "Ok";
 			this.cmdClose.UseVisualStyleBackColor = true;
@@ -53,17 +53,18 @@
 			// 
 			// lnkWebsite
 			// 
-			this.lnkWebsite.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.lnkWebsite.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.lnkWebsite.BackColor = System.Drawing.Color.Transparent;
-			this.lnkWebsite.Location = new System.Drawing.Point(21, 212);
-			this.lnkWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lnkWebsite.Location = new System.Drawing.Point(32, 318);
+			this.lnkWebsite.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lnkWebsite.Name = "lnkWebsite";
-			this.lnkWebsite.Size = new System.Drawing.Size(668, 26);
+			this.lnkWebsite.Size = new System.Drawing.Size(1002, 39);
 			this.lnkWebsite.TabIndex = 3;
 			this.lnkWebsite.TabStop = true;
 			this.lnkWebsite.Text = "More";
 			this.lnkWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			this.lnkWebsite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkWebsite_LinkClicked);
+			this.lnkWebsite.Click += new System.EventHandler(this.lnkWebsite_LinkClicked);
 			// 
 			// lblMessage
 			// 
@@ -71,10 +72,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblMessage.BackColor = System.Drawing.Color.Transparent;
-			this.lblMessage.Location = new System.Drawing.Point(16, 11);
-			this.lblMessage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblMessage.ForeColor = System.Drawing.Color.Black;
+			this.lblMessage.Location = new System.Drawing.Point(24, 16);
+			this.lblMessage.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.lblMessage.Name = "lblMessage";
-			this.lblMessage.Size = new System.Drawing.Size(673, 194);
+			this.lblMessage.Size = new System.Drawing.Size(1010, 291);
 			this.lblMessage.TabIndex = 4;
 			this.lblMessage.Text = "Important Message";
 			this.lblMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -82,14 +84,14 @@
 			// FrontMessage
 			// 
 			this.AcceptButton = this.cmdClose;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdClose;
-			this.ClientSize = new System.Drawing.Size(705, 294);
+			this.ClientSize = new System.Drawing.Size(1058, 441);
 			this.Controls.Add(this.lblMessage);
 			this.Controls.Add(this.lnkWebsite);
 			this.Controls.Add(this.cmdClose);
-			this.Margin = new System.Windows.Forms.Padding(4);
+			this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.Name = "FrontMessage";
 			this.Text = "FrontMessage";
 			this.ResumeLayout(false);
@@ -99,7 +101,7 @@
 		#endregion
 
 		private Skin.Button cmdClose;
-		private System.Windows.Forms.LinkLabel lnkWebsite;
+		private Skin.LinkLabel lnkWebsite;
 		private System.Windows.Forms.Label lblMessage;
 	}
 }

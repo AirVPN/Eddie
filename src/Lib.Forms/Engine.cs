@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,172 +35,136 @@ namespace Eddie.Forms
 		// We have a list of logs, because we process it only when the form are available.
 		public List<LogEntry> LogEntries = new List<LogEntry>();
 
-		public Forms.Main FormMain; // ClodoTemp2 - remove?
-
 		//public AutoResetEvent FormsReady = new AutoResetEvent(false);
 		public AutoResetEvent InitDone = new AutoResetEvent(false);
 
-		public override bool OnInit()
+		public Engine(string environmentCommandLine) : base(environmentCommandLine)
 		{
-			Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
-			Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-
-			// Add the event handler for handling non-UI thread exceptions to the event. 
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
-			bool result = base.OnInit();
-
-			return result;
+		}
+		
+		public override string OnAskProfilePassword(bool authFailed)
+		{			
+			return UiClient.Instance.SplashWindow.AskUnlockPassword(authFailed);
 		}
 
-		public override void OnUnhandledException(Exception e)
+		private delegate bool OnAskYesNoDelegate(string message);
+		public override bool OnAskYesNo(string message)
 		{
-			base.OnUnhandledException(e);
+			Form parentForm = UiClient.Instance.MainWindow;
+			if (parentForm == null)
+				parentForm = UiClient.Instance.SplashWindow;
 
-			/*
-			if (Platform.IsWindows())
+			if (parentForm.InvokeRequired)
 			{
-				ExceptionReporter reporter = new ExceptionReporter();
+				OnAskYesNoDelegate inv = new OnAskYesNoDelegate(this.OnAskYesNo);
 
-				// Crash Reporting
-				reporter.Config.AppName = "Eddie";
-				reporter.Config.TitleText = "Eddie Error Report";
-				reporter.Config.EmailReportAddress = "support@airvpn.org";
-				reporter.Config.ShowSysInfoTab = true;   // all tabs are shown by default
-				reporter.Config.ShowFlatButtons = true;   // this particular config is code-only
-				reporter.Config.TakeScreenshot = true;   // attached if sending email				
-
-				reporter.Show(e);
+				return (bool)parentForm.Invoke(inv, new object[] { message });
 			}
-			*/
-		}
-
-		public static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
-		{
-			Engine.OnUnhandledException(e.Exception);
-		}
-
-		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-		{
-			Exception ex = (Exception)e.ExceptionObject;
-			Engine.OnUnhandledException(ex);
-		}
-
-		public override void OnExit()
-		{
-			if (FormMain != null)
-				FormMain.Close();
 			else
-				base.OnExit();
+			{
+				return GuiUtils.MessageBoxAskYesNo(parentForm, message);
+			}
 		}
 
-		public override void OnDeInit2()
+		private delegate Json OnAskShellExternalPermissionDelegate(Json data);
+		public override Json OnAskShellExternalPermission(Json data)
 		{
-			base.OnDeInit2();
+			Form parentForm = UiClient.Instance.MainWindow;
+			if (parentForm == null)
+				parentForm = UiClient.Instance.SplashWindow;
 
-			if (FormMain != null)
-				FormMain.DeInit();
+			if (parentForm.InvokeRequired)
+			{
+				OnAskShellExternalPermissionDelegate inv = new OnAskShellExternalPermissionDelegate(this.OnAskShellExternalPermission);
+
+				return (Json)parentForm.Invoke(inv, new object[] { data });
+			}
+			else
+			{
+				Forms.WindowShellExternalPermission dlg = new Forms.WindowShellExternalPermission();
+				dlg.Data = data;
+				dlg.ShowDialog(parentForm);
+				return dlg.Answer;
+			}
 		}
 
 		public override void OnRefreshUi(RefreshUiMode mode)
 		{
 			base.OnRefreshUi(mode);
 
-			if (Engine.Storage.GetBool("cli") == false)
-				if (FormMain != null)
-					FormMain.OnRefreshUi(mode);
+			if (UiClient.Instance.MainWindow != null)
+				UiClient.Instance.MainWindow.OnRefreshUi(mode);
 		}
 
 		public override void OnStatsChange(StatsEntry entry)
 		{
-			if (FormMain != null)
-				FormMain.OnStatsChange(entry);
+			if (UiClient.Instance.MainWindow != null)
+				UiClient.Instance.MainWindow.OnStatsChange(entry);
 		}
 
 		public override void OnProviderManifestFailed(Provider provider)
 		{
-			if (FormMain != null)
-				FormMain.OnProviderManifestFailed(provider);
+			if (UiClient.Instance.MainWindow != null)
+				UiClient.Instance.MainWindow.OnProviderManifestFailed(provider);
 		}
 
 		public override void OnLog(LogEntry l)
 		{
 			base.OnLog(l);
-
-			if ((Engine.Storage == null) || (Engine.Storage.GetBool("cli") == false))
+						
 			{
 				lock (LogEntries)
 				{
 					LogEntries.Add(l);
 				}
-				if (FormMain != null)
-					FormMain.OnRefreshUi(RefreshUiMode.Log);
-
-				if (FormMain == null) // Otherwise it's showed from the RefreshUI in the same UI Thread
-				{
-					if (l.Type == LogType.Fatal)
-					{
-						MessageBox.Show(FormMain, l.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-					}
-				}
+				if (UiClient.Instance.MainWindow != null)
+					UiClient.Instance.MainWindow.OnRefreshUi(RefreshUiMode.Log);
 			}
 		}
-
-		public override void OnFrontMessage(string message)
-		{
-			base.OnFrontMessage(message);
-
-			if (FormMain != null)
-				FormMain.OnFrontMessage(message);
-		}
-		
+				
 		public override void OnShowText(string title, string data)
 		{
 			base.OnShowText(title, data);
 
-			if (FormMain != null)
-				FormMain.OnShowText(title, data);
+			if (UiClient.Instance.MainWindow != null)
+				UiClient.Instance.MainWindow.OnShowText(title, data);
 		}
+
+		
 
 		public override Credentials OnAskCredentials()
 		{
-			if (FormMain != null)
-				return FormMain.OnAskCredentials();
-			return null;
-		}
-
-		public override void OnLoggedUpdate(XmlElement xmlKeys)
-		{
-			base.OnLoggedUpdate(xmlKeys);
-
-			if (FormMain != null)
-				FormMain.OnLoggedUpdate(xmlKeys);
+			if (UiClient.Instance.MainWindow != null)
+				return UiClient.Instance.MainWindow.OnAskCredentials();
+			else
+				return null;
 		}
 
 		public override void OnPostManifestUpdate()
 		{
 			base.OnPostManifestUpdate();
 
-			if (FormMain != null)
-				FormMain.OnPostManifestUpdate();
+			if (UiClient.Instance.MainWindow != null)
+				UiClient.Instance.MainWindow.OnPostManifestUpdate();
 		}
 
 		public virtual void OnChangeMainFormVisibility(bool vis)
 		{
-			
-		}
+            if (UiClient.Instance.MainWindow != null)
+                UiClient.Instance.MainWindow.OnChangeMainFormVisibility(vis);
+        }
 
 		public virtual bool AllowMinimizeInTray()
 		{
 			if (Engine.Storage != null)
 			{
-				if (Engine.Storage.GetBool("gui.tray_minimized") == false)
+				if (Engine.Storage.GetBool("gui.tray_show") == false)
 				{
 					return false;
 				}
 			}
-			if (FormMain != null)
-				return FormMain.AllowMinimizeInTray ();
+			if (UiClient.Instance.MainWindow != null)
+				return UiClient.Instance.MainWindow.AllowMinimizeInTray ();
 			return false;
 		}
 	}

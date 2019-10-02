@@ -19,7 +19,7 @@ namespace Eddie.Core.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -65,15 +65,15 @@ namespace Eddie.Core.Properties {
         ///&lt;provider code=&quot;AirVPN&quot; title=&quot;AirVPN&quot; subtitle=&quot;The air to breathe the real Internet.&quot; href=&quot;https://airvpn.org&quot; class=&quot;service&quot; fetch_mode=&quot;rsa4096+aes256&quot;&gt;
         ///  &lt;manifest&gt;
         ///    &lt;urls&gt;
+        ///      &lt;url address=&quot;http://63.33.78.166&quot; /&gt;
+        ///      &lt;url address=&quot;http://52.48.66.85&quot; /&gt;
         ///      &lt;url address=&quot;http://54.93.175.114&quot; /&gt;
-        ///      &lt;url address=&quot;http://54.246.124.152&quot; /&gt;
-        ///      &lt;url address=&quot;http://54.225.156.17&quot; /&gt;
-        ///      &lt;url address=&quot;http://95.211.138.143&quot; /&gt;
+        ///      &lt;url address=&quot;http://63.33.116.50&quot; /&gt;
         ///    &lt;/urls&gt;
         ///    &lt;rsa&gt;
         ///      &lt;RSAParameters&gt;
         ///        &lt;Exponent&gt;AQAB&lt;/Exponent&gt;
-        ///        &lt;Modulus&gt;wuQXz7eZeEBwa [rest of string was truncated]&quot;;.
+        ///        &lt;Modulus&gt;wuQXz7eZeEBwaaRsVK8 [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AirVPN {
             get {
@@ -135,29 +135,6 @@ namespace Eddie.Core.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-        ///&lt;manifest&gt;
-        ///  &lt;hosts&gt;
-        ///		&lt;host address=&quot;54.93.175.114&quot; /&gt;
-        ///		&lt;host address=&quot;54.246.124.152&quot; /&gt;
-        ///		&lt;host address=&quot;54.225.156.17&quot; /&gt;
-        ///		&lt;host address=&quot;95.211.138.143&quot; /&gt;
-        ///	&lt;/hosts&gt;
-        ///  &lt;skins&gt;
-        ///    &lt;skin name=&quot;Default&quot;&gt;
-        ///      
-        ///    &lt;/skin&gt;
-        ///  &lt;/skins&gt;
-        ///
-        ///&lt;/manifest&gt;.
-        /// </summary>
-        internal static string Manifest {
-            get {
-                return ResourceManager.GetString("Manifest", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;provider code=&quot;OpenVPN&quot; title=&quot;Generic OpenVPN provider&quot; subtitle=&quot;If you have a folder with .ovpn files&quot; href=&quot;https://openvpn.net&quot; class=&quot;openvpn&quot;&gt;
         ///&lt;/provider&gt;.
@@ -172,16 +149,12 @@ namespace Eddie.Core.Properties {
         ///   Looks up a localized string similar to ------------------------------------------------------------
         ///OpenVPN -- A Secure tunneling daemon
         ///
-        ///
-        ///
-        ///Copyright (C) 2002-2010 OpenVPN Technologies, Inc. 
+        ///Copyright (C) 2002-2018 OpenVPN Technologies, Inc. 
         ///This program is free software;
         ///
         ///you can redistribute it and/or modify
         ///it under the terms of the GNU General Public License version 2
         ///as published by the Free Software Foundation.
-        ///
-        ///
         ///
         ///For the latest version of OpenVPN, 
         ///go to:
@@ -190,7 +163,8 @@ namespace Eddie.Core.Properties {
         ///
         ///License: GNU General Public License (GPL v2+)
         ///------------------------------------------------------------
-        ///stun [rest of string was truncated]&quot;;.
+        ///stunnel
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ThirdParty {
             get {

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -57,12 +57,12 @@ namespace Eddie.Forms.Forms
         {
             base.OnLoad(e);
 
-            CommonInit(Messages.WindowsLoginTitle);
+            CommonInit(LanguageManager.GetText("WindowsLoginTitle"));
 
-			cboRemember.Items.Add(Messages.WindowsCredentialsRememberNo);
-			cboRemember.Items.Add(Messages.WindowsCredentialsRememberRun);
-			cboRemember.Items.Add(Messages.WindowsCredentialsRememberPermanent);
-			cboRemember.Text = Messages.WindowsCredentialsRememberRun;
+			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberNo"));
+			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberRun"));
+			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberPermanent"));
+			cboRemember.Text = LanguageManager.GetText("WindowsCredentialsRememberRun");
 
 			EnableIde();
 		}
@@ -83,11 +83,11 @@ namespace Eddie.Forms.Forms
 
 			Credentials.Username = txtUsername.Text;
 			Credentials.Password = txtPassword.Text;
-			if (cboRemember.Text == Messages.WindowsCredentialsRememberNo)
+			if (cboRemember.Text == LanguageManager.GetText("WindowsCredentialsRememberNo"))
 				Credentials.Remember = "no";
-			else if (cboRemember.Text == Messages.WindowsCredentialsRememberRun)
+			else if (cboRemember.Text == LanguageManager.GetText("WindowsCredentialsRememberRun"))
 				Credentials.Remember = "run";
-			else if (cboRemember.Text == Messages.WindowsCredentialsRememberPermanent)
+			else if (cboRemember.Text == LanguageManager.GetText("WindowsCredentialsRememberPermanent"))
 				Credentials.Remember = "permanent";
 			else
 				Credentials.Remember = "no";

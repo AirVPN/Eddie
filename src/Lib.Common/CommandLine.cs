@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,11 +25,9 @@ namespace Eddie.Common
 {
 	public class CommandLine
 	{
-		public static CommandLine SystemEnvironment;
-
-		public static void InitSystem(string line)
+		public static CommandLine InitSystem(string line)
 		{
-			SystemEnvironment = new CommandLine(line, true, false);
+			return new CommandLine(line, true, false);
 		}
 
 		public Dictionary<string, string> Params = new Dictionary<string, string>();
@@ -123,6 +121,11 @@ namespace Eddie.Common
 			Set(name, value.ToString());
 		}
 
+		public void Set(string name, bool value)
+		{
+			Set(name, value ? "1" : "0");
+		}
+
 		public void SetPos(int pos, string name)
 		{
 			int p = 0;
@@ -138,32 +141,7 @@ namespace Eddie.Common
 			}
 		}
 
-		public string GetFullForDebug() // TOCLEAN
-		{
-			string o = "";
-			foreach (KeyValuePair<string, string> item in Params)
-				o += "k:#" + item.Key + "#v:#" + item.Value + "#; ";
-			return o.Trim();
-		}
-
-		public string ParseCompatibilityTest(string l, bool ignoreFirst, bool firstIsAction) // TOCLEAN
-		{
-			Params = ParseCommandLineOld(l, ignoreFirst, firstIsAction);
-			string f1 = GetFullForDebug();
-			int n1 = Params.Count;
-			Params = ParseCommandLine(l, ignoreFirst, firstIsAction);
-			string f2 = GetFullForDebug();
-			int n2 = Params.Count;
-
-			string x = "CmdLine:" + l + "\nResult :";
-			if (f1 == f2)
-				x += "OK;" + f1;
-			else
-				x += "NO;\nOld(" + n1.ToString() + "):" + f1 + "\n!=\nNew(" + n2.ToString() + "):" + f2;
-
-			x += "\n\n";
-			return x;
-		}
+		
 
 		// ------------
 		// Misc
@@ -249,75 +227,5 @@ namespace Eddie.Common
 
 			return result;
 		}
-
-		private static Dictionary<string, string> ParseCommandLineOld(string l, bool ignoreFirst, bool firstIsAction) // TOCLEAN
-		{
-			Dictionary<string, string> result = new Dictionary<string, string>();
-
-			string regexSpliter = @"(?<=^(?:[^""]*""[^""]*"")*[^""]*) ";
-
-			string[] substrings = System.Text.RegularExpressions.Regex.Split(l, regexSpliter);
-
-			int i = 0;
-			foreach (string ssub in substrings)
-			{
-				// IgnoreFirst, typical to ignore the executable if the argument is a command-line.
-				i++;
-				if ((i == 1) && (ignoreFirst))
-					continue;
-
-
-				string k = "";
-				string v = "";
-				int posE = ssub.IndexOf('=');
-				if (posE == -1)
-				{
-					k = ssub;
-					v = "";
-				}
-				else
-				{
-					k = ssub.Substring(0, posE);
-					v = ssub.Substring(posE + 1);
-				}
-
-				// Removed in 2.14.0
-				//string trimCharsK = " /\\-.\"'\n\r\t";
-				//string trimCharsV = " -.\"'\n\r\t";
-				//k = k.Trim(trimCharsK.ToCharArray());
-				//v = v.Trim(trimCharsV.ToCharArray());
-
-				// Added in 2.14.0
-				k = k.Trim().TrimStart(" /-".ToCharArray());
-				v = v.Trim();
-				if ((k.StartsWith("\"")) && (k.EndsWith("\"")))
-					k = k.Substring(1, k.Length - 2);
-				if ((k.StartsWith("'")) && (k.EndsWith("'")))
-					k = k.Substring(1, k.Length - 2);
-				if ((v.StartsWith("\"")) && (v.EndsWith("\"")))
-					v = v.Substring(1, v.Length - 2);
-				if ((v.StartsWith("'")) && (v.EndsWith("'")))
-					v = v.Substring(1, v.Length - 2);
-
-				if ((i == 1) && (firstIsAction) && (v == ""))
-				{
-					v = k;
-					k = "action";
-				}
-
-				if (v == "") // For example, "... -help ..." is equivalent of "... -help=True ..."
-					v = "True";
-
-				if (k != "")
-				{
-					result[k] = v;
-				}
-			}
-
-			return result;
-
-
-		}
-
 	}
 }

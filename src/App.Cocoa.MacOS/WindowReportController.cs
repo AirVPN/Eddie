@@ -69,9 +69,12 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsReportTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsReportTitle");
 
-			CmdClose.Activated += (object sender, EventArgs e) =>
+			GuiUtils.SetButtonCancel(Window, CmdClose);
+            GuiUtils.SetButtonDefault(Window, CmdSave);
+
+            CmdClose.Activated += (object sender, EventArgs e) =>
 			{
 				Window.Close();
 				NSApplication.SharedApplication.StopModal();
@@ -84,7 +87,7 @@ namespace Eddie.UI.Cocoa.Osx
 				string[] pboardTypes = new string[] { "NSStringPboardType" };
 				NSPasteboard.GeneralPasteboard.DeclareTypes(pboardTypes, null);
 				NSPasteboard.GeneralPasteboard.SetStringForType(t, pboardTypes[0]);
-				GuiUtils.MessageBoxInfo(Messages.LogsCopyClipboardDone);
+				GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
 			};
 
 			CmdSave.Activated += (object sender, EventArgs e) =>
@@ -98,12 +101,12 @@ namespace Eddie.UI.Cocoa.Osx
 				{
                     Core.Platform.Instance.FileContentsWriteText(panel.Url.Path, t, System.Text.Encoding.UTF8);
 
-					GuiUtils.MessageBoxInfo(Messages.LogsSaveToFileDone);
+					GuiUtils.MessageBoxInfo(LanguageManager.GetText("LogsSaveToFileDone"));
 				}
 			};
 
-			CmdCopyClipboard.ToolTip = Messages.TooltipLogsCopy;
-			CmdSave.ToolTip = Messages.TooltipLogsSave;
+			CmdCopyClipboard.ToolTip = LanguageManager.GetText("TooltipLogsCopy");
+			CmdSave.ToolTip = LanguageManager.GetText("TooltipLogsSave");
 		}
 
 		public void SetStep(string step, string text, int perc)

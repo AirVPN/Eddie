@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,79 +25,81 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Controls
 {
-    public class ListViewItemServer : ListViewItem
-    {
-        public ConnectionInfo Info;
+	public class ListViewItemServer : ListViewItem
+	{
+		public ConnectionInfo Info;
 
-        public Engine Engine
-        {
-            get
-            {
+		public Engine Engine
+		{
+			get
+			{
 				return Engine.Instance as Eddie.Forms.Engine;
-            }
-        }
-                
-        public void Update()
-        {
-            string nameForList = Info.GetNameForList();
-            if (Text != nameForList)
-                Text = nameForList;
+			}
+		}
 
-            string countryCode = Info.CountryCode;
-            if (ImageKey != countryCode)
-                ImageKey = Info.CountryCode;
-            
-            if (SubItems.Count == 1)
-            {
-                SubItems.Add("");
-                SubItems.Add("");
-                SubItems.Add("");
-                SubItems.Add("");
-                SubItems.Add("");
-            }
+		public void Update()
+		{
+			string nameForList = Info.GetNameForList();
+			if (Text != nameForList)
+				Text = nameForList;
 
-            string score = Info.Score().ToString();
-            if (SubItems[1].Text != score)
-                SubItems[1].Text = score;
+			string countryCode = Info.CountryCode;
+			if (ImageKey != countryCode)
+				ImageKey = Info.CountryCode;
 
-            
-            string location = Info.GetLocationForList();
-            if (SubItems[2].Text != location)
-                SubItems[2].Text = location;
+			if (SubItems.Count == 1)
+			{
+				SubItems.Add("");
+				SubItems.Add("");
+				SubItems.Add("");
+				SubItems.Add("");
+				SubItems.Add("");
+			}
 
-            //+" - " + Info.PingTests.ToString();
-            string latency = Info.GetLatencyForList();
-            if (SubItems[3].Text != latency)
-                SubItems[3].Text = latency;
+			string score = Info.Score().ToString();
+			if (SubItems[1].Text != score)
+				SubItems[1].Text = score;
 
-            string users = Info.GetUsersForList();
-            if(SubItems[5].Text != users)
-                SubItems[5].Text = users;
-            
 
-            Color foreColor = SystemColors.WindowText;
-            int stateImageIndex = 2;
-            switch (Info.UserList)
-            {
-                case ConnectionInfo.UserListType.WhiteList:
-                    {
-                        foreColor = Color.DarkGreen;
-                        stateImageIndex = 0;
-                    } break;
-                case ConnectionInfo.UserListType.BlackList:
-                    {
-                        foreColor = Color.DarkRed;
-                        stateImageIndex = 1;
-                    } break;                
-            }  
-            if(ForeColor != foreColor)
-            {
-                ForeColor = foreColor;
-            }
-            if(StateImageIndex != stateImageIndex)
-            {
-                StateImageIndex = stateImageIndex;
-            }            
-        }		
-    }
+			string location = Info.GetLocationForList();
+			if (SubItems[2].Text != location)
+				SubItems[2].Text = location;
+
+			//+" - " + Info.PingTests.ToString();
+			string latency = Info.GetLatencyForList();
+			if (SubItems[3].Text != latency)
+				SubItems[3].Text = latency;
+
+			string users = Info.GetUsersForList();
+			if (SubItems[5].Text != users)
+				SubItems[5].Text = users;
+
+
+			Color foreColor = SystemColors.WindowText;
+			int stateImageIndex = 2;
+			switch (Info.UserList)
+			{
+				case ConnectionInfo.UserListType.WhiteList:
+					{
+						foreColor = Color.DarkGreen;
+						stateImageIndex = 0;
+					}
+					break;
+				case ConnectionInfo.UserListType.BlackList:
+					{
+						foreColor = Color.DarkRed;
+						stateImageIndex = 1;
+					}
+					break;
+			}
+			if (ForeColor != foreColor)
+			{
+				ForeColor = foreColor;
+			}
+			if (StateImageIndex != stateImageIndex)
+			{
+				StateImageIndex = stateImageIndex;
+			}
+		}
+	}
 }

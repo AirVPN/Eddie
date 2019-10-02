@@ -1,3 +1,0 @@
-#!/bin/bash
-mono /usr/lib/eddie-ui/Eddie-UI.exe --path=$HOME/.airvpn --path.resources=/usr/share/eddie-ui --path.exec="$0" "$@"
-

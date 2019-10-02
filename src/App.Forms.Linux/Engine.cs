@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,53 +30,38 @@ namespace Eddie.Forms.Linux
 {
 	public class Engine : Eddie.Forms.Engine
 	{
-		public Tray Tray = null;
 
-		public Engine()
+
+		public Engine(string environmentCommandLine) : base(environmentCommandLine)
 		{
-		
 		}
 
-		public override bool OnInit2 ()
+		public UiClient UiClient
 		{
-			bool result = base.OnInit2 ();
-
-			if( (Eddie.Core.Engine.Instance.Storage.GetBool("gui.tray_show")) && (Eddie.Core.Platform.Instance.CanShellAsNormalUser()) )
-				Tray = new Tray ();
-		
-			return result;
-		}
-
-		public override void OnDeInit ()
-		{
-			if (Tray != null) {
-				Tray.CancelRequested = true;
-				Tray.SendCommand ("action.exit");
-				Tray.Join ();
-				Tray = null;
+			get
+			{
+				return Eddie.Forms.UiClient.Instance as UiClient;
 			}
-			
-			base.OnDeInit ();
 		}
-		
-		public override void OnChangeMainFormVisibility (bool vis)
+
+        public override void OnChangeMainFormVisibility (bool vis)
 		{
 			base.OnChangeMainFormVisibility (vis);
 
-			if (Tray != null) 
+			if( (UiClient.Tray != null) && (UiClient.Tray.IsStarted()) )            
 			{
-				if (Engine.Storage.GetBool("gui.tray_minimized"))
+				if (Engine.Storage.GetBool("gui.tray_show"))
 				{
-					Tray.SendCommand ("menu.restore.visible:true");
+					UiClient.Tray.SendCommand ("menu.restore.visible:true");
 
 					if (vis)
-						Tray.SendCommand ("menu.restore.text:" + Messages.WindowsMainHide);
+						UiClient.Tray.SendCommand ("menu.restore.text:" + LanguageManager.GetText("WindowsMainHide"));
 					else
-						Tray.SendCommand ("menu.restore.text:" + Messages.WindowsMainShow);
-				}
+						UiClient.Tray.SendCommand ("menu.restore.text:" + LanguageManager.GetText("WindowsMainShow"));
+                }
 				else
 				{
-					Tray.SendCommand ("menu.restore.visible:false");
+					UiClient.Tray.SendCommand ("menu.restore.visible:false");
 				}
 			}
 		}
@@ -85,16 +70,16 @@ namespace Eddie.Forms.Linux
 		{
 			if (Engine.Storage != null)
 			{
-				if (Engine.Storage.GetBool("gui.tray_minimized") == false)
+				if (Engine.Storage.GetBool("gui.tray_show") == false)
 				{
 					return false;
 				}
 			}
 
-			if (Tray == null)
+			if (UiClient.Tray == null)
 				return false;
 			
-			if (Tray.IsStarted ())
+			if (UiClient.Tray.IsStarted ())
 				return true;
 			
 			return false;

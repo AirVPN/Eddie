@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,25 +27,22 @@ namespace Eddie.CLI.Windows
 {
 	class Program
 	{
+		private static Core.ConsoleEdition.UiClient m_client;
+
 		static void Main(string[] args)
 		{
-			Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
-
-			CommandLine.InitSystem(Environment.CommandLine);
-
-			Core.Engine engine = new Core.Engine();
-
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			if (engine.Initialization(true))
-			{
-				engine.ConsoleStart();
-			}
+			Core.Platform.Instance = new Eddie.Platform.Windows.Platform();
+
+			m_client = new Core.ConsoleEdition.UiClient();
+			m_client.Init(Environment.CommandLine);
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);
+			if(m_client != null)
+				m_client.OnUnhandledException("CurrentDomain", e.ExceptionObject as Exception);
 		}
 	}
 }

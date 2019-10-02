@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProjectGuid>{8A54C394-4DE9-4512-9A04-701049176953}</ProjectGuid>
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
@@ -10,16 +9,16 @@
     <AssemblyName>Eddie</AssemblyName>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <ReleaseVersion>2.17</ReleaseVersion>    
+    <ReleaseVersion>2.17</ReleaseVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>bin\x64\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,24 +29,22 @@
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
     <UseSGen>true</UseSGen>
     <UseRefCounting>true</UseRefCounting>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
+    <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
+    <AOTMode>None</AOTMode>
     <CustomCommands>
       <CustomCommands>
         <Command>
-          <type>BeforeBuild</type>
-          <command>${ProjectDir}/prebuild.sh</command>
-          <workingdir>${ProjectDir}/</workingdir>
-          <externalConsole>True</externalConsole>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.macos.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
-    <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
-    <AOTMode>None</AOTMode>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <DebugType></DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>bin\x64\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <EnableCodeSigning>false</EnableCodeSigning>
@@ -57,20 +54,22 @@
     <UseSGen>true</UseSGen>
     <UseRefCounting>true</UseRefCounting>
     <LinkMode>None</LinkMode>
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>BeforeBuild</type>
-          <command>${ProjectDir}/prebuild.sh</command>
-          <workingdir>${ProjectDir}/</workingdir>
-          <externalConsole>True</externalConsole>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
     <PlatformTarget>x64</PlatformTarget>
     <CodeSigningKey>Mac Developer</CodeSigningKey>
     <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
     <AOTMode>None</AOTMode>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.macos.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+    <NoWarn></NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <StartArguments>path.tools="../../../../../../../deploy/macos_x64" path.resources="../../../../../../../common"</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -495,6 +494,7 @@
     <BundleResource Include="Resources\rename.png" />
     <BundleResource Include="Resources\command.png" />
     <BundleResource Include="Resources\about_airvpn.png" />
+    <BundleResource Include="Resources\splash.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -622,6 +622,30 @@
       <DependentUpon>WindowProviderNoBootstrapController.cs</DependentUpon>
     </Compile>
     <Compile Include="UiClient.cs" />
+    <Compile Include="WindowSplash.cs" />
+    <Compile Include="WindowSplash.designer.cs">
+      <DependentUpon>WindowSplash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowSplashController.cs" />
+    <Compile Include="WindowSplashController.designer.cs">
+      <DependentUpon>WindowSplashController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowUnlock.cs" />
+    <Compile Include="WindowUnlock.designer.cs">
+      <DependentUpon>WindowUnlock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowUnlockController.cs" />
+    <Compile Include="WindowUnlockController.designer.cs">
+      <DependentUpon>WindowUnlockController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowShellExternalPermission.cs" />
+    <Compile Include="WindowShellExternalPermission.designer.cs">
+      <DependentUpon>WindowShellExternalPermission.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowShellExternalPermissionController.cs" />
+    <Compile Include="WindowShellExternalPermissionController.designer.cs">
+      <DependentUpon>WindowShellExternalPermissionController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -643,6 +667,9 @@
     <InterfaceDefinition Include="WindowReport.xib" />
     <InterfaceDefinition Include="WindowCommand.xib" />
     <InterfaceDefinition Include="WindowProviderNoBootstrap.xib" />
+    <InterfaceDefinition Include="WindowSplash.xib" />
+    <InterfaceDefinition Include="WindowUnlock.xib" />
+    <InterfaceDefinition Include="WindowShellExternalPermission.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Entitlements.plist" />

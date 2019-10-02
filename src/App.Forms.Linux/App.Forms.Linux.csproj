@@ -27,8 +27,10 @@
     <CodeAnalysisRuleSet>..\..\tools\ruleset\idisposable.ruleset</CodeAnalysisRuleSet>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
@@ -44,8 +46,10 @@
     <Prefer32Bit>false</Prefer32Bit>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
@@ -60,7 +64,6 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    
     <CodeAnalysisRuleSetDirectories>;$(DevEnvDir)\..\..\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;$(DevEnvDir)\..\..\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -71,8 +74,11 @@
     <Prefer32Bit>false</Prefer32Bit>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
+          <workingdir></workingdir>
+        </Command>
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
@@ -86,7 +92,7 @@
     <CodeAnalysisLogFile>bin\Release\UI.Linux.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>    
+    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSetDirectories>;$(DevEnvDir)\..\..\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;$(DevEnvDir)\..\..\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -95,8 +101,10 @@
     <Prefer32Bit>false</Prefer32Bit>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/libLib.Platform.Linux.Native.so ${TargetDir}" />
-        <Command type="AfterBuild" command="cp ${ProjectDir}/../../deploy/linux_${ProjectConfigPlat}/eddie-tray ${TargetDir}" />
+        <Command>
+          <type>AfterBuild</type>
+          <command>"${SolutionDir}/eddie.linux.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
+        </Command>
       </CustomCommands>
     </CustomCommands>
     <Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
@@ -112,6 +120,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="mscorlib">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\System.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine.cs" />

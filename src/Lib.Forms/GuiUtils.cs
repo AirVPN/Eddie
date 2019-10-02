@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Text;
 using Eddie.Common;
+using Eddie.Core;
 
 namespace Eddie.Forms
 {
@@ -40,6 +41,9 @@ namespace Eddie.Forms
 		public static StringFormat StringFormatLeftBottom;
 		public static StringFormat StringFormatCenterBottom;
 		public static StringFormat StringFormatRightBottom;
+		public static StringFormat StringFormatLeftMiddleNoWrap;
+		public static StringFormat StringFormatCenterMiddleNoWrap;
+		public static StringFormat StringFormatRightMiddleNoWrap;
 
 		private static string m_unixFontSystem = "";
 		private static string m_unixFontMonoSpace = "";
@@ -65,14 +69,17 @@ namespace Eddie.Forms
 			StringFormatLeftBottom = BuildStringFormat(StringAlignment.Near, StringAlignment.Far);
 			StringFormatCenterBottom = BuildStringFormat(StringAlignment.Center, StringAlignment.Far);
 			StringFormatRightBottom = BuildStringFormat(StringAlignment.Far, StringAlignment.Far);
+			StringFormatLeftMiddleNoWrap = BuildStringFormat(StringAlignment.Near, StringAlignment.Center, StringFormatFlags.NoWrap);
+			StringFormatCenterMiddleNoWrap = BuildStringFormat(StringAlignment.Center, StringAlignment.Center, StringFormatFlags.NoWrap);
+			StringFormatRightMiddleNoWrap = BuildStringFormat(StringAlignment.Far, StringAlignment.Center, StringFormatFlags.NoWrap);
 
-			if(IsUnix())
+			if (IsUnix())
 			{
 				m_unixFontSystem = "";
 				string gsettingsPath = Eddie.Core.Platform.Instance.LocateExecutable("gsettings"); // gnome
 				if (gsettingsPath != "")
 				{
-					m_unixFontSystem = ShellSync(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
+					m_unixFontSystem = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
 					int posSize = m_unixFontSystem.LastIndexOf(" ");
 					if (posSize != -1)
 						m_unixFontSystem = m_unixFontSystem.Substring(0, posSize) + "," + m_unixFontSystem.Substring(posSize + 1);
@@ -81,7 +88,7 @@ namespace Eddie.Forms
 				m_unixFontMonoSpace = "";
 				if (gsettingsPath != "")
 				{
-					m_unixFontMonoSpace = ShellSync(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+					m_unixFontMonoSpace = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
 					int posSize = m_unixFontMonoSpace.LastIndexOf(" ");
 					if (posSize != -1)
 						m_unixFontMonoSpace = m_unixFontMonoSpace.Substring(0, posSize) + "," + m_unixFontMonoSpace.Substring(posSize + 1);
@@ -94,7 +101,16 @@ namespace Eddie.Forms
 			StringFormat sf = new StringFormat();
 			sf.Alignment = h;
 			sf.LineAlignment = v;
-			sf.FormatFlags = StringFormatFlags.NoWrap;
+			sf.Trimming = StringTrimming.None;
+			return sf;
+		}
+
+		public static StringFormat BuildStringFormat(StringAlignment h, StringAlignment v, StringFormatFlags f)
+		{
+			StringFormat sf = new StringFormat();
+			sf.Alignment = h;
+			sf.LineAlignment = v;
+			sf.FormatFlags = f;			
 			sf.Trimming = StringTrimming.None;
 			return sf;
 		}
@@ -186,7 +202,7 @@ namespace Eddie.Forms
 
 		public static string FilePicker()
 		{
-			return FilePicker(Messages.FilterAllFiles);
+			return FilePicker(LanguageManager.GetText("FilterAllFiles"));
 		}
 
 		public static string FilePicker(string filter)
@@ -199,6 +215,33 @@ namespace Eddie.Forms
 				else
 					return "";
 			}
+		}
+
+		public static void MessageBoxInfo(Form parent, string message)
+		{
+			Forms.WindowMessage dlg = new Forms.WindowMessage();
+			dlg.Kind = Forms.WindowMessage.MessageKind.Info;
+			dlg.Body = message;
+			dlg.ShowDialog(parent);
+			//MessageBox.Show(parent, message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
+
+		public static void MessageBoxError(Form parent, string message)
+		{
+			Forms.WindowMessage dlg = new Forms.WindowMessage();
+			dlg.Kind = Forms.WindowMessage.MessageKind.Error;
+			dlg.Body = message;
+			dlg.ShowDialog(parent);			
+		}
+
+		public static bool MessageBoxAskYesNo(Form parent, string message)
+		{
+			Forms.WindowMessage dlg = new Forms.WindowMessage();
+			dlg.Kind = Forms.WindowMessage.MessageKind.YesNo;
+			dlg.Body = message;			
+			dlg.ShowDialog(parent);
+			return dlg.YesNoAnswer;
+			//return (MessageBox.Show(parent, message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
 		}
 
 		public static void ClipboardSetText(string t)
@@ -224,47 +267,6 @@ namespace Eddie.Forms
 				// Temporary, TOFIX
 				Eddie.Core.Platform.Instance.OpenUrl(url);
 			}
-		}
-
-		public static void ShellSync(string path, string[] arguments, out string stdout, out string stderr, out int exitCode)
-		{
-			try
-			{
-				using (Process p = new Process())
-				{
-					p.StartInfo.FileName = path;
-					p.StartInfo.Arguments = String.Join(" ", arguments);
-					p.StartInfo.WorkingDirectory = "";
-					p.StartInfo.CreateNoWindow = true;
-					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-					p.StartInfo.UseShellExecute = false;
-					p.StartInfo.RedirectStandardOutput = true;
-					p.StartInfo.RedirectStandardError = true;
-					p.Start();
-
-					stdout = p.StandardOutput.ReadToEnd().Trim();
-					stderr = p.StandardError.ReadToEnd().Trim();
-
-					p.WaitForExit();
-
-					exitCode = p.ExitCode;
-				}
-			}
-			catch (Exception ex)
-			{
-				stdout = "";
-				stderr = "Error: " + ex.Message;
-				exitCode = -1;
-			}
-		}
-
-		public static string ShellSync(string path, string arg1)
-		{
-			string stdout;
-			string stderr;
-			int exitCode;
-			ShellSync(path, new string[] { arg1 }, out stdout, out stderr, out exitCode);
-			return NormalizeString(stdout + "\n" + stderr).Trim();
 		}
 
 		public static string NormalizeString(string val)

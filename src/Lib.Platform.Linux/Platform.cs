@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,17 +35,15 @@ namespace Eddie.Platform.Linux
 	{
 		private string m_version = "";
 		private string m_architecture = "";
-		private UInt32 m_uid;
-		private int m_pidSystemD = 0;
+
 		private string m_monoVersion = "2-generic";
 
-		private UInt32 m_userId = 0;
-		private string m_userName = "";
+        private UInt32 m_uid = 9999;
 
-		private string m_sudoPath = "";
+        private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
-		// Override
-		public Platform()
+        // Override
+        public Platform()
 		{
 			try
 			{
@@ -85,65 +83,28 @@ namespace Eddie.Platform.Linux
 			return m_monoVersion + "; Framework: " + System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
 
-		public override void OnInit(bool cli)
+		public override void OnInit()
 		{
-			base.OnInit(cli);
+			base.OnInit();
 
 			m_version = SystemShell.Shell1(LocateExecutable("uname"), "-a");
 			m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"), "-m").Trim());
-			m_uid = 9999;
-			UInt32.TryParse(SystemShell.Shell1(LocateExecutable("id"), "-u"), out m_uid);
-			int.TryParse(SystemShell.Shell1(LocateExecutable("pidof"), "systemd"), out m_pidSystemD);
 
-			m_sudoPath = LocateExecutable("sudo");
-
-			// Obtain user ID and Name. Almost the same methods used by synaptic package manager GUI.
-			{
-				if (Environment.GetEnvironmentVariable("PKEXEC_UID") != null)
-				{
-					m_userId = Conversions.ToUInt32(Environment.GetEnvironmentVariable("PKEXEC_UID"));
-				}
-				else if (Environment.GetEnvironmentVariable("SUDO_UID") != null)
-				{
-					m_userId = Conversions.ToUInt32(Environment.GetEnvironmentVariable("SUDO_UID"));
-				}
-				else if (Environment.GetEnvironmentVariable("SUDO_USER") != null)
-				{
-					m_userName = Environment.GetEnvironmentVariable("SUDO_USER");
-				}
-				else if (Environment.GetEnvironmentVariable("USER") != null)
-				{
-					m_userName = Environment.GetEnvironmentVariable("USER");
-				}
-
-				if ((m_userName == "") && (m_userId != 0))
-				{
-					m_userName = SystemShell.Shell2(LocateExecutable("getent"), "passwd", m_userId.ToString());
-					if (m_userName.IndexOf(":") != -1)
-						m_userName = m_userName.Substring(0, m_userName.IndexOf(":"));
-				}
-
-				m_userName = UtilsString.StringPruneCharsNotIn(m_userName, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-");
-
-				if (m_userName == "root")
-					m_userName = "";
-
-				if ((m_userName != "") && (m_userId == 0))
-					m_userId = Conversions.ToUInt32("id -u " + m_userName);
-			}
-
-			NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
+			NativeMethods.Signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
+            NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
 			NativeMethods.Signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
 			NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
 			NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
 		}
 
 		private static void SignalCallback(int signum)
-		{
+		{            
 			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
-			if (sig == NativeMethods.Signum.SIGINT)
-				Engine.Instance.OnSignal("SIGINT");
-			else if (sig == NativeMethods.Signum.SIGTERM)
+			if (sig == NativeMethods.Signum.SIGHUP)
+				Engine.Instance.OnSignal("SIGHUP");
+            else if (sig == NativeMethods.Signum.SIGINT)
+                Engine.Instance.OnSignal("SIGINT");
+            else if (sig == NativeMethods.Signum.SIGTERM)
 				Engine.Instance.OnSignal("SIGTERM");
 			else if (sig == NativeMethods.Signum.SIGUSR1)
 				Engine.Instance.OnSignal("SIGUSR1");
@@ -156,9 +117,29 @@ namespace Eddie.Platform.Linux
 			return m_architecture;
 		}
 
+        public override string GetDefaultDataPath()
+        {
+            // Maybe the default can be "home" like macOS. 
+            // Currently it's String.Empty so Eddie try first to use App directory (for portable editions)
+            return String.Empty;
+            //return "home";
+        }
+
+        public override ElevatedProcess StartElevated()
+		{
+			Elevated e = new Elevated();
+			e.Start();
+			return e;
+		}
+
 		public override bool IsAdmin()
 		{
-			// return true; // Decomment for debugging			
+			// return true; // Decomment for debugging
+
+			if (m_uid == 9999)
+			{
+				m_uid = NativeMethods.getuid();
+			}
 			return (m_uid == 0);
 		}
 
@@ -167,17 +148,21 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
-		public override void OpenUrl(string url)
+		protected override string GetElevatedHelperPathImpl()
 		{
-			if (CanShellAsNormalUser() == false)
-				return;
+			return FileGetPhysicalPath(GetApplicationPath() + "/eddie-cli-elevated");
+		}
 
-			SystemShell s = new SystemShell();
-			s.Path = LocateExecutable("xdg-open");
-			s.Arguments.Add(url);
-			s.RunAsNormalUser = true;
-			s.WaitEnd = false;
-			s.Run();
+		public override bool CheckElevatedSocketAllowed(System.Net.IPEndPoint localEndpoint, System.Net.IPEndPoint remoteEndpoint)
+		{
+			// Security: Don't yet find a method, because in some platform (ex. Arch) Eddie are compiled from sources.
+			return true;
+		}
+
+		public override bool CheckElevatedProcessAllowed(string remotePath)
+		{
+			// Security: Don't yet find a method, because in some platform (ex. Arch) Eddie are compiled from sources.
+			return true;
 		}
 
 		public override string DirSep
@@ -247,40 +232,14 @@ namespace Eddie.Platform.Linux
 			if (FileImmutableGet(path) == value)
 				return;
 
-			NativeMethods.SetFileImmutable(path, value ? 1 : 0);
-
-			/* // TOCLEAN
-			string chattrPath = LocateExecutable("chattr");
-			if(chattrPath != "")
-            {
-                string flag = (value ? "+i" : "-i");
-				SystemShell s = new SystemShell();
-				s.Path = chattrPath;
-				s.Arguments.Add(flag);
-				s.Arguments.Add(SystemShell.EscapePath(path));
-				s.Run();
-			}
-			*/
-		}
+            Engine.Instance.Elevated.DoCommandSync("file-immutable-set", "path", path, "flag", (value ? "1" : "0"));
+        }
 
 		public override bool FileEnsurePermission(string path, string mode)
 		{
 			if ((path == "") || (FileExists(path) == false))
 				return false;
-
-			/* // TOCLEAN
-			string chmodPath = LocateExecutable("chmod");
-			if (chmodPath != "")
-			{
-				// 'mode' not escaped, called hard-coded.
-				SystemShell s = new SystemShell();
-				s.Path = chmodPath;
-				s.Arguments.Add(mode);
-				s.Arguments.Add(SystemShell.EscapePath(path));
-				s.NoDebugLog = true;
-				s.Run();
-			}
-			*/
+							
 			int result = NativeMethods.GetFileMode(path);
 			if (result == -1)
 			{
@@ -337,8 +296,11 @@ namespace Eddie.Platform.Linux
 			}
 
 			return true;
+		}
 
-			// FileEnsurePermission(path, "+x"); // TOCLEAN
+		public override bool FileRunAsRoot (string path)
+		{
+			return NativeMethods.GetFileRunAsRoot (path);
 		}
 
 		public override string GetExecutableReport(string path)
@@ -347,7 +309,7 @@ namespace Eddie.Platform.Linux
 			if (lddPath != "")
 				return SystemShell.Shell1(lddPath, SystemShell.EscapePath(path));
 			else
-				return "'ldd' " + Messages.NotFound;
+				return "'ldd' " + LanguageManager.GetText("NotFound");
 		}
 
 		public override string GetExecutablePathEx()
@@ -367,18 +329,26 @@ namespace Eddie.Platform.Linux
 			int pid = Process.GetCurrentProcess().Id;
 			string output = SystemShell.Shell1(LocateExecutable("readlink"), "/proc/" + pid.ToString() + "/exe");
 
-			if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono")))
+			if ((output != "") && (new FileInfo(output).Name.ToLowerInvariant().StartsWith("mono", StringComparison.InvariantCulture)))
 			{
 				// Exception: Assembly directly load by Mono
 				output = base.GetExecutablePathEx();
 			}
 
-			return output;
+			return output; 
 		}
 
-		public override string GetUserPathEx()
+		protected override string GetUserPathEx()
 		{
-			return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
+            // return Environment.GetEnvironmentVariable("HOME") + DirSep + ".eddie";
+
+            string basePath = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
+            if (basePath == null)
+                basePath = "";
+            if (basePath == "")
+                basePath = Environment.GetEnvironmentVariable("HOME") + DirSep + ".config";
+
+            return basePath + DirSep + "eddie";
 		}
 
 		public override string LocateExecutable(string name)
@@ -400,54 +370,53 @@ namespace Eddie.Platform.Linux
 			return LocateExecutable(name, paths);
 		}
 
-		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
-		{
-			path = "sh";
-			arguments = new string[] { "-c", "'" + command + "'" };
-		}
+        public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
+        {
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
 
-		public override bool CanShellAsNormalUser()
-		{
-			if ((m_userName != "") && (m_sudoPath != ""))
-				return true;
+            bool canRunAsRoot = FileRunAsRoot(path);
 
-			return false;
-		}
+            process = new System.Diagnostics.Process();
+            if (canRunAsRoot)
+            {
+                process.StartInfo.FileName = path;
+                process.StartInfo.Arguments = String.Join(" ", arguments);
+            }
+            else
+            {
+                if (consoleMode)
+                {
+                    if (IsAdmin())
+                    {
+                        process.StartInfo.FileName = path;
+                        process.StartInfo.Arguments = String.Join(" ", arguments);
+                    }
+                    else
+                    {
+                        process.StartInfo.FileName = "sudo";
+                        process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
+                    }
+                }
+                else
+                {
+                    process.StartInfo.FileName = "pkexec";
+                    process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
+                }
+            }
 
-		public override bool ShellAdaptNormalUser(ref string path, ref string[] arguments)
-		{
-			if (IsAdmin() == false) // Still not Admin
-				return false;
+            process.StartInfo.WorkingDirectory = "";
 
-			if (CanShellAsNormalUser() == false)
-				return false;
+            process.StartInfo.Verb = "run";
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            process.StartInfo.UseShellExecute = false;
 
-			//arguments = new string[] { "-u " + m_userName, path + " " + String.Join(" ", arguments) };
+            process.Start();
 
-			// DBUS_SESSION_BUS_ADDRESS is required only for notify-send. 
-			// Debian7 don't work with it. Arch works anyway without it, Debian>7 and Fedora not.
-			string dbusSessionBusAddress = Engine.Instance.Storage.Get("linux.dbus");
-			if ((dbusSessionBusAddress == "") && (Platform.Instance.FileExists("/run/user/" + m_userId.ToString() + "/bus")))
-				dbusSessionBusAddress = "unix:path=/run/user/" + m_userId.ToString() + "/bus";
+            return process.Id;
+        }
 
-			if (dbusSessionBusAddress != "")
-				arguments = new string[] { "-u " + m_userName, "DBUS_SESSION_BUS_ADDRESS=" + dbusSessionBusAddress, path + " " + String.Join(" ", arguments) };
-			else
-				arguments = new string[] { "-u " + m_userName, path + " " + String.Join(" ", arguments) };
-
-			path = m_sudoPath;
-
-			// 2.14.3
-			/*
-			string a = " - " + m_userName + " -c '" + path + " " + String.Join(" ", arguments) + "'";
-			path = "su";
-			arguments = new string[] { a };
-			*/
-
-			return true;
-		}
-
-		public override void ShellASync(string path, string[] arguments)
+        public override void ShellASyncCore(string path, string[] arguments)
 		{
 			try
 			{
@@ -487,71 +456,37 @@ namespace Eddie.Platform.Linux
 		{
 			base.FlushDNS();
 
-			List<string> services = new List<string>();
-			List<string> restarted = new List<string>();
-			foreach (string service in Engine.Instance.Storage.Get("linux.dns.services").Split(';'))
-				if (service.Trim() != "")
-					services.Add(service.Trim());
+            Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Storage.Get("linux.dns.services"));
+        }
 
-			if (m_pidSystemD != 0)
-			{
-				string servicePath = LocateExecutable("service");
-				string systemctlPath = LocateExecutable("systemctl");
-				if ((servicePath != "") && (systemctlPath != ""))
-				{
-					string[] lines = SystemShell.Shell2(systemctlPath, "list-units", "--no-pager").Split('\n');
-					foreach (string line in lines)
-					{
-						foreach (string service in services)
-						{
-							if ((restarted.Contains(service) == false) && (line.StartsWith(service + ".service")) && (line.Contains(" running ")))
-							{
-								SystemShell.Shell2(servicePath, service, "restart");
-								restarted.Add(service);
-							}
-						}
-					}
-				}
-			}
-
-			// Fallback
-			{
-				foreach (string service in services)
-					if (restarted.Contains(service) == false)
-						if (FileExists("/etc/init.d/" + service))
-							SystemShell.Shell1("/etc/init.d/" + service, "restart");
-			}
-
-			// Special case
-			// On some system, for example Fedora, nscd caches are saved to disk,
-			// located in /var/db/nscd, and not flushed with a simple restart. 
-			string nscdPath = LocateExecutable("nscd");
-			if (nscdPath != "")
-			{
-				SystemShell.Shell1(nscdPath, "--invalidate=hosts");
-			}
-		}
-
-		protected override void OpenDirectoryInFileManagerEx(string path)
+		public override void OpenUrl(string url)
 		{
-			if (CanShellAsNormalUser() == false)
-				return;
-
 			SystemShell s = new SystemShell();
 			s.Path = LocateExecutable("xdg-open");
-			s.Arguments.Add(SystemShell.EscapePath(path));
-			s.RunAsNormalUser = true;
+			s.Arguments.Add(url);
 			s.WaitEnd = false;
 			s.Run();
 		}
 
+		public override void OpenFolder(string path)
+		{
+			SystemShell s = new SystemShell();
+			s.Path = LocateExecutable("xdg-open");
+			s.Arguments.Add(SystemShell.EscapePath(path));
+			s.WaitEnd = false;
+			s.Run();
+		}
+
+        // This works, but we use base to avoid shell
+        /*
 		public override long Ping(IpAddress host, int timeoutSec)
 		{
 			if ((host == null) || (host.Valid == false))
 				return -1;
 
-			return NativeMethods.PingIP(host.ToString(), timeoutSec * 1000);
-			/* < 2.13.6 // TOCLEAN
+			// <2.17.3, require root
+			//return NativeMethods.PingIP(host.ToString(), timeoutSec * 1000);
+
 			{
 				float iMS = -1;
 
@@ -559,18 +494,18 @@ namespace Eddie.Platform.Linux
 				if (pingPath != "")
 				{
 					SystemShell s = new SystemShell();
-					s.Path = pingPath;	
+					s.Path = pingPath;
 					s.Arguments.Add("-c 1");
 					s.Arguments.Add("-w " + timeoutSec.ToString());
 					s.Arguments.Add("-q");
 					s.Arguments.Add("-n");
-					s.Arguments.Add(SystemShell.EscapeHost(host));
+					s.Arguments.Add(host.Address);
 					s.NoDebugLog = true;
 
 					if (s.Run())
 					{
 						string result = s.Output;
-						string sMS = Utils.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
+						string sMS = UtilsString.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/mdev = ", "/");
 						if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
 							iMS = -1;
 					}
@@ -578,8 +513,8 @@ namespace Eddie.Platform.Linux
 
 				return (long)iMS;
 			}
-			*/
 		}
+		*/
 
 		public override bool RouteAdd(Json jRoute)
 		{
@@ -590,34 +525,33 @@ namespace Eddie.Platform.Linux
 			if (gateway.Valid == false)
 				return false;
 
-			List<string> arguments = new List<string>();
-			if (ip.IsV6)
-				arguments.Add("-6");
-			arguments.Add("route");
-			arguments.Add("add");
-			arguments.Add(ip.ToCIDR());
-			arguments.Add("via");
-			arguments.Add(gateway.ToCIDR());
-			if (jRoute.HasKey("interface"))
+			try
 			{
-				arguments.Add("dev");
-				arguments.Add(jRoute["interface"].Value as string);
+				
+				ElevatedProcess.Command c = new ElevatedProcess.Command();
+				c.Parameters["command"] = "route";
+				if (ip.IsV4)
+					c.Parameters["layer"] = "ipv4";
+				else if (ip.IsV6)
+					c.Parameters["layer"] = "ipv6";
+				c.Parameters["action"] = "add";
+				c.Parameters["cidr"] = ip.ToCIDR();
+				c.Parameters["gateway"] = gateway.ToCIDR();
+				if (jRoute.HasKey("interface"))
+					c.Parameters["interface"] = jRoute["interface"].Value as string;
+				else
+					c.Parameters["interface"] = "";
+				if (jRoute.HasKey("metric"))
+					c.Parameters["metric"] = jRoute["metric"].Value as string;
+				else
+					c.Parameters["metric"] = "";
+				Engine.Instance.Elevated.DoCommandSync(c);
+				return base.RouteAdd(jRoute);				
 			}
-			if (jRoute.HasKey("metric"))
+			catch (Exception e)
 			{
-				arguments.Add("metric");
-				arguments.Add(SystemShell.EscapeInt(jRoute["metric"].Value as string));
-			}
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(), gateway.ToCIDR(), e.Message));
 
-			string result = SystemShell.Shell(LocateExecutable("ip"), arguments.ToArray());
-			result = result.Trim();
-			if (result.ToLowerInvariant() == "")
-			{
-				return base.RouteAdd(jRoute);
-			}
-			else
-			{
-				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteAddFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
 				return false;
 			}
 		}
@@ -631,39 +565,28 @@ namespace Eddie.Platform.Linux
 			if (gateway.Valid == false)
 				return false;
 
-			List<string> arguments = new List<string>();
-			if (ip.IsV6)
-				arguments.Add("-6");
-			arguments.Add("route");
-			arguments.Add("delete");
-			arguments.Add(ip.ToCIDR());
-			arguments.Add("via");
-			arguments.Add(gateway.ToCIDR());
-			if (jRoute.HasKey("interface"))
+			try
 			{
-				arguments.Add("dev");
-				arguments.Add(jRoute["interface"].Value as string);
+				ElevatedProcess.Command c = new ElevatedProcess.Command();
+				c.Parameters["command"] = "route";
+				if (ip.IsV4)
+					c.Parameters["layer"] = "ipv4";
+				else if (ip.IsV6)
+					c.Parameters["layer"] = "ipv6";
+				c.Parameters["action"] = "delete";
+				c.Parameters["cidr"] = ip.ToCIDR();
+				c.Parameters["gateway"] = gateway.ToCIDR();
+				if (jRoute.HasKey("interface"))
+					c.Parameters["interface"] = jRoute["interface"].Value as string;
+				else
+					c.Parameters["interface"] = "";
+				c.Parameters["metric"] = "";
+				Engine.Instance.Elevated.DoCommandSync(c);
+				return base.RouteRemove(jRoute);				
 			}
-			string result = SystemShell.Shell(LocateExecutable("ip"), arguments.ToArray());
-			result = result.Trim();
-			if (result.ToLowerInvariant() == "")
+			catch (Exception e)
 			{
-				return base.RouteRemove(jRoute);
-			}
-			else
-			{
-				// Remember: Route deletion can occur in a second moment (for example a Recovery phase).
-
-				// Still accepted: The device are not available anymore, so the route are already deleted.
-				if (result.ToLowerInvariant().Contains("cannot find device"))
-					return base.RouteRemove(jRoute);
-
-				// Still accepted: Already deleted.
-				if (result.ToLowerInvariant().Contains("no such process"))
-					return base.RouteRemove(jRoute);
-
-				// Unexpected/unknown error
-				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteDelFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(), gateway.ToCIDR(), e.Message));
 				return false;
 			}
 		}
@@ -707,9 +630,9 @@ namespace Eddie.Platform.Linux
 				string o = FileContentsReadText("/etc/resolv.conf");
 				foreach (string line in o.Split('\n'))
 				{
-					if (line.Trim().StartsWith("#"))
+					if (line.Trim().StartsWith("#", StringComparison.InvariantCulture))
 						continue;
-					if (line.Trim().StartsWith("nameserver"))
+					if (line.Trim().StartsWith("nameserver", StringComparison.InvariantCulture))
 					{
 						list.Add(line.Substring(11).Trim());
 					}
@@ -722,315 +645,87 @@ namespace Eddie.Platform.Linux
 		{
 			base.OnReport(report);
 
-			report.Add("UID", Conversions.ToString(m_uid));
-			report.Add("Run as normal user", CanShellAsNormalUser() + "; ID:" + m_userId.ToString() + "; Name:" + m_userName.ToString());
-			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "show") : "'ip' " + Messages.NotFound);
-			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "link", "show") : "'ip' " + Messages.NotFound);
-			report.Add("ip -4 route show", (LocateExecutable("ip") != "") ? SystemShell.Shell3(LocateExecutable("ip"), "-4", "route", "show") : "'ip' " + Messages.NotFound);
-			report.Add("ip -6 route show", (LocateExecutable("ip") != "") ? SystemShell.Shell3(LocateExecutable("ip"), "-6", "route", "show") : "'ip' " + Messages.NotFound);
+			report.Add("ip addr show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "addr", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
+			report.Add("ip link show", (LocateExecutable("ip") != "") ? SystemShell.Shell2(LocateExecutable("ip"), "link", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
+			report.Add("ip -4 route show", (LocateExecutable("ip") != "") ? SystemShell.Shell3(LocateExecutable("ip"), "-4", "route", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
+			report.Add("ip -6 route show", (LocateExecutable("ip") != "") ? SystemShell.Shell3(LocateExecutable("ip"), "-6", "route", "show") : "'ip' " + LanguageManager.GetText("NotFound"));
 		}
 
-		public override bool RestartAsRoot()
+		public override Dictionary<string, string> GetProcessesList()
 		{
-			string method = "";
-			string command = "";
-			string arguments = "";
-			string preCommand = "";
-			string preArguments = "";
-			string postCommand = "";
-			string postArguments = "";
+			Dictionary<string, string> result = new Dictionary<string, string>();
 
-			bool isWayland = false;
+            foreach (string fi in Directory.GetDirectories("/proc/"))
+            {
+                string pid = fi.Substring(6);
+                string cmdline = "";
+                if(FileExists(fi + "/cmdline"))
+                    cmdline = File.ReadAllText(fi + "/cmdline");
+                result[pid] = cmdline;
+            }
 
-			string waylandDisplay = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-			if (waylandDisplay == null)
-				waylandDisplay = "";
-			waylandDisplay = waylandDisplay.ToLowerInvariant().Trim();
-			if (waylandDisplay != "")
-				isWayland = true;
-
-			string xdgSessionType = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE");
-			if (xdgSessionType == null)
-				xdgSessionType = "";
-			xdgSessionType = xdgSessionType.ToLowerInvariant().Trim();
-			if (xdgSessionType.Contains("wayland"))
-				isWayland = true;
-
-			bool isX = !isWayland;
-
-			string command2 = "";
-			string executablePath = Platform.Instance.GetExecutablePath();
-
-			string args = CommandLine.SystemEnvironment.GetFull();
-			args += " console.mode=none"; // 2.13.6, otherwise CancelKeyPress (mono bug?) and stdout fill the non-root non-blocked terminal.
-			{
-				string dbusSessionBusAddress = Environment.GetEnvironmentVariable("DBUS_SESSION_BUS_ADDRESS");
-				if (dbusSessionBusAddress != null)
-					args += " linux.dbus=\"" + dbusSessionBusAddress + "\"";
-			}
-
-			if (executablePath.Substring(executablePath.Length - 4).ToLowerInvariant() == ".exe")
-				command2 += "mono ";
-			command2 += Platform.Instance.GetExecutablePath();
-			command2 += " ";
-			command2 += args;
-			command2 = command2.Trim(); // 2.11.11
-			bool waitEnd = false;
-
-			if ((LocateExecutable("pkexec") != "") && (Platform.Instance.FileExists("/usr/share/polkit-1/actions/org.airvpn.eddie.ui.policy")))
-			{
-				method = "pkexec-policy";
-
-				/*
-				command = "sh";
-				arguments = " -c 'pkexec /usr/bin/eddie-ui " + cmdline + " console.mode=none" + " " + Engine.Instance.Storage.Get("pktest") + "'";
-				*/
-
-				command = LocateExecutable("pkexec");
-				string exe = Engine.Instance.Storage.Get("path.exec");
-				if (exe == "")
-					exe = Platform.Instance.GetExecutablePath();
-				arguments = exe + " " + args;
-
-				// Without this, don't work on Debian9
-				// It is not allowed to run pkexec in the background by fork and exec and then terminating the parent. 
-				// The process becomes an orphan and belongs to init (ppid == 1).
-				waitEnd = true;
-
-				if (Engine.Instance.Storage.GetBool("linux.xhost"))
-				{
-					string xhost = LocateExecutable("xhost");
-					if (xhost != "")
-					{
-						preCommand = xhost;
-						preArguments = "+SI:localuser:root";
-
-						postCommand = xhost;
-						postArguments = "-SI:localuser:root";
-					}
-				}
-			}
-			else if ((isX) && (LocateExecutable("kdesudo") != ""))
-			{
-				method = "kdesudo";
-				command = LocateExecutable("kdesudo");
-				arguments = "";
-				arguments += " -u root"; // Administrative privileges
-				arguments += " -d"; // Don't show commandline
-				arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-				arguments += " -c "; // The command
-									 //arguments += " \"" + command2 + "\"";
-				arguments += " \"" + command2 + "\"";
-			}
-			else if ((isX) && (LocateExecutable("kdesu") != ""))
-			{
-				method = "kdesu";
-				command = LocateExecutable("kdesu");
-				arguments = "";
-				arguments += " -u root"; // Administrative privileges
-				arguments += " -d"; // Don't show commandline
-									//arguments += " --comment \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-				arguments += " -c "; // The command
-									 //arguments += " \"" + command2 + "\"";
-				arguments += " \"" + command2 + "\"";
-			}
-			/*
-			 * Under Debian, gksudo don't work, gksu work...
-			if (Platform.Instance.FileExists("/usr/bin/gksudo"))
-			{
-				command = "gksudo";
-				arguments = "";
-				arguments += " -u root"; // Administrative privileges
-				arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-				arguments += " \"" + command2 + "\"";
-			}
-			else 
-			*/
-			else if ((isX) && (LocateExecutable("gksu") != ""))
-			{
-				method = "gksu";
-				command = LocateExecutable("gksu");
-				arguments = "";
-				arguments += " -u root"; // Administrative privileges
-				arguments += " -m \"" + Messages.AdminRequiredPasswordPrompt + "\"";
-				arguments += " \"" + command2 + "\"";
-			}
-			else if ((isX) && (LocateExecutable("xdg-su") != "")) // OpenSUSE
-			{
-				method = "xdg-su";
-				command = LocateExecutable("xdg-su");
-				arguments = "";
-				arguments += " -u root"; // Administrative privileges
-				arguments += " -c "; // The command
-				arguments += " \"" + command2 + "\"";
-			}
-			else if ((isX) && (LocateExecutable("beesu") != "")) // Fedora
-			{
-				method = "beesu";
-				command = LocateExecutable("beesu");
-				arguments = "";
-				arguments += " " + command2 + "";
-			}
-			else if ((LocateExecutable("xhost") != "") && (LocateExecutable("pkexec") != "")) // 2.14.0
-			{
-				method = "pkexec";
-				command = "sh";
-				arguments = "-c 'xhost si:localuser:root && pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY " + command2 + "; xhost -si:localuser:root'";
-				//arguments = "+local: && pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY " + command2;				
-			}
-
-			if (command != "")
-			{
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.AdminRequiredRestart, method));
-
-				if (preCommand != "")
-					Engine.Instance.Logs.Log(LogType.Verbose, SystemShell.ShellX(preCommand.Trim(), preArguments.Trim(), true)); // IJTF2
-
-				SystemShell.ShellX(command.Trim(), arguments.Trim(), waitEnd); // IJTF2
-
-				if (postCommand != "")
-					Engine.Instance.Logs.Log(LogType.Verbose, SystemShell.ShellX(postCommand.Trim(), postArguments.Trim(), true)); // IJTF2				
-			}
-			else
-			{
-				Engine.Instance.Logs.Log(LogType.Fatal, Messages.AdminRequiredRestartFailed);
-			}
-
-			return true;
+            return result;
 		}
 
-		public override Dictionary<int, string> GetProcessesList()
-		{
-			Dictionary<int, string> result = new Dictionary<int, string>();
-			string psPath = LocateExecutable("ps");
-			if (psPath != "")
-			{
-				string resultS = SystemShell.Shell2(psPath, "-eo", "pid,command");
-				string[] resultA = resultS.Split('\n');
-				foreach (string pS in resultA)
-				{
-					int posS = pS.IndexOf(' ');
-					if (posS != -1)
-					{
-						int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
-						string name = pS.Substring(posS).Trim();
-						result[pid] = name;
-					}
-				}
-			}
+        public override void OnRecoveryAlways()
+        {
+            base.OnRecoveryAlways();
 
-			return result;
-		}
+            OnDnsSwitchRestore();
+        }
 
-		public override void OnBuildOvpn(OvpnBuilder ovpn)
+        public override void OnRecoveryLoad(XmlElement root)
+        {
+            XmlElement nodeIpV6 = UtilsXml.XmlGetFirstElementByTagName(root, "IPv6");
+            if (nodeIpV6 != null)
+            {
+                foreach (XmlElement nodeEntry in nodeIpV6.ChildNodes)
+                {
+                    IpV6ModeEntry entry = new IpV6ModeEntry();
+                    entry.ReadXML(nodeEntry);
+                    m_listIpV6Mode.Add(entry);
+                }
+            }
+
+            base.OnRecoveryLoad(root);
+        }
+
+        public override void OnRecoverySave(XmlElement root)
+        {
+            base.OnRecoverySave(root);
+
+            XmlDocument doc = root.OwnerDocument;
+
+            if (m_listIpV6Mode.Count != 0)
+            {
+                XmlElement nodeDns = (XmlElement)root.AppendChild(doc.CreateElement("IPv6"));
+                foreach (IpV6ModeEntry entry in m_listIpV6Mode)
+                {
+                    XmlElement nodeEntry = nodeDns.AppendChild(doc.CreateElement("entry")) as XmlElement;
+                    entry.WriteXML(nodeEntry);
+                }
+            }
+        }
+
+        public override void OnBuildOvpn(OvpnBuilder ovpn)
 		{
 			base.OnBuildOvpn(ovpn);
-
-			if (GetDnsSwitchMode() == "resolvconf")
-			{
-				string dnsScriptPath = Software.FindResource("update-resolv-conf");
-				if (dnsScriptPath != "")
-				{
-					FileEnsureExecutablePermission(dnsScriptPath);
-					Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsLinuxDnsResolvConfScript);
-					ovpn.AppendDirective("script-security", "2", "");
-					ovpn.AppendDirective("up", dnsScriptPath, "");
-					ovpn.AppendDirective("down", dnsScriptPath, "");
-				}
-			}
-
+                       
 			ovpn.AppendDirective("route-delay", "5", ""); // 2.8, to resolve some issue on some distro, ex. Fedora 21
 		}
 
 		public override bool OnCheckEnvironmentApp()
 		{
-			string dnsScriptPath = Software.FindResource("update-resolv-conf");
-			if (dnsScriptPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'update-resolv-conf' " + Messages.NotFound);
-
-			/* // TOCLEAN
-			string lsattrPath = LocateExecutable("lsattr");
-			if(lsattrPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'lsattr' " + Messages.NotFound);
-
-			string chattrPath = LocateExecutable("chattr");
-			if (chattrPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'chattr' " + Messages.NotFound);
-
-			string chmodPath = LocateExecutable("chmod");
-			if (chmodPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'chmod' " + Messages.NotFound);			
-
-			string pingPath = LocateExecutable("ping");
-			if (pingPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'ping' " + Messages.NotFound);
-			*/
-
 			string getentPath = LocateExecutable("getent");
 			if (getentPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'getent' " + Messages.NotFound);
-
-			string psPath = LocateExecutable("ps");
-			if (psPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'getent' " + LanguageManager.GetText("NotFound"));
 
 			string ipPath = LocateExecutable("ip");
 			if (ipPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'ip' " + Messages.NotFound);
-
-			/* // Used only by "Remove default gateway" */
-			/*
-			string routePath = LocateExecutable("route");
-			if (routePath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'route' " + Messages.NotFound);
-			*/
-
+				Engine.Instance.Logs.Log(LogType.Error, "'ip' " + LanguageManager.GetText("NotFound"));
+            			
 			return true;
 		}
-
-		/*
-		public override bool OnCheckEnvironmentSession()
-		{
-			// TOCLEAN
-			if (Common.Constants.FeatureIPv6ControlOptions)
-			{
-
-			}
-			else
-			{
-				if (Engine.Instance.Storage.GetLower("ipv6.mode") == "disable")
-				{
-					string keyname = "net.ipv6.conf.all.disable_ipv6";
-					string ipV6 = "";
-					string sysctlPath = LocateExecutable("sysctl");
-					if (sysctlPath != "")
-						ipV6 = SystemShell.Shell1(sysctlPath, keyname).Replace(keyname, "").Trim().Trim(new char[] { '=', ' ', '\n', '\r' }); // 2.10.1
-
-					if (ipV6 == "0")
-					{
-						if (Engine.Instance.OnAskYesNo(Messages.OsLinuxIPv6Warning))
-						{
-							Engine.Instance.Storage.Set("ipv6.mode", "none");
-						}
-						else
-						{
-							return false;
-						}
-					}
-					else if (ipV6 == "1")
-					{
-						// Already disabled
-					}
-					else
-					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsLinuxIPv6WarningUnableToDetect);
-					}
-				}
-			}			
-
-			return true;
-		}
-		*/
 
 		public override bool OnCheckSingleInstance()
 		{
@@ -1087,6 +782,13 @@ namespace Eddie.Platform.Linux
 			}
 		}
 
+        public override bool NeedExecuteOutsideAppPath(string exePath)
+        {
+            if (IsAppImageAndPathWithin(exePath))
+                return true;
+            return base.NeedExecuteOutsideAppPath(exePath);
+        }
+
 		public override void OnNetworkLockManagerInit()
 		{
 			base.OnNetworkLockManagerInit();
@@ -1099,28 +801,63 @@ namespace Eddie.Platform.Linux
 			return "linux_iptables";
 		}
 
-		public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
+        public override bool OnIPv6Block()
+        {
+            string result = Engine.Instance.Elevated.DoCommandSync("ipv6-block");
+            if (result != "")
+            {
+                foreach (string resultItem in result.Split('\n'))
+                {
+                    string interfaceName = resultItem;
+
+                    IpV6ModeEntry entry = new IpV6ModeEntry();
+                    entry.Interface = interfaceName;
+                    m_listIpV6Mode.Add(entry);
+
+                    Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxNetworkAdapterIPv6Disabled", interfaceName));
+                }
+            }
+
+            Recovery.Save();
+
+            base.OnIPv6Block();
+
+            return true;
+        }
+
+        public override bool OnIPv6Restore()
+        {
+            foreach (IpV6ModeEntry entry in m_listIpV6Mode)
+            {
+                Elevated.Command c = new Elevated.Command();
+                c.Parameters["command"] = "ipv6-restore";
+                c.Parameters["interface"] = entry.Interface;
+                Engine.Instance.Elevated.DoCommandSync(c);
+
+                Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxNetworkAdapterIPv6Restored", entry.Interface));
+            }
+
+            m_listIpV6Mode.Clear();
+
+            Recovery.Save();
+
+            base.OnIPv6Restore();
+
+            return true;
+        }
+
+        public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
 		{
 			if (GetDnsSwitchMode() == "rename")
 			{
-				if (FileExists("/etc/resolv.conf.eddie") == false)
-				{
-					if (FileExists("/etc/resolv.conf"))
-					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsLinuxDnsRenameBackup);
-						FileMove("/etc/resolv.conf", "/etc/resolv.conf.eddie");
-					}
-				}
-
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsLinuxDnsRenameDone);
-
 				string text = "# " + Engine.Instance.GenerateFileHeader() + "\n\n";
 
 				foreach (IpAddress dnsSingle in dns.IPs)
 					text += "nameserver " + dnsSingle.Address + "\n";
 
-				FileContentsWriteText("/etc/resolv.conf", text, Encoding.ASCII);
-				Platform.Instance.FileEnsurePermission("/etc/resolv.conf", "644");
+                Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-do", "text", text);
+
+                Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxDnsRenameDone"));
 			}
 
 			base.OnDnsSwitchDo(connectionActive, dns);
@@ -1132,16 +869,11 @@ namespace Eddie.Platform.Linux
 		{
 			// Cleaning rename method if pending
 			if (FileExists("/etc/resolv.conf.eddie") == true)
-			{
-				if (FileExists("/etc/resolv.conf"))
-					FileDelete("/etc/resolv.conf");
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsLinuxDnsRenameRestored"));
 
-				Engine.Instance.Logs.Log(LogType.Verbose, Messages.OsLinuxDnsRenameRestored);
+            Engine.Instance.Elevated.DoCommandSync("dns-switch-rename-restore");
 
-				FileMove("/etc/resolv.conf.eddie", "/etc/resolv.conf");
-			}
-
-			base.OnDnsSwitchRestore();
+            base.OnDnsSwitchRestore();
 
 			return true;
 		}
@@ -1156,11 +888,6 @@ namespace Eddie.Platform.Linux
 			return "";
 		}
 
-		public override bool CanInstallDriver()
-		{
-			return false;
-		}
-
 		public override void OnJsonNetworkInfo(Json jNetworkInfo)
 		{
 			base.OnJsonNetworkInfo(jNetworkInfo);
@@ -1168,9 +895,11 @@ namespace Eddie.Platform.Linux
 			{
 				if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/all/disable_ipv6")) != 0)
 					jNetworkInfo["support_ipv6"].Value = false;
-				if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/default/disable_ipv6")) != 0)
+				else if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/default/disable_ipv6")) != 0)
 					jNetworkInfo["support_ipv6"].Value = false;
-			}
+                else if (FileExists("/proc/net/if_inet6") == false) // Disabled via Grub for example
+                    jNetworkInfo["support_ipv6"].Value = false;
+            }
 
 			foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
 			{
@@ -1179,10 +908,9 @@ namespace Eddie.Platform.Linux
 				// Base virtual always 'false'. Missing Mono implementation?
 				jNetworkInterface["support_ipv6"].Value = true;
 				{
-					if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/" + SystemShell.EscapeAlphaNumeric(id) + "/disable_ipv6")) != 0)
-						jNetworkInterface["support_ipv6"].Value = false;
-
-					if (Conversions.ToBool(jNetworkInfo["support_ipv6"].Value) == false)
+                    if (Conversions.ToBool(jNetworkInfo["support_ipv6"].Value) == false)
+                        jNetworkInterface["support_ipv6"].Value = false;
+                    else if (Conversions.ToInt32(GetSysCtl("/net/ipv6/conf/" + SystemShell.EscapeAlphaNumeric(id) + "/disable_ipv6")) != 0)
 						jNetworkInterface["support_ipv6"].Value = false;
 				}
 			}
@@ -1243,44 +971,93 @@ namespace Eddie.Platform.Linux
 			}
 		}
 
+		public override string OsCredentialSystemName()
+		{
+			string secretToolPath = LocateExecutable("secret-tool");
+			if (secretToolPath != "")
+				return "Linux secret-tool";
+			else
+				return "";
+		}
+
+		public override string OsCredentialSystemRead(string name)
+		{
+			string secretToolPath = LocateExecutable("secret-tool");
+			SystemShell shell = new SystemShell();
+			shell.Path = secretToolPath;
+			shell.Arguments.Add("lookup");
+			shell.Arguments.Add("'Eddie Profile'");
+			shell.Arguments.Add("'" + SystemShell.EscapeInsideQuote(name) + "'");
+			shell.Run();
+			int exitCode = shell.ExitCode;
+			if (exitCode == 0)
+				return shell.Output;
+			else
+				return "";
+		}
+
+		public override bool OsCredentialSystemWrite(string name, string password)
+		{
+			string secretToolPath = LocateExecutable("secret-tool");
+			SystemShell shell = new SystemShell();
+			shell.Path = secretToolPath;
+			shell.Arguments.Add("store");
+			shell.Arguments.Add("--label='Eddie, saved password for " + SystemShell.EscapeInsideQuote(name) + " profile'");
+			shell.Arguments.Add("'Eddie Profile'");
+			shell.Arguments.Add("'" + SystemShell.EscapeInsideQuote(name) + "'");
+			shell.AutoWriteStdin = password + "\n";
+			shell.Run();
+			int exitCode = shell.ExitCode;
+			return (exitCode == 0);
+		}
+
+		public override bool OsCredentialSystemDelete(string name)
+		{
+			string secretToolPath = LocateExecutable("secret-tool");
+			SystemShell shell = new SystemShell();
+			shell.Path = secretToolPath;
+			shell.Arguments.Add("clear");
+			shell.Arguments.Add("'Eddie Profile'");
+			shell.Arguments.Add("'" + SystemShell.EscapeInsideQuote(name) + "'");
+			shell.Run();
+			int exitCode = shell.ExitCode;
+			return (exitCode == 0);
+		}
+
+		public override List<string> GetTrustedPaths()
+		{
+			List<string> list = base.GetTrustedPaths();
+
+			list.Add("/bin");
+			list.Add("/usr/bin");
+			list.Add("/sbin");
+			list.Add("/usr/sbin");
+			list.Add("/usr/local/sbin");
+			list.Add("/root/bin");
+
+			return list;
+		}
+
 		public string GetDnsSwitchMode()
 		{
-			string current = Engine.Instance.Storage.GetLower("dns.mode");
+            string current = Engine.Instance.Storage.GetLower("dns.mode");
 
 			if (current == "auto")
-			{
-				// 2.10.1
 				current = "rename";
-			}
+			
+            if (current == "resolvconf")
+                current = "rename";
 
+            /*
 			// Fallback
 			if ((current == "resolvconv") && (Software.FindResource("update-resolv-conf") == ""))
 				current = "rename";
 
 			if ((current == "resolvconv") && (Platform.Instance.FileExists("/sbin/resolvconf") == false))
 				current = "rename";
+            */
 
-
-			return current;
-		}
-
-		public bool DetectLinuxHostNameIssue()
-		{
-			// https://bugzilla.xamarin.com/show_bug.cgi?id=42249
-			// If hostname can't be resolved (missing entry in /etc/hosts), Mono::Ping throw an exception.
-			// Never really called, because in >2.11.4 we use a shell for pinging under Linux.
-			try
-			{
-				foreach (IPAddress addr in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
-				{
-
-				}
-				return false;
-			}
-			catch (Exception)
-			{
-				return true;
-			}
+			return current;			           
 		}
 
 		public string GetSysCtl(string name)
@@ -1293,5 +1070,29 @@ namespace Eddie.Platform.Linux
 			else
 				return "";
 		}
-	}
+
+        public bool IsAppImageAndPathWithin(string path)
+        {
+            // This occur for example when elevated run openvpn exe in bundle: a root process (elevated) can't read an user volume (AppImage/fuse)
+            if (Environment.GetEnvironmentVariable("APPIMAGE") == null)
+                return false;
+
+            return path.StartsWith(GetApplicationPath(), StringComparison.InvariantCulture);
+        }
+    }
+
+    public class IpV6ModeEntry
+    {
+        public string Interface;
+
+        public void ReadXML(XmlElement node)
+        {
+            Interface = UtilsXml.XmlGetAttributeString(node, "interface", "");
+        }
+
+        public void WriteXML(XmlElement node)
+        {
+            UtilsXml.XmlSetAttributeString(node, "interface", Interface);
+        }
+    }
 }

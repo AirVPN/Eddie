@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}</ProjectGuid>
@@ -12,10 +12,10 @@
     <AssemblyName>Lib.Platform.macOS</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <ReleaseVersion>2.17</ReleaseVersion>
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
+    <ReleaseVersion>2.17</ReleaseVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -30,9 +30,10 @@
     <UseSGen>false</UseSGen>
     <HttpClientHandler>HttpClientHandler</HttpClientHandler>
     <LinkMode>None</LinkMode>
+    <PlatformTarget>x64</PlatformTarget>
     <AOTMode>None</AOTMode>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
@@ -49,6 +50,41 @@
     <PlatformTarget>x64</PlatformTarget>
     <AOTMode>None</AOTMode>
   </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <EnableCodeSigning>false</EnableCodeSigning>
+    <CreatePackage>false</CreatePackage>
+    <EnablePackageSigning>false</EnablePackageSigning>
+    <IncludeMonoRuntime>false</IncludeMonoRuntime>
+    <UseSGen>false</UseSGen>
+    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
+    <LinkMode>None</LinkMode>
+    <PlatformTarget>x86</PlatformTarget>
+    <AOTMode>None</AOTMode>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <EnableCodeSigning>false</EnableCodeSigning>
+    <CreatePackage>false</CreatePackage>
+    <EnablePackageSigning>false</EnablePackageSigning>
+    <IncludeMonoRuntime>false</IncludeMonoRuntime>
+    <UseSGen>false</UseSGen>
+    <HttpClientHandler>HttpClientHandler</HttpClientHandler>
+    <LinkMode>None</LinkMode>
+    <PlatformTarget>x86</PlatformTarget>
+    <AOTMode>None</AOTMode>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -56,7 +92,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Mono.Posix" />
     <Reference Include="Xamarin.Mac">
-      <HintPath>..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\4.6.0.13\lib\reference\full\Xamarin.Mac.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\5.14.0.114\lib\reference\full\Xamarin.Mac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +104,7 @@
     <Compile Include="Platform.cs" />
     <Compile Include="RootLauncher.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="Elevated.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lib.Core\Lib.Core.csproj">

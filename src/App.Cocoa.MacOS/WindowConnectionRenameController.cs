@@ -71,9 +71,12 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsConnectionRenameTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsConnectionRenameTitle");
 
-			TxtBody.StringValue = Body;
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
+
+            TxtBody.StringValue = Body;
 
 			CmdOk.Activated += (object sender, EventArgs e) =>
 			{

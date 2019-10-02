@@ -74,9 +74,12 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsProviderAddTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsProviderAddTitle");
 
-			XmlElement xmlData = Engine.Instance.ProvidersManager.GetDataAddProviders();
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
+
+            XmlElement xmlData = Engine.Instance.ProvidersManager.GetDataAddProviders();
 
 			CboProvider.RemoveAllItems();
 			foreach (XmlElement xmlProvider in xmlData.ChildNodes)

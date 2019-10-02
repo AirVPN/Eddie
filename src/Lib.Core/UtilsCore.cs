@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,6 +49,17 @@ namespace Eddie.Core
 					hash.Append(theByte.ToString("x2"));
 				}
 				return hash.ToString();
+			}
+		}
+
+		public static string HashSHA256File(string path)
+		{
+			SHA256 Sha256 = SHA256.Create();
+			using (FileStream stream = File.OpenRead(path))
+			{
+				byte[] bytes = Sha256.ComputeHash(stream);
+
+				return UtilsString.BytesToHex(bytes);
 			}
 		}
 
@@ -101,8 +112,12 @@ namespace Eddie.Core
 		}
 
 		public static int CompareVersions(string v1, string v2)
-		{
-			char[] splitTokens = new char[] { '.', ',' };
+        { 
+            // Normalize. Output can look strange, but has it's logic :P
+            v1 = UtilsString.StringPruneCharsNotIn(v1.Replace(" ", ".").Replace(",", ".").Replace("_", ".").Replace("-", "."), "0123456789.");
+            v2 = UtilsString.StringPruneCharsNotIn(v2.Replace(" ", ".").Replace(", ", ".").Replace("_", ".").Replace("-", "."), "0123456789.");
+
+            char[] splitTokens = new char[] { '.', ',' };
 			string[] tokens1 = v1.Split(splitTokens, StringSplitOptions.RemoveEmptyEntries);
 			string[] tokens2 = v2.Split(splitTokens, StringSplitOptions.RemoveEmptyEntries);
 

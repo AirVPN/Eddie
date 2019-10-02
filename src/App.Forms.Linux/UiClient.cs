@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,74 +30,96 @@ namespace Eddie.Forms.Linux
 {
 	public class UiClient : Eddie.Forms.UiClient
 	{
-		public Tray Tray
-		{
-			get
-			{
-				return (Engine as Eddie.Forms.Linux.Engine).Tray;
-			}
-		}
-
+		public Tray Tray = null;
+		      
 		public override void OnReceive(Json data)
 		{
-			base.OnReceive(data);
-
 			string cmd = data["command"].Value as string;
 
-			if (cmd == "ui.notification")
+            if (cmd == "engine.shutdown")
 			{
-				if (Eddie.Core.Platform.Instance.CanShellAsNormalUser())
+				if (Tray != null)
+                {
+                    Tray.CancelRequested = true;
+                    Tray.SendCommand("action.exit");
+
+                    // Tray.Join(); // sometime don't exit...
+                    if(Tray.Join(2000) == false)
+                        Tray.Abort();
+
+                    Tray = null;
+                }
+			}
+			else if (cmd == "engine.ui")
+			{
+				if (Eddie.Core.Engine.Instance.Storage.GetBool("gui.tray_show")) 
 				{
-					string pathNotifySend = Core.Platform.Instance.LocateExecutable("notify-send");
-					if (pathNotifySend != "")
+					Tray = new Tray();
+					for (int t = 0; t < 3000;t+=100)
 					{
-						SystemShell s = new SystemShell();
-						s.Path = pathNotifySend;
-						s.Arguments.Add("--urgency=low");
-						s.Arguments.Add("--expire-time=2000");
-						if (data["level"].Value as string == "infoimportant")
-							s.Arguments.Add("--icon=dialog-information");
-						else if (data["level"].Value as string == "warning")
-							s.Arguments.Add("--icon=dialog-warning");
-						else if (data["level"].Value as string == "error")
-							s.Arguments.Add("--icon=dialog-error");
-						else
-							s.Arguments.Add("--icon=dialog-information");
-						s.Arguments.Add("\"" + SystemShell.EscapeInsideQuote(Constants.Name) + "\"");
-						string message = SystemShell.EscapeInsideQuote(data["message"].Value as string);
-						message = message.Trim('-'); // Hack, bad notify-send args parse of quoted string
-						s.Arguments.Add("\"" + message + "\"");
-						s.RunAsNormalUser = true;
-						s.WaitEnd = false;
-						s.Run();
+						if (Tray.IsStarted())
+							break;
+						System.Threading.Thread.Sleep(100);
 					}
 				}
 			}
-			else if (cmd == "ui.color")
+			else if (cmd == "ui.notification")
 			{
-				string color = data["color"].Value as string;
+				string pathNotifySend = Core.Platform.Instance.LocateExecutable("notify-send");
+				if (pathNotifySend != "")
+				{
+					SystemShell s = new SystemShell();
+					s.Path = pathNotifySend;
+					s.Arguments.Add("--urgency=low");
+					//s.Arguments.Add("--expire-time=2000");
+					if (data["level"].Value as string == "infoimportant")
+						s.Arguments.Add("--icon=dialog-information");
+					else if (data["level"].Value as string == "warning")
+						s.Arguments.Add("--icon=dialog-warning");
+					else if (data["level"].Value as string == "error")
+						s.Arguments.Add("--icon=dialog-error");
+					else if (data["level"].Value as string == "fatal")
+						s.Arguments.Add("--icon=dialog-error");
+					else
+						s.Arguments.Add("--icon=dialog-information");
+					s.Arguments.Add("\"" + SystemShell.EscapeInsideQuote(Constants.Name) + "\"");
+					string message = SystemShell.EscapeInsideQuote(data["message"].Value as string);
+					message = message.Trim('-'); // Hack, bad notify-send args parse of quoted string
+					s.Arguments.Add("\"" + message + "\"");
+					s.WaitEnd = false;
+					s.Run();
+				}
+			}
+			else if (cmd == "ui.main-status")
+			{
+				string appIcon = data["app_icon"].Value as string;
+                string appColor = data["app_color"].Value as string;
+                string actionIcon = data["action_icon"].Value as string;
+                string actionCommand = data["action_command"].Value as string;
+                string actionText = data["action_text"].Value as string;
 				if (Tray != null)
 				{
-					if (color == "green")
-					{
+					if (appColor == "green")
 						Tray.SendCommand("tray.active:true");
-						Tray.SendCommand("menu.status.icon:stock:gtk-yes");
-						Tray.SendCommand("menu.connect.text:" + Messages.CommandDisconnect);
-					}
 					else
-					{
 						Tray.SendCommand("tray.active:false");
-						if (color == "yellow")
-						{
-							Tray.SendCommand("menu.status.icon:stock:gtk-media-play");
-							Tray.SendCommand("menu.connect.text:" + Messages.CommandCancel);
-						}
-						else
-						{
-							Tray.SendCommand("menu.status.icon:stock:gtk-no");
-							Tray.SendCommand("menu.connect.text:" + Messages.CommandConnect);
-						}
+
+					if (appColor == "green")
+					{
+						Tray.SendCommand("menu.status.icon:stock:gtk-yes");
+						Tray.SendCommand("menu.connect.text:" + LanguageManager.GetText("CommandDisconnect"));
+                    }
+					else if (appColor == "yellow")
+					{
+						Tray.SendCommand("menu.status.icon:stock:gtk-media-play");
 					}
+                    else
+					{
+						Tray.SendCommand("menu.status.icon:stock:gtk-no");
+					}
+
+					Tray.SendCommand("menu.connect.text:" + actionText);
+					Tray.SendCommand("menu.connect.enable:" + ( (actionCommand != "") ? "true":"false") );     
 				}
 			}
 			else if (cmd == "ui.status")
@@ -108,6 +130,8 @@ namespace Eddie.Forms.Linux
 					Tray.SendCommand("menu.status.text:> " + full);
 				}
 			}
+
+			base.OnReceive(data);
 		}
 	}
 }

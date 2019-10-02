@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -116,7 +116,7 @@ namespace Eddie.Forms.Controls
 
 		public string ValToDesc(Int64 v)
 		{
-			string r = UtilsString.FormatBytes(v, true, true);
+			string r = LanguageManager.FormatBytes(v, true, true);
 			return r;
 		}
 
@@ -243,7 +243,7 @@ namespace Eddie.Forms.Controls
 					long v = m_chart.GetLastDownload();
 					downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
 					e.Graphics.DrawLine(m_penDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
-					Form.DrawStringOutline(e.Graphics, Messages.ChartDownload + ": " + ValToDesc(v), FontLabel, m_brushDownloadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - downCurY), formatBottomRight);
+					Form.DrawStringOutline(e.Graphics, LanguageManager.GetText("ChartDownload") + ": " + ValToDesc(v), FontLabel, m_brushDownloadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - downCurY), formatBottomRight);
 				}
 
 				// Upload line
@@ -253,7 +253,7 @@ namespace Eddie.Forms.Controls
 					float dly = 0;
 					if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
 					e.Graphics.DrawLine(m_penUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
-					Form.DrawStringOutline(e.Graphics, Messages.ChartUpload + ": " + ValToDesc(v), FontLabel, m_brushUploadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - y - dly), formatBottomRight);
+					Form.DrawStringOutline(e.Graphics, LanguageManager.GetText("ChartUpload") + ": " + ValToDesc(v), FontLabel, m_brushUploadText, ChartRectangle(0, 0, m_chartDX, m_chartStartY - y - dly), formatBottomRight);
 				}
 
 				// Mouse lines
@@ -273,7 +273,7 @@ namespace Eddie.Forms.Controls
 						//float y = mp.Y * maxY / (chartDY - m_marginTopY);
 						float y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
 
-						String label = ValToDesc(Conversions.ToInt64(y)) + ", " + UtilsString.FormatSeconds(t) + " ago";
+						String label = ValToDesc(Conversions.ToInt64(y)) + ", " + LanguageManager.FormatSeconds(t) + " ago";
 
 						StringFormat formatAlign = formatBottomLeft;
 						Rectangle rect = new Rectangle();

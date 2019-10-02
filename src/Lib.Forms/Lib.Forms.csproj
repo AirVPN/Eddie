@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProjectGuid>{C0357E13-B013-40C5-B511-865A27BC2A47}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -11,28 +11,53 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>res\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -40,6 +65,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="mscorlib">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5-api\System.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\Connection.cs">
@@ -88,11 +119,23 @@
     <Compile Include="Controls\Provider.Designer.cs">
       <DependentUpon>Provider.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\WindowShellExternalPermission.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowShellExternalPermission.Designer.cs">
+      <DependentUpon>WindowShellExternalPermission.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\WindowSplash.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\WindowSplash.Designer.cs">
       <DependentUpon>WindowSplash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\WindowMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowMessage.Designer.cs">
+      <DependentUpon>WindowMessage.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\WindowUnlock.cs">
       <SubType>Form</SubType>
@@ -213,12 +256,6 @@
     <Compile Include="Forms\TextViewer.Designer.cs">
       <DependentUpon>TextViewer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Tos.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Tos.Designer.cs">
-      <DependentUpon>Tos.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -267,6 +304,10 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GuiUtils.cs" />
+    <Compile Include="Mono\NativeReplacements.cs" />
+    <Compile Include="Mono\NativeX11Methods.cs" />
+    <Compile Include="Mono\Platform.cs" />
+    <Compile Include="Mono\XWindowManagers.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Controls\Connection.resx">
@@ -278,11 +319,17 @@
     <EmbeddedResource Include="Controls\Provider.resx">
       <DependentUpon>Provider.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowShellExternalPermission.resx">
+      <DependentUpon>WindowShellExternalPermission.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\WindowCommand.resx">
       <DependentUpon>WindowCommand.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\WindowSplash.resx">
       <DependentUpon>WindowSplash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowMessage.resx">
+      <DependentUpon>WindowMessage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\WindowUnlock.resx">
       <DependentUpon>WindowUnlock.cs</DependentUpon>
@@ -339,10 +386,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TextViewer.resx">
       <DependentUpon>TextViewer.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Tos.resx">
-      <DependentUpon>Tos.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

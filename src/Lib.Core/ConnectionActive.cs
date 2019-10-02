@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,10 +49,10 @@ namespace Eddie.Core
 		public IpAddresses ExitIPs = new IpAddresses();
 		public int Port = 0;
 
-		public string RealIp = Messages.NotAvailable;
+		public string RealIp = LanguageManager.GetText("NotAvailable");
 		public string InterfaceName = "";
 		public string InterfaceId = "";
-		public string ControlChannel = Messages.NotAvailable;
+		public string ControlChannel = LanguageManager.GetText("NotAvailable");
 		public Int64 TimeServer = 0;
 		public Int64 TimeClient = 0;
 		public Int64 BytesRead = 0;
@@ -105,8 +105,7 @@ namespace Eddie.Core
 		{
 			OvpnFile = new TemporaryFile("ovpn");
 
-			Platform.Instance.FileContentsWriteText(OvpnFile.Path, OpenVpnProfileStartup.Get(), Encoding.UTF8);
-			Platform.Instance.FileEnsurePermission(OvpnFile.Path, "600");
+			Platform.Instance.FileContentsWriteText(OvpnFile.Path, OpenVpnProfileStartup.Get(), Encoding.UTF8);			
 		}
 
 		public void CleanAfterStart()
@@ -156,8 +155,7 @@ namespace Eddie.Core
 
             Platform.Instance.FileContentsWriteText(fileNameAuthOvpn, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
             Platform.Instance.FileEnsurePermission(fileNameAuthOvpn, "600");
-            Platform.Instance.FileEnsureOwner(fileNameAuthOvpn);
-
+            
 			OpenVpnProfileStartup.AppendDirective("auth-user-pass", OpenVpnProfileStartup.EncodePath(fileNameAuthOvpn), "Auth");
 		}
 	}

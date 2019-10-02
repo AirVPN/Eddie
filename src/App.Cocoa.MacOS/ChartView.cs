@@ -89,7 +89,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			CGColor LightChartBackground = ColorFromArgb(248, 248, 248);
+			//CGColor LightChartBackground = ColorFromArgb(248, 248, 248);
 			CGColor LightChartGrid = ColorFromArgb(211, 211, 211);
 			CGColor LightChartAxis = ColorFromArgb(128, 128, 128);
 			CGColor LightChartMouse = ColorFromArgb(32, 92, 166);
@@ -98,8 +98,8 @@ namespace Eddie.UI.Cocoa.Osx
 			CGColor LightChartLineUpload = ColorFromArgb(0, 90, 0);
 			CGColor LightChartWhite = ColorFromArgb(255, 255, 255);
 
-			m_colorBackground = LightChartBackground;
-			m_colorGrid = LightChartGrid;
+            m_colorBackground = NSColor.ControlBackground.CGColor;
+            m_colorGrid = LightChartGrid;
 			m_colorAxis = LightChartAxis;
 			m_colorMouse = LightChartMouse;
 			m_colorDownloadGraph = LightChartLineDownload;
@@ -140,7 +140,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 		public string ValToDesc(Int64 v)
 		{
-			return UtilsString.FormatBytes(v, true, true);
+            return LanguageManager.FormatBytes(v, true, true);
 		}
 
 		public void Switch(int chartIndex)
@@ -213,7 +213,7 @@ namespace Eddie.UI.Cocoa.Osx
 			var objectsText = new object[] { m_font, NSColor.FromCGColor(color) };
 			var keysText = new object[] { "NSFont", "NSColor" };
 			var attributesText = NSDictionary.FromObjectsAndKeys(objectsText, keysText);
-			var objectsOutline = new object[] { m_font, NSColor.White };
+			var objectsOutline = new object[] { m_font, NSColor.ControlBackground };
 			var keysOutline = new object[] { "NSFont", "NSColor" };
 			var attributesOutline = NSDictionary.FromObjectsAndKeys(objectsOutline, keysOutline);
 
@@ -313,16 +313,16 @@ namespace Eddie.UI.Cocoa.Osx
 			/*
 			{
 				string legend = "";
-				legend += Messages.ChartRange + ": " + Utils.FormatSeconds(m_chart.Resolution * m_chart.TimeStep);
+				legend += LanguageManager.GetText("ChartRange") + ": " + Utils.FormatSeconds(m_chart.Resolution * m_chart.TimeStep);
 				legend += "   ";
-				legend += Messages.ChartGrid + ": " + Utils.FormatSeconds(m_chart.Resolution / m_chart.Grid * m_chart.TimeStep);
+				legend += LanguageManager.GetText("ChartGrid") + ": " + Utils.FormatSeconds(m_chart.Resolution / m_chart.Grid * m_chart.TimeStep);
 				legend += "   ";
-				legend += Messages.ChartStep + ": " + Utils.FormatSeconds(m_chart.TimeStep);
+				legend += LanguageManager.GetText("ChartStep") + ": " + Utils.FormatSeconds(m_chart.TimeStep);
 
 				Point mp = Cursor.Position;
 				mp = PointToClient(mp);
 				if ((mp.X > 0) && (mp.Y < chartDX) && (mp.Y > chartDY) && (mp.Y < DY))
-					legend += " - " + Messages.ChartClickToChangeResolution;
+					legend += " - " + LanguageManager.GetText("ChartClickToChangeResolution");
 
 				e.Graphics.DrawString(legend, FontLabel, BrushLegendText, ChartRectangle(0, chartStartY, chartDX, m_legendDY), formatTopCenter);
 			}
@@ -361,7 +361,7 @@ namespace Eddie.UI.Cocoa.Osx
 				long v = m_chart.GetLastDownload();
 				downCurY = ((v) * (m_chartDY - m_marginTopY)) / maxY;
 				DrawLine(context, m_colorDownloadLine, 0, m_chartStartY - downCurY, m_chartDX, m_chartStartY - downCurY);
-				DrawStringOutline(context, Messages.ChartDownload + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - downCurY), 8);
+				DrawStringOutline(context, LanguageManager.GetText("ChartDownload") + ": " + ValToDesc(v), m_colorDownloadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - downCurY), 8);
 			}
 
 			// Upload line
@@ -371,7 +371,7 @@ namespace Eddie.UI.Cocoa.Osx
 				nfloat dly = 0;
 				if (Math.Abs(downCurY - y) < 10) dly = 15; // Download and upload overwrap, distance it.
 				DrawLine(context, m_colorUploadLine, 0, m_chartStartY - y, m_chartDX, m_chartStartY - y);
-				DrawStringOutline(context, Messages.ChartUpload + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - y - dly), 8);
+				DrawStringOutline(context, LanguageManager.GetText("ChartUpload") + ": " + ValToDesc(v), m_colorUploadText, ChartRectangle(0, 0, m_chartDX - 10, m_chartStartY - y - dly), 8);
 
 			}
 
@@ -398,7 +398,7 @@ namespace Eddie.UI.Cocoa.Osx
 					//float y = mp.Y * maxY / (chartDY - m_marginTopY);
 					nfloat y = (m_chartStartY - (mp.Y - m_marginTopY)) * maxY / m_chartDY;
 
-					String label = ValToDesc(Conversions.ToInt64(y)) + ", " + UtilsString.FormatSeconds(t) + " ago";
+                    String label = ValToDesc(Conversions.ToInt64(y)) + ", " + LanguageManager.FormatSeconds(t) + " ago";
 
 					int formatAlign = 6;
 

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ namespace Eddie.Core
 
         public bool Important = false; // Dump in support log
 		public bool Omissis = false; // Dump in support log with omissis
-		public bool CommandLineOnly = false;
+		//public bool CommandLineOnly = false;
 		public bool InternalOnly = false; // Don't show in UI
         public bool DontUserReset = false; // If true, the 'Reset All' launched by user don't clean this option.
     }

@@ -29,15 +29,11 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	class MainClass
 	{
-
-
-		static void Main(string[] args)
+        static void Main(string[] args)
 		{
 			NSApplication.Init();
 
-			Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
-
-			CommandLine.InitSystem(Environment.CommandLine);
+            Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
 
 			// Due to a bug in Xamarin, that don't recognize resources inside Core library if Mono is bundled, we embed some resources in entry assembly.
 
@@ -49,29 +45,20 @@ namespace Eddie.UI.Cocoa.Osx
 
 			Core.ResourcesFiles.Count();
 
-			if (CommandLine.SystemEnvironment.Exists("cli"))
+			if (new CommandLine(Environment.CommandLine, true, false).Exists("cli")) // TOFIX, not need anymore when every OS have a CLI executable.
 			{
-				Core.Engine engine = new Core.Engine();
-
-				if (engine.Initialization(true))
-				{
-					engine.ConsoleStart();
-					engine.Join();
-				}
-
+                Core.ConsoleEdition.UiClient client = new Core.ConsoleEdition.UiClient();
+                AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) => {
+                    Exception ex = (Exception)e.ExceptionObject;
+                    client.OnUnhandledException("CurrentDomain", ex);
+                };
+                client.Init(Environment.CommandLine);
 			}
 			else
-			{
-				
-                UiClient client = new UiClient();
-                if(client.Init() == false)
-                    return;
-
-				NSApplication.Main(args);
+			{				
+                NSApplication.Main(args);
 			}
 		}
-
-
-	}
+    }
 }
 

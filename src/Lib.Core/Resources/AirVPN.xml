@@ -2,10 +2,10 @@
 <provider code="AirVPN" title="AirVPN" subtitle="The air to breathe the real Internet." href="https://airvpn.org" class="service" fetch_mode="rsa4096+aes256">
   <manifest>
     <urls>
+      <url address="http://63.33.78.166" />
+      <url address="http://52.48.66.85" />
       <url address="http://54.93.175.114" />
-      <url address="http://54.246.124.152" />
-      <url address="http://54.225.156.17" />
-      <url address="http://95.211.138.143" />
+      <url address="http://63.33.116.50" />
     </urls>
     <rsa>
       <RSAParameters>

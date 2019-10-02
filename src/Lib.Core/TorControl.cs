@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -127,15 +127,15 @@ namespace Eddie.Core
 					string path = GetControlAuthCookiePath();
 
 					if (path == "")
-						throw new Exception(Messages.TorControlNoPath);
+						throw new Exception(LanguageManager.GetText("TorControlNoPath"));
 
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Cookie, from " + path, GetTorExecutablePath()));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlAuth", "Cookie, from " + path, GetTorExecutablePath()));
 
 					password = Platform.Instance.FileContentsReadBytes(path);
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlAuth, "Password", GetTorExecutablePath()));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlAuth", "Password", GetTorExecutablePath()));
 				}
 			}
 
@@ -175,13 +175,13 @@ namespace Eddie.Core
 						result = result.Replace("250-", "").Trim();
 						result = result.Replace("250 OK", "");
 						result = result.Replace("version=", "");
-						result = MessagesFormatter.Format(Messages.TorControlTest, result.Trim(), GetTorExecutablePath());
+						result = LanguageManager.GetText("TorControlTest", result.Trim(), GetTorExecutablePath());
 					}
 				}
 			}
 			catch (Exception e)
 			{
-				result = MessagesFormatter.Format(Messages.TorControlException, e.Message);
+				result = LanguageManager.GetText("TorControlException", e.Message);
 			}
 
 			Engine.Instance.Logs.Log(LogType.Verbose, "Tor Test: " + result);
@@ -197,7 +197,7 @@ namespace Eddie.Core
 				Write(s, "SIGNAL NEWNYM\n");
 				Flush(s);
 
-				Engine.Instance.Logs.LogVerbose(Messages.TorControlNEWNYM);
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("TorControlNEWNYM"));
 			}
 		}
 
@@ -219,7 +219,7 @@ namespace Eddie.Core
 			}
 			catch (Exception e)
 			{
-				result = MessagesFormatter.Format(Messages.TorControlException, e.Message);
+				result = LanguageManager.GetText("TorControlException", e.Message);
 			}
 
 			Engine.Instance.Logs.Log(LogType.Verbose, "Tor Test: " + result);
@@ -304,25 +304,25 @@ namespace Eddie.Core
 					}
 					else
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, Messages.TorControlMeekUnsupported);
+						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("TorControlMeekUnsupported"));
 					}
 
 					if (ips.Count == 0)
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, Messages.TorControlNoIps);
+						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("TorControlNoIps"));
 						//throw new Exception(Messages.TorControlNoIps);
 					}
 					else
 					{
 						string list = String.Join("; ", ipsMessages.ToArray());
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.TorControlGuardIps, list));
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlGuardIps", list));
 					}
 				}
 			}
 			catch (Exception e)
 			{
-				//throw new Exception(MessagesFormatter.Format(Messages.TorControlException, e.Message));
-				Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.TorControlException, e.Message));
+				//throw new Exception(LanguageManager.GetText("TorControlException, e.Message));
+				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("TorControlException", e.Message));
 			}
 
 			m_lastGuardIps = ips;

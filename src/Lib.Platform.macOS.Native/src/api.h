@@ -37,6 +37,8 @@ EDDIE_MACOS_NATIVE_EXPORT int eddie_file_set_mode_str(const char *filename, cons
 EDDIE_MACOS_NATIVE_EXPORT int eddie_file_get_immutable(const char *filename);
 EDDIE_MACOS_NATIVE_EXPORT int eddie_file_set_immutable(const char *filename, int flag);
 
+EDDIE_MACOS_NATIVE_EXPORT bool eddie_file_get_runasroot(const char *filename);
+
 // Ping the specified IP address (no host resolution) with the specified timeout in milliseconds (returns -1 in case of error or the elapsed milliseconds)
 EDDIE_MACOS_NATIVE_EXPORT int eddie_ip_ping(const char *address, int timeout);
 

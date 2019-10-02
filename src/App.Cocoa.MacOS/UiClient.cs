@@ -31,29 +31,51 @@ namespace Eddie.UI.Cocoa.Osx
 	{
         public static UiClient Instance;
         public Engine Engine;
+        public AppDelegate AppDelegate;
         public MainWindowController MainWindow;
+        public WindowSplashController SplashWindow;
 
         private WindowReportController m_windowReport;
 
-        public override bool Init()
+        public override bool Init(string environmentCommandLine)
         {
-            base.Init();
-
             Instance = this;
 
-            Engine = new Engine();
+            base.Init(environmentCommandLine);
 
-            if (Engine.Initialization(false) == false)
-                return false;
+            SplashWindow = new WindowSplashController();
+            SplashWindow.Window.MakeKeyAndOrderFront(AppDelegate);
 
+            Engine = new Engine(environmentCommandLine);
             Engine.UiManager.Add(this);
+            Engine.TerminateEvent += delegate ()
+            {
+                new NSObject().InvokeOnMainThread(() =>
+                {
+                    if (MainWindow != null)
+                        MainWindow.Close();
+                    if (SplashWindow != null)
+                        SplashWindow.Close();
+
+                    //NSApplication.SharedApplication.ReplyToApplicationShouldTerminate (true);
+                    NSApplication.SharedApplication.Terminate(new NSObject());
+                });
+            };
+
+            Engine.Start();
 
             return true;
         }
 
-        public override Json Command(Json data)
+		public void OnUnhandledException(string source, Exception e)
+		{
+			if (Engine != null)
+				Engine.OnUnhandledException(source, e);
+		}
+
+		public override Json Command(Json data)
         {
-            return Engine.UiManager.OnCommand(data, this);
+            return Engine.UiManager.SendCommand(data, this);
         }
 
         public override void OnReceive(Json data)
@@ -62,23 +84,51 @@ namespace Eddie.UI.Cocoa.Osx
 
             string cmd = data["command"].Value as string;
 
-            if (cmd == "ui.notification")
+            if (cmd == "log")
             {
-                if (MainWindow != null)
+                if(data["type"].Value as string == "fatal")
                 {
-                    new NSObject().InvokeOnMainThread(() =>
-                    {
-                        MainWindow.ShowNotification(data["message"].Value as string);
-                    });
+                    if (SplashWindow != null)
+                        SplashWindow.MessageError(data["message"].Value as string);
+                    else if (MainWindow != null)
+                        MainWindow.MessageError(data["message"].Value as string);
+                    else
+                        GuiUtils.MessageBoxError(data["message"].Value as string);
                 }
             }
-            else if (cmd == "ui.color")
+            else if (cmd == "init.step")
+            {
+                if (SplashWindow != null)
+                    SplashWindow.SetStatus(data["message"].Value as string);
+            }
+            else if (cmd == "engine.ui")
+            {
+                SplashWindow.SetStatus("Loading UI");
+
+                //UpdateInterfaceStyle();
+
+                new NSObject().InvokeOnMainThread(() =>
+                {
+                    MainWindow = new MainWindowController();
+                    bool startVisible = Engine.Storage.GetBool("gui.osx.visible");
+                    if (startVisible)
+                    {
+                        MainWindow.Window.MakeKeyAndOrderFront(null);
+                    }
+                    else
+                    {
+                        MainWindow.Window.IsVisible = false;
+                    }
+                    UiClient.Instance.SplashWindow.RequestCloseForReady();
+                });
+            }
+            else if (cmd == "ui.notification")
             {
                 if (MainWindow != null)
                 {
                     new NSObject().InvokeOnMainThread(() =>
                     {
-                        MainWindow.SetColor(data["color"].Value as string);
+                        MainWindow.ShowNotification(data["message"].Value as string, data["level"].Value as string);
                     });
                 }
             }
@@ -97,11 +147,34 @@ namespace Eddie.UI.Cocoa.Osx
                     });
                 }
             }
+            else if (cmd == "ui.main-status")
+            {
+                string appIcon = data["app_icon"].Value as string;
+                string appColor = data["app_color"].Value as string;
+                string actionIcon = data["action_icon"].Value as string;
+                string actionCommand = data["action_command"].Value as string;
+                string actionText = data["action_text"].Value as string;
+
+                if (MainWindow != null)
+                {
+                    new NSObject().InvokeOnMainThread(() =>
+                    {
+                        MainWindow.SetMainStatus(appIcon, appColor, actionIcon, actionCommand, actionText);
+                    });
+                }
+            }
             else if (cmd == "ui.updater.available")
             {
                 new NSObject().InvokeOnMainThread(() =>
                 {
                     MainWindow.ShowUpdater();
+                });
+            }
+            else if (cmd == "ui.frontmessage")
+            {
+                new NSObject().InvokeOnMainThread(() =>
+                {
+                    MainWindow.FrontMessage(data["message"].Value as Json);
                 });
             }
             else if (cmd == "system.report.progress")
@@ -126,5 +199,36 @@ namespace Eddie.UI.Cocoa.Osx
                 }
             }
         }
+
+        /* // TOCLEAN
+        public void UpdateInterfaceStyle()
+        {
+            // AppleInterfaceStyle is user-level settings.
+            // Setting the 'Dark mode' in preferences, don't change the interface style of the ROOT user, and AirVPN client run as root.
+            // We detect the settings when this software relaunch itself, and here we update accordly the settings of the current (ROOT) user.
+            string defaultsPath = Core.Platform.Instance.LocateExecutable("defaults");
+            if (defaultsPath != "")
+            {
+                // If 'white', return error in StdErr and empty in StdOut.
+                SystemShell s = new SystemShell();
+                s.Path = defaultsPath;
+                s.Arguments.Add("read");
+                s.Arguments.Add("-g");
+                s.Arguments.Add("AppleInterfaceStyle");
+                s.Run();
+                string rootColorMode = s.StdOut.Trim().ToLowerInvariant();
+                if (rootColorMode == "")
+                    rootColorMode = "light";
+                string argsColorMode = Engine.Instance.StartCommandLine.Get("gui.osx.style", "light");
+                if (rootColorMode != argsColorMode)
+                {
+                    if (argsColorMode == "dark")
+                        Core.SystemShell.Shell(defaultsPath, new string[] { "write", "-g", "AppleInterfaceStyle", "Dark" });
+                    else
+                        Core.SystemShell.Shell(defaultsPath, new string[] { "remove", "-g", "AppleInterfaceStyle" });
+                }
+            }
+        }
+        */
     }
 }

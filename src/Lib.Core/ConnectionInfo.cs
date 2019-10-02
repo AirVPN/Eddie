@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,6 +47,9 @@ namespace Eddie.Core
 		public bool SupportIPv6 = false;
 		public bool SupportCheck = true;
 		public string OvpnDirectives;
+		public List<string> CiphersTls = new List<string>();
+		public List<string> CiphersTlsSuites = new List<string>();
+		public List<string> CiphersData = new List<string>();
 		public string Path = ""; // External .ovpn config file		
 
 		public List<ConnectionInfoWarning> Warnings = new List<ConnectionInfoWarning>();
@@ -208,15 +211,17 @@ namespace Eddie.Core
 				else
 				{
 					string scoreType = Engine.Instance.Storage.GetLower("servers.scoretype");
+					
+					double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
+					double PingB = Ping * Convert.ToDouble(Provider.GetKeyValue("ping_factor", "1"));
+					double LoadB = Load() * Convert.ToDouble(Provider.GetKeyValue("load_factor", "1"));
 					double ScoreB = ScoreBase;
-
 					if (scoreType == "speed")
 						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
 					else if (scoreType == "latency")
 						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor", "500"));
-
-					double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
-					return Conversions.ToInt32(Ping + Load() + ScoreB + PenalityB);
+					double UsersB = Users * Convert.ToDouble(Provider.GetKeyValue("users_factor", "1"));
+					return Conversions.ToInt32(PenalityB + PingB + LoadB + ScoreB + UsersB);
 				}
 			}
 		}
@@ -405,12 +410,12 @@ namespace Eddie.Core
 						}
 						else
 						{
-							Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FileNotFound, directivesPath));
+							Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("FileNotFound", directivesPath));
 						}
 					}
 					catch (Exception ex)
 					{
-						Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.FileErrorRead, directivesPath, ex.Message));
+						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("FileErrorRead", directivesPath, ex.Message));
 					}
 				}
 				Provider.OnBuildOvpnDefaults(ovpn);
@@ -497,8 +502,6 @@ namespace Eddie.Core
 							string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
 							Platform.Instance.FileContentsWriteText(connectionActive.ProxyAuthFile.Path, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
 							Platform.Instance.FileEnsurePermission(connectionActive.ProxyAuthFile.Path, "600");
-                            Platform.Instance.FileEnsureOwner(connectionActive.ProxyAuthFile.Path);
-
 						}
 						proxyDirectiveArgs += " " + ovpn.EncodePath(fileNameAuthOvpn) + " " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
 					}
@@ -671,7 +674,7 @@ namespace Eddie.Core
 
 				if (ipsCustomRoute.Count == 0)
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.CustomRouteInvalid, ipCustomRoute.ToString()));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("CustomRouteInvalid", ipCustomRoute.ToString()));
 				}
 				else
 				{
@@ -720,14 +723,10 @@ namespace Eddie.Core
 					managementPasswordFile = connectionActive.ManagementPasswordFile.Path;
                     Platform.Instance.FileContentsWriteText(managementPasswordFile, connectionActive.ManagementPassword, Encoding.ASCII); // UTF8 not recognized by OpenVPN
                     Platform.Instance.FileEnsurePermission(managementPasswordFile, "600");
-                    Platform.Instance.FileEnsureOwner(managementPasswordFile);
 				}
 
 				ovpn.AppendDirective("management", "127.0.0.1 " + Engine.Instance.Storage.Get("openvpn.management_port") + " " + ovpn.EncodePath(managementPasswordFile), "");
 			}
-
-			// TOCLEAN - Moved bottom in 2.14.0
-			// ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
 
 			// Experimental - Allow identification as Public Network in Windows. Advanced Option?
 			// ovpn.Append("route-metric 512");

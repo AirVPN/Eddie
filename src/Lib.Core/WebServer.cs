@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,14 +25,19 @@ using System.IO;
 using System.Xml;
 using Eddie.Common;
 
+// ClodoTemp: Missing feature, a token access
+
 namespace Eddie.Core
 {
 	public class WebServer
 	{
+		public string ListenUrl;
+
 		private HttpListener m_listener = new HttpListener();
-		//private Func<HttpListenerRequest, string> m_responderMethod;
 
 		private List<Json> m_pullItems = new List<Json>();
+
+		private WebServerClient m_client = new WebServerClient();
 
 		public static string GetPath()
 		{
@@ -45,14 +50,13 @@ namespace Eddie.Core
 
 		public void Init(string prefix)
 		{
+			Engine.Instance.UiManager.Add(m_client);
+
 			if (GetPath() == "")
 				return;
 
 			if (!HttpListener.IsSupported)
-				throw new NotSupportedException(
-					"Needs Windows XP SP2, Server 2003 or later.");
-
-			// Engine.Instance.CommandEvent += OnCommandEvent;
+				throw new NotSupportedException("Needs Windows XP SP2, Server 2003 or later.");
 
 			m_listener.Prefixes.Add(prefix);
 
@@ -69,35 +73,25 @@ namespace Eddie.Core
 					{
 						ThreadPool.QueueUserWorkItem((c) =>
 						{
-							var ctx = c as HttpListenerContext;
+							var context = c as HttpListenerContext;
 							try
 							{
-								string urlPath = ctx.Request.Url.LocalPath;
-								if (urlPath == "/")
-									urlPath = "/index.html";
-								string localPath = GetPath() + urlPath;
-								if (Platform.Instance.FileExists(localPath))
-								{
-									WriteFile(ctx, localPath, false);
-								}
-								else
-								{
-									string rstr = SendResponse(ctx.Request);
-									byte[] buf = Encoding.UTF8.GetBytes(rstr);
-									ctx.Response.ContentLength64 = buf.Length;
-									ctx.Response.OutputStream.Write(buf, 0, buf.Length);
-								}
+								SendResponse(context);
 							}
-							catch { } // suppress any exceptions
+							catch 
+							{
+								context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+							}
 							finally
 							{
-								// always close the stream
-								ctx.Response.OutputStream.Close();
+								context.Response.OutputStream.Close();
 							}
 						}, m_listener.GetContext());
 					}
 				}
-				catch { } // suppress any exceptions
+				catch 
+				{ 
+				}
 			});
 		}
 
@@ -110,6 +104,7 @@ namespace Eddie.Core
 				//response is HttpListenerContext.Response...
 				response.ContentLength64 = fs.Length;
 				response.SendChunked = false;
+				response.AddHeader("Last-Modified", File.GetLastWriteTime(path).ToString("r"));
 				if (asDownload)
 				{
 					response.ContentType = System.Net.Mime.MediaTypeNames.Application.Octet;
@@ -117,33 +112,22 @@ namespace Eddie.Core
 				}
 				else
 				{
-					if (path.EndsWith(".html"))
+					string mime = "";
+					int posLastDot = path.LastIndexOf('.');
+					if (posLastDot != -1)
 					{
-						response.ContentType = "text/html";
+						string ext = path.Substring(posLastDot + 1);
+						if (Engine.Instance.Manifest["mime_types"]["extension_to_type"].Json.HasKey(ext))
+							mime = Engine.Instance.Manifest["mime_types"]["extension_to_type"][ext].Value as string;
+						else
+							mime = Engine.Instance.Manifest["mime_types"]["extension_to_type"]["*"].Value as string;
+					}
+
+					if (mime != "")
+						response.ContentType = mime;
+
+					if( (mime.StartsWith("text/")) || (mime == "application/javascript") )
 						response.ContentEncoding = Encoding.UTF8;
-					}
-					else if (path.EndsWith(".css"))
-					{
-						response.ContentType = "text/css";
-						response.ContentEncoding = Encoding.UTF8;
-					}
-					else if (path.EndsWith(".js"))
-					{
-						response.ContentType = "text/javascript";
-						response.ContentEncoding = Encoding.UTF8;
-					}
-					else if (path.EndsWith(".png"))
-					{
-						response.ContentType = "image/png";
-					}
-					else if (path.EndsWith(".gif"))
-					{
-						response.ContentType = "image/gif";
-					}
-					else if (path.EndsWith(".ico"))
-					{
-						response.ContentType = "image/x-icon";
-					}
 				}
 
 				byte[] buffer = new byte[64 * 1024];
@@ -158,7 +142,7 @@ namespace Eddie.Core
 
 					bw.Close();
 				}
-
+								
 				response.StatusCode = (int)HttpStatusCode.OK;
 				response.StatusDescription = "OK";
 				response.OutputStream.Close();
@@ -173,74 +157,118 @@ namespace Eddie.Core
 
 		public void Start()
 		{
-			string listenUrl = "http://" + Engine.Instance.Storage.Get("webui.ip") + ":" + Engine.Instance.Storage.Get("webui.port") + "/";
-			//Init(listenUrl, SendResponse);
-			Init(listenUrl);
+			ListenUrl = "http://" + Engine.Instance.Storage.Get("webui.ip") + ":" + Engine.Instance.Storage.Get("webui.port");
+			Init(ListenUrl + "/");
 			Run();
 		}
 
-		public string SendResponse(HttpListenerRequest request)
+		public void SendResponse(HttpListenerContext context)
 		{
 			// string physicalPath = GetPath() + request.RawUrl;
+			string bodyResponse = ""; // If valorized, always a dynamic response
+			Dictionary<string, string> requestHeaders = new Dictionary<string, string>();
+			foreach (var key in context.Request.Headers.AllKeys)
+				requestHeaders[key.ToLowerInvariant()] = context.Request.Headers[key];
+			string requestHttpMethod = context.Request.HttpMethod.ToLowerInvariant().Trim();
 
-			if (request.Url.AbsolutePath == "/api/command/")
+			context.Response.Headers["Server"] = Constants.Name + " " + Constants.VersionShow;
+			context.Response.Headers["Access-Control-Allow-Origin"] = ListenUrl;
+			context.Response.Headers["Vary"] = "Origin";
+
+			string origin = context.Request.Headers["Origin"];
+			if( (requestHeaders.ContainsKey("origin")) && (requestHeaders["origin"].StartsWith(ListenUrl) == false))
 			{
-				// Pull mode
-				var data = new StreamReader(request.InputStream).ReadToEnd();
-				Json ret = Receive(data);
-				if (ret != null)
-					return ret.ToJson();
-				else
-					return "";
-			}
-			else if (request.Url.AbsolutePath == "/pull/receive/")
-			{
-				lock (m_pullItems)
+				List<string> hostsAllowed = new List<string>(); // Option?
+				hostsAllowed.Add("127.0.0.1");
+				hostsAllowed.Add("localhost");
+				Uri uriOrigin = new Uri(requestHeaders["origin"]);
+				if (hostsAllowed.Contains(uriOrigin.Host) == false)
 				{
-					if (m_pullItems.Count == 0)
-						return "";
-
-					Json data = m_pullItems[0];
-					m_pullItems.RemoveAt(0);
-					return data.ToJson();
+					context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+					return;
 				}
 			}
 
-			return string.Format("<HTML><BODY>Unexpected. {0}</BODY></HTML>", DateTime.Now);
-		}
+			if (requestHttpMethod == "options")
+			{				
+				Engine.Instance.Logs.LogVerbose(origin);
+				context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+			}
 
-		private void OnCommandEvent(Json data)
-		{
-			Send(data);
-		}
+			if(context.Request.Url.AbsolutePath == "/api/command/")
+			{
+				if (requestHttpMethod == "post")
+				{
+					// Pull mode
+					var data = new StreamReader(context.Request.InputStream).ReadToEnd();
+					Json ret = Receive(data);
+					if (ret != null)
+						bodyResponse = ret.ToJson();
+					else
+						bodyResponse = "null";
+				}
+				else
+				{
+					context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+				}
+			}
+			else if (context.Request.Url.AbsolutePath == "/api/pull/")
+			{
+				if (requestHttpMethod == "post")
+				{
+					lock (m_client.Pendings)
+					{
+						if (m_client.Pendings.Count == 0)
+						{
+							bodyResponse = "null";
+						}
+						else
+						{
+							Json data = m_client.Pendings[0];
+							m_client.Pendings.RemoveAt(0);
+							bodyResponse = data.ToJson();
+						}
+					}
+				}
+				else
+				{
+					context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+				}
+			}
+			else
+			{
+				string urlPath = context.Request.Url.LocalPath;
+				if (urlPath == "/")
+					urlPath = "/index.html";
+				string localPath = GetPath() + urlPath;
+				if (Platform.Instance.FileExists(localPath))
+				{
+					if (context.Request.HttpMethod == "GET")
+						WriteFile(context, localPath, false);
+					else
+						throw new Exception("Unexpected");
+				}
+				else
+				{
+					context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+				}
+			}
 
-		public static XmlElement CreateMessage()
-		{
-			XmlDocument doc = new XmlDocument();
-			XmlElement nodeRoot = doc.CreateElement("message");
-			doc.AppendChild(nodeRoot);
-			return nodeRoot;
+			if(bodyResponse != "") // Always dynamic
+			{
+				context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
+				context.Response.Headers["Pragma"] = "no-cache";
+
+				byte[] buf = Encoding.UTF8.GetBytes(bodyResponse);
+				context.Response.ContentLength64 = buf.Length;
+				context.Response.OutputStream.Write(buf, 0, buf.Length);
+			}
 		}
 
 		public Json Receive(string data)
 		{
-			return null;
-			//return Engine.Instance.Command(data, true);
-		}
-
-		// Clodo, TOCLEAN; still used?
-		public delegate void SendEventHandler(Json data);
-		public event SendEventHandler SendEvent;
-
-		public void Send(Json data)
-		{
-			if (SendEvent != null)
-				SendEvent(data);
-
-			lock (m_pullItems)
-			{
-				m_pullItems.Add(data); // Clodo TOFIX memory huge
-			}
+			Json jData = Json.Parse(data);
+			return m_client.Command(jData["data"].Value as Json);
 		}
 	}
 }

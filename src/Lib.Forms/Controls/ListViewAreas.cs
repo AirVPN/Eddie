@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,20 +58,20 @@ namespace Eddie.Forms.Controls
 			View = System.Windows.Forms.View.Details;
 			//this.lstServers.SelectedIndexChanged += new System.EventHandler(this.lstServers_SelectedIndexChanged);
 
-			columnHeader1.Text = Messages.AreasName;
+			columnHeader1.Text = LanguageManager.GetText("AreasName");
 			columnHeader1.Width = 150;
-			columnHeader2.Text = Messages.AreasServers;
+			columnHeader2.Text = LanguageManager.GetText("AreasServers");
 			columnHeader2.Width = 60;
 			columnHeader2.TextAlign = HorizontalAlignment.Center;
-			columnHeader3.Text = Messages.AreasLoad;
+			columnHeader3.Text = LanguageManager.GetText("AreasLoad");
 			columnHeader3.Width = 200;
 			columnHeader3.TextAlign = HorizontalAlignment.Center;
-			columnHeader4.Text = Messages.AreasUsers;
+			columnHeader4.Text = LanguageManager.GetText("AreasUsers");
 			columnHeader4.Width = 60;
 			columnHeader4.TextAlign = HorizontalAlignment.Center;
 
-			ImageListIcon = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
-			ImageListState = (Engine.Instance as Eddie.Forms.Engine).FormMain.imgCountries;
+			ImageListIcon = UiClient.Instance.MainWindow.imgCountries;
+			ImageListState = UiClient.Instance.MainWindow.imgCountries;
 			//SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 			//LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 

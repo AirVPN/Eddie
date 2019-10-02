@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,19 +38,26 @@ namespace Eddie.Core
 		*/
 
 		public void Run()
-		{
+		{			
 			RouteScope routeScope = null;
 			try
-			{
+			{				
 				IpAddress ip = Server.IpsEntry.FirstPreferIPv4;
 				if( (ip == null) || (ip.Valid == false) )
 					throw new Exception("Invalid ip");
 				routeScope = new RouteScope(ip.ToString());
-				Int64 result = Platform.Instance.Ping(ip, 3);
+				Int64 result = Platform.Instance.Ping(ip, 3);		
+
+				if( (Engine.Instance == null) || (Engine.Instance.JobsManager == null) || (Engine.Instance.JobsManager.Latency == null) )
+					return; // Avoid unidentified crash
+
 				Engine.Instance.JobsManager.Latency.PingResult(Server, result);
 			}
 			catch (Exception)
 			{
+				if ((Engine.Instance == null) || (Engine.Instance.JobsManager == null) || (Engine.Instance.JobsManager.Latency == null))
+					return; // Avoid unidentified crash
+
 				Engine.Instance.JobsManager.Latency.PingResult(Server, -1);
 			}
 			finally
@@ -60,9 +67,16 @@ namespace Eddie.Core
 					routeScope.End();
 				}
 
-				lock (Engine.Instance.JobsManager.Latency.Jobs)
+				if ((Engine.Instance == null) || (Engine.Instance.JobsManager == null) || (Engine.Instance.JobsManager.Latency == null))
 				{
-					Engine.Instance.JobsManager.Latency.Jobs.Remove(this);
+					// Avoid unidentified crash
+				}
+				else
+				{
+					lock (Engine.Instance.JobsManager.Latency.Jobs)
+					{
+						Engine.Instance.JobsManager.Latency.Jobs.Remove(this);
+					}
 				}
 			}
 

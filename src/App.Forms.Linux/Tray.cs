@@ -21,117 +21,139 @@ namespace Eddie.Forms.Linux
 
 		public bool IsStarted()
 		{
-			return ( (m_pathWrite != "") && (m_oneStart) );
+			//return ( (m_pathWrite != "") && (m_oneStart) ); // 2.17.3
+			return (m_pathWrite != "");
 		}
 
 		public void SendCommand(string cmd)
 		{
 			if(IsStarted() == false)
 				return;
-							
+
 			// Mono treats FIFOs as if they are seekable (it's a bug), even though they aren't.
 			Platform.Linux.NativeMethods.PipeWrite (m_pathWrite, cmd + "\n");			
 		}
 
 		public override void OnRun ()
 		{
-			for (;;) {
-				
-				//string controlReadPath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_r.tmp");
-				//string controlWritePath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_w.tmp");
-				string controlReadPath = Path.GetTempPath() + "eddie_tray_r.tmp";
-				string controlWritePath = Path.GetTempPath() + "eddie_tray_w.tmp";
-								
-				string pathRes = Core.Engine.Instance.GetPathResources();
-				string pathExe = Core.Engine.Instance.GetPathTools() + "/eddie-tray";
+            try
+            {
+                for (; ; )
+                {
 
-				if (Core.Platform.Instance.FileExists(pathExe) == false)
-					return;
+                    //string controlReadPath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_r.tmp");
+                    //string controlWritePath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_w.tmp");
+                    string controlReadPath = Path.GetTempPath() + "eddie_tray_r.tmp";
+                    string controlWritePath = Path.GetTempPath() + "eddie_tray_w.tmp";
 
-				List<string> arguments = new List<string> ();
-				arguments.Add("-r " + controlReadPath);
-				arguments.Add("-w " + controlWritePath);
-				arguments.Add("-p " + pathRes);
+                    string pathRes = Core.Engine.Instance.GetPathResources();
+                    string pathExe = Core.Engine.Instance.GetPathTools() + "/eddie-tray";
 
-				string[] arguments2 = arguments.ToArray ();
+                    if (Core.Platform.Instance.FileExists(pathExe) == false)
+                        return;
 
-				// As normal user
-				Core.Platform.Instance.ShellAdaptNormalUser(ref pathExe, ref arguments2);
+                    List<string> arguments = new List<string>();
+                    arguments.Add("-r " + controlReadPath);
+                    arguments.Add("-w " + controlWritePath);
+                    arguments.Add("-p " + pathRes);
 
-				Process processTray;
-				processTray = new Process ();
+                    string[] arguments2 = arguments.ToArray();
 
-				processTray.StartInfo.FileName = SystemShell.EscapePath (pathExe);
-				processTray.StartInfo.Arguments = String.Join(" ", arguments2);
-				processTray.StartInfo.WorkingDirectory = "";
+                    Process processTray;
+                    processTray = new Process();
 
-				processTray.StartInfo.CreateNoWindow = true;
-				processTray.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-				processTray.StartInfo.UseShellExecute = false;
+                    processTray.StartInfo.FileName = SystemShell.EscapePath(pathExe);
+                    processTray.StartInfo.Arguments = String.Join(" ", arguments2);
+                    processTray.StartInfo.WorkingDirectory = "";
 
-				processTray.Start ();
+                    processTray.StartInfo.CreateNoWindow = true;
+                    processTray.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    processTray.StartInfo.UseShellExecute = false;
 
-				if (processTray.HasExited) // If can't start, for example missing appindicator library.
-					break;
+                    processTray.Start();
 
-				// Wait until control file is ready
-				for (;;) {
-					if (CancelRequested)
-						break;
+                    if (processTray.HasExited) // If can't start, for example missing appindicator library.
+                        break;
 
-					if (Core.Platform.Instance.FileExists (controlWritePath))
-						break;
+                    // Wait until control file is ready
+                    for (; ; )
+                    {
+                        if (CancelRequested)
+                            break;
 
-					Sleep (100);
-				}
+                        if (Core.Platform.Instance.FileExists(controlWritePath))
+                            break;
 
-				m_pathWrite = controlReadPath;
+                        Sleep(100);
+                    }
 
-				try
-				{
-					for (;;) {
-						using (StreamReader streamRead = new StreamReader (controlWritePath)) {
-							string cmd = streamRead.ReadLine ();
-							
-							if (cmd == null) // Closed
-								break;
+                    m_pathWrite = controlReadPath;
 
-							if(m_oneStart == false)
-								m_oneStart = true;
+                    try
+                    {
+                        for (; ; )
+                        {
+                            using (StreamReader streamRead = new StreamReader(controlWritePath))
+                            {
+                                string cmd = streamRead.ReadLine();
 
-							Eddie.Forms.Engine engine = Eddie.Core.Engine.Instance as Eddie.Forms.Engine;					
-							if (engine.FormMain != null) {
-								if (cmd == "menu.status") {
-									engine.FormMain.OnMenuStatus();
-								} else if (cmd == "menu.connect") {
-									engine.FormMain.OnMenuConnect();
-								} else if (cmd == "menu.preferences") {
-									engine.FormMain.OnShowPreferences ();
-								} else if (cmd == "menu.about") {
-									engine.FormMain.OnShowAbout ();
-								} else if (cmd == "menu.restore") {
-									engine.FormMain.OnMenuRestore();
-								} else if (cmd == "menu.exit") {					
-									engine.FormMain.OnMenuExit();
-								}
-							}
-						}
-					}
-				}
-				catch {					
-				}
+                                if (cmd == null) // Closed
+                                    break;
 
-				m_pathWrite = "";
+                                if (m_oneStart == false)
+                                    m_oneStart = true;
 
-				if (m_oneStart == false)
-				{
-					Eddie.Core.Engine.Instance.Logs.LogVerbose("Unable to initialize the tray icon.");
-					break;
-				}
+                                if (UiClient.Instance.MainWindow != null)
+                                {
+                                    if (cmd == "menu.status")
+                                    {
+                                        UiClient.Instance.MainWindow.OnMenuStatus();
+                                    }
+                                    else if (cmd == "menu.connect")
+                                    {
+                                        UiClient.Instance.MainWindow.OnMenuConnect();
+                                    }
+                                    else if (cmd == "menu.preferences")
+                                    {
+                                        UiClient.Instance.MainWindow.OnShowPreferences();
+                                    }
+                                    else if (cmd == "menu.about")
+                                    {
+                                        UiClient.Instance.MainWindow.OnShowAbout();
+                                    }
+                                    else if (cmd == "menu.restore")
+                                    {
+                                        UiClient.Instance.MainWindow.OnMenuRestore();
+                                    }
+                                    else if (cmd == "menu.exit")
+                                    {
+                                        UiClient.Instance.MainWindow.OnMenuExit();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
 
-				if (this.CancelRequested)
-					break;
-			}
+                    m_pathWrite = "";
+
+                    if (m_oneStart == false)
+                    {
+                        break;
+                    }
+
+                    if (this.CancelRequested)
+                        break;
+                }
+            }
+            catch(Exception ex)
+            {
+                Eddie.Core.Engine.Instance.Logs.LogVerbose("Issue with the tray icon: " + ex.Message);
+
+                m_pathWrite = "";
+            }
 		}
 	}
 }

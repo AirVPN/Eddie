@@ -27,25 +27,22 @@ namespace Eddie.CLI.MacOS
 {
 	class Program
 	{
+		private static Core.ConsoleEdition.UiClient m_client;
+
 		static void Main(string[] args)
 		{
-			Eddie.Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
-
-			CommandLine.InitSystem(Environment.CommandLine);
-
-			Eddie.Core.Engine engine = new Core.Engine();
-
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-			if (engine.Initialization(true))
-			{
-				engine.ConsoleStart();
-			}
+			Eddie.Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
+
+			m_client = new Core.ConsoleEdition.UiClient();
+			m_client.Init(Environment.CommandLine);
 		}
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			Eddie.Core.Engine.Instance.OnUnhandledException(e.ExceptionObject as Exception);
+			if (m_client != null)
+				m_client.OnUnhandledException("CurrentDomain", e.ExceptionObject as Exception);
 		}
 	}
 }

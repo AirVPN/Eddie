@@ -1,4 +1,4 @@
-namespace Eddie.Forms.Forms
+﻿namespace Eddie.Forms.Forms
 {
     partial class Main
     {
@@ -48,6 +48,7 @@ namespace Eddie.Forms.Forms
 			this.mnuPorts = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
+			this.mnuUpdater = new System.Windows.Forms.ToolStripMenuItem();
 			this.mnuAbout = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.mnuRestore = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,7 +107,7 @@ namespace Eddie.Forms.Forms
 			this.lblKey = new Eddie.Forms.Skin.Label();
 			this.lblConnectSubtitle = new Eddie.Forms.Skin.Label();
 			this.cmdLockedNetwork = new Eddie.Forms.Skin.Button();
-			this.lblLoginIcon = new System.Windows.Forms.Label();
+			this.lblLoginIcon = new Eddie.Forms.Skin.Label();
 			this.imgLockedNetwork = new Eddie.Forms.Skin.Label();
 			this.cmdLogin = new Eddie.Forms.Skin.Button();
 			this.lblPassword = new Eddie.Forms.Skin.Label();
@@ -147,7 +148,6 @@ namespace Eddie.Forms.Forms
 			this.tabLogs = new Eddie.Forms.Skin.TabPage();
 			this.cmdLogsCommand = new Eddie.Forms.Skin.Button();
 			this.lstLogs = new Eddie.Forms.Skin.ListView();
-			this.mnuUpdater = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopyAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextSaveAll = new System.Windows.Forms.ToolStripMenuItem();
 			mnuContextCopySelected = new System.Windows.Forms.ToolStripMenuItem();
@@ -229,7 +229,7 @@ namespace Eddie.Forms.Forms
 			// colMessage
 			// 
 			colMessage.Text = "Message";
-			colMessage.Width = 6000;
+			colMessage.Width = 20000;
 			// 
 			// mnuMain
 			// 
@@ -250,7 +250,7 @@ namespace Eddie.Forms.Forms
             this.mnuRestoreSep,
             this.mnuExit});
 			this.mnuMain.Name = "trayMenu";
-			this.mnuMain.Size = new System.Drawing.Size(338, 361);
+			this.mnuMain.Size = new System.Drawing.Size(338, 328);
 			// 
 			// mnuStatus
 			// 
@@ -313,6 +313,13 @@ namespace Eddie.Forms.Forms
 			this.mnuSettings.Size = new System.Drawing.Size(337, 30);
 			this.mnuSettings.Text = "&Preferences";
 			this.mnuSettings.Click += new System.EventHandler(this.mnuSettings_Click);
+			// 
+			// mnuUpdater
+			// 
+			this.mnuUpdater.Name = "mnuUpdater";
+			this.mnuUpdater.Size = new System.Drawing.Size(337, 30);
+			this.mnuUpdater.Text = "&Update";
+			this.mnuUpdater.Click += new System.EventHandler(this.mnuUpdater_Click);
 			// 
 			// mnuAbout
 			// 
@@ -983,7 +990,7 @@ namespace Eddie.Forms.Forms
 			this.tabOverview.Controls.Add(this.pnlWelcome);
 			this.tabOverview.Controls.Add(this.pnlWaiting);
 			this.tabOverview.Location = new System.Drawing.Point(4, 29);
-			this.tabOverview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tabOverview.Margin = new System.Windows.Forms.Padding(4);
 			this.tabOverview.Name = "tabOverview";
 			this.tabOverview.Size = new System.Drawing.Size(1099, 505);
 			this.tabOverview.TabIndex = 4;
@@ -1006,36 +1013,36 @@ namespace Eddie.Forms.Forms
 			this.pnlConnected.Controls.Add(this.lblConnectedTo);
 			this.pnlConnected.Controls.Add(this.lblConnectedServerName);
 			this.pnlConnected.Controls.Add(this.lblConnectedCountry);
-			this.pnlConnected.Location = new System.Drawing.Point(573, 392);
-			this.pnlConnected.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.pnlConnected.Location = new System.Drawing.Point(347, 170);
+			this.pnlConnected.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlConnected.Name = "pnlConnected";
-			this.pnlConnected.Size = new System.Drawing.Size(705, 327);
+			this.pnlConnected.Size = new System.Drawing.Size(745, 327);
 			this.pnlConnected.TabIndex = 66;
 			this.pnlConnected.Visible = false;
 			// 
 			// txtConnectedExitIp
 			// 
-			this.txtConnectedExitIp.Location = new System.Drawing.Point(249, 180);
+			this.txtConnectedExitIp.Location = new System.Drawing.Point(235, 170);
 			this.txtConnectedExitIp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedExitIp.Name = "txtConnectedExitIp";
-			this.txtConnectedExitIp.Size = new System.Drawing.Size(432, 36);
+			this.txtConnectedExitIp.Size = new System.Drawing.Size(495, 46);
 			this.txtConnectedExitIp.TabIndex = 69;
 			this.txtConnectedExitIp.Text = "1.2.3.4";
 			this.txtConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// lblConnectedExitIp
 			// 
-			this.lblConnectedExitIp.Location = new System.Drawing.Point(28, 180);
+			this.lblConnectedExitIp.Location = new System.Drawing.Point(15, 170);
 			this.lblConnectedExitIp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedExitIp.Name = "lblConnectedExitIp";
-			this.lblConnectedExitIp.Size = new System.Drawing.Size(207, 36);
+			this.lblConnectedExitIp.Size = new System.Drawing.Size(212, 46);
 			this.lblConnectedExitIp.TabIndex = 68;
 			this.lblConnectedExitIp.Text = "Public Exit IP:";
 			this.lblConnectedExitIp.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblConnectedUpload
 			// 
-			this.lblConnectedUpload.Location = new System.Drawing.Point(360, 110);
+			this.lblConnectedUpload.Location = new System.Drawing.Point(390, 110);
 			this.lblConnectedUpload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedUpload.Name = "lblConnectedUpload";
 			this.lblConnectedUpload.Size = new System.Drawing.Size(98, 30);
@@ -1048,10 +1055,10 @@ namespace Eddie.Forms.Forms
 			this.txtConnectedUpload.BackColor = System.Drawing.Color.White;
 			this.txtConnectedUpload.Font = new System.Drawing.Font("Lucida Console", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.txtConnectedUpload.ForeColor = System.Drawing.Color.ForestGreen;
-			this.txtConnectedUpload.Location = new System.Drawing.Point(462, 100);
+			this.txtConnectedUpload.Location = new System.Drawing.Point(492, 100);
 			this.txtConnectedUpload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedUpload.Name = "txtConnectedUpload";
-			this.txtConnectedUpload.Size = new System.Drawing.Size(216, 60);
+			this.txtConnectedUpload.Size = new System.Drawing.Size(236, 60);
 			this.txtConnectedUpload.TabIndex = 67;
 			this.txtConnectedUpload.Text = "14332 kb/s";
 			this.txtConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1064,34 +1071,34 @@ namespace Eddie.Forms.Forms
 			this.txtConnectedDownload.Location = new System.Drawing.Point(135, 100);
 			this.txtConnectedDownload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedDownload.Name = "txtConnectedDownload";
-			this.txtConnectedDownload.Size = new System.Drawing.Size(216, 60);
+			this.txtConnectedDownload.Size = new System.Drawing.Size(236, 60);
 			this.txtConnectedDownload.TabIndex = 65;
 			this.txtConnectedDownload.Text = "14332 kb/s";
 			this.txtConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// lblConnectedDownload
 			// 
-			this.lblConnectedDownload.Location = new System.Drawing.Point(20, 112);
+			this.lblConnectedDownload.Location = new System.Drawing.Point(15, 112);
 			this.lblConnectedDownload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedDownload.Name = "lblConnectedDownload";
-			this.lblConnectedDownload.Size = new System.Drawing.Size(111, 30);
+			this.lblConnectedDownload.Size = new System.Drawing.Size(112, 30);
 			this.lblConnectedDownload.TabIndex = 64;
 			this.lblConnectedDownload.Text = "Download:";
 			this.lblConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// txtConnectedSince
 			// 
-			this.txtConnectedSince.Location = new System.Drawing.Point(249, 222);
+			this.txtConnectedSince.Location = new System.Drawing.Point(235, 222);
 			this.txtConnectedSince.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.txtConnectedSince.Name = "txtConnectedSince";
-			this.txtConnectedSince.Size = new System.Drawing.Size(432, 36);
+			this.txtConnectedSince.Size = new System.Drawing.Size(495, 36);
 			this.txtConnectedSince.TabIndex = 63;
 			this.txtConnectedSince.Text = "VPN Time";
 			this.txtConnectedSince.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// lblConnectedSince
 			// 
-			this.lblConnectedSince.Location = new System.Drawing.Point(24, 222);
+			this.lblConnectedSince.Location = new System.Drawing.Point(15, 222);
 			this.lblConnectedSince.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedSince.Name = "lblConnectedSince";
 			this.lblConnectedSince.Size = new System.Drawing.Size(212, 36);
@@ -1122,7 +1129,7 @@ namespace Eddie.Forms.Forms
 			this.lblConnectedLocation.Location = new System.Drawing.Point(249, 63);
 			this.lblConnectedLocation.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedLocation.Name = "lblConnectedLocation";
-			this.lblConnectedLocation.Size = new System.Drawing.Size(426, 39);
+			this.lblConnectedLocation.Size = new System.Drawing.Size(481, 39);
 			this.lblConnectedLocation.TabIndex = 3;
 			this.lblConnectedLocation.Text = "Location";
 			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -1144,7 +1151,7 @@ namespace Eddie.Forms.Forms
 			this.lblConnectedServerName.Location = new System.Drawing.Point(246, 14);
 			this.lblConnectedServerName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedServerName.Name = "lblConnectedServerName";
-			this.lblConnectedServerName.Size = new System.Drawing.Size(434, 45);
+			this.lblConnectedServerName.Size = new System.Drawing.Size(484, 45);
 			this.lblConnectedServerName.TabIndex = 1;
 			this.lblConnectedServerName.Text = "Server Name";
 			this.lblConnectedServerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1178,7 +1185,7 @@ namespace Eddie.Forms.Forms
 			this.pnlWelcome.Controls.Add(this.txtLogin);
 			this.pnlWelcome.Location = new System.Drawing.Point(24, 42);
 			this.pnlWelcome.Name = "pnlWelcome";
-			this.pnlWelcome.Size = new System.Drawing.Size(705, 326);
+			this.pnlWelcome.Size = new System.Drawing.Size(745, 326);
 			this.pnlWelcome.TabIndex = 53;
 			this.pnlWelcome.Visible = false;
 			// 
@@ -1186,9 +1193,9 @@ namespace Eddie.Forms.Forms
 			// 
 			this.cboKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cboKey.Location = new System.Drawing.Point(254, 129);
-			this.cboKey.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.cboKey.Margin = new System.Windows.Forms.Padding(4);
 			this.cboKey.Name = "cboKey";
-			this.cboKey.Size = new System.Drawing.Size(283, 28);
+			this.cboKey.Size = new System.Drawing.Size(467, 28);
 			this.cboKey.TabIndex = 75;
 			this.cboKey.SelectedIndexChanged += new System.EventHandler(this.cboKey_SelectedIndexChanged);
 			// 
@@ -1208,7 +1215,7 @@ namespace Eddie.Forms.Forms
 			this.lblConnectSubtitle.Location = new System.Drawing.Point(26, 230);
 			this.lblConnectSubtitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectSubtitle.Name = "lblConnectSubtitle";
-			this.lblConnectSubtitle.Size = new System.Drawing.Size(650, 27);
+			this.lblConnectSubtitle.Size = new System.Drawing.Size(695, 27);
 			this.lblConnectSubtitle.TabIndex = 73;
 			this.lblConnectSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
@@ -1223,7 +1230,7 @@ namespace Eddie.Forms.Forms
 			this.cmdLockedNetwork.Location = new System.Drawing.Point(93, 268);
 			this.cmdLockedNetwork.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdLockedNetwork.Name = "cmdLockedNetwork";
-			this.cmdLockedNetwork.Size = new System.Drawing.Size(582, 51);
+			this.cmdLockedNetwork.Size = new System.Drawing.Size(628, 51);
 			this.cmdLockedNetwork.TabIndex = 71;
 			this.cmdLockedNetwork.Text = "Enter";
 			this.cmdLockedNetwork.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1234,10 +1241,10 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblLoginIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.lblLoginIcon.Image = global::Eddie.Forms.Properties.Resources.login;
-			this.lblLoginIcon.Location = new System.Drawing.Point(22, 6);
+			this.lblLoginIcon.Location = new System.Drawing.Point(49, 3);
 			this.lblLoginIcon.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblLoginIcon.Name = "lblLoginIcon";
-			this.lblLoginIcon.Size = new System.Drawing.Size(105, 116);
+			this.lblLoginIcon.Size = new System.Drawing.Size(72, 72);
 			this.lblLoginIcon.TabIndex = 70;
 			// 
 			// imgLockedNetwork
@@ -1257,7 +1264,7 @@ namespace Eddie.Forms.Forms
 			this.cmdLogin.FlatAppearance.BorderSize = 0;
 			this.cmdLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdLogin.ImageKey = "enter";
-			this.cmdLogin.Location = new System.Drawing.Point(549, 3);
+			this.cmdLogin.Location = new System.Drawing.Point(594, 3);
 			this.cmdLogin.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdLogin.Name = "cmdLogin";
 			this.cmdLogin.Size = new System.Drawing.Size(126, 72);
@@ -1273,7 +1280,7 @@ namespace Eddie.Forms.Forms
 			this.lblPassword.ForeColor = System.Drawing.Color.Black;
 			this.lblPassword.Location = new System.Drawing.Point(134, 45);
 			this.lblPassword.Name = "lblPassword";
-			this.lblPassword.Size = new System.Drawing.Size(114, 30);
+			this.lblPassword.Size = new System.Drawing.Size(196, 30);
 			this.lblPassword.TabIndex = 56;
 			this.lblPassword.Text = "Password:";
 			this.lblPassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1284,9 +1291,9 @@ namespace Eddie.Forms.Forms
 			this.lblLogin.ForeColor = System.Drawing.Color.Black;
 			this.lblLogin.Location = new System.Drawing.Point(134, 3);
 			this.lblLogin.Name = "lblLogin";
-			this.lblLogin.Size = new System.Drawing.Size(114, 30);
+			this.lblLogin.Size = new System.Drawing.Size(196, 30);
 			this.lblLogin.TabIndex = 55;
-			this.lblLogin.Text = "Login:";
+			this.lblLogin.Text = "Username/email:";
 			this.lblLogin.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// cmdConnect
@@ -1300,7 +1307,7 @@ namespace Eddie.Forms.Forms
 			this.cmdConnect.Location = new System.Drawing.Point(26, 174);
 			this.cmdConnect.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdConnect.Name = "cmdConnect";
-			this.cmdConnect.Size = new System.Drawing.Size(650, 51);
+			this.cmdConnect.Size = new System.Drawing.Size(695, 51);
 			this.cmdConnect.TabIndex = 60;
 			this.cmdConnect.Text = "Enter";
 			this.cmdConnect.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
@@ -1311,7 +1318,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkRemember.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkRemember.AutoSize = true;
-			this.chkRemember.Location = new System.Drawing.Point(425, 90);
+			this.chkRemember.Location = new System.Drawing.Point(510, 90);
 			this.chkRemember.Name = "chkRemember";
 			this.chkRemember.Size = new System.Drawing.Size(114, 24);
 			this.chkRemember.TabIndex = 52;
@@ -1322,18 +1329,18 @@ namespace Eddie.Forms.Forms
 			// txtPassword
 			// 
 			this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.txtPassword.Location = new System.Drawing.Point(254, 45);
+			this.txtPassword.Location = new System.Drawing.Point(342, 45);
 			this.txtPassword.Name = "txtPassword";
 			this.txtPassword.PasswordChar = '*';
-			this.txtPassword.Size = new System.Drawing.Size(284, 26);
+			this.txtPassword.Size = new System.Drawing.Size(241, 26);
 			this.txtPassword.TabIndex = 51;
 			this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
 			// 
 			// txtLogin
 			// 
-			this.txtLogin.Location = new System.Drawing.Point(254, 3);
+			this.txtLogin.Location = new System.Drawing.Point(342, 3);
 			this.txtLogin.Name = "txtLogin";
-			this.txtLogin.Size = new System.Drawing.Size(283, 26);
+			this.txtLogin.Size = new System.Drawing.Size(240, 26);
 			this.txtLogin.TabIndex = 50;
 			this.txtLogin.TextChanged += new System.EventHandler(this.txtLogin_TextChanged);
 			// 
@@ -1344,7 +1351,7 @@ namespace Eddie.Forms.Forms
 			this.pnlWaiting.Controls.Add(this.lblWait1);
 			this.pnlWaiting.Controls.Add(this.cmdCancel);
 			this.pnlWaiting.Location = new System.Drawing.Point(111, 332);
-			this.pnlWaiting.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.pnlWaiting.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlWaiting.Name = "pnlWaiting";
 			this.pnlWaiting.Size = new System.Drawing.Size(369, 110);
 			this.pnlWaiting.TabIndex = 65;
@@ -1395,7 +1402,7 @@ namespace Eddie.Forms.Forms
 			this.tabProviders.Controls.Add(this.cmdProviderAdd);
 			this.tabProviders.Controls.Add(this.lstProviders);
 			this.tabProviders.Location = new System.Drawing.Point(4, 29);
-			this.tabProviders.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tabProviders.Margin = new System.Windows.Forms.Padding(4);
 			this.tabProviders.Name = "tabProviders";
 			this.tabProviders.Size = new System.Drawing.Size(1099, 505);
 			this.tabProviders.TabIndex = 7;
@@ -1412,7 +1419,7 @@ namespace Eddie.Forms.Forms
 			this.cmdProviderEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdProviderEdit.Image = global::Eddie.Forms.Properties.Resources.edit;
 			this.cmdProviderEdit.Location = new System.Drawing.Point(1042, 108);
-			this.cmdProviderEdit.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.cmdProviderEdit.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdProviderEdit.Name = "cmdProviderEdit";
 			this.cmdProviderEdit.Size = new System.Drawing.Size(42, 42);
 			this.cmdProviderEdit.TabIndex = 50;
@@ -1429,7 +1436,7 @@ namespace Eddie.Forms.Forms
 			this.cmdProviderRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdProviderRemove.Image = global::Eddie.Forms.Properties.Resources.delete;
 			this.cmdProviderRemove.Location = new System.Drawing.Point(1042, 57);
-			this.cmdProviderRemove.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.cmdProviderRemove.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdProviderRemove.Name = "cmdProviderRemove";
 			this.cmdProviderRemove.Size = new System.Drawing.Size(42, 42);
 			this.cmdProviderRemove.TabIndex = 49;
@@ -1446,7 +1453,7 @@ namespace Eddie.Forms.Forms
 			this.cmdProviderAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdProviderAdd.Image = global::Eddie.Forms.Properties.Resources.add;
 			this.cmdProviderAdd.Location = new System.Drawing.Point(1042, 6);
-			this.cmdProviderAdd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.cmdProviderAdd.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdProviderAdd.Name = "cmdProviderAdd";
 			this.cmdProviderAdd.Size = new System.Drawing.Size(42, 42);
 			this.cmdProviderAdd.TabIndex = 48;
@@ -1469,7 +1476,7 @@ namespace Eddie.Forms.Forms
 			this.lstProviders.HideSelection = false;
 			this.lstProviders.LargeImageList = this.imgProviders;
 			this.lstProviders.Location = new System.Drawing.Point(6, 6);
-			this.lstProviders.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.lstProviders.Margin = new System.Windows.Forms.Padding(4);
 			this.lstProviders.MultiSelect = false;
 			this.lstProviders.Name = "lstProviders";
 			this.lstProviders.OwnerDraw = true;
@@ -1525,7 +1532,7 @@ namespace Eddie.Forms.Forms
 			this.tabServers.Controls.Add(this.cmdServersConnect);
 			this.tabServers.Location = new System.Drawing.Point(4, 29);
 			this.tabServers.Name = "tabServers";
-			this.tabServers.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			this.tabServers.Padding = new System.Windows.Forms.Padding(3);
 			this.tabServers.Size = new System.Drawing.Size(1099, 505);
 			this.tabServers.TabIndex = 0;
 			this.tabServers.Text = "Servers";
@@ -1603,7 +1610,7 @@ namespace Eddie.Forms.Forms
 			this.tabCountries.Controls.Add(this.cmdAreasUndefined);
 			this.tabCountries.Controls.Add(this.cmdAreasBlackList);
 			this.tabCountries.Location = new System.Drawing.Point(4, 29);
-			this.tabCountries.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tabCountries.Margin = new System.Windows.Forms.Padding(4);
 			this.tabCountries.Name = "tabCountries";
 			this.tabCountries.Size = new System.Drawing.Size(1099, 505);
 			this.tabCountries.TabIndex = 6;
@@ -1628,7 +1635,7 @@ namespace Eddie.Forms.Forms
 			this.tabSpeed.Controls.Add(this.holSpeedChart);
 			this.tabSpeed.Controls.Add(this.cboSpeedResolution);
 			this.tabSpeed.Location = new System.Drawing.Point(4, 29);
-			this.tabSpeed.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tabSpeed.Margin = new System.Windows.Forms.Padding(4);
 			this.tabSpeed.Name = "tabSpeed";
 			this.tabSpeed.Size = new System.Drawing.Size(1099, 505);
 			this.tabSpeed.TabIndex = 5;
@@ -1763,13 +1770,6 @@ namespace Eddie.Forms.Forms
 			this.lstLogs.UseCompatibleStateImageBehavior = false;
 			this.lstLogs.View = System.Windows.Forms.View.Details;
 			// 
-			// mnuUpdater
-			// 
-			this.mnuUpdater.Name = "mnuUpdater";
-			this.mnuUpdater.Size = new System.Drawing.Size(337, 30);
-			this.mnuUpdater.Text = "&Update";
-			this.mnuUpdater.Click += new System.EventHandler(this.mnuUpdater_Click);
-			// 
 			// Main
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
@@ -1874,7 +1874,7 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblConnectedServerName;
 		private Skin.Label lblConnectedCountry;
 		private Skin.Label imgLockedNetwork;
-		private System.Windows.Forms.Label lblLoginIcon;
+		private Skin.Label lblLoginIcon;
 		private System.Windows.Forms.ToolStripMenuItem mnuStatus;
 		private System.Windows.Forms.ToolStripMenuItem mnuConnect;
 		private System.Windows.Forms.ToolStripSeparator mnuRestoreSep;

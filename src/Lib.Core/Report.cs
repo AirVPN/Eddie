@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,37 +46,42 @@ namespace Eddie.Core
 
 		public void Start(UiClient client)
 		{
+			System.Threading.ThreadPool.QueueUserWorkItem(s => Start2(client));
+		}
+
+		public void Start2(UiClient client)
+		{
 			Json jReport = new Json();
 			jReport["command"].Value = "system.report.progress";
-			jReport["step"].Value = Messages.ReportStepCollectEnvironmentInfo;
-			jReport["body"].Value = Messages.PleaseWait;
+			jReport["step"].Value = LanguageManager.GetText("ReportStepCollectEnvironmentInfo");
+			jReport["body"].Value = LanguageManager.GetText("PleaseWait");
 			jReport["perc"].Value = 0;
 			client.OnReceive(jReport);			
 			
 			Environment();
 
-			jReport["step"].Value = Messages.ReportStepTests;
+			jReport["step"].Value = LanguageManager.GetText("ReportStepTests");
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 10;
 			client.OnReceive(jReport);
 			
 			Tests();
 
-			jReport["step"].Value = Messages.ReportStepLogs;
+			jReport["step"].Value = LanguageManager.GetText("ReportStepLogs");
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 50;
 			client.OnReceive(jReport);
 			
-			Add(Messages.ReportOptions, Engine.Instance.Storage.GetReportForSupport());
+			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.Storage.GetReportForSupport());
 
-			Add(Messages.ReportLogs, Engine.Instance.Logs.ToString());
+			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString());
 
-			jReport["step"].Value = Messages.ReportStepLogs;
+			jReport["step"].Value = LanguageManager.GetText("ReportStepLogs");
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 60;
 			client.OnReceive(jReport);
 			
-			jReport["step"].Value = Messages.ReportStepPlatform;
+			jReport["step"].Value = LanguageManager.GetText("ReportStepPlatform");
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 70;
 			client.OnReceive(jReport);
@@ -85,7 +90,7 @@ namespace Eddie.Core
 
 			Platform.Instance.OnReport(this);
 
-			jReport["step"].Value = Messages.ReportStepDone;
+			jReport["step"].Value = LanguageManager.GetText("ReportStepDone");
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 100;
 			client.OnReceive(jReport);
@@ -93,7 +98,7 @@ namespace Eddie.Core
 
 		public override string ToString()
 		{
-			string result = "Eddie System/Environment Report - " + DateTime.UtcNow.ToShortDateString() + " " + DateTime.UtcNow.ToShortTimeString() + " " + "UTC\n";
+			string result = "Eddie System/Environment Report - " + LanguageManager.FormatDateShort(DateTime.UtcNow) + " " + "UTC\n";
 			bool lastMultiline = false;
 			foreach (ReportItem item in Items)
 			{
@@ -116,8 +121,8 @@ namespace Eddie.Core
 		public void Tests()
 		{		
 			IpAddresses dns = DnsManager.ResolveDNS("dnstest.eddie.website", true);
-			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? Messages.Ok : Messages.Failed);
-			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? Messages.Ok : Messages.Failed);
+			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
+			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
 
 			/* Changed in 2.17.1
 			Add("Test Ping IPv4", Platform.Instance.Ping(dns.OnlyIPv4.First, 5000).ToString() + " ms");
@@ -143,9 +148,9 @@ namespace Eddie.Core
 				request.Url = url;
 				HttpResponse response = Engine.Instance.FetchUrl(request);
 				if (response.GetBodyAscii().Trim() == "Success.")
-					return Messages.Ok;
+					return LanguageManager.GetText("Ok");
 				else
-					return Messages.Failed + " - " + response.GetLineReport();
+					return LanguageManager.GetText("Failed") + " - " + response.GetLineReport();
 			}
 			catch (Exception ex)
 			{
@@ -155,7 +160,7 @@ namespace Eddie.Core
 
 		public void Environment()
 		{
-			Add("Eddie version", Common.Constants.VersionDesc);
+			Add("Eddie version", Common.Constants.VersionShow);
 			Add("Eddie OS build", Platform.Instance.GetSystemCode());
 			Add("Eddie architecture", Platform.Instance.GetArchitecture());
 			Add("OS type", Platform.Instance.GetCode());
@@ -170,23 +175,23 @@ namespace Eddie.Core
 			Add("SSL", Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")");
 			Add("curl", Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")");
 
-			Add("Profile path", Engine.Instance.Storage.GetProfilePath());
-			Add("Data path", Engine.Instance.Storage.GetDataPath());
+			Add("Profile path", Engine.Instance.GetProfilePath());
+			Add("Data path", Engine.Instance.GetDataPath());
 			Add("Application path", Platform.Instance.GetApplicationPath());
 			Add("Executable path", Platform.Instance.GetExecutablePath());
-			Add("Command line arguments", "(" + Common.CommandLine.SystemEnvironment.Params.Count.ToString() + " args) " + Common.CommandLine.SystemEnvironment.GetFull());
+			Add("Command line arguments", "(" + Engine.Instance.StartCommandLine.Params.Count.ToString() + " args) " + Engine.Instance.StartCommandLine.GetFull());
 
 			{
-				string nl = Messages.No;
+				string nl = LanguageManager.GetText("No");
 				if (Engine.Instance.NetworkLockManager.IsActive())
-					nl = Messages.Yes + ", " + Engine.Instance.NetworkLockManager.GetActive().GetName();
+					nl = LanguageManager.GetText("Yes") + ", " + Engine.Instance.NetworkLockManager.GetActive().GetName();
 				Add("Network Lock Active", nl);
 			}
 
 			{
-				string cn = Messages.No;
+				string cn = LanguageManager.GetText("No");
 				if (Engine.Instance.IsConnected())
-					cn = Messages.Yes + ", " + Engine.Instance.Stats.Get("ServerName").Text;
+					cn = LanguageManager.GetText("Yes") + ", " + Engine.Instance.Stats.Get("ServerName").Text;
 				Add("Connected to VPN", cn);
 			}
 

@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -57,14 +57,13 @@ namespace Eddie.Forms.Forms
 		{
 			base.OnLoad(e);
 
-			CommonInit(Messages.WindowsAboutTitle);
+			CommonInit(LanguageManager.GetText("WindowsAboutTitle"));
 
 			lnkWebsite.Text = UiClient.Instance.Data["links"]["help"]["website"].Value as string;
 			lnkManual.Text = UiClient.Instance.Data["links"]["help"]["general"].Value as string;
 			lnkSources.Text = UiClient.Instance.Data["links"]["github"].Value as string;
-			lblVersion.Text = Messages.WindowsAboutVersion + " " + Constants.VersionDesc;
-			
-			lblThanks.Text = MessagesFormatter.Format(Messages.WindowsAboutThanks, String.Join(", ", Constants.Thanks.Split(';')));
+			lblVersion.Text = LanguageManager.GetText("WindowsAboutVersion", Constants.VersionShow);
+			lblThanks.Text = LanguageManager.GetText("WindowsAboutThanks", Constants.Thanks);
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -100,12 +99,12 @@ namespace Eddie.Forms.Forms
 
 		private void lnkLicense_LinkClicked(object sender, EventArgs e)
 		{
-			Engine.FormMain.ShowText(this, "License", UiClient.Instance.Data["about"]["license"].Value as string);
+			UiClient.Instance.MainWindow.ShowText(this, "License", UiClient.Instance.Data["about"]["license"].Value as string);
 		}
 
 		private void lnkLibraries_LinkClicked(object sender, EventArgs e)
 		{
-			Engine.FormMain.ShowText(this, "Libraries and Tools", UiClient.Instance.Data["about"]["libraries"].Value as string);
+			UiClient.Instance.MainWindow.ShowText(this, "Libraries and Tools", UiClient.Instance.Data["about"]["libraries"].Value as string);
 		}
 
 		private void cmdSystemReport_Click(object sender, EventArgs e)

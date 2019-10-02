@@ -74,10 +74,13 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-			Window.Title = Constants.Name + " - " + Messages.WindowsSettingsIpTitle;
+			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsSettingsIpTitle");
+
+			GuiUtils.SetButtonCancel(Window, CmdCancel);
+            GuiUtils.SetButtonDefault(Window, CmdOk);
 
 
-			TxtIP.Changed += (object sender, EventArgs e) =>
+            TxtIP.Changed += (object sender, EventArgs e) =>
 			{
 				EnableIde();
 			};

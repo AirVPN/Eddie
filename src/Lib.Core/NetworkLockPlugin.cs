@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -115,13 +115,36 @@ namespace Eddie.Core
 			return title;
 		}
 
+		public IpAddresses GetIpsWhiteListIncoming()
+		{
+			IpAddresses result = new IpAddresses();
+
+			// Whitelist
+			{
+				string list = Engine.Instance.Storage.Get("netlock.whitelist.incoming.ips");
+				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
+				List<string> hosts = UtilsString.StringToList(list);
+				foreach (string host in hosts)
+				{
+					string host2 = host;
+					int posComment = host2.IndexOf("#");
+					if (posComment != -1)
+						host2 = host2.Substring(0, posComment).Trim();
+
+					result.Add(host2);
+				}
+			}
+
+			return result;
+		}
+
 		public IpAddresses GetIpsWhiteListOutgoing(bool includeIpUsedByClient)
 		{
 			IpAddresses result = new IpAddresses();
 
-			// Custom
+			// Whitelist
 			{
-				string list = Engine.Instance.Storage.Get("netlock.allowed_ips");
+				string list = Engine.Instance.Storage.Get("netlock.whitelist.outgoing.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
 				List<string> hosts = UtilsString.StringToList(list);
 				foreach (string host in hosts)
@@ -164,14 +187,14 @@ namespace Eddie.Core
 				// Providers
 				foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
 				{
-					result.Add(provider.GetNetworkLockAllowedIps());
+					result.Add(provider.GetNetworkLockWhiteListOutgoingIPs());
 				}
 
 				// Servers
 				lock (Engine.Instance.Connections)
 				{
 					Dictionary<string, ConnectionInfo> servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
-
+					
 					foreach (ConnectionInfo infoServer in servers.Values)
 					{
 						result.Add(infoServer.IpsEntry);

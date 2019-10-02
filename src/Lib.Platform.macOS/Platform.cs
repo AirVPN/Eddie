@@ -28,18 +28,22 @@ using Eddie.Common;
 // /Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/Xamarin.Mac.dll
 using AppKit;
 using Foundation;
+using System.Net;
 
 namespace Eddie.Platform.MacOS
 {
 	public class Platform : Core.Platform
 	{
+		private string m_name = "";
 		private string m_version = "";
 		private string m_architecture = "";
 
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
-		/*
+        private string m_launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
+
+        /*
 		private UnixSignal[] m_signals = new UnixSignal[] {
 			new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
 			new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
@@ -48,8 +52,8 @@ namespace Eddie.Platform.MacOS
 		};
 		*/
 
-		// Override
-		public Platform()
+        // Override
+        public Platform()
 		{
 		}
 
@@ -60,11 +64,7 @@ namespace Eddie.Platform.MacOS
 
 		public override string GetName()
 		{
-			string swversPath = LocateExecutable("sw_vers");
-			if (swversPath != "")
-				return SystemShell.Shell1(swversPath, "-productVersion");
-			else
-				return "Unknown (no sw_vers)";
+			return m_name;
 		}
 
 		public override string GetVersion()
@@ -72,17 +72,25 @@ namespace Eddie.Platform.MacOS
 			return m_version;
 		}
 
-		public override void OnInit(bool cli)
+		public override void OnInit()
 		{
-			base.OnInit(cli);
+			base.OnInit();
 
-			if (cli)
+			if (Engine.Instance.StartCommandLine.Exists("cli"))
 				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
 
-			m_version = SystemShell.Shell("/usr/bin/uname", new string[] { "-a" }).Trim();
-			m_architecture = NormalizeArchitecture(SystemShell.Shell("/usr/bin/uname", new string[] { "-m" }).Trim());
+			//m_version = SystemShell.Shell("/usr/bin/uname", new string[] { "-a" }).Trim();
+			//m_architecture = NormalizeArchitecture(SystemShell.Shell("/usr/bin/uname", new string[] { "-m" }).Trim());
 
-			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
+			m_name = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Trim();
+			m_name = m_name.Replace("Version", "macOS").Trim();
+			if (m_name.IndexOf('(') != -1)
+				m_name = m_name.Substring(0, m_name.IndexOf('(')).Trim();
+			m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString;
+			m_architecture = base.GetArchitecture();
+
+            NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
+            NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
 			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
 			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
 			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
@@ -91,7 +99,9 @@ namespace Eddie.Platform.MacOS
 		private static void SignalCallback(int signum)
 		{
 			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
-			if (sig == NativeMethods.Signum.SIGINT)
+            if (sig == NativeMethods.Signum.SIGHUP)
+                Engine.Instance.OnSignal("SIGHUP");
+            else if (sig == NativeMethods.Signum.SIGINT)
 				Engine.Instance.OnSignal("SIGINT");
 			else if (sig == NativeMethods.Signum.SIGTERM)
 				Engine.Instance.OnSignal("SIGTERM");
@@ -112,11 +122,19 @@ namespace Eddie.Platform.MacOS
 			return "home";
 		}
 
+		public override ElevatedProcess StartElevated()
+		{
+			Elevated e = new Elevated();			
+			e.Start();
+			m_elevated = e;
+			return e;
+		}
+
 		public override bool IsAdmin()
 		{
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
 			string u = SystemShell.Shell(LocateExecutable("whoami"), new string[] { }).ToLowerInvariant().Trim();
-			//return true; // Uncomment for debugging
+			// return true; // Uncomment for debugging
 			return (u == "root");
 		}
 
@@ -124,6 +142,95 @@ namespace Eddie.Platform.MacOS
 		{
 			return true;
 		}
+
+		protected override string GetElevatedHelperPathImpl()
+		{
+			return FileGetPhysicalPath(GetApplicationPath() + "/eddie-cli-elevated");			
+		}
+
+        public override bool CheckElevatedSocketAllowed(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
+        {
+            return true;
+        }
+
+        public override bool CheckElevatedProcessAllowed(string remotePath)
+        {
+            // TOFIX
+            /*
+            string localPath = System.Reflection.Assembly.GetEntryAssembly().Location;
+            Engine.Instance.Logs.LogVerbose(localPath);
+            Engine.Instance.Logs.LogVerbose(remotePath);
+
+            string codesignPath = "/usr/bin/codesign"; // Note: absolute path to avoid ENV
+            */            
+
+            return true;
+        }
+
+        public override bool GetAutoStart()
+		{
+			return false;
+		}
+
+		public override bool SetAutoStart(bool value)
+		{
+			return false;
+		}
+
+		public override bool AllowService()
+		{
+			return true;
+		}
+
+		public override string AllowServiceUserDescription()
+		{
+			return "If checked, install a Launchd daemon";
+		}
+
+		protected override bool GetServiceImpl()
+		{
+            return FileExists(m_launchdPath);			
+		}
+
+		protected override bool SetServiceImpl(bool value)
+		{
+			if (GetServiceImpl() == value)
+				return true;
+
+            if (value)
+            {
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-install" }, Engine.Instance.ConsoleMode);
+                return (GetService() == true);
+            }
+            else
+            {
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-uninstall" }, Engine.Instance.ConsoleMode);
+                return (GetService() == false);
+            }
+            /*
+			System.Diagnostics.ProcessStartInfo processStart = new System.Diagnostics.ProcessStartInfo();
+			processStart.Verb = "runas";
+			processStart.CreateNoWindow = true;
+			processStart.UseShellExecute = true;
+
+            if (value)
+			{
+                processStart.FileName = "osascript";
+                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-install" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText("HelperPrivilegesPromptInstall")) + "\" with administrator privileges'";
+                System.Diagnostics.Process.Start(processStart);
+                //RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-install" }, Engine.Instance.ConsoleMode);
+				return (GetService() == true);
+			}
+			else
+			{
+                processStart.FileName = "osascript";
+                processStart.Arguments = " -e 'do shell script \"" + GetElevatedHelperPath() + " service-uninstall" + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText("HelperPrivilegesPromptUninstall")) + "\" with administrator privileges'";
+                System.Diagnostics.Process.Start(processStart);
+                //RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-uninstall" }, Engine.Instance.ConsoleMode);
+                return (GetService() == false);
+			}
+            */
+        }
 
 		public override string DirSep
 		{
@@ -158,13 +265,13 @@ namespace Eddie.Platform.MacOS
 		public override void FileImmutableSet(string path, bool value)
 		{
 			if ((path == "") || (FileExists(path) == false))
-				return;
+                return;
 
-			if (FileImmutableGet(path) == value)
-				return;
+            if (FileImmutableGet(path) == value)
+                return;
 
-			NativeMethods.eddie_file_set_immutable(path, value ? 1 : 0);
-		}
+            Engine.Instance.Elevated.DoCommandSync("file-immutable-set", "path", path, "flag", (value ? "1" : "0"));            
+        }
 
 		public override bool FileEnsurePermission(string path, string mode)
 		{
@@ -201,13 +308,7 @@ namespace Eddie.Platform.MacOS
 
 			return true;
 		}
-
-		public override bool FileEnsureOwner(string path)
-		{
-            SystemShell.ShellCmd("chown \"" + Environment.GetEnvironmentVariable("USER") + "\" \"" + path + "\""); 
-            return true;
-		}
-
+        
 		public override bool FileEnsureExecutablePermission(string path)
 		{
 			if ((path == "") || (FileExists(path) == false))
@@ -235,13 +336,18 @@ namespace Eddie.Platform.MacOS
 			return true;
 		}
 
-		public override string GetExecutableReport(string path)
+        public override bool FileRunAsRoot(string path)
+        {
+            return NativeMethods.eddie_file_get_runasroot(path);
+        }
+
+        public override string GetExecutableReport(string path)
 		{
 			string otoolPath = LocateExecutable("otool");
 			if (otoolPath != "")
 				return SystemShell.Shell2(otoolPath, "-L", SystemShell.EscapePath(path));
 			else
-				return "'otool' " + Messages.NotFound;
+				return "'otool' " + LanguageManager.GetText("NotFound");
 		}
 
 		public override string GetExecutablePathEx()
@@ -263,10 +369,16 @@ namespace Eddie.Platform.MacOS
 			return currentPath;
 		}
 
-		public override string GetUserPathEx()
+		protected override string GetUserPathEx()
 		{
-			return Environment.GetEnvironmentVariable("HOME") + DirSep + ".airvpn";
-		}
+			string basePath = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
+            if (basePath == null)
+                basePath = "";
+            if (basePath == "")
+                basePath = Environment.GetEnvironmentVariable("HOME") + DirSep + ".config";
+
+            return basePath + DirSep + "eddie";
+        }
 
 		public override bool ProcessKillSoft(Process process)
 		{
@@ -287,33 +399,64 @@ namespace Eddie.Platform.MacOS
 		{
 			base.FlushDNS();
 
-			// 10.5 - 10.6
-			string dscacheutilPath = LocateExecutable("dscacheutil");
-			if (dscacheutilPath != "")
-				SystemShell.Shell1(dscacheutilPath, "-flushcache");
-
-			// 10.7 - 10.8 - 10.9 - 10.10.4 - 10.11 - Sierra 10.12.0
-			string killallPath = LocateExecutable("killall");
-			if (killallPath != "")
-				SystemShell.Shell2(killallPath, "-HUP", "mDNSResponder");
-
-			// 10.10.0 - 10.10.3
-			string discoveryutilPath = LocateExecutable("discoveryutil");
-			if (discoveryutilPath != "")
-			{
-				SystemShell.Shell1(discoveryutilPath, "udnsflushcaches");
-				SystemShell.Shell1(discoveryutilPath, "mdnsflushcache");
-			}
+            Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Storage.Get("linux.dns.services"));            
 		}
 
-		public override void ShellCommandDirect(string command, out string path, out string[] arguments)
-		{
-			path = "/bin/sh";
-			arguments = new string[] { "-c", command };
-		}
+        public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
+        {
+            bool canRunAsRoot = Platform.Instance.FileRunAsRoot(path);
 
-		public override void ShellSync(string path, string[] arguments, out string stdout, out string stderr, out int exitCode)
+            System.Diagnostics.Process processShell = null;
+            bool processDirectResult = false;
+
+            if (canRunAsRoot)
+            {
+                processShell = new System.Diagnostics.Process();
+                processShell.StartInfo.FileName = path;
+                processShell.StartInfo.Arguments = string.Join(" ", arguments);
+            }
+            else
+            {
+                if (Engine.Instance.ConsoleMode)
+                {
+                    processShell = new System.Diagnostics.Process();
+                    processShell.StartInfo.FileName = "sudo";
+                    processShell.StartInfo.Arguments = "\"" + path + "\" " + string.Join(" ", arguments);
+                }
+                else
+                {
+                    // Alternate version via osascript
+                    //processShell = new System.Diagnostics.Process();
+                    //processShell.StartInfo.FileName = "osascript";
+                    //processShell.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText("HelperPrivilegesPrompt")) + "\" with administrator privileges'";
+
+                    // Alternate version with RootLauncher
+                    // TOFIX: pending pid, create launchd don't start it (no root?)
+                    processDirectResult = RootLauncher.LaunchExternalTool(path, arguments);
+                }
+            }
+
+            if (processShell != null)
+            {
+                processShell.StartInfo.WorkingDirectory = "";
+                processShell.StartInfo.Verb = "run";
+                processShell.StartInfo.CreateNoWindow = true;
+                processShell.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                processShell.StartInfo.UseShellExecute = false;
+                processShell.Start();
+                return processShell.Id;
+            }
+            else
+            {
+                return processDirectResult ? -1 : 0;
+            }
+        }
+
+        public override void ShellSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
 		{
+			if (autoWriteStdin != "")
+				throw new Exception("ShellSyncCore::AutoWriteStdin not supported in macOS"); // Never need yet, used only in Linux
+
 			try
 			{
 				var pipeOut = new NSPipe();
@@ -358,35 +501,45 @@ namespace Eddie.Platform.MacOS
 			return base.LocateResource(relativePath);
 		}
 
+        /* // This works, but we use base to avoid shell.
 		public override long Ping(IpAddress host, int timeoutSec)
 		{
 			if ((host == null) || (host.Valid == false))
 				return -1;
 
-			return NativeMethods.eddie_ip_ping(host.ToString(), timeoutSec * 1000);
-		}
+            {
+                float iMS = -1;
+
+                string pingPath = LocateExecutable("ping");
+                if (pingPath != "")
+                {
+                    SystemShell s = new SystemShell();
+                    s.Path = pingPath;
+                    s.Arguments.Add("-c 1");
+                    s.Arguments.Add("-t " + timeoutSec.ToString());
+                    s.Arguments.Add("-W " + timeoutSec.ToString());
+                    s.Arguments.Add("-q");
+                    s.Arguments.Add("-n");
+                    s.Arguments.Add(host.Address);
+                    s.NoDebugLog = true;
+
+                    if (s.Run())
+                    {
+                        string result = s.Output;
+                        string sMS = UtilsString.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/stddev = ", "/");
+                        if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+                            iMS = -1;
+                    }
+                }
+
+                return (long)iMS;
+            }
+        }
+        */
 
 		public override string GetDriverAvailable()
 		{
 			return "Expected";
-		}
-
-		public override bool CanInstallDriver()
-		{
-			return false;
-		}
-
-		public override bool CanUnInstallDriver()
-		{
-			return false;
-		}
-
-		public override void InstallDriver()
-		{
-		}
-
-		public override void UnInstallDriver()
-		{
 		}
 
 		public override bool RouteAdd(Json jRoute)
@@ -397,28 +550,28 @@ namespace Eddie.Platform.MacOS
 			IpAddress gateway = jRoute["gateway"].Value as string;
 			if (gateway.Valid == false)
 				return false;
+                        
+            ElevatedProcess.Command c = new ElevatedProcess.Command();
+            c.Parameters["command"] = "route";
+            if (ip.IsV4)
+                c.Parameters["layer"] = "ipv4";
+            else if (ip.IsV6)
+                c.Parameters["layer"] = "ipv6";
+            c.Parameters["action"] = "add";
+            c.Parameters["cidr"] = ip.ToCIDR();
+            c.Parameters["gateway"] = gateway.Address;                
+            string result = Engine.Instance.Elevated.DoCommandSync(c);
+            if (result == "")
+            {
+                return base.RouteAdd(jRoute);
+            }
+            else
+            {
+                Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(), gateway.ToCIDR(), result));
 
-			SystemShell s = new SystemShell();
-			s.Path = LocateExecutable("route");
-			s.Arguments.Add("-n");
-			s.Arguments.Add("add");
-			if (ip.IsV6)
-				s.Arguments.Add("-inet6");
-			s.Arguments.Add(ip.ToCIDR());
-			s.Arguments.Add(gateway.Address);
-			s.ExceptionIfFail = true;
-			s.Run();
-
-			string result = s.StdErr.Trim();
-			if (result == "")
-			{
-				return base.RouteAdd(jRoute);
-			}
-			else
-			{
-				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteAddFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
-				return false;
-			}
+                return false;
+            }
+                        
 		}
 
 		public override bool RouteRemove(Json jRoute)
@@ -430,36 +583,27 @@ namespace Eddie.Platform.MacOS
 			if (gateway.Valid == false)
 				return false;
 
-			SystemShell s = new SystemShell();
-			s.Path = LocateExecutable("route");
-			s.Arguments.Add("-n");
-			s.Arguments.Add("delete");
-			if (ip.IsV6)
-				s.Arguments.Add("-inet6");
-			s.Arguments.Add(ip.ToCIDR());
-			s.Arguments.Add(gateway.Address);
-			s.ExceptionIfFail = true;
-			s.Run();
+            ElevatedProcess.Command c = new ElevatedProcess.Command();
+            c.Parameters["command"] = "route";
+            if (ip.IsV4)
+                c.Parameters["layer"] = "ipv4";
+            else if (ip.IsV6)
+                c.Parameters["layer"] = "ipv6";
+            c.Parameters["action"] = "delete";
+            c.Parameters["cidr"] = ip.ToCIDR();
+            c.Parameters["gateway"] = gateway.Address;
+                
+            string result = Engine.Instance.Elevated.DoCommandSync(c);
+            if (result == "")
+            {
+                return base.RouteRemove(jRoute);
+            }
+            else
+            {
+                Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteDelFailed", ip.ToCIDR(), gateway.ToCIDR(), result));
 
-			string result = s.StdErr.Trim();
-			if (result == "")
-			{
-				return base.RouteRemove(jRoute);
-			}
-			else
-			{
-				// Remember: Route deletion can occur in a second moment (for example a Recovery phase).
-
-				// Still accepted: The device are not available anymore, so the route are already deleted.
-
-				// Still accepted: Already deleted.
-				if (result.ToLowerInvariant().Contains("not in table"))
-					return base.RouteRemove(jRoute);
-
-				// Unexpected/unknown error.
-				Engine.Instance.Logs.LogWarning(MessagesFormatter.Format(Messages.RouteDelFailed, ip.ToCIDR(), gateway.ToCIDR(), result));
-				return false;
-			}
+                return false;
+            }               
 		}
 
 		public override IpAddresses ResolveDNS(string host)
@@ -474,7 +618,7 @@ namespace Eddie.Platform.MacOS
 			{
 				// Note: CNAME record are automatically followed.
 				SystemShell s = new SystemShell();
-				s.Path = "/usr/bin/host";
+				s.Path = LocateExecutable("host");
 				s.Arguments.Add("-W 5");
 				s.Arguments.Add(SystemShell.EscapeHost(host));
 				s.NoDebugLog = true;
@@ -512,18 +656,18 @@ namespace Eddie.Platform.MacOS
 
 					string current = SystemShell.Shell(networksetupPath, new string[] { "-getdnsservers", SystemShell.EscapeInsideQuote(i2) });
 
-                    foreach(string line in current.Split('\n'))
-                    {
-                        string field = line.Trim();
-                        list.Add(field);
-                    }
-					
+					foreach (string line in current.Split('\n'))
+					{
+						string field = line.Trim();
+						list.Add(field);
+					}
+
 				}
 			}
 
 			// Method2 - More info about DHCP DNS
 			string scutilPath = LocateExecutable("scutil");
-			if(scutilPath != "")
+			if (scutilPath != "")
 			{
 				string scutilOut = SystemShell.Shell1(scutilPath, "--dns");
 				List<List<string>> result = UtilsString.RegExMatchMulti(scutilOut.Replace(" ", ""), "nameserver\\[[0-9]+\\]:([0-9:\\.]+)");
@@ -532,64 +676,47 @@ namespace Eddie.Platform.MacOS
 					foreach (string field in match)
 					{
 						list.Add(field);
-					}
+					} 
 				}
 			}
 
-			// Method3 - Compatibility
-			if (FileExists("/etc/resolv.conf"))
-			{
-				string o = FileContentsReadText("/etc/resolv.conf");
-				foreach (string line in o.Split('\n'))
-				{
-					if (line.Trim().StartsWith("#"))
-						continue;
-					if (line.Trim().StartsWith("nameserver"))
-					{
-						string field = line.Substring(11).Trim();
-						list.Add(field);
-					}
-				}
-			}
+            // Method3 - Compatibility
+            try
+            {
+                if (FileExists("/etc/resolv.conf"))
+                {
+                    string o = FileContentsReadText("/etc/resolv.conf");
+                    foreach (string line in o.Split('\n'))
+                    {
+                        if (line.Trim().StartsWith("#", StringComparison.InvariantCulture))
+                            continue;
+                        if (line.Trim().StartsWith("nameserver", StringComparison.InvariantCulture))
+                        {
+                            string field = line.Substring(11).Trim();
+                            list.Add(field);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Can be unreadable (root 600), ignore
+            }
 
 			return list;
-		}
-
-		public override bool RestartAsRoot()
-		{
-			string path = Platform.Instance.GetExecutablePath();
-			List<string> args = CommandLine.SystemEnvironment.GetFullArray();
-			string defaultsPath = Core.Platform.Instance.LocateExecutable("defaults");
-			if (defaultsPath != "")
-			{
-				// If 'white', return error in StdErr and empty in StdOut.
-				SystemShell s = new SystemShell();
-				s.Path = defaultsPath;
-				s.Arguments.Add("read");
-				s.Arguments.Add("-g");
-				s.Arguments.Add("AppleInterfaceStyle");
-				s.Run();
-				string colorMode = s.StdOut.Trim().ToLowerInvariant();
-				if (colorMode == "dark")
-					args.Add("gui.osx.style=\"dark\"");
-			}
-
-			RootLauncher.LaunchExternalTool(path, args.ToArray());
-			return true;
 		}
 
 		public override void OnReport(Report report)
 		{
 			base.OnReport(report);
 
-			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemShell.Shell0(LocateExecutable("ifconfig")) : "'ifconfig' " + Messages.NotFound);
-
+			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemShell.Shell0(LocateExecutable("ifconfig")) : "'ifconfig' " + LanguageManager.GetText("NotFound"));
 		}
 
-		public override Dictionary<int, string> GetProcessesList()
+		public override Dictionary<string, string> GetProcessesList()
 		{
 			// We experience some crash under OSX with the base method.
-			Dictionary<int, string> result = new Dictionary<int, string>();
+			Dictionary<string, string> result = new Dictionary<string, string>();
 			string psPath = LocateExecutable("ps");
 			if (psPath != "")
 			{
@@ -600,7 +727,7 @@ namespace Eddie.Platform.MacOS
 					int posS = pS.IndexOf(' ');
 					if (posS != -1)
 					{
-						int pid = Conversions.ToInt32(pS.Substring(0, posS).Trim());
+						string pid = pS.Substring(0, posS).Trim();
 						string name = pS.Substring(posS).Trim();
 						result[pid] = name;
 					}
@@ -616,21 +743,24 @@ namespace Eddie.Platform.MacOS
 			string networksetupPath = LocateExecutable("networksetup");
 			if (networksetupPath == "")
 			{
-				Engine.Instance.Logs.Log(LogType.Error, "'networksetup' " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'networksetup' " + LanguageManager.GetText("NotFound"));
+
 				fatal = true;
 			}
 
 			string pfctlPath = LocateExecutable("pfctl");
 			if (pfctlPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'pfctl' " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'pfctl' " + LanguageManager.GetText("NotFound"));
+
 
 			string hostPath = LocateExecutable("host");
 			if (hostPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'host' " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'host' " + LanguageManager.GetText("NotFound"));
 
-            string psPath = LocateExecutable("ps");
+			string psPath = LocateExecutable("ps");
 			if (psPath == "")
-				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + Messages.NotFound);
+				Engine.Instance.Logs.Log(LogType.Error, "'ps' " + LanguageManager.GetText("NotFound"));
+
 
 			return (fatal == false);
 		}
@@ -672,7 +802,7 @@ namespace Eddie.Platform.MacOS
 				{
 					IpV6ModeEntry entry = new IpV6ModeEntry();
 					entry.ReadXML(nodeEntry);
-					m_listIpV6Mode.Add(entry);
+					m_listIpV6Mode.Add(entry); 
 				}
 			}
 
@@ -707,36 +837,31 @@ namespace Eddie.Platform.MacOS
 		}
 
 		public override bool OnIPv6Block()
-		{
-			string[] interfaces = GetInterfaces();
-			foreach (string i in interfaces)
-			{
-				string getInfo = SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-getinfo", SystemShell.EscapeInsideQuote(i) });
+        {            
+            string result = Engine.Instance.Elevated.DoCommandSync("ipv6-block");
+            if (result != "")
+            {
+                foreach (string resultItem in result.Split('\n'))
+                {
+                    string[] fields = resultItem.Split(';');
+                    if (fields.Length != 6)
+                        continue;
+                    if (fields[0] == "SwitchIPv6")
+                    {
+                        string interfaceName = fields[1];
 
-				string mode = UtilsString.RegExMatchOne(getInfo, "^IPv6: (.*?)$");
-				string address = UtilsString.RegExMatchOne(getInfo, "^IPv6 IP address: (.*?)$");
+                        IpV6ModeEntry entry = new IpV6ModeEntry();
+                        entry.Interface = interfaceName;
+                        entry.Mode = fields[2];
+                        entry.Address = fields[3];
+                        entry.Router = fields[4];
+                        entry.PrefixLength = fields[5];                            
+                        m_listIpV6Mode.Add(entry);
 
-				if ((mode == "") && (address != ""))
-					mode = "LinkLocal";
-
-				if (mode != "Off")
-				{
-					IpV6ModeEntry entry = new IpV6ModeEntry();
-					entry.Interface = i;
-					entry.Mode = mode;
-					entry.Address = address;
-					if (mode == "Manual")
-					{
-						entry.Router = UtilsString.RegExMatchOne(getInfo, "^IPv6 IP Router: (.*?)$");
-						entry.PrefixLength = UtilsString.RegExMatchOne(getInfo, "^IPv6 Prefix Length: (.*?)$");
-					}
-					m_listIpV6Mode.Add(entry);
-
-					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6off", SystemShell.EscapeInsideQuote(i) });
-
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterIPv6Disabled, i));
-				}
-			}
+                        Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Disabled", interfaceName));
+                    }
+                }
+            }   
 
 			Recovery.Save();
 
@@ -746,29 +871,21 @@ namespace Eddie.Platform.MacOS
 		}
 
 		public override bool OnIPv6Restore()
-		{
-			foreach (IpV6ModeEntry entry in m_listIpV6Mode)
-			{
-				if (entry.Mode == "Off")
-				{
-					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6off", SystemShell.EscapeInsideQuote(entry.Interface) });
-				}
-				else if (entry.Mode == "Automatic")
-				{
-					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6automatic", SystemShell.EscapeInsideQuote(entry.Interface) });
-				}
-				else if (entry.Mode == "LinkLocal")
-				{
-					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6LinkLocal", SystemShell.EscapeInsideQuote(entry.Interface) });
-				}
-				else if (entry.Mode == "Manual")
-				{
-					SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setv6manual", SystemShell.EscapeInsideQuote(entry.Interface), entry.Address, entry.PrefixLength, entry.Router });
-				}
+        {
+            foreach (IpV6ModeEntry entry in m_listIpV6Mode)
+            {
+                Elevated.Command c = new Elevated.Command();
+                c.Parameters["command"] = "ipv6-restore";
+                c.Parameters["interface"] = entry.Interface;
+                c.Parameters["mode"] = entry.Mode;
+                c.Parameters["address"] = entry.Address;
+                c.Parameters["router"] = entry.Router;
+                c.Parameters["prefix"] = entry.PrefixLength;
+                Engine.Instance.Elevated.DoCommandSync(c);
 
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterIPv6Restored, entry.Interface));
-			}
-
+                Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Restored", entry.Interface));
+            }            
+            
 			m_listIpV6Mode.Clear();
 
 			Recovery.Save();
@@ -784,44 +901,29 @@ namespace Eddie.Platform.MacOS
 
 			if (mode == "auto")
 			{
-				string[] interfaces = GetInterfaces();
-				foreach (string i in interfaces)
-				{
-					string i2 = i.Trim();
+                string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-do", "dns", dns.ToString());
+                if(result != "")
+                {
+                    foreach (string resultItem in result.Split('\n'))
+                    {
+                            string[] fields = resultItem.Split(';');
+                        if (fields.Length != 3)
+                            continue;
+                        if (fields[0] == "SwitchDNS")
+                        {
+                            string interfaceName = fields[1];
+                            IpAddresses oldIPs = new IpAddresses(fields[2]);
 
-					string currentStr = SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-getdnsservers", SystemShell.EscapeInsideQuote(i2) });
+                            DnsSwitchEntry e = new DnsSwitchEntry();
+                            e.Name = interfaceName;
+                            e.Dns = oldIPs.Addresses;
+                            m_listDnsSwitch.Add(e);
 
-					// v2
-					IpAddresses current = new IpAddresses();
-					foreach (string line in currentStr.Split('\n'))
-					{
-						string ip = line.Trim();
-						if (IpAddress.IsIP(ip))
-							current.Add(ip);
-					}
-
-					if (dns.Equals(current) == false)
-					{
-						DnsSwitchEntry e = new DnsSwitchEntry();
-						e.Name = i2;
-						e.Dns = current.Addresses;
-						m_listDnsSwitch.Add(e);
-
-						SystemShell s = new SystemShell();
-						s.Path = LocateExecutable("networksetup");
-						s.Arguments.Add("-setdnsservers");
-						s.Arguments.Add(SystemShell.EscapeInsideQuote(i2));
-						if (dns.IPs.Count == 0)
-							s.Arguments.Add("empty");
-						else
-							foreach (IpAddress ip in dns.IPs)
-								s.Arguments.Add(ip.Address);
-						s.Run();
-
-						Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterDnsDone, i2, ((current.Count == 0) ? "Automatic" : current.Addresses), dns.Addresses));
-					}
-				}
-
+                            Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsDone", interfaceName, ((oldIPs.Count == 0) ? "Automatic" : oldIPs.Addresses), dns.Addresses));
+                        }
+                    }
+                }
+                
 				Recovery.Save();
 			}
 
@@ -831,32 +933,15 @@ namespace Eddie.Platform.MacOS
 		}
 
 		public override bool OnDnsSwitchRestore()
-		{
+        {
 			foreach (DnsSwitchEntry e in m_listDnsSwitch)
-			{
-				/*
-				string v = e.Dns;
-				if (v == "")
-					v = "empty";
-				v = v.Replace(",", "\" \"");
-								
-				SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-setdnsservers", SystemShell.EscapeInsideQuote(e.Name), v });
-				*/
+			{				
 				IpAddresses dns = new IpAddresses();
 				dns.Add(e.Dns);
 
-				SystemShell s = new SystemShell();
-				s.Path = LocateExecutable("networksetup");
-				s.Arguments.Add("-setdnsservers");
-				s.Arguments.Add(SystemShell.EscapeInsideQuote(e.Name));
-				if (dns.Count == 0)
-					s.Arguments.Add("empty");
-				else
-					foreach (IpAddress ip in dns.IPs)
-						s.Arguments.Add(ip.Address);
-				s.Run();
+                string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-restore", "interface", e.Name, "dns", dns.ToString());
 
-				Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OsMacNetworkAdapterDnsRestored, e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
+                Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsRestored", e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));                
 			}
 
 			m_listDnsSwitch.Clear();
@@ -923,10 +1008,10 @@ namespace Eddie.Platform.MacOS
 		}
 
 		public override void OnJsonRouteList(Json jRoutesList)
-		{
+        {
 			base.OnJsonRouteList(jRoutesList);
 
-			string netstatPath = LocateExecutable("netstat");
+			string netstatPath = LocateExecutable("netstat"); 
 			if (netstatPath != "")
 			{
 				string result = SystemShell.Shell1(netstatPath, "-rnl");
@@ -979,10 +1064,10 @@ namespace Eddie.Platform.MacOS
 			}
 		}
 
-		public string[] GetInterfaces() // TOCLEAN can be removed.
+		public string[] GetInterfaces()
 		{
 			List<string> result = new List<string>();
-			foreach (string line in SystemShell.Shell("/usr/sbin/networksetup", new string[] { "-listallnetworkservices" }).Split('\n'))
+			foreach (string line in SystemShell.Shell(LocateExecutable("networksetup"), new string[] { "-listallnetworkservices" }).Split('\n'))
 			{
 				if (line.StartsWith("An asterisk", StringComparison.InvariantCultureIgnoreCase))
 					continue;
@@ -992,6 +1077,112 @@ namespace Eddie.Platform.MacOS
 			}
 
 			return result.ToArray();
+		}
+
+		public override string OsCredentialSystemName()
+		{
+			return "macOS Keychain";
+		}
+
+		public override string OsCredentialSystemRead(string name)
+		{
+			byte[] b = null;
+			var code = Security.SecKeyChain.FindGenericPassword(Constants.Name + " - " + name, name, out b);
+			if (code == Security.SecStatusCode.Success)
+				return Encoding.UTF8.GetString(b);
+			else
+				return "";
+		}
+
+		public override bool OsCredentialSystemWrite(string name, string password)
+		{
+			var b = Encoding.UTF8.GetBytes(password);
+
+			if (OsCredentialSystemDelete(name) == false) // Otherwise is not overwritten
+				return false;
+
+			Security.SecStatusCode ssc;
+			ssc = Security.SecKeyChain.AddGenericPassword(Constants.Name + " - " + name, name, b);
+			return (ssc == Security.SecStatusCode.Success);
+		}
+
+		public override bool OsCredentialSystemDelete(string name)
+		{
+			Security.SecRecord sr = new Security.SecRecord(Security.SecKind.GenericPassword);
+			sr.Service = Constants.Name + " - " + name;
+			sr.Account = name;
+			Security.SecStatusCode ssc;
+			Security.SecRecord find = Security.SecKeyChain.QueryAsRecord(sr, out ssc);
+			if (ssc == Security.SecStatusCode.Success)
+			{
+				sr.ValueData = find.ValueData;
+				Security.SecStatusCode ssc2 = Security.SecKeyChain.Remove(sr);
+				if (ssc2 == Security.SecStatusCode.Success)
+					return true;
+				else
+					return false;
+			}
+			else if (ssc == Security.SecStatusCode.ItemNotFound)
+				return true;
+			else
+				return false;
+		}
+
+		public override List<string> GetTrustedPaths()
+		{
+			List<string> list = base.GetTrustedPaths();
+			/*
+            list.Add("/bin");
+            list.Add("/usr/bin");
+            list.Add("/sbin");
+            list.Add("/usr/sbin");
+            */
+			list.Add(LocateExecutable("codesign"));
+			list.Add(LocateExecutable("whoami")); // ClodoTemp, remove with elevation
+
+			return list;
+		}
+
+		public override string FileGetSignedId(string path)
+		{
+			string codesignPath = LocateExecutable("codesign");
+			SystemShell cmdV = new SystemShell();
+			cmdV.Path = codesignPath;
+			cmdV.Arguments.Add("-v");
+			cmdV.Arguments.Add(SystemShell.EscapePath(path));
+			cmdV.Run();
+			if (cmdV.Output != "") // ExitCode always 0
+				return "No: Invalid signature (tampered?)";
+
+			SystemShell cmdS = new SystemShell();
+			cmdS.Path = codesignPath;
+			cmdS.Arguments.Clear();
+			cmdS.Arguments.Add("-dv");
+			cmdS.Arguments.Add("--verbose=4");
+			cmdS.Arguments.Add(SystemShell.EscapePath(path));
+			cmdS.Run();
+
+			string codesignResult = cmdS.Output;
+			string o = "";
+			foreach (string line in codesignResult.Split('\n'))
+			{
+				int posE = line.IndexOf("=", StringComparison.InvariantCulture);
+				if (posE != -1)
+				{
+					string k = line.Substring(0, posE);
+					if (k == "Authority")
+					{
+						if (o != "")
+							o += " - ";
+						o += line.Substring(posE + 1);
+					}
+				}
+			}
+
+			if (o != "")
+				return o;
+			else
+				return base.FileGetSignedId(path);
 		}
 	}
 

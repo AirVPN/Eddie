@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -104,11 +104,20 @@ namespace Eddie.Platform.Linux
 			return eddie_file_get_immutable(filename);
 		}
 
+        /*// TOCLEAN18
 		[DllImport(NativeLibName)]
 		private static extern int eddie_file_set_immutable(string filename, int flag);
 		public static int SetFileImmutable(string filename, int flag)
 		{
 			return eddie_file_set_immutable(filename, flag);
+		}
+		*/
+
+		[DllImport(NativeLibName)]
+		private static extern bool eddie_file_get_runasroot(string filename);
+		public static bool GetFileRunAsRoot(string filename)
+		{
+			return eddie_file_get_runasroot(filename);
 		}
 
 		[DllImport(NativeLibName)]
@@ -116,13 +125,6 @@ namespace Eddie.Platform.Linux
 		public static int PipeWrite(string filename, string data)
 		{
 			return eddie_pipe_write(filename, data);
-		}
-
-		[DllImport(NativeLibName)]
-		private static extern int eddie_ip_ping(string address, int timeout);
-		public static int PingIP(string address, int timeout)
-		{
-			return eddie_ip_ping(address, timeout);
 		}
 
 		public delegate void eddie_sighandler(int signum);
@@ -140,27 +142,10 @@ namespace Eddie.Platform.Linux
 			return eddie_kill(pid, sig);
 		}
 
-		/*
-		public static string dlerrorMessage()
-		{
-			IntPtr error = dlerror();
-			if (error != IntPtr.Zero)
-				return Marshal.PtrToStringAnsi(error);
-
-			return "";
-		}
-
-		[DllImport("libdl.so")]
-		public static extern IntPtr dlopen(string filename, int flags);
-
-		[DllImport("libdl.so")]
-		public static extern IntPtr dlerror(); // [MarshalAs(UnmanagedType.LPStr)] 
-
-		[DllImport("libdl.so")]
-		public static extern IntPtr dlsym(IntPtr handle, string symbol);
-		*/
-
 		[DllImport("__Internal", EntryPoint = "mono_get_runtime_build_info")]
 		public extern static string GetMonoVersion();
+
+		[DllImport("libc")]
+        public static extern uint getuid();  
 	}
 }

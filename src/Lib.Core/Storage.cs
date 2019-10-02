@@ -1,6 +1,6 @@
 // <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,52 +29,43 @@ namespace Eddie.Core
 {
 	public class Storage
 	{
-		public static bool Simulate = false; // If true, connections not really maded. Useful only during development of UI.
+		public string SavePath = "";        
+        public string SaveFormat = "v1n";
+		public string SavePassword = "";
+
+		public string Id = "";
 
 		public XmlElement Providers;
 
 		private Dictionary<string, Option> m_options = new Dictionary<string, Option>();
-		private string m_pathProfile = "";
-		private string m_pathData = "";
+
+		private string m_loadFormat = "";
+		private string m_loadPassword = "";
 
 		public Storage()
 		{
+			Id = RandomGenerator.GetRandomId64();
+
 			EnsureDefaults();
 
-			m_pathProfile = Get("profile");
-			m_pathData = Get("path");
-
-			string pathApp = Platform.Instance.GetApplicationPath();
-			string pathUser = Platform.Instance.GetUserPath();
-
-			// Compute data path
-			if (m_pathData == "")
-				m_pathData = Platform.Instance.GetDefaultDataPath();
-
-			if (m_pathData == "home")
-				m_pathData = Platform.Instance.GetUserPath();
-			else if (m_pathData == "program")
-				m_pathData = Platform.Instance.GetApplicationPath();
-			else if (m_pathData == "") // Detect
+			if( (Platform.Instance.OsCredentialSystemDefault()) && (Platform.Instance.OsCredentialSystemName() != "") )
 			{
-				if (Platform.Instance.HasAccessToWrite(pathApp))
-					m_pathData = pathApp;
-				else
-					m_pathData = pathUser;
-			}
-
-			// Compute profile
-			if (Platform.Instance.IsPath(m_pathProfile))
-			{
-				// Is a path
-				FileInfo fi = new FileInfo(Platform.Instance.NormalizePath(m_pathProfile));
-				if (Get("path") == "")
-					m_pathData = fi.DirectoryName;
-				m_pathProfile = fi.FullName;
+				SaveFormat = "v2s"; // Os
 			}
 			else
 			{
-				m_pathProfile = m_pathData + Platform.Instance.DirSep + m_pathProfile;
+				SaveFormat = "v2n"; // None
+			}
+						
+			XmlDocument xmlDoc = new XmlDocument();
+			Providers = xmlDoc.CreateElement("providers");
+		}
+
+		public string LoadPassword
+		{
+			get
+			{
+				return m_loadPassword;
 			}
 		}
 
@@ -113,6 +104,14 @@ namespace Eddie.Core
 		public string GetMan(string format)
 		{
 			string body = "";
+
+			// Console-only
+			foreach (KeyValuePair<string, string> kp in Engine.Instance.StartCommandLine.KnownCommands)
+			{
+				if (kp.Value != "")
+					body += "[option_block][option_code]" + kp.Key + "[/option_code]\n\t\t" + kp.Value.Replace("\n", "\n\t") + "[/option_block]\n";
+			}
+
 			foreach (Option option in Options.Values)
 			{
 				if (option.Man != "")
@@ -126,19 +125,20 @@ namespace Eddie.Core
 
 			string o = "\n";
 			o += "[sh]NAME[/sh]\n";
-			o += "\t" + Messages.ManName.Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManName").Replace("\n", "[br]");
 			o += "\n\n[sh]SYNOPSIS[/sh]\n";
-			o += "\t" + Messages.ManSynopsis.Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManSynopsis").Replace("\n", "[br]");
 			o += "\n\n[sh]DESCRIPTION[/sh]\n";
-			o += "\t" + Messages.ManDescription.Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManDescription").Replace("\n", "[br]");
 			o += "\n\n[sh]OPTIONS[/sh]\n";
-			o += "\t" + Messages.ManHeaderOption1.Replace("\n", "[br]");
-			o += "\t" + Messages.ManHeaderOption2.Replace("\n", "[br]");
-			o += "\t" + Messages.ManHeaderOption3.Replace("\n", "[br]");
-			o += "\t" + Messages.ManHeaderOption4.Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManHeaderOption1").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManHeaderOption2").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManHeaderOption3").Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManHeaderOption4").Replace("\n", "[br]");
+			o += "\n\n";
 			o += "\t[options_list]" + body.Replace("\n", "\n\t") + "[/options_list]";
 			o += "\n\n[sh]COPYRIGHT[/sh]\n";
-			o += "\t" + Messages.ManCopyright.Replace("\n", "[br]");
+			o += "\t" + LanguageManager.GetText("ManCopyright").Replace("\n", "[br]");
 			o += "\n";
 
 			if (format == "man")
@@ -147,7 +147,7 @@ namespace Eddie.Core
 				o = o.Replace("].", "]\\[char46]");
 
 				// Header
-				o = ".\\\"" + Messages.ManHeaderComment + "\n.TH eddie-ui 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\"" + o;
+				o = ".\\\"" + LanguageManager.GetText("ManHeaderComment") + "\n.TH eddie-ui 8 \"" + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) + "\"" + o;
 
 				o = o.Replace("[sh]", "\n.SH ");
 				o = o.Replace("[/sh]", "\n");
@@ -166,7 +166,7 @@ namespace Eddie.Core
 				o = o.Replace("\t", "");
 
 				// Normalization to avoid man layout break/issue
-				for (;;)
+				for (; ; )
 				{
 					string orig = o;
 
@@ -242,9 +242,9 @@ namespace Eddie.Core
 		{
 			lock (Options)
 			{
-				if (CommandLine.SystemEnvironment.Exists(name))
+				if (Engine.Instance.StartCommandLine.Exists(name))
 				{
-					return CommandLine.SystemEnvironment.Get(name, "");
+					return Engine.Instance.StartCommandLine.Get(name, "");
 				}
 				else if (Exists(name))
 				{
@@ -256,7 +256,7 @@ namespace Eddie.Core
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Error, MessagesFormatter.Format(Messages.OptionsUnknown, name));
+					Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("OptionsUnknown", name));
 					return "";
 				}
 			}
@@ -316,12 +316,20 @@ namespace Eddie.Core
 			return output;
 		}
 
+		public Json GetJson(string name)
+		{
+			string t = Get(name);
+			Json j = new Json();
+			Json.TryParse(t, out j);
+			return j;
+		}
+
 		public void Set(string name, string val)
 		{
 			lock (this)
 			{
 				if (Exists(name) == false)
-					Engine.Instance.Logs.Log(LogType.Warning, MessagesFormatter.Format(Messages.OptionsUnknown, name));
+					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OptionsUnknown", name));
 				else
 					Options[name].Value = val;
 			}
@@ -348,7 +356,7 @@ namespace Eddie.Core
 			if (Get(name) == s)
 				return false;
 			if (Options[name].Type == "text")
-				Set(name, s);			
+				Set(name, s);
 			else if (Options[name].Type.StartsWith("choice:"))
 				Set(name, s);
 			else if (Options[name].Type.StartsWith("path_file"))
@@ -365,6 +373,11 @@ namespace Eddie.Core
 		public void SetList(string name, List<string> val)
 		{
 			Set(name, String.Join(",", val.ToArray()));
+		}
+
+		public void SetJson(string name, Json val)
+		{
+			Set(name, val.ToJson());
 		}
 
 		public void SetDefault(string name, string type, string val, string man)
@@ -411,59 +424,29 @@ namespace Eddie.Core
 			}
 		}
 
-		public string GetDataPath()
-		{
-			return m_pathData;
-		}
-
-		public string GetProfilePath()
-		{
-			return m_pathProfile;
-		}
-
-		public string GetPathInData(string filename)
-		{
-			return m_pathData + Platform.Instance.DirSep + filename;
-		}
-
 		public void EnsureDefaults()
 		{
 			string NotInMan = ""; // Option not listed in 'man' documentation.
 
-			SetDefaultBool("cli", false, Messages.ManOptionCli);
-			SetDefaultBool("version", false, NotInMan);
-			SetDefaultBool("version.short", false, NotInMan);
-			SetDefaultBool("help", false, Messages.ManOptionHelp);
-			SetDefaultBool("test.cli-su", false, NotInMan); // ClodoTemp, only for testing
-			SetDefault("help.format", "choice:text,bbcode,html,man", "text", Messages.ManOptionHelpFormat); // Maybe 'text' or 'bbcode' or 'html' or 'man'.
-			SetDefaultBool("batch", false, NotInMan); // Don't lock interface, exit when connection is closed.            
-			SetDefault("login", "text", "", Messages.ManOptionLogin);
-			SetDefault("password", "password", "", Messages.ManOptionPassword);
-			SetDefaultBool("remember", false, Messages.ManOptionRemember);
-			SetDefault("key", "text", "Default", Messages.ManOptionKey);
-			SetDefault("server", "text", "", Messages.ManOptionServer);
-			SetDefaultBool("connect", false, Messages.ManOptionConnect);
-			SetDefaultBool("netlock", false, Messages.ManOptionNetLock);
+			SetDefault("login", "text", "", LanguageManager.GetText("ManOptionLogin"));
+			SetDefault("password", "password", "", LanguageManager.GetText("ManOptionPassword"));
+			SetDefaultBool("remember", false, LanguageManager.GetText("ManOptionRemember"));
+			SetDefault("key", "text", "Default", LanguageManager.GetText("ManOptionKey"));
+			SetDefault("server", "text", "", LanguageManager.GetText("ManOptionServer"));
+			SetDefaultBool("connect", false, LanguageManager.GetText("ManOptionConnect"));
+			SetDefaultBool("netlock", false, LanguageManager.GetText("ManOptionNetLock"));
 
-			SetDefault("updater.channel", "choice:stable,beta,internal,none", "stable", NotInMan);
-
-			SetDefault("console.mode", "choice:none,batch,keys", "keys", NotInMan);
-
-			SetDefault("profile", "text", "default.xml", Messages.ManOptionProfile); // Not in Settings
-			SetDefault("path", "text", "", Messages.ManOptionPath); // Not in Settings // Path. Maybe a full path, or special values 'home' or 'program'.			
-			SetDefault("path.resources", "text", "res/", NotInMan); // Relative to executable
-			SetDefault("path.tools", "text", "", NotInMan); // Relative to executable
-			SetDefault("path.exec", "text", "", NotInMan); // Original execution file
+			SetDefault("updater.channel", "choice:stable,beta,internal,none", "stable", LanguageManager.GetText("ManOptionUpdaterChannel"));
 
 			SetDefault("servers.last", "text", "", NotInMan, false);
-			SetDefault("servers.whitelist", "text", "", Messages.ManOptionServersWhiteList);
-			SetDefault("servers.blacklist", "text", "", Messages.ManOptionServersBlackList);
-			SetDefaultBool("servers.startlast", false, Messages.ManOptionServersStartLast);
-			SetDefaultBool("servers.locklast", false, Messages.ManOptionServersLockLast);
-			SetDefault("servers.scoretype", "choice:Speed,Latency", "Speed", Messages.ManOptionServersScoreType);
+			SetDefault("servers.whitelist", "text", "", LanguageManager.GetText("ManOptionServersWhiteList"));
+			SetDefault("servers.blacklist", "text", "", LanguageManager.GetText("ManOptionServersBlackList"));
+			SetDefaultBool("servers.startlast", false, LanguageManager.GetText("ManOptionServersStartLast"));
+			SetDefaultBool("servers.locklast", false, LanguageManager.GetText("ManOptionServersLockLast"));
+			SetDefault("servers.scoretype", "choice:Speed,Latency", "Speed", LanguageManager.GetText("ManOptionServersScoreType"));
 
-			SetDefault("areas.whitelist", "text", "", Messages.ManOptionAreasWhiteList);
-			SetDefault("areas.blacklist", "text", "", Messages.ManOptionAreasBlackList);
+			SetDefault("areas.whitelist", "text", "", LanguageManager.GetText("ManOptionAreasWhiteList"));
+			SetDefault("areas.blacklist", "text", "", LanguageManager.GetText("ManOptionAreasBlackList"));
 
 			SetDefault("discover.ip_webservice.list", "text", "https://ipleak.net/json/{@ip};https://freegeoip.net/json/{@ip};http://ip-api.com/json/{@ip}", NotInMan);
 			SetDefaultBool("discover.ip_webservice.first", true, NotInMan);
@@ -475,43 +458,47 @@ namespace Eddie.Core
 			SetDefault("log.file.path", "text", "logs/eddie_%y-%m-%d.log", NotInMan);
 			SetDefaultBool("log.level.debug", false, NotInMan);
 			SetDefaultBool("log.repeat", false, NotInMan);
+			SetDefaultInt("log.limit", 1000, NotInMan);
 
-			SetDefault("mode.protocol", "text", "AUTO", Messages.ManOptionModeProtocol);
-			SetDefaultInt("mode.port", 443, Messages.ManOptionModePort);
-			SetDefaultInt("mode.alt", 0, Messages.ManOptionModeAlt);
+			SetDefault("language.iso", "text", "auto", LanguageManager.GetText("ManOptionLanguageIso"));
 
-			SetDefault("proxy.mode", "text", "None", Messages.ManOptionProxyMode);
+			SetDefault("mode.protocol", "text", "AUTO", LanguageManager.GetText("ManOptionModeProtocol"));
+			SetDefaultInt("mode.port", 443, LanguageManager.GetText("ManOptionModePort"));
+			SetDefaultInt("mode.alt", 0, LanguageManager.GetText("ManOptionModeAlt"));
+
+			SetDefault("proxy.mode", "text", "None", LanguageManager.GetText("ManOptionProxyMode"));
 			SetDefault("proxy.when", "choice:always/web/openvpn/none", "always", NotInMan);
-			SetDefault("proxy.host", "ip", "127.0.0.1", Messages.ManOptionProxyHost);
-			SetDefaultInt("proxy.port", 8080, Messages.ManOptionProxyPort);
-			SetDefault("proxy.auth", "text", "None", Messages.ManOptionProxyAuth);
-			SetDefault("proxy.login", "text", "", Messages.ManOptionProxyLogin);
-			SetDefault("proxy.password", "password", "", Messages.ManOptionProxyPassword);
-			SetDefaultInt("proxy.tor.control.port", 9151, Messages.ManOptionProxyTorControlPort);
-			SetDefaultBool("proxy.tor.control.auth", true, Messages.ManOptionProxyTorControlAuth);
+			SetDefault("proxy.host", "ip", "127.0.0.1", LanguageManager.GetText("ManOptionProxyHost"));
+			SetDefaultInt("proxy.port", 8080, LanguageManager.GetText("ManOptionProxyPort"));
+			SetDefault("proxy.auth", "text", "None", LanguageManager.GetText("ManOptionProxyAuth"));
+			SetDefault("proxy.login", "text", "", LanguageManager.GetText("ManOptionProxyLogin"));
+			SetDefault("proxy.password", "password", "", LanguageManager.GetText("ManOptionProxyPassword"));
+			SetDefaultInt("proxy.tor.control.port", 9151, LanguageManager.GetText("ManOptionProxyTorControlPort"));
+			SetDefaultBool("proxy.tor.control.auth", true, LanguageManager.GetText("ManOptionProxyTorControlAuth"));
 			SetDefault("proxy.tor.control.cookie-path", "", "", NotInMan);
 			SetDefault("proxy.tor.path", "", "", NotInMan);
-			SetDefault("proxy.tor.control.password", "password", "", Messages.ManOptionProxyTorControlPassword);
+			SetDefault("proxy.tor.control.password", "password", "", LanguageManager.GetText("ManOptionProxyTorControlPassword"));
 
-			SetDefault("routes.default", "choice:in,out", "in", Messages.ManOptionRoutesDefault);
-			SetDefault("routes.custom", "text", "", Messages.ManOptionRoutesCustom);
-			SetDefaultBool("routes.remove_default", false, Messages.ManOptionRoutesRemoveDefault); // Will be probably deprecated, issues with DHCP renew.
+			SetDefault("routes.default", "choice:in,out", "in", LanguageManager.GetText("ManOptionRoutesDefault"));
+			SetDefault("routes.custom", "text", "", LanguageManager.GetText("ManOptionRoutesCustom"));
+			// SetDefaultBool("routes.remove_default", false, LanguageManager.GetText("ManOptionRoutesRemoveDefault")); // Deprecated in 2.18, issues with DHCP renew.
 
-			SetDefault("dns.mode", "text", "auto", Messages.ManOptionDnsMode);
-			SetDefault("dns.servers", "text", "", Messages.ManOptionDnsServers);
-			SetDefaultBool("dns.check", true, Messages.ManOptionDnsCheck);
+			SetDefault("dns.mode", "text", "auto", LanguageManager.GetText("ManOptionDnsMode"));
+			SetDefault("dns.servers", "text", "", LanguageManager.GetText("ManOptionDnsServers"));
+			SetDefaultBool("dns.check", true, LanguageManager.GetText("ManOptionDnsCheck"));
 			SetDefaultInt("dns.cache.ttl", 3600, NotInMan);
 
-			SetDefault("netlock.mode", "text", "auto", Messages.ManOptionNetLockMode);
-			SetDefaultBool("netlock.allow_private", true, Messages.ManOptionNetLockAllowPrivate);
-			SetDefaultBool("netlock.allow_dhcp", true, Messages.ManOptionNetLockAllowDHCP); // Win only
-			SetDefaultBool("netlock.allow_ping", true, Messages.ManOptionNetLockAllowPing);
-			SetDefaultBool("netlock.allow_dns", false, Messages.ManOptionNetLockAllowDNS);
+			SetDefault("netlock.mode", "text", "auto", LanguageManager.GetText("ManOptionNetLockMode"));
+			SetDefaultBool("netlock.allow_private", true, LanguageManager.GetText("ManOptionNetLockAllowPrivate"));
+			SetDefaultBool("netlock.allow_dhcp", true, LanguageManager.GetText("ManOptionNetLockAllowDHCP")); // Win only
+			SetDefaultBool("netlock.allow_ping", true, LanguageManager.GetText("ManOptionNetLockAllowPing"));
+			SetDefaultBool("netlock.allow_dns", false, LanguageManager.GetText("ManOptionNetLockAllowDNS"));
 			SetDefault("netlock.incoming", "choice:allow,block", "block", NotInMan);
 			SetDefault("netlock.outgoing", "choice:allow,block", "block", NotInMan);
-			SetDefault("netlock.allowed_ips", "text", "", Messages.ManOptionNetLockAllowedsIps);
+			SetDefault("netlock.whitelist.incoming.ips", "text", "", LanguageManager.GetText("ManOptionNetLockWhitelistIncomingIps"));
+			SetDefault("netlock.whitelist.outgoing.ips", "text", "", LanguageManager.GetText("ManOptionNetLockWhitelistOutgoingIps"));
 
-			SetDefault("ipv6.mode", "text", "disable", Messages.ManOptionIPv6);
+			SetDefault("ipv6.mode", "text", "disable", LanguageManager.GetText("ManOptionIPv6"));
 
 			SetDefault("network.entry.iface", "text", "", NotInMan);
 			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
@@ -521,57 +508,59 @@ namespace Eddie.Core
 			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
 			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
 
-			SetDefault("tools.openvpn.path", "path_file", "", Messages.ManOptionToolsOpenVpnPath);
-			SetDefault("tools.ssh.path", "path_file", "", Messages.ManOptionToolsSshPath);
-			SetDefault("tools.ssl.path", "path_file", "", Messages.ManOptionToolsSslPath);
-			SetDefault("tools.curl.path", "path_file", "", Messages.ManOptionToolsCurlPath);
+			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText("ManOptionToolsOpenVpnPath"));
+			SetDefault("tools.ssh.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSshPath"));
+			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSslPath"));
+			SetDefault("tools.curl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsCurlPath"));
 
 			SetDefaultInt("tools.curl.max-time", 20, NotInMan);
 
-			SetDefaultBool("webui.enabled", false, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
-			SetDefault("webui.ip", "text", "localhost", NotInMan); // Messages.ManOptionWebUiAddress
+			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
+			SetDefault("webui.ip", "text", "127.0.0.1", NotInMan); // Messages.ManOptionWebUiAddress
 			SetDefaultInt("webui.port", 4649, NotInMan); // Messages.ManOptionWebUiPort
 
-			SetDefault("openvpn.custom", "text", "", Messages.ManOptionOpenVpnCustom);
-			SetDefault("openvpn.dev_node", "text", "", Messages.ManOptionOpenVpnDevNode);
-			SetDefaultInt("openvpn.sndbuf", -2, Messages.ManOptionOpenVpnSndBuf); // 2.11
-			SetDefaultInt("openvpn.rcvbuf", -2, Messages.ManOptionOpenVpnRcvBuf); // 2.11
-			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", Messages.ManOptionOpenVpnDirectives);
+			SetDefaultBool("external.rules.recommended", true, NotInMan);
+			SetDefault("external.rules", "json", "[]", NotInMan);
+
+			SetDefault("openvpn.custom", "text", "", LanguageManager.GetText("ManOptionOpenVpnCustom"));
+			SetDefault("openvpn.dev_node", "text", "", LanguageManager.GetText("ManOptionOpenVpnDevNode"));
+			SetDefaultInt("openvpn.sndbuf", -2, LanguageManager.GetText("ManOptionOpenVpnSndBuf")); // 2.11
+			SetDefaultInt("openvpn.rcvbuf", -2, LanguageManager.GetText("ManOptionOpenVpnRcvBuf")); // 2.11
+			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", LanguageManager.GetText("ManOptionOpenVpnDirectives"));
 			SetDefault("openvpn.directives.path", "path_file", "", NotInMan);
-			SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
-			SetDefaultBool("openvpn.skip_defaults", false, Messages.ManOptionOpenVpnSkipDefaults);
+			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
+			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText("ManOptionOpenVpnSkipDefaults"));
 
 			// Not in Settings
-			SetDefaultInt("openvpn.management_port", 3100, Messages.ManOptionOpenVpnManagementPort);
-			SetDefaultInt("ssh.port", 0, Messages.ManOptionSshPort);
-			SetDefaultInt("ssl.port", 0, Messages.ManOptionSslPort);
+			SetDefaultInt("openvpn.management_port", 3100, LanguageManager.GetText("ManOptionOpenVpnManagementPort"));
+			SetDefaultInt("ssh.port", 0, LanguageManager.GetText("ManOptionSshPort"));
+			SetDefaultInt("ssl.port", 0, LanguageManager.GetText("ManOptionSslPort"));
 			SetDefault("ssl.options", "text", "", NotInMan); // "NO_SSLv2" < 2.11.10
 			SetDefaultInt("ssl.verify", -1, NotInMan);
 
-			SetDefaultBool("os.single_instance", true, Messages.ManOptionOsSingleInstance);
+			SetDefaultBool("os.single_instance", true, LanguageManager.GetText("ManOptionOsSingleInstance"));
 
-			SetDefaultBool("advanced.expert", false, Messages.ManOptionAdvancedExpert);
-			SetDefaultBool("advanced.check.route", true, Messages.ManOptionAdvancedCheckRoute);
+			SetDefaultBool("advanced.expert", false, LanguageManager.GetText("ManOptionAdvancedExpert"));
+			SetDefaultBool("advanced.check.route", true, LanguageManager.GetText("ManOptionAdvancedCheckRoute"));
 
 			SetDefaultInt("advanced.penality_on_error", 30, NotInMan);
 
-			SetDefaultBool("pinger.enabled", true, Messages.ManOptionAdvancedPingerEnabled);
-			SetDefaultInt("pinger.delay", 0, Messages.ManOptionAdvancedPingerDelay);
-			SetDefaultInt("pinger.retry", 0, Messages.ManOptionAdvancedPingerRetry);
-			SetDefaultInt("pinger.jobs", 10, Messages.ManOptionAdvancedPingerJobs);
-			SetDefaultInt("pinger.valid", 0, Messages.ManOptionAdvancedPingerValid);
+			SetDefaultBool("pinger.enabled", true, LanguageManager.GetText("ManOptionAdvancedPingerEnabled"));
+			SetDefaultInt("pinger.delay", 0, LanguageManager.GetText("ManOptionAdvancedPingerDelay"));
+			SetDefaultInt("pinger.retry", 0, LanguageManager.GetText("ManOptionAdvancedPingerRetry"));
+			SetDefaultInt("pinger.jobs", 10, LanguageManager.GetText("ManOptionAdvancedPingerJobs"));
+			SetDefaultInt("pinger.valid", 0, LanguageManager.GetText("ManOptionAdvancedPingerValid"));
 
 			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 			SetDefaultBool("advanced.providers", false, NotInMan);
 
 			SetDefault("bootstrap.urls", "text", "", NotInMan); // ClodoTemp: move to provider level
 
-			SetDefaultBool("advanced.skip_privileges", false, NotInMan); // Skip 'root' detection.
 			SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.
 			SetDefaultBool("connections.allow_anyway", false, NotInMan); // Allow connection even if in 'Not available' status.
 			SetDefaultBool("advanced.testonly", false, NotInMan); // Disconnect when connection occur.
-			
+
 			EnsureDefaultsEvent("app.start");
 			EnsureDefaultsEvent("app.stop");
 			EnsureDefaultsEvent("session.start");
@@ -581,15 +570,15 @@ namespace Eddie.Core
 			EnsureDefaultsEvent("vpn.down");
 
 			// Windows only			
-			SetDefault("windows.adapter_service", "text", "tap0901", Messages.ManOptionWindowsAdapterService);
-			SetDefaultBool("windows.disable_driver_upgrade", false, Messages.ManOptionWindowsDisableDriverUpgrade);
-			SetDefaultBool("windows.tap_up", true, Messages.ManOptionWindowsTapUp);
-			SetDefaultBool("windows.dhcp_disable", false, Messages.ManOptionWindowsDhcpDisable);
-			SetDefaultBool("windows.wfp.enable", true, Messages.ManOptionWindowsWfp);
-			SetDefaultBool("windows.wfp.dynamic", false, Messages.ManOptionWindowsWfpDynamic);
+			SetDefault("windows.adapter_service", "text", "tap0901", LanguageManager.GetText("ManOptionWindowsAdapterService"));
+			SetDefaultBool("windows.disable_driver_upgrade", false, LanguageManager.GetText("ManOptionWindowsDisableDriverUpgrade"));
+			SetDefaultBool("windows.tap_up", true, LanguageManager.GetText("ManOptionWindowsTapUp"));
+			//SetDefaultBool("windows.dhcp_disable", false, LanguageManager.GetText("ManOptionWindowsDhcpDisable")); // Deprecated in 2.18
+			SetDefaultBool("windows.wfp.enable", true, LanguageManager.GetText("ManOptionWindowsWfp"));
+			SetDefaultBool("windows.wfp.dynamic", false, LanguageManager.GetText("ManOptionWindowsWfpDynamic"));
 			//SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well // Removed in 2.14, in W10 require reboot
-			SetDefaultBool("windows.dns.force_all_interfaces", false, Messages.ManOptionWindowsDnsForceAllInterfaces); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
-			SetDefaultBool("windows.dns.lock", true, Messages.ManOptionWindowsDnsLock);
+			SetDefaultBool("windows.dns.force_all_interfaces", false, LanguageManager.GetText("ManOptionWindowsDnsForceAllInterfaces")); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
+			SetDefaultBool("windows.dns.lock", true, LanguageManager.GetText("ManOptionWindowsDnsLock"));
 			SetDefaultInt("windows.metrics.tap.ipv4", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultInt("windows.metrics.tap.ipv6", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
@@ -597,26 +586,22 @@ namespace Eddie.Core
 			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
 
 			// Linux only
-			SetDefaultBool("linux.xhost", false, NotInMan);
-			SetDefault("linux.dbus", "text", "", NotInMan);
-			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9", NotInMan);
+			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9;systemd-resolved", NotInMan);
 
 			// General UI
-			SetDefault("ui.unit", "text", "", Messages.ManOptionUiUnit);
-			SetDefaultBool("ui.iec", false, Messages.ManOptionUiIEC);
+			SetDefault("ui.unit", "text", "", LanguageManager.GetText("ManOptionUiUnit"));
+			SetDefaultBool("ui.iec", false, LanguageManager.GetText("ManOptionUiIEC"));
 			SetDefaultBool("ui.skip.provider.manifest.failed", false, NotInMan);
 
 			// GUI only
 			SetDefaultBool("gui.start_minimized", false, NotInMan);
 			SetDefaultBool("gui.tray_show", true, NotInMan);
-			SetDefaultBool("gui.tray_minimized", true, NotInMan);
+			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsLinuxSystem() == false), NotInMan); // We can't know if the Linux Desktop Environment will support show tray.
 			SetDefaultBool("gui.notifications", true, NotInMan);
-			SetDefaultBool("gui.exit_confirm", true, NotInMan, false);
-			SetDefault("gui.skin", "text", "Light", NotInMan, false);
-			SetDefaultBool("gui.tos", false, NotInMan, false);
+			SetDefaultBool("gui.exit_confirm", true, NotInMan, false);			
 			SetDefault("gui.font.normal.name", "text", "", NotInMan);
 			SetDefaultFloat("gui.font.normal.size", 0, NotInMan);
-			SetDefaultInt("gui.log_limit", 1000, NotInMan);
+
 			SetDefault("gui.window.main", "text", "", NotInMan, false);
 			SetDefault("gui.list.servers", "text", "", NotInMan, false);
 			SetDefault("gui.list.areas", "text", "", NotInMan, false);
@@ -625,18 +610,9 @@ namespace Eddie.Core
 			// UI - OSX Only
 			// SetDefaultBool("gui.osx.dock", false, NotInMan); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			SetDefaultBool("gui.osx.visible", false, NotInMan);
-			SetDefault("gui.osx.style", "text", "light", NotInMan);
 			SetDefaultBool("gui.osx.sysbar.show_info", false, NotInMan);
 			SetDefaultBool("gui.osx.sysbar.show_speed", false, NotInMan); // Menu Status, Window Title, Tray Tooltip
 			SetDefaultBool("gui.osx.sysbar.show_server", false, NotInMan);
-
-			
-
-
-			// Command-line only
-			Options["cli"].CommandLineOnly = true;
-			Options["help"].CommandLineOnly = true;
-			Options["help.format"].CommandLineOnly = true;
 
 			// Internal only
 			Options["gui.window.main"].InternalOnly = true;
@@ -666,9 +642,9 @@ namespace Eddie.Core
 
 		public void EnsureDefaultsEvent(string name)
 		{
-			SetDefault("event." + name + ".filename", "path_file", "", Messages.ManOptionEventFileName);
-			SetDefault("event." + name + ".arguments", "text", "", Messages.ManOptionEventArguments);
-			SetDefaultBool("event." + name + ".waitend", true, Messages.ManOptionEventWaitEnd);
+			SetDefault("event." + name + ".filename", "path_file", "", LanguageManager.GetText("ManOptionEventFileName"));
+			SetDefault("event." + name + ".arguments", "text", "", LanguageManager.GetText("ManOptionEventArguments"));
+			SetDefaultBool("event." + name + ".waitend", true, LanguageManager.GetText("ManOptionEventWaitEnd"));
 		}
 
 		public void ResetAll(bool force)
@@ -684,8 +660,6 @@ namespace Eddie.Core
 
 		public void Save()
 		{
-			string path = GetProfilePath();
-
 			bool remember = GetBool("remember");
 
 			lock (this)
@@ -712,9 +686,6 @@ namespace Eddie.Core
 						if ((remember == false) && (option.Code == "password"))
 							skip = true;
 
-						if (option.CommandLineOnly)
-							skip = true;
-
 						if ((option.Value == "") || (option.Value == option.Default))
 							skip = true;
 
@@ -726,7 +697,6 @@ namespace Eddie.Core
 							optionsNode.AppendChild(itemNode);
 						}
 					}
-
 
 					XmlElement providersNode = xmlDoc.CreateElement("providers");
 					rootNode.AppendChild(providersNode);
@@ -753,97 +723,248 @@ namespace Eddie.Core
 						}
 					}
 
-					xmlDoc.Save(path);
+					// Compute password
+					if ((SaveFormat == "v2s") && (Platform.Instance.OsCredentialSystemName() == ""))
+						SaveFormat = "v2n";
 
-					Platform.Instance.FileEnsurePermission(path, "600");
-				}
-				catch (Exception ex)
-				{
-					Engine.Instance.Logs.Log(LogType.Fatal, MessagesFormatter.Format(Messages.OptionsWriteFailed, path, ex.Message));
-				}
-			}
-		}
+					if ((Platform.Instance.OsCredentialSystemName() != "") && (m_loadFormat == "v2s") && (SaveFormat != "v2s"))
+						Platform.Instance.OsCredentialSystemDelete(Id);
 
-		public void Load()
-		{
-			lock (this)
-			{
-				try
-				{
-					XmlDocument xmlDoc = new XmlDocument();
-
-					Providers = xmlDoc.CreateElement("providers");
-
-					if (Get("profile").ToLowerInvariant() == "none")
-						return;
-
-					string path = GetProfilePath();
-
-					CompatibilityManager.FixOldProfilePath(path); // 2.15
-
-					Engine.Instance.Logs.Log(LogType.Verbose, MessagesFormatter.Format(Messages.OptionsRead, path));
-
-					if (Platform.Instance.FileExists(path) == false)
+					if (SaveFormat == "v2n")
+						SavePassword = Constants.PasswordIfEmpty;
+					else if (SaveFormat == "v2s")
 					{
-						Engine.Instance.Logs.Log(LogType.Verbose, Messages.OptionsNotFound);
-						return;
-					}
-
-					// CompatibilityManager.FixOldProfile(path); // ClodoTemp
-					xmlDoc.Load(path);
-
-					ResetAll(true);
-
-					Providers = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "providers");
-					if (Providers == null)
-						Providers = xmlDoc.CreateElement("providers");
-
-					XmlNode nodeOptions = xmlDoc.DocumentElement.GetElementsByTagName("options")[0];
-					Dictionary<string, string> options = new Dictionary<string, string>();
-					foreach (XmlElement e in nodeOptions)
-					{
-						string name = e.Attributes["name"].Value;
-						string value = e.Attributes["value"].Value;
-
-						CompatibilityManager.FixOption(ref name, ref value);
-
-						options[name] = value;
-					}
-
-					CompatibilityManager.FixOptions(options);
-					foreach (KeyValuePair<string, string> item in options)
-						Set(item.Key, item.Value);
-
-					// For compatibility <3
-					XmlElement xmlManifest = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
-					if (xmlManifest != null)
-					{
-						XmlElement providerAirVpn = xmlDoc.CreateElement("AirVPN");
-						Providers.AppendChild(providerAirVpn);
-
-						UtilsXml.XmlCopyElement(xmlManifest, providerAirVpn);
-
-						XmlElement xmlUser = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
-						if (xmlUser != null) // Compatibility with old manifest < 2.11
+						if( (m_loadFormat != "v2s") || (SavePassword == "") || (SavePassword != m_loadPassword) )
 						{
-							XmlElement oldKeyFormat = xmlUser.SelectSingleNode("keys/key[@id='default']") as XmlElement;
-							if (oldKeyFormat != null)
+							SavePassword = RandomGenerator.GetRandomPassword();
+							if (Platform.Instance.OsCredentialSystemWrite(Id, SavePassword) == false)
 							{
-								oldKeyFormat.SetAttribute("name", "Default");
+								// User not authorize the OS keychain, or fail. Revert to plain mode.
+								SaveFormat = "v2n";
+								SavePassword = Constants.PasswordIfEmpty;
 							}
 						}
-						if (xmlUser != null)
-							UtilsXml.XmlCopyElement(xmlUser, providerAirVpn);
 					}
+
+					byte[] plainData = Encoding.UTF8.GetBytes(xmlDoc.OuterXml);
+					byte[] encrypted = Storage.EncodeFormat(SaveFormat, Id, plainData, SavePassword);
+					Platform.Instance.FileContentsWriteBytes(SavePath, encrypted);
+					Platform.Instance.FileEnsurePermission(SavePath, "600");
+
+					m_loadFormat = SaveFormat;
+					m_loadPassword = SavePassword;
 				}
 				catch (Exception ex)
 				{
-					Engine.Instance.Logs.Log(LogType.Fatal, MessagesFormatter.Format(Messages.OptionsReverted, ex.Message));
-					ResetAll(true);
+					Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("OptionsWriteFailed", SavePath, ex.Message));
 				}
 			}
 		}
 
+		public bool Load()
+		{
+			try
+			{
+				byte[] profileDataEncrypted;
+				Storage.DecodeFormat(Platform.Instance.FileContentsReadBytes(SavePath), out m_loadFormat, out Id, out profileDataEncrypted);
 
+				if (m_loadFormat == "v1n")
+				{
+					// Compatibility format, exists only in version 2.18.1 and 2.18.2, fixed in 2.18.3
+					m_loadPassword = Constants.PasswordIfEmpty;					
+				}
+				else if (m_loadFormat == "v1s")
+				{
+					// Compatibility format, exists only in version 2.18.1 and 2.18.2, fixed in 2.18.3
+					m_loadPassword = Platform.Instance.OsCredentialSystemRead(new FileInfo(SavePath).Name);
+					if (m_loadPassword == null)
+						m_loadPassword = ""; // Will fail after the decryption					
+				}				
+				else if (m_loadFormat == "v1p")
+				{
+					// Compatibility format, exists only in version 2.18.1 and 2.18.2, fixed in 2.18.3
+					m_loadPassword = Engine.Instance.OnAskProfilePassword(false);
+					if ((m_loadPassword == null) || (m_loadPassword == ""))
+						return false;					
+				}
+				else if (m_loadFormat == "v2n")
+				{
+					m_loadPassword = Constants.PasswordIfEmpty;
+				}
+				else if (m_loadFormat == "v2s")
+				{
+					m_loadPassword = Platform.Instance.OsCredentialSystemRead(Id);
+					if (m_loadPassword == null)
+						m_loadPassword = ""; // Will fail after the decryption
+				}
+				else if (m_loadFormat == "v2p")
+				{
+					m_loadPassword = Engine.Instance.OnAskProfilePassword(false);
+					if ((m_loadPassword == null) || (m_loadPassword == ""))
+						return false;					
+				}
+
+				byte[] decrypted = null;
+				for (; ; )
+				{
+					decrypted = CryptManager.ReadBytesEncrypted(profileDataEncrypted, m_loadPassword);
+					if (decrypted == null)
+					{
+						if ((m_loadFormat == "v1s") || (m_loadFormat == "v2s"))
+						{
+							// Loses, ask what to do
+							bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText("OptionsReadNoKeyring"));
+							if (ask)
+							{
+								ResetAll(true);
+								return true;
+							}
+							else
+								return false;
+						}
+						m_loadPassword = Engine.Instance.OnAskProfilePassword(true);
+						if ((m_loadPassword == null) || (m_loadPassword == ""))
+							return false;
+					}
+					else
+						break;
+				}
+
+				SavePassword = m_loadPassword;
+				SaveFormat = m_loadFormat;
+
+				// Compatibility
+				if (m_loadFormat == "v1n")
+					SaveFormat = "v2n";
+				else if (m_loadFormat == "v1p")
+					SaveFormat = "v2p";
+				else if (m_loadFormat == "v1s")
+				{
+					SaveFormat = "v2s";
+					SavePassword = ""; // Will be generated
+				}				
+						
+				LoadInternal(decrypted);
+				return true;				
+			}
+			catch(Exception ex)
+			{
+				bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText("OptionsReadError", ex.Message));
+				if (ask)
+				{
+					ResetAll(true);
+					return true;
+				}
+				else
+					return false;
+			}
+		}
+
+		private void LoadInternal(byte[] plainData)
+		{
+			lock (this)
+			{				
+				if (plainData == null)
+					throw new Exception("Unknown format");
+
+				XmlDocument xmlDoc = new XmlDocument();
+
+				Providers = xmlDoc.CreateElement("providers");
+
+				// Put the byte array into a stream, rewind it to the beginning and read
+				MemoryStream ms = new MemoryStream(plainData);
+				ms.Flush();
+				ms.Position = 0;
+				xmlDoc.Load(ms);
+
+				ResetAll(true);
+
+				Providers = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "providers");
+				if (Providers == null)
+					Providers = xmlDoc.CreateElement("providers");
+
+				XmlNode nodeOptions = xmlDoc.DocumentElement.GetElementsByTagName("options")[0];
+				Dictionary<string, string> options = new Dictionary<string, string>();
+				foreach (XmlElement e in nodeOptions)
+				{
+					string name = e.Attributes["name"].Value;
+					string value = e.Attributes["value"].Value;
+
+					CompatibilityManager.FixOption(ref name, ref value);
+                    if(name != "")
+						options[name] = value;
+				}
+
+				CompatibilityManager.FixOptions(options);
+				foreach (KeyValuePair<string, string> item in options)
+					Set(item.Key, item.Value);
+
+				// For compatibility <3
+				XmlElement xmlManifest = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
+				if (xmlManifest != null)
+				{
+					XmlElement providerAirVpn = xmlDoc.CreateElement("AirVPN");
+					Providers.AppendChild(providerAirVpn);
+
+					UtilsXml.XmlCopyElement(xmlManifest, providerAirVpn);
+
+					XmlElement xmlUser = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
+					if (xmlUser != null) // Compatibility with old manifest < 2.11
+					{
+						XmlElement oldKeyFormat = xmlUser.SelectSingleNode("keys/key[@id='default']") as XmlElement;
+						if (oldKeyFormat != null)
+						{
+							oldKeyFormat.SetAttribute("name", "Default");
+						}
+					}
+					if (xmlUser != null)
+						UtilsXml.XmlCopyElement(xmlUser, providerAirVpn);
+				}
+			}
+		}
+
+		public static byte[] EncodeFormat(string header, string id, byte[] dataPlain, string password)
+		{
+			if (header.Length != 3)
+				throw new Exception("Unexpected");
+			if (header.StartsWith("v1"))
+				throw new Exception("Unexpected");
+
+			byte[] encrypted = CryptManager.WriteBytesEncrypted(dataPlain, password);
+
+			byte[] n = null;			
+			n = new byte[3 + 64 + encrypted.Length];
+			Encoding.ASCII.GetBytes(header).CopyTo(n, 0);
+			Encoding.ASCII.GetBytes(id).CopyTo(n, 3);
+			encrypted.CopyTo(n, 3+64);
+			
+			return n;
+		}
+
+		public static void DecodeFormat(byte[] b, out string header, out string id, out byte[] dataEncrypted)
+		{
+			byte[] bHeader = new byte[3];			
+			Array.Copy(b, 0, bHeader, 0, 3);
+			header = Encoding.ASCII.GetString(bHeader);
+			if(header.StartsWith("v1"))
+			{
+				// Compatibility				
+				id = RandomGenerator.GetRandomId64();
+				dataEncrypted = new byte[b.Length - 3];
+				Array.Copy(b, 3, dataEncrypted, 0, b.Length - 3);
+			}
+			else if (header.StartsWith("v2"))
+			{
+				byte[] bId = new byte[64];
+				Array.Copy(b, 3, bId, 0, 64);
+				id = Encoding.ASCII.GetString(bId);
+				dataEncrypted = new byte[b.Length - 3 - 64];
+				Array.Copy(b, 3+64, dataEncrypted, 0, b.Length - 3 - 64);				
+			}
+			else
+			{
+				throw new Exception("Read fail");
+			}
+		}
 	}
 }

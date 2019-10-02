@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,21 +25,21 @@ using System.Xml;
 using Eddie.Common;
 
 namespace Eddie.Core
-{	
-    public class CountriesManager
-    {
+{
+	public class CountriesManager
+	{
 		public static Dictionary<string, string> Code2Name = new Dictionary<string, string>();
 		public static Dictionary<string, string> Name2Code = new Dictionary<string, string>();
-		
+
 		public static void Init()
 		{
 			string iso3166data = Engine.Instance.LocateResource("iso-3166.json");
-			if(iso3166data != "")
+			if (iso3166data != "")
 			{
 				Json jData = null;
-				if(Json.TryParse(Platform.Instance.FileContentsReadText(iso3166data), out jData))
+				if (Json.TryParse(Platform.Instance.FileContentsReadText(iso3166data), out jData))
 				{
-					foreach(Json jCountry in jData.GetArray())
+					foreach (Json jCountry in jData.GetArray())
 					{
 						string code = jCountry["alpha-2"].Value as string;
 						string name = jCountry["name"].Value as string;
@@ -47,7 +47,7 @@ namespace Eddie.Core
 						Add(code, name);
 					}
 				}
-			}			
+			}
 		}
 
 		public static bool IsCountryCode(string code)
@@ -69,6 +69,6 @@ namespace Eddie.Core
 			Name2Code[name] = code.ToLowerInvariant();
 		}
 
-		
-    }
+
+	}
 }

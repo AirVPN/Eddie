@@ -1,6 +1,6 @@
 ﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
-// Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
 // Eddie is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,44 +35,44 @@ namespace Eddie.Core
 			Charts = new UI.Charts();
 
 
-			Add("ServerName", Messages.StatsServerName, "server");
-			Add("ServerLatency", Messages.StatsServerLatency, "server");
-			Add("ServerLocation", Messages.StatsServerLocation, "server");
-			Add("ServerLoad", Messages.StatsServerLoad, "server");
-			Add("ServerUsers", Messages.StatsServerUsers, "server");
-			Add("AccountLogin", Messages.StatsLogin, "session");
-			Add("AccountKey", Messages.StatsKey, "session");
-			Add("VpnSpeedDownload", Messages.StatsVpnSpeedDownload, "session");
-			Add("VpnSpeedUpload", Messages.StatsVpnSpeedUpload, "session");
-			Add("VpnStart", Messages.StatsVpnStart, "session");
-			Add("VpnTotalDownload", Messages.StatsVpnTotalDownload, "vpn");
-			Add("VpnTotalUpload", Messages.StatsVpnTotalUpload, "vpn");
-			Add("VpnEntryIP", Messages.StatsVpnEntryIP, "vpn");
-			Add("VpnExitIPv4", Messages.StatsVpnExitIPv4, "vpn");
-			Add("VpnExitIPv6", Messages.StatsVpnExitIPv6, "vpn");
-			Add("VpnProtocol", Messages.StatsVpnProtocol, "vpn");
-			Add("VpnPort", Messages.StatsVpnPort, "vpn");
-			Add("VpnRealIp", Messages.StatsVpnRealIp, "vpn");
-			Add("VpnIp", Messages.StatsVpnIp, "vpn");
-			Add("VpnDns", Messages.StatsVpnDns, "vpn");
-			Add("VpnInterface", Messages.StatsVpnInterface, "vpn");
-			Add("VpnGateway", Messages.StatsVpnGateway, "vpn");
-			Add("VpnCipher", Messages.StatsVpnCipher, "vpn");
-			Add("VpnControlChannel", Messages.StatsVpnControlChannel, "vpn");
-			Add("VpnGeneratedOVPN", Messages.StatsVpnGeneratedOVPN, "vpn", "view");
-			Add("VpnGeneratedOVPNPush", Messages.StatsVpnGeneratedOVPNPush, "vpn", "view");
-			Add("SessionStart", Messages.StatsSessionStart, "session");
-			Add("SessionTotalDownload", Messages.StatsSessionTotalDownload, "session");
-			Add("SessionTotalUpload", Messages.StatsSessionTotalUpload, "session");			
-			Add("Discovery", Messages.StatsDiscovery, "system", "Update");
-			Add("Pinger", Messages.StatsPinger, "system", "Update");
-			Add("SystemTimeServerDifference", Messages.StatsSystemTimeServerDifference, "system");
-			Add("PathProfile", Messages.StatsSystemPathProfile, "system", "Open");
-			Add("PathData", Messages.StatsSystemPathData, "system", "Open");
-			Add("PathApp", Messages.StatsSystemPathApp, "system", "Open");
+			Add("ServerName", LanguageManager.GetText("StatsServerName"), "server");
+			Add("ServerLatency", LanguageManager.GetText("StatsServerLatency"), "server");
+			Add("ServerLocation", LanguageManager.GetText("StatsServerLocation"), "server");
+			Add("ServerLoad", LanguageManager.GetText("StatsServerLoad"), "server");
+			Add("ServerUsers", LanguageManager.GetText("StatsServerUsers"), "server");
+			Add("AccountLogin", LanguageManager.GetText("StatsLogin"), "session");
+			Add("AccountKey", LanguageManager.GetText("StatsKey"), "session");
+			Add("VpnSpeedDownload", LanguageManager.GetText("StatsVpnSpeedDownload"), "session");
+			Add("VpnSpeedUpload", LanguageManager.GetText("StatsVpnSpeedUpload"), "session");
+			Add("VpnStart", LanguageManager.GetText("StatsVpnStart"), "session");
+			Add("VpnTotalDownload", LanguageManager.GetText("StatsVpnTotalDownload"), "vpn");
+			Add("VpnTotalUpload", LanguageManager.GetText("StatsVpnTotalUpload"), "vpn");
+			Add("VpnEntryIP", LanguageManager.GetText("StatsVpnEntryIP"), "vpn");
+			Add("VpnExitIPv4", LanguageManager.GetText("StatsVpnExitIPv4"), "vpn");
+			Add("VpnExitIPv6", LanguageManager.GetText("StatsVpnExitIPv6"), "vpn");
+			Add("VpnProtocol", LanguageManager.GetText("StatsVpnProtocol"), "vpn");
+			Add("VpnPort", LanguageManager.GetText("StatsVpnPort"), "vpn");
+			Add("VpnRealIp", LanguageManager.GetText("StatsVpnRealIp"), "vpn");
+			Add("VpnIp", LanguageManager.GetText("StatsVpnIp"), "vpn");
+			Add("VpnDns", LanguageManager.GetText("StatsVpnDns"), "vpn");
+			Add("VpnInterface", LanguageManager.GetText("StatsVpnInterface"), "vpn");
+			Add("VpnGateway", LanguageManager.GetText("StatsVpnGateway"), "vpn");
+			Add("VpnCipher", LanguageManager.GetText("StatsVpnCipher"), "vpn");
+			Add("VpnControlChannel", LanguageManager.GetText("StatsVpnControlChannel"), "vpn");
+			Add("VpnGeneratedOVPN", LanguageManager.GetText("StatsVpnGeneratedOVPN"), "vpn", "view");
+			Add("VpnGeneratedOVPNPush", LanguageManager.GetText("StatsVpnGeneratedOVPNPush"), "vpn", "view");
+			Add("SessionStart", LanguageManager.GetText("StatsSessionStart"), "session");
+			Add("SessionTotalDownload", LanguageManager.GetText("StatsSessionTotalDownload"), "session");
+			Add("SessionTotalUpload", LanguageManager.GetText("StatsSessionTotalUpload"), "session");			
+			Add("Discovery", LanguageManager.GetText("StatsDiscovery"), "system", "Update");
+			Add("Pinger", LanguageManager.GetText("StatsPinger"), "system", "Update");
+			Add("SystemTimeServerDifference", LanguageManager.GetText("StatsSystemTimeServerDifference"), "system");
+			Add("PathProfile", LanguageManager.GetText("StatsSystemPathProfile"), "system", "Open");
+			Add("PathData", LanguageManager.GetText("StatsSystemPathData"), "system", "Open");
+			Add("PathApp", LanguageManager.GetText("StatsSystemPathApp"), "system", "Open");
 
-			UpdateValue("PathProfile", Engine.Instance.Storage.GetProfilePath());
-			UpdateValue("PathData", Engine.Instance.Storage.GetDataPath());
+			UpdateValue("PathProfile", Engine.Instance.GetProfilePath());
+			UpdateValue("PathData", Engine.Instance.GetDataPath());
 			UpdateValue("PathApp", Platform.Instance.GetApplicationPath());
 		}
 
