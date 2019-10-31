@@ -22,7 +22,6 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Platform.MacOS
 {

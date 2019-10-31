@@ -23,7 +23,6 @@ using System.Threading;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using Eddie.Common;
 using Eddie.Core;
 
 //using ExceptionReporting;

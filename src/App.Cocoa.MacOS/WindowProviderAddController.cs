@@ -22,7 +22,6 @@ using System.Linq;
 using System.Xml;
 using Foundation;
 using AppKit;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -84,10 +83,10 @@ namespace Eddie.UI.Cocoa.Osx
 			CboProvider.RemoveAllItems();
 			foreach (XmlElement xmlProvider in xmlData.ChildNodes)
 			{
-				string code = UtilsXml.XmlGetAttributeString(xmlProvider, "code", "");
-				string t = UtilsXml.XmlGetAttributeString(xmlProvider, "title", "");
-				t += " - " + UtilsXml.XmlGetAttributeString(xmlProvider, "subtitle", "");
-				t += " - " + UtilsXml.XmlGetAttributeString(xmlProvider, "href", "");
+				string code = xmlProvider.GetAttributeString("code", "");
+				string t = xmlProvider.GetAttributeString("title", "");
+				t += " - " + xmlProvider.GetAttributeString("subtitle", "");
+				t += " - " + xmlProvider.GetAttributeString("href", "");
 				CboProvider.AddItem(t);
 				m_choices.Add(code);
 			}

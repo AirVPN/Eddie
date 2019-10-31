@@ -46,10 +46,10 @@ if [ $PROJECT = "ui" ]; then
 fi
 
 # Adapt Elevated
-# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated.C/common.cpp' source for details
+# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated.C/ibase.cpp' source for details
 
 OPENVPNPATH="${BASEPATH}/../deploy/linux_${ARCH}/openvpn"
-ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated.C/common.cpp
+ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated.C/ibase.cpp
 
 COMPUTEHASH=$(sha256sum "${OPENVPNPATH}");
 COMPUTEHASH=${COMPUTEHASH%% *}

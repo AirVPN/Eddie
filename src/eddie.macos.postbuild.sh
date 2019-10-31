@@ -74,10 +74,10 @@ fi
 
 
 # Adapt Elevated
-# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated.C/common.cpp' source for details
+# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated.C/ibase.cpp' source for details
 
 OPENVPNPATH="${BASEPATH}/../deploy/macos_${ARCH}/openvpn"
-ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated.C/common.cpp
+ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated.C/ibase.cpp
 
 COMPUTEHASH=$(openssl dgst -sha256 "${OPENVPNPATH}");
 COMPUTEHASH=$(echo $COMPUTEHASH | cut -d "=" -f 2 | awk '{print $1}') # Remember: test with openvpn path with whitespace

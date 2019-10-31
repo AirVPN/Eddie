@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
+#pragma warning disable CA1060 // Because it is a P/Invoke method, 'NativeReplacements.WindowsGetFocus()' should be defined in a class named NativeMethods, SafeNativeMethods, or UnsafeNativeMethods.Lib.Forms
+
 namespace Eddie.Forms.Mono
 {
 	public static class NativeReplacements

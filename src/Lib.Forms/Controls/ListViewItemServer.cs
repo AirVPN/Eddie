@@ -79,13 +79,13 @@ namespace Eddie.Forms.Controls
 			int stateImageIndex = 2;
 			switch (Info.UserList)
 			{
-				case ConnectionInfo.UserListType.WhiteList:
+				case ConnectionInfo.UserListType.Whitelist:
 					{
 						foreColor = Color.DarkGreen;
 						stateImageIndex = 0;
 					}
 					break;
-				case ConnectionInfo.UserListType.BlackList:
+				case ConnectionInfo.UserListType.Blacklist:
 					{
 						foreColor = Color.DarkRed;
 						stateImageIndex = 1;

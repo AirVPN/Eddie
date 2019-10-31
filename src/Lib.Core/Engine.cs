@@ -28,7 +28,6 @@ using System.Web;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -58,7 +57,7 @@ namespace Eddie.Core
 		private LogsManager m_logsManager;
 		private JobsManager m_jobsManager;
 		private NetworkLockManager m_networkLockManager;
-		private WebServer m_webServer;
+		private Webserver m_webserver;
 		private ElevatedProcess m_elevated;
 
 
@@ -175,11 +174,11 @@ namespace Eddie.Core
 			}
 		}
 
-		public WebServer WebServer
+		public Webserver Webserver
 		{
 			get
 			{
-				return m_webServer;
+				return m_webserver;
 			}
 		}
 
@@ -378,14 +377,14 @@ namespace Eddie.Core
 					}
 				}
 
-				if (WebServer.GetPath() != "")
+				if (Webserver.GetPath() != "")
 				{
 					if (Storage.GetBool("webui.enabled") == true)
 					{
 						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingWebserver"));
 
-						m_webServer = new WebServer();
-						m_webServer.Start();
+						m_webserver = new Webserver();
+						m_webserver.Start();
 					}
 				}
                 				
@@ -602,10 +601,10 @@ namespace Eddie.Core
 				m_networkLockManager = null;
 			}
 
-			if (m_webServer != null)
+			if (m_webserver != null)
 			{
-				m_webServer.Stop();
-				m_webServer = null;
+				m_webserver.Stop();
+				m_webserver = null;
 			}
 
 			TemporaryFiles.Clean();
@@ -1046,13 +1045,13 @@ namespace Eddie.Core
 					*/
 					// 2.11.5
 					if (serversWhiteList.Contains(code))
-						infoConnection.UserList = ConnectionInfo.UserListType.WhiteList;
+						infoConnection.UserList = ConnectionInfo.UserListType.Whitelist;
 					else if (serversWhiteList.Contains(displayName))
-						infoConnection.UserList = ConnectionInfo.UserListType.WhiteList;
+						infoConnection.UserList = ConnectionInfo.UserListType.Whitelist;
 					else if (serversBlackList.Contains(code))
-						infoConnection.UserList = ConnectionInfo.UserListType.BlackList;
+						infoConnection.UserList = ConnectionInfo.UserListType.Blacklist;
 					else if (serversBlackList.Contains(displayName))
-						infoConnection.UserList = ConnectionInfo.UserListType.BlackList;
+						infoConnection.UserList = ConnectionInfo.UserListType.Blacklist;
 					else
 						infoConnection.UserList = ConnectionInfo.UserListType.None;
 				}
@@ -1166,14 +1165,17 @@ namespace Eddie.Core
 
 			if (mode == Core.Engine.RefreshUiMode.Full)
 			{
-				if (m_jobsManager.Latency != null)
+				if(m_jobsManager != null)
 				{
-					Stats.UpdateValue("Pinger", PingerStats().ToString());
-				}
-
-				if (m_jobsManager.Discover != null)
-				{
-					Stats.UpdateValue("Discovery", m_jobsManager.Discover.GetStatsString().ToString());
+					if (m_jobsManager.Latency != null)
+					{
+						Stats.UpdateValue("Pinger", PingerStats().ToString());
+					}
+					
+					if (m_jobsManager.Discover != null)
+					{
+						Stats.UpdateValue("Discovery", m_jobsManager.Discover.GetStatsString().ToString());
+					}					
 				}
 
 				if (Engine.IsConnected())
@@ -1340,7 +1342,7 @@ namespace Eddie.Core
 				bool existsWhiteListServers = false;
 				foreach (ConnectionInfo server in m_connections.Values)
 				{
-					if (server.UserList == ConnectionInfo.UserListType.WhiteList)
+					if (server.UserList == ConnectionInfo.UserListType.Whitelist)
 					{
 						existsWhiteListServers = true;
 						break;
@@ -1348,7 +1350,7 @@ namespace Eddie.Core
 				}
 				foreach (AreaInfo area in m_areas.Values)
 				{
-					if (area.UserList == AreaInfo.UserListType.WhiteList)
+					if (area.UserList == AreaInfo.UserListType.Whitelist)
 					{
 						existsWhiteListAreas = true;
 						break;
@@ -1377,17 +1379,17 @@ namespace Eddie.Core
 						if (m_areas.ContainsKey(server.CountryCode))
 							countryUserList = m_areas[server.CountryCode].UserList;
 
-						if (serverUserList == ConnectionInfo.UserListType.BlackList)
+						if (serverUserList == ConnectionInfo.UserListType.Blacklist)
 						{
 							skip = true;
 						}
-						else if (serverUserList == ConnectionInfo.UserListType.WhiteList)
+						else if (serverUserList == ConnectionInfo.UserListType.Whitelist)
 						{
 							skip = false;
 						}
 						else
 						{
-							if (countryUserList == AreaInfo.UserListType.BlackList)
+							if (countryUserList == AreaInfo.UserListType.Blacklist)
 							{
 								skip = true;
 							}
@@ -1399,7 +1401,7 @@ namespace Eddie.Core
 							{
 								skip = true;
 							}
-							else if (countryUserList == AreaInfo.UserListType.WhiteList)
+							else if (countryUserList == AreaInfo.UserListType.Whitelist)
 							{
 								skip = false;
 							}
@@ -1576,7 +1578,7 @@ namespace Eddie.Core
 			try
 			{
 				XmlDocument xmlDoc = AirVPN.Fetch(LanguageManager.GetText("AuthorizeLogin"), parameters);
-				string userMessage = UtilsXml.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+				string userMessage = xmlDoc.DocumentElement.GetAttributeString("message", "");
 
 				if (userMessage != "")
 				{
@@ -1809,9 +1811,9 @@ namespace Eddie.Core
 				{
 					string code = infoArea.Code;
 					if (areasWhiteList.Contains(code))
-						infoArea.UserList = AreaInfo.UserListType.WhiteList;
+						infoArea.UserList = AreaInfo.UserListType.Whitelist;
 					else if (areasBlackList.Contains(code))
-						infoArea.UserList = AreaInfo.UserListType.BlackList;
+						infoArea.UserList = AreaInfo.UserListType.Blacklist;
 					else
 						infoArea.UserList = AreaInfo.UserListType.None;
 				}
@@ -1823,9 +1825,9 @@ namespace Eddie.Core
 			List<string> connectionsWhiteList = new List<string>();
 			List<string> connectionsBlackList = new List<string>();
 			foreach (ConnectionInfo info in m_connections.Values)
-				if (info.UserList == ConnectionInfo.UserListType.WhiteList)
+				if (info.UserList == ConnectionInfo.UserListType.Whitelist)
 					connectionsWhiteList.Add(info.Code);
-				else if (info.UserList == ConnectionInfo.UserListType.BlackList)
+				else if (info.UserList == ConnectionInfo.UserListType.Blacklist)
 					connectionsBlackList.Add(info.Code);
 			Storage.SetList("servers.whitelist", connectionsWhiteList);
 			Storage.SetList("servers.blacklist", connectionsBlackList);
@@ -1833,9 +1835,9 @@ namespace Eddie.Core
 			List<string> areasWhiteList = new List<string>();
 			List<string> areasBlackList = new List<string>();
 			foreach (AreaInfo info in m_areas.Values)
-				if (info.UserList == AreaInfo.UserListType.WhiteList)
+				if (info.UserList == AreaInfo.UserListType.Whitelist)
 					areasWhiteList.Add(info.Code);
-				else if (info.UserList == AreaInfo.UserListType.BlackList)
+				else if (info.UserList == AreaInfo.UserListType.Blacklist)
 					areasBlackList.Add(info.Code);
 			Storage.SetList("areas.whitelist", areasWhiteList);
 			Storage.SetList("areas.blacklist", areasBlackList);
@@ -2030,8 +2032,8 @@ namespace Eddie.Core
 
 				Json jUI = new Json();
 				Manifest["ui"].Value = jUI;
-				if (m_webServer != null)
-					jUI["url"].Value = m_webServer.ListenUrl;
+				if (m_webserver != null)
+					jUI["url"].Value = m_webserver.ListenUrl;
 
 				Manifest["languages"].Value = LanguageManager.ExportManifest();
 

@@ -19,11 +19,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core.ConsoleEdition
 {
-    public class UiClient : Common.UiClient
+    public class UiClient : Core.UiClient
     {
 		public static UiClient Instance;
 

@@ -22,7 +22,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -141,19 +140,19 @@ namespace Eddie.Core
 			XmlDocument xmlDoc = new XmlDocument();
 			xmlDoc.LoadXml(xml);
 
-			string code = UtilsXml.XmlGetAttributeString(xmlDoc.DocumentElement, "code", "");
+			string code = xmlDoc.DocumentElement.GetAttributeString("code", "");
 
 			Definitions[code] = xmlDoc;
 		}
 
 		public XmlElement GetDataAddProviders()
 		{
-			XmlElement xmlData = UtilsXml.XmlCreateElement("data");
+			XmlElement xmlData = ExtensionsXml.XmlCreateElement("data");
 
 			foreach (KeyValuePair<string, XmlDocument> providerDefinition in Definitions)
 			{
 				string code = providerDefinition.Key;
-				string providerClass = UtilsXml.XmlGetAttributeString(providerDefinition.Value.DocumentElement, "class", "");
+				string providerClass = providerDefinition.Value.DocumentElement.GetAttributeString("class", "");
 				if (providerClass == "service") // Only one instance
 				{
 					if (ExistsProvider(code))
@@ -181,7 +180,7 @@ namespace Eddie.Core
 
 			XmlDocument xmlDefiniton = Definitions[providerCode];
 
-			string providerClass = UtilsXml.XmlGetAttributeString(xmlDefiniton.DocumentElement, "class", "");
+			string providerClass = xmlDefiniton.DocumentElement.GetAttributeString("class", "");
 
 			Provider provider = null;
 

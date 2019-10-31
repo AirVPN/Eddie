@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -69,8 +68,8 @@ namespace Eddie.Core
 		public enum UserListType
 		{
 			None = 0,
-			WhiteList = 1,
-			BlackList = 2
+			Whitelist = 1,
+			Blacklist = 2
 		}
 
 		public UserListType UserList = UserListType.None;
@@ -510,7 +509,7 @@ namespace Eddie.Core
 				ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
 			}
 
-			if (Common.Constants.FeatureIPv6ControlOptions)
+			if (Constants.FeatureIPv6ControlOptions)
 			{
 				if (s.GetLower("network.ipv4.mode") == "in")
 				{
@@ -612,7 +611,7 @@ namespace Eddie.Core
 
 						// 2.9, this is used by Linux resolv-conf DNS method. Need because route-nopull also filter pushed dhcp-option.
 						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN <2.4.
-						ovpn.AppendDirective("dhcp-option", "DNS " + Common.Constants.DnsVpn, "");
+						ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
 					}
 				}
 			}
@@ -650,7 +649,7 @@ namespace Eddie.Core
 
 						// 2.9, this is used by Linux resolv-conf DNS method. Need because route-nopull also filter pushed dhcp-option.
 						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN <2.4.
-						ovpn.AppendDirective("dhcp-option", "DNS " + Common.Constants.DnsVpn, "");
+						ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
 					}
 				}
 			}
@@ -694,7 +693,7 @@ namespace Eddie.Core
 						if ((layerIn == true) && (action == "out"))
 							gateway = "net_gateway";
 						if (gateway != "")
-							connectionActive.AddRoute(ip, gateway, (notes != "") ? UtilsString.StringSafe(notes) : ipCustomRoute);
+							connectionActive.AddRoute(ip, gateway, (notes != "") ? notes.Safe() : ipCustomRoute);
 					}
 				}
 			}
@@ -748,7 +747,7 @@ namespace Eddie.Core
 				else
 				{
 					// We never find a better method to manage IPv6 route via OpenVPN, at least <2.4.4
-					ovpn.AppendDirective("route", route.Address.ToOpenVPN() + " " + route.Gateway, UtilsString.StringSafe(route.Notes));
+					ovpn.AppendDirective("route", route.Address.ToOpenVPN() + " " + route.Gateway, route.Notes.Safe());
 				}
 			}
 

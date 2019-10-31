@@ -23,11 +23,10 @@ using System.Threading;
 using System.Text;
 using System.IO;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
-	public class WebServerClient : Common.UiClient
+	public class WebserverClient : Core.UiClient
 	{
 		public List<Json> Pendings = new List<Json>();
 

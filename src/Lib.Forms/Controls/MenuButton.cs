@@ -67,7 +67,7 @@ namespace Eddie.Forms.Controls
 			}            
         }
 
-        protected override void OnPaint(PaintEventArgs pevent)
+        protected override void OnPaint(PaintEventArgs e)
         {
             //base.OnPaint(pevent);
 			
@@ -79,7 +79,7 @@ namespace Eddie.Forms.Controls
 			else
 				img = GuiUtils.GetResourceImage("topbar_logo");
 
-			Form.DrawImage(pevent.Graphics, img, r);
+			Form.DrawImage(e.Graphics, img, r);
         }
     }
 }

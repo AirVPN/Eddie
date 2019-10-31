@@ -20,7 +20,7 @@ echo Project: %project%
 echo Arch: %arch%
 echo Config: %config%
 
-copy "%basepath%\..\deploy\windows_%arch%\Lib.Platform.Windows.Native.dll" "%targetdir%" /Y /V
+copy "%basepath%\..\deploy\windows-10_%arch%\Lib.Platform.Windows.Native.dll" "%targetdir%" /Y /V
 copy "%basepath%\Lib.Platform.Windows.Elevated\bin\%arch%\%config%\Lib.Platform.Windows.Elevated.dll" "%targetdir%\Lib.Platform.Windows.Elevated.dll" /Y /V
 copy "%basepath%\App.CLI.Windows.Elevated\bin\%arch%\%config%\App.CLI.Windows.Elevated.exe" "%targetdir%\Eddie-CLI-Elevated.exe" /Y /V
 copy "%basepath%\App.Service.Windows.Elevated\bin\%arch%\%config%\App.Service.Windows.Elevated.exe" "%targetdir%\Eddie-Service-Elevated.exe" /Y /V

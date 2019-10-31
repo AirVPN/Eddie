@@ -22,7 +22,6 @@ using System.Reflection;
 using Foundation;
 using AppKit;
 using ObjCRuntime;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx

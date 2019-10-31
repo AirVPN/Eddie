@@ -14,8 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Platform.Windows", "Lib
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Forms.Windows", "App.Forms.Windows\App.Forms.Windows.csproj", "{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Common", "Lib.Common\Lib.Common.csproj", "{9731FF8C-703E-4132-9427-5B410CF8E382}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.CLI.Windows.Elevated", "App.CLI.Windows.Elevated\App.CLI.Windows.Elevated.csproj", "{0DF1C67F-AC66-4383-9EB4-B75307893A3F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Checking", "Checking\Checking.csproj", "{0D04723C-3C9E-4D17-8373-6B70124CC31A}"
@@ -84,16 +82,6 @@ Global
 		{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}.Release|x64.Build.0 = Release|x64
 		{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}.Release|x86.ActiveCfg = Release|x86
 		{13F0D841-B93D-4AFA-AB06-FA2FEE6A9DE7}.Release|x86.Build.0 = Release|x86
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Debug|x64.ActiveCfg = Debug|x64
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Debug|x64.Build.0 = Debug|x64
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Debug|x86.ActiveCfg = Debug|x86
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Debug|x86.Build.0 = Debug|x86
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|Any CPU.ActiveCfg = Release|x86
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x64.ActiveCfg = Release|x64
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x64.Build.0 = Release|x64
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x86.ActiveCfg = Release|x86
-		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x86.Build.0 = Release|x86
 		{0DF1C67F-AC66-4383-9EB4-B75307893A3F}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{0DF1C67F-AC66-4383-9EB4-B75307893A3F}.Debug|x64.ActiveCfg = Debug|x64
 		{0DF1C67F-AC66-4383-9EB4-B75307893A3F}.Debug|x64.Build.0 = Debug|x64

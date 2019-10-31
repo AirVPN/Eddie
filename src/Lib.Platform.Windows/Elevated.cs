@@ -29,7 +29,6 @@ using System.Xml;
 using System.Text;
 using System.Threading;
 using Eddie.Core;
-using Eddie.Common;
 using Microsoft.Win32;
 using System.IO.MemoryMappedFiles;
 using System.Net.Sockets;

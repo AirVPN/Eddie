@@ -5,6 +5,8 @@ namespace Eddie.Forms.Mono
 {
 	public static class NativeX11Methods
 	{
+		#pragma warning disable CA1049
+
 		#region Native datatypes
 		public enum RevertTo
 		{

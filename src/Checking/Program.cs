@@ -26,7 +26,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Checking
 {

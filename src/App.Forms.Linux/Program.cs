@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
-using Eddie.Common;
 using Eddie.Core;
 using Eddie.Forms;
 
@@ -40,8 +39,8 @@ namespace Eddie.Forms.Linux
 		{
 			try
 			{
-				//Application.EnableVisualStyles();
-				System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+                //Application.EnableVisualStyles();
+                System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
 				Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
 				//Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException); // Mono Not Supported

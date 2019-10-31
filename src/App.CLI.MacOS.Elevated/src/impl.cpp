@@ -90,7 +90,7 @@ int Impl::Main(int argc, char* argv[])
     }
     else
     {
-        return Common::Main(argc, argv);
+        return IPosix::Main(argc, argv);
     }
 }
 
@@ -436,14 +436,14 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else
 	{
-		Common::Do(commandId, command, params);
+		IPosix::Do(commandId, command, params);
 	}
 }
 
-bool Impl::CheckIfClientPathIsAllowed(const std::string& path)
+std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 {
 #ifdef Debug
-    return true;
+    return "ok";
 #else
     std::string localPath = GetProcessPathCurrent();
     std::string remotePath = path;
@@ -461,7 +461,7 @@ bool Impl::CheckIfClientPathIsAllowed(const std::string& path)
         if(verifyResult.exit != 0)
         {
             LogLocal("Remote executable '" + remotePath + "' not signed");
-            return false;
+            return "Remote executable '" + remotePath + "' not signed";
         }
     }
     
@@ -471,7 +471,7 @@ bool Impl::CheckIfClientPathIsAllowed(const std::string& path)
         if(infoLocal.exit != 0)
         {
             LogLocal("Unable to obtain signature of local");
-            return false;
+            return "Unable to obtain signature of local";
         }
         std::string infoLocalFiltered = "";
         std::vector<std::string> infoLocalLines = StringToVector(infoLocal.out, '\n');
@@ -486,7 +486,7 @@ bool Impl::CheckIfClientPathIsAllowed(const std::string& path)
         if(infoRemote.exit != 0)
         {
             LogLocal("Unable to obtain signature of remote");
-            return false;
+            return "Unable to obtain signature of remote";
         }
         std::string infoRemoteFiltered = "";
         std::vector<std::string> infoRemoteLines = StringToVector(infoRemote.out, '\n');
@@ -500,11 +500,11 @@ bool Impl::CheckIfClientPathIsAllowed(const std::string& path)
         if(infoLocalFiltered != infoRemoteFiltered)
         {
             LogLocal("Remote Authority informations don't match");
-            return false;
+            return "Remote Authority informations don't match";
         }
     }
     
-    return true;
+    return "ok";
 #endif
 }
 

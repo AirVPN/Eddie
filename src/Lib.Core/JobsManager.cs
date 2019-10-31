@@ -26,7 +26,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Xml;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {

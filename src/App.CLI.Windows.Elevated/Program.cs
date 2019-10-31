@@ -50,7 +50,8 @@ namespace App.CLI.Windows.Elevated
 			{
 				string path = AppDomain.CurrentDomain.BaseDirectory + "Eddie-Service-Elevated.exe";
 
-				Utils.Shell("sc", "create \"" + ServiceName + "\" start=auto binpath=\"" + path + "\"");
+				//Utils.Shell("sc", "create \"" + ServiceName + "\" start=auto binpath=\"" + path + "\""); // Syntax accepted in Win10
+				Utils.Shell("sc", "create \"" + ServiceName + "\" binpath= \"" + path + "\" start= auto"); // Syntax accepted in Win10 and Win7
 				Utils.Shell("net", "start \"" + ServiceName + "\"");
 			}
 			else if(action == "service-uninstall")

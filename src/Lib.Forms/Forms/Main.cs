@@ -29,7 +29,6 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using System.Xml;
-using Eddie.Common;
 using Eddie.Core;
 using Eddie.Forms.Controls;
 
@@ -257,7 +256,7 @@ namespace Eddie.Forms.Forms
 				m_lblVersion.BackColor = Color.Transparent;
 				m_lblVersion.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
 				m_lblVersion.Height = 24;
-				m_lblVersion.Text = "Version " + Common.Constants.VersionShow;
+				m_lblVersion.Text = "Version " + Constants.VersionShow;
 				m_lblVersion.TextAlign = ContentAlignment.MiddleCenter;
 				m_lblVersion.Click += mnuAbout_Click;
 				m_tabMain.Controls.Add(m_lblVersion);
@@ -370,7 +369,7 @@ namespace Eddie.Forms.Forms
 			bool forceMaximized = false;
 			if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Maximized))
 				forceMaximized = true;
-			SetFormLayout(Engine.Storage.Get("gui.window.main"), forceMinimized, forceMaximized, Engine.AllowMinimizeInTray(), new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+			SetFormLayout(Engine.Storage.Get("gui.window.main"), forceMinimized, forceMaximized, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
 			m_listViewServers.SetUserPrefs(Engine.Storage.Get("gui.list.servers"));
 			m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
 			lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
@@ -933,7 +932,7 @@ namespace Eddie.Forms.Forms
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
-				item.Info.UserList = ConnectionInfo.UserListType.WhiteList;
+				item.Info.UserList = ConnectionInfo.UserListType.Whitelist;
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
@@ -945,7 +944,7 @@ namespace Eddie.Forms.Forms
 		{
 			foreach (ListViewItemServer item in m_listViewServers.SelectedItems)
 			{
-				item.Info.UserList = ConnectionInfo.UserListType.BlackList;
+				item.Info.UserList = ConnectionInfo.UserListType.Blacklist;
 			}
 			Engine.UpdateSettings();
 			DeselectServersListItem();
@@ -1035,7 +1034,7 @@ namespace Eddie.Forms.Forms
 		{
 			foreach (ListViewItemArea item in m_listViewAreas.SelectedItems)
 			{
-				item.Info.UserList = AreaInfo.UserListType.WhiteList;
+				item.Info.UserList = AreaInfo.UserListType.Whitelist;
 			}
 			Engine.UpdateSettings();
 			//m_listViewAreas.UpdateList();
@@ -1047,7 +1046,7 @@ namespace Eddie.Forms.Forms
 		{
 			foreach (ListViewItemArea item in m_listViewAreas.SelectedItems)
 			{
-				item.Info.UserList = AreaInfo.UserListType.BlackList;
+				item.Info.UserList = AreaInfo.UserListType.Blacklist;
 			}
 			Engine.UpdateSettings();
 			//m_listViewAreas.UpdateList();

@@ -93,6 +93,7 @@
 			this.Controls.Add(this.cmdClose);
 			this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.Name = "FrontMessage";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "FrontMessage";
 			this.ResumeLayout(false);
 

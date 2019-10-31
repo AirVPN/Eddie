@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -54,7 +53,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeString(Definition, "code", "");
+				return Definition.GetAttributeString("code", "");
 			}
 		}
 
@@ -62,7 +61,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeString(Definition, "title", "");
+				return Definition.GetAttributeString("title", "");
 			}
 		}
 
@@ -70,7 +69,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeString(Definition, "subtitle", "");
+				return Definition.GetAttributeString("subtitle", "");
 			}
 		}
 
@@ -78,7 +77,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeString(Definition, "href", "");
+				return Definition.GetAttributeString("href", "");
 			}
 		}
 
@@ -86,11 +85,11 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "id", "");
+				return Storage.DocumentElement.GetAttributeString("id", "");
 			}
 			set
 			{
-				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "id", value);
+				Storage.DocumentElement.SetAttributeString("id", value);
 			}
 		}
 
@@ -98,11 +97,11 @@ namespace Eddie.Core
         {
             get
             {
-                return UtilsXml.XmlGetAttributeBool(Storage.DocumentElement, "enabled", GetEnabledByDefault());                
+                return Storage.DocumentElement.GetAttributeBool("enabled", GetEnabledByDefault());                
             }
             set
             {
-                UtilsXml.XmlSetAttributeBool(Storage.DocumentElement, "enabled", value);
+                Storage.DocumentElement.SetAttributeBool("enabled", value);
             }
         }
 
@@ -110,11 +109,11 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeInt(Storage.DocumentElement, "refresh_interval", -1);
+				return Storage.DocumentElement.GetAttributeInt("refresh_interval", -1);
 			}
 			set
 			{
-				UtilsXml.XmlSetAttributeInt(Storage.DocumentElement, "refresh_interval", -1);
+				Storage.DocumentElement.SetAttributeInt("refresh_interval", value);
 			}
 		}
 
@@ -122,14 +121,14 @@ namespace Eddie.Core
         {
             get
             {
-				string title = UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "title", "");
+				string title = Storage.DocumentElement.GetAttributeString("title", "");
 				if (title == "")
-					title = UtilsXml.XmlGetAttributeString(Definition, "title", "");
+					title = Definition.GetAttributeString("title", "");
 				return title;
             }
 			set
 			{
-				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "title", value);
+				Storage.DocumentElement.SetAttributeString("title", value);
 			}
         }
 
@@ -152,11 +151,11 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "login", "");
+				return Storage.DocumentElement.GetAttributeString("login", "");
 			}
 			set
 			{
-				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "login", value);
+				Storage.DocumentElement.SetAttributeString("login", value);
 			}
 		}
 
@@ -164,11 +163,11 @@ namespace Eddie.Core
 		{
 			get
 			{
-				return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+				return Storage.DocumentElement.GetAttributeString("password", "");
 			}
 			set
 			{
-				UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "password", value);
+				Storage.DocumentElement.SetAttributeString("password", value);
 			}
 		}
 
@@ -274,8 +273,8 @@ namespace Eddie.Core
 		public virtual void ClearCredentials()
 		{
 			m_runCredentials = null;
-			UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "login", "");
-			UtilsXml.XmlSetAttributeString(Storage.DocumentElement, "password", "");
+			Storage.DocumentElement.SetAttributeString("login", "");
+			Storage.DocumentElement.SetAttributeString("password", "");
 		}
 
 		public virtual bool ApplyCredentials(ConnectionActive connectionActive)
@@ -291,7 +290,7 @@ namespace Eddie.Core
 
 					if (m_runCredentials != null)
 					{
-						username = m_runCredentials.Username;
+						username = m_runCredentials.UserName;
 						password = m_runCredentials.Password;
 					}
 
@@ -309,7 +308,7 @@ namespace Eddie.Core
 						if( (credentials == null) || (credentials.IsFilled == false) )
 							return false;
 
-						username = credentials.Username;
+						username = credentials.UserName;
 						password = credentials.Password;
 
 						if (credentials.Remember == "run")
@@ -333,13 +332,13 @@ namespace Eddie.Core
 		// Used for directive auth-user-pass
 		public virtual string GetUsername()
         {
-            return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "login", "");
+            return Storage.DocumentElement.GetAttributeString("login", "");
         }
 
         // Used for directive auth-user-pass
         public virtual string GetPassword()
         {
-            return UtilsXml.XmlGetAttributeString(Storage.DocumentElement, "password", "");
+            return Storage.DocumentElement.GetAttributeString("password", "");
         }
 
         public virtual string GetSshKey(string format)

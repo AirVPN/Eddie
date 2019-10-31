@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {

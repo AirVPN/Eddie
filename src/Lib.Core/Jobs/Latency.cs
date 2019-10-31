@@ -23,7 +23,6 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using System.Text;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Core.Jobs
 {
@@ -141,7 +140,7 @@ namespace Eddie.Core.Jobs
 			{
 				canRun = false;
 			}
-			else if (Engine.Instance.IsWaiting() && (Engine.Instance.WaitMessage.StartsWith(LanguageManager.GetText("WaitingLatencyTestsTitle")) == false))
+			else if (Engine.Instance.IsWaiting() && (Engine.Instance.WaitMessage.StartsWithInv(LanguageManager.GetText("WaitingLatencyTestsTitle")) == false))
 				canRun = false;
 
 			return canRun;

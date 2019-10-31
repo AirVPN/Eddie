@@ -22,7 +22,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Forms.Forms
@@ -70,9 +69,7 @@ namespace Eddie.Forms.Forms
 
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)
 		{
-            //GuiUtils.OpenUrl(Message["url"].Value as string);
-            lnkWebsite.Left = 10;
-            lnkWebsite.Width = this.Width - 20;
+            GuiUtils.OpenUrl(Message["url"].Value as string);            
 		}
 
 		private void cmdClose_Click(object sender, EventArgs e)

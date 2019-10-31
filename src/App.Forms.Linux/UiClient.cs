@@ -24,7 +24,6 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Forms.Linux
 {

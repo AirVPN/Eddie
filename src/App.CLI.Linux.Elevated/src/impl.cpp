@@ -28,73 +28,95 @@
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal()
 
-
 int Impl::Main(int argc, char* argv[])
 {
     std::string serviceName = "eddie-elevated";
     std::string serviceDesc = "Eddie Elevation";
+    std::string systemdPath = "/usr/lib/systemd/system";
+    std::string systemdUnitName = serviceName + ".service";
+    std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
     
     signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
     signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
     
     prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
     
+    // fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "block");
+    
     if (argc != 2)
     {
         LogLocal("This application can't be run directly, it's used internally by Eddie.");
         return 1;
     }
-    else if (std::string(argv[1]) == "install")
+    else if (std::string(argv[1]) == "service-install")
     {
-		std::string path = GetProcessPathCurrent();        
+		std::string elevatedPath = GetProcessPathCurrent();
         
-        /*
-        LogLocal("Install");
-        LogLocal(path);
+        if(FileExists(systemdPath))
+        {
+            std::string unit = "";
+            unit += "[Unit]\n";
+            unit += "Description=" + serviceDesc + "\n";
+            unit += "Requires=network.target\n";
+            unit += "After=network.target\n";
+            unit += "\n";
+            unit += "[Service]\n";
+            unit += "Type=simple\n";
+            unit += "ExecStart=\"" + elevatedPath + "\" service\n";
+            unit += "Restart=always\n";
+            unit += "RestartSec=5s\n";
+            unit += "TimeoutStopSec=5s\n";
+            unit += "User=root\n";
+            unit += "Group=root\n";
+            unit += "\n";
+            unit += "[Install]\n";
+            unit += "WantedBy=multi-user.target\n";
+            
+            FileWriteText(systemdUnitPath, unit);
         
-        std::string sh = "";
-        sh += "#! /bin/bash\n";
-        sh += "### BEGIN INIT INFO\n";
-        sh += "# Provides:          " + serviceName + "\n";
-        sh += "# Required-Start:    $local_fs $network\n";
-        sh += "# Required-Stop:     $local_fs\n";
-        sh += "# Default-Start:     2 3 4 5\n";
-        sh += "# Default-Stop:      0 1 6\n";
-        sh += "# Short-Description: " + serviceName + " service\n";
-        sh += "# Description:       " + serviceDesc + "\n";
-        sh += "### END INIT INFO\n";
-        sh += "\n";
-        sh += "# Carry out specific functions when asked to by the system\n";
-        sh += "case \"$1\" in\n";
-        sh += "  start)\n";
-        sh += "    echo \"Starting " + serviceDesc + "...\"\n";
-        sh += "    sudo -u foo-user bash -c 'cd /path/to/scripts/ && ./start-foo.sh'\n";
-        sh += "    ;;\n";
-        sh += "  stop)\n";
-        sh += "    echo \"Stopping " + serviceDesc + "...\"\n";
-        sh += "    sudo -u foo-user bash -c 'cd /path/to/scripts/ && ./stop-foo.sh'\n";
-        sh += "    sleep 2\n";
-        sh += "    ;;\n";
-        sh += "  *)\n";
-        sh += "    echo \"Usage: /etc/init.d/" + serviceName + " {start|stop}\"\n";
-        sh += "    exit 1\n";
-        sh += "    ;;\n";
-        sh += "esac\n";
-        sh += "\n";
-        sh += "exit 0\n";
-        */
+            ShellResult enableResult = ShellEx2(LocateExecutable("systemctl"), "enable", systemdUnitName);        
+            if(enableResult.exit != 0)
+            {
+                LogLocal("Enable " + systemdUnitName + " failed");
+                return 1;
+            }
+            
+            ShellResult startResult = ShellEx2(LocateExecutable("systemctl"), "start", systemdUnitName);        
+            if(startResult.exit != 0)
+            {
+                LogLocal("Start " + systemdUnitName + " failed");
+                return 1;
+            }
+            
+            return 0;
+        }
+        else
+        {
+            LogLocal("Can't create service in this OS");
+        }
         
-        // TODO
         return 1;
     }
-    else if (std::string(argv[1]) == "uninstall")
+    else if (std::string(argv[1]) == "service-uninstall")
     {
-        // TODO
+        if(FileExists(systemdUnitPath))
+        {
+            ShellEx2(LocateExecutable("systemctl"), "stop", systemdUnitName);        
+            ShellEx2(LocateExecutable("systemctl"), "disable", systemdUnitName);        
+            FileDelete(systemdUnitPath);
+            
+            return 0;
+        }
+        else
+        {
+            LogLocal("Can't create service in this OS");
+        }
+        
         return 1;
     }
     else
     {
-        return Common::Main(argc, argv);
+        return IPosix::Main(argc, argv);
     }
 }
 
@@ -551,15 +573,15 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else
 	{
-		Common::Do(commandId, command, params);
+		IPosix::Do(commandId, command, params);
 	}
 }
 
-bool Impl::CheckIfClientPathIsAllowed(const std::string& path)
+std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 {
     // Missing under Linux: in other platform (Windows, macOS) check if signature of client match.
     // LocalLog("Checking if " + path + " is allowed");
-    return true;
+    return "ok";
 }
 
 std::string Impl::GetProcessPathCurrent()
@@ -590,6 +612,31 @@ std::string Impl::GetProcessPathOfID(int pid)
     else
     {
         std::string path = std::string(fullPath, length);
+        
+        /*
+        // Exception: If mono, detect Assembly
+        bool isMono = false;
+        std::string pathMono1 = LocateExecutable("mono");
+        if( (pathMono1 != "") && (StringStartsWith(path, pathMono1)) )
+            isMono = true;
+        std::string pathMono2 = LocateExecutable("mono-sgen");
+        if( (pathMono2 != "") && (StringStartsWith(path, pathMono2)) )
+            isMono = true;
+        if(isMono)
+        {
+            std::string procCmdLinePath = "/proc/" + std::to_string(pid) + "/cmdline";
+            if(FileExists(procCmdLinePath))
+            {
+                std::string cmdline = FileReadText(procCmdLinePath);
+                std::vector<std::string> args = StringToVector(cmdline, '\0', false);
+                // TOFIX: don't work, cmdline arguments are separated by null terminator.
+                for (std::vector<std::string>::const_iterator l = args.begin(); l != args.end(); ++l)
+                {
+                }
+            }
+        }
+        */
+        
         return path;
     }
 }

@@ -22,7 +22,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Core.Tools
 {
@@ -32,7 +31,7 @@ namespace Eddie.Core.Tools
 
 		public override void OnNormalizeVersion()
 		{
-			Version = UtilsString.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
+			Version = ExtensionsString.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
 		}
 
 		public override void ExceptionIfRequired()

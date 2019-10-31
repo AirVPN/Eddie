@@ -111,9 +111,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 			if (tableColumn.Identifier == "List")
 			{
-				if (s.UserList == ConnectionInfo.UserListType.WhiteList)
+				if (s.UserList == ConnectionInfo.UserListType.Whitelist)
 					return NSImage.ImageNamed("blacklist_0.png");
-				else if (s.UserList == ConnectionInfo.UserListType.BlackList)
+				else if (s.UserList == ConnectionInfo.UserListType.Blacklist)
 					return NSImage.ImageNamed("blacklist_1.png");
 				else
 					return NSImage.ImageNamed("blacklist_2.png");

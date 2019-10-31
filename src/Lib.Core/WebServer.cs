@@ -23,13 +23,12 @@ using System.Threading;
 using System.Text;
 using System.IO;
 using System.Xml;
-using Eddie.Common;
 
 // ClodoTemp: Missing feature, a token access
 
 namespace Eddie.Core
 {
-	public class WebServer
+	public class Webserver
 	{
 		public string ListenUrl;
 
@@ -37,7 +36,7 @@ namespace Eddie.Core
 
 		private List<Json> m_pullItems = new List<Json>();
 
-		private WebServerClient m_client = new WebServerClient();
+		private WebserverClient m_client = new WebserverClient();
 
 		public static string GetPath()
 		{

@@ -19,11 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Xml;
 using Foundation;
 using AppKit;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -728,7 +726,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			//not.Title = title;
 			//not.InformativeText = Eddie.Common.Constants.Name;
-            not.Title = Eddie.Common.Constants.Name + " " + Eddie.Common.Constants.VersionDesc;
+            not.Title = Eddie.Core.Constants.Name + " " + Eddie.Core.Constants.VersionDesc;
             not.InformativeText = title;
 			not.DeliveryDate = NSDate.Now;
 			not.SoundName = NSUserNotification.NSUserNotificationDefaultSoundName;
@@ -1080,7 +1078,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach (int i in TableServers.SelectedRows)
 			{
-				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.WhiteList;
+				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.Whitelist;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI();
@@ -1090,7 +1088,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach (int i in TableServers.SelectedRows)
 			{
-				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.BlackList;
+				TableServersController.GetRelatedItem(i).UserList = ConnectionInfo.UserListType.Blacklist;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI();
@@ -1154,7 +1152,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach (int i in TableAreas.SelectedRows)
 			{
-				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.WhiteList;
+				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.Whitelist;
 			}
 			Engine.UpdateSettings();
 			TableServersController.RefreshUI();
@@ -1164,7 +1162,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach (int i in TableAreas.SelectedRows)
 			{
-				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.BlackList;
+				TableAreasController.GetRelatedItem(i).UserList = AreaInfo.UserListType.Blacklist;
 			}
 			Engine.UpdateSettings();
 			TableAreasController.RefreshUI();

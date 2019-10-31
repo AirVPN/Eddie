@@ -27,11 +27,10 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
-	public class UtilsCore
+	public static class UtilsCore
 	{
 		public static string GetTempPath()
 		{
@@ -59,7 +58,7 @@ namespace Eddie.Core
 			{
 				byte[] bytes = Sha256.ComputeHash(stream);
 
-				return UtilsString.BytesToHex(bytes);
+				return ExtensionsString.BytesToHex(bytes);
 			}
 		}
 
@@ -68,7 +67,7 @@ namespace Eddie.Core
 			string output = "";
 			foreach (KeyValuePair<string, string> kp in assoc)
 			{
-				output += UtilsString.Base64Encode(UtilsString.StringToUtf8Bytes(kp.Key)) + ":" + UtilsString.Base64Encode(UtilsString.StringToUtf8Bytes(kp.Value)) + "\n";
+				output += ExtensionsString.Base64Encode(kp.Key.GetUtf8Bytes()) + ":" + ExtensionsString.Base64Encode(kp.Value.GetUtf8Bytes()) + "\n";
 			}
 			return System.Text.Encoding.UTF8.GetBytes(output);
 		}
@@ -78,7 +77,7 @@ namespace Eddie.Core
 			string output = "";
 			foreach (KeyValuePair<string, byte[]> kp in assoc)
 			{
-				output += UtilsString.Base64Encode(UtilsString.StringToUtf8Bytes(kp.Key)) + ":" + UtilsString.Base64Encode(kp.Value) + "\n";
+				output += ExtensionsString.Base64Encode(kp.Key.GetUtf8Bytes()) + ":" + ExtensionsString.Base64Encode(kp.Value) + "\n";
 			}
 			return System.Text.Encoding.UTF8.GetBytes(output);
 		}
@@ -114,8 +113,8 @@ namespace Eddie.Core
 		public static int CompareVersions(string v1, string v2)
         { 
             // Normalize. Output can look strange, but has it's logic :P
-            v1 = UtilsString.StringPruneCharsNotIn(v1.Replace(" ", ".").Replace(",", ".").Replace("_", ".").Replace("-", "."), "0123456789.");
-            v2 = UtilsString.StringPruneCharsNotIn(v2.Replace(" ", ".").Replace(", ", ".").Replace("_", ".").Replace("-", "."), "0123456789.");
+            v1 = v1.Replace(" ", ".").Replace(",", ".").Replace("_", ".").Replace("-", ".").PruneCharsNotIn("0123456789.");
+            v2 = v2.Replace(" ", ".").Replace(", ", ".").Replace("_", ".").Replace("-", ".").PruneCharsNotIn("0123456789.");
 
             char[] splitTokens = new char[] { '.', ',' };
 			string[] tokens1 = v1.Split(splitTokens, StringSplitOptions.RemoveEmptyEntries);

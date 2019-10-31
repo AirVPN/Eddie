@@ -16,20 +16,20 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#include "../../App.CLI.Common.Elevated.C/common.h"
+#include "../../App.CLI.Common.Elevated.C/ibsd.h"
 
-class Impl :public Common
+class Impl: public IBSD
 {
 public:
 	virtual int Main(int argc, char* argv[]);
-    virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
-    virtual bool CheckIfClientPathIsAllowed(const std::string& path);
-    /*virtual void CheckIfExecutableIsAllowed(const std::string& path);*/
-    virtual std::string GetProcessPathOfID(int pid);
+	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
+	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
+	/*virtual void CheckIfExecutableIsAllowed(const std::string& path);*/
+	virtual std::string GetProcessPathOfID(int pid);
 
 private:
 	int FileImmutableSet(const std::string& path, const int flag);
-    int FileGetFlags(const std::string& path);
-    std::vector<std::string> GetNetworkInterfaces();
+	int FileGetFlags(const std::string& path);
+	std::vector<std::string> GetNetworkInterfaces();
 };
 

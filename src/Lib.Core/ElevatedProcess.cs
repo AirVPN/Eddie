@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using Eddie.Common;
 
 /*
 This is the interface class for communication with helper executable that require root/admin privileges.
@@ -100,9 +99,9 @@ namespace Eddie.Core
 				Engine.Instance.Elevated.DoCommandSync(this);
 			}
 
-			public void DoAsync()
+			public void DoASync()
 			{
-				Engine.Instance.Elevated.DoCommandAsync(this);
+				Engine.Instance.Elevated.DoCommandASync(this);
 			}
 
 			public string GetSyncResult()
@@ -135,7 +134,7 @@ namespace Eddie.Core
             
 			string result = DoCommandSync("session-key", "key", m_sessionKey);
 			if (result != "Version:" + Constants.VersionElevated.ToString())
-				throw new Exception("Unexpected elevated version mismatch");
+				throw new Exception("Unexpected elevated version mismatch, '" + result + "' vs '" + "Version:" + Constants.VersionElevated + "'");
 
 			m_started = true;
 
@@ -215,7 +214,7 @@ namespace Eddie.Core
 		}
 
 		// Async
-		public void DoCommandAsync(Command c)
+		public void DoCommandASync(Command c)
 		{
 			lock (PendingCommands)
 			{
@@ -240,7 +239,7 @@ namespace Eddie.Core
 		public string DoCommandSync(Command c)
 		{
 			c.ReceiveEvent += DoCommandSyncReceive;
-			DoCommandAsync(c);
+			DoCommandASync(c);
 			for (; ; )
 			{
 				if (m_failedReason != "")
@@ -257,7 +256,7 @@ namespace Eddie.Core
 		{
 			Command c = new Command();
 			c.Parameters["command"] = command;
-			DoCommandAsync(c);
+			DoCommandASync(c);
 			return c;
 		}
 

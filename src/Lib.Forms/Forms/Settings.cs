@@ -23,7 +23,6 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Forms.Forms
@@ -792,7 +791,7 @@ namespace Eddie.Forms.Forms
 
 			if (chkUiFontGeneral.Checked)
 			{
-				int posComma = lblUiFontGeneral.Text.IndexOf(",");
+				int posComma = lblUiFontGeneral.Text.IndexOfInv(",");
 				s.Set("gui.font.normal.name", lblUiFontGeneral.Text.Substring(0, posComma));
 				s.Set("gui.font.normal.size", lblUiFontGeneral.Text.Substring(posComma + 1));
 			}

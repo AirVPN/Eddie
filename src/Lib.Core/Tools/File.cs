@@ -22,7 +22,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Core.Tools
 {

@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Text;
-using Eddie.Common;
+using Eddie.Core;
 
 namespace Eddie.Forms
 {
@@ -148,7 +148,7 @@ namespace Eddie.Forms
 			return output;
 		}
 
-		public void SetFormLayout(string v, bool forceMinimized, bool forceMaximized, bool minimizeInTray, Size defaultSize)
+		public void SetFormLayout(string v, bool forceMinimized, bool forceMaximized, Size defaultSize)
 		{
 			if (v == "")
 			{

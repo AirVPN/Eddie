@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Foundation;
 using AppKit;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx
@@ -94,7 +93,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdLogin.Activated += (object sender, EventArgs e) =>
 			{
 				Credentials = new Credentials();
-				Credentials.Username = TxtUsername.StringValue;
+				Credentials.UserName = TxtUsername.StringValue;
 				Credentials.Password = TxtPassword.StringValue;
 				string rememberText = GuiUtils.GetSelected(CboRemember);
 				if (rememberText == LanguageManager.GetText("WindowsCredentialsRememberNo"))

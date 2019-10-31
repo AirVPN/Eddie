@@ -32,8 +32,7 @@ IF "%VARPROJECT%"=="cli" (
 	set VARSOLUTIONPATH="%VARSCRIPTDIR%\..\..\src\eddie3.windows.sln"
 )
 
-echo %VARMSBUILD% /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /p:TargetFrameworkVersion=%VARTARGETFRAMEWORK% /t:Rebuild %VARSOLUTIONPATH% /p:DefineConstants="EDDIENET4" || goto :error
-%VARMSBUILD% /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /p:TargetFrameworkVersion=%VARTARGETFRAMEWORK% /t:Rebuild %VARSOLUTIONPATH% /p:DefineConstants="EDDIENET4" || goto :error
+%VARMSBUILD% /verbosity:minimal /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /p:TargetFrameworkVersion=%VARTARGETFRAMEWORK% /t:Rebuild %VARSOLUTIONPATH% /p:DefineConstants="EDDIENET4" || goto :error
 
 IF "%VARPROJECT%"=="cli" (
 	CALL %VARSCRIPTDIR%\..\..\src\eddie.windows.postbuild.bat %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%/ %VARPROJECT% %VARARCH% %VARCONFIG% || goto :error

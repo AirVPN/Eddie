@@ -15,7 +15,7 @@ BASEPATH=$(dirname $(realpath "$0"))
 mkdir -p "$BASEPATH/bin"
 
 # Dynamic edition
-g++ -o "$BASEPATH/bin/eddie-cli-elevated" "$BASEPATH/src/main.cpp" "$BASEPATH/src/impl.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/common.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/sha256.cpp" -Wall -std=c++11 -O3 -pthread -lpthread -D$1
+g++ -o "$BASEPATH/bin/eddie-cli-elevated" "$BASEPATH/src/main.cpp" "$BASEPATH/src/impl.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/iposix.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/ibase.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/sha256.cpp" -Wall -std=c++11 -O3 -pthread -lpthread -D$1
 
 # Static edition - Used in Linux
 #g++ -o "$BASEPATH/bin/eddie-cli-elevated" "$BASEPATH/src/main.cpp" "$BASEPATH/src/impl.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/common.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/sha256.cpp" -Wall -std=c++11 -O3 -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -D$1

@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -36,8 +35,8 @@ namespace Eddie.Core
 		public enum UserListType
 		{
 			None = 0,
-			WhiteList = 1,
-			BlackList = 2
+			Whitelist = 1,
+			Blacklist = 2
 		}
 
 		public UserListType UserList = UserListType.None;

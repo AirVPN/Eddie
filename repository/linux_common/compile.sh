@@ -32,12 +32,15 @@ fi
 RULESETPATH="${SCRIPTDIR}/../../src/ruleset/norules.ruleset"
 
 ARCHCOMPILE=${ARCH}
-if [ $ARCHCOMPILE = "armhf" ]; then
+if [ "$ARCHCOMPILE" = "armhf" ]; then
 	ARCHCOMPILE="x64" # Arm pick x64 executable (that are anyway CIL).
+fi
+if [ "$ARCHCOMPILE" != "x86" ]; then
+	ARCHCOMPILE="x64" # Pick x64 executable (that are anyway CIL).
 fi
 
 # msbuild is recommended, but generally not available (Debian10 for example)
-xbuild /property:CodeAnalysisRuleSet="${RULESETPATH}" /p:Configuration=${CONFIG} /p:Platform=${ARCHCOMPILE} /p:TargetFrameworkVersion=${TARGETFRAMEWORK} /t:Rebuild "${SOLUTIONPATH}" /p:DefineConstants="EDDIENET4"
+xbuild /verbosity:minimal /property:CodeAnalysisRuleSet="${RULESETPATH}" /p:Configuration=${CONFIG} /p:Platform=${ARCHCOMPILE} /p:TargetFrameworkVersion=${TARGETFRAMEWORK} /t:Rebuild "${SOLUTIONPATH}" /p:DefineConstants="EDDIENET4"
 
 
 if [ $PROJECT = "cli" ]; then

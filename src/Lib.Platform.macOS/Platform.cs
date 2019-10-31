@@ -22,7 +22,6 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 // If errors occur here, probably Xamarin update cause trouble. Remove Xamarin.Mac reference and re-add by browsing to path
 // /Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/4.5/Xamarin.Mac.dll
@@ -126,7 +125,6 @@ namespace Eddie.Platform.MacOS
 		{
 			Elevated e = new Elevated();			
 			e.Start();
-			m_elevated = e;
 			return e;
 		}
 
@@ -627,11 +625,11 @@ namespace Eddie.Platform.MacOS
 					string hostout = s.Output;
 					foreach (string line in hostout.Split('\n'))
 					{
-						string ipv4 = UtilsString.RegExMatchOne(line, "^.*? has address (.*?)$");
+						string ipv4 = line.RegExMatchOne("^.*? has address (.*?)$");
 						if (ipv4 != "")
 							result.Add(ipv4.Trim());
 
-						string ipv6 = UtilsString.RegExMatchOne(line, "^.*? has IPv6 address (.*?)$");
+						string ipv6 = line.RegExMatchOne("^.*? has IPv6 address (.*?)$");
 						if (ipv6 != "")
 							result.Add(ipv6.Trim());
 					}
@@ -670,7 +668,7 @@ namespace Eddie.Platform.MacOS
 			if (scutilPath != "")
 			{
 				string scutilOut = SystemShell.Shell1(scutilPath, "--dns");
-				List<List<string>> result = UtilsString.RegExMatchMulti(scutilOut.Replace(" ", ""), "nameserver\\[[0-9]+\\]:([0-9:\\.]+)");
+				List<List<string>> result = scutilOut.Replace(" ", "").RegExMatchMulti("nameserver\\[[0-9]+\\]:([0-9:\\.]+)");
 				foreach (List<string> match in result)
 				{
 					foreach (string field in match)
@@ -784,7 +782,7 @@ namespace Eddie.Platform.MacOS
 
 		public override void OnRecoveryLoad(XmlElement root)
 		{
-			XmlElement nodeDns = UtilsXml.XmlGetFirstElementByTagName(root, "DnsSwitch");
+			XmlElement nodeDns = root.GetFirstElementByTagName("DnsSwitch");
 			if (nodeDns != null)
 			{
 				foreach (XmlElement nodeEntry in nodeDns.ChildNodes)
@@ -795,7 +793,7 @@ namespace Eddie.Platform.MacOS
 				}
 			}
 
-			XmlElement nodeIpV6 = UtilsXml.XmlGetFirstElementByTagName(root, "IpV6");
+			XmlElement nodeIpV6 = root.GetFirstElementByTagName("IpV6");
 			if (nodeIpV6 != null)
 			{
 				foreach (XmlElement nodeEntry in nodeIpV6.ChildNodes)
@@ -992,7 +990,7 @@ namespace Eddie.Platform.MacOS
 								// Detect IPv6 support
 								string getInfo = SystemShell.Shell(LocateExecutable("networksetup"), new string[] { "-getinfo", SystemShell.EscapeInsideQuote(lastName) });
 
-								string mode = UtilsString.RegExMatchOne(getInfo, "^IPv6: (.*?)$").Trim();
+								string mode = getInfo.RegExMatchOne("^IPv6: (.*?)$").Trim();
 
 								if (mode == "Off")
 									jNetworkInterface["support_ipv6"].Value = false;
@@ -1026,7 +1024,7 @@ namespace Eddie.Platform.MacOS
 					if (line == "Internet6:")
 						continue;
 
-					string[] fields = UtilsString.StringCleanSpace(line).Split(' ');
+					string[] fields = line.CleanSpace().Split(' ');
 
 					if ((fields.Length > 0) && (fields[0].ToLowerInvariant().Trim() == "destination"))
 						continue;
@@ -1193,14 +1191,14 @@ namespace Eddie.Platform.MacOS
 
 		public void ReadXML(XmlElement node)
 		{
-			Name = UtilsXml.XmlGetAttributeString(node, "name", "");
-			Dns = UtilsXml.XmlGetAttributeString(node, "dns", "");
+			Name = node.GetAttributeString("name", "");
+			Dns = node.GetAttributeString("dns", "");
 		}
 
 		public void WriteXML(XmlElement node)
 		{
-			UtilsXml.XmlSetAttributeString(node, "name", Name);
-			UtilsXml.XmlSetAttributeString(node, "dns", Dns);
+			node.SetAttributeString("name", Name);
+			node.SetAttributeString("dns", Dns);
 		}
 	}
 
@@ -1214,20 +1212,20 @@ namespace Eddie.Platform.MacOS
 
 		public void ReadXML(XmlElement node)
 		{
-			Interface = UtilsXml.XmlGetAttributeString(node, "interface", "");
-			Mode = UtilsXml.XmlGetAttributeString(node, "mode", "");
-			Address = UtilsXml.XmlGetAttributeString(node, "address", "");
-			Router = UtilsXml.XmlGetAttributeString(node, "router", "");
-			PrefixLength = UtilsXml.XmlGetAttributeString(node, "prefix_length", "");
+			Interface = node.GetAttributeString("interface", "");
+			Mode = node.GetAttributeString("mode", "");
+			Address = node.GetAttributeString("address", "");
+			Router = node.GetAttributeString("router", "");
+			PrefixLength = node.GetAttributeString("prefix_length", "");
 		}
 
 		public void WriteXML(XmlElement node)
 		{
-			UtilsXml.XmlSetAttributeString(node, "interface", Interface);
-			UtilsXml.XmlSetAttributeString(node, "mode", Mode);
-			UtilsXml.XmlSetAttributeString(node, "address", Address);
-			UtilsXml.XmlSetAttributeString(node, "router", Router);
-			UtilsXml.XmlSetAttributeString(node, "prefix_length", PrefixLength);
+			node.SetAttributeString("interface", Interface);
+			node.SetAttributeString("mode", Mode);
+			node.SetAttributeString("address", Address);
+			node.SetAttributeString("router", Router);
+			node.SetAttributeString("prefix_length", PrefixLength);
 		}
 	}
 }

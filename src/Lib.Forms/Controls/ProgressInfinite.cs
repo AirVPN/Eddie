@@ -57,7 +57,7 @@ namespace Eddie.Forms.Controls
 				Invalidate();
 		}
 
-        protected override void OnPaint(PaintEventArgs pevent)
+        protected override void OnPaint(PaintEventArgs e)
         {
 			m_step++;
 			if (m_step == 11)
@@ -68,7 +68,7 @@ namespace Eddie.Forms.Controls
 
 			Image img = GuiUtils.GetResourceImage("progress" + String.Format("{0:00}",m_step));
 
-			Form.DrawImage(pevent.Graphics, img, r);
+			Form.DrawImage(e.Graphics, img, r);
         }
     }
 }

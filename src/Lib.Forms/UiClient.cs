@@ -23,11 +23,11 @@ using System.Threading;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using Eddie.Common;
+using Eddie.Core;
 
 namespace Eddie.Forms
 {
-	public class UiClient : Eddie.Common.UiClient
+	public class UiClient : Eddie.Core.UiClient
 	{
 		public static UiClient Instance;
 		public Forms.Main MainWindow;

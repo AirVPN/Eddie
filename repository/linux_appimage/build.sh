@@ -28,6 +28,12 @@ if [ "$ARCH" = "armhf" ]; then
     exit 0;
 fi
 
+if [ "$ARCH" = "aarch64" ]; then
+    # https://github.com/linuxdeploy/linuxdeploy/releases aarch64 not exists
+    echo "armhf architecture not supported"; 
+    exit 0;
+fi
+
 # Cleanup
 rm -rf $TARGETDIR
 

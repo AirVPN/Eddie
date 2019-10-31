@@ -29,7 +29,6 @@ using System.Xml;
 using System.Text;
 using System.Threading;
 using Microsoft.Win32;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Platform.Windows

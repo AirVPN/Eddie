@@ -23,7 +23,6 @@ using System.ServiceProcess;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 using Microsoft.Win32;
 
@@ -124,31 +123,31 @@ namespace Eddie.Platform.Windows
 
 		public void StateOn()
 		{
-			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + UtilsString.StringSafe(id) + " state on");			
+			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " state on");			
 		}
 
 		public void StateOff()
 		{
-			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + UtilsString.StringSafe(id) + " state off");
+			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " state off");
 		}
 
 		public void NotifyOn()
 		{
 			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
 			//Platform.Instance.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
-			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + UtilsString.StringSafe(id) + " settings inboundusernotification enable");
+			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " settings inboundusernotification enable");
 		}
 
 		public void NotifyOff()
 		{
 			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
 			//Platform.Instance.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
-			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + UtilsString.StringSafe(id) + " settings inboundusernotification disable");
+			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " settings inboundusernotification disable");
 		}
 
 		public void RestorePolicy()
 		{
-			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + UtilsString.StringSafe(id) + " firewallpolicy " + Inbound + "," + Outbound);
+			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " firewallpolicy " + Inbound + "," + Outbound);
 		}
 
 		public void ReadXML(XmlElement node)
@@ -483,7 +482,7 @@ namespace Eddie.Platform.Windows
 
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 			{
-				XmlElement node = UtilsXml.XmlGetFirstElementByTagName(root, profile.id);
+				XmlElement node = root.GetFirstElementByTagName(profile.id);
 				if (node != null)
 				{
 					profile.ReadXML(node);

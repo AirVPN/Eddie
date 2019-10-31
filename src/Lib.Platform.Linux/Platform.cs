@@ -24,7 +24,6 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using Eddie.Common;
 using Eddie.Core;
 // using Mono.Unix.Native; // Removed in 2.11
 // using Mono.Unix; // Removed in 2.14.4
@@ -41,6 +40,9 @@ namespace Eddie.Platform.Linux
         private UInt32 m_uid = 9999;
 
         private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
+
+        private string m_systemdUnitsPath = "/usr/lib/systemd/system";
+        private string m_systemdUnitPath = "/usr/lib/systemd/system/eddie-elevated.service";
 
         // Override
         public Platform()
@@ -165,7 +167,45 @@ namespace Eddie.Platform.Linux
 			return true;
 		}
 
-		public override string DirSep
+        public override bool AllowService()
+        {
+            if (DirectoryExists(m_systemdUnitsPath))
+                return true;
+
+            return false;
+        }
+
+        public override string AllowServiceUserDescription()
+        {
+            if (DirectoryExists(m_systemdUnitsPath))
+                return "If checked, install a systemd service";
+
+            return "";
+        }
+
+        protected override bool GetServiceImpl()
+        {
+            return FileExists(m_systemdUnitPath);
+        }
+
+        protected override bool SetServiceImpl(bool value)
+        {
+            if (GetServiceImpl() == value)
+                return true;
+
+            if (value)
+            {
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-install" }, Engine.Instance.ConsoleMode);
+                return (GetService() == true);
+            }
+            else
+            {
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-uninstall" }, Engine.Instance.ConsoleMode);
+                return (GetService() == false);
+            }
+        }
+
+        public override string DirSep
 		{
 			get
 			{
@@ -607,7 +647,7 @@ namespace Eddie.Platform.Linux
 				if (s.Run())
 				{
 					string o = s.Output;
-					o = UtilsString.StringCleanSpace(o);
+					o = o.CleanSpace();
 					foreach (string line in o.Split('\n'))
 					{
 						string[] fields = line.Split(' ');
@@ -676,7 +716,7 @@ namespace Eddie.Platform.Linux
 
         public override void OnRecoveryLoad(XmlElement root)
         {
-            XmlElement nodeIpV6 = UtilsXml.XmlGetFirstElementByTagName(root, "IPv6");
+            XmlElement nodeIpV6 = root.GetFirstElementByTagName("IPv6");
             if (nodeIpV6 != null)
             {
                 foreach (XmlElement nodeEntry in nodeIpV6.ChildNodes)
@@ -930,7 +970,7 @@ namespace Eddie.Platform.Linux
 				string gateway = "";
 				string iface = "";
 				string metric = "";
-				string[] fields = UtilsString.StringCleanSpace(line.Trim()).Split(' ');
+				string[] fields = line.Trim().CleanSpace().Split(' ');
 				for (int i = 0; i < fields.Length; i++)
 				{
 					if (i == 0)
@@ -1087,12 +1127,12 @@ namespace Eddie.Platform.Linux
 
         public void ReadXML(XmlElement node)
         {
-            Interface = UtilsXml.XmlGetAttributeString(node, "interface", "");
+            Interface = node.GetAttributeString("interface", "");
         }
 
         public void WriteXML(XmlElement node)
         {
-            UtilsXml.XmlSetAttributeString(node, "interface", Interface);
+            node.SetAttributeString("interface", Interface);
         }
     }
 }

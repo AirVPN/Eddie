@@ -2,7 +2,6 @@
 using Foundation;
 using System;
 using System.Threading;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.UI.Cocoa.Osx

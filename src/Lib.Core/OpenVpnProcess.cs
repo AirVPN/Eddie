@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -28,6 +27,7 @@ namespace Eddie.Core
 	public class OpenVpnProcess
 	{
         public string ExePath = "";
+		public bool AirBuild = false;
 		public string ConfigPath = "";
 
         public bool DeleteAfterStart = false;
@@ -45,21 +45,18 @@ namespace Eddie.Core
 		{
 			get
 			{
-                // Ex processOpenVpn.ReallyExited
                 return m_command.IsComplete;
 			}
 		}
 
 		public void KillSoft()
 		{
-            // TOFIX
-            // Ex Platform.Instance.ProcessKillSoft(m_processOpenVpn);
-		}
+            Engine.Instance.Elevated.DoCommandSync("kill", "signal", "sigint", "pid", m_pid.ToString());
+        }
 
 		public void Kill()
 		{
-            // TOFIX
-            // Ex m_processOpenVpn.Kill();
+            Engine.Instance.Elevated.DoCommandSync("kill", "signal", "sigterm", "pid", m_pid.ToString());
 		}
 
 		public void Start()
@@ -75,12 +72,14 @@ namespace Eddie.Core
 
                 ExePath = tempPathToDelete;
 
-                DeleteAfterStart = true;
+                DeleteAfterStart = true; 
             }
 
 			m_command.Parameters["command"] = "process_openvpn";
             m_command.Parameters["path"] = ExePath;
-			m_command.Parameters["config"] = ConfigPath;
+			m_command.Parameters["airbuild"] = (AirBuild ? "y":"n");
+            m_command.Parameters["gui-version"] = Constants.Name + Constants.VersionDesc;
+            m_command.Parameters["config"] = ConfigPath;
 
             m_command.ExceptionEvent += delegate (ElevatedProcess.Command cmd, string message)
             {
@@ -116,7 +115,7 @@ namespace Eddie.Core
 				if (EndEvent != null)
 					EndEvent();
 			};
-			m_command.DoAsync();			
+			m_command.DoASync();			
 		}
 				
 		private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)

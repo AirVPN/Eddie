@@ -21,7 +21,6 @@ using System;
 using Foundation;
 using AppKit;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.UI.Cocoa.Osx
 {

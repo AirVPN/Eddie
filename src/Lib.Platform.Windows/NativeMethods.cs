@@ -46,7 +46,7 @@ namespace Eddie.Platform.Windows
 		public static int GetInterfaceMetric(int idx, string layer)
 		{
 			return eddie_get_interface_metric(idx, layer);
-		}		
+		}
 
 		#endregion
 
@@ -216,5 +216,4 @@ namespace Eddie.Platform.Windows
 
 		#endregion
 	}
-
 }

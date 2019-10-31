@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Eddie.Common;
 
 namespace Eddie.Core
 {

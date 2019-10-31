@@ -131,7 +131,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
             NSAlert alert = new NSAlert();
             alert.AlertStyle = NSAlertStyle.Informational;
-            alert.MessageText = Common.Constants.Name;
+            alert.MessageText = Constants.Name;
             alert.InformativeText = message;
             alert.RunModal();
         }
@@ -140,7 +140,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
             NSAlert alert = new NSAlert();
             alert.AlertStyle = NSAlertStyle.Critical;
-            alert.MessageText = Common.Constants.Name;
+            alert.MessageText = Constants.Name;
             alert.InformativeText = message;
             alert.RunModal();
         }

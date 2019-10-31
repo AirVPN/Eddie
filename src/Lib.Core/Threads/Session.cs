@@ -28,7 +28,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using System.Xml;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Core.Threads
@@ -74,7 +73,10 @@ namespace Eddie.Core.Threads
 
 		private ConnectionActive m_connectionActive = null;
 
-		public override void OnRun()
+        private string m_specialAirParseStep = "";
+        private int m_specialAirParseStepInt = -1;
+
+        public override void OnRun()
 		{
 			CancelRequested = false;
 
@@ -96,7 +98,10 @@ namespace Eddie.Core.Threads
 				m_processOpenVpn = null;
 				m_processProxy = null;
 
-				m_routes.Clear();
+                m_specialAirParseStep = "";
+                m_specialAirParseStepInt = 0;
+
+                m_routes.Clear();
 
 				try
 				{
@@ -217,11 +222,11 @@ namespace Eddie.Core.Threads
 
 								if (xmlDoc != null)
 								{
-									string userMessage = UtilsXml.XmlGetAttributeString(xmlDoc.DocumentElement, "message", "");
+									string userMessage = xmlDoc.DocumentElement.GetAttributeString("message", "");
 									if (userMessage != "")
 									{
 										allowed = false;
-										string userMessageAction = UtilsXml.XmlGetAttributeString(xmlDoc.DocumentElement, "message_action", "");
+										string userMessageAction = xmlDoc.DocumentElement.GetAttributeString("message_action", "");
 										if (userMessageAction == "stop")
 										{
 											Engine.Logs.Log(LogType.Fatal, userMessage);
@@ -289,7 +294,7 @@ namespace Eddie.Core.Threads
 					{
 						// Need IPv6 block?
 						{
-							if (Common.Constants.FeatureIPv6ControlOptions)
+							if (Constants.FeatureIPv6ControlOptions)
 							{
 								if (Engine.Instance.GetNetworkIPv6Mode() == "block")
 									m_connectionActive.BlockedIPv6 = true;
@@ -756,7 +761,7 @@ namespace Eddie.Core.Threads
 				fileKeyExtension = "ppk";
 
 			m_fileSshKey = new TemporaryFile(fileKeyExtension);
-			Platform.Instance.FileContentsWriteText(m_fileSshKey.Path, UtilsXml.XmlGetAttributeString(service.User, "ssh_" + fileKeyExtension, ""), Encoding.ASCII);
+			Platform.Instance.FileContentsWriteText(m_fileSshKey.Path, service.User.GetAttributeString("ssh_" + fileKeyExtension, ""), Encoding.ASCII);
 						
 			if( (Platform.Instance.IsWindowsSystem()) && (fileKeyExtension == "key") )
 			{
@@ -833,7 +838,7 @@ namespace Eddie.Core.Threads
 				return;
 
 			m_fileSslCrt = new TemporaryFile("crt");
-			Platform.Instance.FileContentsWriteText(m_fileSslCrt.Path, UtilsXml.XmlGetAttributeString(service.User, "ssl_crt", ""), Encoding.ASCII);
+			Platform.Instance.FileContentsWriteText(m_fileSslCrt.Path, service.User.GetAttributeString("ssl_crt", ""), Encoding.ASCII);
 
 			m_fileSslConfig = new TemporaryFile("ssl");
 
@@ -843,13 +848,13 @@ namespace Eddie.Core.Threads
 			{
 				//sslConfig += "output = /dev/stdout\n"; // With this, with new stunnel 5.01, we have duplicated output dump.
 				sslConfig += "foreground = yes\n";	// Without this, the process fork and it's exit can't be detected.
-				//sslConfig += "pid = /tmp/" + RandomGenerator.GetHash() + ".pid\n"; // 2.2
 			}
 			if (Engine.Instance.Storage.Get("ssl.options") != "")
 				sslConfig += "options = " + Engine.Instance.Storage.Get("ssl.options") + "\n";
 			sslConfig += "client = yes\n";
 			sslConfig += "debug = 6\n";
-            sslConfig += "pid = " + Engine.Instance.GetPathInData("stunnel.pid"); // Added 2.18.3. Note: don't like quoted path
+			if (Platform.Instance.IsUnixSystem())
+				sslConfig += "pid = " + Engine.Instance.GetPathInData("stunnel.pid"); // Added 2.18.3. Note: don't like quoted path
 			sslConfig += "\n";
 			sslConfig += "[openvpn]\n";
 			sslConfig += "accept = 127.0.0.1:" + Conversions.ToString(m_connectionActive.SslLocalPort) + "\n";
@@ -908,7 +913,8 @@ namespace Eddie.Core.Threads
 
 			m_processOpenVpn = new OpenVpnProcess();
             m_processOpenVpn.ExePath = path;
-            m_processOpenVpn.ConfigPath = m_connectionActive.OvpnFile.Path;
+			m_processOpenVpn.AirBuild = (Software.GetTool("openvpn") as Tools.OpenVPN).IsAirSpecialBuild();
+			m_processOpenVpn.ConfigPath = m_connectionActive.OvpnFile.Path;
 			m_processOpenVpn.StdOut.LineEvent += ProcessOpenVpnOutputDataReceived;
 			m_processOpenVpn.StdErr.LineEvent += ProcessOpenVpnOutputDataReceived;
 			m_processOpenVpn.EndEvent += ProcessOpenVpnExited;
@@ -958,7 +964,6 @@ namespace Eddie.Core.Threads
 
 		void ProcessSshOutputDataReceived(object sender, DataReceivedEventArgs e)
 		{
-			// TOCHECK: Must wait until a \n ?
 			if (e.Data != null)
 			{
 				string message = e.Data.ToString();
@@ -969,7 +974,6 @@ namespace Eddie.Core.Threads
 
 		void ProcessSslOutputDataReceived(object sender, DataReceivedEventArgs e)
 		{
-			// TOCHECK: Must wait until a \n ?
 			if (e.Data != null)
 			{
 				string message = e.Data.ToString();
@@ -983,10 +987,20 @@ namespace Eddie.Core.Threads
 
 		void ProcessOpenVpnOutputDataReceived(string data)
 		{
-			// Remove OpenVPN timestamp
-			data = System.Text.RegularExpressions.Regex.Replace(data, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
+            if ((Software.GetTool("openvpn") as Tools.OpenVPN).IsAirSpecialBuild())
+            {
+                // Remove OpenVPN timestamp
+                // Example: "Sat Oct 12 10:15:54.795 2019"
+                data = System.Text.RegularExpressions.Regex.Replace(data, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{0,3}\\s+\\d{2,4}\\s+", "");
+            }
+            else
+            {
+                // Remove OpenVPN timestamp
+                // Example OpenVPN<3: "Sat Oct 12 10:13:38 2019 /sbin/ip route add 0.0.0.0/1 via 10.20.6.1"
+                data = System.Text.RegularExpressions.Regex.Replace(data, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
+            }
 
-			AddLogEvent("OpenVPN", data);			
+            AddLogEvent("OpenVPN", data);			
 		}
 
 		void ProcessOpenVpnManagement()
@@ -1096,7 +1110,7 @@ namespace Eddie.Core.Threads
 					}
 
 					// Ignore
-					if (message.IndexOf("MANAGEMENT: CMD 'status'") != -1)
+					if (message.IndexOfInv("MANAGEMENT: CMD 'status'") != -1)
 						return;
 
 					// Level
@@ -1160,11 +1174,11 @@ namespace Eddie.Core.Threads
 					if ((message.Contains("WARNING: 'keysize' is used inconsistently")) && (Software.GetTool("openvpn").VersionUnder("2.4")))
 						log = false;
 
-					if (message.StartsWith("Options error:"))
+					if (message.StartsWithInv("Options error:"))
 					{
 						if (log)
 						{
-							List<string> matches = UtilsString.RegExMatchSingle(message, "Options error\\: Unrecognized option or missing parameter\\(s\\) in (.*?)\\:\\d+\\:(.*?)\\(.*\\)");
+							List<string> matches = message.RegExMatchSingle("Options error\\: Unrecognized option or missing parameter\\(s\\) in (.*?)\\:\\d+\\:(.*?)\\(.*\\)");
 							if ((matches != null) && (matches.Count == 2))
 							{
 								string context = matches[0].Trim();
@@ -1180,7 +1194,7 @@ namespace Eddie.Core.Threads
 						}
 					}
 
-					if (message.StartsWith("Control Channel: "))
+					if (message.StartsWithInv("Control Channel: "))
 					{
 						m_connectionActive.ControlChannel = message.Substring("Control Channel: ".Length);
 					}
@@ -1247,7 +1261,7 @@ namespace Eddie.Core.Threads
 					}
 
 					// Detect connection (OpenVPN >2.4)
-					if (UtilsString.RegExMatchOne(messageLower, "peer connection initiated with \\[af_inet6?\\]([0-9a-f\\.\\:]+?):(\\d+?)") != "")
+					if (messageLower.RegExMatchOne("peer connection initiated with \\[af_inet6?\\]([0-9a-f\\.\\:]+?):(\\d+?)") != "")
 					{
 						if (m_connectionActive.Protocol == "SSH")
 						{
@@ -1263,8 +1277,8 @@ namespace Eddie.Core.Threads
 						{
 							string t = messageLower;
 							t = t.Replace("[nonblock]", "").Trim();
-							List<string> fields = UtilsString.RegExMatchSingle(t, "\\[af_inet6?\\]([a-z90-9\\.\\:]+?):(\\d+?)$");
-							if (fields.Count == 2)
+							List<string> fields = t.RegExMatchSingle("\\[af_inet6?\\]([a-z90-9\\.\\:]+?):(\\d+?)$");
+							if( (fields != null) && (fields.Count == 2) )
 							{
 								m_connectionActive.EntryIP = fields[0];
 								m_connectionActive.Port = Conversions.ToInt32(fields[1]);
@@ -1314,24 +1328,24 @@ namespace Eddie.Core.Threads
 						}
 					}
 
-					if (UtilsString.RegExMatchOne(messageLower, "^management: tcp socket listening on \\[af_inet6?\\]([0-9a-f\\.\\:]+?)$") != "")
+					if (messageLower.RegExMatchOne("^management: tcp socket listening on \\[af_inet6?\\]([0-9a-f\\.\\:]+?)$") != "")
 					{
 						ConnectManagementSocket();
 					}
 
-					if (message.IndexOf("Initialization Sequence Completed") != -1)
+					if (message.IndexOfInv("Initialization Sequence Completed") != -1)
 					{
 						ConnectedStep();
 					}
 
-                    if (message.IndexOf("Client connected from [AF_INET]127.0.0.1") != -1)
+                    if (message.IndexOfInv("Client connected from [AF_INET]127.0.0.1") != -1)
 					{
 					}
 
 					// Windows
 					if (Platform.Instance.IsUnixSystem() == false)
 					{
-						List<string> matchInterface = UtilsString.RegExMatchSingle(message, "TAP-.*\\\\(.+?).tap");
+						List<string> matchInterface = message.RegExMatchSingle("TAP-.*\\\\(.+?).tap");
 						if (matchInterface != null)
 						{
 							m_connectionActive.InterfaceId = matchInterface[0];
@@ -1341,7 +1355,7 @@ namespace Eddie.Core.Threads
 
 						// Match name - 2.11.10
 						// Note: Windows allow [] chars in interface name, but OpenVPN use ] to close the name and don't escape it, so "\\sopened" it's required for lazy regex.
-						List<string> matchName = UtilsString.RegExMatchSingle(message, "TAP-.*\\sdevice\\s\\[(.*?)\\]\\sopened");
+						List<string> matchName = message.RegExMatchSingle("TAP-.*\\sdevice\\s\\[(.*?)\\]\\sopened");
 						if (matchName != null)
 						{
 							m_connectionActive.InterfaceName = matchName[0];
@@ -1374,13 +1388,13 @@ namespace Eddie.Core.Threads
 					if (Platform.Instance.IsWindowsSystem())
 					{
 						// Workaround (2018/01/28) for this bug: https://airvpn.org/topic/25139-why-exists-pull-filter-ignore-dhcp-option-dns6/
-						if (message.IndexOf("metric 0") != -1) // To catch only one, the main
+						if (message.IndexOfInv("metric 0") != -1) // To catch only one, the main
 						{
-							IpAddress ipv6rangeIp = new IpAddress(UtilsString.RegExMatchOne(message, "add_route_ipv6\\((.*?)\\s"));
+							IpAddress ipv6rangeIp = new IpAddress(message.RegExMatchOne("add_route_ipv6\\((.*?)\\s"));
 							if (ipv6rangeIp.Valid)
 							{
 								string routeIPv6 = SystemShell.Shell2(Platform.Instance.LocateExecutable("route.exe"), "-6", "PRINT");								
-								string iFace = UtilsString.RegExMatchOne(UtilsString.StringCleanSpace(routeIPv6).ToLowerInvariant(), "(\\d+?)\\s\\d+\\s" + ipv6rangeIp.ToCIDR() + "\\son-link");
+								string iFace = routeIPv6.CleanSpace().ToLowerInv().RegExMatchOne("(\\d+?)\\s\\d+\\s" + ipv6rangeIp.ToCIDR() + "\\son-link");
 								if (iFace != "")
 								{
 									Engine.Instance.Logs.LogVerbose("Detected an OpenVPN bug (On-Link route on VPN range), autofix.");
@@ -1394,11 +1408,11 @@ namespace Eddie.Core.Threads
 					if (m_connectionActive != null)
 					{
 						bool pushLog = false;
-						string pushDirectivesLine = UtilsString.RegExMatchOne(message, "PUSH: Received control message: '(.*?)'");
+						string pushDirectivesLine = message.RegExMatchOne("PUSH: Received control message: '(.*?)'");
 						if (pushDirectivesLine != "")
 						{
 							pushLog = true;
-							List<string> pushDirectives = UtilsString.StringToList(pushDirectivesLine, ",");
+							List<string> pushDirectives = pushDirectivesLine.StringToList(",");
 							foreach (string directive in pushDirectives)
 							{
 								if (directive == "PUSH_REPLY")
@@ -1408,14 +1422,14 @@ namespace Eddie.Core.Threads
 
 						}
 
-						string pushDirectivesFiltered = UtilsString.RegExMatchOne(message, "Pushed option removed by filter: '(.*?)'");
+						string pushDirectivesFiltered = message.RegExMatchOne("Pushed option removed by filter: '(.*?)'");
 						if (pushDirectivesFiltered != "")
 						{
 							pushLog = true;
 							m_connectionActive.PendingPushDetected.Remove(pushDirectivesFiltered);
 						}
 
-						// OpenVPN log "PUSH: Received control message:" and after a series of "Pushed option removed by filter:".
+						// OpenVPN2 log "PUSH: Received control message:" and after a series of "Pushed option removed by filter:".
 						// So, if the series of "Pushed option removed by filter:" ends, accept the push list as definitive.
 						if ((pushLog == false) && (m_connectionActive.PendingPushDetected.Count != 0))
 						{
@@ -1428,9 +1442,67 @@ namespace Eddie.Core.Threads
                     // AirVPN special OpenVPN 3.x build
                     if ((Software.GetTool("openvpn") as Tools.OpenVPN).IsAirSpecialBuild())
                     {
-                        if (message.Contains("EVENT: CONNECTED"))
+                        if(m_specialAirParseStep == "options")
+                        {
+                            string[] fields = message.Split(' '); // Note: Not best approach, but output is temporary/test
+                            if(fields.Length>0)
+                            {
+                                int x = Conversions.ToInt32(fields[0]);
+                                if(x != m_specialAirParseStepInt)
+                                {
+                                    m_specialAirParseStep = "";
+                                    m_specialAirParseStepInt = 0;
+                                }
+                                else
+                                {
+                                    m_specialAirParseStepInt++;
+
+                                    string directive = "";
+                                    for (int f = 1; f < fields.Length; f++)
+                                    {
+                                        string v = fields[f];
+                                        v = v.TrimStart('[');
+                                        v = v.TrimEnd(']');
+                                        if (directive != "")
+                                            directive += " ";
+                                        directive += v;
+                                    }
+
+                                    m_connectionActive.OpenVpnProfileWithPush.AppendDirectives(directive, "Push");
+                                }
+                            }
+                        }
+                        else if (message.EndsWithInv("OPTIONS:"))
+                        {
+                            m_specialAirParseStep = "options";
+                        }
+                        else if (message.ContainsInv("EVENT: CONNECTED"))
                         {
                             ConnectedStep();
+                        }
+                        else if (message.StartsWithInv("SSL Handshake: "))
+                        {
+                            m_connectionActive.ControlChannel = message.Substring("SSL Handshake: ".Length);
+                        }
+                        else if (message.StartsWithInv("net_iface_up: "))
+                        {
+                            Match match = Regex.Match(message, "net_iface_up: set (.+?) up");
+                            if (match.Success)
+                            {
+                                m_connectionActive.InterfaceId = match.Groups[1].Value;
+                                m_connectionActive.InterfaceName = match.Groups[1].Value;
+
+                                CheckTunNetworkInterface();
+                            }
+                        }
+                        else if (message.StartsWithInv("Contacting "))
+                        {
+                            List<string> fields = message.RegExMatchSingle("Contacting ([a-z90-9\\.\\:]+?):(\\d+?)\\s");
+                            if( (fields != null) && (fields.Count == 2) )
+                            {
+                                m_connectionActive.EntryIP = fields[0];
+                                m_connectionActive.Port = Conversions.ToInt32(fields[1]);
+                            }
                         }
                     }
 
@@ -1458,7 +1530,7 @@ namespace Eddie.Core.Threads
 						StartOpenVpnProcess();
 					}
 
-					if (message.StartsWith("Authenticated to")) // SSH Linux
+					if (message.StartsWithInv("Authenticated to")) // SSH Linux
 					{
 						StartOpenVpnProcess();
 					}
@@ -1470,7 +1542,7 @@ namespace Eddie.Core.Threads
 				{
 					bool log = true;
 
-					if (message.IndexOf("Configuration successful") != -1)
+					if (message.IndexOfInv("Configuration successful") != -1)
 					{
 						StartOpenVpnProcess();
 					}
@@ -1887,11 +1959,11 @@ namespace Eddie.Core.Threads
 		public void ProcessOutputManagement(string source, string message)
 		{
 			// Ignore, useless			
-			if (message.Contains("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
+			if (message.ContainsInv("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
 				return;
-			if (message.StartsWith("ENTER PASSWORD:"))
+			if (message.StartsWithInv("ENTER PASSWORD:"))
 				return;
-			if (message.StartsWith("SUCCESS: password is correct"))
+			if (message.StartsWithInv("SUCCESS: password is correct"))
 				return;
 
 			string[] lines = message.Split('\n');

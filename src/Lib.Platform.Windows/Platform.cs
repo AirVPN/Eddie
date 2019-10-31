@@ -28,7 +28,6 @@ using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using System.Threading;
-using Eddie.Common;
 using Eddie.Core;
 using Microsoft.Win32;
 //using Microsoft.Win32.TaskScheduler;
@@ -143,8 +142,6 @@ namespace Eddie.Platform.Windows
 		{
 			Elevated e = new Elevated();
 			e.Start();
-
-			m_elevated = e;
 
 			return e;
 		}
@@ -1244,7 +1241,7 @@ namespace Eddie.Platform.Windows
 
 		public override void OnRecoveryLoad(XmlElement root)
 		{
-			XmlElement nodeDns = UtilsXml.XmlGetFirstElementByTagName(root, "DnsSwitch");
+			XmlElement nodeDns = root.GetFirstElementByTagName("DnsSwitch");
 			if (nodeDns != null)
 			{
 				foreach (XmlElement nodeEntry in nodeDns.ChildNodes)
@@ -1255,11 +1252,11 @@ namespace Eddie.Platform.Windows
 				}
 			}
 			
-			if (UtilsXml.XmlExistsAttribute(root, "interface-metric-id"))
+			if (root.ExistsAttribute("interface-metric-id"))
 			{
-				m_oldMetricInterface = UtilsXml.XmlGetAttributeString(root, "interface-metric-id", "");
-				m_oldMetricIPv4 = UtilsXml.XmlGetAttributeInt(root, "interface-metric-ipv4", -1);
-				m_oldMetricIPv6 = UtilsXml.XmlGetAttributeInt(root, "interface-metric-ipv6", -1);
+				m_oldMetricInterface = root.GetAttributeString("interface-metric-id", "");
+				m_oldMetricIPv4 = root.GetAttributeInt("interface-metric-ipv4", -1);
+				m_oldMetricIPv6 = root.GetAttributeInt("interface-metric-ipv6", -1);
 			}
 
 			base.OnRecoveryLoad(root);
@@ -1283,9 +1280,9 @@ namespace Eddie.Platform.Windows
 			
 			if (m_oldMetricInterface != "")
 			{
-				UtilsXml.XmlSetAttributeString(root, "interface-metric-id", m_oldMetricInterface);
-				UtilsXml.XmlSetAttributeInt(root, "interface-metric-ipv4", m_oldMetricIPv4);
-				UtilsXml.XmlSetAttributeInt(root, "interface-metric-ipv6", m_oldMetricIPv6);
+				root.SetAttributeString("interface-metric-id", m_oldMetricInterface);
+				root.SetAttributeInt("interface-metric-ipv4", m_oldMetricIPv4);
+				root.SetAttributeInt("interface-metric-ipv6", m_oldMetricIPv6);
 			}
 		}
 
@@ -1550,7 +1547,7 @@ namespace Eddie.Platform.Windows
 				string[] lines = result.Split('\n');
 				foreach (string line in lines)
 				{
-					string[] fields = UtilsString.StringCleanSpace(line).Split(' ');
+					string[] fields = line.CleanSpace().Split(' ');
 
 					if (fields.Length == 5)
 					{
@@ -1586,7 +1583,7 @@ namespace Eddie.Platform.Windows
 				string[] lines = result.Split('\n');
 				foreach (string line in lines)
 				{
-					string[] fields = UtilsString.StringCleanSpace(line).Split(' ');
+					string[] fields = line.CleanSpace().Split(' ');
 
 					if (fields.Length == 4)
 					{
@@ -1610,9 +1607,8 @@ namespace Eddie.Platform.Windows
 		}
 
 		public override string OsCredentialSystemName()
-		{
-			// Not used for the moment. Are saved as Admin and not viewer by normal user, will become an issue with new Helper under development.
-			if (IsAdmin())
+		{			
+			if (IsAdmin()) // Are saved as Admin and not viewer by normal user, will become an issue.
 				return "";
 			else
 				return "Windows Credential";
@@ -1674,7 +1670,7 @@ namespace Eddie.Platform.Windows
 			string sigcheckPath = Engine.Instance.GetPathTools() + "\\sigcheck.exe";
 			string[] sigcheck = SystemShell.Shell3(sigcheckPath, "-c", "-nobanner", "\"" + SystemShell.EscapePath(path) + "\"").Split('\n');
 
-			List<string> list = UtilsString.StringToList(sigcheck[1], ",", true, false, false, true);
+			List<string> list = sigcheck[1].StringToList(",", true, false, false, true);
 
 			if (list[1].Trim('"') == "Signed")
 				return "Publisher: " + list[3].Trim('"') + " - Company: " + list[4].Trim('"');
@@ -1935,18 +1931,18 @@ namespace Eddie.Platform.Windows
 
 		public void ReadXML(XmlElement node)
 		{
-			Guid = UtilsXml.XmlGetAttributeString(node, "guid", "");
-			Description = UtilsXml.XmlGetAttributeString(node, "description", "");
-			Layer = UtilsXml.XmlGetAttributeString(node, "layer", "");
-			Dns.Set(UtilsXml.XmlGetAttributeString(node, "dns", ""));
+			Guid = node.GetAttributeString("guid", "");
+			Description = node.GetAttributeString("description", "");
+			Layer = node.GetAttributeString("layer", "");
+			Dns.Set(node.GetAttributeString("dns", ""));
 		}
 
 		public void WriteXML(XmlElement node)
 		{
-			UtilsXml.XmlSetAttributeString(node, "guid", Guid);
-			UtilsXml.XmlSetAttributeString(node, "description", Description);
-			UtilsXml.XmlSetAttributeString(node, "layer", Layer);
-			UtilsXml.XmlSetAttributeString(node, "dns", Dns.ToString());
+			node.SetAttributeString("guid", Guid);
+			node.SetAttributeString("description", Description);
+			node.SetAttributeString("layer", Layer);
+			node.SetAttributeString("dns", Dns.ToString());
 		}
 	}
 }

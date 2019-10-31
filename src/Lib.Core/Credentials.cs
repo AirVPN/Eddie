@@ -19,13 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
     public class Credentials
     {
-		public string Username = "";
+		public string UserName = "";
 		public string Password = "";
 		public string Remember = "no";
 
@@ -33,7 +32,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-				if (Username == "")
+				if (UserName == "")
 					return false;
 				if (Password == "")
 					return false;

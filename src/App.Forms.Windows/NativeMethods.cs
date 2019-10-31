@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Text;
-using Eddie.Common;
 using Eddie.Core;
 using Eddie.Forms;
 

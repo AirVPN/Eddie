@@ -25,7 +25,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Xml;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -41,8 +40,6 @@ namespace Eddie.Core
 
 		protected List<Json> m_routes = new List<Json>();
 		
-		protected ElevatedProcess m_elevated = null;
-
 		public static bool IsUnix()
 		{
 			return (Environment.OSVersion.Platform.ToString() == "Unix");
@@ -68,13 +65,10 @@ namespace Eddie.Core
 
 		public static string NormalizeArchitecture(string a)
 		{
-			if (a == "x86") return "x86";
 			if (a == "i686") return "x86";
-			if (a == "x64") return "x64";
 			if (a == "AMD64") return "x64";
 			if (a == "x86_64") return "x64";
-			if (a == "armv7l") return "armv7l"; // RPI
-			return "Unknown";
+			return a;
 		}
 
 		// ----------------------------------------
@@ -253,9 +247,9 @@ namespace Eddie.Core
 
 		public virtual bool GetService()
 		{
-			if( (Elevated != null) && (Elevated.ServiceEdition) )
+			if( (Engine.Instance.Elevated != null) && (Engine.Instance.Elevated.ServiceEdition) )
 			{
-				if (Elevated.ServiceUninstallAtEnd)
+				if (Engine.Instance.Elevated.ServiceUninstallAtEnd)
 					return false;
 				else
 					return true;
@@ -269,9 +263,9 @@ namespace Eddie.Core
 			if(direct)
 				return SetServiceImpl(value);
 
-			if ((Elevated != null) && (Elevated.ServiceEdition))
+			if ((Engine.Instance.Elevated != null) && (Engine.Instance.Elevated.ServiceEdition))
 			{
-				Elevated.ServiceUninstallAtEnd = !value;
+                Engine.Instance.Elevated.ServiceUninstallAtEnd = !value;
 				return value;
 			}
 			else
@@ -556,7 +550,7 @@ namespace Eddie.Core
 		public virtual List<string> GetEnvironmentPaths()
 		{
 			string envPath = Environment.GetEnvironmentVariable("PATH");
-			List<string> paths = UtilsString.StringToList(envPath, EnvPathSep, true, true, true, true);
+			List<string> paths = envPath.StringToList(EnvPathSep, true, true, true, true);
 			return paths;
 		}
 
@@ -754,7 +748,7 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual int GetRecommendedSndBufDirective()
+        public virtual int GetRecommendedSndBufDirective()
 		{
 			return -1;
 		}
@@ -997,13 +991,13 @@ namespace Eddie.Core
 
 		public virtual void OnRecoveryLoad(XmlElement root)
 		{
-			XmlElement nodeRoutes = UtilsXml.XmlGetFirstElementByTagName(root, "routes");
+			XmlElement nodeRoutes = root.GetFirstElementByTagName("routes");
 			if (nodeRoutes != null)
 			{
 				foreach (XmlElement nodeRoute in nodeRoutes.ChildNodes)
 				{
 					Json jRoute = new Json();
-					UtilsXml.XmlToJson(nodeRoute, jRoute);
+					ExtensionsXml.XmlToJson(nodeRoute, jRoute);
 					// m_routes.Add(jRoute); // Removed in 2.17.1
 
 					if (jRoute["type"].Value as string == "added")
@@ -1031,7 +1025,7 @@ namespace Eddie.Core
 					XmlElement nodeRoute = doc.CreateElement("route") as XmlElement;
 					nodeRoutes.AppendChild(nodeRoute);
 
-					UtilsXml.JsonToXml(jRoute, nodeRoute);
+					ExtensionsXml.JsonToXml(jRoute, nodeRoute);
 				}
 			}
 		}
@@ -1137,15 +1131,7 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public virtual ElevatedProcess Elevated
-		{
-			get
-			{
-				return m_elevated;
-			}
-		}
-
-		public virtual ElevatedProcess StartElevated()
+        public virtual ElevatedProcess StartElevated()
 		{
 			return null;
 		}

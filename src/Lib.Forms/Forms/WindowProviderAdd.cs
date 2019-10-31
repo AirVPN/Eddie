@@ -24,7 +24,6 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Forms.Forms
 {
@@ -62,10 +61,10 @@ namespace Eddie.Forms.Forms
 
 			foreach(XmlElement xmlProvider in xmlData.ChildNodes)
 			{
-				string code = UtilsXml.XmlGetAttributeString(xmlProvider, "code", "");
-				string t = UtilsXml.XmlGetAttributeString(xmlProvider, "title", "");
-				t += " - " + UtilsXml.XmlGetAttributeString(xmlProvider, "subtitle", "");
-				t += " - " + UtilsXml.XmlGetAttributeString(xmlProvider, "href", "");
+				string code = xmlProvider.GetAttributeString("code", "");
+				string t = xmlProvider.GetAttributeString("title", "");
+				t += " - " + xmlProvider.GetAttributeString("subtitle", "");
+				t += " - " + xmlProvider.GetAttributeString("href", "");
 				cboProvider.Items.Add(t);
 				m_choices.Add(code);
 			}

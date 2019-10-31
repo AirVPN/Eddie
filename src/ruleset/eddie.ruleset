@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Eddie Rules" Description="Eddie maintainer rules" ToolsVersion="10.0">
+	<Localization ResourceAssembly="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.dll" ResourceBaseName="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.Localized">
+		<Name Resource="AllRules_Name" />
+		<Description Resource="AllRules_Description" />
+	</Localization>
+	<IncludeAll Action="Warning" />
+	<Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    
+    <Rule Id="CS0219" Action="None" />
+
+		<!-- Remember: a lots of rules are relative to Windows, not to Mono -->
+  
+		<!--
+		Category: Questionable
+		-->
+
+		<Rule Id="CA1024" Action="None" /> <!-- Example: Change 'AreaInfo.GetLoadPercForList()' to a property if appropriate. -->
+		<Rule Id="CA1051" Action="None" /> <!-- Example: Because field 'AreaInfo.Code' is visible outside of its declaring type, change its accessibility to private and add a property, with the same accessibility as the field has currently, to provide access to it. -->
+
+		<Rule Id="CA1704" Action="None" /> <!-- Example: Correct the spelling of 'Pv' in member name 'Engine.GetDefaultGatewayIPv4()' or remove it entirely if it represents any sort of Hungarian notation. -->
+		<Rule Id="CA1709" Action="None" /> <!-- Example: Correct the casing of 'Os' in member name 'Engine.GenerateOsInfo()' by changing it to 'OS'. -->
+
+		<Rule Id="CA1031" Action="None" /> <!-- Example: Modify 'ElevatedProcess.Stop()' to catch a more specific exception than 'object' or rethrow the exception. -->
+		<Rule Id="CA2201" Action="None" /> <!-- Example: 'Engine.SessionStart()' creates an exception of type 'Exception', an exception type that is not sufficiently specific and should never be raised by user code. If this exception instance might be thrown, use a different exception type. -->
+
+		<!-- 
+		Category: No
+		-->
+
+		<!-- What? -->
+		<Rule Id="CA1308" Action="None" /> <!-- Example: In method 'Service.GetMode()', replace the call to 'string.ToLowerInvariant()' with String.ToUpperInvariant(). -->
+     
+		<!-- Why? -->
+		<Rule Id="CA1030" Action="None" /> <!-- Example: Consider making 'Engine.RaiseStatus()' an event. -->
+
+		<!-- Why i need to mix static or not based on this? -->
+		<Rule Id="CA1822" Action="None" /> <!-- Example: The 'this' parameter (or 'Me' in Visual Basic) of 'Engine.GenerateFileHeader()' is never used. Mark the member as static (or Shared in Visual Basic) or use 'this'/'Me' in the method body or at least one property accessor, if appropriate. -->
+          
+		<!-- We sign assembly in deploy phrase, not during compilation -->
+		<Rule Id="CA2210" Action="None" /> <!-- Example: Sign 'App.CLI.Windows.exe' with a strong name key. -->
+
+		<!-- No. -->
+		<Rule Id="CA1720" Action="None" /> <!-- Consider replacing the language-specific data type identifier 'Float' in member name 'UtilsXml.XmlGetAttributeFloat(XmlNode, string, float)' with either a language-independent equivalent or a more generic term, such as 'value'. -->
+
+		<!-- Why will be better? -->
+		<Rule Id="CA1711" Action="None" /> <!-- Either replace the suffix 'Ex' in member name 'Platform.GetApplicationPathEx()' with the suggested numeric alternate '2' or provide a more meaningful suffix that distinguishes it from the member it replaces. -->
+
+		<!-- Why will be better? -->
+		<Rule Id="CA1021" Action="None" /> <!-- Consider a design that does not require that 'stdout' be an out parameter. -->
+
+		<!-- Overflow risk zero, i don't add code for this. -->
+		<Rule Id="CA2233" Action="None" /> <!-- Correct the potential overflow in the operation 'timeoutSec*1000' in 'Platform.Ping(IpAddress, int) -->
+
+		<!-- It's a progress-bar redraw-->
+		<Rule Id="CA1601" Action="None" /> <!-- Microsoft.Mobility : Modify the call to 'Timer.Interval.set(int)' in method 'ProgressInfinite.OnCreateControl()' to set the timer interval to a value that's greater than or equal to one second. -->
+
+		<!-- No, only in NativeMethods, where _ it's correct -->
+		<Rule Id="CA1707" Action="None" /> <!-- Microsoft.Naming : Remove the underscores from member name 'NativeMethods.AF_INET'. -->
+
+		<!-- No, only in NativeMethods. -->
+		<Rule Id="CA1815" Action="None" /> <!-- Microsoft.Performance : 'NativeMethods.MIB_TCPROW_OWNER_PID' should override Equals. -->
+
+		<!-- No. -->
+		<Rule Id="CA1302" Action="None" /> <!-- Microsoft.Globalization : If the literal '\system32\' used in method 'Platform.GetDriverVersion()' refers to a special system location, replace it with a call to Environment.GetFolderPath. -->
+
+		<!--
+		Category: Unsure if will better to obtain clean code
+		-->
+
+		<Rule Id="CA1801" Action="None" />
+		<!-- Parameter 'args' of 'Program.MainConsole(string[])' is never used. Remove the parameter or use it in the method body. -->
+
+		<!-- 
+		Category: TOFIX, real potential bug
+		-->
+
+		<Rule Id="CA1001" Action="None" /> <!-- Disposable -->
+		<Rule Id="CA2202" Action="None" /> <!-- Disposable -->
+		<Rule Id="CA2000" Action="None" /> <!-- Disposable -->
+
+		<!-- 
+		Category: TOFIX, minor
+		-->
+
+		<Rule Id="CA2211" Action="None" /> <!-- Consider making x non-public or a constant -->
+
+		<Rule Id="CA1305" Action="None" /> <!-- Related to conversion and Invariant -->
+		<Rule Id="CA1307" Action="None" /> <!-- Related to conversion and Invariant -->
+		<Rule Id="CA1309" Action="None" /> <!-- Related to conversion and Invariant -->
+
+		<Rule Id="CA1002" Action="None" /> <!-- Related to collections -->
+		<Rule Id="CA1006" Action="None" /> <!-- Related to collections -->
+
+		<Rule Id="CA1034" Action="None" /> <!-- Do not nest type 'ElevatedProcess.Command'. Alternatively, change its accessibility so that it is not externally visible. -->
+
+		<Rule Id="CA1009" Action="None" /> <!-- Naming convention -->
+		<Rule Id="CA1045" Action="None" /> <!-- Naming convention -->
+		<Rule Id="CA1710" Action="None" /> <!-- Naming convention -->
+		<Rule Id="CA1504" Action="None" /> <!-- Naming convention, Example: The field name 'Program.m_client' suggests that it is instance data but it is declared as static (Shared in Visual Basic). Review this member to verify that it should be static, or consider changing the field name. -->
+		
+		<Rule Id="CA1726" Action="None" /> <!-- Naming convention, Example: Replace the term 'Logout' in member name 'Engine.Logout()' with the preferred alternate 'LogOff'. -->
+		
+		<Rule Id="CA1020" Action="None" /> <!-- Consider merging the types defined in 'Eddie.Core.ConsoleEdition' with another namespace. -->
+		
+		<Rule Id="CA1062" Action="None" /> <!-- Validate before use it -->
+	  
+		<Rule Id="CA1820" Action="None" /> <!-- Example: Replace the call to 'string.operator !=(string, string)' in 'ConnectionInfo.BuildConnectionActive(bool)' with a call to 'String.IsNullOrEmpty'.	-->
+
+		<Rule Id="CA1036" Action="None" /> <!-- Example: ConnectionInfo' should define operator '!=' since it implements IComparable. -->
+     
+		<Rule Id="CA1303" Action="None" /> <!-- Typical about hardcoded string. Example: Method 'ConnectionActiveRoute.Compute(ConnectionActive)' passes a literal string as parameter 'message' of a call to 'LogsManager.LogWarning(string)'. Retrieve the following string(s) from a resource table instead: "Gateway ,  invalid.".	-->
+
+		<Rule Id="CA1059" Action="None" /> <!-- Example: Modify member 'UtilsXml.XmlCopyElement(XmlElement, XmlElement)' so that it no longer exposes the concrete type 'XmlElement'. Use IXPathNavigable to represent XML data sources.	-->
+
+		
+		
+		<!--
+		Category: To understand
+		-->
+
+		<Rule Id="CA1502" Action="None" /> <!-- Cyclomatic complexity -->
+		<Rule Id="CA1505" Action="None" /> <!-- Maintainability complexity -->
+		<Rule Id="CA1809" Action="None" /> <!-- Maintainability complexity, Example: Session.ProcessLogEvent(string, string)' has 108 local variables, 79 of which were generated by the compiler.-->
+		<Rule Id="CA1506" Action="None" /> <!-- 'Session.ProcessLogEvent(string, string)' is coupled with 33 different types from 9 different namespaces. Rewrite or refactor the method to decrease its class coupling, or consider moving the method to one of the other types it is tightly coupled with. A class coupling above 40 indicates poor maintainability, a class coupling between 40 and 30 indicates moderate maintainability, and a class coupling below 30 indicates good maintainability. -->
+		
+
+		<Rule Id="CA1702" Action="None" /> <!-- Discrete term suggestion -->
+		<Rule Id="CA2204" Action="None" /> <!-- Spelling? -->
+
+		<Rule Id="CA1014" Action="None" /> <!-- Mark 'App.CLI.Windows.Elevated.exe' with CLSCompliant(true) because it exposes externally visible types. -->
+		<Rule Id="CA1824" Action="None" /> <!-- Because assembly 'App.CLI.Windows.Elevated.exe' contains a ResX-based resource file, mark it with the NeutralResourcesLanguage attribute -->
+		<Rule Id="CA1300" Action="None" /> <!-- Change 'Program.LocalLog(string)' to call the MessageBox.Show overload that specifies MessageBoxOptions, and make sure to set MessageBoxOptions.RightAlign and MessageBoxOptions.RtlReading if RightToLeft is set to RightToLeft.Yes on the parent control. -->
+
+		<!--
+		Category: Add exception in specific class
+		-->
+		<Rule Id="CA1049" Action="None" /> <!-- Implement IDisposable on 'NativeX11Methods.XClassHint'. -->
+		<Rule Id="CA1060" Action="None" /> <!-- Because it is a P/Invoke method, 'NativeReplacements.WindowsGetFocus()' should be defined in a class named NativeMethods, SafeNativeMethods, or UnsafeNativeMethods. -->
+
+
+		<!--
+		Category: Not yet checked
+		-->
+
+
+		<Rule Id="CA1003" Action="None" /> <!-- Remove 'Charts.UpdateHandler' and replace its usage with EventHandler -->
+		<Rule Id="CA1004" Action="None" /> <!-- Microsoft.Design : Consider a design where 'Utils.ReferenceEquals<T, Y>(T, T)' doesn't require explicit type parameter 'Y' in any call to it. -->
+		<Rule Id="CA1008" Action="None" /> <!-- Add a member to 'CredentialType' that has a value of zero with a suggested name of 'None'. -->
+		<Rule Id="CA1011" Action="None" /> <!-- Consider changing the type of parameter 'parent' in 'Main.ShowText(Form, string, string)' from 'Form' to its base type 'IWin32Window'. This method appears to only require base class members in its implementation. Suppress this violation if there is a compelling reason to require the more derived type in the method signature. -->
+		<Rule Id="CA1026" Action="None" /> <!-- Microsoft.Design : Replace method 'Json.GetKey(string, object)' with an overload that supplies all default arguments. -->
+		<Rule Id="CA1050" Action="None" /> <!-- 'CredentialManager' should be declared inside a namespace. -->
+		<Rule Id="CA1053" Action="None" /> <!-- Microsoft.Design : Because type 'Conversions' contains only 'static' members, mark it as 'static' to prevent the compiler from adding a default public constructor. -->
+		<Rule Id="CA1054" Action="None" /> <!-- Change the type of parameter 'url' of method 'Platform.OpenUrl(string)' from string to System.Uri, or provide an overload of 'Platform.OpenUrl(string)', that allows 'url' to be passed as a System.Uri object. -->
+		<Rule Id="CA1055" Action="None" /> <!-- Change the return type of 'Report.TestUrl(string)' from string to System.Uri. -->		
+		<Rule Id="CA1304" Action="None" /> <!-- Microsoft.Globalization : Because the behavior of 'string.ToUpper()' could vary based on the current user's locale settings, replace this call in 'Utils.CapitalizeString(string)' with a call to 'string.ToUpper(CultureInfo)'. If the result of 'string.ToUpper(CultureInfo)' will be displayed to the user, specify 'CultureInfo.CurrentCulture' as the 'CultureInfo' parameter. Otherwise, if the result will be stored and accessed by software, such as when it is persisted to disk or to a database, specify 'CultureInfo.InvariantCulture'. -->
+		<Rule Id="CA1400" Action="None" /> <!-- Microsoft.Interoperability : Correct the declaration of 'NativeReplacements.WindowsGetFocus()' so that it correctly points to an existing entry point in 'user32.dll'. The unmanaged entry point name currently linked to is WindowsGetFocus. -->
+		<Rule Id="CA1401" Action="None" /> <!-- Microsoft.Interoperability : Change the accessibility of P/Invoke 'NativeMethods.CreateToolhelp32Snapshot(uint, uint)' so that it is no longer visible from outside its assembly. -->
+		<Rule Id="CA1404" Action="None" /> <!-- Microsoft.Interoperability : Method 'CredentialManager.EnumerateCrendentials()' called GetLastWin32Error but the immediately preceding call to 'List<Credential>.Add(Credential)' is not a P/Invoke statement. Move the call to GetLastWin32Error so that it immediately follows the relevant platform invoke call. -->
+		<Rule Id="CA1414" Action="None" /> <!-- Microsoft.Interoperability : Add the MarshalAsAttribute to the return type of P/Invoke 'NativeMethods.eddie_wfp_rule_remove(ulong)'. If the corresponding unmanaged return type is a 4-byte Win32 'BOOL', use MarshalAs(UnmanagedType.Bool). For a 1-byte C++ 'bool', use MarshalAs(UnmanagedType.U1). -->		
+		<Rule Id="CA1701" Action="None" /> <!-- Microsoft.Naming : In resource 'Eddie.Core.Properties.Resources.resx', referenced by name 'data' the discrete term 'javascript' in string value '{ -->		
+		<Rule Id="CA1716" Action="None" /> <!-- Microsoft.Naming : Rename namespace Lib.Platform.Windows.Elevated so that it no longer conflicts with the reserved language keyword 'Lib'. Using a reserved keyword as the name of a namespace makes it harder for consumers in other languages to use the namespace. -->
+		<Rule Id="CA1715" Action="None" /> <!-- Microsoft.Naming : On method 'Utils.ReferenceEquals<T, Y>(T, T)', prefix generic type parameter name 'Y' with 'T'. -->
+		<Rule Id="CA1717" Action="None" /> <!-- Microsoft.Naming : If the name 'NativeMethods.CtrlTypes' is plural, change it to its singular form. -->
+		<Rule Id="CA1719" Action="None" /> <!-- Microsoft.Naming : Change either member or parameter name 'command' so that one differs from the other. -->
+		<Rule Id="CA1721" Action="None" /> <!-- Microsoft.Naming : The property name 'Engine.Connections' is confusing given the existence of method 'Engine.GetConnections(bool)'. Rename or remove one of these members. -->
+		<Rule Id="CA1724" Action="None" /> <!-- Microsoft.Naming : The type name 'Platform' conflicts in whole or in part with the namespace name 'Eddie.Platform.Windows'. Change either name to eliminate the conflict. -->		
+		<Rule Id="CA1800" Action="None" /> <!-- Microsoft.Performance : 'child', a variable, is cast to type 'XmlElement' multiple times in method 'Conversions.ToJson(XmlElement)'. Cache the result of the 'as' operator or direct cast in order to eliminate the redundant isint instruction. -->
+		<Rule Id="CA1804" Action="None" /> <!-- Microsoft.Performance : 'Engine.DoCommand(string, string, Dictionary<string, string>)' declares a variable, 'result', of type 'string', which is never used or is only assigned to. Use this variable or remove it. -->
+		<Rule Id="CA1806" Action="None" /> <!-- Microsoft.Usage : 'Storage.GetJson(string)' calls 'Json.TryParse(string, out Json)' but does not explicitly check whether the conversion succeeded. Either use the return value in a conditional statement or verify that the call site expects that the out argument will be set to the default value when the conversion fails. -->
+		<Rule Id="CA1811" Action="None" /> <!-- Microsoft.Performance : 'IpcBase.Application_ThreadException(object, ThreadExceptionEventArgs)' appears to have no upstream public or protected callers. -->		
+		<Rule Id="CA1816" Action="None" /> <!-- Microsoft.Usage : Change 'UnmanagedPointer.Dispose()' to call 'GC.SuppressFinalize(object)'. This will prevent unnecessary finalization of the object once it has been disposed and it has fallen out of scope. -->
+		<Rule Id="CA1819" Action="None" /> <!-- Microsoft.Performance : Change 'Platform.CharsNotAllowedInPath' to return a collection or make it a method. -->
+		<Rule Id="CA1823" Action="None" /> <!-- Microsoft.Performance : It appears that field 'ElevatedProcessSocket.receiveDone' is never used or is only ever assigned to. Use this field or remove it. -->
+		<Rule Id="CA1901" Action="None" /> <!-- Microsoft.Portability : As it is declared in your code, parameter 'wParam' of P/Invoke 'NativeReplacements.NativeSendMessage(IntPtr, uint, int, int)' will be 4 bytes wide on 64-bit platforms. This is not correct, as the actual native declaration of this API indicates it should be 8 bytes wide on 64-bit platforms. Consult the MSDN Platform SDK documentation for help determining what data type should be used instead of 'int'. -->
+		<Rule Id="CA2001" Action="None" /> <!-- Microsoft.Reliability : Remove the call to Assembly.LoadWithPartialName from 'NativeReplacements.MonoWinFormsAssembly.get()'. -->
+		<Rule Id="CA2002" Action="None" /> <!-- Microsoft.Reliability : 'ListViewServers.UpdateList()' locks on a reference of type 'ListViewServers'. Replace this with a lock against an object with strong-identity. -->
+		<Rule Id="CA2006" Action="None" /> <!-- Microsoft.Reliability : Review usage of 'CredentialManager.CREDENTIAL.CredentialBlob' (a 'IntPtr' instance) to determine whether it should be replaced with a SafeHandle or CriticalHandle. -->
+		<Rule Id="CA2101" Action="None" /> <!-- Microsoft.Globalization : To reduce security risk, marshal parameter 'layer' as Unicode, by setting DllImport.CharSet to CharSet.Unicode, or by explicitly marshaling the parameter as UnmanagedType.LPWStr. If you need to marshal this string as ANSI or system-dependent, specify MarshalAs explicitly, and set BestFitMapping=false; for added security, also set ThrowOnUnmappableChar=true. -->
+		<Rule Id="CA2111" Action="None" /> <!-- Microsoft.Security : Make 'NativeMethods.PROCESSENTRY32.th32DefaultHeapID' private. -->
+		<Rule Id="CA2200" Action="None" /> <!-- Microsoft.Usage : 'NetworkLockWindowsFirewall.Activation()' rethrows a caught exception and specifies it explicitly as an argument. Use 'throw' without an argument instead, in order to preserve the stack location where the exception was initially raised. -->
+		<Rule Id="CA2205" Action="None" /> <!-- Microsoft.Usage : Remove the declaration for 'NativeMethods.Process32First(IntPtr, ref NativeMethods.PROCESSENTRY32)'. Callers should use the following managed alternative: System.Diagnostics.Process.GetProcesses -->
+		<Rule Id="CA2208" Action="None" /> <!-- Microsoft.Usage : Method 'GuiUtils.SetNotifyIconText(NotifyIcon, string)' passes 'Text limited to 127 characters' as the 'paramName' argument to a 'ArgumentOutOfRangeException' constructor. Replace this argument with one of the method's parameter names. Note that the provided parameter name should have the exact casing as declared on the method. -->
+		<Rule Id="CA2213" Action="None" /> <!-- Microsoft.Usage : 'WindowSplash' contains field 'WindowSplash.m_sf' that is of IDisposable type: 'StringFormat'. Change the Dispose method on 'WindowSplash' to call Dispose or Close on this field. -->
+		<Rule Id="CA2214" Action="None" /> <!-- Microsoft.Usage : 'Thread.Thread(bool)' contains a call chain that results in a call to a virtual method defined by the class. Review the following call stack for unintended consequences:  -->
+		<Rule Id="CA2237" Action="None" /> <!-- Microsoft.Usage : Add [Serializable] to 'ListViewItemProtocol' as this type implements ISerializable. -->
+			
+
+
+	</Rules>
+</RuleSet>

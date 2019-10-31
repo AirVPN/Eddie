@@ -23,12 +23,11 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Text;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Forms
 {
-	public class GuiUtils
+	public static class GuiUtils
 	{
 		private static Dictionary<String, Bitmap> ImageResourceCache = new Dictionary<String, Bitmap>();
 

@@ -22,7 +22,6 @@ using System.IO;
 using System.Reflection;
 using System.Net.Sockets;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -144,7 +143,7 @@ namespace Eddie.Core
 			if (controlAuthenticate)
 			{
 				Write(client, "AUTHENTICATE ");
-				Write(client, UtilsString.BytesToHex(password));
+				Write(client, ExtensionsString.BytesToHex(password));
 				Write(client, "\n");
 
 				string result = Read(client);
@@ -258,7 +257,7 @@ namespace Eddie.Core
 					string[] circuitsLines = circuits.Split('\n');
 					foreach (string circuit in circuitsLines)
 					{
-						string id = UtilsString.RegExMatchOne(circuit.ToLowerInvariant(), "\\d+\\sbuilt\\s\\$([0-9a-f]+)");
+						string id = circuit.ToLowerInvariant().RegExMatchOne("\\d+\\sbuilt\\s\\$([0-9a-f]+)");
 
 						if (id != "")
 						{
@@ -268,7 +267,7 @@ namespace Eddie.Core
 							string[] nodeLines = nodeInfo.Split('\n');
 							foreach (string line in nodeLines)
 							{
-								string ip = UtilsString.RegExMatchOne(line, "r\\s.+?\\s.+?\\s.+?\\s.+?\\s.+?\\s(.+?)\\s");
+								string ip = line.RegExMatchOne("r\\s.+?\\s.+?\\s.+?\\s.+?\\s.+?\\s(.+?)\\s");
 
 								if ((IpAddress.IsIP(ip)) && (!ips.Contains(ip)))
 								{
@@ -288,7 +287,7 @@ namespace Eddie.Core
 						string[] bridgeLines = bridges.Split('\n');
 						foreach (string bridge in bridgeLines)
 						{
-							List<string> matches = UtilsString.RegExMatchSingle(bridge.ToLowerInvariant(), "250.bridge=(.+?)\\s([0-9a-f\\.\\:]+?):\\d+\\s");
+							List<string> matches = bridge.ToLowerInvariant().RegExMatchSingle("250.bridge=(.+?)\\s([0-9a-f\\.\\:]+?):\\d+\\s");
 							if ((matches != null) && (matches.Count == 2))
 							{
 								string bridgeType = matches[0];

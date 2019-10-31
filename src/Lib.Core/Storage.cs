@@ -23,7 +23,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -711,11 +710,11 @@ namespace Eddie.Core
 						if (Engine.Instance.ProvidersManager.Providers[0].Code == "AirVPN")
 						{
 							// Move providers->AirVPN to root.
-							XmlElement xmlAirVPN = UtilsXml.XmlGetFirstElementByTagName(providersNode, "AirVPN");
+							XmlElement xmlAirVPN = providersNode.GetFirstElementByTagName("AirVPN");
 							if (xmlAirVPN != null)
 							{
 								foreach (XmlElement xmlChild in xmlAirVPN.ChildNodes)
-									UtilsXml.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
+									ExtensionsXml.XmlCopyElement(xmlChild, xmlDoc.DocumentElement);
 								providersNode.RemoveChild(xmlAirVPN);
 							}
 							if (providersNode.ChildNodes.Count == 0)
@@ -807,7 +806,7 @@ namespace Eddie.Core
 				byte[] decrypted = null;
 				for (; ; )
 				{
-					decrypted = CryptManager.ReadBytesEncrypted(profileDataEncrypted, m_loadPassword);
+					decrypted = Core.Crypto.Manager.ReadBytesEncrypted(profileDataEncrypted, m_loadPassword);
 					if (decrypted == null)
 					{
 						if ((m_loadFormat == "v1s") || (m_loadFormat == "v2s"))
@@ -879,7 +878,7 @@ namespace Eddie.Core
 
 				ResetAll(true);
 
-				Providers = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "providers");
+				Providers = xmlDoc.DocumentElement.GetFirstElementByTagName("providers");
 				if (Providers == null)
 					Providers = xmlDoc.CreateElement("providers");
 
@@ -900,15 +899,15 @@ namespace Eddie.Core
 					Set(item.Key, item.Value);
 
 				// For compatibility <3
-				XmlElement xmlManifest = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "manifest");
+				XmlElement xmlManifest = xmlDoc.DocumentElement.GetFirstElementByTagName("manifest");
 				if (xmlManifest != null)
 				{
 					XmlElement providerAirVpn = xmlDoc.CreateElement("AirVPN");
 					Providers.AppendChild(providerAirVpn);
 
-					UtilsXml.XmlCopyElement(xmlManifest, providerAirVpn);
+					ExtensionsXml.XmlCopyElement(xmlManifest, providerAirVpn);
 
-					XmlElement xmlUser = UtilsXml.XmlGetFirstElementByTagName(xmlDoc.DocumentElement, "user");
+					XmlElement xmlUser = xmlDoc.DocumentElement.GetFirstElementByTagName("user");
 					if (xmlUser != null) // Compatibility with old manifest < 2.11
 					{
 						XmlElement oldKeyFormat = xmlUser.SelectSingleNode("keys/key[@id='default']") as XmlElement;
@@ -918,7 +917,7 @@ namespace Eddie.Core
 						}
 					}
 					if (xmlUser != null)
-						UtilsXml.XmlCopyElement(xmlUser, providerAirVpn);
+						ExtensionsXml.XmlCopyElement(xmlUser, providerAirVpn);
 				}
 			}
 		}
@@ -927,10 +926,10 @@ namespace Eddie.Core
 		{
 			if (header.Length != 3)
 				throw new Exception("Unexpected");
-			if (header.StartsWith("v1"))
+			if (header.StartsWithInv("v1"))
 				throw new Exception("Unexpected");
 
-			byte[] encrypted = CryptManager.WriteBytesEncrypted(dataPlain, password);
+			byte[] encrypted = Core.Crypto.Manager.WriteBytesEncrypted(dataPlain, password);
 
 			byte[] n = null;			
 			n = new byte[3 + 64 + encrypted.Length];
@@ -946,7 +945,7 @@ namespace Eddie.Core
 			byte[] bHeader = new byte[3];			
 			Array.Copy(b, 0, bHeader, 0, 3);
 			header = Encoding.ASCII.GetString(bHeader);
-			if(header.StartsWith("v1"))
+			if(header.StartsWithInv("v1"))
 			{
 				// Compatibility				
 				id = RandomGenerator.GetRandomId64();

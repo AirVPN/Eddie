@@ -22,7 +22,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Core.Tools
 {
@@ -34,14 +33,15 @@ namespace Eddie.Core.Tools
                 return;
 
             // Exception: beta-testing
-            if(Version.StartsWith("OpenVPN AirVPN", StringComparison.InvariantCulture))
+            if(Version.StartsWith("AirVPN OpenVPN", StringComparison.InvariantCulture))
             {
-                Version = UtilsString.RegExMatchOne(Version, "^OpenVPN core (.+?)$");
+                Version = "3.3.2 " + Version; // Workaround until --version fix when invoked without root
+                //Version = Version.ExtractBetween("OpenVPN core", "\n").Trim(); 
             }
             else
             {
-                string ver = UtilsString.ExtractBetween(Version, "OpenVPN ", " ");
-                string libs = UtilsString.ExtractBetween(Version, "library versions:", "\n").Trim();
+                string ver = Version.ExtractBetween("OpenVPN ", " ");
+                string libs = Version.ExtractBetween("library versions:", "\n").Trim();
                 Version = ver + " - " + libs;
             }
         }

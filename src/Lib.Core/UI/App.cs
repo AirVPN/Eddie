@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Common;
 using System.Diagnostics;
 
 namespace Eddie.Core.UI // ClodoTemp2 - remove?

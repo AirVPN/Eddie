@@ -93,6 +93,19 @@ namespace Lib.Platform.Windows.Elevated
 						IPC.ReplyCommand(id, "1");
 					}
 					*/
+					else if (command == "kill")
+					{
+						if (int.TryParse(parameters["pid"], out int pid) == false)
+							throw new Exception("Invalid pid.");
+
+						// signal parameter not used in Windows
+
+						Process process = Process.GetProcessById(pid);
+						if(process != null)
+						{
+							process.Kill();
+						}
+					}
 					else if (command == "process_openvpn")
 					{
 						string openvpnExecutablePath = parameters["path"];

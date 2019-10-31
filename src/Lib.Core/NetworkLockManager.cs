@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -71,7 +70,7 @@ namespace Eddie.Core
 			if (Engine.Instance.Storage.GetLower("netlock.mode") == "none")
 				return false;
 
-			if (Common.Constants.FeatureIPv6ControlOptions)
+			if (Constants.FeatureIPv6ControlOptions)
 			{
 				if (Engine.Instance.Storage.GetLower("network.ipv4.mode") == "out")
 					return false;
@@ -232,7 +231,7 @@ namespace Eddie.Core
 				if (m_current != null)
 					throw new Exception(LanguageManager.GetText("NetworkLockRecoveryWhenActive"));
 
-				XmlElement node = UtilsXml.XmlGetFirstElementByTagName(root, "netlock");
+				XmlElement node = root.GetFirstElementByTagName("netlock");
 				if (node != null)
 				{
 					string code = node.GetAttribute("mode");

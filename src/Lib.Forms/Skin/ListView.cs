@@ -362,10 +362,10 @@ namespace Eddie.Forms.Skin
 			Sort();
 		}
 
-		public virtual int OnSortItem(int col, SortOrder order, ListViewItem i1, ListViewItem i2)
+		public virtual int OnSortItem(int col, SortOrder order, ListViewItem pi1, ListViewItem pi2)
 		{
 			int returnVal = -1;
-			returnVal = String.Compare(i1.SubItems[col].Text, i2.SubItems[col].Text);
+			returnVal = String.Compare(pi1.SubItems[col].Text, pi2.SubItems[col].Text);
 			// Determine whether the sort order is descending.
 			if (order == SortOrder.Descending)
 				// Invert the value returned by String.Compare.

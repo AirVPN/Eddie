@@ -148,7 +148,7 @@ namespace Eddie.Core
 				List<Directive> directivesKey = Directives[directiveKey];
 				foreach (Directive value in directivesKey)
 				{
-					if (directiveKey.StartsWith("<", StringComparison.InvariantCulture))
+					if (directiveKey.StartsWithInv("<"))
 					{
 						result += directiveKey + "\n" + value.Text.Trim() + "\n" + directiveKey.Replace("<", "</");
 					}
@@ -157,7 +157,7 @@ namespace Eddie.Core
 						if (value.Text.Trim() != "")
 							result += directiveKey + " " + value.Text.Trim();
 						else
-							result += directiveKey;
+							result += directiveKey; 
 					}
 
                     if((Software.GetTool("openvpn") as Tools.OpenVPN).IsAirSpecialBuild() == false) // Known OpenVPN 3.3 bug: don't trim # comments
@@ -177,10 +177,10 @@ namespace Eddie.Core
 
 		public void AppendDirective(string name, string body, string comment, bool force)
 		{
-			name = UtilsString.StringPruneCharsNotIn(name.Trim(), AllowedCharsInDirectiveName);
+			name = name.Trim().PruneCharsNotIn(AllowedCharsInDirectiveName);
 
 			// Eddie-special: If start with -, remove.
-			if (name.StartsWith("-", StringComparison.InvariantCultureIgnoreCase))
+			if (name.StartsWithInv("-"))
 			{
 				if (Directives.ContainsKey(name.Substring(1)))
 					Directives.Remove(name.Substring(1));
@@ -467,7 +467,7 @@ namespace Eddie.Core
 					string body = d.Text.Trim();
 					if (body == "")
 						continue;
-					List<string> fields = UtilsString.StringToList(body, " ");
+					List<string> fields = body.StringToList(" ");
 					if (fields.Count < 1)
 						return;
 					string path = fields[0];

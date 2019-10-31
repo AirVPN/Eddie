@@ -41,13 +41,16 @@ IF EXIST "%VARTARGETDIR%" (
 rem Compilation
 echo Step: Compilation
 
+set VARARCHCOMPILE=%VARARCH%
+
 CALL "%VARSCRIPTDIR%\..\windows_common\compile.bat" %VARPROJECT% %VARARCH% || goto :error
 
 mkdir %VARTARGETDIR%
 
 IF "%VARPROJECT%"=="cli" (
+	echo copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
 	copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	mv %VARTARGETDIR%\App.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error
+	mv %VARTARGETDIR%\App.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error	
 ) ELSE IF "%VARPROJECT%"=="ui" (
 	copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\APP.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error
 	cp %VARSCRIPTDIR%\..\..\src\App.Forms.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error

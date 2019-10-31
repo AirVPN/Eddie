@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -160,7 +159,7 @@ namespace Eddie.Core
 
 		public void Environment()
 		{
-			Add("Eddie version", Common.Constants.VersionShow);
+			Add("Eddie version", Constants.VersionShow);
 			Add("Eddie OS build", Platform.Instance.GetSystemCode());
 			Add("Eddie architecture", Platform.Instance.GetArchitecture());
 			Add("OS type", Platform.Instance.GetCode());

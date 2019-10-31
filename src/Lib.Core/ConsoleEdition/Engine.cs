@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Core.ConsoleEdition
 {
@@ -44,7 +43,7 @@ namespace Eddie.Core.ConsoleEdition
 			else if (StartCommandLine.Exists("version.short"))
 			{
 				EnableLogOnConsole = false;
-				Console.WriteLine(Common.Constants.VersionShow);
+				Console.WriteLine(Constants.VersionShow);
 				return false;
 			}
 			else if (StartCommandLine.Exists("help"))

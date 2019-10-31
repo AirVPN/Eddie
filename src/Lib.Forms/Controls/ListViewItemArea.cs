@@ -24,8 +24,8 @@ using System.Windows.Forms;
 using Eddie.Core;
 
 namespace Eddie.Forms.Controls
-{
-    public class ListViewItemArea : ListViewItem
+{	
+	public class ListViewItemArea : ListViewItem
     {
         public AreaInfo Info;
 
@@ -67,12 +67,12 @@ namespace Eddie.Forms.Controls
             int stateImageIndex = 2;
             switch(Info.UserList)
             {
-                case AreaInfo.UserListType.WhiteList:
+                case AreaInfo.UserListType.Whitelist:
                     {
                         foreColor = Color.DarkGreen;
                         stateImageIndex = 0;
                     } break;
-                case AreaInfo.UserListType.BlackList:
+                case AreaInfo.UserListType.Blacklist:
                     {
                         foreColor = Color.DarkRed;
                         stateImageIndex = 1;

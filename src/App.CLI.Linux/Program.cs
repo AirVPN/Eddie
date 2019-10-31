@@ -18,7 +18,6 @@
 
 using System;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.CLI.Linux
 {

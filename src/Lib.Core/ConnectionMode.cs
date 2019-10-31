@@ -36,14 +36,14 @@ namespace Eddie.Core
 
 		public void ReadXML(XmlElement node)
 		{
-			Title = UtilsXml.XmlGetAttributeString(node, "title", "");
-			Protocol = UtilsXml.XmlGetAttributeString(node, "protocol", "").ToUpperInvariant();
-			Port = UtilsXml.XmlGetAttributeInt(node, "port", 0);			
-			EntryIndex = UtilsXml.XmlGetAttributeInt(node, "entry_index", 0);
-			Specs = UtilsXml.XmlGetAttributeString(node, "specs", "");
-			MinVersion = UtilsXml.XmlGetAttributeString(node, "openvpn_minversion", "");
-			Directives = UtilsXml.XmlGetAttributeString(node, "openvpn_directives", "");
-			SshPortDestination = UtilsXml.XmlGetAttributeInt(node, "ssh_destination", 0);
+			Title = node.GetAttributeString("title", "");
+			Protocol = node.GetAttributeString("protocol", "").ToUpperInvariant();
+			Port = node.GetAttributeInt("port", 0);			
+			EntryIndex = node.GetAttributeInt("entry_index", 0);
+			Specs = node.GetAttributeString("specs", "");
+			MinVersion = node.GetAttributeString("openvpn_minversion", "");
+			Directives = node.GetAttributeString("openvpn_directives", "");
+			SshPortDestination = node.GetAttributeInt("ssh_destination", 0);
 		}
 
 		public bool Available

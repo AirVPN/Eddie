@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Text;
 using Eddie.Core;
-using Eddie.Common;
 
 namespace Eddie.Core.Jobs
 {

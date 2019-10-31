@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -70,7 +69,7 @@ namespace Eddie.Core
 			{
 				string argument = GetVersionArgument();
 				Version = SystemShell.Shell1(finalPath, argument).Trim();
-				if ((Version.StartsWith("Error:")) || (Version == ""))
+				if ((Version.StartsWithInv("Error:")) || (Version == ""))
 					throw new Exception(Version);
 			}
 		}

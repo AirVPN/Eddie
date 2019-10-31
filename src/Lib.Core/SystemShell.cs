@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -53,7 +52,7 @@ namespace Eddie.Core
 
 		public static string EscapeAlphaNumeric(string value)
 		{
-			return UtilsString.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+			return value.PruneCharsNotIn("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 		}
 
 		public static string EscapeInt(int value)
@@ -70,7 +69,7 @@ namespace Eddie.Core
 		public static string EscapeHost(string value)
 		{
 			// Note: RFC 952 with _ exception.
-			return UtilsString.StringPruneCharsNotIn(value, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_");
+			return value.PruneCharsNotIn("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_");
 		}
 
 		public static string EscapeUrl(string value)
@@ -187,7 +186,7 @@ namespace Eddie.Core
 							message += "'" + arg + "';";
 						}
 					}
-					message = UtilsString.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
+					message = message.RegExReplace("[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
 
@@ -206,7 +205,7 @@ namespace Eddie.Core
 						message += ", out: '" + StdOut + "'";
 					if (StdErr != "")
 						message += ", err: '" + StdErr + "'";
-					message = UtilsString.RegExReplace(message, "[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
+					message = message.RegExReplace("[a-zA-Z0-9+/]{30,}=", "{base64-omissis}");
 					Engine.Instance.Logs.Log(LogType.Verbose, message);
 				}
 

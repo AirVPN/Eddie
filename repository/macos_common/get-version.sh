@@ -8,7 +8,7 @@ realpath() {
 
 CURRENTDIR=$(dirname $(realpath "$0"))
 
-cat ${CURRENTDIR}/../../src/Lib.Common/Constants.cs | grep "VersionDesc = \"" | awk -F"\"" '{print $2}'
+cat ${CURRENTDIR}/../../src/Lib.Core/Constants.cs | grep "VersionDesc = \"" | awk -F"\"" '{print $2}'
 
 exit 0
 

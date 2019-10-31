@@ -23,7 +23,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
-using Eddie.Common;
 using Eddie.Core;
 
 namespace Eddie.Forms.Forms
@@ -81,7 +80,7 @@ namespace Eddie.Forms.Forms
 		{
 			Credentials = new Credentials();
 
-			Credentials.Username = txtUsername.Text;
+			Credentials.UserName = txtUsername.Text;
 			Credentials.Password = txtPassword.Text;
 			if (cboRemember.Text == LanguageManager.GetText("WindowsCredentialsRememberNo"))
 				Credentials.Remember = "no";

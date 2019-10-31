@@ -24,7 +24,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core.Providers
 {
@@ -105,8 +104,8 @@ namespace Eddie.Core.Providers
 				string paramUserTlsCrypt = "";
 				if (User != null)
 				{
-					paramUserTA = UtilsXml.XmlGetAttributeString(User, "ta", "");
-					paramUserTlsCrypt = UtilsXml.XmlGetAttributeString(User, "tls_crypt", "");
+					paramUserTA = User.GetAttributeString("ta", "");
+					paramUserTlsCrypt = User.GetAttributeString("tls_crypt", "");
 				}
 				modeDirectives = modeDirectives.Replace("{@user-ta}", paramUserTA);
 				modeDirectives = modeDirectives.Replace("{@user-tlscrypt}", paramUserTlsCrypt);
@@ -229,7 +228,7 @@ namespace Eddie.Core.Providers
 			}
 			if ((Manifest != null) && (minInterval == -1)) // Pick server recommended
 			{
-				minInterval = UtilsXml.XmlGetAttributeInt(Manifest, "next_update", -1);
+				minInterval = Manifest.GetAttributeInt("next_update", -1);
 				if (minInterval != -1)
 					minInterval *= 60;
 			}
@@ -372,7 +371,7 @@ namespace Eddie.Core.Providers
 				{
 					string code = UtilsCore.HashSHA256(nodeServer.Attributes["name"].Value);
 
-					string group = UtilsXml.XmlGetAttributeString(nodeServer, "group", "");
+					string group = nodeServer.GetAttributeString("group", "");
 
 					XmlNode nodeServerGroup = Manifest.SelectSingleNode("//servers_groups/servers_group[@group=\"" + group + "\"]");
 
@@ -395,9 +394,9 @@ namespace Eddie.Core.Providers
 					infoServer.SupportIPv6 = XmlGetServerAttributeBool(nodeServer, nodeServerGroup, "support_ipv6", false);
 					infoServer.SupportCheck = XmlGetServerAttributeBool(nodeServer, nodeServerGroup, "support_check", false);
 					infoServer.OvpnDirectives = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "openvpn_directives", "");
-					infoServer.CiphersTls = UtilsString.StringToList(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_tls", ""), ":");
-					infoServer.CiphersTlsSuites = UtilsString.StringToList(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_tlssuites", ""), ":");
-					infoServer.CiphersData = UtilsString.StringToList(XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_data", ""), ":");
+					infoServer.CiphersTls = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_tls", "").StringToList(":");
+					infoServer.CiphersTlsSuites = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_tlssuites", "").StringToList(":");
+					infoServer.CiphersData = XmlGetServerAttributeString(nodeServer, nodeServerGroup, "ciphers_data", "").StringToList(":");
 				}
 			}
 
@@ -428,12 +427,12 @@ namespace Eddie.Core.Providers
 
 		public override string GetSshKey(string format)
 		{
-			return UtilsXml.XmlGetAttributeString(User, "ssh_" + format, "");
+			return User.GetAttributeString("ssh_" + format, "");
 		}
 
 		public override string GetSslCrt()
 		{
-			return UtilsXml.XmlGetAttributeString(User, "ssl_crt", "");
+			return User.GetAttributeString("ssl_crt", "");
 		}
 
 		public bool SupportConnect
@@ -597,8 +596,8 @@ namespace Eddie.Core.Providers
 				// HTTP Fetch
 				HttpRequest request = new HttpRequest();
 				request.Url = url;
-				request.Parameters["s"] = UtilsString.Base64Encode(bytesParamS);
-				request.Parameters["d"] = UtilsString.Base64Encode(bytesParamD);
+				request.Parameters["s"] = ExtensionsString.Base64Encode(bytesParamS);
+				request.Parameters["d"] = ExtensionsString.Base64Encode(bytesParamD);
 
 				HttpResponse response = Engine.Instance.FetchUrl(request);
 

@@ -123,8 +123,8 @@ namespace Eddie.Core
 			{
 				string list = Engine.Instance.Storage.Get("netlock.whitelist.incoming.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
-				List<string> hosts = UtilsString.StringToList(list);
-				foreach (string host in hosts)
+                List<string> hosts = list.StringToList();
+                foreach (string host in hosts)
 				{
 					string host2 = host;
 					int posComment = host2.IndexOf("#");
@@ -146,7 +146,7 @@ namespace Eddie.Core
 			{
 				string list = Engine.Instance.Storage.Get("netlock.whitelist.outgoing.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
-				List<string> hosts = UtilsString.StringToList(list);
+                List<string> hosts = list.StringToList();
 				foreach (string host in hosts)
 				{
 					string host2 = host;

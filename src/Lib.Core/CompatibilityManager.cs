@@ -22,7 +22,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Eddie.Common;
 
 namespace Eddie.Core
 {
@@ -100,12 +99,12 @@ namespace Eddie.Core
 			{
 				if (Engine.Instance.AirVPN != null)
 				{
-					if (UtilsXml.XmlGetAttributeString(Engine.Instance.AirVPN.User, "ssl_crt", "") == "")
+					if (Engine.Instance.AirVPN.User.GetAttributeString("ssl_crt", "") == "")
 					{
 						Engine.Instance.ReAuth();
 					}
 
-					if (UtilsXml.XmlGetAttributeString(Engine.Instance.AirVPN.User, "tls_crypt", "") == "")
+					if (Engine.Instance.AirVPN.User.GetAttributeString("tls_crypt", "") == "")
 					{
 						Engine.Instance.ReAuth();
 					}
