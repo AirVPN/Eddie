@@ -420,32 +420,6 @@ int eddie_file_get_immutable(const char *filename)
     return result;
 }
 
-/*
-int eddie_file_set_immutable(const char *filename, int flag)
-{
-    FILE *fp;
-    if((fp = fopen(filename, "r")) == NULL)
-        return -1;
-
-    int fd = fileno(fp);
-
-    int result = -1;
-
-    int attr = 0;
-    if(ioctl(fd, FS_IOC_GETFLAGS, &attr) != -1)
-    {
-        attr = flag ? (attr | FS_IMMUTABLE_FL) : (attr & ~FS_IMMUTABLE_FL);
-
-        if(ioctl(fd, FS_IOC_SETFLAGS, &attr) != -1)
-            result = 0;
-    }
-
-    fclose(fp);
-
-    return result;
-}
-*/
-
 bool eddie_file_get_runasroot(const char *filename)
 {
 	struct stat s;

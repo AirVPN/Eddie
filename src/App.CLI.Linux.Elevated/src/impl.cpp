@@ -18,7 +18,6 @@
 
 #include <fcntl.h>
 
-#include "impl.h"
 #include <linux/fs.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -28,7 +27,11 @@
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal()
 
-int Impl::Main(int argc, char* argv[])
+#include "loadmod.h"
+
+#include "impl.h"
+
+int Impl::Main()
 {
     std::string serviceName = "eddie-elevated";
     std::string serviceDesc = "Eddie Elevation";
@@ -43,17 +46,19 @@ int Impl::Main(int argc, char* argv[])
     
     // fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "block");
     
-    if (argc != 2)
-    {
-        LogLocal("This application can't be run directly, it's used internally by Eddie.");
-        return 1;
-    }
-    else if (std::string(argv[1]) == "service-install")
+    if ( (m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "install") )
     {
 		std::string elevatedPath = GetProcessPathCurrent();
         
         if(FileExists(systemdPath))
         {
+            if(FileExists(systemdUnitPath)) // Remove if exists
+            {
+                ShellEx2(LocateExecutable("systemctl"), "stop", systemdUnitName);        
+                ShellEx2(LocateExecutable("systemctl"), "disable", systemdUnitName);        
+                FileDelete(systemdUnitPath);
+            }
+            
             std::string unit = "";
             unit += "[Unit]\n";
             unit += "Description=" + serviceDesc + "\n";
@@ -62,7 +67,7 @@ int Impl::Main(int argc, char* argv[])
             unit += "\n";
             unit += "[Service]\n";
             unit += "Type=simple\n";
-            unit += "ExecStart=\"" + elevatedPath + "\" service\n";
+            unit += "ExecStart=\"" + elevatedPath + "\" mode=service allowed_hash=" + m_cmdline["allowed_hash"] + "\n";
             unit += "Restart=always\n";
             unit += "RestartSec=5s\n";
             unit += "TimeoutStopSec=5s\n";
@@ -97,7 +102,7 @@ int Impl::Main(int argc, char* argv[])
         
         return 1;
     }
-    else if (std::string(argv[1]) == "service-uninstall")
+    else if ( (m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "uninstall") )
     {
         if(FileExists(systemdUnitPath))
         {
@@ -116,7 +121,7 @@ int Impl::Main(int argc, char* argv[])
     }
     else
     {
-        return IPosix::Main(argc, argv);
+        return IPosix::Main();
     }
 }
 
@@ -124,6 +129,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 {
 	if (command == "compatibility-profiles")
     {
+        //LogRemote("parent pid:" + std::to_string(getppid()));
+        
         const std::string& dataPath = params["path-data"];
         
         if(FileExists(dataPath) == false)
@@ -358,6 +365,22 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
         else
         {
             // Try to up kernel module - For example standard Debian 8 KDE don't have it at boot
+            if(params.count("rules-ipv4")>0)
+            {
+                int ret = load_kernel_module("iptable_filter", "");
+                if( (ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED) )
+                    ThrowException("Unable to initialize iptable_filter module");
+            }
+            
+            if(params.count("rules-ipv6")>0)
+            {
+                int ret = load_kernel_module("ip6table_filter", "");
+                if( (ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED) )
+                    ThrowException("Unable to initialize iptable_filter module");
+            }
+            
+            // Old shell edition
+            /*
             std::string modprobePath = LocateExecutable("modprobe");
             if(modprobePath != "")
             {
@@ -375,6 +398,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
                         ThrowException("Unable to initialize ip6table_filter module");
                 }
             }
+            */
                 
             // Backup of current
             std::vector<std::string> args;
@@ -613,7 +637,6 @@ std::string Impl::GetProcessPathOfID(int pid)
     {
         std::string path = std::string(fullPath, length);
         
-        /*
         // Exception: If mono, detect Assembly
         bool isMono = false;
         std::string pathMono1 = LocateExecutable("mono");
@@ -627,15 +650,31 @@ std::string Impl::GetProcessPathOfID(int pid)
             std::string procCmdLinePath = "/proc/" + std::to_string(pid) + "/cmdline";
             if(FileExists(procCmdLinePath))
             {
-                std::string cmdline = FileReadText(procCmdLinePath);
-                std::vector<std::string> args = StringToVector(cmdline, '\0', false);
-                // TOFIX: don't work, cmdline arguments are separated by null terminator.
-                for (std::vector<std::string>::const_iterator l = args.begin(); l != args.end(); ++l)
+                std::string subpath = "";
+                std::vector<char> cmdline = FileReadBytes(procCmdLinePath);
+                ulong iField = 0;
+                for(ulong i=0;i<cmdline.size();i++)
                 {
+                    if(cmdline[i] == 0)
+                    {
+                        if( (iField>0) && (subpath != "") && (StringStartsWith(subpath,"-") == false) )
+                        {
+                            path = subpath;
+                            break;
+                        }
+                        else
+                        {
+                            iField++;
+                            subpath = "";
+                        }
+                    }
+                    else
+                    {
+                        subpath += cmdline[i];
+                    }
                 }
             }
         }
-        */
         
         return path;
     }

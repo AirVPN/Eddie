@@ -18,6 +18,8 @@
 
 #include "ibase.h"
 
+#include <netinet/in.h>
+
 class IPosix: public IBase
 {
 protected:
@@ -25,5 +27,5 @@ protected:
     virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
     
     virtual void Sleep(int ms);
-    virtual int GetProcessIdMatchingIPEndPoints(std::string sourceAddr, int sourcePort, std::string destAddr, int destPort);
+    virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
 };

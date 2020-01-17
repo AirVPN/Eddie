@@ -201,7 +201,7 @@ namespace Eddie.Core
 				return "-";
 
 			string o = "";
-			Int64 now = UtilsCore.UnixTimeStamp();
+			Int64 now = Utils.UnixTimeStamp();
 			if (unix == now)
 				o = GetText("TimeJustNow");
 			else if (unix < now)

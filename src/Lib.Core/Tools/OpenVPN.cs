@@ -32,18 +32,9 @@ namespace Eddie.Core.Tools
             if (Version == "")
                 return;
 
-            // Exception: beta-testing
-            if(Version.StartsWith("AirVPN OpenVPN", StringComparison.InvariantCulture))
-            {
-                Version = "3.3.2 " + Version; // Workaround until --version fix when invoked without root
-                //Version = Version.ExtractBetween("OpenVPN core", "\n").Trim(); 
-            }
-            else
-            {
-                string ver = Version.ExtractBetween("OpenVPN ", " ");
-                string libs = Version.ExtractBetween("library versions:", "\n").Trim();
-                Version = ver + " - " + libs;
-            }
+            string ver = Version.ExtractBetween("OpenVPN ", " ");
+            string libs = Version.ExtractBetween("library versions:", "\n").Trim();
+            Version = ver + " - " + libs;
         }
 
 		public override void ExceptionIfRequired()
@@ -65,11 +56,6 @@ namespace Eddie.Core.Tools
         public override string GetVersionArgument()
         {
             return "--version";
-        }
-
-        public bool IsAirSpecialBuild()
-        {
-            return Version.Contains("AirVPN");
         }
     }
 }

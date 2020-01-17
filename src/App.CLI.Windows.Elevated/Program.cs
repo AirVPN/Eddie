@@ -1,4 +1,22 @@
-﻿using System;
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+//
+// Eddie is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Eddie is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,7 +33,9 @@ namespace App.CLI.Windows.Elevated
 	{
 		// This program is WinForms only to avoid UAC elevation show console when launched with ShellExecute=true.		
 
-		private static string ServiceName = "Eddie Elevation Service";
+		private static string ServiceName = "EddieElevationService";
+		private static string ServiceDisplayName = "Eddie Elevation Service";
+		//private static string ServiceDisplayDesc = "Eddie Elevation Service"; // Not yet used
 
 		[STAThread]
 		static void Main()
@@ -25,8 +45,8 @@ namespace App.CLI.Windows.Elevated
 			//Application.Run(new MainForm());
 
 			try
-			{
-				MainConsole(Environment.GetCommandLineArgs());
+			{	
+				MainConsole(Engine.ParseCommandLine(Environment.GetCommandLineArgs()));
 			}
 			catch (Exception ex)
 			{
@@ -34,7 +54,7 @@ namespace App.CLI.Windows.Elevated
 			}
 		}
 
-		public static void MainConsole(string[] args)
+		public static void MainConsole(Dictionary<string, string> cmdline)
 		{	
 			if (Utils.IsAdministrator() == false)
 			{
@@ -42,24 +62,23 @@ namespace App.CLI.Windows.Elevated
 				return;
 			}
 
-			string action = "";
-			if (Environment.GetCommandLineArgs().Length == 2)
-				action = Environment.GetCommandLineArgs()[1];
-
-			if (action == "service-install")
+			if( (cmdline.ContainsKey("service")) && (cmdline["service"] == "install") )
 			{
 				string path = AppDomain.CurrentDomain.BaseDirectory + "Eddie-Service-Elevated.exe";
 
-				//Utils.Shell("sc", "create \"" + ServiceName + "\" start=auto binpath=\"" + path + "\""); // Syntax accepted in Win10
-				Utils.Shell("sc", "create \"" + ServiceName + "\" binpath= \"" + path + "\" start= auto"); // Syntax accepted in Win10 and Win7
+				// Can be active but old version that don't accept new client
+				Utils.Shell("net", "stop \"" + ServiceName + "\"");
+				Utils.Shell("sc", "delete \"" + ServiceName + "\"");
+
+				Utils.Shell("sc", "create \"" + ServiceName + "\" binpath= \"" + path + " allowed_hash=" + cmdline["allowed_hash"] + "\" DisplayName= \"" + ServiceDisplayName + "\" start= auto");				
 				Utils.Shell("net", "start \"" + ServiceName + "\"");
 			}
-			else if(action == "service-uninstall")
+			else if ((cmdline.ContainsKey("service")) && (cmdline["service"] == "uninstall"))
 			{
 				Utils.Shell("net", "stop \"" + ServiceName + "\"");
 				Utils.Shell("sc", "delete \"" + ServiceName + "\"");
 			}
-			else if(action == "spot")
+			else if ((cmdline.ContainsKey("mode")) && (cmdline["mode"] == "spot"))
 			{				
 				if (NativeMethods.Init() != 0)
 				{
@@ -68,7 +87,7 @@ namespace App.CLI.Windows.Elevated
 				}
 
 				Engine engine = new Engine();
-				engine.Start(false);
+				engine.Start(cmdline);
 				engine.Stop(false);
 			}
 			else

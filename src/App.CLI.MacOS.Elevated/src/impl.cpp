@@ -23,12 +23,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <libproc.h>
+#include <arpa/inet.h>
 //#include <mach-o/dyld.h>
 
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal();
 
-int Impl::Main(int argc, char* argv[])
+int Impl::Main()
 {
     std::string serviceName = "eddie-elevated";
     std::string serviceDesc = "Eddie Elevation";
@@ -36,16 +37,16 @@ int Impl::Main(int argc, char* argv[])
 
     signal(SIGINT, SIG_IGN); // See comment in Linux implementation
 
-    setuid(0); // RootLauncher::AuthorizationExecuteWithPrivileges run elevated with superuser, but without change uid...
+    setuid(0); // RootLauncher::AuthorizationExecuteWithPrivileges run elevated with superuser, but without change uid. Forced here.
     
-    if (argc != 2)
-    {
-        LogLocal("This application can't be run directly, it's used internally by Eddie.");
-        return 1;
-    }
-    else if (std::string(argv[1]) == "service-install")
+    if ( (m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "install") )
     {
         std::string elevatedPath = GetProcessPathCurrent();
+
+        if(FileExists(launchdPath))
+        {
+            ShellEx2(LocateExecutable("launchctl"), "unload", launchdPath);
+        }
         
         std::string launchd = "";
         launchd += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -64,7 +65,8 @@ int Impl::Main(int argc, char* argv[])
         launchd += "           <key>ProgramArguments</key>\n";
         launchd += "        <array>\n";
         launchd += "            <string>" + StringXmlEncode(elevatedPath) + "</string>\n";
-        launchd += "            <string>service</string>\n";
+        launchd += "            <string>mode=service</string>\n";
+        launchd += "            <string>allowed_hash=" + StringXmlEncode(m_cmdline["allowed_hash"]) + "</string>\n";
         launchd += "        </array>\n";
         launchd += "        <key>RunAtLoad</key>\n";
         launchd += "        <true/>\n";
@@ -79,7 +81,7 @@ int Impl::Main(int argc, char* argv[])
         ShellResult launchctlResult = ShellEx2(LocateExecutable("launchctl"), "load", launchdPath);        
         return launchctlResult.exit;
     }
-    else if (std::string(argv[1]) == "service-uninstall")
+    else if ( (m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "uninstall") )
     {
         ShellResult launchctlResult = ShellEx2(LocateExecutable("launchctl"), "unload", launchdPath);
         
@@ -90,7 +92,7 @@ int Impl::Main(int argc, char* argv[])
     }
     else
     {
-        return IPosix::Main(argc, argv);
+        return IPosix::Main();
     }
 }
 
@@ -549,6 +551,57 @@ int Impl::FileGetFlags(const std::string& path)
     return (int) s.st_flags;
 }
 
+int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
+{
+    char sourceIp[256];
+    char destIp[256];
+
+    inet_ntop(AF_INET, &addrClient.sin_addr, sourceIp, sizeof(sourceIp));
+    inet_ntop(AF_INET, &addrServer.sin_addr, destIp, sizeof(destIp));
+    std::string sourceAddr = sourceIp;
+    int sourcePort = ntohs(addrClient.sin_port);
+    std::string destAddr = destIp;
+    int destPort = ntohs(addrServer.sin_port);
+
+    std::vector<std::string> args;
+    args.push_back("-F");
+    args.push_back("pfn");
+    args.push_back("-anPi");
+    args.push_back("4tcp@" + destAddr + ":" + std::to_string(destPort));
+    
+    std::string lsofPath = LocateExecutable("lsof");
+    if(lsofPath != "")
+    {
+        ShellResult lsResult = ShellEx("lsof", args);
+        if(lsResult.exit == 0)
+        {
+            std::vector<std::string> lines = StringToVector(lsResult.out, '\n');
+            int lastPid = 0;
+            std::string needle = sourceAddr + ":" + std::to_string(sourcePort) + "->" + destAddr + ":" + std::to_string(destPort);
+            for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+            {
+                std::string line = StringTrim(StringToLower(*i));
+                
+                if(line.length()==0)
+                    continue;
+                    
+                char ch = line.at(0);
+                if(ch == 'p')
+                {
+                    lastPid = strtol(line.c_str()+1,NULL,10);
+                }
+                else if(ch == 'n')
+                {
+                    if(StringContain(line, needle))
+                        return lastPid;
+                }
+            }
+        }
+    }
+    
+    return 0;
+}
+
 std::vector<std::string> Impl::GetNetworkInterfaces()
 {
     ShellResult networksetupListResult = ShellEx1(LocateExecutable("networksetup"), "-listallnetworkservices");
@@ -573,3 +626,4 @@ std::vector<std::string> Impl::GetNetworkInterfaces()
     
     return output;
 }
+

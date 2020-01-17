@@ -240,7 +240,7 @@ namespace Eddie.Core
 			if(postRefreshRecompute)
 				Engine.Instance.PostManifestUpdate();
 
-			m_lastRefreshDone = UtilsCore.UnixTimeStamp();
+			m_lastRefreshDone = Utils.UnixTimeStamp();
 
 			if(InvalidateWithNextRefresh)
 			{

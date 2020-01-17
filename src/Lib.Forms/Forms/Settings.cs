@@ -70,7 +70,6 @@ namespace Eddie.Forms.Forms
 			GuiUtils.FixHeightVs(txtProxyPassword, lblProxyPassword);
 			GuiUtils.FixHeightVs(txtProxyTorControlPort, lblProxyTorControlPort);
 			GuiUtils.FixHeightVs(txtProxyTorControlPassword, lblProxyTorControlPassword);
-			GuiUtils.FixHeightVs(cboRoutesOtherwise, lblRoutesOtherwise);
 			GuiUtils.FixHeightVs(cboDnsSwitchMode, lblDnsSwitchMode);
 			GuiUtils.FixHeightVs(chkDnsCheck, lblDnsCheck);
 						
@@ -92,12 +91,15 @@ namespace Eddie.Forms.Forms
 
 			GuiUtils.FixHeightVs(chkExpert, lblExpert);
 			GuiUtils.FixHeightVs(chkAdvancedCheckRoute, lblAdvancedCheckRoute);
-			GuiUtils.FixHeightVs(cboIpV6, lblIpV6);
-
+			
 			GuiUtils.FixHeightVs(cboAdvancedManifestRefresh, lblAdvancedManifestRefresh);
 			GuiUtils.FixHeightVs(cboAdvancedUpdaterChannel, lblAdvancedUpdaterChannel);
-			GuiUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);			
-			
+			GuiUtils.FixHeightVs(chkAdvancedPingerEnabled, lblAdvancedPingerEnabled);
+
+			GuiUtils.FixHeightVs(lblAdvancedSkipAlreadyRun, chkAdvancedSkipAlreadyRun);
+			GuiUtils.FixHeightVs(lblAdvancedProviders, chkAdvancedProviders);
+			GuiUtils.FixHeightVs(lblHummingbirdPrefer, chkHummingbirdPrefer);
+
 			GuiUtils.FixHeightVs(txtExePath, lblExePath);
 			GuiUtils.FixHeightVs(txtExePath, cmdExeBrowse);
 
@@ -122,6 +124,8 @@ namespace Eddie.Forms.Forms
 			pnlAdvancedGeneralWindowsOnly.Visible = GuiUtils.IsWindows();
 			pnlDnsWindowsOnly.Visible = GuiUtils.IsWindows();
 			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
+			lblHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
+			chkHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
 
 			cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModeNone"));			
 			cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModePassword"));
@@ -183,20 +187,17 @@ namespace Eddie.Forms.Forms
 			cboProxyWhen.Items.Add(LanguageManager.GetText("WindowsSettingsProxyWhenNone"));
 
 			// Routes
+			lstRoutes.ImageIconResourcePrefix = "routes_";
 			lstRoutes.ResizeColumnString(0, "255.255.255.255/255.255.255.255");
 			lstRoutes.ResizeColumnString(1, "Outside the VPN tunnel");
 			lstRoutes.ResizeColumnMax(2);
-			cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("in"));
-			cboRoutesOtherwise.Items.Add(Settings.RouteDirectionToDescription("out"));
-
+			
 			cboLockMode.Items.Clear();
 			cboLockMode.Items.Add("None");
 			cboLockMode.Items.Add("Automatic");
 			foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				cboLockMode.Items.Add(lockPlugin.GetTitleForList());
-			lblRoutesNetworkLockWarning.Text = LanguageManager.GetText("WindowsSettingsRouteLockHelp");
-			lblLockRoutingOutWarning.Text = LanguageManager.GetText("NetworkLockNotAvailableWithRouteOut");
-
+			
 			lstAdvancedEvents.Items.Add(new ListViewItem("App Start"));
 			lstAdvancedEvents.Items.Add(new ListViewItem("App End"));
 			lstAdvancedEvents.Items.Add(new ListViewItem("Session Start"));
@@ -279,29 +280,6 @@ namespace Eddie.Forms.Forms
 			cboOpenVpnDirectivesDefaultSkip.Items.Clear();
 			cboOpenVpnDirectivesDefaultSkip.Items.Add(LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip1"));
 			cboOpenVpnDirectivesDefaultSkip.Items.Add(LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2"));
-
-			if (Constants.FeatureIPv6ControlOptions)
-			{
-				lblNetworkIPv4Mode.Visible = true;
-				lblNetworkIPv6Mode.Visible = true;
-				cboNetworkIPv4Mode.Visible = true;
-				cboNetworkIPv6Mode.Visible = true;
-				lblIpV6.Visible = false;
-				cboIpV6.Visible = false;
-				cboRoutesOtherwise.Visible = false;
-				lblRoutesOtherwise.Visible = false;
-			}
-			else
-			{
-				lblNetworkIPv4Mode.Visible = false;
-				lblNetworkIPv6Mode.Visible = false;
-				cboNetworkIPv4Mode.Visible = false;
-				cboNetworkIPv6Mode.Visible = false;
-				lblIpV6.Visible = true;
-				cboIpV6.Visible = true;
-				cboRoutesOtherwise.Visible = true;
-				lblRoutesOtherwise.Visible = true;
-			}
 
 			// Disabled in this version
 			lblShellExternal.Visible = false;
@@ -400,6 +378,7 @@ namespace Eddie.Forms.Forms
 			chkUiTrayMinimized.Checked = s.GetBool("gui.tray_minimized");
 
 			chkUiSkipProviderManifestFailed.Checked = s.GetBool("ui.skip.provider.manifest.failed");
+			chkUiSkipPromotional.Checked = s.GetBool("ui.skip.promotional");
 
 			// Protocol
 			String protocol = s.Get("mode.protocol").ToUpperInvariant();
@@ -454,8 +433,6 @@ namespace Eddie.Forms.Forms
 
 
 			// Routes
-			cboRoutesOtherwise.Text = RouteDirectionToDescription(s.Get("routes.default"));
-
 			string routes = s.Get("routes.custom");
 			String[] routes2 = routes.Split(';');
 			foreach (String route in routes2)
@@ -608,17 +585,10 @@ namespace Eddie.Forms.Forms
 			chkExpert.Checked = s.GetBool("advanced.expert");
 			chkAdvancedCheckRoute.Checked = s.GetBool("advanced.check.route");
 
-			string ipV6 = s.Get("ipv6.mode");
-			if (ipV6 == "none")
-				cboIpV6.Text = "None";
-			else if (ipV6 == "disable")
-				cboIpV6.Text = "Disable";
-			else
-				cboIpV6.Text = "None";
-
 			chkAdvancedPingerEnabled.Checked = s.GetBool("pinger.enabled");
 			chkAdvancedSkipAlreadyRun.Checked = s.GetBool("advanced.skip_alreadyrun");
 			chkAdvancedProviders.Checked = s.GetBool("advanced.providers");
+			chkHummingbirdPrefer.Checked = s.GetBool("tools.hummingbird.preferred");
 
 			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
 			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
@@ -725,12 +695,6 @@ namespace Eddie.Forms.Forms
 				}
 			}
 			
-			if ((RouteDescriptionToDirection(cboRoutesOtherwise.Text) == "out") && (lstRoutes.Items.Count == 0))
-			{
-				if (UiClient.Instance.MainWindow.AskYesNo(LanguageManager.GetText("WindowsSettingsRouteOutEmptyList")) == false)
-					return false;
-			}
-
 			if (chkLockAllowDNS.Checked == false)
 			{
 				bool hostNameUsed = false;
@@ -805,6 +769,7 @@ namespace Eddie.Forms.Forms
 			s.SetBool("gui.tray_minimized", chkUiTrayShow.Checked && chkUiTrayMinimized.Checked);
 
 			s.SetBool("ui.skip.provider.manifest.failed", chkUiSkipProviderManifestFailed.Checked);
+			s.SetBool("ui.skip.promotional", chkUiSkipPromotional.Checked);
 
 			// Protocols
 			if (lstProtocols.Items.Count == 0) // Occur if AirVPN provider is disabled
@@ -852,8 +817,6 @@ namespace Eddie.Forms.Forms
 			s.Set("proxy.tor.control.password", txtProxyTorControlPassword.Text);
 
 			// Routes
-			s.Set("routes.default", RouteDescriptionToDirection(cboRoutesOtherwise.Text));
-
 			String routes = "";
 			foreach (ListViewItem item in lstRoutes.Items)
 			{
@@ -993,18 +956,11 @@ namespace Eddie.Forms.Forms
 			s.SetBool("advanced.expert", chkExpert.Checked);
 			s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
 
-			string ipV6 = cboIpV6.Text;
-			if (ipV6 == "None")
-				s.Set("ipv6.mode", "none");
-			else if (ipV6 == "Disable")
-				s.Set("ipv6.mode", "disable");
-			else
-				s.Set("ipv6.mode", "none");
-
 			s.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
 			s.SetBool("advanced.skip_alreadyrun", chkAdvancedSkipAlreadyRun.Checked);
 			s.SetBool("advanced.providers", chkAdvancedProviders.Checked);
-			
+			s.SetBool("tools.hummingbird.preferred", chkHummingbirdPrefer.Checked);
+
 			s.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
 			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
 			s.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
@@ -1171,9 +1127,6 @@ namespace Eddie.Forms.Forms
 			cmdDnsAdd.Enabled = true;
 			cmdDnsRemove.Enabled = (lstDnsServers.SelectedItems.Count > 0);
 			cmdDnsEdit.Enabled = (lstDnsServers.SelectedItems.Count == 1);
-
-			// Lock
-			lblLockRoutingOutWarning.Visible = (cboRoutesOtherwise.Text == Settings.RouteDirectionToDescription("out"));
 
 			cmdAdvancedEventsClear.Enabled = (lstAdvancedEvents.SelectedItems.Count == 1);
 			cmdAdvancedEventsEdit.Enabled = (lstAdvancedEvents.SelectedItems.Count == 1);

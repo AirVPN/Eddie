@@ -59,7 +59,7 @@ namespace Eddie.Core
 
 		public void LogDebug(string message)
 		{
-			long ts = UtilsCore.UnixTimeStampMs ();
+			long ts = Utils.UnixTimeStampMs ();
 			LogVerbose(ts.ToString() + ":" + message);
 		}
 

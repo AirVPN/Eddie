@@ -163,6 +163,9 @@ namespace Eddie.Core
 
 		public void SendResponse(HttpListenerContext context)
 		{
+			if (Engine.Instance.Manifest == null)
+				return; // Not ready... do better
+
 			// string physicalPath = GetPath() + request.RawUrl;
 			string bodyResponse = ""; // If valorized, always a dynamic response
 			Dictionary<string, string> requestHeaders = new Dictionary<string, string>();
@@ -173,6 +176,13 @@ namespace Eddie.Core
 			context.Response.Headers["Server"] = Constants.Name + " " + Constants.VersionShow;
 			context.Response.Headers["Access-Control-Allow-Origin"] = ListenUrl;
 			context.Response.Headers["Vary"] = "Origin";
+
+			foreach(KeyValuePair<string, object> jsonHeader in Engine.Instance.Manifest["webserver"]["headers"]["common"].Json.GetDictionary())
+			{
+				string k = jsonHeader.Key;
+				string v = (jsonHeader.Value as string);
+				context.Response.Headers[k] = v;
+			}
 
 			string origin = context.Request.Headers["Origin"];
 			if( (requestHeaders.ContainsKey("origin")) && (requestHeaders["origin"].StartsWith(ListenUrl) == false))

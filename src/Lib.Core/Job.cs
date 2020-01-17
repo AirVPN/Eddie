@@ -73,7 +73,7 @@ namespace Eddie.Core
 			if (m_cancelRequested)
 				return;
 
-			Int64 now = UtilsCore.UnixTimeStampMs();
+			Int64 now = Utils.UnixTimeStampMs();
 
 			if(m_thread != null)
 			{
@@ -105,7 +105,7 @@ namespace Eddie.Core
 
 		public void Run()
 		{
-			Int64 now = UtilsCore.UnixTimeStampMs();
+			Int64 now = Utils.UnixTimeStampMs();
 
 			m_timeLastStart = now;
 			OnRun();

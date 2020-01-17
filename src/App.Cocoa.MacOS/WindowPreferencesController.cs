@@ -72,7 +72,15 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			base.AwakeFromNib();
 
-            CmdGeneralTos.Hidden = true; // TOCLEAN
+			{
+				// Deprecated, controls in xcode interface can be removed
+				LblIPv6.Hidden = true;
+				CboIpV6.Hidden = true;
+				LblRoutesOtherwise.Hidden = true;
+				CboRoutesOtherwise.Hidden = true;
+				LblLockRoutingOutWarning.Hidden = true;
+				CmdGeneralTos.Hidden = true;
+			}
 
 			Window.Title = Constants.Name + " - " + LanguageManager.GetText("WindowsSettingsTitle");
 
@@ -124,18 +132,7 @@ namespace Eddie.UI.Cocoa.Osx
 			{
 				Close();
 			};
-
-			// General
-            /* // TOCLEAN
-			CmdGeneralTos.Activated += (object sender, EventArgs e) =>
-			{
-				WindowTosController tos = new WindowTosController();
-				tos.Window.ReleasedWhenClosed = true;
-				NSApplication.SharedApplication.RunModalForWindow(tos.Window);
-				tos.Window.Close();
-			};
-            */
-
+						
 			CmdResetToDefault.Activated += (object sender, EventArgs e) =>
 			{
                 if (GuiUtils.MessageYesNo(LanguageManager.GetText("ResetSettingsConfirm")))
@@ -219,14 +216,6 @@ namespace Eddie.UI.Cocoa.Osx
 			};
 
 			// Routes
-			CboRoutesOtherwise.RemoveAllItems();
-			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("in"));
-			CboRoutesOtherwise.AddItem(RouteDirectionToDescription("out"));
-			CboRoutesOtherwise.Activated += (object sender, EventArgs e) =>
-			{
-				EnableIde();
-			};
-
 			TableRoutes.DoubleClick += (object sender, EventArgs e) =>
 			{
 				RouteEdit();
@@ -353,18 +342,13 @@ namespace Eddie.UI.Cocoa.Osx
 			CboLockOutgoing.AddItem("Allow");
 
 			LblRoutesNetworkLockWarning.StringValue = LanguageManager.GetText("WindowsSettingsRouteLockHelp");
-			LblLockRoutingOutWarning.StringValue = LanguageManager.GetText("NetworkLockNotAvailableWithRouteOut");
-
+			
 			// Advanced
 
 			CmdAdvancedHelp.Activated += (object sender, EventArgs e) =>
 			{
                 GuiUtils.OpenUrl(UiClient.Instance.Data["links"]["help"]["advanced"].Value as string);
 			};
-
-			CboIpV6.RemoveAllItems();
-			CboIpV6.AddItem("None");
-			CboIpV6.AddItem("Disable");
 
 			CboAdvancedManifestRefresh.RemoveAllItems();
 			CboAdvancedManifestRefresh.AddItem("Automatic");
@@ -442,30 +426,7 @@ namespace Eddie.UI.Cocoa.Osx
                 Engine.Instance.Storage.Set("external.rules", Engine.Instance.Storage.Options["external.rules"].Default);
                 GuiUtils.MessageBoxInfo("Done.");
             };
-
-			if (Constants.FeatureIPv6ControlOptions)
-			{
-				LblNetworkIPv4Mode.Hidden = false;
-				LblNetworkIPv6Mode.Hidden = false;
-				CboNetworkIPv4Mode.Hidden = false;
-				CboNetworkIPv6Mode.Hidden = false;
-				LblIPv6.Hidden = true;
-				CboIpV6.Hidden = true;
-				LblRoutesOtherwise.Hidden = true;
-				CboRoutesOtherwise.Hidden = true;
-			}
-			else
-			{
-				LblNetworkIPv4Mode.Hidden = true;
-				LblNetworkIPv6Mode.Hidden = true;
-				CboNetworkIPv4Mode.Hidden = true;
-				CboNetworkIPv6Mode.Hidden = true;
-				LblIPv6.Hidden = false;
-				CboIpV6.Hidden = false;
-				LblRoutesOtherwise.Hidden = false;
-				CboRoutesOtherwise.Hidden = false;
-			}
-
+						
             // Disabled in this version
             LblSystemStart.Hidden = true;
             ChkSystemStart.Hidden = true;
@@ -713,8 +674,9 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText("WindowsSettingsUiUnit0"));
 			GuiUtils.SetCheck(ChkUiIEC, s.GetBool("ui.iec"));
             GuiUtils.SetCheck(ChkUiSkipProviderManifestFailed, s.GetBool("ui.skip.provider.manifest.failed"));
+            GuiUtils.SetCheck(ChkUiSkipPromotional, s.GetBool("ui.skip.promotional"));
 
-			/*
+            /*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
 			if (interfaceMode == "Dark")
 				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Dark");
@@ -722,8 +684,8 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Default");
 			*/
 
-			// Protocols
-			String protocol = s.Get("mode.protocol").ToUpperInvariant();
+            // Protocols
+            String protocol = s.Get("mode.protocol").ToUpperInvariant();
 			int port = s.GetInt("mode.port");
 			int entryIP = s.GetInt("mode.alt");
 			if (protocol == "AUTO")
@@ -777,8 +739,6 @@ namespace Eddie.UI.Cocoa.Osx
 			TxtProxyTorControlPassword.StringValue = s.Get("proxy.tor.control.password");
 
 			// Routes
-			GuiUtils.SetSelected(CboRoutesOtherwise, RouteDirectionToDescription(s.Get("routes.default")));
-
 			string routes = s.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)
@@ -945,20 +905,20 @@ namespace Eddie.UI.Cocoa.Osx
 
             GuiUtils.SetCheck(ChkAdvancedExpertMode, s.GetBool("advanced.expert"));
 			GuiUtils.SetCheck(ChkAdvancedCheckRoute, s.GetBool("advanced.check.route"));
-			string ipV6Mode = s.Get("ipv6.mode");
-			if (ipV6Mode == "none")
-				GuiUtils.SetSelected(CboIpV6, "None");
-			else if (ipV6Mode == "disable")
-				GuiUtils.SetSelected(CboIpV6, "Disable");
-			else
-				GuiUtils.SetSelected(CboIpV6, "None");
-
+			
 			GuiUtils.SetCheck(ChkAdvancedPingerEnabled, s.GetBool("pinger.enabled"));
 
 
 			TxtAdvancedOpenVpnPath.StringValue = s.Get("tools.openvpn.path");
 			GuiUtils.SetCheck(ChkAdvancedSkipAlreadyRun, s.GetBool("advanced.skip_alreadyrun"));
 			GuiUtils.SetCheck(ChkAdvancedProviders, s.GetBool("advanced.providers"));
+			GuiUtils.SetCheck(ChkHummingbirdPrefer, s.GetBool("tools.hummingbird.preferred"));
+
+			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
+			{
+				ChkHummingbirdPrefer.Enabled = false;
+				GuiUtils.SetCheck(ChkHummingbirdPrefer, false);
+			}
 
 			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
@@ -1018,13 +978,7 @@ namespace Eddie.UI.Cocoa.Osx
                 }
             }
 
-            if ((RouteDescriptionToDirection(GuiUtils.GetSelected(CboRoutesOtherwise)) == "out") && (TableRoutingController.Items.Count == 0))
-			{
-				if (GuiUtils.MessageYesNo(LanguageManager.GetText("WindowsSettingsRouteOutEmptyList")) == false)
-					return false;
-			}
-
-			if (GuiUtils.GetCheck(ChkLockAllowDNS) == false)
+            if (GuiUtils.GetCheck(ChkLockAllowDNS) == false)
 			{
 				bool hostNameUsed = false;
 				foreach (TableRoutingControllerItem item in TableRoutingController.Items)
@@ -1089,10 +1043,11 @@ namespace Eddie.UI.Cocoa.Osx
 			s.Set("ui.unit", uiUnit);
 			s.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
             s.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkUiSkipProviderManifestFailed));
+            s.SetBool("ui.skip.promotional", GuiUtils.GetCheck(ChkUiSkipPromotional));
 
-			// Protocols
+            // Protocols
 
-			if (GuiUtils.GetCheck(ChkProtocolsAutomatic))
+            if (GuiUtils.GetCheck(ChkProtocolsAutomatic))
 			{
 				s.Set("mode.protocol", "AUTO");
 				s.SetInt("mode.port", 443);
@@ -1135,9 +1090,7 @@ namespace Eddie.UI.Cocoa.Osx
 			s.SetInt("proxy.tor.control.port", Conversions.ToInt32(TxtProxyTorControlPort.StringValue));
 			s.Set("proxy.tor.control.password", TxtProxyTorControlPassword.StringValue);
 
-			// Routes
-			s.Set("routes.default", RouteDescriptionToDirection(GuiUtils.GetSelected(CboRoutesOtherwise)));
-
+			// Routes			
 			string routes = "";
 			foreach (TableRoutingControllerItem item in TableRoutingController.Items)
 			{
@@ -1297,19 +1250,14 @@ namespace Eddie.UI.Cocoa.Osx
             s.SetBool("advanced.expert", GuiUtils.GetCheck(ChkAdvancedExpertMode));
 
 			s.SetBool("advanced.check.route", GuiUtils.GetCheck(ChkAdvancedCheckRoute));
-			string ipV6Mode = GuiUtils.GetSelected(CboIpV6);
-			if (ipV6Mode == "None")
-				s.Set("ipv6.mode", "none");
-			else if (ipV6Mode == "Disable")
-				s.Set("ipv6.mode", "disable");
-			else
-				s.Set("ipv6.mode", "disable");
+			
 			s.SetBool("pinger.enabled", GuiUtils.GetCheck(ChkAdvancedPingerEnabled));
 
 
 			s.Set("tools.openvpn.path", TxtAdvancedOpenVpnPath.StringValue);
 			s.SetBool("advanced.skip_alreadyrun", GuiUtils.GetCheck(ChkAdvancedSkipAlreadyRun));
 			s.SetBool("advanced.providers", GuiUtils.GetCheck(ChkAdvancedProviders));
+			s.SetBool("tools.hummingbird.preferred", GuiUtils.GetCheck(ChkHummingbirdPrefer));
 
 			string manifestRefresh = GuiUtils.GetSelected(CboAdvancedManifestRefresh);
 			if (manifestRefresh == "Automatic") // Auto
@@ -1390,9 +1338,6 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdDnsAdd.Enabled = true;
 			CmdDnsRemove.Enabled = (TableDnsServers.SelectedRowCount > 0);
 			CmdDnsEdit.Enabled = (TableDnsServers.SelectedRowCount == 1);
-
-			// Lock
-			LblLockRoutingOutWarning.Hidden = (GuiUtils.GetSelected(CboRoutesOtherwise) == RouteDirectionToDescription("in"));
 
 			// Events
 			CmdAdvancedEventsClear.Enabled = (TableAdvancedEvents.SelectedRowCount == 1);

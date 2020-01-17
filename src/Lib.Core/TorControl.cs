@@ -228,7 +228,7 @@ namespace Eddie.Core
 		public static IpAddresses GetGuardIps(bool force)
 		{
 			// This is called a lots of time.	
-			Int64 now = UtilsCore.UnixTimeStamp();
+			Int64 now = Utils.UnixTimeStamp();
 			if ((force == false) && ((now - m_lastGuardTime < 60)))
 				return m_lastGuardIps;
 

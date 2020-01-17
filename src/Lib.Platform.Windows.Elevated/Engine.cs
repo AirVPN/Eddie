@@ -1,4 +1,22 @@
-﻿using System;
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+//
+// Eddie is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Eddie is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,18 +32,54 @@ namespace Lib.Platform.Windows.Elevated
 	{
 		public Thread m_ipcThread = null;
 		private IpcBase m_ipc = new IpcSocket();
-		private Random m_randomGenerator = new Random();
-		private int VersionElevated = 1373;
+		private Random m_randomGenerator = new Random();		
 
-		public void Start(bool loop)
+		public static Dictionary<string, string> ParseCommandLine(string[] args)
+		{
+			Dictionary<string, string> cmdline = new Dictionary<string, string>();
+
+			for (int i = 0; i < args.Length; i++)
+			{
+				string arg = args[i];
+
+				string k = "";
+				string v = "";
+
+				if (i == 0)
+				{
+					k = "path";
+					v = arg;
+				}
+				else
+				{
+					int posEq = arg.IndexOf('=');
+					if (posEq != -1)
+					{
+						k = arg.Substring(0, posEq);
+						v = arg.Substring(posEq + 1);
+					}
+					else
+					{
+						k = arg;
+						v = "";
+					}
+				}
+				cmdline[k] = v;
+			}
+
+			return cmdline;
+		}
+
+		public void Start(Dictionary<string, string> cmdline)
 		{
 			if (m_ipcThread != null)
 				return;
 
 			IPC.CommandEvent += IPC_CommandEvent;
-			IPC.Loop = loop;
+			IPC.m_cmdline = cmdline;
+			IPC.m_serviceMode = ( (cmdline.ContainsKey("mode")) && (cmdline["mode"] == "service") );
 
-			IPC.DebugLog("Start");
+			IPC.LogDebug("Start");
 
 			m_ipcThread = new Thread(new ThreadStart(IPC.MainLoop));
 			m_ipcThread.Start();
@@ -38,13 +92,13 @@ namespace Lib.Platform.Windows.Elevated
 							
 			if (force)
 			{
-				m_ipc.DebugLog("Stop requested");
-				m_ipc.Loop = false;
+				m_ipc.LogDebug("Stop requested");
+				m_ipc.m_serviceMode = false;
 				m_ipc.Close("Quit");
 			}
 			m_ipcThread.Join();
 			IPC.CommandEvent -= IPC_CommandEvent;
-			m_ipc.DebugLog("Stop completed");
+			m_ipc.LogDebug("Stop completed");
 		}
 		
 		public IpcBase IPC
@@ -69,18 +123,24 @@ namespace Lib.Platform.Windows.Elevated
 					if (IPC.m_sessionKey == "")
 					{
 						if (command == "session-key")
-						{							
+						{
+							string clientVersion = "";
+							if (parameters.ContainsKey("version"))
+								clientVersion = parameters["version"];
+
+							if(clientVersion != Constants.Version)
+								throw new Exception("Unexpected version, elevated: " + Constants.Version + ", client: " + clientVersion);
+
 							IPC.m_sessionKey = parameters["key"];
-							IPC.ReplyCommand(id, "Version:" + VersionElevated);
 						}
 						else
 						{
-							IPC.ReplyCommand(id, "Not init.");
+							throw new Exception("Not init.");
 						}
 					}
 					else if ((parameters.ContainsKey("_token") == false) || (IPC.m_sessionKey != parameters["_token"]))
 					{
-						IPC.ReplyCommand(id, "Not auth.");
+						throw new Exception("Not auth.");
 					}
 					else if (command == "exit")
 					{

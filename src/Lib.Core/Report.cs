@@ -168,8 +168,9 @@ namespace Eddie.Core
 			Add("OS architecture", Platform.Instance.GetOsArchitecture());
 			Add("Mono /.Net Framework", Platform.Instance.GetNetFrameworkVersion());
 
-			Add("OpenVPN driver", Software.OpenVpnDriver);
+			Add("TUN driver", Software.TunDriver);
 			Add("OpenVPN", Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")");
+			Add("Hummingbird", Software.GetTool("hummingbird").Version + " (" + Software.GetTool("hummingbird").Path + ")");
 			Add("SSH", Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")");
 			Add("SSL", Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")");
 			Add("curl", Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")");

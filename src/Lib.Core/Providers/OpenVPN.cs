@@ -67,7 +67,7 @@ namespace Eddie.Core.Providers
 			int minInterval = RefreshInterval;
 			if (minInterval == -1)
 				minInterval = 60 * 60 * 24;
-			if (m_lastTryRefresh + minInterval > UtilsCore.UnixTimeStamp())
+			if (m_lastTryRefresh + minInterval > Utils.UnixTimeStamp())
 				return false;
 
 			return true;

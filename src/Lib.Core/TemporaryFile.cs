@@ -43,7 +43,6 @@ namespace Eddie.Core
 
         }
 
-
         ~TemporaryFile()
 		{
 			Close();

@@ -49,7 +49,7 @@ namespace Eddie.UI.Cocoa.Osx
             Engine.UiManager.Add(this);
             Engine.TerminateEvent += delegate ()
             {
-                new NSObject().InvokeOnMainThread(() =>
+                new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                 {
                     if (MainWindow != null)
                         MainWindow.Close();
@@ -106,7 +106,7 @@ namespace Eddie.UI.Cocoa.Osx
 
                 //UpdateInterfaceStyle();
 
-                new NSObject().InvokeOnMainThread(() =>
+                new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                 {
                     MainWindow = new MainWindowController();
                     bool startVisible = Engine.Storage.GetBool("gui.osx.visible");
@@ -125,7 +125,7 @@ namespace Eddie.UI.Cocoa.Osx
             {
                 if (MainWindow != null)
                 {
-                    new NSObject().InvokeOnMainThread(() =>
+                    new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                     {
                         MainWindow.ShowNotification(data["message"].Value as string, data["level"].Value as string);
                     });
@@ -140,7 +140,7 @@ namespace Eddie.UI.Cocoa.Osx
                     if (data.HasKey("short"))
                         textShort = data["short"].Value as string;
 
-                    new NSObject().InvokeOnMainThread(() =>
+                    new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                     {
                         MainWindow.SetStatus(textFull, textShort);
                     });
@@ -156,7 +156,7 @@ namespace Eddie.UI.Cocoa.Osx
 
                 if (MainWindow != null)
                 {
-                    new NSObject().InvokeOnMainThread(() =>
+                    new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                     {
                         MainWindow.SetMainStatus(appIcon, appColor, actionIcon, actionCommand, actionText);
                     });
@@ -164,14 +164,14 @@ namespace Eddie.UI.Cocoa.Osx
             }
             else if (cmd == "ui.updater.available")
             {
-                new NSObject().InvokeOnMainThread(() =>
+                new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                 {
                     MainWindow.ShowUpdater();
                 });
             }
             else if (cmd == "ui.frontmessage")
             {
-                new NSObject().InvokeOnMainThread(() =>
+                new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                 {
                     MainWindow.FrontMessage(data["message"].Value as Json);
                 });
@@ -184,7 +184,7 @@ namespace Eddie.UI.Cocoa.Osx
 
                 if (MainWindow != null)
                 {
-                    new NSObject().InvokeOnMainThread(() =>
+                    new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
                     {
                         if ((m_windowReport == null) || (m_windowReport.Window.IsVisible == false))
                         {

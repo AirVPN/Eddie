@@ -70,20 +70,12 @@ namespace Eddie.Core
 			if (Engine.Instance.Storage.GetLower("netlock.mode") == "none")
 				return false;
 
-			if (Constants.FeatureIPv6ControlOptions)
-			{
-				if (Engine.Instance.Storage.GetLower("network.ipv4.mode") == "out")
-					return false;
+			if (Engine.Instance.Storage.GetLower("network.ipv4.mode") == "out")
+				return false;
 
-				if (Engine.Instance.Storage.GetLower("network.ipv6.mode") == "out")
-					return false;
-			}
-			else
-			{
-				if (Engine.Instance.Storage.GetLower("routes.default") == "out")
-					return false;
-			}
-
+			if (Engine.Instance.Storage.GetLower("network.ipv6.mode") == "out")
+				return false;
+			
 			return true;
 		}
 

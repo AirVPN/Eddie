@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 set -e
 
@@ -86,11 +86,11 @@ chmod +x appimagetool.AppImage
 cp AppDir/opt/eddie-${PROJECT}/res/icon.png AppDir/eddie-${PROJECT}.png
 
 if [ $PROJECT = "cli" ]; then
-	printf "[Desktop Entry]\nName=Eddie - OpenVPN GUI\nExec=eddie-cli\nIcon=eddie-cli\nType=Application\nTerminal=true\nCategories=Network;\n" >AppDir/eddie-cli.desktop 
+	printf "[Desktop Entry]\nName=Eddie - VPN UI\nExec=eddie-cli\nIcon=eddie-cli\nType=Application\nTerminal=true\nCategories=Network;\n" >AppDir/eddie-cli.desktop 
 elif [ $PROJECT = "ui" ]; then
-	printf "[Desktop Entry]\nName=Eddie - OpenVPN GUI\nExec=eddie-ui\nIcon=eddie-ui\nType=Application\nTerminal=false\nCategories=GNOME;Network;\n" >AppDir/eddie-ui.desktop 
+	printf "[Desktop Entry]\nName=Eddie - VPN UI\nExec=eddie-ui\nIcon=eddie-ui\nType=Application\nTerminal=false\nCategories=GNOME;Network;\n" >AppDir/eddie-ui.desktop 
 elif [ $PROJECT = "ui3" ]; then
-    printf "[Desktop Entry]\nName=Eddie - OpenVPN GUI\nExec=eddie-ui\nIcon=eddie-ui\nType=Application\nTerminal=false\nCategories=GNOME;Network;\n" >AppDir/eddie-ui.desktop 
+    printf "[Desktop Entry]\nName=Eddie - VPN UI\nExec=eddie-ui\nIcon=eddie-ui\nType=Application\nTerminal=false\nCategories=GNOME;Network;\n" >AppDir/eddie-ui.desktop 
 fi
 
 sudo ./appimagetool.AppImage AppDir

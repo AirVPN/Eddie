@@ -20,7 +20,11 @@
 
 #include "signal.h"
 
+#include <cstring>
+#include <dirent.h>
+#include <sstream>
 #include <unistd.h>
+#include <sys/stat.h>
 
 void IPosix::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
@@ -46,6 +50,92 @@ void IPosix::Sleep(int ms)
     usleep(ms * 1000);
 }
 
+
+int IPosix::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
+{
+    if(FileExists("/proc") == false)
+        return 0;
+
+    // First, locate inode in /proc/net/tcp. After, scan /proc/*/fd/* to search the inode and identify the pid.
+    
+    int pidFound = 0;
+    
+    std::string procNetTcp = FileReadText("/proc/net/tcp");
+    
+    std::string sourceAddrHex = StringHexEncode(addrClient.sin_addr.s_addr,8);
+    std::string sourcePortHex = StringHexEncode(ntohs(addrClient.sin_port),4);
+    std::string destAddrHex = StringHexEncode(addrServer.sin_addr.s_addr,8);
+    std::string destPortHex = StringHexEncode(ntohs(addrServer.sin_port),4);
+    
+    std::vector<std::string> procNetTcpLines = StringToVector(procNetTcp, '\n');
+    for (std::vector<std::string>::const_iterator l = procNetTcpLines.begin(); l != procNetTcpLines.end(); ++l)
+    {
+        std::vector<std::string> procNetTcpFields = StringToVector(*l, ' ', true);
+        
+        if( (procNetTcpFields.size()>9) &&
+            (procNetTcpFields[1] == sourceAddrHex + ":" + sourcePortHex) &&
+            (procNetTcpFields[2] == destAddrHex + ":" + destPortHex)
+          )
+        {
+            long unsigned int inodeSearch = strtoul(procNetTcpFields[9].c_str(), NULL, 0);
+            
+            DIR *procDir = opendir("/proc");
+            if(procDir != NULL)
+            {
+                for(;;)
+                {
+                    struct dirent *procDirFile = readdir(procDir);
+                    if(procDirFile == NULL)
+                        break;
+                    
+                    std::string procDirFilePath = "/proc/" + std::string(procDirFile->d_name);
+                    struct stat procDirFileSt; // Don't trust dirent::d_type
+                    memset(&procDirFileSt, 0, sizeof(struct stat));
+                    if(stat(procDirFilePath.c_str(), &procDirFileSt) == 0)
+                    {
+                        if( (S_ISDIR(procDirFileSt.st_mode)) && (procDirFile->d_name[0] != '.') )
+                        {
+                            std::string procFdDirPath = "/proc/" + std::string(procDirFile->d_name) + "/fd";
+                            DIR *procFdDir = opendir(procFdDirPath.c_str());
+                            if(procFdDir != NULL)
+                            {
+                                for(;;)
+                                {
+                                    struct dirent *procFdDirFile = readdir(procFdDir);
+                                    if(procFdDirFile == NULL)
+                                        break;  
+                                        
+                                    std::string procFdDirFilePath = "/proc/" + std::string(procDirFile->d_name) + "/fd/" + std::string(procFdDirFile->d_name);
+                                    struct stat procFdDirFileSt; // Don't trust dirent::d_type
+                                    memset(&procFdDirFileSt, 0, sizeof(struct stat));
+                                    if(stat(procFdDirFilePath.c_str(), &procFdDirFileSt) == 0) // Note: lstat
+                                    {
+                                        if( (S_ISSOCK(procFdDirFileSt.st_mode)) && (inodeSearch == procFdDirFileSt.st_ino) )
+                                        {
+                                            if(pidFound == 0)
+                                                pidFound = atoi(procDirFile->d_name);
+                                            else
+                                            {
+                                                return 0; // Unexpected
+                                            }
+                                        }
+                                    }
+                                }
+                                closedir(procFdDir);
+                            }
+                        }
+                    }
+                }
+                closedir(procDir);
+            }
+        }
+        
+    }
+    
+    return pidFound;
+}
+
+/* // Old shell edition
 int IPosix::GetProcessIdMatchingIPEndPoints(std::string sourceAddr, int sourcePort, std::string destAddr, int destPort)
 {
     std::vector<std::string> args;
@@ -86,3 +176,4 @@ int IPosix::GetProcessIdMatchingIPEndPoints(std::string sourceAddr, int sourcePo
     
     return 0;
 }
+*/

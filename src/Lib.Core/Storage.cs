@@ -478,7 +478,6 @@ namespace Eddie.Core
 			SetDefault("proxy.tor.path", "", "", NotInMan);
 			SetDefault("proxy.tor.control.password", "password", "", LanguageManager.GetText("ManOptionProxyTorControlPassword"));
 
-			SetDefault("routes.default", "choice:in,out", "in", LanguageManager.GetText("ManOptionRoutesDefault"));
 			SetDefault("routes.custom", "text", "", LanguageManager.GetText("ManOptionRoutesCustom"));
 			// SetDefaultBool("routes.remove_default", false, LanguageManager.GetText("ManOptionRoutesRemoveDefault")); // Deprecated in 2.18, issues with DHCP renew.
 
@@ -497,8 +496,6 @@ namespace Eddie.Core
 			SetDefault("netlock.whitelist.incoming.ips", "text", "", LanguageManager.GetText("ManOptionNetLockWhitelistIncomingIps"));
 			SetDefault("netlock.whitelist.outgoing.ips", "text", "", LanguageManager.GetText("ManOptionNetLockWhitelistOutgoingIps"));
 
-			SetDefault("ipv6.mode", "text", "disable", LanguageManager.GetText("ManOptionIPv6"));
-
 			SetDefault("network.entry.iface", "text", "", NotInMan);
 			SetDefault("network.entry.iplayer", "text", "ipv4-ipv6", NotInMan); // ipv6-ipv4;ipv4-ipv6;ipv4-only;ipv6-only;
 			SetDefault("network.ipv4.mode", "choice:in,in-out,in-block,out,block", "in", NotInMan);
@@ -508,7 +505,9 @@ namespace Eddie.Core
 			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
 
 			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText("ManOptionToolsOpenVpnPath"));
-			SetDefault("tools.ssh.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSshPath"));
+			SetDefaultBool("tools.hummingbird.preferred", false, NotInMan);
+			SetDefault("tools.hummingbird.path", "path_file", "", NotInMan);
+            SetDefault("tools.ssh.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSshPath"));
 			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSslPath"));
 			SetDefault("tools.curl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsCurlPath"));
 
@@ -591,9 +590,10 @@ namespace Eddie.Core
 			SetDefault("ui.unit", "text", "", LanguageManager.GetText("ManOptionUiUnit"));
 			SetDefaultBool("ui.iec", false, LanguageManager.GetText("ManOptionUiIEC"));
 			SetDefaultBool("ui.skip.provider.manifest.failed", false, NotInMan);
+            SetDefaultBool("ui.skip.promotional", false, NotInMan);
 
-			// GUI only
-			SetDefaultBool("gui.start_minimized", false, NotInMan);
+            // GUI only
+            SetDefaultBool("gui.start_minimized", false, NotInMan);
 			SetDefaultBool("gui.tray_show", true, NotInMan);
 			SetDefaultBool("gui.tray_minimized", (Platform.Instance.IsLinuxSystem() == false), NotInMan); // We can't know if the Linux Desktop Environment will support show tray.
 			SetDefaultBool("gui.notifications", true, NotInMan);

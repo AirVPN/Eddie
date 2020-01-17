@@ -139,8 +139,8 @@ namespace Eddie.UI.Cocoa.Osx
 		public static void MessageBoxError(string message)
 		{
             NSAlert alert = new NSAlert();
-            alert.AlertStyle = NSAlertStyle.Critical;
-            alert.MessageText = Constants.Name;
+			alert.AlertStyle = NSAlertStyle.Critical;
+			alert.MessageText = Constants.Name;
             alert.InformativeText = message;
             alert.RunModal();
         }

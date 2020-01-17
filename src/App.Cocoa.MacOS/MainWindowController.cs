@@ -753,8 +753,8 @@ namespace Eddie.UI.Cocoa.Osx
 
         public void MessageError(string message)
         {
-            new NSObject().InvokeOnMainThread(() =>
-            {
+            new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
+			{
                 GuiUtils.MessageBoxError(message);
             });
         }
@@ -1200,7 +1200,6 @@ namespace Eddie.UI.Cocoa.Osx
 			string t = TableLogsController.GetBody(selectedOnly);
 			if (t.Trim() != "")
 			{
-				//string filename = "AirVPN_" + DateTime.Now.ToString ("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + ".txt"; // TOCLEAN
 				string filename = Engine.Logs.GetLogSuggestedFileName();
 
 				NSSavePanel panel = new NSSavePanel();

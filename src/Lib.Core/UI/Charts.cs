@@ -43,7 +43,7 @@ namespace Eddie.Core.UI
 				
 		public void Hit(long d, long u)
 		{
-			int ts = UtilsCore.UnixTimeStamp();
+			int ts = Utils.UnixTimeStamp();
 			lock (this)
 			{
 				foreach (Chart c in ChartsList)

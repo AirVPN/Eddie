@@ -31,7 +31,7 @@ namespace Eddie.Forms
 
         public Form()
         {
-            if (Core.Platform.Instance.IsLinuxSystem())
+			if( (Core.Platform.Instance != null) && (Core.Platform.Instance.IsLinuxSystem()) )
             {
                 this.HandleCreated += (sender, ex) => Mono.XWindowManagers.SetWmClass(Constants.Name, Constants.Name, this.Handle);
             }

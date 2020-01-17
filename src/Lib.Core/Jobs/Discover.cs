@@ -43,7 +43,7 @@ namespace Eddie.Core.Jobs
 			lock (Engine.Instance.Connections)
 				servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
 
-			int timeNow = UtilsCore.UnixTimeStamp();
+			int timeNow = Utils.UnixTimeStamp();
 
 			int interval = Engine.Instance.Storage.GetInt("discover.interval");
 
@@ -70,7 +70,7 @@ namespace Eddie.Core.Jobs
 			lock (Engine.Instance.Connections)
 				servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
 
-			int timeNow = UtilsCore.UnixTimeStamp();
+			int timeNow = Utils.UnixTimeStamp();
 			int interval = Engine.Instance.Storage.GetInt("discover.interval");
 			int nTotal = 0;
 			int nPending = 0;
@@ -218,7 +218,7 @@ namespace Eddie.Core.Jobs
 				}
 			}
 
-			connection.LastDiscover = UtilsCore.UnixTimeStamp();
+			connection.LastDiscover = Utils.UnixTimeStamp();
 
 			connection.Provider.OnChangeConnection(connection);
 		}

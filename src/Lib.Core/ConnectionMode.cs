@@ -53,7 +53,7 @@ namespace Eddie.Core
 				if (MinVersion == "")
 					return true;
 
-				if (Software.GetTool("openvpn").VersionAboveOrEqual(MinVersion))
+				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual(MinVersion))
 					return true;
 
 				return false;

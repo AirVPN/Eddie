@@ -53,7 +53,7 @@ namespace Eddie.Core.Jobs
 				// Note: If Pinger is not enabled, works like all ping results is 0.						
 				bool enabled = GetEnabled();
 
-				int timeNow = UtilsCore.UnixTimeStamp();
+				int timeNow = Utils.UnixTimeStamp();
 				int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
 								
 				bool startOne = false;
@@ -204,7 +204,7 @@ namespace Eddie.Core.Jobs
 		public void PingResult(ConnectionInfo infoServer, Int64 result)
 		{
 			infoServer.PingTests++;
-			infoServer.LastPingResult = UtilsCore.UnixTimeStamp();
+			infoServer.LastPingResult = Utils.UnixTimeStamp();
 			if (result == -1)
 			{
 				infoServer.PingFailedConsecutive++;
@@ -234,7 +234,7 @@ namespace Eddie.Core.Jobs
 		{
 			PingerStats stats = new PingerStats();
 
-			int timeNow = UtilsCore.UnixTimeStamp();
+			int timeNow = Utils.UnixTimeStamp();
 
 			int iTotal = 0;
 

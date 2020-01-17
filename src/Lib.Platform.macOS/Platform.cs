@@ -85,7 +85,7 @@ namespace Eddie.Platform.MacOS
 			m_name = m_name.Replace("Version", "macOS").Trim();
 			if (m_name.IndexOf('(') != -1)
 				m_name = m_name.Substring(0, m_name.IndexOf('(')).Trim();
-			m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString;
+			m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Replace("Version ","").Trim();
 			m_architecture = base.GetArchitecture();
 
             NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
@@ -197,12 +197,13 @@ namespace Eddie.Platform.MacOS
 
             if (value)
             {
-                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-install" }, Engine.Instance.ConsoleMode);
+                string clientHash = Core.Crypto.Manager.HashSHA256File(GetExecutablePath());
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "allowed_hash=" + clientHash }, Engine.Instance.ConsoleMode);
                 return (GetService() == true);
             }
             else
             {
-                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-uninstall" }, Engine.Instance.ConsoleMode);
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=uninstall" }, Engine.Instance.ConsoleMode);
                 return (GetService() == false);
             }
             /*
@@ -426,10 +427,11 @@ namespace Eddie.Platform.MacOS
                     // Alternate version via osascript
                     //processShell = new System.Diagnostics.Process();
                     //processShell.StartInfo.FileName = "osascript";
-                    //processShell.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + UtilsString.StringSafe(LanguageManager.GetText("HelperPrivilegesPrompt")) + "\" with administrator privileges'";
+                    //processShell.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText("HelperPrivilegesPrompt").Safe() + "\" with administrator privileges'";
 
                     // Alternate version with RootLauncher
                     // TOFIX: pending pid, create launchd don't start it (no root?)
+                    // Required for elevated-spot-check-parent-pid
                     processDirectResult = RootLauncher.LaunchExternalTool(path, arguments);
                 }
             }

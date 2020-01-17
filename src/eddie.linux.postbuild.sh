@@ -48,13 +48,20 @@ fi
 # Adapt Elevated
 # Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated.C/ibase.cpp' source for details
 
-OPENVPNPATH="${BASEPATH}/../deploy/linux_${ARCH}/openvpn"
+
 ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated.C/ibase.cpp
 
-COMPUTEHASH=$(sha256sum "${OPENVPNPATH}");
-COMPUTEHASH=${COMPUTEHASH%% *}
+OPENVPNPATH="${BASEPATH}/../deploy/linux_${ARCH}/openvpn"
+OPENVPNHASH=$(sha256sum "${OPENVPNPATH}");
+OPENVPNHASH=${OPENVPNHASH%% *}
+sed -ri "s/expectedOpenvpnHash = \"([0-9a-f]{64})\";/expectedOpenvpnHash = \"${OPENVPNHASH}\";/g" ${ELEVATEDCSOURCEPATH}
 
-sed -ri "s/expectedOpenvpnHash = \"([0-9a-f]{64})\";/expectedOpenvpnHash = \"${COMPUTEHASH}\";/g" ${ELEVATEDCSOURCEPATH}
+HUMMINGBIRDPATH="${BASEPATH}/../deploy/linux_${ARCH}/hummingbird"
+if test -f "${HUMMINGBIRDPATH}"; then    
+    HUMMINGBIRDHASH=$(sha256sum "${HUMMINGBIRDPATH}");
+    HUMMINGBIRDHASH=${HUMMINGBIRDHASH%% *}
+    sed -ri "s/expectedHummingbirdHash = \"([0-9a-f]{64})\";/expectedHummingbirdHash = \"${HUMMINGBIRDHASH}\";/g" ${ELEVATEDCSOURCEPATH}
+fi
 
 # Compile and Copy Elevated
 "$BASEPATH/App.CLI.Linux.Elevated/build.sh" "$CONFIG"

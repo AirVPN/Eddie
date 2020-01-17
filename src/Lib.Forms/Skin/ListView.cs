@@ -287,13 +287,15 @@ namespace Eddie.Forms.Skin
 					r.Width -= (imageWidth + ImageSpace);
 				}
 
-				Image imageIcon = GuiUtils.GetResourceImage(ImageIconResourcePrefix + e.Item.ImageKey);
+				Image imageIcon = GuiUtils.GetResourceImage(ImageIconResourcePrefix + e.Item.ImageKey);				
+				/*
 				if ((imageIcon == null) && (ImageListIcon != null) && (ImageListIcon.Images.ContainsKey(e.Item.ImageKey)))
 					imageIcon = ImageListIcon.Images[e.Item.ImageKey];
 				else if ((imageIcon == null) && (e.Item.ListView != null) && (e.Item.ListView.LargeImageList != null) && (e.Item.ListView.LargeImageList.Images.ContainsKey(e.Item.ImageKey)))
 					imageIcon = e.Item.ListView.LargeImageList.Images[e.Item.ImageKey];
 				else if ((imageIcon == null) && (e.Item.ListView != null) && (e.Item.ListView.SmallImageList != null) && (e.Item.ListView.SmallImageList.Images.ContainsKey(e.Item.ImageKey)))
-					imageIcon = e.Item.ListView.SmallImageList.Images[e.Item.ImageKey];
+					imageIcon = e.Item.ListView.SmallImageList.Images[e.Item.ImageKey];				
+					*/
 				if (imageIcon != null)
 				{
 					//int imageWidth = r.Height;

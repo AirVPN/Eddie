@@ -39,7 +39,7 @@ namespace Eddie.UI.Cocoa.Osx
             m_timer.Dispose();
 
             UiClient.Instance.SplashWindow = null;
-            new NSObject().InvokeOnMainThread(() =>
+            new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
             {
                 Close();
             });
@@ -47,7 +47,7 @@ namespace Eddie.UI.Cocoa.Osx
 
         public void SetStatus(string t)
         {
-            new NSObject().InvokeOnMainThread(() =>
+            new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
             {
                 LblStatus.StringValue = t;
             });
@@ -55,7 +55,7 @@ namespace Eddie.UI.Cocoa.Osx
 
         public void MessageError(string message)
         {
-            new NSObject().InvokeOnMainThread(() =>
+            new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
             {
                 GuiUtils.MessageBoxError(message);
             });
@@ -63,7 +63,7 @@ namespace Eddie.UI.Cocoa.Osx
 
         public void RequestShow()
         {
-            new NSObject().InvokeOnMainThread(() =>
+            new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
             {
                 GuiUtils.ShowWindowWithFocus(this, null);
             });
@@ -76,7 +76,7 @@ namespace Eddie.UI.Cocoa.Osx
 			if (m_closePending)
                 return;
 
-            new NSObject().InvokeOnMainThread(() =>
+            new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
             {
                 m_closePending = true;
 
@@ -87,7 +87,7 @@ namespace Eddie.UI.Cocoa.Osx
         public string AskUnlockPassword(bool authFailed)
         {
             string result = "";
-            new NSObject().InvokeOnMainThread(() =>
+            new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
             {
                 WindowUnlockController w = new WindowUnlockController();
                 w.AuthFailed = authFailed;

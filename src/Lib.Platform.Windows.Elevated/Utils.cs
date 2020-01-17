@@ -1,4 +1,22 @@
-﻿using System;
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+//
+// Eddie is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Eddie is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -12,7 +30,7 @@ namespace Lib.Platform.Windows.Elevated
 {
 	public static class Utils
 	{
-		public static void DebugLog(string msg)
+		public static void LogDebug(string msg)
 		{			
 			try
 			{
@@ -20,7 +38,6 @@ namespace Lib.Platform.Windows.Elevated
 				{
 					string log = DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fffK", System.Globalization.CultureInfo.InvariantCulture) + " - " + msg;
 					string pathLog = System.IO.Path.GetTempPath() + "eddie-elevated.log";
-					//string pathLog = "E:\\eddie.log";
 					System.IO.File.AppendAllText(pathLog, log + "\n");
 					Console.WriteLine(log);
 				}
@@ -249,23 +266,27 @@ namespace Lib.Platform.Windows.Elevated
 				return hash.ToString();
 			}
 		}
+		*/
 
-		public static string FileSha512(string path)
+		public static string HashSHA512File(string path)
 		{
-			FileStream fileStream = File.OpenRead(path);
-			fileStream.Position = 0;
-
-			byte[] hashValue = SHA512.Create().ComputeHash(fileStream);
-
-			string o = "";
-			for (int i = 0; i < hashValue.Length; i++)
+			using (FileStream stream = File.OpenRead(path))
 			{
-				o += String.Format("{0:X2}", hashValue[i]);
-			}
+				using (SHA512 sha = SHA512.Create())
+				{
+					byte[] hash = sha.ComputeHash(stream);
 
-			return o.ToLowerInvariant();
+					string o = "";
+					for (int i = 0; i < hash.Length; i++)
+					{
+						o += String.Format("{0:X2}", hash[i]);
+					}
+					return o.ToLowerInvariant();
+				}
+			}
 		}
 
+		/*
 		public static void CreateEddieSignature(string path)
 		{
 			RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();

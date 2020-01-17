@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -346,6 +346,8 @@ namespace Eddie.Forms.Forms
 			m_listViewServers.SelectedIndexChanged += new EventHandler(m_listViewServers_SelectedIndexChanged);
 			m_listViewAreas.SelectedIndexChanged += new EventHandler(m_listViewAreas_SelectedIndexChanged);
 
+			lstProviders.ImageIconResourcePrefix = "providers_";
+
 			lstStats.ImageIconResourcePrefix = "stats_";
 			lstStats.ResizeColumnMax(1);
 
@@ -554,9 +556,12 @@ namespace Eddie.Forms.Forms
 				Image iconFlag = null;
 				if (Engine.CurrentServer != null)
 				{
-					string iconFlagCode = Engine.CurrentServer.CountryCode;
+					string iconFlagCode = Engine.CurrentServer.CountryCode;					
+					/*
 					if (imgCountries.Images.ContainsKey(iconFlagCode))
 						iconFlag = imgCountries.Images[iconFlagCode];
+						*/
+					iconFlag = GuiUtils.GetResourceImage("flags_" + iconFlagCode);
 
 					if (iconFlag != null)
 					{
@@ -1116,7 +1121,7 @@ namespace Eddie.Forms.Forms
 
 		private void tabMain_TabSwitch()
 		{
-			// Under Linux, to close context men�.
+			// Under Linux, to close context menù.
 			if (mnuAreas.Visible)
 				mnuAreas.Close();
 			if (mnuServers.Visible)
@@ -1327,11 +1332,31 @@ namespace Eddie.Forms.Forms
                 this.WindowState = FormWindowState.Minimized; // Never occur
             else
             {
-                ShowInTaskbar = false;
-                Hide();
+                if (Platform.Instance.IsWindowsSystem())
+                {
+                    ShowInTaskbar = false;
+                    Hide();
 
-                EnabledUi();
-                Resizing();
+                    EnabledUi();
+                    Resizing();
+                }
+                else // Linux
+                {
+                    // MonoBug in ShowInTaskbar
+
+                    Hide();
+
+                    EnabledUi();
+                    Resizing();
+                    /*
+                    ShowInTaskbar = false;
+
+                    Hide();
+
+                    EnabledUi();
+                    Resizing();
+                    */                   
+                }
             }
         }
 
@@ -1775,6 +1800,9 @@ namespace Eddie.Forms.Forms
 							txtConnectedExitIp.Text = Engine.ConnectionActive.ExitIPs.ToString().Replace(", ","\n");
 							string iconFlagCode = Engine.CurrentServer.CountryCode;
 							Image iconFlag = null;
+							iconFlag = GuiUtils.GetResourceImage("flags_" + iconFlagCode);
+							lblConnectedCountry.Image = iconFlag;
+							/*
 							if (imgCountries.Images.ContainsKey(iconFlagCode))
 							{
 								iconFlag = imgCountries.Images[iconFlagCode];
@@ -1782,6 +1810,7 @@ namespace Eddie.Forms.Forms
 							}
 							else
 								lblConnectedCountry.Image = null;
+							*/
 						}
 						else
 						{

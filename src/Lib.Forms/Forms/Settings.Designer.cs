@@ -34,20 +34,19 @@ namespace Eddie.Forms.Forms
 			Eddie.Forms.Skin.TabPage tabEvents;
 			Eddie.Forms.Skin.ColumnHeader columnHeader1;
 			Eddie.Forms.Skin.ColumnHeader columnHeader2;
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Settings));
 			Eddie.Forms.Skin.ColumnHeader columnHeader5;
+			this.lblHummingbirdPrefer = new Eddie.Forms.Skin.Label();
+			this.chkHummingbirdPrefer = new Eddie.Forms.Skin.CheckBox();
 			this.lblAdvancedUpdaterChannel = new Eddie.Forms.Skin.Label();
 			this.cboAdvancedUpdaterChannel = new Eddie.Forms.Skin.ComboBox();
 			this.chkAdvancedSkipAlreadyRun = new Eddie.Forms.Skin.CheckBox();
-			this.label11 = new Eddie.Forms.Skin.Label();
+			this.lblAdvancedProviders = new Eddie.Forms.Skin.Label();
 			this.lblAdvancedSkipAlreadyRun = new Eddie.Forms.Skin.Label();
 			this.chkAdvancedProviders = new Eddie.Forms.Skin.CheckBox();
 			this.lnkAdvancedHelp = new Eddie.Forms.Skin.LinkLabel();
 			this.lblExpert = new Eddie.Forms.Skin.Label();
 			this.lblAdvancedPingerEnabled = new Eddie.Forms.Skin.Label();
 			this.lblAdvancedCheckRoute = new Eddie.Forms.Skin.Label();
-			this.lblIpV6 = new Eddie.Forms.Skin.Label();
-			this.cboIpV6 = new Eddie.Forms.Skin.ComboBox();
 			this.lblAdvancedManifestRefresh = new Eddie.Forms.Skin.Label();
 			this.cboAdvancedManifestRefresh = new Eddie.Forms.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
@@ -81,7 +80,6 @@ namespace Eddie.Forms.Forms
 			this.lstAdvancedEvents = new Eddie.Forms.Skin.ListView();
 			this.columnHeader3 = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.columnHeader4 = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
-			this.imgRoutes = new System.Windows.Forms.ImageList(this.components);
 			this.label1 = new Eddie.Forms.Skin.Label();
 			this.tabNetworking = new Eddie.Forms.Skin.TabPage();
 			this.lblNetworkIPv4AutoSwitch = new Eddie.Forms.Skin.Label();
@@ -132,6 +130,8 @@ namespace Eddie.Forms.Forms
 			this.chkNetLock = new Eddie.Forms.Skin.CheckBox();
 			this.chkGeneralStartLast = new Eddie.Forms.Skin.CheckBox();
 			this.tabUI = new Eddie.Forms.Skin.TabPage();
+			this.lbUiSkipPromotional = new Eddie.Forms.Skin.Label();
+			this.chkUiSkipPromotional = new Eddie.Forms.Skin.CheckBox();
 			this.lblUiStartMinimized = new Eddie.Forms.Skin.Label();
 			this.chkUiStartMinimized = new Eddie.Forms.Skin.CheckBox();
 			this.lblUiTrayMinimized = new Eddie.Forms.Skin.Label();
@@ -186,13 +186,10 @@ namespace Eddie.Forms.Forms
 			this.txtProxyHost = new Eddie.Forms.Skin.TextBox();
 			this.lblProxyHost = new Eddie.Forms.Skin.Label();
 			this.tabRoutes = new Eddie.Forms.Skin.TabPage();
-			this.lblRoutesNetworkLockWarning = new Eddie.Forms.Skin.Label();
 			this.cmdRouteEdit = new Eddie.Forms.Skin.Button();
 			this.cmdRouteRemove = new Eddie.Forms.Skin.Button();
 			this.cmdRouteAdd = new Eddie.Forms.Skin.Button();
 			this.label6 = new Eddie.Forms.Skin.Label();
-			this.cboRoutesOtherwise = new Eddie.Forms.Skin.ComboBox();
-			this.lblRoutesOtherwise = new Eddie.Forms.Skin.Label();
 			this.lstRoutes = new Eddie.Forms.Skin.ListView();
 			this.colRoutesIp = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colRoutesAction = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
@@ -273,18 +270,18 @@ namespace Eddie.Forms.Forms
 			// tabAdvanced
 			// 
 			tabAdvanced.BackColor = System.Drawing.Color.White;
+			tabAdvanced.Controls.Add(this.lblHummingbirdPrefer);
+			tabAdvanced.Controls.Add(this.chkHummingbirdPrefer);
 			tabAdvanced.Controls.Add(this.lblAdvancedUpdaterChannel);
 			tabAdvanced.Controls.Add(this.cboAdvancedUpdaterChannel);
 			tabAdvanced.Controls.Add(this.chkAdvancedSkipAlreadyRun);
-			tabAdvanced.Controls.Add(this.label11);
+			tabAdvanced.Controls.Add(this.lblAdvancedProviders);
 			tabAdvanced.Controls.Add(this.lblAdvancedSkipAlreadyRun);
 			tabAdvanced.Controls.Add(this.chkAdvancedProviders);
 			tabAdvanced.Controls.Add(this.lnkAdvancedHelp);
 			tabAdvanced.Controls.Add(this.lblExpert);
 			tabAdvanced.Controls.Add(this.lblAdvancedPingerEnabled);
 			tabAdvanced.Controls.Add(this.lblAdvancedCheckRoute);
-			tabAdvanced.Controls.Add(this.lblIpV6);
-			tabAdvanced.Controls.Add(this.cboIpV6);
 			tabAdvanced.Controls.Add(this.lblAdvancedManifestRefresh);
 			tabAdvanced.Controls.Add(this.cboAdvancedManifestRefresh);
 			tabAdvanced.Controls.Add(this.pnlAdvancedGeneralWindowsOnly);
@@ -301,6 +298,29 @@ namespace Eddie.Forms.Forms
 			tabAdvanced.Size = new System.Drawing.Size(1014, 635);
 			tabAdvanced.TabIndex = 0;
 			tabAdvanced.Text = "Advanced";
+			// 
+			// lblHummingbirdPrefer
+			// 
+			this.lblHummingbirdPrefer.BackColor = System.Drawing.Color.Transparent;
+			this.lblHummingbirdPrefer.ForeColor = System.Drawing.Color.Black;
+			this.lblHummingbirdPrefer.Location = new System.Drawing.Point(21, 523);
+			this.lblHummingbirdPrefer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblHummingbirdPrefer.Name = "lblHummingbirdPrefer";
+			this.lblHummingbirdPrefer.Size = new System.Drawing.Size(330, 32);
+			this.lblHummingbirdPrefer.TabIndex = 95;
+			this.lblHummingbirdPrefer.Text = "Use Hummingbird if available";
+			this.lblHummingbirdPrefer.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkHummingbirdPrefer
+			// 
+			this.chkHummingbirdPrefer.BackColor = System.Drawing.Color.Transparent;
+			this.chkHummingbirdPrefer.ForeColor = System.Drawing.Color.Black;
+			this.chkHummingbirdPrefer.Location = new System.Drawing.Point(369, 526);
+			this.chkHummingbirdPrefer.Margin = new System.Windows.Forms.Padding(4);
+			this.chkHummingbirdPrefer.Name = "chkHummingbirdPrefer";
+			this.chkHummingbirdPrefer.Size = new System.Drawing.Size(248, 28);
+			this.chkHummingbirdPrefer.TabIndex = 94;
+			this.chkHummingbirdPrefer.UseVisualStyleBackColor = false;
 			// 
 			// lblAdvancedUpdaterChannel
 			// 
@@ -334,30 +354,30 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkAdvancedSkipAlreadyRun.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedSkipAlreadyRun.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedSkipAlreadyRun.Location = new System.Drawing.Point(369, 480);
+			this.chkAdvancedSkipAlreadyRun.Location = new System.Drawing.Point(369, 436);
 			this.chkAdvancedSkipAlreadyRun.Margin = new System.Windows.Forms.Padding(4);
 			this.chkAdvancedSkipAlreadyRun.Name = "chkAdvancedSkipAlreadyRun";
 			this.chkAdvancedSkipAlreadyRun.Size = new System.Drawing.Size(248, 28);
 			this.chkAdvancedSkipAlreadyRun.TabIndex = 91;
 			this.chkAdvancedSkipAlreadyRun.UseVisualStyleBackColor = false;
 			// 
-			// label11
+			// lblAdvancedProviders
 			// 
-			this.label11.BackColor = System.Drawing.Color.Transparent;
-			this.label11.ForeColor = System.Drawing.Color.Black;
-			this.label11.Location = new System.Drawing.Point(21, 522);
-			this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(330, 32);
-			this.label11.TabIndex = 90;
-			this.label11.Text = "Multi-providers support:";
-			this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.lblAdvancedProviders.BackColor = System.Drawing.Color.Transparent;
+			this.lblAdvancedProviders.ForeColor = System.Drawing.Color.Black;
+			this.lblAdvancedProviders.Location = new System.Drawing.Point(21, 478);
+			this.lblAdvancedProviders.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblAdvancedProviders.Name = "lblAdvancedProviders";
+			this.lblAdvancedProviders.Size = new System.Drawing.Size(330, 32);
+			this.lblAdvancedProviders.TabIndex = 90;
+			this.lblAdvancedProviders.Text = "Multi-providers support:";
+			this.lblAdvancedProviders.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblAdvancedSkipAlreadyRun
 			// 
 			this.lblAdvancedSkipAlreadyRun.BackColor = System.Drawing.Color.Transparent;
 			this.lblAdvancedSkipAlreadyRun.ForeColor = System.Drawing.Color.Black;
-			this.lblAdvancedSkipAlreadyRun.Location = new System.Drawing.Point(21, 477);
+			this.lblAdvancedSkipAlreadyRun.Location = new System.Drawing.Point(21, 433);
 			this.lblAdvancedSkipAlreadyRun.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblAdvancedSkipAlreadyRun.Name = "lblAdvancedSkipAlreadyRun";
 			this.lblAdvancedSkipAlreadyRun.Size = new System.Drawing.Size(330, 32);
@@ -369,7 +389,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkAdvancedProviders.BackColor = System.Drawing.Color.Transparent;
 			this.chkAdvancedProviders.ForeColor = System.Drawing.Color.Black;
-			this.chkAdvancedProviders.Location = new System.Drawing.Point(369, 525);
+			this.chkAdvancedProviders.Location = new System.Drawing.Point(369, 481);
 			this.chkAdvancedProviders.Margin = new System.Windows.Forms.Padding(4);
 			this.chkAdvancedProviders.Name = "chkAdvancedProviders";
 			this.chkAdvancedProviders.Size = new System.Drawing.Size(248, 28);
@@ -428,31 +448,6 @@ namespace Eddie.Forms.Forms
 			this.lblAdvancedCheckRoute.TabIndex = 77;
 			this.lblAdvancedCheckRoute.Text = "Check if the tunnel works:";
 			this.lblAdvancedCheckRoute.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// lblIpV6
-			// 
-			this.lblIpV6.BackColor = System.Drawing.Color.Transparent;
-			this.lblIpV6.ForeColor = System.Drawing.Color.Black;
-			this.lblIpV6.Location = new System.Drawing.Point(24, 117);
-			this.lblIpV6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblIpV6.Name = "lblIpV6";
-			this.lblIpV6.Size = new System.Drawing.Size(332, 32);
-			this.lblIpV6.TabIndex = 76;
-			this.lblIpV6.Text = "IPv6 (if not supported):";
-			this.lblIpV6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// cboIpV6
-			// 
-			this.cboIpV6.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboIpV6.FormattingEnabled = true;
-			this.cboIpV6.Items.AddRange(new object[] {
-            "None",
-            "Disable"});
-			this.cboIpV6.Location = new System.Drawing.Point(369, 117);
-			this.cboIpV6.Margin = new System.Windows.Forms.Padding(4);
-			this.cboIpV6.Name = "cboIpV6";
-			this.cboIpV6.Size = new System.Drawing.Size(198, 28);
-			this.cboIpV6.TabIndex = 75;
 			// 
 			// lblAdvancedManifestRefresh
 			// 
@@ -583,7 +578,7 @@ namespace Eddie.Forms.Forms
 			this.cmdExeBrowse.FlatAppearance.BorderSize = 0;
 			this.cmdExeBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdExeBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
-			this.cmdExeBrowse.Location = new System.Drawing.Point(942, 432);
+			this.cmdExeBrowse.Location = new System.Drawing.Point(942, 388);
 			this.cmdExeBrowse.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdExeBrowse.Name = "cmdExeBrowse";
 			this.cmdExeBrowse.Size = new System.Drawing.Size(50, 30);
@@ -595,7 +590,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.txtExePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtExePath.Location = new System.Drawing.Point(369, 432);
+			this.txtExePath.Location = new System.Drawing.Point(369, 388);
 			this.txtExePath.Margin = new System.Windows.Forms.Padding(4);
 			this.txtExePath.Name = "txtExePath";
 			this.txtExePath.Size = new System.Drawing.Size(565, 26);
@@ -605,7 +600,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.lblExePath.BackColor = System.Drawing.Color.Transparent;
 			this.lblExePath.ForeColor = System.Drawing.Color.Black;
-			this.lblExePath.Location = new System.Drawing.Point(21, 432);
+			this.lblExePath.Location = new System.Drawing.Point(21, 388);
 			this.lblExePath.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblExePath.Name = "lblExePath";
 			this.lblExePath.Size = new System.Drawing.Size(330, 32);
@@ -927,7 +922,6 @@ namespace Eddie.Forms.Forms
 			this.lstAdvancedEvents.Name = "lstAdvancedEvents";
 			this.lstAdvancedEvents.OwnerDraw = true;
 			this.lstAdvancedEvents.Size = new System.Drawing.Size(924, 463);
-			this.lstAdvancedEvents.SmallImageList = this.imgRoutes;
 			this.lstAdvancedEvents.TabIndex = 57;
 			this.lstAdvancedEvents.UseCompatibleStateImageBehavior = false;
 			this.lstAdvancedEvents.View = System.Windows.Forms.View.Details;
@@ -952,13 +946,6 @@ namespace Eddie.Forms.Forms
 			// columnHeader4
 			// 
 			this.columnHeader4.Text = "Wait End";
-			// 
-			// imgRoutes
-			// 
-			this.imgRoutes.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgRoutes.ImageStream")));
-			this.imgRoutes.TransparentColor = System.Drawing.Color.Transparent;
-			this.imgRoutes.Images.SetKeyName(0, "in");
-			this.imgRoutes.Images.SetKeyName(1, "out");
 			// 
 			// label1
 			// 
@@ -1340,7 +1327,7 @@ namespace Eddie.Forms.Forms
 			this.tabGeneral.Controls.Add(this.chkConnect);
 			this.tabGeneral.Controls.Add(this.lblGeneralStartLast);
 			this.tabGeneral.Controls.Add(this.chkNetLock);
-			this.tabGeneral.Controls.Add(this.chkGeneralStartLast);			
+			this.tabGeneral.Controls.Add(this.chkGeneralStartLast);
 			this.tabGeneral.Location = new System.Drawing.Point(4, 24);
 			this.tabGeneral.Margin = new System.Windows.Forms.Padding(4);
 			this.tabGeneral.Name = "tabGeneral";
@@ -1589,6 +1576,8 @@ namespace Eddie.Forms.Forms
 			// tabUI
 			// 
 			this.tabUI.BackColor = System.Drawing.Color.White;
+			this.tabUI.Controls.Add(this.lbUiSkipPromotional);
+			this.tabUI.Controls.Add(this.chkUiSkipPromotional);
 			this.tabUI.Controls.Add(this.lblUiStartMinimized);
 			this.tabUI.Controls.Add(this.chkUiStartMinimized);
 			this.tabUI.Controls.Add(this.lblUiTrayMinimized);
@@ -1614,6 +1603,29 @@ namespace Eddie.Forms.Forms
 			this.tabUI.Size = new System.Drawing.Size(1014, 635);
 			this.tabUI.TabIndex = 3;
 			this.tabUI.Text = "UI";
+			// 
+			// lbUiSkipPromotional
+			// 
+			this.lbUiSkipPromotional.BackColor = System.Drawing.Color.Transparent;
+			this.lbUiSkipPromotional.ForeColor = System.Drawing.Color.Black;
+			this.lbUiSkipPromotional.Location = new System.Drawing.Point(26, 575);
+			this.lbUiSkipPromotional.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lbUiSkipPromotional.Name = "lbUiSkipPromotional";
+			this.lbUiSkipPromotional.Size = new System.Drawing.Size(398, 34);
+			this.lbUiSkipPromotional.TabIndex = 116;
+			this.lbUiSkipPromotional.Text = "Skip promotional messages";
+			this.lbUiSkipPromotional.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// chkUiSkipPromotional
+			// 
+			this.chkUiSkipPromotional.BackColor = System.Drawing.Color.Transparent;
+			this.chkUiSkipPromotional.ForeColor = System.Drawing.Color.Black;
+			this.chkUiSkipPromotional.Location = new System.Drawing.Point(432, 575);
+			this.chkUiSkipPromotional.Margin = new System.Windows.Forms.Padding(4);
+			this.chkUiSkipPromotional.Name = "chkUiSkipPromotional";
+			this.chkUiSkipPromotional.Size = new System.Drawing.Size(147, 34);
+			this.chkUiSkipPromotional.TabIndex = 115;
+			this.chkUiSkipPromotional.UseVisualStyleBackColor = false;
 			// 
 			// lblUiStartMinimized
 			// 
@@ -2260,13 +2272,10 @@ namespace Eddie.Forms.Forms
 			// tabRoutes
 			// 
 			this.tabRoutes.BackColor = System.Drawing.Color.White;
-			this.tabRoutes.Controls.Add(this.lblRoutesNetworkLockWarning);
 			this.tabRoutes.Controls.Add(this.cmdRouteEdit);
 			this.tabRoutes.Controls.Add(this.cmdRouteRemove);
 			this.tabRoutes.Controls.Add(this.cmdRouteAdd);
 			this.tabRoutes.Controls.Add(this.label6);
-			this.tabRoutes.Controls.Add(this.cboRoutesOtherwise);
-			this.tabRoutes.Controls.Add(this.lblRoutesOtherwise);
 			this.tabRoutes.Controls.Add(this.lstRoutes);
 			this.tabRoutes.Location = new System.Drawing.Point(4, 24);
 			this.tabRoutes.Margin = new System.Windows.Forms.Padding(4);
@@ -2274,19 +2283,6 @@ namespace Eddie.Forms.Forms
 			this.tabRoutes.Size = new System.Drawing.Size(1014, 635);
 			this.tabRoutes.TabIndex = 5;
 			this.tabRoutes.Text = "Routes";
-			// 
-			// lblRoutesNetworkLockWarning
-			// 
-			this.lblRoutesNetworkLockWarning.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblRoutesNetworkLockWarning.BackColor = System.Drawing.Color.Transparent;
-			this.lblRoutesNetworkLockWarning.ForeColor = System.Drawing.Color.Black;
-			this.lblRoutesNetworkLockWarning.Location = new System.Drawing.Point(9, 560);
-			this.lblRoutesNetworkLockWarning.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblRoutesNetworkLockWarning.Name = "lblRoutesNetworkLockWarning";
-			this.lblRoutesNetworkLockWarning.Size = new System.Drawing.Size(394, 45);
-			this.lblRoutesNetworkLockWarning.TabIndex = 43;
-			this.lblRoutesNetworkLockWarning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// cmdRouteEdit
 			// 
@@ -2350,31 +2346,6 @@ namespace Eddie.Forms.Forms
 			this.label6.TabIndex = 3;
 			this.label6.Text = "Network routing rules about what destination must be in the VPN tunnel or not.";
 			// 
-			// cboRoutesOtherwise
-			// 
-			this.cboRoutesOtherwise.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cboRoutesOtherwise.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboRoutesOtherwise.FormattingEnabled = true;
-			this.cboRoutesOtherwise.Location = new System.Drawing.Point(694, 567);
-			this.cboRoutesOtherwise.Margin = new System.Windows.Forms.Padding(4);
-			this.cboRoutesOtherwise.Name = "cboRoutesOtherwise";
-			this.cboRoutesOtherwise.Size = new System.Drawing.Size(244, 28);
-			this.cboRoutesOtherwise.TabIndex = 2;
-			this.cboRoutesOtherwise.SelectedIndexChanged += new System.EventHandler(this.cboRoutesOtherwise_SelectedIndexChanged);
-			// 
-			// lblRoutesOtherwise
-			// 
-			this.lblRoutesOtherwise.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblRoutesOtherwise.BackColor = System.Drawing.Color.Transparent;
-			this.lblRoutesOtherwise.ForeColor = System.Drawing.Color.Black;
-			this.lblRoutesOtherwise.Location = new System.Drawing.Point(412, 567);
-			this.lblRoutesOtherwise.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblRoutesOtherwise.Name = "lblRoutesOtherwise";
-			this.lblRoutesOtherwise.Size = new System.Drawing.Size(273, 32);
-			this.lblRoutesOtherwise.TabIndex = 1;
-			this.lblRoutesOtherwise.Text = "Not specified routes go: ";
-			this.lblRoutesOtherwise.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
 			// lstRoutes
 			// 
 			this.lstRoutes.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -2393,8 +2364,7 @@ namespace Eddie.Forms.Forms
 			this.lstRoutes.MultiSelect = false;
 			this.lstRoutes.Name = "lstRoutes";
 			this.lstRoutes.OwnerDraw = true;
-			this.lstRoutes.Size = new System.Drawing.Size(930, 482);
-			this.lstRoutes.SmallImageList = this.imgRoutes;
+			this.lstRoutes.Size = new System.Drawing.Size(930, 566);
 			this.lstRoutes.TabIndex = 0;
 			this.lstRoutes.UseCompatibleStateImageBehavior = false;
 			this.lstRoutes.View = System.Windows.Forms.View.Details;
@@ -2632,7 +2602,6 @@ namespace Eddie.Forms.Forms
 			this.lstDnsServers.Name = "lstDnsServers";
 			this.lstDnsServers.OwnerDraw = true;
 			this.lstDnsServers.Size = new System.Drawing.Size(542, 272);
-			this.lstDnsServers.SmallImageList = this.imgRoutes;
 			this.lstDnsServers.TabIndex = 76;
 			this.lstDnsServers.UseCompatibleStateImageBehavior = false;
 			this.lstDnsServers.View = System.Windows.Forms.View.Details;
@@ -3134,13 +3103,10 @@ namespace Eddie.Forms.Forms
         private Skin.TextBox txtProxyLogin;
 		private Skin.Label lblProxyLogin;        
         private Skin.Label label6;
-        private Skin.ComboBox cboRoutesOtherwise;
-        private Skin.Label lblRoutesOtherwise;
         private Skin.ListView lstRoutes;
         private Skin.ColumnHeader colRoutesIp;
         private Skin.ColumnHeader colRoutesNotes;
         private Skin.ColumnHeader colRoutesAction;
-        private System.Windows.Forms.ImageList imgRoutes;
         private Skin.Label label12;
         private Skin.Button cmdRouteEdit;
         private Skin.Button cmdRouteRemove;
@@ -3189,13 +3155,10 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblLockMode;
 		private Skin.ComboBox cboLockMode;
 		private Skin.Label lblLockRoutingOutWarning;
-		private Skin.Label lblRoutesNetworkLockWarning;
 		private Skin.Label label17;
 		private Skin.Label lblAdvancedManifestRefresh;
 		private Skin.ComboBox cboAdvancedManifestRefresh;
 		private Skin.TabPage tabDNS;
-		private Skin.Label lblIpV6;
-		private Skin.ComboBox cboIpV6;
 		private Skin.Label lblDnsSwitchMode;
 		private Skin.ComboBox cboDnsSwitchMode;
 		private Skin.CheckBox chkDnsCheck;
@@ -3252,7 +3215,7 @@ namespace Eddie.Forms.Forms
 		private Skin.TextBox txtOpenVpnDirectivesCustomPath;
 		private Skin.Label label8;
 		private Skin.CheckBox chkAdvancedSkipAlreadyRun;
-		private Skin.Label label11;
+		private Skin.Label lblAdvancedProviders;
 		private Skin.Label lblAdvancedSkipAlreadyRun;
 		private Skin.Label lblProxyWhen;
 		private Skin.ComboBox cboProxyWhen;
@@ -3327,5 +3290,9 @@ namespace Eddie.Forms.Forms
 		private Skin.TextBox txtStoragePasswordConfirm;
 		private Skin.Label lblStoragePasswordConfirm;
 		private Skin.Label lblStoragePassword;
+		private Skin.Label lbUiSkipPromotional;
+		private Skin.CheckBox chkUiSkipPromotional;
+		private Skin.Label lblHummingbirdPrefer;
+		private Skin.CheckBox chkHummingbirdPrefer;
 	}
 }

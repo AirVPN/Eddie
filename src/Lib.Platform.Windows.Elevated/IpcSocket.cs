@@ -1,4 +1,22 @@
-﻿using System;
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+//
+// Eddie is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Eddie is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,13 +46,16 @@ namespace Lib.Platform.Windows.Elevated
 			try
 			{
 				int port = Constants.PortSpot;
-				if (Loop) // Service edition
+				if (m_serviceMode)
 					port = Constants.PortService;
+
+				if (m_cmdline.ContainsKey("port"))
+					port = Convert.ToInt32(m_cmdline["port"]);
 
 				IPAddress ipAddress = IPAddress.Loopback;
 				m_localEndPoint = new IPEndPoint(ipAddress, port);
 
-				DebugLog("Listen on localhost, port " + port.ToString() + ", " + (Loop ? "Loop mode" : "Spot mode"));
+				LogDebug("Listen on localhost, port " + port.ToString() + ", " + (m_serviceMode ? "Service mode" : "Spot mode"));
 
 				Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -47,7 +68,7 @@ namespace Lib.Platform.Windows.Elevated
 					m_sb.Clear();
 					m_closePending = false;
 
-					DebugLog("Waiting connection");
+					LogDebug("Waiting connection");
 					
 					ClientDisconnectSignal.Reset();
 
@@ -55,7 +76,7 @@ namespace Lib.Platform.Windows.Elevated
 
 					ClientDisconnectSignal.WaitOne();
 
-					if (Loop == false)
+					if (m_serviceMode == false)
 					{
 						break;
 					}
@@ -66,7 +87,7 @@ namespace Lib.Platform.Windows.Elevated
 				Close(ex.Message);
 			}
 
-			DebugLog("Clean end");
+			LogDebug("Clean end");
 		}
 
 		public override void SendMessage(string line)
@@ -75,7 +96,7 @@ namespace Lib.Platform.Windows.Elevated
 			{
 				byte[] byteData = Encoding.ASCII.GetBytes(line + "\n");
 
-				m_socket.Send(byteData);				
+				m_socket.Send(byteData);								
 			}
 			catch(Exception ex)
 			{
@@ -97,7 +118,8 @@ namespace Lib.Platform.Windows.Elevated
 				if (m_socket != null)
 				{
 					if(reason != "Disconnect")
-						FatalLog(reason);
+						LogFatal(reason);
+					m_socket.Shutdown(SocketShutdown.Both);
 					m_socket.Close();
 				}
 			}
@@ -117,49 +139,75 @@ namespace Lib.Platform.Windows.Elevated
 				Socket socket = listener.EndAccept(ar);
 
 				if (m_socket != null)
-					throw new Exception("A connection is already running");
+					throw new Exception("Client not allowed: connection already active");
 									
 				m_socket = socket;
 
-				DebugLog("Accepted connection");
+				LogDebug("Accepted connection");
 
-				Process clientProcess = Utils.GetProcessOfMatchingIPEndPoint(m_socket.RemoteEndPoint as IPEndPoint, m_localEndPoint);
-				if (clientProcess == null)
-					throw new Exception("Unable to detect client process");
-
-#if DEBUG
-				// Never release a signed debug.
-#else
-			
-				bool match = false;
-				try
+				// Check allowed
 				{
-					System.Security.Cryptography.X509Certificates.X509Certificate c1 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(System.Reflection.Assembly.GetEntryAssembly().Location);
-					System.Security.Cryptography.X509Certificates.X509Certificate c2 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(clientProcess.MainModule.FileName);
+					Process clientProcess = Utils.GetProcessOfMatchingIPEndPoint(m_socket.RemoteEndPoint as IPEndPoint, m_localEndPoint);
 
-					match = (
-						(c1.Issuer == c2.Issuer) &&
-						(c1.Subject == c2.Subject) &&
-						(c1.GetCertHashString() == c2.GetCertHashString()) &&
-						(c1.GetEffectiveDateString() == c2.GetEffectiveDateString()) &&
-						(c1.GetPublicKeyString() == c2.GetPublicKeyString()) &&
-						(c1.GetRawCertDataString() == c2.GetRawCertDataString()) &&
-						(c1.GetSerialNumberString() == c2.GetSerialNumberString())
-					);
-				}
-				catch
-				{
+					string clientPath = clientProcess.MainModule.FileName;
 
-				}
+					if (clientProcess == null)
+						throw new Exception("Client not allowed: Cannot detect client process");
 
-				if (Constants.Debug)
-					match = true;
-				
-				if (match == false)
-				{
-					throw new Exception("Client not allowed, signature mismatch.");
+					// If spot mode, must be the parent
+					if(m_serviceMode == false)
+					{
+						int parentPID = Utils.GetParentProcess().Id;						
+						if (clientProcess.Id != parentPID)
+							throw new Exception("Client not allowed: Connection not from parent process (spot mode)");
+					}
+
+					// If service mode, hash must match
+					if(m_serviceMode)
+					{
+						string allowedHash = "";
+						if (m_cmdline.ContainsKey("allowed_hash"))
+							allowedHash = m_cmdline["allowed_hash"];
+						string clientHash = Utils.HashSHA512File(clientPath);
+						if(allowedHash != clientHash)
+							throw new Exception("Client not allowed: Hash mismatch (client " + clientHash + " != expected " + allowedHash + ") (service mode)");
+					}
+
+					// Check signature (optional)
+					{
+						try
+						{
+							System.Security.Cryptography.X509Certificates.X509Certificate c1 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(System.Reflection.Assembly.GetEntryAssembly().Location);
+
+							// If above don't throw exception, Elevated it's signed, so it's mandatory that client is signed from same subject.
+							try
+							{
+								System.Security.Cryptography.X509Certificates.X509Certificate c2 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(clientPath);
+
+								bool match = (
+									(c1.Issuer == c2.Issuer) &&
+									(c1.Subject == c2.Subject) &&
+									(c1.GetCertHashString() == c2.GetCertHashString()) &&
+									(c1.GetEffectiveDateString() == c2.GetEffectiveDateString()) &&
+									(c1.GetPublicKeyString() == c2.GetPublicKeyString()) &&
+									(c1.GetRawCertDataString() == c2.GetRawCertDataString()) &&
+									(c1.GetSerialNumberString() == c2.GetSerialNumberString())
+								);
+
+								if (match == false)
+									throw new Exception("Client not allowed: digital signature mismatch");
+							}
+							catch (Exception)
+							{
+								throw new Exception("Client not allowed: digital signature not available");
+							}
+						}
+						catch(Exception)
+						{
+							// Not signed, but maybe compiled from source, it's an optional check.
+						}
+					}
 				}
-#endif
 
 				ReplyPID(Process.GetCurrentProcess().Id);
 

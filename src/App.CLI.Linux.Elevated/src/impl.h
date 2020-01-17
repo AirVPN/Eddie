@@ -21,7 +21,7 @@
 class Impl: public IPosix
 {
 public:
-	virtual int Main(int argc, char* argv[]);
+	virtual int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
     virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
 	virtual std::string GetProcessPathCurrent();

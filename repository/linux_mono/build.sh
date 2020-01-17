@@ -108,6 +108,9 @@ find ${TARGETDIR} -type f -exec chmod 644 {} +;
 chmod 755 ${TARGETDIR}/eddie-${PROJECT}
 chmod 755 ${TARGETDIR}/bundle/eddie-cli-elevated
 chmod 755 ${TARGETDIR}/bundle/openvpn
+if test -f "${TARGETDIR}/bundle/hummingbird"; then
+    chmod 755 ${TARGETDIR}/bundle/hummingbird
+fi
 chmod 755 ${TARGETDIR}/bundle/stunnel
 if [ $PROJECT = "ui" ]; then
     chmod 755 ${TARGETDIR}/bundle/eddie-tray

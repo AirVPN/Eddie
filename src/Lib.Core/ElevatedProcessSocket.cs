@@ -41,41 +41,66 @@ namespace Eddie.Core
 		private ManualResetEvent receiveDone = new ManualResetEvent(false);
 		private Socket m_socket = null;		
 
+		protected int GetPortSpot()
+		{
+			return RandomGenerator.GetInt(2048,256*256-1);
+		}
+
 		protected override void SendLine(string line)
 		{
 			Send(m_socket, line);
 		}
 
-		protected bool Connect(int port)
+		protected string Connect(int port)
 		{
-            IPAddress ipAddress = IPAddress.Loopback;
-			IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
-
-			Socket socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-			connectDone.Reset();
-            socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), socket);
-            connectDone.WaitOne();
-
-            if (m_socket == null) // Connect failed
+			try
 			{
-				return false;
-			}
+				m_failedReason = "";
 
+				IPAddress ipAddress = IPAddress.Loopback;
+				IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
+
+				Socket socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+				connectDone.Reset();
+				socket.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), socket);
+				connectDone.WaitOne();
+
+				if (m_socket == null) // Connect failed
+				{
+					return "No socket";
+				}
+
+                /*
 #if DEBUG
 #else
-			// Check
 			if(Platform.Instance.CheckElevatedSocketAllowed(socket.RemoteEndPoint as IPEndPoint, socket.LocalEndPoint as IPEndPoint) == false)
 			{
 				return false;
 			}
 #endif
-            StateObject state = new StateObject();
-			state.Socket = socket;
-            // Begin receiving the data from the remote device.  
-            socket.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                */
+				StateObject state = new StateObject();
+				state.Socket = socket;
+				// Begin receiving the data from the remote device.  
+				socket.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
 
-            return true;			
+
+				m_sessionKey = RandomGenerator.GetHash();
+
+				DoCommandSync("session-key", "key", m_sessionKey, "version", Constants.ElevatedVersionExpected);
+
+				if (m_failedReason != "")
+					return m_failedReason;
+
+				m_started = true;
+			}
+			catch (Exception ex)
+			{
+				return ex.Message;
+			}	
+
+			return "Ok";
 		}
 
 		private void ConnectCallback(IAsyncResult ar)

@@ -55,7 +55,7 @@ namespace Eddie.Platform.Linux
 			{
 				m_monoVersion = "2-generic";
 			}
-			if (UtilsCore.CompareVersions(m_monoVersion, "5.10.1.45") < 0)
+			if (m_monoVersion.VersionUnder("5.10.1.45"))
 			{
 				// Workaround for https://github.com/mono/mono/issues/6752
 				Environment.SetEnvironmentVariable("TERM", "XTERM", EnvironmentVariableTarget.Process);
@@ -195,12 +195,13 @@ namespace Eddie.Platform.Linux
 
             if (value)
             {
-                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-install" }, Engine.Instance.ConsoleMode);
+                string clientHash = Core.Crypto.Manager.HashSHA256File(GetExecutablePath());
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "allowed_hash=" + clientHash }, Engine.Instance.ConsoleMode);
                 return (GetService() == true);
             }
             else
             {
-                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service-uninstall" }, Engine.Instance.ConsoleMode);
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=uninstall" }, Engine.Instance.ConsoleMode);
                 return (GetService() == false);
             }
         }
@@ -233,6 +234,7 @@ namespace Eddie.Platform.Linux
 
 			int result = NativeMethods.GetFileImmutable(path);
 			return (result == 1);
+
 			/* // TOCLEAN
 			// We don't find a better direct method in Mono/Posix without adding ioctl references
 			// The list of flags can be different between Linux distro (for example 16 on Debian, 19 on Manjaro)
@@ -772,7 +774,7 @@ namespace Eddie.Platform.Linux
 			try
 			{
 				int currentId = Process.GetCurrentProcess().Id;
-				string path = UtilsCore.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
+				string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path) == false)
 				{
 				}
@@ -805,7 +807,7 @@ namespace Eddie.Platform.Linux
 			try
 			{
 				int currentId = Process.GetCurrentProcess().Id;
-				string path = UtilsCore.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
+				string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path))
 				{
 					int otherId;

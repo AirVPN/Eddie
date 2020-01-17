@@ -85,7 +85,7 @@ namespace Eddie.Core
 					if (type == "sha256")
 					{
 						if (sha256 == "")
-							sha256 = UtilsCore.HashSHA256File(path);
+							sha256 = Crypto.Manager.HashSHA256File(path);
 
 						if (rule["hash"].Value as string == sha256)
 							return true;
@@ -102,7 +102,7 @@ namespace Eddie.Core
 			if (signId == "")
 				signId = Platform.Instance.FileGetSignedId(path);
 			if (sha256 == "")
-				sha256 = UtilsCore.HashSHA256File(path);
+				sha256 = Crypto.Manager.HashSHA256File(path);
 
 			Json askToUi = new Json();
 			askToUi["sha256"].Value = sha256;

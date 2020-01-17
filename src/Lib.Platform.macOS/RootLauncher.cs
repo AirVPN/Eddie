@@ -39,8 +39,8 @@ namespace Eddie.Platform.MacOS
             // Remember: called program still have uid as normal user. Use setuid().
 
 			result = AuthorizationExecuteWithPrivileges(authReference, toolPath, 0, args, IntPtr.Zero);
-            AuthorizationFree(authReference, AuthorizationFlags.DestroyRights);
-            return (result == 0);
+            AuthorizationFree(authReference, AuthorizationFlags.DestroyRights);            
+            return (result == 0); 
 		}
 
         public enum AuthorizationStatus

@@ -59,7 +59,7 @@ namespace Eddie.Core
 		public virtual void OnUpdatePath()
 		{
 			string filename = GetFileName();
-			FindResource(filename);
+            FindResource(filename);
 		}
 
 		public virtual void OnUpdateVersion()
@@ -117,12 +117,12 @@ namespace Eddie.Core
 
 		public bool VersionUnder(string v)
 		{
-			return (UtilsCore.CompareVersions(Version, v) == -1);
+			return Version.VersionUnder(v);
 		}
 
 		public bool VersionAboveOrEqual(string v)
 		{
-			return (UtilsCore.CompareVersions(Version, v) >= 0);
+			return Version.VersionAboveOrEqual(v);
 		}
 
 		public void FindResource(string filename)

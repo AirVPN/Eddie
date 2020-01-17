@@ -173,7 +173,7 @@ namespace Eddie.Core
 
 		public virtual string HashSHA256(string str)
         {
-            return UtilsCore.HashSHA256(ID + "-" + str);
+			return Crypto.Manager.HashSHA256(ID + "-" + str);
         }
 
         public virtual string GetKeyValue(string key, string def)
@@ -254,7 +254,7 @@ namespace Eddie.Core
 
 		public virtual string OnRefresh()
 		{
-			m_lastTryRefresh = UtilsCore.UnixTimeStamp();
+			m_lastTryRefresh = Utils.UnixTimeStamp();
 			return "";
 		}
 

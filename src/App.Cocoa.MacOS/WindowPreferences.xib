@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14313.18"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -40,6 +39,7 @@
                 <outlet property="ChkGeneralOsxNotifications" destination="EG2-CQ-O27" id="b6b-1T-A4y"/>
                 <outlet property="ChkGeneralOsxVisible" destination="8Ah-Jx-6k0" id="kwv-SE-sLd"/>
                 <outlet property="ChkGeneralStartLast" destination="2Nm-Y7-BeU" id="XdO-Hi-CWR"/>
+                <outlet property="ChkHummingbirdPrefer" destination="SVl-vc-vov" id="Sdz-5C-4jH"/>
                 <outlet property="ChkLockAllowDNS" destination="bZk-8r-LHc" id="BsD-3X-LV8"/>
                 <outlet property="ChkLockAllowPing" destination="VOk-Ch-IHJ" id="bOd-ou-0lG"/>
                 <outlet property="ChkLockAllowPrivate" destination="xCu-Ni-GP8" id="kfh-B7-rbA"/>
@@ -54,6 +54,7 @@
                 <outlet property="ChkSystemService" destination="qqg-FO-Mr5" id="zgI-4P-YXa"/>
                 <outlet property="ChkSystemStart" destination="aut-IV-uda" id="ZKC-gy-vSp"/>
                 <outlet property="ChkUiIEC" destination="vu2-Pk-Cd3" id="s6x-xZ-4NA"/>
+                <outlet property="ChkUiSkipPromotional" destination="ThV-6a-FAq" id="cFR-yX-Ryp"/>
                 <outlet property="ChkUiSkipProviderManifestFailed" destination="WiI-8s-gmd" id="apn-Pq-dZA"/>
                 <outlet property="ChkUiSystemBarShowInfo" destination="jET-rF-bKQ" id="5Jf-Tp-Gty"/>
                 <outlet property="ChkUiSystemBarShowServer" destination="OBp-SD-TZu" id="hc6-TX-arF"/>
@@ -461,6 +462,23 @@
                                                 </subviews>
                                             </view>
                                         </box>
+                                        <button id="ThV-6a-FAq">
+                                            <rect key="frame" x="223" y="10" width="81" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="V1W-Pa-gYC">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                        </button>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="GGd-us-Gl5">
+                                            <rect key="frame" x="12" y="11" width="207" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Skip promotional messages" id="aV5-IK-atC">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                 </view>
                             </tabViewItem>
@@ -1495,7 +1513,7 @@
                                             </buttonCell>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="oyz-HM-837">
-                                            <rect key="frame" x="15" y="90" width="220" height="17"/>
+                                            <rect key="frame" x="15" y="124" width="220" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="OpenVPN Custom Path:" id="npx-CL-HkG">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -1504,7 +1522,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="lV7-E2-bG9">
-                                            <rect key="frame" x="241" y="87" width="236" height="22"/>
+                                            <rect key="frame" x="241" y="121" width="236" height="22"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="VoA-Xq-hK6">
                                                 <font key="font" metaFont="system"/>
@@ -1513,7 +1531,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <button verticalHuggingPriority="750" id="gIE-n8-VNO">
-                                            <rect key="frame" x="479" y="81" width="41" height="32"/>
+                                            <rect key="frame" x="479" y="115" width="41" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="push" bezelStyle="rounded" image="browse" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="PQ6-OJ-ri2">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1610,7 +1628,7 @@
                                             </buttonCell>
                                         </button>
                                         <button id="tdF-U4-K1y">
-                                            <rect key="frame" x="239" y="62" width="490" height="18"/>
+                                            <rect key="frame" x="239" y="96" width="490" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="DU4-HV-6sx">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1618,7 +1636,7 @@
                                             </buttonCell>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="IzK-AO-ieV">
-                                            <rect key="frame" x="15" y="62" width="220" height="17"/>
+                                            <rect key="frame" x="15" y="96" width="220" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Skip processes checking:" id="QL3-nB-wAh">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -1627,7 +1645,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <button id="0YZ-qx-Mbe">
-                                            <rect key="frame" x="239" y="39" width="490" height="18"/>
+                                            <rect key="frame" x="239" y="73" width="490" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Bpq-mc-ccl">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1635,7 +1653,7 @@
                                             </buttonCell>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="0Wk-VB-9WI">
-                                            <rect key="frame" x="15" y="39" width="220" height="17"/>
+                                            <rect key="frame" x="15" y="73" width="220" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Multi-providers support:" id="Ajc-6B-noc">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -1666,6 +1684,23 @@
                                                 </menu>
                                             </popUpButtonCell>
                                         </popUpButton>
+                                        <button id="SVl-vc-vov">
+                                            <rect key="frame" x="239" y="50" width="490" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="t8c-zA-0g1">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="smallSystem"/>
+                                            </buttonCell>
+                                        </button>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="CBI-Rb-7pU">
+                                            <rect key="frame" x="15" y="50" width="220" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Use Hummingbird" id="bu9-al-u9c">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                 </view>
                             </tabViewItem>

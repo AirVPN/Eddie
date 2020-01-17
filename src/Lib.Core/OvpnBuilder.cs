@@ -160,8 +160,8 @@ namespace Eddie.Core
 							result += directiveKey; 
 					}
 
-                    if((Software.GetTool("openvpn") as Tools.OpenVPN).IsAirSpecialBuild() == false) // Known OpenVPN 3.3 bug: don't trim # comments
-					    if (value.Comment != "")
+					if( (Engine.Instance.GetOpenVpnTool() is Tools.Hummingbird) == false) // Known Hummingbird bug: don't trim correctly # comments
+						if (value.Comment != "")
 						    result += " # " + value.Comment;
 					result += "\n";
 				}
@@ -505,7 +505,7 @@ namespace Eddie.Core
 
 			// OpenVPN < 2.4 allows 100 route directives max by default.
 			// Since Eddie can't know here how many routes are pulled from an OpenVPN server, it uses some tolerance. In any case manual setting is possible.
-			if (Software.GetTool("openvpn").VersionUnder("2.4")) // max-routes is deprecated in 2.4
+			if (Engine.Instance.GetOpenVpnTool().VersionUnder("2.4")) // max-routes is deprecated in 2.4
 			{
 				if (ExistsDirective("max-routes") == false) // Only if not manually specified
 				{

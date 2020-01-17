@@ -169,20 +169,9 @@ namespace Eddie.Core.Providers
 
 				if ((mode.Protocol == "SSH") || (mode.Protocol == "SSL"))
 				{
-					if (Constants.FeatureIPv6ControlOptions)
-					{
-						if (((ip.IsV4) && (connectionActive.TunnelIPv4)) ||
-							((ip.IsV6) && (connectionActive.TunnelIPv6)))
-							connectionActive.AddRoute(ip, "net_gateway", "VPN Entry IP");
-					}
-					else
-					{
-						string routesDefault = Engine.Instance.Storage.Get("routes.default");
-						if (routesDefault == "in")
-						{
-							connectionActive.AddRoute(ip, "net_gateway", "VPN Entry IP");
-						}
-					}
+					if (((ip.IsV4) && (connectionActive.TunnelIPv4)) ||
+						((ip.IsV6) && (connectionActive.TunnelIPv6)))
+							connectionActive.AddRoute(ip, "net_gateway", "VPN Entry IP");					
 				}
 			}
 
@@ -235,7 +224,7 @@ namespace Eddie.Core.Providers
 
 			if (minInterval == -1)
 				minInterval = 60 * 60 * 24;
-			if (m_lastTryRefresh + minInterval > UtilsCore.UnixTimeStamp())
+			if (m_lastTryRefresh + minInterval > Utils.UnixTimeStamp())
 				return false;
 
 			return true;
@@ -263,9 +252,9 @@ namespace Eddie.Core.Providers
 					Storage.DocumentElement.AppendChild(Manifest);
 
 					// Update with the local time
-					Manifest.Attributes["time"].Value = UtilsCore.UnixTimeStamp().ToString();
+					Manifest.Attributes["time"].Value = Utils.UnixTimeStamp().ToString();
 
-					m_lastFetchTime = UtilsCore.UnixTimeStamp();
+					m_lastFetchTime = Utils.UnixTimeStamp();
 				}
 
 				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshDone", Title));
@@ -273,9 +262,20 @@ namespace Eddie.Core.Providers
 				// Show important messages
 				foreach (XmlElement xmlMessage in Manifest.SelectNodes("messages/message"))
 				{
-					if ((xmlMessage.HasAttribute("from_time")) && (UtilsCore.UnixTimeStamp() < Conversions.ToInt64(xmlMessage.GetAttribute("from_time"))))
+                    string kind = "";
+                    if (xmlMessage.HasAttribute("kind"))
+                        kind = xmlMessage.GetAttribute("kind");
+
+                    if(kind == "promo")
+                    {
+                        bool skipPromo = Engine.Instance.Storage.GetBool("ui.skip.promotional");
+                        if (skipPromo)
+                            continue;
+                    }
+
+					if ((xmlMessage.HasAttribute("from_time")) && (Utils.UnixTimeStamp() < Conversions.ToInt64(xmlMessage.GetAttribute("from_time"))))
 						continue;
-					if ((xmlMessage.HasAttribute("to_time")) && (UtilsCore.UnixTimeStamp() > Conversions.ToInt64(xmlMessage.GetAttribute("to_time"))))
+					if ((xmlMessage.HasAttribute("to_time")) && (Utils.UnixTimeStamp() > Conversions.ToInt64(xmlMessage.GetAttribute("to_time"))))
 						continue;
 
 					Json jMessage = new Json();
@@ -312,7 +312,7 @@ namespace Eddie.Core.Providers
 			List<string> urls = GetBootstrapUrls();
 			foreach (string url in urls)
 			{
-				string host = UtilsCore.HostFromUrl(url);
+				string host = Utils.HostFromUrl(url);
 				if (host != "")
 					result.Add(host);
 			}
@@ -369,7 +369,7 @@ namespace Eddie.Core.Providers
 			{
 				foreach (XmlNode nodeServer in Manifest.SelectNodes("//servers/server"))
 				{
-					string code = UtilsCore.HashSHA256(nodeServer.Attributes["name"].Value);
+					string code = Crypto.Manager.HashSHA256(nodeServer.Attributes["name"].Value);
 
 					string group = nodeServer.GetAttributeString("group", "");
 
@@ -494,7 +494,7 @@ namespace Eddie.Core.Providers
 				{
 					if (IpAddress.IsIP(sUrl))
 						sUrl = "http://" + sUrl;
-					string host = UtilsCore.HostFromUrl(sUrl);
+					string host = Utils.HostFromUrl(sUrl);
 					if (host != "")
 						urls.Add(sUrl);
 				}
@@ -560,12 +560,12 @@ namespace Eddie.Core.Providers
 				using (RSACryptoServiceProvider csp = new RSACryptoServiceProvider())
 				{
 					csp.ImportParameters(publicKey);
-					bytesParamS = csp.Encrypt(UtilsCore.AssocToUtf8Bytes(assocParamS), false);
+					bytesParamS = csp.Encrypt(AssocToUtf8Bytes(assocParamS), false);
 				}
 
 				// Generate D
 
-				byte[] aesDataIn = UtilsCore.AssocToUtf8Bytes(parameters);
+				byte[] aesDataIn = AssocToUtf8Bytes(parameters);
 				byte[] bytesParamD = null;
 
 				{
@@ -660,7 +660,7 @@ namespace Eddie.Core.Providers
 			int hostN = 0;
 			foreach (string url in urls)
 			{
-				string host = UtilsCore.HostFromUrl(url);
+				string host = Utils.HostFromUrl(url);
 
 				hostN++;
 				if (IpAddress.IsIP(host) == false)
@@ -780,6 +780,26 @@ namespace Eddie.Core.Providers
 				return def;
 			else
 				return Conversions.ToBool(nodeAttr.Value);
+		}
+
+		public static byte[] AssocToUtf8Bytes(Dictionary<string, string> assoc)
+		{
+			string output = "";
+			foreach (KeyValuePair<string, string> kp in assoc)
+			{
+				output += ExtensionsString.Base64Encode(kp.Key.GetUtf8Bytes()) + ":" + ExtensionsString.Base64Encode(kp.Value.GetUtf8Bytes()) + "\n";
+			}
+			return System.Text.Encoding.UTF8.GetBytes(output);
+		}
+
+		public static byte[] AssocToUtf8Bytes(Dictionary<string, byte[]> assoc)
+		{
+			string output = "";
+			foreach (KeyValuePair<string, byte[]> kp in assoc)
+			{
+				output += ExtensionsString.Base64Encode(kp.Key.GetUtf8Bytes()) + ":" + ExtensionsString.Base64Encode(kp.Value) + "\n";
+			}
+			return System.Text.Encoding.UTF8.GetBytes(output);
 		}
 	}
 }

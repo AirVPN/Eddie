@@ -76,12 +76,17 @@ fi
 # Adapt Elevated
 # Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated.C/ibase.cpp' source for details
 
-OPENVPNPATH="${BASEPATH}/../deploy/macos_${ARCH}/openvpn"
 ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated.C/ibase.cpp
 
-COMPUTEHASH=$(openssl dgst -sha256 "${OPENVPNPATH}");
-COMPUTEHASH=$(echo $COMPUTEHASH | cut -d "=" -f 2 | awk '{print $1}') # Remember: test with openvpn path with whitespace
-sed -E -i .bak "s/expectedOpenvpnHash = \"([0-9a-f]{64})\";/expectedOpenvpnHash = \"${COMPUTEHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
+OPENVPNPATH="${BASEPATH}/../deploy/macos_${ARCH}/openvpn"
+OPENVPNHASH=$(openssl dgst -sha256 "${OPENVPNPATH}");
+OPENVPNHASH=$(echo $OPENVPNHASH | cut -d "=" -f 2 | awk '{print $1}') # Remember: test with openvpn path with whitespace
+sed -E -i .bak "s/expectedOpenvpnHash = \"([0-9a-f]{64})\";/expectedOpenvpnHash = \"${OPENVPNHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
+
+HUMMINGBIRDPATH="${BASEPATH}/../deploy/macos_${ARCH}/hummingbird"
+HUMMINGBIRDHASH=$(openssl dgst -sha256 "${HUMMINGBIRDPATH}");
+HUMMINGBIRDHASH=$(echo $HUMMINGBIRDHASH | cut -d "=" -f 2 | awk '{print $1}') # Remember: test with hummingbird path with whitespace
+sed -E -i .bak "s/expectedHummingbirdHash = \"([0-9a-f]{64})\";/expectedHummingbirdHash = \"${HUMMINGBIRDHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
 
 # Compile and Copy Elevated
 "$BASEPATH/App.CLI.MacOS.Elevated/build.sh" "$CONFIG"

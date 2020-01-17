@@ -119,7 +119,6 @@ namespace Eddie.Core
 		protected string m_failedReason = "";
 		protected bool m_started = false;
 		
-		
 		public bool ServiceEdition = false;
 		public bool ServiceUninstallAtEnd = false;
 
@@ -127,21 +126,13 @@ namespace Eddie.Core
         private UInt32 m_id = 0;
         private string m_bufferReceive = "";
 		private bool m_shutdownInProgress = false;
-
+				
 		public virtual void Start()
 		{
-            m_sessionKey = RandomGenerator.GetHash();
-            
-			string result = DoCommandSync("session-key", "key", m_sessionKey);
-			if (result != "Version:" + Constants.VersionElevated.ToString())
-				throw new Exception("Unexpected elevated version mismatch, '" + result + "' vs '" + "Version:" + Constants.VersionElevated + "'");
-
-			m_started = true;
-
-			if (m_failedReason != "")
-				throw new Exception(m_failedReason);
+			ServiceEdition = false;
+			ServiceUninstallAtEnd = false;
 		}
-
+		
 		public virtual void Stop()
 		{
 			m_shutdownInProgress = true;

@@ -118,9 +118,69 @@ namespace Eddie.Core
 			return result;
 		}
 
-        public static string RegExReplace(this string str, string pattern, string replacement)
+		public static int VersionCompare(this string v1, string v2)
+		{
+			// Normalize. Output can look strange, but has it's logic :P
+			v1 = v1.Replace(" ", ".").Replace(",", ".").Replace("_", ".").Replace("-", ".").PruneCharsNotIn("0123456789.");
+			v2 = v2.Replace(" ", ".").Replace(", ", ".").Replace("_", ".").Replace("-", ".").PruneCharsNotIn("0123456789.");
+
+			char[] splitTokens = new char[] { '.', ',' };
+			string[] tokens1 = v1.Split(splitTokens, StringSplitOptions.RemoveEmptyEntries);
+			string[] tokens2 = v2.Split(splitTokens, StringSplitOptions.RemoveEmptyEntries);
+
+			for (int i = 0; i < Math.Max(tokens1.Length, tokens2.Length); i++)
+			{
+				int t1 = 0;
+				int t2 = 0;
+				if (i < tokens1.Length)
+				{
+					try
+					{
+						if (Int32.TryParse(tokens1[i], out t1) == false)
+							t1 = 0;
+					}
+					finally
+					{
+					}
+				}
+				if (i < tokens2.Length)
+				{
+					try
+					{
+						if (Int32.TryParse(tokens2[i], out t2) == false)
+							t2 = 0;
+					}
+					finally
+					{
+					}
+				}
+
+				if (t1 < t2) return -1;
+				if (t1 > t2) return 1;
+			}
+
+			return 0;
+		}
+
+		public static bool VersionUnder(this string v1, string v2)
+		{
+			return (v1.VersionCompare(v2) == -1);
+		}
+
+		public static bool VersionAboveOrEqual(this string v1, string v2)
+		{
+			return (v1.VersionCompare(v2) >= 0);
+		}
+
+		public static string RegExReplace(this string str, string pattern, string replacement)
         {
             return Regex.Replace(str, pattern, replacement);
+        }
+
+        public static bool RegExMatch(this string str, string pattern)
+        {
+            Match match = Regex.Match(str, pattern, RegexOptions.Multiline);
+            return (match.Success);
         }
 
         public static string RegExMatchOne(this string str, string pattern)

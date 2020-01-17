@@ -22,6 +22,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <netinet/in.h>
 
 class ShellResult
 {
@@ -37,7 +38,7 @@ class ShellResult
 class IBase
 {
 private:
-    int m_versionElevated = 1373;
+    std::string m_elevatedVersion = "v1374";
 
 	std::string m_session_key;
 	std::mutex m_mutex_inout;
@@ -45,11 +46,14 @@ private:
     bool m_debug = false;
     time_t m_lastModified;
     bool m_serviceMode = false;
+    
+protected:
+    std::map<std::string, std::string> m_cmdline;
 
 public:
 	virtual int AppMain(int argc, char* argv[]);
 
-private:
+private: 
 
 	// Internal method
 public:
@@ -65,17 +69,19 @@ protected:
 	void ReplyCommand(const std::string& commandId, const std::string& data);
 
 	// Utils
+    std::map<std::string, std::string> ParseCommandLine(int argc, char* argv[]);
 	bool FileExists(const std::string& path);
 	void FileDelete(const std::string& path);
 	bool FileMove(const std::string& source, const std::string& destination);
 	bool FileWriteText(const std::string& path, const std::string& body);
     bool FileAppendText(const std::string& path, const std::string& body);
 	std::string FileReadText(const std::string& path);
+    std::vector<char> FileReadBytes(const std::string& path);
     std::vector<std::string> FilesInPath(const std::string& path);
     std::string FileSHA256Sum(const std::string& path);
     int Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr);
 	std::string LocateExecutable(const std::string& name);
-	std::string CheckValidOpenVpnConfig(const std::string& path);
+    std::string CheckValidOpenVpnConfig(const std::string& path);
 
 	// Utils string
 	std::string StringReplaceAll(const std::string& str, const std::string& from, const std::string& to);
@@ -97,6 +103,7 @@ protected:
 	std::string StringBase64Encode(const std::string& str);
 	std::string StringBase64Decode(const std::string& str);
 	std::string StringXmlEncode(const std::string& str);
+    std::string StringHexEncode(const int v, const int chars);
 
 	// Helper
     void ThrowException(const std::string& path);
@@ -107,19 +114,20 @@ protected:
     
 	// Virtual
 protected:
-    virtual int Main(int argc, char* argv[]);
+    virtual int Main();
     virtual void Idle();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
     virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
     virtual void CheckIfExecutableIsAllowed(const std::string& path);
     
     virtual void Sleep(int ms) = 0;
-    virtual int GetProcessIdMatchingIPEndPoints(std::string sourceAddr, int sourcePort, std::string destAddr, int destPort) = 0;
+    virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer) = 0;
     virtual std::string GetProcessPathCurrent();
     virtual std::string GetProcessPathCurrentDir();
     virtual time_t GetProcessModTimeStart();
     virtual time_t GetProcessModTimeCurrent();
     virtual std::string GetProcessPathOfID(pid_t pid);
+    virtual std::string GetTempPath();
     virtual std::string GetTempPath(const std::string& filename);
 
 	// Private

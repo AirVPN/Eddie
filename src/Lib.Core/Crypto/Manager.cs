@@ -37,121 +37,38 @@ namespace Eddie.Core.Crypto
 			return decrypted;
 		}
 
-		/*
-		public static byte[] ReadFileEncrypted(string path, string password)
+		public static string HashSHA256(string password)
 		{
-			byte[] encrypted = Platform.Instance.FileContentsReadBytes(path);
-			return ReadBytesEncrypted(encrypted, password);			
-		}
-		*/
-		/*
-		private static byte[] Transform(ICryptoTransform transform, byte[] data)
-		{
-			MemoryStream buffer = null;
-			CryptoStream stream = null;
-
-			try
+			using (System.Security.Cryptography.SHA256Managed crypt = new System.Security.Cryptography.SHA256Managed())
 			{
-				buffer = new MemoryStream();
-				stream = new CryptoStream(buffer, transform, CryptoStreamMode.Write);
-
-				stream.Write(data, 0, data.Length);
-				stream.FlushFinalBlock();
-
-				return buffer.ToArray();
-			}
-			finally
-			{
-				if(stream != null)
-					stream.Dispose();
-				else if(buffer != null)
-					buffer.Dispose();
+				System.Text.StringBuilder hash = new System.Text.StringBuilder();
+				byte[] bytes = crypt.ComputeHash(Encoding.UTF8.GetBytes(password), 0, Encoding.UTF8.GetByteCount(password));
+				return ExtensionsString.BytesToHex(bytes);
 			}
 		}
 
-		private static T Init<T>(T cipher, byte[] key, byte[] iv, CipherMode mode, PaddingMode padding) where T : SymmetricAlgorithm
+		public static string HashSHA256File(string path)
 		{
-			cipher.Key = key;
-			cipher.IV = iv;
-			cipher.Mode = mode;
-			cipher.Padding = padding;
-			return cipher;
-		}
-
-		public static byte[] AESEncrypt(byte[] plain, byte[] key, byte[] iv, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
-		{
-			using(Aes aes = Aes.Create())
+			using (FileStream stream = File.OpenRead(path))
 			{
-				return Transform(Init(aes, key, iv, mode, padding).CreateEncryptor(), plain);
-			}				
+				using (SHA256 sha = SHA256.Create())
+				{
+					byte[] bytes = sha.ComputeHash(stream);
+					return ExtensionsString.BytesToHex(bytes);
+				}
+			}
 		}
 
-		public static byte[] AESDecrypt(byte[] encrypted, byte[] key, byte[] iv, CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7)
+		public static string HashSHA512File(string path)
 		{
-			using(Aes aes = Aes.Create())
+			using (FileStream stream = File.OpenRead(path))
 			{
-				return Transform(Init(aes, key, iv, mode, padding).CreateDecryptor(), encrypted);
-			}				
+				using (SHA512 sha = SHA512.Create())
+				{
+					byte[] bytes = sha.ComputeHash(stream);
+					return ExtensionsString.BytesToHex(bytes);
+				}
+			}
 		}
-
-		public static byte[] ComputeHash<T>(T algorithm, byte[] data) where T : HashAlgorithm
-		{
-			return algorithm.ComputeHash(data);
-		}
-
-		public static byte[] MD5(byte[] data)
-		{
-			using(System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
-			{
-				return ComputeHash(md5, data);
-			}				
-		}
-
-		public static byte[] SHA1(byte[] data)
-		{
-			using(System.Security.Cryptography.SHA1 sha1 = System.Security.Cryptography.SHA1.Create())
-			{
-				return ComputeHash(sha1, data);
-			}				
-		}
-
-		public static byte[] SHA256(byte[] data)
-		{
-			using(System.Security.Cryptography.SHA256 sha256 = System.Security.Cryptography.SHA256.Create())
-			{
-				return ComputeHash(sha256, data);
-			}				
-		}
-
-		public static byte[] Generate128BitKey(string value)
-		{
-			// 16bit
-			return MD5(System.Text.Encoding.UTF8.GetBytes(value));
-		}
-
-		public static byte[] Generate256BitKey(string value)
-		{
-			// 32bit
-			return SHA256(Encoding.UTF8.GetBytes(value));
-		}
-
-		public static byte[] GenerateIV(string value)
-		{
-			// 16bit
-			return MD5(Encoding.UTF8.GetBytes(value));
-		}
-
-		public static byte[] RandomBlock(int size, int? seed = null)
-		{
-			if(size <= 0)
-				return null;
-
-			byte[] block = new byte[size];
-			Random random = seed != null ? new Random(seed.Value) : new Random();
-			random.NextBytes(block);
-
-			return block;
-		}
-		*/
 	}
 }

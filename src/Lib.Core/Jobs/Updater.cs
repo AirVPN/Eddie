@@ -62,7 +62,7 @@ namespace Eddie.Core.Jobs
 				{
 					string latestVersion = j["version"].Value as string;
 
-					int compare = UtilsCore.CompareVersions(m_lastVersionNotification, latestVersion);
+					int compare = m_lastVersionNotification.VersionCompare(latestVersion);
 
 					if (compare == -1)
 					{

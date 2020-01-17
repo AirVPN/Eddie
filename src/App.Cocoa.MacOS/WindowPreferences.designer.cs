@@ -115,6 +115,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkGeneralStartLast { get; set; }
 
 		[Outlet]
+		AppKit.NSButton ChkHummingbirdPrefer { get; set; }
+
+		[Outlet]
 		AppKit.NSButton ChkLockAllowDNS { get; set; }
 
 		[Outlet]
@@ -158,6 +161,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSButton ChkUiIEC { get; set; }
+
+		[Outlet]
+		AppKit.NSButton ChkUiSkipPromotional { get; set; }
 
 		[Outlet]
 		AppKit.NSButton ChkUiSkipProviderManifestFailed { get; set; }
@@ -453,6 +459,11 @@ namespace Eddie.UI.Cocoa.Osx
 				CboRoutesOtherwise = null;
 			}
 
+			if (ChkHummingbirdPrefer != null) {
+				ChkHummingbirdPrefer.Dispose ();
+				ChkHummingbirdPrefer = null;
+			}
+
 			if (CboStorageMode != null) {
 				CboStorageMode.Dispose ();
 				CboStorageMode = null;
@@ -596,6 +607,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkUiIEC != null) {
 				ChkUiIEC.Dispose ();
 				ChkUiIEC = null;
+			}
+
+			if (ChkUiSkipPromotional != null) {
+				ChkUiSkipPromotional.Dispose ();
+				ChkUiSkipPromotional = null;
 			}
 
 			if (ChkUiSkipProviderManifestFailed != null) {

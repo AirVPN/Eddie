@@ -216,7 +216,7 @@ namespace Eddie.Platform.MacOS
                 pf += "pass quick proto icmp\n"; // 2.9
 
                 // Old macOS throw "unknown protocol icmp6". We don't known from when, so use icmp6 if High Sierra and above.
-                if (UtilsCore.CompareVersions(Platform.Instance.GetName(), "10.13") >= 0)
+                if (Platform.Instance.GetVersion().VersionAboveOrEqual("10.13"))
                     pf += "pass quick proto icmp6 all\n"; // 2.14.0
             }
 

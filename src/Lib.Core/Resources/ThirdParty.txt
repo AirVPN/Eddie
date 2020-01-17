@@ -15,6 +15,10 @@ go to:
 
 License: GNU General Public License (GPL v2+)
 ------------------------------------------------------------
+Hummingbird - OpenVPN 3 client based on AirVPN OpenVPN 3 library.
+
+License: GNU General Public License (GPL v3) https://airvpn.org/hummingbird/License/
+------------------------------------------------------------
 stunnel
 
 The stunnel program is designed to work as an SSL encryption     
@@ -32,13 +36,13 @@ License: GNU General Public License (GPL v2+)
 ------------------------------------------------------------
 LZO -- a real-time data compression library
 
-http://www.oberhumer.com/opensource/lzo/ 
+https://www.oberhumer.com/opensource/lzo/ 
 
 License: GNU General Public License (GPL v2+)
 ------------------------------------------------------------
 TUNTAP -- Virtual network interfaces for Mac OS X
 
-http://tuntaposx.sourceforge.net/
+https://tuntaposx.sourceforge.net/
 
 License: BSD License
 ------------------------------------------------------------

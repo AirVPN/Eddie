@@ -69,8 +69,8 @@ namespace Eddie.Forms.Controls
 			columnHeader4.Width = 60;
 			columnHeader4.TextAlign = HorizontalAlignment.Center;
 
-			ImageListIcon = UiClient.Instance.MainWindow.imgCountries;
-			ImageListState = UiClient.Instance.MainWindow.imgCountries;
+			//ImageListIcon = UiClient.Instance.MainWindow.imgCountries;
+			//ImageListState = UiClient.Instance.MainWindow.imgCountries;
 			//SmallImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 			//LargeImageList = (Engine.Instance as Gui.Engine).FormMain.imgCountries;
 

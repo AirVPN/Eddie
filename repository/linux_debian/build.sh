@@ -67,6 +67,9 @@ gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 
 # Remove unneed
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
+if test -f "${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird"; then
+    rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
+fi
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so

@@ -56,7 +56,9 @@ namespace Eddie.UI.Cocoa.Osx
 		{
             if (UiClient.Instance.Engine.Terminated == false)
 			{
-                if (UiClient.Instance.MainWindow.ShutdownConfirmed)
+                if (UiClient.Instance.MainWindow == null)
+                    return NSApplicationTerminateReply.Now;
+                else if (UiClient.Instance.MainWindow.ShutdownConfirmed)
 					return NSApplicationTerminateReply.Later;
 				else if (UiClient.Instance.MainWindow.Shutdown() == false)
 					return NSApplicationTerminateReply.Cancel;

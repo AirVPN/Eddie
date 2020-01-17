@@ -30,35 +30,37 @@ namespace Eddie.Platform.Linux
 	{
 		public override void Start()
 		{
-			ServiceEdition = false;
-			ServiceUninstallAtEnd = false;
+			base.Start();
 
             string tempPathToDelete = "";
 
-            try
+            try 
 			{
-				if (Connect(Constants.ElevatedServiceTcpPort) == false) // Will work if the service is active
+				string connectResult = Connect(Constants.ElevatedServiceTcpPort);
+				if (connectResult != "Ok") // Will work if the service is active
 				{
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 
                     string helperPath = Platform.Instance.GetElevatedHelperPath();
 
-                    // Special environment: AppImage
+                    // Special environment: AppImage  
                     // pkexec/sudo can't see the file. Workaround: Copy, execute, remove.
                     bool appImageEnvironment = Platform.Instance.NeedExecuteOutsideAppPath(helperPath);
                     if (appImageEnvironment)
                     {
-                        tempPathToDelete = UtilsCore.GetTempPath() + "/eddie-cli-elevated-" + RandomGenerator.GetHash();
+                        tempPathToDelete = Utils.GetTempPath() + "/eddie-cli-elevated-" + RandomGenerator.GetHash();
 
                         if (File.Exists(tempPathToDelete))
-                            File.Delete(tempPathToDelete);
+                            File.Delete(tempPathToDelete); 
                         File.Copy(helperPath, tempPathToDelete);
 
                         helperPath = tempPathToDelete;
                     }
 
-                    int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "spot" }, Engine.Instance.ConsoleMode);
+					int port = GetPortSpot();
+
+					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "port=" + port.ToString() }, Engine.Instance.ConsoleMode);
                     System.Diagnostics.Process process = null;
                     if (pid>0)
                         process = System.Diagnostics.Process.GetProcessById(pid);
@@ -73,8 +75,14 @@ namespace Eddie.Platform.Linux
                         if (process.HasExited)
 							throw new Exception("Unable to start (2)");
 
-						if (Connect(9345))
-							break;
+						connectResult = Connect(port);
+                        if (connectResult != "No socket")
+                        {
+                            if (connectResult == "Ok")
+                                break;
+                            else
+                                throw new Exception("Unable to start (" + connectResult + ")");
+                        }
 					}
 				}
 				else
@@ -82,7 +90,7 @@ namespace Eddie.Platform.Linux
 					ServiceEdition = true;
 				}
 
-                base.Start();
+                
             }
 			catch (Exception ex)
 			{

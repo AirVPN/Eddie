@@ -258,7 +258,7 @@
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://airvpn.org"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 				
-		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service-install'
+		;ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service-install' ; No, missing hash fron NSIS
 		
 		!insertmacro MUI_STARTMENU_WRITE_END
 		

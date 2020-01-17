@@ -39,24 +39,26 @@ namespace Eddie.Platform.Windows
 	{
 		public override void Start()
 		{
-			ServiceEdition = false;
-			ServiceUninstallAtEnd = false;
+			base.Start();
 
 			try
 			{
-				if (Connect(Constants.ElevatedServiceTcpPort) == false) // Will work if the service is active
+				string connectResult = Connect(Constants.ElevatedServiceTcpPort);
+				if (connectResult != "Ok") // Will work if the service is active
 				{
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 
 					string helperFullPath = Platform.Instance.GetElevatedHelperPath();
 
+					int port = GetPortSpot();
+
 					System.Diagnostics.Process process = new System.Diagnostics.Process
 					{
 						StartInfo =
 						{
 							FileName = helperFullPath,
-							Arguments = "spot",
+							Arguments = "mode=spot port=" + port.ToString(),
 							Verb = "runas",
 							CreateNoWindow = true,
 							UseShellExecute = true
@@ -73,15 +75,14 @@ namespace Eddie.Platform.Windows
 					if (process.HasExited)
 						throw new Exception("Unable to start (2)");
 
-					if (Connect(9345) == false)
-						throw new Exception("Unable to start");
+					connectResult = Connect(port);
+					if (connectResult != "Ok")
+						throw new Exception("Unable to start (" + connectResult + ")");
 				}
 				else
 				{
 					ServiceEdition = true;
 				}
-
-				base.Start();
 			}
 			catch (Exception ex)
 			{ 

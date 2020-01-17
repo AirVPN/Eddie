@@ -1,4 +1,22 @@
-﻿using System;
+﻿// <eddie_source_header>
+// This file is part of Eddie/AirVPN software.
+// Copyright (C)2014-2019 AirVPN (support@airvpn.org) / https://airvpn.org
+//
+// Eddie is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// Eddie is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Eddie. If not, see <http://www.gnu.org/licenses/>.
+// </eddie_source_header>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +27,10 @@ namespace Lib.Platform.Windows.Elevated
 {
 	public class IpcBase
 	{
-		public bool Loop = false; // If false, exit when first connection end.
+		public Dictionary<string, string> m_cmdline;
+		public bool m_serviceMode = false;
 		public string m_sessionKey = "";
-		//public bool m_shutdown = false;
+		
 		public ManualResetEvent ClientDisconnectSignal = new ManualResetEvent(false);		
 
 		public delegate void CommandHandler(Dictionary<string, string> parameters);
@@ -37,24 +56,24 @@ namespace Lib.Platform.Windows.Elevated
 			SendMessage("ee:end:" + id);
 		}
 
-		public void RemoteLog(string msg)
+		public void LogRemote(string msg)
 		{
 			SendMessage("ee:log:" + Conversions.StringToBase64(msg));
 		}
 
-		public void FatalLog(string msg)
+		public void LogFatal(string msg)
 		{
 			SendMessage("ee:fatal:" + Conversions.StringToBase64(msg));
 		}
 
-		public void LocalLog(string msg)
+		public void LogLocal(string msg)
 		{
-			DebugLog(msg);
+			LogDebug(msg);
 		}
 
-		public void DebugLog(string msg)
+		public void LogDebug(string msg)
 		{
-			Utils.DebugLog(msg);
+			Utils.LogDebug(msg);
 		}
 
 		public void DoCommand(Dictionary<string, string> parameters)
@@ -80,13 +99,13 @@ namespace Lib.Platform.Windows.Elevated
 
 		private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
 		{
-			DebugLog(e.Exception.Message);
+			LogLocal(e.Exception.Message);
 		}
 
 		private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			// Log the exception, display it, etc
-			DebugLog((e.ExceptionObject as Exception).Message);
+			LogLocal((e.ExceptionObject as Exception).Message);
 		}
 	}
 }

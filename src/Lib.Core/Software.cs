@@ -25,7 +25,7 @@ namespace Eddie.Core
 {
     public class Software
     {		
-		public static string OpenVpnDriver = "";
+		public static string TunDriver = "";
         
         public static Dictionary<string, Tool> Tools = new Dictionary<string, Tool>();
         
@@ -47,17 +47,18 @@ namespace Eddie.Core
 			// OpenVPN Driver
 			try
 			{
-				OpenVpnDriver = Platform.Instance.GetDriverAvailable();
+				TunDriver = Platform.Instance.GetDriverAvailable();
             }
 			catch (Exception e)
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, e);
-				OpenVpnDriver = "";
+				TunDriver = "";
 			}
 			
 			// Tools
 			AddTool("openvpn", new Tools.OpenVPN());
-            AddTool("ssh", new Tools.SSH());
+			AddTool("hummingbird", new Tools.Hummingbird());
+			AddTool("ssh", new Tools.SSH());
             AddTool("ssl", new Tools.SSL());
             AddTool("curl", new Tools.Curl());            
             if (Platform.IsUnix())
@@ -68,9 +69,9 @@ namespace Eddie.Core
             {
 				AddTool("tap-windows", new Tools.File("tap-windows.exe"));
                 AddTool("tap-windows-xp", new Tools.File("tap-windows-xp.exe"));
-            }
+            }			
 
-            foreach (Tool tool in Tools.Values)
+			foreach (Tool tool in Tools.Values)
                 tool.UpdatePath();            
 		}
 
@@ -82,18 +83,18 @@ namespace Eddie.Core
 
 		public static void Log()
 		{
-			if(OpenVpnDriver != "")
+			if(TunDriver != "")
 			{
-				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN Driver - " + OpenVpnDriver);
+				Engine.Instance.Logs.Log(LogType.Verbose, "Tun Driver - " + TunDriver);
 			}
-			else
+			else 
 			{
-				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN Driver - " + LanguageManager.GetText("OsDriverNotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Error, "Tun Driver - " + LanguageManager.GetText("OsDriverNotAvailable"));
 			}
 
-            if (GetTool("openvpn").Available())
+            if (Engine.Instance.GetOpenVpnTool().Available())
             {
-				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN - Version: " + GetTool("openvpn").Version + " (" + GetTool("openvpn").Path + ")");
+				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN - Version: " + Engine.Instance.GetOpenVpnTool().Version + " (" + Engine.Instance.GetOpenVpnTool().Path + ")");
 			}
 			else
 			{
@@ -127,7 +128,7 @@ namespace Eddie.Core
                 Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText("NotAvailable"));
 
 			}
-
+            /*
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
 			if (pathCacert != "")
             {
@@ -138,6 +139,7 @@ namespace Eddie.Core
                 Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + LanguageManager.GetText("NotAvailable"));
 
 			}
+			*/           
         }        
 
         public static string FindResource(string tool)

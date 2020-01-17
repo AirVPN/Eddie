@@ -27,8 +27,8 @@ namespace Eddie.Core
 	public class OpenVpnProcess
 	{
         public string ExePath = "";
-		public bool AirBuild = false;
-		public string ConfigPath = "";
+        public string ConfigPath = "";
+        public bool IsHummingbird = false;
 
         public bool DeleteAfterStart = false;
 
@@ -65,7 +65,7 @@ namespace Eddie.Core
 
             if (Platform.Instance.NeedExecuteOutsideAppPath(ExePath))
             {
-                string tempPathToDelete = UtilsCore.GetTempPath() + "/openvpn-" + RandomGenerator.GetHash();
+                string tempPathToDelete = Utils.GetTempPath() + "/openvpn-" + RandomGenerator.GetHash();
                 if (Platform.Instance.FileExists(tempPathToDelete))
                     Platform.Instance.FileDelete(tempPathToDelete);
                 System.IO.File.Copy(ExePath, tempPathToDelete);
@@ -75,10 +75,14 @@ namespace Eddie.Core
                 DeleteAfterStart = true; 
             }
 
-			m_command.Parameters["command"] = "process_openvpn";
-            m_command.Parameters["path"] = ExePath;
-			m_command.Parameters["airbuild"] = (AirBuild ? "y":"n");
-            m_command.Parameters["gui-version"] = Constants.Name + Constants.VersionDesc;
+            if (IsHummingbird)
+            {
+                m_command.Parameters["command"] = "hummingbird";
+                m_command.Parameters["gui-version"] = Constants.Name + Constants.VersionDesc;
+            }
+            else
+                m_command.Parameters["command"] = "process_openvpn";
+            m_command.Parameters["path"] = ExePath;			
             m_command.Parameters["config"] = ConfigPath;
 
             m_command.ExceptionEvent += delegate (ElevatedProcess.Command cmd, string message)

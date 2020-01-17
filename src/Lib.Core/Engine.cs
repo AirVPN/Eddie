@@ -1092,9 +1092,9 @@ namespace Eddie.Core
 
 				if (connectionActive.OpenVpnProfileStartup != null)
 				{
-					if ((connectionActive.OpenVpnProfileStartup.ExistsDirective("<tls-crypt>")) && (Software.GetTool("openvpn").VersionUnder("2.4")))
+					if ((connectionActive.OpenVpnProfileStartup.ExistsDirective("<tls-crypt>")) && (Engine.Instance.GetOpenVpnTool().VersionUnder("2.4")))
 						connection.WarningAdd(LanguageManager.GetText("ConnectionWarningOlderOpenVpnTlsCrypt"), ConnectionInfoWarning.WarningType.Error);
-					if ((connectionActive.OpenVpnProfileStartup.ExistsDirective("tls-crypt")) && (Software.GetTool("openvpn").VersionUnder("2.4")))
+					if ((connectionActive.OpenVpnProfileStartup.ExistsDirective("tls-crypt")) && (Engine.Instance.GetOpenVpnTool().VersionUnder("2.4")))
 						connection.WarningAdd(LanguageManager.GetText("ConnectionWarningOlderOpenVpnTlsCrypt"), ConnectionInfoWarning.WarningType.Error);
 				}
 			}
@@ -1890,7 +1890,7 @@ namespace Eddie.Core
 
 				foreach (string cmd in processes.Values)
 				{
-					if (cmd.StartsWith(Software.GetTool("openvpn").Path, StringComparison.InvariantCulture))
+					if (cmd.StartsWith(Engine.Instance.GetOpenVpnTool().Path, StringComparison.InvariantCulture))
 						throw new Exception(LanguageManager.GetText("AlreadyRunningOpenVPN", cmd));
 
                     /* // TOCLEAN
@@ -1988,6 +1988,18 @@ namespace Eddie.Core
 			}
 
 			return null;
+		}
+
+		public Tool GetOpenVpnTool()
+		{
+			if(Storage.GetBool("tools.hummingbird.preferred"))
+			{
+				Tool t = Software.GetTool("hummingbird");
+				if (t.Available())
+					return t;
+			}
+
+			return Software.GetTool("openvpn");
 		}
 
 		public void LogOpenvpnConfig()
@@ -2193,22 +2205,6 @@ namespace Eddie.Core
 
 
 			return j;
-
-			/*
-			XmlItem xml = new XmlItem("command");
-			xml.SetAttribute("action", "ui.info.os");
-			
-			xml.SetAttribute("tools.tap-driver.version", Software.OpenVpnDriver);
-			xml.SetAttribute("tools.curl.version", Software.GetTool("curl").Version);
-			xml.SetAttribute("tools.curl.path", Software.GetTool("curl").Path);
-			xml.SetAttribute("tools.openvpn.version", Software.GetTool("openvpn").Version);
-			xml.SetAttribute("tools.openvpn.path", Software.GetTool("openvpn").Path);
-			xml.SetAttribute("tools.ssh.version", Software.GetTool("ssh").Version);
-			xml.SetAttribute("tools.ssh.path", Software.GetTool("ssh").Path);
-			xml.SetAttribute("tools.ssl.version", Software.GetTool("ssl").Version);
-			xml.SetAttribute("tools.ssl.path", Software.GetTool("ssl").Path);
-			Command(xml);
-			*/
 		}
 
 		public Json JsonNetworkInfo()

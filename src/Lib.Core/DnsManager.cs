@@ -47,7 +47,7 @@ namespace Eddie.Core
 					else
 						entry = new DnsManagerEntry();
 				}
-				Int64 now = UtilsCore.UnixTimeStamp();
+				Int64 now = Utils.UnixTimeStamp();
 				Int64 delay = now - entry.TimeStamp;
 				Int64 ttl = 3600;
 				if ((Engine.Instance != null) && (Engine.Instance.Storage != null))

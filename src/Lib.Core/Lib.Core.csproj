@@ -108,6 +108,7 @@
     <Compile Include="SystemShell.cs" />
     <Compile Include="Report.cs" />
     <Compile Include="Tools\Curl.cs" />
+    <Compile Include="Tools\Hummingbird.cs" />
     <Compile Include="Tools\SSL.cs" />
     <Compile Include="Tools\SSH.cs" />
     <Compile Include="Tools\OpenVPN.cs" />
@@ -137,6 +138,9 @@
     <Compile Include="ResourcesFiles.cs" />
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
+    <Compile Include="ConnectionTypes\Hummingbird.cs" />
+    <Compile Include="ConnectionTypes\Wireguard.cs" />
+    <Compile Include="ConnectionTypes\OpenVPN.cs" />
     <Compile Include="UiManager.cs" />
     <Compile Include="UI\App.cs" />
     <Compile Include="UI\Chart.cs" />
@@ -159,7 +163,6 @@
     <Compile Include="Thread.cs" />
     <Compile Include="Threads\Session.cs" />
     <Compile Include="TimeDelta.cs" />
-    <Compile Include="UtilsCore.cs" />
     <Compile Include="ExtensionsXml.cs" />
     <Compile Include="WebServerClient.cs" />
     <Compile Include="WebServer.cs" />

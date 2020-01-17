@@ -509,7 +509,6 @@ namespace Eddie.Core
 				ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
 			}
 
-			if (Constants.FeatureIPv6ControlOptions)
 			{
 				if (s.GetLower("network.ipv4.mode") == "in")
 				{
@@ -565,7 +564,7 @@ namespace Eddie.Core
 					connectionActive.TunnelIPv6 = false;
 				}
 
-				if (Software.GetTool("openvpn").VersionAboveOrEqual("2.4"))
+				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.4"))
 				{
 					ovpn.RemoveDirective("redirect-gateway"); // Remove if exists
 					ovpn.AppendDirective("pull-filter", "ignore \"redirect-gateway\"", "Forced at client side");
@@ -610,49 +609,12 @@ namespace Eddie.Core
 						ovpn.AppendDirective("route-nopull", "", "For Routes Out");
 
 						// 2.9, this is used by Linux resolv-conf DNS method. Need because route-nopull also filter pushed dhcp-option.
-						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN <2.4.
+						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN >2.4.
 						ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
 					}
 				}
 			}
-			else
-			{
-				string routesDefault = s.Get("routes.default");
-
-				connectionActive.TunnelIPv4 = (routesDefault == "in");
-				connectionActive.TunnelIPv6 = (routesDefault == "in");
-
-				if (routesDefault == "out")
-				{
-					if (Software.GetTool("openvpn").VersionAboveOrEqual("2.4"))
-					{
-						ovpn.RemoveDirective("redirect-gateway"); // Remove if exists
-						ovpn.AppendDirective("pull-filter", "ignore \"redirect-gateway\"", "For Routes Out");
-					}
-					else // Compatibility <2.4
-					{
-						ovpn.AppendDirective("route-nopull", "", "For Routes Out");
-
-						// For DNS
-						// < 2.9. route directive useless, and DNS are forced manually in every supported platform. // TOCLEAN
-						/*
-						ovpn += "dhcp-option DNS " + Constants.DnsVpn + "\n"; // Manually because route-nopull skip it
-						ovpn += "route 10.4.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						ovpn += "route 10.5.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						ovpn += "route 10.6.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						ovpn += "route 10.7.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						ovpn += "route 10.8.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						ovpn += "route 10.9.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						ovpn += "route 10.30.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						ovpn += "route 10.50.0.1 255.255.255.255 vpn_gateway # AirDNS\n";
-						*/
-
-						// 2.9, this is used by Linux resolv-conf DNS method. Need because route-nopull also filter pushed dhcp-option.
-						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN <2.4.
-						ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
-					}
-				}
-			}
+			
 
 			// For Checking
 			foreach (IpAddress ip in IpsExit.IPs)

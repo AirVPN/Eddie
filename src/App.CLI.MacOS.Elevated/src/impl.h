@@ -21,7 +21,7 @@
 class Impl: public IBSD
 {
 public:
-	virtual int Main(int argc, char* argv[]);
+	virtual int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
 	/*virtual void CheckIfExecutableIsAllowed(const std::string& path);*/
@@ -30,6 +30,7 @@ public:
 private:
 	int FileImmutableSet(const std::string& path, const int flag);
 	int FileGetFlags(const std::string& path);
+    int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
 	std::vector<std::string> GetNetworkInterfaces();
 };
 

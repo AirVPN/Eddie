@@ -39,7 +39,7 @@ namespace Eddie.Core.Tools
 			if (Available() == false)
 				throw new Exception(LanguageManager.GetText("ToolsCurlRequired"));
 
-			if (UtilsCore.CompareVersions(Version, minVersionRequired) == -1)
+			if (Version.VersionCompare(minVersionRequired) == -1)
 				throw new Exception(GetRequiredVersionMessage());
 		}
 

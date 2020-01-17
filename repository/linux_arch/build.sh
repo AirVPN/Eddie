@@ -11,7 +11,7 @@ fi
 # Check env
 if ! [ -x "$(command -v makepkg)" ]; then
   echo 'Error: makepkg is not installed.' >&2
-  #exit 1 #pazzo
+  exit 1
 fi
 
 PROJECT=$1
@@ -82,7 +82,7 @@ fi
 
 # Cleanup
 echo Step: Final cleanup
-#rm -rf ${TARGETDIR} #pazzo
+rm -rf ${TARGETDIR}
 echo Build linux_arch complete
 
 

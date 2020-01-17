@@ -107,6 +107,7 @@ find ${TARGETDIR} -type f -exec chmod 644 {} +;
 chmod 755 ${TARGETDIR}/eddie-${PROJECT}
 chmod 755 ${TARGETDIR}/bundle/eddie-cli-elevated
 chmod 755 ${TARGETDIR}/bundle/openvpn
+chmod 755 ${TARGETDIR}/bundle/hummingbird
 chmod 755 ${TARGETDIR}/bundle/stunnel
 
 # Build archive
