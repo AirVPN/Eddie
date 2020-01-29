@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -28,6 +28,10 @@
 
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal();
+
+// --------------------------
+// Virtual
+// --------------------------
 
 int Impl::Main()
 {
@@ -92,7 +96,7 @@ int Impl::Main()
     }
     else
     {
-        return IPosix::Main();
+        return IBSD::Main();
     }
 }
 
@@ -510,47 +514,6 @@ std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 #endif
 }
 
-std::string Impl::GetProcessPathOfID(int pid)
-{
-    char buffer[4096];
-    int ret = proc_pidpath(pid, buffer, sizeof(buffer));
-    if(ret<=0)
-    {
-        return "";
-    }
-    else
-    {
-        return std::string(buffer);
-    }
-}
-
-int Impl::FileImmutableSet(const std::string& path, const int flag)
-{
-	// sudo chflags schg /path/to/file
-    // sudo chflags noschg /path/to/file
-    
-    int result = FileGetFlags(path);
-    if(result == -1)
-        return -1;
-    
-    result = flag ? (result | SF_IMMUTABLE) : (result & ~SF_IMMUTABLE);
-    if(chflags(path.c_str(), result) == -1)
-        return -1;
-    
-    return 0;
-}
-
-int Impl::FileGetFlags(const std::string& path)
-{
-    struct stat s;
-    memset(&s, 0, sizeof(struct stat));
-    
-    if(stat(path.c_str(), &s) == -1)
-        return -1;
-    
-    return (int) s.st_flags;
-}
-
 int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
 {
     char sourceIp[256];
@@ -600,6 +563,75 @@ int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct
     }
     
     return 0;
+}
+
+void Impl::AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result)
+{
+    if(username != "")
+    {
+        result.push_back("/Users/" + StringEnsureSecure(username) + "/Library/Application Support/TorBrowser-Data/Tor/control_auth_cookie");
+    }
+    
+    IBSD::AddTorCookiePaths(torPath, username, result);
+}
+
+// --------------------------
+// Virtual Pure, OS
+// --------------------------
+
+std::string Impl::GetProcessPathOfId(int pid)
+{
+    char buffer[4096];
+    int ret = proc_pidpath(pid, buffer, sizeof(buffer));
+    if(ret<=0)
+    {
+        return "";
+    }
+    else
+    {
+        return std::string(buffer);
+    }
+}
+
+pid_t Impl::GetProcessIdOfName(const std::string& name)
+{
+    // TOFIX - Find a method without shell
+    ShellResult pidofResult = ShellEx2("pgrep", "-x", name);
+    if(pidofResult.exit == 0)
+        return atoi(pidofResult.out.c_str());
+    else
+        return 0;
+}
+
+// --------------------------
+// Private
+// --------------------------
+
+int Impl::FileImmutableSet(const std::string& path, const int flag)
+{
+	// sudo chflags schg /path/to/file
+    // sudo chflags noschg /path/to/file
+    
+    int result = FileGetFlags(path);
+    if(result == -1)
+        return -1;
+    
+    result = flag ? (result | SF_IMMUTABLE) : (result & ~SF_IMMUTABLE);
+    if(chflags(path.c_str(), result) == -1)
+        return -1;
+    
+    return 0;
+}
+
+int Impl::FileGetFlags(const std::string& path)
+{
+    struct stat s;
+    memset(&s, 0, sizeof(struct stat));
+    
+    if(stat(path.c_str(), &s) == -1)
+        return -1;
+    
+    return (int) s.st_flags;
 }
 
 std::vector<std::string> Impl::GetNetworkInterfaces()

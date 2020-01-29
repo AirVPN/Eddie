@@ -102,12 +102,14 @@ else
 fi
 chmod 755 ${TARGETDIR}/Eddie.App/Contents/MacOS/eddie-cli-elevated
 chmod 755 ${TARGETDIR}/Eddie.App/Contents/MacOS/openvpn
+chmod 755 ${TARGETDIR}/Eddie.App/Contents/MacOS/hummingbird
 chmod 755 ${TARGETDIR}/Eddie.App/Contents/MacOS/stunnel
 
 # Signing
 ${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App/Contents/MacOS/Eddie
 ${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App/Contents/MacOS/eddie-cli-elevated
 ${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App/Contents/MacOS/openvpn
+${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App/Contents/MacOS/hummingbird
 ${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App/Contents/MacOS/stunnel
 ${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App/Contents/MonoBundle/libLib.Platform.macOS.Native.dylib
 ${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App
@@ -117,6 +119,8 @@ ${SCRIPTDIR}/../macos_common/sign.sh ${TARGETDIR}/Eddie.App
 # Not sure why, but it doesn't invalidate the Eddie.App signature.
 cp ${SCRIPTDIR}/../../deploy/macos_${ARCH}/openvpn $TARGETDIR/Eddie.App/Contents/MacOS/openvpn
 chmod 755 ${TARGETDIR}/Eddie.App/Contents/MacOS/openvpn
+cp ${SCRIPTDIR}/../../deploy/macos_${ARCH}/hummingbird $TARGETDIR/Eddie.App/Contents/MacOS/hummingbird
+chmod 755 ${TARGETDIR}/Eddie.App/Contents/MacOS/hummingbird
 
 # Build archive
 echo Step: Build archive

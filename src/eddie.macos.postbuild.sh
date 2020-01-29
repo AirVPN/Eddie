@@ -66,9 +66,12 @@ if [ ${PROJECT} = "ui" ]; then
     sed -E -i .bak "s/{@version}/${VERSION}/g" "$BASEPATH/App.Cocoa.MacOS/Info.plist"
     cp "$BASEPATH/App.Cocoa.MacOS/Info.plist" "$OUTPATH/Eddie.app/Contents/Info.plist"
 elif [ ${PROJECT} = "ui3" ]; then
-    echo "No plist"
+    cp "$BASEPATH/UI.Cocoa.MacOS/Info-ui.plist" "$BASEPATH/UI.Cocoa.MacOS/Info.plist"
+    sed -E -i .bak "s/{@version}/${VERSION}/g" "$BASEPATH/UI.Cocoa.MacOS/Info.plist"
+    cp "$BASEPATH/UI.Cocoa.MacOS/Info.plist" "$OUTPATH/Eddie.app/Contents/Info.plist"
 elif [ ${PROJECT} = "cli" ]; then
-    echo "No plist"
+    cp "$BASEPATH/App.CLI.MacOS/Info-cli.plist" "$BASEPATH/App.CLI.MacOS/Info.plist"
+    sed -E -i .bak "s/{@version}/${VERSION}/g" "$BASEPATH/App.CLI.MacOS/Info.plist"
 fi
 
 

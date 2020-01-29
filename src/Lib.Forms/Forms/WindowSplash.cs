@@ -79,110 +79,153 @@ namespace Eddie.Forms.Forms
 		private delegate void SetStatusDelegate(string t);
 		public void SetStatus(string t)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				SetStatusDelegate inv = new SetStatusDelegate(this.SetStatus);
+				if (this.InvokeRequired)
+				{
+					SetStatusDelegate inv = new SetStatusDelegate(this.SetStatus);
 
-				this.Invoke(inv, new object[] { t });
+					this.Invoke(inv, new object[] { t });
+				}
+				else
+				{
+					Body = t;
+					Refresh();
+					Invalidate();
+					//TopMost = true;
+
+					BringToFront();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Body = t;
-				Refresh();
-				Invalidate();
-				//TopMost = true;
-
-				BringToFront();
+				Engine.Instance.Logs.LogUnexpected(ex);
 			}
 		}
 
 		private delegate void OnMessageErrorDelegate(string message);
 		public void OnMessageError(string message)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnMessageErrorDelegate inv = new OnMessageErrorDelegate(this.OnMessageError);
-				this.Invoke(inv, new object[] { message });
+				if (this.InvokeRequired)
+				{
+					OnMessageErrorDelegate inv = new OnMessageErrorDelegate(this.OnMessageError);
+					this.Invoke(inv, new object[] { message });
+				}
+				else
+				{
+					GuiUtils.MessageBoxError(this, message);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				GuiUtils.MessageBoxError(this, message);
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void RequestCloseDelegate();
 		public void RequestClose()
 		{
-			if (m_closePending)
-				return;
-
-			if (this.InvokeRequired)
+			try
 			{
-				RequestCloseDelegate inv = new RequestCloseDelegate(this.RequestClose);
+				if (m_closePending)
+					return;
 
-				this.Invoke(inv, new object[] { });
+				if (this.InvokeRequired)
+				{
+					RequestCloseDelegate inv = new RequestCloseDelegate(this.RequestClose);
+
+					this.Invoke(inv, new object[] { });
+				}
+				else
+				{
+					Close();
+					UiClient.Instance.SplashWindow = null;
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Close();
-				UiClient.Instance.SplashWindow = null;
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void RequestCloseForReadyDelegate();
 		public void RequestCloseForReady()
 		{
-			SetStatus(LanguageManager.GetText("Ready"));
-
-			if (m_closePending)
-				return;
-
-			if (this.InvokeRequired)
+			try
 			{
-				RequestCloseForReadyDelegate inv = new RequestCloseForReadyDelegate(this.RequestCloseForReady);
+				SetStatus(LanguageManager.GetText("Ready"));
 
-				this.Invoke(inv, new object[] { });
+				if (m_closePending)
+					return;
+
+				if (this.InvokeRequired)
+				{
+					RequestCloseForReadyDelegate inv = new RequestCloseForReadyDelegate(this.RequestCloseForReady);
+
+					this.Invoke(inv, new object[] { });
+				}
+				else
+				{
+					m_closePending = true;
+
+					tmrTimer.Enabled = true;
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				m_closePending = true;
-
-				tmrTimer.Enabled = true;
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		// Unlike other platform, this can't be in MainWindow, because if the Forms.Windows it's not showed, this.InvokeRequired works wrong.
 		private delegate void RequestMainDelegate();
 		public void RequestMain()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				RequestMainDelegate inv = new RequestMainDelegate(this.RequestMain);
+				if (this.InvokeRequired)
+				{
+					RequestMainDelegate inv = new RequestMainDelegate(this.RequestMain);
 
-				this.Invoke(inv, new object[] { });
+					this.Invoke(inv, new object[] { });
+				}
+				else
+				{
+					UiClient.Instance.MainWindow = new Forms.Main();
+					UiClient.Instance.MainWindow.RequestShow();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				UiClient.Instance.MainWindow = new Forms.Main();
-				UiClient.Instance.MainWindow.RequestShow();
+				Engine.Instance.Logs.LogUnexpected(ex);
 			}
 		}
 
 		private delegate string AskUnlockPasswordDelegate(bool authFailed);
 		public string AskUnlockPassword(bool authFailed)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				AskUnlockPasswordDelegate inv = new AskUnlockPasswordDelegate(this.AskUnlockPassword);
+				if (this.InvokeRequired)
+				{
+					AskUnlockPasswordDelegate inv = new AskUnlockPasswordDelegate(this.AskUnlockPassword);
 
-				return (string) this.Invoke(inv, new object[] { authFailed  });
+					return (string)this.Invoke(inv, new object[] { authFailed });
+				}
+				else
+				{
+					Forms.WindowUnlock dlg = new Forms.WindowUnlock();
+					dlg.AuthFailed = authFailed;
+					dlg.ShowDialog(UiClient.Instance.SplashWindow);
+					return dlg.Body;
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Forms.WindowUnlock dlg = new Forms.WindowUnlock();
-				dlg.AuthFailed = authFailed;				
-				dlg.ShowDialog(UiClient.Instance.SplashWindow);
-				return dlg.Body;
+				Engine.Instance.Logs.LogUnexpected(ex);
+				return "";
 			}
 		}
 

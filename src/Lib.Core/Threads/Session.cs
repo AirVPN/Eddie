@@ -285,7 +285,22 @@ namespace Eddie.Core.Threads
 							m_connectionActive.FillProfileWithPush();
 							Engine.Instance.ConnectionActive = m_connectionActive;
 						}
-					}
+
+                        if (m_connectionActive.Protocol == "SSH")
+                        {
+                            m_connectionActive.EntryIP = m_connectionActive.Address;
+                            m_connectionActive.Port = m_connectionActive.SshRemotePort;
+                        }
+                        else if (m_connectionActive.Protocol == "SSL")
+                        {
+                            m_connectionActive.EntryIP = m_connectionActive.Address;
+                            m_connectionActive.Port = m_connectionActive.SslRemotePort;
+                        }
+						else
+						{
+							// Detected after from logs
+						}
+                    }
 					catch (Exception e)
 					{
 						Engine.Logs.Log(e);
@@ -1114,6 +1129,11 @@ namespace Eddie.Core.Threads
                         // Don't warn user, are managed by Eddie.
                         log = false;
                     }
+                    else if (message.Contains("ERROR: cannot detect IPv6 default gateway"))
+                    {
+                        // Don't want user, a client can not have IPv6 connectivity (default gateway) but VPN provide it.
+                        log = false;
+                    }
                     else if (message.RegExMatch("Pushed DNS Server (.+?) ignored"))
                     {
                         // Don't warn user, not true, are managed by Eddie.
@@ -1179,11 +1199,14 @@ namespace Eddie.Core.Threads
                     }
                     else if (message.StartsWithInv("Contacting "))
                     {
-                        List<string> fields = message.RegExMatchSingle("Contacting ([a-z90-9\\.\\:]+?):(\\d+?)\\s");
-                        if ((fields != null) && (fields.Count == 2))
+                        if ((m_connectionActive.Protocol != "SSH") && (m_connectionActive.Protocol != "SSL")) // Otherwise report 127.0.0.1
                         {
-                            m_connectionActive.EntryIP = fields[0];
-                            m_connectionActive.Port = Conversions.ToInt32(fields[1]);
+                            List<string> fields = message.RegExMatchSingle("Contacting ([a-z90-9\\.\\:]+?):(\\d+?)\\s");
+                            if ((fields != null) && (fields.Count == 2))
+                            {
+                                m_connectionActive.EntryIP = fields[0];
+                                m_connectionActive.Port = Conversions.ToInt32(fields[1]);
+                            }
                         }
                     }
 
@@ -1253,6 +1276,10 @@ namespace Eddie.Core.Threads
 					{
 						log = false;
 					}
+
+					// Under Windows, kind of errors when i programmatically send CTRL+C. Ignore it.
+					if (message.Contains("win_trigger_event: WriteConsoleInput"))
+						log = false;
 
 					// If ncp-disable is used, this warnings are useless.
 					if ((message.Contains("WARNING: 'cipher' is used inconsistently")) && (m_connectionActive.OpenVpnProfileWithPush.ExistsDirective("ncp-disable")))
@@ -1354,18 +1381,8 @@ namespace Eddie.Core.Threads
 
 					// Detect connection (OpenVPN >2.4)
 					if (messageLower.RegExMatchOne("peer connection initiated with \\[af_inet6?\\]([0-9a-f\\.\\:]+?):(\\d+?)") != "")
-					{
-						if (m_connectionActive.Protocol == "SSH")
-						{
-							m_connectionActive.EntryIP = m_connectionActive.Address;
-							m_connectionActive.Port = m_connectionActive.SshRemotePort;
-						}
-						else if (m_connectionActive.Protocol == "SSL")
-						{
-							m_connectionActive.EntryIP = m_connectionActive.Address;
-							m_connectionActive.Port = m_connectionActive.SslRemotePort;
-						}
-						else
+					{						
+						if ((m_connectionActive.Protocol != "SSH") && (m_connectionActive.Protocol != "SSL"))
 						{
 							string t = messageLower;
 							t = t.Replace("[nonblock]", "").Trim();
@@ -1591,6 +1608,9 @@ namespace Eddie.Core.Threads
 
 		public void ConnectManagementSocket()
 		{
+            if(Engine.Instance.GetUseOpenVpnManagement() == false)
+                return;
+
 			if (m_openVpnManagementSocket == null)
 			{
 				Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionStartManagement"));
@@ -1869,9 +1889,9 @@ namespace Eddie.Core.Threads
 
 									m_connectionActive.RealIp = xmlDoc.DocumentElement.Attributes["ip"].Value;
 								}
-								catch (Exception e)
+								catch (Exception ex)
 								{
-									Engine.Logs.Log(e);
+									Engine.Logs.Log(ex);
 
 									m_connectionActive.RealIp = LanguageManager.GetText("NotAvailable");
 									m_connectionActive.TimeServer = 0;

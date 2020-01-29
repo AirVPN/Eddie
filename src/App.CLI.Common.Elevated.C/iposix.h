@@ -26,6 +26,15 @@ protected:
     
     virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
     
-    virtual void Sleep(int ms);
+    // Virtual
+protected:
     virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
+    virtual void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
+
+    // Virtual Pure, OS
+protected:
+    virtual void Sleep(int ms);
+    virtual pid_t GetParentProcessId();
+    virtual pid_t GetParentProcessId(pid_t pid);
+    virtual pid_t GetProcessIdOfName(const std::string& name);
 };

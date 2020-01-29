@@ -27,9 +27,15 @@
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal()
 
-#include "loadmod.h"
+#ifndef EDDIE_NOLZMA
+	#include "loadmod.h"
+#endif
 
 #include "impl.h"
+
+// --------------------------
+// Virtual
+// --------------------------
 
 int Impl::Main()
 {
@@ -167,10 +173,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "dns-flush")
 	{
-        int pidSystemD = 0;
-        ShellResult pidofResult = ShellEx1("pidof", "systemd");
-        if(pidofResult.exit == 0)
-		    pidSystemD = atoi(pidofResult.out.c_str());
+        int pidSystemD = GetProcessIdOfName("systemd");
         
         std::map<std::string, int> restarted;
 		std::vector<std::string> services = StringToVector(params["services"], ';');
@@ -367,39 +370,40 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
             // Try to up kernel module - For example standard Debian 8 KDE don't have it at boot
             if(params.count("rules-ipv4")>0)
             {
+#ifndef EDDIE_NOLZMA
                 int ret = load_kernel_module("iptable_filter", "");
                 if( (ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED) )
                     ThrowException("Unable to initialize iptable_filter module");
+#else
+                // Shell version, used under Linux Arch, for issue with link LZMA
+                std::string modprobePath = LocateExecutable("modprobe");
+                if(modprobePath != "")
+                {
+                	ShellResult modprobeIptable4FilterResult = ShellEx1(modprobePath, "iptable_filter");
+                    if(modprobeIptable4FilterResult.exit != 0)
+                        ThrowException("Unable to initialize iptable_filter module");
+                }
+#endif
             }
             
             if(params.count("rules-ipv6")>0)
             {
+#ifndef EDDIE_NOLZMA
                 int ret = load_kernel_module("ip6table_filter", "");
                 if( (ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED) )
                     ThrowException("Unable to initialize iptable_filter module");
-            }
-            
-            // Old shell edition
-            /*
-            std::string modprobePath = LocateExecutable("modprobe");
-            if(modprobePath != "")
-            {
-                if(params.count("rules-ipv4")>0)
+#else
+                // Shell version, used under Linux Arch, for issue with link LZMA
+                std::string modprobePath = LocateExecutable("modprobe");
+                if(modprobePath != "")
                 {
-                    ShellResult modprobeIptable4FilterResult = ShellEx1(modprobePath, "iptable_filter");
-                    if(modprobeIptable4FilterResult.exit != 0)
-                        ThrowException("Unable to initialize iptable_filter module");
-                }
-                
-                if(params.count("rules-ipv6")>0)
-                {
-                    ShellResult modprobeIptable6FilterResult = ShellEx1(modprobePath, "ip6table_filter");
+                	ShellResult modprobeIptable6FilterResult = ShellEx1(modprobePath, "ip6table_filter");
                     if(modprobeIptable6FilterResult.exit != 0)
                         ThrowException("Unable to initialize ip6table_filter module");
                 }
+#endif
             }
-            */
-                
+            
             // Backup of current
             std::vector<std::string> args;
             
@@ -608,6 +612,10 @@ std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
     return "ok";
 }
 
+// --------------------------
+// Virtual Pure, OS
+// --------------------------
+
 std::string Impl::GetProcessPathCurrent()
 {
 	char buffer[4096];
@@ -624,7 +632,7 @@ std::string Impl::GetProcessPathCurrent()
     }
 }
 
-std::string Impl::GetProcessPathOfID(int pid)
+std::string Impl::GetProcessPathOfId(int pid)
 {
     char fullPath[FILENAME_MAX];
     std::string procExePath = "/proc/" + std::to_string(pid) + "/exe";
@@ -679,6 +687,10 @@ std::string Impl::GetProcessPathOfID(int pid)
         return path;
     }
 }
+
+// --------------------------
+// Private
+// --------------------------
 
 int Impl::FileImmutableSet(const std::string& path, const int flag)
 {

@@ -1079,12 +1079,14 @@ namespace Eddie.Core
 			return false;
 		}
 
-		public virtual void InstallDriver()
+		public virtual bool InstallDriver()
 		{
+			return false;
 		}
 
-		public virtual void UnInstallDriver()
+		public virtual bool UnInstallDriver()
 		{
+			return false;
 		}
 
 		public virtual void OnJsonNetworkInfo(Json jNetworkInfo)

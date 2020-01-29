@@ -204,7 +204,13 @@ namespace Lib.Platform.Windows.Elevated
 
 			process.WaitForExit();
 
-			return process.ExitCode;
+			int code = process.ExitCode;
+
+			process.Close();
+
+			process.Dispose();
+
+			return code;
 		}
 
 		public static string StringPruneCharsNotIn(string value, string chars)

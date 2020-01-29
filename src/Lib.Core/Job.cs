@@ -34,6 +34,7 @@ namespace Eddie.Core
 		protected Int64 m_timeLastStart = 0;
 		protected Int64 m_timeLastEnd = 0;
 		protected Int64 m_timeEvery = 0;
+		protected Int64 m_timeLastRun = 0;
 		protected bool m_cancelRequested = false;
 
 		private System.Threading.Thread m_thread;
@@ -91,7 +92,7 @@ namespace Eddie.Core
 			{
 				//Engine.Instance.Logs.LogVerbose("Run job " + this.GetType().FullName);
 				if (GetSync())
-				{					
+				{
 					Run();
 				}
 				else
@@ -105,14 +106,27 @@ namespace Eddie.Core
 
 		public void Run()
 		{
-			Int64 now = Utils.UnixTimeStampMs();
+			m_timeLastStart = Utils.UnixTimeStampMs();
 
-			m_timeLastStart = now;
-			OnRun();
-			m_timeLastEnd = now;
+			try
+			{
+				OnRun();
+			}			
+			catch (Exception e)
+			{
+				Engine.Instance.Logs.Log(e);
+			}
 
-			if(m_thread != null)
+			m_timeLastEnd = Utils.UnixTimeStampMs();
+			m_timeLastRun = m_timeLastEnd - m_timeLastStart;
+
+			if (m_thread != null)
+			{				
 				m_thread = null;
+			}
+
+			if (this is Jobs.RealtimeNetworkStats)
+				Console.WriteLine("x");
 		}
 
 		public void Sleep(int ms)

@@ -96,7 +96,7 @@ namespace Lib.Platform.Windows.Elevated
 			{
 				byte[] byteData = Encoding.ASCII.GetBytes(line + "\n");
 
-				m_socket.Send(byteData);								
+				m_socket.Send(byteData);
 			}
 			catch(Exception ex)
 			{

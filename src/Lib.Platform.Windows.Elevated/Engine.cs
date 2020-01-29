@@ -32,7 +32,7 @@ namespace Lib.Platform.Windows.Elevated
 	{
 		public Thread m_ipcThread = null;
 		private IpcBase m_ipc = new IpcSocket();
-		private Random m_randomGenerator = new Random();		
+		private Random m_randomGenerator = new Random();
 
 		public static Dictionary<string, string> ParseCommandLine(string[] args)
 		{
@@ -158,12 +158,33 @@ namespace Lib.Platform.Windows.Elevated
 						if (int.TryParse(parameters["pid"], out int pid) == false)
 							throw new Exception("Invalid pid.");
 
-						// signal parameter not used in Windows
-
 						Process process = Process.GetProcessById(pid);
+
+						string signal = parameters["signal"];
+						
 						if(process != null)
 						{
-							process.Kill();
+							if (signal == "sigint")
+							{
+								if(NativeMethods.AttachConsole((uint)process.Id)) 
+								{
+									NativeMethods.SetConsoleCtrlHandler(null, true);
+									try
+									{
+										if (NativeMethods.GenerateConsoleCtrlEvent(NativeMethods.CTRL_C_EVENT, 0))
+											process.WaitForExit();
+									}
+									finally
+									{
+										NativeMethods.FreeConsole();
+										NativeMethods.SetConsoleCtrlHandler(null, false);
+									}
+								}
+							}
+							else if (signal == "sigterm")
+							{
+								process.Kill();
+							}
 						}
 					}
 					else if (command == "process_openvpn")
@@ -217,8 +238,11 @@ namespace Lib.Platform.Windows.Elevated
 							IPC.ReplyCommand(id, "procid:" + process.Id.ToString());
 
 							process.WaitForExit();
-
+							
 							IPC.ReplyCommand(id, "return:" + process.ExitCode.ToString());
+
+							process.Close();
+							process.Dispose();
 						}
 					}
 					/*
@@ -497,6 +521,72 @@ namespace Lib.Platform.Windows.Elevated
 						string name = parameters["name"];
 
 						string result = Utils.Shell(Utils.LocateExecutable("netsh.exe"), "interface set interface \"" + Utils.EscapeStringForInsideQuote(name) + "\" ENABLED");
+					}
+					else if (command == "tor-get-info")
+					{
+						string processName = "tor";
+						string processPath = "";
+						string username = "";
+						string cookiePath = "";
+						string cookiePasswordHex = "";
+
+						if (parameters.ContainsKey("name"))
+							processName = parameters["name"];
+						
+						if (parameters.ContainsKey("path"))
+							processPath = parameters["path"];
+
+						if (parameters.ContainsKey("username"))
+							username = parameters["username"];
+
+						if (File.Exists(processPath) == false)
+							processPath = "";
+
+						if (processPath == "")
+						{
+							try
+							{
+								System.Diagnostics.Process[] processes = Process.GetProcessesByName(processName);
+								if (processes.Length > 0)
+								{
+									processPath = processes[0].MainModule.FileName;
+								}
+							}
+							catch
+							{
+								processPath = "";
+							}
+						}
+
+						List<string> cookiePaths = new List<string>();
+
+						// Some older Eddie version look also about Environment.GetEnvironmentVariable("APPDATA") + "/tor/control_auth_cookie", not implemented again here.
+
+						if (processPath != "")
+							cookiePaths.Add(new FileInfo(processPath).Directory.Parent.FullName + "\\Data\\Tor\\control_auth_cookie"); // Equivalent of AddTorCookiePaths, but Windows only here, TorBrowser																																	   
+
+						foreach (string cookiePathSearch in cookiePaths)
+						{
+							if(File.Exists(cookiePathSearch))
+							{
+								try
+								{
+									byte[] bytes = File.ReadAllBytes(cookiePathSearch);
+									cookiePath = cookiePathSearch;
+									cookiePasswordHex = BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
+								}
+								catch
+								{
+								}
+							}
+						}
+
+						
+
+						IPC.ReplyCommand(id, "Name:" + processName);
+						IPC.ReplyCommand(id, "Path:" + processPath);
+						IPC.ReplyCommand(id, "CookiePath:" + cookiePath);
+						IPC.ReplyCommand(id, "CookiePasswordHex:" + cookiePasswordHex);
 					}
 					else
 					{

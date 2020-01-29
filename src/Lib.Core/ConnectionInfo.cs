@@ -214,12 +214,20 @@ namespace Eddie.Core
 					double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
 					double PingB = Ping * Convert.ToDouble(Provider.GetKeyValue("ping_factor", "1"));
 					double LoadB = Load() * Convert.ToDouble(Provider.GetKeyValue("load_factor", "1"));
+					double UsersB = Users * Convert.ToDouble(Provider.GetKeyValue("users_factor", "1"));
 					double ScoreB = ScoreBase;
 					if (scoreType == "speed")
+					{
 						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("speed_factor", "1"));
+						LoadB = LoadB / Convert.ToDouble(Provider.GetKeyValue("speed_load_factor", "1")); // 2.18.7
+						UsersB = UsersB / Convert.ToDouble(Provider.GetKeyValue("speed_users_factor", "1")); // 2.18.7
+					}
 					else if (scoreType == "latency")
+					{
 						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor", "500"));
-					double UsersB = Users * Convert.ToDouble(Provider.GetKeyValue("users_factor", "1"));
+						LoadB = LoadB / Convert.ToDouble(Provider.GetKeyValue("latency_load_factor", "10")); // 2.18.7
+						UsersB = UsersB / Convert.ToDouble(Provider.GetKeyValue("latency_users_factor", "10")); // 2.18.7
+					}					
 					return Conversions.ToInt32(PenalityB + PingB + LoadB + ScoreB + UsersB);
 				}
 			}
@@ -674,8 +682,9 @@ namespace Eddie.Core
 						connectionActive.AddRoute(torNodeIp, "net_gateway", "Tor Guard");
 				}
 			}
-			
-			{
+
+            if(Engine.Instance.GetUseOpenVpnManagement())
+            {
 				string managementPasswordFile = "dummy.ppw";
 				if(preview == false)
 				{

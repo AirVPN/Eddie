@@ -1415,219 +1415,275 @@ namespace Eddie.Forms.Forms
 
 		public void Log(LogEntry l)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				LogDelegate inv = new LogDelegate(this.Log);
-
-				this.BeginInvoke(inv, new object[] { l });
-			}
-			else
-			{
-				lock (this)
+				if (this.InvokeRequired)
 				{
-					string Msg = l.Message;
+					LogDelegate inv = new LogDelegate(this.Log);
 
-					if (l.Type > LogType.Realtime)
+					this.BeginInvoke(inv, new object[] { l });
+				}
+				else
+				{
+					lock (this)
 					{
-						string messageOnOneLine = l.Message.Replace("\r", "").Replace("\n", " | ");
-                        try
-                        {
-                            ListViewItemLog Item = new ListViewItemLog();
-                            Item.ImageKey = l.Type.ToString().ToLowerInvariant();
-                            Item.Text = "";
-                            Item.SubItems.Add(l.GetDateForList());
-                            Item.SubItems.Add(messageOnOneLine);
-                            Item.ToolTipText = l.Message;
-                            Item.TextEdition = l.GetStringLines();
+						string Msg = l.Message;
 
-                            lstLogs.Items.Add(Item);
-                            Item.EnsureVisible();
+						if (l.Type > LogType.Realtime)
+						{
+							string messageOnOneLine = l.Message.Replace("\r", "").Replace("\n", " | ");
+							try
+							{
+								ListViewItemLog Item = new ListViewItemLog();
+								Item.ImageKey = l.Type.ToString().ToLowerInvariant();
+								Item.Text = "";
+								Item.SubItems.Add(l.GetDateForList());
+								Item.SubItems.Add(messageOnOneLine);
+								Item.ToolTipText = l.Message;
+								Item.TextEdition = l.GetStringLines();
 
-                            if (lstLogs.Items.Count >= Engine.Storage.GetInt("log.limit"))
-                                lstLogs.Items.RemoveAt(0);
-                        }
-                        catch
-                        {
-                        }
-					}
+								lstLogs.Items.Add(Item);
+								Item.EnsureVisible();
 
-					if (Engine.IsWaiting())
-					{
-						lblWait2.Text = Engine.Logs.GetLogDetailTitle();
+								if (lstLogs.Items.Count >= Engine.Storage.GetInt("log.limit"))
+									lstLogs.Items.RemoveAt(0);
+							}
+							catch
+							{
+							}
+						}
+
+						if (Engine.IsWaiting())
+						{
+							lblWait2.Text = Engine.Logs.GetLogDetailTitle();
+						}
 					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void RequestShowDelegate();
 		public void RequestShow()
-		{			
-			if (this.InvokeRequired)
+		{
+			try
 			{
-				RequestShowDelegate inv = new RequestShowDelegate(this.RequestShow);
+				if (this.InvokeRequired)
+				{
+					RequestShowDelegate inv = new RequestShowDelegate(this.RequestShow);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					LoadPhase();
+
+					UiClient.Instance.SplashWindow.RequestCloseForReady();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				LoadPhase();
-
-				UiClient.Instance.SplashWindow.RequestCloseForReady();
+				Engine.Instance.Logs.LogUnexpected(ex);
 			}
 		}
 
 		private delegate void RequestCloseDelegate();
 		public void RequestClose()
 		{
-            if (this.InvokeRequired)
+			try
 			{
-				RequestCloseDelegate inv = new RequestCloseDelegate(this.RequestClose);
+				if (this.InvokeRequired)
+				{
+					RequestCloseDelegate inv = new RequestCloseDelegate(this.RequestClose);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					Close();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Close();
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void SetStatusDelegate(string textFull, string textShort);
 		public void SetStatus(string textFull, string textShort)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				SetStatusDelegate inv = new SetStatusDelegate(this.SetStatus);
+				if (this.InvokeRequired)
+				{
+					SetStatusDelegate inv = new SetStatusDelegate(this.SetStatus);
 
-				this.BeginInvoke(inv, new object[] { textFull, textShort });
+					this.BeginInvoke(inv, new object[] { textFull, textShort });
+				}
+				else
+				{
+					Text = Constants.Name + " - " + textFull;
+
+					{
+						string t = textFull;
+						if (t.IndexOf("\n") != -1)
+							t = t.Substring(0, t.IndexOf("\n")).Trim();
+						if (t.Length > 128)
+							t = t.Substring(0, 128) + "...";
+						mnuStatus.Text = "> " + t.Trim();
+					}
+
+					if (m_windowsNotifyIcon != null)
+					{
+						String tooltipText = textShort;
+						if (tooltipText.Length > 120)
+							tooltipText = tooltipText.Substring(0, 120) + "...";
+						GuiUtils.SetNotifyIconText(m_windowsNotifyIcon, tooltipText);
+					}
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Text = Constants.Name + " - " + textFull;
-
-				{
-					string t = textFull;
-					if (t.IndexOf("\n") != -1)
-						t = t.Substring(0, t.IndexOf("\n")).Trim();
-					if (t.Length > 128)
-						t = t.Substring(0, 128) + "...";
-					mnuStatus.Text = "> " + t.Trim();
-				}
-
-				if (m_windowsNotifyIcon != null)
-				{
-					String tooltipText = textShort;
-					if (tooltipText.Length > 120)
-						tooltipText = tooltipText.Substring(0, 120) + "...";
-					GuiUtils.SetNotifyIconText(m_windowsNotifyIcon, tooltipText);
-				}
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void SetMainStatusDelegate(string appIcon, string appColor, string mainIcon, string mainActionCommand, string mainActionText);
 		public void SetMainStatus(string appIcon, string appColor, string mainIcon, string mainActionCommand, string mainActionText)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				SetMainStatusDelegate inv = new SetMainStatusDelegate(this.SetMainStatus);
+				if (this.InvokeRequired)
+				{
+					SetMainStatusDelegate inv = new SetMainStatusDelegate(this.SetMainStatus);
 
-				this.BeginInvoke(inv, new object[] { appIcon, appColor, mainIcon, mainActionCommand, mainActionText });
-			}
-			else
-			{
-				Icon icon = m_iconGray;
-				if (appColor == "green")
-				{
-					mnuStatus.Image = m_bitmapStatusGreen;
-					icon = m_iconNormal;
-				}
-				else if (appColor == "yellow")
-				{
-					mnuStatus.Image = m_bitmapStatusYellow;
+					this.BeginInvoke(inv, new object[] { appIcon, appColor, mainIcon, mainActionCommand, mainActionText });
 				}
 				else
 				{
-					mnuStatus.Image = m_bitmapStatusRed;
-				}
+					Icon icon = m_iconGray;
+					if (appColor == "green")
+					{
+						mnuStatus.Image = m_bitmapStatusGreen;
+						icon = m_iconNormal;
+					}
+					else if (appColor == "yellow")
+					{
+						mnuStatus.Image = m_bitmapStatusYellow;
+					}
+					else
+					{
+						mnuStatus.Image = m_bitmapStatusRed;
+					}
 
-				mnuConnect.Text = mainActionText;
-				mnuConnect.Enabled = (mainActionCommand != "");
+					mnuConnect.Text = mainActionText;
+					mnuConnect.Enabled = (mainActionCommand != "");
 
-				m_mainActionCommand = mainActionCommand;
+					m_mainActionCommand = mainActionCommand;
 
-				if (this.Icon != icon)
-				{
-					this.Icon = icon;
-					if (m_windowsNotifyIcon != null)
-						m_windowsNotifyIcon.Icon = icon;
+					if (this.Icon != icon)
+					{
+						this.Icon = icon;
+						if (m_windowsNotifyIcon != null)
+							m_windowsNotifyIcon.Icon = icon;
+					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void ShowWindowsNotificationDelegate(string level, string message);
 		public void ShowWindowsNotification(string level, string message)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				ShowWindowsNotificationDelegate inv = new ShowWindowsNotificationDelegate(this.ShowWindowsNotification);
+				if (this.InvokeRequired)
+				{
+					ShowWindowsNotificationDelegate inv = new ShowWindowsNotificationDelegate(this.ShowWindowsNotification);
 
-				this.BeginInvoke(inv, new object[] { level, message });
-			}
-			else
-			{
-				if (m_windowsNotifyIcon == null)
-					return;
-
-				if (level == "warning")
-					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
-				else if (level == "error")
-					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-				else if (level == "fatal")
-					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+					this.BeginInvoke(inv, new object[] { level, message });
+				}
 				else
-					m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-				m_windowsNotifyIcon.BalloonTipText = message;
-				m_windowsNotifyIcon.ShowBalloonTip(1000);
+				{
+					if (m_windowsNotifyIcon == null)
+						return;
+
+					if (level == "warning")
+						m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+					else if (level == "error")
+						m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+					else if (level == "fatal")
+						m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+					else
+						m_windowsNotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+					m_windowsNotifyIcon.BalloonTipText = message;
+					m_windowsNotifyIcon.ShowBalloonTip(1000);
+				}
 			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void SwitchIconDelegate(string type);
 		public void SwitchIcon(string type)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				SwitchIconDelegate inv = new SwitchIconDelegate(this.SwitchIcon);
-
-				this.BeginInvoke(inv, new object[] { type });
-			}
-			else
-			{
-				Icon icon = m_iconGray;
-				if (type == "connected")
-					icon = m_iconNormal;
-
-				if (this.Icon != icon)
+				if (this.InvokeRequired)
 				{
-					this.Icon = icon;
-					if (m_windowsNotifyIcon != null)
-						m_windowsNotifyIcon.Icon = icon;
+					SwitchIconDelegate inv = new SwitchIconDelegate(this.SwitchIcon);
+
+					this.BeginInvoke(inv, new object[] { type });
+				}
+				else
+				{
+					Icon icon = m_iconGray;
+					if (type == "connected")
+						icon = m_iconNormal;
+
+					if (this.Icon != icon)
+					{
+						this.Icon = icon;
+						if (m_windowsNotifyIcon != null)
+							m_windowsNotifyIcon.Icon = icon;
+					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void ShowUpdaterDelegate();
 		public void ShowUpdater()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				ShowUpdaterDelegate inv = new ShowUpdaterDelegate(this.ShowUpdater);
+				if (this.InvokeRequired)
+				{
+					ShowUpdaterDelegate inv = new ShowUpdaterDelegate(this.ShowUpdater);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					mnuUpdater.Visible = true;
+					m_cmdUpdater.Visible = true;
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				mnuUpdater.Visible = true;
-				m_cmdUpdater.Visible = true;
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		public void EnabledUi()
@@ -1748,272 +1804,328 @@ namespace Eddie.Forms.Forms
 		private delegate void OnRefreshUiDelegate(Engine.RefreshUiMode mode);
 		public void OnRefreshUi(Engine.RefreshUiMode mode)
 		{
-			if (this.IsHandleCreated == false)
-				return;
-
-			if (m_lockCoordUpdate)
-				return;
-
-			if (this.InvokeRequired)
+			try
 			{
-				OnRefreshUiDelegate inv = new OnRefreshUiDelegate(this.OnRefreshUi);
-
-				//this.Invoke(inv, new object[] { mode });
-				this.BeginInvoke(inv, new object[] { mode });
-			}
-			else
-			{
-				if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
+				if (this.IsHandleCreated == false)
 					return;
 
-				// For refresh Mono-Linux
-				if (GuiUtils.IsUnix())
+				if (m_lockCoordUpdate)
+					return;
+
+				if (this.InvokeRequired)
 				{
-					Invalidate();
-					Update();
-					Refresh();
+					OnRefreshUiDelegate inv = new OnRefreshUiDelegate(this.OnRefreshUi);
+
+					//this.Invoke(inv, new object[] { mode });
+					this.BeginInvoke(inv, new object[] { mode });
 				}
-
-				// lock (Engine) // TOCLEAN 2.9
+				else
 				{
-					if ((mode == Core.Engine.RefreshUiMode.MainMessage) || (mode == Core.Engine.RefreshUiMode.Full))
+					if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
+						return;
+
+					// For refresh Mono-Linux
+					if (GuiUtils.IsUnix())
 					{
-						// Status message
-						String text1 = Engine.WaitMessage;
-						lblWait1.Text = text1;
+						Invalidate();
+						Update();
+						Refresh();
+					}
 
-						if (Engine.IsWaiting())
+					// lock (Engine) // TOCLEAN 2.9
+					{
+						if ((mode == Core.Engine.RefreshUiMode.MainMessage) || (mode == Core.Engine.RefreshUiMode.Full))
 						{
-							pnlWelcome.Visible = false;
-							pnlWaiting.Visible = true;
-							pnlConnected.Visible = false;
-							cmdCancel.Visible = Engine.IsWaitingCancelAllowed();
-						}
-						else if (Engine.IsConnected())
-						{
-							pnlWelcome.Visible = false;
-							pnlWaiting.Visible = false;
-							pnlConnected.Visible = true;
+							// Status message
+							String text1 = Engine.WaitMessage;
+							lblWait1.Text = text1;
 
-							lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
-							lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
-							txtConnectedExitIp.Text = Engine.ConnectionActive.ExitIPs.ToString().Replace(", ","\n");
-							string iconFlagCode = Engine.CurrentServer.CountryCode;
-							Image iconFlag = null;
-							iconFlag = GuiUtils.GetResourceImage("flags_" + iconFlagCode);
-							lblConnectedCountry.Image = iconFlag;
-							/*
-							if (imgCountries.Images.ContainsKey(iconFlagCode))
+							if (Engine.IsWaiting())
 							{
-								iconFlag = imgCountries.Images[iconFlagCode];
+								pnlWelcome.Visible = false;
+								pnlWaiting.Visible = true;
+								pnlConnected.Visible = false;
+								cmdCancel.Visible = Engine.IsWaitingCancelAllowed();
+							}
+							else if (Engine.IsConnected())
+							{
+								pnlWelcome.Visible = false;
+								pnlWaiting.Visible = false;
+								pnlConnected.Visible = true;
+
+								lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
+								lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
+								txtConnectedExitIp.Text = Engine.ConnectionActive.ExitIPs.ToString().Replace(", ", "\n");
+								string iconFlagCode = Engine.CurrentServer.CountryCode;
+								Image iconFlag = null;
+								iconFlag = GuiUtils.GetResourceImage("flags_" + iconFlagCode);
 								lblConnectedCountry.Image = iconFlag;
+								/*
+								if (imgCountries.Images.ContainsKey(iconFlagCode))
+								{
+									iconFlag = imgCountries.Images[iconFlagCode];
+									lblConnectedCountry.Image = iconFlag;
+								}
+								else
+									lblConnectedCountry.Image = null;
+								*/
 							}
 							else
-								lblConnectedCountry.Image = null;
+							{
+								pnlWelcome.Visible = true;
+								pnlWaiting.Visible = false;
+								pnlConnected.Visible = false;
+							}
+
+							cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);
+
+							// Repaint
+							Invalidate();
+
+							EnabledUi();
+						}
+
+						if ((mode == Core.Engine.RefreshUiMode.Log) || (mode == Core.Engine.RefreshUiMode.Full))
+						{
+							lock (Engine.LogEntries)
+							{
+								while (Engine.LogEntries.Count > 0)
+								{
+									LogEntry l = Engine.LogEntries[0];
+									Engine.LogEntries.RemoveAt(0);
+
+									Log(l);
+								}
+							}
+						}
+
+						if ((mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
+						{
+							if (Engine.IsConnected())
+							{
+								txtConnectedSince.Text = Engine.Stats.GetValue("VpnStart");
+
+								txtConnectedDownload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
+								txtConnectedUpload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
+							}
+						}
+
+						if (mode == Core.Engine.RefreshUiMode.Full)
+						{
+							m_listViewServers.UpdateList();
+							m_listViewAreas.UpdateList();
+
+							// Keys list
+							/* TOCLEAN, old version
+							cboKey.Items.Clear();
+							if( (Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null) )
+							{
+								foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
+								{
+									string name = xmlKey.GetAttribute("name");
+									cboKey.Items.Add(name);
+								}
+
+								if (cboKey.Items.Contains(Engine.Instance.Storage.Get("key")) == true)
+								{
+									cboKey.SelectedItem = Engine.Instance.Storage.Get("key");
+								}
+							}
 							*/
-						}
-						else
-						{
-							pnlWelcome.Visible = true;
-							pnlWaiting.Visible = false;
-							pnlConnected.Visible = false;
-						}
 
-						cmdCancel.Enabled = (Engine.IsWaitingCancelPending() == false);						
+							List<string> keysAdd = new List<string>();
+							List<string> keysRemove = new List<string>();
+							foreach (string k in cboKey.Items)
+								keysRemove.Add(k);
 
-						// Repaint
-						Invalidate();
-
-						EnabledUi();
-					}
-										
-					if ((mode == Core.Engine.RefreshUiMode.Log) || (mode == Core.Engine.RefreshUiMode.Full))
-					{
-						lock (Engine.LogEntries)
-						{
-							while (Engine.LogEntries.Count > 0)
+							if ((Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null))
 							{
-								LogEntry l = Engine.LogEntries[0];
-								Engine.LogEntries.RemoveAt(0);
-
-								Log(l);
-							}
-						}
-					}					
-
-					if ((mode == Core.Engine.RefreshUiMode.Stats) || (mode == Core.Engine.RefreshUiMode.Full))
-					{
-						if (Engine.IsConnected())
-						{
-							txtConnectedSince.Text = Engine.Stats.GetValue("VpnStart");
-
-							txtConnectedDownload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
-							txtConnectedUpload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
-						}
-					}
-
-					if (mode == Core.Engine.RefreshUiMode.Full)
-					{
-						m_listViewServers.UpdateList();
-						m_listViewAreas.UpdateList();
-
-						// Keys list
-                        /* TOCLEAN, old version
-						cboKey.Items.Clear();
-						if( (Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null) )
-						{
-							foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
-							{
-								string name = xmlKey.GetAttribute("name");
-								cboKey.Items.Add(name);
+								foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
+								{
+									string name = xmlKey.GetAttribute("name");
+									keysRemove.Remove(name);
+									if (cboKey.Items.Contains(name) == false)
+										keysAdd.Add(name);
+								}
 							}
 
-							if (cboKey.Items.Contains(Engine.Instance.Storage.Get("key")) == true)
+							foreach (string k in keysRemove)
+								cboKey.Items.Remove(k);
+
+							foreach (string k in keysAdd)
+								cboKey.Items.Add(k);
+
+							string currentKey = Engine.Instance.Storage.Get("key");
+							if (currentKey != null)
 							{
-								cboKey.SelectedItem = Engine.Instance.Storage.Get("key");
+								if ((cboKey.Items.Contains(currentKey) == true) && ((cboKey.SelectedItem as string) != currentKey))
+								{
+									cboKey.SelectedItem = currentKey;
+								}
 							}
+
 						}
-						*/
 
-                        List<string> keysAdd = new List<string>();
-                        List<string> keysRemove = new List<string>();
-                        foreach (string k in cboKey.Items)
-                            keysRemove.Add(k);
-
-                        if ((Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null))
-                        {
-                            foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
-                            {
-                                string name = xmlKey.GetAttribute("name");
-                                keysRemove.Remove(name);
-                                if (cboKey.Items.Contains(name) == false)
-                                    keysAdd.Add(name);
-                            }
-                        }
-
-                        foreach (string k in keysRemove)
-                            cboKey.Items.Remove(k);
-
-                        foreach (string k in keysAdd)
-                            cboKey.Items.Add(k);
-
-                        string currentKey = Engine.Instance.Storage.Get("key");
-                        if(currentKey != null)
-                        {
-                            if ((cboKey.Items.Contains(currentKey) == true) && ((cboKey.SelectedItem as string) != currentKey))
-                            {
-                                cboKey.SelectedItem = currentKey;
-                            }
-                        }
-
-                    }
-
-					if ((mode == Core.Engine.RefreshUiMode.MainMessage) || (mode == Core.Engine.RefreshUiMode.Full))
-					{
-						EnabledUi();
+						if ((mode == Core.Engine.RefreshUiMode.MainMessage) || (mode == Core.Engine.RefreshUiMode.Full))
+						{
+							EnabledUi();
+						}
 					}
 				}
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
 			}
 		}
 
 		private delegate void OnStatsChangeDelegate(StatsEntry entry);
 		public void OnStatsChange(StatsEntry entry)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnStatsChangeDelegate inv = new OnStatsChangeDelegate(this.OnStatsChange);
-				this.BeginInvoke(inv, new object[] { entry });
-			}
-			else
-			{
-				if (m_statsItems.ContainsKey(entry.Key))
+				if (this.InvokeRequired)
 				{
-					ListViewItemStats item = m_statsItems[entry.Key];
-					if (item.SubItems.Count == 1)
-						item.SubItems.Add("");
-					item.SubItems[1].Text = entry.Text;
+					OnStatsChangeDelegate inv = new OnStatsChangeDelegate(this.OnStatsChange);
+					this.BeginInvoke(inv, new object[] { entry });
+				}
+				else
+				{
+					if (m_statsItems.ContainsKey(entry.Key))
+					{
+						ListViewItemStats item = m_statsItems[entry.Key];
+						if (item.SubItems.Count == 1)
+							item.SubItems.Add("");
+						item.SubItems[1].Text = entry.Text;
+					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnProviderManifestFailedDelegate(Eddie.Core.Provider provider);
 		public void OnProviderManifestFailed(Eddie.Core.Provider provider)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnProviderManifestFailedDelegate inv = new OnProviderManifestFailedDelegate(this.OnProviderManifestFailed);
-				this.BeginInvoke(inv, new object[] { provider });
-			}
-			else
-			{
-				if (WindowProviderNoBootstrap.Singleton == null)
+				if (this.InvokeRequired)
 				{
-					WindowProviderNoBootstrap dlg = new WindowProviderNoBootstrap();
-					dlg.Provider = provider as Core.Providers.Service;
-					dlg.ShowDialog(this);
+					OnProviderManifestFailedDelegate inv = new OnProviderManifestFailedDelegate(this.OnProviderManifestFailed);
+					this.BeginInvoke(inv, new object[] { provider });
+				}
+				else
+				{
+					if (WindowProviderNoBootstrap.Singleton == null)
+					{
+						WindowProviderNoBootstrap dlg = new WindowProviderNoBootstrap();
+						dlg.Provider = provider as Core.Providers.Service;
+						dlg.ShowDialog(this);
+					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnFrontMessageDelegate(Json jMessage);
 		public void OnFrontMessage(Json jMessage)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnFrontMessageDelegate inv = new OnFrontMessageDelegate(this.OnFrontMessage);
+				try
+				{
+					if (this.InvokeRequired)
+					{
+						OnFrontMessageDelegate inv = new OnFrontMessageDelegate(this.OnFrontMessage);
 
-				//this.Invoke(inv, new object[] { mode });
-				this.BeginInvoke(inv, new object[] { jMessage });
+						//this.Invoke(inv, new object[] { mode });
+						this.BeginInvoke(inv, new object[] { jMessage });
+					}
+					else
+					{
+						Eddie.Forms.Forms.FrontMessage dlg = new Forms.FrontMessage();
+						dlg.Message = jMessage;
+						dlg.Show();
+						dlg.Activate();
+					}
+				}
+				catch (Exception ex)
+				{
+					Engine.Instance.Logs.LogUnexpected(ex);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Eddie.Forms.Forms.FrontMessage dlg = new Forms.FrontMessage();
-				dlg.Message = jMessage;
-				dlg.Show();
-				dlg.Activate();
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnMessageInfoDelegate(string message);
 		public void OnMessageInfo(string message)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnMessageInfoDelegate inv = new OnMessageInfoDelegate(this.OnMessageInfo);
-				this.Invoke(inv, new object[] { message });
+				if (this.InvokeRequired)
+				{
+					OnMessageInfoDelegate inv = new OnMessageInfoDelegate(this.OnMessageInfo);
+					this.Invoke(inv, new object[] { message });
+				}
+				else
+				{
+					ShowMessageInfo(message);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				ShowMessageInfo(message);
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnMessageErrorDelegate(string message);
 		public void OnMessageError(string message)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnMessageErrorDelegate inv = new OnMessageErrorDelegate(this.OnMessageError);
-				this.Invoke(inv, new object[] { message });
+				if (this.InvokeRequired)
+				{
+					OnMessageErrorDelegate inv = new OnMessageErrorDelegate(this.OnMessageError);
+					this.Invoke(inv, new object[] { message });
+				}
+				else
+				{
+					ShowMessageError(message);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				ShowMessageError(message);
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnShowTextDelegate(string title, string data);
 		public void OnShowText(string title, string data)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnShowTextDelegate inv = new OnShowTextDelegate(this.OnShowText);
-				this.Invoke(inv, new object[] { title, data });
+				if (this.InvokeRequired)
+				{
+					OnShowTextDelegate inv = new OnShowTextDelegate(this.OnShowText);
+					this.Invoke(inv, new object[] { title, data });
+				}
+				else
+				{
+					ShowText(this, title, data);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				ShowText(this, title, data);
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		public void ShowText(Form parent, string title, string data)
@@ -2027,208 +2139,294 @@ namespace Eddie.Forms.Forms
 		private delegate bool AskYesNoDelegate(string message);
 		public bool AskYesNo(string message)
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				AskYesNoDelegate inv = new AskYesNoDelegate(this.AskYesNo);
-				return (bool)this.Invoke(inv, new object[] { message });
+				if (this.InvokeRequired)
+				{
+					AskYesNoDelegate inv = new AskYesNoDelegate(this.AskYesNo);
+					return (bool)this.Invoke(inv, new object[] { message });
+				}
+				else
+				{
+					return ShowMessageAskYesNo(message);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				return ShowMessageAskYesNo(message);
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+				return false;
+			}			
 		}
 
 		private delegate Credentials OnAskCredentialsDelegate();
 		public Credentials OnAskCredentials()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnAskCredentialsDelegate inv = new OnAskCredentialsDelegate(this.OnAskCredentials);
-				return this.Invoke(inv, new object[] { }) as Credentials;
-			}
-			else
-			{
-				Forms.WindowCredentials Dlg = new Forms.WindowCredentials();
-				if (Dlg.ShowDialog(this) == DialogResult.OK)
-					return Dlg.Credentials;
+				if (this.InvokeRequired)
+				{
+					OnAskCredentialsDelegate inv = new OnAskCredentialsDelegate(this.OnAskCredentials);
+					return this.Invoke(inv, new object[] { }) as Credentials;
+				}
 				else
-					return null;
+				{
+					Forms.WindowCredentials Dlg = new Forms.WindowCredentials();
+					if (Dlg.ShowDialog(this) == DialogResult.OK)
+						return Dlg.Credentials;
+					else
+						return null;
+				}
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+				return null;
 			}
 		}
 
 		private delegate void OnSystemReportDelegate(string step, string text, int perc);
 		public void OnSystemReport(string step, string text, int perc)
-		{
-			if (this.InvokeRequired)
+		{			
+			try
 			{
-				OnSystemReportDelegate inv = new OnSystemReportDelegate(this.OnSystemReport);
-				this.Invoke(inv, new object[] { step, text, perc });
-			}
-			else
-			{
-				if ((m_windowReport == null) || (m_windowReport.IsDisposed == true))
+				if (this.InvokeRequired)
 				{
-					m_windowReport = new Forms.WindowReport();
+					OnSystemReportDelegate inv = new OnSystemReportDelegate(this.OnSystemReport);
+					this.Invoke(inv, new object[] { step, text, perc });
 				}
-								
-				m_windowReport.Visible = true;
-				m_windowReport.Activate();
-				m_windowReport.Focus();
-				m_windowReport.SetStep(step, text, perc);
+				else
+				{
+					if ((m_windowReport == null) || (m_windowReport.IsDisposed == true))
+					{
+						m_windowReport = new Forms.WindowReport();
+					}
+
+					m_windowReport.Visible = true;
+					m_windowReport.Activate();
+					m_windowReport.Focus();
+					m_windowReport.SetStep(step, text, perc);
+				}
+			}
+			catch(Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
 			}
 		}
 
 		private delegate void OnPostManifestUpdateDelegate();
 		public void OnPostManifestUpdate()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnPostManifestUpdateDelegate inv = new OnPostManifestUpdateDelegate(this.OnPostManifestUpdate);
+				if (this.InvokeRequired)
+				{
+					OnPostManifestUpdateDelegate inv = new OnPostManifestUpdateDelegate(this.OnPostManifestUpdate);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					mnuServersRefresh.Enabled = true;
+					cmdServersRefresh.Enabled = true;
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				mnuServersRefresh.Enabled = true;
-				cmdServersRefresh.Enabled = true;
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnMenuStatusDelegate();
 		public void OnMenuStatus()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnMenuStatusDelegate inv = new OnMenuStatusDelegate(this.OnMenuStatus);
+				if (this.InvokeRequired)
+				{
+					OnMenuStatusDelegate inv = new OnMenuStatusDelegate(this.OnMenuStatus);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					OnMenuRestore();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				OnMenuRestore();
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnMenuConnectDelegate();
 		public void OnMenuConnect()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnMenuConnectDelegate inv = new OnMenuConnectDelegate(this.OnMenuConnect);
+				if (this.InvokeRequired)
+				{
+					OnMenuConnectDelegate inv = new OnMenuConnectDelegate(this.OnMenuConnect);
 
-				this.BeginInvoke(inv, new object[] { });
-			}
-			else
-			{
-				if (m_mainActionCommand == "")
-					OnMenuRestore();
+					this.BeginInvoke(inv, new object[] { });
+				}
 				else
-					UiClient.Instance.Command(m_mainActionCommand);					
+				{
+					if (m_mainActionCommand == "")
+						OnMenuRestore();
+					else
+						UiClient.Instance.Command(m_mainActionCommand);
+				}
 			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnMenuRestoreDelegate();
 		public void OnMenuRestore()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnMenuRestoreDelegate inv = new OnMenuRestoreDelegate(this.OnMenuRestore);
+				if (this.InvokeRequired)
+				{
+					OnMenuRestoreDelegate inv = new OnMenuRestoreDelegate(this.OnMenuRestore);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					WinInvertVis();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-                WinInvertVis();
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnMenuExitDelegate();
 		public void OnMenuExit()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnMenuExitDelegate inv = new OnMenuExitDelegate(this.OnMenuExit);
+				if (this.InvokeRequired)
+				{
+					OnMenuExitDelegate inv = new OnMenuExitDelegate(this.OnMenuExit);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					Close();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Close();
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnShowPreferencesDelegate();
 		public void OnShowPreferences()
 		{
-			if (UiClient.Instance.Data == null)
-				return;
-
-			if (this.InvokeRequired)
+			try
 			{
-				OnShowPreferencesDelegate inv = new OnShowPreferencesDelegate(this.OnShowPreferences);
+				if (UiClient.Instance.Data == null)
+					return;
 
-				this.BeginInvoke(inv, new object[] { });
+				if (this.InvokeRequired)
+				{
+					OnShowPreferencesDelegate inv = new OnShowPreferencesDelegate(this.OnShowPreferences);
+
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					Forms.Settings Dlg = new Forms.Settings();
+					Dlg.ShowDialog(this);
+
+					EnabledUi();
+					Resizing();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Forms.Settings Dlg = new Forms.Settings();
-				Dlg.ShowDialog(this);
-
-				EnabledUi();
-				Resizing();
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnUpdaterDelegate();
 		public void OnUpdater()
 		{
-			if (UiClient.Instance.Data == null)
-				return;
-
-			if (this.InvokeRequired)
+			try
 			{
-				OnUpdaterDelegate inv = new OnUpdaterDelegate(this.OnUpdater);
+				if (UiClient.Instance.Data == null)
+					return;
 
-				this.BeginInvoke(inv, new object[] { });
+				if (this.InvokeRequired)
+				{
+					OnUpdaterDelegate inv = new OnUpdaterDelegate(this.OnUpdater);
+
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					Platform.Instance.OpenUrl(Constants.WebSite + "/" + Platform.Instance.GetCode().ToLowerInvariant() + "/");
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Platform.Instance.OpenUrl(Constants.WebSite + "/" + Platform.Instance.GetCode().ToLowerInvariant() + "/");
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnShowAboutDelegate();
 		public void OnShowAbout()
 		{
-			if (UiClient.Instance.Data == null)
-				return;
-
-			if (this.InvokeRequired)
+			try
 			{
-				OnShowAboutDelegate inv = new OnShowAboutDelegate(this.OnShowAbout);
+				if (UiClient.Instance.Data == null)
+					return;
 
-				this.BeginInvoke(inv, new object[] { });
+				if (this.InvokeRequired)
+				{
+					OnShowAboutDelegate inv = new OnShowAboutDelegate(this.OnShowAbout);
+
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					Forms.About dlg = new Forms.About();
+					dlg.ShowDialog(this);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Forms.About dlg = new Forms.About();
-				dlg.ShowDialog(this);
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 
 		private delegate void OnShowMenuDelegate();
 		public void OnShowMenu()
 		{
-			if (this.InvokeRequired)
+			try
 			{
-				OnShowMenuDelegate inv = new OnShowMenuDelegate(this.OnShowMenu);
+				if (this.InvokeRequired)
+				{
+					OnShowMenuDelegate inv = new OnShowMenuDelegate(this.OnShowMenu);
 
-				this.BeginInvoke(inv, new object[] { });
+					this.BeginInvoke(inv, new object[] { });
+				}
+				else
+				{
+					ShowMenu();
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				ShowMenu();
-			}
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}			
 		}
 		
 		private String LogsGetBody(bool selectedOnly)

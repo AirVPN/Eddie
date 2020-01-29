@@ -117,6 +117,7 @@ namespace Eddie.Core
 
         protected string m_sessionKey = "";
 		protected string m_failedReason = "";
+		protected string m_bufferReceive = "";
 		protected bool m_started = false;
 		
 		public bool ServiceEdition = false;
@@ -124,7 +125,7 @@ namespace Eddie.Core
 
         private System.Diagnostics.Process m_process;
         private UInt32 m_id = 0;
-        private string m_bufferReceive = "";
+        
 		private bool m_shutdownInProgress = false;
 				
 		public virtual void Start()

@@ -74,7 +74,7 @@ namespace Eddie.UI.Cocoa.Osx
 
             if (UiClient.Instance.MainWindow != null)
 			{
-				new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
+				new NSObject().BeginInvokeOnMainThread(() => // BeginInvokeOnMainThread
 				{
                     UiClient.Instance.MainWindow.RefreshUi(mode);
 				});

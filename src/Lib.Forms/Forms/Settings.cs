@@ -1350,11 +1350,10 @@ namespace Eddie.Forms.Forms
 
 		private void cmdAdvancedUninstallDriver_Click(object sender, EventArgs e)
 		{
-			Platform.Instance.UnInstallDriver();
+			if(Platform.Instance.UnInstallDriver())
+				ShowMessageInfo(LanguageManager.GetText("OsDriverUninstallDone"));
 
 			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
-
-			ShowMessageInfo(LanguageManager.GetText("OsDriverUninstallDone"));
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)

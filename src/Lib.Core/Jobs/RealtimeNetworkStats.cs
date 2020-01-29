@@ -18,21 +18,29 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Threading;
 using System.Text;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
-using System.IO;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
+using Eddie.Core;
 
-namespace Lib.Platform.Windows.Elevated
+namespace Eddie.Core.Jobs
 {
-	public static class Constants
+	public class RealtimeNetworkStats : Eddie.Core.Job
 	{
-		public static bool Debug = false;
-		public static int PortSpot = 9345;
-		public static int PortService = 9346;
-		public static string Version = "v1375";
+		public override ThreadPriority GetPriority()
+		{
+			return ThreadPriority.Lowest;
+		}
+
+		public override bool GetSync()
+		{
+			return false;
+		}
+
+		public override void OnRun()
+		{
+			//Json networkInfo = Engine.Instance.JsonNetworkInfo();
+			
+			m_timeEvery = 1000;
+		}
 	}
 }

@@ -96,6 +96,7 @@
     <Compile Include="Jobs\Discover.cs" />
     <Compile Include="Jobs\Latency.cs" />
     <Compile Include="Jobs\ProvidersRefresh.cs" />
+    <Compile Include="Jobs\RealtimeNetworkStats.cs" />
     <Compile Include="Jobs\Updater.cs" />
     <Compile Include="LanguageManager.cs" />
     <Compile Include="ShellExternalManager.cs" />

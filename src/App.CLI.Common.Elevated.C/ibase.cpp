@@ -1,4 +1,5 @@
-﻿// <eddie_source_header>
+﻿
+// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -39,14 +40,9 @@
 
 using namespace redi; // related to pstream.h
 
-std::string ShellResult::output()
-{
-    if(err == "")
-        return out;
-    if(out == "")
-        return err;
-    return "out:" + out + ";err:" + err;
-}
+// --------------------------
+// Engine
+// --------------------------
 
 int IBase::AppMain(int argc, char* argv[])
 {
@@ -79,7 +75,7 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
                 std::string clientVersion = "";
                 if(params.find("version") != params.end())
                     clientVersion = params["version"];
-                    
+                
                 if(clientVersion != m_elevatedVersion)
                     ThrowException("Unexpected version, elevated: " + m_elevatedVersion + ", client: " + clientVersion);
                     
@@ -109,23 +105,101 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
     {
         ReplyException(commandId, "Internal exception.");
     }
-
+    
     EndCommand(commandId);
 }
+
+
+
+// --------------------------
+// Engine, Protected
+// --------------------------
+
+bool IBase::IsServiceMode()
+{
+    return m_serviceMode;
+}
+
+void IBase::LogFatal(const std::string& msg)
+{
+    LogDebug("Fatal: " + msg);
+    SendMessage("ee:fatal:" + base64_encode(msg));
+}
+
+void IBase::LogRemote(const std::string& msg)
+{
+    SendMessage("ee:log:" + base64_encode(msg));
+}
+
+void IBase::LogLocal(const std::string& msg)
+{
+    std::cout << msg << std::endl;
+}
+
+void IBase::LogDebug(const std::string& msg)
+{
+#ifdef Debug
+    std::cout << "Elevated Debug: " << msg << std::endl;
+#endif
+    if(m_debug)
+        LogRemote("Elevated: " + msg);
+}
+
+void IBase::ReplyPID(int pid)
+{
+    SendMessage("ee:pid:" + base64_encode(std::to_string(pid)));
+}
+
+void IBase::ReplyCommand(const std::string& commandId, const std::string& data)
+{
+    SendMessage("ee:data:" + commandId + ":" + base64_encode(data));
+}
+
+// --------------------------
+// Engine, Private
+// --------------------------
+
+void IBase::ReplyException(const std::string& commandId, const std::string& message)
+{
+    SendMessage("ee:exception:" + commandId + ":" + base64_encode(message));
+}
+
+void IBase::EndCommand(const std::string& commandId)
+{
+    SendMessage("ee:end:" + commandId);
+}
+
+void IBase::SendMessage(const std::string& message)
+{
+    std::string sendBuffer = message + "\n";
+    m_mutex_inout.lock();
+    int nWrite = write(m_sockClient, sendBuffer.c_str(), sendBuffer.length());
+    m_mutex_inout.unlock();
+    
+    // LogDebug("Write socket " + std::to_string(nWrite) + " bytes.");
+    
+    if (nWrite < 0) {
+        ThrowException("Error writing to socket");
+    }
+}
+
+// --------------------------
+// Virtual
+// --------------------------
 
 // Must be derived
 int IBase::Main()
 {
     // Checkings
     
-	uid_t euid = geteuid();
+    uid_t euid = geteuid();
     if(euid != 0)
     {
         uid_t uid = getuid();
         LogLocal("This application can't be run directly, it's used internally by Eddie. (uid:" + std::to_string(uid) + ",euid:" + std::to_string(euid) + ")");
         return 1;
     }
-	
+    
     m_lastModified = GetProcessModTimeCurrent();
     
     int nMaxAccepted = -1;
@@ -230,21 +304,29 @@ int IBase::Main()
 
             // Check allowed
             {
-                int clientProcessID = GetProcessIdMatchingIPEndPoints(addrClient, addrServer);
+                int clientProcessId = GetProcessIdMatchingIPEndPoints(addrClient, addrServer);
 
-                if(clientProcessID == 0)
+                if(clientProcessId == 0)
                     ThrowException("Client not allowed: Cannot detect client process");
                     
-                std::string clientProcessPath = GetProcessPathOfID(clientProcessID);
+                std::string clientProcessPath = GetProcessPathOfId(clientProcessId);
                 if(clientProcessPath == "")
                     ThrowException("Client not allowed: Cannot detect client process path");
                     
                 // If spot mode, must be the parent
                 if(m_serviceMode == false)
                 {
-                    int parentPID = getppid();
-                    if(clientProcessID != parentPID)
-                        ThrowException("Client not allowed: Connection not from parent process (spot mode)");
+                    int parentPID = GetParentProcessId();
+                    
+                    if(clientProcessId != parentPID)
+                    {
+                        int parentPID2 = GetParentProcessId(parentPID); // Grandparent, for example if launched via 'sudo'
+                        
+                        if(clientProcessId != parentPID2)
+                        {
+                            ThrowException("Client not allowed: Connection not from parent process (spot mode)");
+                        }
+                    }
                 }
 
                 // In service mode, hash must match
@@ -253,9 +335,7 @@ int IBase::Main()
                     std::string allowedHash = "";
                     if(m_cmdline.find("allowed_hash") != m_cmdline.end())
                         allowedHash = m_cmdline["allowed_hash"];
-                    LogDebug("Client path: " + clientProcessPath);
                     std::string clientHash = FileSHA256Sum(clientProcessPath);
-                    LogDebug("Detected hash: " + clientHash);
                     if(allowedHash != clientHash)
                         ThrowException("Client not allowed: Hash mismatch (client " + clientHash + " != expected " + allowedHash + ") (service mode)");
                 }
@@ -359,7 +439,7 @@ int IBase::Main()
                         else if(command != "")
                         {
                             LogDebug("Command:" + command);
-
+                            
                             std::thread t = std::thread(ThreadCommand, this, id, command, params);
                             t.detach();
                         }
@@ -408,14 +488,6 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
     if (command == "exit")
     {
     }
-    /*
-    else if (command == "test-stress-multithread")
-    {
-        ReplyCommand(commandId, "0");
-        Sleep((rand() % 2000));
-        ReplyCommand(commandId, "1");
-    }
-    */
     else if (command == "process_openvpn")
     {
         CheckIfExecutableIsAllowed(params["path"]);
@@ -569,15 +641,74 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
             ReplyCommand(commandId, "return:" + exitCodeStr);
         }
     }
+    else if (command == "tor-get-info")
+    {
+        // Eddie need to talk with Tor Control to ask for new circuits or obtain guard IPs.
+        std::string processName;
+        std::string processPath;
+        std::string username;
+        std::string cookiePath;
+        std::string cookiePasswordHex;
+        
+        if (params.find("name") != params.end())
+            processName = params["name"];
+            
+        if (params.find("path") != params.end())
+            processPath = params["path"];
+
+        if (params.find("username") != params.end())
+            username = params["username"];
+            
+        if (FileExists(processPath) == false)
+            processPath = "";
+            
+        if(processPath == "")
+        {
+            pid_t id = GetProcessIdOfName(processName);
+            if(id != 0)
+                processPath = GetProcessPathOfId(id);
+        }
+
+        if(processPath == "") // Alternative name, TorBrowser under macOS
+        {
+            pid_t id = GetProcessIdOfName(processName + ".real");
+            if(id != 0)
+                processPath = GetProcessPathOfId(id);
+        }
+
+        std::vector<std::string> paths;
+        AddTorCookiePaths(processPath, username, paths);
+        
+        // Other custom paths to check
+        if (params.find("cookie-path1") != params.end())
+            paths.push_back(params["cookie-path1"]);
+        if (params.find("cookie-path2") != params.end())
+            paths.push_back(params["cookie-path2"]);
+        
+        for (std::vector<std::string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
+        {
+            std::string path = *i;
+            if(FileExists(path))
+            {
+                std::vector<char> chars = FileReadBytes(path);
+                if(chars.size() > 0)
+                {
+                    cookiePath = path;
+                    cookiePasswordHex = StringHexEncode(chars);
+                    break;
+                }
+            }
+        }
+
+        ReplyCommand(commandId, "Name:" + processName);
+        ReplyCommand(commandId, "Path:" + processPath);
+        ReplyCommand(commandId, "CookiePath:" + cookiePath);
+        ReplyCommand(commandId, "CookiePasswordHex:" + cookiePasswordHex);
+    }
     else
     {
         ReplyException(commandId, "Unknown elevated command: " + command);
     }
-}
-
-std::string IBase::CheckIfClientPathIsAllowed(const std::string& path)
-{
-    return "Not implemented";
 }
 
 void IBase::CheckIfExecutableIsAllowed(const std::string& path)
@@ -591,11 +722,11 @@ void IBase::CheckIfExecutableIsAllowed(const std::string& path)
         // If match, trust it, otherwise other checks are performed.
         std::string computedHash = FileSHA256Sum(path);
         
-        std::string expectedOpenvpnHash = "a0b8f62442e186a727d7635fe6637dbc3e87c7497810e0efb488c3a336ada57c";
+        std::string expectedOpenvpnHash = "304254d86ad0609e3389345f0158f7326bf1a21c291c125b7e06de74aa263c05";
         if(expectedOpenvpnHash == computedHash) 
             return;
             
-        std::string expectedHummingbirdHash = "501416f9ca4ef2659ffdb704253aeca78a713ca1588f90b5bf6f81baf111d860";
+        std::string expectedHummingbirdHash = "91fc77a7e137f0fc1b0fce0d35e5e15b3d5cee2789961aa98d05c9afae071f41";
         if(expectedHummingbirdHash == computedHash)
             return;
     }
@@ -637,7 +768,7 @@ void IBase::CheckIfExecutableIsAllowed(const std::string& path)
 
 std::string IBase::GetProcessPathCurrent()
 {
-    return GetProcessPathOfID(getpid());
+    return GetProcessPathOfId(getpid());
 }
 
 std::string IBase::GetProcessPathCurrentDir()
@@ -670,11 +801,6 @@ time_t IBase::GetProcessModTimeCurrent()
     }
 }
 
-std::string IBase::GetProcessPathOfID(pid_t pid)
-{
-    return "";
-}
-
 std::string IBase::GetTempPath()
 {
     // Same env sequence performed by boost tmpdir
@@ -705,123 +831,18 @@ std::string IBase::GetTempPath(const std::string& filename)
     return GetTempPath() + "/eddie_tmp_" + filename;
 }
 
-bool IBase::IsServiceMode()
+void IBase::AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result)
 {
-    return m_serviceMode;
-}
-
-void IBase::LogFatal(const std::string& msg)
-{
-    LogDebug("Fatal: " + msg);
-    SendMessage("ee:fatal:" + base64_encode(msg));
-}
-
-void IBase::LogRemote(const std::string& msg)
-{
-    SendMessage("ee:log:" + base64_encode(msg));
-}
-
-void IBase::LogLocal(const std::string& msg)
-{
-    std::cout << msg << std::endl;
-}
-
-void IBase::LogDebug(const std::string& msg)
-{
-#ifdef Debug
-    std::cout << "Elevated Debug: " << msg << std::endl;
-#endif
-    if(m_debug)
-        LogRemote("Elevated: " + msg);
-}
-
-void IBase::ReplyPID(int pid)
-{
-    SendMessage("ee:pid:" + base64_encode(std::to_string(pid)));
-}
-
-void IBase::ReplyCommand(const std::string& commandId, const std::string& data)
-{
-    SendMessage("ee:data:" + commandId + ":" + base64_encode(data));
-}
-
-void IBase::ReplyException(const std::string& commandId, const std::string& message)
-{
-    SendMessage("ee:exception:" + commandId + ":" + base64_encode(message));
-}
-
-void IBase::EndCommand(const std::string& commandId)
-{
-    SendMessage("ee:end:" + commandId);
-}
-
-void IBase::SendMessage(const std::string& message)
-{
-    std::string sendBuffer = message + "\n";
-    m_mutex_inout.lock();
-    int nWrite = write(m_sockClient, sendBuffer.c_str(), sendBuffer.length());
-    m_mutex_inout.unlock();
-    
-    // LogDebug("Write socket " + std::to_string(nWrite) + " bytes.");
-    
-    if (nWrite < 0) {
-        ThrowException("Error writing to socket");
-    }
 }
 
 
 
-void ThreadCommand(IBase* impl, const std::string id, const std::string command, std::map<std::string, std::string> params)
-{
-    impl->MainDo(id, command, params);
-}
 
-// Utils
 
-std::map<std::string, std::string> IBase::ParseCommandLine(int argc, char* argv[])
-{
-    // Note: accept "key1 key2=value2 key3" syntax. No "--key", no "--key='value'", no quotes.
-    std::map<std::string, std::string> result;
-    
-    for(int i=0;i<argc;i++)
-    {
-        std::string f = argv[i];
-        
-        std::string k = "";
-        std::string v = "";
-        
-        if(i == 0)
-        {
-            k = "path";
-            v = f;
-        }
-        else
-        {
-            size_t posKV = f.find('=');
-            if(posKV != std::string::npos)
-            {
-                k = f.substr(0, posKV);
-                v = f.substr(posKV+1);
-            }
-            else
-            {
-                k = f;
-                v = "";
-            }
-        }
-        
-        if( (k == "service") && (v == "") ) // Compatibility >=2.18.1 and <=2.18.4
-        {
-            k = "mode";
-            v = "service";
-        }
-        
-        if(k != "")
-            result[k] = v;
-    }
-    
-    return result;
-}
+
+// --------------------------
+// Utils filesystem
+// --------------------------
 
 bool IBase::FileExists(const std::string& path)
 {
@@ -860,6 +881,14 @@ bool IBase::FileAppendText(const std::string& path, const std::string& body)
     return true;
 }
 
+std::string IBase::FileGetDirectory(const std::string& path)
+{
+    //std::filesystem::path p = path;
+    //return p.parent_path();
+    
+    return path.substr(0, path.find_last_of("/\\"));
+}
+
 std::string IBase::FileReadText(const std::string& path)
 {
     std::ifstream t(path);
@@ -870,15 +899,26 @@ std::string IBase::FileReadText(const std::string& path)
 
 std::vector<char> IBase::FileReadBytes(const std::string& path)
 {
+    /*
     std::ifstream input(path, std::ios::binary);
 
-    std::vector<char> bytes(
+    std::vector<unsigned char> bytes(
          (std::istreambuf_iterator<char>(input)),
          (std::istreambuf_iterator<char>()));
 
     input.close();
     
     return bytes;
+    */
+    std::ifstream ifs(path.c_str(), std::ios::binary|std::ios::ate);
+    std::ifstream::pos_type pos = ifs.tellg();
+
+    std::vector<char>  result(pos);
+
+    ifs.seekg(0, std::ios::beg);
+    ifs.read(&result[0], pos);
+
+    return result;
 }
 
 std::vector<std::string> IBase::FilesInPath(const std::string& path)
@@ -1033,49 +1073,10 @@ std::string IBase::LocateExecutable(const std::string& name)
     return "";
 }
 
-std::string IBase::CheckValidOpenVpnConfig(const std::string& path)
-{
-    if(FileExists(path) == false)
-        return "file not found";
 
-    std::string body = FileReadText(path);
-    std::vector<std::string> lines = StringToVector(body, '\n');
-    for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
-    {
-        std::string lineNormalized = *i;
-        lineNormalized = StringTrim(StringToLower(lineNormalized));
-        
-        if (StringStartsWith(lineNormalized, "#"))
-            continue;
-            
-        bool lineAllowed = true;
-        
-        // The below list directive can be incompleted with newest OpenVPN version, 
-        // but any new dangerous directive is expected to be blocked by script-security
-        // Note: parser can be better (any <key> lines are treated as directive, but never match for the space)
-        // But this validation is only for additional security, Eddie already parse and prune with a better parse the config
-        if (StringStartsWith(lineNormalized, "script-security ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "plugin ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "up ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "down ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "client-connect ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "client-disconnect ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "learn-address ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "auth-user-pass-verify ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "tls-verify ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "ipchange ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "iproute ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "route-up ")) lineAllowed = false;
-        if (StringStartsWith(lineNormalized, "route-pre-down ")) lineAllowed = false;
-        
-        if(lineAllowed == false)
-            return "directive '" + lineNormalized + "' not allowed";
-    }
-
-    return "";
-}
-
-// Utils String
+// --------------------------
+// Utils string
+// --------------------------
 
 std::string IBase::StringReplaceAll(const std::string& str, const std::string& from, const std::string& to)
 {
@@ -1247,6 +1248,18 @@ std::string IBase::StringXmlEncode(const std::string& str)
     return result;
 }
 
+std::string IBase::StringHexEncode(const std::vector<char>& bytes)
+{
+    uint len = bytes.size();
+    char result[len*2+1];
+    
+    for(uint i=0;i<bytes.size();i++)
+        sprintf((char*)&result+i*2, "%02x", (unsigned char)bytes[i]);
+    result[len*2] = 0;
+        
+    return result;
+}
+
 std::string IBase::StringHexEncode(const int v, const int chars)
 {
     std::stringstream ss;
@@ -1254,7 +1267,102 @@ std::string IBase::StringHexEncode(const int v, const int chars)
     return ss.str();
 }
 
+// --------------------------
+// Utils other
+// --------------------------
+
+std::map<std::string, std::string> IBase::ParseCommandLine(int argc, char* argv[])
+{
+    // Note: accept "key1 key2=value2 key3" syntax. No "--key", no "--key='value'", no quotes.
+    std::map<std::string, std::string> result;
+    
+    for(int i=0;i<argc;i++)
+    {
+        std::string f = argv[i];
+        
+        std::string k = "";
+        std::string v = "";
+        
+        if(i == 0)
+        {
+            k = "path";
+            v = f;
+        }
+        else
+        {
+            size_t posKV = f.find('=');
+            if(posKV != std::string::npos)
+            {
+                k = f.substr(0, posKV);
+                v = f.substr(posKV+1);
+            }
+            else
+            {
+                k = f;
+                v = "";
+            }
+        }
+        
+        if( (k == "service") && (v == "") ) // Compatibility >=2.18.1 and <=2.18.4
+        {
+            k = "mode";
+            v = "service";
+        }
+        
+        if(k != "")
+            result[k] = v;
+    }
+    
+    return result;
+}
+
+std::string IBase::CheckValidOpenVpnConfig(const std::string& path)
+{
+    if(FileExists(path) == false)
+        return "file not found";
+
+    std::string body = FileReadText(path);
+    std::vector<std::string> lines = StringToVector(body, '\n');
+    for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    {
+        std::string lineNormalized = *i;
+        lineNormalized = StringTrim(StringToLower(lineNormalized));
+        
+        if (StringStartsWith(lineNormalized, "#"))
+            continue;
+            
+        bool lineAllowed = true;
+        
+        // The below list directive can be incompleted with newest OpenVPN version, 
+        // but any new dangerous directive is expected to be blocked by script-security
+        // Note: parser can be better (any <key> lines are treated as directive, but never match for the space)
+        // But this validation is only for additional security, Eddie already parse and prune with a better parse the config
+        if (StringStartsWith(lineNormalized, "script-security ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "plugin ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "up ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "down ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "client-connect ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "client-disconnect ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "learn-address ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "auth-user-pass-verify ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "tls-verify ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "ipchange ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "iproute ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "route-up ")) lineAllowed = false;
+        if (StringStartsWith(lineNormalized, "route-pre-down ")) lineAllowed = false;
+        
+        if(lineAllowed == false)
+            return "directive '" + lineNormalized + "' not allowed";
+    }
+
+    return "";
+}
+
+
+// --------------------------
 // Helper
+// --------------------------
+
 void IBase::ThrowException(const std::string& message)
 {
     throw std::runtime_error(message);
@@ -1291,3 +1399,24 @@ ShellResult IBase::ShellEx3(const std::string& path, const std::string& arg1, co
     return ShellEx(path, args);
 }
 
+// --------------------------
+// ShellResult class
+// --------------------------
+
+std::string ShellResult::output()
+{
+    if(err == "")
+        return out;
+    if(out == "")
+        return err;
+    return "out:" + out + ";err:" + err;
+}
+
+// --------------------------
+// Outside class
+// --------------------------
+
+void ThreadCommand(IBase* impl, const std::string id, const std::string command, std::map<std::string, std::string> params)
+{
+    impl->MainDo(id, command, params);
+}

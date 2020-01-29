@@ -30,13 +30,13 @@ namespace Eddie.Core
 		public static byte[] NotSecretPayload = Encoding.UTF8.GetBytes("4af85e84255b077ad890dba297e811b7d016add1");
 		public static string PasswordIfEmpty = "e6552ddf3ac5c8755a82870d91273a63eab0da1e";
 		public static string Thanks = "Clodo, PJ, Berserker, ProMIND, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar";
-		public static int VersionInt = 262;
-		public static string VersionDesc = "2.18.6"; // Used by deploy system also to generate filenames
+		public static int VersionInt = 263;
+		public static string VersionDesc = "2.18.7"; // Used by deploy system also to generate filenames
         public static string VersionShow = VersionDesc + ""; // Visible to users
         //public static string VersionShow = VersionDesc; // Visible to users        
         public static bool AlphaFeatures = false;
 		public static bool FeatureAlwaysBypassOpenvpnRoute = true; // Default for Eddie 2.14		
-		public static string Domain = "eddie.website";
+        public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";
 		public static string WebSiteIPv4 = "188.166.41.48"; // Used only in Test Report (Log>Lifebeft)
 		public static string WebSiteIPv6 = "2a03:b0c0:2:d0::11b4:6001"; // Used only in Test Report (Log>Lifebeft)
@@ -45,6 +45,6 @@ namespace Eddie.Core
 		public static string WindowsXpDriverVersion = "9.9.2";
 		public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
 		public static int ElevatedServiceTcpPort = 9346;
-		public static string ElevatedVersionExpected = "v1374";
+		public static string ElevatedVersionExpected = "v1375";
 	}
 }

@@ -276,6 +276,20 @@ namespace Eddie.Core
 			return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
 		}
 
+		public static byte[] HexToBytes(string str)
+		{
+			if (str.Length % 2 != 0)
+				return null;
+
+			byte[] data = new byte[str.Length / 2];
+			for (int i = 0; i < data.Length; i++)
+			{
+				string byteValue = str.Substring(i * 2, 2);
+				data[i] = byte.Parse(byteValue, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+			}
+
+			return data;
+		}
 
 
 

@@ -26,6 +26,10 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+// --------------------------
+// Virtual
+// --------------------------
+
 void IPosix::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
     if (command == "kill")
@@ -44,12 +48,6 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
         IBase::Do(commandId, command, params);
     }
 }
-
-void IPosix::Sleep(int ms)
-{
-    usleep(ms * 1000);
-}
-
 
 int IPosix::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
 {
@@ -177,3 +175,51 @@ int IPosix::GetProcessIdMatchingIPEndPoints(std::string sourceAddr, int sourcePo
     return 0;
 }
 */
+
+void IPosix::AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result)
+{
+    if(torPath != "") // TorBrowser
+    {
+        std::string path = FileGetDirectory(torPath) + "/../Data/Tor/control_auth_cookie";
+        result.push_back(path);
+    }
+        
+    result.push_back("/var/run/tor/control.authcookie");
+    result.push_back("/var/lib/tor/control_auth_cookie");
+}
+
+// --------------------------
+// Virtual Pure, OS
+// --------------------------
+
+void IPosix::Sleep(int ms)
+{
+    usleep(ms * 1000);
+}
+
+pid_t IPosix::GetParentProcessId()
+{
+    return getppid();
+}
+
+pid_t IPosix::GetParentProcessId(pid_t pid)
+{
+    // We don't find a better method
+    std::string statusPath = "/proc/" + std::to_string(pid) + "/status";
+    if(!FileExists(statusPath))
+        return 0;
+        
+    std::string statusBody = FileReadText(statusPath);
+    std::string ppidS = StringTrim(StringExtractBetween(statusBody, "PPid:","\n"));
+    return atoi(ppidS.c_str());
+}
+
+pid_t IPosix::GetProcessIdOfName(const std::string& name)
+{
+    // TOFIX - Find a method without shell
+    ShellResult pidofResult = ShellEx1("pidof", name);
+    if(pidofResult.exit == 0)
+        return atoi(pidofResult.out.c_str());
+    else
+        return 0;
+}

@@ -55,7 +55,8 @@ namespace Eddie.Core
 		{
 			try
 			{
-				m_failedReason = "";
+				m_bufferReceive = "";
+				m_failedReason = "";				
 
 				IPAddress ipAddress = IPAddress.Loopback;
 				IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
@@ -141,7 +142,7 @@ namespace Eddie.Core
 					throw new Exception("Elevated communication closed");
                 }
 
-				client.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);				
+				client.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
 			}
 			catch(Exception ex)
 			{
@@ -182,7 +183,7 @@ namespace Eddie.Core
 		public class StateObject
 		{
 			public Socket Socket = null;
-			public const int BufferSize = 256;
+			public const int BufferSize = 4096; // TOFIX, with 256 don't work as expected (test with Windows UI > Service that refuse)
 			public byte[] Buffer = new byte[BufferSize];
 		}
 	}

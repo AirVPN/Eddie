@@ -47,6 +47,13 @@ namespace Eddie.Core
 			Log(type, msg, e);
 		}
 
+		public void LogUnexpected(Exception e)
+		{
+			string msg = "Unexpected: " + e.Message;
+			msg += " - Stack: " + e.StackTrace.ToString();
+			Log(LogType.Verbose, msg);
+		}
+
 		public void LogWarning(string message)
 		{
 			Log(LogType.Warning, message, null);

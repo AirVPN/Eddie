@@ -37,7 +37,7 @@ namespace Eddie.Platform.Windows
 {
 	public class Platform : Core.Platform
 	{
-		private string ServiceName = "Eddie Elevation Service";
+		private string ServiceName = "EddieElevationService";
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();		
 		private string m_oldMetricInterface = "";
 		private int m_oldMetricIPv4 = -1;
@@ -1459,7 +1459,7 @@ namespace Eddie.Platform.Windows
 				return Software.FindResource("tap-windows-xp");
 		}
 
-		public override void InstallDriver()
+		public override bool InstallDriver()
 		{
 			string driverPath = GetDriverInstallerPath();
 
@@ -1469,17 +1469,21 @@ namespace Eddie.Platform.Windows
 			SystemShell.ShellUserEvent(driverPath, "/S", true);
 
 			System.Threading.Thread.Sleep(3000);
+
+			return (GetDriverAvailable() != "");
 		}
 
-		public override void UnInstallDriver()
+		public override bool UnInstallDriver()
 		{
 			string uninstallPath = GetDriverUninstallPath();
 			if (uninstallPath == "")
-				return;
+				return false;
 
 			SystemShell.ShellUserEvent(uninstallPath, "/S", true);
 
 			System.Threading.Thread.Sleep(3000);
+
+			return (GetDriverAvailable() == "");
 		}
 
 		public override void OnJsonNetworkInfo(Json jNetworkInfo)

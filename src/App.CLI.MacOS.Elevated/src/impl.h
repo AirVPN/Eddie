@@ -1,4 +1,4 @@
-// <eddie_source_header>
+﻿// <eddie_source_header>
 // This file is part of Eddie/AirVPN software.
 // Copyright (C)2014-2016 AirVPN (support@airvpn.org) / https://airvpn.org
 //
@@ -20,17 +20,25 @@
 
 class Impl: public IBSD
 {
-public:
+    // Virtual
+protected:
 	virtual int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
 	/*virtual void CheckIfExecutableIsAllowed(const std::string& path);*/
-	virtual std::string GetProcessPathOfID(int pid);
+    virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
+    void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
+    
+    // Virtual Pure, OS
+protected:
+    virtual std::string GetProcessPathOfId(int pid);
+    virtual pid_t GetProcessIdOfName(const std::string& name);
 
 private:
+    // Private
 	int FileImmutableSet(const std::string& path, const int flag);
 	int FileGetFlags(const std::string& path);
-    int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
+    
 	std::vector<std::string> GetNetworkInterfaces();
 };
 

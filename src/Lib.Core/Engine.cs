@@ -1990,7 +1990,18 @@ namespace Eddie.Core
 			return null;
 		}
 
-		public Tool GetOpenVpnTool()
+        public bool GetUseOpenVpnManagement()
+        {
+			if (GetOpenVpnTool() is Tools.OpenVPN)
+            {
+                if (Platform.Instance.GetTunStatsMode() == "OpenVpnManagement") // Eddie macOS don't yet implement an OS method for network adapter stats
+                    return true;
+            }
+
+            return false;
+        }
+
+        public Tool GetOpenVpnTool()
 		{
 			if(Storage.GetBool("tools.hummingbird.preferred"))
 			{

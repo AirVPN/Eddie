@@ -20,14 +20,19 @@
 
 class Impl: public IPosix
 {
-public:
+    // Virtual
+protected:
 	virtual int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
     virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
-	virtual std::string GetProcessPathCurrent();
-    virtual std::string GetProcessPathOfID(int pid);
+	
+    // Virtual Pure, OS
+protected:
+    virtual std::string GetProcessPathCurrent();
+    virtual std::string GetProcessPathOfId(int pid);
 
 private:
+    // Private
 	int FileImmutableSet(const std::string& path, const int flag);
     std::string IptablesExecutable(const std::string& layer, const std::string& action);
     std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);

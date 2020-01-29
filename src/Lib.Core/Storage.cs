@@ -474,7 +474,6 @@ namespace Eddie.Core
 			SetDefault("proxy.password", "password", "", LanguageManager.GetText("ManOptionProxyPassword"));
 			SetDefaultInt("proxy.tor.control.port", 9151, LanguageManager.GetText("ManOptionProxyTorControlPort"));
 			SetDefaultBool("proxy.tor.control.auth", true, LanguageManager.GetText("ManOptionProxyTorControlAuth"));
-			SetDefault("proxy.tor.control.cookie-path", "", "", NotInMan);
 			SetDefault("proxy.tor.path", "", "", NotInMan);
 			SetDefault("proxy.tor.control.password", "password", "", LanguageManager.GetText("ManOptionProxyTorControlPassword"));
 

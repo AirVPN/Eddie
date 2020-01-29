@@ -30,6 +30,51 @@ namespace Eddie.Core
 		public static IpAddresses m_lastGuardIps;
 		public static Int64 m_lastGuardTime;
 
+		public static bool m_torDetection = false;
+		public static string m_torProcessName;
+		public static string m_torProcessPath;
+		public static string m_torCookiePath;
+		public static byte[] m_torCookiePassword;
+
+		public static void Init()
+		{
+			if (m_torDetection)
+				return;
+
+			ElevatedProcess.Command c = new ElevatedProcess.Command();
+			c.Parameters["command"] = "tor-get-info";
+
+			c.Parameters["name"] = "tor";
+			string customPath = Engine.Instance.Storage.Get("proxy.tor.path");
+			if (customPath != "")
+				c.Parameters["path"] = customPath;
+            c.Parameters["username"] = Environment.UserName;
+
+			string torInfo = Engine.Instance.Elevated.DoCommandSync(c);
+
+			foreach (string line in torInfo.Split('\n'))
+			{ 
+				if (line.StartsWithInv("Name:"))
+					m_torProcessName = line.Substring("Name:".Length);
+				if (line.StartsWithInv("Path:"))
+					m_torProcessPath = line.Substring("Path:".Length);
+				if (line.StartsWithInv("CookiePath:"))
+					m_torCookiePath = line.Substring("CookiePath:".Length);
+				if (line.StartsWithInv("CookiePasswordHex:"))
+					m_torCookiePassword = ExtensionsString.HexToBytes(line.Substring("CookiePasswordHex:".Length));
+			} 
+
+			m_torDetection = true; 
+		} 
+
+		public static string GetTorExecutablePath()
+		{
+			Init();
+
+			return m_torProcessPath;
+		}
+
+		/*
 		public static string GetTorExecutablePath()
 		{
 			string customPath = Engine.Instance.Storage.Get("proxy.tor.path");
@@ -46,17 +91,11 @@ namespace Eddie.Core
 			}
 			return "";
 		}
-
+		
 		public static string GetControlAuthCookiePath()
-		{
-			string cookieCustomPath = Engine.Instance.Storage.Get("proxy.tor.control.cookie-path");
-			if (cookieCustomPath != "")
-			{
-				if (Platform.Instance.FileExists(cookieCustomPath))
-					return cookieCustomPath;
-			}
-
+		{			
 			string executablePath = GetTorExecutablePath();
+
 			if (executablePath != "")
 			{
 				// Tor Browser Bundle, Unix and Windows at 10/16/2014				
@@ -81,7 +120,7 @@ namespace Eddie.Core
 				string path = "/var/lib/tor/control_auth_cookie";
 				if (Platform.Instance.FileExists(path))
 					return path;
-			}
+			} 
 
 			{
 				// macOS, TorBrowser 4.0 and above
@@ -98,8 +137,9 @@ namespace Eddie.Core
 			}
 
 			// Not found
-			return "";
+			return "";			
 		}
+		*/
 
 		public static void Connect(TcpClient client)
 		{
@@ -119,22 +159,22 @@ namespace Eddie.Core
 
 			byte[] password = System.Text.Encoding.ASCII.GetBytes(controlPassword);
 
-			if (controlAuthenticate)
+			if (controlAuthenticate) 
 			{
 				if (controlPassword == "")
 				{
-					string path = GetControlAuthCookiePath();
+					Init();
 
-					if (path == "")
+					if(m_torCookiePath == "")					
 						throw new Exception(LanguageManager.GetText("TorControlNoPath"));
 
-					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlAuth", "Cookie, from " + path, GetTorExecutablePath()));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlAuth", "Cookie, from " + m_torCookiePath));
 
-					password = Platform.Instance.FileContentsReadBytes(path);
+					password = m_torCookiePassword; 
 				}
 				else
 				{
-					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlAuth", "Password", GetTorExecutablePath()));
+					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlAuth", "Password"));
 				}
 			}
 
@@ -169,12 +209,12 @@ namespace Eddie.Core
 
 					result = Read(s);
 
-					if ((result.IndexOf("250 OK") != -1) && (result.IndexOf("version=") != -1))
+					if ((result.IndexOfInv("250 OK") != -1) && (result.IndexOfInv("version=") != -1))
 					{
 						result = result.Replace("250-", "").Trim();
 						result = result.Replace("250 OK", "");
 						result = result.Replace("version=", "");
-						result = LanguageManager.GetText("TorControlTest", result.Trim(), GetTorExecutablePath());
+						result = LanguageManager.GetText("TorControlTest", result.Trim());
 					}
 				}
 			}
