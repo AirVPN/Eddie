@@ -18,23 +18,23 @@
 
 #include "../../App.CLI.Common.Elevated.C/iposix.h"
 
-class Impl: public IPosix
+class Impl : public IPosix
 {
-    // Virtual
+	// Virtual
 protected:
 	virtual int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
-    virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
-	
-    // Virtual Pure, OS
+	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
+
+	// Virtual Pure, OS
 protected:
-    virtual std::string GetProcessPathCurrent();
-    virtual std::string GetProcessPathOfId(int pid);
+	virtual std::string GetProcessPathCurrent();
+	virtual std::string GetProcessPathOfId(int pid);
 
 private:
-    // Private
+	// Private
 	int FileImmutableSet(const std::string& path, const int flag);
-    std::string IptablesExecutable(const std::string& layer, const std::string& action);
-    std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);
+	std::string IptablesExecutable(const std::string& layer, const std::string& action);
+	std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);
 };
 

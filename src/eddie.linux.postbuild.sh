@@ -68,6 +68,7 @@ ELEVATED_SPECIAL="STANDARD"
 if [ -f "/etc/arch-release" ]; then
 	ELEVATED_SPECIAL="NOLZMA"
 fi
+chmod +x "$BASEPATH/App.CLI.Linux.Elevated/build.sh"
 "$BASEPATH/App.CLI.Linux.Elevated/build.sh" "$CONFIG" "$ELEVATED_SPECIAL"
 cp "$BASEPATH/App.CLI.Linux.Elevated/bin/eddie-cli-elevated" "$OUTPATH"
 

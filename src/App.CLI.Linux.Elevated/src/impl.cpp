@@ -28,7 +28,7 @@
 #include <signal.h> // for signal()
 
 #ifndef EDDIE_NOLZMA
-	#include "loadmod.h"
+#include "loadmod.h"
 #endif
 
 #include "impl.h"
@@ -39,129 +39,129 @@
 
 int Impl::Main()
 {
-    std::string serviceName = "eddie-elevated";
-    std::string serviceDesc = "Eddie Elevation";
-    std::string systemdPath = "/usr/lib/systemd/system";
-    std::string systemdUnitName = serviceName + ".service";
-    std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
-    
-    signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
-    signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
-    
-    prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
-    
-    // fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "block");
-    
-    if ( (m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "install") )
-    {
+	std::string serviceName = "eddie-elevated";
+	std::string serviceDesc = "Eddie Elevation";
+	std::string systemdPath = "/usr/lib/systemd/system";
+	std::string systemdUnitName = serviceName + ".service";
+	std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
+
+	signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
+	signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
+
+	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
+
+	// fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "block");
+
+	if ((m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "install"))
+	{
 		std::string elevatedPath = GetProcessPathCurrent();
-        
-        if(FileExists(systemdPath))
-        {
-            if(FileExists(systemdUnitPath)) // Remove if exists
-            {
-                ShellEx2(LocateExecutable("systemctl"), "stop", systemdUnitName);        
-                ShellEx2(LocateExecutable("systemctl"), "disable", systemdUnitName);        
-                FileDelete(systemdUnitPath);
-            }
-            
-            std::string unit = "";
-            unit += "[Unit]\n";
-            unit += "Description=" + serviceDesc + "\n";
-            unit += "Requires=network.target\n";
-            unit += "After=network.target\n";
-            unit += "\n";
-            unit += "[Service]\n";
-            unit += "Type=simple\n";
-            unit += "ExecStart=\"" + elevatedPath + "\" mode=service allowed_hash=" + m_cmdline["allowed_hash"] + "\n";
-            unit += "Restart=always\n";
-            unit += "RestartSec=5s\n";
-            unit += "TimeoutStopSec=5s\n";
-            unit += "User=root\n";
-            unit += "Group=root\n";
-            unit += "\n";
-            unit += "[Install]\n";
-            unit += "WantedBy=multi-user.target\n";
-            
-            FileWriteText(systemdUnitPath, unit);
-        
-            ShellResult enableResult = ShellEx2(LocateExecutable("systemctl"), "enable", systemdUnitName);        
-            if(enableResult.exit != 0)
-            {
-                LogLocal("Enable " + systemdUnitName + " failed");
-                return 1;
-            }
-            
-            ShellResult startResult = ShellEx2(LocateExecutable("systemctl"), "start", systemdUnitName);        
-            if(startResult.exit != 0)
-            {
-                LogLocal("Start " + systemdUnitName + " failed");
-                return 1;
-            }
-            
-            return 0;
-        }
-        else
-        {
-            LogLocal("Can't create service in this OS");
-        }
-        
-        return 1;
-    }
-    else if ( (m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "uninstall") )
-    {
-        if(FileExists(systemdUnitPath))
-        {
-            ShellEx2(LocateExecutable("systemctl"), "stop", systemdUnitName);        
-            ShellEx2(LocateExecutable("systemctl"), "disable", systemdUnitName);        
-            FileDelete(systemdUnitPath);
-            
-            return 0;
-        }
-        else
-        {
-            LogLocal("Can't create service in this OS");
-        }
-        
-        return 1;
-    }
-    else
-    {
-        return IPosix::Main();
-    }
+
+		if (FileExists(systemdPath))
+		{
+			if (FileExists(systemdUnitPath)) // Remove if exists
+			{
+				ShellEx2(LocateExecutable("systemctl"), "stop", systemdUnitName);
+				ShellEx2(LocateExecutable("systemctl"), "disable", systemdUnitName);
+				FileDelete(systemdUnitPath);
+			}
+
+			std::string unit = "";
+			unit += "[Unit]\n";
+			unit += "Description=" + serviceDesc + "\n";
+			unit += "Requires=network.target\n";
+			unit += "After=network.target\n";
+			unit += "\n";
+			unit += "[Service]\n";
+			unit += "Type=simple\n";
+			unit += "ExecStart=\"" + elevatedPath + "\" mode=service allowed_hash=" + m_cmdline["allowed_hash"] + "\n";
+			unit += "Restart=always\n";
+			unit += "RestartSec=5s\n";
+			unit += "TimeoutStopSec=5s\n";
+			unit += "User=root\n";
+			unit += "Group=root\n";
+			unit += "\n";
+			unit += "[Install]\n";
+			unit += "WantedBy=multi-user.target\n";
+
+			FileWriteText(systemdUnitPath, unit);
+
+			ShellResult enableResult = ShellEx2(LocateExecutable("systemctl"), "enable", systemdUnitName);
+			if (enableResult.exit != 0)
+			{
+				LogLocal("Enable " + systemdUnitName + " failed");
+				return 1;
+			}
+
+			ShellResult startResult = ShellEx2(LocateExecutable("systemctl"), "start", systemdUnitName);
+			if (startResult.exit != 0)
+			{
+				LogLocal("Start " + systemdUnitName + " failed");
+				return 1;
+			}
+
+			return 0;
+		}
+		else
+		{
+			LogLocal("Can't create service in this OS");
+		}
+
+		return 1;
+	}
+	else if ((m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "uninstall"))
+	{
+		if (FileExists(systemdUnitPath))
+		{
+			ShellEx2(LocateExecutable("systemctl"), "stop", systemdUnitName);
+			ShellEx2(LocateExecutable("systemctl"), "disable", systemdUnitName);
+			FileDelete(systemdUnitPath);
+
+			return 0;
+		}
+		else
+		{
+			LogLocal("Can't create service in this OS");
+		}
+
+		return 1;
+	}
+	else
+	{
+		return IPosix::Main();
+	}
 }
 
 void Impl::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
 	if (command == "compatibility-profiles")
-    {
-        //LogRemote("parent pid:" + std::to_string(getppid()));
-        
-        const std::string& dataPath = params["path-data"];
-        
-        if(FileExists(dataPath) == false)
-        {
-            // Rename old .airvpn to .eddie if exists, and change owner (<2.17.3 are root-only)
-            std::string oldPath = dataPath;
-            size_t pos = oldPath.find_last_of("/");
-            if(pos != std::string::npos)
-            {
-                oldPath = oldPath.substr(0, pos) + "/../.airvpn";
-                if(FileExists(oldPath))
-                {
-                    const std::string& newOwner = params["owner"];
-                    FileMove(oldPath, dataPath);
-                    std::vector<std::string> args;
-                    args.push_back("-R");
-                    args.push_back(newOwner);
-                    args.push_back(dataPath);
-                    std::string stdout;
-                    std::string stderr;
-                    Shell("chown", args, false, "", stdout, stderr);
-                }
-            }
-        }
-    }
+	{
+		//LogRemote("parent pid:" + std::to_string(getppid()));
+
+		const std::string& dataPath = params["path-data"];
+
+		if (FileExists(dataPath) == false)
+		{
+			// Rename old .airvpn to .eddie if exists, and change owner (<2.17.3 are root-only)
+			std::string oldPath = dataPath;
+			size_t pos = oldPath.find_last_of("/");
+			if (pos != std::string::npos)
+			{
+				oldPath = oldPath.substr(0, pos) + "/../.airvpn";
+				if (FileExists(oldPath))
+				{
+					const std::string& newOwner = params["owner"];
+					FileMove(oldPath, dataPath);
+					std::vector<std::string> args;
+					args.push_back("-R");
+					args.push_back(newOwner);
+					args.push_back(dataPath);
+					std::string stdout;
+					std::string stderr;
+					Shell("chown", args, false, "", stdout, stderr);
+				}
+			}
+		}
+	}
 	else if (command == "file-immutable-set")
 	{
 		std::string path = params["path"];
@@ -173,9 +173,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "dns-flush")
 	{
-        int pidSystemD = GetProcessIdOfName("systemd");
-        
-        std::map<std::string, int> restarted;
+		int pidSystemD = GetProcessIdOfName("systemd");
+
+		std::map<std::string, int> restarted;
 		std::vector<std::string> services = StringToVector(params["services"], ';');
 
 		if (pidSystemD != 0)
@@ -185,40 +185,40 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 			if ((servicePath != "") && (systemctlPath != ""))
 			{
-                ShellResult systemCtlListUnits = ShellEx2(systemctlPath, "list-units", "--no-pager");
-                if(systemCtlListUnits.exit != 0)
-                {
-                    std::vector<std::string> lines = StringToVector(systemCtlListUnits.out, '\n');
-                    for (std::vector<std::string>::const_iterator l = lines.begin(); l != lines.end(); ++l)
-                    {
-                        std::string line = *l;
-                        for (std::vector<std::string>::const_iterator iS = services.begin(); iS != services.end(); ++iS)
-                        {
-                            std::string service = *iS;
-                            if (restarted.find(service) != restarted.end())
-                                continue;
-                            if (StringStartsWith(line, service + ".service") == false)
-                                continue;
-                            if (StringContain(line, " running ") == false)
-                                continue;
-                            
-                            LogRemote("Flush DNS - " + service + " via systemd");
-                            ShellEx2(servicePath, StringEnsureSecure(service), "restart");
-                            restarted[service] = 1;
-                        }
-                    }
-                }
+				ShellResult systemCtlListUnits = ShellEx2(systemctlPath, "list-units", "--no-pager");
+				if (systemCtlListUnits.exit != 0)
+				{
+					std::vector<std::string> lines = StringToVector(systemCtlListUnits.out, '\n');
+					for (std::vector<std::string>::const_iterator l = lines.begin(); l != lines.end(); ++l)
+					{
+						std::string line = *l;
+						for (std::vector<std::string>::const_iterator iS = services.begin(); iS != services.end(); ++iS)
+						{
+							std::string service = *iS;
+							if (restarted.find(service) != restarted.end())
+								continue;
+							if (StringStartsWith(line, service + ".service") == false)
+								continue;
+							if (StringContain(line, " running ") == false)
+								continue;
+
+							LogRemote("Flush DNS - " + service + " via systemd");
+							ShellEx2(servicePath, StringEnsureSecure(service), "restart");
+							restarted[service] = 1;
+						}
+					}
+				}
 			}
-            
-            // Special case - Not need, restarted above
-            /*
-            std::string systemdResolvePath = LocateExecutable("systemd-resolve");
-            if (systemdResolvedPath != "")
-			    ShellOut1(systemdResolvedPath, "--flush-caches");
-            */
+
+			// Special case - Not need, restarted above
+			/*
+			std::string systemdResolvePath = LocateExecutable("systemd-resolve");
+			if (systemdResolvedPath != "")
+				ShellOut1(systemdResolvedPath, "--flush-caches");
+			*/
 		}
-        
-        // InitD
+
+		// InitD
 		{
 			for (std::vector<std::string>::const_iterator i = services.begin(); i != services.end(); ++i)
 			{
@@ -227,35 +227,35 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				{
 					if (FileExists("/etc/init.d/" + service))
 					{
-                        LogRemote("Flush DNS - " + service + " via init.d");
+						LogRemote("Flush DNS - " + service + " via init.d");
 						ShellEx1("/etc/init.d/" + service, "restart");
 					}
 				}
 			}
 		}
-        
-        // Other specific approach
-        {
-            for (std::vector<std::string>::const_iterator i = services.begin(); i != services.end(); ++i)
-            {
-                std::string service = *i;
-                if (restarted.find(service) == restarted.end())
-                {
-                    if(service == "nscd")
-                    {
-                        // Special case
-                        // On some system, for example Fedora, nscd caches are saved to disk,
-                        // located in /var/db/nscd, and not flushed with a simple restart. 
-                        std::string nscdPath = LocateExecutable("nscd");
-                        if (nscdPath != "")
-                        {
-                            LogRemote("Flush DNS - nscd");
-                            ShellEx1(nscdPath, "--invalidate=hosts");
-                        }
-                    }
-                }
-            }
-        }
+
+		// Other specific approach
+		{
+			for (std::vector<std::string>::const_iterator i = services.begin(); i != services.end(); ++i)
+			{
+				std::string service = *i;
+				if (restarted.find(service) == restarted.end())
+				{
+					if (service == "nscd")
+					{
+						// Special case
+						// On some system, for example Fedora, nscd caches are saved to disk,
+						// located in /var/db/nscd, and not flushed with a simple restart. 
+						std::string nscdPath = LocateExecutable("nscd");
+						if (nscdPath != "")
+						{
+							LogRemote("Flush DNS - nscd");
+							ShellEx1(nscdPath, "--invalidate=hosts");
+						}
+					}
+				}
+			}
+		}
 
 		ReplyCommand(commandId, "1");
 	}
@@ -287,182 +287,182 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		else
 			ReplyCommand(commandId, "0");
 	}
-    else if (command == "ipv6-block")
-    {   
-        std::vector<std::string> interfaces = FilesInPath("/proc/sys/net/ipv6/conf");
-        for (std::vector<std::string>::const_iterator i = interfaces.begin(); i != interfaces.end(); ++i)
-        {
-            std::string interfaceName = *i;
-            
-            if(interfaceName == "all") // When switch all, all others autoswitch. Prefer a specific approach.
-                continue;
-                
-            if(interfaceName == "lo")
-                continue;
-                
-            std::string curVal = StringTrim(FileReadText("/proc/sys/net/ipv6/conf/" + interfaceName + "/disable_ipv6"));
-            
-            if(curVal == "1")
-            {
-                // Nothing to do
-            }
-            else if(curVal == "0")
-            {
-                ShellResult switchResult = ShellEx2(LocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=1");
-                if(switchResult.exit == 0)
-                {
-                    ReplyCommand(commandId, interfaceName);
-                }
-                else
-                {
-                    ThrowException("Unexpected error when disable IPv6 on interface " + interfaceName);
-                }
-            }
-            else
-            {
-                // Unexpected, nothing to do
-                LogRemote("Unexpected status " + curVal + " of disable_ipv6 for interface " + interfaceName);
-            }
-        }
-    }
-    else if (command == "ipv6-restore")
-    {
-        std::string interfaceName = params["interface"];
-        ShellResult switchResult = ShellEx2(LocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=0");
-        if(switchResult.exit == 0)
-        {
-        }
-        else
-        {
-            // Ignore
-        }
-    }
-    else if (command == "netlock-iptables-available")
-    {
-        bool available = true;
-        if(IptablesExecutable("ipv4","") == "")
-            available = false;
-        if(IptablesExecutable("ipv4","save") == "")
-            available = false;
-        if(IptablesExecutable("ipv4","restore") == "")
-            available = false;
-        if(IptablesExecutable("ipv6","") == "")
-            available = false;
-        if(IptablesExecutable("ipv6","save") == "")
-            available = false;
-        if(IptablesExecutable("ipv6","restore") == "")
-            available = false;
-        ReplyCommand(commandId, available ? "1":"0");
-    }
-    else if (command == "netlock-iptables-activate")
-    {
-        std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
-        std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
-        
-        std::string result = "";
-        
-        if( (FileExists(pathIPv4)) || (FileExists(pathIPv6)) )
-        {
-            ThrowException("Unexpected: Already active");
-        }
-        else
-        {
-            // Try to up kernel module - For example standard Debian 8 KDE don't have it at boot
-            if(params.count("rules-ipv4")>0)
-            {
+	else if (command == "ipv6-block")
+	{
+		std::vector<std::string> interfaces = FilesInPath("/proc/sys/net/ipv6/conf");
+		for (std::vector<std::string>::const_iterator i = interfaces.begin(); i != interfaces.end(); ++i)
+		{
+			std::string interfaceName = *i;
+
+			if (interfaceName == "all") // When switch all, all others autoswitch. Prefer a specific approach.
+				continue;
+
+			if (interfaceName == "lo")
+				continue;
+
+			std::string curVal = StringTrim(FileReadText("/proc/sys/net/ipv6/conf/" + interfaceName + "/disable_ipv6"));
+
+			if (curVal == "1")
+			{
+				// Nothing to do
+			}
+			else if (curVal == "0")
+			{
+				ShellResult switchResult = ShellEx2(LocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=1");
+				if (switchResult.exit == 0)
+				{
+					ReplyCommand(commandId, interfaceName);
+				}
+				else
+				{
+					ThrowException("Unexpected error when disable IPv6 on interface " + interfaceName);
+				}
+			}
+			else
+			{
+				// Unexpected, nothing to do
+				LogRemote("Unexpected status " + curVal + " of disable_ipv6 for interface " + interfaceName);
+			}
+		}
+	}
+	else if (command == "ipv6-restore")
+	{
+		std::string interfaceName = params["interface"];
+		ShellResult switchResult = ShellEx2(LocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=0");
+		if (switchResult.exit == 0)
+		{
+		}
+		else
+		{
+			// Ignore
+		}
+	}
+	else if (command == "netlock-iptables-available")
+	{
+		bool available = true;
+		if (IptablesExecutable("ipv4", "") == "")
+			available = false;
+		if (IptablesExecutable("ipv4", "save") == "")
+			available = false;
+		if (IptablesExecutable("ipv4", "restore") == "")
+			available = false;
+		if (IptablesExecutable("ipv6", "") == "")
+			available = false;
+		if (IptablesExecutable("ipv6", "save") == "")
+			available = false;
+		if (IptablesExecutable("ipv6", "restore") == "")
+			available = false;
+		ReplyCommand(commandId, available ? "1" : "0");
+	}
+	else if (command == "netlock-iptables-activate")
+	{
+		std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
+		std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
+
+		std::string result = "";
+
+		if ((FileExists(pathIPv4)) || (FileExists(pathIPv6)))
+		{
+			ThrowException("Unexpected: Already active");
+		}
+		else
+		{
+			// Try to up kernel module - For example standard Debian 8 KDE don't have it at boot
+			if (params.count("rules-ipv4") > 0)
+			{
 #ifndef EDDIE_NOLZMA
-                int ret = load_kernel_module("iptable_filter", "");
-                if( (ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED) )
-                    ThrowException("Unable to initialize iptable_filter module");
+				int ret = load_kernel_module("iptable_filter", "");
+				if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+					ThrowException("Unable to initialize iptable_filter module");
 #else
-                // Shell version, used under Linux Arch, for issue with link LZMA
-                std::string modprobePath = LocateExecutable("modprobe");
-                if(modprobePath != "")
-                {
-                	ShellResult modprobeIptable4FilterResult = ShellEx1(modprobePath, "iptable_filter");
-                    if(modprobeIptable4FilterResult.exit != 0)
-                        ThrowException("Unable to initialize iptable_filter module");
-                }
+				// Shell version, used under Linux Arch, for issue with link LZMA
+				std::string modprobePath = LocateExecutable("modprobe");
+				if (modprobePath != "")
+				{
+					ShellResult modprobeIptable4FilterResult = ShellEx1(modprobePath, "iptable_filter");
+					if (modprobeIptable4FilterResult.exit != 0)
+						ThrowException("Unable to initialize iptable_filter module");
+				}
 #endif
-            }
-            
-            if(params.count("rules-ipv6")>0)
-            {
+			}
+
+			if (params.count("rules-ipv6") > 0)
+			{
 #ifndef EDDIE_NOLZMA
-                int ret = load_kernel_module("ip6table_filter", "");
-                if( (ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED) )
-                    ThrowException("Unable to initialize iptable_filter module");
+				int ret = load_kernel_module("ip6table_filter", "");
+				if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+					ThrowException("Unable to initialize iptable_filter module");
 #else
-                // Shell version, used under Linux Arch, for issue with link LZMA
-                std::string modprobePath = LocateExecutable("modprobe");
-                if(modprobePath != "")
-                {
-                	ShellResult modprobeIptable6FilterResult = ShellEx1(modprobePath, "ip6table_filter");
-                    if(modprobeIptable6FilterResult.exit != 0)
-                        ThrowException("Unable to initialize ip6table_filter module");
-                }
+				// Shell version, used under Linux Arch, for issue with link LZMA
+				std::string modprobePath = LocateExecutable("modprobe");
+				if (modprobePath != "")
+				{
+					ShellResult modprobeIptable6FilterResult = ShellEx1(modprobePath, "ip6table_filter");
+					if (modprobeIptable6FilterResult.exit != 0)
+						ThrowException("Unable to initialize ip6table_filter module");
+				}
 #endif
-            }
-            
-            // Backup of current
-            std::vector<std::string> args;
-            
-            if(params.count("rules-ipv4")>0)
-            {
-                std::string backupIPv4 = IptablesExec(IptablesExecutable("ipv4","save"), args, false, "");
-                if(StringContain(backupIPv4, "*filter") == false)
-                    ThrowException("iptables don't reply, probabily kernel modules issue");
-                FileWriteText(pathIPv4,backupIPv4);
-            }
-            if(params.count("rules-ipv6")>0)
-            {
-                std::string backupIPv6 = IptablesExec(IptablesExecutable("ipv6","save"), args, false, "");
-                if(StringContain(backupIPv6, "*filter") == false)
-                    ThrowException("ip6tables don't reply, probabily kernel modules issue");
-                FileWriteText(pathIPv6,backupIPv6);
-            }
-            
-            // Apply new
-            if(params.count("rules-ipv4")>0)
-                result += IptablesExec(IptablesExecutable("ipv4","restore"), args, true, params["rules-ipv4"]);
-            if(params.count("rules-ipv6")>0)
-                result += IptablesExec(IptablesExecutable("ipv6","restore"), args, true, params["rules-ipv6"]);
-        }
-        
-        ReplyCommand(commandId, StringTrim(result));
-    }
-    else if (command == "netlock-iptables-deactivate")
-    {
-        std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
-        std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
-        
-        //bool wasActive = false;
-        std::string result = "";
-        
-        if(FileExists(pathIPv4))
-        {
-            //wasActive = true;
-            
-            std::vector<std::string> args;
-            std::string body = FileReadText(pathIPv4);
-            result += IptablesExec(IptablesExecutable("ipv4","restore"), args, true, body);
-            
-            FileDelete(pathIPv4);
-        }
-        
-        if(FileExists(pathIPv6))
-        {
-            //wasActive = true;
-            
-            std::vector<std::string> args;
-            std::string body = FileReadText(pathIPv6);
-            result += IptablesExec(IptablesExecutable("ipv6","restore"), args, true, body);
-            
-            FileDelete(pathIPv6);
-        }
-        
-        ReplyCommand(commandId, StringTrim(result));
-    }
+			}
+
+			// Backup of current
+			std::vector<std::string> args;
+
+			if (params.count("rules-ipv4") > 0)
+			{
+				std::string backupIPv4 = IptablesExec(IptablesExecutable("ipv4", "save"), args, false, "");
+				if (StringContain(backupIPv4, "*filter") == false)
+					ThrowException("iptables don't reply, probabily kernel modules issue");
+				FileWriteText(pathIPv4, backupIPv4);
+			}
+			if (params.count("rules-ipv6") > 0)
+			{
+				std::string backupIPv6 = IptablesExec(IptablesExecutable("ipv6", "save"), args, false, "");
+				if (StringContain(backupIPv6, "*filter") == false)
+					ThrowException("ip6tables don't reply, probabily kernel modules issue");
+				FileWriteText(pathIPv6, backupIPv6);
+			}
+
+			// Apply new
+			if (params.count("rules-ipv4") > 0)
+				result += IptablesExec(IptablesExecutable("ipv4", "restore"), args, true, params["rules-ipv4"]);
+			if (params.count("rules-ipv6") > 0)
+				result += IptablesExec(IptablesExecutable("ipv6", "restore"), args, true, params["rules-ipv6"]);
+		}
+
+		ReplyCommand(commandId, StringTrim(result));
+	}
+	else if (command == "netlock-iptables-deactivate")
+	{
+		std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
+		std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
+
+		//bool wasActive = false;
+		std::string result = "";
+
+		if (FileExists(pathIPv4))
+		{
+			//wasActive = true;
+
+			std::vector<std::string> args;
+			std::string body = FileReadText(pathIPv4);
+			result += IptablesExec(IptablesExecutable("ipv4", "restore"), args, true, body);
+
+			FileDelete(pathIPv4);
+		}
+
+		if (FileExists(pathIPv6))
+		{
+			//wasActive = true;
+
+			std::vector<std::string> args;
+			std::string body = FileReadText(pathIPv6);
+			result += IptablesExec(IptablesExecutable("ipv6", "restore"), args, true, body);
+
+			FileDelete(pathIPv6);
+		}
+
+		ReplyCommand(commandId, StringTrim(result));
+	}
 	else if (command == "netlock-iptables-accept-ip")
 	{
 		std::string path = "";
@@ -471,11 +471,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		bool stdinWrite = false;
 		std::string stdinBody = "";
 		int nCommands = 1;
-        
-        if (params["layer"] == "ipv4")
-			path = IptablesExecutable("ipv4","");
+
+		if (params["layer"] == "ipv4")
+			path = IptablesExecutable("ipv4", "");
 		else if (params["layer"] == "ipv6")
-			path = IptablesExecutable("ipv6","");
+			path = IptablesExecutable("ipv6", "");
 		else
 			ThrowException("Unknown layer");
 
@@ -515,7 +515,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		args1.push_back("ACCEPT");
 
 		// Additional rule for incoming
-		if ( (directionName == "INPUT") && (directionIp == "-s") )
+		if ((directionName == "INPUT") && (directionIp == "-s"))
 		{
 			nCommands++;
 			if (params["action"] == "add")
@@ -542,21 +542,21 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args2.push_back("-j");
 			args2.push_back("ACCEPT");
 		}
-		
+
 		std::string output = "";
 
 		for (int l = 0; l < nCommands; l++)
 		{
-            std::vector<std::string>* args;
-			if(l == 0)
+			std::vector<std::string>* args;
+			if (l == 0)
 				args = &args1;
 			else
 				args = &args2;
 
 			output += IptablesExec(path, *args, stdinWrite, stdinBody);
 		}
-        
-        ReplyCommand(commandId, StringTrim(output));
+
+		ReplyCommand(commandId, StringTrim(output));
 	}
 	else if (command == "route")
 	{
@@ -581,22 +581,22 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("metric");
 			args.push_back(StringEnsureNumericInt(params["metric"]));
 		}
-        
-        ShellResult routeResult = ShellEx(LocateExecutable("ip"), args);
-        bool accepted = (routeResult.exit == 0);
-        
+
+		ShellResult routeResult = ShellEx(LocateExecutable("ip"), args);
+		bool accepted = (routeResult.exit == 0);
+
 		if (params["action"] == "delete")
 		{
 			// Still accepted: The device are not available anymore, so the route are already deleted.
 			if (StringContain(StringToLower(routeResult.output()), "cannot find device"))
-                accepted = true;
+				accepted = true;
 
 			// Still accepted: Already deleted.
 			if (StringContain(StringToLower(routeResult.output()), "no such process"))
 				accepted = true;
 		}
-        
-        if (accepted == false)
+
+		if (accepted == false)
 			ThrowException(routeResult.err);
 	}
 	else
@@ -607,9 +607,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
 {
-    // Missing under Linux: in other platform (Windows, macOS) check if signature of client match.
-    // LocalLog("Checking if " + path + " is allowed");
-    return "ok";
+	// Missing under Linux: in other platform (Windows, macOS) check if signature of client match.
+	// LocalLog("Checking if " + path + " is allowed");
+	return "ok";
 }
 
 // --------------------------
@@ -620,72 +620,72 @@ std::string Impl::GetProcessPathCurrent()
 {
 	char buffer[4096];
 	int n = readlink("/proc/self/exe", buffer, sizeof(buffer));
-    if(n == -1)
-    {
-        ThrowException("Fail to detect exe path");
-        return "";
-    }
-    else
-    {
-	    std::string path = std::string(buffer, n);
-        return path;
-    }
+	if (n == -1)
+	{
+		ThrowException("Fail to detect exe path");
+		return "";
+	}
+	else
+	{
+		std::string path = std::string(buffer, n);
+		return path;
+	}
 }
 
 std::string Impl::GetProcessPathOfId(int pid)
 {
-    char fullPath[FILENAME_MAX];
-    std::string procExePath = "/proc/" + std::to_string(pid) + "/exe";
-    int length = readlink(procExePath.c_str(), fullPath, sizeof(fullPath));
-    if (length < 0)
-        return "";
-    else if (length >= FILENAME_MAX)
-        return "";
-    else
-    {
-        std::string path = std::string(fullPath, length);
-        
-        // Exception: If mono, detect Assembly
-        bool isMono = false;
-        std::string pathMono1 = LocateExecutable("mono");
-        if( (pathMono1 != "") && (StringStartsWith(path, pathMono1)) )
-            isMono = true;
-        std::string pathMono2 = LocateExecutable("mono-sgen");
-        if( (pathMono2 != "") && (StringStartsWith(path, pathMono2)) )
-            isMono = true;
-        if(isMono)
-        {
-            std::string procCmdLinePath = "/proc/" + std::to_string(pid) + "/cmdline";
-            if(FileExists(procCmdLinePath))
-            {
-                std::string subpath = "";
-                std::vector<char> cmdline = FileReadBytes(procCmdLinePath);
-                ulong iField = 0;
-                for(ulong i=0;i<cmdline.size();i++)
-                {
-                    if(cmdline[i] == 0)
-                    {
-                        if( (iField>0) && (subpath != "") && (StringStartsWith(subpath,"-") == false) )
-                        {
-                            path = subpath;
-                            break;
-                        }
-                        else
-                        {
-                            iField++;
-                            subpath = "";
-                        }
-                    }
-                    else
-                    {
-                        subpath += cmdline[i];
-                    }
-                }
-            }
-        }
-        
-        return path;
-    }
+	char fullPath[FILENAME_MAX];
+	std::string procExePath = "/proc/" + std::to_string(pid) + "/exe";
+	int length = readlink(procExePath.c_str(), fullPath, sizeof(fullPath));
+	if (length < 0)
+		return "";
+	else if (length >= FILENAME_MAX)
+		return "";
+	else
+	{
+		std::string path = std::string(fullPath, length);
+
+		// Exception: If mono, detect Assembly
+		bool isMono = false;
+		std::string pathMono1 = LocateExecutable("mono");
+		if ((pathMono1 != "") && (StringStartsWith(path, pathMono1)))
+			isMono = true;
+		std::string pathMono2 = LocateExecutable("mono-sgen");
+		if ((pathMono2 != "") && (StringStartsWith(path, pathMono2)))
+			isMono = true;
+		if (isMono)
+		{
+			std::string procCmdLinePath = "/proc/" + std::to_string(pid) + "/cmdline";
+			if (FileExists(procCmdLinePath))
+			{
+				std::string subpath = "";
+				std::vector<char> cmdline = FileReadBytes(procCmdLinePath);
+				ulong iField = 0;
+				for (ulong i = 0; i < cmdline.size(); i++)
+				{
+					if (cmdline[i] == 0)
+					{
+						if ((iField > 0) && (subpath != "") && (StringStartsWith(subpath, "-") == false))
+						{
+							path = subpath;
+							break;
+						}
+						else
+						{
+							iField++;
+							subpath = "";
+						}
+					}
+					else
+					{
+						subpath += cmdline[i];
+					}
+				}
+			}
+		}
+
+		return path;
+	}
 }
 
 // --------------------------
@@ -713,66 +713,66 @@ int Impl::FileImmutableSet(const std::string& path, const int flag)
 
 		fclose(fp);
 	}
-    return result;
+	return result;
 }
 
 std::string Impl::IptablesExecutable(const std::string& layer, const std::string& action)
 {
-    std::string name = "";
-    
-    if(layer == "ipv4")
-        name += "iptables";
-    else if(layer == "ipv6")
-        name += "ip6tables";
-    else
-        return "";
-        
-    if(action != "")
-        name += "-" + action;
-        
-    std::string legacyName = StringReplaceAll(name, "tables", "tables-legacy");
-    std::string legacyPath = LocateExecutable(legacyName);
-    if(legacyPath != "")
-        return legacyPath;
-    std::string path = LocateExecutable(name);
-    return path;
+	std::string name = "";
+
+	if (layer == "ipv4")
+		name += "iptables";
+	else if (layer == "ipv6")
+		name += "ip6tables";
+	else
+		return "";
+
+	if (action != "")
+		name += "-" + action;
+
+	std::string legacyName = StringReplaceAll(name, "tables", "tables-legacy");
+	std::string legacyPath = LocateExecutable(legacyName);
+	if (legacyPath != "")
+		return legacyPath;
+	std::string path = LocateExecutable(name);
+	return path;
 }
 
 std::string Impl::IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody)
 {
-    std::string stdout;
-    std::string stderr;
-    bool done = false;
-    std::string output;
+	std::string stdout;
+	std::string stderr;
+	bool done = false;
+	std::string output;
 
-    for (int t = 0; t < 10; t++)
-    {
-        int exitCode = Shell(path, args, stdinWrite, stdinBody, stdout, stderr);
-        
-        if (StringContain(StringToLower(stderr), "temporarily unavailable")) // Older Debian (iptables without --wait)
-        {
-            usleep(500000);
-            continue;
-        }
+	for (int t = 0; t < 10; t++)
+	{
+		int exitCode = Shell(path, args, stdinWrite, stdinBody, stdout, stderr);
 
-        if (StringContain(StringToLower(stderr), "xtables lock")) // Newest Debian (iptables with --wait but not automatic)
-        {
-            usleep(500000);
-            continue;
-        }
+		if (StringContain(StringToLower(stderr), "temporarily unavailable")) // Older Debian (iptables without --wait)
+		{
+			usleep(500000);
+			continue;
+		}
 
-        if (exitCode != 0)
-            ThrowException(stderr);
-        else
-        {
-            done = true;
-            output += stdout + "\n";
-            break;
-        }
-    }
-    
-    if(done == false)
-        ThrowException(stderr);
-        
-    return output;
+		if (StringContain(StringToLower(stderr), "xtables lock")) // Newest Debian (iptables with --wait but not automatic)
+		{
+			usleep(500000);
+			continue;
+		}
+
+		if (exitCode != 0)
+			ThrowException(stderr);
+		else
+		{
+			done = true;
+			output += stdout + "\n";
+			break;
+		}
+	}
+
+	if (done == false)
+		ThrowException(stderr);
+
+	return output;
 }

@@ -92,6 +92,7 @@ HUMMINGBIRDHASH=$(echo $HUMMINGBIRDHASH | cut -d "=" -f 2 | awk '{print $1}') # 
 sed -E -i .bak "s/expectedHummingbirdHash = \"([0-9a-f]{64})\";/expectedHummingbirdHash = \"${HUMMINGBIRDHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
 
 # Compile and Copy Elevated
+chmod +x "$BASEPATH/App.CLI.MacOS.Elevated/build.sh"
 "$BASEPATH/App.CLI.MacOS.Elevated/build.sh" "$CONFIG"
 
 if [ $PROJECT = "ui" ]; then

@@ -49,6 +49,8 @@ function arch_env() {
 	if [ "$1" = "self" ]; then
 		echo "Build local";
 		sed -i "s|{@pkgname}|eddie-ui|g" PKGBUILD    
+		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
+
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
 		updpkgsums
 		makepkg -f
@@ -61,8 +63,15 @@ function arch_env() {
 		if [ "$1" = "git" ]; then
 			echo "Update official repo git edition"
 			sed -i "s|{@pkgname}|eddie-ui-git|g" PKGBUILD    
+			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - beta version|g" PKGBUILD    
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
-			git clone https://aur.archlinux.org/eddie-ui-git.git
+			echo Enter AUR passphrase if requested
+			git clone ssh://aur@aur.archlinux.org/eddie-ui-git.git
+			cd eddie-ui-git
+			cp ../PKGBUILD .
+			cp ../eddie-ui.install .
+			updpkgsums
+			makepkg --printsrcinfo > .SRCINFO			
 		elif [ "$1" = "stable" ]; then
 			echo "Update official repo release edition"
 			sed -i "s|{@pkgname}|eddie-ui|g" PKGBUILD    
@@ -71,20 +80,25 @@ function arch_env() {
 		fi
 		git config user.name "Eddie.website"
 		git config user.email "maintainer@eddie.website"
+		git add .SRCINFO
+		git add eddie-ui.install
+		git add PKGBUILD
+		git commit -m "${VERSION}"
+		git push
 	fi   
 }
 
-arch_env self "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
+#arch_env self "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
 
 # Update official repo
-if test -f "${SCRIPTDIR}/../signing/gpg.passphrase.pazzo"; then # Staff AirVPN
-	arch_env git "${SCRIPTDIR}/../files/repo-arch/" "${SCRIPTDIR}"
+if test -f "${SCRIPTDIR}/../signing/gpg.passphrase"; then # Staff AirVPN
+	arch_env git "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
 	#arch_env release
 fi
 
 # Cleanup
 echo Step: Final cleanup
-#pazzo rm -rf ${TARGETDIR}
+rm -rf ${TARGETDIR}
 echo Build linux_arch complete
 
 
