@@ -46,10 +46,9 @@ if [ $PROJECT = "ui" ]; then
 fi
 
 # Adapt Elevated
-# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated.C/ibase.cpp' source for details
+# Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated/ibase.cpp' source for details
 
-
-ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated.C/ibase.cpp
+ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated/hashes.h
 
 OPENVPNPATH="${BASEPATH}/../deploy/linux_${ARCH}/openvpn"
 OPENVPNHASH=$(sha256sum "${OPENVPNPATH}");
@@ -73,12 +72,7 @@ chmod +x "$BASEPATH/App.CLI.Linux.Elevated/build.sh"
 cp "$BASEPATH/App.CLI.Linux.Elevated/bin/eddie-cli-elevated" "$OUTPATH"
 
 # Compile and Copy Native
+chmod +x "${BASEPATH}/Lib.Platform.Linux.Native/build.sh"
 "${BASEPATH}/Lib.Platform.Linux.Native/build.sh" "$CONFIG"
-#cd "${BASEPATH}/Lib.Platform.Linux.Native"
-#if [ $ARCH = "armhf" ]; then
-#	./build-armhf.sh	
-#else
-#	./build-multilib.sh
-#fi
 cp "$BASEPATH/Lib.Platform.Linux.Native/bin/libLib.Platform.Linux.Native.so" "$OUTPATH"
 

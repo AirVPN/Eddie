@@ -224,7 +224,7 @@
 		Delete "$INSTDIR\ssleay32.dll"
 		Delete "$INSTDIR\libeay32.dll"
 		
-		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service-uninstall'
+		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall'
 		
 		; Basic (required) Eddie files...
 		{@files_add}
@@ -258,7 +258,7 @@
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "https://airvpn.org"
 		CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 				
-		;ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service-install' ; No, missing hash fron NSIS
+		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=install'
 		
 		!insertmacro MUI_STARTMENU_WRITE_END
 		
@@ -270,7 +270,7 @@
 
 Section "Uninstall"
 
-	ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service-uninstall'
+	ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall'
 
 	{@files_delete}
 		

@@ -124,9 +124,6 @@ namespace Eddie.Core
 			{				
 				m_thread = null;
 			}
-
-			if (this is Jobs.RealtimeNetworkStats)
-				Console.WriteLine("x");
 		}
 
 		public void Sleep(int ms)

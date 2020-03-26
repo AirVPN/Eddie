@@ -20,17 +20,26 @@ echo Project: %project%
 echo Arch: %arch%
 echo Config: %config%
 
-copy "%basepath%\..\deploy\windows-10_%arch%\Lib.Platform.Windows.Native.dll" "%targetdir%" /Y /V
-copy "%basepath%\Lib.Platform.Windows.Elevated\bin\%arch%\%config%\Lib.Platform.Windows.Elevated.dll" "%targetdir%\Lib.Platform.Windows.Elevated.dll" /Y /V
-copy "%basepath%\App.CLI.Windows.Elevated\bin\%arch%\%config%\App.CLI.Windows.Elevated.exe" "%targetdir%\Eddie-CLI-Elevated.exe" /Y /V
-copy "%basepath%\App.Service.Windows.Elevated\bin\%arch%\%config%\App.Service.Windows.Elevated.exe" "%targetdir%\Eddie-Service-Elevated.exe" /Y /V
+rem Compile and copy Elevated - CLI Edition
+call %basepath%\App.CLI.Windows.Elevated\build.bat %config% %arch% || goto :error
+copy %basepath%\App.CLI.Windows.Elevated\bin\%arch%\%config%\App.CLI.Windows.Elevated.exe "%targetdir%"\Eddie-CLI-Elevated.exe /Y /V || goto :error
+
+rem Compile and copy Elevated - Service Edition
+call %basepath%\App.Service.Windows.Elevated\build.bat %config% %arch% || goto :error
+copy %basepath%\App.Service.Windows.Elevated\bin\%arch%\%config%\App.Service.Windows.Elevated.exe "%targetdir%"\Eddie-Service-Elevated.exe /Y /V || goto :error
+
+rem Compile and copy native library
+call %basepath%\Lib.Platform.Windows.Native\build.bat %config% %arch% || goto :error
+copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\%config%\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || goto :error
 
 goto done
 
 :error
-echo Wrong arguments
+echo Something wrong
+exit 1
 
 :done
+exit 0
 
 
 

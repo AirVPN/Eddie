@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
@@ -197,8 +198,7 @@ namespace Eddie.Platform.MacOS
 
             if (value)
             {
-                string clientHash = Core.Crypto.Manager.HashSHA256File(GetExecutablePath());
-                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "allowed_hash=" + clientHash }, Engine.Instance.ConsoleMode);
+                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, Engine.Instance.ConsoleMode);
                 return (GetService() == true);
             }
             else
@@ -501,7 +501,7 @@ namespace Eddie.Platform.MacOS
 			return base.LocateResource(relativePath);
 		}
 
-        /* // This works, but we use base to avoid shell.
+		/* // This works, but we use base to avoid shell.
 		public override long Ping(IpAddress host, int timeoutSec)
 		{
 			if ((host == null) || (host.Valid == false))
@@ -537,7 +537,7 @@ namespace Eddie.Platform.MacOS
         }
         */
 
-		public override string GetDriverAvailable()
+		public override string GetDriverVersion(string driver)
 		{
 			return "Expected";
 		}
@@ -952,14 +952,44 @@ namespace Eddie.Platform.MacOS
 
 			return true;
 		}
+        
+        public override Json GetRealtimeNetworkStats()
+        {
+            // Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
 
-		public override string GetTunStatsMode()
-		{
-			// Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
-			return "OpenVpnManagement";
-		}
+            Json result = new Json();
+            result.EnsureArray();
 
-		public override void OnJsonNetworkInfo(Json jNetworkInfo)
+            int maxLen = 1024;
+            byte[] buf = new byte[maxLen];
+            NativeMethods.eddie_get_realtime_network_stats(buf, maxLen);
+            string jNativeStr = System.Text.Encoding.ASCII.GetString(buf);
+
+            Json jNative = Json.Parse(jNativeStr);
+
+            // Expect the sequence is the same.
+            // C++ edition don't detect interface name right now, otherwise NetworkInterface here can be removed.
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            for(int i = 0;i< interfaces.Length;i++)
+            {
+                if(i<jNative.GetArray().Count)
+                {
+                    Json jNativeIf = jNative.GetIndex(i) as Json;
+
+                    Int64 rcv = jNativeIf["rcv"].ValueInt64;
+                    Int64 snd = jNativeIf["snd"].ValueInt64;
+                    Json jInterface = new Json();
+                    jInterface["id"].Value = interfaces[i].Id;
+                    jInterface["rcv"].Value = rcv;
+                    jInterface["snd"].Value = snd;
+                    result.Append(jInterface);
+                }
+            }
+
+            return result;
+        }
+
+        public override void OnJsonNetworkInfo(Json jNetworkInfo)
 		{
 			// Step1: Set IPv6 support to true by default.
 			// From base virtual, always 'false'. Missing Mono implementation? 

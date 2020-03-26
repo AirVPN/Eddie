@@ -115,7 +115,10 @@ namespace Eddie.Platform.MacOS
 		[DllImport(NativeLibName)]
 		public static extern void eddie_signal(int signum, eddie_sighandler handler);
 
-		[DllImport(NativeLibName)]
+        [DllImport(NativeLibName)]
 		public static extern int eddie_kill(int pid, int sig);
-	}
+
+        [DllImport(NativeLibName)]
+        public static extern void eddie_get_realtime_network_stats(byte[] buf, int bufMaxLen);
+    }
 }

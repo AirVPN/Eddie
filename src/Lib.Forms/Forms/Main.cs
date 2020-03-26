@@ -1821,7 +1821,7 @@ namespace Eddie.Forms.Forms
 				}
 				else
 				{
-					if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
+                    if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
 						return;
 
 					// For refresh Mono-Linux
@@ -1971,7 +1971,7 @@ namespace Eddie.Forms.Forms
 							EnabledUi();
 						}
 					}
-				}
+                }
 			}
 			catch (Exception ex)
 			{

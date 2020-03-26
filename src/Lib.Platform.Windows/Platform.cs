@@ -38,6 +38,12 @@ namespace Eddie.Platform.Windows
 	public class Platform : Core.Platform
 	{
 		private string ServiceName = "EddieElevationService";
+		private string WindowsDriverTapId = "0901";
+		private string WindowsDriverTapVersion = "9.24.2";
+		private string WindowsDriverWintunId = "wintun";
+		private string WindowsDriverWintunVersion = "0.8";
+		private string WindowsXpDriverTapVersion = "9.9.2";
+
 		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();		
 		private string m_oldMetricInterface = "";
 		private int m_oldMetricIPv4 = -1;
@@ -77,7 +83,7 @@ namespace Eddie.Platform.Windows
 
 		// Override
 		public Platform()
-		{
+		{			
 		}
 
 		public override string GetCode()
@@ -448,8 +454,7 @@ namespace Eddie.Platform.Windows
 				processStart.UseShellExecute = true;
 				if (value)
 				{
-					string clientHash = Core.Crypto.Manager.HashSHA512File(GetExecutablePath());
-					processStart.Arguments = "service=install allowed_hash=" + clientHash;
+					processStart.Arguments = "service=install service_port=" + Engine.Instance.GetElevatedServicePort();
 					System.Diagnostics.Process p = System.Diagnostics.Process.Start(processStart);
 					p.WaitForExit();
 					return (GetService() == true);
@@ -625,7 +630,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.FlushDNS();
 			
-			Engine.Instance.Elevated.DoCommandSync("dns-flush", "full", (Engine.Instance.Storage.GetBool("windows.workarounds") ? "1" : "0"));
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "mode", (Engine.Instance.Storage.GetBool("windows.workarounds") ? "max" : "normal"));
 			
 			SystemShell.Shell1(LocateExecutable("ipconfig.exe"), "/flushdns");
 		}
@@ -738,27 +743,20 @@ namespace Eddie.Platform.Windows
 			return list;
 		}
 
-		public override bool WaitTunReady()
+		public override bool WaitTunReady(ConnectionActive connection)
 		{
 			int tickStart = Environment.TickCount;
 			string lastStatus = "";
 
 			for (; ; )
 			{
-				NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-				foreach (NetworkInterface adapter in interfaces)
+				if (connection.Interface.OperationalStatus == OperationalStatus.Up)
+					return true;
+				else
 				{
-					if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
-					{
-						if (adapter.OperationalStatus == OperationalStatus.Up)
-							return true;
-						else
-						{
-							lastStatus = adapter.OperationalStatus.ToString();
-						}
-					}
+					lastStatus = connection.Interface.OperationalStatus.ToString();
 				}
-
+					
 				if (Environment.TickCount - tickStart > 10000)
 				{
 					Engine.Instance.Logs.Log(LogType.Warning, "Tunnel not ready in 10 seconds, contact our support. Last interface status: " + lastStatus);
@@ -891,6 +889,30 @@ namespace Eddie.Platform.Windows
 			}
 		}
 
+		public override void OpenVpnConfigNormalize(OvpnBuilder ovpn)
+		{
+			if (Engine.Instance.GetOpenVpnTool().VersionUnder("2.5"))
+			{
+				ovpn.RemoveDirective("windows-driver");
+			}
+
+			if(ovpn.ExistsDirective("windows-driver"))
+			{
+				string driver = ovpn.GetOneDirectiveText("windows-driver");
+				if (driver != "wintun")
+					ovpn.RemoveDirective("windows-driver");
+			}
+		}
+
+		public override string GetOvpnDriverRequested(OvpnBuilder ovpn)
+		{
+			string driver = ovpn.GetOneDirectiveText("windows-driver");
+			if (driver == "wintun")
+				return WindowsDriverWintunId;
+			else
+				return WindowsDriverTapId;
+		}
+
 		public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
 		{
 			if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))
@@ -962,7 +984,7 @@ namespace Eddie.Platform.Windows
 						xmlRule.AppendChild(XmlIf2);
 						XmlIf2.SetAttribute("field", "ip_local_interface");
 						XmlIf2.SetAttribute("match", "equal");
-						XmlIf2.SetAttribute("interface", Engine.Instance.ConnectionActive.InterfaceId);
+						XmlIf2.SetAttribute("interface", Engine.Instance.ConnectionActive.Interface.Id);
 						Wfp.AddItem("dns_permit_tap", xmlRule);
 					}
 				}
@@ -990,7 +1012,7 @@ namespace Eddie.Platform.Windows
 					//if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces")))
 					if (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces"))
 						skip = false;
-					if ((Engine.Instance.ConnectionActive != null) && (id == Engine.Instance.ConnectionActive.InterfaceId))
+					if ((Engine.Instance.ConnectionActive != null) && (id == Engine.Instance.ConnectionActive.Interface.Id))
 						skip = false;
 
 					if (skip == false)
@@ -1007,20 +1029,13 @@ namespace Eddie.Platform.Windows
 
 							if (dns.OnlyIPv4.Count == 0)
 							{
-								ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "mode", "dhcp");
 							}
 
 							int nIPv4 = 0;
 							foreach (IpAddress ip in dns.OnlyIPv4.IPs)
 							{
-								if (nIPv4 == 0)
-								{
-									ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
-								}
-								else
-								{
-									ShellToNetsh("interface ipv4 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
-								}
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv4 == 0) ? "static":"add"));
 								nIPv4++;
 							}
 
@@ -1039,20 +1054,13 @@ namespace Eddie.Platform.Windows
 
 							if (dns.OnlyIPv6.Count == 0)
 							{
-								ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "mode", "dhcp");
 							}
 
 							int nIPv6 = 0;
 							foreach (IpAddress ip in dns.OnlyIPv6.IPs)
 							{
-								if (nIPv6 == 0)
-								{
-									ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
-								}
-								else
-								{
-									ShellToNetsh("interface ipv6 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
-								}
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv6 == 0) ? "static" : "add"));
 								nIPv6++;
 							}
 
@@ -1286,206 +1294,7 @@ namespace Eddie.Platform.Windows
 				root.SetAttributeInt("interface-metric-ipv6", m_oldMetricIPv6);
 			}
 		}
-
-		private string GetDriverUninstallPath()
-		{
-			// Note: 32 bit uninstaller can't be viewed by 64 bit app and viceversa.
-			// http://www.rhyous.com/2011/01/24/how-read-the-64-bit-registry-from-a-32-bit-application-or-vice-versa/
-
-			object objUninstallPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TAP-Windows", "UninstallString", "");
-			if (objUninstallPath != null)
-			{
-				string uninstallPath = objUninstallPath as string;
-
-				if (Platform.Instance.FileExists(uninstallPath))
-					return uninstallPath;
-			}
-
-			return "";
-		}
-
-		private string GetDriverVersion()
-		{
-			try
-			{
-				string regPath = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\" + Engine.Instance.Storage.Get("windows.adapter_service");
-
-				object objSysPath = Registry.GetValue(regPath, "ImagePath", "");
-				if (objSysPath != null)
-				{
-					string sysPath = objSysPath as string;
-
-					if (sysPath.StartsWith("\\SystemRoot\\")) // Win 8 and above
-					{
-						sysPath = Platform.Instance.NormalizePath(sysPath.Replace("\\SystemRoot\\", Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep));
-					}
-					else // Relative path, Win 7 and below
-					{
-						sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);
-					}
-
-					if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrNewer()))
-					{
-						// If Eddie is compiled for 32 bit, and architecture is 64 bit, 
-						// tunnel driver path above is real, but Redirector
-						// https://msdn.microsoft.com/en-us/library/aa384187(v=vs.85).aspx
-						// cause issue.
-						// The Sysnative alias was added starting with Windows Vista.
-						sysPath = sysPath.ToLowerInvariant();
-						sysPath = sysPath.Replace("\\system32\\", "\\sysnative\\");
-					}
-
-					if (Platform.Instance.FileExists(sysPath) == false)
-					{
-						throw new Exception(LanguageManager.GetText("OsDriverNoPath", sysPath));
-					}
-
-					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
-					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
-
-					string result = versionInfo.ProductVersion;
-					if (result == null)
-						throw new Exception(LanguageManager.GetText("OsDriverNoVersion", sysPath));
-					if (result.IndexOf(" ") != -1)
-						result = result.Substring(0, result.IndexOf(" "));
-
-					return result;
-				}
-				else
-				{
-					throw new Exception(LanguageManager.GetText("OsDriverNoRegPath"));
-				}
-
-				/* // Not a realtime solution
-				ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Storage.Get("windows.adapter_name") + "'");
-
-				ManagementObjectCollection objCollection = objSearcher.Get();
-
-				foreach (ManagementObject obj in objCollection)
-				{
-					object objVersion = obj["DriverVersion"];
-					if(objVersion != null)
-					{
-						string version = objVersion as string;
-						return version;
-					}				
-				}
-				*/
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(e);
-			}
-
-			return "";
-		}
-
-		public override string GetDriverAvailable()
-		{
-			string result = "";
-			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
-			{
-				// Changed in 2.10.4
-
-				// TAP-Win32 Adapter V9
-				// or
-				// TAP-Windows Adapter V9
-				// or something that start with TAP-Win under XP
-				if (adapter.Description.ToLowerInvariant().StartsWith("tap-win"))
-				{
-					result = adapter.Description;
-					break;
-				}
-			}
-
-			// Remember: uninstalling OpenVPN doesn't remove tap0901.sys, so finding an adapter is mandatory.
-			if (result == "")
-			{
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsDriverNoAdapterFound"));
-				return "";
-			}
-
-			string version = GetDriverVersion();
-
-			if (version == "")
-			{
-				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsDriverNoVersionFound"));
-				return "";
-			}
-
-			string bundleVersion = Constants.WindowsDriverVersion;
-			if (IsVistaOrNewer() == false) // XP
-				bundleVersion = Constants.WindowsXpDriverVersion;
-
-			bool needReinstall = false;
-
-			if (Engine.Instance.Storage.GetBool("windows.disable_driver_upgrade") == false)
-				needReinstall = (version.VersionCompare(bundleVersion) == -1);
-
-			if (needReinstall)
-			{
-				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OsDriverNeedUpgrade", version, bundleVersion));
-				return "";
-			}
-
-			if (result != "")
-				result += ", version ";
-			result += version;
-
-			return result;
-		}
-
-		public override bool CanInstallDriver()
-		{
-			string driverPath = GetDriverInstallerPath();
-
-			return Platform.Instance.FileExists(driverPath);
-		}
-
-		public override bool CanUnInstallDriver()
-		{
-			if (GetDriverUninstallPath() != "")
-				return true;
-
-			return false;
-		}
-
-		public string GetDriverInstallerPath()
-		{
-			if (IsVistaOrNewer())
-				return Software.FindResource("tap-windows");
-			else
-				return Software.FindResource("tap-windows-xp");
-		}
-
-		public override bool InstallDriver()
-		{
-			string driverPath = GetDriverInstallerPath();
-
-			if (driverPath == "")
-				throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable"));
-
-			SystemShell.ShellUserEvent(driverPath, "/S", true);
-
-			System.Threading.Thread.Sleep(3000);
-
-			return (GetDriverAvailable() != "");
-		}
-
-		public override bool UnInstallDriver()
-		{
-			string uninstallPath = GetDriverUninstallPath();
-			if (uninstallPath == "")
-				return false;
-
-			SystemShell.ShellUserEvent(uninstallPath, "/S", true);
-
-			System.Threading.Thread.Sleep(3000);
-
-			return (GetDriverAvailable() == "");
-		}
-
+						
 		public override void OnJsonNetworkInfo(Json jNetworkInfo)
 		{
 			base.OnJsonNetworkInfo(jNetworkInfo);
@@ -1683,6 +1492,167 @@ namespace Eddie.Platform.Windows
 			return "No: Not signed or invalid.";
 		}
 
+		public override string GetDriverVersion(string driver)
+		{
+			try
+			{
+				string sysPath = "";
+
+				if (driver == "0901")
+				{
+					object objSysPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\tap0901", "ImagePath", "");
+					if (objSysPath != null)
+						sysPath = objSysPath as string;
+				}
+				else if (driver == "wintun")
+				{
+					object objSysPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\wintun", "ImagePath", "");
+					if (objSysPath != null)
+						sysPath = objSysPath as string;
+				}
+				else
+					throw new Exception("Unknown driver " + driver);
+
+				sysPath = NormalizeWinSysPath(sysPath);
+
+				if (sysPath != "")
+				{
+					if (Platform.Instance.FileExists(sysPath) == false)
+					{
+						throw new Exception(LanguageManager.GetText("OsDriverNoPath", sysPath));
+					}
+
+					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
+					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
+
+					string result = versionInfo.ProductVersion;
+					if (result == null)
+						throw new Exception(LanguageManager.GetText("OsDriverNoVersion", sysPath));
+					if (result.IndexOf(" ") != -1)
+						result = result.Substring(0, result.IndexOf(" "));
+
+					return result;
+				}
+
+				/* // Not a realtime solution
+				ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Storage.Get("windows.adapter_name") + "'");
+
+				ManagementObjectCollection objCollection = objSearcher.Get();
+
+				foreach (ManagementObject obj in objCollection)
+				{
+					object objVersion = obj["DriverVersion"];
+					if(objVersion != null)
+					{
+						string version = objVersion as string;
+						return version;
+					}				
+				}
+				*/
+			}
+			catch (Exception e)
+			{
+				Engine.Instance.Logs.Log(e);
+			}
+
+			return "";
+		}
+
+		public override string GetTunDriverReport()
+		{
+			string result = "";
+
+			List<string> drivers = new List<string>();
+			drivers.Add(WindowsDriverTapId);
+			drivers.Add(WindowsDriverWintunId);
+
+			foreach (string driver in drivers)
+			{
+				string driverResult = GetDriverVersion(driver);
+				if (driverResult == "")
+					driverResult = "Not found";
+				if (result != "")
+					result += "; ";
+				result += driver + ": " + driverResult;
+			}
+			return result;
+		}
+
+		public override void EnsureDriverAndAdapterAvailable(string driver)
+		{
+			string version = GetDriverVersion(driver);
+
+			string bundleVersion = WindowsDriverTapVersion;
+			if (driver == WindowsDriverTapId)
+			{
+				bundleVersion = WindowsDriverTapVersion;
+				if (IsVistaOrNewer() == false) // XP
+					bundleVersion = WindowsXpDriverTapVersion;
+			}
+			else if (driver == WindowsDriverWintunId)
+				bundleVersion = WindowsDriverWintunVersion;
+
+			bool needInstall = false;
+
+			if (version == "")
+			{
+				needInstall = true;
+				Engine.Instance.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("OsDriverInstall", driver));
+			}
+			else if ((Engine.Instance.Storage.GetBool("windows.disable_driver_upgrade") == false) && (version.VersionCompare(bundleVersion) == -1))
+			{
+				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OsDriverNeedUpgrade", driver, version, bundleVersion));
+				needInstall = true;
+			}
+
+			if (needInstall)
+			{
+				string driverPath = GetDriverInstallerPath(driver);
+
+				if (driverPath == "")
+					throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable", driver));
+
+				if (driver == WindowsDriverTapId)
+					SystemShell.ShellUserEvent(driverPath, "/S", true);
+				else if (driver == WindowsDriverWintunId)
+					SystemShell.ShellUserEvent("msiexec", "/i \"" + driverPath + "\" /quiet /norestart", true);
+
+				if (GetDriverVersion(driver) == "")
+					throw new Exception(LanguageManager.GetText("OsDriverFailed", driver));
+			}
+
+			bool adapterFound = false;			
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				if ((driver == WindowsDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+					adapterFound = true;
+
+				if ((driver == WindowsDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
+					adapterFound = true;
+			}
+
+			if (adapterFound == false)
+			{
+				// throw new Exception(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
+				if (driver == WindowsDriverTapId)
+				{
+					//SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --name \"Eddie tapwin\" --hwid root\\tap0901", true);
+					SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --hwid root\\tap0901", true);
+				}	
+				else if (driver == WindowsDriverWintunId)
+				{
+					//SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --name \"Eddie Wintun\" --hwid wintun", true);
+					SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --hwid wintun", true);
+				}
+			}
+		}
+
+		public override bool UninstallDriver(string driver)
+		{
+			return DriverUninstall(driver);
+		}
+
 		/*
 		public override List<string> GetTrustedPaths()
 		{
@@ -1732,20 +1702,13 @@ namespace Eddie.Platform.Windows
 						{
 							if (entry.Dns.OnlyIPv4.Count == 0)
 							{
-								ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "mode", "dhcp");
 							}
 
 							int nIPv4 = 0;
 							foreach (IpAddress ip in entry.Dns.OnlyIPv4.IPs)
 							{
-								if (nIPv4 == 0)
-								{
-									ShellToNetsh("interface ipv4 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
-								}
-								else
-								{
-									ShellToNetsh("interface ipv4 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
-								}
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv4 == 0) ? "static" : "add"));
 								nIPv4++;
 							}
 
@@ -1757,20 +1720,13 @@ namespace Eddie.Platform.Windows
 						{
 							if (entry.Dns.OnlyIPv6.Count == 0)
 							{
-								ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=dhcp register=primary validate=no");
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "mode", "dhcp");
 							}
 
 							int nIPv6 = 0;
 							foreach (IpAddress ip in entry.Dns.OnlyIPv6.IPs)
 							{
-								if (nIPv6 == 0)
-								{
-									ShellToNetsh("interface ipv6 set dns name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" source=static address=" + ip.Address + " register=primary validate=no");
-								}
-								else
-								{
-									ShellToNetsh("interface ipv6 add dnsserver name=\"" + SystemShell.EscapeInsideQuote(interfaceName) + "\" address=" + ip.Address + " validate=no");
-								}
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv6", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv6 == 0) ? "static" : "add"));
 								nIPv6++;
 							}
 
@@ -1877,13 +1833,7 @@ namespace Eddie.Platform.Windows
 
 			m_listOldDns.Clear();
 		}
-
-		// Temp, until we convert every netsh.exe to single commands // TOFIX
-		private void ShellToNetsh(string args)
-		{
-			Engine.Instance.Elevated.DoCommandSync("netsh", "args", args);			
-		}
-
+				
 		private bool OsSupportIPv4()
 		{
 			object v = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP\\Parameters", "DisabledComponents", "");
@@ -1920,7 +1870,110 @@ namespace Eddie.Platform.Windows
 			}
 			return null;
 		}
+			
 
+		private string NormalizeWinSysPath(string path)
+		{
+			string sysPath = path;
+
+			if (sysPath.StartsWith("\\SystemRoot\\")) // Win 8 and above
+			{
+				sysPath = Platform.Instance.NormalizePath(sysPath.Replace("\\SystemRoot\\", Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep));
+			}
+			else // Relative path, Win 7 and below
+			{
+				sysPath = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("windir") + Platform.Instance.DirSep + sysPath);
+			}
+
+			if ((GetArchitecture() == "x86") && (GetOsArchitecture() == "x64") && (IsVistaOrNewer()))
+			{
+				// If Eddie is compiled for 32 bit, and architecture is 64 bit, 
+				// tunnel driver path above is real, but Redirector cause issue.
+				// https://msdn.microsoft.com/en-us/library/aa384187(v=vs.85).aspx
+				// The Sysnative alias was added starting with Windows Vista.
+				sysPath = sysPath.ToLowerInvariant();
+				sysPath = sysPath.Replace("\\system32\\", "\\sysnative\\");
+			}
+			return sysPath;
+		}
+
+		private string GetDriverInstallerPath(string driver)
+		{
+			if (driver == WindowsDriverWintunId)
+				return Software.FindResource("eddie-wintun");
+			else if (driver == WindowsDriverTapId)
+			{
+				if (IsVistaOrNewer())
+					return Software.FindResource("tap-windows");
+				else
+					return Software.FindResource("tap-windows-xp");
+			}
+			else
+				return "";
+		}
+
+		private string GetDriverUninstallPath(string driver)
+		{
+			if (driver == WindowsDriverWintunId)
+				return Software.FindResource("eddie-wintun");
+			else if (driver == WindowsDriverTapId)
+			{
+				// Note: 32 bit uninstaller can't be viewed by 64 bit app and viceversa.
+				// http://www.rhyous.com/2011/01/24/how-read-the-64-bit-registry-from-a-32-bit-application-or-vice-versa/
+
+				object objUninstallPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\TAP-Windows", "UninstallString", "");
+				if (objUninstallPath != null)
+				{
+					string uninstallPath = objUninstallPath as string;
+
+					if (Platform.Instance.FileExists(uninstallPath))
+						return uninstallPath;
+				}
+			}
+
+			return "";
+		}
+		/*
+		private bool DriverInstall(string driver)
+		{
+			string driverPath = GetDriverInstallerPath(driver);
+
+			if (driverPath == "")
+				throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable"));
+
+			if(driver == WindowsDriverTapId)
+				SystemShell.ShellUserEvent(driverPath, "/S", true);
+			else if(driver == WindowsDriverWintunId)
+				SystemShell.ShellUserEvent("msiexec", "/i \"" + driverPath + "\" /quiet /norestart", true);
+
+			System.Threading.Thread.Sleep(3000);
+
+			return (GetDriverVersion(driver) != "");
+		}
+		*/
+
+		public bool DriverUninstall(string driver)
+		{
+			string driverPath = GetDriverUninstallPath(driver);
+			if (driverPath == "")
+				return false;
+
+			if (driver == WindowsDriverTapId)
+			{
+				SystemShell.ShellUserEvent(driverPath, "/S", true);
+			}
+			else if (driver == WindowsDriverWintunId)
+			{
+				//SystemShell.ShellUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
+				SystemShell.ShellUserEvent("msiexec", "/x \"" + driverPath + "\"", true);
+			}
+				
+
+			System.Threading.Thread.Sleep(3000);
+
+			return (GetDriverVersion(driver) == "");
+		}
+		
 		private static void SystemEvents_SessionEnding(object sender, Microsoft.Win32.SessionEndingEventArgs e)
 		{
 

@@ -44,7 +44,7 @@ namespace Eddie.Core
 			ElevatedProcess.Command c = new ElevatedProcess.Command();
 			c.Parameters["command"] = "tor-get-info";
 
-			c.Parameters["name"] = "tor";
+			c.Parameters["name"] = "tor";			
 			string customPath = Engine.Instance.Storage.Get("proxy.tor.path");
 			if (customPath != "")
 				c.Parameters["path"] = customPath;

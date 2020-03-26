@@ -32,6 +32,7 @@
         </Command>
       </CustomCommands>
     </CustomCommands>
+    <Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -50,6 +51,7 @@
         </Command>
       </CustomCommands>
     </CustomCommands>
+    <Commandlineparameters>path.tools="../../../../../deploy/linux_x86" path.resources="../../../../../common"</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -72,6 +74,7 @@
         </Command>
       </CustomCommands>
     </CustomCommands>
+    <Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -89,6 +92,7 @@
         </Command>
       </CustomCommands>
     </CustomCommands>
+    <Commandlineparameters>path.tools="../../../../../deploy/linux_x64" path.resources="../../../../../common"</Commandlineparameters>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

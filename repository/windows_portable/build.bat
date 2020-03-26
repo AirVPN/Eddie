@@ -86,20 +86,20 @@ rem Signing
 
 SET /p VARSIGNPASSWORD= < "%VARSCRIPTDIR%\..\signing\eddie.pfx.pwd"
 IF exist %VARSCRIPTDIR%\..\signing\eddie.pfx (
-		echo Step: Signing
+	echo Step: Signing
 
-		for %%f in (%VARTARGETDIR%\*.*) do (
-			IF NOT "%%~nxf"=="openvpn.exe" (
-				echo Check signature %%~ff 
-				rem %VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff" | find /i "No signature found"
-				%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
-				if ERRORLEVEL 1 (
-					%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
-				) ELSE (
-					rem Already signed
-				)
+	for %%f in (%VARTARGETDIR%\*.*) do (
+		IF NOT "%%~nxf"=="openvpn.exe" (
+			echo Check signature %%~ff 
+			rem %VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff" | find /i "No signature found"
+			%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
+			if ERRORLEVEL 1 (
+				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
+			) ELSE (
+				rem Already signed
 			)
 		)
+	)
 )
 
 rem Build archive

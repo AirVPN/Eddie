@@ -55,7 +55,7 @@ namespace Eddie.Core
 
 			if (Gateway == "vpn_gateway")
 			{
-				jRoute["interface"].Value = connectionActive.InterfaceId;
+				jRoute["interface"].Value = connectionActive.Interface.Id;
 				IpAddresses vpnGateways = connectionActive.OpenVpnProfileWithPush.ExtractGateway();
 				if (Address.IsV4)
 				{

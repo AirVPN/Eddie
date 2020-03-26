@@ -47,7 +47,7 @@ namespace Eddie.Core
 			// OpenVPN Driver
 			try
 			{
-				TunDriver = Platform.Instance.GetDriverAvailable();
+				TunDriver = Platform.Instance.GetTunDriverReport();
             }
 			catch (Exception e)
 			{
@@ -69,7 +69,10 @@ namespace Eddie.Core
             {
 				AddTool("tap-windows", new Tools.File("tap-windows.exe"));
                 AddTool("tap-windows-xp", new Tools.File("tap-windows-xp.exe"));
-            }			
+
+				AddTool("tapctl", new Tools.File("tapctl.exe"));
+				AddTool("eddie-wintun", new Tools.File("eddie-wintun-" + Platform.Instance.GetOsArchitecture() + ".msi"));
+			}			
 
 			foreach (Tool tool in Tools.Values)
                 tool.UpdatePath();            

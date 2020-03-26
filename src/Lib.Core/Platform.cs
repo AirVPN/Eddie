@@ -899,7 +899,7 @@ namespace Eddie.Core
 			return new IpAddresses();
 		}
 		
-		public virtual bool WaitTunReady()
+		public virtual bool WaitTunReady(ConnectionActive connection)
 		{
 			return true;
 		}
@@ -926,9 +926,26 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public virtual string GetTunStatsMode()
+		public virtual Json GetRealtimeNetworkStats()
 		{
-			return "NetworkInterface";
+			Json result = new Json();
+			result.EnsureArray();
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				string id = adapter.Id;
+				IPv4InterfaceStatistics istats = adapter.GetIPv4Statistics();
+				Int64 bytesRcv = istats.BytesReceived;
+				Int64 bytesSnd = istats.BytesSent;
+
+				Json jInterface = new Json();
+				jInterface["id"].Value = id;
+				//jInterface["ts"].Value = Utils.UnixTimeStamp();
+				jInterface["rcv"].Value = bytesRcv;
+				jInterface["snd"].Value = bytesSnd;
+				result.Append(jInterface);
+			}
+			return result;
 		}
 
 		public virtual void OnReport(Report report)
@@ -1034,6 +1051,16 @@ namespace Eddie.Core
 		{
 		}
 
+		public virtual void OpenVpnConfigNormalize(OvpnBuilder ovpn)
+		{
+			ovpn.RemoveDirective("windows-driver");
+		}
+
+		public virtual string GetOvpnDriverRequested(OvpnBuilder ovpn)
+		{
+			return "os";
+		}
+
 		public virtual bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
 		{
 			return true;
@@ -1062,31 +1089,6 @@ namespace Eddie.Core
 		public virtual bool OnIPv6Restore()
 		{
 			return true;
-		}
-
-		public virtual string GetDriverAvailable()
-		{
-			return LanguageManager.GetText("NotImplemented");
-		}
-
-		public virtual bool CanInstallDriver()
-		{
-			return false;
-		}
-
-		public virtual bool CanUnInstallDriver()
-		{
-			return false;
-		}
-
-		public virtual bool InstallDriver()
-		{
-			return false;
-		}
-
-		public virtual bool UnInstallDriver()
-		{
-			return false;
 		}
 
 		public virtual void OnJsonNetworkInfo(Json jNetworkInfo)
@@ -1136,6 +1138,29 @@ namespace Eddie.Core
         public virtual ElevatedProcess StartElevated()
 		{
 			return null;
+		}
+
+		public virtual string GetDriverVersion(string driver)
+		{
+			return LanguageManager.GetText("NotImplemented");
+		}
+
+		public virtual string GetTunDriverReport()
+		{
+            return GetDriverVersion("");
+        }
+
+		public virtual void EnsureDriverAndAdapterAvailable(string driver)
+		{
+            if (GetDriverVersion(driver) != "")
+                return;
+
+            throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
+        }
+
+		public virtual bool UninstallDriver(string driver)
+		{
+			return false;
 		}
 	}
 }

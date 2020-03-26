@@ -43,14 +43,14 @@ namespace Eddie.Platform.Windows
 
 			try
 			{
-				string connectResult = Connect(Constants.ElevatedServiceTcpPort);
+				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
 				if (connectResult != "Ok") // Will work if the service is active
 				{
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 
 					string helperFullPath = Platform.Instance.GetElevatedHelperPath();
-
+					
 					int port = GetPortSpot();
 
 					System.Diagnostics.Process process = new System.Diagnostics.Process
@@ -58,10 +58,11 @@ namespace Eddie.Platform.Windows
 						StartInfo =
 						{
 							FileName = helperFullPath,
-							Arguments = "mode=spot port=" + port.ToString(),
+							Arguments = "mode=spot spot_port=" + port.ToString() + " service_port=" + Engine.Instance.GetElevatedServicePort().ToString(),
 							Verb = "runas",
 							CreateNoWindow = true,
-							UseShellExecute = true
+							UseShellExecute = true,
+							WindowStyle = ProcessWindowStyle.Hidden
 						}
 					};
 

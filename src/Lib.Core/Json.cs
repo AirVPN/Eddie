@@ -112,6 +112,38 @@ namespace Eddie.Core
 			}
 		}
 
+        public string ValueString
+        {
+            get
+            {
+                return Conversions.ToString(Value);
+            }
+        }
+
+		public bool ValueBool
+		{
+			get
+			{
+				return Conversions.ToBool(Value);
+			}
+		}
+
+		public int ValueInt
+		{
+			get
+			{
+				return Conversions.ToInt32(ValueString);
+			}
+		}
+
+		public Int64 ValueInt64
+		{
+			get
+			{
+				return Conversions.ToInt64(Value);
+			}
+		}
+
 		public override bool Equals(object obj)
 		{
 			// <Rule Id="CA1065" Action="None" /> <!-- Microsoft.Design : 'JsonValue.Equals(object)' creates an exception of type 'Exception'. Exceptions should not be raised in this type of method. If this exception instance might be raised, change this method's logic so it no longer raises an exception. -->

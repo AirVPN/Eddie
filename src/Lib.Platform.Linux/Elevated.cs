@@ -36,7 +36,7 @@ namespace Eddie.Platform.Linux
 
             try 
 			{
-				string connectResult = Connect(Constants.ElevatedServiceTcpPort);
+				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
 				if (connectResult != "Ok") // Will work if the service is active
 				{
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
@@ -60,7 +60,7 @@ namespace Eddie.Platform.Linux
 
 					int port = GetPortSpot();
 
-					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "port=" + port.ToString() }, Engine.Instance.ConsoleMode);
+					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "spot_port=" + port.ToString(), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString() }, Engine.Instance.ConsoleMode);
                     System.Diagnostics.Process process = null;
                     if (pid>0)
                         process = System.Diagnostics.Process.GetProcessById(pid);

@@ -16,7 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#include "../../App.CLI.Common.Elevated.C/iposix.h"
+#include "../../App.CLI.Common.Elevated/iposix.h"
 
 class Impl : public IPosix
 {
@@ -24,6 +24,9 @@ class Impl : public IPosix
 protected:
 	virtual int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
+	virtual bool IsServiceInstalled();
+	virtual bool ServiceInstall();
+	virtual bool ServiceUninstall();
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
 
 	// Virtual Pure, OS

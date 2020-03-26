@@ -511,7 +511,7 @@ namespace Eddie.Core
 				}
 				else if (currentAction == ActionService.Connect)
 				{
-					if (m_threadSession == null)
+                    if (m_threadSession == null)
 						SessionStart();
 				}
 				else if (currentAction == ActionService.Disconnect)
@@ -664,7 +664,7 @@ namespace Eddie.Core
 			RequestStop();
 		}
 
-		public virtual void OnSignal(string signal)
+        public virtual void OnSignal(string signal)
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ReceivedOsSignal", signal));
 			m_breakRequests++;
@@ -676,7 +676,7 @@ namespace Eddie.Core
 			m_breakRequests = 0;
 		}
 
-		public string GetDataPath()
+        public string GetDataPath()
 		{
 			return m_pathData;
 		}
@@ -732,11 +732,11 @@ namespace Eddie.Core
 
 		public void Connect()
 		{
-			if ((CanConnect() == true) && (IsConnected() == false) && (IsWaiting() == false))
+            if ((CanConnect() == true) && (IsConnected() == false) && (IsWaiting() == false))
 			{
-				lock (m_actionsList)
+                lock (m_actionsList)
 				{
-					m_actionsList.Add(Engine.ActionService.Connect);
+                    m_actionsList.Add(Engine.ActionService.Connect);
 				}
 			}
 		}
@@ -792,6 +792,8 @@ namespace Eddie.Core
 			m_areasInfoUpdated = true;
 		}
 
+		// TOCLEAN_OPENVPNMANAGEMENT
+		/*
 		public bool SendManagementCommand(string cmd)
 		{
 			if (m_threadSession != null)
@@ -799,6 +801,7 @@ namespace Eddie.Core
 			else
 				return false;
 		}
+		*/
 
 		public void SetConnected(bool connected)
 		{
@@ -1208,7 +1211,10 @@ namespace Eddie.Core
 						Stats.UpdateValue("VpnRealIp", LanguageManager.GetText("NotAvailable"));
 					Stats.UpdateValue("VpnIp", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractVpnIPs().ToString());
 					Stats.UpdateValue("VpnDns", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractDns().ToString());
-					Stats.UpdateValue("VpnInterface", Engine.ConnectionActive.InterfaceName);
+					if(Engine.ConnectionActive.Interface != null)
+						Stats.UpdateValue("VpnInterface", Engine.ConnectionActive.Interface.Name);
+					else
+						Stats.UpdateValue("VpnInterface", "");
 					Stats.UpdateValue("VpnGateway", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractGateway().ToString());
 					Stats.UpdateValue("VpnCipher", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractCipher());
 					Stats.UpdateValue("VpnControlChannel", Engine.ConnectionActive.ControlChannel);
@@ -1667,26 +1673,6 @@ namespace Eddie.Core
 				}
 				else
 				{
-					// Check Driver
-					if (Engine.Instance.Storage.GetBool("advanced.skip_tun_detect") == false)
-					{
-						if (Platform.Instance.GetDriverAvailable() == "")
-						{
-							if (Platform.Instance.CanInstallDriver())
-							{
-								Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall"), false);
-								Logs.Log(LogType.InfoImportant, LanguageManager.GetText("OsDriverInstall"));
-
-								Platform.Instance.InstallDriver();
-
-								if (Platform.Instance.GetDriverAvailable() == "")
-									throw new Exception(LanguageManager.GetText("OsDriverFailed"));
-							}
-							else
-								throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
-						}
-					}
-
 					if (m_threadSession != null)
 						throw new Exception("Daemon already running.");
 
@@ -1930,6 +1916,11 @@ namespace Eddie.Core
 			return m_jobsManager.Discover.DiscoverExit();
 		}
 
+		public int GetElevatedServicePort()
+		{
+			return Conversions.ToInt32(StartCommandLine.Get("elevated.service.port", Constants.ElevatedServicePort.ToString()));
+		}
+
 		public IpAddress GetDefaultGatewayIPv4()
 		{
 			if (Manifest["network_info"].Json.HasKey("ipv4-default-gateway"))
@@ -1990,17 +1981,6 @@ namespace Eddie.Core
 			return null;
 		}
 
-        public bool GetUseOpenVpnManagement()
-        {
-			if (GetOpenVpnTool() is Tools.OpenVPN)
-            {
-                if (Platform.Instance.GetTunStatsMode() == "OpenVpnManagement") // Eddie macOS don't yet implement an OS method for network adapter stats
-                    return true;
-            }
-
-            return false;
-        }
-
         public Tool GetOpenVpnTool()
 		{
 			if(Storage.GetBool("tools.hummingbird.preferred"))
@@ -2049,9 +2029,7 @@ namespace Eddie.Core
 				Manifest["version"].Value = jVersion;
 				jVersion["name"].Value = Constants.Name;
 				jVersion["text"].Value = Constants.VersionShow;
-				jVersion["int"].Value = Constants.VersionInt;
-				jVersion["tap_windows"].Value = Constants.WindowsDriverVersion;
-				jVersion["tap_windows_xp"].Value = Constants.WindowsXpDriverVersion;
+				jVersion["int"].Value = Constants.VersionInt;				
 
 				Json jUI = new Json();
 				Manifest["ui"].Value = jUI;

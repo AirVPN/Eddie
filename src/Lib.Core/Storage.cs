@@ -426,8 +426,13 @@ namespace Eddie.Core
 		public void EnsureDefaults()
 		{
 			string NotInMan = ""; // Option not listed in 'man' documentation.
+#if DEBUG
+            bool devDefault = true;
+#else
+            bool devDefault = false;
+#endif
 
-			SetDefault("login", "text", "", LanguageManager.GetText("ManOptionLogin"));
+            SetDefault("login", "text", "", LanguageManager.GetText("ManOptionLogin"));
 			SetDefault("password", "password", "", LanguageManager.GetText("ManOptionPassword"));
 			SetDefaultBool("remember", false, LanguageManager.GetText("ManOptionRemember"));
 			SetDefault("key", "text", "Default", LanguageManager.GetText("ManOptionKey"));
@@ -545,18 +550,19 @@ namespace Eddie.Core
 			SetDefaultBool("pinger.enabled", true, LanguageManager.GetText("ManOptionAdvancedPingerEnabled"));
 			SetDefaultInt("pinger.delay", 0, LanguageManager.GetText("ManOptionAdvancedPingerDelay"));
 			SetDefaultInt("pinger.retry", 0, LanguageManager.GetText("ManOptionAdvancedPingerRetry"));
-			SetDefaultInt("pinger.jobs", 10, LanguageManager.GetText("ManOptionAdvancedPingerJobs"));
+			SetDefaultInt("pinger.jobs", 25, LanguageManager.GetText("ManOptionAdvancedPingerJobs"));
 			SetDefaultInt("pinger.valid", 0, LanguageManager.GetText("ManOptionAdvancedPingerValid"));
+            SetDefaultInt("pinger.timeout", 3, NotInMan);
 
-			SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
+            SetDefaultInt("advanced.manifest.refresh", -1, NotInMan);
 			SetDefaultBool("advanced.providers", false, NotInMan);
 
 			SetDefault("bootstrap.urls", "text", "", NotInMan); // ClodoTemp: move to provider level
 
 			SetDefaultBool("advanced.skip_tun_detect", false, NotInMan); // Skip TUN driver detection.
 			SetDefaultBool("advanced.skip_alreadyrun", false, NotInMan); // Continue even if openvpn is already running.
-			SetDefaultBool("connections.allow_anyway", false, NotInMan); // Allow connection even if in 'Not available' status.
-			SetDefaultBool("advanced.testonly", false, NotInMan); // Disconnect when connection occur.
+            SetDefaultBool("connections.allow_anyway", devDefault, NotInMan); // Allow connection even if in 'Not available' status.
+            SetDefaultBool("advanced.testonly", false, NotInMan); // Disconnect when connection occur.
 
 			EnsureDefaultsEvent("app.start");
 			EnsureDefaultsEvent("app.stop");

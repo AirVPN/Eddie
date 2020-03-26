@@ -48,6 +48,22 @@ namespace Eddie.Platform.Windows
 			return eddie_get_interface_metric(idx, layer);
 		}
 
+		/*
+		[DllImport(NativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		private static extern void eddie_curl(string jRequest, int resultMaxLen, byte[] jResult);
+		public static Json CUrl(Json jRequest)
+		{			
+			int resultMaxLen = 4096;
+			byte[] resultBuf = new byte[resultMaxLen];
+			eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
+			Json jResult;
+			if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
+				return jResult;
+			else
+				throw new Exception("CUrl unexpected json error");
+		}
+		*/
+
 		#endregion
 
 		#region Windows

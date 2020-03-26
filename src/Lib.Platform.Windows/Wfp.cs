@@ -99,11 +99,6 @@ namespace Eddie.Platform.Windows
 				}
 
 				Items.Remove(item.Code);
-
-				if (Items.Count == 0)
-				{
-
-				}
 			}
 
 			return true;

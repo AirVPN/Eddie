@@ -49,8 +49,7 @@ namespace Eddie.Core
 		public int Port = 0;
 
 		public string RealIp = LanguageManager.GetText("NotAvailable");
-		public string InterfaceName = "";
-		public string InterfaceId = "";
+		public System.Net.NetworkInformation.NetworkInterface Interface = null;
 		public string ControlChannel = LanguageManager.GetText("NotAvailable");
 		public Int64 TimeServer = 0;
 		public Int64 TimeClient = 0;

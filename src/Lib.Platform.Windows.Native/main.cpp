@@ -35,6 +35,16 @@
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 
+#ifdef EDDIE_CURL
+// Pending work: use libcurl and avoid curl.exe shell.
+#define CURL_STATICLIB
+#include <curl\curl.h>
+#pragma comment(lib, "Crypt32.lib")
+#pragma comment(lib, "Wldap32.lib")
+#pragma comment(lib, "Normaliz.lib")
+#pragma comment(lib, "libcurl_a.lib")
+#endif
+
 /******************************************************************************
 Utils
 *******************************************************************************/
@@ -69,6 +79,20 @@ int eddie_get_interface_metric(int index, const char* layer)
 		return -1;
 }
 
+#ifdef EDDIE_CURL
+void eddie_curl(const char* jRequest, int resultMaxLen, char* jResult)
+{
+	CURL *curl;
+
+	curl = curl_easy_init();
+	curl_easy_cleanup(curl);
+
+	strcpy(jResult, jParams);
+}
+#endif
+
+// TOCLEAN
+/*
 int eddie_set_interface_metric(int index, const char* layer, int value)
 {
 	std::string layerS = layer;
@@ -99,9 +123,8 @@ int eddie_set_interface_metric(int index, const char* layer, int value)
 	return err;
 }
 
-/******************************************************************************
-WFP - CreateDeleteInterface - This method creates or deletes a packet filter interface.
-*******************************************************************************/
+// WFP - CreateDeleteInterface - This method creates or deletes a packet filter interface.
+
 DWORD InterfaceCreate(bool bDynamic)
 {
 	DWORD dwFwAPiRetCode = ERROR_BAD_COMMAND;
@@ -973,3 +996,4 @@ DWORD eddie_wfp_get_last_error_code()
 {
 	return lastErrorCode;
 }
+*/

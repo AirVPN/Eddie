@@ -36,6 +36,11 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <sys/sysctl.h> // used by eddie_get_realtime_network_stats
+#include <netinet/in.h> // used by eddie_get_realtime_network_stats
+#include <net/if.h> // used by eddie_get_realtime_network_stats
+#include <net/route.h> // used by eddie_get_realtime_network_stats
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define EDDIE_PING_BUFFER_SIZE 256
@@ -581,31 +586,89 @@ int eddie_ip_ping(const char *address, int timeout)
 }
 */
     
-    int eddie_ip_ping(const char *address, int timeout)
-    {
-        if(address == NULL)
-            return -1;
-        
-        // Looks for ':' char instead of '.' for compatibility with the notation "::a.b.c.d"
-        bool isv6 = strchr(address, ':') != NULL;
-        
-        std::unique_ptr<IPinger> pinger;
-        if(isv6)
-            pinger.reset(new PingerV6(address, timeout));
-        else
-            pinger.reset(new PingerV4(address, timeout));
-        
-        return pinger->ping();
-    }
+int eddie_ip_ping(const char *address, int timeout)
+{
+    if(address == NULL)
+        return -1;
+    
+    // Looks for ':' char instead of '.' for compatibility with the notation "::a.b.c.d"
+    bool isv6 = strchr(address, ':') != NULL;
+    
+    std::unique_ptr<IPinger> pinger;
+    if(isv6)
+        pinger.reset(new PingerV6(address, timeout));
+    else
+        pinger.reset(new PingerV4(address, timeout));
+    
+    return pinger->ping();
+}
     
 void eddie_signal(int signum, eddie_sighandler_t handler)
 {
     signal(signum, handler);
 }
-    
+  
 int eddie_kill(int pid, int sig)
 {
     return kill((pid_t) pid, sig);
+}
+
+void eddie_get_realtime_network_stats(char* buf, int bufMaxLen)
+{
+    std::string jsonStr = "";
+
+    jsonStr += "[";
+
+    int nRecords=0;
+    
+    int mib[] = {
+        CTL_NET,
+        PF_ROUTE,
+        0,
+        0,
+        NET_RT_IFLIST2,
+        0
+    };
+    size_t len;
+    if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0) {
+        //fprintf(stderr, "sysctl: %s\n", strerror(errno));
+    }
+    else
+    {
+        char *buf = (char *)malloc(len);
+        if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
+            //fprintf(stderr, "sysctl: %s\n", strerror(errno));
+        }
+        else
+        {
+            char *lim = buf + len;
+            char *next = NULL;
+            u_int64_t totalibytes = 0;
+            u_int64_t totalobytes = 0;
+            for (next = buf; next < lim; ) 
+            {
+                struct if_msghdr *ifm = (struct if_msghdr *)next;
+                next += ifm->ifm_msglen;
+                if (ifm->ifm_type == RTM_IFINFO2) 
+                {
+                    struct if_msghdr2 *if2m = (struct if_msghdr2 *)ifm;
+                    totalibytes += if2m->ifm_data.ifi_ibytes;
+                    totalobytes += if2m->ifm_data.ifi_obytes;
+
+                    if(nRecords>0)
+                        jsonStr += ",";
+                    jsonStr += "{ \"id\":" + std::to_string(if2m->ifm_index) + ",\"rcv\":" + std::to_string(if2m->ifm_data.ifi_ibytes) + ",\"snd\":" + std::to_string(if2m->ifm_data.ifi_obytes) + " }";
+                }
+            }
+        }
+        free(buf);
+    }
+    
+    if(jsonStr.size()+3 > bufMaxLen) // Avoid buffer overflow
+        jsonStr = "[";
+    
+    jsonStr += "]";
+    strcpy(buf, jsonStr.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -47,6 +47,8 @@ EDDIE_MACOS_NATIVE_EXPORT void eddie_signal(int signum, eddie_sighandler_t handl
     
 EDDIE_MACOS_NATIVE_EXPORT int eddie_kill(int pid, int sig);
 
+EDDIE_MACOS_NATIVE_EXPORT void eddie_get_realtime_network_stats(char* buf, int bufMaxLen);
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus

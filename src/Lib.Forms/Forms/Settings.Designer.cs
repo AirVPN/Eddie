@@ -54,7 +54,7 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDebugWorkaround = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsTapUp = new Eddie.Forms.Skin.CheckBox();
-			this.cmdAdvancedUninstallDriver = new Eddie.Forms.Skin.Button();
+			this.cmdAdvancedUninstallDriverTap = new Eddie.Forms.Skin.Button();
 			this.chkAdvancedPingerEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.cmdExeBrowse = new Eddie.Forms.Skin.Button();
 			this.txtExePath = new Eddie.Forms.Skin.TextBox();
@@ -242,6 +242,7 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
+			this.cmdAdvancedUninstallDriverWintun = new Eddie.Forms.Skin.Button();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -480,11 +481,12 @@ namespace Eddie.Forms.Forms
 			// pnlAdvancedGeneralWindowsOnly
 			// 
 			this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverWintun);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDebugWorkaround);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsTapUp);
-			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriver);
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverTap);
 			this.pnlAdvancedGeneralWindowsOnly.Location = new System.Drawing.Point(604, 16);
 			this.pnlAdvancedGeneralWindowsOnly.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlAdvancedGeneralWindowsOnly.Name = "pnlAdvancedGeneralWindowsOnly";
@@ -498,7 +500,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkWindowsSshPlinkForce.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsSshPlinkForce.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsSshPlinkForce.Location = new System.Drawing.Point(24, 158);
+			this.chkWindowsSshPlinkForce.Location = new System.Drawing.Point(24, 74);
 			this.chkWindowsSshPlinkForce.Margin = new System.Windows.Forms.Padding(4);
 			this.chkWindowsSshPlinkForce.Name = "chkWindowsSshPlinkForce";
 			this.chkWindowsSshPlinkForce.Size = new System.Drawing.Size(356, 33);
@@ -510,7 +512,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkWindowsDisableDriverUpgrade.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsDisableDriverUpgrade.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(24, 116);
+			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(24, 169);
 			this.chkWindowsDisableDriverUpgrade.Margin = new System.Windows.Forms.Padding(4);
 			this.chkWindowsDisableDriverUpgrade.Name = "chkWindowsDisableDriverUpgrade";
 			this.chkWindowsDisableDriverUpgrade.Size = new System.Drawing.Size(356, 33);
@@ -522,7 +524,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkWindowsDebugWorkaround.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsDebugWorkaround.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(24, 258);
+			this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(24, 119);
 			this.chkWindowsDebugWorkaround.Margin = new System.Windows.Forms.Padding(4);
 			this.chkWindowsDebugWorkaround.Name = "chkWindowsDebugWorkaround";
 			this.chkWindowsDebugWorkaround.Size = new System.Drawing.Size(248, 28);
@@ -542,21 +544,21 @@ namespace Eddie.Forms.Forms
 			this.chkWindowsTapUp.Text = "Force TAP interface UP";
 			this.chkWindowsTapUp.UseVisualStyleBackColor = false;
 			// 
-			// cmdAdvancedUninstallDriver
+			// cmdAdvancedUninstallDriverTap
 			// 
-			this.cmdAdvancedUninstallDriver.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedUninstallDriver.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedUninstallDriver.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedUninstallDriver.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedUninstallDriver.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedUninstallDriver.Location = new System.Drawing.Point(24, 310);
-			this.cmdAdvancedUninstallDriver.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdAdvancedUninstallDriver.Name = "cmdAdvancedUninstallDriver";
-			this.cmdAdvancedUninstallDriver.Size = new System.Drawing.Size(356, 40);
-			this.cmdAdvancedUninstallDriver.TabIndex = 65;
-			this.cmdAdvancedUninstallDriver.Text = "Uninstall Driver";
-			this.cmdAdvancedUninstallDriver.UseVisualStyleBackColor = true;
-			this.cmdAdvancedUninstallDriver.Click += new System.EventHandler(this.cmdAdvancedUninstallDriver_Click);
+			this.cmdAdvancedUninstallDriverTap.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedUninstallDriverTap.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedUninstallDriverTap.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedUninstallDriverTap.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedUninstallDriverTap.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedUninstallDriverTap.Location = new System.Drawing.Point(24, 248);
+			this.cmdAdvancedUninstallDriverTap.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedUninstallDriverTap.Name = "cmdAdvancedUninstallDriverTap";
+			this.cmdAdvancedUninstallDriverTap.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedUninstallDriverTap.TabIndex = 65;
+			this.cmdAdvancedUninstallDriverTap.Text = "Uninstall standard driver";
+			this.cmdAdvancedUninstallDriverTap.UseVisualStyleBackColor = true;
+			this.cmdAdvancedUninstallDriverTap.Click += new System.EventHandler(this.cmdAdvancedUninstallDriver_Click);
 			// 
 			// chkAdvancedPingerEnabled
 			// 
@@ -3041,6 +3043,22 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
+			// cmdAdvancedUninstallDriverWintun
+			// 
+			this.cmdAdvancedUninstallDriverWintun.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedUninstallDriverWintun.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedUninstallDriverWintun.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedUninstallDriverWintun.Location = new System.Drawing.Point(24, 296);
+			this.cmdAdvancedUninstallDriverWintun.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedUninstallDriverWintun.Name = "cmdAdvancedUninstallDriverWintun";
+			this.cmdAdvancedUninstallDriverWintun.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedUninstallDriverWintun.TabIndex = 89;
+			this.cmdAdvancedUninstallDriverWintun.Text = "Uninstall wintun driver";
+			this.cmdAdvancedUninstallDriverWintun.UseVisualStyleBackColor = true;
+			this.cmdAdvancedUninstallDriverWintun.Click += new System.EventHandler(this.cmdAdvancedUninstallDriverWintun_Click);
+			// 
 			// Settings
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -3140,7 +3158,7 @@ namespace Eddie.Forms.Forms
         private Skin.Label label2;
         private Skin.ColumnHeader columnHeader3;
         private Skin.ColumnHeader columnHeader4;
-		private Skin.Button cmdAdvancedUninstallDriver;
+		private Skin.Button cmdAdvancedUninstallDriverTap;
 		private Skin.CheckBox chkAdvancedPingerEnabled;
 		private System.Windows.Forms.GroupBox pnlAdvancedGeneralWindowsOnly;
 		private Skin.TabPage tabLogging;
@@ -3294,5 +3312,6 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkUiSkipPromotional;
 		private Skin.Label lblHummingbirdPrefer;
 		private Skin.CheckBox chkHummingbirdPrefer;
+		private Skin.Button cmdAdvancedUninstallDriverWintun;
 	}
 }

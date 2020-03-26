@@ -33,71 +33,17 @@
 // Virtual
 // --------------------------
 
+std::string serviceName = "eddie-elevated";
+std::string serviceDesc = "Eddie Elevation";
+std::string launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
+
 int Impl::Main()
 {
-	std::string serviceName = "eddie-elevated";
-	std::string serviceDesc = "Eddie Elevation";
-	std::string launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
-
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
 
 	setuid(0); // RootLauncher::AuthorizationExecuteWithPrivileges run elevated with superuser, but without change uid. Forced here.
 
-	if ((m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "install"))
-	{
-		std::string elevatedPath = GetProcessPathCurrent();
-
-		if (FileExists(launchdPath))
-		{
-			ShellEx2(LocateExecutable("launchctl"), "unload", launchdPath);
-		}
-
-		std::string launchd = "";
-		launchd += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-		launchd += "<!DOCTYPE plist PUBLIC \"-//Apple/DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
-		launchd += "<plist version=\"1.0\">\n";
-		launchd += "    <dict>\n";
-
-#ifdef Debug
-		launchd += "        <key>StandardOutPath</key>\n";
-		launchd += "        <string>/tmp/org.airvpn.eddie.ui.elevated.stdoutx</string>\n";
-		launchd += "        <key>StandardErrorPath</key>\n";
-		launchd += "        <string>/tmp/org.airvpn.eddie.ui.elevated.stderr</string>\n";
-#endif
-		launchd += "        <key>Label</key>\n";
-		launchd += "        <string>org.airvpn.eddie.ui.elevated</string>\n";
-		launchd += "           <key>ProgramArguments</key>\n";
-		launchd += "        <array>\n";
-		launchd += "            <string>" + StringXmlEncode(elevatedPath) + "</string>\n";
-		launchd += "            <string>mode=service</string>\n";
-		launchd += "            <string>allowed_hash=" + StringXmlEncode(m_cmdline["allowed_hash"]) + "</string>\n";
-		launchd += "        </array>\n";
-		launchd += "        <key>RunAtLoad</key>\n";
-		launchd += "        <true/>\n";
-		launchd += "        <key>KeepAlive</key>\n";
-		//launchd += "        <string>SuccessfulExit</string>\n";
-		launchd += "        <true/>\n";
-		launchd += "    </dict>\n";
-		launchd += "</plist>\n";
-
-		FileWriteText(launchdPath, launchd);
-
-		ShellResult launchctlResult = ShellEx2(LocateExecutable("launchctl"), "load", launchdPath);
-		return launchctlResult.exit;
-	}
-	else if ((m_cmdline.find("service") != m_cmdline.end()) && (m_cmdline["service"] == "uninstall"))
-	{
-		ShellResult launchctlResult = ShellEx2(LocateExecutable("launchctl"), "unload", launchdPath);
-
-		if (FileExists(launchdPath))
-			FileDelete(launchdPath);
-
-		return launchctlResult.exit;
-	}
-	else
-	{
-		return IBSD::Main();
-	}
+	return IBSD::Main();
 }
 
 void Impl::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
@@ -106,7 +52,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		const std::string& dataPath = params["path-data"];
 
-		if (FileExists(dataPath) == false)
+		if (FsFileExists(dataPath) == false)
 		{
 			// Rename old .airvpn to .eddie if exists, and change owner (<2.17.3 are root-only)
 			std::string oldPath = dataPath;
@@ -114,17 +60,17 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			if (pos != std::string::npos)
 			{
 				oldPath = oldPath.substr(0, pos) + "/../.airvpn";
-				if (FileExists(oldPath))
+				if (FsFileExists(oldPath))
 				{
 					const std::string& newOwner = params["owner"];
-					FileMove(oldPath, dataPath);
+					FsFileMove(oldPath, dataPath);
 					std::vector<std::string> args;
 					args.push_back("-R");
 					args.push_back(newOwner);
 					args.push_back(dataPath);
 					std::string stdout;
 					std::string stderr;
-					Shell(LocateExecutable("chown"), args, false, "", stdout, stderr);
+					Shell(FsLocateExecutable("chown"), args, false, "", stdout, stderr);
 				}
 			}
 		}
@@ -141,7 +87,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	else if (command == "dns-flush")
 	{
 		// 10.5 - 10.6
-		std::string dscacheutilPath = LocateExecutable("dscacheutil");
+		std::string dscacheutilPath = FsLocateExecutable("dscacheutil");
 		if (dscacheutilPath != "")
 		{
 			LogRemote("Flush DNS via dscacheutil");
@@ -149,7 +95,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		}
 
 		// 10.7 - 10.8 - 10.9 - 10.10.4 - 10.11 - Sierra 10.12.0 - 10.14 Mojave
-		std::string killallPath = LocateExecutable("killall");
+		std::string killallPath = FsLocateExecutable("killall");
 		if (killallPath != "")
 		{
 			LogRemote("Flush DNS via nDNSResponder");
@@ -157,7 +103,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		}
 
 		// 10.10.0 - 10.10.3
-		std::string discoveryutilPath = LocateExecutable("discoveryutil");
+		std::string discoveryutilPath = FsLocateExecutable("discoveryutil");
 		if (discoveryutilPath != "")
 		{
 			LogRemote("Flush DNS via discoveryutil");
@@ -167,7 +113,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "dns-switch-do")
 	{
-		std::string networksetupPath = LocateExecutable("networksetup");
+		std::string networksetupPath = FsLocateExecutable("networksetup");
 
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
 
@@ -220,7 +166,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "dns-switch-restore")
 	{
-		std::string networksetupPath = LocateExecutable("networksetup");
+		std::string networksetupPath = FsLocateExecutable("networksetup");
 
 		std::string interfaceName = params["interface"];
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
@@ -239,7 +185,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "ipv6-block")
 	{
-		std::string networksetupPath = LocateExecutable("networksetup");
+		std::string networksetupPath = FsLocateExecutable("networksetup");
 
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
 
@@ -278,7 +224,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "ipv6-restore")
 	{
-		std::string networksetupPath = LocateExecutable("networksetup");
+		std::string networksetupPath = FsLocateExecutable("networksetup");
 
 		std::string interfaceName = params["interface"];
 		std::vector<std::string> newDns = StringToVector(params["dns"], ',');
@@ -313,7 +259,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-pf-activate")
 	{
-		std::string pfPath = LocateExecutable("pfctl");
+		std::string pfPath = FsLocateExecutable("pfctl");
 
 		std::string status = "";
 		{
@@ -321,8 +267,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("-si");
 			ShellResult pfctlStatusResult = ShellEx(pfPath, args);
 			if (pfctlStatusResult.exit != 0)
-				ThrowException("Unexpected status: " + pfctlStatusResult.output());
-			status = StringToLower(pfctlStatusResult.output());
+				ThrowException("Unexpected status: " + pfctlStatusResult.dump());
+			status = StringToLower(pfctlStatusResult.dump());
 		}
 
 		std::string result = "";
@@ -342,9 +288,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("-e");
 			ShellResult pfctlActivationResult = ShellEx(pfPath, args);
 			if (pfctlActivationResult.exit != 0)
-				ThrowException("Activation failure: " + pfctlActivationResult.output());
-			if (StringContain(StringToLower(pfctlActivationResult.output()), "pf enabled") == false)
-				ThrowException("Activation failure: " + pfctlActivationResult.output());
+				ThrowException("Activation failure: " + pfctlActivationResult.dump());
+			if (StringContain(StringToLower(pfctlActivationResult.dump()), "pf enabled") == false)
+				ThrowException("Activation failure: " + pfctlActivationResult.dump());
 		}
 
 		if (prevActive == false)
@@ -358,7 +304,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	}
 	else if (command == "netlock-pf-deactivate")
 	{
-		std::string pfPath = LocateExecutable("pfctl");
+		std::string pfPath = FsLocateExecutable("pfctl");
 
 		// Restore
 		{
@@ -368,7 +314,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("/etc/pf.conf"); // Maybe better
 			ShellResult pfctlRestoreResult = ShellEx(pfPath, args);
 			if (pfctlRestoreResult.exit != 0)
-				ThrowException("Restore failure: " + pfctlRestoreResult.output());
+				ThrowException("Restore failure: " + pfctlRestoreResult.dump());
 		}
 
 		if (params["prev"] == "disabled")
@@ -377,25 +323,25 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("-d");
 			ShellResult pfctlDeactivationResult = ShellEx(pfPath, args);
 			if (pfctlDeactivationResult.exit != 0)
-				ThrowException("Deactivation failure: " + pfctlDeactivationResult.output());
+				ThrowException("Deactivation failure: " + pfctlDeactivationResult.dump());
 		}
 	}
 	else if (command == "netlock-pf-update")
 	{
-		std::string pfPath = LocateExecutable("pfctl");
+		std::string pfPath = FsLocateExecutable("pfctl");
 		std::string tmpPath = GetTempPath("netlock_pf.conf");
 		std::vector<std::string> args;
 		args.push_back("-v");
 		args.push_back("-f");
 		args.push_back(tmpPath);
 
-		FileWriteText(tmpPath, params["config"]);
+		FsFileWriteText(tmpPath, params["config"]);
 		ShellResult pfctlApplyResult = ShellEx(pfPath, args);
-		FileDelete(tmpPath);
+		FsFileDelete(tmpPath);
 
 		if (pfctlApplyResult.exit != 0)
 		{
-			LogRemote("Dump pfctl output: " + pfctlApplyResult.output());
+			LogRemote("Dump pfctl output: " + pfctlApplyResult.dump());
 			LogRemote("Dump pfctl conf: " + params["config"]);
 			ThrowException("Rules not loaded");
 		}
@@ -419,21 +365,21 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		args.push_back(StringEnsureCidr(params["cidr"]));
 		args.push_back(StringEnsureIpAddress(params["gateway"]));
 
-		ShellResult routeResult = ShellEx(LocateExecutable("route"), args);
+		ShellResult routeResult = ShellEx(FsLocateExecutable("route"), args);
 		bool accepted = (routeResult.exit == 0);
 
 		if (params["action"] == "delete")
 		{
 			// Still accepted: The device are not available anymore, so the route are already deleted.
-			if (StringContain(StringToLower(routeResult.output()), "cannot find device"))
+			if (StringContain(StringToLower(routeResult.dump()), "cannot find device"))
 				accepted = true;
 
 			// Still accepted: Already deleted.
-			if (StringContain(StringToLower(routeResult.output()), "no such process"))
+			if (StringContain(StringToLower(routeResult.dump()), "no such process"))
 				accepted = true;
 
 			// Still accepted: Already deleted.
-			if (StringContain(StringToLower(routeResult.output()), "not in table"))
+			if (StringContain(StringToLower(routeResult.dump()), "not in table"))
 				accepted = true;
 		}
 
@@ -444,6 +390,71 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		IPosix::Do(commandId, command, params);
 	}
+}
+
+bool Impl::IsServiceInstalled()
+{
+	return (FsFileExists(launchdPath));
+}
+
+bool Impl::ServiceInstall()
+{
+	std::string elevatedPath = GetProcessPathCurrent();
+	
+	if (FsFileExists(launchdPath))
+	{
+		ShellEx2(FsLocateExecutable("launchctl"), "unload", launchdPath);
+	}
+
+	std::string launchd = "";
+	launchd += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	launchd += "<!DOCTYPE plist PUBLIC \"-//Apple/DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
+	launchd += "<plist version=\"1.0\">\n";
+	launchd += "    <dict>\n";
+
+#ifdef Debug
+	launchd += "        <key>StandardOutPath</key>\n";
+	launchd += "        <string>/tmp/org.airvpn.eddie.ui.elevated.stdoutx</string>\n";
+	launchd += "        <key>StandardErrorPath</key>\n";
+	launchd += "        <string>/tmp/org.airvpn.eddie.ui.elevated.stderr</string>\n";
+#endif
+	launchd += "        <key>Label</key>\n";
+	launchd += "        <string>org.airvpn.eddie.ui.elevated</string>\n";
+	launchd += "           <key>ProgramArguments</key>\n";
+	launchd += "        <array>\n";
+	launchd += "            <string>" + StringXmlEncode(elevatedPath) + "</string>\n";
+	launchd += "            <string>mode=service</string>\n";
+	if (m_cmdline.find("service_port") != m_cmdline.end())
+		launchd += "            <string>service_port=" + StringEnsureSecure(m_cmdline["service_port"]) + "</string>\n";
+	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
+	launchd += "            <string>integrity=" + StringEnsureSecure(integrity) + "</string>\n";
+	launchd += "        </array>\n";
+	launchd += "        <key>RunAtLoad</key>\n";
+	launchd += "        <true/>\n";
+	launchd += "        <key>KeepAlive</key>\n";
+	//launchd += "        <string>SuccessfulExit</string>\n";
+	launchd += "        <true/>\n";
+	launchd += "    </dict>\n";
+	launchd += "</plist>\n";
+
+	FsFileWriteText(launchdPath, launchd);
+
+	ShellResult launchctlResult = ShellEx2(FsLocateExecutable("launchctl"), "load", launchdPath);
+	return launchctlResult.exit;
+}
+
+bool Impl::ServiceUninstall()
+{
+    if (FsFileExists(launchdPath))
+    {
+	    ShellResult launchctlResult = ShellEx2(FsLocateExecutable("launchctl"), "unload", launchdPath);
+        
+		FsFileDelete(launchdPath);
+
+	    return launchctlResult.exit;
+    }
+    else
+        return 0;
 }
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
@@ -532,7 +543,7 @@ int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct
 	args.push_back("-anPi");
 	args.push_back("4tcp@" + destAddr + ":" + std::to_string(destPort));
 
-	std::string lsofPath = LocateExecutable("lsof");
+	std::string lsofPath = FsLocateExecutable("lsof");
 	if (lsofPath != "")
 	{
 		ShellResult lsResult = ShellEx("lsof", args);
@@ -636,7 +647,7 @@ int Impl::FileGetFlags(const std::string& path)
 
 std::vector<std::string> Impl::GetNetworkInterfaces()
 {
-	ShellResult networksetupListResult = ShellEx1(LocateExecutable("networksetup"), "-listallnetworkservices");
+	ShellResult networksetupListResult = ShellEx1(FsLocateExecutable("networksetup"), "-listallnetworkservices");
 	if (networksetupListResult.exit != 0)
 		ThrowException("Unable to obtain network services list");
 

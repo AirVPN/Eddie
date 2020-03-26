@@ -91,11 +91,14 @@ namespace Eddie.Core
 
 				report.Start(sender);
 			}
+			// TOCLEAN_OPENVPNMANAGEMENT
+			/*
 			else if (cmd == "openvpn_management")
 			{
 				if (Engine.Instance.SendManagementCommand(data["management_command"].Value as string) == false)
 					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OpenVpnManagementCommandFail"));
 			}
+			*/
 			else if (cmd == "tor_control")
 			{
 				string resultC = TorControl.SendCommand(data["control_command"].Value as string);
@@ -170,9 +173,9 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning\n" + DateTime.Now.ToString());
 				Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
 				//Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
-			}		
+			}			
 
-            return null;
+			return null;
 		}
 
 		public void ProcessOnMainThread()

@@ -39,9 +39,22 @@ if [ "$ARCHCOMPILE" != "x86" ]; then
 	ARCHCOMPILE="x64" # Pick x64 executable (that are anyway CIL).
 fi
 
-# msbuild is recommended, but generally not available (Debian10 for example)
-xbuild /verbosity:minimal /property:CodeAnalysisRuleSet="${RULESETPATH}" /p:Configuration=${CONFIG} /p:Platform=${ARCHCOMPILE} /p:TargetFrameworkVersion=${TARGETFRAMEWORK} /t:Rebuild "${SOLUTIONPATH}" /p:DefineConstants="EDDIENET4"
+# msbuild is recommended, but generally not available (Debian10 for example). set +e otherwise if which fail, it stop.
+set +e
+COMPILERPATH=$(which msbuild)
+if [ -z "$COMPILERPATH" ]; then
+    COMPILERPATH=$(which xbuild)
+fi
+set -e
 
+echo $COMPILERPATH
+
+if [ -z "$COMPILERPATH" ]; then
+  echo 'Error: msbuild or xbuild is not installed.' >&2
+  exit 1
+fi
+
+$COMPILERPATH /verbosity:minimal /property:CodeAnalysisRuleSet="${RULESETPATH}" /p:Configuration=${CONFIG} /p:Platform=${ARCHCOMPILE} /p:TargetFrameworkVersion=${TARGETFRAMEWORK} /t:Rebuild "${SOLUTIONPATH}" /p:DefineConstants="EDDIENET4"
 
 if [ $PROJECT = "cli" ]; then
 	${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh ${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}	

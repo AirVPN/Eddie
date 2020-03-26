@@ -43,8 +43,9 @@ namespace Eddie.Core
 			KnownCommands["linux.dbus"] = ""; // Internal
 			KnownCommands["console.mode"] = ""; // Internal	
 			KnownCommands["path.exec"] = "";  // Internal
-			//KnownCommands["gui.osx.style"] = "";  // Internal
 			KnownCommands["advanced.skip_privileges"] = "";  // Internal
+
+			KnownCommands["elevated.service.port"] = "";
 
 			KnownCommands["profile"] = LanguageManager.GetText("ManCommandLineProfile");
 			KnownCommands["path"] = LanguageManager.GetText("ManCommandLinePath");

@@ -505,7 +505,7 @@ namespace Eddie.Platform.Windows
 
 		public static void NetShAdvFirewall(string args)
 		{
-			Engine.Instance.Elevated.DoCommandSync("windows-firewall", "args", args);			
+			Engine.Instance.Elevated.DoCommandSync("windows-firewall", "args", args);
 		}
 	}
 }

@@ -16,11 +16,6 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-/******************************************************************************
-	Original WFP source code by Mahesh S - swatkat_thinkdigit@yahoo.co.in - http://swatrant.blogspot.com/
-	Some code by ValdikSS
-******************************************************************************/
-
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
@@ -41,6 +36,13 @@
 extern "C" { __declspec(dllexport) int eddie_init(); }
 
 extern "C" { __declspec(dllexport) int eddie_get_interface_metric(int index, const char* layer); }
+
+#ifdef EDDIE_CURL
+extern "C" { __declspec(dllexport) void eddie_curl(const char* jRequest, int resultMaxLen, char* jResult)
+#endif
+
+// TOCLEAN 
+/*
 extern "C" { __declspec(dllexport) int eddie_set_interface_metric(int index, const char* layer, int value); }
 
 // ----------------------
@@ -77,6 +79,6 @@ extern "C" { __declspec(dllexport) BOOL eddie_wfp_rule_remove_direct(const UINT6
 
 extern "C" { __declspec(dllexport) const char* eddie_wfp_get_last_error(); }
 extern "C" { __declspec(dllexport) DWORD eddie_wfp_get_last_error_code(); }
-
+*/
 
 #endif

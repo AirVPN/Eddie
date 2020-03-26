@@ -235,8 +235,8 @@ namespace Eddie.Core
 
 		public float ScorePerc()
 		{
-			float scoreF = (Score() - 50);
-			scoreF /= 50;
+			float scoreF = (Score() - 70);
+			scoreF /= 70;
 
 			float part = 1;
 			if (scoreF > 5)
@@ -634,8 +634,8 @@ namespace Eddie.Core
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)
 			{
-				string[] routeEntries = route.Split(',');
-				if (routeEntries.Length != 3)
+                string[] routeEntries = route.Split(',');
+				if (routeEntries.Length < 2)
 					continue;
 
 				string ipCustomRoute = routeEntries[0];
@@ -648,7 +648,9 @@ namespace Eddie.Core
 				else
 				{
 					string action = routeEntries[1];
-					string notes = routeEntries[2];
+                    string notes = "";
+                    if(routeEntries.Length >= 3)
+					    notes = routeEntries[2];
 
 					foreach (IpAddress ip in ipsCustomRoute.IPs)
 					{
@@ -683,6 +685,8 @@ namespace Eddie.Core
 				}
 			}
 
+			// TOCLEAN
+			/*
             if(Engine.Instance.GetUseOpenVpnManagement())
             {
 				string managementPasswordFile = "dummy.ppw";
@@ -697,6 +701,7 @@ namespace Eddie.Core
 
 				ovpn.AppendDirective("management", "127.0.0.1 " + Engine.Instance.Storage.Get("openvpn.management_port") + " " + ovpn.EncodePath(managementPasswordFile), "");
 			}
+			*/
 
 			// Experimental - Allow identification as Public Network in Windows. Advanced Option?
 			// ovpn.Append("route-metric 512");

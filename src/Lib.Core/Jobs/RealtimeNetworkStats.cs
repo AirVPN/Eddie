@@ -26,6 +26,8 @@ namespace Eddie.Core.Jobs
 {
 	public class RealtimeNetworkStats : Eddie.Core.Job
 	{
+		public Json m_data = new Json();
+
 		public override ThreadPriority GetPriority()
 		{
 			return ThreadPriority.Lowest;
@@ -38,9 +40,90 @@ namespace Eddie.Core.Jobs
 
 		public override void OnRun()
 		{
-			//Json networkInfo = Engine.Instance.JsonNetworkInfo();
-			
+			// Fetch
+			int ts = Utils.UnixTimeStamp();
+
+			Json realtimeData = Platform.Instance.GetRealtimeNetworkStats();
+
+			// Mark dead			
+			m_data.EnsureDictionary();
+			foreach (KeyValuePair<string, object> kp in m_data.GetDictionary())
+			{
+				m_data[kp.Key]["live"].Value = false;
+			}
+
+			// Update
+			lock (m_data)
+			{
+				foreach (Json jDataInterface in realtimeData.GetArray())
+				{
+					string id = jDataInterface["id"].Value as string;
+					Int64 totalBytesRcv = jDataInterface["rcv"].ValueInt64;
+					Int64 totalBytesSnd = jDataInterface["snd"].ValueInt64;
+					Int64 delta = 0;
+					Int64 deltaBytesRcv = 0;
+					Int64 deltaBytesSnd = 0;
+					if (m_data.HasKey(id) == false)
+					{
+						m_data[id].Value = new Json();
+						m_data[id]["ts"].Value = 0;
+					}
+					else
+					{
+						delta = ts - m_data[id]["ts"].ValueInt64;
+						if (delta != 0)
+						{
+							deltaBytesRcv = (totalBytesRcv - m_data[id]["total_rcv"].ValueInt64) / delta;
+							deltaBytesSnd = (totalBytesSnd - m_data[id]["total_snd"].ValueInt64) / delta;
+						}
+
+						if( (Engine.Instance.ConnectionActive != null) && (Engine.Instance.ConnectionActive.Interface != null) && (id == Engine.Instance.ConnectionActive.Interface.Id) ) // Old UI
+						{
+							Engine.Instance.SessionStatsRead += deltaBytesRcv;
+							Engine.Instance.SessionStatsWrite += deltaBytesSnd;
+							Engine.Instance.ConnectionActive.BytesLastDownloadStep = deltaBytesRcv;
+							Engine.Instance.ConnectionActive.BytesLastUploadStep = deltaBytesSnd;
+							Engine.Instance.ConnectionActive.BytesRead += deltaBytesRcv;
+							Engine.Instance.ConnectionActive.BytesWrite += deltaBytesSnd;
+
+							Engine.Instance.Stats.Charts.Hit(deltaBytesRcv, deltaBytesSnd); 
+
+							Engine.Instance.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
+
+							Engine.Instance.RaiseStatus();
+						}						
+					}
+					
+					m_data[id]["live"].Value = true;
+					m_data[id]["total_rcv"].Value = totalBytesRcv;
+					m_data[id]["total_snd"].Value = totalBytesSnd;
+					m_data[id]["ts"].Value = ts;
+				}
+			}
+
+			foreach (KeyValuePair<string, object> kp in m_data.GetDictionary())
+			{
+                if (m_data[kp.Key]["live"].ValueBool == false)
+                {
+                    m_data.RemoveKey(kp.Key);
+                    break; // One at time, to bypass collection modification error.
+                }
+			}
+
 			m_timeEvery = 1000;
+		}
+
+		public void ResetTotal(string interfaceId)
+		{
+
+		}
+
+		public Json GetData()
+		{
+			lock(m_data)
+			{
+				return m_data.Clone();
+			}
 		}
 	}
 }

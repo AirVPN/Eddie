@@ -16,7 +16,7 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-#include "../../App.CLI.Common.Elevated.C/ibsd.h"
+#include "../../App.CLI.Common.Elevated/ibsd.h"
 
 class Impl : public IBSD
 {
@@ -24,6 +24,9 @@ class Impl : public IBSD
 protected:
 	virtual int Main();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
+	virtual bool IsServiceInstalled();
+	virtual bool ServiceInstall();
+	virtual bool ServiceUninstall();
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
 	/*virtual void CheckIfExecutableIsAllowed(const std::string& path);*/
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);

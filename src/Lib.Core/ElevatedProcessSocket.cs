@@ -43,7 +43,7 @@ namespace Eddie.Core
 
 		protected int GetPortSpot()
 		{
-			return RandomGenerator.GetInt(2048,256*256-1);
+			return RandomGenerator.GetInt(2048+128,256*256-128);
 		}
 
 		protected override void SendLine(string line)

@@ -49,26 +49,22 @@ namespace Eddie.Core.Threads
 		private OpenVpnProcess m_processOpenVpn;
 		private Process m_processProxy;
 
+		// TOCLEAN_OPENVPNMANAGEMENT
+		/*
 		private Socket m_openVpnManagementSocket;
 		private List<string> m_openVpnManagementCommands = new List<string>();
 		private List<string> m_openVpnManagementStatisticsLines = new List<string>();
+		*/
 
 		private string m_reset = "";
 		private List<SessionLogEvent> m_logEvents = new List<SessionLogEvent>();
 		List<ConnectionActiveRoute> m_routes = new List<ConnectionActiveRoute>();
-		private NetworkInterface m_interfaceTun;
-		private int m_timeLastStatus = 0;
+		
 		private TemporaryFile m_fileSshKey;
 		private TemporaryFile m_fileSslCrt;
 		private TemporaryFile m_fileSslConfig;		
 		private ProgramScope m_programScope = null;
 		private InterfaceScope m_interfaceScope = null;
-
-		private Int64 m_interfaceTunBytesReadInitial = -1;
-		private Int64 m_interfaceTunBytesWriteInitial = -1;
-		private Int64 m_interfaceTunBytesLastRead = -1;
-		private Int64 m_interfaceTunBytesLastWrite = -1;
-		private TimeDelta m_interfaceTunBytesLastTick = new TimeDelta();
 
 		private ConnectionActive m_connectionActive = null;
 
@@ -108,24 +104,34 @@ namespace Eddie.Core.Threads
 
 				try
 				{
-					// -----------------------------------
-					// Phase 1: Initialization and start
-					// -----------------------------------
+                    // -----------------------------------
+                    // Phase 1: Initialization and start
+                    // -----------------------------------
 
-					if (Engine.NextServer == null)
-					{
-						if (Engine.Storage.GetBool("servers.startlast"))
-							Engine.NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
+                    string forceServer = Engine.Storage.Get("server");
+                    if( (Engine.NextServer == null) && (forceServer != "") )
+                    {
+                        Engine.NextServer = Engine.PickConnectionByName(forceServer);
+                    }
+
+                    if( (Engine.NextServer == null) && (Engine.Storage.GetBool("servers.startlast")) )
+                    {
+						Engine.NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
 					}
-					
-					// The first refresh of providers must be completed
-					if (Engine.ProvidersManager.LastRefreshDone == 0)
+
+                    if( (Engine.NextServer == null) && (Engine.Storage.GetBool("servers.locklast")) && (sessionLastServer != "") )
+                    {
+                        Engine.NextServer = Engine.PickConnection(sessionLastServer);
+                    }
+
+                    // The first refresh of providers must be completed
+                    if (Engine.ProvidersManager.LastRefreshDone == 0)
 					{
-						Engine.Instance.WaitMessageSet(LanguageManager.GetText("ProvidersWait"), true);
+                        Engine.Instance.WaitMessageSet(LanguageManager.GetText("ProvidersWait"), true);
 						Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("ProvidersWait"));
 						for (; ; )
 						{
-							if (CancelRequested)
+                            if (CancelRequested)
 								break;
 
 							if (Engine.ProvidersManager.LastRefreshDone != 0)
@@ -135,10 +141,10 @@ namespace Eddie.Core.Threads
 						}
 					}
 
-					if (CancelRequested)
+                    if (CancelRequested)
 						continue;
 
-					if ((Engine.NextServer == null) && (Engine.Instance.JobsManager.Latency.GetEnabled()) && (Engine.PingerInvalid() != 0))
+                    if ((Engine.NextServer == null) && (Engine.Instance.JobsManager.Latency.GetEnabled()) && (Engine.PingerInvalid() != 0))
 					{
 						string lastWaitingMessage = "";
 						for (; ; )
@@ -154,46 +160,36 @@ namespace Eddie.Core.Threads
 							if (lastWaitingMessage != nextWaitingMessage)
 							{
 								lastWaitingMessage = nextWaitingMessage;
+                                Engine.Logs.LogVerbose(nextWaitingMessage);
 								Engine.WaitMessageSet(nextWaitingMessage, true);
 							}
 
-							Sleep(100);
+                            Sleep(1000);
 						}
 					}
 
-					if (CancelRequested)
+                    if (CancelRequested)
 						continue;
 
-					m_openVpnManagementCommands.Clear();
+					// TOCLEAN_OPENVPNMANAGEMENT
+					// m_openVpnManagementCommands.Clear();					
 
-					Engine.CurrentServer = Engine.NextServer;
-					Engine.NextServer = null;
+					if (Engine.NextServer == null)
+						Engine.NextServer = Engine.PickConnection();
 
-					string forceServer = Engine.Storage.Get("server");
-					if (forceServer != "")
-					{
-						Engine.CurrentServer = Engine.PickConnectionByName(forceServer);
-					}
-					else
-					{
-						if (Engine.CurrentServer == null)
-							if (Engine.Storage.GetBool("servers.locklast"))
-								Engine.CurrentServer = Engine.PickConnection(sessionLastServer);
-
-						if (Engine.CurrentServer == null)
-							Engine.CurrentServer = Engine.PickConnection();
-					}
-
-					if (Engine.CurrentServer == null)
-					{
+					if (Engine.NextServer == null)
+					{ 
 						allowed = false;
 						Engine.Logs.Log(LogType.Fatal, "No server available.");
 						RequestStop();
 					}
 
-					// Checking auth user status.
-					// Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
-					if (allowed)
+                    Engine.CurrentServer = Engine.NextServer;
+                    Engine.NextServer = null;
+
+                    // Checking auth user status.
+                    // Only to avoid a generic AUTH_FAILED. For that we don't report here for ex. the sshtunnel keys.
+                    if (allowed)
 					{
 						if (Engine.CurrentServer.Provider is Providers.Service)
 						{
@@ -273,6 +269,14 @@ namespace Eddie.Core.Threads
 					try
 					{
 						m_connectionActive = Engine.CurrentServer.BuildConnectionActive(false);
+
+						if (Engine.Instance.Storage.GetBool("advanced.skip_tun_detect") == false)
+						{
+							string driverRequested = Platform.Instance.GetOvpnDriverRequested(m_connectionActive.OpenVpnProfileStartup);
+							Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
+							Platform.Instance.EnsureDriverAndAdapterAvailable(driverRequested);
+						}
+
 						Engine.WaitMessageSet(LanguageManager.GetText("ConnectionCredentials"), true);
 						if (Engine.CurrentServer.Provider.ApplyCredentials(m_connectionActive) == false)
 						{
@@ -390,6 +394,7 @@ namespace Eddie.Core.Threads
 							Sleep(waitingSleep);
 						}
 
+						ProcessLogsEvents();
 
 						if (m_reset == "")
 							oneConnectionReached = true;
@@ -409,39 +414,8 @@ namespace Eddie.Core.Threads
 								if (Engine.IsConnected() == false)
 									throw new Exception("Unexpected.");
 
-								ProcessOpenVpnManagement();
-
-								if (timeNow - m_timeLastStatus >= 1)
-								{
-									m_timeLastStatus = timeNow;
-
-									// Update traffic stats
-									if (Platform.Instance.GetTunStatsMode() == "NetworkInterface")
-									{
-										if (m_interfaceTun != null)
-										{
-											Int64 tunRead = 0;
-											Int64 tunWrite = 0;
-
-											tunRead += m_interfaceTun.GetIPv4Statistics().BytesReceived;
-											tunWrite += m_interfaceTun.GetIPv4Statistics().BytesSent;
-
-											if (m_interfaceTunBytesReadInitial == -1)
-											{
-												m_interfaceTunBytesReadInitial = tunRead;
-												m_interfaceTunBytesWriteInitial = tunWrite;
-											}
-											tunRead -= m_interfaceTunBytesReadInitial;
-											tunWrite -= m_interfaceTunBytesWriteInitial;
-
-											UpdateBytesStats(tunRead, tunWrite);
-										}
-									}
-									else if (Platform.Instance.GetTunStatsMode() == "OpenVpnManagement")
-									{
-										SendManagementCommand("status");
-									}
-								}
+								// TOCLEAN_OPENVPNMANAGEMENT
+								// ProcessOpenVpnManagement();
 
 								// Need stop?
 								bool StopRequest = false;
@@ -520,18 +494,19 @@ namespace Eddie.Core.Threads
 
 								int now = Utils.UnixTimeStamp();
 
-								// As explained here: http://stanislavs.org/stopping-command-line-applications-programatically-with-ctrl-c-events-from-net/
-								// there isn't any .Net/Mono clean method to send a signal term to a Windows console-only application. So a brutal Kill is performed when there isn't any alternative.
-								// TODO: Maybe optimized under Linux.
-
+								// TOCLEAN_OPENVPNMANAGEMENT
+								/*
 								// OpenVPN process completed, but management socket still opened. Strange, but happen. Closing socket.
 								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.ReallyExited == true) && (m_openVpnManagementSocket.Connected))
 									m_openVpnManagementSocket.Close();
+								*/
 
 								// OpenVPN process still exists, but management socket is not connected. We can't tell to OpenVPN to do a plain disconnection, force killing.
 								if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited == false))
 								{
-									if ((m_openVpnManagementSocket == null) || (m_openVpnManagementSocket.Connected == false))
+									// TOCLEAN_OPENVPNMANAGEMENT
+									//if ((m_openVpnManagementSocket == null) || (m_openVpnManagementSocket.Connected == false))
+									if(true)
 									{
 										if (now - lastSignalTime >= 10)
 										{
@@ -575,6 +550,8 @@ namespace Eddie.Core.Threads
 									}
 								}
 
+								// TOCLEAN_OPENVPNMANAGEMENT
+								/*
 								// Start a clean disconnection
 								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.ReallyExited == false) && (m_openVpnManagementSocket.Connected))
 								{
@@ -587,6 +564,7 @@ namespace Eddie.Core.Threads
 										ProcessOpenVpnManagement();
 									}
 								}
+								*/
 							}
 							catch (Exception e)
 							{
@@ -595,8 +573,11 @@ namespace Eddie.Core.Threads
 
 							bool exit = true;
 
+							// TOCLEAN_OPENVPNMANAGEMENT
+							/*
 							if ((m_openVpnManagementSocket != null) && (m_openVpnManagementSocket.Connected))
 								exit = false;
+							*/
 
 							if ((m_processProxy != null) && (m_processProxy.ReallyExited == false))
 								exit = false;
@@ -666,13 +647,15 @@ namespace Eddie.Core.Threads
 
 						Engine.Instance.ConnectionActive = null;
 
-						
 
+						// TOCLEAN_OPENVPNMANAGEMENT
+						/*
 						if (m_openVpnManagementSocket != null)
 						{
 							(m_openVpnManagementSocket as IDisposable).Dispose();
 							m_openVpnManagementSocket = null;
 						}
+						*/
 
 						ProcessLogsEvents();
 					}
@@ -956,6 +939,8 @@ namespace Eddie.Core.Threads
 			}
 		}
 
+		// TOCLEAN_OPENVPNMANAGEMENT
+		/*
 		public bool SendManagementCommand(string cmd)
 		{
 			if (m_openVpnManagementSocket == null)
@@ -970,6 +955,7 @@ namespace Eddie.Core.Threads
 				return true;
 			}
 		}
+		*/
 
 		void ProcessSshOutputDataReceived(object sender, DataReceivedEventArgs e)
 		{
@@ -1012,6 +998,8 @@ namespace Eddie.Core.Threads
             }
 		}
 
+		// TOCLEAN_OPENVPNMANAGEMENT
+		/*
 		void ProcessOpenVpnManagement()
 		{
 			try
@@ -1063,6 +1051,7 @@ namespace Eddie.Core.Threads
 				SetReset("ERROR");
 			}
 		}
+		*/
 
 		void AddLogEvent(string source, string message)
 		{
@@ -1089,7 +1078,7 @@ namespace Eddie.Core.Threads
 
 			foreach (SessionLogEvent logEvent in events) 
             { 
-                ProcessLogEvent(logEvent);				
+                ProcessLogEvent(logEvent);
 			}
 		}
 
@@ -1186,16 +1175,17 @@ namespace Eddie.Core.Threads
                     {
                         m_connectionActive.ControlChannel = message.Substring("SSL Handshake: ".Length);
                     }
-                    else if (message.StartsWithInv("net_iface_up: "))
+                    else if (message.StartsWithInv("open ")) // MacOS
+                    {
+                        Match match = Regex.Match(message, "open (.+?) SUCCEEDED");
+                        if (match.Success)
+                            CheckTunNetworkInterface(match.Groups[1].Value);
+                    }
+                    else if (message.StartsWithInv("net_iface_up: ")) // Linux
                     {
                         Match match = Regex.Match(message, "net_iface_up: set (.+?) up");
                         if (match.Success)
-                        {
-                            m_connectionActive.InterfaceId = match.Groups[1].Value;
-                            m_connectionActive.InterfaceName = match.Groups[1].Value;
-
-                            CheckTunNetworkInterface();
-                        }
+                            CheckTunNetworkInterface(match.Groups[1].Value);
                     }
                     else if (message.StartsWithInv("Contacting "))
                     {
@@ -1437,10 +1427,13 @@ namespace Eddie.Core.Threads
 						}
 					}
 
+					// TOCLEAN_OPENVPNMANAGEMENT
+					/*
 					if (messageLower.RegExMatchOne("^management: tcp socket listening on \\[af_inet6?\\]([0-9a-f\\.\\:]+?)$") != "")
 					{
 						ConnectManagementSocket();
 					}
+					*/
 
 					if (message.IndexOfInv("Initialization Sequence Completed") != -1)
 					{
@@ -1454,20 +1447,34 @@ namespace Eddie.Core.Threads
 					// Windows
 					if (Platform.Instance.IsUnixSystem() == false)
 					{
-						List<string> matchInterface = message.RegExMatchSingle("TAP-.*\\\\(.+?).tap");
-						if (matchInterface != null)
+						// Note: Windows allow [] chars in interface name, but OpenVPN use ] to close the name and don't escape it, so "\\sopened" it's required for lazy regex.
+
+						// TAP-WIN32 - OpenVPN 2.5
 						{
-							m_connectionActive.InterfaceId = matchInterface[0];
-							
-							CheckTunNetworkInterface();							
+							Match match = Regex.Match(message, "TAP-WIN32 device \\[(.*?)\\] opened");
+							if (match.Success)
+								CheckTunNetworkInterface(match.Groups[1].Value); // Note: Name, not ID.
 						}
 
-						// Match name - 2.11.10
-						// Note: Windows allow [] chars in interface name, but OpenVPN use ] to close the name and don't escape it, so "\\sopened" it's required for lazy regex.
-						List<string> matchName = message.RegExMatchSingle("TAP-.*\\sdevice\\s\\[(.*?)\\]\\sopened");
-						if (matchName != null)
+						// Wintap - OpenVPN 2.5
 						{
-							m_connectionActive.InterfaceName = matchName[0];
+							Match match = Regex.Match(message, "Wintun device \\[(.*?)\\] opened");
+							if(match.Success)
+								CheckTunNetworkInterface(match.Groups[1].Value); // Note: Name, not ID.
+						}
+
+						// Compatibility, can be probably removed. Ininfluent if rule above already match.
+						{
+							List<string> matchInterface = message.RegExMatchSingle("TAP-.*\\\\(.+?).tap");
+							if (matchInterface != null)
+								CheckTunNetworkInterface(matchInterface[0]);
+						}
+
+						// Compatibility, can be probably removed. Ininfluent if rule above already match.
+						{
+							List<string> matchName = message.RegExMatchSingle("TAP-.*\\sdevice\\s\\[(.*?)\\]\\sopened");
+							if (matchName != null)
+								CheckTunNetworkInterface(matchName[0]);
 						}
 					}
 
@@ -1476,22 +1483,14 @@ namespace Eddie.Core.Threads
 					{
 						Match match = Regex.Match(message, "TUN/TAP device (.*?) opened");
 						if (match.Success)
-						{
-							m_connectionActive.InterfaceName = match.Groups[1].Value;
-							m_connectionActive.InterfaceId = match.Groups[1].Value;
-							CheckTunNetworkInterface();
-						}
+							CheckTunNetworkInterface(match.Groups[1].Value);
 					}
 
 					// OSX
 					{
 						Match match = Regex.Match(message, "Opened utun device (.*?)$");
 						if (match.Success)
-						{
-							m_connectionActive.InterfaceName = match.Groups[1].Value;
-							m_connectionActive.InterfaceId = match.Groups[1].Value;
-							CheckTunNetworkInterface();							
-						}
+							CheckTunNetworkInterface(match.Groups[1].Value);
 					}
 
 					if (Platform.Instance.IsWindowsSystem())
@@ -1592,11 +1591,13 @@ namespace Eddie.Core.Threads
 					if (log)
 						Engine.Logs.Log(LogType.Verbose, source + " > " + message);
 				}
+				/* TOCLEAN
 				else if (source == "Management")
 				{
 
 					ProcessOutputManagement(source, message);
 				}
+				*/
 			}
 			catch (Exception ex)
 			{
@@ -1606,6 +1607,8 @@ namespace Eddie.Core.Threads
 			}
 		}
 
+		// TOCLEAN_OPENVPNMANAGEMENT
+		/*
 		public void ConnectManagementSocket()
 		{
             if(Engine.Instance.GetUseOpenVpnManagement() == false)
@@ -1623,49 +1626,65 @@ namespace Eddie.Core.Threads
 				SendManagementCommand(m_connectionActive.ManagementPassword);
 			}
 		}
+		*/
 
-		public void CheckTunNetworkInterface()
+		public void CheckTunNetworkInterface(string id)
 		{
-			m_interfaceScope = new InterfaceScope(m_connectionActive.InterfaceId);
+			if (m_connectionActive.Interface != null)
+				return; // Already detected
+
+			// Search NetworkInterface
+			
 
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+			// Search by ID
 			foreach (NetworkInterface adapter in interfaces)
 			{
-				if (adapter.Id == m_connectionActive.InterfaceId)
+				if (adapter.Id == id)
+					m_connectionActive.Interface = adapter;
+			}
+
+			// Search by Name
+			if (m_connectionActive.Interface == null)
+			{				
+				foreach (NetworkInterface adapter in interfaces)
 				{
-					m_interfaceTun = adapter;
-					m_interfaceTunBytesReadInitial = -1;
-					m_interfaceTunBytesWriteInitial = -1;
-					m_interfaceTunBytesLastRead = -1;
-					m_interfaceTunBytesLastWrite = -1;
+					if (adapter.Name == id)
+						m_connectionActive.Interface = adapter;
+				}
+			}
 
-					Json jInfo = Engine.Instance.FindNetworkInterfaceInfo(m_connectionActive.InterfaceId);
+			if (m_connectionActive.Interface == null)
+				throw new Exception("Unexpected: Network interface unknown");
 
-					if ((m_connectionActive.TunnelIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
-					{
-						Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapter"));
-						if ( (Engine.Instance.Storage.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv4.mode") != "block") )
-						{
-							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
-							Engine.Instance.Storage.Set("network.ipv4.mode", "block");
-						}
-					}
-					if ((m_connectionActive.TunnelIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
-					{
-						Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapter"));
-						if ((Engine.Instance.Storage.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv6.mode") != "block"))
-						{
-							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
-							Engine.Instance.Storage.Set("network.ipv6.mode", "block");
-						}
-					}
+			m_interfaceScope = new InterfaceScope(m_connectionActive.Interface.Id);
+
+			Json jInfo = Engine.Instance.FindNetworkInterfaceInfo(m_connectionActive.Interface.Id);
+
+			if ((m_connectionActive.TunnelIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
+			{
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapter"));
+				if ( (Engine.Instance.Storage.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv4.mode") != "block") )
+				{
+					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
+					Engine.Instance.Storage.Set("network.ipv4.mode", "block");
+				}
+			}
+			if ((m_connectionActive.TunnelIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
+			{
+				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapter"));
+				if ((Engine.Instance.Storage.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv6.mode") != "block"))
+				{
+					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
+					Engine.Instance.Storage.Set("network.ipv6.mode", "block");
 				}
 			}
 		}
 
 		public void ConnectedStep()
 		{
-			Platform.Instance.OnInterfaceDo(m_connectionActive.InterfaceId);
+			Platform.Instance.OnInterfaceDo(m_connectionActive.Interface.Id);
 
 			IpAddresses dns = new IpAddresses(Engine.Instance.Storage.Get("dns.servers"));
 			if (dns.Count == 0)
@@ -1692,7 +1711,7 @@ namespace Eddie.Core.Threads
 			Platform.Instance.FlushDNS();
 
 			// 2.4: Sometime (only under Windows) Interface is not really ready...
-			if (Platform.Instance.WaitTunReady() == false)
+			if (Platform.Instance.WaitTunReady(m_connectionActive) == false)
 				SetReset("ERROR");
 
 			if (m_connectionActive.ExitIPs.Count == 0)
@@ -2002,6 +2021,7 @@ namespace Eddie.Core.Threads
 			}
 		}
 
+		/* TOCLEAN
 		public void ProcessOutputManagement(string source, string message)
 		{
 			// Ignore, useless			
@@ -2055,51 +2075,6 @@ namespace Eddie.Core.Threads
 				}
 			}
 		}
-
-		public void UpdateBytesStats(Int64 read, Int64 write)
-		{
-			if (read < 0)
-				read = 0; // Unexpected, ignore if it happens
-			if (write < 0)
-				write = 0; // Unexpected, ignore if it happens
-			Int64 deltaRead = read;
-			if (m_interfaceTunBytesLastRead != -1)
-			{
-				deltaRead = read - m_interfaceTunBytesLastRead;
-				if (deltaRead < 0)
-					deltaRead = 0; // Unexpected, ignore if it happens
-			}
-			Engine.SessionStatsRead += deltaRead;
-			m_connectionActive.BytesRead += deltaRead;
-
-			Int64 deltaWrite = write;
-			if (m_interfaceTunBytesLastWrite != -1)
-			{
-				deltaWrite = write - m_interfaceTunBytesLastWrite;
-				if (deltaWrite < 0)
-					deltaWrite = 0; // Unexpected, ignore if it happens
-			}
-			Engine.SessionStatsWrite += deltaWrite;
-			m_connectionActive.BytesWrite += deltaWrite;
-
-			if (m_interfaceTunBytesLastRead != -1)
-			{
-				int delta = m_interfaceTunBytesLastTick.Reset();
-				if (delta > 0)
-				{
-					m_connectionActive.BytesLastDownloadStep = (1000 * (deltaRead)) / delta;
-					m_connectionActive.BytesLastUploadStep = (1000 * (deltaWrite)) / delta;
-				}
-			}
-
-			m_interfaceTunBytesLastRead = read;
-			m_interfaceTunBytesLastWrite = write;
-
-			Engine.Instance.Stats.Charts.Hit(m_connectionActive.BytesLastDownloadStep, m_connectionActive.BytesLastUploadStep);
-
-			Engine.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
-
-			Engine.RaiseStatus();
-		}
+		*/
 	}
 }

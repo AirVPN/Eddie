@@ -156,7 +156,7 @@ namespace Eddie.Platform.MacOS
             pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
             if (m_connected)
             {
-                pf += "set skip on { lo0 " + Engine.Instance.ConnectionActive.InterfaceId + " }\n";
+                pf += "set skip on { lo0 " + Engine.Instance.ConnectionActive.Interface.Id + " }\n";
             }
             else
             {

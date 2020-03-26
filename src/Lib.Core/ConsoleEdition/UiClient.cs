@@ -36,6 +36,7 @@ namespace Eddie.Core.ConsoleEdition
 
 			if (Engine == null)
 				Engine = new Engine(environmentCommandLine);
+
 			Engine.UiManager.Add(this);
 
 			Engine.Start();

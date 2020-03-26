@@ -217,7 +217,7 @@ namespace Eddie.Core
 			c.Parameters["_id"] = c.Id.ToString();
 			c.Parameters["_token"] = m_sessionKey;
             c.Parameters["_debug"] = ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")) ? "1" : "0");
-			string line = "";
+            string line = "";
 			foreach (KeyValuePair<string, string> kp in c.Parameters)
 			{
 				line += kp.Key + ":" + Conversions.StringToBase64(kp.Value) + ";";

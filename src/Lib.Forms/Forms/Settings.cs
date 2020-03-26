@@ -272,9 +272,20 @@ namespace Eddie.Forms.Forms
 			cboAdvancedUpdaterChannel.Items.Add("Stable");
 			cboAdvancedUpdaterChannel.Items.Add("Beta");
 			cboAdvancedUpdaterChannel.Items.Add("None");
-
-			cmdAdvancedUninstallDriver.Visible = Platform.Instance.CanUnInstallDriver();
-			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
+						
+			if(Platform.IsWindows())
+			{
+				cmdAdvancedUninstallDriverTap.Visible = true;
+				cmdAdvancedUninstallDriverTap.Enabled = (Platform.Instance.GetDriverVersion("0901") != "");
+				cmdAdvancedUninstallDriverWintun.Visible = true;
+				cmdAdvancedUninstallDriverWintun.Enabled = (Platform.Instance.GetDriverVersion("wintun") != "");
+			}
+			else
+			{
+				cmdAdvancedUninstallDriverTap.Visible = false;
+				cmdAdvancedUninstallDriverWintun.Visible = false;
+			}
+			
 
 			// OVPN directives
 			cboOpenVpnDirectivesDefaultSkip.Items.Clear();
@@ -827,7 +838,6 @@ namespace Eddie.Forms.Forms
 			s.Set("routes.custom", routes);
 
 			// DNS
-
 			s.Set("dns.mode", cboDnsSwitchMode.Text);
 
 			string dnsMode = cboDnsSwitchMode.Text;
@@ -1350,10 +1360,20 @@ namespace Eddie.Forms.Forms
 
 		private void cmdAdvancedUninstallDriver_Click(object sender, EventArgs e)
 		{
-			if(Platform.Instance.UnInstallDriver())
+			if (Platform.Instance.UninstallDriver("0901"))
+			{
 				ShowMessageInfo(LanguageManager.GetText("OsDriverUninstallDone"));
+				cmdAdvancedUninstallDriverTap.Enabled = false;
+			}
+		}
 
-			cmdAdvancedUninstallDriver.Enabled = (Platform.Instance.GetDriverAvailable() != "");
+		private void cmdAdvancedUninstallDriverWintun_Click(object sender, EventArgs e)
+		{
+			if (Platform.Instance.UninstallDriver("wintun"))
+			{
+				ShowMessageInfo(LanguageManager.GetText("OsDriverUninstallDone"));
+				cmdAdvancedUninstallDriverWintun.Enabled = false;
+			}
 		}
 
 		private void TxtLoggingPath_TextChanged(object sender, EventArgs e)
@@ -1603,5 +1623,7 @@ namespace Eddie.Forms.Forms
 			Engine.Instance.Storage.Set("external.rules", Engine.Instance.Storage.Options["external.rules"].Default);
 			ShowMessageInfo("Done.");
 		}
+
+		
 	}
 }

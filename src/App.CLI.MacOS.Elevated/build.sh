@@ -15,7 +15,7 @@ BASEPATH=$(dirname $(realpath "$0"))
 mkdir -p "$BASEPATH/bin"
 
 # Dynamic edition
-g++ -o "$BASEPATH/bin/eddie-cli-elevated" "$BASEPATH/src/main.cpp" "$BASEPATH/src/impl.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/iposix.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/ibase.cpp" "$BASEPATH/../App.CLI.Common.Elevated.C/sha256.c" -Wall -std=c++11 -O3 -pthread -lpthread -D$1
+g++ -mmacosx-version-min=10.9 -o "$BASEPATH/bin/eddie-cli-elevated" "$BASEPATH/src/main.cpp" "$BASEPATH/src/impl.cpp" "$BASEPATH/../App.CLI.Common.Elevated/iposix.cpp" "$BASEPATH/../App.CLI.Common.Elevated/ibase.cpp" "$BASEPATH/../App.CLI.Common.Elevated/sha256.c" -Wall -std=c++11 -O3 -pthread -lpthread -D$1
 
 chmod a+x "$BASEPATH/bin/eddie-cli-elevated"
 echo Done

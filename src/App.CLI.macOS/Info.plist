@@ -17,9 +17,9 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.13</string>
+	<string>2.18.8</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.eddie.client</string>
+	<string>org.airvpn.eddie.ui</string>
 	<key>CFBundleDisplayName</key>
 	<string>Eddie</string>
 	<key>NSSupportsSuddenTermination</key>

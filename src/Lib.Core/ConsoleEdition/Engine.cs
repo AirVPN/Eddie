@@ -32,7 +32,7 @@ namespace Eddie.Core.ConsoleEdition
 			ConsoleMode = true;
 		}
 
-		public override bool OnInit()
+        public override bool OnInit()
 		{
 			if (StartCommandLine.Exists("version"))
 			{
@@ -118,9 +118,9 @@ namespace Eddie.Core.ConsoleEdition
 					}
 				}
 			}
-		}		
+		}
 
-		public override void OnLog(LogEntry l)
+        public override void OnLog(LogEntry l)
 		{
 			if (EnableLogOnConsole == false)
 				return;
@@ -128,7 +128,7 @@ namespace Eddie.Core.ConsoleEdition
 			base.OnLog(l);
 		}
 
-		public override string OnAskProfilePassword(bool authFailed)
+        public override string OnAskProfilePassword(bool authFailed)
 		{
 			if(authFailed == false)
 				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsUnlockFirstAuth"));

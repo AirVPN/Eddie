@@ -34,13 +34,14 @@ IF "%VARPROJECT%"=="cli" (
 
 %VARMSBUILD% /verbosity:minimal /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /p:TargetFrameworkVersion=%VARTARGETFRAMEWORK% /t:Rebuild %VARSOLUTIONPATH% /p:DefineConstants="EDDIENET4" || goto :error
 
-IF "%VARPROJECT%"=="cli" (
-	CALL %VARSCRIPTDIR%\..\..\src\eddie.windows.postbuild.bat %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%/ %VARPROJECT% %VARARCH% %VARCONFIG% || goto :error
-) ELSE IF "%VARPROJECT%"=="ui" (
-	CALL %VARSCRIPTDIR%\..\..\src\eddie.windows.postbuild.bat %VARSCRIPTDIR%\..\..\src\App.Forms.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%/ %VARPROJECT% %VARARCH% %VARCONFIG% || goto :error
-) ELSE IF "%VARPROJECT%"=="ui3" (
-	CALL %VARSCRIPTDIR%\..\..\src\eddie.windows.postbuild.bat %VARSCRIPTDIR%\..\..\src\UI.WPF.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%/ %VARPROJECT% %VARARCH% %VARCONFIG% || goto :error
-)
+rem Dont need, VS already launch postbuild.bat event (under Linux / macOS , xbuild/msbuild dont do the same)
+rem IF "%VARPROJECT%"=="cli" (
+rem 	CALL %VARSCRIPTDIR%\..\..\src\eddie.windows.postbuild.bat %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%/ %VARPROJECT% %VARARCH% %VARCONFIG% || goto :error
+rem ) ELSE IF "%VARPROJECT%"=="ui" (
+rem 	CALL %VARSCRIPTDIR%\..\..\src\eddie.windows.postbuild.bat %VARSCRIPTDIR%\..\..\src\App.Forms.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%/ %VARPROJECT% %VARARCH% %VARCONFIG% || goto :error
+rem ) ELSE IF "%VARPROJECT%"=="ui3" (
+rem 	CALL %VARSCRIPTDIR%\..\..\src\eddie.windows.postbuild.bat %VARSCRIPTDIR%\..\..\src\UI.WPF.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%/ %VARPROJECT% %VARARCH% %VARCONFIG% || goto :error
+rem )
 
 :done
 exit /b 0

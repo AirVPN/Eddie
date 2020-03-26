@@ -438,7 +438,7 @@ namespace Eddie.Core
 		{
 			return GetOneDirectiveText("cipher");
 		}
-		
+
 		// Normalize path if relative
 		public void NormalizeRelativePath(string path)
 		{
@@ -519,6 +519,8 @@ namespace Eddie.Core
 					}
 				}
 			}
+
+			Platform.Instance.OpenVpnConfigNormalize(this);
 		}
 
 		// Utils
