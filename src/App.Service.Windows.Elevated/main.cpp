@@ -197,11 +197,6 @@ class ImplService : public Impl
 			ServiceLogDebug("IsStopRequested detected");
 		return !run;
 	}
-
-	virtual void OnLogDebug(const std::string& msg)
-	{
-		ServiceLogDebug(msg);
-	}
 };
 
 DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
@@ -253,7 +248,7 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
 void ServiceLogDebug(const std::string& msg)
 {	
 	/*
-	std::string logPath = "C:\\eddie_service_debug59.log";
+	std::string logPath = "C:\\eddie_service_debug.log";
 	FILE* f = fopen(logPath.c_str(), "a");
 	fprintf(f, "%s\r\n", msg.c_str());
 	fclose(f);

@@ -47,8 +47,6 @@ if [ -z "$COMPILERPATH" ]; then
 fi
 set -e
 
-echo $COMPILERPATH
-
 if [ -z "$COMPILERPATH" ]; then
   echo 'Error: msbuild or xbuild is not installed.' >&2
   exit 1

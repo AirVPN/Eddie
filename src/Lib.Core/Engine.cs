@@ -230,15 +230,10 @@ namespace Eddie.Core
                 if (OnInit() == false)
 					return false;
 
-				Platform.Instance.OnInit();
+                if (Platform.Instance.OnInit() == false)
+                    return false;
 
-				if (Platform.Instance.NativeInit() == false)
-				{
-					Console.WriteLine("Unable to initialize native library.");
-					return false;
-				}
-
-                Logs.Log(LogType.Verbose, "Eddie version: " + Constants.VersionShow + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
+				Logs.Log(LogType.Verbose, "Eddie version: " + Constants.VersionShow + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
                 Logs.Log(LogType.Verbose, "Command line arguments (" + StartCommandLine.Params.Count.ToString() + "): " + StartCommandLine.GetFull());
 
                 if (ResourcesFiles.Count() == 0)
@@ -444,7 +439,7 @@ namespace Eddie.Core
 				if (ConsoleMode)
 					Auth();
 
-				if ((CanConnect()) && (Engine.Storage.GetBool("connect")))
+				if (Engine.Storage.GetBool("connect"))
 					Connect();
 
 				return true;
@@ -732,6 +727,8 @@ namespace Eddie.Core
 
 		public void Connect()
 		{
+            Engine.Instance.ProvidersManager.DoRefresh(false);
+
             if ((CanConnect() == true) && (IsConnected() == false) && (IsWaiting() == false))
 			{
                 lock (m_actionsList)

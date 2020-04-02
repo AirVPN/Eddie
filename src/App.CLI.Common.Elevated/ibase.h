@@ -26,15 +26,15 @@
 // Platform specific
 // Note: path are always std::string utf8. In Windows, are converted to wstring when need.
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    #include "Windows.h"
-    typedef long pid_t;
-    typedef unsigned int uint;
-    typedef SOCKET HSOCKET;
-    typedef int socklen_t;
-    const std::string FsPathSeparator = "\\";	
+#include "Windows.h"
+typedef long pid_t;
+typedef unsigned int uint;
+typedef SOCKET HSOCKET;
+typedef int socklen_t;
+const std::string FsPathSeparator = "\\";
 #else
-    typedef int HSOCKET;
-    const std::string FsPathSeparator = "/";    
+typedef int HSOCKET;
+const std::string FsPathSeparator = "/";
 #endif
 
 class ShellResult;
@@ -69,6 +69,7 @@ protected:
 	void LogRemote(const std::string& msg);
 	void LogLocal(const std::string& msg);
 	void LogDebug(const std::string& msg);
+	void LogDevDebug(const std::string& msg);
 	void ReplyPID(int pid);
 	void ReplyCommand(const std::string& commandId, const std::string& data);
 
@@ -85,64 +86,65 @@ protected:
 	virtual void Idle();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 	virtual bool IsStopRequested();
-	virtual void OnLogDebug(const std::string& msg);
-
+	
 	virtual bool IsServiceInstalled();
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
 	virtual bool ServiceReinstall();
-	
+
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathCurrentDir();
 	virtual time_t GetProcessModTimeStart();
 	virtual time_t GetProcessModTimeCurrent();
-	
+
 	virtual std::string GetTempPath(const std::string& filename);
-	virtual void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);	
+	virtual void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
 
 	// Virtual Pure, OS
 protected:
-    virtual bool IsRoot() = 0;
-    virtual void Sleep(int ms) = 0;
-    virtual pid_t GetCurrentProcessId() = 0;
-    virtual pid_t GetParentProcessId() = 0;
-    virtual pid_t GetParentProcessId(pid_t pid) = 0;
-    virtual std::string GetProcessPathOfId(pid_t pid) = 0;
-    virtual pid_t GetProcessIdOfName(const std::string& name) = 0;
-    virtual std::string GetCmdlineOfProcessId(pid_t pid) = 0;
-    virtual int Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr) = 0;
+	virtual bool IsRoot() = 0;
+	virtual void Sleep(int ms) = 0;
+	virtual pid_t GetCurrentProcessId() = 0;
+	virtual pid_t GetParentProcessId() = 0;
+	virtual pid_t GetParentProcessId(pid_t pid) = 0;
+	virtual std::string GetProcessPathOfId(pid_t pid) = 0;
+	virtual pid_t GetProcessIdOfName(const std::string& name) = 0;
+	virtual std::string GetCmdlineOfProcessId(pid_t pid) = 0;
+	virtual std::string GetWorkingDirOfProcessId(pid_t pid) = 0;
+	virtual int Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr) = 0;
 	virtual void FsDirectoryCreate(const std::string& path) = 0;
-    virtual bool FsFileExists(const std::string& path) = 0;
+	virtual bool FsFileExists(const std::string& path) = 0;
 	virtual bool FsDirectoryExists(const std::string& path) = 0;
-    virtual void FsFileDelete(const std::string& path) = 0;
+	virtual void FsFileDelete(const std::string& path) = 0;
 	virtual void FsDirectoryDelete(const std::string& path, bool recursive) = 0;
 	virtual bool FsFileMove(const std::string& source, const std::string& destination) = 0;
 	virtual std::string FsFileReadText(const std::string& path) = 0;
-    virtual std::vector<std::string> FsFilesInPath(const std::string& path) = 0;
-    virtual std::string FsGetTempPath() = 0;
-    virtual std::vector<std::string> FsGetEnvPath() = 0;
+	virtual std::vector<std::string> FsFilesInPath(const std::string& path) = 0;
+	virtual std::string FsGetTempPath() = 0;
+	virtual std::vector<std::string> FsGetEnvPath() = 0;
+	virtual std::string FsGetRealPath(std::string path) = 0;
 	virtual bool SocketIsValid(HSOCKET s) = 0;
 	virtual void SocketMarkReuseAddr(HSOCKET s) = 0;
 	virtual void SocketBlockMode(HSOCKET s, bool block) = 0;
-    virtual void SocketClose(HSOCKET s) = 0;
-    
-    // Virtual Pure, Other
+	virtual void SocketClose(HSOCKET s) = 0;
+
+	// Virtual Pure, Other
 protected:
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path) = 0;
-    virtual void CheckIfExecutableIsAllowed(const std::string& path) = 0;
+	virtual void CheckIfExecutableIsAllowed(const std::string& path) = 0;
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer) = 0;
 
 	// Utils filesystem
 protected:
-    bool FsFileWriteText(const std::string& path, const std::string& body);
-    bool FsFileAppendText(const std::string& path, const std::string& body);
-    std::string FsFileGetDirectory(const std::string& path);    
-    std::vector<char> FsFileReadBytes(const std::string& path);
-    
-    std::string FsFileSHA256Sum(const std::string& path);
-    std::string FsLocateExecutable(const std::string& name);
-    
-    // Utils string
+	bool FsFileWriteText(const std::string& path, const std::string& body);
+	bool FsFileAppendText(const std::string& path, const std::string& body);
+	std::string FsFileGetDirectory(const std::string& path);
+	std::vector<char> FsFileReadBytes(const std::string& path);
+
+	std::string FsFileSHA256Sum(const std::string& path);
+	std::string FsLocateExecutable(const std::string& name);
+
+	// Utils string
 protected:
 	std::string StringReplaceAll(const std::string& str, const std::string& from, const std::string& to);
 	std::string StringExtractBetween(const std::string& str, const std::string& from, const std::string& to);
@@ -165,16 +167,16 @@ protected:
 	std::string StringBase64Encode(const std::string& str);
 	std::string StringBase64Decode(const std::string& str);
 	std::string StringXmlEncode(const std::string& str);
-    std::string StringHexEncode(const unsigned char* buf, const size_t s);
+	std::string StringHexEncode(const unsigned char* buf, const size_t s);
 	std::string StringHexEncode(const std::vector<char>& bytes);
-    std::string StringHexEncode(const int v, const int chars);
+	std::string StringHexEncode(const int v, const int chars);
 
 	// Utils other
 	std::map<std::string, std::string> ParseCommandLine(const std::vector<std::string>& args);
 	std::string CheckValidOpenVpnConfig(const std::string& path);
 	std::string CheckValidHummingbirdConfig(const std::string& path);
 	std::string ComputeIntegrityHash(const std::string& elevatedPath, const std::string& clientPath);
-    bool CheckIfExecutableIsWhitelisted(const std::string& path);
+	bool CheckIfExecutableIsWhitelisted(const std::string& path);
 	void PidAdd(pid_t pid);
 	void PidRemove(pid_t pid);
 	bool PidManaged(pid_t pid);

@@ -72,7 +72,7 @@ namespace Eddie.Platform.MacOS
 			return m_version;
 		}
 
-		public override void OnInit()
+		public override bool OnInit()
 		{
 			base.OnInit();
 
@@ -89,11 +89,25 @@ namespace Eddie.Platform.MacOS
 			m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Replace("Version ","").Trim();
 			m_architecture = base.GetArchitecture();
 
-            NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
-            NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
-			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
-			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
-			NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
+            try
+            {
+                bool result = (NativeMethods.eddie_init() == 0);
+                if (result == false)
+                    throw new Exception("fail");
+
+                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
+                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
+                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
+                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
+                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
+            }
+            catch
+            {
+                Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
+                return false;
+            }
+
+            return true;
 		}
 
 		private static void SignalCallback(int signum)
@@ -245,11 +259,6 @@ namespace Eddie.Platform.MacOS
 			{
 				return ":";
 			}
-		}
-
-		public override bool NativeInit()
-		{
-			return (NativeMethods.eddie_init() == 0);
 		}
 
 		public override bool FileImmutableGet(string path)

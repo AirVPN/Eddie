@@ -337,9 +337,14 @@ std::string IPosix::GetCmdlineOfProcessId(pid_t pid)
     char ch;
     f = fopen(path.c_str(), "rb");
     if(f == NULL)
-        return "";
-    while ((ch = fgetc(f)) != EOF)
+        return "";  
+    for(;;)
     {
+        ch = fgetc(f);
+        if(ch == EOF) // Never hit in raspbian. EOF==-1
+            break;
+        if(ch == 255) // Not sure why, but required in raspbian. 
+            break;
         if(ch == 0)
             result += " ";
         else
@@ -348,6 +353,19 @@ std::string IPosix::GetCmdlineOfProcessId(pid_t pid)
     fclose(f);
     return result;
 }
+
+std::string IPosix::GetWorkingDirOfProcessId(pid_t pid)
+{
+    std::string procPath = "/proc/" + std::to_string(pid) + "/cwd";
+    if(FsFileExists(procPath) == false)
+        return "";
+        
+    char resolvedPath[PATH_MAX]; 
+    size_t result = readlink(procPath.c_str(), resolvedPath, PATH_MAX-1);
+    resolvedPath[result] = 0;
+    return std::string(resolvedPath);
+}
+
 
 int IPosix::Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr)
 {
@@ -517,6 +535,16 @@ std::string IPosix::FsGetTempPath()
 std::vector<std::string> IPosix::FsGetEnvPath()
 {
 	return StringToVector(getenv("PATH"), ':', false);
+}
+
+std::string IPosix::FsGetRealPath(std::string path)
+{
+    char resolvedPath[PATH_MAX]; 
+    char* resolvedPathResult = realpath(path.c_str(), resolvedPath);
+    if(resolvedPathResult == NULL)
+        return "";
+    else
+        return std::string(resolvedPathResult);
 }
 
 bool IPosix::SocketIsValid(HSOCKET s)

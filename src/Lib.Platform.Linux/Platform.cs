@@ -85,19 +85,33 @@ namespace Eddie.Platform.Linux
 			return m_monoVersion + "; Framework: " + System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
 
-		public override void OnInit()
+		public override bool OnInit()
 		{
 			base.OnInit();
 
-			m_version = SystemShell.Shell1(LocateExecutable("uname"), "-a");
-			m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"), "-m").Trim());
+            m_version = SystemShell.Shell1(LocateExecutable("uname"), "-a");
+            m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"), "-m").Trim());
 
-			NativeMethods.Signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
-			NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
-			NativeMethods.Signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
-			NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
-			NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
-		}
+            try
+            {
+                bool result = (NativeMethods.Init() == 0);
+                if (result == false)
+                    throw new Exception("fail");
+
+                NativeMethods.Signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
+                NativeMethods.Signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
+                NativeMethods.Signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
+                NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
+                NativeMethods.Signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);             
+            }
+            catch
+            {
+                Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
+                return false;
+            }
+
+            return true;
+        }
 
 		private static void SignalCallback(int signum)
 		{
@@ -219,11 +233,6 @@ namespace Eddie.Platform.Linux
 			{
 				return ":";
 			}
-		}
-
-		public override bool NativeInit()
-		{
-			return (NativeMethods.Init() == 0);
 		}
 
 		public override bool FileImmutableGet(string path)
@@ -415,9 +424,11 @@ namespace Eddie.Platform.Linux
 		{
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
 
-			bool canRunAsRoot = FileRunAsRoot(path);
+            string failReason = "";
 
-			process = new System.Diagnostics.Process();
+            bool canRunAsRoot = FileRunAsRoot(path);
+
+            process = new System.Diagnostics.Process();
 			if (canRunAsRoot)
 			{
 				process.StartInfo.FileName = path;
@@ -434,8 +445,22 @@ namespace Eddie.Platform.Linux
 					}
 					else
 					{
-						process.StartInfo.FileName = "sudo";
-						process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
+                        string sudoPath = LocateExecutable("sudo");
+                        if(sudoPath != "")
+                        {
+                            List<string> groups = new List<string>(SystemShell.Shell0(LocateExecutable("groups")).ToLowerInv().Split(' '));
+                            if(groups.Contains("sudo"))
+                            {
+                                process.StartInfo.FileName = "sudo";
+                                process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
+                            }
+                            else
+                            {
+                                // Ask for password, but for unknown reason, password mismatch (endofline at first character), stdin issue, probably related to Mono.
+                                //process.StartInfo.FileName = "su";
+                                //process.StartInfo.Arguments = "-c \"'" + path + "' " + String.Join(" ", arguments) + "\"";
+                            }
+                        }
 					}
 				}
 				else
@@ -445,16 +470,24 @@ namespace Eddie.Platform.Linux
 				}
 			}
 
-			process.StartInfo.WorkingDirectory = "";
+            if(process.StartInfo.FileName == "")
+            {
+                Engine.Instance.Logs.LogFatal("Unable to find a method to run elevated process. Install 'sudo' and ensure user is in sudo group, or run chown root:root eddie-cli-elevated;chmod u+s eddie-cli-elevated");
+                return 0;
+            }
+            else
+            {
+                process.StartInfo.WorkingDirectory = "";
 
-			process.StartInfo.Verb = "run";
-			process.StartInfo.CreateNoWindow = true;
-			process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-			process.StartInfo.UseShellExecute = false;
+                process.StartInfo.Verb = "run";
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.StartInfo.UseShellExecute = false;
 
-			process.Start();
+                process.Start();
 
-			return process.Id;
+                return process.Id;
+            }
 		}
 
 		public override void ShellASyncCore(string path, string[] arguments)

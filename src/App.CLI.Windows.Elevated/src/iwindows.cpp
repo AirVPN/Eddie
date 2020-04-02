@@ -80,7 +80,7 @@ void IWindows::Do(const std::string& commandId, const std::string& command, std:
 			std::vector<std::string> args;
 
 			args.push_back("--config");
-			args.push_back(params["config"]);
+			args.push_back("\"" + params["config"] + "\"");
 
 			t_shellinfo info = ShellStart(path, args);
 
@@ -288,6 +288,12 @@ std::string IWindows::GetCmdlineOfProcessId(pid_t pid)
 	return "";
 }
 
+std::string IWindows::GetWorkingDirOfProcessId(pid_t pid)
+{
+    // Never used in Windows
+    return "";
+}
+
 int IWindows::Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr)
 {
 	// stdinWrite, stdinBody not yet supported, not need right now
@@ -466,6 +472,12 @@ std::vector<std::string> IWindows::FsGetEnvPath()
 	paths.push_back(StringWStringToUTF8(pathSystem));
 
 	return paths;
+}
+
+std::string IWindows::FsGetRealPath(std::string path)
+{
+    // Never used in Windows
+    return "";
 }
 
 bool IWindows::SocketIsValid(HSOCKET s)

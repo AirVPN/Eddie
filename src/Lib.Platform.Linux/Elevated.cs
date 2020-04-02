@@ -75,7 +75,7 @@ namespace Eddie.Platform.Linux
                         if (process.HasExited)
 							throw new Exception("Unable to start (2)");
 
-						connectResult = Connect(port);
+                        connectResult = Connect(port);
                         if (connectResult != "No socket")
                         {
                             if (connectResult == "Ok")

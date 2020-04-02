@@ -253,6 +253,8 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				accept = true;
 			if ((params["action"] == "remove") && (StringContain(resultBoth, "the system cannot find the file specified")))
 				accept = true;
+			if ((params["action"] == "remove") && (StringContain(resultBoth, "network interface no more available"))) // Win7
+				accept = true;			
 			if ((params["action"] == "remove") && (StringContain(resultBoth, "element not found.")))
 				accept = true;
 		}

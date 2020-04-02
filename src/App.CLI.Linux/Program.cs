@@ -31,9 +31,9 @@ namespace Eddie.CLI.Linux
 
 			Core.Platform.Instance = new Eddie.Platform.Linux.Platform();
 
-			m_client = new Core.ConsoleEdition.UiClient();
-			m_client.Init(Environment.CommandLine);
-		}
+            m_client = new Core.ConsoleEdition.UiClient();
+            m_client.Init(Environment.CommandLine);
+        }
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{

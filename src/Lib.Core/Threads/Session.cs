@@ -108,23 +108,9 @@ namespace Eddie.Core.Threads
                     // Phase 1: Initialization and start
                     // -----------------------------------
 
-                    string forceServer = Engine.Storage.Get("server");
-                    if( (Engine.NextServer == null) && (forceServer != "") )
-                    {
-                        Engine.NextServer = Engine.PickConnectionByName(forceServer);
-                    }
-
-                    if( (Engine.NextServer == null) && (Engine.Storage.GetBool("servers.startlast")) )
-                    {
-						Engine.NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
-					}
-
-                    if( (Engine.NextServer == null) && (Engine.Storage.GetBool("servers.locklast")) && (sessionLastServer != "") )
-                    {
-                        Engine.NextServer = Engine.PickConnection(sessionLastServer);
-                    }
-
                     // The first refresh of providers must be completed
+                    // Removed in 2.18.9, always performed before
+                    /*
                     if (Engine.ProvidersManager.LastRefreshDone == 0)
 					{
                         Engine.Instance.WaitMessageSet(LanguageManager.GetText("ProvidersWait"), true);
@@ -140,9 +126,29 @@ namespace Eddie.Core.Threads
 							Sleep(100);
 						}
 					}
+					*/
 
                     if (CancelRequested)
 						continue;
+
+                    string forceServer = Engine.Storage.Get("server");
+                    if ((Engine.NextServer == null) && (forceServer != ""))
+                    {
+                        Engine.NextServer = Engine.PickConnectionByName(forceServer);
+                    }
+
+                    if ((Engine.NextServer == null) && (Engine.Storage.GetBool("servers.startlast")))
+                    {
+                        Engine.NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
+                    }
+
+                    if ((Engine.NextServer == null) && (Engine.Storage.GetBool("servers.locklast")) && (sessionLastServer != ""))
+                    {
+                        Engine.NextServer = Engine.PickConnection(sessionLastServer);
+                    }
+
+                    if (CancelRequested)
+                        continue;
 
                     if ((Engine.NextServer == null) && (Engine.Instance.JobsManager.Latency.GetEnabled()) && (Engine.PingerInvalid() != 0))
 					{

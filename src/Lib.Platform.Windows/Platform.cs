@@ -111,12 +111,26 @@ namespace Eddie.Platform.Windows
 			return name;
 		}
 
-		public override void OnInit()
+		public override bool OnInit()
 		{
 			base.OnInit();
 
-			m_consoleCtrlHandlerRoutine = new NativeMethods.ConsoleCtrlHandlerRoutine(ConsoleCtrlCheck); // Avoid Garbage Collector
-			NativeMethods.SetConsoleCtrlHandler(m_consoleCtrlHandlerRoutine, true);
+			try
+			{
+				bool result = (NativeMethods.Init() == 0);
+				if (result == false)
+					throw new Exception("fail");
+
+				m_consoleCtrlHandlerRoutine = new NativeMethods.ConsoleCtrlHandlerRoutine(ConsoleCtrlCheck); // Avoid Garbage Collector
+				NativeMethods.SetConsoleCtrlHandler(m_consoleCtrlHandlerRoutine, true);
+			}
+			catch
+			{
+				Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
+				return false;
+			}			
+
+			return true;
 		}
 
 		public override void OnDeInit()
@@ -493,11 +507,6 @@ namespace Eddie.Platform.Windows
 			{
 				return "\r\n";
 			}
-		}
-
-		public override bool NativeInit()
-		{
-			return (NativeMethods.Init() == 0);
 		}
 
 		public override string FileGetPhysicalPath(string path)
@@ -1513,10 +1522,10 @@ namespace Eddie.Platform.Windows
 				else
 					throw new Exception("Unknown driver " + driver);
 
-				sysPath = NormalizeWinSysPath(sysPath);
-
 				if (sysPath != "")
 				{
+					sysPath = NormalizeWinSysPath(sysPath);
+
 					if (Platform.Instance.FileExists(sysPath) == false)
 					{
 						throw new Exception(LanguageManager.GetText("OsDriverNoPath", sysPath));
@@ -1646,6 +1655,20 @@ namespace Eddie.Platform.Windows
 					SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --hwid wintun", true);
 				}
 			}
+
+			adapterFound = false;
+			interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				if ((driver == WindowsDriverTapId) && (adapter.Description.ToLowerInvariant().StartsWith("tap-win")))
+					adapterFound = true;
+
+				if ((driver == WindowsDriverWintunId) && (adapter.Description.ToLowerInvariant().StartsWith("wintun")))
+					adapterFound = true;
+			}
+
+			if (adapterFound == false)
+				throw new Exception(LanguageManager.GetText("OsDriverAdapterNotAvailable", driver));
 		}
 
 		public override bool UninstallDriver(string driver)

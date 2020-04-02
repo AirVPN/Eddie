@@ -40,6 +40,7 @@ protected:
     virtual pid_t GetParentProcessId(pid_t pid);
     virtual pid_t GetProcessIdOfName(const std::string& name);
     virtual std::string GetCmdlineOfProcessId(pid_t pid);
+    virtual std::string GetWorkingDirOfProcessId(pid_t pid);
     virtual int Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr);
 	virtual void FsDirectoryCreate(const std::string& path);
     virtual bool FsFileExists(const std::string& path);
@@ -51,6 +52,7 @@ protected:
     virtual std::vector<std::string> FsFilesInPath(const std::string& path);
     virtual std::string FsGetTempPath();
 	virtual std::vector<std::string> FsGetEnvPath();
+    virtual std::string FsGetRealPath(std::string path);
 	virtual bool SocketIsValid(HSOCKET s);
 	virtual void SocketMarkReuseAddr(HSOCKET s);
 	virtual void SocketBlockMode(HSOCKET s, bool block);

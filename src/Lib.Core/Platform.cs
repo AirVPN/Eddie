@@ -148,8 +148,9 @@ namespace Eddie.Core
 			return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
 
-		public virtual void OnInit()
+		public virtual bool OnInit()
 		{
+            return true;
 		}
 
 		public virtual void OnDeInit()
@@ -328,11 +329,6 @@ namespace Eddie.Core
 			p = p.TrimEnd(charsToTrimEnd);
 
 			return p;
-		}
-
-		public virtual bool NativeInit()
-		{
-			return true;
 		}
 
 		public virtual bool FileExists(string path)

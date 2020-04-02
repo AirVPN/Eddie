@@ -657,23 +657,38 @@ std::string Impl::GetProcessPathOfId(int pid)
 	{
 		std::string path = std::string(fullPath, length);
         
-        // Exception: If mono, detect Assembly
+        // Exception: If mono, detect Assembly path
 		bool isMono = false;
-		std::string pathMono1 = FsLocateExecutable("mono");
-		if ((pathMono1 != "") && (StringStartsWith(path, pathMono1)))
-			isMono = true;
-		std::string pathMono2 = FsLocateExecutable("mono-sgen");
+        std::string pathMono1 = FsLocateExecutable("mono-sgen");
+        if ((pathMono1 != "") && (StringStartsWith(path, pathMono1)))
+            isMono = true;
+		std::string pathMono2 = FsLocateExecutable("mono");
 		if ((pathMono2 != "") && (StringStartsWith(path, pathMono2)))
 			isMono = true;
 		if (isMono)
 		{
+            path = "";
             std::string procCmdLinePath = "/proc/" + std::to_string(pid) + "/cmdline";
 			if (FsFileExists(procCmdLinePath))
 			{
                 std::string cmdline = GetCmdlineOfProcessId(pid);
                 std::vector<std::string> fields = StringToVector(cmdline, ' ', false);
                 if(fields.size()>=2)
-                    path = fields[1];
+                for(int f=1;f<fields.size();f++)
+                {
+                    if(StringStartsWith(fields[f],"-") == false)
+                    {
+                        path = fields[f];
+                        
+                        // Maybe relative to pid
+                        if(FsFileExists(path) == false)
+                        {
+                            path = FsGetRealPath(GetWorkingDirOfProcessId(pid) + FsPathSeparator + path);
+                        }
+                        
+                        break;
+                    }
+                }
 			}
 		}
 

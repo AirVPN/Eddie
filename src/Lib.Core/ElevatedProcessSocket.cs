@@ -72,15 +72,6 @@ namespace Eddie.Core
 					return "No socket";
 				}
 
-                /*
-#if DEBUG
-#else
-			if(Platform.Instance.CheckElevatedSocketAllowed(socket.RemoteEndPoint as IPEndPoint, socket.LocalEndPoint as IPEndPoint) == false)
-			{
-				return false;
-			}
-#endif
-                */
 				StateObject state = new StateObject();
 				state.Socket = socket;
 				// Begin receiving the data from the remote device.  
@@ -89,9 +80,9 @@ namespace Eddie.Core
 
 				m_sessionKey = RandomGenerator.GetHash();
 
-				DoCommandSync("session-key", "key", m_sessionKey, "version", Constants.ElevatedVersionExpected);
+                DoCommandSync("session-key", "key", m_sessionKey, "version", Constants.ElevatedVersionExpected);
 
-				if (m_failedReason != "")
+                if (m_failedReason != "")
 					return m_failedReason;
 
 				m_started = true;

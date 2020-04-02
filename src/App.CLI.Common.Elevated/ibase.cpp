@@ -116,10 +116,10 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
 	}
 	catch (...)
 	{
-	ReplyException(commandId, "Internal exception.");
+		ReplyException(commandId, "Internal exception.");
 	}
 
-EndCommand(commandId);
+	EndCommand(commandId);
 }
 
 
@@ -141,23 +141,38 @@ void IBase::LogFatal(const std::string& msg)
 
 void IBase::LogRemote(const std::string& msg)
 {
+	LogDevDebug("Remote:" + msg);
+
 	SendMessage("ee:log:" + base64_encode(msg));
 }
 
 void IBase::LogLocal(const std::string& msg)
 {
-	OnLogDebug(msg);
+	LogDevDebug("Local:" + msg);
+
 	std::cout << msg << std::endl;
 }
 
 void IBase::LogDebug(const std::string& msg)
 {
+	LogDevDebug("Debug:" + msg);
+
 #if defined(Debug) || defined(_DEBUG)
-	OnLogDebug(msg);
 	std::cout << "Elevated Debug: " << msg << std::endl;
 #endif
+
 	if (m_debug)
 		LogRemote("Elevated: " + msg);
+}
+
+void IBase::LogDevDebug(const std::string& msg)
+{
+	/*
+	std::string logPath = "C:\\elevated.log";
+	FILE* f = fopen(logPath.c_str(), "a");
+	fprintf(f, "%s\r\n", msg.c_str());
+	fclose(f);
+	*/
 }
 
 void IBase::ReplyPID(int pid)
@@ -216,7 +231,7 @@ int IBase::Main()
 	{
 		if (m_cmdline["service"] == "install")
 		{
-			if(ServiceInstall())
+			if (ServiceInstall())
 				return 0;
 			else
 			{
@@ -251,16 +266,16 @@ int IBase::Main()
 		nMaxAccepted = 1;
 		m_serviceMode = false;
 
-        if (m_cmdline.find("spot_port") != m_cmdline.end())
-            port = atoi(m_cmdline["spot_port"].c_str()); 
+		if (m_cmdline.find("spot_port") != m_cmdline.end())
+			port = atoi(m_cmdline["spot_port"].c_str());
 	}
 	else if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "service"))
 	{
 		nMaxAccepted = -1;
 		m_serviceMode = true;
 
-        if (m_cmdline.find("service_port") != m_cmdline.end())
-            port = atoi(m_cmdline["service_port"].c_str()); 
+		if (m_cmdline.find("service_port") != m_cmdline.end())
+			port = atoi(m_cmdline["service_port"].c_str());
 	}
 	else
 	{
@@ -268,11 +283,11 @@ int IBase::Main()
 		return 1;
 	}
 
-	
-		
+
+
 
 	// If launched in SPOT mode, if service was active, they not accept, so reinstall.
-	if(m_serviceMode == false)
+	if (m_serviceMode == false)
 		ServiceReinstall();
 
 	int nAccepted = 0;
@@ -284,11 +299,11 @@ int IBase::Main()
 
 	SocketMarkReuseAddr(sockServer);
 
-	if (SocketIsValid(sockServer) == false) 
+	if (SocketIsValid(sockServer) == false)
 	{
 		ThrowException("Error on opening socket");
 	}
-	
+
 	std::memset(&addrServer, 0, sizeof(addrServer));
 
 	addrServer.sin_family = AF_INET;
@@ -328,10 +343,10 @@ int IBase::Main()
 			for (;;)
 			{
 				m_sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &addrClientLen);
-				
+
 				// TOFIX. Under Linux, errno==EWOULDBLOCK. Under Windows, i expect WSAEWOULDBLOCK but there are something not understanding.
 				if (SocketIsValid(m_sockClient) == false)
-				{					
+				{
 					if (IsStopRequested())
 						break;
 
@@ -345,7 +360,7 @@ int IBase::Main()
 				}
 			}
 
-			if(SocketIsValid(m_sockClient))
+			if (SocketIsValid(m_sockClient))
 			{
 				nAccepted++;
 
@@ -386,14 +401,13 @@ int IBase::Main()
 						std::string integrityHashExpected = "";
 						if (m_cmdline.find("integrity") != m_cmdline.end())
 							integrityHashExpected = m_cmdline["integrity"];
-						std::string clientHash = FsFileSHA256Sum(clientProcessPath);
 						if (integrityHashExpected != "")
 						{
-							if(integrityHashComputed == "")
+							if (integrityHashComputed == "")
 								ThrowException("Client not allowed: Client unknown (service mode)");
 							else if (integrityHashComputed != integrityHashExpected)
 								ThrowException("Client not allowed: integrity mismatch (client " + integrityHashComputed + " != expected " + integrityHashExpected + ") (service mode)");
-						}		
+						}
 					}
 
 					std::string allowed = CheckIfClientPathIsAllowed(clientProcessPath);
@@ -603,10 +617,6 @@ bool IBase::IsStopRequested()
 	return false;
 }
 
-void IBase::OnLogDebug(const std::string& msg)
-{	
-}
-
 bool IBase::IsServiceInstalled()
 {
 	return false;
@@ -624,7 +634,7 @@ bool IBase::ServiceUninstall()
 
 bool IBase::ServiceReinstall()
 {
-	if(IsServiceInstalled())
+	if (IsServiceInstalled())
 		return ServiceInstall();
 	else
 		return false;
@@ -708,7 +718,7 @@ std::string IBase::FsFileGetDirectory(const std::string& path)
 
 std::vector<char> IBase::FsFileReadBytes(const std::string& path)
 {
-    /*
+	/*
 	std::ifstream input(path, std::ios::binary);
 
 	std::vector<unsigned char> bytes(
@@ -718,10 +728,10 @@ std::vector<char> IBase::FsFileReadBytes(const std::string& path)
 	input.close();
 
 	return bytes;
-    */
-	
-    // Note: This don't work with a /proc/x/cmdline
-    
+	*/
+
+	// Note: This don't work with a /proc/x/cmdline
+
 	std::ifstream ifs(path.c_str(), std::ios::binary | std::ios::ate);
 	std::ifstream::pos_type pos = ifs.tellg();
 
@@ -1130,29 +1140,29 @@ std::string IBase::ComputeIntegrityHash(const std::string& elevatedPath, const s
 	for (std::vector<std::string>::const_iterator i = files.begin(); i != files.end(); ++i)
 	{
 		std::string file = *i;
-		
+
 		std::string ext = "";
 		std::string::size_type extPos = file.rfind('.');
 
 		if (extPos != std::string::npos)
 			ext = file.substr(extPos + 1);
 
-		bool include = ( (ext == "") || (ext == "exe") || (ext == "dll") || (ext == "so") || (ext == "dylib") );
+		bool include = ((ext == "") || (ext == "exe") || (ext == "dll") || (ext == "so") || (ext == "dylib"));
 
-		if(include)
+		if (include)
 		{
 			std::string checkPathFull = checkPath + FsPathSeparator + file;
 			integrity += FsFileSHA256Sum(checkPathFull) + ";";
 
 			if (clientPath != "")
-			{			
-				if(clientPath == checkPathFull)
+			{
+				if (clientPath == checkPathFull)
 					clientPathFound = true;
 			}
 		}
 	}
 
-	if( (clientPath != "") && (clientPathFound == false) )
+	if ((clientPath != "") && (clientPathFound == false))
 		return "";
 
 	return integrity;
