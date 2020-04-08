@@ -141,9 +141,9 @@ namespace Eddie.Platform.Linux
 			//return "home";
 		}
 
-		public override ElevatedProcess StartElevated()
+		public override Eddie.Core.Elevated.EleBase StartElevated()
 		{
-			Elevated e = new Elevated();
+			ElevatedImpl e = new ElevatedImpl();
 			e.Start();
 			return e;
 		}
@@ -424,8 +424,6 @@ namespace Eddie.Platform.Linux
 		{
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
 
-            string failReason = "";
-
             bool canRunAsRoot = FileRunAsRoot(path);
 
             process = new System.Diagnostics.Process();
@@ -602,7 +600,7 @@ namespace Eddie.Platform.Linux
 			try
 			{
 
-				ElevatedProcess.Command c = new ElevatedProcess.Command();
+                Core.Elevated.Command c = new Core.Elevated.Command();
 				c.Parameters["command"] = "route";
 				if (ip.IsV4)
 					c.Parameters["layer"] = "ipv4";
@@ -641,7 +639,7 @@ namespace Eddie.Platform.Linux
 
 			try
 			{
-				ElevatedProcess.Command c = new ElevatedProcess.Command();
+                Core.Elevated.Command c = new Core.Elevated.Command();
 				c.Parameters["command"] = "route";
 				if (ip.IsV4)
 					c.Parameters["layer"] = "ipv4";
@@ -903,7 +901,7 @@ namespace Eddie.Platform.Linux
 		{
 			foreach (IpV6ModeEntry entry in m_listIpV6Mode)
 			{
-				Elevated.Command c = new Elevated.Command();
+                Core.Elevated.Command c = new Core.Elevated.Command();
 				c.Parameters["command"] = "ipv6-restore";
 				c.Parameters["interface"] = entry.Interface;
 				Engine.Instance.Elevated.DoCommandSync(c);

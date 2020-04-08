@@ -33,7 +33,7 @@ namespace Eddie.Core
             {
                 string owner = Environment.UserName;
 
-                ElevatedProcess.Command command = new ElevatedProcess.Command();
+                Elevated.Command command = new Elevated.Command();
                 command.Parameters["command"] = "compatibility-profiles";
                 command.Parameters["path-app"] = pathApp;
                 command.Parameters["path-data"] = pathData;
@@ -44,7 +44,7 @@ namespace Eddie.Core
 
         public static void WindowsRemoveTask()
 		{
-			ElevatedProcess.Command command = new ElevatedProcess.Command();
+			Elevated.Command command = new Elevated.Command();
 			command.Parameters["command"] = "compatibility-remove-task";
 			command.DoSync();
 		}

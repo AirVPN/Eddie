@@ -21,21 +21,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Eddie.Core
+namespace Eddie.Core.Elevated
 {
-    // TOFIX: must become a generic "Process that need to run as elevated (wg in future?)".
-	public class OpenVpnProcess
+    public class Process
 	{
-        public string ExePath = "";
-        public string ConfigPath = "";
-        public bool IsHummingbird = false;
+		public Elevated.Command Command = new Elevated.Command();
 
         public bool DeleteAfterStart = false;
 
 		public delegate void EndHandler();
 		public event EndHandler EndEvent;
         		
-		private ElevatedProcess.Command m_command;
 		private int m_pid;
 
 		public StringWriterLine StdOut = new StringWriterLine();
@@ -45,7 +41,7 @@ namespace Eddie.Core
 		{
 			get
 			{
-                return m_command.IsComplete;
+                return Command.IsComplete;
 			}
 		}
 
@@ -61,36 +57,24 @@ namespace Eddie.Core
 
 		public void Start()
 		{
-            m_command = new ElevatedProcess.Command();
+            if (Platform.Instance.NeedExecuteOutsideAppPath(Command.Parameters["path"]))
+			{
+				string tempPathToDelete = Utils.GetTempPath() + "/eddie-external-process-" + RandomGenerator.GetHash();
+				if (Platform.Instance.FileExists(tempPathToDelete))
+					Platform.Instance.FileDelete(tempPathToDelete);
+				System.IO.File.Copy(Command.Parameters["path"], tempPathToDelete);
 
-            if (Platform.Instance.NeedExecuteOutsideAppPath(ExePath))
-            {
-                string tempPathToDelete = Utils.GetTempPath() + "/openvpn-" + RandomGenerator.GetHash();
-                if (Platform.Instance.FileExists(tempPathToDelete))
-                    Platform.Instance.FileDelete(tempPathToDelete);
-                System.IO.File.Copy(ExePath, tempPathToDelete);
+				Command.Parameters["path"] = tempPathToDelete;
 
-                ExePath = tempPathToDelete;
+				DeleteAfterStart = true;
+			}
 
-                DeleteAfterStart = true; 
-            }
-
-            if (IsHummingbird)
-            {
-                m_command.Parameters["command"] = "hummingbird";
-                m_command.Parameters["gui-version"] = Constants.Name + Constants.VersionDesc;
-            }
-            else
-                m_command.Parameters["command"] = "process_openvpn";
-            m_command.Parameters["path"] = ExePath;			
-            m_command.Parameters["config"] = ConfigPath;
-
-            m_command.ExceptionEvent += delegate (ElevatedProcess.Command cmd, string message)
+			Command.ExceptionEvent += delegate (Elevated.Command cmd, string message)
             {
                 StdErr.Write("Error: " + message);
             };
 
-            m_command.ReceiveEvent += delegate (ElevatedProcess.Command cmd, string data)
+			Command.ReceiveEvent += delegate (Elevated.Command cmd, string data)
 			{
 				string feedbackType = data.Substring(0, 6);
                 string feedbackData = data.Substring(7);
@@ -104,7 +88,7 @@ namespace Eddie.Core
                     m_pid = Conversions.ToInt32(feedbackData);
                     if(DeleteAfterStart)
                     {
-                        Platform.Instance.FileDelete(ExePath);
+                        Platform.Instance.FileDelete(Command.Parameters["path"]);
                     }
                 }
                 else if (feedbackType == "return")
@@ -112,14 +96,15 @@ namespace Eddie.Core
                 }					
 			};
 
-			m_command.CompleteEvent += delegate (ElevatedProcess.Command cmd)
+			Command.CompleteEvent += delegate (Elevated.Command cmd)
 			{
 				StdOut.Stop();
 				StdErr.Stop();
 				if (EndEvent != null)
 					EndEvent();
 			};
-			m_command.DoASync();			
+
+			Command.DoASync();			
 		}
 				
 		private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)

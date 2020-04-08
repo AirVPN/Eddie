@@ -58,7 +58,7 @@ namespace Eddie.Core
 		private JobsManager m_jobsManager;
 		private NetworkLockManager m_networkLockManager;
 		private Webserver m_webserver;
-		private ElevatedProcess m_elevated;
+		private Elevated.EleBase m_elevated;
 
 
 		private Dictionary<string, ConnectionInfo> m_connections = new Dictionary<string, ConnectionInfo>();
@@ -182,7 +182,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public ElevatedProcess Elevated
+		public Elevated.EleBase Elevated
 		{
 			get
 			{
@@ -2216,6 +2216,7 @@ namespace Eddie.Core
 				jNetworkInterface["name"].Value = adapter.Name;
 				jNetworkInterface["description"].Value = adapter.Description;
 				jNetworkInterface["type"].Value = adapter.NetworkInterfaceType.ToString();
+				if (jNetworkInterface["type"].ValueString == "53") jNetworkInterface["type"].Value = "Virtual";
 				jNetworkInterface["status"].Value = adapter.OperationalStatus.ToString();
 				jNetworkInterface["bytes_received"].Value = adapter.GetIPv4Statistics().BytesReceived.ToString();
 				jNetworkInterface["bytes_sent"].Value = adapter.GetIPv4Statistics().BytesSent.ToString();

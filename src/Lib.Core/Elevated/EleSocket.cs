@@ -32,9 +32,9 @@ using Microsoft.Win32;
 using System.IO.MemoryMappedFiles;
 using System.Net.Sockets;
 
-namespace Eddie.Core
+namespace Eddie.Core.Elevated
 {
-	public class ElevatedProcessSocket : ElevatedProcess
+	public class EleSocket : EleBase
 	{
 		private ManualResetEvent connectDone = new ManualResetEvent(false);
 		private ManualResetEvent sendDone = new ManualResetEvent(false);

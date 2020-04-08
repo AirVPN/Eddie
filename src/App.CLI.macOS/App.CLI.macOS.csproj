@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Eddie.CLI.macOS</RootNamespace>
     <AssemblyName>App.CLI.macOS</AssemblyName>
-    <ReleaseVersion>2.17</ReleaseVersion>
+    <ReleaseVersion>2.19</ReleaseVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">

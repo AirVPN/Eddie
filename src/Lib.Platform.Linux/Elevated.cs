@@ -26,7 +26,7 @@ using Eddie.Core;
 
 namespace Eddie.Platform.Linux
 {
-	public class Elevated : ElevatedProcessSocket
+	public class ElevatedImpl : Eddie.Core.Elevated.EleSocket
 	{
 		public override void Start()
 		{

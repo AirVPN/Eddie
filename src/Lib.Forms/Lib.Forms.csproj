@@ -13,6 +13,7 @@
     <TargetFrameworkProfile />
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
+    <ReleaseVersion>2.19</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>res\icon.ico</ApplicationIcon>

@@ -28,10 +28,10 @@ using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using System.Threading;
-using Eddie.Core;
-using Microsoft.Win32;
-//using Microsoft.Win32.TaskScheduler;
 using System.ServiceProcess;
+using Microsoft.Win32;
+
+using Eddie.Core;
 
 namespace Eddie.Platform.Windows
 {
@@ -158,9 +158,9 @@ namespace Eddie.Platform.Windows
 			return "x86";
 		}
 
-		public override ElevatedProcess StartElevated()
+		public override Eddie.Core.Elevated.EleBase StartElevated()
 		{
-			Elevated e = new Elevated();
+			ElevatedImpl e = new ElevatedImpl();
 			e.Start();
 
 			return e;
@@ -665,7 +665,7 @@ namespace Eddie.Platform.Windows
 					interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
 				else
 					interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-				ElevatedProcess.Command c = new ElevatedProcess.Command();
+				Core.Elevated.Command c = new Core.Elevated.Command();
 				c.Parameters["command"] = "route";
 				c.Parameters["action"] = "add";
 				c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
@@ -707,7 +707,7 @@ namespace Eddie.Platform.Windows
 					interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
 				else
 					interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-				ElevatedProcess.Command c = new ElevatedProcess.Command();
+				Core.Elevated.Command c = new Core.Elevated.Command();
 				c.Parameters["command"] = "route";
 				c.Parameters["action"] = "remove";
 				c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
@@ -1008,21 +1008,22 @@ namespace Eddie.Platform.Windows
 			{
 				Json jNetworkInfo = Engine.Instance.JsonNetworkInfo(); // Realtime
 				foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
-				{
-					if (jNetworkInterface["type"].Value as string != "Ethernet")
-						continue;
-
+				{	
 					string id = jNetworkInterface["id"].Value as string;
 					string interfaceName = jNetworkInterface["name"].Value as string;
 
 					bool skip = true;
 
-					// <2.14.0
-					//if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces")))
 					if (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces"))
 						skip = false;
 					if ((Engine.Instance.ConnectionActive != null) && (id == Engine.Instance.ConnectionActive.Interface.Id))
 						skip = false;
+					if (jNetworkInterface["type"].ValueString == "Ethernet")
+						skip = false;
+					if (jNetworkInterface["type"].ValueString == "Virtual")
+						skip = false;
+					if (jNetworkInterface["status"].ValueString != "Up")
+						skip = true;
 
 					if (skip == false)
 					{

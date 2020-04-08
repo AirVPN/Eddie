@@ -13,6 +13,7 @@
     <TargetFrameworkProfile />
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
+    <ReleaseVersion>2.19</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
@@ -83,9 +84,10 @@
     <Compile Include="ConsoleEdition\UiClient.cs" />
     <Compile Include="CountriesManager.cs" />
     <Compile Include="DnsManagerEntry.cs" />
-    <Compile Include="ElevatedProcessSocket.cs" />
+    <Compile Include="Elevated\Command.cs" />
+    <Compile Include="Elevated\EleSocket.cs" />
     <Compile Include="EngineCommandLine.cs" />
-    <Compile Include="ElevatedProcess.cs" />
+    <Compile Include="Elevated\EleBase.cs" />
     <Compile Include="ExtensionsString.cs" />
     <Compile Include="HttpResponse.cs" />
     <Compile Include="IpAddresses.cs" />
@@ -100,7 +102,7 @@
     <Compile Include="Jobs\Updater.cs" />
     <Compile Include="LanguageManager.cs" />
     <Compile Include="ShellExternalManager.cs" />
-    <Compile Include="OpenVpnProcess.cs" />
+    <Compile Include="Elevated\Process.cs" />
     <Compile Include="PingerJob.cs" />
     <Compile Include="PingerStats.cs" />
     <Compile Include="Job.cs" />

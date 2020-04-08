@@ -41,7 +41,7 @@ namespace Eddie.Core
 			if (m_torDetection)
 				return;
 
-			ElevatedProcess.Command c = new ElevatedProcess.Command();
+			Elevated.Command c = new Elevated.Command();
 			c.Parameters["command"] = "tor-get-info";
 
 			c.Parameters["name"] = "tor";			

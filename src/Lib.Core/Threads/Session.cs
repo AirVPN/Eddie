@@ -46,7 +46,7 @@ namespace Eddie.Core.Threads
 
 	public class Session : Eddie.Core.Thread
 	{
-		private OpenVpnProcess m_processOpenVpn;
+		private Elevated.Process m_processOpenVpn;
 		private Process m_processProxy;
 
 		// TOCLEAN_OPENVPNMANAGEMENT
@@ -909,10 +909,18 @@ namespace Eddie.Core.Threads
             if (m_processProxy == null)
 				m_programScope = new ProgramScope(path, "OpenVPN Tunnel");
 
-			m_processOpenVpn = new OpenVpnProcess();
-            m_processOpenVpn.ExePath = path;
-			m_processOpenVpn.IsHummingbird = m_isHummingbird;
-			m_processOpenVpn.ConfigPath = m_connectionActive.OvpnFile.Path;
+			m_processOpenVpn = new Elevated.Process();
+            if(m_isHummingbird)
+			{
+				m_processOpenVpn.Command.Parameters["command"] = "hummingbird";
+				m_processOpenVpn.Command.Parameters["gui-version"] = Constants.Name + Constants.VersionDesc;
+			}
+			else
+			{
+				m_processOpenVpn.Command.Parameters["command"] = "process_openvpn";
+			}
+			m_processOpenVpn.Command.Parameters["path"] = path;
+			m_processOpenVpn.Command.Parameters["config"] = m_connectionActive.OvpnFile.Path;
 			m_processOpenVpn.StdOut.LineEvent += ProcessOpenVpnOutputDataReceived;
 			m_processOpenVpn.StdErr.LineEvent += ProcessOpenVpnOutputDataReceived;
 			m_processOpenVpn.EndEvent += ProcessOpenVpnExited;

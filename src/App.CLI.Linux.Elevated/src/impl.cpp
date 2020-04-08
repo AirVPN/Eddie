@@ -45,7 +45,7 @@ std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
 
 int Impl::Main()
 {
-    signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
+	signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
 	signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
 
 	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
@@ -544,7 +544,7 @@ bool Impl::IsServiceInstalled()
 
 bool Impl::ServiceInstall()
 {
-	std::string elevatedPath = GetProcessPathCurrent();	
+	std::string elevatedPath = GetProcessPathCurrent();
 
 	if (FsFileExists(systemdPath))
 	{
@@ -613,7 +613,7 @@ bool Impl::ServiceUninstall()
 		ShellEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
 		FsFileDelete(systemdUnitPath);
 	}
-	   
+
 	return 0;
 }
 
@@ -646,7 +646,7 @@ std::string Impl::GetProcessPathCurrent()
 
 std::string Impl::GetProcessPathOfId(int pid)
 {
-    char fullPath[FILENAME_MAX];
+	char fullPath[FILENAME_MAX];
 	std::string procExePath = "/proc/" + std::to_string(pid) + "/exe";
 	int length = readlink(procExePath.c_str(), fullPath, sizeof(fullPath));
 	if (length < 0)
@@ -656,39 +656,41 @@ std::string Impl::GetProcessPathOfId(int pid)
 	else
 	{
 		std::string path = std::string(fullPath, length);
-        
-        // Exception: If mono, detect Assembly path
+
+		// Exception: If mono, detect Assembly path
 		bool isMono = false;
-        std::string pathMono1 = FsLocateExecutable("mono-sgen");
-        if ((pathMono1 != "") && (StringStartsWith(path, pathMono1)))
-            isMono = true;
+		std::string pathMono1 = FsLocateExecutable("mono-sgen");
+		if ((pathMono1 != "") && (StringStartsWith(path, pathMono1)))
+			isMono = true;
 		std::string pathMono2 = FsLocateExecutable("mono");
 		if ((pathMono2 != "") && (StringStartsWith(path, pathMono2)))
 			isMono = true;
 		if (isMono)
 		{
-            path = "";
-            std::string procCmdLinePath = "/proc/" + std::to_string(pid) + "/cmdline";
+			path = "";
+			std::string procCmdLinePath = "/proc/" + std::to_string(pid) + "/cmdline";
 			if (FsFileExists(procCmdLinePath))
 			{
-                std::string cmdline = GetCmdlineOfProcessId(pid);
-                std::vector<std::string> fields = StringToVector(cmdline, ' ', false);
-                if(fields.size()>=2)
-                for(int f=1;f<fields.size();f++)
-                {
-                    if(StringStartsWith(fields[f],"-") == false)
-                    {
-                        path = fields[f];
-                        
-                        // Maybe relative to pid
-                        if(FsFileExists(path) == false)
-                        {
-                            path = FsGetRealPath(GetWorkingDirOfProcessId(pid) + FsPathSeparator + path);
-                        }
-                        
-                        break;
-                    }
-                }
+				std::string cmdline = GetCmdlineOfProcessId(pid);
+				std::vector<std::string> fields = StringToVector(cmdline, ' ', false);
+				if (fields.size() >= 2)
+				{
+					for (uint f = 1; f < fields.size(); f++)
+					{
+						if (StringStartsWith(fields[f], "-") == false)
+						{
+							path = fields[f];
+
+							// Maybe relative to pid
+							if (FsFileExists(path) == false)
+							{
+								path = FsGetRealPath(GetWorkingDirOfProcessId(pid) + FsPathSeparator + path);
+							}
+
+							break;
+						}
+					}
+				}
 			}
 		}
 

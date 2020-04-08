@@ -24,95 +24,15 @@ using System.Threading;
 
 /*
 This is the interface class for communication with helper executable that require root/admin privileges.
-Derivated class (different in each platform) perform the launch, security checks and manage a stdio/stdout line-based communication.
+Derivated class (different in each platform) perform the launch, security checks and manage communication.
 Every command requested from Eddie to Helper is identified by a random ID and have a dictionary of parameters.
 Command can be executed in async (event-driven for data) or sync mode.
 */
 
-namespace Eddie.Core
+namespace Eddie.Core.Elevated
 {
-	public class ElevatedProcess
+	public class EleBase
 	{
-		public class Command
-		{
-			public UInt32 Id = 0;
-			public Dictionary<string, string> Parameters = new Dictionary<string, string>();
-			public AutoResetEvent Complete = new AutoResetEvent(false);
-
-			public delegate void ReceiveEventHandler(Command c, string data);
-			public event ReceiveEventHandler ReceiveEvent;
-
-            public delegate void ExceptionEventHandler(Command c, string message);
-            public event ExceptionEventHandler ExceptionEvent;
-
-            public delegate void CompleteEventHandler(Command c);
-			public event CompleteEventHandler CompleteEvent;
-
-			private bool m_complete = false;
-			private string m_syncResult = "";
-			private string m_syncException = "";
-
-			public bool IsComplete
-			{
-				get
-				{
-					return m_complete;
-				}
-			}
-
-			public void Data(string data)
-			{
-				if (ReceiveEvent != null)
-					ReceiveEvent(this, data);
-			}
-
-			public void End()
-			{
-				m_complete = true;
-				if (CompleteEvent != null)
-					CompleteEvent(this);
-				Complete.Set();
-			}
-
-			public void Abort()
-			{
-				End();
-			}
-
-			public void Exception(string ex)
-			{
-				m_syncException = ex;
-
-                if (ExceptionEvent != null)
-                    ExceptionEvent(this, ex);
-
-                Abort();
-			}
-
-			public void AddSyncResult(string data)
-			{
-				m_syncResult += data + "\n";
-			}
-
-			public void DoSync()
-			{
-				Engine.Instance.Elevated.DoCommandSync(this);
-			}
-
-			public void DoASync()
-			{
-				Engine.Instance.Elevated.DoCommandASync(this);
-			}
-
-			public string GetSyncResult()
-			{
-				if (m_syncException != "")
-					throw new Exception(m_syncException);
-				else
-					return m_syncResult.Trim();
-			}
-		}
-
 		public Dictionary<UInt32, Command> PendingCommands = new Dictionary<UInt32, Command>();
 
         protected string m_sessionKey = "";

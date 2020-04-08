@@ -136,9 +136,9 @@ namespace Eddie.Platform.MacOS
 			return "home";
 		}
 
-		public override ElevatedProcess StartElevated()
+		public override Eddie.Core.Elevated.EleBase StartElevated()
 		{
-			Elevated e = new Elevated();			
+			ElevatedImpl e = new ElevatedImpl();			
 			e.Start();
 			return e;
 		}
@@ -559,8 +559,8 @@ namespace Eddie.Platform.MacOS
 			IpAddress gateway = jRoute["gateway"].Value as string;
 			if (gateway.Valid == false)
 				return false;
-                        
-            ElevatedProcess.Command c = new ElevatedProcess.Command();
+
+            Core.Elevated.Command c = new Core.Elevated.Command();
             c.Parameters["command"] = "route";
             if (ip.IsV4)
                 c.Parameters["layer"] = "ipv4";
@@ -592,7 +592,7 @@ namespace Eddie.Platform.MacOS
 			if (gateway.Valid == false)
 				return false;
 
-            ElevatedProcess.Command c = new ElevatedProcess.Command();
+            Core.Elevated.Command c = new Core.Elevated.Command();
             c.Parameters["command"] = "route";
             if (ip.IsV4)
                 c.Parameters["layer"] = "ipv4";
@@ -883,7 +883,7 @@ namespace Eddie.Platform.MacOS
         {
             foreach (IpV6ModeEntry entry in m_listIpV6Mode)
             {
-                Elevated.Command c = new Elevated.Command();
+                Core.Elevated.Command c = new Core.Elevated.Command();
                 c.Parameters["command"] = "ipv6-restore";
                 c.Parameters["interface"] = entry.Interface;
                 c.Parameters["mode"] = entry.Mode;

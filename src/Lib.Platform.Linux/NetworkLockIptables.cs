@@ -349,7 +349,7 @@ namespace Eddie.Platform.Linux
                     }
                 }
 
-                Elevated.Command c = new ElevatedProcess.Command();
+                Core.Elevated.Command c = new Core.Elevated.Command();
                 c.Parameters["command"] = "netlock-iptables-activate";
                 if(m_supportIPv4)
                     c.Parameters["rules-ipv4"] = rulesIPv4.ToString();

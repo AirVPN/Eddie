@@ -38,14 +38,24 @@ mkdir -p ${TARGETDIR}
 DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_macos_${ARCH}_portable.tar.gz  
 
 # PKG
-mkdir -p "${TARGETDIR}/Applications"
-tar -jxvf "${DEPPACKAGEPATH}" -C "${TARGETDIR}/Applications/"
+#mkdir -p "${TARGETDIR}/Applications"
+#tar -jxvf "${DEPPACKAGEPATH}" -C "${TARGETDIR}/Applications/"
+#
+#if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then # Staff AirVPN
+#    APPLEID=$(cat ${SCRIPTDIR}/../signing/apple-dev-id.txt)
+#    pkgbuild --identifier org.airvpn.eddie.ui --version ${VERSION} --install-location /Application --root "${TARGETDIR}" --sign "${APPLEID}" --timestamp "${DEPLOYPATH}"
+#else
+#    pkgbuild --identifier org.airvpn.eddie.ui --version ${VERSION} --install-location /Application --root "${TARGETDIR}" "${DEPLOYPATH}"
+#fi
+
+mkdir -p "${TARGETDIR}"
+tar -jxvf "${DEPPACKAGEPATH}" -C "${TARGETDIR}/"
 
 if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then # Staff AirVPN
     APPLEID=$(cat ${SCRIPTDIR}/../signing/apple-dev-id.txt)
-    pkgbuild --identifier org.airvpn.eddie.ui --version ${VERSION} --root "${TARGETDIR}" --sign "${APPLEID}" --timestamp "${DEPLOYPATH}"
+    pkgbuild --component-plist ${SCRIPTDIR}/eddie-pkg.plist --identifier org.airvpn.eddie.ui --version ${VERSION} --install-location /Applications --root "${TARGETDIR}" --sign "${APPLEID}" --timestamp "${DEPLOYPATH}"
 else
-    pkgbuild --identifier org.airvpn.eddie.ui --version ${VERSION} --root "${TARGETDIR}" "${DEPLOYPATH}"
+    pkgbuild --component-plist ${SCRIPTDIR}/eddie-pkg.plist --identifier org.airvpn.eddie.ui --version ${VERSION} --install-location /Applications --root "${TARGETDIR}" "${DEPLOYPATH}"
 fi
 
 
@@ -54,5 +64,5 @@ fi
 ${SCRIPTDIR}/../macos_common/deploy.sh ${DEPLOYPATH}
 
 # Cleanup - with sudo because AppImage create files as root
-rm -rf $TARGETDIR
+#rm -rf $TARGETDIR
 

@@ -35,7 +35,7 @@ using System.Net.Sockets;
 
 namespace Eddie.Platform.Windows
 {
-	public class Elevated : ElevatedProcessSocket
+	public class ElevatedImpl : Eddie.Core.Elevated.EleSocket
 	{
 		public override void Start()
 		{

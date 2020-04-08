@@ -13,12 +13,16 @@ if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then # Staff AirVPN
     APPLEID=$(cat ${SCRIPTDIR}/../signing/apple-dev-id.txt)
     set +e
     codesign --verify -v "$1"
-    if [ $? -eq 0 ]; then
-        echo "Signing, already: $1"
-    else
+    #if [ $? -eq 0 ]; then
+    #    echo "Signing, already: $1"
+    #else
         echo "Signing, need: $1"
         set -e
+        export  LDFLAGS="-mmacosx-version-min=10.9"   
+        export   CFLAGS="-mmacosx-version-min=10.9"   
+        export CXXFLAGS="-mmacosx-version-min=10.9"
+
         codesign -d --deep -v --force --sign "${APPLEID}" "$1"
         codesign --verify -v "$1"
-    fi
+    #fi
 fi

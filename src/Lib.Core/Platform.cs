@@ -1131,7 +1131,7 @@ namespace Eddie.Core
 			return result;
 		}
 
-        public virtual ElevatedProcess StartElevated()
+        public virtual Elevated.EleBase StartElevated()
 		{
 			return null;
 		}
