@@ -20,12 +20,15 @@
 #include "api.h"
 
 #include <arpa/inet.h>
+#include <fstream>
+#include <iomanip>
 #include <linux/fs.h>
 #include <memory>
 #include <mutex>
 #include <netinet/ip_icmp.h>
 #include <netinet/icmp6.h>
 #include <signal.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +38,10 @@
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+#include <curl/curl.h> // Debian: libcurl4-openssl-dev
+#include "json.hpp"
+using json = nlohmann::json;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -606,6 +613,134 @@ void eddie_signal(int signum, eddie_sighandler_t handler)
 int eddie_kill(int pid, int sig)
 {
     return kill((pid_t) pid, sig);
+}
+
+static size_t eddie_curl_headercallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+static size_t eddie_curl_writecallback(void *data, size_t size, size_t nmemb, std::string *buffer)
+{
+    int result = 0;
+    if (buffer != NULL) 
+    {
+        buffer->append((char*)data, size * nmemb);
+        result = size * nmemb;
+    }
+    return result;
+}
+
+void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
+{
+    json jsonRequest = json::parse(jRequest);
+    
+    json jsonResponse;
+    
+    CURL *hcurl;
+    //struct curl_slist *headersList = NULL;
+	struct curl_slist *resolveList = NULL;
+    CURLcode res;
+    
+    hcurl = curl_easy_init();
+    if(hcurl) 
+    {
+        try
+        {
+            std::string bufferHeaders;
+            std::string bufferBody;
+            
+            curl_easy_setopt(hcurl, CURLOPT_URL, std::string(jsonRequest["url"]).c_str());
+            
+            std::string postfields = jsonRequest["postfields"];
+            if(postfields != "")
+            {
+                jsonResponse["debug-post"] = jsonRequest["postfields"];
+                curl_easy_setopt(hcurl, CURLOPT_POSTFIELDSIZE, (long)postfields.size());
+                curl_easy_setopt(hcurl, CURLOPT_POSTFIELDS, postfields.c_str());
+            }
+            
+            curl_easy_setopt(hcurl, CURLOPT_HEADERFUNCTION, eddie_curl_headercallback);
+            curl_easy_setopt(hcurl, CURLOPT_HEADERDATA, &bufferHeaders);
+            curl_easy_setopt(hcurl, CURLOPT_WRITEFUNCTION, eddie_curl_writecallback);
+            curl_easy_setopt(hcurl, CURLOPT_WRITEDATA, &bufferBody);
+            curl_easy_setopt(hcurl, CURLOPT_NOPROGRESS, 1L);
+            
+            curl_easy_setopt(hcurl, CURLOPT_USERAGENT, std::string(jsonRequest["useragent"]).c_str());
+            
+            curl_easy_setopt(hcurl, CURLOPT_CAINFO, std::string(jsonRequest["cacert"]).c_str());
+            
+			if(jsonRequest["iplayer"] == "4")
+				curl_easy_setopt(hcurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+			else if (jsonRequest["iplayer"] == "6")
+				curl_easy_setopt(hcurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
+            
+            if (jsonRequest["resolve-single"] != "")
+			{				
+				resolveList = curl_slist_append(NULL, std::string(jsonRequest["resolve-single"]).c_str());
+				curl_easy_setopt(hcurl, CURLOPT_RESOLVE, resolveList);
+			}			
+
+			if (jsonRequest["proxy"] != "")
+			{
+				curl_easy_setopt(hcurl, CURLOPT_PROXY, std::string(jsonRequest["proxy"]).c_str());
+				
+				if (jsonRequest["proxyauth"] == "basic")
+					curl_easy_setopt(hcurl, CURLOPT_PROXYAUTH, (long)CURLAUTH_BASIC);
+				else if (jsonRequest["proxyauth"] == "ntlm")
+					curl_easy_setopt(hcurl, CURLOPT_PROXYAUTH, (long)CURLAUTH_NTLM);
+
+				if (jsonRequest["proxyuserpwd"] != "")
+					curl_easy_setopt(hcurl, CURLOPT_PROXYUSERPWD, std::string(jsonRequest["proxyuserpwd"]).c_str());
+			}
+            
+            //curl_easy_setopt(hcurl, CURLOPT_HTTPHEADER, headersList);
+            
+            res = curl_easy_perform(hcurl);
+            if(res != CURLE_OK)
+                throw std::runtime_error(std::string(curl_easy_strerror(res)));
+                
+            long response_code;
+            curl_easy_getinfo(hcurl, CURLINFO_RESPONSE_CODE, &response_code);
+            jsonResponse["response_code"] = response_code;
+            
+            jsonResponse["headers"] = bufferHeaders;
+            
+            // Encode in hex string the binary body
+            const char digitshex[] = "0123456789ABCDEF";
+            std::string hexBody;
+            hexBody.reserve(bufferBody.size()*2);
+            for (size_t i = 0; i < bufferBody.size(); i++)
+            {
+                unsigned char c = bufferBody[i];
+                hexBody.push_back(digitshex[c >> 4]);
+                hexBody.push_back(digitshex[c & 15]);
+            }
+            jsonResponse["body"] = hexBody;
+        }
+        catch(const std::exception& ex)
+        {
+            jsonResponse["error"] = std::string(ex.what());
+        }
+        catch(...)
+        {
+            jsonResponse["error"] = "Unexpected internal error";
+        }
+        
+        if(hcurl)
+            curl_easy_cleanup(hcurl);
+        //if(headersList)
+        //    curl_slist_free_all(headersList);
+		if(resolveList)
+			curl_slist_free_all(resolveList);
+    }
+    
+    std::string jResultStr = jsonResponse.dump();
+    if(jResultStr.size() > resultMaxLen)
+        return;
+        
+    strcpy(jResult, jResultStr.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

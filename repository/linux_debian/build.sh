@@ -114,8 +114,8 @@ dpkg -b ${TARGETDIR} ${DEPLOYPATH}
 lintian "${DEPLOYPATH}"
 
 # Sign
-if test -f "${SCRIPTDIR}/../signing/gpg.passphrase"; then # Staff AirVPN
-    PASSPHRASE=$(cat ${SCRIPTDIR}/../signing/gpg.passphrase)
+if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+    PASSPHRASE=$(cat ${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase)
     export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
     dpkg-sig -m "maintainer@eddie.website" -g "--no-tty --passphrase ${PASSPHRASE}" --sign builder ${DEPLOYPATH}
     dpkg-sig --verify ${DEPLOYPATH}

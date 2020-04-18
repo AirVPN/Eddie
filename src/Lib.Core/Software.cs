@@ -60,7 +60,8 @@ namespace Eddie.Core
 			AddTool("hummingbird", new Tools.Hummingbird());
 			AddTool("ssh", new Tools.SSH());
             AddTool("ssl", new Tools.SSL());
-            AddTool("curl", new Tools.Curl());            
+            if (Platform.Instance.FetchUrlInternal() == false)
+                AddTool("curl", new Tools.Curl());            
             if (Platform.IsUnix())
             {
                 AddTool("update-resolv-conf", new Tools.File("update-resolv-conf"));
@@ -122,15 +123,18 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Warning, "SSL - " + LanguageManager.GetText("NotAvailable"));
 			}
 
-            if (GetTool("curl").Available())
+            if (Platform.Instance.FetchUrlInternal() == false)
             {
-                Engine.Instance.Logs.Log(LogType.Verbose, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
+                if (GetTool("curl").Available())
+                {
+                    Engine.Instance.Logs.Log(LogType.Verbose, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
+                }
+                else
+                {
+                    Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText("NotAvailable"));
+                }
             }
-            else
-            {
-                Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText("NotAvailable"));
 
-			}
             /*
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
 			if (pathCacert != "")

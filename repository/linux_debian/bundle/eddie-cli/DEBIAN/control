@@ -5,7 +5,7 @@ Maintainer: Eddie <maintainer@eddie.website>
 Priority: optional
 Architecture: {@architecture}
 Installed-Size: 8192
-Depends: libc6 (>= 2.3.2), sudo, mono-runtime, mono-utils, libmono-system-core4.0-cil, openvpn, stunnel4, curl, libsecret-tools
+Depends: libc6 (>= 2.3.2), sudo, mono-runtime, mono-utils, libmono-system-core4.0-cil, openvpn, stunnel4, libsecret-tools
 Bugs: https://eddie.website/support/
 Homepage: https://eddie.website/
 Description: Eddie - OpenVPN CLI

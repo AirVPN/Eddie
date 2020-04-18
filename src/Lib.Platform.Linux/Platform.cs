@@ -44,8 +44,11 @@ namespace Eddie.Platform.Linux
 		private string m_systemdUnitsPath = "/usr/lib/systemd/system";
 		private string m_systemdUnitPath = "/usr/lib/systemd/system/eddie-elevated.service";
 
-		// Override
-		public Platform()
+        private NetworkLockIptables m_netlockPluginIptables;
+        private NetworkLockNftables m_netlockPluginNftables;
+
+        // Override
+        public Platform()
 		{
 			try
 			{
@@ -524,7 +527,17 @@ namespace Eddie.Platform.Linux
 			return base.GetRecommendedSndBufDirective();
 		}
 
-		public override void FlushDNS()
+        public override bool FetchUrlInternal()
+        {
+            return true;
+        }
+
+        public override Json FetchUrl(Json request)
+        {
+            return NativeMethods.CUrl(request);
+        }
+
+        public override void FlushDNS()
 		{
 			base.FlushDNS();
 
@@ -865,12 +878,19 @@ namespace Eddie.Platform.Linux
 		{
 			base.OnNetworkLockManagerInit();
 
-			Engine.Instance.NetworkLockManager.AddPlugin(new NetworkLockIptables());
-		}
+            m_netlockPluginIptables = new NetworkLockIptables();
+            m_netlockPluginNftables = new NetworkLockNftables();
+
+            Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginNftables);
+            Engine.Instance.NetworkLockManager.AddPlugin(m_netlockPluginIptables);
+        }
 
 		public override string OnNetworkLockRecommendedMode()
 		{
-			return "linux_iptables";
+            if (m_netlockPluginNftables.GetSupport())
+                return m_netlockPluginNftables.GetCode();
+            else
+                return m_netlockPluginIptables.GetCode();
 		}
 
 		public override bool OnIPv6Block()

@@ -103,7 +103,7 @@ cp "${SCRIPTDIR}/rpmbuild-eddie-${PROJECT}.spec" "${TARGETDIR}/../rpmbuild.spec"
 
 sed -i "s/{@version}/${VERSION}/g" ${TARGETDIR}/../rpmbuild.spec
 
-REQUIRES="mono-core sudo openvpn stunnel curl libsecret" # Diff between OpenSuse and Fedora
+REQUIRES="mono-core sudo openvpn stunnel libsecret" # Diff between OpenSuse and Fedora
 if [ $PROJECT = "cli" ]; then
     REQUIRES="${REQUIRES}"
 elif [ $PROJECT = "ui" ]; then
@@ -119,12 +119,8 @@ cat ${TARGETDIR}/../rpmbuild.spec
 
 # RPM Build
 cd ${TARGETDIR} # Unable to specify an output path
-if test -f "${SCRIPTDIR}/../signing/gpg.passphrase"; then # Staff AirVPN
-    echo if requested, enter $(cat "${SCRIPTDIR}/../signing/gpg.passphrase") as passphrase
-    set +e
-    gpg --import "${SCRIPTDIR}/../signing/gnupg/pubring.gpg"
-    gpg --allow-secret-key-import --import "${SCRIPTDIR}/../signing/gnupg/secring.gpg"
-    set -e
+if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+    echo if requested, enter $(cat "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase") as passphrase
     cp ${SCRIPTDIR}/../signing/rpmmacros ~/.rpmmacros
     export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
     rpmbuild -bb "${TARGETDIR}/../rpmbuild.spec" --buildroot "${TARGETDIR}" -sign

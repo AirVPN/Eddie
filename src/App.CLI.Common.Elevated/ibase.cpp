@@ -42,7 +42,7 @@
 #include "sha256.h"
 #include "ibase.h"
 
-#define NETBUFSIZE 256*256*3 // Not: Maximum size of command
+#define NETBUFSIZE 256*256*10 // Not: Maximum size of command
 
 // --------------------------
 // Engine
@@ -768,16 +768,7 @@ std::string IBase::FsFileSHA256Sum(const std::string& path)
 	fclose(f);
 
 	sha256_finish(&ctx, sha256sum);
-
-	/*
-	char result[65];
-	for (int j = 0; j < 32; j++)
-	{
-		sprintf(&result[j * 2], "%02x", sha256sum[j]);
-	}
-	result[64] = 0;
-	return result;
-	*/
+ 
 	return StringHexEncode(&sha256sum[0], 32);
 }
 
@@ -986,39 +977,21 @@ std::string IBase::StringXmlEncode(const std::string& str)
 
 std::string IBase::StringHexEncode(const unsigned char* buf, const size_t s)
 {
-	std::stringstream ss;
-	ss << std::hex << std::setfill('0');
-	for (size_t i = 0; i < s; ++i)
-	{
-		ss << std::setw(2) << static_cast<unsigned>(buf[i]);
-	}
-	return ss.str();
+    const char digitshex[] = "0123456789abcdef";
+    std::string hex;
+    hex.reserve(s*2);
+    for (size_t i = 0; i < s; i++)
+    {
+        unsigned char c = buf[i];
+        hex.push_back(digitshex[c >> 4]);
+        hex.push_back(digitshex[c & 15]);
+    }
+    return hex;
 }
 
 std::string IBase::StringHexEncode(const std::vector<char>& bytes)
 {
-	uint len = bytes.size();
-	std::string result;
-	for (uint i = 0; i < bytes.size(); i++)
-	{
-		char h[3];
-		sprintf((char*)&h, "%02x", (unsigned char)bytes[i]);
-		result += h;
-	}
-
-	result[len * 2] = 0;
-	return result;
-
-	// Strange behiavour in Windows, fill with 'fff'
-	/*
-	std::stringstream ss;
-	ss << std::hex << std::setfill('0');
-	for (size_t i = 0; i < bytes.size(); ++i)
-	{
-		ss << std::setw(2) << static_cast<unsigned>(bytes[i]);
-	}
-	return ss.str();
-	*/
+    return StringHexEncode((const unsigned char*)bytes.data(), bytes.size());
 }
 
 std::string IBase::StringHexEncode(const int v, const int chars)

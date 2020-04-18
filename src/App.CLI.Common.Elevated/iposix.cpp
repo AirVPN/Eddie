@@ -341,10 +341,14 @@ std::string IPosix::GetCmdlineOfProcessId(pid_t pid)
     for(;;)
     {
         ch = fgetc(f);
-        if(ch == EOF) // Never hit in raspbian. EOF==-1
+        if(ch == EOF)
             break;
-        if(ch == 255) // Not sure why, but required in raspbian. 
-            break;
+
+		#ifdef __arm__
+			// Workaround. The if(ch == EOF) above never match under raspbian (at least Buster) EOF==-1. The if(ch == 255) below throw a warning constant-out-of-range under macOS. Need investigation.
+			if(ch == 255) break;
+		#endif
+        
         if(ch == 0)
             result += " ";
         else

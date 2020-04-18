@@ -27,58 +27,12 @@
 #include <stdint.h>
 #include <vector>
 
-#define XMLBUFSIZE 4096
-
-// ----------------------
-// Utils
-// ----------------------
-
 extern "C" { __declspec(dllexport) int eddie_init(); }
 
 extern "C" { __declspec(dllexport) int eddie_get_interface_metric(int index, const char* layer); }
 
-#ifdef EDDIE_CURL
-extern "C" { __declspec(dllexport) void eddie_curl(const char* jRequest, int resultMaxLen, char* jResult)
-#endif
+extern "C" { __declspec(dllexport) void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult); }
 
-// TOCLEAN 
-/*
-extern "C" { __declspec(dllexport) int eddie_set_interface_metric(int index, const char* layer, int value); }
-
-// ----------------------
-// WFP
-// ----------------------
-
-// Firewall sublayer GUID.
-GUID m_subLayerGUID;
-
-std::string lastError;
-UINT32 lastErrorCode;
-std::string subLayerName;
-std::wstring subLayerWName;
-std::wstring serviceWName;
-
-// Save filter IDs here
-std::vector<UINT64> filterids;
-
-UINT16 maxSubLayerWeight = 65535;
-UINT64 maxFilterWeight = 18446744073709551615;
-UINT64 zeroInterface = 0;
-
-// Firewall engine handle.
-HANDLE m_hEngineHandle;
-
-extern "C" { __declspec(dllexport) void eddie_wfp_init(const char* name); }
-
-extern "C" { __declspec(dllexport) BOOL eddie_wfp_start(const char* xml); }
-extern "C" { __declspec(dllexport) BOOL eddie_wfp_stop(); }
-
-extern "C" { __declspec(dllexport) UINT64 eddie_wfp_rule_add(const char* xml); }
-extern "C" { __declspec(dllexport) BOOL eddie_wfp_rule_remove(const UINT64 id); }
-extern "C" { __declspec(dllexport) BOOL eddie_wfp_rule_remove_direct(const UINT64 id); }
-
-extern "C" { __declspec(dllexport) const char* eddie_wfp_get_last_error(); }
-extern "C" { __declspec(dllexport) DWORD eddie_wfp_get_last_error_code(); }
-*/
+extern "C" { __declspec(dllexport) void eddie_pazzo(const char* jRequest, unsigned int resultMaxLen, char* jResult); }
 
 #endif

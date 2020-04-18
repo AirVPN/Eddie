@@ -583,8 +583,7 @@ namespace Eddie.Core
 									return true;
 								}
 
-								double dD = 0;
-								// Do not use double.TryParse(value, dD) because of '.' or ',' notation
+								double dD = 0;								
 								if(double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out dD))
 								{
 									result = dD;

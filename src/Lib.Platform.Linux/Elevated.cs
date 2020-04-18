@@ -65,32 +65,32 @@ namespace Eddie.Platform.Linux
                     if (pid>0)
                         process = System.Diagnostics.Process.GetProcessById(pid);
 
-					for (; ; )
-					{
-                        System.Threading.Thread.Sleep(1000);
+                    int listeningPortStartTime = Utils.UnixTimeStamp();
+                    for (; ; )
+                    {
+						if (Platform.Instance.IsPortLocalListening(port))
+							break;
 
                         if (process == null)
-                            throw new Exception("Unable to start (1)");
+                            throw new Exception("Unable to start (null)");
 
                         if (process.HasExited)
-							throw new Exception("Unable to start (2)");
+                            throw new Exception("Unable to start (already exit)");
 
-                        connectResult = Connect(port);
-                        if (connectResult != "No socket")
-                        {
-                            if (connectResult == "Ok")
-                                break;
-                            else
-                                throw new Exception("Unable to start (" + connectResult + ")");
-                        }
+                        if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
+                            throw new Exception("Unable to start (timeout)");
+
+						System.Threading.Thread.Sleep(100);
 					}
-				}
+
+                    connectResult = Connect(port);
+                    if (connectResult != "Ok")
+                        throw new Exception("Unable to start (" + connectResult + ")");
+                }
 				else
 				{
 					ServiceEdition = true;
 				}
-
-                
             }
 			catch (Exception ex)
 			{

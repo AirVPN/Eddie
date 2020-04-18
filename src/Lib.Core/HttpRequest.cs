@@ -29,6 +29,80 @@ namespace Eddie.Core
 		public bool BypassProxy = false;
 		public string IpLayer = "";
 		public string ForceResolve = "";
+
+		public Json ToJson()
+		{
+			Json j = new Json();
+
+            j["url"].Value = Url;
+
+			j["postfields"].Value = "";
+			foreach (string k in Parameters.Keys)
+			{
+				if(j["postfields"].ValueString != "")
+					j["postfields"].Value += "&";
+				j["postfields"].Value += Uri.EscapeUriString(k) + "=" + Uri.EscapeUriString(Parameters[k]);
+			}				
+
+			j["iplayer"].Value = IpLayer;
+			j["resolve-single"].Value = ForceResolve;
+			j["timeout"].Value = Engine.Instance.Storage.GetInt("http.timeout");
+			j["cacert"].Value = SystemShell.EscapePath(Engine.Instance.LocateResource("cacert.pem"));
+            j["useragent"].Value = Constants.Name + "/" + Constants.VersionDesc;
+
+			// Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
+			bool bypassProxy = BypassProxy;
+			if (bypassProxy == false)
+				bypassProxy = Engine.Instance.IsConnected();
+
+			j["proxy"].Value = "";
+			j["proxyauth"].Value = "";
+			j["proxyuserpwd"].Value = "";
+			if (bypassProxy == false)
+			{
+				string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
+				string proxyWhen = Engine.Instance.Storage.GetLower("proxy.when");
+				string proxyHost = Engine.Instance.Storage.Get("proxy.host");
+				int proxyPort = Engine.Instance.Storage.GetInt("proxy.port");
+				string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
+				string proxyLogin = Engine.Instance.Storage.Get("proxy.login");
+				string proxyPassword = Engine.Instance.Storage.Get("proxy.password");
+
+				if ((proxyWhen == "none") || (proxyWhen == "openvpn"))
+					proxyMode = "none";
+
+				if (proxyMode == "detect")
+					throw new Exception(LanguageManager.GetText("ProxyDetectDeprecated"));
+
+				if (proxyMode == "tor")
+				{
+					proxyMode = "socks";
+					proxyAuth = "none";
+					proxyLogin = "";
+					proxyPassword = "";
+				}
+
+				if (proxyMode == "http")
+				{
+					j["proxy"].Value = "http://" + proxyHost + ":" + proxyPort.ToString();
+				}
+				else if (proxyMode == "socks")
+				{
+					// curl support different types of proxy. OpenVPN not, only socks5. So, it's useless to support other kind of proxy here.
+					j["proxy"].Value = "socks5://" + proxyHost + ":" + proxyPort.ToString();
+				}
+
+				if ((proxyMode != "none") && (proxyAuth != "none"))
+				{
+					j["proxyauth"].Value = proxyAuth;
+
+					if ((proxyLogin != "") && (proxyPassword != ""))
+						j["proxyuserpwd"].Value = proxyLogin + ":" + proxyPassword;
+				}
+			}
+
+			return j;
+		}
 	}
 
 }

@@ -19,6 +19,8 @@
 using System;
 using System.Runtime.InteropServices;
 
+using Eddie.Core;
+
 namespace Eddie.Platform.MacOS
 {
 	public static class NativeMethods
@@ -120,5 +122,19 @@ namespace Eddie.Platform.MacOS
 
         [DllImport(NativeLibName)]
         public static extern void eddie_get_realtime_network_stats(byte[] buf, int bufMaxLen);
+
+        [DllImport(NativeLibName)]
+        private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
+        public static Json CUrl(Json jRequest)
+        {
+            uint resultMaxLen = 1000 * 1000 * 5;
+            byte[] resultBuf = new byte[resultMaxLen];
+            eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
+            Json jResult;
+            if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
+                return jResult;
+            else
+                throw new Exception("curl unexpected json error");
+        }
     }
 }

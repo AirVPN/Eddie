@@ -280,7 +280,8 @@ namespace Eddie.Platform.Windows
 				}
 
 				// Adding rules are slow, so force at least curl
-				NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program curl\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Software.GetTool("curl").Path)) + "\" enable=yes");
+				if (Platform.Instance.FetchUrlInternal() == false)
+					NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program curl\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Software.GetTool("curl").Path)) + "\" enable=yes");
 
 				if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
 				{
@@ -412,8 +413,9 @@ namespace Eddie.Platform.Windows
 		{
 			base.AllowProgram(path, name, guid);
 
-			if (path == Software.GetTool("curl").Path)
-				return;
+			if (Platform.Instance.FetchUrlInternal() == false)
+				if (path == Software.GetTool("curl").Path)
+					return;
 
 			// Windows Firewall don't work with logical path (a path that contain hardlink)
 			string physicalPath = Platform.Instance.FileGetPhysicalPath(path);
@@ -425,8 +427,9 @@ namespace Eddie.Platform.Windows
 		{
 			base.DeallowProgram(path, name, guid);
 
-			if (path == Software.GetTool("curl").Path)
-				return;
+			if (Platform.Instance.FetchUrlInternal() == false)
+				if (path == Software.GetTool("curl").Path)
+					return;
 
 			NetShAdvFirewall("firewall delete rule name=\"Eddie - Out - AllowProgram - " + guid + "\"");
 		}

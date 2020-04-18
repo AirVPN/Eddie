@@ -224,15 +224,18 @@
 		Delete "$INSTDIR\ssleay32.dll"
 		Delete "$INSTDIR\libeay32.dll"
 		
-		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall'
-		
 		; DotNet
+		
+		File "{@resources}\VC_redist.{@arch}.exe"	
+		call CheckAndInstallVCRuntime
+
+		File "{@resources}\dotNetFx45_Full_setup.exe"		
 		call CheckAndInstallDotNet
+		
+		ExecWait '"$INSTDIR\Eddie-CLI-Elevated.exe" service=uninstall'		
 		
 		; Basic (required) Eddie files...
 		{@files_add}
-
-		File "{@resources}\dotNetFx45_Full_setup.exe"
 		
 		; Restore base path
 		SetOutPath "$INSTDIR"
@@ -378,7 +381,7 @@ Function CheckAndInstallDotNet
     NotDetected:
         DetailPrint "Installing Microsoft .NET Framework 4.5"
         SetDetailsPrint listonly
-        ExecWait '"{@resources}\dotNetFx45_Full_setup.exe" /passive /norestart' $0
+        ExecWait '"$INSTDIR\dotNetFx45_Full_setup.exe" /passive /norestart' $0
         ${If} $0 == 3010 
         ${OrIf} $0 == 1641
             DetailPrint "Microsoft .NET Framework 4.5 installer requested reboot"
@@ -388,6 +391,24 @@ Function CheckAndInstallDotNet
         DetailPrint "Microsoft .NET Framework 4.5 installer returned $0"
     ${EndIf}
 
+FunctionEnd
+
+Function CheckAndInstallVCRuntime
+	ClearErrors
+	ReadRegDWORD $0 HKLM "SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\{@arch}" "Major"
+
+	IfErrors NotDetected
+
+    ${If} $0 >= 14
+        DetailPrint "VC++ runtime is installed ($0)"
+    ${Else}
+    NotDetected:
+        DetailPrint "Installing VC++ runtime"
+        SetDetailsPrint listonly
+        ExecWait '"$INSTDIR\VC_redist.{@arch}.exe" /q' $0
+        SetDetailsPrint lastused
+        DetailPrint "VC++ runtime installer returned $0"
+    ${EndIf}
 FunctionEnd
  
 

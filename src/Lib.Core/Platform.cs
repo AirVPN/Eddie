@@ -273,6 +273,11 @@ namespace Eddie.Core
 				return SetServiceImpl(value);
 		}
 
+		public virtual void WaitService()
+		{
+
+		}
+
 		protected virtual bool GetServiceImpl()
 		{
 			return false;
@@ -708,6 +713,16 @@ namespace Eddie.Core
 			return "";
 		}
 
+		public virtual bool IsPortLocalListening(int port)
+		{
+			foreach (IPEndPoint e in IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners())
+			{
+				if( (e.Address.ToString() == "127.0.0.1") && (e.Port == port) )
+					return true;
+			}
+			return false;
+		}
+
 		public virtual Int64 Ping(IpAddress host, int timeoutSec)
 		{
 			if ((host == null) || (host.Valid == false))
@@ -753,8 +768,18 @@ namespace Eddie.Core
 		{
 			return -1;
 		}
-		
-		public virtual void FlushDNS()
+
+        public virtual bool FetchUrlInternal()
+        {
+            return false;
+        }
+
+        public virtual Json FetchUrl(Json request)
+        {
+            return null;
+        }
+
+        public virtual void FlushDNS()
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionFlushDNS"));
 

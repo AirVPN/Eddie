@@ -403,7 +403,17 @@ namespace Eddie.Platform.MacOS
 			return 256 * 1024;
 		}
 
-		public override void FlushDNS()
+        public override bool FetchUrlInternal()
+        {
+            return true;
+        }
+
+        public override Json FetchUrl(Json request)
+        {
+            return NativeMethods.CUrl(request);
+        }
+
+        public override void FlushDNS()
 		{
 			base.FlushDNS();
 
@@ -510,11 +520,37 @@ namespace Eddie.Platform.MacOS
 			return base.LocateResource(relativePath);
 		}
 
+		public override bool IsPortLocalListening(int port)
+		{
+            // TOFIX, need a better implementation
+
+			string stdout = "";
+			string stderr = "";
+			int exitcode = 0;
+			ShellSyncCore(LocateExecutable("netstat"), new string[] { "-an", "-ptcp" }, "", out stdout, out stderr, out exitcode);
+
+            foreach(string line in stdout.Split('\n'))
+            {
+                string[] fields = line.CleanSpace().Split(' ');
+                if(fields.Length>2)
+                {
+                    if(fields[3] == "127.0.0.1." + port.ToString())
+                    {
+                        if(fields[5] == "LISTEN")
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+		}
+
 		/* // This works, but we use base to avoid shell.
 		public override long Ping(IpAddress host, int timeoutSec)
 		{
 			if ((host == null) || (host.Valid == false))
-				return -1;
+				return -1;  
 
             {
                 float iMS = -1;

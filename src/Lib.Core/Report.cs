@@ -63,7 +63,7 @@ namespace Eddie.Core
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 10;
 			client.OnReceive(jReport);
-			
+
 			Tests();
 
 			jReport["step"].Value = LanguageManager.GetText("ReportStepLogs");
@@ -118,12 +118,11 @@ namespace Eddie.Core
 		}
 
 		public void Tests()
-		{		
+		{
 			IpAddresses dns = DnsManager.ResolveDNS("dnstest.eddie.website", true);
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
-
-			/* Changed in 2.17.1
+/* Changed in 2.17.1
 			Add("Test Ping IPv4", Platform.Instance.Ping(dns.OnlyIPv4.First, 5000).ToString() + " ms");
 			Add("Test Ping IPv6", Platform.Instance.Ping(dns.OnlyIPv6.First, 5000).ToString() + " ms");
 
@@ -173,7 +172,8 @@ namespace Eddie.Core
 			Add("Hummingbird", Software.GetTool("hummingbird").Version + " (" + Software.GetTool("hummingbird").Path + ")");
 			Add("SSH", Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")");
 			Add("SSL", Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")");
-			Add("curl", Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")");
+			if (Platform.Instance.FetchUrlInternal() == false)
+				Add("curl", Software.GetTool("curl").Version + " (" + Software.GetTool("curl").Path + ")");
 
 			Add("Profile path", Engine.Instance.GetProfilePath());
 			Add("Data path", Engine.Instance.GetDataPath());

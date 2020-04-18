@@ -170,7 +170,7 @@ protected:
 	std::string StringHexEncode(const unsigned char* buf, const size_t s);
 	std::string StringHexEncode(const std::vector<char>& bytes);
 	std::string StringHexEncode(const int v, const int chars);
-
+    
 	// Utils other
 	std::map<std::string, std::string> ParseCommandLine(const std::vector<std::string>& args);
 	std::string CheckValidOpenVpnConfig(const std::string& path);

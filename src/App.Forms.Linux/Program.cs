@@ -55,7 +55,7 @@ namespace Eddie.Forms.Linux
 				}
 				else
 				{
-					m_client = new UiClient();
+                    m_client = new UiClient();
 					m_client.Engine = new Engine(Environment.CommandLine);
 					m_client.Init(Environment.CommandLine);
 				}

@@ -515,7 +515,7 @@ namespace Eddie.Core
 			SetDefault("tools.ssl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsSslPath"));
 			SetDefault("tools.curl.path", "path_file", "", LanguageManager.GetText("ManOptionToolsCurlPath"));
 
-			SetDefaultInt("tools.curl.max-time", 20, NotInMan);
+			SetDefaultInt("http.timeout", 20, NotInMan);
 
 			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
 			SetDefault("webui.ip", "text", "127.0.0.1", NotInMan); // Messages.ManOptionWebUiAddress
@@ -529,7 +529,7 @@ namespace Eddie.Core
 			SetDefaultInt("openvpn.sndbuf", -2, LanguageManager.GetText("ManOptionOpenVpnSndBuf")); // 2.11
 			SetDefaultInt("openvpn.rcvbuf", -2, LanguageManager.GetText("ManOptionOpenVpnRcvBuf")); // 2.11
 			SetDefault("openvpn.directives", "text", "client\r\ndev tun\r\nauth-nocache\r\nresolv-retry infinite\r\nnobind\r\npersist-key\r\npersist-tun\r\nverb 3\r\nconnect-retry-max 1\r\nping 10\r\nping-exit 32\r\nexplicit-exit-notify 5", LanguageManager.GetText("ManOptionOpenVpnDirectives"));
-			SetDefault("openvpn.directives.path", "path_file", "", NotInMan);
+			SetDefault("openvpn.directives.path", "path_file", "", NotInMan);			
 			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText("ManOptionOpenVpnSkipDefaults"));
 
@@ -587,6 +587,7 @@ namespace Eddie.Core
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
 			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
+			SetDefaultBool("windows.wintun", false, NotInMan); // Switch to true when stable/tested.
 
 			// Linux only
 			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9;systemd-resolved", NotInMan);

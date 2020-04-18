@@ -50,6 +50,7 @@ namespace Eddie.Forms.Forms
 			this.lblAdvancedManifestRefresh = new Eddie.Forms.Skin.Label();
 			this.cboAdvancedManifestRefresh = new Eddie.Forms.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+			this.cmdAdvancedUninstallDriverWintun = new Eddie.Forms.Skin.Button();
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDebugWorkaround = new Eddie.Forms.Skin.CheckBox();
@@ -242,7 +243,7 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
-			this.cmdAdvancedUninstallDriverWintun = new Eddie.Forms.Skin.Button();
+			this.chkWindowsWintun = new Eddie.Forms.Skin.CheckBox();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -481,6 +482,7 @@ namespace Eddie.Forms.Forms
 			// pnlAdvancedGeneralWindowsOnly
 			// 
 			this.pnlAdvancedGeneralWindowsOnly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsWintun);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.cmdAdvancedUninstallDriverWintun);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsSshPlinkForce);
 			this.pnlAdvancedGeneralWindowsOnly.Controls.Add(this.chkWindowsDisableDriverUpgrade);
@@ -496,11 +498,27 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
 			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
 			// 
+			// cmdAdvancedUninstallDriverWintun
+			// 
+			this.cmdAdvancedUninstallDriverWintun.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdAdvancedUninstallDriverWintun.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderSize = 0;
+			this.cmdAdvancedUninstallDriverWintun.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdAdvancedUninstallDriverWintun.Location = new System.Drawing.Point(24, 296);
+			this.cmdAdvancedUninstallDriverWintun.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdAdvancedUninstallDriverWintun.Name = "cmdAdvancedUninstallDriverWintun";
+			this.cmdAdvancedUninstallDriverWintun.Size = new System.Drawing.Size(356, 40);
+			this.cmdAdvancedUninstallDriverWintun.TabIndex = 89;
+			this.cmdAdvancedUninstallDriverWintun.Text = "Uninstall wintun driver";
+			this.cmdAdvancedUninstallDriverWintun.UseVisualStyleBackColor = true;
+			this.cmdAdvancedUninstallDriverWintun.Click += new System.EventHandler(this.cmdAdvancedUninstallDriverWintun_Click);
+			// 
 			// chkWindowsSshPlinkForce
 			// 
 			this.chkWindowsSshPlinkForce.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsSshPlinkForce.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsSshPlinkForce.Location = new System.Drawing.Point(24, 74);
+			this.chkWindowsSshPlinkForce.Location = new System.Drawing.Point(24, 108);
 			this.chkWindowsSshPlinkForce.Margin = new System.Windows.Forms.Padding(4);
 			this.chkWindowsSshPlinkForce.Name = "chkWindowsSshPlinkForce";
 			this.chkWindowsSshPlinkForce.Size = new System.Drawing.Size(356, 33);
@@ -512,7 +530,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkWindowsDisableDriverUpgrade.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsDisableDriverUpgrade.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(24, 169);
+			this.chkWindowsDisableDriverUpgrade.Location = new System.Drawing.Point(24, 203);
 			this.chkWindowsDisableDriverUpgrade.Margin = new System.Windows.Forms.Padding(4);
 			this.chkWindowsDisableDriverUpgrade.Name = "chkWindowsDisableDriverUpgrade";
 			this.chkWindowsDisableDriverUpgrade.Size = new System.Drawing.Size(356, 33);
@@ -524,7 +542,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkWindowsDebugWorkaround.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsDebugWorkaround.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(24, 119);
+			this.chkWindowsDebugWorkaround.Location = new System.Drawing.Point(24, 153);
 			this.chkWindowsDebugWorkaround.Margin = new System.Windows.Forms.Padding(4);
 			this.chkWindowsDebugWorkaround.Name = "chkWindowsDebugWorkaround";
 			this.chkWindowsDebugWorkaround.Size = new System.Drawing.Size(248, 28);
@@ -536,7 +554,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.chkWindowsTapUp.BackColor = System.Drawing.Color.Transparent;
 			this.chkWindowsTapUp.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsTapUp.Location = new System.Drawing.Point(24, 32);
+			this.chkWindowsTapUp.Location = new System.Drawing.Point(24, 67);
 			this.chkWindowsTapUp.Margin = new System.Windows.Forms.Padding(4);
 			this.chkWindowsTapUp.Name = "chkWindowsTapUp";
 			this.chkWindowsTapUp.Size = new System.Drawing.Size(356, 33);
@@ -3043,21 +3061,17 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
-			// cmdAdvancedUninstallDriverWintun
+			// chkWindowsWintun
 			// 
-			this.cmdAdvancedUninstallDriverWintun.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdAdvancedUninstallDriverWintun.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdAdvancedUninstallDriverWintun.FlatAppearance.BorderSize = 0;
-			this.cmdAdvancedUninstallDriverWintun.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdAdvancedUninstallDriverWintun.Location = new System.Drawing.Point(24, 296);
-			this.cmdAdvancedUninstallDriverWintun.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdAdvancedUninstallDriverWintun.Name = "cmdAdvancedUninstallDriverWintun";
-			this.cmdAdvancedUninstallDriverWintun.Size = new System.Drawing.Size(356, 40);
-			this.cmdAdvancedUninstallDriverWintun.TabIndex = 89;
-			this.cmdAdvancedUninstallDriverWintun.Text = "Uninstall wintun driver";
-			this.cmdAdvancedUninstallDriverWintun.UseVisualStyleBackColor = true;
-			this.cmdAdvancedUninstallDriverWintun.Click += new System.EventHandler(this.cmdAdvancedUninstallDriverWintun_Click);
+			this.chkWindowsWintun.BackColor = System.Drawing.Color.Transparent;
+			this.chkWindowsWintun.ForeColor = System.Drawing.Color.Black;
+			this.chkWindowsWintun.Location = new System.Drawing.Point(24, 27);
+			this.chkWindowsWintun.Margin = new System.Windows.Forms.Padding(4);
+			this.chkWindowsWintun.Name = "chkWindowsWintun";
+			this.chkWindowsWintun.Size = new System.Drawing.Size(356, 33);
+			this.chkWindowsWintun.TabIndex = 90;
+			this.chkWindowsWintun.Text = "Use wintun driver (OpenVPN>=2.5)";
+			this.chkWindowsWintun.UseVisualStyleBackColor = false;
 			// 
 			// Settings
 			// 
@@ -3313,5 +3327,6 @@ namespace Eddie.Forms.Forms
 		private Skin.Label lblHummingbirdPrefer;
 		private Skin.CheckBox chkHummingbirdPrefer;
 		private Skin.Button cmdAdvancedUninstallDriverWintun;
+		private Skin.CheckBox chkWindowsWintun;
 	}
 }

@@ -14,7 +14,7 @@ realpath() {
 BASEPATH=$(dirname $(realpath "$0"))
 mkdir -p "$BASEPATH/bin"
 
-g++ -mmacosx-version-min=10.9 -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.MacOS.Native.dylib" "$BASEPATH/src/api.cpp" -Wall -std=c++11 -O3 -D$1
+g++ -mmacosx-version-min=10.9 -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.MacOS.Native.dylib" "$BASEPATH/src/api.cpp" -Wall -std=c++11 -lcurl -O3 -D$1
 
 chmod a-x "$BASEPATH/bin/libLib.Platform.MacOS.Native.dylib"
 

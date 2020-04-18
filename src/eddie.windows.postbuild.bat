@@ -29,8 +29,12 @@ call %basepath%\App.Service.Windows.Elevated\build.bat %config% %arch% || goto :
 copy %basepath%\App.Service.Windows.Elevated\bin\%arch%\%config%\App.Service.Windows.Elevated.exe "%targetdir%"\Eddie-Service-Elevated.exe /Y /V || goto :error
 
 rem Compile and copy native library
-call %basepath%\Lib.Platform.Windows.Native\build.bat %config% %arch% || goto :error
-copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\%config%\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || goto :error
+
+rem Workaround, issue in building debug
+rem call %basepath%\Lib.Platform.Windows.Native\build.bat %config% %arch% || goto :error
+rem copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\%config%\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || goto :error
+call %basepath%\Lib.Platform.Windows.Native\build.bat Release %arch% || goto :error
+copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || goto :error
 
 goto done
 

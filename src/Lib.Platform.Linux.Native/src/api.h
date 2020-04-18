@@ -49,6 +49,8 @@ EDDIE_LINUX_NATIVE_EXPORT void eddie_signal(int signum, eddie_sighandler_t handl
 
 EDDIE_LINUX_NATIVE_EXPORT int eddie_kill(int pid, int sig);
 
+EDDIE_LINUX_NATIVE_EXPORT void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult);
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus

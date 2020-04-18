@@ -14,25 +14,20 @@ if ! [ -x "$(command -v makepkg)" ]; then
   exit 1
 fi
 
+MODE=$2
+
 PROJECT=$1
 CONFIG=Release
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
 ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
+VERSIONSTABLE="2.18.9"
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch
 DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch.tar.xz
 
 REPODIR=$(realpath -s $SCRIPTDIR/../../)
-
-if test -f "${DEPLOYPATH}"; then
-	echo "Already builded: ${DEPLOYPATH}"
-	exit 0;
-fi
-
-# Cleanup
-rm -rf $TARGETDIR
 
 # Param 1- Type
 # Param 2- Target Path
@@ -44,27 +39,29 @@ function arch_env() {
 	cp $4/PKGBUILD PKGBUILD
 	cp $4/eddie-ui.install eddie-ui.install
 
-	sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
-
 	if [ "$1" = "self" ]; then
 		echo "Build local";
+		sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
 		sed -i "s|{@pkgname}|eddie-ui|g" PKGBUILD    
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
+        sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
+
 		updpkgsums
 		makepkg -f
 		makepkg --printsrcinfo > .SRCINFO
-		echo mv eddie-ui-${VERSION}-1-x86_64.pkg.tar.xz eddie-ui_${VERSION}_linux_x64_arch.tar.xz        
 		mv eddie-ui-${VERSION}-1-x86_64.pkg.tar.xz ${DEPLOYPATH}
 		# Deploy to eddie.website
 		${SCRIPTDIR}/../linux_common/deploy.sh ${DEPLOYPATH}
 	else
 		if [ "$1" = "git" ]; then
 			echo "Update official repo git edition"
+			sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-ui-git|g" PKGBUILD    
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - beta version|g" PKGBUILD    
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
+			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
 			echo Enter AUR passphrase if requested
 			git clone ssh://aur@aur.archlinux.org/eddie-ui-git.git
 			cd eddie-ui-git
@@ -73,10 +70,18 @@ function arch_env() {
 			updpkgsums
 			makepkg --printsrcinfo > .SRCINFO			
 		elif [ "$1" = "stable" ]; then
-			echo "Update official repo release edition"
+			echo "Update official repo release edition ${VERSIONSTABLE}"
+			sed -i "s|{@version}|${VERSIONSTABLE}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-ui|g" PKGBUILD    
-			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/v${VERSION}.tar.gz|g" PKGBUILD    
-			git clone https://aur.archlinux.org/eddie-ui.git
+			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
+			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
+			echo Enter AUR passphrase if requested
+			git clone ssh://aur@aur.archlinux.org/eddie-ui.git
+			cd eddie-ui
+			cp ../PKGBUILD .
+			cp ../eddie-ui.install .
+			updpkgsums
+			makepkg --printsrcinfo > .SRCINFO			
 		fi
 		git config user.name "Eddie.website"
 		git config user.email "maintainer@eddie.website"
@@ -88,17 +93,32 @@ function arch_env() {
 	fi   
 }
 
-#arch_env self "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
 
-# Update official repo
-if test -f "${SCRIPTDIR}/../signing/gpg.passphrase"; then # Staff AirVPN
-	arch_env git "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
-	#arch_env release
+
+# Cleanup
+rm -rf $TARGETDIR
+
+if [ "$MODE" == "" ]; then
+	if test -f "${DEPLOYPATH}"; then
+		echo "Already builded: ${DEPLOYPATH}"
+		exit 0;
+	fi
+
+	arch_env self "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
+
+elif [ "$MODE" == "git" ]; then
+	if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+		arch_env git "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
+	fi
+elif [ "$MODE" == "stable" ]; then
+	if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+		arch_env stable "${REPODIR}" "${TARGETDIR}" "${SCRIPTDIR}"
+	fi
 fi
+
 
 # Cleanup
 echo Step: Final cleanup
 rm -rf ${TARGETDIR}
 echo Build linux_arch complete
-
 

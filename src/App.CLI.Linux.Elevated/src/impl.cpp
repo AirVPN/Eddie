@@ -16,6 +16,8 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+#include <cstring>
+
 #include <fcntl.h>
 
 #include <linux/fs.h>
@@ -44,8 +46,8 @@ std::string systemdUnitName = serviceName + ".service";
 std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
 
 int Impl::Main()
-{
-	signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
+{   
+    signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
 	signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
 
 	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
@@ -261,6 +263,176 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Ignore
 		}
 	}
+    else if (command == "netlock-nftables-available")
+    {
+        std::string nft = FsLocateExecutable("nft");
+        
+        bool available = (nft != "");
+        ReplyCommand(commandId, available ? "1" : "0");
+    }
+    else if (command == "netlock-nftables-activate")
+    {
+        std::string nft = FsLocateExecutable("nft");
+        
+        std::string pathBackup = GetTempPath("netlock_nftables_backup.nft");
+        
+        std::string result = "";
+
+        if(FsFileExists(pathBackup))
+        {
+            ThrowException("Unexpected: Already active");
+        }
+        else
+        {
+            // Try to up kernel module
+#ifndef EDDIE_NOLZMA
+            int ret = load_kernel_module("nf_tables", "");
+            if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+                ThrowException("Unable to initialize nf_tables module");
+#else
+            // Shell version, used under Linux Arch, for issue with link LZMA
+            std::string modprobePath = FsLocateExecutable("modprobe");
+            if (modprobePath != "")
+            {
+                ShellResult modprobeResult = ShellEx1(modprobePath, "nf_tables");
+                if (modprobeResult.exit != 0)
+                    ThrowException("Unable to initialize nf_tables module");
+            }
+#endif
+            // Backup of current
+            std::vector<std::string> args;
+            
+            ShellResult shellResultBackup = ShellEx2(nft, "list", "ruleset");
+            if(shellResultBackup.exit != 0)
+                ThrowException("nft issue: " + shellResultBackup.dump());
+            
+            FsFileWriteText(pathBackup, shellResultBackup.out);
+            
+            // Apply new
+            std::string path = GetTempPath("netlock_nftables_apply.nft");
+            FsFileWriteText(path, params["rules"]);
+            ShellResult shellResultApply = ShellEx2(nft, "-f", path);
+            FsFileDelete(path);
+            if(shellResultApply.exit != 0)
+                ThrowException("nft issue: " + shellResultApply.dump());
+        }
+
+        ReplyCommand(commandId, StringTrim(result));
+    }
+    else if (command == "netlock-nftables-deactivate")
+    {
+        std::string nft = FsLocateExecutable("nft");
+        std::string path = GetTempPath("netlock_nftables_backup.nft");
+
+        if (FsFileExists(path))
+        {
+            ShellResult shellResultFlush = ShellEx2(nft, "flush", "ruleset");
+            if(shellResultFlush.exit != 0)
+                ThrowException("nft issue: " + shellResultFlush.dump());
+                
+            ShellResult shellResultRestore = ShellEx2(nft, "-f", path);
+            FsFileDelete(path);
+            
+            if(shellResultRestore.exit != 0)
+                ThrowException("nft issue: " + shellResultRestore.dump());
+        }
+    }
+    else if (command == "netlock-nftables-accept-ip")
+    {
+        std::string nft = FsLocateExecutable("nft");
+        
+        std::string path = "";
+        std::vector<std::string> args1;
+        std::vector<std::string> args2;
+        int nCommands = 1;
+
+        if (params["layer"] == "ipv4")
+            path = IptablesExecutable("ipv4", "");
+        else if (params["layer"] == "ipv6")
+            path = IptablesExecutable("ipv6", "");
+        else
+            ThrowException("Unknown layer");
+
+        if (params["action"] == "add")
+        {
+            args1.push_back("insert");
+        }
+        else if (params["action"] == "del")
+        {
+            args1.push_back("del");
+        }
+        else
+            ThrowException("Unknown action");
+       
+        args1.push_back("rule");
+        
+        if (params["layer"] == "ipv4")
+            args1.push_back("ip");
+        else if (params["layer"] == "ipv6")
+            args1.push_back("ip6");
+        else
+            ThrowException("Unknown layer");
+            
+        args1.push_back("filter");
+        if (params["direction"] == "in")
+            args1.push_back("INPUT");
+        else if (params["direction"] == "out")
+            args1.push_back("OUTPUT");
+        else
+            ThrowException("Unknown direction");
+        
+        if (params["layer"] == "ipv4")
+            args1.push_back("ip");
+        else if (params["layer"] == "ipv6")
+            args1.push_back("ip6");
+        else
+            ThrowException("Unknown layer");
+           
+        if (params["direction"] == "in")
+            args1.push_back("saddr");
+        else if (params["direction"] == "out") 
+            args1.push_back("daddr");
+        else
+            ThrowException("Unknown direction");
+        
+        args1.push_back(StringEnsureCidr(params["cidr"]));
+
+        // Additional rule for incoming
+        if (params["direction"] == "in")
+        {
+            nCommands++;
+            
+            args2 = args1;
+            
+            args2.push_back("ct");
+            args2.push_back("state");
+            args2.push_back("established");
+            args2.push_back("counter");
+            args2.push_back("accept");
+        }
+        
+        args1.push_back("counter");
+        args1.push_back("accept");
+
+        std::string output = "";
+        
+        for (int l = 0; l < nCommands; l++)
+        {
+            std::vector<std::string>* args;
+            if (l == 0)
+                args = &args1;
+            else
+                args = &args2;
+                
+            ShellResult shellResultRule = ShellEx(nft, *args);
+            if(shellResultRule.exit != 0)
+                ThrowException("nft issue: " + shellResultRule.dump());
+            
+            output += shellResultRule.dump() + "\n";
+        }
+
+        ReplyCommand(commandId, StringTrim(output));
+    }
 	else if (command == "netlock-iptables-available")
 	{
 		bool available = true;
@@ -360,13 +532,10 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		std::string pathIPv4 = GetTempPath("netlock_iptables_backup_ipv4.txt");
 		std::string pathIPv6 = GetTempPath("netlock_iptables_backup_ipv6.txt");
 
-		//bool wasActive = false;
 		std::string result = "";
 
 		if (FsFileExists(pathIPv4))
 		{
-			//wasActive = true;
-
 			std::vector<std::string> args;
 			std::string body = FsFileReadText(pathIPv4);
 			result += IptablesExec(IptablesExecutable("ipv4", "restore"), args, true, body);
@@ -376,8 +545,6 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 		if (FsFileExists(pathIPv6))
 		{
-			//wasActive = true;
-
 			std::vector<std::string> args;
 			std::string body = FsFileReadText(pathIPv6);
 			result += IptablesExec(IptablesExecutable("ipv6", "restore"), args, true, body);
@@ -468,17 +635,20 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		}
 
 		std::string output = "";
+        
+        if (params["action"] == "add") // Add only, Del not implemented yet, need handle detection because iptables-style is not yet implemented: https://wiki.nftables.org/wiki-nftables/index.php/Simple_rule_management#Removing_rules
+        {
+    		for (int l = 0; l < nCommands; l++)
+    		{
+    			std::vector<std::string>* args;
+    			if (l == 0)
+    				args = &args1;
+    			else
+    				args = &args2;
 
-		for (int l = 0; l < nCommands; l++)
-		{
-			std::vector<std::string>* args;
-			if (l == 0)
-				args = &args1;
-			else
-				args = &args2;
-
-			output += IptablesExec(path, *args, stdinWrite, stdinBody);
-		}
+    			output += IptablesExec(path, *args, stdinWrite, stdinBody);
+    		}
+        }
 
 		ReplyCommand(commandId, StringTrim(output));
 	}

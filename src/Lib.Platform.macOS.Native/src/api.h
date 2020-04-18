@@ -49,6 +49,8 @@ EDDIE_MACOS_NATIVE_EXPORT int eddie_kill(int pid, int sig);
 
 EDDIE_MACOS_NATIVE_EXPORT void eddie_get_realtime_network_stats(char* buf, int bufMaxLen);
 
+EDDIE_MACOS_NATIVE_EXPORT void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult);
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus

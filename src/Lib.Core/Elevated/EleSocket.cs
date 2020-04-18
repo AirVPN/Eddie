@@ -55,8 +55,11 @@ namespace Eddie.Core.Elevated
 		{
 			try
 			{
+				if (Platform.Instance.IsPortLocalListening(port) == false)
+					return "No listening";
+
 				m_bufferReceive = "";
-				m_failedReason = "";				
+				m_failedReason = "";
 
 				IPAddress ipAddress = IPAddress.Loopback;
 				IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);

@@ -28,6 +28,7 @@ class Program
 
 			string nsis = System.IO.File.ReadAllText(scriptPath + "\\nsis\\Eddie-UI.nsi");
 
+			nsis = nsis.Replace("{@arch}", arch);
 			nsis = nsis.Replace("{@resources}", scriptPath + "\\nsis");
 			//nsis = nsis.Replace("{@temp}", NormalizePath(pathTemp));
 			nsis = nsis.Replace("{@out}", pathDeploy);

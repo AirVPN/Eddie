@@ -315,8 +315,9 @@ namespace Eddie.Core
 
         public static string GetTextTemp(string id)
         {
-            // Hardcoded string that need to be moved in language system
-            if (id == "InitStepConnectSystemPrivileges") return "Connect with daemon for system privileges";
+			// Hardcoded string that need to be moved in language system
+			if (id == "InitStepWaitSystemPrivileges") return "Wait daemon for system privileges";
+			if (id == "InitStepConnectSystemPrivileges") return "Connect with daemon for system privileges";
             if (id == "HelperPrivilegesPrompt") return "Authentication is needed to run Eddie as the super user";
             if (id == "HelperPrivilegesPromptInstall") return "Authentication is needed to install Eddie Service as the super user";
             if (id == "HelperPrivilegesPromptUninstall") return "Authentication is needed to uninstall Eddie Service as the super user";

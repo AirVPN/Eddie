@@ -17,7 +17,7 @@ mkdir -p "$BASEPATH/bin"
 # Contro: biggest exe file, and lintian need an override (bundled in .deb packages).
 
 #g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/src/api.cpp" -Wall -std=c++11 -O3 -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -D$1
-g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/src/api.cpp" -Wall -std=c++11 -O3 -D$1
+g++ -shared -fPIC -o "$BASEPATH/bin/libLib.Platform.Linux.Native.so" "$BASEPATH/src/api.cpp" -Wall -lcurl -std=c++11 -O3 -D$1
 
 strip -S --strip-unneeded "$BASEPATH/bin/libLib.Platform.Linux.Native.so"
 chmod a-x "$BASEPATH/bin/libLib.Platform.Linux.Native.so"

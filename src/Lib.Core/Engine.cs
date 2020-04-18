@@ -110,8 +110,6 @@ namespace Eddie.Core
 		{
 			Instance = this;
 
-
-
 			StartCommandLine = new EngineCommandLine(environmentCommandLine);
 
 			m_uiManager = new UiManager();
@@ -233,7 +231,7 @@ namespace Eddie.Core
                 if (Platform.Instance.OnInit() == false)
                     return false;
 
-				Logs.Log(LogType.Verbose, "Eddie version: " + Constants.VersionShow + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
+                Logs.Log(LogType.Verbose, "Eddie version: " + Constants.VersionShow + " / " + Platform.Instance.GetSystemCode() + ", System: " + Platform.Instance.GetCode() + ", Name: " + Platform.Instance.GetName() + ", Version: " + Platform.Instance.GetVersion() + ", Mono/.Net: " + Platform.Instance.GetNetFrameworkVersion());
                 Logs.Log(LogType.Verbose, "Command line arguments (" + StartCommandLine.Params.Count.ToString() + "): " + StartCommandLine.GetFull());
 
                 if (ResourcesFiles.Count() == 0)
@@ -247,6 +245,10 @@ namespace Eddie.Core
 
 				// Init Elevation
 				{
+					UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepWaitSystemPrivileges"));
+
+					Platform.Instance.WaitService();
+					
 					UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepConnectSystemPrivileges"));
 
 					m_elevated = Platform.Instance.StartElevated();
@@ -372,7 +374,7 @@ namespace Eddie.Core
 					}
 				}
 
-				if (Webserver.GetPath() != "")
+                if (Webserver.GetPath() != "") 
 				{
 					if (Storage.GetBool("webui.enabled") == true)
 					{
@@ -1530,9 +1532,22 @@ namespace Eddie.Core
 
 		public HttpResponse FetchUrl(HttpRequest request)
 		{
-			Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
+            if(Platform.Instance.FetchUrlInternal())
+            {
+                Json jRequest = request.ToJson();
+                Json jResponse = Platform.Instance.FetchUrl(jRequest);
+                if (jResponse.HasKey("error"))
+                    throw new Exception("Fetch url error:" + jResponse["error"].ValueString);
+                HttpResponse response = new HttpResponse(); 
+                response.FromJson(jResponse);
+                return response;
+            }
+            else
+            {
+                Tools.Curl curl = Software.GetTool("curl") as Tools.Curl;
 
-			return curl.Fetch(request);
+                return curl.Fetch(request);
+            }
 		}
 
 		public int PingerInvalid()

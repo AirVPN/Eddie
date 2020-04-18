@@ -24,11 +24,51 @@ namespace Eddie.Core
 {
 	public class HttpResponse
 	{
-		public string StatusLine;
-		public byte[] BufferHeader = default(byte[]);
+		public string Status;
 		public byte[] BufferData = default(byte[]);
 		public List<KeyValuePair<string, string>> Headers = new List<KeyValuePair<string, string>>();
-		public int ExitCode = -1;
+		public int ResponseCode = 0;
+		
+		public void FromJson(Json jResponse)
+		{
+			if (jResponse.HasKey("headers"))
+			{
+				string[] lines = jResponse["headers"].ValueString.Split('\n');
+				Status = "";
+                foreach(string line in lines)
+                {
+                    string l = line.Trim();
+                    if (l == "")
+                        continue;
+					
+					if(Status == "")
+					{
+						Status = l.Trim();
+                    }
+                    else 
+					{
+						int posSep = l.IndexOfInv(":");
+						if (posSep != -1)
+						{
+							string k = "";
+							string v = "";
+							k = l.Substring(0, posSep).ToLowerInvariant().Trim();
+							v = l.Substring(posSep + 1).Trim();
+							if (k != "")
+								Headers.Add(new KeyValuePair<string, string>(k, v));
+						}
+					}	
+				}
+			}
+
+			if (jResponse.HasKey("body"))
+			{
+                BufferData = ExtensionsString.HexToBytes(jResponse["body"].ValueString);
+			}
+
+			if(jResponse.HasKey("response_code"))
+				ResponseCode = jResponse["response_code"].ValueInt;
+		}
 
 		public string GetBodyAscii()
 		{
@@ -53,9 +93,9 @@ namespace Eddie.Core
 		public string GetLineReport()
 		{
 			string t = "";
-			t += "Status: " + StatusLine.ToString();
+			t += "Status: " + Status.ToString();
 			t += " - Headers: ";
-			foreach (KeyValuePair<string,string> kp in Headers)
+			foreach (KeyValuePair<string, string> kp in Headers)
 			{
 				t += kp.Key + ":" + kp.Value + ";";
 			}

@@ -68,13 +68,23 @@ namespace Eddie.Platform.Windows
 
 					process.Start();
 
-					System.Threading.Thread.Sleep(1000);
+					int listeningPortStartTime = Utils.UnixTimeStamp();
+					for (; ; )
+					{							
+						if (Platform.Instance.IsPortLocalListening(port))
+							break;
+						
+						if (process == null)
+							throw new Exception("Unable to start (null)");
 
-					if (process == null)
-						throw new Exception("Unable to start (1)");
+						if (process.HasExited)
+							throw new Exception("Unable to start (already exit)");
 
-					if (process.HasExited)
-						throw new Exception("Unable to start (2)");
+						if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
+							throw new Exception("Unable to start (timeout)");
+
+						System.Threading.Thread.Sleep(100);
+					}
 
 					connectResult = Connect(port);
 					if (connectResult != "Ok")

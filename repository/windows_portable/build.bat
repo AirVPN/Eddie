@@ -84,8 +84,8 @@ IF "%VARPROJECT%"=="cli" (
 
 rem Signing
 
-SET /p VARSIGNPASSWORD= < "%VARSCRIPTDIR%\..\signing\eddie.pfx.pwd"
-IF exist %VARSCRIPTDIR%\..\signing\eddie.pfx (
+SET /p VARSIGNPASSWORD= < "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx.pwd"
+IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 	echo Step: Signing
 
 	for %%f in (%VARTARGETDIR%\*.*) do (
@@ -94,7 +94,7 @@ IF exist %VARSCRIPTDIR%\..\signing\eddie.pfx (
 			rem %VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff" | find /i "No signature found"
 			%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
 			if ERRORLEVEL 1 (
-				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
+				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
 			) ELSE (
 				rem Already signed
 			)

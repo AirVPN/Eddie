@@ -123,6 +123,7 @@ namespace Eddie.Forms.Forms
 			lblSystemService.Text = Platform.Instance.AllowServiceUserDescription();
 			pnlAdvancedGeneralWindowsOnly.Visible = GuiUtils.IsWindows();
 			pnlDnsWindowsOnly.Visible = GuiUtils.IsWindows();
+			chkWindowsWintun.Visible = GuiUtils.IsWindows();
 			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
 			lblHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
 			chkHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
@@ -601,6 +602,7 @@ namespace Eddie.Forms.Forms
 			chkAdvancedProviders.Checked = s.GetBool("advanced.providers");
 			chkHummingbirdPrefer.Checked = s.GetBool("tools.hummingbird.preferred");
 
+			chkWindowsWintun.Checked = s.GetBool("windows.wintun");
 			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
 			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
 			chkWindowsDebugWorkaround.Checked = s.GetBool("windows.workarounds");
@@ -971,6 +973,7 @@ namespace Eddie.Forms.Forms
 			s.SetBool("advanced.providers", chkAdvancedProviders.Checked);
 			s.SetBool("tools.hummingbird.preferred", chkHummingbirdPrefer.Checked);
 
+			s.SetBool("windows.wintun", chkWindowsWintun.Checked);
 			s.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
 			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
 			s.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);

@@ -49,32 +49,28 @@ namespace Eddie.Platform.MacOS
                     if (pid > 0)
                         process = System.Diagnostics.Process.GetProcessById(pid);
 
-					for (; ; )
-					{
-                        System.Threading.Thread.Sleep(1000);
+                    int listeningPortStartTime = Utils.UnixTimeStamp();
+                    for (; ; )
+                    {
+                        if (Platform.Instance.IsPortLocalListening(port))
+                            break;
 
-                        if (process == null)
-                        {
-                            if(pid == 0)
-                                throw new Exception("Unable to start (1)");
-                        }
-                        else
-                        {
-                            if(process.HasExited)
-                                throw new Exception("Unable to start (2)");
-                        }
+                        if (pid == 0)
+                            throw new Exception("Unable to start (null)");
 
-						connectResult = Connect(port);
-                        if (connectResult != "No socket")
-                        {
-							if (connectResult == "Ok")
-								break;
-                            else
-								throw new Exception("Unable to start (" + connectResult + ")");
-						}
-						
-					}
-				}
+                        if (process.HasExited)
+                            throw new Exception("Unable to start (already exit)");
+
+                        if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
+                            throw new Exception("Unable to start (timeout)");
+
+                        System.Threading.Thread.Sleep(100);
+                    }
+
+                    connectResult = Connect(port);
+                    if (connectResult != "Ok")
+                        throw new Exception("Unable to start (" + connectResult + ")");
+                }
 				else
 				{
 					ServiceEdition = true;

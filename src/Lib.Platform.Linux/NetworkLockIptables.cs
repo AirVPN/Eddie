@@ -331,7 +331,7 @@ namespace Eddie.Platform.Linux
                         foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
                         {
                             if (ip.IsV6)
-                                rulesIPv6.AppendLine("-A OUTPUT -o " + ip.ToCIDR() + " -m state --state ESTABLISHED -j ACCEPT");
+                                rulesIPv6.AppendLine("-A OUTPUT -d " + ip.ToCIDR() + " -m state --state ESTABLISHED -j ACCEPT");
                         }
 
                         // Whitelist outgoing

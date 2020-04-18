@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <lzma.h>
+#include <lzma.h> // Under debian, liblzma.dev
 #include <ctype.h>
 #include <sys/utsname.h>
 #include "loadmod.h"

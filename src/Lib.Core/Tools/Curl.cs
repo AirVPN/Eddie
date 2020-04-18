@@ -63,17 +63,6 @@ namespace Eddie.Core.Tools
 			return LanguageManager.GetText("ToolsCurlVersionNotSupported", Version, minVersionRequired);
 		}
 
-		public HttpResponse FetchUrlEx(string url, System.Collections.Specialized.NameValueCollection parameters, bool forceBypassProxy, string ipLayer, string resolve)
-		{
-			HttpRequest request = new HttpRequest();
-			request.Url = url;
-			request.Parameters = parameters;
-			request.BypassProxy = forceBypassProxy;
-			request.IpLayer = ipLayer;
-			request.ForceResolve = resolve;
-			return Fetch(request);
-		}
-
 		public HttpResponse Fetch(HttpRequest request)
 		{
 			HttpResponse response = new HttpResponse();
@@ -153,7 +142,7 @@ namespace Eddie.Core.Tools
 
 			args += " \"" + SystemShell.EscapeUrl(request.Url) + "\"";
 			args += " -sS"; // -s Silent mode, -S with errors
-			args += " --max-time " + Engine.Instance.Storage.GetInt("tools.curl.max-time").ToString();
+			args += " --max-time " + Engine.Instance.Storage.GetInt("http.timeout").ToString();
 
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
 			if(pathCacert != "")
@@ -168,9 +157,13 @@ namespace Eddie.Core.Tools
 			if (request.IpLayer == "4")
 				args += " -4";
 			if (request.IpLayer == "6")
-				args += " -6";
+				args += " -6"; 
 
 			args += " -i";
+
+            // http-100-continue issue: the body above are parsed uncorrectly. 2.19.1
+            // Workaround: for now, force header to avoid
+            args += " -H 'Expect:'";
 
 			string error = "";
 			try
@@ -192,7 +185,9 @@ namespace Eddie.Core.Tools
 					{
 						using(System.IO.MemoryStream Stream = new System.IO.MemoryStream())
 						{
-							using(System.IO.MemoryStream StreamHeader = new System.IO.MemoryStream())
+							byte[] bufferHeader = default(byte[]);
+
+							using (System.IO.MemoryStream StreamHeader = new System.IO.MemoryStream())
 							{
 								using(System.IO.MemoryStream StreamBody = new System.IO.MemoryStream())
 								{
@@ -225,24 +220,27 @@ namespace Eddie.Core.Tools
 										StreamHeader.Write(Stream.ToArray(), 0, (int)Stream.Length);
 									}
 
-									response.BufferHeader = StreamHeader.ToArray();
+									bufferHeader = StreamHeader.ToArray();
 									response.BufferData = StreamBody.ToArray();
 								}								
 							}							
 
-							string headers = System.Text.Encoding.ASCII.GetString(response.BufferHeader);
+							string headers = System.Text.Encoding.ASCII.GetString(bufferHeader);
 							string[] headersLines = headers.Split('\n');
 							for(int l = 0; l < headersLines.Length; l++)
 							{
 								string line = headersLines[l];
-								if(l == 0)
-									response.StatusLine = line;
-								int posSep = line.IndexOf(":");
-								if(posSep != -1)
+								if (l == 0)
+									response.Status = line.Trim();
+								else
 								{
-									string k = line.Substring(0, posSep);
-									string v = line.Substring(posSep + 1);
-									response.Headers.Add(new KeyValuePair<string, string>(k.ToLowerInvariant().Trim(), v.Trim()));
+									int posSep = line.IndexOfInv(":");
+									if (posSep != -1)
+									{
+										string k = line.Substring(0, posSep);
+										string v = line.Substring(posSep + 1);
+										response.Headers.Add(new KeyValuePair<string, string>(k.ToLowerInvariant().Trim(), v.Trim()));
+									}
 								}
 							}
 
@@ -252,8 +250,6 @@ namespace Eddie.Core.Tools
 					error = p.StandardError.ReadToEnd();
 
 					p.WaitForExit();
-
-					response.ExitCode = p.ExitCode;
 				}
 			}
 			catch (Exception e)

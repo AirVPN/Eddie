@@ -117,6 +117,15 @@ namespace Eddie.Platform.Windows
 
 			try
 			{
+				// Check VC++ Redistributable
+				// Need because our lib include libcurl, and static link of libcurl is not recommended
+				int runtimeVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetOsArchitecture(), "Major", "0"), 0);
+				if (runtimeVersion<14)
+				{
+					Engine.Instance.Logs.LogFatal("This software require some additional files (C++ Redistributable) that are not currently installed on your system. Use the Installer edition, or look https://eddie.website/windows-runtime/");
+					return false;
+				}
+
 				bool result = (NativeMethods.Init() == 0);
 				if (result == false)
 					throw new Exception("fail");
@@ -126,7 +135,7 @@ namespace Eddie.Platform.Windows
 			}
 			catch
 			{
-				Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
+				Engine.Instance.Logs.LogFatal("Unable to initialize native library. Maybe a CPU architecture issue.");
 				return false;
 			}			
 
@@ -442,8 +451,38 @@ namespace Eddie.Platform.Windows
 			return "If checked, install a Windows Service";
 		}
 
+		public override void WaitService()
+		{
+			try
+			{
+				ServiceController sc = new ServiceController();
+				sc.ServiceName = ServiceName;
+
+				// Unfortunately i cannot detect is StartType==Disabled, without check registry
+				if(sc.Status == ServiceControllerStatus.StartPending)
+					sc.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0,0,60));
+			}
+			catch
+			{
+			}
+		}
+
 		protected override bool GetServiceImpl()
 		{
+			try
+			{
+				ServiceController sc = new ServiceController();
+				sc.ServiceName = ServiceName;
+
+				if (sc.Status == ServiceControllerStatus.Running)
+					return true;
+			}
+			catch
+			{
+			}
+
+			return false;
+			/*
 			ServiceController[] services = ServiceController.GetServices();
 			foreach(ServiceController service in services)
 			{
@@ -451,6 +490,7 @@ namespace Eddie.Platform.Windows
 					return true;
 			}
 			return false;
+			*/
 		}
 
 		protected override bool SetServiceImpl(bool value)
@@ -633,6 +673,16 @@ namespace Eddie.Platform.Windows
 		public override int GetRecommendedSndBufDirective()
 		{
 			return 256 * 1024;
+		}
+
+		public override bool FetchUrlInternal()
+		{
+			return true;
+		}
+
+		public override Json FetchUrl(Json request)
+		{
+			return NativeMethods.CUrl(request);
 		}
 
 		public override void FlushDNS()
@@ -896,6 +946,14 @@ namespace Eddie.Platform.Windows
 			{
 				ovpn.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");
 			}
+
+			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
+			{
+				if (Engine.Instance.Storage.GetBool("windows.wintun"))
+				{
+					ovpn.AppendDirectives("windows-driver wintun", "OS");
+				}
+			}				
 		}
 
 		public override void OpenVpnConfigNormalize(OvpnBuilder ovpn)
@@ -1989,7 +2047,7 @@ namespace Eddie.Platform.Windows
 			else if (driver == WindowsDriverWintunId)
 			{
 				//SystemShell.ShellUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
-				SystemShell.ShellUserEvent("msiexec", "/x \"" + driverPath + "\"", true);
+				SystemShell.ShellUserEvent("msiexec", "/x \"" + driverPath + "\" /passive", true);
 			}
 				
 

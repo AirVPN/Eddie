@@ -66,6 +66,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Elevated.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="NetworkLockNftables.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lib.Core\Lib.Core.csproj">

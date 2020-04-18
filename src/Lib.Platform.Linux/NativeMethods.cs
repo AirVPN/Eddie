@@ -16,7 +16,10 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
+using System;
 using System.Runtime.InteropServices;
+
+using Eddie.Core;
 
 namespace Eddie.Platform.Linux
 {
@@ -142,7 +145,21 @@ namespace Eddie.Platform.Linux
 			return eddie_kill(pid, sig);
 		}
 
-		[DllImport("__Internal", EntryPoint = "mono_get_runtime_build_info")]
+        [DllImport(NativeLibName)]
+        private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
+        public static Json CUrl(Json jRequest)
+        {
+            uint resultMaxLen = 1000*1000*5;
+            byte[] resultBuf = new byte[resultMaxLen];
+            eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
+            Json jResult;
+            if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
+                return jResult;
+            else
+                throw new Exception("curl unexpected json error");
+        }
+
+        [DllImport("__Internal", EntryPoint = "mono_get_runtime_build_info")]
 		public extern static string GetMonoVersion();
 
 		[DllImport("libc")]

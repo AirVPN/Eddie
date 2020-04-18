@@ -517,7 +517,7 @@ namespace Eddie.Core.Providers
 		{
 			List<string> urls = GetBootstrapUrls();
 
-			string authPublicKey = Manifest.SelectSingleNode("rsa").InnerXml;
+            string authPublicKey = Manifest.SelectSingleNode("rsa").InnerXml;
 
 			return FetchUrls(title, authPublicKey, urls, parameters);
 		}
