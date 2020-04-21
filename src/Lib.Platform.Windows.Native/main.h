@@ -33,6 +33,4 @@ extern "C" { __declspec(dllexport) int eddie_get_interface_metric(int index, con
 
 extern "C" { __declspec(dllexport) void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult); }
 
-extern "C" { __declspec(dllexport) void eddie_pazzo(const char* jRequest, unsigned int resultMaxLen, char* jResult); }
-
 #endif

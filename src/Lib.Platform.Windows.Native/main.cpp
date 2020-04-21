@@ -90,13 +90,6 @@ static size_t eddie_curl_writecallback(void *data, size_t size, size_t nmemb, st
 	return result;
 }
 
-
-void eddie_pazzo(const char* jRequest, unsigned int resultMaxLen, char* jResult)
-{	
-	std::string test = "gatto";
-	strcpy_s(jResult, resultMaxLen, test.c_str());
-}
-
 void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
 {	
 	json jsonRequest = json::parse(jRequest);
@@ -122,7 +115,6 @@ void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
 			std::string postfields = jsonRequest["postfields"];
 			if (postfields != "")
 			{
-				jsonResponse["debug-post"] = jsonRequest["postfields"];
 				curl_easy_setopt(hcurl, CURLOPT_POSTFIELDSIZE, (long)postfields.size());
 				curl_easy_setopt(hcurl, CURLOPT_POSTFIELDS, postfields.c_str());
 			}

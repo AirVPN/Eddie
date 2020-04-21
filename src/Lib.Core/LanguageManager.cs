@@ -328,6 +328,7 @@ namespace Eddie.Core
 			if (id == "OptionsReadError") return "Profile unreadable: {1}. Do you want to reset Eddie to default settings?";
             if (id == "OsLinuxNetworkAdapterIPv6Disabled") return "IPv6 disabled on network adapter ({1})";
             if (id == "OsLinuxNetworkAdapterIPv6Restored") return "IPv6 restored on network adapter ({1})";
+			if (id == "OsDriverNoAdapterFound") return "Cannot find tunnel adapter of driver {1}, try install.";
 			if (id == "OsDriverAdapterNotAvailable") return "VPN Network Adapter not found, install fail ({1})";
 			
 			return "";

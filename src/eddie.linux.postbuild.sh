@@ -24,21 +24,30 @@ if [ "$3" == "" ]; then
 fi
 
 if [ "$4" == "" ]; then
-    echo Fourty arg must be config
+    echo Fourty arg must be config - Debug/Relese
     exit 1
 fi
+
+# 2020-04-20: Forced 'static'. We build official packages from Debian8, and there is too much issues libcurl3 vs libcurl4 and packages dependencies on every linux distro supported.
+# Note: we need to use a debian-lintian exception for 'static'.
+# if [ "$5" == "" ]; then
+#    echo Fifty arg must be mode - shared/static
+#    exit 1
+# fi
 
 BASEPATH=$(dirname $(realpath -s $0))
 OUTPATH=$1
 PROJECT=$2
 ARCH=$3
 CONFIG=$4
+MODE=static
 
 echo BasePath: $BASEPATH
 echo TargetDir: $OUTPATH
 echo Project: $PROJECT
 echo Arch: $ARCH
 echo Config: $CONFIG
+echo Mode: $MODE
 
 if [ $PROJECT = "ui" ]; then
     # Copy Tray
@@ -73,6 +82,6 @@ cp "$BASEPATH/App.CLI.Linux.Elevated/bin/eddie-cli-elevated" "$OUTPATH"
 
 # Compile and Copy Native
 chmod +x "${BASEPATH}/Lib.Platform.Linux.Native/build.sh"
-"${BASEPATH}/Lib.Platform.Linux.Native/build.sh" "$CONFIG"
+"${BASEPATH}/Lib.Platform.Linux.Native/build.sh" "$CONFIG" "$MODE"
 cp "$BASEPATH/Lib.Platform.Linux.Native/bin/libLib.Platform.Linux.Native.so" "$OUTPATH"
 

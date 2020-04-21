@@ -1564,59 +1564,61 @@ namespace Eddie.Platform.Windows
 		{
 			try
 			{
-				string sysPath = "";
-
 				if (driver == "0901")
 				{
+					string sysPath = "";
+
 					object objSysPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\tap0901", "ImagePath", "");
 					if (objSysPath != null)
 						sysPath = objSysPath as string;
+
+					if (sysPath != "")
+					{
+						sysPath = NormalizeWinSysPath(sysPath);
+
+						if (Platform.Instance.FileExists(sysPath) == false)
+						{
+							throw new Exception(LanguageManager.GetText("OsDriverNoPath", sysPath));
+						}
+
+						// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
+						FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
+
+						string result = versionInfo.ProductVersion;
+						if (result == null)
+							throw new Exception(LanguageManager.GetText("OsDriverNoVersion", sysPath));
+						if (result.IndexOf(" ") != -1)
+							result = result.Substring(0, result.IndexOf(" "));
+
+						return result;
+					}
+
+					/* // Not a realtime solution
+					ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Storage.Get("windows.adapter_name") + "'");
+
+					ManagementObjectCollection objCollection = objSearcher.Get();
+
+					foreach (ManagementObject obj in objCollection)
+					{
+						object objVersion = obj["DriverVersion"];
+						if(objVersion != null)
+						{
+							string version = objVersion as string;
+							return version;
+						}				
+					}
+					*/
 				}
 				else if (driver == "wintun")
 				{
-					object objSysPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\wintun", "ImagePath", "");
-					if (objSysPath != null)
-						sysPath = objSysPath as string;
+					object wintunVersion = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wintun", "Version", "");
+					if (wintunVersion != null)
+						return wintunVersion as string;					
 				}
 				else
 					throw new Exception("Unknown driver " + driver);
 
-				if (sysPath != "")
-				{
-					sysPath = NormalizeWinSysPath(sysPath);
-
-					if (Platform.Instance.FileExists(sysPath) == false)
-					{
-						throw new Exception(LanguageManager.GetText("OsDriverNoPath", sysPath));
-					}
-
-					// GetVersionInfo may throw a FileNotFound exception between 32bit/64bit SO/App.
-					FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(sysPath);
-
-					string result = versionInfo.ProductVersion;
-					if (result == null)
-						throw new Exception(LanguageManager.GetText("OsDriverNoVersion", sysPath));
-					if (result.IndexOf(" ") != -1)
-						result = result.Substring(0, result.IndexOf(" "));
-
-					return result;
-				}
-
-				/* // Not a realtime solution
-				ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Storage.Get("windows.adapter_name") + "'");
-
-				ManagementObjectCollection objCollection = objSearcher.Get();
-
-				foreach (ManagementObject obj in objCollection)
-				{
-					object objVersion = obj["DriverVersion"];
-					if(objVersion != null)
-					{
-						string version = objVersion as string;
-						return version;
-					}				
-				}
-				*/
+				
 			}
 			catch (Exception e)
 			{
@@ -1683,7 +1685,7 @@ namespace Eddie.Platform.Windows
 				if (driver == WindowsDriverTapId)
 					SystemShell.ShellUserEvent(driverPath, "/S", true);
 				else if (driver == WindowsDriverWintunId)
-					SystemShell.ShellUserEvent("msiexec", "/i \"" + driverPath + "\" /quiet /norestart", true);
+					SystemShell.ShellUserEvent("msiexec", "/i \"" + driverPath + "\" /passive /norestart", true);
 
 				if (GetDriverVersion(driver) == "")
 					throw new Exception(LanguageManager.GetText("OsDriverFailed", driver));
@@ -1702,15 +1704,13 @@ namespace Eddie.Platform.Windows
 
 			if (adapterFound == false)
 			{
-				// throw new Exception(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
 				if (driver == WindowsDriverTapId)
 				{
-					//SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --name \"Eddie tapwin\" --hwid root\\tap0901", true);
 					SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --hwid root\\tap0901", true);
 				}	
 				else if (driver == WindowsDriverWintunId)
 				{
-					//SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --name \"Eddie Wintun\" --hwid wintun", true);
 					SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --hwid wintun", true);
 				}
 			}

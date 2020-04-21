@@ -90,7 +90,7 @@ namespace Eddie.Platform.Linux
 
 		public override bool OnInit()
 		{
-			base.OnInit();
+			base.OnInit(); 
 
             m_version = SystemShell.Shell1(LocateExecutable("uname"), "-a");
             m_architecture = NormalizeArchitecture(SystemShell.Shell1(LocateExecutable("uname"), "-m").Trim());
@@ -529,7 +529,7 @@ namespace Eddie.Platform.Linux
 
         public override bool FetchUrlInternal()
         {
-            return true;
+            return false;  // See comment in Lib.Platform.Native/build.sh
         }
 
         public override Json FetchUrl(Json request)

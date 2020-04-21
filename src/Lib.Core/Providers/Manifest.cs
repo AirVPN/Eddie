@@ -234,7 +234,7 @@ namespace Eddie.Core.Providers
 		{
 			base.OnRefresh();
 
-			// Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshStart, Title));
+            // Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("ProviderRefreshStart, Title));
 
 			try
 			{
@@ -599,7 +599,7 @@ namespace Eddie.Core.Providers
 				request.Parameters["s"] = ExtensionsString.Base64Encode(bytesParamS);
 				request.Parameters["d"] = ExtensionsString.Base64Encode(bytesParamD);
 
-				HttpResponse response = Engine.Instance.FetchUrl(request);
+                HttpResponse response = Engine.Instance.FetchUrl(request);
 
 				try
 				{

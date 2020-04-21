@@ -3,6 +3,7 @@
 set -e
 
 rm -f files/*
+rm -rf /tmp/eddie_deploy
 
 linux_mono/build.sh cli
 linux_portable/build.sh cli

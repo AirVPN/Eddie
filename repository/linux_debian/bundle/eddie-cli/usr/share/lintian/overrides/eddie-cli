@@ -7,3 +7,9 @@ eddie-cli binary: statically-linked-binary
 # because it's signed with dpkg-sig.
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758054
 eddie-cli binary: misplaced-extra-member-in-deb
+
+# libcurl static, see readme.txt in Lib.Platform.Linux.Native
+# eddie-cli binary: embedded-library usr/lib/eddie-cli/libLib.Platform.Linux.Native.so: curl
+
+# Warning
+eddie-cli binary: hardening-no-relro usr/lib/eddie-cli/libLib.Platform.Linux.Native.so

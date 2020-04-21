@@ -39,7 +39,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include <curl/curl.h> // Debian: libcurl4-openssl-dev
+#ifdef EDDIE_LIBCURL
+    #include <curl/curl.h> // Debian: libcurl4-openssl-dev
+#endif
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -615,6 +617,7 @@ int eddie_kill(int pid, int sig)
     return kill((pid_t) pid, sig);
 }
 
+#ifdef EDDIE_LIBCURL
 static size_t eddie_curl_headercallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
@@ -742,6 +745,7 @@ void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
         
     strcpy(jResult, jResultStr.c_str());
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
