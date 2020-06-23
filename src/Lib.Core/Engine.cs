@@ -376,9 +376,9 @@ namespace Eddie.Core
 
                 if (Webserver.GetPath() != "") 
 				{
-					if (Storage.GetBool("webui.enabled") == true)
+                    if (Storage.GetBool("webui.enabled") == true)
 					{
-						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingWebserver"));
+                        UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingWebserver"));
 
 						m_webserver = new Webserver();
 						m_webserver.Start();
@@ -710,10 +710,15 @@ namespace Eddie.Core
 		public string LocateResource(string relativePath)
 		{
 			string pathResource = Platform.Instance.NormalizePath(GetPathResources() + "/" + relativePath);
-			if ((File.Exists(pathResource)) || (Directory.Exists(pathResource)))
-				return pathResource;
-			else
-				return Platform.Instance.LocateResource(relativePath);
+
+            if ((File.Exists(pathResource)) || (Directory.Exists(pathResource)))
+            {
+                return pathResource;
+            }
+            else
+            {
+                return Platform.Instance.LocateResource(relativePath);
+            }
 		}
 
 		public bool AskExitConfirm()
@@ -2366,7 +2371,7 @@ namespace Eddie.Core
 					}
 				}
 			}
-			Platform.Instance.OnJsonNetworkInfo(jNetworkInfo);
+			Platform.Instance.OnJsonNetworkInfo(jNetworkInfo);			
 			return jNetworkInfo;
 		}
 

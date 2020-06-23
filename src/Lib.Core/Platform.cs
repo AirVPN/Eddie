@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -352,6 +351,28 @@ namespace Eddie.Core
 		public virtual void DirectoryEnsure(string path)
 		{
 			Directory.CreateDirectory(path);
+		}
+
+		public virtual string DirectoryTemp()
+		{
+			return NormalizePath(Path.GetTempPath());
+		}
+
+		public virtual string FileTempName(string partialName)
+		{
+			for(int l=0; ;l++)
+			{
+				string path = DirectoryTemp() + DirSep + partialName;
+				if (l > 0)
+					path += "-" + RandomGenerator.GetHash().Substring(0, 6);
+				if (FileExists(path) == false)
+					return path;
+			}
+		}
+
+		public virtual string FileGetNameFromPath(string path)
+		{
+			return new FileInfo(path).Name;
 		}
 
 		public virtual void FileDelete(string path)
@@ -730,7 +751,7 @@ namespace Eddie.Core
 
 			using (Ping pingSender = new Ping())
 			{
-				PingOptions options = new PingOptions();
+				PingOptions options = new PingOptions();				
 
 				// Use the default TTL value which is 128, but change the fragmentation behavior.
 				// options.DontFragment = true;
@@ -741,7 +762,7 @@ namespace Eddie.Core
 					byte[] buffer = RandomGenerator.GetBuffer(32);
 					int timeout = timeoutSec * 1000;
 					PingReply reply = pingSender.Send(host.ToString(), timeout, buffer, options);
-
+			
 					if (reply.Status == IPStatus.Success)
 						return reply.RoundtripTime;
 					else

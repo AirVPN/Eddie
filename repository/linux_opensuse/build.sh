@@ -22,6 +22,7 @@ ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_opensuse
+FINALPATH=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_opensuse.rpm
 DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_opensuse.rpm
 
 if test -f "${DEPLOYPATH}"; then
@@ -71,11 +72,13 @@ mono $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-${PROJECT}.exe --cli --path.resou
 gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 
 # Remove unneed
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
-if test -f "${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird"; then
-    rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
-fi
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/liblzo*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libcrypto*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libssl*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libpkcs*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
 if [ $PROJECT = "cli" ]; then
@@ -121,18 +124,33 @@ cat ${TARGETDIR}/../rpmbuild.spec
 cd ${TARGETDIR} # Unable to specify an output path
 if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
     echo if requested, enter $(cat "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase") as passphrase
-    cp ${SCRIPTDIR}/../signing/rpmmacros ~/.rpmmacros    
+    echo -e "%_signature gpg\n%_gpg_name Eddie <maintainer@eddie.website>\n%__gpg /usr/bin/gpg\n" >~/.rpmmacros
     export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
     rpmbuild -bb "${TARGETDIR}/../rpmbuild.spec" --buildroot "${TARGETDIR}" -sign
 else
+    # clodotemp rimuovere
+    echo "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase" not found, unexpected, temp 
+    exit 1 # clodotemp rimuovere
+
     rpmbuild -bb "${TARGETDIR}/../rpmbuild.spec" --buildroot "${TARGETDIR}" 
     #--define "_rpmdir ${TARGETDIR}/../"
 fi
 cd ..
-mv *.rpm ${DEPLOYPATH}
+ARCHRPM=${ARCH}
+if [ ${ARCH} = "armv7l" ]; then
+    ARCHRPM="armv7hnl"
+elif [ ${ARCH} = "x86" ]; then
+    ARCHRPM="i386"
+elif [ ${ARCH} = "x64" ]; then
+    ARCHRPM="x86_64"
+fi
+mv eddie-${PROJECT}-${VERSION}-0.${ARCHRPM}.rpm ${FINALPATH}
 
 # Deploy to eddie.website
-${SCRIPTDIR}/../linux_common/deploy.sh ${DEPLOYPATH}
+${SCRIPTDIR}/../linux_common/deploy.sh ${FINALPATH}
+
+# End
+mv ${FINALPATH} ${DEPLOYPATH}
 
 # Cleanup
 echo Step: Final cleanup

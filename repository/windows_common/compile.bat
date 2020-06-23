@@ -25,11 +25,11 @@ set VARRULESETPATH="%VARSCRIPTDIR%\..\..\tools\ruleset\norules.ruleset"
 echo Compilation
 
 IF "%VARPROJECT%"=="cli" (
-	set VARSOLUTIONPATH="%VARSCRIPTDIR%\..\..\src\eddie2.windows.sln"
+	set VARSOLUTIONPATH="%VARSCRIPTDIR%\..\..\src\eddie.windows.cli.sln"
 ) ELSE IF "%VARPROJECT%"=="ui" (
-	set VARSOLUTIONPATH="%VARSCRIPTDIR%\..\..\src\eddie2.windows.sln"
+	set VARSOLUTIONPATH="%VARSCRIPTDIR%\..\..\src\eddie2.windows.ui.sln"
 ) ELSE IF "%VARPROJECT%"=="ui3" (
-	set VARSOLUTIONPATH="%VARSCRIPTDIR%\..\..\src\eddie3.windows.sln"
+	set VARSOLUTIONPATH="%VARSCRIPTDIR%\..\..\src\eddie3.windows.ui.sln"
 )
 
 %VARMSBUILD% /verbosity:minimal /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /p:TargetFrameworkVersion=%VARTARGETFRAMEWORK% /t:Rebuild %VARSOLUTIONPATH% /p:DefineConstants="EDDIENET4" || goto :error

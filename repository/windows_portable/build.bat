@@ -24,6 +24,7 @@ set VARCONFIG=Release
 set VARSCRIPTDIR=%~dp0
 FOR /F "tokens=*" %%g IN ('%VARSCRIPTDIR%\..\windows_common\get-version.exe') do (SET "VARVERSION=%%g")
 set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable
+set VARFINALPATH=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip
 set VARDEPLOYPATH=%VARSCRIPTDIR%\..\files\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable.zip
 
 echo Build Windows Portable, Project: %VARPROJECT%, OS: %VAROS%, Arch: %VARARCH%
@@ -94,6 +95,7 @@ IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 			rem %VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff" | find /i "No signature found"
 			%VARSCRIPTDIR%\..\windows_common\signtool.exe verify /pa "%%~ff"
 			if ERRORLEVEL 1 (
+				echo %VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
 				%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%%~ff" || goto :error
 			) ELSE (
 				rem Already signed
@@ -105,10 +107,13 @@ IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 rem Build archive
 echo Step: Build archive
 
-%VARSCRIPTDIR%\..\windows_common\7za.exe a -mx9 -tzip "%VARDEPLOYPATH%" "%VARTARGETDIR%" || goto :error
+%VARSCRIPTDIR%\..\windows_common\7za.exe a -mx9 -tzip "%VARFINALPATH%" "%VARTARGETDIR%" || goto :error
 
 rem Deploy
-call %VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARDEPLOYPATH%" || goto :error
+call %VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARFINALPATH%" || goto :error
+
+rem End
+move "%VARFINALPATH%" "%VARDEPLOYPATH%"
 
 rem Cleanup
 echo Step: Final cleanup

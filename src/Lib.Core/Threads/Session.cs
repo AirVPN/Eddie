@@ -800,7 +800,7 @@ namespace Eddie.Core.Threads
 			m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = sshToolPath;
 			m_processProxy.StartInfo.Arguments = arguments;
-			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
+			m_processProxy.StartInfo.WorkingDirectory = Platform.Instance.DirectoryTemp();
 
 			m_processProxy.StartInfo.Verb = "run";
 			m_processProxy.StartInfo.CreateNoWindow = true;
@@ -871,7 +871,7 @@ namespace Eddie.Core.Threads
 			m_processProxy = new Process();
 			m_processProxy.StartInfo.FileName = Software.GetTool("ssl").Path;			
 			m_processProxy.StartInfo.Arguments = "\"" + Encoding.Default.GetString(Encoding.UTF8.GetBytes(sslConfigPath)) + "\""; // encoding workaround, stunnel expect utf8
-			m_processProxy.StartInfo.WorkingDirectory = Utils.GetTempPath();
+			m_processProxy.StartInfo.WorkingDirectory = Platform.Instance.DirectoryTemp();
 
 			m_processProxy.StartInfo.Verb = "run";
 			m_processProxy.StartInfo.CreateNoWindow = true;

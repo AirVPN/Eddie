@@ -383,10 +383,10 @@ int IBase::Main()
 					{
 						int parentPID = GetParentProcessId();
 
-						if (clientProcessId != parentPID)
+                        if (clientProcessId != parentPID)
 						{
 							int parentPID2 = GetParentProcessId(parentPID); // Grandparent, for example if launched via 'sudo'
-
+       
 							if (clientProcessId != parentPID2)
 							{
 								ThrowException("Client not allowed: Connection not from parent process (spot mode)");

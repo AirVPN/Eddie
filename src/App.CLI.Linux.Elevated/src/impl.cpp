@@ -29,6 +29,8 @@
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal()
 
+#undef EDDIE_NOLZMA // Eddie 2.19.3, some users report issue with zfs compression
+
 #ifndef EDDIE_NOLZMA
 #include "loadmod.h"
 #endif

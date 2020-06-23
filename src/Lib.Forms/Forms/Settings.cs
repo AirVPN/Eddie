@@ -103,6 +103,9 @@ namespace Eddie.Forms.Forms
 			GuiUtils.FixHeightVs(txtExePath, lblExePath);
 			GuiUtils.FixHeightVs(txtExePath, cmdExeBrowse);
 
+			GuiUtils.FixHeightVs(txtHummingbirdPath, lblHummingbirdPrefer);
+			GuiUtils.FixHeightVs(txtHummingbirdPath, cmdHummingbirdPathBrowse);
+
 			GuiUtils.FixHeightVs(txtLogPath, lblLogPath);
 		}
 
@@ -127,6 +130,8 @@ namespace Eddie.Forms.Forms
 			chkWindowsDebugWorkaround.Visible = GuiUtils.IsWindows();
 			lblHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
 			chkHummingbirdPrefer.Visible = (GuiUtils.IsWindows() == false);
+			txtHummingbirdPath.Visible = (GuiUtils.IsWindows() == false);
+			cmdHummingbirdPathBrowse.Visible = (GuiUtils.IsWindows() == false);
 
 			cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModeNone"));			
 			cboStorageMode.Items.Add(LanguageManager.GetText("WindowsSettingsStorageModePassword"));
@@ -609,6 +614,7 @@ namespace Eddie.Forms.Forms
 			chkWindowsSshPlinkForce.Checked = s.GetBool("windows.ssh.plink.force");
 
 			txtExePath.Text = s.Get("tools.openvpn.path");
+			txtHummingbirdPath.Text = s.Get("tools.hummingbird.path");
 
 			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
@@ -980,6 +986,8 @@ namespace Eddie.Forms.Forms
 			s.SetBool("windows.ssh.plink.force", chkWindowsSshPlinkForce.Checked);
 
 			SetOption("tools.openvpn.path", txtExePath.Text);
+			SetOption("tools.hummingbird.path", txtHummingbirdPath.Text);
+			
 
 			int manifestRefreshIndex = cboAdvancedManifestRefresh.SelectedIndex;
 			if (manifestRefreshIndex == 0) // Auto
@@ -1174,6 +1182,13 @@ namespace Eddie.Forms.Forms
 			string result = GuiUtils.FilePicker();
 			if (result != "")
 				txtExePath.Text = result;
+		}
+
+		private void cmdHummingbirdPathBrowse_Click(object sender, EventArgs e)
+		{
+			string result = GuiUtils.FilePicker();
+			if (result != "")
+				txtHummingbirdPath.Text = result;
 		}
 
 		private void cmdOk_Click(object sender, EventArgs e)

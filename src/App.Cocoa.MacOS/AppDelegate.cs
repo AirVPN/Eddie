@@ -31,7 +31,14 @@ namespace Eddie.UI.Cocoa.Osx
 		{
         }
 
-		public override bool ApplicationShouldTerminateAfterLastWindowClosed(NSApplication sender)
+        public override bool ApplicationShouldHandleReopen(NSApplication sender, bool hasVisibleWindows)
+        {
+			if (UiClient.Instance.Data != null)
+				UiClient.Instance.MainWindow.Restore(sender);
+			return true;
+		}
+
+        public override bool ApplicationShouldTerminateAfterLastWindowClosed(NSApplication sender)
 		{
 			return false; // 2.8
 		}

@@ -167,8 +167,8 @@ namespace Eddie.Forms
 					UiClient.Instance.MainWindow.OnFrontMessage(data["message"].Value as Json);
 			}
 			else if (cmd == "system.report.progress")
-			{
-				string step = data["step"].Value as string;
+			{				
+				string step = data["step"].Value as string;				
 				string text = data["body"].Value as string;
 				int perc = Conversions.ToInt32(data["perc"].Value, 0);
 

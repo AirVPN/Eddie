@@ -8,7 +8,7 @@
     <ProjectGuid>{F7A8C0E6-F913-43EB-8F8E-F2F86FA962A2}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Eddie.CLI.macOS</RootNamespace>
-    <AssemblyName>App.CLI.macOS</AssemblyName>
+    <AssemblyName>Eddie</AssemblyName>
     <ReleaseVersion>2.19</ReleaseVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -29,10 +29,6 @@
           <type>AfterBuild</type>
           <command>find /Library/Frameworks/Xamarin.Mac.framework/Versions -name libxammac.dylib -exec cp {} ${TargetDir} \;</command>
         </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.macos.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
-        </Command>
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -49,10 +45,6 @@
         <Command>
           <type>AfterBuild</type>
           <command>find /Library/Frameworks/Xamarin.Mac.framework/Versions -name libxammac.dylib -exec cp {} ${TargetDir} \;</command>
-        </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.macos.postbuild.sh" "${TargetDir}" cli ${ProjectConfigPlat} ${ProjectConfigName}</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -79,4 +71,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+<Target Name="BeforeBuild">
+		<Exec Command="&quot;$(SolutionDir)/eddie.macos.prebuild.sh&quot; &quot;$(TargetDir)&quot; cli $(Platform) $(Configuration)" />
+	</Target>
 </Project>

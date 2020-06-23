@@ -80,18 +80,19 @@ namespace Eddie.Core.Elevated
 				// Begin receiving the data from the remote device.  
 				socket.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
 
-
 				m_sessionKey = RandomGenerator.GetHash();
 
-                DoCommandSync("session-key", "key", m_sessionKey, "version", Constants.ElevatedVersionExpected);
+				DoCommandSync("session-key", "key", m_sessionKey, "version", Constants.ElevatedVersionExpected);
 
-                if (m_failedReason != "")
+				if (m_failedReason != "")
 					return m_failedReason;
 
 				m_started = true;
 			}
 			catch (Exception ex)
 			{
+				// Debug hardening issue on Mojave
+				// return ex.Message + "\n" + ex.StackTrace + "\n" + ex.ToString();
 				return ex.Message;
 			}	
 

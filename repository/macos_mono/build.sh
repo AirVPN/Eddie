@@ -47,9 +47,6 @@ rm -rf $TARGETDIR
 echo Step: Compile
 
 ARCHCOMPILE=${ARCH}
-if [ $ARCHCOMPILE = "armhf" ]; then
-	ARCHCOMPILE="x64" # Arm pick x64 executable (that are anyway CIL).
-fi
 
 ${SCRIPTDIR}/../macos_common/compile.sh ${PROJECT}
 
@@ -63,7 +60,7 @@ if [ ${PROJECT} = "cli" ]; then
 elif [ ${PROJECT} = "ui" ]; then
 	echo "Unsupported"
     exit 1
-elif [ ${PROJECT} = "u3" ]; then
+elif [ ${PROJECT} = "ui3" ]; then
 	echo "Unsupported"
     exit 1
 fi

@@ -817,7 +817,7 @@ namespace Eddie.Platform.Linux
 			try
 			{
 				int currentId = Process.GetCurrentProcess().Id;
-				string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
+				string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path) == false)
 				{
 				}
@@ -850,7 +850,7 @@ namespace Eddie.Platform.Linux
 			try
 			{
 				int currentId = Process.GetCurrentProcess().Id;
-				string path = Utils.GetTempPath() + "/" + Constants.Name + "_" + Constants.AppID + ".pid";
+				string path = DirectoryTemp() + DirSep + Constants.Name + "_" + Constants.AppID + ".pid";
 				if (File.Exists(path))
 				{
 					int otherId;

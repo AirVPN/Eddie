@@ -703,10 +703,6 @@ namespace Eddie.Core
 			}
 			*/
 
-			// Experimental - Allow identification as Public Network in Windows. Advanced Option?
-			// ovpn.Append("route-metric 512");
-			// ovpn.Append("route 0.0.0.0 0.0.0.0");
-
 			Provider.OnBuildConnectionActive(this, connectionActive);
 
 			Provider.OnBuildConnectionActiveAuth(connectionActive);

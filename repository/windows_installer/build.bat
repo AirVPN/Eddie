@@ -24,6 +24,7 @@ set VARCONFIG=Release
 set VARSCRIPTDIR=%~dp0
 FOR /F "tokens=*" %%g IN ('%VARSCRIPTDIR%\..\windows_common\get-version.exe') do (SET "VARVERSION=%%g")
 set VARTARGETDIR=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer
+set VARFINALPATH=%TEMP%\eddie_deploy\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
 set VARDEPLOYPATH=%VARSCRIPTDIR%\..\files\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_installer.exe
 
 rem Dependencies
@@ -48,7 +49,7 @@ xcopy /s /e /i /Y "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARAR
 rmdir /s /q "%VARTARGETDIR%\eddie-%VARPROJECT%_%VARVERSION%_%VAROS%_%VARARCH%_portable" || goto :error
 
 rem Build NSIS script
-"%VARSCRIPTDIR%\nsis.exe" "%VARARCH%" "%VARTARGETDIR%" "%VARDEPLOYPATH%" || goto :error
+"%VARSCRIPTDIR%\nsis.exe" "%VARARCH%" "%VARTARGETDIR%" "%VARFINALPATH%" || goto :error
 
 rem NSIS
 "c:\\Program Files (x86)\\NSIS\\makensis.exe" "%VARTARGETDIR%\Eddie.nsi" || goto :error
@@ -58,11 +59,14 @@ rem Signing
 SET /p VARSIGNPASSWORD= < "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx.pwd"
 IF exist %VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx (
 	echo Step: Signing		
-	%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%VARDEPLOYPATH%" || goto :error
+	%VARSCRIPTDIR%\..\windows_common\signtool.exe sign /fd sha256 /p "%VARSIGNPASSWORD%" /f "%VARSCRIPTDIR%\..\signing\eddie.win-signing.pfx" /t http://timestamp.comodoca.com/authenticode /d "Eddie - OpenVPN UI" "%VARFINALPATH%" || goto :error
 )
 
 rem Deploy
-%VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARDEPLOYPATH%" || goto :error
+%VARSCRIPTDIR%\..\windows_common\deploy.bat "%VARFINALPATH%" || goto :error
+
+rem End
+move "%VARFINALPATH%" "%VARDEPLOYPATH%"
 
 rem Cleanup
 echo Step: Final cleanup

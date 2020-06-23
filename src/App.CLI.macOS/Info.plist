@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>Eddie</string>
+	<string>Eddie-cli</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
@@ -13,15 +13,15 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>CFBundleIconFile</key>
-	<string>icon</string>
+	<string>icon-cli</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.19.1</string>
+	<string>2.19.3</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.airvpn.eddie.ui</string>
+	<string>org.airvpn.eddie.cli</string>
 	<key>CFBundleDisplayName</key>
-	<string>Eddie</string>
+	<string>Eddie-cli</string>
 	<key>NSSupportsSuddenTermination</key>
 	<string>NO</string>
 	<key>BuildMachineOSBuild</key>

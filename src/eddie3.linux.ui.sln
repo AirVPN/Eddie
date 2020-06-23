@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{B3A44CD4-8C82-401A-910C-05A047A0800B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Core", "Lib.Core\Lib.Core.csproj", "{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Platform.Linux", "Lib.Platform.Linux\Lib.Platform.Linux.csproj", "{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.GTK.Linux", "UI.GTK.Linux\UI.GTK.Linux.csproj", "{0AE8A993-DC02-4BDC-BFD8-02E94822152B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Debug|x86.ActiveCfg = Debug|x86
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Debug|x86.Build.0 = Debug|x86
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Release|x86.ActiveCfg = Release|x86
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Release|x86.Build.0 = Release|x86
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Debug|x64.ActiveCfg = Debug|x64
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Debug|x64.Build.0 = Debug|x64
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Release|x64.ActiveCfg = Release|x64
+		{0AE8A993-DC02-4BDC-BFD8-02E94822152B}.Release|x64.Build.0 = Release|x64
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x86.ActiveCfg = Debug|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x86.Build.0 = Debug|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x86.ActiveCfg = Release|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x86.Build.0 = Release|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x64.ActiveCfg = Debug|x64
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x64.Build.0 = Debug|x64
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x64.ActiveCfg = Release|x64
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x64.Build.0 = Release|x64
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Debug|x86.ActiveCfg = Debug|x86
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Debug|x86.Build.0 = Debug|x86
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Release|x86.ActiveCfg = Release|x86
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Release|x86.Build.0 = Release|x86
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Debug|x64.ActiveCfg = Debug|x64
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Debug|x64.Build.0 = Debug|x64
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Release|x64.ActiveCfg = Release|x64
+		{76BEBDA7-F8A2-46E3-9011-CC14F754DBE5}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = UI.GtkWeb.Linux.csproj
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

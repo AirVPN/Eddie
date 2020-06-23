@@ -32,16 +32,16 @@ namespace Eddie.Core.ConsoleEdition
 		{
 			Instance = this;
 
-			base.Init(environmentCommandLine);
+            base.Init(environmentCommandLine);
 
 			if (Engine == null)
 				Engine = new Engine(environmentCommandLine);
 
-			Engine.UiManager.Add(this);
+            Engine.UiManager.Add(this);
 
-			Engine.Start();
+            Engine.Start();
 
-			return true;
+            return true;
 		}
 
 		public void OnUnhandledException(string source, Exception e)

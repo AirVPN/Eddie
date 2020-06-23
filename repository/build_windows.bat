@@ -1,5 +1,7 @@
 @echo off
 
+if not exist "files" mkdir "files"
+
 call windows_portable\build.bat cli x64 windows-10 || goto :error
 call windows_portable\build.bat cli x64 windows-7 || goto :error
 call windows_portable\build.bat cli x64 windows-vista || goto :error

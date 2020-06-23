@@ -82,7 +82,7 @@ namespace Eddie.Core
 
 		public void LogFatal(Exception ex)
 		{
-			Log(LogType.Fatal, ex.Message, ex);
+            Log(LogType.Fatal, ex.Message, ex);
 		}
 
 		public void Log(LogType type, string message)

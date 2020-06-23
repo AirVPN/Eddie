@@ -30,9 +30,7 @@ namespace Eddie.UI.Cocoa.Osx
 	{
         static void Main(string[] args)
 		{
-			NSApplication.Init();
-
-            Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
+			Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
 
 			// Due to a bug in Xamarin, that don't recognize resources inside Core library if Mono is bundled, we embed some resources in entry assembly.
 
@@ -54,7 +52,9 @@ namespace Eddie.UI.Cocoa.Osx
                 client.Init(Environment.CommandLine);
 			}
 			else
-			{				
+			{
+                NSApplication.Init();
+
                 NSApplication.Main(args);
 			}
 		}

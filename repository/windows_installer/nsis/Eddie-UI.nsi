@@ -405,7 +405,7 @@ Function CheckAndInstallVCRuntime
     NotDetected:
         DetailPrint "Installing VC++ runtime"
         SetDetailsPrint listonly
-        ExecWait '"$INSTDIR\VC_redist.{@arch}.exe" /q' $0
+        ExecWait '"$INSTDIR\VC_redist.{@arch}.exe" /install /passive /norestart' $0
         SetDetailsPrint lastused
         DetailPrint "VC++ runtime installer returned $0"
     ${EndIf}

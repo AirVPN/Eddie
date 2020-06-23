@@ -43,8 +43,10 @@ namespace Eddie.Forms.Linux
 
                     //string controlReadPath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_r.tmp");
                     //string controlWritePath = Core.Engine.Instance.Storage.GetPathInData("eddie_tray_w.tmp");
-                    string controlReadPath = Path.GetTempPath() + "eddie_tray_r.tmp";
-                    string controlWritePath = Path.GetTempPath() + "eddie_tray_w.tmp";
+                    //string controlReadPath = Path.GetTempPath() + "eddie_tray_r.tmp";
+                    //string controlWritePath = Path.GetTempPath() + "eddie_tray_w.tmp";
+                    string controlReadPath = Core.Platform.Instance.FileTempName("eddie_tray_r.tmp");
+                    string controlWritePath = Core.Platform.Instance.FileTempName("eddie_tray_w.tmp");
 
                     string pathRes = Core.Engine.Instance.GetPathResources();
                     string pathExe = Core.Engine.Instance.GetPathTools() + "/eddie-tray";

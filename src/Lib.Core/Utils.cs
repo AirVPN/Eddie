@@ -42,11 +42,6 @@ namespace Eddie.Core
 			return Conversions.ToUnixTimeMs(DateTime.UtcNow);
 		}
 
-		public static string GetTempPath()
-		{
-			return Path.GetTempPath();
-		}
-		
 		public static void Sleep(int milliseconds)
 		{
 			System.Threading.Thread.Sleep(milliseconds);
@@ -84,11 +79,6 @@ namespace Eddie.Core
 			}
 		}
 		
-		public static string GetNameFromPath(string path)
-		{
-			return new FileInfo(path).Name;
-		}
-
 		public static string HostFromUrl(string url)
 		{
 			try
@@ -100,28 +90,6 @@ namespace Eddie.Core
 			{
 				return "";
 			}
-		}
-		
-		public static List<string> GetNetworkGateways()
-		{
-			List<string> list = new List<string>();
-
-			foreach (NetworkInterface f in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				if (f.OperationalStatus == OperationalStatus.Up)
-				{
-					foreach (GatewayIPAddressInformation d in f.GetIPProperties().GatewayAddresses)
-					{
-						string ip = d.Address.ToString();
-						if ((IpAddress.IsIP(ip)) && (ip != "0.0.0.0") && (list.Contains(ip) == false))
-						{
-							list.Add(ip);
-						}
-					}
-				}
-			}
-
-			return list;
 		}
 	}
 }

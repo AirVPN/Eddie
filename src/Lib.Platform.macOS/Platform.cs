@@ -76,18 +76,25 @@ namespace Eddie.Platform.MacOS
 		{
 			base.OnInit();
 
-			if (Engine.Instance.StartCommandLine.Exists("cli"))
-				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
+			if (Engine.Instance.ConsoleMode)
+            {
+                NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
 
-			//m_version = SystemShell.Shell("/usr/bin/uname", new string[] { "-a" }).Trim();
-			//m_architecture = NormalizeArchitecture(SystemShell.Shell("/usr/bin/uname", new string[] { "-m" }).Trim());
-
-			m_name = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Trim();
-			m_name = m_name.Replace("Version", "macOS").Trim();
-			if (m_name.IndexOf('(') != -1)
-				m_name = m_name.Substring(0, m_name.IndexOf('(')).Trim();
-			m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Replace("Version ","").Trim();
-			m_architecture = base.GetArchitecture();
+                // NSProcessInfo throw "Value cannot be null. Parameter name: obj" in command-line edition, maybe a Xamarin issue
+                // Mono Environment.* don't provide OS version                
+                m_version = SystemShell.Shell1(LocateExecutable("sw_vers"), "-productVersion").Trim(); // Example output: '10.14.3'
+                m_name = "macOS " + m_version;
+            }
+            else
+            {
+                m_name = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Trim(); // Example output: "Version 10.14.3 (Build 18D109)"
+                m_name = m_name.Replace("Version", "macOS").Trim();
+                if (m_name.IndexOf('(') != -1)
+                    m_name = m_name.Substring(0, m_name.IndexOf('(')).Trim();                
+                m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Replace("Version ", "").Trim();
+            }
+                        
+            m_architecture = base.GetArchitecture();
 
             try
             {
@@ -513,9 +520,13 @@ namespace Eddie.Platform.MacOS
 
 		public override string LocateResource(string relativePath)
 		{
-			string resPath = NormalizePath(GetApplicationPath() + "/../Resources/" + relativePath);
-			if (File.Exists(resPath))
-				return resPath;
+            string resPath = "../Resources/" + relativePath;
+            resPath = FileGetAbsolutePath(resPath, GetApplicationPath());
+            resPath = FileGetPhysicalPath(resPath);
+			if ((File.Exists(resPath)) || (Directory.Exists(resPath)))
+            {
+                return resPath;
+            }
 
 			return base.LocateResource(relativePath);
 		}

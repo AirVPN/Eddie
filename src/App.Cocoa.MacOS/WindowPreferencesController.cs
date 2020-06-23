@@ -367,6 +367,11 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SelectFile(this.Window, TxtAdvancedOpenVpnPath);
 			};
 
+			CmdHummingbirdPathBrowse.Activated += (object sender, EventArgs e) =>
+			{
+				GuiUtils.SelectFile(this.Window, TxtHummingbirdPath);
+			};
+
 			// Logging
 
 			TxtLoggingPath.Changed += (object sender, EventArgs e) =>
@@ -642,6 +647,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkGeneralStartLast, s.GetBool("servers.startlast"));
 			GuiUtils.SetCheck(ChkGeneralOsxVisible, s.GetBool("gui.osx.visible"));
 			// GuiUtils.SetCheck (ChkGeneralOsxDock, s.GetBool ("gui.osx.dock")); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
+			GuiUtils.SetCheck(ChkCliShortcut, Core.Platform.Instance.FileExists("/usr/local/bin/eddie-cli"));
 			GuiUtils.SetCheck(ChkUiSystemBarShowInfo, s.GetBool("gui.osx.sysbar.show_info"));
 			GuiUtils.SetCheck(ChkUiSystemBarShowSpeed, s.GetBool("gui.osx.sysbar.show_speed"));
 			GuiUtils.SetCheck(ChkUiSystemBarShowServer, s.GetBool("gui.osx.sysbar.show_server"));
@@ -913,6 +919,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkAdvancedSkipAlreadyRun, s.GetBool("advanced.skip_alreadyrun"));
 			GuiUtils.SetCheck(ChkAdvancedProviders, s.GetBool("advanced.providers"));
 			GuiUtils.SetCheck(ChkHummingbirdPrefer, s.GetBool("tools.hummingbird.preferred"));
+			TxtHummingbirdPath.StringValue = s.Get("tools.hummingbird.path");
 
 			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
 			{
@@ -1012,10 +1019,15 @@ namespace Eddie.UI.Cocoa.Osx
 			s.SetBool("servers.startlast", GuiUtils.GetCheck(ChkGeneralStartLast));
 			s.SetBool("gui.osx.visible", GuiUtils.GetCheck(ChkGeneralOsxVisible));
 			// s.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock)); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
+
+			Engine.Instance.Elevated.DoCommandSync("shortcut-cli", "action", (GuiUtils.GetCheck(ChkCliShortcut) ? "set" : "del"), "path", Core.Platform.Instance.GetExecutablePath());
+			
 			s.SetBool("gui.osx.sysbar.show_info", GuiUtils.GetCheck(ChkUiSystemBarShowInfo));
 			s.SetBool("gui.osx.sysbar.show_speed", GuiUtils.GetCheck(ChkUiSystemBarShowSpeed));
 			s.SetBool("gui.osx.sysbar.show_server", GuiUtils.GetCheck(ChkUiSystemBarShowServer));
 			s.SetBool("gui.exit_confirm", GuiUtils.GetCheck(ChkExitConfirm));
+
+
 
             if(GuiUtils.GetSelected(CboStorageMode) == LanguageManager.GetText("WindowsSettingsStorageModeNone"))
 			{
@@ -1258,6 +1270,7 @@ namespace Eddie.UI.Cocoa.Osx
 			s.SetBool("advanced.skip_alreadyrun", GuiUtils.GetCheck(ChkAdvancedSkipAlreadyRun));
 			s.SetBool("advanced.providers", GuiUtils.GetCheck(ChkAdvancedProviders));
 			s.SetBool("tools.hummingbird.preferred", GuiUtils.GetCheck(ChkHummingbirdPrefer));
+			s.Set("tools.hummingbird.path", TxtHummingbirdPath.StringValue);
 
 			string manifestRefresh = GuiUtils.GetSelected(CboAdvancedManifestRefresh);
 			if (manifestRefresh == "Automatic") // Auto

@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
@@ -13,6 +13,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UseXamMacFullFramework>true</UseXamMacFullFramework>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <EnableCodeSigning>false</EnableCodeSigning>
-    <CodeSigningKey>Mac Developer</CodeSigningKey>
+    <CodeSigningKey>Developer ID Application: Paolo Brini (A7P5AKGWFC)</CodeSigningKey>
     <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
     <IncludeMonoRuntime>false</IncludeMonoRuntime>
@@ -32,14 +33,8 @@
     <PlatformTarget>x64</PlatformTarget>
     <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
     <AOTMode>None</AOTMode>
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.macos.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
+    <UseHardenedRuntime>true</UseHardenedRuntime>
+    <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <DebugType></DebugType>
@@ -53,20 +48,14 @@
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
     <UseSGen>true</UseSGen>
     <UseRefCounting>true</UseRefCounting>
-    <LinkMode>None</LinkMode>
+    <LinkMode>Platform</LinkMode>
     <PlatformTarget>x64</PlatformTarget>
-    <CodeSigningKey>Mac Developer</CodeSigningKey>
+    <CodeSigningKey>Developer ID Application: Paolo Brini (A7P5AKGWFC)</CodeSigningKey>
     <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
     <AOTMode>None</AOTMode>
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>AfterBuild</type>
-          <command>"${SolutionDir}/eddie.macos.postbuild.sh" "${TargetDir}" ui ${ProjectConfigPlat} ${ProjectConfigName}</command>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
     <NoWarn></NoWarn>
+    <UseHardenedRuntime>true</UseHardenedRuntime>
+    <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
     <StartArguments>path.tools="../../../../../../../../deploy/macos_x64" path.resources="../../../../../../../../common"</StartArguments>
@@ -76,7 +65,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="Xamarin.Mac">
-      <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\4.0.0.214\lib\reference\full\Xamarin.Mac.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\6.18.2.1\lib\reference\full\Xamarin.Mac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -693,4 +682,7 @@
     </NativeReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+	<Target Name="BeforeBuild">
+		<Exec Command="&quot;$(SolutionDir)/eddie.macos.prebuild.sh&quot; &quot;$(TargetDir)&quot; ui $(Platform) $(Configuration)" />
+	</Target>
 </Project>

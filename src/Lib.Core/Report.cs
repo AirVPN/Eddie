@@ -55,8 +55,8 @@ namespace Eddie.Core
 			jReport["step"].Value = LanguageManager.GetText("ReportStepCollectEnvironmentInfo");
 			jReport["body"].Value = LanguageManager.GetText("PleaseWait");
 			jReport["perc"].Value = 0;
-			client.OnReceive(jReport);			
-			
+			client.OnReceive(jReport);
+
 			Environment();
 
 			jReport["step"].Value = LanguageManager.GetText("ReportStepTests");
@@ -122,20 +122,29 @@ namespace Eddie.Core
 			IpAddresses dns = DnsManager.ResolveDNS("dnstest.eddie.website", true);
 			Add("Test DNS IPv4", (dns.CountIPv4 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
 			Add("Test DNS IPv6", (dns.CountIPv6 == 2) ? LanguageManager.GetText("Ok") : LanguageManager.GetText("Failed"));
-/* Changed in 2.17.1
-			Add("Test Ping IPv4", Platform.Instance.Ping(dns.OnlyIPv4.First, 5000).ToString() + " ms");
-			Add("Test Ping IPv6", Platform.Instance.Ping(dns.OnlyIPv6.First, 5000).ToString() + " ms");
 
-			Add("Test HTTP IPv4", TestUrl("http://" + "ipv4." + Constants.Domain + "/test/"));
-			Add("Test HTTP IPv6", TestUrl("http://" + "ipv6." + Constants.Domain + "/test/"));
-			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));		
-			*/
-			Add("Test Ping IPv4", Platform.Instance.Ping(new IpAddress(Constants.WebSiteIPv4), 5000).ToString() + " ms");
-			Add("Test Ping IPv6", Platform.Instance.Ping(new IpAddress(Constants.WebSiteIPv6), 5000).ToString() + " ms");
+			Add("Test Ping IPv4", TestPing(Constants.WebSiteIPv4));
+			Add("Test Ping IPv6", TestPing(Constants.WebSiteIPv6));
 
 			Add("Test HTTP IPv4", TestUrl("http://" + Constants.WebSiteIPv4 + "/test/"));
 			Add("Test HTTP IPv6", TestUrl("http://[" + Constants.WebSiteIPv6 + "]/test/"));
 			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));
+		}
+
+		public string TestPing(string host)
+		{
+			try
+			{
+				Int64 result = Platform.Instance.Ping(new IpAddress(host), 5000);
+				if (result == -1)
+					return LanguageManager.GetText("Failed");
+				else
+					return result + " ms";
+			}
+			catch (Exception ex)
+			{
+				return "Error: " + ex.Message;
+			}
 		}
 
 		public string TestUrl(string url)
@@ -152,7 +161,7 @@ namespace Eddie.Core
 			}
 			catch (Exception ex)
 			{
-				return "Error:" + ex.Message;
+				return "Error: " + ex.Message;
 			}
 		}
 

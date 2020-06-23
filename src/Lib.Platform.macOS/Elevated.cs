@@ -58,7 +58,7 @@ namespace Eddie.Platform.MacOS
                         if (pid == 0)
                             throw new Exception("Unable to start (null)");
 
-                        if (process.HasExited)
+                        if( (process != null) && (process.HasExited) )
                             throw new Exception("Unable to start (already exit)");
 
                         if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
@@ -80,7 +80,7 @@ namespace Eddie.Platform.MacOS
 			{
 				Stop();
 
-				throw new Exception(LanguageManager.GetText("HelperPrivilegesFailed", ex.Message));
+                throw new Exception(LanguageManager.GetText("HelperPrivilegesFailed", ex.Message));
             }
 		}
 	}

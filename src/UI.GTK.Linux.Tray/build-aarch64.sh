@@ -20,7 +20,7 @@ BuildConfig()
 	cd "$ROOTDIR"
 }
 
-BuildConfig ./build/armhf/release Release
-strip -S --strip-unneeded -o ../../deploy/linux_armhf/eddie-tray ./build/armhf/release/eddie_tray
+BuildConfig ./build/aarch64/release Release
+strip -S --strip-unneeded -o ../../deploy/linux_aarch64/eddie-tray ./build/aarch64/release/eddie_tray
 
 

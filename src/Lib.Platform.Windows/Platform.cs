@@ -28,6 +28,7 @@ using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.ServiceProcess;
 using Microsoft.Win32;
 
@@ -118,13 +119,15 @@ namespace Eddie.Platform.Windows
 			try
 			{
 				// Check VC++ Redistributable
+
 				// Need because our lib include libcurl, and static link of libcurl is not recommended
-				int runtimeVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetOsArchitecture(), "Major", "0"), 0);
-				if (runtimeVersion<14)
+				// Registry check is not affidable, with vcredistr installed via msm/wix
+				//if (Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetOsArchitecture(), "Major", "0"), 0)<14)
+				if (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140.dll")) == false)
 				{
 					Engine.Instance.Logs.LogFatal("This software require some additional files (C++ Redistributable) that are not currently installed on your system. Use the Installer edition, or look https://eddie.website/windows-runtime/");
 					return false;
-				}
+				}				
 
 				bool result = (NativeMethods.Init() == 0);
 				if (result == false)
@@ -293,6 +296,9 @@ namespace Eddie.Platform.Windows
 				// If spot-launched, WTSQuerySessionInformationW return the current user.
 				// If spot-launched or service, GetTokenInformation don't work in any case without elevation.
 			}
+
+			// Signature check removed, redundant. // ClodoTemp
+			return true;
 
 			bool match = false;
 
@@ -622,6 +628,48 @@ namespace Eddie.Platform.Windows
 			}
 
 			return true;
+		}
+
+		
+		public override Int64 Ping(IpAddress host, int timeoutSec)
+		{
+			if (host.IsV4)
+				return base.Ping(host, timeoutSec);
+
+			// If IPv6, We use a Task<> because otherwise timeout is not honored and hang forever in Win10 with IPv6 issues (Vbox in Nat)
+			if (timeoutSec == 5000) Engine.Instance.Logs.LogVerbose("ping 1");
+
+			if ((host == null) || (host.Valid == false))
+				return -1;
+
+			Task<long> pingTask = Task.Factory.StartNew(() =>
+			{
+				try
+				{
+					using (Ping pingSender = new Ping())
+					{
+						PingReply reply = pingSender.Send(host.ToString());
+
+						if (reply.Status == IPStatus.Success)
+							return reply.RoundtripTime;
+						else
+							return -1;
+					}
+				}
+				catch
+				{
+					return -1;
+				}
+			});
+
+			if (timeoutSec == 5000) Engine.Instance.Logs.LogVerbose("ping 2 W");
+			pingTask.Wait(timeoutSec * 1000);
+			if (timeoutSec == 5000) Engine.Instance.Logs.LogVerbose("ping 2 WE");
+			if (pingTask.IsCompleted)
+				return pingTask.Result;
+			else
+				return -1;
+
 		}
 
 		public override bool ProcessKillSoft(Core.Process process)

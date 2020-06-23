@@ -22,6 +22,7 @@ ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_debian
+FINALPATH=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_debian.deb
 DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_debian.deb
 
 if test -f "${DEPLOYPATH}"; then
@@ -66,11 +67,13 @@ mono $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-${PROJECT}.exe --cli --path.resou
 gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 
 # Remove unneed
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
-if test -f "${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird"; then
-    rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
-fi
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/liblzo*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libcrypto*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libssl*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libpkcs*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
 rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
 if [ $PROJECT = "cli" ]; then
@@ -100,8 +103,10 @@ if [ ${ARCH} = "x86" ]; then
     DEBARCH="i386" 
 elif [ ${ARCH} = "x64" ]; then
     DEBARCH="amd64"
-elif [ ${ARCH} = "armhf" ]; then
+elif [ ${ARCH} = "armv7l" ]; then
     DEBARCH="armhf"
+elif [ ${ARCH} = "aarch64" ]; then
+    DEBARCH="arm64"
 else
     echo "Unknown debian arch";
     exit 1;
@@ -109,20 +114,26 @@ fi
 sed -i "s/{@architecture}/${DEBARCH}/g" ${TARGETDIR}/DEBIAN/control
 
 # dpkg
-dpkg -b ${TARGETDIR} ${DEPLOYPATH}
+echo Step: dpkg
+dpkg -b ${TARGETDIR} ${FINALPATH}
 
-lintian "${DEPLOYPATH}"
+echo Step: Lintian
+lintian "${FINALPATH}"
 
 # Sign
 if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
+    echo Step: Signing
     PASSPHRASE=$(cat ${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase)
     export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
-    dpkg-sig -m "maintainer@eddie.website" -g "--no-tty --passphrase ${PASSPHRASE}" --sign builder ${DEPLOYPATH}
-    dpkg-sig --verify ${DEPLOYPATH}
+    dpkg-sig -m "maintainer@eddie.website" -g "--no-tty --passphrase ${PASSPHRASE}" --sign builder ${FINALPATH}
+    dpkg-sig --verify ${FINALPATH}
 fi
 
 # Deploy to eddie.website
-${SCRIPTDIR}/../linux_common/deploy.sh ${DEPLOYPATH}
+${SCRIPTDIR}/../linux_common/deploy.sh ${FINALPATH}
+
+# End
+mv ${FINALPATH} ${DEPLOYPATH}
 
 # Cleanup
 echo Step: Final cleanup

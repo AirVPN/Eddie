@@ -97,6 +97,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkAdvancedSkipAlreadyRun { get; set; }
 
 		[Outlet]
+		AppKit.NSButton ChkCliShortcut { get; set; }
+
+		[Outlet]
 		AppKit.NSButton ChkConnect { get; set; }
 
 		[Outlet]
@@ -203,6 +206,9 @@ namespace Eddie.UI.Cocoa.Osx
 
 		[Outlet]
 		AppKit.NSButton CmdGeneralTos { get; set; }
+
+		[Outlet]
+		AppKit.NSButton CmdHummingbirdPathBrowse { get; set; }
 
 		[Outlet]
 		AppKit.NSButton CmdLockHelp { get; set; }
@@ -319,6 +325,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSTextField TxtAdvancedOpenVpnPath { get; set; }
 
 		[Outlet]
+		AppKit.NSTextField TxtHummingbirdPath { get; set; }
+
+		[Outlet]
 		AppKit.NSTextField TxtLockWhiteListIncomingIPs { get; set; }
 
 		[Outlet]
@@ -359,6 +368,21 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (ChkCliShortcut != null) {
+				ChkCliShortcut.Dispose ();
+				ChkCliShortcut = null;
+			}
+
+			if (TxtHummingbirdPath != null) {
+				TxtHummingbirdPath.Dispose ();
+				TxtHummingbirdPath = null;
+			}
+
+			if (CmdHummingbirdPathBrowse != null) {
+				CmdHummingbirdPathBrowse.Dispose ();
+				CmdHummingbirdPathBrowse = null;
+			}
+
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
@@ -459,11 +483,6 @@ namespace Eddie.UI.Cocoa.Osx
 				CboRoutesOtherwise = null;
 			}
 
-			if (ChkHummingbirdPrefer != null) {
-				ChkHummingbirdPrefer.Dispose ();
-				ChkHummingbirdPrefer = null;
-			}
-
 			if (CboStorageMode != null) {
 				CboStorageMode.Dispose ();
 				CboStorageMode = null;
@@ -532,6 +551,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkGeneralStartLast != null) {
 				ChkGeneralStartLast.Dispose ();
 				ChkGeneralStartLast = null;
+			}
+
+			if (ChkHummingbirdPrefer != null) {
+				ChkHummingbirdPrefer.Dispose ();
+				ChkHummingbirdPrefer = null;
 			}
 
 			if (ChkLockAllowDNS != null) {

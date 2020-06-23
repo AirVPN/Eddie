@@ -35,6 +35,7 @@ protected:
 	// Virtual Pure, OS
 protected:
 	virtual std::string GetProcessPathOfId(int pid);
+    virtual pid_t GetParentProcessId(pid_t pid);
 	virtual pid_t GetProcessIdOfName(const std::string& name);
 
 private:

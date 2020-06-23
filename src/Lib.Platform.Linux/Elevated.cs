@@ -49,7 +49,7 @@ namespace Eddie.Platform.Linux
                     bool appImageEnvironment = Platform.Instance.NeedExecuteOutsideAppPath(helperPath);
                     if (appImageEnvironment)
                     {
-                        tempPathToDelete = Utils.GetTempPath() + "/eddie-cli-elevated-" + RandomGenerator.GetHash();
+                        tempPathToDelete = Platform.Instance.FileTempName("eddie-cli-elevated");
 
                         if (File.Exists(tempPathToDelete))
                             File.Delete(tempPathToDelete); 

@@ -73,7 +73,7 @@ namespace Eddie.Core.Properties {
         ///    &lt;rsa&gt;
         ///      &lt;RSAParameters&gt;
         ///        &lt;Exponent&gt;AQAB&lt;/Exponent&gt;
-        ///        &lt;Modulus&gt;wuQXz7eZeEBwaaRsVK8 [rest of string was truncated]&quot;;.
+        ///        &lt;Modulus&gt;wuQXz7e [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string AirVPN {
             get {
@@ -126,7 +126,7 @@ namespace Eddie.Core.Properties {
         ///software and other kinds of works.
         ///
         ///  The licenses for most software and other practical works are designed
-        ///to take away your fre [rest of string was truncated]&quot;;.
+        ///to take  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string License {
             get {
@@ -162,9 +162,7 @@ namespace Eddie.Core.Properties {
         ///	http://openvpn.net/
         ///
         ///License: GNU General Public License (GPL v2+)
-        ///------------------------------------------------------------
-        ///stunnel
-        /// [rest of string was truncated]&quot;;.
+        ///----------------------------------------------------- [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ThirdParty {
             get {
@@ -180,7 +178,7 @@ namespace Eddie.Core.Properties {
         ///
         ///a) AirVPN is operated by Air. Please refer to Privacy Notice for contact details.
         ///
-        ///b) AirVPN is a priv [rest of string was truncated]&quot;;.
+        ///b) AirVPN is [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TOS {
             get {

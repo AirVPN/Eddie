@@ -50,6 +50,7 @@ namespace Eddie.Forms.Forms
 			this.lblAdvancedManifestRefresh = new Eddie.Forms.Skin.Label();
 			this.cboAdvancedManifestRefresh = new Eddie.Forms.Skin.ComboBox();
 			this.pnlAdvancedGeneralWindowsOnly = new System.Windows.Forms.GroupBox();
+			this.chkWindowsWintun = new Eddie.Forms.Skin.CheckBox();
 			this.cmdAdvancedUninstallDriverWintun = new Eddie.Forms.Skin.Button();
 			this.chkWindowsSshPlinkForce = new Eddie.Forms.Skin.CheckBox();
 			this.chkWindowsDisableDriverUpgrade = new Eddie.Forms.Skin.CheckBox();
@@ -229,7 +230,6 @@ namespace Eddie.Forms.Forms
 			this.lnkLockHelp = new Eddie.Forms.Skin.LinkLabel();
 			this.chkLockAllowPing = new Eddie.Forms.Skin.CheckBox();
 			this.chkLockAllowPrivate = new Eddie.Forms.Skin.CheckBox();
-			this.lblLockRoutingOutWarning = new Eddie.Forms.Skin.Label();
 			this.lblLockWhiteListIncomingIPs = new Eddie.Forms.Skin.Label();
 			this.txtLockWhiteListIncomingIPs = new Eddie.Forms.Skin.TextBox();
 			this.lblLockMode = new Eddie.Forms.Skin.Label();
@@ -243,7 +243,8 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
-			this.chkWindowsWintun = new Eddie.Forms.Skin.CheckBox();
+			this.cmdHummingbirdPathBrowse = new Eddie.Forms.Skin.Button();
+			this.txtHummingbirdPath = new Eddie.Forms.Skin.TextBox();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -272,6 +273,8 @@ namespace Eddie.Forms.Forms
 			// tabAdvanced
 			// 
 			tabAdvanced.BackColor = System.Drawing.Color.White;
+			tabAdvanced.Controls.Add(this.cmdHummingbirdPathBrowse);
+			tabAdvanced.Controls.Add(this.txtHummingbirdPath);
 			tabAdvanced.Controls.Add(this.lblHummingbirdPrefer);
 			tabAdvanced.Controls.Add(this.chkHummingbirdPrefer);
 			tabAdvanced.Controls.Add(this.lblAdvancedUpdaterChannel);
@@ -497,6 +500,18 @@ namespace Eddie.Forms.Forms
 			this.pnlAdvancedGeneralWindowsOnly.TabIndex = 69;
 			this.pnlAdvancedGeneralWindowsOnly.TabStop = false;
 			this.pnlAdvancedGeneralWindowsOnly.Text = "Microsoft Windows Only";
+			// 
+			// chkWindowsWintun
+			// 
+			this.chkWindowsWintun.BackColor = System.Drawing.Color.Transparent;
+			this.chkWindowsWintun.ForeColor = System.Drawing.Color.Black;
+			this.chkWindowsWintun.Location = new System.Drawing.Point(24, 27);
+			this.chkWindowsWintun.Margin = new System.Windows.Forms.Padding(4);
+			this.chkWindowsWintun.Name = "chkWindowsWintun";
+			this.chkWindowsWintun.Size = new System.Drawing.Size(356, 33);
+			this.chkWindowsWintun.TabIndex = 90;
+			this.chkWindowsWintun.Text = "Use wintun driver (OpenVPN>=2.5)";
+			this.chkWindowsWintun.UseVisualStyleBackColor = false;
 			// 
 			// cmdAdvancedUninstallDriverWintun
 			// 
@@ -2681,7 +2696,6 @@ namespace Eddie.Forms.Forms
 			this.tabNetworkLock.Controls.Add(this.lnkLockHelp);
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowPing);
 			this.tabNetworkLock.Controls.Add(this.chkLockAllowPrivate);
-			this.tabNetworkLock.Controls.Add(this.lblLockRoutingOutWarning);
 			this.tabNetworkLock.Controls.Add(this.lblLockWhiteListIncomingIPs);
 			this.tabNetworkLock.Controls.Add(this.txtLockWhiteListIncomingIPs);
 			this.tabNetworkLock.Controls.Add(this.lblLockMode);
@@ -2882,19 +2896,6 @@ namespace Eddie.Forms.Forms
 			this.chkLockAllowPrivate.TabIndex = 80;
 			this.chkLockAllowPrivate.UseVisualStyleBackColor = false;
 			// 
-			// lblLockRoutingOutWarning
-			// 
-			this.lblLockRoutingOutWarning.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblLockRoutingOutWarning.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-			this.lblLockRoutingOutWarning.ForeColor = System.Drawing.Color.White;
-			this.lblLockRoutingOutWarning.Location = new System.Drawing.Point(644, 15);
-			this.lblLockRoutingOutWarning.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblLockRoutingOutWarning.Name = "lblLockRoutingOutWarning";
-			this.lblLockRoutingOutWarning.Size = new System.Drawing.Size(351, 128);
-			this.lblLockRoutingOutWarning.TabIndex = 78;
-			this.lblLockRoutingOutWarning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
 			// lblLockWhiteListIncomingIPs
 			// 
 			this.lblLockWhiteListIncomingIPs.BackColor = System.Drawing.Color.Transparent;
@@ -3061,17 +3062,32 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
-			// chkWindowsWintun
+			// cmdHummingbirdPathBrowse
 			// 
-			this.chkWindowsWintun.BackColor = System.Drawing.Color.Transparent;
-			this.chkWindowsWintun.ForeColor = System.Drawing.Color.Black;
-			this.chkWindowsWintun.Location = new System.Drawing.Point(24, 27);
-			this.chkWindowsWintun.Margin = new System.Windows.Forms.Padding(4);
-			this.chkWindowsWintun.Name = "chkWindowsWintun";
-			this.chkWindowsWintun.Size = new System.Drawing.Size(356, 33);
-			this.chkWindowsWintun.TabIndex = 90;
-			this.chkWindowsWintun.Text = "Use wintun driver (OpenVPN>=2.5)";
-			this.chkWindowsWintun.UseVisualStyleBackColor = false;
+			this.cmdHummingbirdPathBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdHummingbirdPathBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdHummingbirdPathBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderSize = 0;
+			this.cmdHummingbirdPathBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdHummingbirdPathBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
+			this.cmdHummingbirdPathBrowse.Location = new System.Drawing.Point(942, 523);
+			this.cmdHummingbirdPathBrowse.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdHummingbirdPathBrowse.Name = "cmdHummingbirdPathBrowse";
+			this.cmdHummingbirdPathBrowse.Size = new System.Drawing.Size(50, 30);
+			this.cmdHummingbirdPathBrowse.TabIndex = 97;
+			this.cmdHummingbirdPathBrowse.UseVisualStyleBackColor = true;
+			this.cmdHummingbirdPathBrowse.Click += new System.EventHandler(this.cmdHummingbirdPathBrowse_Click);
+			// 
+			// txtHummingbirdPath
+			// 
+			this.txtHummingbirdPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtHummingbirdPath.Location = new System.Drawing.Point(421, 523);
+			this.txtHummingbirdPath.Margin = new System.Windows.Forms.Padding(4);
+			this.txtHummingbirdPath.Name = "txtHummingbirdPath";
+			this.txtHummingbirdPath.Size = new System.Drawing.Size(513, 26);
+			this.txtHummingbirdPath.TabIndex = 96;
 			// 
 			// Settings
 			// 
@@ -3186,7 +3202,6 @@ namespace Eddie.Forms.Forms
 		private Skin.TextBox txtLockWhiteListIncomingIPs;
 		private Skin.Label lblLockMode;
 		private Skin.ComboBox cboLockMode;
-		private Skin.Label lblLockRoutingOutWarning;
 		private Skin.Label label17;
 		private Skin.Label lblAdvancedManifestRefresh;
 		private Skin.ComboBox cboAdvancedManifestRefresh;
@@ -3328,5 +3343,7 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkHummingbirdPrefer;
 		private Skin.Button cmdAdvancedUninstallDriverWintun;
 		private Skin.CheckBox chkWindowsWintun;
+		private Skin.Button cmdHummingbirdPathBrowse;
+		private Skin.TextBox txtHummingbirdPath;
 	}
 }

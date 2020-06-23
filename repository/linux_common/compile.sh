@@ -23,16 +23,19 @@ ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 TARGETFRAMEWORK="v4.5";
 SOLUTIONPATH="";
 if [ $PROJECT = "cli" ]; then
-    SOLUTIONPATH="${SCRIPTDIR}/../../src/eddie2.linux.sln"
+    SOLUTIONPATH="${SCRIPTDIR}/../../src/eddie.linux.cli.sln"
 elif [ $PROJECT = "ui" ]; then
-    SOLUTIONPATH="${SCRIPTDIR}/../../src/eddie2.linux.sln"
+    SOLUTIONPATH="${SCRIPTDIR}/../../src/eddie2.linux.ui.sln"
 elif [ $PROJECT = "ui3" ]; then
-    SOLUTIONPATH="${SCRIPTDIR}/../../src/eddie3.linux.sln"
+    SOLUTIONPATH="${SCRIPTDIR}/../../src/eddie3.linux.ui.sln"
 fi
 RULESETPATH="${SCRIPTDIR}/../../src/ruleset/norules.ruleset"
 
 ARCHCOMPILE=${ARCH}
-if [ "$ARCHCOMPILE" = "armhf" ]; then
+if [ "$ARCHCOMPILE" = "armv7l" ]; then
+	ARCHCOMPILE="x64" # Arm pick x64 executable (that are anyway CIL).
+fi
+if [ "$ARCHCOMPILE" = "aarch64" ]; then
 	ARCHCOMPILE="x64" # Arm pick x64 executable (that are anyway CIL).
 fi
 if [ "$ARCHCOMPILE" != "x86" ]; then
@@ -55,9 +58,9 @@ fi
 $COMPILERPATH /verbosity:minimal /property:CodeAnalysisRuleSet="${RULESETPATH}" /p:Configuration=${CONFIG} /p:Platform=${ARCHCOMPILE} /p:TargetFrameworkVersion=${TARGETFRAMEWORK} /t:Rebuild "${SOLUTIONPATH}" /p:DefineConstants="EDDIENET4"
 
 if [ $PROJECT = "cli" ]; then
-	${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh ${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}	
+	"${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh" "${SCRIPTDIR}/../../src/App.CLI.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
 elif [ $PROJECT = "ui" ]; then
-	${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh ${SCRIPTDIR}/../../src/App.Forms.Linux/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}	
-elif [ $PROJECT = "u3" ]; then
-	${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh ${SCRIPTDIR}/../../src/UI.GTK.Linux/bin/${ARCHCOMPILE}/${CONFIG}/ ${PROJECT} ${ARCH} ${CONFIG}	
+	"${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh" "${SCRIPTDIR}/../../src/App.Forms.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
+elif [ $PROJECT = "ui3" ]; then
+	"${SCRIPTDIR}/../../src/eddie.linux.postbuild.sh" "${SCRIPTDIR}/../../src/UI.GTK.Linux/bin/${ARCHCOMPILE}/${CONFIG}/" ${PROJECT} ${ARCH} ${CONFIG}	
 fi

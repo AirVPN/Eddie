@@ -28,6 +28,7 @@
 
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal();
+#include <sys/sysctl.h> // for kinfo_proc
 
 // --------------------------
 // Virtual
@@ -74,6 +75,22 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 				}
 			}
 		}
+	}
+	else if (command == "shortcut-cli")
+	{
+		std::string action = params["action"];
+		std::string pathExecutable = params["path"];
+		std::string pathShortcut = "/usr/local/bin/eddie-cli";
+		if(action == "set")
+		{
+			FsFileWriteText(pathShortcut, "#! /bin/bash\n\"" + pathExecutable + "\" -cli $@");
+			chmod(pathShortcut.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		}
+		else if(action == "del")
+		{
+			if(FsFileExists(pathShortcut))
+				FsFileDelete(pathShortcut);
+        }
 	}
 	else if (command == "file-immutable-set")
 	{
@@ -602,6 +619,18 @@ std::string Impl::GetProcessPathOfId(int pid)
 	{
 		return std::string(buffer);
 	}
+}
+
+pid_t Impl::GetParentProcessId(pid_t pid)
+{
+    struct kinfo_proc info;
+    size_t length = sizeof(struct kinfo_proc);
+    int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, pid };
+    if (sysctl(mib, 4, &info, &length, NULL, 0) < 0)
+        return 0;
+    if (length == 0)
+        return 0;
+    return info.kp_eproc.e_ppid;
 }
 
 pid_t Impl::GetProcessIdOfName(const std::string& name)

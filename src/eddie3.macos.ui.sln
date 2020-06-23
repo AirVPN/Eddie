@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{B3A44CD4-8C82-401A-910C-05A047A0800B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Core", "Lib.Core\Lib.Core.csproj", "{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Platform.MacOS", "Lib.Platform.MacOS\Lib.Platform.MacOS.csproj", "{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Cocoa.MacOS", "UI.Cocoa.MacOS\UI.Cocoa.MacOS.csproj", "{B5C537C7-A421-49DF-9459-D76A8D1E36B3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x86.ActiveCfg = Debug|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x86.Build.0 = Debug|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x86.ActiveCfg = Release|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x86.Build.0 = Release|x86
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x64.ActiveCfg = Debug|x64
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Debug|x64.Build.0 = Debug|x64
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x64.ActiveCfg = Release|x64
+		{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}.Release|x64.Build.0 = Release|x64
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x86.ActiveCfg = Debug|x86
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x86.Build.0 = Debug|x86
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x86.ActiveCfg = Release|x86
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x86.Build.0 = Release|x86
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x64.ActiveCfg = Debug|x64
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x64.Build.0 = Debug|x64
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x64.ActiveCfg = Release|x64
+		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x64.Build.0 = Release|x64
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Debug|x86.ActiveCfg = Debug|x86
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Debug|x86.Build.0 = Debug|x86
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Release|x86.ActiveCfg = Release|x86
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Release|x86.Build.0 = Release|x86
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Debug|x64.ActiveCfg = Debug|x64
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Debug|x64.Build.0 = Debug|x64
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Release|x64.ActiveCfg = Release|x64
+		{B5C537C7-A421-49DF-9459-D76A8D1E36B3}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = UI.GtkWeb.Linux.csproj
+	EndGlobalSection
+EndGlobal

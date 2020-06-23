@@ -22,6 +22,7 @@ ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_fedora
+FINALPATH=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_fedora.rpm
 DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_fedora.rpm
 
 if test -f "${DEPLOYPATH}"; then
@@ -41,11 +42,6 @@ tar xvfp "${DEPPACKAGEPATH}" -C "${TARGETDIR}"
 rm ${TARGETDIR}/eddie-${PROJECT}/eddie-${PROJECT} # old launcher not need
 
 echo Step: Build RPM Structure
-
-LIBPATH="lib"; # TOCLEAN
-if [ ${ARCH} = "x64" ]; then
-    LIBPATH="lib64"
-fi
 
 mkdir -p ${TARGETDIR}/usr/lib;
 mv ${TARGETDIR}/eddie-${PROJECT}/bundle ${TARGETDIR}/usr/lib/eddie-${PROJECT}
@@ -71,13 +67,15 @@ mono $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-${PROJECT}.exe --cli --path.resou
 gzip -n -9 $TARGETDIR/usr/share/man/man8/eddie-${PROJECT}.8
 
 # Remove unneed
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
-if test -f "${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird"; then
-    rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
-fi
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
-rm ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/openvpn
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/liblzo*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libcrypto*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libssl*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libpkcs*
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/hummingbird
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/stunnel
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libgdiplus.so.0
+rm -f ${TARGETDIR}/usr/lib/eddie-${PROJECT}/libMonoPosixHelper.so
 if [ $PROJECT = "cli" ]; then
     rm $TARGETDIR/usr/lib/eddie-${PROJECT}/eddie-tray
     rm $TARGETDIR/usr/lib/eddie-${PROJECT}/libappindicator.so.1
@@ -121,7 +119,7 @@ cat ${TARGETDIR}/../rpmbuild.spec
 cd ${TARGETDIR} # Unable to specify an output path
 if test -f "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase"; then # Staff AirVPN
     echo if requested, enter $(cat "${SCRIPTDIR}/../signing/eddie.gpg-signing.passphrase") as passphrase
-    cp ${SCRIPTDIR}/../signing/rpmmacros ~/.rpmmacros
+    echo -e "%_signature gpg\n%_gpg_name Eddie <maintainer@eddie.website>\n%__gpg /usr/bin/gpg\n" >~/.rpmmacros
     export GPG_TTY=$(tty) # Fix for gpg: signing failed: Inappropriate ioctl for device
     rpmbuild -bb "${TARGETDIR}/../rpmbuild.spec" --buildroot "${TARGETDIR}" -sign
 else
@@ -129,10 +127,21 @@ else
     #--define "_rpmdir ${TARGETDIR}/../"
 fi
 cd ..
-mv *.rpm ${DEPLOYPATH}
+ARCHRPM=${ARCH}
+if [ ${ARCH} = "armv7l" ]; then
+    ARCHRPM="armv7hnl"
+elif [ ${ARCH} = "x86" ]; then
+    ARCHRPM="i386"
+elif [ ${ARCH} = "x64" ]; then
+    ARCHRPM="x86_64"
+fi
+mv eddie-${PROJECT}-${VERSION}-0.${ARCHRPM}.rpm ${FINALPATH}
 
 # Deploy to eddie.website
-${SCRIPTDIR}/../linux_common/deploy.sh ${DEPLOYPATH}
+${SCRIPTDIR}/../linux_common/deploy.sh ${FINALPATH}
+
+# End
+mv ${FINALPATH} ${DEPLOYPATH}
 
 # Cleanup
 echo Step: Final cleanup

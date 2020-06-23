@@ -22,15 +22,15 @@ if test -f "${DEPLOYPATH}"; then
     exit 0;
 fi
 
-if [ "$ARCH" = "armhf" ]; then
+if [ "$ARCH" = "armv7l" ]; then
     # https://github.com/linuxdeploy/linuxdeploy/releases armhf not exists
-    echo "armhf architecture not supported"; 
+    echo "armv7l architecture not supported"; 
     exit 0;
 fi
 
 if [ "$ARCH" = "aarch64" ]; then
     # https://github.com/linuxdeploy/linuxdeploy/releases aarch64 not exists
-    echo "armhf architecture not supported"; 
+    echo "aarch64 architecture not supported"; 
     exit 0;
 fi
 

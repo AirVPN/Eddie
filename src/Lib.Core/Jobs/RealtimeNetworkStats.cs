@@ -77,7 +77,7 @@ namespace Eddie.Core.Jobs
 							deltaBytesSnd = (totalBytesSnd - m_data[id]["total_snd"].ValueInt64) / delta;
 						}
 
-						if( (Engine.Instance.ConnectionActive != null) && (Engine.Instance.ConnectionActive.Interface != null) && (id == Engine.Instance.ConnectionActive.Interface.Id) ) // Old UI
+						if( (Engine.Instance.ConnectionActive != null) && (Engine.Instance.ConnectionActive.Interface != null) && (id == Engine.Instance.ConnectionActive.Interface.Id) && (Engine.Instance.IsConnected()) ) // Old UI
 						{
 							Engine.Instance.SessionStatsRead += deltaBytesRcv;
 							Engine.Instance.SessionStatsWrite += deltaBytesSnd;

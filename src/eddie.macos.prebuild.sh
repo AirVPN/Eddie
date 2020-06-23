@@ -47,7 +47,7 @@ echo Config: $CONFIG
 
 VERSION=$(${BASEPATH}/../repository/macos_common/get-version.sh)
 
-mkdir -p "$OUTPATH"
+mkdir -p "$OUTPATH/Eddie.app/Contents/MacOS"
 
 # Info.plist
 if [ ${PROJECT} = "ui" ]; then
@@ -61,9 +61,8 @@ elif [ ${PROJECT} = "ui3" ]; then
 elif [ ${PROJECT} = "cli" ]; then
     cp "$BASEPATH/App.CLI.MacOS/Info-cli.plist" "$BASEPATH/App.CLI.MacOS/Info.plist"
     sed -E -i .bak "s/{@version}/${VERSION}/g" "$BASEPATH/App.CLI.MacOS/Info.plist"
+    cp "$BASEPATH/App.CLI.MacOS/Info.plist" "$OUTPATH/Eddie.app/Contents/Info.plist"
 fi
-
-
 
 # Adapt Elevated
 # Search 'expectedOpenvpnHash' in '/src/App.CLI.Common.Elevated/ibase.cpp' source for details
@@ -91,12 +90,18 @@ elif [ $PROJECT = "ui3" ]; then
     mkdir -p "$OUTPATH/Eddie.app/Contents/MacOS/"
     cp "$BASEPATH/App.CLI.MacOS.Elevated/bin/eddie-cli-elevated" "$OUTPATH/Eddie.app/Contents/MacOS/"
 elif [ $PROJECT = "cli" ]; then
-    cp "$BASEPATH/App.CLI.MacOS.Elevated/bin/eddie-cli-elevated" "$OUTPATH/"
+    mkdir -p "$OUTPATH/Eddie.app/Contents/MacOS/"
+    cp "$BASEPATH/App.CLI.MacOS.Elevated/bin/eddie-cli-elevated" "$OUTPATH/Eddie.app/Contents/MacOS/"
 else
     echo Unexpected
 fi
 
+# Signing
+
+${BASEPATH}/../repository/macos_common/sign.sh "$OUTPATH/Eddie.app/Contents/MacOS/eddie-cli-elevated" no yes
+
 # Compile and Copy Native
+
 chmod +x "${BASEPATH}/Lib.Platform.MacOS.Native/build.sh"
 "${BASEPATH}/Lib.Platform.MacOS.Native/build.sh" "$CONFIG"
 
@@ -107,5 +112,12 @@ elif [ $PROJECT = "ui3" ]; then
     mkdir -p "$OUTPATH/Eddie.app/Contents/MonoBundle/"
     cp "$BASEPATH/Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dylib" "$OUTPATH/Eddie.app/Contents/MonoBundle/"
 elif [ $PROJECT = "cli" ]; then
-    cp "$BASEPATH/Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dylib" "$OUTPATH/"
+    mkdir -p "$OUTPATH/Eddie.app/Contents/MonoBundle/"
+    cp "$BASEPATH/Lib.Platform.MacOS.Native/bin/libLib.Platform.MacOS.Native.dylib" "$OUTPATH/Eddie.app/Contents/MonoBundle/"
 fi
+
+# Signing
+
+${BASEPATH}/../repository/macos_common/sign.sh "$OUTPATH/Eddie.app/Contents/MonoBundle/libLib.Platform.MacOS.Native.dylib" no yes
+
+exit 0

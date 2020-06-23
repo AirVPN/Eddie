@@ -24,7 +24,7 @@ using System.Text;
 using System.IO;
 using System.Xml;
 
-// ClodoTemp: Missing feature, a token access
+// ClodoTemp: Missing feature, a token access. Webserver not yet used anyway.
 
 namespace Eddie.Core
 {
@@ -41,7 +41,7 @@ namespace Eddie.Core
 		public static string GetPath()
 		{
 			string pathRoot = Platform.Instance.NormalizePath(Engine.Instance.LocateResource("webui"));
-			if (Platform.Instance.DirectoryExists(pathRoot))
+            if (pathRoot != "")
 				return pathRoot;
 			else
 				return "";
@@ -75,12 +75,13 @@ namespace Eddie.Core
 							var context = c as HttpListenerContext;
 							try
 							{
-								SendResponse(context);
+                                SendResponse(context);		
 							}
-							catch 
-							{
-								context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-							}
+                            catch(Exception ex)
+                            {
+                                Engine.Instance.Logs.Log(ex);
+                                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                            }
 							finally
 							{
 								context.Response.OutputStream.Close();
@@ -88,9 +89,10 @@ namespace Eddie.Core
 						}, m_listener.GetContext());
 					}
 				}
-				catch 
-				{ 
-				}
+                catch (Exception ex)
+                {
+                    Engine.Instance.Logs.Log(ex);
+                }
 			});
 		}
 
@@ -125,11 +127,14 @@ namespace Eddie.Core
 					if (mime != "")
 						response.ContentType = mime;
 
-					if( (mime.StartsWith("text/")) || (mime == "application/javascript") )
+					if( (mime.StartsWithInv("text/")) || (mime == "application/javascript") )
 						response.ContentEncoding = Encoding.UTF8;
 				}
 
-				byte[] buffer = new byte[64 * 1024];
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.StatusDescription = "OK";
+
+                byte[] buffer = new byte[64 * 1024];
 				int read;
 				using (BinaryWriter bw = new BinaryWriter(response.OutputStream))
 				{
@@ -141,9 +146,8 @@ namespace Eddie.Core
 
 					bw.Close();
 				}
-								
-				response.StatusCode = (int)HttpStatusCode.OK;
-				response.StatusDescription = "OK";
+
+                
 				response.OutputStream.Close();
 			}
 		}

@@ -44,10 +44,12 @@ namespace Eddie.Forms
 		public static StringFormat StringFormatCenterMiddleNoWrap;
 		public static StringFormat StringFormatRightMiddleNoWrap;
 
-		private static string m_unixFontSystem = "";
-		private static string m_unixFontMonoSpace = "";
+		private static string m_unixFontSystemName = "";
+        private static float m_unixFontSystemSize = 11;
+        private static string m_unixFontMonoSpaceName = "";
+        private static float m_unixFontMonoSpaceSize = 11;
 
-		public static bool IsWindows()
+        public static bool IsWindows()
 		{
 			return (Environment.OSVersion.VersionString.IndexOf("Windows") != -1);
 		}
@@ -74,25 +76,41 @@ namespace Eddie.Forms
 
 			if (IsUnix())
 			{
-				m_unixFontSystem = "";
+				m_unixFontSystemName = SystemFonts.MenuFont.Name;
+                m_unixFontSystemSize = SystemFonts.MenuFont.Size;
+                m_unixFontMonoSpaceName = "Monospace";
+                m_unixFontMonoSpaceSize = SystemFonts.MenuFont.Size;
+
 				string gsettingsPath = Eddie.Core.Platform.Instance.LocateExecutable("gsettings"); // gnome
 				if (gsettingsPath != "")
 				{
-					m_unixFontSystem = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
-					int posSize = m_unixFontSystem.LastIndexOf(" ");
-					if (posSize != -1)
-						m_unixFontSystem = m_unixFontSystem.Substring(0, posSize) + "," + m_unixFontSystem.Substring(posSize + 1);
-				}
+                    string uFontSystem = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
+                    int uFontSystemSep = uFontSystem.LastIndexOf(" ");
+					if (uFontSystemSep != -1)
+                    {
+                        m_unixFontSystemName = uFontSystem.Substring(0, uFontSystemSep).Trim(',').Trim(';');
+                        m_unixFontSystemSize = Conversions.ToInt32(uFontSystem.Substring(uFontSystemSep + 1));
+                    }
 
-				m_unixFontMonoSpace = "";
-				if (gsettingsPath != "")
-				{
-					m_unixFontMonoSpace = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
-					int posSize = m_unixFontMonoSpace.LastIndexOf(" ");
-					if (posSize != -1)
-						m_unixFontMonoSpace = m_unixFontMonoSpace.Substring(0, posSize) + "," + m_unixFontMonoSpace.Substring(posSize + 1);
-				}
-			}
+                    string uFontMono = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+                    int uFontMonoSep = uFontMono.LastIndexOf(" ");
+                    if (uFontMonoSep != -1)
+                    {
+                        m_unixFontMonoSpaceName = uFontMono.Substring(0, uFontMonoSep).Trim(',').Trim(';');
+                        m_unixFontMonoSpaceSize = Conversions.ToInt32(uFontMono.Substring(uFontMonoSep + 1));
+                    }
+                }
+
+                if (m_unixFontSystemName == "")
+                    m_unixFontSystemName = "Cantarell";
+                if (m_unixFontSystemSize < 6)
+                    m_unixFontSystemSize = 6;
+
+                if (m_unixFontMonoSpaceName == "")
+                    m_unixFontMonoSpaceName = "Monospace";
+                if (m_unixFontMonoSpaceSize < 6)
+                    m_unixFontMonoSpaceSize = 6;
+            }
 		}
 
 		public static StringFormat BuildStringFormat(StringAlignment h, StringAlignment v)
@@ -121,18 +139,18 @@ namespace Eddie.Forms
 
 		public static string GetSystemFont()
 		{
-			if ((IsUnix()) && (m_unixFontSystem != ""))
-				return m_unixFontSystem;
-
-			return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
+            if (IsUnix())
+                return m_unixFontSystemName + "," + m_unixFontSystemSize;
+            else
+                return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
 		}
 
 		public static string GetSystemFontMonospace()
 		{
-			if ((IsUnix()) && (m_unixFontMonoSpace != ""))
-				return m_unixFontMonoSpace;
+            if (IsUnix())
+                return m_unixFontMonoSpaceName + "," + m_unixFontMonoSpaceSize;
 
-			string fontName = "";
+            string fontName = "";
 			if (IsFontInstalled("Consolas"))
 				fontName = "Consolas";
 			else if (IsFontInstalled("Monospace"))
