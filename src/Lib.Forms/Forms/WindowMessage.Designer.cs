@@ -130,7 +130,7 @@
 			this.MinimizeBox = false;
 			this.Name = "WindowMessage";
 			this.ShowInTaskbar = false;
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.ResumeLayout(false);
 
         }

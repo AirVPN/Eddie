@@ -156,7 +156,7 @@
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "WindowCredentials";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Form1";
 			this.ResumeLayout(false);
 			this.PerformLayout();

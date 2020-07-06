@@ -319,7 +319,7 @@
 			this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.MinimizeBox = false;
 			this.Name = "About";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Form1";
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);

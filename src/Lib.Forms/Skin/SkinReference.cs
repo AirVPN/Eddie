@@ -131,7 +131,7 @@ namespace Eddie.Forms.Skin
 					if (posSize != -1)
 						double.TryParse(strSize, out userBaseSize);
 
-					if (userBaseSize == 0)
+                    if (userBaseSize == 0)
 						userBaseSize = 10;
 				}
 

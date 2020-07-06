@@ -113,7 +113,7 @@ namespace Eddie.Forms
 
 		public virtual void OnApplySkin()
 		{
-			Skin.Apply(this);
+            Skin.Apply(this);
 		}
 
 		public string GetFormLayout()

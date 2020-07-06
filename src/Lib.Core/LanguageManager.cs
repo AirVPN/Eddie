@@ -330,6 +330,7 @@ namespace Eddie.Core
             if (id == "OsLinuxNetworkAdapterIPv6Restored") return "IPv6 restored on network adapter ({1})";
 			if (id == "OsDriverNoAdapterFound") return "Cannot find tunnel adapter of driver {1}, try install.";
 			if (id == "OsDriverAdapterNotAvailable") return "VPN Network Adapter not found, install fail ({1})";
+            if (id == "NetworkLockActivationConnectStop") return "Network lock fail activation, requested automatic connection disabled.";
 			
 			return "";
         }

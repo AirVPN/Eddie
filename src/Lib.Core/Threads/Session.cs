@@ -1774,22 +1774,7 @@ namespace Eddie.Core.Threads
 								{
 									string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
 									string checkUrl = "https://" + checkDomain + "/check_tun/";
-									/* 2.14.0
-									HttpRequest httpRequest = new HttpRequest();
-									httpRequest.Url = checkUrl;
-									httpRequest.BypassProxy = true;								
-									httpRequest.ForceResolve = checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
-									XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
-
-									string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
-
-									if (m_connectionActive.OpenVpnProfileWithPush.ExtractVpnIPs().ContainsAddress(answer) == false)
-										throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail, answer));
-
-									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-									*/
-
+									
 									HttpRequest httpRequest = new HttpRequest();
 									httpRequest.Url = checkUrl;
 									httpRequest.BypassProxy = true;
@@ -1842,22 +1827,7 @@ namespace Eddie.Core.Threads
 								{
 									string checkDomain = Engine.CurrentServer.ProviderName.ToLowerInvariant() + "_exit." + service.GetKeyValue("check_domain", "");
 									string checkUrl = "https://" + checkDomain + "/check_tun/";
-									/* 2.14.0
-									HttpRequest httpRequest = new HttpRequest();
-									httpRequest.Url = checkUrl;
-									httpRequest.BypassProxy = true;								
-									httpRequest.ForceResolve = checkDomain + ":" + Engine.CurrentServer.IpsExit.ToStringFirstIPv4();
-									XmlDocument xmlDoc = Engine.FetchUrlXml(httpRequest);
-
-									string answer = xmlDoc.DocumentElement.Attributes["ip"].Value;
-
-									if (m_connectionActive.OpenVpnProfileWithPush.ExtractVpnIPs().ContainsAddress(answer) == false)
-										throw new Exception(LanguageManager.GetText("ConnectionCheckingTryRouteFail, answer));
-
-									Engine.ConnectedServerTime = Conversions.ToInt64(xmlDoc.DocumentElement.Attributes["time"].Value);
-									Engine.ConnectedClientTime = Utils.UnixTimeStamp();
-									*/
-
+									
 									HttpRequest httpRequest = new HttpRequest();
 									httpRequest.Url = checkUrl;
 									httpRequest.BypassProxy = true;

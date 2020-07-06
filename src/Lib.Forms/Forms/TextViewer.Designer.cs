@@ -77,7 +77,7 @@
 			this.Controls.Add(this.txtData);
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "TextViewer";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Form1";
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.ResumeLayout(false);

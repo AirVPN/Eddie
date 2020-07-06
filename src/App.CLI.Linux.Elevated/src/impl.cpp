@@ -29,11 +29,13 @@
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal()
 
-#undef EDDIE_NOLZMA // Eddie 2.19.3, some users report issue with zfs compression
+/*
+// Eddie 2.19.3, some users report issue with zfs compression
 
 #ifndef EDDIE_NOLZMA
 #include "loadmod.h"
 #endif
+*/
 
 #include "impl.h"
 
@@ -286,12 +288,14 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
         }
         else
         {
-            // Try to up kernel module
+			/*
+            // Try to up kernel module			
 #ifndef EDDIE_NOLZMA
             int ret = load_kernel_module("nf_tables", "");
             if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
                 ThrowException("Unable to initialize nf_tables module");
 #else
+			*/
             // Shell version, used under Linux Arch, for issue with link LZMA
             std::string modprobePath = FsLocateExecutable("modprobe");
             if (modprobePath != "")
@@ -300,7 +304,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
                 if (modprobeResult.exit != 0)
                     ThrowException("Unable to initialize nf_tables module");
             }
+/*
 #endif
+*/
             // Backup of current
             std::vector<std::string> args;
             
@@ -468,11 +474,13 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Try to up kernel module - For example standard Debian 8 KDE don't have it at boot
 			if (params.count("rules-ipv4") > 0)
 			{
+/*
 #ifndef EDDIE_NOLZMA
 				int ret = load_kernel_module("iptable_filter", "");
 				if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
 					ThrowException("Unable to initialize iptable_filter module");
 #else
+*/
 				// Shell version, used under Linux Arch, for issue with link LZMA
 				std::string modprobePath = FsLocateExecutable("modprobe");
 				if (modprobePath != "")
@@ -481,16 +489,20 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					if (modprobeIptable4FilterResult.exit != 0)
 						ThrowException("Unable to initialize iptable_filter module");
 				}
+/*
 #endif
+*/
 			}
 
 			if (params.count("rules-ipv6") > 0)
 			{
+/*
 #ifndef EDDIE_NOLZMA
 				int ret = load_kernel_module("ip6table_filter", "");
 				if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
 					ThrowException("Unable to initialize iptable_filter module");
 #else
+*/
 				// Shell version, used under Linux Arch, for issue with link LZMA
 				std::string modprobePath = FsLocateExecutable("modprobe");
 				if (modprobePath != "")
@@ -499,7 +511,9 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					if (modprobeIptable6FilterResult.exit != 0)
 						ThrowException("Unable to initialize ip6table_filter module");
 				}
+/*
 #endif
+*/
 			}
 
 			// Backup of current

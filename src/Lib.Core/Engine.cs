@@ -421,8 +421,15 @@ namespace Eddie.Core
                     if (Engine.Storage.GetBool("netlock")) // 2.8
 					{
 						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("NetworkLockActivation"));
-						m_networkLockManager.Activation();
-					}
+						if(m_networkLockManager.Activation() == false)
+                        {
+                            if (Engine.Storage.GetBool("connect"))
+                            {
+                                Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("NetworkLockActivationConnectStop"));
+                                Engine.Storage.SetBool("connect", false);
+                            }
+                        }
+                    }
 				}
 
 				WaitMessageClear();

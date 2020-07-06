@@ -29,7 +29,7 @@ build() {
 
   # Compile C# sources
   cd "Eddie-$pkgver"
-  xbuild /verbosity:minimal /p:Configuration="Release" /p:Platform="$_pkgarch" src/eddie2.linux.sln
+  xbuild /verbosity:minimal /p:Configuration="Release" /p:Platform="$_pkgarch" src/eddie2.linux.ui.sln
 
   # Compile C sources (Tray)
   cd src/UI.GTK.Linux.Tray

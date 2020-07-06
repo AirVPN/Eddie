@@ -195,7 +195,7 @@ namespace Eddie.Forms.Forms
 			this.Controls.Add(this.txtBody);
 			this.MinimizeBox = false;
 			this.Name = "WindowMan";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "System Report";
 			this.ResumeLayout(false);
 			this.PerformLayout();

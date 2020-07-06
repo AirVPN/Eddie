@@ -88,16 +88,16 @@ namespace Eddie.Forms
                     int uFontSystemSep = uFontSystem.LastIndexOf(" ");
 					if (uFontSystemSep != -1)
                     {
-                        m_unixFontSystemName = uFontSystem.Substring(0, uFontSystemSep).Trim(',').Trim(';');
-                        m_unixFontSystemSize = Conversions.ToInt32(uFontSystem.Substring(uFontSystemSep + 1));
+                        m_unixFontSystemName = uFontSystem.Substring(0, uFontSystemSep).TrimChars(",; \n\r");
+                        m_unixFontSystemSize = Conversions.ToInt32(uFontSystem.Substring(uFontSystemSep + 1).TrimChars(",; \n\r"));
                     }
 
                     string uFontMono = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
                     int uFontMonoSep = uFontMono.LastIndexOf(" ");
                     if (uFontMonoSep != -1)
                     {
-                        m_unixFontMonoSpaceName = uFontMono.Substring(0, uFontMonoSep).Trim(',').Trim(';');
-                        m_unixFontMonoSpaceSize = Conversions.ToInt32(uFontMono.Substring(uFontMonoSep + 1));
+                        m_unixFontMonoSpaceName = uFontMono.Substring(0, uFontMonoSep).TrimChars(",; \n\r");
+                        m_unixFontMonoSpaceSize = Conversions.ToInt32(uFontMono.Substring(uFontMonoSep + 1).TrimChars(",; \n\r"));
                     }
                 }
 

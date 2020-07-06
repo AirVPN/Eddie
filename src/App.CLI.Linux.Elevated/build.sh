@@ -16,14 +16,14 @@ FILES=""
 FLAGS=""
 DEFINES=""
 
-if [ ${SPECIAL} == "NOLZMA" ]; then
-	echo Link without LZMA	
-    DEFINES="${DEFINES} -DEDDIE_NOLZMA"
-else 
-	echo Link with LZMA
-	FLAGS="${FLAGS} -llzma"
-	FILES="${FILES} $BASEPATH/src/loadmod.c"
-fi
+#if [ ${SPECIAL} == "NOLZMA" ]; then
+#	echo Link without LZMA	
+#    DEFINES="${DEFINES} -DEDDIE_NOLZMA"
+#else 
+#	echo Link with LZMA
+#	FLAGS="${FLAGS} -llzma"
+#	FILES="${FILES} $BASEPATH/src/loadmod.c"
+#fi
 
 # Dynamic edition
 #g++ -o "$BASEPATH/bin/eddie-cli-elevated" "$BASEPATH/src/main.cpp" "$BASEPATH/src/impl.cpp" "$BASEPATH/../App.CLI.Common.Elevated/common.cpp" "$BASEPATH/../App.CLI.Common.Elevated/sha256.cpp" -Wall -std=c++11 -O3 -pthread -lpthread -D$1

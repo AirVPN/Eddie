@@ -79,8 +79,10 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public void Activation()
+		public bool Activation()
 		{
+            bool result = false;
+
 			try
 			{
 				if (m_current != null)
@@ -123,6 +125,8 @@ namespace Eddie.Core
 					nextCurrent.Activation();
 
 					m_current = nextCurrent;
+
+                    result = true;
 				}
 			}
 			catch (Exception e)
@@ -131,6 +135,8 @@ namespace Eddie.Core
 			}
 
 			Recovery.Save();
+
+            return result;
 		}
 
 		public void Deactivation(bool onExit)

@@ -27,7 +27,11 @@ if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then
     echo "Notarization Upload..."
 
     echo xcrun altool --notarize-app --primary-bundle-id "$APPLE_NOTARIZE_BUNDLE_ID" --username "$APPLE_NOTARIZE_USERNAME" --password "$APPLE_NOTARIZE_PASSWORD" --asc-provider "$APPLE_NOTARIZE_ASC_PROVIDER" --file "${FILENOTARIZE}"
-    echo if fail with 'xcrun: error: unable to find utility "altool", not a developer tool or in PATH', run 'sudo xcode-select -r' to fix.
+
+    echo ----
+    echo 1- if fail with 'xcrun: error: unable to find utility "altool", not a developer tool or in PATH', run 'sudo xcode-select -r' to fix.
+    echo 2- if fail with 'You must first sign the relevant contracts online. (1048)', goto https://developer.apple.com/account/ , login and accept the new TOS.
+    echo ----
 
     requestUUID=$(xcrun altool --notarize-app --primary-bundle-id "$APPLE_NOTARIZE_BUNDLE_ID" --username "$APPLE_NOTARIZE_USERNAME" --password "$APPLE_NOTARIZE_PASSWORD" --asc-provider "$APPLE_NOTARIZE_ASC_PROVIDER" --file "${FILENOTARIZE}" 2>&1 | awk '/RequestUUID/ { print $NF; }')
                                

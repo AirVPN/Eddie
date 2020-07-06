@@ -58,7 +58,12 @@ namespace Eddie.Core
 			return str.ToLowerInvariant();
 		}
 
-		public static string ExtractBetween(this string str, string from, string to)
+        public static string TrimChars(this string str, string chars)
+        {
+            return str.Trim(chars.ToCharArray());
+        }
+
+        public static string ExtractBetween(this string str, string from, string to)
 		{
 			int iPos1 = str.IndexOf(from, StringComparison.InvariantCulture);
 			if (iPos1 != -1)
@@ -73,7 +78,7 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public static string CleanSpace(this string str)
+        public static string CleanSpace(this string str)
 		{
 			for (; ; )
 			{
