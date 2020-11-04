@@ -975,9 +975,7 @@ namespace Eddie.Core.Threads
 		{
 			if (e.Data != null)
 			{
-				string message = e.Data.ToString();
-
-				AddLogEvent("SSH", message);
+				AddLogEvent("SSH", e.Data.ToString());
 			}
 		}
 
@@ -985,12 +983,7 @@ namespace Eddie.Core.Threads
 		{
 			if (e.Data != null)
 			{
-				string message = e.Data.ToString();
-
-				// Remove STunnel timestamp
-				message = System.Text.RegularExpressions.Regex.Replace(message, "^\\d{4}\\.\\d{2}\\.\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+LOG\\d{1}\\[\\d{0,6}:\\d{0,60}\\]:\\s+", "");
-
-				AddLogEvent("SSL", message);
+				AddLogEvent("SSL", e.Data.ToString());
 			}
 		}
 
@@ -998,16 +991,10 @@ namespace Eddie.Core.Threads
 		{
             if (m_isHummingbird)
             {
-                // Remove Hummingbird timestamp
-                // Example: "Sat Oct 12 10:15:54.795 2019"
-                data = System.Text.RegularExpressions.Regex.Replace(data, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{0,3}\\s+\\d{2,4}\\s+", "");
                 AddLogEvent("Hummingbird", data);
             }
             else
             {
-                // Remove OpenVPN timestamp
-                // Example OpenVPN<3: "Sat Oct 12 10:13:38 2019 /sbin/ip route add 0.0.0.0/1 via 10.20.6.1"
-                data = System.Text.RegularExpressions.Regex.Replace(data, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
                 AddLogEvent("OpenVPN", data);
             }
 		}
@@ -1074,8 +1061,29 @@ namespace Eddie.Core.Threads
                 string[] lines = message.Split('\n');
                 foreach (string line in lines)
                 {
-                    if (line.Trim() != "")
-                        m_logEvents.Add(new SessionLogEvent(source, line.Trim()));
+                    // Normalize to remove useless data
+                    string lineN = line;
+
+                    // Remove STunnel timestamp
+                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\d{4}\\.\\d{2}\\.\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+LOG\\d{1}\\[\\d{0,6}:\\d{0,60}\\]:\\s+", "");
+
+                    // Remove Hummingbird timestamp: "Sat Oct 12 10:15:54.795 2019"
+                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{0,3}\\s+\\d{2,4}\\s+", "");
+
+                    // Example OpenVPN<2.5: "Sat Oct 12 10:13:38 2019 /sbin/ip route add 0.0.0.0/1 via 10.20.6.1"
+                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
+
+                    // Example OpenVPN>=2.5: "OpenVPN > 2020-10-09 16:11:17 Socket Buffers"
+                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\d{2,4}-\\d{1,2}-\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+", "");
+
+                    // Example SSL Linux: 2020.10.12 14:00:27 LOG6[0]: TLS connected: new session negotiated
+                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\d{2,4}\\.\\d{1,2}\\.\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+", "");
+
+                    lineN = lineN.TrimStartChars("\t\r\n :-,");
+                    lineN = lineN.TrimChars("\t\r\n ");
+
+                    if (lineN != "")
+                        m_logEvents.Add(new SessionLogEvent(source, lineN));
                 }
             }
 		}
@@ -1104,6 +1112,7 @@ namespace Eddie.Core.Threads
 		void ProcessLogEvent(string source, string message)
 		{
 			string messageLower = message.ToLowerInvariant(); // Try to match lower/insensitive case when possible.
+			RegexOptions regexOptions = RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline;
 
 			if (messageLower.Trim() == "") // 2.10.1
 				return;
@@ -1185,19 +1194,23 @@ namespace Eddie.Core.Threads
                     {
                         ConnectedStep();
                     }
-                    else if (message.StartsWithInv("SSL Handshake: "))
+                    else if (message.StartsWithInv("cipher: "))
                     {
+                        m_connectionActive.DataChannel = message.Substring("cipher: ".Length);
+                    }
+                    else if (message.StartsWithInv("SSL Handshake: "))
+                    {						
                         m_connectionActive.ControlChannel = message.Substring("SSL Handshake: ".Length);
                     }
                     else if (message.StartsWithInv("open ")) // MacOS
                     {
-                        Match match = Regex.Match(message, "open (.+?) SUCCEEDED");
+                        Match match = Regex.Match(message, "open (.+?) SUCCEEDED", regexOptions);
                         if (match.Success)
                             CheckTunNetworkInterface(match.Groups[1].Value);
                     }
                     else if (message.StartsWithInv("net_iface_up: ")) // Linux
                     {
-                        Match match = Regex.Match(message, "net_iface_up: set (.+?) up");
+                        Match match = Regex.Match(message, "net_iface_up: set (.+?) up", regexOptions);
                         if (match.Success)
                             CheckTunNetworkInterface(match.Groups[1].Value);
                     }
@@ -1317,6 +1330,11 @@ namespace Eddie.Core.Threads
 						}
 					}
 
+					if (message.StartsWithInv("Data Channel: "))
+					{
+						m_connectionActive.DataChannel = message.Substring("Data Channel: ".Length);
+					}
+
 					if (message.StartsWithInv("Control Channel: "))
 					{
 						m_connectionActive.ControlChannel = message.Substring("Control Channel: ".Length);
@@ -1347,7 +1365,7 @@ namespace Eddie.Core.Threads
 						SetReset("ERROR");
 					}
 
-					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received");
+					Match matchSigReceived = Regex.Match(message, "SIG(.*?)\\[(.*?),(.*?)\\] received", regexOptions);
 					if (matchSigReceived.Success)
 					{
 						SetReset("ERROR");
@@ -1465,14 +1483,21 @@ namespace Eddie.Core.Threads
 
 						// TAP-WIN32 - OpenVPN 2.5
 						{
-							Match match = Regex.Match(message, "TAP-WIN32 device \\[(.*?)\\] opened");
+							Match match = Regex.Match(message, "TAP-WIN32 device \\[(.*?)\\] opened", regexOptions);
 							if (match.Success)
 								CheckTunNetworkInterface(match.Groups[1].Value); // Note: Name, not ID.
 						}
 
+						// tap-windows6 - OpenVPN 2.5
+						{
+							Match match = Regex.Match(message, "tap-windows6 device \\[(.*?)\\] opened", regexOptions);
+							if (match.Success)
+								CheckTunNetworkInterface(match.Groups[1].Value); // Note: Name, not ID.
+						}
+						
 						// Wintap - OpenVPN 2.5
 						{
-							Match match = Regex.Match(message, "Wintun device \\[(.*?)\\] opened");
+							Match match = Regex.Match(message, "Wintun device \\[(.*?)\\] opened", regexOptions);
 							if(match.Success)
 								CheckTunNetworkInterface(match.Groups[1].Value); // Note: Name, not ID.
 						}
@@ -1495,14 +1520,14 @@ namespace Eddie.Core.Threads
 					// Unix
 					if (Platform.Instance.IsUnixSystem())
 					{
-						Match match = Regex.Match(message, "TUN/TAP device (.*?) opened");
+						Match match = Regex.Match(message, "TUN/TAP device (.*?) opened", regexOptions);
 						if (match.Success)
 							CheckTunNetworkInterface(match.Groups[1].Value);
 					}
 
 					// OSX
 					{
-						Match match = Regex.Match(message, "Opened utun device (.*?)$");
+						Match match = Regex.Match(message, "Opened utun device (.*?)$", regexOptions);
 						if (match.Success)
 							CheckTunNetworkInterface(match.Groups[1].Value);
 					}
@@ -1698,6 +1723,9 @@ namespace Eddie.Core.Threads
 
 		public void ConnectedStep()
 		{
+			if (m_connectionActive.Interface == null)
+				throw new Exception(LanguageManager.GetText("UnexpectedInterfaceNotRecognized"));
+			
 			Platform.Instance.OnInterfaceDo(m_connectionActive.Interface.Id);
 
 			IpAddresses dns = new IpAddresses(Engine.Instance.Storage.Get("dns.servers"));

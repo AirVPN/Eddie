@@ -315,7 +315,7 @@ namespace Eddie.Core
 
 			IpAddresses two = obj as IpAddresses;
 
-			// Works because ToString sort items.
+			// Note: return false if contains the same IPs but in different order // 2.19.5
 			return ToString() == two.ToString();
 		}
 		/*
@@ -344,7 +344,7 @@ namespace Eddie.Core
 				foreach (IpAddress ip in m_list)
 					items.Add(ip.ToCIDR());
 			}
-			items.Sort();
+			// items.Sort(); // Removed in 2.19.5, otherwise restore DNS in wrong order
 			return string.Join(", ", items.ToArray());
 		}
 	}

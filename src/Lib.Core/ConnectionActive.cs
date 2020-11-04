@@ -50,6 +50,7 @@ namespace Eddie.Core
 
 		public string RealIp = LanguageManager.GetText("NotAvailable");
 		public System.Net.NetworkInformation.NetworkInterface Interface = null;
+		public string DataChannel = LanguageManager.GetText("NotAvailable");
 		public string ControlChannel = LanguageManager.GetText("NotAvailable");
 		public Int64 TimeServer = 0;
 		public Int64 TimeClient = 0;

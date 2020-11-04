@@ -39,56 +39,49 @@ namespace Eddie.Platform.Windows
 	{
 		public override void Start()
 		{
-			base.Start();
-
+			base.Start();			
+						
 			try
 			{
 				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
 				if (connectResult != "Ok") // Will work if the service is active
 				{
+					// Here, in spot mode, we install a service that will be uninstalled at exit.
+					// The old method above (really spot), still used in other OS, dont work in Windows because WinTun require SYSTEM privileges.
+
 					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 
 					string helperFullPath = Platform.Instance.GetElevatedHelperPath();
 					
-					int port = GetPortSpot();
+					bool serviceAlreadyPresentButFail = Platform.Instance.GetService(true);
 
-					System.Diagnostics.Process process = new System.Diagnostics.Process
-					{
-						StartInfo =
-						{
-							FileName = helperFullPath,
-							Arguments = "mode=spot spot_port=" + port.ToString() + " service_port=" + Engine.Instance.GetElevatedServicePort().ToString(),
-							Verb = "runas",
-							CreateNoWindow = true,
-							UseShellExecute = true,
-							WindowStyle = ProcessWindowStyle.Hidden
-						}
-					};
-
-					process.Start();
+					if (Platform.Instance.SetService(true, true) == false)
+						throw new Exception("Unable to start (unable to initialize service)");
 
 					int listeningPortStartTime = Utils.UnixTimeStamp();
 					for (; ; )
-					{							
-						if (Platform.Instance.IsPortLocalListening(port))
+					{
+						if (Platform.Instance.IsPortLocalListening(Engine.Instance.GetElevatedServicePort()))
 							break;
-						
-						if (process == null)
-							throw new Exception("Unable to start (null)");
 
-						if (process.HasExited)
-							throw new Exception("Unable to start (already exit)");
-
-						if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
+						if (Utils.UnixTimeStamp() - listeningPortStartTime > 20)
 							throw new Exception("Unable to start (timeout)");
 
 						System.Threading.Thread.Sleep(100);
 					}
 
-					connectResult = Connect(port);
+					connectResult = Connect(Engine.Instance.GetElevatedServicePort());
 					if (connectResult != "Ok")
 						throw new Exception("Unable to start (" + connectResult + ")");
+
+					ServiceEdition = true;
+
+					if (serviceAlreadyPresentButFail == false)
+					{
+						ServiceUninstallAtEnd = true;
+						this.DoCommandSync("service-conn-mode", "mode", "single");
+					}											
 				}
 				else
 				{

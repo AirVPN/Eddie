@@ -51,10 +51,6 @@ Some code by ValdikSS
 
 #include "yxml.h" // WFP utils, maybe converted in JSON in future
 
-std::string serviceName = "EddieElevationService";
-std::string serviceDisplayName = "Eddie Elevation Service";
-std::string serviceDisplayDesc = "Eddie Elevation Service";
-
 int Impl::Main()
 {
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
@@ -314,9 +310,12 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 bool Impl::IsServiceInstalled()
 {
+	std::string serviceId = GetServiceId();
+	
 	HKEY hKey;
-	LPCTSTR sk = TEXT("SYSTEM\\CurrentControlSet\\Services\\EddieElevationService");
-	LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, sk, 0, KEY_ALL_ACCESS, &hKey);
+	std::string regKey = "SYSTEM\\CurrentControlSet\\Services\\" + serviceId;
+	std::wstring regKeyW = StringUTF8ToWString(regKey);
+	LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regKeyW.c_str(), 0, KEY_ALL_ACCESS, &hKey);
 	LONG closeOut = RegCloseKey(hKey);
 
 	return (openRes == ERROR_SUCCESS);
@@ -324,32 +323,42 @@ bool Impl::IsServiceInstalled()
 
 bool Impl::ServiceInstall()
 {
+	std::string serviceId = GetServiceId();
+	std::string serviceName = GetServiceName();
+	std::string serviceDesc = GetServiceDesc();
+
+	int port = 0;
+	if (m_cmdline.find("service_port") != m_cmdline.end())
+		port = atoi(m_cmdline["service_port"].c_str());
+
 	std::string elevatedPath = GetProcessPathCurrent();
 
 	std::string path = FsFileGetDirectory(elevatedPath) + FsPathSeparator + "Eddie-Service-Elevated.exe";
 
 	std::string elevatedArgs = "mode=service";
-	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
-	if (m_cmdline.find("service_port") != m_cmdline.end())
-		elevatedArgs += " service_port=" + StringEnsureSecure(m_cmdline["service_port"]);
+	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");	
 	elevatedArgs += " integrity=" + StringEnsureSecure(integrity);
 
-	// Can be active but old version that don't accept new client
-	ShellEx1(FsLocateExecutable("net.exe"), "stop \"" + serviceName + "\"");
-	ShellEx1(FsLocateExecutable("sc.exe"), "delete \"" + serviceName + "\"");
+	if (m_cmdline.find("service_port") != m_cmdline.end())
+		elevatedArgs += " service_port=" + std::to_string(port);
 
-	ShellEx1(FsLocateExecutable("sc.exe"), "create \"" + serviceName + "\" binpath= \"" + path + "\" DisplayName= \"" + serviceDisplayName + "\" start= auto");
+	// Can be active but old version that don't accept new client
+	ShellEx1(FsLocateExecutable("net.exe"), "stop \"" + serviceId + "\"");
+	ShellEx1(FsLocateExecutable("sc.exe"), "delete \"" + serviceId + "\"");
+
+	ShellEx1(FsLocateExecutable("sc.exe"), "create \"" + serviceId + "\" binpath= \"" + path + "\" DisplayName= \"" + serviceName + "\" start= auto");
 
 	// Write description and args
 	HKEY hKey;
-	LPCTSTR sk = TEXT("SYSTEM\\CurrentControlSet\\Services\\EddieElevationService");
-
-	LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, sk, 0, KEY_ALL_ACCESS, &hKey);
+	std::string regKey = "SYSTEM\\CurrentControlSet\\Services\\" + serviceId;
+	std::wstring regKeyW = StringUTF8ToWString(regKey);
+	
+	LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regKeyW.c_str(), 0, KEY_ALL_ACCESS, &hKey);
 
 	if (openRes != ERROR_SUCCESS)
 		ThrowException("Registry update fail");
 
-	std::wstring serviceDisplayDescW = StringUTF8ToWString(serviceDisplayDesc);
+	std::wstring serviceDisplayDescW = StringUTF8ToWString(serviceDesc);
 	LONG setResD = RegSetValueEx(hKey, TEXT("Description"), 0, REG_SZ, (LPBYTE)serviceDisplayDescW.c_str(), (DWORD)(serviceDisplayDescW.size() + 1) * sizeof(wchar_t));
 	if (setResD != ERROR_SUCCESS)
 		ThrowException("Registry update fail");
@@ -361,17 +370,42 @@ bool Impl::ServiceInstall()
 
 	LONG closeOut = RegCloseKey(hKey);
 
-	ShellEx1(FsLocateExecutable("net.exe"), "start \"" + serviceName + "\"");
+	ShellEx1(FsLocateExecutable("net.exe"), "start \"" + serviceId + "\"");
 
-	return 0;
+	return true;
 }
 
 bool Impl::ServiceUninstall()
 {
-	ShellResult r1 = ShellEx1(FsLocateExecutable("net.exe"), "stop \"" + serviceName + "\"");
-	ShellResult r2 = ShellEx1(FsLocateExecutable("sc.exe"), "delete \"" + serviceName + "\"");
+	if (IsServiceInstalled())
+	{
+		std::string serviceId = GetServiceId();
 
-	return 0;
+		if (GetLaunchMode() == "service")
+		{
+			// This is performed 'async' without wait the result, because launched from service itself.
+			// See comment in IBase::ServiceUninstallSupportRealtime
+			std::string path = FsLocateExecutable("sc.exe");
+			std::vector<std::string> args;
+			args.push_back("delete \"" + serviceId + "\"");
+			t_shellinfo info = ShellStart(path, args);
+		}
+		else
+		{
+			ShellEx1(FsLocateExecutable("net.exe"), "stop \"" + serviceId + "\"");
+			ShellEx1(FsLocateExecutable("sc.exe"), "delete \"" + serviceId + "\"");
+		}
+
+		return true;
+	}
+	else
+		return false;
+}
+
+bool Impl::ServiceUninstallSupportRealtime()
+{
+    // See comment in base
+    return true;
 }
 
 std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)

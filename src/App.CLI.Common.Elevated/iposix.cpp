@@ -37,7 +37,7 @@ using namespace redi; // related to pstream.h
 void IPosix::Idle()
 {
 	// Scenario: macOS with portable app in /Application, create launchd daemon, replace the app with a new version
-	if (IsServiceMode())
+	if (GetLaunchMode() == "service")
 	{
 		time_t start = GetProcessModTimeStart();
 		time_t cur = GetProcessModTimeCurrent();
@@ -491,6 +491,21 @@ std::string IPosix::FsFileReadText(const std::string& path)
 	std::stringstream buffer;
 	buffer << f.rdbuf();
 	return buffer.str();
+}
+
+std::vector<char> IPosix::FsFileReadBytes(const std::string& path)
+{
+	// Note: This don't work with a /proc/x/cmdline
+
+	std::ifstream ifs(path.c_str(), std::ios::binary | std::ios::ate);
+	std::ifstream::pos_type pos = ifs.tellg();
+
+	std::vector<char>  result(pos);
+
+	ifs.seekg(0, std::ios::beg);
+	ifs.read(&result[0], pos);
+
+	return result;
 }
 
 std::vector<std::string> IPosix::FsFilesInPath(const std::string& path)

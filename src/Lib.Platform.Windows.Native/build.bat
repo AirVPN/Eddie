@@ -3,15 +3,15 @@ SETLOCAL
 
 if "%~1"=="" (
 	echo "First param must be Debug or Release"
-	goto :end
+	GOTO error
 )
 
 if "%~2"=="" (
 	echo "Second param must be x86 or x64"
-	goto :end
+	GOTO error
 )
 
-set VARMSBUILD="c:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\msbuild.exe"
+set VARMSBUILD="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe"
 
 set VARSCRIPTDIR=%~dp0
 
@@ -21,6 +21,14 @@ set VARARCHCOMPILE=%VARARCH%
 
 set VARSOLUTIONPATH="%VARSCRIPTDIR%\Lib.Platform.Windows.Native.sln"
 
-%VARMSBUILD% /verbosity:minimal /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /t:Rebuild %VARSOLUTIONPATH% || goto :error
+%VARMSBUILD% /verbosity:minimal /property:CodeAnalysisRuleSet=%VARRULESETPATH% /p:Configuration=%VARCONFIG% /p:Platform=%VARARCHCOMPILE% /t:Rebuild %VARSOLUTIONPATH% || GOTO error
 
-:end
+GOTO done
+
+:error
+echo Something wrong
+EXIT /B 1
+
+:done
+EXIT /B 0
+

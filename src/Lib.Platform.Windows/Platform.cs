@@ -480,30 +480,23 @@ namespace Eddie.Platform.Windows
 				ServiceController sc = new ServiceController();
 				sc.ServiceName = ServiceName;
 
-				if (sc.Status == ServiceControllerStatus.Running)
+				if (sc.DisplayName != "") // Throw an exception if not exists
 					return true;
+
+				//if (sc.Status == ServiceControllerStatus.Running)
+				//	return true;
+
+				return true;
 			}
 			catch
 			{
 			}
 
 			return false;
-			/*
-			ServiceController[] services = ServiceController.GetServices();
-			foreach(ServiceController service in services)
-			{
-				if (service.ServiceName == ServiceName)
-					return true;
-			}
-			return false;
-			*/
 		}
 
 		protected override bool SetServiceImpl(bool value)
 		{
-			if (GetServiceImpl() == value)
-				return true;
-
 			try
 			{
 				ProcessStartInfo processStart = new ProcessStartInfo();
@@ -517,14 +510,14 @@ namespace Eddie.Platform.Windows
 					processStart.Arguments = "service=install service_port=" + Engine.Instance.GetElevatedServicePort();
 					System.Diagnostics.Process p = System.Diagnostics.Process.Start(processStart);
 					p.WaitForExit();
-					return (GetService() == true);
+					return (GetService(true) == true);
 				}
 				else
 				{
 					processStart.Arguments = "service=uninstall";
 					System.Diagnostics.Process p = System.Diagnostics.Process.Start(processStart);
 					p.WaitForExit();
-					return (GetService() == false);
+					return (GetService(true) == false);
 				}
 			}
 			catch (Exception ex)
@@ -532,6 +525,10 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.Log(ex);
 				return false;
 			}
+		}
+		public override bool GetServiceUninstallSupportRealtime()
+		{
+			return true;
 		}
 
 		public override string NormalizeString(string val)

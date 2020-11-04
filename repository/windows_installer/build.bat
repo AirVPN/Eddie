@@ -52,6 +52,7 @@ rem Build NSIS script
 "%VARSCRIPTDIR%\nsis.exe" "%VARARCH%" "%VARTARGETDIR%" "%VARFINALPATH%" || goto :error
 
 rem NSIS
+echo "Shell NSIS"
 "c:\\Program Files (x86)\\NSIS\\makensis.exe" "%VARTARGETDIR%\Eddie.nsi" || goto :error
 
 rem Signing

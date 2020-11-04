@@ -678,6 +678,7 @@ namespace Eddie.Forms.Forms
 			txtOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
 			txtOpenVpnDirectivesCustomPath.Text = s.Get("openvpn.directives.path");
 			//chkOpenVpnDirectivesAllowScriptSecurity.Checked = s.GetBool("openvpn.allow.script-security");
+			chkOpenVpnDirectivesDataCiphersChaCha.Checked = s.GetBool("openvpn.directives.chacha20");
 
 			// Advanced - Events
 			ReadOptionsEvent("app.start", 0);
@@ -1054,6 +1055,8 @@ namespace Eddie.Forms.Forms
 			s.Set("openvpn.directives.path", txtOpenVpnDirectivesCustomPath.Text);
 			s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
 			//s.SetBool("openvpn.allow.script-security", chkOpenVpnDirectivesAllowScriptSecurity.Checked);
+
+			s.SetBool("openvpn.directives.chacha20", chkOpenVpnDirectivesDataCiphersChaCha.Checked);
 
 			// Advanced - Events
 			SaveOptionsEvent("app.start", 0);

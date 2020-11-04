@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 # Check args
 if [ "$1" == "" ]; then
@@ -48,7 +48,7 @@ COMPILERPATH=$(which msbuild)
 if [ -z "$COMPILERPATH" ]; then
     COMPILERPATH=$(which xbuild)
 fi
-set -e
+set -euo pipefail
 
 if [ -z "$COMPILERPATH" ]; then
   echo 'Error: msbuild or xbuild is not installed.' >&2

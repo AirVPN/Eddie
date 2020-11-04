@@ -57,7 +57,6 @@ int _tmain(int argc, TCHAR *argv[])
 	return 0;
 }
 
-
 VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
 {
 	DWORD Status = E_FAIL;

@@ -247,12 +247,20 @@ namespace Eddie.Core
 
 		public virtual bool GetService()
 		{
+			return GetService(false);
+		}
+
+		public virtual bool GetService(bool direct)
+		{
+			if (direct)
+				return GetServiceImpl();
+
 			if( (Engine.Instance.Elevated != null) && (Engine.Instance.Elevated.ServiceEdition) )
 			{
 				if (Engine.Instance.Elevated.ServiceUninstallAtEnd)
 					return false;
 				else
-					return true;
+					return true;				
 			}
 			else
 				return GetServiceImpl();
@@ -264,12 +272,15 @@ namespace Eddie.Core
 				return SetServiceImpl(value);
 
 			if ((Engine.Instance.Elevated != null) && (Engine.Instance.Elevated.ServiceEdition))
-			{
-                Engine.Instance.Elevated.ServiceUninstallAtEnd = !value;
+			{				
+				Engine.Instance.Elevated.ServiceUninstallAtEnd = !value;
+
+				Engine.Instance.Elevated.DoCommandSync("service-conn-mode", "mode", Engine.Instance.Elevated.ServiceUninstallAtEnd ? "single" : "service");
+
 				return value;
 			}
 			else
-				return SetServiceImpl(value);
+				return SetServiceImpl(value);			
 		}
 
 		public virtual void WaitService()
@@ -283,6 +294,10 @@ namespace Eddie.Core
 		}
 
 		protected virtual bool SetServiceImpl(bool value)
+		{
+			return false;
+		}
+		public virtual bool GetServiceUninstallSupportRealtime()
 		{
 			return false;
 		}

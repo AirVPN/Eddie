@@ -3,7 +3,7 @@
 # First argument must be file package
 # Second argument must be project (cli/ui)
 
-# set -e
+# set -euo pipefail
 
 realpath() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"

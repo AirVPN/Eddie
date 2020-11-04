@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 # Check args
 if [ "$1" == "" ]; then
@@ -82,6 +82,7 @@ rm -f "$TARGETDIR/bundle/*.config"
 rm -f "$TARGETDIR/bundle/mscorlib.dll"
 rm -f $TARGETDIR/bundle/temp.*
 rm -f $TARGETDIR/bundle/mono_crash.*
+rm -f ${TARGETDIR}/bundle/Recovery.xml
 rm -rf "$TARGETDIR/bundle/res/providers"
 
 rm "$TARGETDIR/bundle/libgdiplus.so.0"

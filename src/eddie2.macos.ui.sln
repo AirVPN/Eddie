@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Cocoa.MacOS", "App.Coco
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Core", "Lib.Core\Lib.Core.csproj", "{1E979B7C-E6AD-4C6F-8BA6-3E33A99FAD76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Platform.MacOS", "Lib.Platform.MacOS\Lib.Platform.MacOS.csproj", "{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}"
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Lib.Platform.MacOS", "Lib.Platform.MacOS\Lib.Platform.MacOS.csproj", "{F41EDBCB-A794-4853-ADB1-B75B2F9F03F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +25,10 @@ Global
 		{9731FF8C-703E-4132-9427-5B410CF8E382}.Debug|x64.Build.0 = Debug|x64
 		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x64.ActiveCfg = Release|x64
 		{9731FF8C-703E-4132-9427-5B410CF8E382}.Release|x64.Build.0 = Release|x64
-		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x64.ActiveCfg = Debug|x64
-		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Debug|x64.Build.0 = Debug|x64
-		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x64.ActiveCfg = Release|x64
-		{BB467ECB-CEC3-4610-A1AD-EE08952AC06B}.Release|x64.Build.0 = Release|x64
+		{F41EDBCB-A794-4853-ADB1-B75B2F9F03F1}.Debug|x64.ActiveCfg = Debug|x64
+		{F41EDBCB-A794-4853-ADB1-B75B2F9F03F1}.Debug|x64.Build.0 = Debug|x64
+		{F41EDBCB-A794-4853-ADB1-B75B2F9F03F1}.Release|x64.ActiveCfg = Release|x64
+		{F41EDBCB-A794-4853-ADB1-B75B2F9F03F1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = UI.Cocoa.Osx\UI.Cocoa.Osx.csproj

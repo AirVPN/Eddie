@@ -26,6 +26,7 @@ public:
 	virtual bool IsServiceInstalled();
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
+    virtual bool ServiceUninstallSupportRealtime();
 	
 	// Virtual Pure, Other
 protected:

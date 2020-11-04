@@ -1227,7 +1227,7 @@ namespace Eddie.Core
 					else
 						Stats.UpdateValue("VpnInterface", "");
 					Stats.UpdateValue("VpnGateway", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractGateway().ToString());
-					Stats.UpdateValue("VpnCipher", Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractCipher());
+					Stats.UpdateValue("VpnDataChannel", Engine.ConnectionActive.DataChannel);
 					Stats.UpdateValue("VpnControlChannel", Engine.ConnectionActive.ControlChannel);
 					Stats.UpdateValue("VpnGeneratedOVPN", "");
 					Stats.UpdateValue("VpnGeneratedOVPNPush", "");
@@ -1260,7 +1260,7 @@ namespace Eddie.Core
 					Stats.UpdateValue("VpnDns", LanguageManager.GetText("StatsNotConnected"));
 					Stats.UpdateValue("VpnInterface", LanguageManager.GetText("StatsNotConnected"));
 					Stats.UpdateValue("VpnGateway", LanguageManager.GetText("StatsNotConnected"));
-					Stats.UpdateValue("VpnCipher", LanguageManager.GetText("StatsNotConnected"));
+					Stats.UpdateValue("VpnDataChannel", LanguageManager.GetText("StatsNotConnected"));
 					Stats.UpdateValue("VpnControlChannel", LanguageManager.GetText("StatsNotConnected"));
 					Stats.UpdateValue("VpnGeneratedOVPN", LanguageManager.GetText("StatsNotConnected"));
 					Stats.UpdateValue("VpnGeneratedOVPNPush", LanguageManager.GetText("StatsNotConnected"));

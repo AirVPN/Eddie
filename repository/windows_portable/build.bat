@@ -51,19 +51,19 @@ mkdir %VARTARGETDIR%
 IF "%VARPROJECT%"=="cli" (
 	echo copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
 	copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	mv %VARTARGETDIR%\App.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error	
+	move %VARTARGETDIR%\App.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error	
 ) ELSE IF "%VARPROJECT%"=="ui" (
 	copy %VARSCRIPTDIR%\..\..\src\App.CLI.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\APP.CLI.Windows.exe %VARTARGETDIR%\Eddie-CLI.exe || goto :error
-	cp %VARSCRIPTDIR%\..\..\src\App.Forms.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	mv %VARTARGETDIR%\App.Forms.Windows.exe %VARTARGETDIR%\Eddie-UI.exe || goto :error
+	copy %VARSCRIPTDIR%\..\..\src\App.Forms.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
+	move %VARTARGETDIR%\App.Forms.Windows.exe %VARTARGETDIR%\Eddie-UI.exe || goto :error
 ) ELSE IF "%VARPROJECT%"=="ui3" (
-	cp %VARSCRIPTDIR%\..\..\src\UI.WPF.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
-	mv %VARTARGETDIR%\UI.WPF.Windows.exe %VARTARGETDIR%\Eddie-UI.exe || goto :error
+	copy %VARSCRIPTDIR%\..\..\src\UI.WPF.Windows\bin\%VARARCHCOMPILE%\%VARCONFIG%\* %VARTARGETDIR% || goto :error
+	move %VARTARGETDIR%\UI.WPF.Windows.exe %VARTARGETDIR%\Eddie-UI.exe || goto :error
 )
 
 rem Resources
 echo Step: Resources
-cp %VARSCRIPTDIR%\..\..\deploy\%VAROS%_%VARARCH%\* %VARTARGETDIR% || goto :error
+copy %VARSCRIPTDIR%\..\..\deploy\%VAROS%_%VARARCH%\* %VARTARGETDIR% || goto :error
 robocopy %VARSCRIPTDIR%\..\..\common %VARTARGETDIR%\res /E
  
 rem Cleanup
@@ -72,6 +72,7 @@ del %VARTARGETDIR%\*.profile 2> nul
 del %VARTARGETDIR%\*.pdb 2> nul
 del %VARTARGETDIR%\*.config 2> nul
 del %VARTARGETDIR%\temp.* 2> nul
+del %VARTARGETDIR%\Recovery.xml 2> nul
 del %VARTARGETDIR%\mono_crash.* 2> nul
 rmdir /s /q %VARTARGETDIR%\res\providers
 

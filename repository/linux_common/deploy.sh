@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 SCRIPTDIR=$(dirname $(realpath -s $0))
 

@@ -1,9 +1,9 @@
 @echo off
 
-@if "%~1"=="" goto error
-@if "%~2"=="" goto error
-@if "%~3"=="" goto error
-@if "%~4"=="" goto error
+@if "%~1"=="" GOTO error
+@if "%~2"=="" GOTO error
+@if "%~3"=="" GOTO error
+@if "%~4"=="" GOTO error
 
 SET basepath=%~dp0
 SET targetdir=%1
@@ -20,30 +20,31 @@ echo Project: %project%
 echo Arch: %arch%
 echo Config: %config%
 
-rem Compile and copy Elevated - CLI Edition
-call %basepath%\App.CLI.Windows.Elevated\build.bat %config% %arch% || goto :error
-copy %basepath%\App.CLI.Windows.Elevated\bin\%arch%\%config%\App.CLI.Windows.Elevated.exe "%targetdir%"\Eddie-CLI-Elevated.exe /Y /V || goto :error
+echo Compile and copy Elevated - CLI Edition
+call %basepath%\App.CLI.Windows.Elevated\build.bat %config% %arch% || GOTO error
+copy %basepath%\App.CLI.Windows.Elevated\bin\%arch%\%config%\App.CLI.Windows.Elevated.exe "%targetdir%"\Eddie-CLI-Elevated.exe /Y /V || GOTO error
 
-rem Compile and copy Elevated - Service Edition
-call %basepath%\App.Service.Windows.Elevated\build.bat %config% %arch% || goto :error
-copy %basepath%\App.Service.Windows.Elevated\bin\%arch%\%config%\App.Service.Windows.Elevated.exe "%targetdir%"\Eddie-Service-Elevated.exe /Y /V || goto :error
+echo Compile and copy Elevated - Service Edition
+call %basepath%\App.Service.Windows.Elevated\build.bat %config% %arch% || GOTO error
+copy %basepath%\App.Service.Windows.Elevated\bin\%arch%\%config%\App.Service.Windows.Elevated.exe "%targetdir%"\Eddie-Service-Elevated.exe /Y /V || GOTO error
 
-rem Compile and copy native library
+echo Compile and copy native library
 
 rem Workaround, issue in building debug
-rem call %basepath%\Lib.Platform.Windows.Native\build.bat %config% %arch% || goto :error
-rem copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\%config%\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || goto :error
-call %basepath%\Lib.Platform.Windows.Native\build.bat Release %arch% || goto :error
-copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || goto :error
+rem call %basepath%\Lib.Platform.Windows.Native\build.bat %config% %arch% || GOTO error
+rem copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\%config%\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || GOTO error
+echo %basepath%\Lib.Platform.Windows.Native\build.bat Release %arch%
+call %basepath%\Lib.Platform.Windows.Native\build.bat Release %arch% || GOTO error
+copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || GOTO error
 
-goto done
+GOTO done
 
 :error
 echo Something wrong
-exit 1
+EXIT /B 1
 
 :done
-exit 0
+EXIT /B 0
 
 
 

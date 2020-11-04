@@ -128,9 +128,9 @@ void IBase::MainDo(const std::string& commandId, const std::string& command, std
 // Engine, Protected
 // --------------------------
 
-bool IBase::IsServiceMode()
+std::string IBase::GetLaunchMode()
 {
-	return m_serviceMode;
+	return m_launchMode;
 }
 
 void IBase::LogFatal(const std::string& msg)
@@ -162,7 +162,16 @@ void IBase::LogDebug(const std::string& msg)
 #endif
 
 	if (m_debug)
-		LogRemote("Elevated: " + msg);
+	{
+		try
+		{
+			LogRemote("Elevated: " + msg);
+		}
+		catch (const std::exception&)
+		{
+			// Ignore
+		}
+	}
 }
 
 void IBase::LogDevDebug(const std::string& msg)
@@ -170,7 +179,7 @@ void IBase::LogDevDebug(const std::string& msg)
 	/*
 	std::string logPath = "C:\\elevated.log";
 	FILE* f = fopen(logPath.c_str(), "a");
-	fprintf(f, "%s\r\n", msg.c_str());
+	fprintf(f, "PID: %d - %s\r\n", (int) GetCurrentProcessId(), msg.c_str());
 	fclose(f);
 	*/
 }
@@ -208,7 +217,8 @@ void IBase::SendMessage(const std::string& message)
 
 	// LogDebug("Write socket " + std::to_string(nWrite) + " bytes.");
 
-	if (nWrite < 0) {
+	if (nWrite < 0) 
+	{			
 		ThrowException("Error writing to socket");
 	}
 }
@@ -218,7 +228,7 @@ void IBase::SendMessage(const std::string& message)
 // --------------------------
 
 int IBase::Main()
-{
+{	
 	// Checkings
 	if (IsRoot() == false)
 	{
@@ -258,39 +268,34 @@ int IBase::Main()
 
 	m_lastModified = GetProcessModTimeCurrent();
 
-	int nMaxAccepted = -1;
 	int port = m_elevatedPortDefault;
-
+		
 	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "spot"))
-	{
-		nMaxAccepted = 1;
-		m_serviceMode = false;
+	{		
+		m_launchMode = "spot";		
 
 		if (m_cmdline.find("spot_port") != m_cmdline.end())
 			port = atoi(m_cmdline["spot_port"].c_str());
+
+		m_singleConnMode = true;
+
+		// If launched in SPOT mode, if service was active, they not accept for some reason (generally upgrade and fail integrity check), so reinstall.
+		ServiceReinstall();
 	}
 	else if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "service"))
-	{
-		nMaxAccepted = -1;
-		m_serviceMode = true;
+	{		
+		m_launchMode = "service";
 
 		if (m_cmdline.find("service_port") != m_cmdline.end())
-			port = atoi(m_cmdline["service_port"].c_str());
+			port = atoi(m_cmdline["service_port"].c_str());		
+
+		m_singleConnMode = false;
 	}
 	else
 	{
 		LogLocal("This application can't be run directly, it's used internally by Eddie. (unknown mode)");
 		return 1;
 	}
-
-
-
-
-	// If launched in SPOT mode, if service was active, they not accept, so reinstall.
-	if (m_serviceMode == false)
-		ServiceReinstall();
-
-	int nAccepted = 0;
 
 	HSOCKET sockServer;
 	struct sockaddr_in addrServer;
@@ -310,6 +315,8 @@ int IBase::Main()
 	addrServer.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	addrServer.sin_port = htons(port);
 
+	LogLocal("Listening on port " + std::to_string(port));
+
 	if (bind(sockServer, (struct sockaddr *) &addrServer, sizeof(addrServer)) != 0) {
 		ThrowException("Error on binding socket");
 	}
@@ -322,12 +329,6 @@ int IBase::Main()
 
 	for (;;)
 	{
-		if ((nMaxAccepted != -1) && (nAccepted >= nMaxAccepted))
-		{
-			LogDebug("Exit from spot mode");
-			break;
-		}
-
 		if (IsStopRequested())
 			break;
 
@@ -362,8 +363,6 @@ int IBase::Main()
 
 			if (SocketIsValid(m_sockClient))
 			{
-				nAccepted++;
-
 				// Remove if nonblock is inherit
 				SocketBlockMode(m_sockClient, true);
 
@@ -379,7 +378,7 @@ int IBase::Main()
 						ThrowException("Client not allowed: Cannot detect client process path");
 
 					// If spot mode, must be the parent
-					if (m_serviceMode == false)
+					if (GetLaunchMode() == "spot")
 					{
 						int parentPID = GetParentProcessId();
 
@@ -395,7 +394,7 @@ int IBase::Main()
 					}
 
 					// In service mode, hash must match. See description of ComputeIntegrityHash.
-					if (m_serviceMode)
+					if (GetLaunchMode() == "service")
 					{
 						std::string integrityHashComputed = ComputeIntegrityHash(GetProcessPathCurrent(), clientProcessPath);
 						std::string integrityHashExpected = "";
@@ -532,9 +531,19 @@ int IBase::Main()
 		LogDebug("Client soft disconnected");
 
 		SocketClose(m_sockClient);
+
+		if(m_singleConnMode)
+			break;
 	}
 
+	LogDebug("Closing");
+
 	SocketClose(sockServer);
+
+	if( (GetLaunchMode() == "service") && (m_singleConnMode) && (ServiceUninstallSupportRealtime()) )
+	{
+		ServiceUninstall();
+	}
 
 	return 0;
 }
@@ -547,6 +556,11 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 {
 	if (command == "exit")
 	{
+	}
+	else if (command == "service-conn-mode")
+	{
+		if (params.find("mode") != params.end())
+			m_singleConnMode = (params["mode"] == "single");
 	}
 	else if (command == "tor-get-info")
 	{
@@ -617,6 +631,21 @@ bool IBase::IsStopRequested()
 	return false;
 }
 
+std::string IBase::GetServiceId()
+{
+	return "EddieElevationService";
+}
+
+std::string IBase::GetServiceName()
+{
+	return "Eddie Elevation Service";
+}
+
+std::string IBase::GetServiceDesc()
+{
+	return "Eddie Elevation Service";
+}
+
 bool IBase::IsServiceInstalled()
 {
 	return false;
@@ -635,9 +664,24 @@ bool IBase::ServiceUninstall()
 bool IBase::ServiceReinstall()
 {
 	if (IsServiceInstalled())
+	{
 		return ServiceInstall();
+	}
 	else
+	{
 		return false;
+	}
+}
+
+bool IBase::ServiceUninstallSupportRealtime()
+{
+    // If in this OS, service can uninstall itself.
+    // Currently used in Windows, in Linux we encounter some issue about fork() a systemd for wait itself.
+    // Have the equivalent in C# ::Platform.
+    
+    // Anyway, under Windows, spot mode is installation and activation of the service, so the self-uninstall is to avoid UAC prompt at every exit. 
+    // In Linux/macOS, it's better return false here.
+    return false;
 }
 
 std::string IBase::GetProcessPathCurrent()
@@ -716,35 +760,21 @@ std::string IBase::FsFileGetDirectory(const std::string& path)
 	return path.substr(0, path.find_last_of("/\\"));
 }
 
-std::vector<char> IBase::FsFileReadBytes(const std::string& path)
-{
-	/*
-	std::ifstream input(path, std::ios::binary);
-
-	std::vector<unsigned char> bytes(
-		 (std::istreambuf_iterator<char>(input)),
-		 (std::istreambuf_iterator<char>()));
-
-	input.close();
-
-	return bytes;
-	*/
-
-	// Note: This don't work with a /proc/x/cmdline
-
-	std::ifstream ifs(path.c_str(), std::ios::binary | std::ios::ate);
-	std::ifstream::pos_type pos = ifs.tellg();
-
-	std::vector<char>  result(pos);
-
-	ifs.seekg(0, std::ios::beg);
-	ifs.read(&result[0], pos);
-
-	return result;
-}
-
 std::string IBase::FsFileSHA256Sum(const std::string& path)
 {
+	if(FsFileExists(path) == false)
+		ThrowException("Unable to find for sha256 hash, path: " + path);
+	std::vector<char> buf = FsFileReadBytes(path);
+
+	sha256_context ctx;
+	sha256_starts(&ctx);
+	sha256_update(&ctx, (unsigned char*) buf.data(), (unsigned long) buf.size());
+	unsigned char sha256sum[32];
+	sha256_finish(&ctx, sha256sum);
+	std::string final = StringHexEncode(&sha256sum[0], 32);
+	return final;
+
+	/*
 	FILE *f;
 	size_t i;
 	unsigned char buf[1000];
@@ -768,8 +798,11 @@ std::string IBase::FsFileSHA256Sum(const std::string& path)
 	fclose(f);
 
 	sha256_finish(&ctx, sha256sum);
- 
+
 	return StringHexEncode(&sha256sum[0], 32);
+	*/
+ 
+	return final;
 }
 
 std::string IBase::FsLocateExecutable(const std::string& name)
@@ -1045,6 +1078,7 @@ std::map<std::string, std::string> IBase::ParseCommandLine(const std::vector<std
 
 		if (k != "")
 		{
+			LogDevDebug("CmdLine Arg:" + k + "=" + v);
 			result[k] = v;
 		}
 	}

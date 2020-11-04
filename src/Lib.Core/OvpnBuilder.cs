@@ -434,11 +434,6 @@ namespace Eddie.Core
 			return result;
 		}
 
-		public string ExtractCipher()
-		{
-			return GetOneDirectiveText("cipher");
-		}
-
 		// Normalize path if relative
 		public void NormalizeRelativePath(string path)
 		{
@@ -518,6 +513,22 @@ namespace Eddie.Core
 						}
 					}
 				}
+			}
+
+			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
+			{
+				RemoveDirective("cipher");
+				RemoveDirective("ncp-disable");
+				if (ExistsDirective("data-ciphers") == false)
+				{
+					string dataCiphers = Engine.Instance.Storage.Get("openvpn.directives.data-ciphers");
+					if( (Engine.Instance.Storage.GetBool("openvpn.directives.chacha20")) && (dataCiphers.IndexOfInv("chacha20-poly1305") == -1) )
+						dataCiphers = "CHACHA20-POLY1305:" + dataCiphers;
+					AppendDirective("data-ciphers", dataCiphers, "");
+				}
+					
+				if (ExistsDirective("data-ciphers-fallback") == false)
+					AppendDirective("data-ciphers-fallback", Engine.Instance.Storage.Get("openvpn.directives.data-ciphers-fallback"), "");
 			}
 
 			Platform.Instance.OpenVpnConfigNormalize(this);

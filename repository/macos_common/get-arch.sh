@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 ARCHOS=$(uname -m)
 if [ $ARCHOS = "i686" ]; then

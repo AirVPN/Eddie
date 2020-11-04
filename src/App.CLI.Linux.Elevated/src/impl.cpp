@@ -795,9 +795,9 @@ bool Impl::ServiceUninstall()
 {
 	if (FsFileExists(systemdUnitPath))
 	{
-		ShellEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
-		ShellEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
-		FsFileDelete(systemdUnitPath);
+        ShellEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
+        ShellEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
+        FsFileDelete(systemdUnitPath);
 	}
 
 	return 0;

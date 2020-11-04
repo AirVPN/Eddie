@@ -331,7 +331,9 @@ namespace Eddie.Core
 			if (id == "OsDriverNoAdapterFound") return "Cannot find tunnel adapter of driver {1}, try install.";
 			if (id == "OsDriverAdapterNotAvailable") return "VPN Network Adapter not found, install fail ({1})";
             if (id == "NetworkLockActivationConnectStop") return "Network lock fail activation, requested automatic connection disabled.";
-			
+			if (id == "UnexpectedInterfaceNotRecognized") return "Unexpected not recognized interface used by OpenVPN. Probably not supported OpenVPN version, update need.";
+			if (id == "StatsVpnDataChannel") return "VPN Data Channel";
+
 			return "";
         }
     }

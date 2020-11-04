@@ -39,7 +39,7 @@ namespace Eddie.Core.Elevated
 		protected string m_failedReason = "";
 		protected string m_bufferReceive = "";
 		protected bool m_started = false;
-		
+
 		public bool ServiceEdition = false;
 		public bool ServiceUninstallAtEnd = false;
 
@@ -92,7 +92,8 @@ namespace Eddie.Core.Elevated
             {
             }
 
-            if (ServiceUninstallAtEnd)
+			// See comment in C++ ServiceUninstallSupportRealtime
+			if ( (ServiceUninstallAtEnd) && (Platform.Instance.GetServiceUninstallSupportRealtime() == false) )
 				Platform.Instance.SetService(false, true);
 		}
 

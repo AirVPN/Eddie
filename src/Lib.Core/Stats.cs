@@ -56,7 +56,7 @@ namespace Eddie.Core
 			Add("VpnDns", LanguageManager.GetText("StatsVpnDns"), "vpn");
 			Add("VpnInterface", LanguageManager.GetText("StatsVpnInterface"), "vpn");
 			Add("VpnGateway", LanguageManager.GetText("StatsVpnGateway"), "vpn");
-			Add("VpnCipher", LanguageManager.GetText("StatsVpnCipher"), "vpn");
+			Add("VpnDataChannel", LanguageManager.GetText("StatsVpnDataChannel"), "vpn");
 			Add("VpnControlChannel", LanguageManager.GetText("StatsVpnControlChannel"), "vpn");
 			Add("VpnGeneratedOVPN", LanguageManager.GetText("StatsVpnGeneratedOVPN"), "vpn", "view");
 			Add("VpnGeneratedOVPNPush", LanguageManager.GetText("StatsVpnGeneratedOVPNPush"), "vpn", "view");

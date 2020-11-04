@@ -32,6 +32,15 @@
     <LinkMode>None</LinkMode>
     <PlatformTarget>x64</PlatformTarget>
     <AOTMode>None</AOTMode>
+    <I18n></I18n>
+    <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
+    <EnableSGenConc>false</EnableSGenConc>
+    <UseRefCounting>false</UseRefCounting>
+    <Profiling>false</Profiling>
+    <HybridAOT>false</HybridAOT>
+    <MacOSXSdkVersion></MacOSXSdkVersion>
+    <CodeSignEntitlements></CodeSignEntitlements>
+    <CodeSignResourceRules></CodeSignResourceRules>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <DebugSymbols>true</DebugSymbols>

@@ -50,8 +50,10 @@ private:
 	HSOCKET m_sockClient;
 	bool m_debug = false;
 	time_t m_lastModified;
-	bool m_serviceMode = false;
+	//bool m_serviceMode = false;
 	std::map<pid_t, bool> m_pidManaged;
+	std::string m_launchMode;
+	bool m_singleConnMode = false;
 
 protected:
 	std::map<std::string, std::string> m_cmdline;
@@ -64,7 +66,7 @@ public:
 
 	// Engine, Protected
 protected:
-	bool IsServiceMode();
+	std::string GetLaunchMode();
 	void LogFatal(const std::string& msg);
 	void LogRemote(const std::string& msg);
 	void LogLocal(const std::string& msg);
@@ -87,10 +89,14 @@ protected:
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 	virtual bool IsStopRequested();
 	
+	virtual std::string GetServiceId();
+	virtual std::string GetServiceName();
+	virtual std::string GetServiceDesc();
 	virtual bool IsServiceInstalled();
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
 	virtual bool ServiceReinstall();
+    virtual bool ServiceUninstallSupportRealtime();
 
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathCurrentDir();
@@ -119,6 +125,7 @@ protected:
 	virtual void FsDirectoryDelete(const std::string& path, bool recursive) = 0;
 	virtual bool FsFileMove(const std::string& source, const std::string& destination) = 0;
 	virtual std::string FsFileReadText(const std::string& path) = 0;
+	virtual std::vector<char> FsFileReadBytes(const std::string& path) = 0;
 	virtual std::vector<std::string> FsFilesInPath(const std::string& path) = 0;
 	virtual std::string FsGetTempPath() = 0;
 	virtual std::vector<std::string> FsGetEnvPath() = 0;
@@ -138,8 +145,7 @@ protected:
 protected:
 	bool FsFileWriteText(const std::string& path, const std::string& body);
 	bool FsFileAppendText(const std::string& path, const std::string& body);
-	std::string FsFileGetDirectory(const std::string& path);
-	std::vector<char> FsFileReadBytes(const std::string& path);
+	std::string FsFileGetDirectory(const std::string& path);	
 
 	std::string FsFileSHA256Sum(const std::string& path);
 	std::string FsLocateExecutable(const std::string& name);

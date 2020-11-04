@@ -35,6 +35,8 @@ namespace Eddie.Forms.Forms
 			Eddie.Forms.Skin.ColumnHeader columnHeader1;
 			Eddie.Forms.Skin.ColumnHeader columnHeader2;
 			Eddie.Forms.Skin.ColumnHeader columnHeader5;
+			this.cmdHummingbirdPathBrowse = new Eddie.Forms.Skin.Button();
+			this.txtHummingbirdPath = new Eddie.Forms.Skin.TextBox();
 			this.lblHummingbirdPrefer = new Eddie.Forms.Skin.Label();
 			this.chkHummingbirdPrefer = new Eddie.Forms.Skin.CheckBox();
 			this.lblAdvancedUpdaterChannel = new Eddie.Forms.Skin.Label();
@@ -63,6 +65,7 @@ namespace Eddie.Forms.Forms
 			this.lblExePath = new Eddie.Forms.Skin.Label();
 			this.chkAdvancedCheckRoute = new Eddie.Forms.Skin.CheckBox();
 			this.chkExpert = new Eddie.Forms.Skin.CheckBox();
+			this.chkOpenVpnDirectivesDataCiphersChaCha = new Eddie.Forms.Skin.CheckBox();
 			this.chkOpenVpnDirectivesAllowScriptSecurity = new Eddie.Forms.Skin.CheckBox();
 			this.cmdOpenVpnDirectivesCustomPathBrowse = new Eddie.Forms.Skin.Button();
 			this.txtOpenVpnDirectivesCustomPath = new Eddie.Forms.Skin.TextBox();
@@ -243,8 +246,6 @@ namespace Eddie.Forms.Forms
 			this.lblLogPath = new Eddie.Forms.Skin.Label();
 			this.chkLoggingEnabled = new Eddie.Forms.Skin.CheckBox();
 			this.tabExperimentals = new System.Windows.Forms.TabPage();
-			this.cmdHummingbirdPathBrowse = new Eddie.Forms.Skin.Button();
-			this.txtHummingbirdPath = new Eddie.Forms.Skin.TextBox();
 			tabAdvanced = new Eddie.Forms.Skin.TabPage();
 			tabDirectives = new Eddie.Forms.Skin.TabPage();
 			tabEvents = new Eddie.Forms.Skin.TabPage();
@@ -303,6 +304,33 @@ namespace Eddie.Forms.Forms
 			tabAdvanced.Size = new System.Drawing.Size(1014, 635);
 			tabAdvanced.TabIndex = 0;
 			tabAdvanced.Text = "Advanced";
+			// 
+			// cmdHummingbirdPathBrowse
+			// 
+			this.cmdHummingbirdPathBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.cmdHummingbirdPathBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.cmdHummingbirdPathBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderSize = 0;
+			this.cmdHummingbirdPathBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.cmdHummingbirdPathBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
+			this.cmdHummingbirdPathBrowse.Location = new System.Drawing.Point(942, 523);
+			this.cmdHummingbirdPathBrowse.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdHummingbirdPathBrowse.Name = "cmdHummingbirdPathBrowse";
+			this.cmdHummingbirdPathBrowse.Size = new System.Drawing.Size(50, 30);
+			this.cmdHummingbirdPathBrowse.TabIndex = 97;
+			this.cmdHummingbirdPathBrowse.UseVisualStyleBackColor = true;
+			this.cmdHummingbirdPathBrowse.Click += new System.EventHandler(this.cmdHummingbirdPathBrowse_Click);
+			// 
+			// txtHummingbirdPath
+			// 
+			this.txtHummingbirdPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.txtHummingbirdPath.Location = new System.Drawing.Point(421, 523);
+			this.txtHummingbirdPath.Margin = new System.Windows.Forms.Padding(4);
+			this.txtHummingbirdPath.Name = "txtHummingbirdPath";
+			this.txtHummingbirdPath.Size = new System.Drawing.Size(513, 26);
+			this.txtHummingbirdPath.TabIndex = 96;
 			// 
 			// lblHummingbirdPrefer
 			// 
@@ -668,6 +696,7 @@ namespace Eddie.Forms.Forms
 			// tabDirectives
 			// 
 			tabDirectives.BackColor = System.Drawing.Color.White;
+			tabDirectives.Controls.Add(this.chkOpenVpnDirectivesDataCiphersChaCha);
 			tabDirectives.Controls.Add(this.chkOpenVpnDirectivesAllowScriptSecurity);
 			tabDirectives.Controls.Add(this.cmdOpenVpnDirectivesCustomPathBrowse);
 			tabDirectives.Controls.Add(this.txtOpenVpnDirectivesCustomPath);
@@ -685,6 +714,19 @@ namespace Eddie.Forms.Forms
 			tabDirectives.Size = new System.Drawing.Size(1014, 635);
 			tabDirectives.TabIndex = 1;
 			tabDirectives.Text = "OVPN directives";
+			// 
+			// chkOpenVpnDirectivesDataCiphersChaCha
+			// 
+			this.chkOpenVpnDirectivesDataCiphersChaCha.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.chkOpenVpnDirectivesDataCiphersChaCha.BackColor = System.Drawing.Color.Transparent;
+			this.chkOpenVpnDirectivesDataCiphersChaCha.ForeColor = System.Drawing.Color.Black;
+			this.chkOpenVpnDirectivesDataCiphersChaCha.Location = new System.Drawing.Point(20, 480);
+			this.chkOpenVpnDirectivesDataCiphersChaCha.Margin = new System.Windows.Forms.Padding(4);
+			this.chkOpenVpnDirectivesDataCiphersChaCha.Name = "chkOpenVpnDirectivesDataCiphersChaCha";
+			this.chkOpenVpnDirectivesDataCiphersChaCha.Size = new System.Drawing.Size(425, 31);
+			this.chkOpenVpnDirectivesDataCiphersChaCha.TabIndex = 93;
+			this.chkOpenVpnDirectivesDataCiphersChaCha.Text = "Prefer CHACHA20-POLY1305 data cipher if available";
+			this.chkOpenVpnDirectivesDataCiphersChaCha.UseVisualStyleBackColor = false;
 			// 
 			// chkOpenVpnDirectivesAllowScriptSecurity
 			// 
@@ -1233,7 +1275,7 @@ namespace Eddie.Forms.Forms
             this.mnuRoutesRemove,
             this.mnuRoutesEdit});
 			this.mnuRoutes.Name = "mnuServers";
-			this.mnuRoutes.Size = new System.Drawing.Size(153, 94);
+			this.mnuRoutes.Size = new System.Drawing.Size(153, 100);
 			// 
 			// mnuRoutesAdd
 			// 
@@ -1241,7 +1283,7 @@ namespace Eddie.Forms.Forms
 			this.mnuRoutesAdd.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.mnuRoutesAdd.Image = global::Eddie.Forms.Properties.Resources.add;
 			this.mnuRoutesAdd.Name = "mnuRoutesAdd";
-			this.mnuRoutesAdd.Size = new System.Drawing.Size(152, 30);
+			this.mnuRoutesAdd.Size = new System.Drawing.Size(152, 32);
 			this.mnuRoutesAdd.Text = "Add";
 			this.mnuRoutesAdd.Click += new System.EventHandler(this.mnuRoutesAdd_Click);
 			// 
@@ -1249,7 +1291,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuRoutesRemove.Image = global::Eddie.Forms.Properties.Resources.delete;
 			this.mnuRoutesRemove.Name = "mnuRoutesRemove";
-			this.mnuRoutesRemove.Size = new System.Drawing.Size(152, 30);
+			this.mnuRoutesRemove.Size = new System.Drawing.Size(152, 32);
 			this.mnuRoutesRemove.Text = "Remove";
 			this.mnuRoutesRemove.Click += new System.EventHandler(this.mnuRoutesRemove_Click);
 			// 
@@ -1257,7 +1299,7 @@ namespace Eddie.Forms.Forms
 			// 
 			this.mnuRoutesEdit.Image = global::Eddie.Forms.Properties.Resources.edit;
 			this.mnuRoutesEdit.Name = "mnuRoutesEdit";
-			this.mnuRoutesEdit.Size = new System.Drawing.Size(152, 30);
+			this.mnuRoutesEdit.Size = new System.Drawing.Size(152, 32);
 			this.mnuRoutesEdit.Text = "Edit";
 			this.mnuRoutesEdit.Click += new System.EventHandler(this.mnuRoutesEdit_Click);
 			// 
@@ -3062,33 +3104,6 @@ namespace Eddie.Forms.Forms
 			this.tabExperimentals.Text = "Experimentals";
 			this.tabExperimentals.UseVisualStyleBackColor = true;
 			// 
-			// cmdHummingbirdPathBrowse
-			// 
-			this.cmdHummingbirdPathBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.cmdHummingbirdPathBrowse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.cmdHummingbirdPathBrowse.Cursor = System.Windows.Forms.Cursors.Hand;
-			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-			this.cmdHummingbirdPathBrowse.FlatAppearance.BorderSize = 0;
-			this.cmdHummingbirdPathBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdHummingbirdPathBrowse.Image = global::Eddie.Forms.Properties.Resources.browse;
-			this.cmdHummingbirdPathBrowse.Location = new System.Drawing.Point(942, 523);
-			this.cmdHummingbirdPathBrowse.Margin = new System.Windows.Forms.Padding(4);
-			this.cmdHummingbirdPathBrowse.Name = "cmdHummingbirdPathBrowse";
-			this.cmdHummingbirdPathBrowse.Size = new System.Drawing.Size(50, 30);
-			this.cmdHummingbirdPathBrowse.TabIndex = 97;
-			this.cmdHummingbirdPathBrowse.UseVisualStyleBackColor = true;
-			this.cmdHummingbirdPathBrowse.Click += new System.EventHandler(this.cmdHummingbirdPathBrowse_Click);
-			// 
-			// txtHummingbirdPath
-			// 
-			this.txtHummingbirdPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtHummingbirdPath.Location = new System.Drawing.Point(421, 523);
-			this.txtHummingbirdPath.Margin = new System.Windows.Forms.Padding(4);
-			this.txtHummingbirdPath.Name = "txtHummingbirdPath";
-			this.txtHummingbirdPath.Size = new System.Drawing.Size(513, 26);
-			this.txtHummingbirdPath.TabIndex = 96;
-			// 
 			// Settings
 			// 
 			this.AcceptButton = this.cmdOk;
@@ -3345,5 +3360,6 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkWindowsWintun;
 		private Skin.Button cmdHummingbirdPathBrowse;
 		private Skin.TextBox txtHummingbirdPath;
+		private Skin.CheckBox chkOpenVpnDirectivesDataCiphersChaCha;
 	}
 }

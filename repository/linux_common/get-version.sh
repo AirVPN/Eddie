@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 CURRENTDIR=$(dirname $(realpath -s $0))
 

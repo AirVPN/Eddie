@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 realpath() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
@@ -78,6 +78,7 @@ rm -f $TARGETDIR/bundle/*.config
 rm -f $TARGETDIR/bundle/mscorlib.dll
 rm -f $TARGETDIR/bundle/temp.*
 rm -f $TARGETDIR/bundle/mono_crash.*
+rm -f $TARGETDIR/Eddie.App/Contents/MacOS/Recovery.xml
 rm -rf $TARGETDIR/bundle/res/providers
 
 if [ $PROJECT = "cli" ]; then

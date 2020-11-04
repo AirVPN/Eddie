@@ -47,6 +47,7 @@ protected:
 	virtual void FsDirectoryDelete(const std::string& path, bool recursive);
 	virtual bool FsFileMove(const std::string& source, const std::string& destination);
 	virtual std::string FsFileReadText(const std::string& path);
+	virtual std::vector<char> FsFileReadBytes(const std::string& path);
 	virtual std::vector<std::string> FsFilesInPath(const std::string& path);
 	virtual std::string FsGetTempPath();
 	virtual std::vector<std::string> FsGetEnvPath();

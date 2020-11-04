@@ -63,6 +63,11 @@ namespace Eddie.Core
             return str.Trim(chars.ToCharArray());
         }
 
+        public static string TrimStartChars(this string str, string chars)
+        {
+            return str.TrimStart(chars.ToCharArray());
+        }
+
         public static string ExtractBetween(this string str, string from, string to)
 		{
 			int iPos1 = str.IndexOf(from, StringComparison.InvariantCulture);
@@ -188,7 +193,7 @@ namespace Eddie.Core
             return (match.Success);
         }
 
-        public static string RegExMatchOne(this string str, string pattern)
+		public static string RegExMatchOne(this string str, string pattern)
         {
             Match match = Regex.Match(str, pattern, RegexOptions.Multiline);
             if (match.Success)

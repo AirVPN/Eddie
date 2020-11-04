@@ -148,6 +148,9 @@ namespace Eddie.UI.Cocoa.Osx
 		AppKit.NSButton ChkOpenVpnDirectivesAllowScriptSecurity { get; set; }
 
 		[Outlet]
+		AppKit.NSButton ChkOpenVpnDirectivesChaCha { get; set; }
+
+		[Outlet]
 		AppKit.NSButton ChkProtocolsAutomatic { get; set; }
 
 		[Outlet]
@@ -368,21 +371,6 @@ namespace Eddie.UI.Cocoa.Osx
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (ChkCliShortcut != null) {
-				ChkCliShortcut.Dispose ();
-				ChkCliShortcut = null;
-			}
-
-			if (TxtHummingbirdPath != null) {
-				TxtHummingbirdPath.Dispose ();
-				TxtHummingbirdPath = null;
-			}
-
-			if (CmdHummingbirdPathBrowse != null) {
-				CmdHummingbirdPathBrowse.Dispose ();
-				CmdHummingbirdPathBrowse = null;
-			}
-
 			if (CboAdvancedManifestRefresh != null) {
 				CboAdvancedManifestRefresh.Dispose ();
 				CboAdvancedManifestRefresh = null;
@@ -523,6 +511,11 @@ namespace Eddie.UI.Cocoa.Osx
 				ChkAdvancedSkipAlreadyRun = null;
 			}
 
+			if (ChkCliShortcut != null) {
+				ChkCliShortcut.Dispose ();
+				ChkCliShortcut = null;
+			}
+
 			if (ChkConnect != null) {
 				ChkConnect.Dispose ();
 				ChkConnect = null;
@@ -601,6 +594,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (ChkOpenVpnDirectivesAllowScriptSecurity != null) {
 				ChkOpenVpnDirectivesAllowScriptSecurity.Dispose ();
 				ChkOpenVpnDirectivesAllowScriptSecurity = null;
+			}
+
+			if (ChkOpenVpnDirectivesChaCha != null) {
+				ChkOpenVpnDirectivesChaCha.Dispose ();
+				ChkOpenVpnDirectivesChaCha = null;
 			}
 
 			if (ChkProtocolsAutomatic != null) {
@@ -701,6 +699,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (CmdGeneralTos != null) {
 				CmdGeneralTos.Dispose ();
 				CmdGeneralTos = null;
+			}
+
+			if (CmdHummingbirdPathBrowse != null) {
+				CmdHummingbirdPathBrowse.Dispose ();
+				CmdHummingbirdPathBrowse = null;
 			}
 
 			if (CmdLockHelp != null) {
@@ -891,6 +894,11 @@ namespace Eddie.UI.Cocoa.Osx
 			if (TxtAdvancedOpenVpnPath != null) {
 				TxtAdvancedOpenVpnPath.Dispose ();
 				TxtAdvancedOpenVpnPath = null;
+			}
+
+			if (TxtHummingbirdPath != null) {
+				TxtHummingbirdPath.Dispose ();
+				TxtHummingbirdPath = null;
 			}
 
 			if (TxtLockWhiteListIncomingIPs != null) {

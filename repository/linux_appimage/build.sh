@@ -1,6 +1,6 @@
 ﻿#!/bin/bash
 
-set -e
+set -euo pipefail
 
 if [ "$1" == "" ]; then
     echo First arg must be Project: cli,ui

@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 realpath() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
@@ -63,7 +63,7 @@ fi
 
 # Cleanup
 
-rm -rf $TARGETDIR
+rm -rf /tmp/eddie_deploy
 
 # Compile
 
@@ -87,6 +87,9 @@ elif [ ${PROJECT} = "ui3" ]; then
 	cp -r "${SCRIPTDIR}/../../src/UI.Cocoa.MacOS/bin/${ARCHCOMPILE}/${CONFIG}/Eddie.app" "${TARGETDIR}"
 fi
 
+# Touch to update main folder timestamp
+touch "${TARGETDIR}/Eddie.App"
+
 # Resources
 
 echo Step: Resources
@@ -99,6 +102,7 @@ echo Step: Cleanup
 rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/*.profile
 rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/*.pdb
 rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/*.config
+rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/Recovery.xml
 rm -rf ${TARGETDIR}/Eddie.App/Contents/Resources/providers
 
 if [ $PROJECT = "cli" ]; then
@@ -174,6 +178,17 @@ if [ ${VARSTAFF} = "yes" ]; then
     "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.App/Contents/MonoBundle/libmono-native.dylib" yes $VARHARDENING
 
     "${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.App/Contents/MonoBundle/libMonoPosixHelper.dylib" yes $VARHARDENING
+
+    # Exception
+
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MacOS/Eddie" yes $VARHARDENING
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MonoBundle/libcairo.2.dylib" yes $VARHARDENING
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MonoBundle/libglib-2.0.0.dylib" yes $VARHARDENING
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MonoBundle/libfreetype.6.dylib" yes $VARHARDENING
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MonoBundle/libfontconfig.1.dylib" yes $VARHARDENING
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MonoBundle/libtiff.5.dylib" yes $VARHARDENING
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MonoBundle/libgdiplus.0.dylib" yes $VARHARDENING
+    #"${SCRIPTDIR}/../macos_common/sign.sh" "${TARGETDIR}/Eddie.app/Contents/MonoBundle/libgdiplus.dylib" yes $VARHARDENING
 
     # This may have force=no, it's yes to be sure
 

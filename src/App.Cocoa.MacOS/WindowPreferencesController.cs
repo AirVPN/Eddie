@@ -959,7 +959,8 @@ namespace Eddie.UI.Cocoa.Osx
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.Get("openvpn.directives");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get("openvpn.custom");
 			TxtOpenVpnDirectivesCustomPath.StringValue = s.Get("openvpn.directives.path");
-            //GuiUtils.SetCheck(ChkOpenVpnDirectivesAllowScriptSecurity, s.GetBool("openvpn.allow.script-security"));
+			//GuiUtils.SetCheck(ChkOpenVpnDirectivesAllowScriptSecurity, s.GetBool("openvpn.allow.script-security"));
+			GuiUtils.SetCheck(ChkOpenVpnDirectivesChaCha, s.GetBool("openvpn.directives.chacha20"));
 
 			// Events
 			ReadOptionsEvent("app.start", 0);
@@ -1304,7 +1305,8 @@ namespace Eddie.UI.Cocoa.Osx
 			s.Set("openvpn.directives", TxtAdvancedOpenVpnDirectivesDefault.StringValue);
 			s.Set("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
 			s.Set("openvpn.directives.path", TxtOpenVpnDirectivesCustomPath.StringValue);
-            //s.Set("openvpn.allow.script-security", GuiUtils.GetCheck(ChkOpenVpnDirectivesAllowScriptSecurity));
+			//s.Set("openvpn.allow.script-security", GuiUtils.GetCheck(ChkOpenVpnDirectivesAllowScriptSecurity));
+			s.SetBool("openvpn.directives.chacha20", GuiUtils.GetCheck(ChkOpenVpnDirectivesChaCha));
 
 			// Events
 			SaveOptionsEvent("app.start", 0);

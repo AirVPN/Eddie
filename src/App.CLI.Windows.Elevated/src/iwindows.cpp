@@ -27,6 +27,8 @@
 
 #include <codecvt> // For StringUTF8ToWString
 
+#include "sddl.h"	// For ConvertSidToStringSid
+
 void IWindows::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
 	if (command == "kill")
@@ -416,6 +418,21 @@ std::string IWindows::FsFileReadText(const std::string& path)
 	return buffer.str();
 }
 
+std::vector<char> IWindows::FsFileReadBytes(const std::string& path)
+{
+	std::wstring pathW(StringUTF8ToWString(path));
+
+	std::ifstream ifs(pathW, std::ios::binary | std::ios::ate);
+	std::ifstream::pos_type pos = ifs.tellg();
+
+	std::vector<char>  result(pos);
+
+	ifs.seekg(0, std::ios::beg);
+	ifs.read(&result[0], pos);
+
+	return result;
+}
+
 std::vector<std::string> IWindows::FsFilesInPath(const std::string& path)
 {
 	std::vector<std::string> files;
@@ -504,7 +521,6 @@ void IWindows::SocketClose(HSOCKET s)
 {
 	closesocket(s);
 }
-
 
 
 

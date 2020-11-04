@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 # Check args
 if [ "$1" == "" ]; then
@@ -98,7 +98,7 @@ function arch_env() {
 # Cleanup
 rm -rf $TARGETDIR
 
-if [ "$MODE" == "" ]; then
+if [ "$MODE" == "local" ]; then
 	if test -f "${DEPLOYPATH}"; then
 		echo "Already builded: ${DEPLOYPATH}"
 		exit 0;
