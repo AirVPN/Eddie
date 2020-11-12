@@ -1332,7 +1332,11 @@ namespace Eddie.Core.Threads
 
 					if (message.StartsWithInv("Data Channel: "))
 					{
-						m_connectionActive.DataChannel = message.Substring("Data Channel: ".Length);
+						string c = message.Substring("Data Channel: ".Length);
+						string c2 = c.RegExMatchOne("using negotiated cipher '(.+?)'");
+						if (c2 != "")
+							c = c2;
+						m_connectionActive.DataChannel = c;
 					}
 
 					if (message.StartsWithInv("Control Channel: "))

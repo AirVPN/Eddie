@@ -11,9 +11,9 @@ license=(GPLv3)
 depends=(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2)
 optdepends=('stunnel: VPN over SSL' 'openssh: VPN over SSH')
 makedepends=('cmake')
-provides=('eddie-ui')
+provides=('eddie-{@project}')
 conflicts=('airvpn' 'airvpn-beta-bin' 'airvpn-git')
-install=eddie-ui.install
+install=eddie-{@project}.install
 source=('{@source}')
 sha1sums=('SKIP')
 
@@ -29,68 +29,86 @@ build() {
 
   # Compile C# sources
   cd "Eddie-$pkgver"
-  xbuild /verbosity:minimal /p:Configuration="Release" /p:Platform="$_pkgarch" src/eddie2.linux.ui.sln
+  if [ "{@project}" = "cli" ]; then
+    xbuild /verbosity:minimal /p:Configuration="Release" /p:Platform="$_pkgarch" src/eddie.linux.cli.sln
+  elif [ "{@project}" = "ui" ]; then
+    xbuild /verbosity:minimal /p:Configuration="Release" /p:Platform="$_pkgarch" src/eddie2.linux.ui.sln
+  fi
 
   # Compile C sources (Tray)
-  cd src/UI.GTK.Linux.Tray
-  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=. 
-  make
-  strip -S --strip-unneeded -o eddie-tray-strip eddie_tray
-  cd ../..
+  if [ "{@project}" = "ui" ]; then
+    cd src/UI.GTK.Linux.Tray
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=. 
+    make
+    strip -S --strip-unneeded -o eddie-tray-strip eddie_tray
+    cd ../..
+  fi
 
   # Compile C sources
   chmod +x src/eddie.linux.postbuild.sh
   chmod +x src/Lib.Platform.Linux.Native/build.sh
-  src/eddie.linux.postbuild.sh "src/App.Forms.Linux/bin/$_pkgarch/Release/" ui $_pkgarch Release
+  
+  if [ "{@project}" = "cli" ]; then
+    src/eddie.linux.postbuild.sh "src/App.CLI.Linux/bin/$_pkgarch/Release/" ui $_pkgarch Release
+  elif [ "{@project}" = "ui" ]; then
+    src/eddie.linux.postbuild.sh "src/App.Forms.Linux/bin/$_pkgarch/Release/" ui $_pkgarch Release
+  fi
 }
 
 package() {
   cd "Eddie-$pkgver"
-  install -Dm755 "src/App.Forms.Linux/bin/$_pkgarch/Release/App.Forms.Linux.exe" "$pkgdir/usr/lib/eddie-ui/eddie-ui.exe"
-  install -Dm755 "src/App.Forms.Linux/bin/$_pkgarch/Release/eddie-cli-elevated" "$pkgdir/usr/lib/eddie-ui/eddie-cli-elevated"
-  install -Dm644 "src/App.Forms.Linux/bin/$_pkgarch/Release/Lib.Core.dll" "$pkgdir/usr/lib/eddie-ui/Lib.Core.dll"
-  install -Dm644 "src/App.Forms.Linux/bin/$_pkgarch/Release/Lib.Forms.dll" "$pkgdir/usr/lib/eddie-ui/Lib.Forms.dll"
-  install -Dm644 "src/App.Forms.Linux/bin/$_pkgarch/Release/Lib.Platform.Linux.dll" "$pkgdir/usr/lib/eddie-ui/Lib.Platform.Linux.dll"
-  install -Dm644 "src/Lib.Platform.Linux.Native/bin/libLib.Platform.Linux.Native.so" "$pkgdir/usr/lib/eddie-ui/libLib.Platform.Linux.Native.so"
-  install -Dm755 "src/UI.GTK.Linux.Tray/eddie-tray-strip" "$pkgdir/usr/lib/eddie-ui/eddie-tray"
-  install -Dm755 "repository/linux_arch/bundle/eddie-ui/usr/bin/eddie-ui" "$pkgdir/usr/bin/eddie-ui"
-  sed -i 's/{@lib}/lib/g' "$pkgdir/usr/bin/eddie-ui"
-  install -Dm644 "common/cacert.pem"       "$pkgdir/usr/share/eddie-ui/cacert.pem"
-  install -Dm644 "common/icon.png"       "$pkgdir/usr/share/eddie-ui/icon.png"
-  install -Dm644 "common/icon_gray.png"       "$pkgdir/usr/share/eddie-ui/icon_gray.png"
-  install -Dm644 "common/icon.png"       "$pkgdir/usr/share/eddie-ui/tray.png"
-  install -Dm644 "common/icon_gray.png"       "$pkgdir/usr/share/eddie-ui/tray_gray.png"
-  install -Dm644 "common/iso-3166.json"       "$pkgdir/usr/share/eddie-ui/iso-3166.json"
-  install -Dm644 "common/lang/inv.json"       "$pkgdir/usr/share/eddie-ui/lang/inv.json"
-  install -Dm644 "repository/linux_arch/bundle/eddie-ui/usr/share/doc/eddie-ui/copyright"    "$pkgdir/usr/share/doc/eddie-ui/copyright"
-  install -Dm644 "repository/linux_arch/bundle/eddie-ui/usr/share/polkit-1/actions/org.airvpn.eddie.ui.elevated.policy" "$pkgdir/usr/share/polkit-1/actions/org.airvpn.eddie.ui.elevated.policy"
-  sed -i 's/{@lib}/lib/g' "$pkgdir/usr/share/polkit-1/actions/org.airvpn.eddie.ui.elevated.policy"
-  install -Dm644 "repository/linux_arch/bundle/eddie-ui/usr/share/pixmaps/eddie-ui.png"  "$pkgdir/usr/share/pixmaps/eddie-ui.png"
+  install -Dm755 "src/App.CLI.Linux.Elevated/bin/eddie-cli-elevated" "$pkgdir/usr/lib/eddie-{@project}/eddie-cli-elevated"
+  install -Dm644 "src/Lib.Core/bin/$_pkgarch/Release/Lib.Core.dll" "$pkgdir/usr/lib/eddie-{@project}/Lib.Core.dll"
+  install -Dm644 "src/Lib.Platform.Linux/bin/$_pkgarch/Release/Lib.Platform.Linux.dll" "$pkgdir/usr/lib/eddie-{@project}/Lib.Platform.Linux.dll"
+  install -Dm644 "src/Lib.Platform.Linux.Native/bin/libLib.Platform.Linux.Native.so" "$pkgdir/usr/lib/eddie-{@project}/libLib.Platform.Linux.Native.so"  
+  install -Dm755 "repository/linux_arch/bundle/eddie-{@project}/usr/bin/eddie-{@project}" "$pkgdir/usr/bin/eddie-{@project}"
+  sed -i 's/{@lib}/lib/g' "$pkgdir/usr/bin/eddie-{@project}"
+  install -Dm644 "common/cacert.pem"       "$pkgdir/usr/share/eddie-{@project}/cacert.pem"
+  install -Dm644 "common/icon.png"       "$pkgdir/usr/share/eddie-{@project}/icon.png"
+  install -Dm644 "common/icon_gray.png"       "$pkgdir/usr/share/eddie-{@project}/icon_gray.png"
+  install -Dm644 "common/icon.png"       "$pkgdir/usr/share/eddie-{@project}/tray.png"
+  install -Dm644 "common/icon_gray.png"       "$pkgdir/usr/share/eddie-{@project}/tray_gray.png"
+  install -Dm644 "common/iso-3166.json"       "$pkgdir/usr/share/eddie-{@project}/iso-3166.json"
+  install -Dm644 "common/lang/inv.json"       "$pkgdir/usr/share/eddie-{@project}/lang/inv.json"
+  install -Dm644 "repository/linux_arch/bundle/eddie-{@project}/usr/share/doc/eddie-{@project}/copyright"    "$pkgdir/usr/share/doc/eddie-{@project}/copyright"
+  install -Dm644 "repository/linux_arch/bundle/eddie-{@project}/usr/share/polkit-1/actions/org.airvpn.eddie.{@project}.elevated.policy" "$pkgdir/usr/share/polkit-1/actions/org.airvpn.eddie.{@project}.elevated.policy"
+  sed -i 's/{@lib}/lib/g' "$pkgdir/usr/share/polkit-1/actions/org.airvpn.eddie.{@project}.elevated.policy"  
 
-  # cp -r "common/webui"	"$pkgdir/usr/share/eddie-ui/webui"
+  if [ "{@project}" = "cli" ]; then
+    install -Dm755 "src/App.CLI.Linux/bin/$_pkgarch/Release/App.CLI.Linux.exe" "$pkgdir/usr/lib/eddie-{@project}/eddie-{@project}.exe"
+  elif [ "{@project}" = "ui" ]; then
+    install -Dm755 "src/App.Forms.Linux/bin/$_pkgarch/Release/App.Forms.Linux.exe" "$pkgdir/usr/lib/eddie-{@project}/eddie-{@project}.exe"
+    install -Dm644 "src/App.Forms.Linux/bin/$_pkgarch/Release/Lib.Forms.dll" "$pkgdir/usr/lib/eddie-{@project}/Lib.Forms.dll"
+    install -Dm755 "src/UI.GTK.Linux.Tray/eddie-tray-strip" "$pkgdir/usr/lib/eddie-{@project}/eddie-tray"
+    install -Dm644 "repository/linux_arch/bundle/eddie-{@project}/usr/share/pixmaps/eddie-{@project}.png"  "$pkgdir/usr/share/pixmaps/eddie-{@project}.png"
+  fi
+
+  # cp -r "common/webui"	"$pkgdir/usr/share/eddie-{@project}/webui"
 
   # Generate changelog
-  curl "https://eddie.website/changelog/?software=client&format=debian&hidden=yes" -o "$pkgdir/usr/share/doc/eddie-ui/changelog"
-  gzip -n -9 "$pkgdir/usr/share/doc/eddie-ui/changelog"
+  curl "https://eddie.website/changelog/?software=client&format=debian&hidden=yes" -o "$pkgdir/usr/share/doc/eddie-{@project}/changelog"
+  gzip -n -9 "$pkgdir/usr/share/doc/eddie-{@project}/changelog"
 
   # Generate man
   mkdir -p "$pkgdir/usr/share/man/man8/"
-  mono "$pkgdir/usr/lib/eddie-ui/eddie-ui.exe" --cli --path.resources="$pkgdir/usr/share/eddie-ui/" --help --help.format=man >"$pkgdir/usr/share/man/man8/eddie-ui.8"
-  gzip -n -9 "$pkgdir/usr/share/man/man8/eddie-ui.8"
-
-  ## Fix .desktop file for KDE
-  _desktop_session=$(printf "%s" "$DESKTOP_SESSION" | awk -F "/" '{print $NF}')
-  if [ "$_desktop_session" = "plasma" ]; then
-    msg2 "Installing desktop file for KDE..."
-    desktop-file-install -m 644 --set-comment="OpenVPN UI" \
-    --dir="$pkgdir/usr/share/applications/" \
-    --set-icon="/usr/share/pixmaps/eddie-ui.png" \
-    "repository/linux_arch/bundle/eddie-ui/usr/share/applications/eddie-ui.desktop"
-  else
-    msg2 "Installing desktop file..."
-    desktop-file-install -m 644 --set-comment="OpenVPN UI" \
-    --dir="$pkgdir/usr/share/applications/" \
-    "repository/linux_arch/bundle/eddie-ui/usr/share/applications/eddie-ui.desktop"
+  mono "$pkgdir/usr/lib/eddie-{@project}/eddie-{@project}.exe" --cli --path.resources="$pkgdir/usr/share/eddie-{@project}/" --help --help.format=man >"$pkgdir/usr/share/man/man8/eddie-{@project}.8"
+  gzip -n -9 "$pkgdir/usr/share/man/man8/eddie-{@project}.8"
+  
+  if [ "{@project}" = "ui" ]; then
+    ## Fix .desktop file for KDE
+    _desktop_session=$(printf "%s" "$DESKTOP_SESSION" | awk -F "/" '{print $NF}')
+    if [ "$_desktop_session" = "plasma" ]; then
+      msg2 "Installing desktop file for KDE..."
+      desktop-file-install -m 644 --set-comment="OpenVPN UI" \
+      --dir="$pkgdir/usr/share/applications/" \
+      --set-icon="/usr/share/pixmaps/eddie-{@project}.png" \
+      "repository/linux_arch/bundle/eddie-{@project}/usr/share/applications/eddie-{@project}.desktop"
+    else
+      msg2 "Installing desktop file..."
+      desktop-file-install -m 644 --set-comment="OpenVPN UI" \
+      --dir="$pkgdir/usr/share/applications/" \
+      "repository/linux_arch/bundle/eddie-{@project}/usr/share/applications/eddie-{@project}.desktop"
+    fi
   fi
 }
 

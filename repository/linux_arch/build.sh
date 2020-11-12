@@ -25,7 +25,7 @@ VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
 VERSIONSTABLE="2.18.9"
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch
-DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch.tar.xz
+DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch.tar.zst
 
 REPODIR=$(realpath -s $SCRIPTDIR/../../)
 
@@ -37,63 +37,67 @@ function arch_env() {
 	cd $3
 
 	cp $4/PKGBUILD PKGBUILD
-	cp $4/eddie-ui.install eddie-ui.install
+	cp $4/eddie-${PROJECT}.install eddie-${PROJECT}.install
 
 	if [ "$1" = "self" ]; then
 		echo "Build local";
-		sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
-		sed -i "s|{@pkgname}|eddie-ui|g" PKGBUILD    
+		sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
+		sed -i "s|{@version}|${VERSION}|g" PKGBUILD
+		sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
-        sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
+		sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
 
 		updpkgsums
 		makepkg -f
 		makepkg --printsrcinfo > .SRCINFO
-		mv eddie-ui-${VERSION}-1-x86_64.pkg.tar.xz ${DEPLOYPATH}
+		echo $PWD
+		mv eddie-${PROJECT}-${VERSION}-1-x86_64.pkg.tar.zst ${DEPLOYPATH}
 		# Deploy to eddie.website
 		${SCRIPTDIR}/../linux_common/deploy.sh ${DEPLOYPATH}
 	else
 		if [ "$1" = "git" ]; then
 			echo "Update official repo git edition"
+			sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
 			sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
-			sed -i "s|{@pkgname}|eddie-ui-git|g" PKGBUILD    
+			sed -i "s|{@pkgname}|eddie-${PROJECT}-git|g" PKGBUILD    
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - beta version|g" PKGBUILD    
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
 			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
 			echo Enter AUR passphrase if requested
-			git clone ssh://aur@aur.archlinux.org/eddie-ui-git.git
-			cd eddie-ui-git
+			git clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}-git.git
+			cd eddie-${PROJECT}-git
 			cp ../PKGBUILD .
-			cp ../eddie-ui.install .
+			cp ../eddie-${PROJECT}.install .
 			updpkgsums
 			makepkg --printsrcinfo > .SRCINFO			
 		elif [ "$1" = "stable" ]; then
 			echo "Update official repo release edition ${VERSIONSTABLE}"
+			sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
 			sed -i "s|{@version}|${VERSIONSTABLE}|g" PKGBUILD    
-			sed -i "s|{@pkgname}|eddie-ui|g" PKGBUILD    
+			sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
 			echo Enter AUR passphrase if requested
-			git clone ssh://aur@aur.archlinux.org/eddie-ui.git
-			cd eddie-ui
+			git clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}.git
+			cd eddie-${PROJECT}
 			cp ../PKGBUILD .
-			cp ../eddie-ui.install .
+			cp ../eddie-${PROJECT}.install .
 			updpkgsums
 			makepkg --printsrcinfo > .SRCINFO			
 		fi
 		git config user.name "Eddie.website"
 		git config user.email "maintainer@eddie.website"
 		git add .SRCINFO
-		git add eddie-ui.install
+		git add eddie-${PROJECT}.install
 		git add PKGBUILD
 		git commit -m "${VERSION}"
 		git push
 	fi   
 }
 
-
+mkdir -p ${SCRIPTDIR}/../files
 
 # Cleanup
 rm -rf $TARGETDIR

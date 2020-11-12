@@ -396,19 +396,26 @@ FunctionEnd
 Function CheckAndInstallVCRuntime
 	ClearErrors
 	ReadRegDWORD $0 HKLM "SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\{@arch}" "Major"
+	ReadRegDWORD $1 HKLM "SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\{@arch}" "Minor"
 
 	IfErrors NotDetected
 
-    ${If} $0 >= 14
-        DetailPrint "VC++ runtime is installed ($0)"
-    ${Else}
+	${If} $0 < 14
+		Goto NotDetected
+	${ElseIf} $0 = 14
+		${AndIf} $1 < 28
+			Goto NotDetected
+	${EndIf}
+
+	DetailPrint "VC++ runtime is installed ($0.$1)"
+	Return
+
     NotDetected:
         DetailPrint "Installing VC++ runtime"
         SetDetailsPrint listonly
         ExecWait '"$INSTDIR\VC_redist.{@arch}.exe" /install /passive /norestart' $0
         SetDetailsPrint lastused
         DetailPrint "VC++ runtime installer returned $0"
-    ${EndIf}
 FunctionEnd
  
 

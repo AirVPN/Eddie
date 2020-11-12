@@ -89,9 +89,8 @@ namespace Eddie.Core
 						}, m_listener.GetContext());
 					}
 				}
-                catch (Exception ex)
-                {
-                    Engine.Instance.Logs.Log(ex);
+                catch (Exception)
+                {                    
                 }
 			});
 		}

@@ -436,9 +436,9 @@ namespace Eddie.Platform.Linux
 				process.StartInfo.Arguments = String.Join(" ", arguments);
 			}
 			else
-			{
+			{				
 				if (consoleMode)
-				{
+				{					
 					if (IsAdmin())
 					{
 						process.StartInfo.FileName = path;
@@ -447,20 +447,24 @@ namespace Eddie.Platform.Linux
 					else
 					{
                         string sudoPath = LocateExecutable("sudo");
-                        if(sudoPath != "")
+						if (sudoPath != "")
                         {
                             List<string> groups = new List<string>(SystemShell.Shell0(LocateExecutable("groups")).ToLowerInv().Split(' '));
                             if(groups.Contains("sudo"))
                             {
-                                process.StartInfo.FileName = "sudo";
+								process.StartInfo.FileName = "sudo";
                                 process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
                             }
                             else
                             {
-                                // Ask for password, but for unknown reason, password mismatch (endofline at first character), stdin issue, probably related to Mono.
-                                //process.StartInfo.FileName = "su";
-                                //process.StartInfo.Arguments = "-c \"'" + path + "' " + String.Join(" ", arguments) + "\"";
-                            }
+								// Ask for password, but for unknown reason, password mismatch (endofline at first character), stdin issue, probably related to Mono.
+								//process.StartInfo.FileName = "su";
+								//process.StartInfo.Arguments = "-c \"'" + path + "' " + String.Join(" ", arguments) + "\"";
+
+								// This works in Manjaro
+								process.StartInfo.FileName = "sudo";
+								process.StartInfo.Arguments = "\"" + path + "\" " + String.Join(" ", arguments);
+							}
                         }
 					}
 				}

@@ -111,7 +111,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Warning, "SSH - " + LanguageManager.GetText("NotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Info, "SSH - " + LanguageManager.GetText("NotAvailable"));
 			}
 
             if (GetTool("ssl").Available())
@@ -120,7 +120,7 @@ namespace Eddie.Core
 			}
 			else
 			{
-				Engine.Instance.Logs.Log(LogType.Warning, "SSL - " + LanguageManager.GetText("NotAvailable"));
+				Engine.Instance.Logs.Log(LogType.Info, "SSL - " + LanguageManager.GetText("NotAvailable"));
 			}
 
             if (Platform.Instance.FetchUrlInternal() == false)
