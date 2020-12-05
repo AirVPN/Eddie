@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace Eddie.Core
@@ -278,17 +279,24 @@ namespace Eddie.Core
 					FormatBytesEx(v, new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB" }, 1024, ref number, ref unit);
 			}
 
-			string output = number.ToString() + " " + unit;
+			var output = new StringBuilder().Append($"{number} {unit}");
 			if (speedSec)
-				output += "/s";
-			if ((showBytes) && (bytes >= 0))
 			{
-				output += " (" + bytes.ToString() + " bytes";
-				if (speedSec)
-					output += "/s";
-				output += ")";
+				output.Append("/s");
 			}
-			return output;
+
+			if (showBytes && (bytes >= 0))
+			{
+				output.Append($" ({FormatWithComas(bytes)} bytes");
+				if (speedSec)
+				{
+					output.Append("/s");
+				}
+
+				output.Append(")");
+			}
+
+			return output.ToString();
 		}
 
 		public static void FormatBytesEx(Int64 val, string[] suf, int logBase, ref Int64 number, ref string unit)
@@ -335,6 +343,24 @@ namespace Eddie.Core
 			if (id == "StatsVpnDataChannel") return "VPN Data Channel";
 
 			return "";
+		}
+
+		private static string FormatWithComas(long bytes)
+		{
+			var inputBytesChars = bytes.ToString().Reverse().ToArray();
+			var revesedOutputStr = string.Empty;
+			for (var charIdx = 0; charIdx<inputBytesChars.Length; charIdx++)
+			{
+				if (charIdx > 0 && charIdx % 3 == 0)
+				{
+					revesedOutputStr += $",{inputBytesChars[charIdx]}";
+					continue;
+				}
+
+				revesedOutputStr += inputBytesChars[charIdx];
+			}
+			
+			return string.Concat(revesedOutputStr.Reverse());
         }
     }
 }
