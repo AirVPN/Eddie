@@ -1859,7 +1859,7 @@ namespace Eddie.Forms.Forms
 								string iconFlagCode = Engine.CurrentServer.CountryCode;
 								Image iconFlag = null;
 								iconFlag = GuiUtils.GetResourceImage("flags_" + iconFlagCode);
-								lblConnectedCountry.Image = iconFlag;
+								pbConnectedCountry.Image = iconFlag;
 								/*
 								if (imgCountries.Images.ContainsKey(iconFlagCode))
 								{

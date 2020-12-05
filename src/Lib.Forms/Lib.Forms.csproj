@@ -144,6 +144,9 @@
     <Compile Include="Forms\WindowUnlock.Designer.cs">
       <DependentUpon>WindowUnlock.cs</DependentUpon>
     </Compile>
+    <Compile Include="Skin\TableLayoutPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UiClient.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Form.cs">
