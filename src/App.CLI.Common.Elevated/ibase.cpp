@@ -150,7 +150,7 @@ void IBase::LogLocal(const std::string& msg)
 {
 	LogDevDebug("Local:" + msg);
 
-	std::cout << msg << std::endl;
+	// std::cout << msg << std::endl; // Removed in 2.19.7, otherwise dumped in CLI edition with sudoers user
 }
 
 void IBase::LogDebug(const std::string& msg)

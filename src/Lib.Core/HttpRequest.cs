@@ -46,7 +46,7 @@ namespace Eddie.Core
 
 			j["iplayer"].Value = IpLayer;
 			j["resolve-single"].Value = ForceResolve;
-			j["timeout"].Value = Engine.Instance.Storage.GetInt("http.timeout");
+			j["timeout"].Value = Engine.Instance.Options.GetInt("http.timeout");
 			j["cacert"].Value = SystemShell.EscapePath(Engine.Instance.LocateResource("cacert.pem"));
             j["useragent"].Value = Constants.Name + "/" + Constants.VersionDesc;
 
@@ -60,13 +60,13 @@ namespace Eddie.Core
 			j["proxyuserpwd"].Value = "";
 			if (bypassProxy == false)
 			{
-				string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
-				string proxyWhen = Engine.Instance.Storage.GetLower("proxy.when");
-				string proxyHost = Engine.Instance.Storage.Get("proxy.host");
-				int proxyPort = Engine.Instance.Storage.GetInt("proxy.port");
-				string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
-				string proxyLogin = Engine.Instance.Storage.Get("proxy.login");
-				string proxyPassword = Engine.Instance.Storage.Get("proxy.password");
+				string proxyMode = Engine.Instance.Options.GetLower("proxy.mode");
+				string proxyWhen = Engine.Instance.Options.GetLower("proxy.when");
+				string proxyHost = Engine.Instance.Options.Get("proxy.host");
+				int proxyPort = Engine.Instance.Options.GetInt("proxy.port");
+				string proxyAuth = Engine.Instance.Options.Get("proxy.auth").ToLowerInvariant();
+				string proxyLogin = Engine.Instance.Options.Get("proxy.login");
+				string proxyPassword = Engine.Instance.Options.Get("proxy.password");
 
 				if ((proxyWhen == "none") || (proxyWhen == "openvpn"))
 					proxyMode = "none";

@@ -40,6 +40,7 @@ namespace Eddie.Core
 		public Int64 Bandwidth = 0;
 		public Int64 BandwidthMax = 0;
 		public Int64 Users = 0;
+		public Int64 UsersMax = 0;
 		public string WarningOpen = "";
 		public string WarningClosed = "";
 		public bool SupportIPv4 = false;
@@ -158,7 +159,7 @@ namespace Eddie.Core
 
 		public bool CanConnect()
 		{
-			if (Engine.Instance.Storage.GetBool("connections.allow_anyway"))
+			if (Engine.Instance.Options.GetBool("connections.allow_anyway"))
 				return true;
 
 			if (HasWarningsErrors())
@@ -186,7 +187,7 @@ namespace Eddie.Core
 			LastPingSuccess = 0;
 		}
 
-		public int Load()
+		public int LoadPerc()
 		{
 			if (BandwidthMax == 0)
 				return 100;
@@ -195,6 +196,11 @@ namespace Eddie.Core
 			Int64 bwMax = BandwidthMax;
 
 			return Conversions.ToInt32((bwCur * 100) / bwMax);
+		}
+		
+		public int UsersPerc()
+		{			
+			return Conversions.ToInt32((Users * 100) / UsersMax);
 		}
 
 		public int Score()
@@ -209,12 +215,15 @@ namespace Eddie.Core
 					return 99995;
 				else
 				{
-					string scoreType = Engine.Instance.Storage.GetLower("servers.scoretype");
+					string scoreType = Engine.Instance.Options.GetLower("servers.scoretype");
+
+					double x = Users;
+					double x2 = UsersPerc();
 					
 					double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
 					double PingB = Ping * Convert.ToDouble(Provider.GetKeyValue("ping_factor", "1"));
-					double LoadB = Load() * Convert.ToDouble(Provider.GetKeyValue("load_factor", "1"));
-					double UsersB = Users * Convert.ToDouble(Provider.GetKeyValue("users_factor", "1"));
+					double LoadB = LoadPerc() * Convert.ToDouble(Provider.GetKeyValue("load_factor", "1"));
+					double UsersB = UsersPerc() * Convert.ToDouble(Provider.GetKeyValue("users_factor", "1"));
 					double ScoreB = ScoreBase;
 					if (scoreType == "speed")
 					{
@@ -395,17 +404,17 @@ namespace Eddie.Core
 
 			ConnectionActive connectionActive = new ConnectionActive();
 
-			Storage s = Engine.Instance.Storage;
+			Options options = Engine.Instance.Options;
 
 			connectionActive.OpenVpnProfileStartup = new OvpnBuilder();
 			OvpnBuilder ovpn = connectionActive.OpenVpnProfileStartup;
 
 			ovpn.AppendDirective("setenv", "IV_GUI_VER " + Constants.Name + Constants.VersionDesc, "Client level");
 
-			if (s.GetBool("openvpn.skip_defaults") == false)
+			if (options.GetBool("openvpn.skip_defaults") == false)
 			{
-				ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.directives"), "Client level");
-				string directivesPath = Engine.Instance.Storage.Get("openvpn.directives.path");
+				ovpn.AppendDirectives(Engine.Instance.Options.Get("openvpn.directives"), "Client level");
+				string directivesPath = Engine.Instance.Options.Get("openvpn.directives.path");
 				if (directivesPath.Trim() != "")
 				{
 					try
@@ -442,12 +451,12 @@ namespace Eddie.Core
 				}
 			}
 
-			if (s.Get("openvpn.dev_node") != "")
-				ovpn.AppendDirective("dev-node", s.Get("openvpn.dev_node"), "");
+			if (options.Get("openvpn.dev_node") != "")
+				ovpn.AppendDirective("dev-node", options.Get("openvpn.dev_node"), "");
 
-			if (s.Get("network.entry.iface") != "")
+			if (options.Get("network.entry.iface") != "")
 			{
-				ovpn.AppendDirective("local", s.Get("network.entry.iface"), "");
+				ovpn.AppendDirective("local", options.Get("network.entry.iface"), "");
 				ovpn.RemoveDirective("nobind");
 			}
 			else
@@ -456,13 +465,13 @@ namespace Eddie.Core
 				ovpn.AppendDirective("nobind", "", "");
 			}
 
-			int rcvbuf = s.GetInt("openvpn.rcvbuf");
+			int rcvbuf = options.GetInt("openvpn.rcvbuf");
 			if (rcvbuf == -2) rcvbuf = Platform.Instance.GetRecommendedRcvBufDirective();
 			if (rcvbuf == -2) rcvbuf = -1;
 			if (rcvbuf != -1)
 				ovpn.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
 
-			int sndbuf = s.GetInt("openvpn.sndbuf");
+			int sndbuf = options.GetInt("openvpn.sndbuf");
 			if (sndbuf == -2) sndbuf = Platform.Instance.GetRecommendedSndBufDirective();
 			if (sndbuf == -2) sndbuf = -1;
 			if (sndbuf != -1)
@@ -471,8 +480,8 @@ namespace Eddie.Core
 			string proxyDirectiveName = "";
 			string proxyDirectiveArgs = "";
 
-			string proxyMode = s.GetLower("proxy.mode");
-			string proxyWhen = s.GetLower("proxy.when");
+			string proxyMode = options.GetLower("proxy.mode");
+			string proxyWhen = options.GetLower("proxy.when");
 			if ((proxyWhen == "none") || (proxyWhen == "web"))
 				proxyMode = "none";
 			if (proxyMode == "tor")
@@ -491,11 +500,11 @@ namespace Eddie.Core
 
 			if (proxyDirectiveName != "")
 			{
-				proxyDirectiveArgs += s.Get("proxy.host") + " " + s.Get("proxy.port");
+				proxyDirectiveArgs += options.Get("proxy.host") + " " + options.Get("proxy.port");
 
-				if ((s.GetLower("proxy.mode") != "none") && (s.GetLower("proxy.mode") != "tor"))
+				if ((options.GetLower("proxy.mode") != "none") && (options.GetLower("proxy.mode") != "tor"))
 				{
-					if (s.Get("proxy.auth") != "None")
+					if (options.Get("proxy.auth") != "None")
 					{
 						string fileNameAuthOvpn = "";
 						if (preview)
@@ -506,11 +515,11 @@ namespace Eddie.Core
 						{
 							connectionActive.ProxyAuthFile = new TemporaryFile("ppw");
 							fileNameAuthOvpn = connectionActive.ProxyAuthFile.Path;
-							string fileNameData = s.Get("proxy.login") + "\n" + s.Get("proxy.password") + "\n";
+							string fileNameData = options.Get("proxy.login") + "\n" + options.Get("proxy.password") + "\n";
 							Platform.Instance.FileContentsWriteText(connectionActive.ProxyAuthFile.Path, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
 							Platform.Instance.FileEnsurePermission(connectionActive.ProxyAuthFile.Path, "600");
 						}
-						proxyDirectiveArgs += " " + ovpn.EncodePath(fileNameAuthOvpn) + " " + s.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
+						proxyDirectiveArgs += " " + ovpn.EncodePath(fileNameAuthOvpn) + " " + options.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
 					}
 				}
 
@@ -518,29 +527,29 @@ namespace Eddie.Core
 			}
 
 			{
-				if (s.GetLower("network.ipv4.mode") == "in")
+				if (options.GetLower("network.ipv4.mode") == "in")
 				{
 					connectionActive.TunnelIPv4 = true;
 				}
-				else if (s.GetLower("network.ipv4.mode") == "in-out")
+				else if (options.GetLower("network.ipv4.mode") == "in-out")
 				{
 					if (SupportIPv4)
 						connectionActive.TunnelIPv4 = true;
 					else
 						connectionActive.TunnelIPv4 = false;
 				}
-				else if (s.GetLower("network.ipv4.mode") == "in-block")
+				else if (options.GetLower("network.ipv4.mode") == "in-block")
 				{
 					if (SupportIPv4)
 						connectionActive.TunnelIPv4 = true;
 					else
 						connectionActive.TunnelIPv4 = false; // Out, but doesn't matter, will be blocked.
 				}
-				else if (s.GetLower("network.ipv4.mode") == "out")
+				else if (options.GetLower("network.ipv4.mode") == "out")
 				{
 					connectionActive.TunnelIPv4 = false;
 				}
-				else if (s.GetLower("network.ipv4.mode") == "block")
+				else if (options.GetLower("network.ipv4.mode") == "block")
 				{
 					connectionActive.TunnelIPv4 = false; // Out, but doesn't matter, will be blocked.
 				}
@@ -630,7 +639,7 @@ namespace Eddie.Core
 				connectionActive.AddRoute(ip, "vpn_gateway", "For Checking Route");
 			}
 
-			string routes = s.Get("routes.custom");
+			string routes = options.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)
 			{
@@ -699,7 +708,7 @@ namespace Eddie.Core
                     Platform.Instance.FileEnsurePermission(managementPasswordFile, "600");
 				}
 
-				ovpn.AppendDirective("management", "127.0.0.1 " + Engine.Instance.Storage.Get("openvpn.management_port") + " " + ovpn.EncodePath(managementPasswordFile), "");
+				ovpn.AppendDirective("management", "127.0.0.1 " + Engine.Instance.Options.Get("openvpn.management_port") + " " + ovpn.EncodePath(managementPasswordFile), "");
 			}
 			*/
 
@@ -709,7 +718,7 @@ namespace Eddie.Core
 
 			Platform.Instance.OnBuildOvpn(ovpn);
 
-			ovpn.AppendDirectives(Engine.Instance.Storage.Get("openvpn.custom"), "Custom level");
+			ovpn.AppendDirectives(Engine.Instance.Options.Get("openvpn.custom"), "Custom level");
 
 			foreach (ConnectionActiveRoute route in connectionActive.Routes)
 			{

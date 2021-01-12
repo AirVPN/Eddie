@@ -270,7 +270,7 @@ namespace Eddie.Platform.Windows
 				// Windows Firewall don't work with logical path (a path that contain hardlink)
 				NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program Eddie\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Platform.Instance.GetExecutablePath())) + "\" enable=yes");
 
-				if (Engine.Instance.Storage.GetLower("proxy.mode") == "tor")
+				if (Engine.Instance.Options.GetLower("proxy.mode") == "tor")
 				{
 					string path = TorControl.GetTorExecutablePath();
 					if (path != "")
@@ -283,7 +283,7 @@ namespace Eddie.Platform.Windows
 				if (Platform.Instance.FetchUrlInternal() == false)
 					NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program curl\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Software.GetTool("curl").Path)) + "\" enable=yes");
 
-				if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
+				if (Engine.Instance.Options.GetBool("netlock.allow_ping") == true)
 				{
 					NetShAdvFirewall("firewall add rule name=\"Eddie - In - ICMP IPv4\" dir=in action=allow protocol=icmpv4:8,any");
 					NetShAdvFirewall("firewall add rule name=\"Eddie - In - ICMP IPv6\" dir=in action=allow protocol=icmpv6:8,any");
@@ -294,7 +294,7 @@ namespace Eddie.Platform.Windows
 				// Exec("netsh advfirewall firewall add rule name=\"Eddie - IPv6 Block - Low\" dir=out remoteip=0000::/1 action=allow");
 				// Exec("netsh advfirewall firewall add rule name=\"Eddie - IPv6 Block - High\" dir=out remoteip=8000::/1 action=allow");
 
-				if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
+				if (Engine.Instance.Options.GetBool("netlock.allow_private") == true)
 				{
 					NetShAdvFirewall("firewall add rule name=\"Eddie - In - AllowLocal\" dir=in action=allow remoteip=LocalSubnet");
 					NetShAdvFirewall("firewall add rule name=\"Eddie - Out - AllowLocal\" dir=out action=allow remoteip=LocalSubnet");
@@ -312,12 +312,12 @@ namespace Eddie.Platform.Windows
 				NetShAdvFirewall("firewall add rule name=\"Eddie - Out - DHCP\" dir=out action=allow protocol=UDP localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
 
 				string cmd = "set allprofiles firewallpolicy ";
-				if (Engine.Instance.Storage.Get("netlock.incoming") == "allow")
+				if (Engine.Instance.Options.Get("netlock.incoming") == "allow")
 					cmd += "allowinbound";
 				else
 					cmd += "blockinbound";
 				cmd += ",";
-				if (Engine.Instance.Storage.Get("netlock.outgoing") == "allow")
+				if (Engine.Instance.Options.Get("netlock.outgoing") == "allow")
 					cmd += "allowoutbound";
 				else
 					cmd += "blockoutbound";

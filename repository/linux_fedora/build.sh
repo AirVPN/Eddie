@@ -105,9 +105,11 @@ REQUIRES="mono-core sudo openvpn stunnel curl libsecret" # Diff between OpenSuse
 if [ $PROJECT = "cli" ]; then
     REQUIRES="${REQUIRES}"
 elif [ $PROJECT = "ui" ]; then
-    REQUIRES="${REQUIRES} mono-winforms libgdiplus-devel libnotify libappindicator" # Diff between OpenSuse and Fedora
+    #REQUIRES="${REQUIRES} mono-winforms libgdiplus-devel libnotify libappindicator" # Diff between OpenSuse and Fedora.
+    REQUIRES="${REQUIRES} mono-winforms libgdiplus-devel libnotify" # Diff between OpenSuse and Fedora.  libappindicator removed because missing in CentOS (even in EPEL repository), but exists libappindicator-gtk3
 elif [ $PROJECT = "ui3" ]; then
-    REQUIRES="${REQUIRES} gtk-sharp3 libnotify libappindicator" # Diff between OpenSuse and Fedora
+    #REQUIRES="${REQUIRES} gtk-sharp3 libnotify libappindicator" # Diff between OpenSuse and Fedora
+    REQUIRES="${REQUIRES} gtk-sharp3 libnotify" # Diff between OpenSuse and Fedora libappindicator removed because missing in CentOS (even in EPEL repository)
 fi
 sed -i "s/{@requires}/${REQUIRES}/g" ${TARGETDIR}/../rpmbuild.spec
 

@@ -90,13 +90,13 @@ namespace Eddie.Core.Tools
 			string args = "";
 			if (bypassProxy == false)
 			{
-				string proxyMode = Engine.Instance.Storage.GetLower("proxy.mode");
-				string proxyWhen = Engine.Instance.Storage.GetLower("proxy.when");
-				string proxyHost = Engine.Instance.Storage.Get("proxy.host");
-				int proxyPort = Engine.Instance.Storage.GetInt("proxy.port");
-				string proxyAuth = Engine.Instance.Storage.Get("proxy.auth").ToLowerInvariant();
-				string proxyLogin = Engine.Instance.Storage.Get("proxy.login");
-				string proxyPassword = Engine.Instance.Storage.Get("proxy.password");
+				string proxyMode = Engine.Instance.Options.GetLower("proxy.mode");
+				string proxyWhen = Engine.Instance.Options.GetLower("proxy.when");
+				string proxyHost = Engine.Instance.Options.Get("proxy.host");
+				int proxyPort = Engine.Instance.Options.GetInt("proxy.port");
+				string proxyAuth = Engine.Instance.Options.Get("proxy.auth").ToLowerInvariant();
+				string proxyLogin = Engine.Instance.Options.Get("proxy.login");
+				string proxyPassword = Engine.Instance.Options.Get("proxy.password");
 
 				if ((proxyWhen == "none") || (proxyWhen == "openvpn"))
 					proxyMode = "none";
@@ -142,7 +142,7 @@ namespace Eddie.Core.Tools
 
 			args += " \"" + SystemShell.EscapeUrl(request.Url) + "\"";
 			args += " -sS"; // -s Silent mode, -S with errors
-			args += " --max-time " + Engine.Instance.Storage.GetInt("http.timeout").ToString();
+			args += " --max-time " + Engine.Instance.Options.GetInt("http.timeout").ToString();
 
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
 			if(pathCacert != "")

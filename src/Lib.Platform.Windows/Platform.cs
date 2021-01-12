@@ -123,7 +123,7 @@ namespace Eddie.Platform.Windows
 				// Need because our lib include libcurl, and static link of libcurl is not recommended
 				// Registry check is not affidable, with vcredistr installed via msm/wix
 				//if (Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetOsArchitecture(), "Major", "0"), 0)<14)
-				if (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140.dll")) == false)
+				if (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140_1.dll")) == false)
 				{
 					Engine.Instance.Logs.LogFatal("This software require some additional files (C++ Redistributable) that are not currently installed on your system. Use the Installer edition, or look https://eddie.website/windows-runtime/");
 					return false;
@@ -425,8 +425,8 @@ namespace Eddie.Platform.Windows
 					td.Triggers.Add(new LogonTrigger());
 					string command = "\"" + GetExecutablePath() + "\"";
 					string arguments = "";
-					if (Engine.Instance.Storage.Get("path") != "")
-						arguments = "-path=" + Engine.Instance.Storage.Get("path");
+					if (Engine.Instance.Options.Get("path") != "")
+						arguments = "-path=" + Engine.Instance.Options.Get("path");
 					td.Actions.Add(new ExecAction(command, (arguments == "") ? null : arguments, null));
 
 					// Register the task in the root folder
@@ -734,7 +734,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.FlushDNS();
 			
-			Engine.Instance.Elevated.DoCommandSync("dns-flush", "mode", (Engine.Instance.Storage.GetBool("windows.workarounds") ? "max" : "normal"));
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "mode", (Engine.Instance.Options.GetBool("windows.workarounds") ? "max" : "normal"));
 			
 			SystemShell.Shell1(LocateExecutable("ipconfig.exe"), "/flushdns");
 		}
@@ -912,7 +912,7 @@ namespace Eddie.Platform.Windows
 			if (IsVistaOrNewer() == false)
 				return "none";
 
-			if (Engine.Instance.Storage.GetBool("windows.wfp.enable"))
+			if (Engine.Instance.Options.GetBool("windows.wfp.enable"))
 				return "windows_wfp";
 			else
 				return "windows_firewall";
@@ -936,7 +936,7 @@ namespace Eddie.Platform.Windows
 
 		public override bool OnIPv6Block()
 		{
-			if ((IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))
+			if ((IsVistaOrNewer()) && (Engine.Instance.Options.GetBool("windows.wfp.enable")))
 			{
 				{
 					XmlDocument xmlDocRule = new XmlDocument();
@@ -987,14 +987,14 @@ namespace Eddie.Platform.Windows
 		{
 			base.OnBuildOvpn(ovpn);
 
-			if (Engine.Instance.Storage.GetBool("windows.ipv6.bypass_dns"))
+			if (Engine.Instance.Options.GetBool("windows.ipv6.bypass_dns"))
 			{
 				ovpn.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");
 			}
 
 			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
 			{
-				if (Engine.Instance.Storage.GetBool("windows.wintun"))
+				if (Engine.Instance.Options.GetBool("windows.wintun"))
 				{
 					ovpn.AppendDirectives("windows-driver wintun", "OS");
 				}
@@ -1027,7 +1027,7 @@ namespace Eddie.Platform.Windows
 
 		public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
 		{
-			if ((Engine.Instance.Storage.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Storage.GetBool("windows.wfp.enable")))
+			if ((Engine.Instance.Options.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Options.GetBool("windows.wfp.enable")))
 			{
 				// Order is important! IPv6 block use weight 3000, DNS-Lock 2000, WFP 1000. All within a parent filter of max priority.
 				// Otherwise the netlock allow-private rule can allow DNS outside the tunnel in some configuration.
@@ -1105,7 +1105,7 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("DnsLockActivatedWpf"));
 			}
 
-			string mode = Engine.Instance.Storage.GetLower("dns.mode");
+			string mode = Engine.Instance.Options.GetLower("dns.mode");
 
 			if (mode == "auto")
 			{
@@ -1117,7 +1117,7 @@ namespace Eddie.Platform.Windows
 
 					bool skip = true;
 
-					if (Engine.Instance.Storage.GetBool("windows.dns.force_all_interfaces"))
+					if (Engine.Instance.Options.GetBool("windows.dns.force_all_interfaces"))
 						skip = false;
 					if ((Engine.Instance.ConnectionActive != null) && (id == Engine.Instance.ConnectionActive.Interface.Id))
 						skip = false;
@@ -1209,8 +1209,8 @@ namespace Eddie.Platform.Windows
 
 		public override bool OnInterfaceDo(string id)
 		{
-			int interfaceMetricIPv4Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv4");
-			int interfaceMetricIPv6Value = Engine.Instance.Storage.GetInt("windows.metrics.tap.ipv6");
+			int interfaceMetricIPv4Value = Engine.Instance.Options.GetInt("windows.metrics.tap.ipv4");
+			int interfaceMetricIPv6Value = Engine.Instance.Options.GetInt("windows.metrics.tap.ipv6");
 			if ((interfaceMetricIPv4Value == -1) || (interfaceMetricIPv6Value == -1))
 				return true;
 
@@ -1345,7 +1345,7 @@ namespace Eddie.Platform.Windows
 		{
 			if (message.IndexOf("Waiting for TUN/TAP interface to come up") != -1)
 			{
-				if (Engine.Instance.Storage.GetBool("windows.tap_up"))
+				if (Engine.Instance.Options.GetBool("windows.tap_up"))
 				{
 					HackWindowsInterfaceUp();
 				}
@@ -1639,7 +1639,7 @@ namespace Eddie.Platform.Windows
 					}
 
 					/* // Not a realtime solution
-					ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Storage.Get("windows.adapter_name") + "'");
+					ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("Select * from Win32_PnPSignedDriver where DeviceName='" + Engine.Instance.Options.Get("windows.adapter_name") + "'");
 
 					ManagementObjectCollection objCollection = objSearcher.Get();
 
@@ -1714,7 +1714,7 @@ namespace Eddie.Platform.Windows
 				needInstall = true;
 				Engine.Instance.Logs.Log(LogType.InfoImportant, LanguageManager.GetText("OsDriverInstall", driver));
 			}
-			else if ((Engine.Instance.Storage.GetBool("windows.disable_driver_upgrade") == false) && (version.VersionCompare(bundleVersion) == -1))
+			else if ((Engine.Instance.Options.GetBool("windows.disable_driver_upgrade") == false) && (version.VersionCompare(bundleVersion) == -1))
 			{
 				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OsDriverNeedUpgrade", driver, version, bundleVersion));
 				needInstall = true;

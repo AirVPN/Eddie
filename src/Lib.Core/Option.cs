@@ -36,6 +36,21 @@ namespace Eddie.Core
 		//public bool CommandLineOnly = false;
 		public bool InternalOnly = false; // Don't show in UI
         public bool DontUserReset = false; // If true, the 'Reset All' launched by user don't clean this option.
-    }
 
+		public Json GetJson()
+		{
+			Json j = new Json();
+
+			j["type"].Value = Type;
+			j["default"].Value = Default;
+			j["man"].Value = Man;
+			// Note: no value
+			j["important"].Value = Important;
+			j["omissis"].Value = Omissis;
+			j["internalonly"].Value = InternalOnly;
+			j["dontuserreset"].Value = DontUserReset;
+
+			return j;
+		}
+	}
 }

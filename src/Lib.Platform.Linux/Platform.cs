@@ -545,7 +545,7 @@ namespace Eddie.Platform.Linux
 		{
 			base.FlushDNS();
 
-			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Storage.Get("linux.dns.services"));
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Options.Get("linux.dns.services"));
 		}
 
 		public override void OpenUrl(string url)
@@ -1136,7 +1136,7 @@ namespace Eddie.Platform.Linux
 
 		public string GetDnsSwitchMode()
 		{
-			string current = Engine.Instance.Storage.GetLower("dns.mode");
+			string current = Engine.Instance.Options.GetLower("dns.mode");
 
 			if (current == "auto")
 				current = "rename";

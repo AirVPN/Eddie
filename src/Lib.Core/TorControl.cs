@@ -45,7 +45,7 @@ namespace Eddie.Core
 			c.Parameters["command"] = "tor-get-info";
 
 			c.Parameters["name"] = "tor";			
-			string customPath = Engine.Instance.Storage.Get("proxy.tor.path");
+			string customPath = Engine.Instance.Options.Get("proxy.tor.path");
 			if (customPath != "")
 				c.Parameters["path"] = customPath;
             c.Parameters["username"] = Environment.UserName;
@@ -77,7 +77,7 @@ namespace Eddie.Core
 		/*
 		public static string GetTorExecutablePath()
 		{
-			string customPath = Engine.Instance.Storage.Get("proxy.tor.path");
+			string customPath = Engine.Instance.Options.Get("proxy.tor.path");
 			if (customPath != "")
 			{
 				if (Platform.Instance.FileExists(customPath))
@@ -143,9 +143,9 @@ namespace Eddie.Core
 
 		public static void Connect(TcpClient client)
 		{
-			string controlHost = Engine.Instance.Storage.Get("proxy.host").ToLowerInvariant().Trim();
-			int controlPort = Engine.Instance.Storage.GetInt("proxy.tor.control.port");
-			string controlPassword = Engine.Instance.Storage.Get("proxy.tor.control.password");
+			string controlHost = Engine.Instance.Options.Get("proxy.host").ToLowerInvariant().Trim();
+			int controlPort = Engine.Instance.Options.GetInt("proxy.tor.control.port");
+			string controlPassword = Engine.Instance.Options.Get("proxy.tor.control.password");
 
 			Connect(client, controlHost, controlPort, controlPassword);
 		}
@@ -155,7 +155,7 @@ namespace Eddie.Core
 			if (client == null)
 				throw new Exception("Internal error (client is null)");
 
-			bool controlAuthenticate = Engine.Instance.Storage.GetBool("proxy.tor.control.auth");
+			bool controlAuthenticate = Engine.Instance.Options.GetBool("proxy.tor.control.auth");
 
 			byte[] password = System.Text.Encoding.ASCII.GetBytes(controlPassword);
 
@@ -276,7 +276,7 @@ namespace Eddie.Core
 
 			try
 			{
-				string controlHost = Engine.Instance.Storage.Get("proxy.host").ToLowerInvariant().Trim();
+				string controlHost = Engine.Instance.Options.Get("proxy.host").ToLowerInvariant().Trim();
 
 				if ((controlHost != "127.0.0.1") && (controlHost.ToLowerInvariant() != "localhost"))
 				{

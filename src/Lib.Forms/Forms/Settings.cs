@@ -345,15 +345,16 @@ namespace Eddie.Forms.Forms
 		public void ReadOptions()
 		{
 			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
 			// General            
 			chkSystemStart.Checked = Platform.Instance.GetAutoStart();
 			chkSystemService.Checked = Platform.Instance.GetService();
-			chkConnect.Checked = s.GetBool("connect");
-			chkNetLock.Checked = s.GetBool("netlock");
-			chkGeneralStartLast.Checked = s.GetBool("servers.startlast");
-			chkUiExitConfirm.Checked = s.GetBool("gui.exit_confirm");
-			chkOsSingleInstance.Checked = s.GetBool("os.single_instance");
+			chkConnect.Checked = o.GetBool("connect");
+			chkNetLock.Checked = o.GetBool("netlock");
+			chkGeneralStartLast.Checked = o.GetBool("servers.startlast");
+			chkUiExitConfirm.Checked = o.GetBool("gui.exit_confirm");
+			chkOsSingleInstance.Checked = o.GetBool("os.single_instance");
 
 			if (s.SaveFormat == "v2n")
 				cboStorageMode.SelectedIndex = 0;
@@ -370,37 +371,37 @@ namespace Eddie.Forms.Forms
 			}
 
 			// Ui
-			chkUiSystemNotifications.Checked = s.GetBool("gui.notifications");
-			string uiUnit = s.Get("ui.unit");
+			chkUiSystemNotifications.Checked = o.GetBool("gui.notifications");
+			string uiUnit = o.Get("ui.unit");
 			if (uiUnit == "bytes")
 				cboUiUnit.SelectedIndex = 1;
 			else if (uiUnit == "bits")
 				cboUiUnit.SelectedIndex = 2;
 			else
 				cboUiUnit.SelectedIndex = 0;
-			chkUiIEC.Checked = s.GetBool("ui.iec");
+			chkUiIEC.Checked = o.GetBool("ui.iec");
 
-			if (s.Get("gui.font.normal.name") != "")
+			if (o.Get("gui.font.normal.name") != "")
 			{
 				chkUiFontGeneral.Checked = true;
-				lblUiFontGeneral.Text = s.Get("gui.font.normal.name") + ", " + s.GetFloat("gui.font.normal.size").ToString();
+				lblUiFontGeneral.Text = o.Get("gui.font.normal.name") + ", " + o.GetFloat("gui.font.normal.size").ToString();
 			}
 			else
 			{
 				chkUiFontGeneral.Checked = false;
 			}
 			UpdateUiFontGeneral();
-			chkUiStartMinimized.Checked = s.GetBool("gui.start_minimized");
-			chkUiTrayShow.Checked = s.GetBool("gui.tray_show");
-			chkUiTrayMinimized.Checked = s.GetBool("gui.tray_minimized");
+			chkUiStartMinimized.Checked = o.GetBool("gui.start_minimized");
+			chkUiTrayShow.Checked = o.GetBool("gui.tray_show");
+			chkUiTrayMinimized.Checked = o.GetBool("gui.tray_minimized");
 
-			chkUiSkipProviderManifestFailed.Checked = s.GetBool("ui.skip.provider.manifest.failed");
-			chkUiSkipPromotional.Checked = s.GetBool("ui.skip.promotional");
+			chkUiSkipProviderManifestFailed.Checked = o.GetBool("ui.skip.provider.manifest.failed");
+			chkUiSkipPromotional.Checked = o.GetBool("ui.skip.promotional");
 
 			// Protocol
-			String protocol = s.Get("mode.protocol").ToUpperInvariant();
-			int port = s.GetInt("mode.port");
-			int entryIP = s.GetInt("mode.alt");
+			String protocol = o.Get("mode.protocol").ToUpperInvariant();
+			int port = o.GetInt("mode.port");
+			int entryIP = o.GetInt("mode.alt");
 			if (protocol == "AUTO")
 			{
 				chkProtocolsAutomatic.Checked = true;
@@ -429,28 +430,28 @@ namespace Eddie.Forms.Forms
 			}
 
 			// Proxy
-			cboProxyMode.Text = s.Get("proxy.mode");
-			if (s.Get("proxy.when") == "always")
+			cboProxyMode.Text = o.Get("proxy.mode");
+			if (o.Get("proxy.when") == "always")
 				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenAlways");
-			else if (s.Get("proxy.when") == "web")
+			else if (o.Get("proxy.when") == "web")
 				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenWeb");
-			else if (s.Get("proxy.when") == "openvpn")
+			else if (o.Get("proxy.when") == "openvpn")
 				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN");
-			else if (s.Get("proxy.when") == "none")
+			else if (o.Get("proxy.when") == "none")
 				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenNone");
 			else
 				cboProxyWhen.Text = LanguageManager.GetText("WindowsSettingsProxyWhenAlways");
-			txtProxyHost.Text = s.Get("proxy.host");
-			txtProxyPort.Text = s.Get("proxy.port");
-			cboProxyAuthentication.Text = s.Get("proxy.auth");
-			txtProxyLogin.Text = s.Get("proxy.login");
-			txtProxyPassword.Text = s.Get("proxy.password");
-			txtProxyTorControlPort.Text = s.Get("proxy.tor.control.port");
-			txtProxyTorControlPassword.Text = s.Get("proxy.tor.control.password");
+			txtProxyHost.Text = o.Get("proxy.host");
+			txtProxyPort.Text = o.Get("proxy.port");
+			cboProxyAuthentication.Text = o.Get("proxy.auth");
+			txtProxyLogin.Text = o.Get("proxy.login");
+			txtProxyPassword.Text = o.Get("proxy.password");
+			txtProxyTorControlPort.Text = o.Get("proxy.tor.control.port");
+			txtProxyTorControlPassword.Text = o.Get("proxy.tor.control.password");
 
 
 			// Routes
-			string routes = s.Get("routes.custom");
+			string routes = o.Get("routes.custom");
 			String[] routes2 = routes.Split(';');
 			foreach (String route in routes2)
 			{
@@ -473,8 +474,8 @@ namespace Eddie.Forms.Forms
 			}
 
 			// DNS
-			cboDnsSwitchMode.Text = s.Get("dns.mode");
-			string dnsMode = s.Get("dns.mode");
+			cboDnsSwitchMode.Text = o.Get("dns.mode");
+			string dnsMode = o.Get("dns.mode");
 			if (dnsMode == "none")
 				cboDnsSwitchMode.Text = "Disabled";
 			else if (dnsMode == "auto")
@@ -488,23 +489,23 @@ namespace Eddie.Forms.Forms
 			else
 				cboDnsSwitchMode.Text = "Automatic";
 
-			chkDnsCheck.Checked = s.GetBool("dns.check");
+			chkDnsCheck.Checked = o.GetBool("dns.check");
 
 			lstDnsServers.Items.Clear();
-			string[] dnsServers = s.Get("dns.servers").Split(',');
+			string[] dnsServers = o.Get("dns.servers").Split(',');
 			foreach (string dnsServer in dnsServers)
 			{
 				if (IpAddress.IsIP(dnsServer))
 					lstDnsServers.Items.Add(new ListViewItem(dnsServer));
 			}
 
-			chkDnsForceAllInterfaces.Checked = s.GetBool("windows.dns.force_all_interfaces");
-			chkDnsEnsureLock.Checked = s.GetBool("windows.dns.lock");
-			chkDnsIgnoreDNS6.Checked = s.GetBool("windows.ipv6.bypass_dns");
+			chkDnsForceAllInterfaces.Checked = o.GetBool("windows.dns.force_all_interfaces");
+			chkDnsEnsureLock.Checked = o.GetBool("windows.dns.lock");
+			chkDnsIgnoreDNS6.Checked = o.GetBool("windows.ipv6.bypass_dns");
 
 			// Networking
 
-			string networkIPv4Mode = s.Get("network.ipv4.mode");
+			string networkIPv4Mode = o.Get("network.ipv4.mode");
 			if (networkIPv4Mode == "in")
 				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways");
 			else if (networkIPv4Mode == "in-out")
@@ -517,9 +518,9 @@ namespace Eddie.Forms.Forms
 				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock");
 			else
 				cboNetworkIPv4Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock");
-			chkNetworkIPv4AutoSwitch.Checked = s.GetBool("network.ipv4.autoswitch");			
+			chkNetworkIPv4AutoSwitch.Checked = o.GetBool("network.ipv4.autoswitch");			
 
-			string networkIPv6Mode = s.Get("network.ipv6.mode");
+			string networkIPv6Mode = o.Get("network.ipv6.mode");
 			if (networkIPv6Mode == "in")
 				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways");
 			else if (networkIPv6Mode == "in-out")
@@ -532,9 +533,9 @@ namespace Eddie.Forms.Forms
 				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock");
 			else
 				cboNetworkIPv6Mode.Text = LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock");
-			chkNetworkIPv6AutoSwitch.Checked = s.GetBool("network.ipv6.autoswitch");
+			chkNetworkIPv6AutoSwitch.Checked = o.GetBool("network.ipv6.autoswitch");
 
-			string networkEntryIpLayer = s.Get("network.entry.iplayer");
+			string networkEntryIpLayer = o.Get("network.entry.iplayer");
 			if (networkEntryIpLayer == "ipv6-ipv4")
 				cboNetworkEntryIpLayer.Text = "IPv6, IPv4";
 			else if (networkEntryIpLayer == "ipv4-ipv6")
@@ -547,7 +548,7 @@ namespace Eddie.Forms.Forms
 				cboNetworkEntryIpLayer.Text = "IPv6, IPv4";
 
 			int iNetworkEntryIFace = 0;
-			string sNetworkEntryIFace = s.Get("network.entry.iface");
+			string sNetworkEntryIFace = o.Get("network.entry.iface");
 			foreach (KeyValuePair<string, string> kp in m_mapNetworkEntryIFace)
 			{
 				if (sNetworkEntryIFace == kp.Key)
@@ -558,7 +559,7 @@ namespace Eddie.Forms.Forms
 				iNetworkEntryIFace++;
 			}
 
-			int openVpnSndBuf = s.GetInt("openvpn.sndbuf");
+			int openVpnSndBuf = o.GetInt("openvpn.sndbuf");
 			if (openVpnSndBuf == -2)
 				cboOpenVpnSndbuf.SelectedIndex = 0;
 			else if (openVpnSndBuf == -1)
@@ -578,7 +579,7 @@ namespace Eddie.Forms.Forms
 			else if (openVpnSndBuf == 1024 * 512)
 				cboOpenVpnSndbuf.SelectedIndex = 8;
 
-			int openVpnRcvBuf = s.GetInt("openvpn.rcvbuf");
+			int openVpnRcvBuf = o.GetInt("openvpn.rcvbuf");
 			if (openVpnRcvBuf == -2)
 				cboOpenVpnRcvbuf.SelectedIndex = 0;
 			else if (openVpnRcvBuf == -1)
@@ -599,24 +600,24 @@ namespace Eddie.Forms.Forms
 				cboOpenVpnRcvbuf.SelectedIndex = 8;
 
 			// Advanced - General
-			chkExpert.Checked = s.GetBool("advanced.expert");
-			chkAdvancedCheckRoute.Checked = s.GetBool("advanced.check.route");
+			chkExpert.Checked = o.GetBool("advanced.expert");
+			chkAdvancedCheckRoute.Checked = o.GetBool("advanced.check.route");
 
-			chkAdvancedPingerEnabled.Checked = s.GetBool("pinger.enabled");
-			chkAdvancedSkipAlreadyRun.Checked = s.GetBool("advanced.skip_alreadyrun");
-			chkAdvancedProviders.Checked = s.GetBool("advanced.providers");
-			chkHummingbirdPrefer.Checked = s.GetBool("tools.hummingbird.preferred");
+			chkAdvancedPingerEnabled.Checked = o.GetBool("pinger.enabled");
+			chkAdvancedSkipAlreadyRun.Checked = o.GetBool("advanced.skip_alreadyrun");
+			chkAdvancedProviders.Checked = o.GetBool("advanced.providers");
+			chkHummingbirdPrefer.Checked = o.GetBool("tools.hummingbird.preferred");
 
-			chkWindowsWintun.Checked = s.GetBool("windows.wintun");
-			chkWindowsTapUp.Checked = s.GetBool("windows.tap_up");
-			chkWindowsDisableDriverUpgrade.Checked = s.GetBool("windows.disable_driver_upgrade");
-			chkWindowsDebugWorkaround.Checked = s.GetBool("windows.workarounds");
-			chkWindowsSshPlinkForce.Checked = s.GetBool("windows.ssh.plink.force");
+			chkWindowsWintun.Checked = o.GetBool("windows.wintun");
+			chkWindowsTapUp.Checked = o.GetBool("windows.tap_up");
+			chkWindowsDisableDriverUpgrade.Checked = o.GetBool("windows.disable_driver_upgrade");
+			chkWindowsDebugWorkaround.Checked = o.GetBool("windows.workarounds");
+			chkWindowsSshPlinkForce.Checked = o.GetBool("windows.ssh.plink.force");
 
-			txtExePath.Text = s.Get("tools.openvpn.path");
-			txtHummingbirdPath.Text = s.Get("tools.hummingbird.path");
+			txtExePath.Text = o.Get("tools.openvpn.path");
+			txtHummingbirdPath.Text = o.Get("tools.hummingbird.path");
 
-			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
+			int manifestRefresh = o.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
 				cboAdvancedManifestRefresh.SelectedIndex = 4;
 			else if (manifestRefresh == 10)
@@ -628,7 +629,7 @@ namespace Eddie.Forms.Forms
 			else
 				cboAdvancedManifestRefresh.SelectedIndex = 0;
 
-			string updaterChannel = s.Get("updater.channel");
+			string updaterChannel = o.Get("updater.channel");
 			if (updaterChannel == "stable")
 				cboAdvancedUpdaterChannel.Text = "Stable";
 			else if (updaterChannel == "beta")
@@ -640,7 +641,7 @@ namespace Eddie.Forms.Forms
 
 
 			// Advanced - Lock
-			string lockMode = s.Get("netlock.mode");
+			string lockMode = o.Get("netlock.mode");
 			cboLockMode.Text = "None";
 			if (lockMode == "auto")
 				cboLockMode.Text = "Automatic";
@@ -652,33 +653,33 @@ namespace Eddie.Forms.Forms
 						cboLockMode.Text = lockPlugin.GetTitleForList();
 				}
 			}
-			string lockIncoming = s.Get("netlock.incoming");
+			string lockIncoming = o.Get("netlock.incoming");
 			cboLockIncoming.Text = "Block";
 			if (lockIncoming == "allow")
 				cboLockIncoming.Text = "Allow";
-			string lockOutgoing = s.Get("netlock.outgoing");
+			string lockOutgoing = o.Get("netlock.outgoing");
 			cboLockOutgoing.Text = "Block";
 			if (lockOutgoing == "allow")
 				cboLockOutgoing.Text = "Allow";
-			chkLockAllowPrivate.Checked = s.GetBool("netlock.allow_private");
-			chkLockAllowDHCP.Checked = s.GetBool("netlock.allow_dhcp");
-			chkLockAllowPing.Checked = s.GetBool("netlock.allow_ping");
-			chkLockAllowDNS.Checked = s.GetBool("netlock.allow_dns");
-			txtLockWhiteListIncomingIPs.Text = s.Get("netlock.whitelist.incoming.ips");
-			txtLockWhiteListOutgoingIPs.Text = s.Get("netlock.whitelist.outgoing.ips");
+			chkLockAllowPrivate.Checked = o.GetBool("netlock.allow_private");
+			chkLockAllowDHCP.Checked = o.GetBool("netlock.allow_dhcp");
+			chkLockAllowPing.Checked = o.GetBool("netlock.allow_ping");
+			chkLockAllowDNS.Checked = o.GetBool("netlock.allow_dns");
+			txtLockWhiteListIncomingIPs.Text = o.Get("netlock.whitelist.incoming.ips");
+			txtLockWhiteListOutgoingIPs.Text = o.Get("netlock.whitelist.outgoing.ips");
 
 			// Advanced - Logging
-			chkLoggingEnabled.Checked = s.GetBool("log.file.enabled");
-			txtLogPath.Text = s.Get("log.file.path");
-			chkLogLevelDebug.Checked = s.GetBool("log.level.debug");
+			chkLoggingEnabled.Checked = o.GetBool("log.file.enabled");
+			txtLogPath.Text = o.Get("log.file.path");
+			chkLogLevelDebug.Checked = o.GetBool("log.level.debug");
 
 			// Advanced - OVPN Directives
-			cboOpenVpnDirectivesDefaultSkip.SelectedIndex = (s.GetBool("openvpn.skip_defaults") ? 1 : 0);
-			txtOpenVpnDirectivesBase.Text = s.Get("openvpn.directives");
-			txtOpenVpnDirectivesCustom.Text = s.Get("openvpn.custom");
-			txtOpenVpnDirectivesCustomPath.Text = s.Get("openvpn.directives.path");
-			//chkOpenVpnDirectivesAllowScriptSecurity.Checked = s.GetBool("openvpn.allow.script-security");
-			chkOpenVpnDirectivesDataCiphersChaCha.Checked = s.GetBool("openvpn.directives.chacha20");
+			cboOpenVpnDirectivesDefaultSkip.SelectedIndex = (o.GetBool("openvpn.skip_defaults") ? 1 : 0);
+			txtOpenVpnDirectivesBase.Text = o.Get("openvpn.directives");
+			txtOpenVpnDirectivesCustom.Text = o.Get("openvpn.custom");
+			txtOpenVpnDirectivesCustomPath.Text = o.Get("openvpn.directives.path");
+			//chkOpenVpnDirectivesAllowScriptSecurity.Checked = o.GetBool("openvpn.allow.script-security");
+			chkOpenVpnDirectivesDataCiphersChaCha.Checked = o.GetBool("openvpn.directives.chacha20");
 
 			// Advanced - Events
 			ReadOptionsEvent("app.start", 0);
@@ -688,19 +689,19 @@ namespace Eddie.Forms.Forms
 			ReadOptionsEvent("vpn.pre", 4);
 			ReadOptionsEvent("vpn.up", 5);
 			ReadOptionsEvent("vpn.down", 6);
-			chkShellExternalRecommended.Checked = s.GetBool("external.rules.recommended");
+			chkShellExternalRecommended.Checked = o.GetBool("external.rules.recommended");
 		}
 
 		public void ReadOptionsEvent(string name, int index)
 		{
-			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
-			String filename = s.Get("event." + name + ".filename");
+			String filename = o.Get("event." + name + ".filename");
 			if (filename != "")
 			{
 				lstAdvancedEvents.Items[index].SubItems.Add(filename);
-				lstAdvancedEvents.Items[index].SubItems.Add(s.Get("event." + name + ".arguments"));
-				lstAdvancedEvents.Items[index].SubItems.Add(s.GetBool("event." + name + ".waitend") ? "Yes" : "No");
+				lstAdvancedEvents.Items[index].SubItems.Add(o.Get("event." + name + ".arguments"));
+				lstAdvancedEvents.Items[index].SubItems.Add(o.GetBool("event." + name + ".waitend") ? "Yes" : "No");
 			}
 		}
 
@@ -738,15 +739,16 @@ namespace Eddie.Forms.Forms
 		public void SaveOptions()
 		{
 			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
 			// General            
 			Platform.Instance.SetAutoStart(chkSystemStart.Checked);
 			Platform.Instance.SetService(chkSystemService.Checked, false);
-			s.SetBool("connect", chkConnect.Checked);
-			s.SetBool("netlock", chkNetLock.Checked);
-			s.SetBool("servers.startlast", chkGeneralStartLast.Checked);
-			s.SetBool("gui.exit_confirm", chkUiExitConfirm.Checked);
-			s.SetBool("os.single_instance", chkOsSingleInstance.Checked);
+			o.SetBool("connect", chkConnect.Checked);
+			o.SetBool("netlock", chkNetLock.Checked);
+			o.SetBool("servers.startlast", chkGeneralStartLast.Checked);
+			o.SetBool("gui.exit_confirm", chkUiExitConfirm.Checked);
+			o.SetBool("os.single_instance", chkOsSingleInstance.Checked);
 
 			if(cboStorageMode.SelectedIndex == 0)
 			{
@@ -761,35 +763,35 @@ namespace Eddie.Forms.Forms
 			{
 				s.SaveFormat = "v2s";
 				s.SavePassword = s.LoadPassword;
-			}				
+			}
 
 			// Ui
-			s.SetBool("gui.notifications", chkUiSystemNotifications.Checked);
+			o.SetBool("gui.notifications", chkUiSystemNotifications.Checked);
 			string uiUnit = "";
 			if (cboUiUnit.SelectedIndex == 1)
 				uiUnit = "bytes";
 			else if (cboUiUnit.SelectedIndex == 2)
 				uiUnit = "bits";
-			s.Set("ui.unit", uiUnit);
-			s.SetBool("ui.iec", chkUiIEC.Checked);
+			o.Set("ui.unit", uiUnit);
+			o.SetBool("ui.iec", chkUiIEC.Checked);
 
 			if (chkUiFontGeneral.Checked)
 			{
 				int posComma = lblUiFontGeneral.Text.IndexOfInv(",");
-				s.Set("gui.font.normal.name", lblUiFontGeneral.Text.Substring(0, posComma));
-				s.Set("gui.font.normal.size", lblUiFontGeneral.Text.Substring(posComma + 1));
+				o.Set("gui.font.normal.name", lblUiFontGeneral.Text.Substring(0, posComma));
+				o.Set("gui.font.normal.size", lblUiFontGeneral.Text.Substring(posComma + 1));
 			}
 			else
 			{
-				s.Set("gui.font.normal.name", "");
-				s.SetFloat("gui.font.normal.size", 0);
+				o.Set("gui.font.normal.name", "");
+				o.SetFloat("gui.font.normal.size", 0);
 			}
-			s.SetBool("gui.start_minimized", chkUiStartMinimized.Checked);
-			s.SetBool("gui.tray_show", chkUiTrayShow.Checked);
-			s.SetBool("gui.tray_minimized", chkUiTrayShow.Checked && chkUiTrayMinimized.Checked);
+			o.SetBool("gui.start_minimized", chkUiStartMinimized.Checked);
+			o.SetBool("gui.tray_show", chkUiTrayShow.Checked);
+			o.SetBool("gui.tray_minimized", chkUiTrayShow.Checked && chkUiTrayMinimized.Checked);
 
-			s.SetBool("ui.skip.provider.manifest.failed", chkUiSkipProviderManifestFailed.Checked);
-			s.SetBool("ui.skip.promotional", chkUiSkipPromotional.Checked);
+			o.SetBool("ui.skip.provider.manifest.failed", chkUiSkipProviderManifestFailed.Checked);
+			o.SetBool("ui.skip.promotional", chkUiSkipPromotional.Checked);
 
 			// Protocols
 			if (lstProtocols.Items.Count == 0) // Occur if AirVPN provider is disabled
@@ -797,44 +799,44 @@ namespace Eddie.Forms.Forms
 
 			if (chkProtocolsAutomatic.Checked)
 			{
-				s.Set("mode.protocol", "AUTO");
-				s.SetInt("mode.port", 443);
-				s.SetInt("mode.alt", 0);
+				o.Set("mode.protocol", "AUTO");
+				o.SetInt("mode.port", 443);
+				o.SetInt("mode.alt", 0);
 			}
 			else if (lstProtocols.SelectedItems.Count == 1)
 			{
 				Controls.ListViewItemProtocol item = lstProtocols.SelectedItems[0] as Controls.ListViewItemProtocol;
 
-				s.Set("mode.protocol", item.Mode.Protocol);
-				s.SetInt("mode.port", item.Mode.Port);
-				s.SetInt("mode.alt", item.Mode.EntryIndex);
+				o.Set("mode.protocol", item.Mode.Protocol);
+				o.SetInt("mode.port", item.Mode.Port);
+				o.SetInt("mode.alt", item.Mode.EntryIndex);
 			}
 			else
 			{
-				s.Set("mode.protocol", "AUTO");
-				s.SetInt("mode.port", 443);
-				s.SetInt("mode.alt", 0);
+				o.Set("mode.protocol", "AUTO");
+				o.SetInt("mode.port", 443);
+				o.SetInt("mode.alt", 0);
 			}
 
 			// Proxy
-			s.Set("proxy.mode", cboProxyMode.Text);
+			o.Set("proxy.mode", cboProxyMode.Text);
 			if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenAlways"))
-				s.Set("proxy.when", "always");
+				o.Set("proxy.when", "always");
 			else if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenWeb"))
-				s.Set("proxy.when", "web");
+				o.Set("proxy.when", "web");
 			else if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"))
-				s.Set("proxy.when", "openvpn");
+				o.Set("proxy.when", "openvpn");
 			else if (cboProxyWhen.Text == LanguageManager.GetText("WindowsSettingsProxyWhenNone"))
-				s.Set("proxy.when", "none");
+				o.Set("proxy.when", "none");
 			else
-				s.Set("proxy.when", "always");
-			s.Set("proxy.host", txtProxyHost.Text);
-			s.Set("proxy.port", txtProxyPort.Text);
-			s.Set("proxy.auth", cboProxyAuthentication.Text);
-			s.Set("proxy.login", txtProxyLogin.Text);
-			s.Set("proxy.password", txtProxyPassword.Text);
-			s.SetInt("proxy.tor.control.port", Conversions.ToInt32(txtProxyTorControlPort.Text));
-			s.Set("proxy.tor.control.password", txtProxyTorControlPassword.Text);
+				o.Set("proxy.when", "always");
+			o.Set("proxy.host", txtProxyHost.Text);
+			o.Set("proxy.port", txtProxyPort.Text);
+			o.Set("proxy.auth", cboProxyAuthentication.Text);
+			o.Set("proxy.login", txtProxyLogin.Text);
+			o.Set("proxy.password", txtProxyPassword.Text);
+			o.SetInt("proxy.tor.control.port", Conversions.ToInt32(txtProxyTorControlPort.Text));
+			o.Set("proxy.tor.control.password", txtProxyTorControlPassword.Text);
 
 			// Routes
 			String routes = "";
@@ -844,26 +846,26 @@ namespace Eddie.Forms.Forms
 					routes += ";";
 				routes += item.Text + "," + RouteDescriptionToDirection(item.SubItems[1].Text) + "," + item.SubItems[2].Text;
 			}
-			s.Set("routes.custom", routes);
+			o.Set("routes.custom", routes);
 
 			// DNS
-			s.Set("dns.mode", cboDnsSwitchMode.Text);
+			o.Set("dns.mode", cboDnsSwitchMode.Text);
 
 			string dnsMode = cboDnsSwitchMode.Text;
 			if (dnsMode == "Disabled")
-				s.Set("dns.mode", "none");
+				o.Set("dns.mode", "none");
 			else if (dnsMode == "Automatic")
-				s.Set("dns.mode", "auto");
-            /* TOCLEAN
+				o.Set("dns.mode", "auto");
+			/* TOCLEAN
 			else if (dnsMode == "Resolvconf (Linux only)")
-				s.Set("dns.mode", "resolvconf");
+				o.Set("dns.mode", "resolvconf");
 			else if (dnsMode == "Renaming (Linux only)")
-				s.Set("dns.mode", "rename");
-			*/               
+				o.Set("dns.mode", "rename");
+			*/
 			else
-				s.Set("dns.mode", "auto");
+				o.Set("dns.mode", "auto");
 
-			s.SetBool("dns.check", chkDnsCheck.Checked);
+			o.SetBool("dns.check", chkDnsCheck.Checked);
 
 			string dnsServers = "";
 			foreach (ListViewItem dnsServerItem in lstDnsServers.Items)
@@ -872,119 +874,119 @@ namespace Eddie.Forms.Forms
 					dnsServers += ",";
 				dnsServers += dnsServerItem.Text;
 			}
-			s.Set("dns.servers", dnsServers);
+			o.Set("dns.servers", dnsServers);
 
-			s.SetBool("windows.dns.force_all_interfaces", chkDnsForceAllInterfaces.Checked);
-			s.SetBool("windows.dns.lock", chkDnsEnsureLock.Checked);
-			s.SetBool("windows.ipv6.bypass_dns", chkDnsIgnoreDNS6.Checked);
+			o.SetBool("windows.dns.force_all_interfaces", chkDnsForceAllInterfaces.Checked);
+			o.SetBool("windows.dns.lock", chkDnsEnsureLock.Checked);
+			o.SetBool("windows.ipv6.bypass_dns", chkDnsIgnoreDNS6.Checked);
 
 			// Networking
 			string networkIPv4Mode = cboNetworkIPv4Mode.Text;
 			if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
-				s.Set("network.ipv4.mode", "in");
+				o.Set("network.ipv4.mode", "in");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
-				s.Set("network.ipv4.mode", "in-out");
+				o.Set("network.ipv4.mode", "in-out");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
-				s.Set("network.ipv4.mode", "in-block");
+				o.Set("network.ipv4.mode", "in-block");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
-				s.Set("network.ipv4.mode", "out");
+				o.Set("network.ipv4.mode", "out");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
-				s.Set("network.ipv4.mode", "block");
+				o.Set("network.ipv4.mode", "block");
 			else
-				s.Set("network.ipv4.mode", "in");
-			s.SetBool("network.ipv4.autoswitch", chkNetworkIPv4AutoSwitch.Checked);
+				o.Set("network.ipv4.mode", "in");
+			o.SetBool("network.ipv4.autoswitch", chkNetworkIPv4AutoSwitch.Checked);
 
 			string networkIPv6Mode = cboNetworkIPv6Mode.Text;
 			if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
-				s.Set("network.ipv6.mode", "in");
+				o.Set("network.ipv6.mode", "in");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
-				s.Set("network.ipv6.mode", "in-out");
+				o.Set("network.ipv6.mode", "in-out");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
-				s.Set("network.ipv6.mode", "in-block");
+				o.Set("network.ipv6.mode", "in-block");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
-				s.Set("network.ipv6.mode", "out");
+				o.Set("network.ipv6.mode", "out");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
-				s.Set("network.ipv6.mode", "block");
+				o.Set("network.ipv6.mode", "block");
 			else
-				s.Set("network.ipv6.mode", "in-block");
-			s.SetBool("network.ipv6.autoswitch", chkNetworkIPv6AutoSwitch.Checked);
+				o.Set("network.ipv6.mode", "in-block");
+			o.SetBool("network.ipv6.autoswitch", chkNetworkIPv6AutoSwitch.Checked);
 
 			string networkEntryIpLayer = cboNetworkEntryIpLayer.Text;
 			if (networkEntryIpLayer == "IPv6, IPv4")
-				s.Set("network.entry.iplayer", "ipv6-ipv4");
+				o.Set("network.entry.iplayer", "ipv6-ipv4");
 			else if (networkEntryIpLayer == "IPv4, IPv6")
-				s.Set("network.entry.iplayer", "ipv4-ipv6");
+				o.Set("network.entry.iplayer", "ipv4-ipv6");
 			else if (networkEntryIpLayer == "IPv6 only")
-				s.Set("network.entry.iplayer", "ipv6-only");
+				o.Set("network.entry.iplayer", "ipv6-only");
 			else if (networkEntryIpLayer == "IPv4 only")
-				s.Set("network.entry.iplayer", "ipv4-only");
+				o.Set("network.entry.iplayer", "ipv4-only");
 			else
-				s.Set("network.entry.iplayer", "ipv6-ipv4");
+				o.Set("network.entry.iplayer", "ipv6-ipv4");
 
 			string networkEntryIFace = cboNetworkEntryInterface.Text;
 			foreach (KeyValuePair<string, string> kp in m_mapNetworkEntryIFace)
 			{
 				if (kp.Value == networkEntryIFace)
 				{
-					s.Set("network.entry.iface", kp.Key);
+					o.Set("network.entry.iface", kp.Key);
 					break;
 				}
 			}
 
 			int openVpnSndBufIndex = cboOpenVpnSndbuf.SelectedIndex;
 			if (openVpnSndBufIndex == 0)
-				s.SetInt("openvpn.sndbuf", -2);
+				o.SetInt("openvpn.sndbuf", -2);
 			else if (openVpnSndBufIndex == 1)
-				s.SetInt("openvpn.sndbuf", -1);
+				o.SetInt("openvpn.sndbuf", -1);
 			else if (openVpnSndBufIndex == 2)
-				s.SetInt("openvpn.sndbuf", 1024 * 8);
+				o.SetInt("openvpn.sndbuf", 1024 * 8);
 			else if (openVpnSndBufIndex == 3)
-				s.SetInt("openvpn.sndbuf", 1024 * 16);
+				o.SetInt("openvpn.sndbuf", 1024 * 16);
 			else if (openVpnSndBufIndex == 4)
-				s.SetInt("openvpn.sndbuf", 1024 * 32);
+				o.SetInt("openvpn.sndbuf", 1024 * 32);
 			else if (openVpnSndBufIndex == 5)
-				s.SetInt("openvpn.sndbuf", 1024 * 64);
+				o.SetInt("openvpn.sndbuf", 1024 * 64);
 			else if (openVpnSndBufIndex == 6)
-				s.SetInt("openvpn.sndbuf", 1024 * 128);
+				o.SetInt("openvpn.sndbuf", 1024 * 128);
 			else if (openVpnSndBufIndex == 7)
-				s.SetInt("openvpn.sndbuf", 1024 * 256);
+				o.SetInt("openvpn.sndbuf", 1024 * 256);
 			else if (openVpnSndBufIndex == 8)
-				s.SetInt("openvpn.sndbuf", 1024 * 512);
+				o.SetInt("openvpn.sndbuf", 1024 * 512);
 
 			int openVpnRcvBufIndex = cboOpenVpnRcvbuf.SelectedIndex;
 			if (openVpnRcvBufIndex == 0)
-				s.SetInt("openvpn.rcvbuf", -2);
+				o.SetInt("openvpn.rcvbuf", -2);
 			else if (openVpnRcvBufIndex == 1)
-				s.SetInt("openvpn.rcvbuf", -1);
+				o.SetInt("openvpn.rcvbuf", -1);
 			else if (openVpnRcvBufIndex == 2)
-				s.SetInt("openvpn.rcvbuf", 1024 * 8);
+				o.SetInt("openvpn.rcvbuf", 1024 * 8);
 			else if (openVpnRcvBufIndex == 3)
-				s.SetInt("openvpn.rcvbuf", 1024 * 16);
+				o.SetInt("openvpn.rcvbuf", 1024 * 16);
 			else if (openVpnRcvBufIndex == 4)
-				s.SetInt("openvpn.rcvbuf", 1024 * 32);
+				o.SetInt("openvpn.rcvbuf", 1024 * 32);
 			else if (openVpnRcvBufIndex == 5)
-				s.SetInt("openvpn.rcvbuf", 1024 * 64);
+				o.SetInt("openvpn.rcvbuf", 1024 * 64);
 			else if (openVpnRcvBufIndex == 6)
-				s.SetInt("openvpn.rcvbuf", 1024 * 128);
+				o.SetInt("openvpn.rcvbuf", 1024 * 128);
 			else if (openVpnRcvBufIndex == 7)
-				s.SetInt("openvpn.rcvbuf", 1024 * 256);
+				o.SetInt("openvpn.rcvbuf", 1024 * 256);
 			else if (openVpnRcvBufIndex == 8)
-				s.SetInt("openvpn.rcvbuf", 1024 * 512);
+				o.SetInt("openvpn.rcvbuf", 1024 * 512);
 
 			// Advanced - General
-			s.SetBool("advanced.expert", chkExpert.Checked);
-			s.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
+			o.SetBool("advanced.expert", chkExpert.Checked);
+			o.SetBool("advanced.check.route", chkAdvancedCheckRoute.Checked);
 
-			s.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
-			s.SetBool("advanced.skip_alreadyrun", chkAdvancedSkipAlreadyRun.Checked);
-			s.SetBool("advanced.providers", chkAdvancedProviders.Checked);
-			s.SetBool("tools.hummingbird.preferred", chkHummingbirdPrefer.Checked);
+			o.SetBool("pinger.enabled", chkAdvancedPingerEnabled.Checked);
+			o.SetBool("advanced.skip_alreadyrun", chkAdvancedSkipAlreadyRun.Checked);
+			o.SetBool("advanced.providers", chkAdvancedProviders.Checked);
+			o.SetBool("tools.hummingbird.preferred", chkHummingbirdPrefer.Checked);
 
-			s.SetBool("windows.wintun", chkWindowsWintun.Checked);
-			s.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
-			s.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
-			s.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
-			s.SetBool("windows.ssh.plink.force", chkWindowsSshPlinkForce.Checked);
+			o.SetBool("windows.wintun", chkWindowsWintun.Checked);
+			o.SetBool("windows.tap_up", chkWindowsTapUp.Checked);
+			o.SetBool("windows.disable_driver_upgrade", chkWindowsDisableDriverUpgrade.Checked);
+			o.SetBool("windows.workarounds", chkWindowsDebugWorkaround.Checked);
+			o.SetBool("windows.ssh.plink.force", chkWindowsSshPlinkForce.Checked);
 
 			SetOption("tools.openvpn.path", txtExePath.Text);
 			SetOption("tools.hummingbird.path", txtHummingbirdPath.Text);
@@ -992,71 +994,71 @@ namespace Eddie.Forms.Forms
 
 			int manifestRefreshIndex = cboAdvancedManifestRefresh.SelectedIndex;
 			if (manifestRefreshIndex == 0) // Auto
-				s.SetInt("advanced.manifest.refresh", -1);
+				o.SetInt("advanced.manifest.refresh", -1);
 			else if (manifestRefreshIndex == 1) // Never
-				s.SetInt("advanced.manifest.refresh", 0);
+				o.SetInt("advanced.manifest.refresh", 0);
 			else if (manifestRefreshIndex == 2) // One minute
-				s.SetInt("advanced.manifest.refresh", 1);
+				o.SetInt("advanced.manifest.refresh", 1);
 			else if (manifestRefreshIndex == 3) // Ten minute
-				s.SetInt("advanced.manifest.refresh", 10);
+				o.SetInt("advanced.manifest.refresh", 10);
 			else if (manifestRefreshIndex == 4) // One hour
-				s.SetInt("advanced.manifest.refresh", 60);
+				o.SetInt("advanced.manifest.refresh", 60);
 
 			string updaterChannel = cboAdvancedUpdaterChannel.Text;
 			if (updaterChannel == "Stable")
-				s.Set("updater.channel", "stable");
+				o.Set("updater.channel", "stable");
 			else if (updaterChannel == "Beta")
-				s.Set("updater.channel", "beta");
+				o.Set("updater.channel", "beta");
 			else if (updaterChannel == "None")
-				s.Set("updater.channel", "none");
+				o.Set("updater.channel", "none");
 			else
-				s.Set("updater.channel", "stable");
+				o.Set("updater.channel", "stable");
 
 			// Advanced - Lock
 			string lockMode = cboLockMode.Text;
-			s.Set("netlock.mode", "none");
+			o.Set("netlock.mode", "none");
 			if (lockMode == "Automatic")
-				s.Set("netlock.mode", "auto");
+				o.Set("netlock.mode", "auto");
 			else
 			{
 				foreach (NetworkLockPlugin lockPlugin in Engine.Instance.NetworkLockManager.Modes)
 				{
 					if (lockPlugin.GetTitleForList() == lockMode)
-						s.Set("netlock.mode", lockPlugin.GetCode());
+						o.Set("netlock.mode", lockPlugin.GetCode());
 				}
 			}
 			string lockIncoming = cboLockIncoming.Text;
 			if (lockIncoming == "Allow")
-				s.Set("netlock.incoming", "allow");
+				o.Set("netlock.incoming", "allow");
 			else
-				s.Set("netlock.incoming", "block");
+				o.Set("netlock.incoming", "block");
 			string lockOutgoing = cboLockOutgoing.Text;
 			if (lockOutgoing == "Allow")
-				s.Set("netlock.outgoing", "allow");
+				o.Set("netlock.outgoing", "allow");
 			else
-				s.Set("netlock.outgoing", "block");
-			s.SetBool("netlock.allow_private", chkLockAllowPrivate.Checked);
-			s.SetBool("netlock.allow_dhcp", chkLockAllowDHCP.Checked);
-			s.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
-			s.SetBool("netlock.allow_dns", chkLockAllowDNS.Checked);
-			s.Set("netlock.whitelist.incoming.ips", txtLockWhiteListIncomingIPs.Text);
-			s.Set("netlock.whitelist.outgoing.ips", txtLockWhiteListOutgoingIPs.Text);
+				o.Set("netlock.outgoing", "block");
+			o.SetBool("netlock.allow_private", chkLockAllowPrivate.Checked);
+			o.SetBool("netlock.allow_dhcp", chkLockAllowDHCP.Checked);
+			o.SetBool("netlock.allow_ping", chkLockAllowPing.Checked);
+			o.SetBool("netlock.allow_dns", chkLockAllowDNS.Checked);
+			o.Set("netlock.whitelist.incoming.ips", txtLockWhiteListIncomingIPs.Text);
+			o.Set("netlock.whitelist.outgoing.ips", txtLockWhiteListOutgoingIPs.Text);
 
 			// Advanced - Networking
 
 			// Advanced - Logging
-			s.SetBool("log.file.enabled", chkLoggingEnabled.Checked);
-			s.Set("log.file.path", txtLogPath.Text);
-			s.SetBool("log.level.debug", chkLogLevelDebug.Checked);
+			o.SetBool("log.file.enabled", chkLoggingEnabled.Checked);
+			o.Set("log.file.path", txtLogPath.Text);
+			o.SetBool("log.level.debug", chkLogLevelDebug.Checked);
 
 			// Advanced - OVPN Directives
-			s.Set("openvpn.directives", txtOpenVpnDirectivesBase.Text);
-			s.Set("openvpn.custom", txtOpenVpnDirectivesCustom.Text);
-			s.Set("openvpn.directives.path", txtOpenVpnDirectivesCustomPath.Text);
-			s.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
-			//s.SetBool("openvpn.allow.script-security", chkOpenVpnDirectivesAllowScriptSecurity.Checked);
+			o.Set("openvpn.directives", txtOpenVpnDirectivesBase.Text);
+			o.Set("openvpn.custom", txtOpenVpnDirectivesCustom.Text);
+			o.Set("openvpn.directives.path", txtOpenVpnDirectivesCustomPath.Text);
+			o.SetBool("openvpn.skip_defaults", (cboOpenVpnDirectivesDefaultSkip.SelectedIndex == 1));
+			//o.SetBool("openvpn.allow.script-security", chkOpenVpnDirectivesAllowScriptSecurity.Checked);
 
-			s.SetBool("openvpn.directives.chacha20", chkOpenVpnDirectivesDataCiphersChaCha.Checked);
+			o.SetBool("openvpn.directives.chacha20", chkOpenVpnDirectivesDataCiphersChaCha.Checked);
 
 			// Advanced - Events
 			SaveOptionsEvent("app.start", 0);
@@ -1066,7 +1068,7 @@ namespace Eddie.Forms.Forms
 			SaveOptionsEvent("vpn.pre", 4);
 			SaveOptionsEvent("vpn.up", 5);
 			SaveOptionsEvent("vpn.down", 6);
-			s.SetBool("external.rules.recommended", chkShellExternalRecommended.Checked);
+			o.SetBool("external.rules.recommended", chkShellExternalRecommended.Checked);
 			
 			Engine.OnSettingsChanged();
 		}
@@ -1074,25 +1076,26 @@ namespace Eddie.Forms.Forms
 		public void SaveOptionsEvent(string name, int index)
 		{
 			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
 			if (lstAdvancedEvents.Items[index].SubItems.Count == 1)
 			{
-				s.Set("event." + name + ".filename", "");
-				s.Set("event." + name + ".arguments", "");
-				s.SetBool("event." + name + ".waitend", true);
+				o.Set("event." + name + ".filename", "");
+				o.Set("event." + name + ".arguments", "");
+				o.SetBool("event." + name + ".waitend", true);
 			}
 			else
 			{
-				s.Set("event." + name + ".filename", lstAdvancedEvents.Items[index].SubItems[1].Text);
-				s.Set("event." + name + ".arguments", lstAdvancedEvents.Items[index].SubItems[2].Text);
-				s.SetBool("event." + name + ".waitend", (lstAdvancedEvents.Items[index].SubItems[3].Text != "No"));
+				o.Set("event." + name + ".filename", lstAdvancedEvents.Items[index].SubItems[1].Text);
+				o.Set("event." + name + ".arguments", lstAdvancedEvents.Items[index].SubItems[2].Text);
+				o.SetBool("event." + name + ".waitend", (lstAdvancedEvents.Items[index].SubItems[3].Text != "No"));
 			}
 		}
 				
 		public void SetOption(string name, object value)
 		{
 			Json jCommand = new Json();
-			jCommand["command"].Value = "set_option";
+			jCommand["command"].Value = "options.set";
 			jCommand["name"].Value = name;
 			jCommand["value"].Value = value;
 			UiClient.Instance.Command(jCommand);
@@ -1602,7 +1605,7 @@ namespace Eddie.Forms.Forms
 		{
 			if (UiClient.Instance.MainWindow.AskYesNo(LanguageManager.GetText("ResetSettingsConfirm")))
 			{
-				Engine.Instance.Storage.ResetAll(false);
+				Engine.Instance.Options.ResetAll(false);
 				ReadOptions();
 				ShowMessageInfo(LanguageManager.GetText("ResetSettingsDone"));
 			}
@@ -1635,13 +1638,13 @@ namespace Eddie.Forms.Forms
 
 		private void cmdShellExternalView_Click(object sender, EventArgs e)
 		{
-			Json rules = Engine.Instance.Storage.GetJson("external.rules");
+			Json rules = Engine.Instance.Options.GetJson("external.rules");
 			Engine.Instance.OnShowText("Rules", rules.ToJsonPretty());
 		}
 
 		private void cmdShellExternalClear_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Storage.Set("external.rules", Engine.Instance.Storage.Options["external.rules"].Default);
+			Engine.Instance.Options.Set("external.rules", Engine.Instance.Options.Dict["external.rules"].Default);
 			ShowMessageInfo("Done.");
 		}
 

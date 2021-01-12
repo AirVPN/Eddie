@@ -100,10 +100,10 @@ namespace Eddie.UI.Cocoa.Osx
             CmdUpdater.Hidden = true;
             MnuTrayUpdate.Hidden = true;
 
-			ChkRemember.State = Engine.Storage.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off;
+			ChkRemember.State = Engine.Options.GetBool("remember") ? NSCellStateValue.On : NSCellStateValue.Off;
 			ChkServersShowAll.State = NSCellStateValue.Off;
-			GuiUtils.SetCheck(ChkServersLockCurrent, Engine.Storage.GetBool("servers.locklast"));
-			GuiUtils.SetSelected(CboServersScoringRule, Engine.Storage.Get("servers.scoretype"));
+			GuiUtils.SetCheck(ChkServersLockCurrent, Engine.Options.GetBool("servers.locklast"));
+			GuiUtils.SetSelected(CboServersScoringRule, Engine.Options.Get("servers.scoretype"));
 
 			CboSpeedResolutions.RemoveAllItems();
 			CboSpeedResolutions.AddItem(LanguageManager.GetText("WindowsMainSpeedResolution1"));
@@ -137,11 +137,11 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdLogsSave.ToolTip = LanguageManager.GetText("TooltipLogsSave");
 			CmdLogsSupport.ToolTip = LanguageManager.GetText("TooltipLogsSupport");
 
-			if (Engine.Storage.GetBool("remember"))
+			if (Engine.Options.GetBool("remember"))
 			{
 				ChkRemember.State = NSCellStateValue.On;
-				TxtLogin.StringValue = Engine.Storage.Get("login");
-				TxtPassword.StringValue = Engine.Storage.Get("password");
+				TxtLogin.StringValue = Engine.Options.Get("login");
+				TxtPassword.StringValue = Engine.Options.Get("password");
 
 			}
             
@@ -159,7 +159,7 @@ namespace Eddie.UI.Cocoa.Osx
 
             ChkRemember.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Storage.SetBool("remember", ChkRemember.State == NSCellStateValue.On);
+				Engine.Options.SetBool("remember", ChkRemember.State == NSCellStateValue.On);
 			};
 
 			CmdLogin.Activated += (object sender, EventArgs e) =>
@@ -182,8 +182,8 @@ namespace Eddie.UI.Cocoa.Osx
 
 			CboKey.Activated += (object sender, EventArgs e) =>
 			{
-                if(Engine.Instance.Storage.Get("key") != CboKey.SelectedItem.Title)
-				    Engine.Instance.Storage.Set("key", CboKey.SelectedItem.Title);
+                if(Engine.Instance.Options.Get("key") != CboKey.SelectedItem.Title)
+				    Engine.Instance.Options.Set("key", CboKey.SelectedItem.Title);
 			};
 
 			CmdConnect.Activated += (object sender, EventArgs e) =>
@@ -362,12 +362,12 @@ namespace Eddie.UI.Cocoa.Osx
 
 			ChkServersLockCurrent.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Storage.SetBool("servers.locklast", ChkServersLockCurrent.State == NSCellStateValue.On);
+				Engine.Options.SetBool("servers.locklast", ChkServersLockCurrent.State == NSCellStateValue.On);
 			};
 
 			CboServersScoringRule.Activated += (object sender, EventArgs e) =>
 			{
-				Engine.Storage.Set("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
+				Engine.Options.Set("servers.scoretype", GuiUtils.GetSelected(CboServersScoringRule));
 
 				RefreshUi(Engine.RefreshUiMode.Full);
 			};
@@ -634,7 +634,7 @@ namespace Eddie.UI.Cocoa.Osx
                             string keyName = xmlKey.GetAttribute("name");
                             CboKey.AddItem(keyName);
                         }
-                        string currentKey = Engine.Instance.Storage.Get("key");
+                        string currentKey = Engine.Instance.Options.Get("key");
                         int currentIndex = (int)CboKey.IndexOfItem(currentKey);
                         if (currentIndex != -1)
                         {
@@ -708,7 +708,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			RequestAttention();
 
-			if (Engine.Instance.Storage.GetBool("gui.notifications") == false)
+			if (Engine.Instance.Options.GetBool("gui.notifications") == false)
 				return;
 
 			// First we create our notification and customize as needed
@@ -866,7 +866,7 @@ namespace Eddie.UI.Cocoa.Osx
 			MnuAreasBlacklist.Enabled = CmdAreasBlackList.Enabled;
 			MnuAreasUndefined.Enabled = CmdAreasUndefined.Enabled;
 
-			CmdLogsCommand.Hidden = (Engine.Storage.GetBool("advanced.expert") == false);
+			CmdLogsCommand.Hidden = (Engine.Options.GetBool("advanced.expert") == false);
 
 			if (Engine.Instance.NetworkLockManager != null)
 			{
@@ -891,7 +891,7 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			}
 
-			if (Engine.Instance.Storage.GetBool("advanced.providers"))
+			if (Engine.Instance.Options.GetBool("advanced.providers"))
 			{
 				if (TabMain.Items[1] != TabProviders)
 				{
@@ -961,8 +961,8 @@ namespace Eddie.UI.Cocoa.Osx
 
         void Login()
 		{
-			Engine.Storage.Set("login", TxtLogin.StringValue);
-			Engine.Storage.Set("password", TxtPassword.StringValue);
+			Engine.Options.Set("login", TxtLogin.StringValue);
+			Engine.Options.Set("password", TxtPassword.StringValue);
 
 			Engine.Login();
 		}

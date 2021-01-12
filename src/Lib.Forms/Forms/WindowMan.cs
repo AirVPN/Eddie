@@ -51,7 +51,7 @@ namespace Eddie.Forms.Forms
 
 			CheckEnabled();
 
-			foreach (Option option in Engine.Instance.Storage.Options.Values)
+			foreach (Option option in Engine.Instance.Options.Dict.Values)
 			{
 				Controls.ListViewItemOption item = new Controls.ListViewItemOption();
 				item.Text = option.Code;

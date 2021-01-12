@@ -45,7 +45,13 @@ function arch_env() {
 		sed -i "s|{@version}|${VERSION}|g" PKGBUILD
 		sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
 		sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
-
+		if [ "${PROJECT}" = "cli" ]; then
+			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - prebuilt|g" PKGBUILD    
+			sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
+		else
+			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - prebuilt|g" PKGBUILD    
+			sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2)|g" PKGBUILD
+		fi
 		sed -i "s|{@source}|git+file:///$2/|g" PKGBUILD    
 		sed -i "s|cd \"Eddie-\$pkgver\"|cd \"eddie-air\"|g" PKGBUILD
 
@@ -62,10 +68,18 @@ function arch_env() {
 			sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
 			sed -i "s|{@version}|${VERSION}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-${PROJECT}-git|g" PKGBUILD    
-			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - beta version|g" PKGBUILD    
+			if [ "${PROJECT}" = "cli" ]; then
+				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI - beta|g" PKGBUILD    
+				sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
+			else
+				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI - beta|g" PKGBUILD    
+				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2)|g" PKGBUILD
+			fi
 			sed -i "s|{@source}|git+https://github.com/AirVPN/Eddie.git|g" PKGBUILD    
 			sed -i "s|cd \"Eddie-\$pkgver\"|cd \"Eddie\"|g" PKGBUILD
-			echo Enter AUR passphrase if requested
+			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN
+    			echo if requested, enter $(cat "${SCRIPTDIR}/../signing/aur.key.password.txt") as passphrase
+			fi
 			git clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}-git.git
 			cd eddie-${PROJECT}-git
 			cp ../PKGBUILD .
@@ -77,7 +91,13 @@ function arch_env() {
 			sed -i "s|{@project}|${PROJECT}|g" PKGBUILD    
 			sed -i "s|{@version}|${VERSIONSTABLE}|g" PKGBUILD    
 			sed -i "s|{@pkgname}|eddie-${PROJECT}|g" PKGBUILD    
-			sed -i "s|{@pkgdesc}|Eddie - VPN tunnel|g" PKGBUILD    
+			if [ "${PROJECT}" = "cli" ]; then
+				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - CLI|g" PKGBUILD    
+				sed -i "s|{@pkgdepends}|(mono openvpn sudo)|g" PKGBUILD
+			else
+				sed -i "s|{@pkgdesc}|Eddie - VPN tunnel - UI|g" PKGBUILD
+				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2)|g" PKGBUILD
+			fi
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
 			echo Enter AUR passphrase if requested
 			git clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}.git

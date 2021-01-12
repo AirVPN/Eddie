@@ -44,7 +44,7 @@ namespace Eddie.Platform.Windows
 
 		public static bool GetDynamicMode()
 		{
-			return Engine.Instance.Storage.GetBool("windows.wfp.dynamic");
+			return Engine.Instance.Options.GetBool("windows.wfp.dynamic");
 		}
 
 		public static void Start()

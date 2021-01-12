@@ -173,7 +173,7 @@ namespace Eddie.Core
 
             if (WaitEnd)
 			{
-				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")));
+				bool log = ((NoDebugLog == false) && (Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.level.debug")));
 
 				if (log)
 				{

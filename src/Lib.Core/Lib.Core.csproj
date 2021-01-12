@@ -105,6 +105,7 @@
     <Compile Include="Jobs\RealtimeNetworkStats.cs" />
     <Compile Include="Jobs\Updater.cs" />
     <Compile Include="LanguageManager.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="ShellExternalManager.cs" />
     <Compile Include="Elevated\Process.cs" />
     <Compile Include="PingerJob.cs" />

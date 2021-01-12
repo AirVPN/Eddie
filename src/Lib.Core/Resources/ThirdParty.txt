@@ -11,7 +11,7 @@ as published by the Free Software Foundation.
 For the latest version of OpenVPN, 
 go to:
 
-	http://openvpn.net/
+	https://openvpn.net/
 
 License: GNU General Public License (GPL v2+)
 ------------------------------------------------------------

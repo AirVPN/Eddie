@@ -51,6 +51,7 @@ namespace Eddie.Core
 
 		private Threads.Session m_threadSession;
 		private UiManager m_uiManager;
+		private Options m_options;
 		private Storage m_storage;
 		private Stats m_stats;
 		private ProvidersManager m_providersManager;
@@ -92,8 +93,8 @@ namespace Eddie.Core
 		}
 
 		private List<ActionService> m_actionsList = new List<ActionService>();
-		private string m_waitMessage = "";
-		private bool m_waitCancel = false;
+		private string m_mainStatusMessage = "";
+		private bool m_mainStatusCancel = false;
 		private bool m_connected = false;
 
 		public ConnectionInfo CurrentServer;
@@ -121,6 +122,14 @@ namespace Eddie.Core
 			get
 			{
 				return m_uiManager;
+			}
+		}
+
+		public Options Options
+		{
+			get
+			{
+				return m_options;
 			}
 		}
 
@@ -342,6 +351,8 @@ namespace Eddie.Core
 
 				CompatibilityManager.FixOldProfilePath(GetProfilePath()); // 2.15
 
+				m_options = new Options();
+
 				m_storage = new Storage();
 				m_storage.SavePath = GetProfilePath();
 				if (Platform.Instance.FileExists(GetProfilePath()) == false)
@@ -361,11 +372,11 @@ namespace Eddie.Core
 					}
 				}
 
-				LanguageManager.SetIso(m_storage.Get("language.iso"));
+				LanguageManager.SetIso(Options.Get("language.iso"));
 
 				m_providersManager.Load();
 
-				if (Storage.GetBool("os.single_instance") == true)
+				if (Options.GetBool("os.single_instance") == true)
 				{
 					if (Platform.Instance.OnCheckSingleInstance() == false)
 					{
@@ -376,7 +387,7 @@ namespace Eddie.Core
 
                 if (Webserver.GetPath() != "") 
 				{
-                    if (Storage.GetBool("webui.enabled") == true)
+                    if (Options.GetBool("webui.enabled") == true)
 					{
                         UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepStartingWebserver"));
 
@@ -416,17 +427,17 @@ namespace Eddie.Core
 				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepAppStartEvents"));
 				RunEventCommand("app.start");
 
-				if (Engine.Storage.GetLower("netlock.mode") != "none")
+				if (Options.GetLower("netlock.mode") != "none")
 				{
-                    if (Engine.Storage.GetBool("netlock")) // 2.8
+                    if (Options.GetBool("netlock")) // 2.8
 					{
 						UiManager.Broadcast("init.step", "message", LanguageManager.GetText("NetworkLockActivation"));
 						if(m_networkLockManager.Activation() == false)
                         {
-                            if (Engine.Storage.GetBool("connect"))
+                            if (Options.GetBool("connect"))
                             {
                                 Engine.Instance.Logs.Log(LogType.Fatal, LanguageManager.GetText("NetworkLockActivationConnectStop"));
-                                Engine.Storage.SetBool("connect", false);
+								Options.SetBool("connect", false);
                             }
                         }
                     }
@@ -448,7 +459,7 @@ namespace Eddie.Core
 				if (ConsoleMode)
 					Auth();
 
-				if (Engine.Storage.GetBool("connect"))
+				if (Options.GetBool("connect"))
 					Connect();
 
 				return true;
@@ -489,11 +500,7 @@ namespace Eddie.Core
 				}
 
 				if (currentAction == ActionService.None)
-				{
-					/*
-					if (m_waitMessage != "")
-						WaitMessageSet("", false);
-					*/
+				{					
 				}
 				else if (currentAction == ActionService.Login)
 				{
@@ -630,7 +637,7 @@ namespace Eddie.Core
 
 			if (m_storage != null)
 			{
-				if (Storage.GetBool("remember") == false)
+				if (Options.GetBool("remember") == false)
 				{
 					DeAuth(); // To remove data like crt/key
 				}
@@ -733,7 +740,7 @@ namespace Eddie.Core
 			if (m_breakRequests > 0)
 				return false;
 
-			if (Engine.Storage.GetBool("gui.exit_confirm") == true)
+			if (Options.GetBool("gui.exit_confirm") == true)
 				return true;
 
 			return false;
@@ -859,8 +866,8 @@ namespace Eddie.Core
 
 			lock (this)
 			{
-				m_waitMessage = message;
-				m_waitCancel = allowCancel;
+				m_mainStatusMessage = message;
+				m_mainStatusCancel = allowCancel;
 
 				OnRefreshUi(RefreshUiMode.MainMessage);
 
@@ -875,20 +882,20 @@ namespace Eddie.Core
 
 		public bool IsWaiting()
 		{
-			return (m_waitMessage != "");
+			return (m_mainStatusMessage != "");
 		}
 
 		public string WaitMessage
 		{
 			get
 			{
-				return m_waitMessage;
+				return m_mainStatusMessage;
 			}
 		}
 
 		public bool IsWaitingCancelAllowed()
 		{
-			return (m_waitCancel);
+			return (m_mainStatusCancel);
 		}
 
 		public bool IsWaitingCancelPending()
@@ -906,8 +913,6 @@ namespace Eddie.Core
 		// Logging
 		// ----------------------------------------------------
 
-
-
 		public virtual void OnLog(LogEntry l)
 		{
 			// An exception, to have a clean, standard 'man' output without logging header.
@@ -921,7 +926,7 @@ namespace Eddie.Core
 			{
 				if (Storage != null)
 				{
-					if (Storage.GetBool("gui.notifications"))
+					if (Options.GetBool("gui.notifications"))
 					{
 						Json j = new Json();
 						j["command"].Value = "ui.notification";
@@ -946,16 +951,16 @@ namespace Eddie.Core
 				if (StartCommandLine.Get("console.mode", "keys") == "keys")
 					Console.WriteLine(lines);
 
-				if (Storage != null)
+				if (Options != null)
 				{
-					lock (Storage)
+					lock (Options)
 					{
-						if (Storage.GetBool("log.file.enabled"))
+						if (Options.GetBool("log.file.enabled"))
 						{
 							try
 							{
-								string logPath = Storage.Get("log.file.path").Trim();
-								Encoding encoding = Storage.GetEncoding("log.file.encoding");
+								string logPath = Options.Get("log.file.path").Trim();
+								Encoding encoding = Options.GetEncoding("log.file.encoding");
 
 								List<string> paths = Logs.ParseLogFilePath(logPath);
 								foreach (string path in paths)
@@ -968,7 +973,7 @@ namespace Eddie.Core
 							catch (Exception e)
 							{
 								Logs.Log(LogType.Warning, LanguageManager.FormatText("Log to file disabled due to error, {1}", e.Message));
-								Storage.SetBool("log.file.enabled", false);
+								Options.SetBool("log.file.enabled", false);
 							}
 						}
 					}
@@ -1042,8 +1047,8 @@ namespace Eddie.Core
 				}
 
 				// White/black list
-				List<string> serversWhiteList = Storage.GetList("servers.whitelist");
-				List<string> serversBlackList = Storage.GetList("servers.blacklist");
+				List<string> serversWhiteList = Options.GetList("servers.whitelist");
+				List<string> serversBlackList = Options.GetList("servers.blacklist");
 				foreach (ConnectionInfo infoConnection in m_connections.Values)
 				{
 					string code = infoConnection.Code;
@@ -1093,11 +1098,11 @@ namespace Eddie.Core
 				if (connection.WarningClosed != "")
 					connection.WarningAdd(connection.WarningClosed, ConnectionInfoWarning.WarningType.Error);
 
-				if ((Engine.Instance.Storage.Get("network.entry.iplayer") == "ipv6-only") && (connection.IpsEntry.CountIPv6 == 0))
+				if ((Engine.Instance.Options.Get("network.entry.iplayer") == "ipv6-only") && (connection.IpsEntry.CountIPv6 == 0))
 					connection.WarningAdd(LanguageManager.GetText("ConnectionWarningNoEntryIPv6"), ConnectionInfoWarning.WarningType.Error);
-				if ((Engine.Instance.Storage.Get("network.entry.iplayer") == "ipv4-only") && (connection.IpsEntry.CountIPv4 == 0))
+				if ((Engine.Instance.Options.Get("network.entry.iplayer") == "ipv4-only") && (connection.IpsEntry.CountIPv4 == 0))
 					connection.WarningAdd(LanguageManager.GetText("ConnectionWarningNoEntryIPv4"), ConnectionInfoWarning.WarningType.Error);
-				if ((Engine.Instance.Storage.Get("network.ipv4.mode") == "in") && (connection.SupportIPv4 == false))
+				if ((Engine.Instance.Options.Get("network.ipv4.mode") == "in") && (connection.SupportIPv4 == false))
 					connection.WarningAdd(LanguageManager.GetText("ConnectionWarningNoExitIPv4"), ConnectionInfoWarning.WarningType.Error);
 				if ((Engine.Instance.GetNetworkIPv6Mode() == "in") && (connection.SupportIPv6 == false))
 					connection.WarningAdd(LanguageManager.GetText("ConnectionWarningNoExitIPv6"), ConnectionInfoWarning.WarningType.Error);
@@ -1200,8 +1205,8 @@ namespace Eddie.Core
 					Stats.UpdateValue("ServerLoad", Engine.CurrentServer.GetLoadForList());
 					Stats.UpdateValue("ServerUsers", Engine.CurrentServer.GetUsersForList());
 
-					Stats.UpdateValue("AccountLogin", Engine.Storage.Get("login"));
-					Stats.UpdateValue("AccountKey", Engine.Storage.Get("key"));
+					Stats.UpdateValue("AccountLogin", Options.Get("login"));
+					Stats.UpdateValue("AccountKey", Options.Get("key"));
 
 					Stats.UpdateValue("VpnEntryIP", Engine.ConnectionActive.EntryIP.ToString());
 					if (Engine.ConnectionActive.ExitIPs.CountIPv4 != 0)
@@ -1518,9 +1523,9 @@ namespace Eddie.Core
 			if (Storage == null)
 				return;
 
-			string filename = Storage.Get("event." + name + ".filename");
-			string arguments = Storage.Get("event." + name + ".arguments");
-			bool waitEnd = Storage.GetBool("event." + name + ".waitend");
+			string filename = Options.Get("event." + name + ".filename");
+			string arguments = Options.Get("event." + name + ".arguments");
+			bool waitEnd = Options.GetBool("event." + name + ".waitend");
 
 			if (filename.Trim() != "")
 			{
@@ -1588,7 +1593,7 @@ namespace Eddie.Core
 			if (AirVPN.User.Attributes["login"] == null)
 				return false;
 
-			if (Storage.Get("login") == "")
+			if (Options.Get("login") == "")
 				return false;
 
 			return true;
@@ -1756,8 +1761,8 @@ namespace Eddie.Core
 					infoArea.BandwidthMax = 0;
 				}
 
-				List<string> areasWhiteList = Storage.GetList("areas.whitelist");
-				List<string> areasBlackList = Storage.GetList("areas.blacklist");
+				List<string> areasWhiteList = Options.GetList("areas.whitelist");
+				List<string> areasBlackList = Options.GetList("areas.blacklist");
 
 				lock (m_connections)
 				{
@@ -1839,8 +1844,8 @@ namespace Eddie.Core
 					connectionsWhiteList.Add(info.Code);
 				else if (info.UserList == ConnectionInfo.UserListType.Blacklist)
 					connectionsBlackList.Add(info.Code);
-			Storage.SetList("servers.whitelist", connectionsWhiteList);
-			Storage.SetList("servers.blacklist", connectionsBlackList);
+			Options.SetList("servers.whitelist", connectionsWhiteList);
+			Options.SetList("servers.blacklist", connectionsBlackList);
 
 			List<string> areasWhiteList = new List<string>();
 			List<string> areasBlackList = new List<string>();
@@ -1849,8 +1854,8 @@ namespace Eddie.Core
 					areasWhiteList.Add(info.Code);
 				else if (info.UserList == AreaInfo.UserListType.Blacklist)
 					areasBlackList.Add(info.Code);
-			Storage.SetList("areas.whitelist", areasWhiteList);
-			Storage.SetList("areas.blacklist", areasBlackList);
+			Options.SetList("areas.whitelist", areasWhiteList);
+			Options.SetList("areas.blacklist", areasBlackList);
 		}
 
 		public void SaveSettings()
@@ -1882,7 +1887,7 @@ namespace Eddie.Core
 			if (Platform.Instance.HasAccessToWrite(GetDataPath()) == false)
 				throw new Exception("Unable to write in path '" + GetDataPath() + "'");
 
-			string protocol = Storage.Get("mode.protocol").ToUpperInvariant();
+			string protocol = Options.Get("mode.protocol").ToUpperInvariant();
 
 			if ((protocol != "AUTO") && (protocol != "UDP") && (protocol != "TCP") && (protocol != "SSH") && (protocol != "SSL"))
 				throw new Exception(LanguageManager.GetText("CheckingProtocolUnknown"));
@@ -1894,7 +1899,7 @@ namespace Eddie.Core
 			if ((protocol == "SSL") && (Software.GetTool("ssl").Available() == false))
 				throw new Exception("SSL " + LanguageManager.GetText("NotFound"));
 
-			if (Storage.GetBool("advanced.skip_alreadyrun") == false)
+			if (Options.GetBool("advanced.skip_alreadyrun") == false)
 			{
 				Dictionary<string, string> processes = Platform.Instance.GetProcessesList();
 
@@ -1916,10 +1921,10 @@ namespace Eddie.Core
 				}
 			}
 
-			if ((Storage.GetLower("proxy.mode") != "none") && (Storage.GetLower("proxy.when") != "none"))
+			if ((Options.GetLower("proxy.mode") != "none") && (Options.GetLower("proxy.when") != "none"))
 			{
-				string proxyHost = Storage.Get("proxy.host").Trim();
-				int proxyPort = Storage.GetInt("proxy.port");
+				string proxyHost = Options.Get("proxy.host").Trim();
+				int proxyPort = Options.GetInt("proxy.port");
 				if (proxyHost == "")
 					throw new Exception(LanguageManager.GetText("CheckingProxyHostMissing"));
 				if ((proxyPort <= 0) || (proxyPort >= 256 * 256))
@@ -1929,7 +1934,7 @@ namespace Eddie.Core
 					throw new Exception(LanguageManager.GetText("CheckingProxyNoUdp"));
 			}
 
-			if (Engine.Instance.Storage.Get("network.ipv4.mode") == "block")
+			if (Engine.Instance.Options.Get("network.ipv4.mode") == "block")
 				throw new Exception(LanguageManager.GetText("CheckingIPv4BlockNotYetImplemented"));
 
 			return Platform.Instance.OnCheckEnvironmentSession();
@@ -1983,7 +1988,7 @@ namespace Eddie.Core
 
 		public string GetNetworkIPv6Mode()
 		{
-			string mode = Engine.Instance.Storage.GetLower("network.ipv6.mode");
+			string mode = Engine.Instance.Options.GetLower("network.ipv6.mode");
 			lock (Engine.Instance.Manifest)
 			{
 				bool support = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
@@ -2007,7 +2012,7 @@ namespace Eddie.Core
 
         public Tool GetOpenVpnTool()
 		{
-			if(Storage.GetBool("tools.hummingbird.preferred"))
+			if(Options.GetBool("tools.hummingbird.preferred"))
 			{
 				Tool t = Software.GetTool("hummingbird");
 				if (t.Available())
@@ -2060,7 +2065,9 @@ namespace Eddie.Core
 				if (m_webserver != null)
 					jUI["url"].Value = m_webserver.ListenUrl;
 
-				Manifest["languages"].Value = LanguageManager.ExportManifest();
+				Manifest["options"].Value = Options.GetJsonForManifest();
+
+				Manifest["languages"].Value = LanguageManager.GetJsonForManifest();
 
 				UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepCollectNetworkInfo"));
 
@@ -2088,7 +2095,7 @@ namespace Eddie.Core
 
 				if (Platform.Instance.GetCode() == "MacOS")
 				{
-					if ((Storage == null) || (Storage.GetBool("gui.osx.sysbar.show_info") == false))
+					if ((Storage == null) || (Options.GetBool("gui.osx.sysbar.show_info") == false))
 						textShort = "";
 				}
 			}
@@ -2107,8 +2114,8 @@ namespace Eddie.Core
 				{
 					if (Storage != null)
 					{
-						showShortSpeed = Storage.GetBool("gui.osx.sysbar.show_speed");
-						showShortServer = Storage.GetBool("gui.osx.sysbar.show_server");
+						showShortSpeed = Options.GetBool("gui.osx.sysbar.show_speed");
+						showShortServer = Options.GetBool("gui.osx.sysbar.show_server");
 					}
 					else
 					{
@@ -2159,10 +2166,10 @@ namespace Eddie.Core
 			UiManager.Broadcast(j);
 		}
 
-		public void RaiseMainStatus()
+		public Json JsonMainStatus()
 		{
 			Json j = new Json();
-			j["command"].Value = "ui.main-status";
+			j["message"].Value = m_mainStatusMessage;
 			if (IsConnected())
 			{
 				j["app_icon"].Value = "normal";
@@ -2203,10 +2210,18 @@ namespace Eddie.Core
 				j["action_command"].Value = "mainaction.connect";
 				j["action_text"].Value = LanguageManager.GetText("MainActionConnect");
 			}
+			j["netlock"].Value = ((NetworkLockManager != null) && (NetworkLockManager.IsActive()));
+			return j;
+		}
+
+		public void RaiseMainStatus()
+		{
+			Json j = JsonMainStatus();
+			j["command"].Value = "ui.main-status";
 			UiManager.Broadcast(j);
 		}
 
-		public Json GenerateOsInfo()
+		public Json JsonOsInfo()
 		{
 			// Data sended at start, rarely changes
 			Json j = new Json();
@@ -2306,7 +2321,7 @@ namespace Eddie.Core
 					if (adapter.OperationalStatus != OperationalStatus.Up)
 						continue;
 
-					List<string> skipList = new List<string>(Engine.Instance.Storage.Get("network.gateways.default_skip_types").Split(';'));
+					List<string> skipList = new List<string>(Engine.Instance.Options.Get("network.gateways.default_skip_types").Split(';'));
 					if (skipList.Contains(adapter.NetworkInterfaceType.ToString()))
 						continue;
 
@@ -2329,7 +2344,7 @@ namespace Eddie.Core
 
 						gateways.Add(gateway);
 
-						List<string> skipList = new List<string>(Engine.Instance.Storage.Get("network.gateways.default_skip_types").Split(';'));
+						List<string> skipList = new List<string>(Engine.Instance.Options.Get("network.gateways.default_skip_types").Split(';'));
 						if (skipList.Contains(adapter.NetworkInterfaceType.ToString()))
 							continue;
 
@@ -2393,7 +2408,7 @@ namespace Eddie.Core
 
 		public void RaiseOsInfo()
 		{
-			Json j = GenerateOsInfo();
+			Json j = JsonOsInfo();
 			j["command"].Value = "os.info";
 			UiManager.Broadcast(j);
 		}

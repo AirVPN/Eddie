@@ -62,7 +62,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public static Json ExportManifest()
+		public static Json GetJsonForManifest()
 		{
             Json jData = new Json();
 
@@ -241,8 +241,8 @@ namespace Eddie.Core
 
 		public static string FormatBytes(Int64 bytes, bool speedSec, bool showBytes)
 		{
-			string userUnit = Engine.Instance.Storage.Get("ui.unit");
-			bool iec = Engine.Instance.Storage.GetBool("ui.iec");
+			string userUnit = Engine.Instance.Options.Get("ui.unit");
+			bool iec = Engine.Instance.Options.GetBool("ui.iec");
 			return FormatBytes(bytes, speedSec, showBytes, userUnit, iec);
 		}
 
@@ -316,23 +316,7 @@ namespace Eddie.Core
         public static string GetTextTemp(string id)
         {
 			// Hardcoded string that need to be moved in language system
-			if (id == "InitStepWaitSystemPrivileges") return "Wait daemon for system privileges";
-			if (id == "InitStepConnectSystemPrivileges") return "Connect with daemon for system privileges";
-            if (id == "HelperPrivilegesPrompt") return "Authentication is needed to run Eddie as the super user";
-            if (id == "HelperPrivilegesPromptInstall") return "Authentication is needed to install Eddie Service as the super user";
-            if (id == "HelperPrivilegesPromptUninstall") return "Authentication is needed to uninstall Eddie Service as the super user";
-			if (id == "ManOptionNetLockWhitelistIncomingIps") return "List (comma-separated) of incoming IP or range allowed in Network Lock mode.";
-			if (id == "ManOptionNetLockWhitelistOutgoingIps") return "List (comma-separated) of outgoing IP or range allowed in Network Lock mode.";
-			if (id == "WindowsSettingsStoragePasswordMismatch") return "Storage password is empty or doesn't match";
-            if (id == "OptionsReadNoKeyring") return "Profile is encrypted through a password saved in OS keyring, password could not be found. Do you want to reset Eddie to default settings?";
-			if (id == "OptionsReadError") return "Profile unreadable: {1}. Do you want to reset Eddie to default settings?";
-            if (id == "OsLinuxNetworkAdapterIPv6Disabled") return "IPv6 disabled on network adapter ({1})";
-            if (id == "OsLinuxNetworkAdapterIPv6Restored") return "IPv6 restored on network adapter ({1})";
-			if (id == "OsDriverNoAdapterFound") return "Cannot find tunnel adapter of driver {1}, try install.";
-			if (id == "OsDriverAdapterNotAvailable") return "VPN Network Adapter not found, install fail ({1})";
-            if (id == "NetworkLockActivationConnectStop") return "Network lock fail activation, requested automatic connection disabled.";
-			if (id == "UnexpectedInterfaceNotRecognized") return "Unexpected not recognized interface used by OpenVPN. Probably not supported OpenVPN version, update need.";
-			if (id == "StatsVpnDataChannel") return "VPN Data Channel";
+			//if (id == "StatsVpnDataChannel") return "VPN Data Channel";
 
 			return "";
         }

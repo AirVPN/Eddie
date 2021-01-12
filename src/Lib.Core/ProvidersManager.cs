@@ -229,7 +229,7 @@ namespace Eddie.Core
 						{
 							if (Engine.Instance.ConnectionActive == null) // Note: only if not connected, otherwise misunderstanding.
 							{
-								if (Engine.Instance.Storage.GetBool("ui.skip.provider.manifest.failed") == false)
+								if (Engine.Instance.Options.GetBool("ui.skip.provider.manifest.failed") == false)
 									Engine.Instance.OnProviderManifestFailed(provider);
 							}
 						}							

@@ -83,7 +83,7 @@ namespace Eddie.UI.Cocoa.Osx
 			CmdAccept.Title = LanguageManager.GetText("WindowsTosAccept");
 			CmdCancel.StringValue = LanguageManager.GetText("WindowsTosReject");
 
-			bool tosAccepted = Engine.Instance.Storage.GetBool("gui.tos");
+			bool tosAccepted = Engine.Instance.Options.GetBool("gui.tos");
 			ChkTos1.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);
 			ChkTos2.State = (tosAccepted ? NSCellStateValue.On : NSCellStateValue.Off);
 

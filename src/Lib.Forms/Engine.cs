@@ -155,9 +155,9 @@ namespace Eddie.Forms
 
 		public virtual bool AllowMinimizeInTray()
 		{
-			if (Engine.Storage != null)
+			if (Options != null)
 			{
-				if (Engine.Storage.GetBool("gui.tray_show") == false)
+				if (Options.GetBool("gui.tray_show") == false)
 				{
 					return false;
 				}

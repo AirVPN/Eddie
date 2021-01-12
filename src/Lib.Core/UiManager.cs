@@ -109,12 +109,12 @@ namespace Eddie.Core
 						Engine.Instance.Logs.Log(LogType.Verbose, l);
 				}
 			}
-			else if (cmd == "set_option")
+			else if (cmd == "options.set")
 			{
 				string name = data["name"].Value as string;
 				string value = data["value"].Value as string;
 
-				if (Engine.Instance.Storage.Set(name, data["value"].Value))
+				if (Engine.Instance.Options.Set(name, data["value"].Value))
 				{
 					if (name == "tools.openvpn.path")
 					{
@@ -138,6 +138,7 @@ namespace Eddie.Core
 			{
 				Json result = new Json();
 				result["manifest"].Value = Engine.Instance.Manifest;
+				result["main_status"].Value = Engine.Instance.JsonMainStatus();
 				result["logs"].Value = Engine.Instance.Logs.GetJson();
 				return result;
 			}
@@ -149,11 +150,11 @@ namespace Eddie.Core
 				Json result = new Json();
 				result["layout"].Value = "text";
 				result["title"].Value = "MAN";
-				result["body"].Value = Engine.Instance.Storage.GetMan(format);
+				result["body"].Value = Engine.Instance.Options.GetMan(format);
 				return result;
 			}
 			else if (cmd == "ui.show.os.info")
-				return Engine.Instance.GenerateOsInfo().Clone();
+				return Engine.Instance.JsonOsInfo().Clone();
 			else if (cmd == "tor.guard")
 				Engine.Instance.Logs.LogVerbose("Tor Guard IPs:" + TorControl.GetGuardIps(true).ToString());
 			else if (cmd == "tor.NEWNYM")

@@ -67,13 +67,13 @@ namespace Eddie.Core
 			if (Modes.Count == 0) // 2.10.1
 				return false;
 
-			if (Engine.Instance.Storage.GetLower("netlock.mode") == "none")
+			if (Engine.Instance.Options.GetLower("netlock.mode") == "none")
 				return false;
 
-			if (Engine.Instance.Storage.GetLower("network.ipv4.mode") == "out")
+			if (Engine.Instance.Options.GetLower("network.ipv4.mode") == "out")
 				return false;
 
-			if (Engine.Instance.Storage.GetLower("network.ipv6.mode") == "out")
+			if (Engine.Instance.Options.GetLower("network.ipv6.mode") == "out")
 				return false;
 			
 			return true;
@@ -90,7 +90,7 @@ namespace Eddie.Core
 
 				NetworkLockPlugin nextCurrent = null;
 
-				string requestedMode = Engine.Instance.Storage.GetLower("netlock.mode");
+				string requestedMode = Engine.Instance.Options.GetLower("netlock.mode");
 				if (requestedMode == "auto")
 					requestedMode = Platform.Instance.OnNetworkLockRecommendedMode();
 

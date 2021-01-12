@@ -55,7 +55,7 @@ namespace Eddie.Platform.Windows
 			try
 			{
 				// Block All
-				if (Engine.Instance.Storage.Get("netlock.incoming") == "block")
+				if (Engine.Instance.Options.Get("netlock.incoming") == "block")
 				{
 					XmlDocument xmlDocRule = new XmlDocument();
 					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
@@ -69,7 +69,7 @@ namespace Eddie.Platform.Windows
 					XmlIf1.SetAttribute("interface", "loopback");
 					AddRule("netlock_in_block_all", xmlRule);
 				}
-				if (Engine.Instance.Storage.Get("netlock.outgoing") == "block")
+				if (Engine.Instance.Options.Get("netlock.outgoing") == "block")
 				{
 					XmlDocument xmlDocRule = new XmlDocument();
 					XmlElement xmlRule = xmlDocRule.CreateElement("rule");
@@ -102,7 +102,7 @@ namespace Eddie.Platform.Windows
 				// Allow Eddie / OpenVPN / Stunnel / Plink
 				AddRule("netlock_allow_eddie", Wfp.CreateItemAllowProgram("NetLock - Allow Eddie", Platform.Instance.GetExecutablePath()));
 
-				if (Engine.Instance.Storage.GetLower("proxy.mode") == "tor")
+				if (Engine.Instance.Options.GetLower("proxy.mode") == "tor")
 				{
 					string path = TorControl.GetTorExecutablePath();
 					if (path != "")
@@ -111,7 +111,7 @@ namespace Eddie.Platform.Windows
 					}
 				}
 
-				if (Engine.Instance.Storage.GetBool("netlock.allow_ping") == true)
+				if (Engine.Instance.Options.GetBool("netlock.allow_ping") == true)
 				{
 					// Allow ICMP
 					{
@@ -129,7 +129,7 @@ namespace Eddie.Platform.Windows
 					}
 				}
 
-				if (Engine.Instance.Storage.GetBool("netlock.allow_private") == true)
+				if (Engine.Instance.Options.GetBool("netlock.allow_private") == true)
 				{
 					AddRule("netlock_allow_ipv4_local1", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 1 - IPv4", new IpAddress("192.168.0.0/255.255.0.0")));
 					AddRule("netlock_allow_ipv4_local2", Wfp.CreateItemAllowAddress("NetLock - Private - Allow Local Subnet 2 - IPv4", new IpAddress("172.16.0.0/255.240.0.0")));
@@ -140,7 +140,7 @@ namespace Eddie.Platform.Windows
 				}
 
 				// Without this, Windows stay in 'Identifying network...' and OpenVPN in 'Waiting TUN to come up'. // Note 2018: don't occur in Win10?
-				if (Engine.Instance.Storage.GetBool("netlock.allow_dhcp") == true)
+				if (Engine.Instance.Options.GetBool("netlock.allow_dhcp") == true)
 				{
 					XmlDocument xmlDocRule = new XmlDocument();
 					XmlElement xmlRule = xmlDocRule.CreateElement("rule");

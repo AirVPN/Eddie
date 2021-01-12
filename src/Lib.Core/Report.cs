@@ -71,7 +71,7 @@ namespace Eddie.Core
 			jReport["perc"].Value = 50;
 			client.OnReceive(jReport);
 			
-			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.Storage.GetReportForSupport());
+			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.Options.GetReportForSupport());
 
 			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString());
 

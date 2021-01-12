@@ -54,7 +54,7 @@ namespace Eddie.Core.Jobs
 				bool enabled = GetEnabled();
 
 				int timeNow = Utils.UnixTimeStamp();
-				int jobsLimit = Engine.Instance.Storage.GetInt("pinger.jobs");
+				int jobsLimit = Engine.Instance.Options.GetInt("pinger.jobs");
 								
 				bool startOne = false;
 
@@ -128,7 +128,7 @@ namespace Eddie.Core.Jobs
 
 		public bool GetEnabled()
 		{
-			return Engine.Instance.Storage.GetBool("pinger.enabled");
+			return Engine.Instance.Options.GetBool("pinger.enabled");
 		}
 
 		public bool GetCanRun()
@@ -148,7 +148,7 @@ namespace Eddie.Core.Jobs
 
 		public int GetPingerDelaySuccess(ConnectionInfo server) // Delay for already success ping
 		{
-			int delay = Engine.Instance.Storage.GetInt("pinger.delay");
+			int delay = Engine.Instance.Options.GetInt("pinger.delay");
 			if (delay == 0)
 				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_delay", "180"));
 			return delay;
@@ -156,7 +156,7 @@ namespace Eddie.Core.Jobs
 
 		public int GetPingerDelayRetry(ConnectionInfo server) // Delay for failed ping
 		{
-			int delay = Engine.Instance.Storage.GetInt("pinger.retry");
+			int delay = Engine.Instance.Options.GetInt("pinger.retry");
 			if (delay == 0)
 				delay = Conversions.ToInt32(server.Provider.GetKeyValue("pinger_retry", "5"));
 			return delay;
@@ -164,7 +164,7 @@ namespace Eddie.Core.Jobs
 
 		public int GetPingerDelayValid(ConnectionInfo server) // Delay for consider valid
 		{
-			int delay = Engine.Instance.Storage.GetInt("pinger.valid");
+			int delay = Engine.Instance.Options.GetInt("pinger.valid");
 			if (delay == 0)
 				delay = GetPingerDelaySuccess(server) * 5;
 			return delay;

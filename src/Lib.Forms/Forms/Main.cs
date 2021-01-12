@@ -193,7 +193,7 @@ namespace Eddie.Forms.Forms
 				m_windowsNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
 				m_windowsNotifyIcon.Icon = m_iconGray;
 				m_windowsNotifyIcon.Text = Constants.Name;
-				m_windowsNotifyIcon.Visible = Engine.Instance.Storage.GetBool("gui.tray_show");
+				m_windowsNotifyIcon.Visible = Engine.Instance.Options.GetBool("gui.tray_show");
 				m_windowsNotifyIcon.BalloonTipTitle = Constants.Name;
 
 				m_windowsNotifyIcon.MouseDoubleClick += new MouseEventHandler(notifyIcon_MouseDoubleClick);
@@ -357,24 +357,24 @@ namespace Eddie.Forms.Forms
 			lstLogs.ResizeColumnMax(2);
 
 			chkShowAll.Checked = false;
-			chkLockLast.Checked = Engine.Storage.GetBool("servers.locklast");
-			cboScoreType.Text = Engine.Storage.Get("servers.scoretype");
+			chkLockLast.Checked = Engine.Options.GetBool("servers.locklast");
+			cboScoreType.Text = Engine.Options.Get("servers.scoretype");
 
 
 			//ApplySkin();
 
 			bool forceMinimized = false;
-			if (Engine.Storage.GetBool("gui.start_minimized"))
+			if (Engine.Options.GetBool("gui.start_minimized"))
 				forceMinimized = true;
 			if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Minimized))
 				forceMinimized = true;
 			bool forceMaximized = false;
 			if ((m_windowStateSetByShortcut) && (WindowState == FormWindowState.Maximized))
 				forceMaximized = true;
-			SetFormLayout(Engine.Storage.Get("gui.window.main"), forceMinimized, forceMaximized, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
-			m_listViewServers.SetUserPrefs(Engine.Storage.Get("gui.list.servers"));
-			m_listViewAreas.SetUserPrefs(Engine.Storage.Get("gui.list.areas"));
-			lstLogs.SetUserPrefs(Engine.Storage.Get("gui.list.logs"));
+			SetFormLayout(Engine.Options.Get("gui.window.main"), forceMinimized, forceMaximized, new Size(m_windowDefaultWidth, m_windowDefaultHeight));
+			m_listViewServers.SetUserPrefs(Engine.Options.Get("gui.list.servers"));
+			m_listViewAreas.SetUserPrefs(Engine.Options.Get("gui.list.areas"));
+			lstLogs.SetUserPrefs(Engine.Options.Get("gui.list.logs"));
 
 			foreach (StatsEntry statsEntry in Engine.Stats.List)
 			{
@@ -437,11 +437,11 @@ namespace Eddie.Forms.Forms
 			}
 
 			// Start
-			if (Engine.Storage.GetBool("remember"))
+			if (Engine.Options.GetBool("remember"))
 			{
 				chkRemember.Checked = true;
-				txtLogin.Text = Engine.Storage.Get("login");
-				txtPassword.Text = Engine.Storage.Get("password");
+				txtLogin.Text = Engine.Options.Get("login");
+				txtPassword.Text = Engine.Options.Get("password");
 			}
 
 			m_lockCoordUpdate = false;
@@ -652,10 +652,10 @@ namespace Eddie.Forms.Forms
 
 			if (UiClient.Instance.MainWindow != null)
 			{
-				engine.Storage.Set("gui.window.main", UiClient.Instance.MainWindow.GetFormLayout());
-				engine.Storage.Set("gui.list.servers", m_listViewServers.GetUserPrefs());
-				engine.Storage.Set("gui.list.areas", m_listViewAreas.GetUserPrefs());
-				engine.Storage.Set("gui.list.logs", lstLogs.GetUserPrefs());
+				engine.Options.Set("gui.window.main", UiClient.Instance.MainWindow.GetFormLayout());
+				engine.Options.Set("gui.list.servers", m_listViewServers.GetUserPrefs());
+				engine.Options.Set("gui.list.areas", m_listViewAreas.GetUserPrefs());
+				engine.Options.Set("gui.list.logs", lstLogs.GetUserPrefs());
 			}
 
 			Engine.RequestStop();
@@ -669,7 +669,7 @@ namespace Eddie.Forms.Forms
 
 			Resizing();
 
-			if ((WindowState == FormWindowState.Minimized) && (Engine.Storage.GetBool("gui.tray_minimized")))
+			if ((WindowState == FormWindowState.Minimized) && (Engine.Options.GetBool("gui.tray_minimized")))
 				WinHide();
 		}
 
@@ -738,7 +738,7 @@ namespace Eddie.Forms.Forms
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
 			if(m_formReady)
-				Engine.Storage.SetBool("remember", chkRemember.Checked);
+				Engine.Options.SetBool("remember", chkRemember.Checked);
 		}
 
 		private void cmdLogin_Click(object sender, EventArgs e)
@@ -789,40 +789,6 @@ namespace Eddie.Forms.Forms
 		private void cmdMenu_Click(object sender, EventArgs e)
 		{
 			OnShowMenu();
-		}
-
-		private void mnuDevelopersManText_Click(object sender, EventArgs e)
-		{
-			Forms.TextViewer Dlg = new TextViewer();
-			Dlg.Title = "Man";
-			Dlg.Body = Engine.Instance.Storage.GetMan("text");
-			Dlg.ShowDialog(this);
-		}
-
-		private void mnuDevelopersManBBCode_Click(object sender, EventArgs e)
-		{
-			Forms.TextViewer Dlg = new TextViewer();
-			Dlg.Title = "Man";
-			Dlg.Body = Engine.Instance.Storage.GetMan("bbc");
-			Dlg.ShowDialog(this);
-		}
-
-		private void mnuDevelopersReset_Click(object sender, EventArgs e)
-		{
-			Dictionary<string, ConnectionInfo> servers;
-			lock (Engine.Connections)
-				servers = new Dictionary<string, ConnectionInfo>(Engine.Connections);
-			foreach (ConnectionInfo infoServer in servers.Values)
-			{
-				infoServer.PingTests = 0;
-				infoServer.PingFailedConsecutive = 0;
-				infoServer.Ping = -1;
-				infoServer.LastPingTest = 0;
-				infoServer.LastPingResult = 0;
-				infoServer.LastPingSuccess = 0;
-			}
-
-			Engine.OnRefreshUi();
 		}
 
 		private void lstProviders_SelectedIndexChanged(object sender, EventArgs e)
@@ -1106,7 +1072,7 @@ namespace Eddie.Forms.Forms
 
 		private void chkLockCurrent_CheckedChanged(object sender, EventArgs e)
 		{
-			Engine.Storage.SetBool("servers.locklast", chkLockLast.Checked);
+			Engine.Options.SetBool("servers.locklast", chkLockLast.Checked);
 		}
 
 		private void lstStats_DoubleClick(object sender, EventArgs e)
@@ -1130,7 +1096,7 @@ namespace Eddie.Forms.Forms
 
 		private void cboScoreType_SelectionChangeCommitted(object sender, EventArgs e)
 		{
-			Engine.Storage.Set("servers.scoretype", cboScoreType.Text);
+			Engine.Options.Set("servers.scoretype", cboScoreType.Text);
 
 			OnRefreshUi(Core.Engine.RefreshUiMode.Full);
 		}
@@ -1200,15 +1166,15 @@ namespace Eddie.Forms.Forms
 		private void cboKey_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			string key = cboKey.SelectedItem as string;
-			if (Engine.Instance.Storage.Get("key") != key)
-				Engine.Instance.Storage.Set("key", key);
+			if (Engine.Instance.Options.Get("key") != key)
+				Engine.Instance.Options.Set("key", key);
 		}
 
         #endregion
 
         public void OnChangeMainFormVisibility(bool vis)
         {
-            if (Engine.Storage.GetBool("gui.tray_show"))
+            if (Engine.Options.GetBool("gui.tray_show"))
             {
                 mnuRestore.Visible = true;
                 mnuRestoreSep.Visible = true;
@@ -1368,8 +1334,8 @@ namespace Eddie.Forms.Forms
 
 		public void Login()
 		{
-			Engine.Storage.Set("login", txtLogin.Text);
-			Engine.Storage.Set("password", txtPassword.Text);
+			Engine.Options.Set("login", txtLogin.Text);
+			Engine.Options.Set("password", txtPassword.Text);
 
 			Engine.Login();
 		}
@@ -1445,7 +1411,7 @@ namespace Eddie.Forms.Forms
 								lstLogs.Items.Add(Item);
 								Item.EnsureVisible();
 
-								if (lstLogs.Items.Count >= Engine.Storage.GetInt("log.limit"))
+								if (lstLogs.Items.Count >= Engine.Options.GetInt("log.limit"))
 									lstLogs.Items.RemoveAt(0);
 							}
 							catch
@@ -1780,7 +1746,7 @@ namespace Eddie.Forms.Forms
 			cmdAreasUndefined.Enabled = cmdAreasWhiteList.Enabled;
 			mnuAreasUndefined.Enabled = cmdAreasUndefined.Enabled;
 
-			cmdLogsCommand.Visible = Engine.Storage.GetBool("advanced.expert");
+			cmdLogsCommand.Visible = Engine.Options.GetBool("advanced.expert");
 
 			if ((Engine.Instance.NetworkLockManager != null) && (Engine.Instance.NetworkLockManager.IsActive()))
 			{
@@ -1797,7 +1763,7 @@ namespace Eddie.Forms.Forms
 			cmdLockedNetwork.Visible = networkCanEnabled;
 			imgLockedNetwork.Visible = networkCanEnabled;
 
-			m_tabMain.SetPageVisible(1, Engine.Storage.GetBool("advanced.providers"));
+			m_tabMain.SetPageVisible(1, Engine.Options.GetBool("advanced.providers"));
 		}
 
 		// Force when need to update icons, force refresh etc.		
@@ -1926,9 +1892,9 @@ namespace Eddie.Forms.Forms
 									cboKey.Items.Add(name);
 								}
 
-								if (cboKey.Items.Contains(Engine.Instance.Storage.Get("key")) == true)
+								if (cboKey.Items.Contains(Engine.Instance.Options.Get("key")) == true)
 								{
-									cboKey.SelectedItem = Engine.Instance.Storage.Get("key");
+									cboKey.SelectedItem = Engine.Instance.Options.Get("key");
 								}
 							}
 							*/
@@ -1955,7 +1921,7 @@ namespace Eddie.Forms.Forms
 							foreach (string k in keysAdd)
 								cboKey.Items.Add(k);
 
-							string currentKey = Engine.Instance.Storage.Get("key");
+							string currentKey = Engine.Instance.Options.Get("key");
 							if (currentKey != null)
 							{
 								if ((cboKey.Items.Contains(currentKey) == true) && ((cboKey.SelectedItem as string) != currentKey))

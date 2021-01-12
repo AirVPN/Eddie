@@ -142,8 +142,8 @@
 				"X-XSS-Protection" : "1; mode=block",
 				"X-Content-Type-Options" : "nosniff",
 				"Referrer-Policy" : "strict-origin-when-cross-origin",
-				"Feature-Policy" : "autoplay 'none'; camera 'none'; encrypted-media 'none'; fullscreen 'self'; geolocation 'none'; microphone 'none'; magnetometer 'none'; midi 'none'; payment 'none'; speaker 'self'; sync-xhr 'self'; vr 'none';",
-				"Content-Security-Policy" : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self';"
+				"Feature-Policy" : "autoplay 'none'; camera 'none'; encrypted-media 'none'; fullscreen 'self'; geolocation 'none'; microphone 'none'; magnetometer 'none'; midi 'none'; payment 'none'; sync-xhr 'self'; ",
+				"Content-Security-Policy" : "default-src 'none'; connect-src 'self'; manifest-src 'self'; font-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: eddie.website airvpn.org;"
 			}
 		}
 	}

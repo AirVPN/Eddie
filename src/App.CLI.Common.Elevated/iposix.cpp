@@ -152,9 +152,7 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 			const pstreams::pmode mode = pstreams::pstdout | pstreams::pstderr;
 			pstreams::argv_type argv;
 			argv.push_back(params["path"]);
-
-			argv.push_back(params["config"]);
-
+            
 			argv.push_back("--ignore-dns-push");
 			argv.push_back("--network-lock");
 			argv.push_back("off");
@@ -164,6 +162,8 @@ void IPosix::Do(const std::string& commandId, const std::string& command, std::m
 				argv.push_back("--gui-version");
 				argv.push_back(params["gui-version"]);
 			}
+            
+            argv.push_back(params["config"]);
 
 			pstream child(argv, mode);
 			char buf[1024 * 32];

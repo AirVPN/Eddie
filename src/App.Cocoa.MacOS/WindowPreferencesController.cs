@@ -137,7 +137,7 @@ namespace Eddie.UI.Cocoa.Osx
 			{
                 if (GuiUtils.MessageYesNo(LanguageManager.GetText("ResetSettingsConfirm")))
 				{
-					Engine.Instance.Storage.ResetAll(false);
+					Engine.Instance.Options.ResetAll(false);
 					ReadOptions();
 					GuiUtils.MessageBoxInfo(LanguageManager.GetText("ResetSettingsDone"));
 				}
@@ -422,13 +422,13 @@ namespace Eddie.UI.Cocoa.Osx
 
             CmdShellExternalView.Activated += (object sender, EventArgs e) => 
             {
-                Json rules = Engine.Instance.Storage.GetJson("external.rules");
+                Json rules = Engine.Instance.Options.GetJson("external.rules");
                 Engine.Instance.OnShowText("Rules", rules.ToJsonPretty());
             };
 
             CmdShellExternalClear.Activated += (object sender, EventArgs e) => 
             {
-                Engine.Instance.Storage.Set("external.rules", Engine.Instance.Storage.Options["external.rules"].Default);
+                Engine.Instance.Options.Set("external.rules", Engine.Instance.Options.Dict["external.rules"].Default);
                 GuiUtils.MessageBoxInfo("Done.");
             };
 						
@@ -612,47 +612,48 @@ namespace Eddie.UI.Cocoa.Osx
 
 		void ReadOptionsEvent(string name, int index)
 		{
-			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
-			string filename = s.Get("event." + name + ".filename");
+			string filename = o.Get("event." + name + ".filename");
 			if (filename != "")
 			{
 				TableAdvancedEventsController.Items[index].Filename = filename;
-				TableAdvancedEventsController.Items[index].Arguments = s.Get("event." + name + ".arguments");
-				TableAdvancedEventsController.Items[index].WaitEnd = s.GetBool("event." + name + ".waitend");
+				TableAdvancedEventsController.Items[index].Arguments = o.Get("event." + name + ".arguments");
+				TableAdvancedEventsController.Items[index].WaitEnd = o.GetBool("event." + name + ".waitend");
 				TableAdvancedEventsController.RefreshUI();
 			}
 		}
 
 		void SaveOptionsEvent(string name, int index)
 		{
-			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
 			TableAdvancedEventsControllerItem i = TableAdvancedEventsController.Items[index];
-			s.Set("event." + name + ".filename", i.Filename);
-			s.Set("event." + name + ".arguments", i.Arguments);
-			s.SetBool("event." + name + ".waitend", i.WaitEnd);
+			o.Set("event." + name + ".filename", i.Filename);
+			o.Set("event." + name + ".arguments", i.Arguments);
+			o.SetBool("event." + name + ".waitend", i.WaitEnd);
 		}
 
 		void ReadOptions()
 		{
 			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
             // General
             GuiUtils.SetCheck(ChkSystemStart, Core.Platform.Instance.GetAutoStart());
             GuiUtils.SetCheck(ChkSystemService, Core.Platform.Instance.GetService());
-			GuiUtils.SetCheck(ChkConnect, s.GetBool("connect"));
-			GuiUtils.SetCheck(ChkNetLock, s.GetBool("netlock"));
+			GuiUtils.SetCheck(ChkConnect, o.GetBool("connect"));
+			GuiUtils.SetCheck(ChkNetLock, o.GetBool("netlock"));
 
-			GuiUtils.SetCheck(ChkGeneralStartLast, s.GetBool("servers.startlast"));
-			GuiUtils.SetCheck(ChkGeneralOsxVisible, s.GetBool("gui.osx.visible"));
-			// GuiUtils.SetCheck (ChkGeneralOsxDock, s.GetBool ("gui.osx.dock")); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
+			GuiUtils.SetCheck(ChkGeneralStartLast, o.GetBool("servers.startlast"));
+			GuiUtils.SetCheck(ChkGeneralOsxVisible, o.GetBool("gui.osx.visible"));
+			// GuiUtils.SetCheck (ChkGeneralOsxDock, o.GetBool ("gui.osx.dock")); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 			GuiUtils.SetCheck(ChkCliShortcut, Core.Platform.Instance.FileExists("/usr/local/bin/eddie-cli"));
-			GuiUtils.SetCheck(ChkUiSystemBarShowInfo, s.GetBool("gui.osx.sysbar.show_info"));
-			GuiUtils.SetCheck(ChkUiSystemBarShowSpeed, s.GetBool("gui.osx.sysbar.show_speed"));
-			GuiUtils.SetCheck(ChkUiSystemBarShowServer, s.GetBool("gui.osx.sysbar.show_server"));
+			GuiUtils.SetCheck(ChkUiSystemBarShowInfo, o.GetBool("gui.osx.sysbar.show_info"));
+			GuiUtils.SetCheck(ChkUiSystemBarShowSpeed, o.GetBool("gui.osx.sysbar.show_speed"));
+			GuiUtils.SetCheck(ChkUiSystemBarShowServer, o.GetBool("gui.osx.sysbar.show_server"));
 
-			GuiUtils.SetCheck(ChkExitConfirm, s.GetBool("gui.exit_confirm"));
+			GuiUtils.SetCheck(ChkExitConfirm, o.GetBool("gui.exit_confirm"));
 
             if (s.SaveFormat == "v2n")
                 GuiUtils.SetSelected(CboStorageMode, LanguageManager.GetText("WindowsSettingsStorageModeNone"));
@@ -670,17 +671,17 @@ namespace Eddie.UI.Cocoa.Osx
             }
 
             // UI
-            GuiUtils.SetCheck(ChkGeneralOsxNotifications, s.GetBool("gui.notifications"));
-			string uiUnit = s.Get("ui.unit");
+            GuiUtils.SetCheck(ChkGeneralOsxNotifications, o.GetBool("gui.notifications"));
+			string uiUnit = o.Get("ui.unit");
 			if (uiUnit == "bytes")
 				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText("WindowsSettingsUiUnit1"));
 			else if (uiUnit == "bits")
 				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText("WindowsSettingsUiUnit2"));
 			else
 				GuiUtils.SetSelected(CboUiUnit, LanguageManager.GetText("WindowsSettingsUiUnit0"));
-			GuiUtils.SetCheck(ChkUiIEC, s.GetBool("ui.iec"));
-            GuiUtils.SetCheck(ChkUiSkipProviderManifestFailed, s.GetBool("ui.skip.provider.manifest.failed"));
-            GuiUtils.SetCheck(ChkUiSkipPromotional, s.GetBool("ui.skip.promotional"));
+			GuiUtils.SetCheck(ChkUiIEC, o.GetBool("ui.iec"));
+            GuiUtils.SetCheck(ChkUiSkipProviderManifestFailed, o.GetBool("ui.skip.provider.manifest.failed"));
+            GuiUtils.SetCheck(ChkUiSkipPromotional, o.GetBool("ui.skip.promotional"));
 
             /*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
@@ -691,9 +692,9 @@ namespace Eddie.UI.Cocoa.Osx
 			*/
 
             // Protocols
-            String protocol = s.Get("mode.protocol").ToUpperInvariant();
-			int port = s.GetInt("mode.port");
-			int entryIP = s.GetInt("mode.alt");
+            String protocol = o.Get("mode.protocol").ToUpperInvariant();
+			int port = o.GetInt("mode.port");
+			int entryIP = o.GetInt("mode.alt");
 			if (protocol == "AUTO")
 			{
 				GuiUtils.SetCheck(ChkProtocolsAutomatic, true);
@@ -725,27 +726,27 @@ namespace Eddie.UI.Cocoa.Osx
 
 			// Proxy
 
-			GuiUtils.SetSelected(CboProxyType, s.Get("proxy.mode"));
-			if (s.Get("proxy.when") == "always")
+			GuiUtils.SetSelected(CboProxyType, o.Get("proxy.mode"));
+			if (o.Get("proxy.when") == "always")
 				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenAlways"));
-			else if (s.Get("proxy.when") == "web")
+			else if (o.Get("proxy.when") == "web")
 				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenWeb"));
-			else if (s.Get("proxy.when") == "openvpn")
+			else if (o.Get("proxy.when") == "openvpn")
 				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"));
-			else if (s.Get("proxy.when") == "none")
+			else if (o.Get("proxy.when") == "none")
 				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenNone"));
 			else
 				GuiUtils.SetSelected(CboProxyWhen, LanguageManager.GetText("WindowsSettingsProxyWhenAlways"));
-			TxtProxyHost.StringValue = s.Get("proxy.host");
-			TxtProxyPort.StringValue = s.Get("proxy.port");
-			GuiUtils.SetSelected(CboProxyAuthentication, s.Get("proxy.auth"));
-			TxtProxyLogin.StringValue = s.Get("proxy.login");
-			TxtProxyPassword.StringValue = s.Get("proxy.password");
-			TxtProxyTorControlPort.StringValue = s.Get("proxy.tor.control.port");
-			TxtProxyTorControlPassword.StringValue = s.Get("proxy.tor.control.password");
+			TxtProxyHost.StringValue = o.Get("proxy.host");
+			TxtProxyPort.StringValue = o.Get("proxy.port");
+			GuiUtils.SetSelected(CboProxyAuthentication, o.Get("proxy.auth"));
+			TxtProxyLogin.StringValue = o.Get("proxy.login");
+			TxtProxyPassword.StringValue = o.Get("proxy.password");
+			TxtProxyTorControlPort.StringValue = o.Get("proxy.tor.control.port");
+			TxtProxyTorControlPassword.StringValue = o.Get("proxy.tor.control.password");
 
 			// Routes
-			string routes = s.Get("routes.custom");
+			string routes = o.Get("routes.custom");
 			string[] routes2 = routes.Split(';');
 			foreach (string route in routes2)
 			{
@@ -766,16 +767,16 @@ namespace Eddie.UI.Cocoa.Osx
 
 			// DNS
 
-			string dnsMode = s.Get("dns.mode");
+			string dnsMode = o.Get("dns.mode");
 			if (dnsMode == "none")
 				GuiUtils.SetSelected(CboDnsSwitchMode, "Disabled");
 			else
 				GuiUtils.SetSelected(CboDnsSwitchMode, "Automatic");
 
-			GuiUtils.SetCheck(ChkDnsCheck, s.GetBool("dns.check"));
+			GuiUtils.SetCheck(ChkDnsCheck, o.GetBool("dns.check"));
 
 			TableDnsServersController.Clear();
-			string[] dnsServers = s.Get("dns.servers").Split(',');
+			string[] dnsServers = o.Get("dns.servers").Split(',');
 			foreach (string dnsServer in dnsServers)
 			{
 				if (IpAddress.IsIP(dnsServer))
@@ -784,7 +785,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 			// Networking
 
-			string networkIPv4Mode = s.Get("network.ipv4.mode");
+			string networkIPv4Mode = o.Get("network.ipv4.mode");
 			if (networkIPv4Mode == "in")
 				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
 			else if (networkIPv4Mode == "in-out")
@@ -797,9 +798,9 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
 			else
 				GuiUtils.SetSelected(CboNetworkIPv4Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
-			GuiUtils.SetCheck(ChkNetworkIPv4AutoSwitch, s.GetBool("network.ipv4.autoswitch"));
+			GuiUtils.SetCheck(ChkNetworkIPv4AutoSwitch, o.GetBool("network.ipv4.autoswitch"));
 
-			string networkIPv6Mode = s.Get("network.ipv6.mode");
+			string networkIPv6Mode = o.Get("network.ipv6.mode");
 			if (networkIPv6Mode == "in")
 				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"));
 			else if (networkIPv6Mode == "in-out")
@@ -812,9 +813,9 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"));
 			else
 				GuiUtils.SetSelected(CboNetworkIPv6Mode, LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"));
-			GuiUtils.SetCheck(ChkNetworkIPv6AutoSwitch, s.GetBool("network.ipv6.autoswitch"));
+			GuiUtils.SetCheck(ChkNetworkIPv6AutoSwitch, o.GetBool("network.ipv6.autoswitch"));
 
-			string networkEntryIpLayer = s.Get("network.entry.iplayer");
+			string networkEntryIpLayer = o.Get("network.entry.iplayer");
 			if (networkEntryIpLayer == "ipv6-ipv4")
 				GuiUtils.SetSelected(CboProtocolIPEntry, "IPv6, IPv4");
 			else if (networkEntryIpLayer == "ipv4-ipv6")
@@ -826,7 +827,7 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				GuiUtils.SetSelected(CboProtocolIPEntry, "IPv4, IPv6");
 
-			string sNetworkEntryIFace = s.Get("network.entry.iface");
+			string sNetworkEntryIFace = o.Get("network.entry.iface");
 			foreach (KeyValuePair<string, string> kp in m_mapNetworkEntryIFace)
 			{
 				if (sNetworkEntryIFace == kp.Key)
@@ -835,7 +836,7 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 			}
 
-			int openVpnSndBuf = s.GetInt("openvpn.sndbuf");
+			int openVpnSndBuf = o.GetInt("openvpn.sndbuf");
 			if (openVpnSndBuf == -2)
 				GuiUtils.SetSelected(CboOpenVpnSndBuf, LanguageManager.GetText("Automatic"));
 			else if (openVpnSndBuf == -1)
@@ -855,7 +856,7 @@ namespace Eddie.UI.Cocoa.Osx
 			else if (openVpnSndBuf == 1024 * 512)
 				GuiUtils.SetSelected(CboOpenVpnSndBuf, "512 KB");
 
-			int openVpnRcvBuf = s.GetInt("openvpn.rcvbuf");
+			int openVpnRcvBuf = o.GetInt("openvpn.rcvbuf");
 			if (openVpnRcvBuf == -2)
 				GuiUtils.SetSelected(CboOpenVpnRcvBuf, LanguageManager.GetText("Automatic"));
 			else if (openVpnRcvBuf == -1)
@@ -877,7 +878,7 @@ namespace Eddie.UI.Cocoa.Osx
             			
 			// Network Lock
 
-			string lockMode = s.Get("netlock.mode");
+			string lockMode = o.Get("netlock.mode");
 			GuiUtils.SetSelected(CboLockMode, "None");
 			if (lockMode == "auto")
 				GuiUtils.SetSelected(CboLockMode, "Automatic");
@@ -891,35 +892,35 @@ namespace Eddie.UI.Cocoa.Osx
 					}
 				}
 			}
-			string lockIncoming = s.Get("netlock.incoming");
+			string lockIncoming = o.Get("netlock.incoming");
 			if (lockIncoming == "allow")
 				GuiUtils.SetSelected(CboLockIncoming, "Allow");
 			else
 				GuiUtils.SetSelected(CboLockIncoming, "Block");
-			string lockOutgoing = s.Get("netlock.outgoing");
+			string lockOutgoing = o.Get("netlock.outgoing");
 			if (lockOutgoing == "allow")
 				GuiUtils.SetSelected(CboLockOutgoing, "Allow");
 			else
 				GuiUtils.SetSelected(CboLockOutgoing, "Block");
-			GuiUtils.SetCheck(ChkLockAllowPrivate, s.GetBool("netlock.allow_private"));
-			GuiUtils.SetCheck(ChkLockAllowPing, s.GetBool("netlock.allow_ping"));
-			GuiUtils.SetCheck(ChkLockAllowDNS, s.GetBool("netlock.allow_dns"));
-			TxtLockWhiteListIncomingIPs.StringValue = s.Get("netlock.whitelist.incoming.ips");
-            TxtLockWhiteListOutgoingIPs.StringValue = s.Get("netlock.whitelist.outgoing.ips");
+			GuiUtils.SetCheck(ChkLockAllowPrivate, o.GetBool("netlock.allow_private"));
+			GuiUtils.SetCheck(ChkLockAllowPing, o.GetBool("netlock.allow_ping"));
+			GuiUtils.SetCheck(ChkLockAllowDNS, o.GetBool("netlock.allow_dns"));
+			TxtLockWhiteListIncomingIPs.StringValue = o.Get("netlock.whitelist.incoming.ips");
+            TxtLockWhiteListOutgoingIPs.StringValue = o.Get("netlock.whitelist.outgoing.ips");
 
             // Advanced
 
-            GuiUtils.SetCheck(ChkAdvancedExpertMode, s.GetBool("advanced.expert"));
-			GuiUtils.SetCheck(ChkAdvancedCheckRoute, s.GetBool("advanced.check.route"));
+            GuiUtils.SetCheck(ChkAdvancedExpertMode, o.GetBool("advanced.expert"));
+			GuiUtils.SetCheck(ChkAdvancedCheckRoute, o.GetBool("advanced.check.route"));
 			
-			GuiUtils.SetCheck(ChkAdvancedPingerEnabled, s.GetBool("pinger.enabled"));
+			GuiUtils.SetCheck(ChkAdvancedPingerEnabled, o.GetBool("pinger.enabled"));
 
 
-			TxtAdvancedOpenVpnPath.StringValue = s.Get("tools.openvpn.path");
-			GuiUtils.SetCheck(ChkAdvancedSkipAlreadyRun, s.GetBool("advanced.skip_alreadyrun"));
-			GuiUtils.SetCheck(ChkAdvancedProviders, s.GetBool("advanced.providers"));
-			GuiUtils.SetCheck(ChkHummingbirdPrefer, s.GetBool("tools.hummingbird.preferred"));
-			TxtHummingbirdPath.StringValue = s.Get("tools.hummingbird.path");
+			TxtAdvancedOpenVpnPath.StringValue = o.Get("tools.openvpn.path");
+			GuiUtils.SetCheck(ChkAdvancedSkipAlreadyRun, o.GetBool("advanced.skip_alreadyrun"));
+			GuiUtils.SetCheck(ChkAdvancedProviders, o.GetBool("advanced.providers"));
+			GuiUtils.SetCheck(ChkHummingbirdPrefer, o.GetBool("tools.hummingbird.preferred"));
+			TxtHummingbirdPath.StringValue = o.Get("tools.hummingbird.path");
 
 			if (Core.Platform.Instance.GetVersion().VersionUnder("10.14")) // Hummingbird require Mojave
 			{
@@ -927,7 +928,7 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetCheck(ChkHummingbirdPrefer, false);
 			}
 
-			int manifestRefresh = s.GetInt("advanced.manifest.refresh");
+			int manifestRefresh = o.GetInt("advanced.manifest.refresh");
 			if (manifestRefresh == 60)
 				GuiUtils.SetSelected(CboAdvancedManifestRefresh, "Every one hour");
 			else if (manifestRefresh == 10)
@@ -939,7 +940,7 @@ namespace Eddie.UI.Cocoa.Osx
 			else
 				GuiUtils.SetSelected(CboAdvancedManifestRefresh, "Automatic");
 
-            string updaterChannel = s.Get("updater.channel");
+            string updaterChannel = o.Get("updater.channel");
             if (updaterChannel == "stable")
                 GuiUtils.SetSelected(CboAdvancedUpdaterChannel, "Stable");
             else if(updaterChannel == "beta")
@@ -950,17 +951,17 @@ namespace Eddie.UI.Cocoa.Osx
                 GuiUtils.SetSelected(CboAdvancedUpdaterChannel, "Stable");
 
             // Logging
-            GuiUtils.SetCheck(ChkLoggingEnabled, s.GetBool("log.file.enabled"));
-			GuiUtils.SetCheck(ChkLogLevelDebug, s.GetBool("log.level.debug"));
-			TxtLoggingPath.StringValue = s.Get("log.file.path");
+            GuiUtils.SetCheck(ChkLoggingEnabled, o.GetBool("log.file.enabled"));
+			GuiUtils.SetCheck(ChkLogLevelDebug, o.GetBool("log.level.debug"));
+			TxtLoggingPath.StringValue = o.Get("log.file.path");
 
 			// OVPN Directives
-			GuiUtils.SetSelected(CboOpenVpnDirectivesSkipDefault, (s.GetBool("openvpn.skip_defaults") ? LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2") : LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip1")));
-			TxtAdvancedOpenVpnDirectivesDefault.StringValue = s.Get("openvpn.directives");
-			TxtAdvancedOpenVpnDirectivesCustom.StringValue = s.Get("openvpn.custom");
-			TxtOpenVpnDirectivesCustomPath.StringValue = s.Get("openvpn.directives.path");
-			//GuiUtils.SetCheck(ChkOpenVpnDirectivesAllowScriptSecurity, s.GetBool("openvpn.allow.script-security"));
-			GuiUtils.SetCheck(ChkOpenVpnDirectivesChaCha, s.GetBool("openvpn.directives.chacha20"));
+			GuiUtils.SetSelected(CboOpenVpnDirectivesSkipDefault, (o.GetBool("openvpn.skip_defaults") ? LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2") : LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip1")));
+			TxtAdvancedOpenVpnDirectivesDefault.StringValue = o.Get("openvpn.directives");
+			TxtAdvancedOpenVpnDirectivesCustom.StringValue = o.Get("openvpn.custom");
+			TxtOpenVpnDirectivesCustomPath.StringValue = o.Get("openvpn.directives.path");
+			//GuiUtils.SetCheck(ChkOpenVpnDirectivesAllowScriptSecurity, o.GetBool("openvpn.allow.script-security"));
+			GuiUtils.SetCheck(ChkOpenVpnDirectivesChaCha, o.GetBool("openvpn.directives.chacha20"));
 
 			// Events
 			ReadOptionsEvent("app.start", 0);
@@ -970,7 +971,7 @@ namespace Eddie.UI.Cocoa.Osx
 			ReadOptionsEvent("vpn.pre", 4);
 			ReadOptionsEvent("vpn.up", 5);
 			ReadOptionsEvent("vpn.down", 6);
-            GuiUtils.SetCheck(ChkShellExternalRecommended, s.GetBool("external.rules.recommended"));
+            GuiUtils.SetCheck(ChkShellExternalRecommended, o.GetBool("external.rules.recommended"));
 
 			TableAdvancedEventsController.RefreshUI();
 		}
@@ -1009,24 +1010,25 @@ namespace Eddie.UI.Cocoa.Osx
 		void SaveOptions()
 		{
 			Storage s = Engine.Instance.Storage;
+			Options o = Engine.Instance.Options;
 
             // General
             Core.Platform.Instance.SetAutoStart(GuiUtils.GetCheck(ChkSystemStart));
             Core.Platform.Instance.SetService(GuiUtils.GetCheck(ChkSystemService), false);
-            s.SetBool("connect", GuiUtils.GetCheck(ChkConnect));
-			s.SetBool("netlock", GuiUtils.GetCheck(ChkNetLock));
+            o.SetBool("connect", GuiUtils.GetCheck(ChkConnect));
+			o.SetBool("netlock", GuiUtils.GetCheck(ChkNetLock));
 
 
-			s.SetBool("servers.startlast", GuiUtils.GetCheck(ChkGeneralStartLast));
-			s.SetBool("gui.osx.visible", GuiUtils.GetCheck(ChkGeneralOsxVisible));
-			// s.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock)); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
+			o.SetBool("servers.startlast", GuiUtils.GetCheck(ChkGeneralStartLast));
+			o.SetBool("gui.osx.visible", GuiUtils.GetCheck(ChkGeneralOsxVisible));
+			// o.SetBool ("gui.osx.dock", GuiUtils.GetCheck (ChkGeneralOsxDock)); // See this FAQ: https://airvpn.org/topic/13331-its-possible-to-hide-the-icon-in-dock-bar-under-os-x/
 
 			Engine.Instance.Elevated.DoCommandSync("shortcut-cli", "action", (GuiUtils.GetCheck(ChkCliShortcut) ? "set" : "del"), "path", Core.Platform.Instance.GetExecutablePath());
 			
-			s.SetBool("gui.osx.sysbar.show_info", GuiUtils.GetCheck(ChkUiSystemBarShowInfo));
-			s.SetBool("gui.osx.sysbar.show_speed", GuiUtils.GetCheck(ChkUiSystemBarShowSpeed));
-			s.SetBool("gui.osx.sysbar.show_server", GuiUtils.GetCheck(ChkUiSystemBarShowServer));
-			s.SetBool("gui.exit_confirm", GuiUtils.GetCheck(ChkExitConfirm));
+			o.SetBool("gui.osx.sysbar.show_info", GuiUtils.GetCheck(ChkUiSystemBarShowInfo));
+			o.SetBool("gui.osx.sysbar.show_speed", GuiUtils.GetCheck(ChkUiSystemBarShowSpeed));
+			o.SetBool("gui.osx.sysbar.show_server", GuiUtils.GetCheck(ChkUiSystemBarShowServer));
+			o.SetBool("gui.exit_confirm", GuiUtils.GetCheck(ChkExitConfirm));
 
 
 
@@ -1047,61 +1049,61 @@ namespace Eddie.UI.Cocoa.Osx
 
             // UI
 
-            s.SetBool("gui.notifications", GuiUtils.GetCheck(ChkGeneralOsxNotifications));
+            o.SetBool("gui.notifications", GuiUtils.GetCheck(ChkGeneralOsxNotifications));
 			string uiUnit = "";
 			if (GuiUtils.GetSelected(CboUiUnit) == LanguageManager.GetText("WindowsSettingsUiUnit1"))
 				uiUnit = "bytes";
 			else if (GuiUtils.GetSelected(CboUiUnit) == LanguageManager.GetText("WindowsSettingsUiUnit2"))
 				uiUnit = "bits";
-			s.Set("ui.unit", uiUnit);
-			s.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
-            s.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkUiSkipProviderManifestFailed));
-            s.SetBool("ui.skip.promotional", GuiUtils.GetCheck(ChkUiSkipPromotional));
+			o.Set("ui.unit", uiUnit);
+			o.SetBool("ui.iec", GuiUtils.GetCheck(ChkUiIEC));
+            o.SetBool("ui.skip.provider.manifest.failed", GuiUtils.GetCheck(ChkUiSkipProviderManifestFailed));
+            o.SetBool("ui.skip.promotional", GuiUtils.GetCheck(ChkUiSkipPromotional));
 
             // Protocols
 
             if (GuiUtils.GetCheck(ChkProtocolsAutomatic))
 			{
-				s.Set("mode.protocol", "AUTO");
-				s.SetInt("mode.port", 443);
-				s.SetInt("mode.alt", 0);
+				o.Set("mode.protocol", "AUTO");
+				o.SetInt("mode.port", 443);
+				o.SetInt("mode.alt", 0);
 			}
 			else if (TableProtocols.SelectedRowCount == 1)
 			{
 				TableProtocolsControllerItem itemProtocol = TableProtocolsController.Items[(int)TableProtocols.SelectedRow];
-				s.Set("mode.protocol", itemProtocol.Protocol);
-				s.SetInt("mode.port", itemProtocol.Port);
-				s.SetInt("mode.alt", itemProtocol.IP);
+				o.Set("mode.protocol", itemProtocol.Protocol);
+				o.SetInt("mode.port", itemProtocol.Port);
+				o.SetInt("mode.alt", itemProtocol.IP);
 			}
 			else
 			{
-				s.Set("mode.protocol", "AUTO");
-				s.SetInt("mode.port", 443);
-				s.SetInt("mode.alt", 0);
+				o.Set("mode.protocol", "AUTO");
+				o.SetInt("mode.port", 443);
+				o.SetInt("mode.alt", 0);
 			}
 
 			// Proxy
 
-			s.Set("proxy.mode", GuiUtils.GetSelected(CboProxyType));
+			o.Set("proxy.mode", GuiUtils.GetSelected(CboProxyType));
 
 			if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenAlways"))
-				s.Set("proxy.when", "always");
+				o.Set("proxy.when", "always");
 			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenWeb"))
-				s.Set("proxy.when", "web");
+				o.Set("proxy.when", "web");
 			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenOpenVPN"))
-				s.Set("proxy.when", "openvpn");
+				o.Set("proxy.when", "openvpn");
 			else if (GuiUtils.GetSelected(CboProxyWhen) == LanguageManager.GetText("WindowsSettingsProxyWhenNone"))
-				s.Set("proxy.when", "none");
+				o.Set("proxy.when", "none");
 			else
-				s.Set("proxy.when", "always");
+				o.Set("proxy.when", "always");
 
-			s.Set("proxy.host", TxtProxyHost.StringValue);
-			s.SetInt("proxy.port", Conversions.ToInt32(TxtProxyPort.StringValue));
-			s.Set("proxy.auth", GuiUtils.GetSelected(CboProxyAuthentication));
-			s.Set("proxy.login", TxtProxyLogin.StringValue);
-			s.Set("proxy.password", TxtProxyPassword.StringValue);
-			s.SetInt("proxy.tor.control.port", Conversions.ToInt32(TxtProxyTorControlPort.StringValue));
-			s.Set("proxy.tor.control.password", TxtProxyTorControlPassword.StringValue);
+			o.Set("proxy.host", TxtProxyHost.StringValue);
+			o.SetInt("proxy.port", Conversions.ToInt32(TxtProxyPort.StringValue));
+			o.Set("proxy.auth", GuiUtils.GetSelected(CboProxyAuthentication));
+			o.Set("proxy.login", TxtProxyLogin.StringValue);
+			o.Set("proxy.password", TxtProxyPassword.StringValue);
+			o.SetInt("proxy.tor.control.port", Conversions.ToInt32(TxtProxyTorControlPort.StringValue));
+			o.Set("proxy.tor.control.password", TxtProxyTorControlPassword.StringValue);
 
 			// Routes			
 			string routes = "";
@@ -1111,16 +1113,16 @@ namespace Eddie.UI.Cocoa.Osx
 					routes += ";";
 				routes += item.Ip + "," + item.Action + "," + item.Notes;
 			}
-			s.Set("routes.custom", routes);
+			o.Set("routes.custom", routes);
 
 			// DNS
 
 			string dnsMode = GuiUtils.GetSelected(CboDnsSwitchMode);
 			if (dnsMode == "Disabled")
-				s.Set("dns.mode", "none");
+				o.Set("dns.mode", "none");
 			else
-				s.Set("dns.mode", "auto");
-			s.SetBool("dns.check", GuiUtils.GetCheck(ChkDnsCheck));
+				o.Set("dns.mode", "auto");
+			o.SetBool("dns.check", GuiUtils.GetCheck(ChkDnsCheck));
 
 			string dnsServers = "";
 			for (int i = 0; i < TableDnsServersController.GetCount(); i++)
@@ -1129,109 +1131,109 @@ namespace Eddie.UI.Cocoa.Osx
 					dnsServers += ",";
 				dnsServers += TableDnsServersController.Get(i);
 			}
-			s.Set("dns.servers", dnsServers);
+			o.Set("dns.servers", dnsServers);
 
 			// Networking
 
 			string networkIPv4Mode = GuiUtils.GetSelected(CboNetworkIPv4Mode);
 			if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
-				s.Set("network.ipv4.mode", "in");
+				o.Set("network.ipv4.mode", "in");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
-				s.Set("network.ipv4.mode", "in-out");
+				o.Set("network.ipv4.mode", "in-out");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
-				s.Set("network.ipv4.mode", "in-block");
+				o.Set("network.ipv4.mode", "in-block");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
-				s.Set("network.ipv4.mode", "out");
+				o.Set("network.ipv4.mode", "out");
 			else if (networkIPv4Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
-				s.Set("network.ipv4.mode", "block");
+				o.Set("network.ipv4.mode", "block");
 			else
-				s.Set("network.ipv4.mode", "in");
-            s.SetBool("network.ipv4.autoswitch", GuiUtils.GetCheck(ChkNetworkIPv4AutoSwitch));
+				o.Set("network.ipv4.mode", "in");
+            o.SetBool("network.ipv4.autoswitch", GuiUtils.GetCheck(ChkNetworkIPv4AutoSwitch));
 
 			string networkIPv6Mode = GuiUtils.GetSelected(CboNetworkIPv6Mode);
 			if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInAlways"))
-				s.Set("network.ipv6.mode", "in");
+				o.Set("network.ipv6.mode", "in");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrOut"))
-				s.Set("network.ipv6.mode", "in-out");
+				o.Set("network.ipv6.mode", "in-out");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeInOrBlock"))
-				s.Set("network.ipv6.mode", "in-block");
+				o.Set("network.ipv6.mode", "in-block");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeOut"))
-				s.Set("network.ipv6.mode", "out");
+				o.Set("network.ipv6.mode", "out");
 			else if (networkIPv6Mode == LanguageManager.GetText("WindowsSettingsNetworkIpModeBlock"))
-				s.Set("network.ipv6.mode", "block");
+				o.Set("network.ipv6.mode", "block");
 			else
-				s.Set("network.ipv6.mode", "in-block");
-            s.SetBool("network.ipv6.autoswitch", GuiUtils.GetCheck(ChkNetworkIPv6AutoSwitch));
+				o.Set("network.ipv6.mode", "in-block");
+            o.SetBool("network.ipv6.autoswitch", GuiUtils.GetCheck(ChkNetworkIPv6AutoSwitch));
 
 			string networkEntryIpLayer = GuiUtils.GetSelected(CboProtocolIPEntry);
 			if (networkEntryIpLayer == "IPv6, IPv4")
-				s.Set("network.entry.iplayer", "ipv6-ipv4");
+				o.Set("network.entry.iplayer", "ipv6-ipv4");
 			else if (networkEntryIpLayer == "IPv4, IPv6")
-				s.Set("network.entry.iplayer", "ipv4-ipv6");
+				o.Set("network.entry.iplayer", "ipv4-ipv6");
 			else if (networkEntryIpLayer == "IPv6 only")
-				s.Set("network.entry.iplayer", "ipv6-only");
+				o.Set("network.entry.iplayer", "ipv6-only");
 			else if (networkEntryIpLayer == "IPv4 only")
-				s.Set("network.entry.iplayer", "ipv4-only");
+				o.Set("network.entry.iplayer", "ipv4-only");
 			else
-				s.Set("network.entry.iplayer", "ipv4-ipv6");
+				o.Set("network.entry.iplayer", "ipv4-ipv6");
 
 			string tNetworkEntryIFace = GuiUtils.GetSelected(CboNetworkEntryInterface);
 			foreach (KeyValuePair<string, string> kp in m_mapNetworkEntryIFace)
 			{
 				if (kp.Value == tNetworkEntryIFace)
 				{
-					s.Set("network.entry.iface", kp.Key);
+					o.Set("network.entry.iface", kp.Key);
 					break;
 				}
 			}
 
 			string openVpnSndBuf = GuiUtils.GetSelected(CboOpenVpnSndBuf);
 			if (openVpnSndBuf == LanguageManager.GetText("Automatic"))
-				s.SetInt("openvpn.sndbuf", -2);
+				o.SetInt("openvpn.sndbuf", -2);
 			else if (openVpnSndBuf == LanguageManager.GetText("WindowsSettingsOpenVpnDefault"))
-				s.SetInt("openvpn.sndbuf", -1);
+				o.SetInt("openvpn.sndbuf", -1);
 			else if (openVpnSndBuf == "8 KB")
-				s.SetInt("openvpn.sndbuf", 1024 * 8);
+				o.SetInt("openvpn.sndbuf", 1024 * 8);
 			else if (openVpnSndBuf == "16 KB")
-				s.SetInt("openvpn.sndbuf", 1024 * 16);
+				o.SetInt("openvpn.sndbuf", 1024 * 16);
 			else if (openVpnSndBuf == "32 KB")
-				s.SetInt("openvpn.sndbuf", 1024 * 32);
+				o.SetInt("openvpn.sndbuf", 1024 * 32);
 			else if (openVpnSndBuf == "64 KB")
-				s.SetInt("openvpn.sndbuf", 1024 * 64);
+				o.SetInt("openvpn.sndbuf", 1024 * 64);
 			else if (openVpnSndBuf == "128 KB")
-				s.SetInt("openvpn.sndbuf", 1024 * 128);
+				o.SetInt("openvpn.sndbuf", 1024 * 128);
 			else if (openVpnSndBuf == "256 KB")
-				s.SetInt("openvpn.sndbuf", 1024 * 256);
+				o.SetInt("openvpn.sndbuf", 1024 * 256);
 			else if (openVpnSndBuf == "512 KB")
-				s.SetInt("openvpn.sndbuf", 1024 * 512);
+				o.SetInt("openvpn.sndbuf", 1024 * 512);
 
 			string openVpnRcvBuf = GuiUtils.GetSelected(CboOpenVpnRcvBuf);
 			if (openVpnRcvBuf == LanguageManager.GetText("Automatic"))
-				s.SetInt("openvpn.rcvbuf", -2);
+				o.SetInt("openvpn.rcvbuf", -2);
 			else if (openVpnRcvBuf == LanguageManager.GetText("WindowsSettingsOpenVpnDefault"))
-				s.SetInt("openvpn.rcvbuf", -1);
+				o.SetInt("openvpn.rcvbuf", -1);
 			else if (openVpnRcvBuf == "8 KB")
-				s.SetInt("openvpn.rcvbuf", 1024 * 8);
+				o.SetInt("openvpn.rcvbuf", 1024 * 8);
 			else if (openVpnRcvBuf == "16 KB")
-				s.SetInt("openvpn.rcvbuf", 1024 * 16);
+				o.SetInt("openvpn.rcvbuf", 1024 * 16);
 			else if (openVpnRcvBuf == "32 KB")
-				s.SetInt("openvpn.rcvbuf", 1024 * 32);
+				o.SetInt("openvpn.rcvbuf", 1024 * 32);
 			else if (openVpnRcvBuf == "64 KB")
-				s.SetInt("openvpn.rcvbuf", 1024 * 64);
+				o.SetInt("openvpn.rcvbuf", 1024 * 64);
 			else if (openVpnRcvBuf == "128 KB")
-				s.SetInt("openvpn.rcvbuf", 1024 * 128);
+				o.SetInt("openvpn.rcvbuf", 1024 * 128);
 			else if (openVpnRcvBuf == "256 KB")
-				s.SetInt("openvpn.rcvbuf", 1024 * 256);
+				o.SetInt("openvpn.rcvbuf", 1024 * 256);
 			else if (openVpnRcvBuf == "512 KB")
-				s.SetInt("openvpn.rcvbuf", 1024 * 512);
+				o.SetInt("openvpn.rcvbuf", 1024 * 512);
 
 			// Network Lock
 
 			string lockMode = GuiUtils.GetSelected(CboLockMode);
-			s.Set("netlock.mode", "none");
+			o.Set("netlock.mode", "none");
 			if (lockMode == "Automatic")
 			{
-				s.Set("netlock.mode", "auto");
+				o.Set("netlock.mode", "auto");
 			}
 			else
 			{
@@ -1239,74 +1241,74 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					if (lockPlugin.GetName() == lockMode)
 					{
-						s.Set("netlock.mode", lockPlugin.GetCode());
+						o.Set("netlock.mode", lockPlugin.GetCode());
 					}
 				}
 			}
 			string lockIncoming = GuiUtils.GetSelected(CboLockIncoming);
 			if (lockIncoming == "Allow")
-				s.Set("netlock.incoming", "allow");
+				o.Set("netlock.incoming", "allow");
 			else
-				s.Set("netlock.incoming", "block");
+				o.Set("netlock.incoming", "block");
 			string lockOutgoing = GuiUtils.GetSelected(CboLockOutgoing);
 			if (lockOutgoing == "Allow")
-				s.Set("netlock.outgoing", "allow");
+				o.Set("netlock.outgoing", "allow");
 			else
-				s.Set("netlock.outgoing", "block");
-			s.SetBool("netlock.allow_private", GuiUtils.GetCheck(ChkLockAllowPrivate));
-			s.SetBool("netlock.allow_ping", GuiUtils.GetCheck(ChkLockAllowPing));
-			s.SetBool("netlock.allow_dns", GuiUtils.GetCheck(ChkLockAllowDNS));
-			s.Set("netlock.whitelist.incoming.ips", TxtLockWhiteListIncomingIPs.StringValue);
-            s.Set("netlock.whitelist.outgoing.ips", TxtLockWhiteListOutgoingIPs.StringValue);
+				o.Set("netlock.outgoing", "block");
+			o.SetBool("netlock.allow_private", GuiUtils.GetCheck(ChkLockAllowPrivate));
+			o.SetBool("netlock.allow_ping", GuiUtils.GetCheck(ChkLockAllowPing));
+			o.SetBool("netlock.allow_dns", GuiUtils.GetCheck(ChkLockAllowDNS));
+			o.Set("netlock.whitelist.incoming.ips", TxtLockWhiteListIncomingIPs.StringValue);
+            o.Set("netlock.whitelist.outgoing.ips", TxtLockWhiteListOutgoingIPs.StringValue);
 
             // Advanced - General
-            s.SetBool("advanced.expert", GuiUtils.GetCheck(ChkAdvancedExpertMode));
+            o.SetBool("advanced.expert", GuiUtils.GetCheck(ChkAdvancedExpertMode));
 
-			s.SetBool("advanced.check.route", GuiUtils.GetCheck(ChkAdvancedCheckRoute));
+			o.SetBool("advanced.check.route", GuiUtils.GetCheck(ChkAdvancedCheckRoute));
 			
-			s.SetBool("pinger.enabled", GuiUtils.GetCheck(ChkAdvancedPingerEnabled));
+			o.SetBool("pinger.enabled", GuiUtils.GetCheck(ChkAdvancedPingerEnabled));
 
 
-			s.Set("tools.openvpn.path", TxtAdvancedOpenVpnPath.StringValue);
-			s.SetBool("advanced.skip_alreadyrun", GuiUtils.GetCheck(ChkAdvancedSkipAlreadyRun));
-			s.SetBool("advanced.providers", GuiUtils.GetCheck(ChkAdvancedProviders));
-			s.SetBool("tools.hummingbird.preferred", GuiUtils.GetCheck(ChkHummingbirdPrefer));
-			s.Set("tools.hummingbird.path", TxtHummingbirdPath.StringValue);
+			o.Set("tools.openvpn.path", TxtAdvancedOpenVpnPath.StringValue);
+			o.SetBool("advanced.skip_alreadyrun", GuiUtils.GetCheck(ChkAdvancedSkipAlreadyRun));
+			o.SetBool("advanced.providers", GuiUtils.GetCheck(ChkAdvancedProviders));
+			o.SetBool("tools.hummingbird.preferred", GuiUtils.GetCheck(ChkHummingbirdPrefer));
+			o.Set("tools.hummingbird.path", TxtHummingbirdPath.StringValue);
 
 			string manifestRefresh = GuiUtils.GetSelected(CboAdvancedManifestRefresh);
 			if (manifestRefresh == "Automatic") // Auto
-				s.SetInt("advanced.manifest.refresh", -1);
+				o.SetInt("advanced.manifest.refresh", -1);
 			else if (manifestRefresh == "Never") // Never
-				s.SetInt("advanced.manifest.refresh", 0);
+				o.SetInt("advanced.manifest.refresh", 0);
 			else if (manifestRefresh == "Every minute") // One minute
-				s.SetInt("advanced.manifest.refresh", 1);
+				o.SetInt("advanced.manifest.refresh", 1);
 			else if (manifestRefresh == "Every ten minute") // Ten minute
-				s.SetInt("advanced.manifest.refresh", 10);
+				o.SetInt("advanced.manifest.refresh", 10);
 			else if (manifestRefresh == "Every one hour") // One hour
-				s.SetInt("advanced.manifest.refresh", 60);
+				o.SetInt("advanced.manifest.refresh", 60);
 
             string updaterChannel = GuiUtils.GetSelected(CboAdvancedUpdaterChannel);
             if (updaterChannel == "Stable")
-                s.Set("updater.channel", "stable");
+                o.Set("updater.channel", "stable");
             else if(updaterChannel == "Beta")
-                s.Set("updater.channel", "beta");
+                o.Set("updater.channel", "beta");
             else if(updaterChannel == "None")
-                s.Set("updater.channel", "none");
+                o.Set("updater.channel", "none");
             else
-                s.Set("updater.channel", "stable");
+                o.Set("updater.channel", "stable");
 
             // Logging
-            s.SetBool("log.file.enabled", GuiUtils.GetCheck(ChkLoggingEnabled));
-			s.SetBool("log.level.debug", GuiUtils.GetCheck(ChkLogLevelDebug));
-			s.Set("log.file.path", TxtLoggingPath.StringValue);
+            o.SetBool("log.file.enabled", GuiUtils.GetCheck(ChkLoggingEnabled));
+			o.SetBool("log.level.debug", GuiUtils.GetCheck(ChkLogLevelDebug));
+			o.Set("log.file.path", TxtLoggingPath.StringValue);
 
 			// OVPN Directives
-			s.SetBool("openvpn.skip_defaults", GuiUtils.GetSelected(CboOpenVpnDirectivesSkipDefault) == LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2"));
-			s.Set("openvpn.directives", TxtAdvancedOpenVpnDirectivesDefault.StringValue);
-			s.Set("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
-			s.Set("openvpn.directives.path", TxtOpenVpnDirectivesCustomPath.StringValue);
+			o.SetBool("openvpn.skip_defaults", GuiUtils.GetSelected(CboOpenVpnDirectivesSkipDefault) == LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2"));
+			o.Set("openvpn.directives", TxtAdvancedOpenVpnDirectivesDefault.StringValue);
+			o.Set("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);
+			o.Set("openvpn.directives.path", TxtOpenVpnDirectivesCustomPath.StringValue);
 			//s.Set("openvpn.allow.script-security", GuiUtils.GetCheck(ChkOpenVpnDirectivesAllowScriptSecurity));
-			s.SetBool("openvpn.directives.chacha20", GuiUtils.GetCheck(ChkOpenVpnDirectivesChaCha));
+			o.SetBool("openvpn.directives.chacha20", GuiUtils.GetCheck(ChkOpenVpnDirectivesChaCha));
 
 			// Events
 			SaveOptionsEvent("app.start", 0);
@@ -1316,7 +1318,7 @@ namespace Eddie.UI.Cocoa.Osx
 			SaveOptionsEvent("vpn.pre", 4);
 			SaveOptionsEvent("vpn.up", 5);
 			SaveOptionsEvent("vpn.down", 6);
-            s.SetBool("external.rules.recommended", GuiUtils.GetCheck(ChkShellExternalRecommended));
+            o.SetBool("external.rules.recommended", GuiUtils.GetCheck(ChkShellExternalRecommended));
 
 			Engine.Instance.OnSettingsChanged();
 		}

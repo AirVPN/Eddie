@@ -198,7 +198,7 @@ namespace Eddie.Core
 				}
 
 				if(force == false)
-					//if (Engine.Instance.Storage.GetBool("openvpn.allow.script-security") == false)
+					//if (Engine.Instance.Options.GetBool("openvpn.allow.script-security") == false)
 						if (IsGroupAllowScriptSecurity(name))
 							return;
 				
@@ -521,14 +521,14 @@ namespace Eddie.Core
 				RemoveDirective("ncp-disable");
 				if (ExistsDirective("data-ciphers") == false)
 				{
-					string dataCiphers = Engine.Instance.Storage.Get("openvpn.directives.data-ciphers");
-					if( (Engine.Instance.Storage.GetBool("openvpn.directives.chacha20")) && (dataCiphers.IndexOfInv("chacha20-poly1305") == -1) )
+					string dataCiphers = Engine.Instance.Options.Get("openvpn.directives.data-ciphers");
+					if( (Engine.Instance.Options.GetBool("openvpn.directives.chacha20")) && (dataCiphers.IndexOfInv("chacha20-poly1305") == -1) )
 						dataCiphers = "CHACHA20-POLY1305:" + dataCiphers;
 					AppendDirective("data-ciphers", dataCiphers, "");
 				}
 					
 				if (ExistsDirective("data-ciphers-fallback") == false)
-					AppendDirective("data-ciphers-fallback", Engine.Instance.Storage.Get("openvpn.directives.data-ciphers-fallback"), "");
+					AppendDirective("data-ciphers-fallback", Engine.Instance.Options.Get("openvpn.directives.data-ciphers-fallback"), "");
 			}
 
 			Platform.Instance.OpenVpnConfigNormalize(this);

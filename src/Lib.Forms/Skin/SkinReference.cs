@@ -121,7 +121,7 @@ namespace Eddie.Forms.Skin
 
 				double userBaseSize = 0;
 				if ((Engine.Instance != null) && (Engine.Instance.Storage != null))
-					userBaseSize = Engine.Instance.Storage.GetFloat("gui.font.normal.size");
+					userBaseSize = Engine.Instance.Options.GetFloat("gui.font.normal.size");
 				if (userBaseSize == 0)
 				{
 					string systemFont = GuiUtils.GetSystemFont();
@@ -140,8 +140,8 @@ namespace Eddie.Forms.Skin
 					string systemFont = "";
 					if (fontName == "System")
 					{
-						if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.Get("gui.font.normal.name") != ""))
-							systemFont = Engine.Instance.Storage.Get("gui.font.normal.name");
+						if ((Engine.Instance != null) && (Engine.Instance.Options != null) && (Engine.Instance.Options.Get("gui.font.normal.name") != ""))
+							systemFont = Engine.Instance.Options.Get("gui.font.normal.name");
 						else
 							systemFont = GuiUtils.GetSystemFont();
 					}

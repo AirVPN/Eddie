@@ -57,7 +57,7 @@ namespace Eddie.Forms.Forms
 			CommonInit(LanguageManager.GetText("WindowsProviderNoBootstrapTitle"));
 
 			lblBody.Text = LanguageManager.GetText("WindowsProviderNoBootstrapBody", Provider.Title);
-			txtManualUrls.Text = Engine.Instance.Storage.Get("bootstrap.urls");
+			txtManualUrls.Text = Engine.Instance.Options.Get("bootstrap.urls");
 
 			EnableIde();
 		}
@@ -76,14 +76,14 @@ namespace Eddie.Forms.Forms
 		
 		private void cmdOk_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);
-			Engine.Instance.Storage.Set("bootstrap.urls", txtManualUrls.Text);
+			Engine.Instance.Options.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);
+			Engine.Instance.Options.Set("bootstrap.urls", txtManualUrls.Text);
 			Engine.Instance.RefreshProvidersInvalidateConnections();
 		}
 
 		private void cmdCancel_Click(object sender, EventArgs e)
 		{
-			Engine.Instance.Storage.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);
+			Engine.Instance.Options.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);
 		}
 	}
 }

@@ -424,7 +424,7 @@ namespace Eddie.Platform.MacOS
 		{
 			base.FlushDNS();
 
-            Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Storage.Get("linux.dns.services"));            
+            Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Options.Get("linux.dns.services"));            
 		}
 
         public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
@@ -953,7 +953,7 @@ namespace Eddie.Platform.MacOS
 
 		public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
 		{
-			string mode = Engine.Instance.Storage.GetLower("dns.mode");
+			string mode = Engine.Instance.Options.GetLower("dns.mode");
 
 			if (mode == "auto")
 			{

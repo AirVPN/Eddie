@@ -42,7 +42,7 @@ namespace Eddie.Core
 		public void Log(LogType type, Exception e)
 		{
 			string msg = e.Message;
-			if( (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.level.debug")) )
+			if( (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.level.debug")) )
 				msg += " - Stack: " + e.StackTrace.ToString();
 			Log(type, msg, e);
 		}
@@ -93,7 +93,7 @@ namespace Eddie.Core
 		public void Log(LogType type, string message, Exception e)
 		{
             // Avoid repetition
-            if( (type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("log.repeat") == false) )
+            if( (type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.repeat") == false) )
             {
                 string logRepetitionNormalized = message;
                 logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
@@ -130,7 +130,7 @@ namespace Eddie.Core
 			lock (Entries)
 			{
 				Entries.Add(l);
-				if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Entries.Count >= Engine.Instance.Storage.GetInt("log.limit")))
+				if ((Engine.Instance != null) && (Engine.Instance.Storage != null) && (Entries.Count >= Engine.Instance.Options.GetInt("log.limit")))
 					Entries.RemoveAt(0);
 			}
 
@@ -147,7 +147,7 @@ namespace Eddie.Core
 		public string GetLogDetailTitle()
 		{
 			string output = "";
-			if ((Engine.Instance.Storage != null) && (Engine.Instance.Storage.GetBool("advanced.expert")))
+			if ((Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("advanced.expert")))
 			{
 				if (Engine.Instance.WaitMessage == m_lastLogMessage)
 					output = "";

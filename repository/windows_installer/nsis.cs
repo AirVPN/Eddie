@@ -9,22 +9,10 @@ class Program
 	{
 		try
 		{
-			string scriptPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-			//string csPath = scriptPath + "\\..\\..\\src\\Lib.Common\\Constants.cs";
-			//string body = System.IO.File.ReadAllText(csPath);
-
-			//string version = System.Text.RegularExpressions.Regex.Match(body, "VersionDesc = \"([0-9\\.]+)\"").Groups[1].Value;
-
-			//Console.WriteLine(version);
-
-			Console.WriteLine(args.Length);
-			for (int i = 0; i < args.Length; i++)
-				Console.WriteLine("A" + i + ":" + args[i]);
-
+			string scriptPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);			
 			string arch = args[0];
 			string pathTemp = args[1];
-			string pathDeploy = args[2];
-			
+			string pathDeploy = args[2];			
 
 			string nsis = System.IO.File.ReadAllText(scriptPath + "\\nsis\\Eddie-UI.nsi");
 

@@ -131,18 +131,18 @@ namespace Eddie.Core.Threads
                     if (CancelRequested)
 						continue;
 
-                    string forceServer = Engine.Storage.Get("server");
+                    string forceServer = Engine.Options.Get("server");
                     if ((Engine.NextServer == null) && (forceServer != ""))
                     {
                         Engine.NextServer = Engine.PickConnectionByName(forceServer);
                     }
 
-                    if ((Engine.NextServer == null) && (Engine.Storage.GetBool("servers.startlast")))
+                    if ((Engine.NextServer == null) && (Engine.Options.GetBool("servers.startlast")))
                     {
-                        Engine.NextServer = Engine.PickConnection(Engine.Storage.Get("servers.last"));
+                        Engine.NextServer = Engine.PickConnection(Engine.Options.Get("servers.last"));
                     }
 
-                    if ((Engine.NextServer == null) && (Engine.Storage.GetBool("servers.locklast")) && (sessionLastServer != ""))
+                    if ((Engine.NextServer == null) && (Engine.Options.GetBool("servers.locklast")) && (sessionLastServer != ""))
                     {
                         Engine.NextServer = Engine.PickConnection(sessionLastServer);
                     }
@@ -240,7 +240,7 @@ namespace Eddie.Core.Threads
 										}
 										else if (userMessageAction == "next")
 										{
-											Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
+											Engine.CurrentServer.Penality += Engine.Options.GetInt("advanced.penality_on_error");
 											waitingMessage = userMessage + ", next in {1} sec.";
 											waitingSecs = 5;
 										}
@@ -258,16 +258,30 @@ namespace Eddie.Core.Threads
 					if (CancelRequested)
 						continue;
 
-                    if(Engine.CurrentServer.SupportIPv6)
+					if (Engine.CurrentServer.SupportIPv4)
+					{
+						bool osSupport = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv4"].Value);
+						if ((osSupport == false) && (Engine.Instance.Options.GetLower("network.ipv4.mode") != "block"))
+						{
+							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByOS"));
+							if ((Engine.Instance.Options.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Options.Get("network.ipv4.mode") != "block"))
+							{
+								Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
+								Engine.Instance.Options.Set("network.ipv4.mode", "block");
+							}
+						}
+					}
+
+					if (Engine.CurrentServer.SupportIPv6)
 					{
 						bool osSupport = Conversions.ToBool(Engine.Instance.Manifest["network_info"]["support_ipv6"].Value);
-						if( (osSupport == false) && (Engine.Instance.Storage.GetLower("network.ipv6.mode") != "block"))
+						if( (osSupport == false) && (Engine.Instance.Options.GetLower("network.ipv6.mode") != "block"))
 						{
 							Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByOS"));
-							if ((Engine.Instance.Storage.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv6.mode") != "block"))
+							if ((Engine.Instance.Options.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Options.Get("network.ipv6.mode") != "block"))
 							{
 								Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
-								Engine.Instance.Storage.Set("network.ipv6.mode", "block");
+								Engine.Instance.Options.Set("network.ipv6.mode", "block");
 							}
 						}	
 					}
@@ -276,7 +290,7 @@ namespace Eddie.Core.Threads
 					{
 						m_connectionActive = Engine.CurrentServer.BuildConnectionActive(false);
 
-						if (Engine.Instance.Storage.GetBool("advanced.skip_tun_detect") == false)
+						if (Engine.Instance.Options.GetBool("advanced.skip_tun_detect") == false)
 						{
 							string driverRequested = Platform.Instance.GetOvpnDriverRequested(m_connectionActive.OpenVpnProfileStartup);
 							Engine.Instance.WaitMessageSet(LanguageManager.GetText("OsDriverInstall", driverRequested), false);
@@ -338,7 +352,7 @@ namespace Eddie.Core.Threads
 						m_connectionActive.ExitIPs.Add(Engine.CurrentServer.IpsExit.Clone());
 
 						sessionLastServer = Engine.CurrentServer.Code;
-						Engine.Storage.Set("servers.last", Engine.CurrentServer.Code);
+						Engine.Options.Set("servers.last", Engine.CurrentServer.Code);
 
 						routeScope = new RouteScope(m_connectionActive.EntryIP); // Clodo: Urgent, may not work under some OS with NetLock active. Try to add the RouteScope when detecting protocol from OpenVPN logs.
 
@@ -465,7 +479,7 @@ namespace Eddie.Core.Threads
 
 						if (m_reset == "ERROR") // Added in 2.11
 						{
-							Engine.CurrentServer.Penality += Engine.Storage.GetInt("advanced.penality_on_error");
+							Engine.CurrentServer.Penality += Engine.Options.GetInt("advanced.penality_on_error");
 						}
 
 						// -----------------------------------
@@ -847,8 +861,8 @@ namespace Eddie.Core.Threads
 				//sslConfig += "output = /dev/stdout\n"; // With this, with new stunnel 5.01, we have duplicated output dump.
 				sslConfig += "foreground = yes\n";	// Without this, the process fork and it's exit can't be detected.
 			}
-			if (Engine.Instance.Storage.Get("ssl.options") != "")
-				sslConfig += "options = " + Engine.Instance.Storage.Get("ssl.options") + "\n";
+			if (Engine.Instance.Options.Get("ssl.options") != "")
+				sslConfig += "options = " + Engine.Instance.Options.Get("ssl.options") + "\n";
 			sslConfig += "client = yes\n";
 			sslConfig += "debug = 6\n";
 			if (Platform.Instance.IsUnixSystem())
@@ -858,8 +872,8 @@ namespace Eddie.Core.Threads
 			sslConfig += "accept = 127.0.0.1:" + Conversions.ToString(m_connectionActive.SslLocalPort) + "\n";
 			sslConfig += "connect = " + m_connectionActive.Address + ":" + m_connectionActive.SslRemotePort + "\n";
 			sslConfig += "TIMEOUTclose = 0\n";
-			if (Engine.Instance.Storage.GetInt("ssl.verify") != -1)
-				sslConfig += "verify = " + Engine.Instance.Storage.GetInt("ssl.verify").ToString() + "\n";
+			if (Engine.Instance.Options.GetInt("ssl.verify") != -1)
+				sslConfig += "verify = " + Engine.Instance.Options.GetInt("ssl.verify").ToString() + "\n";
 			sslConfig += "CAfile = " + m_fileSslCrt.Path + "\n"; // Note: don't like quoted path
             sslConfig += "\n";
 
@@ -1379,7 +1393,7 @@ namespace Eddie.Core.Threads
 					{
 						Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("AutoPortSwitch"));
 
-						Engine.Storage.SetInt("openvpn.management_port", Engine.Storage.GetInt("openvpn.management_port") + 1);
+						Engine.Options.SetInt("openvpn.management_port", Engine.Options.GetInt("openvpn.management_port") + 1);
 
 						SetReset("RETRY");
 					}
@@ -1708,19 +1722,19 @@ namespace Eddie.Core.Threads
 			if ((m_connectionActive.TunnelIPv4) && (jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value) == false))
 			{
 				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapter"));
-				if ( (Engine.Instance.Storage.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv4.mode") != "block") )
+				if ( (Engine.Instance.Options.GetBool("network.ipv4.autoswitch")) && (Engine.Instance.Options.Get("network.ipv4.mode") != "block") )
 				{
 					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv4NotSupportedByNetworkAdapterAutoSwitch"));
-					Engine.Instance.Storage.Set("network.ipv4.mode", "block");
+					Engine.Instance.Options.Set("network.ipv4.mode", "block");
 				}
 			}
 			if ((m_connectionActive.TunnelIPv6) && (jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value) == false))
 			{
 				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapter"));
-				if ((Engine.Instance.Storage.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Storage.Get("network.ipv6.mode") != "block"))
+				if ((Engine.Instance.Options.GetBool("network.ipv6.autoswitch")) && (Engine.Instance.Options.Get("network.ipv6.mode") != "block"))
 				{
 					Engine.Instance.Logs.LogWarning(LanguageManager.GetText("IPv6NotSupportedByNetworkAdapterAutoSwitch"));
-					Engine.Instance.Storage.Set("network.ipv6.mode", "block");
+					Engine.Instance.Options.Set("network.ipv6.mode", "block");
 				}
 			}
 		}
@@ -1732,7 +1746,7 @@ namespace Eddie.Core.Threads
 			
 			Platform.Instance.OnInterfaceDo(m_connectionActive.Interface.Id);
 
-			IpAddresses dns = new IpAddresses(Engine.Instance.Storage.Get("dns.servers"));
+			IpAddresses dns = new IpAddresses(Engine.Instance.Options.Get("dns.servers"));
 			if (dns.Count == 0)
 				dns = Engine.ConnectionActive.OpenVpnProfileWithPush.ExtractDns();
 
@@ -1782,7 +1796,7 @@ namespace Eddie.Core.Threads
 					if ((m_reset == "") && (service.CheckTunnel))
 					{
 						int nTry = 3;
-						if (Engine.Instance.Storage.GetBool("windows.workarounds"))
+						if (Engine.Instance.Options.GetBool("windows.workarounds"))
 							nTry = 10;
 
 						if ((m_connectionActive.TunnelIPv4) && (Engine.CurrentServer.SupportIPv4))
@@ -1941,13 +1955,13 @@ namespace Eddie.Core.Threads
 					}
 
 					// DNS test
-					if ((m_reset == "") && (service.CheckDns) && (Engine.Storage.Get("dns.servers") == ""))
+					if ((m_reset == "") && (service.CheckDns) && (Engine.Options.Get("dns.servers") == ""))
 					{
 						Engine.WaitMessageSet(LanguageManager.GetText("ConnectionCheckingDNS"), true);
 
 						bool ok = false;
 						int nTry = 3;
-						if (Engine.Instance.Storage.GetBool("windows.workarounds"))
+						if (Engine.Instance.Options.GetBool("windows.workarounds"))
 							nTry = 10;
 
 						for (int t = 0; t < nTry; t++)
@@ -2032,7 +2046,7 @@ namespace Eddie.Core.Threads
 				Engine.SetConnected(true);
 				m_connectionActive.TimeStart = DateTime.UtcNow;
 
-				if (Engine.Instance.Storage.GetBool("advanced.testonly"))
+				if (Engine.Instance.Options.GetBool("advanced.testonly"))
 					Engine.RequestStop();
 			}
 		}
