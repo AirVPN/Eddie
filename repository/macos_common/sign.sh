@@ -41,8 +41,15 @@ if [ ${VARSTAFF} = "yes" ]; then
     if [ ${DOSIGN} = "no" ]; then
         set +e
         codesign --verify -v "${VARPATH}"
-        if [ $? -eq 0 ]; then
-            echo "Signing, already: ${VARPATH}"
+        if [ $? -eq 0 ]; then            
+            # Files with 'Signature=adhoc' pass verify, ensure there is an Authority
+            VARAUTHORITY=$(codesign -dv --verbose=4 "${VARPATH}" 2>&1 | grep Authority)
+            if [ -z "$VARAUTHORITY" ]; then
+                echo "Detected signed without Authority, resign"
+                DOSIGN="yes"
+            else
+                echo "Signing, already: ${VARPATH}"
+            fi
         else
             DOSIGN="yes"
         fi

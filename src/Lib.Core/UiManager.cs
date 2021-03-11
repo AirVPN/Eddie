@@ -91,14 +91,6 @@ namespace Eddie.Core
 
 				report.Start(sender);
 			}
-			// TOCLEAN_OPENVPNMANAGEMENT
-			/*
-			else if (cmd == "openvpn_management")
-			{
-				if (Engine.Instance.SendManagementCommand(data["management_command"].Value as string) == false)
-					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OpenVpnManagementCommandFail"));
-			}
-			*/
 			else if (cmd == "tor_control")
 			{
 				string resultC = TorControl.SendCommand(data["control_command"].Value as string);

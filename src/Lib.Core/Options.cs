@@ -498,7 +498,7 @@ namespace Eddie.Core
 			SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-256-CBC:AES-192-GCM:AES-192-CBC:AES-128-GCM:AES-128-CBC", NotInMan);
 			SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-CBC", NotInMan);
 			SetDefaultBool("openvpn.directives.chacha20", false, NotInMan); // Temporary
-																			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
+            //SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText("ManOptionOpenVpnSkipDefaults"));
 
 			// Not in Settings
@@ -555,7 +555,7 @@ namespace Eddie.Core
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
 			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
-			SetDefaultBool("windows.wintun", false, NotInMan); // Switch to true when stable/tested.
+			SetDefaultBool("windows.wintun", false, NotInMan);
 
 			// Linux only
 			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9;systemd-resolved", NotInMan);

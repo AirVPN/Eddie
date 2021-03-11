@@ -46,7 +46,7 @@ namespace Eddie.Core
 				if( (ip == null) || (ip.Valid == false) )
 					throw new Exception("Invalid ip");
 				routeScope = new RouteScope(ip.ToString());
-				Int64 result = Platform.Instance.Ping(ip, Engine.Instance.Options.GetInt("pinger.timeout"));		
+                Int64 result = Platform.Instance.Ping(ip, Engine.Instance.Options.GetInt("pinger.timeout"));		
 
                 if ( (Engine.Instance == null) || (Engine.Instance.JobsManager == null) || (Engine.Instance.JobsManager.Latency == null) )
 					return; // Avoid unidentified crash

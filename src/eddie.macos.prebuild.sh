@@ -39,6 +39,12 @@ PROJECT=$2
 ARCH=$3
 CONFIG=$4
 
+# See comment in /repository/build_macos.sh
+ARCH=$(cat /tmp/eddie_deploy_arch_native.txt)
+if [ ${ARCH} = "x86_64" ]; then
+    ARCH=x64
+fi
+
 echo Basepath: $BASEPATH
 echo TargetDir: $OUTPATH
 echo Project: $PROJECT

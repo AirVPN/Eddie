@@ -175,7 +175,17 @@ namespace Eddie.UI.Cocoa.Osx
 				EnabledUI();
 			};
 
+			TxtLogin.Changed += (object sender, EventArgs e) =>
+			{
+				EnabledUI();
+			};
+
 			TxtPassword.Activated += (object sender, EventArgs e) =>
+			{
+				EnabledUI();
+			};
+
+			TxtPassword.Changed += (object sender, EventArgs e) =>
 			{
 				EnabledUI();
 			};

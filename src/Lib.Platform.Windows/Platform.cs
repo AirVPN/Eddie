@@ -119,11 +119,35 @@ namespace Eddie.Platform.Windows
 			try
 			{
 				// Check VC++ Redistributable
-
 				// Need because our lib include libcurl, and static link of libcurl is not recommended
-				// Registry check is not affidable, with vcredistr installed via msm/wix
-				//if (Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetOsArchitecture(), "Major", "0"), 0)<14)
-				if (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140_1.dll")) == false)
+				bool vcRuntimeAvailable = false;
+
+				// <2.20
+				/*
+				if (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140_1.dll")))
+					vcRuntimeAvailable = true;
+				*/
+
+				if (GetArchitecture() == "x86")
+				{
+					int currentVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetArchitecture().ToUpperInvariant(), "Major", "0"), 0);
+					if (currentVersion >= 14)
+						vcRuntimeAvailable = true;
+					if (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140.dll")) == false)
+						vcRuntimeAvailable = false;
+				}
+				else
+				{
+					int currentVersion = Conversions.ToInt32(Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\" + GetArchitecture(), "Major", "0"), 0);
+					if (currentVersion >= 14)
+						vcRuntimeAvailable = true;
+
+					// Registry check is not affidable, with vcredistr installed via msm/wix
+					if( (currentVersion == 14) && (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140_1.dll")) == false) )
+						vcRuntimeAvailable = false;
+				}
+
+				if(vcRuntimeAvailable == false)
 				{
 					Engine.Instance.Logs.LogFatal("This software require some additional files (C++ Redistributable) that are not currently installed on your system. Use the Installer edition, or look https://eddie.website/windows-runtime/");
 					return false;

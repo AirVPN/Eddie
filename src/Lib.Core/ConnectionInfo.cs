@@ -199,7 +199,10 @@ namespace Eddie.Core
 		}
 		
 		public int UsersPerc()
-		{			
+		{
+            if (UsersMax == 0)
+                return 100;
+
 			return Conversions.ToInt32((Users * 100) / UsersMax);
 		}
 
@@ -693,25 +696,7 @@ namespace Eddie.Core
 						connectionActive.AddRoute(torNodeIp, "net_gateway", "Tor Guard");
 				}
 			}
-
-			// TOCLEAN
-			/*
-            if(Engine.Instance.GetUseOpenVpnManagement())
-            {
-				string managementPasswordFile = "dummy.ppw";
-				if(preview == false)
-				{
-					connectionActive.ManagementPassword = RandomGenerator.GetHash();
-					connectionActive.ManagementPasswordFile = new TemporaryFile("ppw");
-					managementPasswordFile = connectionActive.ManagementPasswordFile.Path;
-                    Platform.Instance.FileContentsWriteText(managementPasswordFile, connectionActive.ManagementPassword, Encoding.ASCII); // UTF8 not recognized by OpenVPN
-                    Platform.Instance.FileEnsurePermission(managementPasswordFile, "600");
-				}
-
-				ovpn.AppendDirective("management", "127.0.0.1 " + Engine.Instance.Options.Get("openvpn.management_port") + " " + ovpn.EncodePath(managementPasswordFile), "");
-			}
-			*/
-
+			
 			Provider.OnBuildConnectionActive(this, connectionActive);
 
 			Provider.OnBuildConnectionActiveAuth(connectionActive);

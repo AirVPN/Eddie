@@ -599,12 +599,15 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 
 		std::vector<std::string> paths;
 		AddTorCookiePaths(processPath, username, paths);
+        
+        LogRemote("pazzo tor search");
 
 		for (std::vector<std::string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
 		{
 			std::string path = *i;
 			if (FsFileExists(path))
 			{
+                LogRemote("pazzo tor found:" + path);
 				std::vector<char> chars = FsFileReadBytes(path);
 				if (chars.size() > 0)
 				{

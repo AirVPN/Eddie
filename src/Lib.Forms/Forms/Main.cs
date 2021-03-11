@@ -1409,7 +1409,7 @@ namespace Eddie.Forms.Forms
 								Item.TextEdition = l.GetStringLines();
 
 								lstLogs.Items.Add(Item);
-								Item.EnsureVisible();
+								//Item.EnsureVisible();
 
 								if (lstLogs.Items.Count >= Engine.Options.GetInt("log.limit"))
 									lstLogs.Items.RemoveAt(0);
@@ -1432,7 +1432,9 @@ namespace Eddie.Forms.Forms
 			}			
 		}
 
-		private delegate void RequestShowDelegate();
+
+
+        private delegate void RequestShowDelegate();
 		public void RequestShow()
 		{
 			try
@@ -1862,6 +1864,8 @@ namespace Eddie.Forms.Forms
 
 									Log(l);
 								}
+
+                                LogScrollBottom();
 							}
 						}
 
@@ -1880,24 +1884,6 @@ namespace Eddie.Forms.Forms
 						{
 							m_listViewServers.UpdateList();
 							m_listViewAreas.UpdateList();
-
-							// Keys list
-							/* TOCLEAN, old version
-							cboKey.Items.Clear();
-							if( (Engine.Instance != null) && (Engine.Instance.AirVPN != null) && (Engine.Instance.AirVPN.User != null) )
-							{
-								foreach (XmlElement xmlKey in Engine.Instance.AirVPN.User.SelectNodes("keys/key"))
-								{
-									string name = xmlKey.GetAttribute("name");
-									cboKey.Items.Add(name);
-								}
-
-								if (cboKey.Items.Contains(Engine.Instance.Options.Get("key")) == true)
-								{
-									cboKey.SelectedItem = Engine.Instance.Options.Get("key");
-								}
-							}
-							*/
 
 							List<string> keysAdd = new List<string>();
 							List<string> keysRemove = new List<string>();
@@ -2453,7 +2439,25 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
-		public bool NetworkLockKnowledge()
+        public void LogScrollBottom()
+        {
+            try
+            {
+                lock (this)
+                {
+                    if (lstLogs.Items.Count > 0)
+                    {
+                        lstLogs.Items[lstLogs.Items.Count - 1].EnsureVisible();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Engine.Instance.Logs.LogUnexpected(ex);
+            }
+        }
+
+        public bool NetworkLockKnowledge()
 		{
 			string Msg = LanguageManager.GetText("NetworkLockWarning");
 

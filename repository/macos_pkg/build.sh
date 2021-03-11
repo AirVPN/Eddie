@@ -13,18 +13,12 @@ if [ "$1" == "" ]; then
 fi
 
 if [ "$2" == "" ]; then
-	echo Second arg must be Architecture: x64
-	exit 1
-fi
-
-if [ "$3" == "" ]; then
-	echo Third arg must be OS: 10.9,10.15
+	echo Second arg must be OS: 10.9,10.15
 	exit 1
 fi
 
 PROJECT=$1
-ARCH=$2
-VAROS=$3
+VAROS=$2
 CONFIG=Release
 
 VARSTAFF="no"
@@ -32,7 +26,7 @@ if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then # Staff AirVPN
     VARSTAFF="yes"
 fi
 
-# ARCH=$($SCRIPTDIR/../macos_common/get-arch.sh)
+ARCH=$($SCRIPTDIR/../macos_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../macos_common/get-version.sh)
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_installer_temp.pkg
@@ -85,7 +79,7 @@ fi
 
 if [ ${VARSTAFF} = "yes" ]; then
     if [ ${VARHARDENING} = "yes" ]; then    
-        "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}" "${PROJECT}"
+        "${SCRIPTDIR}/../macos_common/notarize.sh" "${FINALPATH}" "org.airvpn.eddie.${PROJECT}"
     fi
 fi
 
@@ -95,7 +89,7 @@ mv ${FINALPATH} ${DEPLOYPATH}
 
 # Deploy to eddie.website
 
-"${SCRIPTDIR}/../macos_common/deploy.sh" "${DEPLOYPATH}"
+"${SCRIPTDIR}/../macos_common/deploy.sh" "${DEPLOYPATH}" "internal"
 
 # Cleanup
 

@@ -318,6 +318,8 @@ namespace Eddie.Core
 			// Hardcoded string that need to be moved in language system
 			//if (id == "StatsVpnDataChannel") return "VPN Data Channel";
 
+			if (id == "LogsDisabledForError") return "Log to file disabled due to error, {1}";
+
 			return "";
         }
     }

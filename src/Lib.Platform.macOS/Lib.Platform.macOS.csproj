@@ -38,7 +38,6 @@
     <UseRefCounting>false</UseRefCounting>
     <Profiling>false</Profiling>
     <HybridAOT>false</HybridAOT>
-    <MacOSXSdkVersion></MacOSXSdkVersion>
     <CodeSignEntitlements></CodeSignEntitlements>
     <CodeSignResourceRules></CodeSignResourceRules>
   </PropertyGroup>
@@ -101,7 +100,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Mono.Posix" />
     <Reference Include="Xamarin.Mac">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\6.18.2.1\lib\reference\full\Xamarin.Mac.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\Current\lib\reference\full\Xamarin.Mac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

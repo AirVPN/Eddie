@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # First argument must be file package
-# Second argument must be project (cli/ui)
+# Second argument must be bundle id
 
 # set -euo pipefail
 
@@ -10,7 +10,7 @@ realpath() {
 }
 
 FILENOTARIZE=$1
-PROJECT=$2
+APPLE_NOTARIZE_BUNDLE_ID=$2
 
 SCRIPTDIR=$(dirname $(realpath "$0"))
 
@@ -21,7 +21,6 @@ if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then
     APPLE_NOTARIZE_USERNAME=$(cat ${SCRIPTDIR}/../signing/apple-notarize-username.txt)
     APPLE_NOTARIZE_PASSWORD=$(cat ${SCRIPTDIR}/../signing/apple-notarize-password.txt)
     
-    APPLE_NOTARIZE_BUNDLE_ID="org.airvpn.eddie.${PROJECT}"
     APPLE_NOTARIZE_ASC_PROVIDER=$(cat ${SCRIPTDIR}/../signing/apple-notarize-asc-provider.txt)
 
     echo "Notarization Upload..."
@@ -33,6 +32,7 @@ if test -f "${SCRIPTDIR}/../signing/apple-dev-id.txt"; then
     echo 2- if fail with 'You must first sign the relevant contracts online. (1048)', goto https://developer.apple.com/account/ , login and accept the new TOS.
     echo ----
 
+    echo xcrun altool --notarize-app --primary-bundle-id "$APPLE_NOTARIZE_BUNDLE_ID" --username "$APPLE_NOTARIZE_USERNAME" --password "$APPLE_NOTARIZE_PASSWORD" --asc-provider "$APPLE_NOTARIZE_ASC_PROVIDER" --file "${FILENOTARIZE}" 2>&1 | awk '/RequestUUID/ { print $NF; }'
     requestUUID=$(xcrun altool --notarize-app --primary-bundle-id "$APPLE_NOTARIZE_BUNDLE_ID" --username "$APPLE_NOTARIZE_USERNAME" --password "$APPLE_NOTARIZE_PASSWORD" --asc-provider "$APPLE_NOTARIZE_ASC_PROVIDER" --file "${FILENOTARIZE}" 2>&1 | awk '/RequestUUID/ { print $NF; }')
                                
     echo "Notarization RequestUUID: $requestUUID"

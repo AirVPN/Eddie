@@ -480,13 +480,7 @@ namespace Eddie.Forms.Forms
 				cboDnsSwitchMode.Text = "Disabled";
 			else if (dnsMode == "auto")
 				cboDnsSwitchMode.Text = "Automatic";
-            /* TOCLEAN
-			else if (dnsMode == "resolvconf")
-				cboDnsSwitchMode.Text = "Resolvconf (Linux only)";
-			else if (dnsMode == "rename")
-				cboDnsSwitchMode.Text = "Renaming (Linux only)";
-			*/               
-			else
+            else
 				cboDnsSwitchMode.Text = "Automatic";
 
 			chkDnsCheck.Checked = o.GetBool("dns.check");
@@ -856,12 +850,6 @@ namespace Eddie.Forms.Forms
 				o.Set("dns.mode", "none");
 			else if (dnsMode == "Automatic")
 				o.Set("dns.mode", "auto");
-			/* TOCLEAN
-			else if (dnsMode == "Resolvconf (Linux only)")
-				o.Set("dns.mode", "resolvconf");
-			else if (dnsMode == "Renaming (Linux only)")
-				o.Set("dns.mode", "rename");
-			*/
 			else
 				o.Set("dns.mode", "auto");
 

@@ -165,7 +165,7 @@ namespace Eddie.Core.Jobs
 		public int GetPingerDelayValid(ConnectionInfo server) // Delay for consider valid
 		{
 			int delay = Engine.Instance.Options.GetInt("pinger.valid");
-			if (delay == 0)
+            if (delay == 0)
 				delay = GetPingerDelaySuccess(server) * 5;
 			return delay;
 		}
@@ -266,9 +266,8 @@ namespace Eddie.Core.Jobs
 		}
 
 		public List<ConnectionInfo> GetConnectionsToPing()
-		{
-			// Old: Engine.Instance.Connections.Values
-			List<ConnectionInfo> connections = Engine.Instance.GetConnections(false);
+		{		
+            List<ConnectionInfo> connections = Engine.Instance.GetConnections(false);
 			return connections;
 		}
 	}

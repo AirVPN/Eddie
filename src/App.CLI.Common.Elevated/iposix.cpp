@@ -276,6 +276,8 @@ void IPosix::AddTorCookiePaths(const std::string& torPath, const std::string& us
 
 	result.push_back("/var/run/tor/control.authcookie");
 	result.push_back("/var/lib/tor/control_auth_cookie");
+    result.push_back("/run/tor/control.authcookie"); // Default Ubuntu 20.04.1 LTS tor from official repo
+    result.push_back("/run/tor/control_auth_cookie"); // Variant of above
 }
 
 // --------------------------
@@ -334,20 +336,16 @@ std::string IPosix::GetCmdlineOfProcessId(pid_t pid)
     
     std::string result;
     FILE *f;
-    char ch;
     f = fopen(path.c_str(), "rb");
     if(f == NULL)
         return "";  
     for(;;)
     {
-        ch = fgetc(f);
-        if(ch == EOF)
+        int chI = fgetc(f);
+        if(chI == EOF)
             break;
-
-		#ifdef __arm__
-			// Workaround. The if(ch == EOF) above never match under raspbian (at least Buster) EOF==-1. The if(ch == 255) below throw a warning constant-out-of-range under macOS. Need investigation.
-			if(ch == 255) break;
-		#endif
+            
+        unsigned char ch = (unsigned char) chI;
         
         if(ch == 0)
             result += " ";

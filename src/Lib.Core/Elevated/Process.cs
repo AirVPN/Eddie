@@ -58,8 +58,7 @@ namespace Eddie.Core.Elevated
 		public void Start()
 		{
             if (Platform.Instance.NeedExecuteOutsideAppPath(Command.Parameters["path"]))
-			{
-				// TOCLEAN string tempPathToDelete = Utils.GetTempPath() + "/eddie-external-process-" + RandomGenerator.GetHash();
+			{				
 				string tempPathToDelete = Platform.Instance.FileTempName(Platform.Instance.FileGetNameFromPath(Command.Parameters["path"]));
 
 				if (Platform.Instance.FileExists(tempPathToDelete))

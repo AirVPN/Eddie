@@ -359,7 +359,7 @@ namespace Eddie.Core
 				dataEncrypted = new byte[b.Length - 3];
 				Array.Copy(b, 3, dataEncrypted, 0, b.Length - 3);
 			}
-			else if (header.StartsWith("v2"))
+			else if (header.StartsWithInv("v2"))
 			{
 				byte[] bId = new byte[64];
 				Array.Copy(b, 3, bId, 0, 64);

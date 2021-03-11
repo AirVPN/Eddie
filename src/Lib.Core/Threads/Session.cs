@@ -49,13 +49,6 @@ namespace Eddie.Core.Threads
 		private Elevated.Process m_processOpenVpn;
 		private Process m_processProxy;
 
-		// TOCLEAN_OPENVPNMANAGEMENT
-		/*
-		private Socket m_openVpnManagementSocket;
-		private List<string> m_openVpnManagementCommands = new List<string>();
-		private List<string> m_openVpnManagementStatisticsLines = new List<string>();
-		*/
-
 		private string m_reset = "";
 		private List<SessionLogEvent> m_logEvents = new List<SessionLogEvent>();
 		List<ConnectionActiveRoute> m_routes = new List<ConnectionActiveRoute>();
@@ -176,9 +169,6 @@ namespace Eddie.Core.Threads
 
                     if (CancelRequested)
 						continue;
-
-					// TOCLEAN_OPENVPNMANAGEMENT
-					// m_openVpnManagementCommands.Clear();					
 
 					if (Engine.NextServer == null)
 						Engine.NextServer = Engine.PickConnection();
@@ -434,9 +424,6 @@ namespace Eddie.Core.Threads
 								if (Engine.IsConnected() == false)
 									throw new Exception("Unexpected.");
 
-								// TOCLEAN_OPENVPNMANAGEMENT
-								// ProcessOpenVpnManagement();
-
 								// Need stop?
 								bool StopRequest = false;
 
@@ -514,36 +501,24 @@ namespace Eddie.Core.Threads
 
 								int now = Utils.UnixTimeStamp();
 
-								// TOCLEAN_OPENVPNMANAGEMENT
-								/*
-								// OpenVPN process completed, but management socket still opened. Strange, but happen. Closing socket.
-								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.ReallyExited == true) && (m_openVpnManagementSocket.Connected))
-									m_openVpnManagementSocket.Close();
-								*/
-
 								// OpenVPN process still exists, but management socket is not connected. We can't tell to OpenVPN to do a plain disconnection, force killing.
 								if ((m_processOpenVpn != null) && (m_processOpenVpn.ReallyExited == false))
-								{
-									// TOCLEAN_OPENVPNMANAGEMENT
-									//if ((m_openVpnManagementSocket == null) || (m_openVpnManagementSocket.Connected == false))
-									if(true)
+								{									
+									if (now - lastSignalTime >= 10)
 									{
-										if (now - lastSignalTime >= 10)
-										{
-											lastSignalTime = now;
+										lastSignalTime = now;
 
-											if ((lastSignalType == "none") || (lastSignalType == "management"))
-											{
-												lastSignalType = "soft";
-												Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithSoft"));												
-												m_processOpenVpn.KillSoft();
-											}
-											else if ((lastSignalType == "soft") || (lastSignalType == "hard"))
-											{
-												lastSignalType = "hard";
-												Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithHard"));
-												m_processOpenVpn.Kill();
-											}
+										if ((lastSignalType == "none") || (lastSignalType == "management"))
+										{
+											lastSignalType = "soft";
+											Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithSoft"));												
+											m_processOpenVpn.KillSoft();
+										}
+										else if ((lastSignalType == "soft") || (lastSignalType == "hard"))
+										{
+											lastSignalType = "hard";
+											Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithHard"));
+											m_processOpenVpn.Kill();
 										}
 									}
 								}
@@ -569,22 +544,6 @@ namespace Eddie.Core.Threads
 										}
 									}
 								}
-
-								// TOCLEAN_OPENVPNMANAGEMENT
-								/*
-								// Start a clean disconnection
-								if ((m_processOpenVpn != null) && (m_openVpnManagementSocket != null) && (m_processOpenVpn.ReallyExited == false) && (m_openVpnManagementSocket.Connected))
-								{
-									if (now - lastSignalTime >= 10)
-									{
-										lastSignalTime = now;
-										lastSignalType = "management";
-										Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("KillWithManagement"));
-										SendManagementCommand("signal SIGTERM");
-										ProcessOpenVpnManagement();
-									}
-								}
-								*/
 							}
 							catch (Exception e)
 							{
@@ -592,12 +551,6 @@ namespace Eddie.Core.Threads
 							}
 
 							bool exit = true;
-
-							// TOCLEAN_OPENVPNMANAGEMENT
-							/*
-							if ((m_openVpnManagementSocket != null) && (m_openVpnManagementSocket.Connected))
-								exit = false;
-							*/
 
 							if ((m_processProxy != null) && (m_processProxy.ReallyExited == false))
 								exit = false;
@@ -667,16 +620,6 @@ namespace Eddie.Core.Threads
 
 						Engine.Instance.ConnectionActive = null;
 
-
-						// TOCLEAN_OPENVPNMANAGEMENT
-						/*
-						if (m_openVpnManagementSocket != null)
-						{
-							(m_openVpnManagementSocket as IDisposable).Dispose();
-							m_openVpnManagementSocket = null;
-						}
-						*/
-
 						ProcessLogsEvents();
 					}
 
@@ -725,7 +668,6 @@ namespace Eddie.Core.Threads
 					for (int i = 0; i < waitingSecs; i++)
 					{
 						Engine.WaitMessageSet(LanguageManager.FormatText(waitingMessage, (waitingSecs - i).ToString()), true);
-						//Engine.Log(Engine.LogType.Verbose, waitingMessage);
 						if (CancelRequested)
 							break;
 
@@ -967,24 +909,6 @@ namespace Eddie.Core.Threads
 			}
 		}
 
-		// TOCLEAN_OPENVPNMANAGEMENT
-		/*
-		public bool SendManagementCommand(string cmd)
-		{
-			if (m_openVpnManagementSocket == null)
-				return false;
-
-			if (m_openVpnManagementSocket.Connected == false)
-				return false;
-
-			lock (this)
-			{
-				m_openVpnManagementCommands.Add(cmd);
-				return true;
-			}
-		}
-		*/
-
 		void ProcessSshOutputDataReceived(object sender, DataReceivedEventArgs e)
 		{
 			if (e.Data != null)
@@ -1012,62 +936,7 @@ namespace Eddie.Core.Threads
                 AddLogEvent("OpenVPN", data);
             }
 		}
-
-		// TOCLEAN_OPENVPNMANAGEMENT
-		/*
-		void ProcessOpenVpnManagement()
-		{
-			try
-			{
-				// Fetch OpenVPN Management
-				if (m_openVpnManagementSocket != null)
-				{
-					if (m_openVpnManagementSocket.Connected == false)
-						throw new Exception("OpenVPN Management disconnected.");
-
-					lock (this)
-					{
-						foreach (string command in m_openVpnManagementCommands)
-						{
-							bool log = true;
-							if (command == "status")
-								log = false;
-							if (command == m_connectionActive.ManagementPassword)
-								log = false;
-
-							if (log)
-								Engine.Logs.Log(LogType.Verbose, "Management - Send '" + command + "'");
-
-							string MyCmd = command + "\n";
-							Byte[] bufS = new byte[1024 * 16];
-							int lenS = Encoding.ASCII.GetBytes(MyCmd, 0, MyCmd.Length, bufS, 0);
-
-							m_openVpnManagementSocket.Send(bufS, lenS, SocketFlags.None);
-						}
-						m_openVpnManagementCommands.Clear();
-					}
-
-					// Fetch OpenVPN Management
-					if (m_openVpnManagementSocket.Available != 0)
-					{
-						Byte[] buf = new byte[1024 * 16];
-						int bytes = m_openVpnManagementSocket.Receive(buf, buf.Length, 0);
-
-						string data = Encoding.ASCII.GetString(buf, 0, bytes);
-
-						AddLogEvent("Management", data);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Engine.Logs.Log(LogType.Warning, ex);
-
-				SetReset("ERROR");
-			}
-		}
-		*/
-
+		
 		void AddLogEvent(string source, string message)
 		{
             lock(m_logEvents)
@@ -1082,7 +951,9 @@ namespace Eddie.Core.Threads
                     lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\d{4}\\.\\d{2}\\.\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+LOG\\d{1}\\[\\d{0,6}:\\d{0,60}\\]:\\s+", "");
 
                     // Remove Hummingbird timestamp: "Sat Oct 12 10:15:54.795 2019"
-                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{0,3}\\s+\\d{2,4}\\s+", "");
+                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{0,3}\\s+\\d{2,4}\\s+", "").Trim();
+                    // Bug HB, some lines have two dates, for example "Mon Mar  8 13:42:19.871 2021 Mon Mar  8 13:42:19.928 2021 Connecting to [..]:443 (..) via TCPv4"
+                    lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{0,3}\\s+\\d{2,4}\\s+", "").Trim();
 
                     // Example OpenVPN<2.5: "Sat Oct 12 10:13:38 2019 /sbin/ip route add 0.0.0.0/1 via 10.20.6.1"
                     lineN = System.Text.RegularExpressions.Regex.Replace(lineN, "^\\w{3}\\s+\\w{3}\\s+\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\s+\\d{2,4}\\s+", "");
@@ -1125,6 +996,9 @@ namespace Eddie.Core.Threads
 
 		void ProcessLogEvent(string source, string message)
 		{
+            if (source == "Hummingbird")
+                message = ConnectionTypes.Hummingbird.TranslateMessage(message);
+
 			string messageLower = message.ToLowerInvariant(); // Try to match lower/insensitive case when possible.
 			RegexOptions regexOptions = RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline;
 
@@ -1208,21 +1082,21 @@ namespace Eddie.Core.Threads
                     {
                         ConnectedStep();
                     }
-                    else if (message.StartsWithInv("cipher: "))
+                    else if (messageLower.StartsWithInv("cipher: "))
                     {
                         m_connectionActive.DataChannel = message.Substring("cipher: ".Length);
                     }
-                    else if (message.StartsWithInv("SSL Handshake: "))
+                    else if (messageLower.StartsWithInv("ssl handshake: "))
                     {						
                         m_connectionActive.ControlChannel = message.Substring("SSL Handshake: ".Length);
                     }
-                    else if (message.StartsWithInv("open ")) // MacOS
+                    else if (messageLower.StartsWithInv("open ")) // MacOS
                     {
                         Match match = Regex.Match(message, "open (.+?) SUCCEEDED", regexOptions);
                         if (match.Success)
                             CheckTunNetworkInterface(match.Groups[1].Value);
                     }
-                    else if (message.StartsWithInv("net_iface_up: ")) // Linux
+                    else if (messageLower.StartsWithInv("net_iface_up: ")) // Linux
                     {
                         Match match = Regex.Match(message, "net_iface_up: set (.+?) up", regexOptions);
                         if (match.Success)
@@ -1239,6 +1113,12 @@ namespace Eddie.Core.Threads
                                 m_connectionActive.Port = Conversions.ToInt32(fields[1]);
                             }
                         }
+                    }
+                    else if (messageLower.StartsWithInv("client terminated, restarting"))
+                    {
+                        // 2021-03-08: Hummingbird don't honor the connect_max_retry directive, must not retry the connection itself
+                        Engine.Instance.Logs.LogVerbose("Detected Hummingbird retry, force disconnection");
+                        SetReset("ERROR");
                     }
 
                     if (log)
@@ -1477,14 +1357,6 @@ namespace Eddie.Core.Threads
 						}
 					}
 
-					// TOCLEAN_OPENVPNMANAGEMENT
-					/*
-					if (messageLower.RegExMatchOne("^management: tcp socket listening on \\[af_inet6?\\]([0-9a-f\\.\\:]+?)$") != "")
-					{
-						ConnectManagementSocket();
-					}
-					*/
-
 					if (message.IndexOfInv("Initialization Sequence Completed") != -1)
 					{
 						ConnectedStep();
@@ -1647,14 +1519,7 @@ namespace Eddie.Core.Threads
 
 					if (log)
 						Engine.Logs.Log(LogType.Verbose, source + " > " + message);
-				}
-				/* TOCLEAN
-				else if (source == "Management")
-				{
-
-					ProcessOutputManagement(source, message);
-				}
-				*/
+				}				
 			}
 			catch (Exception ex)
 			{
@@ -1663,27 +1528,6 @@ namespace Eddie.Core.Threads
 				SetReset("ERROR");
 			}
 		}
-
-		// TOCLEAN_OPENVPNMANAGEMENT
-		/*
-		public void ConnectManagementSocket()
-		{
-            if(Engine.Instance.GetUseOpenVpnManagement() == false)
-                return;
-
-			if (m_openVpnManagementSocket == null)
-			{
-				Engine.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionStartManagement"));
-
-				m_openVpnManagementSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-				m_openVpnManagementSocket.Connect("127.0.0.1", Engine.Storage.GetInt("openvpn.management_port"));
-				m_openVpnManagementSocket.SendTimeout = 5000;
-				m_openVpnManagementSocket.ReceiveTimeout = 5000;
-
-				SendManagementCommand(m_connectionActive.ManagementPassword);
-			}
-		}
-		*/
 
 		public void CheckTunNetworkInterface(string id)
 		{
@@ -2050,61 +1894,5 @@ namespace Eddie.Core.Threads
 					Engine.RequestStop();
 			}
 		}
-
-		/* TOCLEAN
-		public void ProcessOutputManagement(string source, string message)
-		{
-			// Ignore, useless			
-			if (message.ContainsInv("OpenVPN Management Interface Version 1 -- type 'help' for more info"))
-				return;
-			if (message.StartsWithInv("ENTER PASSWORD:"))
-				return;
-			if (message.StartsWithInv("SUCCESS: password is correct"))
-				return;
-
-			string[] lines = message.Split('\n');
-			for (int i = 0; i < lines.Length; i++)
-			{
-				lines[i] = lines[i].Trim();
-
-				string line = lines[i];
-
-				if (line == "")
-				{
-				}
-				else if (line == "OpenVPN STATISTICS")
-				{
-					m_openVpnManagementStatisticsLines.Add(line);
-				}
-				else if (line == "END")
-				{
-					if (m_openVpnManagementStatisticsLines.Count != 0) // If 0, 'END' refer to another command.
-					{
-						// Process statistics
-						Int64 read = 0;
-						Int64 write = 0;
-						String[] readArray = m_openVpnManagementStatisticsLines[4].Split(',');
-						String[] writeArray = m_openVpnManagementStatisticsLines[5].Split(',');
-						if (readArray.Length == 2)
-							read = Conversions.ToInt64(readArray[1]);
-						if (writeArray.Length == 2)
-							write = Conversions.ToInt64(writeArray[1]);
-
-						UpdateBytesStats(read, write);
-
-						m_openVpnManagementStatisticsLines.Clear();
-					}
-				}
-				else if (m_openVpnManagementStatisticsLines.Count != 0)
-				{
-					m_openVpnManagementStatisticsLines.Add(lines[i]);
-				}
-				else
-				{
-					Engine.Logs.Log(LogType.Verbose, "OpenVpn Management > " + line);
-				}
-			}
-		}
-		*/
 	}
 }

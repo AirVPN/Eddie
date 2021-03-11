@@ -36,6 +36,7 @@ fi
 RULESETPATH="${SCRIPTDIR}/../../src/ruleset/norules.ruleset"
 
 ARCHCOMPILE=${ARCH}
+ARCHCOMPILE=x64
 
 
 # Unlike other platform, the pre-build / post-build script are already in .vcproj, managed by msbuild correctly

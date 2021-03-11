@@ -7,13 +7,14 @@ realpath() {
 }
 
 SCRIPTDIR=$(dirname $(realpath "$0"))
+ARCH=$($SCRIPTDIR/../macos_common/get-arch.sh)
 
-${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_x64/openvpn" no yes
-${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_x64/libcrypto.1.1.dylib" no yes
-${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_x64/liblzo2.2.dylib" no yes
-${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_x64/libpkcs11-helper.1.dylib" no yes
-${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_x64/libssl.1.1.dylib" no yes
-${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_x64/hummingbird" no yes
-${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_x64/stunnel" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/openvpn" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/libcrypto.1.1.dylib" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/liblzo2.2.dylib" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/libpkcs11-helper.1.dylib" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/libssl.1.1.dylib" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/hummingbird" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/stunnel" no yes
 
 echo "Pre-sign done."

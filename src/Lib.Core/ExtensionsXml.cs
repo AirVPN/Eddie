@@ -143,23 +143,6 @@ namespace Eddie.Core
 			return null;			
 		}
 
-		// Utils, can be extension (TODO)
-
-		public static void ZZZZ_XmlRenameTagName(XmlElement parent, string oldName, string newName) // TOCLEAN
-		{
-			foreach (XmlElement e in parent.GetElementsByTagName(oldName))
-			{
-				// TODO
-			}
-		}
-
-		public static string ZZZZ_XmlGetBody(XmlElement node) // TOCLEAN
-		{
-			if (node == null)
-				return "";
-			return node.InnerText;
-		}
-
 		// Utils, not extension
 
 		public static void XmlCopyElement(XmlElement source, XmlElement parentDestination)

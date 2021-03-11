@@ -810,17 +810,6 @@ namespace Eddie.Core
 			m_areasInfoUpdated = true;
 		}
 
-		// TOCLEAN_OPENVPNMANAGEMENT
-		/*
-		public bool SendManagementCommand(string cmd)
-		{
-			if (m_threadSession != null)
-				return m_threadSession.SendManagementCommand(cmd);
-			else
-				return false;
-		}
-		*/
-
 		public void SetConnected(bool connected)
 		{
 			lock (this)
@@ -972,7 +961,7 @@ namespace Eddie.Core
 							}
 							catch (Exception e)
 							{
-								Logs.Log(LogType.Warning, LanguageManager.FormatText("Log to file disabled due to error, {1}", e.Message));
+								Logs.Log(LogType.Warning, LanguageManager.GetText("LogsDisabledForError", e.Message));
 								Options.SetBool("log.file.enabled", false);
 							}
 						}
@@ -1388,16 +1377,6 @@ namespace Eddie.Core
 						ConnectionInfo.UserListType serverUserList = server.UserList;
 						AreaInfo.UserListType countryUserList = AreaInfo.UserListType.None;
 
-						/*
-						if (m_areas.ContainsKey(server.CountryCode))
-							countryUserList = m_areas[server.CountryCode].UserList;
-						if (serverUserList == ServerInfo.UserListType.BlackList)
-							skip = true;
-						else if (countryUserList == AreaInfo.UserListType.BlackList)
-							skip = true;
-						else if ((serverUserList == ServerInfo.UserListType.None) && (countryUserList == AreaInfo.UserListType.None) && (existsWhiteList))
-							skip = true;
-						*/
 						if (m_areas.ContainsKey(server.CountryCode))
 							countryUserList = m_areas[server.CountryCode].UserList;
 
@@ -1435,8 +1414,16 @@ namespace Eddie.Core
 				}
 			}
 
-			list.Sort();
-			return list;
+            try
+            {
+                // TOFIX: in try/catch because some users report exception, "Failed to compare two elements in the array".
+                list.Sort();
+            }
+            catch(Exception)
+            {
+            }
+
+            return list;
 		}
 
 		public ConnectionInfo PickConnectionByName(string name)

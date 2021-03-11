@@ -487,14 +487,18 @@ namespace Eddie.Core.Providers
 		{
 			List<string> urls = new List<string>();
 
-			// Manual Urls
+			// Manual URLs
 			foreach (string url in Engine.Instance.Options.Get("bootstrap.urls").Split(';'))
 			{
 				string sUrl = url.Trim();
 				if (sUrl != "")
 				{
-					if (IpAddress.IsIP(sUrl))
-						sUrl = "http://" + sUrl;
+					IpAddress ip = new IpAddress(sUrl);
+					if (ip.IsV4)
+						sUrl = "http://" + ip.ToString();
+					else
+						sUrl = "http://[" + ip.ToString() + "]";
+					
 					string host = Utils.HostFromUrl(sUrl);
 					if (host != "")
 						urls.Add(sUrl);

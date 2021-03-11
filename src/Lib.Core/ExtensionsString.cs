@@ -38,7 +38,12 @@ namespace Eddie.Core
 			return str.IndexOf(value, StringComparison.InvariantCulture);
 		}
 
-		public static bool StartsWithInv(this string str, string value)
+        public static int IndexOfInvLower(this string str, string value)
+        {
+            return str.ToLowerInvariant().IndexOf(value.ToLowerInvariant(), StringComparison.InvariantCulture);
+        }
+
+        public static bool StartsWithInv(this string str, string value)
 		{
 			return str.StartsWith(value, StringComparison.InvariantCulture);
 		}

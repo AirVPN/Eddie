@@ -25,9 +25,6 @@ namespace Eddie.Core
 {	
 	public class ConnectionActive
 	{
-		public OvpnBuilder OpenVpnProfileStartup;
-		public OvpnBuilder OpenVpnProfileWithPush;
-
 		public List<ConnectionActiveRoute> Routes = new List<ConnectionActiveRoute>();
 
 		public bool TunnelIPv4 = true;
@@ -36,12 +33,7 @@ namespace Eddie.Core
 		public bool BlockedIPv4 = false;
 		public bool BlockedIPv6 = false;
 
-		public IpAddress Address;
-		public int SshLocalPort = 0;
-		public int SshRemotePort = 0;
-		public int SshPortDestination = 0;
-		public int SslLocalPort = 0;
-		public int SslRemotePort = 0;
+		public IpAddress Address;		
 
 		public DateTime TimeStart = DateTime.MinValue;
 		public IpAddress EntryIP = new IpAddress();
@@ -59,17 +51,26 @@ namespace Eddie.Core
 		public Int64 BytesLastDownloadStep = -1;
 		public Int64 BytesLastUploadStep = -1;
 
+		private string m_protocol = "";
+
+		// OpenVPN
+
+		public int SshLocalPort = 0;
+		public int SshRemotePort = 0;
+		public int SshPortDestination = 0;
+		public int SslLocalPort = 0;
+		public int SslRemotePort = 0;
+
+		public OvpnBuilder OpenVpnProfileStartup;
+		public OvpnBuilder OpenVpnProfileWithPush;
+
 		public List<string> PendingPushDetected = new List<string>();
 
 		public string ManagementPassword = "";
 		public TemporaryFile ManagementPasswordFile;
 		public TemporaryFile ProxyAuthFile;
 		public TemporaryFile PasswordAuthFile;
-
 		public TemporaryFile OvpnFile;
-
-		private string m_protocol = "";
-		
 
 		public string Protocol
 		{

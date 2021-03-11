@@ -22,7 +22,8 @@ CONFIG=Release
 SCRIPTDIR=$(dirname $(realpath -s $0))
 ARCH=$($SCRIPTDIR/../linux_common/get-arch.sh)
 VERSION=$($SCRIPTDIR/../linux_common/get-version.sh)
-VERSIONSTABLE="2.18.9"
+#VERSIONSTABLE="2.18.9"
+VERSIONSTABLE=$(curl --silent "https://api.github.com/repos/AirVPN/Eddie/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 
 TARGETDIR=/tmp/eddie_deploy/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch
 DEPLOYPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_linux_${ARCH}_arch.tar.zst
@@ -99,7 +100,9 @@ function arch_env() {
 				sed -i "s|{@pkgdepends}|(mono openvpn sudo desktop-file-utils libnotify libappindicator-gtk2)|g" PKGBUILD
 			fi
 			sed -i "s|{@source}|https://github.com/AirVPN/Eddie/archive/${VERSIONSTABLE}.tar.gz|g" PKGBUILD    
-			echo Enter AUR passphrase if requested
+			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN
+    			echo if requested, enter $(cat "${SCRIPTDIR}/../signing/aur.key.password.txt") as passphrase
+			fi
 			git clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}.git
 			cd eddie-${PROJECT}
 			cp ../PKGBUILD .
