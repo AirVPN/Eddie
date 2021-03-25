@@ -87,6 +87,8 @@
 			this.tabMain = new Eddie.Forms.Skin.TabControl();
 			this.tabOverview = new Eddie.Forms.Skin.TabPage();
 			this.pnlConnected = new Eddie.Forms.Skin.Panel();
+			this.tlpConnectedServer = new Skin.TableLayoutPanel();
+			this.tlpSpeeds = new Skin.TableLayoutPanel();
 			this.txtConnectedExitIp = new Eddie.Forms.Skin.Label();
 			this.lblConnectedExitIp = new Eddie.Forms.Skin.Label();
 			this.lblConnectedUpload = new Eddie.Forms.Skin.Label();
@@ -99,7 +101,7 @@
 			this.lblConnectedLocation = new Eddie.Forms.Skin.Label();
 			this.lblConnectedTo = new Eddie.Forms.Skin.Label();
 			this.lblConnectedServerName = new Eddie.Forms.Skin.Label();
-			this.lblConnectedCountry = new Eddie.Forms.Skin.Label();
+			this.pbConnectedCountry = new System.Windows.Forms.PictureBox();
 			this.pnlWelcome = new Eddie.Forms.Skin.Panel();
 			this.cboKey = new System.Windows.Forms.ComboBox();
 			this.lblKey = new Eddie.Forms.Skin.Label();
@@ -161,6 +163,8 @@
 			this.tabMain.SuspendLayout();
 			this.tabOverview.SuspendLayout();
 			this.pnlConnected.SuspendLayout();
+			this.tlpConnectedServer.SuspendLayout();
+			this.tlpSpeeds.SuspendLayout();
 			this.pnlWelcome.SuspendLayout();
 			this.pnlWaiting.SuspendLayout();
 			this.tabProviders.SuspendLayout();
@@ -748,23 +752,53 @@
 			this.pnlConnected.BackColor = System.Drawing.Color.Transparent;
 			this.pnlConnected.Controls.Add(this.txtConnectedExitIp);
 			this.pnlConnected.Controls.Add(this.lblConnectedExitIp);
-			this.pnlConnected.Controls.Add(this.lblConnectedUpload);
-			this.pnlConnected.Controls.Add(this.txtConnectedUpload);
-			this.pnlConnected.Controls.Add(this.txtConnectedDownload);
-			this.pnlConnected.Controls.Add(this.lblConnectedDownload);
 			this.pnlConnected.Controls.Add(this.txtConnectedSince);
 			this.pnlConnected.Controls.Add(this.lblConnectedSince);
 			this.pnlConnected.Controls.Add(this.cmdDisconnect);
-			this.pnlConnected.Controls.Add(this.lblConnectedLocation);
-			this.pnlConnected.Controls.Add(this.lblConnectedTo);
-			this.pnlConnected.Controls.Add(this.lblConnectedServerName);
-			this.pnlConnected.Controls.Add(this.lblConnectedCountry);
+			this.pnlConnected.Controls.Add(this.tlpSpeeds);
+			this.pnlConnected.Controls.Add(this.tlpConnectedServer);
 			this.pnlConnected.Location = new System.Drawing.Point(347, 170);
 			this.pnlConnected.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlConnected.Name = "pnlConnected";
-			this.pnlConnected.Size = new System.Drawing.Size(745, 327);
+			this.pnlConnected.Size = new System.Drawing.Size(760, 345);
 			this.pnlConnected.TabIndex = 66;
 			this.pnlConnected.Visible = false;
+			//
+			// tlpConnectedServer
+			//
+			this.tlpConnectedServer.BackColor = System.Drawing.Color.Transparent;
+			this.tlpConnectedServer.Name = "tlpConnectedServer";
+			this.tlpConnectedServer.Size = new System.Drawing.Size(760, 150);
+			this.tlpConnectedServer.AutoSize = true;
+			this.tlpConnectedServer.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
+			this.tlpConnectedServer.Dock = System.Windows.Forms.DockStyle.Top;
+			this.tlpConnectedServer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize, 0F));
+			this.tlpConnectedServer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize, 0F));
+			this.tlpConnectedServer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+			this.tlpConnectedServer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+			this.tlpConnectedServer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 480F));
+			this.tlpConnectedServer.Controls.Add(lblConnectedTo, column: 0, row: 0);
+			this.tlpConnectedServer.Controls.Add(pbConnectedCountry, column: 1, row: 0);
+			this.tlpConnectedServer.Controls.Add(lblConnectedServerName, column: 2, row: 0);
+			this.tlpConnectedServer.Controls.Add(lblConnectedLocation, column: 2, row: 1);
+			//
+			// tlpSpeeds
+			//
+			this.tlpSpeeds.BackColor = System.Drawing.Color.Transparent;
+			this.tlpSpeeds.Name = "tlpSpeeds";
+			this.tlpSpeeds.Size = new System.Drawing.Size(760, 150);
+			this.tlpSpeeds.AutoSize = true;
+			this.tlpSpeeds.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.tlpSpeeds.Dock = System.Windows.Forms.DockStyle.Top;
+			this.tlpSpeeds.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize, 0F));
+			this.tlpSpeeds.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+			this.tlpSpeeds.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
+			this.tlpSpeeds.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+			this.tlpSpeeds.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
+			this.tlpSpeeds.Controls.Add(lblConnectedDownload, column: 0, row: 0);
+			this.tlpSpeeds.Controls.Add(txtConnectedDownload, column: 1, row: 0);
+			this.tlpSpeeds.Controls.Add(lblConnectedUpload, column: 2, row: 0);
+			this.tlpSpeeds.Controls.Add(txtConnectedUpload, column: 3, row: 0);
 			// 
 			// txtConnectedExitIp
 			// 
@@ -788,12 +822,12 @@
 			// 
 			// lblConnectedUpload
 			// 
-			this.lblConnectedUpload.Location = new System.Drawing.Point(390, 110);
 			this.lblConnectedUpload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedUpload.Name = "lblConnectedUpload";
 			this.lblConnectedUpload.Size = new System.Drawing.Size(98, 30);
 			this.lblConnectedUpload.TabIndex = 65;
 			this.lblConnectedUpload.Text = "Upload:";
+			this.lblConnectedUpload.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.lblConnectedUpload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// txtConnectedUpload
@@ -824,12 +858,12 @@
 			// 
 			// lblConnectedDownload
 			// 
-			this.lblConnectedDownload.Location = new System.Drawing.Point(15, 112);
 			this.lblConnectedDownload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedDownload.Name = "lblConnectedDownload";
 			this.lblConnectedDownload.Size = new System.Drawing.Size(112, 30);
 			this.lblConnectedDownload.TabIndex = 64;
 			this.lblConnectedDownload.Text = "Download:";
+			this.lblConnectedDownload.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.lblConnectedDownload.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// txtConnectedSince
@@ -860,7 +894,7 @@
 			this.cmdDisconnect.FlatAppearance.BorderSize = 0;
 			this.cmdDisconnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdDisconnect.ImageKey = "enter";
-			this.cmdDisconnect.Location = new System.Drawing.Point(24, 268);
+			this.cmdDisconnect.Location = new System.Drawing.Point(72, 268);
 			this.cmdDisconnect.Margin = new System.Windows.Forms.Padding(0);
 			this.cmdDisconnect.Name = "cmdDisconnect";
 			this.cmdDisconnect.Size = new System.Drawing.Size(657, 51);
@@ -872,46 +906,49 @@
 			// 
 			// lblConnectedLocation
 			// 
-			this.lblConnectedLocation.Location = new System.Drawing.Point(249, 63);
-			this.lblConnectedLocation.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblConnectedLocation.BackColor = System.Drawing.Color.Transparent;
+			this.lblConnectedLocation.Margin = new System.Windows.Forms.Padding(4, 0, 4, 4);
+			this.lblConnectedLocation.Padding = new System.Windows.Forms.Padding(0, 0, 0, 4);
 			this.lblConnectedLocation.Name = "lblConnectedLocation";
-			this.lblConnectedLocation.Size = new System.Drawing.Size(481, 39);
+			this.lblConnectedLocation.MinimumSize = new System.Drawing.Size(480, 10);
+			this.lblConnectedLocation.AutoSize = true;
 			this.lblConnectedLocation.TabIndex = 3;
 			this.lblConnectedLocation.Text = "Location";
 			this.lblConnectedLocation.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// lblConnectedTo
 			// 
-			this.lblConnectedTo.Location = new System.Drawing.Point(15, 14);
+			this.lblConnectedTo.BackColor = System.Drawing.Color.Transparent;
 			this.lblConnectedTo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedTo.Name = "lblConnectedTo";
-			this.lblConnectedTo.Size = new System.Drawing.Size(159, 45);
+			this.lblConnectedTo.Size = new System.Drawing.Size(160, 45);
 			this.lblConnectedTo.TabIndex = 2;
 			this.lblConnectedTo.Text = "Connected to:";
 			this.lblConnectedTo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblConnectedServerName
 			// 
-			this.lblConnectedServerName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+			this.lblConnectedServerName.BackColor = System.Drawing.Color.FromArgb(red: 240, green: 240, blue: 240);
 			this.lblConnectedServerName.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblConnectedServerName.Location = new System.Drawing.Point(246, 14);
+			this.lblConnectedServerName.Location = new System.Drawing.Point(250, 14);
 			this.lblConnectedServerName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.lblConnectedServerName.Name = "lblConnectedServerName";
-			this.lblConnectedServerName.Size = new System.Drawing.Size(484, 45);
+			this.lblConnectedServerName.Size = new System.Drawing.Size(480, 45);
 			this.lblConnectedServerName.TabIndex = 1;
 			this.lblConnectedServerName.Text = "Server Name";
 			this.lblConnectedServerName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
-			// lblConnectedCountry
+			// pbConnectedCountry
 			// 
-			this.lblConnectedCountry.BackColor = System.Drawing.Color.Transparent;
-			this.lblConnectedCountry.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
-			this.lblConnectedCountry.Location = new System.Drawing.Point(202, 20);
-			this.lblConnectedCountry.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.lblConnectedCountry.Name = "lblConnectedCountry";
-			this.lblConnectedCountry.Size = new System.Drawing.Size(33, 30);
-			this.lblConnectedCountry.TabIndex = 0;
-			this.lblConnectedCountry.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.pbConnectedCountry.BackColor = System.Drawing.Color.Transparent;
+			this.pbConnectedCountry.Image = global::Eddie.Forms.Properties.Resources.blacklist_1;
+			this.pbConnectedCountry.Location = new System.Drawing.Point(196, 21);
+			this.pbConnectedCountry.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
+			this.pbConnectedCountry.Name = "lblConnectedCountry";
+			this.pbConnectedCountry.Size = new System.Drawing.Size(45, 30);
+			this.pbConnectedCountry.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+			this.pbConnectedCountry.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this.pbConnectedCountry.TabIndex = 0;
 			// 
 			// pnlWelcome
 			// 
@@ -1524,6 +1561,8 @@
 			this.tabMain.ResumeLayout(false);
 			this.tabOverview.ResumeLayout(false);
 			this.pnlConnected.ResumeLayout(false);
+			this.tlpConnectedServer.ResumeLayout(false);
+			this.tlpSpeeds.ResumeLayout(false);
 			this.pnlWelcome.ResumeLayout(false);
 			this.pnlWelcome.PerformLayout();
 			this.pnlWaiting.ResumeLayout(false);
@@ -1596,6 +1635,8 @@
 		private Skin.Label lblSpeedResolution;
 		private Skin.Label lblScoreType;
 		private Skin.Panel pnlConnected;
+		private Skin.TableLayoutPanel tlpConnectedServer;
+		private Skin.TableLayoutPanel tlpSpeeds;
 		private Skin.Label txtConnectedExitIp;
 		private Skin.Label lblConnectedExitIp;
 		private Skin.Label lblConnectedUpload;
@@ -1608,7 +1649,7 @@
 		private Skin.Label lblConnectedLocation;
 		private Skin.Label lblConnectedTo;
 		private Skin.Label lblConnectedServerName;
-		private Skin.Label lblConnectedCountry;
+		private System.Windows.Forms.PictureBox pbConnectedCountry;
 		private Skin.Label imgLockedNetwork;
 		private Skin.Label lblLoginIcon;
 		private System.Windows.Forms.ToolStripMenuItem mnuStatus;
