@@ -81,7 +81,7 @@ function arch_env() {
 			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN
     			echo if requested, enter $(cat "${SCRIPTDIR}/../signing/aur.key.password.txt") as passphrase
 			fi
-			git clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}-git.git
+			git -c core.sshCommand="ssh -i ${SCRIPTDIR}/../signing/aur.key" clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}-git.git
 			cd eddie-${PROJECT}-git
 			cp ../PKGBUILD .
 			cp ../eddie-${PROJECT}.install .
@@ -103,7 +103,7 @@ function arch_env() {
 			if test -f "${SCRIPTDIR}/../signing/aur.key.password.txt"; then # Staff AirVPN
     			echo if requested, enter $(cat "${SCRIPTDIR}/../signing/aur.key.password.txt") as passphrase
 			fi
-			git clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}.git
+			git -c core.sshCommand="ssh -i ${SCRIPTDIR}/../signing/aur.key" clone ssh://aur@aur.archlinux.org/eddie-${PROJECT}.git
 			cd eddie-${PROJECT}
 			cp ../PKGBUILD .
 			cp ../eddie-${PROJECT}.install .
@@ -116,7 +116,7 @@ function arch_env() {
 		git add eddie-${PROJECT}.install
 		git add PKGBUILD
 		git commit -m "${VERSION}"
-		git push
+		git -c core.sshCommand="ssh -i ${SCRIPTDIR}/../signing/aur.key" push
 	fi   
 }
 
