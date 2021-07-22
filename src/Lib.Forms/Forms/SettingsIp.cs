@@ -26,41 +26,41 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class SettingsIp : Eddie.Forms.Form
-    {
-        public String Ip;
+	public partial class SettingsIp : Eddie.Forms.Form
+	{
+		public String Ip;
 
 		public SettingsIp()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
-            txtIP.Font = Skin.FontMono;
+			txtIP.Font = Skin.FontMono;
 
-            GuiUtils.FixHeightVs(txtIP, lblIP);
-        }
+			GuiUtils.FixHeightVs(txtIP, lblIP);
+		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsSettingsIpTitle"));
 
 			txtIP.Text = Ip;
-            
+
 			EnableIde();
 		}
-        
+
 		private void EnableIde()
 		{
 			if (new IpAddress(txtIP.Text).Valid == false)
@@ -73,14 +73,14 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {			
-			Ip = txtIP.Text;			
-        }
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
+			Ip = txtIP.Text;
+		}
 
 		private void txtIp_TextChanged(object sender, EventArgs e)
 		{
 			EnableIde();
 		}
-    }
+	}
 }

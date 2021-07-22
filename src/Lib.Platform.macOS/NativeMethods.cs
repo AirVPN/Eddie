@@ -108,33 +108,33 @@ namespace Eddie.Platform.MacOS
 		public static extern int eddie_file_get_immutable(string filename);
 
 		[DllImport(NativeLibName)]
-        public static extern bool eddie_file_get_runasroot(string filename);
+		public static extern bool eddie_file_get_runasroot(string filename);
 
-        [DllImport(NativeLibName)]
+		[DllImport(NativeLibName)]
 		public static extern int eddie_ip_ping(string address, int timeout);
 
 		public delegate void eddie_sighandler(int signum);
 		[DllImport(NativeLibName)]
 		public static extern void eddie_signal(int signum, eddie_sighandler handler);
 
-        [DllImport(NativeLibName)]
+		[DllImport(NativeLibName)]
 		public static extern int eddie_kill(int pid, int sig);
 
-        [DllImport(NativeLibName)]
-        public static extern void eddie_get_realtime_network_stats(byte[] buf, int bufMaxLen);
+		[DllImport(NativeLibName)]
+		public static extern void eddie_get_realtime_network_stats(byte[] buf, int bufMaxLen);
 
-        [DllImport(NativeLibName)]
-        private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
-        public static Json CUrl(Json jRequest)
-        {
-            uint resultMaxLen = 1000 * 1000 * 5;
-            byte[] resultBuf = new byte[resultMaxLen];
-            eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
-            Json jResult;
-            if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
-                return jResult;
-            else
-                throw new Exception("curl unexpected json error");
-        }
-    }
+		[DllImport(NativeLibName)]
+		private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
+		public static Json CUrl(Json jRequest)
+		{
+			uint resultMaxLen = 1000 * 1000 * 5;
+			byte[] resultBuf = new byte[resultMaxLen];
+			eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
+			Json jResult;
+			if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
+				return jResult;
+			else
+				throw new Exception("curl unexpected json error");
+		}
+	}
 }

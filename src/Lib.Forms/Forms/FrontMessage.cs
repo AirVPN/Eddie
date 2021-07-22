@@ -26,35 +26,35 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class FrontMessage : Eddie.Forms.Form
+	public partial class FrontMessage : Eddie.Forms.Form
 	{
 		public Json Message;
 
 		public FrontMessage()
 		{
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
-            lblMessage.Font = Skin.FontBig;
-        }
+			lblMessage.Font = Skin.FontBig;
+		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 
 			lblMessage.Text = Message["text"].Value as string;
-			if(Message.HasKey("link"))
+			if (Message.HasKey("link"))
 			{
 				lnkWebsite.Text = Message["link"].Value as string;
 			}
@@ -69,7 +69,7 @@ namespace Eddie.Forms.Forms
 
 		private void lnkWebsite_LinkClicked(object sender, EventArgs e)
 		{
-            GuiUtils.OpenUrl(Message["url"].Value as string);            
+			GuiUtils.OpenUrl(Message["url"].Value as string);
 		}
 
 		private void cmdClose_Click(object sender, EventArgs e)

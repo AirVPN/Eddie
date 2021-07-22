@@ -14,7 +14,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
-// </eddie_source_header>
+// </eddie_source_header> 
 
 using System;
 using System.Collections.Generic;
@@ -22,28 +22,28 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class StatsEntry
-    {
+	public class StatsEntry
+	{
 		public string Key = "";
 		public string Caption = "";
 		public string Icon = "";
 		public string Value = "";
-        public string Clickable = "";
+		public string Clickable = "";
 		public bool Listed = false; // Not really used
 
-        public string Text
-        {
-            get
-            {
-                string t = Value;
-                if(Clickable != "")
-                {
-                    if (t != "")
-                        t += " ";
-                    t += LanguageManager.GetText("DoubleClickToAction", Clickable);
-                }
-                return t;
-            }
-        }
-    }
+		public string Text
+		{
+			get
+			{
+				string t = Value;
+				if (Clickable != "")
+				{
+					if (t != "")
+						t += " ";
+					t += LanguageManager.GetText("DoubleClickToAction", Clickable);
+				}
+				return t;
+			}
+		}
+	}
 }

@@ -24,9 +24,9 @@ using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Eddie.Core
-{	
-    public class UiClient
-    {
+{
+	public class UiClient
+	{
 		public Json Data;
 
 		public virtual bool Init(string environmentCommandLine)

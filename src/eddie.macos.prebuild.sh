@@ -39,9 +39,13 @@ PROJECT=$2
 ARCH=$3
 CONFIG=$4
 
-# See comment in /repository/build_macos.sh
-ARCH=$(cat /tmp/eddie_deploy_arch_native.txt)
-if [ ${ARCH} = "x86_64" ]; then
+ARCH=$(uname -m)
+if sysctl -a | grep ARM64 >/dev/null; then
+    # Temp: This IF exists because when invoked by VisualStudio-For-Mac (at 2021-06-04 still x86_64), 'uname -m' return 'x86_64' even on M1 arch.
+    # This exists in /src/App.CLI.MacOS.Elevated/build.sh and in /src/eddie.macos.prebuild.sh
+    ARCH=arm64
+fi
+if [ "$ARCH" == "x86_64" ]; then
     ARCH=x64
 fi
 
@@ -77,13 +81,23 @@ ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated/hashes.h
 
 OPENVPNPATH="${BASEPATH}/../deploy/macos_${ARCH}/openvpn"
 OPENVPNHASH=$(openssl dgst -sha256 "${OPENVPNPATH}");
-OPENVPNHASH=$(echo $OPENVPNHASH | cut -d "=" -f 2 | awk '{print $1}') # Remember: test with openvpn path with whitespace
-sed -E -i .bak "s/expectedOpenvpnHash = \"([0-9a-f]{64})\";/expectedOpenvpnHash = \"${OPENVPNHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
+OPENVPNHASH=$(echo $OPENVPNHASH | cut -d "=" -f 2 | awk '{print $1}')
+sed -E -i .bak "s/expectedOpenVpnHash = \"([0-9a-f]{64})\";/expectedOpenVpnHash = \"${OPENVPNHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
 
 HUMMINGBIRDPATH="${BASEPATH}/../deploy/macos_${ARCH}/hummingbird"
 HUMMINGBIRDHASH=$(openssl dgst -sha256 "${HUMMINGBIRDPATH}");
-HUMMINGBIRDHASH=$(echo $HUMMINGBIRDHASH | cut -d "=" -f 2 | awk '{print $1}') # Remember: test with hummingbird path with whitespace
+HUMMINGBIRDHASH=$(echo $HUMMINGBIRDHASH | cut -d "=" -f 2 | awk '{print $1}')
 sed -E -i .bak "s/expectedHummingbirdHash = \"([0-9a-f]{64})\";/expectedHummingbirdHash = \"${HUMMINGBIRDHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
+
+WIREGUARDGOPATH="${BASEPATH}/../deploy/macos_${ARCH}/wireguard-go"
+WIREGUARDGOHASH=$(openssl dgst -sha256 "${WIREGUARDGOPATH}");
+WIREGUARDGOHASH=$(echo $WIREGUARDGOHASH | cut -d "=" -f 2 | awk '{print $1}')
+sed -E -i .bak "s/expectedWireGuardGoHash = \"([0-9a-f]{64})\";/expectedWireGuardGoHash = \"${WIREGUARDGOHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
+
+WIREGUARDWGPATH="${BASEPATH}/../deploy/macos_${ARCH}/wg"
+WIREGUARDWGHASH=$(openssl dgst -sha256 "${WIREGUARDWGPATH}");
+WIREGUARDWGHASH=$(echo $WIREGUARDWGHASH | cut -d "=" -f 2 | awk '{print $1}')
+sed -E -i .bak "s/expectedWireGuardWgHash = \"([0-9a-f]{64})\";/expectedWireGuardWgHash = \"${WIREGUARDWGHASH}\";/g" "${ELEVATEDCSOURCEPATH}"
 
 # Compile and Copy Elevated
 chmod +x "$BASEPATH/App.CLI.MacOS.Elevated/build.sh"

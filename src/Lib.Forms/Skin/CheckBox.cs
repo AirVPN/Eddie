@@ -24,10 +24,10 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class CheckBox : System.Windows.Forms.CheckBox
-    {
-        public CheckBox()
-        {        
-        }
-    }
+	public class CheckBox : System.Windows.Forms.CheckBox
+	{
+		public CheckBox()
+		{
+		}
+	}
 }

@@ -26,34 +26,34 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowConnection : Eddie.Forms.Form
-    {
-		public ConnectionInfo Connection;
+	public partial class WindowConnection : Eddie.Forms.Form
+	{
+		public ConnectionInfo Info;
 
 		private Controls.TabNavigator m_tabMain;
-		private ConnectionActive m_connectionActive;
+		private Core.ConnectionTypes.IConnectionType m_connection;
 
 		public WindowConnection()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
-
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
-
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
-
-			txtOvpnGenerated.Font = Skin.FontMono;
-			txtOvpnOriginal.Font = Skin.FontMono;
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
 		}
 
-        protected override void OnLoad(EventArgs e)
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
+
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
+
+			txtConfigGenerated.Font = Skin.FontMono;
+			txtConfigOriginal.Font = Skin.FontMono;
+		}
+
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsConnectionTitle"));
@@ -68,32 +68,29 @@ namespace Eddie.Forms.Forms
 			m_tabMain.ImportTabControl(tabMain);
 			Controls.Add(m_tabMain);
 
-			m_connectionActive = Connection.BuildConnectionActive(true);
+			m_connection = Info.BuildConnection(null);
 
-			txtOvpnGenerated.Text = GuiUtils.NormalizeString(m_connectionActive.OpenVpnProfileStartup.Get());
-			if(Connection.Path != "")
+			txtConfigGenerated.Text = Platform.Instance.NormalizeString(m_connection.ExportConfigStartup());
+
+			string configOriginal = m_connection.ExportConfigOriginal();
+			if (configOriginal != "")
 			{
-				if(Platform.Instance.FileExists(Connection.Path))
-				{
-					string ovpnOriginal = Platform.Instance.FileContentsReadText(Connection.Path);
-					txtOvpnOriginal.Text = Platform.Instance.NormalizeString(ovpnOriginal);
-				}
+				txtConfigOriginal.Text = Platform.Instance.NormalizeString(configOriginal);
 			}
 			else
 			{
 				m_tabMain.Pages.RemoveAt(1);
 			}
-			
+
 			EnableIde();
 		}
-        
+
 		private void EnableIde()
 		{
-					
 		}
 
 		private void cmdOk_Click(object sender, EventArgs e)
-		{			
+		{
 		}
 	}
 }

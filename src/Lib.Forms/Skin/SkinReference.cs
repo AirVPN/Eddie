@@ -22,58 +22,36 @@ using System.Drawing;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
-using System.Xml;
 using Eddie.Core;
 
 namespace Eddie.Forms.Skin
 {
 	public class SkinReference
 	{
-		private static XmlElement m_xmlSkin;
+		private static Json m_jsonSkin;
 
 		private static Dictionary<string, Font> GdiCacheFonts = new Dictionary<string, Font>();
 		private static Dictionary<string, Brush> GdiCacheBrushes = new Dictionary<string, Brush>();
 		private static Dictionary<string, Pen> GdiCachePens = new Dictionary<string, Pen>();
 		private static Dictionary<string, Color> GdiCacheColors = new Dictionary<string, Color>();
 
-		public string Name
+		public static void Load()
 		{
-			get
-			{
-				if (m_xmlSkin == null)
-					return "None";
-				else
-					return m_xmlSkin.Name;
-			}
-		}
-
-		public static void Load(string name)
-		{
-			LoadXml(name, Eddie.Forms.Properties.Resources.skins);
-		}
-
-		public static void LoadXml(string name, string xml)
-		{
-			XmlDocument xmlDoc = new XmlDocument();
-			xmlDoc.LoadXml(xml);
-			m_xmlSkin = xmlDoc.DocumentElement.SelectSingleNode(name) as XmlElement;
-		}
-
-		public string GetStyle()
-		{
-			string style = m_xmlSkin.GetAttribute("style");
-			return style;
+			m_jsonSkin = Json.Parse(System.Text.Encoding.UTF8.GetString(Eddie.Forms.Properties.Resources.skin));
 		}
 
 		public string GetItem(string name)
 		{
-			if (m_xmlSkin == null) // Designer
-			{
-				Load("Light");
-				//LoadXml("Light", DesignerSkin);
-			}
-			XmlElement xmlElement = m_xmlSkin.SelectSingleNode(name) as XmlElement;
-			return xmlElement.InnerText;
+			if (m_jsonSkin == null) // Designer
+				Load();
+
+			return m_jsonSkin[name].ValueString;
+		}
+
+		public string GetStyle()
+		{
+			string value = GetItem("style");
+			return value;
 		}
 
 		public Font GetFont(string name)
@@ -131,7 +109,7 @@ namespace Eddie.Forms.Skin
 					if (posSize != -1)
 						double.TryParse(strSize, out userBaseSize);
 
-                    if (userBaseSize == 0)
+					if (userBaseSize == 0)
 						userBaseSize = 10;
 				}
 

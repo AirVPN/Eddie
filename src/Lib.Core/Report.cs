@@ -70,21 +70,21 @@ namespace Eddie.Core
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 50;
 			client.OnReceive(jReport);
-			
-			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.Options.GetReportForSupport());
 
-			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString());
+			Add(LanguageManager.GetText("ReportOptions"), Engine.Instance.Options.GetReportForSupport().PruneForReport());
+
+			Add(LanguageManager.GetText("ReportLogs"), Engine.Instance.Logs.ToString().PruneForReport());
 
 			jReport["step"].Value = LanguageManager.GetText("ReportStepLogs");
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 60;
 			client.OnReceive(jReport);
-			
+
 			jReport["step"].Value = LanguageManager.GetText("ReportStepPlatform");
 			jReport["body"].Value = ToString();
 			jReport["perc"].Value = 70;
 			client.OnReceive(jReport);
-			
+
 			NetworkInfo();
 
 			Platform.Instance.OnReport(this);
@@ -125,7 +125,7 @@ namespace Eddie.Core
 
 			Add("Test Ping IPv4", TestPing(Constants.WebSiteIPv4));
 			Add("Test Ping IPv6", TestPing(Constants.WebSiteIPv6));
-
+			
 			Add("Test HTTP IPv4", TestUrl("http://" + Constants.WebSiteIPv4 + "/test/"));
 			Add("Test HTTP IPv6", TestUrl("http://[" + Constants.WebSiteIPv6 + "]/test/"));
 			Add("Test HTTPS", TestUrl("https://" + Constants.Domain + "/test/"));
@@ -135,7 +135,7 @@ namespace Eddie.Core
 		{
 			try
 			{
-				Int64 result = Platform.Instance.Ping(new IpAddress(host), 5000);
+				Int64 result = Platform.Instance.Ping(new IpAddress(host), 10);
 				if (result == -1)
 					return LanguageManager.GetText("Failed");
 				else
@@ -167,7 +167,7 @@ namespace Eddie.Core
 
 		public void Environment()
 		{
-			Add("Eddie version", Constants.VersionShow);
+			Add("Eddie version", Engine.Instance.GetVersionShow());
 			Add("Eddie OS build", Platform.Instance.GetSystemCode());
 			Add("Eddie architecture", Platform.Instance.GetArchitecture());
 			Add("OS type", Platform.Instance.GetCode());
@@ -179,6 +179,7 @@ namespace Eddie.Core
 			Add("TUN driver", Software.TunDriver);
 			Add("OpenVPN", Software.GetTool("openvpn").Version + " (" + Software.GetTool("openvpn").Path + ")");
 			Add("Hummingbird", Software.GetTool("hummingbird").Version + " (" + Software.GetTool("hummingbird").Path + ")");
+			Add("WireGuard", Platform.Instance.GetWireGuardVersionShow());
 			Add("SSH", Software.GetTool("ssh").Version + " (" + Software.GetTool("ssh").Path + ")");
 			Add("SSL", Software.GetTool("ssl").Version + " (" + Software.GetTool("ssl").Path + ")");
 			if (Platform.Instance.FetchUrlInternal() == false)

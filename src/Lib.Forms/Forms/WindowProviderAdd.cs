@@ -27,62 +27,62 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowProviderAdd : Eddie.Forms.Form
-    {
-        public String Provider;
+	public partial class WindowProviderAdd : Eddie.Forms.Form
+	{
+		public String Provider;
 
 		private List<string> m_choices = new List<string>();
-        
-        public WindowProviderAdd()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public WindowProviderAdd()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-            GuiUtils.FixHeightVs(lblProvider, cboProvider);
-        }
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
-        protected override void OnLoad(EventArgs e)
+			GuiUtils.FixHeightVs(lblProvider, cboProvider);
+		}
+
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsProviderAddTitle"));
 
-			XmlElement xmlData = Engine.Instance.ProvidersManager.GetDataAddProviders();
+			Json jProvidersAdd = Engine.Instance.ProvidersManager.GetDataAddProviders();
 
-			foreach(XmlElement xmlProvider in xmlData.ChildNodes)
+			foreach (Json jProvider in jProvidersAdd.GetArray())
 			{
-				string code = xmlProvider.GetAttributeString("code", "");
-				string t = xmlProvider.GetAttributeString("title", "");
-				t += " - " + xmlProvider.GetAttributeString("subtitle", "");
-				t += " - " + xmlProvider.GetAttributeString("href", "");
+				string code = jProvider["code"].ValueString;
+				string t = jProvider["title"].ValueString;
+				t += " - " + jProvider["subtitle"].ValueString;
+				t += " - " + jProvider["href"].ValueString;
 				cboProvider.Items.Add(t);
 				m_choices.Add(code);
 			}
 
-			if(cboProvider.Items.Count>0)
+			if (cboProvider.Items.Count > 0)
 				cboProvider.SelectedIndex = 0;
 
 			EnableIde();
 		}
-        
+
 		private void EnableIde()
 		{
-			cmdOk.Enabled = ( (cboProvider.Items.Count > 0) && (cboProvider.SelectedIndex != -1));
+			cmdOk.Enabled = ((cboProvider.Items.Count > 0) && (cboProvider.SelectedIndex != -1));
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
 			Provider = m_choices[cboProvider.SelectedIndex];
-        }		
+		}
 	}
 }

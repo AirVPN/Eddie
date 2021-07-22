@@ -28,13 +28,13 @@ namespace Eddie.Core
 {
 	public class Storage
 	{
-		public string SavePath = "";        
-        public string SaveFormat = "v1n";
+		public string SavePath = "";
+		public string SaveFormat = "v1n";
 		public string SavePassword = "";
 
 		public string Id = "";
 
-		public XmlElement Providers;		
+		public XmlElement Providers;
 
 		private string m_loadFormat = "";
 		private string m_loadPassword = "";
@@ -43,7 +43,7 @@ namespace Eddie.Core
 		{
 			Id = RandomGenerator.GetRandomId64();
 
-			if( (Platform.Instance.OsCredentialSystemDefault()) && (Platform.Instance.OsCredentialSystemName() != "") )
+			if ((Platform.Instance.OsCredentialSystemDefault()) && (Platform.Instance.OsCredentialSystemName() != ""))
 			{
 				SaveFormat = "v2s"; // Os
 			}
@@ -51,7 +51,7 @@ namespace Eddie.Core
 			{
 				SaveFormat = "v2n"; // None
 			}
-						
+
 			XmlDocument xmlDoc = new XmlDocument();
 			Providers = xmlDoc.CreateElement("providers");
 		}
@@ -106,7 +106,7 @@ namespace Eddie.Core
 
 					XmlElement providersNode = xmlDoc.CreateElement("providers");
 					rootNode.AppendChild(providersNode);
-					foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+					foreach (Providers.IProvider provider in Engine.Instance.ProvidersManager.Providers)
 					{
 						XmlNode providerNode = xmlDoc.ImportNode(provider.Storage.DocumentElement, true);
 						providersNode.AppendChild(providerNode);
@@ -140,7 +140,7 @@ namespace Eddie.Core
 						SavePassword = Constants.PasswordIfEmpty;
 					else if (SaveFormat == "v2s")
 					{
-						if( (m_loadFormat != "v2s") || (SavePassword == "") || (SavePassword != m_loadPassword) )
+						if ((m_loadFormat != "v2s") || (SavePassword == "") || (SavePassword != m_loadPassword))
 						{
 							SavePassword = RandomGenerator.GetRandomPassword();
 							if (Platform.Instance.OsCredentialSystemWrite(Id, SavePassword) == false)
@@ -177,7 +177,7 @@ namespace Eddie.Core
 				if (m_loadFormat == "v1n")
 				{
 					// Compatibility format, exists only in version 2.18.1 and 2.18.2, fixed in 2.18.3
-					m_loadPassword = Constants.PasswordIfEmpty;					
+					m_loadPassword = Constants.PasswordIfEmpty;
 				}
 				else if (m_loadFormat == "v1s")
 				{
@@ -185,13 +185,13 @@ namespace Eddie.Core
 					m_loadPassword = Platform.Instance.OsCredentialSystemRead(new FileInfo(SavePath).Name);
 					if (m_loadPassword == null)
 						m_loadPassword = ""; // Will fail after the decryption					
-				}				
+				}
 				else if (m_loadFormat == "v1p")
 				{
 					// Compatibility format, exists only in version 2.18.1 and 2.18.2, fixed in 2.18.3
 					m_loadPassword = Engine.Instance.OnAskProfilePassword(false);
 					if ((m_loadPassword == null) || (m_loadPassword == ""))
-						return false;					
+						return false;
 				}
 				else if (m_loadFormat == "v2n")
 				{
@@ -207,7 +207,7 @@ namespace Eddie.Core
 				{
 					m_loadPassword = Engine.Instance.OnAskProfilePassword(false);
 					if ((m_loadPassword == null) || (m_loadPassword == ""))
-						return false;					
+						return false;
 				}
 
 				byte[] decrypted = null;
@@ -248,12 +248,12 @@ namespace Eddie.Core
 				{
 					SaveFormat = "v2s";
 					SavePassword = ""; // Will be generated
-				}				
-						
+				}
+
 				LoadInternal(decrypted);
-				return true;				
+				return true;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				bool ask = Engine.Instance.OnAskYesNo(LanguageManager.GetText("OptionsReadError", ex.Message));
 				if (ask)
@@ -269,7 +269,7 @@ namespace Eddie.Core
 		private void LoadInternal(byte[] plainData)
 		{
 			lock (this)
-			{				
+			{
 				if (plainData == null)
 					throw new Exception("Unknown format");
 
@@ -297,13 +297,14 @@ namespace Eddie.Core
 					string value = e.Attributes["value"].Value;
 
 					CompatibilityManager.FixOption(ref name, ref value);
-                    if(name != "")
+					if (name != "")
 						options[name] = value;
 				}
 
 				CompatibilityManager.FixOptions(options);
 				foreach (KeyValuePair<string, string> item in options)
 					Engine.Instance.Options.Set(item.Key, item.Value);
+				CompatibilityManager.FixOptions(Engine.Instance.Options);
 
 				// For compatibility <3
 				XmlElement xmlManifest = xmlDoc.DocumentElement.GetFirstElementByTagName("manifest");
@@ -338,21 +339,21 @@ namespace Eddie.Core
 
 			byte[] encrypted = Core.Crypto.Manager.WriteBytesEncrypted(dataPlain, password);
 
-			byte[] n = null;			
+			byte[] n = null;
 			n = new byte[3 + 64 + encrypted.Length];
 			Encoding.ASCII.GetBytes(header).CopyTo(n, 0);
 			Encoding.ASCII.GetBytes(id).CopyTo(n, 3);
-			encrypted.CopyTo(n, 3+64);
-			
+			encrypted.CopyTo(n, 3 + 64);
+
 			return n;
 		}
 
 		public static void DecodeFormat(byte[] b, out string header, out string id, out byte[] dataEncrypted)
 		{
-			byte[] bHeader = new byte[3];			
+			byte[] bHeader = new byte[3];
 			Array.Copy(b, 0, bHeader, 0, 3);
 			header = Encoding.ASCII.GetString(bHeader);
-			if(header.StartsWithInv("v1"))
+			if (header.StartsWithInv("v1"))
 			{
 				// Compatibility				
 				id = RandomGenerator.GetRandomId64();
@@ -365,7 +366,7 @@ namespace Eddie.Core
 				Array.Copy(b, 3, bId, 0, 64);
 				id = Encoding.ASCII.GetString(bId);
 				dataEncrypted = new byte[b.Length - 3 - 64];
-				Array.Copy(b, 3+64, dataEncrypted, 0, b.Length - 3 - 64);				
+				Array.Copy(b, 3 + 64, dataEncrypted, 0, b.Length - 3 - 64);
 			}
 			else
 			{

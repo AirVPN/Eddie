@@ -27,18 +27,18 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowReport : Eddie.Forms.Form
-    {
+	public partial class WindowReport : Eddie.Forms.Form
+	{
 		public string Body = "";
 
 		private Controls.ToolTip m_toolTip;
 
 		public WindowReport()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
 		public override void OnApplySkin()
 		{
@@ -48,10 +48,10 @@ namespace Eddie.Forms.Forms
 		}
 
 		protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
+		{
+			base.OnLoad(e);
 
-            CommonInit(LanguageManager.GetText("WindowsReportTitle"));
+			CommonInit(LanguageManager.GetText("WindowsReportTitle"));
 
 			CheckEnabled();
 
@@ -73,9 +73,9 @@ namespace Eddie.Forms.Forms
 
 		public void SetStep(string step, string text, int perc)
 		{
-			lblStep.Text = step;			
+			lblStep.Text = step;
 			pgrStep.Value = perc;
-			txtBody.Text = text;			
+			txtBody.Text = text;
 			cmdCopyClipboard.Enabled = (perc == 100);
 			cmdSave.Enabled = (perc == 100);
 
@@ -86,32 +86,26 @@ namespace Eddie.Forms.Forms
 			Application.DoEvents();
 		}
 
-        void CheckEnabled()
-        {   
-        }
-		
+		void CheckEnabled()
+		{
+		}
+
 		private void cmdCopyClipboard_Click(object sender, EventArgs e)
 		{
-			Application.UseWaitCursor = true;
-
-			GuiUtils.ClipboardSetText(txtBody.Text);
-
-			Application.UseWaitCursor = false;
-
-			ShowMessageInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
+			GuiUtils.ClipboardSetText(this, txtBody.Text);
 		}
 
 		private void cmdSave_Click(object sender, EventArgs e)
 		{
 			string t = txtBody.Text;
 
-			using(SaveFileDialog sd = new SaveFileDialog())
+			using (SaveFileDialog sd = new SaveFileDialog())
 			{
 				sd.Filter = LanguageManager.GetText("FilterTextFiles");
 
 				if (sd.ShowDialog() == DialogResult.OK)
 				{
-					using(StreamWriter sw = new StreamWriter(sd.FileName))
+					using (StreamWriter sw = new StreamWriter(sd.FileName))
 					{
 						sw.Write(t);
 						sw.Flush();

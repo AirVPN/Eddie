@@ -26,31 +26,31 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowShellExternalPermission : Eddie.Forms.Form
-    {
+	public partial class WindowShellExternalPermission : Eddie.Forms.Form
+	{
 		public Json Data;
 		public Json Answer;
 
-        public WindowShellExternalPermission()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		public WindowShellExternalPermission()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
 
-        }
+		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsShellExternalPermissionTitle"));
@@ -64,21 +64,21 @@ namespace Eddie.Forms.Forms
 				cmdRuleSign.Enabled = false;
 			cmdRuleHash.Text = LanguageManager.GetText("WindowsShellExternalPermissionRuleHash", Data["sha256"].Value as string);
 			cmdRulePath.Text = LanguageManager.GetText("WindowsShellExternalPermissionRulePath", Data["path"].Value as string);
-			cmdRuleAll.Text = LanguageManager.GetText("WindowsShellExternalPermissionRuleAll");			
+			cmdRuleAll.Text = LanguageManager.GetText("WindowsShellExternalPermissionRuleAll");
 
 			Answer = new Json();
 			Answer["allow"].Value = false;
 
 			EnableIde();
 		}
-        
+
 		private void EnableIde()
 		{
-					
+
 		}
-				
+
 		private void cmdNo_Click(object sender, EventArgs e)
-		{	
+		{
 			Answer["allow"].Value = false;
 			Close();
 		}

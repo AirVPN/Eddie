@@ -84,7 +84,7 @@ namespace Eddie.Core
 			else if (cmd == "mainaction.disconnect")
 			{
 				Engine.Instance.Disconnect();
-			}			
+			}
 			else if (cmd == "system.report.start")
 			{
 				Report report = new Report();
@@ -106,13 +106,7 @@ namespace Eddie.Core
 				string name = data["name"].Value as string;
 				string value = data["value"].Value as string;
 
-				if (Engine.Instance.Options.Set(name, data["value"].Value))
-				{
-					if (name == "tools.openvpn.path")
-					{
-						Software.Checking();
-					}
-				}
+				Engine.Instance.Options.Set(name, data["value"].Value);
 			}
 			else if (cmd == "ui.stats.pathprofile")
 			{
@@ -166,7 +160,7 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Warning, "Test log\nWarning\n" + DateTime.Now.ToString());
 				Engine.Instance.Logs.Log(LogType.Error, "Test log\nError");
 				//Engine.Instance.Logs.Log(LogType.Fatal, "Test log\nFatal");
-			}			
+			}
 
 			return null;
 		}

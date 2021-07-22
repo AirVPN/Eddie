@@ -84,6 +84,7 @@ fi
 # Remove unneed
 rm ${TARGETDIR}/bundle/*.exe # Linked with mkbundle
 rm ${TARGETDIR}/bundle/*.dll # Linked with mkbundle
+rm ${TARGETDIR}/bundle/*.pdb
 rm ${TARGETDIR}/bundle/libgdiplus.so.0 # Linked with mkbundle
 rm ${TARGETDIR}/bundle/libMonoPosixHelper.so # Linked with mkbundle
 if [ $PROJECT = "cli" ]; then

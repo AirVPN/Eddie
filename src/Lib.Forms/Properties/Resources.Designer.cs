@@ -19,7 +19,7 @@ namespace Eddie.Forms.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -3361,11 +3361,12 @@ namespace Eddie.Forms.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;        ///&lt;skins&gt;        ///	&lt;Light&gt;        ///		&lt;!--&lt;font.normal&gt;MS Sans Serif, 8.25pt&lt;/font.normal&gt;--&gt;        ///		&lt;font.normal&gt;System, normal&lt;/font.normal&gt;        ///		&lt;font.big&gt;System, big&lt;/font.big&gt;        ///		&lt;font.small&gt;System, small&lt;/font.small&gt;        ///		&lt;font.monospace.normal&gt;SystemMonospace, normal&lt;/font.monospace.normal&gt;        ///		&lt;font.monospace.big&gt;SystemMonospace, big&lt;/font.monospace.big&gt;		        ///		&lt;color.form.background&gt;#eeeeee&lt;/color.form.background&gt;        ///		&lt;color.foreground&gt;#000000&lt;/color.foreground&gt;        ///		&lt;color.background&gt;#ffffff&lt;/color [rest of string was truncated]&quot;;.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static string skins {
+        internal static byte[] skin {
             get {
-                return ResourceManager.GetString("skins", resourceCulture);
+                object obj = ResourceManager.GetObject("skin", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

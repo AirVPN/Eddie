@@ -26,36 +26,36 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class SettingsRoute : Eddie.Forms.Form
-    {
-        public String Ip;        
-        public String Action;
+	public partial class SettingsRoute : Eddie.Forms.Form
+	{
+		public String Ip;
+		public String Action;
 		public String Notes;
 
-        public SettingsRoute()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		public SettingsRoute()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
-            txtHost.Font = Skin.FontMono;
+			txtHost.Font = Skin.FontMono;
 
-            GuiUtils.FixHeightVs(txtHost, lblHost);
-            GuiUtils.FixHeightVs(cboAction, lblAction);
-            GuiUtils.FixHeightVs(txtNotes, lblNotes);
-        }
+			GuiUtils.FixHeightVs(txtHost, lblHost);
+			GuiUtils.FixHeightVs(cboAction, lblAction);
+			GuiUtils.FixHeightVs(txtNotes, lblNotes);
+		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsSettingsRouteTitle"));
@@ -69,32 +69,32 @@ namespace Eddie.Forms.Forms
 			txtHost.Text = Ip;
 			cboAction.Text = Settings.RouteDirectionToDescription(Action);
 			txtNotes.Text = Notes;
-            
-            EnableIde();
+
+			EnableIde();
 		}
-        
+
 		private void EnableIde()
 		{
 			IpAddresses ip = new IpAddresses(txtHost.Text);
-			if(ip.Count == 0)
+			if (ip.Count == 0)
 			{
-				lblHostHelp.Text = GuiUtils.NormalizeString(LanguageManager.GetText("WindowsSettingsRouteInvalid") + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp"));
+				lblHostHelp.Text = Platform.Instance.NormalizeString(LanguageManager.GetText("WindowsSettingsRouteInvalid") + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp"));
 				cmdOk.Enabled = false;
 			}
 			else
 			{
 				lblHostHelp.Text = ip.ToString() + "\n" + LanguageManager.GetText("WindowsSettingsRouteEditIp");
 				cmdOk.Enabled = true;
-			}			
+			}
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {			
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
 			Ip = txtHost.Text;
 			Action = Settings.RouteDescriptionToDirection(cboAction.Text);
-			Notes = txtNotes.Text;			
-        }
-		
+			Notes = txtNotes.Text;
+		}
+
 		private void txtHost_Leave(object sender, EventArgs e)
 		{
 			EnableIde();

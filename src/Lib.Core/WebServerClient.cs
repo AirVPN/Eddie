@@ -39,7 +39,7 @@ namespace Eddie.Core
 		{
 			base.OnReceive(data);
 
-			lock(Pendings)
+			lock (Pendings)
 				Pendings.Add(data);
 		}
 	}

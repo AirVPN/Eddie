@@ -42,27 +42,27 @@ namespace Eddie.Forms
 
 			AppContext = new ApplicationContext();
 
-			base.Init(environmentCommandLine);         
-            
+			base.Init(environmentCommandLine);
+
 			GuiUtils.Init();
 
 			SplashWindow = new Forms.WindowSplash();
 			SplashWindow.Show();
-                     
-			if(Engine == null)
+
+			if (Engine == null)
 				Engine = new Eddie.Forms.Engine(environmentCommandLine);
 			Engine.TerminateEvent += Engine_TerminateEvent;
 			Engine.UiManager.Add(this);
-   
+
 			Engine.Start();
 
 			return true;
 		}
 
-		public void OnUnhandledException(string source, Exception e)
+		public void OnUnhandledException(string source, Exception ex)
 		{
 			if (Engine != null)
-				Engine.OnUnhandledException(source, e);
+				Engine.OnUnhandledException(source, ex);
 		}
 
 		private void Engine_TerminateEvent()
@@ -74,16 +74,17 @@ namespace Eddie.Forms
 				MainWindow.RequestClose();
 
 			if (AppContext != null)
-			    AppContext.ExitThread();
+				AppContext.ExitThread();
 
-			if (GuiUtils.IsUnix ()) {
+			if (GuiUtils.IsUnix())
+			{
 				System.Windows.Forms.Application.Exit();
 			}
 			//Application.Exit(); // Removed in 2.12, otherwise lock Core thread. Still required in Linux edition.
 		}
 
 		public override Json Command(Json data)
-		{			
+		{
 			string cmd = data["command"].Value as string;
 			if (cmd == "ui.show.manifest")
 			{
@@ -96,16 +97,11 @@ namespace Eddie.Forms
 
 		public override void OnReceive(Json data)
 		{
-			base.OnReceive(data);            
+			base.OnReceive(data);
 
 			string cmd = data["command"].Value as string;
 
-            if (cmd == "test2")
-			{
-				Forms.WindowMan w = new Forms.WindowMan(); // ClodoTemp
-				w.ShowDialog();
-			}
-			else if (cmd == "log")
+			if (cmd == "log")
 			{
 				if (data["type"].Value as string == "fatal")
 				{
@@ -115,11 +111,11 @@ namespace Eddie.Forms
 						MainWindow.OnMessageError(data["message"].Value as string);
 					else
 						GuiUtils.MessageBoxError(null, data["message"].Value as string);
-				}	
+				}
 			}
 			else if (cmd == "init.step")
 			{
-				if(SplashWindow != null)
+				if (SplashWindow != null)
 					SplashWindow.SetStatus(data["message"].Value as string);
 			}
 			else if (cmd == "engine.ui")
@@ -167,8 +163,8 @@ namespace Eddie.Forms
 					UiClient.Instance.MainWindow.OnFrontMessage(data["message"].Value as Json);
 			}
 			else if (cmd == "system.report.progress")
-			{				
-				string step = data["step"].Value as string;				
+			{
+				string step = data["step"].Value as string;
 				string text = data["body"].Value as string;
 				int perc = Conversions.ToInt32(data["perc"].Value, 0);
 

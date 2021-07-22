@@ -35,7 +35,7 @@ namespace Eddie.Core
 		{
 			Id = RandomGenerator.GetHash();
 		}
-		
+
 		public string GetDateForList()
 		{
 			return LanguageManager.FormatDateShort(Date.ToLocalTime());

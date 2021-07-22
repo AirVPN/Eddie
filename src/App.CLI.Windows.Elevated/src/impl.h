@@ -22,21 +22,17 @@ class Impl :public IWindows
 {
 public:
 	int Main();
-    virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
+	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 	virtual bool IsServiceInstalled();
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
-    virtual bool ServiceUninstallSupportRealtime();
-	
-	// Virtual Pure, Other
-protected:
-	virtual std::string CheckIfClientPathIsAllowed(const std::string& path);
-	virtual void CheckIfExecutableIsAllowed(const std::string& path);
-	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
+	virtual bool ServiceUninstallSupportRealtime();
 
 	// Private
 private:
 	int SetInterfaceMetric(const int index, const std::string layer, const int value);
+
+	bool ServiceUninstallDirect();
 
 	// WFP
 	HANDLE m_wfpEngineHandle;

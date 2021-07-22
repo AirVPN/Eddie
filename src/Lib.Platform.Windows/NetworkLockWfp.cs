@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.ServiceProcess;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
@@ -32,7 +31,7 @@ namespace Eddie.Platform.Windows
 		private Dictionary<string, WfpItem> m_rules = new Dictionary<string, WfpItem>();
 		private string m_lastestIpsWhiteListIncoming = "";
 		private string m_lastestIpsWhiteListOutgoing = "";
-		
+
 		public override string GetCode()
 		{
 			return "windows_wfp";
@@ -212,7 +211,7 @@ namespace Eddie.Platform.Windows
 
 			if ((jInfo != null) && (jInfo.HasKey("support_ipv4")) && (Conversions.ToBool(jInfo["support_ipv4"].Value)))
 				AddRule("netlock_allow_interface_" + id + "_ipv4", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv4", id, "ipv4"));
-							
+
 			if ((jInfo != null) && (jInfo.HasKey("support_ipv6")) && (Conversions.ToBool(jInfo["support_ipv6"].Value)))
 				AddRule("netlock_allow_interface_" + id + "_ipv6", Wfp.CreateItemAllowInterface("NetLock - Interface - Allow " + id + " - IPv6", id, "ipv6"));
 		}
@@ -235,7 +234,7 @@ namespace Eddie.Platform.Windows
 			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(false); // Don't need full ip, because the client it's allowed as program.
 
 			string currentIpsWhiteListIncoming = ipsWhiteListIncoming.ToString();
-			
+
 			if (currentIpsWhiteListIncoming != m_lastestIpsWhiteListIncoming)
 			{
 				if (ExistsRule("netlock_allow_incoming_ips_v4"))
@@ -295,7 +294,7 @@ namespace Eddie.Platform.Windows
 					AddRule("netlock_allow_incoming_ips_v4", xmlRuleIncomingV4);
 				if (xmlRuleIncomingV6 != null)
 					AddRule("netlock_allow_incoming_ips_v6", xmlRuleIncomingV6);
-			}			
+			}
 
 			string currentIpsWhiteListOutgoing = ipsWhiteListOutgoing.ToString();
 			if (currentIpsWhiteListOutgoing != m_lastestIpsWhiteListOutgoing)

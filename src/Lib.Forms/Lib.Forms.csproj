@@ -120,6 +120,12 @@
     <Compile Include="Controls\Provider.Designer.cs">
       <DependentUpon>Provider.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\WindowProviderEditWireGuard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WindowProviderEditWireGuard.Designer.cs">
+      <DependentUpon>WindowProviderEditWireGuard.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\WindowShellExternalPermission.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -154,12 +160,6 @@
     </Compile>
     <Compile Include="Forms\WindowCommand.Designer.cs">
       <DependentUpon>WindowCommand.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\WindowMan.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\WindowMan.Designer.cs">
-      <DependentUpon>WindowMan.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\WindowProviderNoBootstrap.cs">
       <SubType>Form</SubType>
@@ -321,6 +321,9 @@
     <EmbeddedResource Include="Controls\Provider.resx">
       <DependentUpon>Provider.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WindowProviderEditWireGuard.resx">
+      <DependentUpon>WindowProviderEditWireGuard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\WindowShellExternalPermission.resx">
       <DependentUpon>WindowShellExternalPermission.cs</DependentUpon>
     </EmbeddedResource>
@@ -335,10 +338,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\WindowUnlock.resx">
       <DependentUpon>WindowUnlock.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\WindowMan.resx">
-      <DependentUpon>WindowMan.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\WindowProviderNoBootstrap.resx">
       <DependentUpon>WindowProviderNoBootstrap.cs</DependentUpon>
@@ -396,7 +395,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\skins.xml" />
+    <None Include="Resources\skin.json" />
     <None Include="Resources\tab_about.png" />
     <None Include="Resources\tab_preferences.png" />
     <None Include="Resources\tab_about_hover.png" />
@@ -404,7 +403,6 @@
     <None Include="Resources\tab_updater.png" />
     <None Include="Resources\tab_updater_hover.png" />
     <None Include="Resources\splash.png" />
-    <None Include="Resources\nl.png" />
     <None Include="Resources\flags_nl.png" />
     <None Include="Resources\flags_a1.png" />
     <None Include="Resources\flags_a2.png" />

@@ -25,59 +25,59 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Controls
 {
-    public class ToolTip : System.Windows.Forms.Label
-    {
+	public class ToolTip : System.Windows.Forms.Label
+	{
 		Dictionary<Control, string> Texts = new Dictionary<Control, string>();
 
 		public ToolTip()
-        {            
-        }
+		{
+		}
 
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
+		protected override void OnCreateControl()
+		{
+			base.OnCreateControl();
 
-            BackColor = Color.White;
-            BorderStyle = BorderStyle.FixedSingle;
-            Visible = false;
+			BackColor = Color.White;
+			BorderStyle = BorderStyle.FixedSingle;
+			Visible = false;
 
-            FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
-            AutoSize = true;
-        }
-        
-        public void Connect(Control ctl, string text)
-        {
-            ctl.MouseHover += Ctl_MouseHover;
-            ctl.MouseLeave += Ctl_MouseLeave;
+			AutoSize = true;
+		}
 
-            Texts[ctl] = text;
-        }
+		public void Connect(Control ctl, string text)
+		{
+			ctl.MouseHover += Ctl_MouseHover;
+			ctl.MouseLeave += Ctl_MouseLeave;
 
-        public void Show(Control ctl)
-        {
-            Text = Texts[ctl];
-            Point p = Cursor.Position;
-            p = this.Parent.PointToClient(p);
-            Left = p.X - this.Width;
-            Top = p.Y - this.Height -3;            
-            Visible = true;
-            Refresh();       
-        }
+			Texts[ctl] = text;
+		}
 
-        public void Hide(Control ctl)
-        {
-            Visible = false;
-        }
+		public void Show(Control ctl)
+		{
+			Text = Texts[ctl];
+			Point p = Cursor.Position;
+			p = this.Parent.PointToClient(p);
+			Left = p.X - this.Width;
+			Top = p.Y - this.Height - 3;
+			Visible = true;
+			Refresh();
+		}
 
-        private void Ctl_MouseLeave(object sender, EventArgs e)
-        {
-            Hide(sender as Control);
-        }
+		public void Hide(Control ctl)
+		{
+			Visible = false;
+		}
 
-        private void Ctl_MouseHover(object sender, EventArgs e)
-        {
-            Show(sender as Control);
-        }
-    }
+		private void Ctl_MouseLeave(object sender, EventArgs e)
+		{
+			Hide(sender as Control);
+		}
+
+		private void Ctl_MouseHover(object sender, EventArgs e)
+		{
+			Show(sender as Control);
+		}
+	}
 }

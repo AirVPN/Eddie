@@ -78,15 +78,15 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetButtonCancel(Window, CmdCancel);
             GuiUtils.SetButtonDefault(Window, CmdOk);
 
-            XmlElement xmlData = Engine.Instance.ProvidersManager.GetDataAddProviders();
+			Json jProvidersAdd = Engine.Instance.ProvidersManager.GetDataAddProviders();
 
 			CboProvider.RemoveAllItems();
-			foreach (XmlElement xmlProvider in xmlData.ChildNodes)
+			foreach (Json jProvider in jProvidersAdd.GetArray())
 			{
-				string code = xmlProvider.GetAttributeString("code", "");
-				string t = xmlProvider.GetAttributeString("title", "");
-				t += " - " + xmlProvider.GetAttributeString("subtitle", "");
-				t += " - " + xmlProvider.GetAttributeString("href", "");
+				string code = jProvider["code"].ValueString;
+				string t = jProvider["title"].ValueString;
+				t += " - " + jProvider["subtitle"].ValueString;
+				t += " - " + jProvider["href"].ValueString;
 				CboProvider.AddItem(t);
 				m_choices.Add(code);
 			}

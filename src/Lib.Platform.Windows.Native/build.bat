@@ -1,6 +1,8 @@
 @echo off
 SETLOCAL
 
+echo Command Line: %0 %*
+
 if "%~1"=="" (
 	echo "First param must be Debug or Release"
 	GOTO error

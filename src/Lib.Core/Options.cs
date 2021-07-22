@@ -24,14 +24,14 @@ using System.Globalization;
 
 namespace Eddie.Core
 {
-    public class Options
-    {
-        private Dictionary<string, Option> m_options = new Dictionary<string, Option>();
+	public class Options
+	{
+		private Dictionary<string, Option> m_options = new Dictionary<string, Option>();
 
-        public Options()
-        {
-            EnsureDefaults();
-        }
+		public Options()
+		{
+			EnsureDefaults();
+		}
 
 		public Dictionary<string, Option> Dict
 		{
@@ -199,18 +199,21 @@ namespace Eddie.Core
 
 		public bool Exists(string name)
 		{
-			return m_options.ContainsKey(name);
+			lock (m_options)
+			{
+				return m_options.ContainsKey(name);
+			}
 		}
 
 		public string Get(string name)
 		{
-			lock (m_options)
+			if (Engine.Instance.StartCommandLine.Exists(name))
 			{
-				if (Engine.Instance.StartCommandLine.Exists(name))
-				{
-					return Engine.Instance.StartCommandLine.Get(name, "");
-				}
-				else if (Exists(name))
+				return Engine.Instance.StartCommandLine.Get(name, "");
+			}
+			else if (Exists(name))
+			{
+				lock (m_options)
 				{
 					Option option = m_options[name];
 					if (option.Value != "")
@@ -218,11 +221,11 @@ namespace Eddie.Core
 					else
 						return option.Default;
 				}
-				else
-				{
-					Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("OptionsUnknown", name));
-					return "";
-				}
+			}
+			else
+			{
+				Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("OptionsUnknown", name));
+				return "";
 			}
 		}
 
@@ -290,12 +293,19 @@ namespace Eddie.Core
 
 		public void Set(string name, string val)
 		{
-			lock (this)
+			if (Exists(name) == false)
+				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OptionsUnknown", name));
+			else
 			{
-				if (Exists(name) == false)
-					Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("OptionsUnknown", name));
-				else
+				string oldValue = "";
+				lock (m_options)
+				{
+					oldValue = m_options[name].Value;
 					m_options[name].Value = val;
+				}
+
+				if (oldValue != val)
+					OnChange(name);
 			}
 		}
 
@@ -429,9 +439,12 @@ namespace Eddie.Core
 			SetDefaultBool("log.repeat", false, NotInMan);
 			SetDefaultInt("log.limit", 1000, NotInMan);
 
+			SetDefaultInt("checking.ntry", 5, NotInMan); // Number of retry in some action (for example checking tun/dns)
+
 			SetDefault("language.iso", "text", "auto", LanguageManager.GetText("ManOptionLanguageIso"));
 
-			SetDefault("mode.protocol", "text", "AUTO", LanguageManager.GetText("ManOptionModeProtocol"));
+			SetDefault("mode.type", "text", "auto", LanguageManager.GetText("ManOptionModeType"));
+			SetDefault("mode.protocol", "text", "udp", LanguageManager.GetText("ManOptionModeProtocol"));
 			SetDefaultInt("mode.port", 443, LanguageManager.GetText("ManOptionModePort"));
 			SetDefaultInt("mode.alt", 0, LanguageManager.GetText("ManOptionModeAlt"));
 
@@ -445,13 +458,17 @@ namespace Eddie.Core
 			SetDefaultInt("proxy.tor.control.port", 9151, LanguageManager.GetText("ManOptionProxyTorControlPort"));
 			SetDefaultBool("proxy.tor.control.auth", true, LanguageManager.GetText("ManOptionProxyTorControlAuth"));
 			SetDefault("proxy.tor.path", "", "", NotInMan);
+			SetDefault("proxy.tor.control.cookie.path", "", "", NotInMan);
 			SetDefault("proxy.tor.control.password", "password", "", LanguageManager.GetText("ManOptionProxyTorControlPassword"));
 
 			SetDefault("routes.custom", "text", "", LanguageManager.GetText("ManOptionRoutesCustom"));
-			// SetDefaultBool("routes.remove_default", false, LanguageManager.GetText("ManOptionRoutesRemoveDefault")); // Deprecated in 2.18, issues with DHCP renew.
+			SetDefault("routes.catch_all_mode", "text", "auto", NotInMan);
 
 			SetDefault("dns.mode", "text", "auto", LanguageManager.GetText("ManOptionDnsMode"));
 			SetDefault("dns.servers", "text", "", LanguageManager.GetText("ManOptionDnsServers"));
+			SetDefault("dns.interfaces.names", "text", "", NotInMan);
+			SetDefault("dns.interfaces.types", "text", "auto", NotInMan); // "auto", "all", comma-separated // TOFIX: not implemented yet in macOS, always 'all'
+			SetDefaultBool("dns.delegate", false, NotInMan);
 			SetDefaultBool("dns.check", true, LanguageManager.GetText("ManOptionDnsCheck"));
 			SetDefaultInt("dns.cache.ttl", 3600, NotInMan);
 
@@ -472,6 +489,7 @@ namespace Eddie.Core
 			SetDefaultBool("network.ipv4.autoswitch", false, NotInMan);
 			SetDefaultBool("network.ipv6.autoswitch", true, NotInMan);
 			SetDefault("network.gateways.default_skip_types", "text", "Loopback;Tunnel", NotInMan);
+			SetDefaultInt("network.mtu", -1, NotInMan);
 
 			SetDefault("tools.openvpn.path", "path_file", "", LanguageManager.GetText("ManOptionToolsOpenVpnPath"));
 			SetDefaultBool("tools.hummingbird.preferred", false, NotInMan);
@@ -483,8 +501,8 @@ namespace Eddie.Core
 			SetDefaultInt("http.timeout", 20, NotInMan);
 
 			SetDefaultBool("webui.enabled", true, NotInMan); // WebUI it's a Eddie 3.* feature not yet committed on GitHub.
-			SetDefault("webui.ip", "text", "127.0.0.1", NotInMan); // Messages.ManOptionWebUiAddress
-			SetDefaultInt("webui.port", 4649, NotInMan); // Messages.ManOptionWebUiPort
+			SetDefault("webui.ip", "text", "127.0.0.1", NotInMan);
+			SetDefaultInt("webui.port", 4649, NotInMan);
 
 			SetDefaultBool("external.rules.recommended", true, NotInMan);
 			SetDefault("external.rules", "json", "[]", NotInMan);
@@ -498,17 +516,22 @@ namespace Eddie.Core
 			SetDefault("openvpn.directives.data-ciphers", "text", "AES-256-GCM:AES-256-CBC:AES-192-GCM:AES-192-CBC:AES-128-GCM:AES-128-CBC", NotInMan);
 			SetDefault("openvpn.directives.data-ciphers-fallback", "text", "AES-256-CBC", NotInMan);
 			SetDefaultBool("openvpn.directives.chacha20", false, NotInMan); // Temporary
-            //SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
+																			//SetDefaultBool("openvpn.allow.script-security", false, NotInMan);
 			SetDefaultBool("openvpn.skip_defaults", false, LanguageManager.GetText("ManOptionOpenVpnSkipDefaults"));
 
-			// Not in Settings
-			SetDefaultInt("openvpn.management_port", 3100, LanguageManager.GetText("ManOptionOpenVpnManagementPort"));
+			SetDefault("wireguard.interface.name", "text", "EddieWG", LanguageManager.GetText("ManOptionWireGuardInterfaceName"));
+			SetDefaultBool("wireguard.interface.skip_commands", true, NotInMan); // Anyway are not implemented, // TOCLEAN
+			SetDefaultInt("wireguard.peer.persistentkeepalive", 15, LanguageManager.GetText("ManOptionWireGuardPeerPersistentKeepalive"));
+			SetDefaultInt("wireguard.handshake.timeout.first", 50, NotInMan);
+			SetDefaultInt("wireguard.handshake.timeout.connected", 180 + 20, NotInMan); // To maintain the session a client must handshake at least once every 180 seconds
+
+			// Not in Settings			
 			SetDefaultInt("ssh.port", 0, LanguageManager.GetText("ManOptionSshPort"));
 			SetDefaultInt("ssl.port", 0, LanguageManager.GetText("ManOptionSslPort"));
 			SetDefault("ssl.options", "text", "", NotInMan); // "NO_SSLv2" < 2.11.10
 			SetDefaultInt("ssl.verify", -1, NotInMan);
 
-			SetDefaultBool("os.single_instance", true, LanguageManager.GetText("ManOptionOsSingleInstance"));
+			//SetDefaultBool("os.single_instance", true, LanguageManager.GetText("ManOptionOsSingleInstance")); // Removed in 2.21 - Elevated accept only one instance
 
 			SetDefaultBool("advanced.expert", false, LanguageManager.GetText("ManOptionAdvancedExpert"));
 			SetDefaultBool("advanced.check.route", true, LanguageManager.GetText("ManOptionAdvancedCheckRoute"));
@@ -547,15 +570,15 @@ namespace Eddie.Core
 			//SetDefaultBool("windows.dhcp_disable", false, LanguageManager.GetText("ManOptionWindowsDhcpDisable")); // Deprecated in 2.18
 			SetDefaultBool("windows.wfp.enable", true, LanguageManager.GetText("ManOptionWindowsWfp"));
 			SetDefaultBool("windows.wfp.dynamic", false, LanguageManager.GetText("ManOptionWindowsWfpDynamic"));
-			//SetDefaultBool("windows.ipv6.os_disable", false, Messages.ManOptionWindowsIPv6DisableAtOs); // Must be default FALSE if WFP works well // Removed in 2.14, in W10 require reboot
-			SetDefaultBool("windows.dns.force_all_interfaces", false, LanguageManager.GetText("ManOptionWindowsDnsForceAllInterfaces")); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
+			//SetDefaultBool("windows.ipv6.os_disable", false, NotInMan); // Must be default FALSE if WFP works well // Removed in 2.14, in W10 require reboot
+			//SetDefaultBool("windows.dns.force_all_interfaces", false, NotInMan); // Important: With WFP can be false, but users report DNS leak. Maybe not a real DNS Leak, simply request on DNS of other interfaces through VPN tunnel.
 			SetDefaultBool("windows.dns.lock", true, LanguageManager.GetText("ManOptionWindowsDnsLock"));
 			SetDefaultInt("windows.metrics.tap.ipv4", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultInt("windows.metrics.tap.ipv6", -2, NotInMan); // 2.13:   0: Windows Automatic, >0 value, -1: Don't change, -2: Automatic
 			SetDefaultBool("windows.workarounds", false, NotInMan); // If true, some variants to identify issues
 			SetDefaultBool("windows.ipv6.bypass_dns", false, NotInMan); // 2.14: Workaround, skip DNS6.
 			SetDefaultBool("windows.ssh.plink.force", true, NotInMan); // Switch to false when stable/tested.
-			SetDefaultBool("windows.wintun", false, NotInMan);
+			SetDefaultBool("windows.wintun", true, NotInMan);
 
 			// Linux only
 			SetDefault("linux.dns.services", "text", "nscd;dnsmasq;named;bind9;systemd-resolved", NotInMan);
@@ -631,18 +654,26 @@ namespace Eddie.Core
 			}
 		}
 
+		public void OnChange(string name)
+		{
+			if (name == "tools.openvpn.path")
+			{
+				Software.Checking();
+			}
+		}
+
 		public Json GetJsonForManifest()
-        {
-            Json j = new Json();
+		{
+			Json j = new Json();
 			j.EnsureDictionary();
 
-			foreach(KeyValuePair<string, Option> kp in m_options)
+			foreach (KeyValuePair<string, Option> kp in m_options)
 			{
 				Json jOption = kp.Value.GetJson();
 				j[kp.Key].Value = jOption;
 			}
 
-            return j;        
-        }
-    }    
+			return j;
+		}
+	}
 }

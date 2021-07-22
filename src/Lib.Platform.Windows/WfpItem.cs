@@ -33,10 +33,10 @@ using Microsoft.Win32;
 
 namespace Eddie.Platform.Windows
 {
-    public class WfpItem
-    {
-        public string Code;
+	public class WfpItem
+	{
+		public string Code;
 
-        public List<UInt64> FirewallIds = new List<UInt64>();        
-    }
+		public List<UInt64> FirewallIds = new List<UInt64>();
+	}
 }

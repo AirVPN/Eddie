@@ -26,53 +26,53 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class SettingsEvent : Eddie.Forms.Form
-    {
-        public String FileName;
-        public String Arguments;
-        public bool WaitEnd;
+	public partial class SettingsEvent : Eddie.Forms.Form
+	{
+		public String FileName;
+		public String Arguments;
+		public bool WaitEnd;
 
-        public SettingsEvent()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
+		public SettingsEvent()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
 
-            Load += new EventHandler(SettingsEvent_Load);            
-        }
+			Load += new EventHandler(SettingsEvent_Load);
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
-            GuiUtils.FixHeightVs(txtFileName, lblFileName);
-            GuiUtils.FixHeightVs(txtFileName, cmdExeBrowse);
-            GuiUtils.FixHeightVs(txtArguments, lblArguments);
-            GuiUtils.FixHeightVs(chkWaitEnd, lblWaitEnd);
-        }
+			GuiUtils.FixHeightVs(txtFileName, lblFileName);
+			GuiUtils.FixHeightVs(txtFileName, cmdExeBrowse);
+			GuiUtils.FixHeightVs(txtArguments, lblArguments);
+			GuiUtils.FixHeightVs(chkWaitEnd, lblWaitEnd);
+		}
 
-        void SettingsEvent_Load(object sender, EventArgs e)
+		void SettingsEvent_Load(object sender, EventArgs e)
 		{
 			CommonInit(LanguageManager.GetText("WindowsSettingsEventTitle"));
 
 			txtFileName.Text = FileName;
 			txtArguments.Text = Arguments;
-			chkWaitEnd.Checked = WaitEnd;            
+			chkWaitEnd.Checked = WaitEnd;
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
 			FileName = txtFileName.Text;
-            Arguments = txtArguments.Text;
-            WaitEnd = chkWaitEnd.Checked;
-        }
+			Arguments = txtArguments.Text;
+			WaitEnd = chkWaitEnd.Checked;
+		}
 
-        private void cmdExeBrowse_Click(object sender, EventArgs e)
-        {
+		private void cmdExeBrowse_Click(object sender, EventArgs e)
+		{
 			string result = GuiUtils.FilePicker();
 			if (result != "")
-				txtFileName.Text = result;            
-        }
-        
-    }
+				txtFileName.Text = result;
+		}
+
+	}
 }

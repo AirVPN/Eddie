@@ -75,13 +75,13 @@ namespace Eddie.Core
 
 			if (Engine.Instance.Options.GetLower("network.ipv6.mode") == "out")
 				return false;
-			
+
 			return true;
 		}
 
 		public bool Activation()
 		{
-            bool result = false;
+			bool result = false;
 
 			try
 			{
@@ -126,17 +126,17 @@ namespace Eddie.Core
 
 					m_current = nextCurrent;
 
-                    result = true;
+					result = true;
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(LogType.Fatal, e);
+				Engine.Instance.Logs.Log(LogType.Fatal, ex);
 			}
 
 			Recovery.Save();
 
-            return result;
+			return result;
 		}
 
 		public void Deactivation(bool onExit)
@@ -155,9 +155,9 @@ namespace Eddie.Core
 				{
 					m_current.Deactivation();
 				}
-				catch (Exception e)
+				catch (Exception ex)
 				{
-					Engine.Instance.Logs.Log(e);
+					Engine.Instance.Logs.Log(ex);
 				}
 
 				m_current = null;
@@ -183,9 +183,9 @@ namespace Eddie.Core
 					m_current.OnUpdateIps();
 					Recovery.Save();
 				}
-				catch (Exception e)
+				catch (Exception ex)
 				{
-					Engine.Instance.Logs.Log(e);
+					Engine.Instance.Logs.Log(ex);
 				}
 			}
 		}
@@ -199,9 +199,9 @@ namespace Eddie.Core
 					m_current.OnVpnEstablished();
 					Recovery.Save();
 				}
-				catch (Exception e)
+				catch (Exception ex)
 				{
-					Engine.Instance.Logs.Log(e);
+					Engine.Instance.Logs.Log(ex);
 				}
 			}
 		}
@@ -215,9 +215,9 @@ namespace Eddie.Core
 					m_current.OnVpnDisconnected();
 					Recovery.Save();
 				}
-				catch (Exception e)
+				catch (Exception ex)
 				{
-					Engine.Instance.Logs.Log(e);
+					Engine.Instance.Logs.Log(ex);
 				}
 			}
 		}
@@ -251,9 +251,9 @@ namespace Eddie.Core
 					Deactivation(false);
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(e);
+				Engine.Instance.Logs.Log(ex);
 			}
 		}
 
@@ -270,9 +270,9 @@ namespace Eddie.Core
 					m_current.OnRecoverySave(node);
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(e);
+				Engine.Instance.Logs.Log(ex);
 			}
 		}
 

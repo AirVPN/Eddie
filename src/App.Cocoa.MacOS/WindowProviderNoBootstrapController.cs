@@ -27,7 +27,7 @@ namespace Eddie.UI.Cocoa.Osx
 	public partial class WindowProviderNoBootstrapController : NSWindowController
 	{
         public static WindowProviderNoBootstrapController Singleton = null;
-        public Provider Provider;
+        public Core.Providers.IProvider Provider;
 
 		public WindowProviderNoBootstrapController(IntPtr handle) : base(handle)
 		{

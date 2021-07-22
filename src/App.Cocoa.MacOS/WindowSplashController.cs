@@ -27,6 +27,8 @@ namespace Eddie.UI.Cocoa.Osx
         public override void AwakeFromNib()
         {
             base.AwakeFromNib();
+
+            Window.Center();
         }
 
         public new WindowSplash Window

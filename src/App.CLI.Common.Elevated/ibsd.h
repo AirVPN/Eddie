@@ -18,8 +18,8 @@
 
 #include "iposix.h"
 
-class IBSD: public IPosix
+class IBSD : public IPosix
 {
 protected:
-	
+
 };

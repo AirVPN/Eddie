@@ -73,7 +73,7 @@ namespace Eddie.Forms.Forms
 		{
 
 		}
-		
+
 		private void cmdOk_Click(object sender, EventArgs e)
 		{
 			Engine.Instance.Options.SetBool("ui.skip.provider.manifest.failed", chkDontShowAgain.Checked);

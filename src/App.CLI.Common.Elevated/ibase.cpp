@@ -177,9 +177,10 @@ void IBase::LogDebug(const std::string& msg)
 void IBase::LogDevDebug(const std::string& msg)
 {
 	/*
-	std::string logPath = "C:\\elevated.log";
+	std::string logPath = FsGetTempPath() + FsPathSeparator + "eddie_elevated.log";
+	logPath = "C:\\elevated.log"; // Win temp
 	FILE* f = fopen(logPath.c_str(), "a");
-	fprintf(f, "PID: %d - %s\r\n", (int) GetCurrentProcessId(), msg.c_str());
+	fprintf(f, "PID: %d - %s%s", (int) GetCurrentProcessId(), msg.c_str(), FsEndLine.c_str());
 	fclose(f);
 	*/
 }
@@ -210,6 +211,9 @@ void IBase::EndCommand(const std::string& commandId)
 
 void IBase::SendMessage(const std::string& message)
 {
+	if (m_sockClient == 0)
+		return;
+
 	std::string sendBuffer = message + "\n";
 	m_mutex_inout.lock();
 	int nWrite = send(m_sockClient, sendBuffer.c_str(), (int)sendBuffer.length(), 0);
@@ -217,8 +221,8 @@ void IBase::SendMessage(const std::string& message)
 
 	// LogDebug("Write socket " + std::to_string(nWrite) + " bytes.");
 
-	if (nWrite < 0) 
-	{			
+	if (nWrite < 0)
+	{
 		ThrowException("Error writing to socket");
 	}
 }
@@ -228,7 +232,7 @@ void IBase::SendMessage(const std::string& message)
 // --------------------------
 
 int IBase::Main()
-{	
+{
 	// Checkings
 	if (IsRoot() == false)
 	{
@@ -269,13 +273,13 @@ int IBase::Main()
 	m_lastModified = GetProcessModTimeCurrent();
 
 	int port = m_elevatedPortDefault;
-		
+
 	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "spot"))
-	{		
-		m_launchMode = "spot";		
+	{
+		m_launchMode = "spot";
 
 		if (m_cmdline.find("spot_port") != m_cmdline.end())
-			port = atoi(m_cmdline["spot_port"].c_str());
+			port = StringToInt(m_cmdline["spot_port"]);
 
 		m_singleConnMode = true;
 
@@ -283,11 +287,11 @@ int IBase::Main()
 		ServiceReinstall();
 	}
 	else if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "service"))
-	{		
+	{
 		m_launchMode = "service";
 
 		if (m_cmdline.find("service_port") != m_cmdline.end())
-			port = atoi(m_cmdline["service_port"].c_str());		
+			port = StringToInt(m_cmdline["service_port"]);
 
 		m_singleConnMode = false;
 	}
@@ -317,12 +321,12 @@ int IBase::Main()
 
 	LogLocal("Listening on port " + std::to_string(port));
 
-	if (bind(sockServer, (struct sockaddr *) &addrServer, sizeof(addrServer)) != 0) {
-		ThrowException("Error on binding socket");
+	if (bind(sockServer, (struct sockaddr*)&addrServer, sizeof(addrServer)) != 0) {
+		ThrowException("Error on binding socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
 	}
 
 	if (listen(sockServer, 1) != 0) {
-		ThrowException("Error on listen socket");
+		ThrowException("Error on listen socket (" + std::to_string(SocketGetLastErrorCode()) + ")");
 	}
 
 	SocketBlockMode(sockServer, false);
@@ -343,7 +347,7 @@ int IBase::Main()
 		{
 			for (;;)
 			{
-				m_sockClient = accept(sockServer, (struct sockaddr *)&addrClient, &addrClientLen);
+				m_sockClient = accept(sockServer, (struct sockaddr*)&addrClient, &addrClientLen);
 
 				// TOFIX. Under Linux, errno==EWOULDBLOCK. Under Windows, i expect WSAEWOULDBLOCK but there are something not understanding.
 				if (SocketIsValid(m_sockClient) == false)
@@ -382,10 +386,10 @@ int IBase::Main()
 					{
 						int parentPID = GetParentProcessId();
 
-                        if (clientProcessId != parentPID)
+						if (clientProcessId != parentPID)
 						{
 							int parentPID2 = GetParentProcessId(parentPID); // Grandparent, for example if launched via 'sudo'
-       
+
 							if (clientProcessId != parentPID2)
 							{
 								ThrowException("Client not allowed: Connection not from parent process (spot mode)");
@@ -532,7 +536,7 @@ int IBase::Main()
 
 		SocketClose(m_sockClient);
 
-		if(m_singleConnMode)
+		if (m_singleConnMode)
 			break;
 	}
 
@@ -540,7 +544,7 @@ int IBase::Main()
 
 	SocketClose(sockServer);
 
-	if( (GetLaunchMode() == "service") && (m_singleConnMode) && (ServiceUninstallSupportRealtime()) )
+	if ((GetLaunchMode() == "service") && (m_singleConnMode) && (ServiceUninstallSupportRealtime()))
 	{
 		ServiceUninstall();
 	}
@@ -562,13 +566,27 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 		if (params.find("mode") != params.end())
 			m_singleConnMode = (params["mode"] == "single");
 	}
+	else if (command == "ping")
+	{
+		std::string host = params["host"];
+		int timeoutMs = StringToInt(params["timeout"]);
+
+		int result = Ping(host, timeoutMs);
+		ReplyCommand(commandId, StringFrom(result));
+	}
+	else if (command == "bin-path-add")
+	{
+		// Add a path of a list of paths used by FsLocateExecutable
+		m_binPaths.push_back(params["path"]);
+	}
 	else if (command == "tor-get-info")
 	{
 		// Eddie need to talk with Tor Control to ask for new circuits or obtain guard IPs.
 		std::string processName;
 		std::string processPath;
 		std::string username;
-		std::string cookiePath;
+		std::string cookieCustomPath;
+		std::string cookieFoundPath;
 		std::string cookiePasswordHex;
 
 		if (params.find("name") != params.end())
@@ -576,6 +594,9 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 
 		if (params.find("path") != params.end())
 			processPath = params["path"];
+
+		if (params.find("cookie_path") != params.end())
+			cookieCustomPath = params["cookie_path"];
 
 		if (params.find("username") != params.end())
 			username = params["username"];
@@ -598,20 +619,21 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 		}
 
 		std::vector<std::string> paths;
-		AddTorCookiePaths(processPath, username, paths);
-        
-        LogRemote("pazzo tor search");
+
+		if (cookieCustomPath != "")
+			paths.push_back(cookieCustomPath);
+		else
+			AddTorCookiePaths(processPath, username, paths);
 
 		for (std::vector<std::string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
 		{
 			std::string path = *i;
 			if (FsFileExists(path))
 			{
-                LogRemote("pazzo tor found:" + path);
 				std::vector<char> chars = FsFileReadBytes(path);
 				if (chars.size() > 0)
 				{
-					cookiePath = path;
+					cookieFoundPath = path;
 					cookiePasswordHex = StringHexEncode(chars);
 					break;
 				}
@@ -620,7 +642,7 @@ void IBase::Do(const std::string& commandId, const std::string& command, std::ma
 
 		ReplyCommand(commandId, "Name:" + processName);
 		ReplyCommand(commandId, "Path:" + processPath);
-		ReplyCommand(commandId, "CookiePath:" + cookiePath);
+		ReplyCommand(commandId, "CookiePath:" + cookieFoundPath);
 		ReplyCommand(commandId, "CookiePasswordHex:" + cookiePasswordHex);
 	}
 	else
@@ -678,13 +700,13 @@ bool IBase::ServiceReinstall()
 
 bool IBase::ServiceUninstallSupportRealtime()
 {
-    // If in this OS, service can uninstall itself.
-    // Currently used in Windows, in Linux we encounter some issue about fork() a systemd for wait itself.
-    // Have the equivalent in C# ::Platform.
-    
-    // Anyway, under Windows, spot mode is installation and activation of the service, so the self-uninstall is to avoid UAC prompt at every exit. 
-    // In Linux/macOS, it's better return false here.
-    return false;
+	// If in this OS, service can uninstall itself.
+	// Currently used in Windows, in Linux we encounter some issue about fork() a systemd for wait itself.
+	// Have the equivalent in C# ::Platform.
+
+	// Anyway, under Windows, spot mode is installation and activation of the service, so the self-uninstall is to avoid UAC prompt at every exit. 
+	// In Linux/macOS, it's better return false here.
+	return false;
 }
 
 std::string IBase::GetProcessPathCurrent()
@@ -765,61 +787,36 @@ std::string IBase::FsFileGetDirectory(const std::string& path)
 
 std::string IBase::FsFileSHA256Sum(const std::string& path)
 {
-	if(FsFileExists(path) == false)
+	if (FsFileExists(path) == false)
 		ThrowException("Unable to find for sha256 hash, path: " + path);
 	std::vector<char> buf = FsFileReadBytes(path);
 
 	sha256_context ctx;
 	sha256_starts(&ctx);
-	sha256_update(&ctx, (unsigned char*) buf.data(), (unsigned long) buf.size());
+	sha256_update(&ctx, (unsigned char*)buf.data(), (unsigned long)buf.size());
 	unsigned char sha256sum[32];
 	sha256_finish(&ctx, sha256sum);
 	std::string final = StringHexEncode(&sha256sum[0], 32);
 	return final;
-
-	/*
-	FILE *f;
-	size_t i;
-	unsigned char buf[1000];
-	sha256_context ctx;
-	unsigned char sha256sum[32];
-
-	sha256_starts(&ctx);
-
-	if (!(f = fopen(path.c_str(), "rb")))
-	{
-		ThrowException("Unable to open for sha256 hash, path: " + path);
-	}
-
-	sha256_starts(&ctx);
-
-	while ((i = fread(buf, 1, sizeof(buf), f)) > 0)
-	{
-		sha256_update(&ctx, buf, (unsigned long)i);
-	}
-
-	fclose(f);
-
-	sha256_finish(&ctx, sha256sum);
-
-	return StringHexEncode(&sha256sum[0], 32);
-	*/
- 
-	return final;
 }
 
-std::string IBase::FsLocateExecutable(const std::string& name)
+std::string IBase::FsLocateExecutable(const std::string& name, const bool throwException)
 {
-	std::vector<std::string> paths = FsGetEnvPath();
+	std::vector<std::string> envPaths = FsGetEnvPath();
+
+	std::vector<std::string> paths = m_binPaths;
+
+	paths.insert(std::end(paths), std::begin(envPaths), std::end(envPaths));
 
 	for (std::vector<std::string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
 	{
 		std::string fullPath = *i + FsPathSeparator + name;
 		if (FsFileExists(fullPath))
 		{
-			CheckIfExecutableIsAllowed(fullPath);
-
-			return fullPath;
+			if (CheckIfExecutableIsAllowed(fullPath, throwException) == false)
+				return "";
+			else
+				return fullPath;
 		}
 	}
 
@@ -860,7 +857,7 @@ std::vector<std::string> IBase::StringToVector(const std::string& s, const char 
 
 	do
 	{
-		const char *begin = str;
+		const char* begin = str;
 		while (*str != c && *str)
 			str++;
 		std::string item = std::string(begin, str);
@@ -887,6 +884,21 @@ std::string IBase::StringFromVector(const std::vector<std::string>& v, const std
 		output += v[i];
 	}
 	return output;
+}
+
+std::string IBase::StringFrom(const int& i)
+{
+	return std::to_string(i);
+}
+
+int IBase::StringToInt(const std::string& s)
+{
+	return strtol(s.c_str(), NULL, 10);
+}
+
+unsigned long IBase::StringToULong(const std::string& s)
+{
+	return strtoul(s.c_str(), NULL, 10);
 }
 
 bool IBase::StringStartsWith(const std::string& s, const std::string& f)
@@ -1013,21 +1025,21 @@ std::string IBase::StringXmlEncode(const std::string& str)
 
 std::string IBase::StringHexEncode(const unsigned char* buf, const size_t s)
 {
-    const char digitshex[] = "0123456789abcdef";
-    std::string hex;
-    hex.reserve(s*2);
-    for (size_t i = 0; i < s; i++)
-    {
-        unsigned char c = buf[i];
-        hex.push_back(digitshex[c >> 4]);
-        hex.push_back(digitshex[c & 15]);
-    }
-    return hex;
+	const char digitshex[] = "0123456789abcdef";
+	std::string hex;
+	hex.reserve(s * 2);
+	for (size_t i = 0; i < s; i++)
+	{
+		unsigned char c = buf[i];
+		hex.push_back(digitshex[c >> 4]);
+		hex.push_back(digitshex[c & 15]);
+	}
+	return hex;
 }
 
 std::string IBase::StringHexEncode(const std::vector<char>& bytes)
 {
-    return StringHexEncode((const unsigned char*)bytes.data(), bytes.size());
+	return StringHexEncode((const unsigned char*)bytes.data(), bytes.size());
 }
 
 std::string IBase::StringHexEncode(const int v, const int chars)
@@ -1037,9 +1049,101 @@ std::string IBase::StringHexEncode(const int v, const int chars)
 	return ss.str();
 }
 
+bool IBase::StringIsIPv4(const std::string& ip) // TOFIX: can be better
+{
+	return ip.find('.') != std::string::npos;
+}
+
+bool IBase::StringIsIPv6(const std::string& ip) // TOFIX: can be better
+{
+	return ip.find(':') != std::string::npos;
+}
+
+// Normalization and compression (for IPv6), like "0000:0000::1" => "::1";
+std::string IBase::StringIpNormalize(const std::string& ip)
+{
+	if (StringIsIPv4(ip))
+	{
+		return "todo:" + ip;
+	}
+	else if (StringIsIPv6(ip))
+	{
+		return "todo:" + ip;
+	}
+	else
+		return "";
+}
+
+std::string IBase::StringIpRemoveInterface(const std::string& ip)
+{
+	// "ff01::%lo0/32" => "ff01::/32"	
+	size_t start_pos = ip.find('%');
+	if (start_pos == std::string::npos)
+		return ip;
+	size_t range_pos = ip.find('/');
+	if (range_pos == std::string::npos)
+		return ip.substr(0, start_pos);
+	else
+		return ip.substr(0, start_pos) + ip.substr(range_pos);
+}
+
 // --------------------------
 // Utils other
 // --------------------------
+
+unsigned long IBase::GetTimestampUnix()
+{
+	return (unsigned long)time(NULL);
+}
+
+// Convert a standard INI config to a key-value map. Every section will be prefix for a key. Duplicate key adapted as comma-separated.
+std::map<std::string, std::string> IBase::IniConfigToMap(const std::string& ini, std::string sectionKeySeparator, bool convertKeyToLower)
+{
+	std::map<std::string, std::string> result;
+
+	std::string section = "";
+	std::vector<std::string> lines = StringToVector(ini, '\n');
+	for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+	{
+		std::string lineNormalized = *i;
+		lineNormalized = StringTrim(lineNormalized);
+
+		if (StringStartsWith(lineNormalized, ";")) // Comment in standard INI
+			continue;
+
+		size_t posComment = lineNormalized.find("#"); // WireGuard INI consider comment any text after a #
+		if (posComment != std::string::npos)
+			lineNormalized = StringTrim(lineNormalized.substr(0, posComment));
+
+		if (lineNormalized == "") // Empty
+			continue;
+
+		if (StringStartsWith(lineNormalized, "[")) // Section
+			section = StringExtractBetween(lineNormalized, "[", "]");
+		else
+		{
+			size_t posSep = lineNormalized.find('=');
+			if (posSep != std::string::npos)
+			{
+				std::string key = StringTrim(lineNormalized.substr(0, posSep));
+				std::string value = StringTrim(lineNormalized.substr(posSep + 1));
+
+				if (section != "")
+					key = section + sectionKeySeparator + key;
+
+				if (convertKeyToLower)
+					key = StringToLower(key);
+
+				if (result.find(key) != result.end())
+					result[key] = result[key] + "," + value;
+				else
+					result[key] = value;
+			}
+		}
+	}
+
+	return result;
+}
 
 std::map<std::string, std::string> IBase::ParseCommandLine(const std::vector<std::string>& args)
 {
@@ -1079,6 +1183,10 @@ std::map<std::string, std::string> IBase::ParseCommandLine(const std::vector<std
 			v = "service";
 		}
 
+		// Remove quote
+		if ((v.length() >= 2) && (v[0] == '\"') && (v[v.length() - 1] == '\"'))
+			v = v.substr(1, v.length() - 2);
+
 		if (k != "")
 		{
 			LogDevDebug("CmdLine Arg:" + k + "=" + v);
@@ -1089,7 +1197,7 @@ std::map<std::string, std::string> IBase::ParseCommandLine(const std::vector<std
 	return result;
 }
 
-std::string IBase::CheckValidOpenVpnConfig(const std::string& path)
+std::string IBase::CheckValidOpenVpnConfigFile(const std::string& path)
 {
 	if (FsFileExists(path) == false)
 		return "file not found";
@@ -1131,9 +1239,15 @@ std::string IBase::CheckValidOpenVpnConfig(const std::string& path)
 	return "";
 }
 
-std::string IBase::CheckValidHummingbirdConfig(const std::string& path)
+std::string IBase::CheckValidHummingbirdConfigFile(const std::string& path)
 {
-	return CheckValidOpenVpnConfig(path);
+	return CheckValidOpenVpnConfigFile(path);
+}
+
+std::string IBase::CheckValidWireGuardConfig(const std::string& path)
+{
+	// Nothing here about security, anyway any PostUp and similar events are ignored in our implementation.
+	return "";
 }
 
 // When the service is installed, we build an hash of executable and library of the software.
@@ -1180,16 +1294,22 @@ std::string IBase::ComputeIntegrityHash(const std::string& elevatedPath, const s
 
 bool IBase::CheckIfExecutableIsWhitelisted(const std::string& path)
 {
-	// Exception: Maybe the bundle openvpn or hummingbird (if not, doesn't matter).
+	// Exception: Maybe the bundle openvpn or hummingbird or wireguard tools (if not, doesn't matter).
 	// Portable or AppImage edition can't have other checks performed by CheckIfExecutableIsAllowed
 	// We hardcoded hash (updated by build scripts) in sources, like HTTP Content-Security-Policy approach.
 	// If match, trust it, otherwise other checks are performed.
 	std::string computedHash = FsFileSHA256Sum(path);
 
-	if (computedHash == expectedOpenvpnHash)
+	if (computedHash == expectedOpenVpnHash)
 		return true;
 
 	if (computedHash == expectedHummingbirdHash)
+		return true;
+
+	if (computedHash == expectedWireGuardGoHash)
+		return true;
+
+	if (computedHash == expectedWireGuardWgHash)
 		return true;
 
 	return false;
@@ -1225,56 +1345,117 @@ void IBase::ThrowException(const std::string& message)
 	throw std::runtime_error(message);
 }
 
-ShellResult IBase::ShellEx(const std::string& path, const std::vector<std::string>& args)
+ExecResult IBase::ExecEx(const std::string& path, const std::vector<std::string>& args)
 {
-	ShellResult result;
-	result.exit = Shell(path, args, false, "", result.out, result.err);
+	ExecResult result;
+	result.exit = Exec(path, args, false, "", result.out, result.err, true);
 	return result;
 }
 
-ShellResult IBase::ShellEx1(const std::string& path, const std::string& arg1)
+std::string IBase::GetExecResultOutput(const ExecResult& result)
+{
+	std::string final = StringTrim(result.out);
+	if (result.err != "")
+	{
+		if (final != "")
+			final += "\n";
+		final += StringTrim(result.err);
+	}
+	return final;
+}
+
+std::string IBase::GetExecResultDump(const ExecResult& result)
+{
+	std::string final = "exit:" + std::to_string(result.exit);
+	if (StringTrim(result.out) != "")
+		final += "; out:" + StringTrim(result.out);
+	if (StringTrim(result.err) != "")
+		final += "; err:" + StringTrim(result.err);
+	return final;
+}
+
+ExecResult IBase::ExecEx1(const std::string& path, const std::string& arg1)
 {
 	std::vector<std::string> args;
 	args.push_back(arg1);
-	return ShellEx(path, args);
+	return ExecEx(path, args);
 }
 
-ShellResult IBase::ShellEx2(const std::string& path, const std::string& arg1, const std::string& arg2)
+ExecResult IBase::ExecEx2(const std::string& path, const std::string& arg1, const std::string& arg2)
 {
 	std::vector<std::string> args;
 	args.push_back(arg1);
 	args.push_back(arg2);
-	return ShellEx(path, args);
+	return ExecEx(path, args);
 }
 
-ShellResult IBase::ShellEx3(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3)
+ExecResult IBase::ExecEx3(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3)
 {
 	std::vector<std::string> args;
 	args.push_back(arg1);
 	args.push_back(arg2);
 	args.push_back(arg3);
-	return ShellEx(path, args);
+	return ExecEx(path, args);
 }
 
-// --------------------------
-// ShellResult class
-// --------------------------
-
-std::string ShellResult::output()
+ExecResult IBase::ExecEx4(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4)
 {
-	std::string result = out;
-	if (err != "")
-	{
-		if (result != "")
-			result += "\n";
-		result += err;
-	}
-	return result;
+	std::vector<std::string> args;
+	args.push_back(arg1);
+	args.push_back(arg2);
+	args.push_back(arg3);
+	args.push_back(arg4);
+	return ExecEx(path, args);
 }
 
-std::string ShellResult::dump()
+ExecResult IBase::ExecEx5(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5)
 {
-	return "exit:" + std::to_string(exit) + "; out:" + out + "; err:" + err;
+	std::vector<std::string> args;
+	args.push_back(arg1);
+	args.push_back(arg2);
+	args.push_back(arg3);
+	args.push_back(arg4);
+	args.push_back(arg5);
+	return ExecEx(path, args);
+}
+
+ExecResult IBase::ExecEx6(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6)
+{
+	std::vector<std::string> args;
+	args.push_back(arg1);
+	args.push_back(arg2);
+	args.push_back(arg3);
+	args.push_back(arg4);
+	args.push_back(arg5);
+	args.push_back(arg6);
+	return ExecEx(path, args);
+}
+
+ExecResult IBase::ExecEx7(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7)
+{
+	std::vector<std::string> args;
+	args.push_back(arg1);
+	args.push_back(arg2);
+	args.push_back(arg3);
+	args.push_back(arg4);
+	args.push_back(arg5);
+	args.push_back(arg6);
+	args.push_back(arg7);
+	return ExecEx(path, args);
+}
+
+ExecResult IBase::ExecEx8(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7, const std::string& arg8)
+{
+	std::vector<std::string> args;
+	args.push_back(arg1);
+	args.push_back(arg2);
+	args.push_back(arg3);
+	args.push_back(arg4);
+	args.push_back(arg5);
+	args.push_back(arg6);
+	args.push_back(arg7);
+	args.push_back(arg8);
+	return ExecEx(path, args);
 }
 
 // --------------------------

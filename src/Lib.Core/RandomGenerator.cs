@@ -23,8 +23,8 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public static class RandomGenerator
-    {
+	public static class RandomGenerator
+	{
 		private static Random m_randomSeed = new Random();
 
 		public static Int32 GetInt(int minValue, int maxValue)
@@ -48,7 +48,7 @@ namespace Eddie.Core
 			{
 #if !EDDIENET2
 				// RNGCryptoServiceProvider doesn't implement the IDisposable interface
-				if(rng != null)					
+				if (rng != null)
 					rng.Dispose();
 #endif
 			}
@@ -71,7 +71,7 @@ namespace Eddie.Core
 			string h = BitConverter.ToString(GetBuffer(32)).Replace("-", "").ToLower();
 			return h;
 		}
-		
+
 		// Used only by compose check-dns hostname. Because a GetHash() it's too long.
 		public static string GetRandomToken()
 		{

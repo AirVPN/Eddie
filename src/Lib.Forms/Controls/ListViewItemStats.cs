@@ -25,10 +25,10 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Controls
 {
-    public class ListViewItemStats : ListViewItem
-    {
+	public class ListViewItemStats : ListViewItem
+	{
 		public StatsEntry Entry;
 
-        
-    }
+
+	}
 }

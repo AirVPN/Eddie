@@ -38,7 +38,7 @@ namespace Eddie.Core
 		}
 
 		public static void Save()
-		{			
+		{
 			lock (Lock)
 			{
 				XmlDocument doc = new XmlDocument();
@@ -54,7 +54,7 @@ namespace Eddie.Core
 						Platform.Instance.FileDelete(path);
 				}
 				else
-				{					
+				{
 					doc.Save(RecoveryPath());
 				}
 			}
@@ -84,12 +84,12 @@ namespace Eddie.Core
 
 						Engine.Instance.NetworkLockManager.OnRecoveryLoad(root);
 					}
-					catch (Exception e)
+					catch (Exception ex)
 					{
-						Engine.Instance.Logs.Log(e);
+						Engine.Instance.Logs.Log(ex);
 					}
 
-                    Platform.Instance.FileDelete(path);
+					Platform.Instance.FileDelete(path);
 				}
 			}
 		}

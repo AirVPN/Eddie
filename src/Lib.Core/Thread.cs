@@ -60,12 +60,12 @@ namespace Eddie.Core
 			m_Thread.Join();
 		}
 
-        public virtual bool Join(int millisecondsTimeout)
-        {
-            return m_Thread.Join(millisecondsTimeout);
-        }
+		public virtual bool Join(int millisecondsTimeout)
+		{
+			return m_Thread.Join(millisecondsTimeout);
+		}
 
-        public virtual void Abort()
+		public virtual void Abort()
 		{
 			m_Thread.Abort();
 		}

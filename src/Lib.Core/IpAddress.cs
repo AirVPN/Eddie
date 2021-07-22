@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml; 
+using System.Xml;
 
 namespace Eddie.Core
 {
@@ -86,7 +86,7 @@ namespace Eddie.Core
 			}
 		}
 
-		public bool IsInAddrAny
+		public bool IsDefault
 		{
 			get
 			{
@@ -95,12 +95,6 @@ namespace Eddie.Core
 					return true;
 				if (cidr == DefaultIPv6.ToCIDR())
 					return true;
-
-				if (Address == DefaultIPv4.Address)
-					return true;
-				if (Address == DefaultIPv6.Address)
-					return true;
-
 				return false;
 			}
 		}
@@ -240,25 +234,11 @@ namespace Eddie.Core
 			if (obj is IpAddress == false)
 				return false;
 
-			IpAddress two = obj as IpAddress;			
+			IpAddress two = obj as IpAddress;
 
 			return ToCIDR() == two.ToCIDR();
 		}
-		/*
-		public static bool operator ==(IpAddress i1, IpAddress i2)
-		{
-			if (i1 == null)
-				return (i2 == null);
-			if (i1 is null)
-				return (i2 is null);
-			return i1.Equals(i2);
-		}
 
-		public static bool operator !=(IpAddress i1, IpAddress i2)
-		{
-			return !(i1 == i2);
-		}
-		*/
 		public override int GetHashCode()
 		{
 			return ToCIDR().GetHashCode();

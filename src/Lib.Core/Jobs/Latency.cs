@@ -53,9 +53,9 @@ namespace Eddie.Core.Jobs
 				// Note: If Pinger is not enabled, works like all ping results is 0.						
 				bool enabled = GetEnabled();
 
-				int timeNow = Utils.UnixTimeStamp();
+				Int64 timeNow = Utils.UnixTimeStamp();
 				int jobsLimit = Engine.Instance.Options.GetInt("pinger.jobs");
-								
+
 				bool startOne = false;
 
 				foreach (ConnectionInfo connectionInfo in connections)
@@ -115,8 +115,8 @@ namespace Eddie.Core.Jobs
 					m_timeEvery = 100;
 				else
 					m_timeEvery = 1000;
-										
-				for(; ;)
+
+				for (; ; )
 				{
 					lock (Jobs)
 						if (Jobs.Count == 0)
@@ -165,7 +165,7 @@ namespace Eddie.Core.Jobs
 		public int GetPingerDelayValid(ConnectionInfo server) // Delay for consider valid
 		{
 			int delay = Engine.Instance.Options.GetInt("pinger.valid");
-            if (delay == 0)
+			if (delay == 0)
 				delay = GetPingerDelaySuccess(server) * 5;
 			return delay;
 		}
@@ -234,7 +234,7 @@ namespace Eddie.Core.Jobs
 		{
 			PingerStats stats = new PingerStats();
 
-			int timeNow = Utils.UnixTimeStamp();
+			Int64 timeNow = Utils.UnixTimeStamp();
 
 			int iTotal = 0;
 
@@ -254,7 +254,7 @@ namespace Eddie.Core.Jobs
 				if ((infoConnection.CanPing()) && (timeNow - infoConnection.LastPingResult > deltaValid))
 					stats.Invalid++;
 			}
-			
+
 			stats.Valid = (stats.Invalid == 0);
 
 			return stats;
@@ -266,8 +266,8 @@ namespace Eddie.Core.Jobs
 		}
 
 		public List<ConnectionInfo> GetConnectionsToPing()
-		{		
-            List<ConnectionInfo> connections = Engine.Instance.GetConnections(false);
+		{
+			List<ConnectionInfo> connections = Engine.Instance.GetConnections(false);
 			return connections;
 		}
 	}

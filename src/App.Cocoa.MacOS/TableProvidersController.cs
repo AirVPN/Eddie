@@ -50,7 +50,7 @@ namespace Eddie.UI.Cocoa.Osx
 												 NSTableColumn tableColumn,
 												 nint row)
 		{
-			Provider p = Engine.Instance.ProvidersManager.Providers[(int)row];
+			Core.Providers.IProvider p = Engine.Instance.ProvidersManager.Providers[(int)row];
 
 			if (tableColumn.Identifier == "Enabled")
 			{

@@ -25,61 +25,61 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Controls
 {
-    public class MenuButton : System.Windows.Forms.Label
-    {
+	public class MenuButton : System.Windows.Forms.Label
+	{
 		private bool m_hover = false;
 
 		public MenuButton()
-        {            
-        }
+		{
+		}
 
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
+		protected override void OnCreateControl()
+		{
+			base.OnCreateControl();
 
 			BackColor = Color.Transparent;
 			BackgroundImage = null;
-            BackgroundImageLayout = ImageLayout.Stretch;
-            Cursor = Cursors.Hand;
+			BackgroundImageLayout = ImageLayout.Stretch;
+			Cursor = Cursors.Hand;
 
-            FlatStyle = System.Windows.Forms.FlatStyle.Flat;            
-        }
+			FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+		}
 
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
+		protected override void OnMouseEnter(EventArgs e)
+		{
+			base.OnMouseEnter(e);
 
 			if (m_hover == false)
 			{
 				m_hover = true;
 				Invalidate();
-			}            
-        }
+			}
+		}
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			base.OnMouseLeave(e);
 
 			if (m_hover == true)
 			{
 				m_hover = false;
 				Invalidate();
-			}            
-        }
+			}
+		}
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            //base.OnPaint(pevent);
-			
-            Rectangle r = ClientRectangle;
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			//base.OnPaint(pevent);
+
+			Rectangle r = ClientRectangle;
 
 			Image img = null;
 			if (m_hover)
-				img = GuiUtils.GetResourceImage("topbar_logo_hi");				
+				img = GuiUtils.GetResourceImage("topbar_logo_hi");
 			else
 				img = GuiUtils.GetResourceImage("topbar_logo");
 
 			Form.DrawImage(e.Graphics, img, r);
-        }
-    }
+		}
+	}
 }

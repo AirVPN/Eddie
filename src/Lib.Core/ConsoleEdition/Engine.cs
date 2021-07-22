@@ -32,18 +32,18 @@ namespace Eddie.Core.ConsoleEdition
 			ConsoleMode = true;
 		}
 
-        public override bool OnInit()
+		public override bool OnInit()
 		{
 			if (StartCommandLine.Exists("version"))
 			{
 				EnableLogOnConsole = false;
-				Console.WriteLine(Constants.Name + " - version " + Constants.VersionShow);
+				Console.WriteLine(Constants.Name + " - version " + GetVersionShow());
 				return false;
 			}
 			else if (StartCommandLine.Exists("version.short"))
 			{
 				EnableLogOnConsole = false;
-				Console.WriteLine(Constants.VersionShow);
+				Console.WriteLine(GetVersionShow());
 				return false;
 			}
 			else if (StartCommandLine.Exists("help"))
@@ -112,15 +112,15 @@ namespace Eddie.Core.ConsoleEdition
 							}
 						}
 					}
-					catch (Exception e)
+					catch (Exception ex)
 					{
-						Console.WriteLine("Console error: " + e.Message);
+						Console.WriteLine("Console error: " + ex.Message);
 					}
 				}
 			}
 		}
 
-        public override void OnLog(LogEntry l)
+		public override void OnLog(LogEntry l)
 		{
 			if (EnableLogOnConsole == false)
 				return;
@@ -128,9 +128,9 @@ namespace Eddie.Core.ConsoleEdition
 			base.OnLog(l);
 		}
 
-        public override string OnAskProfilePassword(bool authFailed)
+		public override string OnAskProfilePassword(bool authFailed)
 		{
-			if(authFailed == false)
+			if (authFailed == false)
 				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsUnlockFirstAuth"));
 			else
 				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsUnlockFailedAuth"));
@@ -142,31 +142,31 @@ namespace Eddie.Core.ConsoleEdition
 		public override bool OnAskYesNo(string message)
 		{
 			Logs.Log(LogType.Info, message + " (y/n)");
-			for(; ;)
+			for (; ; )
 			{
 				string answer = Console.ReadLine().ToLowerInvariant();
 				if (answer == "y")
 					return true;
 				else if (answer == "n")
 					return false;
-			}			
+			}
 		}
 
-		public override Json OnAskShellExternalPermission(Json data)
+		public override Json OnAskExecExternalPermission(Json data)
 		{
 			Json Answer = new Json();
 			Answer["allow"].Value = false;
 
 			for (; ; )
 			{
-				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsShellExternalPermissionTop", data["path"].Value as string));
-				Logs.Log(LogType.Verbose, "N: " + LanguageManager.GetText("WindowsShellExternalPermissionNo"));
-				Logs.Log(LogType.Verbose, "Y: " + LanguageManager.GetText("WindowsShellExternalPermissionYes"));
+				Logs.Log(LogType.Info, LanguageManager.GetText("WindowsExecExternalPermissionTop", data["path"].Value as string));
+				Logs.Log(LogType.Verbose, "N: " + LanguageManager.GetText("WindowsExecExternalPermissionNo"));
+				Logs.Log(LogType.Verbose, "Y: " + LanguageManager.GetText("WindowsExecExternalPermissionYes"));
 				if ((data["sign-id"].Value as string).StartsWith("No: ") == false)
-					Logs.Log(LogType.Verbose, "S: " + LanguageManager.GetText("WindowsShellExternalPermissionRuleSign", data["sign-id"].Value as string));
-				Logs.Log(LogType.Verbose, "H: " + LanguageManager.GetText("WindowsShellExternalPermissionRuleHash", data["sha256"].Value as string));
-				Logs.Log(LogType.Verbose, "P: " + LanguageManager.GetText("WindowsShellExternalPermissionRulePath", data["path"].Value as string));
-				Logs.Log(LogType.Verbose, "A: " + LanguageManager.GetText("WindowsShellExternalPermissionRuleAll"));
+					Logs.Log(LogType.Verbose, "S: " + LanguageManager.GetText("WindowsExecExternalPermissionRuleSign", data["sign-id"].Value as string));
+				Logs.Log(LogType.Verbose, "H: " + LanguageManager.GetText("WindowsExecExternalPermissionRuleHash", data["sha256"].Value as string));
+				Logs.Log(LogType.Verbose, "P: " + LanguageManager.GetText("WindowsExecExternalPermissionRulePath", data["path"].Value as string));
+				Logs.Log(LogType.Verbose, "A: " + LanguageManager.GetText("WindowsExecExternalPermissionRuleAll"));
 
 				char ch = ReadConsoleKeyInsensitive();
 
@@ -180,7 +180,7 @@ namespace Eddie.Core.ConsoleEdition
 					Answer["allow"].Value = true;
 					break;
 				}
-				else if ( (ch == 's') && ((data["sign-id"].Value as string).StartsWith("No: ") == false) )
+				else if ((ch == 's') && ((data["sign-id"].Value as string).StartsWith("No: ") == false))
 				{
 					Answer.RemoveKey("allow");
 					Answer["type"].Value = "sign";

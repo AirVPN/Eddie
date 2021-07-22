@@ -79,19 +79,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AreaInfo.cs" />
-    <Compile Include="ConnectionActive.cs" />
-    <Compile Include="ConnectionActiveRoute.cs" />
+    <Compile Include="ConfigBuilder\IConfigBuilder.cs" />
+    <Compile Include="ConfigBuilder\Hummingbird.cs" />
+    <Compile Include="ConfigBuilder\WireGuard.cs" />
+    <Compile Include="ConfigBuilder\OpenVPN.cs" />
     <Compile Include="ConnectionInfoWarning.cs" />
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="ConnectionMode.cs" />
+    <Compile Include="ConnectionRoute.cs" />
+    <Compile Include="ConnectionTypes\IConnectionType.cs" />
     <Compile Include="ConsoleEdition\Engine.cs" />
     <Compile Include="ConsoleEdition\UiClient.cs" />
     <Compile Include="CountriesManager.cs" />
     <Compile Include="DnsManagerEntry.cs" />
     <Compile Include="Elevated\Command.cs" />
-    <Compile Include="Elevated\EleSocket.cs" />
+    <Compile Include="Elevated\ISocket.cs" />
     <Compile Include="EngineCommandLine.cs" />
-    <Compile Include="Elevated\EleBase.cs" />
+    <Compile Include="Elevated\IElevated.cs" />
+    <Compile Include="ExecExternalManager.cs" />
     <Compile Include="ExtensionsString.cs" />
     <Compile Include="HttpResponse.cs" />
     <Compile Include="IpAddresses.cs" />
@@ -106,14 +111,14 @@
     <Compile Include="Jobs\Updater.cs" />
     <Compile Include="LanguageManager.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="ShellExternalManager.cs" />
-    <Compile Include="Elevated\Process.cs" />
+    <Compile Include="Providers\IProvider.cs" />
+    <Compile Include="Providers\WireGuard.cs" />
     <Compile Include="PingerJob.cs" />
     <Compile Include="PingerStats.cs" />
     <Compile Include="Job.cs" />
     <Compile Include="ReportItem.cs" />
     <Compile Include="Credentials.cs" />
-    <Compile Include="SystemShell.cs" />
+    <Compile Include="SystemExec.cs" />
     <Compile Include="Report.cs" />
     <Compile Include="Tools\Curl.cs" />
     <Compile Include="Tools\Hummingbird.cs" />
@@ -126,15 +131,13 @@
     <Compile Include="LogsManager.cs" />
     <Compile Include="LogType.cs" />
     <Compile Include="Option.cs" />
-    <Compile Include="OvpnBuilder.cs" />
     <Compile Include="ProgramScope.cs" />
-    <Compile Include="Provider.cs" />
     <Compile Include="ProvidersManager.cs" />
-    <Compile Include="Providers\Manifest.cs" />
+    <Compile Include="Providers\Service.cs" />
     <Compile Include="Providers\OpenVPN.cs" />
     <Compile Include="RemoteAccess.cs" />
     <Compile Include="PerformanceScope.cs" />
-    <Compile Include="Tool.cs" />
+    <Compile Include="Tools\ITool.cs" />
     <Compile Include="TorControl.cs" />
     <Compile Include="IpAddress.cs" />
     <Compile Include="NetworkLockManager.cs" />
@@ -143,11 +146,10 @@
     <Compile Include="Process.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ResourcesFiles.cs" />
     <Compile Include="TemporaryFile.cs" />
     <Compile Include="TemporaryFiles.cs" />
     <Compile Include="ConnectionTypes\Hummingbird.cs" />
-    <Compile Include="ConnectionTypes\Wireguard.cs" />
+    <Compile Include="ConnectionTypes\WireGuard.cs" />
     <Compile Include="ConnectionTypes\OpenVPN.cs" />
     <Compile Include="UiManager.cs" />
     <Compile Include="UI\App.cs" />
@@ -169,7 +171,7 @@
     <Compile Include="Software.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="Thread.cs" />
-    <Compile Include="Threads\Session.cs" />
+    <Compile Include="Session.cs" />
     <Compile Include="TimeDelta.cs" />
     <Compile Include="ExtensionsXml.cs" />
     <Compile Include="WebServerClient.cs" />
@@ -198,18 +200,6 @@
     <None Include="Resources\icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\License.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\ThirdParty.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\TOS.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\AirVPN.xml" />
-    <None Include="Resources\OpenVPN.xml" />
-    <None Include="Resources\data.txt" />
     <Content Include="_Readme.txt" />
   </ItemGroup>
   <ItemGroup />

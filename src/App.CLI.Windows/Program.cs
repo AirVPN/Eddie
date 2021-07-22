@@ -40,7 +40,7 @@ namespace Eddie.CLI.Windows
 
 		static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			if(m_client != null)
+			if (m_client != null)
 				m_client.OnUnhandledException("CurrentDomain", e.ExceptionObject as Exception);
 		}
 	}

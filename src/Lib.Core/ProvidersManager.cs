@@ -29,19 +29,19 @@ namespace Eddie.Core
 	{
 		public bool InvalidateWithNextRefresh = false;
 
-		private Dictionary<string, XmlDocument> Definitions = new Dictionary<string, XmlDocument>();
-		private List<Provider> m_providers = new List<Provider>();
+		private Dictionary<string, Json> Definitions = new Dictionary<string, Json>();
+		private List<Providers.IProvider> m_providers = new List<Providers.IProvider>();
 
 		private Int64 m_lastRefreshDone = 0;
 
-		public List<Provider> Providers
+		public List<Providers.IProvider> Providers
 		{
 			get
 			{
 				return m_providers;
 			}
 		}
-		
+
 		public Int64 LastRefreshDone
 		{
 			get
@@ -49,13 +49,13 @@ namespace Eddie.Core
 				return m_lastRefreshDone;
 			}
 		}
-		
+
 		public int CountEnabled
 		{
 			get
 			{
 				int n = 0;
-				foreach (Provider provider in Providers)
+				foreach (Providers.IProvider provider in Providers)
 				{
 					if (provider.Enabled)
 						n++;
@@ -67,20 +67,12 @@ namespace Eddie.Core
 
 		public void Init()
 		{
-			string path = Platform.Instance.NormalizePath(Engine.Instance.GetPathResources() + "/providers");
+			string path = Engine.Instance.LocateResource("providers");
 
-			if (Platform.Instance.DirectoryExists(path) == false) // TOCLEAN, Compatibility <3.0
+			FileInfo[] filesJson = new System.IO.DirectoryInfo(path).GetFiles("*.json");
+			foreach (FileInfo fi in filesJson)
 			{
-				LoadDefinition(ResourcesFiles.GetString("AirVPN.xml"));
-				LoadDefinition(ResourcesFiles.GetString("OpenVPN.xml"));
-				return;
-			}
-
-			FileInfo[] files = new System.IO.DirectoryInfo(path).GetFiles("*.xml");
-			foreach (FileInfo fi in files)
-			{
-				string xml = Platform.Instance.FileContentsReadText(fi.FullName);
-				LoadDefinition(xml);
+				LoadDefinitionFromFile(fi.FullName);
 			}
 		}
 
@@ -94,95 +86,58 @@ namespace Eddie.Core
 
 			if (Providers.Count == 0)
 				AddProvider("AirVPN", null);
-
-			// Hack Eddie 2.x - Removed in 2.13.4
-			/*
-            {
-                string specialOvpnDirectory = Engine.Instance.Storage.GetPath("ovpn");
-
-                // First, find OpenVPN provider if already exists and match {data}/ovpn
-                Core.Providers.OpenVPN providerSpecialOpenVPN = null;
-                foreach (Provider p in Providers)
-                {
-                    if (p is Providers.OpenVPN)
-                    {
-                        if ((p as Providers.OpenVPN).Path == specialOvpnDirectory)
-                        {
-                            providerSpecialOpenVPN = p as Providers.OpenVPN;
-                        }
-                    }
-                }
-
-                // Remove if directory don't exists
-                if (providerSpecialOpenVPN != null)
-                {
-                    if (Platform.Instance.DirectoryExists(specialOvpnDirectory) == false)
-                    {
-                        Providers.Remove(providerSpecialOpenVPN);
-                    }
-                }
-
-                // Add if directory exists
-                if (providerSpecialOpenVPN == null)
-                {
-                    if (Platform.Instance.DirectoryExists(specialOvpnDirectory))
-                    {
-                        providerSpecialOpenVPN = AddProvider("OpenVPN", null) as Providers.OpenVPN;
-                        Utils.XmlSetAttributeString(providerSpecialOpenVPN.Storage.DocumentElement, "path", specialOvpnDirectory);
-                    }
-                }
-            }
-			*/
 		}
 
-		private void LoadDefinition(string xml)
+		private void LoadDefinitionFromFile(string path)
 		{
-			XmlDocument xmlDoc = new XmlDocument();
-			xmlDoc.LoadXml(xml);
+			Json j = Json.Parse(Platform.Instance.FileContentsReadText(path));
 
-			string code = xmlDoc.DocumentElement.GetAttributeString("code", "");
+			string code = j["code"].ValueString;
 
-			Definitions[code] = xmlDoc;
+			if ((code == "WireGuard") && (Platform.Instance.GetSupportWireGuard() == false))
+				return;
+
+			Definitions[code] = j;
 		}
 
-		public XmlElement GetDataAddProviders()
+		public Json GetDataAddProviders()
 		{
-			XmlElement xmlData = ExtensionsXml.XmlCreateElement("data");
+			Json jList = new Json();
+			jList.EnsureArray();
 
-			foreach (KeyValuePair<string, XmlDocument> providerDefinition in Definitions)
+			foreach (KeyValuePair<string, Json> providerDefinition in Definitions)
 			{
 				string code = providerDefinition.Key;
-				string providerClass = providerDefinition.Value.DocumentElement.GetAttributeString("class", "");
+				string providerClass = providerDefinition.Value["class"].ValueString;
 				if (providerClass == "service") // Only one instance
 				{
 					if (ExistsProvider(code))
 						continue;
 				}
 
-				xmlData.AppendChild(xmlData.OwnerDocument.ImportNode(providerDefinition.Value.DocumentElement, true));
+				jList.Append(providerDefinition.Value);
 			}
 
-			return xmlData;
+			return jList;
 		}
 
 		public bool ExistsProvider(string code)
 		{
-			foreach (Provider provider in Providers)
+			foreach (Providers.IProvider provider in Providers)
 				if (provider.Code == code)
 					return true;
 			return false;
 		}
 
-		public Provider AddProvider(string providerCode, XmlElement xmlStorage)
+		public Providers.IProvider AddProvider(string providerCode, XmlElement xmlStorage)
 		{
 			if (Definitions.ContainsKey(providerCode) == false)
 				return null;
 
-			XmlDocument xmlDefiniton = Definitions[providerCode];
+			Json jDefinition = Definitions[providerCode] as Json;
+			string providerClass = jDefinition["class"].ValueString;
 
-			string providerClass = xmlDefiniton.DocumentElement.GetAttributeString("class", "");
-
-			Provider provider = null;
+			Providers.IProvider provider = null;
 
 			if (providerClass == "service")
 			{
@@ -192,12 +147,16 @@ namespace Eddie.Core
 			{
 				provider = new Providers.OpenVPN();
 			}
+			else if ((providerClass == "wireguard") && (Platform.Instance.GetSupportWireGuard()))
+			{
+				provider = new Providers.WireGuard();
+			}
 			else
 				return null;
 
 			if (provider != null)
 			{
-				provider.Definition = xmlDefiniton.DocumentElement;
+				provider.Definition = jDefinition;
 
 				provider.OnInit();
 
@@ -208,8 +167,8 @@ namespace Eddie.Core
 
 			return provider;
 		}
-		
-		public void Remove(Provider provider)
+
+		public void Remove(Providers.IProvider provider)
 		{
 			Providers.Remove(provider);
 		}
@@ -217,32 +176,32 @@ namespace Eddie.Core
 		public void DoRefresh(bool force)
 		{
 			bool postRefreshRecompute = force;
-			foreach (Provider provider in Providers)
+			foreach (Providers.IProvider provider in Providers)
 			{
 				if (provider.Enabled)
 				{
-					if( (force) || (provider.GetNeedRefresh()) )
+					if ((force) || (provider.GetNeedRefresh()))
 					{
 						postRefreshRecompute = true;
 						string result = provider.OnRefresh();
 						if (result != "")
 						{
-							if (Engine.Instance.ConnectionActive == null) // Note: only if not connected, otherwise misunderstanding.
+							if (Engine.Instance.Connection == null) // Note: only if not connected, otherwise misunderstanding.
 							{
 								if (Engine.Instance.Options.GetBool("ui.skip.provider.manifest.failed") == false)
 									Engine.Instance.OnProviderManifestFailed(provider);
 							}
-						}							
+						}
 					}
 				}
 			}
-			
-			if(postRefreshRecompute)
+
+			if (postRefreshRecompute)
 				Engine.Instance.PostManifestUpdate();
 
 			m_lastRefreshDone = Utils.UnixTimeStamp();
 
-			if(InvalidateWithNextRefresh)
+			if (InvalidateWithNextRefresh)
 			{
 				InvalidateWithNextRefresh = false;
 				Engine.Instance.InvalidateConnections();

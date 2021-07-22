@@ -27,6 +27,6 @@ using System.Text;
 namespace Eddie.Core
 {
 	public static class RemoteAccess
-	{		
+	{
 	}
 }

@@ -22,8 +22,8 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class Credentials
-    {
+	public class Credentials
+	{
 		public string UserName = "";
 		public string Password = "";
 		public string Remember = "no";
@@ -39,5 +39,5 @@ namespace Eddie.Core
 				return true;
 			}
 		}
-    }
+	}
 }

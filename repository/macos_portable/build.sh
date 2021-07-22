@@ -97,7 +97,6 @@ rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/*.profile
 rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/*.pdb
 rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/*.config
 rm -f ${TARGETDIR}/Eddie.App/Contents/MacOS/Recovery.xml
-rm -rf ${TARGETDIR}/Eddie.App/Contents/Resources/providers
 
 if [ $PROJECT = "cli" ]; then
 	rm -rf "${TARGETDIR}/Eddie.App/Contents/Resources/webui"
@@ -141,6 +140,8 @@ chmod 755 "${TARGETDIR}/Eddie.App/Contents/MacOS/eddie-cli-elevated"
 chmod 755 "${TARGETDIR}/Eddie.App/Contents/MacOS/openvpn"
 chmod 755 "${TARGETDIR}/Eddie.App/Contents/MacOS/hummingbird"
 chmod 755 "${TARGETDIR}/Eddie.App/Contents/MacOS/stunnel"
+chmod 755 "${TARGETDIR}/Eddie.App/Contents/MacOS/wireguard-go"
+chmod 755 "${TARGETDIR}/Eddie.App/Contents/MacOS/wg"
 
 # Signing
 

@@ -62,17 +62,17 @@ namespace Eddie.Platform.MacOS
 		{
 			base.Activation();
 
-            try
+			try
 			{
-                string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-activate");
-                if (result == "activated")
-                    m_prevActive = false;
-                else if (result == "active")
-                    m_prevActive = true;
-                else
-                    throw new Exception("Unexpected PF Firewall activation");
+				string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-activate");
+				if (result == "activated")
+					m_prevActive = false;
+				else if (result == "active")
+					m_prevActive = true;
+				else
+					throw new Exception("Unexpected PF Firewall activation");
 
-                OnUpdateIps();                
+				OnUpdateIps();
 			}
 			catch (Exception ex)
 			{
@@ -86,9 +86,9 @@ namespace Eddie.Platform.MacOS
 		{
 			base.Deactivation();
 
-            string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-deactivate", "prev", (m_prevActive ? "enabled":"disabled"));
-            if (result != "")
-                throw new Exception("Unexpected result: " + result);            
+			string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-deactivate", "prev", (m_prevActive ? "enabled" : "disabled"));
+			if (result != "")
+				throw new Exception("Unexpected result: " + result);
 		}
 
 		public override void AllowIP(IpAddress ip)
@@ -105,12 +105,12 @@ namespace Eddie.Platform.MacOS
 		{
 			base.OnUpdateIps();
 
-            string pfConfig = BuildPfConfig();
+			string pfConfig = BuildPfConfig();
 
-            // Engine.Instance.Logs.Log(LogType.Verbose, "macOS - PF rules updated, reloading");
-            string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-update","config", pfConfig);
-            if (result != "")
-                throw new Exception("Unexpected result: " + result);
+			// Engine.Instance.Logs.Log(LogType.Verbose, "macOS - PF rules updated, reloading");
+			string result = Engine.Instance.Elevated.DoCommandSync("netlock-pf-update", "config", pfConfig);
+			if (result != "")
+				throw new Exception("Unexpected result: " + result);
 		}
 
 		public override void OnVpnEstablished()
@@ -143,104 +143,104 @@ namespace Eddie.Platform.MacOS
 			root.SetAttribute("prev_active", m_prevActive ? "1" : "0");
 		}
 
-        public string BuildPfConfig()
-        {
-            // Remember: Rules must be in order: options, normalization, queueing, translation, filtering
+		public string BuildPfConfig()
+		{
+			// Remember: Rules must be in order: options, normalization, queueing, translation, filtering
 
-            string pf = "";
-            pf += "# " + Engine.Instance.GenerateFileHeader() + "\n";
+			string pf = "";
+			pf += "# " + Utils.GenerateFileHeader() + Platform.Instance.EndOfLineSep;
 
-            pf += "# Block policy, RST for quickly notice\n";
-            pf += "set block-policy return\n"; // 2.9 
+			pf += "# Block policy, RST for quickly notice\n";
+			pf += "set block-policy return\n"; // 2.9 
 
-            pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
-            if (m_connected)
-            {
-                pf += "set skip on { lo0 " + Engine.Instance.ConnectionActive.Interface.Id + " }\n";
-            }
-            else
-            {
-                pf += "set skip on { lo0 }\n";
-            }
+			pf += "# Skip interfaces: lo0 and utun (only when connected)\n"; // 2.9
+			if (m_connected)
+			{
+				pf += "set skip on { lo0 " + Engine.Instance.Connection.Interface.Id + " }\n";
+			}
+			else
+			{
+				pf += "set skip on { lo0 }\n";
+			}
 
-            pf += "# Scrub\n";
-            pf += "scrub in all\n"; // 2.9
+			pf += "# Scrub\n";
+			pf += "scrub in all\n"; // 2.9
 
-            pf += "# General rule\n";
-            if (Engine.Instance.Options.Get("netlock.incoming") == "allow")
-                pf += "pass in all\n";
-            else
-                pf += "block in all\n";
-            if (Engine.Instance.Options.Get("netlock.outgoing") == "allow")
-                pf += "pass out all\n";
-            else
-                pf += "block out all\n";
+			pf += "# General rule\n";
+			if (Engine.Instance.Options.Get("netlock.incoming") == "allow")
+				pf += "pass in all\n";
+			else
+				pf += "block in all\n";
+			if (Engine.Instance.Options.Get("netlock.outgoing") == "allow")
+				pf += "pass out all\n";
+			else
+				pf += "block out all\n";
 
-            if (Engine.Instance.Options.GetBool("netlock.allow_private"))
-            {
-                pf += "# IPv4 - Private networks\n";
-                pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
-                pf += "pass in quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
-                pf += "pass out quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
-                pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
-                pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
-                pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
+			if (Engine.Instance.Options.GetBool("netlock.allow_private"))
+			{
+				pf += "# IPv4 - Private networks\n";
+				pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
+				pf += "pass in quick inet from 192.168.0.0/16 to 192.168.0.0/16\n";
+				pf += "pass out quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
+				pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12\n";
+				pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
+				pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8\n";
 
-                pf += "# IPv4 - Multicast\n";
-                pf += "pass out quick inet from 192.168.0.0/16 to 224.0.0.0/24\n";
-                pf += "pass out quick inet from 172.16.0.0/12 to 224.0.0.0/24\n";
-                pf += "pass out quick inet from 10.0.0.0/8 to 224.0.0.0/24\n";
+				pf += "# IPv4 - Multicast\n";
+				pf += "pass out quick inet from 192.168.0.0/16 to 224.0.0.0/24\n";
+				pf += "pass out quick inet from 172.16.0.0/12 to 224.0.0.0/24\n";
+				pf += "pass out quick inet from 10.0.0.0/8 to 224.0.0.0/24\n";
 
-                pf += "# IPv4 - Simple Service Discovery Protocol address\n";
-                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.250/32\n";
-                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.250/32\n";
-                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.250/32\n";
+				pf += "# IPv4 - Simple Service Discovery Protocol address\n";
+				pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.250/32\n";
+				pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.250/32\n";
+				pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.250/32\n";
 
-                pf += "# IPv4 - Service Location Protocol version 2 address\n";
-                pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.253/32\n";
-                pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
-                pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";
+				pf += "# IPv4 - Service Location Protocol version 2 address\n";
+				pf += "pass out quick inet from 192.168.0.0/16 to 239.255.255.253/32\n";
+				pf += "pass out quick inet from 172.16.0.0/12 to 239.255.255.253/32\n";
+				pf += "pass out quick inet from 10.0.0.0/8 to 239.255.255.253/32\n";
 
-                pf += "# IPv6 - Allow Link-Local addresses\n";
-                pf += "pass out quick inet6 from fe80::/10 to fe80::/10\n";
-                pf += "pass in quick inet6 from fe80::/10 to fe80::/10\n";
+				pf += "# IPv6 - Allow Link-Local addresses\n";
+				pf += "pass out quick inet6 from fe80::/10 to fe80::/10\n";
+				pf += "pass in quick inet6 from fe80::/10 to fe80::/10\n";
 
-                pf += "# IPv6 - Allow Link-Local addresses\n";
-                pf += "pass out quick inet6 from ff00::/8 to ff00::/8\n";
-                pf += "pass in quick inet6 from ff00::/8 to ff00::/8\n";
-            }
+				pf += "# IPv6 - Allow Link-Local addresses\n";
+				pf += "pass out quick inet6 from ff00::/8 to ff00::/8\n";
+				pf += "pass in quick inet6 from ff00::/8 to ff00::/8\n";
+			}
 
-            if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
-            {
-                pf += "# Allow ICMP\n";
-                pf += "pass quick proto icmp\n"; // 2.9
+			if (Engine.Instance.Options.GetBool("netlock.allow_ping"))
+			{
+				pf += "# Allow ICMP\n";
+				pf += "pass quick proto icmp\n"; // 2.9
 
-                // Old macOS throw "unknown protocol icmp6". We don't known from when, so use icmp6 if High Sierra and above.
-                if (Platform.Instance.GetVersion().VersionAboveOrEqual("10.13"))
-                    pf += "pass quick proto icmp6 all\n"; // 2.14.0
-            }
+				// Old macOS throw "unknown protocol icmp6". We don't known from when, so use icmp6 if High Sierra and above.
+				if (Platform.Instance.GetVersion().VersionAboveOrEqual("10.13"))
+					pf += "pass quick proto icmp6 all\n"; // 2.14.0
+			}
 
-            IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
-            pf += "# Specific ranges - incoming\n";
-            foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
-            {
-                if (ip.IsV4)
-                    pf += "pass in quick inet from " + ip.ToCIDR() + " to any\n";
-                else if (ip.IsV6)
-                    pf += "pass in quick inet6 from " + ip.ToCIDR() + " to any\n";
-            }
+			IpAddresses ipsWhiteListIncoming = GetIpsWhiteListIncoming();
+			pf += "# Specific ranges - incoming\n";
+			foreach (IpAddress ip in ipsWhiteListIncoming.IPs)
+			{
+				if (ip.IsV4)
+					pf += "pass in quick inet from " + ip.ToCIDR() + " to any\n";
+				else if (ip.IsV6)
+					pf += "pass in quick inet6 from " + ip.ToCIDR() + " to any\n";
+			}
 
-            IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
-            pf += "# Specific ranges - outgoing\n";
-            foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
-            {
-                if (ip.IsV4)
-                    pf += "pass out quick inet from any to " + ip.ToCIDR() + "\n";
-                else if (ip.IsV6)
-                    pf += "pass out quick inet6 from any to " + ip.ToCIDR() + "\n";
-            }
+			IpAddresses ipsWhiteListOutgoing = GetIpsWhiteListOutgoing(true);
+			pf += "# Specific ranges - outgoing\n";
+			foreach (IpAddress ip in ipsWhiteListOutgoing.IPs)
+			{
+				if (ip.IsV4)
+					pf += "pass out quick inet from any to " + ip.ToCIDR() + "\n";
+				else if (ip.IsV6)
+					pf += "pass out quick inet6 from any to " + ip.ToCIDR() + "\n";
+			}
 
-            return pf;
-        }
+			return pf;
+		}
 	}
 }

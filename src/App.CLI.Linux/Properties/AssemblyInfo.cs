@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany("https://eddie.website")]
 [assembly: AssemblyProduct("Eddie - Linux CLI")]
-[assembly: AssemblyCopyright("Copyright ©  2011 - 2018")]
+[assembly: AssemblyCopyright("Copyright © 2011 - 2021")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
@@ -18,8 +18,8 @@ using System.Runtime.CompilerServices;
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
-[assembly: AssemblyVersion("2.17.0.0")]
-[assembly: AssemblyFileVersion("2.17.0.0")]
+[assembly: AssemblyVersion("2.21.0.0")]
+[assembly: AssemblyFileVersion("2.21.0.0")]
 [assembly: ComVisible(false)]
 
 // The following attributes are used to specify the signing key for the assembly,

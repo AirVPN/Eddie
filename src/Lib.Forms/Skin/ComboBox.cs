@@ -24,11 +24,11 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class ComboBox : System.Windows.Forms.ComboBox
-    {
-        public ComboBox()
-        {             
-            
-        }        
-    }
+	public class ComboBox : System.Windows.Forms.ComboBox
+	{
+		public ComboBox()
+		{
+
+		}
+	}
 }

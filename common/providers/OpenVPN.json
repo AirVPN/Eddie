@@ -1,0 +1,7 @@
+﻿{
+    "code":"OpenVPN",
+    "class":"openvpn",
+    "title":"Generic OpenVPN provider",
+    "subtitle":"If you have a folder with .ovpn files",
+    "href":"https://openvpn.net"
+}

@@ -25,122 +25,473 @@
 #include "psapi.h"
 #include "tlhelp32.h"
 
+#include <iphlpapi.h>
+
 #include <codecvt> // For StringUTF8ToWString
 
 #include "sddl.h"	// For ConvertSidToStringSid
 
+#include "accctrl.h" // for GetSecurityInfo
+#include "aclapi.h" // for GetSecurityInfo
+
 void IWindows::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
 {
-	if (command == "kill")
+	if (command == "openvpn")
 	{
-		pid_t pid = atoi(params["pid"].c_str());
+		std::string id = params["id"];
+		std::string action = params["action"];
 
-		if (GetParentProcessId(pid) != GetCurrentProcessId())
-			ThrowException("Requested a kill to a non-child elevated process");
-
-		std::string signal = params["signal"];
-
-		if (signal == "sigint")
+		if (action == "stop")
 		{
-			if (AttachConsole(pid))
+			std::string signal = params["signal"];
+
+			if (m_keypair.find("openvpn_" + id + "_pid") != m_keypair.end())
 			{
-				SetConsoleCtrlHandler(NULL, true);
-				try
+				pid_t pid = atoi(m_keypair["openvpn_" + id + "_pid"].c_str());
+
+				if (GetParentProcessId(pid) != GetCurrentProcessId())
+					ThrowException("Requested a kill to a non-child elevated process");
+
+				if (signal == "sigint")
 				{
-					GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
-					Sleep(3000);
+					if (AttachConsole(pid))
+					{
+						SetConsoleCtrlHandler(NULL, true);
+						try
+						{
+							GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+							Sleep(3000);
+						}
+						catch (...)
+						{
+						}
+						FreeConsole();
+						SetConsoleCtrlHandler(NULL, false);
+					}
 				}
-				catch (...)
+				else if (signal == "sigterm")
 				{
+					HANDLE processHandle;
+					processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
+					TerminateProcess(processHandle, 1);
+					CloseHandle(processHandle);
 				}
-				FreeConsole();
-				SetConsoleCtrlHandler(NULL, false);
 			}
 		}
-		else if (signal == "sigterm")
+		else if (action == "start")
 		{
-			HANDLE processHandle;
-			processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-			TerminateProcess(processHandle, 1);
-			CloseHandle(processHandle);
-		}
-	}
-	else if (command == "process_openvpn")
-	{
-		std::string path = params["path"];
-		std::string config = params["config"];
+			std::string path = params["path"];
+			std::string config = params["config"];
 
-		CheckIfExecutableIsAllowed(path);
+			CheckIfExecutableIsAllowed(path, true);
 
-		std::string checkResult = CheckValidOpenVpnConfig(config);
-		if (checkResult != "")
-		{
-			ThrowException("Not supported OpenVPN config: " + checkResult);
-		}
-		else
-		{
-			std::vector<std::string> args;
+			std::string checkResult = CheckValidOpenVpnConfigFile(config);
+			if (checkResult != "")
+			{
+				ThrowException("Not supported OpenVPN config: " + checkResult);
+			}
+			else
+			{
+				std::vector<std::string> args;
 
-			args.push_back("--config");
-			args.push_back("\"" + params["config"] + "\"");
+				args.push_back("--config");
+				args.push_back("\"" + params["config"] + "\"");
 
-			t_shellinfo info = ShellStart(path, args);
+				t_shellinfo info = ExecStart(path, args);
 
-			if (info.lastErrorCode != 0)
-				ThrowException(info.lastError);
+				if (info.lastErrorCode != 0)
+					ThrowException(info.lastError);
 
-			ReplyCommand(commandId, "procid:" + std::to_string(info.pid));
+				m_keypair["openvpn_" + id + "_pid"] = std::to_string(info.pid);
+				ReplyCommand(commandId, "procid:" + std::to_string(info.pid));
 
-			for (;;) {
-				DWORD bytes_read = 0;
-				char tBuf[4096];
+				for (;;) {
+					DWORD bytes_read = 0;
+					char tBuf[4096];
 
-				bool stderrEnd = false;
-				bool stdoutEnd = false;
+					bool stderrEnd = false;
+					bool stdoutEnd = false;
 
-				{
-					// Don't yet know why, but seem hang with stderr (openvpn only). Doesn't seem really matter.
-					stderrEnd = true;
-					/*
-					// stderr
-					if (!ReadFile(info.stderrReadHandle, tBuf, 4096 - 1, &bytes_read, NULL))
 					{
-						//printf("ReadFile: %u %s\n", GetLastError(), GetLastErrorAsString().c_str());
+						// Don't yet know why, but seem hang with stderr (openvpn only). Doesn't seem really matter.
 						stderrEnd = true;
-					}
-					if (bytes_read > 0)
-					{
-						tBuf[bytes_read] = '\0';
-						ReplyCommand(commandId, "stderr:" + std::string(tBuf));
-					}
-					*/
-				}
-
-				{
-					// stdout
-					if (!ReadFile(info.stdoutReadHandle, tBuf, 4096 - 1, &bytes_read, NULL))
-					{
-						//printf("ReadFile: %u %s\n", GetLastError(), GetLastErrorAsString().c_str());
-						stdoutEnd = true;
-					}
-					if (bytes_read > 0)
-					{
-						tBuf[bytes_read] = '\0';
-						ReplyCommand(commandId, "stdout:" + std::string(tBuf));
+						/*
+						// stderr
+						if (!ReadFile(info.stderrReadHandle, tBuf, 4096 - 1, &bytes_read, NULL))
+						{
+							//printf("ReadFile: %u %s\n", GetLastError(), GetLastErrorAsString().c_str());
+							stderrEnd = true;
+						}
+						if (bytes_read > 0)
+						{
+							tBuf[bytes_read] = '\0';
+							ReplyCommand(commandId, "stderr:" + std::string(tBuf));
+						}
+						*/
 					}
 
-					if ((stderrEnd) && (stdoutEnd))
-						break;
+					{
+						// stdout
+						if (!ReadFile(info.stdoutReadHandle, tBuf, 4096 - 1, &bytes_read, NULL))
+						{
+							//printf("ReadFile: %u %s\n", GetLastError(), GetLastErrorAsString().c_str());
+							stdoutEnd = true;
+						}
+						if (bytes_read > 0)
+						{
+							tBuf[bytes_read] = '\0';
+							ReplyCommand(commandId, "stdout:" + std::string(tBuf));
+						}
+
+						if ((stderrEnd) && (stdoutEnd))
+							break;
+					}
 				}
+
+				m_keypair.erase("openvpn_" + id + "_pid");
+
+				int exitCode = ExecEnd(info);
+				ReplyCommand(commandId, "return:" + std::to_string(exitCode));
 			}
-
-			int exitCode = ShellEnd(info);
-			ReplyCommand(commandId, "return:" + std::to_string(exitCode));
 		}
 	}
 	else if (command == "hummingbird")
 	{
 		// At 2020/02/23, Hummingbird Windows is not public available.
+	}
+	else if (command == "wireguard-version")
+	{
+		std::string version = "0.3.11"; // Embedded, wireguard.dll		
+		ReplyCommand(commandId, version);
+	}
+	else if (command == "wireguard")
+	{
+		std::string id = params["id"];
+		std::string action = params["action"];
+		std::string interfaceId = params["interface"];
+
+		std::string keypairStopRequest = "wireguard_stop_" + id;
+
+		if (action == "stop")
+		{
+			m_keypair[keypairStopRequest] = "stop";
+			//std::string serviceId = "WireGuardTunnel_" + interfaceId;
+			//ServiceDelete(serviceId);
+		}
+		else if (action == "start")
+		{
+			std::string config = params["config"];
+			unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
+			unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
+
+			std::string checkResult = CheckValidWireGuardConfig(config);
+			if (checkResult != "")
+			{
+				ThrowException("Not supported WireGuard config: " + checkResult);
+			}
+			else
+			{
+				ReplyCommand(commandId, "log:setup-start");
+
+				SC_HANDLE serviceControlManager = 0;
+				SC_HANDLE service = 0;
+				HANDLE hPipe = 0;
+
+				std::string serviceId = "WireGuardTunnel_" + interfaceId;
+				std::string tempPath = FsGetTempPath() + "EddieTemp_" + interfaceId;
+
+				try
+				{
+					ServiceDelete(serviceId); // Delete if already exists
+
+					if (FsDirectoryCreate(tempPath) == false)
+						ThrowException("Unable to create config directory (" + GetLastErrorAsString() + ")");
+
+					std::string configPath = tempPath + FsPathSeparator + interfaceId + ".conf";
+
+					if (FsFileWriteText(configPath, config) == false)
+						ThrowException("Unable to clean previous ring file (" + GetLastErrorAsString() + ")");
+
+					std::string ringPath = tempPath + FsPathSeparator + "log.bin";
+
+					if (FsFileExists(ringPath))
+						if (FsFileDelete(ringPath) == false)
+							ThrowException("Unable to clean previous ring file (" + GetLastErrorAsString() + ")");
+
+					// Start an ad-hoc service (cannot call wireguard.dll directly here), required by current Windows WireGuard code.
+					serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS); // GENERIC_WRITE is not enough
+					if (!serviceControlManager)
+						ThrowException("Services management failed (" + GetLastErrorAsString() + ")");
+					else
+					{
+						std::string elevatedPath = GetProcessPathCurrent();
+						std::string path = FsFileGetDirectory(GetProcessPathCurrent()) + FsPathSeparator + "Eddie-CLI-Elevated.exe";
+						std::string pathWithArgs = path + " mode=wireguard config=\"" + configPath + "\"";
+
+						std::wstring serviceIdW = StringUTF8ToWString(serviceId);
+						std::wstring serviceNameW = TEXT("WireGuard Eddie - Interface ") + StringUTF8ToWString(interfaceId);
+						std::wstring servicePathW = StringUTF8ToWString(pathWithArgs);
+						LPCWSTR serviceDependsW = TEXT("Nsi\0TcpIp"); // Added in 2.21.0
+						serviceDependsW = NULL; // Removed, cause issue. Anyway Elevated itself have this depends. // TOFIX?
+						service = CreateService(serviceControlManager, serviceIdW.c_str(), serviceNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
+						if (!service)
+							ThrowException("Service creation failed (" + GetLastErrorAsString() + ")");
+						else
+						{
+							// Init service
+							SERVICE_SID_INFO svcSidInfo;
+							svcSidInfo.dwServiceSidType = SERVICE_SID_TYPE_UNRESTRICTED;
+							if (!ChangeServiceConfig2(service, SERVICE_CONFIG_SERVICE_SID_INFO, &svcSidInfo))
+								ThrowException("Change type failed (" + GetLastErrorAsString() + ")");
+
+							// Start service
+							if (!StartService(service, 0, NULL))
+							{
+								// If the service fail to start, it write reason in a temporary file.
+								std::string errorPath = configPath + ".fatal";
+								if (FsFileExists(errorPath))
+									ThrowException("Failed to start: " + FsFileReadText(errorPath));
+								else
+									ThrowException("Failed to start: " + GetLastErrorAsString());
+							}
+
+							// Wait running
+							bool waitSuccess = false;
+							SERVICE_STATUS serviceStatusWait;
+							for (int t = 0; t < 100; t++) // 10 seconds timeout
+							{
+								if (QueryServiceStatus(service, &serviceStatusWait))
+								{
+									if (serviceStatusWait.dwCurrentState == SERVICE_RUNNING)
+									{
+										waitSuccess = true;
+										break;
+									}
+									else
+									{
+										::Sleep(100);
+									}
+								}
+								else
+									break;
+							}
+							if (!waitSuccess)
+								ThrowException("Failed to start: not running");
+
+							/*
+							// Data Pipe - Not yet implemented, not need
+							const int BUFSIZE = 512;
+
+							TCHAR  chBuf[BUFSIZE];
+							BOOL   fSuccess = FALSE;
+							DWORD  cbRead, cbToWrite, cbWritten, dwMode;
+							std::wstring pipeCommandW = StringUTF8ToWString("get=1\n\n");
+							std::wstring pipeNameW = StringUTF8ToWString("\\\\.\\pipe\\ProtectedPrefix\\Administrators\\WireGuard\\Eddie_WireGuard");
+							LPCTSTR lpvMessage = pipeCommandW.c_str();
+							while (1)
+							{
+								hPipe = CreateFile(pipeNameW.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+								if (hPipe != INVALID_HANDLE_VALUE)
+									break;
+								if (GetLastError() != ERROR_PIPE_BUSY)
+									ThrowException("Could not open pipe (" + GetLastErrorAsString() + ")");
+								if (!WaitNamedPipe(pipeNameW.c_str(), 10000))
+									ThrowException("Could not open pipe: 20 second wait timed out");
+							}
+
+							dwMode = PIPE_READMODE_MESSAGE;
+							fSuccess = SetNamedPipeHandleState(hPipe, &dwMode, NULL, NULL);
+							if (!fSuccess)
+								ThrowException("SetNamedPipeHandleState failed (" + GetLastErrorAsString() + ")");
+
+							for(;;)
+							{
+								{
+									cbToWrite = (lstrlen(lpvMessage) + 1) * sizeof(TCHAR);
+									fSuccess = WriteFile(hPipe, pipeCommandW.c_str(), cbToWrite, &cbWritten, NULL);
+									if (!fSuccess)
+										ThrowException("WriteFile to pipe failed (" + GetLastErrorAsString() + ")");
+								}
+
+								{
+									do
+									{
+										fSuccess = ReadFile(hPipe, chBuf, BUFSIZE * sizeof(TCHAR), &cbRead, NULL);
+										if (!fSuccess && GetLastError() != ERROR_MORE_DATA)
+											break;
+										ReplyCommand(commandId, "mypipe:" + StringWStringToUTF8(chBuf));
+									} while (!fSuccess);
+								}
+							}
+							*/
+
+							// Ring Log
+							DWORD ringMagicExpected = 0xbadbabe;
+							DWORD ringPositionMagic = 0;
+							DWORD ringPositionNextIndex = 4;
+							DWORD ringMaxLineLength = 512;
+							DWORD ringHeaderBytes = 8;
+							DWORD ringMaxLines = 2048;
+							DWORD ringLineBytes = ringMaxLineLength + ringHeaderBytes;
+							char ringBufLine[512];
+
+							DWORD ringReaded = 0;
+							HANDLE hRingFile = CreateFileA(ringPath.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+							if (hRingFile == INVALID_HANDLE_VALUE)
+								ThrowException("Unable to open log ring (" + GetLastErrorAsString() + ")");
+
+							// Read Magic
+							DWORD ringMagic = 0;
+							SetFilePointer(hRingFile, ringPositionMagic, NULL, FILE_BEGIN);
+							if (!ReadFile(hRingFile, &ringMagic, 4, &ringReaded, NULL))
+								ThrowException("Unable to read log ring (" + GetLastErrorAsString() + ")");
+							if (ringMagic != ringMagicExpected)
+								ThrowException("Magic not match, " + std::to_string(ringMagicExpected) + " vs " + std::to_string(ringMagic));
+
+							ReplyCommand(commandId, "log:setup-complete");
+
+							unsigned long handshakeStart = GetTimestampUnix();
+							unsigned long handshakeLast = 0;
+
+							DWORD ringCursor = 0;
+							bool ringStop = false;
+							for (;;)
+							{
+								if (ringStop)
+								{
+									break;
+								}
+
+								bool ringReadAll = (ringCursor == 0);
+								DWORD ringNextIndex = 0;
+								SetFilePointer(hRingFile, ringPositionNextIndex, NULL, FILE_BEGIN);
+								if (!ReadFile(hRingFile, &ringNextIndex, 4, &ringReaded, NULL))
+									ThrowException("Unable to read log ring (" + GetLastErrorAsString() + ")");
+
+								if (ringReadAll)
+									ringCursor = ringNextIndex;
+
+								for (DWORD l = 0; l < ringMaxLines; l++)
+								{
+									if (ringReadAll == false)
+									{
+										if (ringCursor == ringNextIndex)
+											break;
+									}
+
+									DWORD readOffset = (ringHeaderBytes + ringCursor * ringLineBytes);
+
+									SetFilePointer(hRingFile, readOffset + 8, NULL, FILE_BEGIN);
+									bool readResult = ReadFile(hRingFile, &ringBufLine[0], ringMaxLineLength, &ringReaded, NULL);
+
+									if (ringBufLine[0] != 0)
+									{
+										std::string line = ringBufLine;
+
+										// Normalize
+										line = StringReplaceAll(line, "[TUN]", "");
+										line = StringReplaceAll(line, "[" + interfaceId + "]", "");
+										line = StringTrim(line);
+
+										bool skip = false;
+										if (StringStartsWith(line, "Routine:"))
+											skip = true;
+
+										// Note: the exact handshake can be obtained with pipe (the only info we need), but not implemented to avoid complexity
+										if (StringContain(line, "Received handshake response"))
+										{
+											unsigned long handshakeNow = GetTimestampUnix();
+
+											if (handshakeLast != handshakeNow)
+											{
+												if (handshakeLast == 0)
+													ReplyCommand(commandId, "log:handshake-first");
+
+												//ReplyCommand(commandId, "log:last-handshake:" + StringFrom(handshakeNow));
+												handshakeLast = handshakeNow;
+											}
+										}
+
+										if (skip == false)
+										{
+											ReplyCommand(commandId, "log:" + line);
+
+											if (StringContain(line, "Shutting down"))
+												ringStop = true;
+										}
+									}
+
+									ringCursor++;
+									ringCursor = ringCursor % ringMaxLines;
+								}
+
+								unsigned long timeNow = GetTimestampUnix();
+								if (handshakeLast > 0)
+								{
+									unsigned long handshakeDelta = timeNow - handshakeLast;
+
+									if (handshakeDelta > handshakeTimeoutConnected)
+									{
+										// Too much, suggest disconnect
+										ReplyCommand(commandId, "log:handshake-out");
+									}
+								}
+								else
+								{
+									unsigned long handshakeDelta = timeNow - handshakeStart;
+
+									if (handshakeDelta > handshakeTimeoutFirst)
+									{
+										// Too much, suggest disconnect
+										ReplyCommand(commandId, "log:handshake-out");
+									}
+								}
+
+								// Check stop requested
+								if (m_keypair.find(keypairStopRequest) != m_keypair.end())
+								{
+									ReplyCommand(commandId, "log:stop-requested");
+									break;
+								}
+
+								Sleep(100);
+							}
+
+							CloseHandle(hRingFile);
+						}
+					}
+				}
+				catch (std::exception& e)
+				{
+					ReplyCommand(commandId, "err:" + StringTrim(std::string(e.what())));
+				}
+				catch (...)
+				{
+					ReplyCommand(commandId, "err:Unknown exception");
+				}
+
+				ReplyCommand(commandId, "log:stop-interface");
+
+				// Close Data Pipe
+				if (hPipe != 0)
+					CloseHandle(hPipe);
+
+				// Stop and delete service
+				ServiceDelete(serviceId);
+
+				// Stop and delete temp files
+				if (FsDirectoryExists(tempPath))
+					FsDirectoryDelete(tempPath, true);
+
+				// Close service handlers
+				if (service != 0)
+					CloseServiceHandle(service);
+				if (serviceControlManager != 0)
+					CloseServiceHandle(serviceControlManager);
+
+				ReplyCommand(commandId, "log:stop");
+			}
+		}
 	}
 	else
 	{
@@ -200,6 +551,24 @@ void IWindows::Sleep(int ms)
 	::Sleep(ms);
 }
 
+uint64_t IWindows::GetTimestampUnixUsec()
+{
+	uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+	SYSTEMTIME  system_time;
+	FILETIME    file_time;
+	uint64_t    time;
+	GetSystemTime(&system_time);
+	SystemTimeToFileTime(&system_time, &file_time);
+	time = ((uint64_t)file_time.dwLowDateTime);
+	time += ((uint64_t)file_time.dwHighDateTime) << 32;
+	return (time - EPOCH) / 10 + system_time.wMilliseconds * 1000;
+}
+
+int IWindows::Ping(const std::string& host, const int timeout)
+{
+	return -1; // Not yet implemented
+}
+
 pid_t IWindows::GetCurrentProcessId()
 {
 	return ::GetCurrentProcessId();
@@ -233,7 +602,9 @@ pid_t IWindows::GetParentProcessId(pid_t pid)
 
 	}
 	__finally {
-		if (hSnapshot != INVALID_HANDLE_VALUE) CloseHandle(hSnapshot);
+		if (hSnapshot != INVALID_HANDLE_VALUE)
+			if (hSnapshot != 0) // Avoid C6387
+				CloseHandle(hSnapshot);
 	}
 	return ppid;
 }
@@ -292,20 +663,37 @@ std::string IWindows::GetCmdlineOfProcessId(pid_t pid)
 
 std::string IWindows::GetWorkingDirOfProcessId(pid_t pid)
 {
-    // Never used in Windows
-    return "";
+	// Never used in Windows
+	return "";
 }
 
-int IWindows::Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr)
+void IWindows::SetEnv(const std::string& name, const std::string& value)
+{
+	// Never used in Windows
+}
+
+int IWindows::Exec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr, const bool log)
 {
 	// stdinWrite, stdinBody not yet supported, not need right now
 
-	t_shellinfo info = ShellStart(path, args);
+	std::string logMessage;
+
+	if (log)
+	{
+		logMessage += "Exec, path:'" + path + "'";
+		for (std::vector<std::string>::const_iterator i = args.begin(); i != args.end(); ++i)
+		{
+			logMessage += ", arg:'" + *i + "'";
+		}
+	}
+
+	t_shellinfo info = ExecStart(path, args);
 
 	if (info.lastErrorCode != 0)
 		return info.lastErrorCode;
 
-	for (;;) {
+	for (;;)
+	{
 		DWORD bytes_read;
 		char tBuf[4096];
 
@@ -313,33 +701,25 @@ int IWindows::Shell(const std::string& path, const std::vector<std::string>& arg
 		bool stdoutEnd = false;
 
 		{
-			// stderr			
 			if (!ReadFile(info.stderrReadHandle, tBuf, 4096 - 1, &bytes_read, NULL))
 			{
-				//printf("ReadFile: %u %s\n", GetLastError(), GetLastErrorAsString().c_str());
 				stderrEnd = true;
 			}
 			if (bytes_read > 0)
 			{
 				tBuf[bytes_read] = '\0';
-				//printf("stderr:-%s-\n", tBuf);
-
 				stdErr += tBuf;
 			}
 		}
 
 		{
-			// stdout
 			if (!ReadFile(info.stdoutReadHandle, tBuf, 4096 - 1, &bytes_read, NULL))
 			{
-				//printf("ReadFile: %u %s\n", GetLastError(), GetLastErrorAsString().c_str());
 				stdoutEnd = true;
 			}
 			if (bytes_read > 0)
 			{
 				tBuf[bytes_read] = '\0';
-				//printf("stdout:-%s-\n", tBuf);
-
 				stdOut += tBuf;
 			}
 
@@ -348,13 +728,27 @@ int IWindows::Shell(const std::string& path, const std::vector<std::string>& arg
 		}
 	}
 
-	return ShellEnd(info);
+	DWORD exitCode = ExecEnd(info);
+
+	if (log)
+	{
+		logMessage += ", exit:" + std::to_string(exitCode);
+		if (StringTrim(stdOut) != "")
+			logMessage += ", out:'" + StringTrim(stdOut) + "'";
+		if (StringTrim(stdErr) != "")
+			logMessage += ", err:'" + StringTrim(stdErr) + "'";
+		LogDebug(logMessage);
+	}
+
+	return exitCode;
 }
 
-void IWindows::FsDirectoryCreate(const std::string& path)
+bool IWindows::FsDirectoryCreate(const std::string& path)
 {
-	if(FsDirectoryExists(path) == false)
-		::CreateDirectoryW(StringUTF8ToWString(path).c_str(), NULL);
+	if (FsDirectoryExists(path) == false)
+		return ::CreateDirectoryW(StringUTF8ToWString(path).c_str(), NULL);
+	else
+		return true;
 }
 
 bool IWindows::FsFileExists(const std::string& path)
@@ -379,27 +773,30 @@ bool IWindows::FsDirectoryExists(const std::string& path)
 	return false;
 }
 
-void IWindows::FsFileDelete(const std::string& path)
+bool IWindows::FsFileDelete(const std::string& path)
 {
 	if (FsFileExists(path))
 	{
 		std::wstring pathW(StringUTF8ToWString(path));
-		::DeleteFile(pathW.c_str());
+		return ::DeleteFile(pathW.c_str());
 	}
+	else
+		return true;
 }
 
-void IWindows::FsDirectoryDelete(const std::string& path, bool recursive)
+bool IWindows::FsDirectoryDelete(const std::string& path, bool recursive)
 {
-	if(FsDirectoryExists(path) == false)
-		return;
+	if (FsDirectoryExists(path) == false)
+		return true;
 
 	if (recursive == false)
 	{
-		::RemoveDirectoryW(StringUTF8ToWString(path).c_str());
+		return ::RemoveDirectoryW(StringUTF8ToWString(path).c_str());
 	}
 	else
 	{
 		// Not need yet
+		return false;
 	}
 }
 
@@ -425,10 +822,11 @@ std::vector<char> IWindows::FsFileReadBytes(const std::string& path)
 	std::ifstream ifs(pathW, std::ios::binary | std::ios::ate);
 	std::ifstream::pos_type pos = ifs.tellg();
 
-	std::vector<char>  result(pos);
+	std::vector<char>  result((const unsigned int)pos); // 2.21.0 cast added
 
 	ifs.seekg(0, std::ios::beg);
-	ifs.read(&result[0], pos);
+	if (pos > 0)
+		ifs.read(&result[0], pos);
 
 	return result;
 }
@@ -456,7 +854,7 @@ std::vector<std::string> IWindows::FsFilesInPath(const std::string& path)
 		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			continue;
 		files.push_back(file);
-		
+
 	} while (FindNextFile(hFind, &ffd) != 0);
 
 	return files;
@@ -493,8 +891,8 @@ std::vector<std::string> IWindows::FsGetEnvPath()
 
 std::string IWindows::FsGetRealPath(std::string path)
 {
-    // Never used in Windows
-    return "";
+	// Never used in Windows
+	return "";
 }
 
 bool IWindows::SocketIsValid(HSOCKET s)
@@ -504,13 +902,16 @@ bool IWindows::SocketIsValid(HSOCKET s)
 
 void IWindows::SocketMarkReuseAddr(HSOCKET s)
 {
-	// TOFIX, for the moment not yet implemented,
-	// understand security issues between SO_REUSEADDR and SO_EXCLUSIVEADDRUSE
+	// TOFIX, understand security issues between SO_REUSEADDR and SO_EXCLUSIVEADDRUSE
+	/* throw WSAEACCES */
+	BOOL bOptVal1 = TRUE;
+	int bOptLen1 = sizeof(BOOL);
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&bOptVal1, bOptLen1);
 }
 
 void IWindows::SocketBlockMode(HSOCKET s, bool block)
 {
-	unsigned long m = (block ? 0:1);
+	unsigned long m = (block ? 0 : 1);
 	if (0 != ioctlsocket(s, FIONBIO, &m))
 	{
 		ThrowException("Error on SocketBlockMode");
@@ -522,6 +923,192 @@ void IWindows::SocketClose(HSOCKET s)
 	closesocket(s);
 }
 
+int IWindows::SocketGetLastErrorCode()
+{
+	return WSAGetLastError();
+}
+
+std::string IWindows::CheckIfClientPathIsAllowed(const std::string& path)
+{
+#ifdef Debug
+	return "ok";
+#else
+	/*
+	// MacOS have equivalent.
+	// Linux don't have any signature check (and can't have, because in distro like Arch, binary are builded client-side from sources
+	// This is probably a superfluous check, and can cause issue for who compile from sources.
+	// If implemented, need a conversion from C# to C++ of the code below.
+
+	// Check signature (optional)
+	{
+		try
+		{
+			System.Security.Cryptography.X509Certificates.X509Certificate c1 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(System.Reflection.Assembly.GetEntryAssembly().Location);
+
+			// If above don't throw exception, Elevated it's signed, so it's mandatory that client is signed from same subject.
+			try
+			{
+				System.Security.Cryptography.X509Certificates.X509Certificate c2 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(clientPath);
+
+				bool match = (
+					(c1.Issuer == c2.Issuer) &&
+					(c1.Subject == c2.Subject) &&
+					(c1.GetCertHashString() == c2.GetCertHashString()) &&
+					(c1.GetEffectiveDateString() == c2.GetEffectiveDateString()) &&
+					(c1.GetPublicKeyString() == c2.GetPublicKeyString()) &&
+					(c1.GetRawCertDataString() == c2.GetRawCertDataString()) &&
+					(c1.GetSerialNumberString() == c2.GetSerialNumberString())
+					);
+
+				if (match == false)
+					return "Client not allowed: digital signature mismatch";
+			}
+			catch (Exception)
+			{
+				return "Client not allowed: digital signature not available";
+			}
+		}
+		catch (Exception)
+		{
+			// Not signed, but maybe compiled from source, it's an optional check.
+		}
+	}
+	*/
+
+	return "ok";
+#endif
+}
+
+bool IWindows::CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException)
+{
+	std::string issues = "";
+
+	if (CheckIfExecutableIsWhitelisted(path)) // If true, skip other checks.
+		return true;
+
+	return true; // Commented, cause crash, and it's not used anyway right now
+
+	// Windows Security Descriptor
+	DWORD dwRtnCode = 0;
+	PSID pSidOwner = NULL;
+	BOOL bRtnBool = TRUE;
+	LPTSTR AcctName = NULL;
+	LPTSTR DomainName = NULL;
+	DWORD dwAcctName = 1, dwDomainName = 1;
+	SID_NAME_USE eUse = SidTypeUnknown;
+	HANDLE hFile;
+	PSECURITY_DESCRIPTOR pSD = NULL;
+
+	hFile = CreateFile(StringUTF8ToWString(path).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		DWORD dwErrorCode = 0;
+		dwErrorCode = GetLastError();
+		issues += "CheckIfExecutableIsAllowed - CreateFile error (" + StringFrom(dwErrorCode) + ");";
+	}
+	else
+	{
+		dwRtnCode = GetSecurityInfo(hFile, SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pSidOwner, NULL, NULL, NULL, &pSD);
+
+		if (dwRtnCode != ERROR_SUCCESS)
+		{
+			DWORD dwErrorCode = 0;
+			dwErrorCode = GetLastError();
+			issues += "CheckIfExecutableIsAllowed - GetSecurityInfo error (" + StringFrom(dwErrorCode) + ");";
+		}
+		else
+		{
+			CloseHandle(hFile);
+
+			bRtnBool = LookupAccountSid(NULL, pSidOwner, AcctName, (LPDWORD)&dwAcctName, DomainName, (LPDWORD)&dwDomainName, &eUse);
+
+			AcctName = (LPTSTR)GlobalAlloc(GMEM_FIXED, dwAcctName);
+
+			if (AcctName == NULL)
+			{
+				DWORD dwErrorCode = 0;
+				dwErrorCode = GetLastError();
+				issues += "CheckIfExecutableIsAllowed - GlobalAlloc error (" + StringFrom(dwErrorCode) + ");";
+			}
+			else
+			{
+				DomainName = (LPTSTR)GlobalAlloc(GMEM_FIXED, dwDomainName);
+
+				if (DomainName == NULL)
+				{
+					DWORD dwErrorCode = 0;
+					dwErrorCode = GetLastError();
+					issues += "CheckIfExecutableIsAllowed - GlobalAlloc error (" + StringFrom(dwErrorCode) + ");";
+				}
+				else
+				{
+					bRtnBool = LookupAccountSid(NULL, pSidOwner, AcctName, (LPDWORD)&dwAcctName, DomainName, (LPDWORD)&dwDomainName, &eUse);
+
+					if (bRtnBool == FALSE)
+					{
+						DWORD dwErrorCode = 0;
+						dwErrorCode = GetLastError();
+						if (dwErrorCode == ERROR_NONE_MAPPED)
+							issues = "Account owner not found for specified SID;";
+						else
+							issues = "Error in LookupAccountSid;";
+					}
+					else
+					{
+						// TOFIX, issues for who use custom path...
+						/*
+						std::string sDomainName = StringWStringToUTF8(DomainName);
+						if (StringWStringToUTF8(DomainName) != "NT SERVICE")
+							issues = "not under NT SERVICE";
+						*/
+					}
+				}
+			}
+		}
+	}
+
+	if (issues != "")
+	{
+		if (throwException)
+			ThrowException("Executable '" + path + "' not allowed: " + issues);
+		else
+			return false;
+	}
+	else
+		return true;
+
+}
+
+int IWindows::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
+{
+	std::vector<unsigned char> buffer;
+	DWORD dwSize = sizeof(MIB_TCPTABLE_OWNER_PID);
+	DWORD dwRetValue = 0;
+
+	do {
+		buffer.resize(dwSize, 0);
+		dwRetValue = GetExtendedTcpTable(buffer.data(), &dwSize, TRUE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+	} while (dwRetValue == ERROR_INSUFFICIENT_BUFFER);
+	if (dwRetValue == ERROR_SUCCESS)
+	{
+		PMIB_TCPTABLE_OWNER_PID ptTable = reinterpret_cast<PMIB_TCPTABLE_OWNER_PID>(buffer.data());
+		for (DWORD i = 0; i < ptTable->dwNumEntries; i++) {
+			DWORD pid = ptTable->table[i].dwOwningPid;
+
+			if ((ptTable->table[i].dwLocalAddr == addrClient.sin_addr.s_addr) &&
+				(ptTable->table[i].dwRemoteAddr == addrServer.sin_addr.s_addr) &&
+				(ptTable->table[i].dwLocalPort == addrClient.sin_port) &&
+				(ptTable->table[i].dwRemotePort == addrServer.sin_port)
+				)
+			{
+				return pid;
+			}
+		}
+	}
+
+	return 0;
+}
 
 
 // --------------------------
@@ -530,24 +1117,25 @@ void IWindows::SocketClose(HSOCKET s)
 
 std::string IWindows::GetLastErrorAsString()
 {
-	//Get the error message, if any.
 	DWORD errorMessageID = ::GetLastError();
 	if (errorMessageID == 0)
-		return std::string(); //No error message has been recorded
+		return std::string();
 
+	/*
 	LPSTR messageBuffer = nullptr;
 	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
 	std::string message(messageBuffer, size);
-
-	//Free the buffer.
 	LocalFree(messageBuffer);
+	*/
+	wchar_t buf[2048];
+	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+	std::string message = StringWStringToUTF8(buf);
 
 	return message;
 }
 
-void IWindows::ShellCleanup(IWindows::t_shellinfo info)
+void IWindows::ExecCleanup(IWindows::t_shellinfo info)
 {
 	CloseHandle(info.stdoutReadHandle);
 	CloseHandle(info.stderrReadHandle);
@@ -555,7 +1143,7 @@ void IWindows::ShellCleanup(IWindows::t_shellinfo info)
 	CloseHandle(info.processInfo.hThread);
 }
 
-IWindows::t_shellinfo IWindows::ShellStart(const std::string path, const std::vector<std::string> args)
+IWindows::t_shellinfo IWindows::ExecStart(const std::string& path, const std::vector<std::string>& args)
 {
 	t_shellinfo info;
 
@@ -624,10 +1212,10 @@ IWindows::t_shellinfo IWindows::ShellStart(const std::string path, const std::ve
 
 	memset(&info.processInfo, 0, sizeof(info.processInfo));
 
-	//if (!CreateProcessW(NULL, pcmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, 0, &info.startupInfo, &info.processInfo))
+	// VS2019 raise a C6335 warning, false positive.
 	if (!CreateProcessW(pathW.c_str(), pcmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, 0, &info.startupInfo, &info.processInfo))
 	{
-		ShellCleanup(info);
+		ExecCleanup(info);
 		info.lastErrorCode = GetLastError();
 		info.lastError = GetLastErrorAsString();
 		return info;
@@ -641,35 +1229,186 @@ IWindows::t_shellinfo IWindows::ShellStart(const std::string path, const std::ve
 	return info;
 }
 
-DWORD IWindows::ShellEnd(t_shellinfo info)
+DWORD IWindows::ExecEnd(t_shellinfo info)
 {
 	DWORD exitcode;
 
 	if (WaitForSingleObject(info.processInfo.hProcess, INFINITE) != WAIT_OBJECT_0)
 	{
-		ShellCleanup(info);
+		ExecCleanup(info);
 		return GetLastError();
 	}
 
 	if (!GetExitCodeProcess(info.processInfo.hProcess, &exitcode))
 	{
-		ShellCleanup(info);
+		ExecCleanup(info);
 		return GetLastError();
 	}
 
-	ShellCleanup(info);
+	ExecCleanup(info);
 
 	return exitcode;
 }
 
-std::wstring IWindows::StringUTF8ToWString(std::string str)
+bool IWindows::ServiceDelete(const std::string& id)
+{
+	bool success = false;
+
+	SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS); // GENERIC_WRITE is not enough
+
+	if (serviceControlManager)
+	{
+		std::wstring serviceIdW = StringUTF8ToWString(id);
+		SC_HANDLE service = OpenService(serviceControlManager, serviceIdW.c_str(), SC_MANAGER_ALL_ACCESS);
+		if (service)
+		{
+			SERVICE_STATUS serviceStatus;
+
+			for (int t = 0; t < 100; t++) // 10 seconds timeout
+			{
+				if (QueryServiceStatus(service, &serviceStatus))
+				{
+					if (serviceStatus.dwCurrentState == SERVICE_RUNNING)
+					{
+						ControlService(service, SERVICE_CONTROL_STOP, &serviceStatus);
+						::Sleep(1000);
+					}
+					else if (serviceStatus.dwCurrentState == SERVICE_STOPPED)
+					{
+						if (DeleteService(service))
+							success = true;
+
+						break;
+					}
+					else
+					{
+						::Sleep(100);
+					}
+				}
+				else
+					break;
+			}
+
+			CloseServiceHandle(service);
+		}
+
+		CloseServiceHandle(serviceControlManager);
+
+		return success;
+	}
+	else
+		return false;
+}
+
+// Note 2021-05-06:
+// It's not possible to call directly the wireguard.dll entrypoint, because throw
+// "Service run error: An instance of the service is already running."
+// seem WG code try to manage the service itself.
+// Maybe in future we can submit a patch to WireGuard to establish a tunnel directly from C++ here,
+// in the meantime we use a service ad-hoc.
+int IWindows::WireGuardTunnel(const std::string& configName)
+{
+	// Write a file for any fatal error
+	std::string error = "";
+
+	HINSTANCE hInstanceTunnel = LoadLibrary(TEXT("wireguard.dll"));
+	if (hInstanceTunnel != NULL)
+	{
+		typedef int(__cdecl* WGTUNNELPROC)(LPWSTR);
+		WGTUNNELPROC procWgTunnel = (WGTUNNELPROC)GetProcAddress(hInstanceTunnel, "WireGuardTunnelService");
+		if (procWgTunnel != NULL)
+		{
+			// The entrypoint "WireGuardTunnelService" of "wireguard.dll" from WireGuard dump directly errors in stderr (not a best practice..).
+			// We need to override standard output handle to catch it.
+			DWORD pipeMode = PIPE_READMODE_BYTE | PIPE_NOWAIT;
+			DWORD pipeMaxCollectionCount = 0;
+			DWORD pipeCollectDataTimeout = 0;
+			HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+			HANDLE hErr = GetStdHandle(STD_ERROR_HANDLE);
+
+			HANDLE hPipeOutRead, hPipeOutWrite;
+			CreatePipe(&hPipeOutRead, &hPipeOutWrite, 0, 0);
+			SetNamedPipeHandleState(hPipeOutRead, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
+			SetNamedPipeHandleState(hPipeOutWrite, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
+			SetStdHandle(STD_OUTPUT_HANDLE, hPipeOutWrite);
+
+
+			HANDLE hPipeErrRead, hPipeErrWrite;
+			CreatePipe(&hPipeErrRead, &hPipeErrWrite, 0, 0);
+			SetNamedPipeHandleState(hPipeErrRead, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
+			SetNamedPipeHandleState(hPipeErrWrite, &pipeMode, &pipeMaxCollectionCount, &pipeCollectDataTimeout);
+			SetStdHandle(STD_ERROR_HANDLE, hPipeErrWrite);
+
+			std::wstring configNameW = StringUTF8ToWString(configName);
+			int result = procWgTunnel(&configNameW[0]);
+
+			// Revert previous handlers
+			SetStdHandle(STD_OUTPUT_HANDLE, hOut);
+			SetStdHandle(STD_ERROR_HANDLE, hErr);
+
+			// Get output
+			std::string outputOut = "";
+			std::string outputErr = "";
+			const DWORD BUFFER_SIZE = 2000;
+			char buffer[BUFFER_SIZE];
+			DWORD nRead = 0;
+
+			nRead = 0;
+			if (ReadFile(hPipeOutRead, buffer, BUFFER_SIZE - 1, &nRead, 0))
+			{
+				buffer[nRead] = 0;
+				outputOut = buffer;
+			}
+			CloseHandle(hPipeOutRead);
+			CloseHandle(hPipeOutWrite);
+
+			nRead = 0;
+			if (ReadFile(hPipeErrRead, buffer, BUFFER_SIZE - 1, &nRead, 0))
+			{
+				buffer[nRead] = 0;
+				outputErr = buffer;
+			}
+			CloseHandle(hPipeErrRead);
+			CloseHandle(hPipeErrWrite);
+
+			error += "\r\n" + outputOut;
+			error += "\r\n" + outputErr;
+		}
+		else
+		{
+			error += "\r\nentrypoint 'WireGuardTunnelService' not found";
+		}
+
+		FreeLibrary(hInstanceTunnel);
+	}
+	else
+	{
+		error += "\r\nmodule 'wireguard.dll' not found";
+	}
+
+	error = StringTrim(error);
+	if (error != "")
+	{
+		FsFileWriteText(configName + ".fatal", error);
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Public
+
+std::wstring IWindows::StringUTF8ToWString(const std::string& str)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 	return conv.from_bytes(str);
 }
 
-std::string IWindows::StringWStringToUTF8(std::wstring str)
+std::string IWindows::StringWStringToUTF8(const std::wstring& str)
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
 	return conv.to_bytes(str);
 }
+

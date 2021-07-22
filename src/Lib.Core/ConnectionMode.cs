@@ -26,34 +26,58 @@ namespace Eddie.Core
 	public class ConnectionMode
 	{
 		public string Title;
-		public string Protocol;
+		public string Type; // openvpn,wireguard
+		public string Protocol; // udp,tcp
+		public string Transport; // empty,ssh,ssl
 		public int Port;
 		public int EntryIndex;
 		public string Specs;
-		public string MinVersion;
-		public string Directives;
+		public string OpenVpnMinVersion;
+		public string OpenVpnDirectives;
 		public int SshPortDestination = 0;
 
 		public void ReadXML(XmlElement node)
 		{
 			Title = node.GetAttributeString("title", "");
+			Type = node.GetAttributeString("type", "");
 			Protocol = node.GetAttributeString("protocol", "").ToUpperInvariant();
-			Port = node.GetAttributeInt("port", 0);			
+			Transport = node.GetAttributeString("transport", "").ToUpperInvariant();
+			Port = node.GetAttributeInt("port", 0);
 			EntryIndex = node.GetAttributeInt("entry_index", 0);
 			Specs = node.GetAttributeString("specs", "");
-			MinVersion = node.GetAttributeString("openvpn_minversion", "");
-			Directives = node.GetAttributeString("openvpn_directives", "");
+			OpenVpnMinVersion = node.GetAttributeString("openvpn_minversion", "");
+			OpenVpnDirectives = node.GetAttributeString("openvpn_directives", "");
 			SshPortDestination = node.GetAttributeInt("ssh_destination", 0);
+
+			// Adapt, until manifest upgrade
+			if (Protocol == "UDP")
+			{
+				Transport = "";
+			}
+			else if (Protocol == "TCP")
+			{
+				Transport = "";
+			}
+			else if (Protocol == "SSH")
+			{
+				Protocol = "TCP";
+				Transport = "SSH";
+			}
+			else if (Protocol == "SSL")
+			{
+				Protocol = "TCP";
+				Transport = "SSL";
+			}
 		}
 
 		public bool Available
 		{
 			get
 			{
-				if (MinVersion == "")
+				if (OpenVpnMinVersion == "")
 					return true;
 
-				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual(MinVersion))
+				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual(OpenVpnMinVersion))
 					return true;
 
 				return false;

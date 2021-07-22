@@ -585,7 +585,7 @@ namespace Eddie.UI.Cocoa.Osx
 
 						LblConnectedServerName.StringValue = Engine.CurrentServer.DisplayName;
 						LblConnectedLocation.StringValue = Engine.CurrentServer.GetLocationForList();
-						TxtConnectedExitIp.StringValue = Engine.ConnectionActive.ExitIPs.ToString();
+						TxtConnectedExitIp.StringValue = Engine.Connection.ExitIPs.ToString();
 						ImgConnectedCountry.Image = NSImage.ImageNamed("flag_" + Engine.CurrentServer.CountryCode.ToLowerInvariant() + ".png");
 					}
 					else
@@ -624,8 +624,8 @@ namespace Eddie.UI.Cocoa.Osx
 					{
 						TxtConnectedSince.StringValue = Engine.Stats.GetValue("VpnStart");
 
-                        TxtConnectedDownload.StringValue = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
-                        TxtConnectedUpload.StringValue = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
+                        TxtConnectedDownload.StringValue = LanguageManager.FormatBytes(Engine.Connection.BytesLastDownloadStep, true, false);
+                        TxtConnectedUpload.StringValue = LanguageManager.FormatBytes(Engine.Connection.BytesLastUploadStep, true, false);
 					}
 				}
 
@@ -917,7 +917,7 @@ namespace Eddie.UI.Cocoa.Osx
 			}
 		}
 
-		public void ProviderManifestFailed(Provider provider)
+		public void ProviderManifestFailed(Core.Providers.IProvider provider)
 		{
             if(WindowProviderNoBootstrapController.Singleton == null)
             {
@@ -1041,7 +1041,7 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			foreach (int i in TableProviders.SelectedRows)
 			{
-				Provider p = Engine.Instance.ProvidersManager.Providers[i];
+				Core.Providers.IProvider p = Engine.Instance.ProvidersManager.Providers[i];
 				Engine.Instance.ProvidersManager.Remove(p);
                 Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
             }
@@ -1055,11 +1055,19 @@ namespace Eddie.UI.Cocoa.Osx
 			foreach (int i in TableProviders.SelectedRows)
 			{
 				bool updated = false;
-				Provider p = Engine.Instance.ProvidersManager.Providers[i];
+				Core.Providers.IProvider p = Engine.Instance.ProvidersManager.Providers[i];
 				if (p is Core.Providers.OpenVPN)
 				{
 					WindowProviderEditOpenVPNController w = new WindowProviderEditOpenVPNController();
 					w.Provider = p as Core.Providers.OpenVPN;
+					NSApplication.SharedApplication.RunModalForWindow(w.Window);
+					if (w.Provider != null)
+						updated = true;
+				}
+				else if (p is Core.Providers.WireGuard)
+				{
+					WindowProviderEditWireGuardController w = new WindowProviderEditWireGuardController();
+					w.Provider = p as Core.Providers.WireGuard;
 					NSApplication.SharedApplication.RunModalForWindow(w.Window);
 					if (w.Provider != null)
 						updated = true;

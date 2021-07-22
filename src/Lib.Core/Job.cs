@@ -49,7 +49,7 @@ namespace Eddie.Core
 		}
 
 		public virtual void OnRun()
-		{	
+		{
 		}
 
 		public void CancelRequested()
@@ -75,16 +75,16 @@ namespace Eddie.Core
 
 			Int64 now = Utils.UnixTimeStampMs();
 
-			if(m_thread != null)
+			if (m_thread != null)
 			{
 				// Already running
 			}
-			else if( (m_timeLastStart != 0) && (m_timeLastEnd< m_timeLastStart) )
+			else if ((m_timeLastStart != 0) && (m_timeLastEnd < m_timeLastStart))
 			{
 				// Already running
 			}
-			else if(now- m_timeLastEnd<m_timeEvery)
-			{ 
+			else if (now - m_timeLastEnd < m_timeEvery)
+			{
 				// Not need
 			}
 			else
@@ -110,17 +110,17 @@ namespace Eddie.Core
 			try
 			{
 				OnRun();
-			}			
-			catch (Exception e)
+			}
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(e);
+				Engine.Instance.Logs.Log(ex);
 			}
 
 			m_timeLastEnd = Utils.UnixTimeStampMs();
 			m_timeLastRun = m_timeLastEnd - m_timeLastStart;
 
 			if (m_thread != null)
-			{				
+			{
 				m_thread = null;
 			}
 		}

@@ -34,21 +34,21 @@ namespace Eddie.Core
 		{
 			Json j = new Json();
 
-            j["url"].Value = Url;
+			j["url"].Value = Url;
 
 			j["postfields"].Value = "";
 			foreach (string k in Parameters.Keys)
 			{
-				if(j["postfields"].ValueString != "")
+				if (j["postfields"].ValueString != "")
 					j["postfields"].Value += "&";
 				j["postfields"].Value += Uri.EscapeUriString(k) + "=" + Uri.EscapeUriString(Parameters[k]);
-			}				
+			}
 
 			j["iplayer"].Value = IpLayer;
 			j["resolve-single"].Value = ForceResolve;
 			j["timeout"].Value = Engine.Instance.Options.GetInt("http.timeout");
-			j["cacert"].Value = SystemShell.EscapePath(Engine.Instance.LocateResource("cacert.pem"));
-            j["useragent"].Value = Constants.Name + "/" + Constants.VersionDesc;
+			j["cacert"].Value = SystemExec.EscapePath(Engine.Instance.LocateResource("cacert.pem"));
+			j["useragent"].Value = Constants.Name + "/" + Constants.VersionDesc;
 
 			// Don't use proxy if connected to the VPN, or in special cases (checking) during connection.
 			bool bypassProxy = BypassProxy;

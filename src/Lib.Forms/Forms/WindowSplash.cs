@@ -26,31 +26,31 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowSplash : Eddie.Forms.Form
-    {		
-        public String Body;
+	public partial class WindowSplash : Eddie.Forms.Form
+	{
+		public String Body;
 
 		private StringFormat m_sf;
 		private bool m_closePending = false;
 
 		public WindowSplash()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();			
-        }
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
+		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 
@@ -64,7 +64,7 @@ namespace Eddie.Forms.Forms
 
 			SetStatus(LanguageManager.MessageInitialization);
 		}
-		
+
 		protected override void OnPaintBackground(PaintEventArgs e)
 		{
 			base.OnPaintBackground(e);
@@ -74,7 +74,7 @@ namespace Eddie.Forms.Forms
 			r.Height -= 10;
 
 			Form.DrawString(e.Graphics, Body, Font, Brushes.White, r, m_sf);
-		}		
+		}
 
 		private delegate void SetStatusDelegate(string t);
 		public void SetStatus(string t)
@@ -121,7 +121,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void RequestCloseDelegate();
@@ -147,7 +147,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void RequestCloseForReadyDelegate();
@@ -176,7 +176,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		// Unlike other platform, this can't be in MainWindow, because if the Forms.Windows it's not showed, this.InvokeRequired works wrong.

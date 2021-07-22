@@ -1,0 +1,116 @@
+{
+	"links": {
+		"github": "https://github.com/AirVPN/Eddie",
+		"license": "http://www.gnu.org/licenses/gpl.html",
+		"help": {
+			"website": "https://eddie.website/",
+			"general": "https://eddie.website/docs/",
+			"netlock": "https://eddie.website/docs/netlock/",
+			"advanced": "https://eddie.website/docs/advanced/",
+			"directives": "https://eddie.website/docs/directives/",
+			"protocols": "https://eddie.website/docs/protocols/",
+			"udp_vs_tcp": "https://eddie.website/docs/udp_vs_tcp/",
+			"tor": "https://eddie.website/docs/tor/",
+
+			"openvpn-management": "http://openvpn.net/index.php/open-source/documentation/miscellaneous/79-management-interface.html",
+
+			"ports": "https://eddie.website/docs/ports/"			
+		}
+	},
+	"external-rules-recommended": [
+		{
+			"type":"sign", 
+			"id":"Subject: CN=AIR DI PAOLO BRINI, O=AIR DI PAOLO BRINI, STREET=VIA DEL SAGITTARIO 4, L=PERUGIA PG, S=Italy, PostalCode=06131, C=IT - Issuer: CN=COMODO RSA Code Signing CA, O=COMODO CA Limited, L=Salford, S=Greater Manchester, C=GB",
+			"comment":"Windows, AirVPN Team"
+		},
+		{
+			"type":"sign", 
+			"id":"Subject: CN=Simon Tatham, O=Simon Tatham, L=Cambridge, S=Cambridgeshire, C=GB - Issuer: CN=COMODO SHA-256 Code Signing CA, O=COMODO CA Limited, L=Salford, S=Greater Manchester, C=GB",
+			"comment":"Windows, plink"
+		},
+		{
+			"type":"sign",
+			"id":"Publisher: OpenVPN Technologies, Inc. - Company: n/a",
+			"comment":"Windows, tap-windows.exe signed by OpenVPN"
+		},
+		{
+			"type":"sign", 
+			"id":"Developer ID Application: Paolo Brini (A7P5AKGWFC) - Developer ID Certification Authority - Apple Root CA",
+			"comment":"macOS, AirVPN Developer"
+		},
+		{
+			"type":"sign",
+			"id":"Subject: CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US - Issuer: CN=Microsoft Code Signing PCA, O=Microsoft Corporation, L=Redmond, S=Washington, C=US",
+			"comment":"Windows, system utilities (sigcheck)"
+		},
+		{
+			"type":"sign",
+			"id":"Publisher: Microsoft Windows - Company: Microsoft Corporation",
+			"comment":"Windows, system, catalog, computed with sigcheck"
+		},
+		{
+			"type":"sign",
+			"id":"Software Signing - Apple Code Signing Certification Authority - Apple Root CA",
+			"comment":"Apple, system utilities"
+		}	
+	],
+	"mime_types": {
+		"extension_to_type":
+		{			
+			"7z" : "application/x-7z-compressed",
+			"apk" : "application/vnd.android.package-archive",
+			"atom" : "application/atom+xml",
+			"bz2" : "application/x-bzip2",
+			"css" : "text/css",
+			"gz" : "application/octet-stream",
+			"gif" : "image/gif",
+			"htm" : "text/html",
+			"html" : "text/html",
+			"ico" : "image/x-icon",
+			"jpg" : "image/jpeg",
+			"jpeg" : "image/jpeg",
+			"js" : "application/javascript",
+			"json" : "application/json",
+			"mid" : "audio/midi",
+			"midi" : "audio/midi",
+			"mp4" : "video/mp4",
+			"mpeg" : "audio/mpeg",
+			"mpg" : "audio/mpeg",
+			"ogg" : "audio/ogg",
+			"pdf" : "application/pdf",
+			"pkg" : "application/octet-stream",
+			"png" : "image/png",
+			"rar" : "application/x-rar-compressed",
+			"rpm" : "application/x-redhat-package-manager",
+			"svg" : "image/svg+xml",
+			"rss" : "application/rss+xml",
+			"webmanifest" : "application/manifest+json",
+			"tar.bz2" : "application/octet-stream",
+			"tar.gz" : "application/octet-stream",
+			"tbz" : "application/octet-stream",
+			"tbz2" : "application/octet-stream",
+			"tgz" : "application/octet-stream",
+			"txt" : "text/plain",
+			"vtt" : "text/vtt",
+			"xml" : "text/xml",
+			"webm" : "video/webm",
+			"webp" : "image/webp",
+			"woff" : "application/font-woff",
+			"zip" : "application/zip",
+			"*" : "application/octet-stream"
+		}
+	},
+	"webserver": {
+		"headers":
+		{
+			"common": {
+				"X-Frame-Options" : "SAMEORIGIN",
+				"X-XSS-Protection" : "1; mode=block",
+				"X-Content-Type-Options" : "nosniff",
+				"Referrer-Policy" : "strict-origin-when-cross-origin",
+				"Feature-Policy" : "autoplay 'none'; camera 'none'; encrypted-media 'none'; fullscreen 'self'; geolocation 'none'; microphone 'none'; magnetometer 'none'; midi 'none'; payment 'none'; sync-xhr 'self'; ",
+				"Content-Security-Policy" : "default-src 'none'; connect-src 'self'; manifest-src 'self'; font-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: eddie.website airvpn.org;"
+			}
+		}
+	}
+}

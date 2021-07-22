@@ -162,12 +162,15 @@ namespace Eddie.Forms.Forms
 			this.lnkProtocolsHelp1 = new Eddie.Forms.Skin.LinkLabel();
 			this.chkProtocolsAutomatic = new System.Windows.Forms.CheckBox();
 			this.lstProtocols = new Eddie.Forms.Skin.ListView();
+			this.colProtocolsType = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colProtocolsProtocol = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colProtocolsPort = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colProtocolsEntry = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colProtocolsDescription = ((Eddie.Forms.Skin.ColumnHeader)(new Eddie.Forms.Skin.ColumnHeader()));
 			this.colProtocolsTech = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.tabProxy = new Eddie.Forms.Skin.TabPage();
+			this.txtProxyTorControlCookiePath = new Eddie.Forms.Skin.TextBox();
+			this.lblProxyTorControlCookiePath = new Eddie.Forms.Skin.Label();
 			this.lblProxyWhen = new Eddie.Forms.Skin.Label();
 			this.cboProxyWhen = new Eddie.Forms.Skin.ComboBox();
 			this.lnkProxyTorHelp = new Eddie.Forms.Skin.LinkLabel();
@@ -713,7 +716,7 @@ namespace Eddie.Forms.Forms
 			tabDirectives.Padding = new System.Windows.Forms.Padding(4);
 			tabDirectives.Size = new System.Drawing.Size(1014, 635);
 			tabDirectives.TabIndex = 1;
-			tabDirectives.Text = "OVPN directives";
+			tabDirectives.Text = "OpenVPN directives";
 			// 
 			// chkOpenVpnDirectivesDataCiphersChaCha
 			// 
@@ -723,7 +726,7 @@ namespace Eddie.Forms.Forms
 			this.chkOpenVpnDirectivesDataCiphersChaCha.Location = new System.Drawing.Point(20, 480);
 			this.chkOpenVpnDirectivesDataCiphersChaCha.Margin = new System.Windows.Forms.Padding(4);
 			this.chkOpenVpnDirectivesDataCiphersChaCha.Name = "chkOpenVpnDirectivesDataCiphersChaCha";
-			this.chkOpenVpnDirectivesDataCiphersChaCha.Size = new System.Drawing.Size(425, 31);
+			this.chkOpenVpnDirectivesDataCiphersChaCha.Size = new System.Drawing.Size(470, 31);
 			this.chkOpenVpnDirectivesDataCiphersChaCha.TabIndex = 93;
 			this.chkOpenVpnDirectivesDataCiphersChaCha.Text = "Prefer CHACHA20-POLY1305 data cipher if available";
 			this.chkOpenVpnDirectivesDataCiphersChaCha.UseVisualStyleBackColor = false;
@@ -778,7 +781,7 @@ namespace Eddie.Forms.Forms
 			this.label8.Name = "label8";
 			this.label8.Size = new System.Drawing.Size(164, 30);
 			this.label8.TabIndex = 89;
-			this.label8.Text = "External Path:";
+			this.label8.Text = "Import Path:";
 			this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lnkOpenVpnDirectivesHelp
@@ -2012,6 +2015,7 @@ namespace Eddie.Forms.Forms
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lstProtocols.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colProtocolsType,
             this.colProtocolsProtocol,
             this.colProtocolsPort,
             this.colProtocolsEntry,
@@ -2029,6 +2033,10 @@ namespace Eddie.Forms.Forms
 			this.lstProtocols.TabIndex = 69;
 			this.lstProtocols.UseCompatibleStateImageBehavior = false;
 			this.lstProtocols.View = System.Windows.Forms.View.Details;
+			// 
+			// colProtocolsType
+			// 
+			this.colProtocolsType.Text = "Type";
 			// 
 			// colProtocolsProtocol
 			// 
@@ -2054,6 +2062,8 @@ namespace Eddie.Forms.Forms
 			// tabProxy
 			// 
 			this.tabProxy.BackColor = System.Drawing.Color.White;
+			this.tabProxy.Controls.Add(this.txtProxyTorControlCookiePath);
+			this.tabProxy.Controls.Add(this.lblProxyTorControlCookiePath);
 			this.tabProxy.Controls.Add(this.lblProxyWhen);
 			this.tabProxy.Controls.Add(this.cboProxyWhen);
 			this.tabProxy.Controls.Add(this.lnkProxyTorHelp);
@@ -2083,6 +2093,26 @@ namespace Eddie.Forms.Forms
 			this.tabProxy.Size = new System.Drawing.Size(1014, 635);
 			this.tabProxy.TabIndex = 1;
 			this.tabProxy.Text = "Proxy / Tor";
+			// 
+			// txtProxyTorControlCookiePath
+			// 
+			this.txtProxyTorControlCookiePath.Location = new System.Drawing.Point(300, 448);
+			this.txtProxyTorControlCookiePath.Margin = new System.Windows.Forms.Padding(4);
+			this.txtProxyTorControlCookiePath.Name = "txtProxyTorControlCookiePath";
+			this.txtProxyTorControlCookiePath.Size = new System.Drawing.Size(268, 26);
+			this.txtProxyTorControlCookiePath.TabIndex = 78;
+			// 
+			// lblProxyTorControlCookiePath
+			// 
+			this.lblProxyTorControlCookiePath.BackColor = System.Drawing.Color.Transparent;
+			this.lblProxyTorControlCookiePath.ForeColor = System.Drawing.Color.Black;
+			this.lblProxyTorControlCookiePath.Location = new System.Drawing.Point(21, 448);
+			this.lblProxyTorControlCookiePath.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.lblProxyTorControlCookiePath.Name = "lblProxyTorControlCookiePath";
+			this.lblProxyTorControlCookiePath.Size = new System.Drawing.Size(270, 30);
+			this.lblProxyTorControlCookiePath.TabIndex = 77;
+			this.lblProxyTorControlCookiePath.Text = "Tor Cookie Path:";
+			this.lblProxyTorControlCookiePath.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// lblProxyWhen
 			// 
@@ -2150,7 +2180,7 @@ namespace Eddie.Forms.Forms
 			this.cmdProxyTorTest.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
 			this.cmdProxyTorTest.FlatAppearance.BorderSize = 0;
 			this.cmdProxyTorTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cmdProxyTorTest.Location = new System.Drawing.Point(300, 447);
+			this.cmdProxyTorTest.Location = new System.Drawing.Point(300, 493);
 			this.cmdProxyTorTest.Margin = new System.Windows.Forms.Padding(4);
 			this.cmdProxyTorTest.Name = "cmdProxyTorTest";
 			this.cmdProxyTorTest.Size = new System.Drawing.Size(270, 33);
@@ -3238,8 +3268,9 @@ namespace Eddie.Forms.Forms
 		private Skin.CheckBox chkWindowsDisableDriverUpgrade;
         private Skin.ListView lstProtocols;
         private Skin.ColumnHeader colProtocolsDescription;
-        private Skin.ColumnHeader colProtocolsProtocol;
-        private Skin.ColumnHeader colProtocolsPort;
+		private Skin.ColumnHeader colProtocolsType;
+		private Skin.ColumnHeader colProtocolsProtocol;		
+		private Skin.ColumnHeader colProtocolsPort;
         private System.Windows.Forms.ColumnHeader colProtocolsEntry;
         private Skin.LinkLabel lnkProtocolsHelp2;
         private Skin.LinkLabel lnkProtocolsHelp1;
@@ -3361,5 +3392,7 @@ namespace Eddie.Forms.Forms
 		private Skin.Button cmdHummingbirdPathBrowse;
 		private Skin.TextBox txtHummingbirdPath;
 		private Skin.CheckBox chkOpenVpnDirectivesDataCiphersChaCha;
+		private Skin.TextBox txtProxyTorControlCookiePath;
+		private Skin.Label lblProxyTorControlCookiePath;
 	}
 }

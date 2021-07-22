@@ -24,33 +24,33 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class LinkLabel : System.Windows.Forms.Label
-    {
-        public LinkLabel()
-        {         
-        }
+	public class LinkLabel : System.Windows.Forms.Label
+	{
+		public LinkLabel()
+		{
+		}
 
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
+		protected override void OnCreateControl()
+		{
+			base.OnCreateControl();
 
-            this.Cursor = Cursors.Hand;
+			this.Cursor = Cursors.Hand;
 
-            ForeColor = Form.Skin.HyperLinkForeColor;
-        }
+			ForeColor = Form.Skin.HyperLinkForeColor;
+		}
 
-        protected override void OnMouseHover(EventArgs e)
-        {
-            base.OnMouseHover(e);
+		protected override void OnMouseHover(EventArgs e)
+		{
+			base.OnMouseHover(e);
 
-            BackColor = Form.Skin.HyperLinkHoverBackColor;
-            Invalidate();
-        }
+			BackColor = Form.Skin.HyperLinkHoverBackColor;
+			Invalidate();
+		}
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            BackColor = Color.Transparent;
-            Invalidate();
-        }
-    }
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			BackColor = Color.Transparent;
+			Invalidate();
+		}
+	}
 }

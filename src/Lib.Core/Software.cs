@@ -23,81 +23,81 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class Software
-    {		
+	public class Software
+	{
 		public static string TunDriver = "";
-        
-        public static Dictionary<string, Tool> Tools = new Dictionary<string, Tool>();
-        
-        public static void AddTool(string code, Tool t)
-        {
-            t.Code = code;
-            Tools[code] = t;
-        }
 
-        public static Tool GetTool(string code)
-        {
-            return Tools[code];
-        }
+		public static Dictionary<string, Tools.ITool> Tools = new Dictionary<string, Tools.ITool>();
 
-        public static void Checking()
+		public static void AddTool(string code, Tools.ITool t)
 		{
-            Tools.Clear();
+			t.Code = code;
+			Tools[code] = t;
+		}
+
+		public static Tools.ITool GetTool(string code)
+		{
+			return Tools[code];
+		}
+
+		public static void Checking()
+		{
+			Tools.Clear();
 
 			// OpenVPN Driver
 			try
 			{
 				TunDriver = Platform.Instance.GetTunDriverReport();
-            }
-			catch (Exception e)
+			}
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(LogType.Warning, e);
+				Engine.Instance.Logs.Log(LogType.Warning, ex);
 				TunDriver = "";
 			}
-			
+
 			// Tools
 			AddTool("openvpn", new Tools.OpenVPN());
 			AddTool("hummingbird", new Tools.Hummingbird());
 			AddTool("ssh", new Tools.SSH());
-            AddTool("ssl", new Tools.SSL());
-            if (Platform.Instance.FetchUrlInternal() == false)
-                AddTool("curl", new Tools.Curl());            
-            if (Platform.IsUnix())
-            {
-                AddTool("update-resolv-conf", new Tools.File("update-resolv-conf"));
-            }
-            if (Platform.IsWindows())
-            {
+			AddTool("ssl", new Tools.SSL());
+			if (Platform.Instance.FetchUrlInternal() == false)
+				AddTool("curl", new Tools.Curl());
+			if (Platform.IsUnix())
+			{
+				AddTool("update-resolv-conf", new Tools.File("update-resolv-conf"));
+			}
+			if (Platform.IsWindows())
+			{
 				AddTool("tap-windows", new Tools.File("tap-windows.exe"));
-                AddTool("tap-windows-xp", new Tools.File("tap-windows-xp.exe"));
+				AddTool("tap-windows-xp", new Tools.File("tap-windows-xp.exe"));
 
 				AddTool("tapctl", new Tools.File("tapctl.exe"));
 				AddTool("eddie-wintun", new Tools.File("eddie-wintun-" + Platform.Instance.GetOsArchitecture() + ".msi"));
-			}			
+			}
 
-			foreach (Tool tool in Tools.Values)
-                tool.UpdatePath();            
+			foreach (Tools.ITool tool in Tools.Values)
+				tool.UpdatePath();
 		}
 
 		public static void ExceptionForRequired()
 		{
-			foreach (Tool tool in Tools.Values)
+			foreach (Tools.ITool tool in Tools.Values)
 				tool.ExceptionIfRequired();
 		}
 
 		public static void Log()
 		{
-			if(TunDriver != "")
+			if (TunDriver != "")
 			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "Tun Driver - " + TunDriver);
 			}
-			else 
+			else
 			{
 				Engine.Instance.Logs.Log(LogType.Error, "Tun Driver - " + LanguageManager.GetText("OsDriverNotAvailable"));
 			}
 
-            if (Engine.Instance.GetOpenVpnTool().Available())
-            {
+			if (Engine.Instance.GetOpenVpnTool().Available())
+			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "OpenVPN - Version: " + Engine.Instance.GetOpenVpnTool().Version + " (" + Engine.Instance.GetOpenVpnTool().Path + ")");
 			}
 			else
@@ -105,8 +105,8 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Error, "OpenVPN - " + LanguageManager.GetText("NotAvailable"));
 			}
 
-            if (GetTool("ssh").Available())
-            {
+			if (GetTool("ssh").Available())
+			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "SSH - Version: " + GetTool("ssh").Version + " (" + GetTool("ssh").Path + ")");
 			}
 			else
@@ -114,8 +114,8 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Info, "SSH - " + LanguageManager.GetText("NotAvailable"));
 			}
 
-            if (GetTool("ssl").Available())
-            {
+			if (GetTool("ssl").Available())
+			{
 				Engine.Instance.Logs.Log(LogType.Verbose, "SSL - Version: " + GetTool("ssl").Version + " (" + GetTool("ssl").Path + ")");
 			}
 			else
@@ -123,19 +123,19 @@ namespace Eddie.Core
 				Engine.Instance.Logs.Log(LogType.Info, "SSL - " + LanguageManager.GetText("NotAvailable"));
 			}
 
-            if (Platform.Instance.FetchUrlInternal() == false)
-            {
-                if (GetTool("curl").Available())
-                {
-                    Engine.Instance.Logs.Log(LogType.Verbose, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
-                }
-                else
-                {
-                    Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText("NotAvailable"));
-                }
-            }
+			if (Platform.Instance.FetchUrlInternal() == false)
+			{
+				if (GetTool("curl").Available())
+				{
+					Engine.Instance.Logs.Log(LogType.Verbose, "curl - Version: " + GetTool("curl").Version + " (" + GetTool("curl").Path + ")");
+				}
+				else
+				{
+					Engine.Instance.Logs.Log(LogType.Warning, "curl - " + LanguageManager.GetText("NotAvailable"));
+				}
+			}
 
-            /*
+			/*
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
 			if (pathCacert != "")
             {
@@ -146,17 +146,17 @@ namespace Eddie.Core
                 Engine.Instance.Logs.Log(LogType.Warning, "Certification Authorities - " + LanguageManager.GetText("NotAvailable"));
 
 			}
-			*/           
-        }        
+			*/
+		}
 
-        public static string FindResource(string tool)
-        {
-            Tool t = GetTool(tool);
-            if (t.Available())
-                return t.Path;
-            else
-                return "";
-        }
+		public static string FindResource(string tool)
+		{
+			Tools.ITool t = GetTool(tool);
+			if (t.Available())
+				return t.Path;
+			else
+				return "";
+		}
 
-    }
+	}
 }

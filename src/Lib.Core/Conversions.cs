@@ -209,13 +209,13 @@ namespace Eddie.Core
 			return Convert.ToInt64((dt - new DateTime(1970, 1, 1)).TotalMilliseconds, CultureInfo.InvariantCulture);
 		}
 
-        public static string StringToBase64(string s)
+		public static string StringToBase64(string s)
 		{
 			var bytes = System.Text.Encoding.UTF8.GetBytes(s);
-            return System.Convert.ToBase64String(bytes);
+			return System.Convert.ToBase64String(bytes);
 		}
 
-        public static string Base64ToString(string s)
+		public static string Base64ToString(string s)
 		{
 			return System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(s));
 		}

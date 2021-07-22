@@ -39,8 +39,8 @@ namespace Eddie.Forms.Linux
 		{
 			try
 			{
-                //Application.EnableVisualStyles();
-                System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+				//Application.EnableVisualStyles();
+				System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
 				Application.ThreadException += new ThreadExceptionEventHandler(ApplicationThreadException);
 				//Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException); // Mono Not Supported
@@ -55,7 +55,7 @@ namespace Eddie.Forms.Linux
 				}
 				else
 				{
-                    m_client = new UiClient();
+					m_client = new UiClient();
 					m_client.Engine = new Engine(Environment.CommandLine);
 					m_client.Init(Environment.CommandLine);
 				}
@@ -67,13 +67,13 @@ namespace Eddie.Forms.Linux
 			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled
-			if( (m_client != null) && (m_client.AppContext != null) )
+			if ((m_client != null) && (m_client.AppContext != null))
 				System.Windows.Forms.Application.Run(m_client.AppContext);
 		}
 
 		public static void ApplicationThreadException(object sender, ThreadExceptionEventArgs e)
 		{
-			if(m_client != null)
+			if (m_client != null)
 				m_client.OnUnhandledException("ApplicationThread", e.Exception);
 		}
 

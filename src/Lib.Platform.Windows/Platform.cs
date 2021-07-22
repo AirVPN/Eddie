@@ -23,13 +23,15 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Management;
 using System.Security.Principal;
 using System.Xml;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETSTANDARD
+#else
 using System.ServiceProcess;
+#endif
 using Microsoft.Win32;
 
 using Eddie.Core;
@@ -45,7 +47,7 @@ namespace Eddie.Platform.Windows
 		private string WindowsDriverWintunVersion = "0.8";
 		private string WindowsXpDriverTapVersion = "9.9.2";
 
-		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();		
+		private List<NetworkManagerDnsEntry> m_listOldDns = new List<NetworkManagerDnsEntry>();
 		private string m_oldMetricInterface = "";
 		private int m_oldMetricIPv4 = -1;
 		private int m_oldMetricIPv6 = -1;
@@ -84,7 +86,7 @@ namespace Eddie.Platform.Windows
 
 		// Override
 		public Platform()
-		{			
+		{
 		}
 
 		public override string GetCode()
@@ -143,15 +145,15 @@ namespace Eddie.Platform.Windows
 						vcRuntimeAvailable = true;
 
 					// Registry check is not affidable, with vcredistr installed via msm/wix
-					if( (currentVersion == 14) && (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140_1.dll")) == false) )
+					if ((currentVersion == 14) && (File.Exists(Path.Combine(Environment.SystemDirectory, "vcruntime140_1.dll")) == false))
 						vcRuntimeAvailable = false;
 				}
 
-				if(vcRuntimeAvailable == false)
+				if (vcRuntimeAvailable == false)
 				{
 					Engine.Instance.Logs.LogFatal("This software require some additional files (C++ Redistributable) that are not currently installed on your system. Use the Installer edition, or look https://eddie.website/windows-runtime/");
 					return false;
-				}				
+				}
 
 				bool result = (NativeMethods.Init() == 0);
 				if (result == false)
@@ -164,7 +166,7 @@ namespace Eddie.Platform.Windows
 			{
 				Engine.Instance.Logs.LogFatal("Unable to initialize native library. Maybe a CPU architecture issue.");
 				return false;
-			}			
+			}
 
 			return true;
 		}
@@ -194,7 +196,7 @@ namespace Eddie.Platform.Windows
 			return "x86";
 		}
 
-		public override Eddie.Core.Elevated.EleBase StartElevated()
+		public override Eddie.Core.Elevated.IElevated StartElevated()
 		{
 			ElevatedImpl e = new ElevatedImpl();
 			e.Start();
@@ -202,14 +204,18 @@ namespace Eddie.Platform.Windows
 			return e;
 		}
 
-		public override bool IsAdmin()
+		public override bool IsElevatedPrivileges()
 		{
+			return NativeMethods.IsProcessElevated();
+
+			/* Old C# code			
 			bool isElevated;
 			WindowsIdentity identity = WindowsIdentity.GetCurrent();
 			WindowsPrincipal principal = new WindowsPrincipal(identity);
 			isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
 
 			return isElevated;
+			*/
 		}
 
 		protected override string GetElevatedHelperPathImpl()
@@ -261,7 +267,7 @@ namespace Eddie.Platform.Windows
 					System.Net.IPAddress remoteAddr = new System.Net.IPAddress(tcpRow.remoteAddr);
 					UInt16 localPort = BitConverter.ToUInt16(new byte[2] { tcpRow.localPort[1], tcpRow.localPort[0] }, 0);
 					UInt16 remotePort = BitConverter.ToUInt16(new byte[2] { tcpRow.remotePort[1], tcpRow.remotePort[0] }, 0);
-					
+
 					if ((localEndpoint.Address.ToString() == localAddr.ToString()) &&
 						(localEndpoint.Port == localPort) &&
 						(remoteEndpoint.Address.ToString() == remoteAddr.ToString()) &&
@@ -321,9 +327,10 @@ namespace Eddie.Platform.Windows
 				// If spot-launched or service, GetTokenInformation don't work in any case without elevation.
 			}
 
-			// Signature check removed, redundant. // ClodoTemp
+			// Signature check removed, redundant.
 			return true;
 
+			/*
 			bool match = false;
 
 			string localPath = System.Reflection.Assembly.GetEntryAssembly().Location;
@@ -352,8 +359,8 @@ namespace Eddie.Platform.Windows
 			// Never official deploy debug edition
 			match = true;
 #endif
-
 			return match;
+			*/
 		}
 
 		public override bool GetAutoStart()
@@ -371,26 +378,6 @@ namespace Eddie.Platform.Windows
 			{
 				return false;
 			}
-			/* <2.17.3
-			TaskService ts = null;
-			try
-			{
-				ts = new TaskService();
-				if (ts.RootFolder.Tasks.Exists("AirVPN"))
-					return true;
-			}
-			catch (NotV1SupportedException)
-			{
-				//Ignore, not supported on XP
-			}
-			finally
-			{
-				if (ts != null)
-					ts.Dispose();
-			}
-
-			return false;
-			*/
 		}
 
 		public override bool SetAutoStart(bool value)
@@ -414,7 +401,7 @@ namespace Eddie.Platform.Windows
 			{
 				return false;
 			}
-				
+
 			/* <2.17.3			
 			TaskService ts = null;
 			try
@@ -483,38 +470,31 @@ namespace Eddie.Platform.Windows
 
 		public override void WaitService()
 		{
-			try
+			for (int t = 0; t < 100; t++)
 			{
-				ServiceController sc = new ServiceController();
-				sc.ServiceName = ServiceName;
+				UInt32 status = NativeMethods.GetServiceStatus(ServiceName);
+				if (status != 2) // Start Pending
+					break;
+				/*
+				if (status == 4) // Running
+					break;
+				*/
 
-				// Unfortunately i cannot detect is StartType==Disabled, without check registry
-				if(sc.Status == ServiceControllerStatus.StartPending)
-					sc.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0,0,60));
-			}
-			catch
-			{
+				System.Threading.Thread.Sleep(100);
 			}
 		}
 
 		protected override bool GetServiceImpl()
 		{
-			try
-			{
-				ServiceController sc = new ServiceController();
-				sc.ServiceName = ServiceName;
+			UInt32 status = NativeMethods.GetServiceStatus(ServiceName);
 
-				if (sc.DisplayName != "") // Throw an exception if not exists
-					return true;
-
-				//if (sc.Status == ServiceControllerStatus.Running)
-				//	return true;
-
+			/*
+			if (status == 4) // Running
 				return true;
-			}
-			catch
-			{
-			}
+			*/
+
+			if (status > 0) // Return 0 if not exists
+				return true;
 
 			return false;
 		}
@@ -557,7 +537,8 @@ namespace Eddie.Platform.Windows
 
 		public override string NormalizeString(string val)
 		{
-			return val.Replace("\r\n", "\n").Replace("\n", "\r\n");
+			val = base.NormalizeString(val);
+			return val.Replace("\n", "\r\n");
 		}
 
 		public override string DirSep
@@ -589,16 +570,16 @@ namespace Eddie.Platform.Windows
 		public override bool FileEnsureCurrentUserOnly(string path)
 		{
 			// Remove Inheritance
-			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /inheritance:d");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /inheritance:d");
 
 			// Set Ownership to Owner
-			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /grant \"" + SystemShell.EscapeInsideQuote(Environment.UserName) + "\":F");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /grant \"" + SystemExec.EscapeInsideQuote(Environment.UserName) + "\":F");
 
 			// Remove Authenticated Users
-			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /remove:g *S-1-5-11");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /remove:g *S-1-5-11");
 
 			// Remove other groups
-			SystemShell.Shell1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemShell.EscapePath(path) + "\" /c /t /remove Administrator \"BUILTIN\\Administrators\" \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\" BUILTIN Everyone System Users");
+			SystemExec.Exec1(Platform.Instance.LocateExecutable("icacls.exe"), "\"" + SystemExec.EscapePath(path) + "\" /c /t /remove Administrator \"BUILTIN\\Administrators\" \"NT AUTHORITY\\Authenticated Users\" \"BUILTIN\\Users\" BUILTIN Everyone System Users");
 
 			return true;
 		}
@@ -651,14 +632,13 @@ namespace Eddie.Platform.Windows
 			return true;
 		}
 
-		
+
 		public override Int64 Ping(IpAddress host, int timeoutSec)
 		{
 			if (host.IsV4)
 				return base.Ping(host, timeoutSec);
 
 			// If IPv6, We use a Task<> because otherwise timeout is not honored and hang forever in Win10 with IPv6 issues (Vbox in Nat)
-			if (timeoutSec == 5000) Engine.Instance.Logs.LogVerbose("ping 1");
 
 			if ((host == null) || (host.Valid == false))
 				return -1;
@@ -683,9 +663,7 @@ namespace Eddie.Platform.Windows
 				}
 			});
 
-			if (timeoutSec == 5000) Engine.Instance.Logs.LogVerbose("ping 2 W");
 			pingTask.Wait(timeoutSec * 1000);
-			if (timeoutSec == 5000) Engine.Instance.Logs.LogVerbose("ping 2 WE");
 			if (pingTask.IsCompleted)
 				return pingTask.Result;
 			else
@@ -695,8 +673,14 @@ namespace Eddie.Platform.Windows
 
 		public override bool ProcessKillSoft(Core.Process process)
 		{
+			// This is called only for close SSL or SSH process (running not elevated)
+			return false; // Will be a fallback to SIGTERM
+
+			/*
+			// Don't work on Win10.
 			process.CloseMainWindow();
 			return true;
+			*/
 
 			/* >=2.16.3
 			StandardInput.Close() or StandardInput.WriteLine("\x3") don't work. CloseMainWindow seem the best solution for now.
@@ -757,94 +741,45 @@ namespace Eddie.Platform.Windows
 		public override void FlushDNS()
 		{
 			base.FlushDNS();
-			
+
 			Engine.Instance.Elevated.DoCommandSync("dns-flush", "mode", (Engine.Instance.Options.GetBool("windows.workarounds") ? "max" : "normal"));
-			
-			SystemShell.Shell1(LocateExecutable("ipconfig.exe"), "/flushdns");
+
+			SystemExec.Exec1(LocateExecutable("ipconfig.exe"), "/flushdns");
 		}
 
-		public override bool RouteAdd(Json jRoute)
+		public override void RouteApply(Json jRoute, string action)
 		{
-			IpAddress ip = jRoute["address"].Value as string;
-			if (ip.Valid == false)
-				return false;
-			IpAddress gateway = jRoute["gateway"].Value as string;
-			if (gateway.Valid == false)
-				return false;
+			IpAddress destination = jRoute["destination"].ValueString;
+			string iface = jRoute["interface"].ValueString;
 
-			try
+			NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].ValueString);
+
+			if (networkInterface == null)
+				throw new Exception(LanguageManager.GetText("NetworkInterfaceNotAvailable"));
+
+			iface = networkInterface.Name;
+
+			int interfaceIdx = 0;
+			if (destination.IsV4)
+				interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
+			else
+				interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
+
+			Core.Elevated.Command c = new Core.Elevated.Command();
+			c.Parameters["command"] = "route";
+			c.Parameters["action"] = action;
+			c.Parameters["destination"] = destination.ToCIDR(true);
+			//c.Parameters["address"] = destination.Address;
+			//c.Parameters["mask"] = destination.Mask;
+			c.Parameters["iface"] = interfaceIdx.ToString();
+			if (jRoute.HasKey("gateway"))
 			{
-				NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
-
-				if (networkInterface == null)
-					throw new Exception(LanguageManager.GetText("NetworkInterfaceNotAvailable"));
-
-				int interfaceIdx = 0;
-				if (ip.IsV4)
-					interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
-				else
-					interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-				Core.Elevated.Command c = new Core.Elevated.Command();
-				c.Parameters["command"] = "route";
-				c.Parameters["action"] = "add";
-				c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
-				c.Parameters["cidr"] = ip.ToCIDR(true);
-				c.Parameters["address"] = ip.Address;
-				c.Parameters["mask"] = ip.Mask;
+				IpAddress gateway = jRoute["gateway"].ValueString;
 				c.Parameters["gateway"] = gateway.Address;
-				c.Parameters["iface"] = interfaceIdx.ToString();
-				if (jRoute.HasKey("metric"))
-					c.Parameters["metric"] = jRoute["metric"].Value as string;
-				Engine.Instance.Elevated.DoCommandSync(c);
-				return base.RouteAdd(jRoute);				
 			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(), gateway.ToCIDR(), e.Message));
-				return false;
-			}
-		}
-
-		public override bool RouteRemove(Json jRoute)
-		{
-			IpAddress ip = jRoute["address"].Value as string;
-			if (ip.Valid == false)
-				return false;
-			IpAddress gateway = jRoute["gateway"].Value as string;
-			if (gateway.Valid == false)
-				return false;
-
-			try
-			{
-				NetworkInterface networkInterface = GetNetworkInterfaceFromGuid(jRoute["interface"].Value as string);
-
-				if (networkInterface == null)
-					throw new Exception(LanguageManager.GetText("NetworkInterfaceNotAvailable"));
-
-				int interfaceIdx = 0;
-				if (ip.IsV4)
-					interfaceIdx = networkInterface.GetIPProperties().GetIPv4Properties().Index;
-				else
-					interfaceIdx = networkInterface.GetIPProperties().GetIPv6Properties().Index;
-				Core.Elevated.Command c = new Core.Elevated.Command();
-				c.Parameters["command"] = "route";
-				c.Parameters["action"] = "remove";
-				c.Parameters["layer"] = (ip.IsV4 ? "ipv4" : "ipv6");
-				c.Parameters["cidr"] = ip.ToCIDR(true);
-				c.Parameters["address"] = ip.Address;
-				c.Parameters["mask"] = ip.Mask;
-				c.Parameters["gateway"] = gateway.Address;
-				c.Parameters["iface"] = interfaceIdx.ToString();
-				if (jRoute.HasKey("metric"))
-					c.Parameters["metric"] = jRoute["metric"].Value as string;
-				Engine.Instance.Elevated.DoCommandSync(c);
-				return base.RouteRemove(jRoute);
-			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelFailed", ip.ToCIDR(), gateway.ToCIDR(), e.Message));
-				return false;
-			}
+			if (jRoute.HasKey("metric"))
+				c.Parameters["metric"] = jRoute["metric"].ValueString;
+			Engine.Instance.Elevated.DoCommandSync(c);
 		}
 
 		public override IpAddresses DetectDNS()
@@ -871,7 +806,7 @@ namespace Eddie.Platform.Windows
 			return list;
 		}
 
-		public override bool WaitTunReady(ConnectionActive connection)
+		public override bool WaitTunReady(Core.ConnectionTypes.IConnectionType connection)
 		{
 			int tickStart = Environment.TickCount;
 			string lastStatus = "";
@@ -884,7 +819,7 @@ namespace Eddie.Platform.Windows
 				{
 					lastStatus = connection.Interface.OperationalStatus.ToString();
 				}
-					
+
 				if (Environment.TickCount - tickStart > 10000)
 				{
 					Engine.Instance.Logs.Log(LogType.Warning, "Tunnel not ready in 10 seconds, contact our support. Last interface status: " + lastStatus);
@@ -901,7 +836,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.OnReport(report);
 
-			report.Add("ipconfig /all", SystemShell.Shell1(Platform.Instance.LocateExecutable("ipconfig.exe"), "/all"));
+			report.Add("ipconfig /all", SystemExec.Exec1(Platform.Instance.LocateExecutable("ipconfig.exe"), "/all"));
 		}
 
 		public override bool OnCheckSingleInstance()
@@ -1007,49 +942,56 @@ namespace Eddie.Platform.Windows
 			return true;
 		}
 
-		public override void OnBuildOvpn(OvpnBuilder ovpn)
+		public override void AdaptConfigOpenVpn(Core.ConfigBuilder.OpenVPN config)
 		{
-			base.OnBuildOvpn(ovpn);
+			base.AdaptConfigOpenVpn(config);
 
-			if (Engine.Instance.Options.GetBool("windows.ipv6.bypass_dns"))
+			if ((Engine.Instance.Options.GetBool("windows.ipv6.bypass_dns")) && (Engine.Instance.Options.GetBool("dns.delegate")))
 			{
-				ovpn.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");
+				config.AppendDirectives("pull-filter ignore \"dhcp-option DNS6\"", "OS");
 			}
 
 			if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.5"))
 			{
 				if (Engine.Instance.Options.GetBool("windows.wintun"))
 				{
-					ovpn.AppendDirectives("windows-driver wintun", "OS");
+					config.AppendDirectives("windows-driver wintun", "OS");
 				}
-			}				
-		}
+			}
 
-		public override void OpenVpnConfigNormalize(OvpnBuilder ovpn)
-		{
 			if (Engine.Instance.GetOpenVpnTool().VersionUnder("2.5"))
 			{
-				ovpn.RemoveDirective("windows-driver");
+				config.RemoveDirective("windows-driver");
 			}
 
-			if(ovpn.ExistsDirective("windows-driver"))
+			if (config.ExistsDirective("windows-driver"))
 			{
-				string driver = ovpn.GetOneDirectiveText("windows-driver");
+				string driver = config.GetOneDirectiveText("windows-driver");
 				if (driver != "wintun")
-					ovpn.RemoveDirective("windows-driver");
+					config.RemoveDirective("windows-driver");
 			}
 		}
 
-		public override string GetOvpnDriverRequested(OvpnBuilder ovpn)
+		public override string GetConnectionTunDriver(Core.ConnectionTypes.IConnectionType connection)
 		{
-			string driver = ovpn.GetOneDirectiveText("windows-driver");
-			if (driver == "wintun")
+			if (connection is Core.ConnectionTypes.OpenVPN)
+			{
+				Core.ConnectionTypes.OpenVPN connectionOpenVPN = connection as Core.ConnectionTypes.OpenVPN;
+				string driver = connectionOpenVPN.ConfigStartup.GetOneDirectiveText("windows-driver");
+				if (driver == "wintun")
+					return WindowsDriverWintunId;
+				else
+					return WindowsDriverTapId;
+			}
+			else if (connection is Core.ConnectionTypes.WireGuard)
+			{
 				return WindowsDriverWintunId;
+			}
 			else
-				return WindowsDriverTapId;
+				throw new Exception("Unexpected connection type");
 		}
 
-		public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
+		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connectionActive, IpAddresses dns)
 		{
 			if ((Engine.Instance.Options.GetBool("windows.dns.lock")) && (IsVistaOrNewer()) && (Engine.Instance.Options.GetBool("windows.wfp.enable")))
 			{
@@ -1094,11 +1036,11 @@ namespace Eddie.Platform.Windows
 				{
 					// Remember: This because may fail at WFP side with a "Unknown interface" because network interface with IPv4/IPv6 disabled have Ipv6IfIndex == 0 and don't match the requested interface.
 					string layer = "all-out";
-					if ((connectionActive.TunnelIPv6 == false) && (layer == "all-out"))
+					if ((connectionActive.ConfigIPv6 == false) && (layer == "all-out"))
 						layer = "ipv4-out";
 					if ((connectionActive.BlockedIPv6) && (layer == "all-out"))
 						layer = "ipv4-out";
-					if ((connectionActive.TunnelIPv4 == false) && (layer == "all-out"))
+					if ((connectionActive.ConfigIPv4 == false) && (layer == "all-out"))
 						layer = "ipv6-out";
 					if ((connectionActive.BlockedIPv4) && (layer == "all-out"))
 						layer = "ipv6-out";
@@ -1120,7 +1062,7 @@ namespace Eddie.Platform.Windows
 						xmlRule.AppendChild(XmlIf2);
 						XmlIf2.SetAttribute("field", "ip_local_interface");
 						XmlIf2.SetAttribute("match", "equal");
-						XmlIf2.SetAttribute("interface", Engine.Instance.ConnectionActive.Interface.Id);
+						XmlIf2.SetAttribute("interface", Engine.Instance.Connection.Interface.Id);
 						Wfp.AddItem("dns_permit_tap", xmlRule);
 					}
 				}
@@ -1133,22 +1075,35 @@ namespace Eddie.Platform.Windows
 
 			if (mode == "auto")
 			{
+				List<string> dnsInterfacesNamesList = Engine.Instance.Options.Get("dns.interfaces.names").ToLowerInvariant().StringToList();
+
+				string dnsInterfacesTypes = Engine.Instance.Options.Get("dns.interfaces.types").ToLowerInvariant();
+				if (dnsInterfacesTypes == "auto")
+					dnsInterfacesTypes = "ethernet, virtual";
+
+				List<string> dnsInterfacesTypesList = dnsInterfacesTypes.StringToList();
+
 				Json jNetworkInfo = Engine.Instance.JsonNetworkInfo(); // Realtime
 				foreach (Json jNetworkInterface in jNetworkInfo["interfaces"].Json.GetArray())
-				{	
-					string id = jNetworkInterface["id"].Value as string;
-					string interfaceName = jNetworkInterface["name"].Value as string;
+				{
+					string interfaceId = jNetworkInterface["id"].ValueString;
+					string interfaceName = jNetworkInterface["name"].ValueString;
+					string interfaceType = jNetworkInterface["type"].ValueString;
 
 					bool skip = true;
 
-					if (Engine.Instance.Options.GetBool("windows.dns.force_all_interfaces"))
+					if ((Engine.Instance.Connection != null) && (interfaceId == Engine.Instance.Connection.Interface.Id))
 						skip = false;
-					if ((Engine.Instance.ConnectionActive != null) && (id == Engine.Instance.ConnectionActive.Interface.Id))
+
+					if (dnsInterfacesTypes.Contains("all"))
 						skip = false;
-					if (jNetworkInterface["type"].ValueString == "Ethernet")
+					if (dnsInterfacesNamesList.Contains(interfaceId.ToLowerInvariant()))
 						skip = false;
-					if (jNetworkInterface["type"].ValueString == "Virtual")
+					if (dnsInterfacesNamesList.Contains(interfaceName.ToLowerInvariant()))
 						skip = false;
+					if (dnsInterfacesTypesList.Contains(jNetworkInterface["type"].ValueString.ToLowerInvariant()))
+						skip = false;
+
 					if (jNetworkInterface["status"].ValueString != "Up")
 						skip = true;
 
@@ -1159,7 +1114,7 @@ namespace Eddie.Platform.Windows
 						if (dnsIPv4.OnlyIPv4.Equals(dns.OnlyIPv4) == false)
 						{
 							NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
-							entry.Guid = id;
+							entry.Guid = interfaceId;
 							entry.Description = interfaceName;
 							entry.Layer = "IPv4";
 							entry.Dns = dnsIPv4;
@@ -1172,7 +1127,7 @@ namespace Eddie.Platform.Windows
 							int nIPv4 = 0;
 							foreach (IpAddress ip in dns.OnlyIPv4.IPs)
 							{
-								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv4 == 0) ? "static":"add"));
+								Engine.Instance.Elevated.DoCommandSync("windows-dns", "layer", "ipv4", "interface", interfaceName, "ipaddress", ip.Address, "mode", ((nIPv4 == 0) ? "static" : "add"));
 								nIPv4++;
 							}
 
@@ -1184,7 +1139,7 @@ namespace Eddie.Platform.Windows
 						if (dnsIPv6.OnlyIPv6.Equals(dns.OnlyIPv6) == false)
 						{
 							NetworkManagerDnsEntry entry = new NetworkManagerDnsEntry();
-							entry.Guid = id;
+							entry.Guid = interfaceId;
 							entry.Description = interfaceName;
 							entry.Layer = "IPv6";
 							entry.Dns = dnsIPv6;
@@ -1231,8 +1186,10 @@ namespace Eddie.Platform.Windows
 			return true;
 		}
 
-		public override bool OnInterfaceDo(string id)
+		public override bool OnInterfaceDo(NetworkInterface adapter)
 		{
+			string id = adapter.Id;
+
 			int interfaceMetricIPv4Value = Engine.Instance.Options.GetInt("windows.metrics.tap.ipv4");
 			int interfaceMetricIPv6Value = Engine.Instance.Options.GetInt("windows.metrics.tap.ipv6");
 			if ((interfaceMetricIPv4Value == -1) || (interfaceMetricIPv6Value == -1))
@@ -1249,9 +1206,9 @@ namespace Eddie.Platform.Windows
 			string interfaceMetricIPv6Name = "";
 
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-			foreach (NetworkInterface adapter in interfaces)
+			foreach (NetworkInterface adapter2 in interfaces)
 			{
-				if (adapter.Id == id)
+				if (adapter2.Id == id)
 				{
 					if (interfaceMetricIPv4Value != -1)
 					{
@@ -1301,7 +1258,7 @@ namespace Eddie.Platform.Windows
 				m_oldMetricInterface = id;
 				m_oldMetricIPv4 = interfaceMetricIPv4Current;
 				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv4Idx.ToString(), "layer", "ipv4", "value", interfaceMetricIPv4Value.ToString());
-				
+
 				Recovery.Save();
 			}
 
@@ -1312,12 +1269,12 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterMetricSwitch", interfaceMetricIPv6Name, fromStr, toStr, "IPv6"));
 				m_oldMetricInterface = id;
 				m_oldMetricIPv6 = interfaceMetricIPv6Current;
-				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv6Idx.ToString(), "layer", "ipv6", "value", interfaceMetricIPv6Value.ToString());				
+				Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", interfaceMetricIPv6Idx.ToString(), "layer", "ipv6", "value", interfaceMetricIPv6Value.ToString());
 
 				Recovery.Save();
 			}
 
-			return base.OnInterfaceDo(id);
+			return base.OnInterfaceDo(adapter);
 		}
 
 		public override bool OnInterfaceRestore()
@@ -1338,7 +1295,7 @@ namespace Eddie.Platform.Windows
 								string fromStr = (current == 0) ? "Automatic" : current.ToString();
 								string toStr = (m_oldMetricIPv4 == 0) ? "Automatic" : m_oldMetricIPv4.ToString();
 								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterMetricRestore", adapter.Name, fromStr, toStr, "IPv4"));
-								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv4", "value", m_oldMetricIPv4.ToString());								
+								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv4", "value", m_oldMetricIPv4.ToString());
 							}
 							m_oldMetricIPv4 = -1;
 						}
@@ -1352,7 +1309,7 @@ namespace Eddie.Platform.Windows
 								string fromStr = (current == 0) ? "Automatic" : current.ToString();
 								string toStr = (m_oldMetricIPv6 == 0) ? "Automatic" : m_oldMetricIPv6.ToString();
 								Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("NetworkAdapterMetricRestore", adapter.Name, fromStr, toStr, "IPv6"));
-								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv6", "value", m_oldMetricIPv6.ToString());								
+								Engine.Instance.Elevated.DoCommandSync("set-interface-metric", "idx", idx.ToString(), "layer", "ipv6", "value", m_oldMetricIPv6.ToString());
 							}
 							m_oldMetricIPv6 = -1;
 						}
@@ -1365,7 +1322,7 @@ namespace Eddie.Platform.Windows
 			return base.OnInterfaceRestore();
 		}
 
-		public override void OnDaemonOutput(string source, string message)
+		public override void OnSessionLogEvent(string source, string message)
 		{
 			if (message.IndexOf("Waiting for TUN/TAP interface to come up") != -1)
 			{
@@ -1397,7 +1354,7 @@ namespace Eddie.Platform.Windows
 					m_listOldDns.Add(entry);
 				}
 			}
-			
+
 			if (root.ExistsAttribute("interface-metric-id"))
 			{
 				m_oldMetricInterface = root.GetAttributeString("interface-metric-id", "");
@@ -1423,7 +1380,7 @@ namespace Eddie.Platform.Windows
 					entry.WriteXML(nodeEntry);
 				}
 			}
-			
+
 			if (m_oldMetricInterface != "")
 			{
 				root.SetAttributeString("interface-metric-id", m_oldMetricInterface);
@@ -1431,7 +1388,31 @@ namespace Eddie.Platform.Windows
 				root.SetAttributeInt("interface-metric-ipv6", m_oldMetricIPv6);
 			}
 		}
-						
+
+		public override void CompatibilityAfterProfile()
+		{
+			// < 2.9 - Old Windows Firewall original backup rules path
+			string oldPathRulesBackupFirstTime = Engine.Instance.GetPathInData("winfirewallrulesorig.wfw");
+			string newPathRulesBackupFirstTime = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
+			if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
+			{
+				if (Platform.Instance.FileExists(newPathRulesBackupFirstTime))
+					Platform.Instance.FileDelete(oldPathRulesBackupFirstTime);
+				else
+					Platform.Instance.FileMove(oldPathRulesBackupFirstTime, newPathRulesBackupFirstTime);
+			}
+
+			string oldPathRulesBackupSession = Engine.Instance.GetPathInData("winfirewallrules.wfw");
+			string newPathRulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_backup.airvpn";
+			if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
+			{
+				if (Platform.Instance.FileExists(newPathRulesBackupSession))
+					Platform.Instance.FileDelete(oldPathRulesBackupSession);
+				else
+					Platform.Instance.FileMove(oldPathRulesBackupSession, newPathRulesBackupSession);
+			}
+		}
+
 		public override void OnJsonNetworkInfo(Json jNetworkInfo)
 		{
 			base.OnJsonNetworkInfo(jNetworkInfo);
@@ -1442,7 +1423,7 @@ namespace Eddie.Platform.Windows
 
 				jNetworkInterface["dns4"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
 				jNetworkInterface["dns6"].Value = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\" + id.ToLowerInvariant(), "NameServer", "") as string;
-				jNetworkInterface["dns6"].Value = null;
+				jNetworkInterface["dns6"].Value = null; // CLODOTEMP, re-check
 			}
 
 			jNetworkInfo["support_ipv4"].Value = OsSupportIPv4();
@@ -1451,115 +1432,55 @@ namespace Eddie.Platform.Windows
 
 		public override void OnJsonRouteList(Json jRoutesList)
 		{
-			base.OnJsonRouteList(jRoutesList);
-
-			// Windows 'route' show IPv4 address in IPv4 Interface fields, Adapter Index in IPv6 Interface fields.
-			Dictionary<string, string> InterfacesIPv4IpToGuid = new Dictionary<string, string>();
-			Dictionary<int, string> InterfacesIPv6IndexToGuid = new Dictionary<int, string>();
-
+			// C++ code return an interface index, here converted to interface ID/Name
+			Dictionary<int, string> InterfacesIndexToGuid = new Dictionary<int, string>();
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
 				string guid = adapter.Id.ToString();
-				foreach (UnicastIPAddressInformation ip2 in adapter.GetIPProperties().UnicastAddresses)
+
+				try
 				{
-					IpAddress ip = new IpAddress(ip2.Address.ToString());
-					if (ip.Valid)
-					{
-						if (ip.IsV4)
-						{
-							InterfacesIPv4IpToGuid[ip.Address] = guid;
-						}
-						else if (ip.IsV6)
-						{
-							int interfaceIPv6Index = -1;
-							try
-							{
-								interfaceIPv6Index = adapter.GetIPProperties().GetIPv6Properties().Index;
-							}
-							catch
-							{
-							}
-							InterfacesIPv6IndexToGuid[interfaceIPv6Index] = guid;
-						}
-					}
+					int interfaceIPv4Index = adapter.GetIPProperties().GetIPv4Properties().Index;
+					InterfacesIndexToGuid[interfaceIPv4Index] = guid;
+				}
+				catch
+				{
+				}
+
+				try
+				{
+					int interfaceIPv6Index = adapter.GetIPProperties().GetIPv6Properties().Index;
+					InterfacesIndexToGuid[interfaceIPv6Index] = guid;
+				}
+				catch
+				{
 				}
 			}
 
-			// IPv4
-			if (true)
+			jRoutesList.FromJson(Engine.Instance.Elevated.DoCommandSync("route-list"));
+			foreach (Json jRoute in jRoutesList.GetArray())
 			{
-				string result = "";
-				if (IsVistaOrNewer() == false) // XP
-					result = SystemShell.Shell1(LocateExecutable("route.exe"), "PRINT");
-				else
-					result = SystemShell.Shell2(LocateExecutable("route.exe"), "-4", "PRINT");
-
-				string[] lines = result.Split('\n');
-				foreach (string line in lines)
-				{
-					string[] fields = line.CleanSpace().Split(' ');
-
-					if (fields.Length == 5)
-					{
-						if (fields[2].ToLowerInvariant().Trim() == "on-link")
-							fields[2] = "link";
-						Json jRoute = new Json();
-						IpAddress address = new IpAddress();
-						address.Parse(fields[0] + " " + fields[1]);
-						if (address.Valid == false)
-							continue;
-						jRoute["address"].Value = address.ToCIDR();
-
-						if (InterfacesIPv4IpToGuid.ContainsKey(fields[3]))
-							jRoute["interface"].Value = InterfacesIPv4IpToGuid[fields[3]];
-						jRoute["gateway"].Value = fields[2];
-						jRoute["metric"].Value = fields[4];
-						jRoutesList.Append(jRoute);
-					}
-				}
-			}
-
-			// IPv6
-			if (IsVistaOrNewer())
-			{
-				string result = "";
-				if (IsVistaOrNewer() == false) // XP
-					result = SystemShell.Shell1(LocateExecutable("route.exe"), "PRINT");
-				else
-					result = SystemShell.Shell2(LocateExecutable("route.exe"), "-6", "PRINT");
-
-				result = result.Replace("\r\n     ", ""); // To avoid parse issue when route print the gateway on a new line.
-
-				string[] lines = result.Split('\n');
-				foreach (string line in lines)
-				{
-					string[] fields = line.CleanSpace().Split(' ');
-
-					if (fields.Length == 4)
-					{
-						if (fields[3].ToLowerInvariant().Trim() == "on-link")
-							fields[3] = "link";
-						Json jRoute = new Json();
-						IpAddress address = new IpAddress();
-						address.Parse(fields[2]);
-						if (address.Valid == false)
-							continue;
-						jRoute["address"].Value = address.ToCIDR();
-						int interfaceIndex = Convert.ToInt32(fields[0]);
-						if (InterfacesIPv6IndexToGuid.ContainsKey(interfaceIndex))
-							jRoute["interface"].Value = InterfacesIPv6IndexToGuid[interfaceIndex];
-						jRoute["gateway"].Value = fields[3];
-						jRoute["metric"].Value = fields[1];
-						jRoutesList.Append(jRoute);
-					}
-				}
+				int interfaceIndex = Conversions.ToInt32(jRoute["interface_index"].ValueString);
+				if (InterfacesIndexToGuid.ContainsKey(interfaceIndex))
+					jRoute["interface"].Value = InterfacesIndexToGuid[interfaceIndex];
 			}
 		}
 
+		public override string GetFriendlyInterfaceName(string id)
+		{
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			foreach (NetworkInterface adapter in interfaces)
+			{
+				if (adapter.Id == id)
+					return adapter.Name + " (" + adapter.Description + ")";
+			}
+			return id;
+		}
+
 		public override string OsCredentialSystemName()
-		{			
-			if (IsAdmin()) // Are saved as Admin and not viewer by normal user, will become an issue.
+		{
+			if (IsElevatedPrivileges()) // Are saved as Admin and not viewer by normal user, will become an issue.
 				return "";
 			else
 				return "Windows Credential";
@@ -1619,7 +1540,7 @@ namespace Eddie.Platform.Windows
 
 			// Fallback
 			string sigcheckPath = Engine.Instance.GetPathTools() + "\\sigcheck.exe";
-			string[] sigcheck = SystemShell.Shell3(sigcheckPath, "-c", "-nobanner", "\"" + SystemShell.EscapePath(path) + "\"").Split('\n');
+			string[] sigcheck = SystemExec.Exec3(sigcheckPath, "-c", "-nobanner", "\"" + SystemExec.EscapePath(path) + "\"").Split('\n');
 
 			List<string> list = sigcheck[1].StringToList(",", true, false, false, true);
 
@@ -1682,16 +1603,16 @@ namespace Eddie.Platform.Windows
 				{
 					object wintunVersion = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wintun", "Version", "");
 					if (wintunVersion != null)
-						return wintunVersion as string;					
+						return wintunVersion as string;
 				}
 				else
 					throw new Exception("Unknown driver " + driver);
 
-				
+
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(e);
+				Engine.Instance.Logs.Log(ex);
 			}
 
 			return "";
@@ -1752,15 +1673,15 @@ namespace Eddie.Platform.Windows
 					throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable", driver));
 
 				if (driver == WindowsDriverTapId)
-					SystemShell.ShellUserEvent(driverPath, "/S", true);
+					SystemExec.ExecUserEvent(driverPath, "/S", true);
 				else if (driver == WindowsDriverWintunId)
-					SystemShell.ShellUserEvent("msiexec", "/i \"" + driverPath + "\" /passive /norestart", true);
+					SystemExec.ExecUserEvent("msiexec", "/i \"" + driverPath + "\" /passive /norestart", true);
 
 				if (GetDriverVersion(driver) == "")
 					throw new Exception(LanguageManager.GetText("OsDriverFailed", driver));
 			}
 
-			bool adapterFound = false;			
+			bool adapterFound = false;
 			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 			foreach (NetworkInterface adapter in interfaces)
 			{
@@ -1776,11 +1697,11 @@ namespace Eddie.Platform.Windows
 				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("OsDriverNoAdapterFound", driver));
 				if (driver == WindowsDriverTapId)
 				{
-					SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --hwid root\\tap0901", true);
-				}	
+					SystemExec.ExecUserEvent(Software.FindResource("tapctl"), "create --hwid root\\tap0901", true);
+				}
 				else if (driver == WindowsDriverWintunId)
 				{
-					SystemShell.ShellUserEvent(Software.FindResource("tapctl"), "create --hwid wintun", true);
+					SystemExec.ExecUserEvent(Software.FindResource("tapctl"), "create --hwid wintun", true);
 				}
 			}
 
@@ -1831,13 +1752,13 @@ namespace Eddie.Platform.Windows
 				{
 					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("HackInterfaceUpDone", adapter.Name));
 
-					Engine.Instance.Elevated.DoCommandSync("windows-workaround-interface-up", "name", adapter.Name);					
+					Engine.Instance.Elevated.DoCommandSync("windows-workaround-interface-up", "name", adapter.Name);
 				}
 			}
 		}
-		
+
 		private void DnsForceRestore()
-		{			
+		{
 			try
 			{
 				// 2.13.3 : Win10 with ManagementObject & SetDNSServerSearchOrder sometime return errcode 84 "IP not enabled on adapter" if we try to set DNS on Tap in state "Network cable unplugged", typical in end of session.
@@ -1895,11 +1816,11 @@ namespace Eddie.Platform.Windows
 						NetworkInterface inet = GetNetworkInterfaceFromGuid(entry.Guid);
 						if (inet != null)
 						{
-							string interfaceName = SystemShell.EscapeInsideQuote(inet.Name);
+							string interfaceName = SystemExec.EscapeInsideQuote(inet.Name);
 
 							if (entry.AutoDns == true)
 							{
-								SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=dhcp register=primary validate=no");								
+								SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=dhcp register=primary validate=no");								
 							}
 							else
 							{
@@ -1911,22 +1832,22 @@ namespace Eddie.Platform.Windows
 									{
 										if(nIPv4 == 0)
 										{
-											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
+											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
 										}
 										else
 										{
-											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
+											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv4 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
 										}
 										nIPv4++;
 									} else if(ip.IsV6)
 									{
 										if (nIPv6 == 0)
 										{
-											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
+											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 set dns name=\"" + interfaceName + "\" source=static address=" + ip.Address + " register=primary validate=no");
 										}
 										else
 										{
-											SystemShell.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
+											SystemExec.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "interface ipv6 add dnsserver name=\"" + interfaceName + "\" address=" + ip.Address + " validate=no");
 										}
 										nIPv6++;
 									}
@@ -1977,14 +1898,14 @@ namespace Eddie.Platform.Windows
 				}
 				*/
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(e);
+				Engine.Instance.Logs.Log(ex);
 			}
 
 			m_listOldDns.Clear();
 		}
-				
+
 		private bool OsSupportIPv4()
 		{
 			object v = Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TCPIP\\Parameters", "DisabledComponents", "");
@@ -2021,7 +1942,7 @@ namespace Eddie.Platform.Windows
 			}
 			return null;
 		}
-			
+
 
 		private string NormalizeWinSysPath(string path)
 		{
@@ -2093,9 +2014,9 @@ namespace Eddie.Platform.Windows
 				throw new Exception(LanguageManager.GetText("OsDriverInstallerNotAvailable"));
 
 			if(driver == WindowsDriverTapId)
-				SystemShell.ShellUserEvent(driverPath, "/S", true);
+				SystemExec.ExecUserEvent(driverPath, "/S", true);
 			else if(driver == WindowsDriverWintunId)
-				SystemShell.ShellUserEvent("msiexec", "/i \"" + driverPath + "\" /quiet /norestart", true);
+				SystemExec.ExecUserEvent("msiexec", "/i \"" + driverPath + "\" /quiet /norestart", true);
 
 			System.Threading.Thread.Sleep(3000);
 
@@ -2111,23 +2032,18 @@ namespace Eddie.Platform.Windows
 
 			if (driver == WindowsDriverTapId)
 			{
-				SystemShell.ShellUserEvent(driverPath, "/S", true);
+				SystemExec.ExecUserEvent(driverPath, "/S", true);
 			}
 			else if (driver == WindowsDriverWintunId)
 			{
-				//SystemShell.ShellUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
-				SystemShell.ShellUserEvent("msiexec", "/x \"" + driverPath + "\" /passive", true);
+				//SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /quiet /norestart", true);
+				SystemExec.ExecUserEvent("msiexec", "/x \"" + driverPath + "\" /passive", true);
 			}
-				
+
 
 			System.Threading.Thread.Sleep(3000);
 
 			return (GetDriverVersion(driver) == "");
-		}
-		
-		private static void SystemEvents_SessionEnding(object sender, Microsoft.Win32.SessionEndingEventArgs e)
-		{
-
 		}
 	}
 

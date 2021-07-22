@@ -43,7 +43,7 @@ namespace Eddie.Core.Jobs
 						infoServer.Penality--;
 				}
 			}
-			
+
 			m_timeEvery = 60000;
 		}
 	}

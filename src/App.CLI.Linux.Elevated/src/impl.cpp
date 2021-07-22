@@ -29,6 +29,10 @@
 #include <sys/types.h> // for signal()
 #include <signal.h> // for signal()
 
+#include <arpa/inet.h> // for inet_pton()
+
+#include <sstream>
+
 /*
 // Eddie 2.19.3, some users report issue with zfs compression
 
@@ -49,14 +53,20 @@ std::string systemdPath = "/usr/lib/systemd/system";
 std::string systemdUnitName = serviceName + ".service";
 std::string systemdUnitPath = systemdPath + "/" + systemdUnitName;
 
+
 int Impl::Main()
-{   
-    signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
+{
+	signal(SIGINT, SIG_IGN); // If Eddie is executed as terminal, and receive a Ctrl+C, elevated are terminated before child process (if 'spot'). Need a better solution.
 	signal(SIGHUP, SIG_IGN); // Signal of reboot, ignore, container will manage it
 
-	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
+	// ping test
+	/*
+	std::cout << "ping ipv4:" << Ping("8.8.8.8",10) << "\n";
+	std::cout << "ping ipv6:" << Ping("2a00:1450:4002:800::200e",10) << "\n";
+	exit(1);
+	*/
 
-	// fd = Inhibit("shutdown:idle", "Package Manager", "Upgrade in progress...", "block");
+	prctl(PR_SET_PDEATHSIG, SIGHUP); // Any child process will be killed if this process died, Linux specific
 
 	return IPosix::Main();
 }
@@ -65,8 +75,6 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 {
 	if (command == "compatibility-profiles")
 	{
-		//LogRemote("parent pid:" + std::to_string(getppid()));
-
 		const std::string& dataPath = params["path-data"];
 
 		if (FsFileExists(dataPath) == false)
@@ -87,7 +95,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					args.push_back(dataPath);
 					std::string stdout;
 					std::string stderr;
-					Shell("chown", args, false, "", stdout, stderr);
+					Exec("chown", args, false, "", stdout, stderr);
 				}
 			}
 		}
@@ -115,7 +123,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 			if ((servicePath != "") && (systemctlPath != ""))
 			{
-				ShellResult systemCtlListUnits = ShellEx2(systemctlPath, "list-units", "--no-pager");
+				ExecResult systemCtlListUnits = ExecEx2(systemctlPath, "list-units", "--no-pager");
 				if (systemCtlListUnits.exit != 0)
 				{
 					std::vector<std::string> lines = StringToVector(systemCtlListUnits.out, '\n');
@@ -133,7 +141,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 								continue;
 
 							LogRemote("Flush DNS - " + service + " via systemd");
-							ShellEx2(servicePath, StringEnsureSecure(service), "restart");
+							ExecEx2(servicePath, StringEnsureSecure(service), "restart");
 							restarted[service] = 1;
 						}
 					}
@@ -144,7 +152,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			/*
 			std::string systemdResolvePath = FsLocateExecutable("systemd-resolve");
 			if (systemdResolvedPath != "")
-				ShellOut1(systemdResolvedPath, "--flush-caches");
+				ExecOut1(systemdResolvedPath, "--flush-caches");
 			*/
 		}
 
@@ -158,7 +166,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					if (FsFileExists("/etc/init.d/" + service))
 					{
 						LogRemote("Flush DNS - " + service + " via init.d");
-						ShellEx1("/etc/init.d/" + service, "restart");
+						ExecEx1("/etc/init.d/" + service, "restart");
 					}
 				}
 			}
@@ -176,11 +184,11 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 						// Special case
 						// On some system, for example Fedora, nscd caches are saved to disk,
 						// located in /var/db/nscd, and not flushed with a simple restart. 
-						std::string nscdPath = FsLocateExecutable("nscd");
+						std::string nscdPath = FsLocateExecutable("nscd", false);
 						if (nscdPath != "")
 						{
 							LogRemote("Flush DNS - nscd");
-							ShellEx1(nscdPath, "--invalidate=hosts");
+							ExecEx1(nscdPath, "--invalidate=hosts");
 						}
 					}
 				}
@@ -238,7 +246,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			}
 			else if (curVal == "0")
 			{
-				ShellResult switchResult = ShellEx2(FsLocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=1");
+				ExecResult switchResult = ExecEx2(FsLocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=1");
 				if (switchResult.exit == 0)
 				{
 					ReplyCommand(commandId, interfaceName);
@@ -258,7 +266,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	else if (command == "ipv6-restore")
 	{
 		std::string interfaceName = params["interface"];
-		ShellResult switchResult = ShellEx2(FsLocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=0");
+		ExecResult switchResult = ExecEx2(FsLocateExecutable("sysctl"), "-w", "net.ipv6.conf." + interfaceName + ".disable_ipv6=0");
 		if (switchResult.exit == 0)
 		{
 		}
@@ -267,180 +275,180 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Ignore
 		}
 	}
-    else if (command == "netlock-nftables-available")
-    {
-        std::string nft = FsLocateExecutable("nft");
-        
-        bool available = (nft != "");
-        ReplyCommand(commandId, available ? "1" : "0");
-    }
-    else if (command == "netlock-nftables-activate")
-    {
-        std::string nft = FsLocateExecutable("nft");
-        
-        std::string pathBackup = GetTempPath("netlock_nftables_backup.nft");
-        
-        std::string result = "";
+	else if (command == "netlock-nftables-available")
+	{
+		std::string nft = FsLocateExecutable("nft", false);
 
-        if(FsFileExists(pathBackup))
-        {
-            ThrowException("Unexpected: Already active");
-        }
-        else
-        {
+		bool available = (nft != "");
+		ReplyCommand(commandId, available ? "1" : "0");
+	}
+	else if (command == "netlock-nftables-activate")
+	{
+		std::string nft = FsLocateExecutable("nft");
+
+		std::string pathBackup = GetTempPath("netlock_nftables_backup.nft");
+
+		std::string result = "";
+
+		if (FsFileExists(pathBackup))
+		{
+			ThrowException("Unexpected: Already active");
+		}
+		else
+		{
 			/*
-            // Try to up kernel module			
+			// Try to up kernel module
 #ifndef EDDIE_NOLZMA
-            int ret = load_kernel_module("nf_tables", "");
-            if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
-                ThrowException("Unable to initialize nf_tables module");
+			int ret = load_kernel_module("nf_tables", "");
+			if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+				ThrowException("Unable to initialize nf_tables module");
 #else
 			*/
-            // Shell version, used under Linux Arch, for issue with link LZMA
-            std::string modprobePath = FsLocateExecutable("modprobe");
-            if (modprobePath != "")
-            {
-                ShellResult modprobeResult = ShellEx1(modprobePath, "nf_tables");
-                if (modprobeResult.exit != 0)
-                    ThrowException("Unable to initialize nf_tables module");
-            }
-/*
-#endif
-*/
-            // Backup of current
-            std::vector<std::string> args;
-            
-            ShellResult shellResultBackup = ShellEx2(nft, "list", "ruleset");
-            if(shellResultBackup.exit != 0)
-                ThrowException("nft issue: " + shellResultBackup.dump());
-            
-            FsFileWriteText(pathBackup, shellResultBackup.out);
-            
-            // Apply new
-            std::string path = GetTempPath("netlock_nftables_apply.nft");
-            FsFileWriteText(path, params["rules"]);
-            ShellResult shellResultApply = ShellEx2(nft, "-f", path);
-            FsFileDelete(path);
-            if(shellResultApply.exit != 0)
-                ThrowException("nft issue: " + shellResultApply.dump());
-        }
+			// Exec version, used under Linux Arch, for issue with link LZMA
+			std::string modprobePath = FsLocateExecutable("modprobe");
+			if (modprobePath != "")
+			{
+				ExecResult modprobeResult = ExecEx1(modprobePath, "nf_tables");
+				if (modprobeResult.exit != 0)
+					ThrowException("Unable to initialize nf_tables module");
+			}
+			/*
+			#endif
+			*/
+			// Backup of current
+			std::vector<std::string> args;
 
-        ReplyCommand(commandId, StringTrim(result));
-    }
-    else if (command == "netlock-nftables-deactivate")
-    {
-        std::string nft = FsLocateExecutable("nft");
-        std::string path = GetTempPath("netlock_nftables_backup.nft");
+			ExecResult shellResultBackup = ExecEx2(nft, "list", "ruleset");
+			if (shellResultBackup.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(shellResultBackup));
 
-        if (FsFileExists(path))
-        {
-            ShellResult shellResultFlush = ShellEx2(nft, "flush", "ruleset");
-            if(shellResultFlush.exit != 0)
-                ThrowException("nft issue: " + shellResultFlush.dump());
-                
-            ShellResult shellResultRestore = ShellEx2(nft, "-f", path);
-            FsFileDelete(path);
-            
-            if(shellResultRestore.exit != 0)
-                ThrowException("nft issue: " + shellResultRestore.dump());
-        }
-    }
-    else if (command == "netlock-nftables-accept-ip")
-    {
-        std::string nft = FsLocateExecutable("nft");
-        
-        std::string path = "";
-        std::vector<std::string> args1;
-        std::vector<std::string> args2;
-        int nCommands = 1;
+			FsFileWriteText(pathBackup, shellResultBackup.out);
 
-        if (params["layer"] == "ipv4")
-            path = IptablesExecutable("ipv4", "");
-        else if (params["layer"] == "ipv6")
-            path = IptablesExecutable("ipv6", "");
-        else
-            ThrowException("Unknown layer");
+			// Apply new
+			std::string path = GetTempPath("netlock_nftables_apply.nft");
+			FsFileWriteText(path, params["rules"]);
+			ExecResult shellResultApply = ExecEx2(nft, "-f", path);
+			FsFileDelete(path);
+			if (shellResultApply.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(shellResultApply));
+		}
 
-        if (params["action"] == "add")
-        {
-            args1.push_back("insert");
-        }
-        else if (params["action"] == "del")
-        {
-            args1.push_back("del");
-        }
-        else
-            ThrowException("Unknown action");
-       
-        args1.push_back("rule");
-        
-        if (params["layer"] == "ipv4")
-            args1.push_back("ip");
-        else if (params["layer"] == "ipv6")
-            args1.push_back("ip6");
-        else
-            ThrowException("Unknown layer");
-            
-        args1.push_back("filter");
-        if (params["direction"] == "in")
-            args1.push_back("INPUT");
-        else if (params["direction"] == "out")
-            args1.push_back("OUTPUT");
-        else
-            ThrowException("Unknown direction");
-        
-        if (params["layer"] == "ipv4")
-            args1.push_back("ip");
-        else if (params["layer"] == "ipv6")
-            args1.push_back("ip6");
-        else
-            ThrowException("Unknown layer");
-           
-        if (params["direction"] == "in")
-            args1.push_back("saddr");
-        else if (params["direction"] == "out") 
-            args1.push_back("daddr");
-        else
-            ThrowException("Unknown direction");
-        
-        args1.push_back(StringEnsureCidr(params["cidr"]));
+		ReplyCommand(commandId, StringTrim(result));
+	}
+	else if (command == "netlock-nftables-deactivate")
+	{
+		std::string nft = FsLocateExecutable("nft");
+		std::string path = GetTempPath("netlock_nftables_backup.nft");
 
-        // Additional rule for incoming
-        if (params["direction"] == "in")
-        {
-            nCommands++;
-            
-            args2 = args1;
-            
-            args2.push_back("ct");
-            args2.push_back("state");
-            args2.push_back("established");
-            args2.push_back("counter");
-            args2.push_back("accept");
-        }
-        
-        args1.push_back("counter");
-        args1.push_back("accept");
+		if (FsFileExists(path))
+		{
+			ExecResult shellResultFlush = ExecEx2(nft, "flush", "ruleset");
+			if (shellResultFlush.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(shellResultFlush));
 
-        std::string output = "";
-        
-        for (int l = 0; l < nCommands; l++)
-        {
-            std::vector<std::string>* args;
-            if (l == 0)
-                args = &args1;
-            else
-                args = &args2;
-                
-            ShellResult shellResultRule = ShellEx(nft, *args);
-            if(shellResultRule.exit != 0)
-                ThrowException("nft issue: " + shellResultRule.dump());
-            
-            output += shellResultRule.dump() + "\n";
-        }
+			ExecResult shellResultRestore = ExecEx2(nft, "-f", path);
+			FsFileDelete(path);
 
-        ReplyCommand(commandId, StringTrim(output));
-    }
+			if (shellResultRestore.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(shellResultRestore));
+		}
+	}
+	else if (command == "netlock-nftables-accept-ip")
+	{
+		std::string nft = FsLocateExecutable("nft");
+
+		std::string path = "";
+		std::vector<std::string> args1;
+		std::vector<std::string> args2;
+		int nCommands = 1;
+
+		if (params["layer"] == "ipv4")
+			path = IptablesExecutable("ipv4", "");
+		else if (params["layer"] == "ipv6")
+			path = IptablesExecutable("ipv6", "");
+		else
+			ThrowException("Unknown layer");
+
+		if (params["action"] == "add")
+		{
+			args1.push_back("insert");
+		}
+		else if (params["action"] == "del")
+		{
+			args1.push_back("del");
+		}
+		else
+			ThrowException("Unknown action");
+
+		args1.push_back("rule");
+
+		if (params["layer"] == "ipv4")
+			args1.push_back("ip");
+		else if (params["layer"] == "ipv6")
+			args1.push_back("ip6");
+		else
+			ThrowException("Unknown layer");
+
+		args1.push_back("filter");
+		if (params["direction"] == "in")
+			args1.push_back("INPUT");
+		else if (params["direction"] == "out")
+			args1.push_back("OUTPUT");
+		else
+			ThrowException("Unknown direction");
+
+		if (params["layer"] == "ipv4")
+			args1.push_back("ip");
+		else if (params["layer"] == "ipv6")
+			args1.push_back("ip6");
+		else
+			ThrowException("Unknown layer");
+
+		if (params["direction"] == "in")
+			args1.push_back("saddr");
+		else if (params["direction"] == "out")
+			args1.push_back("daddr");
+		else
+			ThrowException("Unknown direction");
+
+		args1.push_back(StringEnsureCidr(params["cidr"]));
+
+		// Additional rule for incoming
+		if (params["direction"] == "in")
+		{
+			nCommands++;
+
+			args2 = args1;
+
+			args2.push_back("ct");
+			args2.push_back("state");
+			args2.push_back("established");
+			args2.push_back("counter");
+			args2.push_back("accept");
+		}
+
+		args1.push_back("counter");
+		args1.push_back("accept");
+
+		std::string output = "";
+
+		for (int l = 0; l < nCommands; l++)
+		{
+			std::vector<std::string>* args;
+			if (l == 0)
+				args = &args1;
+			else
+				args = &args2;
+
+			ExecResult shellResultRule = ExecEx(nft, *args);
+			if (shellResultRule.exit != 0)
+				ThrowException("nft issue: " + GetExecResultDump(shellResultRule));
+
+			output += GetExecResultDump(shellResultRule) + "\n";
+		}
+
+		ReplyCommand(commandId, StringTrim(output));
+	}
 	else if (command == "netlock-iptables-available")
 	{
 		bool available = true;
@@ -474,46 +482,46 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			// Try to up kernel module - For example standard Debian 8 KDE don't have it at boot
 			if (params.count("rules-ipv4") > 0)
 			{
-/*
-#ifndef EDDIE_NOLZMA
-				int ret = load_kernel_module("iptable_filter", "");
-				if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
-					ThrowException("Unable to initialize iptable_filter module");
-#else
-*/
-				// Shell version, used under Linux Arch, for issue with link LZMA
+				/*
+				#ifndef EDDIE_NOLZMA
+								int ret = load_kernel_module("iptable_filter", "");
+								if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+									ThrowException("Unable to initialize iptable_filter module");
+				#else
+				*/
+				// Exec version, used under Linux Arch, for issue with link LZMA
 				std::string modprobePath = FsLocateExecutable("modprobe");
 				if (modprobePath != "")
 				{
-					ShellResult modprobeIptable4FilterResult = ShellEx1(modprobePath, "iptable_filter");
+					ExecResult modprobeIptable4FilterResult = ExecEx1(modprobePath, "iptable_filter");
 					if (modprobeIptable4FilterResult.exit != 0)
 						ThrowException("Unable to initialize iptable_filter module");
 				}
-/*
-#endif
-*/
+				/*
+				#endif
+				*/
 			}
 
 			if (params.count("rules-ipv6") > 0)
 			{
-/*
-#ifndef EDDIE_NOLZMA
-				int ret = load_kernel_module("ip6table_filter", "");
-				if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
-					ThrowException("Unable to initialize iptable_filter module");
-#else
-*/
-				// Shell version, used under Linux Arch, for issue with link LZMA
+				/*
+				#ifndef EDDIE_NOLZMA
+								int ret = load_kernel_module("ip6table_filter", "");
+								if ((ret != MODULE_LOAD_SUCCESS) && (ret != MODULE_ALREADY_LOADED))
+									ThrowException("Unable to initialize iptable_filter module");
+				#else
+				*/
+				// Exec version, used under Linux Arch, for issue with link LZMA
 				std::string modprobePath = FsLocateExecutable("modprobe");
 				if (modprobePath != "")
 				{
-					ShellResult modprobeIptable6FilterResult = ShellEx1(modprobePath, "ip6table_filter");
+					ExecResult modprobeIptable6FilterResult = ExecEx1(modprobePath, "ip6table_filter");
 					if (modprobeIptable6FilterResult.exit != 0)
 						ThrowException("Unable to initialize ip6table_filter module");
 				}
-/*
-#endif
-*/
+				/*
+				#endif
+				*/
 			}
 
 			// Backup of current
@@ -651,22 +659,114 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		}
 
 		std::string output = "";
-        
-        if (params["action"] == "add") // Add only, Del not implemented yet, need handle detection because iptables-style is not yet implemented: https://wiki.nftables.org/wiki-nftables/index.php/Simple_rule_management#Removing_rules
-        {
-    		for (int l = 0; l < nCommands; l++)
-    		{
-    			std::vector<std::string>* args;
-    			if (l == 0)
-    				args = &args1;
-    			else
-    				args = &args2;
 
-    			output += IptablesExec(path, *args, stdinWrite, stdinBody);
-    		}
-        }
+		if (params["action"] == "add") // Add only, Del not implemented yet, need handle detection because iptables-style is not yet implemented: https://wiki.nftables.org/wiki-nftables/index.php/Simple_rule_management#Removing_rules
+		{
+			for (int l = 0; l < nCommands; l++)
+			{
+				std::vector<std::string>* args;
+				if (l == 0)
+					args = &args1;
+				else
+					args = &args2;
+
+				output += IptablesExec(path, *args, stdinWrite, stdinBody);
+			}
+		}
 
 		ReplyCommand(commandId, StringTrim(output));
+	}
+	else if (command == "route-list")
+	{
+		// TODO: WIP on GetRoutesAsJson and replace
+
+		int n = 0;
+		std::string json;
+
+		std::string list;
+		ExecResult listIPv4 = ExecEx3(FsLocateExecutable("ip"), "-4", "route", "show");
+		if (listIPv4.exit == 0)
+			list += listIPv4.out + "\n";
+
+		ExecResult listIPv6 = ExecEx3(FsLocateExecutable("ip"), "-6", "route", "show");
+		if (listIPv6.exit == 0)
+			list += listIPv6.out + "\n";
+
+		std::vector<std::string> lines = StringToVector(list, '\n');
+		for (std::vector<std::string>::const_iterator i = lines.begin(); i != lines.end(); ++i)
+		{
+			std::string line = StringTrim(*i);
+
+			std::map<std::string, std::string> keypairs;
+			std::vector<std::string> fields = StringToVector(line, ' ', true);
+
+			if (fields.size() > 0)
+			{
+				keypairs["destination"] = fields[0];
+				fields.erase(fields.begin());
+			}
+			while (fields.size() > 1)
+			{
+				std::string k = fields[0];
+				fields.erase(fields.begin());
+				std::string v = fields[0];
+				fields.erase(fields.begin());
+				keypairs[StringToLower(k)] = v;
+			}
+
+			// Adapt
+			if (keypairs.find("destination") != keypairs.end())
+			{
+				if (keypairs["destination"] == "default")
+				{
+					if (keypairs.find("via") != keypairs.end())
+					{
+						if (StringIsIPv4(keypairs["via"]))
+							keypairs["destination"] = "0.0.0.0/0";
+						else if (StringIsIPv6(keypairs["via"]))
+							keypairs["destination"] = "::/0";
+					}
+				}
+				else if (StringContain(keypairs["destination"], "/") == false)
+				{
+					// Always full CIDR notation
+					if (StringIsIPv4(keypairs["destination"]))
+						keypairs["destination"] = keypairs["destination"] + "/32";
+					else if (StringIsIPv6(keypairs["destination"]))
+						keypairs["destination"] = keypairs["destination"] + "/128";
+				}
+				keypairs["destination"] = StringIpRemoveInterface(keypairs["destination"]);
+			}
+			if (keypairs.find("via") != keypairs.end())
+			{
+				keypairs["gateway"] = StringIpRemoveInterface(keypairs["via"]);
+				keypairs.erase("via");
+			}
+			if (keypairs.find("dev") != keypairs.end())
+			{
+				keypairs["interface"] = keypairs["dev"];
+				keypairs.erase("dev");
+			}
+
+			// Build JSON
+			if (n > 0)
+				json += ",\n";
+			json += "{";
+			int f = 0;
+			for (std::map<std::string, std::string>::iterator it = keypairs.begin(); it != keypairs.end(); ++it)
+			{
+				std::string k = it->first;
+				std::string v = it->second;
+				if (f > 0)
+					json += ",";
+				json += "\"" + k + "\":\"" + v + "\"";
+				f++;
+			}
+			json += "}";
+			n++;
+		}
+
+		ReplyCommand(commandId, "[" + json + "]");
 	}
 	else if (command == "route")
 	{
@@ -678,36 +778,261 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			args.push_back("-6");
 		args.push_back("route");
 		args.push_back(StringEnsureSecure(params["action"]));
-		args.push_back(StringEnsureCidr(params["cidr"]));
-		args.push_back("via");
-		args.push_back(StringEnsureIpAddress(params["gateway"]));
-		if (params["interface"] != "")
+		args.push_back(StringEnsureCidr(params["destination"]));
+		if (params.find("gateway") != params.end())
+		{
+			args.push_back("via");
+			args.push_back(StringEnsureIpAddress(params["gateway"]));
+		}
+		if (params.find("interface") != params.end())
 		{
 			args.push_back("dev");
 			args.push_back(StringEnsureSecure(params["interface"]));
 		}
-		if (params["metric"] != "")
+		if (params.find("metric") != params.end())
 		{
 			args.push_back("metric");
 			args.push_back(StringEnsureNumericInt(params["metric"]));
 		}
 
-		ShellResult routeResult = ShellEx(FsLocateExecutable("ip"), args);
-		bool accepted = (routeResult.exit == 0);
-
-		if (params["action"] == "delete")
+		ExecResult shellResult = ExecEx(FsLocateExecutable("ip"), args);
+		if (shellResult.exit != 0)
+			ThrowException(GetExecResultDump(shellResult));
+	}
+	else if (command == "wireguard-version")
+	{
+		std::string versionPath = "/sys/module/wireguard/version";
+		if (FsFileExists(versionPath) == false)
 		{
-			// Still accepted: The device are not available anymore, so the route are already deleted.
-			if (StringContain(StringToLower(routeResult.dump()), "cannot find device"))
-				accepted = true;
-
-			// Still accepted: Already deleted.
-			if (StringContain(StringToLower(routeResult.dump()), "no such process"))
-				accepted = true;
+			// Try to up
+			std::string modprobePath = FsLocateExecutable("modprobe");
+			if (modprobePath != "")
+				ExecResult modprobeResult = ExecEx1(modprobePath, "wireguard");
 		}
 
-		if (accepted == false)
-			ThrowException(routeResult.err);
+		std::string version = "";
+		if (FsFileExists(versionPath))
+			version = FsFileReadText(versionPath);
+		ReplyCommand(commandId, version);
+	}
+	else if (command == "wireguard")
+	{
+		std::string id = params["id"];
+		std::string action = params["action"];
+		std::string interfaceId = params["interface"].substr(0, 12);
+
+		std::string keypairStopRequest = "wireguard_stop_" + id;
+
+		if (action == "stop")
+		{
+			m_keypair[keypairStopRequest] = "stop";
+		}
+		else if (action == "start")
+		{
+			std::string config = params["config"];
+			unsigned long handshakeTimeoutFirst = StringToULong(params["handshake_timeout_first"]);
+			unsigned long handshakeTimeoutConnected = StringToULong(params["handshake_timeout_connected"]);
+
+			try
+			{
+				std::map<std::string, std::string> configmap = IniConfigToMap(config);
+
+				std::string ipPath = FsLocateExecutable("ip");
+
+				ReplyCommand(commandId, "log:setup-start");
+
+				// Try to delete interface if already exists
+				if (FsDirectoryExists("/proc/sys/net/ipv4/conf/" + interfaceId))
+					ExecEx4(ipPath, "link", "delete", "dev", interfaceId);
+
+				// Configure WireGuard Peer
+				wg_peer wgPeer;
+				wgPeer.flags = wg_peer_flags(0);
+				if (configmap.find("peer.publickey") != configmap.end())
+				{
+					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PUBLIC_KEY);
+					wg_key_from_base64(wgPeer.public_key, configmap["peer.publickey"].c_str());
+				}
+				if (configmap.find("peer.presharedkey") != configmap.end())
+				{
+					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PRESHARED_KEY);
+					wg_key_from_base64(wgPeer.preshared_key, configmap["peer.presharedkey"].c_str());
+				}
+				if (configmap.find("peer.persistentkeepalive") != configmap.end())
+				{
+					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_HAS_PERSISTENT_KEEPALIVE_INTERVAL);
+					wgPeer.persistent_keepalive_interval = StringToInt(configmap["peer.persistentkeepalive"]);
+				}
+				if (configmap.find("peer.allowedips") != configmap.end())
+				{
+					wgPeer.flags = wg_peer_flags(wgPeer.flags | WGPEER_REPLACE_ALLOWEDIPS);
+					WireGuardParseAllowedIPs(configmap["peer.allowedips"].c_str(), &wgPeer);
+				}
+
+				if (configmap.find("peer.endpoint") != configmap.end())
+				{
+					std::size_t posPort = configmap["peer.endpoint"].find_last_of(":");
+					if (posPort == std::string::npos)
+						ThrowException("Port not found");
+					std::string configEndpointIp = configmap["peer.endpoint"].substr(0, posPort);
+					int configEndpointPort = StringToInt(configmap["peer.endpoint"].substr(posPort + 1));
+
+					int err = inet_pton(AF_INET, configEndpointIp.c_str(), &wgPeer.endpoint.addr4.sin_addr);
+					if (err == 1)
+					{
+						wgPeer.endpoint.addr.sa_family = AF_INET;
+						wgPeer.endpoint.addr4.sin_port = htons(configEndpointPort);
+					}
+					else
+					{
+						if (configEndpointIp.length() > 2)
+							configEndpointIp = configEndpointIp.substr(1, configEndpointIp.length() - 2); // remove []
+						err = inet_pton(AF_INET6, configEndpointIp.c_str(), &wgPeer.endpoint.addr6.sin6_addr);
+						if (err == 1)
+						{
+							wgPeer.endpoint.addr.sa_family = AF_INET6;
+							wgPeer.endpoint.addr6.sin6_port = htons(configEndpointPort);
+						}
+						else
+							ThrowException("Unknown endpoint");
+					}
+				}
+
+				// Configure WireGuard Device
+				wg_device wgDevice;
+				wgDevice.flags = wg_device_flags(0);
+				strcpy(wgDevice.name, interfaceId.c_str());
+				// WGDEVICE_HAS_PUBLIC_KEY ?
+				if (configmap.find("interface.privatekey") != configmap.end())
+				{
+					wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_PRIVATE_KEY);
+					wg_key_from_base64(wgDevice.private_key, configmap["interface.privatekey"].c_str());
+				}
+				if (configmap.find("interface.listenport") != configmap.end())
+				{
+					wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_LISTEN_PORT);
+					wgDevice.listen_port = StringToInt(configmap["interface.listenport"]);
+				}
+				if (configmap.find("interface.fwmark") != configmap.end())
+				{
+					wgDevice.flags = wg_device_flags(wgDevice.flags | WGDEVICE_HAS_FWMARK);
+					wgDevice.fwmark = StringToInt(configmap["interface.fwmark"]);
+				}
+
+				wgDevice.first_peer = &wgPeer;
+				wgDevice.last_peer = &wgPeer;
+
+				if (wg_add_device(wgDevice.name) < 0)
+					ThrowException("Unable to add device");
+
+				if (wg_set_device(&wgDevice) < 0)
+					ThrowException("Unable to setup device");
+
+				// Add interface addresses
+				if (configmap.find("interface.address") != configmap.end())
+				{
+					std::vector<std::string> interfaceAddresses = StringToVector(configmap["interface.address"], ',');
+					for (std::vector<std::string>::const_iterator i = interfaceAddresses.begin(); i != interfaceAddresses.end(); ++i)
+					{
+						std::string address = *i;
+
+						std::string flagLayer = "";
+						if (StringIsIPv4(address))
+							flagLayer = "-4";
+						else if (StringIsIPv6(address))
+							flagLayer = "-6";
+
+						if (flagLayer == "")
+							ThrowException("Unknown address type '" + address + "'");
+
+						if (ExecEx6(ipPath, flagLayer, "address", "add", address, "dev", interfaceId).exit != 0)
+							ThrowException("Failed to add address '" + address + "'");
+					}
+				}
+
+				if (configmap.find("interface.mtu") != configmap.end())
+				{
+					int mtu = StringToInt(configmap["interface.mtu"]);
+
+					if (ExecEx6(ipPath, "link", "set", "mtu", StringFrom(mtu), "dev", interfaceId).exit != 0)
+						ThrowException("Failed to set mtu '" + StringFrom(mtu) + "'");
+				}
+
+				// Interface up
+				if (ExecEx4(ipPath, "link", "set", interfaceId, "up").exit != 0)
+					ThrowException("Failed to set interface '" + interfaceId + "' up");
+
+				ReplyCommand(commandId, "log:setup-complete");
+
+				unsigned long handshakeStart = GetTimestampUnix();
+				unsigned long handshakeLast = 0;
+
+				for (;;)
+				{
+					unsigned long handshakeNow = WireGuardLastHandshake(interfaceId);
+
+					if (handshakeLast != handshakeNow)
+					{
+						if (handshakeLast == 0)
+						{
+							// First
+							ReplyCommand(commandId, "log:handshake-first");
+						}
+
+						//ReplyCommand(commandId, "log:last-handshake:" + StringFrom(handshakeNow));
+						handshakeLast = handshakeNow;
+					}
+
+					unsigned long timeNow = GetTimestampUnix();
+					if (handshakeLast > 0)
+					{
+						unsigned long handshakeDelta = timeNow - handshakeLast;
+
+						if (handshakeDelta > handshakeTimeoutConnected)
+						{
+							// Too much, suggest disconnect
+							ReplyCommand(commandId, "log:handshake-out");
+						}
+					}
+					else
+					{
+						unsigned long handshakeDelta = timeNow - handshakeStart;
+
+						if (handshakeDelta > handshakeTimeoutFirst)
+						{
+							// Too much, suggest disconnect
+							ReplyCommand(commandId, "log:handshake-out");
+						}
+					}
+
+					// Check stop requested
+					if (m_keypair.find(keypairStopRequest) != m_keypair.end())
+					{
+						ReplyCommand(commandId, "log:stop-requested");
+						break;
+					}
+
+					Sleep(1000);
+				}
+			}
+			catch (std::exception& e)
+			{
+				ReplyCommand(commandId, "err:" + std::string(e.what()));
+			}
+			catch (...)
+			{
+				ReplyCommand(commandId, "err:Unknown exception");
+			}
+
+			ReplyCommand(commandId, "log:stop-interface");
+
+			if (wg_del_device(interfaceId.c_str()) < 0)
+				LogRemote("WireGuard > Unable to delete device");
+
+			m_keypair.erase(keypairStopRequest);
+
+			ReplyCommand(commandId, "log:stop");
+		}
 	}
 	else
 	{
@@ -736,8 +1061,8 @@ bool Impl::ServiceInstall()
 	{
 		if (FsFileExists(systemdUnitPath)) // Remove if exists
 		{
-			ShellEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
-			ShellEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
+			ExecEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
+			ExecEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
 			FsFileDelete(systemdUnitPath);
 		}
 
@@ -767,14 +1092,14 @@ bool Impl::ServiceInstall()
 
 		FsFileWriteText(systemdUnitPath, unit);
 
-		ShellResult enableResult = ShellEx2(FsLocateExecutable("systemctl"), "enable", systemdUnitName);
+		ExecResult enableResult = ExecEx2(FsLocateExecutable("systemctl"), "enable", systemdUnitName);
 		if (enableResult.exit != 0)
 		{
 			LogLocal("Enable " + systemdUnitName + " failed");
 			return 1;
 		}
 
-		ShellResult startResult = ShellEx2(FsLocateExecutable("systemctl"), "start", systemdUnitName);
+		ExecResult startResult = ExecEx2(FsLocateExecutable("systemctl"), "start", systemdUnitName);
 		if (startResult.exit != 0)
 		{
 			LogLocal("Start " + systemdUnitName + " failed");
@@ -795,9 +1120,9 @@ bool Impl::ServiceUninstall()
 {
 	if (FsFileExists(systemdUnitPath))
 	{
-        ShellEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
-        ShellEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
-        FsFileDelete(systemdUnitPath);
+		ExecEx2(FsLocateExecutable("systemctl"), "stop", systemdUnitName);
+		ExecEx2(FsLocateExecutable("systemctl"), "disable", systemdUnitName);
+		FsFileDelete(systemdUnitPath);
 	}
 
 	return 0;
@@ -845,10 +1170,10 @@ std::string Impl::GetProcessPathOfId(int pid)
 
 		// Exception: If mono, detect Assembly path
 		bool isMono = false;
-		std::string pathMono1 = FsLocateExecutable("mono-sgen");
+		std::string pathMono1 = FsLocateExecutable("mono-sgen", false);
 		if ((pathMono1 != "") && (StringStartsWith(path, pathMono1)))
 			isMono = true;
-		std::string pathMono2 = FsLocateExecutable("mono");
+		std::string pathMono2 = FsLocateExecutable("mono", false);
 		if ((pathMono2 != "") && (StringStartsWith(path, pathMono2)))
 			isMono = true;
 		if (isMono)
@@ -892,7 +1217,7 @@ int Impl::FileImmutableSet(const std::string& path, const int flag)
 {
 	const char* filename = path.c_str();
 	int result = -1;
-	FILE *fp;
+	FILE* fp;
 
 	if ((fp = fopen(filename, "r")) != NULL)
 	{
@@ -943,7 +1268,7 @@ std::string Impl::IptablesExec(const std::string& path, const std::vector<std::s
 
 	for (int t = 0; t < 10; t++)
 	{
-		int exitCode = Shell(path, args, stdinWrite, stdinBody, stdout, stderr);
+		int exitCode = Exec(path, args, stdinWrite, stdinBody, stdout, stderr);
 
 		if (StringContain(StringToLower(stderr), "temporarily unavailable")) // Older Debian (iptables without --wait)
 		{
@@ -971,4 +1296,256 @@ std::string Impl::IptablesExec(const std::string& path, const std::vector<std::s
 		ThrowException(stderr);
 
 	return output;
+}
+
+std::string Impl::GetRoutesAsJson()
+{
+	// Not yet used, missing at least conversion of fields in CIDR notation.
+	// Objective here is avoid under linux of external exec "route print".
+	// Study https://gist.github.com/incebellipipo/6c8657fe1c898ff64a42cddfa6dea6e0 (ipv4 only)
+
+	int n = 0;
+	std::string json = "[\n";
+
+	// IPv4
+	std::string route4Path = "/proc/net/route";
+	if (FsFileExists(route4Path))
+	{
+		std::vector<std::string> headers;
+		std::vector<std::string> lines = StringToVector(FsFileReadText(route4Path), '\n');
+		for (size_t iL = 0; iL < lines.size(); iL++)
+		{
+			std::vector<std::string> fields = StringToVector(lines[iL], '\t');
+
+			if (headers.size() == 0)
+				headers = fields;
+			else if (fields.size() == headers.size())
+			{
+				std::map<std::string, std::string> keypairs;
+				for (size_t iF = 0; iF < headers.size(); iF++)
+				{
+					std::string k = StringToLower(headers[iF]);
+					std::string v = fields[iF];
+					keypairs[k] = v;
+				}
+
+				// Adapt
+				keypairs["destination_cidr"] = GetRoutesAsJsonHexAddress2string(keypairs["destination"]) + "/" + StringFrom(GetRoutesAsJsonConvertMaskToCidrNetMask(keypairs["mask"]));
+				keypairs.erase("destination");
+				keypairs.erase("mask");
+				keypairs["gateway"] = GetRoutesAsJsonHexAddress2string(keypairs["gateway"]);
+
+				// Build JSON
+				if (n > 0)
+					json += ",\n";
+				json += "{\"iplayer\":\"ipv4\",";
+				for (std::map<std::string, std::string>::iterator it = keypairs.begin(); it != keypairs.end(); ++it)
+				{
+					std::string k = StringToLower(it->first);
+					std::string v = it->second;
+					json += ",\"" + k + "\":\"" + v + "\"";
+					n++;
+				}
+				//(a<<24) + (b<<16) + (c<<8) + d 
+
+				json += "}";
+			}
+		}
+	}
+
+	// IPv6
+	std::string route6Path = "/proc/net/ipv6_route";
+	if (FsFileExists(route6Path))
+	{
+		std::vector<std::string> headers;
+		headers.push_back("destination");
+		headers.push_back("destination_prefix");
+		headers.push_back("source");
+		headers.push_back("source_prefix");
+		headers.push_back("next_hop");
+		headers.push_back("metric");
+		headers.push_back("refcnt");
+		headers.push_back("use");
+		headers.push_back("flags");
+		headers.push_back("iface");
+		std::vector<std::string> lines = StringToVector(FsFileReadText(route6Path), '\n');
+		for (size_t iL = 0; iL < lines.size(); iL++)
+		{
+			std::vector<std::string> fields = StringToVector(lines[iL], ' ');
+
+			if (fields.size() == headers.size())
+			{
+				std::map<std::string, std::string> keypairs;
+				for (size_t iF = 0; iF < headers.size(); iF++)
+				{
+					std::string k = StringToLower(headers[iF]);
+					std::string v = fields[iF];
+					keypairs[k] = v;
+				}
+
+				// Adapt
+				keypairs["source_cidr"] = GetRoutesAsJsonHexAddress2string(keypairs["source"]) + "/" + StringFrom(GetRoutesAsJsonConvertHexPrefixToCidrNetMask(keypairs["source_prefix"]));
+				keypairs.erase("source");
+				keypairs.erase("source_prefix");
+				keypairs["destination_cidr"] = GetRoutesAsJsonHexAddress2string(keypairs["destination"]) + "/" + StringFrom(GetRoutesAsJsonConvertHexPrefixToCidrNetMask(keypairs["destination_prefix"]));
+				keypairs.erase("destination");
+				keypairs.erase("destination_prefix");
+				keypairs["next_hop"] = GetRoutesAsJsonHexAddress2string(keypairs["next_hop"]);
+
+				// Build JSON
+				if (n > 0)
+					json += ",\n";
+				json += "{\"iplayer\":\"ipv4\",";
+				for (std::map<std::string, std::string>::iterator it = keypairs.begin(); it != keypairs.end(); ++it)
+				{
+					std::string k = it->first;
+					std::string v = it->second;
+					json += ",\"" + k + "\":\"" + v + "\"";
+					n++;
+				}
+				//(a<<24) + (b<<16) + (c<<8) + d 
+
+				json += "}";
+			}
+		}
+	}
+
+	// End
+
+	json += "\n]";
+
+	return json;
+}
+
+std::string Impl::GetRoutesAsJsonHexAddress2string(const std::string& v)
+{
+	std::string result;
+	if (v.length() == 8) // IPv4
+	{
+		int iparr[4], j = 0;
+		for (unsigned int i = v.length(); i > 0; i -= 2, j++)
+		{
+			std::stringstream iss;
+			auto tmp = v.substr(i - 2, 2);
+			iss << tmp;
+			iss >> std::hex >> iparr[j];
+		}
+
+		for (int i = 0; i < 4; i++) {
+			result += (i == 3) ? std::to_string(iparr[i]) : std::to_string(iparr[i]) + ".";
+		}
+	}
+	else if (v.length() == 32)
+	{
+		result = v.substr(0, 4) + ":" + v.substr(4, 4) + ":" + v.substr(8, 4) + ":" + v.substr(12, 4) + ":" + v.substr(16, 4) + ":" + v.substr(20, 4) + ":" + v.substr(24, 4) + ":" + v.substr(28, 4);
+	}
+
+	// TODO: Normalize/shorten
+
+	return StringIpNormalize(result);
+}
+
+int Impl::GetRoutesAsJsonConvertMaskToCidrNetMask(const std::string& v)
+{
+	return 0; // TODO
+}
+
+int Impl::GetRoutesAsJsonConvertHexPrefixToCidrNetMask(const std::string& v)
+{
+	unsigned int x;
+	std::stringstream ss;
+	ss << std::hex << v;
+	ss >> x;
+	return x;
+}
+
+unsigned long Impl::WireGuardLastHandshake(const std::string& interfaceId)
+{
+	char* device_names, * device_name;
+	size_t len;
+	bool found = false;
+	unsigned long lastHandshake = 0;
+
+	device_names = wg_list_device_names();
+	if (!device_names)
+		return 0;
+
+	wg_for_each_device_name(device_names, device_name, len)
+	{
+		wg_device* device;
+		wg_peer* peer;
+
+		if (wg_get_device(&device, device_name) < 0)
+		{
+			continue;
+		}
+
+		if (strcmp(device_name, interfaceId.c_str()) == 0)
+		{
+			wg_for_each_peer(device, peer)
+			{
+				lastHandshake = peer->last_handshake_time.tv_sec;
+				found = true;
+			}
+		}
+
+		wg_free_device(device);
+	}
+
+	free(device_names);
+
+	if (found == false)
+		ThrowException("interface '" + interfaceId + "' disappear");
+
+	return lastHandshake;
+}
+
+void Impl::WireGuardParseAllowedIPs(const char* allowed_ips, wg_peer* peer)
+{
+	struct wg_allowedip* latestAllowedIp = NULL;
+	int err = 0;
+
+	std::vector<std::string> ips = StringToVector(allowed_ips, ',');
+	for (std::vector<std::string>::const_iterator iip = ips.begin(); iip != ips.end(); ++iip)
+	{
+		struct wg_allowedip* currentAllowedIp;
+		char buf[INET6_ADDRSTRLEN];
+
+		std::vector<std::string> parts = StringToVector(*iip, '/');
+		if (parts.size() != 2)
+			continue;
+
+		currentAllowedIp = new wg_allowedip();
+
+		err = inet_pton(AF_INET, parts[0].c_str(), buf);
+		if (err == 1)
+		{
+			currentAllowedIp->family = AF_INET;
+			memcpy(&currentAllowedIp->ip4, buf, sizeof(currentAllowedIp->ip4));
+		}
+		else
+		{
+			err = inet_pton(AF_INET6, parts[0].c_str(), buf);
+			if (err == 1)
+			{
+				currentAllowedIp->family = AF_INET6;
+				memcpy(&currentAllowedIp->ip6, buf, sizeof(currentAllowedIp->ip6));
+			}
+		}
+
+		currentAllowedIp->cidr = StringToInt(parts[1]);
+
+		if (err != 1) {
+			delete currentAllowedIp;
+			continue;
+		}
+
+		if (latestAllowedIp == NULL)
+			peer->first_allowedip = currentAllowedIp;
+		else
+			latestAllowedIp->next_allowedip = currentAllowedIp;
+		latestAllowedIp = currentAllowedIp;
+	}
+
+	peer->last_allowedip = latestAllowedIp;
 }

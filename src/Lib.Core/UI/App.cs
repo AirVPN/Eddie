@@ -21,25 +21,25 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
-namespace Eddie.Core.UI // ClodoTemp2 - remove?
+namespace Eddie.Core.UI
 {
 	// Eddie2 Application Helper 
 	public class App
 	{
 		public static void OpenStats(string key)
 		{
-			if (key == "vpngeneratedovpn")
+			if (key == "vpngeneratedconfig")
 			{
-				if ((Engine.Instance.IsConnected()) && (Engine.Instance.ConnectionActive != null))
+				if (Engine.Instance.IsConnected())
 				{
-					Engine.Instance.OnShowText(LanguageManager.GetText("StatsVpnGeneratedOVPN"), Engine.Instance.ConnectionActive.OpenVpnProfileStartup.Get());
+					Engine.Instance.OnShowText(LanguageManager.GetText("StatsVpnGeneratedConfig"), Engine.Instance.Connection.ExportConfigStartup());
 				}
 			}
-			else if (key == "vpngeneratedovpnpush")
+			else if (key == "vpngeneratedconfigpush")
 			{
-				if ((Engine.Instance.IsConnected()) && (Engine.Instance.ConnectionActive != null))
+				if (Engine.Instance.IsConnected())
 				{
-					Engine.Instance.OnShowText(LanguageManager.GetText("StatsVpnGeneratedOVPN"), Engine.Instance.ConnectionActive.OpenVpnProfileWithPush.Get());
+					Engine.Instance.OnShowText(LanguageManager.GetText("StatsVpnGeneratedConfigPush"), Engine.Instance.Connection.ExportConfigPush());
 				}
 			}
 			else if (key == "pinger")
@@ -63,6 +63,6 @@ namespace Eddie.Core.UI // ClodoTemp2 - remove?
 			{
 				Platform.Instance.OpenDirectoryInFileManager(Engine.Instance.Stats.Get("PathProfile").Value);
 			}
-		}        
+		}
 	}
 }

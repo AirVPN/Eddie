@@ -25,31 +25,33 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-    public class SSL : Tool
-    {
-        public override void OnNormalizeVersion()
-        {
-            if (Version.Length < 8)
-                return;
+	public class SSL : Tools.ITool
+	{
+		public override void OnNormalizeVersion()
+		{
+			base.OnNormalizeVersion();
 
-            int posS = Version.IndexOf(" ", 8);
-            if (posS > 1)
-                Version = Version.Substring(0, posS);
-        }
+			if (Version.Length < 8)
+				return;
 
-        public override string GetFileName()
-        {
-            if (Platform.Instance.IsWindowsSystem())
-            {
-                return "stunnel.exe";
-            }
-            else
-                return "stunnel";
-        }
+			int posS = Version.IndexOf(" ", 8);
+			if (posS > 1)
+				Version = Version.Substring(0, posS);
+		}
 
-        public override string GetVersionArgument()
-        {
-            return "-version";
-        }
-    }
+		public override string GetFileName()
+		{
+			if (Platform.Instance.IsWindowsSystem())
+			{
+				return "stunnel.exe";
+			}
+			else
+				return "stunnel";
+		}
+
+		public override string GetVersionArgument()
+		{
+			return "-version";
+		}
+	}
 }

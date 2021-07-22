@@ -28,22 +28,22 @@ namespace Eddie.Core
 {
 	public class TemporaryFile
 	{
-        public string Group;
+		public string Group;
 		public string Path;
 
 		public TemporaryFile(string group, string extension)
 		{
-            Group = group;
-            Path = Engine.Instance.GetPathInData(RandomGenerator.GetHash() + ".tmp." + extension);
-            TemporaryFiles.Add(this);
+			Group = group;
+			Path = Engine.Instance.GetPathInData(RandomGenerator.GetHash() + ".tmp." + extension);
+			TemporaryFiles.Add(this);
 		}
 
-        public TemporaryFile(string extension) : this("", extension)
-        {
+		public TemporaryFile(string extension) : this("", extension)
+		{
 
-        }
+		}
 
-        ~TemporaryFile()
+		~TemporaryFile()
 		{
 			Close();
 		}

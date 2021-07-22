@@ -46,7 +46,7 @@ namespace Eddie.Forms.Forms
 			base.OnApplySkin();
 
 			lblDeveloped.Font = Skin.FontBig;
-			
+
 			lblVersion.Font = Skin.FontBig;
 
 			lblVersion.ForeColor = Color.White;
@@ -61,7 +61,7 @@ namespace Eddie.Forms.Forms
 			lnkWebsite.Text = UiClient.Instance.Data["links"]["help"]["website"].Value as string;
 			lnkManual.Text = UiClient.Instance.Data["links"]["help"]["general"].Value as string;
 			lnkSources.Text = UiClient.Instance.Data["links"]["github"].Value as string;
-			lblVersion.Text = LanguageManager.GetText("WindowsAboutVersion", Constants.VersionShow);
+			lblVersion.Text = LanguageManager.GetText("WindowsAboutVersion", Engine.Instance.GetVersionShow());
 			lblThanks.Text = LanguageManager.GetText("WindowsAboutThanks", Constants.Thanks);
 		}
 

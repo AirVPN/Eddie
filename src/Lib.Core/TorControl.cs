@@ -44,16 +44,19 @@ namespace Eddie.Core
 			Elevated.Command c = new Elevated.Command();
 			c.Parameters["command"] = "tor-get-info";
 
-			c.Parameters["name"] = "tor";			
-			string customPath = Engine.Instance.Options.Get("proxy.tor.path");
-			if (customPath != "")
-				c.Parameters["path"] = customPath;
-            c.Parameters["username"] = Environment.UserName;
+			c.Parameters["name"] = "tor";
+			string proxyTorPath = Engine.Instance.Options.Get("proxy.tor.path");
+			if (proxyTorPath != "")
+				c.Parameters["path"] = proxyTorPath;
+			string proxyTorControlCookiePath = Engine.Instance.Options.Get("proxy.tor.control.cookie.path");
+			if (proxyTorControlCookiePath != "")
+				c.Parameters["cookie_path"] = proxyTorControlCookiePath;
+			c.Parameters["username"] = Environment.UserName;
 
 			string torInfo = Engine.Instance.Elevated.DoCommandSync(c);
 
 			foreach (string line in torInfo.Split('\n'))
-			{ 
+			{
 				if (line.StartsWithInv("Name:"))
 					m_torProcessName = line.Substring("Name:".Length);
 				if (line.StartsWithInv("Path:"))
@@ -62,10 +65,10 @@ namespace Eddie.Core
 					m_torCookiePath = line.Substring("CookiePath:".Length);
 				if (line.StartsWithInv("CookiePasswordHex:"))
 					m_torCookiePassword = ExtensionsString.HexToBytes(line.Substring("CookiePasswordHex:".Length));
-			} 
+			}
 
-			m_torDetection = true; 
-		} 
+			m_torDetection = true;
+		}
 
 		public static string GetTorExecutablePath()
 		{
@@ -73,73 +76,6 @@ namespace Eddie.Core
 
 			return m_torProcessPath;
 		}
-
-		/*
-		public static string GetTorExecutablePath()
-		{
-			string customPath = Engine.Instance.Options.Get("proxy.tor.path");
-			if (customPath != "")
-			{
-				if (Platform.Instance.FileExists(customPath))
-					return customPath;
-			}
-
-			System.Diagnostics.Process[] processes = Process.GetProcessesByName("tor");
-			if (processes.Length > 0)
-			{
-				return processes[0].MainModule.FileName;
-			}
-			return "";
-		}
-		
-		public static string GetControlAuthCookiePath()
-		{			
-			string executablePath = GetTorExecutablePath();
-
-			if (executablePath != "")
-			{
-				// Tor Browser Bundle, Unix and Windows at 10/16/2014				
-				string path1 = Platform.Instance.NormalizePath(new FileInfo(executablePath).Directory.Parent.FullName + "/Data/Tor/control_auth_cookie");
-				if (Platform.Instance.FileExists(path1))
-					return path1;
-
-				string path2 = Platform.Instance.NormalizePath(Environment.GetEnvironmentVariable("APPDATA") + "/tor/control_auth_cookie");
-				if (Platform.Instance.FileExists(path2))
-					return path2;
-			}
-
-			{
-				// Unix
-				string path = "/var/run/tor/control.authcookie";
-				if (Platform.Instance.FileExists(path))
-					return path;
-			}
-
-			{
-				// Unix
-				string path = "/var/lib/tor/control_auth_cookie";
-				if (Platform.Instance.FileExists(path))
-					return path;
-			} 
-
-			{
-				// macOS, TorBrowser 4.0 and above
-				string path = "/Applications/TorBrowser.app/TorBrowser/Data/Tor/control_auth_cookie";
-				if (Platform.Instance.FileExists(path))
-					return path;
-			}
-
-			{
-				// macOS, TorBrowser 6.0
-				string path = "/Users/" + Environment.UserName + "/Library/Application Support/TorBrowser-Data/Tor/control_auth_cookie";
-				if (Platform.Instance.FileExists(path))
-					return path;
-			}
-
-			// Not found
-			return "";			
-		}
-		*/
 
 		public static void Connect(TcpClient client)
 		{
@@ -159,18 +95,18 @@ namespace Eddie.Core
 
 			byte[] password = System.Text.Encoding.ASCII.GetBytes(controlPassword);
 
-			if (controlAuthenticate) 
+			if (controlAuthenticate)
 			{
 				if (controlPassword == "")
 				{
 					Init();
 
-					if(m_torCookiePath == "")					
+					if (m_torCookiePath == "")
 						throw new Exception(LanguageManager.GetText("TorControlNoPath"));
 
 					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("TorControlAuth", "Cookie, from " + m_torCookiePath));
 
-					password = m_torCookiePassword; 
+					password = m_torCookiePassword;
 				}
 				else
 				{
@@ -218,9 +154,9 @@ namespace Eddie.Core
 					}
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				result = LanguageManager.GetText("TorControlException", e.Message);
+				result = LanguageManager.GetText("TorControlException", ex.Message);
 			}
 
 			Engine.Instance.Logs.Log(LogType.Verbose, "Tor Test: " + result);
@@ -256,9 +192,9 @@ namespace Eddie.Core
 					return result;
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				result = LanguageManager.GetText("TorControlException", e.Message);
+				result = LanguageManager.GetText("TorControlException", ex.Message);
 			}
 
 			Engine.Instance.Logs.Log(LogType.Verbose, "Tor Test: " + result);
@@ -358,10 +294,10 @@ namespace Eddie.Core
 					}
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
 				//throw new Exception(LanguageManager.GetText("TorControlException, e.Message));
-				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("TorControlException", e.Message));
+				Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("TorControlException", ex.Message));
 			}
 
 			m_lastGuardIps = ips;

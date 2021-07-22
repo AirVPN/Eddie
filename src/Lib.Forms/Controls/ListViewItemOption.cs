@@ -25,10 +25,10 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Controls
 {
-    public class ListViewItemOption : ListViewItem
-    {
+	public class ListViewItemOption : ListViewItem
+	{
 		public Option Option;
 
-        
-    }
+
+	}
 }

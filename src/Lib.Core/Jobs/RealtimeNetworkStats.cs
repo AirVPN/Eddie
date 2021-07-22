@@ -41,7 +41,7 @@ namespace Eddie.Core.Jobs
 		public override void OnRun()
 		{
 			// Fetch
-			int ts = Utils.UnixTimeStamp();
+			Int64 ts = Utils.UnixTimeStamp();
 
 			Json realtimeData = Platform.Instance.GetRealtimeNetworkStats();
 
@@ -77,23 +77,23 @@ namespace Eddie.Core.Jobs
 							deltaBytesSnd = (totalBytesSnd - m_data[id]["total_snd"].ValueInt64) / delta;
 						}
 
-						if( (Engine.Instance.ConnectionActive != null) && (Engine.Instance.ConnectionActive.Interface != null) && (id == Engine.Instance.ConnectionActive.Interface.Id) && (Engine.Instance.IsConnected()) ) // Old UI
+						if ((Engine.Instance.Connection != null) && (Engine.Instance.Connection.Interface != null) && (id == Engine.Instance.Connection.Interface.Id) && (Engine.Instance.IsConnected())) // Old UI
 						{
-							Engine.Instance.SessionStatsRead += deltaBytesRcv;
-							Engine.Instance.SessionStatsWrite += deltaBytesSnd;
-							Engine.Instance.ConnectionActive.BytesLastDownloadStep = deltaBytesRcv;
-							Engine.Instance.ConnectionActive.BytesLastUploadStep = deltaBytesSnd;
-							Engine.Instance.ConnectionActive.BytesRead += deltaBytesRcv;
-							Engine.Instance.ConnectionActive.BytesWrite += deltaBytesSnd;
+							Engine.Instance.Session.StatsRead += deltaBytesRcv;
+							Engine.Instance.Session.StatsWrite += deltaBytesSnd;
+							Engine.Instance.Connection.BytesLastDownloadStep = deltaBytesRcv;
+							Engine.Instance.Connection.BytesLastUploadStep = deltaBytesSnd;
+							Engine.Instance.Connection.BytesRead += deltaBytesRcv;
+							Engine.Instance.Connection.BytesWrite += deltaBytesSnd;
 
-							Engine.Instance.Stats.Charts.Hit(deltaBytesRcv, deltaBytesSnd); 
+							Engine.Instance.Stats.Charts.Hit(deltaBytesRcv, deltaBytesSnd);
 
 							Engine.Instance.OnRefreshUi(Core.Engine.RefreshUiMode.Stats);
 
 							Engine.Instance.RaiseStatus();
-						}						
+						}
 					}
-					
+
 					m_data[id]["live"].Value = true;
 					m_data[id]["total_rcv"].Value = totalBytesRcv;
 					m_data[id]["total_snd"].Value = totalBytesSnd;
@@ -103,11 +103,11 @@ namespace Eddie.Core.Jobs
 
 			foreach (KeyValuePair<string, object> kp in m_data.GetDictionary())
 			{
-                if (m_data[kp.Key]["live"].ValueBool == false)
-                {
-                    m_data.RemoveKey(kp.Key);
-                    break; // One at time, to bypass collection modification error.
-                }
+				if (m_data[kp.Key]["live"].ValueBool == false)
+				{
+					m_data.RemoveKey(kp.Key);
+					break; // One at time, to bypass collection modification error.
+				}
 			}
 
 			m_timeEvery = 1000;
@@ -120,7 +120,7 @@ namespace Eddie.Core.Jobs
 
 		public Json GetData()
 		{
-			lock(m_data)
+			lock (m_data)
 			{
 				return m_data.Clone();
 			}

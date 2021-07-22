@@ -141,7 +141,7 @@ namespace Eddie.Core
 			}
 		}
 
-		
+
 
 		// ------------
 		// Misc

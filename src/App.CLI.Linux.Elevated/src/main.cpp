@@ -27,6 +27,6 @@
 int main(int argc, char* argv[])
 {
 	Impl c;
-    return c.AppMain(argc, argv);
+	return c.AppMain(argc, argv);
 }
 

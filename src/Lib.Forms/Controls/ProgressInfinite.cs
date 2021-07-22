@@ -25,50 +25,50 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Controls
 {
-    public class ProgressInfinite : System.Windows.Forms.Label
-    {
+	public class ProgressInfinite : System.Windows.Forms.Label
+	{
 		private int m_step = 1;
 		private Timer m_timer;
 
 		public ProgressInfinite()
-        {            
-        }
+		{
+		}
 
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
+		protected override void OnCreateControl()
+		{
+			base.OnCreateControl();
 
 			BackColor = Color.Transparent;
 			BackgroundImage = null;
-            BackgroundImageLayout = ImageLayout.Stretch;
-            
-            FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			BackgroundImageLayout = ImageLayout.Stretch;
+
+			FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
 			m_timer = new Timer();
-			m_timer.Interval = 50;			
+			m_timer.Interval = 50;
 			m_timer.Tick += new EventHandler(OnTimerTick);
 			m_timer.Enabled = true;
 			m_timer.Start();
-        }
+		}
 
 		void OnTimerTick(object sender, EventArgs e)
 		{
-			if(this.Visible)
+			if (this.Visible)
 				Invalidate();
 		}
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
+		protected override void OnPaint(PaintEventArgs e)
+		{
 			m_step++;
 			if (m_step == 11)
 				m_step = 1;
-            //base.OnPaint(pevent);
-			
-            Rectangle r = ClientRectangle;
+			//base.OnPaint(pevent);
 
-			Image img = GuiUtils.GetResourceImage("progress" + String.Format("{0:00}",m_step));
+			Rectangle r = ClientRectangle;
+
+			Image img = GuiUtils.GetResourceImage("progress" + String.Format("{0:00}", m_step));
 
 			Form.DrawImage(e.Graphics, img, r);
-        }
-    }
+		}
+	}
 }

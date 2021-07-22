@@ -41,7 +41,7 @@ namespace Eddie.Core
 		public static string GetPath()
 		{
 			string pathRoot = Platform.Instance.NormalizePath(Engine.Instance.LocateResource("webui"));
-            if (pathRoot != "")
+			if (pathRoot != "")
 				return pathRoot;
 			else
 				return "";
@@ -75,13 +75,13 @@ namespace Eddie.Core
 							var context = c as HttpListenerContext;
 							try
 							{
-                                SendResponse(context);		
+								SendResponse(context);
 							}
-                            catch(Exception ex)
-                            {
-                                Engine.Instance.Logs.Log(ex);
-                                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            }
+							catch (Exception ex)
+							{
+								Engine.Instance.Logs.Log(ex);
+								context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+							}
 							finally
 							{
 								context.Response.OutputStream.Close();
@@ -89,9 +89,9 @@ namespace Eddie.Core
 						}, m_listener.GetContext());
 					}
 				}
-                catch (Exception)
-                {                    
-                }
+				catch (Exception)
+				{
+				}
 			});
 		}
 
@@ -126,14 +126,14 @@ namespace Eddie.Core
 					if (mime != "")
 						response.ContentType = mime;
 
-					if( (mime.StartsWithInv("text/")) || (mime == "application/javascript") )
+					if ((mime.StartsWithInv("text/")) || (mime == "application/javascript"))
 						response.ContentEncoding = Encoding.UTF8;
 				}
 
-                response.StatusCode = (int)HttpStatusCode.OK;
-                response.StatusDescription = "OK";
+				response.StatusCode = (int)HttpStatusCode.OK;
+				response.StatusDescription = "OK";
 
-                byte[] buffer = new byte[64 * 1024];
+				byte[] buffer = new byte[64 * 1024];
 				int read;
 				using (BinaryWriter bw = new BinaryWriter(response.OutputStream))
 				{
@@ -146,7 +146,7 @@ namespace Eddie.Core
 					bw.Close();
 				}
 
-                
+
 				response.OutputStream.Close();
 			}
 		}
@@ -176,11 +176,11 @@ namespace Eddie.Core
 				requestHeaders[key.ToLowerInvariant()] = context.Request.Headers[key];
 			string requestHttpMethod = context.Request.HttpMethod.ToLowerInvariant().Trim();
 
-			context.Response.Headers["Server"] = Constants.Name + " " + Constants.VersionShow;
+			context.Response.Headers["Server"] = Constants.Name + " " + Engine.Instance.GetVersionShow();
 			context.Response.Headers["Access-Control-Allow-Origin"] = ListenUrl;
 			context.Response.Headers["Vary"] = "Origin";
 
-			foreach(KeyValuePair<string, object> jsonHeader in Engine.Instance.Manifest["webserver"]["headers"]["common"].Json.GetDictionary())
+			foreach (KeyValuePair<string, object> jsonHeader in Engine.Instance.Manifest["webserver"]["headers"]["common"].Json.GetDictionary())
 			{
 				string k = jsonHeader.Key;
 				string v = (jsonHeader.Value as string);
@@ -188,7 +188,7 @@ namespace Eddie.Core
 			}
 
 			string origin = context.Request.Headers["Origin"];
-			if( (requestHeaders.ContainsKey("origin")) && (requestHeaders["origin"].StartsWith(ListenUrl) == false))
+			if ((requestHeaders.ContainsKey("origin")) && (requestHeaders["origin"].StartsWith(ListenUrl) == false))
 			{
 				List<string> hostsAllowed = new List<string>(); // Option?
 				hostsAllowed.Add("127.0.0.1");
@@ -202,12 +202,12 @@ namespace Eddie.Core
 			}
 
 			if (requestHttpMethod == "options")
-			{				
+			{
 				Engine.Instance.Logs.LogVerbose(origin);
 				context.Response.StatusCode = (int)HttpStatusCode.NoContent;
 			}
 
-			if(context.Request.Url.AbsolutePath == "/api/command/")
+			if (context.Request.Url.AbsolutePath == "/api/command/")
 			{
 				if (requestHttpMethod == "post")
 				{
@@ -266,7 +266,7 @@ namespace Eddie.Core
 				}
 			}
 
-			if(bodyResponse != "") // Always dynamic
+			if (bodyResponse != "") // Always dynamic
 			{
 				context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
 				context.Response.Headers["Pragma"] = "no-cache";

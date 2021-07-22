@@ -27,7 +27,7 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	public partial class WindowProviderEditManifestController : AppKit.NSWindowController
 	{
-		public Provider Provider;
+		public Core.Providers.IProvider Provider;
 
 		#region Constructors
 

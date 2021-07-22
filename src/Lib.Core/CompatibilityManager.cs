@@ -28,21 +28,21 @@ namespace Eddie.Core
 	public class CompatibilityManager
 	{
 		public static void Profiles(string pathApp, string pathData)
-        {
-            if (Engine.Instance.Elevated != null)
-            {
-                string owner = Environment.UserName;
+		{
+			if (Engine.Instance.Elevated != null)
+			{
+				string owner = Environment.UserName;
 
-                Elevated.Command command = new Elevated.Command();
-                command.Parameters["command"] = "compatibility-profiles";
-                command.Parameters["path-app"] = pathApp;
-                command.Parameters["path-data"] = pathData;
-                command.Parameters["owner"] = owner;
-                command.DoSync();
-            }
-        }
+				Elevated.Command command = new Elevated.Command();
+				command.Parameters["command"] = "compatibility-profiles";
+				command.Parameters["path-app"] = pathApp;
+				command.Parameters["path-data"] = pathData;
+				command.Parameters["owner"] = owner;
+				command.DoSync();
+			}
+		}
 
-        public static void WindowsRemoveTask()
+		public static void WindowsRemoveTask()
 		{
 			Elevated.Command command = new Elevated.Command();
 			command.Parameters["command"] = "compatibility-remove-task";
@@ -59,40 +59,7 @@ namespace Eddie.Core
 
 		public static void AfterProfile()
 		{
-			if (Platform.IsWindows())
-			{
-				// < 2.9 - Old Windows Firewall original backup rules path
-				string oldPathRulesBackupFirstTime = Engine.Instance.GetPathInData("winfirewallrulesorig.wfw");
-				string newPathRulesBackupFirstTime = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
-				if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
-				{
-					if (Platform.Instance.FileExists(newPathRulesBackupFirstTime))
-						Platform.Instance.FileDelete(oldPathRulesBackupFirstTime);
-					else
-						Platform.Instance.FileMove(oldPathRulesBackupFirstTime, newPathRulesBackupFirstTime);
-				}
-
-				string oldPathRulesBackupSession = Engine.Instance.GetPathInData("winfirewallrules.wfw");
-				string newPathRulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_backup.airvpn";
-				if (Platform.Instance.FileExists(oldPathRulesBackupFirstTime))
-				{
-					if (Platform.Instance.FileExists(newPathRulesBackupSession))
-						Platform.Instance.FileDelete(oldPathRulesBackupSession);
-					else
-						Platform.Instance.FileMove(oldPathRulesBackupSession, newPathRulesBackupSession);
-				}
-			}
-
-			if (Platform.Instance.IsLinuxSystem())
-			{
-				// < 2.11 - Old file name
-				if (Platform.Instance.FileExists("/etc/resolv.conf.airvpn"))
-					Platform.Instance.FileDelete("/etc/resolv.conf.airvpn");
-
-				// A bug in old experimental 2.11 cause the set of immutable flag in rare cases.
-				if (Platform.Instance.FileImmutableGet("/etc/resolv.conf"))
-					Platform.Instance.FileImmutableSet("/etc/resolv.conf", false);            
-			}
+			Platform.Instance.CompatibilityAfterProfile();
 
 			// < 2.9 - New certificate for SSL connections
 			if (Engine.Instance.IsLogged())
@@ -107,6 +74,21 @@ namespace Eddie.Core
 					if (Engine.Instance.AirVPN.User.GetAttributeString("tls_crypt", "") == "")
 					{
 						Engine.Instance.ReAuth();
+					}
+				}
+			}
+
+			// WireGuard
+			if (Platform.Instance.GetSupportWireGuard())
+			{
+				if (Engine.Instance.IsLogged())
+				{
+					if (Engine.Instance.AirVPN != null)
+					{
+						if (Engine.Instance.AirVPN.User.GetAttributeString("wg_public_key", "") == "")
+						{
+							Engine.Instance.ReAuth();
+						}
 					}
 				}
 			}
@@ -132,6 +114,12 @@ namespace Eddie.Core
 					}
 				}
 			}
+		}
+
+		public static void FixOptions(Options options)
+		{
+			if (options.Get("mode.protocol") == "AUTO")
+				options.Set("mode.type", "auto");
 		}
 
 		public static void FixOption(ref string name, ref string value)
@@ -243,11 +231,19 @@ namespace Eddie.Core
 			else if (name == "netlock.allowed_ips")
 			{
 				name = "netlock.whitelist.outgoing.ips";
-			}		
-            else if (name == "gui.tos")
-            {
-                name = "";
-            }
+			}
+			else if (name == "gui.tos")
+			{
+				name = "";
+			}
+			else if (name == "windows.dns.force_all_interfaces") // <2.21
+			{
+				name = "dns.interfaces.types";
+				if (Conversions.ToBool(value))
+					value = "all";
+				else
+					value = "auto";
+			}
 
 #if (EDDIE3)
             if (name == "dns.check") // < 3.0
@@ -259,7 +255,7 @@ namespace Eddie.Core
                 name = "providers.AirVPN.tunnel.check";
             }
 #endif
-        }
+		}
 
 		public static void FixProviderStorage(XmlDocument e)
 		{
@@ -281,13 +277,13 @@ namespace Eddie.Core
 		public static void FixOldProfilePath(string newPath)
 		{
 			if (Platform.Instance.FileExists(newPath))
-				return;			
+				return;
 
-			if( (newPath.EndsWith("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile","AirVPN.xml"))) )
+			if ((newPath.EndsWith("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile", "AirVPN.xml"))))
 				Platform.Instance.FileMove(newPath.Replace("default.profile", "AirVPN.xml"), newPath.Replace("default.profile", "default.xml"));
 
 			if ((newPath.EndsWith("default.profile")) && (Platform.Instance.FileExists(newPath.Replace("default.profile", "default.xml"))))
-			{				
+			{
 				byte[] content = Platform.Instance.FileContentsReadBytes(newPath.Replace("default.profile", "default.xml"));
 				Platform.Instance.FileContentsWriteBytes(newPath, Storage.EncodeFormat("v2n", RandomGenerator.GetRandomId64(), content, Constants.PasswordIfEmpty));
 				Platform.Instance.FileDelete(newPath.Replace("default.profile", "default.xml"));
@@ -316,7 +312,7 @@ namespace Eddie.Core
 					foreach (XmlElement xmlProvider in xmlProviders.ChildNodes)
 					{
 						xmlProvider.SetAttribute("type", xmlProvider.Name);
-						xmlProvider.SetAttribute("json-convert-name", "provider");						
+						xmlProvider.SetAttribute("json-convert-name", "provider");
 					}
 				}
 			}

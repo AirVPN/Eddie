@@ -25,17 +25,17 @@ using Eddie.Core;
 
 namespace Eddie.Forms
 {
-    public class Form : System.Windows.Forms.Form
-    {
-        public static Skin.SkinReference Skin = new Eddie.Forms.Skin.SkinReference();
+	public class Form : System.Windows.Forms.Form
+	{
+		public static Skin.SkinReference Skin = new Eddie.Forms.Skin.SkinReference();
 
-        public Form()
-        {
-			if( (Core.Platform.Instance != null) && (Core.Platform.Instance.IsLinuxSystem()) )
-            {
-                this.HandleCreated += (sender, ex) => Mono.XWindowManagers.SetWmClass(Constants.Name, Constants.Name, this.Handle);
-            }
-        }
+		public Form()
+		{
+			if ((Core.Platform.Instance != null) && (Core.Platform.Instance.IsLinuxSystem()))
+			{
+				this.HandleCreated += (sender, ex) => Mono.XWindowManagers.SetWmClass(Constants.Name, Constants.Name, this.Handle);
+			}
+		}
 
 		public static Eddie.Forms.Engine Engine
 		{
@@ -43,17 +43,6 @@ namespace Eddie.Forms
 			{
 				return Engine.Instance as Eddie.Forms.Engine;
 			}
-		}
-
-		public static bool ChangeSkin(string name)
-		{
-			if (Skin.Name != name)
-			{
-				Eddie.Forms.Skin.SkinReference.Load(name);
-				return true;
-			}
-			else
-				return false;
 		}
 
 		public void CommonInit(string Title)
@@ -85,7 +74,7 @@ namespace Eddie.Forms
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-        }
+		}
 
 		protected override void OnPaintBackground(PaintEventArgs e)
 		{
@@ -113,7 +102,7 @@ namespace Eddie.Forms
 
 		public virtual void OnApplySkin()
 		{
-            Skin.Apply(this);
+			Skin.Apply(this);
 		}
 
 		public string GetFormLayout()
@@ -207,7 +196,7 @@ namespace Eddie.Forms
 
 			if (state == "m")
 			{
-				if( (Engine.Instance as Eddie.Forms.Engine).AllowMinimizeInTray() )
+				if ((Engine.Instance as Eddie.Forms.Engine).AllowMinimizeInTray())
 				{
 					this.Visible = false;
 				}

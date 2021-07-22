@@ -35,22 +35,22 @@
 #define MODULE_LZMA_ERROR           -6
 #define MODULE_OUT_OF_MEMORY        -7
 
-/*
- *
- * Function: load_kernel_module
- * ----------------------------
- *  Load a Linux kernel module
- *
- *  interface: int load_kernel_module(const char *module, const char *params)
- *
- *  module: name of module or part of it. In case of partial name, the first
- *          match from modules.dep will be used.
- *  params: optional module parameters
- *
- *  returns: MODULE_LOAD_SUCCESS on success, other MODULE_* in case of error
- *
- */
+ /*
+  *
+  * Function: load_kernel_module
+  * ----------------------------
+  *  Load a Linux kernel module
+  *
+  *  interface: int load_kernel_module(const char *module, const char *params)
+  *
+  *  module: name of module or part of it. In case of partial name, the first
+  *          match from modules.dep will be used.
+  *  params: optional module parameters
+  *
+  *  returns: MODULE_LOAD_SUCCESS on success, other MODULE_* in case of error
+  *
+  */
 
-int load_kernel_module(const char *module, const char *params);
+int load_kernel_module(const char* module, const char* params);
 
 #endif

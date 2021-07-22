@@ -25,17 +25,20 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-	public class SSH : Tool
+	public class SSH : Tools.ITool
 	{
 		public override void OnNormalizeVersion()
 		{
+			base.OnNormalizeVersion();
 			if (Platform.Instance.IsWindowsSystem())
+			{
 				Version = Version.Replace(": Release", "").Trim();
+			}
 		}
 
 		public override string GetFileName()
 		{
-			if(Platform.Instance.IsWindowsSystem())
+			if (Platform.Instance.IsWindowsSystem())
 			{
 				if (Engine.Instance.Options.GetBool("windows.ssh.plink.force"))
 					return "plink.exe";

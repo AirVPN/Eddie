@@ -24,10 +24,10 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class ColumnHeader : System.Windows.Forms.ColumnHeader
-    {
-        public ColumnHeader()
-        {            
-        }
-    }
+	public class ColumnHeader : System.Windows.Forms.ColumnHeader
+	{
+		public ColumnHeader()
+		{
+		}
+	}
 }

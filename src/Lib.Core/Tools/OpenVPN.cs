@@ -25,17 +25,17 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-    public class OpenVPN : Tool
-    {
-        public override void OnNormalizeVersion()
-        {
-            if (Version == "")
-                return;
+	public class OpenVPN : Tools.ITool
+	{
+		public override void OnNormalizeVersion()
+		{
+			if (Version == "")
+				return;
 
-            string ver = Version.ExtractBetween("OpenVPN ", " ");
-            string libs = Version.ExtractBetween("library versions:", "\n").Trim();
-            Version = ver + " - " + libs;
-        }
+			string ver = Version.ExtractBetween("OpenVPN ", " ");
+			string libs = Version.ExtractBetween("library versions:", "\n").Trim();
+			Version = ver + " - " + libs;
+		}
 
 		public override void ExceptionIfRequired()
 		{
@@ -44,18 +44,18 @@ namespace Eddie.Core.Tools
 		}
 
 		public override string GetFileName()
-        {
-            if (Platform.Instance.IsWindowsSystem())
-            {
-                return "openvpn.exe";
-            }
-            else
-                return base.GetFileName();
-        }
+		{
+			if (Platform.Instance.IsWindowsSystem())
+			{
+				return "openvpn.exe";
+			}
+			else
+				return base.GetFileName();
+		}
 
-        public override string GetVersionArgument()
-        {
-            return "--version";
-        }
-    }
+		public override string GetVersionArgument()
+		{
+			return "--version";
+		}
+	}
 }

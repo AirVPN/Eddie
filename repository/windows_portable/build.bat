@@ -74,7 +74,7 @@ del %VARTARGETDIR%\*.config 2> nul
 del %VARTARGETDIR%\temp.* 2> nul
 del %VARTARGETDIR%\Recovery.xml 2> nul
 del %VARTARGETDIR%\mono_crash.* 2> nul
-rmdir /s /q %VARTARGETDIR%\res\providers
+rem rmdir /s /q %VARTARGETDIR%\res\providers
 
 IF "%VARPROJECT%"=="cli" (
 	rmdir /s /q %VARTARGETDIR%\res\webui

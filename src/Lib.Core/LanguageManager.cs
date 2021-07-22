@@ -64,31 +64,31 @@ namespace Eddie.Core
 
 		public static Json GetJsonForManifest()
 		{
-            Json jData = new Json();
+			Json jData = new Json();
 
-            foreach (CultureInfo currentCulture in CultureInfo.GetCultures(CultureTypes.AllCultures))
+			foreach (CultureInfo currentCulture in CultureInfo.GetCultures(CultureTypes.AllCultures))
 			{
 				string code = GetCodeFromCulture(currentCulture);
 
-                string parentCulture = "";
-                if (currentCulture.Parent != null)
-                    parentCulture = currentCulture.Parent.Name;
+				string parentCulture = "";
+				if (currentCulture.Parent != null)
+					parentCulture = currentCulture.Parent.Name;
 
-                Json jCulture = new Json();
-                jCulture["code"].Value = currentCulture.Name;
-                jCulture["parent"].Value = parentCulture;
-                jCulture["display_name"].Value = currentCulture.DisplayName;
-                jCulture["english_name"].Value = currentCulture.EnglishName;
-                jCulture["neutral"].Value = currentCulture.IsNeutralCulture; 
-                if (Messages[code].Count != 0)
+				Json jCulture = new Json();
+				jCulture["code"].Value = currentCulture.Name;
+				jCulture["parent"].Value = parentCulture;
+				jCulture["display_name"].Value = currentCulture.DisplayName;
+				jCulture["english_name"].Value = currentCulture.EnglishName;
+				jCulture["neutral"].Value = currentCulture.IsNeutralCulture;
+				if (Messages[code].Count != 0)
 				{
-                    jCulture["items"].Value = new Json();
+					jCulture["items"].Value = new Json();
 					foreach (KeyValuePair<string, string> itemPair in Messages[code])
 					{
 						jCulture["items"][itemPair.Key].Value = itemPair.Value;
 					}
-                }
-                jData[code].Value = jCulture;
+				}
+				jData[code].Value = jCulture;
 			}
 
 			return jData;
@@ -111,25 +111,25 @@ namespace Eddie.Core
 				else
 					Culture = new CultureInfo(iso);
 			}
-			catch(Exception e)
+			catch (Exception ex)
 			{
-				Engine.Instance.Logs.Log(e);
+				Engine.Instance.Logs.Log(ex);
 				Culture = CultureInfo.InvariantCulture;
 			}
 		}
 
 		public static string GetText(string id)
 		{
-            string tempString = GetTextTemp(id);
-            if (tempString != "")
-                return tempString;
+			string tempString = GetTextTemp(id);
+			if (tempString != "")
+				return tempString;
 
 			CultureInfo currentCulture = Culture;
 			for (; ; )
 			{
 				string code = GetCodeFromCulture(currentCulture);
 
-				if( (Messages.ContainsKey(code)) && (Messages[code].ContainsKey(id)) )
+				if ((Messages.ContainsKey(code)) && (Messages[code].ContainsKey(id)))
 					return Messages[code][id];
 
 				if (code == "inv")
@@ -191,7 +191,7 @@ namespace Eddie.Core
 		public static string FormatText(string f, string param1)
 		{
 			string o = f;
-			o = o.Replace("{1}", param1);			
+			o = o.Replace("{1}", param1);
 			return o;
 		}
 
@@ -313,14 +313,11 @@ namespace Eddie.Core
 			return dt.ToShortDateString() + " - " + dt.ToShortTimeString();
 		}
 
-        public static string GetTextTemp(string id)
-        {
-			// Hardcoded string that need to be moved in language system
-			//if (id == "StatsVpnDataChannel") return "VPN Data Channel";
-
-			if (id == "LogsDisabledForError") return "Log to file disabled due to error, {1}";
+		public static string GetTextTemp(string id)
+		{
+			// Hardcoded string that need to be moved in language system			            
 
 			return "";
-        }
-    }
+		}
+	}
 }

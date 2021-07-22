@@ -22,8 +22,8 @@ using System.Text;
 
 namespace Eddie.Core.ConsoleEdition
 {
-    public class UiClient : Core.UiClient
-    {
+	public class UiClient : Core.UiClient
+	{
 		public static UiClient Instance;
 
 		public Engine Engine;
@@ -32,22 +32,22 @@ namespace Eddie.Core.ConsoleEdition
 		{
 			Instance = this;
 
-            base.Init(environmentCommandLine);
+			base.Init(environmentCommandLine);
 
 			if (Engine == null)
 				Engine = new Engine(environmentCommandLine);
 
-            Engine.UiManager.Add(this);
+			Engine.UiManager.Add(this);
 
-            Engine.Start();
+			Engine.Start();
 
-            return true;
+			return true;
 		}
 
-		public void OnUnhandledException(string source, Exception e)
+		public void OnUnhandledException(string source, Exception ex)
 		{
 			if (Engine != null)
-				Engine.OnUnhandledException(source, e);
+				Engine.OnUnhandledException(source, ex);
 		}
 	}
 }

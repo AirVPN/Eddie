@@ -25,12 +25,13 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-	public class Curl : Tool
+	public class Curl : Tools.ITool
 	{
 		public string minVersionRequired = "7.21.7";
 
 		public override void OnNormalizeVersion()
 		{
+			base.OnNormalizeVersion();
 			Version = ExtensionsString.RegExMatchOne(Version, "^curl\\s(.*?)\\s");
 		}
 
@@ -83,7 +84,7 @@ namespace Eddie.Core.Tools
 				{
 					if (dataParameters != "")
 						dataParameters += "&";
-					dataParameters += SystemShell.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(request.Parameters[k]);
+					dataParameters += SystemExec.EscapeAlphaNumeric(k) + "=" + Uri.EscapeUriString(request.Parameters[k]);
 				}
 			}
 
@@ -114,12 +115,12 @@ namespace Eddie.Core.Tools
 
 				if (proxyMode == "http")
 				{
-					args += " --proxy http://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
+					args += " --proxy http://" + SystemExec.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
 				}
 				else if (proxyMode == "socks")
 				{
 					// curl support different types of proxy. OpenVPN not, only socks5. So, it's useless to support other kind of proxy here.
-					args += " --proxy socks5://" + SystemShell.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
+					args += " --proxy socks5://" + SystemExec.EscapeHost(proxyHost) + ":" + proxyPort.ToString();
 				}
 
 				if ((proxyMode != "none") && (proxyAuth != "none"))
@@ -129,24 +130,24 @@ namespace Eddie.Core.Tools
 					else if (proxyAuth == "ntlm")
 						args += " --proxy-ntlm";
 
-					if (SystemShell.EscapeInsideQuoteAcceptable(proxyLogin) == false)
+					if (SystemExec.EscapeInsideQuoteAcceptable(proxyLogin) == false)
 						throw new Exception(LanguageManager.GetText("UnacceptableCharacters", "Proxy Login"));
 
-					if (SystemShell.EscapeInsideQuoteAcceptable(proxyPassword) == false)
+					if (SystemExec.EscapeInsideQuoteAcceptable(proxyPassword) == false)
 						throw new Exception(LanguageManager.GetText("UnacceptableCharacters", "Proxy Password"));
 
 					if ((proxyLogin != "") && (proxyPassword != ""))
-						args += " --proxy-user \"" + SystemShell.EscapeInsideQuote(proxyLogin) + "\":\"" + SystemShell.EscapeInsideQuote(proxyPassword) + "\"";
+						args += " --proxy-user \"" + SystemExec.EscapeInsideQuote(proxyLogin) + "\":\"" + SystemExec.EscapeInsideQuote(proxyPassword) + "\"";
 				}
 			}
 
-			args += " \"" + SystemShell.EscapeUrl(request.Url) + "\"";
+			args += " \"" + SystemExec.EscapeUrl(request.Url) + "\"";
 			args += " -sS"; // -s Silent mode, -S with errors
 			args += " --max-time " + Engine.Instance.Options.GetInt("http.timeout").ToString();
 
 			string pathCacert = Engine.Instance.LocateResource("cacert.pem");
-			if(pathCacert != "")
-				args += " --cacert \"" + SystemShell.EscapePath(pathCacert) + "\"";
+			if (pathCacert != "")
+				args += " --cacert \"" + SystemExec.EscapePath(pathCacert) + "\"";
 
 			if (request.ForceResolve != "")
 				args += " --resolve " + request.ForceResolve;
@@ -157,20 +158,20 @@ namespace Eddie.Core.Tools
 			if (request.IpLayer == "4")
 				args += " -4";
 			if (request.IpLayer == "6")
-				args += " -6"; 
+				args += " -6";
 
 			args += " -i";
 
-            // http-100-continue issue: the body above are parsed uncorrectly. 2.19.1
-            // Workaround: for now, force header to avoid
-            args += " -H 'Expect:'";
+			// http-100-continue issue: the body above are parsed uncorrectly. 2.19.1
+			// Workaround: for now, force header to avoid
+			args += " -H 'Expect:'";
 
 			string error = "";
 			try
 			{
-				using(Process p = new Process())
+				using (Process p = new Process())
 				{
-					p.StartInfo.FileName = SystemShell.EscapePath(this.GetPath());
+					p.StartInfo.FileName = SystemExec.EscapePath(this.GetPath());
 					p.StartInfo.Arguments = args;
 					p.StartInfo.WorkingDirectory = "";
 
@@ -181,30 +182,30 @@ namespace Eddie.Core.Tools
 					p.StartInfo.RedirectStandardError = true;
 
 					p.Start();
-					
+
 					{
-						using(System.IO.MemoryStream Stream = new System.IO.MemoryStream())
+						using (System.IO.MemoryStream Stream = new System.IO.MemoryStream())
 						{
 							byte[] bufferHeader = default(byte[]);
 
 							using (System.IO.MemoryStream StreamHeader = new System.IO.MemoryStream())
 							{
-								using(System.IO.MemoryStream StreamBody = new System.IO.MemoryStream())
+								using (System.IO.MemoryStream StreamBody = new System.IO.MemoryStream())
 								{
 									byte[] buffer = new byte[4096];
 									int read;
-									while((read = p.StandardOutput.BaseStream.Read(buffer, 0, buffer.Length)) > 0)
+									while ((read = p.StandardOutput.BaseStream.Read(buffer, 0, buffer.Length)) > 0)
 									{
 										Stream.Write(buffer, 0, read);
 									}
 
-									if(Stream.Length >= 4)
+									if (Stream.Length >= 4)
 									{
 										byte[] buffer2 = Stream.ToArray();
 										int i = 0;
-										for(; i < Stream.Length - 4; i++)
+										for (; i < Stream.Length - 4; i++)
 										{
-											if((buffer2[i] == 13) && (buffer2[i + 1] == 10) && (buffer2[i + 2] == 13) && (buffer2[i + 3] == 10))
+											if ((buffer2[i] == 13) && (buffer2[i + 1] == 10) && (buffer2[i + 2] == 13) && (buffer2[i + 3] == 10))
 											{
 												StreamHeader.Write(buffer2, 0, i);
 												StreamBody.Write(buffer2, i + 4, (int)Stream.Length - i - 4);
@@ -212,7 +213,7 @@ namespace Eddie.Core.Tools
 											}
 										}
 
-										if(StreamHeader.Length == 0)
+										if (StreamHeader.Length == 0)
 											StreamHeader.Write(buffer2, 0, (int)Stream.Length);
 									}
 									else
@@ -222,16 +223,20 @@ namespace Eddie.Core.Tools
 
 									bufferHeader = StreamHeader.ToArray();
 									response.BufferData = StreamBody.ToArray();
-								}								
-							}							
+								}
+							}
 
 							string headers = System.Text.Encoding.ASCII.GetString(bufferHeader);
 							string[] headersLines = headers.Split('\n');
-							for(int l = 0; l < headersLines.Length; l++)
+							for (int l = 0; l < headersLines.Length; l++)
 							{
 								string line = headersLines[l];
 								if (l == 0)
+								{
 									response.Status = line.Trim();
+									string httpCodeStr = line.RegExMatchOne("HTTP/.+\\s(\\d+?)\\s");
+									response.HttpCode = Conversions.ToInt32(httpCodeStr);
+								}
 								else
 								{
 									int posSep = line.IndexOfInv(":");
@@ -252,9 +257,9 @@ namespace Eddie.Core.Tools
 					p.WaitForExit();
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				error = e.Message;
+				error = ex.Message;
 			}
 
 			programScope.End();

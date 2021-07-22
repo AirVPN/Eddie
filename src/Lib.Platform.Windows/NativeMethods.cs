@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.ServiceProcess;
 using System.Text;
 using System.Xml;
 using Eddie.Core;
@@ -49,12 +48,26 @@ namespace Eddie.Platform.Windows
 		}
 
 		[DllImport(NativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		private static extern UInt32 eddie_service_status(string serviceId);
+		public static UInt32 GetServiceStatus(string serviceId)
+		{
+			return eddie_service_status(serviceId);
+		}
+
+		[DllImport(NativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		private static extern bool eddie_is_process_elevated();
+		public static bool IsProcessElevated()
+		{
+			return eddie_is_process_elevated();
+		}
+
+		[DllImport(NativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
 		public static Json CUrl(Json jRequest)
 		{
 			uint resultMaxLen = 1000 * 1000 * 5;
 			byte[] resultBuf = new byte[resultMaxLen];
-			eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
+			eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf); // TOFIX: occur that lock here with network problem
 			Json jResult;
 			if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
 				return jResult;

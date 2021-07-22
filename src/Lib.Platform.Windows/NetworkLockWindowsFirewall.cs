@@ -19,7 +19,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+#if NETSTANDARD
+#else
 using System.ServiceProcess;
+#endif
 using System.Text;
 using System.Xml;
 using Eddie.Core;
@@ -46,7 +49,7 @@ namespace Eddie.Platform.Windows
 			string regkey = GetRegPath();
 
 			/* < 2.11
-			string report = Platform.Instance.ShellCmd("netsh advfirewall show " + id);
+			string report = Platform.Instance.ExecCmd("netsh advfirewall show " + id);
 
 			State = report.IndexOf("ON") != -1;
 
@@ -119,11 +122,11 @@ namespace Eddie.Platform.Windows
 		}
         */
 
-		
+
 
 		public void StateOn()
 		{
-			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " state on");			
+			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " state on");
 		}
 
 		public void StateOff()
@@ -134,14 +137,14 @@ namespace Eddie.Platform.Windows
 		public void NotifyOn()
 		{
 			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 0, RegistryValueKind.DWord);
-			//Platform.Instance.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
+			//Platform.Instance.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "firewall set notifications mode=enable profile=" + GetOldFirewallProfileName());
 			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " settings inboundusernotification enable");
 		}
 
 		public void NotifyOff()
 		{
 			//Registry.SetValue(GetNotificationRegPath(), "DisableNotifications", 1, RegistryValueKind.DWord);
-			//Platform.Instance.Shell1(Platform.Instance.LocateExecutable("netsh.exe"), "firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
+			//Platform.Instance.Exec1(Platform.Instance.LocateExecutable("netsh.exe"), "firewall set notifications mode=disable profile=" + GetOldFirewallProfileName());
 			NetworkLockWindowsFirewall.NetShAdvFirewall("set " + id.Safe() + " settings inboundusernotification disable");
 		}
 
@@ -168,7 +171,7 @@ namespace Eddie.Platform.Windows
 	public class NetworkLockWindowsFirewall : NetworkLockPlugin
 	{
 		private List<NetworkLockWindowsFirewallProfile> Profiles = new List<NetworkLockWindowsFirewallProfile>();
-		private bool m_serviceStatus = false;
+		//private bool m_serviceStatus = false;
 		private bool m_activated = false;
 		private IpAddresses m_lastestIpsWhiteListOutgoing = new IpAddresses();
 
@@ -203,8 +206,9 @@ namespace Eddie.Platform.Windows
 
 			try
 			{
-				// Service
-				{
+				// this work only if UI is elevated. Need update, but this NetLock method is deprecated.
+				/*
+				{					
 					ServiceController service = null;
 					try
 					{
@@ -217,30 +221,31 @@ namespace Eddie.Platform.Windows
 							service.WaitForStatus(ServiceControllerStatus.Running, timeout);
 						}
 					}
-					catch (Exception e)
+					catch (Exception ex)
 					{
 						if (e.Message.Contains("MpsSvc"))
 							throw new Exception(LanguageManager.GetText("NetworkLockWindowsFirewallUnableToStartService"));
 						else
-							throw e;
+							throw ex;
 					}
 					finally
 					{
 						if (service != null)
 							service.Dispose();
-					}
+					}					
 				}
+				*/
 
 				// If 'winfirewall_rules_original.airvpn' doesn't exists, create it. It's a general backup of the first time.
 				// We create this kind of file in Windows System directory, because it's system critical data, and to allow it to survive between re-installation of the software.
 				string rulesBackupFirstTime = Engine.Instance.GetPathInData("winfirewall_rules_original.wfw");
 				if (Platform.Instance.FileExists(rulesBackupFirstTime) == false)
-					NetShAdvFirewall("export \"" + SystemShell.EscapePath(rulesBackupFirstTime) + "\"");
+					NetShAdvFirewall("export \"" + SystemExec.EscapePath(rulesBackupFirstTime) + "\"");
 
 				string rulesBackupSession = Engine.Instance.GetPathInData("winfirewall_rules_backup.wfw");
 				if (Platform.Instance.FileExists(rulesBackupSession))
 					Platform.Instance.FileDelete(rulesBackupSession);
-				NetShAdvFirewall("export \"" + SystemShell.EscapePath(rulesBackupSession) + "\"");
+				NetShAdvFirewall("export \"" + SystemExec.EscapePath(rulesBackupSession) + "\"");
 				if (Platform.Instance.FileExists(rulesBackupSession) == false)
 					throw new Exception(LanguageManager.GetText("NetworkLockWindowsFirewallBackupFailed"));
 
@@ -268,20 +273,20 @@ namespace Eddie.Platform.Windows
 				NetShAdvFirewall("firewall delete rule name=all");
 
 				// Windows Firewall don't work with logical path (a path that contain hardlink)
-				NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program Eddie\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Platform.Instance.GetExecutablePath())) + "\" enable=yes");
+				NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program Eddie\" dir=out action=allow program=\"" + SystemExec.EscapePath(Platform.Instance.FileGetPhysicalPath(Platform.Instance.GetExecutablePath())) + "\" enable=yes");
 
 				if (Engine.Instance.Options.GetLower("proxy.mode") == "tor")
 				{
 					string path = TorControl.GetTorExecutablePath();
 					if (path != "")
 					{
-						NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program Tor\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(path)) + "\" enable=yes");
+						NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program Tor\" dir=out action=allow program=\"" + SystemExec.EscapePath(Platform.Instance.FileGetPhysicalPath(path)) + "\" enable=yes");
 					}
 				}
 
 				// Adding rules are slow, so force at least curl
 				if (Platform.Instance.FetchUrlInternal() == false)
-					NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program curl\" dir=out action=allow program=\"" + SystemShell.EscapePath(Platform.Instance.FileGetPhysicalPath(Software.GetTool("curl").Path)) + "\" enable=yes");
+					NetShAdvFirewall("firewall add rule name=\"Eddie - Out - Program curl\" dir=out action=allow program=\"" + SystemExec.EscapePath(Platform.Instance.FileGetPhysicalPath(Software.GetTool("curl").Path)) + "\" enable=yes");
 
 				if (Engine.Instance.Options.GetBool("netlock.allow_ping") == true)
 				{
@@ -353,7 +358,7 @@ namespace Eddie.Platform.Windows
 				string rulesBackupSession = Engine.Instance.GetPathInData("winfirewall_rules_backup.wfw");
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
-					NetShAdvFirewall("import \"" + SystemShell.EscapePath(rulesBackupSession) + "\"");
+					NetShAdvFirewall("import \"" + SystemExec.EscapePath(rulesBackupSession) + "\"");
 					Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
@@ -363,7 +368,7 @@ namespace Eddie.Platform.Windows
 				string rulesBackupSession = Engine.Instance.GetPathInData("winfirewallrules.wfw");
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
-					NetShAdvFirewall("import \"" + SystemShell.EscapePath(rulesBackupSession) + "\"");
+					NetShAdvFirewall("import \"" + SystemExec.EscapePath(rulesBackupSession) + "\"");
 					Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
@@ -373,7 +378,7 @@ namespace Eddie.Platform.Windows
 				string rulesBackupSession = Environment.SystemDirectory + Platform.Instance.DirSep + "winfirewall_rules_original.airvpn";
 				if (Platform.Instance.FileExists(rulesBackupSession))
 				{
-					NetShAdvFirewall("import \"" + SystemShell.EscapePath(rulesBackupSession) + "\"");
+					NetShAdvFirewall("import \"" + SystemExec.EscapePath(rulesBackupSession) + "\"");
 					Platform.Instance.FileDelete(rulesBackupSession);
 				}
 			}
@@ -388,7 +393,8 @@ namespace Eddie.Platform.Windows
 					profile.NotifyOn();
 			}
 
-			// Service
+			// this work only if UI is elevated. Need update, but this NetLock method is deprecated.
+			/*
 			if (m_serviceStatus == false)
 			{
 				ServiceController service = null;
@@ -405,6 +411,7 @@ namespace Eddie.Platform.Windows
 						service.Dispose();
 				}
 			}
+			*/
 
 			m_lastestIpsWhiteListOutgoing.Clear();
 		}
@@ -420,7 +427,7 @@ namespace Eddie.Platform.Windows
 			// Windows Firewall don't work with logical path (a path that contain hardlink)
 			string physicalPath = Platform.Instance.FileGetPhysicalPath(path);
 
-			NetShAdvFirewall("firewall add rule name=\"Eddie - Out - AllowProgram - " + guid + "\" dir=out action=allow program=\"" + SystemShell.EscapePath(physicalPath) + "\" enable=yes");
+			NetShAdvFirewall("firewall add rule name=\"Eddie - Out - AllowProgram - " + guid + "\" dir=out action=allow program=\"" + SystemExec.EscapePath(physicalPath) + "\" enable=yes");
 		}
 
 		public override void DeallowProgram(string path, string name, string guid)
@@ -458,10 +465,10 @@ namespace Eddie.Platform.Windows
 						if (ipv6 != "")
 							ipv6 += ",";
 						ipv6 += ip.ToCIDR();
-					}					
+					}
 				}
 
-				// TOFIX: If these list are too big, Shell to netsh throw an error (too long). But must be a list of four hundred ips.
+				// TOFIX: If these list are too big, exec to netsh throw an error (too long). But must be a list of four hundred ips.
 				if (m_lastestIpsWhiteListOutgoing.Count != 0)
 				{
 					NetShAdvFirewall("firewall set rule name=\"Eddie - Out - Allow IPv4 IPs\" dir=out new action=allow remoteip=\"" + ipv4 + "\"");
@@ -481,7 +488,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.OnRecoveryLoad(root);
 
-			m_serviceStatus = (root.GetAttribute("service") != "0");
+			//m_serviceStatus = (root.GetAttribute("service") != "0");
 
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 			{
@@ -497,7 +504,7 @@ namespace Eddie.Platform.Windows
 		{
 			base.OnRecoverySave(root);
 
-			root.SetAttribute("service", m_serviceStatus ? "1" : "0");
+			//root.SetAttribute("service", m_serviceStatus ? "1" : "0");
 
 			foreach (NetworkLockWindowsFirewallProfile profile in Profiles)
 			{

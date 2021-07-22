@@ -41,9 +41,9 @@ namespace Eddie.Platform.MacOS
 		private List<DnsSwitchEntry> m_listDnsSwitch = new List<DnsSwitchEntry>();
 		private List<IpV6ModeEntry> m_listIpV6Mode = new List<IpV6ModeEntry>();
 
-        private string m_launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
+		private string m_launchdPath = "/Library/LaunchDaemons/org.airvpn.eddie.ui.elevated.plist";
 
-        /*
+		/*
 		private UnixSignal[] m_signals = new UnixSignal[] {
 			new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
 			new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
@@ -52,8 +52,8 @@ namespace Eddie.Platform.MacOS
 		};
 		*/
 
-        // Override
-        public Platform()
+		// Override
+		public Platform()
 		{
 		}
 
@@ -77,52 +77,52 @@ namespace Eddie.Platform.MacOS
 			base.OnInit();
 
 			if (Engine.Instance.ConsoleMode)
-            {
-                NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
+			{
+				NSApplication.Init(); // Requested in CLI edition to call NSPipe, NSTask etc.
 
-                // NSProcessInfo throw "Value cannot be null. Parameter name: obj" in command-line edition, maybe a Xamarin issue
-                // Mono Environment.* don't provide OS version                
-                m_version = SystemShell.Shell1(LocateExecutable("sw_vers"), "-productVersion").Trim(); // Example output: '10.14.3'
-                m_name = "macOS " + m_version;
-            }
-            else
-            {
-                m_name = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Trim(); // Example output: "Version 10.14.3 (Build 18D109)"
-                m_name = m_name.Replace("Version", "macOS").Trim();
-                if (m_name.IndexOf('(') != -1)
-                    m_name = m_name.Substring(0, m_name.IndexOf('(')).Trim();                
-                m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Replace("Version ", "").Trim();
-            }
-                        
-            m_architecture = base.GetArchitecture();
+				// NSProcessInfo throw "Value cannot be null. Parameter name: obj" in command-line edition, maybe a Xamarin issue
+				// Mono Environment.* don't provide OS version                
+				m_version = SystemExec.Exec1(LocateExecutable("sw_vers"), "-productVersion").Trim(); // Example output: '10.14.3'
+				m_name = "macOS " + m_version;
+			}
+			else
+			{
+				m_name = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Trim(); // Example output: "Version 10.14.3 (Build 18D109)"
+				m_name = m_name.Replace("Version", "macOS").Trim();
+				if (m_name.IndexOf('(') != -1)
+					m_name = m_name.Substring(0, m_name.IndexOf('(')).Trim();
+				m_version = NSProcessInfo.ProcessInfo.OperatingSystemVersionString.Replace("Version ", "").Trim();
+			}
 
-            try
-            {
-                bool result = (NativeMethods.eddie_init() == 0);
-                if (result == false)
-                    throw new Exception("fail");
+			m_architecture = base.GetArchitecture();
 
-                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
-                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
-                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
-                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
-                NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
-            }
-            catch
-            {
-                Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
-                return false;
-            }
+			try
+			{
+				bool result = (NativeMethods.eddie_init() == 0);
+				if (result == false)
+					throw new Exception("fail");
 
-            return true;
+				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGHUP, SignalCallback);
+				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGINT, SignalCallback);
+				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGTERM, SignalCallback);
+				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR1, SignalCallback);
+				NativeMethods.eddie_signal((int)NativeMethods.Signum.SIGUSR2, SignalCallback);
+			}
+			catch
+			{
+				Console.WriteLine("Unable to initialize native library. Maybe a CPU architecture issue.");
+				return false;
+			}
+
+			return true;
 		}
 
 		private static void SignalCallback(int signum)
 		{
 			NativeMethods.Signum sig = (NativeMethods.Signum)signum;
-            if (sig == NativeMethods.Signum.SIGHUP)
-                Engine.Instance.OnSignal("SIGHUP");
-            else if (sig == NativeMethods.Signum.SIGINT)
+			if (sig == NativeMethods.Signum.SIGHUP)
+				Engine.Instance.OnSignal("SIGHUP");
+			else if (sig == NativeMethods.Signum.SIGINT)
 				Engine.Instance.OnSignal("SIGINT");
 			else if (sig == NativeMethods.Signum.SIGTERM)
 				Engine.Instance.OnSignal("SIGTERM");
@@ -143,17 +143,17 @@ namespace Eddie.Platform.MacOS
 			return "home";
 		}
 
-		public override Eddie.Core.Elevated.EleBase StartElevated()
+		public override Eddie.Core.Elevated.IElevated StartElevated()
 		{
-			ElevatedImpl e = new ElevatedImpl();			
+			ElevatedImpl e = new ElevatedImpl();
 			e.Start();
 			return e;
 		}
 
-		public override bool IsAdmin()
+		public override bool IsElevatedPrivileges()
 		{
 			// With root privileges by RootLauncher.cs, Environment.UserName still return the normal username, 'whoami' return 'root'.
-			string u = SystemShell.Shell(LocateExecutable("whoami"), new string[] { }).ToLowerInvariant().Trim();
+			string u = SystemExec.Exec(LocateExecutable("whoami"), new string[] { }).ToLowerInvariant().Trim();
 			// return true; // Uncomment for debugging
 			return (u == "root");
 		}
@@ -165,29 +165,29 @@ namespace Eddie.Platform.MacOS
 
 		protected override string GetElevatedHelperPathImpl()
 		{
-			return FileGetPhysicalPath(GetApplicationPath() + "/eddie-cli-elevated");			
+			return FileGetPhysicalPath(GetApplicationPath() + "/eddie-cli-elevated");
 		}
 
-        public override bool CheckElevatedSocketAllowed(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
-        {
-            return true;
-        }
+		public override bool CheckElevatedSocketAllowed(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
+		{
+			return true;
+		}
 
-        public override bool CheckElevatedProcessAllowed(string remotePath)
-        {
-            // TOFIX
-            /*
+		public override bool CheckElevatedProcessAllowed(string remotePath)
+		{
+			// TOFIX
+			/*
             string localPath = System.Reflection.Assembly.GetEntryAssembly().Location;
             Engine.Instance.Logs.LogVerbose(localPath);
             Engine.Instance.Logs.LogVerbose(remotePath);
 
             string codesignPath = "/usr/bin/codesign"; // Note: absolute path to avoid ENV
-            */            
+            */
 
-            return true;
-        }
+			return true;
+		}
 
-        public override bool GetAutoStart()
+		public override bool GetAutoStart()
 		{
 			return false;
 		}
@@ -209,7 +209,7 @@ namespace Eddie.Platform.MacOS
 
 		protected override bool GetServiceImpl()
 		{
-            return FileExists(m_launchdPath);			
+			return FileExists(m_launchdPath);
 		}
 
 		protected override bool SetServiceImpl(bool value)
@@ -217,17 +217,17 @@ namespace Eddie.Platform.MacOS
 			if (GetServiceImpl() == value)
 				return true;
 
-            if (value)
-            {
-                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, Engine.Instance.ConsoleMode);
-                return (GetService() == true);
-            }
-            else
-            {
-                RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=uninstall" }, Engine.Instance.ConsoleMode);
-                return (GetService() == false);
-            }
-            /*
+			if (value)
+			{
+				RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=install", "service_port=" + Engine.Instance.GetElevatedServicePort() }, Engine.Instance.ConsoleMode);
+				return (GetService() == true);
+			}
+			else
+			{
+				RunProcessAsRoot(GetElevatedHelperPath(), new string[] { "service=uninstall" }, Engine.Instance.ConsoleMode);
+				return (GetService() == false);
+			}
+			/*
 			System.Diagnostics.ProcessStartInfo processStart = new System.Diagnostics.ProcessStartInfo();
 			processStart.Verb = "runas";
 			processStart.CreateNoWindow = true;
@@ -250,7 +250,7 @@ namespace Eddie.Platform.MacOS
                 return (GetService() == false);
 			}
             */
-        }
+		}
 
 		public override string DirSep
 		{
@@ -280,13 +280,13 @@ namespace Eddie.Platform.MacOS
 		public override void FileImmutableSet(string path, bool value)
 		{
 			if ((path == "") || (FileExists(path) == false))
-                return;
+				return;
 
-            if (FileImmutableGet(path) == value)
-                return;
+			if (FileImmutableGet(path) == value)
+				return;
 
-            Engine.Instance.Elevated.DoCommandSync("file-immutable-set", "path", path, "flag", (value ? "1" : "0"));            
-        }
+			Engine.Instance.Elevated.DoCommandSync("file-immutable-set", "path", path, "flag", (value ? "1" : "0"));
+		}
 
 		public override bool FileEnsurePermission(string path, string mode)
 		{
@@ -323,7 +323,7 @@ namespace Eddie.Platform.MacOS
 
 			return true;
 		}
-        
+
 		public override bool FileEnsureExecutablePermission(string path)
 		{
 			if ((path == "") || (FileExists(path) == false))
@@ -351,16 +351,16 @@ namespace Eddie.Platform.MacOS
 			return true;
 		}
 
-        public override bool FileRunAsRoot(string path)
-        {
-            return NativeMethods.eddie_file_get_runasroot(path);
-        }
+		public override bool FileRunAsRoot(string path)
+		{
+			return NativeMethods.eddie_file_get_runasroot(path);
+		}
 
-        public override string GetExecutableReport(string path)
+		public override string GetExecutableReport(string path)
 		{
 			string otoolPath = LocateExecutable("otool");
 			if (otoolPath != "")
-				return SystemShell.Shell2(otoolPath, "-L", SystemShell.EscapePath(path));
+				return SystemExec.Exec2(otoolPath, "-L", SystemExec.EscapePath(path));
 			else
 				return "'otool' " + LanguageManager.GetText("NotFound");
 		}
@@ -387,13 +387,13 @@ namespace Eddie.Platform.MacOS
 		protected override string GetUserPathEx()
 		{
 			string basePath = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
-            if (basePath == null)
-                basePath = "";
-            if (basePath == "")
-                basePath = Environment.GetEnvironmentVariable("HOME") + DirSep + ".config";
+			if (basePath == null)
+				basePath = "";
+			if (basePath == "")
+				basePath = Environment.GetEnvironmentVariable("HOME") + DirSep + ".config";
 
-            return basePath + DirSep + "eddie";
-        }
+			return basePath + DirSep + "eddie";
+		}
 
 		public override bool ProcessKillSoft(Process process)
 		{
@@ -410,78 +410,78 @@ namespace Eddie.Platform.MacOS
 			return 256 * 1024;
 		}
 
-        public override bool FetchUrlInternal()
-        {
-            return true;
-        }
+		public override bool FetchUrlInternal()
+		{
+			return true;
+		}
 
-        public override Json FetchUrl(Json request)
-        {
-            return NativeMethods.CUrl(request);
-        }
+		public override Json FetchUrl(Json request)
+		{
+			return NativeMethods.CUrl(request);
+		}
 
-        public override void FlushDNS()
+		public override void FlushDNS()
 		{
 			base.FlushDNS();
 
-            Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Options.Get("linux.dns.services"));            
+			Engine.Instance.Elevated.DoCommandSync("dns-flush", "services", Engine.Instance.Options.Get("linux.dns.services"));
 		}
 
-        public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
-        {
-            bool canRunAsRoot = Platform.Instance.FileRunAsRoot(path);
+		public override int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
+		{
+			bool canRunAsRoot = Platform.Instance.FileRunAsRoot(path);
 
-            System.Diagnostics.Process processShell = null;
-            bool processDirectResult = false;
+			System.Diagnostics.Process process = null;
+			bool processDirectResult = false;
 
-            if (canRunAsRoot)
-            {
-                processShell = new System.Diagnostics.Process();
-                processShell.StartInfo.FileName = path;
-                processShell.StartInfo.Arguments = string.Join(" ", arguments);
-            }
-            else
-            {
-                if (Engine.Instance.ConsoleMode)
-                {
-                    processShell = new System.Diagnostics.Process();
-                    processShell.StartInfo.FileName = "sudo";
-                    processShell.StartInfo.Arguments = "\"" + path + "\" " + string.Join(" ", arguments);
-                }
-                else
-                {
-                    // Alternate version via osascript
-                    //processShell = new System.Diagnostics.Process();
-                    //processShell.StartInfo.FileName = "osascript";
-                    //processShell.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText("HelperPrivilegesPrompt").Safe() + "\" with administrator privileges'";
+			if (canRunAsRoot)
+			{
+				process = new System.Diagnostics.Process();
+				process.StartInfo.FileName = path;
+				process.StartInfo.Arguments = string.Join(" ", arguments);
+			}
+			else
+			{
+				if (Engine.Instance.ConsoleMode)
+				{
+					process = new System.Diagnostics.Process();
+					process.StartInfo.FileName = "sudo";
+					process.StartInfo.Arguments = "\"" + path + "\" " + string.Join(" ", arguments);
+				}
+				else
+				{
+					// Alternate version via osascript
+					//process = new System.Diagnostics.Process();
+					//process.StartInfo.FileName = "osascript";
+					//process.StartInfo.Arguments = " -e 'do shell script \"" + path + " " + string.Join(" ", arguments) + "\" with prompt \"" + LanguageManager.GetText("HelperPrivilegesPrompt").Safe() + "\" with administrator privileges'";
 
-                    // Alternate version with RootLauncher
-                    // TOFIX: pending pid, create launchd don't start it (no root?)
-                    // Required for elevated-spot-check-parent-pid
-                    processDirectResult = RootLauncher.LaunchExternalTool(path, arguments);
-                }
-            }
+					// Alternate version with RootLauncher
+					// TOFIX: pending pid, create launchd don't start it (no root?)
+					// Required for elevated-spot-check-parent-pid
+					processDirectResult = RootLauncher.LaunchExternalTool(path, arguments);
+				}
+			}
 
-            if (processShell != null)
-            {
-                processShell.StartInfo.WorkingDirectory = "";
-                processShell.StartInfo.Verb = "run";
-                processShell.StartInfo.CreateNoWindow = true;
-                processShell.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                processShell.StartInfo.UseShellExecute = false;
-                processShell.Start();
-                return processShell.Id;
-            }
-            else
-            {
-                return processDirectResult ? -1 : 0;
-            }
-        }
+			if (process != null)
+			{
+				process.StartInfo.WorkingDirectory = "";
+				process.StartInfo.Verb = "run";
+				process.StartInfo.CreateNoWindow = true;
+				process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+				process.StartInfo.UseShellExecute = false;
+				process.Start();
+				return process.Id;
+			}
+			else
+			{
+				return processDirectResult ? -1 : 0;
+			}
+		}
 
-        public override void ShellSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
+		public override void ExecSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
 		{
 			if (autoWriteStdin != "")
-				throw new Exception("ShellSyncCore::AutoWriteStdin not supported in macOS"); // Never need yet, used only in Linux
+				throw new Exception("ExecSyncCore::AutoWriteStdin not supported in macOS"); // Never need yet, used only in Linux
 
 			try
 			{
@@ -520,148 +520,112 @@ namespace Eddie.Platform.MacOS
 
 		public override string LocateResource(string relativePath)
 		{
-            string resPath = "../Resources/" + relativePath;
-            resPath = FileGetAbsolutePath(resPath, GetApplicationPath());
-            resPath = FileGetPhysicalPath(resPath);
+			string resPath = "../Resources/" + relativePath;
+			resPath = FileGetAbsolutePath(resPath, GetApplicationPath());
+			resPath = FileGetPhysicalPath(resPath);
 			if ((File.Exists(resPath)) || (Directory.Exists(resPath)))
-            {
-                return resPath;
-            }
+			{
+				return resPath;
+			}
 
 			return base.LocateResource(relativePath);
 		}
 
 		public override bool IsPortLocalListening(int port)
 		{
-            // TOFIX, need a better implementation
+			// TOFIX, need a better implementation
 
 			string stdout = "";
 			string stderr = "";
 			int exitcode = 0;
-			ShellSyncCore(LocateExecutable("netstat"), new string[] { "-an", "-ptcp" }, "", out stdout, out stderr, out exitcode);
+			ExecSyncCore(LocateExecutable("netstat"), new string[] { "-an", "-ptcp" }, "", out stdout, out stderr, out exitcode);
 
-            foreach(string line in stdout.Split('\n'))
-            {
-                string[] fields = line.CleanSpace().Split(' ');
-                if(fields.Length>2)
-                {
-                    if(fields[3] == "127.0.0.1." + port.ToString())
-                    {
-                        if(fields[5] == "LISTEN")
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
+			foreach (string line in stdout.Split('\n'))
+			{
+				string[] fields = line.CleanSpace().Split(' ');
+				if (fields.Length > 2)
+				{
+					if (fields[3] == "127.0.0.1." + port.ToString())
+					{
+						if (fields[5] == "LISTEN")
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
 		}
-
-		/* // This works, but we use base to avoid shell.
+				
 		public override long Ping(IpAddress host, int timeoutSec)
 		{
+			// Xamarin.Mac don't implement IPv6 ping.
+			if (host.IsV4)
+				return base.Ping(host, timeoutSec);
+
 			if ((host == null) || (host.Valid == false))
 				return -1;  
 
             {
                 float iMS = -1;
 
-                string pingPath = LocateExecutable("ping");
-                if (pingPath != "")
+				string pingPath = "";
+				if (host.IsV4)
+					pingPath = LocateExecutable("ping");
+				else if (host.IsV6)
+					pingPath = LocateExecutable("ping6");
+				else
+					return -1;
+				if (pingPath != "")
                 {
-                    SystemShell s = new SystemShell();
-                    s.Path = pingPath;
-                    s.Arguments.Add("-c 1");
-                    s.Arguments.Add("-t " + timeoutSec.ToString());
-                    s.Arguments.Add("-W " + timeoutSec.ToString());
-                    s.Arguments.Add("-q");
-                    s.Arguments.Add("-n");
-                    s.Arguments.Add(host.Address);
-                    s.NoDebugLog = true;
+                    SystemExec exec = new SystemExec();
+                    exec.Path = pingPath;
+                    exec.Arguments.Add("-c 1");
+					//exec.Arguments.Add("-t " + timeoutSec.ToString()); // macOS ping6 don't have any timeout option
+					//exec.Arguments.Add("-W " + timeoutSec.ToString()); // macOS ping6 don't have any timeout option
+					exec.Arguments.Add("-q");
+                    exec.Arguments.Add("-n");
+                    exec.Arguments.Add(host.Address);
+                    exec.NoDebugLog = true;
 
-                    if (s.Run())
+                    if (exec.Run())
                     {
-                        string result = s.Output;
-                        string sMS = UtilsString.ExtractBetween(result.ToLowerInvariant(), "min/avg/max/stddev = ", "/");
-                        if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
+                        string result = exec.Output;
+                        string sMS = result.ToLowerInvariant().ExtractBetween("min/avg/max/std-dev = ", "/");
+						if (float.TryParse(sMS, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out iMS) == false)
                             iMS = -1;
                     }
                 }
 
                 return (long)iMS;
             }
-        }
-        */
+        }        
 
 		public override string GetDriverVersion(string driver)
 		{
 			return "Expected";
 		}
 
-		public override bool RouteAdd(Json jRoute)
-		{
-			IpAddress ip = jRoute["address"].Value as string;
-			if (ip.Valid == false)
-				return false;
-			IpAddress gateway = jRoute["gateway"].Value as string;
-			if (gateway.Valid == false)
-				return false;
-
-            Core.Elevated.Command c = new Core.Elevated.Command();
-            c.Parameters["command"] = "route";
-            if (ip.IsV4)
-                c.Parameters["layer"] = "ipv4";
-            else if (ip.IsV6)
-                c.Parameters["layer"] = "ipv6";
-            c.Parameters["action"] = "add";
-            c.Parameters["cidr"] = ip.ToCIDR();
-            c.Parameters["gateway"] = gateway.Address;                
-            string result = Engine.Instance.Elevated.DoCommandSync(c);
-            if (result == "")
-            {
-                return base.RouteAdd(jRoute);
-            }
-            else
-            {
-                Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(), gateway.ToCIDR(), result));
-
-                return false;
-            }
-                        
+        public override void RouteApply(Json jRoute, string action)
+        {
+			IpAddress destination = jRoute["destination"].ValueString;
+			Core.Elevated.Command c = new Core.Elevated.Command();
+			c.Parameters["command"] = "route";
+			if (destination.IsV4)
+				c.Parameters["layer"] = "ipv4";
+			else if (destination.IsV6)
+				c.Parameters["layer"] = "ipv6";
+			c.Parameters["action"] = (action == "add" ? "add" : "delete");
+			c.Parameters["destination"] = destination.ToCIDR(true);
+			if (jRoute.HasKey("interface"))
+				c.Parameters["interface"] = jRoute["interface"].ValueString;
+			if (jRoute.HasKey("gateway"))
+				c.Parameters["gateway"] = new IpAddress(jRoute["gateway"].ValueString).Address;
+			if (jRoute.HasKey("metric"))
+				c.Parameters["metric"] = jRoute["metric"].ValueString;
+			string result = Engine.Instance.Elevated.DoCommandSync(c);
 		}
-
-		public override bool RouteRemove(Json jRoute)
-		{
-			IpAddress ip = jRoute["address"].Value as string;
-			if (ip.Valid == false)
-				return false;
-			IpAddress gateway = jRoute["gateway"].Value as string;
-			if (gateway.Valid == false)
-				return false;
-
-            Core.Elevated.Command c = new Core.Elevated.Command();
-            c.Parameters["command"] = "route";
-            if (ip.IsV4)
-                c.Parameters["layer"] = "ipv4";
-            else if (ip.IsV6)
-                c.Parameters["layer"] = "ipv6";
-            c.Parameters["action"] = "delete";
-            c.Parameters["cidr"] = ip.ToCIDR();
-            c.Parameters["gateway"] = gateway.Address;
-                
-            string result = Engine.Instance.Elevated.DoCommandSync(c);
-            if (result == "")
-            {
-                return base.RouteRemove(jRoute);
-            }
-            else
-            {
-                Engine.Instance.Logs.LogWarning(LanguageManager.GetText("RouteDelFailed", ip.ToCIDR(), gateway.ToCIDR(), result));
-
-                return false;
-            }               
-		}
-
+        
 		public override IpAddresses ResolveDNS(string host)
 		{
 			// Base method with Dns.GetHostEntry have cache issue, for example on Fedora. OS X it's based on Mono.
@@ -673,14 +637,14 @@ namespace Eddie.Platform.MacOS
 			if (hostPath != "")
 			{
 				// Note: CNAME record are automatically followed.
-				SystemShell s = new SystemShell();
-				s.Path = LocateExecutable("host");
-				s.Arguments.Add("-W 5");
-				s.Arguments.Add(SystemShell.EscapeHost(host));
-				s.NoDebugLog = true;
-				if (s.Run())
+				SystemExec exec = new SystemExec();
+				exec.Path = LocateExecutable("host");
+				exec.Arguments.Add("-W 5");
+				exec.Arguments.Add(SystemExec.EscapeHost(host));
+				exec.NoDebugLog = true;
+				if (exec.Run())
 				{
-					string hostout = s.Output;
+					string hostout = exec.Output;
 					foreach (string line in hostout.Split('\n'))
 					{
 						string ipv4 = line.RegExMatchOne("^.*? has address (.*?)$");
@@ -710,7 +674,7 @@ namespace Eddie.Platform.MacOS
 				{
 					string i2 = i.Trim();
 
-					string current = SystemShell.Shell(networksetupPath, new string[] { "-getdnsservers", SystemShell.EscapeInsideQuote(i2) });
+					string current = SystemExec.Exec(networksetupPath, new string[] { "-getdnsservers", SystemExec.EscapeInsideQuote(i2) });
 
 					foreach (string line in current.Split('\n'))
 					{
@@ -725,39 +689,39 @@ namespace Eddie.Platform.MacOS
 			string scutilPath = LocateExecutable("scutil");
 			if (scutilPath != "")
 			{
-				string scutilOut = SystemShell.Shell1(scutilPath, "--dns");
+				string scutilOut = SystemExec.Exec1(scutilPath, "--dns");
 				List<List<string>> result = scutilOut.Replace(" ", "").RegExMatchMulti("nameserver\\[[0-9]+\\]:([0-9:\\.]+)");
 				foreach (List<string> match in result)
 				{
 					foreach (string field in match)
 					{
 						list.Add(field);
-					} 
+					}
 				}
 			}
 
-            // Method3 - Compatibility
-            try
-            {
-                if (FileExists("/etc/resolv.conf"))
-                {
-                    string o = FileContentsReadText("/etc/resolv.conf");
-                    foreach (string line in o.Split('\n'))
-                    {
-                        if (line.Trim().StartsWith("#", StringComparison.InvariantCulture))
-                            continue;
-                        if (line.Trim().StartsWith("nameserver", StringComparison.InvariantCulture))
-                        {
-                            string field = line.Substring(11).Trim();
-                            list.Add(field);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Can be unreadable (root 600), ignore
-            }
+			// Method3 - Compatibility
+			try
+			{
+				if (FileExists("/etc/resolv.conf"))
+				{
+					string o = FileContentsReadText("/etc/resolv.conf");
+					foreach (string line in o.Split('\n'))
+					{
+						if (line.Trim().StartsWith("#", StringComparison.InvariantCulture))
+							continue;
+						if (line.Trim().StartsWith("nameserver", StringComparison.InvariantCulture))
+						{
+							string field = line.Substring(11).Trim();
+							list.Add(field);
+						}
+					}
+				}
+			}
+			catch
+			{
+				// Can be unreadable (root 600), ignore
+			}
 
 			return list;
 		}
@@ -766,7 +730,7 @@ namespace Eddie.Platform.MacOS
 		{
 			base.OnReport(report);
 
-			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemShell.Shell0(LocateExecutable("ifconfig")) : "'ifconfig' " + LanguageManager.GetText("NotFound"));
+			report.Add("ifconfig", (LocateExecutable("ifconfig") != "") ? SystemExec.Exec0(LocateExecutable("ifconfig")) : "'ifconfig' " + LanguageManager.GetText("NotFound"));
 		}
 
 		public override Dictionary<string, string> GetProcessesList()
@@ -776,7 +740,7 @@ namespace Eddie.Platform.MacOS
 			string psPath = LocateExecutable("ps");
 			if (psPath != "")
 			{
-				string resultS = SystemShell.Shell2(psPath, "-eo", "pid,command");
+				string resultS = SystemExec.Exec2(psPath, "-eo", "pid,command");
 				string[] resultA = resultS.Split('\n');
 				foreach (string pS in resultA)
 				{
@@ -858,7 +822,7 @@ namespace Eddie.Platform.MacOS
 				{
 					IpV6ModeEntry entry = new IpV6ModeEntry();
 					entry.ReadXML(nodeEntry);
-					m_listIpV6Mode.Add(entry); 
+					m_listIpV6Mode.Add(entry);
 				}
 			}
 
@@ -893,31 +857,31 @@ namespace Eddie.Platform.MacOS
 		}
 
 		public override bool OnIPv6Block()
-        {            
-            string result = Engine.Instance.Elevated.DoCommandSync("ipv6-block");
-            if (result != "")
-            {
-                foreach (string resultItem in result.Split('\n'))
-                {
-                    string[] fields = resultItem.Split(';');
-                    if (fields.Length != 6)
-                        continue;
-                    if (fields[0] == "SwitchIPv6")
-                    {
-                        string interfaceName = fields[1];
+		{
+			string result = Engine.Instance.Elevated.DoCommandSync("ipv6-block");
+			if (result != "")
+			{
+				foreach (string resultItem in result.Split('\n'))
+				{
+					string[] fields = resultItem.Split(';');
+					if (fields.Length != 6)
+						continue;
+					if (fields[0] == "SwitchIPv6")
+					{
+						string interfaceName = fields[1];
 
-                        IpV6ModeEntry entry = new IpV6ModeEntry();
-                        entry.Interface = interfaceName;
-                        entry.Mode = fields[2];
-                        entry.Address = fields[3];
-                        entry.Router = fields[4];
-                        entry.PrefixLength = fields[5];                            
-                        m_listIpV6Mode.Add(entry);
+						IpV6ModeEntry entry = new IpV6ModeEntry();
+						entry.Interface = interfaceName;
+						entry.Mode = fields[2];
+						entry.Address = fields[3];
+						entry.Router = fields[4];
+						entry.PrefixLength = fields[5];
+						m_listIpV6Mode.Add(entry);
 
-                        Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Disabled", interfaceName));
-                    }
-                }
-            }   
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Disabled", interfaceName));
+					}
+				}
+			}
 
 			Recovery.Save();
 
@@ -927,21 +891,21 @@ namespace Eddie.Platform.MacOS
 		}
 
 		public override bool OnIPv6Restore()
-        {
-            foreach (IpV6ModeEntry entry in m_listIpV6Mode)
-            {
-                Core.Elevated.Command c = new Core.Elevated.Command();
-                c.Parameters["command"] = "ipv6-restore";
-                c.Parameters["interface"] = entry.Interface;
-                c.Parameters["mode"] = entry.Mode;
-                c.Parameters["address"] = entry.Address;
-                c.Parameters["router"] = entry.Router;
-                c.Parameters["prefix"] = entry.PrefixLength;
-                Engine.Instance.Elevated.DoCommandSync(c);
+		{
+			foreach (IpV6ModeEntry entry in m_listIpV6Mode)
+			{
+				Core.Elevated.Command c = new Core.Elevated.Command();
+				c.Parameters["command"] = "ipv6-restore";
+				c.Parameters["interface"] = entry.Interface;
+				c.Parameters["mode"] = entry.Mode;
+				c.Parameters["address"] = entry.Address;
+				c.Parameters["router"] = entry.Router;
+				c.Parameters["prefix"] = entry.PrefixLength;
+				Engine.Instance.Elevated.DoCommandSync(c);
 
-                Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Restored", entry.Interface));
-            }            
-            
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterIPv6Restored", entry.Interface));
+			}
+
 			m_listIpV6Mode.Clear();
 
 			Recovery.Save();
@@ -951,53 +915,53 @@ namespace Eddie.Platform.MacOS
 			return true;
 		}
 
-		public override bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
+		public override bool OnDnsSwitchDo(Core.ConnectionTypes.IConnectionType connection, IpAddresses dns)
 		{
 			string mode = Engine.Instance.Options.GetLower("dns.mode");
 
 			if (mode == "auto")
 			{
-                string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-do", "dns", dns.ToString());
-                if(result != "")
-                {
-                    foreach (string resultItem in result.Split('\n'))
-                    {
-                            string[] fields = resultItem.Split(';');
-                        if (fields.Length != 3)
-                            continue;
-                        if (fields[0] == "SwitchDNS")
-                        {
-                            string interfaceName = fields[1];
-                            IpAddresses oldIPs = new IpAddresses(fields[2]);
+				string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-do", "dns", dns.ToString());
+				if (result != "")
+				{
+					foreach (string resultItem in result.Split('\n'))
+					{
+						string[] fields = resultItem.Split(';');
+						if (fields.Length != 3)
+							continue;
+						if (fields[0] == "SwitchDNS")
+						{
+							string interfaceName = fields[1];
+							IpAddresses oldIPs = new IpAddresses(fields[2]);
 
-                            DnsSwitchEntry e = new DnsSwitchEntry();
-                            e.Name = interfaceName;
-                            e.Dns = oldIPs.Addresses;
-                            m_listDnsSwitch.Add(e);
+							DnsSwitchEntry e = new DnsSwitchEntry();
+							e.Name = interfaceName;
+							e.Dns = oldIPs.Addresses;
+							m_listDnsSwitch.Add(e);
 
-                            Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsDone", interfaceName, ((oldIPs.Count == 0) ? "Automatic" : oldIPs.Addresses), dns.Addresses));
-                        }
-                    }
-                }
-                
+							Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsDone", interfaceName, ((oldIPs.Count == 0) ? "Automatic" : oldIPs.Addresses), dns.Addresses));
+						}
+					}
+				}
+
 				Recovery.Save();
 			}
 
-			base.OnDnsSwitchDo(connectionActive, dns);
+			base.OnDnsSwitchDo(connection, dns);
 
 			return true;
 		}
 
 		public override bool OnDnsSwitchRestore()
-        {
+		{
 			foreach (DnsSwitchEntry e in m_listDnsSwitch)
-			{				
+			{
 				IpAddresses dns = new IpAddresses();
 				dns.Add(e.Dns);
 
-                string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-restore", "interface", e.Name, "dns", dns.ToString());
+				string result = Engine.Instance.Elevated.DoCommandSync("dns-switch-restore", "interface", e.Name, "dns", dns.ToString());
 
-                Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsRestored", e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));                
+				Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("OsMacNetworkAdapterDnsRestored", e.Name, ((e.Dns == "") ? "Automatic" : e.Dns)));
 			}
 
 			m_listDnsSwitch.Clear();
@@ -1008,42 +972,42 @@ namespace Eddie.Platform.MacOS
 
 			return true;
 		}
-        
-        public override Json GetRealtimeNetworkStats()
-        {
-            // Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
 
-            Json result = new Json();
-            result.EnsureArray();
+		public override Json GetRealtimeNetworkStats()
+		{
+			// Mono NetworkInterface::GetIPv4Statistics().BytesReceived always return 0 under OSX.
 
-            int maxLen = 1024;
-            byte[] buf = new byte[maxLen];
-            NativeMethods.eddie_get_realtime_network_stats(buf, maxLen);
-            string jNativeStr = System.Text.Encoding.ASCII.GetString(buf);
+			Json result = new Json();
+			result.EnsureArray();
 
-            Json jNative = Json.Parse(jNativeStr);
+			int maxLen = 1024;
+			byte[] buf = new byte[maxLen];
+			NativeMethods.eddie_get_realtime_network_stats(buf, maxLen);
+			string jNativeStr = System.Text.Encoding.ASCII.GetString(buf);
 
-            // Expect the sequence is the same.
-            // C++ edition don't detect interface name right now, otherwise NetworkInterface here can be removed.
-            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            for(int i = 0;i< interfaces.Length;i++)
-            {
-                if(i<jNative.GetArray().Count)
-                {
-                    Json jNativeIf = jNative.GetIndex(i) as Json;
+			Json jNative = Json.Parse(jNativeStr);
 
-                    Int64 rcv = jNativeIf["rcv"].ValueInt64;
-                    Int64 snd = jNativeIf["snd"].ValueInt64;
-                    Json jInterface = new Json();
-                    jInterface["id"].Value = interfaces[i].Id;
-                    jInterface["rcv"].Value = rcv;
-                    jInterface["snd"].Value = snd;
-                    result.Append(jInterface);
-                }
-            }
+			// Expect the sequence is the same.
+			// C++ edition don't detect interface name right now, otherwise NetworkInterface here can be removed.
+			NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+			for (int i = 0; i < interfaces.Length; i++)
+			{
+				if (i < jNative.GetArray().Count)
+				{
+					Json jNativeIf = jNative.GetIndex(i) as Json;
 
-            return result;
-        }
+					Int64 rcv = jNativeIf["rcv"].ValueInt64;
+					Int64 snd = jNativeIf["snd"].ValueInt64;
+					Json jInterface = new Json();
+					jInterface["id"].Value = interfaces[i].Id;
+					jInterface["rcv"].Value = rcv;
+					jInterface["snd"].Value = snd;
+					result.Append(jInterface);
+				}
+			}
+
+			return result;
+		}
 
         public override void OnJsonNetworkInfo(Json jNetworkInfo)
 		{
@@ -1059,7 +1023,7 @@ namespace Eddie.Platform.MacOS
 			string networksetupPath = LocateExecutable("networksetup");
 			if (networksetupPath != "")
 			{
-				string nsOutput = SystemShell.Shell1(networksetupPath, "-listallhardwareports");
+				string nsOutput = SystemExec.Exec1(networksetupPath, "-listallhardwareports");
 				string lastName = "";
 				foreach (string line in nsOutput.Split('\n'))
 				{
@@ -1076,7 +1040,7 @@ namespace Eddie.Platform.MacOS
 								jNetworkInterface["friendly"].Value = lastName;
 
 								// Detect IPv6 support
-								string getInfo = SystemShell.Shell(LocateExecutable("networksetup"), new string[] { "-getinfo", SystemShell.EscapeInsideQuote(lastName) });
+								string getInfo = SystemExec.Exec(LocateExecutable("networksetup"), new string[] { "-getinfo", SystemExec.EscapeInsideQuote(lastName) });
 
 								string mode = getInfo.RegExMatchOne("^IPv6: (.*?)$").Trim();
 
@@ -1093,67 +1057,10 @@ namespace Eddie.Platform.MacOS
 			}
 		}
 
-		public override void OnJsonRouteList(Json jRoutesList)
-        {
-			base.OnJsonRouteList(jRoutesList);
-
-			string netstatPath = LocateExecutable("netstat"); 
-			if (netstatPath != "")
-			{
-				string result = SystemShell.Shell1(netstatPath, "-rnl");
-
-				string[] lines = result.Split('\n');
-				foreach (string line in lines)
-				{
-					if (line == "Routing tables")
-						continue;
-					if (line == "Internet:")
-						continue;
-					if (line == "Internet6:")
-						continue;
-
-					string[] fields = line.CleanSpace().Split(' ');
-
-					if ((fields.Length > 0) && (fields[0].ToLowerInvariant().Trim() == "destination"))
-						continue;
-
-					if (fields.Length >= 7)
-					{
-						Json jRoute = new Json();
-						IpAddress address = new IpAddress();
-						if (fields[0].ToLowerInvariant().Trim() == "default")
-						{
-							IpAddress gateway = new IpAddress(fields[1]);
-							if (gateway.Valid == false)
-								continue;
-							if (gateway.IsV4)
-								address = IpAddress.DefaultIPv4;
-							else if (gateway.IsV6)
-								address = IpAddress.DefaultIPv6;
-						}
-						else
-							address.Parse(fields[0]);
-						if (address.Valid == false)
-							continue;
-						jRoute["address"].Value = address.ToCIDR();
-						jRoute["gateway"].Value = fields[1];
-						jRoute["flags"].Value = fields[2];
-						jRoute["refs"].Value = fields[3];
-						jRoute["use"].Value = fields[4];
-						jRoute["mtu"].Value = fields[5];
-						jRoute["interface"].Value = fields[6];
-						if (fields.Length > 7)
-							jRoute["expire"].Value = fields[7];
-						jRoutesList.Append(jRoute);
-					}
-				}
-			}
-		}
-
 		public string[] GetInterfaces()
 		{
 			List<string> result = new List<string>();
-			foreach (string line in SystemShell.Shell(LocateExecutable("networksetup"), new string[] { "-listallnetworkservices" }).Split('\n'))
+			foreach (string line in SystemExec.Exec(LocateExecutable("networksetup"), new string[] { "-listallnetworkservices" }).Split('\n'))
 			{
 				if (line.StartsWith("An asterisk", StringComparison.InvariantCultureIgnoreCase))
 					continue;
@@ -1232,20 +1139,20 @@ namespace Eddie.Platform.MacOS
 		public override string FileGetSignedId(string path)
 		{
 			string codesignPath = LocateExecutable("codesign");
-			SystemShell cmdV = new SystemShell();
+			SystemExec cmdV = new SystemExec();
 			cmdV.Path = codesignPath;
 			cmdV.Arguments.Add("-v");
-			cmdV.Arguments.Add(SystemShell.EscapePath(path));
+			cmdV.Arguments.Add(SystemExec.EscapePath(path));
 			cmdV.Run();
 			if (cmdV.Output != "") // ExitCode always 0
 				return "No: Invalid signature (tampered?)";
 
-			SystemShell cmdS = new SystemShell();
+			SystemExec cmdS = new SystemExec();
 			cmdS.Path = codesignPath;
 			cmdS.Arguments.Clear();
 			cmdS.Arguments.Add("-dv");
 			cmdS.Arguments.Add("--verbose=4");
-			cmdS.Arguments.Add(SystemShell.EscapePath(path));
+			cmdS.Arguments.Add(SystemExec.EscapePath(path));
 			cmdS.Run();
 
 			string codesignResult = cmdS.Output;
@@ -1270,7 +1177,7 @@ namespace Eddie.Platform.MacOS
 			else
 				return base.FileGetSignedId(path);
 		}
-	}
+    }
 
 	public class DnsSwitchEntry
 	{

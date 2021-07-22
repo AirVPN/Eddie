@@ -43,24 +43,24 @@ namespace Eddie.Forms.Linux
 			}
 		}
 
-        public override void OnChangeMainFormVisibility (bool vis)
+		public override void OnChangeMainFormVisibility(bool vis)
 		{
-			base.OnChangeMainFormVisibility (vis);
+			base.OnChangeMainFormVisibility(vis);
 
-			if( (UiClient.Tray != null) && (UiClient.Tray.IsStarted()) )            
+			if ((UiClient.Tray != null) && (UiClient.Tray.IsStarted()))
 			{
 				if (Engine.Options.GetBool("gui.tray_show"))
 				{
-					UiClient.Tray.SendCommand ("menu.restore.visible:true");
+					UiClient.Tray.SendCommand("menu.restore.visible:true");
 
 					if (vis)
-						UiClient.Tray.SendCommand ("menu.restore.text:" + LanguageManager.GetText("WindowsMainHide"));
+						UiClient.Tray.SendCommand("menu.restore.text:" + LanguageManager.GetText("WindowsMainHide"));
 					else
-						UiClient.Tray.SendCommand ("menu.restore.text:" + LanguageManager.GetText("WindowsMainShow"));
-                }
+						UiClient.Tray.SendCommand("menu.restore.text:" + LanguageManager.GetText("WindowsMainShow"));
+				}
 				else
 				{
-					UiClient.Tray.SendCommand ("menu.restore.visible:false");
+					UiClient.Tray.SendCommand("menu.restore.visible:false");
 				}
 			}
 		}
@@ -77,10 +77,10 @@ namespace Eddie.Forms.Linux
 
 			if (UiClient.Tray == null)
 				return false;
-			
-			if (UiClient.Tray.IsStarted ())
+
+			if (UiClient.Tray.IsStarted())
 				return true;
-			
+
 			return false;
 		}
 	}

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "App.Forms.Windows.net5": {
+      "commandName": "Project",
+      "commandLineArgs": "path.tools=\"..\\..\\..\\..\\..\\..\\deploy\\windows-10_x64\" path.resources=\"..\\..\\..\\..\\..\\..\\common\" path=\"home\""
+    }
+  }
+}

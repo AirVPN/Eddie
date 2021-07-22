@@ -43,7 +43,7 @@ namespace Eddie.Core.Jobs
 			lock (Engine.Instance.Connections)
 				servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
 
-			int timeNow = Utils.UnixTimeStamp();
+			Int64 timeNow = Utils.UnixTimeStamp();
 
 			int interval = Engine.Instance.Options.GetInt("discover.interval");
 
@@ -51,7 +51,7 @@ namespace Eddie.Core.Jobs
 			{
 				if (m_cancelRequested)
 					return;
-				
+
 				if (infoServer.NeedDiscover)
 				{
 					if (timeNow - infoServer.LastDiscover >= interval)
@@ -63,14 +63,14 @@ namespace Eddie.Core.Jobs
 
 			m_timeEvery = 60000;
 		}
-		
+
 		public string GetStatsString()
 		{
 			Dictionary<string, ConnectionInfo> servers;
 			lock (Engine.Instance.Connections)
 				servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
 
-			int timeNow = Utils.UnixTimeStamp();
+			Int64 timeNow = Utils.UnixTimeStamp();
 			int interval = Engine.Instance.Options.GetInt("discover.interval");
 			int nTotal = 0;
 			int nPending = 0;

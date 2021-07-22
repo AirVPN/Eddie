@@ -21,6 +21,8 @@ Original WFP source code by Mahesh S - swatkat_thinkdigit@yahoo.co.in - http://s
 Some code by ValdikSS
 ******************************************************************************/
 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 // Note the order: must be included before windows.h
 #include <winsock2.h>
 #include "impl.h"
@@ -36,9 +38,11 @@ Some code by ValdikSS
 #include <signal.h> // for signal();
 #include <psapi.h>
 
+#include <fcntl.h> 
 
-// WFP
-#define XMLBUFSIZE 4096
+
+
+#define XMLBUFSIZE 4096 // WFP
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x)) // WFP
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x)) // WFP
 #include <fwpmu.h> // WFP
@@ -55,6 +59,9 @@ int Impl::Main()
 {
 	signal(SIGINT, SIG_IGN); // See comment in Linux implementation
 
+	if ((m_cmdline.find("mode") != m_cmdline.end()) && (m_cmdline["mode"] == "wireguard"))
+		return WireGuardTunnel(m_cmdline["config"]);
+
 	WSADATA	WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData))
 	{
@@ -65,7 +72,7 @@ int Impl::Main()
 
 	WSACleanup();
 
-	return result;	
+	return result;
 }
 
 void Impl::Do(const std::string& commandId, const std::string& command, std::map<std::string, std::string>& params)
@@ -73,8 +80,12 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	if (command == "compatibility-remove-task")
 	{
 		// Remove old <2.17.3 task
-		ShellEx1(FsLocateExecutable("schtasks.exe"), "/delete /tn AirVPN /f");
-		ShellEx1(FsLocateExecutable("schtasks.exe"), "/delete /tn Eddie /f");
+		std::string schtasksPath = FsLocateExecutable("schtasks.exe", false);
+		if (schtasksPath != "")
+		{
+			ExecEx1(schtasksPath, "/delete /tn AirVPN /f");
+			ExecEx1(schtasksPath, "/delete /tn Eddie /f");
+		}
 	}
 	else if (command == "compatibility-profiles")
 	{
@@ -94,7 +105,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 
 			FsDirectoryCreate(dataPath);
 
-			if(appPath != dataPath)
+			if (appPath != dataPath)
 			{
 				// Old Eddie <2.17.3 save data in C:\Program Files\... . Move now.
 				for (std::vector<std::string>::const_iterator i = filesToMove.begin(); i != filesToMove.end(); ++i)
@@ -102,7 +113,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					std::string filename = *i;
 					std::string fileOldPath = appPath + FsPathSeparator + filename;
 					std::string fileNewPath = dataPath + FsPathSeparator + filename;
-					if(FsFileExists(fileOldPath))
+					if (FsFileExists(fileOldPath))
 					{
 						FsFileMove(fileOldPath, fileNewPath);
 					}
@@ -113,7 +124,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 			if (posLastSlash != std::string::npos)
 			{
 				std::string oldDataPath = dataPath.substr(0, posLastSlash) + FsPathSeparator + "AirVPN";
-			
+
 				if (FsDirectoryExists(oldDataPath))
 				{
 					// Old Eddie <2.17.3 save data in AirVPN folder... . Move now.
@@ -131,7 +142,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 					FsDirectoryDelete(oldDataPath, true);
 				}
 			}
-		}		
+		}
 	}
 	else if (command == "wfp")
 	{
@@ -167,7 +178,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		{
 			std::string pathTemp = GetTempPath("wfp_rules.xml");
 
-			ShellResult result = ShellEx1(FsLocateExecutable("netsh.exe"), "WFP Show Filters file=\"" + pathTemp + "\"");
+			ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "WFP Show Filters file=\"" + pathTemp + "\"");
 			std::string xml = FsFileReadText(pathTemp);
 			FsFileDelete(pathTemp);
 
@@ -184,14 +195,22 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 	{
 		std::string mode = params["mode"];
 
+		std::string netPath = FsLocateExecutable("net.exe", false);
+		std::string ipconfigPath = FsLocateExecutable("net.exe", false);
+
 		if (mode == "max")
 		{
-			ShellEx1(FsLocateExecutable("net.exe"), "stop dnscache");
-			ShellEx1(FsLocateExecutable("net.exe"), "start dnscache");
-			ShellEx1(FsLocateExecutable("ipconfig.exe"), "/registerdns");
+			if (netPath != "")
+			{
+				ExecEx1(netPath, "stop dnscache");
+				ExecEx1(netPath, "start dnscache");
+			}
+			if(ipconfigPath != "")
+				ExecEx1(ipconfigPath, "/registerdns");
 		}
 
-		ShellEx1(FsLocateExecutable("ipconfig.exe"), "/flushdns");
+		if(ipconfigPath != "")
+			ExecEx1(ipconfigPath, "/flushdns");
 	}
 	else if (command == "set-interface-metric")
 	{
@@ -200,71 +219,145 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		std::string layer = params["layer"];
 		SetInterfaceMetric(idx, layer, value);
 	}
-	else if (command == "route")
-	{		
-		ShellResult shellResult;
-		if (params["layer"] == "ipv4")
-		{
-			std::string args = "";
-			if (params["action"] == "add")
-				args += "add ";
-			else if (params["action"] == "remove")
-				args += "delete ";
-			else
-				ThrowException("Unknown action");
+	else if (command == "route-list")
+	{
+		int n = 0;
+		std::string json = "";
 
-			args += StringEnsureIpAddress(params["address"]) + " mask " + StringEnsureIpAddress(params["mask"]) + " " + StringEnsureIpAddress(params["gateway"]);
-			args += " if " + StringEnsureNumericInt(params["iface"]);
-			// Metric param are ignored or misinterpreted. http://serverfault.com/questions/238695/how-can-i-set-the-metric-of-a-manually-added-route-on-windows
-			// if(parameters.ContainsKey("metric"))
-			// cmd += " metric " + Utils.EnsureStringNumericInt(parameters["metric"]);
-			shellResult = ShellEx1(FsLocateExecutable("route.exe"), args);			
-		}
-		else if (params["layer"] == "ipv6")
+		// Adapters
+		// Return an UNC path as name, we need LUID in hex OR friendly-name, unresolved here, done at C# side
+		// ConvertInterfaceIndexToLuid -> ConvertInterfaceLuidToNameW don't return anyway the friendly-name
+		/*
+		std::map<ULONG, std::string> interfacesIndexToName;
 		{
-			std::string args = "interface ipv6";
-			if (params["action"] == "add")
-				args += " add";
-			else if (params["action"] == "remove")
-				args += " del";
-			else
-				ThrowException("Unknown action");
-			args += " route";
-			args += " prefix=\"" + StringEnsureCidr(params["cidr"]) + "\"";
-			args += " interface=\"" + StringEnsureNumericInt(params["iface"]) + "\"";
+			// Declare and initialize variables
+			PIP_INTERFACE_INFO pInfo = NULL;
+			ULONG ulOutBufLen = 0;
+			DWORD dwRetVal = 0;
+			int iReturn = 1;
+			int i;
+
+			dwRetVal = GetInterfaceInfo(NULL, &ulOutBufLen);
+			if (dwRetVal == ERROR_INSUFFICIENT_BUFFER) {
+				pInfo = (IP_INTERFACE_INFO*)MALLOC(ulOutBufLen);
+				if (pInfo != NULL)
+				{
+					dwRetVal = GetInterfaceInfo(pInfo, &ulOutBufLen);
+					if (dwRetVal == NO_ERROR)
+					{
+						for (i = 0; i < pInfo->NumAdapters; i++)
+						{
+							interfacesIndexToName[pInfo->Adapter[i].Index] = StringWStringToUTF8(pInfo->Adapter[i].Name);
+						}
+						iReturn = 0;
+					}
+				}
+			}
+
+			FREE(pInfo);
+		}
+		*/
+
+		// IPv4
+		if (true)
+		{
+			DWORD retval;
+			MIB_IPFORWARD_TABLE2* routes = NULL;
+			MIB_IPFORWARD_ROW2* route;
+			ULONG idx;
+
+			retval = GetIpForwardTable2(AF_INET, &routes);
+			if (retval == ERROR_SUCCESS)
+			{
+				for (idx = 0; idx < routes->NumEntries; idx++)
+				{
+					route = routes->Table + idx;
+
+					char buf[INET_ADDRSTRLEN];
+
+					InetNtopA(AF_INET, &route->NextHop.Ipv4.sin_addr, (PSTR)buf, sizeof(buf));
+					std::string gateway = buf;
+
+					InetNtopA(AF_INET, &route->DestinationPrefix.Prefix.Ipv4.sin_addr, (PSTR)buf, sizeof(buf));
+					std::string destination = buf;
+					destination += "/" + std::to_string(route->DestinationPrefix.PrefixLength);
+
+					if (n > 0)
+						json += ",";
+					json += "{\"destination\":\"" + destination + "\",\"gateway\":\"" + gateway + "\",\"interface_index\":" + std::to_string(route->InterfaceIndex) + ",\"metric\":" + std::to_string(route->Metric) + "}";
+					n++;
+				}
+			}
+
+			FreeMibTable(routes);
+		}
+
+		// IPv6
+		if (true)
+		{
+			DWORD retval;
+			MIB_IPFORWARD_TABLE2* routes = NULL;
+			MIB_IPFORWARD_ROW2* route;
+			ULONG idx;
+
+			retval = GetIpForwardTable2(AF_INET6, &routes);
+			if (retval == ERROR_SUCCESS)
+			{
+				for (idx = 0; idx < routes->NumEntries; idx++)
+				{
+					route = routes->Table + idx;
+
+					char buf[INET6_ADDRSTRLEN];
+
+					InetNtopA(AF_INET6, &route->NextHop.Ipv6.sin6_addr, (PSTR)buf, sizeof(buf));
+					std::string gateway = buf;
+
+					InetNtopA(AF_INET6, &route->DestinationPrefix.Prefix.Ipv6.sin6_addr, (PSTR)buf, sizeof(buf));
+					std::string destination = buf;
+					destination += "/" + std::to_string(route->DestinationPrefix.PrefixLength);
+
+					if (n > 0)
+						json += ",";
+					json += "{\"destination\":\"" + destination + "\",\"gateway\":\"" + gateway + "\",\"interface_index\":" + std::to_string(route->InterfaceIndex) + ",\"metric\":" + std::to_string(route->Metric) + "}";
+					n++;
+				}
+			}
+
+			FreeMibTable(routes);
+		}
+
+		ReplyCommand(commandId, "[" + json + "]");
+	}
+	else if (command == "route")
+	{
+		std::string args = "interface ";
+		if (StringIsIPv4(params["destination"]))
+			args += " ipv4";
+		else if (StringIsIPv6(params["destination"]))
+			args += " ipv6";
+		else
+			ThrowException("Unknown layer");
+		if (params["action"] == "add")
+			args += " add";
+		else if (params["action"] == "remove")
+			args += " del";
+		else
+			ThrowException("Unknown action");
+		args += " route";
+		args += " prefix=\"" + StringEnsureCidr(params["destination"]) + "\"";
+		args += " interface=\"" + StringEnsureNumericInt(params["iface"]) + "\"";
+		if (params.find("gateway") != params.end())
 			args += " nexthop=\"" + StringEnsureIpAddress(params["gateway"]) + "\"";
+		if (params["action"] == "add")
+		{
 			if (params.find("metric") != params.end())
 				args += " metric=" + StringEnsureNumericInt(params["metric"]);
-			shellResult = ShellEx1(FsLocateExecutable("netsh.exe"), args);			
 		}
+		args += " store=active";
 
-		bool accept = false;
-		std::string resultStdOut = StringTrim(StringToLower(shellResult.out), "\r\n !.");
-		std::string resultBoth = StringTrim(StringToLower(shellResult.output()));
-		if (shellResult.exit == 0)
-		{	
-			if (resultStdOut == "ok")
-				accept = true;
-			if ((params["action"] == "add") && (StringContain(resultBoth, "the object already exists")))
-				accept = true;
-			if ((params["action"] == "remove") && (StringContain(resultBoth, "the system cannot find the file specified")))
-				accept = true;
-			if ((params["action"] == "remove") && (StringContain(resultBoth, "network interface no more available"))) // Win7
-				accept = true;			
-			if ((params["action"] == "remove") && (StringContain(resultBoth, "element not found.")))
-				accept = true;
-		}
-		else
-		{
-			// IPv4 route that already exists return exitcode=0 if ipv4, exitcode=1 if ipv6, MS unconsistency.
-			if ((params["action"] == "add") && (StringContain(resultBoth, "the object already exists")))
-				accept = true;
-		}
-
-		if (accept)
-			ReplyCommand(commandId, "1");
-		else
-			ThrowException(shellResult.dump());
+		ExecResult shellResult = ExecEx1(FsLocateExecutable("netsh.exe"), args);
+		if (shellResult.exit != 0)
+			ThrowException(GetExecResultDump(shellResult));
 	}
 	else if (command == "windows-dns")
 	{
@@ -273,34 +366,34 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 		std::string mode = params["mode"];
 		if (mode == "dhcp")
 		{
-			ShellEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureInterfaceName(interfaceName) + "\" source=dhcp register=primary validate=no");
+			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureInterfaceName(interfaceName) + "\" source=dhcp register=primary validate=no");
 		}
 		else if (mode == "static")
 		{
 			std::string ipaddress = params["ipaddress"];
-			ShellEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureInterfaceName(interfaceName) + "\" source=static address=" + StringEnsureIpAddress(ipaddress) + " register=primary validate=no");
+			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " set dns name=\"" + StringEnsureInterfaceName(interfaceName) + "\" source=static address=" + StringEnsureIpAddress(ipaddress) + " register=primary validate=no");
 		}
 		else if (mode == "add")
 		{
 			std::string ipaddress = params["ipaddress"];
-			ShellEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " add dnsserver name=\"" + StringEnsureInterfaceName(interfaceName) + "\" address=" + StringEnsureIpAddress(ipaddress) + " validate=no");
+			ExecEx1(FsLocateExecutable("netsh.exe"), "interface " + layer + " add dnsserver name=\"" + StringEnsureInterfaceName(interfaceName) + "\" address=" + StringEnsureIpAddress(ipaddress) + " validate=no");
 		}
 	}
 	else if (command == "windows-firewall")
 	{
 		std::string args = StringTrim(params["args"]);
-		ShellResult result = ShellEx1(FsLocateExecutable("netsh.exe"), "advfirewall " + args);
+		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "advfirewall " + args);
 	}
 	else if (command == "windows-workaround-25139")
 	{
 		std::string cidr = StringTrim(params["cidr"]);
 		std::string iface = StringTrim(params["iface"]);
-		ShellResult result = ShellEx1(FsLocateExecutable("netsh.exe"), "interface ipv6 del route \"" + StringEnsureCidr(cidr) + "\" interface=\"" + StringEnsureNumericInt(iface) + "\"");
+		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "interface ipv6 del route \"" + StringEnsureCidr(cidr) + "\" interface=\"" + StringEnsureNumericInt(iface) + "\"");
 	}
 	else if (command == "windows-workaround-interface-up")
 	{
 		std::string name = StringTrim(params["name"]);
-		ShellResult result = ShellEx1(FsLocateExecutable("netsh.exe"), "interface set interface \"" + StringEnsureInterfaceName(name) + "\" ENABLED");		
+		ExecResult result = ExecEx1(FsLocateExecutable("netsh.exe"), "interface set interface \"" + StringEnsureInterfaceName(name) + "\" ENABLED");
 	}
 	else
 	{
@@ -311,7 +404,7 @@ void Impl::Do(const std::string& commandId, const std::string& command, std::map
 bool Impl::IsServiceInstalled()
 {
 	std::string serviceId = GetServiceId();
-	
+
 	HKEY hKey;
 	std::string regKey = "SYSTEM\\CurrentControlSet\\Services\\" + serviceId;
 	std::wstring regKeyW = StringUTF8ToWString(regKey);
@@ -323,9 +416,7 @@ bool Impl::IsServiceInstalled()
 
 bool Impl::ServiceInstall()
 {
-	std::string serviceId = GetServiceId();
-	std::string serviceName = GetServiceName();
-	std::string serviceDesc = GetServiceDesc();
+	bool success = true;
 
 	int port = 0;
 	if (m_cmdline.find("service_port") != m_cmdline.end())
@@ -336,43 +427,88 @@ bool Impl::ServiceInstall()
 	std::string path = FsFileGetDirectory(elevatedPath) + FsPathSeparator + "Eddie-Service-Elevated.exe";
 
 	std::string elevatedArgs = "mode=service";
-	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");	
+	std::string integrity = ComputeIntegrityHash(GetProcessPathCurrent(), "");
 	elevatedArgs += " integrity=" + StringEnsureSecure(integrity);
 
 	if (m_cmdline.find("service_port") != m_cmdline.end())
 		elevatedArgs += " service_port=" + std::to_string(port);
 
 	// Can be active but old version that don't accept new client
-	ShellEx1(FsLocateExecutable("net.exe"), "stop \"" + serviceId + "\"");
-	ShellEx1(FsLocateExecutable("sc.exe"), "delete \"" + serviceId + "\"");
+	ServiceUninstallDirect();
 
-	ShellEx1(FsLocateExecutable("sc.exe"), "create \"" + serviceId + "\" binpath= \"" + path + "\" DisplayName= \"" + serviceName + "\" start= auto");
+	SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS); // GENERIC_WRITE is not enough
+	if (serviceControlManager)
+	{
+		std::wstring serviceServiceNameW = StringUTF8ToWString(GetServiceId());
+		std::wstring serviceDisplayNameW = StringUTF8ToWString(GetServiceName());
+		std::wstring servicePathW = StringUTF8ToWString(path);
+		LPCWSTR serviceDependsW = TEXT("Nsi\0TcpIp"); // Added in 2.21.0
+		SC_HANDLE service = CreateService(serviceControlManager, serviceServiceNameW.c_str(), serviceDisplayNameW.c_str(), SC_MANAGER_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, servicePathW.c_str(), NULL, NULL, serviceDependsW, NULL, NULL);
+		if (service)
+		{
+			if (success)
+			{
+				HKEY hKey;
+				std::string regKey = "SYSTEM\\CurrentControlSet\\Services\\" + GetServiceId();
+				std::wstring regKeyW = StringUTF8ToWString(regKey);
+				LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regKeyW.c_str(), 0, KEY_ALL_ACCESS, &hKey);
+				if (openRes != ERROR_SUCCESS)
+					success = false;
+				else
+				{
+					// Write Args
+					std::wstring serviceArgs = StringUTF8ToWString(elevatedArgs);
+					LONG setResA = RegSetValueEx(hKey, TEXT("EddieArgs"), 0, REG_SZ, (LPBYTE)serviceArgs.c_str(), (DWORD)(serviceArgs.size() + 1) * sizeof(wchar_t));
+					if (setResA != ERROR_SUCCESS)
+						success = false;
 
-	// Write description and args
-	HKEY hKey;
-	std::string regKey = "SYSTEM\\CurrentControlSet\\Services\\" + serviceId;
-	std::wstring regKeyW = StringUTF8ToWString(regKey);
-	
-	LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regKeyW.c_str(), 0, KEY_ALL_ACCESS, &hKey);
+					// Write Description
+					std::wstring serviceDisplayDescW = StringUTF8ToWString(GetServiceDesc());
+					LONG setResD = RegSetValueEx(hKey, TEXT("Description"), 0, REG_SZ, (LPBYTE)serviceDisplayDescW.c_str(), (DWORD)(serviceDisplayDescW.size() + 1) * sizeof(wchar_t));
+					if (setResD != ERROR_SUCCESS)
+						success = false;
+				}
+			}
 
-	if (openRes != ERROR_SUCCESS)
-		ThrowException("Registry update fail");
+			if (success)
+			{
+				// Required by WireGuard
+				SERVICE_SID_INFO svcSidInfo;
+				svcSidInfo.dwServiceSidType = SERVICE_SID_TYPE_UNRESTRICTED;
+				if (!ChangeServiceConfig2(service, SERVICE_CONFIG_SERVICE_SID_INFO, &svcSidInfo))
+					success = false;
+			}
 
-	std::wstring serviceDisplayDescW = StringUTF8ToWString(serviceDesc);
-	LONG setResD = RegSetValueEx(hKey, TEXT("Description"), 0, REG_SZ, (LPBYTE)serviceDisplayDescW.c_str(), (DWORD)(serviceDisplayDescW.size() + 1) * sizeof(wchar_t));
-	if (setResD != ERROR_SUCCESS)
-		ThrowException("Registry update fail");
+			/* // Done via registry above
+			if(success)
+			{
+				SERVICE_DESCRIPTION svcDescription;
+				svcDescription.lpDescription = &(StringUTF8ToWString(GetServiceDesc()))[0];
+				if (!ChangeServiceConfig2(service, SERVICE_CONFIG_DESCRIPTION, &svcDescription))
+					success = false;
+			}
+			*/
 
-	std::wstring serviceArgs = StringUTF8ToWString(elevatedArgs);
-	LONG setResA = RegSetValueEx(hKey, TEXT("EddieArgs"), 0, REG_SZ, (LPBYTE)serviceArgs.c_str(), (DWORD)(serviceArgs.size() + 1) * sizeof(wchar_t));
-	if (setResA != ERROR_SUCCESS)
-		ThrowException("Registry update fail");
+			if (success)
+			{
+				if (!StartService(service, 0, NULL))
+					success = false;
+			}
 
-	LONG closeOut = RegCloseKey(hKey);
+			CloseServiceHandle(service);
 
-	ShellEx1(FsLocateExecutable("net.exe"), "start \"" + serviceId + "\"");
+			if (success == false)
+				ServiceUninstallDirect();
+		}
+		CloseServiceHandle(serviceControlManager);
+	}
 
-	return true;
+	return success;
+}
+
+bool Impl::ServiceUninstallDirect()
+{
+	return ServiceDelete(GetServiceId());
 }
 
 bool Impl::ServiceUninstall()
@@ -388,15 +524,14 @@ bool Impl::ServiceUninstall()
 			std::string path = FsLocateExecutable("sc.exe");
 			std::vector<std::string> args;
 			args.push_back("delete \"" + serviceId + "\"");
-			t_shellinfo info = ShellStart(path, args);
+			t_shellinfo info = ExecStart(path, args);
+
+			return true;
 		}
 		else
 		{
-			ShellEx1(FsLocateExecutable("net.exe"), "stop \"" + serviceId + "\"");
-			ShellEx1(FsLocateExecutable("sc.exe"), "delete \"" + serviceId + "\"");
+			return ServiceUninstallDirect();
 		}
-
-		return true;
 	}
 	else
 		return false;
@@ -404,136 +539,11 @@ bool Impl::ServiceUninstall()
 
 bool Impl::ServiceUninstallSupportRealtime()
 {
-    // See comment in base
-    return true;
+	// See comment in base
+	return true;
 }
 
-std::string Impl::CheckIfClientPathIsAllowed(const std::string& path)
-{
-#ifdef Debug
-	return "ok";
-#else
-	/*
-	// MacOS have equivalent. 
-	// Linux don't have any signature check (and can't have, because in distro like Arch, binary are builded client-side from sources
-	// This is probably a superfluous check, and can cause issue for who compile from sources.
-	// If implemented, need a conversion from C# to C++ of the code below.
 
-	// Check signature (optional)
-	{
-		try
-		{
-			System.Security.Cryptography.X509Certificates.X509Certificate c1 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(System.Reflection.Assembly.GetEntryAssembly().Location);
-
-			// If above don't throw exception, Elevated it's signed, so it's mandatory that client is signed from same subject.
-			try
-			{
-				System.Security.Cryptography.X509Certificates.X509Certificate c2 = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(clientPath);
-
-				bool match = (
-					(c1.Issuer == c2.Issuer) &&
-					(c1.Subject == c2.Subject) &&
-					(c1.GetCertHashString() == c2.GetCertHashString()) &&
-					(c1.GetEffectiveDateString() == c2.GetEffectiveDateString()) &&
-					(c1.GetPublicKeyString() == c2.GetPublicKeyString()) &&
-					(c1.GetRawCertDataString() == c2.GetRawCertDataString()) &&
-					(c1.GetSerialNumberString() == c2.GetSerialNumberString())
-					);
-
-				if (match == false)
-					return "Client not allowed: digital signature mismatch";
-			}
-			catch (Exception)
-			{
-				return "Client not allowed: digital signature not available";
-			}
-		}
-		catch (Exception)
-		{
-			// Not signed, but maybe compiled from source, it's an optional check.
-		}
-	}
-	*/
-
-	return "ok";
-#endif
-}
-
-void Impl::CheckIfExecutableIsAllowed(const std::string& path)
-{
-	// TOFIX - Missing some check like "path must be writable only by admin"
-	
-	std::string issues = "";
-
-	if (CheckIfExecutableIsWhitelisted(path)) // If true, skip other checks.
-		return;
-
-	/*
-	struct stat st;
-	memset(&st, 0, sizeof(struct stat));
-	if (stat(path.c_str(), &st) != 0)
-	{
-		issues += "Not readable;";
-	}
-	else
-	{
-		if (st.st_uid != 0)
-		{
-			issues += "Not owned by root;";
-		}
-		else if ((st.st_mode & S_ISUID) == 0)
-		{
-			if ((st.st_mode & S_IXUSR) == 0)
-			{
-				issues += "Not executable by owner;";
-			}
-
-			if ((st.st_mode & S_IWGRP) != 0)
-			{
-				issues += "Writable by group";
-			}
-
-			if ((st.st_mode & S_IWOTH) != 0)
-			{
-				issues += "Writable by other;";
-			}
-		}
-	}
-	*/
-
-	if (issues != "")
-		ThrowException("Executable '" + path + "' not allowed: " + issues);
-}
-
-int Impl::GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer)
-{
-	std::vector<unsigned char> buffer;
-	DWORD dwSize = sizeof(MIB_TCPTABLE_OWNER_PID);
-	DWORD dwRetValue = 0;
-
-	do {
-		buffer.resize(dwSize, 0);
-		dwRetValue = GetExtendedTcpTable(buffer.data(), &dwSize, TRUE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
-	} while (dwRetValue == ERROR_INSUFFICIENT_BUFFER);
-	if (dwRetValue == ERROR_SUCCESS)
-	{
-		PMIB_TCPTABLE_OWNER_PID ptTable = reinterpret_cast<PMIB_TCPTABLE_OWNER_PID>(buffer.data());
-		for (DWORD i = 0; i < ptTable->dwNumEntries; i++) {
-			DWORD pid = ptTable->table[i].dwOwningPid;
-
-			if ((ptTable->table[i].dwLocalAddr == addrClient.sin_addr.s_addr) &&
-				(ptTable->table[i].dwRemoteAddr == addrServer.sin_addr.s_addr) &&
-				(ptTable->table[i].dwLocalPort == addrClient.sin_port) &&
-				(ptTable->table[i].dwRemotePort == addrServer.sin_port)
-				)
-			{
-				return pid;
-			}
-		}
-	}
-
-	return 0;
-}
 
 int Impl::SetInterfaceMetric(const int index, const std::string layer, const int value)
 {
@@ -643,9 +653,7 @@ DWORD Impl::WfpBindInterface(const char* name, std::string weight, bool persiste
 			}
 
 			// Add packet filter to our interface.
-			dwFwAPiRetCode = ::FwpmSubLayerAdd0(m_wfpEngineHandle,
-				&SubLayer,
-				NULL);
+			dwFwAPiRetCode = ::FwpmSubLayerAdd0(m_wfpEngineHandle, &SubLayer, NULL);
 		}
 	}
 	catch (...)
@@ -660,8 +668,7 @@ DWORD Impl::WfpUnbindInterface()
 	try
 	{
 		// Delete packet filter layer from our interface.
-		dwFwAPiRetCode = ::FwpmSubLayerDeleteByKey0(m_wfpEngineHandle,
-			&m_wfpSubLayerGUID);
+		dwFwAPiRetCode = ::FwpmSubLayerDeleteByKey0(m_wfpEngineHandle, &m_wfpSubLayerGUID);
 		::ZeroMemory(&m_wfpSubLayerGUID, sizeof(GUID));
 	}
 	catch (...)
@@ -694,7 +701,7 @@ bool Impl::WfpStart(const std::string& xml)
 	bool dynamic = false;
 
 	std::string attrValue = "";
-	void *buf = malloc(XMLBUFSIZE);
+	void* buf = malloc(XMLBUFSIZE);
 	yxml_t x;
 	yxml_init(&x, buf, XMLBUFSIZE);
 	const char* xmlE = xml.c_str();
@@ -844,7 +851,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 	Filter.flags = FWPM_FILTER_FLAG_NONE;
 
 	std::string attrValue = "";
-	void *buf = malloc(XMLBUFSIZE);
+	void* buf = malloc(XMLBUFSIZE);
 	yxml_t x;
 	yxml_init(&x, buf, XMLBUFSIZE);
 	const char* xmlE = xml.c_str();
@@ -945,7 +952,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 					}
 					else
 					{
-						WfpRuleData &ruleData = rulesMap[conditionIndex];
+						WfpRuleData& ruleData = rulesMap[conditionIndex];
 
 						Filter.weight.type = FWP_UINT64;
 						ruleData.filterWeight = atoi(attrValue.c_str());
@@ -1070,7 +1077,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 					if (Condition[conditionIndex].fieldKey == FWPM_CONDITION_ALE_APP_ID)
 					{
 						std::wstring wAttrValue = std::wstring(attrValue.begin(), attrValue.end());
-						FWP_BYTE_BLOB *appblob = NULL;
+						FWP_BYTE_BLOB* appblob = NULL;
 						if (FwpmGetAppIdFromFileName0(wAttrValue.c_str(), &appblob) != ERROR_SUCCESS)
 						{
 							m_wfpLastError = "App not found";
@@ -1102,7 +1109,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 							return 0;
 						}
 
-						WfpRuleData &ruleData = rulesMap[conditionIndex];
+						WfpRuleData& ruleData = rulesMap[conditionIndex];
 						ruleData.ipAddressV4.addr = ntohl(IpAddr);
 
 						Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
@@ -1122,7 +1129,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 							return 0;
 						}
 
-						WfpRuleData &ruleData = rulesMap[conditionIndex];
+						WfpRuleData& ruleData = rulesMap[conditionIndex];
 						memcpy(&ruleData.ipAddressV6.addr, &IpAddr6.u.Byte, 16);
 
 						Condition[conditionIndex].conditionValue.type = FWP_V6_ADDR_MASK;
@@ -1145,7 +1152,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 								return 0;
 							}
 
-							WfpRuleData &ruleData = rulesMap[conditionIndex];
+							WfpRuleData& ruleData = rulesMap[conditionIndex];
 							ruleData.ipAddressV4.mask = ntohl(Mask);
 
 							Condition[conditionIndex].conditionValue.type = FWP_V4_ADDR_MASK;
@@ -1157,7 +1164,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 						{
 							UINT8 prefixLength = atoi(attrValue.c_str());
 
-							WfpRuleData &ruleData = rulesMap[conditionIndex];
+							WfpRuleData& ruleData = rulesMap[conditionIndex];
 							ruleData.ipAddressV6.prefixLength = prefixLength;
 
 							Condition[conditionIndex].conditionValue.type = FWP_V6_ADDR_MASK;
@@ -1167,7 +1174,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 				}
 				else if (attrName == "port_from")
 				{
-					WfpRuleData &ruleData = rulesMap[conditionIndex];
+					WfpRuleData& ruleData = rulesMap[conditionIndex];
 
 					ruleData.portRange.valueLow.type = FWP_UINT16;
 					ruleData.portRange.valueLow.uint16 = atoi(attrValue.c_str());
@@ -1177,7 +1184,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 				}
 				else if (attrName == "port_to")
 				{
-					WfpRuleData &ruleData = rulesMap[conditionIndex];
+					WfpRuleData& ruleData = rulesMap[conditionIndex];
 
 					ruleData.portRange.valueHigh.type = FWP_UINT16;
 					ruleData.portRange.valueHigh.uint16 = atoi(attrValue.c_str());
@@ -1221,7 +1228,7 @@ UINT64 Impl::WfpRuleAdd(const std::string& xml)
 
 						do {
 
-							pAddresses = (IP_ADAPTER_ADDRESSES *)MALLOC(outBufLen);
+							pAddresses = (IP_ADAPTER_ADDRESSES*)MALLOC(outBufLen);
 							if (pAddresses == NULL) {
 								printf
 								("Memory allocation failed for IP_ADAPTER_ADDRESSES struct\n");
@@ -1418,82 +1425,6 @@ bool Impl::WfpRemovePending(const std::string& filterName, const std::string& xm
 		e = StringReplaceAll(e, item, "");
 	}
 	return (nFound != 0);
-
-	void *buf = malloc(XMLBUFSIZE);
-	yxml_t x;
-	yxml_init(&x, buf, XMLBUFSIZE);
-	const char* xmlE = xml.c_str();
-
-	for (; *xmlE; xmlE++)
-	{
-		yxml_ret_t r = yxml_parse(&x, *xmlE);
-		if (r < 0)
-		{
-			m_wfpLastError = "XML syntax error";
-			m_wfpLastErrorCode = 0;
-			return false; // Syntax error
-		}
-
-		return true;
-
-		/*
-		if (r == YXML_ATTRVAL)
-			attrValue.append(x.data);
-
-		switch (r)
-		{
-			case YXML_ATTREND:
-			{
-				std::string elemName = x.elem;
-				std::string attrName = x.attr;
-
-				if (attrName == "description")
-					description = attrValue;
-				else if (attrName == "weight")
-					weight = attrValue;
-				else if (attrName == "persistent")
-					persistent = (attrValue == "true");
-				else if (attrName == "dynamic")
-					dynamic = (attrValue == "true");
-				else
-				{
-					m_wfpLastError = "Unknown attribute '" + attrName + "'";
-					m_wfpLastErrorCode = 0;
-					return 0;
-				}
-
-				attrValue = "";
-			}
-		}
-		*/
-
-		/*
-		System.Xml.XmlDocument xmlDoc = new XmlDocument();
-		xmlDoc.Load(path);
-		foreach(XmlElement xmlFilter in xmlDoc.DocumentElement.GetElementsByTagName("filters"))
-		{
-			foreach(XmlElement xmlItem in xmlFilter.GetElementsByTagName("item"))
-			{
-				foreach(XmlElement xmlName in xmlItem.SelectNodes("displayData/name"))
-				{
-					string name = xmlName.InnerText;
-					if (name == wfpName)
-					{
-						foreach(XmlNode xmlFilterId in xmlItem.GetElementsByTagName("filterId"))
-						{
-							ulong idR;
-							if (ulong.TryParse(xmlFilterId.InnerText, out idR))
-							{
-								NativeMethods.WfpRuleRemoveDirect(idR);
-								found = true;
-							}
-						}
-					}
-				}
-			}
-		}
-		*/
-	}
 }
 
 const char* Impl::WfpGetLastError()

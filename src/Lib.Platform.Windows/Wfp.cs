@@ -36,7 +36,7 @@ namespace Eddie.Platform.Windows
 	public class Wfp
 	{
 		private static Dictionary<string, WfpItem> Items = new Dictionary<string, WfpItem>();
-		
+
 		public static string GetName()
 		{
 			return Constants.Name + "-" + Constants.AppID;
@@ -49,25 +49,25 @@ namespace Eddie.Platform.Windows
 
 		public static void Start()
 		{
-			Engine.Instance.Elevated.DoCommandSync("wfp","action","init", "name", GetName());
-			
+			Engine.Instance.Elevated.DoCommandSync("wfp", "action", "init", "name", GetName());
+
 			XmlDocument xmlStart = new XmlDocument();
 			XmlElement xmlInfo = xmlStart.CreateElement("firewall");
 			xmlInfo.SetAttribute("description", Constants.Name);
 			xmlInfo.SetAttribute("weight", "max");
 			xmlInfo.SetAttribute("dynamic", GetDynamicMode() ? "true" : "false");
 
-			if (Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp","action","start", "xml", xmlInfo.OuterXml)) == false)
+			if (Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp", "action", "start", "xml", xmlInfo.OuterXml)) == false)
 			{
-				string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp","action", "last-error");
+				string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
 				throw new Exception(LanguageManager.GetText("WfpStartFail", wfpLastError));
-			}				
+			}
 		}
 
 		public static void Stop()
 		{
-			if(Engine.Instance.Elevated != null) // May have failed the elevation
-				Engine.Instance.Elevated.DoCommandSync("wfp","action","stop");			
+			if (Engine.Instance.Elevated != null) // May have failed the elevation
+				Engine.Instance.Elevated.DoCommandSync("wfp", "action", "stop");
 		}
 
 		public static bool RemoveItem(string code)
@@ -93,9 +93,9 @@ namespace Eddie.Platform.Windows
 					if (result == false)
 					{
 						string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
-						throw new Exception(LanguageManager.GetText("WfpRuleRemoveFail", wfpLastError));						
+						throw new Exception(LanguageManager.GetText("WfpRuleRemoveFail", wfpLastError));
 					}
-						
+
 				}
 
 				Items.Remove(item.Code);
@@ -105,8 +105,8 @@ namespace Eddie.Platform.Windows
 		}
 
 		public static bool RemoveItemId(ulong id)
-		{			
-			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp","action","rule-remove","id", id.ToString()));			
+		{
+			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp", "action", "rule-remove", "id", id.ToString()));
 		}
 
 		public static WfpItem AddItem(string code, XmlElement xml)
@@ -133,7 +133,7 @@ namespace Eddie.Platform.Windows
 				else if (xml.GetAttribute("layer") == "all-in")
 				{
 					layers.Add("ale_auth_recv_accept_v4");
-					layers.Add("ale_auth_recv_accept_v6");					
+					layers.Add("ale_auth_recv_accept_v6");
 				}
 				else if (xml.GetAttribute("layer") == "all-out")
 				{
@@ -154,11 +154,11 @@ namespace Eddie.Platform.Windows
 				}
 				else if (xml.GetAttribute("layer") == "ipv4-in")
 				{
-					layers.Add("ale_auth_recv_accept_v4");					
+					layers.Add("ale_auth_recv_accept_v4");
 				}
 				else if (xml.GetAttribute("layer") == "ipv6-in")
 				{
-					layers.Add("ale_auth_recv_accept_v6");					
+					layers.Add("ale_auth_recv_accept_v6");
 				}
 				else if (xml.GetAttribute("layer") == "ipv4-out")
 				{
@@ -182,12 +182,12 @@ namespace Eddie.Platform.Windows
 					xmlClone.SetAttribute("layer", layer);
 					string xmlStr = xmlClone.OuterXml;
 
-					UInt64 id1 = Conversions.ToUInt64(Engine.Instance.Elevated.DoCommandSync("wfp","action","rule-add", "xml", xmlStr));					
+					UInt64 id1 = Conversions.ToUInt64(Engine.Instance.Elevated.DoCommandSync("wfp", "action", "rule-add", "xml", xmlStr));
 
 					if (id1 == 0)
 					{
 						string wfpLastError = Engine.Instance.Elevated.DoCommandSync("wfp", "action", "last-error");
-						throw new Exception(LanguageManager.GetText("WfpRuleAddFail", wfpLastError));						
+						throw new Exception(LanguageManager.GetText("WfpRuleAddFail", wfpLastError));
 					}
 					else
 					{
@@ -260,7 +260,7 @@ namespace Eddie.Platform.Windows
 
 		public static bool ClearPendingRules()
 		{
-			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp","action","pending-remove", "name", GetName()));
+			return Conversions.ToBool(Engine.Instance.Elevated.DoCommandSync("wfp", "action", "pending-remove", "name", GetName()));
 		}
 	}
 }

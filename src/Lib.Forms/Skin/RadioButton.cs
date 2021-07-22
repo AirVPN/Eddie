@@ -24,10 +24,10 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class RadioButton : System.Windows.Forms.RadioButton
-    {
-        public RadioButton()
-        {            
-        }
-    }
+	public class RadioButton : System.Windows.Forms.RadioButton
+	{
+		public RadioButton()
+		{
+		}
+	}
 }

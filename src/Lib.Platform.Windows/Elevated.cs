@@ -17,30 +17,16 @@
 // </eddie_source_header>
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Management;
-using System.Security.Principal;
-using System.Xml;
-using System.Text;
-using System.Threading;
 using Eddie.Core;
-using Microsoft.Win32;
-using System.IO.MemoryMappedFiles;
-using System.Net.Sockets;
 
 namespace Eddie.Platform.Windows
 {
-	public class ElevatedImpl : Eddie.Core.Elevated.EleSocket
+	public class ElevatedImpl : Eddie.Core.Elevated.ISocket
 	{
 		public override void Start()
 		{
-			base.Start();			
-						
+			base.Start();
+
 			try
 			{
 				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
@@ -53,13 +39,13 @@ namespace Eddie.Platform.Windows
 					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 
 					string helperFullPath = Platform.Instance.GetElevatedHelperPath();
-					
+
 					bool serviceAlreadyPresentButFail = Platform.Instance.GetService(true);
 
 					if (Platform.Instance.SetService(true, true) == false)
 						throw new Exception("Unable to start (unable to initialize service)");
 
-					int listeningPortStartTime = Utils.UnixTimeStamp();
+					Int64 listeningPortStartTime = Utils.UnixTimeStamp();
 					for (; ; )
 					{
 						if (Platform.Instance.IsPortLocalListening(Engine.Instance.GetElevatedServicePort()))
@@ -81,7 +67,7 @@ namespace Eddie.Platform.Windows
 					{
 						ServiceUninstallAtEnd = true;
 						this.DoCommandSync("service-conn-mode", "mode", "single");
-					}											
+					}
 				}
 				else
 				{
@@ -89,7 +75,7 @@ namespace Eddie.Platform.Windows
 				}
 			}
 			catch (Exception ex)
-			{ 
+			{
 				Stop();
 
 				throw new Exception(LanguageManager.GetText("HelperPrivilegesFailed", ex.Message));

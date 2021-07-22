@@ -25,8 +25,8 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Controls
 {
-    public class ListViewItemProtocol : ListViewItem
-    {
-		public ConnectionMode Mode;		
+	public class ListViewItemProtocol : ListViewItem
+	{
+		public ConnectionMode Mode;
 	}
 }

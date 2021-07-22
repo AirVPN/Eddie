@@ -258,9 +258,9 @@ namespace Eddie.Forms.Controls
 		{
 			lock (this)
 			{
-                //SuspendLayout();
+				//SuspendLayout();
 
-                List<ConnectionInfo> serversList;
+				List<ConnectionInfo> serversList;
 				lock (Engine.Instance.Connections)
 				{
 					serversList = Engine.Instance.GetConnections(ShowAll);
@@ -329,10 +329,17 @@ namespace Eddie.Forms.Controls
 					}
 				}
 
-                Sort();
+				try
+				{
+					Sort();
+				}
+				catch (Exception)
+				{
+					// Random Mono exception under linux, ignore
+				}
 
-                //ResumeLayout();
-            }
+				//ResumeLayout();
+			}
 		}
 	}
 }

@@ -35,6 +35,7 @@
     <UseHardenedRuntime>true</UseHardenedRuntime>
     <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
     <MonoBundlingExtraArgs>--optimize=-trim-architectures</MonoBundlingExtraArgs>
+    <LinkMode>None</LinkMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <DebugType></DebugType>
@@ -58,7 +59,7 @@
     <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
-    <StartArguments>path.tools="../../../../../../../../deploy/macos_x64" path.resources="../../../../../../../../common"</StartArguments>
+    <StartArguments>path.tools="../../../../../../../../deploy/macos_arm64" path.resources="../../../../../../../../common"</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -635,6 +636,11 @@
     <Compile Include="WindowShellExternalPermissionController.designer.cs">
       <DependentUpon>WindowShellExternalPermissionController.cs</DependentUpon>
     </Compile>
+    <Compile Include="WindowProviderEditWireGuard.cs" />
+    <Compile Include="WindowProviderEditWireGuard.designer.cs">
+      <DependentUpon>WindowProviderEditWireGuard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WindowProviderEditWireGuardController.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -659,6 +665,7 @@
     <InterfaceDefinition Include="WindowSplash.xib" />
     <InterfaceDefinition Include="WindowUnlock.xib" />
     <InterfaceDefinition Include="WindowShellExternalPermission.xib" />
+    <InterfaceDefinition Include="WindowProviderEditWireGuard.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Entitlements.plist" />

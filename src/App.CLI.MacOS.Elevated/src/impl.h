@@ -35,7 +35,7 @@ protected:
 	// Virtual Pure, OS
 protected:
 	virtual std::string GetProcessPathOfId(int pid);
-    virtual pid_t GetParentProcessId(pid_t pid);
+	virtual pid_t GetParentProcessId(pid_t pid);
 	virtual pid_t GetProcessIdOfName(const std::string& name);
 
 private:
@@ -44,5 +44,6 @@ private:
 	int FileGetFlags(const std::string& path);
 
 	std::vector<std::string> GetNetworkInterfaces();
+	unsigned long WireGuardLastHandshake(const std::string& wgPath, const std::string& interfaceId);
 };
 

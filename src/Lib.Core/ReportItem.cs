@@ -36,5 +36,5 @@ namespace Eddie.Core
 				return (Data.IndexOf('\n') != -1);
 			}
 		}
-	}	
+	}
 }

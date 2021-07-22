@@ -26,30 +26,30 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowProviderEditManifest : Eddie.Forms.Form
-    {
+	public partial class WindowProviderEditManifest : Eddie.Forms.Form
+	{
 		public Core.Providers.Service Provider;
 
-        public WindowProviderEditManifest()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		public WindowProviderEditManifest()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
 			lblTitle.Font = Skin.FontBig;
 		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsProviderEditManifestTitle"));
@@ -61,17 +61,17 @@ namespace Eddie.Forms.Forms
 
 			EnableIde();
 		}
-        
+
 		private void EnableIde()
 		{
-			
+
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
 			Provider.Enabled = chkEnabled.Checked;
 		}
-		
+
 		private void lblTitle_Click_1(object sender, EventArgs e)
 		{
 			GuiUtils.OpenUrl(Provider.DefinitionHref);

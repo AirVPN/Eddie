@@ -38,7 +38,7 @@
     (b)[(i) + 3] = (uint8) ( (n)       );       \
 }
 
-void sha256_starts(sha256_context *ctx)
+void sha256_starts(sha256_context* ctx)
 {
 	ctx->total[0] = 0;
 	ctx->total[1] = 0;
@@ -53,7 +53,7 @@ void sha256_starts(sha256_context *ctx)
 	ctx->state[7] = 0x5BE0CD19;
 }
 
-void sha256_process(sha256_context *ctx, uint8 data[64])
+void sha256_process(sha256_context* ctx, uint8 data[64])
 {
 	uint32 temp1, temp2, W[64];
 	uint32 A, B, C, D, E, F, G, H;
@@ -184,7 +184,7 @@ void sha256_process(sha256_context *ctx, uint8 data[64])
 	ctx->state[7] += H;
 }
 
-void sha256_update(sha256_context *ctx, uint8 *input, uint32 length)
+void sha256_update(sha256_context* ctx, uint8* input, uint32 length)
 {
 	uint32 left, fill;
 
@@ -201,8 +201,8 @@ void sha256_update(sha256_context *ctx, uint8 *input, uint32 length)
 
 	if (left && length >= fill)
 	{
-		memcpy((void *)(ctx->buffer + left),
-			(void *)input, fill);
+		memcpy((void*)(ctx->buffer + left),
+			(void*)input, fill);
 		sha256_process(ctx, ctx->buffer);
 		length -= fill;
 		input += fill;
@@ -218,8 +218,8 @@ void sha256_update(sha256_context *ctx, uint8 *input, uint32 length)
 
 	if (length)
 	{
-		memcpy((void *)(ctx->buffer + left),
-			(void *)input, length);
+		memcpy((void*)(ctx->buffer + left),
+			(void*)input, length);
 	}
 }
 
@@ -231,7 +231,7 @@ static uint8 sha256_padding[64] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void sha256_finish(sha256_context *ctx, uint8 digest[32])
+void sha256_finish(sha256_context* ctx, uint8 digest[32])
 {
 	uint32 last, padn;
 	uint32 high, low;
@@ -269,14 +269,14 @@ void sha256_finish(sha256_context *ctx, uint8 digest[32])
  * those are the standard FIPS-180-2 test vectors
  */
 
-static char *msg[] =
+static char* msg[] =
 {
 	"abc",
 	"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
 	NULL
 };
 
-static char *val[] =
+static char* val[] =
 {
 	"ba7816bf8f01cfea414140de5dae2223" \
 	"b00361a396177a9cb410ff61f20015ad",

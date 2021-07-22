@@ -45,11 +45,11 @@ namespace Eddie.Forms
 		public static StringFormat StringFormatRightMiddleNoWrap;
 
 		private static string m_unixFontSystemName = "";
-        private static float m_unixFontSystemSize = 11;
-        private static string m_unixFontMonoSpaceName = "";
-        private static float m_unixFontMonoSpaceSize = 11;
+		private static float m_unixFontSystemSize = 11;
+		private static string m_unixFontMonoSpaceName = "";
+		private static float m_unixFontMonoSpaceSize = 11;
 
-        public static bool IsWindows()
+		public static bool IsWindows()
 		{
 			return (Environment.OSVersion.VersionString.IndexOf("Windows") != -1);
 		}
@@ -77,40 +77,40 @@ namespace Eddie.Forms
 			if (IsUnix())
 			{
 				m_unixFontSystemName = SystemFonts.MenuFont.Name;
-                m_unixFontSystemSize = SystemFonts.MenuFont.Size;
-                m_unixFontMonoSpaceName = "Monospace";
-                m_unixFontMonoSpaceSize = SystemFonts.MenuFont.Size;
+				m_unixFontSystemSize = SystemFonts.MenuFont.Size;
+				m_unixFontMonoSpaceName = "Monospace";
+				m_unixFontMonoSpaceSize = SystemFonts.MenuFont.Size;
 
 				string gsettingsPath = Eddie.Core.Platform.Instance.LocateExecutable("gsettings"); // gnome
 				if (gsettingsPath != "")
 				{
-                    string uFontSystem = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
-                    int uFontSystemSep = uFontSystem.LastIndexOf(" ");
+					string uFontSystem = SystemExec.Exec1(gsettingsPath, "get org.gnome.desktop.interface font-name").Trim('\'');
+					int uFontSystemSep = uFontSystem.LastIndexOf(" ");
 					if (uFontSystemSep != -1)
-                    {
-                        m_unixFontSystemName = uFontSystem.Substring(0, uFontSystemSep).TrimChars(",; \n\r");
-                        m_unixFontSystemSize = Conversions.ToInt32(uFontSystem.Substring(uFontSystemSep + 1).TrimChars(",; \n\r"));
-                    }
+					{
+						m_unixFontSystemName = uFontSystem.Substring(0, uFontSystemSep).TrimChars(",; \n\r");
+						m_unixFontSystemSize = Conversions.ToInt32(uFontSystem.Substring(uFontSystemSep + 1).TrimChars(",; \n\r"));
+					}
 
-                    string uFontMono = SystemShell.Shell1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
-                    int uFontMonoSep = uFontMono.LastIndexOf(" ");
-                    if (uFontMonoSep != -1)
-                    {
-                        m_unixFontMonoSpaceName = uFontMono.Substring(0, uFontMonoSep).TrimChars(",; \n\r");
-                        m_unixFontMonoSpaceSize = Conversions.ToInt32(uFontMono.Substring(uFontMonoSep + 1).TrimChars(",; \n\r"));
-                    }
-                }
+					string uFontMono = SystemExec.Exec1(gsettingsPath, "get org.gnome.desktop.interface monospace-font-name").Trim('\'');
+					int uFontMonoSep = uFontMono.LastIndexOf(" ");
+					if (uFontMonoSep != -1)
+					{
+						m_unixFontMonoSpaceName = uFontMono.Substring(0, uFontMonoSep).TrimChars(",; \n\r");
+						m_unixFontMonoSpaceSize = Conversions.ToInt32(uFontMono.Substring(uFontMonoSep + 1).TrimChars(",; \n\r"));
+					}
+				}
 
-                if (m_unixFontSystemName == "")
-                    m_unixFontSystemName = "Cantarell";
-                if (m_unixFontSystemSize < 6)
-                    m_unixFontSystemSize = 6;
+				if (m_unixFontSystemName == "")
+					m_unixFontSystemName = "Cantarell";
+				if (m_unixFontSystemSize < 6)
+					m_unixFontSystemSize = 6;
 
-                if (m_unixFontMonoSpaceName == "")
-                    m_unixFontMonoSpaceName = "Monospace";
-                if (m_unixFontMonoSpaceSize < 6)
-                    m_unixFontMonoSpaceSize = 6;
-            }
+				if (m_unixFontMonoSpaceName == "")
+					m_unixFontMonoSpaceName = "Monospace";
+				if (m_unixFontMonoSpaceSize < 6)
+					m_unixFontMonoSpaceSize = 6;
+			}
 		}
 
 		public static StringFormat BuildStringFormat(StringAlignment h, StringAlignment v)
@@ -127,7 +127,7 @@ namespace Eddie.Forms
 			StringFormat sf = new StringFormat();
 			sf.Alignment = h;
 			sf.LineAlignment = v;
-			sf.FormatFlags = f;			
+			sf.FormatFlags = f;
 			sf.Trimming = StringTrimming.None;
 			return sf;
 		}
@@ -139,18 +139,18 @@ namespace Eddie.Forms
 
 		public static string GetSystemFont()
 		{
-            if (IsUnix())
-                return m_unixFontSystemName + "," + m_unixFontSystemSize;
-            else
-                return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
+			if (IsUnix())
+				return m_unixFontSystemName + "," + m_unixFontSystemSize;
+			else
+				return SystemFonts.MenuFont.Name + "," + SystemFonts.MenuFont.Size;
 		}
 
 		public static string GetSystemFontMonospace()
 		{
-            if (IsUnix())
-                return m_unixFontMonoSpaceName + "," + m_unixFontMonoSpaceSize;
+			if (IsUnix())
+				return m_unixFontMonoSpaceName + "," + m_unixFontMonoSpaceSize;
 
-            string fontName = "";
+			string fontName = "";
 			if (IsFontInstalled("Consolas"))
 				fontName = "Consolas";
 			else if (IsFontInstalled("Monospace"))
@@ -248,34 +248,52 @@ namespace Eddie.Forms
 			Forms.WindowMessage dlg = new Forms.WindowMessage();
 			dlg.Kind = Forms.WindowMessage.MessageKind.Error;
 			dlg.Body = message;
-			dlg.ShowDialog(parent);			
+			dlg.ShowDialog(parent);
 		}
 
 		public static bool MessageBoxAskYesNo(Form parent, string message)
 		{
 			Forms.WindowMessage dlg = new Forms.WindowMessage();
 			dlg.Kind = Forms.WindowMessage.MessageKind.YesNo;
-			dlg.Body = message;			
+			dlg.Body = message;
 			dlg.ShowDialog(parent);
 			return dlg.YesNoAnswer;
 			//return (MessageBox.Show(parent, message, Constants.Name, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
 		}
 
-		public static void ClipboardSetText(string t)
+		public static void ClipboardSetText(Form parent, string text)
 		{
-			try
+			string error = "";
+
+			Application.UseWaitCursor = true;
+
+			// Loop retry because sometime throw "Requested Clipboard operation did not succeed.", probably concurrency with other apps.
+			for (int t = 0; t < 10; t++)
 			{
-				Clipboard.SetText(t);
+				System.Threading.Thread.Sleep(100);
+				try
+				{
+					Clipboard.SetText(text);
+					error = "";
+					break;
+				}
+				catch (Exception ex)
+				{
+					error = ex.Message;
+				}
 			}
-			catch (Exception e)
-			{
-				Engine.Instance.Logs.Log(e);
-			}
+
+			Application.UseWaitCursor = false;
+
+			if (error == "")
+				GuiUtils.MessageBoxInfo(parent, LanguageManager.GetText("LogsCopyClipboardDone"));
+			else
+				GuiUtils.MessageBoxError(parent, error);
 		}
 
 		public static void OpenUrl(string url)
 		{
-			if(IsWindows())
+			if (IsWindows())
 			{
 				System.Diagnostics.Process.Start(url);
 			}
@@ -284,14 +302,6 @@ namespace Eddie.Forms
 				// Temporary, TOFIX
 				Eddie.Core.Platform.Instance.OpenUrl(url);
 			}
-		}
-
-		public static string NormalizeString(string val)
-		{
-			if(IsWindows())
-				return val.Replace("\r\n", "\n").Replace("\n", "\r\n");
-			else
-				return val.Replace("\r\n", "\n");
 		}
 
 		// Workaround to Windows 64-chars limit

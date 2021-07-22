@@ -24,10 +24,10 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class TextBox : System.Windows.Forms.TextBox
-    {
-        public TextBox()
-        {
-        }
-    }
+	public class TextBox : System.Windows.Forms.TextBox
+	{
+		public TextBox()
+		{
+		}
+	}
 }

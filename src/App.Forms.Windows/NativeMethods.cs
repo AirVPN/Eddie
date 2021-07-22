@@ -26,7 +26,7 @@ using Eddie.Forms;
 namespace Eddie.Forms.Windows
 {
 	static class NativeMethods
-	{		
+	{
 		[System.Runtime.InteropServices.DllImport("user32.dll")]
 		public static extern bool SetProcessDPIAware();
 	}

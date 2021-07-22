@@ -69,6 +69,7 @@ namespace Eddie.Core.Elevated
 			m_complete = true;
 			if (CompleteEvent != null)
 				CompleteEvent(this);
+
 			Complete.Set();
 		}
 

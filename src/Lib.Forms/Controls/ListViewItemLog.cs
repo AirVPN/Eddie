@@ -25,8 +25,8 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Controls
 {
-    public class ListViewItemLog : ListViewItem
-    {
-        public string TextEdition;
-    }
+	public class ListViewItemLog : ListViewItem
+	{
+		public string TextEdition;
+	}
 }

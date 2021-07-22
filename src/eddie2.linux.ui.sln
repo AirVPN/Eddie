@@ -59,5 +59,34 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		version = 2.19
+		Policies = $0
+		$0.TextStylePolicy = $1
+		$1.inheritsSet = null
+		$1.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $2
+		$2.scope = text/x-csharp
+		$0.TextStylePolicy = $3
+		$3.FileWidth = 80
+		$3.scope = text/plain
+		$0.TextStylePolicy = $4
+		$4.inheritsSet = null
+		$4.scope = text/microsoft-resx
+		$0.XmlFormattingPolicy = $5
+		$5.inheritsSet = null
+		$5.scope = text/microsoft-resx
+		$0.TextStylePolicy = $6
+		$6.inheritsSet = null
+		$6.scope = application/xml
+		$0.XmlFormattingPolicy = $7
+		$7.scope = application/xml
+		$0.TextStylePolicy = $8
+		$8.inheritsSet = null
+		$8.scope = application/json
+		$0.TextStylePolicy = $9
+		$9.inheritsSet = null
+		$9.scope = application/config+xml
+		$0.XmlFormattingPolicy = $10
+		$10.inheritsSet = null
+		$10.scope = application/config+xml
 	EndGlobalSection
 EndGlobal

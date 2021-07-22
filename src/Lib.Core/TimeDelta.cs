@@ -22,29 +22,29 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class TimeDelta
-    {
-        int V = 0;
+	public class TimeDelta
+	{
+		int V = 0;
 
-        public TimeDelta()
-        {
-            Reset();
-        }
+		public TimeDelta()
+		{
+			Reset();
+		}
 
-        public int Reset()
-        {
-            int o = V;
-            int n = Environment.TickCount;
+		public int Reset()
+		{
+			int o = V;
+			int n = Environment.TickCount;
 
-            V = n;
-            return n - o;            
-        }
+			V = n;
+			return n - o;
+		}
 
 		public bool Elapsed(int msec)
 		{
 			int o = V;
 			int n = Environment.TickCount;
-			int d = n-o;
+			int d = n - o;
 
 			if (d >= msec)
 			{
@@ -52,8 +52,8 @@ namespace Eddie.Core
 				V += msec;
 				return true;
 			}
-			
+
 			return false;
 		}
-    }
+	}
 }

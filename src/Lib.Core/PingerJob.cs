@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Eddie.Core.Threads;
 
 namespace Eddie.Core
 {
@@ -38,17 +37,17 @@ namespace Eddie.Core
 		*/
 
 		public void Run()
-		{			
+		{
 			RouteScope routeScope = null;
 			try
-			{				
+			{
 				IpAddress ip = Server.IpsEntry.FirstPreferIPv4;
-				if( (ip == null) || (ip.Valid == false) )
+				if ((ip == null) || (ip.Valid == false))
 					throw new Exception("Invalid ip");
 				routeScope = new RouteScope(ip.ToString());
-                Int64 result = Platform.Instance.Ping(ip, Engine.Instance.Options.GetInt("pinger.timeout"));		
+				Int64 result = Platform.Instance.Ping(ip, Engine.Instance.Options.GetInt("pinger.timeout"));
 
-                if ( (Engine.Instance == null) || (Engine.Instance.JobsManager == null) || (Engine.Instance.JobsManager.Latency == null) )
+				if ((Engine.Instance == null) || (Engine.Instance.JobsManager == null) || (Engine.Instance.JobsManager.Latency == null))
 					return; // Avoid unidentified crash
 
 				Engine.Instance.JobsManager.Latency.PingResult(Server, result);

@@ -39,9 +39,9 @@ namespace Eddie.Core.Jobs
 		}
 
 		public override void OnRun()
-		{			
+		{
 			bool force = (m_timeEvery == 0);
-			Engine.Instance.ProvidersManager.DoRefresh(force);	
+			Engine.Instance.ProvidersManager.DoRefresh(force);
 
 			m_timeEvery = 10000;
 		}

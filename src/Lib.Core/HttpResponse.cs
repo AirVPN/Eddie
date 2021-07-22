@@ -27,25 +27,25 @@ namespace Eddie.Core
 		public string Status;
 		public byte[] BufferData = default(byte[]);
 		public List<KeyValuePair<string, string>> Headers = new List<KeyValuePair<string, string>>();
-		public int ResponseCode = 0;
-		
+		public int HttpCode = 0;
+
 		public void FromJson(Json jResponse)
 		{
 			if (jResponse.HasKey("headers"))
 			{
 				string[] lines = jResponse["headers"].ValueString.Split('\n');
 				Status = "";
-                foreach(string line in lines)
-                {
-                    string l = line.Trim();
-                    if (l == "")
-                        continue;
-					
-					if(Status == "")
+				foreach (string line in lines)
+				{
+					string l = line.Trim();
+					if (l == "")
+						continue;
+
+					if (Status == "")
 					{
 						Status = l.Trim();
-                    }
-                    else 
+					}
+					else
 					{
 						int posSep = l.IndexOfInv(":");
 						if (posSep != -1)
@@ -57,17 +57,17 @@ namespace Eddie.Core
 							if (k != "")
 								Headers.Add(new KeyValuePair<string, string>(k, v));
 						}
-					}	
+					}
 				}
 			}
 
 			if (jResponse.HasKey("body"))
 			{
-                BufferData = ExtensionsString.HexToBytes(jResponse["body"].ValueString);
+				BufferData = ExtensionsString.HexToBytes(jResponse["body"].ValueString);
 			}
 
-			if(jResponse.HasKey("response_code"))
-				ResponseCode = jResponse["response_code"].ValueInt;
+			if (jResponse.HasKey("response_code"))
+				HttpCode = jResponse["response_code"].ValueInt;
 		}
 
 		public string GetBodyAscii()

@@ -41,54 +41,54 @@ namespace Eddie.Core
 				return nodeAttr.Value;
 		}
 
-        public static string[] GetAttributeStringArray(this XmlNode node, string name)
-        {
-            XmlNode nodeAttr = node.Attributes[name];
-            if (nodeAttr == null)
-                return new string[0];
-            else if (nodeAttr.Value == "") // New in 2.8
-                return new string[0];
-            else
-                return nodeAttr.Value.Split(',');
-        }
+		public static string[] GetAttributeStringArray(this XmlNode node, string name)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return new string[0];
+			else if (nodeAttr.Value == "") // New in 2.8
+				return new string[0];
+			else
+				return nodeAttr.Value.Split(',');
+		}
 
-        public static bool GetAttributeBool(this XmlNode node, string name, bool def)
-        {
-            XmlNode nodeAttr = node.Attributes[name];
-            if (nodeAttr == null)
-                return def;
-            else
-                return Conversions.ToBool(nodeAttr.Value);
-        }
+		public static bool GetAttributeBool(this XmlNode node, string name, bool def)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToBool(nodeAttr.Value);
+		}
 
-        public static int GetAttributeInt(this XmlNode node, string name, int def)
-        {
-            XmlNode nodeAttr = node.Attributes[name];
-            if (nodeAttr == null)
-                return def;
-            else
-                return Conversions.ToInt32(nodeAttr.Value);
-        }
+		public static int GetAttributeInt(this XmlNode node, string name, int def)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToInt32(nodeAttr.Value);
+		}
 
-        public static Int64 GetAttributeInt64(this XmlNode node, string name, Int64 def)
-        {
-            XmlNode nodeAttr = node.Attributes[name];
-            if (nodeAttr == null)
-                return def;
-            else
-                return Conversions.ToInt64(nodeAttr.Value);
-        }
+		public static Int64 GetAttributeInt64(this XmlNode node, string name, Int64 def)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToInt64(nodeAttr.Value);
+		}
 
-        public static float GetAttributeFloat(this XmlNode node, string name, float def)
-        {
-            XmlNode nodeAttr = node.Attributes[name];
-            if (nodeAttr == null)
-                return def;
-            else
-                return Conversions.ToFloat(nodeAttr.Value);
-        }
+		public static float GetAttributeFloat(this XmlNode node, string name, float def)
+		{
+			XmlNode nodeAttr = node.Attributes[name];
+			if (nodeAttr == null)
+				return def;
+			else
+				return Conversions.ToFloat(nodeAttr.Value);
+		}
 
-        public static void SetAttributeString(this XmlElement node, string name, string val)
+		public static void SetAttributeString(this XmlElement node, string name, string val)
 		{
 			node.SetAttribute(name, val);
 		}
@@ -140,7 +140,7 @@ namespace Eddie.Core
 			foreach (XmlElement xmlChild in node.ChildNodes)
 				if (xmlChild.Name == name)
 					return xmlChild;
-			return null;			
+			return null;
 		}
 
 		// Utils, not extension
@@ -157,16 +157,50 @@ namespace Eddie.Core
 			return xmlDoc.CreateElement(name);
 		}
 
-		// Only dictionary, only string supported right now.
-		public static void JsonToXml(Json source, XmlElement destination)
+
+		public static XmlElement XmlFromJson(Json source, string rootName)
 		{
-			if(source.IsDictionary())
+			XmlDocument xmlDoc = new XmlDocument();
+			XmlElement xmlE = xmlDoc.CreateElement(rootName);
+
+			XmlFromJson(source, xmlE);
+
+			return xmlE;
+		}
+
+		public static void XmlFromJson(Json source, XmlElement destination) // Limited support
+		{
+			if (source.IsDictionary())
 			{
-				foreach(KeyValuePair<string, object> kp in source.GetDictionary())
+				foreach (KeyValuePair<string, object> kp in source.GetDictionary())
 				{
-					if(kp.Value is string)
+					if (kp.Value is string)
 					{
 						destination.SetAttribute(kp.Key as string, kp.Value as string);
+					}
+					else if (kp.Value is Json)
+					{
+						Json jChild = kp.Value as Json;
+						XmlElement xmlChild = destination.OwnerDocument.CreateElement(kp.Key);
+						destination.AppendChild(xmlChild);
+						if (jChild.IsDictionary())
+						{
+							XmlFromJson(jChild, xmlChild);
+						}
+						else if (jChild.IsArray())
+						{
+							foreach (object item in jChild.GetArray())
+							{
+								string subName = kp.Key;
+								if (subName.EndsWith("s")) subName = subName.Substring(0, subName.Length - 1);
+								XmlElement xmlChild2 = destination.OwnerDocument.CreateElement(subName);
+								xmlChild.AppendChild(xmlChild2);
+								if (item is Json)
+								{
+									XmlFromJson(item as Json, xmlChild2);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -175,7 +209,7 @@ namespace Eddie.Core
 		// Only dictionary, only string supported right now.
 		public static void XmlToJson(XmlElement source, Json destination)
 		{
-			foreach(XmlAttribute attr in source.Attributes)
+			foreach (XmlAttribute attr in source.Attributes)
 			{
 				destination[attr.Name].Value = attr.Value;
 			}

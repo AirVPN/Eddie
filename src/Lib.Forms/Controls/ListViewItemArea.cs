@@ -24,64 +24,66 @@ using System.Windows.Forms;
 using Eddie.Core;
 
 namespace Eddie.Forms.Controls
-{	
+{
 	public class ListViewItemArea : ListViewItem
-    {
-        public AreaInfo Info;
+	{
+		public AreaInfo Info;
 
-        public Engine Engine
-        {
-            get
-            {
+		public Engine Engine
+		{
+			get
+			{
 				return Engine.Instance as Eddie.Forms.Engine;
-            }
-        }
+			}
+		}
 
-        public void Update()
-        {
-            string nameForList = Info.GetNameForList();
-            if (Text != nameForList)
-                Text = nameForList;
+		public void Update()
+		{
+			string nameForList = Info.GetNameForList();
+			if (Text != nameForList)
+				Text = nameForList;
 
-            string code = Info.Code;
-            if(ImageKey != code)
-                ImageKey = code;
+			string code = Info.Code;
+			if (ImageKey != code)
+				ImageKey = code;
 
-            if (SubItems.Count == 1)
-            {
-                SubItems.Add("");
-                SubItems.Add("");
-                SubItems.Add("");
-                SubItems.Add("");                
-            }
+			if (SubItems.Count == 1)
+			{
+				SubItems.Add("");
+				SubItems.Add("");
+				SubItems.Add("");
+				SubItems.Add("");
+			}
 
-            string servers = Info.GetServersForList();
-            if (SubItems[1].Text != servers)
-                SubItems[1].Text = servers;
-                        
-            string users = Info.GetUsersForList();
-            if(SubItems[3].Text != users)
-                SubItems[3].Text = users;
+			string servers = Info.GetServersForList();
+			if (SubItems[1].Text != servers)
+				SubItems[1].Text = servers;
 
-            Color foreColor = SystemColors.WindowText;
-            int stateImageIndex = 2;
-            switch(Info.UserList)
-            {
-                case AreaInfo.UserListType.Whitelist:
-                    {
-                        foreColor = Color.DarkGreen;
-                        stateImageIndex = 0;
-                    } break;
-                case AreaInfo.UserListType.Blacklist:
-                    {
-                        foreColor = Color.DarkRed;
-                        stateImageIndex = 1;
-                    } break;                
-            }
-            if (ForeColor != foreColor)
-                ForeColor = foreColor;
-            if (StateImageIndex != stateImageIndex)
-                StateImageIndex = stateImageIndex;
-        }
-    }
+			string users = Info.GetUsersForList();
+			if (SubItems[3].Text != users)
+				SubItems[3].Text = users;
+
+			Color foreColor = SystemColors.WindowText;
+			int stateImageIndex = 2;
+			switch (Info.UserList)
+			{
+				case AreaInfo.UserListType.Whitelist:
+					{
+						foreColor = Color.DarkGreen;
+						stateImageIndex = 0;
+					}
+					break;
+				case AreaInfo.UserListType.Blacklist:
+					{
+						foreColor = Color.DarkRed;
+						stateImageIndex = 1;
+					}
+					break;
+			}
+			if (ForeColor != foreColor)
+				ForeColor = foreColor;
+			if (StateImageIndex != stateImageIndex)
+				StateImageIndex = stateImageIndex;
+		}
+	}
 }

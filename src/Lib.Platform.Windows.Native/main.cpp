@@ -54,9 +54,9 @@ int eddie_get_interface_metric(int index, const char* layer)
 	DWORD err = 0;
 	MIB_IPINTERFACE_ROW ipiface;
 	InitializeIpInterfaceEntry(&ipiface);
-	if(layerS == "ipv4")
+	if (layerS == "ipv4")
 		ipiface.Family = AF_INET;
-	else if(layerS == "ipv6")
+	else if (layerS == "ipv6")
 		ipiface.Family = AF_INET6;
 	else
 		return -1;
@@ -64,22 +64,90 @@ int eddie_get_interface_metric(int index, const char* layer)
 	err = GetIpInterfaceEntry(&ipiface);
 	if (err == NO_ERROR)
 	{
-		if(ipiface.UseAutomaticMetric)
+		if (ipiface.UseAutomaticMetric)
 			return 0;
 		else
-			return ipiface.Metric;		
+			return ipiface.Metric;
 	}
 	else
 		return -1;
 }
 
-static size_t eddie_curl_headercallback(void *contents, size_t size, size_t nmemb, void *userp)
+DWORD eddie_service_status(const char* serviceId)
+{
+	SC_HANDLE serviceControlManager = OpenSCManagerA(0, 0, GENERIC_READ);
+
+	DWORD result = 0;
+
+	if (serviceControlManager)
+	{
+		try
+		{
+			SC_HANDLE service = OpenServiceA(serviceControlManager, serviceId, SERVICE_QUERY_STATUS);
+			if (service)
+			{
+				try
+				{
+					SERVICE_STATUS serviceStatus2;
+					if (QueryServiceStatus(service, &serviceStatus2))
+					{
+						result = serviceStatus2.dwCurrentState;
+					}
+				}
+				catch (...)
+				{
+				}
+				CloseServiceHandle(service);
+			}
+		}
+		catch (...)
+		{
+		}
+
+		CloseServiceHandle(serviceControlManager);
+	}
+
+	return result;
+}
+
+BOOL eddie_is_process_elevated()
+{
+	BOOL fIsElevated = FALSE;
+	HANDLE hToken = NULL;
+	TOKEN_ELEVATION elevation;
+	DWORD dwSize;
+
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+	{
+		printf("\n Failed to get Process Token :%d.", GetLastError());
+		goto Cleanup;  // if Failed, we treat as False
+	}
+
+
+	if (!GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize))
+	{
+		printf("\nFailed to get Token Information :%d.", GetLastError());
+		goto Cleanup;// if Failed, we treat as False
+	}
+
+	fIsElevated = elevation.TokenIsElevated;
+
+Cleanup:
+	if (hToken)
+	{
+		CloseHandle(hToken);
+		hToken = NULL;
+	}
+	return fIsElevated;
+}
+
+static size_t eddie_curl_headercallback(void* contents, size_t size, size_t nmemb, void* userp)
 {
 	((std::string*)userp)->append((char*)contents, size * nmemb);
 	return size * nmemb;
 }
 
-static size_t eddie_curl_writecallback(void *data, size_t size, size_t nmemb, std::string *buffer)
+static size_t eddie_curl_writecallback(void* data, size_t size, size_t nmemb, std::string* buffer)
 {
 	size_t result = 0;
 	if (buffer != NULL)
@@ -91,14 +159,14 @@ static size_t eddie_curl_writecallback(void *data, size_t size, size_t nmemb, st
 }
 
 void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult)
-{	
+{
 	json jsonRequest = json::parse(jRequest);
 
 	json jsonResponse;
-	
-	CURL *hcurl;
+
+	CURL* hcurl;
 	//struct curl_slist *headersList = NULL;
-	struct curl_slist *resolveList = NULL;
+	struct curl_slist* resolveList = NULL;
 	CURLcode res;
 
 	hcurl = curl_easy_init();

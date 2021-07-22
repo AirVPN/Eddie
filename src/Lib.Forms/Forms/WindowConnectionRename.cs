@@ -26,44 +26,44 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowConnectionRename : Eddie.Forms.Form
-    {
-        public String Body;                
+	public partial class WindowConnectionRename : Eddie.Forms.Form
+	{
+		public String Body;
 
-        public WindowConnectionRename()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		public WindowConnectionRename()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();			
-        }
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
+		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsConnectionRenameTitle"));
 
 			txtText.Text = Body;
-            
-            EnableIde();
-		}
-        
-		private void EnableIde()
-		{			
+
+			EnableIde();
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {
-			Body = txtText.Text;		
-        }		
+		private void EnableIde()
+		{
+		}
+
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
+			Body = txtText.Text;
+		}
 	}
 }

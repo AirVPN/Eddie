@@ -22,15 +22,15 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class AreaInfo : IComparable<AreaInfo>
-    {
-        public string Code;
-        public string Name;
-        
-        public Int64 Bandwidth = 0;
-        public Int64 BandwidthMax = 0;
-        public Int64 Users = -1;
-        public Int64 Servers = 0;
+	public class AreaInfo : IComparable<AreaInfo>
+	{
+		public string Code;
+		public string Name;
+
+		public Int64 Bandwidth = 0;
+		public Int64 BandwidthMax = 0;
+		public Int64 Users = -1;
+		public Int64 Servers = 0;
 
 		public enum UserListType
 		{
@@ -60,7 +60,7 @@ namespace Eddie.Core
 			else if (field == "Servers")
 			{
 				returnVal = this.Servers.CompareTo(other.Servers);
-			}			
+			}
 			else if (field == "Load")
 			{
 				Int64 bwCur1 = 2 * (this.Bandwidth * 8) / (1000 * 1000);
@@ -90,10 +90,10 @@ namespace Eddie.Core
 
 		public string GetLoadForList()
 		{
-            if (BandwidthMax == 0)
-                return "-";
+			if (BandwidthMax == 0)
+				return "-";
 
-            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -106,10 +106,10 @@ namespace Eddie.Core
 
 		public float GetLoadPercForList()
 		{
-            if (BandwidthMax == 0)
-                return 0;
+			if (BandwidthMax == 0)
+				return 0;
 
-            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -119,10 +119,10 @@ namespace Eddie.Core
 
 		public string GetLoadColorForList()
 		{
-            if (BandwidthMax == 0)
-                return "yellow";
+			if (BandwidthMax == 0)
+				return "yellow";
 
-            Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
 			Int64 bwMax = BandwidthMax;
 
 			float p = (float)bwCur / (float)bwMax;
@@ -135,26 +135,26 @@ namespace Eddie.Core
 				return "green";
 		}
 
-        public string GetNameForList()
-        {
-            if (Name == "")
-                return LanguageManager.GetText("Unknown");
-            else
-                return Name;
+		public string GetNameForList()
+		{
+			if (Name == "")
+				return LanguageManager.GetText("Unknown");
+			else
+				return Name;
 
-        }
+		}
 
-        public string GetServersForList()
-        {
-            return Servers.ToString();
-        }
+		public string GetServersForList()
+		{
+			return Servers.ToString();
+		}
 
-        public string GetUsersForList()
-        {
-            if (Users == -1)
-                return "-";
-            else
-                return Users.ToString();
-        }
-    }
+		public string GetUsersForList()
+		{
+			if (Users == -1)
+				return "-";
+			else
+				return Users.ToString();
+		}
+	}
 }

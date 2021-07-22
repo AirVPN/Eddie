@@ -30,9 +30,9 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public static class Utils
-    {
-		public static int UnixTimeStamp()
+	public static class Utils
+	{
+		public static Int64 UnixTimeStamp()
 		{
 			return Conversions.ToUnixTime(DateTime.UtcNow);
 		}
@@ -46,10 +46,17 @@ namespace Eddie.Core
 		{
 			System.Threading.Thread.Sleep(milliseconds);
 		}
-				
+
+		public static string GenerateFileHeader()
+		{
+			DateTime now = DateTime.UtcNow;
+
+			return LanguageManager.GetText("GeneratedFileHeader", Engine.Instance.GetVersionShow()) + " - " + now.ToLongDateString() + " " + now.ToLongTimeString() + " UTC";
+		}
+
 		public static string[] GetAssemblyResources(Assembly assembly = null)
 		{
-			if(assembly == null)
+			if (assembly == null)
 				assembly = Assembly.GetExecutingAssembly();
 
 			return assembly.GetManifestResourceNames();
@@ -57,7 +64,7 @@ namespace Eddie.Core
 
 		public static string GetResourceText(string name, Assembly assembly = null)
 		{
-			if(assembly == null)
+			if (assembly == null)
 				assembly = Assembly.GetExecutingAssembly();
 
 			Stream stream = null;
@@ -72,13 +79,13 @@ namespace Eddie.Core
 			}
 			finally
 			{
-				if(reader != null)
+				if (reader != null)
 					reader.Dispose();       // stream.Dispose() is called here
-				else if(stream != null)
+				else if (stream != null)
 					stream.Dispose();       // StreamReader raised an exception and stream.Dispose() won't be called here
 			}
 		}
-		
+
 		public static string HostFromUrl(string url)
 		{
 			try

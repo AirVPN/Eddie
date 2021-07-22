@@ -22,7 +22,7 @@ using System.Security.Cryptography;
 using System.IO;
 
 namespace Eddie.Core.Crypto
-{	
+{
 	public static class AESThenHMAC
 	{
 		private static readonly RandomNumberGenerator Random = RandomNumberGenerator.Create();

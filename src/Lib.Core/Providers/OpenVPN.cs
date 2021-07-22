@@ -25,7 +25,7 @@ using System.Xml;
 
 namespace Eddie.Core.Providers
 {
-	public class OpenVPN : Core.Provider
+	public class OpenVPN : IProvider
 	{
 		public XmlElement Profiles;
 
@@ -35,6 +35,16 @@ namespace Eddie.Core.Providers
 		public override bool GetEnabledByDefault()
 		{
 			return true;
+		}
+
+		public override ConnectionTypes.IConnectionType BuildConnection(ConnectionInfo info)
+		{
+			ConnectionTypes.IConnectionType c = null;
+			if (Engine.Instance.GetOpenVpnTool() is Tools.Hummingbird)
+				c = new ConnectionTypes.Hummingbird();
+			else
+				c = new ConnectionTypes.OpenVPN();
+			return c;
 		}
 
 		public override void OnInit()
@@ -54,12 +64,19 @@ namespace Eddie.Core.Providers
 			}
 		}
 
-		public override void OnBuildConnectionActive(ConnectionInfo connection, ConnectionActive connectionActive)
+		public override void OnBuildConnection(ConnectionTypes.IConnectionType connection)
 		{
-			base.OnBuildConnectionActive(connection, connectionActive);
+			base.OnBuildConnection(connection);
 
-			if (connectionActive.OpenVpnProfileStartup.ExistsDirective("auth-retry"))
-				connectionActive.OpenVpnProfileStartup.AppendDirective("auth-retry", "none", "");
+			if (connection is ConnectionTypes.OpenVPN)
+			{
+				ConnectionTypes.OpenVPN connectionOpenVPN = connection as ConnectionTypes.OpenVPN;
+
+				if (connectionOpenVPN.ConfigStartup.ExistsDirective("auth-retry"))
+					connectionOpenVPN.ConfigStartup.AppendDirective("auth-retry", "none", "");
+			}
+			else
+				throw new Exception("Unexpected connection type");
 		}
 
 		public override bool GetNeedRefresh()
@@ -97,7 +114,7 @@ namespace Eddie.Core.Providers
 			}
 
 			// Remove profiles
-			for (;;)
+			for (; ; )
 			{
 				bool changed = false;
 				foreach (XmlElement nodeProfile in Profiles.ChildNodes)
@@ -148,6 +165,7 @@ namespace Eddie.Core.Providers
 					infoConnection.Bandwidth = 0;
 					infoConnection.BandwidthMax = 0;
 					infoConnection.Users = -1;
+					infoConnection.UsersMax = 0;
 					infoConnection.WarningOpen = "";
 					infoConnection.WarningClosed = "";
 					infoConnection.SupportCheck = false;
@@ -200,7 +218,6 @@ namespace Eddie.Core.Providers
 			get
 			{
 				string path = Storage.DocumentElement.GetAttributeString("path", "").Trim();
-				//c:\Program Files\OpenVPN\config\
 				if (path == "")
 					path = Platform.Instance.GetDefaultOpenVpnConfigsPath();
 				return path;
@@ -215,7 +232,7 @@ namespace Eddie.Core.Providers
 		{
 			get
 			{
-				return Storage.DocumentElement.GetAttributeBool("support_ipv6", false);				
+				return Storage.DocumentElement.GetAttributeBool("support_ipv6", false);
 			}
 			set
 			{
@@ -256,29 +273,31 @@ namespace Eddie.Core.Providers
 
 					if (Platform.Instance.FileExists(filePath) == false)
 						continue;
-						
+
 					// Compute values
 					FileInfo file = new FileInfo(filePath);
 					string hosts = "";
 
 					try
 					{
-						string ovpnOriginal = Platform.Instance.FileContentsReadText(file.FullName);
+						string config = Platform.Instance.FileContentsReadText(file.FullName);
 
-						OvpnBuilder ovpnBuilder = new OvpnBuilder();
-						ovpnBuilder.AppendDirectives(ovpnOriginal, "Original");
-						//string ovpnNormalized = ovpnBuilder.Get();
+						ConfigBuilder.OpenVPN parser = new ConfigBuilder.OpenVPN();
+						parser.Parse(config);
 
-						foreach(OvpnBuilder.Directive remoteDirective in ovpnBuilder.GetDirectiveList("remote"))
+						string error = parser.HasError();
+						if (error != "") throw new Exception(error);
+
+						foreach (ConfigBuilder.OpenVPN.Directive remoteDirective in parser.GetDirectiveList("remote"))
 						{
 							string host = remoteDirective.Text;
-							int posPort = host.IndexOf(" ");
+							int posPort = host.IndexOfInv(" ");
 							if (posPort != -1)
 								host = host.Substring(0, posPort).Trim();
 							if (hosts != "")
 								hosts += ",";
 							hosts += host;
-						}						
+						}
 
 						if (nodeProfile == null)
 						{
@@ -291,11 +310,11 @@ namespace Eddie.Core.Providers
 
 						nodeProfile.SetAttributeString("checked", "1");
 					}
-					catch (System.Exception e)
+					catch (System.Exception ex)
 					{
-						string message = LanguageManager.GetText("ProvidersOpenVpnErrorProfile", file.FullName, this.Title, e.Message); // TOTRANSLATE
+						string message = LanguageManager.GetText("ProvidersOpenVpnErrorProfile", file.FullName, this.Title, ex.Message); // TOTRANSLATE
 						Engine.Instance.Logs.Log(LogType.Warning, message);
-					}					
+					}
 				}
 
 				if (recursive)
@@ -306,9 +325,9 @@ namespace Eddie.Core.Providers
 					}
 				}
 			}
-			catch (System.Exception e)
+			catch (System.Exception ex)
 			{
-				Engine.Instance.Logs.Log(e);
+				Engine.Instance.Logs.Log(ex);
 			}
 		}
 
@@ -325,6 +344,6 @@ namespace Eddie.Core.Providers
 
 			name = name.Trim(" -\\/".ToCharArray());
 			return TitleForDisplay + name;
-		}		
+		}
 	}
 }

@@ -44,7 +44,7 @@ namespace Eddie.Core
 			Jobs.Add(Updater = new Jobs.Updater());
 			Jobs.Add(Penalities = new Jobs.Penalities());
 			Jobs.Add(Latency = new Jobs.Latency());
-			Jobs.Add(Discover = new Jobs.Discover());			
+			Jobs.Add(Discover = new Jobs.Discover());
 			Jobs.Add(ProvidersRefresh = new Jobs.ProvidersRefresh());
 			Jobs.Add(RealtimeNetworkStats = new Jobs.RealtimeNetworkStats());
 		}

@@ -123,8 +123,8 @@ namespace Eddie.Core
 			{
 				string list = Engine.Instance.Options.Get("netlock.whitelist.incoming.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
-                List<string> hosts = list.StringToList();
-                foreach (string host in hosts)
+				List<string> hosts = list.StringToList();
+				foreach (string host in hosts)
 				{
 					string host2 = host;
 					int posComment = host2.IndexOf("#");
@@ -146,7 +146,7 @@ namespace Eddie.Core
 			{
 				string list = Engine.Instance.Options.Get("netlock.whitelist.outgoing.ips");
 				list = list.Replace("\u2028", ","); // macOS Hack  // TOCLEAN
-                List<string> hosts = list.StringToList();
+				List<string> hosts = list.StringToList();
 				foreach (string host in hosts)
 				{
 					string host2 = host;
@@ -185,7 +185,7 @@ namespace Eddie.Core
 			if (includeIpUsedByClient)
 			{
 				// Providers
-				foreach (Provider provider in Engine.Instance.ProvidersManager.Providers)
+				foreach (Providers.IProvider provider in Engine.Instance.ProvidersManager.Providers)
 				{
 					result.Add(provider.GetNetworkLockWhiteListOutgoingIPs());
 				}
@@ -194,7 +194,7 @@ namespace Eddie.Core
 				lock (Engine.Instance.Connections)
 				{
 					Dictionary<string, ConnectionInfo> servers = new Dictionary<string, ConnectionInfo>(Engine.Instance.Connections);
-					
+
 					foreach (ConnectionInfo infoServer in servers.Values)
 					{
 						result.Add(infoServer.IpsEntry);

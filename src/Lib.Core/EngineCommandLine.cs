@@ -28,7 +28,7 @@ namespace Eddie.Core
 		public Dictionary<string, string> KnownCommands = new Dictionary<string, string>();
 
 		public EngineCommandLine(string line) : base(line, true, false)
-		{			
+		{
 		}
 
 		public void Init()
@@ -72,7 +72,7 @@ namespace Eddie.Core
 				if (KnownCommands.ContainsKey(commandLineParamKey))
 					continue;
 
-                // No warning, because can override profile options
+				// No warning, because can override profile options
 				//Engine.Instance.Logs.Log(LogType.Error, LanguageManager.GetText("CommandLineUnknownOption", commandLineParamKey));
 				//result = false;
 			}

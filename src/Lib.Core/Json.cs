@@ -17,8 +17,8 @@
 // </eddie_source_header>
 
 #if !EDDIENET2
-	#define EDDIE_HAS_DYNAMIC
-	using System.Dynamic;
+#define EDDIE_HAS_DYNAMIC
+using System.Dynamic;
 #endif
 
 using System;
@@ -97,7 +97,7 @@ namespace Eddie.Core
 
 			set
 			{
-				if(m_index != null)
+				if (m_index != null)
 					m_json.SetIndex(m_index.Value, value);
 				else
 					m_json.SetKey(m_key, value);
@@ -112,13 +112,13 @@ namespace Eddie.Core
 			}
 		}
 
-        public string ValueString
-        {
-            get
-            {
-                return Conversions.ToString(Value);
-            }
-        }
+		public string ValueString
+		{
+			get
+			{
+				return Conversions.ToString(Value);
+			}
+		}
 
 		public bool ValueBool
 		{
@@ -218,7 +218,7 @@ namespace Eddie.Core
 
 		public void EnsureDictionary()
 		{
-			if(!IsDictionary())
+			if (!IsDictionary())
 				InitAsDictionary();
 		}
 
@@ -239,7 +239,7 @@ namespace Eddie.Core
 
 		public void EnsureArray()
 		{
-			if(!IsArray())
+			if (!IsArray())
 				InitAsArray();
 		}
 
@@ -251,11 +251,11 @@ namespace Eddie.Core
 
 		public object GetKey(string k, object defValue = null)
 		{
-			if(!IsDictionary())
+			if (!IsDictionary())
 				return defValue;
 
 			object value = null;    // Do not initialize value to defValue because TryGetValue reset its value to null in case of failure
-			if(!(m_value as JsonDictionary).TryGetValue(k, out value))
+			if (!(m_value as JsonDictionary).TryGetValue(k, out value))
 				return defValue;
 
 			return value;
@@ -263,7 +263,7 @@ namespace Eddie.Core
 
 		public bool HasKey(string k)
 		{
-			if(!IsDictionary())
+			if (!IsDictionary())
 				return false;
 
 			return (m_value as JsonDictionary).ContainsKey(k);
@@ -271,7 +271,7 @@ namespace Eddie.Core
 
 		public bool RemoveKey(string k)
 		{
-			if(!IsDictionary())
+			if (!IsDictionary())
 				return false;
 
 			return (m_value as JsonDictionary).Remove(k);
@@ -279,17 +279,17 @@ namespace Eddie.Core
 
 		public bool RenameKey(string oldName, string newName)
 		{
-			if(!IsDictionary())
+			if (!IsDictionary())
 				return false;
 
 			JsonDictionary dictionary = m_value as JsonDictionary;
 
 			object value = null;
-			if(!dictionary.TryGetValue(oldName, out value))
+			if (!dictionary.TryGetValue(oldName, out value))
 				return false;
 
-			if(!dictionary.Remove(oldName))
-				return false;   // TODO: should we raise an exception here?
+			if (!dictionary.Remove(oldName))
+				return false;
 
 			dictionary.Add(newName, value);
 			return true;
@@ -303,7 +303,7 @@ namespace Eddie.Core
 
 		public object GetIndex(int i)
 		{
-			if(!IsArray())
+			if (!IsArray())
 				return null;
 
 			return (m_value as JsonArray)[i];
@@ -341,9 +341,9 @@ namespace Eddie.Core
 			string remain;
 			FromJson(s, true, out result, out remain);
 
-			if(result != null)
+			if (result != null)
 			{
-				if(result is Json)
+				if (result is Json)
 					m_value = (result as Json).m_value;
 				else
 					m_value = result;
@@ -351,7 +351,7 @@ namespace Eddie.Core
 			else
 			{
 				m_value = null;
-			}				
+			}
 		}
 
 		public Json Clone() // TOOPTIMIZE
@@ -362,95 +362,95 @@ namespace Eddie.Core
 		#endregion
 
 		#region Private Methods
-		
+
 		private void ToJson(StringBuilder sb, bool indent, int indentN)
 		{
-			if(m_value is Json)
+			if (m_value is Json)
 			{
 				(m_value as Json).ToJson(sb, indent, indentN);
 			}
-			else if(IsDictionary())
+			else if (IsDictionary())
 			{
 				sb.Append('{');
-				if(indent)
+				if (indent)
 					sb.Append('\n');
 
 				int c = 0;
 				JsonDictionary valueDictionary = GetDictionary();
-				foreach(JsonDictionaryKeyValuePair kp in valueDictionary)
+				foreach (JsonDictionaryKeyValuePair kp in valueDictionary)
 				{
-					if(indent)
+					if (indent)
 						sb.Append('\t', indentN);
 					sb.Append('\"');
 					sb.Append(EncodeString(kp.Key.ToString()));
 					sb.Append('\"');
 					sb.Append(':');
-					if(indent)
+					if (indent)
 						sb.Append(' ');
 					new Json(kp.Value).ToJson(sb, indent, indentN + 1);
-					if(c < (valueDictionary.Count - 1))
+					if (c < (valueDictionary.Count - 1))
 						sb.Append(',');
-					if(indent)
+					if (indent)
 						sb.Append('\n');
 					c++;
 				}
-				if(indent)
+				if (indent)
 					sb.Append('\t', indentN - 1);
 				sb.Append('}');
 			}
-			else if(IsArray())
+			else if (IsArray())
 			{
 				sb.Append('[');
 				int c = 0;
 				JsonArray valueArray = GetArray();
-				foreach(object v in valueArray)
+				foreach (object v in valueArray)
 				{
-					if(indent)
+					if (indent)
 						sb.Append('\n');
-					if(indent)
+					if (indent)
 						sb.Append('\t', indentN);
 					new Json(v).ToJson(sb, indent, indentN + 1);
-					if(c < (valueArray.Count - 1))
+					if (c < (valueArray.Count - 1))
 						sb.Append(',');
 					c++;
 				}
-				if(valueArray.Count > 0)
+				if (valueArray.Count > 0)
 				{
-					if(indent)
+					if (indent)
 						sb.Append('\n');
-					if(indent)
+					if (indent)
 						sb.Append('\t', indentN - 1);
 				}
 				sb.Append(']');
 			}
-			else if(m_value == null)
+			else if (m_value == null)
 			{
 				sb.Append("null");
 			}
-			else if(m_value is bool)
+			else if (m_value is bool)
 			{
-				sb.Append(((bool) m_value) ? "true" : "false");
+				sb.Append(((bool)m_value) ? "true" : "false");
 			}
-			else if(m_value is int)
+			else if (m_value is int)
 			{
-				sb.Append(((int) m_value).ToString(CultureInfo.InvariantCulture));
+				sb.Append(((int)m_value).ToString(CultureInfo.InvariantCulture));
 			}
-			else if(m_value is long)
+			else if (m_value is long)
 			{
-				sb.Append(((long) m_value).ToString(CultureInfo.InvariantCulture));
-			}			
-			else if(m_value is float)
-			{
-				sb.Append(((float) m_value).ToString(CultureInfo.InvariantCulture));
+				sb.Append(((long)m_value).ToString(CultureInfo.InvariantCulture));
 			}
-			else if(m_value is double)
+			else if (m_value is float)
 			{
-				sb.Append(((double) m_value).ToString(CultureInfo.InvariantCulture));
+				sb.Append(((float)m_value).ToString(CultureInfo.InvariantCulture));
 			}
-			else if(m_value is string)
+			else if (m_value is double)
+			{
+				sb.Append(((double)m_value).ToString(CultureInfo.InvariantCulture));
+			}
+			else if (m_value is string)
 			{
 				sb.Append('\"');
-				sb.Append(EncodeString((string) m_value));
+				sb.Append(EncodeString((string)m_value));
 				sb.Append('\"');
 			}
 			else
@@ -465,49 +465,49 @@ namespace Eddie.Core
 			{
 				s = s.TrimStart();
 
-				if(s == "")
+				if (s == "")
 					throw new Exception("Empty value");
 
-				if(s[0] == '[')
+				if (s[0] == '[')
 				{
 					s = s.Substring(1).TrimStart();
 					Json a = new Json();
 					a.InitAsArray();
-					for(;;)
+					for (; ; )
 					{
-						if(s[0] == ']')
+						if (s[0] == ']')
 							break;
 						object v;
 						FromJson(s, canThrowException, out v, out s);
 						a.Append(v);
 						s = s.TrimStart();
-						if(s[0] == ',')
+						if (s[0] == ',')
 							s = s.Substring(1).TrimStart();
 					}
 					result = a;
 					remain = s.Substring(1).TrimStart();
 					return true;
 				}
-				else if(s[0] == '{')
+				else if (s[0] == '{')
 				{
 					s = s.Substring(1).TrimStart();
 					Json a = new Json();
 					a.InitAsDictionary();
-					for(;;)
+					for (; ; )
 					{
-						if(s[0] == '}')
+						if (s[0] == '}')
 							break;
 						object k;
 						FromJson(s, canThrowException, out k, out s);
 						s = s.TrimStart();
-						if(s[0] == ':')
+						if (s[0] == ':')
 						{
 							s = s.Substring(1).TrimStart();
 							object v;
 							FromJson(s, canThrowException, out v, out s);
 							a.SetKey(k as string, v);
 							s = s.TrimStart();
-							if(s[0] == ',')
+							if (s[0] == ',')
 								s = s.Substring(1).TrimStart();
 						}
 						else
@@ -521,54 +521,59 @@ namespace Eddie.Core
 				{
 					// Direct value
 					bool inQuote = false;
+					bool inEscape = false;
 
 					int i = 0;
-					for(i = 0; i < s.Length + 1; i++)
+					for (i = 0; i < s.Length + 1; i++)
 					{
 						char ch = (char)0;
-						if(i < s.Length)
+						if (i < s.Length)
 							ch = s[i];
 
-						if(inQuote)
+						if (inQuote)
 						{
-							if((ch == '\"') && ((i == 0) || (s[i - 1] != '\\')))
+							if ((ch == '\"') && (inEscape == false))
 								inQuote = false;
+
+							if ((ch == '\\') && (inEscape == false))
+								inEscape = true;
+							else
+								inEscape = false;
 						}
 						else
 						{
-							if((ch == '\"') && ((i == 0) || (s[i - 1] != '\\')))
+							if ((ch == '\"') && (inEscape == false))
 								inQuote = true;
-							else if((ch == (char)0) ||
+							else if ((ch == (char)0) ||
 								(ch == ',') ||
 								(ch == ':') ||
 								(ch == '}') ||
 								(ch == ']'))
 							{
-								// Valore singolo
 								string value = s.Substring(0, i).Trim();
 
-								if((value.StartsWith("\"")) && (value.EndsWith("\"")))
+								if ((value.StartsWith("\"")) && (value.EndsWith("\"")))
 								{
 									result = DecodeString(value.Substring(1, value.Length - 2));
 									remain = s.Substring(i);
 									return true;
 								}
 
-								if(value == "null")
+								if (value == "null")
 								{
 									result = null;
 									remain = s.Substring(i);
 									return true;
 								}
 
-								if(value == "true")
+								if (value == "true")
 								{
 									result = true;
 									remain = s.Substring(i);
 									return true;
 								}
 
-								if(value == "false")
+								if (value == "false")
 								{
 									result = false;
 									remain = s.Substring(i);
@@ -576,15 +581,15 @@ namespace Eddie.Core
 								}
 
 								int dI = 0;
-								if(int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out dI))
+								if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out dI))
 								{
 									result = dI;
 									remain = s.Substring(i);
 									return true;
 								}
 
-								double dD = 0;								
-								if(double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out dD))
+								double dD = 0;
+								if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out dD))
 								{
 									result = dD;
 									remain = s.Substring(i);
@@ -598,23 +603,23 @@ namespace Eddie.Core
 					throw new Exception("Syntax error");
 				}
 			}
-			catch(Exception e)
+			catch (Exception ex)
 			{
-				if(canThrowException)
-					throw new Exception("JsonParser:" + e.Message);
+				if (canThrowException)
+					throw new Exception("JsonParser:" + ex.Message);
 			}
 			result = null;
 			remain = s;
 			return false;
 		}
 
-#endregion
+		#endregion
 		#region Overrides, Operators
 
 #if EDDIE_HAS_DYNAMIC
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
-			if(!IsDictionary())
+			if (!IsDictionary())
 			{
 				result = null;
 				return false;
@@ -693,25 +698,25 @@ namespace Eddie.Core
 		public static string EncodeString(string s)
 		{
 			StringBuilder sb = new StringBuilder();
-			foreach(char ch in s.ToCharArray())
+			foreach (char ch in s.ToCharArray())
 			{
-				if(ch == '\"')
+				if (ch == '\"')
 					sb.Append("\\\"");
-				else if(ch == '\\')
+				else if (ch == '\\')
 					sb.Append("\\\\");
-				else if(ch == '/')
+				else if (ch == '/')
 					sb.Append("\\/");
-				else if(ch == '\b')
+				else if (ch == '\b')
 					sb.Append("\\b");
-				else if(ch == '\f')
+				else if (ch == '\f')
 					sb.Append("\\f");
-				else if(ch == '\n')
+				else if (ch == '\n')
 					sb.Append("\\n");
-				else if(ch == '\r')
+				else if (ch == '\r')
 					sb.Append("\\r");
-				else if(ch == '\t')
+				else if (ch == '\t')
 					sb.Append("\\t");
-				else if(ch < 128)
+				else if (ch < 128)
 					sb.Append(ch);
 				else
 					sb.Append("\\u" + ((int)ch).ToString("X4").ToLowerInvariant());
@@ -723,29 +728,29 @@ namespace Eddie.Core
 		{
 			StringBuilder sb = new StringBuilder();
 			int i = 0;
-			for(; i < s.Length; i++)
+			for (; i < s.Length; i++)
 			{
-				if(s[i] != '\\')
+				if (s[i] != '\\')
 					sb.Append(s[i]);
-				else if(i + 1 < s.Length)
+				else if (i + 1 < s.Length)
 				{
-					if(s[i + 1] == '\"')
+					if (s[i + 1] == '\"')
 						sb.Append('\"');
-					else if(s[i + 1] == '\\')
+					else if (s[i + 1] == '\\')
 						sb.Append('\\');
-					else if(s[i + 1] == '/')
+					else if (s[i + 1] == '/')
 						sb.Append('/');
-					else if(s[i + 1] == 'b')
+					else if (s[i + 1] == 'b')
 						sb.Append('\b');
-					else if(s[i + 1] == 'f')
+					else if (s[i + 1] == 'f')
 						sb.Append('\f');
-					else if(s[i + 1] == 'n')
+					else if (s[i + 1] == 'n')
 						sb.Append('\n');
-					else if(s[i + 1] == 'r')
+					else if (s[i + 1] == 'r')
 						sb.Append('\r');
-					else if(s[i + 1] == 't')
+					else if (s[i + 1] == 't')
 						sb.Append('\t');
-					else if((s[i + 1] == 'u') && (i + 5 < s.Length))
+					else if ((s[i + 1] == 'u') && (i + 5 < s.Length))
 					{
 						string code = s.Substring(i + 2, 4);
 						int uI = int.Parse(code, System.Globalization.NumberStyles.HexNumber);

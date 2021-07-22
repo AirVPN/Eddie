@@ -31,14 +31,15 @@ namespace Eddie.Core
 	{
 		public static Platform Instance;
 
-		protected string m_ApplicationPath = "";
-		protected string m_ExecutablePath = "";
-		protected string m_UserPath = "";
-		protected string m_CommonPath = "";
-		protected Dictionary<string, string> m_LocateExecutableCache = new Dictionary<string, string>();
+		protected string m_applicationPath = "";
+		protected string m_executablePath = "";
+		protected string m_userPath = "";
+		protected string m_commonPath = "";
+		protected string m_wireGuardVersion = "unknown";
+		protected Dictionary<string, string> m_locateExecutableCache = new Dictionary<string, string>();
 
 		protected List<Json> m_routes = new List<Json>();
-		
+
 		public static bool IsUnix()
 		{
 			return (Environment.OSVersion.Platform.ToString() == "Unix");
@@ -47,11 +48,6 @@ namespace Eddie.Core
 		public static bool IsWindows()
 		{
 			return (Environment.OSVersion.VersionString.IndexOf("Windows", StringComparison.InvariantCulture) != -1);
-		}
-
-		private static bool IsLinux()
-		{
-			return Instance.GetCode() == "Linux";
 		}
 
 		public string GetSystemCode()
@@ -85,23 +81,23 @@ namespace Eddie.Core
 
 		public string GetApplicationPath()
 		{
-			if (m_ApplicationPath == "")
-				m_ApplicationPath = GetApplicationPathEx();
-			return m_ApplicationPath;
+			if (m_applicationPath == "")
+				m_applicationPath = GetApplicationPathEx();
+			return m_applicationPath;
 		}
 
 		public string GetExecutablePath()
 		{
-			if (m_ExecutablePath == "")
-				m_ExecutablePath = GetExecutablePathEx();
-			return m_ExecutablePath;
+			if (m_executablePath == "")
+				m_executablePath = GetExecutablePathEx();
+			return m_executablePath;
 		}
 
 		public string GetUserPath()
 		{
-			if (m_UserPath == "")
-				m_UserPath = GetUserPathEx();
-			return m_UserPath;
+			if (m_userPath == "")
+				m_userPath = GetUserPathEx();
+			return m_userPath;
 		}
 
 		// ----------------------------------------
@@ -147,9 +143,24 @@ namespace Eddie.Core
 			return System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion;
 		}
 
+		public virtual string GetWireGuardVersion()
+		{
+			// Only one time
+			if (m_wireGuardVersion == "unknown")
+				m_wireGuardVersion = Engine.Instance.Elevated.DoCommandSync("wireguard-version");
+			return m_wireGuardVersion;
+		}
+
+		public virtual string GetWireGuardVersionShow()
+		{
+			string v = GetWireGuardVersion();
+			if (v == "") v = LanguageManager.GetText("NotAvailable");
+			return v;
+		}
+
 		public virtual bool OnInit()
 		{
-            return true;
+			return true;
 		}
 
 		public virtual void OnDeInit()
@@ -177,7 +188,7 @@ namespace Eddie.Core
 			return "";
 		}
 
-		public virtual bool IsAdmin()
+		public virtual bool IsElevatedPrivileges()
 		{
 			return false;
 		}
@@ -255,12 +266,12 @@ namespace Eddie.Core
 			if (direct)
 				return GetServiceImpl();
 
-			if( (Engine.Instance.Elevated != null) && (Engine.Instance.Elevated.ServiceEdition) )
+			if ((Engine.Instance.Elevated != null) && (Engine.Instance.Elevated.ServiceEdition))
 			{
 				if (Engine.Instance.Elevated.ServiceUninstallAtEnd)
 					return false;
 				else
-					return true;				
+					return true;
 			}
 			else
 				return GetServiceImpl();
@@ -268,11 +279,11 @@ namespace Eddie.Core
 
 		public virtual bool SetService(bool value, bool direct)
 		{
-			if(direct)
+			if (direct)
 				return SetServiceImpl(value);
 
 			if ((Engine.Instance.Elevated != null) && (Engine.Instance.Elevated.ServiceEdition))
-			{				
+			{
 				Engine.Instance.Elevated.ServiceUninstallAtEnd = !value;
 
 				Engine.Instance.Elevated.DoCommandSync("service-conn-mode", "mode", Engine.Instance.Elevated.ServiceUninstallAtEnd ? "single" : "service");
@@ -280,7 +291,7 @@ namespace Eddie.Core
 				return value;
 			}
 			else
-				return SetServiceImpl(value);			
+				return SetServiceImpl(value);
 		}
 
 		public virtual void WaitService()
@@ -304,7 +315,7 @@ namespace Eddie.Core
 
 		public virtual string NormalizeString(string val)
 		{
-			return val;
+			return val.Replace("\r\n", "\n");
 		}
 
 		public virtual string DirSep
@@ -375,7 +386,7 @@ namespace Eddie.Core
 
 		public virtual string FileTempName(string partialName)
 		{
-			for(int l=0; ;l++)
+			for (int l = 0; ; l++)
 			{
 				string path = DirectoryTemp() + DirSep + partialName;
 				if (l > 0)
@@ -435,7 +446,7 @@ namespace Eddie.Core
 		{
 			return File.ReadAllText(path);
 		}
-         
+
 		public virtual bool FileContentsWriteText(string path, string contents, Encoding encoding)
 		{
 			bool immutable = false;
@@ -524,7 +535,7 @@ namespace Eddie.Core
 			return false;
 		}
 
-        public virtual bool FileRunAsRoot(string path)
+		public virtual bool FileRunAsRoot(string path)
 		{
 			return false;
 		}
@@ -584,6 +595,11 @@ namespace Eddie.Core
 			return "";
 		}
 
+		public virtual string GetDefaultWireGuardConfigsPath()
+		{
+			return "";
+		}
+
 		public virtual List<string> GetEnvironmentPaths()
 		{
 			string envPath = Environment.GetEnvironmentVariable("PATH");
@@ -593,49 +609,49 @@ namespace Eddie.Core
 
 		public virtual string LocateExecutable(string name)
 		{
-			if (m_LocateExecutableCache.ContainsKey(name))
-				return m_LocateExecutableCache[name];
+			if (m_locateExecutableCache.ContainsKey(name))
+				return m_locateExecutableCache[name];
 
-			return LocateExecutable(name, GetEnvironmentPaths ());
+			return LocateExecutable(name, GetEnvironmentPaths());
 		}
 
 		public virtual string LocateExecutable(string name, List<string> paths)
 		{
 			foreach (string path in paths)
 			{
-				string fullPath = NormalizePath(path + "/" + name);				
+				string fullPath = NormalizePath(path + "/" + name);
 				if (FileExists(fullPath))
 				{
-					m_LocateExecutableCache[name] = fullPath;
+					m_locateExecutableCache[name] = fullPath;
 					return fullPath;
 				}
 			}
 			return "";
 		}
 
-        public virtual int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
-        {
-            return 0;
-        }
+		public virtual int StartProcessAsRoot(string path, string[] arguments, bool consoleMode)
+		{
+			return 0;
+		}
 
-        public virtual bool RunProcessAsRoot(string path, string[] arguments, bool consoleMode)
-        {
-            int pid = StartProcessAsRoot(path, arguments, consoleMode);
-            if (pid == -1) // Special case, macOS for example
-            {
-                System.Threading.Thread.Sleep(1000);
-                return true;
-            }
-            else
-            {
-                System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(pid);
-                process.WaitForExit();
-                return (process.ExitCode == 0);
-            }
-        }
+		public virtual bool RunProcessAsRoot(string path, string[] arguments, bool consoleMode)
+		{
+			int pid = StartProcessAsRoot(path, arguments, consoleMode);
+			if (pid == -1) // Special case, macOS for example
+			{
+				System.Threading.Thread.Sleep(1000);
+				return true;
+			}
+			else
+			{
+				System.Diagnostics.Process process = System.Diagnostics.Process.GetProcessById(pid);
+				process.WaitForExit();
+				return (process.ExitCode == 0);
+			}
+		}
 
-        // Must be called only by SystemShell
-        public virtual void ShellSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
+		// Must be called only by SystemExec
+		public virtual void ExecSyncCore(string path, string[] arguments, string autoWriteStdin, out string stdout, out string stderr, out int exitCode)
 		{
 			try
 			{
@@ -650,7 +666,7 @@ namespace Eddie.Core
 					p.StartInfo.RedirectStandardOutput = true;
 					p.StartInfo.RedirectStandardError = true;
 					if (autoWriteStdin != "")
-						p.StartInfo.RedirectStandardInput = true;					
+						p.StartInfo.RedirectStandardInput = true;
 					p.Start();
 
 					if (autoWriteStdin != "")
@@ -658,12 +674,12 @@ namespace Eddie.Core
 						p.StandardInput.Write(autoWriteStdin);
 						p.StandardInput.Close();
 					}
-					
+
 					stdout = p.StandardOutput.ReadToEnd().Trim();
 					stderr = p.StandardError.ReadToEnd().Trim();
-                    
+
 					p.WaitForExit();
-					
+
 					exitCode = p.ExitCode;
 				}
 			}
@@ -675,8 +691,8 @@ namespace Eddie.Core
 			}
 		}
 
-		public virtual void ShellASyncCore(string path, string[] arguments)
-		{			
+		public virtual void ExecASyncCore(string path, string[] arguments)
+		{
 			try
 			{
 				using (Process p = new Process())
@@ -687,23 +703,23 @@ namespace Eddie.Core
 					p.StartInfo.CreateNoWindow = true;
 					p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 					p.Start();
-				}				
+				}
 			}
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.Log(ex);
 			}
 		}
-		
-		// Must be called only by SystemShell
-		// Special direct mode for user events and direct UI shell.
-		// Under Windows use ShellExecute, that show UAC (other shell types above doesn't).
-		public virtual bool ShellExecuteCore(string filename, string arguments, bool waitEnd)
+
+		// Must be called only by SystemExec
+		// Special direct mode for user events and direct UI exec.
+		// Under Windows use ShellExecute, that show UAC (other exec types above doesn't).
+		public virtual bool ExecExecuteCore(string filename, string arguments, bool waitEnd)
 		{
 			try
 			{
 				System.Diagnostics.Process p = System.Diagnostics.Process.Start(filename, arguments);
-				if(waitEnd)
+				if (waitEnd)
 					p.WaitForExit();
 				return true;
 			}
@@ -714,17 +730,17 @@ namespace Eddie.Core
 			}
 		}
 
-        public virtual void OpenUrl(string url)
-        {
-            System.Diagnostics.Process.Start(url);
-        }
+		public virtual void OpenUrl(string url)
+		{
+			System.Diagnostics.Process.Start(url);
+		}
 
 		public virtual void OpenFolder(string path)
 		{
 			System.Diagnostics.Process.Start(path);
 		}
 
-        public virtual bool OpenDirectoryInFileManager(string path)
+		public virtual bool OpenDirectoryInFileManager(string path)
 		{
 			try
 			{
@@ -744,7 +760,7 @@ namespace Eddie.Core
 			}
 		}
 
-        public virtual string LocateResource(string relativePath)
+		public virtual string LocateResource(string relativePath)
 		{
 			return "";
 		}
@@ -753,7 +769,7 @@ namespace Eddie.Core
 		{
 			foreach (IPEndPoint e in IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners())
 			{
-				if( (e.Address.ToString() == "127.0.0.1") && (e.Port == port) )
+				if ((e.Address.ToString() == "127.0.0.1") && (e.Port == port))
 					return true;
 			}
 			return false;
@@ -766,10 +782,10 @@ namespace Eddie.Core
 
 			using (Ping pingSender = new Ping())
 			{
-				PingOptions options = new PingOptions();				
+				PingOptions options = new PingOptions();
 
 				// Use the default TTL value which is 128, but change the fragmentation behavior.
-				// options.DontFragment = true;
+				//options.DontFragment = true;
 
 				// Create a buffer of 32 bytes of data to be transmitted.
 				try
@@ -777,7 +793,7 @@ namespace Eddie.Core
 					byte[] buffer = RandomGenerator.GetBuffer(32);
 					int timeout = timeoutSec * 1000;
 					PingReply reply = pingSender.Send(host.ToString(), timeout, buffer, options);
-			
+
 					if (reply.Status == IPStatus.Success)
 						return reply.RoundtripTime;
 					else
@@ -795,7 +811,7 @@ namespace Eddie.Core
 			return false;
 		}
 
-        public virtual int GetRecommendedSndBufDirective()
+		public virtual int GetRecommendedSndBufDirective()
 		{
 			return -1;
 		}
@@ -805,85 +821,147 @@ namespace Eddie.Core
 			return -1;
 		}
 
-        public virtual bool FetchUrlInternal()
-        {
-            return false;
-        }
+		public virtual bool FetchUrlInternal()
+		{
+			return false;
+		}
 
-        public virtual Json FetchUrl(Json request)
-        {
-            return null;
-        }
+		public virtual Json FetchUrl(Json request)
+		{
+			return null;
+		}
 
-        public virtual void FlushDNS()
+		public virtual void FlushDNS()
 		{
 			Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("ConnectionFlushDNS"));
 
 			DnsManager.Invalidate();
 		}
 
-		public virtual bool RouteAdd(Json jRoute)
+		public void Route(Json jRoute, string action)
 		{
+			string iface = jRoute["interface"].ValueString;
+			string ifaceFriendly = Platform.Instance.GetFriendlyInterfaceName(iface);
+			IpAddress ip = jRoute["destination"].ValueString;
+			if (ip.Valid == false)
+				throw new Exception("Invalid destination " + jRoute["destination"].ValueString);
+
+			// Check if already exists
+			Json jRoutes = Engine.Instance.JsonRouteList();
+			bool exists = false;
+			foreach (Json jRouteCheck in jRoutes.GetArray())
+			{
+				if (jRoute["destination"].ValueString == jRouteCheck["destination"].ValueString)
+				{
+					exists = true;
+					break;
+				}
+			}
+
+			if ((action == "add") && (exists))
+			{
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddExists", ip.ToCIDR(true), ifaceFriendly));
+			}
+			else if ((action == "remove") && (exists == false))
+			{
+				Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelNotExists", ip.ToCIDR(true), ifaceFriendly));
+			}
+			else
+			{
+				try
+				{
+					Platform.Instance.RouteApply(jRoute, action);
+					if (action == "add")
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddDone", ip.ToCIDR(true), ifaceFriendly));
+					else if (action == "remove")
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelDone", ip.ToCIDR(true), ifaceFriendly));
+					// Routes, add {1} for interface {2} failed: {3}
+				}
+				catch (Exception ex)
+				{
+					// RouteDelFailed
+					string msg = "";
+					if (action == "add")
+						msg = LanguageManager.GetText("RouteAddFailed", ip.ToCIDR(true), ifaceFriendly, ex.Message);
+					else
+						msg = LanguageManager.GetText("RouteDelFailed", ip.ToCIDR(true), ifaceFriendly, ex.Message);
+
+					throw new Exception(msg);
+				}
+			}
+
+			// Old Recovery // CLODOTEMP
+			/*
 			lock (m_routes)
 			{
-				bool known = false;
+				bool inRecoveryList = false;
 				for (int i = 0; i < m_routes.Count; i++)
 				{
 					Json jRouteC = m_routes[i];
-					if ((jRouteC["address"].Value as string == jRoute["address"].Value as string) &&
-						 (jRouteC["gateway"].Value as string == jRoute["gateway"].Value as string) &&
-						 (jRouteC["type"].Value as string == "removed"))
+					if ((jRouteC["address"].ValueString == jRoute["address"].ValueString) &&
+						(jRouteC["interface"].ValueString == jRoute["interface"].ValueString) &&
+						(jRouteC["gateway"].ValueString == jRoute["gateway"].ValueString))
 					{
-						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddRemoved", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
-						m_routes.RemoveAt(i);
-						known = true;
-						break;
+						inRecoveryList = true;
 					}
 				}
 
-				if (known == false)
+				if (action == "add")
 				{
-					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddNew", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
-					jRoute["type"].Value = "added";
-					m_routes.Add(jRoute);
+					bool known = false;
+					for (int i = 0; i < m_routes.Count; i++)
+					{
+						Json jRouteC = m_routes[i];
+						if ((jRouteC["address"].ValueString == jRoute["address"].ValueString) &&
+							 (jRouteC["gateway"].ValueString == jRoute["gateway"].ValueString) &&
+							 (jRouteC["type"].ValueString == "removed"))
+						{
+							Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddRemoved", new IpAddress(jRoute["address"].ValueString).ToCIDR(), jRoute["interface"].ValueString));
+							m_routes.RemoveAt(i);
+							known = true;
+							break;
+						}
+					}
+
+					if (known == false)
+					{
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteAddNew", new IpAddress(jRoute["address"].Value as string).ToCIDR(), jRoute["interface"].ValueString));
+						jRoute["type"].Value = "added";
+						m_routes.Add(jRoute);
+					}
 				}
+				else if (action == "remove")
+				{
+					bool known = false;
+					for (int i = 0; i < m_routes.Count; i++)
+					{
+						Json jRouteC = m_routes[i] as Json;
+						if ((jRouteC["address"].Value as string == jRoute["address"].Value as string) &&
+							 (jRouteC["gateway"].Value as string == jRoute["gateway"].Value as string) &&
+							 (jRouteC["type"].Value as string == "added"))
+						{
+							Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelAdded", new IpAddress(jRoute["address"].Value as string).ToCIDR(), jRoute["interface"].ValueString));
+							m_routes.RemoveAt(i);
+							known = true;
+							break;
+						}
+					}
+
+					if (known == false)
+					{
+						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelExist", new IpAddress(jRoute["address"].Value as string).ToCIDR(), jRoute["interface"].ValueString));
+						jRoute["type"].Value = "removed";
+						m_routes.Add(jRoute);
+					}
+				}				
+
+				Recovery.Save();
 			}
-
-			Recovery.Save();
-
-			return true;
+			*/
 		}
 
-		public virtual bool RouteRemove(Json jRoute)
+		public virtual void RouteApply(Json jRoute, string action)
 		{
-			lock (m_routes)
-			{
-				bool known = false;
-				for (int i = 0; i < m_routes.Count; i++)
-				{
-					Json jRouteC = m_routes[i] as Json;
-					if ((jRouteC["address"].Value as string == jRoute["address"].Value as string) &&
-						 (jRouteC["gateway"].Value as string == jRoute["gateway"].Value as string) &&
-						 (jRouteC["type"].Value as string == "added"))
-					{
-						Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelAdded", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
-						m_routes.RemoveAt(i);
-						known = true;
-						break;
-					}
-				}
-
-				if (known == false)
-				{
-					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("RouteDelExist", new IpAddress(jRoute["address"].Value as string).ToCIDR(), new IpAddress(jRoute["gateway"].Value as string).ToCIDR()));
-					jRoute["type"].Value = "removed";
-					m_routes.Add(jRoute);
-				}
-			}
-
-			Recovery.Save();
-
-			return true;
 		}
 
 		public virtual IpAddresses ResolveDNS(string host)
@@ -905,48 +983,48 @@ namespace Eddie.Core
 				 * 2.14: For the moment is useless this fallback, because the CheckDNS still works (probably parallel DNS)
 				 * Search WSANO_RECOVERY in session.cs for more notes.
 				 */
-		/*
-	   if( (e is System.Net.Sockets.SocketException) && ((e as System.Net.Sockets.SocketException).ErrorCode == 11003)) // WSANO_RECOVERY
-	   {
-		   try
-		   {
-			   SystemShell s = new SystemShell();
-			   s.Path = LocateExecutable("nslookup.exe");
-			   s.Arguments.Add(SystemShell.EscapeHost(host));
-			   s.NoDebugLogTemp = true;
-			   s.Run();
-
-			   if (s.StdOut.StartsWith("DNS request timed out") == false)
+				/*
+			   if( (e is System.Net.Sockets.SocketException) && ((e as System.Net.Sockets.SocketException).ErrorCode == 11003)) // WSANO_RECOVERY
 			   {
-				   int posAnswer = s.StdOut.IndexOf("\r\n\r\n");
-				   if (posAnswer != -1)
+				   try
 				   {
-					   // Cleanup. Cannot find a better alternative: when WSANO_RECOVERY occur
-					   // Dns.GetHostEntry fail, also C getaddrinfo fail, only nslookup.exe works.
-					   string d = s.StdOut.Substring(posAnswer + host.Length);
-					   d = d.Replace("Name:", "");
-					   d = d.Replace("Aliases:", "");
-					   d = d.Replace("Address:", "");
-					   d = d.Replace("Addresses:", "");
-					   d = d.Replace("\t", " ");
-					   d = d.Replace("\r", " ");
-					   d = d.Replace("\n", " ");
-					   d = UtilsString.StringCleanSpace(d);
-					   foreach (string ip in d.Split(' '))
+					   SystemExec s = new SystemExec();
+					   s.Path = LocateExecutable("nslookup.exe");
+					   s.Arguments.Add(SystemExec.EscapeHost(host));
+					   s.NoDebugLogTemp = true;
+					   s.Run();
+
+					   if (s.StdOut.StartsWith("DNS request timed out") == false)
 					   {
-						   if (IpAddress.IsIP(ip))
-							   result.Add(ip);
+						   int posAnswer = s.StdOut.IndexOf("\r\n\r\n");
+						   if (posAnswer != -1)
+						   {
+							   // Cleanup. Cannot find a better alternative: when WSANO_RECOVERY occur
+							   // Dns.GetHostEntry fail, also C getaddrinfo fail, only nslookup.exe works.
+							   string d = s.StdOut.Substring(posAnswer + host.Length);
+							   d = d.Replace("Name:", "");
+							   d = d.Replace("Aliases:", "");
+							   d = d.Replace("Address:", "");
+							   d = d.Replace("Addresses:", "");
+							   d = d.Replace("\t", " ");
+							   d = d.Replace("\r", " ");
+							   d = d.Replace("\n", " ");
+							   d = UtilsString.StringCleanSpace(d);
+							   foreach (string ip in d.Split(' '))
+							   {
+								   if (IpAddress.IsIP(ip))
+									   result.Add(ip);
+							   }
+						   }
 					   }
 				   }
-			   }
-		   }
-		   catch (Exception)
-		   {
+				   catch (Exception)
+				   {
 
-		   }
-	   }				
-	   */
-	}
+				   }
+			   }				
+			   */
+			}
 
 			return result;
 		}
@@ -955,13 +1033,13 @@ namespace Eddie.Core
 		{
 			return new IpAddresses();
 		}
-		
-		public virtual bool WaitTunReady(ConnectionActive connection)
+
+		public virtual bool WaitTunReady(ConnectionTypes.IConnectionType connection)
 		{
 			return true;
 		}
 
-        public virtual Dictionary<string, string> GetProcessesList()
+		public virtual Dictionary<string, string> GetProcessesList()
 		{
 			Dictionary<string, string> result = new Dictionary<string, string>();
 
@@ -971,9 +1049,9 @@ namespace Eddie.Core
 			{
 				try
 				{
-                    //result[p.Id] = p.ProcessName.ToLowerInvariant();
-                    if ((p.HasExited == false) && (p.MainModule != null) && (p.MainModule.FileName != null))
-                        result[p.Id.ToString()] = p.MainModule.FileName;
+					//result[p.Id] = p.ProcessName.ToLowerInvariant();
+					if ((p.HasExited == false) && (p.MainModule != null) && (p.MainModule.FileName != null))
+						result[p.Id.ToString()] = p.MainModule.FileName;
 				}
 				catch
 				{
@@ -1024,7 +1102,7 @@ namespace Eddie.Core
 		}
 
 		public virtual bool OnCheckEnvironmentSession()
-		{			
+		{
 			return true;
 		}
 
@@ -1032,12 +1110,12 @@ namespace Eddie.Core
 		{
 		}
 
-        public virtual bool NeedExecuteOutsideAppPath(string exePath)
-        {
-            return false;
-        }
+		public virtual bool NeedExecuteOutsideAppPath(string exePath)
+		{
+			return false;
+		}
 
-        public virtual void OnNetworkLockManagerInit()
+		public virtual void OnNetworkLockManagerInit()
 		{
 		}
 
@@ -1054,7 +1132,7 @@ namespace Eddie.Core
 		{
 		}
 
-		public virtual void OnDaemonOutput(string source, string message)
+		public virtual void OnSessionLogEvent(string source, string message)
 		{
 		}
 
@@ -1072,16 +1150,14 @@ namespace Eddie.Core
 				{
 					Json jRoute = new Json();
 					ExtensionsXml.XmlToJson(nodeRoute, jRoute);
-					// m_routes.Add(jRoute); // Removed in 2.17.1
 
-					if (jRoute["type"].Value as string == "added")
-						RouteRemove(jRoute);
-					else if (jRoute["type"].Value as string == "removed")
-						RouteAdd(jRoute);
+					if (jRoute["type"].ValueString == "added")
+						RouteApply(jRoute, "remove");
+					else if (jRoute["type"].ValueString == "removed")
+						RouteApply(jRoute, "add");
 				}
 			}
 
-			//OnRouteDefaultRemoveRestore();
 			OnDnsSwitchRestore();
 			OnInterfaceRestore();
 			OnIPv6Restore();
@@ -1099,26 +1175,30 @@ namespace Eddie.Core
 					XmlElement nodeRoute = doc.CreateElement("route") as XmlElement;
 					nodeRoutes.AppendChild(nodeRoute);
 
-					ExtensionsXml.JsonToXml(jRoute, nodeRoute);
+					ExtensionsXml.XmlFromJson(jRoute, nodeRoute);
 				}
 			}
 		}
+		public virtual void CompatibilityAfterProfile()
+		{
 
-        public virtual void OnBuildOvpn(OvpnBuilder ovpn)
+		}
+
+		public virtual void AdaptConfigOpenVpn(ConfigBuilder.OpenVPN config)
+		{
+			config.RemoveDirective("windows-driver");
+		}
+
+		public virtual void AdaptConfigWireGuard(ConfigBuilder.WireGuard config)
 		{
 		}
 
-		public virtual void OpenVpnConfigNormalize(OvpnBuilder ovpn)
-		{
-			ovpn.RemoveDirective("windows-driver");
-		}
-
-		public virtual string GetOvpnDriverRequested(OvpnBuilder ovpn)
+		public virtual string GetConnectionTunDriver(ConnectionTypes.IConnectionType connection)
 		{
 			return "os";
 		}
 
-		public virtual bool OnDnsSwitchDo(ConnectionActive connectionActive, IpAddresses dns)
+		public virtual bool OnDnsSwitchDo(ConnectionTypes.IConnectionType connection, IpAddresses dns)
 		{
 			return true;
 		}
@@ -1128,7 +1208,7 @@ namespace Eddie.Core
 			return true;
 		}
 
-		public virtual bool OnInterfaceDo(string id)
+		public virtual bool OnInterfaceDo(NetworkInterface adapter)
 		{
 			return true;
 		}
@@ -1140,7 +1220,7 @@ namespace Eddie.Core
 
 		public virtual bool OnIPv6Block()
 		{
-            return true;
+			return true;
 		}
 
 		public virtual bool OnIPv6Restore()
@@ -1154,13 +1234,22 @@ namespace Eddie.Core
 
 		public virtual void OnJsonRouteList(Json jRoutesList)
 		{
+			// Notes to remember:
+			// - gateway can be a mac-address (macOS)
+			// - gateway can be "link#8" (macOS)
+			jRoutesList.FromJson(Engine.Instance.Elevated.DoCommandSync("route-list"));
+		}
+
+		public virtual string GetFriendlyInterfaceName(string id)
+		{
+			return id;
 		}
 
 		public virtual bool OsCredentialSystemDefault()
 		{
 			return true;
 		}
-		
+
 		public virtual string OsCredentialSystemName()
 		{
 			return "";
@@ -1173,17 +1262,17 @@ namespace Eddie.Core
 
 		public virtual bool OsCredentialSystemWrite(string name, string password)
 		{
-            return false;
+			return false;
 		}
 
 		public virtual bool OsCredentialSystemDelete(string name)
 		{
-            return false;
+			return false;
 		}
 
 		public virtual string FileGetSignedId(string path)
 		{
-			return "No: Unknown";			
+			return "No: Unknown";
 		}
 
 		public virtual List<string> GetTrustedPaths()
@@ -1192,7 +1281,7 @@ namespace Eddie.Core
 			return result;
 		}
 
-        public virtual Elevated.EleBase StartElevated()
+		public virtual Elevated.IElevated StartElevated()
 		{
 			return null;
 		}
@@ -1204,20 +1293,25 @@ namespace Eddie.Core
 
 		public virtual string GetTunDriverReport()
 		{
-            return GetDriverVersion("");
-        }
+			return GetDriverVersion("");
+		}
 
 		public virtual void EnsureDriverAndAdapterAvailable(string driver)
 		{
-            if (GetDriverVersion(driver) != "")
-                return;
+			if (GetDriverVersion(driver) != "")
+				return;
 
-            throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
-        }
+			throw new Exception(LanguageManager.GetText("OsDriverCannotInstall"));
+		}
 
 		public virtual bool UninstallDriver(string driver)
 		{
 			return false;
+		}
+
+		public virtual bool GetSupportWireGuard()
+		{
+			return (GetWireGuardVersion() != "");
 		}
 	}
 }

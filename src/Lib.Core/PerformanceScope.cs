@@ -26,7 +26,7 @@ namespace Eddie.Core
 	public class PerformanceScope
 	{
 		private string m_name;
-		private int m_tickStart = 0;
+		private long m_timeStart = 0;
 
 		public PerformanceScope(string name)
 		{
@@ -41,23 +41,17 @@ namespace Eddie.Core
 		public void Start(string name)
 		{
 			m_name = name;
-			m_tickStart = Environment.TickCount;
+			m_timeStart = Utils.UnixTimeStampMs(); // Almost same accuracy as Enviroment.tickCount
 		}
 
 		public void End()
 		{
-			if (m_tickStart != 0)
+			if (m_timeStart != 0)
 			{
-				int tickElapsed = Environment.TickCount - m_tickStart;
-				m_tickStart = 0;
-				Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");
+				long timeElapsed = Utils.UnixTimeStampMs() - m_timeStart;
+				m_timeStart = 0;
+				Engine.Instance.Logs.LogDebug("PerformanceScope: " + m_name + ", " + timeElapsed.ToString() + " ms");
 			}
-		}
-
-		public void Dump()
-		{
-			int tickElapsed = Environment.TickCount - m_tickStart;
-			Console.WriteLine("PerformanceScope: " + m_name + ", " + tickElapsed.ToString() + " ms");
 		}
 	}
 }

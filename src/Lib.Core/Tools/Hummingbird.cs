@@ -25,33 +25,33 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-    public class Hummingbird : Tool
-    {
-        public override void OnNormalizeVersion()
-        {
-            if (Version == "")
-                return;
+	public class Hummingbird : ITool
+	{
+		public override void OnNormalizeVersion()
+		{
+			if (Version == "")
+				return;
 
-            if (Version.IndexOfInv("\n") != -1)
-                Version = Version.Substring(0, Version.IndexOfInv("\n")).Trim();
+			if (Version.IndexOfInv("\n") != -1)
+				Version = Version.Substring(0, Version.IndexOfInv("\n")).Trim();
 
-            // Workaround until Hummingbird report also the original OpenVPN3 version (needed by other checks).
-            Version = "3.3.2 - " + Version;            
-        }
+			// Workaround until Hummingbird report also the original OpenVPN3 version (needed by other checks).
+			Version = "3.3.2 - " + Version;
+		}
 
 		public override string GetFileName()
-        {
-            if (Platform.Instance.IsWindowsSystem())
-            {
-                return "hummingbird.exe";
-            }
-            else
-                return base.GetFileName();
-        }
+		{
+			if (Platform.Instance.IsWindowsSystem())
+			{
+				return "hummingbird.exe";
+			}
+			else
+				return base.GetFileName();
+		}
 
-        public override string GetVersionArgument()
-        {
-            return "--version";
-        }
-    }
+		public override string GetVersionArgument()
+		{
+			return "--version";
+		}
+	}
 }

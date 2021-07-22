@@ -40,9 +40,9 @@ namespace Eddie.Forms
 		public Engine(string environmentCommandLine) : base(environmentCommandLine)
 		{
 		}
-		
+
 		public override string OnAskProfilePassword(bool authFailed)
-		{			
+		{
 			return UiClient.Instance.SplashWindow.AskUnlockPassword(authFailed);
 		}
 
@@ -65,8 +65,8 @@ namespace Eddie.Forms
 			}
 		}
 
-		private delegate Json OnAskShellExternalPermissionDelegate(Json data);
-		public override Json OnAskShellExternalPermission(Json data)
+		private delegate Json OnAskExecExternalPermissionDelegate(Json data);
+		public override Json OnAskExecExternalPermission(Json data)
 		{
 			Form parentForm = UiClient.Instance.MainWindow;
 			if (parentForm == null)
@@ -74,7 +74,7 @@ namespace Eddie.Forms
 
 			if (parentForm.InvokeRequired)
 			{
-				OnAskShellExternalPermissionDelegate inv = new OnAskShellExternalPermissionDelegate(this.OnAskShellExternalPermission);
+				OnAskExecExternalPermissionDelegate inv = new OnAskExecExternalPermissionDelegate(this.OnAskExecExternalPermission);
 
 				return (Json)parentForm.Invoke(inv, new object[] { data });
 			}
@@ -101,7 +101,7 @@ namespace Eddie.Forms
 				UiClient.Instance.MainWindow.OnStatsChange(entry);
 		}
 
-		public override void OnProviderManifestFailed(Provider provider)
+		public override void OnProviderManifestFailed(Core.Providers.IProvider provider)
 		{
 			if (UiClient.Instance.MainWindow != null)
 				UiClient.Instance.MainWindow.OnProviderManifestFailed(provider);
@@ -110,7 +110,7 @@ namespace Eddie.Forms
 		public override void OnLog(LogEntry l)
 		{
 			base.OnLog(l);
-						
+
 			{
 				lock (LogEntries)
 				{
@@ -120,7 +120,7 @@ namespace Eddie.Forms
 					UiClient.Instance.MainWindow.OnRefreshUi(RefreshUiMode.Log);
 			}
 		}
-				
+
 		public override void OnShowText(string title, string data)
 		{
 			base.OnShowText(title, data);
@@ -129,7 +129,7 @@ namespace Eddie.Forms
 				UiClient.Instance.MainWindow.OnShowText(title, data);
 		}
 
-		
+
 
 		public override Credentials OnAskCredentials()
 		{
@@ -149,9 +149,9 @@ namespace Eddie.Forms
 
 		public virtual void OnChangeMainFormVisibility(bool vis)
 		{
-            if (UiClient.Instance.MainWindow != null)
-                UiClient.Instance.MainWindow.OnChangeMainFormVisibility(vis);
-        }
+			if (UiClient.Instance.MainWindow != null)
+				UiClient.Instance.MainWindow.OnChangeMainFormVisibility(vis);
+		}
 
 		public virtual bool AllowMinimizeInTray()
 		{
@@ -163,7 +163,7 @@ namespace Eddie.Forms
 				}
 			}
 			if (UiClient.Instance.MainWindow != null)
-				return UiClient.Instance.MainWindow.AllowMinimizeInTray ();
+				return UiClient.Instance.MainWindow.AllowMinimizeInTray();
 			return false;
 		}
 	}

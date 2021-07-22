@@ -85,7 +85,7 @@ namespace Eddie.Platform.Linux
 		{
 			return eddie_file_get_mode(pathname);
 		}
-		
+
 		[DllImport(NativeLibName)]
 		private static extern int eddie_file_set_mode(string pathname, int mode);
 		public static int SetFileMode(string pathname, int mode)
@@ -107,7 +107,7 @@ namespace Eddie.Platform.Linux
 			return eddie_file_get_immutable(filename);
 		}
 
-        /*// TOCLEAN18
+		/*// TOCLEAN18
 		[DllImport(NativeLibName)]
 		private static extern int eddie_file_set_immutable(string filename, int flag);
 		public static int SetFileImmutable(string filename, int flag)
@@ -145,24 +145,24 @@ namespace Eddie.Platform.Linux
 			return eddie_kill(pid, sig);
 		}
 
-        [DllImport(NativeLibName)]
-        private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
-        public static Json CUrl(Json jRequest)
-        {
-            uint resultMaxLen = 1000*1000*5;
-            byte[] resultBuf = new byte[resultMaxLen];
-            eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
-            Json jResult;
-            if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
-                return jResult;
-            else
-                throw new Exception("curl unexpected json error");
-        }
+		[DllImport(NativeLibName)]
+		private static extern void eddie_curl(string jRequest, uint resultMaxLen, byte[] jResult);
+		public static Json CUrl(Json jRequest)
+		{
+			uint resultMaxLen = 1000 * 1000 * 5;
+			byte[] resultBuf = new byte[resultMaxLen];
+			eddie_curl(jRequest.ToJson(), resultMaxLen, resultBuf);
+			Json jResult;
+			if (Json.TryParse(System.Text.Encoding.ASCII.GetString(resultBuf), out jResult))
+				return jResult;
+			else
+				throw new Exception("curl unexpected json error");
+		}
 
-        [DllImport("__Internal", EntryPoint = "mono_get_runtime_build_info")]
+		[DllImport("__Internal", EntryPoint = "mono_get_runtime_build_info")]
 		public extern static string GetMonoVersion();
 
 		[DllImport("libc")]
-        public static extern uint getuid();  
+		public static extern uint getuid();
 	}
 }

@@ -26,35 +26,35 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class TextViewer : Eddie.Forms.Form
-    {
-        public TextViewer()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+	public partial class TextViewer : Eddie.Forms.Form
+	{
+		public TextViewer()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public string Title;
-        public string Body;
+		public string Title;
+		public string Body;
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
-            txtData.Font = Skin.FontMono;
-        }
+			txtData.Font = Skin.FontMono;
+		}
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-			txtData.Text = GuiUtils.NormalizeString(Body);
+		private void Form1_Load(object sender, EventArgs e)
+		{
+			txtData.Text = Platform.Instance.NormalizeString(Body);
 
-            CommonInit(Title);
-        }        
-    }
+			CommonInit(Title);
+		}
+	}
 }

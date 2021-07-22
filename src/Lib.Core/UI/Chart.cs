@@ -30,12 +30,12 @@ namespace Eddie.Core.UI
 		public int TimeStep;
 		public int Grid;
 		public int Pos;
-		private int m_lastStepTime;
+		private Int64 m_lastStepTime;
 		private int m_lastStepSamples;
 
 		public Chart(int r, int t, int g)
 		{
-			Resolution = r/t;
+			Resolution = r / t;
 			Download = new long[Resolution];
 			Upload = new long[Resolution];
 			TimeStep = t;
@@ -52,7 +52,7 @@ namespace Eddie.Core.UI
 				long u = Upload[i];
 
 				if (d > m) m = d;
-				if (u > m) m = u;					
+				if (u > m) m = u;
 			}
 			return m;
 		}
@@ -67,7 +67,7 @@ namespace Eddie.Core.UI
 			return Upload[Pos];
 		}
 
-		public void Hit(long d, long u, int ts)
+		public void Hit(long d, long u, Int64 ts)
 		{
 			if (ts - m_lastStepTime > TimeStep)
 			{

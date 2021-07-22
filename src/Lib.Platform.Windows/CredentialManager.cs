@@ -27,7 +27,7 @@ public static class CredentialManager
 	{
 		try
 		{
-			return CredDelete(applicationName + " - " + userName, CredentialType.Generic, 0);			
+			return CredDelete(applicationName + " - " + userName, CredentialType.Generic, 0);
 		}
 		catch
 		{

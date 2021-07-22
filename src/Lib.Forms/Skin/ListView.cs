@@ -111,7 +111,7 @@ namespace Eddie.Forms.Skin
 			}
 			g.Dispose();
 
-			if(Items.Count>0)
+			if (Items.Count > 0)
 				if ((ImageIconResourcePrefix != "") || (SmallImageList != null))
 					minWidth += GetItemRect(0).Height * 2;
 
@@ -287,7 +287,7 @@ namespace Eddie.Forms.Skin
 					r.Width -= (imageWidth + ImageSpace);
 				}
 
-				Image imageIcon = GuiUtils.GetResourceImage(ImageIconResourcePrefix + e.Item.ImageKey);				
+				Image imageIcon = GuiUtils.GetResourceImage(ImageIconResourcePrefix + e.Item.ImageKey);
 				/*
 				if ((imageIcon == null) && (ImageListIcon != null) && (ImageListIcon.Images.ContainsKey(e.Item.ImageKey)))
 					imageIcon = ImageListIcon.Images[e.Item.ImageKey];
@@ -341,7 +341,7 @@ namespace Eddie.Forms.Skin
 		{
 			if (HeaderStyle == System.Windows.Forms.ColumnHeaderStyle.Nonclickable) // Mono workaround
 				return;
-			
+
 			if (e.Column == m_sortColumn)
 			{
 				// Determine what the last sort order was and change it.

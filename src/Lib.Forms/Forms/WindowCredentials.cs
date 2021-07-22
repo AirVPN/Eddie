@@ -27,36 +27,36 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowCredentials : Eddie.Forms.Form
-    {
+	public partial class WindowCredentials : Eddie.Forms.Form
+	{
 		public Credentials Credentials;
-		
-        public WindowCredentials()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();
-        }
+		public WindowCredentials()
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
+
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
 			GuiUtils.FixHeightVs(txtUsername, lblUsername);
 			GuiUtils.FixHeightVs(txtPassword, lblPassword);
 			GuiUtils.FixHeightVs(lblRemember, cboRemember);
 		}
 
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
 
-            CommonInit(LanguageManager.GetText("WindowsLoginTitle"));
+			CommonInit(LanguageManager.GetText("WindowsLoginTitle"));
 
 			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberNo"));
 			cboRemember.Items.Add(LanguageManager.GetText("WindowsCredentialsRememberRun"));
@@ -75,7 +75,7 @@ namespace Eddie.Forms.Forms
 				acceptable = false;
 			cmdOk.Enabled = acceptable;
 		}
-		
+
 		private void cmdOk_Click(object sender, EventArgs e)
 		{
 			Credentials = new Credentials();

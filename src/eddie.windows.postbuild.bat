@@ -1,5 +1,7 @@
 @echo off
 
+echo Command Line: %0 %*
+
 @if "%~1"=="" GOTO error
 @if "%~2"=="" GOTO error
 @if "%~3"=="" GOTO error
@@ -36,6 +38,9 @@ rem copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\%config%\Lib.Platform
 echo %basepath%\Lib.Platform.Windows.Native\build.bat Release %arch%
 call %basepath%\Lib.Platform.Windows.Native\build.bat Release %arch% || GOTO error
 copy %basepath%\Lib.Platform.Windows.Native\bin\%arch%\Release\Lib.Platform.Windows.Native.dll "%targetdir%" /Y /V || GOTO error
+
+echo Copy WireGuard library
+copy %basepath%\..\dependencies\wireguard\bin\windows_%arch%\tunnel.dll "%targetdir%\wireguard.dll" /Y /V || GOTO error
 
 GOTO done
 

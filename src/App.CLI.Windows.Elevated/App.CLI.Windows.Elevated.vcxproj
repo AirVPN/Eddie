@@ -181,7 +181,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="App.CLI.Windows.Elevated.ico" />
-    <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

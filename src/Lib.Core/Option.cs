@@ -23,19 +23,18 @@ using System.Text;
 
 namespace Eddie.Core
 {
-    public class Option
-    {
+	public class Option
+	{
 		public string Code = "";
 		public string Type = "";
 		public string Default = "";
 		public string Man = "";
 		public string Value = "";
 
-        public bool Important = false; // Dump in support log
+		public bool Important = false; // Dump in support log
 		public bool Omissis = false; // Dump in support log with omissis
-		//public bool CommandLineOnly = false;
 		public bool InternalOnly = false; // Don't show in UI
-        public bool DontUserReset = false; // If true, the 'Reset All' launched by user don't clean this option.
+		public bool DontUserReset = false; // If true, the 'Reset All' launched by user don't clean this option.
 
 		public Json GetJson()
 		{
@@ -44,11 +43,11 @@ namespace Eddie.Core
 			j["type"].Value = Type;
 			j["default"].Value = Default;
 			j["man"].Value = Man;
-			// Note: no value
 			j["important"].Value = Important;
 			j["omissis"].Value = Omissis;
 			j["internalonly"].Value = InternalOnly;
 			j["dontuserreset"].Value = DontUserReset;
+			//j["value"].Value = Value;
 
 			return j;
 		}

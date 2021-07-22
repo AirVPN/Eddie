@@ -62,7 +62,7 @@ ELEVATEDCSOURCEPATH=${BASEPATH}/App.CLI.Common.Elevated/hashes.h
 OPENVPNPATH="${BASEPATH}/../deploy/linux_${ARCH}/openvpn"
 OPENVPNHASH=$(sha256sum "${OPENVPNPATH}");
 OPENVPNHASH=${OPENVPNHASH%% *}
-sed -ri "s/expectedOpenvpnHash = \"([0-9a-f]{64})\";/expectedOpenvpnHash = \"${OPENVPNHASH}\";/g" ${ELEVATEDCSOURCEPATH}
+sed -ri "s/expectedOpenVpnHash = \"([0-9a-f]{64})\";/expectedOpenVpnHash = \"${OPENVPNHASH}\";/g" ${ELEVATEDCSOURCEPATH}
 
 HUMMINGBIRDPATH="${BASEPATH}/../deploy/linux_${ARCH}/hummingbird"
 if test -f "${HUMMINGBIRDPATH}"; then    

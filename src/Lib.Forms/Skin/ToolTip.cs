@@ -24,15 +24,15 @@ using System.Windows.Forms;
 
 namespace Eddie.Forms.Skin
 {
-    public class ToolTip : System.Windows.Forms.ToolTip
-    {
-        public ToolTip()
-        {            
-        }
+	public class ToolTip : System.Windows.Forms.ToolTip
+	{
+		public ToolTip()
+		{
+		}
 
-        public ToolTip(System.ComponentModel.IContainer cont) : base(cont)
-        {
-        }
+		public ToolTip(System.ComponentModel.IContainer cont) : base(cont)
+		{
+		}
 
-    }
+	}
 }

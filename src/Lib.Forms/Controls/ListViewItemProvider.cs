@@ -25,10 +25,10 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Controls
 {
-    public class ListViewItemProvider : ListViewItem
-    {
-		public Core.Provider Provider;	
-		
+	public class ListViewItemProvider : ListViewItem
+	{
+		public Core.Providers.IProvider Provider;
+
 		public void Update()
 		{
 			SubItems.Clear();
@@ -43,7 +43,7 @@ namespace Eddie.Forms.Controls
 			SubItems.Add(Provider.DefinitionSubTitle);
 			SubItems.Add(Provider.DefinitionHref);
 			if (Provider is Core.Providers.OpenVPN)
-				SubItems.Add((Provider as Core.Providers.OpenVPN).Path);			
+				SubItems.Add((Provider as Core.Providers.OpenVPN).Path);
 		}
 	}
 }

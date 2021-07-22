@@ -16,16 +16,11 @@
 // along with Eddie. If not, see <http://www.gnu.org/licenses/>.
 // </eddie_source_header>
 
-// Helper for checking sources
-
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eddie.Core;
+using System.Text.RegularExpressions;
 
 namespace Checking
 {
@@ -33,67 +28,53 @@ namespace Checking
 	{
 		static void Main(string[] args)
 		{
-			BuildCultures();
-		}
+			string repoDir = new DirectoryInfo(new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).Directory + "\\..\\..\\..\\..\\..\\").FullName;
 
-		static void CheckingLanguages()
-		{
-			
-		}
+			string srcDir = repoDir + "/src/";
+			List<FileInfo> srcFiles = new List<FileInfo>();
+			FilesList(srcDir, srcFiles);
 
-		static string EncodeCsv(string val)
-		{
-			return "\"" + val.Replace("\"", "\\\"") + "\"";			
-		}
-
-		static void BuildCultures()
-		{
-			Json json = new Json();
-			Csv csv = new Csv();
-
-			csv.WriteField("code");
-			csv.WriteField("neutral");
-			csv.WriteField("parent");
-			csv.WriteField("name_english");
-			csv.WriteField("name_native");
-			csv.WriteEol();
-			foreach(CultureInfo ci in CultureInfo.GetCultures(CultureTypes.AllCultures))
+			foreach (FileInfo f in srcFiles)
 			{
-				csv.WriteField(ci.Name);
-				csv.WriteField(ci.IsNeutralCulture ? "1" : "0");
-				csv.WriteField(ci.Parent.Name);
-				csv.WriteField(ci.EnglishName);
-				csv.WriteField(ci.NativeName);
+				if (f.Name == "AssemblyInfo.cs")
+				{
+					string original = File.ReadAllText(f.FullName);
+					string content = original;
 
-				csv.WriteEol();
+					Console.WriteLine(content);
+
+					content = content.Replace("AssemblyCopyright(\"Copyright ©  2011-2018\")", "AssemblyCopyright(\"Copyright © 2011 - 2021\")");
+					content = content.Replace("AssemblyCopyright(\"Copyright ©  2011 - 2018\")", "AssemblyCopyright(\"Copyright © 2011 - 2021\")");
+					content = content.Replace("AssemblyCopyright(\"Copyright ©  2011 - 2019\")", "AssemblyCopyright(\"Copyright © 2011 - 2021\")");
+					content = content.Replace("[assembly: AssemblyVersion(\"2.17.0.0\")]", "[assembly: AssemblyVersion(\"2.21.0.0\")]");
+					content = content.Replace("[assembly: AssemblyFileVersion(\"2.17.0.0\")]", "[assembly: AssemblyFileVersion(\"2.21.0.0\")]");
+					content = content.Replace("[assembly: AssemblyVersion(\"2.19.0.0\")]", "[assembly: AssemblyVersion(\"2.21.0.0\")]");
+					content = content.Replace("[assembly: AssemblyFileVersion(\"2.19.0.0\")]", "[assembly: AssemblyFileVersion(\"2.21.0.0\")]");
+
+					if (original != content)
+					{
+						Console.WriteLine("Updated " + f.FullName);
+
+						File.WriteAllText(f.FullName, content);
+					}
+					else
+					{
+						Console.WriteLine("Untouch " + f.FullName);
+					}
+				}
 			}
-
-			csv.Save("../../../../common/cultures.csv"); // For air_languages_cultures
-		}
-	}
-
-	class Csv
-	{
-		int iField = 0;
-		StringBuilder s = new StringBuilder();
-
-		public void WriteField(string val)
-		{
-			if (iField > 0)
-				s.Append(",");
-			s.Append("\"" + val.Replace("\"", "\\\"") + "\"");
-			iField++;
 		}
 
-		public void WriteEol()
+		static void FilesList(string dir, List<FileInfo> result)
 		{
-			s.Append("\n");
-			iField = 0;
-		}
-
-		public void Save(string path)
-		{
-			File.WriteAllText(path, s.ToString(), Encoding.UTF8);
+			foreach (string d in Directory.GetDirectories(dir))
+			{
+				foreach (string f in Directory.GetFiles(d))
+				{
+					result.Add(new FileInfo(f));
+				}
+				FilesList(d, result);
+			}
 		}
 	}
 }

@@ -18,6 +18,11 @@
 
 #include "../../App.CLI.Common.Elevated/iposix.h"
 
+extern "C" 
+{
+	#include "wireguard.h"
+}
+
 class Impl : public IPosix
 {
 	// Virtual
@@ -39,5 +44,11 @@ private:
 	int FileImmutableSet(const std::string& path, const int flag);
 	std::string IptablesExecutable(const std::string& layer, const std::string& action);
 	std::string IptablesExec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string stdinBody);
+	std::string GetRoutesAsJson();
+	std::string GetRoutesAsJsonHexAddress2string(const std::string& v);
+	int GetRoutesAsJsonConvertMaskToCidrNetMask(const std::string& v);
+	int GetRoutesAsJsonConvertHexPrefixToCidrNetMask(const std::string& v);
+	unsigned long WireGuardLastHandshake(const std::string& interfaceId);
+	void WireGuardParseAllowedIPs(const char *allowed_ips, wg_peer *peer);
 };
 

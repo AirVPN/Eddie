@@ -2,16 +2,7 @@
 
 set -e
 
-
-# Currently 2021-02-03 "VS for Mac" works under Rosetta, and for example App.CLI.MacOS.Elevated will be build (because called from VS prebuild) in x86_64 even on Apple M1 (arm64).
-# This avoid the issue. Can be cleaned when "VS for Mac" will be released for arm64.
-# The below file it's checked in /src/App.CLI.MacOS.Elevated/build.sh
-# The below file it's checked in /src/eddie.macos.prebuild.sh to allow pick the right deploy folder for whitelist hashing
-uname -m >/tmp/eddie_deploy_arch_native.txt
-
 # rm -f files/*
-
-
 
 # Note: first, ensure deploy files signature. Normally are done by building script, this is an exception.
 # Otherwise, openvpn will be signed after the compilation of Elevated, that will contain a mismatch sha256.
@@ -34,9 +25,9 @@ macos_common/presign.sh
 # Mojave works witn 10.9, don't work with 10.15 (throw a SystemNetworkInformation exception, due libc.dylib link issue)
 # High Sierra works with 10.15 AND 10.9.
 
-# Need arch diff
-VARARCH=$(cat /tmp/eddie_deploy_arch_native.txt)
-if [ ${VARARCH} = "x86_64" ]; then
+ARCH=$(uname -m)
+
+if [ ${ARCH} = "x86_64" ]; then
     macos_portable/build.sh ui macos-10.9
     macos_pkg/build.sh ui macos-10.9
     macos_dmg/build.sh ui macos-10.9

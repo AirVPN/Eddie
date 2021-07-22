@@ -29,7 +29,7 @@ namespace Eddie.UI.Cocoa.Osx
 	{
 		public ConnectionInfo Connection;
 
-		private ConnectionActive m_connectionActive;
+		private Core.ConnectionTypes.IConnectionType m_connection;
 
 		#region Constructors
 
@@ -76,17 +76,15 @@ namespace Eddie.UI.Cocoa.Osx
 
 			GuiUtils.SetButtonCancel(Window, CmdCancel);
             GuiUtils.SetButtonDefault(Window, CmdOk);
+						
+            m_connection = Connection.BuildConnection(null);
 
-            m_connectionActive = Connection.BuildConnectionActive(true);
+			TxtOvpnGenerated.Value = Core.Platform.Instance.NormalizeString(m_connection.ExportConfigStartup());
 
-			TxtOvpnGenerated.Value = Core.Platform.Instance.NormalizeString(m_connectionActive.OpenVpnProfileStartup.Get());
-			if (Connection.Path != "")
+			string configOriginal = m_connection.ExportConfigOriginal();
+			if(configOriginal != "")
 			{
-				if (Core.Platform.Instance.FileExists(Connection.Path))
-				{
-					string original = Core.Platform.Instance.FileContentsReadText(Connection.Path);
-					TxtOvpnOriginal.Value = original;
-				}
+				TxtOvpnOriginal.Value = Core.Platform.Instance.NormalizeString(configOriginal);
 			}
 			else
 			{

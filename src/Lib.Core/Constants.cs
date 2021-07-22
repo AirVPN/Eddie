@@ -30,19 +30,20 @@ namespace Eddie.Core
 		public static byte[] NotSecretPayload = Encoding.UTF8.GetBytes("4af85e84255b077ad890dba297e811b7d016add1");
 		public static string PasswordIfEmpty = "e6552ddf3ac5c8755a82870d91273a63eab0da1e";
 		public static string Thanks = "Clodo, PJ, Berserker, ProMIND, zhang888, LZ1, giganerd, Uncle Hunto, go558a83nk, sheivoko, NaDre, pfSense_fan, x0wllaar";
-		public static int VersionInt = 274;
-		public static string VersionDesc = "2.20.0"; // Used by deploy system also to generate filenames
-        //public static string VersionShow = VersionDesc + "beta"; // Visible to users
-        public static string VersionShow = VersionDesc; // Visible to users        
-        public static bool AlphaFeatures = false;
-		public static bool FeatureAlwaysBypassOpenvpnRoute = true; // Default for Eddie 2.14
-        public static string Domain = "eddie.website";
+		public static int VersionInt = 275;
+		public static string VersionDesc = "2.21.0"; // Used by deploy system also to generate filenames
+		public static bool VersionBeta = true;
+		public static string Domain = "eddie.website";
 		public static string WebSite = "https://eddie.website";
 		public static string WebSiteIPv4 = "188.166.41.48"; // Used only in Test Report (Log>Lifebeft)
 		public static string WebSiteIPv6 = "2a03:b0c0:2:d0::11b4:6001"; // Used only in Test Report (Log>Lifebeft)
 		public static string DnsVpn = "10.4.0.1"; // < 2.9, TOCLEAN
 		public static DateTime dateForPastChecking = new DateTime(2014, 08, 26);
-        public static string ElevatedVersionExpected = "v1375";
+		public static string ElevatedVersionExpected = "v1376";
 		public static int ElevatedServicePort = 9349;
+
+		// Feature activation at compilation-time
+		public static bool FeatureAlpha = false; // Nothing here right now
+		public static bool FeatureAllRoutes = true; // If true, also OpenVPN catch-all routes are managed by Eddie
 	}
 }

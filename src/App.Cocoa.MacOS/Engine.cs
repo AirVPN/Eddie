@@ -55,7 +55,7 @@ namespace Eddie.UI.Cocoa.Osx
 		}
 
 
-		public override Json OnAskShellExternalPermission(Json data)
+		public override Json OnAskExecExternalPermission(Json data)
         {
             Json answer = null;
             new NSObject().InvokeOnMainThread(() => // BeginInvokeOnMainThread
@@ -95,7 +95,7 @@ namespace Eddie.UI.Cocoa.Osx
 				}
 		}
 
-		public override void OnProviderManifestFailed(Provider provider)
+		public override void OnProviderManifestFailed(Core.Providers.IProvider provider)
 		{
 			base.OnProviderManifestFailed(provider);
 

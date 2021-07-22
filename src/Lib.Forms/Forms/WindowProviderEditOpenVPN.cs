@@ -26,25 +26,25 @@ using Eddie.Core;
 
 namespace Eddie.Forms.Forms
 {
-    public partial class WindowProviderEditOpenVPN : Eddie.Forms.Form
-    {
+	public partial class WindowProviderEditOpenVPN : Eddie.Forms.Form
+	{
 		public Core.Providers.OpenVPN Provider;
 
 		public WindowProviderEditOpenVPN()
-        {
-            OnPreInitializeComponent();
-            InitializeComponent();
-            OnInitializeComponent();
-        }
+		{
+			OnPreInitializeComponent();
+			InitializeComponent();
+			OnInitializeComponent();
+		}
 
-        public override void OnInitializeComponent()
-        {
-            base.OnInitializeComponent();            
-        }
+		public override void OnInitializeComponent()
+		{
+			base.OnInitializeComponent();
+		}
 
-        public override void OnApplySkin()
-        {
-            base.OnApplySkin();
+		public override void OnApplySkin()
+		{
+			base.OnApplySkin();
 
 			lblTitle.Font = Skin.FontBig;
 			GuiUtils.FixHeightVs(lblTitle2, txtTitle2);
@@ -54,7 +54,7 @@ namespace Eddie.Forms.Forms
 			GuiUtils.FixHeightVs(lblAuthPassPassword, txtAuthPassPassword);
 		}
 
-        protected override void OnLoad(EventArgs e)
+		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 			CommonInit(LanguageManager.GetText("WindowsProviderEditOpenVPNTitle"));
@@ -71,16 +71,16 @@ namespace Eddie.Forms.Forms
 
 			txtAuthPassUsername.Text = Provider.AuthPassUsername;
 			txtAuthPassPassword.Text = Provider.AuthPassPassword;
-			
+
 			EnableIde();
 		}
-        
+
 		private void EnableIde()
-		{			
+		{
 		}
 
-        private void cmdOk_Click(object sender, EventArgs e)
-        {
+		private void cmdOk_Click(object sender, EventArgs e)
+		{
 			Provider.Enabled = chkEnabled.Checked;
 			Provider.Title = txtTitle2.Text;
 			Provider.Path = txtPath.Text;
@@ -94,7 +94,7 @@ namespace Eddie.Forms.Forms
 		{
 			string result = GuiUtils.DirectoryPicker(LanguageManager.GetText("WindowsProviderEditOpenVPNPathBrowse"), txtPath.Text);
 			if (result != "")
-				txtPath.Text = result;				
+				txtPath.Text = result;
 		}
 
 		private void lblTitle_Click(object sender, EventArgs e)

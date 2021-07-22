@@ -19,7 +19,6 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
-// Standard includes.
 #include <Winsock2.h>
 #include <conio.h>
 #include <strsafe.h>
@@ -27,9 +26,16 @@
 #include <stdint.h>
 #include <vector>
 
+// Some function are here basically to avoid dependencies in C# to assembly only for spot things,
+// almost to avoid complexity in different dependencies between .Net Framework vs .Net5
+
 extern "C" { __declspec(dllexport) int eddie_init(); }
 
 extern "C" { __declspec(dllexport) int eddie_get_interface_metric(int index, const char* layer); }
+
+extern "C" { __declspec(dllexport) DWORD eddie_service_status(const char* serviceId); }
+
+extern "C" { __declspec(dllexport) BOOL eddie_is_process_elevated(); }
 
 extern "C" { __declspec(dllexport) void eddie_curl(const char* jRequest, unsigned int resultMaxLen, char* jResult); }
 

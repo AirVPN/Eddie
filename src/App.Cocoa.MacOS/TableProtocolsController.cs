@@ -27,7 +27,9 @@ namespace Eddie.UI.Cocoa.Osx
 {
 	public class TableProtocolsControllerItem
 	{
+		public string Type = "";
 		public string Protocol = "";
+		public string Transport = "";
 		public int Port = 0;
 		public int IP = 0;
 		public string Description = "";
@@ -55,8 +57,14 @@ namespace Eddie.UI.Cocoa.Osx
 				{
 					if (mode.Available == false)
 						continue;
+
+					if ((mode.Type == "wireguard") && (Core.Platform.Instance.GetSupportWireGuard() == false))
+						continue;
+
 					TableProtocolsControllerItem item = new TableProtocolsControllerItem();
+					item.Type = mode.Type;
 					item.Protocol = mode.Protocol;
+					item.Transport = mode.Transport;
 					item.Port = mode.Port;
 					item.IP = mode.EntryIndex;
 					item.Description = mode.Title;
@@ -85,9 +93,19 @@ namespace Eddie.UI.Cocoa.Osx
 		{
 			TableProtocolsControllerItem i = Items[(int)row];
 
-			if (tableColumn.Identifier == "Protocol")
+			if (tableColumn.Identifier == "Type")
 			{
-				return new NSString(i.Protocol.ToUpperInvariant());
+				string t = i.Type.ToLowerInvariant();
+				if (t == "openvpn") t = "OpenVPN";
+				if (t == "wireguard") t = "WireGuard";
+				return new NSString(t);
+			}
+			else if (tableColumn.Identifier == "Protocol")
+			{
+				string p = i.Protocol.ToUpperInvariant();
+				if (i.Transport != "")
+					p = i.Transport + ">" + p;
+				return new NSString(p);
 			}
 			else if (tableColumn.Identifier == "Port")
 			{

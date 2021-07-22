@@ -28,7 +28,7 @@ namespace Eddie.Core
 		public enum WarningType
 		{
 			Warning = 0,
-			Error = 1			
+			Error = 1
 		}
 
 		public string Message;

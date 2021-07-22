@@ -683,7 +683,7 @@ namespace Eddie.UI.Cocoa.Osx
             GuiUtils.SetCheck(ChkUiSkipProviderManifestFailed, o.GetBool("ui.skip.provider.manifest.failed"));
             GuiUtils.SetCheck(ChkUiSkipPromotional, o.GetBool("ui.skip.promotional"));
 
-            /*
+			/*
 			string interfaceMode = GuiUtils.InterfaceColorMode ();
 			if (interfaceMode == "Dark")
 				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Dark");
@@ -691,11 +691,12 @@ namespace Eddie.UI.Cocoa.Osx
 				GuiUtils.SetSelected (CboGeneralOsxInterfaceStyle,"Default");
 			*/
 
-            // Protocols
+			// Protocols
+			String modeType = o.Get("mode.type").ToLowerInvariant();
             String protocol = o.Get("mode.protocol").ToUpperInvariant();
 			int port = o.GetInt("mode.port");
 			int entryIP = o.GetInt("mode.alt");
-			if (protocol == "AUTO")
+			if (modeType == "auto")
 			{
 				GuiUtils.SetCheck(ChkProtocolsAutomatic, true);
 			}
@@ -706,9 +707,12 @@ namespace Eddie.UI.Cocoa.Osx
 				int iRow = 0;
 				foreach (TableProtocolsControllerItem itemProtocol in TableProtocolsController.Items)
 				{
-					if ((itemProtocol.Protocol == protocol) &&
-					   (itemProtocol.Port == port) &&
-					   (itemProtocol.IP == entryIP))
+					if (
+						(itemProtocol.Type == modeType) &&
+						(itemProtocol.Protocol == protocol) &&
+						(itemProtocol.Port == port) &&
+						(itemProtocol.IP == entryIP)
+						)
 					{
 						found = true;
 						TableProtocols.SelectRow(iRow, false);
@@ -955,7 +959,7 @@ namespace Eddie.UI.Cocoa.Osx
 			GuiUtils.SetCheck(ChkLogLevelDebug, o.GetBool("log.level.debug"));
 			TxtLoggingPath.StringValue = o.Get("log.file.path");
 
-			// OVPN Directives
+			// OpenVPN Directives
 			GuiUtils.SetSelected(CboOpenVpnDirectivesSkipDefault, (o.GetBool("openvpn.skip_defaults") ? LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2") : LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip1")));
 			TxtAdvancedOpenVpnDirectivesDefault.StringValue = o.Get("openvpn.directives");
 			TxtAdvancedOpenVpnDirectivesCustom.StringValue = o.Get("openvpn.custom");
@@ -1064,20 +1068,23 @@ namespace Eddie.UI.Cocoa.Osx
 
             if (GuiUtils.GetCheck(ChkProtocolsAutomatic))
 			{
-				o.Set("mode.protocol", "AUTO");
+				o.Set("mode.type", "auto");
+				o.Set("mode.protocol", "udp");
 				o.SetInt("mode.port", 443);
 				o.SetInt("mode.alt", 0);
 			}
 			else if (TableProtocols.SelectedRowCount == 1)
 			{
 				TableProtocolsControllerItem itemProtocol = TableProtocolsController.Items[(int)TableProtocols.SelectedRow];
+				o.Set("mode.type", itemProtocol.Type);
 				o.Set("mode.protocol", itemProtocol.Protocol);
 				o.SetInt("mode.port", itemProtocol.Port);
 				o.SetInt("mode.alt", itemProtocol.IP);
 			}
 			else
 			{
-				o.Set("mode.protocol", "AUTO");
+				o.Set("mode.type", "auto");
+				o.Set("mode.protocol", "udp");
 				o.SetInt("mode.port", 443);
 				o.SetInt("mode.alt", 0);
 			}
@@ -1302,7 +1309,7 @@ namespace Eddie.UI.Cocoa.Osx
 			o.SetBool("log.level.debug", GuiUtils.GetCheck(ChkLogLevelDebug));
 			o.Set("log.file.path", TxtLoggingPath.StringValue);
 
-			// OVPN Directives
+			// OpenVPN Directives
 			o.SetBool("openvpn.skip_defaults", GuiUtils.GetSelected(CboOpenVpnDirectivesSkipDefault) == LanguageManager.GetText("WindowsSettingsOpenVpnDirectivesDefaultSkip2"));
 			o.Set("openvpn.directives", TxtAdvancedOpenVpnDirectivesDefault.StringValue);
 			o.Set("openvpn.custom", TxtAdvancedOpenVpnDirectivesCustom.StringValue);

@@ -30,31 +30,31 @@ namespace Eddie.Forms.Linux
 	public class UiClient : Eddie.Forms.UiClient
 	{
 		public Tray Tray = null;
-		      
+
 		public override void OnReceive(Json data)
 		{
 			string cmd = data["command"].Value as string;
 
-            if (cmd == "engine.shutdown")
+			if (cmd == "engine.shutdown")
 			{
 				if (Tray != null)
-                {
-                    Tray.CancelRequested = true;
-                    Tray.SendCommand("action.exit");
+				{
+					Tray.CancelRequested = true;
+					Tray.SendCommand("action.exit");
 
-                    // Tray.Join(); // sometime don't exit...
-                    if(Tray.Join(2000) == false)
-                        Tray.Abort();
+					// Tray.Join(); // sometime don't exit...
+					if (Tray.Join(2000) == false)
+						Tray.Abort();
 
-                    Tray = null;
-                }
+					Tray = null;
+				}
 			}
 			else if (cmd == "engine.ui")
 			{
-				if (Eddie.Core.Engine.Instance.Options.GetBool("gui.tray_show")) 
+				if (Eddie.Core.Engine.Instance.Options.GetBool("gui.tray_show"))
 				{
 					Tray = new Tray();
-					for (int t = 0; t < 3000;t+=100)
+					for (int t = 0; t < 3000; t += 100)
 					{
 						if (Tray.IsStarted())
 							break;
@@ -67,35 +67,35 @@ namespace Eddie.Forms.Linux
 				string pathNotifySend = Core.Platform.Instance.LocateExecutable("notify-send");
 				if (pathNotifySend != "")
 				{
-					SystemShell s = new SystemShell();
-					s.Path = pathNotifySend;
-					s.Arguments.Add("--urgency=low");
+					SystemExec exec = new SystemExec();
+					exec.Path = pathNotifySend;
+					exec.Arguments.Add("--urgency=low");
 					//s.Arguments.Add("--expire-time=2000");
 					if (data["level"].Value as string == "infoimportant")
-						s.Arguments.Add("--icon=dialog-information");
+						exec.Arguments.Add("--icon=dialog-information");
 					else if (data["level"].Value as string == "warning")
-						s.Arguments.Add("--icon=dialog-warning");
+						exec.Arguments.Add("--icon=dialog-warning");
 					else if (data["level"].Value as string == "error")
-						s.Arguments.Add("--icon=dialog-error");
+						exec.Arguments.Add("--icon=dialog-error");
 					else if (data["level"].Value as string == "fatal")
-						s.Arguments.Add("--icon=dialog-error");
+						exec.Arguments.Add("--icon=dialog-error");
 					else
-						s.Arguments.Add("--icon=dialog-information");
-					s.Arguments.Add("\"" + SystemShell.EscapeInsideQuote(Constants.Name) + "\"");
-					string message = SystemShell.EscapeInsideQuote(data["message"].Value as string);
+						exec.Arguments.Add("--icon=dialog-information");
+					exec.Arguments.Add("\"" + SystemExec.EscapeInsideQuote(Constants.Name) + "\"");
+					string message = SystemExec.EscapeInsideQuote(data["message"].Value as string);
 					message = message.Trim('-'); // Hack, bad notify-send args parse of quoted string
-					s.Arguments.Add("\"" + message + "\"");
-					s.WaitEnd = false;
-					s.Run();
+					exec.Arguments.Add("\"" + message + "\"");
+					exec.WaitEnd = false;
+					exec.Run();
 				}
 			}
 			else if (cmd == "ui.main-status")
 			{
 				string appIcon = data["app_icon"].Value as string;
-                string appColor = data["app_color"].Value as string;
-                string actionIcon = data["action_icon"].Value as string;
-                string actionCommand = data["action_command"].Value as string;
-                string actionText = data["action_text"].Value as string;
+				string appColor = data["app_color"].Value as string;
+				string actionIcon = data["action_icon"].Value as string;
+				string actionCommand = data["action_command"].Value as string;
+				string actionText = data["action_text"].Value as string;
 				if (Tray != null)
 				{
 					if (appColor == "green")
@@ -107,18 +107,18 @@ namespace Eddie.Forms.Linux
 					{
 						Tray.SendCommand("menu.status.icon:stock:gtk-yes");
 						Tray.SendCommand("menu.connect.text:" + LanguageManager.GetText("CommandDisconnect"));
-                    }
+					}
 					else if (appColor == "yellow")
 					{
 						Tray.SendCommand("menu.status.icon:stock:gtk-media-play");
 					}
-                    else
+					else
 					{
 						Tray.SendCommand("menu.status.icon:stock:gtk-no");
 					}
 
 					Tray.SendCommand("menu.connect.text:" + actionText);
-					Tray.SendCommand("menu.connect.enable:" + ( (actionCommand != "") ? "true":"false") );     
+					Tray.SendCommand("menu.connect.enable:" + ((actionCommand != "") ? "true" : "false"));
 				}
 			}
 			else if (cmd == "ui.status")

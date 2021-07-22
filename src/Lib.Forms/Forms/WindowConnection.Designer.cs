@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
 			this.tabMain = new Eddie.Forms.Skin.TabControl();
-			this.tabOvpnGenerated = new System.Windows.Forms.TabPage();
-			this.txtOvpnGenerated = new Eddie.Forms.Skin.TextBox();
-			this.tabOvpnOriginal = new System.Windows.Forms.TabPage();
-			this.txtOvpnOriginal = new Eddie.Forms.Skin.TextBox();
+			this.tabConfigGenerated = new System.Windows.Forms.TabPage();
+			this.txtConfigGenerated = new Eddie.Forms.Skin.TextBox();
+			this.tabConfigOriginal = new System.Windows.Forms.TabPage();
+			this.txtConfigOriginal = new Eddie.Forms.Skin.TextBox();
 			this.cmdOk = new Eddie.Forms.Skin.Button();
 			this.tabMain.SuspendLayout();
-			this.tabOvpnGenerated.SuspendLayout();
-			this.tabOvpnOriginal.SuspendLayout();
+			this.tabConfigGenerated.SuspendLayout();
+			this.tabConfigOriginal.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabMain
@@ -44,61 +44,66 @@
 			this.tabMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.tabMain.Controls.Add(this.tabOvpnGenerated);
-			this.tabMain.Controls.Add(this.tabOvpnOriginal);
+			this.tabMain.Controls.Add(this.tabConfigGenerated);
+			this.tabMain.Controls.Add(this.tabConfigOriginal);
 			this.tabMain.Location = new System.Drawing.Point(0, 0);
+			this.tabMain.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.tabMain.Name = "tabMain";
 			this.tabMain.SelectedIndex = 0;
-			this.tabMain.Size = new System.Drawing.Size(567, 364);
+			this.tabMain.Size = new System.Drawing.Size(850, 546);
 			this.tabMain.TabIndex = 0;
 			// 
-			// tabOvpnGenerated
+			// tabConfigGenerated
 			// 
-			this.tabOvpnGenerated.Controls.Add(this.txtOvpnGenerated);
-			this.tabOvpnGenerated.Location = new System.Drawing.Point(4, 22);
-			this.tabOvpnGenerated.Name = "tabOvpnGenerated";
-			this.tabOvpnGenerated.Size = new System.Drawing.Size(559, 338);
-			this.tabOvpnGenerated.TabIndex = 0;
-			this.tabOvpnGenerated.Text = "OpenVPN Eddie";
-			this.tabOvpnGenerated.UseVisualStyleBackColor = true;
+			this.tabConfigGenerated.Controls.Add(this.txtConfigGenerated);
+			this.tabConfigGenerated.Location = new System.Drawing.Point(4, 29);
+			this.tabConfigGenerated.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tabConfigGenerated.Name = "tabConfigGenerated";
+			this.tabConfigGenerated.Size = new System.Drawing.Size(842, 513);
+			this.tabConfigGenerated.TabIndex = 0;
+			this.tabConfigGenerated.Text = "Config Generated";
+			this.tabConfigGenerated.UseVisualStyleBackColor = true;
 			// 
-			// txtOvpnGenerated
+			// txtConfigGenerated
 			// 
-			this.txtOvpnGenerated.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.txtConfigGenerated.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtOvpnGenerated.Location = new System.Drawing.Point(7, 7);
-			this.txtOvpnGenerated.Multiline = true;
-			this.txtOvpnGenerated.Name = "txtOvpnGenerated";
-			this.txtOvpnGenerated.ReadOnly = true;
-			this.txtOvpnGenerated.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtOvpnGenerated.Size = new System.Drawing.Size(544, 323);
-			this.txtOvpnGenerated.TabIndex = 0;
-			this.txtOvpnGenerated.WordWrap = false;
+			this.txtConfigGenerated.Location = new System.Drawing.Point(10, 10);
+			this.txtConfigGenerated.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.txtConfigGenerated.Multiline = true;
+			this.txtConfigGenerated.Name = "txtConfigGenerated";
+			this.txtConfigGenerated.ReadOnly = true;
+			this.txtConfigGenerated.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtConfigGenerated.Size = new System.Drawing.Size(814, 482);
+			this.txtConfigGenerated.TabIndex = 0;
+			this.txtConfigGenerated.WordWrap = false;
 			// 
-			// tabOvpnOriginal
+			// tabConfigOriginal
 			// 
-			this.tabOvpnOriginal.Controls.Add(this.txtOvpnOriginal);
-			this.tabOvpnOriginal.Location = new System.Drawing.Point(4, 22);
-			this.tabOvpnOriginal.Name = "tabOvpnOriginal";
-			this.tabOvpnOriginal.Size = new System.Drawing.Size(559, 388);
-			this.tabOvpnOriginal.TabIndex = 1;
-			this.tabOvpnOriginal.Text = "OpenVPN Original";
-			this.tabOvpnOriginal.UseVisualStyleBackColor = true;
+			this.tabConfigOriginal.Controls.Add(this.txtConfigOriginal);
+			this.tabConfigOriginal.Location = new System.Drawing.Point(4, 29);
+			this.tabConfigOriginal.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.tabConfigOriginal.Name = "tabConfigOriginal";
+			this.tabConfigOriginal.Size = new System.Drawing.Size(842, 513);
+			this.tabConfigOriginal.TabIndex = 1;
+			this.tabConfigOriginal.Text = "Config Original";
+			this.tabConfigOriginal.UseVisualStyleBackColor = true;
 			// 
-			// txtOvpnOriginal
+			// txtConfigOriginal
 			// 
-			this.txtOvpnOriginal.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.txtConfigOriginal.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.txtOvpnOriginal.Location = new System.Drawing.Point(7, 7);
-			this.txtOvpnOriginal.Multiline = true;
-			this.txtOvpnOriginal.Name = "txtOvpnOriginal";
-			this.txtOvpnOriginal.ReadOnly = true;
-			this.txtOvpnOriginal.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtOvpnOriginal.Size = new System.Drawing.Size(544, 373);
-			this.txtOvpnOriginal.TabIndex = 1;
-			this.txtOvpnOriginal.WordWrap = false;
+			this.txtConfigOriginal.Location = new System.Drawing.Point(10, 10);
+			this.txtConfigOriginal.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.txtConfigOriginal.Multiline = true;
+			this.txtConfigOriginal.Name = "txtConfigOriginal";
+			this.txtConfigOriginal.ReadOnly = true;
+			this.txtConfigOriginal.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtConfigOriginal.Size = new System.Drawing.Size(814, 558);
+			this.txtConfigOriginal.TabIndex = 1;
+			this.txtConfigOriginal.WordWrap = false;
 			// 
 			// cmdOk
 			// 
@@ -110,10 +115,10 @@
 			this.cmdOk.FlatAppearance.BorderSize = 0;
 			this.cmdOk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.cmdOk.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.cmdOk.Location = new System.Drawing.Point(204, 371);
-			this.cmdOk.Margin = new System.Windows.Forms.Padding(4);
+			this.cmdOk.Location = new System.Drawing.Point(306, 556);
+			this.cmdOk.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			this.cmdOk.Name = "cmdOk";
-			this.cmdOk.Size = new System.Drawing.Size(160, 30);
+			this.cmdOk.Size = new System.Drawing.Size(240, 45);
 			this.cmdOk.TabIndex = 3;
 			this.cmdOk.Text = "Close";
 			this.cmdOk.UseVisualStyleBackColor = true;
@@ -121,12 +126,13 @@
 			// WindowConnection
 			// 
 			this.AcceptButton = this.cmdOk;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.cmdOk;
-			this.ClientSize = new System.Drawing.Size(567, 414);
+			this.ClientSize = new System.Drawing.Size(850, 621);
 			this.Controls.Add(this.cmdOk);
 			this.Controls.Add(this.tabMain);
+			this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "WindowConnection";
@@ -134,10 +140,10 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Form1";
 			this.tabMain.ResumeLayout(false);
-			this.tabOvpnGenerated.ResumeLayout(false);
-			this.tabOvpnGenerated.PerformLayout();
-			this.tabOvpnOriginal.ResumeLayout(false);
-			this.tabOvpnOriginal.PerformLayout();
+			this.tabConfigGenerated.ResumeLayout(false);
+			this.tabConfigGenerated.PerformLayout();
+			this.tabConfigOriginal.ResumeLayout(false);
+			this.tabConfigOriginal.PerformLayout();
 			this.ResumeLayout(false);
 
         }
@@ -145,10 +151,10 @@
 		#endregion
 
 		private Skin.TabControl tabMain;
-		private System.Windows.Forms.TabPage tabOvpnGenerated;
-		private System.Windows.Forms.TabPage tabOvpnOriginal;
-		private Skin.TextBox txtOvpnGenerated;
-		private Skin.TextBox txtOvpnOriginal;
+		private System.Windows.Forms.TabPage tabConfigGenerated;
+		private System.Windows.Forms.TabPage tabConfigOriginal;
+		private Skin.TextBox txtConfigGenerated;
+		private Skin.TextBox txtConfigOriginal;
 		private Skin.Button cmdOk;
 	}
 }

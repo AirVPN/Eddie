@@ -1,0 +1,63 @@
+------------------------------------------------------------
+OpenVPN -- A Secure tunneling daemon
+
+Copyright (C) 2002-2018 OpenVPN Technologies, Inc. 
+This program is free software;
+
+you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+
+For the latest version of OpenVPN, 
+go to:
+
+	https://openvpn.net/
+
+License: GNU General Public License (GPL v2+)
+
+------------------------------------------------------------
+Hummingbird - OpenVPN 3 client based on AirVPN OpenVPN 3 library.
+
+License: GNU General Public License (GPL v3) https://airvpn.org/hummingbird/License/
+
+------------------------------------------------------------
+WireGuard - Fast, modern, secure VPN tunnel
+
+https://www.wireguard.com/
+
+License: GNU General Public License (GPL v2+)
+
+------------------------------------------------------------
+stunnel
+
+https://www.stunnel.org/
+
+License: GNU General Public License (GPL v2+)
+
+------------------------------------------------------------
+LZO -- a real-time data compression library
+
+https://www.oberhumer.com/opensource/lzo/ 
+
+License: GNU General Public License (GPL v2+)
+
+------------------------------------------------------------
+TUNTAP -- Virtual network interfaces for Mac OS X
+
+https://tuntaposx.sourceforge.net/
+
+License: BSD License
+
+------------------------------------------------------------
+WinTun -- Wintun is a very simple and minimal TUN driver for the Windows kernel
+
+https://www.wintun.net/
+
+License: GNU General Public License (GPL v2+)
+
+------------------------------------------------------------
+Boost 
+
+License: Boost Software License, Version 1.0. https://www.boost.org/LICENSE_1_0.txt
+
+------------------------------------------------------------

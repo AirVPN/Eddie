@@ -79,7 +79,6 @@ rm -f $TARGETDIR/bundle/mscorlib.dll
 rm -f $TARGETDIR/bundle/temp.*
 rm -f $TARGETDIR/bundle/mono_crash.*
 rm -f $TARGETDIR/Eddie.App/Contents/MacOS/Recovery.xml
-rm -rf $TARGETDIR/bundle/res/providers
 
 if [ $PROJECT = "cli" ]; then
 	rm -rf $TARGETDIR/bundle/res/webui

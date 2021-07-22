@@ -46,7 +46,7 @@ rm -rf $FINALPATH
 
 # Package dependencies
 echo Step: Package dependencies - Build Portable
-"${SCRIPTDIR}/../macos_portable/build.sh" ${PROJECT} ${ARCH} ${VAROS}
+"${SCRIPTDIR}/../macos_portable/build.sh" ${PROJECT} ${VAROS}
 mkdir -p ${TARGETDIR}
 DEPPACKAGEPATH=${SCRIPTDIR}/../files/eddie-${PROJECT}_${VERSION}_${VAROS}_${ARCH}_portable.zip
 # DMG

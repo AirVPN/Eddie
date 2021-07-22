@@ -22,35 +22,36 @@ using System.Globalization;
 
 namespace Eddie.Core
 {
-    public class LogsManager
-    {
+	public class LogsManager
+	{
 		private String m_lastLogMessage;
 		private int m_logDotCount = 0;
 		private string m_logLast = "";
-        private int m_logLastCount = 0;
+		private int m_logLastCount = 0;
+		private int m_nAllowedRepetition = 3;
 
 		public List<LogEntry> Entries = new List<LogEntry>();
 
 		public delegate void LogEventHandler(LogEntry e);
 		public event LogEventHandler LogEvent;
 
-		public void Log(Exception e)
+		public void Log(Exception ex)
 		{
-			Log(LogType.Error, e);
+			Log(LogType.Error, ex);
 		}
 
-		public void Log(LogType type, Exception e)
+		public void Log(LogType type, Exception ex)
 		{
-			string msg = e.Message;
-			if( (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.level.debug")) )
-				msg += " - Stack: " + e.StackTrace.ToString();
-			Log(type, msg, e);
+			string msg = ex.Message;
+			if ((Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.level.debug")))
+				msg += " - Stack: " + ex.StackTrace.ToString();
+			Log(type, msg, ex);
 		}
 
-		public void LogUnexpected(Exception e)
+		public void LogUnexpected(Exception ex)
 		{
-			string msg = "Unexpected: " + e.Message;
-			msg += " - Stack: " + e.StackTrace.ToString();
+			string msg = "Unexpected: " + ex.Message;
+			msg += " - Stack: " + ex.StackTrace.ToString();
 			Log(LogType.Verbose, msg);
 		}
 
@@ -66,8 +67,8 @@ namespace Eddie.Core
 
 		public void LogDebug(string message)
 		{
-			long ts = Utils.UnixTimeStampMs ();
-			LogVerbose(ts.ToString() + ":" + message);
+			long ts = Utils.UnixTimeStampMs();
+			LogVerbose("unixtsms:" + ts.ToString() + " - " + message);
 		}
 
 		public void LogDebug(Json json)
@@ -82,43 +83,40 @@ namespace Eddie.Core
 
 		public void LogFatal(Exception ex)
 		{
-            Log(LogType.Fatal, ex.Message, ex);
+			Log(LogType.Fatal, ex.Message, ex);
 		}
 
 		public void Log(LogType type, string message)
 		{
 			Log(type, message, null);
 		}
-		
-		public void Log(LogType type, string message, Exception e)
-		{
-            // Avoid repetition
-            if( (type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.repeat") == false) )
-            {
-                string logRepetitionNormalized = message;
-                logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
-                if (logRepetitionNormalized == m_logLast)
-                {
-                    m_logLastCount++;
-                    return;
-                }
-                else
-                {
-                    int oldCount = m_logLastCount;
-                    m_logLast = logRepetitionNormalized;
-                    m_logLastCount = 0;
 
-                    if (oldCount != 0)
-                    {
-                        Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("LogsLineRepetitionSummary", oldCount.ToString()));
-                    }                    
-                }
-            }
+		public void Log(LogType type, string message, Exception ex)
+		{
+			// Avoid repetition
+			if ((type != LogType.Fatal) && (Engine.Instance.Storage != null) && (Engine.Instance.Options.GetBool("log.repeat") == false))
+			{
+				string logRepetitionNormalized = message;
+				logRepetitionNormalized = System.Text.RegularExpressions.Regex.Replace(logRepetitionNormalized, "#\\d+", "#n");
+				if (logRepetitionNormalized == m_logLast)
+					m_logLastCount++;
+				else
+				{
+					int oldCount = m_logLastCount;
+					m_logLast = logRepetitionNormalized;
+					m_logLastCount = 0;
+					if (oldCount >= m_nAllowedRepetition)
+						Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("LogsLineRepetitionSummary", (oldCount - m_nAllowedRepetition + 1).ToString()));
+				}
+
+				if (m_logLastCount >= m_nAllowedRepetition)
+					return;
+			}
 
 			LogEntry l = new LogEntry();
 			l.Type = type;
 			l.Message = message;
-			l.Exception = e;
+			l.Exception = ex;
 
 			if (l.Type > LogType.Realtime)
 			{
@@ -134,9 +132,9 @@ namespace Eddie.Core
 					Entries.RemoveAt(0);
 			}
 
-			if(LogEvent != null)
+			if (LogEvent != null)
 				LogEvent(l);
-							
+
 			Engine.Instance.OnLog(l);
 
 			Json j = l.GetJson();
@@ -170,7 +168,7 @@ namespace Eddie.Core
 		public override string ToString()
 		{
 			string result = "";
-			lock(Entries)
+			lock (Entries)
 			{
 				foreach (LogEntry entry in Entries)
 					result += entry.GetStringLines() + "\n";
@@ -182,11 +180,11 @@ namespace Eddie.Core
 		{
 			Json j = new Json();
 			j.EnsureArray();
-			lock(Entries)
+			lock (Entries)
 			{
 				foreach (LogEntry entry in Entries)
 					j.Append(entry.GetJson());
-			}			
+			}
 			return j;
 		}
 
@@ -233,6 +231,6 @@ namespace Eddie.Core
 			}
 			return output.Trim();
 		}
-    }
+	}
 
 }

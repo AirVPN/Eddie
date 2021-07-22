@@ -22,7 +22,7 @@ using System.Globalization;
 using System.Text;
 
 namespace Eddie.Core
-{	
+{
 	public class DnsManagerEntry
 	{
 		public IpAddresses Response = new IpAddresses();

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Resources;
@@ -7,11 +7,11 @@ using System.Resources;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Eddie - Windows CLI")]
-[assembly: AssemblyDescription("Eddie - Windows Command Line Interface")]
+[assembly: AssemblyDescription("Windows Command Line Interface")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://eddie.website")]
-[assembly: AssemblyProduct("Eddie - Windows CLI")]
-[assembly: AssemblyCopyright("Copyright ©  2011 - 2019")]
+[assembly: AssemblyProduct("Eddie")]
+[assembly: AssemblyCopyright("Copyright © 2011 - 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.19.0.0")]
-[assembly: AssemblyFileVersion("2.19.0.0")]
+[assembly: AssemblyVersion("2.21.0.0")]
+[assembly: AssemblyFileVersion("2.21.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("")]

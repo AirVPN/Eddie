@@ -18,70 +18,70 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics; 
+using System.Diagnostics;
 using System.IO;
-using System.Text; 
+using System.Text;
 using System.Xml;
 using Eddie.Core;
 
 namespace Eddie.Platform.MacOS
 {
-	public class ElevatedImpl : Eddie.Core.Elevated.EleSocket
-    {
+	public class ElevatedImpl : Eddie.Core.Elevated.ISocket
+	{
 		public override void Start()
 		{
-			base.Start();			
+			base.Start();
 
 			try
 			{
 				string connectResult = Connect(Engine.Instance.GetElevatedServicePort());
 				if (connectResult != "Ok") // Will work if the service is active
 				{
-                    Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
-                    Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
+					Engine.Instance.UiManager.Broadcast("init.step", "message", LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
+					Engine.Instance.Logs.LogVerbose(LanguageManager.GetText("InitStepRaiseSystemPrivileges"));
 
-                    string helperPath = Platform.Instance.GetElevatedHelperPath();
+					string helperPath = Platform.Instance.GetElevatedHelperPath();
 
 					int port = GetPortSpot();
-					
+
 					int pid = Platform.Instance.StartProcessAsRoot(helperPath, new string[] { "mode=spot", "spot_port=" + port.ToString(), "service_port=" + Engine.Instance.GetElevatedServicePort().ToString() }, Engine.Instance.ConsoleMode);
 					System.Diagnostics.Process process = null;
-                    if (pid > 0)
-                        process = System.Diagnostics.Process.GetProcessById(pid);
+					if (pid > 0)
+						process = System.Diagnostics.Process.GetProcessById(pid);
 
-                    int listeningPortStartTime = Utils.UnixTimeStamp();
-                    for (; ; )
-                    {
-                        if (Platform.Instance.IsPortLocalListening(port))
-                            break;
+					long listeningPortStartTime = Utils.UnixTimeStamp();
+					for (; ; )
+					{
+						if (Platform.Instance.IsPortLocalListening(port))
+							break;
 
-                        if (pid == 0)
-                            throw new Exception("Unable to start (null)");
+						if (pid == 0)
+							throw new Exception("Unable to start (null)");
 
-                        if( (process != null) && (process.HasExited) )
-                            throw new Exception("Unable to start (already exit)");
+						if ((process != null) && (process.HasExited))
+							throw new Exception("Unable to start (already exit)");
 
-                        if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
-                            throw new Exception("Unable to start (timeout)");
+						if (Utils.UnixTimeStamp() - listeningPortStartTime > 60)
+							throw new Exception("Unable to start (timeout)");
 
-                        System.Threading.Thread.Sleep(100);
-                    }
+						System.Threading.Thread.Sleep(100);
+					}
 
-                    connectResult = Connect(port);
-                    if (connectResult != "Ok")
-                        throw new Exception("Unable to start (" + connectResult + ")");
-                }
+					connectResult = Connect(port);
+					if (connectResult != "Ok")
+						throw new Exception("Unable to start (" + connectResult + ")");
+				}
 				else
 				{
 					ServiceEdition = true;
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Stop();
 
-                throw new Exception(LanguageManager.GetText("HelperPrivilegesFailed", ex.Message));
-            }
+				throw new Exception(LanguageManager.GetText("HelperPrivilegesFailed", ex.Message));
+			}
 		}
 	}
 }

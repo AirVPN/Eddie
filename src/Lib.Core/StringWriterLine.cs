@@ -23,8 +23,8 @@ using System.Text;
 namespace Eddie.Core
 {
 	// Receive piece of texts, buffer, ensure an event for each line
-    public class StringWriterLine
-    {
+	public class StringWriterLine
+	{
 		private string m_buffer = ""; // TOOPTIMIZE with a StringBuffer
 
 		public bool IgnorePending = false;
@@ -36,7 +36,7 @@ namespace Eddie.Core
 		{
 			m_buffer += data;
 
-			for(; ;)
+			for (; ; )
 			{
 				int posEndLine = m_buffer.IndexOf('\n');
 				if (posEndLine != -1)
@@ -53,9 +53,9 @@ namespace Eddie.Core
 
 		public void Stop()
 		{
-			if(IgnorePending == false)
+			if (IgnorePending == false)
 				if (m_buffer != "")
-					if(LineEvent != null)
+					if (LineEvent != null)
 						LineEvent(m_buffer);
 			m_buffer = "";
 		}

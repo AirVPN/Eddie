@@ -40,20 +40,20 @@ namespace Eddie.Core.UI
 			ChartsList.Add(new Chart(60 * 60 * 24, 30, 24)); // 1 day, 30 seconds step, 1 hour grid
 			ChartsList.Add(new Chart(60 * 60 * 24 * 30, 600, 30)); // 30 day, 10 minute step, 1 day grid			
 		}
-				
+
 		public void Hit(long d, long u)
 		{
-			int ts = Utils.UnixTimeStamp();
+			Int64 ts = Utils.UnixTimeStamp();
 			lock (this)
 			{
 				foreach (Chart c in ChartsList)
 				{
 					c.Hit(d, u, ts);
-				}				
+				}
 			}
-					
-			if(UpdateEvent != null)
-				UpdateEvent(this, null);			
+
+			if (UpdateEvent != null)
+				UpdateEvent(this, null);
 		}
 	}
 }

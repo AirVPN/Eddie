@@ -25,16 +25,16 @@ using Eddie.Core;
 
 namespace Eddie.Core.Tools
 {
-    public class File : Tool
-    {
-        public string FileName;
+	public class File : Tools.ITool
+	{
+		public string FileName;
 		public bool Required;
 
-        public File(string filename, bool required)
-        {
-            FileName = filename;
+		public File(string filename, bool required)
+		{
+			FileName = filename;
 			Required = required;
-        }
+		}
 
 		public File(string filename)
 		{
@@ -43,23 +43,23 @@ namespace Eddie.Core.Tools
 		}
 
 		public override bool Available()
-        {
-            return (Path != "");
-        }
+		{
+			return (Path != "");
+		}
 
-        public override void OnUpdatePath()
-        {
-            FindResource(FileName);
-        }
+		public override void OnUpdatePath()
+		{
+			FindResource(FileName);
+		}
 
-        public override void OnUpdateVersion()
-        {
-            // Do nothing - Don't call base
-        }
+		public override void OnUpdateVersion()
+		{
+			// Do nothing - Don't call base
+		}
 
 		public override void ExceptionIfRequired()
 		{
-			if(Required)
+			if (Required)
 			{
 				if (Available() == false)
 					throw new Exception(FileName + " - " + LanguageManager.GetText("NotFound"));

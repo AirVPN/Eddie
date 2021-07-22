@@ -25,7 +25,7 @@ namespace Eddie.Core
 {
 	public class ConnectionInfo : IComparable<ConnectionInfo>
 	{
-		public Provider Provider;
+		public Providers.IProvider Provider;
 
 		public string Code; // Unique name across providers
 		public string DisplayName; // Display name
@@ -53,7 +53,6 @@ namespace Eddie.Core
 		public string Path = ""; // External .ovpn config file		
 
 		public List<ConnectionInfoWarning> Warnings = new List<ConnectionInfoWarning>();
-		//public Int64 LastPingCheck = 0;
 		public Int64 PingTests = 0;
 		public Int64 PingFailedConsecutive = 0;
 		public Int64 Ping = -1;
@@ -192,16 +191,16 @@ namespace Eddie.Core
 			if (BandwidthMax == 0)
 				return 100;
 
-			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s                
+			Int64 bwCur = 2 * (Bandwidth * 8) / (1000 * 1000); // to Mbit/s
 			Int64 bwMax = BandwidthMax;
 
 			return Conversions.ToInt32((bwCur * 100) / bwMax);
 		}
-		
+
 		public int UsersPerc()
 		{
-            if (UsersMax == 0)
-                return 100;
+			if (UsersMax == 0)
+				return 100;
 
 			return Conversions.ToInt32((Users * 100) / UsersMax);
 		}
@@ -222,7 +221,7 @@ namespace Eddie.Core
 
 					double x = Users;
 					double x2 = UsersPerc();
-					
+
 					double PenalityB = Penality * Convert.ToDouble(Provider.GetKeyValue("penality_factor", "1000"));
 					double PingB = Ping * Convert.ToDouble(Provider.GetKeyValue("ping_factor", "1"));
 					double LoadB = LoadPerc() * Convert.ToDouble(Provider.GetKeyValue("load_factor", "1"));
@@ -239,7 +238,7 @@ namespace Eddie.Core
 						ScoreB = ScoreB / Convert.ToDouble(Provider.GetKeyValue("latency_factor", "500"));
 						LoadB = LoadB / Convert.ToDouble(Provider.GetKeyValue("latency_load_factor", "10")); // 2.18.7
 						UsersB = UsersB / Convert.ToDouble(Provider.GetKeyValue("latency_users_factor", "10")); // 2.18.7
-					}					
+					}
 					return Conversions.ToInt32(PenalityB + PingB + LoadB + ScoreB + UsersB);
 				}
 			}
@@ -401,325 +400,14 @@ namespace Eddie.Core
 			}
 		}
 
-		public ConnectionActive BuildConnectionActive(bool preview)
+		public ConnectionTypes.IConnectionType BuildConnection(Session session)
 		{
-			// If preview, no physical additional files are created.
+			ConnectionTypes.IConnectionType connection = Provider.BuildConnection(this);
+			connection.Info = this;
+			connection.Session = session;
+			connection.Build();
 
-			ConnectionActive connectionActive = new ConnectionActive();
-
-			Options options = Engine.Instance.Options;
-
-			connectionActive.OpenVpnProfileStartup = new OvpnBuilder();
-			OvpnBuilder ovpn = connectionActive.OpenVpnProfileStartup;
-
-			ovpn.AppendDirective("setenv", "IV_GUI_VER " + Constants.Name + Constants.VersionDesc, "Client level");
-
-			if (options.GetBool("openvpn.skip_defaults") == false)
-			{
-				ovpn.AppendDirectives(Engine.Instance.Options.Get("openvpn.directives"), "Client level");
-				string directivesPath = Engine.Instance.Options.Get("openvpn.directives.path");
-				if (directivesPath.Trim() != "")
-				{
-					try
-					{
-						if (Platform.Instance.FileExists(directivesPath))
-						{
-							string text = Platform.Instance.FileContentsReadText(directivesPath);
-							ovpn.AppendDirectives(text, "Client level");
-						}
-						else
-						{
-							Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("FileNotFound", directivesPath));
-						}
-					}
-					catch (Exception ex)
-					{
-						Engine.Instance.Logs.Log(LogType.Warning, LanguageManager.GetText("FileErrorRead", directivesPath, ex.Message));
-					}
-				}
-				Provider.OnBuildOvpnDefaults(ovpn);
-
-				ovpn.AppendDirectives(OvpnDirectives, "Server level");
-
-				if (Path != "")
-				{
-					if (Platform.Instance.FileExists(Path))
-					{
-						string text = Platform.Instance.FileContentsReadText(Path);
-						ovpn.AppendDirectives(text, "Config file");
-
-						string dirPath = Platform.Instance.FileGetDirectoryPath(Path);
-						ovpn.NormalizeRelativePath(dirPath);
-					}
-				}
-			}
-
-			if (options.Get("openvpn.dev_node") != "")
-				ovpn.AppendDirective("dev-node", options.Get("openvpn.dev_node"), "");
-
-			if (options.Get("network.entry.iface") != "")
-			{
-				ovpn.AppendDirective("local", options.Get("network.entry.iface"), "");
-				ovpn.RemoveDirective("nobind");
-			}
-			else
-			{
-				ovpn.RemoveDirective("local");
-				ovpn.AppendDirective("nobind", "", "");
-			}
-
-			int rcvbuf = options.GetInt("openvpn.rcvbuf");
-			if (rcvbuf == -2) rcvbuf = Platform.Instance.GetRecommendedRcvBufDirective();
-			if (rcvbuf == -2) rcvbuf = -1;
-			if (rcvbuf != -1)
-				ovpn.AppendDirective("rcvbuf", rcvbuf.ToString(), "");
-
-			int sndbuf = options.GetInt("openvpn.sndbuf");
-			if (sndbuf == -2) sndbuf = Platform.Instance.GetRecommendedSndBufDirective();
-			if (sndbuf == -2) sndbuf = -1;
-			if (sndbuf != -1)
-				ovpn.AppendDirective("sndbuf", sndbuf.ToString(), "");
-
-			string proxyDirectiveName = "";
-			string proxyDirectiveArgs = "";
-
-			string proxyMode = options.GetLower("proxy.mode");
-			string proxyWhen = options.GetLower("proxy.when");
-			if ((proxyWhen == "none") || (proxyWhen == "web"))
-				proxyMode = "none";
-			if (proxyMode == "tor")
-			{
-				proxyDirectiveName = "socks-proxy";
-			}
-			else if (proxyMode == "http")
-			{
-				proxyDirectiveName = "http-proxy";
-
-			}
-			else if (proxyMode == "socks")
-			{
-				proxyDirectiveName = "socks-proxy";
-			}
-
-			if (proxyDirectiveName != "")
-			{
-				proxyDirectiveArgs += options.Get("proxy.host") + " " + options.Get("proxy.port");
-
-				if ((options.GetLower("proxy.mode") != "none") && (options.GetLower("proxy.mode") != "tor"))
-				{
-					if (options.Get("proxy.auth") != "None")
-					{
-						string fileNameAuthOvpn = "";
-						if (preview)
-						{
-							fileNameAuthOvpn = "dummy.ppw";
-						}
-						else
-						{
-							connectionActive.ProxyAuthFile = new TemporaryFile("ppw");
-							fileNameAuthOvpn = connectionActive.ProxyAuthFile.Path;
-							string fileNameData = options.Get("proxy.login") + "\n" + options.Get("proxy.password") + "\n";
-							Platform.Instance.FileContentsWriteText(connectionActive.ProxyAuthFile.Path, fileNameData, Encoding.Default); // TOFIX: Check if OpenVPN expect UTF-8
-							Platform.Instance.FileEnsurePermission(connectionActive.ProxyAuthFile.Path, "600");
-						}
-						proxyDirectiveArgs += " " + ovpn.EncodePath(fileNameAuthOvpn) + " " + options.Get("proxy.auth").ToLowerInvariant(); // 2.6 Auth Fix
-					}
-				}
-
-				ovpn.AppendDirective(proxyDirectiveName, proxyDirectiveArgs, "");
-			}
-
-			{
-				if (options.GetLower("network.ipv4.mode") == "in")
-				{
-					connectionActive.TunnelIPv4 = true;
-				}
-				else if (options.GetLower("network.ipv4.mode") == "in-out")
-				{
-					if (SupportIPv4)
-						connectionActive.TunnelIPv4 = true;
-					else
-						connectionActive.TunnelIPv4 = false;
-				}
-				else if (options.GetLower("network.ipv4.mode") == "in-block")
-				{
-					if (SupportIPv4)
-						connectionActive.TunnelIPv4 = true;
-					else
-						connectionActive.TunnelIPv4 = false; // Out, but doesn't matter, will be blocked.
-				}
-				else if (options.GetLower("network.ipv4.mode") == "out")
-				{
-					connectionActive.TunnelIPv4 = false;
-				}
-				else if (options.GetLower("network.ipv4.mode") == "block")
-				{
-					connectionActive.TunnelIPv4 = false; // Out, but doesn't matter, will be blocked.
-				}
-
-				if (Engine.Instance.GetNetworkIPv6Mode() == "in")
-				{
-					connectionActive.TunnelIPv6 = true;
-				}
-				else if (Engine.Instance.GetNetworkIPv6Mode() == "in-out")
-				{
-					if (SupportIPv6)
-						connectionActive.TunnelIPv6 = true;
-					else
-						connectionActive.TunnelIPv6 = false;
-				}
-				else if (Engine.Instance.GetNetworkIPv6Mode() == "in-block")
-				{
-					if (SupportIPv6)
-						connectionActive.TunnelIPv6 = true;
-					else
-						connectionActive.TunnelIPv6 = false;
-				}
-				else if (Engine.Instance.GetNetworkIPv6Mode() == "out")
-				{
-					connectionActive.TunnelIPv6 = false;
-				}
-				else if (Engine.Instance.GetNetworkIPv6Mode() == "block")
-				{
-					connectionActive.TunnelIPv6 = false;
-				}
-
-				if (Engine.Instance.GetOpenVpnTool().VersionAboveOrEqual("2.4"))
-				{
-					ovpn.RemoveDirective("redirect-gateway"); // Remove if exists
-					ovpn.AppendDirective("pull-filter", "ignore \"redirect-gateway\"", "Forced at client side");
-
-					if(connectionActive.TunnelIPv6 == false)
-					{
-						ovpn.AppendDirective("pull-filter", "ignore \"dhcp-option DNS6\"", "Client side");
-						ovpn.AppendDirective("pull-filter", "ignore \"tun-ipv6\"", "Client side");
-						ovpn.AppendDirective("pull-filter", "ignore \"ifconfig-ipv6\"", "Client side");
-					}
-
-					if ((connectionActive.TunnelIPv4 == false) && (connectionActive.TunnelIPv6 == false))
-					{
-						// no redirect-gateway
-					}
-					else if ((connectionActive.TunnelIPv4 == true) && (connectionActive.TunnelIPv6 == false))
-					{
-						ovpn.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");
-						
-					}
-					else if ((connectionActive.TunnelIPv4 == false) && (connectionActive.TunnelIPv6 == true))
-					{
-						ovpn.AppendDirective("redirect-gateway", "ipv6 !ipv4 def1 bypass-dhcp", "");
-					}
-					else
-					{
-						ovpn.AppendDirective("redirect-gateway", "ipv6 def1 bypass-dhcp", "");
-					}
-				}
-				else
-				{
-					// OpenVPN <2.4, IPv6 not supported, IPv4 required.
-					connectionActive.TunnelIPv4 = true;
-					connectionActive.TunnelIPv6 = false;
-
-					if (connectionActive.TunnelIPv4)
-					{
-						ovpn.AppendDirective("redirect-gateway", "def1 bypass-dhcp", "");
-					}
-					else
-					{
-						ovpn.AppendDirective("route-nopull", "", "For Routes Out");
-
-						// 2.9, this is used by Linux resolv-conf DNS method. Need because route-nopull also filter pushed dhcp-option.
-						// Incorrect with other provider, but the right-approach (pull-filter based) require OpenVPN >2.4.
-						ovpn.AppendDirective("dhcp-option", "DNS " + Constants.DnsVpn, "");
-					}
-				}
-			}
-			
-
-			// For Checking
-			foreach (IpAddress ip in IpsExit.IPs)
-			{
-				connectionActive.AddRoute(ip, "vpn_gateway", "For Checking Route");
-			}
-
-			string routes = options.Get("routes.custom");
-			string[] routes2 = routes.Split(';');
-			foreach (string route in routes2)
-			{
-                string[] routeEntries = route.Split(',');
-				if (routeEntries.Length < 2)
-					continue;
-
-				string ipCustomRoute = routeEntries[0];
-				IpAddresses ipsCustomRoute = new IpAddresses(ipCustomRoute);
-
-				if (ipsCustomRoute.Count == 0)
-				{
-					Engine.Instance.Logs.Log(LogType.Verbose, LanguageManager.GetText("CustomRouteInvalid", ipCustomRoute.ToString()));
-				}
-				else
-				{
-					string action = routeEntries[1];
-                    string notes = "";
-                    if(routeEntries.Length >= 3)
-					    notes = routeEntries[2];
-
-					foreach (IpAddress ip in ipsCustomRoute.IPs)
-					{
-						bool layerIn = false;
-						if (ip.IsV4)
-							layerIn = connectionActive.TunnelIPv4;
-						else if (ip.IsV6)
-							layerIn = connectionActive.TunnelIPv6;
-						string gateway = "";
-						if ((layerIn == false) && (action == "in"))
-							gateway = "vpn_gateway";
-						if ((layerIn == true) && (action == "out"))
-							gateway = "net_gateway";
-						if (gateway != "")
-							connectionActive.AddRoute(ip, gateway, (notes != "") ? notes.Safe() : ipCustomRoute);
-					}
-				}
-			}
-
-			if (proxyMode == "tor")
-			{
-				if (preview == false)
-				{
-					TorControl.SendNEWNYM();
-				}
-				IpAddresses torNodeIps = TorControl.GetGuardIps((preview == false));
-				foreach (IpAddress torNodeIp in torNodeIps.IPs)
-				{
-					if (((connectionActive.TunnelIPv4) && (torNodeIp.IsV4)) ||
-						((connectionActive.TunnelIPv6) && (torNodeIp.IsV6)))
-						connectionActive.AddRoute(torNodeIp, "net_gateway", "Tor Guard");
-				}
-			}
-			
-			Provider.OnBuildConnectionActive(this, connectionActive);
-
-			Provider.OnBuildConnectionActiveAuth(connectionActive);
-
-			Platform.Instance.OnBuildOvpn(ovpn);
-
-			ovpn.AppendDirectives(Engine.Instance.Options.Get("openvpn.custom"), "Custom level");
-
-			foreach (ConnectionActiveRoute route in connectionActive.Routes)
-			{
-				if ((route.Address.IsV6) || (Constants.FeatureAlwaysBypassOpenvpnRoute))
-				{
-				}
-				else
-				{
-					// We never find a better method to manage IPv6 route via OpenVPN, at least <2.4.4
-					ovpn.AppendDirective("route", route.Address.ToOpenVPN() + " " + route.Gateway, route.Notes.Safe());
-				}
-			}
-
-			ovpn.Normalize();
-
-			return connectionActive;
+			return connection;
 		}
 	}
 }

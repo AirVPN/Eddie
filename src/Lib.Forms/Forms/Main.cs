@@ -26,7 +26,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Web;
 using System.Windows.Forms;
 using System.Xml;
 using Eddie.Core;
@@ -60,7 +59,7 @@ namespace Eddie.Forms.Forms
 		private bool m_lockCoordUpdate = false;
 		private int m_topHeaderHeight = 30;
 
-		private bool m_formReady = false;		
+		private bool m_formReady = false;
 		private bool m_windowStateSetByShortcut = false;
 
 		private Icon m_iconNormal;
@@ -77,7 +76,7 @@ namespace Eddie.Forms.Forms
 
 		public Main()
 		{
-			Eddie.Forms.Skin.SkinReference.Load("Light");
+			// Eddie.Forms.Skin.SkinReference.Load("Light");
 
 			OnPreInitializeComponent();
 			InitializeComponent();
@@ -95,7 +94,7 @@ namespace Eddie.Forms.Forms
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
 		}
-				
+
 		private void DoDispose(IDisposable o)
 		{
 			if (o != null)
@@ -170,7 +169,7 @@ namespace Eddie.Forms.Forms
 		}
 
 		public void LoadPhase()
-		{			
+		{
 			m_lockCoordUpdate = true;
 
 			SetStyle(ControlStyles.SupportsTransparentBackColor, true);
@@ -204,7 +203,7 @@ namespace Eddie.Forms.Forms
 			mnuUpdater.Visible = false;
 
 			m_tabMain = new TabNavigator();
-			m_tabMain.TitleRightBottom = Constants.VersionShow;
+			m_tabMain.TitleRightBottom = Engine.Instance.GetVersionShow();
 			m_tabMain.ImportTabControl(tabMain);
 			if (m_tabMain.Pages.Count != 0)
 			{
@@ -225,7 +224,7 @@ namespace Eddie.Forms.Forms
 				m_cmdAbout.Name = "cmdAbout";
 				m_cmdAbout.BackColor = Form.Skin.GetColor("color.tab.normal.background");
 				m_cmdAbout.BackgroundImageLayout = ImageLayout.Stretch;
-				m_cmdAbout.FlatStyle = FlatStyle.Flat;				
+				m_cmdAbout.FlatStyle = FlatStyle.Flat;
 				m_cmdAbout.Top = m_tabMain.Height - 100;
 				m_cmdAbout.Width = 32;
 				m_cmdAbout.Height = 32;
@@ -239,7 +238,7 @@ namespace Eddie.Forms.Forms
 
 				m_cmdPreferences = new Eddie.Forms.Skin.Button();
 				m_cmdPreferences.Name = "cmdPreferences";
-				m_cmdPreferences.BackColor = Color.FromArgb(112, 184, 253);				
+				m_cmdPreferences.BackColor = Color.FromArgb(112, 184, 253);
 				m_cmdPreferences.Top = m_tabMain.Height - 100;
 				m_cmdPreferences.Width = 32;
 				m_cmdPreferences.Height = 32;
@@ -256,7 +255,7 @@ namespace Eddie.Forms.Forms
 				m_lblVersion.BackColor = Color.Transparent;
 				m_lblVersion.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
 				m_lblVersion.Height = 24;
-				m_lblVersion.Text = "Version " + Constants.VersionShow;
+				m_lblVersion.Text = "Version " + Engine.Instance.GetVersionShow();
 				m_lblVersion.TextAlign = ContentAlignment.MiddleCenter;
 				m_lblVersion.Click += mnuAbout_Click;
 				m_tabMain.Controls.Add(m_lblVersion);
@@ -265,7 +264,7 @@ namespace Eddie.Forms.Forms
 				m_cmdUpdater.Name = "cmdUpdater";
 				m_cmdUpdater.BackColor = Color.FromArgb(112, 184, 253);
 				m_cmdUpdater.Text = "Update available";
-				m_cmdUpdater.Left = 10;				
+				m_cmdUpdater.Left = 10;
 				m_cmdUpdater.Height = 24;
 				m_cmdUpdater.TextAlign = ContentAlignment.MiddleCenter;
 				//m_cmdUpdater.Image = global::Eddie.Forms.Properties.Resources.tab_updater;
@@ -310,7 +309,7 @@ namespace Eddie.Forms.Forms
 
 
 			// Providers
-			foreach (Core.Provider provider in Engine.Instance.ProvidersManager.Providers)
+			foreach (Core.Providers.IProvider provider in Engine.Instance.ProvidersManager.Providers)
 			{
 				Controls.ListViewItemProvider itemProvider = new Controls.ListViewItemProvider();
 				itemProvider.Provider = provider;
@@ -556,7 +555,7 @@ namespace Eddie.Forms.Forms
 				Image iconFlag = null;
 				if (Engine.CurrentServer != null)
 				{
-					string iconFlagCode = Engine.CurrentServer.CountryCode;					
+					string iconFlagCode = Engine.CurrentServer.CountryCode;
 					/*
 					if (imgCountries.Images.ContainsKey(iconFlagCode))
 						iconFlag = imgCountries.Images[iconFlagCode];
@@ -622,7 +621,7 @@ namespace Eddie.Forms.Forms
 		}
 
 		protected override void OnClosed(EventArgs e)
-		{		
+		{
 			if (m_windowsNotifyIcon != null)
 			{
 				m_windowsNotifyIcon.Dispose();
@@ -686,7 +685,7 @@ namespace Eddie.Forms.Forms
 		}
 
 		private void mnuAbout_Click(object sender, EventArgs e)
-		{			
+		{
 			OnShowAbout();
 		}
 
@@ -737,7 +736,7 @@ namespace Eddie.Forms.Forms
 
 		private void chkRemember_CheckedChanged(object sender, EventArgs e)
 		{
-			if(m_formReady)
+			if (m_formReady)
 				Engine.Options.SetBool("remember", chkRemember.Checked);
 		}
 
@@ -807,7 +806,7 @@ namespace Eddie.Forms.Forms
 			WindowProviderAdd dlg = new WindowProviderAdd();
 			if (dlg.ShowDialog(this) == DialogResult.OK)
 			{
-				Core.Provider provider = Engine.Instance.ProvidersManager.AddProvider(dlg.Provider, null);
+				Core.Providers.IProvider provider = Engine.Instance.ProvidersManager.AddProvider(dlg.Provider, null);
 				Engine.Instance.JobsManager.ProvidersRefresh.CheckNow();
 
 				Controls.ListViewItemProvider itemProvider = new Controls.ListViewItemProvider();
@@ -851,6 +850,12 @@ namespace Eddie.Forms.Forms
 				WindowProviderEditOpenVPN dlg = new WindowProviderEditOpenVPN();
 				form = dlg;
 				dlg.Provider = item.Provider as Core.Providers.OpenVPN;
+			}
+			else if (item.Provider is Core.Providers.WireGuard)
+			{
+				WindowProviderEditWireGuard dlg = new WindowProviderEditWireGuard();
+				form = dlg;
+				dlg.Provider = item.Provider as Core.Providers.WireGuard;
 			}
 			else if (item.Provider is Core.Providers.Service)
 			{
@@ -941,7 +946,7 @@ namespace Eddie.Forms.Forms
 			{
 				ListViewItemServer item = m_listViewServers.SelectedItems[0] as ListViewItemServer;
 				WindowConnection dlg = new WindowConnection();
-				dlg.Connection = item.Info;
+				dlg.Info = item.Info;
 				dlg.ShowDialog(this);
 			}
 		}
@@ -1150,7 +1155,7 @@ namespace Eddie.Forms.Forms
 				Json result = UiClient.Instance.Command(Dlg.Command);
 				if (result != null)
 				{
-					if ((result.HasKey("layout")) && (result["layout"].Value as string == "text")) // ClodoTemp check macOS
+					if ((result.HasKey("layout")) && (result["layout"].ValueString == "text"))
 						OnShowText(result["title"].Value as string, result["body"].Value as string);
 					else
 						OnShowText("Result", result.ToJsonPretty());
@@ -1170,30 +1175,30 @@ namespace Eddie.Forms.Forms
 				Engine.Instance.Options.Set("key", key);
 		}
 
-        #endregion
+		#endregion
 
-        public void OnChangeMainFormVisibility(bool vis)
-        {
-            if (Engine.Options.GetBool("gui.tray_show"))
-            {
-                mnuRestore.Visible = true;
-                mnuRestoreSep.Visible = true;
+		public void OnChangeMainFormVisibility(bool vis)
+		{
+			if (Engine.Options.GetBool("gui.tray_show"))
+			{
+				mnuRestore.Visible = true;
+				mnuRestoreSep.Visible = true;
 
-                if (this.Visible)
-                    mnuRestore.Text = LanguageManager.GetText("WindowsMainHide");
-                else
-                    mnuRestore.Text = LanguageManager.GetText("WindowsMainShow");
-            }
-            else
-            {
-                mnuRestore.Visible = false;
-                mnuRestoreSep.Visible = false;
-            }
+				if (this.Visible)
+					mnuRestore.Text = LanguageManager.GetText("WindowsMainHide");
+				else
+					mnuRestore.Text = LanguageManager.GetText("WindowsMainShow");
+			}
+			else
+			{
+				mnuRestore.Visible = false;
+				mnuRestoreSep.Visible = false;
+			}
 
-            EnabledUi();
-        }
+			EnabledUi();
+		}
 
-        public bool AllowMinimizeInTray()
+		public bool AllowMinimizeInTray()
 		{
 			return (m_windowsNotifyIcon != null);
 		}
@@ -1209,9 +1214,9 @@ namespace Eddie.Forms.Forms
 			if (Engine.Storage == null)
 				return;
 
-            (Engine.Instance as Eddie.Forms.Engine).OnChangeMainFormVisibility(this.Visible);
+			(Engine.Instance as Eddie.Forms.Engine).OnChangeMainFormVisibility(this.Visible);
 
-            Graphics g = this.CreateGraphics();
+			Graphics g = this.CreateGraphics();
 
 			m_topHeaderHeight = GuiUtils.GetFontSize(g, Skin.FontBig, LanguageManager.GetText("TopBarNotConnectedExposed")).Height;
 			if (m_topHeaderHeight < 30)
@@ -1272,64 +1277,64 @@ namespace Eddie.Forms.Forms
 			Invalidate();
 		}
 
-        public void WinInvertVis()
-        {
-            if (this.Visible == false)
-                WinRestore();
-            else
-                WinHide();
-        }
-
-        public void WinRestore()
+		public void WinInvertVis()
 		{
-            ShowInTaskbar = true;
-
-            Show();
-            WindowState = FormWindowState.Normal;
-            Activate();
-
-            EnabledUi();
-            Resizing();
+			if (this.Visible == false)
+				WinRestore();
+			else
+				WinHide();
 		}
 
-        public void WinHide()
-        {
-            if ((Engine.Instance as Eddie.Forms.Engine).AllowMinimizeInTray() == false)
-                this.WindowState = FormWindowState.Minimized; // Never occur
-            else
-            {
-                if (Platform.Instance.IsWindowsSystem())
-                {
+		public void WinRestore()
+		{
+			ShowInTaskbar = true;
+
+			Show();
+			WindowState = FormWindowState.Normal;
+			Activate();
+
+			EnabledUi();
+			Resizing();
+		}
+
+		public void WinHide()
+		{
+			if ((Engine.Instance as Eddie.Forms.Engine).AllowMinimizeInTray() == false)
+				this.WindowState = FormWindowState.Minimized; // Never occur
+			else
+			{
+				if (Platform.Instance.IsWindowsSystem())
+				{
+					ShowInTaskbar = false;
+					Hide();
+
+					EnabledUi();
+					Resizing();
+				}
+				else // Linux
+				{
+					// MonoBug in ShowInTaskbar
+
+					Hide();
+
+					EnabledUi();
+					Resizing();
+					/*
                     ShowInTaskbar = false;
-                    Hide();
-
-                    EnabledUi();
-                    Resizing();
-                }
-                else // Linux
-                {
-                    // MonoBug in ShowInTaskbar
 
                     Hide();
 
                     EnabledUi();
                     Resizing();
-                    /*
-                    ShowInTaskbar = false;
+                    */
+				}
+			}
+		}
 
-                    Hide();
-
-                    EnabledUi();
-                    Resizing();
-                    */                   
-                }
-            }
-        }
-
-        public void ShowMenu()
+		public void ShowMenu()
 		{
 			Point p = new Point(System.Windows.Forms.Cursor.Position.X, System.Windows.Forms.Cursor.Position.Y);
-			mnuMain.Show(p);			
+			mnuMain.Show(p);
 		}
 
 		public void Login()
@@ -1429,12 +1434,12 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 
 
-        private delegate void RequestShowDelegate();
+		private delegate void RequestShowDelegate();
 		public void RequestShow()
 		{
 			try
@@ -1477,7 +1482,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void SetStatusDelegate(string textFull, string textShort);
@@ -1516,7 +1521,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void SetMainStatusDelegate(string appIcon, string appColor, string mainIcon, string mainActionCommand, string mainActionText);
@@ -1563,7 +1568,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void ShowWindowsNotificationDelegate(string level, string message);
@@ -1597,7 +1602,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void SwitchIconDelegate(string type);
@@ -1628,7 +1633,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void ShowUpdaterDelegate();
@@ -1651,7 +1656,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		public void EnabledUi()
@@ -1789,7 +1794,7 @@ namespace Eddie.Forms.Forms
 				}
 				else
 				{
-                    if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
+					if (m_formReady == false) // To avoid useless calling that Windows.Forms do when initializing controls 
 						return;
 
 					// For refresh Mono-Linux
@@ -1823,7 +1828,7 @@ namespace Eddie.Forms.Forms
 
 								lblConnectedServerName.Text = Engine.CurrentServer.DisplayName;
 								lblConnectedLocation.Text = Engine.CurrentServer.GetLocationForList();
-								txtConnectedExitIp.Text = Engine.ConnectionActive.ExitIPs.ToString().Replace(", ", "\n");
+								txtConnectedExitIp.Text = Engine.Connection.ExitIPs.ToString().Replace(", ", "\n");
 								string iconFlagCode = Engine.CurrentServer.CountryCode;
 								Image iconFlag = null;
 								iconFlag = GuiUtils.GetResourceImage("flags_" + iconFlagCode);
@@ -1865,7 +1870,7 @@ namespace Eddie.Forms.Forms
 									Log(l);
 								}
 
-                                LogScrollBottom();
+								LogScrollBottom();
 							}
 						}
 
@@ -1875,8 +1880,8 @@ namespace Eddie.Forms.Forms
 							{
 								txtConnectedSince.Text = Engine.Stats.GetValue("VpnStart");
 
-								txtConnectedDownload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastDownloadStep, true, false);
-								txtConnectedUpload.Text = LanguageManager.FormatBytes(Engine.ConnectionActive.BytesLastUploadStep, true, false);
+								txtConnectedDownload.Text = LanguageManager.FormatBytes(Engine.Connection.BytesLastDownloadStep, true, false);
+								txtConnectedUpload.Text = LanguageManager.FormatBytes(Engine.Connection.BytesLastUploadStep, true, false);
 							}
 						}
 
@@ -1923,7 +1928,7 @@ namespace Eddie.Forms.Forms
 							EnabledUi();
 						}
 					}
-                }
+				}
 			}
 			catch (Exception ex)
 			{
@@ -1955,11 +1960,11 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
-		private delegate void OnProviderManifestFailedDelegate(Eddie.Core.Provider provider);
-		public void OnProviderManifestFailed(Eddie.Core.Provider provider)
+		private delegate void OnProviderManifestFailedDelegate(Eddie.Core.Providers.IProvider provider);
+		public void OnProviderManifestFailed(Eddie.Core.Providers.IProvider provider)
 		{
 			try
 			{
@@ -1981,7 +1986,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnFrontMessageDelegate(Json jMessage);
@@ -2014,7 +2019,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnMessageInfoDelegate(string message);
@@ -2035,7 +2040,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnMessageErrorDelegate(string message);
@@ -2056,7 +2061,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnShowTextDelegate(string title, string data);
@@ -2077,7 +2082,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		public void ShowText(Form parent, string title, string data)
@@ -2107,7 +2112,7 @@ namespace Eddie.Forms.Forms
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
 				return false;
-			}			
+			}
 		}
 
 		private delegate Credentials OnAskCredentialsDelegate();
@@ -2138,7 +2143,7 @@ namespace Eddie.Forms.Forms
 
 		private delegate void OnSystemReportDelegate(string step, string text, int perc);
 		public void OnSystemReport(string step, string text, int perc)
-		{			
+		{
 			try
 			{
 				if (this.InvokeRequired)
@@ -2159,7 +2164,7 @@ namespace Eddie.Forms.Forms
 					m_windowReport.SetStep(step, text, perc);
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
 			}
@@ -2185,7 +2190,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnMenuStatusDelegate();
@@ -2207,7 +2212,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnMenuConnectDelegate();
@@ -2232,7 +2237,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnMenuRestoreDelegate();
@@ -2254,7 +2259,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnMenuExitDelegate();
@@ -2276,7 +2281,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnShowPreferencesDelegate();
@@ -2305,7 +2310,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnUpdaterDelegate();
@@ -2330,7 +2335,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnShowAboutDelegate();
@@ -2356,7 +2361,7 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
 
 		private delegate void OnShowMenuDelegate();
@@ -2378,9 +2383,9 @@ namespace Eddie.Forms.Forms
 			catch (Exception ex)
 			{
 				Engine.Instance.Logs.LogUnexpected(ex);
-			}			
+			}
 		}
-		
+
 		private String LogsGetBody(bool selectedOnly)
 		{
 			lock (this)
@@ -2399,7 +2404,7 @@ namespace Eddie.Forms.Forms
 					}
 				}
 
-				return GuiUtils.NormalizeString(buffer.ToString());
+				return Platform.Instance.NormalizeString(buffer.ToString());
 			}
 		}
 
@@ -2408,10 +2413,8 @@ namespace Eddie.Forms.Forms
 			String t = LogsGetBody(selectedOnly);
 			if (t.Trim() != "")
 			{
-				GuiUtils.ClipboardSetText(t);
-
-				ShowMessageInfo(LanguageManager.GetText("LogsCopyClipboardDone"));
-			}			
+				GuiUtils.ClipboardSetText(this, t);
+			}
 		}
 
 		private void LogsDoSave(bool selectedOnly)
@@ -2439,25 +2442,25 @@ namespace Eddie.Forms.Forms
 			}
 		}
 
-        public void LogScrollBottom()
-        {
-            try
-            {
-                lock (this)
-                {
-                    if (lstLogs.Items.Count > 0)
-                    {
-                        lstLogs.Items[lstLogs.Items.Count - 1].EnsureVisible();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Engine.Instance.Logs.LogUnexpected(ex);
-            }
-        }
+		public void LogScrollBottom()
+		{
+			try
+			{
+				lock (this)
+				{
+					if (lstLogs.Items.Count > 0)
+					{
+						lstLogs.Items[lstLogs.Items.Count - 1].EnsureVisible();
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Engine.Instance.Logs.LogUnexpected(ex);
+			}
+		}
 
-        public bool NetworkLockKnowledge()
+		public bool NetworkLockKnowledge()
 		{
 			string Msg = LanguageManager.GetText("NetworkLockWarning");
 

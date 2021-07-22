@@ -32,31 +32,34 @@ typedef unsigned int uint;
 typedef SOCKET HSOCKET;
 typedef int socklen_t;
 const std::string FsPathSeparator = "\\";
+const std::string FsEndLine = "\r\n";
 #else
 typedef int HSOCKET;
 const std::string FsPathSeparator = "/";
+const std::string FsEndLine = "\n";
 #endif
 
-class ShellResult;
+class ExecResult;
 
 class IBase
 {
 private:
-	std::string m_elevatedVersion = "v1375";
+	std::string m_elevatedVersion = "v1376";
 	int m_elevatedPortDefault = 9349;
 
 	std::string m_session_key;
 	std::mutex m_mutex_inout;
-	HSOCKET m_sockClient;
+	HSOCKET m_sockClient = 0;
 	bool m_debug = false;
 	time_t m_lastModified;
-	//bool m_serviceMode = false;
 	std::map<pid_t, bool> m_pidManaged;
 	std::string m_launchMode;
 	bool m_singleConnMode = false;
 
 protected:
 	std::map<std::string, std::string> m_cmdline;
+	std::map<std::string, std::string> m_keypair;
+	std::vector<std::string> m_binPaths;
 
 	// Engine
 public:
@@ -88,7 +91,7 @@ protected:
 	virtual void Idle();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 	virtual bool IsStopRequested();
-	
+
 	virtual std::string GetServiceId();
 	virtual std::string GetServiceName();
 	virtual std::string GetServiceDesc();
@@ -96,7 +99,7 @@ protected:
 	virtual bool ServiceInstall();
 	virtual bool ServiceUninstall();
 	virtual bool ServiceReinstall();
-    virtual bool ServiceUninstallSupportRealtime();
+	virtual bool ServiceUninstallSupportRealtime();
 
 	virtual std::string GetProcessPathCurrent();
 	virtual std::string GetProcessPathCurrentDir();
@@ -110,6 +113,8 @@ protected:
 protected:
 	virtual bool IsRoot() = 0;
 	virtual void Sleep(int ms) = 0;
+	virtual uint64_t GetTimestampUnixUsec() = 0;
+	virtual int Ping(const std::string& host, const int timeout) = 0;
 	virtual pid_t GetCurrentProcessId() = 0;
 	virtual pid_t GetParentProcessId() = 0;
 	virtual pid_t GetParentProcessId(pid_t pid) = 0;
@@ -117,12 +122,13 @@ protected:
 	virtual pid_t GetProcessIdOfName(const std::string& name) = 0;
 	virtual std::string GetCmdlineOfProcessId(pid_t pid) = 0;
 	virtual std::string GetWorkingDirOfProcessId(pid_t pid) = 0;
-	virtual int Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr) = 0;
-	virtual void FsDirectoryCreate(const std::string& path) = 0;
+	virtual void SetEnv(const std::string& name, const std::string& value) = 0;
+	virtual int Exec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr, const bool log) = 0;
+	virtual bool FsDirectoryCreate(const std::string& path) = 0;
 	virtual bool FsFileExists(const std::string& path) = 0;
 	virtual bool FsDirectoryExists(const std::string& path) = 0;
-	virtual void FsFileDelete(const std::string& path) = 0;
-	virtual void FsDirectoryDelete(const std::string& path, bool recursive) = 0;
+	virtual bool FsFileDelete(const std::string& path) = 0;
+	virtual bool FsDirectoryDelete(const std::string& path, bool recursive) = 0;
 	virtual bool FsFileMove(const std::string& source, const std::string& destination) = 0;
 	virtual std::string FsFileReadText(const std::string& path) = 0;
 	virtual std::vector<char> FsFileReadBytes(const std::string& path) = 0;
@@ -134,28 +140,32 @@ protected:
 	virtual void SocketMarkReuseAddr(HSOCKET s) = 0;
 	virtual void SocketBlockMode(HSOCKET s, bool block) = 0;
 	virtual void SocketClose(HSOCKET s) = 0;
+	virtual int SocketGetLastErrorCode() = 0;
 
 	// Virtual Pure, Other
 protected:
 	virtual std::string CheckIfClientPathIsAllowed(const std::string& path) = 0;
-	virtual void CheckIfExecutableIsAllowed(const std::string& path) = 0;
+	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException) = 0;
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer) = 0;
 
 	// Utils filesystem
 protected:
 	bool FsFileWriteText(const std::string& path, const std::string& body);
 	bool FsFileAppendText(const std::string& path, const std::string& body);
-	std::string FsFileGetDirectory(const std::string& path);	
+	std::string FsFileGetDirectory(const std::string& path);
 
 	std::string FsFileSHA256Sum(const std::string& path);
-	std::string FsLocateExecutable(const std::string& name);
+	std::string FsLocateExecutable(const std::string& name, const bool throwException = true);
 
-	// Utils string
+	// Utils string - Maybe in some class, but we prefer to leave code much simply as possible
 protected:
 	std::string StringReplaceAll(const std::string& str, const std::string& from, const std::string& to);
 	std::string StringExtractBetween(const std::string& str, const std::string& from, const std::string& to);
 	std::vector<std::string> StringToVector(const std::string& s, const char c, bool autoTrim = true);
 	std::string StringFromVector(const std::vector<std::string>& v, const std::string& delimiter);
+	std::string StringFrom(const int& i);
+	int StringToInt(const std::string& s);
+	unsigned long StringToULong(const std::string& s);
 	bool StringStartsWith(const std::string& s, const std::string& f);
 	bool StringEndsWith(const std::string& s, const std::string& f);
 	bool StringContain(const std::string& s, const std::string& f);
@@ -176,11 +186,18 @@ protected:
 	std::string StringHexEncode(const unsigned char* buf, const size_t s);
 	std::string StringHexEncode(const std::vector<char>& bytes);
 	std::string StringHexEncode(const int v, const int chars);
-    
+	bool StringIsIPv4(const std::string& ip);
+	bool StringIsIPv6(const std::string& ip);
+	std::string StringIpNormalize(const std::string& ip);
+	std::string StringIpRemoveInterface(const std::string& ip);
+
 	// Utils other
+	unsigned long GetTimestampUnix();
+	std::map<std::string, std::string> IniConfigToMap(const std::string& ini, std::string sectionKeySeparator = ".", bool convertKeyToLower = true);
 	std::map<std::string, std::string> ParseCommandLine(const std::vector<std::string>& args);
-	std::string CheckValidOpenVpnConfig(const std::string& path);
-	std::string CheckValidHummingbirdConfig(const std::string& path);
+	std::string CheckValidOpenVpnConfigFile(const std::string& path);
+	std::string CheckValidHummingbirdConfigFile(const std::string& path);
+	std::string CheckValidWireGuardConfig(const std::string& path);
 	std::string ComputeIntegrityHash(const std::string& elevatedPath, const std::string& clientPath);
 	bool CheckIfExecutableIsWhitelisted(const std::string& path);
 	void PidAdd(pid_t pid);
@@ -189,23 +206,28 @@ protected:
 
 	// Helper
 	void ThrowException(const std::string& message);
-	ShellResult ShellEx(const std::string& path, const std::vector<std::string>& args);
-	ShellResult ShellEx1(const std::string& path, const std::string& arg1);
-	ShellResult ShellEx2(const std::string& path, const std::string& arg1, const std::string& arg2);
-	ShellResult ShellEx3(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3);
+	ExecResult ExecEx(const std::string& path, const std::vector<std::string>& args);
+	std::string GetExecResultOutput(const ExecResult& result);
+	std::string GetExecResultDump(const ExecResult& result);
+
+	// Helper to avoid use of variadic
+	ExecResult ExecEx1(const std::string& path, const std::string& arg1);
+	ExecResult ExecEx2(const std::string& path, const std::string& arg1, const std::string& arg2);
+	ExecResult ExecEx3(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3);
+	ExecResult ExecEx4(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4);
+	ExecResult ExecEx5(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5);
+	ExecResult ExecEx6(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6);
+	ExecResult ExecEx7(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7);
+	ExecResult ExecEx8(const std::string& path, const std::string& arg1, const std::string& arg2, const std::string& arg3, const std::string& arg4, const std::string& arg5, const std::string& arg6, const std::string& arg7, const std::string& arg8);
 };
 
-class ShellResult
+class ExecResult
 {
 public:
 
 	std::string out;
 	std::string err;
-	int exit;
-
-	std::string output();
-	std::string dump();
+	int exit = 1;
 };
-
 
 void ThreadCommand(IBase* impl, const std::string id, const std::string command, std::map<std::string, std::string> params);

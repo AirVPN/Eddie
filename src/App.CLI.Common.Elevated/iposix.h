@@ -24,47 +24,51 @@ class IPosix : public IBase
 {
 protected:
 
-    virtual void Idle();
+	virtual void Idle();
 	virtual void Do(const std::string& id, const std::string& command, std::map<std::string, std::string>& params);
 
 	// Virtual
-protected:	
+protected:
 	virtual void AddTorCookiePaths(const std::string& torPath, const std::string& username, std::vector<std::string>& result);
 
 	// Virtual Pure, OS
 protected:
-    virtual bool IsRoot();
-    virtual void Sleep(int ms);
-    virtual pid_t GetCurrentProcessId();
-    virtual pid_t GetParentProcessId();
-    virtual pid_t GetParentProcessId(pid_t pid);
-    virtual pid_t GetProcessIdOfName(const std::string& name);
-    virtual std::string GetCmdlineOfProcessId(pid_t pid);
-    virtual std::string GetWorkingDirOfProcessId(pid_t pid);
-    virtual int Shell(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr);
-	virtual void FsDirectoryCreate(const std::string& path);
-    virtual bool FsFileExists(const std::string& path);
+	virtual bool IsRoot();
+	virtual void Sleep(int ms);
+	virtual uint64_t GetTimestampUnixUsec();
+	virtual int Ping(const std::string& host, const int timeout);
+	virtual pid_t GetCurrentProcessId();
+	virtual pid_t GetParentProcessId();
+	virtual pid_t GetParentProcessId(pid_t pid);
+	virtual pid_t GetProcessIdOfName(const std::string& name);
+	virtual std::string GetCmdlineOfProcessId(pid_t pid);
+	virtual std::string GetWorkingDirOfProcessId(pid_t pid);
+	virtual void SetEnv(const std::string& name, const std::string& value);
+	virtual int Exec(const std::string& path, const std::vector<std::string>& args, const bool stdinWrite, const std::string& stdinBody, std::string& stdOut, std::string& stdErr, const bool log = true);
+	virtual bool FsDirectoryCreate(const std::string& path);
+	virtual bool FsFileExists(const std::string& path);
 	virtual bool FsDirectoryExists(const std::string& path);
-    virtual void FsFileDelete(const std::string& path);
-	virtual void FsDirectoryDelete(const std::string& path, bool recursive);
+	virtual bool FsFileDelete(const std::string& path);
+	virtual bool FsDirectoryDelete(const std::string& path, bool recursive);
 	virtual bool FsFileMove(const std::string& source, const std::string& destination);
-    virtual std::string FsFileReadText(const std::string& path);
+	virtual std::string FsFileReadText(const std::string& path);
 	virtual std::vector<char> FsFileReadBytes(const std::string& path);
-    virtual std::vector<std::string> FsFilesInPath(const std::string& path);
-    virtual std::string FsGetTempPath();
+	virtual std::vector<std::string> FsFilesInPath(const std::string& path);
+	virtual std::string FsGetTempPath();
 	virtual std::vector<std::string> FsGetEnvPath();
-    virtual std::string FsGetRealPath(std::string path);
+	virtual std::string FsGetRealPath(std::string path);
 	virtual bool SocketIsValid(HSOCKET s);
 	virtual void SocketMarkReuseAddr(HSOCKET s);
 	virtual void SocketBlockMode(HSOCKET s, bool block);
-    virtual void SocketClose(HSOCKET s);
-    
+	virtual void SocketClose(HSOCKET s);
+	virtual int SocketGetLastErrorCode();
+
 	// Virtual Pure, Other
 protected:
-    virtual void CheckIfExecutableIsAllowed(const std::string& path);
+	virtual bool CheckIfExecutableIsAllowed(const std::string& path, const bool& throwException);
 	virtual int GetProcessIdMatchingIPEndPoints(struct sockaddr_in& addrClient, struct sockaddr_in& addrServer);
-    
-    // Utils filesystem
+
+	// Utils filesystem
 protected:
-    
+
 };

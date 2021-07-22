@@ -30,7 +30,7 @@ namespace Eddie.CLI.MacOS
 
 		static void Main(string[] args)
 		{
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
 			Eddie.Core.Platform.Instance = new Eddie.Platform.MacOS.Platform();
 

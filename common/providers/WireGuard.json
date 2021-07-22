@@ -1,0 +1,7 @@
+﻿{
+    "code":"WireGuard",
+    "class":"wireguard",
+    "title":"Generic WireGuard provider",
+    "subtitle":"If you have a folder with .conf files",
+    "href":"https://wireguard.com"
+}

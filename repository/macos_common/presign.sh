@@ -16,5 +16,7 @@ ${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/libpkcs11-helper.1
 ${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/libssl.1.1.dylib" no yes
 ${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/hummingbird" no yes
 ${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/stunnel" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/wireguard-go" no yes
+${SCRIPTDIR}/sign.sh "${SCRIPTDIR}/../../deploy/macos_${ARCH}/wg" no yes
 
 echo "Pre-sign done."

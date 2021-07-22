@@ -23,7 +23,7 @@ using System.Text;
 namespace Eddie.Core
 {
 	public class Process : System.Diagnostics.Process
-	{	
+	{
 		public bool ReallyExited
 		{
 			get
@@ -37,7 +37,7 @@ namespace Eddie.Core
 				{
 					// TOCHECK, maybe check1 = true?
 					//Engine.Instance.Logs.Log(e);
-				}				
+				}
 				return check;
 			}
 		}

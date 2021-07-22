@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
 using System.Text;
+using System.Text.RegularExpressions;
 using Eddie.Core;
 using Eddie.Forms;
 
@@ -34,7 +35,7 @@ namespace Eddie.Forms.Windows
 		/// 
 
 		private static Eddie.Forms.UiClient m_client;
-				
+
 		[STAThread]
 		static void Main()
 		{
@@ -63,9 +64,9 @@ namespace Eddie.Forms.Windows
 					m_client.Init(Environment.CommandLine);
 				}
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				MessageBox.Show(e.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(ex.Message, Constants.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 
 			// Application.Run must be outside the catch above, otherwise it's not unhandled

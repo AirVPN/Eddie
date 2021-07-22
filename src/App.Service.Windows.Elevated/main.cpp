@@ -30,14 +30,14 @@ SERVICE_STATUS        g_ServiceStatus = { 0 };
 SERVICE_STATUS_HANDLE g_StatusHandle = NULL;
 HANDLE                g_ServiceStopEvent = INVALID_HANDLE_VALUE;
 
-VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv);
+VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv);
 VOID WINAPI ServiceCtrlHandler(DWORD);
 DWORD WINAPI ServiceWorkerThread(LPVOID lpParam);
 void ServiceLogDebug(const std::string& msg);
 
 #define SERVICE_NAME  _T("EddieElevationService")
 
-int _tmain(int argc, TCHAR *argv[])
+int _tmain(int argc, TCHAR* argv[])
 {
 	ServiceLogDebug("EddieElevationService: Main: Entry");
 
@@ -57,7 +57,7 @@ int _tmain(int argc, TCHAR *argv[])
 	return 0;
 }
 
-VOID WINAPI ServiceMain(DWORD argc, LPTSTR *argv)
+VOID WINAPI ServiceMain(DWORD argc, LPTSTR* argv)
 {
 	DWORD Status = E_FAIL;
 
@@ -164,7 +164,7 @@ VOID WINAPI ServiceCtrlHandler(DWORD CtrlCode)
 			break;
 
 		// Perform tasks necessary to stop the service here
-		
+
 		g_ServiceStatus.dwControlsAccepted = 0;
 		g_ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
 		g_ServiceStatus.dwWin32ExitCode = 0;
@@ -192,7 +192,7 @@ class ImplService : public Impl
 	virtual bool IsStopRequested()
 	{
 		bool run = (WaitForSingleObject(g_ServiceStopEvent, 0) != WAIT_OBJECT_0);
-		if(run == false)
+		if (run == false)
 			ServiceLogDebug("IsStopRequested detected");
 		return !run;
 	}
@@ -209,8 +209,8 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
 	GetModuleFileNameW(NULL, wpath, MAX_PATH);
 	std::string path = impl.StringWStringToUTF8(wpath);
 	args.push_back(path);
-	args.push_back("mode=service");
-	
+	//args.push_back("mode=service");
+
 	// Obtain args from registry, because Win Service don't support arguments.
 	std::wstring regPathW = impl.StringUTF8ToWString("SYSTEM\\CurrentControlSet\\Services\\EddieElevationService");
 	std::wstring regKeyW = impl.StringUTF8ToWString("EddieArgs");
@@ -237,7 +237,7 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
 	}
 	args.push_back(impl.StringWStringToUTF8(arg));
 
-	impl.AppMain(args);	
+	impl.AppMain(args);
 
 	ServiceLogDebug("EddieElevationService: ServiceWorkerThread: Exit");
 
@@ -245,7 +245,7 @@ DWORD WINAPI ServiceWorkerThread(LPVOID lpParam)
 }
 
 void ServiceLogDebug(const std::string& msg)
-{	
+{
 	/*
 	std::string logPath = "C:\\eddie_service_debug.log";
 	FILE* f = fopen(logPath.c_str(), "a");
